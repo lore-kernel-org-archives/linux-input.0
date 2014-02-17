@@ -1,34 +1,32 @@
-From: Daniel J Blueman <daniel-JCXMqzvhRcvYtjvyW6yDsg@public.gmane.org>
-Subject: USB keyboard occasional key stuck
-Date: Mon, 17 Feb 2014 21:23:25 +0800
-Message-ID: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 00/14] HID: low-level transport cleanup, round 2
+Date: Mon, 17 Feb 2014 15:01:15 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402171459410.1192@pobox.suse.cz>
+References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:41176 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751973AbaBQOBU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Feb 2014 09:01:20 -0500
+In-Reply-To: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Across 5+ years of kernels, I've been seeing occasional (1-2 times per
-day) key-stuck issues where eg a fn+delete combo repeats delete until
-I press delete again. I've seen this happen with fn+ctrl+left, leaving
-left held and likewise with right.
+On Mon, 10 Feb 2014, Benjamin Tissoires wrote:
 
-This has occurred on Apple laptops, external USB keyboards and Dell
-laptops, so seems like a linux USB input issue, as I haven't seen
-occur on Windows or MacOS on the same hardware.
+> this is the second part of the low-level HID transport cleanup.
+> The series goes on top of the previous one I sent last week.
 
-It seems a good move for me to rebuild and run a kernel with some USB
-HID instrumentation to locate this issue over time. Without apriori
-knowledge of the linux USB input stack, what is a good initial
-approach?
+Thanks!
 
-Thanks,
-  Daniel
+I have applied all but patches 7,11,12 (and 13 as a natural followup). I 
+am waiting for v2 of 7 and 12, and I want to think a little bit more about 
+11.
+
 -- 
-Daniel J Blueman
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jiri Kosina
+SUSE Labs

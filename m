@@ -1,53 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 03/11] Input: synaptics-rmi4 - do not update
- configuration in rmi_f01_probe()
-Date: Mon, 17 Feb 2014 11:23:22 -0800
-Message-ID: <20140217192321.GC19223@core.coreip.homeip.net>
-References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com>
- <1392269277-16391-3-git-send-email-dmitry.torokhov@gmail.com>
- <52FD1BC0.1050009@synaptics.com>
- <20140213215432.GA6225@core.coreip.homeip.net>
- <52FEA01B.7040604@synaptics.com>
+Subject: Re: [PATCH V2] ONKEY: da9052: Use correct register bit for key status
+Date: Mon, 17 Feb 2014 11:29:28 -0800
+Message-ID: <20140217192927.GD19223@core.coreip.homeip.net>
+References: <201402121518.s1CFIkDP009092@swsrvapps-02.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:54068 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753060AbaBQTX3 (ORCPT
+Received: from mail-pb0-f42.google.com ([209.85.160.42]:50768 "EHLO
+	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753903AbaBQT3d (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Feb 2014 14:23:29 -0500
+	Mon, 17 Feb 2014 14:29:33 -0500
 Content-Disposition: inline
-In-Reply-To: <52FEA01B.7040604@synaptics.com>
+In-Reply-To: <201402121518.s1CFIkDP009092@swsrvapps-02.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+To: Anthony Olech <anthony.olech.opensource@diasemi.com>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Dajun Chen <david.chen@diasemi.com>
 
-On Fri, Feb 14, 2014 at 03:00:43PM -0800, Christopher Heiny wrote:
-> On 02/13/2014 01:54 PM, Dmitry Torokhov wrote:
-> >On Thu, Feb 13, 2014 at 11:23:44AM -0800, Christopher Heiny wrote:
-> >>>On 02/12/2014 09:27 PM, Dmitry Torokhov wrote:
-> >>>> >Do not write configuration data in probe(), we have config() for that.
-> >>>
-> >>>Then we should call config() in rmi_function_probe() to ensure that
-> >>>any platform data or device tree configuration settings get written
-> >>>to the device.
-> >
-> >Well, yes, we may elect to update device configuration in probe, but
-> >then we should not be doing that 2nd time in ->config(). We shoudl pick
-> >either one or another.
+On Wed, Feb 12, 2014 at 02:11:34PM +0000, Anthony Olech wrote:
+> The wrong register bit of the DA9052/3 PMIC registers was
+> used to determine the status on the ONKEY.
 > 
-> But as the code currently stands, config() is only called when a
-> device reset is detected, not during initialization.  So if there's
-> platform specific configuration data that needs to be written to a
-> function, it won't get written until after a device reset occurs,
-> which might never happen.  So either we need to write that data (or
-> call config()) in each function's probe(), or in
-> rmi_function_probe().
+> Also a failure in reading the status register will no longer
+> result in the work queue being rescheduled as that would result
+> in a (potentially) endless retry.
+> 
+> Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+> Acked-by: David Dajun Chen <david.chen@diasemi.com>
 
-Ah, I missed the fact that we do not normally call ->config() unless
-device was reset. BTW, if device was reset, shouldn't we tear down
-everything and then reenumerate all functions?
+Applied, thank you.
 
 -- 
 Dmitry

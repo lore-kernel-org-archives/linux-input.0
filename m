@@ -1,43 +1,34 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 7/9] HID: remove hid_get_raw_report in struct
- hid_device
-Date: Mon, 17 Feb 2014 14:20:48 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1402171420160.1192@pobox.suse.cz>
-References: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com> <1391636004-29354-8-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1402171414490.1192@pobox.suse.cz>
- <CAN+gG=E__6ejV_BqdtM8iwyM-UCdB1G49nvEZn3WTeELixqs4Q@mail.gmail.com>
+From: Daniel J Blueman <daniel-JCXMqzvhRcvYtjvyW6yDsg@public.gmane.org>
+Subject: USB keyboard occasional key stuck
+Date: Mon, 17 Feb 2014 21:23:25 +0800
+Message-ID: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=E__6ejV_BqdtM8iwyM-UCdB1G49nvEZn3WTeELixqs4Q@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 17 Feb 2014, Benjamin Tissoires wrote:
+Across 5+ years of kernels, I've been seeing occasional (1-2 times per
+day) key-stuck issues where eg a fn+delete combo repeats delete until
+I press delete again. I've seen this happen with fn+ctrl+left, leaving
+left held and likewise with right.
 
-> >> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> >> index f5a2b19..12439e1 100644
-> >> --- a/drivers/hid/uhid.c
-> >> +++ b/drivers/hid/uhid.c
-> >> @@ -404,7 +404,6 @@ static int uhid_dev_create(struct uhid_device *uhid,
-> >>       hid->uniq[63] = 0;
-> >>
-> >>       hid->ll_driver = &uhid_hid_driver;
-> >> -     hid->hid_get_raw_report = uhid_hid_get_raw;
-> >
-> > I'll queue a followup patch on top of this that completely removes
-> > uhid_hid_get_raw(), as it's unused now.
-> 
-> Jiri, please don't. It was a mistake which was fixed in the next patch
-> series (2/14: HID: uHID: implement .raw_request). It was already
-> reviewed by David, so you can apply it right now.
+This has occurred on Apple laptops, external USB keyboards and Dell
+laptops, so seems like a linux USB input issue, as I haven't seen
+occur on Windows or MacOS on the same hardware.
 
-Yeah, I just came to the same conclusion during review as we speak. I will 
-sort it out.
+It seems a good move for me to rebuild and run a kernel with some USB
+HID instrumentation to locate this issue over time. Without apriori
+knowledge of the linux USB input stack, what is a good initial
+approach?
 
-Thanks.
-
+Thanks,
+  Daniel
 -- 
-Jiri Kosina
-SUSE Labs
+Daniel J Blueman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

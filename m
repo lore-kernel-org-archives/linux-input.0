@@ -1,49 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by
- detecting pin status
-Date: Mon, 17 Feb 2014 11:16:58 -0800
-Message-ID: <20140217191658.GA19223@core.coreip.homeip.net>
-References: <1392348001-4950-1-git-send-email-21cnbao@gmail.com>
- <20140214075717.GA14682@core.coreip.homeip.net>
- <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
- <847BC5012124A94BB5CA1B26E022CCA3012BAFDC27@SHAASIEXM01.ASIA.ROOT.PRI>
- <CAGsJ_4zjtWV3Z1AJ2bqekXn54rm=k8d4iOi_zzainCEnNGefCw@mail.gmail.com>
+Subject: Re: [PATCH 03/11] Input: synaptics-rmi4 - do not update
+ configuration in rmi_f01_probe()
+Date: Mon, 17 Feb 2014 11:23:22 -0800
+Message-ID: <20140217192321.GC19223@core.coreip.homeip.net>
+References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1392269277-16391-3-git-send-email-dmitry.torokhov@gmail.com>
+ <52FD1BC0.1050009@synaptics.com>
+ <20140213215432.GA6225@core.coreip.homeip.net>
+ <52FEA01B.7040604@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:50252 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754141AbaBQTRG (ORCPT
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:54068 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753060AbaBQTX3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Feb 2014 14:17:06 -0500
-Received: by mail-pb0-f42.google.com with SMTP id jt11so15755045pbb.29
-        for <linux-input@vger.kernel.org>; Mon, 17 Feb 2014 11:17:05 -0800 (PST)
+	Mon, 17 Feb 2014 14:23:29 -0500
 Content-Disposition: inline
-In-Reply-To: <CAGsJ_4zjtWV3Z1AJ2bqekXn54rm=k8d4iOi_zzainCEnNGefCw@mail.gmail.com>
+In-Reply-To: <52FEA01B.7040604@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: Xianglong Du <Xianglong.Du@csr.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, DL-SHA-WorkGroupLinux <DL-SHA-WorkGroupLinux@internal.csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Barry.Song@csr.com>
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
 
-On Fri, Feb 14, 2014 at 09:41:06PM +0800, Barry Song wrote:
-> >> Input: sirfsoc-onkey - implement open and close methods
-> >>
-> >> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >>
-> >> We can control whetehr device generates interrupts or not so let's
-> >> implement open and close methods of input device so that we do not do any
-> >> processing until there are users.
-> >>
-> >> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Fri, Feb 14, 2014 at 03:00:43PM -0800, Christopher Heiny wrote:
+> On 02/13/2014 01:54 PM, Dmitry Torokhov wrote:
+> >On Thu, Feb 13, 2014 at 11:23:44AM -0800, Christopher Heiny wrote:
+> >>>On 02/12/2014 09:27 PM, Dmitry Torokhov wrote:
+> >>>> >Do not write configuration data in probe(), we have config() for that.
+> >>>
+> >>>Then we should call config() in rmi_function_probe() to ensure that
+> >>>any platform data or device tree configuration settings get written
+> >>>to the device.
+> >
+> >Well, yes, we may elect to update device configuration in probe, but
+> >then we should not be doing that 2nd time in ->config(). We shoudl pick
+> >either one or another.
 > 
-> Tested-by: Xianglong Du <Xianglong.Du@csr.com>
-> 
-> Dmitry, will you push this one to your tree so that i can rebase others?
+> But as the code currently stands, config() is only called when a
+> device reset is detected, not during initialization.  So if there's
+> platform specific configuration data that needs to be written to a
+> function, it won't get written until after a device reset occurs,
+> which might never happen.  So either we need to write that data (or
+> call config()) in each function's probe(), or in
+> rmi_function_probe().
 
-I rebased and pushed everything out, please take a look to make sure it
-all looks good.
-
-Thanks.
+Ah, I missed the fact that we do not normally call ->config() unless
+device was reset. BTW, if device was reset, shouldn't we tear down
+everything and then reenumerate all functions?
 
 -- 
 Dmitry

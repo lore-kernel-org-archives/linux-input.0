@@ -1,61 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: imx_keypad - Omit error message
- devm_kzalloc() failure
-Date: Mon, 17 Feb 2014 11:34:54 -0800
-Message-ID: <20140217193452.GF19223@core.coreip.homeip.net>
-References: <1392433187-7756-1-git-send-email-festevam@gmail.com>
- <1392433187-7756-2-git-send-email-festevam@gmail.com>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: USB keyboard occasional key stuck
+Date: Mon, 17 Feb 2014 21:11:51 +0100
+Message-ID: <20140217211151.02f8afbe@neptune.home>
+References: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:35093 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754141AbaBQTfC (ORCPT
+Received: from hygieia.santi-shop.eu ([78.46.175.2]:38971 "EHLO
+	hygieia.santi-shop.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751847AbaBQUTK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Feb 2014 14:35:02 -0500
-Received: by mail-pb0-f49.google.com with SMTP id up15so15698505pbc.36
-        for <linux-input@vger.kernel.org>; Mon, 17 Feb 2014 11:35:01 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1392433187-7756-2-git-send-email-festevam@gmail.com>
+	Mon, 17 Feb 2014 15:19:10 -0500
+In-Reply-To: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Daniel J Blueman <daniel@quora.org>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sat, Feb 15, 2014 at 12:59:47AM -0200, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
+On Mon, 17 February 2014 Daniel J Blueman <daniel@quora.org> wrote:
+> Across 5+ years of kernels, I've been seeing occasional (1-2 times per
+> day) key-stuck issues where eg a fn+delete combo repeats delete until
+> I press delete again. I've seen this happen with fn+ctrl+left, leaving
+> left held and likewise with right.
 > 
-> There is no need to print an error message in the driver for devm_kzalloc()
-> failure because OOM core code handles it properly.
+> This has occurred on Apple laptops, external USB keyboards and Dell
+> laptops, so seems like a linux USB input issue, as I haven't seen
+> occur on Windows or MacOS on the same hardware.
+> 
+> It seems a good move for me to rebuild and run a kernel with some USB
+> HID instrumentation to locate this issue over time. Without apriori
+> knowledge of the linux USB input stack, what is a good initial
+> approach?
 
-I'd rather keep this in. We may change OOM messaging at later time
-making it less verbose.
+I've seen some similar behavior on servers connected to a KVM switch
+(USB keyboard/mouse) where without apparent reason the ENTER key became
+pressed and did continuously send repeat events.
 
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
->  drivers/input/keyboard/imx_keypad.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> index de07035..40ad98d 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -450,10 +450,8 @@ static int imx_keypad_probe(struct platform_device *pdev)
->  
->  	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
->  			     GFP_KERNEL);
-> -	if (!keypad) {
-> -		dev_err(&pdev->dev, "not enough memory for driver data\n");
-> +	if (!keypad)
->  		return -ENOMEM;
-> -	}
->  
->  	keypad->input_dev = input_dev;
->  	keypad->irq = irq;
-> -- 
-> 1.8.1.2
-> 
+Physically touching the KVM keyboard or unbinding&rebinding the HID
+keyboard solved the issue (on a console that triggers a busy loop of
+agettys on active vt).
 
--- 
-Dmitry
+I've been tempted to attribute it to the KVM switch doing something
+when switching to another server via key-press (yes, some co-worker
+as at the KVM terminal when the getty load started).
+
+On the other hand, some other co-worker had "dead keyboard" issues
+though only under X, things still worked at console level, for quite
+some time now. Annoying but not regular enough to look further into it.
+
+
+If you want to look at what happens for you, monitoring the USB activity
+for your keyboard (in combination with output from event device) might
+be the most useful way (it would also catch details on when the USB
+side goes into power-saving, if at all).
+
+Bruno

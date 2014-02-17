@@ -1,42 +1,31 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH] Input: imx_keypad -Remove obsolete commment
-Date: Mon, 17 Feb 2014 17:26:36 -0300
-Message-ID: <1392668796-32280-1-git-send-email-festevam@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: sony: Correct Sixaxis battery reporting
+Date: Mon, 17 Feb 2014 23:18:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402172318230.1192@pobox.suse.cz>
+References: <1392489342-5401-1-git-send-email-frank.praznik@oh.rr.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f178.google.com ([209.85.160.178]:60767 "EHLO
-	mail-yk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754456AbaBQU0r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Feb 2014 15:26:47 -0500
-Received: by mail-yk0-f178.google.com with SMTP id 79so30921495ykr.9
-        for <linux-input@vger.kernel.org>; Mon, 17 Feb 2014 12:26:46 -0800 (PST)
+Received: from cantor2.suse.de ([195.135.220.15]:50685 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752154AbaBQWSj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Feb 2014 17:18:39 -0500
+In-Reply-To: <1392489342-5401-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+On Sat, 15 Feb 2014, Frank Praznik wrote:
 
-Since commit 81e8f2bc (Input: imx_keypad - add pm suspend and resume support)
-the imx_keypad driver supports power management, so remove the obsolete comment.
+> The battery_charging and cable_state flags were backwards on the Sixaxis.
+> The low bit of report byte 30 is 0 when charging and 1 when not.
+> Bit 5 of byte 31 is 0 when a USB cable is connected and 1 when not.
+> 
+> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- drivers/input/keyboard/imx_keypad.c | 1 -
- 1 file changed, 1 deletion(-)
+Applied, thanks Frank.
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index cbf4f80..80091c2 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -6,7 +6,6 @@
-  * it under the terms of the GNU General Public License version 2 as
-  * published by the Free Software Foundation.
-  *
-- * <<Power management needs to be implemented>>.
-  */
- 
- #include <linux/clk.h>
 -- 
-1.8.1.2
-
+Jiri Kosina
+SUSE Labs

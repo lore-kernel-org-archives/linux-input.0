@@ -1,50 +1,81 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 2/2] HID: cp2112: use proper specifier for size_t
-Date: Mon, 17 Feb 2014 23:48:11 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1402172347410.1192@pobox.suse.cz>
-References: <alpine.LNX.2.00.1402172346500.1192@pobox.suse.cz>
+Subject: [PATCH] HID: cp2112: convert to use hid_hw_raw_request()
+Date: Tue, 18 Feb 2014 00:43:07 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402180042120.1192@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51609 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:52151 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751445AbaBQWsO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Feb 2014 17:48:14 -0500
-In-Reply-To: <alpine.LNX.2.00.1402172346500.1192@pobox.suse.cz>
+	id S1752831AbaBQXnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Feb 2014 18:43:17 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Barksdale <dbarksdale@uplogix.com>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, fengguang.wu@intel.com
 
-%zd is a proper format string specifier for size_t
+Commit cafebc0 ("HID: remove hid_get_raw_report in struct hid_device")
+obsoletes the use of hdev->hid_get_raw_report(), as calling
+hid_hw_raw_request() is functionally equivalent.
 
+Convert cp2112 to use this notation.
+
+Reported-by: fengguang.wu@intel.com
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 ---
- drivers/hid/hid-cp2112.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-cp2112.c |   18 ++++++++++--------
+ 1 files changed, 10 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 57cf045..f326726 100644
+index f326726..6d679f1 100644
 --- a/drivers/hid/hid-cp2112.c
 +++ b/drivers/hid/hid-cp2112.c
-@@ -361,7 +361,7 @@ static int cp2112_read(struct cp2112_device *dev, u8 *data, size_t size)
- 	if (ret)
+@@ -174,8 +174,9 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+ 	u8 buf[5];
+ 	int ret;
+ 
+-	ret = hdev->hid_get_raw_report(hdev, CP2112_GPIO_CONFIG, buf,
+-				       sizeof(buf), HID_FEATURE_REPORT);
++	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
++				       sizeof(buf), HID_FEATURE_REPORT,
++				       HID_REQ_GET_REPORT);
+ 	if (ret != sizeof(buf)) {
+ 		hid_err(hdev, "error requesting GPIO config: %d\n", ret);
  		return ret;
+@@ -220,8 +221,8 @@ static int cp2112_gpio_get(struct gpio_chip *chip, unsigned offset)
+ 	u8 buf[2];
+ 	int ret;
  
--	hid_dbg(hdev, "read %d of %d bytes requested\n",
-+	hid_dbg(hdev, "read %d of %zd bytes requested\n",
- 		dev->read_length, size);
+-	ret = hdev->hid_get_raw_report(hdev, CP2112_GPIO_GET, buf, sizeof(buf),
+-				       HID_FEATURE_REPORT);
++	ret = hid_hw_raw_request(hdev, CP2112_GPIO_GET, buf, sizeof(buf),
++				       HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+ 	if (ret != sizeof(buf)) {
+ 		hid_err(hdev, "error requesting GPIO values: %d\n", ret);
+ 		return ret;
+@@ -241,8 +242,9 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
  
- 	if (size > dev->read_length)
-@@ -552,7 +552,7 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 	if (ret < 0)
- 		goto power_normal;
- 	if (ret != read_length) {
--		hid_warn(hdev, "short read: %d < %d\n", ret, read_length);
-+		hid_warn(hdev, "short read: %d < %zd\n", ret, read_length);
- 		ret = -EIO;
- 		goto power_normal;
- 	}
+ 	cp2112_gpio_set(chip, offset, value);
+ 
+-	ret = hdev->hid_get_raw_report(hdev, CP2112_GPIO_CONFIG, buf,
+-				       sizeof(buf), HID_FEATURE_REPORT);
++	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
++				       sizeof(buf), HID_FEATURE_REPORT,
++				       HID_REQ_GET_REPORT);
+ 	if (ret != sizeof(buf)) {
+ 		hid_err(hdev, "error requesting GPIO config: %d\n", ret);
+ 		return ret;
+@@ -271,8 +273,8 @@ static int cp2112_hid_get(struct hid_device *hdev, unsigned char report_number,
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = hdev->hid_get_raw_report(hdev, report_number, buf, count,
+-				       report_type);
++	ret = hid_hw_raw_request(hdev, report_number, buf, count,
++				       report_type, HID_REQ_GET_REPORT);
+ 	memcpy(data, buf, count);
+ 	kfree(buf);
+ 	return ret;
 -- 
 Jiri Kosina
 SUSE Labs

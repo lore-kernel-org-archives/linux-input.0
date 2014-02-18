@@ -1,45 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: cp2112: fix incorrect error propagation in
- cp2112_xfer()
-Date: Tue, 18 Feb 2014 09:56:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1402180955030.1192@pobox.suse.cz>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: linux-next: Tree for Feb 18 (hid/hid-cp2112.c)
+Date: Tue, 18 Feb 2014 08:34:07 -0800
+Message-ID: <53038B7F.1070506@infradead.org>
+References: <20140218160612.34d64514ade66fcb21a6cc0f@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56303 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754030AbaBRI4K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Feb 2014 03:56:10 -0500
+Received: from merlin.infradead.org ([205.233.59.134]:54058 "EHLO
+	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752004AbaBRQeK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Feb 2014 11:34:10 -0500
+In-Reply-To: <20140218160612.34d64514ade66fcb21a6cc0f@canb.auug.org.au>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Barksdale <dbarksdale@uplogix.com>
-Cc: linux-input@vger.kernel.org, fengguang.wu@intel.com
+To: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Barksdale <dbarksdale@uplogix.com>
 
-Both cp2112_read_req() and cp2112_write_req() are returning negative
-value in cases of error, but cp2112_xfer() is storing the return
-value into unsigned size_t-typed 'count'.
+On 02/17/14 21:06, Stephen Rothwell wrote:
+> Hi all,
+> 
+> If you see failures in building this tree due to missing declarations of
+> k..alloc/free, then it may be caused by commit 2bd59d48ebfb ("cgroup:
+> convert to kernfs").  Please send Tejun Heo <tj@kernel.org> a patch
+> adding an inclusion of linux/slab.h to the appropriate file(s).
+> 
+> This tree fails (more than usual) the powerpc allyesconfig build.
+> 
+> Changes since 20140217:
+> 
 
-Fix this by making 'count' signed type.
+on x86_64:
+when GPIOLIB is not enabled.
 
-Reported-by: fengguang.wu@intel.com
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-cp2112.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Add
+	depends on GPIOLIB
+to drivers/hid/Kconfig?
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 6d679f1..1025982 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -428,7 +428,7 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 	struct hid_device *hdev = dev->hdev;
- 	u8 buf[64];
- 	__be16 word;
--	size_t count;
-+	ssize_t count;
- 	size_t read_length = 0;
- 	unsigned int retries;
- 	int ret;
+
+  CC [M]  drivers/hid/hid-cp2112.o
+drivers/hid/hid-cp2112.c:162:19: error: field 'gc' has incomplete type
+drivers/hid/hid-cp2112.c: In function 'cp2112_gpio_direction_input':
+drivers/hid/hid-cp2112.c:171:30: warning: initialization from incompatible pointer type [enabled by default]
+drivers/hid/hid-cp2112.c:171:30: warning: (near initialization for 'dev') [enabled by default]
+drivers/hid/hid-cp2112.c: In function 'cp2112_gpio_set':
+drivers/hid/hid-cp2112.c:200:30: warning: initialization from incompatible pointer type [enabled by default]
+drivers/hid/hid-cp2112.c:200:30: warning: (near initialization for 'dev') [enabled by default]
+drivers/hid/hid-cp2112.c: In function 'cp2112_gpio_get':
+drivers/hid/hid-cp2112.c:218:30: warning: initialization from incompatible pointer type [enabled by default]
+drivers/hid/hid-cp2112.c:218:30: warning: (near initialization for 'dev') [enabled by default]
+drivers/hid/hid-cp2112.c: In function 'cp2112_gpio_direction_output':
+drivers/hid/hid-cp2112.c:237:30: warning: initialization from incompatible pointer type [enabled by default]
+drivers/hid/hid-cp2112.c:237:30: warning: (near initialization for 'dev') [enabled by default]
+drivers/hid/hid-cp2112.c: In function 'cp2112_probe':
+drivers/hid/hid-cp2112.c:944:2: error: implicit declaration of function 'gpiochip_add' [-Werror=implicit-function-declaration]
+/local/lnx/next/linux-next-20140218/drivers/hid/hid-cp2112.c:962:2: error: implicit declaration of function 'gpiochip_remove' [-Werror=implicit-function-declaration]
+cc1: some warnings being treated as errors
+make[3]: *** [drivers/hid/hid-cp2112.o] Error 1
+
+
+
 -- 
-Jiri Kosina
-SUSE Labs
+~Randy

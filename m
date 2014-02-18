@@ -1,81 +1,59 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: cp2112: convert to use hid_hw_raw_request()
-Date: Tue, 18 Feb 2014 00:43:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1402180042120.1192@pobox.suse.cz>
+From: Clinton Sprain <clintonsprain@gmail.com>
+Subject: Re: USB keyboard occasional key stuck
+Date: Mon, 17 Feb 2014 20:08:50 -0600
+Message-ID: <5302C0B2.9010506@gmail.com>
+References: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52151 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752831AbaBQXnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Feb 2014 18:43:17 -0500
+Received: from mail-yk0-f169.google.com ([209.85.160.169]:34714 "EHLO
+	mail-yk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751221AbaBRCQg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Feb 2014 21:16:36 -0500
+In-Reply-To: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Barksdale <dbarksdale@uplogix.com>
-Cc: linux-input@vger.kernel.org, fengguang.wu@intel.com
+To: Daniel J Blueman <daniel@quora.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Commit cafebc0 ("HID: remove hid_get_raw_report in struct hid_device")
-obsoletes the use of hdev->hid_get_raw_report(), as calling
-hid_hw_raw_request() is functionally equivalent.
+I noticed your examples are both fn combos. I'm seeing something like
+this and it seems specifically related to the fn key. Reproducible on a
+Macbook (3,1) and a Lenovo Yoga 13. Sequence is simple:
 
-Convert cp2112 to use this notation.
+Press key
+Press fn
+Release key
+Release fn
 
-Reported-by: fengguang.wu@intel.com
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-cp2112.c |   18 ++++++++++--------
- 1 files changed, 10 insertions(+), 8 deletions(-)
+The key will be 'stuck' until you press another key. It seems to only
+apply to keys that are part of a fn combo, so affected keys vary from
+one model to another; it appears that if nothing is mapped to fn+key on
+a given hardware, the key is not affected. For example, delete is
+affected on the Macbook (which has fn+delete = backspace), but not on
+the Yoga (which has a dedicated backspace key). Arrow keys are an
+exception to this rule though.
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index f326726..6d679f1 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -174,8 +174,9 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
- 	u8 buf[5];
- 	int ret;
- 
--	ret = hdev->hid_get_raw_report(hdev, CP2112_GPIO_CONFIG, buf,
--				       sizeof(buf), HID_FEATURE_REPORT);
-+	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
-+				       sizeof(buf), HID_FEATURE_REPORT,
-+				       HID_REQ_GET_REPORT);
- 	if (ret != sizeof(buf)) {
- 		hid_err(hdev, "error requesting GPIO config: %d\n", ret);
- 		return ret;
-@@ -220,8 +221,8 @@ static int cp2112_gpio_get(struct gpio_chip *chip, unsigned offset)
- 	u8 buf[2];
- 	int ret;
- 
--	ret = hdev->hid_get_raw_report(hdev, CP2112_GPIO_GET, buf, sizeof(buf),
--				       HID_FEATURE_REPORT);
-+	ret = hid_hw_raw_request(hdev, CP2112_GPIO_GET, buf, sizeof(buf),
-+				       HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
- 	if (ret != sizeof(buf)) {
- 		hid_err(hdev, "error requesting GPIO values: %d\n", ret);
- 		return ret;
-@@ -241,8 +242,9 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
- 
- 	cp2112_gpio_set(chip, offset, value);
- 
--	ret = hdev->hid_get_raw_report(hdev, CP2112_GPIO_CONFIG, buf,
--				       sizeof(buf), HID_FEATURE_REPORT);
-+	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
-+				       sizeof(buf), HID_FEATURE_REPORT,
-+				       HID_REQ_GET_REPORT);
- 	if (ret != sizeof(buf)) {
- 		hid_err(hdev, "error requesting GPIO config: %d\n", ret);
- 		return ret;
-@@ -271,8 +273,8 @@ static int cp2112_hid_get(struct hid_device *hdev, unsigned char report_number,
- 	if (!buf)
- 		return -ENOMEM;
- 
--	ret = hdev->hid_get_raw_report(hdev, report_number, buf, count,
--				       report_type);
-+	ret = hid_hw_raw_request(hdev, report_number, buf, count,
-+				       report_type, HID_REQ_GET_REPORT);
- 	memcpy(data, buf, count);
- 	kfree(buf);
- 	return ret;
--- 
-Jiri Kosina
-SUSE Labs
+Is this what you're seeing?
+
+- Clinton
+
+On 02/17/2014 07:23 AM, Daniel J Blueman wrote:
+> Across 5+ years of kernels, I've been seeing occasional (1-2 times per
+> day) key-stuck issues where eg a fn+delete combo repeats delete until
+> I press delete again. I've seen this happen with fn+ctrl+left, leaving
+> left held and likewise with right.
+>
+> This has occurred on Apple laptops, external USB keyboards and Dell
+> laptops, so seems like a linux USB input issue, as I haven't seen
+> occur on Windows or MacOS on the same hardware.
+>
+> It seems a good move for me to rebuild and run a kernel with some USB
+> HID instrumentation to locate this issue over time. Without apriori
+> knowledge of the linux USB input stack, what is a good initial
+> approach?
+>
+> Thanks,
+>   Daniel
+

@@ -1,95 +1,51 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: Questions about the documentation/specification of Linux
- ForceFeedback input.h
-Date: Wed, 19 Feb 2014 19:54:30 +0100
-Message-ID: <CADbOyBSYeCLLa=WE72dwNpsexq7gDsL4iJiOfrpKgLOp3+A7tA@mail.gmail.com>
-References: <CADbOyBSeNKe6hZWdLMnE+SPyu__NwD4WKHv_cAmOz-NTKuzxSA@mail.gmail.com>
-	<52FECB6E.4000004@iki.fi>
-	<CADbOyBQ1iA_7c4Rik7nBPvqAwVouoQDL33L3PE2RiVLnmFz1YQ@mail.gmail.com>
-	<52FF73D7.6030108@iki.fi>
-	<CADbOyBROrPtqptnnh+Xtb9+X7EhGMudaHRai2wQLga5vca=rxg@mail.gmail.com>
-	<52FFF276.1060704@iki.fi>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: Re: [PATCH] HID: sony: Fix work queue issues.
+Date: Wed, 19 Feb 2014 14:21:34 -0500
+Message-ID: <CAH+9E3rwDdz1wLLtT7ASWX9=_DzA=gL9WurWMouOxc83r4xjgw@mail.gmail.com>
+References: <1392833362-4218-1-git-send-email-frank.praznik@oh.rr.com>
+	<CANq1E4TmfDRQLqBEw8JpS6da=96+ZENFy__YJjskPqVaA04jdw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f175.google.com ([209.85.220.175]:54207 "EHLO
-	mail-vc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754486AbaBSSyb (ORCPT
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:48515 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754748AbaBSTVf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Feb 2014 13:54:31 -0500
-Received: by mail-vc0-f175.google.com with SMTP id ij19so824821vcb.20
-        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 10:54:30 -0800 (PST)
-In-Reply-To: <52FFF276.1060704@iki.fi>
+	Wed, 19 Feb 2014 14:21:35 -0500
+Received: by mail-ob0-f173.google.com with SMTP id uz6so951776obc.18
+        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 11:21:35 -0800 (PST)
+In-Reply-To: <CANq1E4TmfDRQLqBEw8JpS6da=96+ZENFy__YJjskPqVaA04jdw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@iki.fi>
-Cc: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru, Johann Deneux <johann.deneux@gmail.com>, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Sun, Feb 16, 2014 at 12:04 AM, Anssi Hannula <anssi.hannula@iki.fi> wrote:
-> 15.02.2014 22:32, Elias Vanderstuyft kirjoitti:
->> On Sat, Feb 15, 2014 at 3:04 PM, Anssi Hannula <anssi.hannula@iki.fi> wrote:
->>>
->>> However, from what I can see, you can achieve the exact same effect with
->>> these parameters (DInput deadband definition):
->>> sat_left = 0xFFFF
->>> sat_right = 0x0000
->>> coeff_left = 0x4000
->>> coeff_right = 0x0000
->>> center = 0x0000 (50% point)
->>> deadband (DInput/ours) = 0x8000 (50% total area, or 50% of
->>> center-to-end, so it reaches 25%..75%)
->>>
->>> On the left side, the effect is exactly the same as before with same
->>> parameters (sat 0xffff, coeff 0x4000, starts at 25% point).
->>>
->>> On the right side the parameters differ, but the end-result is the same,
->>> there is no effect at all:
->>> - In the first example, the right side is fully in deadband area,
->>>   causing the effect to have zero effect.
->>> - In my variant with our definition, the right side has zero saturation,
->>>   causing the effect to have zero effect.
->>>
->>>
->>> So the present definitions (and DInput definitions) can achieve the same
->>> effects as your proposed definitions, unless I'm missing something,
->>> making the change unneeded.
-
-Today, I noticed something strange: an explicit saturation of zero in
-DInput (or at least using the most recent driver for my Logitech MOMO
-wheel), appears to be transformed to max saturation! (This is why I
-chose to quote your "sat_right = 0x0000" part, however that's not the
-point I want to make in this mail)
-
-E.g:
-    pos_sat = 10000    ->    Max saturation send to device
-    pos_sat =  5000    ->    Half saturation send to device
-    ...
-    pos_sat =     1    ->    Zero saturation send to device (because
-it appears to be rounded to zero)
-    pos_sat =     0    ->    Max saturation send to device (?!)
-
-Also interesting is that the FEdit tool (from MS DirectX SDK) sets all
-'saturation' values to zero by default. This is not the case for the
-'coefficient' values: they are set to maximum. The resulting default
-conditional force generates a maxed out conditional effect on my MOMO
-wheel.
-The weird thing is, that MSDN does not explicitly say anything about
-this: http://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.reference.dicondition%28v=vs.85%29.aspx
-"dwPositiveSaturation:
-    Maximum force output on the positive side of the offset, in the
-range from 0 through 10,000.
-    If the device does not support force saturation, the value of this
-member is ignored.
-"
-
-So, my question is:
-    - Should Wine's translation layer convert a 0 dinput saturation to
-max linux saturation?
-    - or Should the Linux FF drivers send a max saturation command
-when the linux saturation equals zero?
-    - or Should we forget about this? (but that will result Wine's
-behaviour to be different from Windows', at least for my MOMO wheel (I
-don't have another capable (non-Logitech?) wheel to test it with))
-
-Best regards,
-Elias
+On Wed, Feb 19, 2014 at 1:41 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi Frank
+>
+> On Wed, Feb 19, 2014 at 7:09 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
+>> Don't initialize force-feedback for devices that don't support it to avoid calls
+>> to schedule_work() with an uninitialized work_struct.
+>>
+>> Move the cancel_work_sync() call out of sony_destroy_ff() since the state worker
+>> is used for the LEDs even when force-feedback is disabled.
+>>
+>> Remove sony_destroy_ff() to avoid a compiler warning since it is no longer used.
+>>
+>> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+>
+> Sorry, my comment might have been misleading. You have to add the "Cc:
+> <stable@vger.kernel.org>" line underneath/above your "Signed-off-by".
+> This will send a notice to the stable guys once the patch is applied
+> in Linus' tree.
+>
+> But that's also described in the file Greg posted.
+>
+> Cheers
+> David
+>
+Actually, does this even need to go into stable? The issue doesn't
+exist below kernel 3.14 since the LED system wasn't added until commit
+0a286ef278529f2bc4f4bb27c4cf99c05999c818 in December.  Could this just
+go into for-3.14/upstream-fixes and for-linus with the other pending
+fixes?

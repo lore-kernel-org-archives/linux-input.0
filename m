@@ -1,83 +1,51 @@
-From: Christian Ehrlicher <Ch.Ehrlicher@gmx.de>
-Subject: Problem with Logitech SpaceNavigator
-Date: Wed, 19 Feb 2014 20:38:37 +0100
-Message-ID: <5305083D.6090503@gmx.de>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Re: ff-core effect id handling in case of a failed effect upload
+Date: Wed, 19 Feb 2014 20:49:49 +0100
+Message-ID: <CADbOyBSszQC4H6J2u2Pa-qWrpWH+d6euJ19GVsw7uxnjYqre+A@mail.gmail.com>
+References: <CADbOyBRX8Zd=WyXpgWo8Kkg5HkAJHjSA0KCiJD_36PLiSKAQJQ@mail.gmail.com>
+	<5304E0A0.5070007@iki.fi>
+	<CADbOyBTY8KtRyM6q7UMDAVieeR-X93qCoWO=ttizguKvouUkVw@mail.gmail.com>
+	<20140219193215.GM743@foghorn.codeweavers.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------080200080409000906070306"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.20]:53450 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754486AbaBSTik (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Feb 2014 14:38:40 -0500
-Received: from [192.168.178.20] ([91.58.245.42]) by mail.gmx.com (mrgmx003)
- with ESMTPSA (Nemesis) id 0Mcmmn-1WXbP52vxZ-00HxYJ for
- <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 20:38:38 +0100
+Received: from mail-ve0-f180.google.com ([209.85.128.180]:48239 "EHLO
+	mail-ve0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754747AbaBSTtu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Feb 2014 14:49:50 -0500
+Received: by mail-ve0-f180.google.com with SMTP id db12so897219veb.11
+        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 11:49:49 -0800 (PST)
+In-Reply-To: <20140219193215.GM743@foghorn.codeweavers.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Andrew Eikum <aeikum@codeweavers.com>
+Cc: Anssi Hannula <anssi.hannula@iki.fi>, wine-devel@winehq.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080200080409000906070306
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Feb 19, 2014 at 8:32 PM, Andrew Eikum <aeikum@codeweavers.com> wrote:
+> On Wed, Feb 19, 2014 at 06:32:54PM +0100, Elias Vanderstuyft wrote:
+>> I'll include the code (with effectId_old variable) and this discussion
+>> when I submit my whole patchset for Wine's DInput libs to Wine-devel
+>> mailing list. Right now, I don't know who I should personally mail to.
+>>
+>
+> Patches ready to be included in Wine should go to
+> wine-patches@winehq.org.  I've done a bit of work in dinput myself, so
+> you can feel free to send them to me and/or wine-devel first if you'd
+> like a review.
 
-Hi,
+<offtopic>
+Alright, thanks Andrew!
+I've also done some work on reverse engineering the FFE file format,
+which is needed to complete some missing functionality
+(http://wiki.winehq.org/ForceFeedbackSummerOfCode2005Summary) of the
+following functions:
+IDirectInputDevice8::WriteEffectToFile and
+IDirectInputDevice8::EnumEffectsInFile.
+Can I send it to you (in a new mail subject, of course) and cc wine-devel?
+</offtopic>
 
-I've a problem with some SpaceNavigator devices with a newer firmware 
-(4.31). The problem is that the fixup for the EV_REL/EV_ABS 
-(LG_RDESC_REL_ABS) is not applied for the new firmware because the 
-report_descriptor is different (see attachments). It looks like the 
-checked and modified bytes are no longer at offset 32/33 and 49/50 but 
-at 36/37 and 53/54.
-Is my assumption correct and is it possible to get this into hid-lg.c ?
+>
+> Andrew
 
-Thx,
-Christian Ehrlicher
-
---------------080200080409000906070306
-Content-Type: text/plain; charset=windows-1252;
- name="sn_401_report_descriptor.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="sn_401_report_descriptor.txt"
-
-00000000  05 01 09 08 a1 01 a1 00  85 01 16 0c fe 26 f4 01  |.............&..|
-00000010  36 00 80 46 ff 7f 09 30  09 31 09 32 75 10 95 03  |6..F...0.1.2u...|
-00000020  81 02 c0 a1 00 85 02 09  33 09 34 09 35 75 10 95  |........3.4.5u..|
-00000030  03 81 02 c0 a1 02 85 03  05 01 05 09 19 01 29 02  |..............).|
-00000040  15 00 25 01 35 00 45 01  75 01 95 02 81 02 95 06  |..%.5.E.u.......|
-00000050  81 03 c0 a1 02 85 04 05  08 09 4b 15 00 25 01 95  |..........K..%..|
-00000060  01 75 01 91 02 95 01 75  07 91 03 c0 06 00 ff 09  |.u.....u........|
-00000070  01 a1 02 15 80 25 7f 75  08 09 3a a1 02 85 05 09  |.....%.u..:.....|
-00000080  20 95 01 b1 02 c0 a1 02  85 06 09 21 95 01 b1 02  | ..........!....|
-00000090  c0 a1 02 85 07 09 22 95  01 b1 02 c0 a1 02 85 08  |......".........|
-000000a0  09 23 95 07 b1 02 c0 a1  02 85 09 09 24 95 07 b1  |.#..........$...|
-000000b0  02 c0 a1 02 85 0a 09 25  95 07 b1 02 c0 a1 02 85  |.......%........|
-000000c0  0b 09 26 95 01 b1 02 c0  c0 c0                    |..&.......|
-
-
---------------080200080409000906070306
-Content-Type: text/plain; charset=windows-1252;
- name="sn_431_report_descriptor.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="sn_431_report_descriptor.txt"
-
-00000000  05 01 09 08 a1 01 a1 00  85 01 16 a2 fe 26 5e 01  |.............&^.|
-00000010  36 88 fa 46 78 05 55 0c  65 11 09 30 09 31 09 32  |6..Fx.U.e..0.1.2|
-00000020  75 10 95 03 81 06 c0 a1  00 85 02 09 33 09 34 09  |u...........3.4.|
-00000030  35 75 10 95 03 81 06 c0  a1 02 85 03 05 01 05 09  |5u..............|
-00000040  19 01 29 02 15 00 25 01  35 00 45 01 75 01 95 02  |..)...%.5.E.u...|
-00000050  81 02 95 0e 81 03 c0 a1  02 85 04 05 08 09 4b 15  |..............K.|
-00000060  00 25 01 95 01 75 01 91  02 95 01 75 07 91 03 c0  |.%...u.....u....|
-00000070  06 00 ff 09 01 a1 02 15  80 25 7f 75 08 09 3a a1  |.........%.u..:.|
-00000080  02 85 05 09 20 95 01 b1  02 c0 a1 02 85 06 09 21  |.... ..........!|
-00000090  95 01 b1 02 c0 a1 02 85  07 09 22 95 01 b1 02 c0  |..........".....|
-000000a0  a1 02 85 08 09 23 95 07  b1 02 c0 a1 02 85 09 09  |.....#..........|
-000000b0  24 95 07 b1 02 c0 a1 02  85 0a 09 25 95 07 b1 02  |$..........%....|
-000000c0  c0 a1 02 85 0b 09 26 95  01 b1 02 c0 a1 02 85 13  |......&.........|
-000000d0  09 2e 95 01 b1 02 c0 c0  c0                       |.........|
-
-
---------------080200080409000906070306--
+Elias

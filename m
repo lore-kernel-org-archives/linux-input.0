@@ -1,94 +1,96 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: ff-core effect id handling in case of a failed effect upload
-Date: Wed, 19 Feb 2014 12:42:25 +0100
-Message-ID: <CADbOyBRX8Zd=WyXpgWo8Kkg5HkAJHjSA0KCiJD_36PLiSKAQJQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 3/3] Input: gpio_keys - convert struct descriptions to kernel-doc
+Date: Wed, 19 Feb 2014 15:21:11 +0200
+Message-ID: <1392816071-23839-3-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1392816071-23839-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f179.google.com ([209.85.220.179]:33101 "EHLO
-	mail-vc0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751606AbaBSLm0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Feb 2014 06:42:26 -0500
-Received: by mail-vc0-f179.google.com with SMTP id lh14so238995vcb.38
-        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 03:42:25 -0800 (PST)
+Received: from mga14.intel.com ([143.182.124.37]:25854 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752851AbaBSNVS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Feb 2014 08:21:18 -0500
+In-Reply-To: <1392816071-23839-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org, wine-devel@winehq.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi,
+This patch converts descriptions of the structures defined in linux/gpio_keys.h
+to follow kernel-doc format.
 
+There is no functional change.
 
-In the process of reviewing the Wine DInput translation layer, I
-noticed an inconvenience (in the ff-core implementation?) that can
-possibly lead to confusing problems to application developers (not
-only for Wine), in short:
-If a new (id==-1) effect was uploaded (look at
-ff-core.c::input_ff_upload(...)) that failed (e.g. returning EINVAL),
-ff-core will have assigned a positive number to the effect id. This
-can be confusing because the dev->ff->effects[] array will not contain
-an element at the index of that new effect id.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ include/linux/gpio_keys.h | 45 +++++++++++++++++++++++++++++++++------------
+ 1 file changed, 33 insertions(+), 12 deletions(-)
 
-Here is a more elaborated description/discussion:
-- This is a bug that is either the responsibility of the Linux kernel,
-or of Wine (and possibly other applications that do the same thing as
-described below):
-    It is caused by the following situation:
-        When uploading an effect, the specific kernel device driver
-may return an error,
-        e.g. EINVAL for example when a periodic's effect period is set to zero.
-        This error will then be returned by "ioctl(*(This->fd),
-EVIOCSFF, &This->effect)".
-        With or without error, one can find out that
-/drivers/input/ff-core.c:input_ff_upload(...) is called,
-        which will set effect->id >= 0, if it was set to -1 (=> new
-effect created) by the user.
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index a7e977f..997134a 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -3,29 +3,50 @@
+ 
+ struct device;
+ 
++/**
++ * struct gpio_keys_button - configuration parameters
++ * @code:		input event code (KEY_*, SW_*)
++ * @gpio:		%-1 if this key does not support gpio
++ * @active_low:
++ * @desc:
++ * @type:		input event type (%EV_KEY, %EV_SW, %EV_ABS)
++ * @wakeup:		configure the button as a wake-up source
++ * @debounce_interval:	debounce ticks interval in msecs
++ * @can_disable:
++ * @value:		axis value for %EV_ABS
++ * @irq:		Irq number in case of interrupt keys
++ */
+ struct gpio_keys_button {
+-	/* Configuration parameters */
+-	unsigned int code;	/* input event code (KEY_*, SW_*) */
+-	int gpio;		/* -1 if this key does not support gpio */
++	unsigned int code;
++	int gpio;
+ 	int active_low;
+ 	const char *desc;
+-	unsigned int type;	/* input event type (EV_KEY, EV_SW, EV_ABS) */
+-	int wakeup;		/* configure the button as a wake-up source */
+-	int debounce_interval;	/* debounce ticks interval in msecs */
++	unsigned int type;
++	int wakeup;
++	int debounce_interval;
+ 	bool can_disable;
+-	int value;		/* axis value for EV_ABS */
+-	unsigned int irq;	/* Irq number in case of interrupt keys */
++	int value;
++	unsigned int irq;
+ };
+ 
++/**
++ * struct gpio_keys_platform_data - platform data for gpio_keys driver
++ * @buttons:
++ * @nbuttons:
++ * @poll_interval:	polling interval in msecs - for polling driver only
++ * @rep:		enable input subsystem auto repeat
++ * @enable:
++ * @disable:
++ * @name:		input device name
++ */
+ struct gpio_keys_platform_data {
+ 	struct gpio_keys_button *buttons;
+ 	int nbuttons;
+-	unsigned int poll_interval;	/* polling interval in msecs -
+-					   for polling driver only */
+-	unsigned int rep:1;		/* enable input subsystem auto repeat */
++	unsigned int poll_interval;
++	unsigned int rep:1;
+ 	int (*enable)(struct device *dev);
+ 	void (*disable)(struct device *dev);
+-	const char *name;		/* input device name */
++	const char *name;
+ };
+ 
+ #endif
+-- 
+1.9.0
 
-        But in case of an error:
-        - Assume effect->id was set to -1 by the user:
-            The error is reported by ff->upload(...) at
-/drivers/input/ff-core.c:167,
-            the effect->id will also be set >= 0 (*).
-            The offending effect will not be saved in the
-ff->effects[] array (***).
-        - Assume effect->id was set >= 0 by the user (and
-ff->effects[effect->id] is a valid existing effect):
-            The error is reported by ff->upload(...) at
-/drivers/input/ff-core.c:167,
-            the effect->id will remain unchanged (**).
-            The offending effect will not overwrite the
-ff->effects[effect->id] element (****).
-
-        Is this (see *, **, *** and ****) desired behaviour?
-        - If yes:
-            Change the following in Wine's dinput/effect_linuxinput.c:90 :
-                if (ioctl(*(This->fd), EVIOCSFF, &This->effect) == -1) {
-            to :
-                int effectId_old = This->effect.id;
-                if (ioctl(*(This->fd), EVIOCSFF, &This->effect) == -1) {
-                    This->effect.id = effectId_old;
-        - If no for *:
-            Kernel code /drivers/input/ff-core.c:input_ff_upload(...)
-has to be patched to revert "effect->id" back to its original value
-set by the user,
-            which is only needed when the initial (by user) value of
-"effect->id" was equal to -1.
-        - If no for **** (or maybe also ***):
-            ff->effects[effect->id] could be replaced by an 'empty'
-effect (however this can get complex because the effect's type has to
-remain unchanged)
-            This would be a change in the kernel code
-/drivers/input/ff-core.c:input_ff_upload(...).
-        - If no for **:
-            I don't really know. Discussion is needed.
-
-        - In my opinion, **, *** and **** are desired behaviour, while
-* should leave the effect->id at -1.
-            In that case, Wine's dinput implementation does not have
-to be patched, and the kernel code only should apply a minor patch.
-
-
-Best regards,
-
-Elias

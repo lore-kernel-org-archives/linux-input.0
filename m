@@ -1,134 +1,113 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: ff-core effect id handling in case of a failed effect upload
-Date: Wed, 19 Feb 2014 18:32:54 +0100
-Message-ID: <CADbOyBTY8KtRyM6q7UMDAVieeR-X93qCoWO=ttizguKvouUkVw@mail.gmail.com>
-References: <CADbOyBRX8Zd=WyXpgWo8Kkg5HkAJHjSA0KCiJD_36PLiSKAQJQ@mail.gmail.com>
-	<5304E0A0.5070007@iki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ve0-f180.google.com ([209.85.128.180]:64819 "EHLO
-	mail-ve0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754359AbaBSRcz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Feb 2014 12:32:55 -0500
-Received: by mail-ve0-f180.google.com with SMTP id db12so693910veb.25
-        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 09:32:55 -0800 (PST)
-In-Reply-To: <5304E0A0.5070007@iki.fi>
-Sender: linux-input-owner@vger.kernel.org
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] HID: sony: Fix work queue issues.
+Date: Wed, 19 Feb 2014 13:09:22 -0500
+Message-ID: <1392833362-4218-1-git-send-email-frank.praznik@oh.rr.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org, dh.herrmann@gmail.com, jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@iki.fi>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, wine-devel@winehq.org
 
-On Wed, Feb 19, 2014 at 5:49 PM, Anssi Hannula <anssi.hannula@iki.fi> wrote:
-> (added Dmitry to CC)
->
-> 19.02.2014 13:42, Elias Vanderstuyft kirjoitti:
->> Hi,
->>
->
-> Hi,
->
->> In the process of reviewing the Wine DInput translation layer, I
->> noticed an inconvenience (in the ff-core implementation?) that can
->> possibly lead to confusing problems to application developers (not
->> only for Wine), in short:
->> If a new (id==-1) effect was uploaded (look at
->> ff-core.c::input_ff_upload(...)) that failed (e.g. returning EINVAL),
->> ff-core will have assigned a positive number to the effect id. This
->> can be confusing because the dev->ff->effects[] array will not contain
->> an element at the index of that new effect id.
->
-> I agree that this is a bit confusing, and the kernel code should
-> probably be modified to not clobber the ioctl-provided effect on failure
-> (effect->id is set to an "undefined" value, i.e. next free effect slot).
->
-> Dmitry, WDYT?
->
-> The downside is that if changed, any new userspace code may unknowingly
-> depend on the fixed non-clobbering behavior (though apparently they
-> already do, as evidenced by Wine DInput, so might not be much of an
-> argument...).
+Don't initialize force-feedback for devices that don't support it to avoid calls
+to schedule_work() with an uninitialized work_struct.
 
-I don't think that's a problem.
-Something that can be more problematic, is that a newer application
-assumes the fixed non-clobbering behaviour, but runs on a kernel with
-the old clobbering behaviour, could experience problems.
+Move the cancel_work_sync() call out of sony_destroy_ff() since the state worker
+is used for the LEDs even when force-feedback is disabled.
 
->
->> Here is a more elaborated description/discussion:
->> - This is a bug that is either the responsibility of the Linux kernel,
->> or of Wine (and possibly other applications that do the same thing as
->> described below):
->>     It is caused by the following situation:
->>         When uploading an effect, the specific kernel device driver
->> may return an error,
->>         e.g. EINVAL for example when a periodic's effect period is set to zero.
->>         This error will then be returned by "ioctl(*(This->fd),
->> EVIOCSFF, &This->effect)".
->>         With or without error, one can find out that
->> /drivers/input/ff-core.c:input_ff_upload(...) is called,
->>         which will set effect->id >= 0, if it was set to -1 (=> new
->> effect created) by the user.
->>
->>         But in case of an error:
->>         - Assume effect->id was set to -1 by the user:
->>             The error is reported by ff->upload(...) at
->> /drivers/input/ff-core.c:167,
->>             the effect->id will also be set >= 0 (*).
->>             The offending effect will not be saved in the
->> ff->effects[] array (***).
->>         - Assume effect->id was set >= 0 by the user (and
->> ff->effects[effect->id] is a valid existing effect):
->>             The error is reported by ff->upload(...) at
->> /drivers/input/ff-core.c:167,
->>             the effect->id will remain unchanged (**).
->>             The offending effect will not overwrite the
->> ff->effects[effect->id] element (****).
->>
->>         Is this (see *, **, *** and ****) desired behaviour?
->>         - If yes:
->>             Change the following in Wine's dinput/effect_linuxinput.c:90 :
->>                 if (ioctl(*(This->fd), EVIOCSFF, &This->effect) == -1) {
->>             to :
->>                 int effectId_old = This->effect.id;
->>                 if (ioctl(*(This->fd), EVIOCSFF, &This->effect) == -1) {
->>                     This->effect.id = effectId_old;
->>         - If no for *:
->>             Kernel code /drivers/input/ff-core.c:input_ff_upload(...)
->> has to be patched to revert "effect->id" back to its original value
->> set by the user,
->>             which is only needed when the initial (by user) value of
->> "effect->id" was equal to -1.
->>         - If no for **** (or maybe also ***):
->>             ff->effects[effect->id] could be replaced by an 'empty'
->> effect (however this can get complex because the effect's type has to
->> remain unchanged)
->>             This would be a change in the kernel code
->> /drivers/input/ff-core.c:input_ff_upload(...).
->>         - If no for **:
->>             I don't really know. Discussion is needed.
->>
->>         - In my opinion, **, *** and **** are desired behaviour, while
->> * should leave the effect->id at -1.
->
-> Right.
->
->>             In that case, Wine's dinput implementation does not have
->> to be patched, and the kernel code only should apply a minor patch.
->
-> Well, maybe better to change dinput anyway so that it can work properly
-> with current kernel versions (assuming this gets changed in the future)?
-> Not my call, though.
+Remove sony_destroy_ff() to avoid a compiler warning since it is no longer used.
 
-Yes, agreed.
-I'll include the code (with effectId_old variable) and this discussion
-when I submit my whole patchset for Wine's DInput libs to Wine-devel
-mailing list. Right now, I don't know who I should personally mail to.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
 
->
-> --
-> Anssi Hannula
+ This is a bugfix for 3.14.
 
+ drivers/hid/hid-sony.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-Elias
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 1235405..2f19b15 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -42,6 +42,7 @@
+ #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
+ 
+ #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
++#define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER_USB | DUALSHOCK4_CONTROLLER_USB)
+ 
+ #define MAX_LEDS 4
+ 
+@@ -499,6 +500,7 @@ struct sony_sc {
+ 	__u8 right;
+ #endif
+ 
++	__u8 worker_initialized;
+ 	__u8 led_state[MAX_LEDS];
+ 	__u8 led_count;
+ };
+@@ -993,22 +995,11 @@ static int sony_init_ff(struct hid_device *hdev)
+ 	return input_ff_create_memless(input_dev, NULL, sony_play_effect);
+ }
+ 
+-static void sony_destroy_ff(struct hid_device *hdev)
+-{
+-	struct sony_sc *sc = hid_get_drvdata(hdev);
+-
+-	cancel_work_sync(&sc->state_worker);
+-}
+-
+ #else
+ static int sony_init_ff(struct hid_device *hdev)
+ {
+ 	return 0;
+ }
+-
+-static void sony_destroy_ff(struct hid_device *hdev)
+-{
+-}
+ #endif
+ 
+ static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+@@ -1077,6 +1068,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+ 		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
+ 		ret = sixaxis_set_operational_usb(hdev);
++
++		sc->worker_initialized = 1;
+ 		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+ 	}
+ 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+@@ -1087,6 +1080,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		if (ret < 0)
+ 			goto err_stop;
+ 
++		sc->worker_initialized = 1;
+ 		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
+ 	} else {
+ 		ret = 0;
+@@ -1101,9 +1095,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			goto err_stop;
+ 	}
+ 
+-	ret = sony_init_ff(hdev);
+-	if (ret < 0)
+-		goto err_stop;
++	if (sc->quirks & SONY_FF_SUPPORT) {
++		ret = sony_init_ff(hdev);
++		if (ret < 0)
++			goto err_stop;
++	}
+ 
+ 	return 0;
+ err_stop:
+@@ -1120,7 +1116,8 @@ static void sony_remove(struct hid_device *hdev)
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+ 		sony_leds_remove(hdev);
+ 
+-	sony_destroy_ff(hdev);
++	if (sc->worker_initialized)
++		cancel_work_sync(&sc->state_worker);
+ 
+ 	hid_hw_stop(hdev);
+ }
+-- 
+1.8.5.3

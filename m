@@ -1,51 +1,38 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: Re: [PATCH] HID: sony: Fix work queue issues.
-Date: Wed, 19 Feb 2014 14:21:34 -0500
-Message-ID: <CAH+9E3rwDdz1wLLtT7ASWX9=_DzA=gL9WurWMouOxc83r4xjgw@mail.gmail.com>
-References: <1392833362-4218-1-git-send-email-frank.praznik@oh.rr.com>
-	<CANq1E4TmfDRQLqBEw8JpS6da=96+ZENFy__YJjskPqVaA04jdw@mail.gmail.com>
+From: Andrew Eikum <aeikum@codeweavers.com>
+Subject: Re: ff-core effect id handling in case of a failed effect upload
+Date: Wed, 19 Feb 2014 13:32:15 -0600
+Message-ID: <20140219193215.GM743@foghorn.codeweavers.com>
+References: <CADbOyBRX8Zd=WyXpgWo8Kkg5HkAJHjSA0KCiJD_36PLiSKAQJQ@mail.gmail.com>
+ <5304E0A0.5070007@iki.fi>
+ <CADbOyBTY8KtRyM6q7UMDAVieeR-X93qCoWO=ttizguKvouUkVw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f173.google.com ([209.85.214.173]:48515 "EHLO
-	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754748AbaBSTVf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Feb 2014 14:21:35 -0500
-Received: by mail-ob0-f173.google.com with SMTP id uz6so951776obc.18
-        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 11:21:35 -0800 (PST)
-In-Reply-To: <CANq1E4TmfDRQLqBEw8JpS6da=96+ZENFy__YJjskPqVaA04jdw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <wine-devel-bounces@winehq.org>
+Content-Disposition: inline
+In-Reply-To: <CADbOyBTY8KtRyM6q7UMDAVieeR-X93qCoWO=ttizguKvouUkVw@mail.gmail.com>
+List-Unsubscribe: <http://www.winehq.org/mailman/options/wine-devel>,
+ <mailto:wine-devel-request@winehq.org?subject=unsubscribe>
+List-Archive: <http://www.winehq.org/pipermail/wine-devel/>
+List-Post: <mailto:wine-devel@winehq.org>
+List-Help: <mailto:wine-devel-request@winehq.org?subject=help>
+List-Subscribe: <http://www.winehq.org/mailman/listinfo/wine-devel>,
+ <mailto:wine-devel-request@winehq.org?subject=subscribe>
+Errors-To: wine-devel-bounces@winehq.org
+Sender: "wine-devel" <wine-devel-bounces@winehq.org>
+To: Elias Vanderstuyft <elias.vds@gmail.com>
+Cc: Anssi Hannula <anssi.hannula@iki.fi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, wine-devel@winehq.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Feb 19, 2014 at 1:41 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi Frank
->
-> On Wed, Feb 19, 2014 at 7:09 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
->> Don't initialize force-feedback for devices that don't support it to avoid calls
->> to schedule_work() with an uninitialized work_struct.
->>
->> Move the cancel_work_sync() call out of sony_destroy_ff() since the state worker
->> is used for the LEDs even when force-feedback is disabled.
->>
->> Remove sony_destroy_ff() to avoid a compiler warning since it is no longer used.
->>
->> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
->
-> Sorry, my comment might have been misleading. You have to add the "Cc:
-> <stable@vger.kernel.org>" line underneath/above your "Signed-off-by".
-> This will send a notice to the stable guys once the patch is applied
-> in Linus' tree.
->
-> But that's also described in the file Greg posted.
->
-> Cheers
-> David
->
-Actually, does this even need to go into stable? The issue doesn't
-exist below kernel 3.14 since the LED system wasn't added until commit
-0a286ef278529f2bc4f4bb27c4cf99c05999c818 in December.  Could this just
-go into for-3.14/upstream-fixes and for-linus with the other pending
-fixes?
+On Wed, Feb 19, 2014 at 06:32:54PM +0100, Elias Vanderstuyft wrote:
+> I'll include the code (with effectId_old variable) and this discussion
+> when I submit my whole patchset for Wine's DInput libs to Wine-devel
+> mailing list. Right now, I don't know who I should personally mail to.
+> 
+
+Patches ready to be included in Wine should go to
+wine-patches@winehq.org.  I've done a bit of work in dinput myself, so
+you can feel free to send them to me and/or wine-devel first if you'd
+like a review.
+
+Andrew

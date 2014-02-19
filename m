@@ -1,21 +1,20 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 1/3] HID: sony: Enable LED controls and rumble for the
- Sixaxis on Bluetooth.
-Date: Wed, 19 Feb 2014 11:18:23 +0100
-Message-ID: <CANq1E4RuzHMUZ4cmRKpoAycE4p2nDnZrU+fr1z5DSn7n_pK8NA@mail.gmail.com>
+Subject: Re: [PATCH 2/3] HID: sony: Force-feedback cleanup
+Date: Wed, 19 Feb 2014 11:23:18 +0100
+Message-ID: <CANq1E4TL-s70q+gQ6_y5Ds-zWgAqtyrn3MgWbFOVkyH3y2RRZA@mail.gmail.com>
 References: <1392762123-17725-1-git-send-email-frank.praznik@oh.rr.com>
-	<1392762123-17725-2-git-send-email-frank.praznik@oh.rr.com>
+	<1392762123-17725-3-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:57631 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750800AbaBSKSY (ORCPT
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:46443 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753149AbaBSKXT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Feb 2014 05:18:24 -0500
-Received: by mail-ie0-f172.google.com with SMTP id rd18so96497iec.31
-        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 02:18:23 -0800 (PST)
-In-Reply-To: <1392762123-17725-2-git-send-email-frank.praznik@oh.rr.com>
+	Wed, 19 Feb 2014 05:23:19 -0500
+Received: by mail-ie0-f176.google.com with SMTP id rd18so99382iec.21
+        for <linux-input@vger.kernel.org>; Wed, 19 Feb 2014 02:23:18 -0800 (PST)
+In-Reply-To: <1392762123-17725-3-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Frank Praznik <frank.praznik@oh.rr.com>
@@ -24,95 +23,88 @@ Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosi
 Hi
 
 On Tue, Feb 18, 2014 at 11:22 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
-> Add a SIXAXIS_CONTROLLER macro to simplify conditionals where the
-> connection type is irrelevant.
+> Only initialize force feedback for devices that actually support it (Sixaxis and
+> Dualshock 4).
 >
-> Enable the LED and force feedback controls for Sixaxis controllers connected via
-> Bluetooth.
+> Move the cancel_work_sync() call out of sony_destroy_ff() since the state worker
+> is used for the LEDs even when force-feedback is disabled.
 >
-> Send Sixaxis Bluetooth output reports on the control channel.
+> Remove the sony_destroy_ff() function since it is no longer used.
 >
 > Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 > ---
->  drivers/hid/hid-sony.c     | 24 +++++++++++++-----------
->  1 file changed, 13 insertions(+), 11 deletions(-)
+>  drivers/hid/hid-sony.c | 21 +++++++--------------
+>  1 file changed, 7 insertions(+), 14 deletions(-)
 >
 > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index f88d1ae..81917eb 100644
+> index 81917eb..ad1cebd 100644
 > --- a/drivers/hid/hid-sony.c
 > +++ b/drivers/hid/hid-sony.c
-> @@ -44,12 +44,12 @@
->  #define DUALSHOCK4_CONTROLLER_USB BIT(5)
->  #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
->
-> +#define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
->  #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
->                                 DUALSHOCK4_CONTROLLER_BT)
-> -#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER |\
-> -                               DUALSHOCK4_CONTROLLER)
-> -#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT |\
-> +#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
+> @@ -50,6 +50,7 @@
+>  #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
 >                                 DUALSHOCK4_CONTROLLER)
-> +#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
+>  #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
+> +#define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
 >
 >  #define MAX_LEDS 4
 >
-> @@ -935,8 +935,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
->         /* Sixaxis HID report has acclerometers/gyro with MSByte first, this
->          * has to be BYTE_SWAPPED before passing up to joystick interface
->          */
-> -       if ((sc->quirks & (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)) &&
-> -                       rd[0] == 0x01 && size == 49) {
-> +       if ((sc->quirks & SIXAXIS_CONTROLLER) && rd[0] == 0x01 && size == 49) {
->                 swap(rd[41], rd[42]);
->                 swap(rd[43], rd[44]);
->                 swap(rd[45], rd[46]);
-> @@ -1096,8 +1095,7 @@ static void sony_set_leds(struct hid_device *hdev, const __u8 *leds, int count)
->
->         if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
->                 buzz_set_leds(hdev, leds);
-> -       } else if ((drv_data->quirks & SIXAXIS_CONTROLLER_USB) ||
-> -                  (drv_data->quirks & DUALSHOCK4_CONTROLLER)) {
-> +       } else {
->                 for (n = 0; n < count; n++)
->                         drv_data->led_state[n] = leds[n];
->                 schedule_work(&drv_data->state_worker);
-> @@ -1285,7 +1283,11 @@ static void sixaxis_state_worker(struct work_struct *work)
->         buf[10] |= sc->led_state[2] << 3;
->         buf[10] |= sc->led_state[3] << 4;
->
-> -       hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
-> +       if (sc->quirks & SIXAXIS_CONTROLLER_USB)
-> +               hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
-> +       else
-> +               hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf),
-> +                               HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+> @@ -1354,22 +1355,12 @@ static int sony_init_ff(struct hid_device *hdev)
+>         return input_ff_create_memless(input_dev, NULL, sony_play_effect);
 >  }
 >
->  static void dualshock4_state_worker(struct work_struct *work)
-> @@ -1520,10 +1522,10 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->                 hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
->                 ret = sixaxis_set_operational_usb(hdev);
->                 INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-> -       }
-> -       else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
-> +       } else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
+> -static void sony_destroy_ff(struct hid_device *hdev)
+> -{
+> -       struct sony_sc *sc = hid_get_drvdata(hdev);
+> -
+> -       cancel_work_sync(&sc->state_worker);
+> -}
+> -
+>  #else
+>  static int sony_init_ff(struct hid_device *hdev)
+>  {
+>         return 0;
+>  }
+>
+> -static void sony_destroy_ff(struct hid_device *hdev)
+> -{
+> -}
+>  #endif
+>
+>  static int sony_battery_get_property(struct power_supply *psy,
+> @@ -1567,9 +1558,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>                 }
+>         }
+>
+> -       ret = sony_init_ff(hdev);
+> -       if (ret < 0)
+> -               goto err_close;
+> +       if (sc->quirks & SONY_FF_SUPPORT) {
+> +               ret = sony_init_ff(hdev);
+> +               if (ret < 0)
+> +                       goto err_close;
+> +       }
+>
+>         return 0;
+>  err_close:
+> @@ -1595,7 +1588,7 @@ static void sony_remove(struct hid_device *hdev)
+>                 sony_battery_remove(sc);
+>         }
+>
+> -       sony_destroy_ff(hdev);
+> +       cancel_work_sync(&sc->state_worker);
 
-We usually send coding-style cleanups as separate patches so reverts
-will not affect them. Anyhow, no need to resend imho, so:
+Ugh, that's a bugfix! This can trigger if the led-worker runs during
+unplug. You should mark it for stable next time you send it (adding:
+Cc: <stable@vger.kernel.org>)
 
 Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
 Thanks
 David
 
->                 ret = sixaxis_set_operational_bt(hdev);
-> -       else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
-> +               INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-> +       } else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
->                 if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
->                         ret = dualshock4_set_operational_bt(hdev);
->                         if (ret < 0) {
+>
+>         hid_hw_stop(hdev);
+>  }
 > --
 > 1.8.5.3
 >

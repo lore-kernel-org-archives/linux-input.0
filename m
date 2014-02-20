@@ -1,205 +1,294 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH 1/3] mfd: fsl imx25 Touchscreen ADC driver
-Date: Thu, 20 Feb 2014 14:17:33 -0300
-Message-ID: <CAOMZO5BDyyvXs9CxJQOkuEpxZ8fqamCPB67sNhJxES+XU2XkXQ@mail.gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH 3/3] iio: adc: fsl,imx25-gcq driver
+Date: Thu, 20 Feb 2014 18:46:26 +0100
+Message-ID: <53063F72.9070006@metafoo.de>
 References: <1392913312-9030-1-git-send-email-mpa@pengutronix.de>
-	<1392913312-9030-2-git-send-email-mpa@pengutronix.de>
+ <1392913312-9030-4-git-send-email-mpa@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f45.google.com ([209.85.219.45]:41206 "EHLO
-	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755450AbaBTRRg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Feb 2014 12:17:36 -0500
-In-Reply-To: <1392913312-9030-2-git-send-email-mpa@pengutronix.de>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1392913312-9030-4-git-send-email-mpa@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Markus Pargmann <mpa@pengutronix.de>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jonathan Cameron <jic23@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Sascha Hauer <kernel@pengutronix.de>
+Cc: devicetree@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, linux-iio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jonathan Cameron <jic23@kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-Hi Markus,
-
-On Thu, Feb 20, 2014 at 1:21 PM, Markus Pargmann <mpa@pengutronix.de> wrote:
-> This is the core driver for imx25 touchscreen/adc driver. The module
-> has one shared ADC and two different conversion queues which use the
-> ADC. The two queues are identical. Both can be used for general purpose
-> ADC but one is meant to be used for touchscreens.
+On 02/20/2014 05:21 PM, Markus Pargmann wrote:
+> This is a conversion queue driver for the mx25 SoC. It uses the central
+> ADC which is used by two seperate independent queues. This driver
+> prepares different conversion configurations for each possible input.
+> For a conversion it creates a conversionqueue of one item with the
+> correct configuration for the chosen channel. It then executes the queue
+> once and disables the conversion queue afterwards.
 >
-> This driver is the core which manages the central components and
-> registers of the TSC/ADC unit. It manages the IRQs and forwards them to
-> the correct components.
+> The reference voltages are configurable through devicetree subnodes,
+> depending on the connections of the ADC inputs.
 >
 > Signed-off-by: Markus Pargmann <mpa@pengutronix.de>
 
-That's great :-) Nice work!
+Looks good mostly. Just a couple of minor code-style issues. Try to run 
+checkpatch, sparse and friends on your driver before submission. They catch 
+most of the stuff that needs to be fixed in this driver.
 
-> ---
->  .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    |  46 ++++
->  drivers/mfd/Kconfig                                |   9 +
->  drivers/mfd/Makefile                               |   2 +
->  drivers/mfd/fsl-imx25-tsadc.c                      | 234 +++++++++++++++++++++
->  include/linux/mfd/imx25-tsadc.h                    | 138 ++++++++++++
->  5 files changed, 429 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
->  create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
->  create mode 100644 include/linux/mfd/imx25-tsadc.h
+[..]
+> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+> index 2209f28..a421445 100644
+> --- a/drivers/iio/adc/Kconfig
+> +++ b/drivers/iio/adc/Kconfig
+> @@ -113,6 +113,13 @@ config EXYNOS_ADC
+>   	  of SoCs for drivers such as the touchscreen and hwmon to use to share
+>   	  this resource.
 >
-> diff --git a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-> new file mode 100644
-> index 0000000..a857af0e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-> @@ -0,0 +1,46 @@
-> +Freescale mx25 ADC/TSC multifunction device
+> +config MX25_ADC
+> +	tristate "Freescale MX25 ADC driver"
+> +	depends on MFD_MX25_TSADC
+> +	help
+> +	  Generic Conversion Queue driver used for general purpose ADC in the
+> +	  MX25. This driver supports single measurements using the MX25 ADC.
 > +
-> +This device combines two general purpose conversion queues one used for general
-> +ADC and the other used for touchscreens.
-> +
-> +Required properties:
-> + - compatible: Should be "fsl,imx25-tsadc".
-> + - reg: Memory range of the device.
-> + - interrupts: Interrupt for this device as described in
-> +   interrupts/interrupts.txt
-> + - clocks: An 'ipg' clock defined as described in clocks/clock.txt
-> + - interrupt-controller: This device is an interrupt controller. It controls
-> +   the interrupts of both conversion queues.
-> + - #interrupt-cells: Should be '<1>'.
-> + - #address-cells: Should be '<1>'.
-> + - #size-cells: Should be '<1>'.
-> + - ranges
-> +
-> +This device includes two conversion queues which can be added as subnodes.
-> +The first queue is for the touchscreen, the second for general purpose ADC.
-> +
-> +Example:
-> +       tscadc: tscadc@50030000 {
-> +               compatible = "fsl,imx25-tsadc";
-> +               reg = <0x50030000 0xc>;
-> +               interrupts = <46>;
-> +               clocks = <&clks 119>;
-> +               clock-names = "ipg";
-> +               interrupt-controller;
-> +               #interrupt-cells = <1>;
-> +               #address-cells = <1>;
-> +               #size-cells = <1>;
-> +               ranges;
-> +
-> +               tsc: tcq@50030400 {
-> +                       compatible = "fsl,imx25-tcq";
-> +                       reg = <0x50030400 0x60>;
-> +                       ...
-> +               };
-> +
-> +               adc: gcq@50030800 {
-> +                       compatible = "fsl,imx25-gcq";
-> +                       reg = <0x50030800 0x60>;
-> +                       ...
-> +               };
-> +       };
 
-The meaning of 'tcq' and 'gcq' acronyms are not obvious. Could they be
-written more explicitily?
+alphabetical order
 
-Also, what does the '...' mean?
+>   config LP8788_ADC
+>   	bool "LP8788 ADC driver"
+>   	depends on MFD_LP8788
+> diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+> index ba9a10a..63daa2c 100644
+> --- a/drivers/iio/adc/Makefile
+> +++ b/drivers/iio/adc/Makefile
+> @@ -22,3 +22,4 @@ obj-$(CONFIG_TI_ADC081C) += ti-adc081c.o
+>   obj-$(CONFIG_TI_AM335X_ADC) += ti_am335x_adc.o
+>   obj-$(CONFIG_TWL6030_GPADC) += twl6030-gpadc.o
+>   obj-$(CONFIG_VIPERBOARD_ADC) += viperboard_adc.o
+> +obj-$(CONFIG_MX25_ADC) += fsl-imx25-gcq.o
 
-> +static int mx25_tsadc_domain_map(struct irq_domain *d, unsigned int irq,
-> +                            irq_hw_number_t hwirq)
+Here too
+
+[...]
+
+> +const struct iio_chan_spec mx25_gcq_channels[MX25_NUM_CFGS] = {
+
+static
+
+> +	MX25_IIO_CHAN(0, "xp"),
+> +	MX25_IIO_CHAN(1, "yp"),
+> +	MX25_IIO_CHAN(2, "xn"),
+> +	MX25_IIO_CHAN(3, "yn"),
+> +	MX25_IIO_CHAN(4, "wiper"),
+> +	MX25_IIO_CHAN(5, "inaux0"),
+> +	MX25_IIO_CHAN(6, "inaux1"),
+> +	MX25_IIO_CHAN(7, "inaux2"),
+> +};
+> +
+
+> +struct iio_info mx25_gcq_iio_info = {
+
+static const
+
+> +	.read_raw = mx25_gcq_read_raw,
+> +};
+> +
+> +static struct regmap_config mx25_gcq_regconfig = {
+
+const
+
+> +	.fast_io = true,
+
+You don't need to set fast_io since this is already done at the regmap_bus 
+level.
+
+> +	.max_register = 0x5c,
+> +	.reg_bits = 32,
+> +	.val_bits = 32,
+> +	.reg_stride = 4,
+> +};
+> +
+> +static void mx25_gcq_iio_dev_setup(struct platform_device *pdev,
+> +		struct iio_dev *idev)
 > +{
-> +       struct mx25_tsadc_priv *priv = d->host_data;
-> +
-> +       irq_set_chip_data(irq, priv);
-> +       irq_set_chip_and_handler(irq, &mx25_tsadc_irq_chip,
-> +                                handle_level_irq);
-> +
-> +#ifdef CONFIG_ARM
-> +       set_irq_flags(irq, IRQF_VALID);
-> +#else
-> +       irq_set_noprobe(irq);
-> +#endif
+> +	idev->dev.parent = &pdev->dev;
+> +	idev->channels = mx25_gcq_channels;
+> +	idev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
+> +	idev->info = &mx25_gcq_iio_info;
 
-Do we really need these ifdef's? Can't we just assume that CONFIG_ARM
-is always selected for this driver?
+Any reason why this needs to be in a separate function and can't be inlined 
+in probe()?
 
-> +static int mx25_tsadc_probe(struct platform_device *pdev)
-> +{
-> +       struct device *dev = &pdev->dev;
-> +       struct device_node *np = dev->of_node;
-> +       struct mx25_tsadc_priv *priv;
-> +       struct resource *iores;
-> +       int ret;
-> +       void __iomem *iomem;
-> +
-> +       priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-> +       if (!priv)
-> +               return -ENOMEM;
-> +
-> +       iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       iomem = devm_ioremap_resource(dev, iores);
-> +       if (IS_ERR(iomem)) {
-> +               dev_err(dev, "Failed to remap iomem\n");
-> +               return PTR_ERR(iomem);
-> +       }
-> +
-> +       priv->regs = regmap_init_mmio(dev, iomem, &mx25_tsadc);
-> +       if (IS_ERR(priv->regs)) {
-> +               dev_err(dev, "Failed to initialize regmap\n");
-> +               return PTR_ERR(priv->regs);
-> +       }
-> +
-> +       priv->clk = devm_clk_get(dev, "ipg");
-> +       if (IS_ERR(priv->clk)) {
-> +               dev_err(dev, "Failed to get ipg clock\n");
-> +               return PTR_ERR(priv->clk);
-> +       }
-> +
-> +       /* Enable clock and reset the component */
-> +       regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_CLK_EN,
-> +                       MX25_TGCR_CLK_EN);
-> +       regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_TSC_RST,
-> +                       MX25_TGCR_TSC_RST);
-> +
-> +       /* Setup powersaving mode, but enable internal reference voltage */
-> +       regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_POWERMODE_MASK,
-> +                       MX25_TGCR_POWERMODE_SAVE);
-> +       regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_INTREFEN,
-> +                       MX25_TGCR_INTREFEN);
-> +
-> +       ret = mx25_tsadc_setup_irq(pdev, priv);
-> +       if (ret) {
-> +               dev_err(dev, "Failed to setup irqs\n");
-> +               return ret;
-> +       }
-> +
-> +       platform_set_drvdata(pdev, priv);
-> +
-> +       of_platform_populate(np, NULL, NULL, dev);
-> +
-> +       dev_info(dev, "i.MX25/25 Touchscreen and ADC core driver loaded\n");
-
-You could remove the double '25/25'.
-
-> +
-> +       return 0;
 > +}
 > +
-> +static const struct of_device_id mx25_tsadc_ids[] = {
-> +       { .compatible = "fsl,imx25-tsadc", },
-> +       { /* Sentinel */ }
-> +};
+> +static int mx25_gcq_setup_cfgs(struct platform_device *pdev,
+> +		struct mx25_gcq_priv *priv)
+> +{
+> +	struct device_node *np = pdev->dev.of_node;
+> +	struct device_node *child;
+> +	struct device *dev = &pdev->dev;
+> +	int ret;
+> +	int i;
 > +
-> +static struct platform_driver mx25_tsadc_driver = {
-> +       .driver         = {
-> +               .name   = "mx25-tsadc",
-> +               .owner  = THIS_MODULE,
-> +               .of_match_table = mx25_tsadc_ids,
-> +       },
-> +       .probe          = mx25_tsadc_probe,
-> +};
-> +module_platform_driver(mx25_tsadc_driver);
+> +	/* Setup all configurations registers with a default conversion
+> +	 * configuration for each input */
+> +	for (i = 0; i != MX25_NUM_CFGS; ++i)
+> +		regmap_write(priv->regs, MX25_ADCQ_CFG(i),
+> +				MX25_ADCQ_CFG_YPLL_OFF |
+> +				MX25_ADCQ_CFG_XNUR_OFF |
+> +				MX25_ADCQ_CFG_XPUL_OFF |
+> +				MX25_ADCQ_CFG_REFP_INT |
+> +				(i << 4) |
+> +				MX25_ADCQ_CFG_REFN_NGND2);
 > +
-> +MODULE_DESCRIPTION("MFD for ADC/TSC for Freescale mx25");
-> +MODULE_AUTHOR("Markus Pargmann <mpa@pengutronix.de>");
-> +MODULE_LICENSE("GPL v2");
+> +	for_each_child_of_node(np, child) {
+> +		u32 reg;
+> +		u32 refn;
+> +		u32 refp;
+> +
+> +		ret = of_property_read_u32(child, "reg", &reg);
+> +		if (ret) {
+> +			dev_err(dev, "Failed to get reg property\n");
+> +			return ret;
+> +		}
+> +		if (reg > MX25_NUM_CFGS) {
+> +			dev_err(dev, "reg value is greater than the number of available configuration registers\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		ret = of_property_read_u32(child, "fsl,adc-refn", &refn);
+> +		if (ret) {
+> +			dev_err(dev, "Failed to get fsl,adc-refn property\n");
+> +			return ret;
+> +		}
+> +
+> +		ret = of_property_read_u32(child, "fsl,adc-refp", &refp);
+> +		if (ret) {
+> +			dev_err(dev, "Failed to get fsl,adc-refp property\n");
+> +			return ret;
+> +		}
 
-MODULE_ALIAS() as well?
+Range check for refp and refn?
+
+> +
+> +		regmap_update_bits(priv->regs, MX25_ADCQ_CFG(reg),
+> +				MX25_ADCQ_CFG_REFP_MASK |
+> +				MX25_ADCQ_CFG_REFN_MASK,
+> +				(refp << 7) | (refn << 2));
+> +	}
+> +	regmap_update_bits(priv->regs, MX25_ADCQ_CR,
+> +			MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST,
+> +			MX25_ADCQ_CR_FRST | MX25_ADCQ_CR_QRST);
+> +
+> +	regmap_write(priv->regs, MX25_ADCQ_CR,
+> +			MX25_ADCQ_CR_PDMSK |
+> +			MX25_ADCQ_CR_QSM_FQS);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mx25_gcq_probe(struct platform_device *pdev)
+> +{
+> +	struct iio_dev *idev;
+> +	struct mx25_gcq_priv *priv;
+> +	struct resource *res;
+> +	struct device *dev = &pdev->dev;
+> +	int ret;
+> +	int irq;
+> +	void __iomem *mem;
+> +
+> +	idev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+> +	if (!idev)
+> +		return -ENOMEM;
+> +
+> +	priv = iio_priv(idev);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	mem = devm_ioremap_resource(dev, res);
+> +	if (!mem) {
+> +		dev_err(dev, "Failed to get iomem");
+
+devm_ioremap_resource already prints a error message for you
+
+> +		return -ENOMEM;
+> +	}
+> +
+> +	priv->regs = devm_regmap_init_mmio(dev, mem, &mx25_gcq_regconfig);
+> +	if (IS_ERR(priv->regs)) {
+> +		dev_err(dev, "Failed to initialize regmap\n");
+> +		return PTR_ERR(priv->regs);
+> +	}
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq < 0) {
+
+0 is not a valid IRQ number either
+
+> +		dev_err(dev, "Failed to get IRQ\n");
+> +		return irq;
+> +	}
+> +
+> +	ret = devm_request_irq(dev, irq, mx25_gcq_irq, IRQF_ONESHOT, pdev->name,
+> +			priv);
+
+IRQF_ONESHOT does not make much sense for non-threaded IRQs. Also it is 
+probably safer to use the non managed variant of request_irq here.
+
+> +	if (ret) {
+> +		dev_err(dev, "Failed requesting IRQ\n");
+
+It usually makes sense to include the error number in the message. Same for 
+the other error messages in probe.
+
+> +		return ret;
+> +	}
+> +
+> +	ret = mx25_gcq_setup_cfgs(pdev, priv);
+> +	if (ret)
+> +		return ret;
+> +
+> +	mx25_gcq_iio_dev_setup(pdev, idev);
+> +
+> +	ret = iio_device_register(idev);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to register iio device\n");
+> +		return ret;
+> +	}
+> +
+> +	init_completion(&priv->completed);
+
+Should be done before the interrupt handler is registered. You reference it 
+in there.
+
+> +
+> +	priv->clk = mx25_tsadc_get_ipg(pdev->dev.parent);
+> +	ret = clk_prepare_enable(priv->clk);
+
+The clock should probably also be enabled before the interrupt handler and 
+the IIO device are registered.
+
+> +	if (ret) {
+> +		dev_err(dev, "Failed to enable clock\n");
+> +		return ret;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mx25_gcq_remove(struct platform_device *pdev)
+> +{
+> +	struct mx25_gcq_priv *priv = platform_get_drvdata(pdev);
+> +
+
+iio_device_unregister().
+
+> +	clk_disable_unprepare(priv->clk);
+> +
+> +	return 0;
+> +}

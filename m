@@ -1,55 +1,56 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID_REQ_GET_REPORT and report not filled during hid_pidff_init
-Date: Thu, 20 Feb 2014 16:14:33 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1402201613030.1192@pobox.suse.cz>
-References: <CAMvWtwT_J7rL1yFXZ3PyK1EEmmd=z3CgRUtQcgG+Yeh1tcWNrg@mail.gmail.com>
+Subject: Re: [PATCH 2/5] Port hid-lg4ff to ff-memless-next
+Date: Thu, 20 Feb 2014 16:16:52 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402201616270.1192@pobox.suse.cz>
+References: <1602354.DiHhm9tiaI@geidi-prime> <63cea0aa616907d1186526ea155ff1d0.squirrel@mungewell.org> <CADbOyBSXKvRpTB-3NezDhFwggrD7i7qS9e6Aa4JWUe_BynVH3g@mail.gmail.com> <7140464.ckcuvrghVW@geidi-prime>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55344 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:55356 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753391AbaBTPOh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Feb 2014 10:14:37 -0500
-In-Reply-To: <CAMvWtwT_J7rL1yFXZ3PyK1EEmmd=z3CgRUtQcgG+Yeh1tcWNrg@mail.gmail.com>
+	id S1754954AbaBTPQ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Feb 2014 10:16:56 -0500
+In-Reply-To: <7140464.ckcuvrghVW@geidi-prime>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lauri Peltonen <lauri.peltonen@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
+Cc: Simon Wood <simon@mungewell.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, 27 Jan 2014, Lauri Peltonen wrote:
+On Wed, 5 Feb 2014, Michal Mal=FD wrote:
 
-> I'm making some enhancements to hid/usbhid/hid-pidff.c to support more
-> force feedback devices, but I've encountered some weird behaviour. I'm
-> not sure whether it's a bug or something else.
-> 
-> My changes depend on knowing some device information (like memory) in
-> the initialization phase, and luckily hid-pidff reads the info from
-> PID_POOL report in hid_pidff_init -> pidff_reset. [1] and [2]
-> 
-> However, I noticed that the report struct never gets filled (all
-> zeros), even though with usbmon I can see the ctrl message out and the
-> report coming in with correct data (300 bytes of memory etc). I
-> managed to locate the line which causes the report to be dropped in
-> hid/hid-core.c , in hid_input_repor(..)t checking for
-> driver_input_lock. [3] Commenting out the following lines "fixes" the
-> issue, and the struct gets filled correctly. Anyways, I think that is
-> not a real solution.
-> 
-> if (down_trylock(&hid->driver_input_lock))
->  return -EBUSY;
-> 
-> Now, I wonder if there is a reason why the locking fails? Is the
-> driver locked during the initialization and hid_hw_request(...
-> HID_REQ_GET_REPORT) cannot be used? 
+> > > We need to think carefully on this as a '+10' combined with '-10'=
+ force
+> > > will result in '0'; however we do not want to deactivate the whee=
+l
+> > > (no-resistance mode) as this will result in 'ticking' on the whee=
+l as
+> > > force transitions through 0.... ideally we'd need to know that th=
+ere are
+> > > no forces set.
+> >=20
+> > No problem Simon, this is thought about:
+> > If forces are active, and they cancel out, hid_lg4ff_start_combined=
+ is
+> > called with 0 force (scaled_x =3D 0x80), instead of hid_lg4ff_stop_=
+combined
+> > as you assumed.
+>=20
+> Okay, so to set things straight: I should modify to patch to send 0x1=
+3 when=20
+> the effect is fully stopped and use 0x11 0x80 to only zeroize the for=
+ce when=20
+> the overall force is zero? My DFP doesn't differentiate between these=
+ states=20
+> so I cannot tell what is the right thing to do.
 
-Hi Lauri,
+Has there been any conclusion to this, please?
 
-yes, that is the case. For the reasoning, and quite some more background 
-explanation of how this whole thing works, please read changelog of commit 
-4ea5454203d ("HID: Fix race condition between driver core and ll-driver"). 
-
-Hopefully that should clarify your questions. If not, just ask :)
-
--- 
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

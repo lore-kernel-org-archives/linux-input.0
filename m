@@ -1,54 +1,36 @@
-From: Daniel J Blueman <daniel@quora.org>
-Subject: Re: USB keyboard occasional key stuck
-Date: Fri, 21 Feb 2014 11:44:25 +0800
-Message-ID: <CAMVG2stP-LEqu_YGBUdzQbawu+=N4iYuUyMoRymJWuaEdfGbjg@mail.gmail.com>
-References: <CAMVG2ss9nA4zcOT3c47EwEMrR7Z_gAQU-HTYGjdWcdYzihSnbg@mail.gmail.com>
-	<5302C0B2.9010506@gmail.com>
-	<20140218022105.14422.qmail@stuge.se>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] Input: remove a duplicative NULL test
+Date: Fri, 21 Feb 2014 11:55:06 +0300
+Message-ID: <20140221085506.GB13185@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f53.google.com ([209.85.219.53]:46246 "EHLO
-	mail-oa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752616AbaBUDo0 (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:26424 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753933AbaBUIzT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Feb 2014 22:44:26 -0500
-Received: by mail-oa0-f53.google.com with SMTP id m1so3454807oag.40
-        for <linux-input@vger.kernel.org>; Thu, 20 Feb 2014 19:44:25 -0800 (PST)
-In-Reply-To: <20140218022105.14422.qmail@stuge.se>
+	Fri, 21 Feb 2014 03:55:19 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Stuge <peter@stuge.se>
-Cc: Clinton Sprain <clintonsprain@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Peter, Dmitry et al,
+"pdata" is non-NULL here.  We verified that at the start of the
+function.
 
-This is a real bug that dents the usability of Linux against Windows
-or MacOS. We can enable model-specific workarounds, but what approach
-would catch phantom stuck keys in the input stack?
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-On 18 February 2014 10:21, Peter Stuge <peter@stuge.se> wrote:
-> Clinton Sprain wrote:
->> I noticed your examples are both fn combos. I'm seeing something like
->> this and it seems specifically related to the fn key. Reproducible on a
->> Macbook (3,1) and a Lenovo Yoga 13. Sequence is simple:
->>
->> Press key
->> Press fn
->> Release key
->> Release fn
->>
->> The key will be 'stuck' until you press another key. It seems to only
->> apply to keys that are part of a fn combo
->
-> Fn is handled by the embedded controller (H8 as per Intel reference
-> design in case of Macbook or Thinkpad) which has its own closed
-> firmware which is rarely perfectly bug-free.
->
->
-> //Peter
-
-
-
--- 
-Daniel J Blueman
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index a70400754e92..40abe90cc924 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1146,7 +1146,7 @@ static int mxt_probe(struct i2c_client *client,
+ 		goto err_free_mem;
+ 	}
+ 
+-	data->is_tp = pdata && pdata->is_tp;
++	data->is_tp = pdata->is_tp;
+ 
+ 	input_dev->name = (data->is_tp) ? "Atmel maXTouch Touchpad" :
+ 					  "Atmel maXTouch Touchscreen";

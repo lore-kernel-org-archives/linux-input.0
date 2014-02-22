@@ -1,38 +1,26 @@
-From: christy walton <info@yeah.net>
-Subject: (unknown)
-Date: Sat, 22 Feb 2014 17:00:11 +0200
-Message-ID: <20140222170011.15155yzxumlf34aj__49817.3547014177$1393084026$gmane$org@webmail.teicrete.gr>
-Reply-To: christy_walton@yeah.net
+From: loody <miloody@gmail.com>
+Subject: is it possible to temporarily not let user mode get hid input event
+Date: Sun, 23 Feb 2014 00:35:11 +0800
+Message-ID: <CANudz+smSLiEtTRC4t7VxzshDAdR6D4E=zYVJHT8xw0w4JiwGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=ISO-8859-1;
- DelSp="Yes";
- format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from server4.nmc.teicrete.gr ([147.95.1.5]:38172 "EHLO
-	server4.nmc.teicrete.gr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751260AbaBVPqz (ORCPT
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:35351 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751914AbaBVQfN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Feb 2014 10:46:55 -0500
-Subject: 
-Content-Disposition: inline
+	Sat, 22 Feb 2014 11:35:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
 
+hi all:
+is there any kernel hid module parameter or test program can
+temporarily not letting user mode program not receiving hid event?
+1. My hid kos are still inserted in.
+2. the kernel usb driver is working well; that mean kernel usb driver
+still handle interrupt transaction.
 
-Good day i am Mrs christy walton
+I just not want user mode program see the hid event for a while,
 
-I brought to you a proposal worth $ 9,000,000,000.00(Nine Billion United
-State
-Dollars) which i intend to use for CHARITY. Please reply me back if you
-are interested.
-
-
-
-
-
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
-
-
+Appreciate your kind help in advance,

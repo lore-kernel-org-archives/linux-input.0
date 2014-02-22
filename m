@@ -1,49 +1,38 @@
-From: "angelafan" <sales@i-techaccessory.com>
-Subject: I-Tech tablet PC manufacturer
-Date: Sat, 22 Feb 2014 10:53:25 +0800
-Message-ID: <201402221053250087901@i-techaccessory.com>
-Reply-To: angelafanteg@hotmail.com
+From: christy walton <info@yeah.net>
+Subject: (unknown)
+Date: Sat, 22 Feb 2014 17:00:11 +0200
+Message-ID: <20140222170011.15155yzxumlf34aj__49817.3547014177$1393084026$gmane$org@webmail.teicrete.gr>
+Reply-To: christy_walton@yeah.net
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="GB2312"
-Content-Transfer-Encoding: base64
+ charset=ISO-8859-1;
+ DelSp="Yes";
+ format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-5.webhostbox.net ([208.91.199.100]:33897 "EHLO
-	bh-5.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751763AbaBVDnq (ORCPT
+Received: from server4.nmc.teicrete.gr ([147.95.1.5]:38172 "EHLO
+	server4.nmc.teicrete.gr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751260AbaBVPqz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Feb 2014 22:43:46 -0500
-Received: from mailnull by bh-5.webhostbox.net with sa-checked (Exim 4.82)
-	(envelope-from <sales@i-techaccessory.com>)
-	id 1WH2ic-003Rhl-GC
-	for linux-input@vger.kernel.org; Sat, 22 Feb 2014 02:53:34 +0000
+	Sat, 22 Feb 2014 10:46:55 -0500
+Subject: 
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: username@ustc.edu.cn
 
-RGVhciBTaXIgo6wNCkhvdyBhcmUgeW91Pw0KVGhpcyBpcyBBbmdlbGEgZnJvbSBpLXRlY2ggY29t
-cGFueSxvdXIgY29tcGFueSB3YXMgZm91bmRlZCBpbiAyMDAzLGV4aXN0aW5nIHN0YWZmIG9mIG1v
-cmUgdGhhbiAxMDAgcGVvcGxlLiANCldlIGFyZSBjb21taXRlZCB0byByZXNlYXJjaCwgZGV2ZWxv
-cGUgYW5kIG1hbnVmYWN0dXJlIGZhc2hpb24gZGlnaXRhbCBwcm9kdWN0cywgbGlrZSBUYWJsZXQg
-UEMsIGdhbWUgcGxheWVyIGFuZCBzbyBvbi4NCiANCk5vdyBwbGVhc2UgYWxsb3dlZCBtZSB0byBp
-bnRyb2R1Y2Ugc29tZSBob3Qgc2FsZSBtb2RlbHMgYW5kIHBvcHVsYXIgcHJvZHVjdCB0byB5b3Ug
-YW5kIHlvdXIgY29sbGVhZ3VlcyBmb3IgdGFibGV0IFBDLiANCldlIGRvIHByb21vdGlvbiAgZm9y
-IHRhYmxldHMgZm9yIEp1bHk6DQo3IGluY2ggRHVhbCBjb3JlIElQUyAzRyBhbmQgd2l0aG91dCAz
-Rw0KNyBpbmNoIFF1YWRjb3JlIElQUyBzY3JlZW4NCjcuODUgaW5jaCBkdWFsIGNvcmUgSVBTIHdp
-dGggM0cgQmx1ZXRvb3RoIGFuZCBHUFMNCjguMSBpbmNoIGR1YWwgY29yZSB3aXRoIDNHIEJsdWV0
-b290aCBhbmQgR1BTDQo5IGluY2ggZHVhbCBjb3JlDQoxMC4xIGluY2ggcXVhZGNvcmUgSVBTDQox
-MC4xIGluY2ggUXVhZGNvcmUNCjEwLjEgaW5jaCBNVEsgM0cgYmx1ZXRvb3RoIEdQUw0KIA0KVmFy
-aWV0eSBvZiBjb21wZXRpdGl2ZSBwcm9kdWN0cyBhbmQgc29sdXRpb25zIGxvb2tpbmcgZm9yd2Fy
-ZCB0byB5b3UgdG8gdmlzaXQgb3VyIGZhY3RvcnkgYW5kIGNvbnN1bHRpbmcuDQpXZSB3aWxsIHBy
-b3ZpZGUgdGhlIGJlc3QgcHJvZHVjdCBxdWFsaXR5IGFuZCBzZXJ2aWNlIHRvIHdpbiB0aGUgdHJ1
-c3Qgb2YgY3VzdG9tZXJzDQptb3JlIGluZm8scGxlYXNlIHZpc2l0IG91ciB3ZWJzaXRlo7p3d3cu
-aS10ZWNoZ2xvYmFsLmNvbS4NCg0KSWYgeW91IGFyZSBpbnRlcmVzdGVkIGluIHBsZWFzZSBjb250
-YWN0IG1lIGJ5IFNreXBlIGFuZ2VsYWZhbjcxNCxNU04gYW5nZWxhZmFudGVnQGhvdG1haWwuY29t
-IG9yIGVtYWlsIGF0IHNhbGVzQGktdGVjaGdsb2JhbC5jb22jrA0Kd2Ugd2lsbCBiZSBwbGVhc2Vk
-IHRvIHNlbmQgaXQgdG8geW91IG9mZmVyLg0KDQoNCg0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0N
-Cg0KdGhhbmtzIGFuZCB3YXJtIHJlZ2FyZHMsIA0KQW5nZWxhIEZhbiANClNhbGVzIGRpcmVjdG9y
-IA0KaS1UZWNoIFNoZW56aGVuIEVsZWN0cm9uaWNzIENvLixMaW1pdGVkDQpUZUw6MDA4Ni03NTUt
-NjE2Nzk4MzAgDQpUZWw6MDA4Ni03NTUtMjc3OTE4NjQNCkZBWDogODYtNzU1LTYxNjc5ODI5DQpT
-a3lwZTphbmdlbGFmYW43MTQNCldlYnNpdGU6d3d3LmktdGVjaGdsb2JhbC5jb20=
+
+Good day i am Mrs christy walton
+
+I brought to you a proposal worth $ 9,000,000,000.00(Nine Billion United
+State
+Dollars) which i intend to use for CHARITY. Please reply me back if you
+are interested.
+
+
+
+
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.
+
+

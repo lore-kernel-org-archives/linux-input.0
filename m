@@ -1,69 +1,61 @@
-From: loody <miloody@gmail.com>
-Subject: Re: is it possible to temporarily not let user mode get hid input event
-Date: Sun, 23 Feb 2014 14:52:56 +0800
-Message-ID: <CANudz+tdWrCLpARFQznQfhkF-r2J-STY68xdBJc+BK5C=tKsjA@mail.gmail.com>
-References: <CANudz+smSLiEtTRC4t7VxzshDAdR6D4E=zYVJHT8xw0w4JiwGw@mail.gmail.com>
-	<CANq1E4SJDz2q0Rgn1f7u_b0w-mjVTte8=G2_qL38QnahDkUC1Q@mail.gmail.com>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: [PATCH 1/1] Input: don't modify the id of ioctl-provided ff effect on
+ upload failure
+Date: Sun, 23 Feb 2014 15:18:15 +0100
+Message-ID: <CADbOyBTf4fWhUveA7UgCP4EpLXAyrZCV-xs-wZ7HGyBwxhQFhg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f170.google.com ([74.125.82.170]:57536 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750886AbaBWGw6 (ORCPT
+Received: from mail-ve0-f175.google.com ([209.85.128.175]:41650 "EHLO
+	mail-ve0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751117AbaBWOSR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Feb 2014 01:52:58 -0500
-In-Reply-To: <CANq1E4SJDz2q0Rgn1f7u_b0w-mjVTte8=G2_qL38QnahDkUC1Q@mail.gmail.com>
+	Sun, 23 Feb 2014 09:18:17 -0500
+Received: by mail-ve0-f175.google.com with SMTP id oy12so508966veb.20
+        for <linux-input@vger.kernel.org>; Sun, 23 Feb 2014 06:18:16 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Anssi Hannula <anssi.hannula@iki.fi>
+Cc: linux-input@vger.kernel.org, =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
 
-hi David:
+From: Elias Vanderstuyft <elias.vds@gmail.com>
 
-Thanks for your suggestion.
-2014-02-23 0:56 GMT+08:00 David Herrmann <dh.herrmann@gmail.com>:
-> Hi
->
-> On Sat, Feb 22, 2014 at 5:35 PM, loody <miloody@gmail.com> wrote:
->> hi all:
->> is there any kernel hid module parameter or test program can
->> temporarily not letting user mode program not receiving hid event?
->> 1. My hid kos are still inserted in.
->> 2. the kernel usb driver is working well; that mean kernel usb driver
->> still handle interrupt transaction.
->>
->> I just not want user mode program see the hid event for a while,
->
-> For each connected HID device, there is a driver bound to it that
-> reads the events and forwards them to HID core. What you can do, is to
-> unbind a driver on a given device:
->   echo "<your-device-name>" >/sys/bus/hid/drivers/<driver-name>/unbind
-> The device-name is the directory name in:
->   /sys/bus/hid/devices/
-> The driver name is usually "hid-generic" but can be figured out for
-> each device by looking at the "driver" symlink in it's directry.
-> However, this is *really* just meant for debugging. This is not
-> recommended for anything serious. There is no support for that and if
-> you don't know what all this does, you shouldn't use it.
->
-> There is no proper way to disable a single device in the kernel.
-> User-space is supposed to control device-access so we probably won't
-> add such features to the kernel. If you describe your use-case in more
-> details, we can try to give hints how to get that working.
+If a new (id == -1) ff effect was uploaded from userspace,
+ff-core.c::input_ff_upload() will have assigned
+a positive number to the new effect id.
+Currently, evdev.c::evdev_do_ioctl() will save this new id to userspace,
+regardless of whether the upload succeeded or not.
 
-Sorry for not describing our situation clearer previously,
+On upload failure, this can be confusing because the dev->ff->effects[] array
+will not contain an element at the index of that new effect id.
 
-The problem we met like below
-a. once plug in usb hid mouse and fast moving mouse
-b. the screen will get blur.
+Note: Unfortunately applications should still expect changed effect id for
+quite some time.
 
-We want to know whether the screen blur is caused by
-1. the interrupt frequency of usb mouse is too high for our embedded
-system that make video decode slow
-2. something wrong between hw cursor and video overlay.
+This has been discussed on:
+http://www.mail-archive.com/linux-input@vger.kernel.org/msg08513.html
+("ff-core effect id handling in case of a failed effect upload")
 
-if we can deceive user mode program there is no mouse event, but
-kernel usb level still get hid interrupt transaction.
-We may clarify whether above 1) conclusion is correct.
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
+---
+ drivers/input/evdev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Appreciate your kind help :-)
+--- a/drivers/input/evdev.c     2014-02-23 14:21:19.980606615 +0100
++++ b/drivers/input/evdev.c     2014-02-23 14:25:04.417118859 +0100
+@@ -954,11 +954,13 @@ static long evdev_do_ioctl(struct file *
+                        return -EFAULT;
+
+                error = input_ff_upload(dev, &effect, file);
++               if (error)
++                       return error;
+
+                if (put_user(effect.id, &(((struct ff_effect __user *)p)->id)))
+                        return -EFAULT;
+
+-               return error;
++               return 0;
+        }
+
+        /* Multi-number variable-length handlers */

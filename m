@@ -1,110 +1,36 @@
-From: Matthew Garrett <matthew.garrett@nebula.com>
-Subject: [PATCH] input: Use platform-provided devices as i8042 serio parents
-Date: Sun, 23 Feb 2014 12:03:16 -0500
-Message-ID: <1393174996-27764-1-git-send-email-matthew.garrett@nebula.com>
+From: "Technical Support Team" <ddtc@glide.net.in>
+Subject: Messenger from Administrator
+Date: Mon, 24 Feb 2014 04:08:37 +0530
+Message-ID: <be0a57630cbcfa37b85567b91ec7108c.squirrel__40557.2290918373$1393196046$gmane$org@pop.glide.net.in>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:44664 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211AbaBWRDY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Feb 2014 12:03:24 -0500
+Received: from [202.131.124.7] ([202.131.124.7]:33027 "EHLO mail.glide.net.in"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1752028AbaBWWxz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Feb 2014 17:53:55 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, Matthew Garrett <matthew.garrett@nebula.com>
 
-i8042 devices exposed via platform firmware interfaces such as ACPI or
-Device Tree may provide additional information of use to userspace. Right
-now we don't associate the serio devices with the firmware device, and so
-there's no straightforward way for userspace to make use of that
-information. This patch simply moves the serio parent device to the firmware
-provided device.
+Our records indicate that your E-mail=AE Account could not be automatic=
+ally
+updated with our F-Secure R-HTK4S new(2014) version
+anti-spam/anti-virus/anti-spyware. Please click this link below to upda=
+te
+manually
 
-Signed-off-by: Matthew Garrett <matthew.garrett@nebula.com>
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/input/serio/i8042-sparcio.h   |  2 ++
- drivers/input/serio/i8042-x86ia64io.h |  2 ++
- drivers/input/serio/i8042.c           | 12 ++++++++++--
- 3 files changed, 14 insertions(+), 2 deletions(-)
+http://www.contactme.com/5308b7ab5becae0002004e69
 
-diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-index d6aa4c6..7bd8e2c 100644
---- a/drivers/input/serio/i8042-sparcio.h
-+++ b/drivers/input/serio/i8042-sparcio.h
-@@ -65,6 +65,7 @@ static int sparc_i8042_probe(struct platform_device *op)
- 			kbd_iobase = of_ioremap(&kbd->resource[0],
- 						0, 8, "kbd");
- 			kbd_res = &kbd->resource[0];
-+			i8042_kbd_parent = &kbd->dev;
- 		} else if (!strcmp(dp->name, OBP_PS2MS_NAME1) ||
- 			   !strcmp(dp->name, OBP_PS2MS_NAME2)) {
- 			struct platform_device *ms = of_find_device_by_node(dp);
-@@ -72,6 +73,7 @@ static int sparc_i8042_probe(struct platform_device *op)
- 			if (irq == 0xffffffff)
- 				irq = op->archdata.irqs[0];
- 			i8042_aux_irq = irq;
-+			i8042_aux_parent = &ms->dev;
- 		}
- 
- 		dp = dp->sibling;
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 0ec9abb..47dcdf1 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -723,6 +723,7 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 	device_set_wakeup_enable(&dev->dev, true);
- 
- 	i8042_pnp_kbd_devices++;
-+	i8042_kbd_parent = &dev->dev;
- 	return 0;
- }
- 
-@@ -744,6 +745,7 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 	}
- 
- 	i8042_pnp_aux_devices++;
-+	i8042_aux_parent = &dev->dev;
- 	return 0;
- }
- 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 020053f..86da76f 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -87,6 +87,8 @@ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
- #endif
- 
- static bool i8042_bypass_aux_irq_test;
-+static struct device *i8042_kbd_parent;
-+static struct device *i8042_aux_parent;
- 
- #include "i8042.h"
- 
-@@ -1215,7 +1217,10 @@ static int __init i8042_create_kbd_port(void)
- 	serio->stop		= i8042_stop;
- 	serio->close		= i8042_port_close;
- 	serio->port_data	= port;
--	serio->dev.parent	= &i8042_platform_device->dev;
-+	if (i8042_kbd_parent)
-+		serio->dev.parent	= i8042_kbd_parent;
-+	else
-+		serio->dev.parent	= &i8042_platform_device->dev;
- 	strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
- 	strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
- 
-@@ -1240,7 +1245,10 @@ static int __init i8042_create_aux_port(int idx)
- 	serio->start		= i8042_start;
- 	serio->stop		= i8042_stop;
- 	serio->port_data	= port;
--	serio->dev.parent	= &i8042_platform_device->dev;
-+	if (i8042_aux_parent)
-+		serio->dev.parent	= i8042_aux_parent;
-+	else
-+		serio->dev.parent	= &i8042_platform_device->dev;
- 	if (idx < 0) {
- 		strlcpy(serio->name, "i8042 AUX port", sizeof(serio->name));
- 		strlcpy(serio->phys, I8042_AUX_PHYS_DESC, sizeof(serio->phys));
--- 
-1.8.5.3
+We Are Sorry For Any Inconvenience.
 
+Verification Code: SQP4039VE
+
+Regards,
+Technical Support Team
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

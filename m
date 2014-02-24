@@ -1,48 +1,56 @@
-From: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: is it possible to temporarily not let user mode get hid input event
-Date: Mon, 24 Feb 2014 13:37:46 +0100
-Message-ID: <CANq1E4Tdf4QHtTy5HbFd_yEL1Z3ihWwHE-6JzEtT8GGsnRcBEQ@mail.gmail.com>
-References: <CANudz+smSLiEtTRC4t7VxzshDAdR6D4E=zYVJHT8xw0w4JiwGw@mail.gmail.com>
-	<CANq1E4SJDz2q0Rgn1f7u_b0w-mjVTte8=G2_qL38QnahDkUC1Q@mail.gmail.com>
-	<CANudz+tdWrCLpARFQznQfhkF-r2J-STY68xdBJc+BK5C=tKsjA@mail.gmail.com>
-	<CANq1E4QrVNQ1xjT7N5OPY1R3fM8Mc45B2GtpMjhYsKinCptZvg@mail.gmail.com>
-	<CANudz+t4SXeWsDZ6jbVwYs9YxjXyBAfErnAUhiDf3FNOMyV+ww@mail.gmail.com>
-	<CANq1E4QH7BRpfd_nDZ4JGE9xSHcDWpuWRK4BFhPRO4kbkKB_3Q@mail.gmail.com>
-	<CANudz+t3uNCH0WxN-QU0aB78WWfS+Q-N-TDONGfmYdmucZbDoQ@mail.gmail.com>
+From: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCHv6] staging/iio/adc: change the MXS touchscreen driver implementation
+Date: Mon, 24 Feb 2014 14:16:24 +0100
+Message-ID: <201402241416.24270.jbe@pengutronix.de>
+References: <1379946998-23041-1-git-send-email-jbe@pengutronix.de> <52CEA4AA.8050503@free-electrons.com> <201401100955.45885.jbe@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANudz+t3uNCH0WxN-QU0aB78WWfS+Q-N-TDONGfmYdmucZbDoQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: loody <miloody-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201401100955.45885.jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi
+Hi Alexandre,
 
-On Mon, Feb 24, 2014 at 1:34 PM, loody <miloody-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> Yes. For instance, you can run ./samples/uhid/uhid-example.c via ssh
->> to emulate a mouse. ssh keyboard input can then be used to generate
->> mouse-movement events.
-> There is one embarrassing question :-)
-> Would you please let me know how to cross-compile it ?
-> I try below commands but failed
-> #cd samples/uhid/
-> #make CROSS_COMPILE=arm-v7a8v4r2-linux-gnueabi-
-> make: *** No targets.  Stop.
->
-> Thanks for your kind help,
+> While I don't have much experience with the TS part of the code but I
+> can investigate if you don't have any idea.
 
-Don't use the Makefile. Use gcc directly:
-  gcc -o uhid-example -Wall samples/uhid/uhid-example.c
+can you please test the following patch?
+After releasing the touchscreen the internal state machine was left in =
+a
+wrong state.
 
-It's just one source file, you should be able to compile it on the
-device. No idea how your cross-compiler works, so cannot help you
-there.
+diff --git a/drivers/staging/iio/adc/mxs-lradc.c b/drivers/staging/iio/=
+adc/mxs-lradc.c
+index e2dd783..558a76c 100644
+--- a/drivers/staging/iio/adc/mxs-lradc.c
++++ b/drivers/staging/iio/adc/mxs-lradc.c
+@@ -698,6 +698,7 @@ static void mxs_lradc_finish_touch_event(struct mxs=
+_lradc *lradc, bool valid)
+        }
 
-Thanks
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+        /* if it is released, wait for the next touch via IRQ */
++       lradc->cur_plate =3D LRADC_TOUCH;
+        mxs_lradc_reg_clear(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ, LRADC_=
+CTRL1);
+        mxs_lradc_reg_set(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN, LRADC=
+_CTRL1);
+ }
+
+Regards,
+Juergen
+
+--=20
+Pengutronix e.K. =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0| Juergen Beisert =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 |
+Linux Solutions for Science and Industry =C2=A0 =C2=A0 =C2=A0| Phone: +=
+49-5121-206917-5128 |
+Peiner Str. 6-8, 31137 Hildesheim, Germany =C2=A0 =C2=A0| Fax: =C2=A0 +=
+49-5121-206917-5555 |
+Amtsgericht Hildesheim, HRA 2686 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0| http://www.pengutronix.de/ =C2=A0|

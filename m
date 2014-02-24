@@ -1,118 +1,212 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
-Subject: Re: [PATCH v2 0/4] Add ff-memless-next and make hid-lg4ff use it
-Date: Mon, 24 Feb 2014 01:58:53 +0100
-Message-ID: <14991521.KzMVP7XS2h@geidi-prime>
-References: <1516865.M993BQAYe4@geidi-prime> <530A931B.3020606@iki.fi>
+Subject: Re: [PATCH v2 1/4] Add ff-memless-next driver
+Date: Mon, 24 Feb 2014 02:18:21 +0100
+Message-ID: <3296661.ZtKKWyXPzF@geidi-prime>
+References: <1516865.M993BQAYe4@geidi-prime> <3364546.xScl1m6sdc@geidi-prime> <530A931D.9030308@iki.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.prifuk.cz ([31.31.77.241]:41629 "EHLO prifuk.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751310AbaBXA7A convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Feb 2014 19:59:00 -0500
-In-Reply-To: <530A931B.3020606@iki.fi>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <530A931D.9030308@iki.fi>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Anssi Hannula <anssi.hannula@iki.fi>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, elias.vds@gmail.com, jkosina@suse.cz, simon@mungewell.org
+List-Id: linux-input@vger.kernel.org
 
-On Monday 24 of February 2014 02:32:27 Anssi Hannula wrote:
-> 24.02.2014 01:24, Michal Mal=FD kirjoitti:
-> > Hi everybody,
+On Monday 24 of February 2014 02:32:29 Anssi Hannula wrote:
+> 24.02.2014 01:29, Michal Mal=FD kirjoitti:
+> > Introduce ff-memless-next module as a possible future replacement o=
+f
+> > ff-memless.
+> >=20
+> > Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
+> > Signed-off-by: Michal Mal=FD <madcatxster@prifuk.cz>
 >=20
-> Hi,
+> Some comments below.
 >=20
-> > this patch series is a result of my work to improve FFB support for
-> > memoryless devices. ff-memless-next is an improvement over the curr=
-ently
-> > available ff-memless which is well suited for joypads but cannot ha=
-ndle
-> > more advanced devices such as racing wheels properly. As I have exp=
-lained
-> > in one of RFCs regarding ff-memless-next, the extent of the changes=
- makes
-> > implementing ff-memless-next as a patch to ff-memless unfeasible. A=
-s of
-> > now there is a total of 27 drivers using ff-memless (including lg4f=
-f) - a
-> > lot of them joypads. I do not have access to any FFB joypad at the =
-moment
-> > so I cannot
-> > implement the functionality required to handle joypads properly - n=
-amely
-> > FF_RUMBLE and emulation of FF_PERIODIC through FF_RUMBLE.
-> > The plan is to implement the missing functionality and replace ff-m=
-emless
-> > completely in the future.
+> > ---
+> >=20
+> >  v2:
+> >   Handle upload and removal of uncombinable effects correctly
+> >   Remove redundant information from the documentation file
+> >   Invert direction of force along Y axis to conform to common conve=
+ntions
+> >   Set FF_GAIN bit
+> > =20
+> >  Documentation/input/ff-memless-next.txt | 141 ++++++
+> >  drivers/input/Kconfig                   |  11 +
+> >  drivers/input/Makefile                  |   1 +
+> >  drivers/input/ff-memless-next.c         | 789
+> >  ++++++++++++++++++++++++++++++++ include/linux/input/ff-memless-ne=
+xt.h =20
+> >  |  32 ++
+> >  5 files changed, 974 insertions(+)
+> >  create mode 100644 Documentation/input/ff-memless-next.txt
+> >  create mode 100644 drivers/input/ff-memless-next.c
+> >  create mode 100644 include/linux/input/ff-memless-next.h
+> >=20
+> > diff --git a/Documentation/input/ff-memless-next.txt
+> > b/Documentation/input/ff-memless-next.txt new file mode 100644
+> > index 0000000..1b550dc
+> > --- /dev/null
+> > +++ b/Documentation/input/ff-memless-next.txt
+> > @@ -0,0 +1,141 @@
 >=20
-> I think we should extend the current ff-memless instead of duplicatin=
-g
-> its functionality (even on a "for now" basis).
+> [...]
 >=20
-> Having looked at ff-memless-next briefly, it seems very similar to
-> ff-memless on its basic working principle, and therefore I don't real=
-ly
-> see why extending ff-memless would be too cumbersome. Unless I'm miss=
-ing
-> something - in that case, feel free to point it out to me :)
-
-Deciding whether to patch ff-memless or write a new driver from scratch=
- was a=20
-perfect example of being caught between the rock and a hard place. I am=
- not
-particularly fond of the fact that we would have two modules doing pret=
-ty much
-the same thing. My reasons for writing a separate module were:
-- Periodic effects. ff-memless doesn't do "real" periodic effects, it s=
-imply=20
-emulates them through rumble effect. Devices without rumble effect supp=
-ort=20
-require emulation through constant force effect. Just this was not some=
-thing=20
-one could write in one afternoon:)
-- Conditional effects. These effects cannot be by nature combined into =
-one=20
-overall force (at least not easily) so they have to be handled one by o=
-ne -=20
-this is a concept ff-memless does not seem to consider. FFB devices hav=
-e=20
-limits as to how many conditional (referred to as "uncombinable" in MLN=
-X)=20
-effects can be active simultaneously, etc.
-All in all it seemed less error prone to write a new driver based on th=
-e ff-
-memless logic, test and deploy it on devices I have access to and once =
-we are=20
-sure there are no nasty regressions port the rest of the drivers to the=
- new=20
-API. Given the scope of the changes I am afraid that a "patch" to ff-me=
-mless=20
-would be pretty close to a rewrite anyway.
-
-> Duplicating the module makes reviewing it somewhat difficult since th=
-e
-> changes are not clearly visible.
->=20
-> As for the amount of drivers using ff-memless, those are ~all very
-> simple (single function call registering a single callback) so it sho=
+> > +3. API provided by "ff-memless-next"
+> > +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > +"ff-memless-next" provides an API for developers of hardware-speci=
+fic
+> > +drivers. In order to use the API, the hardware-specific driver sho=
 uld
-> be easy to apply any API conversion if needed.
-> And I don't see a real need for you to have access to a rumble joypad=
- -
-> that support is already implemented in ff-memless, and other people c=
-an
-> test that it isn't broken by your changes.
-It has been my intention to add handling of rumble effects in a followu=
-p=20
-patch. I wanted to limit the extent of changes I dump in a one massive =
-patch,=20
-especially when I cannot test the rumble effect on a real hardware.
+> > +include <linux/input/ff-memless-next.h>
+>=20
+> > +Functions and structs defined by this API are:
+> [...]
+>=20
+> This kind of basic API documentation belongs in the headers (kernel-d=
+oc
+> format).
+>=20
+> [...]
+>=20
+> > +	MLNX_UPLOAD_UNCOMB - Check if the device can accept and play
+> > +			     "uncombinable" effect and upload the effect into
+> > +			     the device's internal memory.
+> > +			     Hardware-specific driver should return 0
+> > +			     on success.
+> > +	MLNX_ERASE_UNCOMB - Remove "uncombinable" effect from device's
+> > +			    internal memory.
+> > +			    Hardware-specific driver should return 0
+> > +			    on success.
+> > +	MLNX_START_UNCOMB - Start playback of "uncombinable" effect.
+> > +	MLNX_STOP_UNCOMB - Stop playback of "uncombinable" effect.
+>=20
+> These seem to be unused by any drivers?
+>=20
+> I don't think they should be added to the kernel before there is an
+> implementation using them (it also makes reviewing them more difficul=
+t).
 
-Michal
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+They are used by my dummy driver (link to the source is in the document=
+ation).=20
+Handling uncombinable effects in lg4ff would be a bit more involved so =
+I=20
+decided to add support for these in a separate patch series.
+
+> [...]
+>=20
+> > +4. Specifics of "ff-memless-next" for userspace developers
+> > +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > +None of the persons involved in development or testing of
+> > "ff-memless-next" +is aware of any reference force feedback
+> > specifications. "ff-memless-next" +tries to adhere to Microsoft's
+> > DirectInput specifications because we +believe that is what most
+> > developers have experience with.
+> > +
+> > +- Waveforms of periodic effects do not start at the origin, but as
+> > follows: +	SAW_UP: At minimum
+> > +	SAW_DOWN: At maximum
+> > +	SQUARE: At maximum
+> > +	TRIANGLE: At maximum
+> > +	SINE: At origin
+> > +
+> > +- Updating periodic effects:
+> > +	- All periodic effects are restarted when their parameters are=20
+updated.
+> > +
+> > +- Updating effects of finite duration:
+> > +	- Once an effect of finite length finishes playing, it is conside=
+red
+> > +	  stopped. Only effects that are playing can be updated on the fl=
+y.
+> > +	  Therefore effects of finite duration can be updated only until
+> > +	  they finish playing.
+>=20
+> Stopped effects should still be able to be updated.
+>=20
+> Anyway, if you want to target userspace developers with this
+> information, you should put it in generic documentation ("it is not
+> guaranteed that X", etc.). If not, don't say "for userspace developer=
+s".
+>=20
+> [...]
+>=20
+> > diff --git a/drivers/input/ff-memless-next.c
+> > b/drivers/input/ff-memless-next.c new file mode 100644
+> > index 0000000..843a223
+> > --- /dev/null
+> > +++ b/drivers/input/ff-memless-next.c
+> > @@ -0,0 +1,789 @@
+> > +/*
+> > + * Force feedback support for memoryless devices
+> > + *
+> > + * This module is based on "ff-memless" orignally written by Anssi
+> > Hannula. + * It is extended to support all force feedback effects
+> > currently supported + * by the Linux input stack.
+> > + *
+> > + * Copyright(c) 2013 Michal Maly <madcatxster@prifuk.cz>
+> > + *
+> > + */
+>=20
+> [...]
+>=20
+> > +static int mlnx_upload(struct input_dev *dev, struct ff_effect *ef=
+fect,
+> > +		       struct ff_effect *old)
+> > +{
+>=20
+> [...]
+>=20
+> > +		}
+> > +
+> > +		mlnx_schedule_playback(mlnxdev);
+> > +		spin_unlock_irq(&dev->event_lock);
+> > +		return 0;
+>=20
+> The above two lines are unneeded.
+Oops...
+
+> > +	}
+> > +
+> > +	spin_unlock_irq(&dev->event_lock);
+> > +
+> > +	return 0;
+> > +}
+> > +
+>=20
+> [...]
+>=20
+> > diff --git a/include/linux/input/ff-memless-next.h
+> > b/include/linux/input/ff-memless-next.h new file mode 100644
+> > index 0000000..ba89ba1
+> > --- /dev/null
+> > +++ b/include/linux/input/ff-memless-next.h
+> > @@ -0,0 +1,32 @@
+>=20
+> [...]
+>=20
+> > +int input_ff_create_mlnx(struct input_dev *dev, void *data,
+> > +			 int(*control_effect)(struct input_dev *, void *, const=20
+struct
+> > mlnx_effect_command *), +			 const u16 update_rate);
+>=20
+> Why is update_rate now driver-selectable?
+Because it is my intention to replace ff-memless with MLNX, I want to a=
+ccount=20
+for (very old?) devices that might have a limit on how many commands th=
+ey can=20
+accept within a given timeframe. Update interval in ff-memless is 50 ms=
+ecs=20
+whereas Logitech wheels can go as low as 8 msecs. The lower the update=20
+interval - the better the quality of periodic, ramp and envelope effect=
+s.=20
+Allowing the driver to choose how fast will MLNX generate updates seeme=
+d like=20
+the best way to go.
+
+
+Your feedback is very much appreciated...
+
+Michal M.

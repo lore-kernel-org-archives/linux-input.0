@@ -1,37 +1,58 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v2 0/5] HID: sony: Various fixes and improvements for the
- Sony driver
-Date: Mon, 24 Feb 2014 11:25:08 +0100
-Message-ID: <CANq1E4T+Mgzi4OJicRAE+Cjzz9eozNLVgvSP3C7V+5jYxkMYBw@mail.gmail.com>
-References: <1392914164-31899-1-git-send-email-frank.praznik@oh.rr.com>
+Subject: Re: [PATCH 0/3] HID: low level transport cleanup, series 3
+Date: Mon, 24 Feb 2014 11:31:46 +0100
+Message-ID: <CANq1E4QNEuhUb8Lyd4XoWjdgj5CRaaPHsK1-t9if4bLv5EH54g@mail.gmail.com>
+References: <1392927890-2389-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:57765 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751851AbaBXKZK (ORCPT
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:53964 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751568AbaBXKbq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Feb 2014 05:25:10 -0500
-Received: by mail-ie0-f172.google.com with SMTP id rd18so3320499iec.3
-        for <linux-input@vger.kernel.org>; Mon, 24 Feb 2014 02:25:08 -0800 (PST)
-In-Reply-To: <1392914164-31899-1-git-send-email-frank.praznik@oh.rr.com>
+	Mon, 24 Feb 2014 05:31:46 -0500
+In-Reply-To: <1392927890-2389-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
 Hi
 
-On Thu, Feb 20, 2014 at 5:35 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
-> v2 of this patch set addresses the code review issues raised in v1 as well as
-> adding a patch that fixes the styling of multi-line comments to conform to
-> kernel coding standards, adds a check to protect against a potential
-> out-of-bounds read in the Sixaxis battery code and adds a note in hidp/core.c
-> that a device module now depends on the current behavior of the uniq string.
+On Thu, Feb 20, 2014 at 9:24 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Hi guys,
+>
+> this is a new round in the low level HID transport cleanup.
+> These are the formely 7/14 an 12/14 only.
+> I add in between a patch which makes .raw_request mandatory, to cleanup
+> the old 12/14 (so 3/3 here).
+>
+> There is only two patches 2 merge after these 3... We are approaching the end!
 
-Besides some minor comments, the series looks good to me:
+All 3 look good:
 
 Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
-Thanks
+Thanks again!
 David
+
+> Cheers,
+> Benjamin
+>
+> Benjamin Tissoires (3):
+>   HID: input: hid-input remove hid_output_raw_report call
+>   HID: make .raw_request mandatory
+>   HID: hidraw: replace hid_output_raw_report() calls by appropriates
+>     ones
+>
+>  Documentation/hid/hid-transport.txt |  3 ++-
+>  drivers/hid/hid-core.c              | 11 ++++++++---
+>  drivers/hid/hid-input.c             | 10 ++++++----
+>  drivers/hid/hidraw.c                | 19 ++++++++++++++-----
+>  include/linux/hid.h                 |  5 +----
+>  5 files changed, 31 insertions(+), 17 deletions(-)
+>
+> --
+> 1.8.5.3
+>

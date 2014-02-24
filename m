@@ -1,55 +1,66 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
 Subject: Re: [PATCH v2 1/4] Add ff-memless-next driver
-Date: Mon, 24 Feb 2014 04:11:04 +0200
-Message-ID: <530AAA38.3090700@iki.fi>
-References: <1516865.M993BQAYe4@geidi-prime> <3364546.xScl1m6sdc@geidi-prime> <530A931D.9030308@iki.fi> <1651798.4YaLXnucpJ@geidi-prime>
+Date: Mon, 24 Feb 2014 03:45:01 +0100
+Message-ID: <2308366.HeZmROk36g@geidi-prime>
+References: <1516865.M993BQAYe4@geidi-prime> <1651798.4YaLXnucpJ@geidi-prime> <530AAA38.3090700@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sinikuusama.dnainternet.net ([83.102.40.134]:48438 "EHLO
-	sinikuusama.dnainternet.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752264AbaBXCLO (ORCPT
+Received: from www.prifuk.cz ([31.31.77.241]:41785 "EHLO prifuk.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751310AbaBXCpF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Feb 2014 21:11:14 -0500
-In-Reply-To: <1651798.4YaLXnucpJ@geidi-prime>
+	Sun, 23 Feb 2014 21:45:05 -0500
+In-Reply-To: <530AAA38.3090700@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
+To: Anssi Hannula <anssi.hannula@iki.fi>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, elias.vds@gmail.com, jkosina@suse.cz, simon@mungewell.org
 
-24.02.2014 03:54, Michal Mal=FD kirjoitti:
-> I forgot to comment on this:
->> Stopped effects should still be able to be updated.
-> Fair enough. I could not find a definitive answer to what is expected=
- behavior=20
-> in this case. As far as I can tell, there are following cases:
-> - Effects with no duration and delay: they shall be updated right awa=
-y.
-> - Effects with delay: updated parameters shall be sent to the device =
-at the=20
-> correct time.
-> - "Expired" effects with finite duration - ??? I assumed that effects=
- with=20
-> finite duration that have already finished playing cannot be updated =
-because=20
-> it does not seem to make much sense to do so.
+On Monday 24 of February 2014 04:11:04 Anssi Hannula wrote:
+> 24.02.2014 03:54, Michal Mal=FD kirjoitti:
+> > I forgot to comment on this:
+> >> Stopped effects should still be able to be updated.
+> >=20
+> > Fair enough. I could not find a definitive answer to what is expect=
+ed
+> > behavior in this case. As far as I can tell, there are following ca=
+ses:
+> > - Effects with no duration and delay: they shall be updated right a=
+way.
+> > - Effects with delay: updated parameters shall be sent to the devic=
+e at
+> > the
+> > correct time.
+> > - "Expired" effects with finite duration - ??? I assumed that effec=
+ts with
+> > finite duration that have already finished playing cannot be update=
+d
+> > because it does not seem to make much sense to do so.
+>=20
+> "Expired" effects can always be played back again later - if that
+> happens, the updated parameters will be in effect.
+Okay, let me make this clear. When an effect "expires", update of its=20
+parameters shall not trigger a restart, therefore it will not play. How=
+ever,=20
+when its parameters are updated and the effect is started again at some=
+ point,=20
+the updated parameters shall be used. I will double-check this just to =
+be on=20
+the safe side, but MLNX always stores the updated parameters no matter =
+what=20
+the status of the effect is, so it should behave exactly as you suggest=
+=2E=20
+Perhaps it was just me misinterpreting the semantics of "update"?
 
-"Expired" effects can always be played back again later - if that
-happens, the updated parameters will be in effect.
+To bring this to a conclusion:
+- Do you think that this work is worth mainlining?
+- If it is, what do you suggest I change?
 
-> Shall such an effect be=20
-> restarted when it is updated?
+Thanks a lot for your input.
 
-No.
-
-> Is there any guideline I should stick to I am=20
-> not aware of?
-
-Only "3.7 Dynamic update of an effect" of input/ff.txt.
-
---=20
-Anssi Hannula
+Michal M.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

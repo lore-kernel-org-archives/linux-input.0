@@ -1,58 +1,90 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 0/3] HID: low level transport cleanup, series 3
-Date: Mon, 24 Feb 2014 11:31:46 +0100
-Message-ID: <CANq1E4QNEuhUb8Lyd4XoWjdgj5CRaaPHsK1-t9if4bLv5EH54g@mail.gmail.com>
-References: <1392927890-2389-1-git-send-email-benjamin.tissoires@redhat.com>
+From: loody <miloody@gmail.com>
+Subject: Re: is it possible to temporarily not let user mode get hid input event
+Date: Mon, 24 Feb 2014 19:20:37 +0800
+Message-ID: <CANudz+t4SXeWsDZ6jbVwYs9YxjXyBAfErnAUhiDf3FNOMyV+ww@mail.gmail.com>
+References: <CANudz+smSLiEtTRC4t7VxzshDAdR6D4E=zYVJHT8xw0w4JiwGw@mail.gmail.com>
+	<CANq1E4SJDz2q0Rgn1f7u_b0w-mjVTte8=G2_qL38QnahDkUC1Q@mail.gmail.com>
+	<CANudz+tdWrCLpARFQznQfhkF-r2J-STY68xdBJc+BK5C=tKsjA@mail.gmail.com>
+	<CANq1E4QrVNQ1xjT7N5OPY1R3fM8Mc45B2GtpMjhYsKinCptZvg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:53964 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751568AbaBXKbq (ORCPT
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:46938 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752160AbaBXLUk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Feb 2014 05:31:46 -0500
-In-Reply-To: <1392927890-2389-1-git-send-email-benjamin.tissoires@redhat.com>
+	Mon, 24 Feb 2014 06:20:40 -0500
+In-Reply-To: <CANq1E4QrVNQ1xjT7N5OPY1R3fM8Mc45B2GtpMjhYsKinCptZvg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
 
-Hi
+hi David:
 
-On Thu, Feb 20, 2014 at 9:24 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi guys,
+2014-02-23 23:16 GMT+08:00 David Herrmann <dh.herrmann@gmail.com>:
+> Hi
 >
-> this is a new round in the low level HID transport cleanup.
-> These are the formely 7/14 an 12/14 only.
-> I add in between a patch which makes .raw_request mandatory, to cleanup
-> the old 12/14 (so 3/3 here).
+> On Sun, Feb 23, 2014 at 7:52 AM, loody <miloody@gmail.com> wrote:
+>> hi David:
+>>
+>> Thanks for your suggestion.
+>> 2014-02-23 0:56 GMT+08:00 David Herrmann <dh.herrmann@gmail.com>:
+>>> Hi
+>>>
+>>> On Sat, Feb 22, 2014 at 5:35 PM, loody <miloody@gmail.com> wrote:
+>>>> hi all:
+>>>> is there any kernel hid module parameter or test program can
+>>>> temporarily not letting user mode program not receiving hid event?
+>>>> 1. My hid kos are still inserted in.
+>>>> 2. the kernel usb driver is working well; that mean kernel usb driver
+>>>> still handle interrupt transaction.
+>>>>
+>>>> I just not want user mode program see the hid event for a while,
+>>>
+>>> For each connected HID device, there is a driver bound to it that
+>>> reads the events and forwards them to HID core. What you can do, is to
+>>> unbind a driver on a given device:
+>>>   echo "<your-device-name>" >/sys/bus/hid/drivers/<driver-name>/unbind
+>>> The device-name is the directory name in:
+>>>   /sys/bus/hid/devices/
+>>> The driver name is usually "hid-generic" but can be figured out for
+>>> each device by looking at the "driver" symlink in it's directry.
+>>> However, this is *really* just meant for debugging. This is not
+>>> recommended for anything serious. There is no support for that and if
+>>> you don't know what all this does, you shouldn't use it.
+>>>
+>>> There is no proper way to disable a single device in the kernel.
+>>> User-space is supposed to control device-access so we probably won't
+>>> add such features to the kernel. If you describe your use-case in more
+>>> details, we can try to give hints how to get that working.
+>>
+>> Sorry for not describing our situation clearer previously,
+>>
+>> The problem we met like below
+>> a. once plug in usb hid mouse and fast moving mouse
+>> b. the screen will get blur.
+>>
+>> We want to know whether the screen blur is caused by
+>> 1. the interrupt frequency of usb mouse is too high for our embedded
+>> system that make video decode slow
+>> 2. something wrong between hw cursor and video overlay.
+>>
+>> if we can deceive user mode program there is no mouse event, but
+>> kernel usb level still get hid interrupt transaction.
+>> We may clarify whether above 1) conclusion is correct.
+>>
+>> Appreciate your kind help :-)
 >
-> There is only two patches 2 merge after these 3... We are approaching the end!
+> You can unload the HID driver as described above, but that's unlikely
+> to fix any interrupt issues. How about you compile your kernel without
+> usbhid support? (CONFIG_USB_HID)
 
-All 3 look good:
+BTW, is there any fake virtual mouse to use?
+That mean user doesn't plug in any usb hid mouse, but user mode
+program can receive hid mouse event?
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
-Thanks again!
-David
 
-> Cheers,
-> Benjamin
->
-> Benjamin Tissoires (3):
->   HID: input: hid-input remove hid_output_raw_report call
->   HID: make .raw_request mandatory
->   HID: hidraw: replace hid_output_raw_report() calls by appropriates
->     ones
->
->  Documentation/hid/hid-transport.txt |  3 ++-
->  drivers/hid/hid-core.c              | 11 ++++++++---
->  drivers/hid/hid-input.c             | 10 ++++++----
->  drivers/hid/hidraw.c                | 19 ++++++++++++++-----
->  include/linux/hid.h                 |  5 +----
->  5 files changed, 31 insertions(+), 17 deletions(-)
->
-> --
-> 1.8.5.3
->
+-- 
+Regards,

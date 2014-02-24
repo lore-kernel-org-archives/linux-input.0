@@ -1,56 +1,55 @@
-From: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCHv6] staging/iio/adc: change the MXS touchscreen driver implementation
-Date: Mon, 24 Feb 2014 14:16:24 +0100
-Message-ID: <201402241416.24270.jbe@pengutronix.de>
-References: <1379946998-23041-1-git-send-email-jbe@pengutronix.de> <52CEA4AA.8050503@free-electrons.com> <201401100955.45885.jbe@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCHv6] staging/iio/adc: change the MXS touchscreen driver
+ implementation
+Date: Mon, 24 Feb 2014 16:33:16 +0300
+Message-ID: <20140224133316.GI26722@mwanda>
+References: <1379946998-23041-1-git-send-email-jbe@pengutronix.de>
+ <52CEA4AA.8050503@free-electrons.com>
+ <201401100955.45885.jbe@pengutronix.de>
+ <201402241416.24270.jbe@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201401100955.45885.jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <201402241416.24270.jbe@pengutronix.de>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Juergen Beisert <jbe@pengutronix.de>
+Cc: devel@driverdev.osuosl.org, marex@denx.de, fabio.estevam@freescale.com, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, jic23@cam.ac.uk, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Alexandre,
+On Mon, Feb 24, 2014 at 02:16:24PM +0100, Juergen Beisert wrote:
+> Hi Alexandre,
+> 
+> > While I don't have much experience with the TS part of the code but I
+> > can investigate if you don't have any idea.
+> 
+> can you please test the following patch?
+> After releasing the touchscreen the internal state machine was left in a
+> wrong state.
+> 
+> diff --git a/drivers/staging/iio/adc/mxs-lradc.c b/drivers/staging/iio/adc/mxs-lradc.c
+> index e2dd783..558a76c 100644
+> --- a/drivers/staging/iio/adc/mxs-lradc.c
+> +++ b/drivers/staging/iio/adc/mxs-lradc.c
+> @@ -698,6 +698,7 @@ static void mxs_lradc_finish_touch_event(struct mxs_lradc *lradc, bool valid)
+>         }
+> 
+>         /* if it is released, wait for the next touch via IRQ */
+> +       lradc->cur_plate = LRADC_TOUCH;
+>         mxs_lradc_reg_clear(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ, LRADC_CTRL1);
+>         mxs_lradc_reg_set(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN, LRADC_CTRL1);
+>  }
 
-> While I don't have much experience with the TS part of the code but I
-> can investigate if you don't have any idea.
+I am confused.  Why don't you send this like a normal patch?
 
-can you please test the following patch?
-After releasing the touchscreen the internal state machine was left in =
-a
-wrong state.
-
-diff --git a/drivers/staging/iio/adc/mxs-lradc.c b/drivers/staging/iio/=
-adc/mxs-lradc.c
-index e2dd783..558a76c 100644
---- a/drivers/staging/iio/adc/mxs-lradc.c
-+++ b/drivers/staging/iio/adc/mxs-lradc.c
-@@ -698,6 +698,7 @@ static void mxs_lradc_finish_touch_event(struct mxs=
-_lradc *lradc, bool valid)
-        }
-
-        /* if it is released, wait for the next touch via IRQ */
-+       lradc->cur_plate =3D LRADC_TOUCH;
-        mxs_lradc_reg_clear(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ, LRADC_=
-CTRL1);
-        mxs_lradc_reg_set(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN, LRADC=
-_CTRL1);
- }
-
-Regards,
-Juergen
-
---=20
-Pengutronix e.K. =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0| Juergen Beisert =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 |
-Linux Solutions for Science and Industry =C2=A0 =C2=A0 =C2=A0| Phone: +=
-49-5121-206917-5128 |
-Peiner Str. 6-8, 31137 Hildesheim, Germany =C2=A0 =C2=A0| Fax: =C2=A0 +=
-49-5121-206917-5555 |
-Amtsgericht Hildesheim, HRA 2686 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0| http://www.pengutronix.de/ =C2=A0|
+regards,
+dan carpenter

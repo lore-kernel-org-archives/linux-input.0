@@ -1,47 +1,79 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] staging/iio/adc/MXS/LRADC: fix touchscreen statemachine
-Date: Mon, 24 Feb 2014 21:14:37 +0000
-Message-ID: <530BB63D.4050200@kernel.org>
-References: <1379946998-23041-1-git-send-email-jbe@pengutronix.de> <201402241416.24270.jbe@pengutronix.de> <20140224133316.GI26722@mwanda> <201402241539.53707.jbe@pengutronix.de> <20140224164817.GE4436@piout.net>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Re: [PATCH v2 0/4] Add ff-memless-next and make hid-lg4ff use it
+Date: Mon, 24 Feb 2014 22:17:25 +0100
+Message-ID: <CADbOyBQ0U_TiovwMJJO1zQpr5PcwmB1O155P4nC6CmwhZjA=UQ@mail.gmail.com>
+References: <1516865.M993BQAYe4@geidi-prime>
+	<530A931B.3020606@iki.fi>
+	<14991521.KzMVP7XS2h@geidi-prime>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140224164817.GE4436-m++hUPXGwpdeoWH0uzbU5w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <14991521.KzMVP7XS2h@geidi-prime>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anssi Hannula <anssi.hannula@iki.fi>
+Cc: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-On 24/02/14 16:48, Alexandre Belloni wrote:
-> On 24/02/2014 at 15:39:53 +0100, Juergen Beisert wrote :
->> Releasing the touchscreen lets the internal statemachine left in a wrong state.
->> Due to this the release coordinate will be reported again by accident when the next
->> touchscreen event happens. This change sets up the correct state when waiting
->> for the next touchscreen event.
+On Mon, Feb 24, 2014 at 1:58 AM, Michal Mal=FD <madcatxster@prifuk.cz> =
+wrote:
+> On Monday 24 of February 2014 02:32:27 Anssi Hannula wrote:
 >>
->> Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+>> I think we should extend the current ff-memless instead of duplicati=
+ng
+>> its functionality (even on a "for now" basis).
 >>
+>> Having looked at ff-memless-next briefly, it seems very similar to
+>> ff-memless on its basic working principle, and therefore I don't rea=
+lly
+>> see why extending ff-memless would be too cumbersome. Unless I'm mis=
+sing
+>> something - in that case, feel free to point it out to me :)
 >
-> Tested-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Applied to the fixes-togreg branch of iio.git  Thanks
+> Deciding whether to patch ff-memless or write a new driver from scrat=
+ch was a
+> perfect example of being caught between the rock and a hard place. I =
+am not
+> particularly fond of the fact that we would have two modules doing pr=
+etty much
+> the same thing. My reasons for writing a separate module were:
+> - Periodic effects. ff-memless doesn't do "real" periodic effects, it=
+ simply
+> emulates them through rumble effect. Devices without rumble effect su=
+pport
+> require emulation through constant force effect. Just this was not so=
+mething
+> one could write in one afternoon:)
+> - Conditional effects. These effects cannot be by nature combined int=
+o one
+> overall force (at least not easily) so they have to be handled one by=
+ one -
+> this is a concept ff-memless does not seem to consider. FFB devices h=
+ave
+> limits as to how many conditional (referred to as "uncombinable" in M=
+LNX)
+> effects can be active simultaneously, etc.
+> All in all it seemed less error prone to write a new driver based on =
+the ff-
+> memless logic, test and deploy it on devices I have access to and onc=
+e we are
+> sure there are no nasty regressions port the rest of the drivers to t=
+he new
+> API. Given the scope of the changes I am afraid that a "patch" to ff-=
+memless
+> would be pretty close to a rewrite anyway.
 
-Jonathan
->
->> diff --git a/drivers/staging/iio/adc/mxs-lradc.c b/drivers/staging/iio/adc/mxs-lradc.c
->> index 7fc66a6..514844e 100644
->> --- a/drivers/staging/iio/adc/mxs-lradc.c
->> +++ b/drivers/staging/iio/adc/mxs-lradc.c
->> @@ -757,6 +757,7 @@ static void mxs_lradc_finish_touch_event(struct mxs_lradc *lradc, bool valid)
->>   	}
->>
->>   	/* if it is released, wait for the next touch via IRQ */
->> +	lradc->cur_plate = LRADC_TOUCH;
->>   	mxs_lradc_reg_clear(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ, LRADC_CTRL1);
->>   	mxs_lradc_reg_set(lradc, LRADC_CTRL1_TOUCH_DETECT_IRQ_EN, LRADC_CTRL1);
->>   }
->>
->> --
->> Pengutronix e.K.                              | Juergen Beisert             |
->> Linux Solutions for Science and Industry      | http://www.pengutronix.de/  |
->
+And add the fact that we already heavily tested the ff-memless-next dri=
+ver.
+Unless you do a diff between the original ff-memless.c and the current
+ff-memless-next.c (which will result in a rather unintuitive patch),
+it would be a huge waste of time to retest the modified (when doing
+efforts to create an intuitive patch) ff-memless-next.c, considered my
+total time spend on testing (and not to speak of the time that Michal
+spent to fix the corresponding bugs.)
+I know that might not be much of an argument, but on the other side,
+my motivation to test again from scratch will be much lower (I can't
+change much on that, I'm afraid), which would eventually lead to lower
+reliability of the final product.
+
+Elias

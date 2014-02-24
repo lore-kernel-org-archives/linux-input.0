@@ -1,68 +1,61 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
-Subject: Re: [PATCH v2 1/4] Add ff-memless-next driver
-Date: Mon, 24 Feb 2014 03:45:01 +0100
-Message-ID: <2308366.HeZmROk36g@geidi-prime>
-References: <1516865.M993BQAYe4@geidi-prime> <1651798.4YaLXnucpJ@geidi-prime> <530AAA38.3090700@iki.fi>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2 3/5] HID: sony: Perform a boundry check on the sixaxis
+ battery level index.
+Date: Mon, 24 Feb 2014 11:23:22 +0100
+Message-ID: <CANq1E4ThS2x_=Gw-wc24WYXz128kFXc_0-sH3_5OCuWmaMmo3w@mail.gmail.com>
+References: <1392914164-31899-1-git-send-email-frank.praznik@oh.rr.com>
+	<1392914164-31899-4-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.prifuk.cz ([31.31.77.241]:41785 "EHLO prifuk.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751310AbaBXCpF convert rfc822-to-8bit (ORCPT
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:44845 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751759AbaBXKXX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Feb 2014 21:45:05 -0500
-In-Reply-To: <530AAA38.3090700@iki.fi>
+	Mon, 24 Feb 2014 05:23:23 -0500
+Received: by mail-ie0-f182.google.com with SMTP id tp5so3311242ieb.27
+        for <linux-input@vger.kernel.org>; Mon, 24 Feb 2014 02:23:22 -0800 (PST)
+In-Reply-To: <1392914164-31899-4-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@iki.fi>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, elias.vds@gmail.com, jkosina@suse.cz, simon@mungewell.org
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Monday 24 of February 2014 04:11:04 Anssi Hannula wrote:
-> 24.02.2014 03:54, Michal Mal=FD kirjoitti:
-> > I forgot to comment on this:
-> >> Stopped effects should still be able to be updated.
-> >=20
-> > Fair enough. I could not find a definitive answer to what is expect=
-ed
-> > behavior in this case. As far as I can tell, there are following ca=
-ses:
-> > - Effects with no duration and delay: they shall be updated right a=
-way.
-> > - Effects with delay: updated parameters shall be sent to the devic=
-e at
-> > the
-> > correct time.
-> > - "Expired" effects with finite duration - ??? I assumed that effec=
-ts with
-> > finite duration that have already finished playing cannot be update=
-d
-> > because it does not seem to make much sense to do so.
->=20
-> "Expired" effects can always be played back again later - if that
-> happens, the updated parameters will be in effect.
-Okay, let me make this clear. When an effect "expires", update of its=20
-parameters shall not trigger a restart, therefore it will not play. How=
-ever,=20
-when its parameters are updated and the effect is started again at some=
- point,=20
-the updated parameters shall be used. I will double-check this just to =
-be on=20
-the safe side, but MLNX always stores the updated parameters no matter =
-what=20
-the status of the effect is, so it should behave exactly as you suggest=
-=2E=20
-Perhaps it was just me misinterpreting the semantics of "update"?
+Hi
 
-To bring this to a conclusion:
-- Do you think that this work is worth mainlining?
-- If it is, what do you suggest I change?
+On Thu, Feb 20, 2014 at 5:36 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
+> Make sure that an out-of-bounds read doesn't occur in the Sixaxis battery level
+> lookup table in the event that the controller sends an invalid battery status
+> value in the report.
+>
+> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+> ---
+>  drivers/hid/hid-sony.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index a51a9c0..b39e3ab 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -854,7 +854,8 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
+>                 battery_capacity = 100;
+>                 battery_charging = !(rd[30] & 0x01);
+>         } else {
+> -               battery_capacity = sixaxis_battery_capacity[rd[30]];
+> +               __u8 index = rd[30] <= 5 ? rd[30] : 5;
+> +               battery_capacity = sixaxis_battery_capacity[index];
 
-Thanks a lot for your input.
+Does it make sense to read something else on invalid reports? Sounds
+weird to me to just read at a lower index in case it's too short.
+Shouldn't you just bail out? But the worst that can happen is wrong
+battery values reported to user-space, so I'm fine with it.
 
-Michal M.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks
+David
+
+>                 battery_charging = 0;
+>         }
+>         cable_state = !((rd[31] >> 4) & 0x01);
+> --
+> 1.8.5.3
+>

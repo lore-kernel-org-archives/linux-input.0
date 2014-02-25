@@ -1,45 +1,51 @@
-From: Adam Jackson <ajax@redhat.com>
-Subject: [PATCH] i8042: Don't print an error message just because there's no chip
-Date: Tue, 25 Feb 2014 10:47:07 -0500
-Message-ID: <1393343227-13092-1-git-send-email-ajax@redhat.com>
+From: Josh Boyer <jwboyer@fedoraproject.org>
+Subject: Re: [PATCH] i8042: Don't print an error message just because there's
+ no chip
+Date: Tue, 25 Feb 2014 11:06:41 -0500
+Message-ID: <CA+5PVA6zHH_rj_2cawnWxQ_JRiyybFsNM3d30cCN=FpMiMuXxg@mail.gmail.com>
 References: <1222713404-1097-1-git-send-email-ajax@redhat.com>
+	<1393343227-13092-1-git-send-email-ajax@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:18254 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752634AbaBYPrJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Feb 2014 10:47:09 -0500
-In-Reply-To: <1222713404-1097-1-git-send-email-ajax@redhat.com>
+Received: from mail-ob0-f179.google.com ([209.85.214.179]:53135 "EHLO
+	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752439AbaBYQGm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Feb 2014 11:06:42 -0500
+In-Reply-To: <1393343227-13092-1-git-send-email-ajax@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Peter Jones <pjones@redhat.com>
+To: Adam Jackson <ajax@redhat.com>
+Cc: linux-input@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, Peter Jones <pjones@redhat.com>
 
-From: Peter Jones <pjones@redhat.com>
+On Tue, Feb 25, 2014 at 10:47 AM, Adam Jackson <ajax@redhat.com> wrote:
+> From: Peter Jones <pjones@redhat.com>
+>
+> Some systems, such as EFI-based Apple systems, won't necessarily have an
+> i8042 to initialize. We shouldn't be printing an error message in this
+> case, since not detecting the chip is the correct behavior.
+>
+> v2: Downgrade to pr_notice instead of pr_err.
+>
+> Signed-off-by: Adam Jackson <ajax@redhat.com>
 
-Some systems, such as EFI-based Apple systems, won't necessarily have an
-i8042 to initialize. We shouldn't be printing an error message in this
-case, since not detecting the chip is the correct behavior.
+Reviewed-by:  Josh Boyer <jwboyer@fedoraproject.org>
 
-v2: Downgrade to pr_notice instead of pr_err.
-
-Signed-off-by: Adam Jackson <ajax@redhat.com>
----
- drivers/input/serio/i8042.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 020053f..05c6285 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -855,7 +855,7 @@ static int __init i8042_check_aux(void)
- static int i8042_controller_check(void)
- {
- 	if (i8042_flush()) {
--		pr_err("No controller found\n");
-+		pr_notice("No controller found\n");
- 		return -ENODEV;
- 	}
- 
--- 
-1.8.5.3
-
+> ---
+>  drivers/input/serio/i8042.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> index 020053f..05c6285 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -855,7 +855,7 @@ static int __init i8042_check_aux(void)
+>  static int i8042_controller_check(void)
+>  {
+>         if (i8042_flush()) {
+> -               pr_err("No controller found\n");
+> +               pr_notice("No controller found\n");
+>                 return -ENODEV;
+>         }
+>

@@ -1,30 +1,47 @@
-From: Yung kyu kim <tecnologia@corrientes.gov.ar>
-Subject: STAKEHOLDER NEEDED!!!
-Date: Tue, 25 Feb 2014 14:14:43 -0300 (ART)
-Message-ID: <1553449290.53319.1393348483308.JavaMail.zimbra@corrientes.gov.ar>
-Reply-To: Yung kyu kim <2095494028@qq.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input synaptics-rmi4: Trivial F11 tidy up
+Date: Tue, 25 Feb 2014 14:08:16 -0800
+Message-ID: <1393366096-5524-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.corrientes.gov.ar ([190.7.61.120]:37369 "EHLO
-	corrientes.gov.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752634AbaBYR34 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:47496 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751019AbaBYWIW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Feb 2014 12:29:56 -0500
+	Tue, 25 Feb 2014 17:08:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>
 
-Hello,
+Delete an unused symbol and update copyright date.
 
-The Project is about the exportation of 100,000 barrels of Light Crude
-Oil daily out from Iraq to Turkey through my client's company in Iraq
-at the rate of $92.00 per barrel. This amount to $9,200,000 daily. I ask
-for your support as a foreigner to handle this business project with my
-client and you are not expected to invest in Iraq
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-If yes, let me know and we will discuss this project proper.
+--
 
-Kim.  
+ drivers/input/rmi4/rmi_f11.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Contact My Private Email  : 2784295239@qq.com
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 2aa7d17..9cc1406 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2011-2013 Synaptics Incorporated
++ * Copyright (c) 2011-2014 Synaptics Incorporated
+  * Copyright (c) 2011 Unixphere
+  *
+  * This program is free software; you can redistribute it and/or modify it
+@@ -7,8 +7,6 @@
+  * the Free Software Foundation.
+  */
+ 
+-#define FUNCTION_DATA f11_data
+-
+ #include <linux/kernel.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>

@@ -1,51 +1,30 @@
-From: Josh Boyer <jwboyer@fedoraproject.org>
-Subject: Re: [PATCH] i8042: Don't print an error message just because there's
- no chip
-Date: Tue, 25 Feb 2014 11:06:41 -0500
-Message-ID: <CA+5PVA6zHH_rj_2cawnWxQ_JRiyybFsNM3d30cCN=FpMiMuXxg@mail.gmail.com>
-References: <1222713404-1097-1-git-send-email-ajax@redhat.com>
-	<1393343227-13092-1-git-send-email-ajax@redhat.com>
+From: Yung kyu kim <tecnologia@corrientes.gov.ar>
+Subject: STAKEHOLDER NEEDED!!!
+Date: Tue, 25 Feb 2014 14:14:43 -0300 (ART)
+Message-ID: <1553449290.53319.1393348483308.JavaMail.zimbra@corrientes.gov.ar>
+Reply-To: Yung kyu kim <2095494028@qq.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:53135 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752439AbaBYQGm (ORCPT
+Received: from smtp.corrientes.gov.ar ([190.7.61.120]:37369 "EHLO
+	corrientes.gov.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752634AbaBYR34 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Feb 2014 11:06:42 -0500
-In-Reply-To: <1393343227-13092-1-git-send-email-ajax@redhat.com>
+	Tue, 25 Feb 2014 12:29:56 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Adam Jackson <ajax@redhat.com>
-Cc: linux-input@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, Peter Jones <pjones@redhat.com>
 
-On Tue, Feb 25, 2014 at 10:47 AM, Adam Jackson <ajax@redhat.com> wrote:
-> From: Peter Jones <pjones@redhat.com>
->
-> Some systems, such as EFI-based Apple systems, won't necessarily have an
-> i8042 to initialize. We shouldn't be printing an error message in this
-> case, since not detecting the chip is the correct behavior.
->
-> v2: Downgrade to pr_notice instead of pr_err.
->
-> Signed-off-by: Adam Jackson <ajax@redhat.com>
+Hello,
 
-Reviewed-by:  Josh Boyer <jwboyer@fedoraproject.org>
+The Project is about the exportation of 100,000 barrels of Light Crude
+Oil daily out from Iraq to Turkey through my client's company in Iraq
+at the rate of $92.00 per barrel. This amount to $9,200,000 daily. I ask
+for your support as a foreigner to handle this business project with my
+client and you are not expected to invest in Iraq
 
-> ---
->  drivers/input/serio/i8042.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 020053f..05c6285 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -855,7 +855,7 @@ static int __init i8042_check_aux(void)
->  static int i8042_controller_check(void)
->  {
->         if (i8042_flush()) {
-> -               pr_err("No controller found\n");
-> +               pr_notice("No controller found\n");
->                 return -ENODEV;
->         }
->
+If yes, let me know and we will discuss this project proper.
+
+Kim.  
+
+Contact My Private Email  : 2784295239@qq.com

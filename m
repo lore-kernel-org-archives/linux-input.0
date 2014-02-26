@@ -1,60 +1,40 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v3 0/9] Use regmap+devm+DT in pm8xxx input drivers
-Date: Wed, 26 Feb 2014 11:05:53 -0800
-Message-ID: <1393441562-685-1-git-send-email-sboyd@codeaurora.org>
+From: Carl Worth <cworth@cworth.org>
+Subject: [PATCH 1/3] Input: wacom - EC tablet supports 1023 levels of pressure, not just 255
+Date: Wed, 26 Feb 2014 14:38:14 -0800
+Message-ID: <1393454296-32735-2-git-send-email-cworth@cworth.org>
+References: <1393454296-32735-1-git-send-email-cworth@cworth.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:53833 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753508AbaBZTGE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Feb 2014 14:06:04 -0500
+Received: from arlo.cworth.org ([50.126.95.6]:51970 "EHLO arlo.cworth.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752543AbaBZWo1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Feb 2014 17:44:27 -0500
+In-Reply-To: <1393454296-32735-1-git-send-email-cworth@cworth.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Ping Cheng <pingc@wacom.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Carl Worth <cworth@cworth.org>
 
-These patches move the pm8xxx input drivers over to use devm_* APIs
-and regmap. This breaks the dependency of these drivers on the pm8xxx
-specific read/write calls and also simplifies the probe code a bit.
-Finally we add devicetree support to these drivers so they can be probed
-on the platforms that are supported upstream.
+This was verified on a ThinkPad Yoga laptop with an integrated Wacom
+tablet which reports itself with an ID of 0xEC.
 
-Changes since v2:
- * Rebased to v3.14-rc3
+Signed-off-by: Carl Worth <cworth@cworth.org>
+---
+ drivers/input/tablet/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes since v1:
- * Picked up Dmitry's version of devm for pwrkey
- * Added DT bindings and parsing patches
- * Dropped patches picked up by Dmitry
-
-
-Stephen Boyd (9):
-  Input: pmic8xxx-pwrkey - Migrate to regmap APIs
-  Input: pmic8xxx-keypad - Migrate to devm_* APIs
-  Input: pmic8xxx-keypad - Migrate to regmap APIs
-  Input: pmic8xxx-pwrkey - Migrate to DT
-  Input: pm8xxx-vibrator - Add DT match table
-  Input: pmic8xxx-keypad - Migrate to DT
-  devicetree: bindings: Document PM8921/8058 keypads
-  devicetree: bindings: Document PM8921/8058 power keys
-  devicetree: bindings: Document PM8921/8058 vibrators
-
- .../bindings/input/qcom,pm8xxx-keypad.txt          |  72 +++++
- .../bindings/input/qcom,pm8xxx-pwrkey.txt          |  39 +++
- .../devicetree/bindings/input/qcom,pm8xxx-vib.txt  |  16 ++
- drivers/input/keyboard/pmic8xxx-keypad.c           | 291 ++++++++++-----------
- drivers/input/misc/pm8xxx-vibrator.c               |   8 +
- drivers/input/misc/pmic8xxx-pwrkey.c               |  37 ++-
- include/linux/input/pmic8xxx-keypad.h              |  52 ----
- include/linux/input/pmic8xxx-pwrkey.h              |  31 ---
- 8 files changed, 290 insertions(+), 256 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
- delete mode 100644 include/linux/input/pmic8xxx-keypad.h
- delete mode 100644 include/linux/input/pmic8xxx-pwrkey.h
-
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 782c253..4958081 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -2109,7 +2109,7 @@ static const struct wacom_features wacom_features_0xE6 =
+ 	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
+ 	  .touch_max = 2 };
+ static const struct wacom_features wacom_features_0xEC =
+-	{ "Wacom ISDv4 EC",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  255,
++	{ "Wacom ISDv4 EC",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  1023,
+ 	  0, TABLETPC,    WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xED =
+ 	{ "Wacom ISDv4 ED",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+1.9.0
 

@@ -1,40 +1,65 @@
 From: Carl Worth <cworth@cworth.org>
-Subject: [PATCH 1/3] Input: wacom - EC tablet supports 1023 levels of pressure, not just 255
-Date: Wed, 26 Feb 2014 14:38:14 -0800
-Message-ID: <1393454296-32735-2-git-send-email-cworth@cworth.org>
+Subject: [PATCH 3/3] Input: wacom - Avoid incorrect sign extension from pressure-value lower byte
+Date: Wed, 26 Feb 2014 14:38:16 -0800
+Message-ID: <1393454296-32735-4-git-send-email-cworth@cworth.org>
 References: <1393454296-32735-1-git-send-email-cworth@cworth.org>
+ <1393454296-32735-2-git-send-email-cworth@cworth.org>
+ <1393454296-32735-3-git-send-email-cworth@cworth.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arlo.cworth.org ([50.126.95.6]:51970 "EHLO arlo.cworth.org"
+Received: from arlo.cworth.org ([50.126.95.6]:51972 "EHLO arlo.cworth.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752543AbaBZWo1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1752698AbaBZWo1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Wed, 26 Feb 2014 17:44:27 -0500
-In-Reply-To: <1393454296-32735-1-git-send-email-cworth@cworth.org>
+In-Reply-To: <1393454296-32735-3-git-send-email-cworth@cworth.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ping Cheng <pingc@wacom.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Carl Worth <cworth@cworth.org>
 
-This was verified on a ThinkPad Yoga laptop with an integrated Wacom
-tablet which reports itself with an ID of 0xEC.
+Previously, whenever the lower byte was greater than 127, the sign
+extension of the "char" during integer promotion would result in a
+negative value for pressure. There was code in place to adjust a
+negative value back to positive by subtracting from pressure_max, but
+this code was only correct with a tablet with a maximum of 256
+pressure values.
+
+By switching from "char" to "unsigned char" we can avoid the sign
+extension altogether, eliminate the code to adjust values, and obtain
+correct pressure results.
+
+With this code in place, I am now obtaining correct pressure results
+from the Wacom tablet built into a ThinkPad Yoga laptop. (Prior to
+this fix, gradual increases of pressure would result in pressure
+values that would reset from 255 to 0 rathern than simply increasing.)
 
 Signed-off-by: Carl Worth <cworth@cworth.org>
 ---
- drivers/input/tablet/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/tablet/wacom_wac.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 782c253..4958081 100644
+index 563f197..93f7440 100644
 --- a/drivers/input/tablet/wacom_wac.c
 +++ b/drivers/input/tablet/wacom_wac.c
-@@ -2109,7 +2109,7 @@ static const struct wacom_features wacom_features_0xE6 =
- 	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
- 	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xEC =
--	{ "Wacom ISDv4 EC",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  255,
-+	{ "Wacom ISDv4 EC",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  1023,
- 	  0, TABLETPC,    WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0xED =
- 	{ "Wacom ISDv4 ED",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
+@@ -1018,8 +1018,7 @@ static int wacom_tpc_single_touch(struct wacom_wac *wacom, size_t len)
+ 
+ static int wacom_tpc_pen(struct wacom_wac *wacom)
+ {
+-	struct wacom_features *features = &wacom->features;
+-	char *data = wacom->data;
++	unsigned char *data = wacom->data;
+ 	struct input_dev *input = wacom->input;
+ 	int pressure;
+ 	bool prox = data[1] & 0x20;
+@@ -1038,8 +1037,6 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
+ 		input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
+ 		input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
+ 		pressure = (data[7] << 8) | data[6];
+-		if (pressure < 0)
+-			pressure = features->pressure_max + pressure + 1;
+ 		input_report_abs(input, ABS_PRESSURE, pressure);
+ 		input_report_key(input, BTN_TOUCH, data[1] & 0x05);
+ 		input_report_key(input, wacom->tool[0], prox);
 -- 
 1.9.0
 

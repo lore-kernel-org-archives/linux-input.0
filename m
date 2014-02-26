@@ -1,63 +1,45 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH v2 3/8] Input: pixcir_i2c_ts: Get rid of
- pdata->attb_read_val()
-Date: Wed, 26 Feb 2014 09:41:14 -0600
-Message-ID: <20140226154114.GJ30028@saruman.home>
-References: <1393428486-15001-1-git-send-email-rogerq@ti.com>
- <1393428486-15001-4-git-send-email-rogerq@ti.com>
-Reply-To: <balbi@ti.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 0/5] ARM: davinci: tnetv107x removal
+Date: Wed, 26 Feb 2014 23:04:28 +0300
+Message-ID: <530E48CC.3040304@cogentembedded.com>
+References: <1393418614-3968549-1-git-send-email-arnd@arndb.de>
+ <201402261446.29257.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9pltayyoy9lWEMH"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:40629 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751177AbaBZPm6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Feb 2014 10:42:58 -0500
-Content-Disposition: inline
-In-Reply-To: <1393428486-15001-4-git-send-email-rogerq@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <201402261446.29257.arnd@arndb.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, Alexandre Courbot <gnurou@gmail.com>
+Cc: davinci-linux-open-source@linux.davincidsp.com, Samuel Ortiz <sameo@linux.intel.com>, Kevin Hilman <khilman@deeprootsystems.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: Roger Quadros <rogerq@ti.com>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
---M9pltayyoy9lWEMH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello.
 
-On Wed, Feb 26, 2014 at 05:28:01PM +0200, Roger Quadros wrote:
-> Get rid of the attb_read_val() platform hook. Instead,
-> read the ATTB gpio directly from the driver.
->=20
-> Fail if valid ATTB gpio is not provided by patform data.
+On 02/26/2014 04:46 PM, Arnd Bergmann wrote:
 
-s/patform/platform/
+>> The five patches are completely independent of one another,
+>> and applying them out of order is fine since we just want
+>> to remove the code. However, I'm looking for an Ack from
+>> Cyril Chemparathy and Sekhar Nori first, to be sure we
+>> won't need this code in the future. Kevin Hilman has
+>> already mentioned that he sees no reason to keep this
+>> code.
 
---=20
-balbi
+> Hmm, apparently Cyril is no longer at TI. If anyone has his
+> current email address and thinks he might have an opinion,
+> could you forward the original email?
 
---M9pltayyoy9lWEMH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+    Done. Fished his Gmail address from LinkedIn.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+> 	Arnd
 
-iQIcBAEBAgAGBQJTDgsaAAoJEIaOsuA1yqRE4asP/2eriuoLHegpz0J8zF2vOdik
-R4Tfd9AmgZUxtv6nIKBtzKr7Fr9XdolmVF2WIcwvI+k49yzGaJYwEoTqu3FcZZv3
-auLb6xtdaxi1ppGbDTu1Jf/LZslG26gxVIkjj1M7Y04OAubvxH+uxpuLyhA/EUQy
-aB3MvU1/Ue8HePmdUZ6uczGW/708nILE3DYU7LXJUPMt+G1A770I8UGlp3HGFKis
-ba6HCutJh+B9NGeHNnyr9JdcyY6hwM8wgjAzJndBNwyQFb9gAOHUEqOe3CwHTeh3
-bfjjkq4M0NmZESadCWL7DbNKJUUBqSSNXq9n17AS+7KkbT6R/t3BR9+siUb5GyYh
-a75Y4w7TYIrbOKuGPx0oL0oSGPhci0rhf7AgmlyGhdtoY3KbmG/UhBR7YWV+0RYT
-SMwfxStrK2JYL0p40ESQQX9Rmq5QZi1GSMUCCvJaf0lfEUTSv7p0pdqw9/VFMWvi
-uKG7wzrumpcxdeinbH8qAQsN4gLuL5THXR/PxSuMvljqJ1L7WLQ1YWNMqLQXshry
-vjZyWqTr8dyiaLQ6QB1znIfG6C+YOpIqQJtl0uMcoHoIP8C3Vy4lt/oyKgtuZhfk
-SPiU6V8pkmy+ZZAxIt5m/nxdadbjPaDcqc1rQZ07X8/g3omS5EXQcyd2zlCpGirZ
-/A2RVIRU5L9d3DgRv9Lv
-=siyw
------END PGP SIGNATURE-----
-
---M9pltayyoy9lWEMH--
+WBR, Sergei

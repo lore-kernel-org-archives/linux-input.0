@@ -1,95 +1,202 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: [PATCH v2 3/8] Input: pixcir_i2c_ts: Get rid of pdata->attb_read_val()
-Date: Wed, 26 Feb 2014 17:28:01 +0200
-Message-ID: <1393428486-15001-4-git-send-email-rogerq@ti.com>
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
+Date: Wed, 26 Feb 2014 17:28:02 +0200
+Message-ID: <1393428486-15001-5-git-send-email-rogerq@ti.com>
 References: <1393428486-15001-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1393428486-15001-1-git-send-email-rogerq@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1393428486-15001-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, jcbian-mY6CKx1T+M6Pt1CcHtbs0g@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Get rid of the attb_read_val() platform hook. Instead,
-read the ATTB gpio directly from the driver.
+Switch to using the Type-B Multi-Touch protocol.
 
-Fail if valid ATTB gpio is not provided by patform data.
-
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
+Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 ---
- drivers/input/touchscreen/pixcir_i2c_ts.c | 16 +++++++++++++++-
- include/linux/input/pixcir_ts.h           |  2 +-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 125 ++++++++++++++++++++++--------
+ 1 file changed, 94 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index cce3740..fe17b41 100644
+index fe17b41..8736f71 100644
 --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
 +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -24,6 +24,7 @@
+@@ -23,9 +23,12 @@
+ #include <linux/slab.h>
  #include <linux/i2c.h>
  #include <linux/input.h>
++#include <linux/input/mt.h>
  #include <linux/input/pixcir_ts.h>
-+#include <linux/gpio.h>
+ #include <linux/gpio.h>
  
++#define PIXCIR_MAX_SLOTS       2
++
  struct pixcir_i2c_ts_data {
  	struct i2c_client *client;
-@@ -87,11 +88,12 @@ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
+ 	struct input_dev *input;
+@@ -33,12 +36,25 @@ struct pixcir_i2c_ts_data {
+ 	bool exiting;
+ };
+ 
+-static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
++struct pixcir_touch {
++	int x;
++	int y;
++};
++
++struct pixcir_report_data {
++	int num_touches;
++	struct pixcir_touch touches[PIXCIR_MAX_SLOTS];
++};
++
++static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
++			    struct pixcir_report_data *report)
+ {
+-	struct pixcir_i2c_ts_data *tsdata = data;
+ 	u8 rdbuf[10], wrbuf[1] = { 0 };
++	u8 *bufptr;
+ 	u8 touch;
+-	int ret;
++	int ret, i;
++
++	memset(report, 0, sizeof(struct pixcir_report_data));
+ 
+ 	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
+ 	if (ret != sizeof(wrbuf)) {
+@@ -56,45 +72,85 @@ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
+ 		return;
+ 	}
+ 
+-	touch = rdbuf[0];
+-	if (touch) {
+-		u16 posx1 = (rdbuf[3] << 8) | rdbuf[2];
+-		u16 posy1 = (rdbuf[5] << 8) | rdbuf[4];
+-		u16 posx2 = (rdbuf[7] << 8) | rdbuf[6];
+-		u16 posy2 = (rdbuf[9] << 8) | rdbuf[8];
+-
+-		input_report_key(tsdata->input, BTN_TOUCH, 1);
+-		input_report_abs(tsdata->input, ABS_X, posx1);
+-		input_report_abs(tsdata->input, ABS_Y, posy1);
+-
+-		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
+-		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
+-		input_mt_sync(tsdata->input);
+-
+-		if (touch == 2) {
+-			input_report_abs(tsdata->input,
+-					 ABS_MT_POSITION_X, posx2);
+-			input_report_abs(tsdata->input,
+-					 ABS_MT_POSITION_Y, posy2);
+-			input_mt_sync(tsdata->input);
+-		}
+-	} else {
+-		input_report_key(tsdata->input, BTN_TOUCH, 0);
++	touch = rdbuf[0] & 0x7;
++	if (touch > PIXCIR_MAX_SLOTS)
++		touch = PIXCIR_MAX_SLOTS;
++
++	report->num_touches = touch;
++	bufptr = &rdbuf[2];
++
++	for (i = 0; i < touch; i++) {
++		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
++		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
++
++		bufptr = &bufptr[4];
+ 	}
++}
++
++static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
++			     struct pixcir_report_data *report)
++{
++	struct input_mt_pos pos[PIXCIR_MAX_SLOTS];
++	int slots[PIXCIR_MAX_SLOTS];
++	struct pixcir_touch *touch;
++	int n, i, slot;
++	struct device *dev = &ts->client->dev;
+ 
+-	input_sync(tsdata->input);
++	n = report->num_touches;
++	if (n > PIXCIR_MAX_SLOTS)
++		n = PIXCIR_MAX_SLOTS;
++
++	for (i = 0; i < n; i++) {
++		touch = &report->touches[i];
++		pos[i].x = touch->x;
++		pos[i].y = touch->y;
++	}
++
++	input_mt_assign_slots(ts->input, slots, pos, n);
++
++	for (i = 0; i < n; i++) {
++		touch = &report->touches[i];
++		slot = slots[i];
++
++		input_mt_slot(ts->input, slot);
++		input_mt_report_slot_state(ts->input,
++					   MT_TOOL_FINGER, true);
++
++		input_event(ts->input, EV_ABS, ABS_MT_POSITION_X, touch->x);
++		input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y, touch->y);
++
++		dev_dbg(dev, "%d: slot %d, x %d, y %d\n",
++			i, slot, touch->x, touch->y);
++	}
++
++	input_mt_sync_frame(ts->input);
++	input_sync(ts->input);
+ }
+ 
  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
  {
  	struct pixcir_i2c_ts_data *tsdata = dev_id;
-+	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
+ 	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
++	struct pixcir_report_data report;
  
  	while (!tsdata->exiting) {
- 		pixcir_ts_poscheck(tsdata);
- 
--		if (tsdata->chip->attb_read_val())
-+		if (gpio_get_value(pdata->gpio_attb))
+-		pixcir_ts_poscheck(tsdata);
+-
+-		if (gpio_get_value(pdata->gpio_attb))
++		/* parse packet */
++		pixcir_ts_parse(tsdata, &report);
++
++		/* report it */
++		pixcir_ts_report(tsdata, &report);
++
++		if (gpio_get_value(pdata->gpio_attb)) {
++			if (report.num_touches) {
++				/*
++				 * Last report with no finger up?
++				 * Do it now then.
++				 */
++				input_mt_sync_frame(tsdata->input);
++				input_sync(tsdata->input);
++			}
  			break;
++		}
  
  		msleep(20);
-@@ -293,6 +295,11 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	if (!pdata) {
- 		dev_err(&client->dev, "platform data not defined\n");
- 		return -EINVAL;
-+	} else {
-+		if (!gpio_is_valid(pdata->gpio_attb)) {
-+			dev_err(dev, "Invalid gpio_attb in pdata\n");
-+			return -EINVAL;
-+		}
  	}
+@@ -330,6 +386,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
  
- 	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
-@@ -325,6 +332,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(input, tsdata);
- 
-+	error = devm_gpio_request_one(dev, pdata->gpio_attb,
-+			GPIOF_DIR_IN, "pixcir_i2c_attb");
++	error = input_mt_init_slots(input, PIXCIR_MAX_SLOTS,
++			INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
 +	if (error) {
-+		dev_err(dev, "Failed to request ATTB gpio\n");
++		dev_err(dev, "Error initializing Multi-Touch slots\n");
 +		return error;
 +	}
 +
- 	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
- 				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
- 				     client->name, tsdata);
-diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
-index 7942804..160cf35 100644
---- a/include/linux/input/pixcir_ts.h
-+++ b/include/linux/input/pixcir_ts.h
-@@ -44,9 +44,9 @@ enum pixcir_int_mode {
- #define PIXCIR_INT_POL_HIGH	(1UL << 2)
+ 	input_set_drvdata(input, tsdata);
  
- struct pixcir_ts_platform_data {
--	int (*attb_read_val)(void);
- 	int x_max;
- 	int y_max;
-+	int gpio_attb;		/* GPIO connected to ATTB line */
- };
- 
- #endif
+ 	error = devm_gpio_request_one(dev, pdata->gpio_attb,
 -- 
 1.8.3.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

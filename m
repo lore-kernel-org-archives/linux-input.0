@@ -1,7 +1,7 @@
 From: Roger Quadros <rogerq@ti.com>
-Subject: [PATCH v2 6/8] Input: pixcir_i2c_ts: Implement wakeup from suspend
-Date: Wed, 26 Feb 2014 17:28:04 +0200
-Message-ID: <1393428486-15001-7-git-send-email-rogerq@ti.com>
+Subject: [PATCH v2 8/8] ARM: dts: am43x-epos-evm: Correct Touch controller info
+Date: Wed, 26 Feb 2014 17:28:06 +0200
+Message-ID: <1393428486-15001-9-git-send-email-rogerq@ti.com>
 References: <1393428486-15001-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,85 +9,58 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1393428486-15001-1-git-send-email-rogerq@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
+Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>
 List-Id: linux-input@vger.kernel.org
 
-Improve the suspend and resume handlers to allow the device
-to wakeup the system from suspend.
+Fixup Y resolution and add default pin state. Also update
+the compatible id.
 
+CC: Benoit Cousson <bcousson@baylibre.com>
+CC: Tony Lindgren <tony@atomide.com>
+CC: Mugunthan V N <mugunthanvnm@ti.com>
 Signed-off-by: Roger Quadros <rogerq@ti.com>
 Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
 ---
- drivers/input/touchscreen/pixcir_i2c_ts.c | 46 ++++++++++++++++++++++++++++---
- 1 file changed, 42 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/am43x-epos-evm.dts | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index b1e92f6..8ca258b 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -345,21 +345,59 @@ static void pixcir_input_close(struct input_dev *dev)
- static int pixcir_i2c_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-+	struct input_dev *input = ts->input;
-+	int ret = 0;
+diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
+index fbf9c4c..6c8efcf 100644
+--- a/arch/arm/boot/dts/am43x-epos-evm.dts
++++ b/arch/arm/boot/dts/am43x-epos-evm.dts
+@@ -79,6 +79,13 @@
+ 				0x18c (PIN_INPUT_PULLUP | SLEWCTRL_FAST | MUX_MODE0)	/* i2c0_scl.i2c0_scl */
+ 			>;
+ 		};
 +
-+	mutex_lock(&input->mutex);
++		pixcir_ts_pins: pixcir_ts_pins {
++			pinctrl-single,pins = <
++				0x44 (PIN_INPUT_PULLUP | MUX_MODE7)	/* gpmc_a1.gpio1_17 */
++			>;
++		};
 +
-+	if (device_may_wakeup(&client->dev)) {
-+		/* need to start device if not open, to be wakeup source */
-+		if (!input->users) {
-+			ret = pixcir_start(ts);
-+			if (ret)
-+				goto unlock;
-+		}
+ 	};
  
--	if (device_may_wakeup(&client->dev))
- 		enable_irq_wake(client->irq);
+ 	matrix_keypad: matrix_keypad@0 {
+@@ -157,7 +164,9 @@
+ 	};
  
--	return 0;
-+	} else if (input->users) {
-+		ret = pixcir_stop(ts);
-+	}
-+
-+unlock:
-+	mutex_unlock(&input->mutex);
-+
-+	return ret;
- }
+ 	pixcir_ts@5c {
+-		compatible = "pixcir,pixcir_ts";
++		compatible = "pixcir,pixcir_tangoc";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pixcir_ts_pins>;
+ 		reg = <0x5c>;
+ 		interrupt-parent = <&gpio1>;
+ 		interrupts = <17 0>;
+@@ -165,7 +174,7 @@
+ 		attb-gpio = <&gpio1 17 GPIO_ACTIVE_HIGH>;
  
- static int pixcir_i2c_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-+	struct input_dev *input = ts->input;
-+	int ret = 0;
-+
-+	mutex_lock(&input->mutex);
- 
--	if (device_may_wakeup(&client->dev))
-+	if (device_may_wakeup(&client->dev)) {
- 		disable_irq_wake(client->irq);
- 
--	return 0;
-+		/* need to stop device if it was not open on suspend */
-+		if (!input->users) {
-+			ret = pixcir_stop(ts);
-+			if (ret)
-+				goto unlock;
-+		}
-+
-+	} else if (input->users) {
-+		ret = pixcir_start(ts);
-+	}
-+
-+unlock:
-+	mutex_unlock(&input->mutex);
-+
-+	return ret;
- }
- #endif
+ 		x-size = <1024>;
+-		y-size = <768>;
++		y-size = <600>;
+ 	};
+ };
  
 -- 
 1.8.3.2

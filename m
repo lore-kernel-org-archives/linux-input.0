@@ -1,202 +1,63 @@
-From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
-Date: Wed, 26 Feb 2014 17:28:02 +0200
-Message-ID: <1393428486-15001-5-git-send-email-rogerq@ti.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH v2 3/8] Input: pixcir_i2c_ts: Get rid of
+ pdata->attb_read_val()
+Date: Wed, 26 Feb 2014 09:41:14 -0600
+Message-ID: <20140226154114.GJ30028@saruman.home>
 References: <1393428486-15001-1-git-send-email-rogerq@ti.com>
+ <1393428486-15001-4-git-send-email-rogerq@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1393428486-15001-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, jcbian-mY6CKx1T+M6Pt1CcHtbs0g@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9pltayyoy9lWEMH"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:40629 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751177AbaBZPm6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Feb 2014 10:42:58 -0500
+Content-Disposition: inline
+In-Reply-To: <1393428486-15001-4-git-send-email-rogerq@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roger Quadros <rogerq@ti.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Switch to using the Type-B Multi-Touch protocol.
+--M9pltayyoy9lWEMH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
----
- drivers/input/touchscreen/pixcir_i2c_ts.c | 125 ++++++++++++++++++++++--------
- 1 file changed, 94 insertions(+), 31 deletions(-)
+On Wed, Feb 26, 2014 at 05:28:01PM +0200, Roger Quadros wrote:
+> Get rid of the attb_read_val() platform hook. Instead,
+> read the ATTB gpio directly from the driver.
+>=20
+> Fail if valid ATTB gpio is not provided by patform data.
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index fe17b41..8736f71 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -23,9 +23,12 @@
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
-+#include <linux/input/mt.h>
- #include <linux/input/pixcir_ts.h>
- #include <linux/gpio.h>
- 
-+#define PIXCIR_MAX_SLOTS       2
-+
- struct pixcir_i2c_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input;
-@@ -33,12 +36,25 @@ struct pixcir_i2c_ts_data {
- 	bool exiting;
- };
- 
--static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
-+struct pixcir_touch {
-+	int x;
-+	int y;
-+};
-+
-+struct pixcir_report_data {
-+	int num_touches;
-+	struct pixcir_touch touches[PIXCIR_MAX_SLOTS];
-+};
-+
-+static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
-+			    struct pixcir_report_data *report)
- {
--	struct pixcir_i2c_ts_data *tsdata = data;
- 	u8 rdbuf[10], wrbuf[1] = { 0 };
-+	u8 *bufptr;
- 	u8 touch;
--	int ret;
-+	int ret, i;
-+
-+	memset(report, 0, sizeof(struct pixcir_report_data));
- 
- 	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
- 	if (ret != sizeof(wrbuf)) {
-@@ -56,45 +72,85 @@ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
- 		return;
- 	}
- 
--	touch = rdbuf[0];
--	if (touch) {
--		u16 posx1 = (rdbuf[3] << 8) | rdbuf[2];
--		u16 posy1 = (rdbuf[5] << 8) | rdbuf[4];
--		u16 posx2 = (rdbuf[7] << 8) | rdbuf[6];
--		u16 posy2 = (rdbuf[9] << 8) | rdbuf[8];
--
--		input_report_key(tsdata->input, BTN_TOUCH, 1);
--		input_report_abs(tsdata->input, ABS_X, posx1);
--		input_report_abs(tsdata->input, ABS_Y, posy1);
--
--		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
--		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
--		input_mt_sync(tsdata->input);
--
--		if (touch == 2) {
--			input_report_abs(tsdata->input,
--					 ABS_MT_POSITION_X, posx2);
--			input_report_abs(tsdata->input,
--					 ABS_MT_POSITION_Y, posy2);
--			input_mt_sync(tsdata->input);
--		}
--	} else {
--		input_report_key(tsdata->input, BTN_TOUCH, 0);
-+	touch = rdbuf[0] & 0x7;
-+	if (touch > PIXCIR_MAX_SLOTS)
-+		touch = PIXCIR_MAX_SLOTS;
-+
-+	report->num_touches = touch;
-+	bufptr = &rdbuf[2];
-+
-+	for (i = 0; i < touch; i++) {
-+		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
-+		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
-+
-+		bufptr = &bufptr[4];
- 	}
-+}
-+
-+static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
-+			     struct pixcir_report_data *report)
-+{
-+	struct input_mt_pos pos[PIXCIR_MAX_SLOTS];
-+	int slots[PIXCIR_MAX_SLOTS];
-+	struct pixcir_touch *touch;
-+	int n, i, slot;
-+	struct device *dev = &ts->client->dev;
- 
--	input_sync(tsdata->input);
-+	n = report->num_touches;
-+	if (n > PIXCIR_MAX_SLOTS)
-+		n = PIXCIR_MAX_SLOTS;
-+
-+	for (i = 0; i < n; i++) {
-+		touch = &report->touches[i];
-+		pos[i].x = touch->x;
-+		pos[i].y = touch->y;
-+	}
-+
-+	input_mt_assign_slots(ts->input, slots, pos, n);
-+
-+	for (i = 0; i < n; i++) {
-+		touch = &report->touches[i];
-+		slot = slots[i];
-+
-+		input_mt_slot(ts->input, slot);
-+		input_mt_report_slot_state(ts->input,
-+					   MT_TOOL_FINGER, true);
-+
-+		input_event(ts->input, EV_ABS, ABS_MT_POSITION_X, touch->x);
-+		input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y, touch->y);
-+
-+		dev_dbg(dev, "%d: slot %d, x %d, y %d\n",
-+			i, slot, touch->x, touch->y);
-+	}
-+
-+	input_mt_sync_frame(ts->input);
-+	input_sync(ts->input);
- }
- 
- static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
- {
- 	struct pixcir_i2c_ts_data *tsdata = dev_id;
- 	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
-+	struct pixcir_report_data report;
- 
- 	while (!tsdata->exiting) {
--		pixcir_ts_poscheck(tsdata);
--
--		if (gpio_get_value(pdata->gpio_attb))
-+		/* parse packet */
-+		pixcir_ts_parse(tsdata, &report);
-+
-+		/* report it */
-+		pixcir_ts_report(tsdata, &report);
-+
-+		if (gpio_get_value(pdata->gpio_attb)) {
-+			if (report.num_touches) {
-+				/*
-+				 * Last report with no finger up?
-+				 * Do it now then.
-+				 */
-+				input_mt_sync_frame(tsdata->input);
-+				input_sync(tsdata->input);
-+			}
- 			break;
-+		}
- 
- 		msleep(20);
- 	}
-@@ -330,6 +386,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
- 
-+	error = input_mt_init_slots(input, PIXCIR_MAX_SLOTS,
-+			INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (error) {
-+		dev_err(dev, "Error initializing Multi-Touch slots\n");
-+		return error;
-+	}
-+
- 	input_set_drvdata(input, tsdata);
- 
- 	error = devm_gpio_request_one(dev, pdata->gpio_attb,
--- 
-1.8.3.2
+s/patform/platform/
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+balbi
+
+--M9pltayyoy9lWEMH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTDgsaAAoJEIaOsuA1yqRE4asP/2eriuoLHegpz0J8zF2vOdik
+R4Tfd9AmgZUxtv6nIKBtzKr7Fr9XdolmVF2WIcwvI+k49yzGaJYwEoTqu3FcZZv3
+auLb6xtdaxi1ppGbDTu1Jf/LZslG26gxVIkjj1M7Y04OAubvxH+uxpuLyhA/EUQy
+aB3MvU1/Ue8HePmdUZ6uczGW/708nILE3DYU7LXJUPMt+G1A770I8UGlp3HGFKis
+ba6HCutJh+B9NGeHNnyr9JdcyY6hwM8wgjAzJndBNwyQFb9gAOHUEqOe3CwHTeh3
+bfjjkq4M0NmZESadCWL7DbNKJUUBqSSNXq9n17AS+7KkbT6R/t3BR9+siUb5GyYh
+a75Y4w7TYIrbOKuGPx0oL0oSGPhci0rhf7AgmlyGhdtoY3KbmG/UhBR7YWV+0RYT
+SMwfxStrK2JYL0p40ESQQX9Rmq5QZi1GSMUCCvJaf0lfEUTSv7p0pdqw9/VFMWvi
+uKG7wzrumpcxdeinbH8qAQsN4gLuL5THXR/PxSuMvljqJ1L7WLQ1YWNMqLQXshry
+vjZyWqTr8dyiaLQ6QB1znIfG6C+YOpIqQJtl0uMcoHoIP8C3Vy4lt/oyKgtuZhfk
+SPiU6V8pkmy+ZZAxIt5m/nxdadbjPaDcqc1rQZ07X8/g3omS5EXQcyd2zlCpGirZ
+/A2RVIRU5L9d3DgRv9Lv
+=siyw
+-----END PGP SIGNATURE-----
+
+--M9pltayyoy9lWEMH--

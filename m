@@ -1,65 +1,57 @@
-From: Hanno =?UTF-8?B?QsO2Y2s=?= <hanno@hboeck.de>
-Subject: Unknown ALPS device
-Date: Thu, 27 Feb 2014 16:46:25 +0100
-Message-ID: <20140227164625.5e8da800@hboeck.de>
+From: shawn wilson <ag4ve.us@gmail.com>
+Subject: Re: Unknown ALPS device
+Date: Thu, 27 Feb 2014 11:28:10 -0500
+Message-ID: <CAH_OBieFt+WDfm9SyHxF=upfL4jTv0vZMpfQB6OgxYo9OHdpxg@mail.gmail.com>
+References: <20140227164625.5e8da800@hboeck.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512; protocol="application/pgp-signature"; boundary="=_zucker.schokokeks.org-10559-1393516011-0001-2"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zucker.schokokeks.org ([178.63.68.96]:37171 "EHLO
-	zucker.schokokeks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753617AbaB0Pvx (ORCPT
+Received: from mail-ve0-f181.google.com ([209.85.128.181]:49869 "EHLO
+	mail-ve0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751785AbaB0Q2b convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Feb 2014 10:51:53 -0500
+	Thu, 27 Feb 2014 11:28:31 -0500
+Received: by mail-ve0-f181.google.com with SMTP id jw12so4024487veb.26
+        for <linux-input@vger.kernel.org>; Thu, 27 Feb 2014 08:28:30 -0800 (PST)
+In-Reply-To: <20140227164625.5e8da800@hboeck.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: =?UTF-8?Q?Hanno_B=C3=B6ck?= <hanno@hboeck.de>
+Cc: linux-input@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+What kernel are you running? My ALPS device is identified correctly
+and seems to work on 3.13 (IIRC, it also worked with 3.12 but not
+before).
 
---=_zucker.schokokeks.org-10559-1393516011-0001-2
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+There's also this (I didn't write it, just modified it to work with
+lesser kernel versions - linking to this version because i know where
+it is off hand):
+https://github.com/ag4ve/psmouse-alps
 
-Hi,
-
-I have an IBM Thinkpad T61 laptop and dmesg shows me this:
-psmouse serio2: alps: Unknown ALPS touchpad: E7=3D10 00 64, EC=3D10 00 64
-
-Now the touchpad works, but this message sounds like it'd make sense to
-add it to the table in alps.c (?).
-
-I'd gladly assist if this would improve anything.
-
-cu,
---=20
-Hanno B=C3=B6ck
-http://hboeck.de/
-
-mail/jabber: hanno@hboeck.de
-GPG: BBB51E42
-
---=_zucker.schokokeks.org-10559-1393516011-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBCgAGBQJTD13RAAoJEKWIAHK7tR5Cd6cQAMK7OFKwjuzeLT2VHWLW88mA
-N/2yOL6nsxi2vxCQIflCmychJYaocJXUyruy7AL8OqpcZ7Cjrta0MYLExAZ6MgNE
-QWyGbwr2lNEQZ7VNs6JleO0fbG1hCVdmUvD8D5WP4LMhtAcl6zJUuL+ntkbYOJyM
-/Yfj1y6Kzvdc1gPRGzkCUWTEEWAD3MeE+tpsPriesmGVYwf/XuyfL3kQHbPCYOr9
-snuZNmRyTGfi/d/ricjcwiRI0+cNnAfSgqAzRKexMaEX1iHVTudW33yqBmIEz2oB
-+pcJGmcB+4kMBkhcOStRHkEQwe+B+zeE+jDGbiBw34sPNqAZI1CvGHUEV9j4KcEA
-EcsZjMbBr2D1HqLa+Jd+iqYQuioJ2RBrpA0a+9eSzVuWorznjKMeP0ISjeHOZgsM
-A1xR4mgwYlqHcJx9dG97bOHklfDqw5nDT+im+Gi0zi07+byT5ZIP0kQegxJIlwx2
-sgArx9cQJih2i0u3Fhi5qaRq94CQdqG3Hcx8odGEfFi3oweffC3FZR923GYFORt1
-CCvDs8QswFssXvTen1Fj6P8/cM0xir0LmB61S+bunUIipHW3ojPfRojlZZIhsoYv
-78U9D2pz0CTbG5s3EyyUU5NXdLlPssLxOsGJzLjxl7VaiX/6oO+3ccwT6s6mJV/3
-3sToWrLtFLw5Ip1Xq5Yu
-=4eO3
------END PGP SIGNATURE-----
-
---=_zucker.schokokeks.org-10559-1393516011-0001-2--
+On Thu, Feb 27, 2014 at 10:46 AM, Hanno B=C3=B6ck <hanno@hboeck.de> wro=
+te:
+> Hi,
+>
+> I have an IBM Thinkpad T61 laptop and dmesg shows me this:
+> psmouse serio2: alps: Unknown ALPS touchpad: E7=3D10 00 64, EC=3D10 0=
+0 64
+>
+> Now the touchpad works, but this message sounds like it'd make sense =
+to
+> add it to the table in alps.c (?).
+>
+> I'd gladly assist if this would improve anything.
+>
+> cu,
+> --
+> Hanno B=C3=B6ck
+> http://hboeck.de/
+>
+> mail/jabber: hanno@hboeck.de
+> GPG: BBB51E42
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,145 +1,336 @@
-From: Aaron Armstrong Skomra <skomra-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 4/4] Input: wacom: Handle 1024
-	pressure levels in wacom_tpc_pen
-Date: Thu, 27 Feb 2014 10:28:15 -0800
-Message-ID: <CAEoswT2hhv0T84Qao-R4740LQQWZG4_x5AsFqbFpe=-bZw9W1A@mail.gmail.com>
+From: Aaron Armstrong Skomra <skomra@gmail.com>
+Subject: Re: [PATCH 1/4] Input: wacom: Use full 32-bit HID Usage value in
+ switch statement
+Date: Thu, 27 Feb 2014 10:37:39 -0800
+Message-ID: <CAEoswT2KtMFQgg8xpJmMT4VRQTAQDHz3hasWtPmPzuc0pFemvg@mail.gmail.com>
 References: <1391107728-1306-1-git-send-email-killertofu@gmail.com>
-	<1391107728-1306-4-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1490858217429971937=="
-Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1391107728-1306-4-git-send-email-killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
-List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Ping Cheng <pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-List-Id: linux-input@vger.kernel.org
-
---===============1490858217429971937==
-Content-Type: multipart/alternative; boundary=20cf307abdab12ab3804f3677c04
-
---20cf307abdab12ab3804f3677c04
 Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ve0-f173.google.com ([209.85.128.173]:39921 "EHLO
+	mail-ve0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752044AbaB0Shl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Feb 2014 13:37:41 -0500
+Received: by mail-ve0-f173.google.com with SMTP id jw12so4193274veb.4
+        for <linux-input@vger.kernel.org>; Thu, 27 Feb 2014 10:37:39 -0800 (PST)
+In-Reply-To: <1391107728-1306-1-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Tested-by: Aaron Skomra <Aaron.Skomra-JeGq9vS6aD4AvxtiuMwx3w@public.gmane.org>
-
-
-On Thu, Jan 30, 2014 at 10:48 AM, Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>wrote:
-
-> Some tablet PC sensors (e.g. the 0xEC found in the Thinkpad
-> Yoga) report more than 256 pressure levels and will experience
-> wraparound unless the full range is read.
+On Thu, Jan 30, 2014 at 10:48 AM, Jason Gerecke <killertofu@gmail.com> wrote:
 >
-> Signed-off-by: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> A HID Usage is a 32-bit value: an upper 16-bit "page" and a lower
+> 16-bit ID. While the two halves are normally reported seperately,
+> only the combination uniquely idenfifes a particular HID Usage.
+>
+> The existing code performs the comparison in two steps, first
+> performing a switch on the ID and then verifying the page within
+> each case. While this works fine, it is very akward to handle
+> two Usages that share a single ID, such as HID_USAGE_PRESSURE
+> and HID_USAGE_X because the case statement can only have a
+> single identifier.
+>
+> To work around this, we now check the full 32-bit HID Usage
+> directly rather than first checking the ID and then the page.
+> This allows the switch statement to have distinct cases for
+> e.g. HID_USAGE_PRESSURE and HID_USAGE_X.
+>
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 > ---
->  drivers/input/tablet/wacom_wac.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/tablet/wacom_sys.c | 237 ++++++++++++++++++---------------------
+>  1 file changed, 109 insertions(+), 128 deletions(-)
 >
-> diff --git a/drivers/input/tablet/wacom_wac.c
-> b/drivers/input/tablet/wacom_wac.c
-> index 9ff5613..ae1437b 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -1087,7 +1087,7 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
->                 input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
->                 input_report_abs(input, ABS_X, le16_to_cpup((__le16
-> *)&data[2]));
->                 input_report_abs(input, ABS_Y, le16_to_cpup((__le16
-> *)&data[4]));
-> -               input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x01) <<
-> 8) | data[6]);
-> +               input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x03) <<
-> 8) | data[6]);
->                 input_report_key(input, BTN_TOUCH, data[1] & 0x05);
->                 input_report_key(input, wacom->tool[0], prox);
->                 return 1;
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+> index b16ebef..5be6177 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -22,23 +22,17 @@
+>  #define HID_USAGE_PAGE_DIGITIZER       0x0d
+>  #define HID_USAGE_PAGE_DESKTOP         0x01
+>  #define HID_USAGE                      0x09
+> -#define HID_USAGE_X                    0x30
+> -#define HID_USAGE_Y                    0x31
+> -#define HID_USAGE_X_TILT               0x3d
+> -#define HID_USAGE_Y_TILT               0x3e
+> -#define HID_USAGE_FINGER               0x22
+> -#define HID_USAGE_STYLUS               0x20
+> -#define HID_USAGE_CONTACTMAX           0x55
+> +#define HID_USAGE_X                    ((HID_USAGE_PAGE_DESKTOP << 16) | 0x30)
+> +#define HID_USAGE_Y                    ((HID_USAGE_PAGE_DESKTOP << 16) | 0x31)
+> +#define HID_USAGE_X_TILT               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x3d)
+> +#define HID_USAGE_Y_TILT               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x3e)
+> +#define HID_USAGE_FINGER               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x22)
+> +#define HID_USAGE_STYLUS               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x20)
+> +#define HID_USAGE_CONTACTMAX           ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x55)
+>  #define HID_COLLECTION                 0xa1
+>  #define HID_COLLECTION_LOGICAL         0x02
+>  #define HID_COLLECTION_END             0xc0
+>
+> -enum {
+> -       WCM_UNDEFINED = 0,
+> -       WCM_DESKTOP,
+> -       WCM_DIGITIZER,
+> -};
+> -
+>  struct hid_descriptor {
+>         struct usb_descriptor_header header;
+>         __le16   bcdHID;
+> @@ -305,7 +299,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
+>         char limit = 0;
+>         /* result has to be defined as int for some devices */
+>         int result = 0, touch_max = 0;
+> -       int i = 0, usage = WCM_UNDEFINED, finger = 0, pen = 0;
+> +       int i = 0, page = 0, finger = 0, pen = 0;
+>         unsigned char *report;
+>
+>         report = kzalloc(hid_desc->wDescriptorLength, GFP_KERNEL);
+> @@ -332,134 +326,121 @@ static int wacom_parse_hid(struct usb_interface *intf,
+>
+>                 switch (report[i]) {
+>                 case HID_USAGE_PAGE:
+> -                       switch (report[i + 1]) {
+> -                       case HID_USAGE_PAGE_DIGITIZER:
+> -                               usage = WCM_DIGITIZER;
+> -                               i++;
+> -                               break;
+> -
+> -                       case HID_USAGE_PAGE_DESKTOP:
+> -                               usage = WCM_DESKTOP;
+> -                               i++;
+> -                               break;
+> -                       }
+> +                       page = report[i + 1];
+> +                       i++;
+>                         break;
+>
+>                 case HID_USAGE:
+> -                       switch (report[i + 1]) {
+> +                       switch (page << 16 | report[i + 1]) {
+>                         case HID_USAGE_X:
+> -                               if (usage == WCM_DESKTOP) {
+> -                                       if (finger) {
+> -                                               features->device_type = BTN_TOOL_FINGER;
+> -                                               /* touch device at least supports one touch point */
+> -                                               touch_max = 1;
+> -                                               switch (features->type) {
+> -                                               case TABLETPC2FG:
+> -                                                       features->pktlen = WACOM_PKGLEN_TPC2FG;
+> -                                                       break;
+> -
+> -                                               case MTSCREEN:
+> -                                               case WACOM_24HDT:
+> -                                                       features->pktlen = WACOM_PKGLEN_MTOUCH;
+> -                                                       break;
+> -
+> -                                               case MTTPC:
+> -                                                       features->pktlen = WACOM_PKGLEN_MTTPC;
+> -                                                       break;
+> -
+> -                                               case BAMBOO_PT:
+> -                                                       features->pktlen = WACOM_PKGLEN_BBTOUCH;
+> -                                                       break;
+> -
+> -                                               default:
+> -                                                       features->pktlen = WACOM_PKGLEN_GRAPHIRE;
+> -                                                       break;
+> -                                               }
+> -
+> -                                               switch (features->type) {
+> -                                               case BAMBOO_PT:
+> -                                                       features->x_phy =
+> -                                                               get_unaligned_le16(&report[i + 5]);
+> -                                                       features->x_max =
+> -                                                               get_unaligned_le16(&report[i + 8]);
+> -                                                       i += 15;
+> -                                                       break;
+> -
+> -                                               case WACOM_24HDT:
+> -                                                       features->x_max =
+> -                                                               get_unaligned_le16(&report[i + 3]);
+> -                                                       features->x_phy =
+> -                                                               get_unaligned_le16(&report[i + 8]);
+> -                                                       features->unit = report[i - 1];
+> -                                                       features->unitExpo = report[i - 3];
+> -                                                       i += 12;
+> -                                                       break;
+> -
+> -                                               default:
+> -                                                       features->x_max =
+> -                                                               get_unaligned_le16(&report[i + 3]);
+> -                                                       features->x_phy =
+> -                                                               get_unaligned_le16(&report[i + 6]);
+> -                                                       features->unit = report[i + 9];
+> -                                                       features->unitExpo = report[i + 11];
+> -                                                       i += 12;
+> -                                                       break;
+> -                                               }
+> -                                       } else if (pen) {
+> -                                               /* penabled only accepts exact bytes of data */
+> -                                               if (features->type >= TABLETPC)
+> -                                                       features->pktlen = WACOM_PKGLEN_GRAPHIRE;
+> -                                               features->device_type = BTN_TOOL_PEN;
+> +                               if (finger) {
+> +                                       features->device_type = BTN_TOOL_FINGER;
+> +                                       /* touch device at least supports one touch point */
+> +                                       touch_max = 1;
+> +                                       switch (features->type) {
+> +                                       case TABLETPC2FG:
+> +                                               features->pktlen = WACOM_PKGLEN_TPC2FG;
+> +                                               break;
+> +
+> +                                       case MTSCREEN:
+> +                                       case WACOM_24HDT:
+> +                                               features->pktlen = WACOM_PKGLEN_MTOUCH;
+> +                                               break;
+> +
+> +                                       case MTTPC:
+> +                                               features->pktlen = WACOM_PKGLEN_MTTPC;
+> +                                               break;
+> +
+> +                                       case BAMBOO_PT:
+> +                                               features->pktlen = WACOM_PKGLEN_BBTOUCH;
+> +                                               break;
+> +
+> +                                       default:
+> +                                               features->pktlen = WACOM_PKGLEN_GRAPHIRE;
+> +                                               break;
+> +                                       }
+> +
+> +                                       switch (features->type) {
+> +                                       case BAMBOO_PT:
+> +                                               features->x_phy =
+> +                                                       get_unaligned_le16(&report[i + 5]);
+> +                                               features->x_max =
+> +                                                       get_unaligned_le16(&report[i + 8]);
+> +                                               i += 15;
+> +                                               break;
+> +
+> +                                       case WACOM_24HDT:
+>                                                 features->x_max =
+>                                                         get_unaligned_le16(&report[i + 3]);
+> -                                               i += 4;
+> +                                               features->x_phy =
+> +                                                       get_unaligned_le16(&report[i + 8]);
+> +                                               features->unit = report[i - 1];
+> +                                               features->unitExpo = report[i - 3];
+> +                                               i += 12;
+> +                                               break;
+> +
+> +                                       default:
+> +                                               features->x_max =
+> +                                                       get_unaligned_le16(&report[i + 3]);
+> +                                               features->x_phy =
+> +                                                       get_unaligned_le16(&report[i + 6]);
+> +                                               features->unit = report[i + 9];
+> +                                               features->unitExpo = report[i + 11];
+> +                                               i += 12;
+> +                                               break;
+>                                         }
+> +                               } else if (pen) {
+> +                                       /* penabled only accepts exact bytes of data */
+> +                                       if (features->type >= TABLETPC)
+> +                                               features->pktlen = WACOM_PKGLEN_GRAPHIRE;
+> +                                       features->device_type = BTN_TOOL_PEN;
+> +                                       features->x_max =
+> +                                               get_unaligned_le16(&report[i + 3]);
+> +                                       i += 4;
+>                                 }
+>                                 break;
+>
+>                         case HID_USAGE_Y:
+> -                               if (usage == WCM_DESKTOP) {
+> -                                       if (finger) {
+> -                                               switch (features->type) {
+> -                                               case TABLETPC2FG:
+> -                                               case MTSCREEN:
+> -                                               case MTTPC:
+> -                                                       features->y_max =
+> -                                                               get_unaligned_le16(&report[i + 3]);
+> -                                                       features->y_phy =
+> -                                                               get_unaligned_le16(&report[i + 6]);
+> -                                                       i += 7;
+> -                                                       break;
+> -
+> -                                               case WACOM_24HDT:
+> -                                                       features->y_max =
+> -                                                               get_unaligned_le16(&report[i + 3]);
+> -                                                       features->y_phy =
+> -                                                               get_unaligned_le16(&report[i - 2]);
+> -                                                       i += 7;
+> -                                                       break;
+> -
+> -                                               case BAMBOO_PT:
+> -                                                       features->y_phy =
+> -                                                               get_unaligned_le16(&report[i + 3]);
+> -                                                       features->y_max =
+> -                                                               get_unaligned_le16(&report[i + 6]);
+> -                                                       i += 12;
+> -                                                       break;
+> -
+> -                                               default:
+> -                                                       features->y_max =
+> -                                                               features->x_max;
+> -                                                       features->y_phy =
+> -                                                               get_unaligned_le16(&report[i + 3]);
+> -                                                       i += 4;
+> -                                                       break;
+> -                                               }
+> -                                       } else if (pen) {
+> +                               if (finger) {
+> +                                       switch (features->type) {
+> +                                       case TABLETPC2FG:
+> +                                       case MTSCREEN:
+> +                                       case MTTPC:
+> +                                               features->y_max =
+> +                                                       get_unaligned_le16(&report[i + 3]);
+> +                                               features->y_phy =
+> +                                                       get_unaligned_le16(&report[i + 6]);
+> +                                               i += 7;
+> +                                               break;
+> +
+> +                                       case WACOM_24HDT:
+> +                                               features->y_max =
+> +                                                       get_unaligned_le16(&report[i + 3]);
+> +                                               features->y_phy =
+> +                                                       get_unaligned_le16(&report[i - 2]);
+> +                                               i += 7;
+> +                                               break;
+> +
+> +                                       case BAMBOO_PT:
+> +                                               features->y_phy =
+> +                                                       get_unaligned_le16(&report[i + 3]);
+> +                                               features->y_max =
+> +                                                       get_unaligned_le16(&report[i + 6]);
+> +                                               i += 12;
+> +                                               break;
+> +
+> +                                       default:
+>                                                 features->y_max =
+> +                                                       features->x_max;
+> +                                               features->y_phy =
+>                                                         get_unaligned_le16(&report[i + 3]);
+>                                                 i += 4;
+> +                                               break;
+>                                         }
+> +                               } else if (pen) {
+> +                                       features->y_max =
+> +                                               get_unaligned_le16(&report[i + 3]);
+> +                                       i += 4;
+>                                 }
+>                                 break;
+>
+> @@ -489,7 +470,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
+>
+>                 case HID_COLLECTION_END:
+>                         /* reset UsagePage and Finger */
+> -                       finger = usage = 0;
+> +                       finger = page = 0;
+>                         break;
+>
+>                 case HID_COLLECTION:
 > --
 > 1.8.5.3
 >
->
-
-
--- 
-Aaron Skomra
-skomra-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-503-208-5430
-
---20cf307abdab12ab3804f3677c04
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Tested-by: Aaron Skomra &lt;<a href=3D"mailto:Aaron.Skomra=
-@wacom.com">Aaron.Skomra-JeGq9vS6aD4AvxtiuMwx3w@public.gmane.org</a>&gt;</div><div class=3D"gmail_extra">=
-<br><br><div class=3D"gmail_quote">On Thu, Jan 30, 2014 at 10:48 AM, Jason =
-Gerecke <span dir=3D"ltr">&lt;<a href=3D"mailto:killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" targe=
-t=3D"_blank">killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">Some tablet PC sensors (e.g. the 0xEC found =
-in the Thinkpad<br>
-Yoga) report more than 256 pressure levels and will experience<br>
-wraparound unless the full range is read.<br>
-<br>
-Signed-off-by: Jason Gerecke &lt;<a href=3D"mailto:killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org">ki=
-llertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org</a>&gt;<br>
----<br>
-=A0drivers/input/tablet/wacom_wac.c | 2 +-<br>
-=A01 file changed, 1 insertion(+), 1 deletion(-)<br>
-<br>
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_=
-wac.c<br>
-index 9ff5613..ae1437b 100644<br>
---- a/drivers/input/tablet/wacom_wac.c<br>
-+++ b/drivers/input/tablet/wacom_wac.c<br>
-@@ -1087,7 +1087,7 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)<br>
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_STYLUS2, data[1=
-] &amp; 0x10);<br>
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_X, le16_to_cpup=
-((__le16 *)&amp;data[2]));<br>
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_Y, le16_to_cpup=
-((__le16 *)&amp;data[4]));<br>
-- =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_PRESSURE, ((data[=
-7] &amp; 0x01) &lt;&lt; 8) | data[6]);<br>
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_PRESSURE, ((data[=
-7] &amp; 0x03) &lt;&lt; 8) | data[6]);<br>
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_TOUCH, data[1] =
-&amp; 0x05);<br>
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, wacom-&gt;tool[0], =
-prox);<br>
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 1;<br>
-<span class=3D"HOEnZb"><font color=3D"#888888">--<br>
-1.8.5.3<br>
-<br>
-</font></span></blockquote></div><br><br clear=3D"all"><br>-- <br><div dir=
-=3D"ltr"><div>Aaron Skomra<br></div><div><a href=3D"mailto:skomra-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org=
-" target=3D"_blank">skomra-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org</a><br></div>503-208-5430<br></div>
-</div>
-
---20cf307abdab12ab3804f3677c04--
-
-
---===============1490858217429971937==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-------------------------------------------------------------------------------
-Flow-based real-time traffic analytics software. Cisco certified tool.
-Monitor traffic, SLAs, QoS, Medianet, WAAS etc. with NetFlow Analyzer
-Customize your own dashboards, set traffic alerts and generate reports.
-Network behavioral analysis & security monitoring. All-in-one tool.
-http://pubads.g.doubleclick.net/gampad/clk?id=126839071&iu=/4140/ostg.clktrk
---===============1490858217429971937==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-
---===============1490858217429971937==--
+Tested-by: Aaron Skomra <Aaron.Skomra@wacom.com>

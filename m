@@ -1,49 +1,46 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: wacom: Fixes for stylus pressure values for Thinkpad Yoga
-Date: Wed, 26 Feb 2014 20:39:12 -0800
-Message-ID: <CAF8JNh+7p7-cNkBv3CB3ZVsi7JrqzPf1bdzsA4rJqKUcY=dZ0Q@mail.gmail.com>
-References: <1393454296-32735-1-git-send-email-cworth@cworth.org>
+From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 0/5] ARM: davinci: tnetv107x removal
+Date: Thu, 27 Feb 2014 19:07:15 +0530
+Message-ID: <530F3F8B.4090509@ti.com>
+References: <1393418614-3968549-1-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:40334 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752466AbaB0EjO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Feb 2014 23:39:14 -0500
-In-Reply-To: <1393454296-32735-1-git-send-email-cworth@cworth.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1393418614-3968549-1-git-send-email-arnd-r2nGTMty4D4@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Cyril Chemparathy <cyril.chemparathy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Carl Worth <cworth@cworth.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Carl,
+(fixed Cyril's e-mail address)
 
-Thank you for the heads up. I believe Jason's patchset 4 of 4
-(http://www.spinics.net/lists/linux-input/msg29435.html) fixed the
-issue for your device and for other's. The patch was submitted last
-month. If you can test the set on your device and give us a Tested-by
-here, it will help Dmitry to merge the patch upstream.
+On Wednesday 26 February 2014 06:13 PM, Arnd Bergmann wrote:
+> This series removes the TI davinci/tnetv107x platform that
+> has evidently bitrotted to the point where it's completely
+> useless. While we could probably fix it and add a defconfig,
+> it appears that there are actually no users of this platform,
+> and it complicates the davinci code base because it's
+> incompatible with all the other SoCs in there that are
+> based on ARM926T.
+> 
+> The five patches are completely independent of one another,
+> and applying them out of order is fine since we just want
+> to remove the code. However, I'm looking for an Ack from
+> Cyril Chemparathy and Sekhar Nori first, to be sure we
+> won't need this code in the future. Kevin Hilman has
+> already mentioned that he sees no reason to keep this
+> code.
 
-Thank you for your effort.
+Acked-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
 
-Ping
-
-On Wed, Feb 26, 2014 at 2:38 PM, Carl Worth <cworth@cworth.org> wrote:
-> This series of patches fixes the pressure values reported for the
-> wacom tablet built-in to a Lenovo ThinkPad Yoga laptop. Prior to this
-> patch series, if I slowly increased stylus pressure, (expecting a
-> gradual increase of values from 0 to 1023), I instead received values
-> that increased slowly to 255, then reset to 0 and increased slowly
-> again, etc.
->
-> The buggy arithmetic that is updated here appears to exist in
-> identical forms for other drivers. I did not update any code that I
-> was not able to test directly. But it looks like wacom_pl_irq and
-> wacom_dtu_irq potentially have similar bugs, (depending on the actual
-> pressure_max values encountered in practice).
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Sekhar

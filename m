@@ -1,114 +1,50 @@
-From: Josh Cartwright <joshc@codeaurora.org>
-Subject: Re: [PATCH v4 7/9] devicetree: bindings: Document PM8921/8058 keypads
-Date: Fri, 28 Feb 2014 07:55:27 -0600
-Message-ID: <20140228135527.GF7308@joshc.qualcomm.com>
-References: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
- <1393552520-9068-8-git-send-email-sboyd@codeaurora.org>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: change kmalloc into vmalloc for large memory
+	allocations
+Date: Fri, 28 Feb 2014 09:11:38 -0500
+Message-ID: <20140228091138.39b90f52@gandalf.local.home>
+References: <35FD53F367049845BC99AC72306C23D102844605F38C@CNBJMBX05.corpusers.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:55130 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751712AbaB1N6I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Feb 2014 08:58:08 -0500
-Content-Disposition: inline
-In-Reply-To: <1393552520-9068-8-git-send-email-sboyd@codeaurora.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <35FD53F367049845BC99AC72306C23D102844605F38C@CNBJMBX05.corpusers.net>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: "Wang, Yalin" <Yalin.Wang@sonymobile.com>
+Cc: "'alsa-devel@alsa-project.org'" <alsa-devel@alsa-project.org>, "'linux-usb@vger.kernel.org'" <linux-usb@vger.kernel.org>, "'tiwai@suse.de'" <tiwai@suse.de>, "'fweisbec@gmail.com'" <fweisbec@gmail.com>, "'dmitry.torokhov@gmail.com'" <dmitry.torokhov@gmail.com>, "'mingo@redhat.com'" <mingo@redhat.com>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'rydberg@euromail.se'" <rydberg@euromail.se>, "'lrg@ti.com'" <lrg@ti.com>, "'pablo@netfilter.org'" <pablo@netfilter.org>, "'coreteam@netfilter.org'" <coreteam@netfilter.org>, "'linux-arm-msm@vger.kernel.org'" <linux-arm-msm@vger.kernel.org>, "'netfilter@vger.kernel.org'" <netfilter@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'gregkh@linuxfoundation.org'" <gregkh@linuxfoundation.org>, "'broonie@opensource.wolfsonmicro.com'" <broonie@opensource.wolfsonmicro.>
 List-Id: linux-input@vger.kernel.org
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Thu, Feb 27, 2014 at 05:55:18PM -0800, Stephen Boyd wrote:
-> Document the keypad device found on PM8921 and PM8058 PMICs.
-[..]
-> +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
-> @@ -0,0 +1,72 @@
-> +Qualcomm PM8xxx PMIC Keypad
-> +
-> +PROPERTIES
-> +
-> +- compatible:
-> +	Usage: required
-> +	Value type: <string>
-> +	Definition: must be one of:
-> +		    "qcom,pm8058-keypad"
-> +		    "qcom,pm8921-keypad"
-> +- interrupts:
-> +	Usage: required
-> +	Value type: <prop-encoded-array>
-> +	Definition: the first interrupt specifies the key sense interrupt
-> +		    and the second interrupt specifies the key stuck interrupt.
-> +		    The format of the specifier is defined by the binding
-> +		    document describing the node's interrupt parent.
-> +
-> +- linux,keymap:
-> +	Usage: required
-> +	Value type: <prop-encoded-array>
-> +	Definition: the linux keymap. More information can be found in
-> +		    input/matrix-keymap.txt.
-> +
-> +- keypad,num-rows:
-> +	Usage: required
-> +	Value type: <u32>
-> +	Definition: number of rows in the keymap. More information can be found
-> +		    in input/matrix-keymap.txt.
-> +
-> +- keypad,num-columns:
-> +	Usage: required
-> +	Value type: <u32>
-> +	Definition: number of columns in the keymap. More information can be
-> +		    found in input/matrix-keymap.txt.
-> +
-> +- debounce:
-> +	Usage: optional
-> +	Value type: <u32>
-> +	Definition: time in microseconds that key must be pressed or release
-> +		    for key sense interrupt to trigger.
-> +
-> +- scan-delay:
-> +	Usage: optional
-> +	Value type: <u32>
-> +	Definition: time in microseconds to pause between successive scans
-> +		    of the matrix array.
-> +
-> +- row-hold:
-> +	Usage: optional
-> +	Value type: <u32>
-> +	Definition: time in nanoseconds to pause between scans of each row in
-> +		    the matrix array.
+On Fri, 28 Feb 2014 16:15:23 +0800
+"Wang, Yalin" <Yalin.Wang@sonymobile.com> wrote:
 
-- linux,wakeup?
-- linux,no-auto-repeat?
+> Kfree(ptr)
+> {
+> 	If (is_vmalloc_addr(ptr))
+> 		Vfree(ptr);
+> 	Else
+> 		Kfree(ptr);
+> }
+> 
+> 
+> But we need add some flags to ensure always use kmalloc for
+> Some special use (dma etc..)
+> 
+> How do you think of it ?
 
-> +
-> +EXAMPLE
-> +
-> +	keypad {
-> +		compatible = "qcom,pm8921-keypad";
-> +		interrupt-parent = <&pmicintc>;
-> +		interrupts = <74 1>, <75 1>;
-> +		linux,keymap = <
-> +			MATRIX_KEY(0, 0, KEY_VOLUMEUP)
-> +			MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
-> +			MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
-> +			MATRIX_KEY(0, 3, KEY_CAMERA)
-> +			>;
-> +		keypad,num-rows = <1>;
-> +		keypad,num-columns = <5>;
-> +		debounce = <15>;
-> +		scan-delay = <32>;
-> +		row-hold = <91500>;
-> +	};
+But vmalloc also takes up tlb entries. The more vmalloc space you have,
+the more tlb entries that will need to be used, which will have a
+performance affect on the entire system.
 
-It odd to me that these newly created bindings don't have 'reg'
-properties, even though the device clearly has a register region.
+I would be against making kmalloc() secretly doing a vmalloc. If it is
+better for a driver to use a vmalloc on large items, than change the
+driver. Don't change a core function.
 
-I suppose it makes sense from a "port over from platform data to DT"
-perspective, as these drivers have just assumed the location of their
-registers to be fixed; however I suspect things will need to be changed
-if/when we hope to share these drivers with pm8841/pm8941 and beyond...
-
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+-- Steve

@@ -1,52 +1,114 @@
-From: "Wang, Yalin" <Yalin.Wang@sonymobile.com>
-Subject: Re: change kmalloc into vmalloc for large memory
-	allocations
-Date: Fri, 28 Feb 2014 17:20:08 +0800
-Message-ID: <35FD53F367049845BC99AC72306C23D102844605F38D@CNBJMBX05.corpusers.net>
-References: <35FD53F367049845BC99AC72306C23D102844605F38C@CNBJMBX05.corpusers.net>
- <53104ECA.4010702@freescale.com>
+From: Josh Cartwright <joshc@codeaurora.org>
+Subject: Re: [PATCH v4 7/9] devicetree: bindings: Document PM8921/8058 keypads
+Date: Fri, 28 Feb 2014 07:55:27 -0600
+Message-ID: <20140228135527.GF7308@joshc.qualcomm.com>
+References: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
+ <1393552520-9068-8-git-send-email-sboyd@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <53104ECA.4010702@freescale.com>
-Content-Language: en-US
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: 'Huang Shijie' <b32955@freescale.com>
-Cc: "'alsa-devel@alsa-project.org'" <alsa-devel@alsa-project.org>, "'broonie@opensource.wolfsonmicro.com'" <broonie@opensource.wolfsonmicro.com>, "'tiwai@suse.de'" <tiwai@suse.de>, "'fweisbec@gmail.com'" <fweisbec@gmail.com>, "'dmitry.torokhov@gmail.com'" <dmitry.torokhov@gmail.com>, "'mingo@redhat.com'" <mingo@redhat.com>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'rydberg@euromail.se'" <rydberg@euromail.se>, "'lrg@ti.com'" <lrg@ti.com>, "'pablo@netfilter.org'" <pablo@netfilter.org>, "'coreteam@netfilter.org'" <coreteam@netfilter.org>, "'linux-arm-msm@vger.kernel.org'" <linux-arm-msm@vger.kernel.org>, "'rostedt@goodmis.org'" <rostedt@goodmis.org>, "'netfilter@vger.kernel.org'" <netfilter@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'gregkh@linuxfoundation.org'" <gregkh@linuxfoundation.org>'li
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.11.231]:55130 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751712AbaB1N6I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Feb 2014 08:58:08 -0500
+Content-Disposition: inline
+In-Reply-To: <1393552520-9068-8-git-send-email-sboyd@codeaurora.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-SGkgIA0KDQoNClllYWgsICANCkRtYSBidWZmZXIgbXVzdCBiZSBhbGxvY2F0ZWQgYnkga21hbGxv
-YywNCg0KQnV0IHRoZSBtb2R1bGVzIEkgbGlzdCBzaG91bGQgY2FuIGFsbCBiZSBjaGFuZ2VkIHRv
-IHVzZQ0Kdm1hbGxvYywgYmVjYXVzZSB0aGUgYnVmZmVyIGlzIG9ubHkgdXNlZCBieSBzb2Z0d2Fy
-ZSwNCk5vdCBieSBhbnkgaGFyZHdhcmUgLg0KDQoNClRoYW5rcw0KDQotLS0tLU9yaWdpbmFsIE1l
-c3NhZ2UtLS0tLQ0KRnJvbTogSHVhbmcgU2hpamllIFttYWlsdG86YjMyOTU1QGZyZWVzY2FsZS5j
-b21dIA0KU2VudDogRnJpZGF5LCBGZWJydWFyeSAyOCwgMjAxNCA0OjU1IFBNDQpUbzogV2FuZywg
-WWFsaW4NCkNjOiAnbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZyc7ICdsaW51eC1hcm0tbXNt
-QHZnZXIua2VybmVsLm9yZyc7ICdsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcn
-OyAnbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnJzsgJ2JhbGJpQHRpLmNvbSc7ICdncmVna2hA
-bGludXhmb3VuZGF0aW9uLm9yZyc7ICdscmdAdGkuY29tJzsgJ2Jyb29uaWVAb3BlbnNvdXJjZS53
-b2xmc29ubWljcm8uY29tJzsgJ3BlcmV4QHBlcmV4LmN6JzsgJ3Rpd2FpQHN1c2UuZGUnOyAncGFi
-bG9AbmV0ZmlsdGVyLm9yZyc7ICdrYWJlckB0cmFzaC5uZXQnOyAnZGF2ZW1AZGF2ZW1sb2Z0Lm5l
-dCc7ICdyb3N0ZWR0QGdvb2RtaXMub3JnJzsgJ2Z3ZWlzYmVjQGdtYWlsLmNvbSc7ICdtaW5nb0By
-ZWRoYXQuY29tJzsgJ2RtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20nOyAncnlkYmVyZ0BldXJvbWFp
-bC5zZSc7ICdsaW51eC11c2JAdmdlci5rZXJuZWwub3JnJzsgJ2Fsc2EtZGV2ZWxAYWxzYS1wcm9q
-ZWN0Lm9yZyc7ICduZXRmaWx0ZXItZGV2ZWxAdmdlci5rZXJuZWwub3JnJzsgJ25ldGZpbHRlckB2
-Z2VyLmtlcm5lbC5vcmcnOyAnY29yZXRlYW1AbmV0ZmlsdGVyLm9yZyc7ICduZXRkZXZAdmdlci5r
-ZXJuZWwub3JnJw0KU3ViamVjdDogUmU6IGNoYW5nZSBrbWFsbG9jIGludG8gdm1hbGxvYyBmb3Ig
-bGFyZ2UgbWVtb3J5IGFsbG9jYXRpb25zDQoNCuS6jiAyMDE05bm0MDLmnIgyOOaXpSAxNjoxNSwg
-V2FuZywgWWFsaW4g5YaZ6YGTOg0KPiBjb3VsZCB0aGlzIG1vZHVsZSBjaGFuZ2UgdGhlIG1lbW9y
-eSBhbGxvY2F0aW9uIGludG8gdm1hbGxvYyA/DQp0aGUgYnVmZmVyIGFsbG9jYXRlZCBieSB2bWFs
-bG9jIGNhbiBub3QgYmUgdXNlZCBmb3IgdGhlIERNQS4NCg0KSSB0aGluayB0aGF0J3Mgd2h5IGRy
-aXZlcnMgdXNlIHRoZSBrbWFsbG9jLg0KDQp0aGFua3MNCkh1YW5nIFNoaWppZQ0KDQpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpBbHNhLWRldmVsIG1haWxp
-bmcgbGlzdApBbHNhLWRldmVsQGFsc2EtcHJvamVjdC5vcmcKaHR0cDovL21haWxtYW4uYWxzYS1w
-cm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Fsc2EtZGV2ZWwK
+On Thu, Feb 27, 2014 at 05:55:18PM -0800, Stephen Boyd wrote:
+> Document the keypad device found on PM8921 and PM8058 PMICs.
+[..]
+> +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+> @@ -0,0 +1,72 @@
+> +Qualcomm PM8xxx PMIC Keypad
+> +
+> +PROPERTIES
+> +
+> +- compatible:
+> +	Usage: required
+> +	Value type: <string>
+> +	Definition: must be one of:
+> +		    "qcom,pm8058-keypad"
+> +		    "qcom,pm8921-keypad"
+> +- interrupts:
+> +	Usage: required
+> +	Value type: <prop-encoded-array>
+> +	Definition: the first interrupt specifies the key sense interrupt
+> +		    and the second interrupt specifies the key stuck interrupt.
+> +		    The format of the specifier is defined by the binding
+> +		    document describing the node's interrupt parent.
+> +
+> +- linux,keymap:
+> +	Usage: required
+> +	Value type: <prop-encoded-array>
+> +	Definition: the linux keymap. More information can be found in
+> +		    input/matrix-keymap.txt.
+> +
+> +- keypad,num-rows:
+> +	Usage: required
+> +	Value type: <u32>
+> +	Definition: number of rows in the keymap. More information can be found
+> +		    in input/matrix-keymap.txt.
+> +
+> +- keypad,num-columns:
+> +	Usage: required
+> +	Value type: <u32>
+> +	Definition: number of columns in the keymap. More information can be
+> +		    found in input/matrix-keymap.txt.
+> +
+> +- debounce:
+> +	Usage: optional
+> +	Value type: <u32>
+> +	Definition: time in microseconds that key must be pressed or release
+> +		    for key sense interrupt to trigger.
+> +
+> +- scan-delay:
+> +	Usage: optional
+> +	Value type: <u32>
+> +	Definition: time in microseconds to pause between successive scans
+> +		    of the matrix array.
+> +
+> +- row-hold:
+> +	Usage: optional
+> +	Value type: <u32>
+> +	Definition: time in nanoseconds to pause between scans of each row in
+> +		    the matrix array.
+
+- linux,wakeup?
+- linux,no-auto-repeat?
+
+> +
+> +EXAMPLE
+> +
+> +	keypad {
+> +		compatible = "qcom,pm8921-keypad";
+> +		interrupt-parent = <&pmicintc>;
+> +		interrupts = <74 1>, <75 1>;
+> +		linux,keymap = <
+> +			MATRIX_KEY(0, 0, KEY_VOLUMEUP)
+> +			MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
+> +			MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
+> +			MATRIX_KEY(0, 3, KEY_CAMERA)
+> +			>;
+> +		keypad,num-rows = <1>;
+> +		keypad,num-columns = <5>;
+> +		debounce = <15>;
+> +		scan-delay = <32>;
+> +		row-hold = <91500>;
+> +	};
+
+It odd to me that these newly created bindings don't have 'reg'
+properties, even though the device clearly has a register region.
+
+I suppose it makes sense from a "port over from platform data to DT"
+perspective, as these drivers have just assumed the location of their
+registers to be fixed; however I suspect things will need to be changed
+if/when we hope to share these drivers with pm8841/pm8941 and beyond...
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation

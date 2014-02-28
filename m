@@ -1,55 +1,102 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v4 6/9] Input: pm8xxx-vibrator - Add DT match table
-Date: Thu, 27 Feb 2014 17:55:17 -0800
-Message-ID: <1393552520-9068-7-git-send-email-sboyd@codeaurora.org>
+Subject: [PATCH v4 7/9] devicetree: bindings: Document PM8921/8058 keypads
+Date: Thu, 27 Feb 2014 17:55:18 -0800
+Message-ID: <1393552520-9068-8-git-send-email-sboyd@codeaurora.org>
 References: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:36051 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752040AbaB1BzZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Feb 2014 20:55:25 -0500
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Josh Cartwright <joshc@codeaurora.org>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Josh Cartwright <joshc@codeaurora.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The driver is only supported on DT enabled platforms. Convert the
-driver to DT so that it can probe properly.
+Document the keypad device found on PM8921 and PM8058 PMICs.
 
+Cc: <devicetree@vger.kernel.org>
 Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 ---
- drivers/input/misc/pm8xxx-vibrator.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../bindings/input/qcom,pm8xxx-keypad.txt          | 72 ++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
 
-diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
-index b88b7cbf93e2..5079bc54c3aa 100644
---- a/drivers/input/misc/pm8xxx-vibrator.c
-+++ b/drivers/input/misc/pm8xxx-vibrator.c
-@@ -141,6 +141,13 @@ static int pm8xxx_vib_play_effect(struct input_dev *dev, void *data,
- 	return 0;
- }
- 
-+static const struct of_device_id pm8xxx_vib_id_table[] = {
-+	{ .compatible = "qcom,pm8058-vib" },
-+	{ .compatible = "qcom,pm8921-vib" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pm8xxx_vib_id_table);
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+new file mode 100644
+index 000000000000..aa5a9c6cf512
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+@@ -0,0 +1,72 @@
++Qualcomm PM8xxx PMIC Keypad
 +
- static int pm8xxx_vib_probe(struct platform_device *pdev)
- 
- {
-@@ -220,6 +227,7 @@ static struct platform_driver pm8xxx_vib_driver = {
- 		.name	= "pm8xxx-vib",
- 		.owner	= THIS_MODULE,
- 		.pm	= &pm8xxx_vib_pm_ops,
-+		.of_match_table = pm8xxx_vib_id_table,
- 	},
- };
- module_platform_driver(pm8xxx_vib_driver);
++PROPERTIES
++
++- compatible:
++	Usage: required
++	Value type: <string>
++	Definition: must be one of:
++		    "qcom,pm8058-keypad"
++		    "qcom,pm8921-keypad"
++- interrupts:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: the first interrupt specifies the key sense interrupt
++		    and the second interrupt specifies the key stuck interrupt.
++		    The format of the specifier is defined by the binding
++		    document describing the node's interrupt parent.
++
++- linux,keymap:
++	Usage: required
++	Value type: <prop-encoded-array>
++	Definition: the linux keymap. More information can be found in
++		    input/matrix-keymap.txt.
++
++- keypad,num-rows:
++	Usage: required
++	Value type: <u32>
++	Definition: number of rows in the keymap. More information can be found
++		    in input/matrix-keymap.txt.
++
++- keypad,num-columns:
++	Usage: required
++	Value type: <u32>
++	Definition: number of columns in the keymap. More information can be
++		    found in input/matrix-keymap.txt.
++
++- debounce:
++	Usage: optional
++	Value type: <u32>
++	Definition: time in microseconds that key must be pressed or release
++		    for key sense interrupt to trigger.
++
++- scan-delay:
++	Usage: optional
++	Value type: <u32>
++	Definition: time in microseconds to pause between successive scans
++		    of the matrix array.
++
++- row-hold:
++	Usage: optional
++	Value type: <u32>
++	Definition: time in nanoseconds to pause between scans of each row in
++		    the matrix array.
++
++EXAMPLE
++
++	keypad {
++		compatible = "qcom,pm8921-keypad";
++		interrupt-parent = <&pmicintc>;
++		interrupts = <74 1>, <75 1>;
++		linux,keymap = <
++			MATRIX_KEY(0, 0, KEY_VOLUMEUP)
++			MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
++			MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
++			MATRIX_KEY(0, 3, KEY_CAMERA)
++			>;
++		keypad,num-rows = <1>;
++		keypad,num-columns = <5>;
++		debounce = <15>;
++		scan-delay = <32>;
++		row-hold = <91500>;
++	};
 -- 
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 hosted by The Linux Foundation
-

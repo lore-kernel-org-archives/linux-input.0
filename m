@@ -1,152 +1,45 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v4 5/9] Input: pmic8xxx-pwrkey - Migrate to DT
-Date: Thu, 27 Feb 2014 17:55:16 -0800
-Message-ID: <1393552520-9068-6-git-send-email-sboyd@codeaurora.org>
+From: Josh Cartwright <joshc@codeaurora.org>
+Subject: Re: [PATCH v4 4/9] Input: pmic8xxx-keypad - Migrate to DT
+Date: Thu, 27 Feb 2014 21:41:38 -0600
+Message-ID: <20140228034138.GD7308@joshc.qualcomm.com>
 References: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
+ <1393552520-9068-5-git-send-email-sboyd@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <1393552520-9068-5-git-send-email-sboyd@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Josh Cartwright <joshc@codeaurora.org>, linux-input@vger.kernel.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The driver is only supported on DT enabled platforms. Convert the
-driver to DT so that it can probe properly.
+Looks good, with the exception of one thing...
 
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
----
- drivers/input/misc/pmic8xxx-pwrkey.c  | 33 ++++++++++++++++++++-------------
- include/linux/input/pmic8xxx-pwrkey.h | 31 -------------------------------
- 2 files changed, 20 insertions(+), 44 deletions(-)
- delete mode 100644 include/linux/input/pmic8xxx-pwrkey.h
+On Thu, Feb 27, 2014 at 05:55:15PM -0800, Stephen Boyd wrote:
+> The driver is only supported on DT enabled platforms. Convert the
+> driver to DT so that it can probe properly.
+> 
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+> ---
+>  drivers/input/keyboard/pmic8xxx-keypad.c | 150 ++++++++++++++++++-------------
+> @@ -471,50 +514,27 @@ static void pmic8xxx_kp_close(struct input_dev *dev)
+>   */
+>  static int pmic8xxx_kp_probe(struct platform_device *pdev)
+>  {
+[..]
+> -	keymap_data = pdata->keymap_data;
+> -	if (!keymap_data) {
+> -		dev_err(&pdev->dev, "no keymap data supplied\n");
+> -		return -EINVAL;
+> -	}
+> +	repeat = !of_property_read_bool(pdev->dev.of_node,
+> +					"linux,input-no-autorepeat");
+> +	wakeup = !of_property_read_bool(pdev->dev.of_node,
+> +					"linux,keypad-wakeup");
 
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index 0e1a05f95858..99a3587ff49f 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -19,8 +19,7 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/log2.h>
--
--#include <linux/input/pmic8xxx-pwrkey.h>
-+#include <linux/of.h>
- 
- #define PON_CNTL_1 0x1C
- #define PON_CNTL_PULL_UP BIT(7)
-@@ -79,6 +78,13 @@ static int pmic8xxx_pwrkey_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(pm8xxx_pwr_key_pm_ops,
- 		pmic8xxx_pwrkey_suspend, pmic8xxx_pwrkey_resume);
- 
-+static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
-+	{ .compatible = "qcom,pm8058-pwrkey" },
-+	{ .compatible = "qcom,pm8921-pwrkey" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pm8xxx_pwr_key_id_table);
-+
- static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- {
- 	struct input_dev *pwr;
-@@ -89,15 +95,15 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	unsigned int pon_cntl;
- 	struct regmap *regmap;
- 	struct pmic8xxx_pwrkey *pwrkey;
--	const struct pm8xxx_pwrkey_platform_data *pdata =
--					dev_get_platdata(&pdev->dev);
-+	u32 kpd_delay;
-+	bool pull_up;
- 
--	if (!pdata) {
--		dev_err(&pdev->dev, "power key platform data not supplied\n");
--		return -EINVAL;
--	}
-+	if (of_property_read_u32(pdev->dev.of_node, "debounce", &kpd_delay))
-+		kpd_delay = 0;
-+
-+	pull_up = of_property_read_bool(pdev->dev.of_node, "pull-up");
- 
--	if (pdata->kpd_trigger_delay_us > 62500) {
-+	if (kpd_delay > 62500) {
- 		dev_err(&pdev->dev, "invalid power key trigger delay\n");
- 		return -EINVAL;
- 	}
-@@ -125,7 +131,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	pwr->name = "pmic8xxx_pwrkey";
- 	pwr->phys = "pmic8xxx_pwrkey/input0";
- 
--	delay = (pdata->kpd_trigger_delay_us << 10) / USEC_PER_SEC;
-+	delay = (kpd_delay << 10) / USEC_PER_SEC;
- 	delay = 1 + ilog2(delay);
- 
- 	err = regmap_read(regmap, PON_CNTL_1, &pon_cntl);
-@@ -136,7 +142,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 
- 	pon_cntl &= ~PON_CNTL_TRIG_DELAY_MASK;
- 	pon_cntl |= (delay & PON_CNTL_TRIG_DELAY_MASK);
--	if (pdata->pull_up)
-+	if (pull_up)
- 		pon_cntl |= PON_CNTL_PULL_UP;
- 	else
- 		pon_cntl &= ~PON_CNTL_PULL_UP;
-@@ -172,7 +178,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	}
- 
- 	platform_set_drvdata(pdev, pwrkey);
--	device_init_wakeup(&pdev->dev, pdata->wakeup);
-+	device_init_wakeup(&pdev->dev, 1);
- 
- 	return 0;
- }
-@@ -188,9 +194,10 @@ static struct platform_driver pmic8xxx_pwrkey_driver = {
- 	.probe		= pmic8xxx_pwrkey_probe,
- 	.remove		= pmic8xxx_pwrkey_remove,
- 	.driver		= {
--		.name	= PM8XXX_PWRKEY_DEV_NAME,
-+		.name	= "pm8xxx-pwrkey",
- 		.owner	= THIS_MODULE,
- 		.pm	= &pm8xxx_pwr_key_pm_ops,
-+		.of_match_table = pm8xxx_pwr_key_id_table,
- 	},
- };
- module_platform_driver(pmic8xxx_pwrkey_driver);
-diff --git a/include/linux/input/pmic8xxx-pwrkey.h b/include/linux/input/pmic8xxx-pwrkey.h
-deleted file mode 100644
-index 6d2974e57109..000000000000
---- a/include/linux/input/pmic8xxx-pwrkey.h
-+++ /dev/null
-@@ -1,31 +0,0 @@
--/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 and
-- * only version 2 as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- */
--
--#ifndef __PMIC8XXX_PWRKEY_H__
--#define __PMIC8XXX_PWRKEY_H__
--
--#define PM8XXX_PWRKEY_DEV_NAME "pm8xxx-pwrkey"
--
--/**
-- * struct pm8xxx_pwrkey_platform_data - platform data for pwrkey driver
-- * @pull up:  power on register control for pull up/down configuration
-- * @kpd_trigger_delay_us: time delay for power key state change interrupt
-- *                  trigger.
-- * @wakeup: configure power key as wakeup source
-- */
--struct pm8xxx_pwrkey_platform_data  {
--	bool pull_up;
--	u32  kpd_trigger_delay_us;
--	u32  wakeup;
--};
--
--#endif /* __PMIC8XXX_PWRKEY_H__ */
+I don't think you mean to invert this.
+
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
 hosted by The Linux Foundation

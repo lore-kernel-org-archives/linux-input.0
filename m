@@ -1,219 +1,313 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/3] HID: multitouch: add support of other generic collections in hid-mt
-Date: Fri, 28 Feb 2014 11:41:25 -0500
-Message-ID: <1393605685-17025-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/3] HID: multitouch: remove registered devices with default behavior
+Date: Fri, 28 Feb 2014 11:41:23 -0500
+Message-ID: <1393605685-17025-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1393605685-17025-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:26422 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753183AbaB1Qlj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Feb 2014 11:41:39 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1393605685-17025-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The ANTON Touch Pad is a device which can switch from a multitouch
-touchpad to a mouse. It thus presents several generic collections which
-are currently ignored by hid-multitouch. Enable them by not ignoring
-them in mt_input_mapping.
-Adding also a suffix for them depending on their application.
+The default multitouch protocol class in use since the kernel v3.9 is
+working quite well. Since its inclusion, the only devices we had to tweak
+were those who really need quirks (GeneralTouch, FocalTech and Wistron,
+the 3 of them are Win 7 certified ones).
+The flow of new unhandled devices has stopped, which is great and I think
+it's time to reduce the list of registered device.
 
-Reported-by: Edel Maks <edelmaks@gmail.com>
+This commit removes only the registration in the kernel of devices that
+use the class MT_CLS_DEFAULT, or that can use it. By that, I mean that I
+checked all the recordings I have, and the produced input device and
+events are the same before and after applying the patch.
+
+This gives two benefits:
+- remove a bunch of lines of codes
+- prevent bad handling of existing registered devices which are using a
+different protocol while using the same VID/PID (I got the case of a
+Quanta 3008 recently).
+
+I also removed the associated classes (MT_CLS*). I kept their #define in
+case people use the new_id sysfs node with a non standard class (their
+should be really few people now, but we never now). This is why there
+are /* reserved .... */.
+
+Last, I add a comment on top of mt_devices[] definition to remember people
+(and myself) not to include devices for the beauty of it.
+
+To people still trying to add devices with the default class:
+"""
+Guys, try out your device under a kernel greater or equal to v3.9. If it
+works, you are all set. Adding your VID/PID to the kernel only brings us
+overload and you won't get anything from it _because_ even a backport of
+this shiny patch will _not_ make the device work under 3.0, 3.2, 3.4 or
+even 3.8.
+So if it works, it works.
+If it does not work, then yes, submit a patch or call for help.
+In any cases, if you want me to do regression tests, I'd be happy to
+get some traces of your device. But I won't patch the kernel if it works.
+"""
+
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-ids.h        |  3 ++
- drivers/hid/hid-multitouch.c | 82 ++++++++++++++++++++++++++++++++++++++++----
- include/linux/hid.h          |  3 ++
- 3 files changed, 82 insertions(+), 6 deletions(-)
+ drivers/hid/hid-multitouch.c | 129 ++++---------------------------------------
+ 1 file changed, 11 insertions(+), 118 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 00be0d0..7045a71 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -67,6 +67,9 @@
- #define USB_VENDOR_ID_ALPS		0x0433
- #define USB_DEVICE_ID_IBM_GAMEPAD	0x1101
- 
-+#define USB_VENDOR_ID_ANTON		0x1130
-+#define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
-+
- #define USB_VENDOR_ID_APPLE		0x05ac
- #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
- #define USB_DEVICE_ID_APPLE_MAGICMOUSE	0x030d
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 8250cc0..0d31139 100644
+index f134d73..3e81f4e 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -84,6 +84,7 @@ struct mt_class {
- 	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
- 	__u8 maxcontacts;
- 	bool is_indirect;	/* true for touchpads */
-+	bool export_all_inputs;	/* do not ignore mouse, keyboards, etc... */
- };
- 
- struct mt_fields {
-@@ -133,6 +134,7 @@ static void mt_post_parse(struct mt_device *td);
- /* reserved					0x0010 */
- /* reserved					0x0011 */
+@@ -128,16 +128,16 @@ static void mt_post_parse(struct mt_device *td);
+ #define MT_CLS_CONFIDENCE_MINUS_ONE		0x0005
+ #define MT_CLS_DUAL_INRANGE_CONTACTID		0x0006
+ #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	0x0007
+-#define MT_CLS_DUAL_NSMU_CONTACTID		0x0008
++/* reserved					0x0008 */
+ #define MT_CLS_INRANGE_CONTACTNUMBER		0x0009
+ #define MT_CLS_NSMU				0x000a
+-#define MT_CLS_DUAL_CONTACT_NUMBER		0x0010
+-#define MT_CLS_DUAL_CONTACT_ID			0x0011
++/* reserved					0x0010 */
++/* reserved					0x0011 */
  #define MT_CLS_WIN_8				0x0012
-+#define MT_CLS_EXPORT_ALL_INPUTS		0x0013
  
  /* vendor specific classes */
  #define MT_CLS_3M				0x0101
-@@ -196,6 +198,10 @@ static struct mt_class mt_classes[] = {
+-#define MT_CLS_CYPRESS				0x0102
++/* reserved					0x0102 */
+ #define MT_CLS_EGALAX				0x0103
+ #define MT_CLS_EGALAX_SERIAL			0x0104
+ #define MT_CLS_TOPSEED				0x0105
+@@ -189,23 +189,9 @@ static struct mt_class mt_classes[] = {
+ 		.quirks = MT_QUIRK_VALID_IS_INRANGE |
+ 			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
+ 		.maxcontacts = 2 },
+-	{ .name = MT_CLS_DUAL_NSMU_CONTACTID,
+-		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+-			MT_QUIRK_SLOT_IS_CONTACTID,
+-		.maxcontacts = 2 },
+ 	{ .name = MT_CLS_INRANGE_CONTACTNUMBER,
+ 		.quirks = MT_QUIRK_VALID_IS_INRANGE |
+ 			MT_QUIRK_SLOT_IS_CONTACTNUMBER },
+-	{ .name = MT_CLS_DUAL_CONTACT_NUMBER,
+-		.quirks = MT_QUIRK_ALWAYS_VALID |
+-			MT_QUIRK_CONTACT_CNT_ACCURATE |
+-			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
+-		.maxcontacts = 2 },
+-	{ .name = MT_CLS_DUAL_CONTACT_ID,
+-		.quirks = MT_QUIRK_ALWAYS_VALID |
+-			MT_QUIRK_CONTACT_CNT_ACCURATE |
+-			MT_QUIRK_SLOT_IS_CONTACTID,
+-		.maxcontacts = 2 },
+ 	{ .name = MT_CLS_WIN_8,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
  			MT_QUIRK_IGNORE_DUPLICATES |
- 			MT_QUIRK_HOVERING |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE },
-+	{ .name = MT_CLS_EXPORT_ALL_INPUTS,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE,
-+		.export_all_inputs = true },
- 
- 	/*
- 	 * vendor specific classes
-@@ -718,28 +724,52 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
--	/* Only map fields from TouchScreen or TouchPad collections.
--	* We need to ignore fields that belong to other collections
--	* such as Mouse that might have the same GenericDesktop usages. */
--	if (field->application != HID_DG_TOUCHSCREEN &&
-+	struct mt_device *td = hid_get_drvdata(hdev);
-+
-+	/*
-+	 * If mtclass.export_all_inputs is not set, only map fields from
-+	 * TouchScreen or TouchPad collections. We need to ignore fields
-+	 * that belong to other collections such as Mouse that might have
-+	 * the same GenericDesktop usages.
-+	 */
-+	if (!td->mtclass.export_all_inputs &&
-+	    field->application != HID_DG_TOUCHSCREEN &&
- 	    field->application != HID_DG_PEN &&
- 	    field->application != HID_DG_TOUCHPAD)
- 		return -1;
- 
-+	/*
-+	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
-+	 * for the stylus.
-+	 */
- 	if (field->physical == HID_DG_STYLUS)
- 		return 0;
- 
--	return mt_touch_input_mapping(hdev, hi, field, usage, bit, max);
-+	if (field->application == HID_DG_TOUCHSCREEN ||
-+	    field->application == HID_DG_TOUCHPAD)
-+		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max);
-+
-+	/* let hid-core decide for the others */
-+	return 0;
+@@ -223,10 +209,6 @@ static struct mt_class mt_classes[] = {
+ 		.sn_height = 128,
+ 		.maxcontacts = 60,
+ 	},
+-	{ .name = MT_CLS_CYPRESS,
+-		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+-			MT_QUIRK_CYPRESS,
+-		.maxcontacts = 10 },
+ 	{ .name = MT_CLS_EGALAX,
+ 		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
+ 			MT_QUIRK_VALID_IS_INRANGE,
+@@ -1034,6 +1016,12 @@ static void mt_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
  }
  
- static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
-+	/*
-+	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
-+	 * for the stylus.
-+	 */
- 	if (field->physical == HID_DG_STYLUS)
- 		return 0;
++/*
++ * This list contains only:
++ * - VID/PID of products not working with the default multitouch handling
++ * - 2 generic rules.
++ * So there is no point in adding here any device with MT_CLS_DEFAULT.
++ */
+ static const struct hid_device_id mt_devices[] = {
  
--	return mt_touch_input_mapped(hdev, hi, field, usage, bit, max);
-+	if (field->application == HID_DG_TOUCHSCREEN ||
-+	    field->application == HID_DG_TOUCHPAD)
-+		return mt_touch_input_mapped(hdev, hi, field, usage, bit, max);
-+
-+	/* let hid-core decide for the others */
-+	return 0;
- }
- 
- static int mt_event(struct hid_device *hid, struct hid_field *field,
-@@ -846,14 +876,49 @@ static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	char *name;
- 	const char *suffix = NULL;
-+	struct hid_field *field = hi->report->field[0];
- 
- 	if (hi->report->id == td->mt_report_id)
- 		mt_touch_input_configured(hdev, hi);
- 
-+	/*
-+	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
-+	 * for the stylus. Check this first, and then rely on the application
-+	 * field.
-+	 */
- 	if (hi->report->field[0]->physical == HID_DG_STYLUS) {
- 		suffix = "Pen";
- 		/* force BTN_STYLUS to allow tablet matching in udev */
- 		__set_bit(BTN_STYLUS, hi->input->keybit);
-+	} else {
-+		switch (field->application) {
-+		case HID_GD_KEYBOARD:
-+			suffix = "Keyboard";
-+			break;
-+		case HID_GD_KEYPAD:
-+			suffix = "Keypad";
-+			break;
-+		case HID_GD_MOUSE:
-+			suffix = "Mouse";
-+			break;
-+		case HID_DG_STYLUS:
-+			suffix = "Pen";
-+			/* force BTN_STYLUS to allow tablet matching in udev */
-+			__set_bit(BTN_STYLUS, hi->input->keybit);
-+			break;
-+		case HID_DG_TOUCHSCREEN:
-+			/* we do not set suffix = "Touchscreen" */
-+			break;
-+		case HID_GD_SYSTEM_CONTROL:
-+			suffix = "System Control";
-+			break;
-+		case HID_CP_CONSUMER_CONTROL:
-+			suffix = "Consumer Control";
-+			break;
-+		default:
-+			suffix = "UNKNOWN";
-+			break;
-+		}
- 	}
- 
- 	if (suffix) {
-@@ -992,6 +1057,11 @@ static const struct hid_device_id mt_devices[] = {
+ 	/* 3M panels */
+@@ -1047,33 +1035,20 @@ static const struct hid_device_id mt_devices[] = {
  		MT_USB_DEVICE(USB_VENDOR_ID_3M,
  			USB_DEVICE_ID_3M3266) },
  
-+	/* Anton devices */
-+	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
-+			USB_DEVICE_ID_ANTON_TOUCH_PAD) },
-+
+-	/* ActionStar panels */
+-	{ .driver_data = MT_CLS_NSMU,
+-		MT_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR,
+-			USB_DEVICE_ID_ACTIONSTAR_1011) },
+-
  	/* Atmel panels */
  	{ .driver_data = MT_CLS_SERIAL,
  		MT_USB_DEVICE(USB_VENDOR_ID_ATMEL,
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 5eb282e..e224516 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -201,6 +201,7 @@ struct hid_item {
- #define HID_GD_VBRZ		0x00010045
- #define HID_GD_VNO		0x00010046
- #define HID_GD_FEATURE		0x00010047
-+#define HID_GD_SYSTEM_CONTROL	0x00010080
- #define HID_GD_UP		0x00010090
- #define HID_GD_DOWN		0x00010091
- #define HID_GD_RIGHT		0x00010092
-@@ -208,6 +209,8 @@ struct hid_item {
+-			USB_DEVICE_ID_ATMEL_MULTITOUCH) },
+-	{ .driver_data = MT_CLS_SERIAL,
+-		MT_USB_DEVICE(USB_VENDOR_ID_ATMEL,
+ 			USB_DEVICE_ID_ATMEL_MXT_DIGITIZER) },
  
- #define HID_DC_BATTERYSTRENGTH	0x00060020
- 
-+#define HID_CP_CONSUMER_CONTROL	0x000c0001
+ 	/* Baanto multitouch devices */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_BAANTO,
+ 			USB_DEVICE_ID_BAANTO_MT_190W2) },
 +
- #define HID_DG_DIGITIZER	0x000d0001
- #define HID_DG_PEN		0x000d0002
- #define HID_DG_LIGHTPEN		0x000d0003
+ 	/* Cando panels */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
+-	{ .driver_data = MT_CLS_DUAL_CONTACT_NUMBER,
+-		MT_USB_DEVICE(USB_VENDOR_ID_CANDO,
+-			USB_DEVICE_ID_CANDO_MULTI_TOUCH_10_1) },
+-	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+-		MT_USB_DEVICE(USB_VENDOR_ID_CANDO,
+-			USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6) },
+@@ -1088,16 +1063,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
+ 			USB_DEVICE_ID_CVTOUCH_SCREEN) },
+ 
+-	/* Cypress panel */
+-	{ .driver_data = MT_CLS_CYPRESS,
+-		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
+-			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
+-
+-	/* Data Modul easyMaxTouch */
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		MT_USB_DEVICE(USB_VENDOR_ID_DATA_MODUL,
+-			USB_VENDOR_ID_DATA_MODUL_EASYMAXTOUCH) },
+-
+ 	/* eGalax devices (resistive) */
+ 	{ .driver_data = MT_CLS_EGALAX,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+@@ -1156,11 +1121,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
+ 
+-	/* Elo TouchSystems IntelliTouch Plus panel */
+-	{ .driver_data = MT_CLS_DUAL_CONTACT_ID,
+-		MT_USB_DEVICE(USB_VENDOR_ID_ELO,
+-			USB_DEVICE_ID_ELO_TS2515) },
+-
+ 	/* Flatfrog Panels */
+ 	{ .driver_data = MT_CLS_FLATFROG,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_FLATFROG,
+@@ -1204,37 +1164,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_HANVON_ALT,
+ 			USB_DEVICE_ID_HANVON_ALT_MULTITOUCH) },
+ 
+-	/* Ideacom panel */
+-	{ .driver_data = MT_CLS_SERIAL,
+-		MT_USB_DEVICE(USB_VENDOR_ID_IDEACOM,
+-			USB_DEVICE_ID_IDEACOM_IDC6650) },
+-	{ .driver_data = MT_CLS_SERIAL,
+-		MT_USB_DEVICE(USB_VENDOR_ID_IDEACOM,
+-			USB_DEVICE_ID_IDEACOM_IDC6651) },
+-
+ 	/* Ilitek dual touch panel */
+ 	{  .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+ 			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+ 
+-	/* IRTOUCH panels */
+-	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+-		MT_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
+-			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+-
+-	/* LG Display panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		MT_USB_DEVICE(USB_VENDOR_ID_LG,
+-			USB_DEVICE_ID_LG_MULTITOUCH) },
+-
+-	/* Lumio panels */
+-	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+-		MT_USB_DEVICE(USB_VENDOR_ID_LUMIO,
+-			USB_DEVICE_ID_CRYSTALTOUCH) },
+-	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+-		MT_USB_DEVICE(USB_VENDOR_ID_LUMIO,
+-			USB_DEVICE_ID_CRYSTALTOUCH_DUAL) },
+-
+ 	/* MosArt panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ASUS,
+@@ -1246,11 +1180,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TURBOX,
+ 			USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) },
+ 
+-	/* Nexio panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		MT_USB_DEVICE(USB_VENDOR_ID_NEXIO,
+-			USB_DEVICE_ID_NEXIO_MULTITOUCH_420)},
+-
+ 	/* Panasonic panels */
+ 	{ .driver_data = MT_CLS_PANASONIC,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
+@@ -1264,11 +1193,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
+ 			USB_DEVICE_ID_NOVATEK_PCT) },
+ 
+-	/* PenMount panels */
+-	{ .driver_data = MT_CLS_CONFIDENCE,
+-		MT_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,
+-			USB_DEVICE_ID_PENMOUNT_PCI) },
+-
+ 	/* PixArt optical touch screen */
+ 	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_PIXART,
+@@ -1282,44 +1206,18 @@ static const struct hid_device_id mt_devices[] = {
+ 
+ 	/* PixCir-based panels */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+-		MT_USB_DEVICE(USB_VENDOR_ID_HANVON,
+-			USB_DEVICE_ID_HANVON_MULTITOUCH) },
+-	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
+ 
+ 	/* Quanta-based panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_CONTACT_ID,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+-			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+-	{ .driver_data = MT_CLS_CONFIDENCE_CONTACT_ID,
+-		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+ 			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001) },
+-	{ .driver_data = MT_CLS_CONFIDENCE_CONTACT_ID,
+-		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+-			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008) },
+-
+-	/* SiS panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		HID_USB_DEVICE(USB_VENDOR_ID_SIS_TOUCH,
+-		USB_DEVICE_ID_SIS9200_TOUCH) },
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		HID_USB_DEVICE(USB_VENDOR_ID_SIS_TOUCH,
+-		USB_DEVICE_ID_SIS817_TOUCH) },
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		HID_USB_DEVICE(USB_VENDOR_ID_SIS_TOUCH,
+-		USB_DEVICE_ID_SIS1030_TOUCH) },
+ 
+ 	/* Stantum panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE,
+-		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM,
+-			USB_DEVICE_ID_MTP)},
+-	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
+ 			USB_DEVICE_ID_MTP_STM)},
+-	{ .driver_data = MT_CLS_DEFAULT,
+-		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX,
+-			USB_DEVICE_ID_MTP_SITRONIX)},
+ 
+ 	/* TopSeed panels */
+ 	{ .driver_data = MT_CLS_TOPSEED,
+@@ -1378,11 +1276,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_CSR2) },
+ 
+-	/* Zytronic panels */
+-	{ .driver_data = MT_CLS_SERIAL,
+-		MT_USB_DEVICE(USB_VENDOR_ID_ZYTRONIC,
+-			USB_DEVICE_ID_ZYTRONIC_ZXY100) },
+-
+ 	/* Generic MT device */
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
+ 
 -- 
 1.8.5.3
-

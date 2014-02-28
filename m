@@ -1,45 +1,70 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v4 5/9] Input: pmic8xxx-pwrkey - Migrate to DT
-Date: Fri, 28 Feb 2014 10:32:37 -0800
-Message-ID: <20140228183237.GE2487@codeaurora.org>
+Subject: Re: [PATCH v4 7/9] devicetree: bindings: Document PM8921/8058 keypads
+Date: Fri, 28 Feb 2014 10:37:08 -0800
+Message-ID: <20140228183708.GF2487@codeaurora.org>
 References: <1393552520-9068-1-git-send-email-sboyd@codeaurora.org>
- <1393552520-9068-6-git-send-email-sboyd@codeaurora.org>
- <20140228034547.GE7308@joshc.qualcomm.com>
+ <1393552520-9068-8-git-send-email-sboyd@codeaurora.org>
+ <20140228135527.GF7308@joshc.qualcomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.11.231]:50540 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750746AbaB1ShK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Feb 2014 13:37:10 -0500
 Content-Disposition: inline
-In-Reply-To: <20140228034547.GE7308@joshc.qualcomm.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Josh Cartwright <joshc@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+In-Reply-To: <20140228135527.GF7308@joshc.qualcomm.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Josh Cartwright <joshc@codeaurora.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On 02/27, Josh Cartwright wrote:
-> On Thu, Feb 27, 2014 at 05:55:16PM -0800, Stephen Boyd wrote:
-> > The driver is only supported on DT enabled platforms. Convert the
-> > driver to DT so that it can probe properly.
-> > 
-> > Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-> > ---
-> > --- a/drivers/input/misc/pmic8xxx-pwrkey.c
-> > +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-> > @@ -172,7 +178,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
-> >  	}
-> >  
-> >  	platform_set_drvdata(pdev, pwrkey);
-> > -	device_init_wakeup(&pdev->dev, pdata->wakeup);
-> > +	device_init_wakeup(&pdev->dev, 1);
+On 02/28, Josh Cartwright wrote:
+> On Thu, Feb 27, 2014 at 05:55:18PM -0800, Stephen Boyd wrote:
 > 
-> Is there a particular reason you aren't providing a 'linux,wakeup'
-> property for pwrkey?
+> - linux,wakeup?
+> - linux,no-auto-repeat?
+
+Added.
+
+> 
+> > +
+> > +EXAMPLE
+> > +
+> > +	keypad {
+> > +		compatible = "qcom,pm8921-keypad";
+> > +		interrupt-parent = <&pmicintc>;
+> > +		interrupts = <74 1>, <75 1>;
+> > +		linux,keymap = <
+> > +			MATRIX_KEY(0, 0, KEY_VOLUMEUP)
+> > +			MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
+> > +			MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
+> > +			MATRIX_KEY(0, 3, KEY_CAMERA)
+> > +			>;
+> > +		keypad,num-rows = <1>;
+> > +		keypad,num-columns = <5>;
+> > +		debounce = <15>;
+> > +		scan-delay = <32>;
+> > +		row-hold = <91500>;
+> > +	};
+> 
+> It odd to me that these newly created bindings don't have 'reg'
+> properties, even though the device clearly has a register region.
+> 
+> I suppose it makes sense from a "port over from platform data to DT"
+> perspective, as these drivers have just assumed the location of their
+> registers to be fixed; however I suspect things will need to be changed
+> if/when we hope to share these drivers with pm8841/pm8941 and beyond...
 > 
 
-In all the users of this device I've never seen wakeup set to 0.
-Given that this is a power key it makes sense because this is
-used to wake up a phone from suspend (also see the comment above
-device_init_wakeup() where power buttons are explicitly called
-out).
+Agreed. I would love it if the platform OF code would create
+IORESOURCE_REG resources for any reg properties that aren't
+translatable to CPU addresses. That way we don't have to pick out
+the reg property from DT with special OF code (like you've done
+in rtc-pm8xxx). I'll throw the reg property into the binding so
+that in the future we can support the register moving around
+(although at the moment the driver will ignore it).
 
 -- 
 Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,

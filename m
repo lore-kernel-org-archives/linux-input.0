@@ -1,12 +1,12 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 3/6] HID: sony: Use inliners for work queue initialization and cancellation
-Date: Fri, 28 Feb 2014 22:58:58 -0500
-Message-ID: <1393646341-16947-4-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH 2/6] HID: sony: Convert startup and shutdown functions to use a uniform parameter type
+Date: Fri, 28 Feb 2014 22:58:57 -0500
+Message-ID: <1393646341-16947-3-git-send-email-frank.praznik@oh.rr.com>
 References: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:39195 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:39036 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752761AbaCAD70 (ORCPT
+	with ESMTP id S1752395AbaCAD70 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Fri, 28 Feb 2014 22:59:26 -0500
 In-Reply-To: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com>
@@ -15,86 +15,215 @@ List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-Use inliners to make sure that the work queue initialization flags are always
-checked and set correctly when initializing or cancelling the work queue.
+Convert all of the initialization and shutdown functions to take a parameter
+type of struct sony_sc instead of using a mix of struct sony_sc and
+struct hid_device.
+
+sony_set_leds() was converted as well as it was just pulling the sony_sc
+struct out of the hid_device.
 
 Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
- drivers/hid/hid-sony.c | 31 +++++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 10 deletions(-)
+ drivers/hid/hid-sony.c | 66 ++++++++++++++++++++++++--------------------------
+ 1 file changed, 31 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 233c094..dc6e6fa 100644
+index 31ba01a..233c094 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -1617,6 +1617,22 @@ static int sony_check_add(struct sony_sc *sc)
- 	return sony_check_add_dev_list(sc);
+@@ -1106,19 +1106,18 @@ static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
+ 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
  }
  
-+static inline void sony_init_work(struct sony_sc *sc,
-+					void(*worker)(struct work_struct *))
-+{
-+	if (!sc->worker_initialized)
-+		INIT_WORK(&sc->state_worker, worker);
-+
-+	sc->worker_initialized = 1;
-+}
-+
-+static inline void sony_cancel_work_sync(struct sony_sc *sc)
-+{
-+	if (sc->worker_initialized)
-+		cancel_work_sync(&sc->state_worker);
-+
-+	sc->worker_initialized = 0;
-+}
- 
- static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-static void sony_set_leds(struct hid_device *hdev, const __u8 *leds, int count)
++static void sony_set_leds(struct sony_sc *sc, const __u8 *leds, int count)
  {
-@@ -1657,12 +1673,10 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
- 		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
- 		ret = sixaxis_set_operational_usb(hdev);
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-+		sony_init_work(sc, sixaxis_state_worker);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
- 		ret = sixaxis_set_operational_bt(hdev);
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-+		sony_init_work(sc, sixaxis_state_worker);
- 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
- 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
- 			ret = dualshock4_set_operational_bt(hdev);
-@@ -1679,8 +1693,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-	struct sony_sc *drv_data = hid_get_drvdata(hdev);
+ 	int n;
+ 
+ 	BUG_ON(count > MAX_LEDS);
+ 
+-	if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
+-		buzz_set_leds(hdev, leds);
++	if (sc->quirks & BUZZ_CONTROLLER && count == 4) {
++		buzz_set_leds(sc->hdev, leds);
+ 	} else {
+ 		for (n = 0; n < count; n++)
+-			drv_data->led_state[n] = leds[n];
+-		schedule_work(&drv_data->state_worker);
++			sc->led_state[n] = leds[n];
++		schedule_work(&sc->state_worker);
+ 	}
+ }
+ 
+@@ -1141,7 +1140,7 @@ static void sony_led_set_brightness(struct led_classdev *led,
+ 		if (led == drv_data->leds[n]) {
+ 			if (value != drv_data->led_state[n]) {
+ 				drv_data->led_state[n] = value;
+-				sony_set_leds(hdev, drv_data->led_state, drv_data->led_count);
++				sony_set_leds(drv_data, drv_data->led_state, drv_data->led_count);
+ 			}
+ 			break;
+ 		}
+@@ -1170,30 +1169,28 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
+ 	return LED_OFF;
+ }
+ 
+-static void sony_leds_remove(struct hid_device *hdev)
++static void sony_leds_remove(struct sony_sc *sc)
+ {
+-	struct sony_sc *drv_data;
+ 	struct led_classdev *led;
+ 	int n;
+ 
+-	drv_data = hid_get_drvdata(hdev);
+-	BUG_ON(!(drv_data->quirks & SONY_LED_SUPPORT));
++	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
+ 
+-	for (n = 0; n < drv_data->led_count; n++) {
+-		led = drv_data->leds[n];
+-		drv_data->leds[n] = NULL;
++	for (n = 0; n < sc->led_count; n++) {
++		led = sc->leds[n];
++		sc->leds[n] = NULL;
+ 		if (!led)
+ 			continue;
+ 		led_classdev_unregister(led);
+ 		kfree(led);
+ 	}
+ 
+-	drv_data->led_count = 0;
++	sc->led_count = 0;
+ }
+ 
+-static int sony_leds_init(struct hid_device *hdev)
++static int sony_leds_init(struct sony_sc *sc)
+ {
+-	struct sony_sc *drv_data;
++	struct hid_device *hdev = sc->hdev;
+ 	int n, ret = 0;
+ 	int max_brightness;
+ 	int use_colors;
+@@ -1205,11 +1202,10 @@ static int sony_leds_init(struct hid_device *hdev)
+ 	static const char * const color_str[] = { "red", "green", "blue" };
+ 	static const __u8 initial_values[MAX_LEDS] = { 0x00, 0x00, 0x00, 0x00 };
+ 
+-	drv_data = hid_get_drvdata(hdev);
+-	BUG_ON(!(drv_data->quirks & SONY_LED_SUPPORT));
++	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
+ 
+-	if (drv_data->quirks & BUZZ_CONTROLLER) {
+-		drv_data->led_count = 4;
++	if (sc->quirks & BUZZ_CONTROLLER) {
++		sc->led_count = 4;
+ 		max_brightness = 1;
+ 		use_colors = 0;
+ 		name_len = strlen("::buzz#");
+@@ -1217,14 +1213,14 @@ static int sony_leds_init(struct hid_device *hdev)
+ 		/* Validate expected report characteristics. */
+ 		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
+ 			return -ENODEV;
+-	} else if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
+-		drv_data->led_count = 3;
++	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
++		sc->led_count = 3;
+ 		max_brightness = 255;
+ 		use_colors = 1;
+ 		name_len = 0;
+ 		name_fmt = "%s:%s";
+ 	} else {
+-		drv_data->led_count = 4;
++		sc->led_count = 4;
+ 		max_brightness = 1;
+ 		use_colors = 0;
+ 		name_len = strlen("::sony#");
+@@ -1236,11 +1232,11 @@ static int sony_leds_init(struct hid_device *hdev)
+ 	 * only relevant if the driver is loaded after somebody actively set the
+ 	 * LEDs to on
+ 	 */
+-	sony_set_leds(hdev, initial_values, drv_data->led_count);
++	sony_set_leds(sc, initial_values, sc->led_count);
+ 
+ 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
+ 
+-	for (n = 0; n < drv_data->led_count; n++) {
++	for (n = 0; n < sc->led_count; n++) {
+ 
+ 		if (use_colors)
+ 			name_sz = strlen(dev_name(&hdev->dev)) + strlen(color_str[n]) + 2;
+@@ -1270,13 +1266,13 @@ static int sony_leds_init(struct hid_device *hdev)
+ 			goto error_leds;
+ 		}
+ 
+-		drv_data->leds[n] = led;
++		sc->leds[n] = led;
+ 	}
+ 
+ 	return ret;
+ 
+ error_leds:
+-	sony_leds_remove(hdev);
++	sony_leds_remove(sc);
+ 
+ 	return ret;
+ }
+@@ -1366,9 +1362,9 @@ static int sony_play_effect(struct input_dev *dev, void *data,
+ 	return 0;
+ }
+ 
+-static int sony_init_ff(struct hid_device *hdev)
++static int sony_init_ff(struct sony_sc *sc)
+ {
+-	struct hid_input *hidinput = list_entry(hdev->inputs.next,
++	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
+ 						struct hid_input, list);
+ 	struct input_dev *input_dev = hidinput->input;
+ 
+@@ -1377,7 +1373,7 @@ static int sony_init_ff(struct hid_device *hdev)
+ }
+ 
+ #else
+-static int sony_init_ff(struct hid_device *hdev)
++static int sony_init_ff(struct sony_sc *sc)
+ {
+ 	return 0;
+ }
+@@ -1697,7 +1693,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err_stop;
+ 
+ 	if (sc->quirks & SONY_LED_SUPPORT) {
+-		ret = sony_leds_init(hdev);
++		ret = sony_leds_init(sc);
  		if (ret < 0)
  			goto err_stop;
- 
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
-+		sony_init_work(sc, dualshock4_state_worker);
- 	} else {
- 		ret = 0;
  	}
-@@ -1725,8 +1738,7 @@ err_stop:
- 		sony_leds_remove(sc);
+@@ -1716,7 +1712,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	if (sc->quirks & SONY_FF_SUPPORT) {
+-		ret = sony_init_ff(hdev);
++		ret = sony_init_ff(sc);
+ 		if (ret < 0)
+ 			goto err_close;
+ 	}
+@@ -1726,7 +1722,7 @@ err_close:
+ 	hid_hw_close(hdev);
+ err_stop:
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+-		sony_leds_remove(hdev);
++		sony_leds_remove(sc);
  	if (sc->quirks & SONY_BATTERY_SUPPORT)
  		sony_battery_remove(sc);
--	if (sc->worker_initialized)
--		cancel_work_sync(&sc->state_worker);
-+	sony_cancel_work_sync(sc);
- 	sony_remove_dev_list(sc);
- 	hid_hw_stop(hdev);
- 	return ret;
-@@ -1744,8 +1756,7 @@ static void sony_remove(struct hid_device *hdev)
- 		sony_battery_remove(sc);
- 	}
+ 	if (sc->worker_initialized)
+@@ -1741,7 +1737,7 @@ static void sony_remove(struct hid_device *hdev)
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
  
--	if (sc->worker_initialized)
--		cancel_work_sync(&sc->state_worker);
-+	sony_cancel_work_sync(sc);
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+-		sony_leds_remove(hdev);
++		sony_leds_remove(sc);
  
- 	sony_remove_dev_list(sc);
- 
+ 	if (sc->quirks & SONY_BATTERY_SUPPORT) {
+ 		hid_hw_close(hdev);
 -- 
 1.8.5.3
 

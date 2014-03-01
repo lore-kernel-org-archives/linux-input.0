@@ -1,34 +1,42 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 0/6] HID: sony: More Sony controller fixes and improvements.
-Date: Fri, 28 Feb 2014 22:58:55 -0500
-Message-ID: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH 1/6] HID: sony: Fix Sixaxis cable state detection
+Date: Fri, 28 Feb 2014 22:58:56 -0500
+Message-ID: <1393646341-16947-2-git-send-email-frank.praznik@oh.rr.com>
+References: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:39036 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752395AbaCAD7Y (ORCPT
+	with ESMTP id S1752791AbaCAD7Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Feb 2014 22:59:24 -0500
+	Fri, 28 Feb 2014 22:59:25 -0500
+In-Reply-To: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-This set consists of one bugfix, two mostly cosmetic changes and three larger
-patches for the LED subsystem.
+Byte 31 of the Sixaxis report can change depending on whether or not the
+controller is rumbling.  Using bit 3 is the only reliable way to detect the
+state of the cable regardless of rumble activity.
 
-Patch #4 adds hardware blink support to the controller LEDs.  Values from 0 to
-2.5 seconds are supported by the hardware.  The Sixaxis can set all of the LEDs
-individually, but the DualShock 4 only has one global setting for the entire
-light bar so only the value from the most recently set LED is used.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+ drivers/hid/hid-sony.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Patch #5 adds an LED trigger that reports the controller battery status via the
-registered LEDs.  The LEDs will flash if the controller is charging or if the
-battery is low, and remain solid otherwise.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index b1aa6f0..31ba01a 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -864,7 +864,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
+ 		battery_capacity = sixaxis_battery_capacity[index];
+ 		battery_charging = 0;
+ 	}
+-	cable_state = !((rd[31] >> 4) & 0x01);
++	cable_state = !(rd[31] & 0x04);
+ 
+ 	spin_lock_irqsave(&sc->lock, flags);
+ 	sc->cable_state = cable_state;
+-- 
+1.8.5.3
 
-Patch #6 initializes the LEDs to a default value of LED 1 on the Sixaxis and
-blue on the DualShock 4 so there is some indication that the controller is
-powered on and connected in the case of Bluetooth.  The code can be used to set
-the LEDs based on the device number, but I'm not sure how to actually retrieve
-the controller number from the system.  I saw the xpad patches posted a few
-weeks ago where the minor number of the joydev device was used, but I'm under
-the impression that doing that is not ideal.  Any suggestions?

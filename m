@@ -1,12 +1,12 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 2/7] mfd: AXP20x: Add bindings documentation
-Date: Sat,  1 Mar 2014 17:45:47 +0100
-Message-ID: <1393692352-10839-3-git-send-email-carlo@caione.org>
+Subject: [PATCH 3/7] ARM: dts: cubieboard2: Add AXP209 support
+Date: Sat,  1 Mar 2014 17:45:48 +0100
+Message-ID: <1393692352-10839-4-git-send-email-carlo@caione.org>
 References: <1393692352-10839-1-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBMU5ZCMAKGQEQTXOB7Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBNU5ZCMAKGQETSOOYOA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1393692352-10839-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -18,113 +18,40 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Bindings documentation for the AXP20x driver. In this file also two
-sub-nodes (PEK and regulators) are documented.
+AXP209 is the PMU used by Cubieboard2. This patch enable the core
+support in the dts file.
+This patch requires: "ARM: sun7i/sun6i: irqchip: Add irqchip driver for
+NMI controller"
 
 Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 ---
- Documentation/devicetree/bindings/mfd/axp20x.txt | 93 ++++++++++++++++++++++++
- 1 file changed, 93 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
+ arch/arm/boot/dts/sun7i-a20-cubieboard2.dts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
-new file mode 100644
-index 0000000..ae3e3c4
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
-@@ -0,0 +1,93 @@
-+* axp20x device tree bindings
+diff --git a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
+index 5c51cb8..234b14b 100644
+--- a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
++++ b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
+@@ -53,6 +53,20 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+The axp20x family current members :-
-+axp202 (X-Powers)
-+axp209 (X-Powers)
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupt-parent = <&nmi_intc>;
++				interrupts = <0 8>;
 +
-+Required properties:
-+- compatible 			: Should be "x-powers,axp202" or "x-powers,axp209"
-+- interrupt-controller 		: axp20x has its own internal IRQs
-+- #interrupt-cells 		: Should be set to 1
-+- interrupt-parent 		: The parent interrupt controller
-+- interrupts 			: Interrupt specifiers for interrupt sources
-+- reg 				: The I2C slave address for the AXP chip
-+- axp,system-power-controller	: Telling whether or not this pmic is
-+				  controlling the system power
++				axp,system-power-controller;
 +
-+Sub-nodes:
-+* regulators : Contain the regulator nodes. The regulators are bound using
-+	       their name as listed here: dcdc2, dcdc3, ldo1, ldo2, ldo3,
-+	       ldo4, ldo5.
-+	       The bindings details of individual regulator device can be found in:
-+	       Documentation/devicetree/bindings/regulator/regulator.txt with the
-+	       exception of:
-+
-+	- dcdc-freq		: defines the work frequency of DC-DC in KHz
-+				  (range: 750-1875)
-+	- dcdc-workmode		: 1 for PWM mode, 0 for AUTO mode
-+
-+* axp20x-pek : Power Enable Key
-+	- compatible		: should be "x-powers,axp20x-pek"
-+
-+Example:
-+
-+axp: axp20x@34 {
-+	reg = <0x34>;
-+	interrupt-parent = <&nmi_intc>;
-+	interrupts = <0 8>;
-+
-+	axp,system-power-controller;
-+
-+	compatible = "x-powers,axp209";
-+	interrupt-controller;
-+	#interrupt-cells = <1>;
-+
-+	axp20x-pek {
-+		compatible = "x-powers,axp20x-pek";
-+	};
-+
-+	regulators {
-+		dcdc-freq = "8";
-+
-+		axp_dcdc2: dcdc2 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <2275000>;
-+			dcdc-workmode = <0>;
-+			regulator-always-on;
-+		};
-+
-+		axp_dcdc3: dcdc3 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <3500000>;
-+			dcdc-workmode = <0>;
-+			regulator-always-on;
-+		};
-+
-+		axp_ldo1: ldo1 {
-+			regulator-min-microvolt = <1300000>;
-+			regulator-max-microvolt = <1300000>;
-+		};
-+
-+		axp_ldo2: ldo2 {
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+			regulator-always-on;
-+		};
-+
-+		axp_ldo3: ldo3 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <3500000>;
-+		};
-+
-+		axp_ldo4: ldo4 {
-+			regulator-min-microvolt = <1250000>;
-+			regulator-max-microvolt = <3300000>;
-+		};
-+
-+		axp_ldo5: ldo5 {
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+		};
-+	};
-+};
-+
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
++			};
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
 -- 
 1.8.3.2

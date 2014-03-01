@@ -1,301 +1,140 @@
 From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH 5/6] HID: sony: Add an led trigger to report controller
- battery status.
-Date: Sat, 1 Mar 2014 15:36:14 +0100
-Message-ID: <20140301153614.d6783a3d2e145c32be74aa08@ao2.it>
+Subject: Re: [PATCH 6/6] HID: sony: Turn on the LEDs by default.
+Date: Sat, 1 Mar 2014 15:38:04 +0100
+Message-ID: <20140301153804.d845c05f3f180ec93af63dd4@ao2.it>
 References: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com>
-	<1393646341-16947-6-git-send-email-frank.praznik@oh.rr.com>
+	<1393646341-16947-7-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:27962 "EHLO smtp205.alice.it"
+Received: from smtp208.alice.it ([82.57.200.104]:38529 "EHLO smtp208.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752676AbaCAOgV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 1 Mar 2014 09:36:21 -0500
-In-Reply-To: <1393646341-16947-6-git-send-email-frank.praznik@oh.rr.com>
+	id S1752817AbaCAOiN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 1 Mar 2014 09:38:13 -0500
+In-Reply-To: <1393646341-16947-7-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Frank Praznik <frank.praznik@oh.rr.com>
 Cc: linux-input@vger.kernel.org, jkosina@suse.cz, dh.herrmann@gmail.com
 
-On Fri, 28 Feb 2014 22:59:00 -0500
+On Fri, 28 Feb 2014 22:59:01 -0500
 Frank Praznik <frank.praznik@oh.rr.com> wrote:
 
-> Creates an LED trigger that changes LED behavior depending on the state of the
-> controller battery.
+> Initialize the controller LEDs to a default value that isn't all-off so that
+> there is some visible indicator that the controller is powered on and
+> connected.
 > 
+> On the Sixaxis LED number 1 is turned on.
 
-Frank, have you thought about adding the logic which activates the the
-blinking patterns to the bluez plugin? I mean, from userspace you can
-access the battery class and led class and decide what LED pattern to
-show to indicate the battery status.
+I'd just NAK this.
 
-I'd try to have as less code a possible in the kernel if things can be
-done in userspace. As a rule of thumb: don't make kernel drivers "too
-intelligent".
+Please start with all LEDs blinking just as the PS3 does, and let
+userpsace decide what the controller number is.
 
-Some more comments below.
+Ciao,
+   Antonio
 
-> The trigger function runs on a 500 millisecond timer and only updates the LEDs
-> if the controller power state has changed or a new device has been added to the
-> trigger.
-> 
-> The trigger sets the LEDs to solid if the controller is in wireless mode and
-> the battery is above 20% power or if the controller is plugged in and the
-> battery has completed charging.  If the controller is not charging and the
-> battery drops to or below 20% it blinks the LEDs in 500ms intervals. If the
-> controller is plugged in and charging it blinks the LEDs in 1 second intervals.
-> 
-> The order of subsystem initialization had to be changed in sony_probe() so that
-> the trigger is created before the LEDs are initialized.
-> 
-> By default the controller LEDs are set to the trigger local to that controller.
+> One the DualShock 4 the light bar is set to blue at the lowest brightness.
 > 
 > Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 > ---
->  drivers/hid/hid-sony.c | 170 ++++++++++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 162 insertions(+), 8 deletions(-)
+> 
+>  Right now it just sets all of the controllers to the same value (LED 1 on the
+>  sixaxis and blue on the DS4) to indicate that the controller is connected and
+>  show the battery status set by the trigger in the previous patch. I'd like to
+>  be able to set the LEDs to the actual numerical controller value, but I'm not
+>  sure how to do that, other than the solution proposed in an xpad patch a few
+>  weeks ago where the minor number of the joydev device was retrieved.
+>
+
+As I said, I would just avoid doing that in the kernel.
+
+>  drivers/hid/hid-sony.c | 44 ++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 42 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 914a6cc..d7889ac 100644
+> index d7889ac..7912f0a 100644
 > --- a/drivers/hid/hid-sony.c
 > +++ b/drivers/hid/hid-sony.c
-> @@ -730,6 +730,17 @@ struct sony_sc {
->  	struct work_struct state_worker;
->  	struct power_supply battery;
->  
-> +#ifdef CONFIG_LEDS_TRIGGERS
-> +	spinlock_t trigger_lock;
-> +	struct led_trigger battery_trigger;
-> +	struct timer_list battery_trigger_timer;
-> +	atomic_t trigger_device_added;
-> +	__u8 trigger_initialized;
-> +	__u8 trigger_timer_initialized;
-> +	__u8 trigger_capacity;
-> +	__u8 trigger_charging;
-> +#endif
-> +
->  #ifdef CONFIG_SONY_FF
->  	__u8 left;
->  	__u8 right;
-> @@ -1329,14 +1340,19 @@ static int sony_leds_init(struct sony_sc *sc)
->  		if (!(sc->quirks & BUZZ_CONTROLLER))
->  			led->blink_set = sony_blink_set;
->  
-> +#ifdef CONFIG_LEDS_TRIGGERS
-> +		led->default_trigger = sc->battery_trigger.name;
-> +#endif
-> +
-> +		sc->leds[n] = led;
-> +
->  		ret = led_classdev_register(&hdev->dev, led);
->  		if (ret) {
->  			hid_err(hdev, "Failed to register LED %d\n", n);
->  			kfree(led);
-> +			sc->leds[n] = NULL;
->  			goto error_leds;
->  		}
-> -
-> -		sc->leds[n] = led;
->  	}
->  
->  	return ret;
-> @@ -1552,6 +1568,137 @@ static void sony_battery_remove(struct sony_sc *sc)
->  	sc->battery.name = NULL;
+> @@ -1101,6 +1101,44 @@ static int dualshock4_set_operational_bt(struct hid_device *hdev)
+>  				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
 >  }
 >  
-> +#ifdef CONFIG_LEDS_TRIGGERS
-> +static void sony_battery_trigger_callback(unsigned long data)
+> +static void sixaxis_set_leds_from_devnum(int devnum, __u8 values[MAX_LEDS])
 > +{
-> +	struct sony_sc *drv_data = (struct sony_sc *)data;
-> +	struct led_classdev *led;
-> +	unsigned long flags;
-> +	unsigned long delay_on, delay_off;
-> +	int dev_added, ret;
-> +	__u8 charging, capacity;
+> +	static const __u8 sixaxis_leds[10][4] = {
+> +				{ 0x01, 0x00, 0x00, 0x00 },
+> +				{ 0x00, 0x01, 0x00, 0x00 },
+> +				{ 0x00, 0x00, 0x01, 0x00 },
+> +				{ 0x00, 0x00, 0x00, 0x01 },
+> +				{ 0x01, 0x00, 0x00, 0x01 },
+> +				{ 0x00, 0x01, 0x00, 0x01 },
+> +				{ 0x00, 0x00, 0x01, 0x01 },
+> +				{ 0x01, 0x00, 0x01, 0x01 },
+> +				{ 0x00, 0x01, 0x01, 0x01 },
+> +				{ 0x01, 0x01, 0x01, 0x01 }
+> +	};
 > +
-> +	/* Check if new LEDs were added since the last time */
-> +	dev_added = atomic_cmpxchg(&drv_data->trigger_device_added, 1, 0);
-> +
-> +	/* Get the battery info */
-
-That's what I meant, is it right for a HID driver to check battery
-status and _decide_ how to represent that info to users?
-
-Anyhow, let's see also what other people think.
-
-> +	spin_lock_irqsave(&drv_data->lock, flags);
-> +	charging = drv_data->battery_charging;
-> +	capacity = drv_data->battery_capacity;
-> +	spin_unlock_irqrestore(&drv_data->lock, flags);
-> +
-> +	/* Don't set the LEDs if nothing has changed */
-> +	if (!dev_added && drv_data->trigger_capacity == capacity &&
-> +		drv_data->trigger_charging == charging)
-> +		goto reset_timer;
-> +
-> +	if (charging) {
-> +		/* Charging: blink at 1 sec intervals */
-> +		delay_on = delay_off = 1000;
-> +		led_trigger_blink(&drv_data->battery_trigger, &delay_on,
-> +				&delay_off);
-> +	} else if (capacity <= 20) {
-> +		/* Low battery: blink at 500ms intervals */
-> +		delay_on = delay_off = 500;
-> +		led_trigger_blink(&drv_data->battery_trigger, &delay_on,
-> +				&delay_off);
-> +	} else {
-> +		/*
-> +		 * Normal: set the brightness to stop blinking
-> +		 *
-> +		 * This just walks the list of LEDs on the trigger and sets the
-> +		 * brightness to the existing value. This leaves the brightness
-> +		 * the same but the blinking is stopped.
-> +		 */
-> +		read_lock(&drv_data->battery_trigger.leddev_list_lock);
-> +		list_for_each_entry(led,
-> +			&drv_data->battery_trigger.led_cdevs, trig_list) {
-> +			led_set_brightness(led, led->brightness);
-> +		}
-> +		read_unlock(&drv_data->battery_trigger.leddev_list_lock);
-> +	}
-> +
-> +	/* Cache the power state for next time */
-> +	drv_data->trigger_charging = charging;
-> +	drv_data->trigger_capacity = capacity;
-> +
-> +reset_timer:
-> +	ret = mod_timer(&drv_data->battery_trigger_timer,
-> +			jiffies + msecs_to_jiffies(500));
-> +
-> +	if (ret < 0)
-> +		hid_err(drv_data->hdev,
-> +			"Failed to set battery trigger timer\n");
+> +	BUG_ON(MAX_LEDS < ARRAY_SIZE(sixaxis_leds[0]));
+> +	devnum %= 10;
+> +	memcpy(values, sixaxis_leds[devnum], sizeof(sixaxis_leds[devnum]));
 > +}
 > +
-> +static void sony_battery_trigger_activate(struct led_classdev *led)
+> +static void dualshock4_set_leds_from_devnum(int devnum, __u8 values[MAX_LEDS])
 > +{
-> +	struct sony_sc *sc;
+> +	/* The first 4 color/index entries match what the PS4 assigns */
+> +	static const __u8 color_code[7][3] = {
+> +			/* Blue   */	{ 0x00, 0x00, 0x01 },
+> +			/* Red	  */	{ 0x01, 0x00, 0x00 },
+> +			/* Green  */	{ 0x00, 0x01, 0x00 },
+> +			/* Pink   */	{ 0x02, 0x00, 0x01 },
+> +			/* Orange */	{ 0x02, 0x01, 0x00 },
+> +			/* Teal   */	{ 0x00, 0x01, 0x01 },
+> +			/* White  */	{ 0x01, 0x01, 0x01 }
+> +	};
 > +
-> +	sc = container_of(led->trigger, struct sony_sc, battery_trigger);
-> +
-> +	/*
-> +	 * Set the device_added flag to tell the timer function that it
-> +	 * should send an update even if the power state hasn't changed.
-> +	 */
-> +	atomic_set(&sc->trigger_device_added, 1);
+> +	BUG_ON(MAX_LEDS < ARRAY_SIZE(color_code[0]));
+> +	devnum %= 7;
+> +	memcpy(values, color_code[devnum], sizeof(color_code[devnum]));
 > +}
 > +
-> +static int sony_battery_trigger_init(struct sony_sc *sc)
-> +{
-> +	int ret;
-> +
-> +	sc->battery_trigger.name = kasprintf(GFP_KERNEL,
-> +				"%s-blink-low-or-charging", sc->battery.name);
-> +	if (!sc->battery.name)
-> +		return -ENOMEM;
-> +
-> +	sc->battery_trigger.activate = sony_battery_trigger_activate;
-> +
-> +	ret = led_trigger_register(&sc->battery_trigger);
-> +	if (ret < 0)
-> +		goto trigger_failure;
-> +
-> +	setup_timer(&sc->battery_trigger_timer,
-> +			sony_battery_trigger_callback, (unsigned long)sc);
-> +
-> +	ret = mod_timer(&sc->battery_trigger_timer,
-> +			jiffies + msecs_to_jiffies(500));
-> +	if (ret < 0)
-> +		goto timer_failure;
-> +
-> +	sc->trigger_initialized = 1;
-> +
-> +	return 0;
-> +
-> +timer_failure:
-> +	led_trigger_unregister(&sc->battery_trigger);
-> +trigger_failure:
-> +	kfree(sc->battery_trigger.name);
-> +	return ret;
-> +}
-> +
-> +static void sony_battery_trigger_remove(struct sony_sc *sc)
-> +{
-> +	if (sc->trigger_initialized) {
-> +		del_timer_sync(&sc->battery_trigger_timer);
-> +		led_trigger_unregister(&sc->battery_trigger);
-> +		kfree(sc->battery_trigger.name);
-> +	}
-> +}
-> +#else
-> +static int sony_battery_trigger_init(struct sony_sc *sc)
-> +{
-> +	/* Nothing to do */
-> +	return 0;
-> +}
-> +
-> +static void sony_battery_trigger_remove(struct sony_sc *sc)
-> +{
-> +	/* Nothing to do */
-> +}
-> +#endif
-> +
->  static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
->  					int w, int h)
+>  static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
 >  {
-> @@ -1786,14 +1933,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (ret < 0)
->  		goto err_stop;
+>  	struct list_head *report_list =
+> @@ -1278,7 +1316,7 @@ static int sony_leds_init(struct sony_sc *sc)
+>  	size_t name_len;
+>  	const char *name_fmt;
+>  	static const char * const color_str[] = { "red", "green", "blue" };
+> -	static const __u8 initial_values[MAX_LEDS] = { 0x00, 0x00, 0x00, 0x00 };
+> +	__u8 initial_values[MAX_LEDS] = { 0 };
 >  
-> -	if (sc->quirks & SONY_LED_SUPPORT) {
-> -		ret = sony_leds_init(sc);
-> +	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-> +		ret = sony_battery_probe(sc);
->  		if (ret < 0)
->  			goto err_stop;
-> -	}
+>  	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
 >  
-> -	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-> -		ret = sony_battery_probe(sc);
-> +		ret = sony_battery_trigger_init(sc);
->  		if (ret < 0)
->  			goto err_stop;
->  
-> @@ -1805,6 +1950,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		}
->  	}
->  
-> +	if (sc->quirks & SONY_LED_SUPPORT) {
-> +		ret = sony_leds_init(sc);
-> +		if (ret < 0)
-> +			goto err_stop;
-> +	}
-> +
->  	if (sc->quirks & SONY_FF_SUPPORT) {
->  		ret = sony_init_ff(sc);
->  		if (ret < 0)
-> @@ -1817,8 +1968,10 @@ err_close:
->  err_stop:
->  	if (sc->quirks & SONY_LED_SUPPORT)
->  		sony_leds_remove(sc);
-> -	if (sc->quirks & SONY_BATTERY_SUPPORT)
-> +	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-> +		sony_battery_trigger_remove(sc);
->  		sony_battery_remove(sc);
-> +	}
->  	sony_cancel_work_sync(sc);
->  	sony_remove_dev_list(sc);
->  	hid_hw_stop(hdev);
-> @@ -1834,6 +1987,7 @@ static void sony_remove(struct hid_device *hdev)
->  
->  	if (sc->quirks & SONY_BATTERY_SUPPORT) {
->  		hid_hw_close(hdev);
-> +		sony_battery_trigger_remove(sc);
->  		sony_battery_remove(sc);
->  	}
->  
+> @@ -1292,12 +1330,14 @@ static int sony_leds_init(struct sony_sc *sc)
+>  		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
+>  			return -ENODEV;
+>  	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+> +		dualshock4_set_leds_from_devnum(0, initial_values);
+>  		sc->led_count = 3;
+>  		max_brightness = 255;
+>  		use_colors = 1;
+>  		name_len = 0;
+>  		name_fmt = "%s:%s";
+>  	} else {
+> +		sixaxis_set_leds_from_devnum(0, initial_values);
+>  		sc->led_count = 4;
+>  		max_brightness = 1;
+>  		use_colors = 0;
+> @@ -1332,7 +1372,7 @@ static int sony_leds_init(struct sony_sc *sc)
+>  		else
+>  			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
+>  		led->name = name;
+> -		led->brightness = 0;
+> +		led->brightness = initial_values[n];
+>  		led->max_brightness = max_brightness;
+>  		led->brightness_get = sony_led_get_brightness;
+>  		led->brightness_set = sony_led_set_brightness;
 > -- 
 > 1.8.5.3
 > 

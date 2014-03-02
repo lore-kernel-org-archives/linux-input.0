@@ -1,84 +1,102 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
-Subject: Re: [PATCH] input: ff-memless: don't schedule already playing effect to play again
-Date: Sun, 02 Mar 2014 14:37:11 +0100
-Message-ID: <1433818.6pzd5XvsiT@sigyn>
-References: <1393760143-5986-1-git-send-email-felix.rueegg@gmail.com> <CADbOyBSMG_a=2qPmM0EU1LEd7y1ZxrpLuoz4MHroX6ri4-nJ3g@mail.gmail.com>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Fwd: [PATCH] input: ff-memless: don't schedule already playing effect
+ to play again
+Date: Sun, 2 Mar 2014 14:36:41 +0100
+Message-ID: <CADbOyBRLvK_o5fYOSZ=WgYCBKGbwL7h1Rvj-M+rmvap7qoR+cQ@mail.gmail.com>
+References: <1393760143-5986-1-git-send-email-felix.rueegg@gmail.com>
+	<CADbOyBSMG_a=2qPmM0EU1LEd7y1ZxrpLuoz4MHroX6ri4-nJ3g@mail.gmail.com>
+	<1452937.KaXPu2ynQ6@sigyn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.prifuk.cz ([31.31.77.241]:54875 "EHLO prifuk.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753232AbaCBNfT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 2 Mar 2014 08:35:19 -0500
-In-Reply-To: <CADbOyBSMG_a=2qPmM0EU1LEd7y1ZxrpLuoz4MHroX6ri4-nJ3g@mail.gmail.com>
+Received: from mail-vc0-f180.google.com ([209.85.220.180]:58859 "EHLO
+	mail-vc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751978AbaCBNgn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Mar 2014 08:36:43 -0500
+In-Reply-To: <1452937.KaXPu2ynQ6@sigyn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felix Rueegg <felix.rueegg@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Felix Rueegg <felix.rueegg@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
+
+---------- Forwarded message ----------
+=46rom: Michal Mal=FD <madcatxster@prifuk.cz>
+Date: Sun, Mar 2, 2014 at 2:29 PM
+Subject: Re: [PATCH] input: ff-memless: don't schedule already playing
+effect to play again
+To: Elias Vanderstuyft <elias.vds@gmail.com>
+
 
 On Sunday 02 of March 2014 14:17:58 you wrote:
-> On Sun, Mar 2, 2014 at 12:35 PM, Felix Rueegg 
+> On Sun, Mar 2, 2014 at 12:35 PM, Felix Rueegg
 <felix.rueegg@gmail.com> wrote:
 > > When an effect with zero replay length, zero replay delay
 > > and zero envelope attack length is uploaded, it is played and then
-> > scheduled to play again one timer tick later. This triggers a 
+> > scheduled to play again one timer tick later. This triggers a
 warning
 > > (URB submitted while active) in combination with the xpad driver.
-> > 
+> >
 > > Skipping the rescheduling of this effect fixes the issue.
-> > 
+> >
 > > Signed-off-by: Felix Rueegg <felix.rueegg@gmail.com>
 > > ---
-> > 
+> >
 > >  drivers/input/ff-memless.c | 7 +++++--
 > >  1 file changed, 5 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+> >
+> > diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.=
+c
 > > index 74c0d8c..2e06948 100644
 > > --- a/drivers/input/ff-memless.c
 > > +++ b/drivers/input/ff-memless.c
-> > @@ -139,10 +139,13 @@ static void ml_schedule_timer(struct 
+> > @@ -139,10 +139,13 @@ static void ml_schedule_timer(struct
 ml_device *ml)
-> > 
+> >
 > >                 if (!test_bit(FF_EFFECT_STARTED, &state->flags))
-> >                 
+> >
 > >                         continue;
-> > 
+> >
 > > -               if (test_bit(FF_EFFECT_PLAYING, &state->flags))
 > > +               if (test_bit(FF_EFFECT_PLAYING, &state->flags)) {
-> > 
-> >                         next_at = calculate_next_time(state);
-> > 
+> >
+> >                         next_at =3D calculate_next_time(state);
+> >
 > > -               else
-> > +                       if (next_at == now)
+> > +                       if (next_at =3D=3D now)
 > > +                               continue;
 > > +               } else {
-> > 
-> >                         next_at = state->play_at;
-> > 
+> >
+> >                         next_at =3D state->play_at;
+> >
 > > +               }
-> > 
+> >
 > >                 if (time_before_eq(now, next_at) &&
-> >                 
-> >                     (++events == 1 || time_before(next_at, earliest)))
-> > 
+> >
+> >                     (++events =3D=3D 1 || time_before(next_at, earl=
+iest)))
+> >
 > > --
 > > 1.9.0
-> > 
+> >
 > > --
-> 
+>
 > @Michal: Is ff-memless-next also affected by this problem?
-> 
+>
 > Elias
 
-I hope it's not, see mlnx_get_envelope_update_time(), this part in 
+I hope it's not, see mlnx_get_envelope_update_time(), this part in
 particular:
 
         /* Prevent the effect from being started twice */
-        if (mlnxeff->begin_at == now && mlnx_is_playing(mlnxeff))
+        if (mlnxeff->begin_at =3D=3D now && mlnx_is_playing(mlnxeff))
                 return now - 1;
 
         return mlnxeff->begin_at;
 
 Michal
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

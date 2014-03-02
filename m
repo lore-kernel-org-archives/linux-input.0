@@ -1,55 +1,49 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: Re: [PATCH 0/7] mfd: AXP20x: Add support for AXP202
- and AXP209
-Date: Sat, 01 Mar 2014 20:29:11 +0100
-Message-ID: <53123507.6020607@redhat.com>
-References: <1393692352-10839-1-git-send-email-carlo@caione.org>	<53121151.9050804@redhat.com> <CAOQ7t2ae35E-eiQW4DFspdTe3H7AWGzRpw4B_1t27p0OSkX_Uw@mail.gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDL4X2GMZUKRBE7KZCMAKGQEEPGNN6Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <CAOQ7t2ae35E-eiQW4DFspdTe3H7AWGzRpw4B_1t27p0OSkX_Uw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+From: Felix Rueegg <felix.rueegg@gmail.com>
+Subject: [PATCH] input: ff-memless: don't schedule already playing effect to play again
+Date: Sun,  2 Mar 2014 12:35:43 +0100
+Message-ID: <1393760143-5986-1-git-send-email-felix.rueegg@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ea0-f173.google.com ([209.85.215.173]:51695 "EHLO
+	mail-ea0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751872AbaCBLh5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Mar 2014 06:37:57 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Felix Rueegg <felix.rueegg@gmail.com>
 
-Hi,
+When an effect with zero replay length, zero replay delay
+and zero envelope attack length is uploaded, it is played and then scheduled to play
+again one timer tick later. This triggers a warning (URB submitted while
+active) in combination with the xpad driver.
 
-On 03/01/2014 06:17 PM, Carlo Caione wrote:
-> On Sat, Mar 1, 2014 at 5:56 PM, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
->> Hi Carlo,
->>
->> Great work, thanks for all the time you're putting into this!
-> 
-> Hi Hans :)
-> 
->> I've 2 questions:
->>
->> 1) What dependencies does this patch-set have? Obviously it needs the NMI irq
->> patches for A20, anything else ?  I no longer see any use of a special flag
->> for ack on unmask, is that no longer needed ?
-> 
-> Yes, the only dependency is on the NMI controller patch.
-> After a discussion with Maxime and Thomas I decided to not push for
-> including the special flag for ack on unmask in the irqchip core but
-> to use the unmask callback as in the v3 version of the NMI controller
-> driver (so no flag needed)
-> 
->> 2) No poweroff functionality ? That would be really great to have.
-> 
-> Actually in [PATCH 1/7] I support the poweroff using the pm_power_off hook.
+Skipping the rescheduling of this effect fixes the issue.
 
-Ah I missed that, cool.
+Signed-off-by: Felix Rueegg <felix.rueegg@gmail.com>
+---
+ drivers/input/ff-memless.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-I'm doing with sunxi hacking for today, but I'll add these to sunxi-devel
-and them give them a test run tomorrow.
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index 74c0d8c..2e06948 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -139,10 +139,13 @@ static void ml_schedule_timer(struct ml_device *ml)
+ 		if (!test_bit(FF_EFFECT_STARTED, &state->flags))
+ 			continue;
+ 
+-		if (test_bit(FF_EFFECT_PLAYING, &state->flags))
++		if (test_bit(FF_EFFECT_PLAYING, &state->flags)) {
+ 			next_at = calculate_next_time(state);
+-		else
++			if (next_at == now)
++				continue;
++		} else {
+ 			next_at = state->play_at;
++		}
+ 
+ 		if (time_before_eq(now, next_at) &&
+ 		    (++events == 1 || time_before(next_at, earliest)))
+-- 
+1.9.0
 
-Regards,
-
-Hans

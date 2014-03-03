@@ -1,281 +1,140 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: Re: [PATCH 5/6] HID: sony: Add an led trigger to report controller
- battery status.
-Date: Sun, 02 Mar 2014 18:48:19 -0500
-Message-ID: <5313C343.1090607@oh.rr.com>
-References: <1393646341-16947-1-git-send-email-frank.praznik@oh.rr.com> <1393646341-16947-6-git-send-email-frank.praznik@oh.rr.com>
+From: "Wang, Yalin" <Yalin.Wang@sonymobile.com>
+Subject: Re: change kmalloc into vmalloc for large memory
+	allocations
+Date: Mon, 3 Mar 2014 09:55:15 +0800
+Message-ID: <35FD53F367049845BC99AC72306C23D102844605F38E@CNBJMBX05.corpusers.net>
+References: <35FD53F367049845BC99AC72306C23D102844605F38C@CNBJMBX05.corpusers.net>
+ <s5hlhwvb9q8.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:61279 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753504AbaCBXsY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Mar 2014 18:48:24 -0500
-In-Reply-To: <1393646341-16947-6-git-send-email-frank.praznik@oh.rr.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <s5hlhwvb9q8.wl%tiwai@suse.de>
+Content-Language: en-US
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: 'Takashi Iwai' <tiwai@suse.de>
+Cc: "'alsa-devel@alsa-project.org'" <alsa-devel@alsa-project.org>, "'broonie@opensource.wolfsonmicro.com'" <broonie@opensource.wolfsonmicro.com>, "'fweisbec@gmail.com'" <fweisbec@gmail.com>, "'dmitry.torokhov@gmail.com'" <dmitry.torokhov@gmail.com>, "'coreteam@netfilter.org'" <coreteam@netfilter.org>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'rydberg@euromail.se'" <rydberg@euromail.se>, "'lrg@ti.com'" <lrg@ti.com>, "'pablo@netfilter.org'" <pablo@netfilter.org>, "'linux-arm-msm@vger.kernel.org'" <linux-arm-msm@vger.kernel.org>, "'rostedt@goodmis.org'" <rostedt@goodmis.org>, "'netfilter@vger.kernel.org'" <netfilter@vger.kernel.org>, "'mingo@redhat.com'" <mingo@redhat.com>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'gregkh@linuxfoundation.org'" <gregkh@linuxfoundation.org>, "'linux-usb@vger.kernel.org'" <linux-us>
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, dh.herrmann@gmail.com
 
-On 2/28/2014 22:59, Frank Praznik wrote:
-> Creates an LED trigger that changes LED behavior depending on the state of the
-> controller battery.
->
-> The trigger function runs on a 500 millisecond timer and only updates the LEDs
-> if the controller power state has changed or a new device has been added to the
-> trigger.
->
-> The trigger sets the LEDs to solid if the controller is in wireless mode and
-> the battery is above 20% power or if the controller is plugged in and the
-> battery has completed charging.  If the controller is not charging and the
-> battery drops to or below 20% it blinks the LEDs in 500ms intervals. If the
-> controller is plugged in and charging it blinks the LEDs in 1 second intervals.
->
-> The order of subsystem initialization had to be changed in sony_probe() so that
-> the trigger is created before the LEDs are initialized.
->
-> By default the controller LEDs are set to the trigger local to that controller.
->
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
-> ---
->   drivers/hid/hid-sony.c | 170 ++++++++++++++++++++++++++++++++++++++++++++++---
->   1 file changed, 162 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 914a6cc..d7889ac 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -730,6 +730,17 @@ struct sony_sc {
->   	struct work_struct state_worker;
->   	struct power_supply battery;
->   
-> +#ifdef CONFIG_LEDS_TRIGGERS
-> +	spinlock_t trigger_lock;
-> +	struct led_trigger battery_trigger;
-> +	struct timer_list battery_trigger_timer;
-> +	atomic_t trigger_device_added;
-> +	__u8 trigger_initialized;
-> +	__u8 trigger_timer_initialized;
-> +	__u8 trigger_capacity;
-> +	__u8 trigger_charging;
-> +#endif
-> +
->   #ifdef CONFIG_SONY_FF
->   	__u8 left;
->   	__u8 right;
-> @@ -1329,14 +1340,19 @@ static int sony_leds_init(struct sony_sc *sc)
->   		if (!(sc->quirks & BUZZ_CONTROLLER))
->   			led->blink_set = sony_blink_set;
->   
-> +#ifdef CONFIG_LEDS_TRIGGERS
-> +		led->default_trigger = sc->battery_trigger.name;
-> +#endif
-> +
-> +		sc->leds[n] = led;
-> +
->   		ret = led_classdev_register(&hdev->dev, led);
->   		if (ret) {
->   			hid_err(hdev, "Failed to register LED %d\n", n);
->   			kfree(led);
-> +			sc->leds[n] = NULL;
->   			goto error_leds;
->   		}
-> -
-> -		sc->leds[n] = led;
->   	}
->   
->   	return ret;
-> @@ -1552,6 +1568,137 @@ static void sony_battery_remove(struct sony_sc *sc)
->   	sc->battery.name = NULL;
->   }
->   
-> +#ifdef CONFIG_LEDS_TRIGGERS
-> +static void sony_battery_trigger_callback(unsigned long data)
-> +{
-> +	struct sony_sc *drv_data = (struct sony_sc *)data;
-> +	struct led_classdev *led;
-> +	unsigned long flags;
-> +	unsigned long delay_on, delay_off;
-> +	int dev_added, ret;
-> +	__u8 charging, capacity;
-> +
-> +	/* Check if new LEDs were added since the last time */
-> +	dev_added = atomic_cmpxchg(&drv_data->trigger_device_added, 1, 0);
-> +
-> +	/* Get the battery info */
-> +	spin_lock_irqsave(&drv_data->lock, flags);
-> +	charging = drv_data->battery_charging;
-> +	capacity = drv_data->battery_capacity;
-> +	spin_unlock_irqrestore(&drv_data->lock, flags);
-> +
-> +	/* Don't set the LEDs if nothing has changed */
-> +	if (!dev_added && drv_data->trigger_capacity == capacity &&
-> +		drv_data->trigger_charging == charging)
-> +		goto reset_timer;
-> +
-> +	if (charging) {
-> +		/* Charging: blink at 1 sec intervals */
-> +		delay_on = delay_off = 1000;
-> +		led_trigger_blink(&drv_data->battery_trigger, &delay_on,
-> +				&delay_off);
-> +	} else if (capacity <= 20) {
-> +		/* Low battery: blink at 500ms intervals */
-> +		delay_on = delay_off = 500;
-> +		led_trigger_blink(&drv_data->battery_trigger, &delay_on,
-> +				&delay_off);
-> +	} else {
-> +		/*
-> +		 * Normal: set the brightness to stop blinking
-> +		 *
-> +		 * This just walks the list of LEDs on the trigger and sets the
-> +		 * brightness to the existing value. This leaves the brightness
-> +		 * the same but the blinking is stopped.
-> +		 */
-> +		read_lock(&drv_data->battery_trigger.leddev_list_lock);
-> +		list_for_each_entry(led,
-> +			&drv_data->battery_trigger.led_cdevs, trig_list) {
-> +			led_set_brightness(led, led->brightness);
-> +		}
-> +		read_unlock(&drv_data->battery_trigger.leddev_list_lock);
-> +	}
-> +
-> +	/* Cache the power state for next time */
-> +	drv_data->trigger_charging = charging;
-> +	drv_data->trigger_capacity = capacity;
-> +
-> +reset_timer:
-> +	ret = mod_timer(&drv_data->battery_trigger_timer,
-> +			jiffies + msecs_to_jiffies(500));
-> +
-> +	if (ret < 0)
-> +		hid_err(drv_data->hdev,
-> +			"Failed to set battery trigger timer\n");
-> +}
-> +
-> +static void sony_battery_trigger_activate(struct led_classdev *led)
-> +{
-> +	struct sony_sc *sc;
-> +
-> +	sc = container_of(led->trigger, struct sony_sc, battery_trigger);
-> +
-> +	/*
-> +	 * Set the device_added flag to tell the timer function that it
-> +	 * should send an update even if the power state hasn't changed.
-> +	 */
-> +	atomic_set(&sc->trigger_device_added, 1);
-> +}
-> +
-> +static int sony_battery_trigger_init(struct sony_sc *sc)
-> +{
-> +	int ret;
-> +
-> +	sc->battery_trigger.name = kasprintf(GFP_KERNEL,
-> +				"%s-blink-low-or-charging", sc->battery.name);
-> +	if (!sc->battery.name)
-> +		return -ENOMEM;
-> +
-> +	sc->battery_trigger.activate = sony_battery_trigger_activate;
-> +
-> +	ret = led_trigger_register(&sc->battery_trigger);
-> +	if (ret < 0)
-> +		goto trigger_failure;
-> +
-> +	setup_timer(&sc->battery_trigger_timer,
-> +			sony_battery_trigger_callback, (unsigned long)sc);
-> +
-> +	ret = mod_timer(&sc->battery_trigger_timer,
-> +			jiffies + msecs_to_jiffies(500));
-> +	if (ret < 0)
-> +		goto timer_failure;
-> +
-> +	sc->trigger_initialized = 1;
-> +
-> +	return 0;
-> +
-> +timer_failure:
-> +	led_trigger_unregister(&sc->battery_trigger);
-> +trigger_failure:
-> +	kfree(sc->battery_trigger.name);
-> +	return ret;
-> +}
-> +
-> +static void sony_battery_trigger_remove(struct sony_sc *sc)
-> +{
-> +	if (sc->trigger_initialized) {
-> +		del_timer_sync(&sc->battery_trigger_timer);
-> +		led_trigger_unregister(&sc->battery_trigger);
-> +		kfree(sc->battery_trigger.name);
-> +	}
-> +}
-> +#else
-> +static int sony_battery_trigger_init(struct sony_sc *sc)
-> +{
-> +	/* Nothing to do */
-> +	return 0;
-> +}
-> +
-> +static void sony_battery_trigger_remove(struct sony_sc *sc)
-> +{
-> +	/* Nothing to do */
-> +}
-> +#endif
-> +
->   static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
->   					int w, int h)
->   {
-> @@ -1786,14 +1933,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->   	if (ret < 0)
->   		goto err_stop;
->   
-> -	if (sc->quirks & SONY_LED_SUPPORT) {
-> -		ret = sony_leds_init(sc);
-> +	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-> +		ret = sony_battery_probe(sc);
->   		if (ret < 0)
->   			goto err_stop;
-> -	}
->   
-> -	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-> -		ret = sony_battery_probe(sc);
-> +		ret = sony_battery_trigger_init(sc);
->   		if (ret < 0)
->   			goto err_stop;
->   
-> @@ -1805,6 +1950,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->   		}
->   	}
->   
-> +	if (sc->quirks & SONY_LED_SUPPORT) {
-> +		ret = sony_leds_init(sc);
-> +		if (ret < 0)
-> +			goto err_stop;
-> +	}
-> +
->   	if (sc->quirks & SONY_FF_SUPPORT) {
->   		ret = sony_init_ff(sc);
->   		if (ret < 0)
-> @@ -1817,8 +1968,10 @@ err_close:
->   err_stop:
->   	if (sc->quirks & SONY_LED_SUPPORT)
->   		sony_leds_remove(sc);
-> -	if (sc->quirks & SONY_BATTERY_SUPPORT)
-> +	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-> +		sony_battery_trigger_remove(sc);
->   		sony_battery_remove(sc);
-> +	}
->   	sony_cancel_work_sync(sc);
->   	sony_remove_dev_list(sc);
->   	hid_hw_stop(hdev);
-> @@ -1834,6 +1987,7 @@ static void sony_remove(struct hid_device *hdev)
->   
->   	if (sc->quirks & SONY_BATTERY_SUPPORT) {
->   		hid_hw_close(hdev);
-> +		sony_battery_trigger_remove(sc);
->   		sony_battery_remove(sc);
->   	}
->   
-I'm going to self-NAK this patch as I've found a problem scenario with 
-it where LEDs might not blink when they should.  I would still 
-appreciate feedback on whether or not this concept is worth persuing 
-before spending more time on it though.
+Hi  Takashi,
+
+For this one:
+https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/sound/soc/soc-core.c?h=master#n3772
+
+in my kernel log,
+the allocation size 62496,
+about 62KB,
+I think need to  change to vmalloc .
+How do you think of it ?
+
+Logs:
+<4>[   11.469789] ------------[ cut here ]------------
+<4>[   11.469803] WARNING: at /media/00DE7FE2DE7FCE82/jb-mr2-yukon/kernel/include/linux/slub_def.h:265 __kmalloc+0x38/0x29c()
+<4>[   11.469811] size=62496 flags=80d0
+<4>[   11.469815] Modules linked in:
+<4>[   11.469835] [<c010c534>] (unwind_backtrace+0x0/0x11c) from [<c018ab04>] (warn_slowpath_common+0x4c/0x64)
+<4>[   11.469850] [<c018ab04>] (warn_slowpath_common+0x4c/0x64) from [<c018ab9c>] (warn_slowpath_fmt+0x2c/0x3c)
+<4>[   11.469864] [<c018ab9c>] (warn_slowpath_fmt+0x2c/0x3c) from [<c0249ab4>] (__kmalloc+0x38/0x29c)
+<4>[   11.469879] [<c0249ab4>] (__kmalloc+0x38/0x29c) from [<c06a0124>] (snd_soc_register_card+0x184/0x104c)
+<4>[   11.469896] [<c06a0124>] (snd_soc_register_card+0x184/0x104c) from [<c088183c>] (msm8226_asoc_machine_probe+0x298/0x7f0)
+<4>[   11.469913] [<c088183c>] (msm8226_asoc_machine_probe+0x298/0x7f0) from [<c044b1fc>] (platform_drv_probe+0x14/0x18)
+<4>[   11.469927] [<c044b1fc>] (platform_drv_probe+0x14/0x18) from [<c0449f2c>] (driver_probe_device+0x134/0x334)
+<4>[   11.469940] [<c0449f2c>] (driver_probe_device+0x134/0x334) from [<c044a194>] (__driver_attach+0x68/0x8c)
+<4>[   11.469953] [<c044a194>] (__driver_attach+0x68/0x8c) from [<c044849c>] (bus_for_each_dev+0x48/0x80)
+<4>[   11.469965] [<c044849c>] (bus_for_each_dev+0x48/0x80) from [<c0449528>] (bus_add_driver+0x100/0x26c)
+<4>[   11.469978] [<c0449528>] (bus_add_driver+0x100/0x26c) from [<c044a66c>] (driver_register+0x9c/0x120)
+<4>[   11.469992] [<c044a66c>] (driver_register+0x9c/0x120) from [<c010052c>] (do_one_initcall+0x90/0x160)
+<4>[   11.470007] [<c010052c>] (do_one_initcall+0x90/0x160) from [<c0d00b74>] (kernel_init+0xec/0x1a8)
+<4>[   11.470022] [<c0d00b74>] (kernel_init+0xec/0x1a8) from [<c0106aec>] (kernel_thread_exit+0x0/0x8)
+<4>[   11.470030] ---[ end trace 1b75b31a2719ed4d ]---
+
+BRs/ Yalin
+-----Original Message-----
+From: Takashi Iwai [mailto:tiwai@suse.de] 
+Sent: Friday, February 28, 2014 10:20 PM
+To: Wang, Yalin
+Cc: 'linux-kernel@vger.kernel.org'; 'linux-arm-msm@vger.kernel.org'; 'linux-arm-kernel@lists.infradead.org'; 'linux-input@vger.kernel.org'; 'balbi@ti.com'; 'gregkh@linuxfoundation.org'; 'lrg@ti.com'; 'broonie@opensource.wolfsonmicro.com'; 'perex@perex.cz'; 'pablo@netfilter.org'; 'kaber@trash.net'; 'davem@davemloft.net'; 'rostedt@goodmis.org'; 'fweisbec@gmail.com'; 'mingo@redhat.com'; 'dmitry.torokhov@gmail.com'; 'rydberg@euromail.se'; 'linux-usb@vger.kernel.org'; 'alsa-devel@alsa-project.org'; 'netfilter-devel@vger.kernel.org'; 'netfilter@vger.kernel.org'; 'coreteam@netfilter.org'; 'netdev@vger.kernel.org'
+Subject: Re: change kmalloc into vmalloc for large memory allocations
+
+At Fri, 28 Feb 2014 16:15:23 +0800,
+Wang, Yalin wrote:
+> 
+> Hi
+> 
+> 
+> I find there is some drivers use kmalloc to allocate large Memorys 
+> during module_init,  some can be changed to use vmalloc To save some 
+> low mem, I add log in kernel to track , And list them here:
+> 
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/drive
+> rs/usb/gadget/f_mass_storage.c?h=master#n2724
+> 
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/sound
+> /soc/soc-core.c?h=master#n3772
+
+At least the ASoC runtime case doesn't use the allocated memory as buffer, and they are allocated only once per device, thus it shouldn't be the problem you stated.  If it really consumes so much memory, we need to rethink, instead of allocating an array but allocate each object, for example.
+
+
+thanks,
+
+Takashi
+
+
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
+> etfilter/nf_conntrack_ftp.c?h=master#n603
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
+> etfilter/nf_conntrack_h323_main.c?h=master#n1849
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
+> etfilter/nf_conntrack_irc.c?h=master#n247
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
+> etfilter/nf_conntrack_sane.c?h=master#n195
+> 
+> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/drive
+> rs/input/evdev.c?h=master#n403
+> 
+> 
+> they allocate large memory from 10k~64K , this will use lots of low 
+> mem, instead if we use vmalloc for these drivers , it will be good for 
+> some devices like smart phone, we often encounter some errors like 
+> kmalloc failed because there is not enough low mem , especially when 
+> the device has physical memory less than 1GB .
+> 
+> 
+> could this module change the memory allocation into vmalloc ?
+> 
+> I was thinking that if we can introduce a helper function in kmalloc.h like this :
+> 
+> Kmalloc(size, flags)
+> {
+> 	If (size > PAGE_SIZE && flags&CAN_USE_VMALLOC_FLAG)
+> 		return vmalloc(size);
+> 	Else
+> 		return real_kmalloc(size);
+> }
+> 
+> Kfree(ptr)
+> {
+> 	If (is_vmalloc_addr(ptr))
+> 		Vfree(ptr);
+> 	Else
+> 		Kfree(ptr);
+> }
+> 
+> 
+> But we need add some flags to ensure always use kmalloc for Some 
+> special use (dma etc..)
+> 
+> How do you think of it ?
+> 
+> Thanks
+> 
+> 
+> 

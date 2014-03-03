@@ -1,140 +1,130 @@
-From: "Wang, Yalin" <Yalin.Wang@sonymobile.com>
-Subject: Re: change kmalloc into vmalloc for large memory
-	allocations
-Date: Mon, 3 Mar 2014 09:55:15 +0800
-Message-ID: <35FD53F367049845BC99AC72306C23D102844605F38E@CNBJMBX05.corpusers.net>
-References: <35FD53F367049845BC99AC72306C23D102844605F38C@CNBJMBX05.corpusers.net>
- <s5hlhwvb9q8.wl%tiwai@suse.de>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 6/7] regulator: AXP20x: Add support for
+ regulators subsystem
+Date: Mon, 3 Mar 2014 10:56:16 +0900
+Message-ID: <20140303015616.GN2411@sirena.org.uk>
+References: <1393692352-10839-1-git-send-email-carlo@caione.org>
+ <1393692352-10839-7-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <s5hlhwvb9q8.wl%tiwai@suse.de>
-Content-Language: en-US
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: 'Takashi Iwai' <tiwai@suse.de>
-Cc: "'alsa-devel@alsa-project.org'" <alsa-devel@alsa-project.org>, "'broonie@opensource.wolfsonmicro.com'" <broonie@opensource.wolfsonmicro.com>, "'fweisbec@gmail.com'" <fweisbec@gmail.com>, "'dmitry.torokhov@gmail.com'" <dmitry.torokhov@gmail.com>, "'coreteam@netfilter.org'" <coreteam@netfilter.org>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'rydberg@euromail.se'" <rydberg@euromail.se>, "'lrg@ti.com'" <lrg@ti.com>, "'pablo@netfilter.org'" <pablo@netfilter.org>, "'linux-arm-msm@vger.kernel.org'" <linux-arm-msm@vger.kernel.org>, "'rostedt@goodmis.org'" <rostedt@goodmis.org>, "'netfilter@vger.kernel.org'" <netfilter@vger.kernel.org>, "'mingo@redhat.com'" <mingo@redhat.com>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'gregkh@linuxfoundation.org'" <gregkh@linuxfoundation.org>, "'linux-usb@vger.kernel.org'" <linux-us>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BtmVPk+Smchi6n7w"
+Return-path: <linux-sunxi+bncBDQ2L75W5QGBBXWCZ6MAKGQETJZ3UGQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1393692352-10839-7-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi  Takashi,
 
-For this one:
-https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/sound/soc/soc-core.c?h=master#n3772
+--BtmVPk+Smchi6n7w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-in my kernel log,
-the allocation size 62496,
-about 62KB,
-I think need to  change to vmalloc .
-How do you think of it ?
+On Sat, Mar 01, 2014 at 05:45:51PM +0100, Carlo Caione wrote:
 
-Logs:
-<4>[   11.469789] ------------[ cut here ]------------
-<4>[   11.469803] WARNING: at /media/00DE7FE2DE7FCE82/jb-mr2-yukon/kernel/include/linux/slub_def.h:265 __kmalloc+0x38/0x29c()
-<4>[   11.469811] size=62496 flags=80d0
-<4>[   11.469815] Modules linked in:
-<4>[   11.469835] [<c010c534>] (unwind_backtrace+0x0/0x11c) from [<c018ab04>] (warn_slowpath_common+0x4c/0x64)
-<4>[   11.469850] [<c018ab04>] (warn_slowpath_common+0x4c/0x64) from [<c018ab9c>] (warn_slowpath_fmt+0x2c/0x3c)
-<4>[   11.469864] [<c018ab9c>] (warn_slowpath_fmt+0x2c/0x3c) from [<c0249ab4>] (__kmalloc+0x38/0x29c)
-<4>[   11.469879] [<c0249ab4>] (__kmalloc+0x38/0x29c) from [<c06a0124>] (snd_soc_register_card+0x184/0x104c)
-<4>[   11.469896] [<c06a0124>] (snd_soc_register_card+0x184/0x104c) from [<c088183c>] (msm8226_asoc_machine_probe+0x298/0x7f0)
-<4>[   11.469913] [<c088183c>] (msm8226_asoc_machine_probe+0x298/0x7f0) from [<c044b1fc>] (platform_drv_probe+0x14/0x18)
-<4>[   11.469927] [<c044b1fc>] (platform_drv_probe+0x14/0x18) from [<c0449f2c>] (driver_probe_device+0x134/0x334)
-<4>[   11.469940] [<c0449f2c>] (driver_probe_device+0x134/0x334) from [<c044a194>] (__driver_attach+0x68/0x8c)
-<4>[   11.469953] [<c044a194>] (__driver_attach+0x68/0x8c) from [<c044849c>] (bus_for_each_dev+0x48/0x80)
-<4>[   11.469965] [<c044849c>] (bus_for_each_dev+0x48/0x80) from [<c0449528>] (bus_add_driver+0x100/0x26c)
-<4>[   11.469978] [<c0449528>] (bus_add_driver+0x100/0x26c) from [<c044a66c>] (driver_register+0x9c/0x120)
-<4>[   11.469992] [<c044a66c>] (driver_register+0x9c/0x120) from [<c010052c>] (do_one_initcall+0x90/0x160)
-<4>[   11.470007] [<c010052c>] (do_one_initcall+0x90/0x160) from [<c0d00b74>] (kernel_init+0xec/0x1a8)
-<4>[   11.470022] [<c0d00b74>] (kernel_init+0xec/0x1a8) from [<c0106aec>] (kernel_thread_exit+0x0/0x8)
-<4>[   11.470030] ---[ end trace 1b75b31a2719ed4d ]---
+> index d59c826..0cef101 100644
+> --- a/arch/arm/configs/sunxi_defconfig
+> +++ b/arch/arm/configs/sunxi_defconfig
+> @@ -69,3 +69,4 @@ CONFIG_NFS_FS=y
+>  CONFIG_ROOT_NFS=y
+>  CONFIG_NLS=y
+>  CONFIG_PRINTK_TIME=y
+> +CONFIG_REGULATOR_AXP20X=y
 
-BRs/ Yalin
------Original Message-----
-From: Takashi Iwai [mailto:tiwai@suse.de] 
-Sent: Friday, February 28, 2014 10:20 PM
-To: Wang, Yalin
-Cc: 'linux-kernel@vger.kernel.org'; 'linux-arm-msm@vger.kernel.org'; 'linux-arm-kernel@lists.infradead.org'; 'linux-input@vger.kernel.org'; 'balbi@ti.com'; 'gregkh@linuxfoundation.org'; 'lrg@ti.com'; 'broonie@opensource.wolfsonmicro.com'; 'perex@perex.cz'; 'pablo@netfilter.org'; 'kaber@trash.net'; 'davem@davemloft.net'; 'rostedt@goodmis.org'; 'fweisbec@gmail.com'; 'mingo@redhat.com'; 'dmitry.torokhov@gmail.com'; 'rydberg@euromail.se'; 'linux-usb@vger.kernel.org'; 'alsa-devel@alsa-project.org'; 'netfilter-devel@vger.kernel.org'; 'netfilter@vger.kernel.org'; 'coreteam@netfilter.org'; 'netdev@vger.kernel.org'
-Subject: Re: change kmalloc into vmalloc for large memory allocations
+If you want to update the defconfig do it in a separate patch.
 
-At Fri, 28 Feb 2014 16:15:23 +0800,
-Wang, Yalin wrote:
-> 
-> Hi
-> 
-> 
-> I find there is some drivers use kmalloc to allocate large Memorys 
-> during module_init,  some can be changed to use vmalloc To save some 
-> low mem, I add log in kernel to track , And list them here:
-> 
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/drive
-> rs/usb/gadget/f_mass_storage.c?h=master#n2724
-> 
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/sound
-> /soc/soc-core.c?h=master#n3772
+> +static int axp20x_set_suspend_voltage(struct regulator_dev *rdev, int uV)
+> +{
+> +	return regulator_set_voltage_sel_regmap(rdev, 0);
+> +}
 
-At least the ASoC runtime case doesn't use the allocated memory as buffer, and they are allocated only once per device, thus it shouldn't be the problem you stated.  If it really consumes so much memory, we need to rethink, instead of allocating an array but allocate each object, for example.
+I'm not entirely clear what this is supposed to do but it's broken - it
+both ignores the voltage that is passed in and immediately writes to the
+normal voltage select register which will presumably distrupt the system.
 
+> +static int axp20x_io_enable_regmap(struct regulator_dev *rdev)
+> +{
+> +	return regmap_update_bits(rdev->regmap, rdev->desc->enable_reg,
+> +				  rdev->desc->enable_mask, AXP20X_IO_ENABLED);
+> +}
 
-thanks,
+Please make some helpers for this (or extend the existing ones to cope
+with more than a single bit control) - there's several other devices
+which have similar multi-bit controls so we should factor this out
+rather than open coding.
 
-Takashi
+> +	np = of_node_get(pdev->dev.parent->of_node);
+> +	if (!np)
+> +		return 0;
+> +
+> +	regulators = of_find_node_by_name(np, "regulators");
+> +	if (!regulators) {
+> +		dev_err(&pdev->dev, "regulators node not found\n");
+> +		return -EINVAL;
+> +	}
 
+The driver should be able to start up with no configuration provided at
+all except for the device being registered - the user won't be able to
+change anything but they will be able to read the current state of the
+hardware which can be useful for diagnostics.
 
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
-> etfilter/nf_conntrack_ftp.c?h=master#n603
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
-> etfilter/nf_conntrack_h323_main.c?h=master#n1849
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
-> etfilter/nf_conntrack_irc.c?h=master#n247
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/net/n
-> etfilter/nf_conntrack_sane.c?h=master#n195
-> 
-> https://git.kernel.org/cgit/linux/kernel/git/will/linux.git/tree/drive
-> rs/input/evdev.c?h=master#n403
-> 
-> 
-> they allocate large memory from 10k~64K , this will use lots of low 
-> mem, instead if we use vmalloc for these drivers , it will be good for 
-> some devices like smart phone, we often encounter some errors like 
-> kmalloc failed because there is not enough low mem , especially when 
-> the device has physical memory less than 1GB .
-> 
-> 
-> could this module change the memory allocation into vmalloc ?
-> 
-> I was thinking that if we can introduce a helper function in kmalloc.h like this :
-> 
-> Kmalloc(size, flags)
-> {
-> 	If (size > PAGE_SIZE && flags&CAN_USE_VMALLOC_FLAG)
-> 		return vmalloc(size);
-> 	Else
-> 		return real_kmalloc(size);
-> }
-> 
-> Kfree(ptr)
-> {
-> 	If (is_vmalloc_addr(ptr))
-> 		Vfree(ptr);
-> 	Else
-> 		Kfree(ptr);
-> }
-> 
-> 
-> But we need add some flags to ensure always use kmalloc for Some 
-> special use (dma etc..)
-> 
-> How do you think of it ?
-> 
-> Thanks
-> 
-> 
-> 
+> +static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
+> +{
+> +	unsigned int mask = AXP20X_WORKMODE_DCDC2_MASK;
+> +
+> +	if ((id != AXP20X_DCDC2) && (id != AXP20X_DCDC3))
+> +		return -EINVAL;
+> +
+> +	if (id == AXP20X_DCDC3)
+> +		mask = AXP20X_WORKMODE_DCDC3_MASK;
+> +
+> +	return regmap_update_bits(rdev->regmap, AXP20X_DCDC_MODE, mask, workmode);
+> +}
+
+What is a workmode?
+
+> +		pmic->rdev[i] = regulator_register(&pmic->rdesc[i], &config);
+> +		if (IS_ERR(pmic->rdev[i])) {
+
+Use devm_regulator_register() and then you don't need to clean up the
+regulators either.
+
+> +static int __init axp20x_regulator_init(void)
+> +{
+> +	return platform_driver_register(&axp20x_regulator_driver);
+> +}
+> +
+> +subsys_initcall(axp20x_regulator_init);
+
+module_platform_driver().
+
+--BtmVPk+Smchi6n7w
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTE+E9AAoJELSic+t+oim9fRwP/0QxUA5UG8TiDoAV6A7neTQY
+GlQBzZwzHRes4V6DHOi1rRTp+rYgmbBGUhgamuRM1AuIDlYoAbQsI4hMudhTbSap
+SSHjx/C/qCyS6hGLDBEmbPFbktw2x8L6l4G9mQaCC9a9M1s5z4MdQHQZiwxMVz+d
+kydiR1aNLbqg0aAcsKpjGys62j/f6ph+dagrXS3mnS9f5AUzd3QJQJ2y9ImIFCqC
+rBzFCfP+V2j2AY/01Tgh78Vvmgqn9hVS5ADDeLOiJJkdXe9uPMIPr6BC+SxoW51C
+HJ1Wv0YyhS1s4No+baSTouQoUw9lDOszRtMq5qK7Mrys7ZZeARSuDdWtB/DoMEVX
+WQ+cPH5SUvN8Yel1/bZAv8qXWqvHYuFLUQHP2frImzKLL5lY3rsvLQyGgx75Gr/y
+5qKMTWwq8mo0ksfjl2hsib2HXrfXZvlV+Fo3ftpPk36EKhWejz9iFJIVF9uc8LCf
+Uzg7YWr4PsjmywY2Gfw89ilqZuBii2A0Yf4oEyVQDmMdH7X4s2jz4foppgcrhlA2
+WJgdgdHEjnaB3FKP6B3m2B4kGBno+P3XvsX8yxhzUnzI2wgCw0pOiFgKR7BZlaUw
+SYi1+wxj4hy2PQphC+vK7fhYGQoO3oNPY9yu8yppOB+mowJ/BQx/kbYz/4EeW8TZ
+zChCQh/cQRiJmGHl5myj
+=giD2
+-----END PGP SIGNATURE-----
+
+--BtmVPk+Smchi6n7w--

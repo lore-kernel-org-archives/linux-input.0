@@ -1,224 +1,176 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 3/4] HID: sony: do not rely on hid_output_raw_report
-Date: Mon, 3 Mar 2014 09:28:30 -0500
-Message-ID: <CAN+gG=Eap-S4K5rGhjHmnkxy=3kQ43aUBJJDwVcamgxJOjeLKg@mail.gmail.com>
-References: <1393633237-26496-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1393633237-26496-4-git-send-email-benjamin.tissoires@redhat.com>
-	<20140301131658.2168c54b91ade7a0a63d9fb6@ao2.it>
+From: "Wang, Yalin" <Yalin.Wang@sonymobile.com>
+Subject: [PATCH] netfilter:Change nf_conntrack modules to use vmalloc
+Date: Tue, 4 Mar 2014 15:30:36 +0800
+Message-ID: <35FD53F367049845BC99AC72306C23D102844605F39A@CNBJMBX05.corpusers.net>
+References: <35FD53F367049845BC99AC72306C23D102844605F38C@CNBJMBX05.corpusers.net>
+ <53104ECA.4010702@freescale.com>
+ <35FD53F367049845BC99AC72306C23D102844605F38D@CNBJMBX05.corpusers.net>
+ <20140228163304.GA15614@kroah.com>
+ <35FD53F367049845BC99AC72306C23D102844605F38F@CNBJMBX05.corpusers.net>
+ <20140303030821.GA16732@kroah.com>
+ <35FD53F367049845BC99AC72306C23D102844605F390@CNBJMBX05.corpusers.net>
+ <20140303141044.GA9139@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f47.google.com ([209.85.215.47]:33374 "EHLO
-	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754352AbaCCO2b (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Mar 2014 09:28:31 -0500
-In-Reply-To: <20140301131658.2168c54b91ade7a0a63d9fb6@ao2.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20140303141044.GA9139@kroah.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "'gregkh@linuxfoundation.org'" <gregkh@linuxfoundation.org>
+Cc: "'alsa-devel@alsa-project.org'" <alsa-devel@alsa-project.org>, "'broonie@opensource.wolfsonmicro.com'" <broonie@opensource.wolfsonmicro.com>, "'tiwai@suse.de'" <tiwai@suse.de>, "'fweisbec@gmail.com'" <fweisbec@gmail.com>, 'Will Deacon' <will.deacon@arm.com>, "'perex@perex.cz'" <perex@perex.cz>, "'mingo@redhat.com'" <mingo@redhat.com>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'rydberg@euromail.se'" <rydberg@euromail.se>, "'lrg@ti.com'" <lrg@ti.com>, "'pablo@netfilter.org'" <pablo@netfilter.org>, "'rusty@rustcorp.com.au'" <rusty@rustcorp.com.au>, "'coreteam@netfilter.org'" <coreteam@netfilter.org>, "'linux-arm-msm@vger.kernel.org'" <linux-arm-msm@vger.kernel.org>, "'mschmidt@redhat.com'" <mschmidt@redhat.com>, "'rostedt@goodmis.org'" <rostedt@goodmis.org>, "'netfilter@vger.kernel.org'" <netfilter@vger.kernel.org>, 'linux-arm-kernel@lists.infradead
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, David Barksdale <dbarksdale@uplogix.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sat, Mar 1, 2014 at 7:16 AM, Antonio Ospite <ao2@ao2.it> wrote:
-> Hi Benjamin,
->
-> On Fri, 28 Feb 2014 19:20:36 -0500
-> Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
->
->> hid_out_raw_report is going to be obsoleted as it is not part of the
->> unified HID low level transport documentation
->> (Documentation/hid/hid-transport.txt)
->>
->> To do so, we need to introduce two new quirks:
->> * HID_QUIRK_NO_OUTPUT_REPORTS: this quirks prevents the transport
->>   driver to use the interrupt channel to send output report (and thus
->>   force to use HID_REQ_SET_REPORT command)
->
-> Maybe a little more informative name? Like:
->         HID_QUIRK_NON_STD_OUTPUT_REPORTS
-> or
->         HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP
-> or expansions of the above.
->
-> The rationale being that, from outside, these are still output reports
-> (kind of), it's the channel they are sent over to which changes.
+This patch change some nf_conntrack modules to
+use vmalloc to allocate large memory instead of kmalloc,
+to save low memorys.
 
-Sorry, putting names on things has always been my weakness. I like
-more the second proposition, so I will pick it in the v2 unless
-someone else complains.
+Signed-off-by: Yalin Wang <yalin.wang@sonymobile.com>
+---
+ net/netfilter/nf_conntrack_ftp.c       | 6 +++---
+ net/netfilter/nf_conntrack_h323_main.c | 8 ++++----
+ net/netfilter/nf_conntrack_irc.c       | 6 +++---
+ net/netfilter/nf_conntrack_sane.c      | 6 +++---
+ 4 files changed, 13 insertions(+), 13 deletions(-)
 
->
-> Another comment about a typo is inlined below.
->
-> Thanks,
->    Antonio
->
->> * HID_QUIRK_SKIP_OUTPUT_REPORT_ID: this one forces usbhid to not
->>   include the report ID in the buffer it sends to the device through
->>   HID_REQ_SET_REPORT in case of an output report
->>
->> This also fixes a regression introduced in commit 3a75b24949a8
->> (HID: hidraw: replace hid_output_raw_report() calls by appropriates ones).
->> The hidraw API was not able to communicate with the PS3 SixAxis
->> controllers in USB mode.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  drivers/hid/hid-sony.c        | 59 ++++++++++---------------------------------
->>  drivers/hid/hidraw.c          |  3 ++-
->>  drivers/hid/usbhid/hid-core.c |  7 ++++-
->>  include/linux/hid.h           |  2 ++
->>  4 files changed, 24 insertions(+), 47 deletions(-)
->>
->> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
->> index b5fe65e..08eac71 100644
->> --- a/drivers/hid/hid-sony.c
->> +++ b/drivers/hid/hid-sony.c
->> @@ -1007,45 +1007,6 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
->>  }
->>
->>  /*
->> - * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
->> - * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
->> - * so we need to override that forcing HID Output Reports on the Control EP.
->> - *
->> - * There is also another issue about HID Output Reports via USB, the Sixaxis
->> - * does not want the report_id as part of the data packet, so we have to
->> - * discard buf[0] when sending the actual control message, even for numbered
->> - * reports, humpf!
->> - */
->> -static int sixaxis_usb_output_raw_report(struct hid_device *hid, __u8 *buf,
->> -             size_t count, unsigned char report_type)
->> -{
->> -     struct usb_interface *intf = to_usb_interface(hid->dev.parent);
->> -     struct usb_device *dev = interface_to_usbdev(intf);
->> -     struct usb_host_interface *interface = intf->cur_altsetting;
->> -     int report_id = buf[0];
->> -     int ret;
->> -
->> -     if (report_type == HID_OUTPUT_REPORT) {
->> -             /* Don't send the Report ID */
->> -             buf++;
->> -             count--;
->> -     }
->> -
->> -     ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
->> -             HID_REQ_SET_REPORT,
->> -             USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
->> -             ((report_type + 1) << 8) | report_id,
->> -             interface->desc.bInterfaceNumber, buf, count,
->> -             USB_CTRL_SET_TIMEOUT);
->> -
->> -     /* Count also the Report ID, in case of an Output report. */
->> -     if (ret > 0 && report_type == HID_OUTPUT_REPORT)
->> -             ret++;
->> -
->> -     return ret;
->> -}
->> -
->> -/*
->>   * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
->>   * to "operational".  Without this, the ps3 controller will not report any
->>   * events.
->> @@ -1305,11 +1266,8 @@ static void sixaxis_state_worker(struct work_struct *work)
->>       buf[10] |= sc->led_state[2] << 3;
->>       buf[10] |= sc->led_state[3] << 4;
->>
->> -     if (sc->quirks & SIXAXIS_CONTROLLER_USB)
->> -             hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
->> -     else
->> -             hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf),
->> -                             HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
->> +     hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf), HID_OUTPUT_REPORT,
->> +                     HID_REQ_SET_REPORT);
->>  }
->>
->>  static void dualshock4_state_worker(struct work_struct *work)
->> @@ -1659,7 +1617,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>       }
->>
->>       if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
->> -             hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
->> +             /*
->> +              * The Sony Sixaxis does not handle HID Output Reports on the
->> +              * Interrupt EP like it could, so we need to forcing HID Output
->                                                              ^^^^
-> typo: "we need to force".
->
-
-k, will fix in v2.
-
-Thanks,
-Benjamin
-
->> +              * Reports to use HID_REQ_SET_REPORT on the Control EP.
->> +              *
->> +              * There is also another issue about HID Output Reports via USB,
->> +              * the Sixaxis does not want the report_id as part of the data
->> +              * packet, so we have to discard buf[0] when sending the actual
->> +              * control message, even for numbered reports, humpf!
->> +              */
->> +             hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS;
->> +             hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
->>               ret = sixaxis_set_operational_usb(hdev);
->>               sc->worker_initialized = 1;
->>               INIT_WORK(&sc->state_worker, sixaxis_state_worker);
->> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
->> index 2cc484c..6537e58 100644
->> --- a/drivers/hid/hidraw.c
->> +++ b/drivers/hid/hidraw.c
->> @@ -149,7 +149,8 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
->>               goto out_free;
->>       }
->>
->> -     if (report_type == HID_OUTPUT_REPORT) {
->> +     if ((report_type == HID_OUTPUT_REPORT) &&
->> +         !(dev->quirks & HID_QUIRK_NO_OUTPUT_REPORTS)) {
->>               ret = hid_hw_output_report(dev, buf, count);
->>               /*
->>                * compatibility with old implementation of USB-HID and I2C-HID:
->> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
->> index 0d1d875..3bc7cad 100644
->> --- a/drivers/hid/usbhid/hid-core.c
->> +++ b/drivers/hid/usbhid/hid-core.c
->> @@ -894,7 +894,12 @@ static int usbhid_set_raw_report(struct hid_device *hid, unsigned int reportnum,
->>       int ret, skipped_report_id = 0;
->>
->>       /* Byte 0 is the report number. Report data starts at byte 1.*/
->> -     buf[0] = reportnum;
->> +     if ((rtype == HID_OUTPUT_REPORT) &&
->> +         (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID))
->> +             buf[0] = 0;
->> +     else
->> +             buf[0] = reportnum;
->> +
->>       if (buf[0] == 0x0) {
->>               /* Don't send the Report ID */
->>               buf++;
->> diff --git a/include/linux/hid.h b/include/linux/hid.h
->> index 5eb282e..2baf834 100644
->> --- a/include/linux/hid.h
->> +++ b/include/linux/hid.h
->> @@ -287,6 +287,8 @@ struct hid_item {
->>  #define HID_QUIRK_NO_EMPTY_INPUT             0x00000100
->>  #define HID_QUIRK_NO_INIT_INPUT_REPORTS              0x00000200
->>  #define HID_QUIRK_SKIP_OUTPUT_REPORTS                0x00010000
->> +#define HID_QUIRK_SKIP_OUTPUT_REPORT_ID              0x00020000
->> +#define HID_QUIRK_NO_OUTPUT_REPORTS          0x00040000
->>  #define HID_QUIRK_FULLSPEED_INTERVAL         0x10000000
->>  #define HID_QUIRK_NO_INIT_REPORTS            0x20000000
->>  #define HID_QUIRK_NO_IGNORE                  0x40000000
->> --
->> 1.8.5.3
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-> --
-> Antonio Ospite
-> http://ao2.it
->
-> A: Because it messes up the order in which people normally read text.
->    See http://en.wikipedia.org/wiki/Posting_style
-> Q: Why is top-posting such a bad thing?
+diff --git a/net/netfilter/nf_conntrack_ftp.c b/net/netfilter/nf_conntrack_ftp.c
+index b8a0924..aad7eca 100644
+--- a/net/netfilter/nf_conntrack_ftp.c
++++ b/net/netfilter/nf_conntrack_ftp.c
+@@ -14,7 +14,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/netfilter.h>
+ #include <linux/ip.h>
+-#include <linux/slab.h>
++#include <linux/vmalloc.h>
+ #include <linux/ipv6.h>
+ #include <linux/ctype.h>
+ #include <linux/inet.h>
+@@ -593,14 +593,14 @@ static void nf_conntrack_ftp_fini(void)
+ 		}
+ 	}
+ 
+-	kfree(ftp_buffer);
++	vfree(ftp_buffer);
+ }
+ 
+ static int __init nf_conntrack_ftp_init(void)
+ {
+ 	int i, j = -1, ret = 0;
+ 
+-	ftp_buffer = kmalloc(65536, GFP_KERNEL);
++	ftp_buffer = vmalloc(65536);
+ 	if (!ftp_buffer)
+ 		return -ENOMEM;
+ 
+diff --git a/net/netfilter/nf_conntrack_h323_main.c b/net/netfilter/nf_conntrack_h323_main.c
+index 70866d1..5baee1a 100644
+--- a/net/netfilter/nf_conntrack_h323_main.c
++++ b/net/netfilter/nf_conntrack_h323_main.c
+@@ -18,7 +18,7 @@
+ #include <linux/inet.h>
+ #include <linux/in.h>
+ #include <linux/ip.h>
+-#include <linux/slab.h>
++#include <linux/vmalloc.h>
+ #include <linux/udp.h>
+ #include <linux/tcp.h>
+ #include <linux/skbuff.h>
+@@ -1837,7 +1837,7 @@ static void __exit nf_conntrack_h323_fini(void)
+ 	nf_conntrack_helper_unregister(&nf_conntrack_helper_q931[1]);
+ 	nf_conntrack_helper_unregister(&nf_conntrack_helper_q931[0]);
+ 	nf_conntrack_helper_unregister(&nf_conntrack_helper_h245);
+-	kfree(h323_buffer);
++	vfree(h323_buffer);
+ 	pr_debug("nf_ct_h323: fini\n");
+ }
+ 
+@@ -1846,7 +1846,7 @@ static int __init nf_conntrack_h323_init(void)
+ {
+ 	int ret;
+ 
+-	h323_buffer = kmalloc(65536, GFP_KERNEL);
++	h323_buffer = vmalloc(65536);
+ 	if (!h323_buffer)
+ 		return -ENOMEM;
+ 	ret = nf_conntrack_helper_register(&nf_conntrack_helper_h245);
+@@ -1876,7 +1876,7 @@ err3:
+ err2:
+ 	nf_conntrack_helper_unregister(&nf_conntrack_helper_h245);
+ err1:
+-	kfree(h323_buffer);
++	vfree(h323_buffer);
+ 	return ret;
+ }
+ 
+diff --git a/net/netfilter/nf_conntrack_irc.c b/net/netfilter/nf_conntrack_irc.c
+index 0fd2976..b57df10 100644
+--- a/net/netfilter/nf_conntrack_irc.c
++++ b/net/netfilter/nf_conntrack_irc.c
+@@ -16,7 +16,7 @@
+ #include <linux/ip.h>
+ #include <linux/tcp.h>
+ #include <linux/netfilter.h>
+-#include <linux/slab.h>
++#include <linux/vmalloc.h>
+ 
+ #include <net/netfilter/nf_conntrack.h>
+ #include <net/netfilter/nf_conntrack_expect.h>
+@@ -244,7 +244,7 @@ static int __init nf_conntrack_irc_init(void)
+ 	irc_exp_policy.max_expected = max_dcc_channels;
+ 	irc_exp_policy.timeout = dcc_timeout;
+ 
+-	irc_buffer = kmalloc(65536, GFP_KERNEL);
++	irc_buffer = vmalloc(65536);
+ 	if (!irc_buffer)
+ 		return -ENOMEM;
+ 
+@@ -285,7 +285,7 @@ static void nf_conntrack_irc_fini(void)
+ 
+ 	for (i = 0; i < ports_c; i++)
+ 		nf_conntrack_helper_unregister(&irc[i]);
+-	kfree(irc_buffer);
++	vfree(irc_buffer);
+ }
+ 
+ module_init(nf_conntrack_irc_init);
+diff --git a/net/netfilter/nf_conntrack_sane.c b/net/netfilter/nf_conntrack_sane.c
+index 4a2134f..a4c8bf3 100644
+--- a/net/netfilter/nf_conntrack_sane.c
++++ b/net/netfilter/nf_conntrack_sane.c
+@@ -20,7 +20,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/netfilter.h>
+-#include <linux/slab.h>
++#include <linux/vmalloc.h>
+ #include <linux/in.h>
+ #include <linux/tcp.h>
+ #include <net/netfilter/nf_conntrack.h>
+@@ -185,14 +185,14 @@ static void nf_conntrack_sane_fini(void)
+ 		}
+ 	}
+ 
+-	kfree(sane_buffer);
++	vfree(sane_buffer);
+ }
+ 
+ static int __init nf_conntrack_sane_init(void)
+ {
+ 	int i, j = -1, ret = 0;
+ 
+-	sane_buffer = kmalloc(65536, GFP_KERNEL);
++	sane_buffer = vmalloc(65536);
+ 	if (!sane_buffer)
+ 		return -ENOMEM;
+ 
+-- 
+1.8.2.2

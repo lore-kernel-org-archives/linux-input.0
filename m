@@ -1,7 +1,7 @@
 From: Jon Ringle <jringle@gridpoint.com>
-Subject: [PATCH] touchscreen: tps6507x-ts: only poll while touch event is occurring
-Date: Tue, 4 Mar 2014 15:04:39 -0500
-Message-ID: <1393963479-21875-1-git-send-email-jringle@gridpoint.com>
+Subject: [PATCH v2] touchscreen: tps6507x-ts: only poll while touch event is occurring
+Date: Tue, 4 Mar 2014 15:19:09 -0500
+Message-ID: <1393964349-24735-1-git-send-email-jringle@gridpoint.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -17,12 +17,13 @@ the screen
 
 Signed-off-by: Jon Ringle <jringle@gridpoint.com>
 ---
- drivers/input/touchscreen/tps6507x-ts.c | 191 +++++++++++++++++++++++++-------
+ drivers/input/touchscreen/tps6507x-ts.c | 188 +++++++++++++++++++++++++-------
+ include/linux/input/tps6507x-ts.h       |   1 +
  include/linux/mfd/tps6507x.h            |   1 +
- 2 files changed, 153 insertions(+), 39 deletions(-)
+ 3 files changed, 151 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index 94cde2c..fa1fb24 100644
+index 94cde2c..24043ff 100644
 --- a/drivers/input/touchscreen/tps6507x-ts.c
 +++ b/drivers/input/touchscreen/tps6507x-ts.c
 @@ -17,11 +17,14 @@
@@ -96,7 +97,7 @@ index 94cde2c..fa1fb24 100644
                         input_report_key(input_dev, BTN_TOUCH, 1);
                 } else
                         dev_dbg(tsc->dev, "still down\n");
-@@ -195,15 +211,89 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
+@@ -195,15 +211,86 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
                 if (ret)
                         goto done;
 
@@ -148,9 +149,6 @@ index 94cde2c..fa1fb24 100644
 +
 +       tsc->open_count++;
 +
-+//     printk("%s: %s\n", __func__, comm);
-+       dump_stack();
-+
 +       if (tsc->irq) {
 +
 +               tps6507x_write_u8(tsc, TPS6507X_REG_INT, 0);
@@ -191,7 +189,7 @@ index 94cde2c..fa1fb24 100644
  }
 
  static int tps6507x_ts_probe(struct platform_device *pdev)
-@@ -212,8 +302,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+@@ -212,8 +299,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
         const struct tps6507x_board *tps_board;
         const struct touchscreen_init_data *init_data;
         struct tps6507x_ts *tsc;
@@ -201,7 +199,7 @@ index 94cde2c..fa1fb24 100644
         int error;
 
         /*
-@@ -239,29 +329,18 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+@@ -239,29 +326,18 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
                 return -ENOMEM;
         }
 
@@ -237,7 +235,7 @@ index 94cde2c..fa1fb24 100644
         input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
         input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
 
-@@ -270,42 +349,76 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+@@ -270,42 +346,76 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
         input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_10BIT, 0, 0);
 
         input_dev->name = "TPS6507x Touchscreen";
@@ -325,6 +323,18 @@ index 94cde2c..fa1fb24 100644
         kfree(tsc);
 
         return 0;
+diff --git a/include/linux/input/tps6507x-ts.h b/include/linux/input/tps6507x-ts.h
+index b433df8..3c5aa7b 100644
+--- a/include/linux/input/tps6507x-ts.h
++++ b/include/linux/input/tps6507x-ts.h
+@@ -14,6 +14,7 @@
+ /* Board specific touch screen initial values */
+ struct touchscreen_init_data {
+        int     poll_period;    /* ms */
++       int     irq_pin;
+        __u16   min_pressure;   /* min reading to be treated as a touch */
+        __u16   vendor;
+        __u16   product;
 diff --git a/include/linux/mfd/tps6507x.h b/include/linux/mfd/tps6507x.h
 index c2ae569..c923e486 100644
 --- a/include/linux/mfd/tps6507x.h

@@ -1,350 +1,67 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/4] Input: wacom: Use full 32-bit HID Usage value in
- switch statement
-Date: Tue, 4 Mar 2014 13:10:04 -0800
-Message-ID: <CAF8JNhKamRE0E_hXpWdHrK3REBe-nT7pzxt1nTEz_rt=TgHwRQ@mail.gmail.com>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: USB PCT multitouch 0eef:7200 (eGalaxTouch EXC7200-766Dv1.000)  PATCH
+ INCLUDED
+Date: Tue, 04 Mar 2014 22:58:33 +0100
+Message-ID: <53164C89.1010803@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f52.google.com ([209.85.215.52]:37214 "EHLO
-	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932227AbaCDVKG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Mar 2014 16:10:06 -0500
-Received: by mail-la0-f52.google.com with SMTP id ec20so63505lab.25
-        for <linux-input@vger.kernel.org>; Tue, 04 Mar 2014 13:10:04 -0800 (PST)
+Received: from mout.gmx.net ([212.227.15.18]:60536 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755189AbaCDV6f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Mar 2014 16:58:35 -0500
+Received: from janskasten.localdomain ([62.227.225.116]) by mail.gmx.com
+ (mrgmx003) with ESMTPSA (Nemesis) id 0MS5QA-1Wmxpz321y-00TBH5 for
+ <linux-input@vger.kernel.org>; Tue, 04 Mar 2014 22:58:33 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Carl Worth <cworth@cworth.org>, Aaron Skomra <skomra@gmail.com>
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
-This patchset has been Tested-by: Aaron Skomra
-<Aaron.Skomra@wacom.com> and Reviewed-by: Carl Worth
-<cworth@cworth.org>. I think they are ready to go upstream.
+I found this touchscreen chip built into the board of the Posiflex
+XT3015 cash register hardware.
 
-Do you have other comments?
 
-Ping
+Sadly, it doesn't work with the current usbhid OOTB. As the device ID
+isn't in the hid-ids.h, I tried adding it:
 
-On Thu, Feb 27, 2014 at 10:37 AM, Aaron Armstrong Skomra
-<skomra@gmail.com> wrote:
-> On Thu, Jan 30, 2014 at 10:48 AM, Jason Gerecke <killertofu@gmail.com> wrote:
->>
->> A HID Usage is a 32-bit value: an upper 16-bit "page" and a lower
->> 16-bit ID. While the two halves are normally reported seperately,
->> only the combination uniquely idenfifes a particular HID Usage.
->>
->> The existing code performs the comparison in two steps, first
->> performing a switch on the ID and then verifying the page within
->> each case. While this works fine, it is very akward to handle
->> two Usages that share a single ID, such as HID_USAGE_PRESSURE
->> and HID_USAGE_X because the case statement can only have a
->> single identifier.
->>
->> To work around this, we now check the full 32-bit HID Usage
->> directly rather than first checking the ID and then the page.
->> This allows the switch statement to have distinct cases for
->> e.g. HID_USAGE_PRESSURE and HID_USAGE_X.
->>
->> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
->> ---
->>  drivers/input/tablet/wacom_sys.c | 237 ++++++++++++++++++---------------------
->>  1 file changed, 109 insertions(+), 128 deletions(-)
->>
->> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
->> index b16ebef..5be6177 100644
->> --- a/drivers/input/tablet/wacom_sys.c
->> +++ b/drivers/input/tablet/wacom_sys.c
->> @@ -22,23 +22,17 @@
->>  #define HID_USAGE_PAGE_DIGITIZER       0x0d
->>  #define HID_USAGE_PAGE_DESKTOP         0x01
->>  #define HID_USAGE                      0x09
->> -#define HID_USAGE_X                    0x30
->> -#define HID_USAGE_Y                    0x31
->> -#define HID_USAGE_X_TILT               0x3d
->> -#define HID_USAGE_Y_TILT               0x3e
->> -#define HID_USAGE_FINGER               0x22
->> -#define HID_USAGE_STYLUS               0x20
->> -#define HID_USAGE_CONTACTMAX           0x55
->> +#define HID_USAGE_X                    ((HID_USAGE_PAGE_DESKTOP << 16) | 0x30)
->> +#define HID_USAGE_Y                    ((HID_USAGE_PAGE_DESKTOP << 16) | 0x31)
->> +#define HID_USAGE_X_TILT               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x3d)
->> +#define HID_USAGE_Y_TILT               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x3e)
->> +#define HID_USAGE_FINGER               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x22)
->> +#define HID_USAGE_STYLUS               ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x20)
->> +#define HID_USAGE_CONTACTMAX           ((HID_USAGE_PAGE_DIGITIZER << 16) | 0x55)
->>  #define HID_COLLECTION                 0xa1
->>  #define HID_COLLECTION_LOGICAL         0x02
->>  #define HID_COLLECTION_END             0xc0
->>
->> -enum {
->> -       WCM_UNDEFINED = 0,
->> -       WCM_DESKTOP,
->> -       WCM_DIGITIZER,
->> -};
->> -
->>  struct hid_descriptor {
->>         struct usb_descriptor_header header;
->>         __le16   bcdHID;
->> @@ -305,7 +299,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
->>         char limit = 0;
->>         /* result has to be defined as int for some devices */
->>         int result = 0, touch_max = 0;
->> -       int i = 0, usage = WCM_UNDEFINED, finger = 0, pen = 0;
->> +       int i = 0, page = 0, finger = 0, pen = 0;
->>         unsigned char *report;
->>
->>         report = kzalloc(hid_desc->wDescriptorLength, GFP_KERNEL);
->> @@ -332,134 +326,121 @@ static int wacom_parse_hid(struct usb_interface *intf,
->>
->>                 switch (report[i]) {
->>                 case HID_USAGE_PAGE:
->> -                       switch (report[i + 1]) {
->> -                       case HID_USAGE_PAGE_DIGITIZER:
->> -                               usage = WCM_DIGITIZER;
->> -                               i++;
->> -                               break;
->> -
->> -                       case HID_USAGE_PAGE_DESKTOP:
->> -                               usage = WCM_DESKTOP;
->> -                               i++;
->> -                               break;
->> -                       }
->> +                       page = report[i + 1];
->> +                       i++;
->>                         break;
->>
->>                 case HID_USAGE:
->> -                       switch (report[i + 1]) {
->> +                       switch (page << 16 | report[i + 1]) {
->>                         case HID_USAGE_X:
->> -                               if (usage == WCM_DESKTOP) {
->> -                                       if (finger) {
->> -                                               features->device_type = BTN_TOOL_FINGER;
->> -                                               /* touch device at least supports one touch point */
->> -                                               touch_max = 1;
->> -                                               switch (features->type) {
->> -                                               case TABLETPC2FG:
->> -                                                       features->pktlen = WACOM_PKGLEN_TPC2FG;
->> -                                                       break;
->> -
->> -                                               case MTSCREEN:
->> -                                               case WACOM_24HDT:
->> -                                                       features->pktlen = WACOM_PKGLEN_MTOUCH;
->> -                                                       break;
->> -
->> -                                               case MTTPC:
->> -                                                       features->pktlen = WACOM_PKGLEN_MTTPC;
->> -                                                       break;
->> -
->> -                                               case BAMBOO_PT:
->> -                                                       features->pktlen = WACOM_PKGLEN_BBTOUCH;
->> -                                                       break;
->> -
->> -                                               default:
->> -                                                       features->pktlen = WACOM_PKGLEN_GRAPHIRE;
->> -                                                       break;
->> -                                               }
->> -
->> -                                               switch (features->type) {
->> -                                               case BAMBOO_PT:
->> -                                                       features->x_phy =
->> -                                                               get_unaligned_le16(&report[i + 5]);
->> -                                                       features->x_max =
->> -                                                               get_unaligned_le16(&report[i + 8]);
->> -                                                       i += 15;
->> -                                                       break;
->> -
->> -                                               case WACOM_24HDT:
->> -                                                       features->x_max =
->> -                                                               get_unaligned_le16(&report[i + 3]);
->> -                                                       features->x_phy =
->> -                                                               get_unaligned_le16(&report[i + 8]);
->> -                                                       features->unit = report[i - 1];
->> -                                                       features->unitExpo = report[i - 3];
->> -                                                       i += 12;
->> -                                                       break;
->> -
->> -                                               default:
->> -                                                       features->x_max =
->> -                                                               get_unaligned_le16(&report[i + 3]);
->> -                                                       features->x_phy =
->> -                                                               get_unaligned_le16(&report[i + 6]);
->> -                                                       features->unit = report[i + 9];
->> -                                                       features->unitExpo = report[i + 11];
->> -                                                       i += 12;
->> -                                                       break;
->> -                                               }
->> -                                       } else if (pen) {
->> -                                               /* penabled only accepts exact bytes of data */
->> -                                               if (features->type >= TABLETPC)
->> -                                                       features->pktlen = WACOM_PKGLEN_GRAPHIRE;
->> -                                               features->device_type = BTN_TOOL_PEN;
->> +                               if (finger) {
->> +                                       features->device_type = BTN_TOOL_FINGER;
->> +                                       /* touch device at least supports one touch point */
->> +                                       touch_max = 1;
->> +                                       switch (features->type) {
->> +                                       case TABLETPC2FG:
->> +                                               features->pktlen = WACOM_PKGLEN_TPC2FG;
->> +                                               break;
->> +
->> +                                       case MTSCREEN:
->> +                                       case WACOM_24HDT:
->> +                                               features->pktlen = WACOM_PKGLEN_MTOUCH;
->> +                                               break;
->> +
->> +                                       case MTTPC:
->> +                                               features->pktlen = WACOM_PKGLEN_MTTPC;
->> +                                               break;
->> +
->> +                                       case BAMBOO_PT:
->> +                                               features->pktlen = WACOM_PKGLEN_BBTOUCH;
->> +                                               break;
->> +
->> +                                       default:
->> +                                               features->pktlen = WACOM_PKGLEN_GRAPHIRE;
->> +                                               break;
->> +                                       }
->> +
->> +                                       switch (features->type) {
->> +                                       case BAMBOO_PT:
->> +                                               features->x_phy =
->> +                                                       get_unaligned_le16(&report[i + 5]);
->> +                                               features->x_max =
->> +                                                       get_unaligned_le16(&report[i + 8]);
->> +                                               i += 15;
->> +                                               break;
->> +
->> +                                       case WACOM_24HDT:
->>                                                 features->x_max =
->>                                                         get_unaligned_le16(&report[i + 3]);
->> -                                               i += 4;
->> +                                               features->x_phy =
->> +                                                       get_unaligned_le16(&report[i + 8]);
->> +                                               features->unit = report[i - 1];
->> +                                               features->unitExpo = report[i - 3];
->> +                                               i += 12;
->> +                                               break;
->> +
->> +                                       default:
->> +                                               features->x_max =
->> +                                                       get_unaligned_le16(&report[i + 3]);
->> +                                               features->x_phy =
->> +                                                       get_unaligned_le16(&report[i + 6]);
->> +                                               features->unit = report[i + 9];
->> +                                               features->unitExpo = report[i + 11];
->> +                                               i += 12;
->> +                                               break;
->>                                         }
->> +                               } else if (pen) {
->> +                                       /* penabled only accepts exact bytes of data */
->> +                                       if (features->type >= TABLETPC)
->> +                                               features->pktlen = WACOM_PKGLEN_GRAPHIRE;
->> +                                       features->device_type = BTN_TOOL_PEN;
->> +                                       features->x_max =
->> +                                               get_unaligned_le16(&report[i + 3]);
->> +                                       i += 4;
->>                                 }
->>                                 break;
->>
->>                         case HID_USAGE_Y:
->> -                               if (usage == WCM_DESKTOP) {
->> -                                       if (finger) {
->> -                                               switch (features->type) {
->> -                                               case TABLETPC2FG:
->> -                                               case MTSCREEN:
->> -                                               case MTTPC:
->> -                                                       features->y_max =
->> -                                                               get_unaligned_le16(&report[i + 3]);
->> -                                                       features->y_phy =
->> -                                                               get_unaligned_le16(&report[i + 6]);
->> -                                                       i += 7;
->> -                                                       break;
->> -
->> -                                               case WACOM_24HDT:
->> -                                                       features->y_max =
->> -                                                               get_unaligned_le16(&report[i + 3]);
->> -                                                       features->y_phy =
->> -                                                               get_unaligned_le16(&report[i - 2]);
->> -                                                       i += 7;
->> -                                                       break;
->> -
->> -                                               case BAMBOO_PT:
->> -                                                       features->y_phy =
->> -                                                               get_unaligned_le16(&report[i + 3]);
->> -                                                       features->y_max =
->> -                                                               get_unaligned_le16(&report[i + 6]);
->> -                                                       i += 12;
->> -                                                       break;
->> -
->> -                                               default:
->> -                                                       features->y_max =
->> -                                                               features->x_max;
->> -                                                       features->y_phy =
->> -                                                               get_unaligned_le16(&report[i + 3]);
->> -                                                       i += 4;
->> -                                                       break;
->> -                                               }
->> -                                       } else if (pen) {
->> +                               if (finger) {
->> +                                       switch (features->type) {
->> +                                       case TABLETPC2FG:
->> +                                       case MTSCREEN:
->> +                                       case MTTPC:
->> +                                               features->y_max =
->> +                                                       get_unaligned_le16(&report[i + 3]);
->> +                                               features->y_phy =
->> +                                                       get_unaligned_le16(&report[i + 6]);
->> +                                               i += 7;
->> +                                               break;
->> +
->> +                                       case WACOM_24HDT:
->> +                                               features->y_max =
->> +                                                       get_unaligned_le16(&report[i + 3]);
->> +                                               features->y_phy =
->> +                                                       get_unaligned_le16(&report[i - 2]);
->> +                                               i += 7;
->> +                                               break;
->> +
->> +                                       case BAMBOO_PT:
->> +                                               features->y_phy =
->> +                                                       get_unaligned_le16(&report[i + 3]);
->> +                                               features->y_max =
->> +                                                       get_unaligned_le16(&report[i + 6]);
->> +                                               i += 12;
->> +                                               break;
->> +
->> +                                       default:
->>                                                 features->y_max =
->> +                                                       features->x_max;
->> +                                               features->y_phy =
->>                                                         get_unaligned_le16(&report[i + 3]);
->>                                                 i += 4;
->> +                                               break;
->>                                         }
->> +                               } else if (pen) {
->> +                                       features->y_max =
->> +                                               get_unaligned_le16(&report[i + 3]);
->> +                                       i += 4;
->>                                 }
->>                                 break;
->>
->> @@ -489,7 +470,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
->>
->>                 case HID_COLLECTION_END:
->>                         /* reset UsagePage and Finger */
->> -                       finger = usage = 0;
->> +                       finger = page = 0;
->>                         break;
->>
->>                 case HID_COLLECTION:
->> --
->> 1.8.5.3
->>
-> Tested-by: Aaron Skomra <Aaron.Skomra@wacom.com>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--------------------------------------------------------------------------
+diff -urN linux-3.10.27.orig/drivers/hid/hid-ids.h
+linux-3.10.27/drivers/hid/hid-ids.h
+--- linux-3.10.27.orig/drivers/hid/hid-ids.h    2014-01-16
+00:29:14.000000000 +0100
++++ linux-3.10.27/drivers/hid/hid-ids.h 2014-03-04 20:51:09.889687222 +0100
+@@ -268,6 +268,7 @@
+ #define USB_DEVICE_ID_DWAV_TOUCHCONTROLLER     0x0002
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480D      0x480d
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_480E      0x480e
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7200      0x7200
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207      0x7207
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C      0x720c
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224      0x7224
+diff -urN linux-3.10.27.orig/drivers/hid/hid-multitouch.c
+linux-3.10.27/drivers/hid/hid-multitouch.c
+--- linux-3.10.27.orig/drivers/hid/hid-multitouch.c     2014-01-16
+00:29:14.000000000 +0100
++++ linux-3.10.27/drivers/hid/hid-multitouch.c  2014-03-04
+20:48:35.351350357 +0100
+@@ -1166,6 +1166,9 @@
+                        USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
+        { .driver_data = MT_CLS_EGALAX,
+                HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++                       USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7200) },
++       { .driver_data = MT_CLS_EGALAX,
++               HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+                        USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224) },
+        { .driver_data = MT_CLS_EGALAX,
+                HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+--------------------------------------------------------------------------
+
+That works. Haven't checked the multitouch functions, though.
+
+
+Kind regards
+
+	Jan

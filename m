@@ -1,27 +1,21 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] input synaptics-rmi4: rmi_driver.c storage fix
-Date: Wed, 5 Mar 2014 09:51:25 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1403050951090.30402@pobox.suse.cz>
-References: <1393988899-30076-1-git-send-email-cheiny@synaptics.com>
+From: Loans <shoude.chang@nrc.ca>
+Subject: Loan Application
+Date: Wed, 5 Mar 2014 17:06:39 +0530
+Message-ID: <c1854df8-9c32-4ab2-b080-a98e7fd45b87__38044.4593997256$1394019766$gmane$org@NRCCENHTS1.nrc.ca>
+Reply-To: standard11@56788.com
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55057 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753425AbaCEIva (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Mar 2014 03:51:30 -0500
-In-Reply-To: <1393988899-30076-1-git-send-email-cheiny@synaptics.com>
+Received: from nrccenhts1.nrc.ca ([132.246.15.88]:21289 "EHLO
+	nrccenhts1.nrc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755493AbaCELma convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Mar 2014 06:42:30 -0500
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>
+To: Recipients <shoude.chang@nrc.ca>
 
-On Tue, 4 Mar 2014, Christopher Heiny wrote:
+Loan Application at a low rate of 0.5% send your Name,Amount,Phone and country to standard11@56788.com
 
-> Do not use kfree() on storage allocated with devm_kfree(),
-
-I believe you meant devm_kmalloc() here.
-
--- 
-Jiri Kosina
-SUSE Labs
+Note: $5,000.00 USD minimum and $100,000,000 Maximum.

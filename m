@@ -1,20 +1,24 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH 01/02] input synaptics-rmi4: remove rmi_f01 interrupt enable handling
-Date: Tue, 4 Mar 2014 19:39:19 -0800
-Message-ID: <1393990760-2587-1-git-send-email-cheiny@synaptics.com>
+Subject: [PATCH 02/02] input synaptics-rmi4: improved interrupt enable management
+Date: Tue, 4 Mar 2014 19:39:20 -0800
+Message-ID: <1393990760-2587-2-git-send-email-cheiny@synaptics.com>
+References: <1393990760-2587-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:14770 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:35090 "EHLO
 	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755658AbaCEDj1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Mar 2014 22:39:27 -0500
+	with ESMTP id S1755352AbaCEDjj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Mar 2014 22:39:39 -0500
+In-Reply-To: <1393990760-2587-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-This functionality has been moved to rmi_driver.c.
+The previous interrupt save/restore routine was inflexible.  Remove
+that and add set_bits() and clear_bits() functions, allowing simpler
+management of individual function interrupt enables.
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -24,112 +28,222 @@ Cc: David Herrmann <dh.herrmann@gmail.com>
 Cc: Jiri Kosina <jkosina@suse.cz>
 
 ---
- drivers/input/rmi4/rmi_f01.c | 35 +++--------------------------------
- 1 file changed, 3 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index be68ae2..ee5f4a1 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -105,7 +105,6 @@ struct f01_basic_properties {
+ drivers/input/rmi4/rmi_bus.h    |  12 ++---
+ drivers/input/rmi4/rmi_driver.c | 104 ++++++++++++++++------------------------
+ drivers/input/rmi4/rmi_driver.h |   3 +-
+ 3 files changed, 48 insertions(+), 71 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+index 1672b05..d4cfc85 100644
+--- a/drivers/input/rmi4/rmi_bus.h
++++ b/drivers/input/rmi4/rmi_bus.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2011-2013 Synaptics Incorporated
++ * Copyright (c) 2011-2014 Synaptics Incorporated
+  * Copyright (c) 2011 Unixphere
+  *
+  * This program is free software; you can redistribute it and/or modify it
+@@ -111,9 +111,8 @@ void rmi_unregister_function_handler(struct rmi_function_handler *);
+  * @driver: Device driver model driver
+  * @irq_handler: Callback for handling irqs
+  * @reset_handler: Called when a reset is detected.
+- * @get_func_irq_mask: Callback for calculating interrupt mask
+- * @store_irq_mask: Callback for storing and replacing interrupt mask
+- * @restore_irq_mask: Callback for restoring previously stored interrupt mask
++ * @clear_irq_bits: Clear the specified bits in the current interrupt mask.
++ * @set_irq_bist: Set the specified bits in the current interrupt mask.
+  * @store_productid: Callback for cache product id from function 01
+  * @data: Private data pointer
+  *
+@@ -123,9 +122,8 @@ struct rmi_driver {
  
- /**
-  * @ctrl0 - see the bit definitions above.
-- * @interrupt_enable - A mask of per-function interrupts on the touch sensor.
-  * @doze_interval - controls the interval between checks for finger presence
-  * when the touch sensor is in doze mode, in units of 10ms.
-  * @wakeup_threshold - controls the capacitance threshold at which the touch
-@@ -115,7 +114,6 @@ struct f01_basic_properties {
-  */
- struct f01_device_control {
- 	u8 ctrl0;
--	u8 *interrupt_enable;
- 	u8 doze_interval;
- 	u8 wakeup_threshold;
- 	u8 doze_holdoff;
-@@ -126,7 +124,6 @@ struct f01_data {
+ 	int (*irq_handler)(struct rmi_device *rmi_dev, int irq);
+ 	int (*reset_handler)(struct rmi_device *rmi_dev);
+-	int (*store_irq_mask)(struct rmi_device *rmi_dev,
+-				unsigned long *new_interupts);
+-	int (*restore_irq_mask)(struct rmi_device *rmi_dev);
++	int (*clear_irq_bits)(struct rmi_device *rmi_dev, unsigned long *mask);
++	int (*set_irq_bits)(struct rmi_device *rmi_dev, unsigned long *mask);
+ 	int (*store_productid)(struct rmi_device *rmi_dev);
+ 	int (*set_input_params)(struct rmi_device *rmi_dev,
+ 			struct input_dev *input);
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 4406a7f..2172c80 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -330,78 +330,56 @@ static int rmi_driver_set_input_params(struct rmi_device *rmi_dev,
+ 	return 0;
+ }
  
- 	struct f01_device_control device_control;
+-/**
+- * This pair of functions allows functions like function 54 to request to have
+- * other interrupts disabled until the restore function is called. Only one
+- * store happens at a time.
+- */
+-static int rmi_driver_irq_save(struct rmi_device *rmi_dev,
+-				unsigned long *new_ints)
++static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
++				   unsigned long *mask)
+ {
+-	int retval = 0;
++	int error = 0;
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+ 	struct device *dev = &rmi_dev->dev;
  
--	u16 interrupt_enable_addr;
- 	u16 doze_interval_addr;
- 	u16 wakeup_threshold_addr;
- 	u16 doze_holdoff_addr;
-@@ -137,7 +134,6 @@ struct f01_data {
- #endif
+ 	mutex_lock(&data->irq_mutex);
+-	if (!data->irq_stored) {
+-		/* Save current enabled interrupts */
+-		retval = rmi_read_block(rmi_dev,
+-				data->f01_container->fd.control_base_addr + 1,
+-				data->irq_mask_store, data->num_of_irq_regs);
+-		if (retval < 0) {
+-			dev_err(dev, "%s: Failed to read enabled interrupts!",
+-								__func__);
+-			goto error_unlock;
+-		}
+-		retval = rmi_write_block(rmi_dev,
+-				data->f01_container->fd.control_base_addr + 1,
+-				new_ints, data->num_of_irq_regs);
+-		if (retval < 0) {
+-			dev_err(dev, "%s: Failed to change enabled interrupts!",
+-								__func__);
+-			goto error_unlock;
+-		}
+-		bitmap_copy(data->current_irq_mask, new_ints, data->irq_count);
+-		data->irq_stored = true;
+-	} else {
+-		retval = -ENOSPC; /* No space to store IRQs.*/
+-		dev_err(dev, "Attempted to save IRQs when already stored!");
++	bitmap_or(data->new_irq_mask,
++		  data->current_irq_mask, mask, data->irq_count);
++	error = rmi_write_block(rmi_dev,
++			data->f01_container->fd.control_base_addr + 1,
++			data->new_irq_mask, data->num_of_irq_regs);
++	if (error < 0) {
++		dev_err(dev, "%s: Failed to change enabled interrupts!",
++							__func__);
++		goto error_unlock;
+ 	}
++	bitmap_copy(data->current_irq_mask, data->new_irq_mask,
++		    data->num_of_irq_regs);
  
- 	unsigned int num_of_irq_regs;
--	u8 interrupt_enable[];
+ error_unlock:
+ 	mutex_unlock(&data->irq_mutex);
+-	return retval;
++	return error;
+ }
+ 
+-static int rmi_driver_irq_restore(struct rmi_device *rmi_dev)
++static int rmi_driver_clear_irq_bits(struct rmi_device *rmi_dev,
++				     unsigned long *mask)
+ {
+-	int retval = 0;
++	int error = 0;
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+ 	struct device *dev = &rmi_dev->dev;
+ 
+ 	mutex_lock(&data->irq_mutex);
+-
+-	if (data->irq_stored) {
+-		retval = rmi_write_block(rmi_dev,
+-				data->f01_container->fd.control_base_addr+1,
+-				data->irq_mask_store, data->num_of_irq_regs);
+-		if (retval < 0) {
+-			dev_err(dev, "%s: Failed to write enabled interupts!",
+-								__func__);
+-			goto error_unlock;
+-		}
+-		memcpy(data->current_irq_mask, data->irq_mask_store,
+-					data->num_of_irq_regs * sizeof(u8));
+-		data->irq_stored = false;
+-	} else {
+-		retval = -EINVAL;
+-		dev_err(dev, "%s: Attempted to restore values when not stored!",
+-			__func__);
++	bitmap_andnot(data->new_irq_mask,
++		  data->current_irq_mask, mask, data->irq_count);
++	error = rmi_write_block(rmi_dev,
++			data->f01_container->fd.control_base_addr + 1,
++			data->new_irq_mask, data->num_of_irq_regs);
++	if (error < 0) {
++		dev_err(dev, "%s: Failed to change enabled interrupts!",
++							__func__);
++		goto error_unlock;
+ 	}
++	bitmap_copy(data->current_irq_mask, data->new_irq_mask,
++		    data->num_of_irq_regs);
+ 
+ error_unlock:
+ 	mutex_unlock(&data->irq_mutex);
+-	return retval;
++	return error;
+ }
+ 
+ static int rmi_driver_irq_handler(struct rmi_device *rmi_dev, int irq)
+@@ -437,21 +415,23 @@ static int rmi_driver_reset_handler(struct rmi_device *rmi_dev)
+ 		return 0;
+ 	}
+ 
++	error = rmi_read_block(rmi_dev,
++			       data->f01_container->fd.control_base_addr + 1,
++			       data->current_irq_mask, data->num_of_irq_regs);
++	if (error < 0) {
++		dev_err(&rmi_dev->dev, "%s: Failed to read current IRQ mask.\n",
++			__func__);
++		return error;
++	}
++
+ 	error = rmi_driver_process_reset_requests(rmi_dev);
+ 	if (error < 0)
+ 		return error;
+ 
+-
+ 	error = rmi_driver_process_config_requests(rmi_dev);
+ 	if (error < 0)
+ 		return error;
+ 
+-	if (data->irq_stored) {
+-		error = rmi_driver_irq_restore(rmi_dev);
+-		if (error < 0)
+-			return error;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -846,7 +826,7 @@ static int rmi_driver_probe(struct device *dev)
+ 	data->irq_status	= irq_memory + size * 0;
+ 	data->fn_irq_bits	= irq_memory + size * 1;
+ 	data->current_irq_mask	= irq_memory + size * 2;
+-	data->irq_mask_store	= irq_memory + size * 3;
++	data->new_irq_mask	= irq_memory + size * 3;
+ 
+ 	irq_count = 0;
+ 	dev_dbg(dev, "Creating functions.");
+@@ -957,8 +937,8 @@ static struct rmi_driver rmi_physical_driver = {
+ 	},
+ 	.irq_handler = rmi_driver_irq_handler,
+ 	.reset_handler = rmi_driver_reset_handler,
+-	.store_irq_mask = rmi_driver_irq_save,
+-	.restore_irq_mask = rmi_driver_irq_restore,
++	.clear_irq_bits = rmi_driver_clear_irq_bits,
++	.set_irq_bits = rmi_driver_set_irq_bits,
+ 	.set_input_params = rmi_driver_set_input_params,
  };
  
- static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
-@@ -186,22 +182,18 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
- 	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
- 	struct f01_data *f01;
--	size_t f01_size;
- 	int error;
- 	u16 ctrl_base_addr = fn->fd.control_base_addr;
- 	u8 device_status;
- 	u8 temp;
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index a22a4e6..34f7a7d 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -47,8 +47,7 @@ struct rmi_driver_data {
+ 	unsigned long *irq_status;
+ 	unsigned long *fn_irq_bits;
+ 	unsigned long *current_irq_mask;
+-	unsigned long *irq_mask_store;
+-	bool irq_stored;
++	unsigned long *new_irq_mask;
+ 	struct mutex irq_mutex;
  
--	f01_size = sizeof(struct f01_data) +
--				sizeof(u8) * driver_data->num_of_irq_regs;
--	f01 = devm_kzalloc(&fn->dev, f01_size, GFP_KERNEL);
-+	f01 = devm_kzalloc(&fn->dev, sizeof(struct f01_data), GFP_KERNEL);
- 	if (!f01) {
- 		dev_err(&fn->dev, "Failed to allocate fn01_data.\n");
- 		return -ENOMEM;
- 	}
- 
- 	f01->num_of_irq_regs = driver_data->num_of_irq_regs;
--	f01->device_control.interrupt_enable = f01->interrupt_enable;
- 
- 	/*
- 	 * Set the configured bit and (optionally) other important stuff
-@@ -247,20 +239,6 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 		return error;
- 	}
- 
--	/* Advance to interrupt control registers */
--	ctrl_base_addr++;
--	f01->interrupt_enable_addr = ctrl_base_addr;
--
--	error = rmi_read_block(rmi_dev, f01->interrupt_enable_addr,
--				f01->device_control.interrupt_enable,
--				sizeof(u8) * (f01->num_of_irq_regs));
--	if (error) {
--		dev_err(&fn->dev,
--			"Failed to read F01 control interrupt enable register: %d\n",
--			error);
--		return error;
--	}
--
- 	/* Dummy read in order to clear irqs */
- 	error = rmi_read(rmi_dev, fn->fd.data_base_addr + 1, &temp);
- 	if (error < 0) {
-@@ -279,6 +257,8 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 		 f01->properties.manufacturer_id == 1 ? "Synaptics" : "unknown",
- 		 f01->properties.product_id);
- 
-+	/* Advance to interrupt control registers, then skip over them. */
-+	ctrl_base_addr++;
- 	ctrl_base_addr += f01->num_of_irq_regs;
- 
- 	/* read control register */
-@@ -396,15 +376,6 @@ static int rmi_f01_config(struct rmi_function *fn)
- 		return error;
- 	}
- 
--	error = rmi_write_block(fn->rmi_dev, f01->interrupt_enable_addr,
--				f01->device_control.interrupt_enable,
--				sizeof(u8) * f01->num_of_irq_regs);
--	if (error) {
--		dev_err(&fn->dev,
--			"Failed to write interrupt enable: %d\n", error);
--		return error;
--	}
--
- 	if (f01->properties.has_adjustable_doze) {
- 		error = rmi_write(fn->rmi_dev, f01->doze_interval_addr,
- 				  f01->device_control.doze_interval);
+ 	/* Following are used when polling. */

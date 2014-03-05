@@ -1,56 +1,97 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH 0/7] mfd: AXP20x: Add support for AXP202
- and AXP209
-Date: Wed, 5 Mar 2014 21:46:38 +0100
-Message-ID: <CAOQ7t2bx1u73kxQVa3AeQ-hZ9nP3GSukEdXk-jRNwbT0vUH4+A@mail.gmail.com>
-References: <1393692352-10839-1-git-send-email-carlo@caione.org>
-	<53121151.9050804@redhat.com>
-	<CAOQ7t2ae35E-eiQW4DFspdTe3H7AWGzRpw4B_1t27p0OSkX_Uw@mail.gmail.com>
-	<53123507.6020607@redhat.com>
-	<531782DF.6090209@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/4] HID: cp2112: remove the last hid_output_raw_report() call
+Date: Wed, 5 Mar 2014 16:09:36 -0500
+Message-ID: <CAN+gG=FOzo90DbMqp-Dh-OF4oCuBzXC-nwODPkNk62CV_usDxQ@mail.gmail.com>
+References: <1393633237-26496-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1393633237-26496-3-git-send-email-benjamin.tissoires@redhat.com>
+	<alpine.LNX.2.00.1403041445080.30402@pobox.suse.cz>
+	<20140304141838.GD24154@mail.corp.redhat.com>
+	<ba12abe9-5f40-4351-8dc0-76008931fc0d@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBV4232MAKGQEE2T5HZY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <531782DF.6090209-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <ba12abe9-5f40-4351-8dc0-76008931fc0d@email.android.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Barksdale <dbarksdale@uplogix.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 5, 2014 at 9:02 PM, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+On Wed, Mar 5, 2014 at 1:11 PM, David Barksdale <dbarksdale@uplogix.com> wrote:
+> Sorry for the delay, hid_hw_output_report() is the correct function.
+
+No worries and thanks for the tests.
+
+This saves me some time!
+
+Sending the v2 right away.
+
+Cheers,
+Benjamin
+
 >
-> So I've added your patches to my sunxi-devel tree and they work as advertised :)
-
-Thank you for keeping the tree updated :)
-
-> I've also added dt support for the axp209 to the cubietruck dts file, to avoid
-> things becoming a copy and paste fest I've introduced a new axp209.dtsi file,
-> as well as did some fixes to the existing sun?i-a*.dtsi files, see my tree here:
-> https://github.com/jwrdegoede/linux-sunxi/commits/sunxi-devel
-
-That was also my idea (creating a new axp20x.dtsi) but it has been
-turned down by Maxime and Lee
-
-> If you agree this is a good idea feel free to steal it all for the next
-> revision of your patch-set :)
-
-I will do for sure, thanks
-
-> Note that I've still left some copy-paste parts inside the per board dts files,
-> specifically things which may differ per board, ie we know already that A10
-> boards will have a different interrupt parent for the interrupt.
-
-Yep, no prob.
-
-> Thanks for your work on this!
-
-Thank you!
-
--- 
-Carlo Caione
+>
+> On March 4, 2014 8:18:38 AM CST, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>>
+>> On Mar 04 2014 or thereabouts, Jiri Kosina wrote:
+>>>
+>>>  On Fri, 28 Feb 2014, Benjamin Tissoires wrote:
+>>>
+>>>>
+>>>>  I don't have access to the device, so I copied/pasted the code
+>>>>  from hidraw.
+>>>>
+>>>>  Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>>>  ---
+>>>>   drivers/hid/hid-cp2112.c | 16 +++++++++++++++-
+>>>>   1 file changed, 15 insertions(+), 1 deletion(-)
+>>>>
+>>>>  diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>>>>  index 860db694..c4f87bd 100644
+>>>>  --- a/drivers/hid/hid-cp2112.c
+>>>>  +++ b/drivers/hid/hid-cp2112.c
+>>>>  @@ -290,7 +290,21 @@ static int cp2112_hid_output(struct hid_device
+>>>> *hdev, u8 *data, size_t count,
+>>>>    if (!buf)
+>>>>     return -ENOMEM;
+>>>>
+>>>>  - ret = hdev->hid_output_raw_report(hdev, buf, count, report_type);
+>>>>  + /* Fixme: test which function is actually called for output reports
+>>>> */
+>>>
+>>>
+>>>  I don't completely understand this Fixme (oh, and please spell it as
+>>>  'FIXME:' so that we are consistent with all the other instances), could
+>>>  you please elaborate?
+>>
+>>
+>> Well, sorry:
+>> As I said, this part is a copy/paste of what is in hidraw. However, this
+>> just reflect that we don't know how the device actually behave, which is
+>> not very elegant. I have currently no clues of which function will be
+>> actually called for output reports: hid_hw_output_report() or
+>> hid_hw_raw_request(). Once we got the confirmation of which function is
+>> called, we could make the path more straightforward.
+>>
+>> I bought one of these (it may help debugging some Synaptics devices),
+>> and I'll receive it by the end of the week. So by next week, we should
+>> get the actual code path and remove this FIXME.
+>>
+>> I need to send a v2 of hid-sony in any cases, so I guess you should not
+>> pull these 4 patches right away. If you prefer having this in linux-next,
+>> the sooner, I can also send the v2 right away, and we will fix this
+>> cp2112 driver next week.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>>>
+>>>  Thanks,
+>>>
+>>>  --
+>>>  Jiri Kosina
+>>>  SUSE Labs
+>
+>
+> --
+> Sent from my Android device with K-9 Mail. Please excuse my brevity.

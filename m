@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 12/15] ARM: at91: remove atmel_tsadcc platform_data
-Date: Wed,  5 Mar 2014 18:35:37 +0100
-Message-ID: <1394040940-18246-13-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 09/15] ARM: at91: sam9rlek add touchscreen support through at91_adc
+Date: Wed,  5 Mar 2014 18:35:34 +0100
+Message-ID: <1394040940-18246-10-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com>
@@ -10,43 +10,53 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>, Jonathan Cameron <jic23@kernel.org>
 Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Gregory Clement <gregory.clement@free-electrons.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
 
+at91_adc now supports reading a touchscreen for ADCs without a TSMR register.
+Enable touchscreen support through at91_adc. This allows to use both a
+touchscreen and the remaining ADC channel at the same time.
+
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- arch/arm/mach-at91/board.h          | 3 ---
- include/linux/platform_data/atmel.h | 7 -------
- 2 files changed, 10 deletions(-)
+ arch/arm/mach-at91/board-sam9rlek.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/arm/mach-at91/board.h b/arch/arm/mach-at91/board.h
-index 6c08b341167d..4e773b55bc2d 100644
---- a/arch/arm/mach-at91/board.h
-+++ b/arch/arm/mach-at91/board.h
-@@ -118,9 +118,6 @@ struct isi_platform_data;
- extern void __init at91_add_device_isi(struct isi_platform_data *data,
- 		bool use_pck_as_mck);
+diff --git a/arch/arm/mach-at91/board-sam9rlek.c b/arch/arm/mach-at91/board-sam9rlek.c
+index 604eecf6cd70..35d420247e25 100644
+--- a/arch/arm/mach-at91/board-sam9rlek.c
++++ b/arch/arm/mach-at91/board-sam9rlek.c
+@@ -18,6 +18,7 @@
+ #include <linux/clk.h>
+ #include <linux/input.h>
+ #include <linux/gpio_keys.h>
++#include <linux/platform_data/at91_adc.h>
  
-- /* Touchscreen Controller */
--extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
--
- /* CAN */
- extern void __init at91_add_device_can(struct at91_can_data *data);
+ #include <video/atmel_lcdc.h>
  
-diff --git a/include/linux/platform_data/atmel.h b/include/linux/platform_data/atmel.h
-index cea9f70133c5..4b452c6a2f7b 100644
---- a/include/linux/platform_data/atmel.h
-+++ b/include/linux/platform_data/atmel.h
-@@ -86,13 +86,6 @@ struct atmel_uart_data {
- 	struct serial_rs485	rs485;		/* rs485 settings */
- };
+@@ -239,6 +240,17 @@ static struct at91_tsadcc_data ek_tsadcc_data = {
  
-- /* Touchscreen Controller */
--struct at91_tsadcc_data {
--	unsigned int    adc_clock;
--	u8		pendet_debounce;
--	u8		ts_sample_hold_time;
--};
--
- /* CAN */
- struct at91_can_data {
- 	void (*transceiver_switch)(int on);
+ 
+ /*
++ * ADC + Touchscreen
++ */
++static struct at91_adc_data ek_adc_data = {
++	.channels_used = BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5),
++	.use_external_triggers = true,
++	.vref = 3300,
++	.touchscreen_type = ATMEL_ADC_TOUCHSCREEN_4WIRE,
++};
++
++
++/*
+  * GPIO Buttons
+  */
+ #if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
+@@ -312,6 +324,8 @@ static void __init ek_board_init(void)
+ 	at91_add_device_ac97(&ek_ac97_data);
+ 	/* Touch Screen Controller */
+ 	at91_add_device_tsadcc(&ek_tsadcc_data);
++	/* Touch Screen Controller + ADC */
++	at91_add_device_adc(&ek_adc_data);
+ 	/* LEDs */
+ 	at91_gpio_leds(ek_leds, ARRAY_SIZE(ek_leds));
+ 	/* Push Buttons */
 -- 
 1.8.3.2

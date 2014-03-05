@@ -1,30 +1,74 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH] input synaptics-rmi4: rmi_driver.c storage fix
-Date: Wed, 5 Mar 2014 11:40:52 -0800
-Message-ID: <53177DC4.5030801@synaptics.com>
-References: <1393988899-30076-1-git-send-email-cheiny@synaptics.com> <alpine.LNX.2.00.1403050951090.30402@pobox.suse.cz>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: Re: [PATCH 0/7] mfd: AXP20x: Add support for AXP202
+ and AXP209
+Date: Wed, 05 Mar 2014 21:02:39 +0100
+Message-ID: <531782DF.6090209@redhat.com>
+References: <1393692352-10839-1-git-send-email-carlo@caione.org>	<53121151.9050804@redhat.com> <CAOQ7t2ae35E-eiQW4DFspdTe3H7AWGzRpw4B_1t27p0OSkX_Uw@mail.gmail.com> <53123507.6020607@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:52086 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757089AbaCETkx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Mar 2014 14:40:53 -0500
-In-Reply-To: <alpine.LNX.2.00.1403050951090.30402@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDL4X2GMZUKRB4MF32MAKGQEXN7ALEQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <53123507.6020607-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>
 
-On 03/05/2014 12:51 AM, Jiri Kosina wrote:
-> On Tue, 4 Mar 2014, Christopher Heiny wrote:
->
->> Do not use kfree() on storage allocated with devm_kfree(),
->
-> I believe you meant devm_kmalloc() here.
+Hi,
 
-I've been trying for an hour to come up with some witty excuse for that 
-brain fart, but came up with nothing but "D'oh!  Thanks!"
+On 03/01/2014 08:29 PM, Hans de Goede wrote:
+> Hi,
+> 
+> On 03/01/2014 06:17 PM, Carlo Caione wrote:
+>> On Sat, Mar 1, 2014 at 5:56 PM, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+>>> Hi Carlo,
+>>>
+>>> Great work, thanks for all the time you're putting into this!
+>>
+>> Hi Hans :)
+>>
+>>> I've 2 questions:
+>>>
+>>> 1) What dependencies does this patch-set have? Obviously it needs the NMI irq
+>>> patches for A20, anything else ?  I no longer see any use of a special flag
+>>> for ack on unmask, is that no longer needed ?
+>>
+>> Yes, the only dependency is on the NMI controller patch.
+>> After a discussion with Maxime and Thomas I decided to not push for
+>> including the special flag for ack on unmask in the irqchip core but
+>> to use the unmask callback as in the v3 version of the NMI controller
+>> driver (so no flag needed)
+>>
+>>> 2) No poweroff functionality ? That would be really great to have.
+>>
+>> Actually in [PATCH 1/7] I support the poweroff using the pm_power_off hook.
+> 
+> Ah I missed that, cool.
+> 
+> I'm doing with sunxi hacking for today, but I'll add these to sunxi-devel
+> and them give them a test run tomorrow.
 
+So I've added your patches to my sunxi-devel tree and they work as advertised :)
 
+I've also added dt support for the axp209 to the cubietruck dts file, to avoid
+things becoming a copy and paste fest I've introduced a new axp209.dtsi file,
+as well as did some fixes to the existing sun?i-a*.dtsi files, see my tree here:
+https://github.com/jwrdegoede/linux-sunxi/commits/sunxi-devel
+
+If you agree this is a good idea feel free to steal it all for the next
+revision of your patch-set :)
+
+Note that I've still left some copy-paste parts inside the per board dts files,
+specifically things which may differ per board, ie we know already that A10
+boards will have a different interrupt parent for the interrupt.
+
+Thanks for your work on this!
+
+Regards,
+
+Hans

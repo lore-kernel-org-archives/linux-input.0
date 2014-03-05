@@ -1,62 +1,64 @@
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH 07/15] iio: adc: at91: add sam9rl support
-Date: Wed,  5 Mar 2014 18:35:32 +0100
-Message-ID: <1394040940-18246-8-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH 05/15] ARM: at91: sam9m10g45ek: Add touchscreen support
+ through at91_adc
+Date: Wed,  5 Mar 2014 18:35:30 +0100
+Message-ID: <1394040940-18246-6-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Nicolas Ferre <nicolas.ferre@atmel.com>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Gregory Clement <gregory.clement@free-electrons.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-input@vger.kernel.org, Gregory Clement <gregory.clement@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
+
+at91_adc now supports reading a touchscreen for ADCs without a TSMR register.
+Enable touchscreen support through at91_adc. This allows to use both a
+touchscreen and the remaining ADC channel at the same time.
+
+Also, lower the clock for the ADC as it allows to have more stable reads and
+this is the speed used by atmel_tsadcc.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 ---
- drivers/iio/adc/at91_adc.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/arm/mach-at91/at91sam9g45.c        | 2 +-
+ arch/arm/mach-at91/board-sam9m10g45ek.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
-index c3ea34025749..c47dcbaa56ef 100644
---- a/drivers/iio/adc/at91_adc.c
-+++ b/drivers/iio/adc/at91_adc.c
-@@ -1343,6 +1343,20 @@ static struct at91_adc_caps at91sam9260_caps = {
- 	},
+diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
+index 2f455ce35268..3c519a7a938f 100644
+--- a/arch/arm/mach-at91/at91sam9g45.c
++++ b/arch/arm/mach-at91/at91sam9g45.c
+@@ -181,7 +181,7 @@ static struct clk vdec_clk = {
+ static struct clk adc_op_clk = {
+ 	.name		= "adc_op_clk",
+ 	.type		= CLK_TYPE_PERIPHERAL,
+-	.rate_hz	= 13200000,
++	.rate_hz	= 300000,
  };
  
-+static struct at91_adc_caps at91sam9rl_caps = {
-+	.has_ts = true,
-+	.calc_startup_ticks = calc_startup_ticks_9260,	/* same as 9260 */
-+	.num_channels = 6,
-+	.registers = {
-+		.channel_base = AT91_ADC_CHR(0),
-+		.drdy_mask = AT91_ADC_DRDY,
-+		.status_register = AT91_ADC_SR,
-+		.trigger_register = AT91_ADC_TRGR_9G45,
-+		.mr_prescal_mask = AT91_ADC_PRESCAL_9260,
-+		.mr_startup_mask = AT91_ADC_STARTUP_9G45,
-+	},
-+};
-+
- static struct at91_adc_caps at91sam9g45_caps = {
- 	.has_ts = true,
- 	.calc_startup_ticks = calc_startup_ticks_9260,	/* same as 9260 */
-@@ -1377,6 +1391,7 @@ static struct at91_adc_caps at91sam9x5_caps = {
+ /* AES/TDES/SHA clock - Only for sam9m11/sam9g56 */
+diff --git a/arch/arm/mach-at91/board-sam9m10g45ek.c b/arch/arm/mach-at91/board-sam9m10g45ek.c
+index ef39078c8ce2..4d775b796ce4 100644
+--- a/arch/arm/mach-at91/board-sam9m10g45ek.c
++++ b/arch/arm/mach-at91/board-sam9m10g45ek.c
+@@ -315,6 +315,7 @@ static struct at91_adc_data ek_adc_data = {
+ 	.channels_used = BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7),
+ 	.use_external_triggers = true,
+ 	.vref = 3300,
++	.touchscreen_type = ATMEL_ADC_TOUCHSCREEN_4WIRE,
+ };
  
- static const struct of_device_id at91_adc_dt_ids[] = {
- 	{ .compatible = "atmel,at91sam9260-adc", .data = &at91sam9260_caps },
-+	{ .compatible = "atmel,at91sam9rl-adc", .data = &at91sam9rl_caps },
- 	{ .compatible = "atmel,at91sam9g45-adc", .data = &at91sam9g45_caps },
- 	{ .compatible = "atmel,at91sam9x5-adc", .data = &at91sam9x5_caps },
- 	{},
-@@ -1388,6 +1403,9 @@ static const struct platform_device_id at91_adc_ids[] = {
- 		.name = "at91sam9260-adc",
- 		.driver_data = (unsigned long)&at91sam9260_caps,
- 	}, {
-+		.name = "at91sam9rl-adc",
-+		.driver_data = (unsigned long)&at91sam9rl_caps,
-+	}, {
- 		.name = "at91sam9g45-adc",
- 		.driver_data = (unsigned long)&at91sam9g45_caps,
- 	}, {
+ /*
 -- 
 1.8.3.2

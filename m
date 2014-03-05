@@ -1,97 +1,74 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 2/4] HID: cp2112: remove the last hid_output_raw_report() call
-Date: Wed, 5 Mar 2014 16:09:36 -0500
-Message-ID: <CAN+gG=FOzo90DbMqp-Dh-OF4oCuBzXC-nwODPkNk62CV_usDxQ@mail.gmail.com>
-References: <1393633237-26496-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1393633237-26496-3-git-send-email-benjamin.tissoires@redhat.com>
-	<alpine.LNX.2.00.1403041445080.30402@pobox.suse.cz>
-	<20140304141838.GD24154@mail.corp.redhat.com>
-	<ba12abe9-5f40-4351-8dc0-76008931fc0d@email.android.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ba12abe9-5f40-4351-8dc0-76008931fc0d@email.android.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Barksdale <dbarksdale@uplogix.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 1/4] HID: cp2112: remove various hid_out_raw_report calls
+Date: Wed,  5 Mar 2014 16:18:51 -0500
+Message-ID: <1394054334-20438-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1394054334-20438-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:15985 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757199AbaCEVTF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Mar 2014 16:19:05 -0500
+In-Reply-To: <1394054334-20438-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, David Barksdale <dbarksdale@uplogix.com>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Mar 5, 2014 at 1:11 PM, David Barksdale <dbarksdale@uplogix.com> wrote:
-> Sorry for the delay, hid_hw_output_report() is the correct function.
+hid_out_raw_report is going to be obsoleted as it is not part of the
+unified HID low level transport documentation
+(Documentation/hid/hid-transport.txt)
 
-No worries and thanks for the tests.
+  hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
+is strictly equivalent to:
+  hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
+		HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
 
-This saves me some time!
+So use the new api.
 
-Sending the v2 right away.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-Cheers,
-Benjamin
+no changes since v1
 
->
->
-> On March 4, 2014 8:18:38 AM CST, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->>
->> On Mar 04 2014 or thereabouts, Jiri Kosina wrote:
->>>
->>>  On Fri, 28 Feb 2014, Benjamin Tissoires wrote:
->>>
->>>>
->>>>  I don't have access to the device, so I copied/pasted the code
->>>>  from hidraw.
->>>>
->>>>  Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->>>>  ---
->>>>   drivers/hid/hid-cp2112.c | 16 +++++++++++++++-
->>>>   1 file changed, 15 insertions(+), 1 deletion(-)
->>>>
->>>>  diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->>>>  index 860db694..c4f87bd 100644
->>>>  --- a/drivers/hid/hid-cp2112.c
->>>>  +++ b/drivers/hid/hid-cp2112.c
->>>>  @@ -290,7 +290,21 @@ static int cp2112_hid_output(struct hid_device
->>>> *hdev, u8 *data, size_t count,
->>>>    if (!buf)
->>>>     return -ENOMEM;
->>>>
->>>>  - ret = hdev->hid_output_raw_report(hdev, buf, count, report_type);
->>>>  + /* Fixme: test which function is actually called for output reports
->>>> */
->>>
->>>
->>>  I don't completely understand this Fixme (oh, and please spell it as
->>>  'FIXME:' so that we are consistent with all the other instances), could
->>>  you please elaborate?
->>
->>
->> Well, sorry:
->> As I said, this part is a copy/paste of what is in hidraw. However, this
->> just reflect that we don't know how the device actually behave, which is
->> not very elegant. I have currently no clues of which function will be
->> actually called for output reports: hid_hw_output_report() or
->> hid_hw_raw_request(). Once we got the confirmation of which function is
->> called, we could make the path more straightforward.
->>
->> I bought one of these (it may help debugging some Synaptics devices),
->> and I'll receive it by the end of the week. So by next week, we should
->> get the actual code path and remove this FIXME.
->>
->> I need to send a v2 of hid-sony in any cases, so I guess you should not
->> pull these 4 patches right away. If you prefer having this in linux-next,
->> the sooner, I can also send the v2 right away, and we will fix this
->> cp2112 driver next week.
->>
->> Cheers,
->> Benjamin
->>
->>>
->>>  Thanks,
->>>
->>>  --
->>>  Jiri Kosina
->>>  SUSE Labs
->
->
-> --
-> Sent from my Android device with K-9 Mail. Please excuse my brevity.
+ drivers/hid/hid-cp2112.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 1025982..860db694 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -185,8 +185,8 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+ 	buf[1] &= ~(1 << offset);
+ 	buf[2] = gpio_push_pull;
+ 
+-	ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
+-					  HID_FEATURE_REPORT);
++	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "error setting GPIO config: %d\n", ret);
+ 		return ret;
+@@ -207,8 +207,8 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+ 	buf[1] = value ? 0xff : 0;
+ 	buf[2] = 1 << offset;
+ 
+-	ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
+-					  HID_FEATURE_REPORT);
++	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 	if (ret < 0)
+ 		hid_err(hdev, "error setting GPIO values: %d\n", ret);
+ }
+@@ -253,8 +253,8 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
+ 	buf[1] |= 1 << offset;
+ 	buf[2] = gpio_push_pull;
+ 
+-	ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
+-					  HID_FEATURE_REPORT);
++	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "error setting GPIO config: %d\n", ret);
+ 		return ret;
+-- 
+1.8.5.3
+

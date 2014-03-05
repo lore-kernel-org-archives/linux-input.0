@@ -1,763 +1,497 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input synaptics-rmi4: Add F30 support
-Date: Tue, 4 Mar 2014 22:32:58 -0800
-Message-ID: <20140305063257.GA1834@core.coreip.homeip.net>
-References: <1393973550-5157-1-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH 1/5] drivers: input: keyboard: st-keyscan: add keyscan
+ driver
+Date: Tue, 4 Mar 2014 22:46:01 -0800
+Message-ID: <20140305064601.GB1834@core.coreip.homeip.net>
+References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
+ <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:35687 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753394AbaCEGdC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Mar 2014 01:33:02 -0500
-Received: by mail-pa0-f43.google.com with SMTP id bj1so662334pad.30
-        for <linux-input@vger.kernel.org>; Tue, 04 Mar 2014 22:33:02 -0800 (PST)
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1393973550-5157-1-git-send-email-cheiny@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Lee Jones <lee.jones@linaro.org>, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Allie Xiong <axiong@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Chris,
+Hi Gabriel,
 
-On Tue, Mar 04, 2014 at 02:52:30PM -0800, Christopher Heiny wrote:
-> RMI4 Function 0x30 provides support for GPIOs, LEDs and mechanical
-> buttons.  In particular, the mechanical button support is used in
-> an increasing number of touchpads.
+On Wed, Mar 05, 2014 at 04:39:28AM +0100, Gabriel FERNANDEZ wrote:
+> This patch adds ST Keyscan driver to use the keypad hw a subset
+> of ST boards provide. Specific board setup will be put in the
+> given dt.
 > 
-> Note - this is basically the same as last week's patch, just updated to
-> work with the changes committed to synaptics-rmi4  branch over the weekend.
-> 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Signed-off-by: Allie Xiong <axiong@synaptics.com>
-> Acked-by: Christopher Heiny <cheiny@synaptics.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: Linux Walleij <linus.walleij@linaro.org>
-> Cc: David Herrmann <dh.herrmann@gmail.com>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> 
+> Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
 > ---
+>  .../devicetree/bindings/input/st-keypad.txt        |  50 ++++
+>  drivers/input/keyboard/Kconfig                     |  12 +
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/st-keyscan.c                | 323 +++++++++++++++++++++
+>  4 files changed, 386 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/st-keypad.txt
+>  create mode 100644 drivers/input/keyboard/st-keyscan.c
 > 
->  drivers/input/rmi4/Kconfig   |  12 +
->  drivers/input/rmi4/Makefile  |   1 +
->  drivers/input/rmi4/rmi_f30.c | 618 +++++++++++++++++++++++++++++++++++++++++++
->  include/linux/rmi.h          |   7 +-
->  4 files changed, 637 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> index d0c7b6e..14d5f49 100644
-> --- a/drivers/input/rmi4/Kconfig
-> +++ b/drivers/input/rmi4/Kconfig
-> @@ -63,3 +63,15 @@ config RMI4_F11_PEN
->  	  If your system is not recognizing pen touches and you know your
->  	  sensor supports pen input, you probably want to turn this feature
->  	  off.
-> +
-> +config RMI4_F30
-> +        tristate "RMI4 Function 30 (GPIO LED)"
-> +        depends on RMI4_CORE
-> +        help
-> +          Say Y here if you want to add support for RMI4 function 30.
-> +
-> +          Function 30 provides GPIO and LED support for RMI4 devices. This
-> +	  includes support for buttons on TouchPads and ClickPads.
-> +
-> +          To compile this driver as a module, choose M here: the
-> +          module will be called rmi-f30.
-> diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-> index 5c6bad5..ecffd72 100644
-> --- a/drivers/input/rmi4/Makefile
-> +++ b/drivers/input/rmi4/Makefile
-> @@ -3,6 +3,7 @@ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
->  
->  # Function drivers
->  obj-$(CONFIG_RMI4_F11) += rmi_f11.o
-> +obj-$(CONFIG_RMI4_F30) += rmi_f30.o
->  
->  # Transports
->  obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-> diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+> diff --git a/Documentation/devicetree/bindings/input/st-keypad.txt b/Documentation/devicetree/bindings/input/st-keypad.txt
 > new file mode 100644
-> index 0000000..558b3a3
+> index 0000000..63eb07a
 > --- /dev/null
-> +++ b/drivers/input/rmi4/rmi_f30.c
-> @@ -0,0 +1,618 @@
+> +++ b/Documentation/devicetree/bindings/input/st-keypad.txt
+> @@ -0,0 +1,50 @@
+> +* ST Keypad controller device tree bindings
+> +
+> +The ST keypad controller device tree binding is based on the
+> +matrix-keymap.
+> +
+> +Required properties:
+> +
+> +- compatible: "st,keypad"
+> +
+> +- reg: Register base address of st-keypad controler.
+> +
+> +- interrupts: Interrupt numberof st-keypad controler.
+> +
+> +- clocks: Must contain one entry, for the module clock.
+> +  See ../clocks/clock-bindings.txt for details.
+> +
+> +- pinctrl-0: Should specify pin control groups used for this controller.
+> +
+> +- pinctrl-names: Should contain only one value - "default".
+> +
+> +- linux,keymap: The keymap for keys as described in the binding document
+> +  devicetree/bindings/input/matrix-keymap.txt.
+> +
+> +- keypad,num-rows: Number of row lines connected to the keypad controller.
+> +
+> +- keypad,num-columns: Number of column lines connected to the keypad
+> +  controller.
+> +
+> +- st,debounce_us: Debouncing interval time in microseconds
+> +
+> +
+> +Example:
+> +
+> +keyscan: keyscan@fe4b0000 {
+> +	compatible = "st,keypad";
+> +	reg = <0xfe4b0000 0x2000>;
+> +	interrupts = <GIC_SPI 212 IRQ_TYPE_NONE>;
+> +	clocks	= <&CLK_SYSIN>;
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&pinctrl_keyscan>;
+> +
+> +	keypad,num-rows = <4>;
+> +	keypad,num-columns = <4>;
+> +	st,debounce_us = <5000>;
+> +	linux,keymap = < /* in0	in1	in2	in3 */
+> +		KEY_F13 KEY_F9  KEY_F5 KEY_F1		/* out0 */
+> +		KEY_F14 KEY_F10 KEY_F6 KEY_F2		/* out1 */
+> +		KEY_F15 KEY_F11 KEY_F7 KEY_F3		/* out2 */
+> +		KEY_F16 KEY_F12 KEY_F8 KEY_F4 >;	/* out3 */
+> +};
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index a673c9f..9e29125 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -512,6 +512,18 @@ config KEYBOARD_STOWAWAY
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called stowaway.
+>  
+> +config KEYBOARD_ST_KEYSCAN
+> +	tristate "STMicroelectronics keyscan support"
+> +	depends on ARCH_STI
+> +	select INPUT_EVDEV
+> +	select INPUT_MATRIXKMAP
+> +	help
+> +	  Say Y here if you want to use a keypad attached to the keyscan block
+> +	  on some STMicroelectronics SoC devices.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called stm-keyscan.
+> +
+>  config KEYBOARD_SUNKBD
+>  	tristate "Sun Type 4 and Type 5 keyboard"
+>  	select SERIO
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index a699b61..5fd020a 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -50,6 +50,7 @@ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+>  obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
+>  obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+>  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+> +obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+= st-keyscan.o
+>  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+>  obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+> new file mode 100644
+> index 0000000..606cc19
+> --- /dev/null
+> +++ b/drivers/input/keyboard/st-keyscan.c
+> @@ -0,0 +1,323 @@
 > +/*
-> + * Copyright (c) 2012 - 2014 Synaptics Incorporated
+> + * STMicroelectronics Key Scanning driver
 > + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
+> + * Copyright (c) 2014 STMicroelectonics Ltd.
+> + * Author: Stuart Menefy <stuart.menefy@st.com>
+> + *
+> + * Based on sh_keysc.c, copyright 2008 Magnus Damm
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
 > + */
 > +
-> +#include <linux/kernel.h>
-> +#include <linux/rmi.h>
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/gpio.h>
-> +#include <linux/leds.h>
-> +#include "rmi_driver.h"
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +#include <linux/input/matrix_keypad.h>
 > +
-> +#define RMI_F30_QUERY_SIZE			2
+> +#define ST_KEYSCAN_MAXKEYS 16
 > +
-> + /* Defs for Query 0 */
-> +#define RMI_F30_EXTENDED_PATTERNS		0x01
-> +#define RMI_F30_HAS_MAPPABLE_BUTTONS		(1 << 1)
-> +#define RMI_F30_HAS_LED				(1 << 2)
-> +#define RMI_F30_HAS_GPIO			(1 << 3)
-> +#define RMI_F30_HAS_HAPTIC			(1 << 4)
-> +#define RMI_F30_HAS_GPIO_DRV_CTL		(1 << 5)
-> +#define RMI_F30_HAS_MECH_MOUSE_BTNS		(1 << 6)
+> +#define KEYSCAN_CONFIG_OFF		0x000
+> +#define KEYSCAN_CONFIG_ENABLE		1
+> +#define KEYSCAN_DEBOUNCE_TIME_OFF	0x004
+> +#define KEYSCAN_MATRIX_STATE_OFF	0x008
+> +#define KEYSCAN_MATRIX_DIM_OFF		0x00c
+> +#define KEYSCAN_MATRIX_DIM_X_SHIFT	0
+> +#define KEYSCAN_MATRIX_DIM_Y_SHIFT	2
 > +
-> +/* Defs for Query 1 */
-> +#define RMI_F30_GPIO_LED_COUNT			0x1F
-> +
-> +/* Defs for Control Registers */
-> +#define RMI_F30_CTRL_1_GPIO_DEBOUNCE		0x01
-> +#define RMI_F30_CTRL_1_HALT			(1 << 4)
-> +#define RMI_F30_CTRL_1_HALTED			(1 << 5)
-> +#define RMI_F30_CTRL_10_NUM_MECH_MOUSE_BTNS	0x03
-> +
-> +#define RMI_F30_CTRL_DATA(ctrl_num, max_size) \
-> +struct rmi_f30_ctrl##ctrl_num##_data { \
-> +	int address; \
-> +	int length; \
-> +	u8 regs[max_size]; \
-> +}
-> +
-> +#define RMI_F30_CTRL_MAX_REGS	32
-> +#define RMI_F30_CTRL_MAX_BYTES	((RMI_F30_CTRL_MAX_REGS + 7) >> 3)
-> +
-> +struct f30_data {
-> +	/* Query Data */
-> +	bool has_extended_pattern;
-> +	bool has_mappable_buttons;
-> +	bool has_led;
-> +	bool has_gpio;
-> +	bool has_haptic;
-> +	bool has_gpio_driver_control;
-> +	bool has_mech_mouse_btns;
-> +	u8 gpioled_count;
-> +
-> +	u8 register_count;
-> +
-> +	/* Control Register Data */
-> +	RMI_F30_CTRL_DATA(0, RMI_F30_CTRL_MAX_BYTES)	ctrl_0;
-> +	RMI_F30_CTRL_DATA(1, 1)				ctrl_1;
-> +	RMI_F30_CTRL_DATA(2, RMI_F30_CTRL_MAX_BYTES)	ctrl_2;
-> +	RMI_F30_CTRL_DATA(3, RMI_F30_CTRL_MAX_BYTES)	ctrl_3;
-> +	RMI_F30_CTRL_DATA(4, RMI_F30_CTRL_MAX_BYTES)	ctrl_4;
-> +	RMI_F30_CTRL_DATA(5, 6)				ctrl_5;
-> +	RMI_F30_CTRL_DATA(6, RMI_F30_CTRL_MAX_REGS)	ctrl_6;
-> +	RMI_F30_CTRL_DATA(7, RMI_F30_CTRL_MAX_REGS)	ctrl_7;
-> +	RMI_F30_CTRL_DATA(8, RMI_F30_CTRL_MAX_BYTES)	ctrl_8;
-> +	RMI_F30_CTRL_DATA(9, 1)				ctrl_9;
-> +	RMI_F30_CTRL_DATA(10, 1)			ctrl_10;
-
-This should probably be an array so you could use loops to populate it.
-
-> +
-> +	u8 data_regs[RMI_F30_CTRL_MAX_BYTES];
-> +	struct rmi_f30_button *gpioled_map;
-> +
-> +	char input_phys[NAME_BUFFER_SIZE];
-> +	struct input_dev *input;
+> +struct keypad_platform_data {
+> +	const struct matrix_keymap_data *keymap_data;
+> +	unsigned int num_out_pads;
+> +	unsigned int num_in_pads;
+> +	unsigned int debounce_us;
 > +};
 > +
-> +static int rmi_f30_read_control_parameters(struct rmi_device *rmi_dev,
-> +	struct f30_data *f30)
+> +struct keyscan_priv {
+> +	void __iomem *base;
+> +	int irq;
+> +	struct clk *clk;
+> +	struct input_dev *input_dev;
+> +	struct keypad_platform_data *config;
+> +	unsigned int last_state;
+> +	u32 keycodes[ST_KEYSCAN_MAXKEYS];
+> +};
+> +
+> +static irqreturn_t keyscan_isr(int irq, void *dev_id)
 > +{
-> +	int retval = 0;
+> +	struct platform_device *pdev = dev_id;
+> +	struct keyscan_priv *priv = platform_get_drvdata(pdev);
+> +	int state;
+> +	int change;
 > +
-> +	if (f30->ctrl_0.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_0.address,
-> +				f30->ctrl_0.regs, f30->ctrl_0.length);
-> +		if (retval < 0) {
+> +	state = readl(priv->base + KEYSCAN_MATRIX_STATE_OFF) & 0xffff;
+> +	change = priv->last_state ^ state;
+> +
+> +	while (change) {
+> +		int scancode = __ffs(change);
+> +		int down = state & (1 << scancode);
+> +
+> +		input_report_key(priv->input_dev, priv->keycodes[scancode],
+> +				 down);
+> +		change ^= 1 << scancode;
+> +	};
+> +
+> +	input_sync(priv->input_dev);
+> +
+> +	priv->last_state = state;
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void keyscan_start(struct keyscan_priv *priv)
+> +{
+> +	clk_enable(priv->clk);
+> +
+> +	writel(priv->config->debounce_us * (clk_get_rate(priv->clk) / 1000000),
+> +	       priv->base + KEYSCAN_DEBOUNCE_TIME_OFF);
+> +
+> +	writel(((priv->config->num_in_pads - 1) << KEYSCAN_MATRIX_DIM_X_SHIFT) |
+> +	       ((priv->config->num_out_pads - 1) << KEYSCAN_MATRIX_DIM_Y_SHIFT),
+> +	       priv->base + KEYSCAN_MATRIX_DIM_OFF);
+> +
+> +	writel(KEYSCAN_CONFIG_ENABLE, priv->base + KEYSCAN_CONFIG_OFF);
+> +}
+> +
+> +static void keyscan_stop(struct keyscan_priv *priv)
+> +{
+> +	writel(0, priv->base + KEYSCAN_CONFIG_OFF);
+> +
+> +	clk_disable(priv->clk);
+> +}
+> +
+> +static int keypad_matrix_key_parse_dt(struct keyscan_priv *st_kp)
+> +{
+> +	struct device *dev = st_kp->input_dev->dev.parent;
+> +	struct device_node *np = dev->of_node;
+> +	struct keypad_platform_data *pdata;
+> +	int error;
+> +
+> +	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+> +	if (!pdata) {
+> +		dev_err(dev, "failed to allocate driver pdata\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	error = matrix_keypad_parse_of_params(dev, &pdata->num_out_pads,
+> +			&pdata->num_in_pads);
+> +	if (error) {
+> +		dev_err(dev, "failed to parse keypad params\n");
+> +		return error;
+> +	}
+> +
+> +	of_property_read_u32(np, "st,debounce_us", &pdata->debounce_us);
+> +
+> +	st_kp->config = pdata;
+> +
+> +	dev_info(dev, "rows=%d col=%d debounce=%d\n",
+> +			pdata->num_out_pads,
+> +			pdata->num_in_pads,
+> +			pdata->debounce_us);
+> +
+> +	error = of_property_read_u32_array(np, "linux,keymap",
+> +					st_kp->keycodes, ST_KEYSCAN_MAXKEYS);
+> +	if (error) {
+> +		dev_err(dev, "failed to parse keymap\n");
+> +		return error;
+> +	}
 
-rmi_read/write are no longer return partial writes so lets do:
+Please use standard format for matrix keymap so that you can use
+matrix_keypad_build_keymap().
 
-		error = rmi_XXX();
-		if (error)
-			dev_err(...)
-			return error;
-
-Might also want to report error code in error messages.
-
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg0 to 0x%x\n",
-> +				__func__, f30->ctrl_0.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_1.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_1.address,
-> +				f30->ctrl_1.regs, f30->ctrl_1.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg1 to 0x%x\n",
-> +				 __func__, f30->ctrl_1.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_2.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_2.address,
-> +				f30->ctrl_2.regs, f30->ctrl_2.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg2 to 0x%x\n",
-> +				 __func__, f30->ctrl_2.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_3.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_3.address,
-> +				f30->ctrl_3.regs, f30->ctrl_3.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg3 to 0x%x\n",
-> +				 __func__, f30->ctrl_3.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_4.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_4.address,
-> +				f30->ctrl_4.regs, f30->ctrl_4.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg4 to 0x%x\n",
-> +				 __func__, f30->ctrl_4.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_5.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_5.address,
-> +				f30->ctrl_5.regs, f30->ctrl_5.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg5 to 0x%x\n",
-> +				 __func__, f30->ctrl_5.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_6.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_6.address,
-> +				f30->ctrl_6.regs, f30->ctrl_6.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg6 to 0x%x\n",
-> +				 __func__, f30->ctrl_6.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_7.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_7.address,
-> +				f30->ctrl_1.regs, f30->ctrl_7.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg7 to 0x%x\n",
-> +				 __func__, f30->ctrl_7.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_8.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_8.address,
-> +				f30->ctrl_8.regs, f30->ctrl_8.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg8 to 0x%x\n",
-> +				 __func__, f30->ctrl_8.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_9.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_9.address,
-> +				f30->ctrl_9.regs, f30->ctrl_9.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg9 to 0x%x\n",
-> +				 __func__, f30->ctrl_9.address);
-> +			return retval;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_10.length) {
-> +		retval = rmi_read_block(rmi_dev, f30->ctrl_10.address,
-> +				f30->ctrl_10.regs, f30->ctrl_10.length);
-> +		if (retval < 0) {
-> +			dev_err(&rmi_dev->dev,
-> +				"%s : Could not read control reg1 to 0x%x\n",
-> +				 __func__, f30->ctrl_10.address);
-> +			return retval;
-> +		}
-> +	}
 > +
 > +	return 0;
 > +}
 > +
-> +static int rmi_f30_attention(struct rmi_function *fn,
-> +					unsigned long *irq_bits)
+> +static int __init keyscan_probe(struct platform_device *pdev)
 > +{
-> +	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-> +	int retval;
-> +	int gpiled = 0;
-> +	int value = 0;
+> +	struct keypad_platform_data *pdata =
+> +		dev_get_platdata(&pdev->dev);
+
+const struct ...
+
+> +	struct keyscan_priv *st_kp;
+> +	struct input_dev *input_dev;
+> +	struct device *dev = &pdev->dev;
+> +	struct resource *res;
+> +	int len;
+> +	int error;
 > +	int i;
-> +	int reg_num;
 > +
-> +	/* Read the gpi led data. */
-> +	retval = rmi_read_block(fn->rmi_dev, fn->fd.data_base_addr,
-> +		f30->data_regs, f30->register_count);
-> +
-> +	if (retval < 0) {
-> +		dev_err(&fn->dev, "%s: Failed to read F30 data registers.\n",
-> +			__func__);
-> +		return retval;
+> +	if (!pdata && !pdev->dev.of_node) {
+> +		dev_err(&pdev->dev, "no keymap defined\n");
+> +		return -EINVAL;
 > +	}
 > +
-> +	for (reg_num = 0; reg_num < f30->register_count; ++reg_num) {
-> +		for (i = 0; gpiled < f30->gpioled_count && i < 8; ++i,
-> +			++gpiled) {
-> +			if (f30->gpioled_map[gpiled].button != 0) {
-> +				value = (((f30->data_regs[reg_num] >> i) & 0x01)
-> +					 == f30->gpioled_map[gpiled].sense);
+> +	st_kp = devm_kzalloc(dev, sizeof(*st_kp), GFP_KERNEL);
+> +	if (!st_kp) {
+> +		dev_err(dev, "failed to allocate driver data\n");
+> +		return -ENOMEM;
+> +	}
+> +	st_kp->config = pdata;
 > +
-> +				dev_dbg(&fn->dev,
-> +					"%s: call input report key (0x%04x) value (0x%02x)",
-> +					__func__,
-> +					f30->gpioled_map[gpiled].button, value);
-> +				input_report_key(f30->input,
-> +					f30->gpioled_map[gpiled].button,
-> +					value);
-> +			}
-> +
-> +		}
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(dev, "no I/O memory specified\n");
+> +		return -ENXIO;
 > +	}
 > +
-> +	input_sync(f30->input); /* sync after groups of events */
-> +	return 0;
-> +}
+> +	len = resource_size(res);
+> +	if (!devm_request_mem_region(dev, res->start, len, pdev->name)) {
+> +		dev_err(dev, "failed to reserve I/O memory\n");
+> +		return -EBUSY;
+> +	}
 > +
-> +static int rmi_f30_register_device(struct rmi_function *fn)
-> +{
-> +	int i;
-> +	int rc;
-> +	struct rmi_device *rmi_dev = fn->rmi_dev;
-> +	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-> +	struct rmi_driver *driver = fn->rmi_dev->driver;
-> +	struct input_dev *input_dev = input_allocate_device();
-
-I would prefer you did not hide allocation in variable declarations.
-Also since the rest of resources in f30 implementation are devres
-managed you can use devm_input_allocate_device(). Otherwise you need to
-provide remove) methof for f30 which is currently is missing.
-
+> +	st_kp->base = devm_ioremap_nocache(dev, res->start, len);
+> +	if (st_kp->base == NULL) {
+> +		dev_err(dev, "failed to remap I/O memory\n");
+> +		return -ENXIO;
+> +	}
 > +
+> +	st_kp->irq = platform_get_irq(pdev, 0);
+> +	if (st_kp->irq < 0) {
+> +		dev_err(dev, "no IRQ specified\n");
+> +		return -ENXIO;
+> +	}
+> +
+> +	error = devm_request_irq(dev, st_kp->irq, keyscan_isr, 0,
+> +				 pdev->name, pdev);
+> +	if (error) {
+> +		dev_err(dev, "failed to request IRQ\n");
+> +		return error;
+> +	}
+> +
+> +	input_dev = devm_input_allocate_device(&pdev->dev);
 > +	if (!input_dev) {
-> +		dev_err(&fn->dev, "Failed to allocate input device.\n");
+> +		dev_err(&pdev->dev, "failed to allocate the input device\n");
 > +		return -ENOMEM;
 > +	}
 > +
-> +	f30->input = input_dev;
-> +
-> +	if (driver->set_input_params) {
-> +		rc = driver->set_input_params(rmi_dev, input_dev);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s: Error in setting input device.\n",
-> +				__func__);
-> +			goto error_free_device;
-> +		}
-> +	}
-> +	sprintf(f30->input_phys, "%s/input0", dev_name(&fn->dev));
-> +	input_dev->phys = f30->input_phys;
-> +	input_dev->dev.parent = &rmi_dev->dev;
-> +	input_set_drvdata(input_dev, f30);
-> +
-> +	/* Set up any input events. */
-> +	set_bit(EV_SYN, input_dev->evbit);
-> +	set_bit(EV_KEY, input_dev->evbit);
-> +	input_dev->keycode = f30->gpioled_map;
-> +	input_dev->keycodesize = 1;
-
-This should be sizeof(unsigned short) - we have passed 255 limit on
-keycodes.
-
-> +	input_dev->keycodemax = f30->gpioled_count;
-
-By doing the above 2 assigments you indicate to input core that it
-shoudl use default implementation of EVIOCGKEYCODE/EVIOCSKEYCODE, but
-what you supply in input_dev->keycode is not a flat keymap.
-
-> +	/* set bits for each qpio led pin... */
-> +	for (i = 0; i < f30->gpioled_count; i++) {
-> +		if (f30->gpioled_map[i].button != 0) {
-> +			set_bit(f30->gpioled_map[i].button, input_dev->keybit);
-> +			input_set_capability(input_dev, EV_KEY,
-> +						f30->gpioled_map[i].button);
-
-input_set_capability() does the set_bit(keycode, input_dev->keybit) for
-you.
-
-> +		}
+> +	st_kp->clk = devm_clk_get(dev, NULL);
+> +	if (IS_ERR(st_kp->clk)) {
+> +		dev_err(dev, "cannot get clock");
+> +		return PTR_ERR(st_kp->clk);
 > +	}
 > +
-> +	rc = input_register_device(input_dev);
-> +	if (rc < 0) {
-> +		dev_err(&fn->dev, "Failed to register input device.\n");
-> +		goto error_free_device;
-> +	}
-> +	return 0;
-> +
-> +error_free_device:
-> +	input_free_device(input_dev);
-> +
-> +	return rc;
-> +}
-> +
-> +static int rmi_f30_config(struct rmi_function *fn)
-> +{
-> +	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-> +	int rc;
-> +
-> +	/* Write Control Register values back to device */
-> +	if (f30->ctrl_0.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_0.address,
-> +					f30->ctrl_0.regs,
-> +					f30->ctrl_0.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 0 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_0.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_1.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_1.address,
-> +					f30->ctrl_1.regs,
-> +					f30->ctrl_1.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 1 to 0x%x\n",
-> +					__func__, rc, f30->ctrl_1.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_2.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_2.address,
-> +					f30->ctrl_2.regs,
-> +					f30->ctrl_2.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 2 to 0x%x\n",
-> +					__func__, rc, f30->ctrl_2.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_3.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_3.address,
-> +					f30->ctrl_3.regs,
-> +					f30->ctrl_3.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 3 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_3.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_4.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_4.address,
-> +					f30->ctrl_4.regs,
-> +					f30->ctrl_4.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 4 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_4.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_5.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_5.address,
-> +					f30->ctrl_5.regs,
-> +					f30->ctrl_5.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 5 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_5.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_6.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_6.address,
-> +					f30->ctrl_6.regs,
-> +					f30->ctrl_6.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 6 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_6.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_7.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_7.address,
-> +					f30->ctrl_7.regs,
-> +					f30->ctrl_7.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 7 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_7.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_8.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_8.address,
-> +					f30->ctrl_8.regs,
-> +					f30->ctrl_8.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 8 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_8.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_9.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_9.address,
-> +					f30->ctrl_9.regs,
-> +					f30->ctrl_9.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 9 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_9.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	if (f30->ctrl_10.length) {
-> +		rc = rmi_write_block(fn->rmi_dev, f30->ctrl_10.address,
-> +					f30->ctrl_10.regs,
-> +					f30->ctrl_10.length);
-> +		if (rc < 0) {
-> +			dev_err(&fn->dev, "%s error %d: Could not write control 10 to 0x%x\n",
-> +				__func__, rc, f30->ctrl_10.address);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static inline int rmi_f30_initialize(struct rmi_function *fn)
-> +{
-> +	struct f30_data *f30;
-> +	struct rmi_device *rmi_dev = fn->rmi_dev;
-> +	const struct rmi_device_platform_data *pdata;
-> +	int retval = 0;
-> +	int control_address;
-> +	u8 buf[RMI_F30_QUERY_SIZE];
-> +
-> +	f30 = devm_kzalloc(&fn->dev, sizeof(struct f30_data),
-> +			   GFP_KERNEL);
-> +	if (!f30) {
-> +		dev_err(&fn->dev, "Failed to allocate f30_data.\n");
+> +	input_dev = input_allocate_device();
+> +	if (!input_dev) {
+> +		dev_err(dev, "failed to allocate input device\n");
 > +		return -ENOMEM;
 > +	}
-> +	dev_set_drvdata(&fn->dev, f30);
-> +
-> +	retval = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr, buf,
-> +				RMI_F30_QUERY_SIZE);
-> +
-> +	if (retval < 0) {
-> +		dev_err(&fn->dev, "Failed to read query register.\n");
-> +		return retval;
-> +	}
-> +
-> +	f30->has_extended_pattern = buf[0] & RMI_F30_EXTENDED_PATTERNS;
-> +	f30->has_mappable_buttons = buf[0] & RMI_F30_HAS_MAPPABLE_BUTTONS;
-> +	f30->has_led = buf[0] & RMI_F30_HAS_LED;
-> +	f30->has_gpio = buf[0] & RMI_F30_HAS_GPIO;
-> +	f30->has_haptic = buf[0] & RMI_F30_HAS_HAPTIC;
-> +	f30->has_gpio_driver_control = buf[0] & RMI_F30_HAS_GPIO_DRV_CTL;
-> +	f30->has_mech_mouse_btns = buf[0] & RMI_F30_HAS_MECH_MOUSE_BTNS;
-> +	f30->gpioled_count = buf[1] & RMI_F30_GPIO_LED_COUNT;
-> +
-> +	f30->register_count = (f30->gpioled_count + 7) >> 3;
-> +
-> +	control_address = fn->fd.control_base_addr;
-> +
-> +	/* Allocate buffers for the control registers */
-> +	if (f30->has_led && f30->has_led) {
-> +		f30->ctrl_0.address = control_address;
-> +		f30->ctrl_0.length = f30->register_count;
-> +		control_address += f30->ctrl_0.length;
-> +	}
-> +
-> +	f30->ctrl_1.address = control_address;
-> +	f30->ctrl_1.length = sizeof(u8);
-> +	control_address += f30->ctrl_1.length;
-> +
-> +	if (f30->has_gpio) {
-> +		f30->ctrl_2.address = control_address;
-> +		f30->ctrl_2.length = f30->register_count;
-> +		control_address += f30->ctrl_2.length;
-> +
-> +		f30->ctrl_3.address = control_address;
-> +		f30->ctrl_3.length = f30->register_count;
-> +		control_address += f30->ctrl_3.length;
-> +	}
-> +
-> +	if (f30->has_led) {
-> +		f30->ctrl_4.address = control_address;
-> +		f30->ctrl_4.length = f30->register_count;
-> +		control_address += f30->ctrl_4.length;
-> +
-> +		if (f30->has_extended_pattern)
-> +			f30->ctrl_5.length = 6;
-> +		else
-> +			f30->ctrl_5.length = 2;
-> +
-> +		f30->ctrl_5.address = control_address;
-> +		control_address += f30->ctrl_5.length;
-> +	}
-> +
-> +	if (f30->has_led || f30->has_gpio_driver_control) {
-> +		/* control 6 uses a byte per gpio/led */
-> +		f30->ctrl_6.address = control_address;
-> +		f30->ctrl_6.length = f30->gpioled_count;
-> +		control_address += f30->ctrl_6.length;
-> +
-> +	}
-> +
-> +	if (f30->has_mappable_buttons) {
-> +		/* control 7 uses a byte per gpio/led */
-> +		f30->ctrl_7.address = control_address;
-> +		f30->ctrl_7.length = f30->gpioled_count;
-> +		control_address += f30->ctrl_7.length;
-> +	}
-> +
-> +	if (f30->has_haptic) {
-> +		f30->ctrl_8.address = control_address;
-> +		f30->ctrl_8.length = f30->register_count;
-> +		control_address += f30->ctrl_8.length;
-> +
-> +		f30->ctrl_9.address = control_address;
-> +		f30->ctrl_9.length = sizeof(u8);
-> +		control_address += f30->ctrl_9.length;
-> +	}
-> +
-> +	if (f30->has_mech_mouse_btns) {
-> +		f30->ctrl_10.address = control_address;
-> +		f30->ctrl_10.length = sizeof(u8);
-> +		control_address += f30->ctrl_10.length;
-> +	}
-> +
-> +	f30->gpioled_map = devm_kzalloc(&fn->dev,
-> +				f30->gpioled_count
-> +				* sizeof(struct rmi_f30_button),
-> +				GFP_KERNEL);
-> +	if (!f30->gpioled_map) {
-> +		dev_err(&fn->dev, "Failed to allocate button map.\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	pdata = rmi_get_platform_data(rmi_dev);
-> +	if (pdata) {
-> +		if (!pdata->gpioled_map) {
-> +			dev_warn(&fn->dev,
-> +				"%s - gpioled_map is NULL", __func__);
-> +		} else if (pdata->gpioled_map->ngpioleds < f30->gpioled_count) {
 
-Should you only map the entries that have 'valid' bit and export the
-rest as generic gpio? And leds as leds?
+You already allocated it once a few lines above.
 
-> +			dev_warn(&fn->dev,
-> +				"Platform Data gpioled map size (%d) is less then the number of buttons on device (%d) - ignored\n",
-> +				pdata->gpioled_map->ngpioleds,
-> +				f30->gpioled_count);
-> +		} else if (!pdata->gpioled_map->map) {
-> +			dev_warn(&fn->dev,
-> +				 "Platform Data button map is missing!\n");
-> +		} else {
-> +			int i;
-> +			for (i = 0; i < f30->gpioled_count; i++)
-> +				memcpy(&f30->gpioled_map[i],
-> +					&pdata->gpioled_map->map[i],
-> +					sizeof(struct rmi_f30_button));
-> +		}
+> +	st_kp->input_dev = input_dev;
+> +
+> +	input_dev->name = pdev->name;
+> +	input_dev->phys = "keyscan-keys/input0";
+> +	input_dev->dev.parent = dev;
+> +
+> +	input_dev->id.bustype = BUS_HOST;
+> +	input_dev->id.vendor = 0x0001;
+> +	input_dev->id.product = 0x0001;
+> +	input_dev->id.version = 0x0100;
+> +
+> +	if (!pdata) {
+> +		error = keypad_matrix_key_parse_dt(st_kp);
+> +		if (error)
+> +			return error;
+> +		pdata = st_kp->config;
 > +	}
 > +
-> +	retval = rmi_f30_read_control_parameters(rmi_dev, f30);
-> +	if (retval < 0) {
-> +		dev_err(&fn->dev,
-> +			"Failed to initialize F19 control params.\n");
-> +		return retval;
+> +	input_dev->keycode = st_kp->keycodes;
+> +	input_dev->keycodesize = sizeof(st_kp->keycodes[0]);
+> +	input_dev->keycodemax = ARRAY_SIZE(st_kp->keycodes);
+> +
+> +	for (i = 0; i < ST_KEYSCAN_MAXKEYS; i++)
+> +		input_set_capability(input_dev, EV_KEY, st_kp->keycodes[i]);
+> +	__clear_bit(KEY_RESERVED, input_dev->keybit);
+> +
+> +	error = input_register_device(input_dev);
+> +	if (error) {
+> +		dev_err(dev, "failed to register input device\n");
+> +		input_free_device(input_dev);
+> +		platform_set_drvdata(pdev, NULL);
+> +		return error;
 > +	}
+> +
+> +	platform_set_drvdata(pdev, st_kp);
+> +
+> +	keyscan_start(st_kp);
+> +
+> +	device_set_wakeup_capable(&pdev->dev, 1);
 > +
 > +	return 0;
 > +}
 > +
-> +static int rmi_f30_probe(struct rmi_function *fn)
+> +static int __exit keyscan_remove(struct platform_device *pdev)
+
+Why is this marked as __exit? I can unbind device from driver without
+unloading module (via sysfs).
+
 > +{
-> +	int rc;
+> +	struct keyscan_priv *priv = platform_get_drvdata(pdev);
 > +
-> +	rc = rmi_f30_initialize(fn);
-> +	if (rc < 0)
-> +		goto error_exit;
+> +	keyscan_stop(priv);
+
+Call to keyscan_stop() shoudl go into keyscan_close() implementation.
+
 > +
-> +	rc = rmi_f30_register_device(fn);
-> +	if (rc < 0)
-> +		goto error_exit;
+> +	input_unregister_device(priv->input_dev);
+
+Not needed since you are trying to use devres-managed input device.
+
+> +	platform_set_drvdata(pdev, NULL);
+
+Not needed. In fact, if you move keyscan_stop() into keyscan_close() you
+should be able to get rid of keyscan_remove().
+
 > +
 > +	return 0;
-> +
-> +error_exit:
-> +	return rc;
-> +
 > +}
 > +
-> +static struct rmi_function_handler rmi_f30_handler = {
-> +	.driver = {
-> +		.name = "rmi_f30",
-> +	},
-> +	.func = 0x30,
-> +	.probe = rmi_f30_probe,
-> +	.config = rmi_f30_config,
-> +	.attention = rmi_f30_attention,
+> +static int keyscan_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct keyscan_priv *priv = platform_get_drvdata(pdev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		enable_irq_wake(priv->irq);
+> +	else
+> +		keyscan_stop(priv);
+> +
+> +	return 0;
+> +}
+> +
+> +static int keyscan_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct keyscan_priv *priv = platform_get_drvdata(pdev);
+> +
+> +	if (device_may_wakeup(dev))
+> +		disable_irq_wake(priv->irq);
+> +	else
+> +		keyscan_start(priv);
+> +
+> +	return 0;
+> +}
+
+Guard suspend/resume with CONFIG_PM_SLEEP?
+
+> +
+> +static const struct dev_pm_ops keyscan_dev_pm_ops = {
+> +	.suspend = keyscan_suspend,
+> +	.resume = keyscan_resume,
+> +};
+
+Make it SIMPLE_DEV_PM_OPS().
+
+> +
+> +static const struct of_device_id keyscan_of_match[] = {
+> +	{ .compatible = "st,keypad" },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, keyscan_of_match);
+> +
+> +__refdata struct platform_driver keyscan_device_driver = {
+
+What is this refdata business?
+
+> +	.probe		= keyscan_probe,
+> +	.remove		= __exit_p(keyscan_remove),
+> +	.driver		= {
+> +		.name	= "st-keyscan",
+> +		.pm	= &keyscan_dev_pm_ops,
+> +		.of_match_table = of_match_ptr(keyscan_of_match),
+> +	}
 > +};
 > +
-> +module_rmi_driver(rmi_f30_handler);
+> +static int __init keyscan_init(void)
+> +{
+> +	return platform_driver_register(&keyscan_device_driver);
+> +}
 > +
-> +MODULE_AUTHOR("Allie Xiong <axiong@synaptics.com>");
-> +MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
-> +MODULE_DESCRIPTION("RMI F30 module");
+> +static void __exit keyscan_exit(void)
+> +{
+> +	platform_driver_unregister(&keyscan_device_driver);
+> +}
+> +
+> +module_init(keyscan_init);
+> +module_exit(keyscan_exit);
+
+I think we have module_platform_drriver() for this.
+
+> +
+> +MODULE_AUTHOR("Stuart Menefy <stuart.menefy@st.com>");
+> +MODULE_DESCRIPTION("STMicroelectronics keyscan device driver");
 > +MODULE_LICENSE("GPL");
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 735e978..889a627 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -139,9 +139,14 @@ struct rmi_button_map {
->  	u8 *map;
->  };
->  
-> +struct rmi_f30_button {
-> +	u16 button;
-> +	int sense;
-> +};
-> +
->  struct rmi_f30_gpioled_map {
->  	u8 ngpioleds;
-> -	u8 *map;
-> +	struct rmi_f30_button *map;
->  };
->  
->  /**
+> -- 
+> 1.9.0
+> 
 
 Thanks.
 

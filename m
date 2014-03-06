@@ -1,181 +1,107 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v2 6/8] HID: sony: Add an IDA allocator to assign unique device ids
-Date: Thu,  6 Mar 2014 17:32:54 -0500
-Message-ID: <1394145176-24174-7-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH v2 3/8] HID: sony: Use inliners for work queue initialization and cancellation
+Date: Thu,  6 Mar 2014 17:32:51 -0500
+Message-ID: <1394145176-24174-4-git-send-email-frank.praznik@oh.rr.com>
 References: <1394145176-24174-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:4607 "EHLO
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.228]:7064 "EHLO
 	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752125AbaCFWdH (ORCPT
+	by vger.kernel.org with ESMTP id S1750829AbaCFWkL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Mar 2014 17:33:07 -0500
+	Thu, 6 Mar 2014 17:40:11 -0500
 In-Reply-To: <1394145176-24174-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-Add an IDA id allocator to assign unique, sequential device ids to Sixaxis and
-DualShock 4 controllers.
-
-Use explicit module init and exit functions since the IDA allocator must be
-manually destroyed when the module is unloaded.
-
-Use the device id as the unique number for the battery identification string.
+Use inliners to make sure that the work queue initialization flag is always
+checked and set correctly when initializing or cancelling the work queue.
 
 Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
- drivers/hid/hid-sony.c | 70 +++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 63 insertions(+), 7 deletions(-)
+
+ v2 doesn't set worker_initialized to 0 when cancelling work sync since
+ cancel_work_sync doesn't deinitialize the work queue.
+
+ drivers/hid/hid-sony.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index a9bcfbe..13af58c 100644
+index 908de27..3df3306 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -33,6 +33,7 @@
- #include <linux/power_supply.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
-+#include <linux/idr.h>
- #include <linux/input/mt.h>
- 
- #include "hid-ids.h"
-@@ -749,6 +750,7 @@ union sixaxis_output_report_01 {
- 
- static spinlock_t sony_dev_list_lock;
- static LIST_HEAD(sony_device_list);
-+static DEFINE_IDA(sony_device_id_allocator);
- 
- struct sony_sc {
- 	spinlock_t lock;
-@@ -758,6 +760,7 @@ struct sony_sc {
- 	unsigned long quirks;
- 	struct work_struct state_worker;
- 	struct power_supply battery;
-+	int device_id;
- 
- #ifdef CONFIG_SONY_FF
- 	__u8 left;
-@@ -1413,8 +1416,6 @@ static int sony_battery_get_property(struct power_supply *psy,
- 
- static int sony_battery_probe(struct sony_sc *sc)
- {
--	static atomic_t power_id_seq = ATOMIC_INIT(0);
--	unsigned long power_id;
- 	struct hid_device *hdev = sc->hdev;
- 	int ret;
- 
-@@ -1424,15 +1425,13 @@ static int sony_battery_probe(struct sony_sc *sc)
- 	 */
- 	sc->battery_capacity = 100;
- 
--	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
--
- 	sc->battery.properties = sony_battery_props;
- 	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
- 	sc->battery.get_property = sony_battery_get_property;
- 	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
- 	sc->battery.use_for_apm = 0;
--	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
--				     power_id);
-+	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%i",
-+				     sc->device_id);
- 	if (!sc->battery.name)
- 		return -ENOMEM;
- 
-@@ -1607,6 +1606,38 @@ static int sony_check_add(struct sony_sc *sc)
+@@ -1578,6 +1578,20 @@ static int sony_check_add(struct sony_sc *sc)
  	return sony_check_add_dev_list(sc);
  }
  
-+static int sony_set_device_id(struct sony_sc *sc)
++static inline void sony_init_work(struct sony_sc *sc,
++					void(*worker)(struct work_struct *))
 +{
-+	int ret;
++	if (!sc->worker_initialized)
++		INIT_WORK(&sc->state_worker, worker);
 +
-+	/*
-+	 * Only DualShock 4 or Sixaxis controller get an id.
-+	 * All others are set to -1.
-+	 */
-+	if ((sc->quirks & SIXAXIS_CONTROLLER) ||
-+	    (sc->quirks & DUALSHOCK4_CONTROLLER)) {
-+		ret = ida_simple_get(&sony_device_id_allocator, 0, 0,
-+					GFP_KERNEL);
-+		if (ret < 0) {
-+			sc->device_id = -1;
-+			return ret;
-+		}
-+		sc->device_id = ret;
-+	} else {
-+		sc->device_id = -1;
-+	}
-+
-+	return 0;
++	sc->worker_initialized = 1;
 +}
 +
-+static void sony_release_device_id(struct sony_sc *sc)
++static inline void sony_cancel_work_sync(struct sony_sc *sc)
 +{
-+	if (sc->device_id >= 0) {
-+		ida_simple_remove(&sony_device_id_allocator, sc->device_id);
-+		sc->device_id = -1;
-+	}
++	if (sc->worker_initialized)
++		cancel_work_sync(&sc->state_worker);
 +}
-+
- static inline void sony_init_work(struct sony_sc *sc,
- 					void(*worker)(struct work_struct *))
- {
-@@ -1658,6 +1689,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
- 	}
  
-+	ret = sony_set_device_id(sc);
-+	if (ret < 0) {
-+		hid_err(hdev, "failed to allocate the device id\n");
-+		goto err_stop;
-+	}
-+
- 	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+@@ -1629,8 +1643,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+ 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
+ 		ret = sixaxis_set_operational_usb(hdev);
+-		sc->worker_initialized = 1;
+-		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
++		sony_init_work(sc, sixaxis_state_worker);
+ 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
  		/*
- 		 * The Sony Sixaxis does not handle HID Output Reports on the
-@@ -1749,6 +1786,7 @@ err_stop:
+ 		 * The Sixaxis wants output reports sent on the ctrl endpoint
+@@ -1638,8 +1651,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 */
+ 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+ 		ret = sixaxis_set_operational_bt(hdev);
+-		sc->worker_initialized = 1;
+-		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
++		sony_init_work(sc, sixaxis_state_worker);
+ 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+ 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+ 			/*
+@@ -1661,8 +1673,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		if (ret < 0)
+ 			goto err_stop;
+ 
+-		sc->worker_initialized = 1;
+-		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
++		sony_init_work(sc, dualshock4_state_worker);
+ 	} else {
+ 		ret = 0;
+ 	}
+@@ -1707,8 +1718,7 @@ err_stop:
+ 		sony_leds_remove(hdev);
+ 	if (sc->quirks & SONY_BATTERY_SUPPORT)
  		sony_battery_remove(sc);
- 	sony_cancel_work_sync(sc);
+-	if (sc->worker_initialized)
+-		cancel_work_sync(&sc->state_worker);
++	sony_cancel_work_sync(sc);
  	sony_remove_dev_list(sc);
-+	sony_release_device_id(sc);
  	hid_hw_stop(hdev);
  	return ret;
- }
-@@ -1769,6 +1807,8 @@ static void sony_remove(struct hid_device *hdev)
+@@ -1726,8 +1736,7 @@ static void sony_remove(struct hid_device *hdev)
+ 		sony_battery_remove(sc);
+ 	}
+ 
+-	if (sc->worker_initialized)
+-		cancel_work_sync(&sc->state_worker);
++	sony_cancel_work_sync(sc);
  
  	sony_remove_dev_list(sc);
  
-+	sony_release_device_id(sc);
-+
- 	hid_hw_stop(hdev);
- }
- 
-@@ -1813,6 +1853,22 @@ static struct hid_driver sony_driver = {
- 	.report_fixup  = sony_report_fixup,
- 	.raw_event     = sony_raw_event
- };
--module_hid_driver(sony_driver);
-+
-+static int __init sony_init(void)
-+{
-+	dbg_hid("Sony:%s\n", __func__);
-+
-+	return hid_register_driver(&sony_driver);
-+}
-+
-+static void __exit sony_exit(void)
-+{
-+	dbg_hid("Sony:%s\n", __func__);
-+
-+	ida_destroy(&sony_device_id_allocator);
-+	hid_unregister_driver(&sony_driver);
-+}
-+module_init(sony_init);
-+module_exit(sony_exit);
- 
- MODULE_LICENSE("GPL");
 -- 
 1.8.5.3
 

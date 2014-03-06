@@ -1,48 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] mfd: max8997: use regmap to access registers
-Date: Thu, 6 Mar 2014 08:29:51 -0800
-Message-ID: <20140306162951.GA14318@core.coreip.homeip.net>
-References: <1394031497-16648-1-git-send-email-r.baldyga@samsung.com>
- <20140305185439.GC5453@core.coreip.homeip.net>
- <531818D6.3080500@samsung.com>
+From: Felix Rueegg <felix.rueegg@gmail.com>
+Subject: Re: [PATCH] input: ff-memless: don't schedule already playing effect
+ to play again
+Date: Thu, 06 Mar 2014 19:05:38 +0100
+Message-ID: <5318B8F2.8000107@gmail.com>
+References: <1393760143-5986-1-git-send-email-felix.rueegg@gmail.com> <20140304170731.GA30486@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <531818D6.3080500@samsung.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Robert Baldyga <r.baldyga@samsung.com>
-Cc: sameo@linux.intel.com, lee.jones@linaro.org, myungjoo.ham@samsung.com, cw00.choi@samsung.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140304170731.GA30486@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 06, 2014 at 07:42:30AM +0100, Robert Baldyga wrote:
-> Hi,
-> 
-> On 03/05/2014 07:54 PM, Dmitry Torokhov wrote:
-> > Hi Robert,
-> > 
-> > On Wed, Mar 05, 2014 at 03:58:17PM +0100, Robert Baldyga wrote:
-> >>  
-> >> -int max8997_write_reg(struct i2c_client *i2c, u8 reg, u8 value)
-> >> +int max8997_write_reg(struct regmap *map, u8 reg, u8 value)
-> > 
-> > Why don't you make read/write reg to take struct max8997_dev as argument
-> > instead of regmap? regmap seems to be the current implementation du jur,
-> > but that is core's detail, functions do not need to care.
-> > 
-> > Thanks.
-> > 
-> 
-> It's because there are few regmaps in max8997_dev, and read/write reg
-> functions has no way to check which regmap should be used. I think it
-> would be clearer if I remove this functions and use regmap_read and
-> regmap_write instead, because there is no particular purpose for them.
+Hi Dmitry,
 
-I see.. Then another question - why do the regmaps belong to the core
-of the driver instead of individual functions? Why haptic regmap, for
-example, can not be initialized in haptic code instead?
+On 03/04/2014 06:07 PM, Dmitry Torokhov wrote:
+> Hi Felix,
+>
+> On Sun, Mar 02, 2014 at 12:35:43PM +0100, Felix Rueegg wrote:
+>> When an effect with zero replay length, zero replay delay
+>> and zero envelope attack length is uploaded, it is played and then scheduled to play
+>> again one timer tick later. This triggers a warning (URB submitted while
+>> active) in combination with the xpad driver.
+>>
+>> Skipping the rescheduling of this effect fixes the issue.
+> Won't the same issue happen if we happen to schedule a different effect
+> that would start at "now" time? We should not be "dropping" the new
+> effect, at least not in core.
+I can confirm this. It also happens sometimes with an effect that has a 
+length and a replay count greater than one at the time, when the effect 
+ends and restarts again.
+> It looks to me xpad.c needs [more] love.
+I agree and will try to come up with a fix for the xpad driver.
 
-Thanks.
-
--- 
-Dmitry
+>> Signed-off-by: Felix Rueegg <felix.rueegg@gmail.com>
+>> ---
+>>   drivers/input/ff-memless.c | 7 +++++--
+>>   1 file changed, 5 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+>> index 74c0d8c..2e06948 100644
+>> --- a/drivers/input/ff-memless.c
+>> +++ b/drivers/input/ff-memless.c
+>> @@ -139,10 +139,13 @@ static void ml_schedule_timer(struct ml_device *ml)
+>>   		if (!test_bit(FF_EFFECT_STARTED, &state->flags))
+>>   			continue;
+>>   
+>> -		if (test_bit(FF_EFFECT_PLAYING, &state->flags))
+>> +		if (test_bit(FF_EFFECT_PLAYING, &state->flags)) {
+>>   			next_at = calculate_next_time(state);
+>> -		else
+>> +			if (next_at == now)
+>> +				continue;
+>> +		} else {
+>>   			next_at = state->play_at;
+>> +		}
+>>   
+>>   		if (time_before_eq(now, next_at) &&
+>>   		    (++events == 1 || time_before(next_at, earliest)))
+>> -- 
+>> 1.9.0
+>>
+> Thanks.
+>

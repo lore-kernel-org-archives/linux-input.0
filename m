@@ -1,39 +1,70 @@
-From: Matthew Garrett <matthew.garrett@nebula.com>
-Subject: Re: [PATCH] input: Use platform-provided devices as i8042 serio
- parents
-Date: Fri, 7 Mar 2014 19:24:03 +0000
-Message-ID: <1394220242.31116.2.camel@x230>
-References: <1393174996-27764-1-git-send-email-matthew.garrett@nebula.com>
-	 <20140307175415.GB25283@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140307175415.GB25283@core.coreip.homeip.net>
-Content-Language: en-US
-Content-ID: <5CDF9E349BE7E640B10F02A27ABD5E04@namprd05.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+From: Lukasz Pawelczyk <havner@gmail.com>
+Subject: Re: Suspending access to opened/active /dev/nodes
+	during application runtime
+Date: Fri, 7 Mar 2014 21:45:28 +0100
+Message-ID: <93871091-7845-4BCC-A841-F724BEDF6E4B@gmail.com>
+References: <E7B2439D-FF36-4353-8E1A-C58E5C33A89F@gmail.com>
+	<20140307190939.GA8082@kroah.com>
+Mime-Version: 1.0 (Mac OS X Mail 7.2 \(1874\))
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20140307190939.GA8082@kroah.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+	<mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+	<mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Sender: systemd-devel-bounces@lists.freedesktop.org
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: systemd-devel@lists.freedesktop.org, libvir-list@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lxc-devel@lists.linuxcontainers.org
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCAyMDE0LTAzLTA3IGF0IDA5OjU0IC0wODAwLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6
-DQo+IEhpIE1hdHRoZXcsDQo+IA0KPiBPbiBTdW4sIEZlYiAyMywgMjAxNCBhdCAxMjowMzoxNlBN
-IC0wNTAwLCBNYXR0aGV3IEdhcnJldHQgd3JvdGU6DQo+ID4gaTgwNDIgZGV2aWNlcyBleHBvc2Vk
-IHZpYSBwbGF0Zm9ybSBmaXJtd2FyZSBpbnRlcmZhY2VzIHN1Y2ggYXMgQUNQSSBvcg0KPiA+IERl
-dmljZSBUcmVlIG1heSBwcm92aWRlIGFkZGl0aW9uYWwgaW5mb3JtYXRpb24gb2YgdXNlIHRvIHVz
-ZXJzcGFjZS4gUmlnaHQNCj4gPiBub3cgd2UgZG9uJ3QgYXNzb2NpYXRlIHRoZSBzZXJpbyBkZXZp
-Y2VzIHdpdGggdGhlIGZpcm13YXJlIGRldmljZSwgYW5kIHNvDQo+ID4gdGhlcmUncyBubyBzdHJh
-aWdodGZvcndhcmQgd2F5IGZvciB1c2Vyc3BhY2UgdG8gbWFrZSB1c2Ugb2YgdGhhdA0KPiA+IGlu
-Zm9ybWF0aW9uLiBUaGlzIHBhdGNoIHNpbXBseSBtb3ZlcyB0aGUgc2VyaW8gcGFyZW50IGRldmlj
-ZSB0byB0aGUgZmlybXdhcmUNCj4gPiBwcm92aWRlZCBkZXZpY2UuDQo+IA0KPiBIbW0sIGFyZSB3
-ZSBzdXJlIGl0IHdpbGwgbm90IG1lc3MgdXAgcG93ZXIgbWFuYWdlbWVudCBub3cgdGhhdCBjaGls
-ZHJlbg0KPiBzZXJpbyBwb3J0cyBhcmUgZGlzY29ubmVjdGVkIGZyb20gaTgwNDIgZGV2aWNlPw0K
-DQpVcmguIFllYWgsIHRoYXQncyBhIHBvaW50IC0gd2UgcHJvYmFibHkgbm8gbG9uZ2VyIGd1YXJh
-bnRlZSB0aGF0IHRoZQ0KaTgwNDIgcmVzdW1lIGNvZGUgcnVucyBiZWZvcmUgYW55IGRyaXZlciBy
-ZXN1bWUgY29kZS4gVGhhdCdzDQppbmNvbnZlbmllbnQuIFdlIGNvdWxkIHByb2JhYmx5IGFkZCBy
-ZXN1bWUgY2FsbGJhY2tzIHRvIHRoZSBQTlAgZGV2aWNlcywNCmJ1dCB0aGVuIHdlIG5lZWQgdG8g
-ZW5zdXJlIHRoYXQgdGhleSBvbmx5IHJ1biBvbmNlLiBJIHRoaW5rIHdlIGNhbiBkbw0KdGhhdCB3
-aXRob3V0IHRvbyBtdWNoIHRyb3VibGUsIGJ1dCBpdCdzIG5vdCBnb2luZyB0byBiZSBiZWF1dGlm
-dWwuDQoNCi0tIA0KTWF0dGhldyBHYXJyZXR0IDxtYXR0aGV3LmdhcnJldHRAbmVidWxhLmNvbT4N
-Cg==
+
+On 7 Mar 2014, at 20:09, Greg KH <gregkh@linuxfoundation.org> wrote:
+
+> On Fri, Mar 07, 2014 at 07:46:44PM +0100, Lukasz Pawelczyk wrote:
+>> Problem:
+>> Has anyone thought about a mechanism to limit/remove an access to a
+>> device during an application runtime? Meaning we have an application
+>> that has an open file descriptor to some /dev/node and depending on
+>> *something* it gains or looses the access to it gracefully (with or
+>> without a notification, but without any fatal consequences).
+>> =
+
+>> Example:
+>> LXC. Imagine we have 2 separate containers. Both running full operating
+>> systems. Specifically with 2 X servers. Both running concurrently of
+>> course. Both need the same input devices (e.g. we have just one mouse).
+> =
+
+> Stop right there.
+> =
+
+> If they "both" need an input device, then they should use the "shared"
+> input device stream, i.e. evdev.
+> =
+
+> And it goes the same for every type of device the kernel is exposing to
+> userspace, if you want to "share" them, then you need to work on
+> changing the kernel to be able to handle shared devices.
+
+I think you might have misunderstood me. They are using a shared input stre=
+am (evdev in this case). The problem is I don=92t want them to eavesdrop on=
+ each other. So it=92s not about making it to work. It=92s about making the=
+m to work =84in turns=94.
+
+> And odds are, you will get back a big "as-if" comment from the kernel
+> developers, as for almost all devices, they can't be shared, for very
+> good reasons.
+
+Evdev devices can.
+
+
+-- =
+
+Regards,
+Havner

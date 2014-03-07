@@ -1,80 +1,122 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 6/7] regulator: AXP20x: Add support for
- regulators subsystem
-Date: Fri, 7 Mar 2014 19:22:13 +0100
-Message-ID: <20140307182213.GC607@lukather>
-References: <1393692352-10839-1-git-send-email-carlo@caione.org>
- <1393692352-10839-7-git-send-email-carlo@caione.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fgeUT96Xdo+SN8mm"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRB7U55CMAKGQEFHRI5FQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1393692352-10839-7-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+From: Lukasz Pawelczyk <havner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Suspending access to opened/active /dev/nodes during
+	application runtime
+Date: Fri, 7 Mar 2014 19:45:05 +0100
+Message-ID: <9D7BA6C9-9F1F-4D09-8F4F-E7DA4720FF97@gmail.com>
+Reply-To: LXC development mailing-list <lxc-devel-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org>
+Mime-Version: 1.0 (Mac OS X Mail 7.2 \(1874\))
+Content-Type: multipart/mixed; boundary="===============6598445596956306415=="
+Return-path: <lxc-devel-bounces-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org>
+List-Unsubscribe: <http://lists.linuxcontainers.org/options/lxc-devel>,
+ <mailto:lxc-devel-request-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxcontainers.org/pipermail/lxc-devel>
+List-Post: <mailto:lxc-devel-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org>
+List-Help: <mailto:lxc-devel-request-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.linuxcontainers.org/listinfo/lxc-devel>,
+ <mailto:lxc-devel-request-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org?subject=subscribe>
+Errors-To: lxc-devel-bounces-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org
+Sender: lxc-devel-bounces-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, libvir-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lxc-devel-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org, systemd-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
 
---fgeUT96Xdo+SN8mm
-Content-Type: text/plain; charset=us-ascii
+--===============6598445596956306415==
+Content-Type: multipart/alternative; boundary="Apple-Mail=_C2302F36-8BDE-4431-9E8C-E6057EDCDDC4"
+
+
+--Apple-Mail=_C2302F36-8BDE-4431-9E8C-E6057EDCDDC4
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
+
+Problem:
+Has anyone thought about a mechanism to limit/remove an access to a
+device during an application runtime? Meaning we have an application
+that has an open file descriptor to some /dev/node and depending on
+*something* it gains or looses the access to it gracefully (with or
+without a notification, but without any fatal consequences).
+
+Example:
+LXC. Imagine we have 2 separate containers. Both running full operating
+systems. Specifically with 2 X servers. Both running concurrently of
+course. Both need the same input devices (e.g. we have just one mouse).
+This creates a security problem when we want to have completely separate
+environments. One container is active (being displayed on a monitor and
+controlled with a mouse) while the other container runs evtest
+/dev/input/something and grabs the secret password user typed in the
+other.
+
+Solutions:
+The complete solution would comprise of 2 parts:
+- a mechanism that would allow to temporally "hide" a device from an
+open file descriptor.
+- a mechanism for deciding whether application/process/namespace should
+have an access to a specific device at a specific moment
+
+Let's focus on the first problem only, as it would need to be solved
+first anyway.  I haven't found anything that would allow me to do
+it. There are a lot mechanisms that make it possible to restrict an
+access during open():
+- DAC
+- ACL (controlled by hand or with uaccess)
+- LSM (in general)
+- device cgroups
+But all of those can't do a thing when the device is already opened and
+an application has a file descriptor.  I don't see such mechanism in
+kernel sources either.
+
+I do imagine that it would not be possible for every device to handle
+such a thing (dri comes to mind) without breaking something (graphics
+card state in dri example). But there is class of simple input/output
+devices that would handle this without problems.
+
+I did implement some proof-of-concept solution for an evdev driver by
+allowing or disallowing events that go to evdev_client structure using
+some arbitrary condition. But this is far from a generic solution.
+
+My proof-of-concept is somewhat similar to this (I just found it):
+http://www.spinics.net/lists/linux-input/msg25547.html
+Though a little bit wider in scope. But neither is flawless nor
+generic.
+
+Has anyone had any thoughts about a similar problem?
+
+
+-- 
+Regards
+Havner
+
+--Apple-Mail=_C2302F36-8BDE-4431-9E8C-E6057EDCDDC4
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html;
+	charset=us-ascii
+
+<html><head><meta http-equiv="Content-Type" content="text/html charset=us-ascii"></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;"><div dir="ltr"><div>Problem:</div><div>Has anyone thought about a mechanism to limit/remove an access to a</div><div>device during an application runtime? Meaning we have an application</div><div>that has an open file descriptor to some /dev/node and depending on</div>
+<div>*something* it gains or looses the access to it gracefully (with or</div><div>without a notification, but without any fatal consequences).</div><div><br></div><div>Example:</div><div>LXC. Imagine we have 2 separate containers. Both running full operating</div>
+<div>systems. Specifically with 2 X servers. Both running concurrently of</div><div>course. Both need the same input devices (e.g. we have just one mouse).</div><div>This creates a security problem when we want to have completely separate</div>
+<div>environments. One container is active (being displayed on a monitor and</div><div>controlled with a mouse) while the other container runs evtest</div><div>/dev/input/something and grabs the secret password user typed in the</div>
+<div>other.</div><div><br></div><div>Solutions:</div><div>The complete solution would comprise of 2 parts:</div><div>- a mechanism that would allow to temporally "hide" a device from an</div><div>open file descriptor.</div>
+<div>- a mechanism for deciding whether application/process/namespace should</div><div>have an access to a specific device at a specific moment</div><div><br></div><div>Let's focus on the first problem only, as it would need to be solved</div>
+<div>first anyway. &nbsp;I haven't found anything that would allow me to do</div><div>it. There are a lot mechanisms that make it possible to restrict an</div><div>access during open():</div><div>- DAC</div><div>- ACL (controlled by hand or with uaccess)</div>
+<div>- LSM (in general)</div><div>- device cgroups</div><div>But all of those can't do a thing when the device is already opened and</div><div>an application has a file descriptor. &nbsp;I don't see such mechanism in</div>
+<div>kernel sources either.</div><div><br></div><div>I do imagine that it would not be possible for every device to handle</div><div>such a thing (dri comes to mind) without breaking something (graphics</div><div>card state in dri example). But there is class of simple input/output</div>
+<div>devices that would handle this without problems.</div><div><br></div><div>I did implement some proof-of-concept solution for an evdev driver by</div><div>allowing or disallowing events that go to evdev_client structure using</div>
+<div>some arbitrary condition. But this is far from a generic solution.</div><div><br></div><div>My proof-of-concept is somewhat similar to this (I just found it):</div><div><a href="http://www.spinics.net/lists/linux-input/msg25547.html">http://www.spinics.net/lists/linux-input/msg25547.html</a></div>
+<div>Though a little bit wider in scope. But neither is flawless nor</div><div>generic.</div><div><br></div><div>Has anyone had any thoughts about a similar problem?</div><div><br></div><div><br></div>-- <br>Regards<br>Havner<br>
+
+</div>
+</body></html>
+--Apple-Mail=_C2302F36-8BDE-4431-9E8C-E6057EDCDDC4--
+
+--===============6598445596956306415==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 01, 2014 at 05:45:51PM +0100, Carlo Caione wrote:
-> +static struct platform_driver axp20x_regulator_driver =3D {
-> +	.probe	=3D axp20x_regulator_probe,
-> +	.remove	=3D axp20x_regulator_remove,
-> +	.driver	=3D {
-> +		.name		=3D "axp20x-regulator",
-> +		.owner		=3D THIS_MODULE,
-> +	},
-> +};
-> +
-> +static int __init axp20x_regulator_init(void)
-> +{
-> +	return platform_driver_register(&axp20x_regulator_driver);
-> +}
-> +
-> +subsys_initcall(axp20x_regulator_init);
+_______________________________________________
+lxc-devel mailing list
+lxc-devel-cunTk1MwBs9qMoObBWhMNEqPaTDuhLve2LY78lusg7I@public.gmane.org
+http://lists.linuxcontainers.org/listinfo/lxc-devel
 
-Hmmm, really?
-
-I thought the AXP was only connected through I2C? How is that a
-platform device then?
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---fgeUT96Xdo+SN8mm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTGg5UAAoJEBx+YmzsjxAg4Q0QAK03UjUsT5aGKp3zLpgh2a5C
-rCc9hZiaSRe/PIQjmMlMNTWXOb8A2zGYjLhdOr16TO9skfJAWjkZFAQhqMy68UAB
-k82FY0rfAsu8qp2CnzrfTnyrt3kCDnyGYEtUUn+KeytEY52ODZyNM9rVmca1iD0a
-mtvpizRY9KryZtRONMBXRqjznFZg/XeeGz2P/qFubETBK0yOuuiWiipDcxLg6DCH
-WrmzohPoqEiXPh0Z3LMXnHIIMYqsBoEyYuiyM4iWHCdzXTNaqdgvpf4GllCPGoyg
-2ysY4wv54kNC2LNMR6IkqgKUOOgrwlhBKBJoMa+5ddHOylqoZoHZLv5lTSXXr7/6
-riqXlfKaa/QvTKJ2T8iWifQ7UBjXxDonN50yAbR+h4kkkCpLNAs2sR0fHU23d/DF
-B5Ue51E8sgsOeUgLQXbkg5dVKn4xzt3L90kasewDw4JMDYsHyh67LuBHE7dplxQQ
-sWduCl0UdvkKxrkphmpjD05QJVZdSQYbatEk8dS0knJPxp7eOnZ12rR/HHyChn/Q
-ysKD4JzMqLI0K/DxUQPt7ErnHXs9ZOZG3AB9Zg27GrPMYjlI1qs/TJpfdZT1jYIO
-uSAb8Zt6x21d59y2YddVKwT9aQyutHORFbNnpYYOqFR205w3Vq/bxq1zRk0T3t2d
-G0eMpoyuobezTzgpGLD5
-=3/gW
------END PGP SIGNATURE-----
-
---fgeUT96Xdo+SN8mm--
+--===============6598445596956306415==--

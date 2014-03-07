@@ -1,52 +1,136 @@
-From: Robert Baldyga <r.baldyga@samsung.com>
-Subject: Re: [PATCH v2] mfd: max8997: use regmap to access registers
-Date: Fri, 07 Mar 2014 15:40:44 +0100
-Message-ID: <5319DA6C.1050204@samsung.com>
-References: <1394031497-16648-1-git-send-email-r.baldyga@samsung.com>
- <20140305185439.GC5453@core.coreip.homeip.net> <531818D6.3080500@samsung.com>
- <20140306162951.GA14318@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <20140306162951.GA14318@core.coreip.homeip.net>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: sameo@linux.intel.com, lee.jones@linaro.org, myungjoo.ham@samsung.com, cw00.choi@samsung.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input: synaptics add manual min/max quirk
+Date: Fri,  7 Mar 2014 10:49:24 -0500
+Message-ID: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:7654 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753216AbaCGPtf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Mar 2014 10:49:35 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-On 03/06/2014 05:29 PM, Dmitry Torokhov wrote:
-> On Thu, Mar 06, 2014 at 07:42:30AM +0100, Robert Baldyga wrote:
->> Hi,
->>
->> On 03/05/2014 07:54 PM, Dmitry Torokhov wrote:
->>> Hi Robert,
->>>
->>> On Wed, Mar 05, 2014 at 03:58:17PM +0100, Robert Baldyga wrote:
->>>>  
->>>> -int max8997_write_reg(struct i2c_client *i2c, u8 reg, u8 value)
->>>> +int max8997_write_reg(struct regmap *map, u8 reg, u8 value)
->>>
->>> Why don't you make read/write reg to take struct max8997_dev as argument
->>> instead of regmap? regmap seems to be the current implementation du jur,
->>> but that is core's detail, functions do not need to care.
->>>
->>> Thanks.
->>>
->>
->> It's because there are few regmaps in max8997_dev, and read/write reg
->> functions has no way to check which regmap should be used. I think it
->> would be clearer if I remove this functions and use regmap_read and
->> regmap_write instead, because there is no particular purpose for them.
-> 
-> I see.. Then another question - why do the regmaps belong to the core
-> of the driver instead of individual functions? Why haptic regmap, for
-> example, can not be initialized in haptic code instead?
-> 
+The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
+However, these new Synaptics devices report bad axis ranges.
+Under Windows, it is not a problem because the Windows driver uses RMI4
+over SMBus to talk to the device. Under Linux, we are using the PS/2
+fallback interface and it occurs the reported ranges are wrong.
 
-It looks like it would not be a big problem. I will try to prepare new
-version of this patch including this.
+Of course, it would be too easy to have only one range for the whole
+series, each touchpad seems to be calibrated in a different way.
 
-Best regards
-Robert Baldyga
-Samsung R&D Institute Poland
+We can not use SMBus to get the actual range because I suspect the firmware
+will switch into the SMBus mode and stop talking through PS/2 (this is the
+case for hybrid HID over I2C / PS/2 Synaptics touchpads).
+
+So as a temporary solution (until RMI4 land into upstream), start a new
+list of quirks with the min/max manually set.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+CC: stable@vger.kernel.org
+---
+
+Hi Dmitry,
+
+Well, this work is part of a (big) attempt to support the new touchpads
+Lenovo put in its latest series.
+Those new laptops have lost the buttons associated to the trackstick and are
+what we call "clickpad".
+Things would be easy if:
+1. the PS/2 firmware did not lied about the actual range of the axis
+2. on some install (mine) the DMI matching in udev would not have been broken
+3. we did not have to fix a lot of stuff in Xorg / libinput / wayland
+
+This patch fixes 1.
+
+Matthew Garrett fixed 2. -> https://patchwork.kernel.org/patch/3704401/
+
+3. is heavily working as shown by this tracker bug: https://bugs.freedesktop.org/show_bug.cgi?id=73158
+
+I put the 'stable' marker, feel free to remove it if you don't think it should
+be there, but I really think this should also be backported to have something
+working in current distros.
+
+Cheers,
+Benjamin
+
+ drivers/input/mouse/synaptics.c | 43 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 26386f9..ff6a4cf 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -67,6 +67,8 @@
+ #define X_MAX_POSITIVE 8176
+ #define Y_MAX_POSITIVE 8176
+ 
++static int *quirk_min_max = NULL;
++
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+  ****************************************************************************/
+@@ -302,6 +304,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		}
+ 	}
+ 
++	if (quirk_min_max) {
++		priv->x_min = quirk_min_max[0];
++		priv->x_max = quirk_min_max[1];
++		priv->y_min = quirk_min_max[2];
++		priv->y_max = quirk_min_max[3];
++	}
++
+ 	return 0;
+ }
+ 
+@@ -1485,10 +1494,44 @@ static const struct dmi_system_id olpc_dmi_table[] __initconst = {
+ 	{ }
+ };
+ 
++static const struct dmi_system_id min_max_dmi_table[] __initconst = {
++#if defined(CONFIG_DMI)
++	{
++		/* Lenovo ThinkPad Helix */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad Helix"),
++		},
++		.driver_data = (int []){1024, 5052, 2258, 4832},
++	},
++	{
++		/* Lenovo ThinkPad T440s */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T440"),
++		},
++		.driver_data = (int []){1024, 5112, 2024, 4832},
++	},
++	{
++		/* Lenovo ThinkPad T540p */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T540"),
++		},
++		.driver_data = (int []){1024, 5056, 2058, 4832},
++	},
++#endif
++	{ }
++};
++
+ void __init synaptics_module_init(void)
+ {
++	const struct dmi_system_id *min_max_dmi;
+ 	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
+ 	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
++	min_max_dmi = dmi_first_match(min_max_dmi_table);
++	if (min_max_dmi)
++		quirk_min_max = (int *)min_max_dmi->driver_data;
+ }
+ 
+ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+-- 
+1.8.5.3
+

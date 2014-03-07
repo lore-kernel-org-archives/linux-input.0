@@ -1,72 +1,59 @@
-From: Lukasz Pawelczyk <havner@gmail.com>
-Subject: Suspending access to opened/active /dev/nodes during application runtime
-Date: Fri, 7 Mar 2014 19:46:44 +0100
-Message-ID: <E7B2439D-FF36-4353-8E1A-C58E5C33A89F@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.2 \(1874\))
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [systemd-devel] Suspending access to opened/active /dev/nodes
+ during application runtime
+Date: Fri, 7 Mar 2014 11:09:39 -0800
+Message-ID: <20140307190939.GA8082@kroah.com>
+References: <E7B2439D-FF36-4353-8E1A-C58E5C33A89F@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f51.google.com ([74.125.83.51]:64493 "EHLO
-	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751365AbaCGSqx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Mar 2014 13:46:53 -0500
+Received: from mail.linuxfoundation.org ([140.211.169.12]:43143 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751978AbaCGTHx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Mar 2014 14:07:53 -0500
+Content-Disposition: inline
+In-Reply-To: <E7B2439D-FF36-4353-8E1A-C58E5C33A89F@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, libvir-list@redhat.com, lxc-devel@lists.linuxcontainers.org, systemd-devel@lists.freedesktop.org, David Herrmann <dh.herrmann@gmail.com>
+To: Lukasz Pawelczyk <havner@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, libvir-list@redhat.com, lxc-devel@lists.linuxcontainers.org, systemd-devel@lists.freedesktop.org, David Herrmann <dh.herrmann@gmail.com>
 
-Problem:
-Has anyone thought about a mechanism to limit/remove an access to a
-device during an application runtime? Meaning we have an application
-that has an open file descriptor to some /dev/node and depending on
-*something* it gains or looses the access to it gracefully (with or
-without a notification, but without any fatal consequences).
+On Fri, Mar 07, 2014 at 07:46:44PM +0100, Lukasz Pawelczyk wrote:
+> Problem:
+> Has anyone thought about a mechanism to limit/remove an access to a
+> device during an application runtime? Meaning we have an application
+> that has an open file descriptor to some /dev/node and depending on
+> *something* it gains or looses the access to it gracefully (with or
+> without a notification, but without any fatal consequences).
+> 
+> Example:
+> LXC. Imagine we have 2 separate containers. Both running full operating
+> systems. Specifically with 2 X servers. Both running concurrently of
+> course. Both need the same input devices (e.g. we have just one mouse).
 
-Example:
-LXC. Imagine we have 2 separate containers. Both running full operating
-systems. Specifically with 2 X servers. Both running concurrently of
-course. Both need the same input devices (e.g. we have just one mouse).
-This creates a security problem when we want to have completely separate
-environments. One container is active (being displayed on a monitor and
-controlled with a mouse) while the other container runs evtest
-/dev/input/something and grabs the secret password user typed in the
-other.
+Stop right there.
 
-Solutions:
-The complete solution would comprise of 2 parts:
-- a mechanism that would allow to temporally "hide" a device from an
-open file descriptor.
-- a mechanism for deciding whether application/process/namespace should
-have an access to a specific device at a specific moment
+If they "both" need an input device, then they should use the "shared"
+input device stream, i.e. evdev.
 
-Let's focus on the first problem only, as it would need to be solved
-first anyway.  I haven't found anything that would allow me to do
-it. There are a lot mechanisms that make it possible to restrict an
-access during open():
-- DAC
-- ACL (controlled by hand or with uaccess)
-- LSM (in general)
-- device cgroups
-But all of those can't do a thing when the device is already opened and
-an application has a file descriptor.  I don't see such mechanism in
-kernel sources either.
+And it goes the same for every type of device the kernel is exposing to
+userspace, if you want to "share" them, then you need to work on
+changing the kernel to be able to handle shared devices.
 
-I do imagine that it would not be possible for every device to handle
-such a thing (dri comes to mind) without breaking something (graphics
-card state in dri example). But there is class of simple input/output
-devices that would handle this without problems.
+And odds are, you will get back a big "as-if" comment from the kernel
+developers, as for almost all devices, they can't be shared, for very
+good reasons.
 
-I did implement some proof-of-concept solution for an evdev driver by
-allowing or disallowing events that go to evdev_client structure using
-some arbitrary condition. But this is far from a generic solution.
+So work down the list of devices you really need access to, and either
+work to provide a way for the kernel to mediate them, or, work to only
+have one "container" access to one device, and not have all containers
+access to it at the same time.
 
-My proof-of-concept is somewhat similar to this (I just found it):
-http://www.spinics.net/lists/linux-input/msg25547.html
-Though a little bit wider in scope. But neither is flawless nor
-generic.
+This has been discussed many times in the past, on mailing lists and in
+person at the Linux Plumbers conference last year.  This isn't a systemd
+issue, it is a "you are using the kernel in ways it was not designed to
+be used" issue.
 
-Has anyone had any thoughts about a similar problem?
+good luck, you will need it...
 
-
--- 
-Regards
-Havner
+greg k-h

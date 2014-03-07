@@ -1,56 +1,80 @@
-From: Tolga Cakir <cevelnet@gmail.com>
-Subject: Re: [PATCH 0/2 ] Surface Pro 2 HID sensor, wacom, keyboard/multitouch
- composite device
-Date: Fri, 7 Mar 2014 19:20:16 +0100
-Message-ID: <CABcamCAaB1pfq37Fm9bqoQLUt4Jtf=bbc3Nxpn4fcjgvFVELxA@mail.gmail.com>
-References: <5319EB7C.5070209@yahoo.de>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 6/7] regulator: AXP20x: Add support for
+ regulators subsystem
+Date: Fri, 7 Mar 2014 19:22:13 +0100
+Message-ID: <20140307182213.GC607@lukather>
+References: <1393692352-10839-1-git-send-email-carlo@caione.org>
+ <1393692352-10839-7-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f41.google.com ([209.85.214.41]:40834 "EHLO
-	mail-bk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751417AbaCGSUR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Mar 2014 13:20:17 -0500
-Received: by mail-bk0-f41.google.com with SMTP id d7so997429bkh.0
-        for <linux-input@vger.kernel.org>; Fri, 07 Mar 2014 10:20:16 -0800 (PST)
-In-Reply-To: <5319EB7C.5070209@yahoo.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fgeUT96Xdo+SN8mm"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRB7U55CMAKGQEFHRI5FQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1393692352-10839-7-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Derya <derya.kiran@yahoo.de>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 
-2014-03-07 16:53 GMT+01:00 Derya <derya.kiran@yahoo.de>:
-> The MS Surface Pro 2 has a very annoying USB composite device on port=
- 2.3.
-> It has 3 interfaces:
-> - Interface 0 is the sensor-hub
-> - Interface 1 is the wacom digitizer=B2 (it's one without finger inpu=
-t, there
-> is an atmel digitizer on port 2.4 for finger input)
-> - Interface 2 is the keyboard, if a keyboard cover is attached.
->
-> This USB composite device changes it product id depending if and whic=
-h
-> keyboard cover is attached.
-> Each of this hid devices contains several collections, this complicat=
-ed
-> everything.
-> I have uploaded a lsusb output to: http://pastebin.com/Jun5sa2t
->
-> We also need the HID_QUIRK_NOGET for this usb composite device, witho=
-ut it
-> hid-sensor-hub fails with a submit urb failure evertime a keyboard co=
-ver is
-> (de)attached and it takes some seconds until the keyboard and wacom
-> digitizer responds.
 
-I had a similar issue while implementing Sidewinder X4 support. Can
-you check the output of hid->type for each of these interfaces? I was
-able to differentiate between the interfaces on my devices by checking
-"hid->type", this might help here, too.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--fgeUT96Xdo+SN8mm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Mar 01, 2014 at 05:45:51PM +0100, Carlo Caione wrote:
+> +static struct platform_driver axp20x_regulator_driver =3D {
+> +	.probe	=3D axp20x_regulator_probe,
+> +	.remove	=3D axp20x_regulator_remove,
+> +	.driver	=3D {
+> +		.name		=3D "axp20x-regulator",
+> +		.owner		=3D THIS_MODULE,
+> +	},
+> +};
+> +
+> +static int __init axp20x_regulator_init(void)
+> +{
+> +	return platform_driver_register(&axp20x_regulator_driver);
+> +}
+> +
+> +subsys_initcall(axp20x_regulator_init);
+
+Hmmm, really?
+
+I thought the AXP was only connected through I2C? How is that a
+platform device then?
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--fgeUT96Xdo+SN8mm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTGg5UAAoJEBx+YmzsjxAg4Q0QAK03UjUsT5aGKp3zLpgh2a5C
+rCc9hZiaSRe/PIQjmMlMNTWXOb8A2zGYjLhdOr16TO9skfJAWjkZFAQhqMy68UAB
+k82FY0rfAsu8qp2CnzrfTnyrt3kCDnyGYEtUUn+KeytEY52ODZyNM9rVmca1iD0a
+mtvpizRY9KryZtRONMBXRqjznFZg/XeeGz2P/qFubETBK0yOuuiWiipDcxLg6DCH
+WrmzohPoqEiXPh0Z3LMXnHIIMYqsBoEyYuiyM4iWHCdzXTNaqdgvpf4GllCPGoyg
+2ysY4wv54kNC2LNMR6IkqgKUOOgrwlhBKBJoMa+5ddHOylqoZoHZLv5lTSXXr7/6
+riqXlfKaa/QvTKJ2T8iWifQ7UBjXxDonN50yAbR+h4kkkCpLNAs2sR0fHU23d/DF
+B5Ue51E8sgsOeUgLQXbkg5dVKn4xzt3L90kasewDw4JMDYsHyh67LuBHE7dplxQQ
+sWduCl0UdvkKxrkphmpjD05QJVZdSQYbatEk8dS0knJPxp7eOnZ12rR/HHyChn/Q
+ysKD4JzMqLI0K/DxUQPt7ErnHXs9ZOZG3AB9Zg27GrPMYjlI1qs/TJpfdZT1jYIO
+uSAb8Zt6x21d59y2YddVKwT9aQyutHORFbNnpYYOqFR205w3Vq/bxq1zRk0T3t2d
+G0eMpoyuobezTzgpGLD5
+=3/gW
+-----END PGP SIGNATURE-----
+
+--fgeUT96Xdo+SN8mm--

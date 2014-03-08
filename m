@@ -1,78 +1,497 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [systemd-devel] Suspending access to opened/active /dev/nodes
- during application runtime
-Date: Fri, 7 Mar 2014 12:55:40 -0800
-Message-ID: <20140307205540.GA6354@kroah.com>
-References: <E7B2439D-FF36-4353-8E1A-C58E5C33A89F@gmail.com>
- <20140307190939.GA8082@kroah.com>
- <93871091-7845-4BCC-A841-F724BEDF6E4B@gmail.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH v3] input synaptics-rmi4: Add F30 support
+Date: Fri, 7 Mar 2014 16:35:07 -0800
+Message-ID: <1394238907-7977-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:43746 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752107AbaCGUxx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Mar 2014 15:53:53 -0500
-Content-Disposition: inline
-In-Reply-To: <93871091-7845-4BCC-A841-F724BEDF6E4B@gmail.com>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:62925 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751713AbaCHAfL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Mar 2014 19:35:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lukasz Pawelczyk <havner@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, libvir-list@redhat.com, lxc-devel@lists.linuxcontainers.org, systemd-devel@lists.freedesktop.org, David Herrmann <dh.herrmann@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Allie Xiong <axiong@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Fri, Mar 07, 2014 at 09:45:28PM +0100, Lukasz Pawelczyk wrote:
->=20
-> On 7 Mar 2014, at 20:09, Greg KH <gregkh@linuxfoundation.org> wrote:
->=20
-> > On Fri, Mar 07, 2014 at 07:46:44PM +0100, Lukasz Pawelczyk wrote:
-> >> Problem:
-> >> Has anyone thought about a mechanism to limit/remove an access to =
-a
-> >> device during an application runtime? Meaning we have an applicati=
-on
-> >> that has an open file descriptor to some /dev/node and depending o=
-n
-> >> *something* it gains or looses the access to it gracefully (with o=
-r
-> >> without a notification, but without any fatal consequences).
-> >>=20
-> >> Example:
-> >> LXC. Imagine we have 2 separate containers. Both running full oper=
-ating
-> >> systems. Specifically with 2 X servers. Both running concurrently =
-of
-> >> course. Both need the same input devices (e.g. we have just one mo=
-use).
-> >=20
-> > Stop right there.
-> >=20
-> > If they "both" need an input device, then they should use the "shar=
-ed"
-> > input device stream, i.e. evdev.
-> >=20
-> > And it goes the same for every type of device the kernel is exposin=
-g to
-> > userspace, if you want to "share" them, then you need to work on
-> > changing the kernel to be able to handle shared devices.
->=20
-> I think you might have misunderstood me. They are using a shared inpu=
-t
-> stream (evdev in this case). The problem is I don=E2=80=99t want them=
- to
-> eavesdrop on each other. So it=E2=80=99s not about making it to work.=
- It=E2=80=99s
-> about making them to work =E2=80=9Ein turns=E2=80=9D.
+RMI4 Function 0x30 provides support for GPIOs, LEDs and mechanical
+buttons.  In particular, the mechanical button support is used in
+an increasing number of touchpads.
 
-See Lennart's comment about namespaces for devices, and how the kernel
-doesn't support it, for the answer to this.
+Note - this updates the patch of 2014/03/04 to address feedback
+received.
 
-Sorry, not going to happen, use real virtual machines if you want to do
-this.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Allie Xiong <axiong@synaptics.com>
+Acked-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Linux Walleij <linus.walleij@linaro.org>
+Cc: David Herrmann <dh.herrmann@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-greg k-h
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+---
+
+ drivers/input/rmi4/Kconfig   |  12 ++
+ drivers/input/rmi4/Makefile  |   1 +
+ drivers/input/rmi4/rmi_f30.c | 399 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rmi.h          |   7 +-
+ 4 files changed, 418 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index d0c7b6e..14d5f49 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -63,3 +63,15 @@ config RMI4_F11_PEN
+ 	  If your system is not recognizing pen touches and you know your
+ 	  sensor supports pen input, you probably want to turn this feature
+ 	  off.
++
++config RMI4_F30
++        tristate "RMI4 Function 30 (GPIO LED)"
++        depends on RMI4_CORE
++        help
++          Say Y here if you want to add support for RMI4 function 30.
++
++          Function 30 provides GPIO and LED support for RMI4 devices. This
++	  includes support for buttons on TouchPads and ClickPads.
++
++          To compile this driver as a module, choose M here: the
++          module will be called rmi-f30.
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+index 5c6bad5..ecffd72 100644
+--- a/drivers/input/rmi4/Makefile
++++ b/drivers/input/rmi4/Makefile
+@@ -3,6 +3,7 @@ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
+ 
+ # Function drivers
+ obj-$(CONFIG_RMI4_F11) += rmi_f11.o
++obj-$(CONFIG_RMI4_F30) += rmi_f30.o
+ 
+ # Transports
+ obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
+diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+new file mode 100644
+index 0000000..754da61
+--- /dev/null
++++ b/drivers/input/rmi4/rmi_f30.c
+@@ -0,0 +1,399 @@
++/*
++ * Copyright (c) 2012 - 2014 Synaptics Incorporated
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/rmi.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/gpio.h>
++#include <linux/leds.h>
++#include "rmi_driver.h"
++
++#define RMI_F30_QUERY_SIZE			2
++
++/* Defs for Query 0 */
++#define RMI_F30_EXTENDED_PATTERNS		0x01
++#define RMI_F30_HAS_MAPPABLE_BUTTONS		(1 << 1)
++#define RMI_F30_HAS_LED				(1 << 2)
++#define RMI_F30_HAS_GPIO			(1 << 3)
++#define RMI_F30_HAS_HAPTIC			(1 << 4)
++#define RMI_F30_HAS_GPIO_DRV_CTL		(1 << 5)
++#define RMI_F30_HAS_MECH_MOUSE_BTNS		(1 << 6)
++
++/* Defs for Query 1 */
++#define RMI_F30_GPIO_LED_COUNT			0x1F
++
++/* Defs for Control Registers */
++#define RMI_F30_CTRL_1_GPIO_DEBOUNCE		0x01
++#define RMI_F30_CTRL_1_HALT			(1 << 4)
++#define RMI_F30_CTRL_1_HALTED			(1 << 5)
++#define RMI_F30_CTRL_10_NUM_MECH_MOUSE_BTNS	0x03
++
++struct rmi_f30_ctrl_data {
++	int address;
++	int length;
++	u8 *regs;
++};
++
++#define RMI_F30_CTRL_MAX_REGS		32
++#define RMI_F30_CTRL_MAX_BYTES		((RMI_F30_CTRL_MAX_REGS + 7) >> 3)
++#define RMI_F30_CTRL_MAX_REG_BLOCKS	11
++
++#define RMI_F30_CTRL_REGS_MAX_SIZE (RMI_F30_CTRL_MAX_BYTES		\
++					+ 1				\
++					+ RMI_F30_CTRL_MAX_BYTES	\
++					+ RMI_F30_CTRL_MAX_BYTES	\
++					+ RMI_F30_CTRL_MAX_BYTES	\
++					+ 6				\
++					+ RMI_F30_CTRL_MAX_REGS		\
++					+ RMI_F30_CTRL_MAX_REGS		\
++					+ RMI_F30_CTRL_MAX_BYTES	\
++					+ 1				\
++					+ 1)
++
++struct f30_data {
++	/* Query Data */
++	bool has_extended_pattern;
++	bool has_mappable_buttons;
++	bool has_led;
++	bool has_gpio;
++	bool has_haptic;
++	bool has_gpio_driver_control;
++	bool has_mech_mouse_btns;
++	u8 gpioled_count;
++
++	u8 register_count;
++
++	/* Control Register Data */
++	struct rmi_f30_ctrl_data ctrl[RMI_F30_CTRL_MAX_REG_BLOCKS];
++	u8 ctrl_regs[RMI_F30_CTRL_REGS_MAX_SIZE];
++	u32 ctrl_regs_size;
++
++	u8 data_regs[RMI_F30_CTRL_MAX_BYTES];
++	u16 *gpioled_key_map;
++	u8 *gpioled_sense_map;
++
++	char input_phys[NAME_BUFFER_SIZE];
++	struct input_dev *input;
++};
++
++static int rmi_f30_read_control_parameters(struct rmi_function *fn,
++						struct f30_data *f30)
++{
++	struct rmi_device *rmi_dev = fn->rmi_dev;
++	int error = 0;
++
++	error = rmi_read_block(rmi_dev, fn->fd.control_base_addr,
++				f30->ctrl_regs, f30->ctrl_regs_size);
++	if (error) {
++		dev_err(&rmi_dev->dev, "%s : Could not read control registers at 0x%x error (%d)\n",
++			__func__, fn->fd.control_base_addr, error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
++{
++	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
++	int retval;
++	int gpiled = 0;
++	int value = 0;
++	int i;
++	int reg_num;
++
++	/* Read the gpi led data. */
++	retval = rmi_read_block(fn->rmi_dev, fn->fd.data_base_addr,
++		f30->data_regs, f30->register_count);
++
++	if (retval) {
++		dev_err(&fn->dev, "%s: Failed to read F30 data registers.\n",
++			__func__);
++		return retval;
++	}
++
++	for (reg_num = 0; reg_num < f30->register_count; ++reg_num) {
++		for (i = 0; gpiled < f30->gpioled_count && i < 8; ++i,
++			++gpiled) {
++			if (f30->gpioled_key_map[gpiled] != 0) {
++				value = (((f30->data_regs[reg_num] >> i) & 0x01)
++					 == f30->gpioled_sense_map[gpiled]);
++
++				dev_dbg(&fn->dev,
++					"%s: call input report key (0x%04x) value (0x%02x)",
++					__func__,
++					f30->gpioled_key_map[gpiled], value);
++				input_report_key(f30->input,
++					f30->gpioled_key_map[gpiled],
++					value);
++			}
++
++		}
++	}
++
++	input_sync(f30->input); /* sync after groups of events */
++	return 0;
++}
++
++static int rmi_f30_register_device(struct rmi_function *fn)
++{
++	int i;
++	int rc;
++	struct rmi_device *rmi_dev = fn->rmi_dev;
++	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
++	struct rmi_driver *driver = fn->rmi_dev->driver;
++	struct input_dev *input_dev;
++
++	input_dev = devm_input_allocate_device(&fn->dev);
++	if (!input_dev) {
++		dev_err(&fn->dev, "Failed to allocate input device.\n");
++		return -ENOMEM;
++	}
++
++	f30->input = input_dev;
++
++	if (driver->set_input_params) {
++		rc = driver->set_input_params(rmi_dev, input_dev);
++		if (rc < 0) {
++			dev_err(&fn->dev, "%s: Error in setting input device.\n",
++				__func__);
++			return rc;
++		}
++	}
++	sprintf(f30->input_phys, "%s/input0", dev_name(&fn->dev));
++	input_dev->phys = f30->input_phys;
++	input_dev->dev.parent = &rmi_dev->dev;
++	input_set_drvdata(input_dev, f30);
++
++	set_bit(EV_SYN, input_dev->evbit);
++	set_bit(EV_KEY, input_dev->evbit);
++
++	input_dev->keycode = f30->gpioled_key_map;
++	input_dev->keycodesize = sizeof(u16);
++	input_dev->keycodemax = f30->gpioled_count;
++
++	for (i = 0; i < f30->gpioled_count; i++) {
++		if (f30->gpioled_key_map[i] != 0)
++			input_set_capability(input_dev, EV_KEY,
++						f30->gpioled_key_map[i]);
++	}
++
++	rc = input_register_device(input_dev);
++	if (rc < 0) {
++		dev_err(&fn->dev, "Failed to register input device.\n");
++		return rc;
++	}
++	return 0;
++}
++
++static int rmi_f30_config(struct rmi_function *fn)
++{
++	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
++	int error;
++
++	/* Write Control Register values back to device */
++	error = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
++				f30->ctrl_regs, f30->ctrl_regs_size);
++	if (error) {
++		dev_err(&fn->rmi_dev->dev,
++			"%s : Could not write control registers at 0x%x error (%d)\n",
++			__func__, fn->fd.control_base_addr, error);
++		return error;
++	}
++
++	return 0;
++}
++
++static inline void rmi_f30_set_ctrl_data(struct rmi_f30_ctrl_data *ctrl,
++					int *ctrl_addr, int len, u8 **reg)
++{
++	ctrl->address = *ctrl_addr;
++	ctrl->length = len;
++	ctrl->regs = *reg;
++	*ctrl_addr += len;
++	*reg += len;
++}
++
++static inline int rmi_f30_initialize(struct rmi_function *fn)
++{
++	struct f30_data *f30;
++	struct rmi_device *rmi_dev = fn->rmi_dev;
++	const struct rmi_device_platform_data *pdata;
++	int retval = 0;
++	int control_address;
++	u8 buf[RMI_F30_QUERY_SIZE];
++	u8 *ctrl_reg;
++	u8 *map_memory;
++
++	f30 = devm_kzalloc(&fn->dev, sizeof(struct f30_data),
++			   GFP_KERNEL);
++	if (!f30) {
++		dev_err(&fn->dev, "Failed to allocate f30_data.\n");
++		return -ENOMEM;
++	}
++	dev_set_drvdata(&fn->dev, f30);
++
++	retval = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr, buf,
++				RMI_F30_QUERY_SIZE);
++
++	if (retval) {
++		dev_err(&fn->dev, "Failed to read query register.\n");
++		return retval;
++	}
++
++	f30->has_extended_pattern = buf[0] & RMI_F30_EXTENDED_PATTERNS;
++	f30->has_mappable_buttons = buf[0] & RMI_F30_HAS_MAPPABLE_BUTTONS;
++	f30->has_led = buf[0] & RMI_F30_HAS_LED;
++	f30->has_gpio = buf[0] & RMI_F30_HAS_GPIO;
++	f30->has_haptic = buf[0] & RMI_F30_HAS_HAPTIC;
++	f30->has_gpio_driver_control = buf[0] & RMI_F30_HAS_GPIO_DRV_CTL;
++	f30->has_mech_mouse_btns = buf[0] & RMI_F30_HAS_MECH_MOUSE_BTNS;
++	f30->gpioled_count = buf[1] & RMI_F30_GPIO_LED_COUNT;
++
++	f30->register_count = (f30->gpioled_count + 7) >> 3;
++
++	control_address = fn->fd.control_base_addr;
++	ctrl_reg = f30->ctrl_regs;
++
++	/* Allocate buffers for the control registers */
++	if (f30->has_led && f30->has_led)
++		rmi_f30_set_ctrl_data(&f30->ctrl[0], &control_address,
++					f30->register_count, &ctrl_reg);
++
++	rmi_f30_set_ctrl_data(&f30->ctrl[1], &control_address, sizeof(u8),
++				&ctrl_reg);
++
++	if (f30->has_gpio) {
++		rmi_f30_set_ctrl_data(&f30->ctrl[2], &control_address,
++					f30->register_count, &ctrl_reg);
++
++		rmi_f30_set_ctrl_data(&f30->ctrl[3], &control_address,
++					f30->register_count, &ctrl_reg);
++	}
++
++	if (f30->has_led) {
++		int ctrl5_len;
++
++		rmi_f30_set_ctrl_data(&f30->ctrl[4], &control_address,
++					f30->register_count, &ctrl_reg);
++
++		if (f30->has_extended_pattern)
++			ctrl5_len = 6;
++		else
++			ctrl5_len = 2;
++
++		rmi_f30_set_ctrl_data(&f30->ctrl[5], &control_address,
++					ctrl5_len, &ctrl_reg);
++	}
++
++	if (f30->has_led || f30->has_gpio_driver_control) {
++		/* control 6 uses a byte per gpio/led */
++		rmi_f30_set_ctrl_data(&f30->ctrl[6], &control_address,
++					f30->gpioled_count, &ctrl_reg);
++	}
++
++	if (f30->has_mappable_buttons) {
++		/* control 7 uses a byte per gpio/led */
++		rmi_f30_set_ctrl_data(&f30->ctrl[7], &control_address,
++					f30->gpioled_count, &ctrl_reg);
++	}
++
++	if (f30->has_haptic) {
++		rmi_f30_set_ctrl_data(&f30->ctrl[8], &control_address,
++					f30->register_count, &ctrl_reg);
++
++		rmi_f30_set_ctrl_data(&f30->ctrl[9], &control_address,
++					sizeof(u8), &ctrl_reg);
++	}
++
++	if (f30->has_mech_mouse_btns)
++		rmi_f30_set_ctrl_data(&f30->ctrl[10], &control_address,
++					sizeof(u8), &ctrl_reg);
++
++	f30->ctrl_regs_size = ctrl_reg - f30->ctrl_regs
++				?: RMI_F30_CTRL_REGS_MAX_SIZE;
++
++	map_memory = devm_kzalloc(&fn->dev,
++				(f30->gpioled_count
++				* (sizeof(u16) + sizeof(u8))),
++				GFP_KERNEL);
++	if (!map_memory) {
++		dev_err(&fn->dev, "Failed to allocate gpioled map memory.\n");
++		return -ENOMEM;
++	}
++
++	f30->gpioled_key_map = (u16 *)map_memory;
++	f30->gpioled_sense_map = map_memory + sizeof(u16)
++					* f30->gpioled_count;
++
++	pdata = rmi_get_platform_data(rmi_dev);
++	if (pdata) {
++		if (!pdata->gpioled_map) {
++			dev_warn(&fn->dev,
++				"%s - gpioled_map is NULL", __func__);
++		} else if (!pdata->gpioled_map->map) {
++			dev_warn(&fn->dev,
++				 "Platform Data button map is missing!\n");
++		} else {
++			int i;
++			for (i = 0; i < f30->gpioled_count
++				|| i < pdata->gpioled_map->ngpioleds; i++) {
++				f30->gpioled_key_map[i] =
++					pdata->gpioled_map->map[i].button;
++				f30->gpioled_sense_map[i] =
++					pdata->gpioled_map->map[i].sense;
++			}
++		}
++	}
++
++	retval = rmi_f30_read_control_parameters(fn, f30);
++	if (retval < 0) {
++		dev_err(&fn->dev,
++			"Failed to initialize F19 control params.\n");
++		return retval;
++	}
++
++	return 0;
++}
++
++static int rmi_f30_probe(struct rmi_function *fn)
++{
++	int rc;
++
++	rc = rmi_f30_initialize(fn);
++	if (rc < 0)
++		goto error_exit;
++
++	rc = rmi_f30_register_device(fn);
++	if (rc < 0)
++		goto error_exit;
++
++	return 0;
++
++error_exit:
++	return rc;
++
++}
++
++static struct rmi_function_handler rmi_f30_handler = {
++	.driver = {
++		.name = "rmi_f30",
++	},
++	.func = 0x30,
++	.probe = rmi_f30_probe,
++	.config = rmi_f30_config,
++	.attention = rmi_f30_attention,
++};
++
++module_rmi_driver(rmi_f30_handler);
++
++MODULE_AUTHOR("Allie Xiong <axiong@synaptics.com>");
++MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
++MODULE_DESCRIPTION("RMI F30 module");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index 735e978..889a627 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -139,9 +139,14 @@ struct rmi_button_map {
+ 	u8 *map;
+ };
+ 
++struct rmi_f30_button {
++	u16 button;
++	int sense;
++};
++
+ struct rmi_f30_gpioled_map {
+ 	u8 ngpioleds;
+-	u8 *map;
++	struct rmi_f30_button *map;
+ };
+ 
+ /**

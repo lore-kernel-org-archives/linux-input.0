@@ -1,62 +1,367 @@
-From: Lennart Poettering <mzerqung@0pointer.de>
-Subject: Re: Suspending access to opened/active /dev/nodes
- during application runtime
-Date: Sat, 8 Mar 2014 03:39:29 +0100
-Message-ID: <20140308023929.GA1413@tango.0pointer.de>
-References: <9D7BA6C9-9F1F-4D09-8F4F-E7DA4720FF97@gmail.com>
-	<20140307192410.GA24453@tango.0pointer.de>
-	<9E972401-6FA3-439B-9531-49D1FCC8D61D@gmail.com>
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [RFC V1 2/2] input: misc: da9063: OnKey driver
+Date: Sat, 8 Mar 2014 10:17:59 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7A0C6C9BF@SW-EX-MBX02.diasemi.com>
+References: <cover.1394195865.git.stwiss.opensource@diasemi.com>
+ <ce5a43ad4c028b1553206ee51a27822a614f3404.1394195865.git.stwiss.opensource@diasemi.com>
+ <20140307174614.GA25283@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <9E972401-6FA3-439B-9531-49D1FCC8D61D@gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
-	<mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
-	<mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Sender: systemd-devel-bounces@lists.freedesktop.org
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-To: Lukasz Pawelczyk <havner@gmail.com>
-Cc: libvir-list@redhat.com, systemd-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, lxc-devel@lists.linuxcontainers.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140307174614.GA25283@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Dajun Chen <david.chen@diasemi.com>, LKML-INPUT <linux-input@vger.kernel.org>, LKML-KERNEL <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCAwNy4wMy4xNCAyMTo1MSwgTHVrYXN6IFBhd2VsY3p5ayAoaGF2bmVyQGdtYWlsLmNv
-bSkgd3JvdGU6Cgo+ID4+IFByb2JsZW06Cj4gPj4gSGFzIGFueW9uZSB0aG91Z2h0IGFib3V0IGEg
-bWVjaGFuaXNtIHRvIGxpbWl0L3JlbW92ZSBhbiBhY2Nlc3MgdG8gYQo+ID4+IGRldmljZSBkdXJp
-bmcgYW4gYXBwbGljYXRpb24gcnVudGltZT8gTWVhbmluZyB3ZSBoYXZlIGFuCj4gPj4gYXBwbGlj
-YXRpb24gdGhhdCBoYXMgYW4gb3BlbiBmaWxlIGRlc2NyaXB0b3IgdG8gc29tZSAvZGV2L25vZGUg
-YW5kCj4gPj4gZGVwZW5kaW5nIG9uICpzb21ldGhpbmcqIGl0IGdhaW5zIG9yIGxvb3NlcyB0aGUg
-YWNjZXNzIHRvIGl0Cj4gPj4gZ3JhY2VmdWxseSAod2l0aCBvciB3aXRob3V0IGEgbm90aWZpY2F0
-aW9uLCBidXQgd2l0aG91dCBhbnkgZmF0YWwKPiA+PiBjb25zZXF1ZW5jZXMpLgo+ID4gCj4gPiBs
-b2dpbmQgY2FuIG11dGUgaW5wdXQgZGV2aWNlcyBhcyBzZXNzaW9ucyBhcmUgc3dpdGNoZWQsIHRv
-IGVuYWJsZQo+ID4gdW5wcml2aWxpZ2VkIFgxMSBhbmQgd2F5bGFuZCBjb21wb3NpdG9ycy4KPiAK
-PiBXb3VsZCB5b3UgcGxlYXNlIGVsYWJvcmF0ZSBvbiB0aGlzPyBXaGVyZSBpcyB0aGlzIG1lY2hh
-bmlzbT8gSG93IGRvZXMKPiBpdCB3b3JrIHdpdGhvdXQga2VybmVsIHNwYWNlIHN1cHBvcnQ/IElz
-IHRoZXJlIHNvbWUga2VybmVsIHNwYWNlCj4gc3VwcG9ydCBJ4oCZbSBub3QgYXdhcmUgb2Y/CgpU
-aGVyZSdzIEVWSU9DUkVWT0tFIGZvciBpbnB1dCBkZXZpY2VzIGFuZApEUk1fSU9DVExfU0VUX01B
-U1RFUi9EUk1fSU9DVExfRFJPUF9NQVNURVIgZm9yIERSTSBkZXZpY2VzLiBTZWUgbG9naW5kCnNv
-dXJjZXMuCgo+ID4gQmVmb3JlIHlvdSB0aGluayBhYm91dCBkb2luZyBzb21ldGhpbmcgbGlrZSB0
-aGlzLCB5b3UgbmVlZCB0byBmaXggdGhlCj4gPiBrZXJuZWwgdG8gcHJvdmlkZSBuYW1lc3BhY2Vk
-IGRldmljZXMgKGdvb2QgbHVjayEpCj4gCj4gUHJlY2lzbHkhIFRoYXTigJlzIHRoZSBnZW5lcmlj
-IGlkZWEuIEnigJltIG5vdCBmb3IgaW1wbGVtZW50aW5nIGl0IHRob3VnaAo+IGF0IHRoaXMgbW9t
-ZW50LiBJIGp1c3Qgd2FudGVkIHRvIGtub3cgd2hldGhlciBhbnlib2R5IGFjdHVhbGx5IHRob3Vn
-aAo+IGFib3V0IGl0IG9yIG1heWJlIHNvbWVvbmUgaXMgaW50ZXJlc3RlZCBpbiBzdGFydGluZyBz
-dWNoIGEgd29yaywgZXRjLgoKSXQncyBub3QganVzdCBhYm91dCB0dXJuaW5nIG9uIGFuZCB0dXJu
-aW5nIG9mZiBhY2Nlc3MgdG8gdGhlIGV2ZW50CnN0cmVhbS4gSXQncyBtb3N0bHkgYWJvdXQgZW51
-bWVyYXRpb24gYW5kIHByb2Jpbmcgd2hpY2ggZG9lc24ndCB3b3JrIGluCmNvbnRhaW5lcnMsIGFu
-ZCBpcyBwYXJ0aWN1bGFybHkgbWVzc3kgaWYgeW91IGludGVuZCB0byBzaGFyZSBkZXZpY2VzCmJl
-dHdlZW4gY29udGFpbmVycy4KCj4gPiBsb2dpbmQgY2FuIGRvIHRoaXMgZm9yIHlvdSBiZXR3ZWVu
-IHNlc3Npb25zLiBCdXQgc3VjaCBhIGNvbnRhaW5lciBzZXR1cAo+ID4gd2lsbCBuZXZlciB3b3Jr
-IHdpdGhvdXQgcHJvcGVyIGRldmljZSBuYW1lc3BhY2luZy4KPiAKPiBTbyBob3cgY2FuIGl0IGRv
-IGl0IHdoZW4gdGhlcmUgaXMgbm8ga2VybmVsIHN1cHBvcnQ/IFlvdSBtZWFuIGl0IGNvdWxkCj4g
-YmUgZG9pbmcgdGhpcyBpZiB0aGUgc3VwcG9ydCB3ZXJlIHRoZXJlPwoKRVZJT0NSRVZPS0UgYW5k
-IHRoZSBEUk0gaW9jdGxzIGFyZSBwcmV0dHkgcmVhbC4uLgoKTGVubmFydAoKLS0gCkxlbm5hcnQg
-UG9ldHRlcmluZywgUmVkIEhhdApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpzeXN0ZW1kLWRldmVsIG1haWxpbmcgbGlzdApzeXN0ZW1kLWRldmVsQGxpc3Rz
-LmZyZWVkZXNrdG9wLm9yZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
-dGluZm8vc3lzdGVtZC1kZXZlbAo=
+On 07 March 2014 17:46, Dmitry Torokhov wrote:
+
+>Hi Steve,
+>
+>On Fri, Mar 07, 2014 at 12:37:45PM +0000, Opensource [Steve Twiss] wrote:
+>> From: Opensource [Steve Twiss] <stwiss.opensource@diasemi.com>
+>>
+>> Add the OnKey driver for DA9063.
+>>
+>>
+>> Signed-off-by: Opensource [Steve Twiss] <stwiss.opensource@diasemi.com>
+>> ---
+>> Checks performed with next-20140307/scripts/checkpatch.pl
+>>  da9063-onkey.c            total: 0 errors, 0 warnings, 202 lines checked
+>>  Kconfig                   total: 0 errors, 11 warnings, 679 lines checked
+>>  Makefile                  total: 0 errors, 0 warnings, 66 lines checked
+>>
+>> Hello,
+>>
+>> This is a RFC for the Dialog DA9063 Onkey driver.
+>>
+>> Dependencies:
+>>
+>> This driver makes use of the name field "ONKEY" as part of the
+>> function call: platform_get_irq_byname();
+>>
+>> This driver is therefore dependent on this change to the name field
+>> in the properties of the the OnKey IORESOURCE_IRQ resource structure
+>> (part of the mfd_cell Onkey resource inside da9063-core.c). This
+>> change will be added as part of the final set when I submit all patches
+>> as a single PATCH set.
+>>
+>> This patch applies against kernel version linux-next next-20140307
+>>
+>> Regards,
+>> Steve Twiss, Dialog Semiconductor Ltd.
+>>
+>>
+>>
+>>  drivers/input/misc/Kconfig        |   10 ++
+>>  drivers/input/misc/Makefile       |    1 +
+>>  drivers/input/misc/da9063-onkey.c |  202
+>+++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 213 insertions(+)
+>>  create mode 100644 drivers/input/misc/da9063-onkey.c
+>>
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index 762e6d2..3deb008 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -522,6 +522,16 @@ config INPUT_DA9055_ONKEY
+>>  	  To compile this driver as a module, choose M here: the module
+>>  	  will be called da9055_onkey.
+>>
+>> +config INPUT_DA9063_ONKEY
+>> +	tristate "Dialog DA9063 OnKey"
+>> +	depends on MFD_DA9063
+>> +	help
+>> +	  Support the ONKEY of Dialog DA9063 Power Management IC as an
+>> +	  input device reporting power button statue.
+>> +
+>> +	  To compile this driver as a module, choose M here: the module
+>> +	  will be called da9063-onkey.
+>> +
+>>  config INPUT_DM355EVM
+>>  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
+>>  	depends on MFD_DM355EVM_MSP
+>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+>> index cda71fc..f40caa7 100644
+>> --- a/drivers/input/misc/Makefile
+>> +++ b/drivers/input/misc/Makefile
+>> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+=
+>cma3000_d0x_i2c.o
+>>  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+>>  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+>>  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+>> +obj-$(CONFIG_INPUT_DA9063_ONKEY)	+= da9063-onkey.o
+>>  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+>>  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
+>>  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
+>> diff --git a/drivers/input/misc/da9063-onkey.c b/drivers/input/misc/da9063-
+>onkey.c
+>> new file mode 100644
+>> index 0000000..654f52b
+>> --- /dev/null
+>> +++ b/drivers/input/misc/da9063-onkey.c
+>> @@ -0,0 +1,202 @@
+>> +/* da9063-onkey.c - Onkey device driver for DA9063
+>> + * Copyright (C) 2013  Dialog Semiconductor Ltd.
+>> + *
+>> + * This library is free software; you can redistribute it and/or
+>> + * modify it under the terms of the GNU Library General Public
+>> + * License as published by the Free Software Foundation; either
+>> + * version 2 of the License, or (at your option) any later version.
+>> + *
+>> + * This library is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>GNU
+>> + * Library General Public License for more details.
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/errno.h>
+>> +#include <linux/input.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/workqueue.h>
+>> +#include <linux/regmap.h>
+>> +
+>> +#include <linux/mfd/da9063/core.h>
+>> +#include <linux/mfd/da9063/pdata.h>
+>> +#include <linux/mfd/da9063/registers.h>
+>> +
+>> +struct da9063_onkey {
+>> +	struct	da9063 *hw;
+>> +	struct delayed_work work;
+>> +	struct	input_dev *input;
+>> +	bool key_power;
+>> +};
+>> +
+>> +static void da9063_poll_on(struct work_struct *work)
+>> +{
+>> +	struct da9063_onkey *onkey = container_of(work, struct da9063_onkey,
+>> +						  work.work);
+>> +	unsigned int val;
+>> +	int poll = 1;
+>
+>Please use booleans for boolean data:
+>
+>	bool poll = true;
+>
+
+Yes, I'll add those changes.
+
+
+>> +	int ret;
+>> +
+>> +	/* poll to see when the pin is deasserted */
+>> +	ret = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
+>> +	if (ret < 0) {
+>> +		dev_err(&onkey->input->dev,
+>> +			"Failed to read ON status: %d\n", ret);
+>> +		goto err_poll;
+>> +	}
+>> +
+>> +	if (!(val & DA9063_NONKEY)) {
+>> +		ret = regmap_update_bits(onkey->hw->regmap,
+>> +					 DA9063_REG_CONTROL_B,
+>> +					 DA9063_NONKEY_LOCK, 0);
+>> +		if (ret < 0) {
+>> +			dev_err(&onkey->input->dev,
+>> +				"Failed to reset the Key Delay %d\n", ret);
+>> +			goto err_poll;
+>> +		}
+>> +
+>> +		input_report_key(onkey->input, KEY_POWER, 0);
+>> +		input_sync(onkey->input);
+>
+>This is confusing. Why we report key only if we successfully did the
+>first write but we do not care about the second?
+>
+
+I'll clarify this ..	
+
+>> +
+>> +		/* unmask the onkey interrupt again */
+>> +		ret = regmap_update_bits(onkey->hw->regmap,
+>> +					 DA9063_REG_IRQ_MASK_A,
+>> +					 DA9063_NONKEY, 0);
+>> +		if (ret < 0) {
+>> +			dev_err(&onkey->input->dev,
+>> +				"Failed to unmask the onkey IRQ: %d\n", ret);
+>> +			goto err_poll;
+>> +		}
+>> +
+>> +		poll = 0;
+>
+>		poll = false;
+>
+
+Yep..
+This also
+
+>> +	}
+>> +
+>> +err_poll:
+>> +	if (poll)
+>> +		schedule_delayed_work(&onkey->work, 50);
+>> +}
+>> +
+>> +static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
+>> +{
+>> +	struct da9063_onkey *onkey = data;
+>> +	unsigned int val;
+>> +	int ret;
+>> +
+>> +	ret = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
+>> +	if (onkey->key_power && (ret >= 0) && (val & DA9063_NONKEY)) {
+>> +		ret = regmap_update_bits(onkey->hw->regmap,
+>> +					 DA9063_REG_IRQ_MASK_A,
+>> +					 DA9063_NONKEY, 1);
+>> +		if (ret < 0)
+>> +			dev_err(&onkey->input->dev,
+>> +				"Failed to mask the onkey IRQ: %d\n", ret);
+>> +
+>> +		input_report_key(onkey->input, KEY_POWER, 1);
+>> +		input_sync(onkey->input);
+>> +
+>> +		schedule_delayed_work(&onkey->work, 0);
+>> +		dev_dbg(&onkey->input->dev, "KEY_POWER pressed.\n");
+>> +	} else {
+>> +		input_report_key(onkey->input, KEY_SLEEP, 1);
+>
+>You need input_sync()  here as well.
+>
+
+Okay, thanks.
+
+>> +		input_report_key(onkey->input, KEY_SLEEP, 0);
+>> +		input_sync(onkey->input);
+>> +		dev_dbg(&onkey->input->dev, "KEY_SLEEP pressed.\n");
+>> +	}
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int da9063_onkey_probe(struct platform_device *pdev)
+>> +{
+>> +	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
+>> +	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
+>> +	struct da9063_onkey *onkey;
+>> +	bool kp_tmp = true;
+>> +	int ret = 0;
+>> +	int irq;
+>> +
+>> +	if (pdata)
+>> +		kp_tmp = pdata->key_power;
+>> +
+>> +	if (!kp_tmp)
+>> +		dev_err(&pdev->dev,
+>> +			"Software power down key is not set.\n");
+>
+>Why is this an error?
+>
+
+Um, yeah, this isn't an error at all.
+Sorry
+
+>> +
+>> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
+>> +			     GFP_KERNEL);
+>> +	if (!onkey) {
+>> +		dev_err(&pdev->dev, "Failed to allocate memory.\n");
+>> +		return -ENOMEM;
+>> +	}
+>> +
+>> +	INIT_DELAYED_WORK(&onkey->work, da9063_poll_on);
+>> +
+>> +	onkey->input = devm_input_allocate_device(&pdev->dev);
+>> +	if (!onkey->input) {
+>> +		dev_err(&pdev->dev, "Failed to allocated input device.\n");
+>> +		return -ENOMEM;
+>> +	}
+>> +
+>> +	irq = platform_get_irq_byname(pdev, "ONKEY");
+>> +	if (irq < 0) {
+>> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
+>> +		return irq;
+>> +	}
+>> +
+>> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+>> +					da9063_onkey_irq_handler,
+>> +					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>> +					"ONKEY", onkey);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev,
+>> +			"Failed to request input device IRQ.\n");
+>> +		return ret;
+>> +	}
+>> +
+>> +	onkey->hw = da9063;
+>> +	onkey->key_power = kp_tmp;
+>> +	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
+>> +	onkey->input->name = DA9063_DRVNAME_ONKEY;
+>> +	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
+>> +	onkey->input->dev.parent = &pdev->dev;
+>> +
+>> +	if (onkey->key_power)
+>> +		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
+>> +	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
+>> +
+>> +	ret = input_register_device(onkey->input);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev,
+>> +			"Failed to register input device.\n");
+>> +		return ret;
+>> +	}
+>> +
+>> +	platform_set_drvdata(pdev, onkey);
+>> +	return ret;
+>> +}
+>> +
+>> +static int da9063_onkey_remove(struct platform_device *pdev)
+>> +{
+>> +	struct	da9063_onkey *onkey = platform_get_drvdata(pdev);
+>> +	cancel_delayed_work_sync(&onkey->work);
+>
+>This is racy. Nothing stops IRQ from firing again and rescheduling the
+>work item. You are also missing canceling work item in error path pf
+>probe().
+>
+
+Ah. 
+I will look at this whole item again, especially the error paths
+
+>> +	input_unregister_device(onkey->input);
+>> +	return 0;
+>> +}
+>> +
+>> +static struct platform_driver da9063_onkey_driver = {
+>> +	.probe	= da9063_onkey_probe,
+>> +	.remove	= da9063_onkey_remove,
+>> +	.driver	= {
+>> +		.name	= DA9063_DRVNAME_ONKEY,
+>> +		.owner	= THIS_MODULE,
+>> +	},
+>> +};
+>> +
+>> +module_platform_driver(da9063_onkey_driver);
+>> +
+>> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
+>> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
+>> +MODULE_LICENSE("GPL v2");
+>> +MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
+>> --
+>> end-of-patch for RFC V1
+>>
+>
+>Thanks.
+>
+>--
+>Dmitry
+
+Thank you for taking the time to work through this.
+I will make the changes you have listed and then resubmit.
+
+Regards,
+Steve

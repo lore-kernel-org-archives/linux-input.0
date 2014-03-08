@@ -1,367 +1,567 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [RFC V1 2/2] input: misc: da9063: OnKey driver
-Date: Sat, 8 Mar 2014 10:17:59 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7A0C6C9BF@SW-EX-MBX02.diasemi.com>
-References: <cover.1394195865.git.stwiss.opensource@diasemi.com>
- <ce5a43ad4c028b1553206ee51a27822a614f3404.1394195865.git.stwiss.opensource@diasemi.com>
- <20140307174614.GA25283@core.coreip.homeip.net>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/7] mfd: AXP20x: Add mfd driver for AXP20x PMIC
+Date: Sat, 8 Mar 2014 12:31:41 +0100
+Message-ID: <20140308113141.GA14009@localhost.fastwebnet.it>
+References: <1393692352-10839-1-git-send-email-carlo@caione.org>
+ <1393692352-10839-2-git-send-email-carlo@caione.org>
+ <20140307180936.GY607@lukather>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140307174614.GA25283@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Dajun Chen <david.chen@diasemi.com>, LKML-INPUT <linux-input@vger.kernel.org>, LKML-KERNEL <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBB3P65OMAKGQESAIPXQQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140307180936.GY607@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 07 March 2014 17:46, Dmitry Torokhov wrote:
+On Fri, Mar 07, 2014 at 07:09:36PM +0100, Maxime Ripard wrote:
+> Hi,
+> 
+> On Sat, Mar 01, 2014 at 05:45:46PM +0100, Carlo Caione wrote:
+> > This patch introduces the preliminary support for PMICs X-Powers AXP202
+> > and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
+> > used by A10, A13 and A20 SoCs and developed by X-Powers, a sister company
+> > of Allwinner.
+> > 
+> > The core enables support for two subsystems:
+> > - PEK (Power Enable Key)
+> > - Regulators
+> > 
+> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> > ---
+> >  arch/arm/configs/sunxi_defconfig |   1 +
+> >  drivers/mfd/Kconfig              |  12 ++
+> >  drivers/mfd/Makefile             |   1 +
+> >  drivers/mfd/axp20x.c             | 250 +++++++++++++++++++++++++++++++++++++++
+> >  include/linux/mfd/axp20x.h       | 180 ++++++++++++++++++++++++++++
+> >  5 files changed, 444 insertions(+)
+> >  create mode 100644 drivers/mfd/axp20x.c
+> >  create mode 100644 include/linux/mfd/axp20x.h
+> > 
+> > diff --git a/arch/arm/configs/sunxi_defconfig b/arch/arm/configs/sunxi_defconfig
+> > index 3e2259b..f8aa7e6 100644
+> > --- a/arch/arm/configs/sunxi_defconfig
+> > +++ b/arch/arm/configs/sunxi_defconfig
+> > @@ -52,6 +52,7 @@ CONFIG_GPIO_SYSFS=y
+> >  # CONFIG_HWMON is not set
+> >  CONFIG_WATCHDOG=y
+> >  CONFIG_SUNXI_WATCHDOG=y
+> > +CONFIG_MFD_AXP20X=y
+> >  # CONFIG_USB_SUPPORT is not set
+> >  CONFIG_NEW_LEDS=y
+> >  CONFIG_LEDS_CLASS=y
+> 
+> Please provide a separate patch for both sunxi_defconfig and
+> multi_v7_defconfig.
 
->Hi Steve,
->
->On Fri, Mar 07, 2014 at 12:37:45PM +0000, Opensource [Steve Twiss] wrote:
->> From: Opensource [Steve Twiss] <stwiss.opensource@diasemi.com>
->>
->> Add the OnKey driver for DA9063.
->>
->>
->> Signed-off-by: Opensource [Steve Twiss] <stwiss.opensource@diasemi.com>
->> ---
->> Checks performed with next-20140307/scripts/checkpatch.pl
->>  da9063-onkey.c            total: 0 errors, 0 warnings, 202 lines checked
->>  Kconfig                   total: 0 errors, 11 warnings, 679 lines checked
->>  Makefile                  total: 0 errors, 0 warnings, 66 lines checked
->>
->> Hello,
->>
->> This is a RFC for the Dialog DA9063 Onkey driver.
->>
->> Dependencies:
->>
->> This driver makes use of the name field "ONKEY" as part of the
->> function call: platform_get_irq_byname();
->>
->> This driver is therefore dependent on this change to the name field
->> in the properties of the the OnKey IORESOURCE_IRQ resource structure
->> (part of the mfd_cell Onkey resource inside da9063-core.c). This
->> change will be added as part of the final set when I submit all patches
->> as a single PATCH set.
->>
->> This patch applies against kernel version linux-next next-20140307
->>
->> Regards,
->> Steve Twiss, Dialog Semiconductor Ltd.
->>
->>
->>
->>  drivers/input/misc/Kconfig        |   10 ++
->>  drivers/input/misc/Makefile       |    1 +
->>  drivers/input/misc/da9063-onkey.c |  202
->+++++++++++++++++++++++++++++++++++++
->>  3 files changed, 213 insertions(+)
->>  create mode 100644 drivers/input/misc/da9063-onkey.c
->>
->> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
->> index 762e6d2..3deb008 100644
->> --- a/drivers/input/misc/Kconfig
->> +++ b/drivers/input/misc/Kconfig
->> @@ -522,6 +522,16 @@ config INPUT_DA9055_ONKEY
->>  	  To compile this driver as a module, choose M here: the module
->>  	  will be called da9055_onkey.
->>
->> +config INPUT_DA9063_ONKEY
->> +	tristate "Dialog DA9063 OnKey"
->> +	depends on MFD_DA9063
->> +	help
->> +	  Support the ONKEY of Dialog DA9063 Power Management IC as an
->> +	  input device reporting power button statue.
->> +
->> +	  To compile this driver as a module, choose M here: the module
->> +	  will be called da9063-onkey.
->> +
->>  config INPUT_DM355EVM
->>  	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
->>  	depends on MFD_DM355EVM_MSP
->> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
->> index cda71fc..f40caa7 100644
->> --- a/drivers/input/misc/Makefile
->> +++ b/drivers/input/misc/Makefile
->> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+=
->cma3000_d0x_i2c.o
->>  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
->>  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
->>  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
->> +obj-$(CONFIG_INPUT_DA9063_ONKEY)	+= da9063-onkey.o
->>  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
->>  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
->>  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
->> diff --git a/drivers/input/misc/da9063-onkey.c b/drivers/input/misc/da9063-
->onkey.c
->> new file mode 100644
->> index 0000000..654f52b
->> --- /dev/null
->> +++ b/drivers/input/misc/da9063-onkey.c
->> @@ -0,0 +1,202 @@
->> +/* da9063-onkey.c - Onkey device driver for DA9063
->> + * Copyright (C) 2013  Dialog Semiconductor Ltd.
->> + *
->> + * This library is free software; you can redistribute it and/or
->> + * modify it under the terms of the GNU Library General Public
->> + * License as published by the Free Software Foundation; either
->> + * version 2 of the License, or (at your option) any later version.
->> + *
->> + * This library is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->GNU
->> + * Library General Public License for more details.
->> + */
->> +
->> +#include <linux/module.h>
->> +#include <linux/errno.h>
->> +#include <linux/input.h>
->> +#include <linux/interrupt.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/workqueue.h>
->> +#include <linux/regmap.h>
->> +
->> +#include <linux/mfd/da9063/core.h>
->> +#include <linux/mfd/da9063/pdata.h>
->> +#include <linux/mfd/da9063/registers.h>
->> +
->> +struct da9063_onkey {
->> +	struct	da9063 *hw;
->> +	struct delayed_work work;
->> +	struct	input_dev *input;
->> +	bool key_power;
->> +};
->> +
->> +static void da9063_poll_on(struct work_struct *work)
->> +{
->> +	struct da9063_onkey *onkey = container_of(work, struct da9063_onkey,
->> +						  work.work);
->> +	unsigned int val;
->> +	int poll = 1;
->
->Please use booleans for boolean data:
->
->	bool poll = true;
->
+Ok
 
-Yes, I'll add those changes.
+> > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> > index dd67158..33d38c4 100644
+> > --- a/drivers/mfd/Kconfig
+> > +++ b/drivers/mfd/Kconfig
+> > @@ -59,6 +59,18 @@ config MFD_AAT2870_CORE
+> >  	  additional drivers must be enabled in order to use the
+> >  	  functionality of the device.
+> >  
+> > +config MFD_AXP20X
+> > +	bool "X-Powers AXP20X"
+> > +	select MFD_CORE
+> > +	select REGMAP_I2C
+> > +	select REGMAP_IRQ
+> > +	depends on I2C=y
+> > +	help
+> > +	  If you say Y here you get support for the AXP20X.
+> > +	  This driver provides common support for accessing the device,
+> > +	  additional drivers must be enabled in order to use the
+> > +	  functionality of the device.
+> > +
+> >  config MFD_CROS_EC
+> >  	tristate "ChromeOS Embedded Controller"
+> >  	select MFD_CORE
+> > diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> > index 8a28dc9..371020e 100644
+> > --- a/drivers/mfd/Makefile
+> > +++ b/drivers/mfd/Makefile
+> > @@ -101,6 +101,7 @@ obj-$(CONFIG_PMIC_DA9052)	+= da9052-irq.o
+> >  obj-$(CONFIG_PMIC_DA9052)	+= da9052-core.o
+> >  obj-$(CONFIG_MFD_DA9052_SPI)	+= da9052-spi.o
+> >  obj-$(CONFIG_MFD_DA9052_I2C)	+= da9052-i2c.o
+> > +obj-$(CONFIG_MFD_AXP20X)	+= axp20x.o
+> >  
+> >  obj-$(CONFIG_MFD_LP8788)	+= lp8788.o lp8788-irq.o
+> >  
+> > diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+> > new file mode 100644
+> > index 0000000..92e5b0f
+> > --- /dev/null
+> > +++ b/drivers/mfd/axp20x.c
+> > @@ -0,0 +1,250 @@
+> > +/*
+> > + * axp20x.c - mfd core driver for the X-Powers AXP202 and AXP209
+> > + *
+> > + * Author: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License version 2 as
+> > + * published by the Free Software Foundation.
+> > + */
+> > +
+> > +#include <linux/err.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> > +#include <linux/pm_runtime.h>
+> > +#include <linux/regmap.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/regulator/consumer.h>
+> > +#include <linux/mfd/axp20x.h>
+> > +#include <linux/mfd/core.h>
+> > +#include <linux/of_device.h>
+> > +#include <linux/of_irq.h>
+> > +
+> > +#define AXP20X_OFF	0x80
+> > +
+> > +static const struct regmap_range axp20x_writeable_ranges[] = {
+> > +	regmap_reg_range(AXP20X_DATACACHE(0), AXP20X_IRQ5_STATE),
+> > +	regmap_reg_range(AXP20X_DCDC_MODE, AXP20X_FG_RES),
+> > +};
+> > +
+> > +static const struct regmap_range axp20x_volatile_ranges[] = {
+> > +	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IRQ5_STATE),
+> > +};
+> > +
+> > +static const struct regmap_access_table axp20x_writeable_table = {
+> > +	.yes_ranges	= axp20x_writeable_ranges,
+> > +	.n_yes_ranges	= ARRAY_SIZE(axp20x_writeable_ranges),
+> > +};
+> > +
+> > +static const struct regmap_access_table axp20x_volatile_table = {
+> > +	.yes_ranges	= axp20x_volatile_ranges,
+> > +	.n_yes_ranges	= ARRAY_SIZE(axp20x_volatile_ranges),
+> > +};
+> > +
+> > +static struct resource axp20x_pek_resources[] = {
+> > +	{
+> > +		.name	= "PEK_DBR",
+> > +		.start	= AXP20X_IRQ_PEK_RIS_EDGE,
+> > +		.end	= AXP20X_IRQ_PEK_RIS_EDGE,
+> > +		.flags	= IORESOURCE_IRQ,
+> > +	},
+> > +	{
+> > +		.name	= "PEK_DBF",
+> > +		.start	= AXP20X_IRQ_PEK_FAL_EDGE,
+> > +		.end	= AXP20X_IRQ_PEK_FAL_EDGE,
+> > +		.flags	= IORESOURCE_IRQ,
+> > +	},
+> > +};
+> > +
+> > +static const struct regmap_config axp20x_regmap_config = {
+> > +	.reg_bits	= 8,
+> > +	.val_bits	= 8,
+> > +	.wr_table	= &axp20x_writeable_table,
+> > +	.volatile_table	= &axp20x_volatile_table,
+> > +	.max_register	= AXP20X_FG_RES,
+> > +	.cache_type	= REGCACHE_RBTREE,
+> > +};
+> > +
+> > +#define AXP20X_IRQ(_irq, _off, _mask) \
+> > +	[AXP20X_IRQ_##_irq] = { .reg_offset = (_off), .mask = BIT(_mask) }
+> > +
+> > +static const struct regmap_irq axp20x_regmap_irqs[] = {
+> > +	AXP20X_IRQ(ACIN_OVER_V,		0, 7),
+> > +	AXP20X_IRQ(ACIN_PLUGIN,		0, 6),
+> > +	AXP20X_IRQ(ACIN_REMOVAL,	0, 5),
+> > +	AXP20X_IRQ(VBUS_OVER_V,		0, 4),
+> > +	AXP20X_IRQ(VBUS_PLUGIN,		0, 3),
+> > +	AXP20X_IRQ(VBUS_REMOVAL,	0, 2),
+> > +	AXP20X_IRQ(VBUS_V_LOW,		0, 1),
+> > +	AXP20X_IRQ(BATT_PLUGIN,		1, 7),
+> > +	AXP20X_IRQ(BATT_REMOVAL,	1, 6),
+> > +	AXP20X_IRQ(BATT_ENT_ACT_MODE,	1, 5),
+> > +	AXP20X_IRQ(BATT_EXIT_ACT_MODE,	1, 4),
+> > +	AXP20X_IRQ(CHARG,		1, 3),
+> > +	AXP20X_IRQ(CHARG_DONE,		1, 2),
+> > +	AXP20X_IRQ(BATT_TEMP_HIGH,	1, 1),
+> > +	AXP20X_IRQ(BATT_TEMP_LOW,	1, 0),
+> > +	AXP20X_IRQ(DIE_TEMP_HIGH,	2, 7),
+> > +	AXP20X_IRQ(CHARG_I_LOW,		2, 6),
+> > +	AXP20X_IRQ(DCDC1_V_LONG,	2, 5),
+> > +	AXP20X_IRQ(DCDC2_V_LONG,	2, 4),
+> > +	AXP20X_IRQ(DCDC3_V_LONG,	2, 3),
+> > +	AXP20X_IRQ(PEK_SHORT,		2, 1),
+> > +	AXP20X_IRQ(PEK_LONG,		2, 0),
+> > +	AXP20X_IRQ(N_OE_PWR_ON,		3, 7),
+> > +	AXP20X_IRQ(N_OE_PWR_OFF,	3, 6),
+> > +	AXP20X_IRQ(VBUS_VALID,		3, 5),
+> > +	AXP20X_IRQ(VBUS_NOT_VALID,	3, 4),
+> > +	AXP20X_IRQ(VBUS_SESS_VALID,	3, 3),
+> > +	AXP20X_IRQ(VBUS_SESS_END,	3, 2),
+> > +	AXP20X_IRQ(LOW_PWR_LVL1,	3, 1),
+> > +	AXP20X_IRQ(LOW_PWR_LVL2,	3, 0),
+> > +	AXP20X_IRQ(TIMER,		4, 7),
+> > +	AXP20X_IRQ(PEK_RIS_EDGE,	4, 6),
+> > +	AXP20X_IRQ(PEK_FAL_EDGE,	4, 5),
+> > +	AXP20X_IRQ(GPIO3_INPUT,		4, 3),
+> > +	AXP20X_IRQ(GPIO2_INPUT,		4, 2),
+> > +	AXP20X_IRQ(GPIO1_INPUT,		4, 1),
+> > +	AXP20X_IRQ(GPIO0_INPUT,		4, 0),
+> > +};
+> > +
+> > +static const struct regmap_irq_chip axp20x_regmap_irq_chip = {
+> > +	.name			= "axp20x_irq_chip",
+> > +	.status_base		= AXP20X_IRQ1_STATE,
+> > +	.ack_base		= AXP20X_IRQ1_STATE,
+> > +	.mask_base		= AXP20X_IRQ1_EN,
+> > +	.num_regs		= 5,
+> > +	.irqs			= axp20x_regmap_irqs,
+> > +	.num_irqs		= ARRAY_SIZE(axp20x_regmap_irqs),
+> > +	.mask_invert		= true,
+> > +	.init_ack_masked	= true,
+> > +};
+> > +
+> > +static struct mfd_cell axp20x_cells[] = {
+> > +	{
+> > +		.name		= "axp20x-pek",
+> > +		.of_compatible	= "x-powers,axp20x-pek",
+> 
+> You need to add the x-powers prefix to
+> Documentation/devicetree/bindings/vendor-prefixes.txt, preferably in a
+> separate patch.
 
+Right, thanks
 
->> +	int ret;
->> +
->> +	/* poll to see when the pin is deasserted */
->> +	ret = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
->> +	if (ret < 0) {
->> +		dev_err(&onkey->input->dev,
->> +			"Failed to read ON status: %d\n", ret);
->> +		goto err_poll;
->> +	}
->> +
->> +	if (!(val & DA9063_NONKEY)) {
->> +		ret = regmap_update_bits(onkey->hw->regmap,
->> +					 DA9063_REG_CONTROL_B,
->> +					 DA9063_NONKEY_LOCK, 0);
->> +		if (ret < 0) {
->> +			dev_err(&onkey->input->dev,
->> +				"Failed to reset the Key Delay %d\n", ret);
->> +			goto err_poll;
->> +		}
->> +
->> +		input_report_key(onkey->input, KEY_POWER, 0);
->> +		input_sync(onkey->input);
->
->This is confusing. Why we report key only if we successfully did the
->first write but we do not care about the second?
->
+> > +		.num_resources	= ARRAY_SIZE(axp20x_pek_resources),
+> > +		.resources	= axp20x_pek_resources,
+> > +	}, {
+> > +		.name		= "axp20x-regulator",
+> > +	},
+> > +};
+> > +
+> > +const struct of_device_id axp20x_of_match[] = {
+> > +	{ .compatible = "x-powers,axp202", .data = (void *) AXP202_ID },
+> > +	{ .compatible = "x-powers,axp209", .data = (void *) AXP209_ID },
+> > +	{ },
+> > +};
+> > +
+> > +static struct axp20x_dev *axp20x_pm_power_off;
+> > +static void axp20x_power_off(void)
+> > +{
+> > +	regmap_write(axp20x_pm_power_off->regmap, AXP20X_OFF_CTRL,
+> > +		     AXP20X_OFF);
+> > +}
+> > +
+> > +static int axp20x_i2c_probe(struct i2c_client *i2c,
+> > +			 const struct i2c_device_id *id)
+> > +{
+> > +	struct axp20x_dev *axp20x;
+> > +	const struct of_device_id *of_id;
+> > +	struct device_node *node = i2c->dev.of_node;
+> > +	int ret;
+> > +
+> > +	axp20x = devm_kzalloc(&i2c->dev, sizeof(*axp20x), GFP_KERNEL);
+> > +	if (!axp20x)
+> > +		return -ENOMEM;
+> > +
+> > +	of_id = of_match_device(axp20x_of_match, &i2c->dev);
+> > +	if (!of_id) {
+> > +		dev_err(&i2c->dev, "Unable to setup AXP20X data\n");
+> > +		return -ENODEV;
+> > +	}
+> > +	axp20x->variant = (int) of_id->data;
+> > +
+> > +	axp20x->i2c_client = i2c;
+> > +	axp20x->dev = &i2c->dev;
+> > +	dev_set_drvdata(axp20x->dev, axp20x);
+> > +
+> > +	axp20x->regmap = devm_regmap_init_i2c(i2c, &axp20x_regmap_config);
+> > +	if (IS_ERR(axp20x->regmap)) {
+> > +		ret = PTR_ERR(axp20x->regmap);
+> > +		dev_err(&i2c->dev, "regmap init failed: %d\n", ret);
+> > +		return ret;
+> > +	}
+> > +
+> > +	axp20x->irq = i2c->irq;
+> > +	ret = regmap_add_irq_chip(axp20x->regmap, axp20x->irq,
+> > +				  IRQF_ONESHOT | IRQF_SHARED, -1,
+> > +				  &axp20x_regmap_irq_chip,
+> > +				  &axp20x->regmap_irqc);
+> > +	if (ret) {
+> > +		dev_err(&i2c->dev, "failed to add irq chip: %d\n", ret);
+> > +		return ret;
+> > +	}
+> > +
+> > +	ret = mfd_add_devices(axp20x->dev, -1, axp20x_cells,
+> > +			      ARRAY_SIZE(axp20x_cells), NULL, 0, NULL);
+> > +	if (ret) {
+> > +		dev_err(&i2c->dev, "failed to add MFD devices: %d\n", ret);
+> > +		goto mfd_err;
+> > +	}
+> > +
+> > +	axp20x->pm_off = of_property_read_bool(node, "axp,system-power-controller");
+> > +
+> > +	if (axp20x->pm_off && !pm_power_off) {
+> > +		axp20x_pm_power_off = axp20x;
+> > +		pm_power_off = axp20x_power_off;
+> > +	}
+> 
+> I don't think we have any other way to actually power down the board.
+> 
+> Is there any reason why we would not need this property?
 
-I'll clarify this ..	
+In case you have multiple PMIC on the board in this way you con define
+which is the one apt to power off.
 
->> +
->> +		/* unmask the onkey interrupt again */
->> +		ret = regmap_update_bits(onkey->hw->regmap,
->> +					 DA9063_REG_IRQ_MASK_A,
->> +					 DA9063_NONKEY, 0);
->> +		if (ret < 0) {
->> +			dev_err(&onkey->input->dev,
->> +				"Failed to unmask the onkey IRQ: %d\n", ret);
->> +			goto err_poll;
->> +		}
->> +
->> +		poll = 0;
->
->		poll = false;
->
+> > +	dev_info(&i2c->dev, "AXP20X driver loaded\n");
+> > +
+> > +	return 0;
+> > +
+> > +mfd_err:
+> > +	regmap_del_irq_chip(axp20x->irq, axp20x->regmap_irqc);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +static int axp20x_i2c_remove(struct i2c_client *i2c)
+> > +{
+> > +	struct axp20x_dev *axp20x = i2c_get_clientdata(i2c);
+> > +
+> > +	if (axp20x == axp20x_pm_power_off) {
+> > +		axp20x_pm_power_off = NULL;
+> > +		pm_power_off = NULL;
+> > +	}
+> > +
+> > +	mfd_remove_devices(axp20x->dev);
+> > +	regmap_del_irq_chip(axp20x->i2c_client->irq, axp20x->regmap_irqc);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct i2c_device_id axp20x_i2c_id[] = {
+> > +	{ "axp202", AXP202_ID },
+> > +	{ "axp209", AXP209_ID },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(i2c, axp20x_i2c_id);
+> > +
+> > +static struct i2c_driver axp20x_i2c_driver = {
+> > +	.driver = {
+> > +		.name	= "axp20x",
+> > +		.owner	= THIS_MODULE,
+> > +		.of_match_table	= of_match_ptr(axp20x_of_match),
+> > +	},
+> > +	.probe		= axp20x_i2c_probe,
+> > +	.remove		= axp20x_i2c_remove,
+> > +	.id_table	= axp20x_i2c_id,
+> > +};
+> > +
+> > +module_i2c_driver(axp20x_i2c_driver);
+> > +
+> > +MODULE_DESCRIPTION("PMIC MFD core driver for AXP20X");
+> > +MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
+> > +MODULE_LICENSE("GPL");
+> > diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
+> > new file mode 100644
+> > index 0000000..fcef32c
+> > --- /dev/null
+> > +++ b/include/linux/mfd/axp20x.h
+> > @@ -0,0 +1,180 @@
+> > +/*
+> > + * Functions to access AXP20X power management chip.
+> > + *
+> > + * Copyright (C) 2013, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License version 2 as
+> > + * published by the Free Software Foundation.
+> > + */
+> > +
+> > +#ifndef __LINUX_MFD_AXP20X_H
+> > +#define __LINUX_MFD_AXP20X_H
+> > +
+> > +#define AXP202_ID			0
+> > +#define AXP209_ID			1
+> > +
+> > +#define AXP20X_DATACACHE(m)		(0x04 + (m))
+> > +
+> > +/* Power supply */
+> > +#define AXP20X_PWR_INPUT_STATUS		0x00
+> > +#define AXP20X_PWR_OP_MODE		0x01
+> > +#define AXP20X_USB_OTG_STATUS		0x02
+> > +#define AXP20X_PWR_OUT_CTRL		0x12
+> > +#define AXP20X_DCDC2_V_OUT		0x23
+> > +#define AXP20X_DCDC2_LDO3_V_SCAL	0x25
+> > +#define AXP20X_DCDC3_V_OUT		0x27
+> > +#define AXP20X_LDO24_V_OUT		0x28
+> > +#define AXP20X_LDO3_V_OUT		0x29
+> > +#define AXP20X_VBUS_IPSOUT_MGMT		0x30
+> > +#define AXP20X_V_OFF			0x31
+> > +#define AXP20X_OFF_CTRL			0x32
+> > +#define AXP20X_CHRG_CTRL1		0x33
+> > +#define AXP20X_CHRG_CTRL2		0x34
+> > +#define AXP20X_CHRG_BAK_CTRL		0x35
+> > +#define AXP20X_PEK_KEY			0x36
+> > +#define AXP20X_DCDC_FREQ		0x37
+> > +#define AXP20X_V_LTF_CHRG		0x38
+> > +#define AXP20X_V_HTF_CHRG		0x39
+> > +#define AXP20X_APS_WARN_L1		0x3a
+> > +#define AXP20X_APS_WARN_L2		0x3b
+> > +#define AXP20X_V_LTF_DISCHRG		0x3c
+> > +#define AXP20X_V_HTF_DISCHRG		0x3d
+> > +
+> > +/* Interrupt */
+> > +#define AXP20X_IRQ1_EN			0x40
+> > +#define AXP20X_IRQ2_EN			0x41
+> > +#define AXP20X_IRQ3_EN			0x42
+> > +#define AXP20X_IRQ4_EN			0x43
+> > +#define AXP20X_IRQ5_EN			0x44
+> > +#define AXP20X_IRQ1_STATE		0x48
+> > +#define AXP20X_IRQ2_STATE		0x49
+> > +#define AXP20X_IRQ3_STATE		0x4a
+> > +#define AXP20X_IRQ4_STATE		0x4b
+> > +#define AXP20X_IRQ5_STATE		0x4c
+> > +
+> > +/* ADC */
+> > +#define AXP20X_ACIN_V_ADC_H		0x56
+> > +#define AXP20X_ACIN_V_ADC_L		0x57
+> > +#define AXP20X_ACIN_I_ADC_H		0x58
+> > +#define AXP20X_ACIN_I_ADC_L		0x59
+> > +#define AXP20X_VBUS_V_ADC_H		0x5a
+> > +#define AXP20X_VBUS_V_ADC_L		0x5b
+> > +#define AXP20X_VBUS_I_ADC_H		0x5c
+> > +#define AXP20X_VBUS_I_ADC_L		0x5d
+> > +#define AXP20X_TEMP_ADC_H		0x5e
+> > +#define AXP20X_TEMP_ADC_L		0x5f
+> > +#define AXP20X_TS_IN_H			0x62
+> > +#define AXP20X_TS_IN_L			0x63
+> > +#define AXP20X_GPIO0_V_ADC_H		0x64
+> > +#define AXP20X_GPIO0_V_ADC_L		0x65
+> > +#define AXP20X_GPIO1_V_ADC_H		0x66
+> > +#define AXP20X_GPIO1_V_ADC_L		0x67
+> > +#define AXP20X_PWR_BATT_H		0x70
+> > +#define AXP20X_PWR_BATT_M		0x71
+> > +#define AXP20X_PWR_BATT_L		0x72
+> > +#define AXP20X_BATT_V_H			0x78
+> > +#define AXP20X_BATT_V_L			0x79
+> > +#define AXP20X_BATT_CHRG_I_H		0x7a
+> > +#define AXP20X_BATT_CHRG_I_L		0x7b
+> > +#define AXP20X_BATT_DISCHRG_I_H		0x7c
+> > +#define AXP20X_BATT_DISCHRG_I_L		0x7d
+> > +#define AXP20X_IPSOUT_V_HIGH_H		0x7e
+> > +#define AXP20X_IPSOUT_V_HIGH_L		0x7f
+> > +
+> > +/* Power supply */
+> > +#define AXP20X_DCDC_MODE		0x80
+> > +#define AXP20X_ADC_EN1			0x82
+> > +#define AXP20X_ADC_EN2			0x83
+> > +#define AXP20X_ADC_RATE			0x84
+> > +#define AXP20X_GPIO10_IN_RANGE		0x85
+> > +#define AXP20X_GPIO1_ADC_IRQ_RIS	0x86
+> > +#define AXP20X_GPIO1_ADC_IRQ_FAL	0x87
+> > +#define AXP20X_TIMER_CTRL		0x8a
+> > +#define AXP20X_VBUS_MON			0x8b
+> > +#define AXP20X_OVER_TMP			0x8f
+> > +
+> > +/* GPIO */
+> > +#define AXP20X_GPIO0_CTRL		0x90
+> > +#define AXP20X_LDO5_V_OUT		0x91
+> > +#define AXP20X_GPIO1_CTRL		0x92
+> > +#define AXP20X_GPIO2_CTRL		0x93
+> > +#define AXP20X_GPIO20_SS		0x94
+> > +#define AXP20X_GPIO3_CTRL		0x95
+> > +
+> > +/* Battery */
+> > +#define AXP20X_CHRG_CC_31_24		0xb0
+> > +#define AXP20X_CHRG_CC_23_16		0xb1
+> > +#define AXP20X_CHRG_CC_15_8		0xb2
+> > +#define AXP20X_CHRG_CC_7_0		0xb3
+> > +#define AXP20X_DISCHRG_CC_31_24		0xb4
+> > +#define AXP20X_DISCHRG_CC_23_16		0xb5
+> > +#define AXP20X_DISCHRG_CC_15_8		0xb6
+> > +#define AXP20X_DISCHRG_CC_7_0		0xb7
+> > +#define AXP20X_CC_CTRL			0xb8
+> > +#define AXP20X_FG_RES			0xb9
+> > +
+> > +/* Regulators IDs */
+> > +enum {
+> > +	AXP20X_LDO1 = 0,
+> > +	AXP20X_LDO2,
+> > +	AXP20X_LDO3,
+> > +	AXP20X_LDO4,
+> > +	AXP20X_LDO5,
+> > +	AXP20X_DCDC2,
+> > +	AXP20X_DCDC3,
+> > +	AXP20X_REG_ID_MAX,
+> > +};
+> > +
+> > +/* IRQs */
+> > +enum {
+> > +	AXP20X_IRQ_ACIN_OVER_V = 1,
+> > +	AXP20X_IRQ_ACIN_PLUGIN,
+> > +	AXP20X_IRQ_ACIN_REMOVAL,
+> > +	AXP20X_IRQ_VBUS_OVER_V,
+> > +	AXP20X_IRQ_VBUS_PLUGIN,
+> > +	AXP20X_IRQ_VBUS_REMOVAL,
+> > +	AXP20X_IRQ_VBUS_V_LOW,
+> > +	AXP20X_IRQ_BATT_PLUGIN,
+> > +	AXP20X_IRQ_BATT_REMOVAL,
+> > +	AXP20X_IRQ_BATT_ENT_ACT_MODE,
+> > +	AXP20X_IRQ_BATT_EXIT_ACT_MODE,
+> > +	AXP20X_IRQ_CHARG,
+> > +	AXP20X_IRQ_CHARG_DONE,
+> > +	AXP20X_IRQ_BATT_TEMP_HIGH,
+> > +	AXP20X_IRQ_BATT_TEMP_LOW,
+> > +	AXP20X_IRQ_DIE_TEMP_HIGH,
+> > +	AXP20X_IRQ_CHARG_I_LOW,
+> > +	AXP20X_IRQ_DCDC1_V_LONG,
+> > +	AXP20X_IRQ_DCDC2_V_LONG,
+> > +	AXP20X_IRQ_DCDC3_V_LONG,
+> > +	AXP20X_IRQ_PEK_SHORT = 22,
+> > +	AXP20X_IRQ_PEK_LONG,
+> > +	AXP20X_IRQ_N_OE_PWR_ON,
+> > +	AXP20X_IRQ_N_OE_PWR_OFF,
+> > +	AXP20X_IRQ_VBUS_VALID,
+> > +	AXP20X_IRQ_VBUS_NOT_VALID,
+> > +	AXP20X_IRQ_VBUS_SESS_VALID,
+> > +	AXP20X_IRQ_VBUS_SESS_END,
+> > +	AXP20X_IRQ_LOW_PWR_LVL1,
+> > +	AXP20X_IRQ_LOW_PWR_LVL2,
+> > +	AXP20X_IRQ_TIMER,
+> > +	AXP20X_IRQ_PEK_RIS_EDGE,
+> > +	AXP20X_IRQ_PEK_FAL_EDGE,
+> > +	AXP20X_IRQ_GPIO3_INPUT,
+> > +	AXP20X_IRQ_GPIO2_INPUT,
+> > +	AXP20X_IRQ_GPIO1_INPUT,
+> > +	AXP20X_IRQ_GPIO0_INPUT,
+> > +};
+> > +
+> > +struct axp20x_dev {
+> > +	struct device			*dev;
+> > +	struct i2c_client		*i2c_client;
+> > +	struct regmap			*regmap;
+> > +	struct regmap_irq_chip_data	*regmap_irqc;
+> > +	int				variant;
+> > +	int				irq;
+> > +	bool				pm_off;
+> > +};
+> > +
+> > +#endif /* __LINUX_MFD_AXP20X_H */
+> > -- 
+> > 1.8.3.2
+> > 
+> 
+> Thanks!
+> Maxime
 
-Yep..
-This also
+Thank you,
 
->> +	}
->> +
->> +err_poll:
->> +	if (poll)
->> +		schedule_delayed_work(&onkey->work, 50);
->> +}
->> +
->> +static irqreturn_t da9063_onkey_irq_handler(int irq, void *data)
->> +{
->> +	struct da9063_onkey *onkey = data;
->> +	unsigned int val;
->> +	int ret;
->> +
->> +	ret = regmap_read(onkey->hw->regmap, DA9063_REG_STATUS_A, &val);
->> +	if (onkey->key_power && (ret >= 0) && (val & DA9063_NONKEY)) {
->> +		ret = regmap_update_bits(onkey->hw->regmap,
->> +					 DA9063_REG_IRQ_MASK_A,
->> +					 DA9063_NONKEY, 1);
->> +		if (ret < 0)
->> +			dev_err(&onkey->input->dev,
->> +				"Failed to mask the onkey IRQ: %d\n", ret);
->> +
->> +		input_report_key(onkey->input, KEY_POWER, 1);
->> +		input_sync(onkey->input);
->> +
->> +		schedule_delayed_work(&onkey->work, 0);
->> +		dev_dbg(&onkey->input->dev, "KEY_POWER pressed.\n");
->> +	} else {
->> +		input_report_key(onkey->input, KEY_SLEEP, 1);
->
->You need input_sync()  here as well.
->
-
-Okay, thanks.
-
->> +		input_report_key(onkey->input, KEY_SLEEP, 0);
->> +		input_sync(onkey->input);
->> +		dev_dbg(&onkey->input->dev, "KEY_SLEEP pressed.\n");
->> +	}
->> +
->> +	return IRQ_HANDLED;
->> +}
->> +
->> +static int da9063_onkey_probe(struct platform_device *pdev)
->> +{
->> +	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
->> +	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
->> +	struct da9063_onkey *onkey;
->> +	bool kp_tmp = true;
->> +	int ret = 0;
->> +	int irq;
->> +
->> +	if (pdata)
->> +		kp_tmp = pdata->key_power;
->> +
->> +	if (!kp_tmp)
->> +		dev_err(&pdev->dev,
->> +			"Software power down key is not set.\n");
->
->Why is this an error?
->
-
-Um, yeah, this isn't an error at all.
-Sorry
-
->> +
->> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
->> +			     GFP_KERNEL);
->> +	if (!onkey) {
->> +		dev_err(&pdev->dev, "Failed to allocate memory.\n");
->> +		return -ENOMEM;
->> +	}
->> +
->> +	INIT_DELAYED_WORK(&onkey->work, da9063_poll_on);
->> +
->> +	onkey->input = devm_input_allocate_device(&pdev->dev);
->> +	if (!onkey->input) {
->> +		dev_err(&pdev->dev, "Failed to allocated input device.\n");
->> +		return -ENOMEM;
->> +	}
->> +
->> +	irq = platform_get_irq_byname(pdev, "ONKEY");
->> +	if (irq < 0) {
->> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
->> +		return irq;
->> +	}
->> +
->> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
->> +					da9063_onkey_irq_handler,
->> +					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
->> +					"ONKEY", onkey);
->> +	if (ret) {
->> +		dev_err(&pdev->dev,
->> +			"Failed to request input device IRQ.\n");
->> +		return ret;
->> +	}
->> +
->> +	onkey->hw = da9063;
->> +	onkey->key_power = kp_tmp;
->> +	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
->> +	onkey->input->name = DA9063_DRVNAME_ONKEY;
->> +	onkey->input->phys = DA9063_DRVNAME_ONKEY "/input0";
->> +	onkey->input->dev.parent = &pdev->dev;
->> +
->> +	if (onkey->key_power)
->> +		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
->> +	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
->> +
->> +	ret = input_register_device(onkey->input);
->> +	if (ret) {
->> +		dev_err(&pdev->dev,
->> +			"Failed to register input device.\n");
->> +		return ret;
->> +	}
->> +
->> +	platform_set_drvdata(pdev, onkey);
->> +	return ret;
->> +}
->> +
->> +static int da9063_onkey_remove(struct platform_device *pdev)
->> +{
->> +	struct	da9063_onkey *onkey = platform_get_drvdata(pdev);
->> +	cancel_delayed_work_sync(&onkey->work);
->
->This is racy. Nothing stops IRQ from firing again and rescheduling the
->work item. You are also missing canceling work item in error path pf
->probe().
->
-
-Ah. 
-I will look at this whole item again, especially the error paths
-
->> +	input_unregister_device(onkey->input);
->> +	return 0;
->> +}
->> +
->> +static struct platform_driver da9063_onkey_driver = {
->> +	.probe	= da9063_onkey_probe,
->> +	.remove	= da9063_onkey_remove,
->> +	.driver	= {
->> +		.name	= DA9063_DRVNAME_ONKEY,
->> +		.owner	= THIS_MODULE,
->> +	},
->> +};
->> +
->> +module_platform_driver(da9063_onkey_driver);
->> +
->> +MODULE_AUTHOR("S Twiss <stwiss.opensource@diasemi.com>");
->> +MODULE_DESCRIPTION("Onkey device driver for Dialog DA9063");
->> +MODULE_LICENSE("GPL v2");
->> +MODULE_ALIAS("platform:" DA9063_DRVNAME_ONKEY);
->> --
->> end-of-patch for RFC V1
->>
->
->Thanks.
->
->--
->Dmitry
-
-Thank you for taking the time to work through this.
-I will make the changes you have listed and then resubmit.
-
-Regards,
-Steve
+--
+Carlo Caione

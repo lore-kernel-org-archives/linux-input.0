@@ -1,53 +1,111 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
-Date: Sat, 08 Mar 2014 16:11:45 +0100
-Message-ID: <531B3331.9050008@euromail.se>
-References: <1393428486-15001-1-git-send-email-rogerq@ti.com> <1393428486-15001-5-git-send-email-rogerq@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 1/4] HID: cp2112: remove various hid_out_raw_report calls
+Date: Sat, 8 Mar 2014 22:23:28 -0500
+Message-ID: <CAN+gG=GoF0cWOQERiWhmLHRAhvhc5e+xUNNBatm3z3jDN9nx_g@mail.gmail.com>
+References: <1394054334-20438-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1394054334-20438-2-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4T_Xm7xCb5vGKBsb1EH-h6g4V-L9mrjZxThWa-GdtbPhQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:34177 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751764AbaCHPHZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Mar 2014 10:07:25 -0500
-In-Reply-To: <1393428486-15001-5-git-send-email-rogerq@ti.com>
+Received: from mail-la0-f50.google.com ([209.85.215.50]:52042 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752081AbaCIDX3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Mar 2014 22:23:29 -0500
+In-Reply-To: <CANq1E4T_Xm7xCb5vGKBsb1EH-h6g4V-L9mrjZxThWa-GdtbPhQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roger Quadros <rogerq@ti.com>, dmitry.torokhov@gmail.com
-Cc: jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, David Barksdale <dbarksdale@uplogix.com>, Antonio Ospite <ao2@ao2.it>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi Roger,
+On Fri, Mar 7, 2014 at 4:47 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Wed, Mar 5, 2014 at 10:18 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> hid_out_raw_report is going to be obsoleted as it is not part of the
+>> unified HID low level transport documentation
+>> (Documentation/hid/hid-transport.txt)
+>>
+>>   hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
+>> is strictly equivalent to:
+>>   hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
+>>                 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>
+> This time you might be right that feature-reports always put the
+> report-id into the first byte, but I'd still prefer if we avoid using
+> this. Besides, the code is much nicer imho if we pass the ID directly,
+> see below..
 
-the MT implementation seems mostly fine, just one curiosity:
+Yes you are completely right.
 
->  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
->  {
->  	struct pixcir_i2c_ts_data *tsdata = dev_id;
->  	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
-> +	struct pixcir_report_data report;
->  
->  	while (!tsdata->exiting) {
-> -		pixcir_ts_poscheck(tsdata);
-> -
-> -		if (gpio_get_value(pdata->gpio_attb))
-> +		/* parse packet */
-> +		pixcir_ts_parse(tsdata, &report);
-> +
-> +		/* report it */
-> +		pixcir_ts_report(tsdata, &report);
-> +
-> +		if (gpio_get_value(pdata->gpio_attb)) {
-> +			if (report.num_touches) {
-> +				/*
-> +				 * Last report with no finger up?
-> +				 * Do it now then.
-> +				 */
-> +				input_mt_sync_frame(tsdata->input);
-> +				input_sync(tsdata->input);
+Will send a v3 ASAP.
 
-Why is this special handling needed?
+Cheers,
+Benjamin
 
-Thanks,
-Henrik
-
+>
+>>
+>> So use the new api.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>
+>> no changes since v1
+>>
+>>  drivers/hid/hid-cp2112.c | 12 ++++++------
+>>  1 file changed, 6 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>> index 1025982..860db694 100644
+>> --- a/drivers/hid/hid-cp2112.c
+>> +++ b/drivers/hid/hid-cp2112.c
+>> @@ -185,8 +185,8 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+>>         buf[1] &= ~(1 << offset);
+>>         buf[2] = gpio_push_pull;
+>>
+>> -       ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
+>> -                                         HID_FEATURE_REPORT);
+>> +       ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
+>> +                                HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>
+> buf[0] => CP2112_GPIO_CONFIG
+>
+>>         if (ret < 0) {
+>>                 hid_err(hdev, "error setting GPIO config: %d\n", ret);
+>>                 return ret;
+>> @@ -207,8 +207,8 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+>>         buf[1] = value ? 0xff : 0;
+>>         buf[2] = 1 << offset;
+>>
+>> -       ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
+>> -                                         HID_FEATURE_REPORT);
+>> +       ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
+>> +                                HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>
+> Here buf[0] seems fine as it is set explicitly just 3 lines above to
+> CP2112_GPIO_SET.
+>
+>>         if (ret < 0)
+>>                 hid_err(hdev, "error setting GPIO values: %d\n", ret);
+>>  }
+>> @@ -253,8 +253,8 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
+>>         buf[1] |= 1 << offset;
+>>         buf[2] = gpio_push_pull;
+>>
+>> -       ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
+>> -                                         HID_FEATURE_REPORT);
+>> +       ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
+>> +                                HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>
+> Here an explicit CP2112_GPIO_CONFIG seems nicer, imho.
+>
+> Thanks
+> David
+>
+>>         if (ret < 0) {
+>>                 hid_err(hdev, "error setting GPIO config: %d\n", ret);
+>>                 return ret;
+>> --
+>> 1.8.5.3
+>>

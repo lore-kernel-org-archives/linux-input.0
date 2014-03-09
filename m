@@ -1,23 +1,97 @@
 From: Derya <derya.kiran@yahoo.de>
-Subject: [Patch v2] Surface Pro 2 USB composite device handling
-Date: Sun, 09 Mar 2014 18:51:27 +0100
-Message-ID: <531CAA1F.4080809@yahoo.de>
+Subject: [PATCH 1/2] Revert "HID: microsoft: Add ID's for Surface Type/Touch,
+ Cover 2"
+Date: Sun, 09 Mar 2014 18:53:27 +0100
+Message-ID: <531CAA97.4020802@yahoo.de>
+References: <531CAA1F.4080809@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm10-vm9.bullet.mail.ir2.yahoo.com ([212.82.96.161]:27612 "EHLO
-	nm10-vm9.bullet.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751090AbaCIRv3 (ORCPT
+Received: from nm18.bullet.mail.ir2.yahoo.com ([212.82.96.41]:30179 "EHLO
+	nm18.bullet.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751090AbaCIRx3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 9 Mar 2014 13:51:29 -0400
+	Sun, 9 Mar 2014 13:53:29 -0400
+In-Reply-To: <531CAA1F.4080809@yahoo.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
 
-This patch set is a reworked version of the one, that I submitted on Friday.
-Followed the Benjamin's suggestions (many thanks)
+This reverts commit 117309c51dca42121f70cacec801511b76acf75c.
 
-- The first patch reverses commit 117309c51dca42121f70cacec801511b76acf75c
-- The second readds the product ids and ensures the load of hid-core 
-instead of hid-multiouch
+The MS Surface Pro 2 has an USB composite device with 3 interfaces
+- interface 0 - sensor hub
+- interface 1 - wacom digitizer
+- interface 2 - the keyboard cover, if one is attached
+This USB composite device changes it product id dependent on if and which
+keyboard cover is attached. Adding the covers to hid_have_special_driver
+prevents loading the right hid drivers for the other two interfaces, all 3
+get loaded with hid-microsoft. We don't even need hid-microsoft for the
+keyboards. We have to revert this to load the right hid modules for each
+interface.
+
+Signed-off-by: Derya <derya.kiran@yahoo.de>
+---
+  drivers/hid/hid-core.c      | 2 --
+  drivers/hid/hid-ids.h       | 2 --
+  drivers/hid/hid-microsoft.c | 4 ----
+  3 files changed, 8 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index cc32a6f..bb5c494 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1780,8 +1780,6 @@ static const struct hid_device_id 
+hid_have_special_driver[] = {
+      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
+      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
+      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+-    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_TYPE_COVER_2) },
+-    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_TOUCH_COVER_2) },
+      { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, 
+USB_DEVICE_ID_GENIUS_KB29E) },
+      { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, 
+USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+      { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, 
+USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 22f28d6..07cd28c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -624,8 +624,6 @@
+  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB    0x0713
+  #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K    0x0730
+  #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500    0x076c
+-#define USB_DEVICE_ID_MS_TOUCH_COVER_2    0x07a7
+-#define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+
+  #define USB_VENDOR_ID_MOJO        0x8282
+  #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 404a3a8..c6ef6ee 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -208,10 +208,6 @@ static const struct hid_device_id ms_devices[] = {
+          .driver_data = MS_NOGET },
+      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
+          .driver_data = MS_DUPLICATE_USAGES },
+-    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_TYPE_COVER_2),
+-        .driver_data = 0 },
+-    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_TOUCH_COVER_2),
+-        .driver_data = 0 },
+
+      { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+USB_DEVICE_ID_MS_PRESENTER_8K_BT),
+          .driver_data = MS_PRESENTER },
+-- 
+1.8.3.2
+

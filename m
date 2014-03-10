@@ -1,85 +1,64 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V1 1/2] mfd: da9063: Linkages for ONKEY support in core
+From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V1 1/2] mfd: da9063: Linkages for ONKEY support in core
  files
-Date: Mon, 10 Mar 2014 16:40:26 +0000
-Message-ID: <20140310164026.GB16697@lee--X1>
+Date: Mon, 10 Mar 2014 17:16:50 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7A0C79090@SW-EX-MBX01.diasemi.com>
 References: <cover.1394468644.git.stwiss.opensource@diasemi.com>
  <f5a169e00565134fa856a3daa615b17253ce844e.1394468644.git.stwiss.opensource@diasemi.com>
+ <20140310164026.GB16697@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <f5a169e00565134fa856a3daa615b17253ce844e.1394468644.git.stwiss.opensource@diasemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, LKML-INPUT <linux-input@vger.kernel.org>, LKML-KERNEL <linux-kernel@vger.kernel.org>, Mark Brown <broonie@linaro.org>, Philipp Zabel <p.zabel@pengutronix.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.152]:24520 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752880AbaCJRQy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Mar 2014 13:16:54 -0400
+In-Reply-To: <20140310164026.GB16697@lee--X1>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, LKML-INPUT <linux-input@vger.kernel.org>, LKML-KERNEL <linux-kernel@vger.kernel.org>, Mark Brown <broonie@linaro.org>, Philipp Zabel <p.zabel@pengutronix.de>
 
-> From: Opensource [Steve Twiss] <stwiss.opensource@diasemi.com>
->=20
-> This change adds the name field "ONKEY" to the properties of the=20
-> the OnKey IORESOURCE_IRQ resource structure (part of the mfd_cell
-> Onkey resource).
->=20
-> The addition of bool key_power which will be passed to the onkey
-> driver and allow KEY_POWER support to be turned on/off as a
-> driver configuration option.
->=20
->=20
-> Signed-off-by: Opensource [Steve Twiss] <stwiss.opensource@diasemi.co=
-m>
-> ---
-> Checks performed with linux-next/next-20140307/scripts/checkpatch.pl
->  da9063-core.c             total: 0 errors, 0 warnings, 189 lines che=
-cked
->  pdata.h                   total: 0 errors, 0 warnings, 112 lines che=
-cked
->=20
-> This change is a dependency for the new DA9063 OnKey driver which
-> forms the remainder of this patch set.
-> This patch applies against kernel linux-next next-20140307
->=20
-> Regards,
-> Steve Twiss, Dialog Semiconductor Ltd.
->=20
->=20
->=20
->  drivers/mfd/da9063-core.c        | 1 +
->  include/linux/mfd/da9063/pdata.h | 1 +
->  2 files changed, 2 insertions(+)
->=20
-> diff --git a/drivers/mfd/da9063-core.c b/drivers/mfd/da9063-core.c
-> index e70ae31..b410a14 100644
-> --- a/drivers/mfd/da9063-core.c
-> +++ b/drivers/mfd/da9063-core.c
-> @@ -60,6 +60,7 @@ static struct resource da9063_rtc_resources[] =3D {
-> =20
->  static struct resource da9063_onkey_resources[] =3D {
->  	{
-> +		.name	=3D "ONKEY",
->  		.start	=3D DA9063_IRQ_ONKEY,
->  		.end	=3D DA9063_IRQ_ONKEY,
->  		.flags	=3D IORESOURCE_IRQ,
-> diff --git a/include/linux/mfd/da9063/pdata.h b/include/linux/mfd/da9=
-063/pdata.h
-> index 95c8742..612383b 100644
-> --- a/include/linux/mfd/da9063/pdata.h
-> +++ b/include/linux/mfd/da9063/pdata.h
-> @@ -103,6 +103,7 @@ struct da9063;
->  struct da9063_pdata {
->  	int				(*init)(struct da9063 *da9063);
->  	int				irq_base;
-> +	bool				key_power;
->  	unsigned			flags;
->  	struct da9063_regulators_pdata	*regulators_pdata;
->  	struct led_platform_data	*leds_pdata;
-
-I'd like this change to be added by the first patch which makes use of
-it.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+T24gMTAgTWFyY2ggMjAxNCAxNjo0MCwgTGVlIEpvbmVzIHdyb3RlOg0KDQo+PiBGcm9tOiBPcGVu
+c291cmNlIFtTdGV2ZSBUd2lzc10gPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KPj4N
+Cj4+IFRoaXMgY2hhbmdlIGFkZHMgdGhlIG5hbWUgZmllbGQgIk9OS0VZIiB0byB0aGUgcHJvcGVy
+dGllcyBvZiB0aGUNCj4+IHRoZSBPbktleSBJT1JFU09VUkNFX0lSUSByZXNvdXJjZSBzdHJ1Y3R1
+cmUgKHBhcnQgb2YgdGhlIG1mZF9jZWxsDQo+PiBPbmtleSByZXNvdXJjZSkuDQo+Pg0KPj4gVGhl
+IGFkZGl0aW9uIG9mIGJvb2wga2V5X3Bvd2VyIHdoaWNoIHdpbGwgYmUgcGFzc2VkIHRvIHRoZSBv
+bmtleQ0KPj4gZHJpdmVyIGFuZCBhbGxvdyBLRVlfUE9XRVIgc3VwcG9ydCB0byBiZSB0dXJuZWQg
+b24vb2ZmIGFzIGENCj4+IGRyaXZlciBjb25maWd1cmF0aW9uIG9wdGlvbi4NCj4+DQo+Pg0KPj4g
+U2lnbmVkLW9mZi1ieTogT3BlbnNvdXJjZSBbU3RldmUgVHdpc3NdIDxzdHdpc3Mub3BlbnNvdXJj
+ZUBkaWFzZW1pLmNvbT4NCj4+IC0tLQ0KPj4gQ2hlY2tzIHBlcmZvcm1lZCB3aXRoIGxpbnV4LW5l
+eHQvbmV4dC0yMDE0MDMwNy9zY3JpcHRzL2NoZWNrcGF0Y2gucGwNCj4+ICBkYTkwNjMtY29yZS5j
+ICAgICAgICAgICAgIHRvdGFsOiAwIGVycm9ycywgMCB3YXJuaW5ncywgMTg5IGxpbmVzIGNoZWNr
+ZWQNCj4+ICBwZGF0YS5oICAgICAgICAgICAgICAgICAgIHRvdGFsOiAwIGVycm9ycywgMCB3YXJu
+aW5ncywgMTEyIGxpbmVzIGNoZWNrZWQNCj4+DQo+PiBUaGlzIGNoYW5nZSBpcyBhIGRlcGVuZGVu
+Y3kgZm9yIHRoZSBuZXcgREE5MDYzIE9uS2V5IGRyaXZlciB3aGljaA0KPj4gZm9ybXMgdGhlIHJl
+bWFpbmRlciBvZiB0aGlzIHBhdGNoIHNldC4NCj4+IFRoaXMgcGF0Y2ggYXBwbGllcyBhZ2FpbnN0
+IGtlcm5lbCBsaW51eC1uZXh0IG5leHQtMjAxNDAzMDcNCj4+DQo+PiBSZWdhcmRzLA0KPj4gU3Rl
+dmUgVHdpc3MsIERpYWxvZyBTZW1pY29uZHVjdG9yIEx0ZC4NCj4+DQo+Pg0KPj4NCj4+ICBkcml2
+ZXJzL21mZC9kYTkwNjMtY29yZS5jICAgICAgICB8IDEgKw0KPj4gIGluY2x1ZGUvbGludXgvbWZk
+L2RhOTA2My9wZGF0YS5oIHwgMSArDQo+PiAgMiBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMo
+KykNCj4+DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9tZmQvZGE5MDYzLWNvcmUuYyBiL2RyaXZl
+cnMvbWZkL2RhOTA2My1jb3JlLmMNCj4+IGluZGV4IGU3MGFlMzEuLmI0MTBhMTQgMTAwNjQ0DQo+
+PiAtLS0gYS9kcml2ZXJzL21mZC9kYTkwNjMtY29yZS5jDQo+PiArKysgYi9kcml2ZXJzL21mZC9k
+YTkwNjMtY29yZS5jDQo+PiBAQCAtNjAsNiArNjAsNyBAQCBzdGF0aWMgc3RydWN0IHJlc291cmNl
+IGRhOTA2M19ydGNfcmVzb3VyY2VzW10gPSB7DQo+Pg0KPj4gIHN0YXRpYyBzdHJ1Y3QgcmVzb3Vy
+Y2UgZGE5MDYzX29ua2V5X3Jlc291cmNlc1tdID0gew0KPj4gIAl7DQo+PiArCQkubmFtZQk9ICJP
+TktFWSIsDQo+PiAgCQkuc3RhcnQJPSBEQTkwNjNfSVJRX09OS0VZLA0KPj4gIAkJLmVuZAk9IERB
+OTA2M19JUlFfT05LRVksDQo+PiAgCQkuZmxhZ3MJPSBJT1JFU09VUkNFX0lSUSwNCj4+IGRpZmYg
+LS1naXQgYS9pbmNsdWRlL2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaA0KPmIvaW5jbHVkZS9saW51
+eC9tZmQvZGE5MDYzL3BkYXRhLmgNCj4+IGluZGV4IDk1Yzg3NDIuLjYxMjM4M2IgMTAwNjQ0DQo+
+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L21mZC9kYTkwNjMvcGRhdGEuaA0KPj4gKysrIGIvaW5jbHVk
+ZS9saW51eC9tZmQvZGE5MDYzL3BkYXRhLmgNCj4+IEBAIC0xMDMsNiArMTAzLDcgQEAgc3RydWN0
+IGRhOTA2MzsNCj4+ICBzdHJ1Y3QgZGE5MDYzX3BkYXRhIHsNCj4+ICAJaW50CQkJCSgqaW5pdCko
+c3RydWN0IGRhOTA2MyAqZGE5MDYzKTsNCj4+ICAJaW50CQkJCWlycV9iYXNlOw0KPj4gKwlib29s
+CQkJCWtleV9wb3dlcjsNCj4+ICAJdW5zaWduZWQJCQlmbGFnczsNCj4+ICAJc3RydWN0IGRhOTA2
+M19yZWd1bGF0b3JzX3BkYXRhCSpyZWd1bGF0b3JzX3BkYXRhOw0KPj4gIAlzdHJ1Y3QgbGVkX3Bs
+YXRmb3JtX2RhdGEJKmxlZHNfcGRhdGE7DQo+DQo+SSdkIGxpa2UgdGhpcyBjaGFuZ2UgdG8gYmUg
+YWRkZWQgYnkgdGhlIGZpcnN0IHBhdGNoIHdoaWNoIG1ha2VzIHVzZSBvZg0KPml0Lg0KPg0KDQpO
+byBwcm9ibGVtLA0KSSdsbCByZXNlbnQgaXQgYXMgUEFUQ0ggVjIuLi4NCg0KUmVnYXJkcywNClN0
+ZXZlDQo=

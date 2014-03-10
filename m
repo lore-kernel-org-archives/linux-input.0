@@ -1,63 +1,47 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: Re: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
-Date: Mon, 10 Mar 2014 10:57:10 +0200
-Message-ID: <531D7E66.1070300@ti.com>
-References: <1393428486-15001-1-git-send-email-rogerq@ti.com> <1393428486-15001-5-git-send-email-rogerq@ti.com> <531B3331.9050008@euromail.se>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 5/5] ARM: multi_v7_defconfig: add st-keyscan driver
+Date: Mon, 10 Mar 2014 10:34:14 +0000
+Message-ID: <20140310103414.GH14976@lee--X1>
+References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
+ <1393990772-9567-6-git-send-email-gabriel.fernandez@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:37322 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751812AbaCJI5h (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2014 04:57:37 -0400
-In-Reply-To: <531B3331.9050008@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1393990772-9567-6-git-send-email-gabriel.fernandez@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, dmitry.torokhov@gmail.com
-Cc: jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi Henrik,
+> This patch adds KEYBOARD_ST_KEYSCAN config
+>=20
+> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
+> ---
+>  arch/arm/configs/multi_v7_defconfig | 1 +
+>  1 file changed, 1 insertion(+)
 
-On 03/08/2014 05:11 PM, Henrik Rydberg wrote:
-> Hi Roger,
-> 
-> the MT implementation seems mostly fine, just one curiosity:
-> 
->>  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
->>  {
->>  	struct pixcir_i2c_ts_data *tsdata = dev_id;
->>  	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
->> +	struct pixcir_report_data report;
->>  
->>  	while (!tsdata->exiting) {
->> -		pixcir_ts_poscheck(tsdata);
->> -
->> -		if (gpio_get_value(pdata->gpio_attb))
->> +		/* parse packet */
->> +		pixcir_ts_parse(tsdata, &report);
->> +
->> +		/* report it */
->> +		pixcir_ts_report(tsdata, &report);
->> +
->> +		if (gpio_get_value(pdata->gpio_attb)) {
->> +			if (report.num_touches) {
->> +				/*
->> +				 * Last report with no finger up?
->> +				 * Do it now then.
->> +				 */
->> +				input_mt_sync_frame(tsdata->input);
->> +				input_sync(tsdata->input);
-> 
-> Why is this special handling needed?
+You should capitalise ST Keyscan in the $SUBJECT line, but other than t=
+hat:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
 
-This is needed because the controller doesn't always report when all fingers
-have left the screen. e.g. report might contain 3 fingers touched and then
-gpio_attb line is de-asserted. There's no report with 0 fingers touched even
-if the user's fingers have left the screen. So we never detect a BUTTON_UP.
+> diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/m=
+ulti_v7_defconfig
+> index ee69829..5e926981 100644
+> --- a/arch/arm/configs/multi_v7_defconfig
+> +++ b/arch/arm/configs/multi_v7_defconfig
+> @@ -131,6 +131,7 @@ CONFIG_INPUT_EVDEV=3Dy
+>  CONFIG_KEYBOARD_GPIO=3Dy
+>  CONFIG_KEYBOARD_TEGRA=3Dy
+>  CONFIG_KEYBOARD_SPEAR=3Dy
+> +CONFIG_KEYBOARD_ST_KEYSCAN=3Dy
+>  CONFIG_KEYBOARD_CROS_EC=3Dy
+>  CONFIG_MOUSE_PS2_ELANTECH=3Dy
+>  CONFIG_INPUT_MISC=3Dy
 
-Without this s/w workaround we observe side effects like buttons being pressed
-but not released. To me it looks like a bug in the controller.
-
-cheers,
--roger
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

@@ -1,79 +1,102 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/5] drivers: input: keyboard: st-keyscan: add keyscan
- driver
-Date: Mon, 10 Mar 2014 16:35:57 +0000
-Message-ID: <20140310163557.GJ13661@lee--X1>
-References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
- <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
- <20140310114819.GO14976@lee--X1>
- <20140310152859.GA29054@core.coreip.homeip.net>
- <20140310153815.GE13661@lee--X1>
- <20140310155824.GB29054@core.coreip.homeip.net>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch
+ protocol
+Date: Mon, 10 Mar 2014 11:37:01 -0500
+Message-ID: <20140310163701.GA30397@saruman.home>
+References: <1393428486-15001-1-git-send-email-rogerq@ti.com>
+ <1393428486-15001-5-git-send-email-rogerq@ti.com>
+ <531B3331.9050008@euromail.se>
+ <531D7E66.1070300@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f53.google.com ([209.85.214.53]:53060 "EHLO
-	mail-bk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753388AbaCJQgE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2014 12:36:04 -0400
-Received: by mail-bk0-f53.google.com with SMTP id r7so1220475bkg.12
-        for <linux-input@vger.kernel.org>; Mon, 10 Mar 2014 09:36:02 -0700 (PDT)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140310155824.GB29054@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <531D7E66.1070300@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Roger Quadros <rogerq@ti.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, dmitry.torokhov@gmail.com, jcbian@pixcir.com.cn, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Gabriel FERNANDEZ <gabriel.fernandez@st.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 
-> > > > > This patch adds ST Keyscan driver to use the keypad hw a subs=
-et
-> > > > > of ST boards provide. Specific board setup will be put in the
-> > > > > given dt.
-> > > > >=20
-> > > > > Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.co=
-m>
-> > > > > Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
-> > > >=20
-> > > > Are you sure these are in the correct order?
-> > > >=20
-> > > > What is the history of this commit?
-> > > >=20
-> > > > > ---
-> > > > >  .../devicetree/bindings/input/st-keypad.txt        |  50 +++=
-+
-> > > >=20
-> > > > This should be submitted as a seperate patch.
-> > >=20
-> > > Why do we have such requirement? To me it would make more sense t=
-o add
-> > > binding documentation in the same commit as the code that uses th=
-ese
-> > > bindings.
-> >=20
-> > I'm inclined to agree with you and that's actually how we used to d=
-o
-> > it, but a decision was made by the DT guys at one of the Kernel
-> > Summits to submit Documentation as a separate patch.
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Mar 10, 2014 at 10:57:10AM +0200, Roger Quadros wrote:
+> Hi Henrik,
 >=20
-> Do you have background for this decision? To me it is akin splitting
-> header file into a separate patch.
+> On 03/08/2014 05:11 PM, Henrik Rydberg wrote:
+> > Hi Roger,
+> >=20
+> > the MT implementation seems mostly fine, just one curiosity:
+> >=20
+> >>  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+> >>  {
+> >>  	struct pixcir_i2c_ts_data *tsdata =3D dev_id;
+> >>  	const struct pixcir_ts_platform_data *pdata =3D tsdata->chip;
+> >> +	struct pixcir_report_data report;
+> >> =20
+> >>  	while (!tsdata->exiting) {
+> >> -		pixcir_ts_poscheck(tsdata);
+> >> -
+> >> -		if (gpio_get_value(pdata->gpio_attb))
+> >> +		/* parse packet */
+> >> +		pixcir_ts_parse(tsdata, &report);
+> >> +
+> >> +		/* report it */
+> >> +		pixcir_ts_report(tsdata, &report);
+> >> +
+> >> +		if (gpio_get_value(pdata->gpio_attb)) {
+> >> +			if (report.num_touches) {
+> >> +				/*
+> >> +				 * Last report with no finger up?
+> >> +				 * Do it now then.
+> >> +				 */
+> >> +				input_mt_sync_frame(tsdata->input);
+> >> +				input_sync(tsdata->input);
+> >=20
+> > Why is this special handling needed?
+>=20
+> This is needed because the controller doesn't always report when all fing=
+ers
+> have left the screen. e.g. report might contain 3 fingers touched and then
+> gpio_attb line is de-asserted. There's no report with 0 fingers touched e=
+ven
+> if the user's fingers have left the screen. So we never detect a BUTTON_U=
+P.
+>=20
+> Without this s/w workaround we observe side effects like buttons being pr=
+essed
+> but not released. To me it looks like a bug in the controller.
 
-The discussion/decision was verbal unfortunately.
-
-I don't really mind either way. I'm just attempting to enforce the
-decisions that were made by the forces-that-be. Perhaps ping
-devicetree@vger.kernel.org with me in CC for more clarification if
-required.
+the other way would be to *also* use IRQF_TRIGGER_RISING, then you get
+an IRQ when fingers leave the screen. No ?
 
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+balbi
+
+--3MwIy2ne0vdjdPXF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTHeotAAoJEIaOsuA1yqRETb4QALJCMlzEjH+h++ArhkS3w5sU
+k/ZGnOjvxNLoSaAKzjd6A9os07SGtLhzJdc96fOa4+ZL9kG4nLn0tgQWbbANY3UG
+PJSoXh4RcR/tRVLsVbTVTzY5lCtiPPDljDO1eeyEdNu4WnchMXVYD2Zs/Qt2gc3C
+xttLeCsDgwpjr45EO0vzexkeUyDWSQHtki9aYID/dljC2MxRXwyGC3F7w4YLRVCc
+S3y8uHB7wcHtf+0lbvW/NpPep3lyWblblzlqwCiRlXWoni+xmA+/fVMvNo3LJb3D
+zuYy0Ox4lMCjaqmbI5UfxL22IxtLW36DicEEiPcXyjJmy9z3qFFszQz1VTtn88yh
+nhg49wAQxMKwtIaj8zM9XaWasW2ujkcMRFpnW3y5liuVR1hRui24RDlkNieYb32y
+Y2mRhqtMsgP6bNncRwPk1qYFQ1jTv2T5fxmzw2NVLzK+AQsDiDWu/DWtJm8O8pIH
+FPfip7tQUUakUD1E/0s6yMexZbkVKEzPyneHZV0qcrp6ihcd/iedpSGB99cOZ85S
+9ko8pA9zUw7XDbFvlQAs6cyu2Qlt6LSz6x+v3EzyLOoimtCnmwQ2+0Jwkoj4eB3n
+KBYlOgihOnSR5jBIswpNpDWxtRL2AIRt5rlycUeTg8DGQLZV1HDJTLQHD4QCoGDm
+u6qYhSpgJP3ot6Q1evBN
+=F8xU
+-----END PGP SIGNATURE-----
+
+--3MwIy2ne0vdjdPXF--

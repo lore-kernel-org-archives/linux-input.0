@@ -1,217 +1,529 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH v3 3/4] HID: sony: do not rely on hid_output_raw_report
-Date: Mon, 10 Mar 2014 12:32:53 +0100
-Message-ID: <20140310123253.0b728251617d599b852ac23a@ao2.it>
-References: <1394337163-32478-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1394337163-32478-4-git-send-email-benjamin.tissoires@redhat.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/5] drivers: input: keyboard: st-keyscan: add keyscan
+ driver
+Date: Mon, 10 Mar 2014 11:48:19 +0000
+Message-ID: <20140310114819.GO14976@lee--X1>
+References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
+ <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:53357 "EHLO smtp207.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751632AbaCJLdH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2014 07:33:07 -0400
-In-Reply-To: <1394337163-32478-4-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, David Barksdale <dbarksdale@uplogix.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat,  8 Mar 2014 22:52:42 -0500
-Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+Hi Gabi,
 
-> hid_out_raw_report is going to be obsoleted as it is not part of the
-> unified HID low level transport documentation
-> (Documentation/hid/hid-transport.txt)
-> 
-> To do so, we need to introduce two new quirks:
-> * HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP: this quirks prevents the
->   transport driver to use the interrupt channel to send output report
->   (and thus force to use HID_REQ_SET_REPORT command)
-> * HID_QUIRK_SKIP_OUTPUT_REPORT_ID: this one forces usbhid to not
->   include the report ID in the buffer it sends to the device through
->   HID_REQ_SET_REPORT in case of an output report
-> 
-> This also fixes a regression introduced in commit 3a75b24949a8
-> (HID: hidraw: replace hid_output_raw_report() calls by appropriates ones).
-> The hidraw API was not able to communicate with the PS3 SixAxis
-> controllers in USB mode.
-> 
-> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->
+Sorry for the delay. It was a hectic week last week.
 
-I confirm that using hidraw via USB works again now, thanks, so the
-patch is OK:
+As promised:
 
-Tested-by: Antonio Ospite <ao2@ao2.it>
+> This patch adds ST Keyscan driver to use the keypad hw a subset
+> of ST boards provide. Specific board setup will be put in the
+> given dt.
+>=20
+> Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
 
-However I still get the failure with hidraw via BT, I am going to look
-into that.
+Are you sure these are in the correct order?
+
+What is the history of this commit?
 
 > ---
-> changes in v3:
-> - no changes
-> 
-> changes in v2:
-> - removed usb.h include
-> - renamed HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP
-> - fix typo
-> 
-> 
->  drivers/hid/hid-sony.c        | 60 ++++++++++---------------------------------
->  drivers/hid/hidraw.c          |  3 ++-
->  drivers/hid/usbhid/hid-core.c |  7 ++++-
->  include/linux/hid.h           |  2 ++
->  4 files changed, 24 insertions(+), 48 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index b5fe65e..4884bb5 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -29,7 +29,6 @@
->  #include <linux/hid.h>
->  #include <linux/module.h>
->  #include <linux/slab.h>
-> -#include <linux/usb.h>
->  #include <linux/leds.h>
->  #include <linux/power_supply.h>
->  #include <linux/spinlock.h>
-> @@ -1007,45 +1006,6 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
->  }
->  
->  /*
-> - * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
-> - * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
-> - * so we need to override that forcing HID Output Reports on the Control EP.
-> - *
-> - * There is also another issue about HID Output Reports via USB, the Sixaxis
-> - * does not want the report_id as part of the data packet, so we have to
-> - * discard buf[0] when sending the actual control message, even for numbered
-> - * reports, humpf!
-> - */
-> -static int sixaxis_usb_output_raw_report(struct hid_device *hid, __u8 *buf,
-> -		size_t count, unsigned char report_type)
-> -{
-> -	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
-> -	struct usb_device *dev = interface_to_usbdev(intf);
-> -	struct usb_host_interface *interface = intf->cur_altsetting;
-> -	int report_id = buf[0];
-> -	int ret;
-> -
-> -	if (report_type == HID_OUTPUT_REPORT) {
-> -		/* Don't send the Report ID */
-> -		buf++;
-> -		count--;
-> -	}
-> -
-> -	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-> -		HID_REQ_SET_REPORT,
-> -		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> -		((report_type + 1) << 8) | report_id,
-> -		interface->desc.bInterfaceNumber, buf, count,
-> -		USB_CTRL_SET_TIMEOUT);
-> -
-> -	/* Count also the Report ID, in case of an Output report. */
-> -	if (ret > 0 && report_type == HID_OUTPUT_REPORT)
-> -		ret++;
-> -
-> -	return ret;
-> -}
-> -
-> -/*
->   * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
->   * to "operational".  Without this, the ps3 controller will not report any
->   * events.
-> @@ -1305,11 +1265,8 @@ static void sixaxis_state_worker(struct work_struct *work)
->  	buf[10] |= sc->led_state[2] << 3;
->  	buf[10] |= sc->led_state[3] << 4;
->  
-> -	if (sc->quirks & SIXAXIS_CONTROLLER_USB)
-> -		hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
-> -	else
-> -		hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf),
-> -				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
-> +	hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf), HID_OUTPUT_REPORT,
-> +			HID_REQ_SET_REPORT);
->  }
->  
->  static void dualshock4_state_worker(struct work_struct *work)
-> @@ -1659,7 +1616,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	}
->  
->  	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
-> -		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
-> +		/*
-> +		 * The Sony Sixaxis does not handle HID Output Reports on the
-> +		 * Interrupt EP like it could, so we need to force HID Output
-> +		 * Reports to use HID_REQ_SET_REPORT on the Control EP.
-> +		 *
-> +		 * There is also another issue about HID Output Reports via USB,
-> +		 * the Sixaxis does not want the report_id as part of the data
-> +		 * packet, so we have to discard buf[0] when sending the actual
-> +		 * control message, even for numbered reports, humpf!
-> +		 */
-> +		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
-> +		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
->  		ret = sixaxis_set_operational_usb(hdev);
->  		sc->worker_initialized = 1;
->  		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 2cc484c..ffa648c 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -149,7 +149,8 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
->  		goto out_free;
->  	}
->  
-> -	if (report_type == HID_OUTPUT_REPORT) {
-> +	if ((report_type == HID_OUTPUT_REPORT) &&
-> +	    !(dev->quirks & HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP)) {
->  		ret = hid_hw_output_report(dev, buf, count);
->  		/*
->  		 * compatibility with old implementation of USB-HID and I2C-HID:
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 0d1d875..3bc7cad 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -894,7 +894,12 @@ static int usbhid_set_raw_report(struct hid_device *hid, unsigned int reportnum,
->  	int ret, skipped_report_id = 0;
->  
->  	/* Byte 0 is the report number. Report data starts at byte 1.*/
-> -	buf[0] = reportnum;
-> +	if ((rtype == HID_OUTPUT_REPORT) &&
-> +	    (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID))
-> +		buf[0] = 0;
-> +	else
-> +		buf[0] = reportnum;
+>  .../devicetree/bindings/input/st-keypad.txt        |  50 ++++
+
+This should be submitted as a seperate patch.
+
+>  drivers/input/keyboard/Kconfig                     |  12 +
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/st-keyscan.c                | 323 +++++++++++=
+++++++++++
+>  4 files changed, 386 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/st-keypad=
+=2Etxt
+>  create mode 100644 drivers/input/keyboard/st-keyscan.c
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/st-keypad.txt b/=
+Documentation/devicetree/bindings/input/st-keypad.txt
+> new file mode 100644
+> index 0000000..63eb07a
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/st-keypad.txt
+> @@ -0,0 +1,50 @@
+> +* ST Keypad controller device tree bindings
+
+s/device tree/Device Tree
+
 > +
->  	if (buf[0] == 0x0) {
->  		/* Don't send the Report ID */
->  		buf++;
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index e224516..2cd7174 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -290,6 +290,8 @@ struct hid_item {
->  #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
->  #define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
->  #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
-> +#define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
-> +#define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
->  #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
->  #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
->  #define HID_QUIRK_NO_IGNORE			0x40000000
-> -- 
-> 1.8.5.3
-> 
+> +The ST keypad controller device tree binding is based on the
 
+As above.
 
--- 
-Antonio Ospite
-http://ao2.it
+> +matrix-keymap.
+> +
+> +Required properties:
+> +
+> +- compatible: "st,keypad"
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+I think there will be subsequent st,keypad drivers? Is there any way
+we can make this compatible string more specific to _this_ device?
+
+st,stih4xx-keypad?
+
+> +- reg: Register base address of st-keypad controler.
+
+s/address/address and size AND s/controler/controller
+
+> +- interrupts: Interrupt numberof st-keypad controler.
+
+s/numberof/number for the
+
+> +- clocks: Must contain one entry, for the module clock.
+> +  See ../clocks/clock-bindings.txt for details.
+
+Great!
+
+> +- pinctrl-0: Should specify pin control groups used for this control=
+ler.
+> +
+> +- pinctrl-names: Should contain only one value - "default".
+
+Like to ../pinctrl/pinctrl-bindings.txt
+
+> +- linux,keymap: The keymap for keys as described in the binding docu=
+ment
+> +  devicetree/bindings/input/matrix-keymap.txt.
+> +
+> +- keypad,num-rows: Number of row lines connected to the keypad contr=
+oller.
+> +
+> +- keypad,num-columns: Number of column lines connected to the keypad
+> +  controller.
+> +
+> +- st,debounce_us: Debouncing interval time in microseconds
+
+I'm sure there will be a shared binding for de-bounce.
+
+If not, there certainly should be.
+
+> +
+> +
+
+Superfluous new lines.
+
+> +Example:
+> +
+> +keyscan: keyscan@fe4b0000 {
+> +	compatible =3D "st,keypad";
+
+Is there any way we can make this more specific to _this_ IP?
+
+> +	reg =3D <0xfe4b0000 0x2000>;
+> +	interrupts =3D <GIC_SPI 212 IRQ_TYPE_NONE>;
+> +	clocks	=3D <&CLK_SYSIN>;
+> +	pinctrl-names =3D "default";
+> +	pinctrl-0 =3D <&pinctrl_keyscan>;
+> +
+> +	keypad,num-rows =3D <4>;
+> +	keypad,num-columns =3D <4>;
+> +	st,debounce_us =3D <5000>;
+> +	linux,keymap =3D < /* in0	in1	in2	in3 */
+
+Do these line up in the file? I know Git can be a bit funny about this
+sometimes.
+
+> +		KEY_F13 KEY_F9  KEY_F5 KEY_F1		/* out0 */
+> +		KEY_F14 KEY_F10 KEY_F6 KEY_F2		/* out1 */
+> +		KEY_F15 KEY_F11 KEY_F7 KEY_F3		/* out2 */
+> +		KEY_F16 KEY_F12 KEY_F8 KEY_F4 >;	/* out3 */
+> +};
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/=
+Kconfig
+> index a673c9f..9e29125 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -512,6 +512,18 @@ config KEYBOARD_STOWAWAY
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called stowaway.
+> =20
+> +config KEYBOARD_ST_KEYSCAN
+> +	tristate "STMicroelectronics keyscan support"
+> +	depends on ARCH_STI
+> +	select INPUT_EVDEV
+> +	select INPUT_MATRIXKMAP
+> +	help
+> +	  Say Y here if you want to use a keypad attached to the keyscan bl=
+ock
+> +	  on some STMicroelectronics SoC devices.
+
+Might be worth mentioning which ones.
+
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called stm-keyscan.
+> +
+>  config KEYBOARD_SUNKBD
+>  	tristate "Sun Type 4 and Type 5 keyboard"
+>  	select SERIO
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard=
+/Makefile
+> index a699b61..5fd020a 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -50,6 +50,7 @@ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+=3D sh_keysc.o
+>  obj-$(CONFIG_KEYBOARD_SPEAR)		+=3D spear-keyboard.o
+>  obj-$(CONFIG_KEYBOARD_STMPE)		+=3D stmpe-keypad.o
+>  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+=3D stowaway.o
+> +obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+=3D st-keyscan.o
+>  obj-$(CONFIG_KEYBOARD_SUNKBD)		+=3D sunkbd.o
+>  obj-$(CONFIG_KEYBOARD_TC3589X)		+=3D tc3589x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TEGRA)		+=3D tegra-kbc.o
+> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyb=
+oard/st-keyscan.c
+> new file mode 100644
+> index 0000000..606cc19
+> --- /dev/null
+> +++ b/drivers/input/keyboard/st-keyscan.c
+> @@ -0,0 +1,323 @@
+> +/*
+> + * STMicroelectronics Key Scanning driver
+> + *
+> + * Copyright (c) 2014 STMicroelectonics Ltd.
+> + * Author: Stuart Menefy <stuart.menefy@st.com>
+> + *
+> + * Based on sh_keysc.c, copyright 2008 Magnus Damm
+
+Did sh_keysc.c ever exist in Mainline?
+
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +#include <linux/input/matrix_keypad.h>
+> +
+> +#define ST_KEYSCAN_MAXKEYS 16
+> +
+> +#define KEYSCAN_CONFIG_OFF		0x000
+> +#define KEYSCAN_CONFIG_ENABLE		1
+
+0x001?
+
+> +#define KEYSCAN_DEBOUNCE_TIME_OFF	0x004
+> +#define KEYSCAN_MATRIX_STATE_OFF	0x008
+> +#define KEYSCAN_MATRIX_DIM_OFF		0x00c
+
+Odd that these are 3 digit padded? Is there a reason for that?
+
+> +#define KEYSCAN_MATRIX_DIM_X_SHIFT	0
+> +#define KEYSCAN_MATRIX_DIM_Y_SHIFT	2
+
+=46or all 'ST_KEYSCAN_...'?
+
+> +struct keypad_platform_data {
+> +	const struct matrix_keymap_data *keymap_data;
+> +	unsigned int num_out_pads;
+> +	unsigned int num_in_pads;
+> +	unsigned int debounce_us;
+> +};
+> +
+> +struct keyscan_priv {
+> +	void __iomem *base;
+> +	int irq;
+> +	struct clk *clk;
+> +	struct input_dev *input_dev;
+> +	struct keypad_platform_data *config;
+> +	unsigned int last_state;
+> +	u32 keycodes[ST_KEYSCAN_MAXKEYS];
+
+Seems odd to limit this. Can't the information come from DT
+i.e. keypad,num-rows and keypad,num-columns?
+
+> +};
+> +
+> +static irqreturn_t keyscan_isr(int irq, void *dev_id)
+> +{
+> +	struct platform_device *pdev =3D dev_id;
+> +	struct keyscan_priv *priv =3D platform_get_drvdata(pdev);
+> +	int state;
+> +	int change;
+> +
+> +	state =3D readl(priv->base + KEYSCAN_MATRIX_STATE_OFF) & 0xffff;
+> +	change =3D priv->last_state ^ state;
+> +
+> +	while (change) {
+> +		int scancode =3D __ffs(change);
+> +		int down =3D state & (1 << scancode);
+
+int down =3D state & BIT(scancode);
+
+> +		input_report_key(priv->input_dev, priv->keycodes[scancode],
+> +				 down);
+> +		change ^=3D 1 << scancode;
+
+change ^=3D BIT(scancode);
+
+> +	};
+> +
+> +	input_sync(priv->input_dev);
+> +
+> +	priv->last_state =3D state;
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void keyscan_start(struct keyscan_priv *priv)
+> +{
+> +	clk_enable(priv->clk);
+> +
+> +	writel(priv->config->debounce_us * (clk_get_rate(priv->clk) / 10000=
+00),
+> +	       priv->base + KEYSCAN_DEBOUNCE_TIME_OFF);
+> +
+> +	writel(((priv->config->num_in_pads - 1) << KEYSCAN_MATRIX_DIM_X_SHI=
+=46T) |
+> +	       ((priv->config->num_out_pads - 1) << KEYSCAN_MATRIX_DIM_Y_SH=
+IFT),
+> +	       priv->base + KEYSCAN_MATRIX_DIM_OFF);
+> +
+> +	writel(KEYSCAN_CONFIG_ENABLE, priv->base + KEYSCAN_CONFIG_OFF);
+> +}
+> +
+> +static void keyscan_stop(struct keyscan_priv *priv)
+> +{
+> +	writel(0, priv->base + KEYSCAN_CONFIG_OFF);
+> +
+> +	clk_disable(priv->clk);
+> +}
+> +
+> +static int keypad_matrix_key_parse_dt(struct keyscan_priv *st_kp)
+> +{
+> +	struct device *dev =3D st_kp->input_dev->dev.parent;
+> +	struct device_node *np =3D dev->of_node;
+> +	struct keypad_platform_data *pdata;
+> +	int error;
+> +
+> +	pdata =3D devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+> +	if (!pdata) {
+> +		dev_err(dev, "failed to allocate driver pdata\n");
+
+If the system is OOM, this sort of error message will be pretty
+redundant. Just return -ENOMEM instead.
+
+> +		return -ENOMEM;
+> +	}
+> +
+> +	error =3D matrix_keypad_parse_of_params(dev, &pdata->num_out_pads,
+> +			&pdata->num_in_pads);
+> +	if (error) {
+> +		dev_err(dev, "failed to parse keypad params\n");
+> +		return error;
+
+Nit: It's pretty unusual to use this for a standard error handling
+variable. Consider 'ret' or 'err' as a replacement.
+
+> +	}
+> +
+> +	of_property_read_u32(np, "st,debounce_us", &pdata->debounce_us);
+
+Isn't this a required property? Might be worth checking the return
+value if so.
+
+> +	st_kp->config =3D pdata;
+> +
+> +	dev_info(dev, "rows=3D%d col=3D%d debounce=3D%d\n",
+> +			pdata->num_out_pads,
+> +			pdata->num_in_pads,
+> +			pdata->debounce_us);
+
+Might be worth moving this down passed the final point of failure.
+
+> +	error =3D of_property_read_u32_array(np, "linux,keymap",
+> +					st_kp->keycodes, ST_KEYSCAN_MAXKEYS);
+> +	if (error) {
+> +		dev_err(dev, "failed to parse keymap\n");
+> +		return error;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __init keyscan_probe(struct platform_device *pdev)
+> +{
+> +	struct keypad_platform_data *pdata =3D
+> +		dev_get_platdata(&pdev->dev);
+
+Do we really support platform data still?
+
+> +	struct keyscan_priv *st_kp;
+> +	struct input_dev *input_dev;
+> +	struct device *dev =3D &pdev->dev;
+
+dev and pdev are used randomly in probe(). Just remove the dev
+de-reference and use &pdev->dev exclusively.
+
+It's pretty common to de-reference 'np =3D pdev->dev.of_node' though.
+
+> +	struct resource *res;
+> +	int len;
+> +	int error;
+> +	int i;
+> +
+> +	if (!pdata && !pdev->dev.of_node) {
+> +		dev_err(&pdev->dev, "no keymap defined\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	st_kp =3D devm_kzalloc(dev, sizeof(*st_kp), GFP_KERNEL);
+> +	if (!st_kp) {
+> +		dev_err(dev, "failed to allocate driver data\n");
+> +		return -ENOMEM;
+
+I wouldn't print any messages on -ENOMEM personally. It's not a driver
+failure per se, but a system one where the user will soon be notified.
+
+> +	}
+> +	st_kp->config =3D pdata;
+
+You only want to do this in the !np case.
+
+> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(dev, "no I/O memory specified\n");
+> +		return -ENXIO;
+> +	}
+> +
+> +	len =3D resource_size(res);
+> +	if (!devm_request_mem_region(dev, res->start, len, pdev->name)) {
+> +		dev_err(dev, "failed to reserve I/O memory\n");
+> +		return -EBUSY;
+> +	}
+> +
+> +	st_kp->base =3D devm_ioremap_nocache(dev, res->start, len);
+> +	if (st_kp->base =3D=3D NULL) {
+> +		dev_err(dev, "failed to remap I/O memory\n");
+> +		return -ENXIO;
+> +	}
+
+Replace the two above with devm_ioremap_resource().
+
+Make sure the IORESOURCE_CACHEABLE is set.
+
+> +	st_kp->irq =3D platform_get_irq(pdev, 0);
+> +	if (st_kp->irq < 0) {
+> +		dev_err(dev, "no IRQ specified\n");
+> +		return -ENXIO;
+
+No such device or address, are you sure?
+
+Perhaps -EINVAL would be better, as one should be specified.
+
+> +	}
+> +
+> +	error =3D devm_request_irq(dev, st_kp->irq, keyscan_isr, 0,
+> +				 pdev->name, pdev);
+> +	if (error) {
+> +		dev_err(dev, "failed to request IRQ\n");
+> +		return error;
+> +	}
+> +
+> +	input_dev =3D devm_input_allocate_device(&pdev->dev);
+> +	if (!input_dev) {
+> +		dev_err(&pdev->dev, "failed to allocate the input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	st_kp->clk =3D devm_clk_get(dev, NULL);
+> +	if (IS_ERR(st_kp->clk)) {
+> +		dev_err(dev, "cannot get clock");
+> +		return PTR_ERR(st_kp->clk);
+> +	}
+> +
+> +	input_dev =3D input_allocate_device();
+> +	if (!input_dev) {
+> +		dev_err(dev, "failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+
+Wasn't this done already?
+
+> +	st_kp->input_dev =3D input_dev;
+> +
+> +	input_dev->name =3D pdev->name;
+> +	input_dev->phys =3D "keyscan-keys/input0";
+> +	input_dev->dev.parent =3D dev;
+> +
+> +	input_dev->id.bustype =3D BUS_HOST;
+> +	input_dev->id.vendor =3D 0x0001;
+> +	input_dev->id.product =3D 0x0001;
+> +	input_dev->id.version =3D 0x0100;
+
+Any chance we can #define these?
+
+> +	if (!pdata) {
+> +		error =3D keypad_matrix_key_parse_dt(st_kp);
+> +		if (error)
+> +			return error;
+> +		pdata =3D st_kp->config;
+
+Is pdata used after this?
+
+> +	}
+> +
+> +	input_dev->keycode =3D st_kp->keycodes;
+> +	input_dev->keycodesize =3D sizeof(st_kp->keycodes[0]);
+> +	input_dev->keycodemax =3D ARRAY_SIZE(st_kp->keycodes);
+> +
+> +	for (i =3D 0; i < ST_KEYSCAN_MAXKEYS; i++)
+> +		input_set_capability(input_dev, EV_KEY, st_kp->keycodes[i]);
+> +	__clear_bit(KEY_RESERVED, input_dev->keybit);
+> +
+> +	error =3D input_register_device(input_dev);
+> +	if (error) {
+> +		dev_err(dev, "failed to register input device\n");
+> +		input_free_device(input_dev);
+> +		platform_set_drvdata(pdev, NULL);
+
+You don't need to do this anymore. It's taken care of elsewhere.
+
+> +		return error;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, st_kp);
+> +
+> +	keyscan_start(st_kp);
+> +
+> +	device_set_wakeup_capable(&pdev->dev, 1);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __exit keyscan_remove(struct platform_device *pdev)
+> +{
+> +	struct keyscan_priv *priv =3D platform_get_drvdata(pdev);
+> +
+> +	keyscan_stop(priv);
+> +
+> +	input_unregister_device(priv->input_dev);
+> +	platform_set_drvdata(pdev, NULL);
+> +
+> +	return 0;
+
+I already saw that Dmitry commented on the rest of the file.
+
+<snip>
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

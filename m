@@ -1,57 +1,40 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/5] ARM: STi: DT: add keyscan for stih415
-Date: Mon, 10 Mar 2014 11:50:21 +0000
-Message-ID: <20140310115021.GP14976@lee--X1>
+Subject: Re: [PATCH 3/5] ARM: STi: DT: add keyscan for stih416
+Date: Mon, 10 Mar 2014 11:52:33 +0000
+Message-ID: <20140310115233.GQ14976@lee--X1>
 References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
- <1393990772-9567-3-git-send-email-gabriel.fernandez@st.com>
+ <1393990772-9567-4-git-send-email-gabriel.fernandez@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f175.google.com ([74.125.82.175]:60493 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753162AbaCJLu2 (ORCPT
+Received: from mail-we0-f169.google.com ([74.125.82.169]:56873 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752277AbaCJLwj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2014 07:50:28 -0400
-Received: by mail-we0-f175.google.com with SMTP id q58so8407590wes.34
-        for <linux-input@vger.kernel.org>; Mon, 10 Mar 2014 04:50:26 -0700 (PDT)
+	Mon, 10 Mar 2014 07:52:39 -0400
+Received: by mail-we0-f169.google.com with SMTP id w62so8515794wes.14
+        for <linux-input@vger.kernel.org>; Mon, 10 Mar 2014 04:52:38 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1393990772-9567-3-git-send-email-gabriel.fernandez@st.com>
+In-Reply-To: <1393990772-9567-4-git-send-email-gabriel.fernandez@st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe CONDORELLI <giuseppe.condorelli@st.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 
-> From: Giuseppe CONDORELLI <giuseppe.condorelli@st.com>
->=20
-> Add keyscan support for stih415.
-> It is put disabled by default because it is not enabled on all boards
+> Add keyscan support for stih416.
+> It is disabled by default given that it is not enabled on all boards.
 > Also there are PIOs conflict with already claimed lines.
 >=20
 > Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
 > Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
 > ---
->  arch/arm/boot/dts/stih415-pinctrl.dtsi | 16 ++++++++++++++++
->  arch/arm/boot/dts/stih415.dtsi         | 10 ++++++++++
+>  arch/arm/boot/dts/stih416-pinctrl.dtsi | 16 ++++++++++++++++
+>  arch/arm/boot/dts/stih416.dtsi         | 10 ++++++++++
 >  2 files changed, 26 insertions(+)
 
-<snip>
-
-> +		keyscan: keyscan@fe4b0000 {
-> +			compatible =3D "st,keypad";
-> +			status =3D "disabled";
-> +			reg =3D <0xfe4b0000 0x2000>;
-> +			interrupts =3D <GIC_SPI 212 IRQ_TYPE_NONE>;
-> +			clocks	=3D <&CLK_SYSIN>;
-> +			pinctrl-names	=3D "default";
-
-Small nit here, but otherwise:
+Looks good:
   Acked-by: Lee Jones <lee.jones@linaro.org>
-
-> +			pinctrl-0 =3D <&pinctrl_keyscan>;
-> +		};
->  	};
->  };
 
 --=20
 Lee Jones

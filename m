@@ -1,103 +1,241 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] Surface Pro 2 USB composite device handling
-Date: Mon, 10 Mar 2014 16:23:25 -0400
-Message-ID: <20140310202325.GB4125@mail.corp.redhat.com>
-References: <531CAA1F.4080809@yahoo.de>
- <531CAB67.4020202@yahoo.de>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH v3 3/4] HID: sony: do not rely on hid_output_raw_report
+Date: Mon, 10 Mar 2014 22:49:18 +0100
+Message-ID: <20140310224918.0757eb439d8043c2e2a1ed2e@ao2.it>
+References: <1394337163-32478-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1394337163-32478-4-git-send-email-benjamin.tissoires@redhat.com>
+	<20140310123253.0b728251617d599b852ac23a@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48251 "EHLO mx1.redhat.com"
+Received: from smtp208.alice.it ([82.57.200.104]:14979 "EHLO smtp208.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754462AbaCJUX3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2014 16:23:29 -0400
-Content-Disposition: inline
-In-Reply-To: <531CAB67.4020202@yahoo.de>
+	id S1752703AbaCJVtk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Mar 2014 17:49:40 -0400
+In-Reply-To: <20140310123253.0b728251617d599b852ac23a@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Derya <derya.kiran@yahoo.de>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, David Barksdale <dbarksdale@uplogix.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mar 09 2014 or thereabouts, Derya wrote:
-> Surface Pro 2 USB composite device handling
-> 
-> (device changes it product id with attached keyboard cover)
-> - Adds MS Surface Pro 2's composite device ids, with and without attached
-> keyboard, to the hid-ids
-> - Ensures to load hid-core instead of hid-multitouch for the keyboard covers
-> - Adds HID_QUIRK_NO_INIT_INPUT_REPORTS to prevent USB submit urb failure
-> during keyboard cover (de)attaching
-> 
-> Signed-off-by: Derya <derya.kiran@yahoo.de>
+On Mon, 10 Mar 2014 12:32:53 +0100
+Antonio Ospite <ao2@ao2.it> wrote:
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> On Sat,  8 Mar 2014 22:52:42 -0500
+> Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> 
+> > hid_out_raw_report is going to be obsoleted as it is not part of the
+> > unified HID low level transport documentation
+> > (Documentation/hid/hid-transport.txt)
+> > 
+> > To do so, we need to introduce two new quirks:
+> > * HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP: this quirks prevents the
+> >   transport driver to use the interrupt channel to send output report
+> >   (and thus force to use HID_REQ_SET_REPORT command)
+> > * HID_QUIRK_SKIP_OUTPUT_REPORT_ID: this one forces usbhid to not
+> >   include the report ID in the buffer it sends to the device through
+> >   HID_REQ_SET_REPORT in case of an output report
+> > 
+> > This also fixes a regression introduced in commit 3a75b24949a8
+> > (HID: hidraw: replace hid_output_raw_report() calls by appropriates ones).
+> > The hidraw API was not able to communicate with the PS3 SixAxis
+> > controllers in USB mode.
+> > 
+> > Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >
+> 
+> I confirm that using hidraw via USB works again now, thanks, so the
+> patch is OK:
+> 
+> Tested-by: Antonio Ospite <ao2@ao2.it>
+> 
+> However I still get the failure with hidraw via BT, I am going to look
+> into that.
+>
 
-Cheers,
-Benjamin
+OK, it's all good even with hidraw via BT.
 
-> ---
->  drivers/hid/hid-core.c          | 9 +++++++++
->  drivers/hid/hid-ids.h           | 3 +++
->  drivers/hid/usbhid/hid-quirks.c | 3 +++
->  3 files changed, 15 insertions(+)
+I was compiling the wrong branch which didn't contain the changes from
+for-3.15/hid-core-ll-transport-cleanup. Sorry for the noise.
+
+> > ---
+> > changes in v3:
+> > - no changes
+> > 
+> > changes in v2:
+> > - removed usb.h include
+> > - renamed HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP
+> > - fix typo
+> > 
+> > 
+> >  drivers/hid/hid-sony.c        | 60 ++++++++++---------------------------------
+> >  drivers/hid/hidraw.c          |  3 ++-
+> >  drivers/hid/usbhid/hid-core.c |  7 ++++-
+> >  include/linux/hid.h           |  2 ++
+> >  4 files changed, 24 insertions(+), 48 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> > index b5fe65e..4884bb5 100644
+> > --- a/drivers/hid/hid-sony.c
+> > +++ b/drivers/hid/hid-sony.c
+> > @@ -29,7 +29,6 @@
+> >  #include <linux/hid.h>
+> >  #include <linux/module.h>
+> >  #include <linux/slab.h>
+> > -#include <linux/usb.h>
+> >  #include <linux/leds.h>
+> >  #include <linux/power_supply.h>
+> >  #include <linux/spinlock.h>
+> > @@ -1007,45 +1006,6 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
+> >  }
+> >  
+> >  /*
+> > - * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
+> > - * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
+> > - * so we need to override that forcing HID Output Reports on the Control EP.
+> > - *
+> > - * There is also another issue about HID Output Reports via USB, the Sixaxis
+> > - * does not want the report_id as part of the data packet, so we have to
+> > - * discard buf[0] when sending the actual control message, even for numbered
+> > - * reports, humpf!
+> > - */
+> > -static int sixaxis_usb_output_raw_report(struct hid_device *hid, __u8 *buf,
+> > -		size_t count, unsigned char report_type)
+> > -{
+> > -	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
+> > -	struct usb_device *dev = interface_to_usbdev(intf);
+> > -	struct usb_host_interface *interface = intf->cur_altsetting;
+> > -	int report_id = buf[0];
+> > -	int ret;
+> > -
+> > -	if (report_type == HID_OUTPUT_REPORT) {
+> > -		/* Don't send the Report ID */
+> > -		buf++;
+> > -		count--;
+> > -	}
+> > -
+> > -	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+> > -		HID_REQ_SET_REPORT,
+> > -		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+> > -		((report_type + 1) << 8) | report_id,
+> > -		interface->desc.bInterfaceNumber, buf, count,
+> > -		USB_CTRL_SET_TIMEOUT);
+> > -
+> > -	/* Count also the Report ID, in case of an Output report. */
+> > -	if (ret > 0 && report_type == HID_OUTPUT_REPORT)
+> > -		ret++;
+> > -
+> > -	return ret;
+> > -}
+> > -
+> > -/*
+> >   * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
+> >   * to "operational".  Without this, the ps3 controller will not report any
+> >   * events.
+> > @@ -1305,11 +1265,8 @@ static void sixaxis_state_worker(struct work_struct *work)
+> >  	buf[10] |= sc->led_state[2] << 3;
+> >  	buf[10] |= sc->led_state[3] << 4;
+> >  
+> > -	if (sc->quirks & SIXAXIS_CONTROLLER_USB)
+> > -		hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
+> > -	else
+> > -		hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf),
+> > -				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+> > +	hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf), HID_OUTPUT_REPORT,
+> > +			HID_REQ_SET_REPORT);
+> >  }
+> >  
+> >  static void dualshock4_state_worker(struct work_struct *work)
+> > @@ -1659,7 +1616,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >  	}
+> >  
+> >  	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+> > -		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
+> > +		/*
+> > +		 * The Sony Sixaxis does not handle HID Output Reports on the
+> > +		 * Interrupt EP like it could, so we need to force HID Output
+> > +		 * Reports to use HID_REQ_SET_REPORT on the Control EP.
+> > +		 *
+> > +		 * There is also another issue about HID Output Reports via USB,
+> > +		 * the Sixaxis does not want the report_id as part of the data
+> > +		 * packet, so we have to discard buf[0] when sending the actual
+> > +		 * control message, even for numbered reports, humpf!
+> > +		 */
+> > +		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+> > +		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
+> >  		ret = sixaxis_set_operational_usb(hdev);
+> >  		sc->worker_initialized = 1;
+> >  		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+> > diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> > index 2cc484c..ffa648c 100644
+> > --- a/drivers/hid/hidraw.c
+> > +++ b/drivers/hid/hidraw.c
+> > @@ -149,7 +149,8 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
+> >  		goto out_free;
+> >  	}
+> >  
+> > -	if (report_type == HID_OUTPUT_REPORT) {
+> > +	if ((report_type == HID_OUTPUT_REPORT) &&
+> > +	    !(dev->quirks & HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP)) {
+> >  		ret = hid_hw_output_report(dev, buf, count);
+> >  		/*
+> >  		 * compatibility with old implementation of USB-HID and I2C-HID:
+> > diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> > index 0d1d875..3bc7cad 100644
+> > --- a/drivers/hid/usbhid/hid-core.c
+> > +++ b/drivers/hid/usbhid/hid-core.c
+> > @@ -894,7 +894,12 @@ static int usbhid_set_raw_report(struct hid_device *hid, unsigned int reportnum,
+> >  	int ret, skipped_report_id = 0;
+> >  
+> >  	/* Byte 0 is the report number. Report data starts at byte 1.*/
+> > -	buf[0] = reportnum;
+> > +	if ((rtype == HID_OUTPUT_REPORT) &&
+> > +	    (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID))
+> > +		buf[0] = 0;
+> > +	else
+> > +		buf[0] = reportnum;
+> > +
+> >  	if (buf[0] == 0x0) {
+> >  		/* Don't send the Report ID */
+> >  		buf++;
+> > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > index e224516..2cd7174 100644
+> > --- a/include/linux/hid.h
+> > +++ b/include/linux/hid.h
+> > @@ -290,6 +290,8 @@ struct hid_item {
+> >  #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
+> >  #define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
+> >  #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+> > +#define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+> > +#define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
+> >  #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+> >  #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+> >  #define HID_QUIRK_NO_IGNORE			0x40000000
+> > -- 
+> > 1.8.5.3
+> > 
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index bb5c494..f4e4820 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -775,6 +775,15 @@ static int hid_scan_report(struct hid_device *hid)
->      if ((parser->scan_flags & HID_SCAN_FLAG_MT_WIN_8) &&
->          (hid->group == HID_GROUP_MULTITOUCH))
->          hid->group = HID_GROUP_MULTITOUCH_WIN_8;
-> +
-> +    /*
-> +     * Handle vendor specific handlings
-> +     */
-> +    if ((hid->vendor == USB_VENDOR_ID_MICROSOFT) &&
-> +        (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_2 ||
-> +        hid->product == USB_DEVICE_ID_MS_TOUCH_COVER_2) &&
-> +        (hid->group == HID_GROUP_MULTITOUCH))
-> +        hid->group = HID_GROUP_GENERIC;
 > 
->      vfree(parser);
->      return 0;
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 07cd28c..f61c0d8 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -624,6 +624,9 @@
->  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB    0x0713
->  #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K    0x0730
->  #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500    0x076c
-> +#define USB_DEVICE_ID_MS_SURFACE_PRO_2    0x0799
-> +#define USB_DEVICE_ID_MS_TOUCH_COVER_2    0x07a7
-> +#define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
-> 
->  #define USB_VENDOR_ID_MOJO        0x8282
->  #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
-> diff --git a/drivers/hid/usbhid/hid-quirks.c
-> b/drivers/hid/usbhid/hid-quirks.c
-> index dbd8387..7c4f86e 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -73,6 +73,9 @@ static const struct hid_blacklist {
->      { USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER,
-> HID_QUIRK_NO_INIT_REPORTS },
->      { USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28,
-> HID_QUIRK_NOGET },
->      { USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
-> +    { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE_PRO_2,
-> HID_QUIRK_NO_INIT_INPUT_REPORTS },
-> +    { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2,
-> HID_QUIRK_NO_INIT_INPUT_REPORTS },
-> +    { USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2,
-> HID_QUIRK_NO_INIT_INPUT_REPORTS },
->      { USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL,
-> HID_QUIRK_NO_INIT_REPORTS },
->      { USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750,
-> HID_QUIRK_NO_INIT_REPORTS },
->      { USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE,
-> HID_QUIRK_NO_INIT_REPORTS },
 > -- 
-> 1.8.3.2
+> Antonio Ospite
+> http://ao2.it
 > 
+> A: Because it messes up the order in which people normally read text.
+>    See http://en.wikipedia.org/wiki/Posting_style
+> Q: Why is top-posting such a bad thing?
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

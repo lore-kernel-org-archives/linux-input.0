@@ -1,77 +1,42 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v5 0/9] Use regmap+devm+DT in pm8xxx input drivers
-Date: Tue, 11 Mar 2014 10:50:00 -0700
-Message-ID: <531F4CC8.5010202@codeaurora.org>
-References: <1393958088-1456-1-git-send-email-sboyd@codeaurora.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH] Input: fix dependencies of OLPC AP-SP driver
+Date: Tue, 11 Mar 2014 19:42:53 +0100
+Message-ID: <20140311194253.23daf5e3@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:51688 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755318AbaCKRuC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Mar 2014 13:50:02 -0400
-In-Reply-To: <1393958088-1456-1-git-send-email-sboyd@codeaurora.org>
+Received: from cantor2.suse.de ([195.135.220.15]:33173 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753449AbaCKSm4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Mar 2014 14:42:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Josh Cartwright <joshc@codeaurora.org>, linux-input@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-ping?
+I don't think the OLPC AP-SP driver is generally useful without OLPC
+support. So make it depend on OLPC, unless build testing is enabled.
 
-On 03/04/14 10:34, Stephen Boyd wrote:
-> These patches move the pm8xxx input drivers over to use devm_* APIs
-> and regmap. This breaks the dependency of these drivers on the pm8xxx
-> specific read/write calls and also simplifies the probe code a bit.
-> Finally we add devicetree support to these drivers so they can be probed
-> on the platforms that are supported upstream.
->
-> Changes since v4:
->  * Added reg property to bindings
->  * Added linux,* properties to keypad binding
->
-> Changes since v3:
->  * Dropped devm conversion patch for pwrkey
->  * Fixed compilation of keypad
->
-> Changes since v2:
->  * Rebased to v3.14-rc3
->
-> Changes since v1:
->  * Picked up Dmitry's version of devm for pwrkey
->  * Added DT bindings and parsing patches
->  * Dropped patches picked up by Dmitry
->
-> Stephen Boyd (9):
->   Input: pmic8xxx-keypad - Fix build by removing gpio configuration
->   Input: pmic8xxx-keypad - Migrate to devm_* APIs
->   Input: pmic8xxx-keypad - Migrate to regmap APIs
->   Input: pmic8xxx-keypad - Migrate to DT
->   Input: pmic8xxx-pwrkey - Migrate to DT
->   Input: pm8xxx-vibrator - Add DT match table
->   devicetree: bindings: Document PM8921/8058 keypads
->   devicetree: bindings: Document PM8921/8058 power keys
->   devicetree: bindings: Document PM8921/8058 vibrators
->
->  .../bindings/input/qcom,pm8xxx-keypad.txt          |  89 ++++++
->  .../bindings/input/qcom,pm8xxx-pwrkey.txt          |  46 +++
->  .../devicetree/bindings/input/qcom,pm8xxx-vib.txt  |  22 ++
->  drivers/input/keyboard/pmic8xxx-keypad.c           | 348 ++++++++-------------
->  drivers/input/misc/pm8xxx-vibrator.c               |   8 +
->  drivers/input/misc/pmic8xxx-pwrkey.c               |  33 +-
->  include/linux/input/pmic8xxx-keypad.h              |  52 ---
->  include/linux/input/pmic8xxx-pwrkey.h              |  31 --
->  8 files changed, 316 insertions(+), 313 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
->  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
->  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
->  delete mode 100644 include/linux/input/pmic8xxx-keypad.h
->  delete mode 100644 include/linux/input/pmic8xxx-pwrkey.h
->
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/serio/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-3.14-rc6.orig/drivers/input/serio/Kconfig	2014-02-09 16:53:02.931633818 +0100
++++ linux-3.14-rc6/drivers/input/serio/Kconfig	2014-03-11 18:52:42.280541110 +0100
+@@ -263,7 +263,7 @@ config SERIO_APBPS2
+ 
+ config SERIO_OLPC_APSP
+ 	tristate "OLPC AP-SP input support"
+-	depends on OF
++	depends on OLPC || (OF && COMPILE_TEST)
+ 	help
+ 	  Say Y here if you want support for the keyboard and touchpad included
+ 	  in the OLPC XO-1.75 and XO-4 laptops.
 
 
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
-
+Jean Delvare
+SUSE L3 Support

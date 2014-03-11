@@ -1,44 +1,48 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH] Input: wistron_btns - simplify dependencies
-Date: Tue, 11 Mar 2014 14:36:01 +0100
-Message-ID: <20140311143601.57cf4cbc@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Robert Baldyga <r.baldyga@samsung.com>
+Subject: [PATCH 0/3] mfd: max8997: add regmap support
+Date: Tue, 11 Mar 2014 14:58:21 +0100
+Message-ID: <1394546304-15191-1-git-send-email-r.baldyga@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55455 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754263AbaCKNgD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Mar 2014 09:36:03 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:47042 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752531AbaCKN6s (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Mar 2014 09:58:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Miloslav Trmac <mitr@volny.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: sameo@linux.intel.com, lee.jones@linaro.org
+Cc: myungjoo.ham@samsung.com, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com, Robert Baldyga <r.baldyga@samsung.com>
 
-Kconfig symbol X86_32 was introduced in October 2005, it's about time
-to use it. This clears the last occurrence of the legacy
-"X86 && !X86_64" construct :-)
+Hi,
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Miloslav Trmac <mitr@volny.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patchset modifies max8997 driver and associated function drivers to use
+register maps instead of operating directly on i2c bus. This change allowed
+to simplify irq handling, and to move some initializations to individual
+function drivers. Hence now when some functions are not enabled, their i2c
+clients, regmaps and irqs are not registered.
 
---- linux-3.14-rc6.orig/drivers/input/misc/Kconfig	2014-02-09 16:53:02.902633206 +0100
-+++ linux-3.14-rc6/drivers/input/misc/Kconfig	2014-03-11 14:31:38.112813328 +0100
-@@ -269,7 +269,7 @@ config INPUT_COBALT_BTNS
- 
- config INPUT_WISTRON_BTNS
- 	tristate "x86 Wistron laptop button interface"
--	depends on X86 && !X86_64
-+	depends on X86_32
- 	select INPUT_POLLDEV
- 	select INPUT_SPARSEKMAP
- 	select NEW_LEDS
+Best regards
+Robert Baldyga
+Samsung R&D Institute Poland
 
+Robert Baldyga (3):
+  mfd: max8997: use regmap to access registers
+  mfd: max8997: handle IRQs using regmap
+  mfd: max8997: move regmap handling to function drivers
+
+ drivers/extcon/extcon-max8997.c     |  136 ++++++++++--
+ drivers/input/misc/max8997_haptic.c |  117 +++++++++--
+ drivers/leds/leds-max8997.c         |   13 +-
+ drivers/mfd/Makefile                |    2 +-
+ drivers/mfd/max8997-irq.c           |  387 -----------------------------------
+ drivers/mfd/max8997.c               |  207 ++++++-------------
+ drivers/power/max8997_charger.c     |   33 +--
+ drivers/regulator/max8997.c         |   87 ++++----
+ drivers/rtc/rtc-max8997.c           |   98 ++++++---
+ include/linux/mfd/max8997-private.h |   86 ++++++--
+ 10 files changed, 482 insertions(+), 684 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
 
 -- 
-Jean Delvare
-SUSE L3 Support
+1.7.9.5
+

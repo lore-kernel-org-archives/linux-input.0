@@ -1,64 +1,54 @@
-From: Arkadiusz (Arkq) Bokowy <arkadiusz.bokowy@gmail.com>
-Subject: [PATCH] atkbd: Samsung NP530U3C laptop forced key release
-Date: Tue, 11 Mar 2014 19:54:48 +0100
-Message-ID: <20140311195448.0b722ea5@sambook>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH 6/7] regulator: AXP20x: Add support for
+ regulators subsystem
+Date: Tue, 11 Mar 2014 20:24:11 +0100
+Message-ID: <20140311192411.GA4193@localhost.fastwebnet.it>
+References: <1393692352-10839-1-git-send-email-carlo@caione.org>
+ <1393692352-10839-7-git-send-email-carlo@caione.org>
+ <20140303015616.GN2411@sirena.org.uk>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f176.google.com ([209.85.215.176]:44019 "EHLO
-	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752478AbaCKSzN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Mar 2014 14:55:13 -0400
-Received: by mail-ea0-f176.google.com with SMTP id o10so4493684eaj.7
-        for <linux-input@vger.kernel.org>; Tue, 11 Mar 2014 11:55:11 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBIWF7WMAKGQEUYL44KQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140303015616.GN2411-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-atkbd: Samsung NP530U3C laptop forced key release
+On Mon, Mar 03, 2014 at 10:56:16AM +0900, Mark Brown wrote:
 
-For Samsung NP530U3C laptop (observed on firmware P09ABH) not all Fn keys
-generates release event, which leaves key in a pressed state. This patch
-adds those keys into the "forced release" workaround. Fixed keys: WLAN,
-Settings, Fn Lock.
-
-Patch generated for kernel version 3.13.6
-
-Signed-off-by: Arkadiusz Bokowy <arkadiusz.bokowy@gmail.com>
----
-
---- linux-3.13.6/drivers/input/keyboard/atkbd.c.orig	2014-03-07 07:07:02.000000000 +0100
-+++ linux-3.13.6/drivers/input/keyboard/atkbd.c	2014-03-11 18:48:47.593211190 +0100
-@@ -943,6 +943,13 @@ static unsigned int atkbd_samsung_forced
- };
+<snip>
  
- /*
-+ * Samsung NP530U3C key release for WLAN, Settings and Fn Lock
-+ */
-+static unsigned int atkbd_samsung_np530_forced_release_keys[] = {
-+	0xa8, 0xa9, 0xce, 0xd5, -1U
-+};
-+
-+/*
-  * Amilo Pi 3525 key release for Fn+Volume keys not working
-  */
- static unsigned int atkbd_amilo_pi3525_forced_release_keys[] = {
-@@ -1732,6 +1739,15 @@ static const struct dmi_system_id atkbd_
- 		.driver_data = atkbd_samsung_forced_release_keys,
- 	},
- 	{
-+		/* Samsung NP530U3C */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "530U3C"),
-+		},
-+		.callback = atkbd_setup_forced_release,
-+		.driver_data = atkbd_samsung_np530_forced_release_keys,
-+	},
-+	{
- 		/* Fujitsu Amilo PA 1510 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
+> > +	np = of_node_get(pdev->dev.parent->of_node);
+> > +	if (!np)
+> > +		return 0;
+> > +
+> > +	regulators = of_find_node_by_name(np, "regulators");
+> > +	if (!regulators) {
+> > +		dev_err(&pdev->dev, "regulators node not found\n");
+> > +		return -EINVAL;
+> > +	}
+> 
+> The driver should be able to start up with no configuration provided at
+> all except for the device being registered - the user won't be able to
+> change anything but they will be able to read the current state of the
+> hardware which can be useful for diagnostics.
+
+If the device is DT enabled and no configuration is provided for
+regulators, these are disabled according to:
+
+http://lxr.linux.no/linux+v3.13.5/drivers/regulator/core.c#L3797
+
+Am I missing something or do you have any pointer?
+
+Thanks,
+
+-- 
+Carlo Caione

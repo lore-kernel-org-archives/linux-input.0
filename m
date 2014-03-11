@@ -1,55 +1,42 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V2] input: misc: da9063: OnKey driver
-Date: Tue, 11 Mar 2014 07:20:19 +0000
-Message-ID: <20140311072019.GI2839@lee--X1>
-References: <201403101740.s2AHebta017785@swsrvapps-01.diasemi.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Qualcomm PMIC8XXX keypad never worked?
+Date: Tue, 11 Mar 2014 09:49 +0100
+Message-ID: <5887114.1jrNo21sGX@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:59538 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750910AbaCKHUY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Mar 2014 03:20:24 -0400
-Received: by mail-wg0-f43.google.com with SMTP id x13so9824732wgg.14
-        for <linux-input@vger.kernel.org>; Tue, 11 Mar 2014 00:20:23 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201403101740.s2AHebta017785@swsrvapps-01.diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Anirudh Ghayal <aghayal@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, David Dajun Chen <david.chen@diasemi.com>, LKML-INPUT <linux-input@vger.kernel.org>, LKML-KERNEL <linux-kernel@vger.kernel.org>, Mark Brown <broonie@linaro.org>, Philipp Zabel <p.zabel@pengutronix.de>
 
-> From: Opensource [Steve Twiss] <stwiss.opensource@diasemi.com>
->=20
-> Add the OnKey driver for DA9063
->=20
-> Plus some minor dependencies:
-> - Addition of "ONKEY" name to OnKey IRQ resource structure;
-> - Bool key_power platform data driver configuration option.
->=20
-> Signed-off-by: Opensource [Steve Twiss] <stwiss.opensource@diasemi.co=
-m>
-> ---
->=20
->  drivers/input/misc/Kconfig        |   10 ++
->  drivers/input/misc/Makefile       |    1 +
->  drivers/input/misc/da9063-onkey.c |  209 +++++++++++++++++++++++++++=
-++++++++++
->  drivers/mfd/da9063-core.c         |    1 +
->  include/linux/mfd/da9063/pdata.h  |    1 +
+Something in the MFD_PM8XXX driver must have changed recently that now allows
+the KEYBOARD_PMIC8XXX driver to be enabled. Unfortunately, it does not build
+because of a dependency on the <linux/mfd/pm8xxx/gpio.h> header file that
+does not exist.
 
-=46or the MFD parts:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+In order to keep 'make randconfig' working on my test box, I have disabled
+this driver, but it would be nice of someone could have a look into fixing it.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Arnd
+
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -470,7 +470,7 @@ config KEYBOARD_PXA930_ROTARY
+ 
+ config KEYBOARD_PMIC8XXX
+        tristate "Qualcomm PMIC8XXX keypad support"
+-       depends on MFD_PM8XXX
++       depends on MFD_PM8XXX && BROKEN
+        select INPUT_MATRIXKMAP
+        help
+          Say Y here if you want to enable the driver for the PMIC8XXX

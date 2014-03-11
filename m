@@ -1,42 +1,74 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Qualcomm PMIC8XXX keypad never worked?
-Date: Tue, 11 Mar 2014 09:49 +0100
-Message-ID: <5887114.1jrNo21sGX@wuerfel>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
+Date: Tue, 11 Mar 2014 11:35:08 +0200
+Message-ID: <531ED8CC.4010903@ti.com>
+References: <1393428486-15001-1-git-send-email-rogerq@ti.com> <1393428486-15001-5-git-send-email-rogerq@ti.com> <531B3331.9050008@euromail.se> <531D7E66.1070300@ti.com> <20140310163701.GA30397@saruman.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stephen Boyd <sboyd@codeaurora.org>
-Cc: Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Anirudh Ghayal <aghayal@codeaurora.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:51358 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751299AbaCKJfW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Mar 2014 05:35:22 -0400
+In-Reply-To: <20140310163701.GA30397@saruman.home>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: balbi@ti.com
+Cc: Henrik Rydberg <rydberg@euromail.se>, dmitry.torokhov@gmail.com, jcbian@pixcir.com.cn, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Something in the MFD_PM8XXX driver must have changed recently that now allows
-the KEYBOARD_PMIC8XXX driver to be enabled. Unfortunately, it does not build
-because of a dependency on the <linux/mfd/pm8xxx/gpio.h> header file that
-does not exist.
+On 03/10/2014 06:37 PM, Felipe Balbi wrote:
+> On Mon, Mar 10, 2014 at 10:57:10AM +0200, Roger Quadros wrote:
+>> Hi Henrik,
+>>
+>> On 03/08/2014 05:11 PM, Henrik Rydberg wrote:
+>>> Hi Roger,
+>>>
+>>> the MT implementation seems mostly fine, just one curiosity:
+>>>
+>>>>  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+>>>>  {
+>>>>  	struct pixcir_i2c_ts_data *tsdata = dev_id;
+>>>>  	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
+>>>> +	struct pixcir_report_data report;
+>>>>  
+>>>>  	while (!tsdata->exiting) {
+>>>> -		pixcir_ts_poscheck(tsdata);
+>>>> -
+>>>> -		if (gpio_get_value(pdata->gpio_attb))
+>>>> +		/* parse packet */
+>>>> +		pixcir_ts_parse(tsdata, &report);
+>>>> +
+>>>> +		/* report it */
+>>>> +		pixcir_ts_report(tsdata, &report);
+>>>> +
+>>>> +		if (gpio_get_value(pdata->gpio_attb)) {
+>>>> +			if (report.num_touches) {
+>>>> +				/*
+>>>> +				 * Last report with no finger up?
+>>>> +				 * Do it now then.
+>>>> +				 */
+>>>> +				input_mt_sync_frame(tsdata->input);
+>>>> +				input_sync(tsdata->input);
+>>>
+>>> Why is this special handling needed?
+>>
+>> This is needed because the controller doesn't always report when all fingers
+>> have left the screen. e.g. report might contain 3 fingers touched and then
+>> gpio_attb line is de-asserted. There's no report with 0 fingers touched even
+>> if the user's fingers have left the screen. So we never detect a BUTTON_UP.
+>>
+>> Without this s/w workaround we observe side effects like buttons being pressed
+>> but not released. To me it looks like a bug in the controller.
+> 
+> the other way would be to *also* use IRQF_TRIGGER_RISING, then you get
+> an IRQ when fingers leave the screen. No ?
+> 
 
-In order to keep 'make randconfig' working on my test box, I have disabled
-this driver, but it would be nice of someone could have a look into fixing it.
+Yes that is also possible but it involves an additional interrupt context switch.
+Sometimes the controller does report 0 finger touches before de-asserting the ATTB line and so
+this additional interrupt is not needed by the approach I used.
 
-	Arnd
-
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -470,7 +470,7 @@ config KEYBOARD_PXA930_ROTARY
- 
- config KEYBOARD_PMIC8XXX
-        tristate "Qualcomm PMIC8XXX keypad support"
--       depends on MFD_PM8XXX
-+       depends on MFD_PM8XXX && BROKEN
-        select INPUT_MATRIXKMAP
-        help
-          Say Y here if you want to enable the driver for the PMIC8XXX
+cheers,
+-roger

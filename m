@@ -1,90 +1,51 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: Suspending access to opened/active /dev/nodes
-	during application runtime
-Date: Tue, 11 Mar 2014 13:33:28 +0100
-Message-ID: <CANq1E4QnLWVLC0ZdRq=okCGe2+AsmTES6xfi662WjuVtLDe97Q@mail.gmail.com>
-References: <9D7BA6C9-9F1F-4D09-8F4F-E7DA4720FF97@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: Qualcomm PMIC8XXX keypad never worked?
+Date: Tue, 11 Mar 2014 13:06:09 +0000
+Message-ID: <20140311130609.GL21216@lee--X1>
+References: <5887114.1jrNo21sGX@wuerfel> <20140311120056.GH21216@lee--X1>
+ <8206209.oc1V5pPVYT@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <9D7BA6C9-9F1F-4D09-8F4F-E7DA4720FF97@gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
-	<mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
-	<mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Sender: systemd-devel-bounces@lists.freedesktop.org
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-To: Lukasz Pawelczyk <havner@gmail.com>
-Cc: libvir-list@redhat.com, systemd Mailing List <systemd-devel@lists.freedesktop.org>, linux-kernel <linux-kernel@vger.kernel.org>, lxc-devel@lists.linuxcontainers.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <8206209.oc1V5pPVYT@wuerfel>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Boyd <sboyd@codeaurora.org>, linux-kernel@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Hi
-
-On Fri, Mar 7, 2014 at 7:45 PM, Lukasz Pawelczyk <havner@gmail.com> wrote:
-> Problem:
-> Has anyone thought about a mechanism to limit/remove an access to a
-> device during an application runtime? Meaning we have an application
-> that has an open file descriptor to some /dev/node and depending on
-> *something* it gains or looses the access to it gracefully (with or
-> without a notification, but without any fatal consequences).
->
-> Example:
-> LXC. Imagine we have 2 separate containers. Both running full operating
-> systems. Specifically with 2 X servers. Both running concurrently of
-> course. Both need the same input devices (e.g. we have just one mouse).
-> This creates a security problem when we want to have completely separate
-> environments. One container is active (being displayed on a monitor and
-> controlled with a mouse) while the other container runs evtest
-> /dev/input/something and grabs the secret password user typed in the
-> other.
->
-> Solutions:
-> The complete solution would comprise of 2 parts:
-> - a mechanism that would allow to temporally "hide" a device from an
-> open file descriptor.
-> - a mechanism for deciding whether application/process/namespace should
-> have an access to a specific device at a specific moment
->
-> Let's focus on the first problem only, as it would need to be solved
-> first anyway.  I haven't found anything that would allow me to do
-> it. There are a lot mechanisms that make it possible to restrict an
-> access during open():
-> - DAC
-> - ACL (controlled by hand or with uaccess)
-> - LSM (in general)
-> - device cgroups
-> But all of those can't do a thing when the device is already opened and
-> an application has a file descriptor.  I don't see such mechanism in
-> kernel sources either.
->
-> I do imagine that it would not be possible for every device to handle
-> such a thing (dri comes to mind) without breaking something (graphics
-> card state in dri example). But there is class of simple input/output
-> devices that would handle this without problems.
->
-> I did implement some proof-of-concept solution for an evdev driver by
-> allowing or disallowing events that go to evdev_client structure using
-> some arbitrary condition. But this is far from a generic solution.
->
-> My proof-of-concept is somewhat similar to this (I just found it):
-> http://www.spinics.net/lists/linux-input/msg25547.html
-> Though a little bit wider in scope. But neither is flawless nor
-> generic.
->
-> Has anyone had any thoughts about a similar problem?
-
-Lennart and Greg have already answered most of this, few notes from me:
- * EVIOCREVOKE and DRM_SET_MASTER/DROP_MASTER are real. We use them.
-They solve your problem for gfx and input devices.
- * EVIOCMUTE is *bad*. It is a privileged ioctl compared to
-EVIOCREVOKE, so we've never merged it. It neither has major advantages
-over revoke. So use EVIOCREVOKE.
- * A generic frevoke() syscall would solve all is, but is unlikely to
-ever appear upstream.
-
-Cheers
-David
+PiA+ID4gU29tZXRoaW5nIGluIHRoZSBNRkRfUE04WFhYIGRyaXZlciBtdXN0IGhhdmUgY2hhbmdl
+ZCByZWNlbnRseSB0aGF0IG5vdyBhbGxvd3MKPiA+ID4gdGhlIEtFWUJPQVJEX1BNSUM4WFhYIGRy
+aXZlciB0byBiZSBlbmFibGVkLiBVbmZvcnR1bmF0ZWx5LCBpdCBkb2VzIG5vdCBidWlsZAo+ID4g
+PiBiZWNhdXNlIG9mIGEgZGVwZW5kZW5jeSBvbiB0aGUgPGxpbnV4L21mZC9wbTh4eHgvZ3Bpby5o
+PiBoZWFkZXIgZmlsZSB0aGF0Cj4gPiA+IGRvZXMgbm90IGV4aXN0Lgo+ID4gCj4gPiBJIGhhdmUg
+aXQ/Cj4gPiAKPiA+IC1ydy1yLS1yLS0gMSBsZWUgbGVlIDIxNDcgRGVjIDE4IDExOjUyIGluY2x1
+ZGUvbGludXgvbWZkL3BtOHh4eC9jb3JlLmgKPiAKPiBUaGlzIGlzIGNvcmUuaCwgbm90IGdwaW8u
+aAoKSG1tbS4uLiBzbyBpdCBpcy4gSSB0aGluayBJJ20gZ29pbmcgc2VuaWxlIQoKPiA+ID4gSW4g
+b3JkZXIgdG8ga2VlcCAnbWFrZSByYW5kY29uZmlnJyB3b3JraW5nIG9uIG15IHRlc3QgYm94LCBJ
+IGhhdmUgZGlzYWJsZWQKPiA+ID4gdGhpcyBkcml2ZXIsIGJ1dCBpdCB3b3VsZCBiZSBuaWNlIG9m
+IHNvbWVvbmUgY291bGQgaGF2ZSBhIGxvb2sgaW50byBmaXhpbmcgaXQuCj4gPiAKPiA+IENhbiB5
+b3Ugc2VuZCBtZSB0aGUgY29uZmlnIHRoYXQgYnJlYWtzIHBsZWFzZT8KPiAKPiBhcHBlbmRlZCBi
+ZWxvdy4gWW91IG1pZ2h0IG5lZWQgbW9yZSBwYXRjaGVzIHRvIGJ1aWxkIHRoaXMsIGJ1dCB5b3Ug
+d2lsbCBnZXQgdGhlCj4gZXJyb3IgaWYgeW91IGp1c3QgdHJ5IGJ1aWxkaW5nIHRoZSBpbnB1dCBk
+cml2ZXIuCgpPa2F5LCBJJ3ZlIHJlY3JlYXRlZCB0aGUgZXJyb3IuCgpJIHRoaW5rIGl0J3MgdGhp
+cyBjb21taXQgdGhhdCdzIGNhdXNpbmcgeW91ciBlcnJvcjoKCiAgaHR0cHM6Ly9sa21sLm9yZy9s
+a21sLzIwMTMvMTIvMTAvOTAzCgouLi4gYnV0IHRoZSBNRkQgaXNuJ3QgYnJva2VuLCBzbyBJIGd1
+ZXNzIHlvdXIgc29sdXRpb24gaXMgdGhlIG1vc3QKZWxlZ2FudC4gSWYgaXQncyBub3QgZml4ZWQg
+c29vbiwgSSBndWVzcyB3ZSBzaG91bGQgdGhpbmsgYWJvdXQgcmlwcGluZwppdCBvdXQuIEl0J3Mg
+b2J2b2lvdXMgdGhhdCBuby1vbmUgY2FyZXMsIGFzIGl0J3MgYmVlbiBicm9rZW4gZm9yCm5lYXJs
+eSAzIHllYXJzLgoKLS0gCkxlZSBKb25lcwpMaW5hcm8gU1RNaWNyb2VsZWN0cm9uaWNzIExhbmRp
+bmcgVGVhbSBMZWFkCkxpbmFyby5vcmcg4pSCIE9wZW4gc291cmNlIHNvZnR3YXJlIGZvciBBUk0g
+U29DcwpGb2xsb3cgTGluYXJvOiBGYWNlYm9vayB8IFR3aXR0ZXIgfCBCbG9nCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
+aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
+c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==

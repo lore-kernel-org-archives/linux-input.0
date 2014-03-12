@@ -1,93 +1,69 @@
 From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH v2 2/3] mfd: max8997: handle IRQs using regmap
-Date: Wed, 12 Mar 2014 15:26:15 +0100
-Message-ID: <1394634375.11860.8.camel@AMDC1943>
+Subject: Re: [PATCH v2 3/3] mfd: max8997: move regmap handling to function
+ drivers
+Date: Wed, 12 Mar 2014 16:11:46 +0100
+Message-ID: <1394637106.11860.16.camel@AMDC1943>
 References: <1394631466-6429-1-git-send-email-r.baldyga@samsung.com>
- <1394631466-6429-3-git-send-email-r.baldyga@samsung.com>
+ <1394631466-6429-4-git-send-email-r.baldyga@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:65182 "EHLO
-	mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754340AbaCLO0Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Mar 2014 10:26:24 -0400
-In-reply-to: <1394631466-6429-3-git-send-email-r.baldyga@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-reply-to: <1394631466-6429-4-git-send-email-r.baldyga@samsung.com>
+Sender: linux-leds-owner@vger.kernel.org
 To: Robert Baldyga <r.baldyga@samsung.com>
 Cc: sameo@linux.intel.com, lee.jones@linaro.org, myungjoo.ham@samsung.com, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com
-
-
+List-Id: linux-input@vger.kernel.org
 
 On Wed, 2014-03-12 at 14:37 +0100, Robert Baldyga wrote:
-> This patch modifies mfd driver to use regmap for handling interrupts.
-> It allows to simplify irq handling process. This modifications needed
-> to make small changes in function drivers, which use interrupts.
+> This patch moves code creating new i2c clients and regmaps to function
+> drivers which use them. It allows to avoid creating this instances when
+> individual function drivers are not enabled.
 > 
 > Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+> 
+> Conflicts:
+> 
+> 	drivers/mfd/max8997.c
 
-(...)
+You can strip out the conflict from commit message.
 
-> diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
-> index 782d7c9..26a360d 100644
-> --- a/drivers/mfd/max8997.c
-> +++ b/drivers/mfd/max8997.c
-> @@ -64,6 +64,49 @@ static const struct regmap_config max8997_regmap_config = {
->  	.max_register = MAX8997_REG_PMIC_END,
->  };
->  
-> +static const struct regmap_irq max8997_irqs[] = {
-> +	/* PMIC_INT1 interrupts */
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_PWRONR_MASK, },
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_PWRONF_MASK, },
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_PWRON1SEC_MASK, },
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_JIGONR_MASK, },
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_JIGONF_MASK, },
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_LOWBAT2_MASK, },
-> +	{ .reg_offset = 0, .mask = PMIC_INT1_LOWBAT1_MASK, },
-> +	/* PMIC_INT2 interrupts */
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_JIGR_MASK, },
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_JIGF_MASK, },
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_MR_MASK, },
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_DVS1OK_MASK, },
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_DVS2OK_MASK, },
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_DVS3OK_MASK, },
-> +	{ .reg_offset = 1, .mask = PMIC_INT2_DVS4OK_MASK, },
-> +	/* PMIC_INT3 interrupts */
-> +	{ .reg_offset = 2, .mask = PMIC_INT3_CHGINS_MASK, },
-> +	{ .reg_offset = 2, .mask = PMIC_INT3_CHGRM_MASK, },
-> +	{ .reg_offset = 2, .mask = PMIC_INT3_DCINOVP_MASK, },
-> +	{ .reg_offset = 2, .mask = PMIC_INT3_TOPOFFR_MASK, },
-> +	{ .reg_offset = 2, .mask = PMIC_INT3_CHGRSTF_MASK, },
-> +	{ .reg_offset = 2, .mask = PMIC_INT3_MBCHGTMEXPD_MASK, },
-> +	/* PMIC_INT4 interrupts */
-> +	{ .reg_offset = 3, .mask = PMIC_INT4_RTC60S_MASK, },
-> +	{ .reg_offset = 3, .mask = PMIC_INT4_RTCA1_MASK, },
-> +	{ .reg_offset = 3, .mask = PMIC_INT4_RTCA2_MASK, },
-> +	{ .reg_offset = 3, .mask = PMIC_INT4_SMPL_INT_MASK, },
-> +	{ .reg_offset = 3, .mask = PMIC_INT4_RTC1S_MASK, },
-> +	{ .reg_offset = 3, .mask = PMIC_INT4_WTSR_MASK, },
+> ---
+>  drivers/extcon/extcon-max8997.c     |  131 +++++++++++++++++++++++++--
+>  drivers/input/misc/max8997_haptic.c |  117 +++++++++++++++++++-----
+>  drivers/mfd/max8997.c               |  167 -----------------------------------
+>  drivers/rtc/rtc-max8997.c           |   78 +++++++++++-----
+>  include/linux/mfd/max8997-private.h |   14 +--
+>  5 files changed, 283 insertions(+), 224 deletions(-)
+> 
+> diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+> index 15fc5c0..42c9915 100644
+> --- a/drivers/extcon/extcon-max8997.c
+> +++ b/drivers/extcon/extcon-max8997.c
+> @@ -118,6 +118,9 @@ enum max8997_muic_charger_type {
+>  struct max8997_muic_info {
+>  	struct device *dev;
+>  	struct max8997_dev *max8997;
+> +	struct i2c_client *i2c;
+> +	struct regmap *regmap;
+> +	struct regmap_irq_chip_data *irq_data;
+>  	struct extcon_dev *edev;
+>  	int prev_cable_type;
+>  	int prev_chg_type;
+> @@ -144,6 +147,39 @@ struct max8997_muic_info {
+>  	 */
+>  	int path_usb;
+>  	int path_uart;
+> +
+> +	unsigned int reg_dump[MAX8997_MUIC_REG_END];
 > +};
 > +
-> +static const struct regmap_irq_chip max8997_irq_chip = {
-> +	.name			= "max8997",
-> +	.status_base		= MAX8997_REG_INT1,
-> +	.mask_base		= MAX8997_REG_INT1MSK,
-> +	.mask_invert		= false,
-> +	.num_regs		= 4,
-> +	.irqs			= max8997_irqs,
-> +	.num_irqs		= ARRAY_SIZE(max8997_irqs),
+> +static const struct regmap_config max8997_muic_regmap_config = {
+> +	.reg_bits = 8,
+> +	.val_bits = 8,
+> +	.max_register = MAX8997_MUIC_REG_END,
 > +};
 > +
->  static const struct regmap_config max8997_regmap_rtc_config = {
->  	.reg_bits = 8,
->  	.val_bits = 8,
-> @@ -82,6 +125,31 @@ static const struct regmap_config max8997_regmap_muic_config = {
->  	.max_register = MAX8997_MUIC_REG_END,
->  };
->  
 > +static const struct regmap_irq max8997_irqs_muic[] = {
 > +	/* MUIC_INT1 interrupts */
 > +	{ .reg_offset = 0, .mask = MUIC_INT1_ADC_MASK, },
@@ -103,55 +79,141 @@ On Wed, 2014-03-12 at 14:37 +0100, Robert Baldyga wrote:
 > +	{ .reg_offset = 2, .mask = MUIC_INT3_OVP_MASK, },
 > +};
 > +
-> +static const struct regmap_irq_chip max8997_irq_chip_muic = {
-> +	.name			= "max8997-muic",
-> +	.status_base		= MAX8997_MUIC_REG_INT1,
-> +	.mask_base		= MAX8997_MUIC_REG_INTMASK1,
-> +	.mask_invert		= true,
-> +	.num_regs		= 3,
-> +	.irqs			= max8997_irqs_muic,
-> +	.num_irqs		= ARRAY_SIZE(max8997_irqs_muic),
-> +};
-> +
->  /*
->   * Only the common platform data elements for max8997 are parsed here from the
->   * device tree. Other sub-modules of max8997 such as pmic, rtc and others have
-> @@ -214,9 +282,26 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
->  		goto err_regmap;
->  	}
+> +static const struct regmap_irq_chip max8997_muic_irq_chip = {
+> +	.name                   = "max8997-muic",
+> +	.status_base            = MAX8997_MUIC_REG_INT1,
+> +	.mask_base              = MAX8997_MUIC_REG_INTMASK1,
+> +	.mask_invert            = true,
+> +	.num_regs               = 3,
+> +	.irqs                   = max8997_irqs_muic,
+> +	.num_irqs               = ARRAY_SIZE(max8997_irqs_muic),
+>  };
 >  
-> -	pm_runtime_set_active(max8997->dev);
-> +	ret = regmap_add_irq_chip(max8997->regmap, max8997->irq,
+>  enum {
+> @@ -191,7 +227,7 @@ static int max8997_muic_set_debounce_time(struct max8997_muic_info *info,
+>  	case ADC_DEBOUNCE_TIME_10MS:
+>  	case ADC_DEBOUNCE_TIME_25MS:
+>  	case ADC_DEBOUNCE_TIME_38_62MS:
+> -		ret = regmap_update_bits(info->max8997->regmap_muic,
+> +		ret = regmap_update_bits(info->regmap,
+>  					  MAX8997_MUIC_REG_CONTROL3,
+>  					  CONTROL3_ADCDBSET_MASK,
+>  					  time << CONTROL3_ADCDBSET_SHIFT);
+> @@ -229,7 +265,7 @@ static int max8997_muic_set_path(struct max8997_muic_info *info,
+>  	else
+>  		ctrl1 = CONTROL1_SW_OPEN;
+>  
+> -	ret = regmap_update_bits(info->max8997->regmap_muic,
+> +	ret = regmap_update_bits(info->regmap,
+>  			MAX8997_MUIC_REG_CONTROL1, COMP_SW_MASK, ctrl1);
+>  	if (ret < 0) {
+>  		dev_err(info->dev, "failed to update MUIC register\n");
+> @@ -241,7 +277,7 @@ static int max8997_muic_set_path(struct max8997_muic_info *info,
+>  	else
+>  		ctrl2 |= CONTROL2_LOWPWR_MASK;	/* LowPwr=1, CPEn=0 */
+>  
+> -	ret = regmap_update_bits(info->max8997->regmap_muic,
+> +	ret = regmap_update_bits(info->regmap,
+>  			MAX8997_MUIC_REG_CONTROL2,
+>  			CONTROL2_LOWPWR_MASK | CONTROL2_CPEN_MASK, ctrl2);
+>  	if (ret < 0) {
+> @@ -544,7 +580,7 @@ static void max8997_muic_irq_work(struct work_struct *work)
+>  		if (info->irq == muic_irqs[i].virq)
+>  			irq_type = muic_irqs[i].irq;
+>  
+> -	ret = regmap_bulk_read(info->max8997->regmap_muic,
+> +	ret = regmap_bulk_read(info->regmap,
+>  				MAX8997_MUIC_REG_STATUS1, info->status, 2);
+>  	if (ret) {
+>  		dev_err(info->dev, "failed to read muic register\n");
+> @@ -606,7 +642,7 @@ static int max8997_muic_detect_dev(struct max8997_muic_info *info)
+>  	mutex_lock(&info->mutex);
+>  
+>  	/* Read STATUSx register to detect accessory */
+> -	ret = regmap_bulk_read(info->max8997->regmap_muic,
+> +	ret = regmap_bulk_read(info->regmap,
+>  			MAX8997_MUIC_REG_STATUS1, info->status, 2);
+>  	if (ret) {
+>  		dev_err(info->dev, "failed to read MUIC register\n");
+> @@ -670,6 +706,31 @@ static int max8997_muic_probe(struct platform_device *pdev)
+>  	info->dev = &pdev->dev;
+>  	info->max8997 = max8997;
+>  
+> +	info->i2c = i2c_new_dummy(max8997->i2c->adapter, MAX8997_I2C_ADDR_MUIC);
+> +	if (!info->i2c) {
+> +		dev_err(info->dev, "failed to allocate I2C device\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	info->regmap = devm_regmap_init_i2c(info->i2c,
+> +			&max8997_muic_regmap_config);
+> +	if (IS_ERR(info->regmap)) {
+> +		ret = PTR_ERR(info->regmap);
+> +		dev_err(info->dev,
+> +			"failed to allocate register map: %d\n", ret);
+> +		goto err_regmap;
+> +	}
+> +
+> +	ret = regmap_add_irq_chip(info->regmap, max8997->irq,
 > +				IRQF_ONESHOT | IRQF_SHARED |
 > +				IRQF_TRIGGER_FALLING, 0,
-> +				&max8997_irq_chip, &max8997->irq_data);
+> +				&max8997_muic_irq_chip,
+> +				&info->irq_data);
 > +	if (ret) {
-> +		dev_err(max8997->dev, "failed to add irq chip: %d\n", ret);
-> +		goto err_irq;
+> +		dev_err(info->dev, "failed to add irq chip: %d\n", ret);
+> +		goto err_regmap_irq;
 > +	}
 
-In case of error here you shouldn't call regmap_del_irq_chip() so:
-	goto err_regmap
-The regmap_add_irq_chip() may fail before or AFTER setting the value
-under max8997->irq_data. However in both error cases the memory stored
-there will be freed already by regmap_add_irq_chip().
+Same issue as in patch 2/3 - regmap_del_irq_chip() shouldn't be called
+when add fails.
 
+> +
+>  	platform_set_drvdata(pdev, info);
+>  	mutex_init(&info->mutex);
 >  
-> -	max8997_irq_init(max8997);
-> +	ret = regmap_add_irq_chip(max8997->regmap_muic, max8997->irq,
-> +				IRQF_ONESHOT | IRQF_SHARED |
-> +				IRQF_TRIGGER_FALLING, 0,
-> +				&max8997_irq_chip_muic,
-> +				&max8997->irq_data_muic);
-> +	if (ret) {
-> +		dev_err(max8997->dev, "failed to add irq chip: %d\n", ret);
-> +		goto err_irq_muic;
+> @@ -679,8 +740,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+>  		struct max8997_muic_irq *muic_irq = &muic_irqs[i];
+>  		unsigned int virq = 0;
+>  
+> -		virq = regmap_irq_get_virq(max8997->irq_data_muic,
+> -					muic_irq->irq);
+> +		virq = regmap_irq_get_virq(info->irq_data, muic_irq->irq);
+>  		if (!virq) {
+>  			ret = -EINVAL;
+>  			goto err_irq;
+> @@ -723,7 +783,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+>  
+>  		/* Initialize registers according to platform data */
+>  		for (i = 0; i < muic_pdata->num_init_data; i++) {
+> -			regmap_write(info->max8997->regmap_muic,
+> +			regmap_write(info->regmap,
+>  					muic_pdata->init_data[i].addr,
+>  					muic_pdata->init_data[i].data);
+>  		}
+> @@ -779,6 +839,10 @@ static int max8997_muic_probe(struct platform_device *pdev)
+>  err_irq:
+>  	while (--i >= 0)
+>  		free_irq(muic_irqs[i].virq, info);
+> +err_regmap_irq:
+> +	regmap_del_irq_chip(info->max8997->irq, info->irq_data);
+> +err_regmap:
+> +	i2c_unregister_device(info->i2c);
+>  	return ret;
+>  }
+>  
+> @@ -787,6 +851,8 @@ static int max8997_muic_remove(struct platform_device *pdev)
+>  	struct max8997_muic_info *info = platform_get_drvdata(pdev);
+>  	int i;
+>  
+> +	regmap_del_irq_chip(info->max8997->irq, info->irq_data);
+> +
+>  	for (i = 0; i < ARRAY_SIZE(muic_irqs); i++)
+>  		free_irq(muic_irqs[i].virq, info);
 
-Same as above - on error remove only one regmap_irq_chip
-(max8997->irq_data), not both.
+I think the order should be different: first free_irq() then
+regmap_del_irq_chip(). At least this is logically expected as the
+virtual irqs aren't useful without irq_chip.
 
 
 Best regards,
 Krzysztof
-
-

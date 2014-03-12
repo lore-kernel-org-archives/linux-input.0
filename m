@@ -1,54 +1,54 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] Input: fix dependencies of OLPC AP-SP driver
-Date: Wed, 12 Mar 2014 14:04:50 +0100
-Message-ID: <20140312140450.657f1639@endymion.delvare>
-References: <20140311194253.23daf5e3@endymion.delvare>
-	<20140312061134.GA2263@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45220 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751843AbaCLNEx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Mar 2014 09:04:53 -0400
-In-Reply-To: <20140312061134.GA2263@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Robert Baldyga <r.baldyga@samsung.com>
+Subject: [PATCH v2 0/3] mfd: max8997: add regmap support
+Date: Wed, 12 Mar 2014 14:37:43 +0100
+Message-ID: <1394631466-6429-1-git-send-email-r.baldyga@samsung.com>
+Return-path: <linux-leds-owner@vger.kernel.org>
+Sender: linux-leds-owner@vger.kernel.org
+To: sameo@linux.intel.com, lee.jones@linaro.org
+Cc: myungjoo.ham@samsung.com, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com, Robert Baldyga <r.baldyga@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
-On Tue, 11 Mar 2014 23:11:34 -0700, Dmitry Torokhov wrote:
-> On Tue, Mar 11, 2014 at 07:42:53PM +0100, Jean Delvare wrote:
-> > I don't think the OLPC AP-SP driver is generally useful without OLPC
-> > support. So make it depend on OLPC, unless build testing is enabled.
-> > 
-> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/serio/Kconfig |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > --- linux-3.14-rc6.orig/drivers/input/serio/Kconfig	2014-02-09 16:53:02.931633818 +0100
-> > +++ linux-3.14-rc6/drivers/input/serio/Kconfig	2014-03-11 18:52:42.280541110 +0100
-> > @@ -263,7 +263,7 @@ config SERIO_APBPS2
-> >  
-> >  config SERIO_OLPC_APSP
-> >  	tristate "OLPC AP-SP input support"
-> > -	depends on OF
-> > +	depends on OLPC || (OF && COMPILE_TEST)
-> 
-> Actually for compile coverage we do not actually need OF, I'll make it
-> 
-> 	depends on OLPC || COMPILE_TEST
-> 
-> instead.
+This patchset modifies max8997 driver and associated function drivers to use
+register maps instead of operating directly on i2c bus. This change allowed
+to simplify irq handling, and to move some initializations to individual
+function drivers. Hence now when some functions are not enabled, their i2c
+clients, regmaps and irqs are not registered.
 
-Ah, you're right. Thanks for spotting it, your solution is easier and
-cleaner :)
+Best regards
+Robert Baldyga
+Samsung R&D Institute Poland
+
+Changelog:
+
+v2:
+- rebase patches on Lee Jones' MFD tree
+- add missing selects in Kconfig
+- add missing deinitializations
+- add interrupt disabling when suspend
+- few minor changes and typo fixes
+
+v1: https://lkml.org/lkml/2014/3/11/291
+
+Robert Baldyga (3):
+  mfd: max8997: use regmap to access registers
+  mfd: max8997: handle IRQs using regmap
+  mfd: max8997: move regmap handling to function drivers
+
+ drivers/extcon/extcon-max8997.c     |  176 +++++++++++++---
+ drivers/input/misc/max8997_haptic.c |  121 +++++++++--
+ drivers/leds/leds-max8997.c         |   13 +-
+ drivers/mfd/Kconfig                 |    3 +-
+ drivers/mfd/Makefile                |    2 +-
+ drivers/mfd/max8997-irq.c           |  387 -----------------------------------
+ drivers/mfd/max8997.c               |  237 +++++++--------------
+ drivers/power/max8997_charger.c     |   33 +--
+ drivers/regulator/max8997.c         |   87 ++++----
+ drivers/rtc/rtc-max8997.c           |  102 ++++++---
+ include/linux/mfd/max8997-private.h |   88 ++++++--
+ 11 files changed, 528 insertions(+), 721 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
 
 -- 
-Jean Delvare
-SUSE L3 Support
+1.7.9.5

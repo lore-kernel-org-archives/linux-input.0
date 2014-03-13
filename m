@@ -1,83 +1,66 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v2 2/3] mfd: max8997: handle IRQs using regmap
-Date: Thu, 13 Mar 2014 17:03:50 +0900
-Message-ID: <53216666.4080500@samsung.com>
-References: <1394631466-6429-1-git-send-email-r.baldyga@samsung.com>
- <1394631466-6429-3-git-send-email-r.baldyga@samsung.com>
- <532111FA.2010706@samsung.com> <53216272.7050304@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <53216272.7050304@samsung.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Robert Baldyga <r.baldyga@samsung.com>
-Cc: sameo@linux.intel.com, lee.jones@linaro.org, myungjoo.ham@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com
+From: Robert Baldyga <r.baldyga@samsung.com>
+Subject: [PATCH v3 0/4] mfd: max8997: add regmap support
+Date: Thu, 13 Mar 2014 10:38:48 +0100
+Message-ID: <1394703532-494-1-git-send-email-r.baldyga@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:33083 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753399AbaCMJjL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Mar 2014 05:39:11 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: sameo@linux.intel.com, lee.jones@linaro.org
+Cc: myungjoo.ham@samsung.com, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com, Robert Baldyga <r.baldyga@samsung.com>
 
-Hi Robert,
+Hi,
 
-On 03/13/2014 04:46 PM, Robert Baldyga wrote:
-> Hi,
-> On 03/13/2014 03:03 AM, Chanwoo Choi wrote:
->> Hi Robert,
->>
->> On 03/12/2014 10:37 PM, Robert Baldyga wrote:
->>> This patch modifies mfd driver to use regmap for handling interrupts.
->>> It allows to simplify irq handling process. This modifications needed
->>> to make small changes in function drivers, which use interrupts.
->>>
->>> Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
->>> ---
->>>  drivers/extcon/extcon-max8997.c     |   35 ++--
->>>  drivers/mfd/Kconfig                 |    2 +-
->>>  drivers/mfd/Makefile                |    2 +-
->>>  drivers/mfd/max8997-irq.c           |  373 -----------------------------------
->>>  drivers/mfd/max8997.c               |  113 ++++++++++-
->>>  drivers/rtc/rtc-max8997.c           |    2 +-
->>>  include/linux/mfd/max8997-private.h |   65 +++++-
->>>  7 files changed, 183 insertions(+), 409 deletions(-)
->>>  delete mode 100644 drivers/mfd/max8997-irq.c
->>>
->>> diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
->>> index f258c08..15fc5c0 100644
->>> --- a/drivers/extcon/extcon-max8997.c
->>> +++ b/drivers/extcon/extcon-max8997.c
->>> @@ -46,15 +46,15 @@ struct max8997_muic_irq {
->>>  };
->>>  
->>>  static struct max8997_muic_irq muic_irqs[] = {
->>> -	{ MAX8997_MUICIRQ_ADCError,	"muic-ADCERROR" },
->>> -	{ MAX8997_MUICIRQ_ADCLow,	"muic-ADCLOW" },
->>> -	{ MAX8997_MUICIRQ_ADC,		"muic-ADC" },
->>> -	{ MAX8997_MUICIRQ_VBVolt,	"muic-VBVOLT" },
->>> -	{ MAX8997_MUICIRQ_DBChg,	"muic-DBCHG" },
->>> -	{ MAX8997_MUICIRQ_DCDTmr,	"muic-DCDTMR" },
->>> -	{ MAX8997_MUICIRQ_ChgDetRun,	"muic-CHGDETRUN" },
->>> -	{ MAX8997_MUICIRQ_ChgTyp,	"muic-CHGTYP" },
->>> -	{ MAX8997_MUICIRQ_OVP,		"muic-OVP" },
->>> +	{ MAX8997_MUICIRQ_ADCERROR,	"MUIC-ADCERROR" },
->>> +	{ MAX8997_MUICIRQ_ADCLOW,	"MUIC-ADCLOW" },
->>> +	{ MAX8997_MUICIRQ_ADC,		"MUIC-ADC" },
->>> +	{ MAX8997_MUICIRQ_VBVOLT,	"MUIC-VBVOLT" },
->>> +	{ MAX8997_MUICIRQ_DBCHG,	"MUIC-DBCHG" },
->>> +	{ MAX8997_MUICIRQ_DCDTMR,	"MUIC-DCDTMR" },
->>> +	{ MAX8997_MUICIRQ_CHGDETRUN,	"MUIC-CHGDETRUN" },
->>> +	{ MAX8997_MUICIRQ_CHGTYP,	"MUIC-CHGTYP" },
->>> +	{ MAX8997_MUICIRQ_OVP,		"MUIC-OVP" },
->>>  };
->>
->>
->> Why did you modify interrput name? Did you have some reason?
->> I think this modification don't need it.
-> 
-> I did it to have one naming convention in max8997-private.h file. Any
-> other interrupt names uses upper case, but MUIC iqr's from some reason
-> uses CamelCase. I think it's much better to have consistent style in
-> entire file.
+This patchset modifies max8997 driver and associated function drivers to use
+register maps instead of operating directly on i2c bus. This change allowed
+to simplify irq handling, and to move some initializations to individual
+function drivers. Hence now when some functions are not enabled, their i2c
+clients, regmaps and irqs are not registered.
 
-If you want to modify interrupt name, I think you better separate patch for
-this modification. This patch handle only regmap according to the title of this patch.
+Best regards
+Robert Baldyga
+Samsung R&D Institute Poland
 
-Thanks,
-Chanwoo Choi
+Changelog:
+
+v3:
+- fix error handling
+- fix deinitializations order
+- move muic irq enum values renaming to separate patch
+
+v2: https://lkml.org/lkml/2014/3/12/237
+- rebase patches on Lee Jones' MFD tree
+- add missing selects in Kconfig
+- add missing deinitializations
+- add interrupt disabling when suspend
+- few minor changes and typo fixes
+
+v1: https://lkml.org/lkml/2014/3/11/291
+
+Robert Baldyga (4):
+  mfd: max8997: use regmap to access registers
+  mfd: max8997: handle IRQs using regmap
+  mfd: max8997: change irq names to upper case
+  mfd: max8997: move regmap handling to function drivers
+
+ drivers/extcon/extcon-max8997.c     |  181 +++++++++++++---
+ drivers/input/misc/max8997_haptic.c |  121 +++++++++--
+ drivers/leds/leds-max8997.c         |   13 +-
+ drivers/mfd/Kconfig                 |    3 +-
+ drivers/mfd/Makefile                |    2 +-
+ drivers/mfd/max8997-irq.c           |  387 -----------------------------------
+ drivers/mfd/max8997.c               |  236 +++++++--------------
+ drivers/power/max8997_charger.c     |   33 +--
+ drivers/regulator/max8997.c         |   87 ++++----
+ drivers/rtc/rtc-max8997.c           |  102 ++++++---
+ include/linux/mfd/max8997-private.h |   88 ++++++--
+ 11 files changed, 532 insertions(+), 721 deletions(-)
+ delete mode 100644 drivers/mfd/max8997-irq.c
+
+-- 
+1.7.9.5
+

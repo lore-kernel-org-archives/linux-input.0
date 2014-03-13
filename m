@@ -1,73 +1,75 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v3 4/4] mfd: max8997: move regmap handling to function
- drivers
-Date: Thu, 13 Mar 2014 14:09:01 +0000
-Message-ID: <20140313140901.GW366@sirena.org.uk>
-References: <1394703532-494-1-git-send-email-r.baldyga@samsung.com>
- <1394703532-494-5-git-send-email-r.baldyga@samsung.com>
- <532191E6.6080108@samsung.com>
- <20140313125504.GA10356@lee--X1>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: Re: [PATCH v2 7/8] HID: sony: Initialize the controller LEDs with
+ the device ID value
+Date: Thu, 13 Mar 2014 10:24:30 -0400
+Message-ID: <5321BF9E.1020206@oh.rr.com>
+References: <1394145176-24174-1-git-send-email-frank.praznik@oh.rr.com>	<1394145176-24174-8-git-send-email-frank.praznik@oh.rr.com> <20140310235902.e09d0855b9c848a098b7ca36@ao2.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="I33OQG5IFrqF2BWt"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:59779 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751112AbaCMOJq (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:43592 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751061AbaCMOYd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Mar 2014 10:09:46 -0400
-Content-Disposition: inline
-In-Reply-To: <20140313125504.GA10356@lee--X1>
+	Thu, 13 Mar 2014 10:24:33 -0400
+In-Reply-To: <20140310235902.e09d0855b9c848a098b7ca36@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>, Robert Baldyga <r.baldyga@samsung.com>, sameo@linux.intel.com, myungjoo.ham@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com
+To: Antonio Ospite <ao2@ao2.it>, Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, dh.herrmann@gmail.com
 
+On 3/10/2014 18:59, Antonio Ospite wrote:
+> On Thu,  6 Mar 2014 17:32:55 -0500
+> Frank Praznik<frank.praznik@oh.rr.com>  wrote:
+>
+>> Use the device ID to initialize the Sixaxis and DualShock 4 controller LEDs to
+>> default values.  The number or color of the controller is set relative to other
+>> connected Sony controllers.
+>>
+> You already know I am not a huge fan of this idea for the sixaxis and I
+> found another reason why: the Sixaxis requires the user to press the PS
+> button before it starts to actually send events and the all-blink
+> pattern is there to tell the user:
+>    
+>    "Look, even if the device is connected, it isn't fully functional yet,
+>     some action is required".
+>
+> That's also why the BlueZ sixaxis plugin waits for events before
+> actually setting the LEDs via USB.
+>
+> Furthermore I still seem to get the all-blink pattern even with the
+> patch applied, it seems to start _after_ the kernel driver set the
+> default as per your patch; do you also experience this?
+> And I still need a recent BLueZ with the sixaxis plugin to use the
+> controller via BT so I don't see the benefits of defaults over BT
+> either, but I am obviously biased.
 
---I33OQG5IFrqF2BWt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yeah, without the BlueZ plugin it keeps blinking on USB unless the PS 
+button is pressed almost immediately since the controller overrides the 
+initial settings and a new output report isn't sent until there is a 
+reason to do so (a rumble event or the LEDs changing in sysfs).  I'm not 
+really sure how to fix that in the driver without some hack-ish 
+workarounds that may interfere with settings made in userland.  It's 
+just an unavoidable quirk of the controller and no different from the 
+existing behavior in that specific case.
 
-On Thu, Mar 13, 2014 at 12:55:04PM +0000, Lee Jones wrote:
-> > Is it necessary? If previous mfd driver has various i2c line, previous =
-mfd driver
-> > initialize regmap/i2c setting on mfd driver.
-> > I'm not sure that regmap/i2c setting code move from mfd driver to each =
-driver.
-> >=20
-> > Dear Lee Jones,
-> > I need your opinion about moving regmap/i2c code from mfd driver to eac=
-h driver.
+I can still see setting the defaults in the driver being of some use on 
+the Bluetooth side since there are a lot of distros that are still using 
+BlueZ 4.x which doesn't have the plugin (everything Debian based for 
+instance).  You need a third party program like sixpair to do the 
+initial pairing, but it's still usable.
 
-> I'd rather take advice from Mark on this one.
+> Just please, if you can, test your changes in conjunction with the
+> BlueZ sixaxis plugin in order to make sure the two don't step on each
+> other toes too much.
 
-I don't really case that much; I'm having a hard time seeing it as
-particularly useful to do the refactoring but if it makes people
-happy...  Keeping things in the core would help promote reusability I
-guess but I'm not sure that's likely to actually happen with this sort
-of driver/device.
-
---I33OQG5IFrqF2BWt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTIbv6AAoJELSic+t+oim90ZUP/2+p9Guto8SsGiGIsf4AZHrb
-YNgb7rBjGWuX07oxXR3x6e5zpu+8LL1SSItlF/Xj/9p9xakJyU4AlVhQXkaTNbpv
-l8gmu/ZA1FTn8V7+qFT5dsWoX1AsDn62bELWXlnh0z9zXRJCRzNwv14zMf25e+BI
-oXS+9qSUkO3Vp3lXiH165OMAiNgZ+GFpkFfIN2rFX91w3gBOCiEkd0Zs2ZyUNpOe
-T5MHtWcMQNvTGcFuYWy4wyhkTQ46sSho0BgJa/UHdjUUhFGF2pWxXTPNpNo9al9P
-gNfKg5kiPcnh7ytNbwzcxhw5nH1ydK+wj8/27o2Cdkpqum+AoTmHCGsXGIQHF7AS
-RbpRyJo/p3sxtd++m+elzIW8PlCYbILz/mTvT1tVeee/MOPSxw7DgxOWxeyhGwNk
-kjhAUklm8jafgnjBTi1a3AZ4Nbe3D0mejqYuhUf+V/FwxYu9/xatzbYCOaitYRzH
-6rDsXE/iewg+ZYuXJysWfgWwk0zKWdehqaTtukO+OL7o9se5oGbU0tplPagEmCUn
-BkwLPurRtkMeMcA+H0eR5BLoFx9N+qeQ7riy2VIhLpEPM2rwwQbDqJjMz1r9Gml+
-RleaJmeyJNClYITNrnG/SetrOHvnH/UbEzKsh3kwv+5B7+DZsWkJqTmUUfO9XfOg
-SPl8W/+XB4h0yHalLzg6
-=nS7y
------END PGP SIGNATURE-----
-
---I33OQG5IFrqF2BWt--
+I've tested it against the BlueZ plugin and there are no conflicts that 
+I've experienced.  Like I've said before, the LEDs are only set to 
+defaults during initialization and then never touched by the driver once 
+the device is exposed to the system so the driver will never "step on 
+the toes" of userland settings.  The driver has actually been setting 
+the LEDs to default values since someone else added the LED controls for 
+the Sixaxis in 3.14 and it doesn't seem to cause any problems.  The only 
+difference this patch makes is that the LEDs are set to some meaningful 
+default instead of "all-off".

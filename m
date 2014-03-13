@@ -1,49 +1,49 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: Re: [PATCH v2 6/8] HID: sony: Add an IDA allocator to assign unique
- device ids
-Date: Thu, 13 Mar 2014 10:30:14 -0400
-Message-ID: <5321C0F6.5090109@oh.rr.com>
-References: <1394145176-24174-1-git-send-email-frank.praznik@oh.rr.com>	<1394145176-24174-7-git-send-email-frank.praznik@oh.rr.com> <20140310232526.4dde47de732f8498a58fb731@ao2.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH] HID: hid-lg4ff: Support new version of G27
+Date: Thu, 13 Mar 2014 12:42:03 -0600
+Message-ID: <1394736123-2102-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:45846 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751260AbaCMOaS (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:52301 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752866AbaCMTIc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Mar 2014 10:30:18 -0400
-In-Reply-To: <20140310232526.4dde47de732f8498a58fb731@ao2.it>
+	Thu, 13 Mar 2014 15:08:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>, Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, dh.herrmann@gmail.com
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, Ivan Baldo <ibaldo@adinet.com.uy>, evilcow <evilcow93@yahoo.com>
 
-On 3/10/2014 18:25, Antonio Ospite wrote:
-> Hi Frank,
->
-> On Thu,  6 Mar 2014 17:32:54 -0500
-> Frank Praznik <frank.praznik@oh.rr.com> wrote:
->
->> Add an IDA id allocator to assign unique, sequential device ids to Sixaxis and
->> DualShock 4 controllers.
->>
->> Use explicit module init and exit functions since the IDA allocator must be
->> manually destroyed when the module is unloaded.
->>
->> Use the device id as the unique number for the battery identification string.
->>
-> Have you thought about using the bdaddr as the battery id?
->
-> I think that decoupling led numbers (from the following patch) and
-> battery ids would be saner. For instance in a scenario when userspace
-> decided that the _second_ sixaxis has LEDs saying "controller
-> 3" (because of different kind of joypads, remember?) we would have
-> battery still saying "2" because the battery id is assigned at probe
-> time while LEDs can change at any time. This mismatch may become
-> confusing.
->
+It has been reported that there is a new hardware version of the G27
+in the 'wild'. This patch add's this new revision so that it can be
+sent the command to switch to native mode.
 
-That's a good idea and it will match the naming scheme of the wiimote 
-battery device, which I think is the only other game controller that 
-reports battery status.  I'll make the change for v3.
+Reported-by: "Ivan Baldo" <ibaldo@adinet.com.uy>
+Tested-by: "evilcow" <evilcow93@yahoo.com>
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-lg4ff.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index befe0e3..24883b4 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -43,6 +43,7 @@
+ #define G25_REV_MIN 0x22
+ #define G27_REV_MAJ 0x12
+ #define G27_REV_MIN 0x38
++#define G27_2_REV_MIN 0x39
+ 
+ #define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
+ 
+@@ -130,6 +131,7 @@ static const struct lg4ff_usb_revision lg4ff_revs[] = {
+ 	{DFP_REV_MAJ,  DFP_REV_MIN,  &native_dfp},	/* Driving Force Pro */
+ 	{G25_REV_MAJ,  G25_REV_MIN,  &native_g25},	/* G25 */
+ 	{G27_REV_MAJ,  G27_REV_MIN,  &native_g27},	/* G27 */
++	{G27_REV_MAJ,  G27_2_REV_MIN,  &native_g27},	/* G27 v2 */
+ };
+ 
+ /* Recalculates X axis value accordingly to currently selected range */
+-- 
+1.8.1.2
+

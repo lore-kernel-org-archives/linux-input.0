@@ -1,29 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3 0/4] HID: ll transport cleanup: final round
-Date: Fri, 14 Mar 2014 15:39:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1403141539120.3690@pobox.suse.cz>
-References: <1394337163-32478-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/8] HID: sony: More Sony controller fixes and
+ improvements.
+Date: Fri, 14 Mar 2014 15:42:21 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1403141541540.3690@pobox.suse.cz>
+References: <1394145176-24174-1-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1394337163-32478-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, David Barksdale <dbarksdale@uplogix.com>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:33365 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754301AbaCNOmW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Mar 2014 10:42:22 -0400
+In-Reply-To: <1394145176-24174-1-git-send-email-frank.praznik@oh.rr.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org, dh.herrmann@gmail.com
 
-On Sat, 8 Mar 2014, Benjamin Tissoires wrote:
+On Thu, 6 Mar 2014, Frank Praznik wrote:
 
-> Hop, a new version.
+> v2 rebases the previous set of patches against Benjamin Tissoires' latest patch
+> set and adds some additional changes:
 > 
-> As mentioned in the v2, I did not changed 2/4 but I'll add a patch later
-> to remove buf[0] from the call. But I need to do tests first.
+> - Adds a patch setting the new HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP for the
+>   Sixaxis and DualShock 4 when they are connected via Bluetooth.  This adds
+>   support for sending output reports via hidraw.
+>   
+> - A patch with a new union/struct is introduced for the Sixaxis output report.
+>   This improves readability, particularly in the later blink support patch.
+>   
+> - Adds an IDA id allocator and uses it to assign the number at the end of the
+>   battery string and set the default LED values relative to other Sony
+>   controllers.
 > 
-> Thanks for all the work to everybody who took a part in this cleanup.
+> - Drops the LED trigger patch as it probably doesn't belong in kernel space.
+>   
+> - Addresses various issues raised during code review of the previous patch set.
 
-Awesome, thanks.
+Frank,
 
-Now queued in for-3.15/hid-core-ll-transport-cleanup.
+just to make things clear -- I am waiting for v3 due to baddr changes 
+planned for 6/8.
+
+Thanks,
 
 -- 
 Jiri Kosina

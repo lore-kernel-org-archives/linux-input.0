@@ -1,103 +1,45 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/5] drivers: input: keyboard: st-keyscan: add keyscan
- driver
-Date: Fri, 14 Mar 2014 10:42:22 +0000
-Message-ID: <20140314104222.GB3432@lee--X1>
-References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
- <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
- <20140310114819.GO14976@lee--X1>
- <5322D63D.5030403@st.com>
+From: Robert Baldyga <r.baldyga@samsung.com>
+Subject: Re: [PATCH v3 4/4] mfd: max8997: move regmap handling to function
+ drivers
+Date: Fri, 14 Mar 2014 12:21:55 +0100
+Message-ID: <5322E653.90107@samsung.com>
+References: <1394703532-494-1-git-send-email-r.baldyga@samsung.com>
+ <1394703532-494-5-git-send-email-r.baldyga@samsung.com>
+ <532191E6.6080108@samsung.com> <20140313125504.GA10356@lee--X1>
+ <20140313140901.GW366@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:43600 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753952AbaCNKm2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Mar 2014 06:42:28 -0400
-Received: by mail-wg0-f42.google.com with SMTP id y10so1938363wgg.13
-        for <linux-input@vger.kernel.org>; Fri, 14 Mar 2014 03:42:27 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <5322D63D.5030403@st.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-reply-to: <20140313140901.GW366@sirena.org.uk>
+Sender: linux-leds-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, sameo@linux.intel.com, myungjoo.ham@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Gabriel Fernandez <gabriel.fernandez@st.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 
-> >Sorry for the delay. It was a hectic week last week.
-> >
-> >As promised:
-> >
-> >>This patch adds ST Keyscan driver to use the keypad hw a subset
-> >>of ST boards provide. Specific board setup will be put in the
-> >>given dt.
-> >>
-> >>Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
-> >>Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
-> >Are you sure these are in the correct order?
-> ok i change the order
+Hi,
 
-I'm not saying they are in the wrong order, I'm just asking. Who wrote
-the patch? Has it changed since?
+On 03/13/2014 03:09 PM, Mark Brown wrote:
+> On Thu, Mar 13, 2014 at 12:55:04PM +0000, Lee Jones wrote:
+>>> Is it necessary? If previous mfd driver has various i2c line, previous mfd driver
+>>> initialize regmap/i2c setting on mfd driver.
+>>> I'm not sure that regmap/i2c setting code move from mfd driver to each driver.
+>>>
+>>> Dear Lee Jones,
+>>> I need your opinion about moving regmap/i2c code from mfd driver to each driver.
+> 
+>> I'd rather take advice from Mark on this one.
+> 
+> I don't really case that much; I'm having a hard time seeing it as
+> particularly useful to do the refactoring but if it makes people
+> happy...  Keeping things in the core would help promote reusability I
+> guess but I'm not sure that's likely to actually happen with this sort
+> of driver/device.
+> 
 
-> >>+- linux,keymap: The keymap for keys as described in the binding do=
-cument
-> >>+  devicetree/bindings/input/matrix-keymap.txt.
-> >>+
-> >>+- keypad,num-rows: Number of row lines connected to the keypad con=
-troller.
-> >>+
-> >>+- keypad,num-columns: Number of column lines connected to the keyp=
-ad
-> >>+  controller.
-> >>+
-> >>+- st,debounce_us: Debouncing interval time in microseconds
-> >I'm sure there will be a shared binding for de-bounce.
-> >
-> >If not, there certainly should be.
->=20
-> you want to refer to "debounce-interval" ?
+If you think it's not needed, you can ignore this patch. I prepared it
+due to Dmitry Torokhov suggestion. If you think it's useless it doesn't
+make me unhappy :)
 
-That sounds more generic, but if it's not documented as such, then
-please consider doing so.
-
-> >+Example:
-> >+
-> >+keyscan: keyscan@fe4b0000 {
-> >+	compatible =3D "st,keypad";
-> >Is there any way we can make this more specific to _this_ IP?
-> for my knowledge this IP is the same for stixxxx platform.
-
-So st,stix-keypad, or st,sti4x-keypad?
-
-I'm just thinking about future proofing the architecture. What if ST
-released stj which has a different keypad IP?
-
-> >>+struct keyscan_priv {
-> >>+	void __iomem *base;
-> >>+	int irq;
-> >>+	struct clk *clk;
-> >>+	struct input_dev *input_dev;
-> >>+	struct keypad_platform_data *config;
-> >>+	unsigned int last_state;
-> >>+	u32 keycodes[ST_KEYSCAN_MAXKEYS];
-> >Seems odd to limit this. Can't the information come from DT
-> >i.e. keypad,num-rows and keypad,num-columns?
-> >
-> i 'll rename 'num_out_pads' into 'n_rows' and 'num_in_pads' into
-> 'n_cols'
-
-That's not quite what I meant, I mean can't ST_KEY_MAXKEYS be more
-dynamic and be obtained from (keypad,num-rows * keypad,num-columns)?
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards
+Robert Baldyga

@@ -1,12 +1,13 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 6/8] ARM: sunxi: dt: Add x-powers-axp209.dtsi file
-Date: Sat, 15 Mar 2014 16:43:43 +0100
-Message-ID: <1394898225-28452-7-git-send-email-carlo@caione.org>
+Subject: [PATCH v2 5/8] regulator: AXP20x: Add support for
+ regulators subsystem
+Date: Sat, 15 Mar 2014 16:43:42 +0100
+Message-ID: <1394898225-28452-6-git-send-email-carlo@caione.org>
 References: <1394898225-28452-1-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBB7KSGMQKGQELH3VUAI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBBPKSGMQKGQE3ILLK7I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1394898225-28452-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -18,81 +19,345 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This dtsi describes the axp209 PMIC, and is to be included from inside
-the i2c controller node to which the axp209 is connected.
+AXP202 and AXP209 come with two synchronous step-down DC-DCs and five
+LDOs. This patch introduces basic support for those regulators.
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 ---
- arch/arm/boot/dts/x-powers-axp209.dtsi | 60 ++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
- create mode 100644 arch/arm/boot/dts/x-powers-axp209.dtsi
+ drivers/regulator/Kconfig            |   7 +
+ drivers/regulator/Makefile           |   1 +
+ drivers/regulator/axp20x-regulator.c | 293 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 301 insertions(+)
+ create mode 100644 drivers/regulator/axp20x-regulator.c
 
-diff --git a/arch/arm/boot/dts/x-powers-axp209.dtsi b/arch/arm/boot/dts/x-powers-axp209.dtsi
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 6a79328..9f3bc48 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -139,6 +139,13 @@ config REGULATOR_AS3722
+ 	  AS3722 PMIC. This will enable support for all the software
+ 	  controllable DCDC/LDO regulators.
+ 
++config REGULATOR_AXP20X
++	tristate "X-POWERS AXP20X PMIC Regulators"
++	depends on MFD_AXP20X
++	help
++	  This driver provides support for the voltage regulators on the
++	  AXP20X PMIC.
++
+ config REGULATOR_DA903X
+ 	tristate "Dialog Semiconductor DA9030/DA9034 regulators"
+ 	depends on PMIC_DA903X
+diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+index 979f9dd..1dd084a 100644
+--- a/drivers/regulator/Makefile
++++ b/drivers/regulator/Makefile
+@@ -20,6 +20,7 @@ obj-$(CONFIG_REGULATOR_ANATOP) += anatop-regulator.o
+ obj-$(CONFIG_REGULATOR_ARIZONA) += arizona-micsupp.o arizona-ldo1.o
+ obj-$(CONFIG_REGULATOR_AS3711) += as3711-regulator.o
+ obj-$(CONFIG_REGULATOR_AS3722) += as3722-regulator.o
++obj-$(CONFIG_REGULATOR_AXP20X) += axp20x-regulator.o
+ obj-$(CONFIG_REGULATOR_DA903X)	+= da903x.o
+ obj-$(CONFIG_REGULATOR_DA9052)	+= da9052-regulator.o
+ obj-$(CONFIG_REGULATOR_DA9055)	+= da9055-regulator.o
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
 new file mode 100644
-index 0000000..d272e67
+index 0000000..f09fe35
 --- /dev/null
-+++ b/arch/arm/boot/dts/x-powers-axp209.dtsi
-@@ -0,0 +1,60 @@
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -0,0 +1,293 @@
 +/*
-+ * x-powers,axp209 common code to be include from inside the axp209 node
++ * AXP20x regulators driver.
 + *
-+ * Copyright 2014 - Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
++ * Copyright (C) 2013 Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 + *
-+ * The code contained herein is licensed under the GNU General Public
-+ * License. You may obtain a copy of the GNU General Public License
-+ * Version 2 or later at the following locations:
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
 + *
-+ * http://www.opensource.org/licenses/gpl-license.html
-+ * http://www.gnu.org/copyleft/gpl.html
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
 + */
 +
-+	compatible = "x-powers,axp209";
-+	interrupt-controller;
-+	#interrupt-cells = <1>;
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/mfd/axp20x.h>
++#include <linux/regulator/driver.h>
++#include <linux/regulator/of_regulator.h>
 +
-+	regulators {
-+		dcdc-freq = "1500";
++#define AXP20X_IO_ENABLED		(0x03)
++#define AXP20X_IO_DISABLED		(0x07)
 +
-+		axp_dcdc2: dcdc2 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <2275000>;
-+			dcdc-workmode = <0>;
-+			regulator-always-on;
-+		};
++#define AXP20X_WORKMODE_DCDC2_MASK	BIT(2)
++#define AXP20X_WORKMODE_DCDC3_MASK	BIT(1)
 +
-+		axp_dcdc3: dcdc3 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <3500000>;
-+			dcdc-workmode = <0>;
-+			regulator-always-on;
-+		};
++#define AXP20X_FREQ_DCDC_MASK		(0x0f)
 +
-+		axp_ldo1: ldo1 {
-+			regulator-min-microvolt = <1300000>;
-+			regulator-max-microvolt = <1300000>;
-+		};
++struct axp20x_regulators {
++	struct regulator_desc	rdesc[AXP20X_REG_ID_MAX];
++	struct regulator_dev	*rdev[AXP20X_REG_ID_MAX];
++	struct axp20x_dev	*axp20x;
++};
 +
-+		axp_ldo2: ldo2 {
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+			regulator-always-on;
-+		};
++#define AXP20X_DESC_IO(_id, _min, _max, _step, _vreg, _vmask, _ereg, _emask, 	\
++		       _enable_val, _disable_val)				\
++	[AXP20X_##_id] = {							\
++		.name		= #_id,						\
++		.type		= REGULATOR_VOLTAGE,				\
++		.id		= AXP20X_##_id,					\
++		.n_voltages	= (((_max) - (_min)) / (_step) + 1),		\
++		.owner		= THIS_MODULE,					\
++		.min_uV		= (_min) * 1000,				\
++		.uV_step	= (_step) * 1000,				\
++		.vsel_reg	= (_vreg),					\
++		.vsel_mask	= (_vmask),					\
++		.enable_reg	= (_ereg),					\
++		.enable_mask	= (_emask),					\
++		.enable_val	= (_enable_val),				\
++		.disable_val	= (_disable_val),				\
++		.ops		= &axp20x_ops,					\
++	}
 +
-+		axp_ldo3: ldo3 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <3500000>;
-+		};
++#define AXP20X_DESC(_id, _min, _max, _step, _vreg, _vmask, _ereg, _emask) 	\
++	AXP20X_DESC_IO(_id, _min, _max, _step, _vreg, _vmask, _ereg, _emask,	\
++		       0, 0)
 +
-+		axp_ldo4: ldo4 {
-+			regulator-min-microvolt = <1250000>;
-+			regulator-max-microvolt = <3300000>;
-+		};
++#define AXP20X_DESC_FIXED(_id, _volt)						\
++	[AXP20X_##_id] = {							\
++		.name		= #_id,						\
++		.type		= REGULATOR_VOLTAGE,				\
++		.id		= AXP20X_##_id,					\
++		.n_voltages	= 1,						\
++		.owner		= THIS_MODULE,					\
++		.min_uV		= (_volt) * 1000,				\
++		.ops		= &axp20x_ops,					\
++	}
 +
-+		axp_ldo5: ldo5 {
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+		};
-+	};
++#define AXP20X_DESC_TABLE(_id, _table, _vreg, _vmask, _ereg, _emask)		\
++	[AXP20X_##_id] = {							\
++		.name		= #_id,						\
++		.type		= REGULATOR_VOLTAGE,				\
++		.id		= AXP20X_##_id,					\
++		.n_voltages	= ARRAY_SIZE(_table),				\
++		.owner		= THIS_MODULE,					\
++		.vsel_reg	= (_vreg),					\
++		.vsel_mask	= (_vmask),					\
++		.enable_reg	= (_ereg),					\
++		.enable_mask	= (_emask),					\
++		.volt_table	= (_table),					\
++		.ops		= &axp20x_ops_table,				\
++	}
++
++static int axp20x_ldo4_data[] = { 1250000, 1300000, 1400000, 1500000, 1600000, 1700000,
++				  1800000, 1900000, 2000000, 2500000, 2700000, 2800000,
++				  3000000, 3100000, 3200000, 3300000 };
++
++static int axp20x_set_suspend_voltage(struct regulator_dev *rdev, int uV)
++{
++	int sel = regulator_map_voltage_iterate(rdev, uV, uV);
++
++	if (sel < 0)
++		return sel;
++
++	return regulator_set_voltage_sel_regmap(rdev, sel);
++}
++
++static struct regulator_ops axp20x_ops_table = {
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.list_voltage		= regulator_list_voltage_table,
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.is_enabled		= regulator_is_enabled_regmap,
++	.set_suspend_enable	= regulator_enable_regmap,
++	.set_suspend_disable	= regulator_disable_regmap,
++	.set_suspend_voltage	= axp20x_set_suspend_voltage,
++};
++
++
++static struct regulator_ops axp20x_ops = {
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.list_voltage		= regulator_list_voltage_linear,
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.is_enabled		= regulator_is_enabled_regmap,
++	.set_suspend_enable	= regulator_enable_regmap,
++	.set_suspend_disable	= regulator_disable_regmap,
++	.set_suspend_voltage	= axp20x_set_suspend_voltage,
++};
++
++static struct regulator_desc axp20x_regulators[] = {
++	AXP20X_DESC(DCDC2, 700, 2275, 25, AXP20X_DCDC2_V_OUT, 0x3f,
++		    AXP20X_PWR_OUT_CTRL, 0x10),
++	AXP20X_DESC(DCDC3, 700, 3500, 25, AXP20X_DCDC3_V_OUT, 0x7f,
++		    AXP20X_PWR_OUT_CTRL, 0x02),
++	AXP20X_DESC_FIXED(LDO1, 1300),
++	AXP20X_DESC(LDO2, 1800, 3300, 100, AXP20X_LDO24_V_OUT, 0xf0,
++		    AXP20X_PWR_OUT_CTRL, 0x04),
++	AXP20X_DESC(LDO3, 700, 3500, 25, AXP20X_LDO3_V_OUT, 0x7f,
++		    AXP20X_PWR_OUT_CTRL, 0x40),
++	AXP20X_DESC_TABLE(LDO4, axp20x_ldo4_data, AXP20X_LDO24_V_OUT, 0x0f,
++			  AXP20X_PWR_OUT_CTRL, 0x08),
++	AXP20X_DESC_IO(LDO5, 1800, 3300, 100, AXP20X_LDO5_V_OUT, 0xf0,
++		       AXP20X_GPIO0_CTRL, 0x07, AXP20X_IO_ENABLED,
++		       AXP20X_IO_DISABLED),
++};
++
++#define AXP_MATCH(_name, _id) \
++	[AXP20X_##_id] = { \
++		.name		= #_name, \
++		.driver_data	= (void *) &axp20x_regulators[AXP20X_##_id], \
++	}
++
++static struct of_regulator_match axp20x_matches[] = {
++	AXP_MATCH(dcdc2, DCDC2),
++	AXP_MATCH(dcdc3, DCDC3),
++	AXP_MATCH(ldo1, LDO1),
++	AXP_MATCH(ldo2, LDO2),
++	AXP_MATCH(ldo3, LDO3),
++	AXP_MATCH(ldo4, LDO4),
++	AXP_MATCH(ldo5, LDO5),
++};
++
++static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
++{
++	struct axp20x_dev *axp20x = dev_get_drvdata(pdev->dev.parent);
++
++	if (dcdcfreq < 750)
++		dcdcfreq = 750;
++
++	if (dcdcfreq > 1875)
++		dcdcfreq = 1875;
++
++	dcdcfreq = (dcdcfreq - 750) / 75;
++
++	return regmap_update_bits(axp20x->regmap, AXP20X_DCDC_FREQ,
++				  AXP20X_FREQ_DCDC_MASK, dcdcfreq);
++}
++
++static int axp20x_regulator_parse_dt(struct platform_device *pdev)
++{
++	struct device_node *np, *regulators;
++	int ret;
++	u32 dcdcfreq;
++
++	np = of_node_get(pdev->dev.parent->of_node);
++	if (!np)
++		return 0;
++
++	regulators = of_find_node_by_name(np, "regulators");
++	if (!regulators) {
++		dev_warn(&pdev->dev, "regulators node not found\n");
++	} else {
++		ret = of_regulator_match(&pdev->dev, regulators, axp20x_matches,
++					 ARRAY_SIZE(axp20x_matches));
++		if (ret < 0) {
++			dev_err(&pdev->dev, "Error parsing regulator init data: %d\n", ret);
++			return ret;
++		}
++
++		dcdcfreq = 1500;
++		of_property_read_u32(regulators, "dcdc-freq", &dcdcfreq);
++		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
++		if (ret < 0) {
++			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
++			return ret;
++		}
++
++		of_node_put(regulators);
++	}
++	
++	return 0;
++}
++
++static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
++{
++	unsigned int mask = AXP20X_WORKMODE_DCDC2_MASK;
++
++	if ((id != AXP20X_DCDC2) && (id != AXP20X_DCDC3))
++		return -EINVAL;
++
++	if (id == AXP20X_DCDC3)
++		mask = AXP20X_WORKMODE_DCDC3_MASK;
++
++	workmode <<= ffs(mask) - 1;
++
++	return regmap_update_bits(rdev->regmap, AXP20X_DCDC_MODE, mask, workmode);
++}
++
++static int axp20x_regulator_probe(struct platform_device *pdev)
++{
++	struct axp20x_regulators *pmic;
++	struct axp20x_dev *axp20x = dev_get_drvdata(pdev->dev.parent);
++	struct regulator_config config = { };
++	struct regulator_init_data *init_data;
++	int ret, i;
++	u32 workmode;
++
++	ret = axp20x_regulator_parse_dt(pdev);
++	if (ret)
++		return ret;
++
++	pmic = devm_kzalloc(&pdev->dev, sizeof(*pmic), GFP_KERNEL);
++	if (!pmic) {
++		dev_err(&pdev->dev, "Failed to alloc pmic\n");
++		return -ENOMEM;
++	}
++
++	pmic->axp20x = axp20x;
++	memcpy(pmic->rdesc, axp20x_regulators, sizeof(pmic->rdesc));
++	platform_set_drvdata(pdev, pmic);
++
++	for (i = 0; i < AXP20X_REG_ID_MAX; i++) {
++		init_data = axp20x_matches[i].init_data;
++
++		config.dev = &pdev->dev;
++		config.init_data = init_data;
++		config.driver_data = pmic;
++		config.regmap = axp20x->regmap;
++		config.of_node = axp20x_matches[i].of_node;
++
++		pmic->rdev[i] = devm_regulator_register(&pdev->dev, &pmic->rdesc[i],
++							&config);
++		if (IS_ERR(pmic->rdev[i])) {
++			dev_err(&pdev->dev, "Failed to register %s\n",
++				pmic->rdesc[i].name);
++
++			return PTR_ERR(pmic->rdev[i]);
++		}
++
++		ret = of_property_read_u32(axp20x_matches[i].of_node, "dcdc-workmode",
++					   &workmode);
++		if (!ret) {
++			if (axp20x_set_dcdc_workmode(pmic->rdev[i], i, workmode))
++				dev_err(&pdev->dev, "Failed to set workmode on %s\n",
++					pmic->rdesc[i].name);
++		}
++	}
++
++	return 0;
++}
++
++static struct platform_driver axp20x_regulator_driver = {
++	.probe	= axp20x_regulator_probe,
++	.driver	= {
++		.name		= "axp20x-regulator",
++		.owner		= THIS_MODULE,
++	},
++};
++
++module_platform_driver(axp20x_regulator_driver);
++
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
++MODULE_DESCRIPTION("Regulator Driver for AXP20X PMIC");
 -- 
 1.8.3.2

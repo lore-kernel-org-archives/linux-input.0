@@ -1,22 +1,42 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v3 0/8] HID: sony: More Sony controller fixes and improvements.
-Date: Sat, 15 Mar 2014 09:41:14 -0400
-Message-ID: <1394890882-2039-1-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH v3 1/8] HID: sony: Fix Sixaxis cable state detection
+Date: Sat, 15 Mar 2014 09:41:15 -0400
+Message-ID: <1394890882-2039-2-git-send-email-frank.praznik@oh.rr.com>
+References: <1394890882-2039-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.231]:38466 "EHLO
 	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1756080AbaCONlc (ORCPT
+	by vger.kernel.org with ESMTP id S1756541AbaCONld (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 Mar 2014 09:41:32 -0400
+	Sat, 15 Mar 2014 09:41:33 -0400
+In-Reply-To: <1394890882-2039-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Just a couple of small changes in v3:
+Byte 31 of the Sixaxis report can change depending on whether or not the
+controller is rumbling.  Using bit 3 is the only reliable way to detect the
+state of the cable regardless of rumble activity.
 
-Patch 6 was changed to use the controller Bluetooth MAC address as the unique
-value for the battery name string.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+ drivers/hid/hid-sony.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The IDA code was moved from patch 6 to 7 since it was no longer needed in
-patch 6.  It's the same otherwise.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 4884bb5..4c445a0 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -863,7 +863,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
+ 		battery_capacity = sixaxis_battery_capacity[index];
+ 		battery_charging = 0;
+ 	}
+-	cable_state = !((rd[31] >> 4) & 0x01);
++	cable_state = !(rd[31] & 0x04);
+ 
+ 	spin_lock_irqsave(&sc->lock, flags);
+ 	sc->cable_state = cable_state;
+-- 
+1.8.5.3
+

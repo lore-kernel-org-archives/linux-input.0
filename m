@@ -1,12 +1,12 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 4/8] input: misc: Add ABI docs for AXP20x PEK
-Date: Sat, 15 Mar 2014 16:43:41 +0100
-Message-ID: <1394898225-28452-5-git-send-email-carlo@caione.org>
+Subject: [PATCH v2 6/8] ARM: sunxi: dt: Add x-powers-axp209.dtsi file
+Date: Sat, 15 Mar 2014 16:43:43 +0100
+Message-ID: <1394898225-28452-7-git-send-email-carlo@caione.org>
 References: <1394898225-28452-1-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBA7KSGMQKGQEJMVPXRI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBB7KSGMQKGQELH3VUAI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1394898225-28452-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -18,30 +18,81 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add ABI entries for the PEK found on PMU X-Powers AXP202 and AXP209.
+This dtsi describes the axp209 PMIC, and is to be included from inside
+the i2c controller node to which the axp209 is connected.
 
+Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 ---
- Documentation/ABI/testing/sysfs-driver-input-axp-pek | 11 +++++++++++
- 1 file changed, 11 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
+ arch/arm/boot/dts/x-powers-axp209.dtsi | 60 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+ create mode 100644 arch/arm/boot/dts/x-powers-axp209.dtsi
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-input-axp-pek b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
+diff --git a/arch/arm/boot/dts/x-powers-axp209.dtsi b/arch/arm/boot/dts/x-powers-axp209.dtsi
 new file mode 100644
-index 0000000..f8cdad2
+index 0000000..d272e67
 --- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
-@@ -0,0 +1,11 @@
-+What:		/sys/class/input/input(x)/startup
-+Date:		March 2014
-+Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-+Description:	Startup time. Board is powered on if the button is pressed
-+		for more than <startup_time>
++++ b/arch/arm/boot/dts/x-powers-axp209.dtsi
+@@ -0,0 +1,60 @@
++/*
++ * x-powers,axp209 common code to be include from inside the axp209 node
++ *
++ * Copyright 2014 - Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
++ *
++ * The code contained herein is licensed under the GNU General Public
++ * License. You may obtain a copy of the GNU General Public License
++ * Version 2 or later at the following locations:
++ *
++ * http://www.opensource.org/licenses/gpl-license.html
++ * http://www.gnu.org/copyleft/gpl.html
++ */
 +
-+What:		/sys/class/input/input(x)/shutdown
-+Date:		March 2014
-+Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-+Description:	Shutdown time. Board is powered off if the button is pressed
-+		for more than <shutdown_time>
++	compatible = "x-powers,axp209";
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	regulators {
++		dcdc-freq = "1500";
++
++		axp_dcdc2: dcdc2 {
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <2275000>;
++			dcdc-workmode = <0>;
++			regulator-always-on;
++		};
++
++		axp_dcdc3: dcdc3 {
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <3500000>;
++			dcdc-workmode = <0>;
++			regulator-always-on;
++		};
++
++		axp_ldo1: ldo1 {
++			regulator-min-microvolt = <1300000>;
++			regulator-max-microvolt = <1300000>;
++		};
++
++		axp_ldo2: ldo2 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-always-on;
++		};
++
++		axp_ldo3: ldo3 {
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <3500000>;
++		};
++
++		axp_ldo4: ldo4 {
++			regulator-min-microvolt = <1250000>;
++			regulator-max-microvolt = <3300000>;
++		};
++
++		axp_ldo5: ldo5 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++		};
++	};
 -- 
 1.8.3.2

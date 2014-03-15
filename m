@@ -1,42 +1,107 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v3 1/8] HID: sony: Fix Sixaxis cable state detection
-Date: Sat, 15 Mar 2014 09:41:15 -0400
-Message-ID: <1394890882-2039-2-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH v3 3/8] HID: sony: Use inliners for work queue initialization and cancellation
+Date: Sat, 15 Mar 2014 09:41:17 -0400
+Message-ID: <1394890882-2039-4-git-send-email-frank.praznik@oh.rr.com>
 References: <1394890882-2039-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.231]:38466 "EHLO
 	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1756541AbaCONld (ORCPT
+	by vger.kernel.org with ESMTP id S1756567AbaCONle (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 Mar 2014 09:41:33 -0400
+	Sat, 15 Mar 2014 09:41:34 -0400
 In-Reply-To: <1394890882-2039-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Byte 31 of the Sixaxis report can change depending on whether or not the
-controller is rumbling.  Using bit 3 is the only reliable way to detect the
-state of the cable regardless of rumble activity.
+Use inliners to make sure that the work queue initialization flag is always
+checked and set correctly when initializing or cancelling the work queue.
 
 Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
- drivers/hid/hid-sony.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+
+ v2 doesn't set worker_initialized to 0 when cancelling work since
+ cancel_work_sync doesn't deinitialize the work queue.
+
+ drivers/hid/hid-sony.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 4884bb5..4c445a0 100644
+index 908de27..3df3306 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -863,7 +863,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
- 		battery_capacity = sixaxis_battery_capacity[index];
- 		battery_charging = 0;
- 	}
--	cable_state = !((rd[31] >> 4) & 0x01);
-+	cable_state = !(rd[31] & 0x04);
+@@ -1578,6 +1578,20 @@ static int sony_check_add(struct sony_sc *sc)
+ 	return sony_check_add_dev_list(sc);
+ }
  
- 	spin_lock_irqsave(&sc->lock, flags);
- 	sc->cable_state = cable_state;
++static inline void sony_init_work(struct sony_sc *sc,
++					void(*worker)(struct work_struct *))
++{
++	if (!sc->worker_initialized)
++		INIT_WORK(&sc->state_worker, worker);
++
++	sc->worker_initialized = 1;
++}
++
++static inline void sony_cancel_work_sync(struct sony_sc *sc)
++{
++	if (sc->worker_initialized)
++		cancel_work_sync(&sc->state_worker);
++}
+ 
+ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+@@ -1629,8 +1643,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+ 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
+ 		ret = sixaxis_set_operational_usb(hdev);
+-		sc->worker_initialized = 1;
+-		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
++		sony_init_work(sc, sixaxis_state_worker);
+ 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
+ 		/*
+ 		 * The Sixaxis wants output reports sent on the ctrl endpoint
+@@ -1638,8 +1651,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 */
+ 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+ 		ret = sixaxis_set_operational_bt(hdev);
+-		sc->worker_initialized = 1;
+-		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
++		sony_init_work(sc, sixaxis_state_worker);
+ 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+ 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+ 			/*
+@@ -1661,8 +1673,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		if (ret < 0)
+ 			goto err_stop;
+ 
+-		sc->worker_initialized = 1;
+-		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
++		sony_init_work(sc, dualshock4_state_worker);
+ 	} else {
+ 		ret = 0;
+ 	}
+@@ -1707,8 +1718,7 @@ err_stop:
+ 		sony_leds_remove(hdev);
+ 	if (sc->quirks & SONY_BATTERY_SUPPORT)
+ 		sony_battery_remove(sc);
+-	if (sc->worker_initialized)
+-		cancel_work_sync(&sc->state_worker);
++	sony_cancel_work_sync(sc);
+ 	sony_remove_dev_list(sc);
+ 	hid_hw_stop(hdev);
+ 	return ret;
+@@ -1726,8 +1736,7 @@ static void sony_remove(struct hid_device *hdev)
+ 		sony_battery_remove(sc);
+ 	}
+ 
+-	if (sc->worker_initialized)
+-		cancel_work_sync(&sc->state_worker);
++	sony_cancel_work_sync(sc);
+ 
+ 	sony_remove_dev_list(sc);
+ 
 -- 
 1.8.5.3
 

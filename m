@@ -1,41 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 14/15] Input: atmel_tsadcc: remove driver
-Date: Sun, 16 Mar 2014 12:26:01 -0700
-Message-ID: <5652100.Y5W0uRRy4s@dtor-d630.eng.vmware.com>
-References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com> <20140305184611.GA5453@core.coreip.homeip.net> <5325ECE3.5090800@kernel.org>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH 00/15] iio: adc: at91 cleanups and atmel_tsadcc removal
+Date: Sun, 16 Mar 2014 20:29:02 +0100
+Message-ID: <20140316192901.GK3106@piout.net>
+References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <5325EDAF.4060003@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5325ECE3.5090800-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from top.free-electrons.com ([176.31.233.9]:54652 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754261AbaCPT3O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Mar 2014 15:29:14 -0400
+Content-Disposition: inline
+In-Reply-To: <5325EDAF.4060003@kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Gregory Clement <gregory.clement@free-electrons.com>
 
-On Sunday, March 16, 2014 06:26:43 PM Jonathan Cameron wrote:
-> On 05/03/14 18:46, Dmitry Torokhov wrote:
-> > On Wed, Mar 05, 2014 at 06:35:39PM +0100, Alexandre Belloni wrote:
-> >> The atmel_tsadcc driver is not used anymore, it has been replaced by
-> >> at91_adc so remove it.
-> >> 
-> >> Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > 
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Hi,
+
+On 16/03/2014 at 18:30:07 +0000, Jonathan Cameron wrote :
+> On 05/03/14 17:35, Alexandre Belloni wrote:
+> >This patch set is a followup of my previous series: iio: adc: at91 fixes
+> >
+> >I'm sorry it is so long, I made sure this is bissectable.
+> It's a nice series, don't apologise for doing things right!
 > 
-> All the rest of this series looks fine to me.
+> Clearly there are a few outstanding snippets from the reviews so far, but we
+> are getting to the point where we need to agree on a path for this.  I'm
+> happy to take the whole series through the IIO tree if Dmitry and the at91
+> maintainers are happy with that.  If it is considered two invasive form the
+> atmel side then I'm perfectly happy with someone to take it through the relevant
+> platform tree instead.
 > 
-> Dmitry, are you happy for me to take this whole series through IIO once
-> the last few bits are pinned down?  If the atmel guys want to take the whole
-> thing through their tree I'm also happy with that.
+> I'm obviously not going to pick it up at all until it has a complete set
+> of at91 maintainer acks though!
 > 
-> Not sure what the lowest pain route will be...
 
-Jonathan,
+Thank you for your review.
 
-I am fine with either one of these 2 options.
+I already have a v2 ready addressing the received comments. I was mostly
+waiting on your feedback and you seem happy with it. I'll send an update
+on monday with the collected acks.
 
-Thanks.
+I'll let the at91 maintainer ack it and decide on the path.
+
+> Realistically it's missed the coming merge window anyway, so we have a fair
+> bit of time.
+> 
+
+That's why I've separated that series from the other fixes, this was not
+as urgent.
 
 -- 
-Dmitry
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com

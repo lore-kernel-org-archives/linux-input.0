@@ -1,137 +1,115 @@
-From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v2 11/15] ARM: at91: sam9rl: switch from atmel_tsadcc to at91_adc
-Date: Mon, 17 Mar 2014 14:57:04 +0100
-Message-ID: <1395064628-644-12-git-send-email-alexandre.belloni@free-electrons.com>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2 03/15] iio: adc: at91: cleanup platform_data
+Date: Mon, 17 Mar 2014 14:56:56 +0100
+Message-ID: <1395064628-644-4-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1395064628-644-1-git-send-email-alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Nicolas Ferre <nicolas.ferre@atmel.com>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-input@vger.kernel.org, Gregory Clement <gregory.clement@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-atmel_tsadcc is not allowing to use the remaining ADC channels while at91_adc
-does. Completely switch to at91_adc and remove the tsadcc platform_data for
-at91sam9rl and at91sam9rl based boards.
+num_channels and registers are not used anymore since they are defined inside
+the driver and assigned by matching the id_table.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Also, struct at91_adc_reg_desc is now only used inside the driver.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 ---
- arch/arm/configs/at91sam9rl_defconfig   |  3 +-
- arch/arm/mach-at91/at91sam9rl_devices.c | 50 ---------------------------------
- arch/arm/mach-at91/board-sam9rlek.c     | 12 --------
- 3 files changed, 2 insertions(+), 63 deletions(-)
+ drivers/iio/adc/at91_adc.c             | 19 +++++++++++++++++++
+ include/linux/platform_data/at91_adc.h | 23 -----------------------
+ 2 files changed, 19 insertions(+), 23 deletions(-)
 
-diff --git a/arch/arm/configs/at91sam9rl_defconfig b/arch/arm/configs/at91sam9rl_defconfig
-index 85f846ae9ff2..5d7797d43d23 100644
---- a/arch/arm/configs/at91sam9rl_defconfig
-+++ b/arch/arm/configs/at91sam9rl_defconfig
-@@ -45,7 +45,6 @@ CONFIG_INPUT_EVDEV=y
- # CONFIG_INPUT_KEYBOARD is not set
- # CONFIG_INPUT_MOUSE is not set
- CONFIG_INPUT_TOUCHSCREEN=y
--CONFIG_TOUCHSCREEN_ATMEL_TSADCC=y
- # CONFIG_SERIO is not set
- CONFIG_SERIAL_ATMEL=y
- CONFIG_SERIAL_ATMEL_CONSOLE=y
-@@ -65,6 +64,8 @@ CONFIG_MMC=y
- CONFIG_MMC_ATMELMCI=m
- CONFIG_RTC_CLASS=y
- CONFIG_RTC_DRV_AT91SAM9=y
-+CONFIG_IIO=y
-+CONFIG_AT91_ADC=y
- CONFIG_EXT2_FS=y
- CONFIG_MSDOS_FS=y
- CONFIG_VFAT_FS=y
-diff --git a/arch/arm/mach-at91/at91sam9rl_devices.c b/arch/arm/mach-at91/at91sam9rl_devices.c
-index b836dada942c..9ccae034119c 100644
---- a/arch/arm/mach-at91/at91sam9rl_devices.c
-+++ b/arch/arm/mach-at91/at91sam9rl_devices.c
-@@ -608,56 +608,6 @@ static void __init at91_add_device_tc(void) { }
+diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
+index 89777ed9abd8..1beae65aef2c 100644
+--- a/drivers/iio/adc/at91_adc.c
++++ b/drivers/iio/adc/at91_adc.c
+@@ -46,6 +46,25 @@
+ #define TOUCH_SAMPLE_PERIOD_US		2000	/* 2ms */
+ #define TOUCH_PEN_DETECT_DEBOUNCE_US	200
  
++/**
++ * struct at91_adc_reg_desc - Various informations relative to registers
++ * @channel_base:	Base offset for the channel data registers
++ * @drdy_mask:		Mask of the DRDY field in the relevant registers
++			(Interruptions registers mostly)
++ * @status_register:	Offset of the Interrupt Status Register
++ * @trigger_register:	Offset of the Trigger setup register
++ * @mr_prescal_mask:	Mask of the PRESCAL field in the adc MR register
++ * @mr_startup_mask:	Mask of the STARTUP field in the adc MR register
++ */
++struct at91_adc_reg_desc {
++	u8	channel_base;
++	u32	drdy_mask;
++	u8	status_register;
++	u8	trigger_register;
++	u32	mr_prescal_mask;
++	u32	mr_startup_mask;
++};
++
+ struct at91_adc_caps {
+ 	bool	has_ts;		/* Support touch screen */
+ 	bool	has_tsmr;	/* only at91sam9x5, sama5d3 have TSMR reg */
+diff --git a/include/linux/platform_data/at91_adc.h b/include/linux/platform_data/at91_adc.h
+index b3ca1e94e0c8..fcf73879dbfe 100644
+--- a/include/linux/platform_data/at91_adc.h
++++ b/include/linux/platform_data/at91_adc.h
+@@ -8,25 +8,6 @@
+ #define _AT91_ADC_H_
  
- /* --------------------------------------------------------------------
-- *  Touchscreen
-- * -------------------------------------------------------------------- */
--
--#if defined(CONFIG_TOUCHSCREEN_ATMEL_TSADCC) || defined(CONFIG_TOUCHSCREEN_ATMEL_TSADCC_MODULE)
--static u64 tsadcc_dmamask = DMA_BIT_MASK(32);
--static struct at91_tsadcc_data tsadcc_data;
--
--static struct resource tsadcc_resources[] = {
--	[0] = {
--		.start	= AT91SAM9RL_BASE_TSC,
--		.end	= AT91SAM9RL_BASE_TSC + SZ_16K - 1,
--		.flags	= IORESOURCE_MEM,
--	},
--	[1] = {
--		.start	= NR_IRQS_LEGACY + AT91SAM9RL_ID_TSC,
--		.end	= NR_IRQS_LEGACY + AT91SAM9RL_ID_TSC,
--		.flags	= IORESOURCE_IRQ,
--	}
--};
--
--static struct platform_device at91sam9rl_tsadcc_device = {
--	.name		= "atmel_tsadcc",
--	.id		= -1,
--	.dev		= {
--				.dma_mask		= &tsadcc_dmamask,
--				.coherent_dma_mask	= DMA_BIT_MASK(32),
--				.platform_data		= &tsadcc_data,
--	},
--	.resource	= tsadcc_resources,
--	.num_resources	= ARRAY_SIZE(tsadcc_resources),
--};
--
--void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data)
--{
--	if (!data)
--		return;
--
--	at91_set_A_periph(AT91_PIN_PA17, 0);	/* AD0_XR */
--	at91_set_A_periph(AT91_PIN_PA18, 0);	/* AD1_XL */
--	at91_set_A_periph(AT91_PIN_PA19, 0);	/* AD2_YT */
--	at91_set_A_periph(AT91_PIN_PA20, 0);	/* AD3_TB */
--
--	tsadcc_data = *data;
--	platform_device_register(&at91sam9rl_tsadcc_device);
--}
--#else
--void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data) {}
--#endif
--
--/* --------------------------------------------------------------------
-  *  ADC and Touchscreen
-  * -------------------------------------------------------------------- */
- 
-diff --git a/arch/arm/mach-at91/board-sam9rlek.c b/arch/arm/mach-at91/board-sam9rlek.c
-index 35d420247e25..6ae90e312ce0 100644
---- a/arch/arm/mach-at91/board-sam9rlek.c
-+++ b/arch/arm/mach-at91/board-sam9rlek.c
-@@ -230,16 +230,6 @@ static struct gpio_led ek_leds[] = {
- 
- 
- /*
-- * Touchscreen
+ /**
+- * struct at91_adc_reg_desc - Various informations relative to registers
+- * @channel_base:	Base offset for the channel data registers
+- * @drdy_mask:		Mask of the DRDY field in the relevant registers
+-			(Interruptions registers mostly)
+- * @status_register:	Offset of the Interrupt Status Register
+- * @trigger_register:	Offset of the Trigger setup register
+- * @mr_prescal_mask:	Mask of the PRESCAL field in the adc MR register
+- * @mr_startup_mask:	Mask of the STARTUP field in the adc MR register
 - */
--static struct at91_tsadcc_data ek_tsadcc_data = {
--	.adc_clock		= 1000000,
--	.pendet_debounce	= 0x0f,
--	.ts_sample_hold_time	= 0x03,
+-struct at91_adc_reg_desc {
+-	u8	channel_base;
+-	u32	drdy_mask;
+-	u8	status_register;
+-	u8	trigger_register;
+-	u32	mr_prescal_mask;
+-	u32	mr_startup_mask;
 -};
 -
--
--/*
-  * ADC + Touchscreen
+-/**
+  * struct at91_adc_trigger - description of triggers
+  * @name:		name of the trigger advertised to the user
+  * @value:		value to set in the ADC's trigger setup register
+@@ -42,8 +23,6 @@ struct at91_adc_trigger {
+ /**
+  * struct at91_adc_data - platform data for ADC driver
+  * @channels_used:		channels in use on the board as a bitmask
+- * @num_channels:		global number of channels available on the board
+- * @registers:			Registers definition on the board
+  * @startup_time:		startup time of the ADC in microseconds
+  * @trigger_list:		Triggers available in the ADC
+  * @trigger_number:		Number of triggers available in the ADC
+@@ -52,8 +31,6 @@ struct at91_adc_trigger {
   */
- static struct at91_adc_data ek_adc_data = {
-@@ -322,8 +312,6 @@ static void __init ek_board_init(void)
- 	at91_add_device_lcdc(&ek_lcdc_data);
- 	/* AC97 */
- 	at91_add_device_ac97(&ek_ac97_data);
--	/* Touch Screen Controller */
--	at91_add_device_tsadcc(&ek_tsadcc_data);
- 	/* Touch Screen Controller + ADC */
- 	at91_add_device_adc(&ek_adc_data);
- 	/* LEDs */
+ struct at91_adc_data {
+ 	unsigned long			channels_used;
+-	u8				num_channels;
+-	struct at91_adc_reg_desc	*registers;
+ 	u8				startup_time;
+ 	struct at91_adc_trigger		*trigger_list;
+ 	u8				trigger_number;
 -- 
 1.8.3.2

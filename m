@@ -1,294 +1,120 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 18/22] Input: atmel_mxt_ts - read screen config from chip
-Date: Mon, 17 Mar 2014 17:26:51 +0000
-Message-ID: <1395077215-10922-19-git-send-email-nick.dyer@itdev.co.uk>
-References: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+From: =?ISO-8859-1?Q?V=E1clav?= Krpec <vencik@razdva.cz>
+Subject: Yet another ALPS dualpoint TP protocol in preparation
+Date: Mon, 17 Mar 2014 18:53:42 +0100
+Message-ID: <1395078822.4834.78.camel@adora>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gmmr4.centrum.cz ([46.255.227.253]:42307 "EHLO gmmr4.centrum.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753210AbaCQSBD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Mar 2014 14:01:03 -0400
+Received: from gm-as1.cent (mail-g1.snat.cent [10.32.3.101])
+	by gmmr4.centrum.cz (Postfix) with ESMTP id 355C1563
+	for <linux-input@vger.kernel.org>; Mon, 17 Mar 2014 18:53:45 +0100 (CET)
+Received: from [192.168.1.183] (unknown [77.240.100.35])
+	by gm-smtp1.centrum.cz (Postfix) with ESMTPX id 6B7DF60048AB3
+	for <linux-input@vger.kernel.org>; Mon, 17 Mar 2014 18:53:43 +0100 (CET)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-By reading the touchscreen configuration from the settings that the
-maXTouch chip is actually using, we can remove some platform data.
+Hello everybody,
 
-The matrix size is not used for anything, and results in some rather
-confusing code to re-read it because it may change when configuration
-is downloaded, so don't print it out.
+yes, I'm another poor soul who ended up with an ALPS touchpad.
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
-Acked-by: Yufeng Shen <miletus@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- arch/arm/mach-s5pv210/mach-goni.c         |   3 -
- drivers/input/touchscreen/atmel_mxt_ts.c  | 136 ++++++++++++++----------------
- drivers/platform/chrome/chromeos_laptop.c |   6 --
- include/linux/i2c/atmel_mxt_ts.h          |  14 ---
- 4 files changed, 65 insertions(+), 94 deletions(-)
+More specifically (although not much helpfully), it's a device
+ALPS manufactured for my Toshiba Portege Z30-A-12N.
+I've written to both ALPS and Toshiba with pleads for tech.
+documentation, but (not surprisingly) Toshiba didn't respond
+at all, ALPS just told me they can't help me...
+The same old song (although it never hurts to try).
 
-diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
-index 05b1f5c..590a0b1 100644
---- a/arch/arm/mach-s5pv210/mach-goni.c
-+++ b/arch/arm/mach-s5pv210/mach-goni.c
-@@ -239,9 +239,6 @@ static void __init goni_radio_init(void)
- 
- /* TSP */
- static struct mxt_platform_data qt602240_platform_data = {
--	.x_size		= 800,
--	.y_size		= 480,
--	.orient		= MXT_DIAGONAL,
- 	.irqflags	= IRQF_TRIGGER_FALLING,
- };
- 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b5c3f8e..ce88ada 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -104,33 +104,16 @@
- 
- /* MXT_TOUCH_MULTI_T9 field */
- #define MXT_TOUCH_CTRL		0
--#define MXT_TOUCH_XORIGIN	1
--#define MXT_TOUCH_YORIGIN	2
--#define MXT_TOUCH_XSIZE		3
--#define MXT_TOUCH_YSIZE		4
--#define MXT_TOUCH_BLEN		6
--#define MXT_TOUCH_TCHTHR	7
--#define MXT_TOUCH_TCHDI		8
--#define MXT_TOUCH_ORIENT	9
--#define MXT_TOUCH_MOVHYSTI	11
--#define MXT_TOUCH_MOVHYSTN	12
--#define MXT_TOUCH_NUMTOUCH	14
--#define MXT_TOUCH_MRGHYST	15
--#define MXT_TOUCH_MRGTHR	16
--#define MXT_TOUCH_AMPHYST	17
--#define MXT_TOUCH_XRANGE_LSB	18
--#define MXT_TOUCH_XRANGE_MSB	19
--#define MXT_TOUCH_YRANGE_LSB	20
--#define MXT_TOUCH_YRANGE_MSB	21
--#define MXT_TOUCH_XLOCLIP	22
--#define MXT_TOUCH_XHICLIP	23
--#define MXT_TOUCH_YLOCLIP	24
--#define MXT_TOUCH_YHICLIP	25
--#define MXT_TOUCH_XEDGECTRL	26
--#define MXT_TOUCH_XEDGEDIST	27
--#define MXT_TOUCH_YEDGECTRL	28
--#define MXT_TOUCH_YEDGEDIST	29
--#define MXT_TOUCH_JUMPLIMIT	30
-+#define MXT_T9_ORIENT		9
-+#define MXT_T9_RANGE		18
-+
-+struct t9_range {
-+	u16 x;
-+	u16 y;
-+} __packed;
-+
-+/* Touch orient bits */
-+#define MXT_XY_SWITCH		(1 << 0)
- 
- /* MXT_PROCI_GRIPFACE_T20 field */
- #define MXT_GRIPFACE_CTRL	0
-@@ -215,11 +198,6 @@
- #define MXT_PRESS		(1 << 6)
- #define MXT_DETECT		(1 << 7)
- 
--/* Touch orient bits */
--#define MXT_XY_SWITCH		(1 << 0)
--#define MXT_X_INVERT		(1 << 1)
--#define MXT_Y_INVERT		(1 << 2)
--
- /* Touchscreen absolute values */
- #define MXT_MAX_AREA		0xff
- 
-@@ -556,11 +534,6 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	return ret;
- }
- 
--static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
--{
--	return __mxt_read_reg(client, reg, 1, val);
--}
--
- static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 			   const void *val)
- {
-@@ -1269,12 +1242,59 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T19_reportid = 0;
- }
- 
-+static int mxt_read_t9_resolution(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+	struct t9_range range;
-+	unsigned char orient;
-+	struct mxt_object *object;
-+
-+	object = mxt_get_object(data, MXT_TOUCH_MULTI_T9);
-+	if (!object)
-+		return -EINVAL;
-+
-+	error = __mxt_read_reg(client,
-+			       object->start_address + MXT_T9_RANGE,
-+			       sizeof(range), &range);
-+	if (error)
-+		return error;
-+
-+	le16_to_cpus(range.x);
-+	le16_to_cpus(range.y);
-+
-+	error =  __mxt_read_reg(client,
-+				object->start_address + MXT_T9_ORIENT,
-+				1, &orient);
-+	if (error)
-+		return error;
-+
-+	/* Handle default values */
-+	if (range.x == 0)
-+		range.x = 1023;
-+
-+	if (range.y == 0)
-+		range.y = 1023;
-+
-+	if (orient & MXT_XY_SWITCH) {
-+		data->max_x = range.y;
-+		data->max_y = range.x;
-+	} else {
-+		data->max_x = range.x;
-+		data->max_y = range.y;
-+	}
-+
-+	dev_dbg(&client->dev,
-+		"Touchscreen size X%uY%u\n", data->max_x, data->max_y);
-+
-+	return 0;
-+}
-+
- static int mxt_initialize(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
- 	struct mxt_info *info = &data->info;
- 	int error;
--	u8 val;
- 
- 	error = mxt_get_info(data);
- 	if (error)
-@@ -1303,26 +1323,16 @@ static int mxt_initialize(struct mxt_data *data)
- 		goto err_free_object_table;
- 	}
- 
--	/* Update matrix size at info struct */
--	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
--	if (error)
--		goto err_free_object_table;
--	info->matrix_xsize = val;
--
--	error = mxt_read_reg(client, MXT_MATRIX_Y_SIZE, &val);
--	if (error)
-+	error = mxt_read_t9_resolution(data);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to initialize T9 resolution\n");
- 		goto err_free_object_table;
--	info->matrix_ysize = val;
--
--	dev_info(&client->dev,
--			"Family: %u Variant: %u Firmware V%u.%u.%02X\n",
--			info->family_id, info->variant_id, info->version >> 4,
--			info->version & 0xf, info->build);
-+	}
- 
- 	dev_info(&client->dev,
--			"Matrix X Size: %u Matrix Y Size: %u Objects: %u\n",
--			info->matrix_xsize, info->matrix_ysize,
--			info->object_num);
-+		 "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
-+		 info->family_id, info->variant_id, info->version >> 4,
-+		 info->version & 0xf, info->build, info->object_num);
- 
- 	return 0;
- 
-@@ -1331,20 +1341,6 @@ err_free_object_table:
- 	return error;
- }
- 
--static void mxt_calc_resolution(struct mxt_data *data)
--{
--	unsigned int max_x = data->pdata->x_size - 1;
--	unsigned int max_y = data->pdata->y_size - 1;
--
--	if (data->pdata->orient & MXT_XY_SWITCH) {
--		data->max_x = max_y;
--		data->max_y = max_x;
--	} else {
--		data->max_x = max_x;
--		data->max_y = max_y;
--	}
--}
--
- /* Firmware Version is returned as Major.Minor.Build */
- static ssize_t mxt_fw_version_show(struct device *dev,
- 				   struct device_attribute *attr, char *buf)
-@@ -1670,8 +1666,6 @@ static int mxt_probe(struct i2c_client *client,
- 	init_completion(&data->reset_completion);
- 	init_completion(&data->crc_completion);
- 
--	mxt_calc_resolution(data);
--
- 	error = mxt_initialize(data);
- 	if (error)
- 		goto err_free_mem;
-diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-index 4f6f0b8..545a6d5 100644
---- a/drivers/platform/chrome/chromeos_laptop.c
-+++ b/drivers/platform/chrome/chromeos_laptop.c
-@@ -80,9 +80,6 @@ static int mxt_t19_keys[] = {
- };
- 
- static struct mxt_platform_data atmel_224s_tp_platform_data = {
--	.x_size			= 102*20,
--	.y_size			= 68*20,
--	.orient			= MXT_VERTICAL_FLIP,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
- 	.t19_num_keys		= ARRAY_SIZE(mxt_t19_keys),
- 	.t19_keymap		= mxt_t19_keys,
-@@ -95,9 +92,6 @@ static struct i2c_board_info __initdata atmel_224s_tp_device = {
- };
- 
- static struct mxt_platform_data atmel_1664s_platform_data = {
--	.x_size			= 1700,
--	.y_size			= 2560,
--	.orient			= MXT_ROTATED_90_COUNTER,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
- };
- 
-diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
-index b569bb8..02bf6ea 100644
---- a/include/linux/i2c/atmel_mxt_ts.h
-+++ b/include/linux/i2c/atmel_mxt_ts.h
-@@ -15,22 +15,8 @@
- 
- #include <linux/types.h>
- 
--/* Orient */
--#define MXT_NORMAL		0x0
--#define MXT_DIAGONAL		0x1
--#define MXT_HORIZONTAL_FLIP	0x2
--#define MXT_ROTATED_90_COUNTER	0x3
--#define MXT_VERTICAL_FLIP	0x4
--#define MXT_ROTATED_90		0x5
--#define MXT_ROTATED_180		0x6
--#define MXT_DIAGONAL_COUNTER	0x7
--
- /* The platform data for the Atmel maXTouch touchscreen driver */
- struct mxt_platform_data {
--	unsigned int x_size;
--	unsigned int y_size;
--	unsigned char orient;
--
- 	unsigned long irqflags;
- 	u8 t19_num_keys;
- 	const unsigned int *t19_keymap;
--- 
-1.8.3.2
+Well, being Linux user for quite some time and SW developer
+myself, I decided to do a reverse analysis of the device,
+hoping to get proper support of its capabilities in psmouse
+kernel module.
+
+Here's a short list of what I've done (hope I didn't bore
+you off up to this point, it'll turn worse ;-):
+
+1/
+I've contacted Sebastian Kapfer, the current maintainer
+of the ALPS sub-driver; with his advice and support,
+I was able to find out that the device responds to
+"AlpsPS/2 v3 Rushmore" flavour of HW initialisation routine.
+I should note here that the device works in plain PS/2 mouse
+compatibility mode unless the HW init. sequence above is executed.
+
+2/
+I've created a simple tool for reverse analysis of the device PS/2
+protocol; it's here (just in case someone else would find it helpful):
+https://github.com/vencik/alsp-ra
+I was able to successfully unravel the device protocol packet structure
+and have drafted a new version (codename "v7").
+
+3/
+I'm now in process of implementing the driver; so far, the trackstick
+works fine, the TP sends abs. coords OK, I got tap and tap-and-drag
+working too (although fine tuning shall be nice).
+I can distinguish 2 fingers, either, and get secondary coords.
+I've however hit a few issues:
+
+4/
+I'm using the (apparently) old BTN_TOOL_FINGER / BTN_TOOL_DOUBLETAP
+input_report_* interface.
+Accordingly to the documentation and what I saw in the code,
+the new input_mt_slot & input_mt_report_slot_state should be more
+suitable for multitouch (the touchpad can apparently detect at least
+3, maybe even more, fingers).
+Although I don't really need that, it seems better to use the more
+general approach.
+However, I don't seem to be able to get any events reported using
+that new iface.
+Do I need to do any special initialisation or something?
+Note that I do use alps_set_abs_params_mt for the set_abs_params
+callback.
+Or perhaps do I need to set something on the synaptics X11 driver?
+
+5/
+I've also noticed that the TP seems to get out-of-sync or something
+if I re-load the driver and touch it too soon before the X server
+loads the synaptics driver.
+If I wait for about 3 seconds, it works fine.
+If I touch it sooner, I get no cursor (although the other trackstick
+device still works nicely and so do the TP buttons).
+Is there any reset required/possible?
+
+6/
+I also have a bit of trouble reporting switch from 2 to one touch.
+When that happens, I try to
+input_report_key(dev, BTN_TOOL_DOUBLETAP, 0)
+and then
+input_report_key(dev, BTN_TOOL_FINGER, 1)
+(with sync) to avoid cursor skip if the primary touch is the lost
+one, but that doesn't seem to do the trick.
+What should I do?
+
+7/
+Well, there'll be much more to do, but so far, the above are the most
+interesting/bugging issues.
+
+Any help/advice/moral support highly appreciated. :-)
+
+Also, don't hesitate to point me to any existing info resources
+(and at this point, I'd like to apologise if asking an already responded
+question).
+
+Of course, if anyone else have similar device, I'd very much like to
+share findings or (at some point) perhaps get the opportunity to
+test the code on another machine.
+
+Thanks,
+
+Best regards
+
+vencik
+
+
+

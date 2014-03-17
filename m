@@ -1,71 +1,125 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 5/8] regulator: AXP20x: Add support for
- regulators subsystem
-Date: Mon, 17 Mar 2014 17:33:07 +0000
-Message-ID: <20140317173307.GX11706@sirena.org.uk>
-References: <1394898225-28452-1-git-send-email-carlo@caione.org>
- <1394898225-28452-6-git-send-email-carlo@caione.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5FFaGRZUwcpbKFrw"
-Return-path: <linux-sunxi+bncBDQ2L75W5QGBB3XDTSMQKGQEZXF2BSQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1394898225-28452-6-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: [PATCH 09/22] Input: atmel_mxt_ts - improve error reporting and debug
+Date: Mon, 17 Mar 2014 17:26:42 +0000
+Message-ID: <1395077215-10922-10-git-send-email-nick.dyer@itdev.co.uk>
+References: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
+- Add error messages for probe errors
+- Report type in invalid object type
+- Tweak some other debug output messages
 
---5FFaGRZUwcpbKFrw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 33 ++++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
-On Sat, Mar 15, 2014 at 04:43:42PM +0100, Carlo Caione wrote:
-> AXP202 and AXP209 come with two synchronous step-down DC-DCs and five
-> LDOs. This patch introduces basic support for those regulators.
-
-This is mostly fine apart from the things Krzysztof mentioned and...
-
-> +static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
-> +{
-> +	struct axp20x_dev *axp20x = dev_get_drvdata(pdev->dev.parent);
-> +
-> +	if (dcdcfreq < 750)
-> +		dcdcfreq = 750;
-> +
-> +	if (dcdcfreq > 1875)
-> +		dcdcfreq = 1875;
-
-I'd expect at least a warning on out of spec values being specified
-here.
-
---5FFaGRZUwcpbKFrw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTJzHQAAoJELSic+t+oim9kboQAJ35OxlOtD6lEQoSOmRZP6In
-zxPccnmam12tid7Pb7zWdYzwTUmiMKNeWeAavU58plKnNqC8qyW2n5lr3WIE5fue
-ARPpOolPSntEme8wAZ1Bj/QP+Ztur08c69dVx/E4Z5kAH6UdH056fsEoxjEVSjsv
-AVe9i44eq02PY0ui5P00VGu4oftk60Fr01qWiXLqqnJzVs7fYsR0Sh3O1EdsjWcI
-QNfaWOzE1EBU+4XegAjJlp+RYb3tdx6l0MXi6O309s4bDzVx4btDjDd+PLy5uPSz
-0TaecECOPWaQcU5FDIoMbWOZ+vbF5epM8GlFeBlt6a7GrzLD5+mAAByCY1D9d8SD
-FAIlSV7Cd01fqBDU1cN9yQgjDiIDaQrYt0h/WfkSpBuDaHWogb2HriGM1V8x6Qic
-5xSUHL9On3dNtj+YhAImYBylYzcx2cWgnLMF/dv8JZI5gxGsEdIAPDMYm0sNZ03Z
-y/v3L1hAiotd7Y+S14NWCsBO10T3YnEtLMJZug5LAAsBHaDcRniF9Ac0ez31ymBR
-EqujHtaWf/wGvzDIqswKtGmAXabvwApEy2VQnE9L5ZxeuHhewiZGLJoerqPvDfhN
-Ux9uS0/oZCziCD6DGp0hrP+FmUSuk9LhTk36aoZoLqD07WOOa1s6dm5wgin0vKB3
-OCtkTDMXzcWQYmMnIfRB
-=9ub5
------END PGP SIGNATURE-----
-
---5FFaGRZUwcpbKFrw--
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index d3aef87..278f364 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -420,7 +420,8 @@ recheck:
+ 	}
+ 
+ 	if (val != state) {
+-		dev_err(&client->dev, "Unvalid bootloader mode state\n");
++		dev_err(&client->dev, "Invalid bootloader state %02X != %02X\n",
++			val, state);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -540,7 +541,7 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 			return object;
+ 	}
+ 
+-	dev_err(&data->client->dev, "Invalid object type\n");
++	dev_err(&data->client->dev, "Invalid object type T%u\n", type);
+ 	return NULL;
+ }
+ 
+@@ -861,7 +862,7 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 		}
+ 
+ 		dev_dbg(&data->client->dev,
+-			"Type %2d Start %3d Size %3zd Instances %2zd ReportIDs %3u : %3u\n",
++			"T%u Start:%u Size:%zu Instances:%zu Report IDs:%u-%u\n",
+ 			object->type, object->start_address,
+ 			mxt_obj_size(object), mxt_obj_instances(object),
+ 			min_id, max_id);
+@@ -915,13 +916,18 @@ static int mxt_initialize(struct mxt_data *data)
+ 
+ 	/* Get object table information */
+ 	error = mxt_get_object_table(data);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d reading object table\n", error);
+ 		goto err_free_object_table;
++	}
+ 
+ 	/* Check register init values */
+ 	error = mxt_check_reg_init(data);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d initializing configuration\n",
++			error);
+ 		goto err_free_object_table;
++	}
+ 
+ 	error = mxt_t6_command(data, MXT_COMMAND_BACKUPNV,
+ 			       MXT_BACKUP_VALUE, false);
+@@ -940,12 +946,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 	info->matrix_ysize = val;
+ 
+ 	dev_info(&client->dev,
+-			"Family ID: %u Variant ID: %u Major.Minor.Build: %u.%u.%02X\n",
++			"Family: %u Variant: %u Firmware V%u.%u.%02X\n",
+ 			info->family_id, info->variant_id, info->version >> 4,
+ 			info->version & 0xf, info->build);
+ 
+ 	dev_info(&client->dev,
+-			"Matrix X Size: %u Matrix Y Size: %u Object Num: %u\n",
++			"Matrix X Size: %u Matrix Y Size: %u Objects: %u\n",
+ 			info->matrix_xsize, info->matrix_ysize,
+ 			info->object_num);
+ 
+@@ -1154,7 +1160,8 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 		dev_err(dev, "The firmware update failed(%d)\n", error);
+ 		count = error;
+ 	} else {
+-		dev_dbg(dev, "The firmware update succeeded\n");
++		dev_info(dev, "The firmware update succeeded\n");
++
+ 		mxt_free_object_table(data);
+ 
+ 		mxt_initialize(data);
+@@ -1325,12 +1332,18 @@ static int mxt_probe(struct i2c_client *client,
+ 		goto err_free_irq;
+ 
+ 	error = input_register_device(input_dev);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d registering input device\n",
++			error);
+ 		goto err_free_irq;
++	}
+ 
+ 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++			error);
+ 		goto err_unregister_device;
++	}
+ 
+ 	return 0;
+ 
+-- 
+1.8.3.2

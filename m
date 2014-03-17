@@ -1,100 +1,182 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 07/22] Input: atmel_mxt_ts - wait for CHG after bootloader resets
-Date: Mon, 17 Mar 2014 17:26:40 +0000
-Message-ID: <1395077215-10922-8-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 10/22] Input: atmel_mxt_ts - implement CRC check for configuration data
+Date: Mon, 17 Mar 2014 17:26:43 +0000
+Message-ID: <1395077215-10922-11-git-send-email-nick.dyer@itdev.co.uk>
 References: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:19851 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756480AbaCQRdc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Mar 2014 13:33:32 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-From: Benson Leung <bleung@chromium.org>
+The configuration is stored in NVRAM on the maXTouch chip. When the device
+is reset it reports a CRC of the stored configuration values. Therefore it
+isn't necessary to send the configuration on each probe - we can check the
+CRC matches and avoid a timeconsuming backup/reset cycle.
 
-Rather than msleep for MXT_RESET_TIME and MXT_FWRESET_TIME during the
-transition to bootloader mode and the transition back from app, wait for the
-CHG assert to indicate that the transition is done.
-
-This change replaces the msleep with a wait for completion that the
-mxt_interrupt handler signals.
-
-Also add CHG poll after last firmware frame - some bootloader versions will
-assert the interrupt line after the final frame, in testing this meant that
-the driver attempts to read the info block too early whilst the chip is still
-resetting.
-
-This improves firmware update time as we no longer wait longer than necessary
-for each reset.
-
-Signed-off-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
 Acked-by: Yufeng Shen <miletus@chromium.org>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 60 +++++++++++++++++++++++++++-----
+ include/linux/i2c/atmel_mxt_ts.h         |  1 +
+ 2 files changed, 53 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7f51d39..d5b3043 100644
+index 278f364..61f9ef2 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -181,8 +181,8 @@
- #define MXT_BACKUP_VALUE	0x55
+@@ -188,6 +188,7 @@
  #define MXT_BACKUP_TIME		50	/* msec */
  #define MXT_RESET_TIME		200	/* msec */
--
--#define MXT_FWRESET_TIME	175	/* msec */
-+#define MXT_FW_RESET_TIME	3000	/* msec */
-+#define MXT_FW_CHG_TIMEOUT	300	/* msec */
+ #define MXT_RESET_TIMEOUT	3000	/* msec */
++#define MXT_CRC_TIMEOUT		1000	/* msec */
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
  
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -375,7 +375,7 @@ recheck:
- 		 * CHG assertion before reading the status byte.
- 		 * Once the status byte has been read, the line is deasserted.
- 		 */
--		ret = mxt_wait_for_chg(data, 300);
-+		ret = mxt_wait_for_chg(data, MXT_FW_CHG_TIMEOUT);
- 		if (ret) {
- 			/*
- 			 * TODO: handle -ERESTARTSYS better by terminating
-@@ -1047,6 +1047,18 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		dev_dbg(dev, "Updated %d bytes / %zd bytes\n", pos, fw->size);
+@@ -259,6 +260,7 @@ struct mxt_data {
+ 	unsigned int max_x;
+ 	unsigned int max_y;
+ 	bool in_bootloader;
++	u32 config_crc;
+ 
+ 	/* Cached parameters from object table */
+ 	u8 T6_reportid;
+@@ -272,6 +274,9 @@ struct mxt_data {
+ 
+ 	/* for reset handling */
+ 	struct completion reset_completion;
++
++	/* for config update handling */
++	struct completion crc_completion;
+ };
+ 
+ static size_t mxt_obj_size(const struct mxt_object *obj)
+@@ -636,7 +641,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
  	}
+ }
  
-+	/* Wait for flash. */
-+	ret = mxt_wait_for_chg(data, MXT_FW_RESET_TIME);
-+	if (ret)
-+		goto disable_irq;
+-static unsigned mxt_extract_T6_csum(const u8 *csum)
++static u16 mxt_extract_T6_csum(const u8 *csum)
+ {
+ 	return csum[0] | (csum[1] << 8) | (csum[2] << 16);
+ }
+@@ -654,6 +659,7 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ 	struct device *dev = &data->client->dev;
+ 	u8 reportid;
+ 	bool update_input = false;
++	u32 crc;
+ 
+ 	do {
+ 		if (mxt_read_message(data, &message)) {
+@@ -665,9 +671,15 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ 
+ 		if (reportid == data->T6_reportid) {
+ 			u8 status = payload[0];
+-			unsigned csum = mxt_extract_T6_csum(&payload[1]);
++
++			crc = mxt_extract_T6_csum(&payload[1]);
++			if (crc != data->config_crc) {
++				data->config_crc = crc;
++				complete(&data->crc_completion);
++			}
++
+ 			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
+-				status, csum);
++				status, data->config_crc);
+ 
+ 			if (status & MXT_T6_STATUS_RESET)
+ 				complete(&data->reset_completion);
+@@ -757,6 +769,24 @@ static int mxt_soft_reset(struct mxt_data *data)
+ 	return 0;
+ }
+ 
++static void mxt_update_crc(struct mxt_data *data, u8 cmd, u8 value)
++{
++	/*
++	 * On failure, CRC is set to 0 and config will always be
++	 * downloaded.
++	 */
++	data->config_crc = 0;
++	reinit_completion(&data->crc_completion);
++
++	mxt_t6_command(data, cmd, value, true);
 +
 +	/*
-+	 * Wait for device to reset. Some bootloader versions do not assert
-+	 * the CHG line after bootloading has finished, so ignore potential
-+	 * errors.
++	 * Wait for crc message. On failure, CRC is set to 0 and config will
++	 * always be downloaded.
 +	 */
-+	mxt_wait_for_chg(data, MXT_FW_RESET_TIME);
++	mxt_wait_for_completion(data, &data->crc_completion, MXT_CRC_TIMEOUT);
++}
 +
- 	data->in_bootloader = false;
+ static int mxt_check_reg_init(struct mxt_data *data)
+ {
+ 	const struct mxt_platform_data *pdata = data->pdata;
+@@ -771,6 +801,16 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 		return 0;
+ 	}
  
- disable_irq:
-@@ -1075,10 +1087,6 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 		count = error;
- 	} else {
- 		dev_dbg(dev, "The firmware update succeeded\n");
--
--		/* Wait for reset */
--		msleep(MXT_FWRESET_TIME);
--
- 		mxt_free_object_table(data);
++	mxt_update_crc(data, MXT_COMMAND_REPORTALL, 1);
++
++	if (data->config_crc == pdata->config_crc) {
++		dev_info(dev, "Config CRC 0x%06X: OK\n", data->config_crc);
++		return 0;
++	}
++
++	dev_info(dev, "Config CRC 0x%06X: does not match 0x%06X\n",
++		 data->config_crc, pdata->config_crc);
++
+ 	for (i = 0; i < data->info.object_num; i++) {
+ 		object = data->object_table + i;
  
- 		mxt_initialize(data);
+@@ -790,6 +830,14 @@ static int mxt_check_reg_init(struct mxt_data *data)
+ 		index += size;
+ 	}
+ 
++	mxt_update_crc(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE);
++
++	ret = mxt_soft_reset(data);
++	if (ret)
++		return ret;
++
++	dev_info(dev, "Config successfully updated\n");
++
+ 	return 0;
+ }
+ 
+@@ -929,11 +977,6 @@ static int mxt_initialize(struct mxt_data *data)
+ 		goto err_free_object_table;
+ 	}
+ 
+-	error = mxt_t6_command(data, MXT_COMMAND_BACKUPNV,
+-			       MXT_BACKUP_VALUE, false);
+-	if (!error)
+-		mxt_soft_reset(data);
+-
+ 	/* Update matrix size at info struct */
+ 	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
+ 	if (error)
+@@ -1263,6 +1306,7 @@ static int mxt_probe(struct i2c_client *client,
+ 
+ 	init_completion(&data->bl_completion);
+ 	init_completion(&data->reset_completion);
++	init_completion(&data->crc_completion);
+ 
+ 	mxt_calc_resolution(data);
+ 
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+index d26080d..9f92135 100644
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ b/include/linux/i2c/atmel_mxt_ts.h
+@@ -29,6 +29,7 @@
+ struct mxt_platform_data {
+ 	const u8 *config;
+ 	size_t config_length;
++	u32 config_crc;
+ 
+ 	unsigned int x_size;
+ 	unsigned int y_size;
 -- 
 1.8.3.2
-

@@ -1,81 +1,43 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v5 0/9] Use regmap+devm+DT in pm8xxx input drivers
-Date: Mon, 17 Mar 2014 14:17:44 -0700
-Message-ID: <53276678.6060000@codeaurora.org>
-References: <1393958088-1456-1-git-send-email-sboyd@codeaurora.org> <531F4CC8.5010202@codeaurora.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: fix bug destroying hidraw device files after
+ parent
+Date: Tue, 18 Mar 2014 00:42:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1403180041100.3690@pobox.suse.cz>
+References: <1393401084.4876.2.camel@nexus> <alpine.LNX.2.00.1402261101540.5466@pobox.suse.cz> <53266890.1040504@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:52906 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750890AbaCQVRq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Mar 2014 17:17:46 -0400
-In-Reply-To: <531F4CC8.5010202@codeaurora.org>
+Received: from cantor2.suse.de ([195.135.220.15]:50479 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751292AbaCQXmD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Mar 2014 19:42:03 -0400
+In-Reply-To: <53266890.1040504@lab.ntt.co.jp>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Josh Cartwright <joshc@codeaurora.org>, linux-input@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: =?ISO-8859-15?Q?Fernando_Luis_V=E1zquez_Cao?= <fernando_b1@lab.ntt.co.jp>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tejun Heo <tj@kernel.org>
 
-ping?
+On Mon, 17 Mar 2014, Fernando Luis V=C3=A1zquez Cao wrote:
 
-On 03/11/14 10:50, Stephen Boyd wrote:
-> ping?
->
-> On 03/04/14 10:34, Stephen Boyd wrote:
->> These patches move the pm8xxx input drivers over to use devm_* APIs
->> and regmap. This breaks the dependency of these drivers on the pm8xxx
->> specific read/write calls and also simplifies the probe code a bit.
->> Finally we add devicetree support to these drivers so they can be probed
->> on the platforms that are supported upstream.
->>
->> Changes since v4:
->>  * Added reg property to bindings
->>  * Added linux,* properties to keypad binding
->>
->> Changes since v3:
->>  * Dropped devm conversion patch for pwrkey
->>  * Fixed compilation of keypad
->>
->> Changes since v2:
->>  * Rebased to v3.14-rc3
->>
->> Changes since v1:
->>  * Picked up Dmitry's version of devm for pwrkey
->>  * Added DT bindings and parsing patches
->>  * Dropped patches picked up by Dmitry
->>
->> Stephen Boyd (9):
->>   Input: pmic8xxx-keypad - Fix build by removing gpio configuration
->>   Input: pmic8xxx-keypad - Migrate to devm_* APIs
->>   Input: pmic8xxx-keypad - Migrate to regmap APIs
->>   Input: pmic8xxx-keypad - Migrate to DT
->>   Input: pmic8xxx-pwrkey - Migrate to DT
->>   Input: pm8xxx-vibrator - Add DT match table
->>   devicetree: bindings: Document PM8921/8058 keypads
->>   devicetree: bindings: Document PM8921/8058 power keys
->>   devicetree: bindings: Document PM8921/8058 vibrators
->>
->>  .../bindings/input/qcom,pm8xxx-keypad.txt          |  89 ++++++
->>  .../bindings/input/qcom,pm8xxx-pwrkey.txt          |  46 +++
->>  .../devicetree/bindings/input/qcom,pm8xxx-vib.txt  |  22 ++
->>  drivers/input/keyboard/pmic8xxx-keypad.c           | 348 ++++++++-------------
->>  drivers/input/misc/pm8xxx-vibrator.c               |   8 +
->>  drivers/input/misc/pmic8xxx-pwrkey.c               |  33 +-
->>  include/linux/input/pmic8xxx-keypad.h              |  52 ---
->>  include/linux/input/pmic8xxx-pwrkey.h              |  31 --
->>  8 files changed, 316 insertions(+), 313 deletions(-)
->>  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
->>  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
->>  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
->>  delete mode 100644 include/linux/input/pmic8xxx-keypad.h
->>  delete mode 100644 include/linux/input/pmic8xxx-pwrkey.h
->>
->
+> > I have slightly modified the patch title to make sure that it's obv=
+ious
+> > that what it fixes is actually a WARN_ON() splat.
+>=20
+> Thank you.
+>=20
+> Any chance we can get this to Linus before 3.14 comes out?
+> According to Linus, rc7 may be the last rc.
 
+It will be in Linus' 3.14 final -- it went in post-rc7.
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+Thanks for taking care,
 
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

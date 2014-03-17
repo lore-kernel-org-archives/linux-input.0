@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 02/22] Input: atmel_mxt_ts - improve T19 GPIO keys handling
-Date: Mon, 17 Mar 2014 17:26:35 +0000
-Message-ID: <1395077215-10922-3-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 06/22] Input: atmel_mxt_ts - wait for CHG assert in mxt_check_bootloader
+Date: Mon, 17 Mar 2014 17:26:39 +0000
+Message-ID: <1395077215-10922-7-git-send-email-nick.dyer@itdev.co.uk>
 References: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,203 +10,237 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
- * The mapping of the GPIO numbers into the T19 status byte varies between
-   different maXTouch chips. Some have up to 7 GPIOs. Allowing a keycode array
-   of up to 8 items is simpler and more generic. So replace #define with
-   configurable number of keys which also allows the removal of is_tp.
- * Rename platform data parameters to include "t19" to prevent confusion with
-   T15 key array.
- * Probe aborts early on when pdata is NULL, so no need to check.
- * Move "int i" to beginning of function (mixed declarations and code)
- * Use API calls rather than __set_bit()
- * Remove unused dev variable.
+From: Benson Leung <bleung@chromium.org>
 
+The driver should not immediately read bootloader status when
+in Application Update Mode. The CHG line will assert when the device
+has made a state transition and is ready to report a new status
+via i2c.
+
+This change adds a wait for completion in mxt_check_bootloader,
+and changes the mxt_interrupt handler to signal the completion.
+
+Signed-off-by: Benson Leung <bleung@chromium.org>
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Yufeng Shen <miletus@chromium.org>
-Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c  | 44 ++++++++++++-------------------
- drivers/platform/chrome/chromeos_laptop.c | 17 +++++++-----
- include/linux/i2c/atmel_mxt_ts.h          |  7 ++---
- 3 files changed, 30 insertions(+), 38 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 102 ++++++++++++++++++++++++-------
+ 1 file changed, 81 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7eb515c..65df362 100644
+index 40af02c..7f51d39 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -180,12 +180,6 @@
+@@ -14,6 +14,8 @@
+  */
  
- #define MXT_FWRESET_TIME	175	/* msec */
- 
--/* MXT_SPT_GPIOPWM_T19 field */
--#define MXT_GPIO0_MASK		0x04
--#define MXT_GPIO1_MASK		0x08
--#define MXT_GPIO2_MASK		0x10
--#define MXT_GPIO3_MASK		0x20
--
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
- #define MXT_UNLOCK_CMD_LSB	0xdc
-@@ -250,7 +244,6 @@ struct mxt_data {
+ #include <linux/module.h>
++#include <linux/init.h>
++#include <linux/completion.h>
+ #include <linux/delay.h>
+ #include <linux/firmware.h>
+ #include <linux/i2c.h>
+@@ -246,16 +248,19 @@ struct mxt_data {
  	const struct mxt_platform_data *pdata;
  	struct mxt_object *object_table;
  	struct mxt_info info;
--	bool is_tp;
- 
+-
  	unsigned int irq;
  	unsigned int max_x;
-@@ -515,15 +508,16 @@ static int mxt_write_object(struct mxt_data *data,
- static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
- {
- 	struct input_dev *input = data->input_dev;
-+	const struct mxt_platform_data *pdata = data->pdata;
- 	bool button;
- 	int i;
+ 	unsigned int max_y;
++	bool in_bootloader;
  
- 	/* Active-low switch */
--	for (i = 0; i < MXT_NUM_GPIO; i++) {
--		if (data->pdata->key_map[i] == KEY_RESERVED)
-+	for (i = 0; i < pdata->t19_num_keys; i++) {
-+		if (pdata->t19_keymap[i] == KEY_RESERVED)
- 			continue;
--		button = !(message->message[0] & MXT_GPIO0_MASK << i);
--		input_report_key(input, data->pdata->key_map[i], button);
-+		button = !(message->message[0] & (1 << i));
-+		input_report_key(input, pdata->t19_keymap[i], button);
- 	}
+ 	/* Cached parameters from object table */
+ 	u8 T6_reportid;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
+ 	u8 T19_reportid;
++
++	/* for fw update in bootloader */
++	struct completion bl_completion;
+ };
+ 
+ static size_t mxt_obj_size(const struct mxt_object *obj)
+@@ -339,12 +344,50 @@ static void mxt_dump_message(struct device *dev,
+ 		message->reportid, 7, message->message);
  }
  
-@@ -1084,6 +1078,8 @@ static int mxt_probe(struct i2c_client *client,
- 	struct input_dev *input_dev;
+-static int mxt_check_bootloader(struct i2c_client *client,
+-				     unsigned int state)
++static int mxt_wait_for_chg(struct mxt_data *data, unsigned int timeout_ms)
+ {
++	struct device *dev = &data->client->dev;
++	struct completion *comp = &data->bl_completion;
++	unsigned long timeout = msecs_to_jiffies(timeout_ms);
++	long ret;
++
++	ret = wait_for_completion_interruptible_timeout(comp, timeout);
++	if (ret < 0) {
++		return ret;
++	} else if (ret == 0) {
++		dev_err(dev, "Wait for completion timed out.\n");
++		return -ETIMEDOUT;
++	}
++	return 0;
++}
++
++static int mxt_check_bootloader(struct mxt_data *data, unsigned int state)
++{
++	struct i2c_client *client = data->client;
+ 	u8 val;
++	int ret;
+ 
+ recheck:
++	if (state != MXT_WAITING_BOOTLOAD_CMD) {
++		/*
++		 * In application update mode, the interrupt
++		 * line signals state transitions. We must wait for the
++		 * CHG assertion before reading the status byte.
++		 * Once the status byte has been read, the line is deasserted.
++		 */
++		ret = mxt_wait_for_chg(data, 300);
++		if (ret) {
++			/*
++			 * TODO: handle -ERESTARTSYS better by terminating
++			 * fw update process before returning to userspace
++			 * by writing length 0x000 to device (iff we are in
++			 * WAITING_FRAME_DATA state).
++			 */
++			dev_err(&client->dev, "Update wait error %d\n", ret);
++			return ret;
++		}
++	}
++
+ 	if (i2c_master_recv(client, &val, 1) != 1) {
+ 		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
+ 		return -EIO;
+@@ -590,9 +633,8 @@ static bool mxt_is_T9_message(struct mxt_data *data, struct mxt_message *msg)
+ 	return (id >= data->T9_reportid_min && id <= data->T9_reportid_max);
+ }
+ 
+-static irqreturn_t mxt_interrupt(int irq, void *dev_id)
++static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ {
+-	struct mxt_data *data = dev_id;
+ 	struct mxt_message message;
+ 	const u8 *payload = &message.message[0];
+ 	struct device *dev = &data->client->dev;
+@@ -632,6 +674,19 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static irqreturn_t mxt_interrupt(int irq, void *dev_id)
++{
++	struct mxt_data *data = dev_id;
++
++	if (data->in_bootloader) {
++		/* bootloader state transition completion */
++		complete(&data->bl_completion);
++		return IRQ_HANDLED;
++	}
++
++	return mxt_process_messages_until_invalid(data);
++}
++
+ static int mxt_check_reg_init(struct mxt_data *data)
+ {
+ 	const struct mxt_platform_data *pdata = data->pdata;
+@@ -947,6 +1002,8 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	}
+ 
+ 	/* Change to the bootloader mode */
++	data->in_bootloader = true;
++
+ 	mxt_write_object(data, MXT_GEN_COMMAND_T6,
+ 			MXT_COMMAND_RESET, MXT_BOOT_VALUE);
+ 	msleep(MXT_RESET_TIME);
+@@ -957,18 +1014,19 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	else
+ 		client->addr = MXT_BOOT_HIGH;
+ 
+-	ret = mxt_check_bootloader(client, MXT_WAITING_BOOTLOAD_CMD);
++	reinit_completion(&data->bl_completion);
++
++	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
+ 	if (ret)
+-		goto out;
++		goto disable_irq;
+ 
+ 	/* Unlock bootloader */
+ 	mxt_unlock_bootloader(client);
+ 
+ 	while (pos < fw->size) {
+-		ret = mxt_check_bootloader(client,
+-						MXT_WAITING_FRAME_DATA);
++		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
+ 		if (ret)
+-			goto out;
++			goto disable_irq;
+ 
+ 		frame_size = ((*(fw->data + pos) << 8) | *(fw->data + pos + 1));
+ 
+@@ -980,17 +1038,19 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		/* Write one frame to device */
+ 		mxt_fw_write(client, fw->data + pos, frame_size);
+ 
+-		ret = mxt_check_bootloader(client,
+-						MXT_FRAME_CRC_PASS);
++		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
+ 		if (ret)
+-			goto out;
++			goto disable_irq;
+ 
+ 		pos += frame_size;
+ 
+ 		dev_dbg(dev, "Updated %d bytes / %zd bytes\n", pos, fw->size);
+ 	}
+ 
+-out:
++	data->in_bootloader = false;
++
++disable_irq:
++	disable_irq(data->irq);
+ 	release_firmware(fw);
+ 
+ 	/* Change to slave address of application */
+@@ -1009,8 +1069,6 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	struct mxt_data *data = dev_get_drvdata(dev);
  	int error;
- 	unsigned int num_mt_slots;
-+	unsigned int mt_flags = 0;
-+	int i;
  
- 	if (!pdata)
- 		return -EINVAL;
-@@ -1096,10 +1092,7 @@ static int mxt_probe(struct i2c_client *client,
- 		goto err_free_mem;
- 	}
- 
--	data->is_tp = pdata && pdata->is_tp;
+-	disable_irq(data->irq);
 -
--	input_dev->name = (data->is_tp) ? "Atmel maXTouch Touchpad" :
--					  "Atmel maXTouch Touchscreen";
-+	input_dev->name = "Atmel maXTouch Touchscreen";
- 	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
- 		 client->adapter->nr, client->addr);
+ 	error = mxt_load_fw(dev, MXT_FW_NAME);
+ 	if (error) {
+ 		dev_err(dev, "The firmware update failed(%d)\n", error);
+@@ -1024,13 +1082,13 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 		mxt_free_object_table(data);
  
-@@ -1125,20 +1118,15 @@ static int mxt_probe(struct i2c_client *client,
- 	__set_bit(EV_KEY, input_dev->evbit);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 		mxt_initialize(data);
+-	}
  
--	if (data->is_tp) {
--		int i;
--		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+	if (pdata->t19_num_keys) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
+-	enable_irq(data->irq);
++		enable_irq(data->irq);
  
--		for (i = 0; i < MXT_NUM_GPIO; i++)
--			if (pdata->key_map[i] != KEY_RESERVED)
--				__set_bit(pdata->key_map[i], input_dev->keybit);
-+		for (i = 0; i < pdata->t19_num_keys; i++)
-+			if (pdata->t19_keymap[i] != KEY_RESERVED)
-+				input_set_capability(input_dev, EV_KEY,
-+						     pdata->t19_keymap[i]);
+-	error = mxt_make_highchg(data);
+-	if (error)
+-		return error;
++		error = mxt_make_highchg(data);
++		if (error)
++			return error;
++	}
  
--		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
--		__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
--		__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
--		__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
--		__set_bit(BTN_TOOL_QUINTTAP, input_dev->keybit);
-+		mt_flags |= INPUT_MT_POINTER;
+ 	return count;
+ }
+@@ -1120,6 +1178,8 @@ static int mxt_probe(struct i2c_client *client,
+ 	data->pdata = pdata;
+ 	data->irq = client->irq;
  
- 		input_abs_set_res(input_dev, ABS_X, MXT_PIXELS_PER_MM);
- 		input_abs_set_res(input_dev, ABS_Y, MXT_PIXELS_PER_MM);
-@@ -1146,6 +1134,8 @@ static int mxt_probe(struct i2c_client *client,
- 				  MXT_PIXELS_PER_MM);
- 		input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
- 				  MXT_PIXELS_PER_MM);
++	init_completion(&data->bl_completion);
 +
-+		input_dev->name = "Atmel maXTouch Touchpad";
- 	}
+ 	mxt_calc_resolution(data);
  
- 	/* For single touch */
-@@ -1158,7 +1148,7 @@ static int mxt_probe(struct i2c_client *client,
- 
- 	/* For multi touch */
- 	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
--	error = input_mt_init_slots(input_dev, num_mt_slots, 0);
-+	error = input_mt_init_slots(input_dev, num_mt_slots, mt_flags);
- 	if (error)
- 		goto err_free_object;
- 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
-diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-index 78ed277..8026554 100644
---- a/drivers/platform/chrome/chromeos_laptop.c
-+++ b/drivers/platform/chrome/chromeos_laptop.c
-@@ -70,16 +70,22 @@ static struct i2c_board_info __initdata tsl2563_als_device = {
- 	I2C_BOARD_INFO("tsl2563", TAOS_ALS_I2C_ADDR),
- };
- 
-+static int mxt_t19_keys[] = {
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	BTN_LEFT
-+};
-+
- static struct mxt_platform_data atmel_224s_tp_platform_data = {
- 	.x_size			= 102*20,
- 	.y_size			= 68*20,
- 	.orient			= MXT_VERTICAL_FLIP,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
--	.is_tp			= true,
--	.key_map		= { KEY_RESERVED,
--				    KEY_RESERVED,
--				    KEY_RESERVED,
--				    BTN_LEFT },
-+	.t19_num_keys		= ARRAY_SIZE(mxt_t19_keys),
-+	.t19_keymap		= mxt_t19_keys,
- 	.config			= NULL,
- 	.config_length		= 0,
- };
-@@ -95,7 +101,6 @@ static struct mxt_platform_data atmel_1664s_platform_data = {
- 	.y_size			= 2560,
- 	.orient			= MXT_ROTATED_90_COUNTER,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
--	.is_tp			= false,
- 	.config			= NULL,
- 	.config_length		= 0,
- };
-diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
-index eff0cdc..d26080d 100644
---- a/include/linux/i2c/atmel_mxt_ts.h
-+++ b/include/linux/i2c/atmel_mxt_ts.h
-@@ -15,9 +15,6 @@
- 
- #include <linux/types.h>
- 
--/* For key_map array */
--#define MXT_NUM_GPIO		4
--
- /* Orient */
- #define MXT_NORMAL		0x0
- #define MXT_DIAGONAL		0x1
-@@ -38,8 +35,8 @@ struct mxt_platform_data {
- 	unsigned char orient;
- 
- 	unsigned long irqflags;
--	bool is_tp;
--	const unsigned int key_map[MXT_NUM_GPIO];
-+	u8 t19_num_keys;
-+	const unsigned int *t19_keymap;
- };
- 
- #endif /* __LINUX_ATMEL_MXT_TS_H */
+ 	error = mxt_initialize(data);
 -- 
 1.8.3.2

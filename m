@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCH v2 01/15] ARM: at91: sam9g45: remove unused platform_data
-Date: Mon, 17 Mar 2014 14:56:54 +0100
-Message-ID: <1395064628-644-2-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCH v2 09/15] ARM: at91: sam9rlek add touchscreen support through at91_adc
+Date: Mon, 17 Mar 2014 14:57:02 +0100
+Message-ID: <1395064628-644-10-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com>
@@ -10,52 +10,53 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>, Jonathan Cameron <jic23@kernel.org>
 Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Gregory Clement <gregory.clement@free-electrons.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
 
-num_channels and registers are not used anymore since they are defined inside
-the at91_adc driver and assigned by matching the id_table.
-
-Also, remove the mach/at91_adc.h include that is not necessary anymore.
+at91_adc now supports reading a touchscreen for ADCs without a TSMR register.
+Enable touchscreen support through at91_adc. This allows to use both a
+touchscreen and the remaining ADC channel at the same time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Jonathan Cameron <jic23@kernel.org>
 ---
- arch/arm/mach-at91/at91sam9g45_devices.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ arch/arm/mach-at91/board-sam9rlek.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
-index 88554024eb2d..cd36009c3511 100644
---- a/arch/arm/mach-at91/at91sam9g45_devices.c
-+++ b/arch/arm/mach-at91/at91sam9g45_devices.c
-@@ -25,7 +25,6 @@
- #include <linux/fb.h>
+diff --git a/arch/arm/mach-at91/board-sam9rlek.c b/arch/arm/mach-at91/board-sam9rlek.c
+index 604eecf6cd70..35d420247e25 100644
+--- a/arch/arm/mach-at91/board-sam9rlek.c
++++ b/arch/arm/mach-at91/board-sam9rlek.c
+@@ -18,6 +18,7 @@
+ #include <linux/clk.h>
+ #include <linux/input.h>
+ #include <linux/gpio_keys.h>
++#include <linux/platform_data/at91_adc.h>
+ 
  #include <video/atmel_lcdc.h>
  
--#include <mach/at91_adc.h>
- #include <mach/at91sam9g45.h>
- #include <mach/at91sam9g45_matrix.h>
- #include <mach/at91_matrix.h>
-@@ -1235,13 +1234,6 @@ static struct at91_adc_trigger at91_adc_triggers[] = {
- 	},
- };
+@@ -239,6 +240,17 @@ static struct at91_tsadcc_data ek_tsadcc_data = {
  
--static struct at91_adc_reg_desc at91_adc_register_g45 = {
--	.channel_base = AT91_ADC_CHR(0),
--	.drdy_mask = AT91_ADC_DRDY,
--	.status_register = AT91_ADC_SR,
--	.trigger_register = 0x08,
--};
--
- void __init at91_add_device_adc(struct at91_adc_data *data)
- {
- 	if (!data)
-@@ -1267,9 +1259,7 @@ void __init at91_add_device_adc(struct at91_adc_data *data)
- 	if (data->use_external_triggers)
- 		at91_set_A_periph(AT91_PIN_PD28, 0);
  
--	data->num_channels = 8;
- 	data->startup_time = 40;
--	data->registers = &at91_adc_register_g45;
- 	data->trigger_number = 4;
- 	data->trigger_list = at91_adc_triggers;
- 
+ /*
++ * ADC + Touchscreen
++ */
++static struct at91_adc_data ek_adc_data = {
++	.channels_used = BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5),
++	.use_external_triggers = true,
++	.vref = 3300,
++	.touchscreen_type = ATMEL_ADC_TOUCHSCREEN_4WIRE,
++};
++
++
++/*
+  * GPIO Buttons
+  */
+ #if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
+@@ -312,6 +324,8 @@ static void __init ek_board_init(void)
+ 	at91_add_device_ac97(&ek_ac97_data);
+ 	/* Touch Screen Controller */
+ 	at91_add_device_tsadcc(&ek_tsadcc_data);
++	/* Touch Screen Controller + ADC */
++	at91_add_device_adc(&ek_adc_data);
+ 	/* LEDs */
+ 	at91_gpio_leds(ek_leds, ARRAY_SIZE(ek_leds));
+ 	/* Push Buttons */
 -- 
 1.8.3.2

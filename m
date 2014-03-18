@@ -1,152 +1,73 @@
-From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH] input: gpio-beeper: Simplify GPIO handling
-Date: Tue, 18 Mar 2014 21:45:46 +0400
-Message-ID: <1395164746-14395-1-git-send-email-shc_work@mail.ru>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback7.mail.ru ([94.100.176.135]:60181 "EHLO
-	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756371AbaCRRrM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Mar 2014 13:47:12 -0400
-Received: from smtp32.i.mail.ru (smtp32.i.mail.ru [94.100.177.92])
-	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id 6BA2EFC47B5E
-	for <linux-input@vger.kernel.org>; Tue, 18 Mar 2014 21:46:13 +0400 (MSK)
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH v2 1/5] drivers: input: keyboard: st-keyscan: add
+ keyscan driver
+Date: Tue, 18 Mar 2014 17:51:33 +0000
+Message-ID: <20140318175133.GE2941@e106331-lin.cambridge.arm.com>
+References: <1395154806-2810-1-git-send-email-gabriel.fernandez@st.com>
+ <1395154806-2810-2-git-send-email-gabriel.fernandez@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1395154806-2810-2-git-send-email-gabriel.fernandez@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kernel@stlinux.com" <kernel@stlinux.com>, Lee Jones <lee.jones@linaro.org>, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
 
-This patch simplifies GPIO handling in the driver by using GPIO
-functions based on descriptors. As a result this driver now can
-be used for boards without DT support.
+On Tue, Mar 18, 2014 at 03:00:02PM +0000, Gabriel FERNANDEZ wrote:
+> This patch adds ST Keyscan driver to use the keypad hw a subset
+> of ST boards provide. Specific board setup will be put in the
+> given dt.
+> 
+> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
+> Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+> ---
+>  .../devicetree/bindings/input/st-keyscan.txt       |  60 +++++
+>  drivers/input/keyboard/Kconfig                     |  12 +
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/st-keyscan.c                | 260 +++++++++++++++++++++
+>  4 files changed, 333 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/st-keyscan.txt
+>  create mode 100644 drivers/input/keyboard/st-keyscan.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/st-keyscan.txt b/Documentation/devicetree/bindings/input/st-keyscan.txt
+> new file mode 100644
+> index 0000000..51eb428
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/st-keyscan.txt
+> @@ -0,0 +1,60 @@
+> +* ST Keyscan controller Device Tree bindings
+> +
+> +The ST keyscan controller Device Tree binding is based on the
+> +matrix-keymap.
+> +
+> +Required properties:
+> +- compatible: "st,sti-keyscan"
+> +
+> +- reg: Register base address and size of st-keyscan controller.
+> +
+> +- interrupts: Interrupt number for the st-keyscan controller.
+> +
+> +- clocks: Must contain one entry, for the module clock.
+> +  See ../clocks/clock-bindings.txt for details.
+> +
+> +- pinctrl: Should specify pin control groups used for this controller.
+> +  See ../pinctrl/pinctrl-bindings.txt for details.
+> +
+> +- linux,keymap: The keymap for keys as described in the binding document
+> +  devicetree/bindings/input/matrix-keymap.txt.
+> +
+> +- keypad,num-rows: Number of row lines connected to the keypad controller.
+> +
+> +- keypad,num-columns: Number of column lines connected to the keypad
+> +  controller.
+> +
+> +Optional property:
+> +- st,debounce_us: Debouncing interval time in microseconds
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
----
- drivers/input/misc/Kconfig       |  2 +-
- drivers/input/misc/gpio-beeper.c | 37 ++++++++++++++-----------------------
- 2 files changed, 15 insertions(+), 24 deletions(-)
+s/_/-/ here, please.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 762e6d2..0623e99 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -224,7 +224,7 @@ config INPUT_GP2A
- 
- config INPUT_GPIO_BEEPER
- 	tristate "Generic GPIO Beeper support"
--	depends on OF_GPIO
-+	depends on GPIOLIB
- 	help
- 	  Say Y here if you have a beeper connected to a GPIO pin.
- 
-diff --git a/drivers/input/misc/gpio-beeper.c b/drivers/input/misc/gpio-beeper.c
-index b757435..a57f15e 100644
---- a/drivers/input/misc/gpio-beeper.c
-+++ b/drivers/input/misc/gpio-beeper.c
-@@ -1,7 +1,7 @@
- /*
-  * Generic GPIO beeper driver
-  *
-- * Copyright (C) 2013 Alexander Shiyan <shc_work@mail.ru>
-+ * Copyright (C) 2014 Alexander Shiyan <shc_work@mail.ru>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -11,7 +11,7 @@
- 
- #include <linux/input.h>
- #include <linux/module.h>
--#include <linux/of_gpio.h>
-+#include <linux/gpio.h>
- #include <linux/workqueue.h>
- #include <linux/platform_device.h>
- 
-@@ -19,21 +19,15 @@
- 
- struct gpio_beeper {
- 	struct work_struct	work;
--	int			gpio;
--	bool			active_low;
--	bool			beeping;
-+	struct gpio_desc	*desc;
-+	int			beeping;
- };
- 
--static void gpio_beeper_toggle(struct gpio_beeper *beep, bool on)
--{
--	gpio_set_value_cansleep(beep->gpio, on ^ beep->active_low);
--}
--
- static void gpio_beeper_work(struct work_struct *work)
- {
- 	struct gpio_beeper *beep = container_of(work, struct gpio_beeper, work);
- 
--	gpio_beeper_toggle(beep, beep->beeping);
-+	gpiod_set_value_cansleep(beep->desc, beep->beeping);
- }
- 
- static int gpio_beeper_event(struct input_dev *dev, unsigned int type,
-@@ -59,24 +53,24 @@ static void gpio_beeper_close(struct input_dev *input)
- 	struct gpio_beeper *beep = input_get_drvdata(input);
- 
- 	cancel_work_sync(&beep->work);
--	gpio_beeper_toggle(beep, false);
-+	gpiod_set_value_cansleep(beep->desc, 0);
- }
- 
- static int gpio_beeper_probe(struct platform_device *pdev)
- {
- 	struct gpio_beeper *beep;
--	enum of_gpio_flags flags;
- 	struct input_dev *input;
--	unsigned long gflags;
- 	int err;
- 
- 	beep = devm_kzalloc(&pdev->dev, sizeof(*beep), GFP_KERNEL);
- 	if (!beep)
- 		return -ENOMEM;
- 
--	beep->gpio = of_get_gpio_flags(pdev->dev.of_node, 0, &flags);
--	if (!gpio_is_valid(beep->gpio))
--		return beep->gpio;
-+	beep->desc = devm_gpiod_get(&pdev->dev, NULL);
-+	if (!beep->desc)
-+		return -EINVAL;
-+	if (IS_ERR(beep->desc))
-+		return PTR_ERR(beep->desc);
- 
- 	input = devm_input_allocate_device(&pdev->dev);
- 	if (!input)
-@@ -94,10 +88,7 @@ static int gpio_beeper_probe(struct platform_device *pdev)
- 
- 	input_set_capability(input, EV_SND, SND_BELL);
- 
--	beep->active_low = flags & OF_GPIO_ACTIVE_LOW;
--	gflags = beep->active_low ? GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
--
--	err = devm_gpio_request_one(&pdev->dev, beep->gpio, gflags, pdev->name);
-+	err = gpiod_direction_output(beep->desc, 0);
- 	if (err)
- 		return err;
- 
-@@ -106,7 +97,7 @@ static int gpio_beeper_probe(struct platform_device *pdev)
- 	return input_register_device(input);
- }
- 
--static struct of_device_id gpio_beeper_of_match[] = {
-+static struct of_device_id __maybe_unused gpio_beeper_of_match[] = {
- 	{ .compatible = BEEPER_MODNAME, },
- 	{ }
- };
-@@ -116,7 +107,7 @@ static struct platform_driver gpio_beeper_platform_driver = {
- 	.driver	= {
- 		.name		= BEEPER_MODNAME,
- 		.owner		= THIS_MODULE,
--		.of_match_table	= gpio_beeper_of_match,
-+		.of_match_table	= of_match_ptr(gpio_beeper_of_match),
- 	},
- 	.probe	= gpio_beeper_probe,
- };
--- 
-1.8.3.2
+Otherwise this looks ok.
 
+Mark.

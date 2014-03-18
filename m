@@ -1,64 +1,107 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v3 2/4] mfd: max8997: handle IRQs using regmap
-Date: Tue, 18 Mar 2014 18:52:37 +0900
-Message-ID: <53281765.3080602@samsung.com>
-References: <1394703532-494-1-git-send-email-r.baldyga@samsung.com>
- <1394703532-494-3-git-send-email-r.baldyga@samsung.com>
- <53218C30.9000707@samsung.com> <5322BEDF.4080408@samsung.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 3/8] input: misc: Add driver for AXP20x Power Enable
+ Key
+Date: Tue, 18 Mar 2014 11:15:54 +0100
+Message-ID: <20140318101554.GZ27873@lukather>
+References: <1394898225-28452-1-git-send-email-carlo@caione.org>
+ <1394898225-28452-4-git-send-email-carlo@caione.org>
+ <20140318090013.GU27873@lukather>
+ <20140318095002.GM25478@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-reply-to: <5322BEDF.4080408@samsung.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Robert Baldyga <r.baldyga@samsung.com>
-Cc: sameo@linux.intel.com, lee.jones@linaro.org, myungjoo.ham@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, rtc-linux@googlegroups.com, m.szyprowski@samsung.com, k.kozlowski@samsung.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EH85xkKza2NXtwkF"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from top.free-electrons.com ([176.31.233.9]:35299 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753994AbaCRKUF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Mar 2014 06:20:05 -0400
+Content-Disposition: inline
+In-Reply-To: <20140318095002.GM25478@lee--X1>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Carlo Caione <carlo@caione.org>, linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org
 
-On 03/14/2014 05:33 PM, Robert Baldyga wrote:
-> On 03/13/2014 11:45 AM, Chanwoo Choi wrote:
->> Hi Robert,
->>
->> On 03/13/2014 06:38 PM, Robert Baldyga wrote:
->>> This patch modifies mfd driver to use regmap for handling interrupts.
->>> It allows to simplify irq handling process. This modifications needed
->>> to make small changes in function drivers, which use interrupts.
->>>
->>> Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
-> 
-> (...)
-> 
->>> @@ -468,8 +560,11 @@ static int max8997_suspend(struct device *dev)
->>>  	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
->>>  	struct max8997_dev *max8997 = i2c_get_clientdata(i2c);
->>>  
->>> -	if (device_may_wakeup(dev))
->>> -		irq_set_irq_wake(max8997->irq, 1);
->>> +	if (device_may_wakeup(dev)) {
->>> +		enable_irq_wake(max8997->irq);
->>> +		disable_irq(max8997->irq);
->>
->> irq_set_irq_wake() is same as enable_irq_wake().
-> 
-> It's more intuitive name and makes code reading easier.
-> 
->> Why is it necessary for disable_irq(max8997->irq)?
-> 
-> It's because we don't want to get interrupts before i2c controller will
-> be ready. So we disable irq in drivers suspend, and enable in resume.
-> 
-> If some iqr will come before enable_irq() call, it will be noticed, and
-> IRQ_PENDING flag will be set. In this case irq will be handled
-> immediately after enable_irq() call.
-> 
-> In previous version there was call of max8997_irq_resume() in resume
-> function, which caused forced interrupt handling, which has similar effect.
-> 
 
-OK,
+--EH85xkKza2NXtwkF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For extcon part,
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+On Tue, Mar 18, 2014 at 09:50:02AM +0000, Lee Jones wrote:
+> > > This patch add support for the Power Enable Key found on MFD AXP202 a=
+nd
+> > > AXP209. Besides the basic support for the button, the driver adds two
+> > > entries in sysfs to configure the time delay for power on/off.
+> > >=20
+> > > Signed-off-by: Carlo Caione <carlo@caione.org>
+> > > ---
+> > >  drivers/input/misc/Kconfig      |  11 ++
+> > >  drivers/input/misc/Makefile     |   1 +
+> > >  drivers/input/misc/axp20x-pek.c | 267 ++++++++++++++++++++++++++++++=
+++++++++++
+> > >  3 files changed, 279 insertions(+)
+> > >  create mode 100644 drivers/input/misc/axp20x-pek.c
+> >=20
+> > From what I understood of the MFD framework, you usually have a MFD
+> > core driver that gets loaded from the DT and instantiate its various
+> > functions through sub-devices, that are registered through
+> > mfd_add_devices, and the drivers for these sub-devices are supported
+> > in sub-drivers that are located in the driver/mfd, alongside the core
+> > driver.
+> >=20
+> > I believe that such a pattern allows for two interesting things:
+> >   - You don't have to search around the whole kernel tree to find
+> >     where a given sub-feature is supported.
+> >   - You don't have to cripple your DT with instantiation of all the
+> >     subcomponents, while you only really have one device.
+> >=20
+> > Do you have a reason for not following this pattern?
+>=20
+> Sorry Maxime, this is not the case.
+>=20
+> If an MFD contains Regulators and USB & GPIO Controllers, I'd expect
+> to see the device represented in the following way:
+>=20
+>   drivers/mfd/<id>.c
+>   drivers/{gpio,pinctrl}/{gpio,pinctrl}-<id>.c
+>   drivers/regulator/<id>-regulator.c
+>   drivers/usb/host/<id>.c
+
+Oh, ok. Nevermind then :)
+
+Just out of curiosity, some drivers at least seem to follow that trend
+in drivers/mfd, is there any reason for this (other than historical) ?
 
 Thanks,
-Chanwoo Choi
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--EH85xkKza2NXtwkF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTKBzZAAoJEBx+YmzsjxAgha4P/RMnn3WZFtdczUuSi/7cHVEq
+DgCdQhtnckl7GGa518/QE6XEX3Vdw1PRsj9ZgYFX+64N3kbc7ul1ix3RAxIzd+AV
+eiYtHp6D2RS69l6va2M+Pz6x3+Eb3PjjaJIGJyONFXTKvxRHxFDobqlokQe0jPU+
+HH7mb4vKGaqaJFXhfY5yp83PvIfpuueZb1py+q0xG2egtS5jXfgW7qNmoPciHChm
+whgGNyzz3b9XwFbV5hgARQALkxtW1fmMOqFa+LwBmkctXVo2O0NibRk5uF/tpuWM
+isFwDwVp/IgvHr8x87h841MTwnNX0M6WXI0DB/cHTxF7awUsmoXb1+JyCJSEZ2gA
+YYQFaEMm4GtGCdG+jpjUGbwQdgwS2vtUV1ZhgnHkJql5oIHBOpVAxMRI0S2EwFXV
+1bxYeYychiiCFVaCpuKI2nB2wiGkyVKQc8M5bvE2BLg6HtTxDZVPIGVnUBuE9dci
+ngloCRk/aNTouZLbt9qV4XvsNRx3XekWJi6ZoGIj8Xnj/g2e6yAGKNcJBut04t6/
+qKxPmg53Niy3ZV8TsHoLkS1ZBtIbKFKIraTkmKHFgGSYTpST5zHolPGnWHQBTNbX
+xQ3s4EnaaWO68h/k2idXdYecppJK0OwYX+85PBXt0576mJCHthsjS9grEp1LLGgp
+aV7MyUlATCt91UcpHjkj
+=rdFw
+-----END PGP SIGNATURE-----
+
+--EH85xkKza2NXtwkF--

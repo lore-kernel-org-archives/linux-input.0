@@ -1,66 +1,147 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/5] drivers: input: keyboard: st-keyscan: add keyscan
- driver
-Date: Tue, 18 Mar 2014 11:01:23 +0000
-Message-ID: <20140318110123.GP25478@lee--X1>
-References: <1393990772-9567-1-git-send-email-gabriel.fernandez@st.com>
- <1393990772-9567-2-git-send-email-gabriel.fernandez@st.com>
- <20140310114819.GO14976@lee--X1>
- <5322D63D.5030403@st.com>
- <20140314104222.GB3432@lee--X1>
- <53281F1E.7010403@st.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Input: synaptics add manual min/max quirk
+Date: Tue, 18 Mar 2014 08:59:48 -0400
+Message-ID: <CAN+gG=GFwuzZa5uF5UTQM0b5SoMm8-D0V_70LSi2oqVd+fskTw@mail.gmail.com>
+References: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <53281F1E.7010403@st.com>
+In-Reply-To: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gabriel Fernandez <gabriel.fernandez@st.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe Condorelli <giuseppe.condorelli@st.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-> >>>Sorry for the delay. It was a hectic week last week.
-> >>>
-> >>>As promised:
-> >>>
-> >>>>This patch adds ST Keyscan driver to use the keypad hw a subset
-> >>>>of ST boards provide. Specific board setup will be put in the
-> >>>>given dt.
-> >>>>
-> >>>>Signed-off-by: Giuseppe Condorelli<giuseppe.condorelli@st.com>
-> >>>>Signed-off-by: Gabriel Fernandez<gabriel.fernandez@st.com>
-> >>>Are you sure these are in the correct order?
-> >>ok i change the order
-> >I'm not saying they are in the wrong order, I'm just asking. Who wro=
-te
-> >the patch? Has it changed since?
-> Sorry...
-> I wrote the patch, then Guiseppe has changed and tested, and I re-mod=
-ifiedit
+On Fri, Mar 7, 2014 at 10:49 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
+> However, these new Synaptics devices report bad axis ranges.
+> Under Windows, it is not a problem because the Windows driver uses RMI4
+> over SMBus to talk to the device. Under Linux, we are using the PS/2
+> fallback interface and it occurs the reported ranges are wrong.
+>
+> Of course, it would be too easy to have only one range for the whole
+> series, each touchpad seems to be calibrated in a different way.
+>
+> We can not use SMBus to get the actual range because I suspect the firmware
+> will switch into the SMBus mode and stop talking through PS/2 (this is the
+> case for hybrid HID over I2C / PS/2 Synaptics touchpads).
+>
+> So as a temporary solution (until RMI4 land into upstream), start a new
+> list of quirks with the min/max manually set.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> CC: stable@vger.kernel.org
+> ---
+>
+> Hi Dmitry,
+>
+> Well, this work is part of a (big) attempt to support the new touchpads
+> Lenovo put in its latest series.
+> Those new laptops have lost the buttons associated to the trackstick and are
+> what we call "clickpad".
+> Things would be easy if:
+> 1. the PS/2 firmware did not lied about the actual range of the axis
+> 2. on some install (mine) the DMI matching in udev would not have been broken
+> 3. we did not have to fix a lot of stuff in Xorg / libinput / wayland
+>
+> This patch fixes 1.
+>
+> Matthew Garrett fixed 2. -> https://patchwork.kernel.org/patch/3704401/
+>
+> 3. is heavily working as shown by this tracker bug: https://bugs.freedesktop.org/show_bug.cgi?id=73158
+>
+> I put the 'stable' marker, feel free to remove it if you don't think it should
+> be there, but I really think this should also be backported to have something
+> working in current distros.
 
-Ah, then it starts to get very complicated. :)
+Dmitry, are there any chances that this one and the one Hans submitted
+shortly after [1] will be considered for 3.15?
 
-If you wrote the patch, you need to be at the top of the list.
+Cheers,
+Benjamin
 
-<snip>
+[1] https://patchwork.kernel.org/patch/3798011/
 
-> >>>+keyscan: keyscan@fe4b0000 {
-> >>>+	compatible =3D "st,keypad";
-> >>>Is there any way we can make this more specific to _this_ IP?
-> >>for my knowledge this IP is the same for stixxxx platform.
-> >So st,stix-keypad, or st,sti4x-keypad?
-> >
-> >I'm just thinking about future proofing the architecture. What if ST
-> >released stj which has a different keypad IP?
-> After discussing internally with st  "st,sti-keyscan" is better
-
-Perfect.
-
-<snip>
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+>  drivers/input/mouse/synaptics.c | 43 +++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+>
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 26386f9..ff6a4cf 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -67,6 +67,8 @@
+>  #define X_MAX_POSITIVE 8176
+>  #define Y_MAX_POSITIVE 8176
+>
+> +static int *quirk_min_max = NULL;
+> +
+>  /*****************************************************************************
+>   *     Stuff we need even when we do not want native Synaptics support
+>   ****************************************************************************/
+> @@ -302,6 +304,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
+>                 }
+>         }
+>
+> +       if (quirk_min_max) {
+> +               priv->x_min = quirk_min_max[0];
+> +               priv->x_max = quirk_min_max[1];
+> +               priv->y_min = quirk_min_max[2];
+> +               priv->y_max = quirk_min_max[3];
+> +       }
+> +
+>         return 0;
+>  }
+>
+> @@ -1485,10 +1494,44 @@ static const struct dmi_system_id olpc_dmi_table[] __initconst = {
+>         { }
+>  };
+>
+> +static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+> +#if defined(CONFIG_DMI)
+> +       {
+> +               /* Lenovo ThinkPad Helix */
+> +               .matches = {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +                       DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad Helix"),
+> +               },
+> +               .driver_data = (int []){1024, 5052, 2258, 4832},
+> +       },
+> +       {
+> +               /* Lenovo ThinkPad T440s */
+> +               .matches = {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +                       DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T440"),
+> +               },
+> +               .driver_data = (int []){1024, 5112, 2024, 4832},
+> +       },
+> +       {
+> +               /* Lenovo ThinkPad T540p */
+> +               .matches = {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +                       DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T540"),
+> +               },
+> +               .driver_data = (int []){1024, 5056, 2058, 4832},
+> +       },
+> +#endif
+> +       { }
+> +};
+> +
+>  void __init synaptics_module_init(void)
+>  {
+> +       const struct dmi_system_id *min_max_dmi;
+>         impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
+>         broken_olpc_ec = dmi_check_system(olpc_dmi_table);
+> +       min_max_dmi = dmi_first_match(min_max_dmi_table);
+> +       if (min_max_dmi)
+> +               quirk_min_max = (int *)min_max_dmi->driver_data;
+>  }
+>
+>  static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+> --
+> 1.8.5.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,55 +1,72 @@
 From: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Subject: [PATCH v2 0/5] Add ST Keyscan driver
-Date: Tue, 18 Mar 2014 16:00:01 +0100
-Message-ID: <1395154806-2810-1-git-send-email-gabriel.fernandez@st.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([62.209.51.94]:51036 "EHLO
-	mx07-00178001.pphosted.com" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S932070AbaCRPDX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Mar 2014 11:03:23 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v2 3/5] ARM: STi: DT: add keyscan for stih416
+Date: Tue, 18 Mar 2014 16:00:04 +0100
+Message-ID: <1395154806-2810-4-git-send-email-gabriel.fernandez@st.com>
+References: <1395154806-2810-1-git-send-email-gabriel.fernandez@st.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1395154806-2810-1-git-send-email-gabriel.fernandez@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>
-Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Lee Jones <lee.jones@linaro.org>, Gabriel Fernandez <gabriel.fernandez@st.com>
+Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Lee Jones <lee.jones@linaro.org>, Gabriel Fernandez <gabriel.fernandez@st.com>, Giuseppe Condorelli <giuseppe.condorelli@st.com>
+List-Id: linux-input@vger.kernel.org
 
-Changes in v2:
-- use standard format for matrix keymap
-- suppress __exit mark for keyscan_remove()
-- Call to keyscan_stop() shoudl go into keyscan_close() implementation
-- use of SIMPLE_DEV_PM_OPS()
-- rename compatibility name into "st,sti-keyscan"
-- suppress platform data management
-- omit vendor information
-- cosmetic change and renaming
+Add keyscan support for stih416.
+It is disabled by default given that it is not enabled on all boards.
+Also there are PIOs conflict with already claimed lines.
 
-The goal of this series is to add ST Keyscan support to ST SoCs.
-The DT definition is added for STiH415 and STiH416 SoCs on
-B2000 board.
+Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
+---
+ arch/arm/boot/dts/stih416-pinctrl.dtsi | 16 ++++++++++++++++
+ arch/arm/boot/dts/stih416.dtsi         | 10 ++++++++++
+ 2 files changed, 26 insertions(+)
 
-Gabriel Fernandez (4):
-  drivers: input: keyboard: st-keyscan: add keyscan driver
-  ARM: STi: DT: add keyscan for stih416
-  ARM: STi: DT: add keyscan for stih41x-b2000
-  ARM: multi_v7_defconfig: add ST Keyscan driver
-
-Giuseppe CONDORELLI (1):
-  ARM: STi: DT: add keyscan for stih415
-
- .../devicetree/bindings/input/st-keyscan.txt       |  60 +++++
- arch/arm/boot/dts/stih415-pinctrl.dtsi             |  16 ++
- arch/arm/boot/dts/stih415.dtsi                     |  10 +
- arch/arm/boot/dts/stih416-pinctrl.dtsi             |  16 ++
- arch/arm/boot/dts/stih416.dtsi                     |  10 +
- arch/arm/boot/dts/stih41x-b2000.dtsi               |  23 ++
- arch/arm/configs/multi_v7_defconfig                |   1 +
- drivers/input/keyboard/Kconfig                     |  12 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/st-keyscan.c                | 260 +++++++++++++++++++++
- 10 files changed, 409 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/st-keyscan.txt
- create mode 100644 drivers/input/keyboard/st-keyscan.c
-
+diff --git a/arch/arm/boot/dts/stih416-pinctrl.dtsi b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+index b29ff4b..79c036a 100644
+--- a/arch/arm/boot/dts/stih416-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+@@ -98,6 +98,22 @@
+ 				};
+ 			};
+ 
++			keyscan {
++				pinctrl_keyscan: keyscan {
++					st,pins {
++						keyin0 = <&PIO0 2 ALT2 IN>;
++						keyin1 = <&PIO0 3 ALT2 IN>;
++						keyin2 = <&PIO0 4 ALT2 IN>;
++						keyin3 = <&PIO2 6 ALT2 IN>;
++
++						keyout0 = <&PIO1 6 ALT2 OUT>;
++						keyout1 = <&PIO1 7 ALT2 OUT>;
++						keyout2 = <&PIO0 6 ALT2 OUT>;
++						keyout3 = <&PIO2 7 ALT2 OUT>;
++					};
++				};
++			};
++
+ 			sbc_i2c0 {
+ 				pinctrl_sbc_i2c0_default: sbc_i2c0-default {
+ 					st,pins {
+diff --git a/arch/arm/boot/dts/stih416.dtsi b/arch/arm/boot/dts/stih416.dtsi
+index b7ab47b..8a695dc 100644
+--- a/arch/arm/boot/dts/stih416.dtsi
++++ b/arch/arm/boot/dts/stih416.dtsi
+@@ -145,5 +145,15 @@
+ 
+ 			status		= "disabled";
+ 		};
++
++		keyscan: keyscan@fe4b0000 {
++			compatible = "st,sti-keyscan";
++			status = "disabled";
++			reg = <0xfe4b0000 0x2000>;
++			interrupts = <GIC_SPI 212 IRQ_TYPE_NONE>;
++			clocks = <&CLK_SYSIN>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_keyscan>;
++		};
+ 	};
+ };
 -- 
 1.9.0
-

@@ -1,147 +1,110 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: synaptics add manual min/max quirk
-Date: Tue, 18 Mar 2014 08:59:48 -0400
-Message-ID: <CAN+gG=GFwuzZa5uF5UTQM0b5SoMm8-D0V_70LSi2oqVd+fskTw@mail.gmail.com>
-References: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 3/8] input: misc: Add driver for AXP20x Power Enable
+ Key
+Date: Tue, 18 Mar 2014 15:03:23 +0100
+Message-ID: <20140318140323.GB27873@lukather>
+References: <1394898225-28452-1-git-send-email-carlo@caione.org>
+ <1394898225-28452-4-git-send-email-carlo@caione.org>
+ <20140318090013.GU27873@lukather>
+ <20140318095002.GM25478@lee--X1>
+ <20140318101554.GZ27873@lukather>
+ <20140318105851.GO25478@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ViWwB84N1zFtNiVD"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140318105851.GO25478@lee--X1>
+Sender: linux-doc-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Carlo Caione <carlo@caione.org>, linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 7, 2014 at 10:49 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
-> However, these new Synaptics devices report bad axis ranges.
-> Under Windows, it is not a problem because the Windows driver uses RMI4
-> over SMBus to talk to the device. Under Linux, we are using the PS/2
-> fallback interface and it occurs the reported ranges are wrong.
->
-> Of course, it would be too easy to have only one range for the whole
-> series, each touchpad seems to be calibrated in a different way.
->
-> We can not use SMBus to get the actual range because I suspect the firmware
-> will switch into the SMBus mode and stop talking through PS/2 (this is the
-> case for hybrid HID over I2C / PS/2 Synaptics touchpads).
->
-> So as a temporary solution (until RMI4 land into upstream), start a new
-> list of quirks with the min/max manually set.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> CC: stable@vger.kernel.org
-> ---
->
-> Hi Dmitry,
->
-> Well, this work is part of a (big) attempt to support the new touchpads
-> Lenovo put in its latest series.
-> Those new laptops have lost the buttons associated to the trackstick and are
-> what we call "clickpad".
-> Things would be easy if:
-> 1. the PS/2 firmware did not lied about the actual range of the axis
-> 2. on some install (mine) the DMI matching in udev would not have been broken
-> 3. we did not have to fix a lot of stuff in Xorg / libinput / wayland
->
-> This patch fixes 1.
->
-> Matthew Garrett fixed 2. -> https://patchwork.kernel.org/patch/3704401/
->
-> 3. is heavily working as shown by this tracker bug: https://bugs.freedesktop.org/show_bug.cgi?id=73158
->
-> I put the 'stable' marker, feel free to remove it if you don't think it should
-> be there, but I really think this should also be backported to have something
-> working in current distros.
 
-Dmitry, are there any chances that this one and the one Hans submitted
-shortly after [1] will be considered for 3.15?
+--ViWwB84N1zFtNiVD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Benjamin
+On Tue, Mar 18, 2014 at 10:58:51AM +0000, Lee Jones wrote:
+> > > > > This patch add support for the Power Enable Key found on MFD AXP2=
+02 and
+> > > > > AXP209. Besides the basic support for the button, the driver adds=
+ two
+> > > > > entries in sysfs to configure the time delay for power on/off.
+> > > > >=20
+> > > > > Signed-off-by: Carlo Caione <carlo@caione.org>
+> > > > > ---
+> > > > >  drivers/input/misc/Kconfig      |  11 ++
+> > > > >  drivers/input/misc/Makefile     |   1 +
+> > > > >  drivers/input/misc/axp20x-pek.c | 267 ++++++++++++++++++++++++++=
+++++++++++++++
+> > > > >  3 files changed, 279 insertions(+)
+> > > > >  create mode 100644 drivers/input/misc/axp20x-pek.c
+> > > >=20
+> > > > From what I understood of the MFD framework, you usually have a MFD
+> > > > core driver that gets loaded from the DT and instantiate its various
+> > > > functions through sub-devices, that are registered through
+> > > > mfd_add_devices, and the drivers for these sub-devices are supported
+> > > > in sub-drivers that are located in the driver/mfd, alongside the co=
+re
+> > > > driver.
+> > > >=20
+> > > > I believe that such a pattern allows for two interesting things:
+> > > >   - You don't have to search around the whole kernel tree to find
+> > > >     where a given sub-feature is supported.
+> > > >   - You don't have to cripple your DT with instantiation of all the
+> > > >     subcomponents, while you only really have one device.
+> > > >=20
+> > > > Do you have a reason for not following this pattern?
+> > >=20
+> > > Sorry Maxime, this is not the case.
+> > >=20
+> > > If an MFD contains Regulators and USB & GPIO Controllers, I'd expect
+> > > to see the device represented in the following way:
+> > >=20
+> > >   drivers/mfd/<id>.c
+> > >   drivers/{gpio,pinctrl}/{gpio,pinctrl}-<id>.c
+> > >   drivers/regulator/<id>-regulator.c
+> > >   drivers/usb/host/<id>.c
+> >=20
+> > Oh, ok. Nevermind then :)
+> >=20
+> > Just out of curiosity, some drivers at least seem to follow that trend
+> > in drivers/mfd, is there any reason for this (other than historical) ?
+>=20
+> Would you mind providing an example?
 
-[1] https://patchwork.kernel.org/patch/3798011/
+I was under this impression given the naming scheme that they were
+using. Looking into it just proved me how wrong I was :)
 
->  drivers/input/mouse/synaptics.c | 43 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 43 insertions(+)
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 26386f9..ff6a4cf 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -67,6 +67,8 @@
->  #define X_MAX_POSITIVE 8176
->  #define Y_MAX_POSITIVE 8176
->
-> +static int *quirk_min_max = NULL;
-> +
->  /*****************************************************************************
->   *     Stuff we need even when we do not want native Synaptics support
->   ****************************************************************************/
-> @@ -302,6 +304,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
->                 }
->         }
->
-> +       if (quirk_min_max) {
-> +               priv->x_min = quirk_min_max[0];
-> +               priv->x_max = quirk_min_max[1];
-> +               priv->y_min = quirk_min_max[2];
-> +               priv->y_max = quirk_min_max[3];
-> +       }
-> +
->         return 0;
->  }
->
-> @@ -1485,10 +1494,44 @@ static const struct dmi_system_id olpc_dmi_table[] __initconst = {
->         { }
->  };
->
-> +static const struct dmi_system_id min_max_dmi_table[] __initconst = {
-> +#if defined(CONFIG_DMI)
-> +       {
-> +               /* Lenovo ThinkPad Helix */
-> +               .matches = {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +                       DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad Helix"),
-> +               },
-> +               .driver_data = (int []){1024, 5052, 2258, 4832},
-> +       },
-> +       {
-> +               /* Lenovo ThinkPad T440s */
-> +               .matches = {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +                       DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T440"),
-> +               },
-> +               .driver_data = (int []){1024, 5112, 2024, 4832},
-> +       },
-> +       {
-> +               /* Lenovo ThinkPad T540p */
-> +               .matches = {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +                       DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T540"),
-> +               },
-> +               .driver_data = (int []){1024, 5056, 2058, 4832},
-> +       },
-> +#endif
-> +       { }
-> +};
-> +
->  void __init synaptics_module_init(void)
->  {
-> +       const struct dmi_system_id *min_max_dmi;
->         impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
->         broken_olpc_ec = dmi_check_system(olpc_dmi_table);
-> +       min_max_dmi = dmi_first_match(min_max_dmi_table);
-> +       if (min_max_dmi)
-> +               quirk_min_max = (int *)min_max_dmi->driver_data;
->  }
->
->  static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
-> --
-> 1.8.5.3
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Sorry for the noise.
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--ViWwB84N1zFtNiVD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTKFIrAAoJEBx+YmzsjxAg7KkP/j2mh9oDFJIT4wey7kUkqUL4
+kOrO458skjeue6NjbyKwapYmZIz1PPmzkWAnHDJoI3mvW2shYS6WdnQ3/kYnSHyR
+OTZyVOjKoy/QWRlgd4AmfF5/rg5e9nQ9+F5sW77FWbfA8yduKaQjDya+nPHmZmEI
+OY6m7/o3qSqRvm5TSvDnO+RUKBaG2vKYMmQnqh3Up90P4MU1Ew9o43x+2xplmJiX
+rtNpuWjrKeZu4oX+q7i39lxhGgo1+DJtguBKgUU9RBxKUWkiG6mOBIEuNaelpBFJ
+YdfFRaiGiOllDI5RDw//BurHOjBhbQXR1uyS0fJafvHiAICfxzLi46d14A5qLySy
+rVshtd2XUgBBGf8MsJ5tN/znW+qubrv+d23wRyrcsBWlfZtX7VU9mMSVvqm96T9X
+TJT7gnqRpCj56ZmCx6A/t+UWjk+tyJocSoUu8zZbCJkLpaF6BdntAdBEVG4SG2Gq
+2jrGMlXgMBwvySoRUFx/tNMXKGPdPsFDNYe8a76uUUC6EcpjrziB4KNWR65/csmN
+QN+oOtUTTcPJswcVb464CjXiLjuRhFSFai91cHSFIetH/oEYWNzwlUGBk2D1qvPx
+gNGYVDoWG+Dbs9aHBrYb6iGKlvLxrxj72Ttl/tH/riBQaXimm6LeHGpOINAvraeS
++Ipt8uvrYoa5wE3nSH6Q
+=+Kem
+-----END PGP SIGNATURE-----
+
+--ViWwB84N1zFtNiVD--

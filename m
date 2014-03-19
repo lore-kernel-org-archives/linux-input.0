@@ -1,121 +1,69 @@
-From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 00/15] iio: adc: at91 cleanups and atmel_tsadcc removal
-Date: Wed, 19 Mar 2014 11:19:23 +0100
-Message-ID: <53296F2B.3010406@atmel.com>
-References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com> <5325EDAF.4060003@kernel.org>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v2 4/8] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
+Date: Wed, 19 Mar 2014 13:27:25 +0200
+Message-ID: <53297F1D.2050203@ti.com>
+References: <1393428486-15001-1-git-send-email-rogerq@ti.com> <1393428486-15001-5-git-send-email-rogerq@ti.com> <531B3331.9050008@euromail.se> <531D7E66.1070300@ti.com> <20140310163701.GA30397@saruman.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5325EDAF.4060003-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, ARM Maintainers <arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140310163701.GA30397@saruman.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: balbi@ti.com, dmitry.torokhov@gmail.com, jcbian@pixcir.com.cn, dmurphy@ti.com, mugunthanvnm@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 16/03/2014 19:30, Jonathan Cameron :
-> On 05/03/14 17:35, Alexandre Belloni wrote:
->> This patch set is a followup of my previous series: iio: adc: at91 fixes
+Henrik,
+
+On 03/10/2014 06:37 PM, Felipe Balbi wrote:
+> On Mon, Mar 10, 2014 at 10:57:10AM +0200, Roger Quadros wrote:
+>> Hi Henrik,
 >>
->> I'm sorry it is so long, I made sure this is bissectable.
-> It's a nice series, don't apologise for doing things right!
+>> On 03/08/2014 05:11 PM, Henrik Rydberg wrote:
+>>> Hi Roger,
+>>>
+>>> the MT implementation seems mostly fine, just one curiosity:
+>>>
+>>>>  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+>>>>  {
+>>>>  	struct pixcir_i2c_ts_data *tsdata = dev_id;
+>>>>  	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
+>>>> +	struct pixcir_report_data report;
+>>>>  
+>>>>  	while (!tsdata->exiting) {
+>>>> -		pixcir_ts_poscheck(tsdata);
+>>>> -
+>>>> -		if (gpio_get_value(pdata->gpio_attb))
+>>>> +		/* parse packet */
+>>>> +		pixcir_ts_parse(tsdata, &report);
+>>>> +
+>>>> +		/* report it */
+>>>> +		pixcir_ts_report(tsdata, &report);
+>>>> +
+>>>> +		if (gpio_get_value(pdata->gpio_attb)) {
+>>>> +			if (report.num_touches) {
+>>>> +				/*
+>>>> +				 * Last report with no finger up?
+>>>> +				 * Do it now then.
+>>>> +				 */
+>>>> +				input_mt_sync_frame(tsdata->input);
+>>>> +				input_sync(tsdata->input);
+>>>
+>>> Why is this special handling needed?
+>>
+>> This is needed because the controller doesn't always report when all fingers
+>> have left the screen. e.g. report might contain 3 fingers touched and then
+>> gpio_attb line is de-asserted. There's no report with 0 fingers touched even
+>> if the user's fingers have left the screen. So we never detect a BUTTON_UP.
+>>
+>> Without this s/w workaround we observe side effects like buttons being pressed
+>> but not released. To me it looks like a bug in the controller.
 > 
-> Clearly there are a few outstanding snippets from the reviews so far, but we
-> are getting to the point where we need to agree on a path for this.  I'm
-> happy to take the whole series through the IIO tree if Dmitry and the at91
-> maintainers are happy with that.  If it is considered two invasive form the
-> atmel side then I'm perfectly happy with someone to take it through the relevant
-> platform tree instead.
-
-Jonathan, Dmitry,
-
-Considering the amount of AT91 files touched by this series, I would
-like to take everything through Atmel's git tree and later on arm-soc.
-
-
-> I'm obviously not going to pick it up at all until it has a complete set
-> of at91 maintainer acks though!
-> 
-> Realistically it's missed the coming merge window anyway, so we have a fair
-> bit of time.
-
-Yes, I will review Alexandre's v2 series.
-
-Thanks a lot for your review and for having thought about the path that
-these patches would take.
-
-Bye,
-
-
-> Jonathan
->>
->> 1-3) The first 3 patches are cleaning up the patform_data used for at91_adc.
->>
->> 4-5) Then touchscreen support for older ADCs is added, this allows to use that
->>       for the sam9m10g45ek.
->>
->> 6) Following those modifications, the mach/at91_adc.h is not used anywhere but
->>     in the at91_adc driver so it is remove and its content (register definitions)
->>     placed directly in the driver.
->>
->> 7-9) at91sam9rl support is added to at91_adc and is used for the at91sam9rl
->>       based boards.
->>
->> 10-11) Prepare the atmel_tsadcc removal by switching sam9rl and sam9g45 to use
->>         only at91_adc instead of atmel_tsadcc.
->>
->> 12-15) atmel_tsadcc removal
->>
->>
->> Alexandre Belloni (15):
->>    ARM: at91: sam9g45: remove unused platform_data
->>    ARM: at91: sam9260: remove unused platform_data
->>    iio: adc: at91: cleanup platform_data
->>    iio: adc: at91_adc: Add support for touchscreens without TSMR
->>    ARM: at91: sam9m10g45ek: Add touchscreen support through at91_adc
->>    iio: adc: at91: remove unused include from include/mach
->>    iio: adc: at91: add sam9rl support
->>    ARM: at91: sam9rl: add at91_adc to support adc and touchscreen
->>    ARM: at91: sam9rlek add touchscreen support through at91_adc
->>    ARM: at91: sam9g45: switch from atmel_tsadcc to at91_adc
->>    ARM: at91: sam9rl: switch from atmel_tsadcc to at91_adc
->>    ARM: at91: remove atmel_tsadcc platform_data
->>    ARM: at91: remove atmel_tsadcc from sama5_defconfig
->>    Input: atmel_tsadcc: remove driver
->>    ARM: at91/dt: at91-cosino_mega2560 remove useless tsadcc node
->>
->>   MAINTAINERS                                |   6 -
->>   arch/arm/boot/dts/at91-cosino_mega2560.dts |   5 -
->>   arch/arm/configs/at91sam9g45_defconfig     |   3 +-
->>   arch/arm/configs/at91sam9rl_defconfig      |   3 +-
->>   arch/arm/configs/sama5_defconfig           |   1 -
->>   arch/arm/mach-at91/at91sam9260_devices.c   |  10 -
->>   arch/arm/mach-at91/at91sam9g45.c           |   2 +-
->>   arch/arm/mach-at91/at91sam9g45_devices.c   |  63 +----
->>   arch/arm/mach-at91/at91sam9rl.c            |   7 +
->>   arch/arm/mach-at91/at91sam9rl_devices.c    |  83 +++++--
->>   arch/arm/mach-at91/board-sam9m10g45ek.c    |  16 +-
->>   arch/arm/mach-at91/board-sam9rlek.c        |  16 +-
->>   arch/arm/mach-at91/board.h                 |   3 -
->>   arch/arm/mach-at91/include/mach/at91_adc.h | 107 ---------
->>   drivers/iio/adc/at91_adc.c                 | 339 +++++++++++++++++++++++----
->>   drivers/input/touchscreen/Kconfig          |  12 -
->>   drivers/input/touchscreen/Makefile         |   1 -
->>   drivers/input/touchscreen/atmel_tsadcc.c   | 358 -----------------------------
->>   include/linux/platform_data/at91_adc.h     |  27 +--
->>   include/linux/platform_data/atmel.h        |   7 -
->>   20 files changed, 380 insertions(+), 689 deletions(-)
->>   delete mode 100644 arch/arm/mach-at91/include/mach/at91_adc.h
->>   delete mode 100644 drivers/input/touchscreen/atmel_tsadcc.c
->>
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> the other way would be to *also* use IRQF_TRIGGER_RISING, then you get
+> an IRQ when fingers leave the screen. No ?
 > 
 
+If you are OK with my explanation and the patches, could you please Ack them? Thanks.
 
--- 
-Nicolas Ferre
+cheers,
+-roger

@@ -1,54 +1,86 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH] input synaptics-rmi4: Correctly configure RMI4 functions during initialization
-Date: Tue, 18 Mar 2014 17:21:09 -0700
-Message-ID: <1395188469-2257-1-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH 03/11] Input: synaptics-rmi4 - do not update configuration
+ in rmi_f01_probe()
+Date: Tue, 18 Mar 2014 17:21:26 -0700
+Message-ID: <5328E306.5040405@synaptics.com>
+References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com> <1392269277-16391-3-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from [192.147.44.131] ([192.147.44.131]:33088 "EHLO
 	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1756119AbaCSAVn (ORCPT
+	with ESMTP id S1756119AbaCSAVo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Mar 2014 20:21:43 -0400
+	Tue, 18 Mar 2014 20:21:44 -0400
+In-Reply-To: <1392269277-16391-3-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Courtney Cavin <courtney.cavin@sonymobile.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
 
-Fix a bug where an RMI4 function handler's config() routine
-was not be called during rmi_function_probe().
+On 02/12/2014 09:27 PM, Dmitry Torokhov wrote:
+> Do not write configuration data in probe(), we have config() for that.
 
-Reported-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+I've just submitted a patch to correctly call config() after probe(). 
+So this becomes...
+
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Linux Walleij <linus.walleij@linaro.org>
-Cc: David Herrmann <dh.herrmann@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
 
----
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>   drivers/input/rmi4/rmi_f01.c | 18 ------------------
+>   1 file changed, 18 deletions(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> index 897d8ac..976aba3 100644
+> --- a/drivers/input/rmi4/rmi_f01.c
+> +++ b/drivers/input/rmi4/rmi_f01.c
+> @@ -303,12 +303,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>   		if (pdata->power_management.doze_interval) {
+>   			data->device_control.doze_interval =
+>   				pdata->power_management.doze_interval;
+> -			error = rmi_write(rmi_dev, data->doze_interval_addr,
+> -					data->device_control.doze_interval);
+> -			if (error < 0) {
+> -				dev_err(&fn->dev, "Failed to configure F01 doze interval register.\n");
+> -				return error;
+> -			}
+>   		} else {
+>   			error = rmi_read(rmi_dev, data->doze_interval_addr,
+>   					&data->device_control.doze_interval);
+> @@ -324,12 +318,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>   		if (pdata->power_management.wakeup_threshold) {
+>   			data->device_control.wakeup_threshold =
+>   				pdata->power_management.wakeup_threshold;
+> -			error = rmi_write(rmi_dev, data->wakeup_threshold_addr,
+> -					data->device_control.wakeup_threshold);
+> -			if (error < 0) {
+> -				dev_err(&fn->dev, "Failed to configure F01 wakeup threshold register.\n");
+> -				return error;
+> -			}
+>   		} else {
+>   			error = rmi_read(rmi_dev, data->wakeup_threshold_addr,
+>   					&data->device_control.wakeup_threshold);
+> @@ -347,12 +335,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>   		if (pdata->power_management.doze_holdoff) {
+>   			data->device_control.doze_holdoff =
+>   				pdata->power_management.doze_holdoff;
+> -			error = rmi_write(rmi_dev, data->doze_holdoff_addr,
+> -					data->device_control.doze_holdoff);
+> -			if (error < 0) {
+> -				dev_err(&fn->dev, "Failed to configure F01 doze holdoff register.\n");
+> -				return error;
+> -			}
+>   		} else {
+>   			error = rmi_read(rmi_dev, data->doze_holdoff_addr,
+>   					&data->device_control.doze_holdoff);
+>
 
- drivers/input/rmi4/rmi_bus.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 6e0454a..2ed0d32 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -212,7 +212,14 @@ static int rmi_function_probe(struct device *dev)
- 
- 	if (handler->probe) {
- 		error = handler->probe(fn);
--		return error;
-+		if (error)
-+			return error;
-+	}
-+	if (handler->config) {
-+		error = handler->config(fn);
-+		if (error)
-+			dev_warn(dev, "WARNING: Config for F%02x failed with code %d.\n",
-+				 handler->func, error);
- 	}
- 
- 	return 0;
+-- 
+
+Christopher Heiny
+Senior Staff Firmware Engineer
+Synaptics Incorporated

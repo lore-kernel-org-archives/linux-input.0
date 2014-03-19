@@ -1,113 +1,82 @@
-From: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH] Input: i8042-io - Exclude mips platforms when
- allocating/deallocating IO regions.
-Date: Wed, 19 Mar 2014 21:49:31 +0100
-Message-ID: <20140319204931.GI17197@linux-mips.org>
-References: <1390676514-30880-1-git-send-email-raghu.gandham@imgtec.com>
- <20140126214952.GD18840@core.coreip.homeip.net>
- <E2EE47005FA75F44B80E1019FDD2EBBB6E38B06D@BADAG02.ba.imgtec.org>
- <20140127065638.GB11945@core.coreip.homeip.net>
- <20140127202435.GA589@drone.musicnaut.iki.fi>
- <E2EE47005FA75F44B80E1019FDD2EBBB6E394CB2@BADAG02.ba.imgtec.org>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: multitouch: add support for Win 8.1 multitouch touchpads
+Date: Wed, 19 Mar 2014 13:39:03 -0700
+Message-ID: <1395261543-3103-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eddie.linux-mips.org ([78.24.191.182]:49233 "EHLO
-	cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932673AbaCSUtl (ORCPT
+Received: from [192.147.44.131] ([192.147.44.131]:47408 "EHLO
+	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S932673AbaCSUuG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2014 16:49:41 -0400
-Content-Disposition: inline
-In-Reply-To: <E2EE47005FA75F44B80E1019FDD2EBBB6E394CB2@BADAG02.ba.imgtec.org>
+	Wed, 19 Mar 2014 16:50:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Raghu Gandham <Raghu.Gandham@imgtec.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, jkosina@suse.cz, rydberg@euromail.se
+Cc: Andrew Duggan <aduggan@synaptics.com>
 
-On Tue, Jan 28, 2014 at 06:25:39AM +0000, Raghu Gandham wrote:
-> Date:   Tue, 28 Jan 2014 06:25:39 +0000
-> From: Raghu Gandham <Raghu.Gandham@imgtec.com>
-> To: Aaro Koskinen <aaro.koskinen@iki.fi>, Dmitry Torokhov
->  <dmitry.torokhov@gmail.com>
-> CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
->  "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
->  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-> Subject: RE: [PATCH] Input: i8042-io - Exclude mips platforms when
->  allocating/deallocating IO regions.
-> Content-Type: text/plain; charset="us-ascii"
-> 
-> Hi Aaro,
-> 
-> > 
-> > On Sun, Jan 26, 2014 at 10:56:38PM -0800, Dmitry Torokhov wrote:
-> > > On Mon, Jan 27, 2014 at 12:32:36AM +0000, Raghu Gandham wrote:
-> > > > > On Sat, Jan 25, 2014 at 11:01:54AM -0800, Raghu Gandham wrote:
-> > > > > > The standard IO regions are already reserved by the platform
-> > > > > > code on most MIPS devices(malta, cobalt, sni). The Commit
-> > > > > > 197a1e96c8be5b6005145af3a4c0e45e2d651444
-> > > > > > ("Input: i8042-io - fix up region handling on MIPS") introduced
-> > > > > > a bug on these MIPS platforms causing i8042 driver to fail when
-> > > > > > trying to reserve IO ports.
-> > > > > > Prior to the above mentioned commit request_region is skipped on
-> > > > > > MIPS but release_region is called.
-> > > > > >
-> > > > > > This patch reverts commit
-> > > > > > 197a1e96c8be5b6005145af3a4c0e45e2d651444
-> > > > > > and also avoids calling release_region for MIPS.
-> > > > >
-> > > > > The problem is that IO regions are reserved on _most_, but not
-> > > > > _all_ devices.
-> > > > > MIPS should figure out what they want to do with i8042 registers
-> > > > > and be consistent on all devices.
-> > > >
-> > > > Please examine the attached patch which went upstream in April of 2004.
-> > > > Since then it had been a convention not to call request_region
-> > > > routine in
-> > > > i8042 for MIPS. The attached patch had a glitch that it guarded
-> > > > request_region in i8042-io.h but skipped guarding release_region in
-> > > > i8042-io.h. I believe that the issue Aaro saw was due to this
-> > > > glitch. Below is the error quoted in Aaro's commit message.
-> > > >
-> > > >     [    2.112000] Trying to free nonexistent resource <0000000000000060-
-> > 000000000000006f>
-> > > >
-> > > > My patch reinstates the convention followed on MIPS devices along
-> > > > with fixing Aaro's issue.
-> > >
-> > > I assume that Aaro did test his patch and on his box request_region()
-> > > succeeds. That would indicate that various MIPS sub-arches still not
-> > > settled on the topic.
-> > 
-> > request_region() succeeds on Loongson and OCTEON.
-> 
-> This would mean that before your patch in oct of 2012, Loongson and Octeon 
-> were not reserving the IO space for i8042.
-> 
-> > 
-> > On OCTEONs without PCI, request_region() will fail which is correct as there
-> > is no I/O space.
-> > 
-> > I wasn't aware of that 2004 patch (it pre-dates GIT history of mainline Linux).
-> > Why the regions are already reserved by the platform code?
-> 
-> The only information I have is the comment before request_region in i8042-io.h that
-> touching data register on some platforms is flaky.  If your patch was primarily aimed at
-> addressing the error message from release_region, the current patch I uploaded should
-> also take care of it too. 
+Multitouch touchpads built for Win 8.1 need to be sent an input mode feature report
+in order to start reporting multitouch events. This is the same process sent
+to Win 7 multitouch touchscreens except the value of the feature report is 3 for
+touchpads.
 
-I think the patch (http://patchwork.linux-mips.org/patch/6419/) should be
-applied.  The argumentation for reserving ports in the platform code are
-the same as on x86 - touch the registers and bad things may happen.  This
-is because a fair number of older MIPS platforms were based on x86 chipsets
-or at least are using very similar designs.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-multitouch.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-The fact that on certain platforms such as Loongson, some Octeon systems
-and others the request_region() call to reserve the keyboard call succeeds
-is by accident not design.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 221d503..b428a3d 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -68,6 +68,9 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_HOVERING		(1 << 11)
+ #define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
+ 
++#define MT_INPUTMODE_TOUCHSCREEN	0x02
++#define MT_INPUTMODE_TOUCHPAD		0x03
++
+ struct mt_slot {
+ 	__s32 x, y, cx, cy, p, w, h;
+ 	__s32 contactid;	/* the device ContactID assigned to this slot */
+@@ -105,6 +108,7 @@ struct mt_device {
+ 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
+ 	__s16 maxcontact_report_id;	/* Maximum Contact Number HID feature,
+ 				   -1 if non-existent */
++	__u8 inputmode_value;  /* InputMode HID feature value */
+ 	__u8 num_received;	/* how many contacts we received */
+ 	__u8 num_expected;	/* expected last contact index */
+ 	__u8 maxcontacts;
+@@ -415,8 +419,10 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	 * Model touchscreens providing buttons as touchpads.
+ 	 */
+ 	if (field->application == HID_DG_TOUCHPAD ||
+-	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
++	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
+ 		td->mt_flags |= INPUT_MT_POINTER;
++		td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
++	}
+ 
+ 	if (usage->usage_index)
+ 		prev_usage = &field->usage[usage->usage_index - 1];
+@@ -841,7 +847,7 @@ static void mt_set_input_mode(struct hid_device *hdev)
+ 	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+ 	r = re->report_id_hash[td->inputmode];
+ 	if (r) {
+-		r->field[0]->value[td->inputmode_index] = 0x02;
++		r->field[0]->value[td->inputmode_index] = td->inputmode_value;
+ 		hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
+ 	}
+ }
+@@ -973,6 +979,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	td->mtclass = *mtclass;
+ 	td->inputmode = -1;
+ 	td->maxcontact_report_id = -1;
++	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
+ 	td->cc_index = -1;
+ 	td->mt_report_id = -1;
+ 	td->pen_report_id = -1;
+-- 
+1.8.3.2
 
-I wish i8042.c was a real platform driver, not using platform_create_bundle.
-That would leave a natural place in the arch/platform code to deal with
-I/O port allocation and platform_device creation, as necessary for a
-platform.
-
-  Ralf

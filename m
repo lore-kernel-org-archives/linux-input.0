@@ -1,40 +1,113 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [patch] Input: remove a duplicative NULL test
-Date: Wed, 19 Mar 2014 16:02:05 +0000
-Message-ID: <5329BF7D.8080007@itdev.co.uk>
-References: <20140221085506.GB13185@elgon.mountain>	<e1cf3227a1484c3b931abb61b97391a6@BLUPR03MB373.namprd03.prod.outlook.com> <CANLzEktLFDcMpt7Gq19=7T1Ak2Be4qs3fmDPyswHUNrVJiGjSQ@mail.gmail.com>
+From: Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCH] Input: i8042-io - Exclude mips platforms when
+ allocating/deallocating IO regions.
+Date: Wed, 19 Mar 2014 21:49:31 +0100
+Message-ID: <20140319204931.GI17197@linux-mips.org>
+References: <1390676514-30880-1-git-send-email-raghu.gandham@imgtec.com>
+ <20140126214952.GD18840@core.coreip.homeip.net>
+ <E2EE47005FA75F44B80E1019FDD2EBBB6E38B06D@BADAG02.ba.imgtec.org>
+ <20140127065638.GB11945@core.coreip.homeip.net>
+ <20140127202435.GA589@drone.musicnaut.iki.fi>
+ <E2EE47005FA75F44B80E1019FDD2EBBB6E394CB2@BADAG02.ba.imgtec.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:15443 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757750AbaCSQCU (ORCPT
+Received: from eddie.linux-mips.org ([78.24.191.182]:49233 "EHLO
+	cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932673AbaCSUtl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2014 12:02:20 -0400
-In-Reply-To: <CANLzEktLFDcMpt7Gq19=7T1Ak2Be4qs3fmDPyswHUNrVJiGjSQ@mail.gmail.com>
+	Wed, 19 Mar 2014 16:49:41 -0400
+Content-Disposition: inline
+In-Reply-To: <E2EE47005FA75F44B80E1019FDD2EBBB6E394CB2@BADAG02.ba.imgtec.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jingoo Han <jg1.han@samsung.com>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
+To: Raghu Gandham <Raghu.Gandham@imgtec.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-> On Fri, Feb 21, 2014 at 1:14 AM, fugang.duan@freescale.com
-> <fugang.duan@freescale.com> wrote:
->>
->> Agree, it is redundant. And if you have free time, you can convert
->> the driver to support devicetree.
+On Tue, Jan 28, 2014 at 06:25:39AM +0000, Raghu Gandham wrote:
+> Date:   Tue, 28 Jan 2014 06:25:39 +0000
+> From: Raghu Gandham <Raghu.Gandham@imgtec.com>
+> To: Aaro Koskinen <aaro.koskinen@iki.fi>, Dmitry Torokhov
+>  <dmitry.torokhov@gmail.com>
+> CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+>  "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>,
+>  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+> Subject: RE: [PATCH] Input: i8042-io - Exclude mips platforms when
+>  allocating/deallocating IO regions.
+> Content-Type: text/plain; charset="us-ascii"
 > 
-> Please check with Nick Dyer before you convert this driver to support
-> devicetree. Much of the platform data this driver uses has been
-> eliminated or consolidated in a patch series that he's been working
-> on.
+> Hi Aaro,
+> 
+> > 
+> > On Sun, Jan 26, 2014 at 10:56:38PM -0800, Dmitry Torokhov wrote:
+> > > On Mon, Jan 27, 2014 at 12:32:36AM +0000, Raghu Gandham wrote:
+> > > > > On Sat, Jan 25, 2014 at 11:01:54AM -0800, Raghu Gandham wrote:
+> > > > > > The standard IO regions are already reserved by the platform
+> > > > > > code on most MIPS devices(malta, cobalt, sni). The Commit
+> > > > > > 197a1e96c8be5b6005145af3a4c0e45e2d651444
+> > > > > > ("Input: i8042-io - fix up region handling on MIPS") introduced
+> > > > > > a bug on these MIPS platforms causing i8042 driver to fail when
+> > > > > > trying to reserve IO ports.
+> > > > > > Prior to the above mentioned commit request_region is skipped on
+> > > > > > MIPS but release_region is called.
+> > > > > >
+> > > > > > This patch reverts commit
+> > > > > > 197a1e96c8be5b6005145af3a4c0e45e2d651444
+> > > > > > and also avoids calling release_region for MIPS.
+> > > > >
+> > > > > The problem is that IO regions are reserved on _most_, but not
+> > > > > _all_ devices.
+> > > > > MIPS should figure out what they want to do with i8042 registers
+> > > > > and be consistent on all devices.
+> > > >
+> > > > Please examine the attached patch which went upstream in April of 2004.
+> > > > Since then it had been a convention not to call request_region
+> > > > routine in
+> > > > i8042 for MIPS. The attached patch had a glitch that it guarded
+> > > > request_region in i8042-io.h but skipped guarding release_region in
+> > > > i8042-io.h. I believe that the issue Aaro saw was due to this
+> > > > glitch. Below is the error quoted in Aaro's commit message.
+> > > >
+> > > >     [    2.112000] Trying to free nonexistent resource <0000000000000060-
+> > 000000000000006f>
+> > > >
+> > > > My patch reinstates the convention followed on MIPS devices along
+> > > > with fixing Aaro's issue.
+> > >
+> > > I assume that Aaro did test his patch and on his box request_region()
+> > > succeeds. That would indicate that various MIPS sub-arches still not
+> > > settled on the topic.
+> > 
+> > request_region() succeeds on Loongson and OCTEON.
+> 
+> This would mean that before your patch in oct of 2012, Loongson and Octeon 
+> were not reserving the IO space for i8042.
+> 
+> > 
+> > On OCTEONs without PCI, request_region() will fail which is correct as there
+> > is no I/O space.
+> > 
+> > I wasn't aware of that 2004 patch (it pre-dates GIT history of mainline Linux).
+> > Why the regions are already reserved by the platform code?
+> 
+> The only information I have is the comment before request_region in i8042-io.h that
+> touching data register on some platforms is flaky.  If your patch was primarily aimed at
+> addressing the error message from release_region, the current patch I uploaded should
+> also take care of it too. 
 
-If you look at the "improve T19 GPIO keys handling" patch in the patch set
-I posted to linux-input on 17th March, this redundant NULL test has been
-removed.
+I think the patch (http://patchwork.linux-mips.org/patch/6419/) should be
+applied.  The argumentation for reserving ports in the platform code are
+the same as on x86 - touch the registers and bad things may happen.  This
+is because a fair number of older MIPS platforms were based on x86 chipsets
+or at least are using very similar designs.
 
-I want to remove most of the existing platform data since it is not generic
-across all chips - see "remove unnecessary platform data" and "read screen
-config from chip" in that series of patches. It's high priority on my list
-to implement device tree support for the remaining items, which will be
-just irqflags and the touchpad key config.
+The fact that on certain platforms such as Loongson, some Octeon systems
+and others the request_region() call to reserve the keyboard call succeeds
+is by accident not design.
+
+I wish i8042.c was a real platform driver, not using platform_create_bundle.
+That would leave a natural place in the arch/platform code to deal with
+I/O port allocation and platform_device creation, as necessary for a
+platform.
+
+  Ralf

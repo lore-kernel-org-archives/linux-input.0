@@ -1,18 +1,17 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/3] Input: synaptics-rmi4 - ability disable abs or rel
- reporting
-Date: Wed, 19 Mar 2014 11:02:20 -0400
-Message-ID: <5329B17C.8080202@redhat.com>
-References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com> <1395191031-3144-2-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH 3/3] Input: synaptics-rmi4 - report sensor resolution
+Date: Wed, 19 Mar 2014 11:11:20 -0400
+Message-ID: <5329B398.4070005@redhat.com>
+References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com> <1395191031-3144-3-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59563 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:63595 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964911AbaCSPEP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2014 11:04:15 -0400
-In-Reply-To: <1395191031-3144-2-git-send-email-cheiny@synaptics.com>
+	id S933897AbaCSPMI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Mar 2014 11:12:08 -0400
+In-Reply-To: <1395191031-3144-3-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -21,22 +20,12 @@ Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.
 
 
 On 03/18/2014 09:03 PM, Christopher Heiny wrote:
-> Even if the RMI4 touchscreen/touchpad provides reporting both
-> relative and absolute coordinates, reporting both to userspace
-> could be confusing. Allow the platform data to disable either
-> absolute or relative coordinates.
+> Reports the sensor resolution by reading the size of the sensor
+> from F11 query registers or from the platform data if the firmware
+> does not contain the appropriate query registers.
 
-General comments on the patch:
-Is there really a need to export the rel axis when there is already an 
-abs collection?
-I mean, with the RMI4 over HID over I2C found on the XPS Haswell series, 
-RMI4 will be bound automatically, and the sensor may (will) pretend that 
-it can do both abs and rel. However, we are not using a platform_data 
-for them (I think we should not), and we will get the two collections.
-
-I would personally be in favor of having a priority mechanism: if abs is 
-here, skip rel, otherwise use rel. But I have no clue if you will ship 
-devices which will require both. So you make the call.
+Hehe, nice, I was just wondering if it was possible to retrieve this 
+info from the FW. :)
 
 >
 > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
@@ -48,273 +37,146 @@ devices which will require both. So you make the call.
 > Cc: Jiri Kosina <jkosina@suse.cz>
 >
 > ---
->   drivers/input/rmi4/rmi_f11.c | 78 +++++++++++++++++++++++++++++++++++++-------
->   include/linux/rmi.h          |  6 ++++
->   2 files changed, 73 insertions(+), 11 deletions(-)
+>   drivers/input/rmi4/rmi_f11.c | 53 +++++++++++++++++++++++++++++++++++++++++++-
+>   include/linux/rmi.h          |  2 ++
+>   2 files changed, 54 insertions(+), 1 deletion(-)
 >
 > diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index 07044d79..c87c6cc3 100644
+> index f5b8b71..f2a6f5f 100644
 > --- a/drivers/input/rmi4/rmi_f11.c
 > +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -520,6 +520,8 @@ struct f11_2d_sensor {
+> @@ -408,6 +408,10 @@ struct f11_2d_sensor_queries {
+>   	u8 clickpad_props;
+>   	u8 mouse_buttons;
+>   	bool has_advanced_gestures;
+> +
+> +	/* Query 15 - 18 */
+> +	u16 x_sensor_size_mm;
+> +	u16 y_sensor_size_mm;
+>   };
+>
+>   /* Defs for Ctrl0. */
+> @@ -520,6 +524,8 @@ struct f11_2d_sensor {
 >   	struct rmi_function *fn;
 >   	char input_phys[NAME_BUFFER_SIZE];
 >   	char input_phys_mouse[NAME_BUFFER_SIZE];
-> +	u8 report_abs;
-> +	u8 report_rel;
+> +	u8 x_mm;
+> +	u8 y_mm;
+>   	u8 report_abs;
+>   	u8 report_rel;
 >   };
->
->   /** Data pertaining to F11 in general.  For per-sensor data, see struct
-> @@ -544,6 +546,10 @@ struct f11_data {
->   	struct mutex dev_controls_mutex;
->   	u16 rezero_wait_ms;
->   	struct f11_2d_sensor sensor;
-> +	unsigned long *abs_mask;
-> +	unsigned long *rel_mask;
-> +	unsigned long *result_bits;
-> +	unsigned long mask_memory[];
->   };
->
->   enum finger_state_values {
-> @@ -591,10 +597,14 @@ static void rmi_f11_rel_pos_report(struct f11_2d_sensor *sensor, u8 n_finger)
->   	if (x || y) {
->   		input_report_rel(sensor->input, REL_X, x);
->   		input_report_rel(sensor->input, REL_Y, y);
-> -		input_report_rel(sensor->mouse_input, REL_X, x);
-> -		input_report_rel(sensor->mouse_input, REL_Y, y);
-> +
-> +		if (sensor->mouse_input) {
-> +			input_report_rel(sensor->mouse_input, REL_X, x);
-> +			input_report_rel(sensor->mouse_input, REL_Y, y);
-> +		}
->   	}
-> -	input_sync(sensor->mouse_input);
-> +	if (sensor->mouse_input)
-> +		input_sync(sensor->mouse_input);
->   }
->
->   static void rmi_f11_abs_pos_report(struct f11_data *f11,
-> @@ -694,13 +704,17 @@ static void rmi_f11_abs_pos_report(struct f11_data *f11,
->   }
->
->   static void rmi_f11_finger_handler(struct f11_data *f11,
-> -				   struct f11_2d_sensor *sensor)
-> +				   struct f11_2d_sensor *sensor,
-> +				   unsigned long *irq_bits, int num_irq_regs)
->   {
->   	const u8 *f_state = sensor->data.f_state;
->   	u8 finger_state;
->   	u8 finger_pressed_count;
->   	u8 i;
->
-> +	int rel_bits;
-> +	int abs_bits;
-> +
->   	for (i = 0, finger_pressed_count = 0; i < sensor->nbr_fingers; i++) {
->   		/* Possible of having 4 fingers per f_statet register */
->   		finger_state = (f_state[i / 4] >> (2 * (i % 4))) &
-> @@ -714,13 +728,19 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
->   			finger_pressed_count++;
->   		}
->
-> -		if (sensor->data.abs_pos)
-> +		abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
-> +				num_irq_regs);
-> +		if (abs_bits)
->   			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
-
-rmi_driver.c uses bitmap_and this way:
-bitmap_and(data->fn_irq_bits, data->irq_status, fn->irq_mask, 
-data->irq_count);
-if (!bitmap_empty(data->fn_irq_bits, data->irq_count))
-	fh->attention(fn, data->fn_irq_bits);
-
-Not sure which way is the best.
-
->
-> -		if (sensor->data.rel_pos)
-> +		rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
-> +				num_irq_regs);
-> +		if (rel_bits)
->   			rmi_f11_rel_pos_report(sensor, i);
->   	}
-> +
->   	input_report_key(sensor->input, BTN_TOUCH, finger_pressed_count);
-> +
-
-those two blank lines are unrelated to the commit.
-
->   	input_sync(sensor->input);
->   }
->
-> @@ -1180,21 +1200,33 @@ static int rmi_f11_initialize(struct rmi_function *fn)
->   	u16 max_x_pos, max_y_pos, temp;
->   	int rc;
->   	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
-> +	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
->   	struct f11_2d_sensor *sensor;
->   	u8 buf;
-> +	int mask_size;
->
->   	dev_dbg(&fn->dev, "Initializing F11 values for %s.\n",
->   		 pdata->sensor_name);
->
-> +	mask_size = BITS_TO_LONGS(drvdata->irq_count) * sizeof(unsigned long);
-> +
->   	/*
->   	** init instance data, fill in values and create any sysfs files
->   	*/
-> -	f11 = devm_kzalloc(&fn->dev, sizeof(struct f11_data), GFP_KERNEL);
-> +	f11 = devm_kzalloc(&fn->dev, sizeof(struct f11_data) + mask_size * 3,
-> +			GFP_KERNEL);
->   	if (!f11)
->   		return -ENOMEM;
->
->   	f11->rezero_wait_ms = pdata->f11_rezero_wait;
->
-> +	f11->abs_mask = f11->mask_memory + mask_size * 0;
-
-I personally don't like the " + mask_size * 0"
-
-Can't you just also remove the mask_memory field and use sizeof(struct 
-f11_data)?
-
-> +	f11->rel_mask = f11->mask_memory + mask_size * 1;
-> +	f11->result_bits = f11->mask_memory + mask_size * 2;
-> +
-> +	set_bit(fn->irq_pos, f11->abs_mask);
-> +	set_bit(fn->irq_pos + 1, f11->rel_mask);
-> +
->   	query_base_addr = fn->fd.query_base_addr;
->   	control_base_addr = fn->fd.control_base_addr;
->
-> @@ -1226,12 +1258,25 @@ static int rmi_f11_initialize(struct rmi_function *fn)
->   		return rc;
+> @@ -1098,6 +1104,20 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+>   		query_size++;
 >   	}
 >
-> +	sensor->report_rel = sensor->sens_query.has_rel;
-> +	sensor->report_abs = sensor->sens_query.has_abs;
+> +	if (f11->has_query12 && sensor_query->has_physical_props) {
+
+sensor->has_physical_props is only set to true if f11->has_query12 is 
+true (the initial struct is zero-allocated).
+
+So we can safely skip the test against f11->has_query12
+
+> +		rc = rmi_read_block(rmi_dev, query_base_addr
+> +			+ query_size, query_buf, ARRAY_SIZE(query_buf));
+> +		if (rc < 0)
+> +			return rc;
 > +
->   	if (pdata->f11_sensor_data) {
+> +		sensor_query->x_sensor_size_mm =
+> +			(query_buf[0] | (query_buf[1] << 8)) / 10;
+> +		sensor_query->y_sensor_size_mm =
+> +			(query_buf[2] | (query_buf[3] << 8)) / 10;
+> +
+> +		query_size += 4;
+
+should be ARRAY_SIZE(query_buf). Or maybe we should use 4 in the 
+rmi_read_block call (jsut in case someone changes the size of buf).
+
+> +	}
+> +
+>   	return query_size;
+>   }
+>
+> @@ -1119,6 +1139,7 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+>   			((f11->dev_controls.ctrl0_9[9] & 0x0F) << 8);
+>   	u16 x_min, x_max, y_min, y_max;
+>   	unsigned int input_flags;
+> +	int res_x, res_y;
+>
+>   	/* We assume touchscreen unless demonstrably a touchpad or specified
+>   	 * as a touchpad in the platform data
+> @@ -1175,6 +1196,18 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+>   			x_min, x_max, 0, 0);
+>   	input_set_abs_params(input, ABS_MT_POSITION_Y,
+>   			y_min, y_max, 0, 0);
+> +
+> +	if (sensor->x_mm && sensor->y_mm) {
+> +		res_x = (x_max - x_min) / sensor->x_mm;
+> +		res_y = (y_max - y_min) / sensor->y_mm;
+> +
+> +		input_abs_set_res(input, ABS_X, res_x);
+> +		input_abs_set_res(input, ABS_Y, res_y);
+> +
+> +		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
+> +		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
+> +	}
+> +
+>   	if (!sensor->type_a)
+>   		input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
+>   	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) && sensor->sens_query.has_pen)
+> @@ -1261,8 +1294,26 @@ static int rmi_f11_initialize(struct rmi_function *fn)
 >   		sensor->axis_align =
 >   			pdata->f11_sensor_data->axis_align;
 >   		sensor->type_a = pdata->f11_sensor_data->type_a;
->   		sensor->sensor_type =
+> -		sensor->sensor_type =
+> +
+> +		if (sensor->sens_query.has_info2) {
+> +			if (sensor->sens_query.is_clear)
+> +				sensor->sensor_type =
+> +					rmi_f11_sensor_touchscreen;
+> +			else
+> +				sensor->sensor_type = rmi_f11_sensor_touchpad;
+> +		} else {
+> +			sensor->sensor_type =
 >   				pdata->f11_sensor_data->sensor_type;
+
+These few lines above are not related to the current commit. Please 
+split this.
+
+> +		}
 > +
-> +		if (sensor->sens_query.has_abs)
-> +			sensor->report_abs = sensor->report_abs
-> +				&& !(pdata->f11_sensor_data->disable_report_mask
-> +					& RMI_F11_DISABLE_ABS_REPORT);
+> +		if (f11->has_query12
+> +			&& sensor->sens_query.has_physical_props) {
 
-sensor->report_abs already contains sensor->sens_query.has_abs (set few 
-lines above)...
+again, f11->has_query12 can be skipped
 
-so you can just skip the if test here.
+> +			sensor->x_mm = sensor->sens_query.x_sensor_size_mm;
+> +			sensor->y_mm = sensor->sens_query.y_sensor_size_mm;
+> +		} else {
+> +			sensor->x_mm = pdata->f11_sensor_data->x_mm;
+> +			sensor->y_mm = pdata->f11_sensor_data->y_mm;
 
-
-> +
-> +		if (sensor->sens_query.has_rel)
-> +			sensor->report_rel = sensor->report_rel
-> +				&& !(pdata->f11_sensor_data->disable_report_mask
-> +					& RMI_F11_DISABLE_REL_REPORT);
-
-same here.
-
->   	}
->
->   	rc = rmi_read_block(rmi_dev,
-> @@ -1324,9 +1369,10 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
->   	set_bit(EV_ABS, input_dev->evbit);
->   	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
->
-> -	f11_set_abs_params(fn, f11);
-> +	if (sensor->report_abs)
-> +		f11_set_abs_params(fn, f11);
->
-> -	if (sensor->sens_query.has_rel) {
-> +	if (sensor->report_rel) {
->   		set_bit(EV_REL, input_dev->evbit);
->   		set_bit(REL_X, input_dev->relbit);
->   		set_bit(REL_Y, input_dev->relbit);
-> @@ -1338,7 +1384,7 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
->   		goto error_unregister;
->   	}
->
-> -	if (sensor->sens_query.has_rel) {
-> +	if (sensor->report_rel) {
->   		/*create input device for mouse events  */
->   		input_dev_mouse = input_allocate_device();
->   		if (!input_dev_mouse) {
-> @@ -1407,8 +1453,16 @@ error_unregister:
->   static int rmi_f11_config(struct rmi_function *fn)
->   {
->   	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
-> +	struct rmi_driver *drv = fn->rmi_dev->driver;
-> +	struct f11_2d_sensor *sensor = &f11->sensor;
->   	int rc;
->
-> +	if (!sensor->report_abs)
-> +		drv->clear_irq_bits(fn->rmi_dev, f11->abs_mask);
-> +
-> +	if (!sensor->report_rel)
-> +		drv->clear_irq_bits(fn->rmi_dev, f11->rel_mask);
-> +
->   	rc = f11_write_control_regs(fn, &f11->sensor.sens_query,
->   			   &f11->dev_controls, fn->fd.query_base_addr);
->   	if (rc < 0)
-> @@ -1420,6 +1474,7 @@ static int rmi_f11_config(struct rmi_function *fn)
->   static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
->   {
->   	struct rmi_device *rmi_dev = fn->rmi_dev;
-> +	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
->   	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
->   	u16 data_base_addr = fn->fd.data_base_addr;
->   	u16 data_base_addr_offset = 0;
-> @@ -1432,7 +1487,8 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
->   	if (error)
->   		return error;
->
-> -	rmi_f11_finger_handler(f11, &f11->sensor);
-> +	rmi_f11_finger_handler(f11, &f11->sensor, irq_bits,
-> +				drvdata->num_of_irq_regs);
->   	data_base_addr_offset += f11->sensor.pkt_size;
->
->   	return 0;
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 735e978..a0d0187 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -76,6 +76,9 @@ enum rmi_f11_sensor_type {
->   	rmi_f11_sensor_touchpad
->   };
->
-> +#define RMI_F11_DISABLE_ABS_REPORT      (1 << 0)
-> +#define RMI_F11_DISABLE_REL_REPORT      (1 << 1)
-
-We have BIT() macro in the kernel for this (I know, I do not use it that 
-much either... :-P )
+there is a test regarding pdata->f11_sensor_data in 
+rmi_f11_initialize(). So I guess this pointer might be null, and you 
+will get an oops.
 
 Cheers,
 Benjamin
 
-> +
->   /**
->    * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
->    * @axis_align - provides axis alignment overrides (see above).
-> @@ -86,11 +89,14 @@ enum rmi_f11_sensor_type {
->    * pointing device (touchpad) rather than a direct pointing device
->    * (touchscreen).  This is useful when F11_2D_QUERY14 register is not
->    * available.
-> + * @disable_report_mask - Force data to not be reported even if it is supported
-> + * by the firware.
->    */
->   struct rmi_f11_sensor_data {
+> +		}
+>
+>   		if (sensor->sens_query.has_abs)
+>   			sensor->report_abs = sensor->report_abs
+> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+> index a0d0187..9139873 100644
+> --- a/include/linux/rmi.h
+> +++ b/include/linux/rmi.h
+> @@ -96,6 +96,8 @@ struct rmi_f11_sensor_data {
 >   	struct rmi_f11_2d_axis_alignment axis_align;
 >   	bool type_a;
 >   	enum rmi_f11_sensor_type sensor_type;
-> +	int disable_report_mask;
+> +	int x_mm;
+> +	int y_mm;
+>   	int disable_report_mask;
 >   };
 >
->   /**
 >

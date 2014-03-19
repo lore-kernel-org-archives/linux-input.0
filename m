@@ -1,270 +1,238 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH 2/3] Input: synaptics-rmi4 - ability disable abs or rel reporting
-Date: Tue, 18 Mar 2014 18:03:50 -0700
-Message-ID: <1395191031-3144-2-git-send-email-cheiny@synaptics.com>
-References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Petri Gynther <pgynther@google.com>
+Subject: [PATCH] HID: uhid: Add UHID_CREATE2 + UHID_INPUT2
+Date: Tue, 18 Mar 2014 20:45:01 -0700 (PDT)
+Message-ID: <20140319034501.4B61E10081C@puck.mtv.corp.google.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.131] ([192.147.44.131]:48903 "EHLO
-	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1758366AbaCSBEc (ORCPT
+Received: from mail-vc0-f202.google.com ([209.85.220.202]:47433 "EHLO
+	mail-vc0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757623AbaCSDpD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Mar 2014 21:04:32 -0400
-In-Reply-To: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
+	Tue, 18 Mar 2014 23:45:03 -0400
+Received: by mail-vc0-f202.google.com with SMTP id lh14so1037605vcb.3
+        for <linux-input@vger.kernel.org>; Tue, 18 Mar 2014 20:45:02 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org
 
-Even if the RMI4 touchscreen/touchpad provides reporting both
-relative and absolute coordinates, reporting both to userspace
-could be confusing. Allow the platform data to disable either
-absolute or relative coordinates.
+UHID_CREATE2:
+HID report descriptor data (rd_data) is an array in struct uhid_create2_req,
+instead of a pointer. Enables use from languages that don't support pointers,
+e.g. Python.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Acked-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Linux Walleij <linus.walleij@linaro.org>
-Cc: David Herrmann <dh.herrmann@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
+UHID_INPUT2:
+Data array is the last field of struct uhid_input2_req. Enables userspace to
+write only the required bytes to kernel (ev.type + ev.u.input2.size + the part
+of the data array that matters), instead of the entire struct uhid_input2_req.
 
+Signed-off-by: Petri Gynther <pgynther@google.com>
 ---
- drivers/input/rmi4/rmi_f11.c | 78 +++++++++++++++++++++++++++++++++++++-------
- include/linux/rmi.h          |  6 ++++
- 2 files changed, 73 insertions(+), 11 deletions(-)
+ Documentation/hid/uhid.txt | 11 +++++++
+ drivers/hid/uhid.c         | 80 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/uhid.h  | 23 +++++++++++++
+ 3 files changed, 114 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 07044d79..c87c6cc3 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -520,6 +520,8 @@ struct f11_2d_sensor {
- 	struct rmi_function *fn;
- 	char input_phys[NAME_BUFFER_SIZE];
- 	char input_phys_mouse[NAME_BUFFER_SIZE];
-+	u8 report_abs;
-+	u8 report_rel;
- };
+diff --git a/Documentation/hid/uhid.txt b/Documentation/hid/uhid.txt
+index dc35a2b..ee65936 100644
+--- a/Documentation/hid/uhid.txt
++++ b/Documentation/hid/uhid.txt
+@@ -93,6 +93,11 @@ the request was handled successfully.
+   event to the kernel. The payload is of type struct uhid_create_req and
+   contains information about your device. You can start I/O now.
  
- /** Data pertaining to F11 in general.  For per-sensor data, see struct
-@@ -544,6 +546,10 @@ struct f11_data {
- 	struct mutex dev_controls_mutex;
- 	u16 rezero_wait_ms;
- 	struct f11_2d_sensor sensor;
-+	unsigned long *abs_mask;
-+	unsigned long *rel_mask;
-+	unsigned long *result_bits;
-+	unsigned long mask_memory[];
- };
- 
- enum finger_state_values {
-@@ -591,10 +597,14 @@ static void rmi_f11_rel_pos_report(struct f11_2d_sensor *sensor, u8 n_finger)
- 	if (x || y) {
- 		input_report_rel(sensor->input, REL_X, x);
- 		input_report_rel(sensor->input, REL_Y, y);
--		input_report_rel(sensor->mouse_input, REL_X, x);
--		input_report_rel(sensor->mouse_input, REL_Y, y);
++  UHID_CREATE2:
++  Same as UHID_CREATE, but the HID report descriptor data (rd_data) is an array
++  inside struct uhid_create2_req, instead of a pointer to a separate array.
++  Enables use from languages that don't support pointers, e.g. Python.
 +
-+		if (sensor->mouse_input) {
-+			input_report_rel(sensor->mouse_input, REL_X, x);
-+			input_report_rel(sensor->mouse_input, REL_Y, y);
-+		}
- 	}
--	input_sync(sensor->mouse_input);
-+	if (sensor->mouse_input)
-+		input_sync(sensor->mouse_input);
+   UHID_DESTROY:
+   This destroys the internal HID device. No further I/O will be accepted. There
+   may still be pending messages that you can receive with read() but no further
+@@ -105,6 +110,12 @@ the request was handled successfully.
+   contains a data-payload. This is the raw data that you read from your device.
+   The kernel will parse the HID reports and react on it.
+ 
++  UHID_INPUT2:
++  Same as UHID_INPUT, but the data array is the last field of uhid_input2_req.
++  Enables userspace to write only the required bytes to kernel (ev.type +
++  ev.u.input2.size + the part of the data array that matters), instead of
++  the entire struct uhid_input2_req.
++
+   UHID_FEATURE_ANSWER:
+   If you receive a UHID_FEATURE request you must answer with this request. You
+   must copy the "id" field from the request into the answer. Set the "err" field
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index cedc6da..c5ee173 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -407,6 +407,69 @@ err_free:
+ 	return ret;
  }
  
- static void rmi_f11_abs_pos_report(struct f11_data *f11,
-@@ -694,13 +704,17 @@ static void rmi_f11_abs_pos_report(struct f11_data *f11,
- }
- 
- static void rmi_f11_finger_handler(struct f11_data *f11,
--				   struct f11_2d_sensor *sensor)
-+				   struct f11_2d_sensor *sensor,
-+				   unsigned long *irq_bits, int num_irq_regs)
++static int uhid_dev_create2(struct uhid_device *uhid,
++			    const struct uhid_event *ev)
++{
++	struct hid_device *hid;
++	int ret;
++
++	if (uhid->running)
++		return -EALREADY;
++
++	uhid->rd_size = ev->u.create2.rd_size;
++	if (uhid->rd_size <= 0 || uhid->rd_size > HID_MAX_DESCRIPTOR_SIZE)
++		return -EINVAL;
++
++	uhid->rd_data = kmalloc(uhid->rd_size, GFP_KERNEL);
++	if (!uhid->rd_data)
++		return -ENOMEM;
++
++	memcpy(uhid->rd_data, ev->u.create2.rd_data, uhid->rd_size);
++
++	hid = hid_allocate_device();
++	if (IS_ERR(hid)) {
++		ret = PTR_ERR(hid);
++		goto err_free;
++	}
++
++	strncpy(hid->name, ev->u.create2.name, 127);
++	hid->name[127] = 0;
++	strncpy(hid->phys, ev->u.create2.phys, 63);
++	hid->phys[63] = 0;
++	strncpy(hid->uniq, ev->u.create2.uniq, 63);
++	hid->uniq[63] = 0;
++
++	hid->ll_driver = &uhid_hid_driver;
++	hid->hid_get_raw_report = uhid_hid_get_raw;
++	hid->hid_output_raw_report = uhid_hid_output_raw;
++	hid->bus = ev->u.create2.bus;
++	hid->vendor = ev->u.create2.vendor;
++	hid->product = ev->u.create2.product;
++	hid->version = ev->u.create2.version;
++	hid->country = ev->u.create2.country;
++	hid->driver_data = uhid;
++	hid->dev.parent = uhid_misc.this_device;
++
++	uhid->hid = hid;
++	uhid->running = true;
++
++	ret = hid_add_device(hid);
++	if (ret) {
++		hid_err(hid, "Cannot register HID device\n");
++		goto err_hid;
++	}
++
++	return 0;
++
++err_hid:
++	hid_destroy_device(hid);
++	uhid->hid = NULL;
++	uhid->running = false;
++err_free:
++	kfree(uhid->rd_data);
++	return ret;
++}
++
+ static int uhid_dev_destroy(struct uhid_device *uhid)
  {
- 	const u8 *f_state = sensor->data.f_state;
- 	u8 finger_state;
- 	u8 finger_pressed_count;
- 	u8 i;
- 
-+	int rel_bits;
-+	int abs_bits;
-+
- 	for (i = 0, finger_pressed_count = 0; i < sensor->nbr_fingers; i++) {
- 		/* Possible of having 4 fingers per f_statet register */
- 		finger_state = (f_state[i / 4] >> (2 * (i % 4))) &
-@@ -714,13 +728,19 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
- 			finger_pressed_count++;
- 		}
- 
--		if (sensor->data.abs_pos)
-+		abs_bits = bitmap_and(f11->result_bits, irq_bits, f11->abs_mask,
-+				num_irq_regs);
-+		if (abs_bits)
- 			rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
- 
--		if (sensor->data.rel_pos)
-+		rel_bits = bitmap_and(f11->result_bits, irq_bits, f11->rel_mask,
-+				num_irq_regs);
-+		if (rel_bits)
- 			rmi_f11_rel_pos_report(sensor, i);
- 	}
-+
- 	input_report_key(sensor->input, BTN_TOUCH, finger_pressed_count);
-+
- 	input_sync(sensor->input);
- }
- 
-@@ -1180,21 +1200,33 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 	u16 max_x_pos, max_y_pos, temp;
- 	int rc;
- 	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
-+	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
- 	struct f11_2d_sensor *sensor;
- 	u8 buf;
-+	int mask_size;
- 
- 	dev_dbg(&fn->dev, "Initializing F11 values for %s.\n",
- 		 pdata->sensor_name);
- 
-+	mask_size = BITS_TO_LONGS(drvdata->irq_count) * sizeof(unsigned long);
-+
- 	/*
- 	** init instance data, fill in values and create any sysfs files
- 	*/
--	f11 = devm_kzalloc(&fn->dev, sizeof(struct f11_data), GFP_KERNEL);
-+	f11 = devm_kzalloc(&fn->dev, sizeof(struct f11_data) + mask_size * 3,
-+			GFP_KERNEL);
- 	if (!f11)
- 		return -ENOMEM;
- 
- 	f11->rezero_wait_ms = pdata->f11_rezero_wait;
- 
-+	f11->abs_mask = f11->mask_memory + mask_size * 0;
-+	f11->rel_mask = f11->mask_memory + mask_size * 1;
-+	f11->result_bits = f11->mask_memory + mask_size * 2;
-+
-+	set_bit(fn->irq_pos, f11->abs_mask);
-+	set_bit(fn->irq_pos + 1, f11->rel_mask);
-+
- 	query_base_addr = fn->fd.query_base_addr;
- 	control_base_addr = fn->fd.control_base_addr;
- 
-@@ -1226,12 +1258,25 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 		return rc;
- 	}
- 
-+	sensor->report_rel = sensor->sens_query.has_rel;
-+	sensor->report_abs = sensor->sens_query.has_abs;
-+
- 	if (pdata->f11_sensor_data) {
- 		sensor->axis_align =
- 			pdata->f11_sensor_data->axis_align;
- 		sensor->type_a = pdata->f11_sensor_data->type_a;
- 		sensor->sensor_type =
- 				pdata->f11_sensor_data->sensor_type;
-+
-+		if (sensor->sens_query.has_abs)
-+			sensor->report_abs = sensor->report_abs
-+				&& !(pdata->f11_sensor_data->disable_report_mask
-+					& RMI_F11_DISABLE_ABS_REPORT);
-+
-+		if (sensor->sens_query.has_rel)
-+			sensor->report_rel = sensor->report_rel
-+				&& !(pdata->f11_sensor_data->disable_report_mask
-+					& RMI_F11_DISABLE_REL_REPORT);
- 	}
- 
- 	rc = rmi_read_block(rmi_dev,
-@@ -1324,9 +1369,10 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 	set_bit(EV_ABS, input_dev->evbit);
- 	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
- 
--	f11_set_abs_params(fn, f11);
-+	if (sensor->report_abs)
-+		f11_set_abs_params(fn, f11);
- 
--	if (sensor->sens_query.has_rel) {
-+	if (sensor->report_rel) {
- 		set_bit(EV_REL, input_dev->evbit);
- 		set_bit(REL_X, input_dev->relbit);
- 		set_bit(REL_Y, input_dev->relbit);
-@@ -1338,7 +1384,7 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 		goto error_unregister;
- 	}
- 
--	if (sensor->sens_query.has_rel) {
-+	if (sensor->report_rel) {
- 		/*create input device for mouse events  */
- 		input_dev_mouse = input_allocate_device();
- 		if (!input_dev_mouse) {
-@@ -1407,8 +1453,16 @@ error_unregister:
- static int rmi_f11_config(struct rmi_function *fn)
- {
- 	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
-+	struct rmi_driver *drv = fn->rmi_dev->driver;
-+	struct f11_2d_sensor *sensor = &f11->sensor;
- 	int rc;
- 
-+	if (!sensor->report_abs)
-+		drv->clear_irq_bits(fn->rmi_dev, f11->abs_mask);
-+
-+	if (!sensor->report_rel)
-+		drv->clear_irq_bits(fn->rmi_dev, f11->rel_mask);
-+
- 	rc = f11_write_control_regs(fn, &f11->sensor.sens_query,
- 			   &f11->dev_controls, fn->fd.query_base_addr);
- 	if (rc < 0)
-@@ -1420,6 +1474,7 @@ static int rmi_f11_config(struct rmi_function *fn)
- static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
- {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
- 	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
- 	u16 data_base_addr = fn->fd.data_base_addr;
- 	u16 data_base_addr_offset = 0;
-@@ -1432,7 +1487,8 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
- 	if (error)
- 		return error;
- 
--	rmi_f11_finger_handler(f11, &f11->sensor);
-+	rmi_f11_finger_handler(f11, &f11->sensor, irq_bits,
-+				drvdata->num_of_irq_regs);
- 	data_base_addr_offset += f11->sensor.pkt_size;
- 
+ 	if (!uhid->running)
+@@ -435,6 +498,17 @@ static int uhid_dev_input(struct uhid_device *uhid, struct uhid_event *ev)
  	return 0;
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 735e978..a0d0187 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -76,6 +76,9 @@ enum rmi_f11_sensor_type {
- 	rmi_f11_sensor_touchpad
- };
+ }
  
-+#define RMI_F11_DISABLE_ABS_REPORT      (1 << 0)
-+#define RMI_F11_DISABLE_REL_REPORT      (1 << 1)
++static int uhid_dev_input2(struct uhid_device *uhid, struct uhid_event *ev)
++{
++	if (!uhid->running)
++		return -EINVAL;
 +
- /**
-  * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
-  * @axis_align - provides axis alignment overrides (see above).
-@@ -86,11 +89,14 @@ enum rmi_f11_sensor_type {
-  * pointing device (touchpad) rather than a direct pointing device
-  * (touchscreen).  This is useful when F11_2D_QUERY14 register is not
-  * available.
-+ * @disable_report_mask - Force data to not be reported even if it is supported
-+ * by the firware.
-  */
- struct rmi_f11_sensor_data {
- 	struct rmi_f11_2d_axis_alignment axis_align;
- 	bool type_a;
- 	enum rmi_f11_sensor_type sensor_type;
-+	int disable_report_mask;
++	hid_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input2.data,
++			 min_t(size_t, ev->u.input2.size, UHID_DATA_MAX), 0);
++
++	return 0;
++}
++
+ static int uhid_dev_feature_answer(struct uhid_device *uhid,
+ 				   struct uhid_event *ev)
+ {
+@@ -571,12 +645,18 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
+ 	case UHID_CREATE:
+ 		ret = uhid_dev_create(uhid, &uhid->input_buf);
+ 		break;
++	case UHID_CREATE2:
++		ret = uhid_dev_create2(uhid, &uhid->input_buf);
++		break;
+ 	case UHID_DESTROY:
+ 		ret = uhid_dev_destroy(uhid);
+ 		break;
+ 	case UHID_INPUT:
+ 		ret = uhid_dev_input(uhid, &uhid->input_buf);
+ 		break;
++	case UHID_INPUT2:
++		ret = uhid_dev_input2(uhid, &uhid->input_buf);
++		break;
+ 	case UHID_FEATURE_ANSWER:
+ 		ret = uhid_dev_feature_answer(uhid, &uhid->input_buf);
+ 		break;
+diff --git a/include/uapi/linux/uhid.h b/include/uapi/linux/uhid.h
+index 414b74b..1e3b09c 100644
+--- a/include/uapi/linux/uhid.h
++++ b/include/uapi/linux/uhid.h
+@@ -21,6 +21,7 @@
+ 
+ #include <linux/input.h>
+ #include <linux/types.h>
++#include <linux/hid.h>
+ 
+ enum uhid_event_type {
+ 	UHID_CREATE,
+@@ -34,6 +35,8 @@ enum uhid_event_type {
+ 	UHID_INPUT,
+ 	UHID_FEATURE,
+ 	UHID_FEATURE_ANSWER,
++	UHID_CREATE2,
++	UHID_INPUT2,
  };
  
- /**
+ struct uhid_create_req {
+@@ -50,6 +53,19 @@ struct uhid_create_req {
+ 	__u32 country;
+ } __attribute__((__packed__));
+ 
++struct uhid_create2_req {
++	__u8 name[128];
++	__u8 phys[64];
++	__u8 uniq[64];
++	__u16 rd_size;
++	__u16 bus;
++	__u32 vendor;
++	__u32 product;
++	__u32 version;
++	__u32 country;
++	__u8 rd_data[HID_MAX_DESCRIPTOR_SIZE];
++} __attribute__((__packed__));
++
+ #define UHID_DATA_MAX 4096
+ 
+ enum uhid_report_type {
+@@ -63,6 +79,11 @@ struct uhid_input_req {
+ 	__u16 size;
+ } __attribute__((__packed__));
+ 
++struct uhid_input2_req {
++	__u16 size;
++	__u8 data[UHID_DATA_MAX];
++} __attribute__((__packed__));
++
+ struct uhid_output_req {
+ 	__u8 data[UHID_DATA_MAX];
+ 	__u16 size;
+@@ -100,6 +121,8 @@ struct uhid_event {
+ 		struct uhid_output_ev_req output_ev;
+ 		struct uhid_feature_req feature;
+ 		struct uhid_feature_answer_req feature_answer;
++		struct uhid_create2_req create2;
++		struct uhid_input2_req input2;
+ 	} u;
+ } __attribute__((__packed__));
+ 
 -- 
-1.8.3.2
+1.9.0.279.gdc9e3eb
 

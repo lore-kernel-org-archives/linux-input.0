@@ -1,82 +1,50 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: multitouch: add support for Win 8.1 multitouch touchpads
-Date: Wed, 19 Mar 2014 13:39:03 -0700
-Message-ID: <1395261543-3103-1-git-send-email-aduggan@synaptics.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: Re: [PATCH] Input: i8042-io - Exclude mips platforms when
+ allocating/deallocating IO regions.
+Date: Thu, 20 Mar 2014 01:44:55 +0200
+Message-ID: <20140319234455.GB19187@drone.musicnaut.iki.fi>
+References: <1390676514-30880-1-git-send-email-raghu.gandham@imgtec.com>
+ <20140126214952.GD18840@core.coreip.homeip.net>
+ <E2EE47005FA75F44B80E1019FDD2EBBB6E38B06D@BADAG02.ba.imgtec.org>
+ <20140127065638.GB11945@core.coreip.homeip.net>
+ <20140127202435.GA589@drone.musicnaut.iki.fi>
+ <E2EE47005FA75F44B80E1019FDD2EBBB6E394CB2@BADAG02.ba.imgtec.org>
+ <20140319204931.GI17197@linux-mips.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.131] ([192.147.44.131]:47408 "EHLO
-	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S932673AbaCSUuG (ORCPT
+Received: from filtteri1.pp.htv.fi ([213.243.153.184]:45664 "EHLO
+	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753964AbaCSXqV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2014 16:50:06 -0400
+	Wed, 19 Mar 2014 19:46:21 -0400
+Content-Disposition: inline
+In-Reply-To: <20140319204931.GI17197@linux-mips.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, jkosina@suse.cz, rydberg@euromail.se
-Cc: Andrew Duggan <aduggan@synaptics.com>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Raghu Gandham <Raghu.Gandham@imgtec.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-Multitouch touchpads built for Win 8.1 need to be sent an input mode feature report
-in order to start reporting multitouch events. This is the same process sent
-to Win 7 multitouch touchscreens except the value of the feature report is 3 for
-touchpads.
+Hi,
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+On Wed, Mar 19, 2014 at 09:49:31PM +0100, Ralf Baechle wrote:
+> I think the patch (http://patchwork.linux-mips.org/patch/6419/) should be
+> applied.  The argumentation for reserving ports in the platform code are
+> the same as on x86 - touch the registers and bad things may happen.  This
+> is because a fair number of older MIPS platforms were based on x86 chipsets
+> or at least are using very similar designs.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 221d503..b428a3d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -68,6 +68,9 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_HOVERING		(1 << 11)
- #define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
- 
-+#define MT_INPUTMODE_TOUCHSCREEN	0x02
-+#define MT_INPUTMODE_TOUCHPAD		0x03
-+
- struct mt_slot {
- 	__s32 x, y, cx, cy, p, w, h;
- 	__s32 contactid;	/* the device ContactID assigned to this slot */
-@@ -105,6 +108,7 @@ struct mt_device {
- 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
- 	__s16 maxcontact_report_id;	/* Maximum Contact Number HID feature,
- 				   -1 if non-existent */
-+	__u8 inputmode_value;  /* InputMode HID feature value */
- 	__u8 num_received;	/* how many contacts we received */
- 	__u8 num_expected;	/* expected last contact index */
- 	__u8 maxcontacts;
-@@ -415,8 +419,10 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	 * Model touchscreens providing buttons as touchpads.
- 	 */
- 	if (field->application == HID_DG_TOUCHPAD ||
--	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
-+	    (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
- 		td->mt_flags |= INPUT_MT_POINTER;
-+		td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
-+	}
- 
- 	if (usage->usage_index)
- 		prev_usage = &field->usage[usage->usage_index - 1];
-@@ -841,7 +847,7 @@ static void mt_set_input_mode(struct hid_device *hdev)
- 	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
- 	r = re->report_id_hash[td->inputmode];
- 	if (r) {
--		r->field[0]->value[td->inputmode_index] = 0x02;
-+		r->field[0]->value[td->inputmode_index] = td->inputmode_value;
- 		hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
- 	}
- }
-@@ -973,6 +979,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	td->mtclass = *mtclass;
- 	td->inputmode = -1;
- 	td->maxcontact_report_id = -1;
-+	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
- 	td->cc_index = -1;
- 	td->mt_report_id = -1;
- 	td->pen_report_id = -1;
--- 
-1.8.3.2
+If you drop the request_region() from the driver, it will try to probe
+anyway regardless what the platform code codes. So bad things could happen,
+no?
 
+Currently we can prevent i8042 driver from probing I/O space on PCI-less
+Octeons (for example), because we define empty I/O space so request_region()
+by driver will fail. So we can actually prevent bad things from happening.
+I would call this good design, not an accident.
+
+Maybe I'm missing something? Anyway, I don't have strong feelings whether
+this patch is applied or not. My computers will keep on working on either
+case.
+
+A.

@@ -1,86 +1,152 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 03/11] Input: synaptics-rmi4 - do not update configuration
- in rmi_f01_probe()
-Date: Tue, 18 Mar 2014 17:21:26 -0700
-Message-ID: <5328E306.5040405@synaptics.com>
-References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com> <1392269277-16391-3-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 3/3] Input: synaptics-rmi4 - report sensor resolution
+Date: Tue, 18 Mar 2014 18:03:51 -0700
+Message-ID: <1395191031-3144-3-git-send-email-cheiny@synaptics.com>
+References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.131] ([192.147.44.131]:33088 "EHLO
+Received: from [192.147.44.131] ([192.147.44.131]:15920 "EHLO
 	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1756119AbaCSAVo (ORCPT
+	with ESMTP id S1758013AbaCSBE0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Mar 2014 20:21:44 -0400
-In-Reply-To: <1392269277-16391-3-git-send-email-dmitry.torokhov@gmail.com>
+	Tue, 18 Mar 2014 21:04:26 -0400
+In-Reply-To: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On 02/12/2014 09:27 PM, Dmitry Torokhov wrote:
-> Do not write configuration data in probe(), we have config() for that.
+Reports the sensor resolution by reading the size of the sensor
+from F11 query registers or from the platform data if the firmware
+does not contain the appropriate query registers.
 
-I've just submitted a patch to correctly call config() after probe(). 
-So this becomes...
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Acked-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Linux Walleij <linus.walleij@linaro.org>
+Cc: David Herrmann <dh.herrmann@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+---
+ drivers/input/rmi4/rmi_f11.c | 53 +++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/rmi.h          |  2 ++
+ 2 files changed, 54 insertions(+), 1 deletion(-)
 
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->   drivers/input/rmi4/rmi_f01.c | 18 ------------------
->   1 file changed, 18 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index 897d8ac..976aba3 100644
-> --- a/drivers/input/rmi4/rmi_f01.c
-> +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -303,12 +303,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
->   		if (pdata->power_management.doze_interval) {
->   			data->device_control.doze_interval =
->   				pdata->power_management.doze_interval;
-> -			error = rmi_write(rmi_dev, data->doze_interval_addr,
-> -					data->device_control.doze_interval);
-> -			if (error < 0) {
-> -				dev_err(&fn->dev, "Failed to configure F01 doze interval register.\n");
-> -				return error;
-> -			}
->   		} else {
->   			error = rmi_read(rmi_dev, data->doze_interval_addr,
->   					&data->device_control.doze_interval);
-> @@ -324,12 +318,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
->   		if (pdata->power_management.wakeup_threshold) {
->   			data->device_control.wakeup_threshold =
->   				pdata->power_management.wakeup_threshold;
-> -			error = rmi_write(rmi_dev, data->wakeup_threshold_addr,
-> -					data->device_control.wakeup_threshold);
-> -			if (error < 0) {
-> -				dev_err(&fn->dev, "Failed to configure F01 wakeup threshold register.\n");
-> -				return error;
-> -			}
->   		} else {
->   			error = rmi_read(rmi_dev, data->wakeup_threshold_addr,
->   					&data->device_control.wakeup_threshold);
-> @@ -347,12 +335,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
->   		if (pdata->power_management.doze_holdoff) {
->   			data->device_control.doze_holdoff =
->   				pdata->power_management.doze_holdoff;
-> -			error = rmi_write(rmi_dev, data->doze_holdoff_addr,
-> -					data->device_control.doze_holdoff);
-> -			if (error < 0) {
-> -				dev_err(&fn->dev, "Failed to configure F01 doze holdoff register.\n");
-> -				return error;
-> -			}
->   		} else {
->   			error = rmi_read(rmi_dev, data->doze_holdoff_addr,
->   					&data->device_control.doze_holdoff);
->
-
-
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index f5b8b71..f2a6f5f 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -408,6 +408,10 @@ struct f11_2d_sensor_queries {
+ 	u8 clickpad_props;
+ 	u8 mouse_buttons;
+ 	bool has_advanced_gestures;
++
++	/* Query 15 - 18 */
++	u16 x_sensor_size_mm;
++	u16 y_sensor_size_mm;
+ };
+ 
+ /* Defs for Ctrl0. */
+@@ -520,6 +524,8 @@ struct f11_2d_sensor {
+ 	struct rmi_function *fn;
+ 	char input_phys[NAME_BUFFER_SIZE];
+ 	char input_phys_mouse[NAME_BUFFER_SIZE];
++	u8 x_mm;
++	u8 y_mm;
+ 	u8 report_abs;
+ 	u8 report_rel;
+ };
+@@ -1098,6 +1104,20 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+ 		query_size++;
+ 	}
+ 
++	if (f11->has_query12 && sensor_query->has_physical_props) {
++		rc = rmi_read_block(rmi_dev, query_base_addr
++			+ query_size, query_buf, ARRAY_SIZE(query_buf));
++		if (rc < 0)
++			return rc;
++
++		sensor_query->x_sensor_size_mm =
++			(query_buf[0] | (query_buf[1] << 8)) / 10;
++		sensor_query->y_sensor_size_mm =
++			(query_buf[2] | (query_buf[3] << 8)) / 10;
++
++		query_size += 4;
++	}
++
+ 	return query_size;
+ }
+ 
+@@ -1119,6 +1139,7 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+ 			((f11->dev_controls.ctrl0_9[9] & 0x0F) << 8);
+ 	u16 x_min, x_max, y_min, y_max;
+ 	unsigned int input_flags;
++	int res_x, res_y;
+ 
+ 	/* We assume touchscreen unless demonstrably a touchpad or specified
+ 	 * as a touchpad in the platform data
+@@ -1175,6 +1196,18 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+ 			x_min, x_max, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y,
+ 			y_min, y_max, 0, 0);
++
++	if (sensor->x_mm && sensor->y_mm) {
++		res_x = (x_max - x_min) / sensor->x_mm;
++		res_y = (y_max - y_min) / sensor->y_mm;
++
++		input_abs_set_res(input, ABS_X, res_x);
++		input_abs_set_res(input, ABS_Y, res_y);
++
++		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
++		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
++	}
++
+ 	if (!sensor->type_a)
+ 		input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
+ 	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) && sensor->sens_query.has_pen)
+@@ -1261,8 +1294,26 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 		sensor->axis_align =
+ 			pdata->f11_sensor_data->axis_align;
+ 		sensor->type_a = pdata->f11_sensor_data->type_a;
+-		sensor->sensor_type =
++
++		if (sensor->sens_query.has_info2) {
++			if (sensor->sens_query.is_clear)
++				sensor->sensor_type =
++					rmi_f11_sensor_touchscreen;
++			else
++				sensor->sensor_type = rmi_f11_sensor_touchpad;
++		} else {
++			sensor->sensor_type =
+ 				pdata->f11_sensor_data->sensor_type;
++		}
++
++		if (f11->has_query12
++			&& sensor->sens_query.has_physical_props) {
++			sensor->x_mm = sensor->sens_query.x_sensor_size_mm;
++			sensor->y_mm = sensor->sens_query.y_sensor_size_mm;
++		} else {
++			sensor->x_mm = pdata->f11_sensor_data->x_mm;
++			sensor->y_mm = pdata->f11_sensor_data->y_mm;
++		}
+ 
+ 		if (sensor->sens_query.has_abs)
+ 			sensor->report_abs = sensor->report_abs
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index a0d0187..9139873 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -96,6 +96,8 @@ struct rmi_f11_sensor_data {
+ 	struct rmi_f11_2d_axis_alignment axis_align;
+ 	bool type_a;
+ 	enum rmi_f11_sensor_type sensor_type;
++	int x_mm;
++	int y_mm;
+ 	int disable_report_mask;
+ };
+ 
 -- 
+1.8.3.2
 
-Christopher Heiny
-Senior Staff Firmware Engineer
-Synaptics Incorporated

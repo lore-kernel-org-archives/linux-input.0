@@ -1,25 +1,22 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH 3/3] Input: synaptics-rmi4 - report sensor resolution
-Date: Tue, 18 Mar 2014 18:03:51 -0700
-Message-ID: <1395191031-3144-3-git-send-email-cheiny@synaptics.com>
-References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
+Subject: [PATCH 1/3] Input: synaptics-rmi4 - add capabilities for touchpads
+Date: Tue, 18 Mar 2014 18:03:49 -0700
+Message-ID: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.131] ([192.147.44.131]:15920 "EHLO
+Received: from [192.147.44.131] ([192.147.44.131]:23255 "EHLO
 	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1758013AbaCSBE0 (ORCPT
+	with ESMTP id S1758366AbaCSBE0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Tue, 18 Mar 2014 21:04:26 -0400
-In-Reply-To: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Reports the sensor resolution by reading the size of the sensor
-from F11 query registers or from the platform data if the firmware
-does not contain the appropriate query registers.
+When the device is a touchpad additional capabilities need to
+be set and reported.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 Acked-by: Christopher Heiny <cheiny@synaptics.com>
@@ -30,123 +27,58 @@ Cc: David Herrmann <dh.herrmann@gmail.com>
 Cc: Jiri Kosina <jkosina@suse.cz>
 
 ---
- drivers/input/rmi4/rmi_f11.c | 53 +++++++++++++++++++++++++++++++++++++++++++-
- include/linux/rmi.h          |  2 ++
- 2 files changed, 54 insertions(+), 1 deletion(-)
+ drivers/input/rmi4/rmi_f11.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index f5b8b71..f2a6f5f 100644
+index 8709abe..07044d79 100644
 --- a/drivers/input/rmi4/rmi_f11.c
 +++ b/drivers/input/rmi4/rmi_f11.c
-@@ -408,6 +408,10 @@ struct f11_2d_sensor_queries {
- 	u8 clickpad_props;
- 	u8 mouse_buttons;
- 	bool has_advanced_gestures;
+@@ -688,6 +688,9 @@ static void rmi_f11_abs_pos_report(struct f11_data *f11,
+ 	/* MT sync between fingers */
+ 	if (sensor->type_a)
+ 		input_mt_sync(sensor->input);
 +
-+	/* Query 15 - 18 */
-+	u16 x_sensor_size_mm;
-+	u16 y_sensor_size_mm;
- };
- 
- /* Defs for Ctrl0. */
-@@ -520,6 +524,8 @@ struct f11_2d_sensor {
- 	struct rmi_function *fn;
- 	char input_phys[NAME_BUFFER_SIZE];
- 	char input_phys_mouse[NAME_BUFFER_SIZE];
-+	u8 x_mm;
-+	u8 y_mm;
- 	u8 report_abs;
- 	u8 report_rel;
- };
-@@ -1098,6 +1104,20 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
- 		query_size++;
- 	}
- 
-+	if (f11->has_query12 && sensor_query->has_physical_props) {
-+		rc = rmi_read_block(rmi_dev, query_base_addr
-+			+ query_size, query_buf, ARRAY_SIZE(query_buf));
-+		if (rc < 0)
-+			return rc;
-+
-+		sensor_query->x_sensor_size_mm =
-+			(query_buf[0] | (query_buf[1] << 8)) / 10;
-+		sensor_query->y_sensor_size_mm =
-+			(query_buf[2] | (query_buf[3] << 8)) / 10;
-+
-+		query_size += 4;
-+	}
-+
- 	return query_size;
++	if (sensor->sensor_type == rmi_f11_sensor_touchpad)
++		input_mt_report_pointer_emulation(sensor->input, true);
  }
  
-@@ -1119,6 +1139,7 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
- 			((f11->dev_controls.ctrl0_9[9] & 0x0F) << 8);
- 	u16 x_min, x_max, y_min, y_max;
- 	unsigned int input_flags;
-+	int res_x, res_y;
+ static void rmi_f11_finger_handler(struct f11_data *f11,
+@@ -717,7 +720,7 @@ static void rmi_f11_finger_handler(struct f11_data *f11,
+ 		if (sensor->data.rel_pos)
+ 			rmi_f11_rel_pos_report(sensor, i);
+ 	}
+-	input_mt_sync(sensor->input);
++	input_report_key(sensor->input, BTN_TOUCH, finger_pressed_count);
+ 	input_sync(sensor->input);
+ }
  
- 	/* We assume touchscreen unless demonstrably a touchpad or specified
- 	 * as a touchpad in the platform data
-@@ -1175,6 +1196,18 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
- 			x_min, x_max, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y,
- 			y_min, y_max, 0, 0);
+@@ -1137,6 +1140,9 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+ 	dev_dbg(&fn->dev, "Set ranges X=[%d..%d] Y=[%d..%d].",
+ 			x_min, x_max, y_min, y_max);
+ 
++	input_set_abs_params(input, ABS_X, x_min, x_max, 0, 0);
++	input_set_abs_params(input, ABS_Y, y_min, y_max, 0, 0);
 +
-+	if (sensor->x_mm && sensor->y_mm) {
-+		res_x = (x_max - x_min) / sensor->x_mm;
-+		res_y = (y_max - y_min) / sensor->y_mm;
-+
-+		input_abs_set_res(input, ABS_X, res_x);
-+		input_abs_set_res(input, ABS_Y, res_y);
-+
-+		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
-+		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
+ 	input_set_abs_params(input, ABS_MT_PRESSURE, 0,
+ 			DEFAULT_MAX_ABS_MT_PRESSURE, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR,
+@@ -1374,6 +1380,15 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
+ 		set_bit(BTN_RIGHT, input_dev_mouse->keybit);
+ 	}
+ 
++	if (sensor->sensor_type == rmi_f11_sensor_touchpad) {
++		set_bit(BTN_TOOL_FINGER, input_dev->keybit);
++		set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
++		set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
++		set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
++		set_bit(BTN_TOOL_QUINTTAP, input_dev->keybit);
 +	}
 +
- 	if (!sensor->type_a)
- 		input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
- 	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) && sensor->sens_query.has_pen)
-@@ -1261,8 +1294,26 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 		sensor->axis_align =
- 			pdata->f11_sensor_data->axis_align;
- 		sensor->type_a = pdata->f11_sensor_data->type_a;
--		sensor->sensor_type =
 +
-+		if (sensor->sens_query.has_info2) {
-+			if (sensor->sens_query.is_clear)
-+				sensor->sensor_type =
-+					rmi_f11_sensor_touchscreen;
-+			else
-+				sensor->sensor_type = rmi_f11_sensor_touchpad;
-+		} else {
-+			sensor->sensor_type =
- 				pdata->f11_sensor_data->sensor_type;
-+		}
-+
-+		if (f11->has_query12
-+			&& sensor->sens_query.has_physical_props) {
-+			sensor->x_mm = sensor->sens_query.x_sensor_size_mm;
-+			sensor->y_mm = sensor->sens_query.y_sensor_size_mm;
-+		} else {
-+			sensor->x_mm = pdata->f11_sensor_data->x_mm;
-+			sensor->y_mm = pdata->f11_sensor_data->y_mm;
-+		}
+ 	return 0;
  
- 		if (sensor->sens_query.has_abs)
- 			sensor->report_abs = sensor->report_abs
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index a0d0187..9139873 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -96,6 +96,8 @@ struct rmi_f11_sensor_data {
- 	struct rmi_f11_2d_axis_alignment axis_align;
- 	bool type_a;
- 	enum rmi_f11_sensor_type sensor_type;
-+	int x_mm;
-+	int y_mm;
- 	int disable_report_mask;
- };
- 
+ error_unregister:
 -- 
 1.8.3.2
 

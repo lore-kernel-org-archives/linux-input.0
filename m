@@ -1,106 +1,94 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
-Subject: Re: [PATCHv4 2/5] Input: edt-ft5x06: Add DT support
-Date: Thu, 20 Mar 2014 12:40:55 +0100
-Message-ID: <20140320124055.53d469e7@ipc1.ka-ro>
-References: <1395234563-11034-1-git-send-email-LW@KARO-electronics.de>
-	<1395234563-11034-3-git-send-email-LW@KARO-electronics.de>
-	<20140320093719.GB14420@e106331-lin.cambridge.arm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20140320093719.GB14420@e106331-lin.cambridge.arm.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fugang Duan <B38611@freescale.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Henrik Rydberg <rydberg@euromail.se>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jingoo Han <jg1.han@samsung.com>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <Pawel.Moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Rob Landley <rob@landley.net>, Sachin Kamat <sachin.kamat@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Budig <simon.budig@kernelconcepts.de>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/2] input/serio: Add a firmware_id sysfs attribute
+Date: Thu, 20 Mar 2014 11:12:09 +0100
+Message-ID: <1395310330-3232-2-git-send-email-hdegoede@redhat.com>
+References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:63391 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756984AbaCTLoa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Mar 2014 07:44:30 -0400
+In-Reply-To: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi,
+serio devices exposed via platform firmware interfaces such as ACPI
+may provide additional identifying information of use to userspace.
 
-Mark Rutland wrote:
-> On Wed, Mar 19, 2014 at 01:09:20PM +0000, Lothar Wa=C3=9Fmann wrote:
-> >=20
-> > Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-> > ---
-> >  .../bindings/input/touchscreen/edt-ft5x06.txt      |   41 ++++++
-> >  drivers/input/touchscreen/edt-ft5x06.c             |  144 ++++++++=
-+++++++-----
-> >  2 files changed, 154 insertions(+), 31 deletions(-)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchsc=
-reen/edt-ft5x06.txt
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/ed=
-t-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-=
-ft5x06.txt
-> > new file mode 100644
-> > index 0000000..e5adc76
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x0=
-6.txt
-> > @@ -0,0 +1,41 @@
-> > +FocalTech EDT-FT5x06 Polytouch driver
-> > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > +
-> > +Required properties:
-> > + - compatible:  "edt,edt-ft5x06"
->=20
-> Is the 'x' part of a particular product name, or is this a class of
-> devices?
->=20
-The FT5x06 datasheet lists 3 variants for different panel sizes.
-I'll add distinct compatible strings for those chips, though their SW
-interface is (currently) identical:
-|Required properties:
-| - compatible:  "edt,edt-ft5206", "edt,edt-ft5x06"
-|           or:  "edt,edt-ft5306", "edt,edt-ft5x06"
-|           or:  "edt,edt-ft5406", "edt,edt-ft5x06"
+We don't associate the serio devices with the firmware device (we don't
+set it as parent), so there's no way for userspace to make use of this
+information.
 
+We cannot change the parent for serio devices instantiated though a firmware
+interface as that would break suspend / resume ordering.
 
-> > + - reg:         I2C slave address of the chip (0x38)
-> > + - interrupt-parent: a phandle pointing to the interrupt controlle=
-r
-> > +                     serving the interrupt for this chip
-> > + - interrupts:       interrupt specification for this chip
->=20
-> How many? What are they for?
->
-I'll change it to:=20
-| - interrupts:       interrupt specification for the touchdetect
-|                     interrupt
+Therefor this patch adds a new firmware_id sysfs attribute so that userspace
+can get a string from there with any additional identifying information the
+firmware interface may provide.
 
-> > + - report_rate: allows setting the report rate in the range from 3=
- to
-> > +                14.
->=20
-> However, why can the kernel not decide the report rate? This doesn't
-> sound like something that needs to vary per-board.
->=20
-> Also, s/_/-/ in property names, please.
->=20
-OK, I'll drop the property, which also simplyfies the code a bit.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/serio/serio.c | 12 ++++++++++++
+ include/linux/serio.h       |  1 +
+ 2 files changed, 13 insertions(+)
 
-> > +#define EDT_GET_PROP(name, reg) {					\
-> > +	const u32 *prop =3D of_get_property(np, #name, NULL);		\
-> > +	if (prop)							\
-> > +		edt_ft5x06_register_write(tsdata, reg, be32_to_cpu(*prop)); \
-> > +}
->=20
-> Use of_property_read_u32, it'll handle endianness conversion for you.
->=20
-> Use of of_get_property is almost always wrong.
->=20
-Sure.
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 8f4c4ab..1788a4d 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -451,6 +451,13 @@ static ssize_t serio_set_bind_mode(struct device *dev, struct device_attribute *
+ 	return retval;
+ }
+ 
++static ssize_t firmware_id_show(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct serio *serio = to_serio_port(dev);
++
++	return sprintf(buf, "%s\n", serio->firmware_id);
++}
++
+ static DEVICE_ATTR_RO(type);
+ static DEVICE_ATTR_RO(proto);
+ static DEVICE_ATTR_RO(id);
+@@ -473,12 +480,14 @@ static DEVICE_ATTR_RO(modalias);
+ static DEVICE_ATTR_WO(drvctl);
+ static DEVICE_ATTR(description, S_IRUGO, serio_show_description, NULL);
+ static DEVICE_ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode);
++static DEVICE_ATTR_RO(firmware_id);
+ 
+ static struct attribute *serio_device_attrs[] = {
+ 	&dev_attr_modalias.attr,
+ 	&dev_attr_description.attr,
+ 	&dev_attr_drvctl.attr,
+ 	&dev_attr_bind_mode.attr,
++	&dev_attr_firmware_id.attr,
+ 	NULL
+ };
+ 
+@@ -923,6 +932,9 @@ static int serio_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	SERIO_ADD_UEVENT_VAR("SERIO_EXTRA=%02x", serio->id.extra);
+ 	SERIO_ADD_UEVENT_VAR("MODALIAS=serio:ty%02Xpr%02Xid%02Xex%02X",
+ 				serio->id.type, serio->id.proto, serio->id.id, serio->id.extra);
++	if (serio->firmware_id[0])
++		SERIO_ADD_UEVENT_VAR("SERIO_FIRMWARE_ID=%s",
++				     serio->firmware_id);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index 36aac73..9f779c7 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -23,6 +23,7 @@ struct serio {
+ 
+ 	char name[32];
+ 	char phys[32];
++	char firmware_id[128];
+ 
+ 	bool manual_bind;
+ 
+-- 
+1.9.0
 
-
-Lothar Wa=C3=9Fmann
---=20
-___________________________________________________________
-
-Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
-
-www.karo-electronics.de | info@karo-electronics.de
-___________________________________________________________

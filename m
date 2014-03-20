@@ -1,50 +1,73 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: Re: [PATCH] Input: i8042-io - Exclude mips platforms when
- allocating/deallocating IO regions.
-Date: Thu, 20 Mar 2014 01:44:55 +0200
-Message-ID: <20140319234455.GB19187@drone.musicnaut.iki.fi>
-References: <1390676514-30880-1-git-send-email-raghu.gandham@imgtec.com>
- <20140126214952.GD18840@core.coreip.homeip.net>
- <E2EE47005FA75F44B80E1019FDD2EBBB6E38B06D@BADAG02.ba.imgtec.org>
- <20140127065638.GB11945@core.coreip.homeip.net>
- <20140127202435.GA589@drone.musicnaut.iki.fi>
- <E2EE47005FA75F44B80E1019FDD2EBBB6E394CB2@BADAG02.ba.imgtec.org>
- <20140319204931.GI17197@linux-mips.org>
+From: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCHv4 1/5] Input: edt-ft5x06: several cleanups; no
+ functional change
+Date: Thu, 20 Mar 2014 02:42:25 +0000
+Message-ID: <5f82f6ff3c38443f86f4a55c8d435712@BLUPR03MB373.namprd03.prod.outlook.com>
+References: <1395234563-11034-1-git-send-email-LW@KARO-electronics.de>
+ <1395234563-11034-2-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from filtteri1.pp.htv.fi ([213.243.153.184]:45664 "EHLO
-	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753964AbaCSXqV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2014 19:46:21 -0400
-Content-Disposition: inline
-In-Reply-To: <20140319204931.GI17197@linux-mips.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1395234563-11034-2-git-send-email-LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?utf-8?B?TG90aGFyIFdhw59tYW5u?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Simon Budig <simon.budig-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Raghu Gandham <Raghu.Gandham@imgtec.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-Hi,
-
-On Wed, Mar 19, 2014 at 09:49:31PM +0100, Ralf Baechle wrote:
-> I think the patch (http://patchwork.linux-mips.org/patch/6419/) should be
-> applied.  The argumentation for reserving ports in the platform code are
-> the same as on x86 - touch the registers and bad things may happen.  This
-> is because a fair number of older MIPS platforms were based on x86 chipsets
-> or at least are using very similar designs.
-
-If you drop the request_region() from the driver, it will try to probe
-anyway regardless what the platform code codes. So bad things could happen,
-no?
-
-Currently we can prevent i8042 driver from probing I/O space on PCI-less
-Octeons (for example), because we define empty I/O space so request_region()
-by driver will fail. So we can actually prevent bad things from happening.
-I would call this good design, not an accident.
-
-Maybe I'm missing something? Anyway, I don't have strong feelings whether
-this patch is applied or not. My computers will keep on working on either
-case.
-
-A.
+RnJvbTogTG90aGFyIFdhw59tYW5uIDxMV0BLQVJPLWVsZWN0cm9uaWNzLmRlPg0KRGF0YTogV2Vk
+bmVzZGF5LCBNYXJjaCAxOSwgMjAxNCA5OjA5IFBNDQoNCj5UbzogRG1pdHJ5IFRvcm9raG92OyBE
+dWFuIEZ1Z2FuZy1CMzg2MTE7IEdyYW50IExpa2VseTsgSGVucmlrIFJ5ZGJlcmc7IElhbg0KPkNh
+bXBiZWxsOyBKaW5nb28gSGFuOyBLdW1hciBHYWxhOyBNYXJrIFJ1dGxhbmQ7IFBhd2VsIE1vbGw7
+IFJvYiBIZXJyaW5nOyBSb2INCj5MYW5kbGV5OyBTYWNoaW4gS2FtYXQ7IGRldmljZXRyZWVAdmdl
+ci5rZXJuZWwub3JnOyBsaW51eC1kb2NAdmdlci5rZXJuZWwub3JnOw0KPmxpbnV4LWlucHV0QHZn
+ZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgU2ltb24gQnVkaWc7
+IExvdGhhcg0KPldhw59tYW5uDQo+U3ViamVjdDogW1BBVENIdjQgMS81XSBJbnB1dDogZWR0LWZ0
+NXgwNjogc2V2ZXJhbCBjbGVhbnVwczsgbm8gZnVuY3Rpb25hbA0KPmNoYW5nZQ0KPg0KPi0gcmVt
+b3ZlIHJlZHVuZGFudCBwYXJlbnMNCj4tIHJlbW92ZSByZWR1bmRhbnQgdHlwZSBjYXN0cw0KPi0g
+Zml4IG1peGVkIHRhYi9zcGFjZSBpbmRlbnRhdGlvbg0KPg0KPlNpZ25lZC1vZmYtYnk6IExvdGhh
+ciBXYcOfbWFubiA8TFdAS0FSTy1lbGVjdHJvbmljcy5kZT4NCj4tLS0NCj4gZHJpdmVycy9pbnB1
+dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMgfCAgIDEyICsrKysrKy0tLS0tLQ0KPiAxIGZpbGUg
+Y2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQ0KPg0KPmRpZmYgLS1naXQg
+YS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2VkdC1mdDV4MDYuYw0KPmIvZHJpdmVycy9pbnB1
+dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMNCj5pbmRleCA0MTJhODVlLi43YjQ0NzBkIDEwMDY0
+NA0KPi0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZWR0LWZ0NXgwNi5jDQo+KysrIGIv
+ZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMNCj5AQCAtMTczLDcgKzE3Myw3
+IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBlZHRfZnQ1eDA2X3RzX2lzcihpbnQgaXJxLCB2b2lkICpk
+ZXZfaWQpDQo+IAkJeCA9ICgoYnVmWzBdIDw8IDgpIHwgYnVmWzFdKSAmIDB4MGZmZjsNCj4gCQl5
+ID0gKChidWZbMl0gPDwgOCkgfCBidWZbM10pICYgMHgwZmZmOw0KPiAJCWlkID0gKGJ1ZlsyXSA+
+PiA0KSAmIDB4MGY7DQo+LQkJZG93biA9ICh0eXBlICE9IFRPVUNIX0VWRU5UX1VQKTsNCj4rCQlk
+b3duID0gdHlwZSAhPSBUT1VDSF9FVkVOVF9VUDsNCj4NCj4gCQlpbnB1dF9tdF9zbG90KHRzZGF0
+YS0+aW5wdXQsIGlkKTsNCj4gCQlpbnB1dF9tdF9yZXBvcnRfc2xvdF9zdGF0ZSh0c2RhdGEtPmlu
+cHV0LCBNVF9UT09MX0ZJTkdFUiwgZG93bik7DQo+QEAgLTI1Nyw3ICsyNTcsNyBAQCBzdGF0aWMg
+c3NpemVfdCBlZHRfZnQ1eDA2X3NldHRpbmdfc2hvdyhzdHJ1Y3QgZGV2aWNlICpkZXYsDQo+IAlz
+dHJ1Y3QgZWR0X2Z0NXgwNl90c19kYXRhICp0c2RhdGEgPSBpMmNfZ2V0X2NsaWVudGRhdGEoY2xp
+ZW50KTsNCj4gCXN0cnVjdCBlZHRfZnQ1eDA2X2F0dHJpYnV0ZSAqYXR0ciA9DQo+IAkJCWNvbnRh
+aW5lcl9vZihkYXR0ciwgc3RydWN0IGVkdF9mdDV4MDZfYXR0cmlidXRlLCBkYXR0cik7DQo+LQl1
+OCAqZmllbGQgPSAodTggKikoKGNoYXIgKil0c2RhdGEgKyBhdHRyLT5maWVsZF9vZmZzZXQpOw0K
+PisJdTggKmZpZWxkID0gKHU4ICopdHNkYXRhICsgYXR0ci0+ZmllbGRfb2Zmc2V0Ow0KPiAJaW50
+IHZhbDsNCj4gCXNpemVfdCBjb3VudCA9IDA7DQo+IAlpbnQgZXJyb3IgPSAwOw0KPkBAIC0yOTks
+NyArMjk5LDcgQEAgc3RhdGljIHNzaXplX3QgZWR0X2Z0NXgwNl9zZXR0aW5nX3N0b3JlKHN0cnVj
+dCBkZXZpY2UgKmRldiwNCj4gCXN0cnVjdCBlZHRfZnQ1eDA2X3RzX2RhdGEgKnRzZGF0YSA9IGky
+Y19nZXRfY2xpZW50ZGF0YShjbGllbnQpOw0KPiAJc3RydWN0IGVkdF9mdDV4MDZfYXR0cmlidXRl
+ICphdHRyID0NCj4gCQkJY29udGFpbmVyX29mKGRhdHRyLCBzdHJ1Y3QgZWR0X2Z0NXgwNl9hdHRy
+aWJ1dGUsIGRhdHRyKTsNCj4tCXU4ICpmaWVsZCA9ICh1OCAqKSgoY2hhciAqKXRzZGF0YSArIGF0
+dHItPmZpZWxkX29mZnNldCk7DQo+Kwl1OCAqZmllbGQgPSAodTggKil0c2RhdGEgKyBhdHRyLT5m
+aWVsZF9vZmZzZXQ7DQo+IAl1bnNpZ25lZCBpbnQgdmFsOw0KPiAJaW50IGVycm9yOw0KPg0KPkBA
+IC00NzksNyArNDc5LDcgQEAgc3RhdGljIGludCBlZHRfZnQ1eDA2X2RlYnVnZnNfbW9kZV9zZXQo
+dm9pZCAqZGF0YSwgdTY0IG1vZGUpDQo+DQo+IAlpZiAobW9kZSAhPSB0c2RhdGEtPmZhY3Rvcnlf
+bW9kZSkgew0KPiAJCXJldHZhbCA9IG1vZGUgPyBlZHRfZnQ1eDA2X2ZhY3RvcnlfbW9kZSh0c2Rh
+dGEpIDoNCj4tCQkJICAgICAgICBlZHRfZnQ1eDA2X3dvcmtfbW9kZSh0c2RhdGEpOw0KPisJCQkJ
+ZWR0X2Z0NXgwNl93b3JrX21vZGUodHNkYXRhKTsNCj4gCX0NCj4NCj4gCW11dGV4X3VubG9jaygm
+dHNkYXRhLT5tdXRleCk7DQo+QEAgLTg1Miw4ICs4NTIsOCBAQCBzdGF0aWMgU0lNUExFX0RFVl9Q
+TV9PUFMoZWR0X2Z0NXgwNl90c19wbV9vcHMsDQo+IAkJCSBlZHRfZnQ1eDA2X3RzX3N1c3BlbmQs
+IGVkdF9mdDV4MDZfdHNfcmVzdW1lKTsNCj4NCj4gc3RhdGljIGNvbnN0IHN0cnVjdCBpMmNfZGV2
+aWNlX2lkIGVkdF9mdDV4MDZfdHNfaWRbXSA9IHsNCj4tCXsgImVkdC1mdDV4MDYiLCAwIH0sDQo+
+LQl7IH0NCj4rCXsgImVkdC1mdDV4MDYiLCAwLCB9LA0KPisJeyAvKiBzZW50aW5lbCAqLyB9DQo+
+IH07DQo+IE1PRFVMRV9ERVZJQ0VfVEFCTEUoaTJjLCBlZHRfZnQ1eDA2X3RzX2lkKTsNCj4NCj4t
+LQ0KPjEuNy4xMC40DQo+DQo+DQoNCkFja2VkLWJ5OiBGdWdhbmcgRHVhbiA8QjM4NjExQGZyZWVz
+Y2FsZS5jb20+DQo=
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

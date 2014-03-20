@@ -1,114 +1,101 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCHv4 2/5] Input: edt-ft5x06: Add DT support
-Date: Thu, 20 Mar 2014 13:21:56 +0000
-Message-ID: <20140320132156.GD22115@e106331-lin.cambridge.arm.com>
+From: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCHv5 1/5] Input: edt-ft5x06: several cleanups; no functional change
+Date: Thu, 20 Mar 2014 14:44:31 +0100
+Message-ID: <1395323075-12146-2-git-send-email-LW@KARO-electronics.de>
 References: <1395234563-11034-1-git-send-email-LW@KARO-electronics.de>
- <1395234563-11034-3-git-send-email-LW@KARO-electronics.de>
- <20140320093719.GB14420@e106331-lin.cambridge.arm.com>
- <20140320124055.53d469e7@ipc1.ka-ro>
+ <1395323075-12146-1-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140320124055.53d469e7@ipc1.ka-ro>
+In-Reply-To: <1395323075-12146-1-git-send-email-LW@KARO-electronics.de>
 Sender: linux-doc-owner@vger.kernel.org
-To: Lothar =?utf-8?Q?Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fugang Duan <B38611@freescale.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Henrik Rydberg <rydberg@euromail.se>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jingoo Han <jg1.han@samsung.com>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <Pawel.Moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Rob Landley <rob@landley.net>, Sachin Kamat <sachin.kamat@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Budig <simon.budig@kernelconcepts.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fugang Duan <B38611@freescale.com>, Grant Likely <grant.likely@linaro.org>, Henrik Rydberg <rydberg@euromail.se>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jingoo Han <jg1.han@samsung.com>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Rob Landley <rob@landley.net>, Sachin Kamat <sachin.kamat@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Budig <simon.budig@kernelconcepts.de>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Daniel Wagener <daniel.wagener@kernelconcepts.de>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 20, 2014 at 11:40:55AM +0000, Lothar Wa=C3=9Fmann wrote:
-> Hi,
->=20
-> Mark Rutland wrote:
-> > On Wed, Mar 19, 2014 at 01:09:20PM +0000, Lothar Wa=C3=9Fmann wrote=
-:
-> > >=20
-> > > Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-> > > ---
-> > >  .../bindings/input/touchscreen/edt-ft5x06.txt      |   41 ++++++
-> > >  drivers/input/touchscreen/edt-ft5x06.c             |  144 ++++++=
-+++++++++-----
-> > >  2 files changed, 154 insertions(+), 31 deletions(-)
-> > >  create mode 100644 Documentation/devicetree/bindings/input/touch=
-screen/edt-ft5x06.txt
-> > >=20
-> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/=
-edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/ed=
-t-ft5x06.txt
-> > > new file mode 100644
-> > > index 0000000..e5adc76
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5=
-x06.txt
-> > > @@ -0,0 +1,41 @@
-> > > +FocalTech EDT-FT5x06 Polytouch driver
-> > > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > +
-> > > +Required properties:
-> > > + - compatible:  "edt,edt-ft5x06"
-> >=20
-> > Is the 'x' part of a particular product name, or is this a class of
-> > devices?
-> >=20
-> The FT5x06 datasheet lists 3 variants for different panel sizes.
-> I'll add distinct compatible strings for those chips, though their SW
-> interface is (currently) identical:
-> |Required properties:
-> | - compatible:  "edt,edt-ft5206", "edt,edt-ft5x06"
-> |           or:  "edt,edt-ft5306", "edt,edt-ft5x06"
-> |           or:  "edt,edt-ft5406", "edt,edt-ft5x06"
+- remove redundant parens
+- remove redundant type casts
+- fix mixed tab/space indentation
 
-Drop the "edt,edt-ft5x06" string. If they really appear to be identical
-from a programmer's perspective, choose a particular variant to be used
-as the fallback.
+Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+---
+ drivers/input/touchscreen/edt-ft5x06.c |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-There could be a future variant that would appear to match the x string
-yet was completely incompatible with the expected programming interface=
-=2E
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/tou=
+chscreen/edt-ft5x06.c
+index 412a85e..155ab3b 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -173,7 +173,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void =
+*dev_id)
+ 		x =3D ((buf[0] << 8) | buf[1]) & 0x0fff;
+ 		y =3D ((buf[2] << 8) | buf[3]) & 0x0fff;
+ 		id =3D (buf[2] >> 4) & 0x0f;
+-		down =3D (type !=3D TOUCH_EVENT_UP);
++		down =3D type !=3D TOUCH_EVENT_UP;
+=20
+ 		input_mt_slot(tsdata->input, id);
+ 		input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
+@@ -257,7 +257,7 @@ static ssize_t edt_ft5x06_setting_show(struct devic=
+e *dev,
+ 	struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
+ 	struct edt_ft5x06_attribute *attr =3D
+ 			container_of(dattr, struct edt_ft5x06_attribute, dattr);
+-	u8 *field =3D (u8 *)((char *)tsdata + attr->field_offset);
++	u8 *field =3D (u8 *)tsdata + attr->field_offset;
+ 	int val;
+ 	size_t count =3D 0;
+ 	int error =3D 0;
+@@ -299,7 +299,7 @@ static ssize_t edt_ft5x06_setting_store(struct devi=
+ce *dev,
+ 	struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
+ 	struct edt_ft5x06_attribute *attr =3D
+ 			container_of(dattr, struct edt_ft5x06_attribute, dattr);
+-	u8 *field =3D (u8 *)((char *)tsdata + attr->field_offset);
++	u8 *field =3D (u8 *)tsdata + attr->field_offset;
+ 	unsigned int val;
+ 	int error;
+=20
+@@ -479,7 +479,7 @@ static int edt_ft5x06_debugfs_mode_set(void *data, =
+u64 mode)
+=20
+ 	if (mode !=3D tsdata->factory_mode) {
+ 		retval =3D mode ? edt_ft5x06_factory_mode(tsdata) :
+-			        edt_ft5x06_work_mode(tsdata);
++				edt_ft5x06_work_mode(tsdata);
+ 	}
+=20
+ 	mutex_unlock(&tsdata->mutex);
+@@ -568,7 +568,6 @@ out:
+ 	return error ?: read;
+ };
+=20
+-
+ static const struct file_operations debugfs_raw_data_fops =3D {
+ 	.open =3D simple_open,
+ 	.read =3D edt_ft5x06_debugfs_raw_data_read,
+@@ -614,8 +613,6 @@ edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts=
+_data *tsdata)
+=20
+ #endif /* CONFIG_DEBUGFS */
+=20
+-
+-
+ static int edt_ft5x06_ts_reset(struct i2c_client *client,
+ 					 int reset_pin)
+ {
+@@ -852,8 +849,8 @@ static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
+ 			 edt_ft5x06_ts_suspend, edt_ft5x06_ts_resume);
+=20
+ static const struct i2c_device_id edt_ft5x06_ts_id[] =3D {
+-	{ "edt-ft5x06", 0 },
+-	{ }
++	{ "edt-ft5x06", 0, },
++	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+=20
+--=20
+1.7.10.4
 
-> > > + - reg:         I2C slave address of the chip (0x38)
-> > > + - interrupt-parent: a phandle pointing to the interrupt control=
-ler
-> > > +                     serving the interrupt for this chip
-> > > + - interrupts:       interrupt specification for this chip
-> >=20
-> > How many? What are they for?
-> >
-> I'll change it to:=20
-> | - interrupts:       interrupt specification for the touchdetect
-> |                     interrupt
-
-That sounds fine to me.
-
-> > > + - report_rate: allows setting the report rate in the range from=
- 3 to
-> > > +                14.
-> >=20
-> > However, why can the kernel not decide the report rate? This doesn'=
-t
-> > sound like something that needs to vary per-board.
-> >=20
-> > Also, s/_/-/ in property names, please.
-> >=20
-> OK, I'll drop the property, which also simplyfies the code a bit.
-
-Sounds good to me.
-
->=20
-> > > +#define EDT_GET_PROP(name, reg) {					\
-> > > +	const u32 *prop =3D of_get_property(np, #name, NULL);		\
-> > > +	if (prop)							\
-> > > +		edt_ft5x06_register_write(tsdata, reg, be32_to_cpu(*prop)); \
-> > > +}
-> >=20
-> > Use of_property_read_u32, it'll handle endianness conversion for yo=
-u.
-> >=20
-> > Use of of_get_property is almost always wrong.
-> >=20
-> Sure.
-
-Cheers,
-Mark.

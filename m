@@ -1,94 +1,112 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/2] input/serio: Add a firmware_id sysfs attribute
-Date: Thu, 20 Mar 2014 11:12:09 +0100
-Message-ID: <1395310330-3232-2-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 2/2] input/serio/8042: Add firmware_id support
+Date: Thu, 20 Mar 2014 11:12:10 +0100
+Message-ID: <1395310330-3232-3-git-send-email-hdegoede@redhat.com>
 References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:63391 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756984AbaCTLoa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Mar 2014 07:44:30 -0400
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 In-Reply-To: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
-serio devices exposed via platform firmware interfaces such as ACPI
-may provide additional identifying information of use to userspace.
-
-We don't associate the serio devices with the firmware device (we don't
-set it as parent), so there's no way for userspace to make use of this
-information.
-
-We cannot change the parent for serio devices instantiated though a firmware
-interface as that would break suspend / resume ordering.
-
-Therefor this patch adds a new firmware_id sysfs attribute so that userspace
-can get a string from there with any additional identifying information the
-firmware interface may provide.
+Fill in the new serio firmware_id sysfs attribute for pnp instantiated
+8042 serio ports.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/serio/serio.c | 12 ++++++++++++
- include/linux/serio.h       |  1 +
- 2 files changed, 13 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h | 26 ++++++++++++++++++++++++++
+ drivers/input/serio/i8042.c           |  6 ++++++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 8f4c4ab..1788a4d 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -451,6 +451,13 @@ static ssize_t serio_set_bind_mode(struct device *dev, struct device_attribute *
- 	return retval;
- }
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 0ec9abb..3f9da83 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -704,6 +704,8 @@ static char i8042_pnp_aux_name[32];
  
-+static ssize_t firmware_id_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct serio *serio = to_serio_port(dev);
+ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
+ {
++	struct pnp_id *id = dev->id;
 +
-+	return sprintf(buf, "%s\n", serio->firmware_id);
-+}
+ 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
+ 		i8042_pnp_data_reg = pnp_port_start(dev,0);
+ 
+@@ -719,6 +721,17 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
+ 		strlcat(i8042_pnp_kbd_name, pnp_dev_name(dev), sizeof(i8042_pnp_kbd_name));
+ 	}
+ 
++	if (id) {
++		strlcpy(i8042_kbd_firmware_id, id->id,
++			sizeof(i8042_kbd_firmware_id));
++		for (id = id->next; id; id = id->next) {
++			strlcat(i8042_kbd_firmware_id, " ",
++				sizeof(i8042_kbd_firmware_id));
++			strlcat(i8042_kbd_firmware_id, id->id,
++				sizeof(i8042_kbd_firmware_id));
++		}
++	}
 +
- static DEVICE_ATTR_RO(type);
- static DEVICE_ATTR_RO(proto);
- static DEVICE_ATTR_RO(id);
-@@ -473,12 +480,14 @@ static DEVICE_ATTR_RO(modalias);
- static DEVICE_ATTR_WO(drvctl);
- static DEVICE_ATTR(description, S_IRUGO, serio_show_description, NULL);
- static DEVICE_ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode);
-+static DEVICE_ATTR_RO(firmware_id);
+ 	/* Keyboard ports are always supposed to be wakeup-enabled */
+ 	device_set_wakeup_enable(&dev->dev, true);
  
- static struct attribute *serio_device_attrs[] = {
- 	&dev_attr_modalias.attr,
- 	&dev_attr_description.attr,
- 	&dev_attr_drvctl.attr,
- 	&dev_attr_bind_mode.attr,
-+	&dev_attr_firmware_id.attr,
- 	NULL
- };
+@@ -728,6 +741,8 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
  
-@@ -923,6 +932,9 @@ static int serio_uevent(struct device *dev, struct kobj_uevent_env *env)
- 	SERIO_ADD_UEVENT_VAR("SERIO_EXTRA=%02x", serio->id.extra);
- 	SERIO_ADD_UEVENT_VAR("MODALIAS=serio:ty%02Xpr%02Xid%02Xex%02X",
- 				serio->id.type, serio->id.proto, serio->id.id, serio->id.extra);
-+	if (serio->firmware_id[0])
-+		SERIO_ADD_UEVENT_VAR("SERIO_FIRMWARE_ID=%s",
-+				     serio->firmware_id);
+ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
+ {
++	struct pnp_id *id = dev->id;
++
+ 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
+ 		i8042_pnp_data_reg = pnp_port_start(dev,0);
  
+@@ -743,6 +758,17 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
+ 		strlcat(i8042_pnp_aux_name, pnp_dev_name(dev), sizeof(i8042_pnp_aux_name));
+ 	}
+ 
++	if (id) {
++		strlcpy(i8042_aux_firmware_id, id->id,
++			sizeof(i8042_aux_firmware_id));
++		for (id = id->next; id; id = id->next) {
++			strlcat(i8042_aux_firmware_id, " ",
++				sizeof(i8042_aux_firmware_id));
++			strlcat(i8042_aux_firmware_id, id->id,
++				sizeof(i8042_aux_firmware_id));
++		}
++	}
++
+ 	i8042_pnp_aux_devices++;
  	return 0;
  }
-diff --git a/include/linux/serio.h b/include/linux/serio.h
-index 36aac73..9f779c7 100644
---- a/include/linux/serio.h
-+++ b/include/linux/serio.h
-@@ -23,6 +23,7 @@ struct serio {
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 020053f..3807c3e 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -87,6 +87,8 @@ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
+ #endif
  
- 	char name[32];
- 	char phys[32];
-+	char firmware_id[128];
+ static bool i8042_bypass_aux_irq_test;
++static char i8042_kbd_firmware_id[128];
++static char i8042_aux_firmware_id[128];
  
- 	bool manual_bind;
+ #include "i8042.h"
  
+@@ -1218,6 +1220,8 @@ static int __init i8042_create_kbd_port(void)
+ 	serio->dev.parent	= &i8042_platform_device->dev;
+ 	strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
+ 	strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
++	strlcpy(serio->firmware_id, i8042_kbd_firmware_id,
++		sizeof(serio->firmware_id));
+ 
+ 	port->serio = serio;
+ 	port->irq = I8042_KBD_IRQ;
+@@ -1244,6 +1248,8 @@ static int __init i8042_create_aux_port(int idx)
+ 	if (idx < 0) {
+ 		strlcpy(serio->name, "i8042 AUX port", sizeof(serio->name));
+ 		strlcpy(serio->phys, I8042_AUX_PHYS_DESC, sizeof(serio->phys));
++		strlcpy(serio->firmware_id, i8042_aux_firmware_id,
++			sizeof(serio->firmware_id));
+ 		serio->close = i8042_port_close;
+ 	} else {
+ 		snprintf(serio->name, sizeof(serio->name), "i8042 AUX%d port", idx);
 -- 
 1.9.0
-

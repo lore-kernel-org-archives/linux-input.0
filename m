@@ -1,112 +1,77 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/2] input/serio/8042: Add firmware_id support
-Date: Thu, 20 Mar 2014 11:12:10 +0100
-Message-ID: <1395310330-3232-3-git-send-email-hdegoede@redhat.com>
-References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+Subject: Re: [PATCHv4 2/5] Input: edt-ft5x06: Add DT support
+Date: Thu, 20 Mar 2014 12:44:18 +0100
+Message-ID: <20140320124418.55b79a3e@ipc1.ka-ro>
+References: <1395234563-11034-1-git-send-email-LW@KARO-electronics.de>
+	<1395234563-11034-3-git-send-email-LW@KARO-electronics.de>
+	<c9718f7215eb41439606b0107a8e2a02@BLUPR03MB373.namprd03.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <c9718f7215eb41439606b0107a8e2a02@BLUPR03MB373.namprd03.prod.outlook.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: "fugang.duan@freescale.com" <fugang.duan@freescale.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Henrik Rydberg <rydberg@euromail.se>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jingoo Han <jg1.han@samsung.com>, Kumar Gala <galak@codeaurora.org>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Rob Landley <rob@landley.net>, Sachin Kamat <sachin.kamat@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Budig <simon.budig@kernelconcepts.de>
 List-Id: linux-input@vger.kernel.org
 
-Fill in the new serio firmware_id sysfs attribute for pnp instantiated
-8042 serio ports.
+Hi,
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/serio/i8042-x86ia64io.h | 26 ++++++++++++++++++++++++++
- drivers/input/serio/i8042.c           |  6 ++++++
- 2 files changed, 32 insertions(+)
+fugang.duan@freescale.com wrote:
+> From: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+> Data: Wednesday, March 19, 2014 9:09 PM
+>=20
+> >To: Dmitry Torokhov; Duan Fugang-B38611; Grant Likely; Henrik Rydber=
+g; Ian
+> >Campbell; Jingoo Han; Kumar Gala; Mark Rutland; Pawel Moll; Rob Herr=
+ing; Rob
+> >Landley; Sachin Kamat; devicetree@vger.kernel.org; linux-doc@vger.ke=
+rnel.org;
+> >linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Simon Bud=
+ig; Lothar
+> >Wa=C3=9Fmann
+> >Subject: [PATCHv4 2/5] Input: edt-ft5x06: Add DT support
+> >
+> >
+No need to quote the mail headers here.
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 0ec9abb..3f9da83 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -704,6 +704,8 @@ static char i8042_pnp_aux_name[32];
- 
- static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
- {
-+	struct pnp_id *id = dev->id;
-+
- 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
- 		i8042_pnp_data_reg = pnp_port_start(dev,0);
- 
-@@ -719,6 +721,17 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 		strlcat(i8042_pnp_kbd_name, pnp_dev_name(dev), sizeof(i8042_pnp_kbd_name));
- 	}
- 
-+	if (id) {
-+		strlcpy(i8042_kbd_firmware_id, id->id,
-+			sizeof(i8042_kbd_firmware_id));
-+		for (id = id->next; id; id = id->next) {
-+			strlcat(i8042_kbd_firmware_id, " ",
-+				sizeof(i8042_kbd_firmware_id));
-+			strlcat(i8042_kbd_firmware_id, id->id,
-+				sizeof(i8042_kbd_firmware_id));
-+		}
-+	}
-+
- 	/* Keyboard ports are always supposed to be wakeup-enabled */
- 	device_set_wakeup_enable(&dev->dev, true);
- 
-@@ -728,6 +741,8 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 
- static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
- {
-+	struct pnp_id *id = dev->id;
-+
- 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
- 		i8042_pnp_data_reg = pnp_port_start(dev,0);
- 
-@@ -743,6 +758,17 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 		strlcat(i8042_pnp_aux_name, pnp_dev_name(dev), sizeof(i8042_pnp_aux_name));
- 	}
- 
-+	if (id) {
-+		strlcpy(i8042_aux_firmware_id, id->id,
-+			sizeof(i8042_aux_firmware_id));
-+		for (id = id->next; id; id = id->next) {
-+			strlcat(i8042_aux_firmware_id, " ",
-+				sizeof(i8042_aux_firmware_id));
-+			strlcat(i8042_aux_firmware_id, id->id,
-+				sizeof(i8042_aux_firmware_id));
-+		}
-+	}
-+
- 	i8042_pnp_aux_devices++;
- 	return 0;
- }
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 020053f..3807c3e 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -87,6 +87,8 @@ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
- #endif
- 
- static bool i8042_bypass_aux_irq_test;
-+static char i8042_kbd_firmware_id[128];
-+static char i8042_aux_firmware_id[128];
- 
- #include "i8042.h"
- 
-@@ -1218,6 +1220,8 @@ static int __init i8042_create_kbd_port(void)
- 	serio->dev.parent	= &i8042_platform_device->dev;
- 	strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
- 	strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
-+	strlcpy(serio->firmware_id, i8042_kbd_firmware_id,
-+		sizeof(serio->firmware_id));
- 
- 	port->serio = serio;
- 	port->irq = I8042_KBD_IRQ;
-@@ -1244,6 +1248,8 @@ static int __init i8042_create_aux_port(int idx)
- 	if (idx < 0) {
- 		strlcpy(serio->name, "i8042 AUX port", sizeof(serio->name));
- 		strlcpy(serio->phys, I8042_AUX_PHYS_DESC, sizeof(serio->phys));
-+		strlcpy(serio->firmware_id, i8042_aux_firmware_id,
-+			sizeof(serio->firmware_id));
- 		serio->close = i8042_port_close;
- 	} else {
- 		snprintf(serio->name, sizeof(serio->name), "i8042 AUX%d port", idx);
--- 
-1.9.0
+[...]
+> >diff --git a/drivers/input/touchscreen/edt-ft5x06.c
+> >b/drivers/input/touchscreen/edt-ft5x06.c
+> >index 7b4470d..257a1c8 100644
+> >--- a/drivers/input/touchscreen/edt-ft5x06.c
+> >+++ b/drivers/input/touchscreen/edt-ft5x06.c
+> >@@ -33,6 +33,7 @@
+> > #include <linux/debugfs.h>
+> > #include <linux/slab.h>
+> > #include <linux/gpio.h>
+> >+#include <linux/of_gpio.h>
+> > #include <linux/input/mt.h>
+> > #include <linux/input/edt-ft5x06.h>
+> >
+> [...]
+> >+#ifdef CONFIG_OF
+> >+static int edt_ft5x06_i2c_ts_probe_dt(struct device *dev,
+> >+				struct edt_ft5x06_ts_data *tsdata)
+> >+{
+> >+	struct device_node *np =3D dev->of_node;
+> >+
+> >+	if (!np)
+> >+		return -ENODEV;
+> Don't need to check the device node valid. If the device node is not =
+existed, the driver don't run probe.
+>=20
+Perfectly right. I'll drop this in the next version.
+
+
+Lothar Wa=C3=9Fmann
+--=20
+___________________________________________________________
+
+Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
+Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
+Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
+Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
+
+www.karo-electronics.de | info@karo-electronics.de
+___________________________________________________________

@@ -1,78 +1,69 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Thu, 20 Mar 2014 11:12:08 +0100
-Message-ID: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:1695 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751271AbaCTMcM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Mar 2014 08:32:12 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCHv4 2/5] Input: edt-ft5x06: Add DT support
+Date: Thu, 20 Mar 2014 13:19:00 +0000
+Message-ID: <20140320131900.GC22115@e106331-lin.cambridge.arm.com>
+References: <1395234563-11034-1-git-send-email-LW@KARO-electronics.de>
+ <1395234563-11034-3-git-send-email-LW@KARO-electronics.de>
+ <20140320093719.GB14420@e106331-lin.cambridge.arm.com>
+ <532ACE72.6030807@kernelconcepts.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <532ACE72.6030807@kernelconcepts.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Simon Budig <simon.budig@kernelconcepts.de>
+Cc: Lothar =?utf-8?Q?Wa=C3=9Fmann?= <LW@karo-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fugang Duan <B38611@freescale.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Henrik Rydberg <rydberg@euromail.se>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Jingoo Han <jg1.han@samsung.com>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <Pawel.Moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Rob Landley <rob@landley.net>, Sachin Kamat <sachin.kamat@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi All,
+On Thu, Mar 20, 2014 at 11:18:10AM +0000, Simon Budig wrote:
+> On 20/03/14 10:37, Mark Rutland wrote:
+> > On Wed, Mar 19, 2014 at 01:09:20PM +0000, Lothar Wa=C3=9Fmann wrote=
+:
+> >> +FocalTech EDT-FT5x06 Polytouch driver
+> >> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >> +
+> >> +Required properties:
+> >> + - compatible:  "edt,edt-ft5x06"
+> >=20
+> > Is the 'x' part of a particular product name, or is this a class of
+> > devices?
+>=20
+> The driver is intended for the EDT "polytouch" family touches, which =
+are
+> based on a focaltec controller. The current line of touches uses e.g.
+> the ft5306 as well as the ft5406 focaltec controller.
 
-For firmware instantiated serio devices, such as devices instantiated
-through ACPI, it may be useful for userspace to know the firmware-id
-(pnp-id in case of ACPI) through which the device was instantiated.
+Ok. The name of the driver and the strings used in DT bindings don't
+have to be the same. The bindings strings should describe the hardware
+as accurately as possible.
 
-One concrete example of this is the new ps/2 touchpads found in Lenovo
-Thinkpad X240 T440 and T540 laptops, which not only have a special
-bottom right click area to emulate right clicks, but also top middle
-and top right areas to emulate middle and right clicks for the trackpoint.
+>=20
+> > It's preferable to have a specific string which another similar var=
+iants
+> > can claim compatibility with (while also additionally having a more
+> > specific string), as this makes it possible to handle variants more
+> > specially in future, target workarounds, etc.
+>=20
+> I chose the driver name since I wanted to differentiate from other ED=
+T
+> touches, which used a different controller. With hindsight it was
+> unfortunately confusing, since I get quite some request from people, =
+who
+> also have a device based on the focaltec controllers, but with a very
+> different firmware (and communication protocol). They got tricked int=
+o
+> thinking that this driver would be suitable...
+>=20
+> If I were to chose the name again I'd probably pick "edt-polytouch" o=
+r
+> something like this. But I doubt that it is useful to change the name=
+ now.
 
-Lenove has given these touchpads a unique LENxxxx pnp-id and we would like
-to use this to automatically enable emulation of middle and right buttons
-in the top area of the clickpad.
+I'm not arguing to rename the driver. All I want are the compatible
+strings to be as specific as possible.
 
-Matthew Garret wrote a patch to set the parent of the serio port to the
-/sys/devices/pnp0/00:xx device so that we could get the necessary info that
-way, but Dmitry rightfully pointed out that that would break suspend/resume
-ordering, see:
-https://lkml.org/lkml/2014/2/23/63
-https://lkml.org/lkml/2014/3/7/428
-
-So while discussing this with Peter Hutterer I made the plan to add a
-/dev/devices/platform/i8042/serioX/firmware_parent symlink pointing to the
-relevant /sys/devices/pnp0/00:xx device, and add a little udev-helper + rules
-file to read this symlink and add an attribute to the udevdb with the
-pnp-id this way.
-
-This however is harder then it sounds, I spend a couple of hours on how
-to do this in a race free manner and I could not come up with one. The
-problem is that the sysfs_create_symlink call needs to be done after the
-device_add call, at which point an add uevent has already been fired.
-Causing a theoretical race where the udev-helper would not find the symlink,
-this can be fixed with an extra change event after adding the symlink, but
-then any higher userspace levels need to re-check on a change event as well.
-So after spending too much time on this I decided to go for an alternative
-solution.
-
-Which in the end turns out to be much nicer too, since it gets rid of needing
-a udev-helper too. After this much too long introduction I'll let the patches
-speak for themselves.
-
-With this patch-set one can now do:
-
-[hans@shalem linux]$ udevadm info -p /devices/platform/i8042/serio1
-P: /devices/platform/i8042/serio1
-E: DEVPATH=/devices/platform/i8042/serio1
-E: MODALIAS=serio:ty01pr00id00ex00
-E: SERIO_EXTRA=00
-E: SERIO_FIRMWARE_ID=PNP0f03 PNP0f13
-E: SERIO_ID=00
-E: SERIO_PROTO=00
-E: SERIO_TYPE=01
-E: SUBSYSTEM=serio
-
-And the info we need is just there in the new SERIO_FIRMWARE_ID attribute,
-for completeness the patch-set also adds:
-
-[hans@shalem linux]$ cat /sys/devices/platform/i8042/serio1/firmware_id 
-PNP0f03 PNP0f13
-
-Regards,
-
-Hans
+Cheers,
+Mark.

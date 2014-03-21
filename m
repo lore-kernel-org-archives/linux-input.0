@@ -1,60 +1,73 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 2/3] Input: synaptics-rmi4 - ability disable abs or rel
- reporting
-Date: Fri, 21 Mar 2014 15:32:50 -0700
-Message-ID: <532CBE12.80702@synaptics.com>
-References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com> <1395191031-3144-2-git-send-email-cheiny@synaptics.com> <5329B17C.8080202@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Add quirk HID_QUIRK_NO_INIT_REPORTS for RNDPLUS touchscreen
+Date: Fri, 21 Mar 2014 19:46:39 -0400
+Message-ID: <CAN+gG=EqJF8wBQd3jJLPcObffZUEkgv=7=hh-sDCnn0t+JL4jg@mail.gmail.com>
+References: <1395430798-25606-1-git-send-email-miletus@chromium.org>
+	<CAN+gG=EKFCjT+Px+HuyrsPxQ5sivWMNL=SXeGGXEdN8qg2e6iw@mail.gmail.com>
+	<CAPDwgkNuiMmVXSznGAT2-cZ1rApHbSPyBewxGzLvSWt1mUdnAA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.131] ([192.147.44.131]:33574 "EHLO
-	us-mx2.synaptics.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1751289AbaCUWd0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Mar 2014 18:33:26 -0400
-In-Reply-To: <5329B17C.8080202@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAPDwgkNuiMmVXSznGAT2-cZ1rApHbSPyBewxGzLvSWt1mUdnAA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yufeng Shen <miletus@google.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On 03/19/2014 08:02 AM, Benjamin Tissoires wrote:
+On Fri, Mar 21, 2014 at 6:08 PM, Yufeng Shen <miletus@google.com> wrote:
 >
 >
-> On 03/18/2014 09:03 PM, Christopher Heiny wrote:
->> Even if the RMI4 touchscreen/touchpad provides reporting both
->> relative and absolute coordinates, reporting both to userspace
->> could be confusing. Allow the platform data to disable either
->> absolute or relative coordinates.
+> On Fri, Mar 21, 2014 at 4:58 PM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+>>
+>> On Fri, Mar 21, 2014 at 3:39 PM, Yufeng Shen <miletus@chromium.org> wrote:
+>> > There is timeout error during initialization:
+>> > kernel: [   14.167086] hid-multitouch 0003:2512:5003.0001:
+>> > usb_submit_urb(ctrl) failed: -1
+>> > kernel: [   14.167135] hid-multitouch 0003:2512:5003.0001: timeout
+>> > initializing reports
+>> > kernel: [   14.167407] input: RNDPLUS Co., LTD   PULSEIR TSR4601 as
+>> > /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.3/2-1.3:1.0/input/input14
+>> > kernel: [   14.167975] cpufreq_interactive: monitoring input on RNDPLUS
+>> > Co., LTD   PULSEIR TSR4601
+>> > kernel: [   14.168266] hid-multitouch 0003:2512:5003.0001:
+>> > input,hiddev0,hidraw1: USB HID v1.10 Mouse [RNDPLUS Co., LTD   PULSEIR
+>> > TSR4601] on usb-0000:00:1d.0-1.3/input0
+>> >
+>> > Adding quirk HID_QUIRK_NO_INIT_REPORTS can solve the problem.
+>>
+>> I already asked you to test if HID_QUIRK_NO_INIT_INPUT_REPORTS was
+>> working for the same same kind of timeout
+>> (https://patchwork.kernel.org/patch/3544281/).
 >
-> General comments on the patch:
-> Is there really a need to export the rel axis when there is already an
-> abs collection?
-> I mean, with the RMI4 over HID over I2C found on the XPS Haswell series,
-> RMI4 will be bound automatically, and the sensor may (will) pretend that
-> it can do both abs and rel. However, we are not using a platform_data
-> for them (I think we should not), and we will get the two collections.
 >
-> I would personally be in favor of having a priority mechanism: if abs is
-> here, skip rel, otherwise use rel. But I have no clue if you will ship
-> devices which will require both. So you make the call.
+> The reason I didn't test HID_QUIRK_NO_INIT_INPUT_REPORTS was that I am
+> mainly
+> working with kernel 3.8/3.10. And HID_QUIRK_NO_INIT_INPUT_REPORTS was not
+> present
+
+You should consider working with an upstream kernel when sending patches.
+
+> in the kernel source. Do you have the patch set that I can port to 3.8/3.10
+> kernel for testing ?
+
+git blames gives 595e9276ce68791317484ec7f0f9f2e0457c3b34, which is
+Linus' tree since 3.12.
+
+Cheers,
+Benjamin
+
 >
-
-Hi Benjamin,
-
-That's a great idea.  I'm a tad embarrassed we didn't think of that 
-approach.
-
-We do ship products with both abs and rel enabled.  We'll implement the 
-abs-priority approach, but also keep the platform data (or device tree, 
-once that's implemented) top optionally disable abs reporting, because 
-it's very handy to have during new system bring up and certain 
-prototyping use cases.
-
-As before, I'll let Andrew handle the code specific comments.
-
-					Cheers,
-						Chris
-
-[snip]
+>
+>>
+>>
+>> So I am asking again: please test HID_QUIRK_NO_INIT_INPUT_REPORTS and
+>> if it works, use this quirk instead the one in this patch.
+>> This *really* matters because the quirk HID_QUIRK_NO_INIT_REPORTS does
+>> not initialize feature reports which contains important information
+>> regarding hid-multitouch.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> >

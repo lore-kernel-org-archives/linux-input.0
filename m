@@ -1,241 +1,171 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: [PATCH] Input: Support in the elantech driver of the trackpoint
- present on for instance Lenovo L530
-Date: Thu, 20 Mar 2014 20:59:34 +0100
-Message-ID: <20140320195933.GA9043@lantern>
-References: <20140214205126.GB15526@lantern>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [RFC PATCH] HID: Stop hiding options with !EXPERT
+Date: Fri, 21 Mar 2014 09:46:36 +0100
+Message-ID: <20140321094636.66fc62f2@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:36367 "EHLO e2big.org"
+Received: from cantor2.suse.de ([195.135.220.15]:37343 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751271AbaCTT7o (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Mar 2014 15:59:44 -0400
-Content-Disposition: inline
-In-Reply-To: <20140214205126.GB15526@lantern>
+	id S1751620AbaCUIqi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Mar 2014 04:46:38 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+	by mx2.suse.de (Postfix) with ESMTP id C535775020
+	for <linux-input@vger.kernel.org>; Fri, 21 Mar 2014 08:46:37 +0000 (UTC)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-Hi Dmitry,
+Many HID driver options are hidden unless EXPERT is set. While I
+understand the idea of simplifying the kernel configuration for most
+users, in practice I believe it adds more confusion than it helps.
 
-Could you please have a look at this patch. It solves the bugzilla bug
-https://bugzilla.kernel.org/show_bug.cgi?id=48161
+One thing that worries me is that, in non-EXPERT mode, these drivers
+will be either built-in or modular based on apparent magic. For
+example, switching INPUT and HID from m to y will cause all these
+drivers to be built into the kernel when they were previously built
+as modules. Short of enabling EXPERT mode altogether, the user has no
+control over that.
 
-Thanks,
-Best regards,
-Ulrik De Bie
+Generally I do not think tristate options should depend on !EXPERT.
+Of these, 11 of 15 are currently in the hid subsystem.
 
-On Fri, Feb 14, 2014 at 09:51:26PM +0100, Ulrik De Bie wrote:
-> Date:	Fri, 14 Feb 2014 21:51:26 +0100
-> From: Ulrik De Bie <ulrik.debie-os@e2big.org>
-> To: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov
->  <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>,
->  Jonathan Aquilina <eagles051387@gmail.com>, Ulrik De Bie
->  <ulrik_opensource-kernel@yahoo.com>
-> Subject: [PATCH] Input: Support in the elantech driver of the trackpoint
->  present on for instance Lenovo L530
-> X-Mailing-List:	linux-input@vger.kernel.org
-> 
-> Sorry it took me some time to have an email addres that would allow clean
-> mails. Below you can find the updated patch previously sent on linux-input
-> mailinglist. David Herrman asked to resent this patch as a proper git patch so
-> here it is now. 
-> 
-> It also available on https://github.com/ulrikdb/linux.git elantech_trackpoint
-> from commit 38dbfb59d1175ef458d006556061adeaa8751b72 (Linus 3.14-rc1) up to 
-> d69e103a35c944721966105790d14adf79098a4c 
-> 
-> Please when responding please send either to linux-input or put Ulrik De Bie <ulrik.debie-os@e2big.org> in CC:, Thanks.
-> 
-> 
-> The Lenovo L530 trackpoint does not work out of the box. It gives sync errors
-> as shown below when the trackpoint or trackpoint mouse buttons are pressed and
-> no input is received by userspace:
-> [   29.010641] psmouse serio1: Touchpad at isa0060/serio1/input0 lost sync at byte 6
-> The touchpad does work.
-> 
-> The alternative is to do a downgrade to generic ps/2 mouse (modprobe psmouse proto=bare)
-> but this has the disadvantage that touchpad can't be disabled (I want trackpoint, not touchpad).
-> 
-> With this patch, the trackpoint is provided as another input device; currently called 'TPPS/2 IBM TrackPoint'
-> The trackpoint now succesfully works and I can disable the touchpad with synclient TouchPadOff=1
-> The patch will also output messages that do not follow the expected pattern.
-> In the mean time I've seen 2 unknown packets occasionally:
-> 0x04 , 0x00 , 0x00 , 0x00 , 0x00 , 0x00
-> 0x00 , 0x00 , 0x00 , 0x02 , 0x00 , 0x00
-> I don't know what those are for, but they can be safely ignored.
-> 
-> Currently all packets that are not known to v3 touchpad and where packet[3] (the fourth byte) lowest
-> nibble is 6 are now recognized as PACKET_TRACKPOINT and processed by the new elantech_report_trackpoint.
-> 
-> This has been verified to work on a laptop where the touchpad/trackpoint combined identify themselves as:
-> psmouse serio1: elantech: assuming hardware version 3 (with firmware version 0x350f02)
-> psmouse serio1: elantech: Synaptics capabilities query result 0xb9, 0x15, 0x0c.
-> 
-> Since I can't send clean email from yahoo, I've switched to a different email address: ulrik.debie-os@e2big.org
-> Signed-off-by: Ulrik De Bie <ulrik_opensource-kernel@yahoo.com>
-> Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
-> 
-> Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
-> ---
->  drivers/input/mouse/elantech.c | 78 +++++++++++++++++++++++++++++++++++++++++-
->  drivers/input/mouse/elantech.h |  3 ++
->  2 files changed, 80 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index ef1cf52..21d693b 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -402,6 +402,54 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
->  	input_sync(dev);
->  }
->  
-> +static void elantech_report_trackpoint(struct psmouse *psmouse,
-> +				       int packet_type)
-> +{
-> +	/* byte 0:  0   0 ~sx ~sy   0   M   R   L */
-> +	/* byte 1: sx   0   0   0   0   0   0   0 */
-> +	/* byte 2: sy   0   0   0   0   0   0   0 */
-> +	/* byte 3:  0   0  sy  sx   0   1   1   0 */
-> +	/* byte 4: x7  x6  x5  x4  x3  x2  x1  x0 */
-> +	/* byte 5: y7  y6  y5  y4  y3  y2  y1  y0 */
-> +
-> +	/*
-> +	 * x and y are written in two's complement spread
-> +	 * over 9 bits with sx/sy the relative top bit and
-> +	 * x7..x0 and y7..y0 the lower bits.
-> +	 * The sign of y is opposite to what the input driver
-> +	 * expects for a relative movement
-> +	 */
-> +
-> +	struct elantech_data *etd = psmouse->private;
-> +	struct input_dev *dev2 = etd->dev2;
-> +	unsigned char *packet = psmouse->packet;
-> +	int x, y;
-> +	input_report_key(dev2, BTN_LEFT, packet[0] & 0x01);
-> +	input_report_key(dev2, BTN_RIGHT, packet[0] & 0x02);
-> +	input_report_key(dev2, BTN_MIDDLE, packet[0] & 0x04);
-> +	x = (s32) ((u32) ((packet[1] & 0x80) ? 0UL : 0xFFFFFF00UL) | (u32)
-> +		   packet[4]);
-> +	y = -(s32) ((u32) ((packet[2] & 0x80) ? 0UL : 0xFFFFFF00UL) | (u32)
-> +		    packet[5]);
-> +	input_report_rel(dev2, REL_X, x);
-> +	input_report_rel(dev2, REL_Y, y);
-> +	switch ((((u32) packet[0] & 0xF8) << 24) | ((u32) packet[1] << 16)
-> +		| (u32) packet[2] << 8 | (u32) packet[3]) {
-> +	case 0x00808036UL:
-> +	case 0x10008026UL:
-> +	case 0x20800016UL:
-> +	case 0x30000006UL:
-> +		break;
-> +	default:
-> +		/* Dump unexpected packet sequences if debug=1 (default) */
-> +		if (etd->debug == 1)
-> +			elantech_packet_dump(psmouse);
-> +		break;
-> +	}
-> +
-> +	input_sync(dev2);
-> +}
-> +
->  /*
->   * Interpret complete data packets and report absolute mode input events for
->   * hardware version 3. (12 byte packets for two fingers)
-> @@ -700,8 +748,11 @@ static int elantech_packet_check_v3(struct psmouse *psmouse)
->  
->  		if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
->  			return PACKET_V3_TAIL;
-> +		if ((packet[3]&0x0f) == 0x06)
-> +			return PACKET_TRACKPOINT;
->  	}
->  
-> +
->  	return PACKET_UNKNOWN;
->  }
->  
-> @@ -783,7 +834,10 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
->  		if (packet_type == PACKET_UNKNOWN)
->  			return PSMOUSE_BAD_DATA;
->  
-> -		elantech_report_absolute_v3(psmouse, packet_type);
-> +		if (packet_type == PACKET_TRACKPOINT)
-> +			elantech_report_trackpoint(psmouse, packet_type);
-> +		else
-> +			elantech_report_absolute_v3(psmouse, packet_type);
->  		break;
->  
->  	case 4:
-> @@ -1400,10 +1454,15 @@ int elantech_init(struct psmouse *psmouse)
->  	struct elantech_data *etd;
->  	int i, error;
->  	unsigned char param[3];
-> +	struct input_dev *dev2;
->  
->  	psmouse->private = etd = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
->  	if (!etd)
->  		return -ENOMEM;
-> +	dev2 = input_allocate_device();
-> +	if (!dev2)
-> +		goto init_fail;
-> +	etd->dev2 = dev2;
->  
->  	psmouse_reset(psmouse);
->  
-> @@ -1463,9 +1522,26 @@ int elantech_init(struct psmouse *psmouse)
->  	psmouse->reconnect = elantech_reconnect;
->  	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
->  
-> +	snprintf(etd->phys, sizeof(etd->phys), "%s/input1",
-> +		psmouse->ps2dev.serio->phys);
-> +	dev2->phys = etd->phys;
-> +	dev2->name = "TPPS/2 IBM TrackPoint";
-> +	dev2->id.bustype = BUS_I8042;
-> +	dev2->id.vendor  = 0x0002;
-> +	dev2->id.product = PSMOUSE_ELANTECH;
-> +	dev2->id.version = 0x0000;
-> +	dev2->dev.parent = &psmouse->ps2dev.serio->dev;
-> +	dev2->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
-> +	dev2->relbit[BIT_WORD(REL_X)] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
-> +	dev2->keybit[BIT_WORD(BTN_LEFT)] =
-> +		BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
-> +
-> +	if (input_register_device(etd->dev2))
-> +		goto init_fail;
->  	return 0;
->  
->   init_fail:
-> +	input_free_device(dev2);
->  	kfree(etd);
->  	return -1;
->  }
-> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-> index 036a04a..27cf191 100644
-> --- a/drivers/input/mouse/elantech.h
-> +++ b/drivers/input/mouse/elantech.h
-> @@ -94,6 +94,7 @@
->  #define PACKET_V4_HEAD			0x05
->  #define PACKET_V4_MOTION		0x06
->  #define PACKET_V4_STATUS		0x07
-> +#define PACKET_TRACKPOINT		0x08
->  
->  /*
->   * track up to 5 fingers for v4 hardware
-> @@ -114,6 +115,8 @@ struct finger_pos {
->  };
->  
->  struct elantech_data {
-> +	struct input_dev *dev2;		/* Relative device */
-> +	char	phys[32];
->  	unsigned char reg_07;
->  	unsigned char reg_10;
->  	unsigned char reg_11;
-> -- 
-> 1.8.5.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The HID_LOGITECH option is even worse than the others. Sub-options
+depend on it, and this causes menuconfig and friends to display the
+option even though the user can't change its value. The help page for
+HID_LOGITECH will not explain why the value can't be changed. It only
+says, for example:
+
+  Depends on: INPUT [=y] && HID [=y]
+
+and that leaves the user puzzled about why the option is forced to y.
+You might argue that this is a Kconfig bug, but that doesn't make it
+less annoying for the user.
+
+Even worse is that some of the sub-options of HID_LOGITECH select
+INPUT_FF_MEMLESS, which in turn gets out of control for the user. So,
+if you set INPUT=y and HID=y (something most general purpose
+distributions would do these days, as both modules would get loaded on
+a vast majority of systems otherwise), and you want support for
+force-feedback game controllers, you can't have that as a module, it
+has to be built-in, regardless of how rare these devices are.
+
+Of course, all this madness goes away once EXPERT is enabled, but then
+the rest of the kernel configuration becomes more complex, which
+totally voids the original point.
+
+For this reason, I would like all HID device tristate options to be
+displayed regardless of EXPERT being set or not. We can let the
+default settings still depend on EXPERT, that's not intrusive.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/Kconfig |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+--- linux-3.14-rc7.orig/drivers/hid/Kconfig	2014-03-20 21:06:41.457316973 +0100
++++ linux-3.14-rc7/drivers/hid/Kconfig	2014-03-20 21:06:59.861752396 +0100
+@@ -91,7 +91,7 @@ menu "Special HID drivers"
+ 	depends on HID
+ 
+ config HID_A4TECH
+-	tristate "A4 tech mice" if EXPERT
++	tristate "A4 tech mice"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -112,7 +112,7 @@ config HID_ACRUX_FF
+ 	game controllers.
+ 
+ config HID_APPLE
+-	tristate "Apple {i,Power,Mac}Books" if EXPERT
++	tristate "Apple {i,Power,Mac}Books"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -140,21 +140,21 @@ config HID_AUREAL
+ 	Support for Aureal Cy se W-01RN Remote Controller and other Aureal derived remotes.
+ 
+ config HID_BELKIN
+-	tristate "Belkin Flip KVM and Wireless keyboard" if EXPERT
++	tristate "Belkin Flip KVM and Wireless keyboard"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+ 	Support for Belkin Flip KVM and Wireless keyboard.
+ 
+ config HID_CHERRY
+-	tristate "Cherry Cymotion keyboard" if EXPERT
++	tristate "Cherry Cymotion keyboard"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+ 	Support for Cherry Cymotion keyboard.
+ 
+ config HID_CHICONY
+-	tristate "Chicony Tactical pad" if EXPERT
++	tristate "Chicony Tactical pad"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -176,7 +176,7 @@ config HID_PRODIKEYS
+ 	  and some additional multimedia keys.
+ 
+ config HID_CYPRESS
+-	tristate "Cypress mouse and barcode readers" if EXPERT
++	tristate "Cypress mouse and barcode readers"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -225,7 +225,7 @@ config HID_ELO
+ 	different devices than those handled by CONFIG_TOUCHSCREEN_USB_ELO.
+ 
+ config HID_EZKEY
+-	tristate "Ezkey BTC 8193 keyboard" if EXPERT
++	tristate "Ezkey BTC 8193 keyboard"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -310,7 +310,7 @@ config HID_TWINHAN
+ 	Support for Twinhan IR remote control.
+ 
+ config HID_KENSINGTON
+-	tristate "Kensington Slimblade Trackball" if EXPERT
++	tristate "Kensington Slimblade Trackball"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -336,7 +336,7 @@ config HID_LENOVO_TPKBD
+ 	controlling the mute and microphone mute LEDs.
+ 
+ config HID_LOGITECH
+-	tristate "Logitech devices" if EXPERT
++	tristate "Logitech devices"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+@@ -413,14 +413,14 @@ config HID_MAGICMOUSE
+ 	Apple Wireless "Magic" Mouse and the Apple Wireless "Magic" Trackpad.
+ 
+ config HID_MICROSOFT
+-	tristate "Microsoft non-fully HID-compliant devices" if EXPERT
++	tristate "Microsoft non-fully HID-compliant devices"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+ 	Support for Microsoft devices that are not fully compliant with HID standard.
+ 
+ config HID_MONTEREY
+-	tristate "Monterey Genius KB29E keyboard" if EXPERT
++	tristate "Monterey Genius KB29E keyboard"
+ 	depends on HID
+ 	default !EXPERT
+ 	---help---
+
+
+-- 
+Jean Delvare
+SUSE L3 Support

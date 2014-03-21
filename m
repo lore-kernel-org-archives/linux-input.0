@@ -1,87 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add quirk HID_QUIRK_NO_INIT_REPORTS for RNDPLUS touchscreen
-Date: Fri, 21 Mar 2014 16:58:59 -0400
-Message-ID: <CAN+gG=EKFCjT+Px+HuyrsPxQ5sivWMNL=SXeGGXEdN8qg2e6iw@mail.gmail.com>
-References: <1395430798-25606-1-git-send-email-miletus@chromium.org>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH 1/3] Input: synaptics-rmi4 - add capabilities for touchpads
+Date: Fri, 21 Mar 2014 15:24:40 -0700
+Message-ID: <532CBC28.9000301@synaptics.com>
+References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com> <5329A9CE.1080504@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:64151 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750706AbaCUU7B (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:63566 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752462AbaCUWYl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Mar 2014 16:59:01 -0400
-In-Reply-To: <1395430798-25606-1-git-send-email-miletus@chromium.org>
+	Fri, 21 Mar 2014 18:24:41 -0400
+In-Reply-To: <5329A9CE.1080504@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Fri, Mar 21, 2014 at 3:39 PM, Yufeng Shen <miletus@chromium.org> wrote:
-> There is timeout error during initialization:
-> kernel: [   14.167086] hid-multitouch 0003:2512:5003.0001: usb_submit_urb(ctrl) failed: -1
-> kernel: [   14.167135] hid-multitouch 0003:2512:5003.0001: timeout initializing reports
-> kernel: [   14.167407] input: RNDPLUS Co., LTD   PULSEIR TSR4601 as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.3/2-1.3:1.0/input/input14
-> kernel: [   14.167975] cpufreq_interactive: monitoring input on RNDPLUS Co., LTD   PULSEIR TSR4601
-> kernel: [   14.168266] hid-multitouch 0003:2512:5003.0001: input,hiddev0,hidraw1: USB HID v1.10 Mouse [RNDPLUS Co., LTD   PULSEIR TSR4601] on usb-0000:00:1d.0-1.3/input0
+On 03/19/2014 07:29 AM, Benjamin Tissoires wrote:
+> Hi Chris,
 >
-> Adding quirk HID_QUIRK_NO_INIT_REPORTS can solve the problem.
+> On 03/18/2014 09:03 PM, Christopher Heiny wrote:
+>> When the device is a touchpad additional capabilities need to
+>> be set and reported.
+>>
+>
+> We have a problem here. While this patch would have been fine in the
+> pre-v3.8 era, it is not true anymore.
+> However, the current branch where synaptics-rmi4 is attached is v3.4.
+>
+> So if you use the right API (the current one), it will not compile :(
+>
+> Dmitry, would it be possible to update the branch to at least v3.8 to
+> get the new input-mt API? (if the Synaptics guys are ok).
 
-I already asked you to test if HID_QUIRK_NO_INIT_INPUT_REPORTS was
-working for the same same kind of timeout
-(https://patchwork.kernel.org/patch/3544281/).
+Hi Benjamin,
 
-So I am asking again: please test HID_QUIRK_NO_INIT_INPUT_REPORTS and
-if it works, use this quirk instead the one in this patch.
-This *really* matters because the quirk HID_QUIRK_NO_INIT_REPORTS does
-not initialize feature reports which contains important information
-regarding hid-multitouch.
-
-Cheers,
-Benjamin
+Yes, v3.8 migration is OK with us.  Touchpad related development is 
+already there, and we're in the process of migrating to v3.8 for the 
+touchscreen development work.
 
 >
-> Signed-off-by: Yufeng Shen <miletus@chromium.org>
-> ---
->  drivers/hid/hid-ids.h           | 5 +++++
->  drivers/hid/usbhid/hid-quirks.c | 3 +++
->  2 files changed, 8 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index f9304cb..772f937 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -442,6 +442,11 @@
->  #define USB_DEVICE_ID_IDEACOM_IDC6650  0x6650
->  #define USB_DEVICE_ID_IDEACOM_IDC6651  0x6651
->
-> +#define USB_VENDOR_ID_IDSPULSE          0x2512
-> +#define USB_DEVICE_ID_IDSPULSE_EVIR1    0x5003
-> +#define USB_DEVICE_ID_IDSPULSE_EVIR2    0x5004
-> +#define USB_DEVICE_ID_IDSPULSE_EVIR3    0x5005
-> +
->  #define USB_VENDOR_ID_ILITEK           0x222a
->  #define USB_DEVICE_ID_ILITEK_MULTITOUCH        0x0001
->
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 0db9a67..e59ad07 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -72,6 +72,9 @@ static const struct hid_blacklist {
->         { USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
->         { USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
-> +       { USB_VENDOR_ID_IDSPULSE, USB_DEVICE_ID_IDSPULSE_EVIR1, HID_QUIRK_NO_INIT_REPORTS },
-> +       { USB_VENDOR_ID_IDSPULSE, USB_DEVICE_ID_IDSPULSE_EVIR2, HID_QUIRK_NO_INIT_REPORTS },
-> +       { USB_VENDOR_ID_IDSPULSE, USB_DEVICE_ID_IDSPULSE_EVIR3, HID_QUIRK_NO_INIT_REPORTS },
->         { USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
->         { USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
->         { USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
-> --
-> 1.9.1.423.g4596e3a
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>> Acked-by: Christopher Heiny <cheiny@synaptics.com>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> Cc: Linux Walleij <linus.walleij@linaro.org>
+>> Cc: David Herrmann <dh.herrmann@gmail.com>
+>> Cc: Jiri Kosina <jkosina@suse.cz>
+
+[snip]
+
+Since Andrew is the most familiar with the code in this patchset, I've 
+asked him to reply to most of the direct code-related comments.
+
+					Cheers,
+						Chris

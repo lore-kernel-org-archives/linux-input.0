@@ -1,332 +1,133 @@
-From: Felix Rueegg <felix.rueegg@gmail.com>
-Subject: [PATCH] input: xpad - add queue for interrupt out transfers
-Date: Sat, 22 Mar 2014 10:15:23 +0100
-Message-ID: <1395479723-5730-1-git-send-email-felix.rueegg@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f41.google.com ([74.125.83.41]:59373 "EHLO
-	mail-ee0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750759AbaCVJXO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Mar 2014 05:23:14 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 00/15] iio: adc: at91 cleanups and atmel_tsadcc removal
+Date: Sat, 22 Mar 2014 12:31:06 +0000
+Message-ID: <532D828A.8000108@kernel.org>
+References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <5325EDAF.4060003@kernel.org> <53296F2B.3010406@atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <53296F2B.3010406@atmel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Nicolas Ferre <nicolas.ferre@atmel.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, ARM Maintainers <arm@kernel.org>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Gregory Clement <gregory.clement@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, magissia@magissia.com, jms.576@gmail.com, paul.gortmaker@windriver.com, petr@scssoft.com, thor27@gmail.com, Felix Rueegg <felix.rueegg@gmail.com>
 
-xpad_play_effect() directly calls usb_submit_urb() to send a force
-feedback command to the device. This causes the urb to fail with a
-warning (URB submitted while active) when xpad_play_effect() is called
-mutliple times in close succession. The issue also happens when a led
-command is sent at the same time as a force feedback command, since they
-use the same urb.
-
-This patch fixes the issue by adding a buffer to queue all interrupt out
-transfers (similar to the implementation in the iforce driver).
-
-Signed-off-by: Felix Rueegg <felix.rueegg@gmail.com>
----
- drivers/input/joystick/xpad.c | 212 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 158 insertions(+), 54 deletions(-)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 603fe0d..6147ad7 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -77,6 +77,7 @@
- #include <linux/slab.h>
- #include <linux/stat.h>
- #include <linux/module.h>
-+#include <linux/circ_buf.h>
- #include <linux/usb/input.h>
- 
- #define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
-@@ -97,6 +98,15 @@
- #define XTYPE_XBOX360W    2
- #define XTYPE_UNKNOWN     3
- 
-+/* queue for interrupt out transfers */
-+#define XMIT_SIZE         256
-+#define XMIT_INC(var, n)		\
-+	do {				\
-+		var += n;		\
-+		var &= XMIT_SIZE - 1;	\
-+	} while (0)
-+#define XPAD_XMIT_RUNNING 0
-+
- static bool dpad_to_buttons;
- module_param(dpad_to_buttons, bool, S_IRUGO);
- MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
-@@ -282,7 +292,11 @@ struct usb_xpad {
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	unsigned char *odata;		/* output data */
- 	dma_addr_t odata_dma;
--	struct mutex odata_mutex;
-+
-+	struct circ_buf xmit;		/* queue for interrupt out transfers */
-+	unsigned char xmit_data[XMIT_SIZE];
-+	unsigned long xmit_flags[1];
-+	spinlock_t xmit_lock;
- #endif
- 
- #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
-@@ -536,38 +550,133 @@ static void xpad_bulk_out(struct urb *urb)
- }
- 
- #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
-+void xpad_irq_xmit(struct usb_xpad *xpad)
-+{
-+	int length, c, err;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xpad->xmit_lock, flags);
-+
-+	if (xpad->xmit.head == xpad->xmit.tail) {
-+		clear_bit(XPAD_XMIT_RUNNING, xpad->xmit_flags);
-+		goto out_unlock;
-+	}
-+
-+	/* copy packet length */
-+	length = xpad->xmit.buf[xpad->xmit.tail];
-+	XMIT_INC(xpad->xmit.tail, 1);
-+
-+	xpad->irq_out->transfer_buffer_length = length;
-+
-+	/* copy packet data */
-+	c = CIRC_CNT_TO_END(xpad->xmit.head, xpad->xmit.tail, XMIT_SIZE);
-+	if (length < c)
-+		c = length;
-+
-+	memcpy(xpad->odata,
-+	       &xpad->xmit.buf[xpad->xmit.tail],
-+	       c);
-+	if (length != c) {
-+		memcpy(xpad->odata + c,
-+		       &xpad->xmit.buf[0],
-+		       length - c);
-+	}
-+	XMIT_INC(xpad->xmit.tail, length);
-+
-+	err = usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+	if (err < 0) {
-+		clear_bit(XPAD_XMIT_RUNNING, xpad->xmit_flags);
-+
-+		/* -ENODEV: device disconnected */
-+		if (err == -ENODEV)
-+			goto out_unlock;
-+
-+		dev_warn(&xpad->intf->dev, "usb_submit_urb failed %d\n", err);
-+	}
-+	/*
-+	 * The XPAD_XMIT_RUNNING bit is not cleared here. That's intended.
-+	 * As long as the urb completion handler is not called, the transmiting
-+	 * is considered to be running
-+	 */
-+out_unlock:
-+	spin_unlock_irqrestore(&xpad->xmit_lock, flags);
-+}
-+
-+int xpad_send_packet(struct usb_xpad *xpad, u8 length, u8 *data)
-+{
-+	int head, tail, empty, c;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&xpad->xmit_lock, flags);
-+
-+	/* update head and tail of xmit buffer */
-+	head = xpad->xmit.head;
-+	tail = xpad->xmit.tail;
-+
-+	if (CIRC_SPACE(head, tail, XMIT_SIZE) < length + 1) {
-+		dev_warn(&xpad->dev->dev,
-+			 "not enough space in xmit buffer to send new packet\n");
-+		spin_unlock_irqrestore(&xpad->xmit_lock, flags);
-+		return -1;
-+	}
-+
-+	empty = head == tail;
-+	XMIT_INC(xpad->xmit.head, length + 1);
-+
-+	/* store packet length in xmit buffer */
-+	xpad->xmit.buf[head] = length;
-+	XMIT_INC(head, 1);
-+
-+	/* store packet data in xmit buffer */
-+	c = CIRC_SPACE_TO_END(head, tail, XMIT_SIZE);
-+	if (length < c)
-+		c = length;
-+
-+	memcpy(&xpad->xmit.buf[head],
-+	       data,
-+	       c);
-+	if (length != c) {
-+		memcpy(&xpad->xmit.buf[0],
-+		       data + c,
-+		       length - c);
-+	}
-+	XMIT_INC(head, length);
-+
-+	spin_unlock_irqrestore(&xpad->xmit_lock, flags);
-+
-+	/* if necessary, start the transmission */
-+	if (empty && !test_and_set_bit(XPAD_XMIT_RUNNING, xpad->xmit_flags))
-+		xpad_irq_xmit(xpad);
-+
-+	return 0;
-+}
-+
- static void xpad_irq_out(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
- 	struct device *dev = &xpad->intf->dev;
--	int retval, status;
-+	int status;
- 
- 	status = urb->status;
- 
- 	switch (status) {
- 	case 0:
- 		/* success */
-+		xpad_irq_xmit(xpad);
- 		return;
--
- 	case -ECONNRESET:
- 	case -ENOENT:
- 	case -ESHUTDOWN:
- 		/* this urb is terminated, clean up */
- 		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
- 			__func__, status);
--		return;
--
-+		break;
- 	default:
- 		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
- 			__func__, status);
--		goto exit;
- 	}
- 
--exit:
--	retval = usb_submit_urb(urb, GFP_ATOMIC);
--	if (retval)
--		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
--			__func__, retval);
-+	clear_bit(XPAD_XMIT_RUNNING, xpad->xmit_flags);
- }
- 
- static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
-@@ -585,7 +694,8 @@ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
- 		goto fail1;
- 	}
- 
--	mutex_init(&xpad->odata_mutex);
-+	spin_lock_init(&xpad->xmit_lock);
-+	xpad->xmit.buf = xpad->xmit_data;
- 
- 	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!xpad->irq_out) {
-@@ -631,6 +741,7 @@ static void xpad_stop_output(struct usb_xpad *xpad) {}
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
- {
- 	struct usb_xpad *xpad = input_get_drvdata(dev);
-+	u8 pdata[12];
- 
- 	if (effect->type == FF_RUMBLE) {
- 		__u16 strong = effect->u.rumble.strong_magnitude;
-@@ -639,45 +750,39 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
- 		switch (xpad->xtype) {
- 
- 		case XTYPE_XBOX:
--			xpad->odata[0] = 0x00;
--			xpad->odata[1] = 0x06;
--			xpad->odata[2] = 0x00;
--			xpad->odata[3] = strong / 256;	/* left actuator */
--			xpad->odata[4] = 0x00;
--			xpad->odata[5] = weak / 256;	/* right actuator */
--			xpad->irq_out->transfer_buffer_length = 6;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			pdata[0] = 0x00;
-+			pdata[1] = 0x06;
-+			pdata[2] = 0x00;
-+			pdata[3] = strong / 256;	/* left actuator */
-+			pdata[4] = 0x00;
-+			pdata[5] = weak / 256;		/* right actuator */
-+			return xpad_send_packet(xpad, 6, pdata);
- 
- 		case XTYPE_XBOX360:
--			xpad->odata[0] = 0x00;
--			xpad->odata[1] = 0x08;
--			xpad->odata[2] = 0x00;
--			xpad->odata[3] = strong / 256;  /* left actuator? */
--			xpad->odata[4] = weak / 256;	/* right actuator? */
--			xpad->odata[5] = 0x00;
--			xpad->odata[6] = 0x00;
--			xpad->odata[7] = 0x00;
--			xpad->irq_out->transfer_buffer_length = 8;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			pdata[0] = 0x00;
-+			pdata[1] = 0x08;
-+			pdata[2] = 0x00;
-+			pdata[3] = strong / 256;	/* left actuator? */
-+			pdata[4] = weak / 256;		/* right actuator? */
-+			pdata[5] = 0x00;
-+			pdata[6] = 0x00;
-+			pdata[7] = 0x00;
-+			return xpad_send_packet(xpad, 8, pdata);
- 
- 		case XTYPE_XBOX360W:
--			xpad->odata[0] = 0x00;
--			xpad->odata[1] = 0x01;
--			xpad->odata[2] = 0x0F;
--			xpad->odata[3] = 0xC0;
--			xpad->odata[4] = 0x00;
--			xpad->odata[5] = strong / 256;
--			xpad->odata[6] = weak / 256;
--			xpad->odata[7] = 0x00;
--			xpad->odata[8] = 0x00;
--			xpad->odata[9] = 0x00;
--			xpad->odata[10] = 0x00;
--			xpad->odata[11] = 0x00;
--			xpad->irq_out->transfer_buffer_length = 12;
--
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			pdata[0] = 0x00;
-+			pdata[1] = 0x01;
-+			pdata[2] = 0x0F;
-+			pdata[3] = 0xC0;
-+			pdata[4] = 0x00;
-+			pdata[5] = strong / 256;
-+			pdata[6] = weak / 256;
-+			pdata[7] = 0x00;
-+			pdata[8] = 0x00;
-+			pdata[9] = 0x00;
-+			pdata[10] = 0x00;
-+			pdata[11] = 0x00;
-+			return xpad_send_packet(xpad, 12, pdata);
- 
- 		default:
- 			dev_dbg(&xpad->dev->dev,
-@@ -715,14 +820,13 @@ struct xpad_led {
- 
- static void xpad_send_led_command(struct usb_xpad *xpad, int command)
- {
-+	u8 pdata[3];
-+
- 	if (command >= 0 && command < 14) {
--		mutex_lock(&xpad->odata_mutex);
--		xpad->odata[0] = 0x01;
--		xpad->odata[1] = 0x03;
--		xpad->odata[2] = command;
--		xpad->irq_out->transfer_buffer_length = 3;
--		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
--		mutex_unlock(&xpad->odata_mutex);
-+		pdata[0] = 0x01;
-+		pdata[1] = 0x03;
-+		pdata[2] = command;
-+		xpad_send_packet(xpad, 3, pdata);
- 	}
- }
- 
--- 
-1.9.1
-
+On 19/03/14 10:19, Nicolas Ferre wrote:
+> On 16/03/2014 19:30, Jonathan Cameron :
+>> On 05/03/14 17:35, Alexandre Belloni wrote:
+>>> This patch set is a followup of my previous series: iio: adc: at91 fixes
+>>>
+>>> I'm sorry it is so long, I made sure this is bissectable.
+>> It's a nice series, don't apologise for doing things right!
+>>
+>> Clearly there are a few outstanding snippets from the reviews so far, but we
+>> are getting to the point where we need to agree on a path for this.  I'm
+>> happy to take the whole series through the IIO tree if Dmitry and the at91
+>> maintainers are happy with that.  If it is considered two invasive form the
+>> atmel side then I'm perfectly happy with someone to take it through the relevant
+>> platform tree instead.
+>
+> Jonathan, Dmitry,
+>
+> Considering the amount of AT91 files touched by this series, I would
+> like to take everything through Atmel's git tree and later on arm-soc.
+Sure. Just as a warning, there are one or two patches queued up already that this
+sits on top of.  Give a spot of bad timing these are too late to go in as fixes
+before the release. Might be worth waiting on those hitting Linus' tree sometime
+after rc1 before taking this series.
+>
+>
+>> I'm obviously not going to pick it up at all until it has a complete set
+>> of at91 maintainer acks though!
+>>
+>> Realistically it's missed the coming merge window anyway, so we have a fair
+>> bit of time.
+>
+> Yes, I will review Alexandre's v2 series.
+>
+> Thanks a lot for your review and for having thought about the path that
+> these patches would take.
+>
+> Bye,
+>
+>
+>> Jonathan
+>>>
+>>> 1-3) The first 3 patches are cleaning up the patform_data used for at91_adc.
+>>>
+>>> 4-5) Then touchscreen support for older ADCs is added, this allows to use that
+>>>        for the sam9m10g45ek.
+>>>
+>>> 6) Following those modifications, the mach/at91_adc.h is not used anywhere but
+>>>      in the at91_adc driver so it is remove and its content (register definitions)
+>>>      placed directly in the driver.
+>>>
+>>> 7-9) at91sam9rl support is added to at91_adc and is used for the at91sam9rl
+>>>        based boards.
+>>>
+>>> 10-11) Prepare the atmel_tsadcc removal by switching sam9rl and sam9g45 to use
+>>>          only at91_adc instead of atmel_tsadcc.
+>>>
+>>> 12-15) atmel_tsadcc removal
+>>>
+>>>
+>>> Alexandre Belloni (15):
+>>>     ARM: at91: sam9g45: remove unused platform_data
+>>>     ARM: at91: sam9260: remove unused platform_data
+>>>     iio: adc: at91: cleanup platform_data
+>>>     iio: adc: at91_adc: Add support for touchscreens without TSMR
+>>>     ARM: at91: sam9m10g45ek: Add touchscreen support through at91_adc
+>>>     iio: adc: at91: remove unused include from include/mach
+>>>     iio: adc: at91: add sam9rl support
+>>>     ARM: at91: sam9rl: add at91_adc to support adc and touchscreen
+>>>     ARM: at91: sam9rlek add touchscreen support through at91_adc
+>>>     ARM: at91: sam9g45: switch from atmel_tsadcc to at91_adc
+>>>     ARM: at91: sam9rl: switch from atmel_tsadcc to at91_adc
+>>>     ARM: at91: remove atmel_tsadcc platform_data
+>>>     ARM: at91: remove atmel_tsadcc from sama5_defconfig
+>>>     Input: atmel_tsadcc: remove driver
+>>>     ARM: at91/dt: at91-cosino_mega2560 remove useless tsadcc node
+>>>
+>>>    MAINTAINERS                                |   6 -
+>>>    arch/arm/boot/dts/at91-cosino_mega2560.dts |   5 -
+>>>    arch/arm/configs/at91sam9g45_defconfig     |   3 +-
+>>>    arch/arm/configs/at91sam9rl_defconfig      |   3 +-
+>>>    arch/arm/configs/sama5_defconfig           |   1 -
+>>>    arch/arm/mach-at91/at91sam9260_devices.c   |  10 -
+>>>    arch/arm/mach-at91/at91sam9g45.c           |   2 +-
+>>>    arch/arm/mach-at91/at91sam9g45_devices.c   |  63 +----
+>>>    arch/arm/mach-at91/at91sam9rl.c            |   7 +
+>>>    arch/arm/mach-at91/at91sam9rl_devices.c    |  83 +++++--
+>>>    arch/arm/mach-at91/board-sam9m10g45ek.c    |  16 +-
+>>>    arch/arm/mach-at91/board-sam9rlek.c        |  16 +-
+>>>    arch/arm/mach-at91/board.h                 |   3 -
+>>>    arch/arm/mach-at91/include/mach/at91_adc.h | 107 ---------
+>>>    drivers/iio/adc/at91_adc.c                 | 339 +++++++++++++++++++++++----
+>>>    drivers/input/touchscreen/Kconfig          |  12 -
+>>>    drivers/input/touchscreen/Makefile         |   1 -
+>>>    drivers/input/touchscreen/atmel_tsadcc.c   | 358 -----------------------------
+>>>    include/linux/platform_data/at91_adc.h     |  27 +--
+>>>    include/linux/platform_data/atmel.h        |   7 -
+>>>    20 files changed, 380 insertions(+), 689 deletions(-)
+>>>    delete mode 100644 arch/arm/mach-at91/include/mach/at91_adc.h
+>>>    delete mode 100644 drivers/input/touchscreen/atmel_tsadcc.c
+>>>
+>>
+>>
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>>
+>
+>

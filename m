@@ -1,59 +1,137 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 12/15] ARM: at91: remove atmel_tsadcc platform_data
-Date: Sat, 22 Mar 2014 12:39:16 +0000
-Message-ID: <532D8474.8020601@kernel.org>
-References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com> <1395064628-644-13-git-send-email-alexandre.belloni@free-electrons.com>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v2 2/8] mfd: AXP20x: Add bindings documentation
+Date: Sat, 22 Mar 2014 15:11:57 +0100
+Message-ID: <20140322141157.GA20668@localhost.fastwebnet.it>
+References: <1394898225-28452-1-git-send-email-carlo@caione.org>
+ <1394898225-28452-3-git-send-email-carlo@caione.org>
+ <20140318084505.GT27873@lukather>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1395064628-644-13-git-send-email-alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBV5TW2MQKGQE4MDPKZI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140318084505.GT27873@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 17/03/14 13:57, Alexandre Belloni wrote:
-> Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-See below.
-> ---
->   arch/arm/mach-at91/board.h          | 3 ---
->   include/linux/platform_data/atmel.h | 7 -------
->   2 files changed, 10 deletions(-)
->
-> diff --git a/arch/arm/mach-at91/board.h b/arch/arm/mach-at91/board.h
-> index 6c08b341167d..4e773b55bc2d 100644
-> --- a/arch/arm/mach-at91/board.h
-> +++ b/arch/arm/mach-at91/board.h
-> @@ -118,9 +118,6 @@ struct isi_platform_data;
->   extern void __init at91_add_device_isi(struct isi_platform_data *data,
->   		bool use_pck_as_mck);
->
-> - /* Touchscreen Controller */
-> -extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
-> -
->   /* CAN */
->   extern void __init at91_add_device_can(struct at91_can_data *data);
->
-> diff --git a/include/linux/platform_data/atmel.h b/include/linux/platform_data/atmel.h
-> index cea9f70133c5..4b452c6a2f7b 100644
-> --- a/include/linux/platform_data/atmel.h
-> +++ b/include/linux/platform_data/atmel.h
-> @@ -86,13 +86,6 @@ struct atmel_uart_data {
->   	struct serial_rs485	rs485;		/* rs485 settings */
->   };
->
-> - /* Touchscreen Controller */
-> -struct at91_tsadcc_data {
-> -	unsigned int    adc_clock;
-> -	u8		pendet_debounce;
-> -	u8		ts_sample_hold_time;
-> -};
-> -
-I believe this is still in use in the driver you don't remove until patch 14.
+On Tue, Mar 18, 2014 at 09:45:05AM +0100, Maxime Ripard wrote:
+> On Sat, Mar 15, 2014 at 04:43:39PM +0100, Carlo Caione wrote:
+> > Bindings documentation for the AXP20x driver. In this file also two
+> > sub-nodes (PEK and regulators) are documented.
+> 
+> PEK doesn't look to be documented, either in this patch, or any other.
 
-Probably best to reorder the patches...
->   /* CAN */
->   struct at91_can_data {
->   	void (*transceiver_switch)(int on);
->
+Residue from v1. To be deleted.
+
+> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> > ---
+> >  Documentation/devicetree/bindings/mfd/axp20x.txt   | 83 ++++++++++++++++++++++
+> >  .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+> 
+> I don't really know what the DT maintainers are expecting here, but I
+> would have done two patches.
+
+Uhm, no idea (and no feedback). I'll split it.
+
+> >  2 files changed, 84 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
+> > new file mode 100644
+> > index 0000000..982aefe
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
+> > @@ -0,0 +1,83 @@
+> > +* axp20x device tree bindings
+> > +
+> > +The axp20x family current members :-
+> > +axp202 (X-Powers)
+> > +axp209 (X-Powers)
+> > +
+> > +Required properties:
+> > +- compatible 			: Should be "x-powers,axp202" or "x-powers,axp209"
+> > +- interrupt-controller 		: axp20x has its own internal IRQs
+> > +- #interrupt-cells 		: Should be set to 1
+> > +- interrupt-parent 		: The parent interrupt controller
+> > +- interrupts 			: Interrupt specifiers for interrupt sources
+> > +- reg 				: The I2C slave address for the AXP chip
+> > +
+> > +Sub-nodes:
+> > +* regulators : Contain the regulator nodes. The regulators are bound using
+> > +	       their name as listed here: dcdc2, dcdc3, ldo1, ldo2, ldo3,
+> > +	       ldo4, ldo5.
+> > +	       The bindings details of individual regulator device can be found in:
+> > +	       Documentation/devicetree/bindings/regulator/regulator.txt with the
+> > +	       exception of:
+> > +
+> > +	- dcdc-freq		: defines the work frequency of DC-DC in KHz
+> > +				  (range: 750-1875). Default: 1.5MHz
+> > +	- dcdc-workmode		: Optional. 1 for PWM mode, 0 for AUTO mode
+> > +				  Default: AUTO mode
+> 
+> Those two are x-powers specific, or would it make sense to have them
+> in other drivers too?
+> 
+> If the former, please add the x-powers prefix.
+
+AFAIK this is AXP specific. I'll add the prefix.
+
+> > +
+> > +Example:
+> > +
+> > +axp: axp20x@34 {
+> > +	reg = <0x34>;
+> > +	interrupt-parent = <&nmi_intc>;
+> > +	interrupts = <0 8>;
+> > +
+> > +	compatible = "x-powers,axp209";
+> > +	interrupt-controller;
+> > +	#interrupt-cells = <1>;
+> > +
+> > +	regulators {
+> 
+> Do we really need that subnode ? it looks useless, and we already know
+> that we are defining regulators here.
+
+What do you mean? We are defining the MFD and regulators are just one of
+the subsystem here. Moveover I'm using the "regulators" node in the
+regulators driver (using of_find_node_by_name()) to get the regulators
+configuration.
+
+> > +		dcdc-freq = "1500";
+> 
+> That frequency is defined at the same level than the dcdc-workmode
+> property, yet they both seem to be placed at different levels.
+
+They are at different level. dcdc-freq is valid for all the dcdc,
+whereas dcdc-workmode is dcdc-specific.
+I'll clarify the point.
+
+> > +
+> > +		axp_dcdc2: dcdc2 {
+> > +			regulator-min-microvolt = <700000>;
+> > +			regulator-max-microvolt = <2275000>;
+> > +			dcdc-workmode = <0>;
+> > +			regulator-always-on;
+> > +		};
+> > +
+> > +		axp_dcdc3: dcdc3 {
+> > +			regulator-min-microvolt = <700000>;
+> > +			regulator-max-microvolt = <3500000>;
+> > +			dcdc-workmode = <0>;
+> 
+> It looks like those are at their default values?
+
+Yes. To be fixed.
+
+Thanks,
+
+-- 
+Carlo Caione

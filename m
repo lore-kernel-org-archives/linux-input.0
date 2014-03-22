@@ -1,169 +1,59 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v2 08/15] ARM: at91: sam9rl: add at91_adc to support adc
- and touchscreen
-Date: Sat, 22 Mar 2014 12:35:25 +0000
-Message-ID: <532D838D.9050603@kernel.org>
-References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com> <1395064628-644-9-git-send-email-alexandre.belloni@free-electrons.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 12/15] ARM: at91: remove atmel_tsadcc platform_data
+Date: Sat, 22 Mar 2014 12:39:16 +0000
+Message-ID: <532D8474.8020601@kernel.org>
+References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com> <1395064628-644-13-git-send-email-alexandre.belloni@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:53393 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751030AbaCVMeV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Mar 2014 08:34:21 -0400
-In-Reply-To: <1395064628-644-9-git-send-email-alexandre.belloni@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1395064628-644-13-git-send-email-alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Gregory Clement <gregory.clement@free-electrons.com>
 
 On 17/03/14 13:57, Alexandre Belloni wrote:
-> The ADC clock needs to be defined to enable the at91_adc driver. It is defined
-> to the same speed that is used for atmel_tsadcc.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Looks good to me, but out of my area of expertise so I won't ack it.
+> Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+See below.
 > ---
->   arch/arm/mach-at91/at91sam9rl.c         |  7 +++
->   arch/arm/mach-at91/at91sam9rl_devices.c | 85 +++++++++++++++++++++++++++++++++
->   2 files changed, 92 insertions(+)
+>   arch/arm/mach-at91/board.h          | 3 ---
+>   include/linux/platform_data/atmel.h | 7 -------
+>   2 files changed, 10 deletions(-)
 >
-> diff --git a/arch/arm/mach-at91/at91sam9rl.c b/arch/arm/mach-at91/at91sam9rl.c
-> index 3651517abedf..753ba4893836 100644
-> --- a/arch/arm/mach-at91/at91sam9rl.c
-> +++ b/arch/arm/mach-at91/at91sam9rl.c
-> @@ -151,6 +151,11 @@ static struct clk ac97_clk = {
->   	.pmc_mask	= 1 << AT91SAM9RL_ID_AC97C,
->   	.type		= CLK_TYPE_PERIPHERAL,
->   };
-> +static struct clk adc_op_clk = {
-> +	.name		= "adc_op_clk",
-> +	.type		= CLK_TYPE_PERIPHERAL,
-> +	.rate_hz	= 1000000,
-> +};
+> diff --git a/arch/arm/mach-at91/board.h b/arch/arm/mach-at91/board.h
+> index 6c08b341167d..4e773b55bc2d 100644
+> --- a/arch/arm/mach-at91/board.h
+> +++ b/arch/arm/mach-at91/board.h
+> @@ -118,9 +118,6 @@ struct isi_platform_data;
+>   extern void __init at91_add_device_isi(struct isi_platform_data *data,
+>   		bool use_pck_as_mck);
 >
->   static struct clk *periph_clocks[] __initdata = {
->   	&pioA_clk,
-> @@ -176,6 +181,7 @@ static struct clk *periph_clocks[] __initdata = {
->   	&udphs_clk,
->   	&lcdc_clk,
->   	&ac97_clk,
-> +	&adc_op_clk,
->   	// irq0
+> - /* Touchscreen Controller */
+> -extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
+> -
+>   /* CAN */
+>   extern void __init at91_add_device_can(struct at91_can_data *data);
+>
+> diff --git a/include/linux/platform_data/atmel.h b/include/linux/platform_data/atmel.h
+> index cea9f70133c5..4b452c6a2f7b 100644
+> --- a/include/linux/platform_data/atmel.h
+> +++ b/include/linux/platform_data/atmel.h
+> @@ -86,13 +86,6 @@ struct atmel_uart_data {
+>   	struct serial_rs485	rs485;		/* rs485 settings */
 >   };
 >
-> @@ -196,6 +202,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
->   	CLKDEV_CON_ID("pioB", &pioB_clk),
->   	CLKDEV_CON_ID("pioC", &pioC_clk),
->   	CLKDEV_CON_ID("pioD", &pioD_clk),
-> +	CLKDEV_CON_ID("adc_clk", &tsc_clk),
->   };
->
->   static struct clk_lookup usart_clocks_lookups[] = {
-> diff --git a/arch/arm/mach-at91/at91sam9rl_devices.c b/arch/arm/mach-at91/at91sam9rl_devices.c
-> index a698bdab2cce..b836dada942c 100644
-> --- a/arch/arm/mach-at91/at91sam9rl_devices.c
-> +++ b/arch/arm/mach-at91/at91sam9rl_devices.c
-> @@ -22,6 +22,7 @@
->   #include <mach/at91_matrix.h>
->   #include <mach/at91sam9_smc.h>
->   #include <linux/platform_data/dma-atmel.h>
-> +#include <linux/platform_data/at91_adc.h>
->
->   #include "board.h"
->   #include "generic.h"
-> @@ -656,6 +657,90 @@ void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data)
->   void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data) {}
->   #endif
->
-> +/* --------------------------------------------------------------------
-> + *  ADC and Touchscreen
-> + * -------------------------------------------------------------------- */
-> +
-> +#if IS_ENABLED(CONFIG_AT91_ADC)
-> +static struct at91_adc_data adc_data;
-> +
-> +static struct resource adc_resources[] = {
-> +	[0] = {
-> +		.start	= AT91SAM9RL_BASE_TSC,
-> +		.end	= AT91SAM9RL_BASE_TSC + SZ_16K - 1,
-> +		.flags	= IORESOURCE_MEM,
-> +	},
-> +	[1] = {
-> +		.start	= NR_IRQS_LEGACY + AT91SAM9RL_ID_TSC,
-> +		.end	= NR_IRQS_LEGACY + AT91SAM9RL_ID_TSC,
-> +		.flags	= IORESOURCE_IRQ,
-> +	}
-> +};
-> +
-> +static struct platform_device at91_adc_device = {
-> +	.name           = "at91sam9rl-adc",
-> +	.id             = -1,
-> +	.dev            = {
-> +		.platform_data  = &adc_data,
-> +	},
-> +	.resource       = adc_resources,
-> +	.num_resources  = ARRAY_SIZE(adc_resources),
-> +};
-> +
-> +static struct at91_adc_trigger at91_adc_triggers[] = {
-> +	[0] = {
-> +		.name = "external-rising",
-> +		.value = 1,
-> +		.is_external = true,
-> +	},
-> +	[1] = {
-> +		.name = "external-falling",
-> +		.value = 2,
-> +		.is_external = true,
-> +	},
-> +	[2] = {
-> +		.name = "external-any",
-> +		.value = 3,
-> +		.is_external = true,
-> +	},
-> +	[3] = {
-> +		.name = "continuous",
-> +		.value = 6,
-> +		.is_external = false,
-> +	},
-> +};
-> +
-> +void __init at91_add_device_adc(struct at91_adc_data *data)
-> +{
-> +	if (!data)
-> +		return;
-> +
-> +	if (test_bit(0, &data->channels_used))
-> +		at91_set_A_periph(AT91_PIN_PA17, 0);
-> +	if (test_bit(1, &data->channels_used))
-> +		at91_set_A_periph(AT91_PIN_PA18, 0);
-> +	if (test_bit(2, &data->channels_used))
-> +		at91_set_A_periph(AT91_PIN_PA19, 0);
-> +	if (test_bit(3, &data->channels_used))
-> +		at91_set_A_periph(AT91_PIN_PA20, 0);
-> +	if (test_bit(4, &data->channels_used))
-> +		at91_set_A_periph(AT91_PIN_PD6, 0);
-> +	if (test_bit(5, &data->channels_used))
-> +		at91_set_A_periph(AT91_PIN_PD7, 0);
-> +
-> +	if (data->use_external_triggers)
-> +		at91_set_A_periph(AT91_PIN_PB15, 0);
-> +
-> +	data->startup_time = 40;
-> +	data->trigger_number = 4;
-> +	data->trigger_list = at91_adc_triggers;
-> +
-> +	adc_data = *data;
-> +	platform_device_register(&at91_adc_device);
-> +}
-> +#else
-> +void __init at91_add_device_adc(struct at91_adc_data *data) {}
-> +#endif
->
->   /* --------------------------------------------------------------------
->    *  RTC
->
+> - /* Touchscreen Controller */
+> -struct at91_tsadcc_data {
+> -	unsigned int    adc_clock;
+> -	u8		pendet_debounce;
+> -	u8		ts_sample_hold_time;
+> -};
+> -
+I believe this is still in use in the driver you don't remove until patch 14.
 
+Probably best to reorder the patches...
+>   /* CAN */
+>   struct at91_can_data {
+>   	void (*transceiver_switch)(int on);
+>

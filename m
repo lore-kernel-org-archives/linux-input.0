@@ -1,73 +1,37 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add quirk HID_QUIRK_NO_INIT_REPORTS for RNDPLUS touchscreen
-Date: Fri, 21 Mar 2014 19:46:39 -0400
-Message-ID: <CAN+gG=EqJF8wBQd3jJLPcObffZUEkgv=7=hh-sDCnn0t+JL4jg@mail.gmail.com>
-References: <1395430798-25606-1-git-send-email-miletus@chromium.org>
-	<CAN+gG=EKFCjT+Px+HuyrsPxQ5sivWMNL=SXeGGXEdN8qg2e6iw@mail.gmail.com>
-	<CAPDwgkNuiMmVXSznGAT2-cZ1rApHbSPyBewxGzLvSWt1mUdnAA@mail.gmail.com>
+From: Robert Kraus <robert.bob.kraus@gmail.com>
+Subject: Elan touchscreen report (HP Pavilion 10-e010nr)
+Date: Fri, 21 Mar 2014 23:53:20 -0400
+Message-ID: <CAMsr0sLqRj+pi20GrncOYjNSxaMLwPZbi10HX8ATa97SNtn0Ww@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPDwgkNuiMmVXSznGAT2-cZ1rApHbSPyBewxGzLvSWt1mUdnAA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yufeng Shen <miletus@google.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ve0-f172.google.com ([209.85.128.172]:33774 "EHLO
+	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750742AbaCVDxV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Mar 2014 23:53:21 -0400
+Received: by mail-ve0-f172.google.com with SMTP id jx11so3456773veb.17
+        for <linux-input@vger.kernel.org>; Fri, 21 Mar 2014 20:53:20 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Fri, Mar 21, 2014 at 6:08 PM, Yufeng Shen <miletus@google.com> wrote:
->
->
-> On Fri, Mar 21, 2014 at 4:58 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->>
->> On Fri, Mar 21, 2014 at 3:39 PM, Yufeng Shen <miletus@chromium.org> wrote:
->> > There is timeout error during initialization:
->> > kernel: [   14.167086] hid-multitouch 0003:2512:5003.0001:
->> > usb_submit_urb(ctrl) failed: -1
->> > kernel: [   14.167135] hid-multitouch 0003:2512:5003.0001: timeout
->> > initializing reports
->> > kernel: [   14.167407] input: RNDPLUS Co., LTD   PULSEIR TSR4601 as
->> > /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.3/2-1.3:1.0/input/input14
->> > kernel: [   14.167975] cpufreq_interactive: monitoring input on RNDPLUS
->> > Co., LTD   PULSEIR TSR4601
->> > kernel: [   14.168266] hid-multitouch 0003:2512:5003.0001:
->> > input,hiddev0,hidraw1: USB HID v1.10 Mouse [RNDPLUS Co., LTD   PULSEIR
->> > TSR4601] on usb-0000:00:1d.0-1.3/input0
->> >
->> > Adding quirk HID_QUIRK_NO_INIT_REPORTS can solve the problem.
->>
->> I already asked you to test if HID_QUIRK_NO_INIT_INPUT_REPORTS was
->> working for the same same kind of timeout
->> (https://patchwork.kernel.org/patch/3544281/).
->
->
-> The reason I didn't test HID_QUIRK_NO_INIT_INPUT_REPORTS was that I am
-> mainly
-> working with kernel 3.8/3.10. And HID_QUIRK_NO_INIT_INPUT_REPORTS was not
-> present
+Hello,
 
-You should consider working with an upstream kernel when sending patches.
+I'm sending this to you as per the directions at
+https://wiki.archlinux.org/index.php/Multitouch_Displays
 
-> in the kernel source. Do you have the patch set that I can port to 3.8/3.10
-> kernel for testing ?
+Hardware: HP Pavilion 10-e010nr touchscreen laptop
+OS: xubuntu 12.04 LTS, kernel 3.2.0-60-generic
+Module: hid-multitouch, vendor class
+MT_CLS_GENERALTOUCH_PWT_TENFINGERS 0x0109 (decimal 265)
+lsusb output: (note, the device # kept incrementing due to mtp-probe
+thinking it's an MTP device)
+Bus 003 Device 119: ID 04f3:0268 Elan Microelectronics Corp.
 
-git blames gives 595e9276ce68791317484ec7f0f9f2e0457c3b34, which is
-Linus' tree since 3.12.
+It may already be known to you guys as the touchscreen worked without
+configuration in Steam OS, in which case feel free to trash this
+message.
 
-Cheers,
-Benjamin
-
->
->
->>
->>
->> So I am asking again: please test HID_QUIRK_NO_INIT_INPUT_REPORTS and
->> if it works, use this quirk instead the one in this patch.
->> This *really* matters because the quirk HID_QUIRK_NO_INIT_REPORTS does
->> not initialize feature reports which contains important information
->> regarding hid-multitouch.
->>
->> Cheers,
->> Benjamin
->>
->> >
+Regards,
+-Bob

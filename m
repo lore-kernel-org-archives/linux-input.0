@@ -1,35 +1,42 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 16/16] input: serio: hp_sdc: Use del_timer_sync() in exit path
-Date: Sun, 23 Mar 2014 15:09:33 -0000
-Message-ID: <20140323150754.381232240@linutronix.de>
-References: <20140323150557.288925975@linutronix.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline;
- filename=input-serio-hp_sdc-use-del_timer_sync.patch
-Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Julia Lawall <Julia.Lawall@lip6.fr>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, input <linux-input@vger.kernel.org>
+From: Monam Agarwal <monamagarwal123@gmail.com>
+Subject: [PATCH] drivers/input: Use RCU_INIT_POINTER(x, NULL) in evdev.c
+Date: Sun, 23 Mar 2014 23:56:17 +0530
+Message-ID: <1395599177-6776-1-git-send-email-monamagarwal123@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:47515 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977AbaCWS1Q (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Mar 2014 14:27:16 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Make sure that no callback is running before we teardown the module.
+This patch replaces rcu_assign_pointer(x, NULL) with RCU_INIT_POINTER(x, NULL)
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: input <linux-input@vger.kernel.org>
+The rcu_assign_pointer() ensures that the initialization of a structure       
+is carried out before storing a pointer to that structure. 
+And in the case of the NULL pointer, there is no structure to initialize. 
+So, rcu_assign_pointer(p, NULL) can be safely converted to RCU_INIT_POINTER(p, NULL)
+
+Signed-off-by: Monam Agarwal <monamagarwal123@gmail.com>
 ---
- drivers/input/serio/hp_sdc.c |    2 +-
+ drivers/input/evdev.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: tip/drivers/input/serio/hp_sdc.c
-===================================================================
---- tip.orig/drivers/input/serio/hp_sdc.c
-+++ tip/drivers/input/serio/hp_sdc.c
-@@ -984,7 +984,7 @@ static void hp_sdc_exit(void)
- 	free_irq(hp_sdc.irq, &hp_sdc);
- 	write_unlock_irq(&hp_sdc.lock);
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index a06e125..fffa107 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -291,7 +291,7 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+ 	if (grab != client)
+ 		return  -EINVAL;
  
--	del_timer(&hp_sdc.kicker);
-+	del_timer_sync(&hp_sdc.kicker);
+-	rcu_assign_pointer(evdev->grab, NULL);
++	RCU_INIT_POINTER(evdev->grab, NULL);
+ 	synchronize_rcu();
+ 	input_release_device(&evdev->handle);
  
- 	tasklet_kill(&hp_sdc.task);
- 
+-- 
+1.7.9.5
+

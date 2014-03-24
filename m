@@ -1,43 +1,56 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 1/5] drivers: input: keyboard: st-keyscan: add keyscan
- driver
-Date: Mon, 24 Mar 2014 13:36:42 +0000
-Message-ID: <20140324133642.GB21665@lee--X1>
-References: <1395154806-2810-1-git-send-email-gabriel.fernandez@st.com>
- <1395154806-2810-2-git-send-email-gabriel.fernandez@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1395154806-2810-2-git-send-email-gabriel.fernandez@st.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Giuseppe Condorelli <giuseppe.condorelli@st.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] input: cypress_ps2: Don't report the cypress PS/2 trackpads as a button pad
+Date: Mon, 24 Mar 2014 14:49:35 +0100
+Message-ID: <1395668975-10588-1-git-send-email-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:4625 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752882AbaCXNtk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2014 09:49:40 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Adam Williamson <awilliam@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-> This patch adds ST Keyscan driver to use the keypad hw a subset
-> of ST boards provide. Specific board setup will be put in the
-> given dt.
->=20
-> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
-> Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
-> ---
->  .../devicetree/bindings/input/st-keyscan.txt       |  60 +++++
->  drivers/input/keyboard/Kconfig                     |  12 +
->  drivers/input/keyboard/Makefile                    |   1 +
->  drivers/input/keyboard/st-keyscan.c                | 260 +++++++++++=
-++++++++++
->  4 files changed, 333 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/st-keysca=
-n.txt
->  create mode 100644 drivers/input/keyboard/st-keyscan.c
+The cypress PS/2 trackpad models supported by the cypress_ps2 driver emulate
+BTN_RIGHT events in firmware based on the finger position, as part of this
+no motion events are sent when the finger is in the button area.
 
-=46WIW: This looks good to me now:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+The INPUT_PROP_BUTTONPAD property is there to indicate to userspace that
+BTN_RIGHT events should be emulated in userspace, which is not necessary
+in this case.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+When INPUT_PROP_BUTTONPAD is advertised userspace will wait for a motion event
+before propagating the button event higher up the stack, as it needs current
+abs x + y data for its BTN_RIGHT emulation. Since in the cypress_ps2 pads
+don't report motion events in the button area, this means that clicks in the
+button area end up being ignored, so INPUT_PROP_BUTTONPAD actually causes
+problems for these touchpads, and removing it fixes:
+
+https://bugs.freedesktop.org/show_bug.cgi?id=76341
+
+Reported-by: Adam Williamson <awilliam@redhat.com>
+Tested-by: Adam Williamson <awilliam@redhat.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Adam Williamson <awilliam@redhat.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/cypress_ps2.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+index 87095e2..8af34ff 100644
+--- a/drivers/input/mouse/cypress_ps2.c
++++ b/drivers/input/mouse/cypress_ps2.c
+@@ -409,7 +409,6 @@ static int cypress_set_input_params(struct input_dev *input,
+ 	__clear_bit(REL_X, input->relbit);
+ 	__clear_bit(REL_Y, input->relbit);
+ 
+-	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 	__set_bit(EV_KEY, input->evbit);
+ 	__set_bit(BTN_LEFT, input->keybit);
+ 	__set_bit(BTN_RIGHT, input->keybit);
+-- 
+1.9.0
+

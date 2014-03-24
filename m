@@ -1,42 +1,53 @@
-From: Monam Agarwal <monamagarwal123@gmail.com>
-Subject: [PATCH] drivers/input: Use RCU_INIT_POINTER(x, NULL) in input.c
-Date: Sun, 23 Mar 2014 23:57:23 +0530
-Message-ID: <1395599243-6818-1-git-send-email-monamagarwal123@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 16/16] input: serio: hp_sdc: Use del_timer_sync() in exit
+ path
+Date: Sun, 23 Mar 2014 17:24:54 -0700
+Message-ID: <20140324002454.GA5581@core.coreip.homeip.net>
+References: <20140323150557.288925975@linutronix.de>
+ <20140323150754.381232240@linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:54908 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750942AbaCWS2X (ORCPT
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:54915 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750855AbaCXAY5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Mar 2014 14:28:23 -0400
+	Sun, 23 Mar 2014 20:24:57 -0400
+Content-Disposition: inline
+In-Reply-To: <20140323150754.381232240@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Julia Lawall <Julia.Lawall@lip6.fr>, Andrew Morton <akpm@linux-foundation.org>, input <linux-input@vger.kernel.org>
 
-This patch replaces rcu_assign_pointer(x, NULL) with RCU_INIT_POINTER(x, NULL)
+On Sun, Mar 23, 2014 at 03:09:33PM -0000, Thomas Gleixner wrote:
+> Make sure that no callback is running before we teardown the module.
+> 
 
-The rcu_assign_pointer() ensures that the initialization of a structure       
-is carried out before storing a pointer to that structure. 
-And in the case of the NULL pointer, there is no structure to initialize. 
-So, rcu_assign_pointer(p, NULL) can be safely converted to RCU_INIT_POINTER(p, NULL)
+Applied, thank you Thomas.
 
-Signed-off-by: Monam Agarwal <monamagarwal123@gmail.com>
----
- drivers/input/input.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: input <linux-input@vger.kernel.org>
+> ---
+>  drivers/input/serio/hp_sdc.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: tip/drivers/input/serio/hp_sdc.c
+> ===================================================================
+> --- tip.orig/drivers/input/serio/hp_sdc.c
+> +++ tip/drivers/input/serio/hp_sdc.c
+> @@ -984,7 +984,7 @@ static void hp_sdc_exit(void)
+>  	free_irq(hp_sdc.irq, &hp_sdc);
+>  	write_unlock_irq(&hp_sdc.lock);
+>  
+> -	del_timer(&hp_sdc.kicker);
+> +	del_timer_sync(&hp_sdc.kicker);
+>  
+>  	tasklet_kill(&hp_sdc.task);
+>  
+> 
+> 
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 1c4c0db..f9db5ea 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -539,7 +539,7 @@ static void __input_release_device(struct input_handle *handle)
- 	grabber = rcu_dereference_protected(dev->grab,
- 					    lockdep_is_held(&dev->mutex));
- 	if (grabber == handle) {
--		rcu_assign_pointer(dev->grab, NULL);
-+		RCU_INIT_POINTER(dev->grab, NULL);
- 		/* Make sure input_pass_event() notices that grab is gone */
- 		synchronize_rcu();
- 
 -- 
-1.7.9.5
-
+Dmitry

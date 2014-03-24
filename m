@@ -1,53 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 16/16] input: serio: hp_sdc: Use del_timer_sync() in exit
- path
-Date: Sun, 23 Mar 2014 17:24:54 -0700
-Message-ID: <20140324002454.GA5581@core.coreip.homeip.net>
-References: <20140323150557.288925975@linutronix.de>
- <20140323150754.381232240@linutronix.de>
+From: Peter Hutterer <peter.hutterer@redhat.com>
+Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
+Date: Mon, 24 Mar 2014 11:07:33 +1000
+Message-ID: <532F8555.5070701@redhat.com>
+References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com> <20140320172159.GA27400@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:54915 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750855AbaCXAY5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Mar 2014 20:24:57 -0400
-Content-Disposition: inline
-In-Reply-To: <20140323150754.381232240@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20140320172159.GA27400@srcf.ucam.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <btissoir@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Julia Lawall <Julia.Lawall@lip6.fr>, Andrew Morton <akpm@linux-foundation.org>, input <linux-input@vger.kernel.org>
 
-On Sun, Mar 23, 2014 at 03:09:33PM -0000, Thomas Gleixner wrote:
-> Make sure that no callback is running before we teardown the module.
-> 
+On 21/03/14 03:21, Matthew Garrett wrote:
+> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
+>
+>> Which in the end turns out to be much nicer too, since it gets rid of needing
+>> a udev-helper too. After this much too long introduction I'll let the patches
+>> speak for themselves.
+>
+> Yeah, I was coming to the conclusion that this was probably the best we
+> could do. It's unfortunate that "id" is already in use - we'd be able to
+> get away without any X server modifications otherwise.
 
-Applied, thank you Thomas.
+IMO we don't need to worry about that. this is needed for a set of 
+devices that need a kernel patch, several synaptics patches and a server 
+patch to work properly anyway, so changes are already required. Approach 
+looks good, ACK from me.
 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: input <linux-input@vger.kernel.org>
-> ---
->  drivers/input/serio/hp_sdc.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: tip/drivers/input/serio/hp_sdc.c
-> ===================================================================
-> --- tip.orig/drivers/input/serio/hp_sdc.c
-> +++ tip/drivers/input/serio/hp_sdc.c
-> @@ -984,7 +984,7 @@ static void hp_sdc_exit(void)
->  	free_irq(hp_sdc.irq, &hp_sdc);
->  	write_unlock_irq(&hp_sdc.lock);
->  
-> -	del_timer(&hp_sdc.kicker);
-> +	del_timer_sync(&hp_sdc.kicker);
->  
->  	tasklet_kill(&hp_sdc.task);
->  
-> 
-> 
+Cheers,
+   Peter
 
--- 
-Dmitry
+>
+> Long term we probably still want to tie serio devices to the ACPI
+> devices in case the vendor provides power management calls there, but we
+> can leave that until there's an actual example.
+>

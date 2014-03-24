@@ -1,74 +1,134 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH v2 1/8] mfd: AXP20x: Add mfd driver for
- AXP20x PMIC
-Date: Mon, 24 Mar 2014 08:34:31 +0000
-Message-ID: <20140324083431.GH8541@lee--X1>
-References: <1394898225-28452-1-git-send-email-carlo@caione.org>
- <1394898225-28452-2-git-send-email-carlo@caione.org>
- <20140318155919.GS25478@lee--X1>
- <20140322165132.GC20668@localhost.fastwebnet.it>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Subject: Re: [PATCH 00/15] iio: adc: at91 cleanups and atmel_tsadcc removal
+Date: Mon, 24 Mar 2014 10:00:25 +0100
+Message-ID: <532FF429.40201@atmel.com>
+References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com> <5325EDAF.4060003@kernel.org> <53296F2B.3010406@atmel.com> <532D828A.8000108@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBDA7X7F2WUEBBHG4X6MQKGQETP2PNNY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20140322165132.GC20668-bi+AKbBUZKZeIdyRz4JgOMwOAu8XWILU@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <532D828A.8000108@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, ARM Maintainers <arm@kernel.org>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Gregory Clement <gregory.clement@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-> > > +static struct mfd_cell axp20x_cells[] =3D {
-> > > +	{
-> > > +		.name		=3D "axp20x-pek",
-> > > +		.num_resources	=3D ARRAY_SIZE(axp20x_pek_resources),
-> > > +		.resources	=3D axp20x_pek_resources,
-> > > +	}, {
-> > > +		.name		=3D "axp20x-regulator",
-> > > +	},
-> > > +};
-> >=20
-> > nit: The format of these two structs are inconsistent.
->=20
-> Uhm, what do you mean?
+On 22/03/2014 13:31, Jonathan Cameron :
+> On 19/03/14 10:19, Nicolas Ferre wrote:
+>> On 16/03/2014 19:30, Jonathan Cameron :
+>>> On 05/03/14 17:35, Alexandre Belloni wrote:
+>>>> This patch set is a followup of my previous series: iio: adc: at91 fixes
+>>>>
+>>>> I'm sorry it is so long, I made sure this is bissectable.
+>>> It's a nice series, don't apologise for doing things right!
+>>>
+>>> Clearly there are a few outstanding snippets from the reviews so far, but we
+>>> are getting to the point where we need to agree on a path for this.  I'm
+>>> happy to take the whole series through the IIO tree if Dmitry and the at91
+>>> maintainers are happy with that.  If it is considered two invasive form the
+>>> atmel side then I'm perfectly happy with someone to take it through the relevant
+>>> platform tree instead.
+>>
+>> Jonathan, Dmitry,
+>>
+>> Considering the amount of AT91 files touched by this series, I would
+>> like to take everything through Atmel's git tree and later on arm-soc.
+> Sure. Just as a warning, there are one or two patches queued up already that this
+> sits on top of.  Give a spot of bad timing these are too late to go in as fixes
+> before the release. Might be worth waiting on those hitting Linus' tree sometime
+> after rc1 before taking this series.
 
-Well you've removed the struct above this one in your reply. Take a
-look at my reply to you and see the differences between this _two_
-structs, this being only one of them.
+Okay, advice well-noted.
 
-[...]
+Thanks Jonathan.
 
-> > > +static const struct i2c_device_id axp20x_i2c_id[] =3D {
-> > > +	{ "axp202", AXP202_ID },
-> > > +	{ "axp209", AXP209_ID },
-> > > +	{ }
-> > > +};
-> > > +MODULE_DEVICE_TABLE(i2c, axp20x_i2c_id);
-> >=20
-> > Isn't this redundant now that you're using of_id?
->=20
-> It is not. Even it is unused it has to be in the driver otherwise the
-> driver is not loaded. Probably it is something wrong in the I2C core.
+>>> I'm obviously not going to pick it up at all until it has a complete set
+>>> of at91 maintainer acks though!
+>>>
+>>> Realistically it's missed the coming merge window anyway, so we have a fair
+>>> bit of time.
+>>
+>> Yes, I will review Alexandre's v2 series.
+>>
+>> Thanks a lot for your review and for having thought about the path that
+>> these patches would take.
+>>
+>> Bye,
+>>
+>>
+>>> Jonathan
+>>>>
+>>>> 1-3) The first 3 patches are cleaning up the patform_data used for at91_adc.
+>>>>
+>>>> 4-5) Then touchscreen support for older ADCs is added, this allows to use that
+>>>>        for the sam9m10g45ek.
+>>>>
+>>>> 6) Following those modifications, the mach/at91_adc.h is not used anywhere but
+>>>>      in the at91_adc driver so it is remove and its content (register definitions)
+>>>>      placed directly in the driver.
+>>>>
+>>>> 7-9) at91sam9rl support is added to at91_adc and is used for the at91sam9rl
+>>>>        based boards.
+>>>>
+>>>> 10-11) Prepare the atmel_tsadcc removal by switching sam9rl and sam9g45 to use
+>>>>          only at91_adc instead of atmel_tsadcc.
+>>>>
+>>>> 12-15) atmel_tsadcc removal
+>>>>
+>>>>
+>>>> Alexandre Belloni (15):
+>>>>     ARM: at91: sam9g45: remove unused platform_data
+>>>>     ARM: at91: sam9260: remove unused platform_data
+>>>>     iio: adc: at91: cleanup platform_data
+>>>>     iio: adc: at91_adc: Add support for touchscreens without TSMR
+>>>>     ARM: at91: sam9m10g45ek: Add touchscreen support through at91_adc
+>>>>     iio: adc: at91: remove unused include from include/mach
+>>>>     iio: adc: at91: add sam9rl support
+>>>>     ARM: at91: sam9rl: add at91_adc to support adc and touchscreen
+>>>>     ARM: at91: sam9rlek add touchscreen support through at91_adc
+>>>>     ARM: at91: sam9g45: switch from atmel_tsadcc to at91_adc
+>>>>     ARM: at91: sam9rl: switch from atmel_tsadcc to at91_adc
+>>>>     ARM: at91: remove atmel_tsadcc platform_data
+>>>>     ARM: at91: remove atmel_tsadcc from sama5_defconfig
+>>>>     Input: atmel_tsadcc: remove driver
+>>>>     ARM: at91/dt: at91-cosino_mega2560 remove useless tsadcc node
+>>>>
+>>>>    MAINTAINERS                                |   6 -
+>>>>    arch/arm/boot/dts/at91-cosino_mega2560.dts |   5 -
+>>>>    arch/arm/configs/at91sam9g45_defconfig     |   3 +-
+>>>>    arch/arm/configs/at91sam9rl_defconfig      |   3 +-
+>>>>    arch/arm/configs/sama5_defconfig           |   1 -
+>>>>    arch/arm/mach-at91/at91sam9260_devices.c   |  10 -
+>>>>    arch/arm/mach-at91/at91sam9g45.c           |   2 +-
+>>>>    arch/arm/mach-at91/at91sam9g45_devices.c   |  63 +----
+>>>>    arch/arm/mach-at91/at91sam9rl.c            |   7 +
+>>>>    arch/arm/mach-at91/at91sam9rl_devices.c    |  83 +++++--
+>>>>    arch/arm/mach-at91/board-sam9m10g45ek.c    |  16 +-
+>>>>    arch/arm/mach-at91/board-sam9rlek.c        |  16 +-
+>>>>    arch/arm/mach-at91/board.h                 |   3 -
+>>>>    arch/arm/mach-at91/include/mach/at91_adc.h | 107 ---------
+>>>>    drivers/iio/adc/at91_adc.c                 | 339 +++++++++++++++++++++++----
+>>>>    drivers/input/touchscreen/Kconfig          |  12 -
+>>>>    drivers/input/touchscreen/Makefile         |   1 -
+>>>>    drivers/input/touchscreen/atmel_tsadcc.c   | 358 -----------------------------
+>>>>    include/linux/platform_data/at91_adc.h     |  27 +--
+>>>>    include/linux/platform_data/atmel.h        |   7 -
+>>>>    20 files changed, 380 insertions(+), 689 deletions(-)
+>>>>    delete mode 100644 arch/arm/mach-at91/include/mach/at91_adc.h
+>>>>    delete mode 100644 drivers/input/touchscreen/atmel_tsadcc.c
+>>>>
+>>>
+>>>
+>>> _______________________________________________
+>>> linux-arm-kernel mailing list
+>>> linux-arm-kernel@lists.infradead.org
+>>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>>>
+>>
+>>
+> 
+> 
 
-Sorry, I should have been more specific. The I2C core requires this
-struct, but the IDs are unused and redundant. Best remove them in
-order to mitigate any confusion.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
-
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+-- 
+Nicolas Ferre

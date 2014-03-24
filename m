@@ -1,68 +1,35 @@
-From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 12/15] ARM: at91: remove atmel_tsadcc platform_data
-Date: Mon, 24 Mar 2014 10:46:51 +0100
-Message-ID: <20140324094650.GB20484@piout.net>
-References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com>
- <1395064628-644-13-git-send-email-alexandre.belloni@free-electrons.com>
- <532D8474.8020601@kernel.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: uhid: Add UHID_CREATE2 + UHID_INPUT2
+Date: Mon, 24 Mar 2014 13:50:14 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1403241349320.17500@pobox.suse.cz>
+References: <20140319034501.4B61E10081C@puck.mtv.corp.google.com> <CANq1E4SKtB3+pQas9NVE93yVJAArc=LB1r2ojTgE=33YzRnDiw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <532D8474.8020601-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:59428 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753324AbaCXMuQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2014 08:50:16 -0400
+In-Reply-To: <CANq1E4SKtB3+pQas9NVE93yVJAArc=LB1r2ojTgE=33YzRnDiw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Petri Gynther <pgynther@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On 22/03/2014 at 12:39:16 +0000, Jonathan Cameron wrote :
-> On 17/03/14 13:57, Alexandre Belloni wrote:
-> >Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> See below.
-> >---
-> >  arch/arm/mach-at91/board.h          | 3 ---
-> >  include/linux/platform_data/atmel.h | 7 -------
-> >  2 files changed, 10 deletions(-)
-> >
-> >diff --git a/arch/arm/mach-at91/board.h b/arch/arm/mach-at91/board.h
-> >index 6c08b341167d..4e773b55bc2d 100644
-> >--- a/arch/arm/mach-at91/board.h
-> >+++ b/arch/arm/mach-at91/board.h
-> >@@ -118,9 +118,6 @@ struct isi_platform_data;
-> >  extern void __init at91_add_device_isi(struct isi_platform_data *data,
-> >  		bool use_pck_as_mck);
-> >
-> >- /* Touchscreen Controller */
-> >-extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
-> >-
-> >  /* CAN */
-> >  extern void __init at91_add_device_can(struct at91_can_data *data);
-> >
-> >diff --git a/include/linux/platform_data/atmel.h b/include/linux/platform_data/atmel.h
-> >index cea9f70133c5..4b452c6a2f7b 100644
-> >--- a/include/linux/platform_data/atmel.h
-> >+++ b/include/linux/platform_data/atmel.h
-> >@@ -86,13 +86,6 @@ struct atmel_uart_data {
-> >  	struct serial_rs485	rs485;		/* rs485 settings */
-> >  };
-> >
-> >- /* Touchscreen Controller */
-> >-struct at91_tsadcc_data {
-> >-	unsigned int    adc_clock;
-> >-	u8		pendet_debounce;
-> >-	u8		ts_sample_hold_time;
-> >-};
-> >-
-> I believe this is still in use in the driver you don't remove until patch 14.
+On Sun, 23 Mar 2014, David Herrmann wrote:
+
+[ ... snip ... ]
+> Patch looks fine. If you fix the minor issues, this is:
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 > 
-> Probably best to reorder the patches...
+> And please always put Jiri on CC for all HID patches: "Jiri Kosina
+> <jkosina@suse.cz>"
 
-Indeed, you are right.
+Indeed, that helps. Petri, could you please resend the patch proper to me 
+with David's 'Reviewed-by' tag included?
 
-Nicolas, do you take care of that or should I send a v3 ?
-
+Thanks,
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Jiri Kosina
+SUSE Labs

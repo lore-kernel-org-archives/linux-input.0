@@ -1,134 +1,68 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH 00/15] iio: adc: at91 cleanups and atmel_tsadcc removal
-Date: Mon, 24 Mar 2014 10:00:25 +0100
-Message-ID: <532FF429.40201@atmel.com>
-References: <1394040940-18246-1-git-send-email-alexandre.belloni@free-electrons.com> <5325EDAF.4060003@kernel.org> <53296F2B.3010406@atmel.com> <532D828A.8000108@kernel.org>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v2 12/15] ARM: at91: remove atmel_tsadcc platform_data
+Date: Mon, 24 Mar 2014 10:46:51 +0100
+Message-ID: <20140324094650.GB20484@piout.net>
+References: <1395064628-644-1-git-send-email-alexandre.belloni@free-electrons.com>
+ <1395064628-644-13-git-send-email-alexandre.belloni@free-electrons.com>
+ <532D8474.8020601@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <532D828A.8000108@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, ARM Maintainers <arm@kernel.org>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Gregory Clement <gregory.clement@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <532D8474.8020601-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 22/03/2014 13:31, Jonathan Cameron :
-> On 19/03/14 10:19, Nicolas Ferre wrote:
->> On 16/03/2014 19:30, Jonathan Cameron :
->>> On 05/03/14 17:35, Alexandre Belloni wrote:
->>>> This patch set is a followup of my previous series: iio: adc: at91 fixes
->>>>
->>>> I'm sorry it is so long, I made sure this is bissectable.
->>> It's a nice series, don't apologise for doing things right!
->>>
->>> Clearly there are a few outstanding snippets from the reviews so far, but we
->>> are getting to the point where we need to agree on a path for this.  I'm
->>> happy to take the whole series through the IIO tree if Dmitry and the at91
->>> maintainers are happy with that.  If it is considered two invasive form the
->>> atmel side then I'm perfectly happy with someone to take it through the relevant
->>> platform tree instead.
->>
->> Jonathan, Dmitry,
->>
->> Considering the amount of AT91 files touched by this series, I would
->> like to take everything through Atmel's git tree and later on arm-soc.
-> Sure. Just as a warning, there are one or two patches queued up already that this
-> sits on top of.  Give a spot of bad timing these are too late to go in as fixes
-> before the release. Might be worth waiting on those hitting Linus' tree sometime
-> after rc1 before taking this series.
-
-Okay, advice well-noted.
-
-Thanks Jonathan.
-
->>> I'm obviously not going to pick it up at all until it has a complete set
->>> of at91 maintainer acks though!
->>>
->>> Realistically it's missed the coming merge window anyway, so we have a fair
->>> bit of time.
->>
->> Yes, I will review Alexandre's v2 series.
->>
->> Thanks a lot for your review and for having thought about the path that
->> these patches would take.
->>
->> Bye,
->>
->>
->>> Jonathan
->>>>
->>>> 1-3) The first 3 patches are cleaning up the patform_data used for at91_adc.
->>>>
->>>> 4-5) Then touchscreen support for older ADCs is added, this allows to use that
->>>>        for the sam9m10g45ek.
->>>>
->>>> 6) Following those modifications, the mach/at91_adc.h is not used anywhere but
->>>>      in the at91_adc driver so it is remove and its content (register definitions)
->>>>      placed directly in the driver.
->>>>
->>>> 7-9) at91sam9rl support is added to at91_adc and is used for the at91sam9rl
->>>>        based boards.
->>>>
->>>> 10-11) Prepare the atmel_tsadcc removal by switching sam9rl and sam9g45 to use
->>>>          only at91_adc instead of atmel_tsadcc.
->>>>
->>>> 12-15) atmel_tsadcc removal
->>>>
->>>>
->>>> Alexandre Belloni (15):
->>>>     ARM: at91: sam9g45: remove unused platform_data
->>>>     ARM: at91: sam9260: remove unused platform_data
->>>>     iio: adc: at91: cleanup platform_data
->>>>     iio: adc: at91_adc: Add support for touchscreens without TSMR
->>>>     ARM: at91: sam9m10g45ek: Add touchscreen support through at91_adc
->>>>     iio: adc: at91: remove unused include from include/mach
->>>>     iio: adc: at91: add sam9rl support
->>>>     ARM: at91: sam9rl: add at91_adc to support adc and touchscreen
->>>>     ARM: at91: sam9rlek add touchscreen support through at91_adc
->>>>     ARM: at91: sam9g45: switch from atmel_tsadcc to at91_adc
->>>>     ARM: at91: sam9rl: switch from atmel_tsadcc to at91_adc
->>>>     ARM: at91: remove atmel_tsadcc platform_data
->>>>     ARM: at91: remove atmel_tsadcc from sama5_defconfig
->>>>     Input: atmel_tsadcc: remove driver
->>>>     ARM: at91/dt: at91-cosino_mega2560 remove useless tsadcc node
->>>>
->>>>    MAINTAINERS                                |   6 -
->>>>    arch/arm/boot/dts/at91-cosino_mega2560.dts |   5 -
->>>>    arch/arm/configs/at91sam9g45_defconfig     |   3 +-
->>>>    arch/arm/configs/at91sam9rl_defconfig      |   3 +-
->>>>    arch/arm/configs/sama5_defconfig           |   1 -
->>>>    arch/arm/mach-at91/at91sam9260_devices.c   |  10 -
->>>>    arch/arm/mach-at91/at91sam9g45.c           |   2 +-
->>>>    arch/arm/mach-at91/at91sam9g45_devices.c   |  63 +----
->>>>    arch/arm/mach-at91/at91sam9rl.c            |   7 +
->>>>    arch/arm/mach-at91/at91sam9rl_devices.c    |  83 +++++--
->>>>    arch/arm/mach-at91/board-sam9m10g45ek.c    |  16 +-
->>>>    arch/arm/mach-at91/board-sam9rlek.c        |  16 +-
->>>>    arch/arm/mach-at91/board.h                 |   3 -
->>>>    arch/arm/mach-at91/include/mach/at91_adc.h | 107 ---------
->>>>    drivers/iio/adc/at91_adc.c                 | 339 +++++++++++++++++++++++----
->>>>    drivers/input/touchscreen/Kconfig          |  12 -
->>>>    drivers/input/touchscreen/Makefile         |   1 -
->>>>    drivers/input/touchscreen/atmel_tsadcc.c   | 358 -----------------------------
->>>>    include/linux/platform_data/at91_adc.h     |  27 +--
->>>>    include/linux/platform_data/atmel.h        |   7 -
->>>>    20 files changed, 380 insertions(+), 689 deletions(-)
->>>>    delete mode 100644 arch/arm/mach-at91/include/mach/at91_adc.h
->>>>    delete mode 100644 drivers/input/touchscreen/atmel_tsadcc.c
->>>>
->>>
->>>
->>> _______________________________________________
->>> linux-arm-kernel mailing list
->>> linux-arm-kernel@lists.infradead.org
->>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->>>
->>
->>
+On 22/03/2014 at 12:39:16 +0000, Jonathan Cameron wrote :
+> On 17/03/14 13:57, Alexandre Belloni wrote:
+> >Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> See below.
+> >---
+> >  arch/arm/mach-at91/board.h          | 3 ---
+> >  include/linux/platform_data/atmel.h | 7 -------
+> >  2 files changed, 10 deletions(-)
+> >
+> >diff --git a/arch/arm/mach-at91/board.h b/arch/arm/mach-at91/board.h
+> >index 6c08b341167d..4e773b55bc2d 100644
+> >--- a/arch/arm/mach-at91/board.h
+> >+++ b/arch/arm/mach-at91/board.h
+> >@@ -118,9 +118,6 @@ struct isi_platform_data;
+> >  extern void __init at91_add_device_isi(struct isi_platform_data *data,
+> >  		bool use_pck_as_mck);
+> >
+> >- /* Touchscreen Controller */
+> >-extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
+> >-
+> >  /* CAN */
+> >  extern void __init at91_add_device_can(struct at91_can_data *data);
+> >
+> >diff --git a/include/linux/platform_data/atmel.h b/include/linux/platform_data/atmel.h
+> >index cea9f70133c5..4b452c6a2f7b 100644
+> >--- a/include/linux/platform_data/atmel.h
+> >+++ b/include/linux/platform_data/atmel.h
+> >@@ -86,13 +86,6 @@ struct atmel_uart_data {
+> >  	struct serial_rs485	rs485;		/* rs485 settings */
+> >  };
+> >
+> >- /* Touchscreen Controller */
+> >-struct at91_tsadcc_data {
+> >-	unsigned int    adc_clock;
+> >-	u8		pendet_debounce;
+> >-	u8		ts_sample_hold_time;
+> >-};
+> >-
+> I believe this is still in use in the driver you don't remove until patch 14.
 > 
-> 
+> Probably best to reorder the patches...
+
+Indeed, you are right.
+
+Nicolas, do you take care of that or should I send a v3 ?
 
 
 -- 
-Nicolas Ferre
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com

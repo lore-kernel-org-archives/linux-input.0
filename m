@@ -1,46 +1,60 @@
-From: =?UTF-8?B?RMOibmllbA==?= Fraga <fragabr@gmail.com>
-Subject: Regression: mouse pointer stuck in KDE with kernel 3.13 and above
-Date: Mon, 24 Mar 2014 23:28:50 -0300
-Message-ID: <lgqpkj$ie$1@ger.gmane.org>
+From: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Subject: Re: Elan touchscreen report (HP Pavilion 10-e010nr)
+Date: Tue, 25 Mar 2014 10:36:41 +0800
+Message-ID: <5330EBB9.2080507@emc.com.tw>
+References: <CAMsr0sLqRj+pi20GrncOYjNSxaMLwPZbi10HX8ATa97SNtn0Ww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:39950 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751141AbaCYC3A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Mar 2014 22:29:00 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1WSH6p-00080g-FS
-	for linux-input@vger.kernel.org; Tue, 25 Mar 2014 03:28:59 +0100
-Received: from 177.189.67.147 ([177.189.67.147])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Tue, 25 Mar 2014 03:28:59 +0100
-Received: from fragabr by 177.189.67.147 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Tue, 25 Mar 2014 03:28:59 +0100
+Received: from emcscan.emc.com.tw ([192.72.220.5]:45385 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751076AbaCYCsa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2014 22:48:30 -0400
+In-Reply-To: <CAMsr0sLqRj+pi20GrncOYjNSxaMLwPZbi10HX8ATa97SNtn0Ww@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Robert Kraus <robert.bob.kraus@gmail.com>, linux-input@vger.kernel.org
 
-	I'd like some help to debug this regression. After upgrading
-from kernel 3.12 to 3.13, my mouse gets stuck after entering in KDE (at
-console with gpm everything is fine).
+thanks Robert and I think that we're no longer need manual configuratio=
+n=20
+after Kernel > v3.4.
 
-	Bisect is worthless in this case, because this bug doesn't
-trigger everytime. USB is not the problem, since usbmon trace shows
-activity even with the mouse pointer stuck.
+Scott
 
-	What can I do do debug this? Any hints?
+=E6=96=BC 2014/3/22 =E4=B8=8A=E5=8D=88 11:53, Robert Kraus =E6=8F=90=E5=
+=88=B0:
+> Hello,
+>
+> I'm sending this to you as per the directions at
+> https://wiki.archlinux.org/index.php/Multitouch_Displays
+>
+> Hardware: HP Pavilion 10-e010nr touchscreen laptop
+> OS: xubuntu 12.04 LTS, kernel 3.2.0-60-generic
+> Module: hid-multitouch, vendor class
+> MT_CLS_GENERALTOUCH_PWT_TENFINGERS 0x0109 (decimal 265)
+> lsusb output: (note, the device # kept incrementing due to mtp-probe
+> thinking it's an MTP device)
+> Bus 003 Device 119: ID 04f3:0268 Elan Microelectronics Corp.
+>
+> It may already be known to you guys as the touchscreen worked without
+> configuration in Steam OS, in which case feel free to trash this
+> message.
+>
+> Regards,
+> -Bob
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
 
-	Thanks.
-
--- 
-Linux 3.12.14: Shuffling Zombie Juror
-http://www.youtube.com/DanielFragaBR
-http://mcxnow.com?r=danielfragabr
-Bitcoin: 12H6661yoLDUZaYPdah6urZS5WiXwTAUgL
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

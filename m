@@ -1,55 +1,46 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH] HID: hid-sensor-hub: fix sleeping function called from invalid context
-Date: Mon, 24 Mar 2014 16:25:04 -0700
-Message-ID: <1395703504-3945-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: =?UTF-8?B?RMOibmllbA==?= Fraga <fragabr@gmail.com>
+Subject: Regression: mouse pointer stuck in KDE with kernel 3.13 and above
+Date: Mon, 24 Mar 2014 23:28:50 -0300
+Message-ID: <lgqpkj$ie$1@ger.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:25498 "EHLO mga02.intel.com"
+Received: from plane.gmane.org ([80.91.229.3]:39950 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750972AbaCXXY3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Mar 2014 19:24:29 -0400
+	id S1751141AbaCYC3A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2014 22:29:00 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1WSH6p-00080g-FS
+	for linux-input@vger.kernel.org; Tue, 25 Mar 2014 03:28:59 +0100
+Received: from 177.189.67.147 ([177.189.67.147])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Tue, 25 Mar 2014 03:28:59 +0100
+Received: from fragabr by 177.189.67.147 with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Tue, 25 Mar 2014 03:28:59 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: linux-input@vger.kernel.org
 
-Fix issue with the sleeping calling hid_hw_request under spinlock.
-When i2c is used as HID transport, this is calling kmalloc, which
-can sleep. So remove call to this function while under spinlock.
- [ 1067.021961] Call Trace:
- [ 1067.021970]  [<ffffffff8192f5f2>] dump_stack+0x4d/0x6f
- [ 1067.021976]  [<ffffffff811109f2>] __might_sleep+0xd2/0xf0
- [ 1067.021981]  [<ffffffff811ea15b>] __kmalloc+0xeb/0x200
- [ 1067.021989]  [<ffffffff816e0cb3>] ? hid_alloc_report_buf+0x23/0x30
- [ 1067.021993]  [<ffffffff816e0cb3>] hid_alloc_report_buf+0x23/0x30
- [ 1067.021997]  [<ffffffff816f4cb7>] i2c_hid_request+0x57/0x110
- [ 1067.022006]  [<ffffffffa02bc61c>] sensor_hub_input_attr_get_raw_value+0xbc/0x100 [hid_sensor_hub]
+	I'd like some help to debug this regression. After upgrading
+from kernel 3.12 to 3.13, my mouse gets stuck after entering in KDE (at
+console with gpm everything is fine).
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+	Bisect is worthless in this case, because this bug doesn't
+trigger everytime. USB is not the problem, since usbmon trace shows
+activity even with the mouse pointer stuck.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 9c22e14..9021c9c 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -260,13 +260,12 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
- 
- 	spin_lock_irqsave(&data->lock, flags);
- 	data->pending.status = true;
-+	spin_unlock_irqrestore(&data->lock, flags);
- 	report = sensor_hub_report(report_id, hsdev->hdev, HID_INPUT_REPORT);
--	if (!report) {
--		spin_unlock_irqrestore(&data->lock, flags);
-+	if (!report)
- 		goto err_free;
--	}
-+
- 	hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
--	spin_unlock_irqrestore(&data->lock, flags);
- 	wait_for_completion_interruptible_timeout(&data->pending.ready, HZ*5);
- 	switch (data->pending.raw_size) {
- 	case 1:
+	What can I do do debug this? Any hints?
+
+	Thanks.
+
 -- 
-1.8.3.2
+Linux 3.12.14: Shuffling Zombie Juror
+http://www.youtube.com/DanielFragaBR
+http://mcxnow.com?r=danielfragabr
+Bitcoin: 12H6661yoLDUZaYPdah6urZS5WiXwTAUgL
+
 

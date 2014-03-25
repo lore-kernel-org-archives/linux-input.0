@@ -1,89 +1,191 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: Re: [PATCH v2 2/8] mfd: AXP20x: Add bindings documentation
-Date: Tue, 25 Mar 2014 11:11:00 +0100
-Message-ID: <20140325101100.GA6120@lukather>
-References: <1394898225-28452-1-git-send-email-carlo@caione.org>
- <1394898225-28452-3-git-send-email-carlo@caione.org>
- <20140318084505.GT27873@lukather>
- <20140322141157.GA20668@localhost.fastwebnet.it>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: "YongHwan Ki" <kyhw@afoi.co.kr>
+Subject: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO., LTD.
+Date: Tue, 25 Mar 2014 19:12:44 +0900
+Message-ID: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBJ5OYWMQKGQEPJWM6FI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140322141157.GA20668-bi+AKbBUZKZeIdyRz4JgOMwOAu8XWILU@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp3.hiworks.co.kr ([121.254.168.205]:52149 "EHLO
+	smtp3.hiworks.co.kr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752344AbaCYKT0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Mar 2014 06:19:26 -0400
+Content-Language: ko
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is no way to support the hid-type AFO multi touch modules.
 
-On Sat, Mar 22, 2014 at 03:11:57PM +0100, Carlo Caione wrote:
-> > > +
-> > > +Example:
-> > > +
-> > > +axp: axp20x@34 {
-> > > +	reg =3D <0x34>;
-> > > +	interrupt-parent =3D <&nmi_intc>;
-> > > +	interrupts =3D <0 8>;
-> > > +
-> > > +	compatible =3D "x-powers,axp209";
-> > > +	interrupt-controller;
-> > > +	#interrupt-cells =3D <1>;
-> > > +
-> > > +	regulators {
-> >=20
-> > Do we really need that subnode ? it looks useless, and we already know
-> > that we are defining regulators here.
->=20
-> What do you mean? We are defining the MFD and regulators are just one of
-> the subsystem here.
+Add the VID/PID of AFO to the hid-related lists.
 
-I mean that it's useless.
+Kernel Version : linux-3.14.rc7
 
-> Moveover I'm using the "regulators" node in the
-> regulators driver (using of_find_node_by_name()) to get the regulators
-> configuration.
+Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
 
-Can't you just use the of_node field of whatever struct device you
-get?
+diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c ../linux-3.14-rc7/drivers/hid/hid-core.c
+--- ./drivers/hid/hid-core.c	2014-03-21 17:41:51.846939444 +0900
++++ ../linux-3.14-rc7/drivers/hid/hid-core.c	2014-03-17 10:51:24.000000000 +0900
+@@ -1881,8 +1881,6 @@ static const struct hid_device_id hid_ha
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
+ 
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-ids.h ../linux-3.14-rc7/drivers/hid/hid-ids.h
+--- ./drivers/hid/hid-ids.h	2014-03-21 17:30:34.478959555 +0900
++++ ../linux-3.14-rc7/drivers/hid/hid-ids.h	2014-03-17 10:51:24.000000000 +0900
+@@ -960,9 +960,5 @@
+ #define USB_VENDOR_ID_PRIMAX	0x0461
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
+ 
+-#define USB_VENDOR_ID_AFO		0x2576
+-#define USB_DEVICE_ID_AFO_TCM		0x0003
+-#define USB_DEVICE_ID_AFO_BL		0x0005
+-#define USB_DEVICE_ID_AFO_THM		0x0011
+ 
+ #endif
+diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-multitouch.c ../linux-3.14-rc7/drivers/hid/hid-multitouch.c
+--- ./drivers/hid/hid-multitouch.c	2014-03-21 17:45:25.946933088 +0900
++++ ../linux-3.14-rc7/drivers/hid/hid-multitouch.c	2014-03-17 10:51:24.000000000 +0900
+@@ -1395,15 +1395,6 @@ static const struct hid_device_id mt_dev
+ 	{  .driver_data = MT_CLS_WIN_8,
+ 		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
+ 			HID_ANY_ID, HID_ANY_ID) },
+-
+-	/* AFO MultiTouch device */
+-	{  .driver_data = MT_CLS_SERIAL,
+-		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
+-			USB_DEVICE_ID_AFO_TCM) },
+-	{  .driver_data = MT_CLS_SERIAL,
+-		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
+-			USB_DEVICE_ID_AFO_THM) },
+-
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mt_devices);
+Binary files ./kernel/x509_certificate_list and ../linux-3.14-rc7/kernel/x509_certificate_list differ
+diff -uprN -X Documentation/dontdiff ./lib/oid_registry_data.c ../linux-3.14-rc7/lib/oid_registry_data.c
+--- ./lib/oid_registry_data.c	2014-03-24 21:43:59.826812763 +0900
++++ ../linux-3.14-rc7/lib/oid_registry_data.c	2014-03-21 18:45:37.598825862 +0900
+@@ -1,5 +1,5 @@
+ /*
+- * Automatically generated by /usr/src/linux-3.14-rc7m/lib/build_OID_registry.  Do not edit
++ * Automatically generated by /usr/src/linux-3.14-rc7/lib/build_OID_registry.  Do not edit
+  */
+ 
+ static const unsigned short oid_index[OID__NR + 1] = {
+diff -uprN -X Documentation/dontdiff ./signing_key.priv ../linux-3.14-rc7/signing_key.priv
+--- ./signing_key.priv	2014-03-24 20:22:01.946958769 +0900
++++ ../linux-3.14-rc7/signing_key.priv	2014-03-21 17:24:11.874970914 +0900
+@@ -1,52 +1,52 @@
+ -----BEGIN PRIVATE KEY-----
+-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
+-NQEgswM/gxjKwcqSioy0WoCqby9/ng==
++MIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQDHSyVGQWUsS2TS
++woXvK+PRaT+MiYP8QyR7Ak89fo/9x/nFBcfqmA+uXZ3Akje1bZ0JRzzIp//TdI6T
++hbLLW5Rl/eRq1097rWvRclCtF0WkSMz8FG2N7eyETbVinQDUacFj1BR5H+PLbx9X
++D5ZVCOdHy8ad0MeuNz6Y4RwNLpRBNnYFd87N+MC7yi5702mAlMnt7cbbn+hHwqoK
++SgSANepLsLdPdNIWdvCxlqySGe1ElbHBadzdLf9fFk9p8H4TiTaEd3z0wK9dQebI
++a79KWMXnkxUCnCurM2rNdVOelx9czh43uDNXLPbp0JelDNKZY16dQ3RFlvrVcOpa
++RDGY+AnpaiBNBJ7cT6rgKkKiupXMQzgHRhZ/CW1cM8NmCzseG/K5ovHNtxnNMkkO
++8VUaXnPNNm1rgdQRICCzsd7zfng0dEEgbFY/6sJ22m8AbJRWXG0Jvjlw8mBp3ZjZ
++pfI1ZkJTIPFJVxO9R3CY9i+tQ6hlH+atUlxLRJO24xhz5x7LGFpexemHMb5D9iT+
++SvlaOapLo4vA1w2xAeaa1Rz2W5AZyexTJSW/zQDol/6CgB/zg8GIi3fbrI79J2IU
++43FZId1HVuQCf9MIRHogsZcPhk08ByR3CmRlxr2Ib/XYCXzqNPIg2GIqoZyLyLw9
++PbsiGgIFxyB+6ogwG6f4E2Ph3dS2nwIDAQABAoICAGYQ2jos67/PrQczkJx5AegR
++2vYCx5G+YUSOXj7EPsJeVFDPMR+4WO+YCl7Bg75rMO27iinJwH9vRkXPR05WzJ2f
++dggx1QcmPf26ag77yDLnBfRkEeeKXoMzuR2UAwTGVMDnsMSHzIY3lvljhj5unORs
++PIA+mMVkja6GO3OU02DCn5cVUNiz+SEz3rKUB4hOq0wrZpi8QJ3f2G4EkmGHO0Mg
++cgFDdwUCTSrmW+NHW/iwIaVIrlCoag0sw+chv7AJqd4Vw+0lcap1QdiLNiDBbjm3
++Xh9EFClN3/jxia3C/9DrzxYCRGj1Ik+FAOUKuCDOf3pTPY0WUchWV+961VveTFRS
++ARjpfHZF2v2quID+EKi3SQCmBUn1g0sNznPIttfUQYMqiTu0v36TEfFxyIWRXGK0
++tcuc4ipXHfggp8jrhq62NjtSBOEPHptFnyP/etLv+AiYetxDWLM1S/M63JQHYO9d
++dL7g/4QemeLhItOil1YsJLai5EfY/5bh4iAJZvteUDqPoovkV87xasB8+rtB2S7y
++G6izBrebXzNppSgQdu29a9wTEMmoFE+AcqIU2kvOAWts2IQCwLUG08Yh1ivqZ7zf
++WcCmxP35e1PDpm4lVXf8r/COzft9KEts7aPHeg4emVdgwzlZyl++cb2n1W60AzTv
++57PmmrzqyAZy9yTO1kThAoIBAQD5dLMb7Lp4/4Udappl8zQGlLizWgXQbJZSxP22
++YClkH02mvh0IVmiaZuFUouy9D2SJMjdLayMuuOC5Nxyd+czUvlBGb8WMzBqTdTTV
++4L/AgX+jTyEvKZIq19UkMg8lvtvw82ikf2mmd9TXD0e8cET4X4iDon7lJHL3NdYU
++8YO2IG3hv49R4xi55wuqapffGDHZy1SyWhDMZkHAS2E6J/XtponBtsVT7H9s09qK
++TQRTT9Ah5Iito4XfnRh1COWPj9dXx+ScCiXelnfEz9cFSiGFyksJvjD9/0ad2YO6
++EYPm3KnUNBC82gswXm3zAr3Ulb00OV8wxW/h1UZrtrwb8bHzAoIBAQDMhZCdVBM8
++1X34Q6uIlEPJ6VNHbO/hfncYuNXNvfAWbHVxSrzfAP7bbRyXGQ8jQO0y6tdStWQA
++qFssZju2yomx1vHjko4bNiLjaCn+YTInDGSqtTCgbUA8qRg5gcw4e3tZVJTW1hCV
++qwx3MVK5Upn69oKvtN2R7l3AT5Rd6j61lGSkmwHb+9lugffQ1CJzzFYMbJfXlGUo
++i09XsJbjPMUogIkNqp4lgDt9tRYKSuPmDeJn5d/r/7HsBe6hBRnmyMKHrZVEXP/R
+++OpAkcFmKtDmw6l+wOoa3+85UGcQjqfdFURLZgH/VcmYwHG1ifAVFRT1p7pbh3nM
++vyDeF5BuiyelAoIBAQDkyo/rsLdmepTQYhGyJ9kzn/u3I33pp25IA7zfJFtSJRPH
++Nt7R4s6Vrn5EbhnLXO7Mlm34kg72r0INHer1SUMAbHyb3a/GbvyA+iK3dybnnN5A
++HjdFVk9lVAd85xzVdbOrztPO670unQFtLeqRfjcDxjsi4EqaR0/aRFpRYyF2TU/6
++mQMOC8eF2c7tQk6Ao2Q1aTQJUGnPzonHoFtQR45bpT77mHJrgqFsYvIxnmm1L6Kp
++Mz3YY/5JFYB09u/1N+w96mxWYUhSWpcGv8lqZI9ScjNYgEPW8ecGp5UVdzMO7pwk
++sIwZabKRbkpRc9Y/wAaEe4o+5Ra0fjPUXwkwaADZAoIBAQCVxAz1GJcJyjB3t14K
++IsBNP/4K5Lv4fTpLMTbndXo1gXCy6I7MIpd+KTVxdBlAsI/B5HSPDWNQk/hH2AlM
++Pp58SzFQe4ZyaL89lY6Cx7wJGisxUoNsRvRuN0kU+3aHuezGqohfldwJLXtwYP75
++1IILY66paiGCdnHSnLPB3gHTx/m3DAddhtxe7u+AzYb5Ex3D9VVvuSwmd3U/eoHT
++nzGlChLSnik2vuNRl2SvXs3qLiqn+I5z7AbnFiT7ZpfkBwlkf3k52Xw/zy4C4Hkm
++Dp5xDcC1oCEOUwOEDdubJUvJOoSLTgSSbMi2gd4CmSLk3U4+4Xc3BUrs4tz3pXvP
++Zzk9AoIBAAkCkLY84DXvZC7HD/T3eJn6r7IwWpmjAFGvQAI2EPwd1rijigUlvQe2
++Kh7h5e8kGRQDycrglK5/+I7+duAyNGQSvypW911glKIxi5JCC/fDI7sj0RoguI1G
++QQ89MgHE+ABcrzBjrINN3P/f33o3AR/nImLSTnDnTMochC7E5oHl0KhzlJfkL6SE
++oT9sYFJCGNY2mpjYB9skeCATry67e53CWIFLQ95AtoNLbkIDiiC6bFx2bPpxUT3k
++M6pQ5iY7nFW3JlcY3dMgRlaRja0gHVxyldtCTtlClO8vJDy9rCvtMAuJSpkXj8F/
++gUBtt5vx/OQqJtWSut69esv2u9KYjmM=
+ -----END PRIVATE KEY-----
+Binary files ./signing_key.x509 and ../linux-3.14-rc7/signing_key.x509 differ
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTMVY0AAoJEBx+YmzsjxAgrLIP+gPzO1uIJR9g555E9lsajepM
-TUtT2aQEZ9pcuyOClBfQU3Bcv0ykBySGqFdhovoLa3AZgifoe5VdVC/Lf84VqbH8
-0Kp4OxSajYgboIovj5kpP330yNlpvh19v6NDA/4QL2DzNSz/SjqMSZ/RxfZCeWDF
-8k40nAk3s/mMRxcBSl6r4X5ugoMoJDnxSpkOHFRhHXbS3VIpuyNPutJimzS43i7y
-IP7oR3imWGgazWZzNBEGbRLN1LfQFpmC1qsu/qiOS5pJK1ybWP4xwFfLl+7DBwkT
-yTPHE9mMY6BnV9sVceMsEMAaNt3O0nBoKWsI0S4FlOXkwhuHZjJJDlOjquAaOn1z
-l60R5FzQQbg/gqPl8vAyunzND7oz4ntkH/1GY/4/tzoIQz3oaQUqbkj3tXz9kBPa
-pkZ7E8c2k2VGgnyqfaorB4kfkAR9GleUOHWj5qItSy6Hr7XHqPVxLJlbQUrn0VLs
-ZTlWssROvGBDLdEnFBwPXL3B2oKNmt6Ipo6J4LTl+qHw0wW3/LdHaawSLSbr0IuX
-UQakfYz43XvGkyL+u1zbdfQ169k+D5nDctYKSaA3tdAONdV02ohHmOhzAp9drije
-dTeGDTQe0WbwXU82lDjrOmak2oL0EUHajXyy2/bOZJ6/QSE86WUTYeMpDAdzOdaG
-mEbi47o52ltoLF8/CA+g
-=VgWr
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--

@@ -1,352 +1,293 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 2/3] Input: synaptics-rmi4 - ability disable abs or rel
- reporting
-Date: Tue, 25 Mar 2014 13:45:25 -0700
-Message-ID: <5331EAE5.40807@synaptics.com>
-References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com> <1395191031-3144-2-git-send-email-cheiny@synaptics.com> <5329B17C.8080202@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jamie Lentin <jm@lentin.co.uk>
+Subject: [PATCH] hid: Add custom driver for Lenovo ThinkPad Compact Bluetooth Keyboard
+Date: Tue, 25 Mar 2014 22:26:47 +0000
+Message-ID: <1395786407-11273-1-git-send-email-jm@lentin.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:44887 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755016AbaCYUuo (ORCPT
+Received: from marmot.wormnet.eu ([188.246.204.87]:57153 "EHLO
+	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754873AbaCYW6M (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2014 16:50:44 -0400
-In-Reply-To: <5329B17C.8080202@redhat.com>
+	Tue, 25 Mar 2014 18:58:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
 
-Hi Benjamin,
+This keyboard requires some custom mappings for all keys to be
+available, and the Fn-lock toggle needs to be controlled in software.
 
-Thanks for reviewing our patches. We are putting together a v2 set based 
-on your comments. Everything looks straight forward, I just have one 
-comment in line.
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+---
+I assume that Linux users want Fn-Lock enabled by default, so they can
+get at the function keys. If this is an incorrect assumption then can
+change it---so long as there's some way of me leaving it enabled :)
 
-On 03/19/2014 08:02 AM, Benjamin Tissoires wrote:
->
->
-> On 03/18/2014 09:03 PM, Christopher Heiny wrote:
->> Even if the RMI4 touchscreen/touchpad provides reporting both
->> relative and absolute coordinates, reporting both to userspace
->> could be confusing. Allow the platform data to disable either
->> absolute or relative coordinates.
->
-> General comments on the patch:
-> Is there really a need to export the rel axis when there is already an 
-> abs collection?
-> I mean, with the RMI4 over HID over I2C found on the XPS Haswell 
-> series, RMI4 will be bound automatically, and the sensor may (will) 
-> pretend that it can do both abs and rel. However, we are not using a 
-> platform_data for them (I think we should not), and we will get the 
-> two collections.
->
-> I would personally be in favor of having a priority mechanism: if abs 
-> is here, skip rel, otherwise use rel. But I have no clue if you will 
-> ship devices which will require both. So you make the call.
->
->>
->> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
->> Acked-by: Christopher Heiny <cheiny@synaptics.com>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> Cc: Linux Walleij <linus.walleij@linaro.org>
->> Cc: David Herrmann <dh.herrmann@gmail.com>
->> Cc: Jiri Kosina <jkosina@suse.cz>
->>
->> ---
->>   drivers/input/rmi4/rmi_f11.c | 78 
->> +++++++++++++++++++++++++++++++++++++-------
->>   include/linux/rmi.h          |  6 ++++
->>   2 files changed, 73 insertions(+), 11 deletions(-)
->>
->> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
->> index 07044d79..c87c6cc3 100644
->> --- a/drivers/input/rmi4/rmi_f11.c
->> +++ b/drivers/input/rmi4/rmi_f11.c
->> @@ -520,6 +520,8 @@ struct f11_2d_sensor {
->>       struct rmi_function *fn;
->>       char input_phys[NAME_BUFFER_SIZE];
->>       char input_phys_mouse[NAME_BUFFER_SIZE];
->> +    u8 report_abs;
->> +    u8 report_rel;
->>   };
->>
->>   /** Data pertaining to F11 in general.  For per-sensor data, see 
->> struct
->> @@ -544,6 +546,10 @@ struct f11_data {
->>       struct mutex dev_controls_mutex;
->>       u16 rezero_wait_ms;
->>       struct f11_2d_sensor sensor;
->> +    unsigned long *abs_mask;
->> +    unsigned long *rel_mask;
->> +    unsigned long *result_bits;
->> +    unsigned long mask_memory[];
->>   };
->>
->>   enum finger_state_values {
->> @@ -591,10 +597,14 @@ static void rmi_f11_rel_pos_report(struct 
->> f11_2d_sensor *sensor, u8 n_finger)
->>       if (x || y) {
->>           input_report_rel(sensor->input, REL_X, x);
->>           input_report_rel(sensor->input, REL_Y, y);
->> -        input_report_rel(sensor->mouse_input, REL_X, x);
->> -        input_report_rel(sensor->mouse_input, REL_Y, y);
->> +
->> +        if (sensor->mouse_input) {
->> +            input_report_rel(sensor->mouse_input, REL_X, x);
->> +            input_report_rel(sensor->mouse_input, REL_Y, y);
->> +        }
->>       }
->> -    input_sync(sensor->mouse_input);
->> +    if (sensor->mouse_input)
->> +        input_sync(sensor->mouse_input);
->>   }
->>
->>   static void rmi_f11_abs_pos_report(struct f11_data *f11,
->> @@ -694,13 +704,17 @@ static void rmi_f11_abs_pos_report(struct 
->> f11_data *f11,
->>   }
->>
->>   static void rmi_f11_finger_handler(struct f11_data *f11,
->> -                   struct f11_2d_sensor *sensor)
->> +                   struct f11_2d_sensor *sensor,
->> +                   unsigned long *irq_bits, int num_irq_regs)
->>   {
->>       const u8 *f_state = sensor->data.f_state;
->>       u8 finger_state;
->>       u8 finger_pressed_count;
->>       u8 i;
->>
->> +    int rel_bits;
->> +    int abs_bits;
->> +
->>       for (i = 0, finger_pressed_count = 0; i < sensor->nbr_fingers; 
->> i++) {
->>           /* Possible of having 4 fingers per f_statet register */
->>           finger_state = (f_state[i / 4] >> (2 * (i % 4))) &
->> @@ -714,13 +728,19 @@ static void rmi_f11_finger_handler(struct 
->> f11_data *f11,
->>               finger_pressed_count++;
->>           }
->>
->> -        if (sensor->data.abs_pos)
->> +        abs_bits = bitmap_and(f11->result_bits, irq_bits, 
->> f11->abs_mask,
->> +                num_irq_regs);
->> +        if (abs_bits)
->>               rmi_f11_abs_pos_report(f11, sensor, finger_state, i);
->
-> rmi_driver.c uses bitmap_and this way:
-> bitmap_and(data->fn_irq_bits, data->irq_status, fn->irq_mask, 
-> data->irq_count);
-> if (!bitmap_empty(data->fn_irq_bits, data->irq_count))
->     fh->attention(fn, data->fn_irq_bits);
->
-> Not sure which way is the best.
-Looks like based on commit f4b0373b26567cafd421d91101852ed7a34e9e94 the 
-call to bitmap_empty is redundant so I am going to leave it the way it 
-is. We should clean up rmi_driver.c in a future patch.
->
->>
->> -        if (sensor->data.rel_pos)
->> +        rel_bits = bitmap_and(f11->result_bits, irq_bits, 
->> f11->rel_mask,
->> +                num_irq_regs);
->> +        if (rel_bits)
->>               rmi_f11_rel_pos_report(sensor, i);
->>       }
->> +
->>       input_report_key(sensor->input, BTN_TOUCH, finger_pressed_count);
->> +
->
-> those two blank lines are unrelated to the commit.
->
->>       input_sync(sensor->input);
->>   }
->>
->> @@ -1180,21 +1200,33 @@ static int rmi_f11_initialize(struct 
->> rmi_function *fn)
->>       u16 max_x_pos, max_y_pos, temp;
->>       int rc;
->>       const struct rmi_device_platform_data *pdata = 
->> rmi_get_platform_data(rmi_dev);
->> +    struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
->>       struct f11_2d_sensor *sensor;
->>       u8 buf;
->> +    int mask_size;
->>
->>       dev_dbg(&fn->dev, "Initializing F11 values for %s.\n",
->>            pdata->sensor_name);
->>
->> +    mask_size = BITS_TO_LONGS(drvdata->irq_count) * sizeof(unsigned 
->> long);
->> +
->>       /*
->>       ** init instance data, fill in values and create any sysfs files
->>       */
->> -    f11 = devm_kzalloc(&fn->dev, sizeof(struct f11_data), GFP_KERNEL);
->> +    f11 = devm_kzalloc(&fn->dev, sizeof(struct f11_data) + mask_size 
->> * 3,
->> +            GFP_KERNEL);
->>       if (!f11)
->>           return -ENOMEM;
->>
->>       f11->rezero_wait_ms = pdata->f11_rezero_wait;
->>
->> +    f11->abs_mask = f11->mask_memory + mask_size * 0;
->
-> I personally don't like the " + mask_size * 0"
->
-> Can't you just also remove the mask_memory field and use sizeof(struct 
-> f11_data)?
->
->> +    f11->rel_mask = f11->mask_memory + mask_size * 1;
->> +    f11->result_bits = f11->mask_memory + mask_size * 2;
->> +
->> +    set_bit(fn->irq_pos, f11->abs_mask);
->> +    set_bit(fn->irq_pos + 1, f11->rel_mask);
->> +
->>       query_base_addr = fn->fd.query_base_addr;
->>       control_base_addr = fn->fd.control_base_addr;
->>
->> @@ -1226,12 +1258,25 @@ static int rmi_f11_initialize(struct 
->> rmi_function *fn)
->>           return rc;
->>       }
->>
->> +    sensor->report_rel = sensor->sens_query.has_rel;
->> +    sensor->report_abs = sensor->sens_query.has_abs;
->> +
->>       if (pdata->f11_sensor_data) {
->>           sensor->axis_align =
->>               pdata->f11_sensor_data->axis_align;
->>           sensor->type_a = pdata->f11_sensor_data->type_a;
->>           sensor->sensor_type =
->>                   pdata->f11_sensor_data->sensor_type;
->> +
->> +        if (sensor->sens_query.has_abs)
->> +            sensor->report_abs = sensor->report_abs
->> +                && !(pdata->f11_sensor_data->disable_report_mask
->> +                    & RMI_F11_DISABLE_ABS_REPORT);
->
-> sensor->report_abs already contains sensor->sens_query.has_abs (set 
-> few lines above)...
->
-> so you can just skip the if test here.
->
->
->> +
->> +        if (sensor->sens_query.has_rel)
->> +            sensor->report_rel = sensor->report_rel
->> +                && !(pdata->f11_sensor_data->disable_report_mask
->> +                    & RMI_F11_DISABLE_REL_REPORT);
->
-> same here.
->
->>       }
->>
->>       rc = rmi_read_block(rmi_dev,
->> @@ -1324,9 +1369,10 @@ static int rmi_f11_register_devices(struct 
->> rmi_function *fn)
->>       set_bit(EV_ABS, input_dev->evbit);
->>       input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
->>
->> -    f11_set_abs_params(fn, f11);
->> +    if (sensor->report_abs)
->> +        f11_set_abs_params(fn, f11);
->>
->> -    if (sensor->sens_query.has_rel) {
->> +    if (sensor->report_rel) {
->>           set_bit(EV_REL, input_dev->evbit);
->>           set_bit(REL_X, input_dev->relbit);
->>           set_bit(REL_Y, input_dev->relbit);
->> @@ -1338,7 +1384,7 @@ static int rmi_f11_register_devices(struct 
->> rmi_function *fn)
->>           goto error_unregister;
->>       }
->>
->> -    if (sensor->sens_query.has_rel) {
->> +    if (sensor->report_rel) {
->>           /*create input device for mouse events  */
->>           input_dev_mouse = input_allocate_device();
->>           if (!input_dev_mouse) {
->> @@ -1407,8 +1453,16 @@ error_unregister:
->>   static int rmi_f11_config(struct rmi_function *fn)
->>   {
->>       struct f11_data *f11 = dev_get_drvdata(&fn->dev);
->> +    struct rmi_driver *drv = fn->rmi_dev->driver;
->> +    struct f11_2d_sensor *sensor = &f11->sensor;
->>       int rc;
->>
->> +    if (!sensor->report_abs)
->> +        drv->clear_irq_bits(fn->rmi_dev, f11->abs_mask);
->> +
->> +    if (!sensor->report_rel)
->> +        drv->clear_irq_bits(fn->rmi_dev, f11->rel_mask);
->> +
->>       rc = f11_write_control_regs(fn, &f11->sensor.sens_query,
->>                  &f11->dev_controls, fn->fd.query_base_addr);
->>       if (rc < 0)
->> @@ -1420,6 +1474,7 @@ static int rmi_f11_config(struct rmi_function *fn)
->>   static int rmi_f11_attention(struct rmi_function *fn, unsigned long 
->> *irq_bits)
->>   {
->>       struct rmi_device *rmi_dev = fn->rmi_dev;
->> +    struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
->>       struct f11_data *f11 = dev_get_drvdata(&fn->dev);
->>       u16 data_base_addr = fn->fd.data_base_addr;
->>       u16 data_base_addr_offset = 0;
->> @@ -1432,7 +1487,8 @@ static int rmi_f11_attention(struct 
->> rmi_function *fn, unsigned long *irq_bits)
->>       if (error)
->>           return error;
->>
->> -    rmi_f11_finger_handler(f11, &f11->sensor);
->> +    rmi_f11_finger_handler(f11, &f11->sensor, irq_bits,
->> +                drvdata->num_of_irq_regs);
->>       data_base_addr_offset += f11->sensor.pkt_size;
->>
->>       return 0;
->> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
->> index 735e978..a0d0187 100644
->> --- a/include/linux/rmi.h
->> +++ b/include/linux/rmi.h
->> @@ -76,6 +76,9 @@ enum rmi_f11_sensor_type {
->>       rmi_f11_sensor_touchpad
->>   };
->>
->> +#define RMI_F11_DISABLE_ABS_REPORT      (1 << 0)
->> +#define RMI_F11_DISABLE_REL_REPORT      (1 << 1)
->
-> We have BIT() macro in the kernel for this (I know, I do not use it 
-> that much either... :-P )
->
-> Cheers,
-> Benjamin
->
->> +
->>   /**
->>    * struct rmi_f11_sensor_data - overrides defaults for a single F11 
->> 2D sensor.
->>    * @axis_align - provides axis alignment overrides (see above).
->> @@ -86,11 +89,14 @@ enum rmi_f11_sensor_type {
->>    * pointing device (touchpad) rather than a direct pointing device
->>    * (touchscreen).  This is useful when F11_2D_QUERY14 register is not
->>    * available.
->> + * @disable_report_mask - Force data to not be reported even if it 
->> is supported
->> + * by the firware.
->>    */
->>   struct rmi_f11_sensor_data {
->>       struct rmi_f11_2d_axis_alignment axis_align;
->>       bool type_a;
->>       enum rmi_f11_sensor_type sensor_type;
->> +    int disable_report_mask;
->>   };
->>
->>   /**
->>
-Andrew
+Tested with and applies cleanly to 3.13.6.
+
+ drivers/hid/Kconfig                   |  10 ++
+ drivers/hid/Makefile                  |   1 +
+ drivers/hid/hid-core.c                |   3 +
+ drivers/hid/hid-ids.h                 |   1 +
+ drivers/hid/hid-lenovo-tpcompactkbd.c | 191 ++++++++++++++++++++++++++++++++++
+ 5 files changed, 206 insertions(+)
+ create mode 100644 drivers/hid/hid-lenovo-tpcompactkbd.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 34e2d39..8e45413 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -335,6 +335,16 @@ config HID_LENOVO_TPKBD
+ 	sensitivity of the trackpoint, using the microphone mute button or
+ 	controlling the mute and microphone mute LEDs.
+ 
++config HID_LENOVO_CBTKBD
++	tristate "Lenovo ThinkPad Compact Bluetooth Keyboard with TrackPoint"
++	depends on HID
++	---help---
++	Support for the Lenovo ThinkPad Compact Bluetooth Keyboard with TrackPoint.
++
++	Say Y here if you have a Lenovo ThinkPad Compact Bluetooth Keyboard with
++	TrackPoint and would like to use the function keys as function keys, as
++	well as letting linux recognise the special functions such as brightness.
++
+ config HID_LOGITECH
+ 	tristate "Logitech devices" if EXPERT
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 30e4431..c0a2f89 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -59,6 +59,7 @@ obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
+ obj-$(CONFIG_HID_KYE)		+= hid-kye.o
+ obj-$(CONFIG_HID_LCPOWER)       += hid-lcpower.o
+ obj-$(CONFIG_HID_LENOVO_TPKBD)	+= hid-lenovo-tpkbd.o
++obj-$(CONFIG_HID_LENOVO_CBTKBD)	+= hid-lenovo-tpcompactkbd.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
+ obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
+ obj-$(CONFIG_HID_MAGICMOUSE)    += hid-magicmouse.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 253fe23..77bce8f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1734,6 +1734,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_LENOVO_TPKBD)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+ #endif
++#if IS_ENABLED(CONFIG_HID_LENOVO_CBTKBD)
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
++#endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER_2) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f9304cb..6802166 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -539,6 +539,7 @@
+ 
+ #define USB_VENDOR_ID_LENOVO		0x17ef
+ #define USB_DEVICE_ID_LENOVO_TPKBD	0x6009
++#define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
+ 
+ #define USB_VENDOR_ID_LG		0x1fd2
+ #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+diff --git a/drivers/hid/hid-lenovo-tpcompactkbd.c b/drivers/hid/hid-lenovo-tpcompactkbd.c
+new file mode 100644
+index 0000000..0fd085b
+--- /dev/null
++++ b/drivers/hid/hid-lenovo-tpcompactkbd.c
+@@ -0,0 +1,191 @@
++/*
++ *  ThinkPad Compact (Bluetooth|USB) Keyboard with TrackPoint
++ *
++ *  Copyright (c) 2014 Jamie Lentin <jm@lentin.co.uk>
++ *
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++static unsigned int fnmode;
++module_param(fnmode, uint, 0644);
++MODULE_PARM_DESC(fnmode, "Fn lock mode ([0] = normal (Fn Lock toggles), 1 = Permanently on, 2 = Permanently off)");
++
++struct tpcompactkbd_sc {
++	unsigned int fn_lock;
++};
++
++/* Send a config command to the keyboard */
++static int tpcompactkbd_send_cmd(struct hid_device *hdev,
++			unsigned char byte2, unsigned char byte3)
++{
++	unsigned char buf[] = {0x18, byte2, byte3};
++
++	return hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
++						HID_OUTPUT_REPORT);
++}
++
++/* Toggle fnlock on or off, if fnmode allows */
++static void tpcompactkbd_toggle_fnlock(struct hid_device *hdev)
++{
++	struct tpcompactkbd_sc *tpcsc = hid_get_drvdata(hdev);
++
++	tpcsc->fn_lock = fnmode == 2 ? 0 : fnmode == 1 ? 1 : !tpcsc->fn_lock;
++	if (tpcompactkbd_send_cmd(hdev, 0x05, tpcsc->fn_lock ? 0x01 : 0x00))
++		hid_err(hdev, "Fn-lock toggle failed\n");
++}
++
++/*
++ * Keyboard sends non-standard reports for most "hotkey" Fn functions.
++ * Map these back to regular keys.
++ *
++ * Esc:	KEY_FN_ESC		FnLock
++ * (F1--F3 are regular keys)
++ * F4:	KEY_MICMUTE		Mic Mute
++ * F5:	KEY_BRIGHTNESSDOWN	Brightness down
++ * F6:	KEY_BRIGHTNESSUP	Brightness up
++ * F7:	KEY_SWITCHVIDEOMODE	External display (projector)
++ * F8:	KEY_FN_F8		Wireless
++ * F9:	KEY_CONFIG		Control panel / settings
++ * F10:	KEY_SEARCH		Search
++ * F11:	KEY_FN_F11		View open applications (3 boxes)
++ * F12:	KEY_FN_F12		Open My computer (6 boxes)
++ */
++
++#define tpckbd_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, max, \
++					EV_KEY, (c))
++static int tpcompactkbd_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER) {
++		set_bit(EV_REP, hi->input->evbit);
++		switch (usage->hid & HID_USAGE) {
++		case 0x03f1:
++			tpckbd_map_key_clear(KEY_FN_F8);
++			return 1;
++		case 0x0221:
++			tpckbd_map_key_clear(KEY_SEARCH);
++			return 1;
++		case 0x03f2:
++			tpckbd_map_key_clear(KEY_FN_F12);
++			return 1;
++		}
++	}
++
++	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
++		set_bit(EV_REP, hi->input->evbit);
++		switch (usage->hid & HID_USAGE) {
++		case 0x00f0:
++			tpckbd_map_key_clear(KEY_FN_ESC);
++			return 1;
++		case 0x00f1:
++			tpckbd_map_key_clear(KEY_MICMUTE);
++			return 1;
++		case 0x00f2:
++			tpckbd_map_key_clear(KEY_BRIGHTNESSDOWN);
++			return 1;
++		case 0x00f3:
++			tpckbd_map_key_clear(KEY_BRIGHTNESSUP);
++			return 1;
++		case 0x00f4:
++			tpckbd_map_key_clear(KEY_SWITCHVIDEOMODE);
++			return 1;
++		case 0x00f5:
++			tpckbd_map_key_clear(KEY_FN_F8);
++			return 1;
++		case 0x00f6:
++			tpckbd_map_key_clear(KEY_CONFIG);
++			return 1;
++		case 0x00f8:
++			tpckbd_map_key_clear(KEY_FN_F11);
++			return 1;
++		case 0x00fa:
++			tpckbd_map_key_clear(KEY_FN_ESC);
++			return 1;
++		}
++	}
++
++	return 0;
++}
++
++static int tpcompactkbd_event(struct hid_device *hdev, struct hid_field *field,
++		struct hid_usage *usage, __s32 value)
++{
++	/* Switch fn-lock on fn-esc */
++	if (unlikely(usage->code == KEY_FN_ESC && value))
++		tpcompactkbd_toggle_fnlock(hdev);
++
++	return 0;
++}
++
++static int tpcompactkbd_probe(struct hid_device *hdev,
++			const struct hid_device_id *id)
++{
++	int ret;
++	struct tpcompactkbd_sc *tpcsc;
++
++	tpcsc = devm_kzalloc(&hdev->dev, sizeof(*tpcsc), GFP_KERNEL);
++	if (tpcsc == NULL) {
++		hid_err(hdev, "can't alloc keyboard descriptor\n");
++		return -ENOMEM;
++	}
++	hid_set_drvdata(hdev, tpcsc);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "hid_parse failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hid_hw_start failed\n");
++		return ret;
++	}
++
++	/*
++	 * Tell the keyboard a driver understands it, and turn F7, F9, F11 into
++	 * regular keys
++	 */
++	ret = tpcompactkbd_send_cmd(hdev, 0x01, 0x03);
++	if (ret)
++		hid_warn(hdev, "Failed to switch F7/9/11 into regular keys\n");
++
++	/* Toggle once to init the state of fn-lock */
++	tpcsc->fn_lock = 0;
++	tpcompactkbd_toggle_fnlock(hdev);
++
++	return 0;
++}
++
++static const struct hid_device_id tpcompactkbd_devices[] = {
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
++
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, tpcompactkbd_devices);
++
++static struct hid_driver tpcompactkbd_driver = {
++	.name = "lenovo_tpcompactkbd",
++	.id_table = tpcompactkbd_devices,
++	.input_mapping = tpcompactkbd_input_mapping,
++	.probe = tpcompactkbd_probe,
++	.event = tpcompactkbd_event,
++};
++module_hid_driver(tpcompactkbd_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Jamie Lentin <jm@lentin.co.uk>");
++MODULE_DESCRIPTION("ThinkPad Compact Keyboard with TrackPoint input driver");
+-- 
+1.8.5.2
+

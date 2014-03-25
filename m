@@ -1,19 +1,18 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: Re: [PATCH v2 6/8] ARM: sunxi: dt: Add
- x-powers-axp209.dtsi file
-Date: Tue, 25 Mar 2014 11:11:39 +0100
-Message-ID: <20140325101139.GB6120@lukather>
+Subject: Re: Re: [PATCH v2 2/8] mfd: AXP20x: Add bindings documentation
+Date: Tue, 25 Mar 2014 11:11:00 +0100
+Message-ID: <20140325101100.GA6120@lukather>
 References: <1394898225-28452-1-git-send-email-carlo@caione.org>
- <1394898225-28452-7-git-send-email-carlo@caione.org>
- <20140318090450.GV27873@lukather>
- <20140322143157.GB20668@localhost.fastwebnet.it>
+ <1394898225-28452-3-git-send-email-carlo@caione.org>
+ <20140318084505.GT27873@lukather>
+ <20140322141157.GA20668@localhost.fastwebnet.it>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBKFOYWMQKGQEPZSFIHA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBJ5OYWMQKGQEPJWM6FI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140322143157.GB20668-bi+AKbBUZKZeIdyRz4JgOMwOAu8XWILU@public.gmane.org>
+In-Reply-To: <20140322141157.GA20668-bi+AKbBUZKZeIdyRz4JgOMwOAu8XWILU@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
@@ -25,49 +24,66 @@ Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 List-Id: linux-input@vger.kernel.org
 
 
---l76fUT7nc3MelDdI
+--Q68bSM7Ycu6FN28Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 22, 2014 at 03:31:57PM +0100, Carlo Caione wrote:
+On Sat, Mar 22, 2014 at 03:11:57PM +0100, Carlo Caione wrote:
+> > > +
+> > > +Example:
+> > > +
+> > > +axp: axp20x@34 {
+> > > +	reg =3D <0x34>;
+> > > +	interrupt-parent =3D <&nmi_intc>;
+> > > +	interrupts =3D <0 8>;
+> > > +
 > > > +	compatible =3D "x-powers,axp209";
 > > > +	interrupt-controller;
 > > > +	#interrupt-cells =3D <1>;
+> > > +
+> > > +	regulators {
 > >=20
-> > However, I'd move this out of it, and in the board file, so that we
-> > actually get an idea by looking at the board DTS of what device we are
-> > actually registering at this given address, and what it's capable of.
+> > Do we really need that subnode ? it looks useless, and we already know
+> > that we are defining regulators here.
 >=20
-> Do you mean the whole dtsi or just those three lines?
+> What do you mean? We are defining the MFD and regulators are just one of
+> the subsystem here.
 
-Just those three lines.
+I mean that it's useless.
+
+> Moveover I'm using the "regulators" node in the
+> regulators driver (using of_find_node_by_name()) to get the regulators
+> configuration.
+
+Can't you just use the of_node field of whatever struct device you
+get?
 
 --=20
 Maxime Ripard, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
---l76fUT7nc3MelDdI
+--Q68bSM7Ycu6FN28Q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTMVZbAAoJEBx+YmzsjxAgk+cQAICCEfwYy3uMDPGmu0jMbQzE
-PeLHkX1Lasj6oxYLCla638dLlRYYORDF/JuKoPB0FJHTyPYGtI5zbNPxt1CQwLdS
-yvggHjlJhSF3TIIraX21jw6osJW6sLTrTaDPvDy/BX4XW1VJDM1CdK2g2+Bt+IlV
-3LsXNlOeF6H43DyFwjddwxQOWlDwE/QMA6Twv8Uyec3AG4evG8l0hjqoaL8kIydA
-zMT9j46zvSKcRrMURxwsI1R1FgX1tETG1VD+FTOc+GvgrV3+qynPCvsGsC43p1fS
-bBrgBhJ81zue3fmp+RvUK4Kl/jG7tPPjLhsq+8bTjJmOrO/8psO4kq8sinjvzw1O
-OJDqPyPed0fuOOSrzjlbSY4Od4weWmqOyNg0JrT0MZP7FeolqsWEGIK3j1XvQWpi
-hzGhpyQ5OsLbF9ssxYaB1EBfLCRrphLghdVezgwoXBfjOwrFGjxU50u96SdgQLSc
-4XzK6UarPB+WHmEqWdzwdL0TJiw32iXtK0D595q+m5L7Ft4QSP5ERXRqaDhuqHMY
-Rw/JH+7kEVISUXxnN6yRShnhTwih1VaqgtlzjXafx85OE2MkHT8Zuqe5jXreYE/n
-lmwZNdPhYSPDwcBj6WNY+OeagqecjRWFAQ8+5LlGVIwNzrk520iVrS3rqMRRk5t5
-MYN+gCH1YCahnNJ9EvBG
-=no5/
+iQIcBAEBAgAGBQJTMVY0AAoJEBx+YmzsjxAgrLIP+gPzO1uIJR9g555E9lsajepM
+TUtT2aQEZ9pcuyOClBfQU3Bcv0ykBySGqFdhovoLa3AZgifoe5VdVC/Lf84VqbH8
+0Kp4OxSajYgboIovj5kpP330yNlpvh19v6NDA/4QL2DzNSz/SjqMSZ/RxfZCeWDF
+8k40nAk3s/mMRxcBSl6r4X5ugoMoJDnxSpkOHFRhHXbS3VIpuyNPutJimzS43i7y
+IP7oR3imWGgazWZzNBEGbRLN1LfQFpmC1qsu/qiOS5pJK1ybWP4xwFfLl+7DBwkT
+yTPHE9mMY6BnV9sVceMsEMAaNt3O0nBoKWsI0S4FlOXkwhuHZjJJDlOjquAaOn1z
+l60R5FzQQbg/gqPl8vAyunzND7oz4ntkH/1GY/4/tzoIQz3oaQUqbkj3tXz9kBPa
+pkZ7E8c2k2VGgnyqfaorB4kfkAR9GleUOHWj5qItSy6Hr7XHqPVxLJlbQUrn0VLs
+ZTlWssROvGBDLdEnFBwPXL3B2oKNmt6Ipo6J4LTl+qHw0wW3/LdHaawSLSbr0IuX
+UQakfYz43XvGkyL+u1zbdfQ169k+D5nDctYKSaA3tdAONdV02ohHmOhzAp9drije
+dTeGDTQe0WbwXU82lDjrOmak2oL0EUHajXyy2/bOZJ6/QSE86WUTYeMpDAdzOdaG
+mEbi47o52ltoLF8/CA+g
+=VgWr
 -----END PGP SIGNATURE-----
 
---l76fUT7nc3MelDdI--
+--Q68bSM7Ycu6FN28Q--

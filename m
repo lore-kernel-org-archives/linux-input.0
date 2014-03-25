@@ -1,97 +1,37 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO.,
- LTD.
-Date: Tue, 25 Mar 2014 11:59:47 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz>
-References: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr>
+Subject: Re: [PATCH] HID: hid-sensor-hub: fix sleeping function called from
+ invalid context
+Date: Tue, 25 Mar 2014 13:11:48 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1403251311380.17500@pobox.suse.cz>
+References: <1395703504-3945-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49149 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:50427 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751697AbaCYK7t (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2014 06:59:49 -0400
-In-Reply-To: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr>
+	id S1753563AbaCYMLu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Mar 2014 08:11:50 -0400
+In-Reply-To: <1395703504-3945-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: YongHwan Ki <kyhw@afoi.co.kr>
-Cc: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 25 Mar 2014, YongHwan Ki wrote:
+On Mon, 24 Mar 2014, Srinivas Pandruvada wrote:
 
-> There is no way to support the hid-type AFO multi touch modules.
+> Fix issue with the sleeping calling hid_hw_request under spinlock.
+> When i2c is used as HID transport, this is calling kmalloc, which
+> can sleep. So remove call to this function while under spinlock.
+>  [ 1067.021961] Call Trace:
+>  [ 1067.021970]  [<ffffffff8192f5f2>] dump_stack+0x4d/0x6f
+>  [ 1067.021976]  [<ffffffff811109f2>] __might_sleep+0xd2/0xf0
+>  [ 1067.021981]  [<ffffffff811ea15b>] __kmalloc+0xeb/0x200
+>  [ 1067.021989]  [<ffffffff816e0cb3>] ? hid_alloc_report_buf+0x23/0x30
+>  [ 1067.021993]  [<ffffffff816e0cb3>] hid_alloc_report_buf+0x23/0x30
+>  [ 1067.021997]  [<ffffffff816f4cb7>] i2c_hid_request+0x57/0x110
+>  [ 1067.022006]  [<ffffffffa02bc61c>] sensor_hub_input_attr_get_raw_value+0xbc/0x100 [hid_sensor_hub]
 
-Could you please elaborate? What tree is this patch against? I don't have 
-AFO-related defines in my tree.
-
-> Add the VID/PID of AFO to the hid-related lists.
-> 
-> Kernel Version : linux-3.14.rc7
-> 
-> Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
-> 
-> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c ../linux-3.14-rc7/drivers/hid/hid-core.c
-> --- ./drivers/hid/hid-core.c	2014-03-21 17:41:51.846939444 +0900
-> +++ ../linux-3.14-rc7/drivers/hid/hid-core.c	2014-03-17 10:51:24.000000000 +0900
-> @@ -1881,8 +1881,6 @@ static const struct hid_device_id hid_ha
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
->  
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
-> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-ids.h ../linux-3.14-rc7/drivers/hid/hid-ids.h
-> --- ./drivers/hid/hid-ids.h	2014-03-21 17:30:34.478959555 +0900
-> +++ ../linux-3.14-rc7/drivers/hid/hid-ids.h	2014-03-17 10:51:24.000000000 +0900
-> @@ -960,9 +960,5 @@
->  #define USB_VENDOR_ID_PRIMAX	0x0461
->  #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
->  
-> -#define USB_VENDOR_ID_AFO		0x2576
-> -#define USB_DEVICE_ID_AFO_TCM		0x0003
-> -#define USB_DEVICE_ID_AFO_BL		0x0005
-> -#define USB_DEVICE_ID_AFO_THM		0x0011
->  
->  #endif
-> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-multitouch.c ../linux-3.14-rc7/drivers/hid/hid-multitouch.c
-> --- ./drivers/hid/hid-multitouch.c	2014-03-21 17:45:25.946933088 +0900
-> +++ ../linux-3.14-rc7/drivers/hid/hid-multitouch.c	2014-03-17 10:51:24.000000000 +0900
-> @@ -1395,15 +1395,6 @@ static const struct hid_device_id mt_dev
->  	{  .driver_data = MT_CLS_WIN_8,
->  		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
->  			HID_ANY_ID, HID_ANY_ID) },
-> -
-> -	/* AFO MultiTouch device */
-> -	{  .driver_data = MT_CLS_SERIAL,
-> -		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
-> -			USB_DEVICE_ID_AFO_TCM) },
-> -	{  .driver_data = MT_CLS_SERIAL,
-> -		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
-> -			USB_DEVICE_ID_AFO_THM) },
-> -
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, mt_devices);
-> Binary files ./kernel/x509_certificate_list and ../linux-3.14-rc7/kernel/x509_certificate_list differ
-> diff -uprN -X Documentation/dontdiff ./lib/oid_registry_data.c ../linux-3.14-rc7/lib/oid_registry_data.c
-> --- ./lib/oid_registry_data.c	2014-03-24 21:43:59.826812763 +0900
-> +++ ../linux-3.14-rc7/lib/oid_registry_data.c	2014-03-21 18:45:37.598825862 +0900
-> @@ -1,5 +1,5 @@
->  /*
-> - * Automatically generated by /usr/src/linux-3.14-rc7m/lib/build_OID_registry.  Do not edit
-> + * Automatically generated by /usr/src/linux-3.14-rc7/lib/build_OID_registry.  Do not edit
->   */
->  
->  static const unsigned short oid_index[OID__NR + 1] = {
-> diff -uprN -X Documentation/dontdiff ./signing_key.priv ../linux-3.14-rc7/signing_key.priv
-> --- ./signing_key.priv	2014-03-24 20:22:01.946958769 +0900
-> +++ ../linux-3.14-rc7/signing_key.priv	2014-03-21 17:24:11.874970914 +0900
-> @@ -1,52 +1,52 @@
->  -----BEGIN PRIVATE KEY-----
-
-I doubt this was intended.
+Applied, thanks.
 
 -- 
 Jiri Kosina

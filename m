@@ -1,59 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input synaptics-rmi4: Trivial F11 tidy up
-Date: Sat, 1 Mar 2014 10:41:40 -0800
-Message-ID: <20140301184140.GA11122@core.coreip.homeip.net>
-References: <1393366096-5524-1-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH] drivers/input: Use RCU_INIT_POINTER(x, NULL) in evdev.c
+Date: Wed, 26 Mar 2014 13:30:05 -0700
+Message-ID: <20140326203005.GC11013@core.coreip.homeip.net>
+References: <1395599177-6776-1-git-send-email-monamagarwal123@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:59861 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756082AbaCZU0E (ORCPT
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:42829 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755989AbaCZUaI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Mar 2014 16:26:04 -0400
-Received: by mail-pd0-f169.google.com with SMTP id fp1so2357542pdb.28
-        for <linux-input@vger.kernel.org>; Wed, 26 Mar 2014 13:26:03 -0700 (PDT)
+	Wed, 26 Mar 2014 16:30:08 -0400
 Content-Disposition: inline
-In-Reply-To: <1393366096-5524-1-git-send-email-cheiny@synaptics.com>
+In-Reply-To: <1395599177-6776-1-git-send-email-monamagarwal123@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>
+To: Monam Agarwal <monamagarwal123@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2014 at 02:08:16PM -0800, Christopher Heiny wrote:
-> Delete an unused symbol and update copyright date.
-> 
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi Monam,
 
-Applied, thank you.
+On Sun, Mar 23, 2014 at 11:56:17PM +0530, Monam Agarwal wrote:
+> This patch replaces rcu_assign_pointer(x, NULL) with RCU_INIT_POINTER(x, NULL)
+> 
+> The rcu_assign_pointer() ensures that the initialization of a structure       
+> is carried out before storing a pointer to that structure. 
+> And in the case of the NULL pointer, there is no structure to initialize. 
+> So, rcu_assign_pointer(p, NULL) can be safely converted to RCU_INIT_POINTER(p, NULL)
+
+Logically speaking we perform assignment, not initialization there.
+Since we are not in hot path I think we should leave the code as is.
+
+Thanks.
 
 > 
-> --
+> Signed-off-by: Monam Agarwal <monamagarwal123@gmail.com>
+> ---
+>  drivers/input/evdev.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->  drivers/input/rmi4/rmi_f11.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index 2aa7d17..9cc1406 100644
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * Copyright (c) 2011-2013 Synaptics Incorporated
-> + * Copyright (c) 2011-2014 Synaptics Incorporated
->   * Copyright (c) 2011 Unixphere
->   *
->   * This program is free software; you can redistribute it and/or modify it
-> @@ -7,8 +7,6 @@
->   * the Free Software Foundation.
->   */
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index a06e125..fffa107 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -291,7 +291,7 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+>  	if (grab != client)
+>  		return  -EINVAL;
 >  
-> -#define FUNCTION_DATA f11_data
-> -
->  #include <linux/kernel.h>
->  #include <linux/delay.h>
->  #include <linux/device.h>
+> -	rcu_assign_pointer(evdev->grab, NULL);
+> +	RCU_INIT_POINTER(evdev->grab, NULL);
+>  	synchronize_rcu();
+>  	input_release_device(&evdev->handle);
+>  
+> -- 
+> 1.7.9.5
+> 
 
 -- 
 Dmitry

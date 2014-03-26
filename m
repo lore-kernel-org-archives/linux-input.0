@@ -1,285 +1,272 @@
-From: "YongHwan Ki" <kyhw@afoi.co.kr>
-Subject: RE: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO.,  LTD.
-Date: Wed, 26 Mar 2014 09:45:21 +0900
-Message-ID: <003a01cf488c$ab9c4400$02d4cc00$@afoi.co.kr>
-References: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr> <alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz>
+From: "Zhu, Lejun" <lejun.zhu@linux.intel.com>
+Subject: [PATCH] input: misc: Add driver for Intel Bay Trail GPIO buttons
+Date: Wed, 26 Mar 2014 13:01:36 +0800
+Message-ID: <53325F30.4030006@linux.intel.com>
+References: <533259F7.3050908@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.hiworks.co.kr ([121.254.168.204]:45443 "EHLO
-	smtp1.hiworks.co.kr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754206AbaCZAp2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2014 20:45:28 -0400
-In-Reply-To: <alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz>
-Content-Language: ko
+Received: from mga02.intel.com ([134.134.136.20]:17392 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750953AbaCZFBq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Mar 2014 01:01:46 -0400
+In-Reply-To: <533259F7.3050908@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Jiri Kosina' <jkosina@suse.cz>
-Cc: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, lejun.zhu@linux.intel.com
 
-Sorry, I woud like to add the AFO defines in the Linux Kernel.
-No afo defines exists in the current kernel tree.
-I correctly changed the log for adding the afo defines.
+This patch adds support for the GPIO buttons on some Intel Bay Trail
+tablets originally running Windows 8. The ACPI description of these
+buttons follows "Windows ACPI Design Guide for SoC Platforms".
 
-Kernel Version : linux-3.14.rc7
-Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
+Signed-off-by: Lejun Zhu <lejun.zhu@linux.intel.com>
+---
+ drivers/input/misc/Kconfig           |  10 ++
+ drivers/input/misc/Makefile          |   1 +
+ drivers/input/misc/baytrail_button.c | 198
++++++++++++++++++++++++++++++++++++
+ 3 files changed, 209 insertions(+)
+ create mode 100644 drivers/input/misc/baytrail_button.c
 
-diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c ../linux-3.14-rc7m/drivers/hid/hid-core.c
---- ./drivers/hid/hid-core.c	2014-03-17 10:51:24.000000000 +0900
-+++ ../linux-3.14-rc7m/drivers/hid/hid-core.c	2014-03-21 17:41:51.846939444 +0900
-@@ -1881,6 +1881,8 @@ static const struct hid_device_id hid_ha
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
- 
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
-diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-ids.h ../linux-3.14-rc7m/drivers/hid/hid-ids.h
---- ./drivers/hid/hid-ids.h	2014-03-17 10:51:24.000000000 +0900
-+++ ../linux-3.14-rc7m/drivers/hid/hid-ids.h	2014-03-21 17:30:34.478959555 +0900
-@@ -960,5 +960,9 @@
- #define USB_VENDOR_ID_PRIMAX	0x0461
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- 
-+#define USB_VENDOR_ID_AFO		0x2576
-+#define USB_DEVICE_ID_AFO_TCM		0x0003
-+#define USB_DEVICE_ID_AFO_BL		0x0005
-+#define USB_DEVICE_ID_AFO_THM		0x0011
- 
- #endif
-diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-multitouch.c ../linux-3.14-rc7m/drivers/hid/hid-multitouch.c
---- ./drivers/hid/hid-multitouch.c	2014-03-17 10:51:24.000000000 +0900
-+++ ../linux-3.14-rc7m/drivers/hid/hid-multitouch.c	2014-03-21 17:45:25.946933088 +0900
-@@ -1395,6 +1395,15 @@ static const struct hid_device_id mt_dev
- 	{  .driver_data = MT_CLS_WIN_8,
- 		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
- 			HID_ANY_ID, HID_ANY_ID) },
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7904ab0..bb6fe2e 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -666,4 +666,14 @@ config INPUT_IDEAPAD_SLIDEBAR
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ideapad_slidebar.
+
++config INPUT_BAYTRAIL_BUTTON
++	tristate "Intel Baytrail Buttons"
++	depends on KEYBOARD_GPIO
++	help
++	  Say Y here if you have a Baytrail tablet that is compatible
++	  with Windows ACPI Design Guide.
 +
-+	/* AFO MultiTouch device */
-+	{  .driver_data = MT_CLS_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
-+			USB_DEVICE_ID_AFO_TCM) },
-+	{  .driver_data = MT_CLS_SERIAL,
-+		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
-+			USB_DEVICE_ID_AFO_THM) },
++	  To compile this driver as a module, choose M here: the
++	  module will be called baytrail_button.
 +
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
-Binary files ./kernel/x509_certificate_list and ../linux-3.14-rc7m/kernel/x509_certificate_list differ
-diff -uprN -X Documentation/dontdiff ./lib/oid_registry_data.c ../linux-3.14-rc7m/lib/oid_registry_data.c
---- ./lib/oid_registry_data.c	2014-03-21 18:45:37.598825862 +0900
-+++ ../linux-3.14-rc7m/lib/oid_registry_data.c	2014-03-24 21:43:59.826812763 +0900
-@@ -1,5 +1,5 @@
- /*
-- * Automatically generated by /usr/src/linux-3.14-rc7/lib/build_OID_registry.  Do not edit
-+ * Automatically generated by /usr/src/linux-3.14-rc7m/lib/build_OID_registry.  Do not edit
-  */
- 
- static const unsigned short oid_index[OID__NR + 1] = {
-diff -uprN -X Documentation/dontdiff ./signing_key.priv ../linux-3.14-rc7m/signing_key.priv
---- ./signing_key.priv	2014-03-21 17:24:11.874970914 +0900
-+++ ../linux-3.14-rc7m/signing_key.priv	2014-03-24 20:22:01.946958769 +0900
-@@ -1,52 +1,52 @@
- -----BEGIN PRIVATE KEY-----
--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
--gUBtt5vx/OQqJtWSut69esv2u9KYjmM=
-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
-+NQEgswM/gxjKwcqSioy0WoCqby9/ng==
- -----END PRIVATE KEY-----
-Binary files ./signing_key.x509 and ../linux-3.14-rc7m/signing_key.x509 differ
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jiri Kosina
-Sent: Tuesday, March 25, 2014 8:00 PM
-To: YongHwan Ki
-Cc: rydberg@euromail.se; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO., LTD.
-
-On Tue, 25 Mar 2014, YongHwan Ki wrote:
-
-> There is no way to support the hid-type AFO multi touch modules.
-
-Could you please elaborate? What tree is this patch against? I don't have 
-AFO-related defines in my tree.
-
-> Add the VID/PID of AFO to the hid-related lists.
-> 
-> Kernel Version : linux-3.14.rc7
-> 
-> Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
-> 
-> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c ../linux-3.14-rc7/drivers/hid/hid-core.c
-> --- ./drivers/hid/hid-core.c	2014-03-21 17:41:51.846939444 +0900
-> +++ ../linux-3.14-rc7/drivers/hid/hid-core.c	2014-03-17 10:51:24.000000000 +0900
-> @@ -1881,8 +1881,6 @@ static const struct hid_device_id hid_ha
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
->  
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
-> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-ids.h ../linux-3.14-rc7/drivers/hid/hid-ids.h
-> --- ./drivers/hid/hid-ids.h	2014-03-21 17:30:34.478959555 +0900
-> +++ ../linux-3.14-rc7/drivers/hid/hid-ids.h	2014-03-17 10:51:24.000000000 +0900
-> @@ -960,9 +960,5 @@
->  #define USB_VENDOR_ID_PRIMAX	0x0461
->  #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
->  
-> -#define USB_VENDOR_ID_AFO		0x2576
-> -#define USB_DEVICE_ID_AFO_TCM		0x0003
-> -#define USB_DEVICE_ID_AFO_BL		0x0005
-> -#define USB_DEVICE_ID_AFO_THM		0x0011
->  
->  #endif
-> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-multitouch.c ../linux-3.14-rc7/drivers/hid/hid-multitouch.c
-> --- ./drivers/hid/hid-multitouch.c	2014-03-21 17:45:25.946933088 +0900
-> +++ ../linux-3.14-rc7/drivers/hid/hid-multitouch.c	2014-03-17 10:51:24.000000000 +0900
-> @@ -1395,15 +1395,6 @@ static const struct hid_device_id mt_dev
->  	{  .driver_data = MT_CLS_WIN_8,
->  		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
->  			HID_ANY_ID, HID_ANY_ID) },
-> -
-> -	/* AFO MultiTouch device */
-> -	{  .driver_data = MT_CLS_SERIAL,
-> -		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
-> -			USB_DEVICE_ID_AFO_TCM) },
-> -	{  .driver_data = MT_CLS_SERIAL,
-> -		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
-> -			USB_DEVICE_ID_AFO_THM) },
-> -
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, mt_devices);
-> Binary files ./kernel/x509_certificate_list and ../linux-3.14-rc7/kernel/x509_certificate_list differ
-> diff -uprN -X Documentation/dontdiff ./lib/oid_registry_data.c ../linux-3.14-rc7/lib/oid_registry_data.c
-> --- ./lib/oid_registry_data.c	2014-03-24 21:43:59.826812763 +0900
-> +++ ../linux-3.14-rc7/lib/oid_registry_data.c	2014-03-21 18:45:37.598825862 +0900
-> @@ -1,5 +1,5 @@
->  /*
-> - * Automatically generated by /usr/src/linux-3.14-rc7m/lib/build_OID_registry.  Do not edit
-> + * Automatically generated by /usr/src/linux-3.14-rc7/lib/build_OID_registry.  Do not edit
->   */
->  
->  static const unsigned short oid_index[OID__NR + 1] = {
-> diff -uprN -X Documentation/dontdiff ./signing_key.priv ../linux-3.14-rc7/signing_key.priv
-> --- ./signing_key.priv	2014-03-24 20:22:01.946958769 +0900
-> +++ ../linux-3.14-rc7/signing_key.priv	2014-03-21 17:24:11.874970914 +0900
-> @@ -1,52 +1,52 @@
->  -----BEGIN PRIVATE KEY-----
-
-I doubt this was intended.
-
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index cda71fc..c3d6a68 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -63,3 +63,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+ obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
++obj-$(CONFIG_INPUT_BAYTRAIL_BUTTON)	+= baytrail_button.o
+diff --git a/drivers/input/misc/baytrail_button.c
+b/drivers/input/misc/baytrail_button.c
+new file mode 100644
+index 0000000..e4829e1
+--- /dev/null
++++ b/drivers/input/misc/baytrail_button.c
+@@ -0,0 +1,198 @@
++/*
++ * baytrail_button.c: supports the GPIO buttons on some Baytrail
++ * tablets.
++ *
++ * (C) Copyright 2014 Intel Corporation
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; version 2
++ * of the License.
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/acpi.h>
++#include <linux/gpio/consumer.h>
++#include <linux/gpio_keys.h>
++#include <linux/input.h>
++#include <linux/platform_device.h>
++#include <linux/pnp.h>
++
++static void byt_button_device_release(struct device *);
++
++/*
++ * Definition of buttons on the tablet. The ACPI index of each button
++ * is defined in "Windows ACPI Design Guide for SoC Platforms"
++ */
++#define	MAX_NBUTTONS	5
++
++struct byt_button_info {
++	const char *name;
++	int acpi_index;
++	unsigned int event_code;
++	int repeat;
++	int wakeup;
++	int gpio;
++};
++
++static struct byt_button_info byt_button_tbl[] = {
++	{"power", 0, KEY_POWER, 0, 1, -1},
++	{"home", 1, KEY_HOME, 0, 1, -1},
++	{"volume_up", 2, KEY_VOLUMEUP, 1, 0, -1},
++	{"volume_down", 3, KEY_VOLUMEDOWN, 1, 0, -1},
++	{"rotation_lock", 4, KEY_RO, 0, 0, -1},
++};
++
++/*
++ * Some of the buttons like volume up/down are auto repeat, while others
++ * are not. To support both, we register two gpio-keys device, and put
++ * buttons into them based on whether the key should be auto repeat.
++ */
++#define	BUTTON_TYPES	2
++
++static struct gpio_keys_button byt_buttons[BUTTON_TYPES][MAX_NBUTTONS];
++
++static struct gpio_keys_platform_data byt_button_data[BUTTON_TYPES] = {
++	{
++		.buttons	= byt_buttons[0],
++		.nbuttons	= 0,
++		.rep		= 0
++	},
++	{
++		.buttons	= byt_buttons[1],
++		.nbuttons	= 0,
++		.rep		= 1
++	}
++};
++
++static struct platform_device byt_button_device[BUTTON_TYPES] = {
++	{
++		.name	= "gpio-keys",
++		.id	= PLATFORM_DEVID_AUTO,
++		.dev	= {
++			.release	= byt_button_device_release,
++			.platform_data	= &byt_button_data[0],
++		}
++	},
++	{
++		.name	= "gpio-keys",
++		.id	= PLATFORM_DEVID_AUTO,
++		.dev	= {
++			.release	= byt_button_device_release,
++			.platform_data	= &byt_button_data[1],
++		}
++	}
++};
++
++/*
++ * Get the Nth GPIO number from the ACPI object.
++ */
++static int byt_button_lookup_gpio(struct device *dev, int acpi_index)
++{
++	struct gpio_desc *desc;
++	int ret;
++
++	desc = gpiod_get_index(dev, KBUILD_MODNAME, acpi_index);
++
++	if (IS_ERR(desc))
++		return -1;
++
++	ret = desc_to_gpio(desc);
++
++	gpiod_put(desc);
++
++	return ret;
++}
++
++static int byt_button_pnp_probe(struct pnp_dev *pdev,
++	const struct pnp_device_id *id)
++{
++	int i, j, r, ret;
++	int sz_tbl = sizeof(byt_button_tbl) / sizeof(byt_button_tbl[0]);
++	struct gpio_keys_button *gk;
++
++	/* Find GPIO number of all the buttons */
++	for (i = 0; i < sz_tbl; i++) {
++		byt_button_tbl[i].gpio = byt_button_lookup_gpio(&pdev->dev,
++						byt_button_tbl[i].acpi_index);
++	}
++
++	for (r = 0; r < BUTTON_TYPES; r++) {
++		gk = byt_buttons[r];
++		j = 0;
++
++		/* Register buttons in the correct device */
++		for (i = 0; i < sz_tbl; i++) {
++			if (byt_button_tbl[i].repeat == r &&
++			    byt_button_tbl[i].gpio > 0) {
++				gk[j].code = byt_button_tbl[i].event_code;
++				gk[j].gpio = byt_button_tbl[i].gpio;
++				gk[j].active_low = 1;
++				gk[j].desc = byt_button_tbl[i].name;
++				gk[j].type = EV_KEY;
++				gk[j].wakeup = byt_button_tbl[i].wakeup;
++				j++;
++			}
++		}
++
++		byt_button_data[r].nbuttons = j;
++
++		if (j == 0)
++			continue;
++
++		ret = platform_device_register(&byt_button_device[r]);
++		if (ret) {
++			dev_err(&pdev->dev, "failed to register %d\n", r);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++static void byt_button_device_release(struct device *dev)
++{
++	/* Nothing to do */
++}
++
++static void byt_button_remove(struct pnp_dev *pdev)
++{
++	int r;
++
++	for (r = 0; r < BUTTON_TYPES; r++) {
++		if (byt_button_data[r].nbuttons)
++			platform_device_unregister(&byt_button_device[r]);
++	}
++}
++
++static const struct pnp_device_id byt_button_pnp_match[] = {
++	{.id = "INTCFD9", .driver_data = 0},
++	{.id = ""}
++};
++
++MODULE_DEVICE_TABLE(pnp, byt_button_pnp_match);
++
++static struct pnp_driver byt_button_pnp_driver = {
++	.name		= KBUILD_MODNAME,
++	.id_table	= byt_button_pnp_match,
++	.probe          = byt_button_pnp_probe,
++	.remove		= byt_button_remove,
++};
++
++static int __init byt_button_init(void)
++{
++	return pnp_register_driver(&byt_button_pnp_driver);
++}
++
++static void __exit byt_button_exit(void)
++{
++	pnp_unregister_driver(&byt_button_pnp_driver);
++}
++
++module_init(byt_button_init);
++module_exit(byt_button_exit);
++
++MODULE_LICENSE("GPL");
 -- 
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+1.8.3.2
+
+
+
 
 

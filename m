@@ -1,293 +1,285 @@
-From: Jamie Lentin <jm@lentin.co.uk>
-Subject: [PATCH] hid: Add custom driver for Lenovo ThinkPad Compact Bluetooth Keyboard
-Date: Tue, 25 Mar 2014 22:26:47 +0000
-Message-ID: <1395786407-11273-1-git-send-email-jm@lentin.co.uk>
+From: "YongHwan Ki" <kyhw@afoi.co.kr>
+Subject: RE: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO.,  LTD.
+Date: Wed, 26 Mar 2014 09:45:21 +0900
+Message-ID: <003a01cf488c$ab9c4400$02d4cc00$@afoi.co.kr>
+References: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr> <alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marmot.wormnet.eu ([188.246.204.87]:57153 "EHLO
-	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754873AbaCYW6M (ORCPT
+Received: from smtp1.hiworks.co.kr ([121.254.168.204]:45443 "EHLO
+	smtp1.hiworks.co.kr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754206AbaCZAp2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2014 18:58:12 -0400
+	Tue, 25 Mar 2014 20:45:28 -0400
+In-Reply-To: <alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz>
+Content-Language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
+To: 'Jiri Kosina' <jkosina@suse.cz>
+Cc: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This keyboard requires some custom mappings for all keys to be
-available, and the Fn-lock toggle needs to be controlled in software.
+Sorry, I woud like to add the AFO defines in the Linux Kernel.
+No afo defines exists in the current kernel tree.
+I correctly changed the log for adding the afo defines.
 
-Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
----
-I assume that Linux users want Fn-Lock enabled by default, so they can
-get at the function keys. If this is an incorrect assumption then can
-change it---so long as there's some way of me leaving it enabled :)
+Kernel Version : linux-3.14.rc7
+Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
 
-Tested with and applies cleanly to 3.13.6.
-
- drivers/hid/Kconfig                   |  10 ++
- drivers/hid/Makefile                  |   1 +
- drivers/hid/hid-core.c                |   3 +
- drivers/hid/hid-ids.h                 |   1 +
- drivers/hid/hid-lenovo-tpcompactkbd.c | 191 ++++++++++++++++++++++++++++++++++
- 5 files changed, 206 insertions(+)
- create mode 100644 drivers/hid/hid-lenovo-tpcompactkbd.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 34e2d39..8e45413 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -335,6 +335,16 @@ config HID_LENOVO_TPKBD
- 	sensitivity of the trackpoint, using the microphone mute button or
- 	controlling the mute and microphone mute LEDs.
+diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c ../linux-3.14-rc7m/drivers/hid/hid-core.c
+--- ./drivers/hid/hid-core.c	2014-03-17 10:51:24.000000000 +0900
++++ ../linux-3.14-rc7m/drivers/hid/hid-core.c	2014-03-21 17:41:51.846939444 +0900
+@@ -1881,6 +1881,8 @@ static const struct hid_device_id hid_ha
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
  
-+config HID_LENOVO_CBTKBD
-+	tristate "Lenovo ThinkPad Compact Bluetooth Keyboard with TrackPoint"
-+	depends on HID
-+	---help---
-+	Support for the Lenovo ThinkPad Compact Bluetooth Keyboard with TrackPoint.
-+
-+	Say Y here if you have a Lenovo ThinkPad Compact Bluetooth Keyboard with
-+	TrackPoint and would like to use the function keys as function keys, as
-+	well as letting linux recognise the special functions such as brightness.
-+
- config HID_LOGITECH
- 	tristate "Logitech devices" if EXPERT
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 30e4431..c0a2f89 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -59,6 +59,7 @@ obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
- obj-$(CONFIG_HID_KYE)		+= hid-kye.o
- obj-$(CONFIG_HID_LCPOWER)       += hid-lcpower.o
- obj-$(CONFIG_HID_LENOVO_TPKBD)	+= hid-lenovo-tpkbd.o
-+obj-$(CONFIG_HID_LENOVO_CBTKBD)	+= hid-lenovo-tpcompactkbd.o
- obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
- obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
- obj-$(CONFIG_HID_MAGICMOUSE)    += hid-magicmouse.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 253fe23..77bce8f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1734,6 +1734,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #if IS_ENABLED(CONFIG_HID_LENOVO_TPKBD)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-ids.h ../linux-3.14-rc7m/drivers/hid/hid-ids.h
+--- ./drivers/hid/hid-ids.h	2014-03-17 10:51:24.000000000 +0900
++++ ../linux-3.14-rc7m/drivers/hid/hid-ids.h	2014-03-21 17:30:34.478959555 +0900
+@@ -960,5 +960,9 @@
+ #define USB_VENDOR_ID_PRIMAX	0x0461
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
+ 
++#define USB_VENDOR_ID_AFO		0x2576
++#define USB_DEVICE_ID_AFO_TCM		0x0003
++#define USB_DEVICE_ID_AFO_BL		0x0005
++#define USB_DEVICE_ID_AFO_THM		0x0011
+ 
  #endif
-+#if IS_ENABLED(CONFIG_HID_LENOVO_CBTKBD)
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
-+#endif
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER_2) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f9304cb..6802166 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -539,6 +539,7 @@
+diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-multitouch.c ../linux-3.14-rc7m/drivers/hid/hid-multitouch.c
+--- ./drivers/hid/hid-multitouch.c	2014-03-17 10:51:24.000000000 +0900
++++ ../linux-3.14-rc7m/drivers/hid/hid-multitouch.c	2014-03-21 17:45:25.946933088 +0900
+@@ -1395,6 +1395,15 @@ static const struct hid_device_id mt_dev
+ 	{  .driver_data = MT_CLS_WIN_8,
+ 		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
+ 			HID_ANY_ID, HID_ANY_ID) },
++
++	/* AFO MultiTouch device */
++	{  .driver_data = MT_CLS_SERIAL,
++		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
++			USB_DEVICE_ID_AFO_TCM) },
++	{  .driver_data = MT_CLS_SERIAL,
++		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
++			USB_DEVICE_ID_AFO_THM) },
++
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mt_devices);
+Binary files ./kernel/x509_certificate_list and ../linux-3.14-rc7m/kernel/x509_certificate_list differ
+diff -uprN -X Documentation/dontdiff ./lib/oid_registry_data.c ../linux-3.14-rc7m/lib/oid_registry_data.c
+--- ./lib/oid_registry_data.c	2014-03-21 18:45:37.598825862 +0900
++++ ../linux-3.14-rc7m/lib/oid_registry_data.c	2014-03-24 21:43:59.826812763 +0900
+@@ -1,5 +1,5 @@
+ /*
+- * Automatically generated by /usr/src/linux-3.14-rc7/lib/build_OID_registry.  Do not edit
++ * Automatically generated by /usr/src/linux-3.14-rc7m/lib/build_OID_registry.  Do not edit
+  */
  
- #define USB_VENDOR_ID_LENOVO		0x17ef
- #define USB_DEVICE_ID_LENOVO_TPKBD	0x6009
-+#define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
- 
- #define USB_VENDOR_ID_LG		0x1fd2
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
-diff --git a/drivers/hid/hid-lenovo-tpcompactkbd.c b/drivers/hid/hid-lenovo-tpcompactkbd.c
-new file mode 100644
-index 0000000..0fd085b
---- /dev/null
-+++ b/drivers/hid/hid-lenovo-tpcompactkbd.c
-@@ -0,0 +1,191 @@
-+/*
-+ *  ThinkPad Compact (Bluetooth|USB) Keyboard with TrackPoint
-+ *
-+ *  Copyright (c) 2014 Jamie Lentin <jm@lentin.co.uk>
-+ *
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static unsigned int fnmode;
-+module_param(fnmode, uint, 0644);
-+MODULE_PARM_DESC(fnmode, "Fn lock mode ([0] = normal (Fn Lock toggles), 1 = Permanently on, 2 = Permanently off)");
-+
-+struct tpcompactkbd_sc {
-+	unsigned int fn_lock;
-+};
-+
-+/* Send a config command to the keyboard */
-+static int tpcompactkbd_send_cmd(struct hid_device *hdev,
-+			unsigned char byte2, unsigned char byte3)
-+{
-+	unsigned char buf[] = {0x18, byte2, byte3};
-+
-+	return hdev->hid_output_raw_report(hdev, buf, sizeof(buf),
-+						HID_OUTPUT_REPORT);
-+}
-+
-+/* Toggle fnlock on or off, if fnmode allows */
-+static void tpcompactkbd_toggle_fnlock(struct hid_device *hdev)
-+{
-+	struct tpcompactkbd_sc *tpcsc = hid_get_drvdata(hdev);
-+
-+	tpcsc->fn_lock = fnmode == 2 ? 0 : fnmode == 1 ? 1 : !tpcsc->fn_lock;
-+	if (tpcompactkbd_send_cmd(hdev, 0x05, tpcsc->fn_lock ? 0x01 : 0x00))
-+		hid_err(hdev, "Fn-lock toggle failed\n");
-+}
-+
-+/*
-+ * Keyboard sends non-standard reports for most "hotkey" Fn functions.
-+ * Map these back to regular keys.
-+ *
-+ * Esc:	KEY_FN_ESC		FnLock
-+ * (F1--F3 are regular keys)
-+ * F4:	KEY_MICMUTE		Mic Mute
-+ * F5:	KEY_BRIGHTNESSDOWN	Brightness down
-+ * F6:	KEY_BRIGHTNESSUP	Brightness up
-+ * F7:	KEY_SWITCHVIDEOMODE	External display (projector)
-+ * F8:	KEY_FN_F8		Wireless
-+ * F9:	KEY_CONFIG		Control panel / settings
-+ * F10:	KEY_SEARCH		Search
-+ * F11:	KEY_FN_F11		View open applications (3 boxes)
-+ * F12:	KEY_FN_F12		Open My computer (6 boxes)
-+ */
-+
-+#define tpckbd_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, max, \
-+					EV_KEY, (c))
-+static int tpcompactkbd_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER) {
-+		set_bit(EV_REP, hi->input->evbit);
-+		switch (usage->hid & HID_USAGE) {
-+		case 0x03f1:
-+			tpckbd_map_key_clear(KEY_FN_F8);
-+			return 1;
-+		case 0x0221:
-+			tpckbd_map_key_clear(KEY_SEARCH);
-+			return 1;
-+		case 0x03f2:
-+			tpckbd_map_key_clear(KEY_FN_F12);
-+			return 1;
-+		}
-+	}
-+
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
-+		set_bit(EV_REP, hi->input->evbit);
-+		switch (usage->hid & HID_USAGE) {
-+		case 0x00f0:
-+			tpckbd_map_key_clear(KEY_FN_ESC);
-+			return 1;
-+		case 0x00f1:
-+			tpckbd_map_key_clear(KEY_MICMUTE);
-+			return 1;
-+		case 0x00f2:
-+			tpckbd_map_key_clear(KEY_BRIGHTNESSDOWN);
-+			return 1;
-+		case 0x00f3:
-+			tpckbd_map_key_clear(KEY_BRIGHTNESSUP);
-+			return 1;
-+		case 0x00f4:
-+			tpckbd_map_key_clear(KEY_SWITCHVIDEOMODE);
-+			return 1;
-+		case 0x00f5:
-+			tpckbd_map_key_clear(KEY_FN_F8);
-+			return 1;
-+		case 0x00f6:
-+			tpckbd_map_key_clear(KEY_CONFIG);
-+			return 1;
-+		case 0x00f8:
-+			tpckbd_map_key_clear(KEY_FN_F11);
-+			return 1;
-+		case 0x00fa:
-+			tpckbd_map_key_clear(KEY_FN_ESC);
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int tpcompactkbd_event(struct hid_device *hdev, struct hid_field *field,
-+		struct hid_usage *usage, __s32 value)
-+{
-+	/* Switch fn-lock on fn-esc */
-+	if (unlikely(usage->code == KEY_FN_ESC && value))
-+		tpcompactkbd_toggle_fnlock(hdev);
-+
-+	return 0;
-+}
-+
-+static int tpcompactkbd_probe(struct hid_device *hdev,
-+			const struct hid_device_id *id)
-+{
-+	int ret;
-+	struct tpcompactkbd_sc *tpcsc;
-+
-+	tpcsc = devm_kzalloc(&hdev->dev, sizeof(*tpcsc), GFP_KERNEL);
-+	if (tpcsc == NULL) {
-+		hid_err(hdev, "can't alloc keyboard descriptor\n");
-+		return -ENOMEM;
-+	}
-+	hid_set_drvdata(hdev, tpcsc);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "hid_parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret) {
-+		hid_err(hdev, "hid_hw_start failed\n");
-+		return ret;
-+	}
-+
-+	/*
-+	 * Tell the keyboard a driver understands it, and turn F7, F9, F11 into
-+	 * regular keys
-+	 */
-+	ret = tpcompactkbd_send_cmd(hdev, 0x01, 0x03);
-+	if (ret)
-+		hid_warn(hdev, "Failed to switch F7/9/11 into regular keys\n");
-+
-+	/* Toggle once to init the state of fn-lock */
-+	tpcsc->fn_lock = 0;
-+	tpcompactkbd_toggle_fnlock(hdev);
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id tpcompactkbd_devices[] = {
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
-+
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, tpcompactkbd_devices);
-+
-+static struct hid_driver tpcompactkbd_driver = {
-+	.name = "lenovo_tpcompactkbd",
-+	.id_table = tpcompactkbd_devices,
-+	.input_mapping = tpcompactkbd_input_mapping,
-+	.probe = tpcompactkbd_probe,
-+	.event = tpcompactkbd_event,
-+};
-+module_hid_driver(tpcompactkbd_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Jamie Lentin <jm@lentin.co.uk>");
-+MODULE_DESCRIPTION("ThinkPad Compact Keyboard with TrackPoint input driver");
+ static const unsigned short oid_index[OID__NR + 1] = {
+diff -uprN -X Documentation/dontdiff ./signing_key.priv ../linux-3.14-rc7m/signing_key.priv
+--- ./signing_key.priv	2014-03-21 17:24:11.874970914 +0900
++++ ../linux-3.14-rc7m/signing_key.priv	2014-03-24 20:22:01.946958769 +0900
+@@ -1,52 +1,52 @@
+ -----BEGIN PRIVATE KEY-----
+-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
+-gUBtt5vx/OQqJtWSut69esv2u9KYjmM=
++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
++NQEgswM/gxjKwcqSioy0WoCqby9/ng==
+ -----END PRIVATE KEY-----
+Binary files ./signing_key.x509 and ../linux-3.14-rc7m/signing_key.x509 differ
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jiri Kosina
+Sent: Tuesday, March 25, 2014 8:00 PM
+To: YongHwan Ki
+Cc: rydberg@euromail.se; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO., LTD.
+
+On Tue, 25 Mar 2014, YongHwan Ki wrote:
+
+> There is no way to support the hid-type AFO multi touch modules.
+
+Could you please elaborate? What tree is this patch against? I don't have 
+AFO-related defines in my tree.
+
+> Add the VID/PID of AFO to the hid-related lists.
+> 
+> Kernel Version : linux-3.14.rc7
+> 
+> Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
+> 
+> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c ../linux-3.14-rc7/drivers/hid/hid-core.c
+> --- ./drivers/hid/hid-core.c	2014-03-21 17:41:51.846939444 +0900
+> +++ ../linux-3.14-rc7/drivers/hid/hid-core.c	2014-03-17 10:51:24.000000000 +0900
+> @@ -1881,8 +1881,6 @@ static const struct hid_device_id hid_ha
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
+>  
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-ids.h ../linux-3.14-rc7/drivers/hid/hid-ids.h
+> --- ./drivers/hid/hid-ids.h	2014-03-21 17:30:34.478959555 +0900
+> +++ ../linux-3.14-rc7/drivers/hid/hid-ids.h	2014-03-17 10:51:24.000000000 +0900
+> @@ -960,9 +960,5 @@
+>  #define USB_VENDOR_ID_PRIMAX	0x0461
+>  #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
+>  
+> -#define USB_VENDOR_ID_AFO		0x2576
+> -#define USB_DEVICE_ID_AFO_TCM		0x0003
+> -#define USB_DEVICE_ID_AFO_BL		0x0005
+> -#define USB_DEVICE_ID_AFO_THM		0x0011
+>  
+>  #endif
+> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-multitouch.c ../linux-3.14-rc7/drivers/hid/hid-multitouch.c
+> --- ./drivers/hid/hid-multitouch.c	2014-03-21 17:45:25.946933088 +0900
+> +++ ../linux-3.14-rc7/drivers/hid/hid-multitouch.c	2014-03-17 10:51:24.000000000 +0900
+> @@ -1395,15 +1395,6 @@ static const struct hid_device_id mt_dev
+>  	{  .driver_data = MT_CLS_WIN_8,
+>  		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
+>  			HID_ANY_ID, HID_ANY_ID) },
+> -
+> -	/* AFO MultiTouch device */
+> -	{  .driver_data = MT_CLS_SERIAL,
+> -		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
+> -			USB_DEVICE_ID_AFO_TCM) },
+> -	{  .driver_data = MT_CLS_SERIAL,
+> -		HID_USB_DEVICE(USB_VENDOR_ID_AFO,
+> -			USB_DEVICE_ID_AFO_THM) },
+> -
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, mt_devices);
+> Binary files ./kernel/x509_certificate_list and ../linux-3.14-rc7/kernel/x509_certificate_list differ
+> diff -uprN -X Documentation/dontdiff ./lib/oid_registry_data.c ../linux-3.14-rc7/lib/oid_registry_data.c
+> --- ./lib/oid_registry_data.c	2014-03-24 21:43:59.826812763 +0900
+> +++ ../linux-3.14-rc7/lib/oid_registry_data.c	2014-03-21 18:45:37.598825862 +0900
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Automatically generated by /usr/src/linux-3.14-rc7m/lib/build_OID_registry.  Do not edit
+> + * Automatically generated by /usr/src/linux-3.14-rc7/lib/build_OID_registry.  Do not edit
+>   */
+>  
+>  static const unsigned short oid_index[OID__NR + 1] = {
+> diff -uprN -X Documentation/dontdiff ./signing_key.priv ../linux-3.14-rc7/signing_key.priv
+> --- ./signing_key.priv	2014-03-24 20:22:01.946958769 +0900
+> +++ ../linux-3.14-rc7/signing_key.priv	2014-03-21 17:24:11.874970914 +0900
+> @@ -1,52 +1,52 @@
+>  -----BEGIN PRIVATE KEY-----
+
+I doubt this was intended.
+
 -- 
-1.8.5.2
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 

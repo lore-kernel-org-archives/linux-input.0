@@ -1,289 +1,120 @@
-From: "Zhu, Lejun" <lejun.zhu@linux.intel.com>
-Subject: [PATCH v2] input: misc: Add driver for Intel Bay Trail GPIO buttons
-Date: Fri, 28 Mar 2014 02:02:43 +0800
-Message-ID: <533467C3.4030503@linux.intel.com>
-References: <53345085.6020300@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 2/3] input: appletouch: implement sensor data smoothing
+Date: Thu, 27 Mar 2014 11:26:06 -0700
+Message-ID: <20140327182606.GA8902@core.coreip.homeip.net>
+References: <52D9DE7A.7040509@gmail.com>
+ <5320EA03.2040206@gmail.com>
+ <5320EAC5.5000506@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:53990 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756701AbaC0SDQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Mar 2014 14:03:16 -0400
-In-Reply-To: <53345085.6020300@linux.intel.com>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:37368 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755798AbaC0S0L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Mar 2014 14:26:11 -0400
+Received: by mail-pa0-f54.google.com with SMTP id lf10so3883541pab.27
+        for <linux-input@vger.kernel.org>; Thu, 27 Mar 2014 11:26:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <5320EAC5.5000506@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, lejun.zhu@linux.intel.com
+To: Clinton Sprain <clintonsprain@gmail.com>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-This patch adds support for the GPIO buttons on some Intel Bay Trail
-tablets originally running Windows 8. The ACPI description of these
-buttons follows "Windows ACPI Design Guide for SoC Platforms".
-v2:
-- Change the driver name to "SoC button array".
-- Use platform_device_alloc() instead of static devices. Unbind then
-rebind works fine now.
+Hi Clinton,
 
-Signed-off-by: Lejun Zhu <lejun.zhu@linux.intel.com>
----
- drivers/input/misc/Kconfig            |  10 ++
- drivers/input/misc/Makefile           |   1 +
- drivers/input/misc/soc_button_array.c | 209
-++++++++++++++++++++++++++++++++++
- 3 files changed, 220 insertions(+)
- create mode 100644 drivers/input/misc/soc_button_array.c
+On Wed, Mar 12, 2014 at 06:16:21PM -0500, Clinton Sprain wrote:
+> input: appletouch: implement sensor data smoothing
+> 
+> Use smoothed version of sensor array data to calculate movement and add weight
+> to prior values when calculating average. This gives more granular and more
+> predictable movement.
+> 
+> Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
+> ---
+>  drivers/input/mouse/appletouch.c |   72 ++++++++++++++++++++++++++++----------
+>  1 file changed, 53 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
+> index 2745832..e00f126 100644
+> --- a/drivers/input/mouse/appletouch.c
+> +++ b/drivers/input/mouse/appletouch.c
+> @@ -332,7 +332,11 @@ static void atp_reinit(struct work_struct *work)
+>  static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+>  			     int *z, int *fingers)
+>  {
+> -	int i;
+> +	int i, k;
+> +	int smooth[nb_sensors + 8];
+> +	int smooth_tmp[nb_sensors + 8];
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7904ab0..c1298af 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -666,4 +666,14 @@ config INPUT_IDEAPAD_SLIDEBAR
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ideapad_slidebar.
+This unfortunately introduces variable-length arraus on stack which
+makes sparse unhappy. Can we add these scratch buffers to the device
+structure instead?
 
-+config INPUT_SOC_BUTTON_ARRAY
-+	tristate "Windows-compatible SoC Button Array"
-+	depends on KEYBOARD_GPIO
-+	help
-+	  Say Y here if you have a SoC-based tablet that originally
-+	  runs Windows 8.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called soc_button_array.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index cda71fc..850a6cd 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -63,3 +63,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
- obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
-+obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
-diff --git a/drivers/input/misc/soc_button_array.c
-b/drivers/input/misc/soc_button_array.c
-new file mode 100644
-index 0000000..e8f19e0
---- /dev/null
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -0,0 +1,209 @@
-+/*
-+ * soc_button_array.c: supports the button array on SoC tablets originally
-+ * running Windows 8.
-+ *
-+ * (C) Copyright 2014 Intel Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; version 2
-+ * of the License.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/acpi.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/gpio_keys.h>
-+#include <linux/input.h>
-+#include <linux/platform_device.h>
-+#include <linux/pnp.h>
-+
-+/*
-+ * Definition of buttons on the tablet. The ACPI index of each button
-+ * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-+ * Platforms"
-+ */
-+#define	MAX_NBUTTONS	5
-+
-+struct soc_button_info {
-+	const char *name;
-+	int acpi_index;
-+	unsigned int event_code;
-+	int repeat;
-+	int wakeup;
-+	int gpio;
-+};
-+
-+static struct soc_button_info soc_button_tbl[] = {
-+	{"power", 0, KEY_POWER, 0, 1, -1},
-+	{"home", 1, KEY_HOME, 0, 1, -1},
-+	{"volume_up", 2, KEY_VOLUMEUP, 1, 0, -1},
-+	{"volume_down", 3, KEY_VOLUMEDOWN, 1, 0, -1},
-+	{"rotation_lock", 4, KEY_RO, 0, 0, -1},
-+};
-+
-+/*
-+ * Some of the buttons like volume up/down are auto repeat, while others
-+ * are not. To support both, we register two platform devices, and put
-+ * buttons into them based on whether the key should be auto repeat.
-+ */
-+#define	BUTTON_TYPES	2
-+
-+static struct gpio_keys_button soc_buttons[BUTTON_TYPES][MAX_NBUTTONS];
-+
-+static struct gpio_keys_platform_data soc_button_data[BUTTON_TYPES] = {
-+	{
-+		.buttons	= soc_buttons[0],
-+		.nbuttons	= 0,
-+		.rep		= 0
-+	},
-+	{
-+		.buttons	= soc_buttons[1],
-+		.nbuttons	= 0,
-+		.rep		= 1
-+	}
-+};
-+
-+static struct platform_device *soc_button_device[BUTTON_TYPES];
-+
-+/*
-+ * Get the Nth GPIO number from the ACPI object.
-+ */
-+static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
-+{
-+	struct gpio_desc *desc;
-+	int ret;
-+
-+	desc = gpiod_get_index(dev, KBUILD_MODNAME, acpi_index);
-+
-+	if (IS_ERR(desc))
-+		return -1;
-+
-+	ret = desc_to_gpio(desc);
-+
-+	gpiod_put(desc);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Register platform device for a set of buttons.
-+ */
-+static int soc_button_register(int r)
-+{
-+	struct platform_device *pd;
-+	int err;
-+
-+	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
-+	if (!pd) {
-+		err = -ENOMEM;
-+		goto err0;
-+	}
-+
-+	err = platform_device_add_data(pd, &soc_button_data[r],
-+					sizeof(soc_button_data[r]));
-+	if (err)
-+		goto err1;
-+
-+	err = platform_device_add(pd);
-+	if (err)
-+		goto err1;
-+
-+	soc_button_device[r] = pd;
-+
-+	return 0;
-+
-+err1:
-+	platform_device_put(pd);
-+err0:
-+	return err;
-+}
-+
-+static int soc_button_pnp_probe(struct pnp_dev *pdev,
-+	const struct pnp_device_id *id)
-+{
-+	int i, j, r, ret;
-+	int sz_tbl = sizeof(soc_button_tbl) / sizeof(soc_button_tbl[0]);
-+	struct gpio_keys_button *gk;
-+
-+	/* Find GPIO number of all the buttons */
-+	for (i = 0; i < sz_tbl; i++) {
-+		soc_button_tbl[i].gpio = soc_button_lookup_gpio(&pdev->dev,
-+						soc_button_tbl[i].acpi_index);
-+	}
-+
-+	for (r = 0; r < BUTTON_TYPES; r++) {
-+		gk = soc_buttons[r];
-+		j = 0;
-+
-+		/* Register buttons in the correct device */
-+		for (i = 0; i < sz_tbl; i++) {
-+			if (soc_button_tbl[i].repeat == r &&
-+			    soc_button_tbl[i].gpio > 0) {
-+				gk[j].code = soc_button_tbl[i].event_code;
-+				gk[j].gpio = soc_button_tbl[i].gpio;
-+				gk[j].active_low = 1;
-+				gk[j].desc = soc_button_tbl[i].name;
-+				gk[j].type = EV_KEY;
-+				gk[j].wakeup = soc_button_tbl[i].wakeup;
-+				j++;
-+			}
-+		}
-+
-+		soc_button_data[r].nbuttons = j;
-+
-+		if (j == 0)
-+			continue;
-+
-+		if (soc_button_register(r)) {
-+			dev_err(&pdev->dev, "failed to register %d\n", r);
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void soc_button_remove(struct pnp_dev *pdev)
-+{
-+	int r;
-+
-+	for (r = 0; r < BUTTON_TYPES; r++) {
-+		if (soc_button_device[r]) {
-+			platform_device_unregister(soc_button_device[r]);
-+			soc_button_device[r] = NULL;
-+		}
-+	}
-+}
-+
-+static const struct pnp_device_id soc_button_pnp_match[] = {
-+	{.id = "INTCFD9", .driver_data = 0},
-+	{.id = ""}
-+};
-+
-+MODULE_DEVICE_TABLE(pnp, soc_button_pnp_match);
-+
-+static struct pnp_driver soc_button_pnp_driver = {
-+	.name		= KBUILD_MODNAME,
-+	.id_table	= soc_button_pnp_match,
-+	.probe          = soc_button_pnp_probe,
-+	.remove		= soc_button_remove,
-+};
-+
-+static int __init soc_button_init(void)
-+{
-+	return pnp_register_driver(&soc_button_pnp_driver);
-+}
-+
-+static void __exit soc_button_exit(void)
-+{
-+	pnp_unregister_driver(&soc_button_pnp_driver);
-+}
-+
-+module_init(soc_button_init);
-+module_exit(soc_button_exit);
-+
-+MODULE_LICENSE("GPL");
+> +	int scale = 12;
+
+Probably better use a define rather than a variable.
+
+> +
+>  	/* values to calculate mean */
+>  	int pcum = 0, psum = 0;
+>  	int is_increasing = 0;
+> @@ -344,9 +348,6 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+>  			if (is_increasing)
+>  				is_increasing = 0;
+>  
+> -			continue;
+> -		}
+> -
+>  		/*
+>  		 * Makes the finger detection more versatile.  For example,
+>  		 * two fingers with no gap will be detected.  Also, my
+> @@ -361,27 +362,60 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+>  		 *
+>  		 * - Jason Parekh <jasonparekh@gmail.com>
+>  		 */
+> -		if (i < 1 ||
+> +
+> +		} else if (i < 1 ||
+>  		    (!is_increasing && xy_sensors[i - 1] < xy_sensors[i])) {
+>  			(*fingers)++;
+>  			is_increasing = 1;
+>  		} else if (i > 0 && (xy_sensors[i - 1] - xy_sensors[i] > threshold)) {
+>  			is_increasing = 0;
+>  		}
+> +	}
+>  
+> -		/*
+> -		 * Subtracts threshold so a high sensor that just passes the
+> -		 * threshold won't skew the calculated absolute coordinate.
+> -		 * Fixes an issue where slowly moving the mouse would
+> -		 * occasionally jump a number of pixels (slowly moving the
+> -		 * finger makes this issue most apparent.)
+> -		 */
+> -		pcum += (xy_sensors[i] - threshold) * i;
+> -		psum += (xy_sensors[i] - threshold);
+> +	/*
+> +	 * Use a smoothed version of sensor data for movement calculations, to
+> +	 * combat noise without needing to rely so heavily on a threshold.
+> +	 * This improves tracking.
+> +	 *
+> +	 * The smoothed array is bigger than the original so that the smoothing
+> +	 * doesn't result in edge values being truncated.
+> +	 */
+> +
+> +	for (i = 0; i < 4; i++)
+> +		smooth[i] = 0;
+
+memset might be better?
+
+> +	for (i = nb_sensors + 4; i < nb_sensors + 8; i++)
+> +		smooth[i] = 0;
+
+And here as well.
+
+Thanks.
+
 -- 
-1.8.3.2
-
-
-
-
-
-
-
+Dmitry

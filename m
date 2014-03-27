@@ -1,347 +1,292 @@
 From: Carlo Caione <carlo@caione.org>
-Subject: [PATCH v3 06/10] regulator: AXP20x: Add support for regulators subsystem
-Date: Thu, 27 Mar 2014 22:29:20 +0100
-Message-ID: <1395955764-18103-7-git-send-email-carlo@caione.org>
+Subject: [PATCH v3 08/10] ARM: sun7i/sun4i: dt: Add AXP209 support to various boards
+Date: Thu, 27 Mar 2014 22:29:22 +0100
+Message-ID: <1395955764-18103-9-git-send-email-carlo@caione.org>
 References: <1395955764-18103-1-git-send-email-carlo@caione.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f44.google.com ([74.125.83.44]:57502 "EHLO
-	mail-ee0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757391AbaC0V2U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Mar 2014 17:28:20 -0400
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1395955764-18103-1-git-send-email-carlo@caione.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org
 Cc: Carlo Caione <carlo@caione.org>
+List-Id: linux-input@vger.kernel.org
 
-AXP202 and AXP209 come with two synchronous step-down DC-DCs and five
-LDOs. This patch introduces basic support for those regulators.
-
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Carlo Caione <carlo@caione.org>
 ---
- drivers/regulator/Kconfig            |   7 +
- drivers/regulator/Makefile           |   1 +
- drivers/regulator/axp20x-regulator.c | 280 +++++++++++++++++++++++++++++++++++
- 3 files changed, 288 insertions(+)
- create mode 100644 drivers/regulator/axp20x-regulator.c
+ arch/arm/boot/dts/sun4i-a10-a1000.dts           | 13 +++++++++++++
+ arch/arm/boot/dts/sun4i-a10-cubieboard.dts      | 13 +++++++++++++
+ arch/arm/boot/dts/sun4i-a10-hackberry.dts       | 19 +++++++++++++++++++
+ arch/arm/boot/dts/sun4i-a10-inet97fv2.dts       | 13 +++++++++++++
+ arch/arm/boot/dts/sun4i-a10-mini-xplus.dts      | 19 +++++++++++++++++++
+ arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts  | 19 +++++++++++++++++++
+ arch/arm/boot/dts/sun4i-a10-pcduino.dts         | 13 +++++++++++++
+ arch/arm/boot/dts/sun7i-a20-cubieboard2.dts     | 14 ++++++++++++++
+ arch/arm/boot/dts/sun7i-a20-cubietruck.dts      | 15 +++++++++++++++
+ arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts | 14 ++++++++++++++
+ 10 files changed, 152 insertions(+)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 6a79328..9f3bc48 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -139,6 +139,13 @@ config REGULATOR_AS3722
- 	  AS3722 PMIC. This will enable support for all the software
- 	  controllable DCDC/LDO regulators.
+diff --git a/arch/arm/boot/dts/sun4i-a10-a1000.dts b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+index fa746aea..cf18c4d 100644
+--- a/arch/arm/boot/dts/sun4i-a10-a1000.dts
++++ b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+@@ -88,6 +88,19 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
++
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
++
++				/include/ "x-powers-axp209.dtsi"
++			};
+ 		};
+ 	};
  
-+config REGULATOR_AXP20X
-+	tristate "X-POWERS AXP20X PMIC Regulators"
-+	depends on MFD_AXP20X
-+	help
-+	  This driver provides support for the voltage regulators on the
-+	  AXP20X PMIC.
+diff --git a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
+index 4684cbe..52d21bb 100644
+--- a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
++++ b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
+@@ -80,6 +80,19 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
- config REGULATOR_DA903X
- 	tristate "Dialog Semiconductor DA9030/DA9034 regulators"
- 	depends on PMIC_DA903X
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 979f9dd..1dd084a 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_REGULATOR_ANATOP) += anatop-regulator.o
- obj-$(CONFIG_REGULATOR_ARIZONA) += arizona-micsupp.o arizona-ldo1.o
- obj-$(CONFIG_REGULATOR_AS3711) += as3711-regulator.o
- obj-$(CONFIG_REGULATOR_AS3722) += as3722-regulator.o
-+obj-$(CONFIG_REGULATOR_AXP20X) += axp20x-regulator.o
- obj-$(CONFIG_REGULATOR_DA903X)	+= da903x.o
- obj-$(CONFIG_REGULATOR_DA9052)	+= da9052-regulator.o
- obj-$(CONFIG_REGULATOR_DA9055)	+= da9055-regulator.o
-diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
-new file mode 100644
-index 0000000..3f1db88
---- /dev/null
-+++ b/drivers/regulator/axp20x-regulator.c
-@@ -0,0 +1,280 @@
-+/*
-+ * AXP20x regulators driver.
-+ *
-+ * Copyright (C) 2013 Carlo Caione <carlo@caione.org>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of this
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
 +
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/mfd/axp20x.h>
-+#include <linux/regulator/driver.h>
-+#include <linux/regulator/of_regulator.h>
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+#define AXP20X_IO_ENABLED		(0x03)
-+#define AXP20X_IO_DISABLED		(0x07)
++				/include/ "x-powers-axp209.dtsi"
++			};
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
+diff --git a/arch/arm/boot/dts/sun4i-a10-hackberry.dts b/arch/arm/boot/dts/sun4i-a10-hackberry.dts
+index d7c17e4..3960d67 100644
+--- a/arch/arm/boot/dts/sun4i-a10-hackberry.dts
++++ b/arch/arm/boot/dts/sun4i-a10-hackberry.dts
+@@ -82,6 +82,25 @@
+ 			pinctrl-0 = <&uart0_pins_a>;
+ 			status = "okay";
+ 		};
 +
-+#define AXP20X_WORKMODE_DCDC2_MASK	BIT(2)
-+#define AXP20X_WORKMODE_DCDC3_MASK	BIT(1)
++		i2c0: i2c@01c2ac00 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pins_a>;
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+#define AXP20X_FREQ_DCDC_MASK		(0x0f)
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
 +
-+#define AXP20X_DESC_IO(_id, _min, _max, _step, _vreg, _vmask, _ereg, _emask, 	\
-+		       _enable_val, _disable_val)				\
-+	[AXP20X_##_id] = {							\
-+		.name		= #_id,						\
-+		.type		= REGULATOR_VOLTAGE,				\
-+		.id		= AXP20X_##_id,					\
-+		.n_voltages	= (((_max) - (_min)) / (_step) + 1),		\
-+		.owner		= THIS_MODULE,					\
-+		.min_uV		= (_min) * 1000,				\
-+		.uV_step	= (_step) * 1000,				\
-+		.vsel_reg	= (_vreg),					\
-+		.vsel_mask	= (_vmask),					\
-+		.enable_reg	= (_ereg),					\
-+		.enable_mask	= (_emask),					\
-+		.enable_val	= (_enable_val),				\
-+		.disable_val	= (_disable_val),				\
-+		.ops		= &axp20x_ops,					\
-+	}
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+#define AXP20X_DESC(_id, _min, _max, _step, _vreg, _vmask, _ereg, _emask) 	\
-+	AXP20X_DESC_IO(_id, _min, _max, _step, _vreg, _vmask, _ereg, _emask,	\
-+		       0, 0)
++				/include/ "x-powers-axp209.dtsi"
++			};
++		};
+ 	};
+ 
+ 	reg_emac_3v3: emac-3v3 {
+diff --git a/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts b/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts
+index fe9272e..c797f5c 100644
+--- a/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts
++++ b/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts
+@@ -34,6 +34,19 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+#define AXP20X_DESC_FIXED(_id, _volt)						\
-+	[AXP20X_##_id] = {							\
-+		.name		= #_id,						\
-+		.type		= REGULATOR_VOLTAGE,				\
-+		.id		= AXP20X_##_id,					\
-+		.n_voltages	= 1,						\
-+		.owner		= THIS_MODULE,					\
-+		.min_uV		= (_volt) * 1000,				\
-+		.ops		= &axp20x_ops,					\
-+	}
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
 +
-+#define AXP20X_DESC_TABLE(_id, _table, _vreg, _vmask, _ereg, _emask)		\
-+	[AXP20X_##_id] = {							\
-+		.name		= #_id,						\
-+		.type		= REGULATOR_VOLTAGE,				\
-+		.id		= AXP20X_##_id,					\
-+		.n_voltages	= ARRAY_SIZE(_table),				\
-+		.owner		= THIS_MODULE,					\
-+		.vsel_reg	= (_vreg),					\
-+		.vsel_mask	= (_vmask),					\
-+		.enable_reg	= (_ereg),					\
-+		.enable_mask	= (_emask),					\
-+		.volt_table	= (_table),					\
-+		.ops		= &axp20x_ops_table,				\
-+	}
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+static int axp20x_ldo4_data[] = { 1250000, 1300000, 1400000, 1500000, 1600000, 1700000,
-+				  1800000, 1900000, 2000000, 2500000, 2700000, 2800000,
-+				  3000000, 3100000, 3200000, 3300000 };
++				/include/ "x-powers-axp209.dtsi"
++			};
+ 		};
+ 
+ 		usbphy: phy@01c13400 {
+diff --git a/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts b/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts
+index dd84a9e..c61902d 100644
+--- a/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts
++++ b/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts
+@@ -47,6 +47,25 @@
+ 			pinctrl-0 = <&uart0_pins_a>;
+ 			status = "okay";
+ 		};
 +
-+static int axp20x_set_suspend_voltage(struct regulator_dev *rdev, int uV)
-+{
-+	int sel = regulator_map_voltage_iterate(rdev, uV, uV);
++		i2c0: i2c@01c2ac00 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pins_a>;
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+	if (sel < 0)
-+		return sel;
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
 +
-+	return regulator_set_voltage_sel_regmap(rdev, sel);
-+}
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+static struct regulator_ops axp20x_ops_table = {
-+	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
-+	.list_voltage		= regulator_list_voltage_table,
-+	.enable			= regulator_enable_regmap,
-+	.disable		= regulator_disable_regmap,
-+	.is_enabled		= regulator_is_enabled_regmap,
-+	.set_suspend_enable	= regulator_enable_regmap,
-+	.set_suspend_disable	= regulator_disable_regmap,
-+	.set_suspend_voltage	= axp20x_set_suspend_voltage,
-+};
++				/include/ "x-powers-axp209.dtsi"
++			};
++		};
+ 	};
+ 
+ 	reg_usb1_vbus: usb1-vbus {
+diff --git a/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts b/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
+index 66cf0c7..7e862d6 100644
+--- a/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
++++ b/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
+@@ -81,6 +81,25 @@
+ 			pinctrl-0 = <&uart0_pins_a>;
+ 			status = "okay";
+ 		};
 +
++		i2c0: i2c@01c2ac00 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pins_a>;
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+static struct regulator_ops axp20x_ops = {
-+	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
-+	.list_voltage		= regulator_list_voltage_linear,
-+	.enable			= regulator_enable_regmap,
-+	.disable		= regulator_disable_regmap,
-+	.is_enabled		= regulator_is_enabled_regmap,
-+	.set_suspend_enable	= regulator_enable_regmap,
-+	.set_suspend_disable	= regulator_disable_regmap,
-+	.set_suspend_voltage	= axp20x_set_suspend_voltage,
-+};
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
 +
-+static const struct regulator_desc axp20x_regulators[] = {
-+	AXP20X_DESC(DCDC2, 700, 2275, 25, AXP20X_DCDC2_V_OUT, 0x3f,
-+		    AXP20X_PWR_OUT_CTRL, 0x10),
-+	AXP20X_DESC(DCDC3, 700, 3500, 25, AXP20X_DCDC3_V_OUT, 0x7f,
-+		    AXP20X_PWR_OUT_CTRL, 0x02),
-+	AXP20X_DESC_FIXED(LDO1, 1300),
-+	AXP20X_DESC(LDO2, 1800, 3300, 100, AXP20X_LDO24_V_OUT, 0xf0,
-+		    AXP20X_PWR_OUT_CTRL, 0x04),
-+	AXP20X_DESC(LDO3, 700, 3500, 25, AXP20X_LDO3_V_OUT, 0x7f,
-+		    AXP20X_PWR_OUT_CTRL, 0x40),
-+	AXP20X_DESC_TABLE(LDO4, axp20x_ldo4_data, AXP20X_LDO24_V_OUT, 0x0f,
-+			  AXP20X_PWR_OUT_CTRL, 0x08),
-+	AXP20X_DESC_IO(LDO5, 1800, 3300, 100, AXP20X_LDO5_V_OUT, 0xf0,
-+		       AXP20X_GPIO0_CTRL, 0x07, AXP20X_IO_ENABLED,
-+		       AXP20X_IO_DISABLED),
-+};
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+#define AXP_MATCH(_name, _id) \
-+	[AXP20X_##_id] = { \
-+		.name		= #_name, \
-+		.driver_data	= (void *) &axp20x_regulators[AXP20X_##_id], \
-+	}
++				/include/ "x-powers-axp209.dtsi"
++			};
++		};
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/sun4i-a10-pcduino.dts b/arch/arm/boot/dts/sun4i-a10-pcduino.dts
+index 255b47e..8ad0a86 100644
+--- a/arch/arm/boot/dts/sun4i-a10-pcduino.dts
++++ b/arch/arm/boot/dts/sun4i-a10-pcduino.dts
+@@ -66,6 +66,19 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+static struct of_regulator_match axp20x_matches[] = {
-+	AXP_MATCH(dcdc2, DCDC2),
-+	AXP_MATCH(dcdc3, DCDC3),
-+	AXP_MATCH(ldo1, LDO1),
-+	AXP_MATCH(ldo2, LDO2),
-+	AXP_MATCH(ldo3, LDO3),
-+	AXP_MATCH(ldo4, LDO4),
-+	AXP_MATCH(ldo5, LDO5),
-+};
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupts = <0>;
 +
-+static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
-+{
-+	struct axp20x_dev *axp20x = dev_get_drvdata(pdev->dev.parent);
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+	if (dcdcfreq < 750) {
-+		dcdcfreq = 750;
-+		dev_warn(&pdev->dev, "DCDC frequency too low. Set to 750kHz\n");
-+	}
++				/include/ "x-powers-axp209.dtsi"
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
+index 68de89f..c5c91b8 100644
+--- a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
++++ b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
+@@ -66,6 +66,20 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+	if (dcdcfreq > 1875) {
-+		dcdcfreq = 1875;
-+		dev_warn(&pdev->dev, "DCDC frequency too high. Set to 1875kHz\n");
-+	}
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupt-parent = <&nmi_intc>;
++				interrupts = <0 8>;
 +
-+	dcdcfreq = (dcdcfreq - 750) / 75;
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+	return regmap_update_bits(axp20x->regmap, AXP20X_DCDC_FREQ,
-+				  AXP20X_FREQ_DCDC_MASK, dcdcfreq);
-+}
++				/include/ "x-powers-axp209.dtsi"
++			};
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
+diff --git a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
+index cb25d3c..a42f5bc 100644
+--- a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
++++ b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
+@@ -73,6 +73,21 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+static int axp20x_regulator_parse_dt(struct platform_device *pdev)
-+{
-+	struct device_node *np, *regulators;
-+	int ret;
-+	u32 dcdcfreq;
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupt-parent = <&nmi_intc>;
++				interrupts = <0 8>;
 +
-+	np = of_node_get(pdev->dev.parent->of_node);
-+	if (!np)
-+		return 0;
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+	regulators = of_find_node_by_name(np, "regulators");
-+	if (!regulators) {
-+		dev_warn(&pdev->dev, "regulators node not found\n");
-+	} else {
-+		ret = of_regulator_match(&pdev->dev, regulators, axp20x_matches,
-+					 ARRAY_SIZE(axp20x_matches));
-+		if (ret < 0) {
-+			dev_err(&pdev->dev, "Error parsing regulator init data: %d\n", ret);
-+			return ret;
-+		}
++				/include/ "x-powers-axp209.dtsi"
++			};
 +
-+		dcdcfreq = 1500;
-+		of_property_read_u32(regulators, "x-powers,dcdc-freq", &dcdcfreq);
-+		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
-+		if (ret < 0) {
-+			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
-+			return ret;
-+		}
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
+diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
+index eeadf76..63171c4 100644
+--- a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
++++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
+@@ -95,6 +95,20 @@
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&i2c0_pins_a>;
+ 			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+		of_node_put(regulators);
-+	}
-+	
-+	return 0;
-+}
++			axp: axp20x@34 {
++				reg = <0x34>;
++				interrupt-parent = <&nmi_intc>;
++				interrupts = <0 8>;
 +
-+static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
-+{
-+	unsigned int mask = AXP20X_WORKMODE_DCDC2_MASK;
++				compatible = "x-powers,axp209";
++				interrupt-controller;
++				#interrupt-cells = <1>;
 +
-+	if ((id != AXP20X_DCDC2) && (id != AXP20X_DCDC3))
-+		return -EINVAL;
-+
-+	if (id == AXP20X_DCDC3)
-+		mask = AXP20X_WORKMODE_DCDC3_MASK;
-+
-+	workmode <<= ffs(mask) - 1;
-+
-+	return regmap_update_bits(rdev->regmap, AXP20X_DCDC_MODE, mask, workmode);
-+}
-+
-+static int axp20x_regulator_probe(struct platform_device *pdev)
-+{
-+	struct regulator_dev *rdev;
-+	struct axp20x_dev *axp20x = dev_get_drvdata(pdev->dev.parent);
-+	struct regulator_config config = { };
-+	struct regulator_init_data *init_data;
-+	int ret, i;
-+	u32 workmode;
-+
-+	ret = axp20x_regulator_parse_dt(pdev);
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; i < AXP20X_REG_ID_MAX; i++) {
-+		init_data = axp20x_matches[i].init_data;
-+
-+		config.dev = &pdev->dev;
-+		config.init_data = init_data;
-+		config.regmap = axp20x->regmap;
-+		config.of_node = axp20x_matches[i].of_node;
-+
-+		rdev = devm_regulator_register(&pdev->dev, &axp20x_regulators[i],
-+							&config);
-+		if (IS_ERR(rdev)) {
-+			dev_err(&pdev->dev, "Failed to register %s\n",
-+				axp20x_regulators[i].name);
-+
-+			return PTR_ERR(rdev);
-+		}
-+
-+		ret = of_property_read_u32(axp20x_matches[i].of_node, "x-powers,dcdc-workmode",
-+					   &workmode);
-+		if (!ret) {
-+			if (axp20x_set_dcdc_workmode(rdev, i, workmode))
-+				dev_err(&pdev->dev, "Failed to set workmode on %s\n",
-+					axp20x_regulators[i].name);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver axp20x_regulator_driver = {
-+	.probe	= axp20x_regulator_probe,
-+	.driver	= {
-+		.name		= "axp20x-regulator",
-+		.owner		= THIS_MODULE,
-+	},
-+};
-+
-+module_platform_driver(axp20x_regulator_driver);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Carlo Caione <carlo@caione.org>");
-+MODULE_DESCRIPTION("Regulator Driver for AXP20X PMIC");
++				/include/ "x-powers-axp209.dtsi"
++			};
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
 -- 
 1.8.3.2
 

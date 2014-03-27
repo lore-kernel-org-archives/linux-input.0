@@ -1,47 +1,44 @@
 From: <vencik@razdva.cz>
 Subject: =?utf-8?q?Re=3A_=5BPATCH=5D_input=3A_add_support_for_ALPS_v7_protocol_device?=
-Date: Thu, 27 Mar 2014 09:41:05 +0100
-Message-ID: <20140327094105.3610DB52@razdva.cz>
+Date: Thu, 27 Mar 2014 10:47:11 +0100
+Message-ID: <20140327104711.88846433@razdva.cz>
 References: <1395219353-27683-1-git-send-email-qiting.chen@cn.alps.com>, <1395836429.2390.13.camel@adora> <CAKvfdtKRqaCVJiFQcF2Q+buSRpacLisaMz6eHK9GmXZbvz9bAA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gmmr8.centrum.cz ([46.255.227.254]:52721 "EHLO gmmr8.centrum.cz"
+Received: from gmmr7.centrum.cz ([46.255.225.249]:47096 "EHLO gmmr7.centrum.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753892AbaC0IlJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Mar 2014 04:41:09 -0400
+	id S1752166AbaC0J6E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Mar 2014 05:58:04 -0400
 In-Reply-To: <CAKvfdtKRqaCVJiFQcF2Q+buSRpacLisaMz6eHK9GmXZbvz9bAA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?utf-8?q?Elaine_Chen?= <elaineee66@gmail.com>
 Cc: =?utf-8?q?Dmitry_Torokhov?= <dmitry.torokhov@gmail.com>, =?utf-8?q?Kevin_Cernekee?= <cernekee@gmail.com>, =?utf-8?q?david_turvene?= <dturvene@dahetral.com>, linux-input@vger.kernel.org, =?utf-8?q?Niels_de_Vos?= <ndevos@redhat.com>, jclift@redhat.com--cc, =?utf-8?q?Qiting_Chen?= <qiting.chen@cn.alps.com>, =?utf-8?q?Justin_Clift?= <justin@gluster.org>
 
-Hello Elaine,
+Hi again, Elaine,
 
-the SP works just fine for me with the changes I've sent.
-It was quite some job to detect the [x,y] vector bits all with
-the device being so sensitive, so I wouldn't be surprised
-if I got some of them wrong (namely the low bits).
-But the general behaviour seems OK, I don't experience
-any erratic movements, buttons work just fine, too.
+just something to add to the TP driver functionality;
+I've experienced something that looked as involuntary left
+button clicking.
 
-I'll test your implementation next week, then; thanks for that.
+Using xev, I deduce that it happens when I remove the finger
+after doing just a short motion on the pad; if the motion is longer
+(apparently both in in distance and time) the click is not generated
+at the end.
+But when I do just a short and quite quick move, it produces a click.
 
-About application of the patch; I think I see what the problem was;
-the thing is that in your post at linux-input, the patch is inlined to =
-the mail
-and that turned tabs into spaces.
-That's apparently why the hunks failed for me (and probably also the re=
-ason
-why indentation didn't fit).
+Perhaps it's just necessary to tune the driver a bit; what I'm talking =
+about
+is something close to a tap, but past it; the motion may take about 1/2=
+ second
+and the cursor moves for about a centimeter...
+I'll try to identify the code bit responsible and play with that.
 
-Thank you,
-
-Best wishes
+Regards,
 
 vencik
-
 
 
 ______________________________________________________________

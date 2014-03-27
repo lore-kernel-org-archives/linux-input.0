@@ -1,85 +1,53 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: [PATCH v3 07/10] ARM: sunxi: dt: Add x-powers-axp209.dtsi file
-Date: Thu, 27 Mar 2014 22:29:21 +0100
-Message-ID: <1395955764-18103-8-git-send-email-carlo@caione.org>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v3 09/10] ARM: sunxi: Add AXP20x support in defconfig
+Date: Thu, 27 Mar 2014 22:29:23 +0100
+Message-ID: <1395955764-18103-10-git-send-email-carlo@caione.org>
 References: <1395955764-18103-1-git-send-email-carlo@caione.org>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1395955764-18103-1-git-send-email-carlo@caione.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org
-Cc: Carlo Caione <carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBB6FP2KMQKGQEKPZADZI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1395955764-18103-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This dtsi describes the axp209 PMIC, and is to be included from inside
-the i2c controller node to which the axp209 is connected.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Carlo Caione <carlo@caione.org>
+Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 ---
- arch/arm/boot/dts/x-powers-axp209.dtsi | 54 ++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
- create mode 100644 arch/arm/boot/dts/x-powers-axp209.dtsi
+ arch/arm/configs/sunxi_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/x-powers-axp209.dtsi b/arch/arm/boot/dts/x-powers-axp209.dtsi
-new file mode 100644
-index 0000000..b05e54d
---- /dev/null
-+++ b/arch/arm/boot/dts/x-powers-axp209.dtsi
-@@ -0,0 +1,54 @@
-+/*
-+ * x-powers,axp209 common code to be include from inside the axp209 node
-+ *
-+ * Copyright 2014 - Carlo Caione <carlo@caione.org>
-+ *
-+ * The code contained herein is licensed under the GNU General Public
-+ * License. You may obtain a copy of the GNU General Public License
-+ * Version 2 or later at the following locations:
-+ *
-+ * http://www.opensource.org/licenses/gpl-license.html
-+ * http://www.gnu.org/copyleft/gpl.html
-+ */
-+
-+regulators {
-+	dcdc-freq = <1500>;
-+
-+	axp_dcdc2: dcdc2 {
-+		regulator-min-microvolt = <700000>;
-+		regulator-max-microvolt = <2275000>;
-+		regulator-always-on;
-+	};
-+
-+	axp_dcdc3: dcdc3 {
-+		regulator-min-microvolt = <700000>;
-+		regulator-max-microvolt = <3500000>;
-+		regulator-always-on;
-+	};
-+
-+	axp_ldo1: ldo1 {
-+		regulator-min-microvolt = <1300000>;
-+		regulator-max-microvolt = <1300000>;
-+	};
-+
-+	axp_ldo2: ldo2 {
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <3300000>;
-+		regulator-always-on;
-+	};
-+
-+	axp_ldo3: ldo3 {
-+		regulator-min-microvolt = <700000>;
-+		regulator-max-microvolt = <3500000>;
-+	};
-+
-+	axp_ldo4: ldo4 {
-+		regulator-min-microvolt = <1250000>;
-+		regulator-max-microvolt = <3300000>;
-+	};
-+
-+	axp_ldo5: ldo5 {
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <3300000>;
-+	};
-+};
+diff --git a/arch/arm/configs/sunxi_defconfig b/arch/arm/configs/sunxi_defconfig
+index b5df4a5..6e305da 100644
+--- a/arch/arm/configs/sunxi_defconfig
++++ b/arch/arm/configs/sunxi_defconfig
+@@ -40,6 +40,8 @@ CONFIG_SUN4I_EMAC=y
+ # CONFIG_NET_VENDOR_STMICRO is not set
+ # CONFIG_NET_VENDOR_WIZNET is not set
+ # CONFIG_WLAN is not set
++CONFIG_INPUT_MISC=y
++CONFIG_INPUT_AXP20X_PEK=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_NR_UARTS=8
+@@ -55,6 +57,7 @@ CONFIG_GPIO_SYSFS=y
+ # CONFIG_HWMON is not set
+ CONFIG_WATCHDOG=y
+ CONFIG_SUNXI_WATCHDOG=y
++CONFIG_MFD_AXP20X=y
+ # CONFIG_USB_SUPPORT is not set
+ CONFIG_NEW_LEDS=y
+ CONFIG_LEDS_CLASS=y
+@@ -69,3 +72,4 @@ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_NLS=y
+ CONFIG_PRINTK_TIME=y
++CONFIG_REGULATOR_AXP20X=y
 -- 
 1.8.3.2
-

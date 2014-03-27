@@ -1,120 +1,131 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 2/3] input: appletouch: implement sensor data smoothing
-Date: Thu, 27 Mar 2014 11:26:06 -0700
-Message-ID: <20140327182606.GA8902@core.coreip.homeip.net>
-References: <52D9DE7A.7040509@gmail.com>
- <5320EA03.2040206@gmail.com>
- <5320EAC5.5000506@gmail.com>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v3 00/10] mfd: AXP20x: Add support for AXP202
+ and AXP209
+Date: Thu, 27 Mar 2014 22:29:14 +0100
+Message-ID: <1395955764-18103-1-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:37368 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755798AbaC0S0L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Mar 2014 14:26:11 -0400
-Received: by mail-pa0-f54.google.com with SMTP id lf10so3883541pab.27
-        for <linux-input@vger.kernel.org>; Thu, 27 Mar 2014 11:26:10 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <5320EAC5.5000506@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBZVP2KMQKGQES7MQZPY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Clinton Sprain <clintonsprain@gmail.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Hi Clinton,
+AXP209 and AXP202 are the PMUs (Power Management Unit) used by A10, A13
+and A20 SoCs and developed by X-Powers, a sister company of Allwinner.
+AXP20x comprises an adaptive USB-Compatible PWM charger, 2 BUCK DC-DC
+converters, 5 LDOs, multiple 12-bit ADCs of voltage, current and temperature
+as well as 4 configurable GPIOs. 
 
-On Wed, Mar 12, 2014 at 06:16:21PM -0500, Clinton Sprain wrote:
-> input: appletouch: implement sensor data smoothing
-> 
-> Use smoothed version of sensor array data to calculate movement and add weight
-> to prior values when calculating average. This gives more granular and more
-> predictable movement.
-> 
-> Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
-> ---
->  drivers/input/mouse/appletouch.c |   72 ++++++++++++++++++++++++++++----------
->  1 file changed, 53 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-> index 2745832..e00f126 100644
-> --- a/drivers/input/mouse/appletouch.c
-> +++ b/drivers/input/mouse/appletouch.c
-> @@ -332,7 +332,11 @@ static void atp_reinit(struct work_struct *work)
->  static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
->  			     int *z, int *fingers)
->  {
-> -	int i;
-> +	int i, k;
-> +	int smooth[nb_sensors + 8];
-> +	int smooth_tmp[nb_sensors + 8];
+This set of patches introduces the core driver and support for two different
+subsystems:
+	- Regulators
+	- PEK (Power Enable Key)
 
-This unfortunately introduces variable-length arraus on stack which
-makes sparse unhappy. Can we add these scratch buffers to the device
-structure instead?
+This patchset depends on patchsets:
+	irq: sun4i IRQ 0 / ENMI fixes (Hans de Goede)
+	ARM: sun7i/sun6i: irqchip: Irqchip driver for NMI controller (Carlo Caione)
+	regulator: helpers: Modify helpers enabling multi-bit control (Carlo Caione)
 
-> +	int scale = 12;
+Changes since v1:
 
-Probably better use a define rather than a variable.
+	- Added a new standalone patch for defconfig
 
-> +
->  	/* values to calculate mean */
->  	int pcum = 0, psum = 0;
->  	int is_increasing = 0;
-> @@ -344,9 +348,6 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
->  			if (is_increasing)
->  				is_increasing = 0;
->  
-> -			continue;
-> -		}
-> -
->  		/*
->  		 * Makes the finger detection more versatile.  For example,
->  		 * two fingers with no gap will be detected.  Also, my
-> @@ -361,27 +362,60 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
->  		 *
->  		 * - Jason Parekh <jasonparekh@gmail.com>
->  		 */
-> -		if (i < 1 ||
-> +
-> +		} else if (i < 1 ||
->  		    (!is_increasing && xy_sensors[i - 1] < xy_sensors[i])) {
->  			(*fingers)++;
->  			is_increasing = 1;
->  		} else if (i > 0 && (xy_sensors[i - 1] - xy_sensors[i] > threshold)) {
->  			is_increasing = 0;
->  		}
-> +	}
->  
-> -		/*
-> -		 * Subtracts threshold so a high sensor that just passes the
-> -		 * threshold won't skew the calculated absolute coordinate.
-> -		 * Fixes an issue where slowly moving the mouse would
-> -		 * occasionally jump a number of pixels (slowly moving the
-> -		 * finger makes this issue most apparent.)
-> -		 */
-> -		pcum += (xy_sensors[i] - threshold) * i;
-> -		psum += (xy_sensors[i] - threshold);
-> +	/*
-> +	 * Use a smoothed version of sensor data for movement calculations, to
-> +	 * combat noise without needing to rely so heavily on a threshold.
-> +	 * This improves tracking.
-> +	 *
-> +	 * The smoothed array is bigger than the original so that the smoothing
-> +	 * doesn't result in edge values being truncated.
-> +	 */
-> +
-> +	for (i = 0; i < 4; i++)
-> +		smooth[i] = 0;
+	- MFD core:
+	  * Removed axp,system-power-controller property
 
-memset might be better?
+	- Bindings documentation:
+	  * Corrected description for dcdc-workmode property
+	  * Removed unused axp20x-pek compatible
 
-> +	for (i = nb_sensors + 4; i < nb_sensors + 8; i++)
-> +		smooth[i] = 0;
+	- Input misc PEK driver:
+	  * Fixed seconds in lower case
 
-And here as well.
+	- Regulators subsystem:
+	  * Fixed axp20x_set_suspend_voltage()
+	  * Switched to using multi-bit control for regulators
+	  * When "regulators" node is not found driver doesn't quit
+	  * Driver is now using devm_regulator_register()
+	  * Added module_platform_driver() instead of subsys_initcall()
 
-Thanks.
+	- DT:
+	  * Added new DTSI for AXP209
+	  * Added support for cubietruck and olinuxino-micro
+
+Changes since v2:
+
+	- Added a new patch for multi_v7_defconfig to enable MFD core
+	  and subsystems
+
+	- DT:
+	  * Dropped axp,system-power-controller property from DTS
+	  * Moved compatible and interrupt-related properties from the
+	    DTSI file to the DTS board files
+
+	- Regulators subsystem:
+	  * Deleted useless struct axp20x_regulators
+	  * Added a warning when out of specs values are used for the
+	    dcdc frequency
+
+	- MFD core:
+	  * Fixed coding style
+	  * Removed IDs from device table for i2c
+
+	- Bindings documentation:
+	  * Several corrections and fixes
+
+Carlo Caione (10):
+  mfd: AXP20x: Add mfd driver for AXP20x PMIC
+  dt-bindings: add vendor-prefix for X-Powers
+  mfd: AXP20x: Add bindings documentation
+  input: misc: Add driver for AXP20x Power Enable Key
+  input: misc: Add ABI docs for AXP20x PEK
+  regulator: AXP20x: Add support for regulators subsystem
+  ARM: sunxi: dt: Add x-powers-axp209.dtsi file
+  ARM: sun7i/sun4i: dt: Add AXP209 support to various boards
+  ARM: sunxi: Add AXP20x support in defconfig
+  ARM: sunxi: Add AXP20x support multi_v7_defconfig
+
+ .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
+ Documentation/devicetree/bindings/mfd/axp20x.txt   |  83 ++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ arch/arm/boot/dts/sun4i-a10-a1000.dts              |  13 +
+ arch/arm/boot/dts/sun4i-a10-cubieboard.dts         |  13 +
+ arch/arm/boot/dts/sun4i-a10-hackberry.dts          |  19 ++
+ arch/arm/boot/dts/sun4i-a10-inet97fv2.dts          |  13 +
+ arch/arm/boot/dts/sun4i-a10-mini-xplus.dts         |  19 ++
+ arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts     |  19 ++
+ arch/arm/boot/dts/sun4i-a10-pcduino.dts            |  13 +
+ arch/arm/boot/dts/sun7i-a20-cubieboard2.dts        |  14 ++
+ arch/arm/boot/dts/sun7i-a20-cubietruck.dts         |  15 ++
+ arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts    |  14 ++
+ arch/arm/boot/dts/x-powers-axp209.dtsi             |  54 ++++
+ arch/arm/configs/multi_v7_defconfig                |   3 +
+ arch/arm/configs/sunxi_defconfig                   |   4 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/axp20x-pek.c                    | 260 +++++++++++++++++++
+ drivers/mfd/Kconfig                                |  12 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/axp20x.c                               | 240 ++++++++++++++++++
+ drivers/regulator/Kconfig                          |   7 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/axp20x-regulator.c               | 280 +++++++++++++++++++++
+ include/linux/mfd/axp20x.h                         | 180 +++++++++++++
+ 26 files changed, 1301 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
+ create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
+ create mode 100644 arch/arm/boot/dts/x-powers-axp209.dtsi
+ create mode 100644 drivers/input/misc/axp20x-pek.c
+ create mode 100644 drivers/mfd/axp20x.c
+ create mode 100644 drivers/regulator/axp20x-regulator.c
+ create mode 100644 include/linux/mfd/axp20x.h
 
 -- 
-Dmitry
+1.8.3.2

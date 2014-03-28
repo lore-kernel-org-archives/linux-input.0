@@ -1,34 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Fri, 28 Mar 2014 09:04:22 -0700
-Message-ID: <20140328160421.GA22658@core.coreip.homeip.net>
-References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
- <20140320172159.GA27400@srcf.ucam.org>
- <20140328075655.GE22093@core.coreip.homeip.net>
- <53352EFB.8000309@redhat.com>
- <20140328081739.GG22093@core.coreip.homeip.net>
- <533532FE.2000304@redhat.com>
- <20140328085207.GN22093@core.coreip.homeip.net>
- <20140328090053.GA10597@srcf.ucam.org>
+Subject: Re: [PATCH] Input: synaptics add manual min/max quirk
+Date: Fri, 28 Mar 2014 09:09:24 -0700
+Message-ID: <20140328160924.GB22658@core.coreip.homeip.net>
+References: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20140328082949.GJ22093@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:37202 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752079AbaC1QJ2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Mar 2014 12:09:28 -0400
 Content-Disposition: inline
-In-Reply-To: <20140328090053.GA10597@srcf.ucam.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20140328082949.GJ22093@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Fri, Mar 28, 2014 at 09:00:53AM +0000, Matthew Garrett wrote:
-> On Fri, Mar 28, 2014 at 01:52:07AM -0700, Dmitry Torokhov wrote:
+On Fri, Mar 28, 2014 at 01:29:50AM -0700, Dmitry Torokhov wrote:
+> On Fri, Mar 07, 2014 at 10:49:24AM -0500, Benjamin Tissoires wrote:
+> > The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
+> > However, these new Synaptics devices report bad axis ranges.
+> > Under Windows, it is not a problem because the Windows driver uses RMI4
+> > over SMBus to talk to the device. Under Linux, we are using the PS/2
+> > fallback interface and it occurs the reported ranges are wrong.
 > > 
-> > Are we even certain that they will be consistent in use of these special
-> > PNP ID's? Maybe you should really do DMI match...
+> > Of course, it would be too easy to have only one range for the whole
+> > series, each touchpad seems to be calibrated in a different way.
+> > 
+> > We can not use SMBus to get the actual range because I suspect the firmware
+> > will switch into the SMBus mode and stop talking through PS/2 (this is the
+> > case for hybrid HID over I2C / PS/2 Synaptics touchpads).
+> > 
+> > So as a temporary solution (until RMI4 land into upstream), start a new
+> > list of quirks with the min/max manually set.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > CC: stable@vger.kernel.org
 > 
-> The Windows drivers bind on PNP IDs, not DMI.
+> 
+> Applied, thank you.
 
-OK, fair enough.
+That was giving compiler errors when configured without synaptics
+support so I had fiddle with the patch a bit. I'll take full
+responsibility for any breakage ;)
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,56 +1,50 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: 8 months to review a patch (was Re: [PATCH] Route kbd LEDs
- through the generic LEDs layer)
-Date: Fri, 28 Mar 2014 09:08:27 +0100
-Message-ID: <20140328080827.GI23627@type.youpi.perso.aquilenet.fr>
-References: <20110102225741.GX5480@const.famille.thibault.fr>
- <20110112182702.GA9168@core.coreip.homeip.net>
- <20111114040613.GA4992@type.famille.thibault.fr>
- <20121221003449.GA6999@type.youpi.perso.aquilenet.fr>
- <20130713093552.GU8252@type>
- <20130715091230.GA8786@amd.pavel.ucw.cz>
- <CAHYPw2H94ej=FdqHAxXpyZt+34TwK1Qj7LWP_bMro-v3JREisg@mail.gmail.com>
- <20140316101946.GJ6436@type.youpi.perso.aquilenet.fr>
- <CAHYPw2EAgjdcNATy0d6DhbT9qHAHJLda7gsLrnSJ7F4Cj=a-JQ@mail.gmail.com>
- <20140328070136.GA15953@amd.pavel.ucw.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
+Date: Fri, 28 Mar 2014 01:17:39 -0700
+Message-ID: <20140328081739.GG22093@core.coreip.homeip.net>
+References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
+ <20140320172159.GA27400@srcf.ucam.org>
+ <20140328075655.GE22093@core.coreip.homeip.net>
+ <53352EFB.8000309@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from toccata.ens-lyon.fr ([140.77.166.68]:35764 "EHLO
-	toccata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964AbaC1IRO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 04:17:14 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140328070136.GA15953@amd.pavel.ucw.cz>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <53352EFB.8000309@redhat.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, dtor@mail.ru, linux-input@vger.kernel.org, jkosina@suse.cz, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, jslaby@suse.cz, Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>, Evan Broder <evan@ebroder.net>, Arnaud Patard <arnaud.patard@rtp-net.org>, Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@linux-foundation.org>
 
-Pavel Machek, le Fri 28 Mar 2014 08:01:36 +0100, a =E9crit :
-> On Thu 2014-03-27 02:08:17, Pali Roh=E1r wrote:
-> > 2014-03-16 11:19 GMT+01:00 Samuel Thibault <samuel.thibault@ens-lyo=
-n.org>:
-> > > Pali Roh=E1r, le Sun 16 Mar 2014 11:16:25 +0100, a =E9crit :
-> > >> Hello, what happened with this patch? Is there any problem with =
-accepting it?
-> > >
-> > > Dmitry finding time to review it, I guess.
->=20
-> > Dmitry, can you look and review this patch?
->=20
-> Dmitry, what happened to you, are you there? This patch is like 8
-> months old,
+On Fri, Mar 28, 2014 at 09:12:43AM +0100, Hans de Goede wrote:
+> Hi,
+> 
+> On 03/28/2014 08:56 AM, Dmitry Torokhov wrote:
+> > On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
+> >> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
+> >>
+> >>> Which in the end turns out to be much nicer too, since it gets rid of needing
+> >>> a udev-helper too. After this much too long introduction I'll let the patches
+> >>> speak for themselves.
+> >>
+> >> Yeah, I was coming to the conclusion that this was probably the best we 
+> >> could do. It's unfortunate that "id" is already in use - we'd be able to 
+> >> get away without any X server modifications otherwise.
+> >>
+> >> Long term we probably still want to tie serio devices to the ACPI 
+> >> devices in case the vendor provides power management calls there, but we 
+> >> can leave that until there's an actual example.
+> > 
+> > I am still unsure if we shoudl be adding these new IDs to serio core...
+> > Can't the X driver take a peek at ACPI devices on it's own?
+> 
+> The problem is there is no way for userspace to know which /sys/devices/pnp0/00:xx
+> device is the serio bus host.
 
-Well, the patch was written in Feb 2010 actually, it got some reviews
-overs years, the version submitted in July 2013 is the same as the one
-submitted in Dec 2013.
+Practically speaking you should not care - there is only one touchpad in
+Lenovos.
 
-Samuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks.
+
+-- 
+Dmitry

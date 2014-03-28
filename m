@@ -1,63 +1,315 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Input: synaptics add manual min/max quirk
-Date: Fri, 28 Mar 2014 16:25:30 -0400
-Message-ID: <CAN+gG=FruH=Z7gS5LHBB0gu78wUQzOX4sM26fkiCp94T4p0LRw@mail.gmail.com>
-References: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
-	<20140328082949.GJ22093@core.coreip.homeip.net>
-	<20140328160924.GB22658@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input: misc: Add driver for Intel Bay Trail GPIO
+ buttons
+Date: Fri, 28 Mar 2014 13:47:54 -0700
+Message-ID: <20140328204754.GA8844@core.coreip.homeip.net>
+References: <53345085.6020300@linux.intel.com>
+ <533467C3.4030503@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f179.google.com ([209.85.217.179]:43215 "EHLO
-	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751435AbaC1UZc (ORCPT
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:47072 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752442AbaC1Ur7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 16:25:32 -0400
-In-Reply-To: <20140328160924.GB22658@core.coreip.homeip.net>
+	Fri, 28 Mar 2014 16:47:59 -0400
+Content-Disposition: inline
+In-Reply-To: <533467C3.4030503@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+To: "Zhu, Lejun" <lejun.zhu@linux.intel.com>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Mar 28, 2014 at 12:09 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Mar 28, 2014 at 01:29:50AM -0700, Dmitry Torokhov wrote:
->> On Fri, Mar 07, 2014 at 10:49:24AM -0500, Benjamin Tissoires wrote:
->> > The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
->> > However, these new Synaptics devices report bad axis ranges.
->> > Under Windows, it is not a problem because the Windows driver uses RMI4
->> > over SMBus to talk to the device. Under Linux, we are using the PS/2
->> > fallback interface and it occurs the reported ranges are wrong.
->> >
->> > Of course, it would be too easy to have only one range for the whole
->> > series, each touchpad seems to be calibrated in a different way.
->> >
->> > We can not use SMBus to get the actual range because I suspect the firmware
->> > will switch into the SMBus mode and stop talking through PS/2 (this is the
->> > case for hybrid HID over I2C / PS/2 Synaptics touchpads).
->> >
->> > So as a temporary solution (until RMI4 land into upstream), start a new
->> > list of quirks with the min/max manually set.
->> >
->> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> > CC: stable@vger.kernel.org
->>
->>
->> Applied, thank you.
->
-> That was giving compiler errors when configured without synaptics
-> support so I had fiddle with the patch a bit. I'll take full
-> responsibility for any breakage ;)
->
+Hi Lejun,
 
-Thanks for fixing it. Tested and approved by myself, so no breakage to
-report here :)
+On Fri, Mar 28, 2014 at 02:02:43AM +0800, Zhu, Lejun wrote:
+> +
+> +static struct soc_button_info soc_button_tbl[] = {
+> +	{"power", 0, KEY_POWER, 0, 1, -1},
+> +	{"home", 1, KEY_HOME, 0, 1, -1},
+> +	{"volume_up", 2, KEY_VOLUMEUP, 1, 0, -1},
+> +	{"volume_down", 3, KEY_VOLUMEDOWN, 1, 0, -1},
+> +	{"rotation_lock", 4, KEY_RO, 0, 0, -1},
 
-BTW, I have to send out also the min/max for the new X1 Carbon and the
-Yoga (not the 2)... I am wondering how to make sure the kernel will
-discriminate the Yoga from the Yoga 2 now :/
+KEY_RO is not for rotating but rather for switching one of Japanese
+layouts. I think we shoudl allow using switchws and use SW_ROTATE_LOCK
+for that.
 
-I'll come back as soon as I can.
+Also I do not quite like so many static structures, what do you think
+about the version below?
 
-Cheers,
-Benjamin
+Thanks!
+
+-- 
+Dmitry
+
+Input: misc - Add driver for Intel Bay Trail GPIO buttons
+
+From: Lejun Zhu <lejun.zhu@linux.intel.com>
+
+This patch adds support for the GPIO buttons on some Intel Bay Trail
+tablets originally running Windows 8. The ACPI description of these
+buttons follows "Windows ACPI Design Guide for SoC Platforms".
+
+Signed-off-by: Lejun Zhu <lejun.zhu@linux.intel.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/Kconfig            |   10 ++
+ drivers/input/misc/Makefile           |    1 
+ drivers/input/misc/soc_button_array.c |  216 +++++++++++++++++++++++++++++++++
+ 3 files changed, 227 insertions(+)
+ create mode 100644 drivers/input/misc/soc_button_array.c
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7674f05..f772981 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -666,4 +666,14 @@ config INPUT_IDEAPAD_SLIDEBAR
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ideapad_slidebar.
+ 
++config INPUT_SOC_BUTTON_ARRAY
++	tristate "Windows-compatible SoC Button Array"
++	depends on KEYBOARD_GPIO
++	help
++	  Say Y here if you have a SoC-based tablet that originally
++	  runs Windows 8.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called soc_button_array.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index cda71fc..4955ad3 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -53,6 +53,7 @@ obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+ obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
++obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
+ obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
+ obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+new file mode 100644
+index 0000000..b78fa3d
+--- /dev/null
++++ b/drivers/input/misc/soc_button_array.c
+@@ -0,0 +1,216 @@
++/*
++ * Supports for the button array on SoC tablets originally running Windows 8.
++ *
++ * (C) Copyright 2014 Intel Corporation
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; version 2
++ * of the License.
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/acpi.h>
++#include <linux/gpio/consumer.h>
++#include <linux/gpio_keys.h>
++#include <linux/input.h>
++#include <linux/platform_device.h>
++#include <linux/pnp.h>
++
++/*
++ * Definition of buttons on the tablet. The ACPI index of each button
++ * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
++ * Platforms"
++ */
++#define MAX_NBUTTONS	5
++
++struct soc_button_info {
++	const char *name;
++	int acpi_index;
++	unsigned int event_type;
++	unsigned int event_code;
++	bool autorepeat;
++	bool wakeup;
++};
++
++/*
++ * Some of the buttons like volume up/down are auto repeat, while others
++ * are not. To support both, we register two platform devices, and put
++ * buttons into them based on whether the key should be auto repeat.
++ */
++#define BUTTON_TYPES	2
++
++struct soc_button_data {
++	struct platform_device *children[BUTTON_TYPES];
++};
++
++/*
++ * Get the Nth GPIO number from the ACPI object.
++ */
++static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
++{
++	struct gpio_desc *desc;
++	int gpio;
++
++	desc = gpiod_get_index(dev, KBUILD_MODNAME, acpi_index);
++	if (IS_ERR(desc))
++		return PTR_ERR(desc);
++
++	gpio = desc_to_gpio(desc);
++
++	gpiod_put(desc);
++
++	return gpio;
++}
++
++static struct platform_device *
++soc_button_device_create(struct pnp_dev *pdev,
++			 const struct soc_button_info *button_info,
++			 bool autorepeat)
++{
++	const struct soc_button_info *info;
++	struct platform_device *pd;
++	struct gpio_keys_button *gpio_keys;
++	struct gpio_keys_platform_data *gpio_keys_pdata;
++	int n_buttons = 0;
++	int gpio;
++	int error;
++
++	gpio_keys_pdata = devm_kzalloc(&pdev->dev,
++				       sizeof(*gpio_keys_pdata) +
++					sizeof(*gpio_keys) * MAX_NBUTTONS,
++				       GFP_KERNEL);
++	gpio_keys = (void *)(gpio_keys_pdata++);
++
++	for (info = button_info; info->name; info++) {
++		if (info->autorepeat != autorepeat)
++			continue;
++
++		gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
++			continue;
++
++		gpio_keys[n_buttons].type = info->event_type;
++		gpio_keys[n_buttons].code = info->event_code;
++		gpio_keys[n_buttons].gpio = gpio;
++		gpio_keys[n_buttons].active_low = 1;
++		gpio_keys[n_buttons].desc = info->name;
++		gpio_keys[n_buttons].wakeup = info->wakeup;
++		n_buttons++;
++	}
++
++	if (n_buttons == 0) {
++		error = -ENODEV;
++		goto err_free_mem;
++	}
++
++	gpio_keys_pdata->buttons = gpio_keys;
++	gpio_keys_pdata->nbuttons = n_buttons;
++	gpio_keys_pdata->rep = autorepeat;
++
++	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
++	if (!pd) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	error = platform_device_add_data(pd, gpio_keys_pdata,
++					 sizeof(*gpio_keys_pdata));
++	if (error)
++		goto err_free_pdev;
++
++	error = platform_device_add(pd);
++	if (error)
++		goto err_free_pdev;
++
++	return pd;
++
++err_free_pdev:
++	platform_device_put(pd);
++err_free_mem:
++	devm_kfree(&pdev->dev, gpio_keys_pdata);
++	return ERR_PTR(error);
++}
++
++static void soc_button_remove(struct pnp_dev *pdev)
++{
++	struct soc_button_data *priv = pnp_get_drvdata(pdev);
++	int i;
++
++	for (i = 0; i < BUTTON_TYPES; i++)
++		if (priv->children[i])
++			platform_device_unregister(priv->children[i]);
++}
++
++static int soc_button_pnp_probe(struct pnp_dev *pdev,
++				const struct pnp_device_id *id)
++{
++	const struct soc_button_info *button_info = (void *)id->driver_data;
++	struct soc_button_data *priv;
++	struct platform_device *pd;
++	int i;
++	int error;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	pnp_set_drvdata(pdev, priv);
++
++	for (i = 0; i < BUTTON_TYPES; i++) {
++		pd = soc_button_device_create(pdev, button_info, i == 0);
++		if (IS_ERR(pd)) {
++			error = PTR_ERR(pd);
++			if (error != -ENODEV) {
++				soc_button_remove(pdev);
++				return error;
++			}
++		}
++
++		priv->children[i] = pd;
++	}
++
++	if (!priv->children[0] && !priv->children[1])
++		return -ENODEV;
++
++	return 0;
++}
++
++static struct soc_button_info soc_button_INTCFD9[] = {
++	{ "power", 0, EV_KEY, KEY_POWER, false, true },
++	{ "home", 1, EV_KEY, KEY_HOME, false, true },
++	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
++	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false },
++	{ "rotation_lock", 4, EV_SW, SW_ROTATE_LOCK, false, false },
++	{ }
++};
++
++static const struct pnp_device_id soc_button_pnp_match[] = {
++	{ .id = "INTCFD9", .driver_data = (long)soc_button_INTCFD9 },
++	{ .id = "" }
++};
++MODULE_DEVICE_TABLE(pnp, soc_button_pnp_match);
++
++static struct pnp_driver soc_button_pnp_driver = {
++	.name		= KBUILD_MODNAME,
++	.id_table	= soc_button_pnp_match,
++	.probe          = soc_button_pnp_probe,
++	.remove		= soc_button_remove,
++};
++
++static int __init soc_button_init(void)
++{
++	return pnp_register_driver(&soc_button_pnp_driver);
++}
++
++static void __exit soc_button_exit(void)
++{
++	pnp_unregister_driver(&soc_button_pnp_driver);
++}
++
++module_init(soc_button_init);
++module_exit(soc_button_exit);
++
++MODULE_LICENSE("GPL");

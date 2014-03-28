@@ -1,38 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Fri, 28 Mar 2014 00:56:55 -0700
-Message-ID: <20140328075655.GE22093@core.coreip.homeip.net>
-References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
- <20140320172159.GA27400@srcf.ucam.org>
+Subject: Re: [PATCH] input: cypress_ps2: Don't report the cypress PS/2
+ trackpads as a button pad
+Date: Fri, 28 Mar 2014 01:01:27 -0700
+Message-ID: <20140328080127.GF22093@core.coreip.homeip.net>
+References: <1395668975-10588-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f52.google.com ([209.85.160.52]:35743 "EHLO
+	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751038AbaC1IBb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Mar 2014 04:01:31 -0400
+Received: by mail-pb0-f52.google.com with SMTP id rr13so4662590pbb.39
+        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 01:01:30 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20140320172159.GA27400@srcf.ucam.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1395668975-10588-1-git-send-email-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Adam Williamson <awilliam@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
-> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
+On Mon, Mar 24, 2014 at 02:49:35PM +0100, Hans de Goede wrote:
+> The cypress PS/2 trackpad models supported by the cypress_ps2 driver emulate
+> BTN_RIGHT events in firmware based on the finger position, as part of this
+> no motion events are sent when the finger is in the button area.
 > 
-> > Which in the end turns out to be much nicer too, since it gets rid of needing
-> > a udev-helper too. After this much too long introduction I'll let the patches
-> > speak for themselves.
+> The INPUT_PROP_BUTTONPAD property is there to indicate to userspace that
+> BTN_RIGHT events should be emulated in userspace, which is not necessary
+> in this case.
 > 
-> Yeah, I was coming to the conclusion that this was probably the best we 
-> could do. It's unfortunate that "id" is already in use - we'd be able to 
-> get away without any X server modifications otherwise.
+> When INPUT_PROP_BUTTONPAD is advertised userspace will wait for a motion event
+> before propagating the button event higher up the stack, as it needs current
+> abs x + y data for its BTN_RIGHT emulation. Since in the cypress_ps2 pads
+> don't report motion events in the button area, this means that clicks in the
+> button area end up being ignored, so INPUT_PROP_BUTTONPAD actually causes
+> problems for these touchpads, and removing it fixes:
 > 
-> Long term we probably still want to tie serio devices to the ACPI 
-> devices in case the vendor provides power management calls there, but we 
-> can leave that until there's an actual example.
+> https://bugs.freedesktop.org/show_bug.cgi?id=76341
+> 
+> Reported-by: Adam Williamson <awilliam@redhat.com>
+> Tested-by: Adam Williamson <awilliam@redhat.com>
+> Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+> Cc: Adam Williamson <awilliam@redhat.com>
+> Cc: Peter Hutterer <peter.hutterer@who-t.net>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-I am still unsure if we shoudl be adding these new IDs to serio core...
-Can't the X driver take a peek at ACPI devices on it's own?
+Applied, thank you.
 
-Thanks.
+> ---
+>  drivers/input/mouse/cypress_ps2.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+> index 87095e2..8af34ff 100644
+> --- a/drivers/input/mouse/cypress_ps2.c
+> +++ b/drivers/input/mouse/cypress_ps2.c
+> @@ -409,7 +409,6 @@ static int cypress_set_input_params(struct input_dev *input,
+>  	__clear_bit(REL_X, input->relbit);
+>  	__clear_bit(REL_Y, input->relbit);
+>  
+> -	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>  	__set_bit(EV_KEY, input->evbit);
+>  	__set_bit(BTN_LEFT, input->keybit);
+>  	__set_bit(BTN_RIGHT, input->keybit);
+> -- 
+> 1.9.0
+> 
 
 -- 
 Dmitry

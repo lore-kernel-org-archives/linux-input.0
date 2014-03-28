@@ -1,51 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics add manual min/max quirk
-Date: Fri, 28 Mar 2014 09:09:24 -0700
-Message-ID: <20140328160924.GB22658@core.coreip.homeip.net>
-References: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
- <20140328082949.GJ22093@core.coreip.homeip.net>
+Subject: Re: [PATCH 1/3] Input: synaptics-rmi4 - add capabilities for
+ touchpads
+Date: Fri, 28 Mar 2014 09:15:05 -0700
+Message-ID: <20140328161505.GC22658@core.coreip.homeip.net>
+References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com>
+ <5329A9CE.1080504@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:37202 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752079AbaC1QJ2 (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:37289 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751228AbaC1QPK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 12:09:28 -0400
+	Fri, 28 Mar 2014 12:15:10 -0400
+Received: by mail-pa0-f54.google.com with SMTP id lf10so5257603pab.27
+        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 09:15:09 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20140328082949.GJ22093@core.coreip.homeip.net>
+In-Reply-To: <5329A9CE.1080504@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: Christopher Heiny <cheiny@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Fri, Mar 28, 2014 at 01:29:50AM -0700, Dmitry Torokhov wrote:
-> On Fri, Mar 07, 2014 at 10:49:24AM -0500, Benjamin Tissoires wrote:
-> > The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
-> > However, these new Synaptics devices report bad axis ranges.
-> > Under Windows, it is not a problem because the Windows driver uses RMI4
-> > over SMBus to talk to the device. Under Linux, we are using the PS/2
-> > fallback interface and it occurs the reported ranges are wrong.
-> > 
-> > Of course, it would be too easy to have only one range for the whole
-> > series, each touchpad seems to be calibrated in a different way.
-> > 
-> > We can not use SMBus to get the actual range because I suspect the firmware
-> > will switch into the SMBus mode and stop talking through PS/2 (this is the
-> > case for hybrid HID over I2C / PS/2 Synaptics touchpads).
-> > 
-> > So as a temporary solution (until RMI4 land into upstream), start a new
-> > list of quirks with the min/max manually set.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > CC: stable@vger.kernel.org
+On Wed, Mar 19, 2014 at 10:29:34AM -0400, Benjamin Tissoires wrote:
+> Hi Chris,
 > 
+> On 03/18/2014 09:03 PM, Christopher Heiny wrote:
+> >When the device is a touchpad additional capabilities need to
+> >be set and reported.
+> >
 > 
-> Applied, thank you.
+> We have a problem here. While this patch would have been fine in the
+> pre-v3.8 era, it is not true anymore.
+> However, the current branch where synaptics-rmi4 is attached is v3.4.
+> 
+> So if you use the right API (the current one), it will not compile :(
+> 
+> Dmitry, would it be possible to update the branch to at least v3.8
+> to get the new input-mt API? (if the Synaptics guys are ok).
 
-That was giving compiler errors when configured without synaptics
-support so I had fiddle with the patch a bit. I'll take full
-responsibility for any breakage ;)
+If we are getting ready to pull it into mainline (and I think we are
+for F01 and F11 support) then I think I should simply uprev to the
+latest released kernel.
 
 Thanks.
 

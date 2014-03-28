@@ -1,74 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] input: clps711x-keypad: dts: Add bindings
- documentation
-Date: Fri, 28 Mar 2014 09:43:24 -0700
-Message-ID: <20140328164324.GC7582@core.coreip.homeip.net>
-References: <1395165888-17434-1-git-send-email-shc_work@mail.ru>
- <1395165888-17434-2-git-send-email-shc_work@mail.ru>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2MyAxLzJdIGlucHV0OiBBZGQgbmV3IGRyaXZlciBmb3Ig?=
+ =?UTF-8?B?QVJNIENMUFM3MTFYIGtleXBhZA==?=
+Date: Fri, 28 Mar 2014 20:46:20 +0400
+Message-ID: <1396025180.244799414@f221.i.mail.ru>
+References: <1395165739-17378-1-git-send-email-shc_work@mail.ru>
+ <20140328164228.GA7582@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:62715 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751819AbaC1Qn2 (ORCPT
+Received: from fallback7.mail.ru ([94.100.176.135]:53362 "EHLO
+	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751340AbaC1Qqj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 12:43:28 -0400
-Content-Disposition: inline
-In-Reply-To: <1395165888-17434-2-git-send-email-shc_work@mail.ru>
+	Fri, 28 Mar 2014 12:46:39 -0400
+Received: from f221.i.mail.ru (f221.i.mail.ru [94.100.185.74])
+	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id 26580FD57F7C
+	for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 20:46:32 +0400 (MSK)
+In-Reply-To: <20140328164228.GA7582@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Mar 18, 2014 at 10:04:48PM +0400, Alexander Shiyan wrote:
-> This patch adds the devicetree documentation for the Cirrus Logic
-> CLPS711X keypad.
-> 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-
-I picked this one up and folded into the driver patch.
-
-> ---
->  .../devicetree/bindings/input/clps711x-keypad.txt  | 27 ++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/clps711x-keypad.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/clps711x-keypad.txt b/Documentation/devicetree/bindings/input/clps711x-keypad.txt
-> new file mode 100644
-> index 0000000..93fa2c1
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/clps711x-keypad.txt
-> @@ -0,0 +1,27 @@
-> +* Cirrus Logic CLPS711X matrix keypad device tree bindings
-> +
-> +Required Properties:
-> +- compatible:    Shall contain "cirrus,clps711x-keypad".
-> +- row-gpios:     List of GPIOs used as row lines.
-> +- poll-interval: Poll interval time in milliseconds.
-> +- linux,keymap:  The definition can be found at
-> +                 bindings/input/matrix-keymap.txt.
-> +
-> +Optional Properties:
-> +- autorepeat:    Enable autorepeat feature.
-> +
-> +Example:
-> +	keypad {
-> +		compatible = "cirrus,ep7312-keypad", "cirrus,clps711x-keypad";
-> +		autorepeat;
-> +		poll-interval = <120>;
-> +		row-gpios = <&porta 0 0>,
-> +			    <&porta 1 0>;
-> +
-> +		linux,keymap = <
-> +			MATRIX_KEY(0, 0, KEY_UP)
-> +			MATRIX_KEY(0, 1, KEY_DOWN)
-> +			MATRIX_KEY(1, 0, KEY_LEFT)
-> +			MATRIX_KEY(1, 1, KEY_RIGHT)
-> +		>;
-> +	};
-> -- 
-> 1.8.3.2
-> 
-
--- 
-Dmitry
+RnJpLCAyOCBNYXIgMjAxNCAwOTo0MjoyOCAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
+dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gSGkgQWxleGFuZGVyLAo+IAo+IE9uIFR1ZSwgTWFy
+IDE4LCAyMDE0IGF0IDEwOjAyOjE5UE0gKzA0MDAsIEFsZXhhbmRlciBTaGl5YW4gd3JvdGU6Cj4g
+PiArCWVyciA9IGlucHV0X3JlZ2lzdGVyX3BvbGxlZF9kZXZpY2UocG9sbF9kZXYpOwo+ID4gKwlp
+ZiAoIWVycikgewo+ID4gKwkJLyogUmVwb3J0IGluaXRpYWwgc3RhdGUgKi8KPiA+ICsJCWNscHM3
+MTF4X2tleXBhZF9wb2xsKHBvbGxfZGV2KTsKPiA+ICsKPiA+ICsJCXJldHVybiAwOwo+ID4gKwl9
+Cj4gCj4gVGhlIHBvbGxlZCBkZXZpY2UgY29yZSB3aWxsIHJlcG9ydCBpbml0aWFsIHN0YXRlIHdo
+ZW4gaW5wdXQgZGV2aWNlIGlzCj4gb3BlbmVkIChhcyBsb25nIGFzIHBvbGxpbmcgaXMgZW5hYmxl
+ZCkgc28gSSByZW1vdmVkIHRoaXMgY3VuayBhbmQKPiBhcHBsaWVkIHRoZSByZXN0LgoKVG9kYXkg
+SSBzdHVtYmxlZCB3aXRoIHJhY2UgY29uZGl0aW9uIHdpdGggdGhpcywgc28geW91ciBzb2x1dGlv
+biBpcyBPSy4KVGhhbmtzLgoKLS0tCgo=

@@ -1,79 +1,144 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Fri, 28 Mar 2014 10:05:00 +0100
-Message-ID: <53353B3C.90600@redhat.com>
-References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com> <20140320172159.GA27400@srcf.ucam.org> <20140328075655.GE22093@core.coreip.homeip.net> <53352EFB.8000309@redhat.com> <20140328081739.GG22093@core.coreip.homeip.net> <533532FE.2000304@redhat.com> <20140328085207.GN22093@core.coreip.homeip.net>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 01/10] mfd: AXP20x: Add mfd driver for
+ AXP20x PMIC
+Date: Fri, 28 Mar 2014 09:21:54 +0000
+Message-ID: <20140328092154.GF17779@lee--X1>
+References: <1395955764-18103-1-git-send-email-carlo@caione.org>
+ <1395955764-18103-2-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20140328085207.GN22093@core.coreip.homeip.net>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBN762SMQKGQESCKERJA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1395955764-18103-2-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+> This patch introduces the preliminary support for PMICs X-Powers AXP202
+> and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
+> used by A10, A13 and A20 SoCs and developed by X-Powers, a sister company
+> of Allwinner.
+>=20
+> The core enables support for two subsystems:
+> - PEK (Power Enable Key)
+> - Regulators
+>=20
+> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/mfd/Kconfig        |  12 +++
+>  drivers/mfd/Makefile       |   1 +
+>  drivers/mfd/axp20x.c       | 240 +++++++++++++++++++++++++++++++++++++++=
+++++++
+>  include/linux/mfd/axp20x.h | 180 ++++++++++++++++++++++++++++++++++
+>  4 files changed, 433 insertions(+)
+>  create mode 100644 drivers/mfd/axp20x.c
+>  create mode 100644 include/linux/mfd/axp20x.h
+>=20
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index 49bb445..24ba61a 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -59,6 +59,18 @@ config MFD_AAT2870_CORE
+>  	  additional drivers must be enabled in order to use the
+>  	  functionality of the device.
+> =20
+> +config MFD_AXP20X
+> +	bool "X-Powers AXP20X"
+> +	select MFD_CORE
+> +	select REGMAP_I2C
+> +	select REGMAP_IRQ
+> +	depends on I2C=3Dy
+> +	help
+> +	  If you say Y here you get support for the AXP20X.
+> +	  This driver provides common support for accessing the device,
+> +	  additional drivers must be enabled in order to use the
+> +	  functionality of the device.
 
-On 03/28/2014 09:52 AM, Dmitry Torokhov wrote:
-> On Fri, Mar 28, 2014 at 09:29:50AM +0100, Hans de Goede wrote:
->> Hi,
->>
->> On 03/28/2014 09:17 AM, Dmitry Torokhov wrote:
->>> On Fri, Mar 28, 2014 at 09:12:43AM +0100, Hans de Goede wrote:
->>>> Hi,
->>>>
->>>> On 03/28/2014 08:56 AM, Dmitry Torokhov wrote:
->>>>> On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
->>>>>> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
->>>>>>
->>>>>>> Which in the end turns out to be much nicer too, since it gets rid of needing
->>>>>>> a udev-helper too. After this much too long introduction I'll let the patches
->>>>>>> speak for themselves.
->>>>>>
->>>>>> Yeah, I was coming to the conclusion that this was probably the best we 
->>>>>> could do. It's unfortunate that "id" is already in use - we'd be able to 
->>>>>> get away without any X server modifications otherwise.
->>>>>>
->>>>>> Long term we probably still want to tie serio devices to the ACPI 
->>>>>> devices in case the vendor provides power management calls there, but we 
->>>>>> can leave that until there's an actual example.
->>>>>
->>>>> I am still unsure if we shoudl be adding these new IDs to serio core...
->>>>> Can't the X driver take a peek at ACPI devices on it's own?
->>>>
->>>> The problem is there is no way for userspace to know which /sys/devices/pnp0/00:xx
->>>> device is the serio bus host.
->>>
->>> Practically speaking you should not care - there is only one touchpad in
->>> Lenovos.
->>
->> So are you suggesting we simply go over all /sys/devices/pnp0/00:xx devices looking
->> for a pnp-id we're interested  in ?  I'm sorry but that is just a non-sense solution,
->> which reminds me of the good old days of random poking io-ports to probe stuff.
->>
->> We're not blindly going to read every /sys/devices/pnp0/00:xx/id attribute on a
->> system, assuming that if it contains a pnp-id we're interested in it happens to
->> belong to the input device we're enumerating at that time.
-> 
-> Are we even certain that they will be consistent in use of these special
-> PNP ID's? Maybe you should really do DMI match...
+Please tell us what this device is and what sub-devices are available?
 
-They are more consistent with PNP ids then with their DMI strings, that is if they
-re-use the exact same touchpad the PNP id stays the same. So PNP ids give us a
-better chance of things just working without the user needing to wait for a distro
-update which has the new DMI strings in there.
+[...]
 
-And yes so far the PNP ids use we want to-do is Lenovo only, as we've just discovered
-that they are actually storing some useful info in there. If we need quirks for other
-vendor laptops in the future, chances are we may want to do pnp-id matching there too.
+> diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+> new file mode 100644
+> index 0000000..f77a663
+> --- /dev/null
+> +++ b/drivers/mfd/axp20x.c
+> @@ -0,0 +1,240 @@
+> +/*
+> + * axp20x.c - MFD core driver for the X-Powers AXP202 and AXP209
 
-I've deliberately tried to write this patch-set so that it adds a generic way to export
-extra info the platform specific code may have. I could have added a pnp-id pointer to
-the serio struct, but I deliberately went with a free-form string so as to make this
-as generic as possible. As Matthew has already said we may want to also export extra
-info from devicetree through this mechanism for example.
+... which consist of ...
 
-Regards,
+[...]
 
-Hans
+> +static struct resource axp20x_pek_resources[] =3D {
+> +	{
+> +		.name	=3D "PEK_DBR",
+> +		.start	=3D AXP20X_IRQ_PEK_RIS_EDGE,
+> +		.end	=3D AXP20X_IRQ_PEK_RIS_EDGE,
+> +		.flags	=3D IORESOURCE_IRQ,
+> +	}, {
+> +		.name	=3D "PEK_DBF",
+> +		.start	=3D AXP20X_IRQ_PEK_FAL_EDGE,
+> +		.end	=3D AXP20X_IRQ_PEK_FAL_EDGE,
+> +		.flags	=3D IORESOURCE_IRQ,
+> +	},
+> +};
+
+Have you considered doing this in the Device Tree? It's a lot less
+code/overhead.
+
+> +static const struct i2c_device_id axp20x_i2c_id[] =3D {
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(i2c, axp20x_i2c_id);
+=20
+We really should consider changing the I2C subsystem!
+
+Can you add a comment here describing why we have to add this
+seemingly pointless empty struct please?
+
+> +static struct mfd_cell axp20x_cells[] =3D {
+> +	{
+> +		.name		=3D "axp20x-pek",
+> +		.num_resources	=3D ARRAY_SIZE(axp20x_pek_resources),
+> +		.resources	=3D axp20x_pek_resources,
+> +	}, {
+> +		.name		=3D "axp20x-regulator",
+> +	},
+> +};
+
+Do these drivers don't look inside the DTB at all?
+
+[...]
+
+> +	of_id =3D of_match_device(axp20x_of_match, &i2c->dev);
+> +	if (!of_id) {
+> +		dev_err(&i2c->dev, "Unable to setup AXP20X data\n");
+> +		return -ENODEV;
+> +	}
+> +	axp20x->variant =3D (int) of_id->data;
+
+'variant' needs to be a (unsigned?) long or it will break on 64bit
+architectures.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

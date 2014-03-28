@@ -1,59 +1,365 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: Re: [linux-sunxi] Re: [PATCH v3 08/10] ARM: sun7i/sun4i: dt: Add
- AXP209 support to various boards
-Date: Fri, 28 Mar 2014 08:37:06 +0100
-Message-ID: <CAOQ7t2bHdNHAtAS9dr6L=tJek+kP5NeNdmqSMy26vAdGX2=4Cg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 04/10] input: misc: Add driver for AXP20x
+ Power Enable Key
+Date: Fri, 28 Mar 2014 00:38:03 -0700
+Message-ID: <20140328073803.GA22093@core.coreip.homeip.net>
 References: <1395955764-18103-1-git-send-email-carlo@caione.org>
-	<1395955764-18103-9-git-send-email-carlo@caione.org>
-	<CAGb2v67a6kVMe9vxBYrQQtucVqpyvUby1Hyt3RBina8sKj9HOw@mail.gmail.com>
+ <1395955764-18103-5-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from srv-hp10.netsons.net ([94.141.22.71]:46082 "EHLO
-	srv-hp10.netsons.net" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750955AbaC1Hhe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 03:37:34 -0400
-In-Reply-To: <CAGb2v67a6kVMe9vxBYrQQtucVqpyvUby1Hyt3RBina8sKj9HOw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRBX6N2SMQKGQE54HCQIQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1395955764-18103-5-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: wens Tsai <wens@csie.org>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "maxime.ripard" <maxime.ripard@free-electrons.com>, Hans De Goede <hdegoede@redhat.com>, Emilio Lopez <emilio@elopez.com.ar>, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, linux-sunxi@googlegroups.com
 
-On Fri, Mar 28, 2014 at 4:12 AM, Chen-Yu Tsai <wens@csie.org> wrote:
->> diff --git a/arch/arm/boot/dts/sun4i-a10-a1000.dts b/arch/arm/boot/dts/sun4i-a10-a1000.dts
->> index fa746aea..cf18c4d 100644
->> --- a/arch/arm/boot/dts/sun4i-a10-a1000.dts
->> +++ b/arch/arm/boot/dts/sun4i-a10-a1000.dts
->> @@ -88,6 +88,19 @@
->>                         pinctrl-names = "default";
->>                         pinctrl-0 = <&i2c0_pins_a>;
->>                         status = "okay";
->> +                       #address-cells = <1>;
->> +                       #size-cells = <0>;
->> +
->> +                       axp: axp20x@34 {
->
-> Hi,
->
-> Sorry for spotting this just now. I suggest you change it to
->
->                           axp209: pmic@34 {
->
-> or
->
->                           axp209_pmic@34 {
->
-> to match the ePAPR policy that node names should be generic and
-> describe functionality. The latter is what some DTs use.
+Hi Carlo,
 
-Right. Thanks for reviewing this.
+On Thu, Mar 27, 2014 at 10:29:18PM +0100, Carlo Caione wrote:
+> This patch add support for the Power Enable Key found on MFD AXP202 and
+> AXP209. Besides the basic support for the button, the driver adds two
+> entries in sysfs to configure the time delay for power on/off.
+> 
+> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/input/misc/Kconfig      |  11 ++
+>  drivers/input/misc/Makefile     |   1 +
+>  drivers/input/misc/axp20x-pek.c | 260 ++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 272 insertions(+)
+>  create mode 100644 drivers/input/misc/axp20x-pek.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 7904ab0..87244fb 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -393,6 +393,17 @@ config INPUT_RETU_PWRBUTTON
+>  	  To compile this driver as a module, choose M here. The module will
+>  	  be called retu-pwrbutton.
+>  
+> +config INPUT_AXP20X_PEK
+> +	tristate "X-Powers AXP20X power button driver"
+> +	depends on MFD_AXP20X
+> +	help
+> +	  Say Y here if you want to enable power key reporting via the
+> +	  AXP20X PMIC.
+> +
+> +	  To compile this driver as a module, choose M here. The module will
+> +	  be called axp20x-pek.
+> +
+> +
+>  config INPUT_TWL4030_PWRBUTTON
+>  	tristate "TWL4030 Power button Driver"
+>  	depends on TWL4030_CORE
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index cda71fc..624abf5 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -50,6 +50,7 @@ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+>  obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+>  obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+>  obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+> +obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+>  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+>  obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+>  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+> new file mode 100644
+> index 0000000..6698a69
+> --- /dev/null
+> +++ b/drivers/input/misc/axp20x-pek.c
+> @@ -0,0 +1,260 @@
+> +/*
+> + * axp20x power button driver.
+> + *
+> + * Copyright (C) 2013 Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> + *
+> + * This file is subject to the terms and conditions of the GNU General
+> + * Public License. See the file "COPYING" in the main directory of this
+> + * archive for more details.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/irq.h>
+> +#include <linux/init.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/axp20x.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +
+> +#define AXP20X_PEK_STARTUP_MASK		(0xc0)
+> +#define AXP20X_PEK_SHUTDOWN_MASK	(0x03)
+> +
+> +static const char const *startup_time[] = { "128ms", "3s" , "1s", "2s" };
+> +static const char const *shutdown_time[] = { "4s", "6s" , "8s", "10s" };
 
-> Same for all the other files.
->
-> Thanks for working on this!
+Why not have everything expressed in milliseconds and have sysfs
+attribute apply the closest one possible?
 
-Thank you,
+By the way, do you want to plumb these through device tree as well?
+
+> +
+> +struct axp20x_pek {
+> +	struct axp20x_dev *axp20x;
+> +	struct input_dev *input;
+> +	int irq_dbr;
+> +	int irq_dbf;
+> +};
+> +
+> +struct axp20x_pek_ext_attr {
+> +	const char const **str;
+> +	unsigned int mask;
+> +};
+> +
+> +static struct axp20x_pek_ext_attr axp20x_pek_startup_ext_attr = {
+> +	.str	= startup_time,
+> +	.mask	= AXP20X_PEK_STARTUP_MASK,
+> +};
+> +
+> +static struct axp20x_pek_ext_attr axp20x_pek_shutdown_ext_attr = {
+> +	.str	= shutdown_time,
+> +	.mask	= AXP20X_PEK_SHUTDOWN_MASK,
+> +};
+> +
+> +static struct axp20x_pek_ext_attr *get_axp_ext_attr(struct device_attribute *attr)
+> +{
+> +	return container_of(attr, struct dev_ext_attribute, attr)->var;
+> +}
+> +
+> +static ssize_t axp20x_show_ext_attr(struct device *dev, struct device_attribute *attr,
+> +			     char *buf)
+> +{
+> +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+> +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
+> +	unsigned int val;
+> +	int ret, i;
+> +	int cnt = 0;
+> +
+> +	ret = regmap_read(axp20x_pek->axp20x->regmap, AXP20X_PEK_KEY, &val);
+> +	if (ret != 0)
+> +		return ret;
+> +
+> +	val &= axp20x_ea->mask;
+> +	val >>= ffs(axp20x_ea->mask) - 1;
+> +
+> +	for (i = 0; i < 4; i++) {
+> +		if (val == i)
+> +			cnt += sprintf(buf + cnt, "[%s] ", axp20x_ea->str[i]);
+> +		else
+> +			cnt += sprintf(buf + cnt, "%s ", axp20x_ea->str[i]);
+
+Please just return the current value; why do we need pretty-printing?
+
+> +	}
+> +
+> +	cnt += sprintf(buf + cnt, "\n");
+> +
+> +	return cnt;
+> +}
+> +
+> +static ssize_t axp20x_store_ext_attr(struct device *dev, struct device_attribute *attr,
+> +			      const char *buf, size_t count)
+> +{
+> +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+> +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
+> +	char val_str[20];
+> +	int ret, i;
+> +	size_t len;
+> +
+> +	val_str[sizeof(val_str) - 1] = '\0';
+> +	strncpy(val_str, buf, sizeof(val_str) - 1);
+> +	len = strlen(val_str);
+> +
+> +	if (len && val_str[len - 1] == '\n')
+> +		val_str[len - 1] = '\0';
+> +
+> +	for (i = 0; i < 4; i++) {
+> +		if (!strcmp(val_str, axp20x_ea->str[i])) {
+> +
+> +			i <<= ffs(axp20x_ea->mask) - 1;
+> +			ret = regmap_update_bits(axp20x_pek->axp20x->regmap,
+> +						 AXP20X_PEK_KEY,
+> +						 axp20x_ea->mask, i);
+> +			if (ret != 0)
+> +				return -EINVAL;
+> +			return count;
+> +		}
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static struct dev_ext_attribute axp20x_dev_attr_startup = {
+> +	.attr	= __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
+> +	.var	= &axp20x_pek_startup_ext_attr
+> +};
+> +
+> +static struct dev_ext_attribute axp20x_dev_attr_shutdown = {
+> +	__ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
+> +	&axp20x_pek_shutdown_ext_attr
+> +};
+> +
+> +static struct attribute *dev_attrs[] = {
+> +	&axp20x_dev_attr_startup.attr.attr,
+> +	&axp20x_dev_attr_shutdown.attr.attr,
+> +	NULL,
+> +};
+> +
+> +static struct attribute_group dev_attr_group = {
+> +	.attrs	= dev_attrs,
+> +};
+> +
+> +static const struct attribute_group *dev_attr_groups[] = {
+> +	&dev_attr_group,
+> +	NULL,
+> +};
+> +
+> +static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+> +{
+> +	struct input_dev *idev = pwr;
+> +	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
+> +
+> +	if (irq == axp20x_pek->irq_dbr)
+> +		input_report_key(idev, KEY_POWER, true);
+> +	else if (irq == axp20x_pek->irq_dbf)
+> +		input_report_key(idev, KEY_POWER, false);
+> +
+> +	input_sync(idev);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int axp20x_pek_probe(struct platform_device *pdev)
+> +{
+> +	struct axp20x_pek *axp20x_pek;
+> +	struct axp20x_dev *axp20x;
+> +	struct input_dev *idev;
+> +	int error;
+> +
+> +	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
+> +				  GFP_KERNEL);
+> +	if (!axp20x_pek)
+> +		return -ENOMEM;
+> +
+> +	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+> +	axp20x = axp20x_pek->axp20x;
+> +
+> +	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
+> +	if (axp20x_pek->irq_dbr < 0) {
+> +		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
+> +				axp20x_pek->irq_dbr);
+> +		return axp20x_pek->irq_dbr;
+> +	}
+> +	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
+> +						  axp20x_pek->irq_dbr);
+> +
+> +	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
+> +	if (axp20x_pek->irq_dbf < 0) {
+> +		dev_err(&pdev->dev, "No IRQ for PEK_DBF, error=%d\n",
+> +				axp20x_pek->irq_dbf);
+> +		return axp20x_pek->irq_dbf;
+> +	}
+> +	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
+> +						  axp20x_pek->irq_dbf);
+> +
+> +	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
+> +	if (!axp20x_pek->input)
+> +		return -ENOMEM;
+> +
+> +	idev = axp20x_pek->input;
+> +
+> +	idev->name = "axp20x-pek";
+> +	idev->phys = "m1kbd/input2";
+> +	idev->dev.parent = &pdev->dev;
+> +
+> +	input_set_capability(idev, EV_KEY, KEY_POWER);
+> +
+> +	input_set_drvdata(idev, axp20x_pek);
+> +
+> +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbr,
+> +					  NULL, axp20x_pek_irq, 0,
+> +					  "axp20x-pek-dbr", idev);
+
+Why does it have to be threaded IRQ?
+
+> +	if (error) {
+> +		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
+> +			axp20x_pek->irq_dbr, error);
+> +
+> +		return error;
+> +	}
+> +
+> +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbf,
+> +					  NULL, axp20x_pek_irq, 0,
+> +					  "axp20x-pek-dbf", idev);
+> +	if (error) {
+> +		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
+> +			axp20x_pek->irq_dbf, error);
+> +		return error;
+> +	}
+> +
+> +	idev->dev.groups = dev_attr_groups;
+
+These are not generic input attributes so they should belong to the platform
+device, not input device.
+
+> +	error = input_register_device(idev);
+> +	if (error) {
+> +		dev_err(axp20x->dev, "Can't register input device: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, axp20x_pek);
+> +
+> +	return 0;
+> +}
+> +
+> +static int axp20x_pek_remove(struct platform_device *pdev)
+> +{
+> +	struct axp20x_pek *axp20x_pek = platform_get_drvdata(pdev);
+> +
+> +	input_unregister_device(axp20x_pek->input);
+
+No need to call input_unregister_device() for managed input devices.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver axp20x_pek_driver = {
+> +	.probe		= axp20x_pek_probe,
+> +	.remove		= axp20x_pek_remove,
+> +	.driver		= {
+> +		.name		= "axp20x-pek",
+> +		.owner		= THIS_MODULE,
+> +	},
+> +};
+> +module_platform_driver(axp20x_pek_driver);
+> +
+> +MODULE_DESCRIPTION("axp20x Power Button");
+> +MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 1.8.3.2
+> 
+
+Thanks.
 
 -- 
-Carlo Caione
+Dmitry

@@ -1,41 +1,56 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Fri, 28 Mar 2014 08:27:04 +0000
-Message-ID: <20140328082704.GC6801@srcf.ucam.org>
-References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
- <20140320172159.GA27400@srcf.ucam.org>
- <20140328075655.GE22093@core.coreip.homeip.net>
- <20140328082004.GA6801@srcf.ucam.org>
- <20140328082452.GH22093@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: synaptics add manual min/max quirk for ThinkPad
+ X240
+Date: Fri, 28 Mar 2014 01:29:31 -0700
+Message-ID: <20140328082931.GI22093@core.coreip.homeip.net>
+References: <1394278521-6870-1-git-send-email-hdegoede@redhat.com>
+ <1394278521-6870-2-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140328082452.GH22093@core.coreip.homeip.net>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1394278521-6870-2-git-send-email-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 28, 2014 at 01:24:52AM -0700, Dmitry Torokhov wrote:
-> On Fri, Mar 28, 2014 at 08:20:04AM +0000, Matthew Garrett wrote:
-> > On Fri, Mar 28, 2014 at 12:56:55AM -0700, Dmitry Torokhov wrote:
-> > 
-> > > I am still unsure if we shoudl be adding these new IDs to serio core...
-> > > Can't the X driver take a peek at ACPI devices on it's own?
-> > 
-> > In the (admittedly unlikely) event of multiple PS/2 trackpads, how do 
-> > you know which one corresponds to which ACPI device?
+On Sat, Mar 08, 2014 at 12:35:21PM +0100, Hans de Goede wrote:
+> This extends Benjamin Tissoires manual min/max quirk table with support for
+> the ThinkPad X240.
 > 
-> So far I have not seen a single instance of a laptop with 2 touchpads
-> and I doubt external PS/2 ones will ever make come back.
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Right, we can hack around it based on what we've seen so far. But it 
-seems more attractive to fix it in such a way that we won't behave 
-inappropriately even if someone does do something utterly unexpected in 
-future. For instance, some ARM devices have i8042-like serio - if the 
-underlying device is exposed in device tree, it'd be nice to be able to 
-expose that to userspace without having to modify the core X code.
+
+Applied, thank you.
+
+> ---
+>  drivers/input/mouse/synaptics.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index ff6a4cf..b522bdc 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -1505,6 +1505,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+>  		.driver_data = (int []){1024, 5052, 2258, 4832},
+>  	},
+>  	{
+> +		/* Lenovo ThinkPad X240 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad X240"),
+> +		},
+> +		.driver_data = (int []){1232, 5710, 1156, 4696},
+> +	},
+> +	{
+>  		/* Lenovo ThinkPad T440s */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> -- 
+> 1.8.4.2
+> 
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Dmitry

@@ -1,72 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cypress_ps2: Don't report the cypress PS/2
- trackpads as a button pad
-Date: Fri, 28 Mar 2014 01:01:27 -0700
-Message-ID: <20140328080127.GF22093@core.coreip.homeip.net>
-References: <1395668975-10588-1-git-send-email-hdegoede@redhat.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 00/10] mfd: AXP20x: Add support for AXP202 and AXP209
+Date: Fri, 28 Mar 2014 08:01:37 +0000
+Message-ID: <20140328080137.GE17779@lee--X1>
+References: <1395955764-18103-1-git-send-email-carlo@caione.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:35743 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751038AbaC1IBb (ORCPT
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:62982 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751150AbaC1IBm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 04:01:31 -0400
-Received: by mail-pb0-f52.google.com with SMTP id rr13so4662590pbb.39
-        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 01:01:30 -0700 (PDT)
+	Fri, 28 Mar 2014 04:01:42 -0400
+Received: by mail-wi0-f175.google.com with SMTP id cc10so450151wib.2
+        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 01:01:41 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1395668975-10588-1-git-send-email-hdegoede@redhat.com>
+In-Reply-To: <1395955764-18103-1-git-send-email-carlo@caione.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Adam Williamson <awilliam@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Carlo Caione <carlo@caione.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org
 
-On Mon, Mar 24, 2014 at 02:49:35PM +0100, Hans de Goede wrote:
-> The cypress PS/2 trackpad models supported by the cypress_ps2 driver emulate
-> BTN_RIGHT events in firmware based on the finger position, as part of this
-> no motion events are sent when the finger is in the button area.
-> 
-> The INPUT_PROP_BUTTONPAD property is there to indicate to userspace that
-> BTN_RIGHT events should be emulated in userspace, which is not necessary
-> in this case.
-> 
-> When INPUT_PROP_BUTTONPAD is advertised userspace will wait for a motion event
-> before propagating the button event higher up the stack, as it needs current
-> abs x + y data for its BTN_RIGHT emulation. Since in the cypress_ps2 pads
-> don't report motion events in the button area, this means that clicks in the
-> button area end up being ignored, so INPUT_PROP_BUTTONPAD actually causes
-> problems for these touchpads, and removing it fixes:
-> 
-> https://bugs.freedesktop.org/show_bug.cgi?id=76341
-> 
-> Reported-by: Adam Williamson <awilliam@redhat.com>
-> Tested-by: Adam Williamson <awilliam@redhat.com>
-> Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
-> Cc: Adam Williamson <awilliam@redhat.com>
-> Cc: Peter Hutterer <peter.hutterer@who-t.net>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> AXP209 and AXP202 are the PMUs (Power Management Unit) used by A10, A=
+13
+> and A20 SoCs and developed by X-Powers, a sister company of Allwinner=
+=2E
+> AXP20x comprises an adaptive USB-Compatible PWM charger, 2 BUCK DC-DC
+> converters, 5 LDOs, multiple 12-bit ADCs of voltage, current and temp=
+erature
+> as well as 4 configurable GPIOs.=20
 
-Applied, thank you.
+[...]
 
-> ---
->  drivers/input/mouse/cypress_ps2.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-> index 87095e2..8af34ff 100644
-> --- a/drivers/input/mouse/cypress_ps2.c
-> +++ b/drivers/input/mouse/cypress_ps2.c
-> @@ -409,7 +409,6 @@ static int cypress_set_input_params(struct input_dev *input,
->  	__clear_bit(REL_X, input->relbit);
->  	__clear_bit(REL_Y, input->relbit);
->  
-> -	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->  	__set_bit(EV_KEY, input->evbit);
->  	__set_bit(BTN_LEFT, input->keybit);
->  	__set_bit(BTN_RIGHT, input->keybit);
-> -- 
-> 1.9.0
-> 
+> Carlo Caione (10):
+>   mfd: AXP20x: Add mfd driver for AXP20x PMIC
+>   dt-bindings: add vendor-prefix for X-Powers
+>   mfd: AXP20x: Add bindings documentation
+>   input: misc: Add driver for AXP20x Power Enable Key
+>   input: misc: Add ABI docs for AXP20x PEK
+>   regulator: AXP20x: Add support for regulators subsystem
+>   ARM: sunxi: dt: Add x-powers-axp209.dtsi file
+>   ARM: sun7i/sun4i: dt: Add AXP209 support to various boards
+>   ARM: sunxi: Add AXP20x support in defconfig
+>   ARM: sunxi: Add AXP20x support multi_v7_defconfig
 
--- 
-Dmitry
+I'm only CC'ed on two of these patches. In order to gain a full
+appreciation what what the set is trying to achieve, can you CC me on
+the entire set please?
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,56 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: synaptics add manual min/max quirk for ThinkPad
- X240
-Date: Fri, 28 Mar 2014 01:29:31 -0700
-Message-ID: <20140328082931.GI22093@core.coreip.homeip.net>
-References: <1394278521-6870-1-git-send-email-hdegoede@redhat.com>
- <1394278521-6870-2-git-send-email-hdegoede@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
+Date: Fri, 28 Mar 2014 09:29:50 +0100
+Message-ID: <533532FE.2000304@redhat.com>
+References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com> <20140320172159.GA27400@srcf.ucam.org> <20140328075655.GE22093@core.coreip.homeip.net> <53352EFB.8000309@redhat.com> <20140328081739.GG22093@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1394278521-6870-2-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20140328081739.GG22093@core.coreip.homeip.net>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Mar 08, 2014 at 12:35:21PM +0100, Hans de Goede wrote:
-> This extends Benjamin Tissoires manual min/max quirk table with support for
-> the ThinkPad X240.
+Hi,
+
+On 03/28/2014 09:17 AM, Dmitry Torokhov wrote:
+> On Fri, Mar 28, 2014 at 09:12:43AM +0100, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 03/28/2014 08:56 AM, Dmitry Torokhov wrote:
+>>> On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
+>>>> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
+>>>>
+>>>>> Which in the end turns out to be much nicer too, since it gets rid of needing
+>>>>> a udev-helper too. After this much too long introduction I'll let the patches
+>>>>> speak for themselves.
+>>>>
+>>>> Yeah, I was coming to the conclusion that this was probably the best we 
+>>>> could do. It's unfortunate that "id" is already in use - we'd be able to 
+>>>> get away without any X server modifications otherwise.
+>>>>
+>>>> Long term we probably still want to tie serio devices to the ACPI 
+>>>> devices in case the vendor provides power management calls there, but we 
+>>>> can leave that until there's an actual example.
+>>>
+>>> I am still unsure if we shoudl be adding these new IDs to serio core...
+>>> Can't the X driver take a peek at ACPI devices on it's own?
+>>
+>> The problem is there is no way for userspace to know which /sys/devices/pnp0/00:xx
+>> device is the serio bus host.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Practically speaking you should not care - there is only one touchpad in
+> Lenovos.
 
+So are you suggesting we simply go over all /sys/devices/pnp0/00:xx devices looking
+for a pnp-id we're interested  in ?  I'm sorry but that is just a non-sense solution,
+which reminds me of the good old days of random poking io-ports to probe stuff.
 
-Applied, thank you.
+We're not blindly going to read every /sys/devices/pnp0/00:xx/id attribute on a
+system, assuming that if it contains a pnp-id we're interested in it happens to
+belong to the input device we're enumerating at that time.
 
-> ---
->  drivers/input/mouse/synaptics.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index ff6a4cf..b522bdc 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1505,6 +1505,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
->  		.driver_data = (int []){1024, 5052, 2258, 4832},
->  	},
->  	{
-> +		/* Lenovo ThinkPad X240 */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad X240"),
-> +		},
-> +		.driver_data = (int []){1232, 5710, 1156, 4696},
-> +	},
-> +	{
->  		/* Lenovo ThinkPad T440s */
->  		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> -- 
-> 1.8.4.2
-> 
+Regards,
 
--- 
-Dmitry
+Hans

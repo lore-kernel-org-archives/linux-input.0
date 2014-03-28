@@ -1,67 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: sirfsoc-onkey - set the capability of reporting
- KEY_POWER
-Date: Fri, 28 Mar 2014 00:39:39 -0700
-Message-ID: <20140328073938.GB22093@core.coreip.homeip.net>
-References: <1393335375-1870-1-git-send-email-21cnbao@gmail.com>
- <CAGsJ_4wda0XnP9ML4e35_sjz8M5Qese-2yaeBVYBsW7gHEczxg@mail.gmail.com>
+Subject: Re: [PATCH] atkbd: Samsung NP530U3C laptop forced key release
+Date: Fri, 28 Mar 2014 00:48:41 -0700
+Message-ID: <20140328074841.GC22093@core.coreip.homeip.net>
+References: <20140311195448.0b722ea5@sambook>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:48991 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750955AbaC1Hjm (ORCPT
+Received: from mail-pb0-f42.google.com ([209.85.160.42]:52218 "EHLO
+	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750955AbaC1Hsp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 03:39:42 -0400
-Received: by mail-pb0-f53.google.com with SMTP id rp16so4618881pbb.40
-        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 00:39:41 -0700 (PDT)
+	Fri, 28 Mar 2014 03:48:45 -0400
+Received: by mail-pb0-f42.google.com with SMTP id rr13so4633233pbb.15
+        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 00:48:44 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAGsJ_4wda0XnP9ML4e35_sjz8M5Qese-2yaeBVYBsW7gHEczxg@mail.gmail.com>
+In-Reply-To: <20140311195448.0b722ea5@sambook>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Barry Song <Baohua.Song@csr.com>
+To: Arkadiusz Bokowy <arkadiusz.bokowy@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Mar 27, 2014 at 03:35:46PM +0800, Barry Song wrote:
-> 2014-02-25 21:36 GMT+08:00 Barry Song <21cnbao@gmail.com>:
-> > From: Xianglong Du <Xianglong.Du@csr.com>
-> >
-> > commit a1a7521064428fc1cf8 moved to report EV_KEY event(KEY_POWER) instead of
-> > reporting EV_PWR event(KEY_SUSPEND), but it didn't enable the capability, so
-> > the KEY_POWER will not be reported to userspace by input core. this patch fixes
-> > the issue.
-> >
-> > Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
-> > Signed-off-by: Barry Song <Baohua.Song@csr.com>
-> > ---
-> 
-> Dmitry, i guess you missed this one, this one should be in 3.15,
-> otherwise, onkey is broken.
+Hi Arkadiusz,
 
-Applied, thank you.
+On Tue, Mar 11, 2014 at 07:54:48PM +0100, Arkadiusz Bokowy wrote:
+> atkbd: Samsung NP530U3C laptop forced key release
+> 
+> For Samsung NP530U3C laptop (observed on firmware P09ABH) not all Fn keys
+> generates release event, which leaves key in a pressed state. This patch
+> adds those keys into the "forced release" workaround. Fixed keys: WLAN,
+> Settings, Fn Lock.
+> 
+> Patch generated for kernel version 3.13.6
 
-> 
-> 
-> >  drivers/input/misc/sirfsoc-onkey.c |    1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-> > index 4d66c72..e4104f9 100644
-> > --- a/drivers/input/misc/sirfsoc-onkey.c
-> > +++ b/drivers/input/misc/sirfsoc-onkey.c
-> > @@ -136,6 +136,7 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
-> >         pwrcdrv->input->name = "sirfsoc pwrckey";
-> >         pwrcdrv->input->phys = "pwrc/input0";
-> >         pwrcdrv->input->evbit[0] = BIT_MASK(EV_KEY);
-> > +       input_set_capability(pwrcdrv->input, EV_KEY, KEY_POWER);
-> >
-> >         INIT_DELAYED_WORK(&pwrcdrv->work, sirfsoc_pwrc_report_event);
-> >
-> > --
-> > 1.7.9.5
-> >
-> 
-> -barry
+This should be done by udev nowadays, please submit patch for it instead
+of modifying the kernel.
+
+Thanks!
 
 -- 
 Dmitry

@@ -1,60 +1,59 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: 8 months to review a patch (was Re: [PATCH] Route kbd LEDs
- through the generic LEDs layer)
-Date: Fri, 28 Mar 2014 00:17:43 -0700
-Message-ID: <20140328071743.GA17588@kroah.com>
-References: <20110102225741.GX5480@const.famille.thibault.fr>
- <20110112182702.GA9168@core.coreip.homeip.net>
- <20111114040613.GA4992@type.famille.thibault.fr>
- <20121221003449.GA6999@type.youpi.perso.aquilenet.fr>
- <20130713093552.GU8252@type>
- <20130715091230.GA8786@amd.pavel.ucw.cz>
- <CAHYPw2H94ej=FdqHAxXpyZt+34TwK1Qj7LWP_bMro-v3JREisg@mail.gmail.com>
- <20140316101946.GJ6436@type.youpi.perso.aquilenet.fr>
- <CAHYPw2EAgjdcNATy0d6DhbT9qHAHJLda7gsLrnSJ7F4Cj=a-JQ@mail.gmail.com>
- <20140328070136.GA15953@amd.pavel.ucw.cz>
+From: Carlo Caione <carlo@caione.org>
+Subject: Re: [linux-sunxi] Re: [PATCH v3 08/10] ARM: sun7i/sun4i: dt: Add
+ AXP209 support to various boards
+Date: Fri, 28 Mar 2014 08:37:06 +0100
+Message-ID: <CAOQ7t2bHdNHAtAS9dr6L=tJek+kP5NeNdmqSMy26vAdGX2=4Cg@mail.gmail.com>
+References: <1395955764-18103-1-git-send-email-carlo@caione.org>
+	<1395955764-18103-9-git-send-email-carlo@caione.org>
+	<CAGb2v67a6kVMe9vxBYrQQtucVqpyvUby1Hyt3RBina8sKj9HOw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:35171 "EHLO
-	out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751061AbaC1HPy (ORCPT
+Received: from srv-hp10.netsons.net ([94.141.22.71]:46082 "EHLO
+	srv-hp10.netsons.net" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750955AbaC1Hhe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 03:15:54 -0400
-Received: from compute4.internal (compute4.nyi.mail.srv.osa [10.202.2.44])
-	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 7F77521150
-	for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 03:15:52 -0400 (EDT)
-Content-Disposition: inline
-In-Reply-To: <20140328070136.GA15953@amd.pavel.ucw.cz>
+	Fri, 28 Mar 2014 03:37:34 -0400
+In-Reply-To: <CAGb2v67a6kVMe9vxBYrQQtucVqpyvUby1Hyt3RBina8sKj9HOw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, dtor@mail.ru, linux-input@vger.kernel.org, jkosina@suse.cz, Samuel Thibault <samuel.thibault@ens-lyon.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, jslaby@suse.cz, Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>, Evan Broder <evan@ebroder.net>, Arnaud Patard <arnaud.patard@rtp-net.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: wens Tsai <wens@csie.org>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "maxime.ripard" <maxime.ripard@free-electrons.com>, Hans De Goede <hdegoede@redhat.com>, Emilio Lopez <emilio@elopez.com.ar>, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, linux-sunxi@googlegroups.com
 
-On Fri, Mar 28, 2014 at 08:01:36AM +0100, Pavel Machek wrote:
-> On Thu 2014-03-27 02:08:17, Pali Roh=E1r wrote:
-> > 2014-03-16 11:19 GMT+01:00 Samuel Thibault <samuel.thibault@ens-lyo=
-n.org>:
-> > > Pali Roh=E1r, le Sun 16 Mar 2014 11:16:25 +0100, a =E9crit :
-> > >> Hello, what happened with this patch? Is there any problem with =
-accepting it?
-> > >
-> > > Dmitry finding time to review it, I guess.
->=20
-> > Dmitry, can you look and review this patch?
->=20
-> Dmitry, what happened to you, are you there? This patch is like 8
-> months old, and not too scary, either. Can you at least pinpoint some
-> typos in it, or run in through the checkpatch?
->=20
-> If Dmitry does not respond, what are the next steps. Greg, could you
-> just take the patch? Linus?
+On Fri, Mar 28, 2014 at 4:12 AM, Chen-Yu Tsai <wens@csie.org> wrote:
+>> diff --git a/arch/arm/boot/dts/sun4i-a10-a1000.dts b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+>> index fa746aea..cf18c4d 100644
+>> --- a/arch/arm/boot/dts/sun4i-a10-a1000.dts
+>> +++ b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+>> @@ -88,6 +88,19 @@
+>>                         pinctrl-names = "default";
+>>                         pinctrl-0 = <&i2c0_pins_a>;
+>>                         status = "okay";
+>> +                       #address-cells = <1>;
+>> +                       #size-cells = <0>;
+>> +
+>> +                       axp: axp20x@34 {
+>
+> Hi,
+>
+> Sorry for spotting this just now. I suggest you change it to
+>
+>                           axp209: pmic@34 {
+>
+> or
+>
+>                           axp209_pmic@34 {
+>
+> to match the ePAPR policy that node names should be generic and
+> describe functionality. The latter is what some DTs use.
 
-No, work with Dmitry please.
+Right. Thanks for reviewing this.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Same for all the other files.
+>
+> Thanks for working on this!
+
+Thank you,
+
+-- 
+Carlo Caione

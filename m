@@ -1,43 +1,90 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 1/3] Input: synaptics-rmi4 - add capabilities for touchpads
-Date: Fri, 28 Mar 2014 11:24:43 -0700
-Message-ID: <5335BE6B.2060302@synaptics.com>
-References: <1395191031-3144-1-git-send-email-cheiny@synaptics.com> <5329A9CE.1080504@redhat.com> <20140328161505.GC22658@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.14-rc8
+Date: Fri, 28 Mar 2014 12:36:50 -0700
+Message-ID: <20140328193650.GB20950@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:47909 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751602AbaC1SYo (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:48988 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751026AbaC1Tgz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 14:24:44 -0400
-In-Reply-To: <20140328161505.GC22658@core.coreip.homeip.net>
+	Fri, 28 Mar 2014 15:36:55 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 03/28/2014 09:15 AM, Dmitry Torokhov wrote:
-> On Wed, Mar 19, 2014 at 10:29:34AM -0400, Benjamin Tissoires wrote:
->> >Hi Chris,
->> >
->> >On 03/18/2014 09:03 PM, Christopher Heiny wrote:
->>> > >When the device is a touchpad additional capabilities need to
->>> > >be set and reported.
->>> > >
->> >
->> >We have a problem here. While this patch would have been fine in the
->> >pre-v3.8 era, it is not true anymore.
->> >However, the current branch where synaptics-rmi4 is attached is v3.4.
->> >
->> >So if you use the right API (the current one), it will not compile :(
->> >
->> >Dmitry, would it be possible to update the branch to at least v3.8
->> >to get the new input-mt API? (if the Synaptics guys are ok).
- >
-> If we are getting ready to pull it into mainline (and I think we are
-> for F01 and F11 support) then I think I should simply uprev to the
-> latest released kernel.
 
-That works for us.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Linus,
+
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. You will get updates to
+Synaptics touchpad to better cope with devices in Lenovo laptops, and a
+couple more fixes.
+
+Changelog:
+---------
+
+Anthony Olech (1):
+      Input: da9052_onkey - use correct register bit for key status
+
+Benjamin Tissoires (1):
+      Input: synaptics - add manual min/max quirk
+
+Hans de Goede (2):
+      Input: cypress_ps2 - don't report as a button pads
+      Input: synaptics - add manual min/max quirk for ThinkPad X240
+
+Jean-Francois Dagenais (1):
+      Input: adp5588-keys - get value from data out when dir is out
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/adp5588-keys.c | 12 +++++++-
+ drivers/input/misc/da9052_onkey.c     | 29 +++++++++---------
+ drivers/input/mouse/cypress_ps2.c     |  1 -
+ drivers/input/mouse/synaptics.c       | 55 +++++++++++++++++++++++++++++++=
+++++
+ 4 files changed, 82 insertions(+), 15 deletions(-)
+
+--=20
+Dmitry
+
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTNc9SAAoJEH70+W8r6ZYqMRIQAJNS9uBQks83bojkmwLrF/aC
+hcKTHgviP85qy9yVOCnE79UT7RHV/9VQIcIX2nq/pZDnXGnSlX0KylPfd3gEd41f
+iilJYJ45wQdlxjItGusvQJApvEfdksdcu3De6uGdUXpkS6aAMTku2ULVCxga332T
+sIbn0SsHyKqpDrNPPrtddppI31KIYjW+lxvEeBlS3ticJ5S3SS6VFgPrh1F44NrV
+ik6ZeF/wBj9vpV5CH703luCAxktL6freTwvwiIy3u6RAXmDN5i4h073sUHHgAPX4
+IgOAeitHqdf/dEtt2J6s6EGejbVip+feYCHVZ/yh9Pbv2TdBJu/P6CMoV2z8ZLI8
+wKKPnHO1jmPSJ7LedJ2WYsImyIvzGDDeXsP+dNgyg/udLsCBGCxWhltyGRLSiLW9
+hzxmUzrUA5Sezfli5Y3d7Sm1u37gtyCgRAh1FnjPNUQbl10CIuhL/GMhSfOvgOaf
+/5q8jXfHB9l/Y7spVXydxTC0Bjr/v/0Tw6gNmyik80zMUOM/luJ0wXA7izQlkY2D
+peEKTRW5/149/upKkx1n0AbJcBBRpOjPLEtHP+CJi7NO892hWwNAfka8M4T9jUfL
+ZvRLiAkGP6z1Gb1SSsrfGC+4QNtwV7UJqT5FDyPfTv6Iug7TLxv/iqoKaDwDPsAi
+9FX6hfohOkf99rILgCsb
+=mGgL
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--

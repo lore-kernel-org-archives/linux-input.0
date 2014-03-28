@@ -1,51 +1,70 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Fri, 28 Mar 2014 01:50:31 -0700
-Message-ID: <20140328085031.GM22093@core.coreip.homeip.net>
+Date: Fri, 28 Mar 2014 01:52:07 -0700
+Message-ID: <20140328085207.GN22093@core.coreip.homeip.net>
 References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
  <20140320172159.GA27400@srcf.ucam.org>
  <20140328075655.GE22093@core.coreip.homeip.net>
- <20140328082004.GA6801@srcf.ucam.org>
- <20140328082452.GH22093@core.coreip.homeip.net>
- <20140328082704.GC6801@srcf.ucam.org>
+ <53352EFB.8000309@redhat.com>
+ <20140328081739.GG22093@core.coreip.homeip.net>
+ <533532FE.2000304@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:57075 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751756AbaC1IwK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Mar 2014 04:52:10 -0400
 Content-Disposition: inline
-In-Reply-To: <20140328082704.GC6801@srcf.ucam.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <533532FE.2000304@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Mar 28, 2014 at 08:27:04AM +0000, Matthew Garrett wrote:
-> On Fri, Mar 28, 2014 at 01:24:52AM -0700, Dmitry Torokhov wrote:
-> > On Fri, Mar 28, 2014 at 08:20:04AM +0000, Matthew Garrett wrote:
-> > > On Fri, Mar 28, 2014 at 12:56:55AM -0700, Dmitry Torokhov wrote:
-> > > 
-> > > > I am still unsure if we shoudl be adding these new IDs to serio core...
-> > > > Can't the X driver take a peek at ACPI devices on it's own?
-> > > 
-> > > In the (admittedly unlikely) event of multiple PS/2 trackpads, how do 
-> > > you know which one corresponds to which ACPI device?
-> > 
-> > So far I have not seen a single instance of a laptop with 2 touchpads
-> > and I doubt external PS/2 ones will ever make come back.
+On Fri, Mar 28, 2014 at 09:29:50AM +0100, Hans de Goede wrote:
+> Hi,
 > 
-> Right, we can hack around it based on what we've seen so far. But it 
-> seems more attractive to fix it in such a way that we won't behave 
-> inappropriately even if someone does do something utterly unexpected in 
-> future. For instance, some ARM devices have i8042-like serio - if the 
-> underlying device is exposed in device tree, it'd be nice to be able to 
-> expose that to userspace without having to modify the core X code.
+> On 03/28/2014 09:17 AM, Dmitry Torokhov wrote:
+> > On Fri, Mar 28, 2014 at 09:12:43AM +0100, Hans de Goede wrote:
+> >> Hi,
+> >>
+> >> On 03/28/2014 08:56 AM, Dmitry Torokhov wrote:
+> >>> On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
+> >>>> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
+> >>>>
+> >>>>> Which in the end turns out to be much nicer too, since it gets rid of needing
+> >>>>> a udev-helper too. After this much too long introduction I'll let the patches
+> >>>>> speak for themselves.
+> >>>>
+> >>>> Yeah, I was coming to the conclusion that this was probably the best we 
+> >>>> could do. It's unfortunate that "id" is already in use - we'd be able to 
+> >>>> get away without any X server modifications otherwise.
+> >>>>
+> >>>> Long term we probably still want to tie serio devices to the ACPI 
+> >>>> devices in case the vendor provides power management calls there, but we 
+> >>>> can leave that until there's an actual example.
+> >>>
+> >>> I am still unsure if we shoudl be adding these new IDs to serio core...
+> >>> Can't the X driver take a peek at ACPI devices on it's own?
+> >>
+> >> The problem is there is no way for userspace to know which /sys/devices/pnp0/00:xx
+> >> device is the serio bus host.
+> > 
+> > Practically speaking you should not care - there is only one touchpad in
+> > Lenovos.
+> 
+> So are you suggesting we simply go over all /sys/devices/pnp0/00:xx devices looking
+> for a pnp-id we're interested  in ?  I'm sorry but that is just a non-sense solution,
+> which reminds me of the good old days of random poking io-ports to probe stuff.
+> 
+> We're not blindly going to read every /sys/devices/pnp0/00:xx/id attribute on a
+> system, assuming that if it contains a pnp-id we're interested in it happens to
+> belong to the input device we're enumerating at that time.
 
-I wonder if on ARM they have the same split description for AUX and KBD
-ports or of they have proper i8042 parent. ACPI way of describing PS/2
-devices is ugly - keyboard gets ports and mice/touchpads are portless
-and everyone knows that they should use the same as keyboard.
-
-I am unconvinced that just storing a string as firmware ID would solve
-anything other than quirky Lenovos.
+Are we even certain that they will be consistent in use of these special
+PNP ID's? Maybe you should really do DMI match...
 
 Thanks.
 

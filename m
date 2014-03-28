@@ -1,41 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] atkbd: Samsung NP530U3C laptop forced key release
-Date: Fri, 28 Mar 2014 00:48:41 -0700
-Message-ID: <20140328074841.GC22093@core.coreip.homeip.net>
-References: <20140311195448.0b722ea5@sambook>
+Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
+Date: Fri, 28 Mar 2014 00:56:55 -0700
+Message-ID: <20140328075655.GE22093@core.coreip.homeip.net>
+References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com>
+ <20140320172159.GA27400@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:52218 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750955AbaC1Hsp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Mar 2014 03:48:45 -0400
-Received: by mail-pb0-f42.google.com with SMTP id rr13so4633233pbb.15
-        for <linux-input@vger.kernel.org>; Fri, 28 Mar 2014 00:48:44 -0700 (PDT)
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140311195448.0b722ea5@sambook>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20140320172159.GA27400@srcf.ucam.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arkadiusz Bokowy <arkadiusz.bokowy@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Arkadiusz,
-
-On Tue, Mar 11, 2014 at 07:54:48PM +0100, Arkadiusz Bokowy wrote:
-> atkbd: Samsung NP530U3C laptop forced key release
+On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
+> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
 > 
-> For Samsung NP530U3C laptop (observed on firmware P09ABH) not all Fn keys
-> generates release event, which leaves key in a pressed state. This patch
-> adds those keys into the "forced release" workaround. Fixed keys: WLAN,
-> Settings, Fn Lock.
+> > Which in the end turns out to be much nicer too, since it gets rid of needing
+> > a udev-helper too. After this much too long introduction I'll let the patches
+> > speak for themselves.
 > 
-> Patch generated for kernel version 3.13.6
+> Yeah, I was coming to the conclusion that this was probably the best we 
+> could do. It's unfortunate that "id" is already in use - we'd be able to 
+> get away without any X server modifications otherwise.
+> 
+> Long term we probably still want to tie serio devices to the ACPI 
+> devices in case the vendor provides power management calls there, but we 
+> can leave that until there's an actual example.
 
-This should be done by udev nowadays, please submit patch for it instead
-of modifying the kernel.
+I am still unsure if we shoudl be adding these new IDs to serio core...
+Can't the X driver take a peek at ACPI devices on it's own?
 
-Thanks!
+Thanks.
 
 -- 
 Dmitry

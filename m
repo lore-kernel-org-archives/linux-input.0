@@ -1,57 +1,145 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 0/2] input/serio: Add a firmware_id sysfs attribute
-Date: Fri, 28 Mar 2014 09:29:50 +0100
-Message-ID: <533532FE.2000304@redhat.com>
-References: <1395310330-3232-1-git-send-email-hdegoede@redhat.com> <20140320172159.GA27400@srcf.ucam.org> <20140328075655.GE22093@core.coreip.homeip.net> <53352EFB.8000309@redhat.com> <20140328081739.GG22093@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: synaptics add manual min/max quirk
+Date: Fri, 28 Mar 2014 01:29:50 -0700
+Message-ID: <20140328082949.GJ22093@core.coreip.homeip.net>
+References: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20140328081739.GG22093@core.coreip.homeip.net>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1394207364-4235-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Stephen Chandler Paul <thatslyude@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-
-On 03/28/2014 09:17 AM, Dmitry Torokhov wrote:
-> On Fri, Mar 28, 2014 at 09:12:43AM +0100, Hans de Goede wrote:
->> Hi,
->>
->> On 03/28/2014 08:56 AM, Dmitry Torokhov wrote:
->>> On Thu, Mar 20, 2014 at 05:21:59PM +0000, Matthew Garrett wrote:
->>>> On Thu, Mar 20, 2014 at 11:12:08AM +0100, Hans de Goede wrote:
->>>>
->>>>> Which in the end turns out to be much nicer too, since it gets rid of needing
->>>>> a udev-helper too. After this much too long introduction I'll let the patches
->>>>> speak for themselves.
->>>>
->>>> Yeah, I was coming to the conclusion that this was probably the best we 
->>>> could do. It's unfortunate that "id" is already in use - we'd be able to 
->>>> get away without any X server modifications otherwise.
->>>>
->>>> Long term we probably still want to tie serio devices to the ACPI 
->>>> devices in case the vendor provides power management calls there, but we 
->>>> can leave that until there's an actual example.
->>>
->>> I am still unsure if we shoudl be adding these new IDs to serio core...
->>> Can't the X driver take a peek at ACPI devices on it's own?
->>
->> The problem is there is no way for userspace to know which /sys/devices/pnp0/00:xx
->> device is the serio bus host.
+On Fri, Mar 07, 2014 at 10:49:24AM -0500, Benjamin Tissoires wrote:
+> The new Lenovo Haswell series (-40's) contains a new Synaptics touchpad.
+> However, these new Synaptics devices report bad axis ranges.
+> Under Windows, it is not a problem because the Windows driver uses RMI4
+> over SMBus to talk to the device. Under Linux, we are using the PS/2
+> fallback interface and it occurs the reported ranges are wrong.
 > 
-> Practically speaking you should not care - there is only one touchpad in
-> Lenovos.
+> Of course, it would be too easy to have only one range for the whole
+> series, each touchpad seems to be calibrated in a different way.
+> 
+> We can not use SMBus to get the actual range because I suspect the firmware
+> will switch into the SMBus mode and stop talking through PS/2 (this is the
+> case for hybrid HID over I2C / PS/2 Synaptics touchpads).
+> 
+> So as a temporary solution (until RMI4 land into upstream), start a new
+> list of quirks with the min/max manually set.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> CC: stable@vger.kernel.org
 
-So are you suggesting we simply go over all /sys/devices/pnp0/00:xx devices looking
-for a pnp-id we're interested  in ?  I'm sorry but that is just a non-sense solution,
-which reminds me of the good old days of random poking io-ports to probe stuff.
 
-We're not blindly going to read every /sys/devices/pnp0/00:xx/id attribute on a
-system, assuming that if it contains a pnp-id we're interested in it happens to
-belong to the input device we're enumerating at that time.
+Applied, thank you.
 
-Regards,
+> ---
+> 
+> Hi Dmitry,
+> 
+> Well, this work is part of a (big) attempt to support the new touchpads
+> Lenovo put in its latest series.
+> Those new laptops have lost the buttons associated to the trackstick and are
+> what we call "clickpad".
+> Things would be easy if:
+> 1. the PS/2 firmware did not lied about the actual range of the axis
+> 2. on some install (mine) the DMI matching in udev would not have been broken
+> 3. we did not have to fix a lot of stuff in Xorg / libinput / wayland
+> 
+> This patch fixes 1.
+> 
+> Matthew Garrett fixed 2. -> https://patchwork.kernel.org/patch/3704401/
+> 
+> 3. is heavily working as shown by this tracker bug: https://bugs.freedesktop.org/show_bug.cgi?id=73158
+> 
+> I put the 'stable' marker, feel free to remove it if you don't think it should
+> be there, but I really think this should also be backported to have something
+> working in current distros.
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/input/mouse/synaptics.c | 43 +++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 26386f9..ff6a4cf 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -67,6 +67,8 @@
+>  #define X_MAX_POSITIVE 8176
+>  #define Y_MAX_POSITIVE 8176
+>  
+> +static int *quirk_min_max = NULL;
+> +
+>  /*****************************************************************************
+>   *	Stuff we need even when we do not want native Synaptics support
+>   ****************************************************************************/
+> @@ -302,6 +304,13 @@ static int synaptics_resolution(struct psmouse *psmouse)
+>  		}
+>  	}
+>  
+> +	if (quirk_min_max) {
+> +		priv->x_min = quirk_min_max[0];
+> +		priv->x_max = quirk_min_max[1];
+> +		priv->y_min = quirk_min_max[2];
+> +		priv->y_max = quirk_min_max[3];
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1485,10 +1494,44 @@ static const struct dmi_system_id olpc_dmi_table[] __initconst = {
+>  	{ }
+>  };
+>  
+> +static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+> +#if defined(CONFIG_DMI)
+> +	{
+> +		/* Lenovo ThinkPad Helix */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad Helix"),
+> +		},
+> +		.driver_data = (int []){1024, 5052, 2258, 4832},
+> +	},
+> +	{
+> +		/* Lenovo ThinkPad T440s */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T440"),
+> +		},
+> +		.driver_data = (int []){1024, 5112, 2024, 4832},
+> +	},
+> +	{
+> +		/* Lenovo ThinkPad T540p */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T540"),
+> +		},
+> +		.driver_data = (int []){1024, 5056, 2058, 4832},
+> +	},
+> +#endif
+> +	{ }
+> +};
+> +
+>  void __init synaptics_module_init(void)
+>  {
+> +	const struct dmi_system_id *min_max_dmi;
+>  	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
+>  	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
+> +	min_max_dmi = dmi_first_match(min_max_dmi_table);
+> +	if (min_max_dmi)
+> +		quirk_min_max = (int *)min_max_dmi->driver_data;
+>  }
+>  
+>  static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+> -- 
+> 1.8.5.3
+> 
 
-Hans
+-- 
+Dmitry

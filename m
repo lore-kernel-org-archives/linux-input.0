@@ -1,54 +1,87 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: Re: [linux-sunxi] Re: [PATCH v3 06/10] regulator: AXP20x: Add
- support for regulators subsystem
-Date: Sat, 29 Mar 2014 18:52:01 +0100
-Message-ID: <20140329175201.GD3952@localhost.fastwebnet.it>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Re: [PATCH v3 04/10] input: misc: Add driver for
+ AXP20x Power Enable Key
+Date: Sat, 29 Mar 2014 12:05:11 -0700
+Message-ID: <20140329190511.GA10710@core.coreip.homeip.net>
 References: <1395955764-18103-1-git-send-email-carlo@caione.org>
- <1395955764-18103-7-git-send-email-carlo@caione.org>
- <20140328133934.GQ30768@sirena.org.uk>
+ <1395955764-18103-5-git-send-email-carlo@caione.org>
+ <20140328073803.GA22093@core.coreip.homeip.net>
+ <20140329153624.GA3952@localhost.fastwebnet.it>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRB3FS3SMQKGQE563P4SY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140329153624.GA3952-bi+AKbBUZKZeIdyRz4JgOMwOAu8XWILU@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140328133934.GQ30768@sirena.org.uk>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 28, 2014 at 01:39:34PM +0000, Mark Brown wrote:
-> On Thu, Mar 27, 2014 at 10:29:20PM +0100, Carlo Caione wrote:
+On Sat, Mar 29, 2014 at 04:36:24PM +0100, Carlo Caione wrote:
+> On Fri, Mar 28, 2014 at 12:38:03AM -0700, Dmitry Torokhov wrote:
+> > Hi Carlo,
 > 
-> > +static int axp20x_set_suspend_voltage(struct regulator_dev *rdev, int uV)
-> > +{
-> > +	int sel = regulator_map_voltage_iterate(rdev, uV, uV);
-> > +
-> > +	if (sel < 0)
-> > +		return sel;
-> > +
-> > +	return regulator_set_voltage_sel_regmap(rdev, sel);
-> > +}
+> Hi Dmitry,
 > 
-> This is fairly obviously broken - it's overwriting the normal runtime
-> value, this will disrupt the running system if we want the value we use
-> on suspend is different to the value we want at runtime.
+> > 
+> > On Thu, Mar 27, 2014 at 10:29:18PM +0100, Carlo Caione wrote:
 
-Ok, silly question: isn't it exactly what we want? Set the voltage for
-the regulator when the system is suspended?
+[...]
 
-> Think about it - if this was a sane thing to do the core would just do
-> it without needing driver specific code, we already know how to set the
-> voltage for the device.
+> > > +
+> > > +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbr,
+> > > +					  NULL, axp20x_pek_irq, 0,
+> > > +					  "axp20x-pek-dbr", idev);
+> > 
+> > Why does it have to be threaded IRQ?
+> 
+> Because this is already handled as a nested irq from a irq thread. The
+> parent threaded irq is installed by regmap_add_irq_chip() in the MFD
+> driver core.
 
-I thought it was because some regulators can have specific regs for
-managing the suspend mode.
+Then you probably want to use devm_request_any_context_irq() - the
+driver does not necessarily care if IRQ is threaded or not, t can work
+either way.
 
-BTW, but then what is the difference between my code and (i.e.) the same
-routine in da9055-regulator.c?
+> 
+> > > +	if (error) {
+> > > +		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
+> > > +			axp20x_pek->irq_dbr, error);
+> > > +
+> > > +		return error;
+> > > +	}
+> > > +
+> > > +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbf,
+> > > +					  NULL, axp20x_pek_irq, 0,
+> > > +					  "axp20x-pek-dbf", idev);
+> > > +	if (error) {
+> > > +		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
+> > > +			axp20x_pek->irq_dbf, error);
+> > > +		return error;
+> > > +	}
+> > > +
+> > > +	idev->dev.groups = dev_attr_groups;
+> > 
+> > These are not generic input attributes so they should belong to the platform
+> > device, not input device.
+> 
+> Ok. Can I ask why they cannot be considered an input attributes?
 
-http://lxr.linux.no/linux+v3.13.5/drivers/regulator/da9055-regulator.c#L276
+Input layer is an abstraction; I am trying to keep all attributes
+generic and applicable to all input devices. If you look at other input
+drivers you will see that attributes that control hardware behavior are
+attached to the devices representing the hardware itself. For example
+attributes to control report rate of PS/2 mouse belong to serio port
+that represents the physical mouse device; typematic rate of AT
+keyboards also tied to serio port, etc, etc.
 
-Thanks,
+Thanks.
 
 -- 
-Carlo Caione
+Dmitry

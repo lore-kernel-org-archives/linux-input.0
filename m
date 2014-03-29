@@ -1,155 +1,326 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [RFC PATCH] HID: Stop hiding options with !EXPERT
-Date: Sat, 29 Mar 2014 15:06:44 +0100
-Message-ID: <20140329150644.39f9d84c@endymion.delvare>
-References: <20140321094636.66fc62f2@endymion.delvare>
-	<alpine.LNX.2.00.1403281511120.16202@pobox.suse.cz>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v3 04/10] input: misc: Add driver for
+ AXP20x Power Enable Key
+Date: Sat, 29 Mar 2014 16:36:24 +0100
+Message-ID: <20140329153624.GA3952@localhost.fastwebnet.it>
+References: <1395955764-18103-1-git-send-email-carlo@caione.org>
+ <1395955764-18103-5-git-send-email-carlo@caione.org>
+ <20140328073803.GA22093@core.coreip.homeip.net>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49286 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751646AbaC2OGr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Mar 2014 10:06:47 -0400
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-	by mx2.suse.de (Postfix) with ESMTP id 72DF9AC04
-	for <linux-input@vger.kernel.org>; Sat, 29 Mar 2014 14:06:46 +0000 (UTC)
-In-Reply-To: <alpine.LNX.2.00.1403281511120.16202@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBDOQ3OMQKGQEU4NSS2I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140328073803.GA22093-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
 
-Hi Jiri,
+On Fri, Mar 28, 2014 at 12:38:03AM -0700, Dmitry Torokhov wrote:
+> Hi Carlo,
 
-On Fri, 28 Mar 2014 15:13:39 -0700 (PDT), Jiri Kosina wrote:
-> On Fri, 21 Mar 2014, Jean Delvare wrote:
+Hi Dmitry,
+
 > 
-> > Many HID driver options are hidden unless EXPERT is set. While I
-> > understand the idea of simplifying the kernel configuration for most
-> > users, in practice I believe it adds more confusion than it helps.
+> On Thu, Mar 27, 2014 at 10:29:18PM +0100, Carlo Caione wrote:
+
+[...]
+
+> > +#include <linux/errno.h>
+> > +#include <linux/irq.h>
+> > +#include <linux/init.h>
+> > +#include <linux/input.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/mfd/axp20x.h>
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/regmap.h>
+> > +#include <linux/slab.h>
+> > +
+> > +#define AXP20X_PEK_STARTUP_MASK		(0xc0)
+> > +#define AXP20X_PEK_SHUTDOWN_MASK	(0x03)
+> > +
+> > +static const char const *startup_time[] = { "128ms", "3s" , "1s", "2s" };
+> > +static const char const *shutdown_time[] = { "4s", "6s" , "8s", "10s" };
 > 
-> actually this question has been raised by several people in the past 
-> already. Copy/pasting the latest reply I have sent on this topic
+> Why not have everything expressed in milliseconds and have sysfs
+> attribute apply the closest one possible?
+
+Yep, I agree that could be nice. Fix in v3.
+
+> By the way, do you want to plumb these through device tree as well?
+
+Hum, not sure about that. AFAIK device tree is used for hardware
+description whereas these are configuration parameters. Moreover you
+would have these parameters saved through reboots.
+
+> > +
+> > +struct axp20x_pek {
+> > +	struct axp20x_dev *axp20x;
+> > +	struct input_dev *input;
+> > +	int irq_dbr;
+> > +	int irq_dbf;
+> > +};
+> > +
+> > +struct axp20x_pek_ext_attr {
+> > +	const char const **str;
+> > +	unsigned int mask;
+> > +};
+> > +
+> > +static struct axp20x_pek_ext_attr axp20x_pek_startup_ext_attr = {
+> > +	.str	= startup_time,
+> > +	.mask	= AXP20X_PEK_STARTUP_MASK,
+> > +};
+> > +
+> > +static struct axp20x_pek_ext_attr axp20x_pek_shutdown_ext_attr = {
+> > +	.str	= shutdown_time,
+> > +	.mask	= AXP20X_PEK_SHUTDOWN_MASK,
+> > +};
+> > +
+> > +static struct axp20x_pek_ext_attr *get_axp_ext_attr(struct device_attribute *attr)
+> > +{
+> > +	return container_of(attr, struct dev_ext_attribute, attr)->var;
+> > +}
+> > +
+> > +static ssize_t axp20x_show_ext_attr(struct device *dev, struct device_attribute *attr,
+> > +			     char *buf)
+> > +{
+> > +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+> > +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
+> > +	unsigned int val;
+> > +	int ret, i;
+> > +	int cnt = 0;
+> > +
+> > +	ret = regmap_read(axp20x_pek->axp20x->regmap, AXP20X_PEK_KEY, &val);
+> > +	if (ret != 0)
+> > +		return ret;
+> > +
+> > +	val &= axp20x_ea->mask;
+> > +	val >>= ffs(axp20x_ea->mask) - 1;
+> > +
+> > +	for (i = 0; i < 4; i++) {
+> > +		if (val == i)
+> > +			cnt += sprintf(buf + cnt, "[%s] ", axp20x_ea->str[i]);
+> > +		else
+> > +			cnt += sprintf(buf + cnt, "%s ", axp20x_ea->str[i]);
 > 
-> ===
-> mostly this is because we don't want to bother users with asking for every
-> single quirky device/vendor, as there are unfortunately a lot of them.
-> Usually compiling everything in doesn't waste runtime footprint (the
-> modules don't get loaded unless needed), and they don't cost too much disk
-> space either.
+> Please just return the current value; why do we need pretty-printing?
 
-The problem is that the hidden options may end up built-in, not
-modular, in which case they are actually wasting runtime footprint, and
-polluting /sys/bus/hid/drivers.
+It was done to have the possibility to look at the accepted values. With
+the modification you suggested before this is not necessary anymore.
+I'll change it.
 
-> And if you really want to disable them, CONFIG_EMBEDDED allows you to do
-> that.
-
-True, but CONFIG_EMBEDDED / CONFIG_EXPERT are tree-wide settings.
-Enabling them un-hides a lot more options than just these HID drivers.
-Not everyone wants that.
-
-Other subsystems have solved the problem with specific options, which
-give the user more flexibility over which areas he/she wants to
-fine-tune. See for example CONFIG_I2C_HELPER_AUTO and
-CONFIG_MEDIA_SUBDRV_AUTOSELECT. That might be an alternative if you
-really think that these drivers entries should be hidden by default (I
-don't.)
-
-> Please see last paragraph on
+> > +	}
+> > +
+> > +	cnt += sprintf(buf + cnt, "\n");
+> > +
+> > +	return cnt;
+> > +}
+> > +
+> > +static ssize_t axp20x_store_ext_attr(struct device *dev, struct device_attribute *attr,
+> > +			      const char *buf, size_t count)
+> > +{
+> > +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+> > +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
+> > +	char val_str[20];
+> > +	int ret, i;
+> > +	size_t len;
+> > +
+> > +	val_str[sizeof(val_str) - 1] = '\0';
+> > +	strncpy(val_str, buf, sizeof(val_str) - 1);
+> > +	len = strlen(val_str);
+> > +
+> > +	if (len && val_str[len - 1] == '\n')
+> > +		val_str[len - 1] = '\0';
+> > +
+> > +	for (i = 0; i < 4; i++) {
+> > +		if (!strcmp(val_str, axp20x_ea->str[i])) {
+> > +
+> > +			i <<= ffs(axp20x_ea->mask) - 1;
+> > +			ret = regmap_update_bits(axp20x_pek->axp20x->regmap,
+> > +						 AXP20X_PEK_KEY,
+> > +						 axp20x_ea->mask, i);
+> > +			if (ret != 0)
+> > +				return -EINVAL;
+> > +			return count;
+> > +		}
+> > +	}
+> > +
+> > +	return -EINVAL;
+> > +}
+> > +
+> > +static struct dev_ext_attribute axp20x_dev_attr_startup = {
+> > +	.attr	= __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
+> > +	.var	= &axp20x_pek_startup_ext_attr
+> > +};
+> > +
+> > +static struct dev_ext_attribute axp20x_dev_attr_shutdown = {
+> > +	__ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
+> > +	&axp20x_pek_shutdown_ext_attr
+> > +};
+> > +
+> > +static struct attribute *dev_attrs[] = {
+> > +	&axp20x_dev_attr_startup.attr.attr,
+> > +	&axp20x_dev_attr_shutdown.attr.attr,
+> > +	NULL,
+> > +};
+> > +
+> > +static struct attribute_group dev_attr_group = {
+> > +	.attrs	= dev_attrs,
+> > +};
+> > +
+> > +static const struct attribute_group *dev_attr_groups[] = {
+> > +	&dev_attr_group,
+> > +	NULL,
+> > +};
+> > +
+> > +static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+> > +{
+> > +	struct input_dev *idev = pwr;
+> > +	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
+> > +
+> > +	if (irq == axp20x_pek->irq_dbr)
+> > +		input_report_key(idev, KEY_POWER, true);
+> > +	else if (irq == axp20x_pek->irq_dbf)
+> > +		input_report_key(idev, KEY_POWER, false);
+> > +
+> > +	input_sync(idev);
+> > +
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int axp20x_pek_probe(struct platform_device *pdev)
+> > +{
+> > +	struct axp20x_pek *axp20x_pek;
+> > +	struct axp20x_dev *axp20x;
+> > +	struct input_dev *idev;
+> > +	int error;
+> > +
+> > +	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
+> > +				  GFP_KERNEL);
+> > +	if (!axp20x_pek)
+> > +		return -ENOMEM;
+> > +
+> > +	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+> > +	axp20x = axp20x_pek->axp20x;
+> > +
+> > +	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
+> > +	if (axp20x_pek->irq_dbr < 0) {
+> > +		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
+> > +				axp20x_pek->irq_dbr);
+> > +		return axp20x_pek->irq_dbr;
+> > +	}
+> > +	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
+> > +						  axp20x_pek->irq_dbr);
+> > +
+> > +	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
+> > +	if (axp20x_pek->irq_dbf < 0) {
+> > +		dev_err(&pdev->dev, "No IRQ for PEK_DBF, error=%d\n",
+> > +				axp20x_pek->irq_dbf);
+> > +		return axp20x_pek->irq_dbf;
+> > +	}
+> > +	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
+> > +						  axp20x_pek->irq_dbf);
+> > +
+> > +	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
+> > +	if (!axp20x_pek->input)
+> > +		return -ENOMEM;
+> > +
+> > +	idev = axp20x_pek->input;
+> > +
+> > +	idev->name = "axp20x-pek";
+> > +	idev->phys = "m1kbd/input2";
+> > +	idev->dev.parent = &pdev->dev;
+> > +
+> > +	input_set_capability(idev, EV_KEY, KEY_POWER);
+> > +
+> > +	input_set_drvdata(idev, axp20x_pek);
+> > +
+> > +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbr,
+> > +					  NULL, axp20x_pek_irq, 0,
+> > +					  "axp20x-pek-dbr", idev);
 > 
-> 	https://lkml.org/lkml/2008/10/14/266
+> Why does it have to be threaded IRQ?
+
+Because this is already handled as a nested irq from a irq thread. The
+parent threaded irq is installed by regmap_add_irq_chip() in the MFD
+driver core.
+
+> > +	if (error) {
+> > +		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
+> > +			axp20x_pek->irq_dbr, error);
+> > +
+> > +		return error;
+> > +	}
+> > +
+> > +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbf,
+> > +					  NULL, axp20x_pek_irq, 0,
+> > +					  "axp20x-pek-dbf", idev);
+> > +	if (error) {
+> > +		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
+> > +			axp20x_pek->irq_dbf, error);
+> > +		return error;
+> > +	}
+> > +
+> > +	idev->dev.groups = dev_attr_groups;
 > 
-> ===
+> These are not generic input attributes so they should belong to the platform
+> device, not input device.
+
+Ok. Can I ask why they cannot be considered an input attributes?
+
+> > +	error = input_register_device(idev);
+> > +	if (error) {
+> > +		dev_err(axp20x->dev, "Can't register input device: %d\n", error);
+> > +		return error;
+> > +	}
+> > +
+> > +	platform_set_drvdata(pdev, axp20x_pek);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int axp20x_pek_remove(struct platform_device *pdev)
+> > +{
+> > +	struct axp20x_pek *axp20x_pek = platform_get_drvdata(pdev);
+> > +
+> > +	input_unregister_device(axp20x_pek->input);
 > 
-> i.e. it was explicitly requested by Linus.
+> No need to call input_unregister_device() for managed input devices.
+
+Right. Fix in v3.
+
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver axp20x_pek_driver = {
+> > +	.probe		= axp20x_pek_probe,
+> > +	.remove		= axp20x_pek_remove,
+> > +	.driver		= {
+> > +		.name		= "axp20x-pek",
+> > +		.owner		= THIS_MODULE,
+> > +	},
+> > +};
+> > +module_platform_driver(axp20x_pek_driver);
+> > +
+> > +MODULE_DESCRIPTION("axp20x Power Button");
+> > +MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
+> > +MODULE_LICENSE("GPL");
+> > -- 
+> > 1.8.3.2
+> > 
 > 
-> That's the history.
+> Thanks.
 
-Well, I see that Linus was mostly unhappy because the of the new
-warnings introduced by the change. Plus...
+Thank you,
 
-> Now, admittedly, it was quite some time ago, and HID world has matured a 
-> lot since then, so the 'quirks' turned out into proper drivers. So maybe 
-> there indeed might be a good time to try it again.
-
-... these were boolean quirks, and IIRC everything ended up being built
-in the same module. So the discussion was relevant back then.
-
-Now we have separate drivers, controlled by tristate options. This is a
-completely different situation.
-
-Also, many drivers were added since then. I doubt that hiding 11
-drivers, while about 50 are always presented to the user, really helps
-easing the configuration, if that was the actual goal.
-
-In fact, looking at the git history, I can see that more drivers used
-to depend on CONFIG_EMBEDDED / CONFIG_EXPERT, and these dependencies
-were removed over time:
-
-commit 4b186f72033611c2b526c7341534e71ee4afd222
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Wed Dec 23 13:12:32 2009 +0100
-
-    HID: make 3M PCT touchscreen driver standalone config option
-
-commit 92688c0c3c1c9e2daf705d307e8fda1b5a180d26
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Mon Jan 4 12:04:59 2010 +0100
-
-    HID: make Stantum driver standalone config option
-
-commit 2dbf209d7a7ab94266b936bd2da6a4026c279992
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Wed Feb 3 16:11:12 2010 +0100
-
-    HID: make full-fledged hid-bus drivers properly selectable
-
-commit 23d386d85a9144612c4a13733aa1ca6e5a21f4a2
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Mon Mar 22 16:33:15 2010 +0100
-
-    HID: fixup Kconfig entry for Roccat Kone
-
-commit 95736de984dec5b80ea9d6640d4d55ca8ff98db4
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Wed May 12 15:27:00 2010 +0200
-
-    HID: make Prodikeys driver standalone config option
-
-commit 73d5e8f77e88a4d3a154dfdbb4ed2cf461b7bf21
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Fri May 21 13:15:17 2010 +0200
-
-    HID: fix up 'EMBEDDED' mess in Kconfig
-
-commit f36ee074d5d563a832fbfc378207739db3a0a205
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Mon Aug 9 19:56:01 2010 +0200
-
-    HID: uclogic: fix up Kconfig entry
-
-commit dfe9a31211c0a3a0252af6c87935d7ac718aadf9
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Mon Oct 17 17:04:58 2011 +0200
-
-    HID: primax: remove spurious dependency
-
-commit 22ca20b250f5c9672a53b34f032f43dd2c4a4aaf
-Author: Nikolai Kondrashov <spbnick@gmail.com>
-Date:   Tue Feb 28 13:01:46 2012 +0200
-
-    HID: kye: Add support for 3 tablets
-
-And I may have missed some. So all I am really asking here, is that we
-finish a cleanup that already started over 4 years ago.
-
-If this is really only a question of which devices are more likely to
-be used by a large number of users, then that's what defaults are for.
-
-Thanks,
 -- 
-Jean Delvare
-SUSE L3 Support
+Carlo Caione

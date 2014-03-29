@@ -1,16 +1,16 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH v3 04/10] input: misc: Add driver for
- AXP20x Power Enable Key
-Date: Sat, 29 Mar 2014 16:36:24 +0100
-Message-ID: <20140329153624.GA3952@localhost.fastwebnet.it>
+Subject: Re: Re: [PATCH v3 01/10] mfd: AXP20x: Add mfd driver
+ for AXP20x PMIC
+Date: Sat, 29 Mar 2014 16:53:51 +0100
+Message-ID: <20140329155351.GB3952@localhost.fastwebnet.it>
 References: <1395955764-18103-1-git-send-email-carlo@caione.org>
- <1395955764-18103-5-git-send-email-carlo@caione.org>
- <20140328073803.GA22093@core.coreip.homeip.net>
+ <1395955764-18103-2-git-send-email-carlo@caione.org>
+ <20140328092154.GF17779@lee--X1>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBDOQ3OMQKGQEU4NSS2I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20140328073803.GA22093-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBJGY3OMQKGQEO7DY5TA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140328092154.GF17779@lee--X1>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
@@ -18,307 +18,127 @@ Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 28, 2014 at 12:38:03AM -0700, Dmitry Torokhov wrote:
-> Hi Carlo,
-
-Hi Dmitry,
-
+On Fri, Mar 28, 2014 at 09:21:54AM +0000, Lee Jones wrote:
+> > This patch introduces the preliminary support for PMICs X-Powers AXP202
+> > and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
+> > used by A10, A13 and A20 SoCs and developed by X-Powers, a sister company
+> > of Allwinner.
+> > 
+> > The core enables support for two subsystems:
+> > - PEK (Power Enable Key)
+> > - Regulators
+> > 
+> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> > ---
+> >  drivers/mfd/Kconfig        |  12 +++
+> >  drivers/mfd/Makefile       |   1 +
+> >  drivers/mfd/axp20x.c       | 240 +++++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/mfd/axp20x.h | 180 ++++++++++++++++++++++++++++++++++
+> >  4 files changed, 433 insertions(+)
+> >  create mode 100644 drivers/mfd/axp20x.c
+> >  create mode 100644 include/linux/mfd/axp20x.h
+> > 
+> > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> > index 49bb445..24ba61a 100644
+> > --- a/drivers/mfd/Kconfig
+> > +++ b/drivers/mfd/Kconfig
+> > @@ -59,6 +59,18 @@ config MFD_AAT2870_CORE
+> >  	  additional drivers must be enabled in order to use the
+> >  	  functionality of the device.
+> >  
+> > +config MFD_AXP20X
+> > +	bool "X-Powers AXP20X"
+> > +	select MFD_CORE
+> > +	select REGMAP_I2C
+> > +	select REGMAP_IRQ
+> > +	depends on I2C=y
+> > +	help
+> > +	  If you say Y here you get support for the AXP20X.
+> > +	  This driver provides common support for accessing the device,
+> > +	  additional drivers must be enabled in order to use the
+> > +	  functionality of the device.
 > 
-> On Thu, Mar 27, 2014 at 10:29:18PM +0100, Carlo Caione wrote:
+> Please tell us what this device is and what sub-devices are available?
 
-[...]
+Ok
 
-> > +#include <linux/errno.h>
-> > +#include <linux/irq.h>
-> > +#include <linux/init.h>
-> > +#include <linux/input.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/mfd/axp20x.h>
-> > +#include <linux/module.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/regmap.h>
-> > +#include <linux/slab.h>
-> > +
-> > +#define AXP20X_PEK_STARTUP_MASK		(0xc0)
-> > +#define AXP20X_PEK_SHUTDOWN_MASK	(0x03)
-> > +
-> > +static const char const *startup_time[] = { "128ms", "3s" , "1s", "2s" };
-> > +static const char const *shutdown_time[] = { "4s", "6s" , "8s", "10s" };
+> [...]
 > 
-> Why not have everything expressed in milliseconds and have sysfs
-> attribute apply the closest one possible?
-
-Yep, I agree that could be nice. Fix in v3.
-
-> By the way, do you want to plumb these through device tree as well?
-
-Hum, not sure about that. AFAIK device tree is used for hardware
-description whereas these are configuration parameters. Moreover you
-would have these parameters saved through reboots.
-
-> > +
-> > +struct axp20x_pek {
-> > +	struct axp20x_dev *axp20x;
-> > +	struct input_dev *input;
-> > +	int irq_dbr;
-> > +	int irq_dbf;
-> > +};
-> > +
-> > +struct axp20x_pek_ext_attr {
-> > +	const char const **str;
-> > +	unsigned int mask;
-> > +};
-> > +
-> > +static struct axp20x_pek_ext_attr axp20x_pek_startup_ext_attr = {
-> > +	.str	= startup_time,
-> > +	.mask	= AXP20X_PEK_STARTUP_MASK,
-> > +};
-> > +
-> > +static struct axp20x_pek_ext_attr axp20x_pek_shutdown_ext_attr = {
-> > +	.str	= shutdown_time,
-> > +	.mask	= AXP20X_PEK_SHUTDOWN_MASK,
-> > +};
-> > +
-> > +static struct axp20x_pek_ext_attr *get_axp_ext_attr(struct device_attribute *attr)
-> > +{
-> > +	return container_of(attr, struct dev_ext_attribute, attr)->var;
-> > +}
-> > +
-> > +static ssize_t axp20x_show_ext_attr(struct device *dev, struct device_attribute *attr,
-> > +			     char *buf)
-> > +{
-> > +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
-> > +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
-> > +	unsigned int val;
-> > +	int ret, i;
-> > +	int cnt = 0;
-> > +
-> > +	ret = regmap_read(axp20x_pek->axp20x->regmap, AXP20X_PEK_KEY, &val);
-> > +	if (ret != 0)
-> > +		return ret;
-> > +
-> > +	val &= axp20x_ea->mask;
-> > +	val >>= ffs(axp20x_ea->mask) - 1;
-> > +
-> > +	for (i = 0; i < 4; i++) {
-> > +		if (val == i)
-> > +			cnt += sprintf(buf + cnt, "[%s] ", axp20x_ea->str[i]);
-> > +		else
-> > +			cnt += sprintf(buf + cnt, "%s ", axp20x_ea->str[i]);
+> > diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+> > new file mode 100644
+> > index 0000000..f77a663
+> > --- /dev/null
+> > +++ b/drivers/mfd/axp20x.c
+> > @@ -0,0 +1,240 @@
+> > +/*
+> > + * axp20x.c - MFD core driver for the X-Powers AXP202 and AXP209
 > 
-> Please just return the current value; why do we need pretty-printing?
+> ... which consist of ...
 
-It was done to have the possibility to look at the accepted values. With
-the modification you suggested before this is not necessary anymore.
-I'll change it.
+Yeah, I should improve my code documentation :)
 
-> > +	}
-> > +
-> > +	cnt += sprintf(buf + cnt, "\n");
-> > +
-> > +	return cnt;
-> > +}
-> > +
-> > +static ssize_t axp20x_store_ext_attr(struct device *dev, struct device_attribute *attr,
-> > +			      const char *buf, size_t count)
-> > +{
-> > +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
-> > +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
-> > +	char val_str[20];
-> > +	int ret, i;
-> > +	size_t len;
-> > +
-> > +	val_str[sizeof(val_str) - 1] = '\0';
-> > +	strncpy(val_str, buf, sizeof(val_str) - 1);
-> > +	len = strlen(val_str);
-> > +
-> > +	if (len && val_str[len - 1] == '\n')
-> > +		val_str[len - 1] = '\0';
-> > +
-> > +	for (i = 0; i < 4; i++) {
-> > +		if (!strcmp(val_str, axp20x_ea->str[i])) {
-> > +
-> > +			i <<= ffs(axp20x_ea->mask) - 1;
-> > +			ret = regmap_update_bits(axp20x_pek->axp20x->regmap,
-> > +						 AXP20X_PEK_KEY,
-> > +						 axp20x_ea->mask, i);
-> > +			if (ret != 0)
-> > +				return -EINVAL;
-> > +			return count;
-> > +		}
-> > +	}
-> > +
-> > +	return -EINVAL;
-> > +}
-> > +
-> > +static struct dev_ext_attribute axp20x_dev_attr_startup = {
-> > +	.attr	= __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
-> > +	.var	= &axp20x_pek_startup_ext_attr
-> > +};
-> > +
-> > +static struct dev_ext_attribute axp20x_dev_attr_shutdown = {
-> > +	__ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
-> > +	&axp20x_pek_shutdown_ext_attr
-> > +};
-> > +
-> > +static struct attribute *dev_attrs[] = {
-> > +	&axp20x_dev_attr_startup.attr.attr,
-> > +	&axp20x_dev_attr_shutdown.attr.attr,
-> > +	NULL,
-> > +};
-> > +
-> > +static struct attribute_group dev_attr_group = {
-> > +	.attrs	= dev_attrs,
-> > +};
-> > +
-> > +static const struct attribute_group *dev_attr_groups[] = {
-> > +	&dev_attr_group,
-> > +	NULL,
-> > +};
-> > +
-> > +static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
-> > +{
-> > +	struct input_dev *idev = pwr;
-> > +	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
-> > +
-> > +	if (irq == axp20x_pek->irq_dbr)
-> > +		input_report_key(idev, KEY_POWER, true);
-> > +	else if (irq == axp20x_pek->irq_dbf)
-> > +		input_report_key(idev, KEY_POWER, false);
-> > +
-> > +	input_sync(idev);
-> > +
-> > +	return IRQ_HANDLED;
-> > +}
-> > +
-> > +static int axp20x_pek_probe(struct platform_device *pdev)
-> > +{
-> > +	struct axp20x_pek *axp20x_pek;
-> > +	struct axp20x_dev *axp20x;
-> > +	struct input_dev *idev;
-> > +	int error;
-> > +
-> > +	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
-> > +				  GFP_KERNEL);
-> > +	if (!axp20x_pek)
-> > +		return -ENOMEM;
-> > +
-> > +	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
-> > +	axp20x = axp20x_pek->axp20x;
-> > +
-> > +	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
-> > +	if (axp20x_pek->irq_dbr < 0) {
-> > +		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
-> > +				axp20x_pek->irq_dbr);
-> > +		return axp20x_pek->irq_dbr;
-> > +	}
-> > +	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
-> > +						  axp20x_pek->irq_dbr);
-> > +
-> > +	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
-> > +	if (axp20x_pek->irq_dbf < 0) {
-> > +		dev_err(&pdev->dev, "No IRQ for PEK_DBF, error=%d\n",
-> > +				axp20x_pek->irq_dbf);
-> > +		return axp20x_pek->irq_dbf;
-> > +	}
-> > +	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
-> > +						  axp20x_pek->irq_dbf);
-> > +
-> > +	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
-> > +	if (!axp20x_pek->input)
-> > +		return -ENOMEM;
-> > +
-> > +	idev = axp20x_pek->input;
-> > +
-> > +	idev->name = "axp20x-pek";
-> > +	idev->phys = "m1kbd/input2";
-> > +	idev->dev.parent = &pdev->dev;
-> > +
-> > +	input_set_capability(idev, EV_KEY, KEY_POWER);
-> > +
-> > +	input_set_drvdata(idev, axp20x_pek);
-> > +
-> > +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbr,
-> > +					  NULL, axp20x_pek_irq, 0,
-> > +					  "axp20x-pek-dbr", idev);
+> [...]
 > 
-> Why does it have to be threaded IRQ?
-
-Because this is already handled as a nested irq from a irq thread. The
-parent threaded irq is installed by regmap_add_irq_chip() in the MFD
-driver core.
-
-> > +	if (error) {
-> > +		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
-> > +			axp20x_pek->irq_dbr, error);
-> > +
-> > +		return error;
-> > +	}
-> > +
-> > +	error = devm_request_threaded_irq(&pdev->dev, axp20x_pek->irq_dbf,
-> > +					  NULL, axp20x_pek_irq, 0,
-> > +					  "axp20x-pek-dbf", idev);
-> > +	if (error) {
-> > +		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
-> > +			axp20x_pek->irq_dbf, error);
-> > +		return error;
-> > +	}
-> > +
-> > +	idev->dev.groups = dev_attr_groups;
-> 
-> These are not generic input attributes so they should belong to the platform
-> device, not input device.
-
-Ok. Can I ask why they cannot be considered an input attributes?
-
-> > +	error = input_register_device(idev);
-> > +	if (error) {
-> > +		dev_err(axp20x->dev, "Can't register input device: %d\n", error);
-> > +		return error;
-> > +	}
-> > +
-> > +	platform_set_drvdata(pdev, axp20x_pek);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int axp20x_pek_remove(struct platform_device *pdev)
-> > +{
-> > +	struct axp20x_pek *axp20x_pek = platform_get_drvdata(pdev);
-> > +
-> > +	input_unregister_device(axp20x_pek->input);
-> 
-> No need to call input_unregister_device() for managed input devices.
-
-Right. Fix in v3.
-
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static struct platform_driver axp20x_pek_driver = {
-> > +	.probe		= axp20x_pek_probe,
-> > +	.remove		= axp20x_pek_remove,
-> > +	.driver		= {
-> > +		.name		= "axp20x-pek",
-> > +		.owner		= THIS_MODULE,
+> > +static struct resource axp20x_pek_resources[] = {
+> > +	{
+> > +		.name	= "PEK_DBR",
+> > +		.start	= AXP20X_IRQ_PEK_RIS_EDGE,
+> > +		.end	= AXP20X_IRQ_PEK_RIS_EDGE,
+> > +		.flags	= IORESOURCE_IRQ,
+> > +	}, {
+> > +		.name	= "PEK_DBF",
+> > +		.start	= AXP20X_IRQ_PEK_FAL_EDGE,
+> > +		.end	= AXP20X_IRQ_PEK_FAL_EDGE,
+> > +		.flags	= IORESOURCE_IRQ,
 > > +	},
 > > +};
-> > +module_platform_driver(axp20x_pek_driver);
-> > +
-> > +MODULE_DESCRIPTION("axp20x Power Button");
-> > +MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
-> > +MODULE_LICENSE("GPL");
-> > -- 
-> > 1.8.3.2
-> > 
 > 
-> Thanks.
+> Have you considered doing this in the Device Tree? It's a lot less
+> code/overhead.
+
+Ok, I'll change it in v4.
+
+> > +static const struct i2c_device_id axp20x_i2c_id[] = {
+> > +	{ },
+> > +};
+> > +MODULE_DEVICE_TABLE(i2c, axp20x_i2c_id);
+>  
+> We really should consider changing the I2C subsystem!
+> 
+> Can you add a comment here describing why we have to add this
+> seemingly pointless empty struct please?
+
+Sure.
+
+> > +static struct mfd_cell axp20x_cells[] = {
+> > +	{
+> > +		.name		= "axp20x-pek",
+> > +		.num_resources	= ARRAY_SIZE(axp20x_pek_resources),
+> > +		.resources	= axp20x_pek_resources,
+> > +	}, {
+> > +		.name		= "axp20x-regulator",
+> > +	},
+> > +};
+> 
+> Do these drivers don't look inside the DTB at all?
+
+Only the regulators driver.
+
+> > +	of_id = of_match_device(axp20x_of_match, &i2c->dev);
+> > +	if (!of_id) {
+> > +		dev_err(&i2c->dev, "Unable to setup AXP20X data\n");
+> > +		return -ENODEV;
+> > +	}
+> > +	axp20x->variant = (int) of_id->data;
+> 
+> 'variant' needs to be a (unsigned?) long or it will break on 64bit
+> architectures.
+
+Ok, I really need to start thinking to 64bit also.
 
 Thank you,
 

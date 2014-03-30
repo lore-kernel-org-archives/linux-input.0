@@ -1,88 +1,78 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH v3 06/10] regulator: AXP20x: Add support
- for regulators subsystem
-Date: Sun, 30 Mar 2014 00:47:03 +0000
-Message-ID: <20140330004703.GL21628@sirena.org.uk>
-References: <1395955764-18103-1-git-send-email-carlo@caione.org>
- <1395955764-18103-7-git-send-email-carlo@caione.org>
- <20140328133934.GQ30768@sirena.org.uk>
- <20140329175201.GD3952@localhost.fastwebnet.it>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Win 8.1 multitouch touchpads
+Date: Sat, 29 Mar 2014 20:23:33 -0500
+Message-ID: <CA+BWVUQxyM2CkXiQLJi+yrjCEGiFWMur9UQvxV8K1PYTRPpCmQ@mail.gmail.com>
+References: <1395261543-3103-1-git-send-email-aduggan@synaptics.com>
+ <alpine.LNX.2.00.1403201002260.3690@pobox.suse.cz> <CAN+gG=HtEpKi-bjf-Aq7+Ko8MFnyXyfgL72D3pYo0NE9ZdWBsA@mail.gmail.com>
+ <CA+BWVURMCnkt8NtRorj+mifHWEGs=0TZbFAqmusKoXyVQj-QZA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fDERRRNgB4on1jOB"
-Return-path: <linux-sunxi+bncBDQ2L75W5QGBBN6T3WMQKGQEYT2R5EY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140329175201.GD3952-bi+AKbBUZKZeIdyRz4JgOMwOAu8XWILU@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:39121 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555AbaC3BXy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 29 Mar 2014 21:23:54 -0400
+Received: by mail-we0-f174.google.com with SMTP id t60so3506634wes.19
+        for <linux-input@vger.kernel.org>; Sat, 29 Mar 2014 18:23:53 -0700 (PDT)
+In-Reply-To: <CA+BWVURMCnkt8NtRorj+mifHWEGs=0TZbFAqmusKoXyVQj-QZA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+
+Hey Benjamin,
+
+I was the one to submit the original Surface 2 patch. I have been
+testing the 3.15/multitouch branch with the Surface Pro 2 type cover.
+This patch doesn't actual enable the keyboard/mouse to work. This
+patch only works when there is a HID_UP_BUTTON and/or HID_DG_TOUCHPAD
+in usage, which is not the case on this device. The reason the type
+cover is not working with hid-multitouch is mt_input_mapping is
+returing -1 to ignore the device. This happens becuase of:
+
+if (!td->mtclass.export_all_inputs &&
+   field->application != HID_DG_TOUCHSCREEN &&
+   field->application != HID_DG_PEN &&
+   field->application != HID_DG_TOUCHPAD)
+return -1;
 
 
---fDERRRNgB4on1jOB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I notice that there is now a mt.export_all_inputs which could allow
+the surface type cover keyboard to get handled properly. Is this
+something that sould be added to hid-multitouch for this device? The
+driver could check for device ID's and set export_all_inputs to true.
+It could also check for GenericDesktop application in hid field and
+return 0 in mt_input_mapping.
 
-On Sat, Mar 29, 2014 at 06:52:01PM +0100, Carlo Caione wrote:
-> On Fri, Mar 28, 2014 at 01:39:34PM +0000, Mark Brown wrote:
+I can submit a patch with one of these changes if you think it would
+be better than the current patch for the surface from Derya. I belive
+that patch adds hardware ID's to hid core and sets the HID Group to
+generic.
 
-> > This is fairly obviously broken - it's overwriting the normal runtime
-> > value, this will disrupt the running system if we want the value we use
-> > on suspend is different to the value we want at runtime.
-
-> Ok, silly question: isn't it exactly what we want? Set the voltage for
-> the regulator when the system is suspended?
-
-This needs to be done without affecting the current system state - many
-PMICs are aware of system suspend and have support for transitioning
-into a separate suspend state, this should only be configuring that.  We
-may call this function separately to the actual suspend.
-
-> > Think about it - if this was a sane thing to do the core would just do
-> > it without needing driver specific code, we already know how to set the
-> > voltage for the device.
-
-> I thought it was because some regulators can have specific regs for
-> managing the suspend mode.
-
-Right, but if the PMIC doesn't have that feature then it should indicate
-that by not implementing the operation and letting the core worry about
-how to handle the situation.
-
-> BTW, but then what is the difference between my code and (i.e.) the same
-> routine in da9055-regulator.c?
-
-> http://lxr.linux.no/linux+v3.13.5/drivers/regulator/da9055-regulator.c#L276
-
-That's updating the B register set which IIRC is used only in suspend
-mode.
-
---fDERRRNgB4on1jOB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTN2mDAAoJELSic+t+oim9Hv0P/0yl/CeyNRkYogXhcYB75ocd
-IdShKYbPPSzYhLNNab97A2GC4yi983+Y9S2DevBXNuWmsJDpwl1n0yzDaNYPJu0S
-oKjNH1R5qQ7YjWZoU5Bwh7MzGH0dnZs4t6N/eJntYcQqx7OAxbVMi1MXEWJYrVOi
-/YrmaPM8OGvcbSgRrplR5+2p3zXFCHXYPghiOEcHpjTsdao5Mhfc+5fBXLhXn4lJ
-xTXonxV+ZgUXPca3i7FEYHSI4l4lhKuutrtD+TbgjCYNdZXuIVUiTFdp6ciu+7PD
-4vvORBqSaDt5fHiYctpoURarTJrgsNunujFvf0knhtaEXEkSpnbbV1dDEccfTdPY
-JixXjjQ7JG2fjLpfkDZ33BoJyeuD5ZNrQrC+h0b6a2sM3PsjWi1xKrUwl6+yo+5x
-+9vdhAxWY1dQjYdR1Wid6O+j8dj7+mTsoneeJGOWiiU7Aoml6EczkaXr3XZg+vJF
-1ai4ENMxs7nDz43WuW9luRV5Du31MOKP2GEGEZdq8ujjLZINFsN+YIr34AuouW1x
-d19yIMtnATrtVMMjeynS+MpNhZcB4dsFOiVXRDeB4MkqaJsGDLe4TXhL5abrSR+i
-T+IJBcIxa9RcnoljlfuAa7eN1nuMeCR3uWG/UNBdX+e2G0hyFyhnZ9MWAxWZJC9d
-EvL3PiO63nPFsX3K3ZVO
-=O7F0
------END PGP SIGNATURE-----
-
---fDERRRNgB4on1jOB--
+On Thu, Mar 20, 2014 at 12:36 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Thu, Mar 20, 2014 at 5:02 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Wed, 19 Mar 2014, Andrew Duggan wrote:
+>>
+>>> Multitouch touchpads built for Win 8.1 need to be sent an input mode feature report
+>>> in order to start reporting multitouch events. This is the same process sent
+>>> to Win 7 multitouch touchscreens except the value of the feature report is 3 for
+>>> touchpads.
+>>>
+>>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>>> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>
+>> Applied, thanks.
+>
+> Thanks Jiri.
+>
+> Derya, can you test if this also solves the problem with the Surface 2
+> touch cover?
+> (if you remove the special vendor handling in hid_scan_report)
+>
+> Cheers,
+> Benjamin
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

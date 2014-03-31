@@ -1,78 +1,38 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/2] Revert "HID: microsoft: Add ID's for Surface Type/Touch Cover 2"
-Date: Mon, 31 Mar 2014 13:27:09 -0400
-Message-ID: <1396286830-2795-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1396286830-2795-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: [PATCH] Input: pmic8xxx-pwrkey - Set sane default for debounce time
+Date: Mon, 31 Mar 2014 11:14:24 -0700
+Message-ID: <1396289664-31893-1-git-send-email-sboyd@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1396286830-2795-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Reyad Attiyat <reyad.attiyat@gmail.com>, Derya <derya.kiran@yahoo.de>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-input@vger.kernel.org
 
-From: Derya <derya.kiran@yahoo.de>
+If the debounce time is 0 our usage of ilog2() later on in this
+driver will cause undefined behavior. If CONFIG_OF=n this fact is
+evident to the compiler, and it emits a call to ____ilog2_NaN()
+which doesn't exist. Fix this by setting a sane default for
+debounce.
 
-This reverts commit 117309c51dca42121f70cacec801511b76acf75c.
-
-The MS Surface Pro 2 has an USB composite device with 3 interfaces
-- interface 0 - sensor hub
-- interface 1 - wacom digitizer
-- interface 2 - the keyboard cover, if one is attached
-This USB composite device changes it product id dependent on if and which
-keyboard cover is attached. Adding the covers to hid_have_special_driver
-prevents loading the right hid drivers for the other two interfaces, all 3
-get loaded with hid-microsoft. We don't even need hid-microsoft for the
-keyboards. We have to revert this to load the right hid modules for each
-interface.
-
-CC: stable@vger.kernel.org # kernel 3.14 only
-Signed-off-by: Derya <derya.kiran@yahoo.de>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 ---
- drivers/hid/hid-core.c      | 2 --
- drivers/hid/hid-ids.h       | 2 --
- drivers/hid/hid-microsoft.c | 4 ----
- 3 files changed, 8 deletions(-)
+ drivers/input/misc/pmic8xxx-pwrkey.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index cc32a6f..bb5c494 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1780,8 +1780,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 22f28d6..07cd28c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -624,8 +624,6 @@
- #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
- #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
- #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
--#define USB_DEVICE_ID_MS_TOUCH_COVER_2	0x07a7
--#define USB_DEVICE_ID_MS_TYPE_COVER_2	0x07a9
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index 1cb8fda7a166..27add04676e1 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -92,7 +92,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 	bool pull_up;
  
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 404a3a8..c6ef6ee 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -208,10 +208,6 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
- 		.driver_data = MS_DUPLICATE_USAGES },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2),
--		.driver_data = 0 },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2),
--		.driver_data = 0 },
+ 	if (of_property_read_u32(pdev->dev.of_node, "debounce", &kpd_delay))
+-		kpd_delay = 0;
++		kpd_delay = 15625;
  
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
- 		.driver_data = MS_PRESENTER },
+ 	pull_up = of_property_read_bool(pdev->dev.of_node, "pull-up");
+ 
 -- 
-1.9.0
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+hosted by The Linux Foundation

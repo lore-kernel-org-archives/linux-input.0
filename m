@@ -1,25 +1,25 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
 Subject: Re: [PATCH] Input: pmic8xxx-pwrkey - Set sane default for debounce
  time
-Date: Mon, 31 Mar 2014 11:29:27 -0700
-Message-ID: <5339B407.1050308@codeaurora.org>
-References: <1396289664-31893-1-git-send-email-sboyd@codeaurora.org> <20140331182315.GA9198@core.coreip.homeip.net>
+Date: Mon, 31 Mar 2014 11:48:37 -0700
+Message-ID: <5339B885.5070802@codeaurora.org>
+References: <1396289664-31893-1-git-send-email-sboyd@codeaurora.org> <20140331182342.GD28265@joshc.qualcomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:40959 "EHLO
+Received: from smtp.codeaurora.org ([198.145.11.231]:42521 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753176AbaCaS33 (ORCPT
+	with ESMTP id S1753277AbaCaSsj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Mar 2014 14:29:29 -0400
-In-Reply-To: <20140331182315.GA9198@core.coreip.homeip.net>
+	Mon, 31 Mar 2014 14:48:39 -0400
+In-Reply-To: <20140331182342.GD28265@joshc.qualcomm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+To: Josh Cartwright <joshc@codeaurora.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-On 03/31/14 11:23, Dmitry Torokhov wrote:
+On 03/31/14 11:23, Josh Cartwright wrote:
 > On Mon, Mar 31, 2014 at 11:14:24AM -0700, Stephen Boyd wrote:
 >> If the debounce time is 0 our usage of ilog2() later on in this
 >> driver will cause undefined behavior. If CONFIG_OF=n this fact is
@@ -43,45 +43,21 @@ On 03/31/14 11:23, Dmitry Torokhov wrote:
 >>  	if (of_property_read_u32(pdev->dev.of_node, "debounce", &kpd_delay))
 >> -		kpd_delay = 0;
 >> +		kpd_delay = 15625;
-> What if somebody supplied 0 via DT? Can we check and return -EINVAL?
+> Should "debounce" even be optional?  I'm wondering if we should just
+> make it required...
 
-Sure. Here's a v2.
+Hmm maybe. It's not like things won't work without it set though.
 
------8<------
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v2] Input: pmic8xxx-pwrkey - Set sane default for debounce
- time
+>
+> At the very least this default value should be documented in the DT
+> binding.
+>
 
-If the debounce time is 0 our usage of ilog2() later on in this
-driver will cause undefined behavior. If CONFIG_OF=n this fact is
-evident to the compiler, and it emits a call to ____ilog2_NaN()
-which doesn't exist. Fix this by setting a sane default for
-debounce and failing to probe if debounce is 0 in the DT.
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
----
- drivers/input/misc/pmic8xxx-pwrkey.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index 1cb8fda7a166..3fb161902cc6 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -92,11 +92,11 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	bool pull_up;
- 
- 	if (of_property_read_u32(pdev->dev.of_node, "debounce", &kpd_delay))
--		kpd_delay = 0;
-+		kpd_delay = 15625;
- 
- 	pull_up = of_property_read_bool(pdev->dev.of_node, "pull-up");
- 
--	if (kpd_delay > 62500) {
-+	if (kpd_delay > 62500 || kpd_delay == 0) {
- 		dev_err(&pdev->dev, "invalid power key trigger delay\n");
- 		return -EINVAL;
- 	}
+I never understood this. The default value is something that is entirely
+software driven. It could change at any time. If DT implementers aren't
+specifying it they're saying "I don't care what the value is, let the
+driver decide if they care". They're not saying, "Oh, that default value
+in the binding is good enough for me so I don't need to specify this".
 
 -- 
 Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,

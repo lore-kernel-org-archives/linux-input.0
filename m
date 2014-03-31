@@ -1,287 +1,1051 @@
-From: Rob Mosher <nyt-fuEpAR7jH0UNb0vsIHg089HuzzzSOjJt@public.gmane.org>
-Subject: Re: ti_am33x_adc sampling bugs
-Date: Mon, 31 Mar 2014 12:47:54 -0400
-Message-ID: <53399C3A.9040007@countercultured.net>
-References: <53379DF2.7050004@rznt.com> <5337B3F4.30500@countercultured.net> <CAExKytzRv4CT9zTor=-fc5Mfv+xG9uTjQP=LWosVnhEHsa9Y0A@mail.gmail.com> <5338E95F.50204@countercultured.net> <533924B1.5030406@countercultured.net> <d8950cff-fd37-46bb-b438-d42f15851602@email.android.com>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: add support for Win 8.1 multitouch touchpads
+Date: Mon, 31 Mar 2014 11:54:44 -0500
+Message-ID: <CA+BWVUQUqp-JXJ7M9BFhEbLnWDRrYiNdktAp4Yu9dsP-=XwZKA@mail.gmail.com>
+References: <1395261543-3103-1-git-send-email-aduggan@synaptics.com>
+ <alpine.LNX.2.00.1403201002260.3690@pobox.suse.cz> <CAN+gG=HtEpKi-bjf-Aq7+Ko8MFnyXyfgL72D3pYo0NE9ZdWBsA@mail.gmail.com>
+ <CA+BWVURMCnkt8NtRorj+mifHWEGs=0TZbFAqmusKoXyVQj-QZA@mail.gmail.com>
+ <CA+BWVUQxyM2CkXiQLJi+yrjCEGiFWMur9UQvxV8K1PYTRPpCmQ@mail.gmail.com>
+ <CAN+gG=EFTD6aTne9dPNhn=SwjE6fjc1GW_ROiEc0_PyLz20LLQ@mail.gmail.com>
+ <CA+BWVUQG82TQZQNk4GTY6NVY3Fsm94LJ==JwpXrr3EBhnCzfSA@mail.gmail.com> <CAN+gG=EG2mGfdZhdHcT1L0tsjpxhqHP5NEJuf6L9P+3DJ5yALg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <d8950cff-fd37-46bb-b438-d42f15851602-2ueSQiBKiTY7tOexoI0I+QC/G2K4zDHf@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, robertcnelson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: multipart/mixed; boundary=f46d043894cfd05f0704f5e9e931
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:39408 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752943AbaCaQzH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 Mar 2014 12:55:07 -0400
+Received: by mail-wg0-f45.google.com with SMTP id l18so6104901wgh.4
+        for <linux-input@vger.kernel.org>; Mon, 31 Mar 2014 09:55:06 -0700 (PDT)
+In-Reply-To: <CAN+gG=EG2mGfdZhdHcT1L0tsjpxhqHP5NEJuf6L9P+3DJ5yALg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-I believe the AIN files came from 
-0020-iio-ti_am335x_adc-Add-IIO-map-interface.patch.  The bug is the same 
-reading from in_voltageX_raw files.
+--f46d043894cfd05f0704f5e9e931
+Content-Type: text/plain; charset=UTF-8
 
-On 3/31/2014 12:14 PM, Jonathan Cameron wrote:
+Hey Benjamin,
+
+I did truncate the hid-recorder log. I didn't want to end up spamming
+the mailing list. I'll attach to this email a full untocuhed log from
+using the tocuhpad with one, two, and three fingers.
+
+
+
+On Mon, Mar 31, 2014 at 10:19 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Reyad,
+>
+> thanks for the logs.
+>
+> So, several things here:
+> - the report descriptor is indeed messed, so we will have to fix it
+> - once it will be fixed, we can use hid-mt to deal with the touch cover
+> - however, either you truncated the events, or the device is pure
+> crap. I got touches stuck with the values you submitted, and I have no
+> way to retrieve the releases.
+> - hid_scan_report needs to be fixed to prevent this failures in the future.
+>
+> I am going to submit a revert of the hid-microsoft commit and a fix
+> for the hid_scan_report().
+>
+> Depending on whether you truncated the events, we will think at
+> patching the report descriptor to make it actually working.
+>
+> Cheers,
+> Benjamin
 >
 >
-> On March 31, 2014 9:17:53 AM GMT+01:00, Rob Mosher <nyt-fuEpAR7jH0UNb0vsIHg089HuzzzSOjJt@public.gmane.org> wrote:
->> The following patches were removed and behavior returned to normal.
+> On Sun, Mar 30, 2014 at 1:29 AM, Reyad Attiyat <reyad.attiyat@gmail.com> wrote:
+>> Hey,
 >>
->> 0019-iio-ti_am335x_adc-Add-continuous-sampling-and-trigge.patch
->> 0020-iio-ti_am335x_adc-Add-IIO-map-interface.patch
+>> I have reverted the old patch 117309.. and forced the class
+>> MT_CLS_EXPORT_ALL_INPUTS on this device. The keyboard and mouse work
+>> in this setup.
+>> When input mode is set to 2 (MT_INPUTMODE_TOUCHSCREEN) hid-recorder outputs:
 >>
->> Once 19 was re-applied, the bug returned.
+>> R: 472 05 01 09 06 a1 01 85 01 15 00 25 01 75 01 95 08 05 07 19 e0 29
+>> e7 81 02 75 08 95 0a 19 00 29 91 26 ff 00 81 00 05 0c 0a c0 02 a1 02
+>> 1a c1 02 2a c6 02 95 06 b1 03 c0 05 08 19 01 29 03 75 01 95 03 25 01
+>> 91 02 95 05 91 03 c0 05 01 09 02 a1 01 85 02 05 09 19 01 29 05 81 02
+>> 95 01 75 03 81 03 15 81 25 7f 75 08 95 02 05 01 09 30 09 31 81 06 a1
+>> 02 09 48 15 00 25 01 35 01 45 10 75 02 95 01 a4 b1 02 09 38 15 81 25
+>> 7f 35 00 45 00 75 08 81 06 c0 a1 02 09 48 b4 b1 02 35 00 45 00 75 04
+>> b1 03 05 0c 0a 38 02 15 81 25 7f 75 08 81 06 c0 c0 05 0c 09 01 a1 01
+>> 85 03 75 10 15 00 26 ff 03 19 00 2a ff 03 81 00 c0 06 05 ff 09 01 a1
+>> 01 85 09 25 ff 95 02 75 08 09 20 81 02 09 22 91 02 15 81 25 7f 95 20
+>> 75 08 09 21 81 02 09 23 91 02 c0 09 02 a1 01 85 0f 15 00 25 ff 95 01
+>> 09 00 91 02 c0 05 0d 09 05 a1 01 85 04 09 22 a1 02 15 00 25 01 09 47
+>> 09 42 95 02 75 01 81 03 95 01 75 02 25 02 09 51 81 03 75 01 95 04 81
+>> 03 05 01 35 00 65 11 55 0d 75 10 95 01 09 30 26 ff 03 46 5e 1a 81 03
+>> 09 31 26 ff 01 46 80 0c 81 03 c0 05 0d 09 56 55 0c 66 01 10 47 ff ff
+>> 00 00 27 ff ff 00 00 81 03 09 54 25 7f 75 08 81 03 05 09 09 01 25 01
+>> 75 01 81 03 95 07 81 03 05 0d 85 04 09 55 09 59 75 04 95 02 25 0f b1
+>> 03 06 00 ff 09 c6 85 05 15 00 25 08 75 08 95 01 b1 02 09 c7 26 ff 00
+>> 75 08 95 20 b1 02 c0 05 0d 09 0e a1 01 85 06 09 22 a1 02 09 52 09 52
+>> 15 00 25 0a 75 08 95 01 b1 02 c0 85 0b 09 22 a1 00 09 57 09 58 15 00
+>> 25 01 75 01 95 02 b1 02 95 06 b1 03 c0 c0
+>> N: MICROSOFT SAM
+>> P: usb-0000:00:14.0-3/input2
+>> I: 3 045e 07a9
+>> E: 0.000001 12 01 00 00 00 00 00 00 00 00 00 00 00
+>> E: 1.044575 6 02 00 f7 00 00 00
+>> E: 1.052450 6 02 00 f7 00 00 00
+>> E: 1.056451 6 02 00 fd 00 00 00
+>> E: 1.064307 6 02 00 f3 00 00 00
+>> E: 1.072314 6 02 00 f3 ff 00 00
+>> E: 1.080422 6 02 00 f2 ff 00 00
+>> E: 1.088323 6 02 00 f6 00 00 00
+>> E: 1.096446 6 02 00 f1 00 00 00
+>> E: 1.104276 6 02 00 f2 01 00 00
+>> E: 1.112225 6 02 00 f3 00 00 00
+>> E: 1.120162 6 02 00 f5 00 00 00
+>> E: 1.128130 6 02 00 f8 01 00 00
+>> E: 1.136120 6 02 00 f9 00 00 00
+>> E: 1.144190 6 02 00 fe 00 00 00
+>> E: 1.148212 6 02 00 fb 01 00 00
+>> E: 1.156311 6 02 00 fc 01 00 00
+>> E: 1.164293 6 02 00 fd 00 00 00
+>> E: 1.172407 6 02 00 fe 00 00 00
+>> E: 1.184526 6 02 00 fe 01 00 00
+>> E: 1.192372 6 02 00 ff 00 00 00
 >>
->> It would appear that patch19 is the problem.  On an unrelated note, the
 >>
->> continuous sampling patch seems to still be missing the mode file to
->> tell it to sample continuously or oneshot in the sysfs directory as
->> referenced at
->> http://processors.wiki.ti.com/index.php/AM335x_ADC_Driver%27s_Guide.
-> Someone should update that wiki page.
-> Such an attribute was not and will not be
->   part of the mainline kernel ABI. Drivers can play fast and loose in staging but to move
->   out the ABI must conform to existing definitions or be proposed reviewed and accepted.
->
-> I am somewhat confused. Where did the AIN sysfs attributes come from?
->
->> Maybe this should be moved to the beta kernel until stable?
->
+>> When input is set to 3 hid-recorder output is:
 >>
->> Cheers.
+>> R: 472 05 01 09 06 a1 01 85 01 15 00 25 01 75 01 95 08 05 07 19 e0 29
+>> e7 81 02 75 08 95 0a 19 00 29 91 26 ff 00 81 00 05 0c 0a c0 02 a1 02
+>> 1a c1 02 2a c6 02 95 06 b1 03 c0 05 08 19 01 29 03 75 01 95 03 25 01
+>> 91 02 95 05 91 03 c0 05 01 09 02 a1 01 85 02 05 09 19 01 29 05 81 02
+>> 95 01 75 03 81 03 15 81 25 7f 75 08 95 02 05 01 09 30 09 31 81 06 a1
+>> 02 09 48 15 00 25 01 35 01 45 10 75 02 95 01 a4 b1 02 09 38 15 81 25
+>> 7f 35 00 45 00 75 08 81 06 c0 a1 02 09 48 b4 b1 02 35 00 45 00 75 04
+>> b1 03 05 0c 0a 38 02 15 81 25 7f 75 08 81 06 c0 c0 05 0c 09 01 a1 01
+>> 85 03 75 10 15 00 26 ff 03 19 00 2a ff 03 81 00 c0 06 05 ff 09 01 a1
+>> 01 85 09 25 ff 95 02 75 08 09 20 81 02 09 22 91 02 15 81 25 7f 95 20
+>> 75 08 09 21 81 02 09 23 91 02 c0 09 02 a1 01 85 0f 15 00 25 ff 95 01
+>> 09 00 91 02 c0 05 0d 09 05 a1 01 85 04 09 22 a1 02 15 00 25 01 09 47
+>> 09 42 95 02 75 01 81 03 95 01 75 02 25 02 09 51 81 03 75 01 95 04 81
+>> 03 05 01 35 00 65 11 55 0d 75 10 95 01 09 30 26 ff 03 46 5e 1a 81 03
+>> 09 31 26 ff 01 46 80 0c 81 03 c0 05 0d 09 56 55 0c 66 01 10 47 ff ff
+>> 00 00 27 ff ff 00 00 81 03 09 54 25 7f 75 08 81 03 05 09 09 01 25 01
+>> 75 01 81 03 95 07 81 03 05 0d 85 04 09 55 09 59 75 04 95 02 25 0f b1
+>> 03 06 00 ff 09 c6 85 05 15 00 25 08 75 08 95 01 b1 02 09 c7 26 ff 00
+>> 75 08 95 20 b1 02 c0 05 0d 09 0e a1 01 85 06 09 22 a1 02 09 52 09 52
+>> 15 00 25 0a 75 08 95 01 b1 02 c0 85 0b 09 22 a1 00 09 57 09 58 15 00
+>> 25 01 75 01 95 02 b1 02 95 06 b1 03 c0 c0
+>> N: MICROSOFT SAM
+>> P: usb-0000:00:14.0-3/input2
+>> I: 3 045e 07a9
 >>
->> On 3/31/2014 12:04 AM, Rob Mosher wrote:
->>> (sorry for the duplicate, got bounces due to HTML encoding)
+>> One Finger - side to side swipes
+>>
+>> E: 0.000000 10 04 03 1f 02 ed 00 c4 e2 01 00
+>> E: 0.020089 10 04 03 1f 02 ed 00 0a e3 01 00
+>> E: 0.023972 10 04 03 1f 02 ed 00 50 e3 01 00
+>> E: 0.027967 10 04 03 1f 02 ed 00 96 e3 01 00
+>> E: 0.031878 10 04 03 1f 02 ed 00 dc e3 01 00
+>> E: 0.035809 10 04 03 14 02 eb 00 f0 e3 01 00
+>> E: 0.039936 10 04 03 10 02 eb 00 36 e4 01 00
+>> E: 0.043969 10 04 03 0f 02 ea 00 40 e4 01 00
+>> E: 0.047682 10 04 03 04 02 e9 00 86 e4 01 00
+>> E: 0.055592 10 04 03 fb 01 e8 00 cc e4 01 00
+>> E: 0.059593 10 04 03 f9 01 e7 00 d6 e4 01 00
+>> E: 0.063589 10 04 03 f1 01 e5 00 1c e5 01 00
+>> E: 0.067561 10 04 03 ee 01 e4 00 30 e5 01 00
+>> E: 0.071724 10 04 03 eb 01 e4 00 6c e5 01 00
+>> E: 0.075660 10 04 03 e0 01 e3 00 a8 e5 01 00
+>> E: 0.079566 10 04 03 d2 01 e1 00 ee e5 01 00
+>> E: 0.091504 10 04 03 c7 01 df 00 34 e6 01 00
+>> E: 0.095476 10 04 03 c5 01 de 00 3e e6 01 00
+>> E: 0.099484 10 04 03 ba 01 dc 00 84 e6 01 00
+>> E: 0.107550 10 04 03 ac 01 db 00 ca e6 01 00
+>> E: 0.111504 10 04 03 aa 01 da 00 d4 e6 01 00
+>> E: 0.115485 10 04 03 9f 01 d9 00 1a e7 01 00
+>> E: 0.119496 10 04 03 9d 01 d8 00 24 e7 01 00
+>> E: 0.123471 10 04 03 8f 01 d7 00 6a e7 01 00
+>> E: 0.127468 10 04 03 8d 01 d6 00 74 e7 01 00
+>> E: 0.131469 10 04 03 7f 01 d5 00 ba e7 01 00
+>> E: 0.135467 10 04 03 76 01 d4 00 e2 e7 01 00
+>> E: 0.143466 10 04 03 62 01 d3 00 28 e8 01 00
+>> E: 0.147468 10 04 03 5f 01 d2 00 32 e8 01 00
+>> E: 0.151467 10 04 03 51 01 d2 00 78 e8 01 00
+>> E: 0.155467 10 04 03 4f 01 d1 00 82 e8 01 00
+>> E: 0.159467 10 04 03 48 01 d1 00 c8 e8 01 00
+>> E: 0.163467 10 04 03 36 01 d0 00 04 e9 01 00
+>> E: 0.167467 10 04 03 28 01 cf 00 4a e9 01 00
+>> E: 0.179468 10 04 03 1e 01 cf 00 90 e9 01 00
+>> E: 0.183466 10 04 03 1c 01 cf 00 9a e9 01 00
+>> E: 0.187468 10 04 03 14 01 ce 00 e0 e9 01 00
+>> E: 0.191467 10 04 03 0c 01 ce 00 26 ea 01 00
+>> E: 0.195467 10 04 03 0a 01 cf 00 30 ea 01 00
+>> E: 0.199467 10 04 03 04 01 cf 00 76 ea 01 00
+>> E: 0.203467 10 04 03 02 01 cf 00 8a ea 01 00
+>> E: 0.211466 10 04 03 fd 00 cf 00 d0 ea 01 00
+>> E: 0.215467 10 04 03 fc 00 cf 00 da ea 01 00
+>> E: 0.219467 10 04 03 f8 00 cf 00 20 eb 01 00
+>> E: 0.223470 10 04 03 f6 00 ce 00 3e eb 01 00
+>> E: 0.227468 10 04 03 f1 00 ce 00 84 eb 01 00
+>> E: 0.231467 10 04 03 f0 00 ce 00 8e eb 01 00
+>> E: 0.235467 10 04 03 ed 00 ce 00 d4 eb 01 00
+>> E: 0.239466 10 04 03 ec 00 ce 00 de eb 01 00
+>> E: 0.243467 10 04 03 ea 00 ce 00 24 ec 01 00
+>> E: 0.251464 10 04 03 e9 00 ce 00 6a ec 01 00
+>> E: 0.255466 10 04 03 e8 00 ce 00 74 ec 01 00
+>> E: 0.259467 10 04 03 e6 00 ce 00 ba ec 01 00
+>> E: 0.263467 10 04 03 e5 00 ce 00 c4 ec 01 00
+>> E: 0.267467 10 04 03 e5 00 ce 00 0a ed 01 00
+>> E: 0.271479 10 04 03 e4 00 ce 00 3c ed 01 00
+>> E: 1.167556 10 04 01 79 01 b6 00 64 10 01 00
+>>
+>> Two Fingers
+>>
+>> E: 3.404049 10 04 03 85 03 fc 00 e4 67 01 00
+>> E: 3.428076 10 04 03 85 03 fc 00 2a 68 01 00
+>> E: 3.431899 10 04 03 85 03 fc 00 70 68 01 00
+>> E: 3.435812 10 04 03 85 03 fc 00 a2 68 02 00
+>> E: 3.439773 10 04 07 98 01 af 00 a2 68 00 00
+>> E: 3.447819 10 04 03 85 03 fc 00 f2 68 02 00
+>> E: 3.451729 10 04 07 99 01 b0 00 f2 68 00 00
+>> E: 3.455721 10 04 03 85 03 fc 00 42 69 02 00
+>> E: 3.459697 10 04 07 99 01 b0 00 42 69 00 00
+>> E: 3.463677 10 04 03 85 03 fc 00 92 69 02 00
+>> E: 3.467672 10 04 07 99 01 b0 00 92 69 00 00
+>> E: 3.471641 10 04 03 85 03 fc 00 e2 69 02 00
+>> E: 3.475641 10 04 07 99 01 b0 00 e2 69 00 00
+>> E: 3.479649 10 04 03 85 03 fc 00 32 6a 02 00
+>> E: 3.483616 10 04 07 99 01 b0 00 32 6a 00 00
+>> E: 3.487614 10 04 03 85 03 fc 00 82 6a 02 00
+>> E: 3.491461 10 04 07 99 01 b0 00 82 6a 00 00
+>> E: 3.495460 10 04 03 85 03 fc 00 d2 6a 02 00
+>> E: 3.499461 10 04 07 99 01 b0 00 d2 6a 00 00
+>> E: 3.503460 10 04 03 85 03 fc 00 22 6b 02 00
+>> E: 3.507461 10 04 07 99 01 b0 00 22 6b 00 00
+>> E: 3.511458 10 04 03 85 03 fc 00 72 6b 02 00
+>> E: 3.515460 10 04 07 99 01 b0 00 72 6b 00 00
+>> E: 3.519460 10 04 03 85 03 fc 00 c2 6b 02 00
+>> E: 3.523460 10 04 07 99 01 b0 00 c2 6b 00 00
+>> E: 3.527460 10 04 03 85 03 fc 00 12 6c 02 00
+>> E: 3.531466 10 04 07 99 01 b0 00 12 6c 00 00
+>> E: 3.535459 10 04 03 85 03 fc 00 62 6c 02 00
+>> E: 3.539460 10 04 07 99 01 b0 00 62 6c 00 00
+>> E: 3.543460 10 04 03 85 03 fc 00 b2 6c 02 00
+>> E: 3.547461 10 04 07 99 01 b0 00 b2 6c 00 00
+>> E: 3.551460 10 04 03 85 03 fc 00 02 6d 02 00
+>> E: 3.555460 10 04 07 99 01 b0 00 02 6d 00 00
+>> E: 3.559460 10 04 03 85 03 fc 00 52 6d 02 00
+>> E: 3.563460 10 04 07 99 01 b0 00 52 6d 00 00
+>> E: 3.567459 10 04 03 85 03 fc 00 a2 6d 02 00
+>> E: 3.571460 10 04 07 99 01 b0 00 a2 6d 00 00
+>> E: 3.575460 10 04 03 85 03 fc 00 f2 6d 02 00
+>> E: 3.579460 10 04 07 99 01 b0 00 f2 6d 00 00
+>> E: 3.583460 10 04 03 85 03 fc 00 42 6e 02 00
+>> E: 3.587460 10 04 07 99 01 b0 00 42 6e 00 00
+>> E: 3.591459 10 04 03 85 03 fc 00 92 6e 02 00
+>> E: 3.595460 10 04 07 99 01 b0 00 92 6e 00 00
+>> E: 3.599459 10 04 03 85 03 fc 00 e2 6e 02 00
+>> E: 3.603460 10 04 07 99 01 b0 00 e2 6e 00 00
+>> E: 3.607459 10 04 03 85 03 fc 00 32 6f 02 00
+>> E: 3.611460 10 04 07 99 01 b0 00 32 6f 00 00
+>> E: 3.615459 10 04 03 85 03 fc 00 82 6f 02 00
+>> E: 3.619460 10 04 07 8d 01 b2 00 82 6f 00 00
+>> E: 3.623460 10 04 03 7b 03 02 01 d2 6f 02 00
+>> E: 3.627476 10 04 07 84 01 b2 00 d2 6f 00 00
+>> E: 3.631423 10 04 03 6c 03 02 01 22 70 02 00
+>> E: 3.635495 10 04 07 73 01 b3 00 22 70 00 00
+>> E: 3.639475 10 04 03 5a 03 01 01 68 70 02 00
+>> E: 3.643479 10 04 07 67 01 b4 00 68 70 00 00
+>> E: 3.647369 10 04 03 4d 03 01 01 ae 70 02 00
+>> E: 3.651602 10 04 07 52 01 b5 00 ae 70 00 00
+>> E: 3.655649 10 04 03 4c 03 01 01 fe 70 02 00
+>> E: 3.659657 10 04 07 51 01 b6 00 fe 70 00 00
+>> E: 3.663650 10 04 03 34 03 01 01 08 71 02 00
+>> E: 3.667663 10 04 07 43 01 b6 00 08 71 00 00
+>> E: 3.671650 10 04 03 25 03 02 01 4e 71 02 00
+>> E: 3.675577 10 04 07 32 01 b7 00 4e 71 00 00
+>> E: 3.679686 10 04 03 1a 03 02 01 94 71 02 00
+>> E: 3.684002 10 04 07 29 01 b8 00 94 71 00 00
+>> E: 3.687960 10 04 03 0b 03 03 01 da 71 02 00
+>> E: 5.011753 10 04 05 b9 00 ea 00 e8 9a 00 00
+>>
+>> Three Fingers - I can't imagine someone using more on this size of touchpad
+>>
+>> E: 8.512034 10 04 03 01 01 30 01 44 2f 01 00
+>> E: 8.531887 10 04 03 01 01 30 01 8a 2f 01 00
+>> E: 8.535992 10 04 03 01 01 30 01 d0 2f 01 00
+>> E: 8.539861 10 04 03 01 01 30 01 16 30 01 00
+>> E: 8.543796 10 04 03 01 01 30 01 5c 30 01 00
+>> E: 8.547750 10 04 03 01 01 30 01 a2 30 01 00
+>> E: 8.551763 10 04 03 01 01 30 01 e8 30 01 00
+>> E: 8.559774 10 04 03 01 01 30 01 2e 31 01 00
+>> E: 8.563713 10 04 03 01 01 30 01 74 31 01 00
+>> E: 8.571685 10 04 03 fa 00 2c 01 c4 31 01 00
+>> E: 8.579631 10 04 03 f9 00 2b 01 14 32 01 00
+>> E: 8.595606 10 04 03 f9 00 2b 01 5a 32 01 00
+>> E: 8.599448 10 04 03 f9 00 2b 01 6e 32 02 00
+>> E: 8.603459 10 04 07 8a 03 36 01 6e 32 00 00
+>> E: 8.607448 10 04 03 f9 00 2b 01 be 32 02 00
+>> E: 8.611449 10 04 07 8b 03 37 01 be 32 00 00
+>> E: 8.615447 10 04 03 f9 00 2b 01 c8 32 03 00
+>> E: 8.619449 10 04 07 8a 03 36 01 c8 32 00 00
+>> E: 8.623450 10 04 0b 29 02 ab 00 c8 32 00 00
+>> E: 8.627449 10 04 03 f8 00 2b 01 0e 33 03 00
+>> E: 8.631448 10 04 07 8a 03 36 01 0e 33 00 00
+>> E: 8.635448 10 04 0b 29 02 ab 00 0e 33 00 00
+>> E: 8.639448 10 04 03 f7 00 2b 01 5e 33 03 00
+>> E: 8.643448 10 04 07 8a 03 36 01 5e 33 00 00
+>> E: 8.647448 10 04 0b 29 02 ab 00 5e 33 00 00
+>> E: 8.651448 10 04 03 f8 00 2a 01 86 33 03 00
+>> E: 8.655448 10 04 07 8a 03 36 01 86 33 00 00
+>> E: 8.659448 10 04 0b 29 02 ab 00 86 33 00 00
+>> E: 8.663447 10 04 03 f7 00 2a 01 cc 33 03 00
+>> E: 8.667449 10 04 07 8a 03 36 01 cc 33 00 00
+>> E: 8.671448 10 04 0b 29 02 ab 00 cc 33 00 00
+>> E: 8.675447 10 04 03 f6 00 2a 01 1c 34 03 00
+>> E: 8.679448 10 04 07 8a 03 36 01 1c 34 00 00
+>> E: 8.683448 10 04 0b 29 02 ab 00 1c 34 00 00
+>> E: 8.687447 10 04 03 f6 00 2a 01 62 34 03 00
+>> E: 8.691448 10 04 07 8a 03 36 01 62 34 00 00
+>> E: 8.695469 10 04 0b 29 02 ab 00 62 34 00 00
+>> E: 8.699449 10 04 03 f6 00 2a 01 b2 34 03 00
+>> E: 8.703447 10 04 07 8a 03 36 01 b2 34 00 00
+>> E: 8.707446 10 04 0b 29 02 ab 00 b2 34 00 00
+>> E: 8.711447 10 04 03 f5 00 2a 01 f8 34 03 00
+>> E: 8.715448 10 04 07 8a 03 36 01 f8 34 00 00
+>> E: 8.719447 10 04 0b 29 02 ab 00 f8 34 00 00
+>> E: 8.723448 10 04 03 f5 00 2a 01 48 35 03 00
+>> E: 8.727446 10 04 07 82 03 36 01 48 35 00 00
+>> E: 9.867933 10 04 05 36 03 1f 01 86 5b 00 00
+>>
+>> Tested keyboard - worked as expected
+>>
+>> E: 12.139656 12 01 00 14 00 00 00 00 00 00 00 00 00
+>> qE: 12.251482 12 01 00 00 00 00 00 00 00 00 00 00 00
+>> E: 12.579961 12 01 00 1a 00 00 00 00 00 00 00 00 00
+>> wE: 12.691797 12 01 00 00 00 00 00 00 00 00 00 00 00
+>> E: 13.027924 12 01 00 08 00 00 00 00 00 00 00 00 00
+>> eE: 13.159919 12 01 00 00 00 00 00 00 00 00 00 00 00
+>> E: 13.479970 12 01 00 15 00 00 00 00 00 00 00 00 00
+>> rE: 13.579955 12 01 00 00 00 00 00 00 00 00 00 00 00
+>> E: 14.007968 12 01 00 17 00 00 00 00 00 00 00 00 00
+>> tE: 14.107946 12 01 00 00 00 00 00 00 00 00 00 00 00
+>> E: 14.471932 12 01 00 1c 00 00 00 00 00 00 00 00 00
+>> yE: 14.571838 12 01 00 00 00 00 00 00 00 00 00 00 00
+>>
+>> Hope this is everything you needed. If there is any other test you
+>> need performed just let me know. One more thing I should note is that
+>> I did not see a cursor when input mode is set to three.
+>>
+>> On Sat, Mar 29, 2014 at 11:07 PM, Benjamin Tissoires
+>> <benjamin.tissoires@gmail.com> wrote:
+>>> Hi Reyad,
 >>>
->>> The specified patch is already included.  The system was running the
->>> latest kernel from Robert Nelson's repo.  Any suggestions?  I'll try
->>> removing some of the patches to see if it fixes this behavior.  I
->> have a
->>> feeling I know which one is doing it.
+>>> Thanks for the tests. I was surprised to hear that this patch did not
+>>> work for you. I made some tests too and the touchpad collection does
+>>> not appear right now.
+>>> This was until I realized that the report descriptor I have regarding
+>>> the Surface 2 was completely buggy.
+>>> So it seems that either I have a bad one, or the one actually inside
+>>> the device is buggy (which would explain why you don't get any
+>>> output).
 >>>
->>> Thanks.
+>>> The report descriptor declares all the events regarding the touchpad
+>>> as constant, and the hid subsystem ignores them :)
 >>>
->>> output from running patch.sh with source pulled from
->>> https://github.com/beagleboard/kernel/tree/3.8
+>>> To be able to provide a good solution, I would like you to conduct
+>>> some more tests:
+>>>
+>>> - revert commit 117309c51dca42121f70cacec801511b76acf75c (yours
+>>> actually :-P ) to handle the touch cover through hid-multitouch (you
+>>> should have done it already I think).
+>>> - register the touchcover surface 2 as using the class
+>>> MT_CLS_EXPORT_ALL_INPUTS (optional step, but you should be able to
+>>> have a keyboard with this)
+>>> - change mt_set_input_mode() in hid-multitouch.c to actually use "3"
+>>> as the td->inputmode_value (just overwite the value before putting it
+>>> in the field)
+>>> - please download and install hid-replay [1]
+>>>
+>>> run hid-recorder with (and without to check) the 3 as input mode, you
+>>> should receive events starting with "E: xxxxx..xxx XX 04 ....." when
+>>> playing with the touchpad.
+>>> (without the 3 as inputmode_value, you should receive  "E: xxxxx..xxx
+>>> XX 02 .....")
+>>>
+>>> Then, send me the recording from hid-recorder of a few keyboard
+>>> touches + touchpad events (single touch, dual touch, and more fingers)
+>>> so I can test and explain you how to fix the report descriptor in the
+>>> kernel.
 >>>
 >>>
->> /home/bbuild/comp/kernel/patches/adc/0017-IIO-ADC-ti_adc-Fix-1st-sample-read.patch:
->>> applied
+>>> Cheers,
+>>> Benjamin
 >>>
->>> Just in case, I built and installed the kernel and the same behavior
->>> persisted.
 >>>
->>> root@rbone:/# uname -a
->>> Linux rbone 3.8.13-00737-g7dfad77 #1 SMP Sun Mar 30 22:11:44 EDT 2014
->>> armv7l GNU/Linux
->>>
->>> gpio30 is connected to AIN4 using a voltage divider
->>>
->>> root@rbone:/# cd /sys/class/gpio/
->>> root@rbone:/sys/class/gpio# echo 30 > export
->>> root@rbone:/sys/class/gpio# echo BB-ADC >
->> /sys/devices/bone_capemgr.9/slots
->>> root@rbone:/sys/class/gpio# cd /sys/devices/ocp.3/helper.11/
->>> root@rbone:/sys/devices/ocp.3/helper.11# echo out >
->>> /sys/class/gpio/gpio30/direction
->>>
->>> root@rbone:/sys/devices/ocp.3/helper.11# echo 1 >
->>> /sys/class/gpio/gpio30/value
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 1460
->>>
->>> root@rbone:/sys/devices/ocp.3/helper.11# echo 0 >
->>> /sys/class/gpio/gpio30/value
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>>
->>> root@rbone:/sys/devices/ocp.3/helper.11# grep . AIN[0-3] AIN[5-7]
->>> AIN0:1550
->>> AIN1:1213
->>> AIN2:1485
->>> AIN3:795
->>> AIN5:513
->>> AIN6:744
->>> AIN7:1698
->>>
->>> root@rbone:/sys/devices/ocp.3/helper.11# echo 1 >
->>> /sys/class/gpio/gpio30/value
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 0
->>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>> 1460
->>>
->>> On 3/30/2014 9:16 AM, Zubair Lutfullah wrote:
+>>> On Sat, Mar 29, 2014 at 9:23 PM, Reyad Attiyat <reyad.attiyat@gmail.com> wrote:
+>>>> Hey Benjamin,
 >>>>
->> https://github.com/beagleboard/kernel/blob/3.8/patches/adc/0017-IIO-ADC-ti_adc-Fix-1st-sample-read.patch
+>>>> I was the one to submit the original Surface 2 patch. I have been
+>>>> testing the 3.15/multitouch branch with the Surface Pro 2 type cover.
+>>>> This patch doesn't actual enable the keyboard/mouse to work. This
+>>>> patch only works when there is a HID_UP_BUTTON and/or HID_DG_TOUCHPAD
+>>>> in usage, which is not the case on this device. The reason the type
+>>>> cover is not working with hid-multitouch is mt_input_mapping is
+>>>> returing -1 to ignore the device. This happens becuase of:
 >>>>
->>>> IIRC, this patch fixes this issue
->>>>
->>>> Can you compile the kernel from the sources and check?
->>>> https://github.com/beagleboard/kernel/tree/3.8
->>>>
->>>> Regards
->>>> ZubairLK
->>>>
->>>> On Sun, Mar 30, 2014 at 7:04 AM, Rob Mosher <nyt-fuEpAR7jH0UNb0vsIHg089HuzzzSOjJt@public.gmane.org
->>>> <mailto:nyt-fuEpAR7jH0UNb0vsIHg089HuzzzSOjJt@public.gmane.org>> wrote:
->>>>
->>>>      Just a note, the same behavior persists with BB-ADC dtb and
->>>>      reading from in_voltage4_raw
+>>>> if (!td->mtclass.export_all_inputs &&
+>>>>    field->application != HID_DG_TOUCHSCREEN &&
+>>>>    field->application != HID_DG_PEN &&
+>>>>    field->application != HID_DG_TOUCHPAD)
+>>>> return -1;
 >>>>
 >>>>
->>>>      On 3/30/2014 12:30 AM, Rob Mosher wrote:
+>>>> I notice that there is now a mt.export_all_inputs which could allow
+>>>> the surface type cover keyboard to get handled properly. Is this
+>>>> something that sould be added to hid-multitouch for this device? The
+>>>> driver could check for device ID's and set export_all_inputs to true.
+>>>> It could also check for GenericDesktop application in hid field and
+>>>> return 0 in mt_input_mapping.
 >>>>
->>>>          Hello fine developers,
+>>>> I can submit a patch with one of these changes if you think it would
+>>>> be better than the current patch for the surface from Derya. I belive
+>>>> that patch adds hardware ID's to hid core and sets the HID Group to
+>>>> generic.
 >>>>
->>>>          It seems I've stumbled upon a problem while developing a
->> full
->>>>          featured Ruby gem for the Beaglebone.
->>>>
->>>>          It seems a patch included in the beaglebone kernel causes
->> some
->>>>          issues while reading analog inputs.  Apparently the samples
->>>>          get backlogged by the number of adc pins in use.  I'm not
->> sure
->>>>          which patch exactly as there are a number that affect adc
->>>>          buffering and I'm not currently setup for kernel building,
->>>>          however the below output should detail the problem.
->>>>
->>>>          Using the official Debian image.
->>>>          Linux rbone 3.8.13-bone43 #1 SMP Wed Mar 26 14:21:39 UTC
->> 2014
->>>>          armv7l GNU/Linux
->>>>
->>>>          Distributor ID: Debian
->>>>          Description:    Debian GNU/Linux 7.4 (wheezy)
->>>>          Release:        7.4
->>>>          Codename:       wheezy
->>>>
->>>>          root@rbone:~# echo cape-bone-iio >
->>>>          /sys/devices/bone_capemgr.9/slots
->>>>
->>>>          This is the normal and expected behavior.
->>>>
->>>>          1.8v applied to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>
->>>>          0v applied to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>
->>>>          1.8v applied to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>
->>>>          0v applied to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>
->>>>          So far working as intended....  Now reading from the other
->> pins.
->>>>
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# grep . AIN[0-3]
->> AIN[5-7]
->>>>          AIN0:1563
->>>>          AIN1:1221
->>>>          AIN2:1487
->>>>          AIN3:789
->>>>          AIN5:514
->>>>          AIN6:743
->>>>          AIN7:1698
->>>>
->>>>          Now applying 1.8v to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>
->>>>          Now applying 0v to AIN4
->>>>
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>
->>>>
->>>>
->>>>          And another example, showing relation to the number of pins
->> in
->>>>          use.
->>>>
->>>>          1.8v to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# grep . AIN[0-3]
->>>>          AIN0:1697
->>>>          AIN1:1298
->>>>          AIN2:1524
->>>>          AIN3:816
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>
->>>>          0v to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1460
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>
->>>>          1.8v to AIN4
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          0
->>>>          root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>          1798
->>>>
->>>>          --         Rob Mosher
->>>>          Senior Network and Software Engineer
->>>>          Hurricane Electric / AS6939
->>>>
->>>>
->>>>
->>>>
->>>>
->>>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+>>>> On Thu, Mar 20, 2014 at 12:36 PM, Benjamin Tissoires
+>>>> <benjamin.tissoires@gmail.com> wrote:
+>>>>> On Thu, Mar 20, 2014 at 5:02 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>>>>>> On Wed, 19 Mar 2014, Andrew Duggan wrote:
+>>>>>>
+>>>>>>> Multitouch touchpads built for Win 8.1 need to be sent an input mode feature report
+>>>>>>> in order to start reporting multitouch events. This is the same process sent
+>>>>>>> to Win 7 multitouch touchscreens except the value of the feature report is 3 for
+>>>>>>> touchpads.
+>>>>>>>
+>>>>>>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>>>>>>> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>>>>>
+>>>>>> Applied, thanks.
+>>>>>
+>>>>> Thanks Jiri.
+>>>>>
+>>>>> Derya, can you test if this also solves the problem with the Surface 2
+>>>>> touch cover?
+>>>>> (if you remove the special vendor handling in hid_scan_report)
+>>>>>
+>>>>> Cheers,
+>>>>> Benjamin
+>>>>> --
+>>>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>>>> the body of a message to majordomo@vger.kernel.org
+>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>> --
+>>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>>> the body of a message to majordomo@vger.kernel.org
+>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--f46d043894cfd05f0704f5e9e931
+Content-Type: text/plain; charset=US-ASCII; name="hid-multitouch-surface.log"
+Content-Disposition: attachment; filename="hid-multitouch-surface.log"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_htfzyoyw0
+
+UjogNDcyIDA1IDAxIDA5IDA2IGExIDAxIDg1IDAxIDE1IDAwIDI1IDAxIDc1IDAxIDk1IDA4IDA1
+IDA3IDE5IGUwIDI5IGU3IDgxIDAyIDc1IDA4IDk1IDBhIDE5IDAwIDI5IDkxIDI2IGZmIDAwIDgx
+IDAwIDA1IDBjIDBhIGMwIDAyIGExIDAyIDFhIGMxIDAyIDJhIGM2IDAyIDk1IDA2IGIxIDAzIGMw
+IDA1IDA4IDE5IDAxIDI5IDAzIDc1IDAxIDk1IDAzIDI1IDAxIDkxIDAyIDk1IDA1IDkxIDAzIGMw
+IDA1IDAxIDA5IDAyIGExIDAxIDg1IDAyIDA1IDA5IDE5IDAxIDI5IDA1IDgxIDAyIDk1IDAxIDc1
+IDAzIDgxIDAzIDE1IDgxIDI1IDdmIDc1IDA4IDk1IDAyIDA1IDAxIDA5IDMwIDA5IDMxIDgxIDA2
+IGExIDAyIDA5IDQ4IDE1IDAwIDI1IDAxIDM1IDAxIDQ1IDEwIDc1IDAyIDk1IDAxIGE0IGIxIDAy
+IDA5IDM4IDE1IDgxIDI1IDdmIDM1IDAwIDQ1IDAwIDc1IDA4IDgxIDA2IGMwIGExIDAyIDA5IDQ4
+IGI0IGIxIDAyIDM1IDAwIDQ1IDAwIDc1IDA0IGIxIDAzIDA1IDBjIDBhIDM4IDAyIDE1IDgxIDI1
+IDdmIDc1IDA4IDgxIDA2IGMwIGMwIDA1IDBjIDA5IDAxIGExIDAxIDg1IDAzIDc1IDEwIDE1IDAw
+IDI2IGZmIDAzIDE5IDAwIDJhIGZmIDAzIDgxIDAwIGMwIDA2IDA1IGZmIDA5IDAxIGExIDAxIDg1
+IDA5IDI1IGZmIDk1IDAyIDc1IDA4IDA5IDIwIDgxIDAyIDA5IDIyIDkxIDAyIDE1IDgxIDI1IDdm
+IDk1IDIwIDc1IDA4IDA5IDIxIDgxIDAyIDA5IDIzIDkxIDAyIGMwIDA5IDAyIGExIDAxIDg1IDBm
+IDE1IDAwIDI1IGZmIDk1IDAxIDA5IDAwIDkxIDAyIGMwIDA1IDBkIDA5IDA1IGExIDAxIDg1IDA0
+IDA5IDIyIGExIDAyIDE1IDAwIDI1IDAxIDA5IDQ3IDA5IDQyIDk1IDAyIDc1IDAxIDgxIDAzIDk1
+IDAxIDc1IDAyIDI1IDAyIDA5IDUxIDgxIDAzIDc1IDAxIDk1IDA0IDgxIDAzIDA1IDAxIDM1IDAw
+IDY1IDExIDU1IDBkIDc1IDEwIDk1IDAxIDA5IDMwIDI2IGZmIDAzIDQ2IDVlIDFhIDgxIDAzIDA5
+IDMxIDI2IGZmIDAxIDQ2IDgwIDBjIDgxIDAzIGMwIDA1IDBkIDA5IDU2IDU1IDBjIDY2IDAxIDEw
+IDQ3IGZmIGZmIDAwIDAwIDI3IGZmIGZmIDAwIDAwIDgxIDAzIDA5IDU0IDI1IDdmIDc1IDA4IDgx
+IDAzIDA1IDA5IDA5IDAxIDI1IDAxIDc1IDAxIDgxIDAzIDk1IDA3IDgxIDAzIDA1IDBkIDg1IDA0
+IDA5IDU1IDA5IDU5IDc1IDA0IDk1IDAyIDI1IDBmIGIxIDAzIDA2IDAwIGZmIDA5IGM2IDg1IDA1
+IDE1IDAwIDI1IDA4IDc1IDA4IDk1IDAxIGIxIDAyIDA5IGM3IDI2IGZmIDAwIDc1IDA4IDk1IDIw
+IGIxIDAyIGMwIDA1IDBkIDA5IDBlIGExIDAxIDg1IDA2IDA5IDIyIGExIDAyIDA5IDUyIDA5IDUy
+IDE1IDAwIDI1IDBhIDc1IDA4IDk1IDAxIGIxIDAyIGMwIDg1IDBiIDA5IDIyIGExIDAwIDA5IDU3
+IDA5IDU4IDE1IDAwIDI1IDAxIDc1IDAxIDk1IDAyIGIxIDAyIDk1IDA2IGIxIDAzIGMwIGMwCk46
+IE1JQ1JPU09GVCBTQU0KUDogdXNiLTAwMDA6MDA6MTQuMC0zL2lucHV0MgpJOiAzIDA0NWUgMDdh
+OQpFOiAwLjAwMDAwMCAxMiAwMSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApFOiAy
+LjA3NjA0MiAxMCAwNCAwMyBjMCAwMCAwMCAwMSA2MCA0MyAwMSAwMApFOiAyLjA5NjAyMyAxMCAw
+NCAwMyBjMCAwMCAwMCAwMSBhNiA0MyAwMSAwMApFOiAyLjEwMDAyNSAxMCAwNCAwMyBjMCAwMCAw
+MCAwMSBlYyA0MyAwMSAwMApFOiAyLjEwNDAyNSAxMCAwNCAwMyBjMCAwMCAwMCAwMSAzMiA0NCAw
+MSAwMApFOiAyLjEwODAzNCAxMCAwNCAwMyBjMCAwMCAwMCAwMSA3OCA0NCAwMSAwMApFOiAyLjEx
+MjAyNCAxMCAwNCAwMyBjYSAwMCAwMCAwMSA4YyA0NCAwMSAwMApFOiAyLjEyMDAyMiAxMCAwNCAw
+MyBjZCAwMCAwMCAwMSBkMiA0NCAwMSAwMApFOiAyLjEyNDAyNCAxMCAwNCAwMyBjZSAwMCBmZiAw
+MCBlNiA0NCAwMSAwMApFOiAyLjEyODAyMyAxMCAwNCAwMyBkMyAwMCBmZSAwMCAyYyA0NSAwMSAw
+MApFOiAyLjEzMjAyMyAxMCAwNCAwMyBkZCAwMCBmZCAwMCA2OCA0NSAwMSAwMApFOiAyLjEzNjAy
+MyAxMCAwNCAwMyBlOCAwMCBmYyAwMCBhZSA0NSAwMSAwMApFOiAyLjE0ODAyMCAxMCAwNCAwMyBl
+ZSAwMCBmYyAwMCBmNCA0NSAwMSAwMApFOiAyLjE1MjAyMiAxMCAwNCAwMyBlZiAwMCBmYiAwMCBm
+ZSA0NSAwMSAwMApFOiAyLjE1NjAyMiAxMCAwNCAwMyBmZCAwMCBmOSAwMCA0NCA0NiAwMSAwMApF
+OiAyLjE2NDAxOSAxMCAwNCAwMyAwZCAwMSBmNyAwMCA4YSA0NiAwMSAwMApFOiAyLjE2ODAyMyAx
+MCAwNCAwMyAxMCAwMSBmNiAwMCA5NCA0NiAwMSAwMApFOiAyLjE3MjAyMiAxMCAwNCAwMyAxZSAw
+MSBmMyAwMCBkYSA0NiAwMSAwMApFOiAyLjE3NjAyMSAxMCAwNCAwMyAyMSAwMSBmMiAwMCBlNCA0
+NiAwMSAwMApFOiAyLjE4MDAyMSAxMCAwNCAwMyAyNiAwMSBmMSAwMCAyYSA0NyAwMSAwMApFOiAy
+LjE4NDAyMiAxMCAwNCAwMyAzNiAwMSBlZiAwMCA2NiA0NyAwMSAwMApFOiAyLjE5MjAxOCAxMCAw
+NCAwMyA0MSAwMSBlZSAwMCBhYyA0NyAwMSAwMApFOiAyLjE5NjAyMCAxMCAwNCAwMyA0MyAwMSBl
+ZCAwMCBiNiA0NyAwMSAwMApFOiAyLjIwMDAyMCAxMCAwNCAwMyA0ZCAwMSBlYyAwMCBmYyA0NyAw
+MSAwMApFOiAyLjIwNDAyMSAxMCAwNCAwMyA0ZiAwMSBlYiAwMCAwNiA0OCAwMSAwMApFOiAyLjIw
+ODAxOSAxMCAwNCAwMyA1NCAwMSBlYSAwMCA0YyA0OCAwMSAwMApFOiAyLjIxMjAyMCAxMCAwNCAw
+MyA2NCAwMSBlNyAwMCA4OCA0OCAwMSAwMApFOiAyLjIxNjAyMCAxMCAwNCAwMyA3MSAwMSBlNiAw
+MCBjZSA0OCAwMSAwMApFOiAyLjIyODAxNiAxMCAwNCAwMyA3YSAwMSBlNiAwMCAxNCA0OSAwMSAw
+MApFOiAyLjIzMjAxNyAxMCAwNCAwMyA3YyAwMSBlNSAwMCAxZSA0OSAwMSAwMApFOiAyLjIzNjAx
+OSAxMCAwNCAwMyA4NCAwMSBlNCAwMCA2NCA0OSAwMSAwMApFOiAyLjI0NDAxNyAxMCAwNCAwMyA5
+MCAwMSBlMyAwMCBhYSA0OSAwMSAwMApFOiAyLjI0ODAxOSAxMCAwNCAwMyA5MiAwMSBlMiAwMCBi
+NCA0OSAwMSAwMApFOiAyLjI1MjAxOSAxMCAwNCAwMyA5ZiAwMSBkZiAwMCBmYSA0OSAwMSAwMApF
+OiAyLjI1NjAxOCAxMCAwNCAwMyBhMSAwMSBkZSAwMCAwNCA0YSAwMSAwMApFOiAyLjI2MDAwNCAx
+MCAwNCAwMyBhZCAwMSBkZCAwMCA0YSA0YSAwMSAwMApFOiAyLjI2NDAxNyAxMCAwNCAwMyBiMSAw
+MSBkYyAwMCA1ZSA0YSAwMSAwMApFOiAyLjI2ODAxNyAxMCAwNCAwMyBiYSAwMSBkYyAwMCBhNCA0
+YSAwMSAwMApFOiAyLjI3MjAxNiAxMCAwNCAwMyBiZiAwMSBkYiAwMCBjMiA0YSAwMSAwMApFOiAy
+LjI4MDAxNCAxMCAwNCAwMyBjYiAwMSBkYiAwMCAwOCA0YiAwMSAwMApFOiAyLjI4NDAxNyAxMCAw
+NCAwMyBjZCAwMSBkYSAwMCAxMiA0YiAwMSAwMApFOiAyLjI4ODAxNCAxMCAwNCAwMyBkYSAwMSBk
+YSAwMCA1OCA0YiAwMSAwMApFOiAyLjI5MjAxNyAxMCAwNCAwMyBkYyAwMSBkOSAwMCA2MiA0YiAw
+MSAwMApFOiAyLjI5NTk5OSAxMCAwNCAwMyBlOCAwMSBkOCAwMCBhOCA0YiAwMSAwMApFOiAyLjMw
+NDAxMyAxMCAwNCAwMyBmNiAwMSBkNyAwMCBlZSA0YiAwMSAwMApFOiAyLjMwODAxNiAxMCAwNCAw
+MyBmOSAwMSBkNiAwMCBmOCA0YiAwMSAwMApFOiAyLjMxMjAxMyAxMCAwNCAwMyAwNyAwMiBkNiAw
+MCAzZSA0YyAwMSAwMApFOiAyLjMxNjAxNSAxMCAwNCAwMyAwOSAwMiBkNiAwMCA0OCA0YyAwMSAw
+MApFOiAyLjMyMDAxNSAxMCAwNCAwMyAxNSAwMiBkNiAwMCA4ZSA0YyAwMSAwMApFOiAyLjMyNDAx
+NSAxMCAwNCAwMyAxNyAwMiBkNyAwMCA5OCA0YyAwMSAwMApFOiAyLjMyODAyMiAxMCAwNCAwMyAy
+MCAwMiBkNyAwMCBkZSA0YyAwMSAwMApFOiAyLjMzMjAxNSAxMCAwNCAwMyAyNiAwMiBkNyAwMCAw
+NiA0ZCAwMSAwMApFOiAyLjMzNjAxNSAxMCAwNCAwMyAzMSAwMiBkNyAwMCA0YyA0ZCAwMSAwMApF
+OiAyLjM0MDAxNyAxMCAwNCAwMyAzMyAwMiBkNiAwMCA1NiA0ZCAwMSAwMApFOiAyLjM0NDAxMyAx
+MCAwNCAwMyAzYiAwMiBkNiAwMCA5YyA0ZCAwMSAwMApFOiAyLjM0ODAxNCAxMCAwNCAwMyAzZCAw
+MiBkNiAwMCBhNiA0ZCAwMSAwMApFOiAyLjM1MjAxNCAxMCAwNCAwMyA0MSAwMiBkNiAwMCBlYyA0
+ZCAwMSAwMApFOiAyLjM1NjAxNCAxMCAwNCAwMyA0YiAwMiBkNiAwMCAyOCA0ZSAwMSAwMApFOiAy
+LjM1OTk5OSAxMCAwNCAwMyA1MiAwMiBkNiAwMCA2ZSA0ZSAwMSAwMApFOiAyLjM3MjAxMCAxMCAw
+NCAwMyA1NiAwMiBkNiAwMCBiNCA0ZSAwMSAwMApFOiAyLjM3NjAxNSAxMCAwNCAwMyA1NyAwMiBk
+NiAwMCBiZSA0ZSAwMSAwMApFOiAyLjM4MDAxMyAxMCAwNCAwMyA1OSAwMiBkNiAwMCAwNCA0ZiAw
+MSAwMApFOiAyLjM4ODAxMCAxMCAwNCAwMyA1YSAwMiBkNiAwMCA0YSA0ZiAwMSAwMApFOiAyLjM5
+MjAxMiAxMCAwNCAwMyA1YiAwMiBkNiAwMCA1NCA0ZiAwMSAwMApFOiAyLjM5NjAxMiAxMCAwNCAw
+MyA1YyAwMiBkNiAwMCA5YSA0ZiAwMSAwMApFOiAyLjQwMDAxMiAxMCAwNCAwMyA1ZCAwMiBkNiAw
+MCBhZSA0ZiAwMSAwMApFOiAyLjQwNDAxMiAxMCAwNCAwMyA1ZSAwMiBkNiAwMCBmNCA0ZiAwMSAw
+MApFOiAyLjQwODAxMSAxMCAwNCAwMyA1ZiAwMiBkNiAwMCBmZSA0ZiAwMSAwMApFOiAyLjQxMjAx
+MSAxMCAwNCAwMyA2MCAwMiBkNiAwMCA0NCA1MCAwMSAwMApFOiAyLjQxNjAyMSAxMCAwNCAwMyA2
+MSAwMiBkNiAwMCA3NiA1MCAwMSAwMApFOiAyLjQyNDAwOSAxMCAwNCAwMyA2MSAwMiBkNiAwMCBi
+YyA1MCAwMSAwMApFOiAyLjQyODAxMiAxMCAwNCAwMyA2MiAwMiBkNiAwMCBmOCA1MCAwMSAwMApF
+OiAyLjQzMjAxMCAxMCAwNCAwMyA2MyAwMiBkNiAwMCAzZSA1MSAwMSAwMApFOiAyLjQ1MjI5OSAx
+MCAwNCAwMyA2MyAwMiBkNiAwMCA4NCA1MSAwMSAwMApFOiAyLjQ1NjMwMyAxMCAwNCAwMyA2MyAw
+MiBkNiAwMCBjYSA1MSAwMSAwMApFOiAyLjQ2MDI4NCAxMCAwNCAwMyA2NCAwMiBkNiAwMCBkZSA1
+MSAwMSAwMApFOiAyLjQ2ODMwMSAxMCAwNCAwMyA2NCAwMiBkNiAwMCAyNCA1MiAwMSAwMApFOiAy
+LjQ3MjMwMSAxMCAwNCAwMyA2NCAwMiBkNiAwMCA2YSA1MiAwMSAwMApFOiAyLjQ3NjI5OCAxMCAw
+NCAwMyA1ZSAwMiBkNiAwMCBhNiA1MiAwMSAwMApFOiAyLjQ4MDMwMCAxMCAwNCAwMyA1OCAwMiBk
+OCAwMCBlYyA1MiAwMSAwMApFOiAyLjQ4NDMwMyAxMCAwNCAwMyA1NyAwMiBkOSAwMCBmNiA1MiAw
+MSAwMApFOiAyLjQ4ODMwNCAxMCAwNCAwMyA0ZiAwMiBkYSAwMCAzYyA1MyAwMSAwMApFOiAyLjQ5
+MjMwMiAxMCAwNCAwMyA0ZCAwMiBkYiAwMCA0NiA1MyAwMSAwMApFOiAyLjQ5NjMwMiAxMCAwNCAw
+MyA0NSAwMiBkYiAwMCA4YyA1MyAwMSAwMApFOiAyLjUwMDMwMiAxMCAwNCAwMyA0MSAwMiBkYSAw
+MCBhYSA1MyAwMSAwMApFOiAyLjUwODI5OCAxMCAwNCAwMyAzNSAwMiBkYSAwMCBmMCA1MyAwMSAw
+MApFOiAyLjUxMjI5OSAxMCAwNCAwMyAzMyAwMiBkOSAwMCBmYSA1MyAwMSAwMApFOiAyLjUxNjI5
+OSAxMCAwNCAwMyAyNyAwMiBkOSAwMCA0MCA1NCAwMSAwMApFOiAyLjUyMDMwMCAxMCAwNCAwMyAy
+NSAwMiBkOCAwMCA0YSA1NCAwMSAwMApFOiAyLjUyNDMwMCAxMCAwNCAwMyAxZCAwMiBkNyAwMCA5
+MCA1NCAwMSAwMApFOiAyLjUzMjI5NSAxMCAwNCAwMyAxMyAwMiBkNyAwMCBkNiA1NCAwMSAwMApF
+OiAyLjUzNjI5OCAxMCAwNCAwMyAxMSAwMiBkNiAwMCBlMCA1NCAwMSAwMApFOiAyLjU0MDI5OCAx
+MCAwNCAwMyAwNyAwMiBkNiAwMCAyNiA1NSAwMSAwMApFOiAyLjU0NDMwMSAxMCAwNCAwMyAwNCAw
+MiBkNSAwMCAzYSA1NSAwMSAwMApFOiAyLjU0ODI5NyAxMCAwNCAwMyBmOSAwMSBkNCAwMCA4MCA1
+NSAwMSAwMApFOiAyLjU1MjI5OCAxMCAwNCAwMyBmNyAwMSBkMyAwMCA4YSA1NSAwMSAwMApFOiAy
+LjU1NjI5OCAxMCAwNCAwMyBlZSAwMSBkMSAwMCBkMCA1NSAwMSAwMApFOiAyLjU2MDI3NSAxMCAw
+NCAwMyBlOSAwMSBjZiAwMCBlZSA1NSAwMSAwMApFOiAyLjU2NDI5OCAxMCAwNCAwMyBkZSAwMSBj
+YyAwMCAzNCA1NiAwMSAwMApFOiAyLjU2ODI5OCAxMCAwNCAwMyBkYyAwMSBjYiAwMCAzZSA1NiAw
+MSAwMApFOiAyLjU3MjI5OCAxMCAwNCAwMyBkMCAwMSBjYSAwMCA4NCA1NiAwMSAwMApFOiAyLjU3
+NjI5NSAxMCAwNCAwMyBjZSAwMSBjOSAwMCA4ZSA1NiAwMSAwMApFOiAyLjU4MDI5OCAxMCAwNCAw
+MyBjNyAwMSBjOCAwMCBkNCA1NiAwMSAwMApFOiAyLjU4ODI5MyAxMCAwNCAwMyBiZCAwMSBjOCAw
+MCAxYSA1NyAwMSAwMApFOiAyLjU5MjI5NSAxMCAwNCAwMyBiYiAwMSBjNyAwMCAyNCA1NyAwMSAw
+MApFOiAyLjU5NjI5NiAxMCAwNCAwMyBhZCAwMSBjNiAwMCA2YSA1NyAwMSAwMApFOiAyLjYwMDI5
+NiAxMCAwNCAwMyBhYiAwMSBjNSAwMCA3NCA1NyAwMSAwMApFOiAyLjYwNDI5MyAxMCAwNCAwMyA5
+ZSAwMSBjNSAwMCBiYSA1NyAwMSAwMApFOiAyLjYwODI5NSAxMCAwNCAwMyA5YSAwMSBjNCAwMCBj
+ZSA1NyAwMSAwMApFOiAyLjYxMjI5MyAxMCAwNCAwMyA4ZiAwMSBjMiAwMCAxNCA1OCAwMSAwMApF
+OiAyLjYxNjI5NSAxMCAwNCAwMyA4OSAwMSBjMSAwMCAzMiA1OCAwMSAwMApFOiAyLjYyNDI5MSAx
+MCAwNCAwMyA3ZCAwMSBjMSAwMCA3OCA1OCAwMSAwMApFOiAyLjYyODI5NCAxMCAwNCAwMyA3YiAw
+MSBjMCAwMCA4MiA1OCAwMSAwMApFOiAyLjYzMjI5MyAxMCAwNCAwMyA3MyAwMSBjMCAwMCBjOCA1
+OCAwMSAwMApFOiAyLjYzNjI5MSAxMCAwNCAwMyA3MSAwMSBjMCAwMCBkMiA1OCAwMSAwMApFOiAy
+LjY0MDI5NCAxMCAwNCAwMyA2ZCAwMSBjMCAwMCAxOCA1OSAwMSAwMApFOiAyLjY0NDI5NCAxMCAw
+NCAwMyA1ZSAwMSBiZiAwMCA1NCA1OSAwMSAwMApFOiAyLjY0ODI5NCAxMCAwNCAwMyA0ZiAwMSBi
+ZiAwMCA5YSA1OSAwMSAwMApFOiAyLjY2MDI0MSAxMCAwNCAwMyA0MyAwMSBiZiAwMCBlMCA1OSAw
+MSAwMApFOiAyLjY2NDI5MiAxMCAwNCAwMyA0MSAwMSBiZSAwMCBlYSA1OSAwMSAwMApFOiAyLjY2
+ODI5NCAxMCAwNCAwMyAzOCAwMSBiZSAwMCAzMCA1YSAwMSAwMApFOiAyLjY3NjI4OCAxMCAwNCAw
+MyAyZSAwMSBiZSAwMCA3NiA1YSAwMSAwMApFOiAyLjY4MDI5MiAxMCAwNCAwMyAyYiAwMSBiZiAw
+MCA4YSA1YSAwMSAwMApFOiAyLjY4NDI5NCAxMCAwNCAwMyAxZiAwMSBjMCAwMCBkMCA1YSAwMSAw
+MApFOiAyLjY4ODI5NSAxMCAwNCAwMyAxZCAwMSBjMSAwMCBkYSA1YSAwMSAwMApFOiAyLjY5MjI5
+MSAxMCAwNCAwMyAwZiAwMSBjMSAwMCAyMCA1YiAwMSAwMApFOiAyLjY5NjI5MCAxMCAwNCAwMyAw
+YyAwMSBjMiAwMCAyYSA1YiAwMSAwMApFOiAyLjcwMDI5MCAxMCAwNCAwMyAwMyAwMSBjMiAwMCA3
+MCA1YiAwMSAwMApFOiAyLjcwNDI4OSAxMCAwNCAwMyBmZSAwMCBjMyAwMCA4ZSA1YiAwMSAwMApF
+OiAyLjcxMjI4OSAxMCAwNCAwMyBmNyAwMCBjMyAwMCBkNCA1YiAwMSAwMApFOiAyLjcxNjI5MCAx
+MCAwNCAwMyBmNSAwMCBjMyAwMCBkZSA1YiAwMSAwMApFOiAyLjcyMDI5MSAxMCAwNCAwMyBlZSAw
+MCBjMyAwMCAyNCA1YyAwMSAwMApFOiAyLjcyNDI5MSAxMCAwNCAwMyBlZCAwMCBjMyAwMCAyZSA1
+YyAwMSAwMApFOiAyLjcyODMwOSAxMCAwNCAwMyBlOSAwMCBjMyAwMCA3NCA1YyAwMSAwMApFOiAy
+LjczMjI5MCAxMCAwNCAwMyBlMiAwMCBjMyAwMCBiYSA1YyAwMSAwMApFOiAyLjczNjI4OSAxMCAw
+NCAwMyBlMSAwMCBjMiAwMCBjNCA1YyAwMSAwMApFOiAyLjc0MDI5MCAxMCAwNCAwMyBkYyAwMCBj
+MiAwMCAwYSA1ZCAwMSAwMApFOiAyLjc0NDI4OSAxMCAwNCAwMyBkYSAwMCBjMiAwMCAxZSA1ZCAw
+MSAwMApFOiAyLjc1MjI4NyAxMCAwNCAwMyBkNSAwMCBjMiAwMCA2NCA1ZCAwMSAwMApFOiAyLjc1
+NjI4OCAxMCAwNCAwMyBkNCAwMCBjMiAwMCA2ZSA1ZCAwMSAwMApFOiAyLjc2MDUwMCAxMCAwNCAw
+MyBkMCAwMCBjMyAwMCBiNCA1ZCAwMSAwMApFOiAyLjc2NDI5MyAxMCAwNCAwMyBjZCAwMCBjNCAw
+MCBkMiA1ZCAwMSAwMApFOiAyLjc2ODI4NyAxMCAwNCAwMyBjNiAwMCBjNSAwMCAxOCA1ZSAwMSAw
+MApFOiAyLjc3MjI4OSAxMCAwNCAwMyBjNSAwMCBjNiAwMCAyMiA1ZSAwMSAwMApFOiAyLjc3NjI4
+NiAxMCAwNCAwMyBiZiAwMCBjNyAwMCA2OCA1ZSAwMSAwMApFOiAyLjc4MDI4NyAxMCAwNCAwMyBi
+ZSAwMCBjOCAwMCA3MiA1ZSAwMSAwMApFOiAyLjc4NDI4OCAxMCAwNCAwMyBiYiAwMCBjOCAwMCBi
+OCA1ZSAwMSAwMApFOiAyLjc4ODI4OCAxMCAwNCAwMyBiNSAwMCBjYSAwMCBmZSA1ZSAwMSAwMApF
+OiAyLjc5MjI4OCAxMCAwNCAwMyBhZiAwMCBjYiAwMCA0NCA1ZiAwMSAwMApFOiAyLjgwMDI4NiAx
+MCAwNCAwMyBhOSAwMCBjYiAwMCA4YSA1ZiAwMSAwMApFOiAyLjgxMjI4NiAxMCAwNCAwMyBhNSAw
+MCBjYiAwMCBkMCA1ZiAwMSAwMApFOiAyLjgxNjI4NyAxMCAwNCAwMyBhNCAwMCBjYSAwMCBkYSA1
+ZiAwMSAwMApFOiAyLjgyMDI4NyAxMCAwNCAwMyBhMiAwMCBjYSAwMCAyYSA2MCAwMSAwMApFOiAy
+LjgyODI4MyAxMCAwNCAwMSBhMiAwMCBjYSAwMCA5OCA2MCAwMSAwMApFOiAzLjkyNDI5MCAxMCAw
+NCAwMyA1ZiAwMCAyMiAwMSA1NCA4YiAwMSAwMApFOiAzLjk0MDIzNiAxMCAwNCAwMyA1ZiAwMCAy
+MiAwMSA5YSA4YiAwMSAwMApFOiAzLjk0NDIxNiAxMCAwNCAwMyA1ZiAwMCAyMiAwMSBlMCA4YiAw
+MSAwMApFOiAzLjk0ODIzNiAxMCAwNCAwMyA1ZiAwMCAyMiAwMSAyNiA4YyAwMSAwMApFOiAzLjk1
+MjIzNyAxMCAwNCAwMyA1ZiAwMCAyMiAwMSA2YyA4YyAwMSAwMApFOiAzLjk1NjIzNSAxMCAwNCAw
+MyA1ZiAwMCAyMiAwMSBiMiA4YyAwMSAwMApFOiAzLjk2MDIzMSAxMCAwNCAwMyA1ZiAwMCAyMiAw
+MSBmOCA4YyAwMSAwMApFOiAzLjk2ODIzMiAxMCAwNCAwMyA1ZiAwMCAyMiAwMSAwYyA4ZCAwMiAw
+MApFOiAzLjk3MjIzNCAxMCAwNCAwNyBiZiAwMSA3MiAwMCAwYyA4ZCAwMCAwMApFOiAzLjk4ODIz
+NCAxMCAwNCAwMyA1ZiAwMCAyMiAwMSA1YyA4ZCAwMiAwMApFOiAzLjk5MjIzNCAxMCAwNCAwNyBj
+MCAwMSA3MyAwMCA1YyA4ZCAwMCAwMApFOiAzLjk5NjIzNCAxMCAwNCAwMyA1ZiAwMCAyMiAwMSBh
+YyA4ZCAwMiAwMApFOiA0LjAwMDIzMyAxMCAwNCAwNyBjMCAwMSA3MyAwMCBhYyA4ZCAwMCAwMApF
+OiA0LjAwNDIzNSAxMCAwNCAwMyA1ZiAwMCAyMiAwMSBmYyA4ZCAwMiAwMApFOiA0LjAwODIzNCAx
+MCAwNCAwNyBjMCAwMSA3MyAwMCBmYyA4ZCAwMCAwMApFOiA0LjAxMjIzNCAxMCAwNCAwMyA1ZiAw
+MCAyMiAwMSA0YyA4ZSAwMiAwMApFOiA0LjAxNjIzNCAxMCAwNCAwNyBjMCAwMSA3MyAwMCA0YyA4
+ZSAwMCAwMApFOiA0LjAyMDIzNSAxMCAwNCAwMyA1ZiAwMCAyMiAwMSA5YyA4ZSAwMiAwMApFOiA0
+LjAyNDIzMSAxMCAwNCAwNyBjMCAwMSA3MyAwMCA5YyA4ZSAwMCAwMApFOiA0LjAyODIzMyAxMCAw
+NCAwMyA1ZiAwMCAyMiAwMSBlYyA4ZSAwMiAwMApFOiA0LjAzMjIzMyAxMCAwNCAwNyBjMCAwMSA3
+MyAwMCBlYyA4ZSAwMCAwMApFOiA0LjAzNjI0OSAxMCAwNCAwMyA2OSAwMCAyOCAwMSAwMCA4ZiAw
+MiAwMApFOiA0LjA0MDIzMiAxMCAwNCAwNyBiZiAwMSA3MiAwMCAwMCA4ZiAwMCAwMApFOiA0LjA0
+NDIxMiAxMCAwNCAwMyA3MyAwMCAyOSAwMSA0NiA4ZiAwMiAwMApFOiA0LjA0ODIzMCAxMCAwNCAw
+NyBiZiAwMSA3MiAwMCA0NiA4ZiAwMCAwMApFOiA0LjA1MjIzMiAxMCAwNCAwMyA3YyAwMCAyYiAw
+MSA4YyA4ZiAwMiAwMApFOiA0LjA1NjIzMSAxMCAwNCAwNyBiZiAwMSA3MiAwMCA4YyA4ZiAwMCAw
+MApFOiA0LjA2MDIyNyAxMCAwNCAwMyA4NiAwMCAyZSAwMSBkMiA4ZiAwMiAwMApFOiA0LjA2NDIz
+MiAxMCAwNCAwNyBiZiAwMSA3MiAwMCBkMiA4ZiAwMCAwMApFOiA0LjA2ODIzMCAxMCAwNCAwMyA5
+NCAwMCAzMiAwMSAxOCA5MCAwMiAwMApFOiA0LjA3MjIzMCAxMCAwNCAwNyBiZiAwMSA3MiAwMCAx
+OCA5MCAwMCAwMApFOiA0LjA3NjIzMyAxMCAwNCAwMyA5ZSAwMCAzNSAwMSA1ZSA5MCAwMiAwMApF
+OiA0LjA4MDIzMiAxMCAwNCAwNyBjNCAwMSA3OSAwMCA1ZSA5MCAwMCAwMApFOiA0LjA4NDIzMCAx
+MCAwNCAwMyBhNyAwMCAzOCAwMSBhNCA5MCAwMiAwMApFOiA0LjA4ODIzMCAxMCAwNCAwNyBjNiAw
+MSA3YiAwMCBhNCA5MCAwMCAwMApFOiA0LjA5MjIzMiAxMCAwNCAwMyBhYiAwMCAzOSAwMSBlYSA5
+MCAwMiAwMApFOiA0LjA5NjIyNyAxMCAwNCAwNyBjOCAwMSA3YyAwMCBlYSA5MCAwMCAwMApFOiA0
+LjEwMDQwMiAxMCAwNCAwMyBiYiAwMCAzYSAwMSAzMCA5MSAwMiAwMApFOiA0LjEwNDI4NCAxMCAw
+NCAwNyBjZSAwMSA3ZSAwMCAzMCA5MSAwMCAwMApFOiA0LjEwODA5MiAxMCAwNCAwMyBiYyAwMCAz
+YiAwMSA4MCA5MSAwMiAwMApFOiA0LjExMjM0OCAxMCAwNCAwNyBjZiAwMSA3ZiAwMCA4MCA5MSAw
+MCAwMApFOiA0LjExNjIzMCAxMCAwNCAwMyBlNCAwMCAzZiAwMSA5NCA5MSAwMiAwMApFOiA0LjEy
+MDIzMyAxMCAwNCAwNyBlOSAwMSA4NCAwMCA5NCA5MSAwMCAwMApFOiA0LjEyNDIyOCAxMCAwNCAw
+MyBmMiAwMCA0MCAwMSBlNCA5MSAwMiAwMApFOiA0LjEyODI0MCAxMCAwNCAwNyBmYiAwMSA4NyAw
+MCBlNCA5MSAwMCAwMApFOiA0LjEzMjIyOSAxMCAwNCAwMyBmOSAwMCA0MSAwMSAyYSA5MiAwMiAw
+MApFOiA0LjEzNjI0MiAxMCAwNCAwNyAwYSAwMiA4YSAwMCAyYSA5MiAwMCAwMApFOiA0LjE0MDIy
+NyAxMCAwNCAwMyBmZSAwMCA0MSAwMSA3MCA5MiAwMiAwMApFOiA0LjE0NDIwOSAxMCAwNCAwNyAw
+YSAwMiA4YSAwMCA3MCA5MiAwMCAwMApFOiA0LjE0ODIyOCAxMCAwNCAwMyAxMSAwMSA0MSAwMSBh
+MiA5MiAwMiAwMApFOiA0LjE1MjIyNiAxMCAwNCAwNyAxOSAwMiA4YyAwMCBhMiA5MiAwMCAwMApF
+OiA0LjE1NjIyOCAxMCAwNCAwMyAxMiAwMSA0MSAwMSBmMiA5MiAwMiAwMApFOiA0LjE2MDIyNCAx
+MCAwNCAwNyAxYSAwMiA4ZCAwMCBmMiA5MiAwMCAwMApFOiA0LjE2NDIyNSAxMCAwNCAwMyAzMyAw
+MSA0MSAwMSAxMCA5MyAwMiAwMApFOiA0LjE2ODIyOSAxMCAwNCAwNyAyZCAwMiA4ZSAwMCAxMCA5
+MyAwMCAwMApFOiA0LjE3MjIyNiAxMCAwNCAwMyA0NCAwMSA0MiAwMSA1NiA5MyAwMiAwMApFOiA0
+LjE3NjIyOCAxMCAwNCAwNyA0MiAwMiA4ZiAwMCA1NiA5MyAwMCAwMApFOiA0LjE4MDIyNyAxMCAw
+NCAwMyA0NSAwMSA0MyAwMSBhNiA5MyAwMiAwMApFOiA0LjE4NDIyNCAxMCAwNCAwNyA0MyAwMiA5
+MCAwMCBhNiA5MyAwMCAwMApFOiA0LjE4ODIyNiAxMCAwNCAwMyA1MSAwMSA0MSAwMSBiMCA5MyAw
+MiAwMApFOiA0LjE5MjIyNCAxMCAwNCAwNyA0ZCAwMiA5MCAwMCBiMCA5MyAwMCAwMApFOiA0LjE5
+NjIyNSAxMCAwNCAwMyA1MiAwMSA0MCAwMSAwMCA5NCAwMiAwMApFOiA0LjIwMDIyNSAxMCAwNCAw
+NyA0ZSAwMiA5MCAwMCAwMCA5NCAwMCAwMApFOiA0LjIwNDIyNCAxMCAwNCAwMyA2NiAwMSA0MCAw
+MSAxZSA5NCAwMiAwMApFOiA0LjIwODIyMyAxMCAwNCAwNyA1ZSAwMiA5MiAwMCAxZSA5NCAwMCAw
+MApFOiA0LjIxMjIyNSAxMCAwNCAwMyA3MSAwMSAzZiAwMSA2ZSA5NCAwMiAwMApFOiA0LjIxNjIy
+NiAxMCAwNCAwNyA2NiAwMiA5MiAwMCA2ZSA5NCAwMCAwMApFOiA0LjIyMDIyNiAxMCAwNCAwMyA4
+YiAwMSAzZSAwMSBiNCA5NCAwMiAwMApFOiA0LjIyNDIyNiAxMCAwNCAwNyA3OSAwMiA5MyAwMCBi
+NCA5NCAwMCAwMApFOiA0LjIyODIyNCAxMCAwNCAwMyA5NCAwMSAzZCAwMSBmYSA5NCAwMiAwMApF
+OiA0LjIzMjIyNyAxMCAwNCAwNyA4MSAwMiA5NCAwMCBmYSA5NCAwMCAwMApFOiA0LjIzNjIyNSAx
+MCAwNCAwMyBhOCAwMSAzYiAwMSA0MCA5NSAwMiAwMApFOiA0LjI0MDIyNCAxMCAwNCAwNyA5MSAw
+MiA5NSAwMCA0MCA5NSAwMCAwMApFOiA0LjI0NDE3NCAxMCAwNCAwMyBiMiAwMSAzYiAwMSA5MCA5
+NSAwMiAwMApFOiA0LjI0ODIyMyAxMCAwNCAwNyA5YyAwMiA5NSAwMCA5MCA5NSAwMCAwMApFOiA0
+LjI1MjIyNCAxMCAwNCAwMyBjYSAwMSAzYSAwMSBkNiA5NSAwMiAwMApFOiA0LjI1NjIyMiAxMCAw
+NCAwNyBiOCAwMiA5NiAwMCBkNiA5NSAwMCAwMApFOiA0LjI2MDIyMiAxMCAwNCAwMyBjYiAwMSAz
+OSAwMSAyNiA5NiAwMiAwMApFOiA0LjI2NDIyMyAxMCAwNCAwNyBiOSAwMiA5NyAwMCAyNiA5NiAw
+MCAwMApFOiA0LjI2ODIyMyAxMCAwNCAwMyBkOCAwMSAzOCAwMSAzYSA5NiAwMiAwMApFOiA0LjI3
+MjIyMyAxMCAwNCAwNyBjNSAwMiA5NiAwMCAzYSA5NiAwMCAwMApFOiA0LjI3NjIyMyAxMCAwNCAw
+MyBmMCAwMSAzNiAwMSA4MCA5NiAwMiAwMApFOiA0LjI4MDIyMyAxMCAwNCAwNyBkYyAwMiA5OCAw
+MCA4MCA5NiAwMCAwMApFOiA0LjI4NDIyMiAxMCAwNCAwMyAwNSAwMiAzNSAwMSBkMCA5NiAwMiAw
+MApFOiA0LjI4ODIyMyAxMCAwNCAwNyBmNiAwMiA5NiAwMCBkMCA5NiAwMCAwMApFOiA0LjI5MjIy
+MiAxMCAwNCAwMyAxNiAwMiAzNCAwMSAyMCA5NyAwMiAwMApFOiA0LjI5NjIyMyAxMCAwNCAwNyAw
+YSAwMyA5NiAwMCAyMCA5NyAwMCAwMApFOiA0LjMwMDI1NiAxMCAwNCAwMyAxNyAwMiAzMyAwMSA3
+MCA5NyAwMiAwMApFOiA0LjMwNDIyMSAxMCAwNCAwNyAwYiAwMyA5NiAwMCA3MCA5NyAwMCAwMApF
+OiA0LjMwODIyMSAxMCAwNCAwMyAyZSAwMiAzMSAwMSA5OCA5NyAwMiAwMApFOiA0LjMxMjIyMyAx
+MCAwNCAwNyAxZSAwMyA5NSAwMCA5OCA5NyAwMCAwMApFOiA0LjMxNjIyMSAxMCAwNCAwMyAzNyAw
+MiAzMCAwMSBlOCA5NyAwMiAwMApFOiA0LjMyMDIyMCAxMCAwNCAwNyAyZiAwMyA5NCAwMCBlOCA5
+NyAwMCAwMApFOiA0LjMyNDIyMiAxMCAwNCAwMyAzZCAwMiAyZiAwMSAyZSA5OCAwMiAwMApFOiA0
+LjMyODIyMSAxMCAwNCAwNyAzOCAwMyA5NCAwMCAyZSA5OCAwMCAwMApFOiA0LjMzMjIyMiAxMCAw
+NCAwMyAzZSAwMiAyZSAwMSA3ZSA5OCAwMiAwMApFOiA0LjMzNjIyMCAxMCAwNCAwNyAzOSAwMyA5
+NCAwMCA3ZSA5OCAwMCAwMApFOiA0LjM0MDIyMCAxMCAwNCAwMyA0MyAwMiAyZSAwMSA4OCA5OCAw
+MiAwMApFOiA0LjM0NDE5OCAxMCAwNCAwNyAzZiAwMyA5NCAwMCA4OCA5OCAwMCAwMApFOiA0LjM0
+ODIxOSAxMCAwNCAwMyA0NCAwMiAyZSAwMSBkOCA5OCAwMiAwMApFOiA0LjM1MjIxOCAxMCAwNCAw
+NyA0MCAwMyA5NCAwMCBkOCA5OCAwMCAwMApFOiA0LjM1NjIxNiAxMCAwNCAwMyA0YSAwMiAyYyAw
+MSBlYyA5OCAwMiAwMApFOiA0LjM2MDIxNiAxMCAwNCAwNyA0NyAwMyA5NCAwMCBlYyA5OCAwMCAw
+MApFOiA0LjM2NDIxOCAxMCAwNCAwMyA0YiAwMiAyYiAwMSAzYyA5OSAwMiAwMApFOiA0LjM2ODIx
+OSAxMCAwNCAwNyA0OCAwMyA5NCAwMCAzYyA5OSAwMCAwMApFOiA0LjM3MjIxOCAxMCAwNCAwMyA0
+ZiAwMiAyYiAwMSA0NiA5OSAwMiAwMApFOiA0LjM3NjIxNyAxMCAwNCAwNyA0YyAwMyA5NCAwMCA0
+NiA5OSAwMCAwMApFOiA0LjM4MDIxNiAxMCAwNCAwMyA1NCAwMiAyYSAwMSA5NiA5OSAwMiAwMApF
+OiA0LjM4NDIxNyAxMCAwNCAwNyA1MCAwMyA5NCAwMCA5NiA5OSAwMCAwMApFOiA0LjM4ODA2NiAx
+MCAwNCAwMyA1NSAwMiAyOSAwMSBlNiA5OSAwMiAwMApFOiA0LjM5MTg4NCAxMCAwNCAwNyA1MSAw
+MyA5NCAwMCBlNiA5OSAwMCAwMApFOiA0LjM5NjIxOSAxMCAwNCAwMyA1OCAwMiAyOSAwMSBmMCA5
+OSAwMiAwMApFOiA0LjQwMDIxOCAxMCAwNCAwNyA1NCAwMyA5NCAwMCBmMCA5OSAwMCAwMApFOiA0
+LjQwNDIxNiAxMCAwNCAwMyA1OSAwMiAyOSAwMSA0MCA5YSAwMiAwMApFOiA0LjQwODIxMyAxMCAw
+NCAwNyA1NSAwMyA5NCAwMCA0MCA5YSAwMCAwMApFOiA0LjQxMjIxNSAxMCAwNCAwMyA1YyAwMiAy
+OSAwMSA0NSA5YSAwMiAwMApFOiA0LjQxNjIxNCAxMCAwNCAwNyA1NyAwMyA5NCAwMCA0NSA5YSAw
+MCAwMApFOiA0LjQyMDIxMyAxMCAwNCAwMyA1ZCAwMiAyOSAwMSA5MCA5YSAwMiAwMApFOiA0LjQy
+NDIxNiAxMCAwNCAwNyA1OCAwMyA5NCAwMCA5MCA5YSAwMCAwMApFOiA0LjQyODI4NyAxMCAwNCAw
+MyA1ZSAwMiAyOCAwMSBhZSA5YSAwMiAwMApFOiA0LjQzMjIxNSAxMCAwNCAwNyA1OSAwMyA5NCAw
+MCBhZSA5YSAwMCAwMApFOiA0LjQzNjIxNCAxMCAwNCAwMyA1ZiAwMiAyNyAwMSBmZSA5YSAwMiAw
+MApFOiA0LjQ0MDIxNCAxMCAwNCAwNyA1YSAwMyA5NCAwMCBmZSA5YSAwMCAwMApFOiA0LjQ0NDE0
+MyAxMCAwNCAwMyA2MCAwMiAyNyAwMSAwOCA5YiAwMiAwMApFOiA0LjQ0ODIxNCAxMCAwNCAwNyA1
+YiAwMyA5NCAwMCAwOCA5YiAwMCAwMApFOiA0LjQ1MjIxNCAxMCAwNCAwMyA2MSAwMiAyNyAwMSA1
+OCA5YiAwMiAwMApFOiA0LjQ1NjIxMyAxMCAwNCAwNyA1YyAwMyA5NCAwMCA1OCA5YiAwMCAwMApF
+OiA0LjQ2MDIxMiAxMCAwNCAwMyA2MSAwMiAyNyAwMSA2MiA5YiAwMiAwMApFOiA0LjQ2NDIxMyAx
+MCAwNCAwNyA1ZCAwMyA5NiAwMCA2MiA5YiAwMCAwMApFOiA0LjQ2ODIxMiAxMCAwNCAwMyA2MyAw
+MiAyNyAwMSBiMiA5YiAwMiAwMApFOiA0LjQ3MjIxMiAxMCAwNCAwNyA1ZSAwMyA5NiAwMCBiMiA5
+YiAwMCAwMApFOiA0LjQ3NjIxMSAxMCAwNCAwMyA2NCAwMiAyNyAwMSAwMiA5YyAwMiAwMApFOiA0
+LjQ4MDIxMyAxMCAwNCAwNyA1ZiAwMyA5NiAwMCAwMiA5YyAwMCAwMApFOiA0LjQ4NDIxMiAxMCAw
+NCAwMyA2NCAwMiAyNiAwMSAwYyA5YyAwMiAwMApFOiA0LjQ4ODIxMiAxMCAwNCAwNyA1ZiAwMyA5
+NiAwMCAwYyA5YyAwMCAwMApFOiA0LjQ5MjIxMCAxMCAwNCAwMyA2NCAwMiAyNSAwMSA1YyA5YyAw
+MiAwMApFOiA0LjQ5NjIxMyAxMCAwNCAwNyA1ZiAwMyA5NiAwMCA1YyA5YyAwMCAwMApFOiA0LjUw
+MDIxMyAxMCAwNCAwMyA2NCAwMiAyNiAwMSA3MCA5YyAwMiAwMApFOiA0LjUwNDIxMiAxMCAwNCAw
+NyA2MCAwMyA5NiAwMCA3MCA5YyAwMCAwMApFOiA0LjUwODIxMSAxMCAwNCAwMyA2NSAwMiAyNiAw
+MSBjMCA5YyAwMiAwMApFOiA0LjUxMjIxMCAxMCAwNCAwNyA2MCAwMyA5NyAwMCBjMCA5YyAwMCAw
+MApFOiA0LjUxNjIxMiAxMCAwNCAwMyA2NiAwMiAyNiAwMSAxMCA5ZCAwMiAwMApFOiA0LjUyMDIw
+OSAxMCAwNCAwNyA2MCAwMyA5OCAwMCAxMCA5ZCAwMCAwMApFOiA0LjUyNDIwOSAxMCAwNCAwMyA2
+NiAwMiAyNiAwMSA2MCA5ZCAwMiAwMApFOiA0LjUyODIxMCAxMCAwNCAwNyA2MCAwMyA5OCAwMCA2
+MCA5ZCAwMCAwMApFOiA0LjUzMjIxMSAxMCAwNCAwMyA2MyAwMiAyNiAwMSA3NCA5ZCAwMiAwMApF
+OiA0LjUzNjIwOSAxMCAwNCAwNyA2MCAwMyA5OCAwMCA3NCA5ZCAwMCAwMApFOiA0LjU0MDIxMCAx
+MCAwNCAwMyA2MSAwMiAyNiAwMSBiYSA5ZCAwMiAwMApFOiA0LjU0NDE4MyAxMCAwNCAwNyA1OSAw
+MyA5OSAwMCBiYSA5ZCAwMCAwMApFOiA0LjU0ODIxMSAxMCAwNCAwMyA2MCAwMiAyNiAwMSAwYSA5
+ZSAwMiAwMApFOiA0LjU1MjIwOSAxMCAwNCAwNyA1OCAwMyA5YSAwMCAwYSA5ZSAwMCAwMApFOiA0
+LjU1NjIwOSAxMCAwNCAwMyA1YyAwMiAyNyAwMSAxNCA5ZSAwMiAwMApFOiA0LjU2MDIxMCAxMCAw
+NCAwNyA1NCAwMyA5YiAwMCAxNCA5ZSAwMCAwMApFOiA0LjU2NDI0NCAxMCAwNCAwMyA1OCAwMiAy
+NyAwMSA2NCA5ZSAwMiAwMApFOiA0LjU2ODIwOSAxMCAwNCAwNyA0YyAwMyA5YiAwMCA2NCA5ZSAw
+MCAwMApFOiA0LjU3MjIwOSAxMCAwNCAwMyA0ZSAwMiAyNyAwMSBhMCA5ZSAwMiAwMApFOiA0LjU3
+NjIwOCAxMCAwNCAwNyA0OCAwMyA5YyAwMCBhMCA5ZSAwMCAwMApFOiA0LjU4MDIwOSAxMCAwNCAw
+MyA0MSAwMiAyNSAwMSBmMCA5ZSAwMiAwMApFOiA0LjU4NDIwNyAxMCAwNCAwNyAzYiAwMyA5ZCAw
+MCBmMCA5ZSAwMCAwMApFOiA0LjU4ODIwNiAxMCAwNCAwMyAzOCAwMiAyNSAwMSA0YSA5ZiAwMiAw
+MApFOiA0LjU5MjIwNiAxMCAwNCAwNyAzMSAwMyA5ZCAwMCA0YSA5ZiAwMCAwMApFOiA0LjU5NjIw
+NiAxMCAwNCAwMyAxZiAwMiAyNiAwMSA5MCA5ZiAwMiAwMApFOiA0LjYwMDIwOCAxMCAwNCAwNyAx
+MyAwMyA5ZSAwMCA5MCA5ZiAwMCAwMApFOiA0LjYwNDIwNyAxMCAwNCAwMyAxZSAwMiAyNyAwMSBl
+MCA5ZiAwMiAwMApFOiA0LjYwODIwOCAxMCAwNCAwNyAxMiAwMyA5ZiAwMCBlMCA5ZiAwMCAwMApF
+OiA0LjYxMjIwOCAxMCAwNCAwMyAxMCAwMiAyNyAwMSBlNSA5ZiAwMiAwMApFOiA0LjYxNjIwNyAx
+MCAwNCAwNyAwNiAwMyA5ZSAwMCBlNSA5ZiAwMCAwMApFOiA0LjYyMDIwNyAxMCAwNCAwMyAwZiAw
+MiAyNyAwMSAzMCBhMCAwMiAwMApFOiA0LjYyNDIwNyAxMCAwNCAwNyAwNSAwMyA5ZCAwMCAzMCBh
+MCAwMCAwMApFOiA0LjYyODIwNiAxMCAwNCAwMyAwMCAwMiAyNyAwMSA0NCBhMCAwMiAwMApFOiA0
+LjYzMjIwNiAxMCAwNCAwNyBmYiAwMiA5ZSAwMCA0NCBhMCAwMCAwMApFOiA0LjYzNjIwOCAxMCAw
+NCAwMyBmOSAwMSAyNiAwMSA5NCBhMCAwMiAwMApFOiA0LjY0MDIwNSAxMCAwNCAwNyBlZSAwMiA5
+ZCAwMCA5NCBhMCAwMCAwMApFOiA0LjY0NDI0NiAxMCAwNCAwMyBlYSAwMSAyNCAwMSBkYSBhMCAw
+MiAwMApFOiA0LjY0ODIxMCAxMCAwNCAwNyBlNSAwMiA5ZCAwMCBkYSBhMCAwMCAwMApFOiA0LjY1
+MjIwNyAxMCAwNCAwMyBlOSAwMSAyMyAwMSAyYSBhMSAwMiAwMApFOiA0LjY1NjIwNSAxMCAwNCAw
+NyBlNCAwMiA5ZCAwMCAyYSBhMSAwMCAwMApFOiA0LjY2MDIwNyAxMCAwNCAwMyBkOCAwMSAyNSAw
+MSAzZSBhMSAwMiAwMApFOiA0LjY2NDIwNCAxMCAwNCAwNyBjOCAwMiA5ZCAwMCAzZSBhMSAwMCAw
+MApFOiA0LjY2ODIwNiAxMCAwNCAwMyBjZCAwMSAyNiAwMSA4ZSBhMSAwMiAwMApFOiA0LjY3MjIw
+NSAxMCAwNCAwNyBhZiAwMiA5ZCAwMCA4ZSBhMSAwMCAwMApFOiA0LjY3NjIwNSAxMCAwNCAwMyBi
+OSAwMSAyNyAwMSBkNCBhMSAwMiAwMApFOiA0LjY4MDIwMSAxMCAwNCAwNyBhNiAwMiA5ZCAwMCBk
+NCBhMSAwMCAwMApFOiA0LjY4NDIwNSAxMCAwNCAwMyBhNSAwMSAyNiAwMSAxYSBhMiAwMiAwMApF
+OiA0LjY4ODIwMyAxMCAwNCAwNyA5MSAwMiA5ZiAwMCAxYSBhMiAwMCAwMApFOiA0LjY5MjIwMyAx
+MCAwNCAwMyBhNCAwMSAyNSAwMSA2YSBhMiAwMiAwMApFOiA0LjY5NjIwMCAxMCAwNCAwNyA5MCAw
+MiBhMCAwMCA2YSBhMiAwMCAwMApFOiA0LjcwMDQxMCAxMCAwNCAwMyA5OSAwMSAyNyAwMSA3ZSBh
+MiAwMiAwMApFOiA0LjcwNDIyNyAxMCAwNCAwNyA4MiAwMiA5ZiAwMCA3ZSBhMiAwMCAwMApFOiA0
+LjcwODA5MSAxMCAwNCAwMyA4MCAwMSAyYSAwMSBjNCBhMiAwMiAwMApFOiA0LjcxMjIwMyAxMCAw
+NCAwNyA2OSAwMiBhMSAwMCBjNCBhMiAwMCAwMApFOiA0LjcxNjIwMyAxMCAwNCAwMyA3ZiAwMSAy
+YiAwMSAxNCBhMyAwMiAwMApFOiA0LjcyMDIwNCAxMCAwNCAwNyA2OCAwMiBhMiAwMCAxNCBhMyAw
+MCAwMApFOiA0LjcyNDIwNCAxMCAwNCAwMyA2YyAwMSAyZCAwMSAxZSBhMyAwMiAwMApFOiA0Ljcy
+ODIwMyAxMCAwNCAwNyA1OSAwMiBhMSAwMCAxZSBhMyAwMCAwMApFOiA0LjczMjIwMSAxMCAwNCAw
+MyA2NSAwMSAyZCAwMSA3OCBhMyAwMiAwMApFOiA0LjczNjIwNiAxMCAwNCAwNyA0YiAwMiBhMSAw
+MCA3OCBhMyAwMCAwMApFOiA0Ljc0MDIwMSAxMCAwNCAwMyA1OSAwMSAyYyAwMSBiZSBhMyAwMiAw
+MApFOiA0Ljc0NDE4NCAxMCAwNCAwNyA0MyAwMiBhMyAwMCBiZSBhMyAwMCAwMApFOiA0Ljc0ODE5
+OSAxMCAwNCAwMyA1MCAwMSAyYyAwMSAwNCBhNCAwMiAwMApFOiA0Ljc1MjIxMyAxMCAwNCAwNyAz
+NCAwMiBhNSAwMCAwNCBhNCAwMCAwMApFOiA0Ljc1NjIwMSAxMCAwNCAwMyA0YiAwMSAyYyAwMSA1
+ZSBhNCAwMiAwMApFOiA0Ljc2MDIwMSAxMCAwNCAwNyAyZiAwMiBhNiAwMCA1ZSBhNCAwMCAwMApF
+OiA0Ljc2NDIwMSAxMCAwNCAwMyA0NSAwMSAyYyAwMSBhNCBhNCAwMiAwMApFOiA0Ljc2ODIxNCAx
+MCAwNCAwNyAyNiAwMiBhNiAwMCBhNCBhNCAwMCAwMApFOiA0Ljc3MjIwMSAxMCAwNCAwMyA0NCAw
+MSAyYyAwMSBmNCBhNCAwMiAwMApFOiA0Ljc3NjE5OSAxMCAwNCAwNyAyNSAwMiBhNiAwMCBmNCBh
+NCAwMCAwMApFOiA0Ljc4MDE5OCAxMCAwNCAwMyAzZCAwMSAyZCAwMSBmZSBhNCAwMiAwMApFOiA0
+Ljc4NDE5NyAxMCAwNCAwNyAxZSAwMiBhNiAwMCBmZSBhNCAwMCAwMApFOiA0Ljc4ODE5NyAxMCAw
+NCAwMyAzNCAwMSAyZiAwMSA0NCBhNSAwMiAwMApFOiA0Ljc5MjE5OSAxMCAwNCAwNyAxNSAwMiBh
+OCAwMCA0NCBhNSAwMCAwMApFOiA0Ljc5NjE5OSAxMCAwNCAwMyAyYyAwMSAzMiAwMSA4YSBhNSAw
+MiAwMApFOiA0LjgwMDE5OSAxMCAwNCAwNyAwNyAwMiBhZCAwMCA4YSBhNSAwMCAwMApFOiA0Ljgw
+NDE5OCAxMCAwNCAwMSAyYyAwMSAzMiAwMSBlNCBhNSAwMiAwMApFOiA0LjgwODIwMCAxMCAwNCAw
+NyAwMiAwMiBhZSAwMCBlNCBhNSAwMCAwMApFOiA0LjgxMjE5NyAxMCAwNCAwNSAwMiAwMiBhZSAw
+MCA0OCBhNiAwMSAwMApFOiA1LjE4NDE3NiAxMCAwNCAwMyA2OCAwMiBmNyAwMCA4YyBiYyAwMSAw
+MApFOiA1LjIwMDEyNiAxMCAwNCAwMyA2OCAwMiBmNyAwMCBkMiBiYyAwMSAwMApFOiA1LjIwNDEy
+NSAxMCAwNCAwMyA2OCAwMiBmNyAwMCAxOCBiZCAwMSAwMApFOiA1LjIwODE1NiAxMCAwNCAwMyA2
+OCAwMiBmNyAwMCA1NCBiZCAwMyAwMApFOiA1LjIxMjEyNyAxMCAwNCAwNyA3OSAwMCA1YyAwMSA1
+NCBiZCAwMCAwMApFOiA1LjIxNjEyNiAxMCAwNCAwYiA2MCAwMSA4YyAwMCA1NCBiZCAwMCAwMApF
+OiA1LjIyNDEyMSAxMCAwNCAwMyA2OCAwMiBmNyAwMCBhNCBiZCAwMyAwMApFOiA1LjIyODEyNSAx
+MCAwNCAwNyA3OCAwMCA1ZCAwMSBhNCBiZCAwMCAwMApFOiA1LjIzMjEyMyAxMCAwNCAwYiA2MSAw
+MSA4ZCAwMCBhNCBiZCAwMCAwMApFOiA1LjIzNjEyNiAxMCAwNCAwMyA2OCAwMiBmNyAwMCBmNCBi
+ZCAwMyAwMApFOiA1LjI0MDEyMyAxMCAwNCAwNyA3OCAwMCA1ZCAwMSBmNCBiZCAwMCAwMApFOiA1
+LjI0NDEyOSAxMCAwNCAwYiA2MSAwMSA4ZCAwMCBmNCBiZCAwMCAwMApFOiA1LjI0ODEyMyAxMCAw
+NCAwMyA2OCAwMiBmNyAwMCA0NCBiZSAwMyAwMApFOiA1LjI1MjEyNCAxMCAwNCAwNyA3OCAwMCA1
+ZCAwMSA0NCBiZSAwMCAwMApFOiA1LjI1NjEyMiAxMCAwNCAwYiA2MSAwMSA4ZCAwMCA0NCBiZSAw
+MCAwMApFOiA1LjI2MDEyMiAxMCAwNCAwMyA2OCAwMiBmNyAwMCA5NCBiZSAwMyAwMApFOiA1LjI2
+NDEyMiAxMCAwNCAwNyA3OCAwMCA1ZCAwMSA5NCBiZSAwMCAwMApFOiA1LjI2ODEyMSAxMCAwNCAw
+YiA2MSAwMSA4ZCAwMCA5NCBiZSAwMCAwMApFOiA1LjI3MjEyMyAxMCAwNCAwMyA2OCAwMiBmNyAw
+MCBlNCBiZSAwMyAwMApFOiA1LjI3NjEyMiAxMCAwNCAwNyA3OCAwMCA1ZCAwMSBlNCBiZSAwMCAw
+MApFOiA1LjI4MDEyMyAxMCAwNCAwYiA2MSAwMSA4ZCAwMCBlNCBiZSAwMCAwMApFOiA1LjI4NDEy
+NCAxMCAwNCAwMyA2OCAwMiBmNyAwMCAzNCBiZiAwMyAwMApFOiA1LjI4ODEyMiAxMCAwNCAwNyA4
+MCAwMCA1YyAwMSAzNCBiZiAwMCAwMApFOiA1LjI5MjEyMiAxMCAwNCAwYiA2MCAwMSA4YyAwMCAz
+NCBiZiAwMCAwMApFOiA1LjI5NjExOSAxMCAwNCAwMyA2OCAwMiBmNyAwMCA3MCBiZiAwMyAwMApF
+OiA1LjMwMDExNyAxMCAwNCAwNyA4MyAwMCA1ZCAwMSA3MCBiZiAwMCAwMApFOiA1LjMwMzc1NSAx
+MCAwNCAwYiA2MCAwMSA4YyAwMCA3MCBiZiAwMCAwMApFOiA1LjMwODIwNyAxMCAwNCAwMyA2OCAw
+MiBmNyAwMCBiNiBiZiAwMyAwMApFOiA1LjMxMjA0NiAxMCAwNCAwNyA4OCAwMCA1ZCAwMSBiNiBi
+ZiAwMCAwMApFOiA1LjMxNjE3NyAxMCAwNCAwYiA2MCAwMSA4YyAwMCBiNiBiZiAwMCAwMApFOiA1
+LjMyMDE4MSAxMCAwNCAwMyA2OCAwMiBmNyAwMCBmMiBiZiAwMyAwMApFOiA1LjMyNDE3NSAxMCAw
+NCAwNyA4ZCAwMCA1ZCAwMSBmMiBiZiAwMCAwMApFOiA1LjMyODIyNiAxMCAwNCAwYiA2MCAwMSA4
+YyAwMCBmMiBiZiAwMCAwMApFOiA1LjMzMjE3NyAxMCAwNCAwMyA2OCAwMiBmNyAwMCAyZSBjMCAw
+MyAwMApFOiA1LjMzNjE5MCAxMCAwNCAwNyA5MyAwMCA1YyAwMSAyZSBjMCAwMCAwMApFOiA1LjM0
+MDE3NiAxMCAwNCAwYiA2MCAwMSA4YyAwMCAyZSBjMCAwMCAwMApFOiA1LjM0NDE4MCAxMCAwNCAw
+MyA2OCAwMiBmNyAwMCA2YSBjMCAwMyAwMApFOiA1LjM0ODE3MyAxMCAwNCAwNyA5OSAwMCA1YyAw
+MSA2YSBjMCAwMCAwMApFOiA1LjM1MjE4NyAxMCAwNCAwYiA2NyAwMSA4YyAwMCA2YSBjMCAwMCAw
+MApFOiA1LjM1NjE3MiAxMCAwNCAwMyA2OCAwMiBmNyAwMCBiYSBjMCAwMyAwMApFOiA1LjM2MDE3
+NCAxMCAwNCAwNyA5ZiAwMCA1YiAwMSBiYSBjMCAwMCAwMApFOiA1LjM2NDE3NSAxMCAwNCAwYiA2
+OSAwMSA4YyAwMCBiYSBjMCAwMCAwMApFOiA1LjM2ODE3NSAxMCAwNCAwMyA2ZiAwMiBmNyAwMCAw
+MCBjMSAwMyAwMApFOiA1LjM3MjE3MyAxMCAwNCAwNyBhNSAwMCA1YiAwMSAwMCBjMSAwMCAwMApF
+OiA1LjM3NjE3MiAxMCAwNCAwYiA2YiAwMSA4ZSAwMCAwMCBjMSAwMCAwMApFOiA1LjM4MDE3MiAx
+MCAwNCAwMyA3NCAwMiBmOCAwMCA0NiBjMSAwMyAwMApFOiA1LjM4NDE3MCAxMCAwNCAwNyBiMSAw
+MCA1YSAwMSA0NiBjMSAwMCAwMApFOiA1LjM4ODE4NiAxMCAwNCAwYiA3MCAwMSA4ZSAwMCA0NiBj
+MSAwMCAwMApFOiA1LjM5MjE3MyAxMCAwNCAwMyA3NSAwMiBmOSAwMCA5NiBjMSAwMyAwMApFOiA1
+LjM5NjE3MSAxMCAwNCAwNyBiMiAwMCA1OSAwMSA5NiBjMSAwMCAwMApFOiA1LjQwMDE3MiAxMCAw
+NCAwYiA3MSAwMSA4ZSAwMCA5NiBjMSAwMCAwMApFOiA1LjQwNDE3MyAxMCAwNCAwMyA3NyAwMiBm
+OSAwMCBiNCBjMSAwMyAwMApFOiA1LjQwODI2NyAxMCAwNCAwNyBiNiAwMCA1YSAwMSBiNCBjMSAw
+MCAwMApFOiA1LjQxMjE3NyAxMCAwNCAwYiA3MyAwMSA4ZCAwMCBiNCBjMSAwMCAwMApFOiA1LjQx
+NjE3MyAxMCAwNCAwMyA3OCAwMiBmOSAwMCAwNCBjMiAwMyAwMApFOiA1LjQyMDE3MSAxMCAwNCAw
+NyBiNyAwMCA1YiAwMSAwNCBjMiAwMCAwMApFOiA1LjQyNDE3MSAxMCAwNCAwYiA3NCAwMSA4YyAw
+MCAwNCBjMiAwMCAwMApFOiA1LjQyODE1MCAxMCAwNCAwMyA3YSAwMiBmOSAwMCAwZSBjMiAwMyAw
+MApFOiA1LjQzMjE3MCAxMCAwNCAwNyBjMCAwMCA1YiAwMSAwZSBjMiAwMCAwMApFOiA1LjQzNjE3
+MCAxMCAwNCAwYiA3NiAwMSA4ZSAwMCAwZSBjMiAwMCAwMApFOiA1LjQ0MDE2OSAxMCAwNCAwMyA3
+ZSAwMiBmYSAwMCA1NCBjMiAwMyAwMApFOiA1LjQ0NDE2OCAxMCAwNCAwNyBkNCAwMCA1YSAwMSA1
+NCBjMiAwMCAwMApFOiA1LjQ0ODE2OCAxMCAwNCAwYiA3ZSAwMSA4ZSAwMCA1NCBjMiAwMCAwMApF
+OiA1LjQ1MjE2OSAxMCAwNCAwMyA4NSAwMiBmYSAwMCA5YSBjMiAwMyAwMApFOiA1LjQ1NjE2OSAx
+MCAwNCAwNyBlMiAwMCA1NyAwMSA5YSBjMiAwMCAwMApFOiA1LjQ2MDE3MSAxMCAwNCAwYiA4MiAw
+MSA4ZiAwMCA5YSBjMiAwMCAwMApFOiA1LjQ2NDE2OCAxMCAwNCAwMyA4YSAwMiBmYSAwMCBlYSBj
+MiAwMyAwMApFOiA1LjQ2ODE3MCAxMCAwNCAwNyBlYiAwMCA1NyAwMSBlYSBjMiAwMCAwMApFOiA1
+LjQ3MjE3MSAxMCAwNCAwYiA4NyAwMSA4ZiAwMCBlYSBjMiAwMCAwMApFOiA1LjQ3NjE2OCAxMCAw
+NCAwMyA4ZiAwMiBmYiAwMCAzMCBjMyAwMyAwMApFOiA1LjQ4MDE2NyAxMCAwNCAwNyBmNSAwMCA1
+NiAwMSAzMCBjMyAwMCAwMApFOiA1LjQ4NDIwNSAxMCAwNCAwYiA4ZSAwMSA4ZiAwMCAzMCBjMyAw
+MCAwMApFOiA1LjQ4ODE2NyAxMCAwNCAwMyA5NyAwMiBmYiAwMCA3NiBjMyAwMyAwMApFOiA1LjQ5
+MjE2NyAxMCAwNCAwNyAwMCAwMSA1NyAwMSA3NiBjMyAwMCAwMApFOiA1LjQ5NjE2OSAxMCAwNCAw
+YiA5ZiAwMSA5MCAwMCA3NiBjMyAwMCAwMApFOiA1LjUwMDE2OSAxMCAwNCAwMyBhMSAwMiBmYSAw
+MCBiYyBjMyAwMyAwMApFOiA1LjUwNDE2OSAxMCAwNCAwNyAwMCAwMSA1NyAwMSBiYyBjMyAwMCAw
+MApFOiA1LjUwODE2OCAxMCAwNCAwYiA5ZiAwMSA5MCAwMCBiYyBjMyAwMCAwMApFOiA1LjUxMjE2
+NSAxMCAwNCAwMyBiMSAwMiBmYyAwMCBmOCBjMyAwMyAwMApFOiA1LjUxNjE2OCAxMCAwNCAwNyAw
+OCAwMSA1OSAwMSBmOCBjMyAwMCAwMApFOiA1LjUyMDE2NiAxMCAwNCAwYiBhYyAwMSA5MSAwMCBm
+OCBjMyAwMCAwMApFOiA1LjUyNDE2NyAxMCAwNCAwMyBjMyAwMiBmZCAwMCA0OCBjNCAwMyAwMApF
+OiA1LjUyODE0NiAxMCAwNCAwNyAxZiAwMSA1NiAwMSA0OCBjNCAwMCAwMApFOiA1LjUzMjE2OCAx
+MCAwNCAwYiBiZiAwMSA5MSAwMCA0OCBjNCAwMCAwMApFOiA1LjUzNjE2OCAxMCAwNCAwMyBlMCAw
+MiAwMCAwMSA4ZSBjNCAwMyAwMApFOiA1LjU0MDE2NSAxMCAwNCAwNyA0NCAwMSA1NCAwMSA4ZSBj
+NCAwMCAwMApFOiA1LjU0NDE2NSAxMCAwNCAwYiBkYyAwMSA5MiAwMCA4ZSBjNCAwMCAwMApFOiA1
+LjU0ODE2NiAxMCAwNCAwMyBlMSAwMiAwMSAwMSBkZSBjNCAwMyAwMApFOiA1LjU1MjE2NyAxMCAw
+NCAwNyA0NSAwMSA1MyAwMSBkZSBjNCAwMCAwMApFOiA1LjU1NjE2NCAxMCAwNCAwYiBkZCAwMSA5
+MyAwMCBkZSBjNCAwMCAwMApFOiA1LjU2MDE2NSAxMCAwNCAwMyBmMCAwMiBmZiAwMCBmMiBjNCAw
+MyAwMApFOiA1LjU2NDE2NiAxMCAwNCAwNyA0ZSAwMSA1NSAwMSBmMiBjNCAwMCAwMApFOiA1LjU2
+ODE2OCAxMCAwNCAwYiBlYyAwMSA5MSAwMCBmMiBjNCAwMCAwMApFOiA1LjU3MjE2NiAxMCAwNCAw
+MyAwMSAwMyAwMCAwMSAzOCBjNSAwMyAwMApFOiA1LjU3NjE2NSAxMCAwNCAwNyA1NyAwMSA1NiAw
+MSAzOCBjNSAwMCAwMApFOiA1LjU4MDE2NSAxMCAwNCAwYiBmYyAwMSA5MSAwMCAzOCBjNSAwMCAw
+MApFOiA1LjU4ODE2MiAxMCAwNCAwMyBiNSAwMyBmZSAwMCA0MCBjYyAwMyAwMApFOiA1LjU5MjE2
+NCAxMCAwNCAwNyAxYSAwMiAzZSAwMSA0MCBjYyAwMCAwMApFOiA1LjU5NjE2NSAxMCAwNCAwYiBj
+MCAwMiA4NiAwMCA0MCBjYyAwMCAwMApFOiA1LjYwMDE2NSAxMCAwNCAwMyBiNSAwMyBmZSAwMCA4
+NiBjYyAwMyAwMApFOiA1LjYwNDE2MyAxMCAwNCAwNyAxYiAwMiAzZSAwMSA4NiBjYyAwMCAwMApF
+OiA1LjYwODE2NCAxMCAwNCAwYiBjMSAwMiA4NiAwMCA4NiBjYyAwMCAwMApFOiA1LjYxMjE2NCAx
+MCAwNCAwMyBiNSAwMyBmZSAwMCBkNiBjYyAwMyAwMApFOiA1LjYxNjE2NCAxMCAwNCAwNyAxYyAw
+MiAzZSAwMSBkNiBjYyAwMCAwMApFOiA1LjYyMDE2MiAxMCAwNCAwYiBjMiAwMiA4NiAwMCBkNiBj
+YyAwMCAwMApFOiA1LjYyNDE2MyAxMCAwNCAwMyBiNiAwMyBmZSAwMCBmZSBjYyAwMyAwMApFOiA1
+LjYyODE0NCAxMCAwNCAwNyAxYiAwMiAzZSAwMSBmZSBjYyAwMCAwMApFOiA1LjYzMjE2MyAxMCAw
+NCAwYiBjMSAwMiA4NiAwMCBmZSBjYyAwMCAwMApFOiA1LjYzNjE2MyAxMCAwNCAwMyBiNyAwMyBm
+ZSAwMCA0ZSBjZCAwMyAwMApFOiA1LjY0MDE2MCAxMCAwNCAwNyAxYSAwMiAzZSAwMSA0ZSBjZCAw
+MCAwMApFOiA1LjY0NDE1OCAxMCAwNCAwYiBjMCAwMiA4NiAwMCA0ZSBjZCAwMCAwMApFOiA1LjY0
+ODE2MSAxMCAwNCAwMyBiNiAwMyBmYyAwMCA3NiBjZCAwMyAwMApFOiA1LjY1MjE2MSAxMCAwNCAw
+NyAxOSAwMiAzZSAwMSA3NiBjZCAwMCAwMApFOiA1LjY1NjE1OSAxMCAwNCAwYiBjMSAwMiA4NiAw
+MCA3NiBjZCAwMCAwMApFOiA1LjY2MDE1OCAxMCAwNCAwMyBiNiAwMyBmYiAwMCBiYyBjZCAwMyAw
+MApFOiA1LjY2NDE1OSAxMCAwNCAwNyAxOCAwMiAzZSAwMSBiYyBjZCAwMCAwMApFOiA1LjY2ODE2
+MiAxMCAwNCAwYiBjMSAwMiA4NiAwMCBiYyBjZCAwMCAwMApFOiA1LjY3MjE2MSAxMCAwNCAwMyBi
+NiAwMyBmYiAwMCBmOCBjZCAwMyAwMApFOiA1LjY3NjE1NiAxMCAwNCAwNyAxNyAwMiAzZSAwMSBm
+OCBjZCAwMCAwMApFOiA1LjY4MDE1OCAxMCAwNCAwYiBjMSAwMiA4NCAwMCBmOCBjZCAwMCAwMApF
+OiA1LjY4NDE2MCAxMCAwNCAwMyBiNiAwMyBmYiAwMCA0OCBjZSAwMyAwMApFOiA1LjY4ODE1OCAx
+MCAwNCAwNyAxNiAwMiAzZSAwMSA0OCBjZSAwMCAwMApFOiA1LjY5MjE2MCAxMCAwNCAwYiBjMSAw
+MiA4MyAwMCA0OCBjZSAwMCAwMApFOiA1LjY5NjE2MSAxMCAwNCAwMyBiNiAwMyBmYSAwMCA1YyBj
+ZSAwMyAwMApFOiA1LjcwMDE1OCAxMCAwNCAwNyAwZSAwMiAzZSAwMSA1YyBjZSAwMCAwMApFOiA1
+LjcwNDE1OSAxMCAwNCAwYiBiYSAwMiA4MSAwMCA1YyBjZSAwMCAwMApFOiA1LjcwODE1OCAxMCAw
+NCAwMyBiMCAwMyBmNyAwMCBhMiBjZSAwMyAwMApFOiA1LjcxMjE1OCAxMCAwNCAwNyAwOCAwMiAz
+ZCAwMSBhMiBjZSAwMCAwMApFOiA1LjcxNjE1OCAxMCAwNCAwYiBiNSAwMiA3ZiAwMCBhMiBjZSAw
+MCAwMApFOiA1LjcyMDE1OSAxMCAwNCAwMyBhZiAwMyBmNiAwMCBmMiBjZSAwMyAwMApFOiA1Ljcy
+NDE1OCAxMCAwNCAwNyAwNyAwMiAzYyAwMSBmMiBjZSAwMCAwMApFOiA1LjcyODEzOSAxMCAwNCAw
+YiBiNCAwMiA3ZSAwMCBmMiBjZSAwMCAwMApFOiA1LjczMjE1OCAxMCAwNCAwMyBhYyAwMyBmNCAw
+MCBmYyBjZSAwMyAwMApFOiA1LjczNjE1OSAxMCAwNCAwNyBmZSAwMSAzYiAwMSBmYyBjZSAwMCAw
+MApFOiA1Ljc0MDE1OCAxMCAwNCAwYiBiMCAwMiA3YyAwMCBmYyBjZSAwMCAwMApFOiA1Ljc0NDE5
+MCAxMCAwNCAwMyBhNiAwMyBmMSAwMCA0MiBjZiAwMyAwMApFOiA1Ljc0ODE1NyAxMCAwNCAwNyBm
+NCAwMSAzOCAwMSA0MiBjZiAwMCAwMApFOiA1Ljc1MjE1OSAxMCAwNCAwYiBhNyAwMiA3YiAwMCA0
+MiBjZiAwMCAwMApFOiA1Ljc1NjE1NyAxMCAwNCAwMyA5OSAwMyBlYSAwMCA4OCBjZiAwMyAwMApF
+OiA1Ljc2MDE1NyAxMCAwNCAwNyBlOSAwMSAzOCAwMSA4OCBjZiAwMCAwMApFOiA1Ljc2NDE1NiAx
+MCAwNCAwYiA5YiAwMiA3OSAwMCA4OCBjZiAwMCAwMApFOiA1Ljc2ODE1NyAxMCAwNCAwMyA4OCAw
+MyBkYyAwMCBjZSBjZiAwMyAwMApFOiA1Ljc3MjE1MyAxMCAwNCAwNyBkZCAwMSAzOCAwMSBjZSBj
+ZiAwMCAwMApFOiA1Ljc3NjE1NCAxMCAwNCAwYiA4YSAwMiA3NSAwMCBjZSBjZiAwMCAwMApFOiA1
+Ljc4MDE1MyAxMCAwNCAwMyA2ZiAwMyBkNCAwMCAxZSBkMCAwMyAwMApFOiA1Ljc4NDE1NCAxMCAw
+NCAwNyBjMSAwMSAzNiAwMSAxZSBkMCAwMCAwMApFOiA1Ljc4ODE1NCAxMCAwNCAwYiA3MiAwMiA3
+MSAwMCAxZSBkMCAwMCAwMApFOiA1Ljc5MjE1NCAxMCAwNCAwMyA2ZSAwMyBkMyAwMCA2ZSBkMCAw
+MyAwMApFOiA1Ljc5NjE1NCAxMCAwNCAwNyBjMCAwMSAzNSAwMSA2ZSBkMCAwMCAwMApFOiA1Ljgw
+MDE1NCAxMCAwNCAwYiA3MSAwMiA3MCAwMCA2ZSBkMCAwMCAwMApFOiA1LjgwNDE1NiAxMCAwNCAw
+MyA1NyAwMyBkMCAwMCA4MiBkMCAwMyAwMApFOiA1LjgwODE1MiAxMCAwNCAwNyBhMSAwMSAzNiAw
+MSA4MiBkMCAwMCAwMApFOiA1LjgxMjE1NSAxMCAwNCAwYiA0ZSAwMiA3NCAwMCA4MiBkMCAwMCAw
+MApFOiA1LjgxNjE1MyAxMCAwNCAwMyA0MSAwMyBjOSAwMCBjOCBkMCAwMyAwMApFOiA1LjgyMDE1
+NSAxMCAwNCAwNyA4ZiAwMSAzNSAwMSBjOCBkMCAwMCAwMApFOiA1LjgyNDE1MyAxMCAwNCAwYiAz
+NyAwMiA3MyAwMCBjOCBkMCAwMCAwMApFOiA1LjgyODEwMSAxMCAwNCAwMyAyOCAwMyBjNiAwMCAx
+OCBkMSAwMyAwMApFOiA1LjgzMjE1NCAxMCAwNCAwNyA3MSAwMSAzNSAwMSAxOCBkMSAwMCAwMApF
+OiA1LjgzNjE1MyAxMCAwNCAwYiAyMCAwMiA2ZiAwMCAxOCBkMSAwMCAwMApFOiA1Ljg0MDE1NCAx
+MCAwNCAwMyAwYyAwMyBiZSAwMCA1ZSBkMSAwMyAwMApFOiA1Ljg0NDE0OSAxMCAwNCAwNyA1MSAw
+MSAzNSAwMSA1ZSBkMSAwMCAwMApFOiA1Ljg0ODE1MiAxMCAwNCAwYiAwNiAwMiA2YyAwMCA1ZSBk
+MSAwMCAwMApFOiA1Ljg1MjE1NCAxMCAwNCAwMyAwYiAwMyBiZCAwMCBhZSBkMSAwMyAwMApFOiA1
+Ljg1NjE1MCAxMCAwNCAwNyA1MCAwMSAzNSAwMSBhZSBkMSAwMCAwMApFOiA1Ljg2MDE1MSAxMCAw
+NCAwYiAwNSAwMiA2YiAwMCBhZSBkMSAwMCAwMApFOiA1Ljg2NDE1MyAxMCAwNCAwMyAwMiAwMyBi
+YyAwMCBjMiBkMSAwMyAwMApFOiA1Ljg2ODE1MSAxMCAwNCAwNyA0NiAwMSAzNiAwMSBjMiBkMSAw
+MCAwMApFOiA1Ljg3MjE1MyAxMCAwNCAwYiBmOCAwMSA2ZiAwMCBjMiBkMSAwMCAwMApFOiA1Ljg3
+NjE1MiAxMCAwNCAwMyBmNiAwMiBiYiAwMCAwOCBkMiAwMyAwMApFOiA1Ljg4MDE1MCAxMCAwNCAw
+NyAzYSAwMSAzNiAwMSAwOCBkMiAwMCAwMApFOiA1Ljg4NDE1MiAxMCAwNCAwYiBlOSAwMSA2ZSAw
+MCAwOCBkMiAwMCAwMApFOiA1Ljg4ODE1MSAxMCAwNCAwMyBkZSAwMiBiOSAwMCA1OCBkMiAwMyAw
+MApFOiA1Ljg5MjE1MSAxMCAwNCAwNyAyNiAwMSAzNiAwMSA1OCBkMiAwMCAwMApFOiA1Ljg5NjE1
+MSAxMCAwNCAwYiBkNyAwMSA2ZCAwMCA1OCBkMiAwMCAwMApFOiA1LjkwMDE1MSAxMCAwNCAwMyBk
+ZCAwMiBiOCAwMCBhOCBkMiAwMyAwMApFOiA1LjkwNDMxMiAxMCAwNCAwNyAyNSAwMSAzNiAwMSBh
+OCBkMiAwMCAwMApFOiA1LjkwODE5MSAxMCAwNCAwYiBkNiAwMSA2YyAwMCBhOCBkMiAwMCAwMApF
+OiA1LjkxMjAzNCAxMCAwNCAwMyBjYiAwMiBiNSAwMCBiMiBkMiAwMyAwMApFOiA1LjkxNjE1MyAx
+MCAwNCAwNyAwZSAwMSAzNSAwMSBiMiBkMiAwMCAwMApFOiA1LjkyMDE1MCAxMCAwNCAwYiBiZiAw
+MSA2YyAwMCBiMiBkMiAwMCAwMApFOiA1LjkyNDE1MSAxMCAwNCAwMyBiZCAwMiBiNCAwMCBmOCBk
+MiAwMyAwMApFOiA1LjkyODUyOCAxMCAwNCAwNyBmOSAwMCAzNiAwMSBmOCBkMiAwMCAwMApFOiA1
+LjkzMjE1MCAxMCAwNCAwYiBhNiAwMSA3MCAwMCBmOCBkMiAwMCAwMApFOiA1LjkzNjE2MiAxMCAw
+NCAwMyBhZCAwMiBiNCAwMCA0OCBkMyAwMyAwMApFOiA1Ljk0MDE0OSAxMCAwNCAwNyBlYiAwMCAz
+NyAwMSA0OCBkMyAwMCAwMApFOiA1Ljk0NDE1NCAxMCAwNCAwYiA5MyAwMSA2ZiAwMCA0OCBkMyAw
+MCAwMApFOiA1Ljk0ODE0NiAxMCAwNCAwMyA5MyAwMiBiNSAwMCA4ZSBkMyAwMyAwMApFOiA1Ljk1
+MjE1OSAxMCAwNCAwNyBkMyAwMCAzNyAwMSA4ZSBkMyAwMCAwMApFOiA1Ljk1NjE0OCAxMCAwNCAw
+YiA4MCAwMSA2ZSAwMCA4ZSBkMyAwMCAwMApFOiA1Ljk2MDE0OSAxMCAwNCAwMyA2ZCAwMiBiMyAw
+MCBkNCBkMyAwMyAwMApFOiA1Ljk2NDE0NiAxMCAwNCAwNyBiNyAwMCAzNyAwMSBkNCBkMyAwMCAw
+MApFOiA1Ljk2ODE0OCAxMCAwNCAwYiA2OCAwMSA2ZCAwMCBkNCBkMyAwMCAwMApFOiA1Ljk3MjE0
+OCAxMCAwNCAwMyA2YyAwMiBiMiAwMCAyNCBkNCAwMyAwMApFOiA1Ljk3NjE0OCAxMCAwNCAwNyBi
+NiAwMCAzNyAwMSAyNCBkNCAwMCAwMApFOiA1Ljk4MDE0NSAxMCAwNCAwYiA2NyAwMSA2YyAwMCAy
+NCBkNCAwMCAwMApFOiA1Ljk4NDE0NyAxMCAwNCAwMyA2MyAwMiBiMiAwMCAzOCBkNCAwMyAwMApF
+OiA1Ljk4ODE0NSAxMCAwNCAwNyBhYiAwMCAzOCAwMSAzOCBkNCAwMCAwMApFOiA1Ljk5MjE0NiAx
+MCAwNCAwYiA1OSAwMSA3MCAwMCAzOCBkNCAwMCAwMApFOiA1Ljk5NjE0NiAxMCAwNCAwMyA1OCAw
+MiBiMSAwMCA3ZSBkNCAwMyAwMApFOiA2LjAwMDE0NyAxMCAwNCAwNyBhMCAwMCAzOSAwMSA3ZSBk
+NCAwMCAwMApFOiA2LjAwNDE0NyAxMCAwNCAwYiA0YyAwMSA2ZiAwMCA3ZSBkNCAwMCAwMApFOiA2
+LjAwODE0MyAxMCAwNCAwMyA1NyAwMiBiMCAwMCBjZSBkNCAwMyAwMApFOiA2LjAxMjE2MiAxMCAw
+NCAwNyA5ZiAwMCAzYSAwMSBjZSBkNCAwMCAwMApFOiA2LjAxNjE0NSAxMCAwNCAwYiA0YiAwMSA2
+ZSAwMCBjZSBkNCAwMCAwMApFOiA2LjAyMDE0NSAxMCAwNCAwMyA0NCAwMiBiMiAwMCBkOCBkNCAw
+MyAwMApFOiA2LjAyNDE0NCAxMCAwNCAwNyA4ZiAwMCAzYiAwMSBkOCBkNCAwMCAwMApFOiA2LjAy
+ODA4MyAxMCAwNCAwYiAzYiAwMSA2ZiAwMCBkOCBkNCAwMCAwMApFOiA2LjAzMjE0NyAxMCAwNCAw
+MyAzNSAwMiBiMyAwMCAxZSBkNSAwMyAwMApFOiA2LjAzNjE0MiAxMCAwNCAwNyA4MyAwMCAzYyAw
+MSAxZSBkNSAwMCAwMApFOiA2LjA0MDE0NiAxMCAwNCAwYiAzMCAwMSA2ZiAwMCAxZSBkNSAwMCAw
+MApFOiA2LjA0NDE0NSAxMCAwNCAwMyAyMiAwMiBiNCAwMCA2NCBkNSAwMyAwMApFOiA2LjA0ODE0
+NiAxMCAwNCAwNyA2ZCAwMCAzZCAwMSA2NCBkNSAwMCAwMApFOiA2LjA1MjE0MyAxMCAwNCAwYiAx
+OCAwMSA3NCAwMCA2NCBkNSAwMCAwMApFOiA2LjA1NjE0MiAxMCAwNCAwMyAyMSAwMiBiNSAwMCBi
+NCBkNSAwMyAwMApFOiA2LjA2MDE0MyAxMCAwNCAwNyA2YyAwMCAzZSAwMSBiNCBkNSAwMCAwMApF
+OiA2LjA2NDE0MyAxMCAwNCAwYiAxNyAwMSA3NSAwMCBiNCBkNSAwMCAwMApFOiA2LjA2ODE0MSAx
+MCAwNCAwMyAxYiAwMiBiNCAwMCBiOSBkNSAwMyAwMApFOiA2LjA3MjE0MiAxMCAwNCAwNyA2NCAw
+MCAzZSAwMSBiOSBkNSAwMCAwMApFOiA2LjA3NjE0MiAxMCAwNCAwYiAwZSAwMSA3NiAwMCBiOSBk
+NSAwMCAwMApFOiA2LjA4MDE0MiAxMCAwNCAwMyAxNSAwMiBiNiAwMCAwNCBkNiAwMyAwMApFOiA2
+LjA4NDE0NCAxMCAwNCAwNyA1ZCAwMCAzZSAwMSAwNCBkNiAwMCAwMApFOiA2LjA4ODE0MyAxMCAw
+NCAwYiAwNyAwMSA3OCAwMCAwNCBkNiAwMCAwMApFOiA2LjA5MjE0MiAxMCAwNCAwMyAwMCAwMiBi
+YyAwMCA0YSBkNiAwMyAwMApFOiA2LjA5NjE0MyAxMCAwNCAwNyA1ZCAwMCAzZSAwMSA0YSBkNiAw
+MCAwMApFOiA2LjEwMDE0MiAxMCAwNCAwYiBmMSAwMCA3ZiAwMCA0YSBkNiAwMCAwMApFOiA2LjEw
+NDE0MSAxMCAwNCAwMyBmZiAwMSBiZCAwMCA5YSBkNiAwMyAwMApFOiA2LjEwODE0MCAxMCAwNCAw
+NyA1ZCAwMCAzZSAwMSA5YSBkNiAwMCAwMApFOiA2LjExMjE0MiAxMCAwNCAwYiBmMCAwMCA4MCAw
+MCA5YSBkNiAwMCAwMApFOiA2LjExNjEzOSAxMCAwNCAwMyBmNSAwMSBjMyAwMCBhNCBkNiAwMyAw
+MApFOiA2LjEyMDE0MCAxMCAwNCAwNSA1ZCAwMCAzZSAwMSBhNCBkNiAwMCAwMApFOiA2LjEyNDE0
+MSAxMCAwNCAwOSBmMCAwMCA4MCAwMCBhNCBkNiAwMCAwMApFOiA2LjEyODEyNiAxMCAwNCAwMyBm
+MSAwMSBjNSAwMCBmNCBkNiAwMSAwMApFOiA2LjEzMjE0NCAxMCAwNCAwMSBmMSAwMSBjNSAwMCA3
+NiBkNyAwMSAwMApFOiA2LjQ2NDE1NSAxMiAwMSAwMCA3MiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMApFOiA2LjQ2NzczMyAxMCAwNCAwMyA5NiAwMCBmZiAwMSA3OCBlZSAwMSAwMQpFOiA2LjQ3
+MjI3MiAxMCAwNCAwMyA5NiAwMCBmZiAwMSBiZSBlZSAwMSAwMQpFOiA2LjQ3NjI2OCAxMCAwNCAw
+MyA5NiAwMCBmZiAwMSAwNCBlZiAwMSAwMQpFOiA2LjQ4MDMwNSAxMCAwNCAwMyA5NiAwMCBmZiAw
+MSA0YSBlZiAwMSAwMQpFOiA2LjQ4NDEwMyAxMiAwMSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMApFOiA2LjQ4NzY1NCAxMCAwNCAwMyA5NiAwMCBmZiAwMSA5MCBlZiAwMSAwMQpFOiA2
+LjQ5MTk0OCAxMCAwNCAwMyA5NiAwMCBmZiAwMSBkNiBlZiAwMSAwMQpFOiA2LjQ5OTk2NCAxMCAw
+NCAwMyA5NiAwMCBmZiAwMSAxYyBmMCAwMSAwMQpFOiA2LjUwODEyMCAxMCAwNCAwMyA5NiAwMCBm
+ZiAwMSA2MiBmMCAwMSAwMQpFOiA2LjUxMjEzMyAxMCAwNCAwMyA5NiAwMCBmZiAwMSBhOCBmMCAw
+MSAwMQpFOiA2LjUyMDEzMyAxMCAwNCAwMyA5NiAwMCBmZiAwMSBlZSBmMCAwMSAwMQpFOiA2LjUy
+ODEyNSAxMCAwNCAwMyA5NiAwMCBmZiAwMSAzNCBmMSAwMSAwMQpFOiA2LjUzNjEzNCAxMCAwNCAw
+MyA5NiAwMCBmZiAwMSA1YyBmMSAwMSAwMQpFOiA2LjU0NDExOCAxMCAwNCAwMyA5NiAwMCBmZiAw
+MSBhMiBmMSAwMSAwMQpFOiA2LjU0ODEzMCAxMCAwNCAwMyA5NiAwMCBmZiAwMSBkZSBmMSAwMSAw
+MQpFOiA2LjU1MTk2OSAxMCAwNCAwMyA5NiAwMCBmZiAwMSAyZSBmMiAwMSAwMQpFOiA2LjU2ODEy
+MCAxMCAwNCAwMyA5NiAwMCBmZiAwMSA3NCBmMiAwMSAwMQpFOiA2LjU3MjEyMSAxMCAwNCAwMyA5
+NiAwMCBmZiAwMSBjNCBmMiAwMSAwMQpFOiA2LjU4MDExOCAxMCAwNCAwMyA5NiAwMCBmZiAwMSAw
+YSBmMyAwMSAwMQpFOiA2LjU4NDI4NiAxMCAwNCAwMyA5NiAwMCBmZiAwMSAyOCBmMyAwMSAwMQpF
+OiA2LjU5MjE5MyAxMCAwNCAwMyA5NiAwMCBmZiAwMSA2ZSBmMyAwMSAwMQpFOiA2LjU5NjIzMyAx
+MCAwNCAwMyA5NiAwMCBmZiAwMSA3OCBmMyAwMSAwMQpFOiA2LjYwMDEyMSAxMCAwNCAwMyA5NiAw
+MCBmZiAwMSBiZSBmMyAwMSAwMQpFOiA2LjYwNDEyNyAxMCAwNCAwMyA5NiAwMCBmZiAwMSAxOCBm
+NCAwMSAwMQpFOiA2LjYwODExOCAxMCAwNCAwMyA5NiAwMCBmZiAwMSA2OCBmNCAwMSAwMQpFOiA2
+LjYzMjExOSAxMCAwNCAwMyA5NiAwMCBmZiAwMSBhZSBmNCAwMSAwMQpFOiA2LjYzNjExNiAxMCAw
+NCAwMyA5NiAwMCBmZiAwMSBmNCBmNCAwMSAwMQpFOiA2LjY0MDExNiAxMCAwNCAwMyA5NiAwMCBm
+ZiAwMSAxYyBmNSAwMSAwMQpFOiA2LjY0NDExNiAxMCAwNCAwMyA5NiAwMCBmZiAwMSA2MiBmNSAw
+MSAwMQpFOiA2LjY0ODExNyAxMCAwNCAwMyA5NiAwMCBmZiAwMSA4MCBmNSAwMSAwMQpFOiA2LjY1
+MjExOCAxMCAwNCAwMyA5NiAwMCBmZiAwMSBjNiBmNSAwMSAwMQpFOiA2LjY1NjExNSAxMCAwNCAw
+MyA5NiAwMCBmZiAwMSBmOCBmNSAwMSAwMQpFOiA2LjY3MjExNSAxMCAwNCAwMyA5NiAwMCBmZiAw
+MSAzZSBmNiAwMSAwMQpFOiA2LjY3NjExNCAxMCAwNCAwMyA5NiAwMCBmZiAwMSA4NCBmNiAwMSAw
+MQpFOiA2LjY4MDExNSAxMCAwNCAwMyA5NiAwMCBmZiAwMSBhYyBmNiAwMSAwMQpFOiA2LjY4ODEx
+MyAxMCAwNCAwMyA5NiAwMCBmZiAwMSBmMiBmNiAwMSAwMQpFOiA2LjY5MjExNCAxMCAwNCAwMyA5
+NiAwMCBmZiAwMSAzOCBmNyAwMSAwMQpFOiA2LjY5NjExNCAxMCAwNCAwMyA5NiAwMCBmZiAwMSA3
+ZSBmNyAwMSAwMQpFOiA2LjcwMDExNCAxMCAwNCAwMyA5NiAwMCBmZiAwMSBjNCBmNyAwMSAwMQpF
+OiA2LjcwNDExMyAxMCAwNCAwMyA5NiAwMCBmZiAwMSAwYSBmOCAwMSAwMQpFOiA2LjcwODExNCAx
+MCAwNCAwMyA5NiAwMCBmZiAwMSA1MCBmOCAwMSAwMQpFOiA2LjcxNjExMiAxMCAwNCAwMyA5NiAw
+MCBmZiAwMSA5NiBmOCAwMSAwMQpFOiA2LjcyNDExMCAxMCAwNCAwMyA5NiAwMCBmZiAwMSBkYyBm
+OCAwMSAwMQpFOiA2LjczMjE0OCAxMCAwNCAwMyA5NiAwMCBmZiAwMSAyMiBmOSAwMSAwMQpFOiA2
+LjczNjExMiAxMCAwNCAwMyA5NiAwMCBmZiAwMSA2OCBmOSAwMSAwMQpFOiA2Ljc1MjExMCAxMCAw
+NCAwMyA5NiAwMCBmZiAwMSBhZSBmOSAwMSAwMQpFOiA2Ljc1NjExMiAxMCAwNCAwMyA5NiAwMCBm
+ZiAwMSBjMiBmOSAwMSAwMQpFOiA2Ljc3NjExMiAxMCAwNCAwMSA5NiAwMCBmZiAwMSAwOCBmYSAw
+MSAwMApFOiA3LjI3MjI2NyAxMiAwMSAwMCA3MiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApF
+OiA3LjI3NjE4OSAxMCAwNCAwMyA3MCAwMyBmZiAwMSA0ZSAwZSAwMSAwMQpFOiA3LjI4MDIxNyAx
+MCAwNCAwMyA3MCAwMyBmZiAwMSA5NCAwZSAwMSAwMQpFOiA3LjI4NDIyMSAxMCAwNCAwMyA3MCAw
+MyBmZiAwMSBkYSAwZSAwMSAwMQpFOiA3LjI5MjA3MiAxMiAwMSAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMApFOiA3LjI5NjMwNiAxMCAwNCAwMyA3MCAwMyBmZiAwMSAyMCAwZiAwMSAw
+MQpFOiA3LjMwMDEyMSAxMCAwNCAwMyA3MCAwMyBmZiAwMSA2NiAwZiAwMSAwMQpFOiA3LjMwODA4
+MCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBhYyAwZiAwMSAwMQpFOiA3LjMxMjIzNCAxMCAwNCAwMyA3
+MCAwMyBmZiAwMSBmMiAwZiAwMSAwMQpFOiA3LjMyMDA5NyAxMCAwNCAwMyA3MCAwMyBmZiAwMSAz
+OCAxMCAwMSAwMQpFOiA3LjMyODA3OCAxMCAwNCAwMyA3MCAwMyBmZiAwMSA3ZSAxMCAwMSAwMQpF
+OiA3LjMzNjA5MiAxMCAwNCAwMyA3MCAwMyBmZiAwMSBjNCAxMCAwMSAwMQpFOiA3LjM0MDA4MiAx
+MCAwNCAwMyA3MCAwMyBmZiAwMSAwYSAxMSAwMSAwMQpFOiA3LjM0ODE0OCAxMCAwNCAwMyA3MCAw
+MyBmZiAwMSA1MCAxMSAwMSAwMQpFOiA3LjM1NjA4MSAxMCAwNCAwMyA3MCAwMyBmZiAwMSA5NiAx
+MSAwMSAwMQpFOiA3LjM2NDEzMCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBkYyAxMSAwMSAwMQpFOiA3
+LjM2ODA4MyAxMCAwNCAwMyA3MCAwMyBmZiAwMSAyMiAxMiAwMSAwMQpFOiA3LjM3NjA3NiAxMCAw
+NCAwMyA3MCAwMyBmZiAwMSA2OCAxMiAwMSAwMQpFOiA3LjM4MzcyMiAxMCAwNCAwMyA3MCAwMyBm
+ZiAwMSBhZSAxMiAwMSAwMQpFOiA3LjM5MjAzMyAxMCAwNCAwMyA3MCAwMyBmZiAwMSBmNCAxMiAw
+MSAwMQpFOiA3LjM5NTk1MSAxMCAwNCAwMyA3MCAwMyBmZiAwMSAzYSAxMyAwMSAwMQpFOiA3LjQw
+MzgwNiAxMCAwNCAwMyA3MCAwMyBmZiAwMSA4MCAxMyAwMSAwMQpFOiA3LjQxMTc4MiAxMCAwNCAw
+MyA3MCAwMyBmZiAwMSBjNiAxMyAwMSAwMQpFOiA3LjQxOTc4MCAxMCAwNCAwMyA3MCAwMyBmZiAw
+MSAwYyAxNCAwMSAwMQpFOiA3LjQyMzc1MiAxMCAwNCAwMyA3MCAwMyBmZiAwMSA1MiAxNCAwMSAw
+MQpFOiA3LjQzMTYxMyAxMCAwNCAwMyA3MCAwMyBmZiAwMSA5OCAxNCAwMSAwMQpFOiA3LjQzOTYy
+NiAxMCAwNCAwMyA3MCAwMyBmZiAwMSBkZSAxNCAwMSAwMQpFOiA3LjQ0NzU2NCAxMCAwNCAwMyA3
+MCAwMyBmZiAwMSAyNCAxNSAwMSAwMQpFOiA3LjQ1MTczMyAxMCAwNCAwMyA3MCAwMyBmZiAwMSA2
+YSAxNSAwMSAwMQpFOiA3LjQ1OTY2NCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBiMCAxNSAwMSAwMQpF
+OiA3LjQ2NzczMCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBmNiAxNSAwMSAwMQpFOiA3LjQ3NTYxOSAx
+MCAwNCAwMyA3MCAwMyBmZiAwMSAzYyAxNiAwMSAwMQpFOiA3LjQ3OTYxMyAxMCAwNCAwMyA3MCAw
+MyBmZiAwMSA4MiAxNiAwMSAwMQpFOiA3LjQ4NzU4NyAxMCAwNCAwMyA3MCAwMyBmZiAwMSBjOCAx
+NiAwMSAwMQpFOiA3LjQ5NTczOCAxMCAwNCAwMyA3MCAwMyBmZiAwMSAwZSAxNyAwMSAwMQpFOiA3
+LjUwMzYzNCAxMCAwNCAwMyA3MCAwMyBmZiAwMSA1NCAxNyAwMSAwMQpFOiA3LjUwNzYzOSAxMCAw
+NCAwMyA3MCAwMyBmZiAwMSA5YSAxNyAwMSAwMQpFOiA3LjUxNTY0NiAxMCAwNCAwMyA3MCAwMyBm
+ZiAwMSBlMCAxNyAwMSAwMQpFOiA3LjUyMzYzMyAxMCAwNCAwMyA3MCAwMyBmZiAwMSAyNiAxOCAw
+MSAwMQpFOiA3LjUzMTYzNSAxMCAwNCAwMyA3MCAwMyBmZiAwMSA2YyAxOCAwMSAwMQpFOiA3LjUz
+NTYwNCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBiMiAxOCAwMSAwMQpFOiA3LjU0MzYyOSAxMCAwNCAw
+MyA3MCAwMyBmZiAwMSBmOCAxOCAwMSAwMQpFOiA3LjU1MTYxMCAxMCAwNCAwMyA3MCAwMyBmZiAw
+MSAzZSAxOSAwMSAwMQpFOiA3LjU1OTU1NSAxMCAwNCAwMyA3MCAwMyBmZiAwMSA4NCAxOSAwMSAw
+MQpFOiA3LjU2MzY4NCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBjYSAxOSAwMSAwMQpFOiA3LjU3MTY3
+NyAxMCAwNCAwMyA3MCAwMyBmZiAwMSAxMCAxYSAwMSAwMQpFOiA3LjU3OTY0MCAxMCAwNCAwMyA3
+MCAwMyBmZiAwMSA1NiAxYSAwMSAwMQpFOiA3LjU4Nzc5NiAxMCAwNCAwMyA3MCAwMyBmZiAwMSA5
+YyAxYSAwMSAwMQpFOiA3LjU5NTY1MiAxMCAwNCAwMyA3MCAwMyBmZiAwMSBlMiAxYSAwMSAwMQpF
+OiA3LjU5OTYyOSAxMCAwNCAwMyA3MCAwMyBmZiAwMSAyOCAxYiAwMSAwMQpFOiA3LjYwNzY0NCAx
+MCAwNCAwMyA3MCAwMyBmZiAwMSA2ZSAxYiAwMSAwMQpFOiA3LjYxNTc5OSAxMCAwNCAwMyA3MCAw
+MyBmZiAwMSBiNCAxYiAwMSAwMQpFOiA3LjYyMzgwNSAxMCAwNCAwMyA3MCAwMyBmZiAwMSBmYSAx
+YiAwMSAwMQpFOiA3LjYyNzc4MCAxMCAwNCAwMyA3MCAwMyBmZiAwMSA0MCAxYyAwMSAwMQpFOiA3
+LjYzNTc3NiAxMCAwNCAwMyA3MCAwMyBmZiAwMSA4NiAxYyAwMSAwMQpFOiA3LjY0Mzc3OSAxMCAw
+NCAwMyA3MCAwMyBmZiAwMSBjYyAxYyAwMSAwMQpFOiA3LjY1MTc3OCAxMCAwNCAwMyA3MCAwMyBm
+ZiAwMSAxMiAxZCAwMSAwMQpFOiA3LjY1NTc4MSAxMCAwNCAwMyA3MCAwMyBmZiAwMSA1OCAxZCAw
+MSAwMQpFOiA3LjY2Mzc3OCAxMCAwNCAwMyA3MCAwMyBmZiAwMSA5ZSAxZCAwMSAwMQpFOiA3LjY3
+MTc3NiAxMCAwNCAwMyA3MCAwMyBmZiAwMSBlNCAxZCAwMSAwMQpFOiA3LjY3OTc4MSAxMCAwNCAw
+MyA3MCAwMyBmZiAwMSAyYSAxZSAwMSAwMQpFOiA3LjY4Mzc4MSAxMCAwNCAwMyA3MCAwMyBmZiAw
+MSA3MCAxZSAwMSAwMQpFOiA3LjY5MTc3OSAxMCAwNCAwMyA3MCAwMyBmZiAwMSBiNiAxZSAwMSAw
+MQpFOiA3LjY5OTc3OCAxMCAwNCAwMyA3MCAwMyBmZiAwMSBmYyAxZSAwMSAwMQpFOiA3LjcwNzc3
+OCAxMCAwNCAwMyA3MCAwMyBmZiAwMSA0MiAxZiAwMSAwMQpFOiA3LjcxMTcyMCAxMCAwNCAwMSA3
+MCAwMyBmZiAwMSA4OCAxZiAwMSAwMApFOiA4LjMwODIwNSAxMiAwMSAwMSAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMCAwMApFOiA4LjQ4ODA1MCAxMiAwMSAwMSAwNiAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMAo=
+--f46d043894cfd05f0704f5e9e931--

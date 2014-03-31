@@ -1,65 +1,71 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH] Input: pmic8xxx-pwrkey - Set sane default for debounce
- time
-Date: Mon, 31 Mar 2014 11:48:37 -0700
-Message-ID: <5339B885.5070802@codeaurora.org>
-References: <1396289664-31893-1-git-send-email-sboyd@codeaurora.org> <20140331182342.GD28265@joshc.qualcomm.com>
+From: andrea <mariofutire@gmail.com>
+Subject: Re: [PATCH v3 2/8] HID: sony: Set the quriks flag for Bluetooth controllers
+Date: Mon, 31 Mar 2014 20:14:55 +0100
+Message-ID: <5339BEAF.20409@googlemail.com>
+References: <1394890882-2039-1-git-send-email-frank.praznik@oh.rr.com> <1394890882-2039-3-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:42521 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753277AbaCaSsj (ORCPT
+Received: from mail-we0-f176.google.com ([74.125.82.176]:55632 "EHLO
+	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753999AbaCaTPA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Mar 2014 14:48:39 -0400
-In-Reply-To: <20140331182342.GD28265@joshc.qualcomm.com>
+	Mon, 31 Mar 2014 15:15:00 -0400
+Received: by mail-we0-f176.google.com with SMTP id x48so5297306wes.35
+        for <linux-input@vger.kernel.org>; Mon, 31 Mar 2014 12:14:59 -0700 (PDT)
+In-Reply-To: <1394890882-2039-3-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Josh Cartwright <joshc@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+To: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org
+Cc: jkosina@suse.cz
 
-On 03/31/14 11:23, Josh Cartwright wrote:
-> On Mon, Mar 31, 2014 at 11:14:24AM -0700, Stephen Boyd wrote:
->> If the debounce time is 0 our usage of ilog2() later on in this
->> driver will cause undefined behavior. If CONFIG_OF=n this fact is
->> evident to the compiler, and it emits a call to ____ilog2_NaN()
->> which doesn't exist. Fix this by setting a sane default for
->> debounce.
->>
->> Reported-by: Arnd Bergmann <arnd@arndb.de>
->> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
->> ---
->>  drivers/input/misc/pmic8xxx-pwrkey.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
->> index 1cb8fda7a166..27add04676e1 100644
->> --- a/drivers/input/misc/pmic8xxx-pwrkey.c
->> +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
->> @@ -92,7 +92,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
->>  	bool pull_up;
->>  
->>  	if (of_property_read_u32(pdev->dev.of_node, "debounce", &kpd_delay))
->> -		kpd_delay = 0;
->> +		kpd_delay = 15625;
-> Should "debounce" even be optional?  I'm wondering if we should just
-> make it required...
+On 15/03/14 13:41, Frank Praznik wrote:
+> The Sixaxis and DualShock 4 want HID output reports sent on the control
+> endpoint when connected via Bluetooth.  Set the
+> HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP flag for these devices so hidraw write()
+> works properly.
+> 
+> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+> ---
+>  drivers/hid/hid-sony.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 4c445a0..908de27 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -1632,11 +1632,21 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		sc->worker_initialized = 1;
+>  		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+>  	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
+> +		/*
+> +		 * The Sixaxis wants output reports sent on the ctrl endpoint
+> +		 * when connected via Bluetooth.
+> +		 */
+> +		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+>  		ret = sixaxis_set_operational_bt(hdev);
+>  		sc->worker_initialized = 1;
+>  		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+>  	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+>  		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+> +			/*
+> +			 * The DualShock 4 wants output reports sent on the ctrl
+> +			 * endpoint when connected via Bluetooth.
+> +			 */
+> +			hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+>  			ret = dualshock4_set_operational_bt(hdev);
+>  			if (ret < 0) {
+>  				hid_err(hdev, "failed to set the Dualshock 4 operational mode\n");
+> 
 
-Hmm maybe. It's not like things won't work without it set though.
+I am simply a user of a Sixaxis via Bluetooth and it would be super to have this patch applied and
+merged in 3.15
+We always need to modify the BT stack in the vanilla kernel using an old hack Frank proposed.
 
->
-> At the very least this default value should be documented in the DT
-> binding.
->
+This would make things a lot simpler and less painful.
 
-I never understood this. The default value is something that is entirely
-software driven. It could change at any time. If DT implementers aren't
-specifying it they're saying "I don't care what the value is, let the
-driver decide if they care". They're not saying, "Oh, that default value
-in the binding is good enough for me so I don't need to specify this".
+I don't know about the other 7, but this one would get my vote (if I had one...)
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+Andrea
 

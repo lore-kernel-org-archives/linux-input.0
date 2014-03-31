@@ -1,333 +1,148 @@
-From: Rob Mosher <nyt@countercultured.net>
-Subject: Re: ti_am33x_adc sampling bugs
-Date: Mon, 31 Mar 2014 17:03:12 -0400
-Message-ID: <5339D810.2030400@countercultured.net>
-References: <53379DF2.7050004@rznt.com> <5337B3F4.30500@countercultured.net> <CAExKytzRv4CT9zTor=-fc5Mfv+xG9uTjQP=LWosVnhEHsa9Y0A@mail.gmail.com> <5338E95F.50204@countercultured.net> <533924B1.5030406@countercultured.net> <d8950cff-fd37-46bb-b438-d42f15851602@email.android.com> <53399C3A.9040007@countercultured.net> <ab74c908-a1d0-417c-836b-8d4b093a942b@email.android.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH v2 3/3] Input: synaptics-rmi4 - report sensor resolution
+Date: Mon, 31 Mar 2014 14:11:07 -0700
+Message-ID: <1396300267-5108-3-git-send-email-cheiny@synaptics.com>
+References: <1396300267-5108-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from countercultured.net ([209.51.175.25]:45626 "HELO
-	countercultured.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751223AbaCaVDQ (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:42348 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751035AbaCaVLR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Mar 2014 17:03:16 -0400
-In-Reply-To: <ab74c908-a1d0-417c-836b-8d4b093a942b@email.android.com>
+	Mon, 31 Mar 2014 17:11:17 -0400
+In-Reply-To: <1396300267-5108-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>, Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, robertcnelson@gmail.com, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-I'm not quite aware of what's in mainline or not, this list was CC'd by 
-Zubair Lutfullah who authored the patches in question.  Hopefully he can 
-provide more insight or a possible fix.
+Reports the sensor resolution by reading the size of the sensor
+from F11 query registers or from the platform data if the firmware
+does not contain the appropriate query registers.
 
-0019-iio-ti_am335x_adc-Add-continuous-sampling-and-trigge.patch
-Subject: [PATCH 19/21] iio: ti_am335x_adc: Add continuous sampling and
-  trigger support
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Acked-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Linux Walleij <linus.walleij@linaro.org>
+Cc: David Herrmann <dh.herrmann@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-Previously the driver had only one-shot reading functionality.
-This patch adds triggered buffer support to the driver.
-A buffer of samples can now be read via /dev/iio.
+---
+ drivers/input/rmi4/rmi_f11.c | 43 ++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/rmi.h          |  2 ++
+ 2 files changed, 44 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index ee47b7e..9c682f0 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -408,6 +408,10 @@ struct f11_2d_sensor_queries {
+ 	u8 clickpad_props;
+ 	u8 mouse_buttons;
+ 	bool has_advanced_gestures;
++
++	/* Query 15 - 18 */
++	u16 x_sensor_size_mm;
++	u16 y_sensor_size_mm;
+ };
+ 
+ /* Defs for Ctrl0. */
+@@ -518,6 +522,8 @@ struct f11_2d_sensor {
+ 	char input_phys[NAME_BUFFER_SIZE];
+ 	u8 report_abs;
+ 	u8 report_rel;
++	u8 x_mm;
++	u8 y_mm;
+ };
+ 
+ /** Data pertaining to F11 in general.  For per-sensor data, see struct
+@@ -1064,7 +1070,7 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+ 		query_size++;
+ 	}
+ 
+-	if (f11->has_query12 && sensor_query->has_info2) {
++	if (sensor_query->has_info2) {
+ 		rc = rmi_read(rmi_dev, query_base_addr + query_size, query_buf);
+ 		if (rc < 0)
+ 			return rc;
+@@ -1085,6 +1091,20 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
+ 		query_size++;
+ 	}
+ 
++	if (sensor_query->has_physical_props) {
++		rc = rmi_read_block(rmi_dev, query_base_addr
++			+ query_size, query_buf, 4);
++		if (rc < 0)
++			return rc;
++
++		sensor_query->x_sensor_size_mm =
++			(query_buf[0] | (query_buf[1] << 8)) / 10;
++		sensor_query->y_sensor_size_mm =
++			(query_buf[2] | (query_buf[3] << 8)) / 10;
++
++		query_size += 4;
++	}
++
+ 	return query_size;
+ }
+ 
+@@ -1106,6 +1126,7 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+ 			((f11->dev_controls.ctrl0_9[9] & 0x0F) << 8);
+ 	u16 x_min, x_max, y_min, y_max;
+ 	unsigned int input_flags;
++	int res_x, res_y;
+ 
+ 	/* We assume touchscreen unless demonstrably a touchpad or specified
+ 	 * as a touchpad in the platform data
+@@ -1156,6 +1177,18 @@ static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
+ 			x_min, x_max, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y,
+ 			y_min, y_max, 0, 0);
++
++	if (sensor->x_mm && sensor->y_mm) {
++		res_x = (x_max - x_min) / sensor->x_mm;
++		res_y = (y_max - y_min) / sensor->y_mm;
++
++		input_abs_set_res(input, ABS_X, res_x);
++		input_abs_set_res(input, ABS_Y, res_y);
++
++		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
++		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
++	}
++
+ 	if (!sensor->type_a)
+ 		input_mt_init_slots(input, sensor->nbr_fingers, input_flags);
+ 	if (IS_ENABLED(CONFIG_RMI4_F11_PEN) && sensor->sens_query.has_pen)
+@@ -1252,6 +1285,14 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+ 			pdata->f11_sensor_data->axis_align;
+ 		sensor->type_a = pdata->f11_sensor_data->type_a;
+ 
++		if (sensor->sens_query.has_physical_props) {
++			sensor->x_mm = sensor->sens_query.x_sensor_size_mm;
++			sensor->y_mm = sensor->sens_query.y_sensor_size_mm;
++		} else if (pdata->f11_sensor_data) {
++			sensor->x_mm = pdata->f11_sensor_data->x_mm;
++			sensor->y_mm = pdata->f11_sensor_data->y_mm;
++		}
++
+ 		if (sensor->sensor_type == rmi_f11_sensor_default)
+ 			sensor->sensor_type =
+ 				pdata->f11_sensor_data->sensor_type;
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index 164b813..ca35b2f 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -95,6 +95,8 @@ struct rmi_f11_sensor_data {
+ 	struct rmi_f11_2d_axis_alignment axis_align;
+ 	bool type_a;
+ 	enum rmi_f11_sensor_type sensor_type;
++	int x_mm;
++	int y_mm;
+ 	int disable_report_mask;
+ };
+ 
+-- 
+1.8.3.2
 
-On 3/31/2014 4:59 PM, Jonathan Cameron wrote:
->
->
-> On March 31, 2014 5:47:54 PM GMT+01:00, Rob Mosher <nyt@countercultured.net> wrote:
->> I believe the AIN files came from
->> 0020-iio-ti_am335x_adc-Add-IIO-map-interface.patch.
->
-> Ouch that is an 'unusual' patch... No more recent patches in mainline appear related to what you are seeing unfortunately.
->
->
->
->> The bug is the
->> same
->> reading from in_voltageX_raw files.
->>
->> On 3/31/2014 12:14 PM, Jonathan Cameron wrote:
->>>
->>>
->>> On March 31, 2014 9:17:53 AM GMT+01:00, Rob Mosher
->> <nyt@countercultured.net> wrote:
->>>> The following patches were removed and behavior returned to normal.
->>>>
->>>> 0019-iio-ti_am335x_adc-Add-continuous-sampling-and-trigge.patch
->>>> 0020-iio-ti_am335x_adc-Add-IIO-map-interface.patch
->>>>
->>>> Once 19 was re-applied, the bug returned.
->>>>
->>>> It would appear that patch19 is the problem.  On an unrelated note,
->> the
->>>>
->>>> continuous sampling patch seems to still be missing the mode file to
->>>> tell it to sample continuously or oneshot in the sysfs directory as
->>>> referenced at
->>>> http://processors.wiki.ti.com/index.php/AM335x_ADC_Driver%27s_Guide.
->>> Someone should update that wiki page.
->>> Such an attribute was not and will not be
->>>    part of the mainline kernel ABI. Drivers can play fast and loose in
->> staging but to move
->>>    out the ABI must conform to existing definitions or be proposed
->> reviewed and accepted.
->>>
->>> I am somewhat confused. Where did the AIN sysfs attributes come from?
->>>
->>>> Maybe this should be moved to the beta kernel until stable?
->>>
->>>>
->>>> Cheers.
->>>>
->>>> On 3/31/2014 12:04 AM, Rob Mosher wrote:
->>>>> (sorry for the duplicate, got bounces due to HTML encoding)
->>>>>
->>>>> The specified patch is already included.  The system was running
->> the
->>>>> latest kernel from Robert Nelson's repo.  Any suggestions?  I'll
->> try
->>>>> removing some of the patches to see if it fixes this behavior.  I
->>>> have a
->>>>> feeling I know which one is doing it.
->>>>>
->>>>> Thanks.
->>>>>
->>>>> output from running patch.sh with source pulled from
->>>>> https://github.com/beagleboard/kernel/tree/3.8
->>>>>
->>>>>
->>>>
->> /home/bbuild/comp/kernel/patches/adc/0017-IIO-ADC-ti_adc-Fix-1st-sample-read.patch:
->>>>> applied
->>>>>
->>>>> Just in case, I built and installed the kernel and the same
->> behavior
->>>>> persisted.
->>>>>
->>>>> root@rbone:/# uname -a
->>>>> Linux rbone 3.8.13-00737-g7dfad77 #1 SMP Sun Mar 30 22:11:44 EDT
->> 2014
->>>>> armv7l GNU/Linux
->>>>>
->>>>> gpio30 is connected to AIN4 using a voltage divider
->>>>>
->>>>> root@rbone:/# cd /sys/class/gpio/
->>>>> root@rbone:/sys/class/gpio# echo 30 > export
->>>>> root@rbone:/sys/class/gpio# echo BB-ADC >
->>>> /sys/devices/bone_capemgr.9/slots
->>>>> root@rbone:/sys/class/gpio# cd /sys/devices/ocp.3/helper.11/
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# echo out >
->>>>> /sys/class/gpio/gpio30/direction
->>>>>
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# echo 1 >
->>>>> /sys/class/gpio/gpio30/value
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 1460
->>>>>
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# echo 0 >
->>>>> /sys/class/gpio/gpio30/value
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>>
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# grep . AIN[0-3] AIN[5-7]
->>>>> AIN0:1550
->>>>> AIN1:1213
->>>>> AIN2:1485
->>>>> AIN3:795
->>>>> AIN5:513
->>>>> AIN6:744
->>>>> AIN7:1698
->>>>>
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# echo 1 >
->>>>> /sys/class/gpio/gpio30/value
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 0
->>>>> root@rbone:/sys/devices/ocp.3/helper.11# cat AIN4
->>>>> 1460
->>>>>
->>>>> On 3/30/2014 9:16 AM, Zubair Lutfullah wrote:
->>>>>>
->>>>
->> https://github.com/beagleboard/kernel/blob/3.8/patches/adc/0017-IIO-ADC-ti_adc-Fix-1st-sample-read.patch
->>>>>>
->>>>>> IIRC, this patch fixes this issue
->>>>>>
->>>>>> Can you compile the kernel from the sources and check?
->>>>>> https://github.com/beagleboard/kernel/tree/3.8
->>>>>>
->>>>>> Regards
->>>>>> ZubairLK
->>>>>>
->>>>>> On Sun, Mar 30, 2014 at 7:04 AM, Rob Mosher
->> <nyt@countercultured.net
->>>>>> <mailto:nyt@countercultured.net>> wrote:
->>>>>>
->>>>>>       Just a note, the same behavior persists with BB-ADC dtb and
->>>>>>       reading from in_voltage4_raw
->>>>>>
->>>>>>
->>>>>>       On 3/30/2014 12:30 AM, Rob Mosher wrote:
->>>>>>
->>>>>>           Hello fine developers,
->>>>>>
->>>>>>           It seems I've stumbled upon a problem while developing a
->>>> full
->>>>>>           featured Ruby gem for the Beaglebone.
->>>>>>
->>>>>>           It seems a patch included in the beaglebone kernel causes
->>>> some
->>>>>>           issues while reading analog inputs.  Apparently the
->> samples
->>>>>>           get backlogged by the number of adc pins in use.  I'm not
->>>> sure
->>>>>>           which patch exactly as there are a number that affect adc
->>>>>>           buffering and I'm not currently setup for kernel
->> building,
->>>>>>           however the below output should detail the problem.
->>>>>>
->>>>>>           Using the official Debian image.
->>>>>>           Linux rbone 3.8.13-bone43 #1 SMP Wed Mar 26 14:21:39 UTC
->>>> 2014
->>>>>>           armv7l GNU/Linux
->>>>>>
->>>>>>           Distributor ID: Debian
->>>>>>           Description:    Debian GNU/Linux 7.4 (wheezy)
->>>>>>           Release:        7.4
->>>>>>           Codename:       wheezy
->>>>>>
->>>>>>           root@rbone:~# echo cape-bone-iio >
->>>>>>           /sys/devices/bone_capemgr.9/slots
->>>>>>
->>>>>>           This is the normal and expected behavior.
->>>>>>
->>>>>>           1.8v applied to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>
->>>>>>           0v applied to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>
->>>>>>           1.8v applied to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>
->>>>>>           0v applied to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>
->>>>>>           So far working as intended....  Now reading from the
->> other
->>>> pins.
->>>>>>
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# grep . AIN[0-3]
->>>> AIN[5-7]
->>>>>>           AIN0:1563
->>>>>>           AIN1:1221
->>>>>>           AIN2:1487
->>>>>>           AIN3:789
->>>>>>           AIN5:514
->>>>>>           AIN6:743
->>>>>>           AIN7:1698
->>>>>>
->>>>>>           Now applying 1.8v to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>
->>>>>>           Now applying 0v to AIN4
->>>>>>
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>
->>>>>>
->>>>>>
->>>>>>           And another example, showing relation to the number of
->> pins
->>>> in
->>>>>>           use.
->>>>>>
->>>>>>           1.8v to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# grep . AIN[0-3]
->>>>>>           AIN0:1697
->>>>>>           AIN1:1298
->>>>>>           AIN2:1524
->>>>>>           AIN3:816
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>
->>>>>>           0v to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1460
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>
->>>>>>           1.8v to AIN4
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           0
->>>>>>           root@rbone:/sys/devices/ocp.3/helper.12# cat AIN4
->>>>>>           1798
->>>>>>
->>>>>>           --         Rob Mosher
->>>>>>           Senior Network and Software Engineer
->>>>>>           Hurricane Electric / AS6939
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>
->>>> --
->>>> To unsubscribe from this list: send the line "unsubscribe linux-iio"
->> in
->>>> the body of a message to majordomo@vger.kernel.org
->>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>
->

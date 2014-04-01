@@ -1,75 +1,44 @@
-From: Wan ZongShun <mcuos.com@gmail.com>
-Subject: Re: [PATCH] Input: w90p910_ts - depend on ARCH_W90X900
-Date: Tue, 1 Apr 2014 21:17:03 +0800
-Message-ID: <CAKT61h__8fuJDs94akU73grWns82+mk1vmSdQw5fwd1Cx-455g@mail.gmail.com>
-References: <20140401142046.14d4bb8c@endymion.delvare>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2] HID: uhid: Add UHID_CREATE2 + UHID_INPUT2
+Date: Tue, 1 Apr 2014 18:30:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1404011829440.31825@pobox.suse.cz>
+References: <20140324205001.981DD100D4F@puck.mtv.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:34199 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751260AbaDANRY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Apr 2014 09:17:24 -0400
-Received: by mail-pb0-f52.google.com with SMTP id rr13so9889525pbb.11
-        for <linux-input@vger.kernel.org>; Tue, 01 Apr 2014 06:17:23 -0700 (PDT)
-In-Reply-To: <20140401142046.14d4bb8c@endymion.delvare>
+Received: from cantor2.suse.de ([195.135.220.15]:46691 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752941AbaDAQa0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Apr 2014 12:30:26 -0400
+In-Reply-To: <20140324205001.981DD100D4F@puck.mtv.corp.google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Petri Gynther <pgynther@google.com>
+Cc: linux-input@vger.kernel.org, dh.herrmann@gmail.com
 
----------- Forwarded message ----------
-=46rom: Jean Delvare <jdelvare@suse.de>
-Date: 2014-04-01 20:20 GMT+08:00
-Subject: [PATCH] Input: w90p910_ts - depend on ARCH_W90X900
-To: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-=E6=8A=84=E9=80=81=EF=BC=9A Wan ZongShun <mcuos.com@gmail.com>, Dmitry =
-Torokhov
-<dmitry.torokhov@gmail.com>
+On Mon, 24 Mar 2014, Petri Gynther wrote:
 
+> UHID_CREATE2:
+> HID report descriptor data (rd_data) is an array in struct uhid_create2_req,
+> instead of a pointer. Enables use from languages that don't support pointers,
+> e.g. Python.
+> 
+> UHID_INPUT2:
+> Data array is the last field of struct uhid_input2_req. Enables userspace to
+> write only the required bytes to kernel (ev.type + ev.u.input2.size + the part
+> of the data array that matters), instead of the entire struct uhid_input2_req.
+> 
+> Note:
+> UHID_CREATE2 increases the total size of struct uhid_event slightly, thus
+> increasing the size of messages that are queued for userspace. However, this
+> won't affect the userspace processing of these events.
+> 
+> Signed-off-by: Petri Gynther <pgynther@google.com>
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
-The w90p910_ts touchscreen driver is heavily architecture dependent,
-so there is no point in letting it be built on other architectures
-than it was written for.
+I have adjusted it slightly to accomodate the hid_get_raw_report() and 
+hid_output_raw_report() API changes and pushed it out.
 
-All other W90P910/W90X900 drivers already have that dependency, so it
-makes things more consistent and configuration easier.
-
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Wan ZongShun <mcuos.com@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-3.14-rc8.orig/drivers/input/touchscreen/Kconfig
-2014-02-09 16:53:02.945634113 +0100
-+++ linux-3.14-rc8/drivers/input/touchscreen/Kconfig    2014-04-01
-14:10:08.936933702 +0200
-@@ -867,7 +867,7 @@ config TOUCHSCREEN_TSC2007
-
- config TOUCHSCREEN_W90X900
-        tristate "W90P910 touchscreen driver"
--       depends on HAVE_CLK
-+       depends on ARCH_W90X900
-        help
-          Say Y here if you have a W90P910 based touchscreen.
-
-Sure, your idea is reasonable.
-
-Acked-by Wan Zongshun <mcuos.com@gmail.com>
-
---
-Jean Delvare
-SUSE L3 Support
-
-
---=20
-Wan ZongShun.
-www.mcuos.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

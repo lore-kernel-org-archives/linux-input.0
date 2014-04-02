@@ -1,107 +1,42 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v4 2/7] HID: sony: Use inliners for work queue initialization and cancellation
-Date: Wed,  2 Apr 2014 12:31:20 -0400
-Message-ID: <1396456285-23755-3-git-send-email-frank.praznik@oh.rr.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v4 0/7] HID: sony: More Sony controller fixes and
+ improvements.
+Date: Thu, 3 Apr 2014 00:36:32 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1404030035110.32122@pobox.suse.cz>
 References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:39381 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932257AbaDBQbw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Apr 2014 12:31:52 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:51920 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933158AbaDBWge (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Apr 2014 18:36:34 -0400
 In-Reply-To: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org
 
-Use inliners to make sure that the work queue initialization flag is always
-checked and set correctly when initializing or cancelling the work queue.
+On Wed, 2 Apr 2014, Frank Praznik wrote:
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
----
- 
- v2 doesn't set worker_initialized to 0 when cancelling work since
- cancel_work_sync doesn't actually deinitialize the work queue.
- 
- drivers/hid/hid-sony.c | 29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+> v4 of this series has been rebased against jikos/hid.git/for-linus
+> 
+> There was another bit of mismerge code duplication in for-linus that caused
+> merge conflicts with patches 3 and above in v3 of the series.
+> 
+> The first patch in v4 fixes the mismerge and the remaining patches now apply
+> cleanly.
+> 
+> Patch 1 should be queued for 3.15 as soon as possible.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 908de27..3df3306 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1578,6 +1578,20 @@ static int sony_check_add(struct sony_sc *sc)
- 	return sony_check_add_dev_list(sc);
- }
- 
-+static inline void sony_init_work(struct sony_sc *sc,
-+					void(*worker)(struct work_struct *))
-+{
-+	if (!sc->worker_initialized)
-+		INIT_WORK(&sc->state_worker, worker);
-+
-+	sc->worker_initialized = 1;
-+}
-+
-+static inline void sony_cancel_work_sync(struct sony_sc *sc)
-+{
-+	if (sc->worker_initialized)
-+		cancel_work_sync(&sc->state_worker);
-+}
- 
- static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
-@@ -1629,8 +1643,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
- 		ret = sixaxis_set_operational_usb(hdev);
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-+		sony_init_work(sc, sixaxis_state_worker);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
- 		/*
- 		 * The Sixaxis wants output reports sent on the ctrl endpoint
-@@ -1638,8 +1651,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		 */
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		ret = sixaxis_set_operational_bt(hdev);
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-+		sony_init_work(sc, sixaxis_state_worker);
- 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
- 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
- 			/*
-@@ -1661,8 +1673,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		if (ret < 0)
- 			goto err_stop;
- 
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
-+		sony_init_work(sc, dualshock4_state_worker);
- 	} else {
- 		ret = 0;
- 	}
-@@ -1707,8 +1718,7 @@ err_stop:
- 		sony_leds_remove(hdev);
- 	if (sc->quirks & SONY_BATTERY_SUPPORT)
- 		sony_battery_remove(sc);
--	if (sc->worker_initialized)
--		cancel_work_sync(&sc->state_worker);
-+	sony_cancel_work_sync(sc);
- 	sony_remove_dev_list(sc);
- 	hid_hw_stop(hdev);
- 	return ret;
-@@ -1726,8 +1736,7 @@ static void sony_remove(struct hid_device *hdev)
- 		sony_battery_remove(sc);
- 	}
- 
--	if (sc->worker_initialized)
--		cancel_work_sync(&sc->state_worker);
-+	sony_cancel_work_sync(sc);
- 
- 	sony_remove_dev_list(sc);
- 
+Hmm, you are right indeed. This conflict resolution is not something I'd 
+be proud of.
+
+Will be queuing the first patch shortly after Linus pulls, and will review 
+the rest after merge window is closed.
+
+Thanks,
+
 -- 
-1.8.3.2
-
+Jiri Kosina
+SUSE Labs

@@ -1,60 +1,24 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v4 5/7] HID: sony: Use the controller Bluetooth MAC address as the unique value in the battery name string
-Date: Wed,  2 Apr 2014 12:31:23 -0400
-Message-ID: <1396456285-23755-6-git-send-email-frank.praznik@oh.rr.com>
-References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH v4 0/7] HID: sony: More Sony controller fixes and improvements.
+Date: Wed,  2 Apr 2014 12:31:18 -0400
+Message-ID: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:39381 "EHLO
 	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932288AbaDBQby (ORCPT
+	by vger.kernel.org with ESMTP id S932233AbaDBQbw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Apr 2014 12:31:54 -0400
-In-Reply-To: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
+	Wed, 2 Apr 2014 12:31:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Use the controller Bluetooth MAC address as the unique identifier in the
-battery name string instead of the atomic integer that was used before.
+v4 of this series has been rebased against jikos/hid.git/for-linus
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
----
+There was another bit of mismerge code duplication in for-linus that caused
+merge conflicts with patches 3 and above in v3 of the series.
 
- drivers/hid/hid-sony.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+The first patch in v4 fixes the mismerge and the remaining patches now apply
+cleanly.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index a86542a..c709161 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1413,8 +1413,6 @@ static int sony_battery_get_property(struct power_supply *psy,
- 
- static int sony_battery_probe(struct sony_sc *sc)
- {
--	static atomic_t power_id_seq = ATOMIC_INIT(0);
--	unsigned long power_id;
- 	struct hid_device *hdev = sc->hdev;
- 	int ret;
- 
-@@ -1424,15 +1422,13 @@ static int sony_battery_probe(struct sony_sc *sc)
- 	 */
- 	sc->battery_capacity = 100;
- 
--	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
--
- 	sc->battery.properties = sony_battery_props;
- 	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
- 	sc->battery.get_property = sony_battery_get_property;
- 	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
- 	sc->battery.use_for_apm = 0;
--	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
--				     power_id);
-+	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%pMR",
-+				     sc->mac_address);
- 	if (!sc->battery.name)
- 		return -ENOMEM;
- 
--- 
-1.8.3.2
-
+Patch 1 should be queued for 3.15 as soon as possible.

@@ -1,42 +1,60 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v4 0/7] HID: sony: More Sony controller fixes and
- improvements.
-Date: Thu, 3 Apr 2014 00:36:32 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1404030035110.32122@pobox.suse.cz>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH v4 5/7] HID: sony: Use the controller Bluetooth MAC address as the unique value in the battery name string
+Date: Wed,  2 Apr 2014 12:31:23 -0400
+Message-ID: <1396456285-23755-6-git-send-email-frank.praznik@oh.rr.com>
 References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51920 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933158AbaDBWge (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Apr 2014 18:36:34 -0400
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:39381 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S932288AbaDBQby (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Apr 2014 12:31:54 -0400
 In-Reply-To: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Wed, 2 Apr 2014, Frank Praznik wrote:
+Use the controller Bluetooth MAC address as the unique identifier in the
+battery name string instead of the atomic integer that was used before.
 
-> v4 of this series has been rebased against jikos/hid.git/for-linus
-> 
-> There was another bit of mismerge code duplication in for-linus that caused
-> merge conflicts with patches 3 and above in v3 of the series.
-> 
-> The first patch in v4 fixes the mismerge and the remaining patches now apply
-> cleanly.
-> 
-> Patch 1 should be queued for 3.15 as soon as possible.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
 
-Hmm, you are right indeed. This conflict resolution is not something I'd 
-be proud of.
+ drivers/hid/hid-sony.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-Will be queuing the first patch shortly after Linus pulls, and will review 
-the rest after merge window is closed.
-
-Thanks,
-
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index a86542a..c709161 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1413,8 +1413,6 @@ static int sony_battery_get_property(struct power_supply *psy,
+ 
+ static int sony_battery_probe(struct sony_sc *sc)
+ {
+-	static atomic_t power_id_seq = ATOMIC_INIT(0);
+-	unsigned long power_id;
+ 	struct hid_device *hdev = sc->hdev;
+ 	int ret;
+ 
+@@ -1424,15 +1422,13 @@ static int sony_battery_probe(struct sony_sc *sc)
+ 	 */
+ 	sc->battery_capacity = 100;
+ 
+-	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
+-
+ 	sc->battery.properties = sony_battery_props;
+ 	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
+ 	sc->battery.get_property = sony_battery_get_property;
+ 	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+ 	sc->battery.use_for_apm = 0;
+-	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
+-				     power_id);
++	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%pMR",
++				     sc->mac_address);
+ 	if (!sc->battery.name)
+ 		return -ENOMEM;
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.3.2
+

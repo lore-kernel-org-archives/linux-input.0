@@ -1,46 +1,119 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch v2] Input: edt-ft5x06 - add a missing condition
-Date: Thu, 3 Apr 2014 04:37:12 +0300
-Message-ID: <20140403013712.GA28270@mwanda>
-References: <002101cf4eda$184e85b0$48eb9110$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH v4 3/7] HID: sony: Use a struct for the Sixaxis output report.
+Date: Wed,  2 Apr 2014 12:31:21 -0400
+Message-ID: <1396456285-23755-4-git-send-email-frank.praznik@oh.rr.com>
+References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:49610 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1030465AbaDCBi4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Apr 2014 21:38:56 -0400
-Content-Disposition: inline
-In-Reply-To: <002101cf4eda$184e85b0$48eb9110$%han@samsung.com>
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:39381 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S932271AbaDBQbx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Apr 2014 12:31:53 -0400
+In-Reply-To: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Fugang Duan <B38611@freescale.com>, Jingoo Han <jg1.han@samsung.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-The if condition was accidentally deleted here so we return every time
-instead of returning on error.
+Use a struct for the Sixaxis output report that uses named members to set the
+report fields.
 
-Fixes: fd335ab04b3f ('Input: edt-ft5x06 - add support for M09 firmware version')
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
-v2: removed a stray tab character
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 75b666b..9d0b324 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -291,9 +291,10 @@ static int edt_ft5x06_register_read(struct edt_ft5x06_ts_data *tsdata,
- 		wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
- 		wrbuf[1] |= tsdata->factory_mode ? 0x80 : 0x40;
+ drivers/hid/hid-sony.c | 66 +++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 49 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 3df3306..ed68962 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -717,6 +717,36 @@ static enum power_supply_property sony_battery_props[] = {
+ 	POWER_SUPPLY_PROP_STATUS,
+ };
  
--		error = edt_ft5x06_ts_readwrite(tsdata->client,
--						2, wrbuf, 2, rdbuf);
--		return error;
-+		error = edt_ft5x06_ts_readwrite(tsdata->client, 2, wrbuf, 2,
-+						rdbuf);
-+		if (error)
-+			return error;
++struct sixaxis_led {
++	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
++	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
++	__u8 enabled;
++	__u8 duty_off; /* % of duty_length the led is off (0xff means 100%) */
++	__u8 duty_on;  /* % of duty_length the led is on (0xff mean 100%) */
++} __packed;
++
++struct sixaxis_rumble {
++	__u8 padding;
++	__u8 right_duration; /* Right motor duration (0xff means forever) */
++	__u8 right_motor_on; /* Right (small) motor on/off, only supports values of 0 or 1 (off/on) */
++	__u8 left_duration; /* Left motor duration (0xff means forever) */
++	__u8 left_motor_force; /* left (large) motor, supports force values from 0 to 255 */
++} __packed;
++
++struct sixaxis_output_report {
++	__u8 report_id;
++	struct sixaxis_rumble rumble;
++	__u8 padding[4];
++	__u8 leds_bitmap; /* bitmap of enabled LEDs: LED_1 = 0x02, LED_2 = 0x04, ... */
++	struct sixaxis_led led[4]; /* LEDx at (4 - x) */
++	struct sixaxis_led _reserved; /* LED5, not actually soldered */
++} __packed;
++
++union sixaxis_output_report_01 {
++	struct sixaxis_output_report data;
++	__u8 buf[36];
++};
++
+ static spinlock_t sony_dev_list_lock;
+ static LIST_HEAD(sony_device_list);
  
- 		if ((wrbuf[0] ^ wrbuf[1] ^ rdbuf[0]) != rdbuf[1]) {
- 			dev_err(&tsdata->client->dev,
+@@ -1244,29 +1274,31 @@ error_leds:
+ static void sixaxis_state_worker(struct work_struct *work)
+ {
+ 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+-	unsigned char buf[] = {
+-		0x01,
+-		0x00, 0xff, 0x00, 0xff, 0x00,
+-		0x00, 0x00, 0x00, 0x00, 0x00,
+-		0xff, 0x27, 0x10, 0x00, 0x32,
+-		0xff, 0x27, 0x10, 0x00, 0x32,
+-		0xff, 0x27, 0x10, 0x00, 0x32,
+-		0xff, 0x27, 0x10, 0x00, 0x32,
+-		0x00, 0x00, 0x00, 0x00, 0x00
++	union sixaxis_output_report_01 report = {
++		.buf = {
++			0x01,
++			0x00, 0xff, 0x00, 0xff, 0x00,
++			0x00, 0x00, 0x00, 0x00, 0x00,
++			0xff, 0x27, 0x10, 0x00, 0x32,
++			0xff, 0x27, 0x10, 0x00, 0x32,
++			0xff, 0x27, 0x10, 0x00, 0x32,
++			0xff, 0x27, 0x10, 0x00, 0x32,
++			0x00, 0x00, 0x00, 0x00, 0x00
++		}
+ 	};
+ 
+ #ifdef CONFIG_SONY_FF
+-	buf[3] = sc->right ? 1 : 0;
+-	buf[5] = sc->left;
++	report.data.rumble.right_motor_on = sc->right ? 1 : 0;
++	report.data.rumble.left_motor_force = sc->left;
+ #endif
+ 
+-	buf[10] |= sc->led_state[0] << 1;
+-	buf[10] |= sc->led_state[1] << 2;
+-	buf[10] |= sc->led_state[2] << 3;
+-	buf[10] |= sc->led_state[3] << 4;
++	report.data.leds_bitmap |= sc->led_state[0] << 1;
++	report.data.leds_bitmap |= sc->led_state[1] << 2;
++	report.data.leds_bitmap |= sc->led_state[2] << 3;
++	report.data.leds_bitmap |= sc->led_state[3] << 4;
+ 
+-	hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf), HID_OUTPUT_REPORT,
+-			HID_REQ_SET_REPORT);
++	hid_hw_raw_request(sc->hdev, report.data.report_id, report.buf,
++			sizeof(report), HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+ }
+ 
+ static void dualshock4_state_worker(struct work_struct *work)
+-- 
+1.8.3.2
 

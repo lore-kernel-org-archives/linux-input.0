@@ -1,161 +1,73 @@
-From: Olivier Gay <ogay@logitech.com>
-Subject: [PATCH] HID: add missing hid usages
-Date: Fri,  4 Apr 2014 17:02:26 +0200
-Message-ID: <1396623746-1416-1-git-send-email-ogay@logitech.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH v4 7/7] HID: sony: Add blink support to the Sixaxis and
+ DualShock 4 LEDs
+Date: Fri, 4 Apr 2014 12:11:51 -0400
+Message-ID: <9eabb4ae4fb93b4c51816953fc453e4f.squirrel@mungewell.org>
+References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
+    <1396456285-23755-8-git-send-email-frank.praznik@oh.rr.com>
+    <fe23d57ea4d63af433e87f6641e5c339.squirrel@mungewell.org>
+    <533EBE48.5010100@oh.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:50886 "EHLO
-	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752426AbaDDPIO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Apr 2014 11:08:14 -0400
-Received: by mail-pb0-f52.google.com with SMTP id rr13so3580190pbb.39
-        for <linux-input@vger.kernel.org>; Fri, 04 Apr 2014 08:08:13 -0700 (PDT)
+Received: from host171.canaca.com ([67.55.55.225]:37810 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753021AbaDDQLx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Apr 2014 12:11:53 -0400
+In-Reply-To: <533EBE48.5010100@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
+Cc: HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>
 
-Add some missing hid usages from consumer page, add
-display brightness control usages from approved hid usage
-table request HUTTR41:
-http://www.usb.org/developers/hidpage/HUTRR41.pdf
-and add voice command usage from approved request HUTTR45:
-http://www.usb.org/developers/hidpage/Voice_Command_Usage.pdf
+DS3:
+>> blinking sometimes got confused, setting trigger to none and back to
+>> timer resolved.
 
-Signed-off-by: Olivier Gay <ogay@logitech.com>
-Signed-off-by: Mathieu Meisser <mmeisser@logitech.com>
----
+> Could you elaborate on how the blinking became confused?
 
-Hi all,
+When blink was enabled the led would turn off (from being statically on),
+but never turn on/blink... I'll try to do some more 'structured' testing
+over the weekend. Seen on the 3rd led, which might be a clue.
 
-with this patch we add some missing hid usages to the hid system.
-Those missing hid usages are already used by some Logitech
-products as well as some future ones.
+DS4:
+> Yeah, if you set different LEDs to different triggers the light can get
+> stuck since the triggers will constantly override each other. I'm
+> thinking that an extra "blink" LED just to control the global blink rate
+> would be a better solution since the hardware blink setting isn't really
+> LED specific.
 
-(Note: checkpatch.pl shows some errors but I didn't want to
-break the current code style in hid-input.c)
+Why not make the triggers/etc apply across the board, so it doesn't matter
+which led the command is sent to - it's just registered/copied to the
+first (red?) led data[].
 
-Best regards,
+IIRC the weirdness I saw was:
+--
+cd red
+echo 80 > brightness # now red
+cd blue
+echo 80 > brightness # now purple
+cd red
+echo timer > trigger # now flashing blue....
+--
 
-Olivier
+>> 3rd Party Intec - Was unable to get any controlled blinking.
 
- drivers/hid/hid-debug.c    | 14 ++++++++++++++
- drivers/hid/hid-input.c    | 15 +++++++++++++++
- include/uapi/linux/input.h | 16 ++++++++++++++++
- 3 files changed, 45 insertions(+)
+> It sounds like this controller just doesn't implement all of the
+> behavior of the official controller.  I'm not sure how to fix it if it's
+> not obeying the instructions in valid output reports and I don't have
+> one to test personally.  Do the lights flash properly when the
+> controller is used with a PS3?
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 53b771d..742d78b 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -855,6 +855,20 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_KBDILLUMDOWN] = "KbdIlluminationDown",
- 	[KEY_KBDILLUMUP] = "KbdIlluminationUp",
- 	[KEY_SWITCHVIDEOMODE] = "SwitchVideoMode",
-+	[KEY_BUTTONCONFIG] = "ButtonConfig",
-+	[KEY_TASKMANAGER] = "TaskManager",
-+	[KEY_JOURNAL] = "Journal",
-+	[KEY_CONTROLPANEL] = "ControlPanel",
-+	[KEY_APPSELECT] = "AppSelect",
-+	[KEY_SCREENSAVER] = "ScreenSaver",
-+	[KEY_VOICECOMMAND] = "VoiceCommand",
-+	[KEY_BRIGHTNESS_INC] = "BrightnessInc",
-+	[KEY_BRIGHTNESS_DEC] = "BrightnessDec",
-+	[KEY_BRIGHTNESS] = "Brightness",
-+	[KEY_BRIGHTNESS_TOGGLE] = "BrightnessToggle",
-+	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
-+	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
-+	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
- };
- 
- static const char *relatives[REL_MAX + 1] = {
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 930382e..e1409da 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -721,6 +721,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x06c: map_key_clear(KEY_YELLOW);		break;
- 		case 0x06d: map_key_clear(KEY_ZOOM);		break;
- 
-+		case 0x06f: map_key_clear(KEY_BRIGHTNESS_INC);		break;
-+		case 0x070: map_key_clear(KEY_BRIGHTNESS_DEC);		break;
-+		case 0x071: map_key_clear(KEY_BRIGHTNESS);		break;
-+		case 0x072: map_key_clear(KEY_BRIGHTNESS_TOGGLE);	break;
-+		case 0x073: map_key_clear(KEY_BRIGHTNESS_MIN);		break;
-+		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
-+		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
-+
- 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
- 		case 0x083: map_key_clear(KEY_LAST);		break;
- 		case 0x084: map_key_clear(KEY_ENTER);		break;
-@@ -761,6 +769,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x0bf: map_key_clear(KEY_SLOW);		break;
- 
- 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
-+		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
- 		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
- 		case 0x0e2: map_key_clear(KEY_MUTE);		break;
- 		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
-@@ -768,6 +777,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x0ea: map_key_clear(KEY_VOLUMEDOWN);	break;
- 		case 0x0f5: map_key_clear(KEY_SLOW);		break;
- 
-+		case 0x181: map_key_clear(KEY_BUTTONCONFIG);	break;
- 		case 0x182: map_key_clear(KEY_BOOKMARKS);	break;
- 		case 0x183: map_key_clear(KEY_CONFIG);		break;
- 		case 0x184: map_key_clear(KEY_WORDPROCESSOR);	break;
-@@ -781,6 +791,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x18c: map_key_clear(KEY_VOICEMAIL);	break;
- 		case 0x18d: map_key_clear(KEY_ADDRESSBOOK);	break;
- 		case 0x18e: map_key_clear(KEY_CALENDAR);	break;
-+		case 0x18f: map_key_clear(KEY_TASKMANAGER);	break;
-+		case 0x190: map_key_clear(KEY_JOURNAL);		break;
- 		case 0x191: map_key_clear(KEY_FINANCE);		break;
- 		case 0x192: map_key_clear(KEY_CALC);		break;
- 		case 0x193: map_key_clear(KEY_PLAYER);		break;
-@@ -789,12 +801,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x199: map_key_clear(KEY_CHAT);		break;
- 		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
- 		case 0x19e: map_key_clear(KEY_COFFEE);		break;
-+		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
-+		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
- 		case 0x1a3: map_key_clear(KEY_NEXT);		break;
- 		case 0x1a4: map_key_clear(KEY_PREVIOUS);	break;
- 		case 0x1a6: map_key_clear(KEY_HELP);		break;
- 		case 0x1a7: map_key_clear(KEY_DOCUMENTS);	break;
- 		case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
- 		case 0x1ae: map_key_clear(KEY_KEYBOARD);	break;
-+		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
- 		case 0x1b4: map_key_clear(KEY_FILE);		break;
- 		case 0x1b6: map_key_clear(KEY_IMAGES);		break;
- 		case 0x1b7: map_key_clear(KEY_AUDIO);		break;
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index bd24470..d82454f 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -722,6 +722,22 @@ struct input_keymap_entry {
- 
- #define KEY_ALS_TOGGLE		0x230	/* Ambient light sensor */
- 
-+#define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
-+#define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
-+#define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
-+#define KEY_CONTROLPANEL		0x243	/* AL Control Panel */
-+#define KEY_APPSELECT		0x244	/* AL Select Task/Application */
-+#define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
-+#define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
-+
-+#define KEY_BRIGHTNESS_INC		KEY_BRIGHTNESSUP
-+#define KEY_BRIGHTNESS_DEC		KEY_BRIGHTNESSDOWN
-+#define KEY_BRIGHTNESS		0x250	/* Display Brightness */
-+#define KEY_BRIGHTNESS_TOGGLE		0x251	/* Backlight Toggle */
-+#define KEY_BRIGHTNESS_MIN		0x252	/* Set Brightness to Minimum */
-+#define KEY_BRIGHTNESS_MAX		0x253	/* Set Brightness to Maximum */
-+#define KEY_BRIGHTNESS_AUTO		0x254	/* Set Auto Brightness */
-+
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
- #define BTN_TRIGGER_HAPPY2		0x2c1
--- 
-1.9.0
+I presume that they just reversed engineered what they thought to be
+correct, I don't have a Playstation so can't confirm for certain.
+
+In my testing from a year ago or so, I could make the blink work via
+sending data with python. The script can be found here:
+http://www.spinics.net/lists/linux-input/msg28271.html
+
+Note: "Which LED to enable(LED1..4 << 1, 0x20=none)"
+
+Cheers,
+Simon
 

@@ -1,332 +1,71 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: hid-lg2ff handling of zero/low magnitude rumble effects
-Date: Fri, 4 Apr 2014 22:10:06 +0200
-Message-ID: <CADbOyBQkSGkDYcfpRUZR-h=gz-3S-NGLg4meuFYAP4zZQ7d2fQ@mail.gmail.com>
-References: <CADbOyBRGha3+X8RSjvOU=ftTGuDGYAyuFW_b7==0HeF1uBLV-g@mail.gmail.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH v4 7/7] HID: sony: Add blink support to the Sixaxis and
+ DualShock 4 LEDs
+Date: Fri, 4 Apr 2014 17:13:55 -0400
+Message-ID: <a7a124f17fadaebb5c6e42337a25421a.squirrel@mungewell.org>
+References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>
+    <1396456285-23755-8-git-send-email-frank.praznik@oh.rr.com>
+    <fe23d57ea4d63af433e87f6641e5c339.squirrel@mungewell.org>
+    <533EBE48.5010100@oh.rr.com>
+    <9eabb4ae4fb93b4c51816953fc453e4f.squirrel@mungewell.org>
+    <533EFBFC.1000105@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=047d7b2e527e986fb504f63d1a26
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:49668 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753075AbaDDUKH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Apr 2014 16:10:07 -0400
-Received: by mail-vc0-f170.google.com with SMTP id hu19so3580640vcb.29
-        for <linux-input@vger.kernel.org>; Fri, 04 Apr 2014 13:10:06 -0700 (PDT)
-In-Reply-To: <CADbOyBRGha3+X8RSjvOU=ftTGuDGYAyuFW_b7==0HeF1uBLV-g@mail.gmail.com>
+Received: from host171.canaca.com ([67.55.55.225]:48325 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752429AbaDDVN5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Apr 2014 17:13:57 -0400
+In-Reply-To: <533EFBFC.1000105@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hendrik_Iben@web.de, Edgar Simo-Serra <bobbens@gmail.com>, Anssi Hannula <anssi.hannula@iki.fi>
-Cc: linux-input@vger.kernel.org, Simon Wood <simon@mungewell.org>, =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
+To: Frank Praznik <frank.praznik@gmail.com>
+Cc: Frank Praznik <frank.praznik@oh.rr.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
---047d7b2e527e986fb504f63d1a26
-Content-Type: text/plain; charset=ISO-8859-1
-
-Hi guys,
-
-
-I'm about to release a patch (see attachment
-"0001-HID-lg2ff-add-rumble-magnitude-clamping-quirk.patch") for the
-lg2ff driver to account for some weird quirks concerning the magnitude
-of a rumble effect.
-You can read the description in that patch too get more details on it.
-
-The reason I sent this to you, is because I only own and tested this
-on a Logitech Vibration Feedback wheel, and not on a Rumblepad (2). I
-saw that Hendrik might have a Wingman Rumblepad, and Edgar a Rumblepad
-2 device. But if other people have such lg2ff-compatible device as
-well, feel free to cooperate.
-May I ask you to perform some simple tests (see next paragraph) to
-verify that these quirks are also valid on those devices?
-
-To test sending some USB commands, I attached "USBCommander.zip" which
-contains a program made with Qt4 by Michal (Cc'd; thanks Michal!) To
-build it, you will need to run 'qmake-qt4' and 'make' in the top-level
-directory.
-It's simple to use USBCommander: enter the Vendor ID ("046d") and
-Product ID ("c20a" for Rumblepad, or "c218" for Rumblepad 2), then
-press 'Open', enter the to-be-tested command in the 'Command:' field,
-and finally press 'Send command'.
-After testing, press 'Release' and then quit the application.
-You will need to run 'USBCommander' as root to send the USB commands.
-
-Commands to test:
-==============
-
-    Send the following commands (without parentheses):
-    "51 00 xx 00 yy 00 00"
-    with yy (strong rumble) = "02" and:
-        xx = "00"    => You should feel an irregular weak rumble
-        xx = "01"    => You should feel an irregular weak rumble
-        xx = "02"    => You should feel (almost) no rumble
-        xx = "03"    => You should feel (almost) no rumble
-        xx = "FC"    => You should feel much weak rumble
-        xx = "FD"    => You should feel much weak rumble
-        xx = "FE"    => You should feel much irregular weak rumble,
-but less than with xx = FD
-        xx = "FF"    => You should feel much irregular weak rumble,
-but less than with xx = FD
-
-    Test the same for the other rumble motor type (swap xx with yy).
-
-    To stop the rumble, send the following command:
-    "F3 00 00 00 00 00 00"
-
-If you discover that the results do not match my assumptions, please
-tell what happens in that case.
-
-
-Thank you very much,
-
-Elias
-
-On Thu, Mar 27, 2014 at 11:13 PM, Elias Vanderstuyft
-<elias.vds@gmail.com> wrote:
-> Hi,
+> On 4/4/2014 12:11, simon@mungewell.org wrote:
+>> Why not make the triggers/etc apply across the board, so it doesn't
+>> matter
+>> which led the command is sent to - it's just registered/copied to the
+>> first (red?) led data[].
 >
->
-> I noticed that my rumble wheel (Logitech Formula Vibration Feedback)
-> reacts in a strange way when sending low rumble magnitudes to the
-> device:
->
-> Assume the following USB command to be send to emit rumble:
->     report->field[0]->value[0] = 0x51;
->     report->field[0]->value[2] = weak;
->     report->field[0]->value[4] = strong;
-> When 'weak' or 'strong' is lower than 0x02 (i.e. 0x01 or 0x00), then
-> the corresponding rumble motor begins to rumble intermittently, this
-> resembles a bit to forcing a 2-state light-switch to be in the middle
-> position.
->
-> Now my question is whether all other devices (e.g. "Logitech
-> RumblePad", "Rumblepad 2") experience this behaviour?
-> (If you own such a device, please verify this.)
->
->
-> Best regards,
->
-> Elias
+> Unfortunately, it's not that simple.
 
---047d7b2e527e986fb504f63d1a26
-Content-Type: application/zip; name="USBCommander.zip"
-Content-Disposition: attachment; filename="USBCommander.zip"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_htkjxurh0
+It never is.... :-(
 
-UEsDBAoAAAAAADe0g0QAAAAAAAAAAAAAAAANABwAVVNCQ29tbWFuZGVyL1VUCQADqsU9U5rIPVN1
-eAsAAQToAwAABOgDAABQSwMEFAAAAAgAW2+YQuV4qQ/+BwAAbB0AABkAHABVU0JDb21tYW5kZXIv
-dXNiaWZhY2UuY3BwVVQJAAP+yHdRBMU9U3V4CwABBOgDAAAE6AMAAM1Z608jNxD/nr9iLlXTTS6F
-Kx/aKjwkCNwpEuXNVRVCkbPrJIaNnXq9wLW6/u0dP/bhxIFA70ORUDZrz3t+M2PnO8bjNE8oNFMx
-mVC5MW02vivf5dmIjUlMvbc75+pTzjbPf6NZRib0QDzteYt9Ienm+SEd5ZPQwtVUUpLsNRrXlwcD
-zbzXK56i89PRHY1VB+ZEUq7a0GsAuJeRe9fFV7Nhykao3IAzRZNoTNKMuoWEPkwjnqfpXMl24+/G
-10ZjJEQKlbQ4JWw24IpKI9Ny0nQspsMp4UlKO6DZdCEWPFPAuPm3+wfJk2YLwMZQ0N5TyWk6TCR7
-oHJIYoWfkeXg0bVBE4JhKKmCXSiFKxJPfT4hBtuWHCVr8h34UHAEODbh6/UwjFHxfEmRD1Nfer3+
-xeBq0N8/7mKcjcgmPh1JKSQ8TllKQckvjE9ACbC6gNUFrC5doGZvE97D+aWSuLWw3SwMOZlRrVO7
-3UVWOXWagjYzlxxMhOy7rw37v+QEE5dhae8q+wPWv8H2PuFcKDAydW5Uct5q66KlmHjlS71tO5CK
-Y8aTQ5N4A37MMhVORj8b/8xR1Z9+BpZ8pjwRcvn9mRRJHiubph5HywoftDCtZJaxv+gQ/SByXgvF
-hKpCh1SrVeCtr5660KpYlAGx9Dvw038IyYkwgbDcYYwck+bLHh5jqCKDUFT/wzZ+7Fhr8PH9+0Kd
-DNnEyncGfmSxZHOFHDAKWWylLLug2hdVpt+wW+0KTVeDpfm+UYQGdnfLMEGrBcWqC5BdLqJVInkJ
-GGJO+aJknRElyIIF4U0xuOZkpKuBAC3UxcIggoteHRK9Hs9nI6xSGggLmC99OJaUenlUGdHFVKn2
-L1cJWyNez8sDXFVuGq/h42uzjFqGXYeRFJETWYxtdmBQvnOCdFB0hSGpbndfoCJKoLPpYPPOb2Qr
-+4Mmjlo1FH7jTvCRYA9IdNjZoh2vDX6g4APFZ7fsG4wWFpFat1yaxi3zuTrN1RFP5gKdFQXh7bdy
-fwt1lDVst4DONT5Ny2kFGn5IiOEeqptRCVCfDGv1mE1qYjsQjydF9VkKvGZo54llSi0CS5Aj/4a9
-scoGFA9WPFjxuSSKCV0YCi1elx/BEv68iodHB9ef/EZhmIMYV0HKwvKdb37cGyFNOfJlbdTGwRZf
-EYUFbypFPpkiWlMgD2i/KYMVewvZYK8Ji/C6j23QfiKUvL1cYGPNDLm3Sr7lRqz7GyRVGVUKbbz5
-cLutLfh9/+JkcPKpB7+jvhOOIzYagRRcm+X2OvXXsLjARQYIHkiFuDdGl6CD0+urglnpjTvrjTv0
-htXfOqNAJ/rirvJF2BsBPHZgaAGpvVHwLfbd3N2aEL6c4cvpc2VH3cHHUMawNr7EXUdnwYS6M8tA
-lJJZcIPTGT0w28dNKFTRrAtbji5J7GD5DF3htn3ciycsbEo/u3wtKn5YCLTgeHCAxXJ4dbF/cvnx
-6GJ49cfZ0XBwcnV0cXF9dtXWI8hqQbC3B7/okcRxOTo5PDtF4qEOuV5r12cLnXkUpuRBZ1KVN/BI
-gdOixdm/MoodJ7vq+7PhjDxhIT8j8T1Vl7rr7EKp4eNv5KlaqajqpRn3s/DcsVwv65VyxbRQjB3B
-qeF5ji9NDXqgwm923I/eNMubkWHpzNCyh95ujUtFt14bcEXEg4mVAY9MTeHz4DBcYCuRmKUmxc9W
-b3U6VXsfSWZmJDPrb6wx7JcOCE4BhR/MIVLiim3ntTNl/RD+thOKXwnLtJ+iJSOKE3PIlPJ8KzLq
-lHQr9gvmsLuweMn0hasLz+BlC7+JXAP0H0xXSWEiRGI6g51pcULI0AWQEEUs4umMKRDc5s4pZjxN
-omWQ1/GyatabE5nRvpjNUJxDi8uoFsSzpGsx8munhTbM+vqFGdtw6ZhyCxe3H+ZSYEfOUBVcNbLL
-N+iC8nlD0nmq3drUDaDZbJv+ekFnAotcNq/GgDC1EsfiEfPckvUFx1RS2kWpfg0xyagmty7tT2l8
-j5WTmIppyig+ppRk2n0URl8UrY4JlZCU8omaRm1stVtvh7ZzK8xyFDcKiU4Fn7wIyFWWoGwOvBzS
-4imROERSmT1r0fewBe921x1cQ2adhEQybhpU7EzObEoUlmtV17DTZpUX7lLvTdjaXnJFXWRMkBsz
-V4jCLIhczXMUn4/HqG7pEydkL9AV/3uoWXhccTJ/DMrUJVpnQ5S1MY+FSQqd0KuNWaeGW7jq2kMf
-HYhvrBq326tmbLPsjdSmWuB0uls/aVrWOCd7kZqxJGKdLT2EIUixekYtcW+aUHWIfifu1z1Ah7w8
-4A94ZnaFMJxxmBQGWauHzgXnAR6yUqroza2z66Ur1UBNbTwI1KoqqpJqnNNqDKnmCtcf/Nbh9tcu
-ZVe0HK/R4XS8fJu9DuGaneproF3oPrS6W9TGp/CNy1uuyuqXxmYA0KOMGQJqdz3vms+UFadQ3fGv
-z73anamnhDDddx1Euk5aQ2bla41ELHUu/YzCfmfWnbfowHZjOX+sfV/rBBh8G8o/za9Hus3tQPMA
-YdPUT8x8/UzS3H4v4W5OR5lKtNvi++EkJzLZMd9neDJ62oP0HrNKp8gxrrcLu56wYkmaBC9eWDHn
-DZUkPBsvZnAxXm4sn9d8b3Sh5eR0sbd9u0ua+o832jJdY1zJeesvGMF64010RqihfCadAmwW61KF
-23/K3/4WS5EeBorf8f5fVelrqadXSuo09Il5v5q0tdn/AlBLAwQKAAAAAADKVUxDAAAAAAAAAAAA
-AAAAEQAcAFVTQkNvbW1hbmRlci9ndWkvVVQJAANcDFlSEMU9U3V4CwABBOgDAAAE6AMAAFBLAwQU
-AAAACADabZhCu+xxX0kBAACOAgAAHQAcAFVTQkNvbW1hbmRlci9ndWkvY3RybHdpbmRvdy5oVVQJ
-AAMsxndRBMU9U3V4CwABBOgDAAAE6AMAAHWSS0/DMBCE7/4VK0VCoUIqXDikwIG04iFEmj7IsTL2
-tlo1sYPtlAoEvx2nDTQtcEo0O/PNOnFAcyVxDvFk9JDdPfaTbHbLAq+Qwn2RBaREXkmEi9TdVNRN
-M5ILdFeMKV6gLblAmBK8MwCRc2shdibPSEn92mMfjB2KEEFZPeckoCGxOprOkuv7QTxhbDuMvIbr
-0r+Ra4XDJgOdkhtUDi7h9LjnvZ8tjxcaCthcO1uzVpokaNXHFQkcGKNNSD6Oxmzie+OkRIUyfKm8
-4+wcCr5OKjfkYoluTG+4wRtacYe/+HV0C4l9/dJT2vgR5sgt/m8Yo5KxLgruH3+M04pcS2eWForn
-rf6f9lBoZR18H4HkkydrcwKH+tBoWQm3azHtHVvtdrdaA0/HzpBaHIEoZOub1NtMKYp2P6QDFfmr
-4C2Bh9Acut39O/YFUEsDBBQAAAAIAMpVTENVN9g8vgMAAMcTAAAeABwAVVNCQ29tbWFuZGVyL2d1
-aS9jdHJsd2luZG93LnVpVVQJAANcDFlSBMU9U3V4CwABBOgDAAAE6AMAAOVYS1PbMBC+8ys0vlPz
-OrSpY6akDzoDUyA8joyxl0SDLQVZhoThx3dlOZblOIlNA5f6ZK20693v29VK9g6nSUyeQKSUs76z
-+2nHIcBCHlE26jtXlz+3PzuH/paXUbPoABf5W8QL4yBN/YEU8Q1lEX/2XC3BqWcajUCSfNx3zm/y
-oUNYkEDfMRrKDPEmgk9AyFkxPQKegBSzfJJ4AkKZvxFv6u947rQYzNRgVgzwe3LsH+ygSL9q8Rjo
-aCz9fSUv3nOb7tyo584/3uTJc+7kJZUxFM6kUiAw/tXwaMCTJGARCM8thIvm4mDGM4PC9RGfnuSi
-ORIIqaRhEBdS/Q0qISn8rxn4JWhkGxgZiVbR6kTw576DVIY8zhKmXovpBWpOgjuI5+Ye41saXQNG
-LUqFBVQkTKWZLTHRauT3914VEb3EgkVLtBtzp10T9JII9jpEcCZ4lIWycwiF3rvFsLs8BsrgR0Sl
-CQNaMEHZJJOnQfrQEMsxPl+nLcJoCY67UST2OyKxltGNQLEiDs/VtVjsH+XEimo9Xij3MRf0hTNp
-F7xlZBGQsywdH2VSclZCMrm7RcdZ5/z+g0qbSOxurgqIIUihs7cXWu/DeVu1y96W21A9iJS+wIAz
-9DWgzITjAcsS/1xr93pDwCSd0iRLhrjec/PZreawOu8htX0wgicawlAGMksvIIgqCdeag+23bCBB
-TEcsAWYbRHrOEYFvavJCteLXcniJmMX4ESO5HqB63ltLVj+6jSTB9E8mz4LwAaQiqzN2SDSZ5OpE
-Jcf7tJT2jb2aDstjuec2bWpshricY3arcPwv6H45MAqupfHmduNrR9uA9ob8O8FysPLtBO7lB2Tf
-ira3mH0m9f6/6m2zba9BMNQH9FX79RmPaTgznCjZJJeRsXqXswmuPKVMbdgOearI9CZeYQR7O2IN
-Mhyre0llVK5Q9yezojIq4TDfX9oTVhE/p724mtRrZ62xReZt3o84tvbkdXUVVUmvf9EivCWrDcfB
-Ncw2YeJuzqPmQ06KR/VBd7/8IeqRIqA1fLXxNcWGA6J2uxzmwuVHFzyVIumBxMt9/dyCzF4XVtYc
-VhrK6xJLpW5wWJZdr1cUUXfDx+qERVIZYapZLdDqRcVPgT37n0Beq/pXwO6+9VegLMGl+Gt0N3oF
-qLBinawtIo2SpnJ5I2iiskrmcWnJQr1VY1iFfB17Yn7J1NE3+O/t1PGvMdDcNCos/Pvl5DGj3fvq
-OSq9y7WkIq4oewJSnokQUrWNeSFnDEJFsRp7bkb9rb9QSwMEFAAAAAgA2m2YQjsPn5vOAQAAIwUA
-AB8AHABVU0JDb21tYW5kZXIvZ3VpL2N0cmx3aW5kb3cuY3BwVVQJAAMsxndRBMU9U3V4CwABBOgD
-AAAE6AMAAJVUTU/jMBC951eMwsXJtlRcOGSlSqiLEBKiLYHlWKX2CCwcO3XGLdoV+9vXSUqTbr/Y
-Wzzv+c3Mm3HOpObKCYSQk1UrqYVZnb+Gwdkm7uRsGwpG/vhcH5Ok/WbTZylekCAuMouaIkgCgHWQ
-rWM9H3KSaVzBk+zejoLfNdQflkiueJKMXmUZfQ98lButkROr0EUxn5kCdQ/S25v7qzvGleRvKFgU
-9aC64oG78SMzeuxZP3ApOY42FK+3K2dRYVbiacWHhvgl0RK1GJk8z7Q4LZy25BOyCyfptN7Us7aE
-PoJgEMcwcXMfhVIZKiGOB8HSSAHdcZq1ZdfWGsukJkBr29ks1EzUeEoZufIBM2Ec1TN7xHdiYX0P
-QvgG05Ss1C9Jol0+R8sqnaaSg0mrifmKfY+aLi4hz97HjiaZb4NS+Qv/o4xKKawNXNO9Viu0w/+3
-1p3MHQutXGaEnx4O9razZ/Xq2jGXBGYDNlNVOJPip98AY/tDqsqJzsncamLaKVWQ7cHFpZ9wS55Y
-IxynI+yDRu9f4bY428VZ18HjhvfDgyn3LXebsPNONnbw5vzZ30HlrTU/2kP1OvpDrkxZBz62/2F/
-Oj+xRkd4CT9kJyvuX1BLAwQUAAAACADLbZhCHVoqwg8CAADOBAAAFwAcAFVTQkNvbW1hbmRlci91
-c2JpZmFjZS5oVVQJAAMOxndRBMU9U3V4CwABBOgDAAAE6AMAAJVUUWvbQAx+968QBEIWsqZ9GSPd
-CqubsYxAGrLt1Tg+pdF6vvPu5BBW2t8++ew4SdOOzWDw6aRPnz5J7tDKKFzB98X15POneJx8iTpy
-JoOHpqhDJtOlQvgw59g6HM5ny5+Y8dXBjaZl6ZdvL87Oh/Xn2frwOi8Zt1dRlOnU+wC+SjOEERTl
-UlMGDWL0EIE882R2/XUcf4ui+nokVtwW8kXcBveamD4UqUPD8BHO31yK51PrEY5LazWQIaZU0+9g
-bGDBa8t+tPOxBRoJvcENSWxmjWf4VZLhi3dA6gcaZd0AnttvnVVlxiHVxpIChxpTj3ukPQsvGLHN
-89SoBn++YEfmrgtZrgIxR5uUseUkelE+MYwuFOTZSS6oFU5UwE/WAqexD3Jc7/gJu+qtwyZqu+cg
-3VUB0JUFz0oeG1VYcf0X7GMXbCLF12eOCrauC1jcyGlQJe+eMiCjq+HaqZenW2Fwm2b3yIvQm4b+
-g6jIpTOQJ899LuFxV4r03ePreg7qPO/7XTBlHleGwEqupmiOFalbNTFT8tx7UYJjff9nLkLdLKUc
-ytFmz5M63UQmFFVl/msj8sqwPnV7oRl1RifqVS05DRHGspTcbynEHGi13TnVPmCo0SisszhUAz21
-2b0U6enOpDpsU1gDa2pNx85Z16sEkJHbb8nueiZLh6r32kScLmv0KKaO5KUVDIeH/6k/UEsDBBQA
-AAAIAAdxYkL9FDqUTAEAADYCAAAVABwAVVNCQ29tbWFuZGVyL2xvZ2dlci5oVVQJAAO++TFRBMU9
-U3V4CwABBOgDAAAE6AMAAG1SYU/CMBD93l9xyRIDhITvQ0lkImImOMDwcem22zzt2mXtECX62y3b
-zEjw291799p7r3UolQmm4K/m89k6fGCO7UhiBzCHZCyqBOE6rwweJmdAYDxV4ihYRW8Ym/+YexI4
-YSwWXGvwVZZhCS4UVSQohlbHjgwgCFfTx5m3ZQ3nWghllUOj3OAeSzKfcIS72fRlPoTd7Xq5WNrC
-Wy+2C+/Wh+8xsyJtuLFHR0oJIEmGuKAv7PXHHbdXlIBQWS9WUpvubD2EBgk2piSZXUHMC0NKXuA5
-as0z/MPry/Sr+niaqgPcQMqFtmSwoyRDM4A8UodnXqI0lpSVEIUp7UKsKGnPDdZeD4V1TabNqNdG
-A4PiUgfw0071a8t1yJCH1tKpapwmrls/V4P7Kn4/j6fRD0CHuZ1nmjJpd3ZZmz5oocypPWXqoEwo
-hdGo+xO/UEsDBBQAAAAIAHdtmEKCZJxYiAEAANsDAAAVABwAVVNCQ29tbWFuZGVyL21haW4uY3Bw
-VVQJAANyxXdRBMU9U3V4CwABBOgDAAAE6AMAAI1TwU7CQBC99ytWuGybAuHiAbQJohISIiFoPBgP
-y3Yoa8oWt1swGv/d2XZLq9bgqdOd1/dm3r62heRxFgK5WOhJJnqL0W4XC860SGTgtMtuK8Ie1yo+
-CBkmh+6mVevFSRSB+n6WpSuxZhzMqSOkJlsmJDUFUxH3Cd8wRTys90/PrvPhEFJXJowWMANwh9gV
-a0LPZrnQYCCk0ILF4h2o62KTEAU6U5L0hw6+PiyvpkbbIzjF9BYrckkkHI4NWlGWiE5wgnSMyz/m
-y3uEF7VlrToFb68CdIJqBK9nlpyvXoDrwYAnUmJBLdIny+nkbjSjyQ7kNewFDvmaoV39c98+Xdc/
-kiF8Nr/PwbjTX/h8mpOKCmJgKViSBhULqIT+y5yCDMfJdstkSBdLrYSMGugbUaWRR/fQydLUZiNr
-rNZJ6+ONUokyyTPa1Yi5f78hzZv9ST7HG4CQ1q6oWeEnzs0zZbGdIN0U4TGpxF8Eg4fZYl14A15k
-KsQ70FB+UDspJ8u/tYHFx9D5dL4AUEsDBBQAAAAIAEZwmEKeW+j7XAcAALRFAAAiABwAVVNCQ29t
-bWFuZGVyL1VTQkNvbW1hbmRlci5wcm8udXNlclVUCQADxMl3UQ3FPVN1eAsAAQToAwAABOgDAADt
-XN9z2jgQfu9fwfm1Z8CEENJJ6ARDbnINaRKTZO5eboQtQBfZcmWZhnb6v59kOwT8G2MyTc8vLbaX
-71utdlerRc7JxycT1xaQOohYp5JSb0o1aOnEQNbsVLobn8td6WPv3clvg8/q+K/rYe2GqRQCRug1
-Jf9CnYlnslx7oIgxaNUmyxeJWqt+VG/+Xms1lQO52ZZb7bHS/tBsfVBa9Zos829+Ybov2ntXOzEA
-A/z/2skCUAQmGPYCiuGTjQmFtB5c1890hhZwDOgMspPGStz/LnZhjS1teCohi0m9phDg9wRDI6DY
-gmpoIK6eBhnjBnHiyExgB3w39+KhxUbAlsTzTW0mhGCp9giXp5IPqhJrimYuBYybvn7mMnJhGVDo
-zKgLX9TeHkezgQ6dc0LHYOJIvSnATmE8FZgQq8CBV2CBZt69JAXjLZECTQyosSWG3Ok8mE3FbvpL
-Bs8oBcsAAwNr5oIZlHqqba/T5+D3BAKWEI3GKJ/bQE51KeVzcE3hFPIP3Iwe2x+YTADe5Gw8k/om
-CF3uaBFlS4vcmPhP7RVt4vEVtMpaeOYxhUpcERStRA+OmCUJT5d6XkYrHAvEchgFyBpzOYbszNhK
-H6If7hr6xiehXVSnT3A5IYAaeVXKgBsRN0+o5xrfNTDEMjLilpd6SlGNNJ0SjB/mEOK/CTGFW+6i
-lGYCyvpAf3REkuzDOR8robvot5lsd1CNA/DZfFEp2eMzcXynKuzodw70Y3un8dyxabdPzBJszB3p
-HFkAX8Gvl8iCu62QOobA8mMvj4/nQXuYIwY9h9oNDFlDiyEKB0R3zbhSYCOfFqlnrrE7Q9b29Uyj
-IJ9fpNWbu1ROm6tRAtOmIQdwClzMBsixMVhe8RpG6g2g88iIzevT5GRbhGprjvBylYvmwpB636fd
-tqIcHR/Lht4GcvtIB/JEn/DK+qjb7SitTvP4GPzIEa1hxmCW/Lq67yJsbJCnRW5O0AHkd5ch1Oau
-qLeulQ2ZVgIloEdNECpRt8GMAfNuaQzal8hhK+ii2Csg8eEFLTHzJILUh5aIUCOaxPYUkl9M8Fg6
-zzpBKnbhOLxhwaMRsHj1Tes3Iz6OlRnTSNemIQOlzle6R15mD+DEnfGcPbtEEwroMqbAK59E7CK3
-9YIsKu/yjM68lc1Jn5stRuBd8vJLF34bY5rQFqSkKFPeUJSN3miQtUMTL8aRGF+YT01oQsVsrZwo
-CcxrmJicVgcYL88MAxohPw1o4m3Wk7+G1EmSo2G1Gyu9s0MgUXtVlJ85UkI4VBMBtwjSrTBVYprA
-MsKICdGZWQZEQ9KJ6xPsJ6A88pJpkgOqpHhKtKBTj44nPC17qHqU/23VU+XjXz4fb1s55U3HXrfh
-7eVkZf85WY1a5k3n5Oh44nNyvllJScSxy+ZWSTTUJOeKU23pMGgOrQWixPI7WdESJU+iyEF450C6
-xqTOgTWDjtex2pOvebulZHuV6mp7y978TtSYydQvDpYTKmaqUr0sK3OlkAwQ5YJE7I0bc2LChgkM
-HbDGAC4gbqjv3zcmQky+0/pByoNUDlp1/3BcOWNCU1N/vF7cKbU5MMhX71lMV3jbnwvzd6qUqlNV
-daqqTlXVqao6VdXO6KfbGVWdqqpTVXWqqnxc5eOfIx9XnaqqU1V1qn7VTtUt5GOMHUzVq8rqVTXz
-Wu11e1WZU/pa3aq8R7WifMknugt0wGJOlr3iYa0dlprm/pca3za/0FoTM6D9LjZKuakzcY5qmHhl
-5NvK1GHB5/FFQ7K0bBKDHTdVhdNJ+Ehp/LtJazn2zAJ4+W3tyHPK4flchcQK8B7gGZ9yo+7tLTTX
-til0xHt65wgnlA1xeq1gVO5gwSeCMVe17zrDhV+uJ9U8hXBFTYWEz5WD6u96+xRY+lxDZrmwKtDn
-sHRUz6zilZyx90pOgh8EyAZx+VdyYI+QhUzXVInDboVz8jWk3kzJULmB75HjAu6VnsdHWZSUUijV
-LNxRGS95n/g//NmF47gw0xovGSCKd8XV4kpDylFahyVE1i00yaKM2BpToD9+pmiGrMwRbmbyKNbz
-h+ET1F0m3EnqLYJ7JYyZTzYSLkopoZ/4DSexokktUVDWdhll9Tg9gYMsgXaWwGGWQCdL4ChLoJsl
-cJxpqGxTZtpSyTSmkmlNZdOckVbSPiqc9a3M26pvYvdP4QrhQ8I+bn3YGxd1m5LCm9dIfdLnm8G1
-poK43PWcRYQjUF28e5f0i8vOHFxE5N5Nd0k3VdZON8LBS7PBEhsXJpfQ3OkUPW2z7OfmGENqitcV
-CxaAuXmKNZPywz8Q+si/t9aySLaT++K3Eaznn+01SBeQXhMq8v5Rp5vL6nGaqbbtnwOANGuxzUAa
-8WSFuDl0vvpv4wtxWKvTCUKr0qDiDzjstIcKM8ZsoDbwi7/46SELrLQ/0bHGW4Tpzuay/HotGC6M
-FM7VDyvfwXG3a7RbE/mgA1tyu905kLvAAHJ3orQPDjsd/XB6+KMc5URqu/f/ykqmOVpRypPG2p9K
-+Q9QSwMEFAAAAAgAmWaYQvDzXoJlAgAANQYAABcAHABVU0JDb21tYW5kZXIvbG9nZ2VyLmNwcFVU
-CQADgbl3UQTFPVN1eAsAAQToAwAABOgDAACtVFtP2zAUfs+vOAQJOajAe9pVgnZDlYAuXNSXSchJ
-TlMPx+5ihxa27rfPdi4tASGQ9tC6/Xyu33d89plIeJki+FxmGRbHC9/bb7BBpEeywJNojHGZDV9c
-nJfsJLpEpWiGZ3I99LwLF+AQqjMM1X2O8AVEyflSF/3GIAyrk0TT+Ccm+hCWtEChAwg9gBokNeb9
-9jaeF0vJ27BMMM0oZ89I7DUAmwOpcrXJArAXAE0JuKrdSdBvL46G+b1p+hvjeKxQ2/OK5kj8UsWJ
-zHMqUsOHXmu/drKJ9rqecomCRJPpGB9ZgmE4K5jGqeBP8Ad24Ftc66ApC+DXyJixhHISwGAA/p2g
-MUfQEmw8MMFhbqLDXBawsqYi2/P7tXOKHDW6HhqoQF0WAuaUqxrbeDu4LkoHW/AFZMh9lCxtyTWJ
-SSKF0nCDj2gSP4HqQYVEN7owdRxAQpeaSfEKz6tpaHCnmlrI1aWZjx5EM5ZmaOTOY7n+3sr7rn5d
-mqoyYUEVCGkyoOFqOw9pQ1HVYtWw+VI6tZ0lD/dZSYt04P7npcb1EPgD2VH0whg5sSOrl+kLaQ5a
-kYOO6sbGxl0xnSxM8U25CVXYUtkQGIbjr2d352GtlFauE+LAAFpRY5Prof9emNnp9dXk6lWgGv5U
-qNH15HYyOr3oxmrwt4LZ2ansav2dCxyZj/lRa++wH8J3/Dhha/3bF9nl7GOsGUW2u8buAPMwcmqr
-INtx6m0nsy4n6Lf+O6R8lOFO0hUthJnz/5mwq0MnY9JM/+dTbpxim+3S/dsswBdvbneTMTW1uywI
-3tyQCZcK7fo0Mf8BUEsDBBQAAAAIACNgmEJ2BA12/gAAAO0BAAAdABwAVVNCQ29tbWFuZGVyL1VT
-QkNvbW1hbmRlci5wcm9VVAkAA2Ktd1EExT1TdXgLAAEE6AMAAAToAwAAlZBNa4NAEIbv8ysGPIqp
-phFKwIOxqw3VGj8CORSCrlu1qCurEvrvq4ZSG3rJ3PaZd54ZVlLuLZBAwoPgn4z2SAVLepZh+oVB
-b00PLnCtao+KulHWm1hTt/rTVtenofs3QRDjtWQDKRcM86EEiM3QITEaeIx2Fq/rpMmYAMt/s/fO
-T7bpeMV+mWJg0rbndGiyEUNMvINrxgRnDACRfwwtEk2zdVI2K9q2+A7T5qFLy4+EsgWqeJ4zsQDj
-VQ+0F9WlbDJ+mRoAL8R8JuFsvBEVfzXF/5ICwPZDbyG4CUw/4e53c0CpRruirVQIPPOVnK3TyXZN
-59rr+sygsqxp8A1QSwECHgMKAAAAAAA3tINEAAAAAAAAAAAAAAAADQAYAAAAAAAAABAA/UEAAAAA
-VVNCQ29tbWFuZGVyL1VUBQADqsU9U3V4CwABBOgDAAAE6AMAAFBLAQIeAxQAAAAIAFtvmELleKkP
-/gcAAGwdAAAZABgAAAAAAAEAAACAgUcAAABVU0JDb21tYW5kZXIvdXNiaWZhY2UuY3BwVVQFAAP+
-yHdRdXgLAAEE6AMAAAToAwAAUEsBAh4DCgAAAAAAylVMQwAAAAAAAAAAAAAAABEAGAAAAAAAAAAQ
-AP1BmAgAAFVTQkNvbW1hbmRlci9ndWkvVVQFAANcDFlSdXgLAAEE6AMAAAToAwAAUEsBAh4DFAAA
-AAgA2m2YQrvscV9JAQAAjgIAAB0AGAAAAAAAAQAAAKSB4wgAAFVTQkNvbW1hbmRlci9ndWkvY3Ry
-bHdpbmRvdy5oVVQFAAMsxndRdXgLAAEE6AMAAAToAwAAUEsBAh4DFAAAAAgAylVMQ1U32Dy+AwAA
-xxMAAB4AGAAAAAAAAQAAAKSBgwoAAFVTQkNvbW1hbmRlci9ndWkvY3RybHdpbmRvdy51aVVUBQAD
-XAxZUnV4CwABBOgDAAAE6AMAAFBLAQIeAxQAAAAIANptmEI7D5+bzgEAACMFAAAfABgAAAAAAAEA
-AACkgZkOAABVU0JDb21tYW5kZXIvZ3VpL2N0cmx3aW5kb3cuY3BwVVQFAAMsxndRdXgLAAEE6AMA
-AAToAwAAUEsBAh4DFAAAAAgAy22YQh1aKsIPAgAAzgQAABcAGAAAAAAAAQAAAICBwBAAAFVTQkNv
-bW1hbmRlci91c2JpZmFjZS5oVVQFAAMOxndRdXgLAAEE6AMAAAToAwAAUEsBAh4DFAAAAAgAB3Fi
-Qv0UOpRMAQAANgIAABUAGAAAAAAAAQAAAICBIBMAAFVTQkNvbW1hbmRlci9sb2dnZXIuaFVUBQAD
-vvkxUXV4CwABBOgDAAAE6AMAAFBLAQIeAxQAAAAIAHdtmEKCZJxYiAEAANsDAAAVABgAAAAAAAEA
-AACkgbsUAABVU0JDb21tYW5kZXIvbWFpbi5jcHBVVAUAA3LFd1F1eAsAAQToAwAABOgDAABQSwEC
-HgMUAAAACABGcJhCnlvo+1wHAAC0RQAAIgAYAAAAAAABAAAApIGSFgAAVVNCQ29tbWFuZGVyL1VT
-QkNvbW1hbmRlci5wcm8udXNlclVUBQADxMl3UXV4CwABBOgDAAAE6AMAAFBLAQIeAxQAAAAIAJlm
-mELw816CZQIAADUGAAAXABgAAAAAAAEAAACAgUoeAABVU0JDb21tYW5kZXIvbG9nZ2VyLmNwcFVU
-BQADgbl3UXV4CwABBOgDAAAE6AMAAFBLAQIeAxQAAAAIACNgmEJ2BA12/gAAAO0BAAAdABgAAAAA
-AAEAAACkgQAhAABVU0JDb21tYW5kZXIvVVNCQ29tbWFuZGVyLnByb1VUBQADYq13UXV4CwABBOgD
-AAAE6AMAAFBLBQYAAAAADAAMAHAEAABVIgAAAAA=
---047d7b2e527e986fb504f63d1a26
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-HID-lg2ff-add-rumble-magnitude-clamping-quirk.patch"
-Content-Disposition: attachment;
-	filename="0001-HID-lg2ff-add-rumble-magnitude-clamping-quirk.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_htlv3mhq1
+> There is no API for setting
+> triggers from within the module and from looking at the code for these
+> triggers, some set the hardware blink rate which will blink the whole
+> light bar and some just use their own software timers and send
+> brightness commands which will only effect the LED they are set on which
+> results in unpredictable behavior depending on how the trigger is
+> implemented.
 
-RnJvbSA1MjhiNGM3ZTc4NDI5NjcyNTM4YTY1Mjg3MTYwYWQ1NDk4YWFmZDA1IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBFbGlhcyBWYW5kZXJzdHV5ZnQgPGVsaWFzLnZkc0BnbWFpbC5j
-b20+CkRhdGU6IFRodSwgMyBBcHIgMjAxNCAxOToyNTo1OCArMDIwMApTdWJqZWN0OiBbUEFUQ0hd
-IEhJRDogbGcyZmY6IGFkZCBydW1ibGUgbWFnbml0dWRlIGNsYW1waW5nIHF1aXJrCgpJZiBhIG1h
-Z25pdHVkZSBpbiB0aGUgb3V0cHV0IHJlcG9ydCBpcyBsb3dlciB0aGFuIDIsIGkuZS4gMSBvciAw
-LAp0aGUgY29ycmVzcG9uZGluZyBydW1ibGUgbW90b3Igc2hha2VzIGlycmVndWxhcmx5LAppbnN0
-ZWFkIG9mIGJlaW5nIHR1cm5lZCAoYWxtb3N0KSBvZmYgbGlrZSB3aGVuIG1hZ25pdHVkZSAyIGlz
-IHVzZWQuCk9uIHRoZSBvdGhlciBoYW5kLCBpZiBhIG1hZ25pdHVkZSBpcyBoaWdoZXIgdGhhbiAw
-eGZkLCBpLmUgMHhmZSBvciAweGZmLAp0aGUgY29ycmVzcG9uZGluZyBydW1ibGUgbW90b3Igc2hh
-a2VzIGlycmVndWxhcmx5IHdpdGggYSByb3RhdGlvbiBzcGVlZApsb3dlciB0aGFuIHdoZW4gbWFn
-bml0dWRlIDB4ZmQgaXMgdXNlZC4KRnJvbSAweDAyIHRvIDB4ZmQsIHRoZSBkZXZpY2UgYmVoYXZl
-cyB3ZWxsOgphIG1vbm90b25pYyBpbmNyZWFzZSBvZiByb3RhdGlvbiBzcGVlZC4KVGhpcyBhcHBs
-aWVzIHRvIGJvdGggd2VhayBhbmQgc3Ryb25nIHJ1bWJsZSBtb3RvciB0eXBlcy4KClRoaXMgcGF0
-Y2ggZml4ZXMgdGhpcyBpc3N1ZSBieSBjbGFtcGluZyBtYWduaXR1ZGVzIGZyb20gMHgwMiB0byAw
-eGZkLgoKTm90ZTogVGhlIHNhbWUgdGhpbmcgYXBwZWFycyB0byBoYXBwZW4gaW4gdGhlIFdpbmRv
-d3MgTG9naXRlY2ggZHJpdmVyLAogICAgICBleGNlcHQgdGhlIG1heCBjbGFtcGluZyBib3VuZCBp
-cyBub3QgMHhmZCwgYnV0IDB4ZmUuCiAgICAgIEV4cGVyaW1lbnRhbGx5LCBJIHByb3ZlZCB0aGlz
-IHRvIGJlIHdyb25nLgoKU2lnbmVkLW9mZi1ieTogRWxpYXMgVmFuZGVyc3R1eWZ0IDxlbGlhcy52
-ZHNAZ21haWwuY29tPgpDYzogbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1r
-ZXJuZWxAdmdlci5rZXJuZWwub3JnCi0tLQogZHJpdmVycy9oaWQvaGlkLWxnMmZmLmMgfCA1ICsr
-KysrCiAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9oaWQvaGlkLWxnMmZmLmMgYi9kcml2ZXJzL2hpZC9oaWQtbGcyZmYuYwppbmRleCAwZTNmYjFh
-Li5lMTgwZTFlIDEwMDY0NAotLS0gYS9kcml2ZXJzL2hpZC9oaWQtbGcyZmYuYworKysgYi9kcml2
-ZXJzL2hpZC9oaWQtbGcyZmYuYwpAQCAtMzgsMTIgKzM4LDE3IEBAIHN0YXRpYyBpbnQgcGxheV9l
-ZmZlY3Qoc3RydWN0IGlucHV0X2RldiAqZGV2LCB2b2lkICpkYXRhLAogCXN0cnVjdCBsZzJmZl9k
-ZXZpY2UgKmxnMmZmID0gZGF0YTsKIAlpbnQgd2Vhaywgc3Ryb25nOwogCisjZGVmaW5lIENMQU1Q
-X1FVSVJLKHgpIGRvIHsgaWYgKHggPCAyKSB4ID0gMjsgZWxzZSBpZiAoeCA+IDB4ZmQpIHggPSAw
-eGZkOyB9IFwKKwkJCXdoaWxlICgwKQorCiAJc3Ryb25nID0gZWZmZWN0LT51LnJ1bWJsZS5zdHJv
-bmdfbWFnbml0dWRlOwogCXdlYWsgPSBlZmZlY3QtPnUucnVtYmxlLndlYWtfbWFnbml0dWRlOwog
-CiAJaWYgKHdlYWsgfHwgc3Ryb25nKSB7CiAJCXdlYWsgPSB3ZWFrICogMHhmZiAvIDB4ZmZmZjsK
-IAkJc3Ryb25nID0gc3Ryb25nICogMHhmZiAvIDB4ZmZmZjsKKwkJQ0xBTVBfUVVJUksod2Vhayk7
-CisJCUNMQU1QX1FVSVJLKHN0cm9uZyk7CiAKIAkJbGcyZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZh
-bHVlWzBdID0gMHg1MTsKIAkJbGcyZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzJdID0gd2Vh
-azsKLS0gCjEuOC4zLjEKCg==
---047d7b2e527e986fb504f63d1a26--
+I see the driver has a special case/function for setting blink with
+'sony_led_blink_set()' which could be made to do funky stuff but that
+might very rapidly become messy.
+
+> These software-only triggers are why I'm thinking it would be good to
+> have an extra global control for controlling the whole light bar
+> synchronously.
+
+A while ago (summer 2012) I messed around with the idea of 'chaining'
+(grouping) leds together into a linked list, such that any actions on the
+head of the list were duplicated to all leds in the chain.
+
+The chain was created by a new trigger 'chain' and given the parameter of
+the led to follow. I got as far as some code (wanted to learn about linked
+lists in the kernel), but don't remember whether it worked properly on
+not.
+
+In this use case we could 'chain' the red->blue, and then have the blue
+trigger set as 'timer' (or 'heartbeat') to cause a 'off->purple' blinking.
+This would remove the contention in your scheme of having two places/leds
+('red' and 'all') which could be set differently.
+
+I can see if there's still some code on my disk if others are interested
+in the idea.
+Simon.
+
+
+

@@ -1,126 +1,60 @@
-From: Hendrik Iben <Hendrik_Iben@web.de>
-Subject: Re: hid-lg2ff handling of zero/low magnitude rumble effects
-Date: Sat, 05 Apr 2014 01:02:13 +0200
-Message-ID: <533F39F5.3020909@web.de>
-References: <CADbOyBRGha3+X8RSjvOU=ftTGuDGYAyuFW_b7==0HeF1uBLV-g@mail.gmail.com> <CADbOyBQkSGkDYcfpRUZR-h=gz-3S-NGLg4meuFYAP4zZQ7d2fQ@mail.gmail.com>
+From: Frank Praznik <frank.praznik@gmail.com>
+Subject: Re: [PATCH v4 7/7] HID: sony: Add blink support to the Sixaxis and
+ DualShock 4 LEDs
+Date: Fri, 04 Apr 2014 19:41:43 -0400
+Message-ID: <533F4337.8000101@gmail.com>
+References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>    <1396456285-23755-8-git-send-email-frank.praznik@oh.rr.com>    <fe23d57ea4d63af433e87f6641e5c339.squirrel@mungewell.org>    <533EBE48.5010100@oh.rr.com>    <9eabb4ae4fb93b4c51816953fc453e4f.squirrel@mungewell.org>    <533EFBFC.1000105@gmail.com> <a7a124f17fadaebb5c6e42337a25421a.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.14]:60929 "EHLO mout.web.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752185AbaDDXCj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Apr 2014 19:02:39 -0400
-In-Reply-To: <CADbOyBQkSGkDYcfpRUZR-h=gz-3S-NGLg4meuFYAP4zZQ7d2fQ@mail.gmail.com>
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:54893 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752185AbaDDXlq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Apr 2014 19:41:46 -0400
+Received: by mail-ie0-f176.google.com with SMTP id rd18so4084342iec.21
+        for <linux-input@vger.kernel.org>; Fri, 04 Apr 2014 16:41:46 -0700 (PDT)
+In-Reply-To: <a7a124f17fadaebb5c6e42337a25421a.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Elias Vanderstuyft <elias.vds@gmail.com>, Edgar Simo-Serra <bobbens@gmail.com>, Anssi Hannula <anssi.hannula@iki.fi>
-Cc: linux-input@vger.kernel.org, Simon Wood <simon@mungewell.org>, =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
+To: simon@mungewell.org
+Cc: Frank Praznik <frank.praznik@oh.rr.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Elias,
+On 4/4/2014 17:13, simon@mungewell.org wrote:
+> I see the driver has a special case/function for setting blink with 
+> 'sony_led_blink_set()' which could be made to do funky stuff but that 
+> might very rapidly become messy.
+>> These software-only triggers are why I'm thinking it would be good to
+>> have an extra global control for controlling the whole light bar
+>> synchronously.
+> A while ago (summer 2012) I messed around with the idea of 'chaining'
+> (grouping) leds together into a linked list, such that any actions on the
+> head of the list were duplicated to all leds in the chain.
+>
+> The chain was created by a new trigger 'chain' and given the parameter of
+> the led to follow. I got as far as some code (wanted to learn about linked
+> lists in the kernel), but don't remember whether it worked properly on
+> not.
+>
+> In this use case we could 'chain' the red->blue, and then have the blue
+> trigger set as 'timer' (or 'heartbeat') to cause a 'off->purple' blinking.
+> This would remove the contention in your scheme of having two places/leds
+> ('red' and 'all') which could be set differently.
+>
+> I can see if there's still some code on my disk if others are interested
+> in the idea.
+> Simon.
 
-First of all - thanks for caring about compatibility with old devices.
-It would be really annoying if something that worked once stopped
-working on an update.
+This sounds kind of like how things work now: The blink function maps 
+all blink requests to any of the LEDs to one global value and uses that 
+to set the hardware delay on/off values.
 
-I just dug out my old Wingman Rumblepad (VID 046d PID c20a) and did the
-test cases (thanks for the tool by the way - might come in handy for
-other things). The first motor for this device controls a weak/smooth
-rumble effect and the second one a strong/coarse one. For both motors,
-values from 00 to 03 have no effect on the haptic side. You can hear the
-motors spinning a bit higher if you hold the pad to your ear... :-) -
-but it sounds like a  linear increase. It similar for the high values.
-FC-FF produce the same high amount of rumble. There might be a small
-increase but not really any difference.
->From these observations I would say that clamping is fine for the
-Rumblepad although not needed. But a special case handling would have no
-positive effect.
-
-Best regards,
-Hendrik
-
-Am 04.04.2014 22:10, schrieb Elias Vanderstuyft:
-> Hi guys,
-> 
-> 
-> I'm about to release a patch (see attachment
-> "0001-HID-lg2ff-add-rumble-magnitude-clamping-quirk.patch") for the
-> lg2ff driver to account for some weird quirks concerning the magnitude
-> of a rumble effect.
-> You can read the description in that patch too get more details on it.
-> 
-> The reason I sent this to you, is because I only own and tested this
-> on a Logitech Vibration Feedback wheel, and not on a Rumblepad (2). I
-> saw that Hendrik might have a Wingman Rumblepad, and Edgar a Rumblepad
-> 2 device. But if other people have such lg2ff-compatible device as
-> well, feel free to cooperate.
-> May I ask you to perform some simple tests (see next paragraph) to
-> verify that these quirks are also valid on those devices?
-> 
-> To test sending some USB commands, I attached "USBCommander.zip" which
-> contains a program made with Qt4 by Michal (Cc'd; thanks Michal!) To
-> build it, you will need to run 'qmake-qt4' and 'make' in the top-level
-> directory.
-> It's simple to use USBCommander: enter the Vendor ID ("046d") and
-> Product ID ("c20a" for Rumblepad, or "c218" for Rumblepad 2), then
-> press 'Open', enter the to-be-tested command in the 'Command:' field,
-> and finally press 'Send command'.
-> After testing, press 'Release' and then quit the application.
-> You will need to run 'USBCommander' as root to send the USB commands.
-> 
-> Commands to test:
-> ==============
-> 
->     Send the following commands (without parentheses):
->     "51 00 xx 00 yy 00 00"
->     with yy (strong rumble) = "02" and:
->         xx = "00"    => You should feel an irregular weak rumble
->         xx = "01"    => You should feel an irregular weak rumble
->         xx = "02"    => You should feel (almost) no rumble
->         xx = "03"    => You should feel (almost) no rumble
->         xx = "FC"    => You should feel much weak rumble
->         xx = "FD"    => You should feel much weak rumble
->         xx = "FE"    => You should feel much irregular weak rumble,
-> but less than with xx = FD
->         xx = "FF"    => You should feel much irregular weak rumble,
-> but less than with xx = FD
-> 
->     Test the same for the other rumble motor type (swap xx with yy).
-> 
->     To stop the rumble, send the following command:
->     "F3 00 00 00 00 00 00"
-> 
-> If you discover that the results do not match my assumptions, please
-> tell what happens in that case.
-> 
-> 
-> Thank you very much,
-> 
-> Elias
-> 
-> On Thu, Mar 27, 2014 at 11:13 PM, Elias Vanderstuyft
-> <elias.vds@gmail.com> wrote:
->> Hi,
->>
->>
->> I noticed that my rumble wheel (Logitech Formula Vibration Feedback)
->> reacts in a strange way when sending low rumble magnitudes to the
->> device:
->>
->> Assume the following USB command to be send to emit rumble:
->>     report->field[0]->value[0] = 0x51;
->>     report->field[0]->value[2] = weak;
->>     report->field[0]->value[4] = strong;
->> When 'weak' or 'strong' is lower than 0x02 (i.e. 0x01 or 0x00), then
->> the corresponding rumble motor begins to rumble intermittently, this
->> resembles a bit to forcing a 2-state light-switch to be in the middle
->> position.
->>
->> Now my question is whether all other devices (e.g. "Logitech
->> RumblePad", "Rumblepad 2") experience this behaviour?
->> (If you own such a device, please verify this.)
->>
->>
->> Best regards,
->>
->> Elias
+I'd be interested in seeing your solution if you still have it, but that 
+still sounds like it still wouldn't work in the case of something like 
+the heartbeat trigger which doesn't actually use the blink function, 
+just runs it's own internal timer and just changes the brightness every 
+so often.  The LED code in the module doesn't know where the commands 
+are coming from, just that it's being told to change brightness so it 
+wouldn't know which commands come from a trigger and should effect 
+everything vs which are user commands and should just change the 
+brightness of that specific LED.

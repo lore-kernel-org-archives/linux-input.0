@@ -1,332 +1,76 @@
-From: Tolga Cakir <tolga@cevel.net>
-Subject: [PATCH 3/4] HID: microsoft: added Sidewinder X4 / X6 sysfs support
-Date: Fri,  4 Apr 2014 19:07:07 +0200
-Message-ID: <1396631227-11770-1-git-send-email-tolga@cevel.net>
+From: Frank Praznik <frank.praznik@gmail.com>
+Subject: Re: [PATCH v4 7/7] HID: sony: Add blink support to the Sixaxis and
+ DualShock 4 LEDs
+Date: Fri, 04 Apr 2014 14:37:48 -0400
+Message-ID: <533EFBFC.1000105@gmail.com>
+References: <1396456285-23755-1-git-send-email-frank.praznik@oh.rr.com>    <1396456285-23755-8-git-send-email-frank.praznik@oh.rr.com>    <fe23d57ea4d63af433e87f6641e5c339.squirrel@mungewell.org>    <533EBE48.5010100@oh.rr.com> <9eabb4ae4fb93b4c51816953fc453e4f.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp04.udag.de ([62.146.106.30]:34912 "EHLO smtp04.udag.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753285AbaDDRNZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Apr 2014 13:13:25 -0400
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:56802 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753762AbaDDShw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Apr 2014 14:37:52 -0400
+Received: by mail-ie0-f182.google.com with SMTP id y20so3794810ier.13
+        for <linux-input@vger.kernel.org>; Fri, 04 Apr 2014 11:37:51 -0700 (PDT)
+In-Reply-To: <9eabb4ae4fb93b4c51816953fc453e4f.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Derya <derya.kiran@yahoo.de>, Jiri Kosina <jkosina@suse.cz>, Reyad Attiyat <reyad.attiyat@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tolga Cakir <tolga@cevel.net>
+To: simon@mungewell.org, Frank Praznik <frank.praznik@oh.rr.com>
+Cc: HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-This patch enables us to set the profile, LEDs and read the key mask via sysfs. Documentation is included in this patch.
+On 4/4/2014 12:11, simon@mungewell.org wrote:
+> Why not make the triggers/etc apply across the board, so it doesn't matter
+> which led the command is sent to - it's just registered/copied to the
+> first (red?) led data[].
 
-Signed-off-by: Tolga Cakir <tolga@cevel.net>
----
- .../ABI/testing/sysfs-driver-hid-microsoft         |  30 +++
- drivers/hid/hid-microsoft.c                        | 231 +++++++++++++++++++++
- 2 files changed, 261 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-microsoft
+Unfortunately, it's not that simple.  There is no API for setting 
+triggers from within the module and from looking at the code for these 
+triggers, some set the hardware blink rate which will blink the whole 
+light bar and some just use their own software timers and send 
+brightness commands which will only effect the LED they are set on which 
+results in unpredictable behavior depending on how the trigger is 
+implemented.
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-microsoft b/Documentation/ABI/testing/sysfs-driver-hid-microsoft
-new file mode 100644
-index 0000000..9fdfad7
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-microsoft
-@@ -0,0 +1,30 @@
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/auto_led
-+Date:		April 2014
-+Contact:	Tolga Cakir <tolga@cevel.net>
-+Description:	This file allows you to set and view the Auto LED status.
-+		Valid values are 0 and 1.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/profile
-+Date:		April 2014
-+Contact:	Tolga Cakir <tolga@cevel.net>
-+Description:	Both, the Sidewinder X4 and the X6 can handle profiles.
-+		They can be switched by writing to this file. Profile LEDs will be
-+		set accordingly.
-+		Valid values are 1 - 3.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/key_mask
-+Date:		April 2014
-+Contact:	Tolga Cakir <tolga@cevel.net>
-+Description:	This file is read-only and outputs an unsigned long integer.
-+		Every bit represents one of the S1 - S6 extra keys on the Sidewinder
-+		X4 and S1 - S30 on the Sidewinder X6. The least significant bit
-+		represents S1 on both gaming keyboards, the most significant bit
-+		represents the Bank switch button on both keyboards. Multiple
-+		special keys can be pressed at the same time.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/record_led
-+Date:		April 2014
-+Contact:	Tolga Cakir <tolga@cevel.net>
-+Description:	This file allows you to set and view the Record LED status.
-+		Valid values are 0 - 2. 0 stands for off, 1 for solid mode and 2
-+		for blinking mode.
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 5b5d40f..5674c0c 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -19,6 +19,8 @@
- #include <linux/input.h>
- #include <linux/hid.h>
- #include <linux/module.h>
-+#include <linux/sysfs.h>
-+#include <linux/usb.h>
- 
- #include "hid-ids.h"
- 
-@@ -209,6 +211,219 @@ static int ms_sidewinder_kb_quirk(struct hid_input *hi, struct hid_usage *usage,
- 	return 1;
- }
- 
-+static int ms_sidewinder_control(struct hid_device *hdev, __u8 setup)
-+{
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+	struct hid_report *report =
-+			hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[7];
-+
-+	/*
-+	 * LEDs 1 - 3 should not be set simultaneously, however
-+	 * they can be set in any combination with Auto or Record LEDs.
-+	 */
-+	report->field[0]->value[0] = (setup & 0x01) ? 0x01 : 0x00;	/* X6 only: Macro Pad toggle */
-+	report->field[0]->value[1] = (setup & 0x02) ? 0x01 : 0x00;	/* LED Auto */
-+	report->field[0]->value[2] = (setup & 0x04) ? 0x01 : 0x00;	/* LED 1 */
-+	report->field[0]->value[3] = (setup & 0x08) ? 0x01 : 0x00;	/* LED 2 */
-+	report->field[0]->value[4] = (setup & 0x10) ? 0x01 : 0x00;	/* LED 3 */
-+	report->field[1]->value[0] = 0x00;	/* Clear Record LED */
-+
-+	switch (setup & 0x60) {
-+	case 0x40: report->field[1]->value[0] = 0x02;	break;	/* Record LED Blink */
-+	case 0x20: report->field[1]->value[0] = 0x03;	break;	/* Record LED Solid */
-+	}
-+
-+	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
-+	sidewinder->status = setup;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Sidewinder sysfs
-+ * @key_mask: show pressed special keys
-+ * @profile: show and set profile count and LED status
-+ * @auto_led: show and set LED Auto
-+ * @record_led: show and set Record LED
-+ */
-+static ssize_t ms_sidewinder_key_mask_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+
-+	return snprintf(buf, PAGE_SIZE, "%lu\n", sidewinder->key_mask);
-+}
-+
-+static struct device_attribute dev_attr_ms_sidewinder_key_mask = {
-+	.attr = { .name = __stringify(key_mask), .mode = S_IRUGO },
-+	.show = ms_sidewinder_key_mask_show
-+};
-+
-+static ssize_t ms_sidewinder_profile_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+
-+	return snprintf(buf, PAGE_SIZE, "%1u\n", sidewinder->profile);
-+}
-+
-+static ssize_t ms_sidewinder_profile_store(struct device *dev,
-+		struct device_attribute *attr, char const *buf, size_t count)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+	__u8 setup = sidewinder->status & ~(0x1c);	/* Clear Profile LEDs */
-+
-+	if (sscanf(buf, "%1u", &sidewinder->profile) != 1)
-+		return -EINVAL;
-+
-+	if (sidewinder->profile < 1 || sidewinder->profile > 3) {
-+		return -EINVAL;
-+	} else {
-+		setup |= 0x02 << sidewinder->profile;
-+		ms_sidewinder_control(hdev, setup);
-+		return strnlen(buf, PAGE_SIZE);
-+	}
-+}
-+
-+static struct device_attribute dev_attr_ms_sidewinder_profile =
-+	__ATTR(profile, S_IWUSR | S_IRUGO,
-+		ms_sidewinder_profile_show,
-+		ms_sidewinder_profile_store);
-+
-+static ssize_t ms_sidewinder_macro_pad_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+
-+	return snprintf(buf, PAGE_SIZE, "%1u\n", (sidewinder->status & 0x01));
-+}
-+
-+static ssize_t ms_sidewinder_macro_pad_store(struct device *dev,
-+		struct device_attribute *attr, char const *buf, size_t count)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+	unsigned int value;
-+	__u8 setup;
-+
-+	if (sscanf(buf, "%1u", &value) != 1)
-+		return -EINVAL;
-+
-+	if (value < 0 || value > 1) {
-+		return -EINVAL;
-+	} else {
-+		setup = sidewinder->status & ~(0x01);	/* Clear Macro Pad */
-+		if (value)
-+			setup |= 0x01;
-+		ms_sidewinder_control(hdev, setup);
-+		return strnlen(buf, PAGE_SIZE);
-+	}
-+}
-+
-+static struct device_attribute dev_attr_ms_sidewinder_macro_pad =
-+	__ATTR(macro_pad, S_IWUSR | S_IRUGO,
-+		ms_sidewinder_macro_pad_show,
-+		ms_sidewinder_macro_pad_store);
-+
-+static ssize_t ms_sidewinder_record_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+
-+	return snprintf(buf, PAGE_SIZE, "%1d\n", (sidewinder->status & 0x60) >> 5);
-+}
-+
-+static ssize_t ms_sidewinder_record_store(struct device *dev,
-+		struct device_attribute *attr, char const *buf, size_t count)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+	unsigned int value;
-+	__u8 setup;
-+
-+	if (sscanf(buf, "%1u", &value) != 1)
-+		return -EINVAL;
-+
-+	if (value < 0 || value > 2) {
-+		return -EINVAL;
-+	} else {
-+		setup = sidewinder->status & ~(0xe0);	/* Clear Record LED */
-+		if (value)
-+			setup |= 0x10 << value;
-+		ms_sidewinder_control(hdev, setup);
-+		return strnlen(buf, PAGE_SIZE);
-+	}
-+}
-+
-+static struct device_attribute dev_attr_ms_sidewinder_record =
-+	__ATTR(record_led, S_IWUSR | S_IRUGO,
-+		ms_sidewinder_record_show,
-+		ms_sidewinder_record_store);
-+
-+static ssize_t ms_sidewinder_auto_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+
-+	return snprintf(buf, PAGE_SIZE, "%1d\n", (sidewinder->status & 0x02) >> 1);
-+}
-+
-+static ssize_t ms_sidewinder_auto_store(struct device *dev,
-+		struct device_attribute *attr, char const *buf, size_t count)
-+{
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct ms_data *sc = hid_get_drvdata(hdev);
-+	struct ms_sidewinder_extra *sidewinder = sc->extra;
-+	unsigned int value;
-+	__u8 setup;
-+
-+	if (sscanf(buf, "%1d", &value) != 1)
-+		return -EINVAL;
-+
-+	if (value < 0 || value > 1) {
-+		return -EINVAL;
-+	} else {
-+		setup = sidewinder->status & ~(0x02);	/* Clear Auto LED */
-+		if (value)
-+			setup |= 0x02;
-+		ms_sidewinder_control(hdev, setup);
-+		return strnlen(buf, PAGE_SIZE);
-+	}
-+}
-+
-+static struct device_attribute dev_attr_ms_sidewinder_auto =
-+	__ATTR(auto_led, S_IWUSR | S_IRUGO,
-+		ms_sidewinder_auto_show,
-+		ms_sidewinder_auto_store);
-+
-+static struct attribute *ms_attributes[] = {
-+	&dev_attr_ms_sidewinder_key_mask.attr,
-+	&dev_attr_ms_sidewinder_profile.attr,
-+	&dev_attr_ms_sidewinder_macro_pad.attr,
-+	&dev_attr_ms_sidewinder_record.attr,
-+	&dev_attr_ms_sidewinder_auto.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group ms_attr_group = {
-+	.attrs = ms_attributes,
-+};
-+
- static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -357,6 +572,13 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			return -ENOMEM;
- 		}
- 		sc->extra = sidewinder;
-+
-+		/* Create sysfs files for the Consumer Control Device only */
-+		if (hdev->type == 2) {
-+			if (sysfs_create_group(&hdev->dev.kobj, &ms_attr_group)) {
-+				hid_warn(hdev, "Could not create sysfs group\n");
-+			}
-+		}
- 	}
- 
- 	ret = hid_parse(hdev);
-@@ -377,6 +599,14 @@ err_free:
- 	return ret;
- }
- 
-+static void ms_remove(struct hid_device *hdev)
-+{
-+	sysfs_remove_group(&hdev->dev.kobj,
-+		&ms_attr_group);
-+
-+	hid_hw_stop(hdev);
-+}
-+
- static const struct hid_device_id ms_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV),
- 		.driver_data = MS_HIDINPUT },
-@@ -419,6 +649,7 @@ static struct hid_driver ms_driver = {
- 	.input_mapped = ms_input_mapped,
- 	.event = ms_event,
- 	.probe = ms_probe,
-+	.remove = ms_remove,
- };
- module_hid_driver(ms_driver);
- 
--- 
-1.9.1
+These software-only triggers are why I'm thinking it would be good to 
+have an extra global control for controlling the whole light bar 
+synchronously.  Even if you set all the LEDs to the same software 
+trigger the colors may not flash in sync if the trigger starts a 
+separate timer for each LED and in some cases the trigger may mangle the 
+user defined brightness settings (ie. the heartbeat trigger doesn't read 
+the current brightness and just uses the maximum).
 
+With an extra global switch, you can set the desired brightness levels 
+for each color, then just use the global control to set the on/off state 
+and get consistent blink behavior even if the trigger uses software 
+timers or doesn't care about the user's brightness settings.  Plus, if 
+for some reason you do want to flash individual colors, setting the 
+blink rate of an individual color will always blink only that color 
+instead of potentially blinking the whole light bar if the trigger tries 
+to set the hardware blink rate.
+
+I think it will be more functional, more predictable and less confusing.
+
+>
+>>> 3rd Party Intec - Was unable to get any controlled blinking.
+>> It sounds like this controller just doesn't implement all of the
+>> behavior of the official controller.  I'm not sure how to fix it if it's
+>> not obeying the instructions in valid output reports and I don't have
+>> one to test personally.  Do the lights flash properly when the
+>> controller is used with a PS3?
+> I presume that they just reversed engineered what they thought to be
+> correct, I don't have a Playstation so can't confirm for certain.
+>
+> In my testing from a year ago or so, I could make the blink work via
+> sending data with python. The script can be found here:
+> http://www.spinics.net/lists/linux-input/msg28271.html
+>
+> Note: "Which LED to enable(LED1..4 << 1, 0x20=none)"
+>
+> Cheers,
+> Simon
+>
+
+I'll take a look, but without having that particular controller all I 
+can do is take a shot in the dark.

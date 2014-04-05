@@ -1,55 +1,56 @@
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH] input: pcap2: avoid calling mutex_lock() in irq handler
-Date: Sun,  6 Apr 2014 00:54:50 +0400
-Message-ID: <1396731290-7062-1-git-send-email-khoroshilov@ispras.ru>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: [PATCHv2 0/5] tsc2005 DT binding
+Date: Sun,  6 Apr 2014 00:26:56 +0200
+Message-ID: <1396736821-14395-1-git-send-email-sre@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ispras.ru ([83.149.199.45]:41378 "EHLO mail.ispras.ru"
+Received: from ring0.de ([5.45.105.125]:47547 "EHLO ring0.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753633AbaDEUzF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Apr 2014 16:55:05 -0400
+	id S1753727AbaDEW1J (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Apr 2014 18:27:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org, Alexey Khoroshilov <khoroshilov@ispras.ru>
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
 
-pcap_keys_handler() calls ezx_pcap_read() that calls mutex_lock().
-pcap_keys_handler() is registered as nonthreaded irq handler,
-that means sleeping function is called in irq handler.
+Hi,
 
-The patch makes a switch to threaded irq handling.
-Compile tested only.
+This adds device tree support for the tsc2005 touchscreen
+controller, which is currently only used by the Nokia N900
+board.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+The patch does not update the reset pin handling for platform
+data based probe to avoid merge conflicts. The n900 platform
+code will be removed in the near future (3.16?) and the driver
+can be simplified once that has happened.
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
----
- drivers/input/misc/pcap_keys.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Changes since v1 [0]:
+ * rename "reset-gpio" to "reset-gpios", so that the code can easily
+   switch to the gpiod interface (once the boardcode is gone).
+ * rename ti,fuzz-* and ti,max-* to touchscreen-fuzz-* and
+   touchscreen-size-* and specify them as common touchscreen binding.
+ * implement input_parse_touchscreen_of_params(), which parses the
+   common touchscreen binding.
 
-diff --git a/drivers/input/misc/pcap_keys.c b/drivers/input/misc/pcap_keys.c
-index cd230365166e..2a10f3a30969 100644
---- a/drivers/input/misc/pcap_keys.c
-+++ b/drivers/input/misc/pcap_keys.c
-@@ -79,13 +79,15 @@ static int pcap_keys_probe(struct platform_device *pdev)
- 	if (err)
- 		goto fail_allocate;
- 
--	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
--			pcap_keys_handler, 0, "Power key", pcap_keys);
-+	err = request_threaded_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
-+				   NULL, pcap_keys_handler, 0,
-+				   "Power key", pcap_keys);
- 	if (err)
- 		goto fail_register;
- 
--	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
--			pcap_keys_handler, 0, "Headphone button", pcap_keys);
-+	err = request_threaded_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
-+				   NULL, pcap_keys_handler, 0,
-+				   "Headphone button", pcap_keys);
- 	if (err)
- 		goto fail_pwrkey;
- 
+[0] https://lkml.org/lkml/2013/12/5/607
+
+-- Sebastian
+
+Sebastian Reichel (5):
+  Input: add common DT binding for touchscreens
+  Input: tsc2005: use dev_err for error messages
+  Input: tsc2005: convert driver to use devm_*
+  Input: tsc2005: add DT support
+  Documentation: dt: Document TSC2005 DT binding
+
+ .../bindings/input/touchscreen/touchscreen.txt     |   9 ++
+ .../bindings/input/touchscreen/tsc2005.txt         |  39 +++++++
+ drivers/input/input.c                              |  34 ++++++
+ drivers/input/touchscreen/tsc2005.c                | 130 ++++++++++++++-------
+ include/linux/input.h                              |   8 ++
+ 5 files changed, 179 insertions(+), 41 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+
 -- 
-1.8.3.2
+1.9.1
 

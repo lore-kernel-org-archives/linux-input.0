@@ -1,51 +1,55 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: hid-lg2ff handling of zero/low magnitude rumble effects
-Date: Sat, 5 Apr 2014 09:31:08 +0200
-Message-ID: <CADbOyBSO3WAyZf+u+8Lfdqi7PrBuMW36ZJ7mN84U5RPXAVmtiA@mail.gmail.com>
-References: <CADbOyBRGha3+X8RSjvOU=ftTGuDGYAyuFW_b7==0HeF1uBLV-g@mail.gmail.com>
-	<CADbOyBQkSGkDYcfpRUZR-h=gz-3S-NGLg4meuFYAP4zZQ7d2fQ@mail.gmail.com>
-	<533F39F5.3020909@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH] input: pcap2: avoid calling mutex_lock() in irq handler
+Date: Sun,  6 Apr 2014 00:54:50 +0400
+Message-ID: <1396731290-7062-1-git-send-email-khoroshilov@ispras.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f178.google.com ([209.85.220.178]:55533 "EHLO
-	mail-vc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753894AbaDEHbJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Apr 2014 03:31:09 -0400
-Received: by mail-vc0-f178.google.com with SMTP id im17so3906332vcb.9
-        for <linux-input@vger.kernel.org>; Sat, 05 Apr 2014 00:31:08 -0700 (PDT)
-In-Reply-To: <533F39F5.3020909@web.de>
+Received: from mail.ispras.ru ([83.149.199.45]:41378 "EHLO mail.ispras.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753633AbaDEUzF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Apr 2014 16:55:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hendrik Iben <Hendrik_Iben@web.de>
-Cc: Edgar Simo-Serra <bobbens@gmail.com>, Anssi Hannula <anssi.hannula@iki.fi>, linux-input@vger.kernel.org, Simon Wood <simon@mungewell.org>, =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org, Alexey Khoroshilov <khoroshilov@ispras.ru>
 
-On Sat, Apr 5, 2014 at 1:02 AM, Hendrik Iben <Hendrik_Iben@web.de> wrote:
-> Hi Elias,
->
-> First of all - thanks for caring about compatibility with old devices.
-> It would be really annoying if something that worked once stopped
-> working on an update.
->
-> I just dug out my old Wingman Rumblepad (VID 046d PID c20a) and did the
-> test cases (thanks for the tool by the way - might come in handy for
-> other things). The first motor for this device controls a weak/smooth
-> rumble effect and the second one a strong/coarse one. For both motors,
-> values from 00 to 03 have no effect on the haptic side. You can hear the
-> motors spinning a bit higher if you hold the pad to your ear... :-) -
-> but it sounds like a  linear increase. It similar for the high values.
-> FC-FF produce the same high amount of rumble. There might be a small
-> increase but not really any difference.
-> From these observations I would say that clamping is fine for the
-> Rumblepad although not needed. But a special case handling would have no
-> positive effect.
+pcap_keys_handler() calls ezx_pcap_read() that calls mutex_lock().
+pcap_keys_handler() is registered as nonthreaded irq handler,
+that means sleeping function is called in irq handler.
 
-OK, thanks for testing! I agree that a special case handling would
-have no positive effect.
-I tried to contact Edgar earlier past month, but until now I can't
-seem to get in touch with him.
-If there is no reply in a reasonable amount of time, I'll release the
-patch, it won't hurt anyone ;)
+The patch makes a switch to threaded irq handling.
+Compile tested only.
 
-Again thanks,
-Elias
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+---
+ drivers/input/misc/pcap_keys.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/misc/pcap_keys.c b/drivers/input/misc/pcap_keys.c
+index cd230365166e..2a10f3a30969 100644
+--- a/drivers/input/misc/pcap_keys.c
++++ b/drivers/input/misc/pcap_keys.c
+@@ -79,13 +79,15 @@ static int pcap_keys_probe(struct platform_device *pdev)
+ 	if (err)
+ 		goto fail_allocate;
+ 
+-	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
+-			pcap_keys_handler, 0, "Power key", pcap_keys);
++	err = request_threaded_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
++				   NULL, pcap_keys_handler, 0,
++				   "Power key", pcap_keys);
+ 	if (err)
+ 		goto fail_register;
+ 
+-	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
+-			pcap_keys_handler, 0, "Headphone button", pcap_keys);
++	err = request_threaded_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
++				   NULL, pcap_keys_handler, 0,
++				   "Headphone button", pcap_keys);
+ 	if (err)
+ 		goto fail_pwrkey;
+ 
+-- 
+1.8.3.2
+

@@ -1,44 +1,67 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: [PATCHv2 2/5] Input: tsc2005: use dev_err for error messages
-Date: Sun,  6 Apr 2014 00:26:58 +0200
-Message-ID: <1396736821-14395-3-git-send-email-sre@kernel.org>
-References: <1396736821-14395-1-git-send-email-sre@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1396736821-14395-1-git-send-email-sre@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
+From: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: 8 months to review a patch (was Re: [PATCH] Route kbd LEDs
+ through the generic LEDs layer)
+Date: Sun, 6 Apr 2014 11:43:13 +0200
+Message-ID: <CAHYPw2FAVtxxt_6=LArC=T_Ca=+tTsE37U29mrY-=OViHXf_2g@mail.gmail.com>
+References: <20110102225741.GX5480@const.famille.thibault.fr>
+ <20110112182702.GA9168@core.coreip.homeip.net> <20111114040613.GA4992@type.famille.thibault.fr>
+ <20121221003449.GA6999@type.youpi.perso.aquilenet.fr> <20130713093552.GU8252@type>
+ <20130715091230.GA8786@amd.pavel.ucw.cz> <CAHYPw2H94ej=FdqHAxXpyZt+34TwK1Qj7LWP_bMro-v3JREisg@mail.gmail.com>
+ <20140316101946.GJ6436@type.youpi.perso.aquilenet.fr> <CAHYPw2EAgjdcNATy0d6DhbT9qHAHJLda7gsLrnSJ7F4Cj=a-JQ@mail.gmail.com>
+ <20140328070136.GA15953@amd.pavel.ucw.cz> <20140328071743.GA17588@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f45.google.com ([209.85.192.45]:42303 "EHLO
+	mail-qg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753448AbaDFJny convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Apr 2014 05:43:54 -0400
+In-Reply-To: <20140328071743.GA17588@kroah.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Pavel Machek <pavel@ucw.cz>, dtor@mail.ru, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, jslaby@suse.cz, Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>, Evan Broder <evan@ebroder.net>, Arnaud Patard <arnaud.patard@rtp-net.org>, Linus Torvalds <torvalds@linux-foundation.org>
 
-Change some dev_dbg() invocations to dev_err() ones, because they
-are supposed to output error messages.
+2014-03-28 8:17 GMT+01:00 Greg KH <greg@kroah.com>:
+> On Fri, Mar 28, 2014 at 08:01:36AM +0100, Pavel Machek wrote:
+>> On Thu 2014-03-27 02:08:17, Pali Roh=C3=A1r wrote:
+>> > 2014-03-16 11:19 GMT+01:00 Samuel Thibault <samuel.thibault@ens-ly=
+on.org>:
+>> > > Pali Roh=C3=A1r, le Sun 16 Mar 2014 11:16:25 +0100, a =C3=A9crit=
+ :
+>> > >> Hello, what happened with this patch? Is there any problem with=
+ accepting it?
+>> > >
+>> > > Dmitry finding time to review it, I guess.
+>>
+>> > Dmitry, can you look and review this patch?
+>>
+>> Dmitry, what happened to you, are you there? This patch is like 8
+>> months old, and not too scary, either. Can you at least pinpoint som=
+e
+>> typos in it, or run in through the checkpatch?
+>>
+>> If Dmitry does not respond, what are the next steps. Greg, could you
+>> just take the patch? Linus?
+>
+> No, work with Dmitry please.
+>
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
----
- drivers/input/touchscreen/tsc2005.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Greg, problem is that Dmitry does not respond and has not reviewed
+this patch for more that 8 months. From my point of view this looks
+like Dmitry does not have time for review anymore...
 
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index 550adcb..520e673 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -579,7 +579,7 @@ static int tsc2005_probe(struct spi_device *spi)
- 	int error;
- 
- 	if (!pdata) {
--		dev_dbg(&spi->dev, "no platform data\n");
-+		dev_err(&spi->dev, "no platform data\n");
- 		return -ENODEV;
- 	}
- 
-@@ -591,7 +591,7 @@ static int tsc2005_probe(struct spi_device *spi)
- 	max_p	= pdata->ts_pressure_max   ? : MAX_12BIT;
- 
- 	if (spi->irq <= 0) {
--		dev_dbg(&spi->dev, "no irq\n");
-+		dev_err(&spi->dev, "no irq\n");
- 		return -ENODEV;
- 	}
- 
--- 
-1.9.1
+What to do if maintainer is busy for a long time?
+Really could not you look at this patch?
+
+https://lkml.org/lkml/2014/3/31/141
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,96 +1,72 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCHv2 1/5] Input: add common DT binding for touchscreens
-Date: Mon, 7 Apr 2014 21:53:48 -0500
-Message-ID: <CAL_Jsq+K7mJ_=Hv0gH+h0HK7BKeXz9F6vSdi6DFyfayePbohNg@mail.gmail.com>
-References: <1396736821-14395-1-git-send-email-sre@kernel.org>
-	<1396736821-14395-2-git-send-email-sre@kernel.org>
-	<CAL_Jsq+46bPtgnQc5aAN8bcaw=te6MX=cvMMNP6+6xjG8Drkbg@mail.gmail.com>
-	<20140407200022.GA20023@earth.universe>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: [PATCH] HID: lg2ff: add rumble magnitude clamping quirk
+Date: Tue,  8 Apr 2014 15:06:07 +0200
+Message-ID: <1396962367-6469-1-git-send-email-elias.vds@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20140407200022.GA20023@earth.universe>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-omap <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Elias Vanderstuyft <elias.vds@gmail.com>, Edgar Simo-Serra <bobbens@gmail.com>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 7, 2014 at 3:00 PM, Sebastian Reichel <sre@kernel.org> wrote:
-> On Mon, Apr 07, 2014 at 11:38:01AM -0500, Rob Herring wrote:
->> On Sat, Apr 5, 2014 at 5:26 PM, Sebastian Reichel <sre@kernel.org> wrote:
->> > Add common DT binding documentation for touchscreen devices and
->> > implement input_parse_touchscreen_of_params, which parses the common
->> > properties and configures the input device accordingly.
->>
->> Good.
->>
->> [...]
->> > +Optional properties for Touchscreens:
->> > + - touchscreen-size-x          : horizontal resolution of touchscreen
->> > + - touchscreen-size-y          : vertical resolution of touchscreen
->>
->> While I like the consistency, x-size and y-size are already commonly
->> used. Perhaps the common binding should have both and x-size/y-size be
->> marked deprecated.
->
-> So you want me to add something like the following?
->
-> - x-size : deprecated name for touchscreen-size-x
-> - y-size : deprecated name for touchscreen-size-y
+If a magnitude in the output report is lower than 2, i.e. 1 or 0,
+the corresponding rumble motor shakes irregularly,
+instead of being turned (almost) off like when magnitude 2 is used.
+On the other hand, if a magnitude is higher than 0xfd, i.e 0xfe or 0xff=
+,
+the corresponding rumble motor shakes irregularly with a rotation speed
+lower than when magnitude 0xfd is used.
+=46rom 0x02 to 0xfd, the device behaves well:
+a monotonic increase of rotation speed.
+This applies to both weak and strong rumble motor types.
 
-Yes.
+This patch fixes this issue by clamping magnitudes from 0x02 to 0xfd.
 
->
->> > + - touchscreen-max-pressure    : maximum reported pressure
->> > + - touchscreen-fuzz-x          : horizontal noise value of the absolute input device
->> > + - touchscreen-fuzz-y          : vertical noise value of the absolute input device
->> > + - touchscreen-fuzz-pressure   : pressure noise value of the absolute input device
->>
->> What are the units or are they just an arbitrary range dependent on
->> the controller? Several existing bindings appear to be in pixels, but
->> that seems wrong to me.
->
-> x/y related properties: pixels
-> pressure related properties: arbitrary range dependent on the controller
+This behaviour is observed on the Formula Vibration wheel (ca04).
+However it's not present on the Wingman Rumblepad (c20a) device,
+yet the clamping has no effect on the haptic side,
+so that special case handling is not needed.
+Discussion on http://www.spinics.net/lists/linux-input/msg30711.html
 
-Please make this clear in the binding description.
+Note: The same thing appears to happen in the Windows Logitech driver,
+      except the max clamping bound is not 0xfd, but 0xfe.
+      Experimentally, I proved this to be wrong.
 
->> There's also these various properties that should have common versions created:
->>
->> ti,x-plate-resistance and ti,x-plate-ohms (tsc2007)
->
-> I think this is ti specific. But I should probably name the tsc2005
-> property "ti,x-plate-ohms", so that its in sync with tsc2007.
->
->> - rohm,flip-x             : Flip touch coordinates on the X axis
->> - rohm,flip-y             : Flip touch coordinates on the Y axis
->> - x-invert: invert X axis
->> - y-invert: invert Y axis
->
-> like this?
->
-> - touchscreen-inverted-x: X axis is inverted
-> - touchscreen-inverted-y: Y axis is inverted
-> - x-invert: deprecated name for touchscreen-inverted-x
-> - y-invert: deprecated name for touchscreen-inverted-y
->
-> Inverting is currently not supported by the input system, though. So
-> adding support for it to input_parse_touchscreen_of_params() is not
-> trivial :/
+Tested-by: Hendrik Iben <hendrik_iben@web.de>
+Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
+Cc: Edgar Simo-Serra <bobbens@gmail.com>
+Cc: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/hid/hid-lg2ff.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Does not matter. I'm only asking you to define the property. Linux
-does not have to use it currently.
-
->> - contact-threshold:
->> - moving-threshold:
->
-> I think those are hardware specific. The properties are currently
-> used by one driver, which writes them directly into some registers.
-> The DT binding does not give more information about them.
-
-moving-threshold is probably the same as fuzz. contact-threshold is
-sounds like min pressure. I remember having to tune the minimum
-pressure on a touchscreen I worked on long ago. So think think is
-definitely not an uncommon property.
-
-Rob
+diff --git a/drivers/hid/hid-lg2ff.c b/drivers/hid/hid-lg2ff.c
+index 0e3fb1a..e180e1e 100644
+--- a/drivers/hid/hid-lg2ff.c
++++ b/drivers/hid/hid-lg2ff.c
+@@ -38,12 +38,17 @@ static int play_effect(struct input_dev *dev, void =
+*data,
+ 	struct lg2ff_device *lg2ff =3D data;
+ 	int weak, strong;
+=20
++#define CLAMP_QUIRK(x) do { if (x < 2) x =3D 2; else if (x > 0xfd) x =3D=
+ 0xfd; } \
++			while (0)
++
+ 	strong =3D effect->u.rumble.strong_magnitude;
+ 	weak =3D effect->u.rumble.weak_magnitude;
+=20
+ 	if (weak || strong) {
+ 		weak =3D weak * 0xff / 0xffff;
+ 		strong =3D strong * 0xff / 0xffff;
++		CLAMP_QUIRK(weak);
++		CLAMP_QUIRK(strong);
+=20
+ 		lg2ff->report->field[0]->value[0] =3D 0x51;
+ 		lg2ff->report->field[0]->value[2] =3D weak;
+--=20
+1.8.3.1

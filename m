@@ -1,7 +1,7 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH 19/24] Port hid-zpff to ff-memless-next
-Date: Wed, 09 Apr 2014 13:29:42 +0200
-Message-ID: <1496205.vHVYf5XDMd@sigyn>
+Subject: [PATCH 20/24] Port gamecon to ff-memless-next
+Date: Wed, 09 Apr 2014 13:30:45 +0200
+Message-ID: <2807349.5CLbAnYOXZ@sigyn>
 References: <1609685.QRL9N9sQvX@sigyn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -13,96 +13,135 @@ To: dmitry.torokhov@gmail.com, jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Elias Vanderstuyft <elias.vds@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-zpff to ff-memless-next
+Port gamecon to ff-memless-next
 
 Signed-off-by: Michal Mal=FD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig    |  2 +-
- drivers/hid/hid-zpff.c | 30 ++++++++++++++++++++++--------
- 2 files changed, 23 insertions(+), 9 deletions(-)
+ drivers/input/joystick/Kconfig   |  2 +-
+ drivers/input/joystick/gamecon.c | 57 ++++++++++++++++++++++----------=
+--------
+ 2 files changed, 33 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index d1cbad6..7d617a8 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -775,7 +775,7 @@ config HID_ZEROPLUS
- config ZEROPLUS_FF
- 	bool "Zeroplus based game controller force feedback support"
- 	depends on HID_ZEROPLUS
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kc=
+onfig
+index 56eb471..2dd3ba1 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -221,7 +221,7 @@ config JOYSTICK_DB9
+ config JOYSTICK_GAMECON
+ 	tristate "Multisystem, NES, SNES, N64, PSX joysticks and gamepads"
+ 	depends on PARPORT
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	---help---
- 	  Say Y here if you have a Zeroplus based game controller and want
- 	  to have force feedback support for it.
-diff --git a/drivers/hid/hid-zpff.c b/drivers/hid/hid-zpff.c
-index a29756c..6912500 100644
---- a/drivers/hid/hid-zpff.c
-+++ b/drivers/hid/hid-zpff.c
-@@ -25,9 +25,12 @@
+ 	  Say Y here if you have a Nintendo Entertainment System gamepad,
+ 	  Super Nintendo Entertainment System gamepad, Nintendo 64 gamepad,
+diff --git a/drivers/input/joystick/gamecon.c b/drivers/input/joystick/=
+gamecon.c
+index e68e497..209d0fb 100644
+--- a/drivers/input/joystick/gamecon.c
++++ b/drivers/input/joystick/gamecon.c
+@@ -40,6 +40,7 @@
  #include <linux/input.h>
+ #include <linux/mutex.h>
  #include <linux/slab.h>
- #include <linux/module.h>
 +#include <linux/input/ff-memless-next.h>
 =20
- #include "hid-ids.h"
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("NES, SNES, N64, MultiSystem, PSX gamepad driver");
+@@ -47,6 +48,7 @@ MODULE_LICENSE("GPL");
 =20
+ #define GC_MAX_PORTS		3
+ #define GC_MAX_DEVICES		5
 +#define FF_UPDATE_RATE 50
-+
- #ifdef CONFIG_ZEROPLUS_FF
 =20
- struct zpff_device {
-@@ -35,10 +38,11 @@ struct zpff_device {
- };
+ struct gc_config {
+ 	int args[GC_MAX_DEVICES + 1];
+@@ -263,43 +265,48 @@ static void gc_n64_process_packet(struct gc *gc)
+ }
 =20
- static int zpff_play(struct input_dev *dev, void *data,
--			 struct ff_effect *effect)
-+			 const struct mlnx_effect_command *command)
+ static int gc_n64_play_effect(struct input_dev *dev, void *data,
+-			      struct ff_effect *effect)
++			      const struct mlnx_effect_command *command)
  {
- 	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct zpff_device *zpff =3D data;
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
- 	int left, right;
+ 	int i;
+ 	unsigned long flags;
+ 	struct gc *gc =3D input_get_drvdata(dev);
+ 	struct gc_subdev *sdev =3D data;
+ 	unsigned char target =3D 1 << sdev->idx; /* select desired pin */
++	unsigned int cmd;
 =20
- 	/*
-@@ -47,12 +51,22 @@ static int zpff_play(struct input_dev *dev, void *d=
-ata,
- 	 * however it is possible that the XFX Executioner is an exception
- 	 */
-=20
--	left =3D effect->u.rumble.strong_magnitude;
--	right =3D effect->u.rumble.weak_magnitude;
--	dbg_hid("called with 0x%04x 0x%04x\n", left, right);
--
--	left =3D left * 0x7f / 0xffff;
--	right =3D right * 0x7f / 0xffff;
+-	if (effect->type =3D=3D FF_RUMBLE) {
+-		struct ff_rumble_effect *rumble =3D &effect->u.rumble;
+-		unsigned int cmd =3D
+-			rumble->strong_magnitude || rumble->weak_magnitude ?
+-			GC_N64_CMD_01 : GC_N64_CMD_00;
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		left =3D rumble_force->strong;
-+		right =3D rumble_force->weak;
-+		dbg_hid("called with 0x%04x 0x%04x\n", left, right);
-+
-+		left =3D left * 0x7f / 0xffff;
-+		right =3D right * 0x7f / 0xffff;
++		cmd =3D (rumble_force->strong || rumble_force->weak) ? GC_N64_CMD_01=
+ : GC_N64_CMD_00;
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		left =3D 0;
-+		right =3D 0;
++		cmd =3D GC_N64_CMD_00;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 =20
- 	zpff->report->field[2]->value[0] =3D left;
- 	zpff->report->field[3]->value[0] =3D right;
-@@ -83,7 +97,7 @@ static int zpff_init(struct hid_device *hid)
+-		local_irq_save(flags);
++	local_irq_save(flags);
 =20
- 	set_bit(FF_RUMBLE, dev->ffbit);
+-		/* Init Rumble - 0x03, 0x80, 0x01, (34)0x80 */
+-		gc_n64_send_command(gc, GC_N64_CMD_03, target);
++	/* Init Rumble - 0x03, 0x80, 0x01, (34)0x80 */
++	gc_n64_send_command(gc, GC_N64_CMD_03, target);
++	gc_n64_send_command(gc, GC_N64_CMD_80, target);
++	gc_n64_send_command(gc, GC_N64_CMD_01, target);
++	for (i =3D 0; i < 32; i++)
+ 		gc_n64_send_command(gc, GC_N64_CMD_80, target);
+-		gc_n64_send_command(gc, GC_N64_CMD_01, target);
+-		for (i =3D 0; i < 32; i++)
+-			gc_n64_send_command(gc, GC_N64_CMD_80, target);
+-		gc_n64_send_stop_bit(gc, target);
++	gc_n64_send_stop_bit(gc, target);
 =20
--	error =3D input_ff_create_memless(dev, zpff, zpff_play);
-+	error =3D input_ff_create_mlnx(dev, zpff, zpff_play, FF_UPDATE_RATE);
- 	if (error) {
- 		kfree(zpff);
- 		return error;
+-		udelay(GC_N64_DELAY);
+-
+-		/* Now start or stop it - 0x03, 0xc0, 0zx1b, (32)0x01/0x00 */
+-		gc_n64_send_command(gc, GC_N64_CMD_03, target);
+-		gc_n64_send_command(gc, GC_N64_CMD_c0, target);
+-		gc_n64_send_command(gc, GC_N64_CMD_1b, target);
+-		for (i =3D 0; i < 32; i++)
+-			gc_n64_send_command(gc, cmd, target);
+-		gc_n64_send_stop_bit(gc, target);
++	udelay(GC_N64_DELAY);
+=20
+-		local_irq_restore(flags);
++	/* Now start or stop it - 0x03, 0xc0, 0zx1b, (32)0x01/0x00 */
++	gc_n64_send_command(gc, GC_N64_CMD_03, target);
++	gc_n64_send_command(gc, GC_N64_CMD_c0, target);
++	gc_n64_send_command(gc, GC_N64_CMD_1b, target);
++	for (i =3D 0; i < 32; i++)
++		gc_n64_send_command(gc, cmd, target);
++	gc_n64_send_stop_bit(gc, target);
+=20
+-	}
++	local_irq_restore(flags);
+=20
+ 	return 0;
+ }
+@@ -317,7 +324,7 @@ static int __init gc_n64_init_ff(struct input_dev *=
+dev, int i)
+=20
+ 	input_set_capability(dev, EV_FF, FF_RUMBLE);
+=20
+-	err =3D input_ff_create_memless(dev, sdev, gc_n64_play_effect);
++	err =3D input_ff_create_mlnx(dev, sdev, gc_n64_play_effect, FF_UPDATE=
+_RATE);
+ 	if (err) {
+ 		kfree(sdev);
+ 		return err;
 --=20
 1.9.1

@@ -1,95 +1,27 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH resend 1/2] input/serio: Add a firmware_id sysfs attribute
-Date: Wed,  9 Apr 2014 10:47:49 +0200
-Message-ID: <1397033270-29597-2-git-send-email-hdegoede@redhat.com>
-References: <1397033270-29597-1-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH resend 0/2] input/serio: Add a firmware_id sysfs attribute
+Date: Wed,  9 Apr 2014 10:47:48 +0200
+Message-ID: <1397033270-29597-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:12998 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:23381 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750889AbaDIIr7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Apr 2014 04:47:59 -0400
-In-Reply-To: <1397033270-29597-1-git-send-email-hdegoede@redhat.com>
+	id S1750770AbaDIIr5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Apr 2014 04:47:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org
 
-serio devices exposed via platform firmware interfaces such as ACPI
-may provide additional identifying information of use to userspace.
+Hi All,
 
-We don't associate the serio devices with the firmware device (we don't
-set it as parent), so there's no way for userspace to make use of this
-information.
+It seems that in our last discussion of this patch-set we ended up agreeing
+that this really is something which we want to have since Windows drivers use
+on PNP IDs to distguinish between various models and using the same mechanism
+as windows is the best way to avoid surprises.
 
-We cannot change the parent for serio devices instantiated though a firmware
-interface as that would break suspend / resume ordering.
+So here is a resend with the intent to get this merged now that we agree on
+this.
 
-Therefor this patch adds a new firmware_id sysfs attribute so that userspace
-can get a string from there with any additional identifying information the
-firmware interface may provide.
+Thanks & Regards,
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
----
- drivers/input/serio/serio.c | 12 ++++++++++++
- include/linux/serio.h       |  1 +
- 2 files changed, 13 insertions(+)
-
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 8f4c4ab..1788a4d 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -451,6 +451,13 @@ static ssize_t serio_set_bind_mode(struct device *dev, struct device_attribute *
- 	return retval;
- }
- 
-+static ssize_t firmware_id_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct serio *serio = to_serio_port(dev);
-+
-+	return sprintf(buf, "%s\n", serio->firmware_id);
-+}
-+
- static DEVICE_ATTR_RO(type);
- static DEVICE_ATTR_RO(proto);
- static DEVICE_ATTR_RO(id);
-@@ -473,12 +480,14 @@ static DEVICE_ATTR_RO(modalias);
- static DEVICE_ATTR_WO(drvctl);
- static DEVICE_ATTR(description, S_IRUGO, serio_show_description, NULL);
- static DEVICE_ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode);
-+static DEVICE_ATTR_RO(firmware_id);
- 
- static struct attribute *serio_device_attrs[] = {
- 	&dev_attr_modalias.attr,
- 	&dev_attr_description.attr,
- 	&dev_attr_drvctl.attr,
- 	&dev_attr_bind_mode.attr,
-+	&dev_attr_firmware_id.attr,
- 	NULL
- };
- 
-@@ -923,6 +932,9 @@ static int serio_uevent(struct device *dev, struct kobj_uevent_env *env)
- 	SERIO_ADD_UEVENT_VAR("SERIO_EXTRA=%02x", serio->id.extra);
- 	SERIO_ADD_UEVENT_VAR("MODALIAS=serio:ty%02Xpr%02Xid%02Xex%02X",
- 				serio->id.type, serio->id.proto, serio->id.id, serio->id.extra);
-+	if (serio->firmware_id[0])
-+		SERIO_ADD_UEVENT_VAR("SERIO_FIRMWARE_ID=%s",
-+				     serio->firmware_id);
- 
- 	return 0;
- }
-diff --git a/include/linux/serio.h b/include/linux/serio.h
-index 36aac73..9f779c7 100644
---- a/include/linux/serio.h
-+++ b/include/linux/serio.h
-@@ -23,6 +23,7 @@ struct serio {
- 
- 	char name[32];
- 	char phys[32];
-+	char firmware_id[128];
- 
- 	bool manual_bind;
- 
--- 
-1.9.0
-
+Hans

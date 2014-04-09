@@ -1,13 +1,13 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/4] input/serio/8042_pnp: set serio->pnp_id for pnp instantiated 8042 ports
-Date: Wed,  9 Apr 2014 16:03:00 +0200
-Message-ID: <1397052181-22768-3-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 4/4] synaptices: Report INPUT_PROP_TOPBUTTONPAD property for touchpads with top buttonareas
+Date: Wed,  9 Apr 2014 16:03:01 +0200
+Message-ID: <1397052181-22768-4-git-send-email-hdegoede@redhat.com>
 References: <1397052181-22768-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32914 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:12079 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932847AbaDIODK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Apr 2014 10:03:10 -0400
+	id S932847AbaDIODM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Apr 2014 10:03:12 -0400
 In-Reply-To: <1397052181-22768-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -16,61 +16,67 @@ Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@red
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 4 ++++
- drivers/input/serio/i8042.c           | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/input/mouse/synaptics.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 2416c74..1d2e13f 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -725,6 +725,8 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 	if (pnp_irq_valid(dev,0))
- 		i8042_pnp_kbd_irq = pnp_irq(dev, 0);
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index d8d49d1..4637cc7 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -118,6 +118,16 @@ void synaptics_reset(struct psmouse *psmouse)
  
-+	i8042_kbd_pnp_id = dev->id;
+ #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
+ 
++static const char *topbuttonpad_pnp_ids[] = {
++	"LEN0033", /* Helix */
++	"LEN0034", /* T540, X1 Carbon 2nd */
++	"LEN0035", /* X240 */
++	"LEN0036", /* T440 */
++	"LEN0042", /* Yoga */
++	"LEN2004", /* L440 */
++	NULL
++};
 +
- 	strlcpy(i8042_pnp_kbd_name, did->id, sizeof(i8042_pnp_kbd_name));
- 	if (strlen(pnp_dev_name(dev))) {
- 		strlcat(i8042_pnp_kbd_name, ":", sizeof(i8042_pnp_kbd_name));
-@@ -751,6 +753,8 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 	if (pnp_irq_valid(dev, 0))
- 		i8042_pnp_aux_irq = pnp_irq(dev, 0);
+ /*****************************************************************************
+  *	Synaptics communications functions
+  ****************************************************************************/
+@@ -1255,8 +1265,10 @@ static void set_abs_position_params(struct input_dev *dev,
+ 	input_abs_set_res(dev, y_code, priv->y_res);
+ }
  
-+	i8042_aux_pnp_id = dev->id;
-+
- 	strlcpy(i8042_pnp_aux_name, did->id, sizeof(i8042_pnp_aux_name));
- 	if (strlen(pnp_dev_name(dev))) {
- 		strlcat(i8042_pnp_aux_name, ":", sizeof(i8042_pnp_aux_name));
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 3807c3e..4a3fdf4 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -89,6 +89,8 @@ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
- static bool i8042_bypass_aux_irq_test;
- static char i8042_kbd_firmware_id[128];
- static char i8042_aux_firmware_id[128];
-+static struct pnp_id *i8042_kbd_pnp_id;
-+static struct pnp_id *i8042_aux_pnp_id;
+-static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
++static void set_input_params(struct psmouse *psmouse,
++			     struct synaptics_data *priv)
+ {
++	struct input_dev *dev = psmouse->dev;
+ 	int i;
  
- #include "i8042.h"
+ 	/* Things that apply to both modes */
+@@ -1325,6 +1337,15 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
  
-@@ -1217,6 +1219,7 @@ static int __init i8042_create_kbd_port(void)
- 	serio->stop		= i8042_stop;
- 	serio->close		= i8042_port_close;
- 	serio->port_data	= port;
-+	serio->pnp_id		= i8042_kbd_pnp_id;
- 	serio->dev.parent	= &i8042_platform_device->dev;
- 	strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
- 	strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
-@@ -1246,6 +1249,7 @@ static int __init i8042_create_aux_port(int idx)
- 	serio->port_data	= port;
- 	serio->dev.parent	= &i8042_platform_device->dev;
- 	if (idx < 0) {
-+		serio->pnp_id = i8042_aux_pnp_id;
- 		strlcpy(serio->name, "i8042 AUX port", sizeof(serio->name));
- 		strlcpy(serio->phys, I8042_AUX_PHYS_DESC, sizeof(serio->phys));
- 		strlcpy(serio->firmware_id, i8042_aux_firmware_id,
+ 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+ 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
++		/* See if this buttonpad has a top button area */
++		for (i = 0; topbuttonpad_pnp_ids[i]; i++) {
++			if (compare_pnp_id(psmouse->ps2dev.serio->pnp_id,
++					   topbuttonpad_pnp_ids[i])) {
++				__set_bit(INPUT_PROP_TOPBUTTONPAD,
++					  dev->propbit);
++				break;
++			}
++		}
+ 		/* Clickpads report only left button */
+ 		__clear_bit(BTN_RIGHT, dev->keybit);
+ 		__clear_bit(BTN_MIDDLE, dev->keybit);
+@@ -1593,7 +1614,7 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		     priv->capabilities, priv->ext_cap, priv->ext_cap_0c,
+ 		     priv->board_id, priv->firmware_id);
+ 
+-	set_input_params(psmouse->dev, priv);
++	set_input_params(psmouse, priv);
+ 
+ 	/*
+ 	 * Encode touchpad model so that it can be used to set
 -- 
 1.9.0
 

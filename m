@@ -1,112 +1,95 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [RESEND: PATCH 2/2] input: tc3589x-keypad: support probing from device tree
-Date: Wed,  9 Apr 2014 09:28:11 +0200
-Message-ID: <1397028491-15462-1-git-send-email-linus.walleij@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH resend 1/2] input/serio: Add a firmware_id sysfs attribute
+Date: Wed,  9 Apr 2014 10:47:49 +0200
+Message-ID: <1397033270-29597-2-git-send-email-hdegoede@redhat.com>
+References: <1397033270-29597-1-git-send-email-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:12998 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750889AbaDIIr7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Apr 2014 04:47:59 -0400
+In-Reply-To: <1397033270-29597-1-git-send-email-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Implement device tree probing for the tc3589x keypad driver.
-This is modeled on the STMPE keypad driver and tested on the
-Ux500 TVK1281618 UIB.
+serio devices exposed via platform firmware interfaces such as ACPI
+may provide additional identifying information of use to userspace.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+We don't associate the serio devices with the firmware device (we don't
+set it as parent), so there's no way for userspace to make use of this
+information.
+
+We cannot change the parent for serio devices instantiated though a firmware
+interface as that would break suspend / resume ordering.
+
+Therefor this patch adds a new firmware_id sysfs attribute so that userspace
+can get a string from there with any additional identifying information the
+firmware interface may provide.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
-ChangeLog v2->v3:
-- Use two local u32 variables to avoid weirdness in u8 casting
-  of the resulting values to the pointers.
-ChangeLog v1->v2:
-- Fix rows/columns binding to read two u32's insead of two
-  u8 /bits/ as noted by Mark Rutland.
----
- drivers/input/keyboard/tc3589x-keypad.c | 66 ++++++++++++++++++++++++++++++++-
- 1 file changed, 64 insertions(+), 2 deletions(-)
+ drivers/input/serio/serio.c | 12 ++++++++++++
+ include/linux/serio.h       |  1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
-index 74494a357522..ad7abae69078 100644
---- a/drivers/input/keyboard/tc3589x-keypad.c
-+++ b/drivers/input/keyboard/tc3589x-keypad.c
-@@ -296,6 +296,65 @@ static void tc3589x_keypad_close(struct input_dev *input)
- 	tc3589x_keypad_disable(keypad);
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 8f4c4ab..1788a4d 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -451,6 +451,13 @@ static ssize_t serio_set_bind_mode(struct device *dev, struct device_attribute *
+ 	return retval;
  }
  
-+#ifdef CONFIG_OF
-+static const struct tc3589x_keypad_platform_data *
-+tc3589x_keypad_of_probe(struct device *dev)
++static ssize_t firmware_id_show(struct device *dev, struct device_attribute *attr, char *buf)
 +{
-+	struct device_node *np = dev->of_node;
-+	struct tc3589x_keypad_platform_data *plat;
-+	u32 cols, rows;
-+	u32 debounce_ms;
-+	int proplen;
++	struct serio *serio = to_serio_port(dev);
 +
-+	if (!np)
-+		return ERR_PTR(-ENODEV);
-+
-+	plat = devm_kzalloc(dev, sizeof(*plat), GFP_KERNEL);
-+	if (!plat)
-+		return ERR_PTR(-ENOMEM);
-+
-+	of_property_read_u32(np, "keypad,num-columns", &cols);
-+	of_property_read_u32(np, "keypad,num-rows", &rows);
-+	plat->kcol = (u8) cols;
-+	plat->krow = (u8) rows;
-+	if (!plat->krow || !plat->kcol ||
-+	     plat->krow > TC_KPD_ROWS || plat->kcol > TC_KPD_COLUMNS) {
-+		dev_err(dev,
-+			"keypad columns/rows not properly specified (%ux%u)\n",
-+			plat->kcol, plat->krow);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	if (!of_get_property(np, "linux,keymap", &proplen)) {
-+		dev_err(dev, "property linux,keymap not found\n");
-+		return ERR_PTR(-ENOENT);
-+	}
-+
-+	plat->no_autorepeat = of_property_read_bool(np, "linux,no-autorepeat");
-+	plat->enable_wakeup = of_property_read_bool(np, "linux,wakeup");
-+
-+	/* The custom delay format is ms/16 */
-+	of_property_read_u32(np, "debounce-delay-ms", &debounce_ms);
-+	if (debounce_ms)
-+		plat->debounce_period = debounce_ms * 16;
-+	else
-+		plat->debounce_period = TC_KPD_DEBOUNCE_PERIOD;
-+
-+	plat->settle_time = TC_KPD_SETTLE_TIME;
-+	/* FIXME: should be property of the IRQ resource? */
-+	plat->irqtype = IRQF_TRIGGER_FALLING;
-+
-+	return plat;
++	return sprintf(buf, "%s\n", serio->firmware_id);
 +}
-+#else
-+static inline const struct tc3589x_keypad_platform_data *
-+tc3589x_keypad_of_probe(struct device *dev)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
-+#endif
 +
-+
- static int tc3589x_keypad_probe(struct platform_device *pdev)
- {
- 	struct tc3589x *tc3589x = dev_get_drvdata(pdev->dev.parent);
-@@ -306,8 +365,11 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
+ static DEVICE_ATTR_RO(type);
+ static DEVICE_ATTR_RO(proto);
+ static DEVICE_ATTR_RO(id);
+@@ -473,12 +480,14 @@ static DEVICE_ATTR_RO(modalias);
+ static DEVICE_ATTR_WO(drvctl);
+ static DEVICE_ATTR(description, S_IRUGO, serio_show_description, NULL);
+ static DEVICE_ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode);
++static DEVICE_ATTR_RO(firmware_id);
  
- 	plat = tc3589x->pdata->keypad;
- 	if (!plat) {
--		dev_err(&pdev->dev, "invalid keypad platform data\n");
--		return -EINVAL;
-+		plat = tc3589x_keypad_of_probe(&pdev->dev);
-+		if (IS_ERR(plat)) {
-+			dev_err(&pdev->dev, "invalid keypad platform data\n");
-+			return PTR_ERR(plat);
-+		}
- 	}
+ static struct attribute *serio_device_attrs[] = {
+ 	&dev_attr_modalias.attr,
+ 	&dev_attr_description.attr,
+ 	&dev_attr_drvctl.attr,
+ 	&dev_attr_bind_mode.attr,
++	&dev_attr_firmware_id.attr,
+ 	NULL
+ };
  
- 	irq = platform_get_irq(pdev, 0);
+@@ -923,6 +932,9 @@ static int serio_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	SERIO_ADD_UEVENT_VAR("SERIO_EXTRA=%02x", serio->id.extra);
+ 	SERIO_ADD_UEVENT_VAR("MODALIAS=serio:ty%02Xpr%02Xid%02Xex%02X",
+ 				serio->id.type, serio->id.proto, serio->id.id, serio->id.extra);
++	if (serio->firmware_id[0])
++		SERIO_ADD_UEVENT_VAR("SERIO_FIRMWARE_ID=%s",
++				     serio->firmware_id);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index 36aac73..9f779c7 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -23,6 +23,7 @@ struct serio {
+ 
+ 	char name[32];
+ 	char phys[32];
++	char firmware_id[128];
+ 
+ 	bool manual_bind;
+ 
 -- 
 1.9.0
+

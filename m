@@ -1,51 +1,127 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH 0/24] Introduce ff-memless-next as an improved replacement for ff-memless
-Date: Wed, 09 Apr 2014 13:10:41 +0200
-Message-ID: <1609685.QRL9N9sQvX@sigyn>
+Subject: [PATCH 02/24] Port arizona-haptics to ff-memless-next
+Date: Wed, 09 Apr 2014 13:14:22 +0200
+Message-ID: <2461623.gOt8QLnnPs@sigyn>
+References: <1609685.QRL9N9sQvX@sigyn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from transparentnimenzy.cz ([31.31.77.140]:52598 "EHLO
-	devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933110AbaDILT6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Apr 2014 07:19:58 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1609685.QRL9N9sQvX@sigyn>
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Elias Vanderstuyft <elias.vds@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-ff-memless-next (MLNX) is a largely improved version of the current ff-=
-memless
-(FFML) driver. MLNX supports all force feedback effects currently avail=
-able in
-the Linux force feedback userspace API. All effects are handled in acco=
-rdance
-with Microsoft's DirectInput/XInput. Most notable changes include suppo=
-rt for
-conditional effects, proper handling of all periodic waveforms and impr=
-oved
-emulation of rumble effects through periodic effects. MLNX also uses it=
-s own
-kernel API to pass processed effects to hardware-specific drivers inste=
-ad of
-abusing "ff_effect" struct. The API is documented in the respective hea=
-der
-file.
+Port arizona-haptics to ff-memless-next
 
-MLNX has been expanded to be a direct replacement for FFML.
+Signed-off-by: Michal Mal=FD <madcatxster@devoid-pointer.net>
+---
+ drivers/input/misc/Kconfig           |  2 +-
+ drivers/input/misc/arizona-haptics.c | 39 +++++++++++++++++++++++-----=
+--------
+ 2 files changed, 26 insertions(+), 15 deletions(-)
 
-Support for FF_PERIODIC and FF_RAMP has been added to all devices that
-support FF_CONSTANT as a part of the port to the new API.
-
-This patch series:
-1) Adds "ff-memless-next" module [1]
-2) Ports all hardware-specific drivers to MLNX's API [2-23]
-3) Removes FFML and replaces it with MLNX [24]
-
-Michal Mal=FD
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7904ab0..33e0f5d 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -75,7 +75,7 @@ config INPUT_AD714X_SPI
+ config INPUT_ARIZONA_HAPTICS
+ 	tristate "Arizona haptics support"
+ 	depends on MFD_ARIZONA && SND_SOC
+-	select INPUT_FF_MEMLESS
++	select INPUT_FF_MEMLESS_NEXT
+ 	help
+ 	  Say Y to enable support for the haptics module in Arizona CODECs.
+=20
+diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/=
+arizona-haptics.c
+index ef2e281..b4707cc 100644
+--- a/drivers/input/misc/arizona-haptics.c
++++ b/drivers/input/misc/arizona-haptics.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
++#include <linux/input/ff-memless-next.h>
+ #include <linux/slab.h>
+=20
+ #include <sound/soc.h>
+@@ -22,6 +23,8 @@
+ #include <linux/mfd/arizona/pdata.h>
+ #include <linux/mfd/arizona/registers.h>
+=20
++#define FF_UPDATE_RATE 50
++
+ struct arizona_haptics {
+ 	struct arizona *arizona;
+ 	struct input_dev *input_dev;
+@@ -108,29 +111,37 @@ static void arizona_haptics_work(struct work_stru=
+ct *work)
+ }
+=20
+ static int arizona_haptics_play(struct input_dev *input, void *data,
+-				struct ff_effect *effect)
++				const struct mlnx_effect_command *command)
+ {
+ 	struct arizona_haptics *haptics =3D input_get_drvdata(input);
+ 	struct arizona *arizona =3D haptics->arizona;
++	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
+orce;
+=20
+ 	if (!arizona->dapm) {
+ 		dev_err(arizona->dev, "No DAPM context\n");
+ 		return -EBUSY;
+ 	}
+=20
+-	if (effect->u.rumble.strong_magnitude) {
+-		/* Scale the magnitude into the range the device supports */
+-		if (arizona->pdata.hap_act) {
+-			haptics->intensity =3D
+-				effect->u.rumble.strong_magnitude >> 9;
+-			if (effect->direction < 0x8000)
+-				haptics->intensity +=3D 0x7f;
++	switch (command->cmd) {
++	case MLNX_START_RUMBLE:
++		if (rumble_force->strong) {
++			/* Scale the magnitude into the range the device supports */
++			if (arizona->pdata.hap_act) {
++				haptics->intensity =3D rumble_force->strong >> 9;
++				if (rumble_force->strong_dir < 0x8000)
++					haptics->intensity +=3D 0x7f;
++			} else {
++				haptics->intensity =3D rumble_force->strong >> 8;
++			}
+ 		} else {
+-			haptics->intensity =3D
+-				effect->u.rumble.strong_magnitude >> 8;
++			haptics->intensity =3D 0;
+ 		}
+-	} else {
++		break;
++	case MLNX_STOP_RUMBLE:
+ 		haptics->intensity =3D 0;
++		break;
++	default:
++		return -EINVAL;
+ 	}
+=20
+ 	schedule_work(&haptics->work);
+@@ -183,10 +194,10 @@ static int arizona_haptics_probe(struct platform_=
+device *pdev)
+ 	haptics->input_dev->close =3D arizona_haptics_close;
+ 	__set_bit(FF_RUMBLE, haptics->input_dev->ffbit);
+=20
+-	ret =3D input_ff_create_memless(haptics->input_dev, NULL,
+-				      arizona_haptics_play);
++	ret =3D input_ff_create_mlnx(haptics->input_dev, NULL,
++				   arizona_haptics_play, FF_UPDATE_RATE);
+ 	if (ret < 0) {
+-		dev_err(arizona->dev, "input_ff_create_memless() failed: %d\n",
++		dev_err(arizona->dev, "input_ff_create_mlnx() failed: %d\n",
+ 			ret);
+ 		goto err_ialloc;
+ 	}
+--=20
+1.9.1

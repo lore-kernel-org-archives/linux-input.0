@@ -1,29 +1,124 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: lg2ff: add rumble magnitude clamping quirk
-Date: Wed, 9 Apr 2014 11:24:30 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1404091123080.14588@pobox.suse.cz>
-References: <1396962367-6469-1-git-send-email-elias.vds@gmail.com> <CADbOyBS2xxaXDGuYd+Kr2i9uFPkXMH3VK1+WQBp+UaSyh41=Xw@mail.gmail.com>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH 04/24] Port twl6040-vibra to ff-memless-next
+Date: Wed, 09 Apr 2014 13:16:12 +0200
+Message-ID: <7022354.ZeeqfKrrUN@sigyn>
+References: <1609685.QRL9N9sQvX@sigyn>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50284 "EHLO mx2.suse.de"
+Received: from prifuk.cz ([31.31.77.140]:52583 "EHLO devoid-pointer.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757594AbaDIJYb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Apr 2014 05:24:31 -0400
-In-Reply-To: <CADbOyBS2xxaXDGuYd+Kr2i9uFPkXMH3VK1+WQBp+UaSyh41=Xw@mail.gmail.com>
+	id S1758261AbaDILQP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Apr 2014 07:16:15 -0400
+In-Reply-To: <1609685.QRL9N9sQvX@sigyn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Elias Vanderstuyft <elias.vds@gmail.com>
-Cc: Edgar Simo-Serra <bobbens@gmail.com>, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Elias Vanderstuyft <elias.vds@gmail.com>
 
-On Wed, 9 Apr 2014, Elias Vanderstuyft wrote:
+Port twl6040-vibra to ff-memless-next
 
-> Since this patch haven't been applied yet, I withdraw this patch for
-> the following reason:
-> It will get in as a part of the move to ff-memless-next.
+Signed-off-by: Michal Mal=FD <madcatxster@devoid-pointer.net>
+---
+ drivers/input/misc/Kconfig         |  2 +-
+ drivers/input/misc/twl6040-vibra.c | 27 ++++++++++++++++++++++-----
+ 2 files changed, 23 insertions(+), 6 deletions(-)
 
-Okay, I am ignoring it for now. Thanks,
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 1016a1b..91dcae8 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -417,7 +417,7 @@ config INPUT_TWL4030_VIBRA
+ config INPUT_TWL6040_VIBRA
+ 	tristate "Support for TWL6040 Vibrator"
+ 	depends on TWL6040_CORE
+-	select INPUT_FF_MEMLESS
++	select INPUT_FF_MEMLESS_NEXT
+ 	help
+ 	  This option enables support for TWL6040 Vibrator Driver.
+=20
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/tw=
+l6040-vibra.c
+index 77dc23b..7440a74 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -30,12 +30,14 @@
+ #include <linux/of.h>
+ #include <linux/workqueue.h>
+ #include <linux/input.h>
++#include <linux/input/ff-memless-next.h>
+ #include <linux/mfd/twl6040.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/regulator/consumer.h>
+=20
+ #define EFFECT_DIR_180_DEG	0x8000
++#define FF_UPDATE_RATE		50
+=20
+ /* Recommended modulation index 85% */
+ #define TWL6040_VIBRA_MOD	85
+@@ -197,9 +199,10 @@ static void vibra_play_work(struct work_struct *wo=
+rk)
+ }
+=20
+ static int vibra_play(struct input_dev *input, void *data,
+-		      struct ff_effect *effect)
++		      const struct mlnx_effect_command *command)
+ {
+ 	struct vibra_info *info =3D input_get_drvdata(input);
++	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
+orce;
+ 	int ret;
+=20
+ 	/* Do not allow effect, while the routing is set to use audio */
+@@ -209,9 +212,23 @@ static int vibra_play(struct input_dev *input, voi=
+d *data,
+ 		return -EBUSY;
+ 	}
+=20
+-	info->weak_speed =3D effect->u.rumble.weak_magnitude;
+-	info->strong_speed =3D effect->u.rumble.strong_magnitude;
+-	info->direction =3D effect->direction < EFFECT_DIR_180_DEG ? 1 : -1;
++	switch (command->cmd) {
++	case MLNX_START_RUMBLE:
++		info->weak_speed =3D rumble_force->weak;
++		info->strong_speed =3D rumble_force->strong;
++		if (info->strong_speed >=3D info->weak_speed)
++			info->direction =3D rumble_force->strong_dir < EFFECT_DIR_180_DEG ?=
+ 1 : -1;
++		else
++			info->direction =3D rumble_force->weak_dir < EFFECT_DIR_180_DEG ? 1=
+ : -1;
++		break;
++	case MLNX_STOP_RUMBLE:
++		info->weak_speed =3D 0;
++		info->strong_speed =3D 0;
++		info->direction =3D 1;
++		break;
++	default:
++		return -EINVAL;
++	}
+=20
+ 	ret =3D queue_work(info->workqueue, &info->play_work);
+ 	if (!ret) {
+@@ -367,7 +384,7 @@ static int twl6040_vibra_probe(struct platform_devi=
+ce *pdev)
+ 	info->input_dev->close =3D twl6040_vibra_close;
+ 	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
+=20
+-	ret =3D input_ff_create_memless(info->input_dev, NULL, vibra_play);
++	ret =3D input_ff_create_mlnx(info->input_dev, NULL, vibra_play, FF_UP=
+DATE_RATE);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "couldn't register vibrator to FF\n");
+ 		goto err_ialloc;
+--=20
+1.9.1
 
--- 
-Jiri Kosina
-SUSE Labs
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

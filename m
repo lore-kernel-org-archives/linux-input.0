@@ -1,281 +1,444 @@
 From: Tolga Cakir <tolga@cevel.net>
-Subject: Re: [PATCH 2/4] HID: microsoft: initial support for Microsoft Sidewinder
- X4 / X6 keyboards
-Date: Thu, 10 Apr 2014 00:30:06 +0200
-Message-ID: <5345C9EE.5050009@cevel.net>
-References: <1396631216-11726-1-git-send-email-tolga@cevel.net> <CAN+gG=HpAXhME5YiDoX=7R30QHTKQ3Xjf2DB0jAh49h5KGpwxA@mail.gmail.com>
+Subject: Re: [PATCH 3/4] HID: microsoft: added Sidewinder X4 / X6 sysfs support
+Date: Thu, 10 Apr 2014 01:58:55 +0200
+Message-ID: <5345DEBF.6070509@cevel.net>
+References: <1396631227-11770-1-git-send-email-tolga@cevel.net> <CAN+gG=HDuDW8H6_fESdHwtJSKQ4CYgXr0UM9qpYv6EPGE7W_KA@mail.gmail.com>
 Reply-To: tolga@cevel.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=HpAXhME5YiDoX=7R30QHTKQ3Xjf2DB0jAh49h5KGpwxA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Derya <derya.kiran@yahoo.de>, Jiri Kosina <jkosina@suse.cz>, Reyad Attiyat <reyad.attiyat@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp04.udag.de ([62.146.106.30]:45125 "EHLO smtp04.udag.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933480AbaDIX7A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Apr 2014 19:59:00 -0400
+In-Reply-To: <CAN+gG=HDuDW8H6_fESdHwtJSKQ4CYgXr0UM9qpYv6EPGE7W_KA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Derya <derya.kiran@yahoo.de>, Jiri Kosina <jkosina@suse.cz>, Reyad Attiyat <reyad.attiyat@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Am 09.04.2014 22:41, schrieb Benjamin Tissoires:
-> On Fri, Apr 4, 2014 at 1:06 PM, Tolga Cakir <tolga@cevel.net> wrote:
->> This patch will let hid-microsoft handle the Microsoft Sidewinder X4 and X6 keyboards.
-> I think this commit message should be a little bit more explicit,
-> especially because the current patch:
-> - supports 3 keys which were not supported before
-> - prepares the support of the S1-S30 keys, but without actually
-> delivering events (which is a little bit awkward way of splitting the
-> series IMO)
-Yepp, I think I will put patch 2 and 3 together. It will make more sense 
-then.
+Am 09.04.2014 22:42, schrieb Benjamin Tissoires:
+> On Fri, Apr 4, 2014 at 1:07 PM, Tolga Cakir <tolga@cevel.net> wrote:
+>> This patch enables us to set the profile, LEDs and read the key mask via sysfs. Documentation is included in this patch.
+>>
 >> Signed-off-by: Tolga Cakir <tolga@cevel.net>
 >> ---
->>   drivers/hid/hid-core.c      |   2 +
->>   drivers/hid/hid-ids.h       |   2 +
->>   drivers/hid/hid-microsoft.c | 114 ++++++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 118 insertions(+)
+>>   .../ABI/testing/sysfs-driver-hid-microsoft         |  30 +++
+>>   drivers/hid/hid-microsoft.c                        | 231 +++++++++++++++++++++
+>>   2 files changed, 261 insertions(+)
+>>   create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-microsoft
 >>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index dbe548b..5de5ba1 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1815,6 +1815,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
->> +       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_X6) },
->> +       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_X4) },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP) },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 548c1a5..21be65d 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -626,6 +626,8 @@
->>   #define USB_DEVICE_ID_MS_PRESENTER_8K_BT       0x0701
->>   #define USB_DEVICE_ID_MS_PRESENTER_8K_USB      0x0713
->>   #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K      0x0730
->> +#define USB_DEVICE_ID_SIDEWINDER_X6    0x074b
->> +#define USB_DEVICE_ID_SIDEWINDER_X4    0x0768
->>   #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500    0x076c
->>   #define USB_DEVICE_ID_MS_TOUCH_COVER_2 0x07a7
->>   #define USB_DEVICE_ID_MS_TYPE_COVER_2  0x07a9
+>> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-microsoft b/Documentation/ABI/testing/sysfs-driver-hid-microsoft
+>> new file mode 100644
+>> index 0000000..9fdfad7
+>> --- /dev/null
+>> +++ b/Documentation/ABI/testing/sysfs-driver-hid-microsoft
+>> @@ -0,0 +1,30 @@
+>> +What:          /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/auto_led
+>> +Date:          April 2014
+>> +Contact:       Tolga Cakir <tolga@cevel.net>
+>> +Description:   This file allows you to set and view the Auto LED status.
+>> +               Valid values are 0 and 1.
+>> +
+>> +What:          /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/profile
+>> +Date:          April 2014
+>> +Contact:       Tolga Cakir <tolga@cevel.net>
+>> +Description:   Both, the Sidewinder X4 and the X6 can handle profiles.
+>> +               They can be switched by writing to this file. Profile LEDs will be
+>> +               set accordingly.
+>> +               Valid values are 1 - 3.
+>> +
+>> +What:          /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/key_mask
+>> +Date:          April 2014
+>> +Contact:       Tolga Cakir <tolga@cevel.net>
+>> +Description:   This file is read-only and outputs an unsigned long integer.
+>> +               Every bit represents one of the S1 - S6 extra keys on the Sidewinder
+>> +               X4 and S1 - S30 on the Sidewinder X6. The least significant bit
+>> +               represents S1 on both gaming keyboards, the most significant bit
+>> +               represents the Bank switch button on both keyboards. Multiple
+>> +               special keys can be pressed at the same time.
+> So that means that the user space polls the sysfs to trigger the actual macros?
+> Or maybe I am missing something.
+Nope, you got it right. Originally, I was only working on the Sidewinder 
+X4 support, featuring 6 macro keys and 3 profiles, resulting in 18 
+possible outcomes.
+
+So, I hardcoded KEY_F13 - KEY_F24 and some other keys in the hid driver. 
+That solution was working fine for the Sidewinder X4. However, when I got my
+hands on a Sidewinder X6, supporting 30 macro keys and 3 profiles, 
+resulting in 90 possible outcomes, I had to overthink my original design.
+
+I've searched for similar keyboards and found the Roccat Arvo. As far as 
+I've understood the code of hid-roccat-arvo, it shows pressed keys as 
+key_mask via
+sysfs and a user land tool (http://sourceforge.net/projects/roccat) 
+polls sysfs to handle the keypresses. I'm doing essentially the same 
+here, too.
+>> +
+>> +What:          /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/record_led
+>> +Date:          April 2014
+>> +Contact:       Tolga Cakir <tolga@cevel.net>
+>> +Description:   This file allows you to set and view the Record LED status.
+>> +               Valid values are 0 - 2. 0 stands for off, 1 for solid mode and 2
+>> +               for blinking mode.
 >> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
->> index 0a61403..5b5d40f 100644
+>> index 5b5d40f..5674c0c 100644
 >> --- a/drivers/hid/hid-microsoft.c
 >> +++ b/drivers/hid/hid-microsoft.c
->> @@ -29,12 +29,28 @@
->>   #define MS_NOGET               0x10
->>   #define MS_DUPLICATE_USAGES    0x20
->>   #define MS_RDESC_3K            0x40
->> +#define MS_SIDEWINDER  0x80
+>> @@ -19,6 +19,8 @@
+>>   #include <linux/input.h>
+>>   #include <linux/hid.h>
+>>   #include <linux/module.h>
+>> +#include <linux/sysfs.h>
+>> +#include <linux/usb.h>
+> iiiik, I really don't like seeing this in a HID driver. I spent too
+> much try fighting to make HID usb agnostic to accept that blindy.
+> Fortunately, it doesn't seems to be used in the final patch.
+Aww, sorry to make you see such cruel things :(. I will fix it in v2, 
+thank you for pointing that out; I wasn't aware of it.
+>>   #include "hid-ids.h"
 >>
->>   struct ms_data {
->>          unsigned long quirks;
->>          void *extra;
-> ok, so now extra is used, but with a struct ms_sidewinder_extra.
-> I do not think having a void pointer is a right choice here given that
-> there is only one possibility. So I'd rather have a direct struct
-> ms_sidewinder_extra pointer and the future will tell us if we need to
-> have a void pointer or not.
->
-> In fact, I'd rather not having to allocate twice during probe, so I
-> would even consider integrating struct ms_sidewinder_extra directly in
-> struct ms_data.
-Originally, I had thought about the same, but discarded the idea of 
-integrating struct ms_sidewinder_extra into struct ms_data, because 
-other Microsoft devices would allocate space, which wouldn't be used.
-
-I think having a struct ms_sidewinder_extra pointer in struct ms_data is 
-the better idea. But if you want me to integrate ms_sidewinder_extra 
-into ms_data, I will do it ;)!
->
->>   };
->>
->> +/*
->> + * For Sidewinder X4 / X6 devices.
->> + * @profile: for storing profile status.
->> + * @status: holds information about LED states and numpad mode (X6
->> + * only). The 1st bit is for numpad mode, bits 2 - 7 are reserved for
->> + * LED configuration and the last bit is currently unused.
->> + * @key_mask: holds information about pressed special keys. It's
->> + * readable via sysfs, so user-space tools can handle keys.
->> + */
->> +struct ms_sidewinder_extra {
->> +       unsigned profile;
->> +       __u8 status;
-> Both profile and status are not used in this patch.
->
-> Splitting a big patch into some smaller ones is good, but keep in mind
-> that we want to have patches that are self consistent and that do only
-> what they say.
-> Let's assume we revert in the future 3/4, what will happens with those
-> two fields which will not be used anymore?
-Thank you for clearing that up, didn't thought about that. I will put 
-patch 2 and patch 3 into one big patch, cause else it doesn't make any 
-sense.
->> +       unsigned long key_mask;
->> +};
->> +
->>   static __u8 *ms_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->>                  unsigned int *rsize)
->>   {
->> @@ -143,6 +159,56 @@ static int ms_presenter_8k_quirk(struct hid_input *hi, struct hid_usage *usage,
+>> @@ -209,6 +211,219 @@ static int ms_sidewinder_kb_quirk(struct hid_input *hi, struct hid_usage *usage,
 >>          return 1;
 >>   }
 >>
->> +static int ms_sidewinder_kb_quirk(struct hid_input *hi, struct hid_usage *usage,
->> +               unsigned long **bit, int *max)
+>> +static int ms_sidewinder_control(struct hid_device *hdev, __u8 setup)
 >> +{
->> +       set_bit(EV_REP, hi->input->evbit);
-> I think you should also test against the usage page. It looks like the
-> usages are specific enough, but we never know.
-Okay, I'll come up with a solution in v2, thanks!
->> +       switch (usage->hid & HID_USAGE) {
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +       struct hid_report *report =
+>> +                       hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[7];
+>> +
 >> +       /*
->> +        * Registering Sidewinder X4 / X6 special keys. S1 - S6 macro keys
->> +        * are shared between Sidewinder X4 & X6 and are programmable.
+>> +        * LEDs 1 - 3 should not be set simultaneously, however
+>> +        * they can be set in any combination with Auto or Record LEDs.
 >> +        */
->> +       case 0xfb01: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S1 */
->> +       case 0xfb02: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S2 */
->> +       case 0xfb03: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S3 */
->> +       case 0xfb04: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S4 */
->> +       case 0xfb05: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S5 */
->> +       case 0xfb06: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S6 */
->> +       /* S7 - S30 macro keys are only present on the Sidewinder X6 */
->> +       case 0xfb07: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S7 */
->> +       case 0xfb08: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S8 */
->> +       case 0xfb09: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S9 */
->> +       case 0xfb0a: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S10 */
->> +       case 0xfb0b: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S11 */
->> +       case 0xfb0c: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S12 */
->> +       case 0xfb0d: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S13 */
->> +       case 0xfb0e: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S14 */
->> +       case 0xfb0f: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S15 */
->> +       case 0xfb10: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S16 */
->> +       case 0xfb11: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S17 */
->> +       case 0xfb12: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S18 */
->> +       case 0xfb13: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S19 */
->> +       case 0xfb14: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S20 */
->> +       case 0xfb15: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S21 */
->> +       case 0xfb16: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S22 */
->> +       case 0xfb17: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S23 */
->> +       case 0xfb18: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S24 */
->> +       case 0xfb19: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S25 */
->> +       case 0xfb1a: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S26 */
->> +       case 0xfb1b: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S27 */
->> +       case 0xfb1c: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S28 */
->> +       case 0xfb1d: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S29 */
->> +       case 0xfb1e: ms_map_key_clear(KEY_UNKNOWN);     break;  /* S30 */
->> +       /* Not programmable keys: Profile, Game Center (X6 only) and Macro */
->> +       case 0xfd11: ms_map_key_clear(KEY_GAMES);       break;  /* X6: Game Center*/
->> +       case 0xfd12: ms_map_key_clear(KEY_MACRO);       break;  /* Macro */
->> +       case 0xfd15: ms_map_key_clear(KEY_UNKNOWN);     break;  /* Profile */
-> Arg, this is a little bit ugly.
->
-> you should either consider using fall-through between the each case or
-> a for loop like you did in ms_event.
->
-Hehe, I'll use a loop in v2 to keep things clean.
->> +       default:
->> +               return 0;
+>> +       report->field[0]->value[0] = (setup & 0x01) ? 0x01 : 0x00;      /* X6 only: Macro Pad toggle */
+>> +       report->field[0]->value[1] = (setup & 0x02) ? 0x01 : 0x00;      /* LED Auto */
+>> +       report->field[0]->value[2] = (setup & 0x04) ? 0x01 : 0x00;      /* LED 1 */
+>> +       report->field[0]->value[3] = (setup & 0x08) ? 0x01 : 0x00;      /* LED 2 */
+>> +       report->field[0]->value[4] = (setup & 0x10) ? 0x01 : 0x00;      /* LED 3 */
+>> +       report->field[1]->value[0] = 0x00;      /* Clear Record LED */
+>> +
+>> +       switch (setup & 0x60) {
+>> +       case 0x40: report->field[1]->value[0] = 0x02;   break;  /* Record LED Blink */
+>> +       case 0x20: report->field[1]->value[0] = 0x03;   break;  /* Record LED Solid */
+> do we have any guarantees that setup & 0x60 != 0x60?
+I think there is no possibility for that outcome. The only code, which 
+touches these bits, can be found in
+static ms_sidewinder_record_store. Everytime, prior writing to these 
+bits, they're cleared and the only
+possible values are either 0x40, 0x20, 0x00 or 0x10 (if LED 3 is on). 
+But I think, I get your point. I will create
+another case for 0x60 in terms of error handling in v2.
 >> +       }
->> +       return 1;
+>> +
+>> +       hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+>> +       sidewinder->status = setup;
+>> +
+>> +       return 0;
 >> +}
+>> +
+>> +/*
+>> + * Sidewinder sysfs
+>> + * @key_mask: show pressed special keys
+>> + * @profile: show and set profile count and LED status
+>> + * @auto_led: show and set LED Auto
+>> + * @record_led: show and set Record LED
+>> + */
+>> +static ssize_t ms_sidewinder_key_mask_show(struct device *dev,
+>> +               struct device_attribute *attr, char *buf)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +
+>> +       return snprintf(buf, PAGE_SIZE, "%lu\n", sidewinder->key_mask);
+>> +}
+>> +
+>> +static struct device_attribute dev_attr_ms_sidewinder_key_mask = {
+>> +       .attr = { .name = __stringify(key_mask), .mode = S_IRUGO },
+>> +       .show = ms_sidewinder_key_mask_show
+>> +};
+>> +
+>> +static ssize_t ms_sidewinder_profile_show(struct device *dev,
+>> +               struct device_attribute *attr, char *buf)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +
+>> +       return snprintf(buf, PAGE_SIZE, "%1u\n", sidewinder->profile);
+>> +}
+>> +
+>> +static ssize_t ms_sidewinder_profile_store(struct device *dev,
+>> +               struct device_attribute *attr, char const *buf, size_t count)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +       __u8 setup = sidewinder->status & ~(0x1c);      /* Clear Profile LEDs */
+>> +
+>> +       if (sscanf(buf, "%1u", &sidewinder->profile) != 1)
+>> +               return -EINVAL;
+>> +
+>> +       if (sidewinder->profile < 1 || sidewinder->profile > 3) {
+>> +               return -EINVAL;
+>> +       } else {
+>> +               setup |= 0x02 << sidewinder->profile;
+>> +               ms_sidewinder_control(hdev, setup);
+>> +               return strnlen(buf, PAGE_SIZE);
+>> +       }
+>> +}
+>> +
+>> +static struct device_attribute dev_attr_ms_sidewinder_profile =
+>> +       __ATTR(profile, S_IWUSR | S_IRUGO,
+>> +               ms_sidewinder_profile_show,
+>> +               ms_sidewinder_profile_store);
+>> +
+>> +static ssize_t ms_sidewinder_macro_pad_show(struct device *dev,
+>> +               struct device_attribute *attr, char *buf)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +
+>> +       return snprintf(buf, PAGE_SIZE, "%1u\n", (sidewinder->status & 0x01));
+>> +}
+>> +
+>> +static ssize_t ms_sidewinder_macro_pad_store(struct device *dev,
+>> +               struct device_attribute *attr, char const *buf, size_t count)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +       unsigned int value;
+>> +       __u8 setup;
+>> +
+>> +       if (sscanf(buf, "%1u", &value) != 1)
+>> +               return -EINVAL;
+>> +
+>> +       if (value < 0 || value > 1) {
+>> +               return -EINVAL;
+>> +       } else {
+>> +               setup = sidewinder->status & ~(0x01);   /* Clear Macro Pad */
+>> +               if (value)
+>> +                       setup |= 0x01;
+>> +               ms_sidewinder_control(hdev, setup);
+>> +               return strnlen(buf, PAGE_SIZE);
+>> +       }
+>> +}
+>> +
+>> +static struct device_attribute dev_attr_ms_sidewinder_macro_pad =
+>> +       __ATTR(macro_pad, S_IWUSR | S_IRUGO,
+>> +               ms_sidewinder_macro_pad_show,
+>> +               ms_sidewinder_macro_pad_store);
+>> +
+>> +static ssize_t ms_sidewinder_record_show(struct device *dev,
+>> +               struct device_attribute *attr, char *buf)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +
+>> +       return snprintf(buf, PAGE_SIZE, "%1d\n", (sidewinder->status & 0x60) >> 5);
+>> +}
+>> +
+>> +static ssize_t ms_sidewinder_record_store(struct device *dev,
+>> +               struct device_attribute *attr, char const *buf, size_t count)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +       unsigned int value;
+>> +       __u8 setup;
+>> +
+>> +       if (sscanf(buf, "%1u", &value) != 1)
+>> +               return -EINVAL;
+>> +
+>> +       if (value < 0 || value > 2) {
+>> +               return -EINVAL;
+>> +       } else {
+>> +               setup = sidewinder->status & ~(0xe0);   /* Clear Record LED */
+>> +               if (value)
+>> +                       setup |= 0x10 << value;
+>> +               ms_sidewinder_control(hdev, setup);
+>> +               return strnlen(buf, PAGE_SIZE);
+>> +       }
+>> +}
+>> +
+>> +static struct device_attribute dev_attr_ms_sidewinder_record =
+>> +       __ATTR(record_led, S_IWUSR | S_IRUGO,
+>> +               ms_sidewinder_record_show,
+>> +               ms_sidewinder_record_store);
+>> +
+>> +static ssize_t ms_sidewinder_auto_show(struct device *dev,
+>> +               struct device_attribute *attr, char *buf)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +
+>> +       return snprintf(buf, PAGE_SIZE, "%1d\n", (sidewinder->status & 0x02) >> 1);
+>> +}
+>> +
+>> +static ssize_t ms_sidewinder_auto_store(struct device *dev,
+>> +               struct device_attribute *attr, char const *buf, size_t count)
+>> +{
+>> +       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>> +       struct ms_data *sc = hid_get_drvdata(hdev);
+>> +       struct ms_sidewinder_extra *sidewinder = sc->extra;
+>> +       unsigned int value;
+>> +       __u8 setup;
+>> +
+>> +       if (sscanf(buf, "%1d", &value) != 1)
+>> +               return -EINVAL;
+>> +
+>> +       if (value < 0 || value > 1) {
+>> +               return -EINVAL;
+>> +       } else {
+>> +               setup = sidewinder->status & ~(0x02);   /* Clear Auto LED */
+>> +               if (value)
+>> +                       setup |= 0x02;
+>> +               ms_sidewinder_control(hdev, setup);
+>> +               return strnlen(buf, PAGE_SIZE);
+>> +       }
+>> +}
+>> +
+>> +static struct device_attribute dev_attr_ms_sidewinder_auto =
+>> +       __ATTR(auto_led, S_IWUSR | S_IRUGO,
+>> +               ms_sidewinder_auto_show,
+>> +               ms_sidewinder_auto_store);
+>> +
+>> +static struct attribute *ms_attributes[] = {
+>> +       &dev_attr_ms_sidewinder_key_mask.attr,
+>> +       &dev_attr_ms_sidewinder_profile.attr,
+>> +       &dev_attr_ms_sidewinder_macro_pad.attr,
+>> +       &dev_attr_ms_sidewinder_record.attr,
+>> +       &dev_attr_ms_sidewinder_auto.attr,
+>> +       NULL
+>> +};
+>> +
+>> +static const struct attribute_group ms_attr_group = {
+>> +       .attrs = ms_attributes,
+>> +};
 >> +
 >>   static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 >>                  struct hid_field *field, struct hid_usage *usage,
 >>                  unsigned long **bit, int *max)
->> @@ -159,6 +225,10 @@ static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->>                          ms_presenter_8k_quirk(hi, usage, bit, max))
->>                  return 1;
->>
->> +       if ((sc->quirks & MS_SIDEWINDER) &&
->> +                       ms_sidewinder_kb_quirk(hi, usage, bit, max))
->> +               return 1;
+>> @@ -357,6 +572,13 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>                          return -ENOMEM;
+>>                  }
+>>                  sc->extra = sidewinder;
 >> +
->>          return 0;
->>   }
->>
->> @@ -229,6 +299,34 @@ static int ms_event(struct hid_device *hdev, struct hid_field *field,
->>                  return 1;
->>          }
->>
->> +       /*
->> +        * Sidewinder special button handling & profile switching
->> +        *
->> +        * Pressing S1 - S30 macro keys will not send out any keycodes, but
->> +        * set bits on key_mask (readable via sysfs). It's possible to press
->> +        * multiple special keys at the same time.
->> +        */
->> +       if (sc->quirks & MS_SIDEWINDER) {
->> +               struct input_dev *input = field->hidinput->input;
->> +               struct ms_sidewinder_extra *sidewinder = sc->extra;
->> +               int i;
->> +
->> +               for (i = 0; i <= 29; i++) {     /* Run through S1 - S30 keys */
->> +                       if ((usage->hid & HID_USAGE) == (0xfb01 + i)) {
->> +                               value ? set_bit(i, &sidewinder->key_mask) : clear_bit(i, &sidewinder->key_mask);
->> +                               break;  /* Exit loop, when correct hid usage has been found */
+>> +               /* Create sysfs files for the Consumer Control Device only */
+>> +               if (hdev->type == 2) {
+> type is an enum, so using HID_TYPE_USBNONE makes more sense.
+Nice! Thank you for that hint!
+>> +                       if (sysfs_create_group(&hdev->dev.kobj, &ms_attr_group)) {
+>> +                               hid_warn(hdev, "Could not create sysfs group\n");
 >> +                       }
 >> +               }
->> +
->> +               switch (usage->hid & HID_USAGE) {
->> +               case 0xfd11: input_event(input, usage->type, KEY_GAMES, value); break;
->> +               case 0xfd12: input_event(input, usage->type, KEY_MACRO, value); break;
->> +               case 0xfd15: value ? set_bit(30, &sidewinder->key_mask) : clear_bit(30, &sidewinder->key_mask); break;
-> I don't really like the "30" here. But I do not see an elegant way of
-> getting it.
-Hmm, I'll think about another solution. I might use something like 
-MACRO_KEYS_MAX or something like that and put that in there.
->> +               }
->> +
->> +               return 1;
->> +       }
->> +
->>          return 0;
+>>          }
+>>
+>>          ret = hid_parse(hdev);
+>> @@ -377,6 +599,14 @@ err_free:
+>>          return ret;
 >>   }
 >>
->> @@ -249,6 +347,18 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>          if (sc->quirks & MS_NOGET)
->>                  hdev->quirks |= HID_QUIRK_NOGET;
->>
->> +       if (sc->quirks & MS_SIDEWINDER) {
->> +               struct ms_sidewinder_extra *sidewinder;
->> +
->> +               sidewinder = devm_kzalloc(&hdev->dev, sizeof(struct ms_sidewinder_extra),
->> +                                       GFP_KERNEL);
->> +               if (!sidewinder) {
->> +                       hid_err(hdev, "can't alloc microsoft descriptor\n");
-> Hmm, this err message does not reflect the reality (it's the same as
-> the one used in  1/4).
+>> +static void ms_remove(struct hid_device *hdev)
+>> +{
+>> +       sysfs_remove_group(&hdev->dev.kobj,
+>> +               &ms_attr_group);
+> I guess this should be protected by some "if".
+Yepp, you're right!
+> Regarding the rest of the sysfs code. I did not went too deeper, but
+> it on overall looks good to me.
+>
+> However, I am a little bit concerned by the API you are providing. We
+> have already a LED API (have a look at hid-sony.c for instance) which
+> seems to be more commonly used.
+> It may not gives all of the features you need, but having a specific
+> API for only two keyboards seems too much for me.
+I originally tried to use the common LED API, but couldn't get it to 
+work. It's just too
+difficult for me, I'm very new to C and kernel development. I've studied 
+hid-sony.c
+countless times, but I guess I need more examples to fully understand 
+the LED API.
+
+I'll keep you updated about my progress.
+> Also, If I read correctly, this patch set does not provide a way to
+> use the macro keys: they are just stored and can be polled through
+> sysfs (which I don't like).
+>
+> I have no idea how the other keyboards deal with macro keys, but this
+> implementation seems not enough for me.
 >
 > Cheers,
 > Benjamin
-Ouch, that hurts. I will fix it in v2!
+As I already mentioned, the Roccat Arvo (and several other Roccat gaming 
+keyboards) handle
+the macro keys like this.
 
-Thank you Benjamin for your time!
+Basically, there are two types of gaming keyboards out there; the ones, 
+which don't depend
+on software / drivers and do everything in hardware. For such keyboards, 
+one usually needs
+a user-land tool, which programs the keyboard's internal memory and 
+that's it. It sends out
+the standard USB packets, without the need of any software / driver 
+afterwards.
+
+The other type of keyboards depend on software. Each macro key sends out 
+a specific USB
+packet, the software catches these packets and handles it.
+
+So, what I did there, is basically splitting up the driver in a kernel 
+and a user-land component.
+The kernel recognizes the key-presses and shows them via sysfs and the 
+user-land tool
+executes events (simple key-presses, scripts etc.), depending on which 
+bit is set in key_mask.
+
+Atleast, that's what I thought would be the best solution. Hardcoding 
+keycodes might
+work for some keyboards (Logitech G710+, Razer BlackWidow Ultimate 2013, 
+Cooler Master
+Storm Trigger), but will definitely fail on keyboards like the 
+Sidewinder X6, Corsair K90 / K95
+or the Logitech G110 featuring 50+ macro keys.
+
+I'd love to approach another solution, but the problem is, that the 
+Linux kernel is currently
+not prepared for handling so many extra keys. We'd need more keycodes 
+for such a solution,
+like defining KEY_M1 - KEY_M99 for example. This way, we could make the 
+kernel driver
+send out keycodes and eliminate the use of sysfs for that. But I don't 
+think that would be a
+good solution. What are your thoughts Benjamin?
+
+Again, thank you for your patience and for your time Benjamin!
 
 Greetings,
 Tolga Cakir
->> +                       return -ENOMEM;
->> +               }
->> +               sc->extra = sidewinder;
->> +       }
 >> +
->>          ret = hid_parse(hdev);
->>          if (ret) {
->>                  hid_err(hdev, "parse failed\n");
->> @@ -270,6 +380,10 @@ err_free:
+>> +       hid_hw_stop(hdev);
+>> +}
+>> +
 >>   static const struct hid_device_id ms_devices[] = {
 >>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV),
 >>                  .driver_data = MS_HIDINPUT },
->> +       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_X6),
->> +               .driver_data = MS_SIDEWINDER },
->> +       { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_X4),
->> +               .driver_data = MS_SIDEWINDER },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB),
->>                  .driver_data = MS_ERGONOMY },
->>          { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K),
+>> @@ -419,6 +649,7 @@ static struct hid_driver ms_driver = {
+>>          .input_mapped = ms_input_mapped,
+>>          .event = ms_event,
+>>          .probe = ms_probe,
+>> +       .remove = ms_remove,
+>>   };
+>>   module_hid_driver(ms_driver);
+>>
 >> --
 >> 1.9.1
 >>
@@ -288,3 +451,4 @@ Tolga Cakir
 > To unsubscribe from this list: send the line "unsubscribe linux-input" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

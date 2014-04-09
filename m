@@ -1,114 +1,119 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH 14/24] Port hid-pl to ff-memless-next
-Date: Wed, 09 Apr 2014 13:25:40 +0200
-Message-ID: <2115571.hUK9cKBMaT@sigyn>
+Subject: [PATCH 15/24] Port hid-sjoy to ff-memless-next
+Date: Wed, 09 Apr 2014 13:26:28 +0200
+Message-ID: <3417794.e4CZGoaz2f@sigyn>
 References: <1609685.QRL9N9sQvX@sigyn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from transparentnimenzy.cz ([31.31.77.140]:52621 "EHLO
+	devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933015AbaDIL0c convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Apr 2014 07:26:32 -0400
 In-Reply-To: <1609685.QRL9N9sQvX@sigyn>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Elias Vanderstuyft <elias.vds@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-Port hid-pl to ff-memless-next
+Port hid-sjoy to ff-memless-next
 
 Signed-off-by: Michal Mal=FD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig  |  2 +-
- drivers/hid/hid-pl.c | 38 ++++++++++++++++++++++++++------------
- 2 files changed, 27 insertions(+), 13 deletions(-)
+ drivers/hid/Kconfig    |  2 +-
+ drivers/hid/hid-sjoy.c | 35 +++++++++++++++++++++++++----------
+ 2 files changed, 26 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 6f2941a..87a02cc 100644
+index 87a02cc..e76c36a 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -500,7 +500,7 @@ config HID_PANTHERLORD
- config PANTHERLORD_FF
- 	bool "Pantherlord force feedback support"
- 	depends on HID_PANTHERLORD
+@@ -681,7 +681,7 @@ config HID_SMARTJOYPLUS
+ config SMARTJOYPLUS_FF
+ 	bool "SmartJoy PLUS PS2/USB adapter force feedback support"
+ 	depends on HID_SMARTJOYPLUS
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	---help---
- 	  Say Y here if you have a PantherLord/GreenAsia based game controlle=
-r
- 	  or adapter and want to enable force feedback support for it.
-diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
-index 2dcd7d9..9b539d5 100644
---- a/drivers/hid/hid-pl.c
-+++ b/drivers/hid/hid-pl.c
-@@ -44,9 +44,12 @@
+ 	Say Y here if you have a SmartJoy PLUS PS2/USB adapter and want to
+ 	enable force feedback support for it.
+diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
+index 37845ec..a6f8cfe 100644
+--- a/drivers/hid/hid-sjoy.c
++++ b/drivers/hid/hid-sjoy.c
+@@ -30,8 +30,11 @@
  #include <linux/slab.h>
- #include <linux/module.h>
  #include <linux/hid.h>
+ #include <linux/module.h>
 +#include <linux/input/ff-memless-next.h>
-=20
  #include "hid-ids.h"
 =20
 +#define FF_UPDATE_RATE 50
 +
- #ifdef CONFIG_PANTHERLORD_FF
+ #ifdef CONFIG_SMARTJOYPLUS_FF
 =20
- struct plff_device {
-@@ -57,24 +60,35 @@ struct plff_device {
+ struct sjoyff_device {
+@@ -39,21 +42,33 @@ struct sjoyff_device {
  };
 =20
- static int hid_plff_play(struct input_dev *dev, void *data,
+ static int hid_sjoyff_play(struct input_dev *dev, void *data,
 -			 struct ff_effect *effect)
-+			 const struct mlnx_effect_command *command)
++			const struct mlnx_effect_command *command)
  {
  	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct plff_device *plff =3D data;
+ 	struct sjoyff_device *sjoyff =3D data;
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
- 	int left, right;
+ 	u32 left, right;
 =20
 -	left =3D effect->u.rumble.strong_magnitude;
 -	right =3D effect->u.rumble.weak_magnitude;
--	debug("called with 0x%04x 0x%04x", left, right);
+-	dev_dbg(&dev->dev, "called with 0x%08x 0x%08x\n", left, right);
 -
--	left =3D left * plff->maxval / 0xffff;
--	right =3D right * plff->maxval / 0xffff;
+-	left =3D left * 0xff / 0xffff;
+-	right =3D (right !=3D 0); /* on/off only */
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
 +		left =3D rumble_force->strong;
 +		right =3D rumble_force->weak;
-+		debug("called with 0x%04x 0x%04x", left, right);
++		dev_dbg(&dev->dev, "called with 0x%08x 0x%08x\n", left, right);
 +
-+		left =3D left * plff->maxval / 0xffff;
-+		right =3D right * plff->maxval / 0xffff;
++		left =3D left * 0xff / 0xffff;
++		right =3D (right !=3D 0); /* on/off only */
 +
-+		*plff->strong =3D left;
-+		*plff->weak =3D right;
-+		debug("running with 0x%02x 0x%02x", left, right);
++		sjoyff->report->field[0]->value[1] =3D right;
++		sjoyff->report->field[0]->value[2] =3D left;
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		*plff->strong =3D 0;
-+		*plff->weak =3D 0;
++		left =3D 0;
++		right =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 =20
--	*plff->strong =3D left;
--	*plff->weak =3D right;
--	debug("running with 0x%02x 0x%02x", left, right);
- 	hid_hw_request(hid, plff->report, HID_REQ_SET_REPORT);
--
- 	return 0;
- }
+-	sjoyff->report->field[0]->value[1] =3D right;
+-	sjoyff->report->field[0]->value[2] =3D left;
+ 	dev_dbg(&dev->dev, "running with 0x%02x 0x%02x\n", left, right);
+ 	hid_hw_request(hid, sjoyff->report, HID_REQ_SET_REPORT);
 =20
-@@ -160,7 +174,7 @@ static int plff_init(struct hid_device *hid)
+@@ -103,7 +118,7 @@ static int sjoyff_init(struct hid_device *hid)
 =20
  		set_bit(FF_RUMBLE, dev->ffbit);
 =20
--		error =3D input_ff_create_memless(dev, plff, hid_plff_play);
-+		error =3D input_ff_create_mlnx(dev, plff, hid_plff_play, FF_UPDATE_R=
-ATE);
+-		error =3D input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
++		error =3D input_ff_create_mlnx(dev, sjoyff, hid_sjoyff_play, FF_UPDA=
+TE_RATE);
  		if (error) {
- 			kfree(plff);
+ 			kfree(sjoyff);
  			return error;
 --=20
 1.9.1
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

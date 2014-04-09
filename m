@@ -1,7 +1,7 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH 03/24] Port twl4030-vibra to ff-memless-next
-Date: Wed, 09 Apr 2014 13:15:10 +0200
-Message-ID: <6530276.pE3b2r1u1b@sigyn>
+Subject: [PATCH 14/24] Port hid-pl to ff-memless-next
+Date: Wed, 09 Apr 2014 13:25:40 +0200
+Message-ID: <2115571.hUK9cKBMaT@sigyn>
 References: <1609685.QRL9N9sQvX@sigyn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -13,94 +13,102 @@ To: dmitry.torokhov@gmail.com, jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Elias Vanderstuyft <elias.vds@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Port twl4030-vibra to ff-memless-next
+Port hid-pl to ff-memless-next
 
 Signed-off-by: Michal Mal=FD <madcatxster@devoid-pointer.net>
 ---
- drivers/input/misc/Kconfig         |  2 +-
- drivers/input/misc/twl4030-vibra.c | 31 +++++++++++++++++++++++++-----=
--
- 2 files changed, 26 insertions(+), 7 deletions(-)
+ drivers/hid/Kconfig  |  2 +-
+ drivers/hid/hid-pl.c | 38 ++++++++++++++++++++++++++------------
+ 2 files changed, 27 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 33e0f5d..1016a1b 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -407,7 +407,7 @@ config INPUT_TWL4030_VIBRA
- 	tristate "Support for TWL4030 Vibrator"
- 	depends on TWL4030_CORE
- 	select MFD_TWL4030_AUDIO
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 6f2941a..87a02cc 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -500,7 +500,7 @@ config HID_PANTHERLORD
+ config PANTHERLORD_FF
+ 	bool "Pantherlord force feedback support"
+ 	depends on HID_PANTHERLORD
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
- 	help
- 	  This option enables support for TWL4030 Vibrator Driver.
-=20
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/tw=
-l4030-vibra.c
-index 960ef2a..5274ad2 100644
---- a/drivers/input/misc/twl4030-vibra.c
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -32,9 +32,11 @@
- #include <linux/mfd/twl4030-audio.h>
- #include <linux/input.h>
+ 	---help---
+ 	  Say Y here if you have a PantherLord/GreenAsia based game controlle=
+r
+ 	  or adapter and want to enable force feedback support for it.
+diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+index 2dcd7d9..9b539d5 100644
+--- a/drivers/hid/hid-pl.c
++++ b/drivers/hid/hid-pl.c
+@@ -44,9 +44,12 @@
  #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/hid.h>
 +#include <linux/input/ff-memless-next.h>
 =20
- /* MODULE ID2 */
- #define LEDEN		0x00
-+#define FF_UPDATE_RATE	50
+ #include "hid-ids.h"
 =20
- /* ForceFeedback */
- #define EFFECT_DIR_180_DEG	0x8000 /* range is 0 - 0xFFFF */
-@@ -134,14 +136,31 @@ static void vibra_play_work(struct work_struct *w=
-ork)
- /*** Input/ForceFeedback ***/
++#define FF_UPDATE_RATE 50
++
+ #ifdef CONFIG_PANTHERLORD_FF
 =20
- static int vibra_play(struct input_dev *input, void *data,
--		      struct ff_effect *effect)
-+		      const struct mlnx_effect_command *command)
+ struct plff_device {
+@@ -57,24 +60,35 @@ struct plff_device {
+ };
+=20
+ static int hid_plff_play(struct input_dev *dev, void *data,
+-			 struct ff_effect *effect)
++			 const struct mlnx_effect_command *command)
  {
- 	struct vibra_info *info =3D input_get_drvdata(input);
+ 	struct hid_device *hid =3D input_get_drvdata(dev);
+ 	struct plff_device *plff =3D data;
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
-+
+ 	int left, right;
+=20
+-	left =3D effect->u.rumble.strong_magnitude;
+-	right =3D effect->u.rumble.weak_magnitude;
+-	debug("called with 0x%04x 0x%04x", left, right);
+-
+-	left =3D left * plff->maxval / 0xffff;
+-	right =3D right * plff->maxval / 0xffff;
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		if (command->u.rumble_force.strong) {
-+			info->speed =3D rumble_force->strong >> 8;
-+			info->direction =3D rumble_force->strong_dir < EFFECT_DIR_180_DEG ?
-+					  0 : 1;
-+		} else {
-+			info->speed =3D rumble_force->weak >> 9;
-+			info->direction =3D rumble_force->weak_dir < EFFECT_DIR_180_DEG ?
-+					  0 : 1;
-+		}
++		left =3D rumble_force->strong;
++		right =3D rumble_force->weak;
++		debug("called with 0x%04x 0x%04x", left, right);
++
++		left =3D left * plff->maxval / 0xffff;
++		right =3D right * plff->maxval / 0xffff;
++
++		*plff->strong =3D left;
++		*plff->weak =3D right;
++		debug("running with 0x%02x 0x%02x", left, right);
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		info->speed =3D 0;
-+		info->direction =3D 0;
++		*plff->strong =3D 0;
++		*plff->weak =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 =20
--	info->speed =3D effect->u.rumble.strong_magnitude >> 8;
--	if (!info->speed)
--		info->speed =3D effect->u.rumble.weak_magnitude >> 9;
--	info->direction =3D effect->direction < EFFECT_DIR_180_DEG ? 0 : 1;
- 	schedule_work(&info->play_work);
+-	*plff->strong =3D left;
+-	*plff->weak =3D right;
+-	debug("running with 0x%02x 0x%02x", left, right);
+ 	hid_hw_request(hid, plff->report, HID_REQ_SET_REPORT);
+-
  	return 0;
  }
-@@ -227,7 +246,7 @@ static int twl4030_vibra_probe(struct platform_devi=
-ce *pdev)
- 	info->input_dev->close =3D twl4030_vibra_close;
- 	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
 =20
--	ret =3D input_ff_create_memless(info->input_dev, NULL, vibra_play);
-+	ret =3D input_ff_create_mlnx(info->input_dev, NULL, vibra_play, FF_UP=
-DATE_RATE);
- 	if (ret < 0) {
- 		dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
- 		return ret;
+@@ -160,7 +174,7 @@ static int plff_init(struct hid_device *hid)
+=20
+ 		set_bit(FF_RUMBLE, dev->ffbit);
+=20
+-		error =3D input_ff_create_memless(dev, plff, hid_plff_play);
++		error =3D input_ff_create_mlnx(dev, plff, hid_plff_play, FF_UPDATE_R=
+ATE);
+ 		if (error) {
+ 			kfree(plff);
+ 			return error;
 --=20
 1.9.1

@@ -1,52 +1,40 @@
 From: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH] bma150: extend chip detection for bma180
-Date: Thu, 10 Apr 2014 11:30:02 +0200
-Message-ID: <D682743C-E578-420D-A9DD-8B90673F8393@goldelico.com>
+Subject: [PATCH] tca8418: fix loading this driver as a module from a device tree
+Date: Thu, 10 Apr 2014 11:29:58 +0200
+Message-ID: <8CC80032-D358-4643-B3AD-95C280525EAC@goldelico.com>
 Mime-Version: 1.0 (Apple Message framework v1085)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Marek Belisko <marek@goldelico.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Marek Belisko <marek@goldelico.com>
 List-Id: linux-input@vger.kernel.org
 
-This driver has been used  while on the OpenPhoenux GTA04 with
-a BMA180.
+Loading the tca8418 driver as a module on a device tree based system needs
+a MODULE_ALIAS because the driver name does not match the automatic
+name generation rules of a 'compatible' entry on i2c bus.
 
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- drivers/input/misc/bma150.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/tca8418_keypad.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-index 52d3a9b..b36831c 100644
---- a/drivers/input/misc/bma150.c
-+++ b/drivers/input/misc/bma150.c
-@@ -70,6 +70,7 @@
- #define BMA150_CFG_5_REG	0x11
- 
- #define BMA150_CHIP_ID		2
-+#define BMA180_CHIP_ID		3
- #define BMA150_CHIP_ID_REG	BMA150_DATA_0_REG
- 
- #define BMA150_ACC_X_LSB_REG	BMA150_DATA_2_REG
-@@ -539,7 +540,7 @@ static int bma150_probe(struct i2c_client *client,
- 	}
- 
- 	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
--	if (chip_id != BMA150_CHIP_ID) {
-+	if (chip_id != BMA150_CHIP_ID && chip_id != BMA180_CHIP_ID) {
- 		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
- 		return -EINVAL;
- 	}
-@@ -643,6 +644,7 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
- 
- static const struct i2c_device_id bma150_id[] = {
- 	{ "bma150", 0 },
-+	{ "bma180", 0 },
- 	{ "smb380", 0 },
- 	{ "bma023", 0 },
+diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+index 55c1530..3556360 100644
+--- a/drivers/input/keyboard/tca8418_keypad.c
++++ b/drivers/input/keyboard/tca8418_keypad.c
+@@ -392,6 +392,11 @@ static const struct of_device_id tca8418_dt_ids[] = {
  	{ }
+ };
+ MODULE_DEVICE_TABLE(of, tca8418_dt_ids);
++/* the device tree based i2c loader looks for
++ * "i2c:" + second_component_of(property("compatible"))
++ * and therefore we need an alias to be found.
++ */
++MODULE_ALIAS("i2c:tca8418");
+ #endif
+ 
+ static struct i2c_driver tca8418_keypad_driver = {
 -- 
 1.9.1

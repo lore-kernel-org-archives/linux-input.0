@@ -1,66 +1,45 @@
-From: Tolga Cakir <tolga@cevel.net>
-Subject: Re: [PATCH 4/4] HID: microsoft: undefining ms_map_key_clear after
- usage
-Date: Thu, 10 Apr 2014 02:02:25 +0200
-Message-ID: <5345DF91.5050701@cevel.net>
-References: <1396631237-11813-1-git-send-email-tolga@cevel.net> <CAN+gG=HFEcsVdmuf6o2GyfSmjWRansS02MVbXdjws7xVNp1QGw@mail.gmail.com>
-Reply-To: tolga@cevel.net
+From: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Subject: [patch]GPIO button is supposed to wake the system up if the wakeup
+ attribute is set
+Date: Thu, 10 Apr 2014 10:11:09 +0800
+Message-ID: <5345FDBD.9090908@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp03.udag.de ([62.146.106.29]:42813 "EHLO smtp03.udag.de"
+Received: from mga09.intel.com ([134.134.136.24]:62768 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933480AbaDJAC2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Apr 2014 20:02:28 -0400
-In-Reply-To: <CAN+gG=HFEcsVdmuf6o2GyfSmjWRansS02MVbXdjws7xVNp1QGw@mail.gmail.com>
+	id S933779AbaDJCLM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Apr 2014 22:11:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Derya <derya.kiran@yahoo.de>, Jiri Kosina <jkosina@suse.cz>, Reyad Attiyat <reyad.attiyat@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Am 09.04.2014 22:42, schrieb Benjamin Tissoires:
-> On Fri, Apr 4, 2014 at 1:07 PM, Tolga Cakir <tolga@cevel.net> wrote:
->> This is inspired by various other hid drivers.
->>
->> Signed-off-by: Tolga Cakir <tolga@cevel.net>
->> ---
->>   drivers/hid/hid-microsoft.c | 2 ++
->>   1 file changed, 2 insertions(+)
->>
->> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
->> index 5674c0c..5281d2d 100644
->> --- a/drivers/hid/hid-microsoft.c
->> +++ b/drivers/hid/hid-microsoft.c
->> @@ -211,6 +211,8 @@ static int ms_sidewinder_kb_quirk(struct hid_input *hi, struct hid_usage *usage,
->>          return 1;
->>   }
->>
->> +#undef ms_map_key_clear
->> +
-> Not sure this is really needed. The macro is prefixed by ms_, so I
-> will simply let it there.
->
-> Cheers,
-> Benjamin
-Ouch, I've just rechecked hid-lenovo-tpkbd.c and it wasn't prefixed 
-there and therefore
-needed. My fault, I'm sorry.
+When the wakeup attribute is set, GPIO button is supposed to set
+irqflag - IRQF_NO_SUSPEND to request irq. So when the system enters
+the suspend sleep mode, the GPIO irq keeps enabled and is able to
+wake the system up.
 
-Greetings,
-Tolga Cakir
->>   static int ms_sidewinder_control(struct hid_device *hdev, __u8 setup)
->>   {
->>          struct ms_data *sc = hid_get_drvdata(hdev);
->> --
->> 1.9.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The affected/tested machines include Dell Venue 11 Pro and Asus T100TA.
 
+Signed-off-by: Aubrey Li <aubrey.li@linux.intel.com>
+---
+ drivers/input/keyboard/gpio_keys.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 2db1324..40f3963 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -503,6 +503,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	if (!button->can_disable)
+ 		irqflags |= IRQF_SHARED;
+ 
++	if (button->wakeup)
++		irqflags |= IRQF_NO_SUSPEND;
++
+ 	error = request_any_context_irq(bdata->irq, isr, irqflags, desc, bdata);
+ 	if (error < 0) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
+-- 
+1.7.10.4

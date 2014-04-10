@@ -1,44 +1,82 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH resend 2/2] input/serio/8042: Add firmware_id support
-Date: Thu, 10 Apr 2014 11:02:17 +0200
-Message-ID: <53465E19.1060705@redhat.com>
-References: <1397033270-29597-1-git-send-email-hdegoede@redhat.com> <1397033270-29597-3-git-send-email-hdegoede@redhat.com> <20140409182434.GA25308@core.coreip.homeip.net> <20140409182926.GB3196@srcf.ucam.org> <20140409200923.GA25808@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54332 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934647AbaDJJC0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Apr 2014 05:02:26 -0400
-In-Reply-To: <20140409200923.GA25808@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: [PATCH] gpio_keys, twl4030-pwrbutton: stay awake for 1sec on resume
+Date: Thu, 10 Apr 2014 11:29:55 +0200
+Message-ID: <D594AE85-E3C0-42A3-831D-1A7CD212207B@goldelico.com>
+Mime-Version: 1.0 (Apple Message framework v1085)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sachin Kamat <sachin.kamat@linaro.org>, Sebastian Reichel <sre@debian.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, Kumar Gala <galak@codeaurora.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Marek Belisko <marek@goldelico.com>, Lukas Maerdian <lukas@goldelico.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+This gives the userspace (e.g. Replicant) a chance to fully handle the
+pm_wakeup_event, before autosleep suspends the system alltogether
+again.
 
-On 04/09/2014 10:09 PM, Dmitry Torokhov wrote:
-> On Wed, Apr 09, 2014 at 07:29:26PM +0100, Matthew Garrett wrote:
->> On Wed, Apr 09, 2014 at 11:24:34AM -0700, Dmitry Torokhov wrote:
->>
->>> Do we need all IDs? I'd expect we only interested in HID, not CIDs?
->>
->> I think HID handles the cases we've seen so far, but we could imagine a 
->> system vendor providing their own HID, a trackpad vendor's CID and then 
->> the generic mouse CID. It seems better to err on the side of including 
->> them.
-> 
-> OK, fair enough. Another question - do we want to prefix IDs with "PNP:"
-> prefix so that if we add device tree in the future we'll know what kind
-> of IDs we are dealing with?
+This fixes suspend/resume on the OpenPhoenux GTA04, in combination with
+the Replicant 4.2.2 userspace, which needs to execute this to stay
+awake: 'echo on > /sys/power/state'
 
-I'm a bit divided on this, adding a "PNP: " prefix will make it a bit harder
-to parse, OTOH once we will have other users like devicetree knowing where
-the info comes from will be very useful. To me in the end the latter argument
-wins. Let me know if you agree and I'll do a v3 adding the PNP: prefix.
+Signed-off-by: Lukas M=E2=88=9A=C2=A7rdian <lukas@goldelico.com>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+---
+ drivers/input/keyboard/gpio_keys.c     | 7 ++-----
+ drivers/input/misc/twl4030-pwrbutton.c | 2 +-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-Regards,
-
-Hans
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboar=
+d/gpio_keys.c
+index 2db1324..be8c62e 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -345,9 +345,6 @@ static void gpio_keys_gpio_work_func(struct work_st=
+ruct *work)
+ 		container_of(work, struct gpio_button_data, work);
+=20
+ 	gpio_keys_gpio_report_event(bdata);
+-
+-	if (bdata->button->wakeup)
+-		pm_relax(bdata->input->dev.parent);
+ }
+=20
+ static void gpio_keys_gpio_timer(unsigned long _data)
+@@ -364,7 +361,7 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void=
+ *dev_id)
+ 	BUG_ON(irq !=3D bdata->irq);
+=20
+ 	if (bdata->button->wakeup)
+-		pm_stay_awake(bdata->input->dev.parent);
++		pm_wakeup_event(bdata->input->dev.parent, 1000);
+ 	if (bdata->timer_debounce)
+ 		mod_timer(&bdata->timer,
+ 			jiffies + msecs_to_jiffies(bdata->timer_debounce));
+@@ -402,7 +399,7 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void =
+*dev_id)
+=20
+ 	if (!bdata->key_pressed) {
+ 		if (bdata->button->wakeup)
+-			pm_wakeup_event(bdata->input->dev.parent, 0);
++			pm_wakeup_event(bdata->input->dev.parent, 1000);
+=20
+ 		input_event(input, EV_KEY, button->code, 1);
+ 		input_sync(input);
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/mis=
+c/twl4030-pwrbutton.c
+index fb3b63b..8622e43 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -41,7 +41,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pw=
+r)
+=20
+ 	err =3D twl_i2c_read_u8(TWL_MODULE_PM_MASTER, &value, STS_HW_CONDITIO=
+NS);
+ 	if (!err)  {
+-		pm_wakeup_event(pwr->dev.parent, 0);
++		pm_wakeup_event(pwr->dev.parent, 1000);
+ 		input_report_key(pwr, KEY_POWER, value & PWR_PWRON_IRQ);
+ 		input_sync(pwr);
+ 	} else {
+--=20
+1.9.1

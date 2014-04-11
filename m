@@ -1,7 +1,7 @@
 From: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Subject: [PATCH v4 5/7] ARM: STi: DT: add keyscan for stih416
-Date: Fri, 11 Apr 2014 17:07:34 +0200
-Message-ID: <1397228856-9218-6-git-send-email-gabriel.fernandez@linaro.org>
+Subject: [PATCH v4 2/7] driver: reset: sti: add keyscan for stih415
+Date: Fri, 11 Apr 2014 17:07:31 +0200
+Message-ID: <1397228856-9218-3-git-send-email-gabriel.fernandez@linaro.org>
 References: <1397228856-9218-1-git-send-email-gabriel.fernandez@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,65 +21,37 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org
 Cc: devicetree@vger.kernel.org, kernel@stlinux.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Gabriel Fernandez <gabriel.fernandez@linaro.org>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Add keyscan support for stih416.
-It is disabled by default given that it is not enabled on all boards.
-Also there are PIOs conflict with already claimed lines.
+Add keyscan reset on stih415 reset controller.
 
 Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
 Signed-off-by: Gabriel Fernandez <gabriel.fernandez@linaro.org>
 ---
- arch/arm/boot/dts/stih416-pinctrl.dtsi | 16 ++++++++++++++++
- arch/arm/boot/dts/stih416.dtsi         | 12 ++++++++++++
- 2 files changed, 28 insertions(+)
+ drivers/reset/sti/reset-stih415.c                     | 1 +
+ include/dt-bindings/reset-controller/stih415-resets.h | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stih416-pinctrl.dtsi b/arch/arm/boot/dts/stih416-pinctrl.dtsi
-index aeea304..6252188 100644
---- a/arch/arm/boot/dts/stih416-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stih416-pinctrl.dtsi
-@@ -122,6 +122,22 @@
- 				};
- 			};
- 
-+			keyscan {
-+				pinctrl_keyscan: keyscan {
-+					st,pins {
-+						keyin0 = <&PIO0 2 ALT2 IN>;
-+						keyin1 = <&PIO0 3 ALT2 IN>;
-+						keyin2 = <&PIO0 4 ALT2 IN>;
-+						keyin3 = <&PIO2 6 ALT2 IN>;
-+
-+						keyout0 = <&PIO1 6 ALT2 OUT>;
-+						keyout1 = <&PIO1 7 ALT2 OUT>;
-+						keyout2 = <&PIO0 6 ALT2 OUT>;
-+						keyout3 = <&PIO2 7 ALT2 OUT>;
-+					};
-+				};
-+			};
-+
- 			sbc_i2c0 {
- 				pinctrl_sbc_i2c0_default: sbc_i2c0-default {
- 					st,pins {
-diff --git a/arch/arm/boot/dts/stih416.dtsi b/arch/arm/boot/dts/stih416.dtsi
-index 78746d2..d3bc263 100644
---- a/arch/arm/boot/dts/stih416.dtsi
-+++ b/arch/arm/boot/dts/stih416.dtsi
-@@ -224,5 +224,17 @@
- 
- 			status = "disabled";
- 		};
-+
-+		keyscan: keyscan@fe4b0000 {
-+			compatible = "st,sti-keyscan";
-+			status = "disabled";
-+			reg = <0xfe4b0000 0x2000>;
-+			interrupts = <GIC_SPI 212 IRQ_TYPE_NONE>;
-+			clocks = <&CLK_SYSIN>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_keyscan>;
-+			resets	= <&powerdown STIH416_KEYSCAN_POWERDOWN>,
-+				  <&softreset STIH416_KEYSCAN_SOFTRESET>;
-+		};
- 	};
+diff --git a/drivers/reset/sti/reset-stih415.c b/drivers/reset/sti/reset-stih415.c
+index e6f6c41..c93fd26 100644
+--- a/drivers/reset/sti/reset-stih415.c
++++ b/drivers/reset/sti/reset-stih415.c
+@@ -73,6 +73,7 @@ static const struct syscfg_reset_channel_data stih415_softresets[] = {
+ 	[STIH415_USB0_SOFTRESET] = STIH415_SRST_REAR(SYSCFG_376, 9),
+ 	[STIH415_USB1_SOFTRESET] = STIH415_SRST_REAR(SYSCFG_376, 10),
+ 	[STIH415_USB2_SOFTRESET] = STIH415_SRST_REAR(SYSCFG_376, 11),
++	[STIH415_KEYSCAN_SOFTRESET] = STIH415_SRST_LPM(LPM_SYSCFG_1, 8),
  };
+ 
+ static struct syscfg_reset_controller_data stih415_powerdown_controller = {
+diff --git a/include/dt-bindings/reset-controller/stih415-resets.h b/include/dt-bindings/reset-controller/stih415-resets.h
+index c2f8a66..c2329fe 100644
+--- a/include/dt-bindings/reset-controller/stih415-resets.h
++++ b/include/dt-bindings/reset-controller/stih415-resets.h
+@@ -22,5 +22,6 @@
+ #define STIH415_USB0_SOFTRESET		3
+ #define STIH415_USB1_SOFTRESET		4
+ #define STIH415_USB2_SOFTRESET		5
++#define STIH415_KEYSCAN_SOFTRESET	6
+ 
+ #endif /* _DT_BINDINGS_RESET_CONTROLLER_STIH415 */
 -- 
 1.9.1

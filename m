@@ -1,152 +1,56 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] evdev: flush ABS_* events during EVIOCGABS
-Date: Thu, 10 Apr 2014 21:09:04 +0200
-Message-ID: <1397156944-5991-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:37755 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758812AbaDJTJL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Apr 2014 15:09:11 -0400
-Received: by mail-pb0-f50.google.com with SMTP id md12so4360810pbc.9
-        for <linux-input@vger.kernel.org>; Thu, 10 Apr 2014 12:09:10 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v3 01/10] mfd: AXP20x: Add mfd driver
+ for AXP20x PMIC
+Date: Fri, 11 Apr 2014 11:26:54 +0200
+Message-ID: <CAOQ7t2a4FbkuboTJWT=rpAVnq6a_mo7j58Dr9Rkg_yiHCuzbBQ@mail.gmail.com>
+References: <1395955764-18103-1-git-send-email-carlo@caione.org>
+	<1395955764-18103-2-git-send-email-carlo@caione.org>
+	<20140328092154.GF17779@lee--X1>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBB7PKT2NAKGQEGKZ2YRI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140328092154.GF17779@lee--X1>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-We currently flush input events in the outgoing client queue on most
-EVIOCG* ioctls so userspace doesn't get events twice (once during the
-ioctl and once during a later read()).
+On Fri, Mar 28, 2014 at 10:21 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-We introduced this in:
-  commit 483180281f0ac60d1138710eb21f4b9961901294
-  Author: David Herrmann <dh.herrmann@gmail.com>
-  Date:   Sun Apr 7 21:13:19 2013 -0700
+[...]
 
-      Input: evdev - flush queues during EVIOCGKEY-like ioctls
+>> +static struct resource axp20x_pek_resources[] = {
+>> +     {
+>> +             .name   = "PEK_DBR",
+>> +             .start  = AXP20X_IRQ_PEK_RIS_EDGE,
+>> +             .end    = AXP20X_IRQ_PEK_RIS_EDGE,
+>> +             .flags  = IORESOURCE_IRQ,
+>> +     }, {
+>> +             .name   = "PEK_DBF",
+>> +             .start  = AXP20X_IRQ_PEK_FAL_EDGE,
+>> +             .end    = AXP20X_IRQ_PEK_FAL_EDGE,
+>> +             .flags  = IORESOURCE_IRQ,
+>> +     },
+>> +};
+>
+> Have you considered doing this in the Device Tree? It's a lot less
+> code/overhead.
 
-However, we didn't modify the EVIOCGABS handler as we considered ABS
-values to change fast enough that flushing the queue seems irrelevant. But
-as it turns out, the ABS SLOT events suffer from the same issues. Hence,
-also flush the input queue from ABS values on EVIOCGABS.
+Hi Lee,
+in v4 (I will send it soon) I left this code in since the resources
+are well managed by the MFD core and adding it in the DT results in
+pretty much the same code/overhead (atm the input device is not
+present in the DT).
+If you really think that it is the case to move the code in the DT,
+please comment it in the v4.
 
-Reported-by: Peter Hutterer <peter.hutterer@who-t.net>
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
-Hi
+Thanks,
 
-This is untested as I don't have any multitouch hardware right now. Peter, can
-you give this a try?
-
-Thanks
-David
-
- drivers/input/evdev.c | 63 ++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 45 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index a06e125..fc55c19 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -55,8 +55,11 @@ struct evdev_client {
- 	struct input_event buffer[];
- };
- 
--/* flush queued events of type @type, caller must hold client->buffer_lock */
--static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
-+/* Flush queued events of given type @type and code @code. A negative code
-+ * is interpreted as catch-all. Caller must hold client->buffer_lock. */
-+static void __evdev_flush_queue(struct evdev_client *client,
-+				unsigned int type,
-+				int code)
- {
- 	unsigned int i, head, num;
- 	unsigned int mask = client->bufsize - 1;
-@@ -75,7 +78,7 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- 		ev = &client->buffer[i];
- 		is_report = ev->type == EV_SYN && ev->code == SYN_REPORT;
- 
--		if (ev->type == type) {
-+		if (ev->type == type && (code < 0 || ev->code == code)) {
- 			/* drop matched entry */
- 			continue;
- 		} else if (is_report && !num) {
-@@ -774,7 +777,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 
- 	spin_unlock(&dev->event_lock);
- 
--	__evdev_flush_queue(client, type);
-+	__evdev_flush_queue(client, type, -1);
- 
- 	spin_unlock_irq(&client->buffer_lock);
- 
-@@ -787,6 +790,40 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 	return ret;
- }
- 
-+static int evdev_handle_get_abs(struct evdev_client *client,
-+				struct input_dev *dev,
-+				unsigned int code,
-+				unsigned int size,
-+				void __user *p)
-+{
-+	struct input_absinfo abs;
-+	int ret;
-+
-+	if (!dev->absinfo)
-+		return -EINVAL;
-+
-+	/* see evdev_handle_get_val() for locking order */
-+
-+	spin_lock_irq(&dev->event_lock);
-+	spin_lock(&client->buffer_lock);
-+
-+	abs = dev->absinfo[code];
-+
-+	spin_unlock(&dev->event_lock);
-+
-+	__evdev_flush_queue(client, EV_ABS, code);
-+
-+	spin_unlock_irq(&client->buffer_lock);
-+
-+	ret = copy_to_user(p, &abs, min_t(size_t,
-+					  size,
-+					  sizeof(struct input_absinfo)));
-+	if (ret < 0)
-+		evdev_queue_syn_dropped(client);
-+
-+	return ret;
-+}
-+
- static int evdev_handle_mt_request(struct input_dev *dev,
- 				   unsigned int size,
- 				   int __user *ip)
-@@ -972,20 +1009,10 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 						_IOC_NR(cmd) & EV_MAX, size,
- 						p, compat_mode);
- 
--		if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCGABS(0))) {
--
--			if (!dev->absinfo)
--				return -EINVAL;
--
--			t = _IOC_NR(cmd) & ABS_MAX;
--			abs = dev->absinfo[t];
--
--			if (copy_to_user(p, &abs, min_t(size_t,
--					size, sizeof(struct input_absinfo))))
--				return -EFAULT;
--
--			return 0;
--		}
-+		if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCGABS(0)))
-+			return evdev_handle_get_abs(client, dev,
-+						    _IOC_NR(cmd) & ABS_MAX,
-+						    size, p);
- 	}
- 
- 	if (_IOC_DIR(cmd) == _IOC_WRITE) {
 -- 
-1.9.1
-
+Carlo Caione

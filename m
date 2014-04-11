@@ -1,209 +1,40 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2] input: wacom - unify outbound support for Cintiq and Intuos series
-Date: Fri, 11 Apr 2014 12:33:05 -0700
-Message-ID: <1397244785-20052-1-git-send-email-pingc@wacom.com>
+From: Alexander Stein <alexanders83@web.de>
+Subject: [PATCH] Input: ads7846: Fix device usage within attribute show
+Date: Fri, 11 Apr 2014 22:03:33 +0200
+Message-ID: <1397246613-26538-1-git-send-email-alexanders83@web.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:52547 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754521AbaDKTcw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Apr 2014 15:32:52 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rq2so5813552pbb.33
-        for <linux-input@vger.kernel.org>; Fri, 11 Apr 2014 12:32:52 -0700 (PDT)
+Received: from mout.web.de ([212.227.15.4]:62153 "EHLO mout.web.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754985AbaDKUDt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Apr 2014 16:03:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: Alexander Stein <alexanders83@web.de>, linux-input@vger.kernel.org
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
+With commit e585c40ba (Input: ads7846 - convert to
+hwmon_device_register_with_groups()) the device passed to the attribute's
+show function isn't the spi device as before.
+So fixup the passed device to ads7846_read12_ser.
+
+Signed-off-by: Alexander Stein <alexanders83@web.de>
 ---
- drivers/input/tablet/wacom_wac.c | 88 ++++++++++++++++++++++++++++++++--------
- drivers/input/tablet/wacom_wac.h |  4 +-
- 2 files changed, 75 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 3d094c9..0e37cde 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -488,6 +488,8 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		input_report_key(input, BTN_TOUCH, 0);
- 		input_report_abs(input, ABS_PRESSURE, 0);
- 		input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
-+		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
-+			wacom->shared->stylus_in_proximity = true;
- 	}
- 
- 	/* Exit report */
-@@ -562,6 +564,55 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	}
- }
- 
-+static bool wacom_intuos_outbound(struct wacom_wac *wacom)
-+{
-+	struct wacom_features *features = &wacom->features;
-+	unsigned char *data = wacom->data;
-+	struct input_dev *input = wacom->input;
-+	unsigned int bound = 200;
-+	bool outbound = false;
-+
-+	/* Intuos and old Cintiqs use ready bit for outbound tracking */
-+	if (!(data[1] & 0x40))
-+		outbound = true;
-+
-+	/* New Cintiqs have 200 counts of outbound */
-+	if (features->type >= WACOM_21UX2 && features->type <= WACOM_13HD) {
-+		if (wacom->x_mapped < bound) {
-+			wacom->x_mapped = 0;
-+			outbound = true;
-+		} else {
-+			wacom->x_mapped -= bound;
-+			if (wacom->x_mapped > features->x_max) {
-+				wacom->x_mapped = features->x_max;
-+				outbound = true;
-+			}
-+		}
-+
-+		if (wacom->y_mapped < bound) {
-+			wacom->y_mapped = 0;
-+			outbound = true;
-+		} else {
-+			wacom->y_mapped -= bound;
-+			if (wacom->y_mapped > features->y_max) {
-+				wacom->y_mapped = features->y_max;
-+				outbound = true;
-+			}
-+		}
-+	}
-+
-+	/* Intuos supports outbound tracking */
-+	if (outbound && (features->type >= INTUOS3S && features->type <= INTUOSPL)) {
-+		input_report_abs(input, ABS_X, wacom->x_mapped);
-+		input_report_abs(input, ABS_Y, wacom->y_mapped);
-+		input_report_abs(input, ABS_MISC, wacom->id[0]);
-+		input_report_key(input, wacom->tool[0], 1);
-+		input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[0]);
-+	}
-+
-+	return outbound;
-+}
-+
- static int wacom_intuos_irq(struct wacom_wac *wacom)
- {
- 	struct wacom_features *features = &wacom->features;
-@@ -802,17 +853,22 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 		return 0;
- 	}
- 
--	/* Cintiq doesn't send data when RDY bit isn't set */
--	if (features->type == CINTIQ && !(data[1] & 0x40))
--                 return 0;
-+	if (features->type >= INTUOS3S) {
-+		wacom->x_mapped = (data[2] << 9) | (data[3] << 1) | ((data[9] >> 1) & 1);
-+		wacom->y_mapped = (data[4] << 9) | (data[5] << 1) | (data[9] & 1);
-+	} else {
-+		wacom->x_mapped = be16_to_cpup((__be16 *)&data[2]);
-+		wacom->y_mapped = be16_to_cpup((__be16 *)&data[4]);
-+	}
-+
-+	if (wacom_intuos_outbound(wacom))
-+		return 0;
- 
-+	input_report_abs(input, ABS_X, wacom->x_mapped);
-+	input_report_abs(input, ABS_Y, wacom->y_mapped);
- 	if (features->type >= INTUOS3S) {
--		input_report_abs(input, ABS_X, (data[2] << 9) | (data[3] << 1) | ((data[9] >> 1) & 1));
--		input_report_abs(input, ABS_Y, (data[4] << 9) | (data[5] << 1) | (data[9] & 1));
- 		input_report_abs(input, ABS_DISTANCE, ((data[9] >> 2) & 0x3f));
- 	} else {
--		input_report_abs(input, ABS_X, be16_to_cpup((__be16 *)&data[2]));
--		input_report_abs(input, ABS_Y, be16_to_cpup((__be16 *)&data[4]));
- 		input_report_abs(input, ABS_DISTANCE, ((data[9] >> 3) & 0x1f));
- 	}
- 
-@@ -2132,10 +2188,10 @@ static const struct wacom_features wacom_features_0x317 =
- 	  63, INTUOSPL, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
- 	  .touch_max = 16 };
- static const struct wacom_features wacom_features_0xF4 =
--	{ "Wacom Cintiq 24HD",       WACOM_PKGLEN_INTUOS,   104480, 65600, 2047,
-+	{ "Wacom Cintiq 24HD",       WACOM_PKGLEN_INTUOS,   104080, 65200, 2047,
- 	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0xF8 =
--	{ "Wacom Cintiq 24HD touch", WACOM_PKGLEN_INTUOS,   104480, 65600, 2047, /* Pen */
-+	{ "Wacom Cintiq 24HD touch", WACOM_PKGLEN_INTUOS,   104080, 65200, 2047, /* Pen */
- 	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf6 };
- static const struct wacom_features wacom_features_0xF6 =
-@@ -2151,7 +2207,7 @@ static const struct wacom_features wacom_features_0xC6 =
- 	{ "Wacom Cintiq 12WX",    WACOM_PKGLEN_INTUOS,    53020, 33440, 1023,
- 	  63, WACOM_BEE, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0x304 =
--	{ "Wacom Cintiq 13HD",    WACOM_PKGLEN_INTUOS,    59552, 33848, 1023,
-+	{ "Wacom Cintiq 13HD",    WACOM_PKGLEN_INTUOS,    59152, 33448, 1023,
- 	  63, WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0xC7 =
- 	{ "Wacom DTU1931",        WACOM_PKGLEN_GRAPHIRE,  37832, 30305,  511,
-@@ -2166,23 +2222,23 @@ static const struct wacom_features wacom_features_0xFB =
- 	{ "Wacom DTU1031",        WACOM_PKGLEN_DTUS,      22096, 13960,  511,
- 	  0, DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x57 =
--	{ "Wacom DTK2241",        WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
-+	{ "Wacom DTK2241",        WACOM_PKGLEN_INTUOS,    95440, 53860, 2047,
- 	  63, DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES};
- static const struct wacom_features wacom_features_0x59 = /* Pen */
--	{ "Wacom DTH2242",        WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
-+	{ "Wacom DTH2242",        WACOM_PKGLEN_INTUOS,    95440, 53860, 2047,
- 	  63, DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5D };
- static const struct wacom_features wacom_features_0x5D = /* Touch */
- 	{ "Wacom DTH2242",       .type = WACOM_24HDT,
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x59, .touch_max = 10 };
- static const struct wacom_features wacom_features_0xCC =
--	{ "Wacom Cintiq 21UX2",   WACOM_PKGLEN_INTUOS,    87200, 65600, 2047,
-+	{ "Wacom Cintiq 21UX2",   WACOM_PKGLEN_INTUOS,    86400, 64800, 2047,
- 	  63, WACOM_21UX2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0xFA =
--	{ "Wacom Cintiq 22HD",    WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
-+	{ "Wacom Cintiq 22HD",    WACOM_PKGLEN_INTUOS,    95440, 53860, 2047,
- 	  63, WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0x5B =
--	{ "Wacom Cintiq 22HDT", WACOM_PKGLEN_INTUOS,      95840, 54260, 2047,
-+	{ "Wacom Cintiq 22HDT", WACOM_PKGLEN_INTUOS,      95440, 53860, 2047,
- 	  63, WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5e };
- static const struct wacom_features wacom_features_0x5E =
-@@ -2325,7 +2381,7 @@ static const struct wacom_features wacom_features_0x6004 =
- 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x0307 =
--	{ "Wacom ISDv5 307", WACOM_PKGLEN_INTUOS,  59552,  33848, 2047,
-+	{ "Wacom ISDv5 307", WACOM_PKGLEN_INTUOS,  59152,  33448, 2047,
- 	  63, CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
- static const struct wacom_features wacom_features_0x0309 =
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index f69c0eb..9f947c3 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -93,9 +93,9 @@ enum {
- 	DTK,
- 	WACOM_24HD,
- 	CINTIQ_HYBRID,
-+	WACOM_13HD,
- 	CINTIQ,
- 	WACOM_BEE,
--	WACOM_13HD,
- 	WACOM_MO,
- 	WIRELESS,
- 	BAMBOO_PT,
-@@ -148,6 +148,8 @@ struct wacom_wac {
- 	int tool[2];
- 	int id[2];
- 	__u32 serial[2];
-+	unsigned int x_mapped;
-+	unsigned int y_mapped;
- 	struct wacom_features features;
- 	struct wacom_shared *shared;
- 	struct input_dev *input;
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 180ff7a..3824369 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -425,7 +425,7 @@ static int ads7845_read12_ser(struct device *dev, unsigned command)
+ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	struct ads7846 *ts = dev_get_drvdata(dev); \
+-	ssize_t v = ads7846_read12_ser(dev, \
++	ssize_t v = ads7846_read12_ser(&ts->spi->dev, \
+ 			READ_12BIT_SER(var)); \
+ 	if (v < 0) \
+ 		return v; \
 -- 
-1.8.3.2
+1.9.2
 

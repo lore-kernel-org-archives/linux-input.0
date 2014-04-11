@@ -1,56 +1,152 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH v3 01/10] mfd: AXP20x: Add mfd driver
- for AXP20x PMIC
-Date: Fri, 11 Apr 2014 11:26:54 +0200
-Message-ID: <CAOQ7t2a4FbkuboTJWT=rpAVnq6a_mo7j58Dr9Rkg_yiHCuzbBQ@mail.gmail.com>
-References: <1395955764-18103-1-git-send-email-carlo@caione.org>
-	<1395955764-18103-2-git-send-email-carlo@caione.org>
-	<20140328092154.GF17779@lee--X1>
+Subject: [PATCH v4 0/9] mfd: AXP20x: Add support for AXP202 and AXP209
+Date: Fri, 11 Apr 2014 11:38:04 +0200
+Message-ID: <1397209093-10077-1-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBB7PKT2NAKGQEGKZ2YRI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20140328092154.GF17779@lee--X1>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBE7PT2NAKGQEC4MYTWI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 28, 2014 at 10:21 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+AXP209 and AXP202 are the PMUs (Power Management Unit) used by A10, A13
+and A20 SoCs and developed by X-Powers, a sister company of Allwinner.
+AXP20x comprises an adaptive USB-Compatible PWM charger, 2 BUCK DC-DC
+converters, 5 LDOs, multiple 12-bit ADCs of voltage, current and temperature
+as well as 4 configurable GPIOs. 
 
-[...]
+This set of patches introduces the core driver and support for two different
+subsystems:
+	- Regulators
+	- PEK (Power Enable Key)
 
->> +static struct resource axp20x_pek_resources[] = {
->> +     {
->> +             .name   = "PEK_DBR",
->> +             .start  = AXP20X_IRQ_PEK_RIS_EDGE,
->> +             .end    = AXP20X_IRQ_PEK_RIS_EDGE,
->> +             .flags  = IORESOURCE_IRQ,
->> +     }, {
->> +             .name   = "PEK_DBF",
->> +             .start  = AXP20X_IRQ_PEK_FAL_EDGE,
->> +             .end    = AXP20X_IRQ_PEK_FAL_EDGE,
->> +             .flags  = IORESOURCE_IRQ,
->> +     },
->> +};
->
-> Have you considered doing this in the Device Tree? It's a lot less
-> code/overhead.
+This patchset depends on patchsets:
+	irq: sun4i IRQ 0 / ENMI fixes (Hans de Goede)
+	ARM: sun7i/sun6i: irqchip: Irqchip driver for NMI controller (Carlo Caione)
+	regulator: helpers: Modify helpers enabling multi-bit control (Carlo Caione)
 
-Hi Lee,
-in v4 (I will send it soon) I left this code in since the resources
-are well managed by the MFD core and adding it in the DT results in
-pretty much the same code/overhead (atm the input device is not
-present in the DT).
-If you really think that it is the case to move the code in the DT,
-please comment it in the v4.
+Changes since v1:
 
-Thanks,
+	- Added a new standalone patch for defconfig
+
+	- MFD core:
+	  * Removed axp,system-power-controller property
+
+	- Bindings documentation:
+	  * Corrected description for dcdc-workmode property
+	  * Removed unused axp20x-pek compatible
+
+	- Input misc PEK driver:
+	  * Fixed seconds in lower case
+
+	- Regulators subsystem:
+	  * Fixed axp20x_set_suspend_voltage()
+	  * Switched to using multi-bit control for regulators
+	  * When "regulators" node is not found driver doesn't quit
+	  * Driver is now using devm_regulator_register()
+	  * Added module_platform_driver() instead of subsys_initcall()
+
+	- DT:
+	  * Added new DTSI for AXP209
+	  * Added support for cubietruck and olinuxino-micro
+
+Changes since v2:
+
+	- Added a new patch for multi_v7_defconfig to enable MFD core
+	  and subsystems
+
+	- DT:
+	  * Dropped axp,system-power-controller property from DTS
+	  * Moved compatible and interrupt-related properties from the
+	    DTSI file to the DTS board files
+
+	- Regulators subsystem:
+	  * Deleted useless struct axp20x_regulators
+	  * Added a warning when out of specs values are used for the
+	    dcdc frequency
+
+	- MFD core:
+	  * Fixed coding style
+	  * Removed IDs from device table for i2c
+
+	- Bindings documentation:
+	  * Several corrections and fixes
+
+Changes since v3:
+
+	- Removed x-powers-axp209.dtsi file
+	- Rewritten bindings document
+
+	- MFD core:
+	  * Fixed casting
+	  * Better comments / documentation
+
+	- Input misc PEK driver:
+	  * Timings are now expressed in ms and the sysfs appies the
+	    closest possible value
+	  * No more useless pretty-printing
+	  * Removed devm_request_threaded_irq in favour of
+	    devm_request_any_context_irq
+	  * Moved from input attributes to platform device attributes
+
+	- Regulators subsystem:
+	  * Removed suspend mode (axp20x_set_suspend_voltage)
+	  * Added regulators input supply
+
+	- DT
+	  * DTs doesn't include anymore the dtsi
+	  * Added input supplies for regulators
+
+Carlo Caione (9):
+  mfd: AXP20x: Add mfd driver for AXP20x PMIC
+  dt-bindings: add vendor-prefix for X-Powers
+  mfd: AXP20x: Add bindings documentation
+  input: misc: Add driver for AXP20x Power Enable Key
+  input: misc: Add ABI docs for AXP20x PEK
+  regulator: AXP20x: Add support for regulators subsystem
+  ARM: sun7i/sun4i: dt: Add AXP209 support to various boards
+  ARM: sunxi: Add AXP20x support in defconfig
+  ARM: sunxi: Add AXP20x support multi_v7_defconfig
+
+ .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
+ Documentation/devicetree/bindings/mfd/axp20x.txt   |  96 +++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ arch/arm/boot/dts/sun4i-a10-a1000.dts              |  69 +++++
+ arch/arm/boot/dts/sun4i-a10-cubieboard.dts         |  69 +++++
+ arch/arm/boot/dts/sun4i-a10-hackberry.dts          |  75 ++++++
+ arch/arm/boot/dts/sun4i-a10-inet97fv2.dts          |  69 +++++
+ arch/arm/boot/dts/sun4i-a10-mini-xplus.dts         |  75 ++++++
+ arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts     |  75 ++++++
+ arch/arm/boot/dts/sun4i-a10-pcduino.dts            |  69 +++++
+ arch/arm/boot/dts/sun7i-a20-cubieboard2.dts        |  70 +++++
+ arch/arm/boot/dts/sun7i-a20-cubietruck.dts         |  70 +++++
+ arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts    |  70 +++++
+ arch/arm/configs/multi_v7_defconfig                |   3 +
+ arch/arm/configs/sunxi_defconfig                   |   4 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/axp20x-pek.c                    | 261 +++++++++++++++++++
+ drivers/mfd/Kconfig                                |  12 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/axp20x.c                               | 249 ++++++++++++++++++
+ drivers/regulator/Kconfig                          |   7 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/axp20x-regulator.c               | 285 +++++++++++++++++++++
+ include/linux/mfd/axp20x.h                         | 180 +++++++++++++
+ 25 files changed, 1834 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
+ create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
+ create mode 100644 drivers/input/misc/axp20x-pek.c
+ create mode 100644 drivers/mfd/axp20x.c
+ create mode 100644 drivers/regulator/axp20x-regulator.c
+ create mode 100644 include/linux/mfd/axp20x.h
 
 -- 
-Carlo Caione
+1.8.3.2

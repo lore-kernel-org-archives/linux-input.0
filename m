@@ -1,63 +1,73 @@
-From: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Subject: [PATCH v3 4/7] ARM: STi: DT: add keyscan for stih41x-b2000
-Date: Fri, 11 Apr 2014 16:33:34 +0200
-Message-ID: <1397226820-5604-8-git-send-email-gabriel.fernandez@linaro.org>
+From: Gabriel Fernandez <gabriel.fernandez@linaro.org>
+Subject: Re: [PATCH v3 0/7] Add ST Keyscan driver
+Date: Fri, 11 Apr 2014 17:00:49 +0200
+Message-ID: <CAG374jD4qi-T=yXN8oagg+275QRSm_UeNmH2c=fROkzvz11XHw@mail.gmail.com>
 References: <1397226820-5604-1-git-send-email-gabriel.fernandez@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1397226820-5604-1-git-send-email-gabriel.fernandez@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>
-Cc: devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Lee Jones <lee.jones@linaro.org>, Gabriel Fernandez <gabriel.fernandez@linaro.org>, Giuseppe Condorelli <giuseppe.condorelli@st.com>
+To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-Add keyscan setup for stih415/h416 b2000.
-Both have same raw/column lines number, debounce time and keymap.
+Sorry,  don't review this v3 version, i made mistake...
 
-Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
-Signed-off-by: Gabriel Fernandez <gabriel.fernandez@linaro.org>
----
- arch/arm/boot/dts/stih41x-b2000.dtsi | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+i prepare a v4 version.
 
-diff --git a/arch/arm/boot/dts/stih41x-b2000.dtsi b/arch/arm/boot/dts/stih41x-b2000.dtsi
-index bf65c49..403bf1b 100644
---- a/arch/arm/boot/dts/stih41x-b2000.dtsi
-+++ b/arch/arm/boot/dts/stih41x-b2000.dtsi
-@@ -6,6 +6,7 @@
-  * it under the terms of the GNU General Public License version 2 as
-  * publishhed by the Free Software Foundation.
-  */
-+#include <dt-bindings/input/input.h>
- / {
- 
- 	memory{
-@@ -68,5 +69,27 @@
- 			snps,reset-active-low;
- 			snps,reset-delays-us 	= <0 10000 10000>;
- 		};
-+
-+		keyscan: keyscan@fe4b0000 {
-+			keypad,num-rows = <4>;
-+			keypad,num-columns = <4>;
-+			st,debounce-us = <5000>;
-+			linux,keymap = < MATRIX_KEY(0x00, 0x00, KEY_F13)
-+					 MATRIX_KEY(0x00, 0x01, KEY_F9)
-+					 MATRIX_KEY(0x00, 0x02, KEY_F5)
-+					 MATRIX_KEY(0x00, 0x03, KEY_F1)
-+					 MATRIX_KEY(0x01, 0x00, KEY_F14)
-+					 MATRIX_KEY(0x01, 0x01, KEY_F10)
-+					 MATRIX_KEY(0x01, 0x02, KEY_F6)
-+					 MATRIX_KEY(0x01, 0x03, KEY_F2)
-+					 MATRIX_KEY(0x02, 0x00, KEY_F15)
-+					 MATRIX_KEY(0x02, 0x01, KEY_F11)
-+					 MATRIX_KEY(0x02, 0x02, KEY_F7)
-+					 MATRIX_KEY(0x02, 0x03, KEY_F3)
-+					 MATRIX_KEY(0x03, 0x00, KEY_F16)
-+					 MATRIX_KEY(0x03, 0x01, KEY_F12)
-+					 MATRIX_KEY(0x03, 0x02, KEY_F8)
-+					 MATRIX_KEY(0x03, 0x03, KEY_F4) >;
-+		};
- 	};
- };
--- 
-1.9.1
+Best regards.
+
+Gabriel
+
+On 11 April 2014 16:33, Gabriel FERNANDEZ <gabriel.fernandez@st.com> wrote:
+> Changes in v3:
+> - add reset controller management
+> - rename 'st,debounce_us' into 'st,debounce-us' in dt binding
+>
+> Changes in v2:
+> - use standard format for matrix keymap
+> - suppress __exit mark for keyscan_remove()
+> - Call to keyscan_stop() shoudl go into keyscan_close() implementation
+> - use of SIMPLE_DEV_PM_OPS()
+> - rename compatibility name into "st,sti-keyscan"
+> - suppress platform data management
+> - omit vendor information
+> - cosmetic change and renaming
+>
+> The goal of this series is to add ST Keyscan support to ST SoCs.
+> The DT definition is added for STiH415 and STiH416 SoCs on
+> B2000 board.
+>
+> Gabriel Fernandez (5):
+>   drivers: input: keyboard: st-keyscan: add keyscan driver
+>   ARM: STi: DT: add keyscan for stih415
+>   ARM: STi: DT: add keyscan for stih416
+>   ARM: STi: DT: add keyscan for stih41x-b2000
+>   ARM: multi_v7_defconfig: add ST Keyscan driver
+>
+> Giuseppe CONDORELLI (2):
+>   driver: reset: sti: add keyscan for stih415
+>   driver: reset: sti: add keyscan for stih416
+>
+>  .../devicetree/bindings/input/st-keyscan.txt       |  60 +++++
+>  arch/arm/boot/dts/stih415-pinctrl.dtsi             |  16 ++
+>  arch/arm/boot/dts/stih415.dtsi                     |  12 +
+>  arch/arm/boot/dts/stih416-pinctrl.dtsi             |  16 ++
+>  arch/arm/boot/dts/stih416.dtsi                     |  12 +
+>  arch/arm/boot/dts/stih41x-b2000.dtsi               |  23 ++
+>  arch/arm/configs/multi_v7_defconfig                |   1 +
+>  drivers/input/keyboard/Kconfig                     |  12 +
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/st-keyscan.c                | 260 +++++++++++++++++++++
+>  drivers/reset/sti/reset-stih415.c                  |   1 +
+>  drivers/reset/sti/reset-stih416.c                  |   1 +
+>  .../dt-bindings/reset-controller/stih415-resets.h  |   1 +
+>  .../dt-bindings/reset-controller/stih416-resets.h  |   1 +
+>  14 files changed, 417 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/st-keyscan.txt
+>  create mode 100644 drivers/input/keyboard/st-keyscan.c
+>
+> --
+> 1.9.1
+>

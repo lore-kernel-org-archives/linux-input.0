@@ -1,53 +1,48 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v4 8/9] ARM: sunxi: Add AXP20x support in defconfig
-Date: Fri, 11 Apr 2014 11:38:12 +0200
-Message-ID: <1397209093-10077-9-git-send-email-carlo@caione.org>
-References: <1397209093-10077-1-git-send-email-carlo@caione.org>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH v4 1/9] mfd: AXP20x: Add mfd driver for
+ AXP20x PMIC
+Date: Fri, 11 Apr 2014 13:25:03 +0200
+Message-ID: <235623053.nj0gFkxyW5@wuerfel>
+References: <1397209093-10077-1-git-send-email-carlo@caione.org> <1397209093-10077-2-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBJXPT2NAKGQEUWNDC4Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1397209093-10077-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-sunxi+bncBDEKVJM7XAHRBRNCT6NAKGQEPXCCKOQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1397209093-10077-2-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
----
- arch/arm/configs/sunxi_defconfig | 4 ++++
- 1 file changed, 4 insertions(+)
+On Friday 11 April 2014 11:38:05 Carlo Caione wrote:
+> +#define AXP20X_IRQ(_irq, _off, _mask) \
+> +       [AXP20X_IRQ_##_irq] = { .reg_offset = (_off), .mask = BIT(_mask) }
+> +
+> +static const struct regmap_irq axp20x_regmap_irqs[] = {
+> +       AXP20X_IRQ(ACIN_OVER_V,         0, 7),
+> +       AXP20X_IRQ(ACIN_PLUGIN,         0, 6),
+> +       AXP20X_IRQ(ACIN_REMOVAL,        0, 5),
+> +       AXP20X_IRQ(VBUS_OVER_V,         0, 4),
+> +       AXP20X_IRQ(VBUS_PLUGIN,         0, 3),
+> +       AXP20X_IRQ(VBUS_REMOVAL,        0, 2),
+> +       AXP20X_IRQ(VBUS_V_LOW,          0, 1),
+> +       AXP20X_IRQ(BATT_PLUGIN,         1, 7),
+> +       AXP20X_IRQ(BATT_REMOVAL,        1, 6),
+> +       AXP20X_IRQ(BATT_ENT_ACT_MODE,   1, 5),
+> +       AXP20X_IRQ(BATT_EXIT_ACT_MODE,  1, 4),
+> +       AXP20X_IRQ(CHARG,               1, 3),
+> +       AXP20X_IRQ(CHARG_DONE,          1, 2),
+> +       AXP20X_IRQ(BATT_TEMP_HIGH,      1, 1),
 
-diff --git a/arch/arm/configs/sunxi_defconfig b/arch/arm/configs/sunxi_defconfig
-index b5df4a5..6e305da 100644
---- a/arch/arm/configs/sunxi_defconfig
-+++ b/arch/arm/configs/sunxi_defconfig
-@@ -40,6 +40,8 @@ CONFIG_SUN4I_EMAC=y
- # CONFIG_NET_VENDOR_STMICRO is not set
- # CONFIG_NET_VENDOR_WIZNET is not set
- # CONFIG_WLAN is not set
-+CONFIG_INPUT_MISC=y
-+CONFIG_INPUT_AXP20X_PEK=y
- CONFIG_SERIAL_8250=y
- CONFIG_SERIAL_8250_CONSOLE=y
- CONFIG_SERIAL_8250_NR_UARTS=8
-@@ -55,6 +57,7 @@ CONFIG_GPIO_SYSFS=y
- # CONFIG_HWMON is not set
- CONFIG_WATCHDOG=y
- CONFIG_SUNXI_WATCHDOG=y
-+CONFIG_MFD_AXP20X=y
- # CONFIG_USB_SUPPORT is not set
- CONFIG_NEW_LEDS=y
- CONFIG_LEDS_CLASS=y
-@@ -69,3 +72,4 @@ CONFIG_NFS_FS=y
- CONFIG_ROOT_NFS=y
- CONFIG_NLS=y
- CONFIG_PRINTK_TIME=y
-+CONFIG_REGULATOR_AXP20X=y
--- 
-1.8.3.2
+Why do you have to enumerate the interrupts here? Can't you just
+put all the numbers into the DT nodes of the devices using them?
+
+In general, I would say that the mfd driver should not care about
+what is connected to it.
+
+	Arnd

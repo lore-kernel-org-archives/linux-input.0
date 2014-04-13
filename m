@@ -1,832 +1,354 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 1/7] drivers: input: keyboard: st-keyscan: add keyscan
- driver
-Date: Sat, 12 Apr 2014 22:10:50 -0700
-Message-ID: <20140413051050.GA7267@core.coreip.homeip.net>
-References: <1397228856-9218-1-git-send-email-gabriel.fernandez@linaro.org>
- <1397228856-9218-2-git-send-email-gabriel.fernandez@linaro.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 4/9] input: misc: Add driver for AXP20x
+ Power Enable Key
+Date: Sun, 13 Apr 2014 01:17:01 -0700
+Message-ID: <20140413081701.GB7267@core.coreip.homeip.net>
+References: <1397209093-10077-1-git-send-email-carlo@caione.org>
+ <1397209093-10077-5-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRBAEQVGNAKGQESYESICA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1397209093-10077-5-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1397228856-9218-2-git-send-email-gabriel.fernandez@linaro.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, kernel@stlinux.com, Lee Jones <lee.jones@linaro.org>, Gabriel Fernandez <gabriel.fernandez@linaro.org>, Giuseppe Condorelli <giuseppe.condorelli@st.com>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Gabriel,
-
-On Fri, Apr 11, 2014 at 05:07:30PM +0200, Gabriel FERNANDEZ wrote:
-> This patch adds ST Keyscan driver to use the keypad hw a subset
-> of ST boards provide. Specific board setup will be put in the
-> given dt.
+On Fri, Apr 11, 2014 at 11:38:08AM +0200, Carlo Caione wrote:
+> This patch add support for the Power Enable Key found on MFD AXP202 and
+> AXP209. Besides the basic support for the button, the driver adds two
+> entries in sysfs to configure the time delay for power on/off.
 > 
-> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@linaro.org>
-> Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 > ---
->  .../devicetree/bindings/input/st-keyscan.txt       |  60 +++++
->  drivers/input/keyboard/Kconfig                     |  12 +
->  drivers/input/keyboard/Makefile                    |   1 +
->  drivers/input/keyboard/st-keyscan.c                | 260 +++++++++++++++++++++
->  4 files changed, 333 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/st-keyscan.txt
->  create mode 100644 drivers/input/keyboard/st-keyscan.c
+>  drivers/input/misc/Kconfig      |  11 ++
+>  drivers/input/misc/Makefile     |   1 +
+>  drivers/input/misc/axp20x-pek.c | 261 ++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 273 insertions(+)
+>  create mode 100644 drivers/input/misc/axp20x-pek.c
 > 
-> diff --git a/Documentation/devicetree/bindings/input/st-keyscan.txt b/Documentation/devicetree/bindings/input/st-keyscan.txt
-> new file mode 100644
-> index 0000000..51eb428
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/st-keyscan.txt
-> @@ -0,0 +1,60 @@
-> +* ST Keyscan controller Device Tree bindings
-> +
-> +The ST keyscan controller Device Tree binding is based on the
-> +matrix-keymap.
-> +
-> +Required properties:
-> +- compatible: "st,sti-keyscan"
-> +
-> +- reg: Register base address and size of st-keyscan controller.
-> +
-> +- interrupts: Interrupt number for the st-keyscan controller.
-> +
-> +- clocks: Must contain one entry, for the module clock.
-> +  See ../clocks/clock-bindings.txt for details.
-> +
-> +- pinctrl: Should specify pin control groups used for this controller.
-> +  See ../pinctrl/pinctrl-bindings.txt for details.
-> +
-> +- linux,keymap: The keymap for keys as described in the binding document
-> +  devicetree/bindings/input/matrix-keymap.txt.
-> +
-> +- keypad,num-rows: Number of row lines connected to the keypad controller.
-> +
-> +- keypad,num-columns: Number of column lines connected to the keypad
-> +  controller.
-> +
-> +Optional property:
-> +- st,debounce_us: Debouncing interval time in microseconds
-> +
-> +Example:
-> +
-> +keyscan: keyscan@fe4b0000 {
-> +	compatible = "st,sti-keyscan";
-> +	reg = <0xfe4b0000 0x2000>;
-> +	interrupts = <GIC_SPI 212 IRQ_TYPE_NONE>;
-> +	clocks	= <&CLK_SYSIN>;
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_keyscan>;
-> +
-> +	keypad,num-rows = <4>;
-> +	keypad,num-columns = <4>;
-> +	st,debounce_us = <5000>;
-> +
-> +	linux,keymap = < MATRIX_KEY(0x00, 0x00, KEY_F13)
-> +			 MATRIX_KEY(0x00, 0x01, KEY_F9)
-> +			 MATRIX_KEY(0x00, 0x02, KEY_F5)
-> +			 MATRIX_KEY(0x00, 0x03, KEY_F1)
-> +			 MATRIX_KEY(0x01, 0x00, KEY_F14)
-> +			 MATRIX_KEY(0x01, 0x01, KEY_F10)
-> +			 MATRIX_KEY(0x01, 0x02, KEY_F6)
-> +			 MATRIX_KEY(0x01, 0x03, KEY_F2)
-> +			 MATRIX_KEY(0x02, 0x00, KEY_F15)
-> +			 MATRIX_KEY(0x02, 0x01, KEY_F11)
-> +			 MATRIX_KEY(0x02, 0x02, KEY_F7)
-> +			 MATRIX_KEY(0x02, 0x03, KEY_F3)
-> +			 MATRIX_KEY(0x03, 0x00, KEY_F16)
-> +			 MATRIX_KEY(0x03, 0x01, KEY_F12)
-> +			 MATRIX_KEY(0x03, 0x02, KEY_F8)
-> +			 MATRIX_KEY(0x03, 0x03, KEY_F4) >;
-> +	};
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 76842d7..40a377c 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -524,6 +524,18 @@ config KEYBOARD_STOWAWAY
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called stowaway.
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 7904ab0..87244fb 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -393,6 +393,17 @@ config INPUT_RETU_PWRBUTTON
+>  	  To compile this driver as a module, choose M here. The module will
+>  	  be called retu-pwrbutton.
 >  
-> +config KEYBOARD_ST_KEYSCAN
-> +	tristate "STMicroelectronics keyscan support"
-> +	depends on ARCH_STI
-> +	select INPUT_EVDEV
-
-Why are you selecting evdev? Its presence is not essential for the
-driver.
-
-> +	select INPUT_MATRIXKMAP
+> +config INPUT_AXP20X_PEK
+> +	tristate "X-Powers AXP20X power button driver"
+> +	depends on MFD_AXP20X
 > +	help
-> +	  Say Y here if you want to use a keypad attached to the keyscan block
-> +	  on some STMicroelectronics SoC devices.
+> +	  Say Y here if you want to enable power key reporting via the
+> +	  AXP20X PMIC.
 > +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called st-keyscan.
+> +	  To compile this driver as a module, choose M here. The module will
+> +	  be called axp20x-pek.
 > +
->  config KEYBOARD_SUNKBD
->  	tristate "Sun Type 4 and Type 5 keyboard"
->  	select SERIO
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 11cff7b..7504ae1 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
->  obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
->  obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
->  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
-> +obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+= st-keyscan.o
->  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
->  obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
->  obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
-> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+> +
+>  config INPUT_TWL4030_PWRBUTTON
+>  	tristate "TWL4030 Power button Driver"
+>  	depends on TWL4030_CORE
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index cda71fc..624abf5 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -50,6 +50,7 @@ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+>  obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+>  obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+>  obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+> +obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+>  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+>  obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+>  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
 > new file mode 100644
-> index 0000000..7ed3b3e
+> index 0000000..a9112bd
 > --- /dev/null
-> +++ b/drivers/input/keyboard/st-keyscan.c
-> @@ -0,0 +1,260 @@
+> +++ b/drivers/input/misc/axp20x-pek.c
+> @@ -0,0 +1,261 @@
 > +/*
-> + * STMicroelectronics Key Scanning driver
+> + * axp20x power button driver.
 > + *
-> + * Copyright (c) 2014 STMicroelectonics Ltd.
-> + * Author: Stuart Menefy <stuart.menefy@st.com>
+> + * Copyright (C) 2013 Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 > + *
-> + * Based on sh_keysc.c, copyright 2008 Magnus Damm
+> + * This file is subject to the terms and conditions of the GNU General
+> + * Public License. See the file "COPYING" in the main directory of this
+> + * archive for more details.
 > + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
 > + */
 > +
-> +#include <linux/module.h>
+> +#include <linux/errno.h>
+> +#include <linux/irq.h>
+> +#include <linux/init.h>
+> +#include <linux/input.h>
 > +#include <linux/interrupt.h>
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/axp20x.h>
+> +#include <linux/module.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
-> +#include <linux/input/matrix_keypad.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
 > +
-> +#define ST_KEYSCAN_MAXKEYS 16
+> +#define AXP20X_PEK_STARTUP_MASK		(0xc0)
+> +#define AXP20X_PEK_SHUTDOWN_MASK	(0x03)
 > +
-> +#define KEYSCAN_CONFIG_OFF		0x0
-> +#define KEYSCAN_CONFIG_ENABLE		0x1
-> +#define KEYSCAN_DEBOUNCE_TIME_OFF	0x4
-> +#define KEYSCAN_MATRIX_STATE_OFF	0x8
-> +#define KEYSCAN_MATRIX_DIM_OFF		0xc
-> +#define KEYSCAN_MATRIX_DIM_X_SHIFT	0x0
-> +#define KEYSCAN_MATRIX_DIM_Y_SHIFT	0x2
-> +
-> +struct st_keyscan {
-> +	void __iomem *base;
-> +	int irq;
-> +	struct clk *clk;
-> +	struct input_dev *input_dev;
-> +	unsigned int last_state;
-> +	unsigned int n_rows;
-> +	unsigned int n_cols;
-> +	unsigned int debounce_us;
+> +struct axp20x_pek {
+> +	struct axp20x_dev *axp20x;
+> +	struct input_dev *input;
+> +	int irq_dbr;
+> +	int irq_dbf;
 > +};
 > +
-> +static irqreturn_t keyscan_isr(int irq, void *dev_id)
+> +struct axp20x_time {
+> +	unsigned int time;
+> +	unsigned int idx;
+> +};
+> +
+> +static const struct axp20x_time startup_time[] = {
+> +	{ .time = 128,  .idx = 0 },
+> +	{ .time = 1000, .idx = 2 },
+> +	{ .time = 3000, .idx = 1 },
+> +	{ .time = 2000, .idx = 3 },
+> +};
+> +
+> +static const struct axp20x_time shutdown_time[] = {
+> +	{ .time = 4000,  .idx = 0 },
+> +	{ .time = 6000,  .idx = 1 },
+> +	{ .time = 8000,  .idx = 2 },
+> +	{ .time = 10000, .idx = 3 },
+> +};
+> +
+> +struct axp20x_pek_ext_attr {
+> +	const struct axp20x_time *p_time;
+> +	unsigned int mask;
+> +};
+> +
+> +static struct axp20x_pek_ext_attr axp20x_pek_startup_ext_attr = {
+> +	.p_time	= startup_time,
+> +	.mask	= AXP20X_PEK_STARTUP_MASK,
+> +};
+> +
+> +static struct axp20x_pek_ext_attr axp20x_pek_shutdown_ext_attr = {
+> +	.p_time	= shutdown_time,
+> +	.mask	= AXP20X_PEK_SHUTDOWN_MASK,
+> +};
+> +
+> +static struct axp20x_pek_ext_attr *get_axp_ext_attr(struct device_attribute *attr)
 > +{
-> +	struct platform_device *pdev = dev_id;
-> +	struct st_keyscan *keypad = platform_get_drvdata(pdev);
+> +	return container_of(attr, struct dev_ext_attribute, attr)->var;
+> +}
+> +
+> +static ssize_t axp20x_show_ext_attr(struct device *dev, struct device_attribute *attr,
+> +				    char *buf)
+> +{
+> +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+> +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
+> +	unsigned int val;
+> +	int ret, i;
+> +
+> +	ret = regmap_read(axp20x_pek->axp20x->regmap, AXP20X_PEK_KEY, &val);
+> +	if (ret != 0)
+> +		return ret;
+> +
+> +	val &= axp20x_ea->mask;
+> +	val >>= ffs(axp20x_ea->mask) - 1;
+> +
+> +	for (i = 0; i < 4; i++)
+> +		if (val == axp20x_ea->p_time[i].idx)
+> +			val = axp20x_ea->p_time[i].time;
+> +
+> +	return sprintf(buf, "%ums\n", val);
 
-This is not safe, you are assigning platform data at the very end of
-probe; input device may get opened before probe is completed and IRS
-may come early causing OOPS.
+Please do not print ums and instead document the units in sysfs ABI
+docs.
 
-> +	unsigned short *keycode = keypad->input_dev->keycode;
-> +	int state;
-> +	int change;
+> +}
 > +
-> +	state = readl(keypad->base + KEYSCAN_MATRIX_STATE_OFF) & 0xffff;
-> +	change = keypad->last_state ^ state;
+> +static ssize_t axp20x_store_ext_attr(struct device *dev, struct device_attribute *attr,
+> +				     const char *buf, size_t count)
+> +{
+> +	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+> +	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
+> +	char val_str[20];
+> +	size_t len;
+> +	int ret, i;
+> +	unsigned int val, idx = 0;
+> +	unsigned int best_err = UINT_MAX;
 > +
-> +	while (change) {
-> +		int scancode = __ffs(change);
-> +		int down = state & BIT(scancode);
+> +	val_str[sizeof(val_str) - 1] = '\0';
+> +	strncpy(val_str, buf, sizeof(val_str) - 1);
+> +	len = strlen(val_str);
 > +
-> +		input_report_key(keypad->input_dev, keycode[scancode], down);
+> +	if (len && val_str[len - 1] == '\n')
+> +		val_str[len - 1] = '\0';
 > +
-> +		change ^= BIT(scancode);
-> +	};
-> +	input_sync(keypad->input_dev);
+> +	ret = kstrtouint(val_str, 10, &val);
+> +	if (ret)
+> +		return ret;
 > +
-> +	keypad->last_state = state;
+> +	for (i = 3; i >= 0; i--) {
+> +		unsigned int err;
+> +
+> +		err = abs(axp20x_ea->p_time[i].time - val);
+> +		if (err < best_err) {
+> +			best_err = err;
+> +			idx = axp20x_ea->p_time[i].idx;
+> +		}
+> +
+> +		if (!err)
+> +			break;
+> +	}
+> +
+> +	idx <<= ffs(axp20x_ea->mask) - 1;
+> +	ret = regmap_update_bits(axp20x_pek->axp20x->regmap,
+> +				 AXP20X_PEK_KEY,
+> +				 axp20x_ea->mask, idx);
+> +	if (ret != 0)
+> +		return -EINVAL;
+> +	return count;
+> +}
+> +
+> +static struct dev_ext_attribute axp20x_dev_attr_startup = {
+> +	.attr	= __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
+> +	.var	= &axp20x_pek_startup_ext_attr
+> +};
+> +
+> +static struct dev_ext_attribute axp20x_dev_attr_shutdown = {
+> +	.attr	= __ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
+> +	.var	= &axp20x_pek_shutdown_ext_attr
+> +};
+> +
+> +static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+> +{
+> +	struct input_dev *idev = pwr;
+> +	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
+> +
+> +	if (irq == axp20x_pek->irq_dbr)
+> +		input_report_key(idev, KEY_POWER, true);
+> +	else if (irq == axp20x_pek->irq_dbf)
+> +		input_report_key(idev, KEY_POWER, false);
+> +
+> +	input_sync(idev);
 > +
 > +	return IRQ_HANDLED;
 > +}
 > +
-> +static int keyscan_start(struct st_keyscan *keypad)
+> +static int axp20x_pek_probe(struct platform_device *pdev)
 > +{
-> +	clk_enable(keypad->clk);
-
-Should handle clk_enable() failures.
-
-> +
-> +	writel(keypad->debounce_us * (clk_get_rate(keypad->clk) / 1000000),
-> +	       keypad->base + KEYSCAN_DEBOUNCE_TIME_OFF);
-> +
-> +	writel(((keypad->n_cols - 1) << KEYSCAN_MATRIX_DIM_X_SHIFT) |
-> +	       ((keypad->n_rows - 1) << KEYSCAN_MATRIX_DIM_Y_SHIFT),
-> +	       keypad->base + KEYSCAN_MATRIX_DIM_OFF);
-> +
-> +	writel(KEYSCAN_CONFIG_ENABLE, keypad->base + KEYSCAN_CONFIG_OFF);
-> +
-> +	return 0;
-> +}
-> +
-> +static void keyscan_stop(struct st_keyscan *keypad)
-> +{
-> +	writel(0, keypad->base + KEYSCAN_CONFIG_OFF);
-> +
-> +	clk_disable(keypad->clk);
-> +}
-> +
-> +static int keyscan_open(struct input_dev *dev)
-> +{
-> +	struct st_keyscan *keypad = input_get_drvdata(dev);
-> +
-> +	return keyscan_start(keypad);
-> +}
-> +
-> +static void keyscan_close(struct input_dev *dev)
-> +{
-> +	struct st_keyscan *keypad = input_get_drvdata(dev);
-> +
-> +	keyscan_stop(keypad);
-> +}
-> +
-> +static int keypad_matrix_key_parse_dt(struct st_keyscan *keypad_data)
-> +{
-> +	struct device *dev = keypad_data->input_dev->dev.parent;
-> +	struct device_node *np = dev->of_node;
+> +	struct axp20x_pek *axp20x_pek;
+> +	struct axp20x_dev *axp20x;
+> +	struct input_dev *idev;
 > +	int error;
 > +
-> +	error = matrix_keypad_parse_of_params(dev, &keypad_data->n_rows,
-> +			&keypad_data->n_cols);
-> +	if (error) {
-> +		dev_err(dev, "failed to parse keypad params\n");
-> +		return error;
-> +	}
-> +
-> +	of_property_read_u32(np, "st,debounce-us", &keypad_data->debounce_us);
-> +
-> +	dev_info(dev, "n_rows=%d n_col=%d debounce=%d\n",
-> +			keypad_data->n_rows,
-> +			keypad_data->n_cols,
-> +			keypad_data->debounce_us);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __init keyscan_probe(struct platform_device *pdev)
-
-keyscan_probe() should not be marked __init as it may be needed again if
-one were to unbind and rebind the driver to the device through sysfs.
-
-> +{
-> +	struct st_keyscan *keypad_data;
-> +	struct input_dev *input_dev;
-> +	struct resource *res;
-> +	int error;
-> +
-> +	if (!pdev->dev.of_node) {
-> +		dev_err(&pdev->dev, "no keymap defined\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	keypad_data = devm_kzalloc(&pdev->dev,
-> +			sizeof(*keypad_data), GFP_KERNEL);
-> +	if (!keypad_data)
+> +	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
+> +				  GFP_KERNEL);
+> +	if (!axp20x_pek)
 > +		return -ENOMEM;
 > +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(keypad_data->base))
-> +		return PTR_ERR(keypad_data->base);
+> +	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+> +	axp20x = axp20x_pek->axp20x;
 > +
-> +	keypad_data->irq = platform_get_irq(pdev, 0);
-> +	if (keypad_data->irq < 0) {
-> +		dev_err(&pdev->dev, "no IRQ specified\n");
-> +		return -EINVAL;
+> +	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
+> +	if (axp20x_pek->irq_dbr < 0) {
+> +		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
+> +				axp20x_pek->irq_dbr);
+> +		return axp20x_pek->irq_dbr;
 > +	}
+> +	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
+> +						  axp20x_pek->irq_dbr);
 > +
-> +	error = devm_request_irq(&pdev->dev, keypad_data->irq, keyscan_isr, 0,
-> +				 pdev->name, pdev);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to request IRQ\n");
-> +		return error;
+> +	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
+> +	if (axp20x_pek->irq_dbf < 0) {
+> +		dev_err(&pdev->dev, "No IRQ for PEK_DBF, error=%d\n",
+> +				axp20x_pek->irq_dbf);
+> +		return axp20x_pek->irq_dbf;
 > +	}
+> +	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
+> +						  axp20x_pek->irq_dbf);
 > +
-> +	input_dev = devm_input_allocate_device(&pdev->dev);
-> +
-> +	if (!input_dev) {
-> +		dev_err(&pdev->dev, "failed to allocate the input device\n");
+> +	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
+> +	if (!axp20x_pek->input)
 > +		return -ENOMEM;
-> +	}
 > +
-> +	keypad_data->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(keypad_data->clk)) {
-> +		dev_err(&pdev->dev, "cannot get clock");
-> +		return PTR_ERR(keypad_data->clk);
-> +	}
+> +	idev = axp20x_pek->input;
 > +
-> +	keypad_data->input_dev = input_dev;
+> +	idev->name = "axp20x-pek";
+> +	idev->phys = "m1kbd/input2";
+> +	idev->dev.parent = &pdev->dev;
 > +
-> +	input_dev->name = pdev->name;
-> +	input_dev->phys = "keyscan-keys/input0";
-> +	input_dev->dev.parent = &pdev->dev;
-> +	input_dev->open = keyscan_open;
-> +	input_dev->close = keyscan_close;
+> +	input_set_capability(idev, EV_KEY, KEY_POWER);
 > +
-> +	input_dev->id.bustype = BUS_HOST;
+> +	input_set_drvdata(idev, axp20x_pek);
 > +
-> +	error = keypad_matrix_key_parse_dt(keypad_data);
-> +	if (error)
-> +		return error;
+> +	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
+> +					  axp20x_pek_irq, 0,
+> +					  "axp20x-pek-dbr", idev);
+> +	if (error < 0) {
+> +		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
+> +			axp20x_pek->irq_dbr, error);
 > +
-> +	error = matrix_keypad_build_keymap(NULL, NULL,
-> +			keypad_data->n_rows, keypad_data->n_cols,
-> +			NULL, input_dev);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to build keymap\n");
 > +		return error;
 > +	}
 > +
-> +	input_set_drvdata(input_dev, keypad_data);
-> +
-> +	error = input_register_device(input_dev);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
+> +	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
+> +					  axp20x_pek_irq, 0,
+> +					  "axp20x-pek-dbf", idev);
+> +	if (error < 0) {
+> +		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
+> +			axp20x_pek->irq_dbf, error);
 > +		return error;
 > +	}
 > +
-> +	platform_set_drvdata(pdev, keypad_data);
 > +
-> +	device_set_wakeup_capable(&pdev->dev, 1);
-> +
-> +	return 0;
-> +}
-> +
-> +static int keyscan_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct st_keyscan *keypad = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq_wake(keypad->irq);
-> +	else
-> +		keyscan_stop(keypad);
-> +
-> +	return 0;
-> +}
-> +
-> +static int keyscan_resume(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct st_keyscan *keypad = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_wake(keypad->irq);
-> +	else
-> +		keyscan_start(keypad);
+> +	if (device_create_file(&pdev->dev, &axp20x_dev_attr_startup.attr) ||
+> +	    device_create_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr))
+> +		return -ENODEV;
 
-If devoice has not been opened you should not try to stop it otherwise
-clk counter will be imbalanced.
+I think you still want to use attribute group here. You also need to
+clean up the attributes when unbinding device. Also, why returning
+-ENODEV instead of the proper error code?
 
 > +
+> +	error = input_register_device(idev);
+> +	if (error) {
+> +		dev_err(axp20x->dev, "Can't register input device: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, axp20x_pek);
+> +
 > +	return 0;
 > +}
 > +
-> +static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keyscan_resume);
-> +
-> +static const struct of_device_id keyscan_of_match[] = {
-> +	{ .compatible = "st,sti-keyscan" },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, keyscan_of_match);
-> +
-> +struct platform_driver keyscan_device_driver = {
-> +	.probe		= keyscan_probe,
+> +static struct platform_driver axp20x_pek_driver = {
+> +	.probe		= axp20x_pek_probe,
 > +	.driver		= {
-> +		.name	= "st-keyscan",
-> +		.pm	= &keyscan_dev_pm_ops,
-> +		.of_match_table = of_match_ptr(keyscan_of_match),
-> +	}
+> +		.name		= "axp20x-pek",
+> +		.owner		= THIS_MODULE,
+> +	},
 > +};
+> +module_platform_driver(axp20x_pek_driver);
 > +
-> +module_platform_driver(keyscan_device_driver);
-> +
-> +MODULE_AUTHOR("Stuart Menefy <stuart.menefy@st.com>");
-> +MODULE_DESCRIPTION("STMicroelectronics keyscan device driver");
+> +MODULE_DESCRIPTION("axp20x Power Button");
+> +MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
 > +MODULE_LICENSE("GPL");
 > -- 
-> 1.9.1
+> 1.8.3.2
 > 
-
-Does the version of the patch below still work for you?
 
 Thanks.
 
 -- 
 Dmitry
-
-Input: add st-keyscan driver
-
-From: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
-
-This patch adds ST Keyscan driver to use the keypad hw a subset of ST
-boards provide. Specific board setup will be put in the given dt.
-
-Signed-off-by: Gabriel Fernandez <gabriel.fernandez@linaro.org>
-Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- .../devicetree/bindings/input/st-keyscan.txt       |   60 ++++
- drivers/input/keyboard/Kconfig                     |   11 +
- drivers/input/keyboard/Makefile                    |    1 
- drivers/input/keyboard/st-keyscan.c                |  274 ++++++++++++++++++++
- 4 files changed, 346 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/st-keyscan.txt
- create mode 100644 drivers/input/keyboard/st-keyscan.c
-
-diff --git a/Documentation/devicetree/bindings/input/st-keyscan.txt b/Documentation/devicetree/bindings/input/st-keyscan.txt
-new file mode 100644
-index 0000000..51eb428
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/st-keyscan.txt
-@@ -0,0 +1,60 @@
-+* ST Keyscan controller Device Tree bindings
-+
-+The ST keyscan controller Device Tree binding is based on the
-+matrix-keymap.
-+
-+Required properties:
-+- compatible: "st,sti-keyscan"
-+
-+- reg: Register base address and size of st-keyscan controller.
-+
-+- interrupts: Interrupt number for the st-keyscan controller.
-+
-+- clocks: Must contain one entry, for the module clock.
-+  See ../clocks/clock-bindings.txt for details.
-+
-+- pinctrl: Should specify pin control groups used for this controller.
-+  See ../pinctrl/pinctrl-bindings.txt for details.
-+
-+- linux,keymap: The keymap for keys as described in the binding document
-+  devicetree/bindings/input/matrix-keymap.txt.
-+
-+- keypad,num-rows: Number of row lines connected to the keypad controller.
-+
-+- keypad,num-columns: Number of column lines connected to the keypad
-+  controller.
-+
-+Optional property:
-+- st,debounce_us: Debouncing interval time in microseconds
-+
-+Example:
-+
-+keyscan: keyscan@fe4b0000 {
-+	compatible = "st,sti-keyscan";
-+	reg = <0xfe4b0000 0x2000>;
-+	interrupts = <GIC_SPI 212 IRQ_TYPE_NONE>;
-+	clocks	= <&CLK_SYSIN>;
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_keyscan>;
-+
-+	keypad,num-rows = <4>;
-+	keypad,num-columns = <4>;
-+	st,debounce_us = <5000>;
-+
-+	linux,keymap = < MATRIX_KEY(0x00, 0x00, KEY_F13)
-+			 MATRIX_KEY(0x00, 0x01, KEY_F9)
-+			 MATRIX_KEY(0x00, 0x02, KEY_F5)
-+			 MATRIX_KEY(0x00, 0x03, KEY_F1)
-+			 MATRIX_KEY(0x01, 0x00, KEY_F14)
-+			 MATRIX_KEY(0x01, 0x01, KEY_F10)
-+			 MATRIX_KEY(0x01, 0x02, KEY_F6)
-+			 MATRIX_KEY(0x01, 0x03, KEY_F2)
-+			 MATRIX_KEY(0x02, 0x00, KEY_F15)
-+			 MATRIX_KEY(0x02, 0x01, KEY_F11)
-+			 MATRIX_KEY(0x02, 0x02, KEY_F7)
-+			 MATRIX_KEY(0x02, 0x03, KEY_F3)
-+			 MATRIX_KEY(0x03, 0x00, KEY_F16)
-+			 MATRIX_KEY(0x03, 0x01, KEY_F12)
-+			 MATRIX_KEY(0x03, 0x02, KEY_F8)
-+			 MATRIX_KEY(0x03, 0x03, KEY_F4) >;
-+	};
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 76842d7..948a303 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -524,6 +524,17 @@ config KEYBOARD_STOWAWAY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called stowaway.
- 
-+config KEYBOARD_ST_KEYSCAN
-+	tristate "STMicroelectronics keyscan support"
-+	depends on ARCH_STI || COMPILE_TEST
-+	select INPUT_MATRIXKMAP
-+	help
-+	  Say Y here if you want to use a keypad attached to the keyscan block
-+	  on some STMicroelectronics SoC devices.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called st-keyscan.
-+
- config KEYBOARD_SUNKBD
- 	tristate "Sun Type 4 and Type 5 keyboard"
- 	select SERIO
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 11cff7b..7504ae1 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -51,6 +51,7 @@ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
- obj-$(CONFIG_KEYBOARD_SPEAR)		+= spear-keyboard.o
- obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
- obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
-+obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+= st-keyscan.o
- obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
- obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
- obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
-diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
-new file mode 100644
-index 0000000..758b487
---- /dev/null
-+++ b/drivers/input/keyboard/st-keyscan.c
-@@ -0,0 +1,274 @@
-+/*
-+ * STMicroelectronics Key Scanning driver
-+ *
-+ * Copyright (c) 2014 STMicroelectonics Ltd.
-+ * Author: Stuart Menefy <stuart.menefy@st.com>
-+ *
-+ * Based on sh_keysc.c, copyright 2008 Magnus Damm
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/input/matrix_keypad.h>
-+
-+#define ST_KEYSCAN_MAXKEYS 16
-+
-+#define KEYSCAN_CONFIG_OFF		0x0
-+#define KEYSCAN_CONFIG_ENABLE		0x1
-+#define KEYSCAN_DEBOUNCE_TIME_OFF	0x4
-+#define KEYSCAN_MATRIX_STATE_OFF	0x8
-+#define KEYSCAN_MATRIX_DIM_OFF		0xc
-+#define KEYSCAN_MATRIX_DIM_X_SHIFT	0x0
-+#define KEYSCAN_MATRIX_DIM_Y_SHIFT	0x2
-+
-+struct st_keyscan {
-+	void __iomem *base;
-+	int irq;
-+	struct clk *clk;
-+	struct input_dev *input_dev;
-+	unsigned long last_state;
-+	unsigned int n_rows;
-+	unsigned int n_cols;
-+	unsigned int debounce_us;
-+};
-+
-+static irqreturn_t keyscan_isr(int irq, void *dev_id)
-+{
-+	struct st_keyscan *keypad = dev_id;
-+	unsigned short *keycode = keypad->input_dev->keycode;
-+	unsigned long state, change;
-+	int bit_nr;
-+
-+	state = readl(keypad->base + KEYSCAN_MATRIX_STATE_OFF) & 0xffff;
-+	change = keypad->last_state ^ state;
-+	keypad->last_state = state;
-+
-+	for_each_set_bit(bit_nr, &change, BITS_PER_LONG)
-+		input_report_key(keypad->input_dev,
-+				 keycode[bit_nr], state & BIT(bit_nr));
-+
-+	input_sync(keypad->input_dev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int keyscan_start(struct st_keyscan *keypad)
-+{
-+	int error;
-+
-+	error = clk_enable(keypad->clk);
-+	if (error)
-+		return error;
-+
-+	writel(keypad->debounce_us * (clk_get_rate(keypad->clk) / 1000000),
-+	       keypad->base + KEYSCAN_DEBOUNCE_TIME_OFF);
-+
-+	writel(((keypad->n_cols - 1) << KEYSCAN_MATRIX_DIM_X_SHIFT) |
-+	       ((keypad->n_rows - 1) << KEYSCAN_MATRIX_DIM_Y_SHIFT),
-+	       keypad->base + KEYSCAN_MATRIX_DIM_OFF);
-+
-+	writel(KEYSCAN_CONFIG_ENABLE, keypad->base + KEYSCAN_CONFIG_OFF);
-+
-+	return 0;
-+}
-+
-+static void keyscan_stop(struct st_keyscan *keypad)
-+{
-+	writel(0, keypad->base + KEYSCAN_CONFIG_OFF);
-+
-+	clk_disable(keypad->clk);
-+}
-+
-+static int keyscan_open(struct input_dev *dev)
-+{
-+	struct st_keyscan *keypad = input_get_drvdata(dev);
-+
-+	return keyscan_start(keypad);
-+}
-+
-+static void keyscan_close(struct input_dev *dev)
-+{
-+	struct st_keyscan *keypad = input_get_drvdata(dev);
-+
-+	keyscan_stop(keypad);
-+}
-+
-+static int keypad_matrix_key_parse_dt(struct st_keyscan *keypad_data)
-+{
-+	struct device *dev = keypad_data->input_dev->dev.parent;
-+	struct device_node *np = dev->of_node;
-+	int error;
-+
-+	error = matrix_keypad_parse_of_params(dev, &keypad_data->n_rows,
-+					      &keypad_data->n_cols);
-+	if (error) {
-+		dev_err(dev, "failed to parse keypad params\n");
-+		return error;
-+	}
-+
-+	of_property_read_u32(np, "st,debounce-us", &keypad_data->debounce_us);
-+
-+	dev_dbg(dev, "n_rows=%d n_col=%d debounce=%d\n",
-+		keypad_data->n_rows, keypad_data->n_cols,
-+		keypad_data->debounce_us);
-+
-+	return 0;
-+}
-+
-+static int keyscan_probe(struct platform_device *pdev)
-+{
-+	struct st_keyscan *keypad_data;
-+	struct input_dev *input_dev;
-+	struct resource *res;
-+	int error;
-+
-+	if (!pdev->dev.of_node) {
-+		dev_err(&pdev->dev, "no DT data present\n");
-+		return -EINVAL;
-+	}
-+
-+	keypad_data = devm_kzalloc(&pdev->dev, sizeof(*keypad_data),
-+				   GFP_KERNEL);
-+	if (!keypad_data)
-+		return -ENOMEM;
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev) {
-+		dev_err(&pdev->dev, "failed to allocate the input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev->name = pdev->name;
-+	input_dev->phys = "keyscan-keys/input0";
-+	input_dev->dev.parent = &pdev->dev;
-+	input_dev->open = keyscan_open;
-+	input_dev->close = keyscan_close;
-+
-+	input_dev->id.bustype = BUS_HOST;
-+
-+	error = keypad_matrix_key_parse_dt(keypad_data);
-+	if (error)
-+		return error;
-+
-+	error = matrix_keypad_build_keymap(NULL, NULL,
-+					   keypad_data->n_rows,
-+					   keypad_data->n_cols,
-+					   NULL, input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to build keymap\n");
-+		return error;
-+	}
-+
-+	input_set_drvdata(input_dev, keypad_data);
-+
-+	keypad_data->input_dev = input_dev;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(keypad_data->base))
-+		return PTR_ERR(keypad_data->base);
-+
-+	keypad_data->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(keypad_data->clk)) {
-+		dev_err(&pdev->dev, "cannot get clock\n");
-+		return PTR_ERR(keypad_data->clk);
-+	}
-+
-+	error = clk_enable(keypad_data->clk);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to enable clock\n");
-+		return error;
-+	}
-+
-+	keyscan_stop(keypad_data);
-+
-+	keypad_data->irq = platform_get_irq(pdev, 0);
-+	if (keypad_data->irq < 0) {
-+		dev_err(&pdev->dev, "no IRQ specified\n");
-+		return -EINVAL;
-+	}
-+
-+	error = devm_request_irq(&pdev->dev, keypad_data->irq, keyscan_isr, 0,
-+				 pdev->name, keypad_data);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to request IRQ\n");
-+		return error;
-+	}
-+
-+	error = input_register_device(input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		return error;
-+	}
-+
-+	platform_set_drvdata(pdev, keypad_data);
-+
-+	device_set_wakeup_capable(&pdev->dev, 1);
-+
-+	return 0;
-+}
-+
-+static int keyscan_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct st_keyscan *keypad = platform_get_drvdata(pdev);
-+	struct input_dev *input = keypad->input_dev;
-+
-+	mutex_lock(&input->mutex);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(keypad->irq);
-+	else if (input->users)
-+		keyscan_stop(keypad);
-+
-+	mutex_unlock(&input->mutex);
-+	return 0;
-+}
-+
-+static int keyscan_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct st_keyscan *keypad = platform_get_drvdata(pdev);
-+	struct input_dev *input = keypad->input_dev;
-+	int retval = 0;
-+
-+	mutex_lock(&input->mutex);
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(keypad->irq);
-+	else if (input->users)
-+		retval = keyscan_start(keypad);
-+
-+	mutex_unlock(&input->mutex);
-+	return retval;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keyscan_resume);
-+
-+static const struct of_device_id keyscan_of_match[] = {
-+	{ .compatible = "st,sti-keyscan" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, keyscan_of_match);
-+
-+static struct platform_driver keyscan_device_driver = {
-+	.probe		= keyscan_probe,
-+	.driver		= {
-+		.name	= "st-keyscan",
-+		.pm	= &keyscan_dev_pm_ops,
-+		.of_match_table = of_match_ptr(keyscan_of_match),
-+	}
-+};
-+
-+module_platform_driver(keyscan_device_driver);
-+
-+MODULE_AUTHOR("Stuart Menefy <stuart.menefy@st.com>");
-+MODULE_DESCRIPTION("STMicroelectronics keyscan device driver");
-+MODULE_LICENSE("GPL");

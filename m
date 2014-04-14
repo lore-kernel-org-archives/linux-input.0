@@ -1,146 +1,258 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: Re: HID vendor access from user space
-Date: Mon, 14 Apr 2014 12:00:04 +0200
-Message-ID: <CAE7qMro259DVdPqDw4CN1hNp8kQ933F6f6ZMa7BPCOXuNWTQ8Q@mail.gmail.com>
-References: <CAE7qMrrtyzUy0h-jeC8b6vLRq10w165=JgEJsj6CKyviFZDaSQ@mail.gmail.com>
- <CANq1E4Sn4QZN4vPzBkv8zxuGD+xcdgHeMS9sTB45ACknmwaxEA@mail.gmail.com>
- <CAE7qMrpO_yEtUGQEg5+8k4gU5=7Hxu03_Y0Uov+vJf5pM0ozkA@mail.gmail.com>
- <alpine.LNX.2.00.1404031547580.32122@pobox.suse.cz> <CAE7qMrqizfupabTciYfo+gGNG16ZM482y8tBbuQdvZYHdBaV=Q@mail.gmail.com>
- <CANq1E4TR34FG+vbAeHWv1JT5V0w1k3hq6Kmhx3ngO8+=arMsWA@mail.gmail.com> <CAE7qMrq5if+OovWSq3q6JQMe46VAN9eBZZEDyvcrrQS27e_7eQ@mail.gmail.com>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v4 7/9] ARM: sun7i/sun4i: dt: Add AXP209
+ support to various boards
+Date: Mon, 14 Apr 2014 12:02:25 +0200
+Message-ID: <CAOQ7t2ZybF=dm-NBQ3niN7gb-Asgwz5CW-VSkOzWR6t2NCaA8w@mail.gmail.com>
+References: <1397209093-10077-1-git-send-email-carlo@caione.org>
+	<1397209093-10077-8-git-send-email-carlo@caione.org>
+	<20140414095256.GA28585@lukather>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog138.obsmtp.com ([74.125.149.19]:60809 "EHLO
-	na3sys009aog138.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751037AbaDNKAg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 06:00:36 -0400
-Received: by mail-vc0-f169.google.com with SMTP id ik5so7551761vcb.28
-        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2014 03:00:34 -0700 (PDT)
-In-Reply-To: <CAE7qMrq5if+OovWSq3q6JQMe46VAN9eBZZEDyvcrrQS27e_7eQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBNXEV2NAKGQE5ATZZRA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140414095256.GA28585@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Olivier Gay <ogay@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-David, Jiri,
+On Mon, Apr 14, 2014 at 11:52 AM, Maxime Ripard
+<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+> Hi Carlo,
 
-After considering our discussion here, which is your position on
-extending the hidraw nodes to include separate nodes for top level
-vendor collections ?
+Hi Maxime,
 
-Cheers,
--nestor
+> On Fri, Apr 11, 2014 at 11:38:11AM +0200, Carlo Caione wrote:
+>> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+>> ---
+>>
+>> In all the DTs the min and max microvolt allowed for each regulator are actually
+>> the min and max voltage possible for the regulator itself. This is not safe but
+>> we do not have the ranges allowed for each board and the original Allwinner
+>> driver does exactly this way.
+>>
+>> AXP20x has the so called Power Path Management (IPS) that can select the proper
+>> power supply according to the status of the external power and the Li-battery
+>> status. The output of the IPS block is usually a 5V fixed voltage used as
+>> input supply for all the other regulators. This fixed voltage is represented
+>> in the DT as a fixed voltage regulator in the "regulator" subnode.
+>>
+>>  arch/arm/boot/dts/sun4i-a10-a1000.dts           | 69 +++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun4i-a10-cubieboard.dts      | 69 +++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun4i-a10-hackberry.dts       | 75 +++++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun4i-a10-inet97fv2.dts       | 69 +++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun4i-a10-mini-xplus.dts      | 75 +++++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts  | 75 +++++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun4i-a10-pcduino.dts         | 69 +++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun7i-a20-cubieboard2.dts     | 70 +++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun7i-a20-cubietruck.dts      | 70 +++++++++++++++++++++++
+>>  arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts | 70 +++++++++++++++++++++++
+>
+> That looks like a lot of them. Did you test all of them?
+> Are all those regulators you define used on all these boards?
 
-On Tue, Apr 8, 2014 at 5:53 PM, Nestor Lopez Casado
-<nlopezcasad@logitech.com> wrote:
-> On Mon, Apr 7, 2014 at 6:27 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
->> Hi
+I tested it only on cubieboard2, all the other boards are contributed by Hans.
+I'll double check with Hans.
+
+>>  10 files changed, 711 insertions(+)
 >>
->> On Mon, Apr 7, 2014 at 6:15 PM, Nestor Lopez Casado
->> <nlopezcasad@logitech.com> wrote:
->>> We consider this a potential security problem and we are looking into
->>> a solution that would enable the currently logged local user to access
->>> the vendor collections of a hid device without requiring any special
->>> permissions.
->>>
->>> Maybe the solution is not within the kernel itself, but rather on
->>> using a user mode component, maybe the X server or even udev. Do you
->>> get my point now ?
+>> diff --git a/arch/arm/boot/dts/sun4i-a10-a1000.dts b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+>> index fa746aea..029a880 100644
+>> --- a/arch/arm/boot/dts/sun4i-a10-a1000.dts
+>> +++ b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+>> @@ -88,6 +88,75 @@
+>>                       pinctrl-names = "default";
+>>                       pinctrl-0 = <&i2c0_pins_a>;
+>>                       status = "okay";
+>> +                     #address-cells = <1>;
+>> +                     #size-cells = <0>;
+>
+> That should be in the DTSI.
+
+Agree.
+
+>> +                     axp209: pmic@34 {
+>> +                             compatible = "x-powers,axp209";
+>> +                             reg = <0x34>;
+>> +                             interrupts = <0>;
+>> +
+>> +                             interrupt-controller;
+>> +                             #interrupt-cells = <1>;
+>> +
+>> +                             acin-supply = <&axp_ipsout_reg>;
+>> +                             vin2-supply = <&axp_ipsout_reg>;
+>> +                             vin3-supply = <&axp_ipsout_reg>;
+>> +                             ldo24in-supply = <&axp_ipsout_reg>;
+>> +                             ldo3in-supply = <&axp_ipsout_reg>;
+>> +                             ldo5in-supply = <&axp_ipsout_reg>;
+>> +
+>> +                             regulators {
+>> +                                     compatible = "x-powers,axp20x-reg";
+>
+> I told you a few times already, but don't introduce pattern-matching
+> compatibles.
+
+Probably that compatible will be deleted in the next version using
+regulator_bulk_register_supply_alias() as suggested by Mark.
+
+>> +
+>> +                                     x-powers,dcdc-freq = <1500>;
+>> +
+>> +                                     axp_ipsout_reg: axp_ipsout {
+>> +                                             compatible = "regulator-fixed";
+>> +                                             regulator-name = "axp-ipsout";
+>> +                                             regulator-min-microvolt = <5000000>;
+>> +                                             regulator-max-microvolt = <5000000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_vcore_reg: dcdc2 {
+>> +                                             regulator-min-microvolt = <700000>;
+>> +                                             regulator-max-microvolt = <2275000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_ddr_reg: dcdc3 {
+>> +                                             regulator-min-microvolt = <700000>;
+>> +                                             regulator-max-microvolt = <3500000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_rtc_reg: ldo1 {
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_analog_reg: ldo2 {
+>> +                                             regulator-min-microvolt = <1800000>;
+>> +                                             regulator-max-microvolt = <3300000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_pll_reg: ldo3 {
+>> +                                             regulator-min-microvolt = <700000>;
+>> +                                             regulator-max-microvolt = <3500000>;
+>> +                                     };
+>> +
+>> +                                     axp_hdmi_reg: ldo4 {
+>> +                                             regulator-min-microvolt = <1250000>;
+>> +                                             regulator-max-microvolt = <3300000>;
+>> +                                     };
+>> +
+>> +                                     axp_mic_reg: ldo5 {
+>> +                                             regulator-min-microvolt = <1800000>;
+>> +                                             regulator-max-microvolt = <3300000>;
+>> +                                     };
+>> +                             };
+>> +                     };
+>>               };
+>>       };
 >>
->> There is a lot of work going on to make Xorg (and also Wayland
->> compositors) run as non-root. Many people, however, seem to ignore
->> that this means the compositor runs with the _same_ privileges as the
->> applications. At least that is the security model we are going for.
->> Therefore, if a compositor can access input devices, all applications
->> can do so, too. Of course, you can introduce new privilege-levels and
->> or run applications with less privileges than normal user processes.
->> But I guess you get the point.
+>> diff --git a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
+>> index 4684cbe..635fd4b 100644
+>> --- a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
+>> +++ b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
+>> @@ -80,6 +80,75 @@
+>>                       pinctrl-names = "default";
+>>                       pinctrl-0 = <&i2c0_pins_a>;
+>>                       status = "okay";
+>> +                     #address-cells = <1>;
+>> +                     #size-cells = <0>;
+>> +
+>> +                     axp209: pmic@34 {
+>> +                             compatible = "x-powers,axp209";
+>> +                             reg = <0x34>;
+>> +                             interrupts = <0>;
+>> +
+>> +                             interrupt-controller;
+>> +                             #interrupt-cells = <1>;
+>> +
+>> +                             acin-supply = <&axp_ipsout_reg>;
+>> +                             vin2-supply = <&axp_ipsout_reg>;
+>> +                             vin3-supply = <&axp_ipsout_reg>;
+>> +                             ldo24in-supply = <&axp_ipsout_reg>;
+>> +                             ldo3in-supply = <&axp_ipsout_reg>;
+>> +                             ldo5in-supply = <&axp_ipsout_reg>;
+>> +
+>> +                             regulators {
+>> +                                     compatible = "x-powers,axp20x-reg";
+>> +
+>> +                                     x-powers,dcdc-freq = <1500>;
+>> +
+>> +                                     axp_ipsout_reg: axp_ipsout {
+>> +                                             compatible = "regulator-fixed";
+>> +                                             regulator-name = "axp-ipsout";
+>> +                                             regulator-min-microvolt = <5000000>;
+>> +                                             regulator-max-microvolt = <5000000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_vcore_reg: dcdc2 {
+>> +                                             regulator-min-microvolt = <700000>;
+>> +                                             regulator-max-microvolt = <2275000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_ddr_reg: dcdc3 {
+>> +                                             regulator-min-microvolt = <700000>;
+>> +                                             regulator-max-microvolt = <3500000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_rtc_reg: ldo1 {
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_analog_reg: ldo2 {
+>> +                                             regulator-min-microvolt = <1800000>;
+>> +                                             regulator-max-microvolt = <3300000>;
+>> +                                             regulator-always-on;
+>> +                                     };
+>> +
+>> +                                     axp_pll_reg: ldo3 {
+>> +                                             regulator-min-microvolt = <700000>;
+>> +                                             regulator-max-microvolt = <3500000>;
+>> +                                     };
+>> +
+>> +                                     axp_hdmi_reg: ldo4 {
+>> +                                             regulator-min-microvolt = <1250000>;
+>> +                                             regulator-max-microvolt = <3300000>;
+>> +                                     };
+>> +
+>> +                                     axp_mic_reg: ldo5 {
+>> +                                             regulator-min-microvolt = <1800000>;
+>> +                                             regulator-max-microvolt = <3300000>;
+>> +                                     };
+>> +                             };
+>> +                     };
+>>               };
 >>
->> Therefore, I really doubt there is much need to split the
->> access-rights here. What you wanna do is to provide this
->> privilege-separation on the kernel level. However, I think this is the
->> wrong way to do it. Imagine an HID device that has several
->> vendor-commands, some of them rather trivial and un-privileged, others
->> not. Do you expect the kernel to provide one device-node for each? How
->> do you expect the kernel to know which vender-extensions are _safe_ to
->> be grouped together?
+>>               i2c1: i2c@01c2b000 {
+>> diff --git a/arch/arm/boot/dts/sun4i-a10-hackberry.dts b/arch/arm/boot/dts/sun4i-a10-hackberry.dts
+>> index d7c17e4..8f2db9c 100644
+>> --- a/arch/arm/boot/dts/sun4i-a10-hackberry.dts
+>> +++ b/arch/arm/boot/dts/sun4i-a10-hackberry.dts
+>> @@ -82,6 +82,81 @@
+>>                       pinctrl-0 = <&uart0_pins_a>;
+>>                       status = "okay";
+>>               };
+>> +
+>> +             i2c0: i2c@01c2ac00 {
+>> +                     pinctrl-names = "default";
+>> +                     pinctrl-0 = <&i2c0_pins_a>;
+>> +                     status = "okay";
 >
-> I do not expect the kernel to know whether vendor extensions are safe
-> to be grouped together, I would simply provide them as a separate
-> -user accessible- interface whose access rights can be assigned
-> separately from the classic input collections.
+> That should be in a separate patch.
 >
-> Assignment of access rights would then be up to udev rules. Which each
-> manufacturer/user can define for each of its devices. By default
-> access rights would stay for root only.
->
->>
->> Yes, the kernel should provide different interfaces for different
->> hw-features so user-space can apply fine-grained access-modes.
->> However, if we don't know what hardware feature a specific command
->> represents, I don't think we should apply some kind of random
->> interface separation. This is why Jiri and I recommend writing an
->> in-kernel driver. That driver can be small and all it does it provide
->> a separate interface for your vendor-extensions. This can be as easy
->> as setting HID_QUIRK_MULTI_INPUT for given devices (or an equivalent
->> HID_QUIRK_MULTI_HIDRAW, which doesn't exist, yet). I still think it
->> would be nicer if the kernel provides a proper interface-abstraction,
->> but I'd be fine with such a quirk, too.
->
-> The problem I see with a specific kernel driver for a specific vendor
-> extension is two fold:
-> 1) It creates some potential for code bloat/duplication in the kernel
-> across multiple drivers for different manufacturers, while the only
-> purpose of this driver would be to expose some raw vendor
-> functionality to user programs.
->
-> 2) The interface provided by this driver to user programs would
-> probably diverge from driver to driver, making it impossible to have a
-> generic user component (think signal11's HidApi lib for instance) to
-> provide a consistent hid access library across operating systems.
->
->>
->> Maybe you can describe one specific example? Otherwise, it's hard to
->> imagine hid devices that provide two totally separate interfaces that
->> we had the need to split them. All examples I know already provide
->> different virtual HID devices and thus don't suffer from this problem.
->
-> You can look at the hid device descriptor that I posted in a previous
-> message of this thread. This device descriptor actually comes from one
-> of our devices: The Logitech BT Illuminated kbd K810. Most of our
-> input devices follow this pattern:
->
-> - Top level "classic" collection types (mouse, keyboard, etc)
-> - Top level vendor collections.
->
-> The vendor collections are the method we use to access extended
-> functionality of the device, (button reprogrammability, dpi settings,
-> extended battery status, firmware update and many others)
->
->> Furthermore, did you do some research how other platforms deal with
->> it?
->
-> Neither Microsoft Windows nor Apple Mac OS provide a posix-style
-> filesystem based device access model for HID devices. Nevertheless,
-> Windows does provide "physical device objects" for each top level
-> collection found in a hid device. From msdn:
->
-> "A report descriptor can include more than one top-level collection.
-> The HID class driver enumerates the top-level collections of an input
-> device and creates a physical device object (PDO) for each top-level
-> collection. User-mode applications or kernel-mode drivers can access a
-> top-level collection by opening its PDO and using the HIDClass support
-> routines and the HID class driver IOCTLs"
->
-> Access rights to vendor collection PDOs is granted to any logged on user.
->
-> Apple's Mac OS HidManager client API, provides a mechanism to select
-> the parent device of any top level hid collection, then Set/Get
-> report-style APIs to address each of the vendor collections.
->
-> Access rights seem to be given to any logged on user.
->
->>
->> Thanks
->> David
+> These comments apply to most of the changes here. Make sure you edit
+> all of them.
+
+Ok. Thanks.
+
+-- 
+Carlo Caione

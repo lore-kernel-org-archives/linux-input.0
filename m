@@ -1,102 +1,58 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v5 1/7] HID: sony: Use inliners for work queue initialization and cancellation
-Date: Mon, 14 Apr 2014 10:11:31 -0400
-Message-ID: <1397484697-2389-2-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH v5 4/7] HID: sony: Use the controller Bluetooth MAC address as the unique value in the battery name string
+Date: Mon, 14 Apr 2014 10:11:34 -0400
+Message-ID: <1397484697-2389-5-git-send-email-frank.praznik@oh.rr.com>
 References: <1397484697-2389-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:44173 "EHLO
 	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750909AbaDNOLs (ORCPT
+	by vger.kernel.org with ESMTP id S1751012AbaDNOLu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 10:11:48 -0400
+	Mon, 14 Apr 2014 10:11:50 -0400
 In-Reply-To: <1397484697-2389-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, simon@mungewell.org, Frank Praznik <frank.praznik@oh.rr.com>
 
-Use inliners to make sure that the work queue initialization flag is always
-checked and set correctly when initializing or cancelling the work queue.
+Use the controller Bluetooth MAC address as the unique identifier in the
+battery name string instead of the atomic integer that was used before.
 
 Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
- drivers/hid/hid-sony.c | 29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ drivers/hid/hid-sony.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 908de27..3df3306 100644
+index a86542a..c709161 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -1578,6 +1578,20 @@ static int sony_check_add(struct sony_sc *sc)
- 	return sony_check_add_dev_list(sc);
- }
+@@ -1413,8 +1413,6 @@ static int sony_battery_get_property(struct power_supply *psy,
  
-+static inline void sony_init_work(struct sony_sc *sc,
-+					void (*worker)(struct work_struct *))
-+{
-+	if (!sc->worker_initialized)
-+		INIT_WORK(&sc->state_worker, worker);
-+
-+	sc->worker_initialized = 1;
-+}
-+
-+static inline void sony_cancel_work_sync(struct sony_sc *sc)
-+{
-+	if (sc->worker_initialized)
-+		cancel_work_sync(&sc->state_worker);
-+}
- 
- static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ static int sony_battery_probe(struct sony_sc *sc)
  {
-@@ -1629,8 +1643,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
- 		ret = sixaxis_set_operational_usb(hdev);
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-+		sony_init_work(sc, sixaxis_state_worker);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
- 		/*
- 		 * The Sixaxis wants output reports sent on the ctrl endpoint
-@@ -1638,8 +1651,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		 */
- 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
- 		ret = sixaxis_set_operational_bt(hdev);
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
-+		sony_init_work(sc, sixaxis_state_worker);
- 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
- 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
- 			/*
-@@ -1661,8 +1673,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		if (ret < 0)
- 			goto err_stop;
+-	static atomic_t power_id_seq = ATOMIC_INIT(0);
+-	unsigned long power_id;
+ 	struct hid_device *hdev = sc->hdev;
+ 	int ret;
  
--		sc->worker_initialized = 1;
--		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
-+		sony_init_work(sc, dualshock4_state_worker);
- 	} else {
- 		ret = 0;
- 	}
-@@ -1707,8 +1718,7 @@ err_stop:
- 		sony_leds_remove(hdev);
- 	if (sc->quirks & SONY_BATTERY_SUPPORT)
- 		sony_battery_remove(sc);
--	if (sc->worker_initialized)
--		cancel_work_sync(&sc->state_worker);
-+	sony_cancel_work_sync(sc);
- 	sony_remove_dev_list(sc);
- 	hid_hw_stop(hdev);
- 	return ret;
-@@ -1726,8 +1736,7 @@ static void sony_remove(struct hid_device *hdev)
- 		sony_battery_remove(sc);
- 	}
+@@ -1424,15 +1422,13 @@ static int sony_battery_probe(struct sony_sc *sc)
+ 	 */
+ 	sc->battery_capacity = 100;
  
--	if (sc->worker_initialized)
--		cancel_work_sync(&sc->state_worker);
-+	sony_cancel_work_sync(sc);
- 
- 	sony_remove_dev_list(sc);
+-	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
+-
+ 	sc->battery.properties = sony_battery_props;
+ 	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
+ 	sc->battery.get_property = sony_battery_get_property;
+ 	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+ 	sc->battery.use_for_apm = 0;
+-	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
+-				     power_id);
++	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%pMR",
++				     sc->mac_address);
+ 	if (!sc->battery.name)
+ 		return -ENOMEM;
  
 -- 
 1.8.5.3

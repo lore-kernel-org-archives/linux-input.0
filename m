@@ -1,95 +1,29 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] synaptics: Add min/max quirk for ThinkPad T431s, L440, S1 Yoga and X1
-Date: Mon, 14 Apr 2014 12:40:00 +0200
-Message-ID: <1397472000-31522-1-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH v3 0/2] input/serio: Add a firmware_id sysfs attribute
+Date: Mon, 14 Apr 2014 12:30:17 +0200
+Message-ID: <1397471419-31224-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49151 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:15448 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751023AbaDNKqL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 06:46:11 -0400
+	id S1754504AbaDNK4a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Apr 2014 06:56:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org
 
-We expect that all the Haswell series will need such quirks, sigh.
+Hi All,
 
-The T431s seems to be T430 hardware in a T440s case, using the T440s touchpad,
-with the same min/max issue.
+Here is v3 of my serio firmware_id sysfs attribute patch-set
 
-The X1 Carbon 3rd generation name says 2nd while it is a 3rd generation.
+Changes in v2:
+-Add a helper function to avoid copy/pasting the code for building
+ the firmware_id string from pnp_ids
 
-The X1 and T431s share a PnPID with the T540p, but the reported ranges are
-closer to those of the T440s.
+Changes in v3:
+-Prefix the firmware_id string for 8042-pnp devices which "PNP: " so that
+ it will be easy to differentiate pnp-ids from ie devicetree ids in the future
 
-HdG: Squashed 4 quirk patches into one. T431s + L440 are written by me,
-S1 Yoga and X1 are written by Benjamin Tissoires.
+Regards,
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/synaptics.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index b9d2259..521a8e7 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1557,6 +1557,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
- 		.driver_data = (int []){1232, 5710, 1156, 4696},
- 	},
- 	{
-+		/* Lenovo ThinkPad T431s */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T431"),
-+		},
-+		.driver_data = (int []){1024, 5112, 2024, 4832},
-+	},
-+	{
- 		/* Lenovo ThinkPad T440s */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-@@ -1565,6 +1573,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
- 		.driver_data = (int []){1024, 5112, 2024, 4832},
- 	},
- 	{
-+		/* Lenovo ThinkPad L440 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad L440"),
-+		},
-+		.driver_data = (int []){1024, 5112, 2024, 4832},
-+	},
-+	{
- 		/* Lenovo ThinkPad T540p */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-@@ -1572,6 +1588,24 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
- 		},
- 		.driver_data = (int []){1024, 5056, 2058, 4832},
- 	},
-+	{
-+		/* Lenovo Yoga S1 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"ThinkPad S1 Yoga"),
-+		},
-+		.driver_data = (int []){1232, 5711, 1159, 4700},
-+	},
-+	{
-+		/* Lenovo ThinkPad X1 Carbon Haswell (3rd generation) */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION,
-+					"ThinkPad X1 Carbon 2nd"),
-+		},
-+		.driver_data = (int []){1131, 5113, 2021, 4831},
-+	},
- #endif
- 	{ }
- };
--- 
-1.9.0
-
+Hans

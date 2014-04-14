@@ -1,103 +1,95 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/2] synaptics: Report INPUT_PROP_TOPBUTTONPAD property for touchpads with top buttonareas
-Date: Mon, 14 Apr 2014 12:37:55 +0200
-Message-ID: <1397471875-31400-3-git-send-email-hdegoede@redhat.com>
-References: <1397471875-31400-1-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH] synaptics: Add min/max quirk for ThinkPad T431s, L440, S1 Yoga and X1
+Date: Mon, 14 Apr 2014 12:40:00 +0200
+Message-ID: <1397472000-31522-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50222 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49151 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753060AbaDNKiC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 06:38:02 -0400
-In-Reply-To: <1397471875-31400-1-git-send-email-hdegoede@redhat.com>
+	id S1751023AbaDNKqL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Apr 2014 06:46:11 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
+We expect that all the Haswell series will need such quirks, sigh.
+
+The T431s seems to be T430 hardware in a T440s case, using the T440s touchpad,
+with the same min/max issue.
+
+The X1 Carbon 3rd generation name says 2nd while it is a 3rd generation.
+
+The X1 and T431s share a PnPID with the T540p, but the reported ranges are
+closer to those of the T440s.
+
+HdG: Squashed 4 quirk patches into one. T431s + L440 are written by me,
+S1 Yoga and X1 are written by Benjamin Tissoires.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 46 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 44 insertions(+), 2 deletions(-)
+ drivers/input/mouse/synaptics.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index d8d49d1..b9d2259 100644
+index b9d2259..521a8e7 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -117,6 +117,35 @@ void synaptics_reset(struct psmouse *psmouse)
- }
- 
- #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
-+/* This list has been kindly provided by synaptics */
-+static const char * const topbuttonpad_pnp_ids[] = {
-+	"LEN0017",
-+	"LEN0018",
-+	"LEN0019",
-+	"LEN0023",
-+	"LEN002A",
-+	"LEN002B",
-+	"LEN002C",
-+	"LEN002D",
-+	"LEN002E",
-+	"LEN0033", /* Helix */
-+	"LEN0034", /* T431s, T540, X1 Carbon 2nd */
-+	"LEN0035", /* X240 */
-+	"LEN0036", /* T440 */
-+	"LEN0037",
-+	"LEN0041",
-+	"LEN0042", /* Yoga */
-+	"LEN0045",
-+	"LEN0046",
-+	"LEN0047",
-+	"LEN0048",
-+	"LEN0049",
-+	"LEN2004", /* L440 */
-+	"LEN2009",
-+	"LEN200A",
-+	"LEN200B",
-+	NULL
-+};
- 
- /*****************************************************************************
-  *	Synaptics communications functions
-@@ -1255,8 +1284,10 @@ static void set_abs_position_params(struct input_dev *dev,
- 	input_abs_set_res(dev, y_code, priv->y_res);
- }
- 
--static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
-+static void set_input_params(struct psmouse *psmouse,
-+			     struct synaptics_data *priv)
- {
-+	struct input_dev *dev = psmouse->dev;
- 	int i;
- 
- 	/* Things that apply to both modes */
-@@ -1325,6 +1356,17 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- 
- 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
-+		/* See if this buttonpad has a top button area */
-+		if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4)) {
-+			for (i = 0; topbuttonpad_pnp_ids[i]; i++) {
-+				if (strstr(psmouse->ps2dev.serio->firmware_id,
-+					   topbuttonpad_pnp_ids[i])) {
-+					__set_bit(INPUT_PROP_TOPBUTTONPAD,
-+						  dev->propbit);
-+					break;
-+				}
-+			}
-+		}
- 		/* Clickpads report only left button */
- 		__clear_bit(BTN_RIGHT, dev->keybit);
- 		__clear_bit(BTN_MIDDLE, dev->keybit);
-@@ -1593,7 +1635,7 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 		     priv->capabilities, priv->ext_cap, priv->ext_cap_0c,
- 		     priv->board_id, priv->firmware_id);
- 
--	set_input_params(psmouse->dev, priv);
-+	set_input_params(psmouse, priv);
- 
- 	/*
- 	 * Encode touchpad model so that it can be used to set
+@@ -1557,6 +1557,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+ 		.driver_data = (int []){1232, 5710, 1156, 4696},
+ 	},
+ 	{
++		/* Lenovo ThinkPad T431s */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad T431"),
++		},
++		.driver_data = (int []){1024, 5112, 2024, 4832},
++	},
++	{
+ 		/* Lenovo ThinkPad T440s */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+@@ -1565,6 +1573,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+ 		.driver_data = (int []){1024, 5112, 2024, 4832},
+ 	},
+ 	{
++		/* Lenovo ThinkPad L440 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad L440"),
++		},
++		.driver_data = (int []){1024, 5112, 2024, 4832},
++	},
++	{
+ 		/* Lenovo ThinkPad T540p */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+@@ -1572,6 +1588,24 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+ 		},
+ 		.driver_data = (int []){1024, 5056, 2058, 4832},
+ 	},
++	{
++		/* Lenovo Yoga S1 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"ThinkPad S1 Yoga"),
++		},
++		.driver_data = (int []){1232, 5711, 1159, 4700},
++	},
++	{
++		/* Lenovo ThinkPad X1 Carbon Haswell (3rd generation) */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION,
++					"ThinkPad X1 Carbon 2nd"),
++		},
++		.driver_data = (int []){1131, 5113, 2021, 4831},
++	},
+ #endif
+ 	{ }
+ };
 -- 
 1.9.0
 

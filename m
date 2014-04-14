@@ -1,47 +1,40 @@
-From: Olivier Gay <ogay@logitech.com>
-Subject: Re: [PATCH] HID: add missing hid usages
-Date: Mon, 14 Apr 2014 14:22:17 +0200
-Message-ID: <CAFLMSp-2qX-7LRr_m9Q=7g+zTsZ+9sp1ZR=ayO0A5ihF3th0qQ@mail.gmail.com>
-References: <1396623746-1416-1-git-send-email-ogay@logitech.com> <alpine.LNX.2.00.1404070949020.8157@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH v5 0/7] HID: sony: More Sony controller fixes and improvements.
+Date: Mon, 14 Apr 2014 10:11:30 -0400
+Message-ID: <1397484697-2389-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog106.obsmtp.com ([74.125.149.77]:46341 "EHLO
-	na3sys009aog106.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751341AbaDNMWl (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:44173 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750853AbaDNOLs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 08:22:41 -0400
-Received: by mail-wi0-f171.google.com with SMTP id q5so3904559wiv.16
-        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2014 05:22:38 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1404070949020.8157@pobox.suse.cz>
+	Mon, 14 Apr 2014 10:11:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, simon@mungewell.org, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Mon, Apr 7, 2014 at 9:49 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->
->
-> [ adding Dmitry to CC ]
->
-> On Fri, 4 Apr 2014, Olivier Gay wrote:
->
-> > with this patch we add some missing hid usages to the hid system.
-> > Those missing hid usages are already used by some Logitech
-> > products as well as some future ones.
-> >
-> > (Note: checkpatch.pl shows some errors but I didn't want to
-> > break the current code style in hid-input.c)
->
-> Thanks for the patch, Olivier. All looking good to me, but for the input.h
-> additions, I'd like to get Ack from Dmitry, hence CCing him.
->
-> Dmitry, ok to take this through my tree with your ack?
+v5 has the following changes:
 
-Hi Dmitry,
+ -Addresses some usability issues with the hardware blink support in the LED
+  code. The Sixaxis has some odd behavior where, on USB, the controller
+  overrides user LED settings and blinks the whole light bar until the PS button
+  is pushed.  The new patch doesn't filter redundant state for the Sixaxis on
+  USB so the blinking can be stopped by the user without having to toggle the
+  state of an LED that is already set correctly.
+  
+ -The new patch adds a 'global' LED to the DualShock 4 for synchronously
+  controlling the whole light bar and setting hardware blink rate.  Under the
+  old system where all of the LEDs mapped to one global blink rate triggers
+  would constantly override each other if different ones were assigned to
+  different color LEDs and triggers that run their own timers and adjust the
+  brightness directly couldn't be synchronously applied to the whole light bar.
+  Now, the global LED controls the hardware blink rate and can synchronously
+  toggle the state of the whole light bar without disturbing the individual
+  colors.  Additionally, if the user wants to apply different triggers to
+  the individual colors, that works as well.
+  
+ -A patch from Simon Wood is included to fix a glitch with a third-party INTEC
+  controllers where the LEDs would blink when they were set to 'all-off'.
 
-by any chance did you take a look on this commit we submitted?
-
-Best regards,
-
-Olivier
+These are made to be applied on top of the latest code in
+jikos/hid.git/for-3.15/upstream

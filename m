@@ -1,49 +1,103 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 1/2] uapi/input.h: Add INPUT_PROP_TOPBUTTONPAD device property
-Date: Mon, 14 Apr 2014 12:37:54 +0200
-Message-ID: <1397471875-31400-2-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH v2 2/2] synaptics: Report INPUT_PROP_TOPBUTTONPAD property for touchpads with top buttonareas
+Date: Mon, 14 Apr 2014 12:37:55 +0200
+Message-ID: <1397471875-31400-3-git-send-email-hdegoede@redhat.com>
 References: <1397471875-31400-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:29254 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50222 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753060AbaDNKiA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 06:38:00 -0400
+	id S1753060AbaDNKiC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Apr 2014 06:38:02 -0400
 In-Reply-To: <1397471875-31400-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On some newer laptops with a trackpoint the physical buttons for the
-trackpoint have been removed to allow for a larger touchpad. On these
-laptops the buttonpad has clearly marked areas on the top which are to be
-used as trackpad buttons.
-
-Users of the event device-node need to know about this, so that they can
-properly interpret BTN_LEFT events as being a left / right / middle click
-depending on where on the button pad the clicking finger is.
-
-This commits adds a INPUT_PROP_TOPBUTTONPAD device property which drivers
-for such buttonpads will use to signal to the user that this buttonpad not
-only has the normal bottom button area, but also a top button area.
-
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- include/uapi/linux/input.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/mouse/synaptics.c | 46 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 44 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index bd24470..f484952 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -164,6 +164,7 @@ struct input_keymap_entry {
- #define INPUT_PROP_DIRECT		0x01	/* direct input devices */
- #define INPUT_PROP_BUTTONPAD		0x02	/* has button(s) under pad */
- #define INPUT_PROP_SEMI_MT		0x03	/* touch rectangle only */
-+#define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index d8d49d1..b9d2259 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -117,6 +117,35 @@ void synaptics_reset(struct psmouse *psmouse)
+ }
  
- #define INPUT_PROP_MAX			0x1f
- #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+ #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
++/* This list has been kindly provided by synaptics */
++static const char * const topbuttonpad_pnp_ids[] = {
++	"LEN0017",
++	"LEN0018",
++	"LEN0019",
++	"LEN0023",
++	"LEN002A",
++	"LEN002B",
++	"LEN002C",
++	"LEN002D",
++	"LEN002E",
++	"LEN0033", /* Helix */
++	"LEN0034", /* T431s, T540, X1 Carbon 2nd */
++	"LEN0035", /* X240 */
++	"LEN0036", /* T440 */
++	"LEN0037",
++	"LEN0041",
++	"LEN0042", /* Yoga */
++	"LEN0045",
++	"LEN0046",
++	"LEN0047",
++	"LEN0048",
++	"LEN0049",
++	"LEN2004", /* L440 */
++	"LEN2009",
++	"LEN200A",
++	"LEN200B",
++	NULL
++};
+ 
+ /*****************************************************************************
+  *	Synaptics communications functions
+@@ -1255,8 +1284,10 @@ static void set_abs_position_params(struct input_dev *dev,
+ 	input_abs_set_res(dev, y_code, priv->y_res);
+ }
+ 
+-static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
++static void set_input_params(struct psmouse *psmouse,
++			     struct synaptics_data *priv)
+ {
++	struct input_dev *dev = psmouse->dev;
+ 	int i;
+ 
+ 	/* Things that apply to both modes */
+@@ -1325,6 +1356,17 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 
+ 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+ 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
++		/* See if this buttonpad has a top button area */
++		if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4)) {
++			for (i = 0; topbuttonpad_pnp_ids[i]; i++) {
++				if (strstr(psmouse->ps2dev.serio->firmware_id,
++					   topbuttonpad_pnp_ids[i])) {
++					__set_bit(INPUT_PROP_TOPBUTTONPAD,
++						  dev->propbit);
++					break;
++				}
++			}
++		}
+ 		/* Clickpads report only left button */
+ 		__clear_bit(BTN_RIGHT, dev->keybit);
+ 		__clear_bit(BTN_MIDDLE, dev->keybit);
+@@ -1593,7 +1635,7 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		     priv->capabilities, priv->ext_cap, priv->ext_cap_0c,
+ 		     priv->board_id, priv->firmware_id);
+ 
+-	set_input_params(psmouse->dev, priv);
++	set_input_params(psmouse, priv);
+ 
+ 	/*
+ 	 * Encode touchpad model so that it can be used to set
 -- 
 1.9.0
 

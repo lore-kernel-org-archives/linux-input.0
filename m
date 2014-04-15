@@ -1,52 +1,49 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: HID vendor access from user space
-Date: Tue, 15 Apr 2014 04:16:11 +0200
-Message-ID: <CANq1E4Q=DC6OvtvgBtqDoYb4ZWVWSf9KXBo3=4jwS-AWzFhCiw@mail.gmail.com>
-References: <CAE7qMrrtyzUy0h-jeC8b6vLRq10w165=JgEJsj6CKyviFZDaSQ@mail.gmail.com>
-	<CANq1E4Sn4QZN4vPzBkv8zxuGD+xcdgHeMS9sTB45ACknmwaxEA@mail.gmail.com>
-	<CAE7qMrpO_yEtUGQEg5+8k4gU5=7Hxu03_Y0Uov+vJf5pM0ozkA@mail.gmail.com>
-	<alpine.LNX.2.00.1404031547580.32122@pobox.suse.cz>
-	<CAE7qMrqizfupabTciYfo+gGNG16ZM482y8tBbuQdvZYHdBaV=Q@mail.gmail.com>
-	<CANq1E4TR34FG+vbAeHWv1JT5V0w1k3hq6Kmhx3ngO8+=arMsWA@mail.gmail.com>
-	<CAE7qMrq5if+OovWSq3q6JQMe46VAN9eBZZEDyvcrrQS27e_7eQ@mail.gmail.com>
-	<CAE7qMro259DVdPqDw4CN1hNp8kQ933F6f6ZMa7BPCOXuNWTQ8Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v3 1/2] uapi/input.h: Add INPUT_PROP_TOPBUTTONPAD device property
+Date: Tue, 15 Apr 2014 09:24:22 +0200
+Message-ID: <1397546663-4447-2-git-send-email-hdegoede@redhat.com>
+References: <1397546663-4447-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:45177 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751192AbaDOCQL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2014 22:16:11 -0400
-Received: by mail-ie0-f178.google.com with SMTP id lx4so8906476iec.37
-        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2014 19:16:11 -0700 (PDT)
-In-Reply-To: <CAE7qMro259DVdPqDw4CN1hNp8kQ933F6f6ZMa7BPCOXuNWTQ8Q@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:35599 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751852AbaDOHY3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Apr 2014 03:24:29 -0400
+In-Reply-To: <1397546663-4447-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Olivier Gay <ogay@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Mathieu Meisser <mmeisser@logitech.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi
+On some newer laptops with a trackpoint the physical buttons for the
+trackpoint have been removed to allow for a larger touchpad. On these
+laptops the buttonpad has clearly marked areas on the top which are to be
+used as trackpad buttons.
 
-On Mon, Apr 14, 2014 at 12:00 PM, Nestor Lopez Casado
-<nlopezcasad@logitech.com> wrote:
-> David, Jiri,
->
-> After considering our discussion here, which is your position on
-> extending the hidraw nodes to include separate nodes for top level
-> vendor collections ?
+Users of the event device-node need to know about this, so that they can
+properly interpret BTN_LEFT events as being a left / right / middle click
+depending on where on the button pad the clicking finger is.
 
-Patches, patches, patches!
+This commits adds a INPUT_PROP_TOPBUTTONPAD device property which drivers
+for such buttonpads will use to signal to the user that this buttonpad not
+only has the normal bottom button area, but also a top button area.
 
-I am currently on the road, but it's always easier to see real code
-than just the theory. I have no real objections to provide multiple
-hidraw interfaces. However, I think that doesn't solve your problem.
-For instance, you still need to set proper access-rights on the hidraw
-node. However, some other devices might export unsafe interfaces via
-vendor-extensions, and you don't wanna make those hidraw nodes
-user-accessible. Therefore, you still need a udev-rule to match on
-Logitech-stuff. You could do that as a small Logitech-driver in the
-kernel. But ok, I'm fine with moving those whitelists to user-space.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ include/uapi/linux/input.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks
-David
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index bd24470..f484952 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -164,6 +164,7 @@ struct input_keymap_entry {
+ #define INPUT_PROP_DIRECT		0x01	/* direct input devices */
+ #define INPUT_PROP_BUTTONPAD		0x02	/* has button(s) under pad */
+ #define INPUT_PROP_SEMI_MT		0x03	/* touch rectangle only */
++#define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
+ 
+ #define INPUT_PROP_MAX			0x1f
+ #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+-- 
+1.9.0
+

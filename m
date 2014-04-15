@@ -1,8 +1,8 @@
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCHv3 10/15] ARM: at91: sam9g45: switch from atmel_tsadcc to
- at91_adc
-Date: Tue, 15 Apr 2014 12:28:05 +0200
-Message-ID: <1397557690-5650-11-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCHv3 06/15] iio: adc: at91: remove unused include from
+ include/mach
+Date: Tue, 15 Apr 2014 12:28:01 +0200
+Message-ID: <1397557690-5650-7-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1397557690-5650-1-git-send-email-alexandre.belloni@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,134 +22,256 @@ To: Nicolas Ferre <nicolas.ferre@atmel.com>, Jonathan Cameron <jic23@kernel.org>
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-input@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-atmel_tsadcc is not allowing to use the remaining ADC channels while at91_adc
-does. Completely switch to at91_adc and remove the tsadcc platform_data for
-at91sam9g45 and at91sam9g45 based boards.
+That include file is now only used by the at91_adc driver, remove it from
+include/mach for better driver separation.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 ---
- arch/arm/configs/at91sam9g45_defconfig   |  3 +-
- arch/arm/mach-at91/at91sam9g45_devices.c | 53 +-------------------------------
- arch/arm/mach-at91/board-sam9m10g45ek.c  | 15 ++-------
- 3 files changed, 5 insertions(+), 66 deletions(-)
+ arch/arm/mach-at91/include/mach/at91_adc.h | 120 -----------------------------
+ drivers/iio/adc/at91_adc.c                 | 103 ++++++++++++++++++++++++-
+ 2 files changed, 102 insertions(+), 121 deletions(-)
+ delete mode 100644 arch/arm/mach-at91/include/mach/at91_adc.h
 
-diff --git a/arch/arm/configs/at91sam9g45_defconfig b/arch/arm/configs/at91sam9g45_defconfig
-index e181a50fd65a..c6661a60025d 100644
---- a/arch/arm/configs/at91sam9g45_defconfig
-+++ b/arch/arm/configs/at91sam9g45_defconfig
-@@ -83,7 +83,6 @@ CONFIG_KEYBOARD_GPIO=y
- # CONFIG_INPUT_MOUSE is not set
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ATMEL_MXT=m
--CONFIG_TOUCHSCREEN_ATMEL_TSADCC=y
- # CONFIG_SERIO is not set
- # CONFIG_LEGACY_PTYS is not set
- CONFIG_SERIAL_ATMEL=y
-@@ -146,6 +145,8 @@ CONFIG_DMADEVICES=y
- CONFIG_AT_HDMAC=y
- CONFIG_DMATEST=m
- # CONFIG_IOMMU_SUPPORT is not set
-+CONFIG_IIO=y
-+CONFIG_AT91_ADC=y
- CONFIG_EXT4_FS=y
- CONFIG_FANOTIFY=y
- CONFIG_VFAT_FS=y
-diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
-index d186f474b83c..3cec148bad5a 100644
---- a/arch/arm/mach-at91/at91sam9g45_devices.c
-+++ b/arch/arm/mach-at91/at91sam9g45_devices.c
-@@ -1132,58 +1132,7 @@ static void __init at91_add_device_rtc(void) {}
- 
- 
- /* --------------------------------------------------------------------
-- *  Touchscreen
-- * -------------------------------------------------------------------- */
--
--#if defined(CONFIG_TOUCHSCREEN_ATMEL_TSADCC) || defined(CONFIG_TOUCHSCREEN_ATMEL_TSADCC_MODULE)
--static u64 tsadcc_dmamask = DMA_BIT_MASK(32);
--static struct at91_tsadcc_data tsadcc_data;
--
--static struct resource tsadcc_resources[] = {
--	[0] = {
--		.start	= AT91SAM9G45_BASE_TSC,
--		.end	= AT91SAM9G45_BASE_TSC + SZ_16K - 1,
--		.flags	= IORESOURCE_MEM,
--	},
--	[1] = {
--		.start	= NR_IRQS_LEGACY + AT91SAM9G45_ID_TSC,
--		.end	= NR_IRQS_LEGACY + AT91SAM9G45_ID_TSC,
--		.flags	= IORESOURCE_IRQ,
--	}
--};
--
--static struct platform_device at91sam9g45_tsadcc_device = {
--	.name		= "atmel_tsadcc",
--	.id		= -1,
--	.dev		= {
--				.dma_mask		= &tsadcc_dmamask,
--				.coherent_dma_mask	= DMA_BIT_MASK(32),
--				.platform_data		= &tsadcc_data,
--	},
--	.resource	= tsadcc_resources,
--	.num_resources	= ARRAY_SIZE(tsadcc_resources),
--};
--
--void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data)
--{
--	if (!data)
--		return;
--
--	at91_set_gpio_input(AT91_PIN_PD20, 0);	/* AD0_XR */
--	at91_set_gpio_input(AT91_PIN_PD21, 0);	/* AD1_XL */
--	at91_set_gpio_input(AT91_PIN_PD22, 0);	/* AD2_YT */
--	at91_set_gpio_input(AT91_PIN_PD23, 0);	/* AD3_TB */
--
--	tsadcc_data = *data;
--	platform_device_register(&at91sam9g45_tsadcc_device);
--}
--#else
--void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data) {}
--#endif
--
--
--/* --------------------------------------------------------------------
-- *  ADC
-+ *  ADC and touchscreen
-  * -------------------------------------------------------------------- */
- 
- #if IS_ENABLED(CONFIG_AT91_ADC)
-diff --git a/arch/arm/mach-at91/board-sam9m10g45ek.c b/arch/arm/mach-at91/board-sam9m10g45ek.c
-index 4d775b796ce4..f2f7ce9643ce 100644
---- a/arch/arm/mach-at91/board-sam9m10g45ek.c
-+++ b/arch/arm/mach-at91/board-sam9m10g45ek.c
-@@ -300,16 +300,7 @@ static struct atmel_lcdfb_pdata __initdata ek_lcdc_data;
- 
- 
- /*
-- * Touchscreen
-- */
--static struct at91_tsadcc_data ek_tsadcc_data = {
--	.adc_clock		= 300000,
--	.pendet_debounce	= 0x0d,
--	.ts_sample_hold_time	= 0x0a,
--};
--
+diff --git a/arch/arm/mach-at91/include/mach/at91_adc.h b/arch/arm/mach-at91/include/mach/at91_adc.h
+deleted file mode 100644
+index 7d80396346b2..000000000000
+--- a/arch/arm/mach-at91/include/mach/at91_adc.h
++++ /dev/null
+@@ -1,120 +0,0 @@
 -/*
-- * ADCs
-+ * ADCs and touchscreen
-  */
- static struct at91_adc_data ek_adc_data = {
- 	.channels_used = BIT(0) | BIT(1) | BIT(2) | BIT(3) | BIT(4) | BIT(5) | BIT(6) | BIT(7),
-@@ -486,9 +477,7 @@ static void __init ek_board_init(void)
- 	at91_add_device_isi(&isi_data, true);
- 	/* LCD Controller */
- 	at91_add_device_lcdc(&ek_lcdc_data);
--	/* Touch Screen */
--	at91_add_device_tsadcc(&ek_tsadcc_data);
--	/* ADC */
-+	/* ADC and touchscreen */
- 	at91_add_device_adc(&ek_adc_data);
- 	/* Push Buttons */
- 	ek_add_device_buttons();
+- * arch/arm/mach-at91/include/mach/at91_adc.h
+- *
+- * Copyright (C) SAN People
+- *
+- * Analog-to-Digital Converter (ADC) registers.
+- * Based on AT91SAM9260 datasheet revision D.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- */
+-
+-#ifndef AT91_ADC_H
+-#define AT91_ADC_H
+-
+-#define AT91_ADC_CR		0x00		/* Control Register */
+-#define		AT91_ADC_SWRST		(1 << 0)	/* Software Reset */
+-#define		AT91_ADC_START		(1 << 1)	/* Start Conversion */
+-
+-#define AT91_ADC_MR		0x04		/* Mode Register */
+-#define		AT91_ADC_TSAMOD		(3 << 0)	/* ADC mode */
+-#define		AT91_ADC_TSAMOD_ADC_ONLY_MODE		(0 << 0)	/* ADC Mode */
+-#define		AT91_ADC_TSAMOD_TS_ONLY_MODE		(1 << 0)	/* Touch Screen Only Mode */
+-#define		AT91_ADC_TRGEN		(1 << 0)	/* Trigger Enable */
+-#define		AT91_ADC_TRGSEL		(7 << 1)	/* Trigger Selection */
+-#define			AT91_ADC_TRGSEL_TC0		(0 << 1)
+-#define			AT91_ADC_TRGSEL_TC1		(1 << 1)
+-#define			AT91_ADC_TRGSEL_TC2		(2 << 1)
+-#define			AT91_ADC_TRGSEL_EXTERNAL	(6 << 1)
+-#define		AT91_ADC_LOWRES		(1 << 4)	/* Low Resolution */
+-#define		AT91_ADC_SLEEP		(1 << 5)	/* Sleep Mode */
+-#define		AT91_ADC_PENDET		(1 << 6)	/* Pen contact detection enable */
+-#define		AT91_ADC_PRESCAL_9260	(0x3f << 8)	/* Prescalar Rate Selection */
+-#define		AT91_ADC_PRESCAL_9G45	(0xff << 8)
+-#define			AT91_ADC_PRESCAL_(x)	((x) << 8)
+-#define		AT91_ADC_STARTUP_9260	(0x1f << 16)	/* Startup Up Time */
+-#define		AT91_ADC_STARTUP_9G45	(0x7f << 16)
+-#define		AT91_ADC_STARTUP_9X5	(0xf << 16)
+-#define			AT91_ADC_STARTUP_(x)	((x) << 16)
+-#define		AT91_ADC_SHTIM		(0xf  << 24)	/* Sample & Hold Time */
+-#define			AT91_ADC_SHTIM_(x)	((x) << 24)
+-#define		AT91_ADC_PENDBC		(0x0f << 28)	/* Pen Debounce time */
+-#define			AT91_ADC_PENDBC_(x)	((x) << 28)
+-
+-#define AT91_ADC_TSR		0x0C
+-#define		AT91_ADC_TSR_SHTIM	(0xf  << 24)	/* Sample & Hold Time */
+-#define			AT91_ADC_TSR_SHTIM_(x)	((x) << 24)
+-
+-#define AT91_ADC_CHER		0x10		/* Channel Enable Register */
+-#define AT91_ADC_CHDR		0x14		/* Channel Disable Register */
+-#define AT91_ADC_CHSR		0x18		/* Channel Status Register */
+-#define		AT91_ADC_CH(n)		(1 << (n))	/* Channel Number */
+-
+-#define AT91_ADC_SR		0x1C		/* Status Register */
+-#define		AT91_ADC_EOC(n)		(1 << (n))	/* End of Conversion on Channel N */
+-#define		AT91_ADC_OVRE(n)	(1 << ((n) + 8))/* Overrun Error on Channel N */
+-#define		AT91_ADC_DRDY		(1 << 16)	/* Data Ready */
+-#define		AT91_ADC_GOVRE		(1 << 17)	/* General Overrun Error */
+-#define		AT91_ADC_ENDRX		(1 << 18)	/* End of RX Buffer */
+-#define		AT91_ADC_RXFUFF		(1 << 19)	/* RX Buffer Full */
+-
+-#define AT91_ADC_SR_9X5		0x30		/* Status Register for 9x5 */
+-#define		AT91_ADC_SR_DRDY_9X5	(1 << 24)	/* Data Ready */
+-
+-#define AT91_ADC_LCDR		0x20		/* Last Converted Data Register */
+-#define		AT91_ADC_LDATA		(0x3ff)
+-
+-#define AT91_ADC_IER		0x24		/* Interrupt Enable Register */
+-#define AT91_ADC_IDR		0x28		/* Interrupt Disable Register */
+-#define AT91_ADC_IMR		0x2C		/* Interrupt Mask Register */
+-#define		AT91RL_ADC_IER_PEN	(1 << 20)
+-#define		AT91RL_ADC_IER_NOPEN	(1 << 21)
+-#define		AT91_ADC_IER_PEN	(1 << 29)
+-#define		AT91_ADC_IER_NOPEN	(1 << 30)
+-#define		AT91_ADC_IER_XRDY	(1 << 20)
+-#define		AT91_ADC_IER_YRDY	(1 << 21)
+-#define		AT91_ADC_IER_PRDY	(1 << 22)
+-#define		AT91_ADC_ISR_PENS	(1 << 31)
+-
+-#define AT91_ADC_CHR(n)		(0x30 + ((n) * 4))	/* Channel Data Register N */
+-#define		AT91_ADC_DATA		(0x3ff)
+-
+-#define AT91_ADC_CDR0_9X5	(0x50)			/* Channel Data Register 0 for 9X5 */
+-
+-#define AT91_ADC_ACR		0x94	/* Analog Control Register */
+-#define		AT91_ADC_ACR_PENDETSENS	(0x3 << 0)	/* pull-up resistor */
+-
+-#define AT91_ADC_TSMR		0xB0
+-#define		AT91_ADC_TSMR_TSMODE	(3 << 0)	/* Touch Screen Mode */
+-#define			AT91_ADC_TSMR_TSMODE_NONE		(0 << 0)
+-#define			AT91_ADC_TSMR_TSMODE_4WIRE_NO_PRESS	(1 << 0)
+-#define			AT91_ADC_TSMR_TSMODE_4WIRE_PRESS	(2 << 0)
+-#define			AT91_ADC_TSMR_TSMODE_5WIRE		(3 << 0)
+-#define		AT91_ADC_TSMR_TSAV	(3 << 4)	/* Averages samples */
+-#define			AT91_ADC_TSMR_TSAV_(x)		((x) << 4)
+-#define		AT91_ADC_TSMR_SCTIM	(0x0f << 16)	/* Switch closure time */
+-#define		AT91_ADC_TSMR_PENDBC	(0x0f << 28)	/* Pen Debounce time */
+-#define			AT91_ADC_TSMR_PENDBC_(x)	((x) << 28)
+-#define		AT91_ADC_TSMR_NOTSDMA	(1 << 22)	/* No Touchscreen DMA */
+-#define		AT91_ADC_TSMR_PENDET_DIS	(0 << 24)	/* Pen contact detection disable */
+-#define		AT91_ADC_TSMR_PENDET_ENA	(1 << 24)	/* Pen contact detection enable */
+-
+-#define AT91_ADC_TSXPOSR	0xB4
+-#define AT91_ADC_TSYPOSR	0xB8
+-#define AT91_ADC_TSPRESSR	0xBC
+-
+-#define AT91_ADC_TRGR_9260	AT91_ADC_MR
+-#define AT91_ADC_TRGR_9G45	0x08
+-#define AT91_ADC_TRGR_9X5	0xC0
+-
+-/* Trigger Register bit field */
+-#define		AT91_ADC_TRGR_TRGPER	(0xffff << 16)
+-#define			AT91_ADC_TRGR_TRGPER_(x)	((x) << 16)
+-#define		AT91_ADC_TRGR_TRGMOD	(0x7 << 0)
+-#define			AT91_ADC_TRGR_NONE		(0 << 0)
+-#define			AT91_ADC_TRGR_MOD_PERIOD_TRIG	(5 << 0)
+-
+-#endif
+diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
+index c0e4206e34e5..a51b8badbf8e 100644
+--- a/drivers/iio/adc/at91_adc.c
++++ b/drivers/iio/adc/at91_adc.c
+@@ -31,7 +31,108 @@
+ #include <linux/iio/trigger_consumer.h>
+ #include <linux/iio/triggered_buffer.h>
+ 
+-#include <mach/at91_adc.h>
++/* Registers */
++#define AT91_ADC_CR		0x00		/* Control Register */
++#define		AT91_ADC_SWRST		(1 << 0)	/* Software Reset */
++#define		AT91_ADC_START		(1 << 1)	/* Start Conversion */
++
++#define AT91_ADC_MR		0x04		/* Mode Register */
++#define		AT91_ADC_TSAMOD		(3 << 0)	/* ADC mode */
++#define		AT91_ADC_TSAMOD_ADC_ONLY_MODE		(0 << 0)	/* ADC Mode */
++#define		AT91_ADC_TSAMOD_TS_ONLY_MODE		(1 << 0)	/* Touch Screen Only Mode */
++#define		AT91_ADC_TRGEN		(1 << 0)	/* Trigger Enable */
++#define		AT91_ADC_TRGSEL		(7 << 1)	/* Trigger Selection */
++#define			AT91_ADC_TRGSEL_TC0		(0 << 1)
++#define			AT91_ADC_TRGSEL_TC1		(1 << 1)
++#define			AT91_ADC_TRGSEL_TC2		(2 << 1)
++#define			AT91_ADC_TRGSEL_EXTERNAL	(6 << 1)
++#define		AT91_ADC_LOWRES		(1 << 4)	/* Low Resolution */
++#define		AT91_ADC_SLEEP		(1 << 5)	/* Sleep Mode */
++#define		AT91_ADC_PENDET		(1 << 6)	/* Pen contact detection enable */
++#define		AT91_ADC_PRESCAL_9260	(0x3f << 8)	/* Prescalar Rate Selection */
++#define		AT91_ADC_PRESCAL_9G45	(0xff << 8)
++#define			AT91_ADC_PRESCAL_(x)	((x) << 8)
++#define		AT91_ADC_STARTUP_9260	(0x1f << 16)	/* Startup Up Time */
++#define		AT91_ADC_STARTUP_9G45	(0x7f << 16)
++#define		AT91_ADC_STARTUP_9X5	(0xf << 16)
++#define			AT91_ADC_STARTUP_(x)	((x) << 16)
++#define		AT91_ADC_SHTIM		(0xf  << 24)	/* Sample & Hold Time */
++#define			AT91_ADC_SHTIM_(x)	((x) << 24)
++#define		AT91_ADC_PENDBC		(0x0f << 28)	/* Pen Debounce time */
++#define			AT91_ADC_PENDBC_(x)	((x) << 28)
++
++#define AT91_ADC_TSR		0x0C
++#define		AT91_ADC_TSR_SHTIM	(0xf  << 24)	/* Sample & Hold Time */
++#define			AT91_ADC_TSR_SHTIM_(x)	((x) << 24)
++
++#define AT91_ADC_CHER		0x10		/* Channel Enable Register */
++#define AT91_ADC_CHDR		0x14		/* Channel Disable Register */
++#define AT91_ADC_CHSR		0x18		/* Channel Status Register */
++#define		AT91_ADC_CH(n)		(1 << (n))	/* Channel Number */
++
++#define AT91_ADC_SR		0x1C		/* Status Register */
++#define		AT91_ADC_EOC(n)		(1 << (n))	/* End of Conversion on Channel N */
++#define		AT91_ADC_OVRE(n)	(1 << ((n) + 8))/* Overrun Error on Channel N */
++#define		AT91_ADC_DRDY		(1 << 16)	/* Data Ready */
++#define		AT91_ADC_GOVRE		(1 << 17)	/* General Overrun Error */
++#define		AT91_ADC_ENDRX		(1 << 18)	/* End of RX Buffer */
++#define		AT91_ADC_RXFUFF		(1 << 19)	/* RX Buffer Full */
++
++#define AT91_ADC_SR_9X5		0x30		/* Status Register for 9x5 */
++#define		AT91_ADC_SR_DRDY_9X5	(1 << 24)	/* Data Ready */
++
++#define AT91_ADC_LCDR		0x20		/* Last Converted Data Register */
++#define		AT91_ADC_LDATA		(0x3ff)
++
++#define AT91_ADC_IER		0x24		/* Interrupt Enable Register */
++#define AT91_ADC_IDR		0x28		/* Interrupt Disable Register */
++#define AT91_ADC_IMR		0x2C		/* Interrupt Mask Register */
++#define		AT91RL_ADC_IER_PEN	(1 << 20)
++#define		AT91RL_ADC_IER_NOPEN	(1 << 21)
++#define		AT91_ADC_IER_PEN	(1 << 29)
++#define		AT91_ADC_IER_NOPEN	(1 << 30)
++#define		AT91_ADC_IER_XRDY	(1 << 20)
++#define		AT91_ADC_IER_YRDY	(1 << 21)
++#define		AT91_ADC_IER_PRDY	(1 << 22)
++#define		AT91_ADC_ISR_PENS	(1 << 31)
++
++#define AT91_ADC_CHR(n)		(0x30 + ((n) * 4))	/* Channel Data Register N */
++#define		AT91_ADC_DATA		(0x3ff)
++
++#define AT91_ADC_CDR0_9X5	(0x50)			/* Channel Data Register 0 for 9X5 */
++
++#define AT91_ADC_ACR		0x94	/* Analog Control Register */
++#define		AT91_ADC_ACR_PENDETSENS	(0x3 << 0)	/* pull-up resistor */
++
++#define AT91_ADC_TSMR		0xB0
++#define		AT91_ADC_TSMR_TSMODE	(3 << 0)	/* Touch Screen Mode */
++#define			AT91_ADC_TSMR_TSMODE_NONE		(0 << 0)
++#define			AT91_ADC_TSMR_TSMODE_4WIRE_NO_PRESS	(1 << 0)
++#define			AT91_ADC_TSMR_TSMODE_4WIRE_PRESS	(2 << 0)
++#define			AT91_ADC_TSMR_TSMODE_5WIRE		(3 << 0)
++#define		AT91_ADC_TSMR_TSAV	(3 << 4)	/* Averages samples */
++#define			AT91_ADC_TSMR_TSAV_(x)		((x) << 4)
++#define		AT91_ADC_TSMR_SCTIM	(0x0f << 16)	/* Switch closure time */
++#define		AT91_ADC_TSMR_PENDBC	(0x0f << 28)	/* Pen Debounce time */
++#define			AT91_ADC_TSMR_PENDBC_(x)	((x) << 28)
++#define		AT91_ADC_TSMR_NOTSDMA	(1 << 22)	/* No Touchscreen DMA */
++#define		AT91_ADC_TSMR_PENDET_DIS	(0 << 24)	/* Pen contact detection disable */
++#define		AT91_ADC_TSMR_PENDET_ENA	(1 << 24)	/* Pen contact detection enable */
++
++#define AT91_ADC_TSXPOSR	0xB4
++#define AT91_ADC_TSYPOSR	0xB8
++#define AT91_ADC_TSPRESSR	0xBC
++
++#define AT91_ADC_TRGR_9260	AT91_ADC_MR
++#define AT91_ADC_TRGR_9G45	0x08
++#define AT91_ADC_TRGR_9X5	0xC0
++
++/* Trigger Register bit field */
++#define		AT91_ADC_TRGR_TRGPER	(0xffff << 16)
++#define			AT91_ADC_TRGR_TRGPER_(x)	((x) << 16)
++#define		AT91_ADC_TRGR_TRGMOD	(0x7 << 0)
++#define			AT91_ADC_TRGR_NONE		(0 << 0)
++#define			AT91_ADC_TRGR_MOD_PERIOD_TRIG	(5 << 0)
+ 
+ #define AT91_ADC_CHAN(st, ch) \
+ 	(st->registers->channel_base + (ch * 4))
 -- 
 1.8.3.2

@@ -1,433 +1,443 @@
 From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: [PATCHv3 04/15] iio: adc: at91_adc: Add support for touchscreens
- without TSMR
-Date: Tue, 15 Apr 2014 12:27:59 +0200
-Message-ID: <1397557690-5650-5-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: [PATCHv3 13/15] Input: atmel_tsadcc: remove driver
+Date: Tue, 15 Apr 2014 12:28:08 +0200
+Message-ID: <1397557690-5650-14-git-send-email-alexandre.belloni@free-electrons.com>
 References: <1397557690-5650-1-git-send-email-alexandre.belloni@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1397557690-5650-1-git-send-email-alexandre.belloni@free-electrons.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Nicolas Ferre <nicolas.ferre@atmel.com>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-input@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
+Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
 
-Old ADCs, as present on the sam9rl and the sam9g45 don't have a TSMR register
-and the touchscreen support should be handled differently.
+The atmel_tsadcc driver is not used anymore, it has been replaced by at91_adc so
+remove it.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Acked-by: Jonathan Cameron <jic23@kernel.org>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/arm/mach-at91/include/mach/at91_adc.h |  13 ++
- drivers/iio/adc/at91_adc.c                 | 200 ++++++++++++++++++++++-------
- include/linux/platform_data/at91_adc.h     |   8 ++
- 3 files changed, 174 insertions(+), 47 deletions(-)
+ MAINTAINERS                              |   6 -
+ drivers/input/touchscreen/Kconfig        |  12 --
+ drivers/input/touchscreen/Makefile       |   1 -
+ drivers/input/touchscreen/atmel_tsadcc.c | 358 -------------------------------
+ 4 files changed, 377 deletions(-)
+ delete mode 100644 drivers/input/touchscreen/atmel_tsadcc.c
 
-diff --git a/arch/arm/mach-at91/include/mach/at91_adc.h b/arch/arm/mach-at91/include/mach/at91_adc.h
-index c287307b9a3b..7d80396346b2 100644
---- a/arch/arm/mach-at91/include/mach/at91_adc.h
-+++ b/arch/arm/mach-at91/include/mach/at91_adc.h
-@@ -20,6 +20,9 @@
- #define		AT91_ADC_START		(1 << 1)	/* Start Conversion */
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6dc67b1fdb50..78c68ba00e98 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1617,12 +1617,6 @@ S:	Supported
+ F:	drivers/misc/atmel_tclib.c
+ F:	drivers/clocksource/tcb_clksrc.c
  
- #define AT91_ADC_MR		0x04		/* Mode Register */
-+#define		AT91_ADC_TSAMOD		(3 << 0)	/* ADC mode */
-+#define		AT91_ADC_TSAMOD_ADC_ONLY_MODE		(0 << 0)	/* ADC Mode */
-+#define		AT91_ADC_TSAMOD_TS_ONLY_MODE		(1 << 0)	/* Touch Screen Only Mode */
- #define		AT91_ADC_TRGEN		(1 << 0)	/* Trigger Enable */
- #define		AT91_ADC_TRGSEL		(7 << 1)	/* Trigger Selection */
- #define			AT91_ADC_TRGSEL_TC0		(0 << 1)
-@@ -28,6 +31,7 @@
- #define			AT91_ADC_TRGSEL_EXTERNAL	(6 << 1)
- #define		AT91_ADC_LOWRES		(1 << 4)	/* Low Resolution */
- #define		AT91_ADC_SLEEP		(1 << 5)	/* Sleep Mode */
-+#define		AT91_ADC_PENDET		(1 << 6)	/* Pen contact detection enable */
- #define		AT91_ADC_PRESCAL_9260	(0x3f << 8)	/* Prescalar Rate Selection */
- #define		AT91_ADC_PRESCAL_9G45	(0xff << 8)
- #define			AT91_ADC_PRESCAL_(x)	((x) << 8)
-@@ -37,6 +41,12 @@
- #define			AT91_ADC_STARTUP_(x)	((x) << 16)
- #define		AT91_ADC_SHTIM		(0xf  << 24)	/* Sample & Hold Time */
- #define			AT91_ADC_SHTIM_(x)	((x) << 24)
-+#define		AT91_ADC_PENDBC		(0x0f << 28)	/* Pen Debounce time */
-+#define			AT91_ADC_PENDBC_(x)	((x) << 28)
-+
-+#define AT91_ADC_TSR		0x0C
-+#define		AT91_ADC_TSR_SHTIM	(0xf  << 24)	/* Sample & Hold Time */
-+#define			AT91_ADC_TSR_SHTIM_(x)	((x) << 24)
+-ATMEL TSADCC DRIVER
+-M:	Josh Wu <josh.wu@atmel.com>
+-L:	linux-input@vger.kernel.org
+-S:	Supported
+-F:	drivers/input/touchscreen/atmel_tsadcc.c
+-
+ ATMEL USBA UDC DRIVER
+ M:	Nicolas Ferre <nicolas.ferre@atmel.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 68edc9db2c64..0b5965ba51bc 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -550,18 +550,6 @@ config TOUCHSCREEN_TI_AM335X_TSC
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ti_am335x_tsc.
  
- #define AT91_ADC_CHER		0x10		/* Channel Enable Register */
- #define AT91_ADC_CHDR		0x14		/* Channel Disable Register */
-@@ -60,6 +70,8 @@
- #define AT91_ADC_IER		0x24		/* Interrupt Enable Register */
- #define AT91_ADC_IDR		0x28		/* Interrupt Disable Register */
- #define AT91_ADC_IMR		0x2C		/* Interrupt Mask Register */
-+#define		AT91RL_ADC_IER_PEN	(1 << 20)
-+#define		AT91RL_ADC_IER_NOPEN	(1 << 21)
- #define		AT91_ADC_IER_PEN	(1 << 29)
- #define		AT91_ADC_IER_NOPEN	(1 << 30)
- #define		AT91_ADC_IER_XRDY	(1 << 20)
-@@ -102,6 +114,7 @@
- #define		AT91_ADC_TRGR_TRGPER	(0xffff << 16)
- #define			AT91_ADC_TRGR_TRGPER_(x)	((x) << 16)
- #define		AT91_ADC_TRGR_TRGMOD	(0x7 << 0)
-+#define			AT91_ADC_TRGR_NONE		(0 << 0)
- #define			AT91_ADC_TRGR_MOD_PERIOD_TRIG	(5 << 0)
- 
- #endif
-diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
-index 1beae65aef2c..c0e4206e34e5 100644
---- a/drivers/iio/adc/at91_adc.c
-+++ b/drivers/iio/adc/at91_adc.c
-@@ -46,6 +46,10 @@
- #define TOUCH_SAMPLE_PERIOD_US		2000	/* 2ms */
- #define TOUCH_PEN_DETECT_DEBOUNCE_US	200
- 
-+#define MAX_RLPOS_BITS         10
-+#define TOUCH_SAMPLE_PERIOD_US_RL      10000   /* 10ms, the SoC can't keep up with 2ms */
-+#define TOUCH_SHTIM                    0xa
-+
- /**
-  * struct at91_adc_reg_desc - Various informations relative to registers
-  * @channel_base:	Base offset for the channel data registers
-@@ -83,12 +87,6 @@ struct at91_adc_caps {
- 	struct at91_adc_reg_desc registers;
- };
- 
--enum atmel_adc_ts_type {
--	ATMEL_ADC_TOUCHSCREEN_NONE = 0,
--	ATMEL_ADC_TOUCHSCREEN_4WIRE = 4,
--	ATMEL_ADC_TOUCHSCREEN_5WIRE = 5,
+-config TOUCHSCREEN_ATMEL_TSADCC
+-	tristate "Atmel Touchscreen Interface"
+-	depends on ARCH_AT91
+-	help
+-	  Say Y here if you have a 4-wire touchscreen connected to the
+-          ADC Controller on your Atmel SoC.
+-
+-	  If unsure, say N.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called atmel_tsadcc.
+-
+ config TOUCHSCREEN_UCB1400
+ 	tristate "Philips UCB1400 touchscreen"
+ 	depends on AC97_BUS
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 4bc954b7c7c3..03f12a1f2218 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -13,7 +13,6 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
+ obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
+ obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
+-obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
+ obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_BU21013)	+= bu21013_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
+diff --git a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
+deleted file mode 100644
+index a7c9d6967d1e..000000000000
+--- a/drivers/input/touchscreen/atmel_tsadcc.c
++++ /dev/null
+@@ -1,358 +0,0 @@
+-/*
+- *  Atmel Touch Screen Driver
+- *
+- *  Copyright (c) 2008 ATMEL
+- *  Copyright (c) 2008 Dan Liang
+- *  Copyright (c) 2008 TimeSys Corporation
+- *  Copyright (c) 2008 Justin Waters
+- *
+- *  Based on touchscreen code from Atmel Corporation.
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License version 2 as
+- *  published by the Free Software Foundation.
+- */
+-#include <linux/err.h>
+-#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/input.h>
+-#include <linux/slab.h>
+-#include <linux/interrupt.h>
+-#include <linux/clk.h>
+-#include <linux/platform_device.h>
+-#include <linux/io.h>
+-#include <linux/platform_data/atmel.h>
+-#include <mach/cpu.h>
+-
+-/* Register definitions based on AT91SAM9RL64 preliminary draft datasheet */
+-
+-#define ATMEL_TSADCC_CR		0x00	/* Control register */
+-#define   ATMEL_TSADCC_SWRST	(1 << 0)	/* Software Reset*/
+-#define	  ATMEL_TSADCC_START	(1 << 1)	/* Start conversion */
+-
+-#define ATMEL_TSADCC_MR		0x04	/* Mode register */
+-#define	  ATMEL_TSADCC_TSAMOD	(3    <<  0)	/* ADC mode */
+-#define	    ATMEL_TSADCC_TSAMOD_ADC_ONLY_MODE	(0x0)	/* ADC Mode */
+-#define	    ATMEL_TSADCC_TSAMOD_TS_ONLY_MODE	(0x1)	/* Touch Screen Only Mode */
+-#define	  ATMEL_TSADCC_LOWRES	(1    <<  4)	/* Resolution selection */
+-#define	  ATMEL_TSADCC_SLEEP	(1    <<  5)	/* Sleep mode */
+-#define	  ATMEL_TSADCC_PENDET	(1    <<  6)	/* Pen Detect selection */
+-#define	  ATMEL_TSADCC_PRES	(1    <<  7)	/* Pressure Measurement Selection */
+-#define	  ATMEL_TSADCC_PRESCAL	(0x3f <<  8)	/* Prescalar Rate Selection */
+-#define	  ATMEL_TSADCC_EPRESCAL	(0xff <<  8)	/* Prescalar Rate Selection (Extended) */
+-#define	  ATMEL_TSADCC_STARTUP	(0x7f << 16)	/* Start Up time */
+-#define	  ATMEL_TSADCC_SHTIM	(0xf  << 24)	/* Sample & Hold time */
+-#define	  ATMEL_TSADCC_PENDBC	(0xf  << 28)	/* Pen Detect debouncing time */
+-
+-#define ATMEL_TSADCC_TRGR	0x08	/* Trigger register */
+-#define	  ATMEL_TSADCC_TRGMOD	(7      <<  0)	/* Trigger mode */
+-#define	    ATMEL_TSADCC_TRGMOD_NONE		(0 << 0)
+-#define     ATMEL_TSADCC_TRGMOD_EXT_RISING	(1 << 0)
+-#define     ATMEL_TSADCC_TRGMOD_EXT_FALLING	(2 << 0)
+-#define     ATMEL_TSADCC_TRGMOD_EXT_ANY		(3 << 0)
+-#define     ATMEL_TSADCC_TRGMOD_PENDET		(4 << 0)
+-#define     ATMEL_TSADCC_TRGMOD_PERIOD		(5 << 0)
+-#define     ATMEL_TSADCC_TRGMOD_CONTINUOUS	(6 << 0)
+-#define   ATMEL_TSADCC_TRGPER	(0xffff << 16)	/* Trigger period */
+-
+-#define ATMEL_TSADCC_TSR	0x0C	/* Touch Screen register */
+-#define	  ATMEL_TSADCC_TSFREQ	(0xf <<  0)	/* TS Frequency in Interleaved mode */
+-#define	  ATMEL_TSADCC_TSSHTIM	(0xf << 24)	/* Sample & Hold time */
+-
+-#define ATMEL_TSADCC_CHER	0x10	/* Channel Enable register */
+-#define ATMEL_TSADCC_CHDR	0x14	/* Channel Disable register */
+-#define ATMEL_TSADCC_CHSR	0x18	/* Channel Status register */
+-#define	  ATMEL_TSADCC_CH(n)	(1 << (n))	/* Channel number */
+-
+-#define ATMEL_TSADCC_SR		0x1C	/* Status register */
+-#define	  ATMEL_TSADCC_EOC(n)	(1 << ((n)+0))	/* End of conversion for channel N */
+-#define	  ATMEL_TSADCC_OVRE(n)	(1 << ((n)+8))	/* Overrun error for channel N */
+-#define	  ATMEL_TSADCC_DRDY	(1 << 16)	/* Data Ready */
+-#define	  ATMEL_TSADCC_GOVRE	(1 << 17)	/* General Overrun Error */
+-#define	  ATMEL_TSADCC_ENDRX	(1 << 18)	/* End of RX Buffer */
+-#define	  ATMEL_TSADCC_RXBUFF	(1 << 19)	/* TX Buffer full */
+-#define	  ATMEL_TSADCC_PENCNT	(1 << 20)	/* Pen contact */
+-#define	  ATMEL_TSADCC_NOCNT	(1 << 21)	/* No contact */
+-
+-#define ATMEL_TSADCC_LCDR	0x20	/* Last Converted Data register */
+-#define	  ATMEL_TSADCC_DATA	(0x3ff << 0)	/* Channel data */
+-
+-#define ATMEL_TSADCC_IER	0x24	/* Interrupt Enable register */
+-#define ATMEL_TSADCC_IDR	0x28	/* Interrupt Disable register */
+-#define ATMEL_TSADCC_IMR	0x2C	/* Interrupt Mask register */
+-#define ATMEL_TSADCC_CDR0	0x30	/* Channel Data 0 */
+-#define ATMEL_TSADCC_CDR1	0x34	/* Channel Data 1 */
+-#define ATMEL_TSADCC_CDR2	0x38	/* Channel Data 2 */
+-#define ATMEL_TSADCC_CDR3	0x3C	/* Channel Data 3 */
+-#define ATMEL_TSADCC_CDR4	0x40	/* Channel Data 4 */
+-#define ATMEL_TSADCC_CDR5	0x44	/* Channel Data 5 */
+-
+-#define ATMEL_TSADCC_XPOS	0x50
+-#define ATMEL_TSADCC_Z1DAT	0x54
+-#define ATMEL_TSADCC_Z2DAT	0x58
+-
+-#define PRESCALER_VAL(x)	((x) >> 8)
+-
+-#define ADC_DEFAULT_CLOCK	100000
+-
+-struct atmel_tsadcc {
+-	struct input_dev	*input;
+-	char			phys[32];
+-	struct clk		*clk;
+-	int			irq;
+-	unsigned int		prev_absx;
+-	unsigned int		prev_absy;
+-	unsigned char		bufferedmeasure;
 -};
 -
- struct at91_adc_state {
- 	struct clk		*adc_clk;
- 	u16			*buffer;
-@@ -133,6 +131,11 @@ struct at91_adc_state {
- 
- 	u16			ts_sample_period_val;
- 	u32			ts_pressure_threshold;
-+	u16			ts_pendbc;
-+
-+	bool			ts_bufferedmeasure;
-+	u32			ts_prev_absx;
-+	u32			ts_prev_absy;
- };
- 
- static irqreturn_t at91_adc_trigger_handler(int irq, void *p)
-@@ -239,7 +242,72 @@ static int at91_ts_sample(struct at91_adc_state *st)
- 	return 0;
- }
- 
--static irqreturn_t at91_adc_interrupt(int irq, void *private)
-+static irqreturn_t at91_adc_rl_interrupt(int irq, void *private)
-+{
-+	struct iio_dev *idev = private;
-+	struct at91_adc_state *st = iio_priv(idev);
-+	u32 status = at91_adc_readl(st, st->registers->status_register);
-+	unsigned int reg;
-+
-+	status &= at91_adc_readl(st, AT91_ADC_IMR);
-+	if (status & st->registers->drdy_mask)
-+		handle_adc_eoc_trigger(irq, idev);
-+
-+	if (status & AT91RL_ADC_IER_PEN) {
-+		/* Disabling pen debounce is required to get a NOPEN irq */
-+		reg = at91_adc_readl(st, AT91_ADC_MR);
-+		reg &= ~AT91_ADC_PENDBC;
-+		at91_adc_writel(st, AT91_ADC_MR, reg);
-+
-+		at91_adc_writel(st, AT91_ADC_IDR, AT91RL_ADC_IER_PEN);
-+		at91_adc_writel(st, AT91_ADC_IER, AT91RL_ADC_IER_NOPEN
-+				| AT91_ADC_EOC(3));
-+		/* Set up period trigger for sampling */
-+		at91_adc_writel(st, st->registers->trigger_register,
-+			AT91_ADC_TRGR_MOD_PERIOD_TRIG |
-+			AT91_ADC_TRGR_TRGPER_(st->ts_sample_period_val));
-+	} else if (status & AT91RL_ADC_IER_NOPEN) {
-+		reg = at91_adc_readl(st, AT91_ADC_MR);
-+		reg |= AT91_ADC_PENDBC_(st->ts_pendbc) & AT91_ADC_PENDBC;
-+		at91_adc_writel(st, AT91_ADC_MR, reg);
-+		at91_adc_writel(st, st->registers->trigger_register,
-+			AT91_ADC_TRGR_NONE);
-+
-+		at91_adc_writel(st, AT91_ADC_IDR, AT91RL_ADC_IER_NOPEN
-+				| AT91_ADC_EOC(3));
-+		at91_adc_writel(st, AT91_ADC_IER, AT91RL_ADC_IER_PEN);
-+		st->ts_bufferedmeasure = false;
-+		input_report_key(st->ts_input, BTN_TOUCH, 0);
-+		input_sync(st->ts_input);
-+	} else if (status & AT91_ADC_EOC(3)) {
-+		/* Conversion finished */
-+		if (st->ts_bufferedmeasure) {
-+			/*
-+			 * Last measurement is always discarded, since it can
-+			 * be erroneous.
-+			 * Always report previous measurement
-+			 */
-+			input_report_abs(st->ts_input, ABS_X, st->ts_prev_absx);
-+			input_report_abs(st->ts_input, ABS_Y, st->ts_prev_absy);
-+			input_report_key(st->ts_input, BTN_TOUCH, 1);
-+			input_sync(st->ts_input);
-+		} else
-+			st->ts_bufferedmeasure = true;
-+
-+		/* Now make new measurement */
-+		st->ts_prev_absx = at91_adc_readl(st, AT91_ADC_CHAN(st, 3))
-+				   << MAX_RLPOS_BITS;
-+		st->ts_prev_absx /= at91_adc_readl(st, AT91_ADC_CHAN(st, 2));
-+
-+		st->ts_prev_absy = at91_adc_readl(st, AT91_ADC_CHAN(st, 1))
-+				   << MAX_RLPOS_BITS;
-+		st->ts_prev_absy /= at91_adc_readl(st, AT91_ADC_CHAN(st, 0));
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t at91_adc_9x5_interrupt(int irq, void *private)
- {
- 	struct iio_dev *idev = private;
- 	struct at91_adc_state *st = iio_priv(idev);
-@@ -672,6 +740,8 @@ static int at91_adc_probe_dt_ts(struct device_node *node,
- 		return -EINVAL;
- 	}
- 
-+	if (!st->caps->has_tsmr)
-+		return 0;
- 	prop = 0;
- 	of_property_read_u32(node, "atmel,adc-ts-pressure-threshold", &prop);
- 	st->ts_pressure_threshold = prop;
-@@ -795,6 +865,7 @@ static int at91_adc_probe_pdata(struct at91_adc_state *st,
- 	st->trigger_number = pdata->trigger_number;
- 	st->trigger_list = pdata->trigger_list;
- 	st->registers = &st->caps->registers;
-+	st->touchscreen_type = pdata->touchscreen_type;
- 
- 	return 0;
- }
-@@ -809,7 +880,10 @@ static int atmel_ts_open(struct input_dev *dev)
- {
- 	struct at91_adc_state *st = input_get_drvdata(dev);
- 
--	at91_adc_writel(st, AT91_ADC_IER, AT91_ADC_IER_PEN);
-+	if (st->caps->has_tsmr)
-+		at91_adc_writel(st, AT91_ADC_IER, AT91_ADC_IER_PEN);
-+	else
-+		at91_adc_writel(st, AT91_ADC_IER, AT91RL_ADC_IER_PEN);
- 	return 0;
- }
- 
-@@ -817,45 +891,61 @@ static void atmel_ts_close(struct input_dev *dev)
- {
- 	struct at91_adc_state *st = input_get_drvdata(dev);
- 
--	at91_adc_writel(st, AT91_ADC_IDR, AT91_ADC_IER_PEN);
-+	if (st->caps->has_tsmr)
-+		at91_adc_writel(st, AT91_ADC_IDR, AT91_ADC_IER_PEN);
-+	else
-+		at91_adc_writel(st, AT91_ADC_IDR, AT91RL_ADC_IER_PEN);
- }
- 
- static int at91_ts_hw_init(struct at91_adc_state *st, u32 adc_clk_khz)
- {
--	u32 reg = 0, pendbc;
-+	u32 reg = 0;
- 	int i = 0;
- 
--	if (st->touchscreen_type == ATMEL_ADC_TOUCHSCREEN_4WIRE)
--		reg = AT91_ADC_TSMR_TSMODE_4WIRE_PRESS;
--	else
--		reg = AT91_ADC_TSMR_TSMODE_5WIRE;
+-static void __iomem		*tsc_base;
 -
- 	/* a Pen Detect Debounce Time is necessary for the ADC Touch to avoid
- 	 * pen detect noise.
- 	 * The formula is : Pen Detect Debounce Time = (2 ^ pendbc) / ADCClock
- 	 */
--	pendbc = round_up(TOUCH_PEN_DETECT_DEBOUNCE_US * adc_clk_khz / 1000, 1);
-+	st->ts_pendbc = round_up(TOUCH_PEN_DETECT_DEBOUNCE_US * adc_clk_khz /
-+				 1000, 1);
- 
--	while (pendbc >> ++i)
-+	while (st->ts_pendbc >> ++i)
- 		;	/* Empty! Find the shift offset */
--	if (abs(pendbc - (1 << i)) < abs(pendbc - (1 << (i - 1))))
--		pendbc = i;
-+	if (abs(st->ts_pendbc - (1 << i)) < abs(st->ts_pendbc - (1 << (i - 1))))
-+		st->ts_pendbc = i;
- 	else
--		pendbc = i - 1;
-+		st->ts_pendbc = i - 1;
- 
--	if (st->caps->has_tsmr) {
--		reg |= AT91_ADC_TSMR_TSAV_(st->caps->ts_filter_average)
--				& AT91_ADC_TSMR_TSAV;
--		reg |= AT91_ADC_TSMR_PENDBC_(pendbc) & AT91_ADC_TSMR_PENDBC;
--		reg |= AT91_ADC_TSMR_NOTSDMA;
--		reg |= AT91_ADC_TSMR_PENDET_ENA;
--		reg |= 0x03 << 8;	/* TSFREQ, need bigger than TSAV */
+-#define atmel_tsadcc_read(reg)		__raw_readl(tsc_base + (reg))
+-#define atmel_tsadcc_write(reg, val)	__raw_writel((val), tsc_base + (reg))
 -
--		at91_adc_writel(st, AT91_ADC_TSMR, reg);
+-static irqreturn_t atmel_tsadcc_interrupt(int irq, void *dev)
+-{
+-	struct atmel_tsadcc	*ts_dev = (struct atmel_tsadcc *)dev;
+-	struct input_dev	*input_dev = ts_dev->input;
+-
+-	unsigned int status;
+-	unsigned int reg;
+-
+-	status = atmel_tsadcc_read(ATMEL_TSADCC_SR);
+-	status &= atmel_tsadcc_read(ATMEL_TSADCC_IMR);
+-
+-	if (status & ATMEL_TSADCC_NOCNT) {
+-		/* Contact lost */
+-		reg = atmel_tsadcc_read(ATMEL_TSADCC_MR) | ATMEL_TSADCC_PENDBC;
+-
+-		atmel_tsadcc_write(ATMEL_TSADCC_MR, reg);
+-		atmel_tsadcc_write(ATMEL_TSADCC_TRGR, ATMEL_TSADCC_TRGMOD_NONE);
+-		atmel_tsadcc_write(ATMEL_TSADCC_IDR,
+-				   ATMEL_TSADCC_EOC(3) | ATMEL_TSADCC_NOCNT);
+-		atmel_tsadcc_write(ATMEL_TSADCC_IER, ATMEL_TSADCC_PENCNT);
+-
+-		input_report_key(input_dev, BTN_TOUCH, 0);
+-		ts_dev->bufferedmeasure = 0;
+-		input_sync(input_dev);
+-
+-	} else if (status & ATMEL_TSADCC_PENCNT) {
+-		/* Pen detected */
+-		reg = atmel_tsadcc_read(ATMEL_TSADCC_MR);
+-		reg &= ~ATMEL_TSADCC_PENDBC;
+-
+-		atmel_tsadcc_write(ATMEL_TSADCC_IDR, ATMEL_TSADCC_PENCNT);
+-		atmel_tsadcc_write(ATMEL_TSADCC_MR, reg);
+-		atmel_tsadcc_write(ATMEL_TSADCC_IER,
+-				   ATMEL_TSADCC_EOC(3) | ATMEL_TSADCC_NOCNT);
+-		atmel_tsadcc_write(ATMEL_TSADCC_TRGR,
+-				   ATMEL_TSADCC_TRGMOD_PERIOD | (0x0FFF << 16));
+-
+-	} else if (status & ATMEL_TSADCC_EOC(3)) {
+-		/* Conversion finished */
+-
+-		if (ts_dev->bufferedmeasure) {
+-			/* Last measurement is always discarded, since it can
+-			 * be erroneous.
+-			 * Always report previous measurement */
+-			input_report_abs(input_dev, ABS_X, ts_dev->prev_absx);
+-			input_report_abs(input_dev, ABS_Y, ts_dev->prev_absy);
+-			input_report_key(input_dev, BTN_TOUCH, 1);
+-			input_sync(input_dev);
+-		} else
+-			ts_dev->bufferedmeasure = 1;
+-
+-		/* Now make new measurement */
+-		ts_dev->prev_absx = atmel_tsadcc_read(ATMEL_TSADCC_CDR3) << 10;
+-		ts_dev->prev_absx /= atmel_tsadcc_read(ATMEL_TSADCC_CDR2);
+-
+-		ts_dev->prev_absy = atmel_tsadcc_read(ATMEL_TSADCC_CDR1) << 10;
+-		ts_dev->prev_absy /= atmel_tsadcc_read(ATMEL_TSADCC_CDR0);
+-	}
+-
+-	return IRQ_HANDLED;
+-}
+-
+-/*
+- * The functions for inserting/removing us as a module.
+- */
+-
+-static int atmel_tsadcc_probe(struct platform_device *pdev)
+-{
+-	struct atmel_tsadcc	*ts_dev;
+-	struct input_dev	*input_dev;
+-	struct resource		*res;
+-	struct at91_tsadcc_data *pdata = dev_get_platdata(&pdev->dev);
+-	int		err;
+-	unsigned int	prsc;
+-	unsigned int	reg;
+-
+-	if (!pdata)
+-		return -EINVAL;
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "no mmio resource defined.\n");
+-		return -ENXIO;
+-	}
+-
+-	/* Allocate memory for device */
+-	ts_dev = kzalloc(sizeof(struct atmel_tsadcc), GFP_KERNEL);
+-	if (!ts_dev) {
+-		dev_err(&pdev->dev, "failed to allocate memory.\n");
+-		return -ENOMEM;
+-	}
+-	platform_set_drvdata(pdev, ts_dev);
+-
+-	input_dev = input_allocate_device();
+-	if (!input_dev) {
+-		dev_err(&pdev->dev, "failed to allocate input device.\n");
+-		err = -EBUSY;
+-		goto err_free_mem;
+-	}
+-
+-	ts_dev->irq = platform_get_irq(pdev, 0);
+-	if (ts_dev->irq < 0) {
+-		dev_err(&pdev->dev, "no irq ID is designated.\n");
+-		err = -ENODEV;
+-		goto err_free_dev;
+-	}
+-
+-	if (!request_mem_region(res->start, resource_size(res),
+-				"atmel tsadcc regs")) {
+-		dev_err(&pdev->dev, "resources is unavailable.\n");
+-		err = -EBUSY;
+-		goto err_free_dev;
+-	}
+-
+-	tsc_base = ioremap(res->start, resource_size(res));
+-	if (!tsc_base) {
+-		dev_err(&pdev->dev, "failed to map registers.\n");
+-		err = -ENOMEM;
+-		goto err_release_mem;
+-	}
+-
+-	err = request_irq(ts_dev->irq, atmel_tsadcc_interrupt, 0,
+-			pdev->dev.driver->name, ts_dev);
+-	if (err) {
+-		dev_err(&pdev->dev, "failed to allocate irq.\n");
+-		goto err_unmap_regs;
+-	}
+-
+-	ts_dev->clk = clk_get(&pdev->dev, "tsc_clk");
+-	if (IS_ERR(ts_dev->clk)) {
+-		dev_err(&pdev->dev, "failed to get ts_clk\n");
+-		err = PTR_ERR(ts_dev->clk);
+-		goto err_free_irq;
+-	}
+-
+-	ts_dev->input = input_dev;
+-	ts_dev->bufferedmeasure = 0;
+-
+-	snprintf(ts_dev->phys, sizeof(ts_dev->phys),
+-		 "%s/input0", dev_name(&pdev->dev));
+-
+-	input_dev->name = "atmel touch screen controller";
+-	input_dev->phys = ts_dev->phys;
+-	input_dev->dev.parent = &pdev->dev;
+-
+-	__set_bit(EV_ABS, input_dev->evbit);
+-	input_set_abs_params(input_dev, ABS_X, 0, 0x3FF, 0, 0);
+-	input_set_abs_params(input_dev, ABS_Y, 0, 0x3FF, 0, 0);
+-
+-	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+-
+-	/* clk_enable() always returns 0, no need to check it */
+-	clk_enable(ts_dev->clk);
+-
+-	prsc = clk_get_rate(ts_dev->clk);
+-	dev_info(&pdev->dev, "Master clock is set at: %d Hz\n", prsc);
+-
+-	if (!pdata->adc_clock)
+-		pdata->adc_clock = ADC_DEFAULT_CLOCK;
+-
+-	prsc = (prsc / (2 * pdata->adc_clock)) - 1;
+-
+-	/* saturate if this value is too high */
+-	if (cpu_is_at91sam9rl()) {
+-		if (prsc > PRESCALER_VAL(ATMEL_TSADCC_PRESCAL))
+-			prsc = PRESCALER_VAL(ATMEL_TSADCC_PRESCAL);
 -	} else {
--		/* TODO: for 9g45 which has no TSMR */
-+	if (!st->caps->has_tsmr) {
-+		reg = at91_adc_readl(st, AT91_ADC_MR);
-+		reg |= AT91_ADC_TSAMOD_TS_ONLY_MODE | AT91_ADC_PENDET;
-+
-+		reg |= AT91_ADC_PENDBC_(st->ts_pendbc) & AT91_ADC_PENDBC;
-+		at91_adc_writel(st, AT91_ADC_MR, reg);
-+
-+		reg = AT91_ADC_TSR_SHTIM_(TOUCH_SHTIM) & AT91_ADC_TSR_SHTIM;
-+		at91_adc_writel(st, AT91_ADC_TSR, reg);
-+
-+		st->ts_sample_period_val = round_up((TOUCH_SAMPLE_PERIOD_US_RL *
-+						    adc_clk_khz / 1000) - 1, 1);
-+
-+		return 0;
- 	}
- 
-+	if (st->touchscreen_type == ATMEL_ADC_TOUCHSCREEN_4WIRE)
-+		reg = AT91_ADC_TSMR_TSMODE_4WIRE_PRESS;
-+	else
-+		reg = AT91_ADC_TSMR_TSMODE_5WIRE;
-+
-+	reg |= AT91_ADC_TSMR_TSAV_(st->caps->ts_filter_average)
-+	       & AT91_ADC_TSMR_TSAV;
-+	reg |= AT91_ADC_TSMR_PENDBC_(st->ts_pendbc) & AT91_ADC_TSMR_PENDBC;
-+	reg |= AT91_ADC_TSMR_NOTSDMA;
-+	reg |= AT91_ADC_TSMR_PENDET_ENA;
-+	reg |= 0x03 << 8;	/* TSFREQ, needs to be bigger than TSAV */
-+
-+	at91_adc_writel(st, AT91_ADC_TSMR, reg);
-+
- 	/* Change adc internal resistor value for better pen detection,
- 	 * default value is 100 kOhm.
- 	 * 0 = 200 kOhm, 1 = 150 kOhm, 2 = 100 kOhm, 3 = 50 kOhm
-@@ -864,7 +954,7 @@ static int at91_ts_hw_init(struct at91_adc_state *st, u32 adc_clk_khz)
- 	at91_adc_writel(st, AT91_ADC_ACR, st->caps->ts_pen_detect_sensitivity
- 			& AT91_ADC_ACR_PENDETSENS);
- 
--	/* Sample Peroid Time = (TRGPER + 1) / ADCClock */
-+	/* Sample Period Time = (TRGPER + 1) / ADCClock */
- 	st->ts_sample_period_val = round_up((TOUCH_SAMPLE_PERIOD_US *
- 			adc_clk_khz / 1000) - 1, 1);
- 
-@@ -893,17 +983,37 @@ static int at91_ts_register(struct at91_adc_state *st,
- 	__set_bit(EV_ABS, input->evbit);
- 	__set_bit(EV_KEY, input->evbit);
- 	__set_bit(BTN_TOUCH, input->keybit);
--	input_set_abs_params(input, ABS_X, 0, (1 << MAX_POS_BITS) - 1, 0, 0);
--	input_set_abs_params(input, ABS_Y, 0, (1 << MAX_POS_BITS) - 1, 0, 0);
--	input_set_abs_params(input, ABS_PRESSURE, 0, 0xffffff, 0, 0);
-+	if (st->caps->has_tsmr) {
-+		input_set_abs_params(input, ABS_X, 0, (1 << MAX_POS_BITS) - 1,
-+				     0, 0);
-+		input_set_abs_params(input, ABS_Y, 0, (1 << MAX_POS_BITS) - 1,
-+				     0, 0);
-+		input_set_abs_params(input, ABS_PRESSURE, 0, 0xffffff, 0, 0);
-+	} else {
-+		if (st->touchscreen_type != ATMEL_ADC_TOUCHSCREEN_4WIRE) {
-+			dev_err(&pdev->dev,
-+				"This touchscreen controller only support 4 wires\n");
-+			ret = -EINVAL;
-+			goto err;
-+		}
-+
-+		input_set_abs_params(input, ABS_X, 0, (1 << MAX_RLPOS_BITS) - 1,
-+				     0, 0);
-+		input_set_abs_params(input, ABS_Y, 0, (1 << MAX_RLPOS_BITS) - 1,
-+				     0, 0);
-+	}
- 
- 	st->ts_input = input;
- 	input_set_drvdata(input, st);
- 
- 	ret = input_register_device(input);
- 	if (ret)
--		input_free_device(st->ts_input);
-+		goto err;
-+
-+	return ret;
- 
-+err:
-+	input_free_device(st->ts_input);
- 	return ret;
- }
- 
-@@ -962,11 +1072,13 @@ static int at91_adc_probe(struct platform_device *pdev)
- 	 */
- 	at91_adc_writel(st, AT91_ADC_CR, AT91_ADC_SWRST);
- 	at91_adc_writel(st, AT91_ADC_IDR, 0xFFFFFFFF);
--	ret = request_irq(st->irq,
--			  at91_adc_interrupt,
--			  0,
--			  pdev->dev.driver->name,
--			  idev);
-+
-+	if (st->caps->has_tsmr)
-+		ret = request_irq(st->irq, at91_adc_9x5_interrupt, 0,
-+				  pdev->dev.driver->name, idev);
-+	else
-+		ret = request_irq(st->irq, at91_adc_rl_interrupt, 0,
-+				  pdev->dev.driver->name, idev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to allocate IRQ.\n");
- 		return ret;
-@@ -1070,12 +1182,6 @@ static int at91_adc_probe(struct platform_device *pdev)
- 			goto error_disable_adc_clk;
- 		}
- 	} else {
--		if (!st->caps->has_tsmr) {
--			dev_err(&pdev->dev, "We don't support non-TSMR adc\n");
--			ret = -ENODEV;
--			goto error_disable_adc_clk;
--		}
+-		if (prsc > PRESCALER_VAL(ATMEL_TSADCC_EPRESCAL))
+-			prsc = PRESCALER_VAL(ATMEL_TSADCC_EPRESCAL);
+-	}
 -
- 		ret = at91_ts_register(st, pdev);
- 		if (ret)
- 			goto error_disable_adc_clk;
-diff --git a/include/linux/platform_data/at91_adc.h b/include/linux/platform_data/at91_adc.h
-index fcf73879dbfe..7819fc787731 100644
---- a/include/linux/platform_data/at91_adc.h
-+++ b/include/linux/platform_data/at91_adc.h
-@@ -7,6 +7,12 @@
- #ifndef _AT91_ADC_H_
- #define _AT91_ADC_H_
- 
-+enum atmel_adc_ts_type {
-+	ATMEL_ADC_TOUCHSCREEN_NONE = 0,
-+	ATMEL_ADC_TOUCHSCREEN_4WIRE = 4,
-+	ATMEL_ADC_TOUCHSCREEN_5WIRE = 5,
-+};
-+
- /**
-  * struct at91_adc_trigger - description of triggers
-  * @name:		name of the trigger advertised to the user
-@@ -28,6 +34,7 @@ struct at91_adc_trigger {
-  * @trigger_number:		Number of triggers available in the ADC
-  * @use_external_triggers:	does the board has external triggers availables
-  * @vref:			Reference voltage for the ADC in millivolts
-+ * @touchscreen_type:		If a touchscreen is connected, its type (4 or 5 wires)
-  */
- struct at91_adc_data {
- 	unsigned long			channels_used;
-@@ -36,6 +43,7 @@ struct at91_adc_data {
- 	u8				trigger_number;
- 	bool				use_external_triggers;
- 	u16				vref;
-+	enum atmel_adc_ts_type		touchscreen_type;
- };
- 
- extern void __init at91_add_device_adc(struct at91_adc_data *data);
+-	dev_info(&pdev->dev, "Prescaler is set at: %d\n", prsc);
+-
+-	reg = ATMEL_TSADCC_TSAMOD_TS_ONLY_MODE		|
+-		((0x00 << 5) & ATMEL_TSADCC_SLEEP)	|	/* Normal Mode */
+-		((0x01 << 6) & ATMEL_TSADCC_PENDET)	|	/* Enable Pen Detect */
+-		(prsc << 8)				|
+-		((0x26 << 16) & ATMEL_TSADCC_STARTUP)	|
+-		((pdata->pendet_debounce << 28) & ATMEL_TSADCC_PENDBC);
+-
+-	atmel_tsadcc_write(ATMEL_TSADCC_CR, ATMEL_TSADCC_SWRST);
+-	atmel_tsadcc_write(ATMEL_TSADCC_MR, reg);
+-	atmel_tsadcc_write(ATMEL_TSADCC_TRGR, ATMEL_TSADCC_TRGMOD_NONE);
+-	atmel_tsadcc_write(ATMEL_TSADCC_TSR,
+-		(pdata->ts_sample_hold_time << 24) & ATMEL_TSADCC_TSSHTIM);
+-
+-	atmel_tsadcc_read(ATMEL_TSADCC_SR);
+-	atmel_tsadcc_write(ATMEL_TSADCC_IER, ATMEL_TSADCC_PENCNT);
+-
+-	/* All went ok, so register to the input system */
+-	err = input_register_device(input_dev);
+-	if (err)
+-		goto err_fail;
+-
+-	return 0;
+-
+-err_fail:
+-	clk_disable(ts_dev->clk);
+-	clk_put(ts_dev->clk);
+-err_free_irq:
+-	free_irq(ts_dev->irq, ts_dev);
+-err_unmap_regs:
+-	iounmap(tsc_base);
+-err_release_mem:
+-	release_mem_region(res->start, resource_size(res));
+-err_free_dev:
+-	input_free_device(input_dev);
+-err_free_mem:
+-	kfree(ts_dev);
+-	return err;
+-}
+-
+-static int atmel_tsadcc_remove(struct platform_device *pdev)
+-{
+-	struct atmel_tsadcc *ts_dev = platform_get_drvdata(pdev);
+-	struct resource *res;
+-
+-	free_irq(ts_dev->irq, ts_dev);
+-
+-	input_unregister_device(ts_dev->input);
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	iounmap(tsc_base);
+-	release_mem_region(res->start, resource_size(res));
+-
+-	clk_disable(ts_dev->clk);
+-	clk_put(ts_dev->clk);
+-
+-	kfree(ts_dev);
+-
+-	return 0;
+-}
+-
+-static struct platform_driver atmel_tsadcc_driver = {
+-	.probe		= atmel_tsadcc_probe,
+-	.remove		= atmel_tsadcc_remove,
+-	.driver		= {
+-		.name	= "atmel_tsadcc",
+-	},
+-};
+-module_platform_driver(atmel_tsadcc_driver);
+-
+-MODULE_LICENSE("GPL");
+-MODULE_DESCRIPTION("Atmel TouchScreen Driver");
+-MODULE_AUTHOR("Dan Liang <dan.liang@atmel.com>");
+-
 -- 
 1.8.3.2

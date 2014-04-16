@@ -1,66 +1,119 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 1/9] mfd: AXP20x: Add mfd driver for
- AXP20x PMIC
-Date: Wed, 16 Apr 2014 16:44:15 +0100
-Message-ID: <20140416154415.GG19671@lee--X1>
-References: <1397209093-10077-1-git-send-email-carlo@caione.org>
- <1397209093-10077-2-git-send-email-carlo@caione.org>
- <20140416154350.GF19671@lee--X1>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: simon@mungewell.org
+Subject: HID: hid-logitech - missing HID_OUTPUT_REPORT 0
+Date: Wed, 16 Apr 2014 18:35:18 -0400
+Message-ID: <6452400bfacafd7e1f0d0f7a98b06248.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBDA7X7F2WUEBBVOKXKNAKGQE63FXCVI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20140416154350.GF19671@lee--X1>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Content-Type: multipart/mixed;boundary="----=_20140416183518_46613"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:60216 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752531AbaDPWfV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Apr 2014 18:35:21 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Elias Vanderstuyft <elias.vds@gmail.com>
 
-> > This patch introduces the preliminary support for PMICs X-Powers AXP202
-> > and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
-> > used by A10, A13 and A20 SoCs and developed by X-Powers, a sister compa=
-ny
-> > of Allwinner.
-> >=20
-> > The core enables support for two subsystems:
-> > - PEK (Power Enable Key)
-> > - Regulators
-> >=20
-> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> > ---
-> >  drivers/mfd/Kconfig        |  12 +++
-> >  drivers/mfd/Makefile       |   1 +
-> >  drivers/mfd/axp20x.c       | 249 +++++++++++++++++++++++++++++++++++++=
-++++++++
-> >  include/linux/mfd/axp20x.h | 180 ++++++++++++++++++++++++++++++++
-> >  4 files changed, 442 insertions(+)
-> >  create mode 100644 drivers/mfd/axp20x.c
-> >  create mode 100644 include/linux/mfd/axp20x.h
->=20
-> This looks good to me know.
->=20
-> Once you have all the other Acks you need I'd be happy to create an
-> immutable branch for the other maintainers to pull from.
+------=_20140416183518_46613
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Whoops, forgot this:
-  Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Hi Kees and all,
+I've got a report from an end user that their Logitech F710 wireless
+gamepad is not functioning correctly. This device has a switch to select
+between 'X' mode (X-Pad, works OK) and 'D' mode (HID using hid-logitech,
+doesn't work).
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+After some discussion off list, Elias and I think that this is related to
+checking the report descriptor (attached).
 
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Kernel log shows
+--
+[15961.607787] usb 5-5: USB disconnect, device number 12
+[15962.235373] usb 5-5: new full-speed USB device number 13 using ohci-pci
+[15962.412284] usb 5-5: New USB device found, idVendor=046d, idProduct=c219
+[15962.412287] usb 5-5: New USB device strings: Mfr=1, Product=2,
+SerialNumber=0
+[15962.412289] usb 5-5: Product: Logitech Cordless RumblePad 2
+[15962.412291] usb 5-5: Manufacturer: Logitech
+[15962.424343] input: Logitech Logitech Cordless RumblePad 2 as
+/devices/pci0000:00/0000:00:13.0/usb5/5-5/5-5:1.0/input/input26
+[15962.424477] logitech 0003:046D:C219.0012: input,hidraw5: USB HID v1.11
+Gamepad
+[Logitech Logitech Cordless RumblePad 2] on usb-0000:00:13.0-5/input0
+[15962.424480] logitech 0003:046D:C219.0012: missing HID_OUTPUT_REPORT 0
+--
+
+Last message comes from here (I believe):
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/hid/hid-lgff.c?id=refs/tags/v3.15-rc1#n137
+
+Can anyone see what might be wrong with the report, to cause this code to
+spit out an error?
+
+Cheers,
+Simon.
+------=_20140416183518_46613
+Content-Type: text/plain; name="report_descriptor.txt"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="report_descriptor.txt"
+
+0x05, 0x01,         /*  Usage Page (Desktop),                   */
+0x09, 0x05,         /*  Usage (Gamepad),                        */
+0xA1, 0x01,         /*  Collection (Application),               */
+0xA1, 0x02,         /*      Collection (Logical),               */
+0x85, 0x01,         /*          Report ID (1),                  */
+0x75, 0x08,         /*          Report Size (8),                */
+0x95, 0x04,         /*          Report Count (4),               */
+0x15, 0x00,         /*          Logical Minimum (0),            */
+0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
+0x35, 0x00,         /*          Physical Minimum (0),           */
+0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
+0x09, 0x30,         /*          Usage (X),                      */
+0x09, 0x31,         /*          Usage (Y),                      */
+0x09, 0x32,         /*          Usage (Z),                      */
+0x09, 0x35,         /*          Usage (Rz),                     */
+0x81, 0x02,         /*          Input (Variable),               */
+0x75, 0x04,         /*          Report Size (4),                */
+0x95, 0x01,         /*          Report Count (1),               */
+0x25, 0x07,         /*          Logical Maximum (7),            */
+0x46, 0x3B, 0x01,   /*          Physical Maximum (315),         */
+0x66, 0x14, 0x00,   /*          Unit (Degrees),                 */
+0x09, 0x39,         /*          Usage (Hat Switch),             */
+0x81, 0x42,         /*          Input (Variable, Null State),   */
+0x66, 0x00, 0x00,   /*          Unit,                           */
+0x75, 0x01,         /*          Report Size (1),                */
+0x95, 0x0C,         /*          Report Count (12),              */
+0x25, 0x01,         /*          Logical Maximum (1),            */
+0x45, 0x01,         /*          Physical Maximum (1),           */
+0x05, 0x09,         /*          Usage Page (Button),            */
+0x19, 0x01,         /*          Usage Minimum (01h),            */
+0x29, 0x0C,         /*          Usage Maximum (0Ch),            */
+0x81, 0x02,         /*          Input (Variable),               */
+0x95, 0x01,         /*          Report Count (1),               */
+0x75, 0x08,         /*          Report Size (8),                */
+0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),             */
+0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
+0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
+0x09, 0x00,         /*          Usage (00h),                    */
+0x81, 0x02,         /*          Input (Variable),               */
+0xC0,               /*      End Collection,                     */
+0xA1, 0x02,         /*      Collection (Logical),               */
+0x85, 0x02,         /*          Report ID (2),                  */
+0x95, 0x07,         /*          Report Count (7),               */
+0x75, 0x08,         /*          Report Size (8),                */
+0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
+0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
+0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),             */
+0x09, 0x03,         /*          Usage (03h),                    */
+0x81, 0x02,         /*          Input (Variable),               */
+0xC0,               /*      End Collection,                     */
+0xA1, 0x02,         /*      Collection (Logical),               */
+0x85, 0x03,         /*          Report ID (3),                  */
+0x09, 0x04,         /*          Usage (04h),                    */
+0x91, 0x02,         /*          Output (Variable),              */
+0xC0,               /*      End Collection,                     */
+0xC0                /*  End Collection                          */
+------=_20140416183518_46613--
+
+

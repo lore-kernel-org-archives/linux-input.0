@@ -1,41 +1,35 @@
-From: Cliff Brake <cliff.brake@gmail.com>
-Subject: Touchscreen monitor for embedded system
-Date: Thu, 17 Apr 2014 10:27:34 -0400
-Message-ID: <CAOd_LFxhHDVUR-g97GJUZdYfC+W=D1RBHLgs1g+GTLH-6n38=w@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] synaptics: Add min/max quirk for ThinkPad T431s,
+ L440, L540, S1 Yoga and X1
+Date: Thu, 17 Apr 2014 08:35:00 -0700
+Message-ID: <20140417153500.GA17495@core.coreip.homeip.net>
+References: <1397734903-26088-1-git-send-email-hdegoede@redhat.com>
+ <1397734903-26088-2-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f49.google.com ([209.85.219.49]:36745 "EHLO
-	mail-oa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751006AbaDQO1f (ORCPT
+Received: from mail-pb0-f48.google.com ([209.85.160.48]:37025 "EHLO
+	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751076AbaDQPfF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Apr 2014 10:27:35 -0400
-Received: by mail-oa0-f49.google.com with SMTP id o6so517847oag.8
-        for <linux-input@vger.kernel.org>; Thu, 17 Apr 2014 07:27:34 -0700 (PDT)
+	Thu, 17 Apr 2014 11:35:05 -0400
+Content-Disposition: inline
+In-Reply-To: <1397734903-26088-2-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-I'm looking for:
+Hi Hans,
 
-1024x768 res monitor
-touch screen
-~15" preferred, but not absolute requirement
-USB interface for touch
-DVI for video
+On Thu, Apr 17, 2014 at 01:41:43PM +0200, Hans de Goede wrote:
+> We expect that all the Haswell series will need such quirks, sigh.
 
-The system is an embedded ARM-linux system (very similar to
-beagleboard).  Do you have any products that could be made to work
-with this?  I'm mainly concerned about the touchscreen drivers.
+Given this statement do we really want this to be handled in kernel?
+Maybe we simply want udev to fix up the limits with EVIOSABS(),
+similarly to how we adjust keymaps for laptops?
 
-It seems that the hid-multitouch compatible devices might be an option.
-
-Appreciate and pointers as to products or companies that might offer something.
-
-Thanks,
-Cliff
-
+Thanks.
 
 -- 
-=================
-http://bec-systems.com
+Dmitry

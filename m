@@ -1,98 +1,78 @@
-From: "Li, Aubrey" <aubrey.li@linux.intel.com>
-Subject: Re: [patch]GPIO button is supposed to wake the system up if the wakeup
- attribute is set
-Date: Fri, 18 Apr 2014 13:23:11 +0800
-Message-ID: <5350B6BF.2090206@linux.intel.com>
-References: <5345FDBD.9090908@linux.intel.com> <20140410114810.73e1d4b6@alan.etchedpixels.co.uk> <534C01DD.4010807@linux.intel.com> <534D282B.50301@nvidia.com> <534D5BEA.30906@linux.intel.com> <534E790E.2040401@nvidia.com> <53500470.8090009@linux.intel.com> <20140417235405.GA21371@core.coreip.homeip.net>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 7/9] ARM: sun7i/sun4i: dt: Add AXP209
+ support to various boards
+Date: Fri, 18 Apr 2014 16:15:51 +0100
+Message-ID: <20140418151551.GZ12304@sirena.org.uk>
+References: <1397209093-10077-8-git-send-email-carlo@caione.org>
+ <20140411122901.GE28800@sirena.org.uk>
+ <CAOQ7t2Y2B7f+eZApDHKiKm9=bOXo6oUA2RLY7ENn7qPLQEboMA@mail.gmail.com>
+ <20140411161813.GF28800@sirena.org.uk>
+ <CAOQ7t2YO_MjUZkkoEe1Grft+fVttWoOro85Sru2P3LXbx8Kjbg@mail.gmail.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:48265 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750893AbaDRFXO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Apr 2014 01:23:14 -0400
-In-Reply-To: <20140417235405.GA21371@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QEpBYEk8j4zMEQj8"
+Return-path: <linux-sunxi+bncBDQ2L75W5QGBBOMDYWNAKGQER472D7Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAOQ7t2YO_MjUZkkoEe1Grft+fVttWoOro85Sru2P3LXbx8Kjbg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, "sachin.kamat@linaro.org" <sachin.kamat@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 2014/4/18 7:54, Dmitry Torokhov wrote:
-> Hi Aubrey,
-> 
-> On Fri, Apr 18, 2014 at 12:42:24AM +0800, Li, Aubrey wrote:
->> On 2014/4/16 20:35, Laxman Dewangan wrote:
->>> On Tuesday 15 April 2014 09:48 PM, Li, Aubrey wrote:
->>>> On 2014/4/15 20:38, Laxman Dewangan wrote:
->>>>> On Monday 14 April 2014 09:12 PM, Li, Aubrey wrote:
->>>>>> ping...
->>>>>>
->>>>>> On 2014/4/10 18:48, One Thousand Gnomes wrote:
->>>>>>>
->>>>> I think when we say irq_wake_enable() then based on underlying HW, it
->>>>> should not turn off the irq if it is require for the wakeup. I mean it
->>>>> need to be handle in the hw specific callbacks to keep enabling the
->>>>> wakeup irq on suspend also.
->>>> I failed to see why this can't be generic to all of the GPIO buttons for
->>>> suspend wakeup. Do you see any cases broken by this proposal?
->>>
->>> My point here is that if underlying HW needs to have irq enabled for
->>> wakup then it need to handle in centralized location i.e. the driver
->>> which is implementing it for the irq callbacks.
->>> Otherwise, we need to change this on multiple places who needs wakeups
->>> which is vast in nature like sd driver for sdcard insert/remove etc.
->>> almost all drivers which need wakeups through GPIOs.
->>
->> I think we have to handle this driver by driver. I didn't see how can we
->> make it in a centralized location. Looking forward to see your proposal.
->>
->>>
->>>>> For me, I have key which is interrupt based from PMIC, not based on GPIO
->>>>> and on that if I set it to IRQF_EARLY_RESUME then it works fine.
->>>>>
->>>> IRQF_NO_SUSPEND - Do not disable this IRQ during suspend
->>>> IRQF_EARLY_RESUME - Resume IRQ early during syscore instead of at device
->>>> resume time.
->>>>
->>>> IRQF_NO_SUSPEND is exactly what I want, instead of IRQF_EARLY_RESUME.
->>>> Can you please send your proposal/code to help me understand why this
->>>> has to hw specific and why IRQF_EARLY_RESUME is better than
->>>> IRQF_NO_SUSPEND?
->>>
->>> IRQF_EARLY_RESUME helps to re-enable mask or irq before parent interrupt
->>> resume and so parent isr handler sees the irq flag enabled when it try
->>> to scan source of interrupt. Otherwise parent isr handler treat this as
->>> spurious interrupt and does not call handler as irq flag disabled for that.
->>>
->>> This only happen when on resume, parent inettrupt enabled before the
->>> child interrupt on irq resume. Because as soon as parent isr re-enabled
->>> on resume, its hadnler get called before actually child interrupt
->>> enabled. This is what I observed mainly on PMIC and its sub irq. Not
->>> observed on SoC level of interrupts.
->>>
->>
->> This is expected behavior. I think I still need IRQF_NO_SUSPEND here.
->> What I want is, this IRQ is able to generate pm wakeup event to wake the
->> system up. It's enough for my case.
-> 
-> The driver does call enable_irq_wake() in its suspend routine to prepare
-> the interrupt in question to be used as a wakeup source. Why isn't it
-> enough? It seems to me that your platform code should properly handle
-> this case instead of relying on the driver to modify IRQ flags.
 
-Yes, gpio_keys_suspend() does call enable_irq_wake() to enable the irq
-of the button. So when the button is pressed, hardware interrupt from
-this irq does occur.
+--QEpBYEk8j4zMEQj8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However, after gpio_keys_suspend(), irq_desc of this irq will be
-disabled if there is no IRQF_NO_SUSPEND flag. So when the hardware
-interrupt occurs, the irq handler won't call the action of the irq desc.
-That is, for this case, even if the driver call enable_irq_wake() during
-suspend, the irq handler in this driver won't be called because it's an
-action handler, not a irq handler.
+On Thu, Apr 17, 2014 at 12:06:34PM +0200, Carlo Caione wrote:
 
-Does this make sense?
+> I'm fighting with a small issue when using the
+> regulator_bulk_register_supply_alias(). Problem is that when using the
+> .parent_supplies entry in the MFD driver, I hit the
+>=20
+> WARN_ON(!list_empty(&dev->devres_head));
+>=20
+> in linux/drivers/base/dd.c#L272, but, apart from the warning,
+> everything seems to work correctly.
+> A possible explanation I gave myself is that in the mfd_add_device()
+> we try to use the devm_* API when the regulator device is not bound to
+> the driver yet (I found some information here
+> http://lists.infradead.org/pipermail/linux-arm-kernel/2012-June/104442.ht=
+ml).
+> Is this the case?
 
-Thanks,
--Aubrey
+Without knowing more about the case you're hitting it's hard to say - I
+do run a board which exercises the API for a MFD (with the arizona
+drivers) regularly and haven't noticed an issue so there must be
+something different about what you're trying to do.
+
+--QEpBYEk8j4zMEQj8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTUUGjAAoJELSic+t+oim9ddkQAIYHsCzM6rTT3xGzbu+zANEO
+zFPZIBP6wfmlVNsgmDkH3JsI3T/tMNvhgPfwmVnMzSwpF7q4UgzEfId83U+EiHW+
+0z6PLKkgvkX60pmZfUzCIY1jbXvUlAgy8zGqTPaKWyCKJfiCyi7v6Zsp9QLBnT7e
+yPDIqE9rfSyHlpH6Ii0MlqGVUZuvkFT+sd3EZnCd9Zubf+QYphw9fsAMr47apYyc
+qOWI2GbDs+JuyAJs+9LzBXiO+uQcFCxEVf0rDJiuClswlKn6HK9KRe7u/22oq7vH
+5osK/Ltah4JCEaskpYVG4Nlvo9g22v0fXpdpw/f3wER5w6UjpK8rmpsiTzDE6wC1
+BDZM5rAlUr14bxNGZEAXgfum6xCyE76nkT8TTIhAG9I4hwkW7lY7wiUlLimQBwWD
+fBzOqdCUYwMA4sqngoH+vzd5K9pwCfY7ZwG/vEv2TbiToeiCoVSsjuP687CtHIUy
+OMjzXakdUY6mr7DUh/jBUF6U9wV9tQkzw7hti6A6axukrTVJMZl3PvOgpKPA80WT
+nLUOaxQJc1J8v048JhZUVEjxYETbUt/fBtffnFmZ8G90xNE2+W00pNyPg8PByt4b
+KOQVH6qMSvrBTShHLHiUt4vQGelygKWMF46+l52D3Hmt5gnTmfzIFNq55VZm5kei
+3QMVdyfdiGjoV13L607V
+=32We
+-----END PGP SIGNATURE-----
+
+--QEpBYEk8j4zMEQj8--

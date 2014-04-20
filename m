@@ -1,39 +1,115 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RESEND: PATCH 2/2] input: tc3589x-keypad: support probing from
- device tree
-Date: Sun, 20 Apr 2014 12:36:36 -0700
-Message-ID: <20140420193636.GG12454@core.coreip.homeip.net>
-References: <1397028491-15462-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [patch]GPIO button is supposed to wake the system up if the
+ wakeup attribute is set
+Date: Sun, 20 Apr 2014 12:39:37 -0700
+Message-ID: <20140420193936.GH12454@core.coreip.homeip.net>
+References: <5345FDBD.9090908@linux.intel.com>
+ <20140410114810.73e1d4b6@alan.etchedpixels.co.uk>
+ <534C01DD.4010807@linux.intel.com>
+ <534D282B.50301@nvidia.com>
+ <534D5BEA.30906@linux.intel.com>
+ <534E790E.2040401@nvidia.com>
+ <53500470.8090009@linux.intel.com>
+ <20140417235405.GA21371@core.coreip.homeip.net>
+ <5350B6BF.2090206@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:47999 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752835AbaDTTgk (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:62887 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752835AbaDTTjk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Apr 2014 15:36:40 -0400
+	Sun, 20 Apr 2014 15:39:40 -0400
+Received: by mail-pa0-f44.google.com with SMTP id bj1so3050460pad.31
+        for <linux-input@vger.kernel.org>; Sun, 20 Apr 2014 12:39:40 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1397028491-15462-1-git-send-email-linus.walleij@linaro.org>
+In-Reply-To: <5350B6BF.2090206@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>
+To: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, "sachin.kamat@linaro.org" <sachin.kamat@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Apr 09, 2014 at 09:28:11AM +0200, Linus Walleij wrote:
-> Implement device tree probing for the tc3589x keypad driver.
-> This is modeled on the STMPE keypad driver and tested on the
-> Ux500 TVK1281618 UIB.
+On Fri, Apr 18, 2014 at 01:23:11PM +0800, Li, Aubrey wrote:
+> On 2014/4/18 7:54, Dmitry Torokhov wrote:
+> > Hi Aubrey,
+> > 
+> > On Fri, Apr 18, 2014 at 12:42:24AM +0800, Li, Aubrey wrote:
+> >> On 2014/4/16 20:35, Laxman Dewangan wrote:
+> >>> On Tuesday 15 April 2014 09:48 PM, Li, Aubrey wrote:
+> >>>> On 2014/4/15 20:38, Laxman Dewangan wrote:
+> >>>>> On Monday 14 April 2014 09:12 PM, Li, Aubrey wrote:
+> >>>>>> ping...
+> >>>>>>
+> >>>>>> On 2014/4/10 18:48, One Thousand Gnomes wrote:
+> >>>>>>>
+> >>>>> I think when we say irq_wake_enable() then based on underlying HW, it
+> >>>>> should not turn off the irq if it is require for the wakeup. I mean it
+> >>>>> need to be handle in the hw specific callbacks to keep enabling the
+> >>>>> wakeup irq on suspend also.
+> >>>> I failed to see why this can't be generic to all of the GPIO buttons for
+> >>>> suspend wakeup. Do you see any cases broken by this proposal?
+> >>>
+> >>> My point here is that if underlying HW needs to have irq enabled for
+> >>> wakup then it need to handle in centralized location i.e. the driver
+> >>> which is implementing it for the irq callbacks.
+> >>> Otherwise, we need to change this on multiple places who needs wakeups
+> >>> which is vast in nature like sd driver for sdcard insert/remove etc.
+> >>> almost all drivers which need wakeups through GPIOs.
+> >>
+> >> I think we have to handle this driver by driver. I didn't see how can we
+> >> make it in a centralized location. Looking forward to see your proposal.
+> >>
+> >>>
+> >>>>> For me, I have key which is interrupt based from PMIC, not based on GPIO
+> >>>>> and on that if I set it to IRQF_EARLY_RESUME then it works fine.
+> >>>>>
+> >>>> IRQF_NO_SUSPEND - Do not disable this IRQ during suspend
+> >>>> IRQF_EARLY_RESUME - Resume IRQ early during syscore instead of at device
+> >>>> resume time.
+> >>>>
+> >>>> IRQF_NO_SUSPEND is exactly what I want, instead of IRQF_EARLY_RESUME.
+> >>>> Can you please send your proposal/code to help me understand why this
+> >>>> has to hw specific and why IRQF_EARLY_RESUME is better than
+> >>>> IRQF_NO_SUSPEND?
+> >>>
+> >>> IRQF_EARLY_RESUME helps to re-enable mask or irq before parent interrupt
+> >>> resume and so parent isr handler sees the irq flag enabled when it try
+> >>> to scan source of interrupt. Otherwise parent isr handler treat this as
+> >>> spurious interrupt and does not call handler as irq flag disabled for that.
+> >>>
+> >>> This only happen when on resume, parent inettrupt enabled before the
+> >>> child interrupt on irq resume. Because as soon as parent isr re-enabled
+> >>> on resume, its hadnler get called before actually child interrupt
+> >>> enabled. This is what I observed mainly on PMIC and its sub irq. Not
+> >>> observed on SoC level of interrupts.
+> >>>
+> >>
+> >> This is expected behavior. I think I still need IRQF_NO_SUSPEND here.
+> >> What I want is, this IRQ is able to generate pm wakeup event to wake the
+> >> system up. It's enough for my case.
+> > 
+> > The driver does call enable_irq_wake() in its suspend routine to prepare
+> > the interrupt in question to be used as a wakeup source. Why isn't it
+> > enough? It seems to me that your platform code should properly handle
+> > this case instead of relying on the driver to modify IRQ flags.
 > 
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v2->v3:
-> - Use two local u32 variables to avoid weirdness in u8 casting
->   of the resulting values to the pointers.
-> ChangeLog v1->v2:
-> - Fix rows/columns binding to read two u32's insead of two
->   u8 /bits/ as noted by Mark Rutland.
+> Yes, gpio_keys_suspend() does call enable_irq_wake() to enable the irq
+> of the button. So when the button is pressed, hardware interrupt from
+> this irq does occur.
+> 
+> However, after gpio_keys_suspend(), irq_desc of this irq will be
+> disabled if there is no IRQF_NO_SUSPEND flag. So when the hardware
+> interrupt occurs, the irq handler won't call the action of the irq desc.
+> That is, for this case, even if the driver call enable_irq_wake() during
+> suspend, the irq handler in this driver won't be called because it's an
+> action handler, not a irq handler.
 
-Applied, thank you.
+Right, so what I am saying is that enable_irq_wake() should really be
+taking care of that and ensuring that if device is marked as wakeup
+source it should prepare irq handler code to run all necessary parts
+instead of sprinkling random flags all over individual drivers.
+
+Thanks.
 
 -- 
 Dmitry

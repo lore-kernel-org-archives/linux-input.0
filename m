@@ -1,41 +1,70 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH 0/24] Introduce ff-memless-next as an improved replacement
- for ff-memless
-Date: Mon, 21 Apr 2014 13:25:09 +0200
-Message-ID: <CADbOyBRDbScJ-gG=vqc4boq8kkuJ_9Xt_6Kt5MkgbcTy2Mbvpw@mail.gmail.com>
-References: <1609685.QRL9N9sQvX@sigyn>
-	<c49c4ad2bfabfe75ac065f8ad878d697.squirrel@mungewell.org>
-	<CADbOyBSxHj80zA7UNq+yAtmSPgTqCXgOUUsQ30DQQ66cGw9egw@mail.gmail.com>
-	<9307026b9160edfb785b894fe6d539b7.squirrel@mungewell.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Issues with hid-multitouch driver
+Date: Mon, 21 Apr 2014 09:47:37 -0400
+Message-ID: <CAN+gG=FYNZBpOngy1xfRUu-Q2jEfuNcCmezC9ccLzeS9KwR_=w@mail.gmail.com>
+References: <CAEQQWc5My-QBoiX7Yqx_-Rer-OdaD7OxJgci5DScJf012s15Aw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9307026b9160edfb785b894fe6d539b7.squirrel@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: =?UTF-8?B?TWljaGFsIE1hbMODwr0=?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f50.google.com ([209.85.215.50]:49239 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775AbaDUNrj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Apr 2014 09:47:39 -0400
+Received: by mail-la0-f50.google.com with SMTP id pv20so3187499lab.37
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2014 06:47:37 -0700 (PDT)
+In-Reply-To: <CAEQQWc5My-QBoiX7Yqx_-Rer-OdaD7OxJgci5DScJf012s15Aw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tomas Sokorai <tsokorai@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Mon, Apr 21, 2014 at 12:29 AM,  <simon@mungewell.org> wrote:
+Hi Thomas,
+
+Can you install hid-recorder from here:
+http://bentiss.github.io/hid-replay-docs/
+
+and give me the following hid-recorder logs:
+- normal usage (when it is working fine)
+- multi-touch taps which breaks the driver,
+- normal usage (which should be broken now)
+
+I should be able to understand where the problem lies.
+
+Thanks,
+Benjamin
+
+On Sat, Apr 19, 2014 at 7:02 PM, Tomas Sokorai <tsokorai@gmail.com> wrote:
+> Hi guys,
 >
->> Did the WiiWheel have working FF_CONSTANT before this patchset?
->> It would be weird if yes, because lg4ff is also used for MOMO-Black
->> which works fine.
+> I'm having issues with the hid-multitouch driver in kernel 3.14.
+> I have the following touchscreen device:
 >
-> Yes, I think that the force requested by fftest was just too weak to
-> actually move the wheel. ffcfstress (or whatever it is called) works OK.
-
-Ah, nice to hear.
-
-I had some additional questions that might benefit to the porting of
-the lgff and sony driver, concerning the optimal value for
-FF_UPDATE_RATE (at the moment it defaults to a safe 50ms):
-- Could you try to sniff FF command USB traffic with the Windows
-driver of the WingMan Force, just to learn what the update interval is
-when playing a ConstantForce effect with an envelope (I'm only
-interested in the envelope part)?
-- If official/decent Windows drivers are present for one of the Sony
-controllers you have, can you please do the same, but now when playing
-a vibration effect (using XInput)?
-
-Elias
+> Bus 001 Device 003: ID 03fc:05d8 Elitegroup Computer Systems
+>
+> The thing is that the driver detects the device correctly and even
+> works seemingly OK, until you start doing multi-touch taps on the
+> screen.
+>
+> At some point, the input to the Xorg server stops.
+>
+> I investigated this further, and using evtest, I can see that the events
+> ABS_X and ABS_Y stop being generated, and also that BTN_TOUCH event
+> gets a "value 1" for the touch before the freeze, but it is never
+> released: no "value 0" for the touch release event, ever.
+>
+> After the driver gets braindamaged, it only generates
+> ABS_MT_POSITION_Y, ABS_MT_POSITION_X and ABS_MT_TRACKING_ID events,
+> and therefore no further clicks or normal Xorg pointer movement
+> on-screen.
+>
+> I even tried backporting the lastest version from the HID git, with
+> the same results.
+>
+> Thanks in advance,
+> --
+> Tomas J. Sokorai Sch.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

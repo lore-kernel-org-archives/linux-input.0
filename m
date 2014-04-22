@@ -1,8 +1,11 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v2 22/24] input: Port hid-lg2ff to ff-memless-next
-Date: Tue, 22 Apr 2014 16:00:07 +0200
-Message-ID: <1398175209-9565-23-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v2 24/24] input: Replace ff-memless with ff-memless-next
+Date: Tue, 22 Apr 2014 16:00:09 +0200
+Message-ID: <1398175209-9565-25-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -10,128 +13,640 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
 List-Id: linux-input@vger.kernel.org
 
-* Port hid-lg2ff to ff-memless-next
-* Clamp vibration magnitude to range <0x02; 0xfd> to prevent irregular shaking of the vibration motors.
+Replace ff-memless with ff-memless-next
 
-Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig     |  2 +-
- drivers/hid/hid-lg2ff.c | 65 ++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 47 insertions(+), 20 deletions(-)
+ drivers/input/Kconfig      |  13 +-
+ drivers/input/Makefile     |   1 -
+ drivers/input/ff-memless.c | 547 -------------------------------------=
+--------
+ include/linux/input.h      |   3 -
+ 4 files changed, 1 insertion(+), 563 deletions(-)
+ delete mode 100644 drivers/input/ff-memless.c
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 7d617a8..8889b7a 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -372,7 +372,7 @@ config LOGITECH_FF
- config LOGIRUMBLEPAD2_FF
- 	bool "Logitech force feedback support (variant 2)"
- 	depends on HID_LOGITECH
--	select INPUT_FF_MEMLESS
-+	select INPUT_FF_MEMLESS_NEXT
+diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
+index 3780962..061ae3c 100644
+--- a/drivers/input/Kconfig
++++ b/drivers/input/Kconfig
+@@ -25,7 +25,7 @@ config INPUT
+=20
+ if INPUT
+=20
+-config INPUT_FF_MEMLESS
++config INPUT_FF_MEMLESS_NEXT
+ 	tristate "Support for memoryless force-feedback devices"
  	help
- 	  Say Y here if you want to enable force feedback support for:
- 	  - Logitech RumblePad
-diff --git a/drivers/hid/hid-lg2ff.c b/drivers/hid/hid-lg2ff.c
-index 0e3fb1a..6ab5327 100644
---- a/drivers/hid/hid-lg2ff.c
-+++ b/drivers/hid/hid-lg2ff.c
-@@ -22,42 +22,69 @@
- 
- 
- #include <linux/input.h>
-+#include <linux/input/ff-memless-next.h>
- #include <linux/slab.h>
- #include <linux/hid.h>
- 
- #include "hid-lg.h"
- 
-+#define FF_UPDATE_RATE 8
-+
- struct lg2ff_device {
- 	struct hid_report *report;
- };
- 
--static int play_effect(struct input_dev *dev, void *data,
--			 struct ff_effect *effect)
-+static int hid_lg2ff_start_rumble(struct hid_device *hid, struct hid_report *report,
-+				const struct mlnx_rumble_force *rumble)
- {
--	struct hid_device *hid = input_get_drvdata(dev);
--	struct lg2ff_device *lg2ff = data;
- 	int weak, strong;
- 
--	strong = effect->u.rumble.strong_magnitude;
--	weak = effect->u.rumble.weak_magnitude;
-+#define CLAMP_QUIRK(x) do { if (x < 2) x = 2; else if (x > 0xfd) x = 0xfd; } \
-+			while (0)
- 
--	if (weak || strong) {
--		weak = weak * 0xff / 0xffff;
--		strong = strong * 0xff / 0xffff;
-+	/* Scale down from MLNX range */
-+	strong = rumble->strong * 0xff / 0xffff;
-+	weak = rumble->weak * 0xff / 0xffff;
-+	CLAMP_QUIRK(weak);
-+	CLAMP_QUIRK(strong);
- 
--		lg2ff->report->field[0]->value[0] = 0x51;
--		lg2ff->report->field[0]->value[2] = weak;
--		lg2ff->report->field[0]->value[4] = strong;
--	} else {
--		lg2ff->report->field[0]->value[0] = 0xf3;
--		lg2ff->report->field[0]->value[2] = 0x00;
--		lg2ff->report->field[0]->value[4] = 0x00;
+ 	  Say Y here if you have memoryless force-feedback input device
+@@ -36,17 +36,6 @@ config INPUT_FF_MEMLESS
+ 	  If unsure, say N.
+=20
+ 	  To compile this driver as a module, choose M here: the
+-	  module will be called ff-memless.
+-
+-config INPUT_FF_MEMLESS_NEXT
+-	tristate "New version of support for memoryless force-feedback device=
+s"
+-	help
+-	  Say Y here to enable a new version of support for memoryless force
+-	  feedback devices.
+-
+-	  If unsure, say N.
+-
+-	  To compile this driver as a module, choose M here: the
+ 	  module will be called ff-memless-next.
+=20
+ config INPUT_POLLDEV
+diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+index b4f11f5..f7ae055 100644
+--- a/drivers/input/Makefile
++++ b/drivers/input/Makefile
+@@ -7,7 +7,6 @@
+ obj-$(CONFIG_INPUT)		+=3D input-core.o
+ input-core-y :=3D input.o input-compat.o input-mt.o ff-core.o
+=20
+-obj-$(CONFIG_INPUT_FF_MEMLESS)	+=3D ff-memless.o
+ obj-$(CONFIG_INPUT_FF_MEMLESS_NEXT)	+=3D ff-memless-next.o
+ obj-$(CONFIG_INPUT_POLLDEV)	+=3D input-polldev.o
+ obj-$(CONFIG_INPUT_SPARSEKMAP)	+=3D sparse-keymap.o
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+deleted file mode 100644
+index 74c0d8c..0000000
+--- a/drivers/input/ff-memless.c
++++ /dev/null
+@@ -1,547 +0,0 @@
+-/*
+- *  Force feedback support for memoryless devices
+- *
+- *  Copyright (c) 2006 Anssi Hannula <anssi.hannula@gmail.com>
+- *  Copyright (c) 2006 Dmitry Torokhov <dtor@mail.ru>
+- */
+-
+-/*
+- * This program is free software; you can redistribute it and/or modif=
+y
+- * it under the terms of the GNU General Public License as published b=
+y
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307=
+ USA
+- */
+-
+-/* #define DEBUG */
+-
+-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+-
+-#include <linux/slab.h>
+-#include <linux/input.h>
+-#include <linux/module.h>
+-#include <linux/mutex.h>
+-#include <linux/spinlock.h>
+-#include <linux/jiffies.h>
+-#include <linux/fixp-arith.h>
+-
+-MODULE_LICENSE("GPL");
+-MODULE_AUTHOR("Anssi Hannula <anssi.hannula@gmail.com>");
+-MODULE_DESCRIPTION("Force feedback support for memoryless devices");
+-
+-/* Number of effects handled with memoryless devices */
+-#define FF_MEMLESS_EFFECTS	16
+-
+-/* Envelope update interval in ms */
+-#define FF_ENVELOPE_INTERVAL	50
+-
+-#define FF_EFFECT_STARTED	0
+-#define FF_EFFECT_PLAYING	1
+-#define FF_EFFECT_ABORTING	2
+-
+-struct ml_effect_state {
+-	struct ff_effect *effect;
+-	unsigned long flags;	/* effect state (STARTED, PLAYING, etc) */
+-	int count;		/* loop count of the effect */
+-	unsigned long play_at;	/* start time */
+-	unsigned long stop_at;	/* stop time */
+-	unsigned long adj_at;	/* last time the effect was sent */
+-};
+-
+-struct ml_device {
+-	void *private;
+-	struct ml_effect_state states[FF_MEMLESS_EFFECTS];
+-	int gain;
+-	struct timer_list timer;
+-	struct input_dev *dev;
+-
+-	int (*play_effect)(struct input_dev *dev, void *data,
+-			   struct ff_effect *effect);
+-};
+-
+-static const struct ff_envelope *get_envelope(const struct ff_effect *=
+effect)
+-{
+-	static const struct ff_envelope empty_envelope;
+-
+-	switch (effect->type) {
+-	case FF_PERIODIC:
+-		return &effect->u.periodic.envelope;
+-
+-	case FF_CONSTANT:
+-		return &effect->u.constant.envelope;
+-
+-	default:
+-		return &empty_envelope;
 -	}
-+	report->field[0]->value[0] = 0x51;
-+	report->field[0]->value[2] = weak;
-+	report->field[0]->value[4] = strong;
- 
--	hid_hw_request(hid, lg2ff->report, HID_REQ_SET_REPORT);
-+	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
- 	return 0;
- }
- 
-+static int hid_lg2ff_stop_rumble(struct hid_device *hid, struct hid_report *report)
-+{
-+	report->field[0]->value[0] = 0xf3;
-+	report->field[0]->value[2] = 0x00;
-+	report->field[0]->value[4] = 0x00;
-+
-+	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-+	return 0;
-+}
-+
-+static int hid_lg2ff_control(struct input_dev *dev, void *data,
-+				const struct mlnx_effect_command *command)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct lg2ff_device *lg2ff = data;
-+
-+	switch (command->cmd) {
-+	case MLNX_START_RUMBLE:
-+		return hid_lg2ff_start_rumble(hid, lg2ff->report, &command->u.rumble_force);
-+		break;
-+	case MLNX_STOP_RUMBLE:
-+		return hid_lg2ff_stop_rumble(hid, lg2ff->report);
-+		break;
-+	default:
-+		dbg_hid("Unsupported effect command");
-+		return -EINVAL;
-+	}
-+}
-+
- int lg2ff_init(struct hid_device *hid)
- {
- 	struct lg2ff_device *lg2ff;
-@@ -78,7 +105,7 @@ int lg2ff_init(struct hid_device *hid)
- 
- 	set_bit(FF_RUMBLE, dev->ffbit);
- 
--	error = input_ff_create_memless(dev, lg2ff, play_effect);
-+	error = input_ff_create_mlnx(dev, lg2ff, hid_lg2ff_control, FF_UPDATE_RATE);
- 	if (error) {
- 		kfree(lg2ff);
- 		return error;
--- 
+-}
+-
+-/*
+- * Check for the next time envelope requires an update on memoryless d=
+evices
+- */
+-static unsigned long calculate_next_time(struct ml_effect_state *state=
+)
+-{
+-	const struct ff_envelope *envelope =3D get_envelope(state->effect);
+-	unsigned long attack_stop, fade_start, next_fade;
+-
+-	if (envelope->attack_length) {
+-		attack_stop =3D state->play_at +
+-			msecs_to_jiffies(envelope->attack_length);
+-		if (time_before(state->adj_at, attack_stop))
+-			return state->adj_at +
+-					msecs_to_jiffies(FF_ENVELOPE_INTERVAL);
+-	}
+-
+-	if (state->effect->replay.length) {
+-		if (envelope->fade_length) {
+-			/* check when fading should start */
+-			fade_start =3D state->stop_at -
+-					msecs_to_jiffies(envelope->fade_length);
+-
+-			if (time_before(state->adj_at, fade_start))
+-				return fade_start;
+-
+-			/* already fading, advance to next checkpoint */
+-			next_fade =3D state->adj_at +
+-					msecs_to_jiffies(FF_ENVELOPE_INTERVAL);
+-			if (time_before(next_fade, state->stop_at))
+-				return next_fade;
+-		}
+-
+-		return state->stop_at;
+-	}
+-
+-	return state->play_at;
+-}
+-
+-static void ml_schedule_timer(struct ml_device *ml)
+-{
+-	struct ml_effect_state *state;
+-	unsigned long now =3D jiffies;
+-	unsigned long earliest =3D 0;
+-	unsigned long next_at;
+-	int events =3D 0;
+-	int i;
+-
+-	pr_debug("calculating next timer\n");
+-
+-	for (i =3D 0; i < FF_MEMLESS_EFFECTS; i++) {
+-
+-		state =3D &ml->states[i];
+-
+-		if (!test_bit(FF_EFFECT_STARTED, &state->flags))
+-			continue;
+-
+-		if (test_bit(FF_EFFECT_PLAYING, &state->flags))
+-			next_at =3D calculate_next_time(state);
+-		else
+-			next_at =3D state->play_at;
+-
+-		if (time_before_eq(now, next_at) &&
+-		    (++events =3D=3D 1 || time_before(next_at, earliest)))
+-			earliest =3D next_at;
+-	}
+-
+-	if (!events) {
+-		pr_debug("no actions\n");
+-		del_timer(&ml->timer);
+-	} else {
+-		pr_debug("timer set\n");
+-		mod_timer(&ml->timer, earliest);
+-	}
+-}
+-
+-/*
+- * Apply an envelope to a value
+- */
+-static int apply_envelope(struct ml_effect_state *state, int value,
+-			  struct ff_envelope *envelope)
+-{
+-	struct ff_effect *effect =3D state->effect;
+-	unsigned long now =3D jiffies;
+-	int time_from_level;
+-	int time_of_envelope;
+-	int envelope_level;
+-	int difference;
+-
+-	if (envelope->attack_length &&
+-	    time_before(now,
+-			state->play_at + msecs_to_jiffies(envelope->attack_length))) {
+-		pr_debug("value =3D 0x%x, attack_level =3D 0x%x\n",
+-			 value, envelope->attack_level);
+-		time_from_level =3D jiffies_to_msecs(now - state->play_at);
+-		time_of_envelope =3D envelope->attack_length;
+-		envelope_level =3D min_t(u16, envelope->attack_level, 0x7fff);
+-
+-	} else if (envelope->fade_length && effect->replay.length &&
+-		   time_after(now,
+-			      state->stop_at - msecs_to_jiffies(envelope->fade_length)) &&
+-		   time_before(now, state->stop_at)) {
+-		time_from_level =3D jiffies_to_msecs(state->stop_at - now);
+-		time_of_envelope =3D envelope->fade_length;
+-		envelope_level =3D min_t(u16, envelope->fade_level, 0x7fff);
+-	} else
+-		return value;
+-
+-	difference =3D abs(value) - envelope_level;
+-
+-	pr_debug("difference =3D %d\n", difference);
+-	pr_debug("time_from_level =3D 0x%x\n", time_from_level);
+-	pr_debug("time_of_envelope =3D 0x%x\n", time_of_envelope);
+-
+-	difference =3D difference * time_from_level / time_of_envelope;
+-
+-	pr_debug("difference =3D %d\n", difference);
+-
+-	return value < 0 ?
+-		-(difference + envelope_level) : (difference + envelope_level);
+-}
+-
+-/*
+- * Return the type the effect has to be converted into (memless device=
+s)
+- */
+-static int get_compatible_type(struct ff_device *ff, int effect_type)
+-{
+-
+-	if (test_bit(effect_type, ff->ffbit))
+-		return effect_type;
+-
+-	if (effect_type =3D=3D FF_PERIODIC && test_bit(FF_RUMBLE, ff->ffbit))
+-		return FF_RUMBLE;
+-
+-	pr_err("invalid type in get_compatible_type()\n");
+-
+-	return 0;
+-}
+-
+-/*
+- * Only left/right direction should be used (under/over 0x8000) for
+- * forward/reverse motor direction (to keep calculation fast & simple)=
+=2E
+- */
+-static u16 ml_calculate_direction(u16 direction, u16 force,
+-				  u16 new_direction, u16 new_force)
+-{
+-	if (!force)
+-		return new_direction;
+-	if (!new_force)
+-		return direction;
+-	return (((u32)(direction >> 1) * force +
+-		 (new_direction >> 1) * new_force) /
+-		(force + new_force)) << 1;
+-}
+-
+-/*
+- * Combine two effects and apply gain.
+- */
+-static void ml_combine_effects(struct ff_effect *effect,
+-			       struct ml_effect_state *state,
+-			       int gain)
+-{
+-	struct ff_effect *new =3D state->effect;
+-	unsigned int strong, weak, i;
+-	int x, y;
+-	fixp_t level;
+-
+-	switch (new->type) {
+-	case FF_CONSTANT:
+-		i =3D new->direction * 360 / 0xffff;
+-		level =3D fixp_new16(apply_envelope(state,
+-					new->u.constant.level,
+-					&new->u.constant.envelope));
+-		x =3D fixp_mult(fixp_sin(i), level) * gain / 0xffff;
+-		y =3D fixp_mult(-fixp_cos(i), level) * gain / 0xffff;
+-		/*
+-		 * here we abuse ff_ramp to hold x and y of constant force
+-		 * If in future any driver wants something else than x and y
+-		 * in s8, this should be changed to something more generic
+-		 */
+-		effect->u.ramp.start_level =3D
+-			clamp_val(effect->u.ramp.start_level + x, -0x80, 0x7f);
+-		effect->u.ramp.end_level =3D
+-			clamp_val(effect->u.ramp.end_level + y, -0x80, 0x7f);
+-		break;
+-
+-	case FF_RUMBLE:
+-		strong =3D (u32)new->u.rumble.strong_magnitude * gain / 0xffff;
+-		weak =3D (u32)new->u.rumble.weak_magnitude * gain / 0xffff;
+-
+-		if (effect->u.rumble.strong_magnitude + strong)
+-			effect->direction =3D ml_calculate_direction(
+-				effect->direction,
+-				effect->u.rumble.strong_magnitude,
+-				new->direction, strong);
+-		else if (effect->u.rumble.weak_magnitude + weak)
+-			effect->direction =3D ml_calculate_direction(
+-				effect->direction,
+-				effect->u.rumble.weak_magnitude,
+-				new->direction, weak);
+-		else
+-			effect->direction =3D 0;
+-		effect->u.rumble.strong_magnitude =3D
+-			min(strong + effect->u.rumble.strong_magnitude,
+-			    0xffffU);
+-		effect->u.rumble.weak_magnitude =3D
+-			min(weak + effect->u.rumble.weak_magnitude, 0xffffU);
+-		break;
+-
+-	case FF_PERIODIC:
+-		i =3D apply_envelope(state, abs(new->u.periodic.magnitude),
+-				   &new->u.periodic.envelope);
+-
+-		/* here we also scale it 0x7fff =3D> 0xffff */
+-		i =3D i * gain / 0x7fff;
+-
+-		if (effect->u.rumble.strong_magnitude + i)
+-			effect->direction =3D ml_calculate_direction(
+-				effect->direction,
+-				effect->u.rumble.strong_magnitude,
+-				new->direction, i);
+-		else
+-			effect->direction =3D 0;
+-		effect->u.rumble.strong_magnitude =3D
+-			min(i + effect->u.rumble.strong_magnitude, 0xffffU);
+-		effect->u.rumble.weak_magnitude =3D
+-			min(i + effect->u.rumble.weak_magnitude, 0xffffU);
+-		break;
+-
+-	default:
+-		pr_err("invalid type in ml_combine_effects()\n");
+-		break;
+-	}
+-
+-}
+-
+-
+-/*
+- * Because memoryless devices have only one effect per effect type act=
+ive
+- * at one time we have to combine multiple effects into one
+- */
+-static int ml_get_combo_effect(struct ml_device *ml,
+-			       unsigned long *effect_handled,
+-			       struct ff_effect *combo_effect)
+-{
+-	struct ff_effect *effect;
+-	struct ml_effect_state *state;
+-	int effect_type;
+-	int i;
+-
+-	memset(combo_effect, 0, sizeof(struct ff_effect));
+-
+-	for (i =3D 0; i < FF_MEMLESS_EFFECTS; i++) {
+-		if (__test_and_set_bit(i, effect_handled))
+-			continue;
+-
+-		state =3D &ml->states[i];
+-		effect =3D state->effect;
+-
+-		if (!test_bit(FF_EFFECT_STARTED, &state->flags))
+-			continue;
+-
+-		if (time_before(jiffies, state->play_at))
+-			continue;
+-
+-		/*
+-		 * here we have started effects that are either
+-		 * currently playing (and may need be aborted)
+-		 * or need to start playing.
+-		 */
+-		effect_type =3D get_compatible_type(ml->dev->ff, effect->type);
+-		if (combo_effect->type !=3D effect_type) {
+-			if (combo_effect->type !=3D 0) {
+-				__clear_bit(i, effect_handled);
+-				continue;
+-			}
+-			combo_effect->type =3D effect_type;
+-		}
+-
+-		if (__test_and_clear_bit(FF_EFFECT_ABORTING, &state->flags)) {
+-			__clear_bit(FF_EFFECT_PLAYING, &state->flags);
+-			__clear_bit(FF_EFFECT_STARTED, &state->flags);
+-		} else if (effect->replay.length &&
+-			   time_after_eq(jiffies, state->stop_at)) {
+-
+-			__clear_bit(FF_EFFECT_PLAYING, &state->flags);
+-
+-			if (--state->count <=3D 0) {
+-				__clear_bit(FF_EFFECT_STARTED, &state->flags);
+-			} else {
+-				state->play_at =3D jiffies +
+-					msecs_to_jiffies(effect->replay.delay);
+-				state->stop_at =3D state->play_at +
+-					msecs_to_jiffies(effect->replay.length);
+-			}
+-		} else {
+-			__set_bit(FF_EFFECT_PLAYING, &state->flags);
+-			state->adj_at =3D jiffies;
+-			ml_combine_effects(combo_effect, state, ml->gain);
+-		}
+-	}
+-
+-	return combo_effect->type !=3D 0;
+-}
+-
+-static void ml_play_effects(struct ml_device *ml)
+-{
+-	struct ff_effect effect;
+-	DECLARE_BITMAP(handled_bm, FF_MEMLESS_EFFECTS);
+-
+-	memset(handled_bm, 0, sizeof(handled_bm));
+-
+-	while (ml_get_combo_effect(ml, handled_bm, &effect))
+-		ml->play_effect(ml->dev, ml->private, &effect);
+-
+-	ml_schedule_timer(ml);
+-}
+-
+-static void ml_effect_timer(unsigned long timer_data)
+-{
+-	struct input_dev *dev =3D (struct input_dev *)timer_data;
+-	struct ml_device *ml =3D dev->ff->private;
+-	unsigned long flags;
+-
+-	pr_debug("timer: updating effects\n");
+-
+-	spin_lock_irqsave(&dev->event_lock, flags);
+-	ml_play_effects(ml);
+-	spin_unlock_irqrestore(&dev->event_lock, flags);
+-}
+-
+-/*
+- * Sets requested gain for FF effects. Called with dev->event_lock hel=
+d.
+- */
+-static void ml_ff_set_gain(struct input_dev *dev, u16 gain)
+-{
+-	struct ml_device *ml =3D dev->ff->private;
+-	int i;
+-
+-	ml->gain =3D gain;
+-
+-	for (i =3D 0; i < FF_MEMLESS_EFFECTS; i++)
+-		__clear_bit(FF_EFFECT_PLAYING, &ml->states[i].flags);
+-
+-	ml_play_effects(ml);
+-}
+-
+-/*
+- * Start/stop specified FF effect. Called with dev->event_lock held.
+- */
+-static int ml_ff_playback(struct input_dev *dev, int effect_id, int va=
+lue)
+-{
+-	struct ml_device *ml =3D dev->ff->private;
+-	struct ml_effect_state *state =3D &ml->states[effect_id];
+-
+-	if (value > 0) {
+-		pr_debug("initiated play\n");
+-
+-		__set_bit(FF_EFFECT_STARTED, &state->flags);
+-		state->count =3D value;
+-		state->play_at =3D jiffies +
+-				 msecs_to_jiffies(state->effect->replay.delay);
+-		state->stop_at =3D state->play_at +
+-				 msecs_to_jiffies(state->effect->replay.length);
+-		state->adj_at =3D state->play_at;
+-
+-	} else {
+-		pr_debug("initiated stop\n");
+-
+-		if (test_bit(FF_EFFECT_PLAYING, &state->flags))
+-			__set_bit(FF_EFFECT_ABORTING, &state->flags);
+-		else
+-			__clear_bit(FF_EFFECT_STARTED, &state->flags);
+-	}
+-
+-	ml_play_effects(ml);
+-
+-	return 0;
+-}
+-
+-static int ml_ff_upload(struct input_dev *dev,
+-			struct ff_effect *effect, struct ff_effect *old)
+-{
+-	struct ml_device *ml =3D dev->ff->private;
+-	struct ml_effect_state *state =3D &ml->states[effect->id];
+-
+-	spin_lock_irq(&dev->event_lock);
+-
+-	if (test_bit(FF_EFFECT_STARTED, &state->flags)) {
+-		__clear_bit(FF_EFFECT_PLAYING, &state->flags);
+-		state->play_at =3D jiffies +
+-				 msecs_to_jiffies(state->effect->replay.delay);
+-		state->stop_at =3D state->play_at +
+-				 msecs_to_jiffies(state->effect->replay.length);
+-		state->adj_at =3D state->play_at;
+-		ml_schedule_timer(ml);
+-	}
+-
+-	spin_unlock_irq(&dev->event_lock);
+-
+-	return 0;
+-}
+-
+-static void ml_ff_destroy(struct ff_device *ff)
+-{
+-	struct ml_device *ml =3D ff->private;
+-
+-	kfree(ml->private);
+-}
+-
+-/**
+- * input_ff_create_memless() - create memoryless force-feedback device
+- * @dev: input device supporting force-feedback
+- * @data: driver-specific data to be passed into @play_effect
+- * @play_effect: driver-specific method for playing FF effect
+- */
+-int input_ff_create_memless(struct input_dev *dev, void *data,
+-		int (*play_effect)(struct input_dev *, void *, struct ff_effect *))
+-{
+-	struct ml_device *ml;
+-	struct ff_device *ff;
+-	int error;
+-	int i;
+-
+-	ml =3D kzalloc(sizeof(struct ml_device), GFP_KERNEL);
+-	if (!ml)
+-		return -ENOMEM;
+-
+-	ml->dev =3D dev;
+-	ml->private =3D data;
+-	ml->play_effect =3D play_effect;
+-	ml->gain =3D 0xffff;
+-	setup_timer(&ml->timer, ml_effect_timer, (unsigned long)dev);
+-
+-	set_bit(FF_GAIN, dev->ffbit);
+-
+-	error =3D input_ff_create(dev, FF_MEMLESS_EFFECTS);
+-	if (error) {
+-		kfree(ml);
+-		return error;
+-	}
+-
+-	ff =3D dev->ff;
+-	ff->private =3D ml;
+-	ff->upload =3D ml_ff_upload;
+-	ff->playback =3D ml_ff_playback;
+-	ff->set_gain =3D ml_ff_set_gain;
+-	ff->destroy =3D ml_ff_destroy;
+-
+-	/* we can emulate periodic effects with RUMBLE */
+-	if (test_bit(FF_RUMBLE, ff->ffbit)) {
+-		set_bit(FF_PERIODIC, dev->ffbit);
+-		set_bit(FF_SINE, dev->ffbit);
+-		set_bit(FF_TRIANGLE, dev->ffbit);
+-		set_bit(FF_SQUARE, dev->ffbit);
+-	}
+-
+-	for (i =3D 0; i < FF_MEMLESS_EFFECTS; i++)
+-		ml->states[i].effect =3D &ff->effects[i];
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL_GPL(input_ff_create_memless);
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 82ce323..0c6c3f1 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -528,7 +528,4 @@ int input_ff_event(struct input_dev *dev, unsigned =
+int type, unsigned int code,
+ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect, s=
+truct file *file);
+ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *=
+file);
+=20
+-int input_ff_create_memless(struct input_dev *dev, void *data,
+-		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
+-
+ #endif
+--=20
 1.9.2

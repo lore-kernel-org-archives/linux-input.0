@@ -1,124 +1,54 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: [PATCH] input: zforce: add regulator handling
-Date: Tue, 22 Apr 2014 21:19:57 +0200
-Message-ID: <60795928.lIAcBxC0Ao@phil>
-References: <2587208.XYbbI8xJiH@phil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH] Input: ads7877: Remove bitrotted comment
+Date: Tue, 22 Apr 2014 22:18:21 +0100
+Message-ID: <1398201501-13470-1-git-send-email-broonie@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:48468 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752580AbaDVTSG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 15:18:06 -0400
-In-Reply-To: <2587208.XYbbI8xJiH@phil>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:41790 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752661AbaDVVSg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Apr 2014 17:18:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>
 
-From: Heiko Stuebner <heiko.stuebner@bq.com>
+From: Mark Brown <broonie@linaro.org>
 
-It's possible that the controller has an individually switchable power supply.
-Therefore add support to control a supplying regulator.
+While searching for users of spi_async() I found a reference in the ad7877
+driver to using it to initiate data transfer from the interrupt handler.
+However there is no code for this, instead the interrupt handler is a
+threaded handler and uses spi_sync() instead.
 
-As this is not always the case, the regulator is requested as optional.
+Remove the bitrotted comment, though in actual fact the use case mentioned
+is a great use for spi_async() since it would cut down on latency handling
+the interrupt by saving us a context switch before we start SPI.
 
-Signed-off-by: Heiko Stuebner <heiko.stuebner@bq.com>
+This was previously implemented, it was removed in commit b534422b2d11
+(Input: ad7877 - switch to using threaded IRQ) for code complexity reasons.
+It may be better to revert that commit instead.
+
+Signed-off-by: Mark Brown <broonie@linaro.org>
 ---
- .../bindings/input/touchscreen/zforce_ts.txt       |  4 +++
- drivers/input/touchscreen/zforce_ts.c              | 30 ++++++++++++++++++++++
- 2 files changed, 34 insertions(+)
+ drivers/input/touchscreen/ad7877.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-index 2faf1f1..80c37df 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-@@ -9,6 +9,9 @@ Required properties:
- - x-size: horizontal resolution of touchscreen
- - y-size: vertical resolution of touchscreen
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 6793c85903ae..523865daa1d3 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -210,11 +210,6 @@ static bool gpio3;
+ module_param(gpio3, bool, 0);
+ MODULE_PARM_DESC(gpio3, "If gpio3 is set to 1 AUX3 acts as GPIO3");
  
-+Optional properties:
-+- vdd-supply: Regulator controlling the controller supply
-+
- Example:
- 
- 	i2c@00000000 {
-@@ -18,6 +21,7 @@ Example:
- 			compatible = "neonode,zforce";
- 			reg = <0x50>;
- 			interrupts = <2 0>;
-+			vdd-supply = <&reg_zforce_vdd>;
- 
- 			gpios = <&gpio5 6 0>, /* INT */
- 				<&gpio5 9 0>; /* RST */
-diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-index 01d30ce..39ca962 100644
---- a/drivers/input/touchscreen/zforce_ts.c
-+++ b/drivers/input/touchscreen/zforce_ts.c
-@@ -29,6 +29,8 @@
- #include <linux/sysfs.h>
- #include <linux/input/mt.h>
- #include <linux/platform_data/zforce_ts.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/delay.h>
- #include <linux/of.h>
- #include <linux/of_gpio.h>
- 
-@@ -117,6 +119,8 @@ struct zforce_ts {
- 	const struct zforce_ts_platdata *pdata;
- 	char			phys[32];
- 
-+	struct regulator	*reg_vdd;
-+
- 	bool			suspending;
- 	bool			suspended;
- 	bool			boot_complete;
-@@ -690,6 +694,11 @@ static void zforce_reset(void *data)
- 	struct zforce_ts *ts = data;
- 
- 	gpio_set_value(ts->pdata->gpio_rst, 0);
-+
-+	udelay(10);
-+
-+	if (!IS_ERR(ts->reg_vdd))
-+		regulator_disable(ts->reg_vdd);
- }
- 
- static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
-@@ -765,10 +774,31 @@ static int zforce_probe(struct i2c_client *client,
- 		return ret;
- 	}
- 
-+	ts->reg_vdd = devm_regulator_get_optional(&client->dev, "vdd");
-+	if (IS_ERR(ts->reg_vdd) && PTR_ERR(ts->reg_vdd) == -EPROBE_DEFER)
-+		return PTR_ERR(ts->reg_vdd);
-+
-+	if (!IS_ERR(ts->reg_vdd)) {
-+		ret = regulator_enable(ts->reg_vdd);
-+		if (ret)
-+			return ret;
-+
-+		/*
-+		 * according to datasheet add 100us grace time after regular
-+		 * regulator enable delay.
-+		 */
-+		udelay(100);
-+	}
-+
- 	ret = devm_add_action(&client->dev, zforce_reset, ts);
- 	if (ret) {
- 		dev_err(&client->dev, "failed to register reset action, %d\n",
- 			ret);
-+
-+		/* hereafter the regulator will be disabled by the action */
-+		if (!IS_ERR(ts->reg_vdd))
-+			regulator_disable(ts->reg_vdd);
-+
- 		return ret;
- 	}
- 
+-/*
+- * ad7877_read/write are only used for initial setup and for sysfs controls.
+- * The main traffic is done using spi_async() in the interrupt handler.
+- */
+-
+ static int ad7877_read(struct spi_device *spi, u16 reg)
+ {
+ 	struct ser_req *req;
 -- 
-1.9.0
-
+1.9.2
 

@@ -1,45 +1,98 @@
-From: simon@mungewell.org
-Subject: Re: Bug: HID-Sony: DS4 touch-pad corrupts Axis0
-Date: Tue, 22 Apr 2014 12:50:42 -0400
-Message-ID: <35342da9a382362bc86ab7abfa7ee07a.squirrel@mungewell.org>
-References: <23e61b7ee30edafb338935ae40285dce.squirrel@mungewell.org>
-    <535555C6.5050407@gmail.com> <53557CB5.1010100@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Sheng-Liang Song <ssl@chromium.org>
+Subject: [PATCH] Input: atkbd - fix keyboard LG Electronics
+Date: Tue, 22 Apr 2014 09:59:30 -0700
+Message-ID: <1398185970-16331-1-git-send-email-ssl@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:41181 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932737AbaDVQuo (ORCPT
+Received: from mail-qa0-f73.google.com ([209.85.216.73]:45259 "EHLO
+	mail-qa0-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932504AbaDVQ7p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 12:50:44 -0400
-In-Reply-To: <53557CB5.1010100@gmail.com>
+	Tue, 22 Apr 2014 12:59:45 -0400
+Received: by mail-qa0-f73.google.com with SMTP id hw13so968492qab.0
+        for <linux-input@vger.kernel.org>; Tue, 22 Apr 2014 09:59:44 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: simon@mungewell.org, Frank Praznik <frank.praznik@oh.rr.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Sheng-Liang Song <ssl@chromium.org>, Shawn Nematbakhsh <shawnn@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.
+The workaround is to issue ATKBD_CMD_RESET_DEF after ATKBD_CMD_RESET_DIS.
 
-> The joydev device *is* missing the mappings for the touchpad axes for
-> some reason (JSIOCGAXES returns 14 instead of 17 like it should).  I'm
-> not sure why though.  In the Sony driver the touchpad axis bits are set
-> in the probe function and work correctly via the evdev interface and
-> looking in the joydev module it should properly handle and map all axes
-> up to ABS_MAX so the problem probably lies somewhere else.  If I had to
-> guess, it seems like the joydev device is being created after the HID
-> descriptor is parsed, but before the device probe function is called.
->
-> Can anyone more familiar with the general input system comment on why
-> this might be happening?
+In order to keep the minimum changes to the current atkbd driver,
+I add logic to apply the patch if and only if the device is LG LW25-B7HV or P1-J273B.
+---
+ drivers/input/keyboard/atkbd.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-I find it suspicious that it doesn't happen the first time (after boot)
-that the controller is plugged in, but then does every subsequent time...
-maybe some un-init memory somewhere.
-
-Is this kernel behaviour, or down to the controller state (ie alive after
-first plug)? We see that the DS3 behaves differently wrt leds depending on
-whether it is asleep or alive when plugged in.
-
-I'll dig a little deeper tonight to see if I can track the problem down.
-Simon.
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 2626773..75e68f2 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -242,6 +242,7 @@ struct atkbd {
+ static void (*atkbd_platform_fixup)(struct atkbd *, const void *data);
+ static void *atkbd_platform_fixup_data;
+ static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned int);
++static void (*atkbd_deactivate_fixup)(struct atkbd *atkbd);
+ 
+ static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
+ 				ssize_t (*handler)(struct atkbd *, char *));
+@@ -698,6 +699,10 @@ static int atkbd_activate(struct atkbd *atkbd)
+  * atkbd_deactivate() resets and disables the keyboard from sending
+  * keystrokes.
+  */
++static void atkbd_deactivate_rst_fixup(struct atkbd *atkbd)
++{
++	ps2_command(&atkbd->ps2dev, NULL, ATKBD_CMD_RESET_DEF);
++}
+ 
+ static void atkbd_deactivate(struct atkbd *atkbd)
+ {
+@@ -707,6 +712,9 @@ static void atkbd_deactivate(struct atkbd *atkbd)
+ 		dev_err(&ps2dev->serio->dev,
+ 			"Failed to deactivate keyboard on %s\n",
+ 			ps2dev->serio->phys);
++
++	if (atkbd_deactivate_fixup)
++		atkbd_deactivate_fixup(atkbd);
+ }
+ 
+ /*
+@@ -1638,6 +1646,12 @@ static int __init atkbd_setup_scancode_fixup(const struct dmi_system_id *id)
+ 	return 1;
+ }
+ 
++static int __init atkbd_setup_deactivate(const struct dmi_system_id *id)
++{
++	atkbd_deactivate_fixup = id->driver_data;
++	return 1;
++}
++
+ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 	{
+ 		.matches = {
+@@ -1775,6 +1789,22 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		.callback = atkbd_setup_scancode_fixup,
+ 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LW25-B7HV"),
++		},
++		.callback = atkbd_setup_deactivate,
++		.driver_data = atkbd_deactivate_rst_fixup,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "P1-J273B"),
++		},
++		.callback = atkbd_setup_deactivate,
++		.driver_data = atkbd_deactivate_rst_fixup,
++	},
+ 	{ }
+ };
+ 
+-- 
+1.9.1.423.g4596e3a
 

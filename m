@@ -1,57 +1,124 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: Bug: HID-Sony: DS4 touch-pad corrupts Axis0
-Date: Tue, 22 Apr 2014 13:31:32 -0400
-Message-ID: <5356A774.5050505@gmail.com>
-References: <23e61b7ee30edafb338935ae40285dce.squirrel@mungewell.org>    <535555C6.5050407@gmail.com> <53557CB5.1010100@gmail.com> <35342da9a382362bc86ab7abfa7ee07a.squirrel@mungewell.org>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Subject: [PATCH] input: zforce: add regulator handling
+Date: Tue, 22 Apr 2014 21:19:57 +0200
+Message-ID: <60795928.lIAcBxC0Ao@phil>
+References: <2587208.XYbbI8xJiH@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:57680 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933390AbaDVRbg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 13:31:36 -0400
-Received: by mail-ie0-f179.google.com with SMTP id lx4so5365266iec.24
-        for <linux-input@vger.kernel.org>; Tue, 22 Apr 2014 10:31:36 -0700 (PDT)
-In-Reply-To: <35342da9a382362bc86ab7abfa7ee07a.squirrel@mungewell.org>
+Received: from gloria.sntech.de ([95.129.55.99]:48468 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752580AbaDVTSG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Apr 2014 15:18:06 -0400
+In-Reply-To: <2587208.XYbbI8xJiH@phil>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: Frank Praznik <frank.praznik@oh.rr.com>, HID CORE LAYER <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org
 
-On 4/22/2014 12:50, simon@mungewell.org wrote:
->> The joydev device *is* missing the mappings for the touchpad axes for
->> some reason (JSIOCGAXES returns 14 instead of 17 like it should).  I'm
->> not sure why though.  In the Sony driver the touchpad axis bits are set
->> in the probe function and work correctly via the evdev interface and
->> looking in the joydev module it should properly handle and map all axes
->> up to ABS_MAX so the problem probably lies somewhere else.  If I had to
->> guess, it seems like the joydev device is being created after the HID
->> descriptor is parsed, but before the device probe function is called.
->>
->> Can anyone more familiar with the general input system comment on why
->> this might be happening?
-> I find it suspicious that it doesn't happen the first time (after boot)
-> that the controller is plugged in, but then does every subsequent time...
-> maybe some un-init memory somewhere.
->
-> Is this kernel behaviour, or down to the controller state (ie alive after
-> first plug)? We see that the DS3 behaves differently wrt leds depending on
-> whether it is asleep or alive when plugged in.
->
-> I'll dig a little deeper tonight to see if I can track the problem down.
-> Simon.
->
+From: Heiko Stuebner <heiko.stuebner@bq.com>
 
-It might be a matter of the joydev module not being loaded into memory 
-the first time thus allowing the probe function to complete and set the 
-proper axis bits before the js* device is created.  On subsequent 
-connects the module would already be loaded so the js* device would be 
-created before the extra axis bits are set, assuming that my earlier 
-hypothesis is correct and the joystick device is being created before 
-the probe function returns.
+It's possible that the controller has an individually switchable power supply.
+Therefore add support to control a supplying regulator.
 
-The joydev system also zero initializes the mapping arrays and doesn't 
-filter out unmapped axis or button events, which is why the unmapped 
-axes always effect axis 0.
+As this is not always the case, the regulator is requested as optional.
+
+Signed-off-by: Heiko Stuebner <heiko.stuebner@bq.com>
+---
+ .../bindings/input/touchscreen/zforce_ts.txt       |  4 +++
+ drivers/input/touchscreen/zforce_ts.c              | 30 ++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+index 2faf1f1..80c37df 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+@@ -9,6 +9,9 @@ Required properties:
+ - x-size: horizontal resolution of touchscreen
+ - y-size: vertical resolution of touchscreen
+ 
++Optional properties:
++- vdd-supply: Regulator controlling the controller supply
++
+ Example:
+ 
+ 	i2c@00000000 {
+@@ -18,6 +21,7 @@ Example:
+ 			compatible = "neonode,zforce";
+ 			reg = <0x50>;
+ 			interrupts = <2 0>;
++			vdd-supply = <&reg_zforce_vdd>;
+ 
+ 			gpios = <&gpio5 6 0>, /* INT */
+ 				<&gpio5 9 0>; /* RST */
+diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+index 01d30ce..39ca962 100644
+--- a/drivers/input/touchscreen/zforce_ts.c
++++ b/drivers/input/touchscreen/zforce_ts.c
+@@ -29,6 +29,8 @@
+ #include <linux/sysfs.h>
+ #include <linux/input/mt.h>
+ #include <linux/platform_data/zforce_ts.h>
++#include <linux/regulator/consumer.h>
++#include <linux/delay.h>
+ #include <linux/of.h>
+ #include <linux/of_gpio.h>
+ 
+@@ -117,6 +119,8 @@ struct zforce_ts {
+ 	const struct zforce_ts_platdata *pdata;
+ 	char			phys[32];
+ 
++	struct regulator	*reg_vdd;
++
+ 	bool			suspending;
+ 	bool			suspended;
+ 	bool			boot_complete;
+@@ -690,6 +694,11 @@ static void zforce_reset(void *data)
+ 	struct zforce_ts *ts = data;
+ 
+ 	gpio_set_value(ts->pdata->gpio_rst, 0);
++
++	udelay(10);
++
++	if (!IS_ERR(ts->reg_vdd))
++		regulator_disable(ts->reg_vdd);
+ }
+ 
+ static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
+@@ -765,10 +774,31 @@ static int zforce_probe(struct i2c_client *client,
+ 		return ret;
+ 	}
+ 
++	ts->reg_vdd = devm_regulator_get_optional(&client->dev, "vdd");
++	if (IS_ERR(ts->reg_vdd) && PTR_ERR(ts->reg_vdd) == -EPROBE_DEFER)
++		return PTR_ERR(ts->reg_vdd);
++
++	if (!IS_ERR(ts->reg_vdd)) {
++		ret = regulator_enable(ts->reg_vdd);
++		if (ret)
++			return ret;
++
++		/*
++		 * according to datasheet add 100us grace time after regular
++		 * regulator enable delay.
++		 */
++		udelay(100);
++	}
++
+ 	ret = devm_add_action(&client->dev, zforce_reset, ts);
+ 	if (ret) {
+ 		dev_err(&client->dev, "failed to register reset action, %d\n",
+ 			ret);
++
++		/* hereafter the regulator will be disabled by the action */
++		if (!IS_ERR(ts->reg_vdd))
++			regulator_disable(ts->reg_vdd);
++
+ 		return ret;
+ 	}
+ 
+-- 
+1.9.0
+
+

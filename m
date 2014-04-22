@@ -1,54 +1,41 @@
 From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH] Input: ads7877: Remove bitrotted comment
-Date: Tue, 22 Apr 2014 22:18:21 +0100
-Message-ID: <1398201501-13470-1-git-send-email-broonie@kernel.org>
+Subject: [PATCH] Input: ads7846: Correct log message for spi_sync() errors
+Date: Tue, 22 Apr 2014 22:19:15 +0100
+Message-ID: <1398201555-13539-1-git-send-email-broonie@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:41790 "EHLO
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:41795 "EHLO
 	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752661AbaDVVSg (ORCPT
+	with ESMTP id S1757932AbaDVVTY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 17:18:36 -0400
+	Tue, 22 Apr 2014 17:19:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dtor@mail.ru>
+To: Dmitry Torokhov <dtor@mail.ru>
 Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>
 
 From: Mark Brown <broonie@linaro.org>
 
-While searching for users of spi_async() I found a reference in the ad7877
-driver to using it to initiate data transfer from the interrupt handler.
-However there is no code for this, instead the interrupt handler is a
-threaded handler and uses spi_sync() instead.
-
-Remove the bitrotted comment, though in actual fact the use case mentioned
-is a great use for spi_async() since it would cut down on latency handling
-the interrupt by saving us a context switch before we start SPI.
-
-This was previously implemented, it was removed in commit b534422b2d11
-(Input: ad7877 - switch to using threaded IRQ) for code complexity reasons.
-It may be better to revert that commit instead.
+While searching for users of spi_async() I got a false positive in the
+ads7846 driver, fix that.
 
 Signed-off-by: Mark Brown <broonie@linaro.org>
 ---
- drivers/input/touchscreen/ad7877.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index 6793c85903ae..523865daa1d3 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -210,11 +210,6 @@ static bool gpio3;
- module_param(gpio3, bool, 0);
- MODULE_PARM_DESC(gpio3, "If gpio3 is set to 1 AUX3 acts as GPIO3");
- 
--/*
-- * ad7877_read/write are only used for initial setup and for sysfs controls.
-- * The main traffic is done using spi_async() in the interrupt handler.
-- */
--
- static int ad7877_read(struct spi_device *spi, u16 reg)
- {
- 	struct ser_req *req;
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 7f8aa981500d..da201b8e37dc 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -706,7 +706,7 @@ static void ads7846_read_state(struct ads7846 *ts)
+ 		m = &ts->msg[msg_idx];
+ 		error = spi_sync(ts->spi, m);
+ 		if (error) {
+-			dev_err(&ts->spi->dev, "spi_async --> %d\n", error);
++			dev_err(&ts->spi->dev, "spi_sync --> %d\n", error);
+ 			packet->tc.ignore = true;
+ 			return;
+ 		}
 -- 
 1.9.2
 

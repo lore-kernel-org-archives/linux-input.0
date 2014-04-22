@@ -1,178 +1,119 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v2 18/24] input: Port hid-wiimote-modules to ff-memless-next
-Date: Tue, 22 Apr 2014 16:00:03 +0200
-Message-ID: <1398175209-9565-19-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v2 15/24] input: Port hid-sjoy to ff-memless-next
+Date: Tue, 22 Apr 2014 16:00:00 +0200
+Message-ID: <1398175209-9565-16-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from devoid-pointer.net ([31.31.77.140]:49512 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932199AbaDVOBR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Apr 2014 10:01:17 -0400
 In-Reply-To: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
-List-Id: linux-input@vger.kernel.org
 
-Port hid-wiimote-modules to ff-memless-next
+Port hid-sjoy to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig               |  2 +-
- drivers/hid/hid-wiimote-modules.c | 74 ++++++++++++++++++++++++-------=
---------
- 2 files changed, 46 insertions(+), 30 deletions(-)
+ drivers/hid/Kconfig    |  2 +-
+ drivers/hid/hid-sjoy.c | 35 +++++++++++++++++++++++++----------
+ 2 files changed, 26 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index ee999bc..d1cbad6 100644
+index 87a02cc..e76c36a 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -738,7 +738,7 @@ config HID_WIIMOTE
- 	depends on HID
- 	depends on LEDS_CLASS
- 	select POWER_SUPPLY
+@@ -681,7 +681,7 @@ config HID_SMARTJOYPLUS
+ config SMARTJOYPLUS_FF
+ 	bool "SmartJoy PLUS PS2/USB adapter force feedback support"
+ 	depends on HID_SMARTJOYPLUS
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	---help---
- 	Support for Nintendo Wii and Wii U Bluetooth peripherals. Supported
- 	devices are the Wii Remote and its extension devices, but also device=
-s
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimot=
-e-modules.c
-index 6b61f01..95b20ea 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -37,8 +37,11 @@
+ 	Say Y here if you have a SmartJoy PLUS PS2/USB adapter and want to
+ 	enable force feedback support for it.
+diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
+index 37845ec..a6f8cfe 100644
+--- a/drivers/hid/hid-sjoy.c
++++ b/drivers/hid/hid-sjoy.c
+@@ -30,8 +30,11 @@
+ #include <linux/slab.h>
  #include <linux/hid.h>
- #include <linux/input.h>
- #include <linux/spinlock.h>
+ #include <linux/module.h>
 +#include <linux/input/ff-memless-next.h>
- #include "hid-wiimote.h"
+ #include "hid-ids.h"
 =20
 +#define FF_UPDATE_RATE 50
 +
- /*
-  * Keys
-  * The initial Wii Remote provided a bunch of buttons that are reporte=
-d as
-@@ -131,21 +134,27 @@ static void wiimod_rumble_worker(struct work_stru=
-ct *work)
- }
+ #ifdef CONFIG_SMARTJOYPLUS_FF
 =20
- static int wiimod_rumble_play(struct input_dev *dev, void *data,
--			      struct ff_effect *eff)
-+			      const struct mlnx_effect_command *command)
+ struct sjoyff_device {
+@@ -39,21 +42,33 @@ struct sjoyff_device {
+ };
+=20
+ static int hid_sjoyff_play(struct input_dev *dev, void *data,
+-			 struct ff_effect *effect)
++			const struct mlnx_effect_command *command)
  {
- 	struct wiimote_data *wdata =3D input_get_drvdata(dev);
--	__u8 value;
--
--	/*
--	 * The wiimote supports only a single rumble motor so if any magnitud=
-e
--	 * is set to non-zero then we start the rumble motor. If both are set=
- to
--	 * zero, we stop the rumble motor.
--	 */
--
--	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
--		value =3D 1;
--	else
--		value =3D 0;
+ 	struct hid_device *hid =3D input_get_drvdata(dev);
+ 	struct sjoyff_device *sjoyff =3D data;
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
-+	__u8 value =3D 0;
-+
+ 	u32 left, right;
+=20
+-	left =3D effect->u.rumble.strong_magnitude;
+-	right =3D effect->u.rumble.weak_magnitude;
+-	dev_dbg(&dev->dev, "called with 0x%08x 0x%08x\n", left, right);
+-
+-	left =3D left * 0xff / 0xffff;
+-	right =3D (right !=3D 0); /* on/off only */
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		/*
-+		 * The wiimote supports only a single rumble motor so if any magnitu=
-de
-+		 * is set to non-zero then we start the rumble motor. If both are se=
-t to
-+		 * zero, we stop the rumble motor.
-+		 */
-+		if (rumble_force->strong || rumble_force->weak)
-+			value =3D 1;
++		left =3D rumble_force->strong;
++		right =3D rumble_force->weak;
++		dev_dbg(&dev->dev, "called with 0x%08x 0x%08x\n", left, right);
++
++		left =3D left * 0xff / 0xffff;
++		right =3D (right !=3D 0); /* on/off only */
++
++		sjoyff->report->field[0]->value[1] =3D right;
++		sjoyff->report->field[0]->value[2] =3D left;
 +		break;
 +	case MLNX_STOP_RUMBLE:
++		left =3D 0;
++		right =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 =20
- 	/* Locking state.lock here might deadlock with input_event() calls.
- 	 * schedule_work acts as barrier. Merging multiple changes is fine. *=
-/
-@@ -161,7 +170,7 @@ static int wiimod_rumble_probe(const struct wiimod_=
-ops *ops,
- 	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
+-	sjoyff->report->field[0]->value[1] =3D right;
+-	sjoyff->report->field[0]->value[2] =3D left;
+ 	dev_dbg(&dev->dev, "running with 0x%02x 0x%02x\n", left, right);
+ 	hid_hw_request(hid, sjoyff->report, HID_REQ_SET_REPORT);
 =20
- 	set_bit(FF_RUMBLE, wdata->input->ffbit);
--	if (input_ff_create_memless(wdata->input, NULL, wiimod_rumble_play))
-+	if (input_ff_create_mlnx(wdata->input, NULL, wiimod_rumble_play, FF_U=
-PDATE_RATE))
- 		return -ENOMEM;
+@@ -103,7 +118,7 @@ static int sjoyff_init(struct hid_device *hid)
 =20
- 	return 0;
-@@ -1771,21 +1780,28 @@ static void wiimod_pro_close(struct input_dev *=
-dev)
- }
+ 		set_bit(FF_RUMBLE, dev->ffbit);
 =20
- static int wiimod_pro_play(struct input_dev *dev, void *data,
--			   struct ff_effect *eff)
-+			   const struct mlnx_effect_command *command)
- {
- 	struct wiimote_data *wdata =3D input_get_drvdata(dev);
--	__u8 value;
--
--	/*
--	 * The wiimote supports only a single rumble motor so if any magnitud=
-e
--	 * is set to non-zero then we start the rumble motor. If both are set=
- to
--	 * zero, we stop the rumble motor.
--	 */
--
--	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
--		value =3D 1;
--	else
--		value =3D 0;
-+	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
-orce;
-+	__u8 value =3D 0;
-+
-+	switch (command->cmd) {
-+	case MLNX_START_RUMBLE:
-+		/*
-+		 * The wiimote supports only a single rumble motor so if any magnitu=
-de
-+		 * is set to non-zero then we start the rumble motor. If both are se=
-t to
-+		 * zero, we stop the rumble motor.
-+		 */
-+
-+		if (rumble_force->strong || rumble_force->weak)
-+			value =3D 1;
-+		break;
-+	case MLNX_STOP_RUMBLE:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-=20
- 	/* Locking state.lock here might deadlock with input_event() calls.
- 	 * schedule_work acts as barrier. Merging multiple changes is fine. *=
-/
-@@ -1867,8 +1883,8 @@ static int wiimod_pro_probe(const struct wiimod_o=
-ps *ops,
- 	set_bit(FF_RUMBLE, wdata->extension.input->ffbit);
- 	input_set_drvdata(wdata->extension.input, wdata);
-=20
--	if (input_ff_create_memless(wdata->extension.input, NULL,
--				    wiimod_pro_play)) {
-+	if (input_ff_create_mlnx(wdata->extension.input, NULL,
-+				 wiimod_pro_play, FF_UPDATE_RATE)) {
- 		ret =3D -ENOMEM;
- 		goto err_free;
- 	}
+-		error =3D input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
++		error =3D input_ff_create_mlnx(dev, sjoyff, hid_sjoyff_play, FF_UPDA=
+TE_RATE);
+ 		if (error) {
+ 			kfree(sjoyff);
+ 			return error;
 --=20
 1.9.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

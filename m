@@ -1,110 +1,109 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v2 06/24] input: Port pm8xxx-vibrator to ff-memless-next
-Date: Tue, 22 Apr 2014 15:59:51 +0200
-Message-ID: <1398175209-9565-7-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v2 05/24] input: Port max8997_haptic to ff-memless-next
+Date: Tue, 22 Apr 2014 15:59:50 +0200
+Message-ID: <1398175209-9565-6-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.devoid-pointer.net ([31.31.77.140]:49470 "EHLO
+Received: from smtp.devoid-pointer.net ([31.31.77.140]:49467 "EHLO
 	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756207AbaDVOAa (ORCPT
+	with ESMTP id S1756206AbaDVOAY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 10:00:30 -0400
+	Tue, 22 Apr 2014 10:00:24 -0400
 In-Reply-To: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
 
-Port pm8xxx-vibrator to ff-memless-next
+Port max8997_haptic to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/input/misc/Kconfig           |  2 +-
- drivers/input/misc/pm8xxx-vibrator.c | 28 +++++++++++++++++++---------
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/input/misc/Kconfig          |  2 +-
+ drivers/input/misc/max8997_haptic.c | 25 +++++++++++++++++++------
+ 2 files changed, 20 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 6ba327f..300b5a8 100644
+index 91dcae8..6ba327f 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -108,7 +108,7 @@ config INPUT_PCSPKR
- config INPUT_PM8XXX_VIBRATOR
- 	tristate "Qualcomm PM8XXX vibrator support"
- 	depends on MFD_PM8XXX
+@@ -157,7 +157,7 @@ config INPUT_MAX8925_ONKEY
+ config INPUT_MAX8997_HAPTIC
+ 	tristate "MAXIM MAX8997 haptic controller support"
+ 	depends on PWM && HAVE_PWM && MFD_MAX8997
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	help
- 	  This option enables device driver support for the vibrator
- 	  on Qualcomm PM8xxx chip. This driver supports ff-memless interface
-diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/=
-pm8xxx-vibrator.c
-index b88b7cb..6b0e9eb 100644
---- a/drivers/input/misc/pm8xxx-vibrator.c
-+++ b/drivers/input/misc/pm8xxx-vibrator.c
-@@ -17,6 +17,7 @@
- #include <linux/input.h>
- #include <linux/slab.h>
- #include <linux/regmap.h>
+ 	  This option enables device driver support for the haptic controller
+ 	  on MAXIM MAX8997 chip. This driver supports ff-memless interface
+diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/m=
+ax8997_haptic.c
+index 1fea548..029ac8b 100644
+--- a/drivers/input/misc/max8997_haptic.c
++++ b/drivers/input/misc/max8997_haptic.c
+@@ -31,6 +31,7 @@
+ #include <linux/mfd/max8997-private.h>
+ #include <linux/mfd/max8997.h>
+ #include <linux/regulator/consumer.h>
 +#include <linux/input/ff-memless-next.h>
 =20
- #define VIB_DRV			0x4A
+ /* Haptic configuration 2 register */
+ #define MAX8997_MOTOR_TYPE_SHIFT	7
+@@ -43,6 +44,8 @@
+ #define MAX8997_SIG_DUTY_SHIFT		2
+ #define MAX8997_PWM_DUTY_SHIFT		0
 =20
-@@ -29,7 +30,7 @@
- #define VIB_MAX_LEVELS		(VIB_MAX_LEVEL_mV - VIB_MIN_LEVEL_mV)
++#define FF_UPDATE_RATE 50
++
+ struct max8997_haptic {
+ 	struct device *dev;
+ 	struct i2c_client *client;
+@@ -219,13 +222,23 @@ static void max8997_haptic_play_effect_work(struc=
+t work_struct *work)
+ }
 =20
- #define MAX_FF_SPEED		0xff
--
-+#define FF_UPDATE_RATE		50
- /**
-  * struct pm8xxx_vib - structure to hold vibrator data
-  * @vib_input_dev: input device supporting force feedback
-@@ -128,14 +129,23 @@ static void pm8xxx_vib_close(struct input_dev *de=
-v)
-  * Currently this driver supports only rumble effects.
-  */
- static int pm8xxx_vib_play_effect(struct input_dev *dev, void *data,
+ static int max8997_haptic_play_effect(struct input_dev *dev, void *dat=
+a,
 -				  struct ff_effect *effect)
-+				  const struct mlnx_command *command)
++				  const struct mlnx_effect_command *command)
  {
- 	struct pm8xxx_vib *vib =3D input_get_drvdata(dev);
--
--	vib->speed =3D effect->u.rumble.strong_magnitude >> 8;
--	if (!vib->speed)
--		vib->speed =3D effect->u.rumble.weak_magnitude >> 9;
--
+ 	struct max8997_haptic *chip =3D input_get_drvdata(dev);
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
-+
+=20
+-	chip->level =3D effect->u.rumble.strong_magnitude;
+-	if (!chip->level)
+-		chip->level =3D effect->u.rumble.weak_magnitude;
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		vib->speed =3D rumble_force->strong >> 8;
-+		if (!vib->speed)
-+			vib->speed =3D rumble_force->weak >> 9;
++		chip->level =3D rumble_force->strong;
++		if (!chip->level)
++			chip->level =3D rumble_force->weak;
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		vib->speed =3D 0;
++		chip->level =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
- 	schedule_work(&vib->work);
 =20
- 	return 0;
-@@ -182,8 +192,8 @@ static int pm8xxx_vib_probe(struct platform_device =
-*pdev)
- 	input_set_drvdata(input_dev, vib);
- 	input_set_capability(vib->vib_input_dev, EV_FF, FF_RUMBLE);
+ 	schedule_work(&chip->work);
+=20
+@@ -319,8 +332,8 @@ static int max8997_haptic_probe(struct platform_dev=
+ice *pdev)
+ 	input_set_drvdata(input_dev, chip);
+ 	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
 =20
 -	error =3D input_ff_create_memless(input_dev, NULL,
--					pm8xxx_vib_play_effect);
+-				max8997_haptic_play_effect);
 +	error =3D input_ff_create_mlnx(input_dev, NULL,
-+				     pm8xxx_vib_play_effect, FF_UPDATE_RATE);
++				max8997_haptic_play_effect, FF_UPDATE_RATE);
  	if (error) {
  		dev_err(&pdev->dev,
- 			"couldn't register vibrator as FF device\n");
+ 			"unable to create FF device, error: %d\n",
 --=20
 1.9.2
 

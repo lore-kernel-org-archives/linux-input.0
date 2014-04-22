@@ -1,113 +1,104 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH 06/24] Port pm8xxx-vibrator to ff-memless-next
-Date: Tue, 22 Apr 2014 15:45:56 +0200
-Message-ID: <1398174374-9501-7-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH 03/24] Port twl4030-vibra to ff-memless-next
+Date: Tue, 22 Apr 2014 15:45:53 +0200
+Message-ID: <1398174374-9501-4-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398174374-9501-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imap.devoid-pointer.net ([31.31.77.140]:49403 "EHLO
-	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756407AbaDVNqa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 09:46:30 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1398174374-9501-1-git-send-email-madcatxster@devoid-pointer.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
+List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/input/misc/Kconfig           |  2 +-
- drivers/input/misc/pm8xxx-vibrator.c | 28 +++++++++++++++++++---------
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/input/misc/Kconfig         |  2 +-
+ drivers/input/misc/twl4030-vibra.c | 31 +++++++++++++++++++++++++-----=
+-
+ 2 files changed, 26 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 6ba327f..300b5a8 100644
+index 33e0f5d..1016a1b 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -108,7 +108,7 @@ config INPUT_PCSPKR
- config INPUT_PM8XXX_VIBRATOR
- 	tristate "Qualcomm PM8XXX vibrator support"
- 	depends on MFD_PM8XXX
+@@ -407,7 +407,7 @@ config INPUT_TWL4030_VIBRA
+ 	tristate "Support for TWL4030 Vibrator"
+ 	depends on TWL4030_CORE
+ 	select MFD_TWL4030_AUDIO
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	help
- 	  This option enables device driver support for the vibrator
- 	  on Qualcomm PM8xxx chip. This driver supports ff-memless interface
-diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/=
-pm8xxx-vibrator.c
-index b88b7cb..6b0e9eb 100644
---- a/drivers/input/misc/pm8xxx-vibrator.c
-+++ b/drivers/input/misc/pm8xxx-vibrator.c
-@@ -17,6 +17,7 @@
+ 	  This option enables support for TWL4030 Vibrator Driver.
+=20
+diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/tw=
+l4030-vibra.c
+index 960ef2a..5274ad2 100644
+--- a/drivers/input/misc/twl4030-vibra.c
++++ b/drivers/input/misc/twl4030-vibra.c
+@@ -32,9 +32,11 @@
+ #include <linux/mfd/twl4030-audio.h>
  #include <linux/input.h>
  #include <linux/slab.h>
- #include <linux/regmap.h>
 +#include <linux/input/ff-memless-next.h>
 =20
- #define VIB_DRV			0x4A
+ /* MODULE ID2 */
+ #define LEDEN		0x00
++#define FF_UPDATE_RATE	50
 =20
-@@ -29,7 +30,7 @@
- #define VIB_MAX_LEVELS		(VIB_MAX_LEVEL_mV - VIB_MIN_LEVEL_mV)
+ /* ForceFeedback */
+ #define EFFECT_DIR_180_DEG	0x8000 /* range is 0 - 0xFFFF */
+@@ -134,14 +136,31 @@ static void vibra_play_work(struct work_struct *w=
+ork)
+ /*** Input/ForceFeedback ***/
 =20
- #define MAX_FF_SPEED		0xff
--
-+#define FF_UPDATE_RATE		50
- /**
-  * struct pm8xxx_vib - structure to hold vibrator data
-  * @vib_input_dev: input device supporting force feedback
-@@ -128,14 +129,23 @@ static void pm8xxx_vib_close(struct input_dev *de=
-v)
-  * Currently this driver supports only rumble effects.
-  */
- static int pm8xxx_vib_play_effect(struct input_dev *dev, void *data,
--				  struct ff_effect *effect)
-+				  const struct mlnx_command *command)
+ static int vibra_play(struct input_dev *input, void *data,
+-		      struct ff_effect *effect)
++		      const struct mlnx_effect_command *command)
  {
- 	struct pm8xxx_vib *vib =3D input_get_drvdata(dev);
--
--	vib->speed =3D effect->u.rumble.strong_magnitude >> 8;
--	if (!vib->speed)
--		vib->speed =3D effect->u.rumble.weak_magnitude >> 9;
--
+ 	struct vibra_info *info =3D input_get_drvdata(input);
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
 +
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		vib->speed =3D rumble_force->strong >> 8;
-+		if (!vib->speed)
-+			vib->speed =3D rumble_force->weak >> 9;
++		if (command->u.rumble_force.strong) {
++			info->speed =3D rumble_force->strong >> 8;
++			info->direction =3D rumble_force->strong_dir < EFFECT_DIR_180_DEG ?
++					  0 : 1;
++		} else {
++			info->speed =3D rumble_force->weak >> 9;
++			info->direction =3D rumble_force->weak_dir < EFFECT_DIR_180_DEG ?
++					  0 : 1;
++		}
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		vib->speed =3D 0;
++		info->speed =3D 0;
++		info->direction =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
- 	schedule_work(&vib->work);
 =20
+-	info->speed =3D effect->u.rumble.strong_magnitude >> 8;
+-	if (!info->speed)
+-		info->speed =3D effect->u.rumble.weak_magnitude >> 9;
+-	info->direction =3D effect->direction < EFFECT_DIR_180_DEG ? 0 : 1;
+ 	schedule_work(&info->play_work);
  	return 0;
-@@ -182,8 +192,8 @@ static int pm8xxx_vib_probe(struct platform_device =
-*pdev)
- 	input_set_drvdata(input_dev, vib);
- 	input_set_capability(vib->vib_input_dev, EV_FF, FF_RUMBLE);
+ }
+@@ -227,7 +246,7 @@ static int twl4030_vibra_probe(struct platform_devi=
+ce *pdev)
+ 	info->input_dev->close =3D twl4030_vibra_close;
+ 	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
 =20
--	error =3D input_ff_create_memless(input_dev, NULL,
--					pm8xxx_vib_play_effect);
-+	error =3D input_ff_create_mlnx(input_dev, NULL,
-+				     pm8xxx_vib_play_effect, FF_UPDATE_RATE);
- 	if (error) {
- 		dev_err(&pdev->dev,
- 			"couldn't register vibrator as FF device\n");
+-	ret =3D input_ff_create_memless(info->input_dev, NULL, vibra_play);
++	ret =3D input_ff_create_mlnx(info->input_dev, NULL, vibra_play, FF_UP=
+DATE_RATE);
+ 	if (ret < 0) {
+ 		dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
+ 		return ret;
 --=20
 1.9.2
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

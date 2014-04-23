@@ -1,67 +1,51 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH] Input: ads7877: Remove bitrotted comment
-Date: Wed, 23 Apr 2014 11:16:23 +0100
-Message-ID: <20140423101623.GL12304@sirena.org.uk>
-References: <1398201501-13470-1-git-send-email-broonie@kernel.org>
- <20140423003928.GB22547@core.coreip.homeip.net>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [PATCH v2 01/24] input: Add ff-memless-next module
+Date: Wed, 23 Apr 2014 14:12:59 +0200
+Message-ID: <1398255179.32091.1.camel@linux-fkkt.site>
+References: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
+	 <1398175209-9565-2-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZO1v73zIZGP5oL2q"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:42501 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752819AbaDWKQj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Apr 2014 06:16:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20140423003928.GB22547@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:60382 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751343AbaDWMNB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Apr 2014 08:13:01 -0400
+In-Reply-To: <1398175209-9565-2-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org
+To: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
+
+On Tue, 2014-04-22 at 15:59 +0200, Michal Mal=C3=BD wrote:
+> +/* Some devices might have a limit on how many uncombinable effects
+> + * can be played at once */
+> +static int mlnx_upload_conditional(struct mlnx_device *mlnxdev,
+> +                                  const struct ff_effect *effect)
+> +{
+> +       struct mlnx_effect_command ecmd =3D {
+> +               .cmd =3D MLNX_UPLOAD_UNCOMB,
+> +               .u.uncomb.id =3D effect->id,
+> +               .u.uncomb.effect =3D effect
+> +       };
+> +       return mlnxdev->control_effect(mlnxdev->dev, mlnxdev->private=
+,
+> &ecmd);
+> +}
+> +
+
+This mean you are building the structure on the stack
+
+1. Are you sure nobody retains a reference?
+2. That is needlessly inefficient
+
+	Regards
+		Oliver
 
 
---ZO1v73zIZGP5oL2q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Apr 22, 2014 at 05:39:28PM -0700, Dmitry Torokhov wrote:
-> On Tue, Apr 22, 2014 at 10:18:21PM +0100, Mark Brown wrote:
-
-> > Remove the bitrotted comment, though in actual fact the use case mentioned
-> > is a great use for spi_async() since it would cut down on latency handling
-> > the interrupt by saving us a context switch before we start SPI.
-
-> > This was previously implemented, it was removed in commit b534422b2d11
-> > (Input: ad7877 - switch to using threaded IRQ) for code complexity reasons.
-> > It may be better to revert that commit instead.
-
-> Hmm, maybe.. although I think original would cause device 'stuck' if
-> call to spi_async() fails, so probably not a straight revert...
-
-Probably best just to apply this, then - someone can always reimplement
-if they need to.
-
---ZO1v73zIZGP5oL2q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTV5L0AAoJELSic+t+oim9trEP/iDeF9eX25c/uGi7DJshTn+7
-FIh1Dx3rg4XWASBYlAq0MFUDGYUoMWrhxyXSdL32/vo5Iy3EelaXXjGlMiXlPF++
-LDEy+j9ysJs7S5HoucdoM2WRmHvv6ihHAbOeXJEYFl4ZNDrF0dvG75FLDijNTimL
-kX0Bvm90OyFqJlnLU6sye/N1EzVUF18j9+9DDISVA3/eNK9pAaSnUso0mE2MCk4x
-rcw1nrgSGCi/tRiqsxjQwkOSHm6YwyxygHebqjyOou95+gOBi7RPJGHRLazSollQ
-HsrPU/rCwVyoDipXmrUFHz4zLKPjCwB205yIVhRhTL5DTw8jGWEoHEU/IWHyVu2h
-RgiBiAvVEvSPsBg+Yt6qNc82AcnRSDM31h0HCcNKim9ahJzwKbgLwI+A1dOhImCQ
-F1LKKCBHeE9kHyQY4cPsTJNLc/WCMv+ruF5yX1h5f02QaxFAe3G01j4Xd+xo95tH
-B1qtceuyejZiDWD6jMQjMtJd5rXteHOp7CFet8qv64+2Z7y8C8HqYKvOPmDA3IPi
-PdU52A3w55YneF6AovmtJIYMyb/II3vT3kccCdNtMyXuUCA/kXPxbgU27xMK6e/t
-/YcE0ySEyavpsrOOnpWHhuzXISMGbdiP5ovgXWBcuiCjJwdHmw9dHfgmEGL31TRO
-hCWuMjkBLr+AOMzCmG2H
-=Rn0T
------END PGP SIGNATURE-----
-
---ZO1v73zIZGP5oL2q--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

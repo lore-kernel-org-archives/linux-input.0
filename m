@@ -1,41 +1,54 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH] Input: ads7846: Correct log message for spi_sync() errors
-Date: Tue, 22 Apr 2014 22:19:15 +0100
-Message-ID: <1398201555-13539-1-git-send-email-broonie@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: add missing hid usages
+Date: Tue, 22 Apr 2014 17:04:57 -0700
+Message-ID: <20140423000457.GA22183@core.coreip.homeip.net>
+References: <1396623746-1416-1-git-send-email-ogay@logitech.com>
+ <alpine.LNX.2.00.1404070949020.8157@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:41795 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757932AbaDVVTY (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:38131 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752030AbaDWAFB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 17:19:24 -0400
+	Tue, 22 Apr 2014 20:05:01 -0400
+Received: by mail-pa0-f54.google.com with SMTP id lf10so151542pab.41
+        for <linux-input@vger.kernel.org>; Tue, 22 Apr 2014 17:05:01 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1404070949020.8157@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Olivier Gay <ogay@logitech.com>, linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-From: Mark Brown <broonie@linaro.org>
+On Mon, Apr 07, 2014 at 09:49:52AM +0200, Jiri Kosina wrote:
+> 
+> [ adding Dmitry to CC ]
+> 
+> On Fri, 4 Apr 2014, Olivier Gay wrote:
+> 
+> >  
+> >  #define KEY_ALS_TOGGLE		0x230	/* Ambient light sensor */
+> >  
+> > +#define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
+> > +#define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
+> > +#define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
+> > +#define KEY_CONTROLPANEL		0x243	/* AL Control Panel */
+> > +#define KEY_APPSELECT		0x244	/* AL Select Task/Application */
+> > +#define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
+> > +#define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
+> > +
+> > +#define KEY_BRIGHTNESS_INC		KEY_BRIGHTNESSUP
+> > +#define KEY_BRIGHTNESS_DEC		KEY_BRIGHTNESSDOWN
+> > +#define KEY_BRIGHTNESS		0x250	/* Display Brightness */
 
-While searching for users of spi_async() I got a false positive in the
-ads7846 driver, fix that.
+What is it supposed to do exactly? Show OSD for brightness?
 
-Signed-off-by: Mark Brown <broonie@linaro.org>
----
- drivers/input/touchscreen/ads7846.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > +#define KEY_BRIGHTNESS_TOGGLE		0x251	/* Backlight Toggle */
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 7f8aa981500d..da201b8e37dc 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -706,7 +706,7 @@ static void ads7846_read_state(struct ads7846 *ts)
- 		m = &ts->msg[msg_idx];
- 		error = spi_sync(ts->spi, m);
- 		if (error) {
--			dev_err(&ts->spi->dev, "spi_async --> %d\n", error);
-+			dev_err(&ts->spi->dev, "spi_sync --> %d\n", error);
- 			packet->tc.ignore = true;
- 			return;
- 		}
+We already have KEY_DISPLAYTOGGLE, isn't this the same?
+
+Thanks.
+
 -- 
-1.9.2
-
+Dmitry

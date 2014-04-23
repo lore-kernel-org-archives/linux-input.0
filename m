@@ -1,39 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atkbd - fix keyboard LG Electronics
-Date: Tue, 22 Apr 2014 17:42:34 -0700
-Message-ID: <20140423004233.GC22547@core.coreip.homeip.net>
-References: <1398185970-16331-1-git-send-email-ssl@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sheng-Liang Song <ssl@chromium.org>
+Subject: [PATCH] Input: atkbd - fix keyboard LG Electronics
+Date: Tue, 22 Apr 2014 18:51:22 -0700
+Message-ID: <1398217882-29778-1-git-send-email-ssl@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:35877 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751349AbaDWAmh (ORCPT
+Received: from mail-qa0-f74.google.com ([209.85.216.74]:55048 "EHLO
+	mail-qa0-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753366AbaDWBvg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 20:42:37 -0400
-Content-Disposition: inline
-In-Reply-To: <1398185970-16331-1-git-send-email-ssl@chromium.org>
+	Tue, 22 Apr 2014 21:51:36 -0400
+Received: by mail-qa0-f74.google.com with SMTP id w8so61667qac.1
+        for <linux-input@vger.kernel.org>; Tue, 22 Apr 2014 18:51:35 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sheng-Liang Song <ssl@chromium.org>
-Cc: linux-arm-kernel@lists.infradead.org, Shawn Nematbakhsh <shawnn@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Sheng-Liang Song <ssl@chromium.org>, Shawn Nematbakhsh <shawnn@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Sheng-Liang,
+After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.
+The workaround is to remove ATKBD_CMD_RESET_DIS for LG Keyboards.
 
-On Tue, Apr 22, 2014 at 09:59:30AM -0700, Sheng-Liang Song wrote:
-> After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.
-> The workaround is to issue ATKBD_CMD_RESET_DEF after ATKBD_CMD_RESET_DIS.
+In order to keep the minimum changes to the current atkbd driver,
+I add logic to apply the patch if and only if the device is LG LW25-B7HV or P1-J273B.
+---
+ drivers/input/keyboard/atkbd.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-Hmm, if ATKBD_CMD_RESET_DIS causes keyboard not working should we
-simply not call it on LG devices?
-
-The idea for using ATKBD_CMD_RESET_DIS was for keyboard to stop
-generating scan codes so they do not interfere with detection/resume and
-issuing ATKBD_CMD_RESET_DEF right after ATKBD_CMD_RESET_DIS keeps
-keyboard in exactly the same state as it was before (i.e. generating
-scancodes).
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 2626773..9f82533 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -243,6 +243,8 @@ static void (*atkbd_platform_fixup)(struct atkbd *, const void *data);
+ static void *atkbd_platform_fixup_data;
+ static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned int);
+ 
++static void *atkbd_deactivate_fixup;
++
+ static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
+ 				ssize_t (*handler)(struct atkbd *, char *));
+ static ssize_t atkbd_attr_set_helper(struct device *dev, const char *buf, size_t count,
+@@ -698,11 +700,13 @@ static int atkbd_activate(struct atkbd *atkbd)
+  * atkbd_deactivate() resets and disables the keyboard from sending
+  * keystrokes.
+  */
+-
+ static void atkbd_deactivate(struct atkbd *atkbd)
+ {
+ 	struct ps2dev *ps2dev = &atkbd->ps2dev;
+ 
++	if (atkbd_deactivate_fixup)
++		return;
++
+ 	if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS))
+ 		dev_err(&ps2dev->serio->dev,
+ 			"Failed to deactivate keyboard on %s\n",
+@@ -1638,6 +1642,12 @@ static int __init atkbd_setup_scancode_fixup(const struct dmi_system_id *id)
+ 	return 1;
+ }
+ 
++static int __init atkbd_setup_deactivate(const struct dmi_system_id *id)
++{
++	atkbd_deactivate_fixup = id->driver_data;
++	return 1;
++}
++
+ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 	{
+ 		.matches = {
+@@ -1775,6 +1785,22 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		.callback = atkbd_setup_scancode_fixup,
+ 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LW25-B7HV"),
++		},
++		.callback = atkbd_setup_deactivate,
++		.driver_data = (void*) 1,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "P1-J273B"),
++		},
++		.callback = atkbd_setup_deactivate,
++		.driver_data = (void*) 1,
++	},
+ 	{ }
+ };
+ 
 -- 
-Dmitry
+1.9.1.423.g4596e3a
+

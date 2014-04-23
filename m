@@ -1,52 +1,56 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] evdev: flush ABS_* events during EVIOCGABS
-Date: Wed, 23 Apr 2014 10:21:03 +1000
-Message-ID: <20140423002103.GA6917@yabbi.bne.redhat.com>
-References: <1397156944-5991-1-git-send-email-dh.herrmann@gmail.com>
- <20140422041535.GA10735@yabbi.redhat.com>
- <CANq1E4RQtaNNab9PzoBchmx2qqpJ5_PdrZjf2+ZQkq4YTNzXkA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: ads7846: Correct log message for spi_sync() errors
+Date: Tue, 22 Apr 2014 17:38:32 -0700
+Message-ID: <20140423003832.GA22547@core.coreip.homeip.net>
+References: <1398201555-13539-1-git-send-email-broonie@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:60249 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750705AbaDWAVH (ORCPT
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:65428 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750927AbaDWAig (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Apr 2014 20:21:07 -0400
+	Tue, 22 Apr 2014 20:38:36 -0400
+Received: by mail-pd0-f178.google.com with SMTP id x10so177263pdj.37
+        for <linux-input@vger.kernel.org>; Tue, 22 Apr 2014 17:38:35 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CANq1E4RQtaNNab9PzoBchmx2qqpJ5_PdrZjf2+ZQkq4YTNzXkA@mail.gmail.com>
+In-Reply-To: <1398201555-13539-1-git-send-email-broonie@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>
 
-On Tue, Apr 22, 2014 at 08:21:54AM +0200, David Herrmann wrote:
-> Hi Peter
+On Tue, Apr 22, 2014 at 10:19:15PM +0100, Mark Brown wrote:
+> From: Mark Brown <broonie@linaro.org>
 > 
-> On Tue, Apr 22, 2014 at 6:15 AM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> > How are you planning to handle the slot-based events? We'd either need to
-> > add something similar (but more complex) to evdev_handle_mt_request or rely
-> > on the caller to call the whole EV_ABS range and ditch anything ABS_MT_.
-> > I'd prefer the former, the latter is yet more behaviour that's easy to get
-> > wrong.
+> While searching for users of spi_async() I got a false positive in the
+> ads7846 driver, fix that.
 > 
-> This is all racy..
-> 
-> We _really_ need an ioctl to receive _all_ ABS information atomically.
-> I mean, there's no way we can know the user's state from the kernel.
-> Even if the user resyncs via EVIOCGMTSLOTS, we can never flush the
-> whole ABS queue. Problem is, the user has to call the ioctl for _each_
-> available MT code and events might get queued in between. So yeah,
-> this patch doesn't help much..
-> 
-> I have no better idea than adding a new EVIOCGABS call that retrieves
-> ABS values for all slots atomically (and for all other axes..). No
-> idea how to properly fix the old ioctls.
+> Signed-off-by: Mark Brown <broonie@linaro.org>
 
-bonus points for making that ioctl fetch the state of the last SYN_DROPPED
-and leave the events since in the client buffer. That way we can smooth over
-SYN_DROPPED and lose less information.
+Applied, thank you.
 
-Cheers,
-   Peter
+> ---
+>  drivers/input/touchscreen/ads7846.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index 7f8aa981500d..da201b8e37dc 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -706,7 +706,7 @@ static void ads7846_read_state(struct ads7846 *ts)
+>  		m = &ts->msg[msg_idx];
+>  		error = spi_sync(ts->spi, m);
+>  		if (error) {
+> -			dev_err(&ts->spi->dev, "spi_async --> %d\n", error);
+> +			dev_err(&ts->spi->dev, "spi_sync --> %d\n", error);
+>  			packet->tc.ignore = true;
+>  			return;
+>  		}
+> -- 
+> 1.9.2
+> 
+> 
+
+-- 
+Dmitry

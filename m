@@ -1,56 +1,43 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: HID vendor access from user space
-Date: Wed, 23 Apr 2014 11:27:26 +0200
-Message-ID: <CANq1E4RWPVth0dpDtPwPSUk-oEvZvfpB7tAsCNo+x6ua4UKPrA@mail.gmail.com>
-References: <CAE7qMrrtyzUy0h-jeC8b6vLRq10w165=JgEJsj6CKyviFZDaSQ@mail.gmail.com>
-	<CANq1E4Sn4QZN4vPzBkv8zxuGD+xcdgHeMS9sTB45ACknmwaxEA@mail.gmail.com>
-	<CAE7qMrpO_yEtUGQEg5+8k4gU5=7Hxu03_Y0Uov+vJf5pM0ozkA@mail.gmail.com>
-	<alpine.LNX.2.00.1404031547580.32122@pobox.suse.cz>
-	<CAE7qMrqizfupabTciYfo+gGNG16ZM482y8tBbuQdvZYHdBaV=Q@mail.gmail.com>
-	<CANq1E4TR34FG+vbAeHWv1JT5V0w1k3hq6Kmhx3ngO8+=arMsWA@mail.gmail.com>
-	<CAE7qMrq5if+OovWSq3q6JQMe46VAN9eBZZEDyvcrrQS27e_7eQ@mail.gmail.com>
-	<CAE7qMro259DVdPqDw4CN1hNp8kQ933F6f6ZMa7BPCOXuNWTQ8Q@mail.gmail.com>
-	<alpine.LNX.2.00.1404150935300.32344@pobox.suse.cz>
-	<CAE7qMroYKj0rQQ32JMsp-myrESg5V0tkXF2JukhP4aauPapfcQ@mail.gmail.com>
-	<alpine.LNX.2.00.1404161649540.15539@pobox.suse.cz>
-	<CAE7qMro1UVGW-T5CiYv3+vE=_diar9SE9+r=WYrwOfk82PyweA@mail.gmail.com>
+From: Olivier Gay <ogay@logitech.com>
+Subject: Re: [PATCH] HID: add missing hid usages
+Date: Wed, 23 Apr 2014 11:37:17 +0200
+Message-ID: <CAFLMSp-S9rh+i7VkX-gEdjjdrjPDZN_2=rGqLVWo=kPLBcUprw@mail.gmail.com>
+References: <1396623746-1416-1-git-send-email-ogay@logitech.com>
+ <alpine.LNX.2.00.1404070949020.8157@pobox.suse.cz> <20140423000457.GA22183@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f176.google.com ([209.85.213.176]:54243 "EHLO
-	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932286AbaDWJ11 (ORCPT
+Received: from na3sys009aog135.obsmtp.com ([74.125.149.84]:55901 "EHLO
+	na3sys009aog135.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752836AbaDWJhk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Apr 2014 05:27:27 -0400
-Received: by mail-ig0-f176.google.com with SMTP id uy17so4104432igb.9
-        for <linux-input@vger.kernel.org>; Wed, 23 Apr 2014 02:27:26 -0700 (PDT)
-In-Reply-To: <CAE7qMro1UVGW-T5CiYv3+vE=_diar9SE9+r=WYrwOfk82PyweA@mail.gmail.com>
+	Wed, 23 Apr 2014 05:37:40 -0400
+Received: by mail-wi0-f177.google.com with SMTP id cc10so826039wib.10
+        for <linux-input@vger.kernel.org>; Wed, 23 Apr 2014 02:37:38 -0700 (PDT)
+In-Reply-To: <20140423000457.GA22183@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Olivier Gay <ogay@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Mathieu Meisser <mmeisser@logitech.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-Hi
-
-On Wed, Apr 23, 2014 at 11:14 AM, Nestor Lopez Casado
-<nlopezcasad@logitech.com> wrote:
-> A device with one mouse collection and one vendor collection would
-> give something like this:
-> /dev/input/eventX  (no change) this comes via hid-input
-> /dev/mouse           (no change)
-> /dev/hidrawX         (no change) (all reports still show up here)
-> /dev/hidcolX          (reports from corresponding colX will show up here)
+On Wed, Apr 23, 2014 at 2:04 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Apr 07, 2014 at 09:49:52AM +0200, Jiri Kosina wrote:
+>> > +#define KEY_BRIGHTNESS             0x250   /* Display Brightness */
 >
-> So only top level vendor collections which are not parsed (claimed) by
-> any hid-xx module today would appear under hidcolX.
+> What is it supposed to do exactly? Show OSD for brightness?
 
-I still think you should do that in user-space. That is, whatever
-daemon opens the input-device should provide this abstraction (like
-via XInput2 etc.). Otherwise, someone else pops up and tells us a
-specific non-vendor extension is also unprivileged and wants them as
-separate interface. There is no clear split how fine-grained the
-access-control should be. Yes, you might have a specific example, but
-we don't want to make that a generic interface.
+No, it's a linear control usage to (HUTTR41) "Sets brightness to a
+value between logical min and max.". I'm changing the comment to /*
+Set Brightness */.
 
-Thanks
-David
+>> > +#define KEY_BRIGHTNESS_TOGGLE              0x251   /* Backlight Toggle */
+>
+> We already have KEY_DISPLAYTOGGLE, isn't this the same?
+
+I agree, they are the same and we should alias it to
+KEY_DISPLAYTOGGLE. I'm sending a v2 patch.
+
+Best regards,
+
+Olivier

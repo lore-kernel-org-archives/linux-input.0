@@ -1,55 +1,41 @@
 From: simon@mungewell.org
-Subject: Re: [PATCH 3/9] drivers/hid/hid-lg4ff.c: avoid world-writable sysfs
- files.
-Date: Wed, 23 Apr 2014 11:06:54 -0400
-Message-ID: <4977a0bbe5c8625d93f771983991f30a.squirrel@mungewell.org>
-References: <1398137612-9714-1-git-send-email-rusty@rustcorp.com.au>
-    <1398137612-9714-4-git-send-email-rusty@rustcorp.com.au>
-    <9d9a3af40f8a0da293e52610524674c8.squirrel@mungewell.org>
-    <87r44ofw1x.fsf@rustcorp.com.au>
+Subject: Re: [PATCH v2 09/24] input: Port hid-dr to ff-memless-next
+Date: Wed, 23 Apr 2014 11:47:05 -0400
+Message-ID: <0792885b3347c5935a0af7a7a3f3bc70.squirrel@mungewell.org>
+References: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net>
+    <1398175209-9565-10-git-send-email-madcatxster@devoid-pointer.net>
+    <1398260463.32091.5.camel@linux-fkkt.site>
+    <5sjip0.n4hp0o.2szhuh-qmf@smtp.devoid-pointer.net>
+    <20140423154201.GA10531@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87r44ofw1x.fsf@rustcorp.com.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>, linux-kernel@vger.kernel.org, HID CORE LAYER <linux-input@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:53810 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753156AbaDWPrJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Apr 2014 11:47:09 -0400
+In-Reply-To: <20140423154201.GA10531@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: madcatxster@devoid-pointer.net, oneukum@suse.de, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, linux-input@vger.kernel.org
 
-> simon@mungewell.org writes:
->>> In line with practice for module parameters, we're adding a build-time
->>> check that sysfs files aren't world-writable.
->>
->> So this is the equivalent of 'chmod 774 ...' rather than 'chmod
->> 777...'?
+> On Wed, Apr 23, 2014 at 03:14:44PM +0000, madcatxster@devoid-pointer.net
+> wrote:
+>> This is another case where even the old code was flawed, right? Should
+>> I try to stuff the fixes into these patches or would a few extra
+>> patches addressing these problems be an easier to review solution? I
+>> can append such patches to the MLNX patchset.
 >
-> Yep.  Though not sure why it was 777 rather than 666...
+> Changes addressing pre-existing problem should go into separate patches
+> (preferably applicable first).
 >
->> Yep I'm OK with that, however what it the recommended way to make sure
->> that the end user is able to send changes to this /sys portal? I asked
->> the
->> same question before regarding the led class /sys interface, but never
->> got
->> any suggestions.
->>
->> Signed-off-by: Simon Wood <simon@mungewell.org>
->
-> If you need that, we'll need to make an exception.  That's one purpose
-> of spamming everyone with these changs...
 
+As a by-stander who would like to see MLNX move forward, should it be
+heldback by pre-existing problems in drivers that the MLNX dev(s) don't
+have hardware to test against...?
 
-What's the right way of doing it?... I don't need to be 'special'. ;-)
+Simon.
 
-The '/sys/.../range' control allows the user to limit the rotation of the
-gaming wheel from a maximum of 900' down to match the 'car' they
-sim-driving. Probably not many people use it, but it probably should be
-assigned properly.
-
-With gaming controllers the /dev/input/event* seem to get set
-appropriately, but I'm not sure how this happens.
-
-The same /should/ also happen for all the LED class controls, I don't want
-to have to 'sudo' just to set a LED on/off. This is currently a problem
-for (at least) hid-lg, hid-sony and hid-steelseries.
-Simon

@@ -1,102 +1,158 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: Re: [PATCH v2 09/24] input: Port hid-dr to ff-memless-next
-Date: Thu, 24 Apr 2014 12:32:28 +0200
-Message-ID: <2156054.MZkXeC543k@sigyn>
-References: <1398175209-9565-1-git-send-email-madcatxster@devoid-pointer.net> <1398175209-9565-10-git-send-email-madcatxster@devoid-pointer.net> <1398260463.32091.5.camel@linux-fkkt.site>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2] HID: add missing hid usages
+Date: Thu, 24 Apr 2014 13:58:36 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1404241358180.3265@pobox.suse.cz>
+References: <1398245926-16988-1-git-send-email-ogay@logitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398260463.32091.5.camel@linux-fkkt.site>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:50809 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755410AbaDXL6i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Apr 2014 07:58:38 -0400
+In-Reply-To: <1398245926-16988-1-git-send-email-ogay@logitech.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Olivier Gay <ogay@logitech.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-On Wednesday 23 of April 2014 15:41:03 Oliver Neukum wrote:
-> On Tue, 2014-04-22 at 15:59 +0200, Michal Mal=FD wrote:
-> >  static int drff_play(struct input_dev *dev, void *data,
-> >=20
-> > -                                struct ff_effect *effect)
-> > +                       const struct mlnx_effect_command *command)
-> >=20
-> >  {
-> > =20
-> >         struct hid_device *hid =3D input_get_drvdata(dev);
-> >         struct drff_device *drff =3D data;
-> >=20
-> > +       const struct mlnx_rumble_force *rumble_force =3D
-> > &command->u.rumble_force;
-> >=20
-> >         int strong, weak;
-> >=20
-> > -       strong =3D effect->u.rumble.strong_magnitude;
-> > -       weak =3D effect->u.rumble.weak_magnitude;
-> > +       strong =3D rumble_force->strong;
-> > +       weak =3D rumble_force->weak;
-> >=20
-> >         dbg_hid("called with 0x%04x 0x%04x", strong, weak);
-> >=20
-> > -       if (strong || weak) {
-> > -               strong =3D strong * 0xff / 0xffff;
-> > -               weak =3D weak * 0xff / 0xffff;
-> > -
-> > -               /* While reverse engineering this device, I found t=
-hat
-> > when
-> > -                  this value is set, it causes the strong rumble t=
-o
-> > function
-> > -                  at a near maximum speed, so we'll bypass it. */
-> > -               if (weak =3D=3D 0x0a)
-> > -                       weak =3D 0x0b;
-> > -
-> > -               drff->report->field[0]->value[0] =3D 0x51;
-> > -               drff->report->field[0]->value[1] =3D 0x00;
-> > -               drff->report->field[0]->value[2] =3D weak;
-> > -               drff->report->field[0]->value[4] =3D strong;
-> > -               hid_hw_request(hid, drff->report, HID_REQ_SET_REPOR=
-T);
-> > -
-> > -               drff->report->field[0]->value[0] =3D 0xfa;
-> > -               drff->report->field[0]->value[1] =3D 0xfe;
-> > -       } else {
-> > +       switch (command->cmd) {
-> > +       case MLNX_START_RUMBLE:
-> > +               if (strong || weak) {
-> > +                       strong =3D strong * 0xff / 0xffff;
-> > +                       weak =3D weak * 0xff / 0xffff;
-> > +
-> > +                       /* While reverse engineering this device, I
-> > found that when
-> > +                       this value is set, it causes the strong rum=
-ble
-> > to function
-> > +                       at a near maximum speed, so we'll bypass it=
-=2E
-> > */
-> > +                       if (weak =3D=3D 0x0a)
-> > +                               weak =3D 0x0b;
-> > +
-> > +                       drff->report->field[0]->value[0] =3D 0x51;
-> > +                       drff->report->field[0]->value[1] =3D 0x00;
-> > +                       drff->report->field[0]->value[2] =3D weak;
-> > +                       drff->report->field[0]->value[4] =3D strong=
-;
->=20
-> This looks like an endianness bug.
+On Wed, 23 Apr 2014, Olivier Gay wrote:
 
-I don't have a big endian machine to check but why would this be an end=
-ianness=20
-issue? We're dealing with values all the time here, not addresses so I'=
-d=20
-expect the 'weak' and 'strong' values to be truncated if they won't fit=
- into=20
-byte. Division done beforehand makes sure that the values are within <0=
-; 255>=20
-range. As far as I can see this is quite common in the HID and Input co=
-de. Am=20
-I missing something here?
+> Add some missing hid usages from consumer page, add
+> display brightness control usages from approved hid usage
+> table request HUTTR41:
+> http://www.usb.org/developers/hidpage/HUTRR41.pdf
+> and add voice command usage from approved request HUTTR45:
+> http://www.usb.org/developers/hidpage/Voice_Command_Usage.pdf
+> 
+> Signed-off-by: Olivier Gay <ogay@logitech.com>
+> Signed-off-by: Mathieu Meisser <mmeisser@logitech.com>
 
-Thanks,
-Michal
+Dmitry, if this is Acked by you, I'd be happy to take it through my tree. 
+Thanks.
+
+> ---
+>  drivers/hid/hid-debug.c    | 14 ++++++++++++++
+>  drivers/hid/hid-input.c    | 15 +++++++++++++++
+>  include/uapi/linux/input.h | 16 ++++++++++++++++
+>  3 files changed, 45 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+> index 53b771d..742d78b 100644
+> --- a/drivers/hid/hid-debug.c
+> +++ b/drivers/hid/hid-debug.c
+> @@ -855,6 +855,20 @@ static const char *keys[KEY_MAX + 1] = {
+>  	[KEY_KBDILLUMDOWN] = "KbdIlluminationDown",
+>  	[KEY_KBDILLUMUP] = "KbdIlluminationUp",
+>  	[KEY_SWITCHVIDEOMODE] = "SwitchVideoMode",
+> +	[KEY_BUTTONCONFIG] = "ButtonConfig",
+> +	[KEY_TASKMANAGER] = "TaskManager",
+> +	[KEY_JOURNAL] = "Journal",
+> +	[KEY_CONTROLPANEL] = "ControlPanel",
+> +	[KEY_APPSELECT] = "AppSelect",
+> +	[KEY_SCREENSAVER] = "ScreenSaver",
+> +	[KEY_VOICECOMMAND] = "VoiceCommand",
+> +	[KEY_BRIGHTNESS_INC] = "BrightnessInc",
+> +	[KEY_BRIGHTNESS_DEC] = "BrightnessDec",
+> +	[KEY_BRIGHTNESS] = "Brightness",
+> +	[KEY_BRIGHTNESS_TOGGLE] = "BrightnessToggle",
+> +	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+> +	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+> +	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+>  };
+>  
+>  static const char *relatives[REL_MAX + 1] = {
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index e7e8b19..f78b18d 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -721,6 +721,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		case 0x06c: map_key_clear(KEY_YELLOW);		break;
+>  		case 0x06d: map_key_clear(KEY_ZOOM);		break;
+>  
+> +		case 0x06f: map_key_clear(KEY_BRIGHTNESS_INC);		break;
+> +		case 0x070: map_key_clear(KEY_BRIGHTNESS_DEC);		break;
+> +		case 0x071: map_key_clear(KEY_BRIGHTNESS);		break;
+> +		case 0x072: map_key_clear(KEY_BRIGHTNESS_TOGGLE);	break;
+> +		case 0x073: map_key_clear(KEY_BRIGHTNESS_MIN);		break;
+> +		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
+> +		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
+> +
+>  		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
+>  		case 0x083: map_key_clear(KEY_LAST);		break;
+>  		case 0x084: map_key_clear(KEY_ENTER);		break;
+> @@ -761,6 +769,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		case 0x0bf: map_key_clear(KEY_SLOW);		break;
+>  
+>  		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
+> +		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
+>  		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
+>  		case 0x0e2: map_key_clear(KEY_MUTE);		break;
+>  		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
+> @@ -768,6 +777,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		case 0x0ea: map_key_clear(KEY_VOLUMEDOWN);	break;
+>  		case 0x0f5: map_key_clear(KEY_SLOW);		break;
+>  
+> +		case 0x181: map_key_clear(KEY_BUTTONCONFIG);	break;
+>  		case 0x182: map_key_clear(KEY_BOOKMARKS);	break;
+>  		case 0x183: map_key_clear(KEY_CONFIG);		break;
+>  		case 0x184: map_key_clear(KEY_WORDPROCESSOR);	break;
+> @@ -781,6 +791,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		case 0x18c: map_key_clear(KEY_VOICEMAIL);	break;
+>  		case 0x18d: map_key_clear(KEY_ADDRESSBOOK);	break;
+>  		case 0x18e: map_key_clear(KEY_CALENDAR);	break;
+> +		case 0x18f: map_key_clear(KEY_TASKMANAGER);	break;
+> +		case 0x190: map_key_clear(KEY_JOURNAL);		break;
+>  		case 0x191: map_key_clear(KEY_FINANCE);		break;
+>  		case 0x192: map_key_clear(KEY_CALC);		break;
+>  		case 0x193: map_key_clear(KEY_PLAYER);		break;
+> @@ -789,12 +801,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		case 0x199: map_key_clear(KEY_CHAT);		break;
+>  		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
+>  		case 0x19e: map_key_clear(KEY_COFFEE);		break;
+> +		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
+> +		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
+>  		case 0x1a3: map_key_clear(KEY_NEXT);		break;
+>  		case 0x1a4: map_key_clear(KEY_PREVIOUS);	break;
+>  		case 0x1a6: map_key_clear(KEY_HELP);		break;
+>  		case 0x1a7: map_key_clear(KEY_DOCUMENTS);	break;
+>  		case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
+>  		case 0x1ae: map_key_clear(KEY_KEYBOARD);	break;
+> +		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
+>  		case 0x1b4: map_key_clear(KEY_FILE);		break;
+>  		case 0x1b6: map_key_clear(KEY_IMAGES);		break;
+>  		case 0x1b7: map_key_clear(KEY_AUDIO);		break;
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index bd24470..389be5d 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -722,6 +722,22 @@ struct input_keymap_entry {
+>  
+>  #define KEY_ALS_TOGGLE		0x230	/* Ambient light sensor */
+>  
+> +#define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
+> +#define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
+> +#define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
+> +#define KEY_CONTROLPANEL		0x243	/* AL Control Panel */
+> +#define KEY_APPSELECT		0x244	/* AL Select Task/Application */
+> +#define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
+> +#define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
+> +
+> +#define KEY_BRIGHTNESS_INC		KEY_BRIGHTNESSUP
+> +#define KEY_BRIGHTNESS_DEC		KEY_BRIGHTNESSDOWN
+> +#define KEY_BRIGHTNESS		0x250	/* Set Brightness */
+> +#define KEY_BRIGHTNESS_TOGGLE		KEY_DISPLAYTOGGLE
+> +#define KEY_BRIGHTNESS_MIN		0x251	/* Set Brightness to Minimum */
+> +#define KEY_BRIGHTNESS_MAX		0x252	/* Set Brightness to Maximum */
+> +#define KEY_BRIGHTNESS_AUTO		0x253	/* Set Auto Brightness */
+> +
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+>  #define BTN_TRIGGER_HAPPY2		0x2c1
+> -- 
+> 1.9.0
+> 
+
+-- 
+Jiri Kosina
+SUSE Labs

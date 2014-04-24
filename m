@@ -1,158 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: add missing hid usages
-Date: Thu, 24 Apr 2014 13:58:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1404241358180.3265@pobox.suse.cz>
-References: <1398245926-16988-1-git-send-email-ogay@logitech.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 7/9] ARM: sun7i/sun4i: dt: Add AXP209
+ support to various boards
+Date: Thu, 24 Apr 2014 14:30:36 +0100
+Message-ID: <20140424133036.GY12304@sirena.org.uk>
+References: <1397209093-10077-8-git-send-email-carlo@caione.org>
+ <20140411122901.GE28800@sirena.org.uk>
+ <CAOQ7t2Y2B7f+eZApDHKiKm9=bOXo6oUA2RLY7ENn7qPLQEboMA@mail.gmail.com>
+ <20140411161813.GF28800@sirena.org.uk>
+ <CAOQ7t2YO_MjUZkkoEe1Grft+fVttWoOro85Sru2P3LXbx8Kjbg@mail.gmail.com>
+ <20140418151551.GZ12304@sirena.org.uk>
+ <20140423202546.GA3890@nuc.fastwebnet.it>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50809 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755410AbaDXL6i (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Apr 2014 07:58:38 -0400
-In-Reply-To: <1398245926-16988-1-git-send-email-ogay@logitech.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mnCTX6PGn0YCGXCv"
+Return-path: <linux-sunxi+bncBDQ2L75W5QGBBGFE4SNAKGQE36JTD5Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140423202546.GA3890-OP/Sd6KM9CusbfqNwF1Yyl6hYfS7NtTn@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, Charles Keepax <ckeepax-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Olivier Gay <ogay@logitech.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-On Wed, 23 Apr 2014, Olivier Gay wrote:
 
-> Add some missing hid usages from consumer page, add
-> display brightness control usages from approved hid usage
-> table request HUTTR41:
-> http://www.usb.org/developers/hidpage/HUTRR41.pdf
-> and add voice command usage from approved request HUTTR45:
-> http://www.usb.org/developers/hidpage/Voice_Command_Usage.pdf
-> 
-> Signed-off-by: Olivier Gay <ogay@logitech.com>
-> Signed-off-by: Mathieu Meisser <mmeisser@logitech.com>
+--mnCTX6PGn0YCGXCv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Dmitry, if this is Acked by you, I'd be happy to take it through my tree. 
-Thanks.
+On Wed, Apr 23, 2014 at 10:25:46PM +0200, Carlo Caione wrote:
 
-> ---
->  drivers/hid/hid-debug.c    | 14 ++++++++++++++
->  drivers/hid/hid-input.c    | 15 +++++++++++++++
->  include/uapi/linux/input.h | 16 ++++++++++++++++
->  3 files changed, 45 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index 53b771d..742d78b 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -855,6 +855,20 @@ static const char *keys[KEY_MAX + 1] = {
->  	[KEY_KBDILLUMDOWN] = "KbdIlluminationDown",
->  	[KEY_KBDILLUMUP] = "KbdIlluminationUp",
->  	[KEY_SWITCHVIDEOMODE] = "SwitchVideoMode",
-> +	[KEY_BUTTONCONFIG] = "ButtonConfig",
-> +	[KEY_TASKMANAGER] = "TaskManager",
-> +	[KEY_JOURNAL] = "Journal",
-> +	[KEY_CONTROLPANEL] = "ControlPanel",
-> +	[KEY_APPSELECT] = "AppSelect",
-> +	[KEY_SCREENSAVER] = "ScreenSaver",
-> +	[KEY_VOICECOMMAND] = "VoiceCommand",
-> +	[KEY_BRIGHTNESS_INC] = "BrightnessInc",
-> +	[KEY_BRIGHTNESS_DEC] = "BrightnessDec",
-> +	[KEY_BRIGHTNESS] = "Brightness",
-> +	[KEY_BRIGHTNESS_TOGGLE] = "BrightnessToggle",
-> +	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
-> +	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
-> +	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
->  };
->  
->  static const char *relatives[REL_MAX + 1] = {
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index e7e8b19..f78b18d 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -721,6 +721,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  		case 0x06c: map_key_clear(KEY_YELLOW);		break;
->  		case 0x06d: map_key_clear(KEY_ZOOM);		break;
->  
-> +		case 0x06f: map_key_clear(KEY_BRIGHTNESS_INC);		break;
-> +		case 0x070: map_key_clear(KEY_BRIGHTNESS_DEC);		break;
-> +		case 0x071: map_key_clear(KEY_BRIGHTNESS);		break;
-> +		case 0x072: map_key_clear(KEY_BRIGHTNESS_TOGGLE);	break;
-> +		case 0x073: map_key_clear(KEY_BRIGHTNESS_MIN);		break;
-> +		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
-> +		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
-> +
->  		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
->  		case 0x083: map_key_clear(KEY_LAST);		break;
->  		case 0x084: map_key_clear(KEY_ENTER);		break;
-> @@ -761,6 +769,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  		case 0x0bf: map_key_clear(KEY_SLOW);		break;
->  
->  		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
-> +		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
->  		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
->  		case 0x0e2: map_key_clear(KEY_MUTE);		break;
->  		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
-> @@ -768,6 +777,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  		case 0x0ea: map_key_clear(KEY_VOLUMEDOWN);	break;
->  		case 0x0f5: map_key_clear(KEY_SLOW);		break;
->  
-> +		case 0x181: map_key_clear(KEY_BUTTONCONFIG);	break;
->  		case 0x182: map_key_clear(KEY_BOOKMARKS);	break;
->  		case 0x183: map_key_clear(KEY_CONFIG);		break;
->  		case 0x184: map_key_clear(KEY_WORDPROCESSOR);	break;
-> @@ -781,6 +791,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  		case 0x18c: map_key_clear(KEY_VOICEMAIL);	break;
->  		case 0x18d: map_key_clear(KEY_ADDRESSBOOK);	break;
->  		case 0x18e: map_key_clear(KEY_CALENDAR);	break;
-> +		case 0x18f: map_key_clear(KEY_TASKMANAGER);	break;
-> +		case 0x190: map_key_clear(KEY_JOURNAL);		break;
->  		case 0x191: map_key_clear(KEY_FINANCE);		break;
->  		case 0x192: map_key_clear(KEY_CALC);		break;
->  		case 0x193: map_key_clear(KEY_PLAYER);		break;
-> @@ -789,12 +801,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  		case 0x199: map_key_clear(KEY_CHAT);		break;
->  		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
->  		case 0x19e: map_key_clear(KEY_COFFEE);		break;
-> +		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
-> +		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
->  		case 0x1a3: map_key_clear(KEY_NEXT);		break;
->  		case 0x1a4: map_key_clear(KEY_PREVIOUS);	break;
->  		case 0x1a6: map_key_clear(KEY_HELP);		break;
->  		case 0x1a7: map_key_clear(KEY_DOCUMENTS);	break;
->  		case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
->  		case 0x1ae: map_key_clear(KEY_KEYBOARD);	break;
-> +		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
->  		case 0x1b4: map_key_clear(KEY_FILE);		break;
->  		case 0x1b6: map_key_clear(KEY_IMAGES);		break;
->  		case 0x1b7: map_key_clear(KEY_AUDIO);		break;
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index bd24470..389be5d 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -722,6 +722,22 @@ struct input_keymap_entry {
->  
->  #define KEY_ALS_TOGGLE		0x230	/* Ambient light sensor */
->  
-> +#define KEY_BUTTONCONFIG		0x240	/* AL Button Configuration */
-> +#define KEY_TASKMANAGER		0x241	/* AL Task/Project Manager */
-> +#define KEY_JOURNAL		0x242	/* AL Log/Journal/Timecard */
-> +#define KEY_CONTROLPANEL		0x243	/* AL Control Panel */
-> +#define KEY_APPSELECT		0x244	/* AL Select Task/Application */
-> +#define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
-> +#define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
-> +
-> +#define KEY_BRIGHTNESS_INC		KEY_BRIGHTNESSUP
-> +#define KEY_BRIGHTNESS_DEC		KEY_BRIGHTNESSDOWN
-> +#define KEY_BRIGHTNESS		0x250	/* Set Brightness */
-> +#define KEY_BRIGHTNESS_TOGGLE		KEY_DISPLAYTOGGLE
-> +#define KEY_BRIGHTNESS_MIN		0x251	/* Set Brightness to Minimum */
-> +#define KEY_BRIGHTNESS_MAX		0x252	/* Set Brightness to Maximum */
-> +#define KEY_BRIGHTNESS_AUTO		0x253	/* Set Auto Brightness */
-> +
->  #define BTN_TRIGGER_HAPPY		0x2c0
->  #define BTN_TRIGGER_HAPPY1		0x2c0
->  #define BTN_TRIGGER_HAPPY2		0x2c1
-> -- 
-> 1.9.0
-> 
+> I'm having a really hard time with this problem, so any hint is welcome
+> :) The small modification I'm using on top of the patches in this series
+> is here: http://bpaste.net/show/228330/
 
--- 
-Jiri Kosina
-SUSE Labs
+> Unfortunately as I said I got this when booting:
+> http://bpaste.net/show/nUhUTzELT32v9HNPathL/
+
+Huh, actually the arizona drivers do show this (it was being masked in
+my logs by another unrelated bug).  I guess the Wolfson guys aren't
+working with upstream much (though Charles did write the orignal code
+here...).
+
+The issue is the MFD core, it shouldn't be using managed allocations
+here - the error reported by the assert is entirely correct.  If the
+CODEC driver is bound and unbound it'll not be possible to reload it
+as things stand. =20
+
+Your driver is correct but the implementation needs to be fixed -
+possibly with an API change on free since at the minute the cells to be
+freed don't get passed back into the MFD core when deallocating.
+
+--mnCTX6PGn0YCGXCv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTWRH4AAoJELSic+t+oim9yWUP/01uMXUDyIcRQg/jTR9k0kWu
+UkxtQ4qqP2KeWFQReuVtLpmd72yrGOFs6+lHlWUQtrpxEQuhZO4/Pni+Ypf0Hp1C
+Zw1Xj4s6NORhElOVw5DGx48aZUWLjNa/daF0eFgb3UK3IqnzsMQ7mg9idSJC+3px
+/pMFO64x8IpvaP7Y7c7svX/RBSukMG/Ko9l/6jkGc7qScyM7Cmi/Y6Mo1l1Hz2Y+
+OsCiRxT7lrxA0c6sh2GjvczruQQvGLqBP1MDExxL8UTqr4t/71IcN08HkQZQTDol
+fCiNhgPQUbt6cwTMkFCzc7hO8DIpbnDmVpIRDV+PEKB7FSXBZYpuA/7uJes5ilhQ
+WZGqFOM/sruE9lkTUX60oYij7zacRgpku8geevzMCqrMpaH2KFlMTZddOjgoJdMD
+X36RY3lznzApN/l6TWCdLS+o9tKoChVG25nv5Q4jSjbl3rl+ccadBx0J9862b1cH
+zRwXdXJtHgvkHMT1i1Wo6aDSYQb3iFUERHKRd73Phl16naigtIX5lfxW2366/JD0
+bDtn4yMGTt4+rZMll5gnKgWoY0B7Eqz6FqUJdOfQnvA8sPeFETsr9csFCkAUvqMx
++Wlp+DUZAHubDD3kkxGP/nQg1/StPYqyys4egI9Eat/CcD8n5ckR5eZDafxpBPsf
+Sb7S2js/ajG61S9OfVD0
+=+Ie9
+-----END PGP SIGNATURE-----
+
+--mnCTX6PGn0YCGXCv--

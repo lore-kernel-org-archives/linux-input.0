@@ -1,53 +1,117 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 3/9] drivers/hid/hid-lg4ff.c: avoid world-writable sysfs files.
-Date: Thu, 24 Apr 2014 12:55:24 +0930
-Message-ID: <87eh0nfly3.fsf@rustcorp.com.au>
-References: <1398137612-9714-1-git-send-email-rusty@rustcorp.com.au> <1398137612-9714-4-git-send-email-rusty@rustcorp.com.au> <9d9a3af40f8a0da293e52610524674c8.squirrel@mungewell.org> <87r44ofw1x.fsf@rustcorp.com.au> <4977a0bbe5c8625d93f771983991f30a.squirrel@mungewell.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: atkbd - fix keyboard LG Electronics
+Date: Wed, 23 Apr 2014 22:25:23 -0700
+Message-ID: <20140424052523.GA29675@core.coreip.homeip.net>
+References: <1398217882-29778-1-git-send-email-ssl@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4977a0bbe5c8625d93f771983991f30a.squirrel@mungewell.org>
+Content-Disposition: inline
+In-Reply-To: <1398217882-29778-1-git-send-email-ssl@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: simon@mungewell.org
-Cc: Michal =?utf-8?Q?Mal=C3=BD?= <madcatxster@devoid-pointer.net>, linux-kernel@vger.kernel.org, HID CORE LAYER <linux-input@vger.kernel.org>, Greg KH <greg@kroah.com>
+To: Sheng-Liang Song <ssl@chromium.org>
+Cc: linux-arm-kernel@lists.infradead.org, Shawn Nematbakhsh <shawnn@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-simon@mungewell.org writes:
->> simon@mungewell.org writes:
->>> Yep I'm OK with that, however what it the recommended way to make sure
->>> that the end user is able to send changes to this /sys portal? I asked
->>> the
->>> same question before regarding the led class /sys interface, but never
->>> got
->>> any suggestions.
->>>
->>> Signed-off-by: Simon Wood <simon@mungewell.org>
->>
->> If you need that, we'll need to make an exception.  That's one purpose
->> of spamming everyone with these changs...
->
->
-> What's the right way of doing it?... I don't need to be 'special'. ;-)
->
-> The '/sys/.../range' control allows the user to limit the rotation of the
-> gaming wheel from a maximum of 900' down to match the 'car' they
-> sim-driving. Probably not many people use it, but it probably should be
-> assigned properly.
->
-> With gaming controllers the /dev/input/event* seem to get set
-> appropriately, but I'm not sure how this happens.
->
-> The same /should/ also happen for all the LED class controls, I don't want
-> to have to 'sudo' just to set a LED on/off. This is currently a problem
-> for (at least) hid-lg, hid-sony and hid-steelseries.
-> Simon
+On Tue, Apr 22, 2014 at 06:51:22PM -0700, Sheng-Liang Song wrote:
+> After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.
+> The workaround is to remove ATKBD_CMD_RESET_DIS for LG Keyboards.
+> 
+> In order to keep the minimum changes to the current atkbd driver,
+> I add logic to apply the patch if and only if the device is LG LW25-B7HV or P1-J273B.
 
-I think this is a udev duty.  Someone needs to chmod/chown/chgrp the
-files if you want to allow a particular group/user access (I just
-checked, that works fot sysfs files).
+How about if we rework this just a little bit... Does the version of the
+patch below work for you?
 
-I have no idea about HID, so I don't know how you'd figure out who that
-user/group is...
+Also, I do need your "signed-off-by".
 
-Cheers,
-Rusty.
+Thanks!
+
+-- 
+Dmitry
+
+Input: atkbd - fix keyboard LG Electronics
+
+From: Sheng-Liang Song <ssl@chromium.org>
+
+After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.  The
+workaround is to remove ATKBD_CMD_RESET_DIS for LG Keyboards.
+
+In order to keep the minimum changes to the current atkbd driver, I add
+logic to apply the patch if and only if the device is LG LW25-B7HV or
+P1-J273B.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/atkbd.c |   30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 2626773..06a4b0d 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -243,6 +243,12 @@ static void (*atkbd_platform_fixup)(struct atkbd *, const void *data);
+ static void *atkbd_platform_fixup_data;
+ static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned int);
+ 
++/*
++ * Certain keyboards to not like ATKBD_CMD_RESET_DIS and stop responding
++ * to many commands until full reset (ATKBD_CMD_RESET_BAT) is performed.
++ */
++static bool atkbd_skip_deactivate;
++
+ static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
+ 				ssize_t (*handler)(struct atkbd *, char *));
+ static ssize_t atkbd_attr_set_helper(struct device *dev, const char *buf, size_t count,
+@@ -698,7 +704,6 @@ static int atkbd_activate(struct atkbd *atkbd)
+  * atkbd_deactivate() resets and disables the keyboard from sending
+  * keystrokes.
+  */
+-
+ static void atkbd_deactivate(struct atkbd *atkbd)
+ {
+ 	struct ps2dev *ps2dev = &atkbd->ps2dev;
+@@ -768,7 +773,8 @@ static int atkbd_probe(struct atkbd *atkbd)
+  * Make sure nothing is coming from the keyboard and disturbs our
+  * internal state.
+  */
+-	atkbd_deactivate(atkbd);
++	if (!atkbd_skip_deactivate)
++		atkbd_deactivate(atkbd);
+ 
+ 	return 0;
+ }
+@@ -1638,6 +1644,12 @@ static int __init atkbd_setup_scancode_fixup(const struct dmi_system_id *id)
+ 	return 1;
+ }
+ 
++static int __init atkbd_deactivate_fixup(const struct dmi_system_id *id)
++{
++	atkbd_skip_deactivate = true;
++	return 1;
++}
++
+ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 	{
+ 		.matches = {
+@@ -1775,6 +1787,20 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		.callback = atkbd_setup_scancode_fixup,
+ 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LW25-B7HV"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "P1-J273B"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{ }
+ };
+ 

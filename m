@@ -1,94 +1,51 @@
-From: Sheng-Liang Song <ssl@chromium.org>
-Subject: [PATCH] Input: atkbd - fix keyboard LG Electronics
-Date: Thu, 24 Apr 2014 07:57:12 -0700
-Message-ID: <1398351432-5361-1-git-send-email-ssl@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f73.google.com ([209.85.220.73]:41531 "EHLO
-	mail-pa0-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757436AbaDXO5S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Apr 2014 10:57:18 -0400
-Received: by mail-pa0-f73.google.com with SMTP id lj1so146106pab.4
-        for <linux-input@vger.kernel.org>; Thu, 24 Apr 2014 07:57:17 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v4 7/9] ARM: sun7i/sun4i: dt: Add AXP209 support to
+	various boards
+Date: Thu, 24 Apr 2014 17:35:23 +0100
+Message-ID: <20140424163523.GB25663@opensource.wolfsonmicro.com>
+References: <1397209093-10077-8-git-send-email-carlo@caione.org> <20140411122901.GE28800@sirena.org.uk> <CAOQ7t2Y2B7f+eZApDHKiKm9=bOXo6oUA2RLY7ENn7qPLQEboMA@mail.gmail.com> <20140411161813.GF28800@sirena.org.uk> <CAOQ7t2YO_MjUZkkoEe1Grft+fVttWoOro85Sru2P3LXbx8Kjbg@mail.gmail.com> <20140418151551.GZ12304@sirena.org.uk> <20140423202546.GA3890@nuc.fastwebnet.it> <20140424133036.GY12304@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140424133036.GY12304@sirena.org.uk>
+Sender: linux-doc-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Carlo Caione <carlo@caione.org>, boris.brezillon@free-electrons.com, sameo@linux.intel.com, linux-doc@vger.kernel.org, emilio@elopez.com.ar, dmitry.torokhov@gmail.com, wens@csie.org, lgirdwood@gmail.com, hdegoede@redhat.com, linux-sunxi@googlegroups.com, linux-input@vger.kernel.org, maxime.ripard@free-electrons.com, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Sheng-Liang Song <ssl@chromium.org>, Shawn Nematbakhsh <shawnn@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.  The
-workaround is to remove ATKBD_CMD_RESET_DIS for LG Keyboards.
+On Thu, Apr 24, 2014 at 02:30:36PM +0100, Mark Brown wrote:
+> On Wed, Apr 23, 2014 at 10:25:46PM +0200, Carlo Caione wrote:
+> 
+> > I'm having a really hard time with this problem, so any hint is welcome
+> > :) The small modification I'm using on top of the patches in this series
+> > is here: http://bpaste.net/show/228330/
+> 
+> > Unfortunately as I said I got this when booting:
+> > http://bpaste.net/show/nUhUTzELT32v9HNPathL/
+> 
+> Huh, actually the arizona drivers do show this (it was being masked in
+> my logs by another unrelated bug).  I guess the Wolfson guys aren't
+> working with upstream much (though Charles did write the orignal code
+> here...).
 
-In order to keep the minimum changes to the current atkbd driver, I add
-logic to apply the patch if and only if the device is LG LW25-B7HV or
-P1-J273B.
+I run upstream fairly regularly here (although mostly on Arndale
+rather than Speyside). On closer inspection of my kernel log
+don't seem to have anything related to it, which is odd.
 
-Signed-off-by: Sheng-Liang Song <ssl@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/atkbd.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+> The issue is the MFD core, it shouldn't be using managed allocations
+> here - the error reported by the assert is entirely correct.  If the
+> CODEC driver is bound and unbound it'll not be possible to reload it
+> as things stand.  
+> 
+> Your driver is correct but the implementation needs to be fixed -
+> possibly with an API change on free since at the minute the cells to be
+> freed don't get passed back into the MFD core when deallocating.
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 2626773..2dd1d0d 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -243,6 +243,12 @@ static void (*atkbd_platform_fixup)(struct atkbd *, const void *data);
- static void *atkbd_platform_fixup_data;
- static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned int);
- 
-+/*
-+ * Certain keyboards to not like ATKBD_CMD_RESET_DIS and stop responding
-+ * to many commands until full reset (ATKBD_CMD_RESET_BAT) is performed.
-+ */
-+static bool atkbd_skip_deactivate;
-+
- static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
- 				ssize_t (*handler)(struct atkbd *, char *));
- static ssize_t atkbd_attr_set_helper(struct device *dev, const char *buf, size_t count,
-@@ -768,7 +774,8 @@ static int atkbd_probe(struct atkbd *atkbd)
-  * Make sure nothing is coming from the keyboard and disturbs our
-  * internal state.
-  */
--	atkbd_deactivate(atkbd);
-+	if (!atkbd_skip_deactivate)
-+		atkbd_deactivate(atkbd);
- 
- 	return 0;
- }
-@@ -1638,6 +1645,12 @@ static int __init atkbd_setup_scancode_fixup(const struct dmi_system_id *id)
- 	return 1;
- }
- 
-+static int __init atkbd_deactivate_fixup(const struct dmi_system_id *id)
-+{
-+	atkbd_skip_deactivate = true;
-+	return 1;
-+}
-+
- static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		.matches = {
-@@ -1775,6 +1788,20 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 		.callback = atkbd_setup_scancode_fixup,
- 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LW25-B7HV"),
-+		},
-+		.callback = atkbd_deactivate_fixup,
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P1-J273B"),
-+		},
-+		.callback = atkbd_deactivate_fixup,
-+	},
- 	{ }
- };
- 
--- 
-1.9.1.423.g4596e3a
+This does indeed look broken, I will have a look and think about it.
+Unfortunately I am travelling most of next week, so if I don't
+manage to get something out over the weekend there may be a slight
+delay on me getting a fix out.
 
+Thanks,
+Charles

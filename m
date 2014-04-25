@@ -1,34 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atkbd - fix keyboard LG Electronics
-Date: Thu, 24 Apr 2014 23:35:09 -0700
-Message-ID: <20140425063509.GA10433@core.coreip.homeip.net>
-References: <1398351432-5361-1-git-send-email-ssl@chromium.org>
+Subject: Re: [PATCH] Input: twl6040-vibra - use devm_regulator_bulk_get()
+Date: Thu, 24 Apr 2014 23:36:58 -0700
+Message-ID: <20140425063658.GB10433@core.coreip.homeip.net>
+References: <1398390004-20535-1-git-send-email-festevam@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:49661 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750844AbaDYGfN (ORCPT
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:41118 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751165AbaDYGhB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Apr 2014 02:35:13 -0400
+	Fri, 25 Apr 2014 02:37:01 -0400
+Received: by mail-pb0-f53.google.com with SMTP id jt11so1124113pbb.12
+        for <linux-input@vger.kernel.org>; Thu, 24 Apr 2014 23:37:01 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1398351432-5361-1-git-send-email-ssl@chromium.org>
+In-Reply-To: <1398390004-20535-1-git-send-email-festevam@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sheng-Liang Song <ssl@chromium.org>
-Cc: linux-arm-kernel@lists.infradead.org, Shawn Nematbakhsh <shawnn@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Fabio Estevam <festevam@gmail.com>
+Cc: peter.ujfalusi@ti.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-On Thu, Apr 24, 2014 at 07:57:12AM -0700, Sheng-Liang Song wrote:
-> After issuing ATKBD_CMD_RESET_DIS, LG Keyboard stop working.  The
-> workaround is to remove ATKBD_CMD_RESET_DIS for LG Keyboards.
+On Thu, Apr 24, 2014 at 10:40:04PM -0300, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam@freescale.com>
 > 
-> In order to keep the minimum changes to the current atkbd driver, I add
-> logic to apply the patch if and only if the device is LG LW25-B7HV or
-> P1-J273B.
-> 
-> Signed-off-by: Sheng-Liang Song <ssl@chromium.org>
+> Using devm_regulator_bulk_get() can make the code cleaner and smaller as we
+> do not need to call regulator_bulk_free() in the error and remove paths.
 
-Applied, thank you.
+Can we complete the conversion and use devm_input_allocate_device() as
+well?
+
+Thanks.
 
 -- 
 Dmitry

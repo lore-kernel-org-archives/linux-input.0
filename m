@@ -1,174 +1,88 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 2/3] Input: gpio_keys - convert to use devm_*
-Date: Fri, 25 Apr 2014 19:22:16 +0300
-Message-ID: <1398442937-15309-3-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1398442937-15309-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398442937-15309-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] HID: add missing hid usages
+Date: Fri, 25 Apr 2014 09:38:28 -0700
+Message-ID: <20140425163828.GA12355@core.coreip.homeip.net>
+References: <1398413623-19233-1-git-send-email-ogay@logitech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:45936 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751431AbaDYQic (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Apr 2014 12:38:32 -0400
+Received: by mail-pd0-f173.google.com with SMTP id p10so2979071pdj.4
+        for <linux-input@vger.kernel.org>; Fri, 25 Apr 2014 09:38:32 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1398413623-19233-1-git-send-email-ogay@logitech.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Olivier Gay <ogay@logitech.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-This makes the error handling much more simpler than open-coding everything and
-in addition makes the probe function smaller an tidier.
+On Fri, Apr 25, 2014 at 10:13:43AM +0200, Olivier Gay wrote:
+> Add some missing hid usages from consumer page, add
+> some display brightness control usages from approved hid usage
+> table request HUTTR41:
+> http://www.usb.org/developers/hidpage/HUTRR41.pdf
+> and add voice command usage from approved request HUTTR45:
+> http://www.usb.org/developers/hidpage/Voice_Command_Usage.pdf
+> 
+> Signed-off-by: Olivier Gay <ogay@logitech.com>
+> Signed-off-by: Mathieu Meisser <mmeisser@logitech.com>
+> ---
+>  drivers/hid/hid-debug.c    | 13 +++++++++++++
+>  drivers/hid/hid-input.c    | 14 ++++++++++++++
+>  include/uapi/linux/input.h | 15 +++++++++++++++
+>  3 files changed, 42 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+> index 53b771d..08b95ef 100644
+> --- a/drivers/hid/hid-debug.c
+> +++ b/drivers/hid/hid-debug.c
+> @@ -855,6 +855,19 @@ static const char *keys[KEY_MAX + 1] = {
+>  	[KEY_KBDILLUMDOWN] = "KbdIlluminationDown",
+>  	[KEY_KBDILLUMUP] = "KbdIlluminationUp",
+>  	[KEY_SWITCHVIDEOMODE] = "SwitchVideoMode",
+> +	[KEY_BUTTONCONFIG] = "ButtonConfig",
+> +	[KEY_TASKMANAGER] = "TaskManager",
+> +	[KEY_JOURNAL] = "Journal",
+> +	[KEY_CONTROLPANEL] = "ControlPanel",
+> +	[KEY_APPSELECT] = "AppSelect",
+> +	[KEY_SCREENSAVER] = "ScreenSaver",
+> +	[KEY_VOICECOMMAND] = "VoiceCommand",
+> +	[KEY_BRIGHTNESS_INC] = "BrightnessInc",
+> +	[KEY_BRIGHTNESS_DEC] = "BrightnessDec",
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/input/keyboard/gpio_keys.c | 75 +++++++++++++-------------------------
- 1 file changed, 25 insertions(+), 50 deletions(-)
+This table already has entries for KEY_BRIGHTNESS_UP/DOWN, you are
+overriding them. I'd rather we did not define gratuitous aliases
+(sometimes aliasing is necessary when we got the name wrong, but UP/DOWN
+vs INC/DEC for brightness is not the case here).
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 209d4c6..8791d94 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -47,7 +47,7 @@ struct gpio_keys_drvdata {
- 	const struct gpio_keys_platform_data *pdata;
- 	struct input_dev *input;
- 	struct mutex disable_lock;
--	struct gpio_button_data data[0];
-+	struct gpio_button_data *data;
- };
- 
- /*
-@@ -577,25 +577,22 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 	int i;
- 
- 	node = dev->of_node;
--	if (!node) {
--		error = -ENODEV;
--		goto err_out;
--	}
-+	if (!node)
-+		return ERR_PTR(-ENODEV);
- 
- 	nbuttons = of_get_child_count(node);
--	if (nbuttons == 0) {
--		error = -ENODEV;
--		goto err_out;
--	}
-+	if (nbuttons == 0)
-+		return ERR_PTR(-ENODEV);
- 
--	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
--			GFP_KERNEL);
--	if (!pdata) {
--		error = -ENOMEM;
--		goto err_out;
--	}
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
-+
-+	pdata->buttons = devm_kcalloc(dev, nbuttons, sizeof (*button),
-+				      GFP_KERNEL);
-+	if (!pdata->buttons)
-+		return ERR_PTR(-ENOMEM);
- 
--	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
- 	pdata->nbuttons = nbuttons;
- 
- 	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
-@@ -618,7 +615,7 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 				dev_err(dev,
- 					"Failed to get gpio flags, error: %d\n",
- 					error);
--			goto err_free_pdata;
-+			return ERR_PTR(error);
- 		}
- 
- 		button = &pdata->buttons[i++];
-@@ -629,8 +626,7 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n",
- 				button->gpio);
--			error = -EINVAL;
--			goto err_free_pdata;
-+			return ERR_PTR(-EINVAL);
- 		}
- 
- 		button->desc = of_get_property(pp, "label", NULL);
-@@ -645,17 +641,10 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 			button->debounce_interval = 5;
- 	}
- 
--	if (pdata->nbuttons == 0) {
--		error = -EINVAL;
--		goto err_free_pdata;
--	}
-+	if (pdata->nbuttons == 0)
-+		return ERR_PTR(-EINVAL);
- 
- 	return pdata;
--
--err_free_pdata:
--	kfree(pdata);
--err_out:
--	return ERR_PTR(error);
- }
- 
- static struct of_device_id gpio_keys_of_match[] = {
-@@ -699,16 +688,18 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 			return PTR_ERR(pdata);
- 	}
- 
--	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
--			pdata->nbuttons * sizeof(struct gpio_button_data),
--			GFP_KERNEL);
--	input = input_allocate_device();
-+	ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
-+	input = devm_input_allocate_device(dev);
- 	if (!ddata || !input) {
- 		dev_err(dev, "failed to allocate state\n");
--		error = -ENOMEM;
--		goto fail1;
-+		return -ENOMEM;
- 	}
- 
-+	ddata->data = devm_kcalloc(dev, pdata->nbuttons,  sizeof(*ddata->data),
-+				   GFP_KERNEL);
-+	if (!ddata->data)
-+		return -ENOMEM;
-+
- 	ddata->pdata = pdata;
- 	ddata->input = input;
- 	mutex_init(&ddata->disable_lock);
-@@ -767,20 +758,12 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 	while (--i >= 0)
- 		gpio_remove_key(&ddata->data[i]);
- 
-- fail1:
--	input_free_device(input);
--	kfree(ddata);
--	/* If we have no platform data, we allocated pdata dynamically. */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
- 	return error;
- }
- 
- static int gpio_keys_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
--	struct input_dev *input = ddata->input;
- 	int i;
- 
- 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
-@@ -790,14 +773,6 @@ static int gpio_keys_remove(struct platform_device *pdev)
- 	for (i = 0; i < ddata->pdata->nbuttons; i++)
- 		gpio_remove_key(&ddata->data[i]);
- 
--	input_unregister_device(input);
--
--	/* If we have no platform data, we allocated pdata dynamically. */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(ddata->pdata);
--
--	kfree(ddata);
--
- 	return 0;
- }
- 
+...
+
+> +
+> +#define KEY_BRIGHTNESS_INC		KEY_BRIGHTNESSUP
+> +#define KEY_BRIGHTNESS_DEC		KEY_BRIGHTNESSDOWN
+> +#define KEY_BRIGHTNESS_TOGGLE		KEY_DISPLAYTOGGLE
+> +#define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+> +#define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
+> +#define KEY_BRIGHTNESS_AUTO		0x252	/* Set Auto Brightness */
+
+I was looking through keycodes again and we have:
+
+#define KEY_BRIGHTNESS_ZERO|----244|----/* brightness off, use ambient */
+
+which seems to be exactly the same as KEY_BRIGHTNESS_AUTO, but here I
+agree that old name is not the best. Could you please change its
+definition earlier in the file to:
+
+#define KEY_BRIGHTNESS_AUTO	224	/* Set Auto Brightness: manual
+					  brightness control is off,
+					  rely on ambient */
+#define KEY_BRIGHTNESS_ZERO	KEY_BRIGHTNESS_AUTO
+
+Sorry it takes so long...
+
 -- 
-1.9.2
+Dmitry

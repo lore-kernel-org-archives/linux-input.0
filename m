@@ -1,79 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/3] Input: gpio_keys - use dev instead of pdev in
- gpio_keys_setup_key()
-Date: Fri, 25 Apr 2014 14:21:12 -0700
-Message-ID: <20140425212112.GA16783@core.coreip.homeip.net>
-References: <1398442937-15309-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1398442937-15309-2-git-send-email-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:34632 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751156AbaDYVVQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Apr 2014 17:21:16 -0400
-Content-Disposition: inline
-In-Reply-To: <1398442937-15309-2-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [PATCHv3 0/5] tsc2005 DT binding
+Date: Sat, 26 Apr 2014 01:56:14 +0200
+Message-ID: <1398470179-20880-1-git-send-email-sre@kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-GFxCN5SEZAc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2014 at 07:22:15PM +0300, Andy Shevchenko wrote:
-> The platform device is not used in gpio_keys_setup_key(). This patch
-> substitutes it by struct device.
+Hi,
 
-And the benefit of this is...?
+This adds device tree support for the tsc2005 touchscreen
+controller, which is currently only used by the Nokia N900
+board.
 
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 2db1324..209d4c6 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -424,13 +424,12 @@ out:
->  	return IRQ_HANDLED;
->  }
->  
-> -static int gpio_keys_setup_key(struct platform_device *pdev,
-> +static int gpio_keys_setup_key(struct device *dev,
->  				struct input_dev *input,
->  				struct gpio_button_data *bdata,
->  				const struct gpio_keys_button *button)
->  {
->  	const char *desc = button->desc ? button->desc : "gpio_keys";
-> -	struct device *dev = &pdev->dev;
->  	irq_handler_t isr;
->  	unsigned long irqflags;
->  	int irq, error;
-> @@ -719,7 +718,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
->  
->  	input->name = pdata->name ? : pdev->name;
->  	input->phys = "gpio-keys/input0";
-> -	input->dev.parent = &pdev->dev;
-> +	input->dev.parent = dev;
->  	input->open = gpio_keys_open;
->  	input->close = gpio_keys_close;
->  
-> @@ -736,7 +735,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
->  		const struct gpio_keys_button *button = &pdata->buttons[i];
->  		struct gpio_button_data *bdata = &ddata->data[i];
->  
-> -		error = gpio_keys_setup_key(pdev, input, bdata, button);
-> +		error = gpio_keys_setup_key(dev, input, bdata, button);
->  		if (error)
->  			goto fail2;
->  
-> -- 
-> 1.9.2
-> 
+The patch does not update the reset pin handling for platform
+data based probe to avoid merge conflicts. The n900 platform
+code will be removed in the near future (3.16?) and the driver
+can be simplified once that has happened.
 
-Thanks.
+Changes since v2 [0]:
+ * rename "ti,x-plate-resistance" to "ti,x-plate-ohms", so that
+   the same property name is used for tsc2005 and tsc2007
+ * document "x-size" and "y-size" as deprecated form of
+   touchscreen-size-x and touchscreen-size-y
+ * add documentation for "touchscreen-inverted-x" and
+   "touchscreen-inverted-y" to the common touchscreen binding
+   and mark "x-invert" and "y-invert" as deprecated.
+ * add units to the property descriptions in the common
+   touchscreen binding Documentation
+ * document "moving-threshold" as deprecated form of
+   "touchscreen-fuzz-x" and "touchscreen-fuzz-y" combination
+ * document "contact-threshold" as deprecated form of
+   "touchscreen-fuzz-pressure"
+
+[0] https://lkml.org/lkml/2014/4/5/103
+
+-- Sebastian
+
+Sebastian Reichel (5):
+  Input: add common DT binding for touchscreens
+  Input: tsc2005: use dev_err for error messages
+  Input: tsc2005: convert driver to use devm_*
+  Input: tsc2005: add DT support
+  Documentation: dt: Document TSC2005 DT binding
+
+ .../bindings/input/touchscreen/touchscreen.txt     |  27 +++++
+ .../bindings/input/touchscreen/tsc2005.txt         |  39 +++++++
+ drivers/input/input.c                              |  34 ++++++
+ drivers/input/touchscreen/tsc2005.c                | 130 ++++++++++++++-------
+ include/linux/input.h                              |   8 ++
+ 5 files changed, 197 insertions(+), 41 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
 
 -- 
-Dmitry
+1.9.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

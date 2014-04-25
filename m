@@ -1,49 +1,79 @@
-From: Olivier Gay <ogay@logitech.com>
-Subject: Re: [PATCH v3] HID: add missing hid usages
-Date: Fri, 25 Apr 2014 20:25:06 +0200
-Message-ID: <CAFLMSp_egiMOXMV2yX41Rk4e-7NQFy5z6xft2x_AE1aeURkHjA@mail.gmail.com>
-References: <1398413623-19233-1-git-send-email-ogay@logitech.com> <20140425163828.GA12355@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 1/3] Input: gpio_keys - use dev instead of pdev in
+ gpio_keys_setup_key()
+Date: Fri, 25 Apr 2014 14:21:12 -0700
+Message-ID: <20140425212112.GA16783@core.coreip.homeip.net>
+References: <1398442937-15309-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1398442937-15309-2-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na6sys009bog017.obsmtp.com ([74.125.150.74]:52796 "EHLO
-	na6sys009bog017.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754395AbaDYSdA (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:34632 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751156AbaDYVVQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Apr 2014 14:33:00 -0400
-Received: by mail-wg0-f50.google.com with SMTP id x13so3910293wgg.21
-        for <linux-input@vger.kernel.org>; Fri, 25 Apr 2014 11:32:58 -0700 (PDT)
-In-Reply-To: <20140425163828.GA12355@core.coreip.homeip.net>
+	Fri, 25 Apr 2014 17:21:16 -0400
+Content-Disposition: inline
+In-Reply-To: <1398442937-15309-2-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2014 at 6:38 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Apr 25, 2014 at 10:13:43AM +0200, Olivier Gay wrote:
-> This table already has entries for KEY_BRIGHTNESS_UP/DOWN, you are
-> overriding them. I'd rather we did not define gratuitous aliases
-> (sometimes aliasing is necessary when we got the name wrong, but UP/DOWN
-> vs INC/DEC for brightness is not the case here).
+On Fri, Apr 25, 2014 at 07:22:15PM +0300, Andy Shevchenko wrote:
+> The platform device is not used in gpio_keys_setup_key(). This patch
+> substitutes it by struct device.
 
-Done. You didn't mention KEY_BRIGHTNESS_TOGGLE so I kept it.
+And the benefit of this is...?
 
-> I was looking through keycodes again and we have:
->
-> #define KEY_BRIGHTNESS_ZERO|----244|----/* brightness off, use ambient */
->
-> which seems to be exactly the same as KEY_BRIGHTNESS_AUTO, but here I
-> agree that old name is not the best. Could you please change its
-> definition earlier in the file to:
->
-> #define KEY_BRIGHTNESS_AUTO     224     /* Set Auto Brightness: manual
->                                           brightness control is off,
->                                           rely on ambient */
-> #define KEY_BRIGHTNESS_ZERO     KEY_BRIGHTNESS_AUTO
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/input/keyboard/gpio_keys.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 2db1324..209d4c6 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -424,13 +424,12 @@ out:
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int gpio_keys_setup_key(struct platform_device *pdev,
+> +static int gpio_keys_setup_key(struct device *dev,
+>  				struct input_dev *input,
+>  				struct gpio_button_data *bdata,
+>  				const struct gpio_keys_button *button)
+>  {
+>  	const char *desc = button->desc ? button->desc : "gpio_keys";
+> -	struct device *dev = &pdev->dev;
+>  	irq_handler_t isr;
+>  	unsigned long irqflags;
+>  	int irq, error;
+> @@ -719,7 +718,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
+>  
+>  	input->name = pdata->name ? : pdev->name;
+>  	input->phys = "gpio-keys/input0";
+> -	input->dev.parent = &pdev->dev;
+> +	input->dev.parent = dev;
+>  	input->open = gpio_keys_open;
+>  	input->close = gpio_keys_close;
+>  
+> @@ -736,7 +735,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
+>  		const struct gpio_keys_button *button = &pdata->buttons[i];
+>  		struct gpio_button_data *bdata = &ddata->data[i];
+>  
+> -		error = gpio_keys_setup_key(pdev, input, bdata, button);
+> +		error = gpio_keys_setup_key(dev, input, bdata, button);
+>  		if (error)
+>  			goto fail2;
+>  
+> -- 
+> 1.9.2
+> 
 
-Changes done. I'm sending v4 right now.
+Thanks.
 
-Best regards,
-
-Olivier
+-- 
+Dmitry

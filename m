@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v4 15/24] hid: Port hid-sjoy to ff-memless-next
-Date: Sat, 26 Apr 2014 17:02:14 +0200
-Message-ID: <1398524543-15012-16-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 16/24] hid: Port hid-sony to ff-memless-next
+Date: Sat, 26 Apr 2014 17:02:15 +0200
+Message-ID: <1398524543-15012-17-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,96 +13,90 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-sjoy to ff-memless-next
+Port hid-sony to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
  drivers/hid/Kconfig    |  2 +-
- drivers/hid/hid-sjoy.c | 35 +++++++++++++++++++++++++----------
- 2 files changed, 26 insertions(+), 11 deletions(-)
+ drivers/hid/hid-sony.c | 23 +++++++++++++++++------
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 42904e4..9260d14 100644
+index 9260d14..e97c382 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -692,7 +692,7 @@ config HID_SMARTJOYPLUS
- config SMARTJOYPLUS_FF
- 	bool "SmartJoy PLUS PS2/USB adapter force feedback support"
- 	depends on HID_SMARTJOYPLUS
+@@ -634,7 +634,7 @@ config HID_SONY
+ config SONY_FF
+ 	bool "Sony PS2/3/4 accessories force feedback support"=20
+ 	depends on HID_SONY
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	---help---
- 	Say Y here if you have a SmartJoy PLUS PS2/USB adapter and want to
- 	enable force feedback support for it.
-diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
-index 37845ec..a6f8cfe 100644
---- a/drivers/hid/hid-sjoy.c
-+++ b/drivers/hid/hid-sjoy.c
-@@ -30,8 +30,11 @@
- #include <linux/slab.h>
- #include <linux/hid.h>
- #include <linux/module.h>
+ 	Say Y here if you have a Sony PS2/3/4 accessory and want to enable
+ 	force feedback support for it.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 908de27..5a28833 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -34,6 +34,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <linux/input/mt.h>
 +#include <linux/input/ff-memless-next.h>
+=20
  #include "hid-ids.h"
 =20
+@@ -53,6 +54,7 @@
+ #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLL=
+ER)
+ #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
+=20
 +#define FF_UPDATE_RATE 50
-+
- #ifdef CONFIG_SMARTJOYPLUS_FF
+ #define MAX_LEDS 4
 =20
- struct sjoyff_device {
-@@ -39,21 +42,33 @@ struct sjoyff_device {
- };
+ static const u8 sixaxis_rdesc_fixup[] =3D {
+@@ -1308,16 +1310,25 @@ static void dualshock4_state_worker(struct work=
+_struct *work)
 =20
- static int hid_sjoyff_play(struct input_dev *dev, void *data,
--			 struct ff_effect *effect)
-+			const struct mlnx_effect_command *command)
+ #ifdef CONFIG_SONY_FF
+ static int sony_play_effect(struct input_dev *dev, void *data,
+-			    struct ff_effect *effect)
++			    const struct mlnx_effect_command *command)
  {
  	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct sjoyff_device *sjoyff =3D data;
+ 	struct sony_sc *sc =3D hid_get_drvdata(hid);
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
- 	u32 left, right;
 =20
--	left =3D effect->u.rumble.strong_magnitude;
--	right =3D effect->u.rumble.weak_magnitude;
--	dev_dbg(&dev->dev, "called with 0x%08x 0x%08x\n", left, right);
--
--	left =3D left * 0xff / 0xffff;
--	right =3D (right !=3D 0); /* on/off only */
+-	if (effect->type !=3D FF_RUMBLE)
+-		return 0;
+=20
+-	sc->left =3D effect->u.rumble.strong_magnitude / 256;
+-	sc->right =3D effect->u.rumble.weak_magnitude / 256;
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		left =3D rumble_force->strong;
-+		right =3D rumble_force->weak;
-+		dev_dbg(&dev->dev, "called with 0x%08x 0x%08x\n", left, right);
-+
-+		left =3D left * 0xff / 0xffff;
-+		right =3D (right !=3D 0); /* on/off only */
-+
-+		sjoyff->report->field[0]->value[1] =3D right;
-+		sjoyff->report->field[0]->value[2] =3D left;
++		sc->left =3D rumble_force->strong / 256;
++		sc->right =3D rumble_force->weak / 256;
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		left =3D 0;
-+		right =3D 0;
++		sc->left =3D 0;
++		sc->right =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 =20
--	sjoyff->report->field[0]->value[1] =3D right;
--	sjoyff->report->field[0]->value[2] =3D left;
- 	dev_dbg(&dev->dev, "running with 0x%02x 0x%02x\n", left, right);
- 	hid_hw_request(hid, sjoyff->report, HID_REQ_SET_REPORT);
+ 	schedule_work(&sc->state_worker);
+ 	return 0;
+@@ -1330,7 +1341,7 @@ static int sony_init_ff(struct hid_device *hdev)
+ 	struct input_dev *input_dev =3D hidinput->input;
 =20
-@@ -103,7 +118,7 @@ static int sjoyff_init(struct hid_device *hid)
+ 	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
+-	return input_ff_create_memless(input_dev, NULL, sony_play_effect);
++	return input_ff_create_mlnx(input_dev, NULL, sony_play_effect, FF_UPD=
+ATE_RATE);
+ }
 =20
- 		set_bit(FF_RUMBLE, dev->ffbit);
-=20
--		error =3D input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
-+		error =3D input_ff_create_mlnx(dev, sjoyff, hid_sjoyff_play, FF_UPDA=
-TE_RATE);
- 		if (error) {
- 			kfree(sjoyff);
- 			return error;
+ #else
 --=20
 1.9.2

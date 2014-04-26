@@ -1,11 +1,11 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v3 22/24] hid: Port hid-lg2ff to ff-memless-next
-Date: Sat, 26 Apr 2014 13:57:59 +0200
-Message-ID: <1398513696-12626-23-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v3 23/24] hid: Port hid-lg4ff to ff-memless-next
+Date: Sat, 26 Apr 2014 13:58:00 +0200
+Message-ID: <1398513696-12626-24-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -13,129 +13,177 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-lg2ff to ff-memless-next.
-Clamp vibration magnitude to range <0x02; 0xfd> to prevent irregular
-shaking of the vibration motors.
+Port hid-lg4ff to ff-memless-next
 
-Signed-off-by: Elias Vanderstuyft <elias.vds@gmail.com>
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
  drivers/hid/Kconfig     |  2 +-
- drivers/hid/hid-lg2ff.c | 65 ++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 47 insertions(+), 20 deletions(-)
+ drivers/hid/hid-lg4ff.c | 93 ++++++++++++++++++++++++++++++-----------=
+--------
+ 2 files changed, 59 insertions(+), 36 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 97d2d8f..5e70519 100644
+index 5e70519..546ac4a 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -381,7 +381,7 @@ config LOGITECH_FF
- config LOGIRUMBLEPAD2_FF
- 	bool "Logitech force feedback support (variant 2)"
+@@ -399,7 +399,7 @@ config LOGIG940_FF
+ config LOGIWHEELS_FF
+ 	bool "Logitech wheels configuration and force feedback support"
  	depends on HID_LOGITECH
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
+ 	default LOGITECH_FF
  	help
- 	  Say Y here if you want to enable force feedback support for:
- 	  - Logitech RumblePad
-diff --git a/drivers/hid/hid-lg2ff.c b/drivers/hid/hid-lg2ff.c
-index 0e3fb1a..6ab5327 100644
---- a/drivers/hid/hid-lg2ff.c
-+++ b/drivers/hid/hid-lg2ff.c
-@@ -22,42 +22,69 @@
- 
- 
+ 	  Say Y here if you want to enable force feedback and range setting
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 24883b4..d629093 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -25,6 +25,7 @@
+=20
+=20
  #include <linux/input.h>
 +#include <linux/input/ff-memless-next.h>
- #include <linux/slab.h>
+ #include <linux/usb.h>
  #include <linux/hid.h>
- 
- #include "hid-lg.h"
- 
+=20
+@@ -45,6 +46,8 @@
+ #define G27_REV_MIN 0x38
+ #define G27_2_REV_MIN 0x39
+=20
 +#define FF_UPDATE_RATE 8
 +
- struct lg2ff_device {
- 	struct hid_report *report;
+ #define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
+=20
+ static void hid_lg4ff_set_range_dfp(struct hid_device *hid, u16 range)=
+;
+@@ -69,6 +72,13 @@ struct lg4ff_device_entry {
+=20
+ static const signed short lg4ff_wheel_effects[] =3D {
+ 	FF_CONSTANT,
++	FF_RAMP,
++	FF_PERIODIC,
++	FF_SQUARE,
++	FF_TRIANGLE,
++	FF_SINE,
++	FF_SAW_UP,
++	FF_SAW_DOWN,
+ 	FF_AUTOCENTER,
+ 	-1
  };
- 
--static int play_effect(struct input_dev *dev, void *data,
--			 struct ff_effect *effect)
-+static int hid_lg2ff_start_rumble(struct hid_device *hid, struct hid_report *report,
-+				const struct mlnx_rumble_force *rumble)
- {
--	struct hid_device *hid = input_get_drvdata(dev);
--	struct lg2ff_device *lg2ff = data;
- 	int weak, strong;
- 
--	strong = effect->u.rumble.strong_magnitude;
--	weak = effect->u.rumble.weak_magnitude;
-+#define CLAMP_QUIRK(x) do { if (x < 2) x = 2; else if (x > 0xfd) x = 0xfd; } \
-+			while (0)
- 
--	if (weak || strong) {
--		weak = weak * 0xff / 0xffff;
--		strong = strong * 0xff / 0xffff;
-+	/* Scale down from MLNX range */
-+	strong = rumble->strong * 0xff / 0xffff;
-+	weak = rumble->weak * 0xff / 0xffff;
-+	CLAMP_QUIRK(weak);
-+	CLAMP_QUIRK(strong);
- 
--		lg2ff->report->field[0]->value[0] = 0x51;
--		lg2ff->report->field[0]->value[2] = weak;
--		lg2ff->report->field[0]->value[4] = strong;
--	} else {
--		lg2ff->report->field[0]->value[0] = 0xf3;
--		lg2ff->report->field[0]->value[2] = 0x00;
--		lg2ff->report->field[0]->value[4] = 0x00;
--	}
-+	report->field[0]->value[0] = 0x51;
-+	report->field[0]->value[2] = weak;
-+	report->field[0]->value[4] = strong;
- 
--	hid_hw_request(hid, lg2ff->report, HID_REQ_SET_REPORT);
-+	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
- 	return 0;
+@@ -184,47 +194,60 @@ int lg4ff_adjust_input_event(struct hid_device *h=
+id, struct hid_field *field,
+ 	}
  }
- 
-+static int hid_lg2ff_stop_rumble(struct hid_device *hid, struct hid_report *report)
+=20
+-static int hid_lg4ff_play(struct input_dev *dev, void *data, struct ff=
+_effect *effect)
++static int hid_lg4ff_start_combined(struct hid_device *hid, struct hid=
+_report *report,
++				    const struct mlnx_simple_force *force)
 +{
-+	report->field[0]->value[0] = 0xf3;
-+	report->field[0]->value[2] = 0x00;
-+	report->field[0]->value[4] = 0x00;
++	__s32 *value =3D report->field[0]->value;
++	int scaled_x;
++
++	/* Scale down from MLNX range */
++	scaled_x =3D 0x80 - (force->x * 0xff / 0xffff);
++
++	value[0] =3D 0x11;	/* Slot 1 */
++	value[1] =3D 0x08;
++	value[2] =3D scaled_x;
++	value[3] =3D 0x80;
++	value[4] =3D 0x00;
++	value[5] =3D 0x00;
++	value[6] =3D 0x00;
 +
 +	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
 +	return 0;
 +}
 +
-+static int hid_lg2ff_control(struct input_dev *dev, void *data,
-+				const struct mlnx_effect_command *command)
++static int hid_lg4ff_stop_combined(struct hid_device *hid, struct hid_=
+report *report)
 +{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct lg2ff_device *lg2ff = data;
++	__s32 *value =3D report->field[0]->value;
 +
++	value[0] =3D 0x13;	/* Slot 1 */
++	value[1] =3D 0x00;
++	value[2] =3D 0x00;
++	value[3] =3D 0x00;
++	value[4] =3D 0x00;
++	value[5] =3D 0x00;
++	value[6] =3D 0x00;
++
++	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
++	return 0;
++}
++
++static int hid_lg4ff_control(struct input_dev *dev, void *data, const =
+struct mlnx_effect_command *command)
+ {
+ 	struct hid_device *hid =3D input_get_drvdata(dev);
+ 	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
+].report_list;
+ 	struct hid_report *report =3D list_entry(report_list->next, struct hi=
+d_report, list);
+-	__s32 *value =3D report->field[0]->value;
+-	int x;
+-
+-#define CLAMP(x) do { if (x < 0) x =3D 0; else if (x > 0xff) x =3D 0xf=
+f; } while (0)
+-
+-	switch (effect->type) {
+-	case FF_CONSTANT:
+-		x =3D effect->u.ramp.start_level + 0x80;	/* 0x80 is no force */
+-		CLAMP(x);
+-
+-		if (x =3D=3D 0x80) {
+-			/* De-activate force in slot-1*/
+-			value[0] =3D 0x13;
+-			value[1] =3D 0x00;
+-			value[2] =3D 0x00;
+-			value[3] =3D 0x00;
+-			value[4] =3D 0x00;
+-			value[5] =3D 0x00;
+-			value[6] =3D 0x00;
+-
+-			hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+-			return 0;
+-		}
+-
+-		value[0] =3D 0x11;	/* Slot 1 */
+-		value[1] =3D 0x08;
+-		value[2] =3D x;
+-		value[3] =3D 0x80;
+-		value[4] =3D 0x00;
+-		value[5] =3D 0x00;
+-		value[6] =3D 0x00;
+=20
+-		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
 +	switch (command->cmd) {
-+	case MLNX_START_RUMBLE:
-+		return hid_lg2ff_start_rumble(hid, lg2ff->report, &command->u.rumble_force);
++	case MLNX_START_COMBINED:
++		return hid_lg4ff_start_combined(hid, report, &command->u.simple_forc=
+e);
 +		break;
-+	case MLNX_STOP_RUMBLE:
-+		return hid_lg2ff_stop_rumble(hid, lg2ff->report);
-+		break;
++	case MLNX_STOP_COMBINED:
++		return hid_lg4ff_stop_combined(hid, report);
+ 		break;
 +	default:
 +		dbg_hid("Unsupported effect command");
 +		return -EINVAL;
-+	}
-+}
-+
- int lg2ff_init(struct hid_device *hid)
- {
- 	struct lg2ff_device *lg2ff;
-@@ -78,7 +105,7 @@ int lg2ff_init(struct hid_device *hid)
- 
- 	set_bit(FF_RUMBLE, dev->ffbit);
- 
--	error = input_ff_create_memless(dev, lg2ff, play_effect);
-+	error = input_ff_create_mlnx(dev, lg2ff, hid_lg2ff_control, FF_UPDATE_RATE);
- 	if (error) {
- 		kfree(lg2ff);
+ 	}
+-	return 0;
+ }
+=20
+ /* Sends default autocentering command compatible with
+@@ -610,7 +633,7 @@ int lg4ff_init(struct hid_device *hid)
+ 	for (j =3D 0; lg4ff_devices[i].ff_effects[j] >=3D 0; j++)
+ 		set_bit(lg4ff_devices[i].ff_effects[j], dev->ffbit);
+=20
+-	error =3D input_ff_create_memless(dev, NULL, hid_lg4ff_play);
++	error =3D input_ff_create_mlnx(dev, (void *)NULL, hid_lg4ff_control, =
+=46F_UPDATE_RATE);
+=20
+ 	if (error)
  		return error;
--- 
+--=20
 1.9.2

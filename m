@@ -1,146 +1,209 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH v3 16/24] hid: Port hid-sony to ff-memless-next
-Date: Sat, 26 Apr 2014 15:09:44 +0200
-Message-ID: <20140426150944.b119fd7f8c4334353b77d3d2@ao2.it>
+From: Elias Vanderstuyft <elias.vds@gmail.com>
+Subject: Re: [PATCH v3 23/24] hid: Port hid-lg4ff to ff-memless-next
+Date: Sat, 26 Apr 2014 15:50:54 +0200
+Message-ID: <CADbOyBSZHLe3SwRD7fkPa-VCRwt4Vk_hzPKTyQ9GbALFoVwCBw@mail.gmail.com>
 References: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
-	<1398513696-12626-17-git-send-email-madcatxster@devoid-pointer.net>
+	<1398513696-12626-24-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:49365 "EHLO smtp205.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751581AbaDZNPK convert rfc822-to-8bit (ORCPT
+Received: from mail-vc0-f176.google.com ([209.85.220.176]:51121 "EHLO
+	mail-vc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750926AbaDZNuz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Apr 2014 09:15:10 -0400
-In-Reply-To: <1398513696-12626-17-git-send-email-madcatxster@devoid-pointer.net>
+	Sat, 26 Apr 2014 09:50:55 -0400
+In-Reply-To: <1398513696-12626-24-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
+To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, Simon Wood <simon@mungewell.org>
 
-On Sat, 26 Apr 2014 13:57:53 +0200
-Michal Mal=FD <madcatxster@devoid-pointer.net> wrote:
-
-> Port hid-sony to ff-memless-next
->=20
-> Signed-off-by: Michal Mal=FD <madcatxster@devoid-pointer.net>
-
-Not a big deal, but note that the patch adds an unneeded
-blank line. Pointed out below.
-
+On Sat, Apr 26, 2014 at 1:58 PM, Michal Mal=C3=BD
+<madcatxster@devoid-pointer.net> wrote:
+> Port hid-lg4ff to ff-memless-next
+>
+> Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 > ---
->  drivers/hid/Kconfig    |  2 +-
->  drivers/hid/hid-sony.c | 24 ++++++++++++++++++------
->  2 files changed, 19 insertions(+), 7 deletions(-)
->=20
+>  drivers/hid/Kconfig     |  2 +-
+>  drivers/hid/hid-lg4ff.c | 93 ++++++++++++++++++++++++++++++---------=
+----------
+>  2 files changed, 59 insertions(+), 36 deletions(-)
+>
 > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 9260d14..e97c382 100644
+> index 5e70519..546ac4a 100644
 > --- a/drivers/hid/Kconfig
 > +++ b/drivers/hid/Kconfig
-> @@ -634,7 +634,7 @@ config HID_SONY
->  config SONY_FF
->  	bool "Sony PS2/3/4 accessories force feedback support"=20
->  	depends on HID_SONY
-> -	select INPUT_FF_MEMLESS
-> +	select INPUT_FF_MEMLESS_NEXT
->  	---help---
->  	Say Y here if you have a Sony PS2/3/4 accessory and want to enable
->  	force feedback support for it.
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 908de27..95bb2e1 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -34,6 +34,7 @@
->  #include <linux/spinlock.h>
->  #include <linux/list.h>
->  #include <linux/input/mt.h>
+> @@ -399,7 +399,7 @@ config LOGIG940_FF
+>  config LOGIWHEELS_FF
+>         bool "Logitech wheels configuration and force feedback suppor=
+t"
+>         depends on HID_LOGITECH
+> -       select INPUT_FF_MEMLESS
+> +       select INPUT_FF_MEMLESS_NEXT
+>         default LOGITECH_FF
+>         help
+>           Say Y here if you want to enable force feedback and range s=
+etting
+> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+> index 24883b4..d629093 100644
+> --- a/drivers/hid/hid-lg4ff.c
+> +++ b/drivers/hid/hid-lg4ff.c
+> @@ -25,6 +25,7 @@
+>
+>
+>  #include <linux/input.h>
 > +#include <linux/input/ff-memless-next.h>
-> =20
->  #include "hid-ids.h"
-> =20
-> @@ -53,6 +54,7 @@
->  #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTRO=
-LLER)
->  #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
-> =20
-> +#define FF_UPDATE_RATE 50
->  #define MAX_LEDS 4
-> =20
->  static const u8 sixaxis_rdesc_fixup[] =3D {
-> @@ -1308,16 +1310,25 @@ static void dualshock4_state_worker(struct wo=
-rk_struct *work)
-> =20
->  #ifdef CONFIG_SONY_FF
->  static int sony_play_effect(struct input_dev *dev, void *data,
-> -			    struct ff_effect *effect)
-> +			    const struct mlnx_effect_command *command)
->  {
->  	struct hid_device *hid =3D input_get_drvdata(dev);
->  	struct sony_sc *sc =3D hid_get_drvdata(hid);
-> +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble=
-_force;
-> =20
-> -	if (effect->type !=3D FF_RUMBLE)
-> -		return 0;
-> =20
-> -	sc->left =3D effect->u.rumble.strong_magnitude / 256;
-> -	sc->right =3D effect->u.rumble.weak_magnitude / 256;
-> +	switch (command->cmd) {
-> +	case MLNX_START_RUMBLE:
-> +		sc->left =3D rumble_force->strong / 256;
-> +		sc->right =3D rumble_force->weak / 256;
-> +		break;
-> +	case MLNX_STOP_RUMBLE:
-> +		sc->left =3D 0;
-> +		sc->right =3D 0;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> =20
->  	schedule_work(&sc->state_worker);
->  	return 0;
-> @@ -1330,7 +1341,7 @@ static int sony_init_ff(struct hid_device *hdev=
-)
->  	struct input_dev *input_dev =3D hidinput->input;
-> =20
->  	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
-> -	return input_ff_create_memless(input_dev, NULL, sony_play_effect);
-> +	return input_ff_create_mlnx(input_dev, NULL, sony_play_effect, FF_U=
-PDATE_RATE);
->  }
-> =20
->  #else
-> @@ -1762,6 +1773,7 @@ static const struct hid_device_id sony_devices[=
-] =3D {
->  		.driver_data =3D DUALSHOCK4_CONTROLLER_USB },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_C=
-ONTROLLER),
->  		.driver_data =3D DUALSHOCK4_CONTROLLER_BT },
+>  #include <linux/usb.h>
+>  #include <linux/hid.h>
+>
+> @@ -45,6 +46,8 @@
+>  #define G27_REV_MIN 0x38
+>  #define G27_2_REV_MIN 0x39
+>
+> +#define FF_UPDATE_RATE 8
 > +
-
-Extra blank line here.
-
->  	{ }
+>  #define to_hid_device(pdev) container_of(pdev, struct hid_device, de=
+v)
+>
+>  static void hid_lg4ff_set_range_dfp(struct hid_device *hid, u16 rang=
+e);
+> @@ -69,6 +72,13 @@ struct lg4ff_device_entry {
+>
+>  static const signed short lg4ff_wheel_effects[] =3D {
+>         FF_CONSTANT,
+> +       FF_RAMP,
+> +       FF_PERIODIC,
+> +       FF_SQUARE,
+> +       FF_TRIANGLE,
+> +       FF_SINE,
+> +       FF_SAW_UP,
+> +       FF_SAW_DOWN,
+>         FF_AUTOCENTER,
+>         -1
 >  };
->  MODULE_DEVICE_TABLE(hid, sony_devices);
-> --=20
-> 1.9.2
->=20
+> @@ -184,47 +194,60 @@ int lg4ff_adjust_input_event(struct hid_device =
+*hid, struct hid_field *field,
+>         }
+>  }
+>
+> -static int hid_lg4ff_play(struct input_dev *dev, void *data, struct =
+ff_effect *effect)
+> +static int hid_lg4ff_start_combined(struct hid_device *hid, struct h=
+id_report *report,
+> +                                   const struct mlnx_simple_force *f=
+orce)
+> +{
+> +       __s32 *value =3D report->field[0]->value;
+> +       int scaled_x;
+> +
+> +       /* Scale down from MLNX range */
+> +       scaled_x =3D 0x80 - (force->x * 0xff / 0xffff);
+> +
+> +       value[0] =3D 0x11;        /* Slot 1 */
+> +       value[1] =3D 0x08;
+> +       value[2] =3D scaled_x;
+> +       value[3] =3D 0x80;
+> +       value[4] =3D 0x00;
+> +       value[5] =3D 0x00;
+> +       value[6] =3D 0x00;
+> +
+> +       hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+> +       return 0;
+> +}
+> +
+> +static int hid_lg4ff_stop_combined(struct hid_device *hid, struct hi=
+d_report *report)
+> +{
+> +       __s32 *value =3D report->field[0]->value;
+> +
+> +       value[0] =3D 0x13;        /* Slot 1 */
+> +       value[1] =3D 0x00;
+> +       value[2] =3D 0x00;
+> +       value[3] =3D 0x00;
+> +       value[4] =3D 0x00;
+> +       value[5] =3D 0x00;
+> +       value[6] =3D 0x00;
+> +
+> +       hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+> +       return 0;
+> +}
+> +
+> +static int hid_lg4ff_control(struct input_dev *dev, void *data, cons=
+t struct mlnx_effect_command *command)
+>  {
+>         struct hid_device *hid =3D input_get_drvdata(dev);
+>         struct list_head *report_list =3D &hid->report_enum[HID_OUTPU=
+T_REPORT].report_list;
+>         struct hid_report *report =3D list_entry(report_list->next, s=
+truct hid_report, list);
+> -       __s32 *value =3D report->field[0]->value;
+> -       int x;
+> -
+> -#define CLAMP(x) do { if (x < 0) x =3D 0; else if (x > 0xff) x =3D 0=
+xff; } while (0)
+> -
+> -       switch (effect->type) {
+> -       case FF_CONSTANT:
+> -               x =3D effect->u.ramp.start_level + 0x80;  /* 0x80 is =
+no force */
+> -               CLAMP(x);
+> -
+> -               if (x =3D=3D 0x80) {
+> -                       /* De-activate force in slot-1*/
+> -                       value[0] =3D 0x13;
+> -                       value[1] =3D 0x00;
+> -                       value[2] =3D 0x00;
+> -                       value[3] =3D 0x00;
+> -                       value[4] =3D 0x00;
+> -                       value[5] =3D 0x00;
+> -                       value[6] =3D 0x00;
+> -
+> -                       hid_hw_request(hid, report, HID_REQ_SET_REPOR=
+T);
+> -                       return 0;
+> -               }
+> -
+> -               value[0] =3D 0x11;        /* Slot 1 */
+> -               value[1] =3D 0x08;
+> -               value[2] =3D x;
+> -               value[3] =3D 0x80;
+> -               value[4] =3D 0x00;
+> -               value[5] =3D 0x00;
+> -               value[6] =3D 0x00;
+>
+> -               hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+> +       switch (command->cmd) {
+> +       case MLNX_START_COMBINED:
+> +               return hid_lg4ff_start_combined(hid, report, &command=
+->u.simple_force);
+> +               break;
+> +       case MLNX_STOP_COMBINED:
+> +               return hid_lg4ff_stop_combined(hid, report);
+>                 break;
+> +       default:
+> +               dbg_hid("Unsupported effect command");
+> +               return -EINVAL;
+>         }
+> -       return 0;
+>  }
+>
+>  /* Sends default autocentering command compatible with
+> @@ -610,7 +633,7 @@ int lg4ff_init(struct hid_device *hid)
+>         for (j =3D 0; lg4ff_devices[i].ff_effects[j] >=3D 0; j++)
+>                 set_bit(lg4ff_devices[i].ff_effects[j], dev->ffbit);
+>
+> -       error =3D input_ff_create_memless(dev, NULL, hid_lg4ff_play);
+> +       error =3D input_ff_create_mlnx(dev, (void *)NULL, hid_lg4ff_c=
+ontrol, FF_UPDATE_RATE);
+>
+>         if (error)
+>                 return error;
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 1.9.2
+>
 
---=20
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+You can add Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

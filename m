@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v3 13/24] hid: Port hid-lg3ff to ff-memless-next
-Date: Sat, 26 Apr 2014 13:57:50 +0200
-Message-ID: <1398513696-12626-14-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v3 21/24] input: Port xpad to ff-memless-next
+Date: Sat, 26 Apr 2014 13:57:58 +0200
+Message-ID: <1398513696-12626-22-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,147 +13,195 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-lg3ff to ff-memless-next
+Port xpad to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig     |  2 +-
- drivers/hid/hid-lg3ff.c | 60 +++++++++++++++++++++++++++++++----------=
+ drivers/input/joystick/Kconfig |   2 +-
+ drivers/input/joystick/xpad.c  | 125 +++++++++++++++++++++++----------=
 --------
- 2 files changed, 39 insertions(+), 23 deletions(-)
+ 2 files changed, 71 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index c4b0cbb..eb0c7f1 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -391,7 +391,7 @@ config LOGIRUMBLEPAD2_FF
- config LOGIG940_FF
- 	bool "Logitech Flight System G940 force feedback support"
- 	depends on HID_LOGITECH
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kc=
+onfig
+index 2dd3ba1..9f26e48 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -294,7 +294,7 @@ config JOYSTICK_XPAD
+ config JOYSTICK_XPAD_FF
+ 	bool "X-Box gamepad rumble support"
+ 	depends on JOYSTICK_XPAD && INPUT
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
- 	help
- 	  Say Y here if you want to enable force feedback support for Logitec=
-h
- 	  Flight System G940 devices.
-diff --git a/drivers/hid/hid-lg3ff.c b/drivers/hid/hid-lg3ff.c
-index 8c2da18..c49b374 100644
---- a/drivers/hid/hid-lg3ff.c
-+++ b/drivers/hid/hid-lg3ff.c
-@@ -23,9 +23,12 @@
+ 	---help---
+ 	  Say Y here if you want to take advantage of xbox 360 rumble feature=
+s.
 =20
- #include <linux/input.h>
- #include <linux/hid.h>
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpa=
+d.c
+index 603fe0d..5d9c8a2 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -78,6 +78,7 @@
+ #include <linux/stat.h>
+ #include <linux/module.h>
+ #include <linux/usb/input.h>
 +#include <linux/input/ff-memless-next.h>
 =20
- #include "hid-lg.h"
+ #define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
+ #define DRIVER_DESC "X-Box pad driver"
+@@ -97,6 +98,8 @@
+ #define XTYPE_XBOX360W    2
+ #define XTYPE_UNKNOWN     3
 =20
 +#define FF_UPDATE_RATE 50
 +
- /*
-  * G940 Theory of Operation (from experimentation)
-  *
-@@ -58,12 +61,11 @@ struct lg3ff_device {
- };
+ static bool dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+ MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than ax=
+es for unknown pads");
+@@ -628,63 +631,75 @@ static void xpad_stop_output(struct usb_xpad *xpa=
+d) {}
+ #endif
 =20
- static int hid_lg3ff_play(struct input_dev *dev, void *data,
--			 struct ff_effect *effect)
-+			 const struct mlnx_effect_command *command)
+ #ifdef CONFIG_JOYSTICK_XPAD_FF
+-static int xpad_play_effect(struct input_dev *dev, void *data, struct =
+ff_effect *effect)
++static int xpad_play_effect(struct input_dev *dev, void *data,
++			    const struct mlnx_effect_command *command)
  {
- 	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
-].report_list;
- 	struct hid_report *report =3D list_entry(report_list->next, struct hi=
-d_report, list);
--	int x, y;
+ 	struct usb_xpad *xpad =3D input_get_drvdata(dev);
++	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
+orce;
++	__u16 strong, weak;
 =20
- /*
-  * Available values in the field should always be 63, but we only use =
-up to
-@@ -72,30 +74,37 @@ static int hid_lg3ff_play(struct input_dev *dev, vo=
-id *data,
- 	memset(report->field[0]->value, 0,
- 	       sizeof(__s32) * report->field[0]->report_count);
-=20
--	switch (effect->type) {
--	case FF_CONSTANT:
--/*
-- * Already clamped in ff_memless
-- * 0 is center (different then other logitech)
-- */
--		x =3D effect->u.ramp.start_level;
--		y =3D effect->u.ramp.end_level;
+-	if (effect->type =3D=3D FF_RUMBLE) {
+-		__u16 strong =3D effect->u.rumble.strong_magnitude;
+-		__u16 weak =3D effect->u.rumble.weak_magnitude;
 -
--		/* send command byte */
--		report->field[0]->value[0] =3D 0x51;
+-		switch (xpad->xtype) {
 -
--/*
-- * Sign backwards from other Force3d pro
-- * which get recast here in two's complement 8 bits
-- */
--		report->field[0]->value[1] =3D (unsigned char)(-x);
--		report->field[0]->value[31] =3D (unsigned char)(-y);
-+	/* send command byte */
-+	report->field[0]->value[0] =3D 0x51;
-=20
--		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+-		case XTYPE_XBOX:
+-			xpad->odata[0] =3D 0x00;
+-			xpad->odata[1] =3D 0x06;
+-			xpad->odata[2] =3D 0x00;
+-			xpad->odata[3] =3D strong / 256;	/* left actuator */
+-			xpad->odata[4] =3D 0x00;
+-			xpad->odata[5] =3D weak / 256;	/* right actuator */
+-			xpad->irq_out->transfer_buffer_length =3D 6;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		case XTYPE_XBOX360:
+-			xpad->odata[0] =3D 0x00;
+-			xpad->odata[1] =3D 0x08;
+-			xpad->odata[2] =3D 0x00;
+-			xpad->odata[3] =3D strong / 256;  /* left actuator? */
+-			xpad->odata[4] =3D weak / 256;	/* right actuator? */
+-			xpad->odata[5] =3D 0x00;
+-			xpad->odata[6] =3D 0x00;
+-			xpad->odata[7] =3D 0x00;
+-			xpad->irq_out->transfer_buffer_length =3D 8;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		case XTYPE_XBOX360W:
+-			xpad->odata[0] =3D 0x00;
+-			xpad->odata[1] =3D 0x01;
+-			xpad->odata[2] =3D 0x0F;
+-			xpad->odata[3] =3D 0xC0;
+-			xpad->odata[4] =3D 0x00;
+-			xpad->odata[5] =3D strong / 256;
+-			xpad->odata[6] =3D weak / 256;
+-			xpad->odata[7] =3D 0x00;
+-			xpad->odata[8] =3D 0x00;
+-			xpad->odata[9] =3D 0x00;
+-			xpad->odata[10] =3D 0x00;
+-			xpad->odata[11] =3D 0x00;
+-			xpad->irq_out->transfer_buffer_length =3D 12;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		default:
+-			dev_dbg(&xpad->dev->dev,
+-				"%s - rumble command sent to unsupported xpad type: %d\n",
+-				__func__, xpad->xtype);
+-			return -1;
+-		}
 +	switch (command->cmd) {
-+	case MLNX_START_COMBINED: {
-+		const struct mlnx_simple_force *simple_force =3D &command->u.simple_=
-force;
-+		/* Scale down from MLNX range */
-+		const int x =3D simple_force->x * 0xff / 0xffff;
-+		const int y =3D simple_force->y * 0xff / 0xffff;
-+
-+		/*
-+		 * Sign backwards from other Force3d pro
-+		 * which get recast here in two's complement 8 bits
-+		*/
-+		report->field[0]->value[1] =3D (unsigned char)x;
-+		report->field[0]->value[31] =3D (unsigned char)y;
++	case MLNX_START_RUMBLE:
++		strong =3D rumble_force->strong;
++		weak =3D rumble_force->weak;
 +		break;
-+		}
-+	case MLNX_STOP_COMBINED:
-+		report->field[0]->value[1] =3D 0;
-+		report->field[0]->value[31] =3D 0;
- 		break;
++	case MLNX_STOP_RUMBLE:
++		strong =3D 0;
++		weak =3D 0;
++		break;
 +	default:
 +		return -EINVAL;
++	}
++
++
++	switch (xpad->xtype) {
++
++	case XTYPE_XBOX:
++		xpad->odata[0] =3D 0x00;
++		xpad->odata[1] =3D 0x06;
++		xpad->odata[2] =3D 0x00;
++		xpad->odata[3] =3D strong / 256;	/* left actuator */
++		xpad->odata[4] =3D 0x00;
++		xpad->odata[5] =3D weak / 256;	/* right actuator */
++		xpad->irq_out->transfer_buffer_length =3D 6;
++
++		return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
++
++	case XTYPE_XBOX360:
++		xpad->odata[0] =3D 0x00;
++		xpad->odata[1] =3D 0x08;
++		xpad->odata[2] =3D 0x00;
++		xpad->odata[3] =3D strong / 256;  /* left actuator? */
++		xpad->odata[4] =3D weak / 256;	/* right actuator? */
++		xpad->odata[5] =3D 0x00;
++		xpad->odata[6] =3D 0x00;
++		xpad->odata[7] =3D 0x00;
++		xpad->irq_out->transfer_buffer_length =3D 8;
++
++		return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
++
++	case XTYPE_XBOX360W:
++		xpad->odata[0] =3D 0x00;
++		xpad->odata[1] =3D 0x01;
++		xpad->odata[2] =3D 0x0F;
++		xpad->odata[3] =3D 0xC0;
++		xpad->odata[4] =3D 0x00;
++		xpad->odata[5] =3D strong / 256;
++		xpad->odata[6] =3D weak / 256;
++		xpad->odata[7] =3D 0x00;
++		xpad->odata[8] =3D 0x00;
++		xpad->odata[9] =3D 0x00;
++		xpad->odata[10] =3D 0x00;
++		xpad->odata[11] =3D 0x00;
++		xpad->irq_out->transfer_buffer_length =3D 12;
++
++		return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
++
++	default:
++		dev_dbg(&xpad->dev->dev,
++			"%s - rumble command sent to unsupported xpad type: %d\n",
++			__func__, xpad->xtype);
++		return -1;
  	}
-+
-+	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-+
+=20
  	return 0;
+@@ -697,7 +712,7 @@ static int xpad_init_ff(struct usb_xpad *xpad)
+=20
+ 	input_set_capability(xpad->dev, EV_FF, FF_RUMBLE);
+=20
+-	return input_ff_create_memless(xpad->dev, NULL, xpad_play_effect);
++	return input_ff_create_mlnx(xpad->dev, NULL, xpad_play_effect, FF_UPD=
+ATE_RATE);
  }
-+
- static void hid_lg3ff_set_autocenter(struct input_dev *dev, u16 magnit=
-ude)
- {
- 	struct hid_device *hid =3D input_get_drvdata(dev);
-@@ -123,6 +132,13 @@ static void hid_lg3ff_set_autocenter(struct input_=
-dev *dev, u16 magnitude)
 =20
- static const signed short ff3_joystick_ac[] =3D {
- 	FF_CONSTANT,
-+	FF_RAMP,
-+	FF_PERIODIC,
-+	FF_SQUARE,
-+	FF_TRIANGLE,
-+	FF_SINE,
-+	FF_SAW_UP,
-+	FF_SAW_DOWN,
- 	FF_AUTOCENTER,
- 	-1
- };
-@@ -143,7 +159,7 @@ int lg3ff_init(struct hid_device *hid)
- 	for (i =3D 0; ff_bits[i] >=3D 0; i++)
- 		set_bit(ff_bits[i], dev->ffbit);
-=20
--	error =3D input_ff_create_memless(dev, NULL, hid_lg3ff_play);
-+	error =3D input_ff_create_mlnx(dev, NULL, hid_lg3ff_play, FF_UPDATE_R=
-ATE);
- 	if (error)
- 		return error;
-=20
+ #else
 --=20
 1.9.2

@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v4 18/24] hid: Port hid-wiimote-modules to ff-memless-next
-Date: Sat, 26 Apr 2014 17:02:17 +0200
-Message-ID: <1398524543-15012-19-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 17/24] hid: Port hid-tmff to ff-memless-next
+Date: Sat, 26 Apr 2014 17:02:16 +0200
+Message-ID: <1398524543-15012-18-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,166 +13,170 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-wiimote-modules to ff-memless-next
+Port hid-tmff to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig               |  2 +-
- drivers/hid/hid-wiimote-modules.c | 74 ++++++++++++++++++++++++-------=
+ drivers/hid/Kconfig    |  2 +-
+ drivers/hid/hid-tmff.c | 83 ++++++++++++++++++++++++++++++------------=
 --------
- 2 files changed, 46 insertions(+), 30 deletions(-)
+ 2 files changed, 51 insertions(+), 34 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 17ed5cf..23d9776 100644
+index e97c382..17ed5cf 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -749,7 +749,7 @@ config HID_WIIMOTE
- 	depends on HID
- 	depends on LEDS_CLASS
- 	select POWER_SUPPLY
+@@ -730,7 +730,7 @@ config HID_THRUSTMASTER
+ config THRUSTMASTER_FF
+ 	bool "ThrustMaster devices force feedback support"
+ 	depends on HID_THRUSTMASTER
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
  	---help---
- 	Support for Nintendo Wii and Wii U Bluetooth peripherals. Supported
- 	devices are the Wii Remote and its extension devices, but also device=
-s
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimot=
-e-modules.c
-index 6b61f01..95b20ea 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -37,8 +37,11 @@
- #include <linux/hid.h>
+ 	  Say Y here if you have a THRUSTMASTER FireStore Dual Power 2 or 3,
+ 	  a THRUSTMASTER Dual Trigger 3-in-1 or a THRUSTMASTER Ferrari GT
+diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
+index b833760..3df000c 100644
+--- a/drivers/hid/hid-tmff.c
++++ b/drivers/hid/hid-tmff.c
+@@ -31,9 +31,12 @@
  #include <linux/input.h>
- #include <linux/spinlock.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
 +#include <linux/input/ff-memless-next.h>
- #include "hid-wiimote.h"
+=20
+ #include "hid-ids.h"
 =20
 +#define FF_UPDATE_RATE 50
 +
- /*
-  * Keys
-  * The initial Wii Remote provided a bunch of buttons that are reporte=
-d as
-@@ -131,21 +134,27 @@ static void wiimod_rumble_worker(struct work_stru=
-ct *work)
+ static const signed short ff_rumble[] =3D {
+ 	FF_RUMBLE,
+ 	-1
+@@ -41,6 +44,13 @@ static const signed short ff_rumble[] =3D {
+=20
+ static const signed short ff_joystick[] =3D {
+ 	FF_CONSTANT,
++	FF_RAMP,
++	FF_PERIODIC,
++	FF_SINE,
++	FF_SQUARE,
++	FF_TRIANGLE,
++	FF_SAW_DOWN,
++	FF_SAW_UP,
+ 	-1
+ };
+=20
+@@ -67,12 +77,12 @@ static inline int tmff_scale_u16(unsigned int in, i=
+nt minimum, int maximum)
+ 	return ret;
  }
 =20
- static int wiimod_rumble_play(struct input_dev *dev, void *data,
--			      struct ff_effect *eff)
-+			      const struct mlnx_effect_command *command)
+-/* Changes values from -0x80 to 0x7f into values from minimum to maxim=
+um */
+-static inline int tmff_scale_s8(int in, int minimum, int maximum)
++/* Changes values from -0x7fff to 0x7fff into values from minimum to m=
+aximum */
++static inline int tmff_scale_s32(int in, int minimum, int maximum)
  {
- 	struct wiimote_data *wdata =3D input_get_drvdata(dev);
--	__u8 value;
+ 	int ret;
+=20
+-	ret =3D (((in + 0x80) * (maximum - minimum)) / 0xff) + minimum;
++	ret =3D (((in + 0x7fff) * (maximum - minimum)) / 0xffff) + minimum;
+ 	if (ret < minimum)
+ 		return minimum;
+ 	if (ret > maximum)
+@@ -81,43 +91,50 @@ static inline int tmff_scale_s8(int in, int minimum=
+, int maximum)
+ }
+=20
+ static int tmff_play(struct input_dev *dev, void *data,
+-		struct ff_effect *effect)
++		const struct mlnx_effect_command *command)
+ {
+ 	struct hid_device *hid =3D input_get_drvdata(dev);
+ 	struct tmff_device *tmff =3D data;
+ 	struct hid_field *ff_field =3D tmff->ff_field;
+ 	int x, y;
+-	int left, right;	/* Rumbling */
 -
--	/*
--	 * The wiimote supports only a single rumble motor so if any magnitud=
-e
--	 * is set to non-zero then we start the rumble motor. If both are set=
- to
--	 * zero, we stop the rumble motor.
--	 */
+-	switch (effect->type) {
+-	case FF_CONSTANT:
+-		x =3D tmff_scale_s8(effect->u.ramp.start_level,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
+-		y =3D tmff_scale_s8(effect->u.ramp.end_level,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
 -
--	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
--		value =3D 1;
--	else
--		value =3D 0;
-+	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
-orce;
-+	__u8 value =3D 0;
-+
+-		dbg_hid("(x, y)=3D(%04x, %04x)\n", x, y);
+-		ff_field->value[0] =3D x;
+-		ff_field->value[1] =3D y;
+-		hid_hw_request(hid, tmff->report, HID_REQ_SET_REPORT);
+-		break;
+=20
+-	case FF_RUMBLE:
+-		left =3D tmff_scale_u16(effect->u.rumble.weak_magnitude,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
+-		right =3D tmff_scale_u16(effect->u.rumble.strong_magnitude,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
+-
+-		dbg_hid("(left,right)=3D(%08x, %08x)\n", left, right);
+-		ff_field->value[0] =3D left;
+-		ff_field->value[1] =3D right;
+-		hid_hw_request(hid, tmff->report, HID_REQ_SET_REPORT);
 +	switch (command->cmd) {
-+	case MLNX_START_RUMBLE:
-+		/*
-+		 * The wiimote supports only a single rumble motor so if any magnitu=
-de
-+		 * is set to non-zero then we start the rumble motor. If both are se=
-t to
-+		 * zero, we stop the rumble motor.
-+		 */
-+		if (rumble_force->strong || rumble_force->weak)
-+			value =3D 1;
++	case MLNX_START_COMBINED: {
++		const struct mlnx_simple_force *sf =3D &command->u.simple_force;
++		x =3D tmff_scale_s32(sf->x,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
++		y =3D tmff_scale_s32(sf->y,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
 +		break;
++		}
++	case MLNX_STOP_COMBINED:
++		x =3D 0;
++		y =3D 0;
++		break;
++	case MLNX_START_RUMBLE: {
++		const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_=
+force;
++		x =3D tmff_scale_u16(rumble_force->weak,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
++		y =3D tmff_scale_u16(rumble_force->strong,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
+ 		break;
++		}
 +	case MLNX_STOP_RUMBLE:
++		x =3D 0;
++		y =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
-+	}
-=20
- 	/* Locking state.lock here might deadlock with input_event() calls.
- 	 * schedule_work acts as barrier. Merging multiple changes is fine. *=
-/
-@@ -161,7 +170,7 @@ static int wiimod_rumble_probe(const struct wiimod_=
-ops *ops,
- 	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
-=20
- 	set_bit(FF_RUMBLE, wdata->input->ffbit);
--	if (input_ff_create_memless(wdata->input, NULL, wiimod_rumble_play))
-+	if (input_ff_create_mlnx(wdata->input, NULL, wiimod_rumble_play, FF_U=
-PDATE_RATE))
- 		return -ENOMEM;
-=20
- 	return 0;
-@@ -1771,21 +1780,28 @@ static void wiimod_pro_close(struct input_dev *=
-dev)
- }
-=20
- static int wiimod_pro_play(struct input_dev *dev, void *data,
--			   struct ff_effect *eff)
-+			   const struct mlnx_effect_command *command)
- {
- 	struct wiimote_data *wdata =3D input_get_drvdata(dev);
--	__u8 value;
--
--	/*
--	 * The wiimote supports only a single rumble motor so if any magnitud=
-e
--	 * is set to non-zero then we start the rumble motor. If both are set=
- to
--	 * zero, we stop the rumble motor.
--	 */
--
--	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
--		value =3D 1;
--	else
--		value =3D 0;
-+	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
-orce;
-+	__u8 value =3D 0;
-+
-+	switch (command->cmd) {
-+	case MLNX_START_RUMBLE:
-+		/*
-+		 * The wiimote supports only a single rumble motor so if any magnitu=
-de
-+		 * is set to non-zero then we start the rumble motor. If both are se=
-t to
-+		 * zero, we stop the rumble motor.
-+		 */
-+
-+		if (rumble_force->strong || rumble_force->weak)
-+			value =3D 1;
-+		break;
-+	case MLNX_STOP_RUMBLE:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-=20
- 	/* Locking state.lock here might deadlock with input_event() calls.
- 	 * schedule_work acts as barrier. Merging multiple changes is fine. *=
-/
-@@ -1867,8 +1883,8 @@ static int wiimod_pro_probe(const struct wiimod_o=
-ps *ops,
- 	set_bit(FF_RUMBLE, wdata->extension.input->ffbit);
- 	input_set_drvdata(wdata->extension.input, wdata);
-=20
--	if (input_ff_create_memless(wdata->extension.input, NULL,
--				    wiimod_pro_play)) {
-+	if (input_ff_create_mlnx(wdata->extension.input, NULL,
-+				 wiimod_pro_play, FF_UPDATE_RATE)) {
- 		ret =3D -ENOMEM;
- 		goto err_free;
  	}
++
++	ff_field->value[0] =3D x;
++	ff_field->value[1] =3D y;
++
++	hid_hw_request(hid, tmff->report, HID_REQ_SET_REPORT);
+ 	return 0;
+ }
+=20
+@@ -192,7 +209,7 @@ static int tmff_init(struct hid_device *hid, const =
+signed short *ff_bits)
+ 		goto fail;
+ 	}
+=20
+-	error =3D input_ff_create_memless(input_dev, tmff, tmff_play);
++	error =3D input_ff_create_mlnx(input_dev, tmff, tmff_play, FF_UPDATE_=
+RATE);
+ 	if (error)
+ 		goto fail;
+=20
 --=20
 1.9.2

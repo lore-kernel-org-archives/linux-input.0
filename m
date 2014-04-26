@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v4 02/24] input: Port arizona-haptics to ff-memless-next
-Date: Sat, 26 Apr 2014 17:02:01 +0200
-Message-ID: <1398524543-15012-3-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 23/24] hid: Port hid-lg4ff to ff-memless-next
+Date: Sat, 26 Apr 2014 17:02:22 +0200
+Message-ID: <1398524543-15012-24-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,115 +13,178 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port arizona-haptics to ff-memless-next
+Port hid-lg4ff to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
+Tested-by: Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
 ---
- drivers/input/misc/Kconfig           |  2 +-
- drivers/input/misc/arizona-haptics.c | 39 +++++++++++++++++++++++-----=
+ drivers/hid/Kconfig     |  2 +-
+ drivers/hid/hid-lg4ff.c | 93 ++++++++++++++++++++++++++++++-----------=
 --------
- 2 files changed, 26 insertions(+), 15 deletions(-)
+ 2 files changed, 59 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 5928ea7..f669cc7 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -75,7 +75,7 @@ config INPUT_AD714X_SPI
- config INPUT_ARIZONA_HAPTICS
- 	tristate "Arizona haptics support"
- 	depends on MFD_ARIZONA && SND_SOC
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 5e70519..546ac4a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -399,7 +399,7 @@ config LOGIG940_FF
+ config LOGIWHEELS_FF
+ 	bool "Logitech wheels configuration and force feedback support"
+ 	depends on HID_LOGITECH
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
+ 	default LOGITECH_FF
  	help
- 	  Say Y to enable support for the haptics module in Arizona CODECs.
+ 	  Say Y here if you want to enable force feedback and range setting
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 24883b4..d629093 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -25,6 +25,7 @@
 =20
-diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/=
-arizona-haptics.c
-index ef2e281..b4707cc 100644
---- a/drivers/input/misc/arizona-haptics.c
-+++ b/drivers/input/misc/arizona-haptics.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
+=20
  #include <linux/input.h>
 +#include <linux/input/ff-memless-next.h>
- #include <linux/slab.h>
+ #include <linux/usb.h>
+ #include <linux/hid.h>
 =20
- #include <sound/soc.h>
-@@ -22,6 +23,8 @@
- #include <linux/mfd/arizona/pdata.h>
- #include <linux/mfd/arizona/registers.h>
+@@ -45,6 +46,8 @@
+ #define G27_REV_MIN 0x38
+ #define G27_2_REV_MIN 0x39
 =20
-+#define FF_UPDATE_RATE 50
++#define FF_UPDATE_RATE 8
 +
- struct arizona_haptics {
- 	struct arizona *arizona;
- 	struct input_dev *input_dev;
-@@ -108,29 +111,37 @@ static void arizona_haptics_work(struct work_stru=
-ct *work)
+ #define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
+=20
+ static void hid_lg4ff_set_range_dfp(struct hid_device *hid, u16 range)=
+;
+@@ -69,6 +72,13 @@ struct lg4ff_device_entry {
+=20
+ static const signed short lg4ff_wheel_effects[] =3D {
+ 	FF_CONSTANT,
++	FF_RAMP,
++	FF_PERIODIC,
++	FF_SQUARE,
++	FF_TRIANGLE,
++	FF_SINE,
++	FF_SAW_UP,
++	FF_SAW_DOWN,
+ 	FF_AUTOCENTER,
+ 	-1
+ };
+@@ -184,47 +194,60 @@ int lg4ff_adjust_input_event(struct hid_device *h=
+id, struct hid_field *field,
+ 	}
  }
 =20
- static int arizona_haptics_play(struct input_dev *input, void *data,
--				struct ff_effect *effect)
-+				const struct mlnx_effect_command *command)
+-static int hid_lg4ff_play(struct input_dev *dev, void *data, struct ff=
+_effect *effect)
++static int hid_lg4ff_start_combined(struct hid_device *hid, struct hid=
+_report *report,
++				    const struct mlnx_simple_force *force)
++{
++	__s32 *value =3D report->field[0]->value;
++	int scaled_x;
++
++	/* Scale down from MLNX range */
++	scaled_x =3D 0x80 - (force->x * 0xff / 0xffff);
++
++	value[0] =3D 0x11;	/* Slot 1 */
++	value[1] =3D 0x08;
++	value[2] =3D scaled_x;
++	value[3] =3D 0x80;
++	value[4] =3D 0x00;
++	value[5] =3D 0x00;
++	value[6] =3D 0x00;
++
++	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
++	return 0;
++}
++
++static int hid_lg4ff_stop_combined(struct hid_device *hid, struct hid_=
+report *report)
++{
++	__s32 *value =3D report->field[0]->value;
++
++	value[0] =3D 0x13;	/* Slot 1 */
++	value[1] =3D 0x00;
++	value[2] =3D 0x00;
++	value[3] =3D 0x00;
++	value[4] =3D 0x00;
++	value[5] =3D 0x00;
++	value[6] =3D 0x00;
++
++	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
++	return 0;
++}
++
++static int hid_lg4ff_control(struct input_dev *dev, void *data, const =
+struct mlnx_effect_command *command)
  {
- 	struct arizona_haptics *haptics =3D input_get_drvdata(input);
- 	struct arizona *arizona =3D haptics->arizona;
-+	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
-orce;
+ 	struct hid_device *hid =3D input_get_drvdata(dev);
+ 	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
+].report_list;
+ 	struct hid_report *report =3D list_entry(report_list->next, struct hi=
+d_report, list);
+-	__s32 *value =3D report->field[0]->value;
+-	int x;
+-
+-#define CLAMP(x) do { if (x < 0) x =3D 0; else if (x > 0xff) x =3D 0xf=
+f; } while (0)
+-
+-	switch (effect->type) {
+-	case FF_CONSTANT:
+-		x =3D effect->u.ramp.start_level + 0x80;	/* 0x80 is no force */
+-		CLAMP(x);
+-
+-		if (x =3D=3D 0x80) {
+-			/* De-activate force in slot-1*/
+-			value[0] =3D 0x13;
+-			value[1] =3D 0x00;
+-			value[2] =3D 0x00;
+-			value[3] =3D 0x00;
+-			value[4] =3D 0x00;
+-			value[5] =3D 0x00;
+-			value[6] =3D 0x00;
+-
+-			hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+-			return 0;
+-		}
+-
+-		value[0] =3D 0x11;	/* Slot 1 */
+-		value[1] =3D 0x08;
+-		value[2] =3D x;
+-		value[3] =3D 0x80;
+-		value[4] =3D 0x00;
+-		value[5] =3D 0x00;
+-		value[6] =3D 0x00;
 =20
- 	if (!arizona->dapm) {
- 		dev_err(arizona->dev, "No DAPM context\n");
- 		return -EBUSY;
- 	}
-=20
--	if (effect->u.rumble.strong_magnitude) {
--		/* Scale the magnitude into the range the device supports */
--		if (arizona->pdata.hap_act) {
--			haptics->intensity =3D
--				effect->u.rumble.strong_magnitude >> 9;
--			if (effect->direction < 0x8000)
--				haptics->intensity +=3D 0x7f;
+-		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
 +	switch (command->cmd) {
-+	case MLNX_START_RUMBLE:
-+		if (rumble_force->strong) {
-+			/* Scale the magnitude into the range the device supports */
-+			if (arizona->pdata.hap_act) {
-+				haptics->intensity =3D rumble_force->strong >> 9;
-+				if (rumble_force->strong_dir < 0x8000)
-+					haptics->intensity +=3D 0x7f;
-+			} else {
-+				haptics->intensity =3D rumble_force->strong >> 8;
-+			}
- 		} else {
--			haptics->intensity =3D
--				effect->u.rumble.strong_magnitude >> 8;
-+			haptics->intensity =3D 0;
- 		}
--	} else {
++	case MLNX_START_COMBINED:
++		return hid_lg4ff_start_combined(hid, report, &command->u.simple_forc=
+e);
 +		break;
-+	case MLNX_STOP_RUMBLE:
- 		haptics->intensity =3D 0;
-+		break;
++	case MLNX_STOP_COMBINED:
++		return hid_lg4ff_stop_combined(hid, report);
+ 		break;
 +	default:
++		dbg_hid("Unsupported effect command");
 +		return -EINVAL;
  	}
+-	return 0;
+ }
 =20
- 	schedule_work(&haptics->work);
-@@ -183,10 +194,10 @@ static int arizona_haptics_probe(struct platform_=
-device *pdev)
- 	haptics->input_dev->close =3D arizona_haptics_close;
- 	__set_bit(FF_RUMBLE, haptics->input_dev->ffbit);
+ /* Sends default autocentering command compatible with
+@@ -610,7 +633,7 @@ int lg4ff_init(struct hid_device *hid)
+ 	for (j =3D 0; lg4ff_devices[i].ff_effects[j] >=3D 0; j++)
+ 		set_bit(lg4ff_devices[i].ff_effects[j], dev->ffbit);
 =20
--	ret =3D input_ff_create_memless(haptics->input_dev, NULL,
--				      arizona_haptics_play);
-+	ret =3D input_ff_create_mlnx(haptics->input_dev, NULL,
-+				   arizona_haptics_play, FF_UPDATE_RATE);
- 	if (ret < 0) {
--		dev_err(arizona->dev, "input_ff_create_memless() failed: %d\n",
-+		dev_err(arizona->dev, "input_ff_create_mlnx() failed: %d\n",
- 			ret);
- 		goto err_ialloc;
- 	}
+-	error =3D input_ff_create_memless(dev, NULL, hid_lg4ff_play);
++	error =3D input_ff_create_mlnx(dev, (void *)NULL, hid_lg4ff_control, =
+=46F_UPDATE_RATE);
+=20
+ 	if (error)
+ 		return error;
 --=20
 1.9.2

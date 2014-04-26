@@ -1,209 +1,143 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH v3 23/24] hid: Port hid-lg4ff to ff-memless-next
-Date: Sat, 26 Apr 2014 15:50:54 +0200
-Message-ID: <CADbOyBSZHLe3SwRD7fkPa-VCRwt4Vk_hzPKTyQ9GbALFoVwCBw@mail.gmail.com>
-References: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
-	<1398513696-12626-24-git-send-email-madcatxster@devoid-pointer.net>
+From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 00/24] input: Introduce ff-memless-next as an improved replacement for ff-memless
+Date: Sat, 26 Apr 2014 17:01:59 +0200
+Message-ID: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f176.google.com ([209.85.220.176]:51121 "EHLO
-	mail-vc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750926AbaDZNuz convert rfc822-to-8bit (ORCPT
+Received: from transparentnimenzy.cz ([31.31.77.140]:49946 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751222AbaDZPCr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Apr 2014 09:50:55 -0400
-In-Reply-To: <1398513696-12626-24-git-send-email-madcatxster@devoid-pointer.net>
+	Sat, 26 Apr 2014 11:02:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, Simon Wood <simon@mungewell.org>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
-On Sat, Apr 26, 2014 at 1:58 PM, Michal Mal=C3=BD
-<madcatxster@devoid-pointer.net> wrote:
-> Port hid-lg4ff to ff-memless-next
->
-> Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
-> ---
->  drivers/hid/Kconfig     |  2 +-
->  drivers/hid/hid-lg4ff.c | 93 ++++++++++++++++++++++++++++++---------=
-----------
->  2 files changed, 59 insertions(+), 36 deletions(-)
->
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 5e70519..546ac4a 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -399,7 +399,7 @@ config LOGIG940_FF
->  config LOGIWHEELS_FF
->         bool "Logitech wheels configuration and force feedback suppor=
-t"
->         depends on HID_LOGITECH
-> -       select INPUT_FF_MEMLESS
-> +       select INPUT_FF_MEMLESS_NEXT
->         default LOGITECH_FF
->         help
->           Say Y here if you want to enable force feedback and range s=
-etting
-> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> index 24883b4..d629093 100644
-> --- a/drivers/hid/hid-lg4ff.c
-> +++ b/drivers/hid/hid-lg4ff.c
-> @@ -25,6 +25,7 @@
->
->
->  #include <linux/input.h>
-> +#include <linux/input/ff-memless-next.h>
->  #include <linux/usb.h>
->  #include <linux/hid.h>
->
-> @@ -45,6 +46,8 @@
->  #define G27_REV_MIN 0x38
->  #define G27_2_REV_MIN 0x39
->
-> +#define FF_UPDATE_RATE 8
-> +
->  #define to_hid_device(pdev) container_of(pdev, struct hid_device, de=
-v)
->
->  static void hid_lg4ff_set_range_dfp(struct hid_device *hid, u16 rang=
-e);
-> @@ -69,6 +72,13 @@ struct lg4ff_device_entry {
->
->  static const signed short lg4ff_wheel_effects[] =3D {
->         FF_CONSTANT,
-> +       FF_RAMP,
-> +       FF_PERIODIC,
-> +       FF_SQUARE,
-> +       FF_TRIANGLE,
-> +       FF_SINE,
-> +       FF_SAW_UP,
-> +       FF_SAW_DOWN,
->         FF_AUTOCENTER,
->         -1
->  };
-> @@ -184,47 +194,60 @@ int lg4ff_adjust_input_event(struct hid_device =
-*hid, struct hid_field *field,
->         }
->  }
->
-> -static int hid_lg4ff_play(struct input_dev *dev, void *data, struct =
-ff_effect *effect)
-> +static int hid_lg4ff_start_combined(struct hid_device *hid, struct h=
-id_report *report,
-> +                                   const struct mlnx_simple_force *f=
-orce)
-> +{
-> +       __s32 *value =3D report->field[0]->value;
-> +       int scaled_x;
-> +
-> +       /* Scale down from MLNX range */
-> +       scaled_x =3D 0x80 - (force->x * 0xff / 0xffff);
-> +
-> +       value[0] =3D 0x11;        /* Slot 1 */
-> +       value[1] =3D 0x08;
-> +       value[2] =3D scaled_x;
-> +       value[3] =3D 0x80;
-> +       value[4] =3D 0x00;
-> +       value[5] =3D 0x00;
-> +       value[6] =3D 0x00;
-> +
-> +       hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-> +       return 0;
-> +}
-> +
-> +static int hid_lg4ff_stop_combined(struct hid_device *hid, struct hi=
-d_report *report)
-> +{
-> +       __s32 *value =3D report->field[0]->value;
-> +
-> +       value[0] =3D 0x13;        /* Slot 1 */
-> +       value[1] =3D 0x00;
-> +       value[2] =3D 0x00;
-> +       value[3] =3D 0x00;
-> +       value[4] =3D 0x00;
-> +       value[5] =3D 0x00;
-> +       value[6] =3D 0x00;
-> +
-> +       hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-> +       return 0;
-> +}
-> +
-> +static int hid_lg4ff_control(struct input_dev *dev, void *data, cons=
-t struct mlnx_effect_command *command)
->  {
->         struct hid_device *hid =3D input_get_drvdata(dev);
->         struct list_head *report_list =3D &hid->report_enum[HID_OUTPU=
-T_REPORT].report_list;
->         struct hid_report *report =3D list_entry(report_list->next, s=
-truct hid_report, list);
-> -       __s32 *value =3D report->field[0]->value;
-> -       int x;
-> -
-> -#define CLAMP(x) do { if (x < 0) x =3D 0; else if (x > 0xff) x =3D 0=
-xff; } while (0)
-> -
-> -       switch (effect->type) {
-> -       case FF_CONSTANT:
-> -               x =3D effect->u.ramp.start_level + 0x80;  /* 0x80 is =
-no force */
-> -               CLAMP(x);
-> -
-> -               if (x =3D=3D 0x80) {
-> -                       /* De-activate force in slot-1*/
-> -                       value[0] =3D 0x13;
-> -                       value[1] =3D 0x00;
-> -                       value[2] =3D 0x00;
-> -                       value[3] =3D 0x00;
-> -                       value[4] =3D 0x00;
-> -                       value[5] =3D 0x00;
-> -                       value[6] =3D 0x00;
-> -
-> -                       hid_hw_request(hid, report, HID_REQ_SET_REPOR=
-T);
-> -                       return 0;
-> -               }
-> -
-> -               value[0] =3D 0x11;        /* Slot 1 */
-> -               value[1] =3D 0x08;
-> -               value[2] =3D x;
-> -               value[3] =3D 0x80;
-> -               value[4] =3D 0x00;
-> -               value[5] =3D 0x00;
-> -               value[6] =3D 0x00;
->
-> -               hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-> +       switch (command->cmd) {
-> +       case MLNX_START_COMBINED:
-> +               return hid_lg4ff_start_combined(hid, report, &command=
-->u.simple_force);
-> +               break;
-> +       case MLNX_STOP_COMBINED:
-> +               return hid_lg4ff_stop_combined(hid, report);
->                 break;
-> +       default:
-> +               dbg_hid("Unsupported effect command");
-> +               return -EINVAL;
->         }
-> -       return 0;
->  }
->
->  /* Sends default autocentering command compatible with
-> @@ -610,7 +633,7 @@ int lg4ff_init(struct hid_device *hid)
->         for (j =3D 0; lg4ff_devices[i].ff_effects[j] >=3D 0; j++)
->                 set_bit(lg4ff_devices[i].ff_effects[j], dev->ffbit);
->
-> -       error =3D input_ff_create_memless(dev, NULL, hid_lg4ff_play);
-> +       error =3D input_ff_create_mlnx(dev, (void *)NULL, hid_lg4ff_c=
-ontrol, FF_UPDATE_RATE);
->
->         if (error)
->                 return error;
-> --
-> 1.9.2
->
+ff-memless-next (MLNX) is a largely improved version of the current ff-=
+memless
+(FFML) driver. MLNX supports all force feedback effects currently avail=
+able in
+the Linux force feedback userspace API. All effects are handled in acco=
+rdance
+with Microsoft's DirectInput/XInput. Most notable changes include suppo=
+rt for
+conditional effects, proper handling of all periodic waveforms and impr=
+oved
+emulation of rumble effects through periodic effects. MLNX also uses it=
+s own
+kernel API to pass processed effects to hardware-specific drivers inste=
+ad of
+abusing "ff_effect" struct. The API is documented in the respective hea=
+der
+file.
 
-You can add Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
+MLNX has been expanded to be a direct replacement for FFML.
+
+Support for FF_PERIODIC and FF_RAMP has been added to all devices that
+support FF_CONSTANT as a part of the port to the new API.
+
+This patch series:
+1) Adds "ff-memless-next" module [1]
+2) Ports all hardware-specific drivers to MLNX's API [2-23]
+3) Removes FFML and replaces it with MLNX [24]
+
+Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
+
+v4:
+ - Add a summary of changes between MLNX and FFML to the last patch
+ - Remove a stale empty line in hid-sony.c
+ - Add "Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>" to hid-lg4=
+ff patch.
+
+v3:
+ - Rebase against latest linux-next. Fixes conflict in hid-sony.c and
+   max8997_haptic.c
+ - Updated documentation in ff-memless-next.h. The documentation now de=
+scribes
+   parameters of the callback function and specifically mentions that
+   HW-specific drivers must not keep a reference to mlnx_effect_command=
+ struct
+   to which a pointer is passed in the callback function.
+ - Fix a minor brace inconsistency in hid-lgff
+ I believe that all concerns regarding v2 have been resolved as false a=
+larms.
+
+v2:
+ - Add missing msecs to jiffies conversion in ff-memless-next
+ - lgff: Properly convert force on Y axis from MLNX to device range
+         Support periodic effects for "joystick_ac" device class
+ - lg3ff: Properly convert forces from MLNX to device range
+ - Very minor coding style issues fixed
+
+Michal Mal=C3=BD (24):
+  Add ff-memless-next module
+  Port arizona-haptics to ff-memless-next
+  Port twl4030-vibra to ff-memless-next
+  Port twl6040-vibra to ff-memless-next
+  Port max8997_haptic to ff-memless-next
+  Port pm8xxx-vibrator to ff-memless-next
+  Port hid-axff to ff-memless-next
+  Port hid-emsff to ff-memless-next
+  Port hid-dr to ff-memless-next
+  Port hid-gaff to ff-memless-next
+  Port hid-holtekff to ff-memless-next
+  Port hid-lgff to ff-memless-next
+  Port hid-lg3ff to ff-memless-next
+  Port hid-pl to ff-memless-next
+  Port hid-sjoy to ff-memless-next
+  Port hid-sony to ff-memless-next
+  Port hid-tmff to ff-memless-next
+  Port hid-wiimote-modules to ff-memless-next
+  Port hid-zpff to ff-memless-next
+  Port gamecon to ff-memless-next
+  Port xpad to ff-memless-next
+  Port hid-lg2ff to ff-memless-next
+  Port hid-lg4ff to ff-memless-next
+  Replace ff-memless with ff-memless-next
+
+ drivers/hid/Kconfig                   |   30 +-
+ drivers/hid/hid-axff.c                |   32 +-
+ drivers/hid/hid-dr.c                  |   59 +-
+ drivers/hid/hid-emsff.c               |   38 +-
+ drivers/hid/hid-gaff.c                |   32 +-
+ drivers/hid/hid-holtekff.c            |   47 +-
+ drivers/hid/hid-lg2ff.c               |   65 ++-
+ drivers/hid/hid-lg3ff.c               |   60 +-
+ drivers/hid/hid-lg4ff.c               |   93 +--
+ drivers/hid/hid-lgff.c                |   70 ++-
+ drivers/hid/hid-pl.c                  |   38 +-
+ drivers/hid/hid-sjoy.c                |   35 +-
+ drivers/hid/hid-sony.c                |   23 +-
+ drivers/hid/hid-tmff.c                |   83 +--
+ drivers/hid/hid-wiimote-modules.c     |   74 ++-
+ drivers/hid/hid-zpff.c                |   30 +-
+ drivers/input/Kconfig                 |    4 +-
+ drivers/input/Makefile                |    2 +-
+ drivers/input/ff-memless-next.c       | 1037 +++++++++++++++++++++++++=
+++++++++
+ drivers/input/ff-memless.c            |  547 -----------------
+ drivers/input/joystick/Kconfig        |    4 +-
+ drivers/input/joystick/gamecon.c      |   57 +-
+ drivers/input/joystick/xpad.c         |  125 ++--
+ drivers/input/misc/Kconfig            |   10 +-
+ drivers/input/misc/arizona-haptics.c  |   39 +-
+ drivers/input/misc/max8997_haptic.c   |   25 +-
+ drivers/input/misc/pm8xxx-vibrator.c  |   28 +-
+ drivers/input/misc/twl4030-vibra.c    |   31 +-
+ drivers/input/misc/twl6040-vibra.c    |   27 +-
+ include/linux/input.h                 |    3 -
+ include/linux/input/ff-memless-next.h |  162 +++++
+ 31 files changed, 1951 insertions(+), 959 deletions(-)
+ create mode 100644 drivers/input/ff-memless-next.c
+ delete mode 100644 drivers/input/ff-memless.c
+ create mode 100644 include/linux/input/ff-memless-next.h
+
+--=20
+1.9.2
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

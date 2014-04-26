@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v3 07/24] hid: Port hid-axff to ff-memless-next
-Date: Sat, 26 Apr 2014 13:57:44 +0200
-Message-ID: <1398513696-12626-8-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 04/24] input: Port twl6040-vibra to ff-memless-next
+Date: Sat, 26 Apr 2014 13:57:41 +0200
+Message-ID: <1398513696-12626-5-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,95 +13,101 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-axff to ff-memless-next
+Port twl6040-vibra to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig    |  2 +-
- drivers/hid/hid-axff.c | 32 +++++++++++++++++++++++---------
- 2 files changed, 24 insertions(+), 10 deletions(-)
+ drivers/input/misc/Kconfig         |  2 +-
+ drivers/input/misc/twl6040-vibra.c | 27 ++++++++++++++++++++++-----
+ 2 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 7af9d0b..e076627 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -106,7 +106,7 @@ config HID_ACRUX
- config HID_ACRUX_FF
- 	bool "ACRUX force feedback support"
- 	depends on HID_ACRUX
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 817156f..b9cbb91 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -417,7 +417,7 @@ config INPUT_TWL4030_VIBRA
+ config INPUT_TWL6040_VIBRA
+ 	tristate "Support for TWL6040 Vibrator"
+ 	depends on TWL6040_CORE
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
- 	---help---
- 	Say Y here if you want to enable force feedback support for ACRUX
- 	game controllers.
-diff --git a/drivers/hid/hid-axff.c b/drivers/hid/hid-axff.c
-index a594e47..7fbfcbc 100644
---- a/drivers/hid/hid-axff.c
-+++ b/drivers/hid/hid-axff.c
-@@ -31,31 +31,45 @@
- #include <linux/slab.h>
- #include <linux/hid.h>
- #include <linux/module.h>
+ 	help
+ 	  This option enables support for TWL6040 Vibrator Driver.
+=20
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/tw=
+l6040-vibra.c
+index 77dc23b..7440a74 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -30,12 +30,14 @@
+ #include <linux/of.h>
+ #include <linux/workqueue.h>
+ #include <linux/input.h>
 +#include <linux/input/ff-memless-next.h>
+ #include <linux/mfd/twl6040.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/regulator/consumer.h>
 =20
- #include "hid-ids.h"
+ #define EFFECT_DIR_180_DEG	0x8000
++#define FF_UPDATE_RATE		50
 =20
-+#define FF_UPDATE_RATE 50
- #ifdef CONFIG_HID_ACRUX_FF
+ /* Recommended modulation index 85% */
+ #define TWL6040_VIBRA_MOD	85
+@@ -197,9 +199,10 @@ static void vibra_play_work(struct work_struct *wo=
+rk)
+ }
 =20
- struct axff_device {
- 	struct hid_report *report;
- };
-=20
--static int axff_play(struct input_dev *dev, void *data, struct ff_effe=
-ct *effect)
-+static int axff_play(struct input_dev *dev, void *data,
-+		     const struct mlnx_effect_command *command)
+ static int vibra_play(struct input_dev *input, void *data,
+-		      struct ff_effect *effect)
++		      const struct mlnx_effect_command *command)
  {
- 	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct axff_device *axff =3D data;
- 	struct hid_report *report =3D axff->report;
+ 	struct vibra_info *info =3D input_get_drvdata(input);
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
- 	int field_count =3D 0;
- 	int left, right;
- 	int i, j;
+ 	int ret;
 =20
--	left =3D effect->u.rumble.strong_magnitude;
--	right =3D effect->u.rumble.weak_magnitude;
--
--	dbg_hid("called with 0x%04x 0x%04x", left, right);
--
--	left =3D left * 0xff / 0xffff;
--	right =3D right * 0xff / 0xffff;
+ 	/* Do not allow effect, while the routing is set to use audio */
+@@ -209,9 +212,23 @@ static int vibra_play(struct input_dev *input, voi=
+d *data,
+ 		return -EBUSY;
+ 	}
+=20
+-	info->weak_speed =3D effect->u.rumble.weak_magnitude;
+-	info->strong_speed =3D effect->u.rumble.strong_magnitude;
+-	info->direction =3D effect->direction < EFFECT_DIR_180_DEG ? 1 : -1;
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		left =3D rumble_force->strong;
-+		right =3D rumble_force->weak;
-+
-+		dbg_hid("called with 0x%04x 0x%04x", left, right);
-+
-+		left =3D left * 0xff / 0xffff;
-+		right =3D right * 0xff / 0xffff;
++		info->weak_speed =3D rumble_force->weak;
++		info->strong_speed =3D rumble_force->strong;
++		if (info->strong_speed >=3D info->weak_speed)
++			info->direction =3D rumble_force->strong_dir < EFFECT_DIR_180_DEG ?=
+ 1 : -1;
++		else
++			info->direction =3D rumble_force->weak_dir < EFFECT_DIR_180_DEG ? 1=
+ : -1;
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		left =3D 0;
-+		right =3D 0;
++		info->weak_speed =3D 0;
++		info->strong_speed =3D 0;
++		info->direction =3D 1;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
 =20
- 	for (i =3D 0; i < report->maxfield; i++) {
- 		for (j =3D 0; j < report->field[i]->report_count; j++) {
-@@ -107,7 +121,7 @@ static int axff_init(struct hid_device *hid)
+ 	ret =3D queue_work(info->workqueue, &info->play_work);
+ 	if (!ret) {
+@@ -367,7 +384,7 @@ static int twl6040_vibra_probe(struct platform_devi=
+ce *pdev)
+ 	info->input_dev->close =3D twl6040_vibra_close;
+ 	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
 =20
- 	set_bit(FF_RUMBLE, dev->ffbit);
-=20
--	error =3D input_ff_create_memless(dev, axff, axff_play);
-+	error =3D input_ff_create_mlnx(dev, axff, axff_play, FF_UPDATE_RATE);
- 	if (error)
- 		goto err_free_mem;
-=20
+-	ret =3D input_ff_create_memless(info->input_dev, NULL, vibra_play);
++	ret =3D input_ff_create_mlnx(info->input_dev, NULL, vibra_play, FF_UP=
+DATE_RATE);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "couldn't register vibrator to FF\n");
+ 		goto err_ialloc;
 --=20
 1.9.2

@@ -1,213 +1,142 @@
-From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Sat, 26 Apr 2014 09:53:13 +0400
-Message-ID: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
+From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
+Subject: [PATCH v3 00/24] input: Introduce ff-memless-next as an improved replacement for ff-memless
+Date: Sat, 26 Apr 2014 13:57:37 +0200
+Message-ID: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2.mail.ru ([94.100.176.130]:60109 "EHLO smtp2.mail.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750728AbaDZFxY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Apr 2014 01:53:24 -0400
+Received: from devoid-pointer.net ([31.31.77.140]:49808 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751241AbaDZMCt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Apr 2014 08:02:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
-Replace existing resource handling in the driver with managed
-device resource, this ensures more consistent error values and
-simplifies error paths.
-kzalloc -> devm_kzalloc
-gpio_request_one -> devm_gpio_request_one
+ff-memless-next (MLNX) is a largely improved version of the current ff-=
+memless
+(FFML) driver. MLNX supports all force feedback effects currently avail=
+able in
+the Linux force feedback userspace API. All effects are handled in acco=
+rdance
+with Microsoft's DirectInput/XInput. Most notable changes include suppo=
+rt for
+conditional effects, proper handling of all periodic waveforms and impr=
+oved
+emulation of rumble effects through periodic effects. MLNX also uses it=
+s own
+kernel API to pass processed effects to hardware-specific drivers inste=
+ad of
+abusing "ff_effect" struct. The API is documented in the respective hea=
+der
+file.
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
----
- drivers/input/keyboard/gpio_keys_polled.c | 87 ++++++++-----------------------
- 1 file changed, 23 insertions(+), 64 deletions(-)
+MLNX has been expanded to be a direct replacement for FFML.
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index e571e19..04db0a5 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -108,9 +108,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	struct device_node *node, *pp;
- 	struct gpio_keys_platform_data *pdata;
- 	struct gpio_keys_button *button;
--	int error;
--	int nbuttons;
--	int i;
-+	int i, nbuttons;
- 
- 	node = dev->of_node;
- 	if (!node)
-@@ -120,12 +118,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	if (nbuttons == 0)
- 		return NULL;
- 
--	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
--			GFP_KERNEL);
--	if (!pdata) {
--		error = -ENOMEM;
--		goto err_out;
--	}
-+	pdata = devm_kzalloc(dev, sizeof(*pdata) + nbuttons * sizeof(*button),
-+			     GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
- 
- 	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
- 	pdata->nbuttons = nbuttons;
-@@ -146,12 +142,11 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 
- 		gpio = of_get_gpio_flags(pp, 0, &flags);
- 		if (gpio < 0) {
--			error = gpio;
--			if (error != -EPROBE_DEFER)
-+			if (gpio != -EPROBE_DEFER)
- 				dev_err(dev,
- 					"Failed to get gpio flags, error: %d\n",
--					error);
--			goto err_free_pdata;
-+					gpio);
-+			return ERR_PTR(gpio);
- 		}
- 
- 		button = &pdata->buttons[i++];
-@@ -162,8 +157,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n",
- 				button->gpio);
--			error = -EINVAL;
--			goto err_free_pdata;
-+			return ERR_PTR(-EINVAL);
- 		}
- 
- 		button->desc = of_get_property(pp, "label", NULL);
-@@ -178,17 +172,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 			button->debounce_interval = 5;
- 	}
- 
--	if (pdata->nbuttons == 0) {
--		error = -EINVAL;
--		goto err_free_pdata;
--	}
-+	if (!pdata->nbuttons)
-+		return ERR_PTR(-EINVAL);
- 
- 	return pdata;
--
--err_free_pdata:
--	kfree(pdata);
--err_out:
--	return ERR_PTR(error);
- }
- 
- static struct of_device_id gpio_keys_polled_of_match[] = {
-@@ -228,24 +215,21 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	if (!pdata->poll_interval) {
- 		dev_err(dev, "missing poll_interval value\n");
--		error = -EINVAL;
--		goto err_free_pdata;
-+		return -EINVAL;
- 	}
- 
--	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
--		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
--		       GFP_KERNEL);
-+	bdev = devm_kzalloc(&pdev->dev, sizeof(struct gpio_keys_polled_dev) +
-+			pdata->nbuttons * sizeof(struct gpio_keys_button_data),
-+			GFP_KERNEL);
- 	if (!bdev) {
- 		dev_err(dev, "no memory for private data\n");
--		error = -ENOMEM;
--		goto err_free_pdata;
-+		return -ENOMEM;
- 	}
- 
- 	poll_dev = input_allocate_polled_device();
- 	if (!poll_dev) {
- 		dev_err(dev, "no memory for polled device\n");
--		error = -ENOMEM;
--		goto err_free_bdev;
-+		return -ENOMEM;
- 	}
- 
- 	poll_dev->private = bdev;
-@@ -278,15 +262,15 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 		if (button->wakeup) {
- 			dev_err(dev, DRV_NAME " does not support wakeup\n");
- 			error = -EINVAL;
--			goto err_free_gpio;
-+			goto err_out;
- 		}
- 
--		error = gpio_request_one(gpio, GPIOF_IN,
--					 button->desc ?: DRV_NAME);
-+		error = devm_gpio_request_one(&pdev->dev, gpio, GPIOF_IN,
-+					      button->desc ? : DRV_NAME);
- 		if (error) {
- 			dev_err(dev, "unable to claim gpio %u, err=%d\n",
- 				gpio, error);
--			goto err_free_gpio;
-+			goto err_out;
- 		}
- 
- 		bdata->can_sleep = gpio_cansleep(gpio);
-@@ -306,7 +290,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_err(dev, "unable to register polled device, err=%d\n",
- 			error);
--		goto err_free_gpio;
-+		goto err_out;
- 	}
- 
- 	/* report initial state of the buttons */
-@@ -316,45 +300,20 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--err_free_gpio:
--	while (--i >= 0)
--		gpio_free(pdata->buttons[i].gpio);
--
-+err_out:
- 	input_free_polled_device(poll_dev);
- 
--err_free_bdev:
--	kfree(bdev);
--
--err_free_pdata:
--	/* If we have no platform_data, we allocated pdata dynamically.  */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
- 	return error;
- }
- 
- static int gpio_keys_polled_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
--	int i;
- 
- 	input_unregister_polled_device(bdev->poll_dev);
- 
--	for (i = 0; i < pdata->nbuttons; i++)
--		gpio_free(pdata->buttons[i].gpio);
--
- 	input_free_polled_device(bdev->poll_dev);
- 
--	/*
--	 * If we had no platform_data, we allocated pdata dynamically and
--	 * must free it here.
--	 */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
--	kfree(bdev);
--
- 	return 0;
- }
- 
--- 
-1.8.3.2
+Support for FF_PERIODIC and FF_RAMP has been added to all devices that
+support FF_CONSTANT as a part of the port to the new API.
 
+This patch series:
+1) Adds "ff-memless-next" module [1]
+2) Ports all hardware-specific drivers to MLNX's API [2-23]
+3) Removes FFML and replaces it with MLNX [24]
+
+Signed-off-by: Michal Mal=C3=BD <madcatxster@xxxxxxxxxxxxxxxxxx>
+
+v3:
+ - Rebase against latest linux-next. Fixes conflict in hid-sony.c and
+   max8997_haptic.c
+ - Updated documentation in ff-memless-next.h. The documentation now de=
+scribes
+   parameters of the callback function and specifically mentions that
+   HW-specific drivers must not keep a reference to mlnx_effect_command=
+ struct
+   to which a pointer is passed in the callback function.
+ - Fix a minor brace inconsistency in hid-lgff
+ I believe that all concerns regarding v2 have been resolved as false a=
+larms.
+
+v2:
+ - Add missing msecs to jiffies conversion in ff-memless-next
+ - lgff: Properly convert force on Y axis from MLNX to device range
+         Support periodic effects for "joystick_ac" device class
+ - lg3ff: Properly convert forces from MLNX to device range
+ - Very minor coding style issues fixed
+
+Michal Mal=C3=BD (24):
+  Add ff-memless-next module
+  Port arizona-haptics to ff-memless-next
+  Port twl4030-vibra to ff-memless-next
+  Port twl6040-vibra to ff-memless-next
+  Port max8997_haptic to ff-memless-next
+  Port pm8xxx-vibrator to ff-memless-next
+  Port hid-axff to ff-memless-next
+  Port hid-emsff to ff-memless-next
+  Port hid-dr to ff-memless-next
+  Port hid-gaff to ff-memless-next
+  Port hid-holtekff to ff-memless-next
+  Port hid-lgff to ff-memless-next
+  Port hid-lg3ff to ff-memless-next
+  Port hid-pl to ff-memless-next
+  Port hid-sjoy to ff-memless-next
+  Port hid-sony to ff-memless-next
+  Port hid-tmff to ff-memless-next
+  Port hid-wiimote-modules to ff-memless-next
+  Port hid-zpff to ff-memless-next
+  Port gamecon to ff-memless-next
+  Port xpad to ff-memless-next
+  - Port hid-lg2ff to ff-memless-next     - Clamp vibration magnitude t=
+o
+    range <0x02; 0xfd> to prevent irregular       shaking of the
+    vibration motors.
+  Port hid-lg4ff to ff-memless-next
+  Replace ff-memless with ff-memless-next
+
+ drivers/hid/Kconfig                   |   30 +-
+ drivers/hid/hid-axff.c                |   32 +-
+ drivers/hid/hid-dr.c                  |   59 +-
+ drivers/hid/hid-emsff.c               |   38 +-
+ drivers/hid/hid-gaff.c                |   32 +-
+ drivers/hid/hid-holtekff.c            |   47 +-
+ drivers/hid/hid-lg2ff.c               |   65 ++-
+ drivers/hid/hid-lg3ff.c               |   60 +-
+ drivers/hid/hid-lg4ff.c               |   93 +--
+ drivers/hid/hid-lgff.c                |   70 ++-
+ drivers/hid/hid-pl.c                  |   38 +-
+ drivers/hid/hid-sjoy.c                |   35 +-
+ drivers/hid/hid-sony.c                |   24 +-
+ drivers/hid/hid-tmff.c                |   83 +--
+ drivers/hid/hid-wiimote-modules.c     |   74 ++-
+ drivers/hid/hid-zpff.c                |   30 +-
+ drivers/input/Kconfig                 |    4 +-
+ drivers/input/Makefile                |    2 +-
+ drivers/input/ff-memless-next.c       | 1037 +++++++++++++++++++++++++=
+++++++++
+ drivers/input/ff-memless.c            |  547 -----------------
+ drivers/input/joystick/Kconfig        |    4 +-
+ drivers/input/joystick/gamecon.c      |   57 +-
+ drivers/input/joystick/xpad.c         |  125 ++--
+ drivers/input/misc/Kconfig            |   10 +-
+ drivers/input/misc/arizona-haptics.c  |   39 +-
+ drivers/input/misc/max8997_haptic.c   |   25 +-
+ drivers/input/misc/pm8xxx-vibrator.c  |   28 +-
+ drivers/input/misc/twl4030-vibra.c    |   31 +-
+ drivers/input/misc/twl6040-vibra.c    |   27 +-
+ include/linux/input.h                 |    3 -
+ include/linux/input/ff-memless-next.h |  162 +++++
+ 31 files changed, 1952 insertions(+), 959 deletions(-)
+ create mode 100644 drivers/input/ff-memless-next.c
+ delete mode 100644 drivers/input/ff-memless.c
+ create mode 100644 include/linux/input/ff-memless-next.h
+
+--=20
+1.9.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

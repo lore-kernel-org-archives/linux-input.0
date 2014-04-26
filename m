@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v3 23/24] hid: Port hid-lg4ff to ff-memless-next
-Date: Sat, 26 Apr 2014 13:58:00 +0200
-Message-ID: <1398513696-12626-24-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v3 17/24] hid: Port hid-tmff to ff-memless-next
+Date: Sat, 26 Apr 2014 13:57:54 +0200
+Message-ID: <1398513696-12626-18-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398513696-12626-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,177 +13,170 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-lg4ff to ff-memless-next
+Port hid-tmff to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig     |  2 +-
- drivers/hid/hid-lg4ff.c | 93 ++++++++++++++++++++++++++++++-----------=
+ drivers/hid/Kconfig    |  2 +-
+ drivers/hid/hid-tmff.c | 83 ++++++++++++++++++++++++++++++------------=
 --------
- 2 files changed, 59 insertions(+), 36 deletions(-)
+ 2 files changed, 51 insertions(+), 34 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 5e70519..546ac4a 100644
+index e97c382..17ed5cf 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -399,7 +399,7 @@ config LOGIG940_FF
- config LOGIWHEELS_FF
- 	bool "Logitech wheels configuration and force feedback support"
- 	depends on HID_LOGITECH
+@@ -730,7 +730,7 @@ config HID_THRUSTMASTER
+ config THRUSTMASTER_FF
+ 	bool "ThrustMaster devices force feedback support"
+ 	depends on HID_THRUSTMASTER
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
- 	default LOGITECH_FF
- 	help
- 	  Say Y here if you want to enable force feedback and range setting
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index 24883b4..d629093 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -25,6 +25,7 @@
-=20
-=20
+ 	---help---
+ 	  Say Y here if you have a THRUSTMASTER FireStore Dual Power 2 or 3,
+ 	  a THRUSTMASTER Dual Trigger 3-in-1 or a THRUSTMASTER Ferrari GT
+diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
+index b833760..3df000c 100644
+--- a/drivers/hid/hid-tmff.c
++++ b/drivers/hid/hid-tmff.c
+@@ -31,9 +31,12 @@
  #include <linux/input.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
 +#include <linux/input/ff-memless-next.h>
- #include <linux/usb.h>
- #include <linux/hid.h>
 =20
-@@ -45,6 +46,8 @@
- #define G27_REV_MIN 0x38
- #define G27_2_REV_MIN 0x39
+ #include "hid-ids.h"
 =20
-+#define FF_UPDATE_RATE 8
++#define FF_UPDATE_RATE 50
 +
- #define to_hid_device(pdev) container_of(pdev, struct hid_device, dev)
+ static const signed short ff_rumble[] =3D {
+ 	FF_RUMBLE,
+ 	-1
+@@ -41,6 +44,13 @@ static const signed short ff_rumble[] =3D {
 =20
- static void hid_lg4ff_set_range_dfp(struct hid_device *hid, u16 range)=
-;
-@@ -69,6 +72,13 @@ struct lg4ff_device_entry {
-=20
- static const signed short lg4ff_wheel_effects[] =3D {
+ static const signed short ff_joystick[] =3D {
  	FF_CONSTANT,
 +	FF_RAMP,
 +	FF_PERIODIC,
++	FF_SINE,
 +	FF_SQUARE,
 +	FF_TRIANGLE,
-+	FF_SINE,
-+	FF_SAW_UP,
 +	FF_SAW_DOWN,
- 	FF_AUTOCENTER,
++	FF_SAW_UP,
  	-1
  };
-@@ -184,47 +194,60 @@ int lg4ff_adjust_input_event(struct hid_device *h=
-id, struct hid_field *field,
- 	}
+=20
+@@ -67,12 +77,12 @@ static inline int tmff_scale_u16(unsigned int in, i=
+nt minimum, int maximum)
+ 	return ret;
  }
 =20
--static int hid_lg4ff_play(struct input_dev *dev, void *data, struct ff=
-_effect *effect)
-+static int hid_lg4ff_start_combined(struct hid_device *hid, struct hid=
-_report *report,
-+				    const struct mlnx_simple_force *force)
-+{
-+	__s32 *value =3D report->field[0]->value;
-+	int scaled_x;
-+
-+	/* Scale down from MLNX range */
-+	scaled_x =3D 0x80 - (force->x * 0xff / 0xffff);
-+
-+	value[0] =3D 0x11;	/* Slot 1 */
-+	value[1] =3D 0x08;
-+	value[2] =3D scaled_x;
-+	value[3] =3D 0x80;
-+	value[4] =3D 0x00;
-+	value[5] =3D 0x00;
-+	value[6] =3D 0x00;
-+
-+	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-+	return 0;
-+}
-+
-+static int hid_lg4ff_stop_combined(struct hid_device *hid, struct hid_=
-report *report)
-+{
-+	__s32 *value =3D report->field[0]->value;
-+
-+	value[0] =3D 0x13;	/* Slot 1 */
-+	value[1] =3D 0x00;
-+	value[2] =3D 0x00;
-+	value[3] =3D 0x00;
-+	value[4] =3D 0x00;
-+	value[5] =3D 0x00;
-+	value[6] =3D 0x00;
-+
-+	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
-+	return 0;
-+}
-+
-+static int hid_lg4ff_control(struct input_dev *dev, void *data, const =
-struct mlnx_effect_command *command)
+-/* Changes values from -0x80 to 0x7f into values from minimum to maxim=
+um */
+-static inline int tmff_scale_s8(int in, int minimum, int maximum)
++/* Changes values from -0x7fff to 0x7fff into values from minimum to m=
+aximum */
++static inline int tmff_scale_s32(int in, int minimum, int maximum)
+ {
+ 	int ret;
+=20
+-	ret =3D (((in + 0x80) * (maximum - minimum)) / 0xff) + minimum;
++	ret =3D (((in + 0x7fff) * (maximum - minimum)) / 0xffff) + minimum;
+ 	if (ret < minimum)
+ 		return minimum;
+ 	if (ret > maximum)
+@@ -81,43 +91,50 @@ static inline int tmff_scale_s8(int in, int minimum=
+, int maximum)
+ }
+=20
+ static int tmff_play(struct input_dev *dev, void *data,
+-		struct ff_effect *effect)
++		const struct mlnx_effect_command *command)
  {
  	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
-].report_list;
- 	struct hid_report *report =3D list_entry(report_list->next, struct hi=
-d_report, list);
--	__s32 *value =3D report->field[0]->value;
--	int x;
--
--#define CLAMP(x) do { if (x < 0) x =3D 0; else if (x > 0xff) x =3D 0xf=
-f; } while (0)
+ 	struct tmff_device *tmff =3D data;
+ 	struct hid_field *ff_field =3D tmff->ff_field;
+ 	int x, y;
+-	int left, right;	/* Rumbling */
 -
 -	switch (effect->type) {
 -	case FF_CONSTANT:
--		x =3D effect->u.ramp.start_level + 0x80;	/* 0x80 is no force */
--		CLAMP(x);
+-		x =3D tmff_scale_s8(effect->u.ramp.start_level,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
+-		y =3D tmff_scale_s8(effect->u.ramp.end_level,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
 -
--		if (x =3D=3D 0x80) {
--			/* De-activate force in slot-1*/
--			value[0] =3D 0x13;
--			value[1] =3D 0x00;
--			value[2] =3D 0x00;
--			value[3] =3D 0x00;
--			value[4] =3D 0x00;
--			value[5] =3D 0x00;
--			value[6] =3D 0x00;
--
--			hid_hw_request(hid, report, HID_REQ_SET_REPORT);
--			return 0;
--		}
--
--		value[0] =3D 0x11;	/* Slot 1 */
--		value[1] =3D 0x08;
--		value[2] =3D x;
--		value[3] =3D 0x80;
--		value[4] =3D 0x00;
--		value[5] =3D 0x00;
--		value[6] =3D 0x00;
+-		dbg_hid("(x, y)=3D(%04x, %04x)\n", x, y);
+-		ff_field->value[0] =3D x;
+-		ff_field->value[1] =3D y;
+-		hid_hw_request(hid, tmff->report, HID_REQ_SET_REPORT);
+-		break;
 =20
--		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
+-	case FF_RUMBLE:
+-		left =3D tmff_scale_u16(effect->u.rumble.weak_magnitude,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
+-		right =3D tmff_scale_u16(effect->u.rumble.strong_magnitude,
+-					ff_field->logical_minimum,
+-					ff_field->logical_maximum);
+-
+-		dbg_hid("(left,right)=3D(%08x, %08x)\n", left, right);
+-		ff_field->value[0] =3D left;
+-		ff_field->value[1] =3D right;
+-		hid_hw_request(hid, tmff->report, HID_REQ_SET_REPORT);
 +	switch (command->cmd) {
-+	case MLNX_START_COMBINED:
-+		return hid_lg4ff_start_combined(hid, report, &command->u.simple_forc=
-e);
++	case MLNX_START_COMBINED: {
++		const struct mlnx_simple_force *sf =3D &command->u.simple_force;
++		x =3D tmff_scale_s32(sf->x,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
++		y =3D tmff_scale_s32(sf->y,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
 +		break;
++		}
 +	case MLNX_STOP_COMBINED:
-+		return hid_lg4ff_stop_combined(hid, report);
++		x =3D 0;
++		y =3D 0;
++		break;
++	case MLNX_START_RUMBLE: {
++		const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_=
+force;
++		x =3D tmff_scale_u16(rumble_force->weak,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
++		y =3D tmff_scale_u16(rumble_force->strong,
++				   ff_field->logical_minimum,
++				   ff_field->logical_maximum);
  		break;
++		}
++	case MLNX_STOP_RUMBLE:
++		x =3D 0;
++		y =3D 0;
++		break;
 +	default:
-+		dbg_hid("Unsupported effect command");
 +		return -EINVAL;
  	}
--	return 0;
++
++	ff_field->value[0] =3D x;
++	ff_field->value[1] =3D y;
++
++	hid_hw_request(hid, tmff->report, HID_REQ_SET_REPORT);
+ 	return 0;
  }
 =20
- /* Sends default autocentering command compatible with
-@@ -610,7 +633,7 @@ int lg4ff_init(struct hid_device *hid)
- 	for (j =3D 0; lg4ff_devices[i].ff_effects[j] >=3D 0; j++)
- 		set_bit(lg4ff_devices[i].ff_effects[j], dev->ffbit);
+@@ -192,7 +209,7 @@ static int tmff_init(struct hid_device *hid, const =
+signed short *ff_bits)
+ 		goto fail;
+ 	}
 =20
--	error =3D input_ff_create_memless(dev, NULL, hid_lg4ff_play);
-+	error =3D input_ff_create_mlnx(dev, (void *)NULL, hid_lg4ff_control, =
-=46F_UPDATE_RATE);
-=20
+-	error =3D input_ff_create_memless(input_dev, tmff, tmff_play);
++	error =3D input_ff_create_mlnx(input_dev, tmff, tmff_play, FF_UPDATE_=
+RATE);
  	if (error)
- 		return error;
+ 		goto fail;
+=20
 --=20
 1.9.2

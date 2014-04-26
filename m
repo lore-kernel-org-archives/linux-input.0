@@ -1,140 +1,113 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v4 00/24] input: Introduce ff-memless-next as an improved replacement for ff-memless
-Date: Sat, 26 Apr 2014 17:01:59 +0200
-Message-ID: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 07/24] hid: Port hid-axff to ff-memless-next
+Date: Sat, 26 Apr 2014 17:02:06 +0200
+Message-ID: <1398524543-15012-8-git-send-email-madcatxster@devoid-pointer.net>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from transparentnimenzy.cz ([31.31.77.140]:49946 "EHLO
+Received: from devoid-pointer.net ([31.31.77.140]:49976 "EHLO
 	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751222AbaDZPCr (ORCPT
+	with ESMTP id S1751807AbaDZPDO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Apr 2014 11:02:47 -0400
+	Sat, 26 Apr 2014 11:03:14 -0400
+In-Reply-To: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 
-ff-memless-next (MLNX) is a largely improved version of the current ff-=
-memless
-(FFML) driver. MLNX supports all force feedback effects currently avail=
-able in
-the Linux force feedback userspace API. All effects are handled in acco=
-rdance
-with Microsoft's DirectInput/XInput. Most notable changes include suppo=
-rt for
-conditional effects, proper handling of all periodic waveforms and impr=
-oved
-emulation of rumble effects through periodic effects. MLNX also uses it=
-s own
-kernel API to pass processed effects to hardware-specific drivers inste=
-ad of
-abusing "ff_effect" struct. The API is documented in the respective hea=
-der
-file.
-
-MLNX has been expanded to be a direct replacement for FFML.
-
-Support for FF_PERIODIC and FF_RAMP has been added to all devices that
-support FF_CONSTANT as a part of the port to the new API.
-
-This patch series:
-1) Adds "ff-memless-next" module [1]
-2) Ports all hardware-specific drivers to MLNX's API [2-23]
-3) Removes FFML and replaces it with MLNX [24]
+Port hid-axff to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
+---
+ drivers/hid/Kconfig    |  2 +-
+ drivers/hid/hid-axff.c | 32 +++++++++++++++++++++++---------
+ 2 files changed, 24 insertions(+), 10 deletions(-)
 
-v4:
- - Add a summary of changes between MLNX and FFML to the last patch
- - Remove a stale empty line in hid-sony.c
- - Add "Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>" to hid-lg4=
-ff patch.
-
-v3:
- - Rebase against latest linux-next. Fixes conflict in hid-sony.c and
-   max8997_haptic.c
- - Updated documentation in ff-memless-next.h. The documentation now de=
-scribes
-   parameters of the callback function and specifically mentions that
-   HW-specific drivers must not keep a reference to mlnx_effect_command=
- struct
-   to which a pointer is passed in the callback function.
- - Fix a minor brace inconsistency in hid-lgff
- I believe that all concerns regarding v2 have been resolved as false a=
-larms.
-
-v2:
- - Add missing msecs to jiffies conversion in ff-memless-next
- - lgff: Properly convert force on Y axis from MLNX to device range
-         Support periodic effects for "joystick_ac" device class
- - lg3ff: Properly convert forces from MLNX to device range
- - Very minor coding style issues fixed
-
-Michal Mal=C3=BD (24):
-  Add ff-memless-next module
-  Port arizona-haptics to ff-memless-next
-  Port twl4030-vibra to ff-memless-next
-  Port twl6040-vibra to ff-memless-next
-  Port max8997_haptic to ff-memless-next
-  Port pm8xxx-vibrator to ff-memless-next
-  Port hid-axff to ff-memless-next
-  Port hid-emsff to ff-memless-next
-  Port hid-dr to ff-memless-next
-  Port hid-gaff to ff-memless-next
-  Port hid-holtekff to ff-memless-next
-  Port hid-lgff to ff-memless-next
-  Port hid-lg3ff to ff-memless-next
-  Port hid-pl to ff-memless-next
-  Port hid-sjoy to ff-memless-next
-  Port hid-sony to ff-memless-next
-  Port hid-tmff to ff-memless-next
-  Port hid-wiimote-modules to ff-memless-next
-  Port hid-zpff to ff-memless-next
-  Port gamecon to ff-memless-next
-  Port xpad to ff-memless-next
-  Port hid-lg2ff to ff-memless-next
-  Port hid-lg4ff to ff-memless-next
-  Replace ff-memless with ff-memless-next
-
- drivers/hid/Kconfig                   |   30 +-
- drivers/hid/hid-axff.c                |   32 +-
- drivers/hid/hid-dr.c                  |   59 +-
- drivers/hid/hid-emsff.c               |   38 +-
- drivers/hid/hid-gaff.c                |   32 +-
- drivers/hid/hid-holtekff.c            |   47 +-
- drivers/hid/hid-lg2ff.c               |   65 ++-
- drivers/hid/hid-lg3ff.c               |   60 +-
- drivers/hid/hid-lg4ff.c               |   93 +--
- drivers/hid/hid-lgff.c                |   70 ++-
- drivers/hid/hid-pl.c                  |   38 +-
- drivers/hid/hid-sjoy.c                |   35 +-
- drivers/hid/hid-sony.c                |   23 +-
- drivers/hid/hid-tmff.c                |   83 +--
- drivers/hid/hid-wiimote-modules.c     |   74 ++-
- drivers/hid/hid-zpff.c                |   30 +-
- drivers/input/Kconfig                 |    4 +-
- drivers/input/Makefile                |    2 +-
- drivers/input/ff-memless-next.c       | 1037 +++++++++++++++++++++++++=
-++++++++
- drivers/input/ff-memless.c            |  547 -----------------
- drivers/input/joystick/Kconfig        |    4 +-
- drivers/input/joystick/gamecon.c      |   57 +-
- drivers/input/joystick/xpad.c         |  125 ++--
- drivers/input/misc/Kconfig            |   10 +-
- drivers/input/misc/arizona-haptics.c  |   39 +-
- drivers/input/misc/max8997_haptic.c   |   25 +-
- drivers/input/misc/pm8xxx-vibrator.c  |   28 +-
- drivers/input/misc/twl4030-vibra.c    |   31 +-
- drivers/input/misc/twl6040-vibra.c    |   27 +-
- include/linux/input.h                 |    3 -
- include/linux/input/ff-memless-next.h |  162 +++++
- 31 files changed, 1951 insertions(+), 959 deletions(-)
- create mode 100644 drivers/input/ff-memless-next.c
- delete mode 100644 drivers/input/ff-memless.c
- create mode 100644 include/linux/input/ff-memless-next.h
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 7af9d0b..e076627 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -106,7 +106,7 @@ config HID_ACRUX
+ config HID_ACRUX_FF
+ 	bool "ACRUX force feedback support"
+ 	depends on HID_ACRUX
+-	select INPUT_FF_MEMLESS
++	select INPUT_FF_MEMLESS_NEXT
+ 	---help---
+ 	Say Y here if you want to enable force feedback support for ACRUX
+ 	game controllers.
+diff --git a/drivers/hid/hid-axff.c b/drivers/hid/hid-axff.c
+index a594e47..7fbfcbc 100644
+--- a/drivers/hid/hid-axff.c
++++ b/drivers/hid/hid-axff.c
+@@ -31,31 +31,45 @@
+ #include <linux/slab.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/input/ff-memless-next.h>
+=20
+ #include "hid-ids.h"
+=20
++#define FF_UPDATE_RATE 50
+ #ifdef CONFIG_HID_ACRUX_FF
+=20
+ struct axff_device {
+ 	struct hid_report *report;
+ };
+=20
+-static int axff_play(struct input_dev *dev, void *data, struct ff_effe=
+ct *effect)
++static int axff_play(struct input_dev *dev, void *data,
++		     const struct mlnx_effect_command *command)
+ {
+ 	struct hid_device *hid =3D input_get_drvdata(dev);
+ 	struct axff_device *axff =3D data;
+ 	struct hid_report *report =3D axff->report;
++	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
+orce;
+ 	int field_count =3D 0;
+ 	int left, right;
+ 	int i, j;
+=20
+-	left =3D effect->u.rumble.strong_magnitude;
+-	right =3D effect->u.rumble.weak_magnitude;
+-
+-	dbg_hid("called with 0x%04x 0x%04x", left, right);
+-
+-	left =3D left * 0xff / 0xffff;
+-	right =3D right * 0xff / 0xffff;
++	switch (command->cmd) {
++	case MLNX_START_RUMBLE:
++		left =3D rumble_force->strong;
++		right =3D rumble_force->weak;
++
++		dbg_hid("called with 0x%04x 0x%04x", left, right);
++
++		left =3D left * 0xff / 0xffff;
++		right =3D right * 0xff / 0xffff;
++		break;
++	case MLNX_STOP_RUMBLE:
++		left =3D 0;
++		right =3D 0;
++		break;
++	default:
++		return -EINVAL;
++	}
+=20
+ 	for (i =3D 0; i < report->maxfield; i++) {
+ 		for (j =3D 0; j < report->field[i]->report_count; j++) {
+@@ -107,7 +121,7 @@ static int axff_init(struct hid_device *hid)
+=20
+ 	set_bit(FF_RUMBLE, dev->ffbit);
+=20
+-	error =3D input_ff_create_memless(dev, axff, axff_play);
++	error =3D input_ff_create_mlnx(dev, axff, axff_play, FF_UPDATE_RATE);
+ 	if (error)
+ 		goto err_free_mem;
+=20
 --=20
 1.9.2
 

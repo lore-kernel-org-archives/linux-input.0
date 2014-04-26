@@ -1,131 +1,110 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: [PATCHv3 1/5] Input: add common DT binding for touchscreens
-Date: Sat, 26 Apr 2014 01:56:15 +0200
-Message-ID: <1398470179-20880-2-git-send-email-sre@kernel.org>
-References: <1398470179-20880-1-git-send-email-sre@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398470179-20880-1-git-send-email-sre@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 3/3] Input: gpio_keys - convert struct descriptions to
+ kernel-doc
+Date: Fri, 25 Apr 2014 21:41:34 -0700
+Message-ID: <20140426044134.GA27425@core.coreip.homeip.net>
+References: <1398442937-15309-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1398442937-15309-4-git-send-email-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f49.google.com ([209.85.160.49]:44424 "EHLO
+	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750715AbaDZEli (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Apr 2014 00:41:38 -0400
+Content-Disposition: inline
+In-Reply-To: <1398442937-15309-4-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add common DT binding documentation for touchscreen devices and
-implement input_parse_touchscreen_of_params, which parses the common
-properties and configures the input device accordingly.
+On Fri, Apr 25, 2014 at 07:22:17PM +0300, Andy Shevchenko wrote:
+> This patch converts descriptions of the structures defined in linux/gpio_keys.h
+> to follow kernel-doc format.
+> 
+> There is no functional change.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-The method currently does not interpret the axis inversion properties,
-since there is no matching flag in the generic linux input device.
+Applied, thank you.
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
----
- .../bindings/input/touchscreen/touchscreen.txt     | 27 +++++++++++++++++
- drivers/input/input.c                              | 34 ++++++++++++++++++++++
- include/linux/input.h                              |  8 +++++
- 3 files changed, 69 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> ---
+>  include/linux/gpio_keys.h | 45 +++++++++++++++++++++++++++++++++------------
+>  1 file changed, 33 insertions(+), 12 deletions(-)
+> 
+> diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+> index a7e977f..997134a 100644
+> --- a/include/linux/gpio_keys.h
+> +++ b/include/linux/gpio_keys.h
+> @@ -3,29 +3,50 @@
+>  
+>  struct device;
+>  
+> +/**
+> + * struct gpio_keys_button - configuration parameters
+> + * @code:		input event code (KEY_*, SW_*)
+> + * @gpio:		%-1 if this key does not support gpio
+> + * @active_low:
+> + * @desc:
+> + * @type:		input event type (%EV_KEY, %EV_SW, %EV_ABS)
+> + * @wakeup:		configure the button as a wake-up source
+> + * @debounce_interval:	debounce ticks interval in msecs
+> + * @can_disable:
+> + * @value:		axis value for %EV_ABS
+> + * @irq:		Irq number in case of interrupt keys
+> + */
+>  struct gpio_keys_button {
+> -	/* Configuration parameters */
+> -	unsigned int code;	/* input event code (KEY_*, SW_*) */
+> -	int gpio;		/* -1 if this key does not support gpio */
+> +	unsigned int code;
+> +	int gpio;
+>  	int active_low;
+>  	const char *desc;
+> -	unsigned int type;	/* input event type (EV_KEY, EV_SW, EV_ABS) */
+> -	int wakeup;		/* configure the button as a wake-up source */
+> -	int debounce_interval;	/* debounce ticks interval in msecs */
+> +	unsigned int type;
+> +	int wakeup;
+> +	int debounce_interval;
+>  	bool can_disable;
+> -	int value;		/* axis value for EV_ABS */
+> -	unsigned int irq;	/* Irq number in case of interrupt keys */
+> +	int value;
+> +	unsigned int irq;
+>  };
+>  
+> +/**
+> + * struct gpio_keys_platform_data - platform data for gpio_keys driver
+> + * @buttons:
+> + * @nbuttons:
+> + * @poll_interval:	polling interval in msecs - for polling driver only
+> + * @rep:		enable input subsystem auto repeat
+> + * @enable:
+> + * @disable:
+> + * @name:		input device name
+> + */
+>  struct gpio_keys_platform_data {
+>  	struct gpio_keys_button *buttons;
+>  	int nbuttons;
+> -	unsigned int poll_interval;	/* polling interval in msecs -
+> -					   for polling driver only */
+> -	unsigned int rep:1;		/* enable input subsystem auto repeat */
+> +	unsigned int poll_interval;
+> +	unsigned int rep:1;
+>  	int (*enable)(struct device *dev);
+>  	void (*disable)(struct device *dev);
+> -	const char *name;		/* input device name */
+> +	const char *name;
+>  };
+>  
+>  #endif
+> -- 
+> 1.9.2
+> 
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-new file mode 100644
-index 0000000..d8e0616
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-@@ -0,0 +1,27 @@
-+General Touchscreen Properties:
-+
-+Optional properties for Touchscreens:
-+ - touchscreen-size-x		: horizontal resolution of touchscreen
-+				  (in pixels)
-+ - touchscreen-size-y		: vertical resolution of touchscreen
-+				  (in pixels)
-+ - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
-+				  dependent on the controller)
-+ - touchscreen-fuzz-x		: horizontal noise value of the absolute input
-+				  device (in pixels)
-+ - touchscreen-fuzz-y		: vertical noise value of the absolute input
-+				  device (in pixels)
-+ - touchscreen-fuzz-pressure	: pressure noise value of the absolute input
-+				  device (arbitrary range dependent on the
-+				  controller)
-+ - touchscreen-inverted-x	: X axis is inverted (boolean)
-+ - touchscreen-inverted-y	: Y axis is inverted (boolean)
-+
-+Deprecated properties for Touchscreens:
-+ - x-size			: deprecated name for touchscreen-size-x
-+ - y-size			: deprecated name for touchscreen-size-y
-+ - moving-threshold		: deprecated name for a combination of
-+				  touchscreen-fuzz-x and touchscreen-fuzz-y
-+ - contact-threshold		: deprecated name for touchscreen-fuzz-pressure
-+ - x-invert			: deprecated name for touchscreen-inverted-x
-+ - y-invert			: deprecated name for touchscreen-inverted-y
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 1c4c0db..97966d93 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -27,6 +27,7 @@
- #include <linux/device.h>
- #include <linux/mutex.h>
- #include <linux/rcupdate.h>
-+#include <linux/of.h>
- #include "input-compat.h"
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-@@ -2398,6 +2399,39 @@ void input_free_minor(unsigned int minor)
- }
- EXPORT_SYMBOL(input_free_minor);
- 
-+#if defined(CONFIG_OF)
-+/**
-+ * input_parse_touchscreen_of_params - parse common touchscreen DT properties
-+ * @dev: device that should be parsed
-+ *
-+ * This function parses common DT properties for touchscreens and setups the
-+ * input device accordingly. The function keeps previously setuped default
-+ * values if no value is specified via DT.
-+ */
-+void input_parse_touchscreen_of_params(struct input_dev *dev)
-+{
-+	struct device_node *np = dev->dev.parent->of_node;
-+	struct input_absinfo *absinfo;
-+
-+	input_alloc_absinfo(dev);
-+	if (!dev->absinfo)
-+		return;
-+
-+	absinfo = &dev->absinfo[ABS_X];
-+	of_property_read_u32(np, "touchscreen-size-x", &absinfo->maximum);
-+	of_property_read_u32(np, "touchscreen-fuzz-x", &absinfo->fuzz);
-+
-+	absinfo = &dev->absinfo[ABS_Y];
-+	of_property_read_u32(np, "touchscreen-size-y", &absinfo->maximum);
-+	of_property_read_u32(np, "touchscreen-fuzz-y", &absinfo->fuzz);
-+
-+	absinfo = &dev->absinfo[ABS_PRESSURE];
-+	of_property_read_u32(np, "touchscreen-max-pressure", &absinfo->maximum);
-+	of_property_read_u32(np, "touchscreen-fuzz-pressure", &absinfo->fuzz);
-+}
-+EXPORT_SYMBOL(input_parse_touchscreen_of_params);
-+#endif
-+
- static int __init input_init(void)
- {
- 	int err;
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 82ce323..3dc3b1e 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -531,4 +531,12 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
- int input_ff_create_memless(struct input_dev *dev, void *data,
- 		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
- 
-+#if defined(CONFIG_OF)
-+void input_parse_touchscreen_of_params(struct input_dev *dev);
-+#else
-+static inline void input_parse_touchscreen_of_params(struct input_dev *dev) {
-+	return;
-+}
-+#endif
-+
- #endif
 -- 
-1.9.2
+Dmitry

@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
-Subject: [PATCH v4 10/24] hid: Port hid-gaff to ff-memless-next
-Date: Sat, 26 Apr 2014 17:02:09 +0200
-Message-ID: <1398524543-15012-11-git-send-email-madcatxster@devoid-pointer.net>
+Subject: [PATCH v4 06/24] input: Port pm8xxx-vibrator to ff-memless-next
+Date: Sat, 26 Apr 2014 17:02:05 +0200
+Message-ID: <1398524543-15012-7-git-send-email-madcatxster@devoid-pointer.net>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,93 +13,92 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@devoid-pointer.net>
 List-Id: linux-input@vger.kernel.org
 
-Port hid-gaff to ff-memless-next
+Port pm8xxx-vibrator to ff-memless-next
 
 Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
 ---
- drivers/hid/Kconfig    |  2 +-
- drivers/hid/hid-gaff.c | 32 +++++++++++++++++++++++---------
- 2 files changed, 24 insertions(+), 10 deletions(-)
+ drivers/input/misc/Kconfig           |  2 +-
+ drivers/input/misc/pm8xxx-vibrator.c | 28 +++++++++++++++++++---------
+ 2 files changed, 20 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 1d4180c..4c59a88 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -667,7 +667,7 @@ config HID_GREENASIA
- config GREENASIA_FF
- 	bool "GreenAsia (Product ID 0x12) force feedback support"
- 	depends on HID_GREENASIA
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index a89dc22..7b962e4 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -108,7 +108,7 @@ config INPUT_PCSPKR
+ config INPUT_PM8XXX_VIBRATOR
+ 	tristate "Qualcomm PM8XXX vibrator support"
+ 	depends on MFD_PM8XXX
 -	select INPUT_FF_MEMLESS
 +	select INPUT_FF_MEMLESS_NEXT
- 	---help---
- 	Say Y here if you have a GreenAsia (Product ID 0x12) based game contr=
-oller
- 	(like MANTA Warrior MM816 and SpeedLink Strike2 SL-6635) or adapter
-diff --git a/drivers/hid/hid-gaff.c b/drivers/hid/hid-gaff.c
-index 2d8cead..f2f70c1 100644
---- a/drivers/hid/hid-gaff.c
-+++ b/drivers/hid/hid-gaff.c
-@@ -31,8 +31,11 @@
+ 	help
+ 	  This option enables device driver support for the vibrator
+ 	  on Qualcomm PM8xxx chip. This driver supports ff-memless interface
+diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/=
+pm8xxx-vibrator.c
+index 6a915ba..1796f4f 100644
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -17,6 +17,7 @@
+ #include <linux/input.h>
  #include <linux/slab.h>
- #include <linux/hid.h>
- #include <linux/module.h>
+ #include <linux/regmap.h>
 +#include <linux/input/ff-memless-next.h>
- #include "hid-ids.h"
 =20
-+#define FF_UPDATE_RATE 50
-+
- #ifdef CONFIG_GREENASIA_FF
+ #define VIB_DRV			0x4A
 =20
- struct gaff_device {
-@@ -40,19 +43,30 @@ struct gaff_device {
- };
+@@ -29,7 +30,7 @@
+ #define VIB_MAX_LEVELS		(VIB_MAX_LEVEL_mV - VIB_MIN_LEVEL_mV)
 =20
- static int hid_gaff_play(struct input_dev *dev, void *data,
--			 struct ff_effect *effect)
-+			 const struct mlnx_effect_command *command)
+ #define MAX_FF_SPEED		0xff
+-
++#define FF_UPDATE_RATE		50
+ /**
+  * struct pm8xxx_vib - structure to hold vibrator data
+  * @vib_input_dev: input device supporting force feedback
+@@ -128,14 +129,23 @@ static void pm8xxx_vib_close(struct input_dev *de=
+v)
+  * Currently this driver supports only rumble effects.
+  */
+ static int pm8xxx_vib_play_effect(struct input_dev *dev, void *data,
+-				  struct ff_effect *effect)
++				  const struct mlnx_command *command)
  {
- 	struct hid_device *hid =3D input_get_drvdata(dev);
- 	struct gaff_device *gaff =3D data;
+ 	struct pm8xxx_vib *vib =3D input_get_drvdata(dev);
+-
+-	vib->speed =3D effect->u.rumble.strong_magnitude >> 8;
+-	if (!vib->speed)
+-		vib->speed =3D effect->u.rumble.weak_magnitude >> 9;
+-
 +	const struct mlnx_rumble_force *rumble_force =3D &command->u.rumble_f=
 orce;
- 	int left, right;
-=20
--	left =3D effect->u.rumble.strong_magnitude;
--	right =3D effect->u.rumble.weak_magnitude;
--
--	dbg_hid("called with 0x%04x 0x%04x", left, right);
--
--	left =3D left * 0xfe / 0xffff;
--	right =3D right * 0xfe / 0xffff;
++
 +	switch (command->cmd) {
 +	case MLNX_START_RUMBLE:
-+		left =3D rumble_force->strong;
-+		right =3D rumble_force->weak;
-+
-+		dbg_hid("called with 0x%04x 0x%04x", left, right);
-+
-+		left =3D left * 0xfe / 0xffff;
-+		right =3D right * 0xfe / 0xffff;
++		vib->speed =3D rumble_force->strong >> 8;
++		if (!vib->speed)
++			vib->speed =3D rumble_force->weak >> 9;
 +		break;
 +	case MLNX_STOP_RUMBLE:
-+		left =3D 0;
-+		right =3D 0;
++		vib->speed =3D 0;
 +		break;
 +	default:
 +		return -EINVAL;
 +	}
+ 	schedule_work(&vib->work);
 =20
- 	gaff->report->field[0]->value[0] =3D 0x51;
- 	gaff->report->field[0]->value[1] =3D 0x0;
-@@ -109,7 +123,7 @@ static int gaff_init(struct hid_device *hid)
+ 	return 0;
+@@ -181,8 +191,8 @@ static int pm8xxx_vib_probe(struct platform_device =
+*pdev)
+ 	input_set_drvdata(input_dev, vib);
+ 	input_set_capability(vib->vib_input_dev, EV_FF, FF_RUMBLE);
 =20
- 	set_bit(FF_RUMBLE, dev->ffbit);
-=20
--	error =3D input_ff_create_memless(dev, gaff, hid_gaff_play);
-+	error =3D input_ff_create_mlnx(dev, gaff, hid_gaff_play, FF_UPDATE_RA=
-TE);
+-	error =3D input_ff_create_memless(input_dev, NULL,
+-					pm8xxx_vib_play_effect);
++	error =3D input_ff_create_mlnx(input_dev, NULL,
++				     pm8xxx_vib_play_effect, FF_UPDATE_RATE);
  	if (error) {
- 		kfree(gaff);
- 		return error;
+ 		dev_err(&pdev->dev,
+ 			"couldn't register vibrator as FF device\n");
 --=20
 1.9.2

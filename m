@@ -1,41 +1,31 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Olivier Gay <ogay@logitech.com>
 Subject: Re: [PATCH v4] HID: add missing hid usages
-Date: Mon, 28 Apr 2014 17:00:28 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1404281659140.8903@pobox.suse.cz>
-References: <1398450404-20484-1-git-send-email-ogay@logitech.com> <20140425183043.GC12355@core.coreip.homeip.net>
+Date: Mon, 28 Apr 2014 17:51:53 +0200
+Message-ID: <CAFLMSp_pxoj8UwHRY0JSh4dCJGqivTrtDFPc2X=Qb9C3fkHbYA@mail.gmail.com>
+References: <1398450404-20484-1-git-send-email-ogay@logitech.com>
+ <20140425183043.GC12355@core.coreip.homeip.net> <alpine.LNX.2.00.1404281659140.8903@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33404 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753557AbaD1PAa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Apr 2014 11:00:30 -0400
-In-Reply-To: <20140425183043.GC12355@core.coreip.homeip.net>
+Received: from na6sys009bog019.obsmtp.com ([74.125.150.78]:43657 "EHLO
+	na6sys009bog019.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755335AbaD1PwP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Apr 2014 11:52:15 -0400
+Received: by mail-we0-f174.google.com with SMTP id w62so5218832wes.5
+        for <linux-input@vger.kernel.org>; Mon, 28 Apr 2014 08:52:13 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1404281659140.8903@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Olivier Gay <ogay@logitech.com>, linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 
-On Fri, 25 Apr 2014, Dmitry Torokhov wrote:
+On Mon, Apr 28, 2014 at 5:00 PM, Jiri Kosina <jkosina@suse.cz> wrote:
 
-> > Add some missing hid usages from consumer page, add
-> > some display brightness control usages from approved hid usage
-> > table request HUTTR41:
-> > http://www.usb.org/developers/hidpage/HUTRR41.pdf
-> > and add voice command usage from approved request HUTTR45:
-> > http://www.usb.org/developers/hidpage/Voice_Command_Usage.pdf
-> > 
-> > Signed-off-by: Olivier Gay <ogay@logitech.com>
-> > Signed-off-by: Mathieu Meisser <mmeisser@logitech.com>
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> with a small nit below. Probably Jiri can fix it up without resubmitting.
+> > with a small nit below. Probably Jiri can fix it up without resubmitting.
+>
+> Absolutely; applied now.
 
-Absolutely; applied now.
+Great, thank you both!
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Olivier

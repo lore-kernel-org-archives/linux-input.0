@@ -1,38 +1,64 @@
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2Ml0gaW5wdXQ6IGdwaW8tYmVlcGVyOiBTaW1wbGlmeSBH?=
- =?UTF-8?B?UElPIGhhbmRsaW5n?=
-Date: Tue, 29 Apr 2014 06:55:49 +0400
-Message-ID: <1398740149.14014937@f348.i.mail.ru>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input: gpio-beeper: Simplify GPIO handling
+Date: Mon, 28 Apr 2014 20:22:32 -0700
+Message-ID: <20140429032232.GC7672@core.coreip.homeip.net>
 References: <1398491214-14936-1-git-send-email-shc_work@mail.ru>
  <20140429022104.GA7672@core.coreip.homeip.net>
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+ <1398740149.14014937@f348.i.mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback8.mail.ru ([94.100.176.136]:33925 "EHLO
-	fallback8.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751540AbaD2C4I (ORCPT
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:62881 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751726AbaD2DWe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Apr 2014 22:56:08 -0400
-Received: from f348.i.mail.ru (f348.i.mail.ru [217.69.140.244])
-	by fallback8.mail.ru (mPOP.Fallback_MX) with ESMTP id 3A95E5818DDB
-	for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 06:56:05 +0400 (MSK)
-In-Reply-To: <20140429022104.GA7672@core.coreip.homeip.net>
+	Mon, 28 Apr 2014 23:22:34 -0400
+Received: by mail-pd0-f173.google.com with SMTP id p10so6103890pdj.4
+        for <linux-input@vger.kernel.org>; Mon, 28 Apr 2014 20:22:34 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1398740149.14014937@f348.i.mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+To: Alexander Shiyan <shc_work@mail.ru>
 Cc: linux-input@vger.kernel.org
 
-TW9uLCAyOCBBcHIgMjAxNCAxOToyMTowNCAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
-dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gSGkgQWxleGFuZGVyLAo+IAo+IE9uIFNhdCwgQXBy
-IDI2LCAyMDE0IGF0IDA5OjQ2OjU0QU0gKzA0MDAsIEFsZXhhbmRlciBTaGl5YW4gd3JvdGU6Cj4g
-PiArCWJlZXAtPmRlc2MgPSBkZXZtX2dwaW9kX2dldCgmcGRldi0+ZGV2LCBOVUxMKTsKPiA+ICsJ
-aWYgKCFiZWVwLT5kZXNjKQo+ID4gKwkJcmV0dXJuIC1FSU5WQUw7Cj4gCj4gQXMgZmFyIGFzIEkg
-Y2FuIHNlZSBkZXZtX2dwaW9kX2dldCgpIG5ldmVyIHJldHVybnMgTlVMTCwgYnV0IGVpdGhlciBh
-Cj4gdmFsaWQgcG9pbnRlciBvciBFUlJfUFRSLWVuY29kZWQgZXJyb3IuIFdoeSBkbyB3ZSBjaGVj
-ayBmb3IgTlVMTD8KPiAKPiBJIGNhbiBkcm9wIHRoZSBjaGVjayBteXNlbGYsIG5vIG5lZWQgdG8g
-cmVzdWJtaXQuCgpPSy4KCi4uLgoKT25lIGlzc3VlIHlvdSBrZWVwIHZhbHVlIGFyZ3VtZW50IGZv
-ciBncGlvX2JlZXBlcl90b2dnbGUoKSBhcyBib29sLgpJdCBzaG91bGQgYmUgImludCIgYXMgaW4g
-b3JpZ2luYWwgcGF0Y2gsIGFzIHdlbGwgYXMgImJlZXBpbmciIHZhbHVlIGluIHByaXZhdGUgc3Ry
-dWN0LgoKLS0tCgo=
+On Tue, Apr 29, 2014 at 06:55:49AM +0400, Alexander Shiyan wrote:
+> Mon, 28 Apr 2014 19:21:04 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmitry.=
+torokhov@gmail.com>:
+> > Hi Alexander,
+> >=20
+> > On Sat, Apr 26, 2014 at 09:46:54AM +0400, Alexander Shiyan wrote:
+> > > +	beep->desc =3D devm_gpiod_get(&pdev->dev, NULL);
+> > > +	if (!beep->desc)
+> > > +		return -EINVAL;
+> >=20
+> > As far as I can see devm_gpiod_get() never returns NULL, but either=
+ a
+> > valid pointer or ERR_PTR-encoded error. Why do we check for NULL?
+> >=20
+> > I can drop the check myself, no need to resubmit.
+>=20
+> OK.
+>=20
+> ...
+>=20
+> One issue you keep value argument for gpio_beeper_toggle() as bool.
+> It should be "int" as in original patch, as well as "beeping" value i=
+n
+> private struct.
+
+Not really, value of gpio_set_value_cansleep() is a boolean, even thoug=
+h
+the type is int. I guess using 'int' is historical.  One can't really
+set gpio value to let's say 5.=20
+
+Thanks.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

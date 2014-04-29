@@ -1,85 +1,47 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH v4 00/24] input: Introduce ff-memless-next as an improved
- replacement for ff-memless
-Date: Tue, 29 Apr 2014 11:59:02 -0400
-Message-ID: <996a1b32fb688eeafed959bd545d9301.squirrel@mungewell.org>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCBSRVNFTkQgMS8yXSBpbnB1dDogZ3Bpb19rZXlzX3BvbGxl?=
+ =?UTF-8?B?ZDogQ29udmVydCB0byBkZXZtLSogQVBJ?=
+Date: Tue, 29 Apr 2014 20:03:40 +0400
+Message-ID: <1398787420.62147449@f297.i.mail.ru>
+References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
+ <1398746628.261956573@f341.i.mail.ru>
+ <20140429155031.GB15055@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:37371 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757462AbaD2P7H (ORCPT
+Received: from fallback7.mail.ru ([94.100.176.135]:55161 "EHLO
+	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757760AbaD2QFG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Apr 2014 11:59:07 -0400
-In-Reply-To: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
+	Tue, 29 Apr 2014 12:05:06 -0400
+Received: from f297.i.mail.ru (f297.i.mail.ru [217.69.129.79])
+	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id ECCCD100A3BA7
+	for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 20:03:57 +0400 (MSK)
+In-Reply-To: <20140429155031.GB15055@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org, =?iso-8859-1?Q?=22Michal_Mal=C3=BD=22?= <madcatxster@devoid-pointer.net>
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-> This patch series:
-> 1) Adds "ff-memless-next" module [1]
-> 2) Ports all hardware-specific drivers to MLNX's API [2-23]
-> 3) Removes FFML and replaces it with MLNX [24]
->
-> Signed-off-by: Michal Mal=C3=BD <madcatxster@devoid-pointer.net>
->
-> v4:
->  - Add a summary of changes between MLNX and FFML to the last patch
->  - Remove a stale empty line in hid-sony.c
->  - Add "Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>" to hid-l=
-g4ff
-> patch.
->
-> v3:
->  - Rebase against latest linux-next. Fixes conflict in hid-sony.c and
->    max8997_haptic.c
->  - Updated documentation in ff-memless-next.h. The documentation now
-> describes
->    parameters of the callback function and specifically mentions that
->    HW-specific drivers must not keep a reference to mlnx_effect_comma=
-nd
-> struct
->    to which a pointer is passed in the callback function.
->  - Fix a minor brace inconsistency in hid-lgff
->  I believe that all concerns regarding v2 have been resolved as false
-> alarms.
->
-> v2:
->  - Add missing msecs to jiffies conversion in ff-memless-next
->  - lgff: Properly convert force on Y axis from MLNX to device range
->          Support periodic effects for "joystick_ac" device class
->  - lg3ff: Properly convert forces from MLNX to device range
->  - Very minor coding style issues fixed
-
-Hi all,
-I'd confirm that I build v2 and tested on a number of devices (1), and =
-it
-appears to work OK.
-
-The only slight hiccup was with an older version (Xubuntu 12.10)
-'ffcfstress' application which did not correctly detect the CF
-capabilities of my gaming wheel(s). This is believed to be a fault with
-the application not using correct bit-field testing and appears to have
-been fixed on later versions (Xubuntu 13.10).
-
-I also built v4, but have not yet had time/access to all the devices
-(other than DS4) to test.
-
-Cheers,
-Simon
-
-Tested-by: Simon Wood <simon@mungewell.org>
-
-(1) Devices:
-Logitech Momo Red, Momo Black, DFGT, WiiWheel, G27
-Sony DS3-SA, DS4, Intec 3rd Party PS3 controller
-Nintendo Wii Remote
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+VHVlLCAyOSBBcHIgMjAxNCAwODo1MDozMiAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
+dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gT24gVHVlLCBBcHIgMjksIDIwMTQgYXQgMDg6NDM6
+NDhBTSArMDQwMCwgQWxleGFuZGVyIFNoaXlhbiB3cm90ZToKPiA+IE1vbiwgMjggQXByIDIwMTQg
+MjA6MjY6MDAgLTA3MDAg0L7RgiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFp
+bC5jb20+Ogo+ID4gPiBIaSBBbGV4YW5kZXIsCj4gPiA+IAo+ID4gPiBPbiBTYXQsIEFwciAyNiwg
+MjAxNCBhdCAwOTo1MzoxM0FNICswNDAwLCBBbGV4YW5kZXIgU2hpeWFuIHdyb3RlOgo+ID4gPiA+
+IFJlcGxhY2UgZXhpc3RpbmcgcmVzb3VyY2UgaGFuZGxpbmcgaW4gdGhlIGRyaXZlciB3aXRoIG1h
+bmFnZWQKPiA+ID4gPiBkZXZpY2UgcmVzb3VyY2UsIHRoaXMgZW5zdXJlcyBtb3JlIGNvbnNpc3Rl
+bnQgZXJyb3IgdmFsdWVzIGFuZAo+ID4gPiA+IHNpbXBsaWZpZXMgZXJyb3IgcGF0aHMuCj4gPiA+
+ID4ga3phbGxvYyAtPiBkZXZtX2t6YWxsb2MKPiA+ID4gPiBncGlvX3JlcXVlc3Rfb25lIC0+IGRl
+dm1fZ3Bpb19yZXF1ZXN0X29uZQouLi4KPiA+ID4gQEAgLTE2Miw4ICsxNjAsNyBAQCBzdGF0aWMg
+c3RydWN0IGdwaW9fa2V5c19wbGF0Zm9ybV9kYXRhICpncGlvX2tleXNfcG9sbGVkX2dldF9kZXZ0
+cmVlX3BkYXRhKHN0cnVjdAo+ID4gPiAgCQlpZiAob2ZfcHJvcGVydHlfcmVhZF91MzIocHAsICJs
+aW51eCxjb2RlIiwgJmJ1dHRvbi0+Y29kZSkpIHsKPiA+ID4gIAkJCWRldl9lcnIoZGV2LCAiQnV0
+dG9uIHdpdGhvdXQga2V5Y29kZTogMHgleFxuIiwKPiA+ID4gIAkJCQlidXR0b24tPmdwaW8pOwo+
+ID4gPiAtCQkJZXJyb3IgPSAtRUlOVkFMOwo+ID4gPiAtCQkJZ290byBlcnJfZnJlZV9wZGF0YTsK
+PiA+ID4gKwkJCXJldHVybiBFUlJfUFRSKC1FSU5WQUwpOwo+ID4gPiAgCQl9Cj4gPiAKPiA+IFdl
+IGNhbiBldmVuIHVzZSByZXR1cm4gdmFsdWUgZnJvbSBvZl9wcm9wZXJ0eV9yZWFkX3UzMigpIG9u
+IGVycm9yLgo+ID4gCj4gPiBBbGwgb3RoZXIgbG9va3MgT0suCj4gCj4gRG8geW91IGhhdmUgaGFy
+ZHdhcmUgdGhhdCB1c2VzIGdwaW9fa2V5c19wb2xsZWQ/CgpZZXMuCgotLS0KCg==

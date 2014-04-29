@@ -1,249 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Mon, 28 Apr 2014 20:26:00 -0700
-Message-ID: <20140429032600.GD7672@core.coreip.homeip.net>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCBSRVNFTkQgMS8yXSBpbnB1dDogZ3Bpb19rZXlzX3BvbGxl?=
+ =?UTF-8?B?ZDogQ29udmVydCB0byBkZXZtLSogQVBJ?=
+Date: Tue, 29 Apr 2014 08:43:48 +0400
+Message-ID: <1398746628.261956573@f341.i.mail.ru>
 References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
+ <20140429032600.GD7672@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:40439 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751710AbaD2D0C (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Apr 2014 23:26:02 -0400
-Received: by mail-pd0-f173.google.com with SMTP id p10so6124030pdj.18
-        for <linux-input@vger.kernel.org>; Mon, 28 Apr 2014 20:26:02 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
+Received: from f341.i.mail.ru ([217.69.140.237]:53053 "EHLO f341.i.mail.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750760AbaD2Enw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Apr 2014 00:43:52 -0400
+In-Reply-To: <20140429032600.GD7672@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Hi Alexander,
-
-On Sat, Apr 26, 2014 at 09:53:13AM +0400, Alexander Shiyan wrote:
-> Replace existing resource handling in the driver with managed
-> device resource, this ensures more consistent error values and
-> simplifies error paths.
-> kzalloc -> devm_kzalloc
-> gpio_request_one -> devm_gpio_request_one
-> 
-
-If we are doing the conversion can we go all the Alexanderway (needs the
-other 2 patches I just posted and CCed you)?
-
-Thanks.
-
--- 
-Dmitry
-
-Input: gpio_keys_polled - convert to devm-* API
-
-From: Alexander Shiyan <shc_work@mail.ru>
-
-Replace existing resource handling in the driver with managed device
-resources, this ensures more consistent error values and simplifies error
-handling paths:
-
-kzalloc -> devm_kzalloc
-gpio_request_one -> devm_gpio_request_one
-input_allocate_polled_device -> devm_input_allocate_polled_device
-
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/gpio_keys_polled.c |   98 ++++++-----------------------
- 1 file changed, 21 insertions(+), 77 deletions(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index e571e19..196b5ec 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -120,12 +120,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	if (nbuttons == 0)
- 		return NULL;
- 
--	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
--			GFP_KERNEL);
--	if (!pdata) {
--		error = -ENOMEM;
--		goto err_out;
--	}
-+	pdata = devm_kzalloc(dev, sizeof(*pdata) + nbuttons * sizeof(*button),
-+			     GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
- 
- 	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
- 	pdata->nbuttons = nbuttons;
-@@ -151,7 +149,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 				dev_err(dev,
- 					"Failed to get gpio flags, error: %d\n",
- 					error);
--			goto err_free_pdata;
-+			return ERR_PTR(error);
- 		}
- 
- 		button = &pdata->buttons[i++];
-@@ -162,8 +160,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n",
- 				button->gpio);
--			error = -EINVAL;
--			goto err_free_pdata;
-+			return ERR_PTR(-EINVAL);
- 		}
- 
- 		button->desc = of_get_property(pp, "label", NULL);
-@@ -178,17 +175,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 			button->debounce_interval = 5;
- 	}
- 
--	if (pdata->nbuttons == 0) {
--		error = -EINVAL;
--		goto err_free_pdata;
--	}
-+	if (pdata->nbuttons == 0)
-+		return ERR_PTR(-EINVAL);
- 
- 	return pdata;
--
--err_free_pdata:
--	kfree(pdata);
--err_out:
--	return ERR_PTR(error);
- }
- 
- static struct of_device_id gpio_keys_polled_of_match[] = {
-@@ -213,6 +203,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	struct gpio_keys_polled_dev *bdev;
- 	struct input_polled_dev *poll_dev;
- 	struct input_dev *input;
-+	size_t size;
- 	int error;
- 	int i;
- 
-@@ -228,24 +219,21 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	if (!pdata->poll_interval) {
- 		dev_err(dev, "missing poll_interval value\n");
--		error = -EINVAL;
--		goto err_free_pdata;
-+		return -EINVAL;
- 	}
- 
--	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
--		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
--		       GFP_KERNEL);
-+	size = sizeof(struct gpio_keys_polled_dev) +
-+			pdata->nbuttons * sizeof(struct gpio_keys_button_data);
-+	bdev = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
- 	if (!bdev) {
- 		dev_err(dev, "no memory for private data\n");
--		error = -ENOMEM;
--		goto err_free_pdata;
-+		return -ENOMEM;
- 	}
- 
--	poll_dev = input_allocate_polled_device();
-+	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
- 	if (!poll_dev) {
- 		dev_err(dev, "no memory for polled device\n");
--		error = -ENOMEM;
--		goto err_free_bdev;
-+		return -ENOMEM;
- 	}
- 
- 	poll_dev->private = bdev;
-@@ -258,7 +246,6 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	input->name = pdev->name;
- 	input->phys = DRV_NAME"/input0";
--	input->dev.parent = &pdev->dev;
- 
- 	input->id.bustype = BUS_HOST;
- 	input->id.vendor = 0x0001;
-@@ -277,16 +264,15 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 		if (button->wakeup) {
- 			dev_err(dev, DRV_NAME " does not support wakeup\n");
--			error = -EINVAL;
--			goto err_free_gpio;
-+			return -EINVAL;
- 		}
- 
--		error = gpio_request_one(gpio, GPIOF_IN,
--					 button->desc ?: DRV_NAME);
-+		error = devm_gpio_request_one(&pdev->dev, gpio, GPIOF_IN,
-+					      button->desc ? : DRV_NAME);
- 		if (error) {
- 			dev_err(dev, "unable to claim gpio %u, err=%d\n",
- 				gpio, error);
--			goto err_free_gpio;
-+			return error;
- 		}
- 
- 		bdata->can_sleep = gpio_cansleep(gpio);
-@@ -306,7 +292,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_err(dev, "unable to register polled device, err=%d\n",
- 			error);
--		goto err_free_gpio;
-+		return error;
- 	}
- 
- 	/* report initial state of the buttons */
-@@ -315,52 +301,10 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 					     &bdev->data[i]);
- 
- 	return 0;
--
--err_free_gpio:
--	while (--i >= 0)
--		gpio_free(pdata->buttons[i].gpio);
--
--	input_free_polled_device(poll_dev);
--
--err_free_bdev:
--	kfree(bdev);
--
--err_free_pdata:
--	/* If we have no platform_data, we allocated pdata dynamically.  */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
--	return error;
--}
--
--static int gpio_keys_polled_remove(struct platform_device *pdev)
--{
--	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
--	int i;
--
--	input_unregister_polled_device(bdev->poll_dev);
--
--	for (i = 0; i < pdata->nbuttons; i++)
--		gpio_free(pdata->buttons[i].gpio);
--
--	input_free_polled_device(bdev->poll_dev);
--
--	/*
--	 * If we had no platform_data, we allocated pdata dynamically and
--	 * must free it here.
--	 */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
--	kfree(bdev);
--
--	return 0;
- }
- 
- static struct platform_driver gpio_keys_polled_driver = {
- 	.probe	= gpio_keys_polled_probe,
--	.remove	= gpio_keys_polled_remove,
- 	.driver	= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
+TW9uLCAyOCBBcHIgMjAxNCAyMDoyNjowMCAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
+dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gSGkgQWxleGFuZGVyLAo+IAo+IE9uIFNhdCwgQXBy
+IDI2LCAyMDE0IGF0IDA5OjUzOjEzQU0gKzA0MDAsIEFsZXhhbmRlciBTaGl5YW4gd3JvdGU6Cj4g
+PiBSZXBsYWNlIGV4aXN0aW5nIHJlc291cmNlIGhhbmRsaW5nIGluIHRoZSBkcml2ZXIgd2l0aCBt
+YW5hZ2VkCj4gPiBkZXZpY2UgcmVzb3VyY2UsIHRoaXMgZW5zdXJlcyBtb3JlIGNvbnNpc3RlbnQg
+ZXJyb3IgdmFsdWVzIGFuZAo+ID4gc2ltcGxpZmllcyBlcnJvciBwYXRocy4KPiA+IGt6YWxsb2Mg
+LT4gZGV2bV9remFsbG9jCj4gPiBncGlvX3JlcXVlc3Rfb25lIC0+IGRldm1fZ3Bpb19yZXF1ZXN0
+X29uZQo+ID4gCj4gCj4gSWYgd2UgYXJlIGRvaW5nIHRoZSBjb252ZXJzaW9uIGNhbiB3ZSBnbyBh
+bGwgdGhlIEFsZXhhbmRlcndheSAobmVlZHMgdGhlCj4gb3RoZXIgMiBwYXRjaGVzIEkganVzdCBw
+b3N0ZWQgYW5kIENDZWQgeW91KT8KPiAKPiBUaGFua3MuCj4gCj4gLS0gCj4gRG1pdHJ5Cj4gCj4g
+SW5wdXQ6IGdwaW9fa2V5c19wb2xsZWQgLSBjb252ZXJ0IHRvIGRldm0tKiBBUEkKPiAKPiBGcm9t
+OiBBbGV4YW5kZXIgU2hpeWFuIDxzaGNfd29ya0BtYWlsLnJ1Pgo+IAo+IFJlcGxhY2UgZXhpc3Rp
+bmcgcmVzb3VyY2UgaGFuZGxpbmcgaW4gdGhlIGRyaXZlciB3aXRoIG1hbmFnZWQgZGV2aWNlCj4g
+cmVzb3VyY2VzLCB0aGlzIGVuc3VyZXMgbW9yZSBjb25zaXN0ZW50IGVycm9yIHZhbHVlcyBhbmQg
+c2ltcGxpZmllcyBlcnJvcgo+IGhhbmRsaW5nIHBhdGhzOgo+IAo+IGt6YWxsb2MgLT4gZGV2bV9r
+emFsbG9jCj4gZ3Bpb19yZXF1ZXN0X29uZSAtPiBkZXZtX2dwaW9fcmVxdWVzdF9vbmUKPiBpbnB1
+dF9hbGxvY2F0ZV9wb2xsZWRfZGV2aWNlIC0+IGRldm1faW5wdXRfYWxsb2NhdGVfcG9sbGVkX2Rl
+dmljZQo+IAo+IFNpZ25lZC1vZmYtYnk6IEFsZXhhbmRlciBTaGl5YW4gPHNoY193b3JrQG1haWwu
+cnU+Cj4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21h
+aWwuY29tPgo+IC0tLQouLi4KPiBAQCAtMTYyLDggKzE2MCw3IEBAIHN0YXRpYyBzdHJ1Y3QgZ3Bp
+b19rZXlzX3BsYXRmb3JtX2RhdGEgKmdwaW9fa2V5c19wb2xsZWRfZ2V0X2RldnRyZWVfcGRhdGEo
+c3RydWN0Cj4gIAkJaWYgKG9mX3Byb3BlcnR5X3JlYWRfdTMyKHBwLCAibGludXgsY29kZSIsICZi
+dXR0b24tPmNvZGUpKSB7Cj4gIAkJCWRldl9lcnIoZGV2LCAiQnV0dG9uIHdpdGhvdXQga2V5Y29k
+ZTogMHgleFxuIiwKPiAgCQkJCWJ1dHRvbi0+Z3Bpbyk7Cj4gLQkJCWVycm9yID0gLUVJTlZBTDsK
+PiAtCQkJZ290byBlcnJfZnJlZV9wZGF0YTsKPiArCQkJcmV0dXJuIEVSUl9QVFIoLUVJTlZBTCk7
+Cj4gIAkJfQoKV2UgY2FuIGV2ZW4gdXNlIHJldHVybiB2YWx1ZSBmcm9tIG9mX3Byb3BlcnR5X3Jl
+YWRfdTMyKCkgb24gZXJyb3IuCgpBbGwgb3RoZXIgbG9va3MgT0suCgotLS0KCg==

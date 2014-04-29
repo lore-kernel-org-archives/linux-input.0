@@ -1,177 +1,90 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: implement managed polled input devices
-Date: Tue, 29 Apr 2014 08:49:42 -0700
-Message-ID: <20140429154942.GA15055@core.coreip.homeip.net>
-References: <20140429032354.GA13445@core.coreip.homeip.net>
- <CANq1E4T9_ckVWzrpxf+x1YBbVMekXpQpqo8ta6da+zrwPPOanw@mail.gmail.com>
+Subject: Re: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
+Date: Tue, 29 Apr 2014 08:50:32 -0700
+Message-ID: <20140429155031.GB15055@core.coreip.homeip.net>
+References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
+ <20140429032600.GD7672@core.coreip.homeip.net>
+ <1398746628.261956573@f341.i.mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:34483 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751706AbaD2Pts (ORCPT
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:64893 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756515AbaD2Puq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Apr 2014 11:49:48 -0400
+	Tue, 29 Apr 2014 11:50:46 -0400
+Received: by mail-pd0-f179.google.com with SMTP id y10so373401pdj.38
+        for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 08:50:45 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CANq1E4T9_ckVWzrpxf+x1YBbVMekXpQpqo8ta6da+zrwPPOanw@mail.gmail.com>
+In-Reply-To: <1398746628.261956573@f341.i.mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Alexander Shiyan <shc_work@mail.ru>
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 29, 2014 at 08:09:39AM +0200, David Herrmann wrote:
-> Hi
-> 
-> On Tue, Apr 29, 2014 at 5:23 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Managed resources are becoming more and more popular in drivers. Let's
-> > implement managed polled input devices, to complement managed regular input
-> > devices.
-> >
-> > Similarly to managed regular input devices only one new call
-> > devm_input_allocate_polled_device() is added and the rest of APIs is
-> > modified to work with both managed and non-managed devices.
-> >
+On Tue, Apr 29, 2014 at 08:43:48AM +0400, Alexander Shiyan wrote:
+> Mon, 28 Apr 2014 20:26:00 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmitry.=
+torokhov@gmail.com>:
+> > Hi Alexander,
+> >=20
+> > On Sat, Apr 26, 2014 at 09:53:13AM +0400, Alexander Shiyan wrote:
+> > > Replace existing resource handling in the driver with managed
+> > > device resource, this ensures more consistent error values and
+> > > simplifies error paths.
+> > > kzalloc -> devm_kzalloc
+> > > gpio_request_one -> devm_gpio_request_one
+> > >=20
+> >=20
+> > If we are doing the conversion can we go all the Alexanderway (need=
+s the
+> > other 2 patches I just posted and CCed you)?
+> >=20
+> > Thanks.
+> >=20
+> > --=20
+> > Dmitry
+> >=20
+> > Input: gpio_keys_polled - convert to devm-* API
+> >=20
+> > From: Alexander Shiyan <shc_work@mail.ru>
+> >=20
+> > Replace existing resource handling in the driver with managed devic=
+e
+> > resources, this ensures more consistent error values and simplifies=
+ error
+> > handling paths:
+> >=20
+> > kzalloc -> devm_kzalloc
+> > gpio_request_one -> devm_gpio_request_one
+> > input_allocate_polled_device -> devm_input_allocate_polled_device
+> >=20
+> > Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > > ---
-> >  drivers/input/input-polldev.c | 113 +++++++++++++++++++++++++++++++++++++++++-
-> >  include/linux/input-polldev.h |   3 ++
-> >  2 files changed, 115 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
-> > index 4b19190..27961fc 100644
-> > --- a/drivers/input/input-polldev.c
-> > +++ b/drivers/input/input-polldev.c
-> > @@ -176,6 +176,90 @@ struct input_polled_dev *input_allocate_polled_device(void)
-> >  }
-> >  EXPORT_SYMBOL(input_allocate_polled_device);
-> >
-> > +struct input_polled_devres {
-> > +       struct input_polled_dev *polldev;
-> > +};
-> > +
-> > +static int devm_input_polldev_match(struct device *dev, void *res, void *data)
-> > +{
-> > +       struct input_polled_devres *devres = res;
-> > +
-> > +       return devres->polldev == data;
-> > +}
-> > +
-> > +static void devm_input_polldev_release(struct device *dev, void *res)
-> > +{
-> > +       struct input_polled_devres *devres = res;
-> > +       struct input_polled_dev *polldev = devres->polldev;
-> > +
-> > +       dev_dbg(dev, "%s: dropping reference/freeing %s\n",
-> > +               __func__, dev_name(&polldev->input->dev));
-> > +
-> > +       input_put_device(polldev->input);
-> > +       kfree(polldev);
-> > +}
-> > +
-> > +static void devm_input_polldev_unregister(struct device *dev, void *res)
-> > +{
-> > +       struct input_polled_devres *devres = res;
-> > +       struct input_polled_dev *polldev = devres->polldev;
-> > +
-> > +       dev_dbg(dev, "%s: unregistering device %s\n",
-> > +               __func__, dev_name(&polldev->input->dev));
-> > +       input_unregister_device(polldev->input);
-> > +
-> > +       /*
-> > +        * Note that we are still holding extra reference to the input
-> > +        * device so it will stick around until devm_input_polldev_release()
-> > +        * is called.
-> > +        */
-> > +}
-> > +
-> > +/**
-> > + * devm_input_allocate_polled_device - allocate managed polled device
-> > + * @dev: device owning the polled device being created
-> > + *
-> > + * Returns prepared &struct input_polled_dev or %NULL.
-> > + *
-> > + * Managed polled input devices do not need to be explicitly unregistered
-> > + * or freed as it will be done automatically when owner device unbinds
-> > + * from * its driver (or binding fails). Once such managed polled device
-> > + * is allocated, it is ready to be set up and registered in the same
-> > + * fashion as regular polled input devices (using
-> > + * input_register_polled_device() function).
-> > + *
-> > + * If you want to manually unregister and free such managed polled devices,
-> > + * it can be still done by calling input_unregister_polled_device() and
-> > + * input_free_polled_device(), although it is rarely needed.
-> > + *
-> > + * NOTE: the owner device is set up as parent of input device and users
-> > + * should not override it.
-> > + */
-> > +struct input_polled_dev *devm_input_allocate_polled_device(struct device *dev)
-> > +{
-> > +       struct input_polled_dev *polldev;
-> > +       struct input_polled_devres *devres;
-> > +
-> > +       devres = devres_alloc(devm_input_polldev_release, sizeof(*devres),
-> > +                             GFP_KERNEL);
-> > +       if (!devres)
-> > +               return NULL;
-> > +
-> > +       polldev = input_allocate_polled_device();
-> > +       if (!polldev) {
-> > +               devres_free(devres);
-> > +               return NULL;
-> > +       }
-> > +
-> > +       polldev->input->dev.parent = dev;
-> > +       polldev->devres_managed = true;
-> > +
-> > +       devres->polldev = polldev;
-> > +       devres_add(dev, devres);
-> > +
-> > +       return polldev;
-> > +}
-> > +
-> >  /**
-> >   * input_free_polled_device - free memory allocated for polled device
-> >   * @dev: device to free
-> > @@ -186,7 +270,12 @@ EXPORT_SYMBOL(input_allocate_polled_device);
-> >  void input_free_polled_device(struct input_polled_dev *dev)
-> >  {
-> >         if (dev) {
-> > -               input_free_device(dev->input);
-> > +               if (dev->devres_managed)
-> > +                       WARN_ON(devres_destroy(dev->input->dev.parent,
-> > +                                               devm_input_polldev_release,
-> > +                                               devm_input_polldev_match,
-> > +                                               dev));
-> > +               input_put_device(dev->input);
-> >                 kfree(dev);
-> >         }
-> >  }
-> > @@ -204,9 +293,19 @@ EXPORT_SYMBOL(input_free_polled_device);
-> >   */
-> >  int input_register_polled_device(struct input_polled_dev *dev)
-> >  {
-> > +       struct input_polled_devres *devres = NULL;
-> >         struct input_dev *input = dev->input;
-> >         int error;
-> >
-> > +       if (dev->devres_managed) {
-> > +               devres = devres_alloc(devm_input_polldev_unregister,
-> > +                                     sizeof(*devres), GFP_KERNEL);
-> > +               if (!devres)
-> > +                       return -ENOMEM;
-> > +
-> > +               devres->polldev = dev;
-> 
-> Your error-paths in this function _must_ free "devres" via devres_free().
+> ...
+> > @@ -162,8 +160,7 @@ static struct gpio_keys_platform_data *gpio_key=
+s_polled_get_devtree_pdata(struct
+> >  		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+> >  			dev_err(dev, "Button without keycode: 0x%x\n",
+> >  				button->gpio);
+> > -			error =3D -EINVAL;
+> > -			goto err_free_pdata;
+> > +			return ERR_PTR(-EINVAL);
+> >  		}
+>=20
+> We can even use return value from of_property_read_u32() on error.
+>=20
+> All other looks OK.
 
-Indeed.
+Do you have hardware that uses gpio_keys_polled?
 
-> 
-> With this fixed:
->   Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+Thanks.
 
-Thanks David!
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

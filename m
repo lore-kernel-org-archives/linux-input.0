@@ -1,74 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Tue, 29 Apr 2014 09:19:27 -0700
-Message-ID: <20140429161926.GA15953@core.coreip.homeip.net>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCBSRVNFTkQgMS8yXSBpbnB1dDogZ3Bpb19rZXlzX3BvbGxl?=
+ =?UTF-8?B?ZDogQ29udmVydCB0byBkZXZtLSogQVBJ?=
+Date: Tue, 29 Apr 2014 20:24:19 +0400
+Message-ID: <1398788659.619286286@f204.i.mail.ru>
 References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
- <1398746628.261956573@f341.i.mail.ru>
- <20140429155031.GB15055@core.coreip.homeip.net>
  <1398787420.62147449@f297.i.mail.ru>
+ <20140429161926.GA15953@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:58786 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758254AbaD2QTy (ORCPT
+Received: from fallback1.mail.ru ([94.100.176.18]:35812 "EHLO
+	fallback1.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751636AbaD2QYi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Apr 2014 12:19:54 -0400
-Received: by mail-pa0-f45.google.com with SMTP id kq14so480730pab.18
-        for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 09:19:53 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1398787420.62147449@f297.i.mail.ru>
+	Tue, 29 Apr 2014 12:24:38 -0400
+Received: from f204.i.mail.ru (f204.i.mail.ru [94.100.185.65])
+	by fallback1.mail.ru (mPOP.Fallback_MX) with ESMTP id 9AC5B37CC52A
+	for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 20:24:36 +0400 (MSK)
+In-Reply-To: <20140429161926.GA15953@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 29, 2014 at 08:03:40PM +0400, Alexander Shiyan wrote:
-> Tue, 29 Apr 2014 08:50:32 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmitry.=
-torokhov@gmail.com>:
-> > On Tue, Apr 29, 2014 at 08:43:48AM +0400, Alexander Shiyan wrote:
-> > > Mon, 28 Apr 2014 20:26:00 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmi=
-try.torokhov@gmail.com>:
-> > > > Hi Alexander,
-> > > >=20
-> > > > On Sat, Apr 26, 2014 at 09:53:13AM +0400, Alexander Shiyan wrot=
-e:
-> > > > > Replace existing resource handling in the driver with managed
-> > > > > device resource, this ensures more consistent error values an=
-d
-> > > > > simplifies error paths.
-> > > > > kzalloc -> devm_kzalloc
-> > > > > gpio_request_one -> devm_gpio_request_one
-> ...
-> > > > @@ -162,8 +160,7 @@ static struct gpio_keys_platform_data *gpio=
-_keys_polled_get_devtree_pdata(struct
-> > > >  		if (of_property_read_u32(pp, "linux,code", &button->code)) {
-> > > >  			dev_err(dev, "Button without keycode: 0x%x\n",
-> > > >  				button->gpio);
-> > > > -			error =3D -EINVAL;
-> > > > -			goto err_free_pdata;
-> > > > +			return ERR_PTR(-EINVAL);
-> > > >  		}
-> > >=20
-> > > We can even use return value from of_property_read_u32() on error=
-=2E
-> > >=20
-> > > All other looks OK.
-> >=20
-> > Do you have hardware that uses gpio_keys_polled?
->=20
-> Yes.
-
-So did you have a chance to actually try my version(s)? I would feel
-much better if you had ;)
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+VHVlLCAyOSBBcHIgMjAxNCAwOToxOToyNyAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
+dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gT24gVHVlLCBBcHIgMjksIDIwMTQgYXQgMDg6MDM6
+NDBQTSArMDQwMCwgQWxleGFuZGVyIFNoaXlhbiB3cm90ZToKPiA+IFR1ZSwgMjkgQXByIDIwMTQg
+MDg6NTA6MzIgLTA3MDAg0L7RgiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFp
+bC5jb20+Ogo+ID4gPiBPbiBUdWUsIEFwciAyOSwgMjAxNCBhdCAwODo0Mzo0OEFNICswNDAwLCBB
+bGV4YW5kZXIgU2hpeWFuIHdyb3RlOgo+ID4gPiA+IE1vbiwgMjggQXByIDIwMTQgMjA6MjY6MDAg
+LTA3MDAg0L7RgiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+Ogo+
+ID4gPiA+ID4gSGkgQWxleGFuZGVyLAo+ID4gPiA+ID4gCj4gPiA+ID4gPiBPbiBTYXQsIEFwciAy
+NiwgMjAxNCBhdCAwOTo1MzoxM0FNICswNDAwLCBBbGV4YW5kZXIgU2hpeWFuIHdyb3RlOgo+ID4g
+PiA+ID4gPiBSZXBsYWNlIGV4aXN0aW5nIHJlc291cmNlIGhhbmRsaW5nIGluIHRoZSBkcml2ZXIg
+d2l0aCBtYW5hZ2VkCj4gPiA+ID4gPiA+IGRldmljZSByZXNvdXJjZSwgdGhpcyBlbnN1cmVzIG1v
+cmUgY29uc2lzdGVudCBlcnJvciB2YWx1ZXMgYW5kCj4gPiA+ID4gPiA+IHNpbXBsaWZpZXMgZXJy
+b3IgcGF0aHMuCj4gPiA+ID4gPiA+IGt6YWxsb2MgLT4gZGV2bV9remFsbG9jCj4gPiA+ID4gPiA+
+IGdwaW9fcmVxdWVzdF9vbmUgLT4gZGV2bV9ncGlvX3JlcXVlc3Rfb25lCj4gPiAuLi4KPiA+ID4g
+PiA+IEBAIC0xNjIsOCArMTYwLDcgQEAgc3RhdGljIHN0cnVjdCBncGlvX2tleXNfcGxhdGZvcm1f
+ZGF0YSAqZ3Bpb19rZXlzX3BvbGxlZF9nZXRfZGV2dHJlZV9wZGF0YShzdHJ1Y3QKPiA+ID4gPiA+
+ICAJCWlmIChvZl9wcm9wZXJ0eV9yZWFkX3UzMihwcCwgImxpbnV4LGNvZGUiLCAmYnV0dG9uLT5j
+b2RlKSkgewo+ID4gPiA+ID4gIAkJCWRldl9lcnIoZGV2LCAiQnV0dG9uIHdpdGhvdXQga2V5Y29k
+ZTogMHgleFxuIiwKPiA+ID4gPiA+ICAJCQkJYnV0dG9uLT5ncGlvKTsKPiA+ID4gPiA+IC0JCQll
+cnJvciA9IC1FSU5WQUw7Cj4gPiA+ID4gPiAtCQkJZ290byBlcnJfZnJlZV9wZGF0YTsKPiA+ID4g
+PiA+ICsJCQlyZXR1cm4gRVJSX1BUUigtRUlOVkFMKTsKPiA+ID4gPiA+ICAJCX0KPiA+ID4gPiAK
+PiA+ID4gPiBXZSBjYW4gZXZlbiB1c2UgcmV0dXJuIHZhbHVlIGZyb20gb2ZfcHJvcGVydHlfcmVh
+ZF91MzIoKSBvbiBlcnJvci4KPiA+ID4gPiAKPiA+ID4gPiBBbGwgb3RoZXIgbG9va3MgT0suCj4g
+PiA+IAo+ID4gPiBEbyB5b3UgaGF2ZSBoYXJkd2FyZSB0aGF0IHVzZXMgZ3Bpb19rZXlzX3BvbGxl
+ZD8KPiA+IAo+ID4gWWVzLgo+IAo+IFNvIGRpZCB5b3UgaGF2ZSBhIGNoYW5jZSB0byBhY3R1YWxs
+eSB0cnkgbXkgdmVyc2lvbihzKT8gSSB3b3VsZCBmZWVsCj4gbXVjaCBiZXR0ZXIgaWYgeW91IGhh
+ZCA7KQoKVW5mb3J0dW5hdGVseSwgZHVlIHRvIHRoZSBsYXJnZSBmb2xsb3dpbmcgd2Vla2VuZHMs
+IEkgY2Fubm90IGRvIGl0IGVhcmxpZXIKdGhhbiAyIHdlZWtzLgoKLS0tCgo=

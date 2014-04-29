@@ -1,85 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Tue, 29 Apr 2014 09:36:49 -0700
-Message-ID: <20140429163649.GB15953@core.coreip.homeip.net>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCBSRVNFTkQgMS8yXSBpbnB1dDogZ3Bpb19rZXlzX3BvbGxl?=
+ =?UTF-8?B?ZDogQ29udmVydCB0byBkZXZtLSogQVBJ?=
+Date: Tue, 29 Apr 2014 20:40:59 +0400
+Message-ID: <1398789659.346407871@f204.i.mail.ru>
 References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
- <1398787420.62147449@f297.i.mail.ru>
- <20140429161926.GA15953@core.coreip.homeip.net>
  <1398788659.619286286@f204.i.mail.ru>
+ <20140429163649.GB15953@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:35525 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933155AbaD2Qg6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Apr 2014 12:36:58 -0400
-Received: by mail-pd0-f174.google.com with SMTP id z10so432037pdj.33
-        for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 09:36:57 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1398788659.619286286@f204.i.mail.ru>
+Received: from f204.i.mail.ru ([94.100.185.65]:49041 "EHLO f204.i.mail.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758133AbaD2QlB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Apr 2014 12:41:01 -0400
+In-Reply-To: <20140429163649.GB15953@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 29, 2014 at 08:24:19PM +0400, Alexander Shiyan wrote:
-> Tue, 29 Apr 2014 09:19:27 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmitry.=
-torokhov@gmail.com>:
-> > On Tue, Apr 29, 2014 at 08:03:40PM +0400, Alexander Shiyan wrote:
-> > > Tue, 29 Apr 2014 08:50:32 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmi=
-try.torokhov@gmail.com>:
-> > > > On Tue, Apr 29, 2014 at 08:43:48AM +0400, Alexander Shiyan wrot=
-e:
-> > > > > Mon, 28 Apr 2014 20:26:00 -0700 =D0=BE=D1=82 Dmitry Torokhov =
-<dmitry.torokhov@gmail.com>:
-> > > > > > Hi Alexander,
-> > > > > >=20
-> > > > > > On Sat, Apr 26, 2014 at 09:53:13AM +0400, Alexander Shiyan =
-wrote:
-> > > > > > > Replace existing resource handling in the driver with man=
-aged
-> > > > > > > device resource, this ensures more consistent error value=
-s and
-> > > > > > > simplifies error paths.
-> > > > > > > kzalloc -> devm_kzalloc
-> > > > > > > gpio_request_one -> devm_gpio_request_one
-> > > ...
-> > > > > > @@ -162,8 +160,7 @@ static struct gpio_keys_platform_data *=
-gpio_keys_polled_get_devtree_pdata(struct
-> > > > > >  		if (of_property_read_u32(pp, "linux,code", &button->code=
-)) {
-> > > > > >  			dev_err(dev, "Button without keycode: 0x%x\n",
-> > > > > >  				button->gpio);
-> > > > > > -			error =3D -EINVAL;
-> > > > > > -			goto err_free_pdata;
-> > > > > > +			return ERR_PTR(-EINVAL);
-> > > > > >  		}
-> > > > >=20
-> > > > > We can even use return value from of_property_read_u32() on e=
-rror.
-> > > > >=20
-> > > > > All other looks OK.
-> > > >=20
-> > > > Do you have hardware that uses gpio_keys_polled?
-> > >=20
-> > > Yes.
-> >=20
-> > So did you have a chance to actually try my version(s)? I would fee=
-l
-> > much better if you had ;)
->=20
-> Unfortunately, due to the large following weekends, I cannot do it ea=
-rlier
-> than 2 weeks.
-
-That is fine, there is no rush.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+VHVlLCAyOSBBcHIgMjAxNCAwOTozNjo0OSAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
+dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gT24gVHVlLCBBcHIgMjksIDIwMTQgYXQgMDg6MjQ6
+MTlQTSArMDQwMCwgQWxleGFuZGVyIFNoaXlhbiB3cm90ZToKLi4uCj4gPiA+ID4gPiA+ID4gT24g
+U2F0LCBBcHIgMjYsIDIwMTQgYXQgMDk6NTM6MTNBTSArMDQwMCwgQWxleGFuZGVyIFNoaXlhbiB3
+cm90ZToKPiA+ID4gPiA+ID4gPiA+IFJlcGxhY2UgZXhpc3RpbmcgcmVzb3VyY2UgaGFuZGxpbmcg
+aW4gdGhlIGRyaXZlciB3aXRoIG1hbmFnZWQKPiA+ID4gPiA+ID4gPiA+IGRldmljZSByZXNvdXJj
+ZSwgdGhpcyBlbnN1cmVzIG1vcmUgY29uc2lzdGVudCBlcnJvciB2YWx1ZXMgYW5kCj4gPiA+ID4g
+PiA+ID4gPiBzaW1wbGlmaWVzIGVycm9yIHBhdGhzLgo+ID4gPiA+ID4gPiA+ID4ga3phbGxvYyAt
+PiBkZXZtX2t6YWxsb2MKPiA+ID4gPiA+ID4gPiA+IGdwaW9fcmVxdWVzdF9vbmUgLT4gZGV2bV9n
+cGlvX3JlcXVlc3Rfb25lCj4gPiA+ID4gLi4uCj4gPiA+ID4gPiA+ID4gQEAgLTE2Miw4ICsxNjAs
+NyBAQCBzdGF0aWMgc3RydWN0IGdwaW9fa2V5c19wbGF0Zm9ybV9kYXRhICpncGlvX2tleXNfcG9s
+bGVkX2dldF9kZXZ0cmVlX3BkYXRhKHN0cnVjdAo+ID4gPiA+ID4gPiA+ICAJCWlmIChvZl9wcm9w
+ZXJ0eV9yZWFkX3UzMihwcCwgImxpbnV4LGNvZGUiLCAmYnV0dG9uLT5jb2RlKSkgewo+ID4gPiA+
+ID4gPiA+ICAJCQlkZXZfZXJyKGRldiwgIkJ1dHRvbiB3aXRob3V0IGtleWNvZGU6IDB4JXhcbiIs
+Cj4gPiA+ID4gPiA+ID4gIAkJCQlidXR0b24tPmdwaW8pOwo+ID4gPiA+ID4gPiA+IC0JCQllcnJv
+ciA9IC1FSU5WQUw7Cj4gPiA+ID4gPiA+ID4gLQkJCWdvdG8gZXJyX2ZyZWVfcGRhdGE7Cj4gPiA+
+ID4gPiA+ID4gKwkJCXJldHVybiBFUlJfUFRSKC1FSU5WQUwpOwo+ID4gPiA+ID4gPiA+ICAJCX0K
+PiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IFdlIGNhbiBldmVuIHVzZSByZXR1cm4gdmFsdWUgZnJv
+bSBvZl9wcm9wZXJ0eV9yZWFkX3UzMigpIG9uIGVycm9yLgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+
+ID4gQWxsIG90aGVyIGxvb2tzIE9LLgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBEbyB5b3UgaGF2ZSBo
+YXJkd2FyZSB0aGF0IHVzZXMgZ3Bpb19rZXlzX3BvbGxlZD8KPiA+ID4gPiAKPiA+ID4gPiBZZXMu
+Cj4gPiA+IAo+ID4gPiBTbyBkaWQgeW91IGhhdmUgYSBjaGFuY2UgdG8gYWN0dWFsbHkgdHJ5IG15
+IHZlcnNpb24ocyk/IEkgd291bGQgZmVlbAo+ID4gPiBtdWNoIGJldHRlciBpZiB5b3UgaGFkIDsp
+Cj4gPiAKPiA+IFVuZm9ydHVuYXRlbHksIGR1ZSB0byB0aGUgbGFyZ2UgZm9sbG93aW5nIHdlZWtl
+bmRzLCBJIGNhbm5vdCBkbyBpdCBlYXJsaWVyCj4gPiB0aGFuIDIgd2Vla3MuCj4gCj4gVGhhdCBp
+cyBmaW5lLCB0aGVyZSBpcyBubyBydXNoLgoKT0suIEluIHRoaXMgY2FzZSBpdCB3b3VsZCBiZSBu
+aWNlIHRvIGhhdmUgYSBzZXBhcmF0ZSBicmFuY2ggd2l0aCBwb2xsLXNlcmllcwphbmQgdGhpcyBw
+YXRjaC4gQ2FuIHlvdSBtYWtlIGl0PwoKLS0tCgo=

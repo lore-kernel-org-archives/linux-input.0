@@ -1,49 +1,228 @@
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Subject: =?UTF-8?B?UmU6IFtQQVRDSCBSRVNFTkQgMS8yXSBpbnB1dDogZ3Bpb19rZXlzX3BvbGxl?=
- =?UTF-8?B?ZDogQ29udmVydCB0byBkZXZtLSogQVBJ?=
-Date: Tue, 29 Apr 2014 08:43:48 +0400
-Message-ID: <1398746628.261956573@f341.i.mail.ru>
-References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
- <20140429032600.GD7672@core.coreip.homeip.net>
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] Input: implement managed polled input devices
+Date: Tue, 29 Apr 2014 08:09:39 +0200
+Message-ID: <CANq1E4T9_ckVWzrpxf+x1YBbVMekXpQpqo8ta6da+zrwPPOanw@mail.gmail.com>
+References: <20140429032354.GA13445@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from f341.i.mail.ru ([217.69.140.237]:53053 "EHLO f341.i.mail.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750760AbaD2Enw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Apr 2014 00:43:52 -0400
-In-Reply-To: <20140429032600.GD7672@core.coreip.homeip.net>
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:60359 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754978AbaD2GJk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Apr 2014 02:09:40 -0400
+In-Reply-To: <20140429032354.GA13445@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Alexander Shiyan <shc_work@mail.ru>
 
-TW9uLCAyOCBBcHIgMjAxNCAyMDoyNjowMCAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
-dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gSGkgQWxleGFuZGVyLAo+IAo+IE9uIFNhdCwgQXBy
-IDI2LCAyMDE0IGF0IDA5OjUzOjEzQU0gKzA0MDAsIEFsZXhhbmRlciBTaGl5YW4gd3JvdGU6Cj4g
-PiBSZXBsYWNlIGV4aXN0aW5nIHJlc291cmNlIGhhbmRsaW5nIGluIHRoZSBkcml2ZXIgd2l0aCBt
-YW5hZ2VkCj4gPiBkZXZpY2UgcmVzb3VyY2UsIHRoaXMgZW5zdXJlcyBtb3JlIGNvbnNpc3RlbnQg
-ZXJyb3IgdmFsdWVzIGFuZAo+ID4gc2ltcGxpZmllcyBlcnJvciBwYXRocy4KPiA+IGt6YWxsb2Mg
-LT4gZGV2bV9remFsbG9jCj4gPiBncGlvX3JlcXVlc3Rfb25lIC0+IGRldm1fZ3Bpb19yZXF1ZXN0
-X29uZQo+ID4gCj4gCj4gSWYgd2UgYXJlIGRvaW5nIHRoZSBjb252ZXJzaW9uIGNhbiB3ZSBnbyBh
-bGwgdGhlIEFsZXhhbmRlcndheSAobmVlZHMgdGhlCj4gb3RoZXIgMiBwYXRjaGVzIEkganVzdCBw
-b3N0ZWQgYW5kIENDZWQgeW91KT8KPiAKPiBUaGFua3MuCj4gCj4gLS0gCj4gRG1pdHJ5Cj4gCj4g
-SW5wdXQ6IGdwaW9fa2V5c19wb2xsZWQgLSBjb252ZXJ0IHRvIGRldm0tKiBBUEkKPiAKPiBGcm9t
-OiBBbGV4YW5kZXIgU2hpeWFuIDxzaGNfd29ya0BtYWlsLnJ1Pgo+IAo+IFJlcGxhY2UgZXhpc3Rp
-bmcgcmVzb3VyY2UgaGFuZGxpbmcgaW4gdGhlIGRyaXZlciB3aXRoIG1hbmFnZWQgZGV2aWNlCj4g
-cmVzb3VyY2VzLCB0aGlzIGVuc3VyZXMgbW9yZSBjb25zaXN0ZW50IGVycm9yIHZhbHVlcyBhbmQg
-c2ltcGxpZmllcyBlcnJvcgo+IGhhbmRsaW5nIHBhdGhzOgo+IAo+IGt6YWxsb2MgLT4gZGV2bV9r
-emFsbG9jCj4gZ3Bpb19yZXF1ZXN0X29uZSAtPiBkZXZtX2dwaW9fcmVxdWVzdF9vbmUKPiBpbnB1
-dF9hbGxvY2F0ZV9wb2xsZWRfZGV2aWNlIC0+IGRldm1faW5wdXRfYWxsb2NhdGVfcG9sbGVkX2Rl
-dmljZQo+IAo+IFNpZ25lZC1vZmYtYnk6IEFsZXhhbmRlciBTaGl5YW4gPHNoY193b3JrQG1haWwu
-cnU+Cj4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21h
-aWwuY29tPgo+IC0tLQouLi4KPiBAQCAtMTYyLDggKzE2MCw3IEBAIHN0YXRpYyBzdHJ1Y3QgZ3Bp
-b19rZXlzX3BsYXRmb3JtX2RhdGEgKmdwaW9fa2V5c19wb2xsZWRfZ2V0X2RldnRyZWVfcGRhdGEo
-c3RydWN0Cj4gIAkJaWYgKG9mX3Byb3BlcnR5X3JlYWRfdTMyKHBwLCAibGludXgsY29kZSIsICZi
-dXR0b24tPmNvZGUpKSB7Cj4gIAkJCWRldl9lcnIoZGV2LCAiQnV0dG9uIHdpdGhvdXQga2V5Y29k
-ZTogMHgleFxuIiwKPiAgCQkJCWJ1dHRvbi0+Z3Bpbyk7Cj4gLQkJCWVycm9yID0gLUVJTlZBTDsK
-PiAtCQkJZ290byBlcnJfZnJlZV9wZGF0YTsKPiArCQkJcmV0dXJuIEVSUl9QVFIoLUVJTlZBTCk7
-Cj4gIAkJfQoKV2UgY2FuIGV2ZW4gdXNlIHJldHVybiB2YWx1ZSBmcm9tIG9mX3Byb3BlcnR5X3Jl
-YWRfdTMyKCkgb24gZXJyb3IuCgpBbGwgb3RoZXIgbG9va3MgT0suCgotLS0KCg==
+Hi
+
+On Tue, Apr 29, 2014 at 5:23 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Managed resources are becoming more and more popular in drivers. Let's
+> implement managed polled input devices, to complement managed regular input
+> devices.
+>
+> Similarly to managed regular input devices only one new call
+> devm_input_allocate_polled_device() is added and the rest of APIs is
+> modified to work with both managed and non-managed devices.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/input-polldev.c | 113 +++++++++++++++++++++++++++++++++++++++++-
+>  include/linux/input-polldev.h |   3 ++
+>  2 files changed, 115 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+> index 4b19190..27961fc 100644
+> --- a/drivers/input/input-polldev.c
+> +++ b/drivers/input/input-polldev.c
+> @@ -176,6 +176,90 @@ struct input_polled_dev *input_allocate_polled_device(void)
+>  }
+>  EXPORT_SYMBOL(input_allocate_polled_device);
+>
+> +struct input_polled_devres {
+> +       struct input_polled_dev *polldev;
+> +};
+> +
+> +static int devm_input_polldev_match(struct device *dev, void *res, void *data)
+> +{
+> +       struct input_polled_devres *devres = res;
+> +
+> +       return devres->polldev == data;
+> +}
+> +
+> +static void devm_input_polldev_release(struct device *dev, void *res)
+> +{
+> +       struct input_polled_devres *devres = res;
+> +       struct input_polled_dev *polldev = devres->polldev;
+> +
+> +       dev_dbg(dev, "%s: dropping reference/freeing %s\n",
+> +               __func__, dev_name(&polldev->input->dev));
+> +
+> +       input_put_device(polldev->input);
+> +       kfree(polldev);
+> +}
+> +
+> +static void devm_input_polldev_unregister(struct device *dev, void *res)
+> +{
+> +       struct input_polled_devres *devres = res;
+> +       struct input_polled_dev *polldev = devres->polldev;
+> +
+> +       dev_dbg(dev, "%s: unregistering device %s\n",
+> +               __func__, dev_name(&polldev->input->dev));
+> +       input_unregister_device(polldev->input);
+> +
+> +       /*
+> +        * Note that we are still holding extra reference to the input
+> +        * device so it will stick around until devm_input_polldev_release()
+> +        * is called.
+> +        */
+> +}
+> +
+> +/**
+> + * devm_input_allocate_polled_device - allocate managed polled device
+> + * @dev: device owning the polled device being created
+> + *
+> + * Returns prepared &struct input_polled_dev or %NULL.
+> + *
+> + * Managed polled input devices do not need to be explicitly unregistered
+> + * or freed as it will be done automatically when owner device unbinds
+> + * from * its driver (or binding fails). Once such managed polled device
+> + * is allocated, it is ready to be set up and registered in the same
+> + * fashion as regular polled input devices (using
+> + * input_register_polled_device() function).
+> + *
+> + * If you want to manually unregister and free such managed polled devices,
+> + * it can be still done by calling input_unregister_polled_device() and
+> + * input_free_polled_device(), although it is rarely needed.
+> + *
+> + * NOTE: the owner device is set up as parent of input device and users
+> + * should not override it.
+> + */
+> +struct input_polled_dev *devm_input_allocate_polled_device(struct device *dev)
+> +{
+> +       struct input_polled_dev *polldev;
+> +       struct input_polled_devres *devres;
+> +
+> +       devres = devres_alloc(devm_input_polldev_release, sizeof(*devres),
+> +                             GFP_KERNEL);
+> +       if (!devres)
+> +               return NULL;
+> +
+> +       polldev = input_allocate_polled_device();
+> +       if (!polldev) {
+> +               devres_free(devres);
+> +               return NULL;
+> +       }
+> +
+> +       polldev->input->dev.parent = dev;
+> +       polldev->devres_managed = true;
+> +
+> +       devres->polldev = polldev;
+> +       devres_add(dev, devres);
+> +
+> +       return polldev;
+> +}
+> +
+>  /**
+>   * input_free_polled_device - free memory allocated for polled device
+>   * @dev: device to free
+> @@ -186,7 +270,12 @@ EXPORT_SYMBOL(input_allocate_polled_device);
+>  void input_free_polled_device(struct input_polled_dev *dev)
+>  {
+>         if (dev) {
+> -               input_free_device(dev->input);
+> +               if (dev->devres_managed)
+> +                       WARN_ON(devres_destroy(dev->input->dev.parent,
+> +                                               devm_input_polldev_release,
+> +                                               devm_input_polldev_match,
+> +                                               dev));
+> +               input_put_device(dev->input);
+>                 kfree(dev);
+>         }
+>  }
+> @@ -204,9 +293,19 @@ EXPORT_SYMBOL(input_free_polled_device);
+>   */
+>  int input_register_polled_device(struct input_polled_dev *dev)
+>  {
+> +       struct input_polled_devres *devres = NULL;
+>         struct input_dev *input = dev->input;
+>         int error;
+>
+> +       if (dev->devres_managed) {
+> +               devres = devres_alloc(devm_input_polldev_unregister,
+> +                                     sizeof(*devres), GFP_KERNEL);
+> +               if (!devres)
+> +                       return -ENOMEM;
+> +
+> +               devres->polldev = dev;
+
+Your error-paths in this function _must_ free "devres" via devres_free().
+
+With this fixed:
+  Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+
+Thanks
+David
+
+> +       }
+> +
+>         input_set_drvdata(input, dev);
+>         INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
+>
+> @@ -233,6 +332,12 @@ int input_register_polled_device(struct input_polled_dev *dev)
+>          */
+>         input_get_device(input);
+>
+> +       if (dev->devres_managed) {
+> +               dev_dbg(input->dev.parent, "%s: registering %s with devres.\n",
+> +                       __func__, dev_name(&input->dev));
+> +               devres_add(input->dev.parent, devres);
+> +       }
+> +
+>         return 0;
+>  }
+>  EXPORT_SYMBOL(input_register_polled_device);
+> @@ -247,6 +352,12 @@ EXPORT_SYMBOL(input_register_polled_device);
+>   */
+>  void input_unregister_polled_device(struct input_polled_dev *dev)
+>  {
+> +       if (dev->devres_managed)
+> +               WARN_ON(devres_destroy(dev->input->dev.parent,
+> +                                       devm_input_polldev_unregister,
+> +                                       devm_input_polldev_match,
+> +                                       dev));
+> +
+>         input_unregister_device(dev->input);
+>  }
+>  EXPORT_SYMBOL(input_unregister_polled_device);
+> diff --git a/include/linux/input-polldev.h b/include/linux/input-polldev.h
+> index ce0b724..2465182 100644
+> --- a/include/linux/input-polldev.h
+> +++ b/include/linux/input-polldev.h
+> @@ -48,9 +48,12 @@ struct input_polled_dev {
+>
+>  /* private: */
+>         struct delayed_work work;
+> +
+> +       bool devres_managed;
+>  };
+>
+>  struct input_polled_dev *input_allocate_polled_device(void);
+> +struct input_polled_dev *devm_input_allocate_polled_device(struct device *dev);
+>  void input_free_polled_device(struct input_polled_dev *dev);
+>  int input_register_polled_device(struct input_polled_dev *dev);
+>  void input_unregister_polled_device(struct input_polled_dev *dev);
+> --
+> 1.9.0
+>
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,91 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: remove race when instantiating polled device
- attributes
-Date: Mon, 28 Apr 2014 19:34:51 -0700
-Message-ID: <20140429023449.GA13078@core.coreip.homeip.net>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2Ml0gaW5wdXQ6IGdwaW8tYmVlcGVyOiBTaW1wbGlmeSBH?=
+ =?UTF-8?B?UElPIGhhbmRsaW5n?=
+Date: Tue, 29 Apr 2014 06:55:49 +0400
+Message-ID: <1398740149.14014937@f348.i.mail.ru>
+References: <1398491214-14936-1-git-send-email-shc_work@mail.ru>
+ <20140429022104.GA7672@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:59778 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750820AbaD2Cey (ORCPT
+Received: from fallback8.mail.ru ([94.100.176.136]:33925 "EHLO
+	fallback8.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751540AbaD2C4I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Apr 2014 22:34:54 -0400
-Content-Disposition: inline
+	Mon, 28 Apr 2014 22:56:08 -0400
+Received: from f348.i.mail.ru (f348.i.mail.ru [217.69.140.244])
+	by fallback8.mail.ru (mPOP.Fallback_MX) with ESMTP id 3A95E5818DDB
+	for <linux-input@vger.kernel.org>; Tue, 29 Apr 2014 06:56:05 +0400 (MSK)
+In-Reply-To: <20140429022104.GA7672@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Polled device's attributes controlling polling rate and whether polling is
-enabled are attached to input device. We should have device core
-instantiate them for us, so that they are created by the time new device
-notification is sent to userspace, instead of doing it ourselves
-afterwards.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input-polldev.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
-index 7f161d9..4b19190 100644
---- a/drivers/input/input-polldev.c
-+++ b/drivers/input/input-polldev.c
-@@ -147,6 +147,11 @@ static struct attribute_group input_polldev_attribute_group = {
- 	.attrs = sysfs_attrs
- };
- 
-+static const struct attribute_group *input_polldev_attribute_groups[] = {
-+	&input_polldev_attribute_group,
-+	NULL
-+};
-+
- /**
-  * input_allocate_polled_device - allocate memory for polled device
-  *
-@@ -204,24 +209,21 @@ int input_register_polled_device(struct input_polled_dev *dev)
- 
- 	input_set_drvdata(input, dev);
- 	INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
-+
- 	if (!dev->poll_interval)
- 		dev->poll_interval = 500;
- 	if (!dev->poll_interval_max)
- 		dev->poll_interval_max = dev->poll_interval;
-+
- 	input->open = input_open_polled_device;
- 	input->close = input_close_polled_device;
- 
-+	input->dev.groups = input_polldev_attribute_groups;
-+
- 	error = input_register_device(input);
- 	if (error)
- 		return error;
- 
--	error = sysfs_create_group(&input->dev.kobj,
--				   &input_polldev_attribute_group);
--	if (error) {
--		input_unregister_device(input);
--		return error;
--	}
--
- 	/*
- 	 * Take extra reference to the underlying input device so
- 	 * that it survives call to input_unregister_polled_device()
-@@ -245,9 +247,6 @@ EXPORT_SYMBOL(input_register_polled_device);
-  */
- void input_unregister_polled_device(struct input_polled_dev *dev)
- {
--	sysfs_remove_group(&dev->input->dev.kobj,
--			   &input_polldev_attribute_group);
--
- 	input_unregister_device(dev->input);
- }
- EXPORT_SYMBOL(input_unregister_polled_device);
--- 
-1.9.0
-
-
--- 
-Dmitry
+TW9uLCAyOCBBcHIgMjAxNCAxOToyMTowNCAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1p
+dHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4gSGkgQWxleGFuZGVyLAo+IAo+IE9uIFNhdCwgQXBy
+IDI2LCAyMDE0IGF0IDA5OjQ2OjU0QU0gKzA0MDAsIEFsZXhhbmRlciBTaGl5YW4gd3JvdGU6Cj4g
+PiArCWJlZXAtPmRlc2MgPSBkZXZtX2dwaW9kX2dldCgmcGRldi0+ZGV2LCBOVUxMKTsKPiA+ICsJ
+aWYgKCFiZWVwLT5kZXNjKQo+ID4gKwkJcmV0dXJuIC1FSU5WQUw7Cj4gCj4gQXMgZmFyIGFzIEkg
+Y2FuIHNlZSBkZXZtX2dwaW9kX2dldCgpIG5ldmVyIHJldHVybnMgTlVMTCwgYnV0IGVpdGhlciBh
+Cj4gdmFsaWQgcG9pbnRlciBvciBFUlJfUFRSLWVuY29kZWQgZXJyb3IuIFdoeSBkbyB3ZSBjaGVj
+ayBmb3IgTlVMTD8KPiAKPiBJIGNhbiBkcm9wIHRoZSBjaGVjayBteXNlbGYsIG5vIG5lZWQgdG8g
+cmVzdWJtaXQuCgpPSy4KCi4uLgoKT25lIGlzc3VlIHlvdSBrZWVwIHZhbHVlIGFyZ3VtZW50IGZv
+ciBncGlvX2JlZXBlcl90b2dnbGUoKSBhcyBib29sLgpJdCBzaG91bGQgYmUgImludCIgYXMgaW4g
+b3JpZ2luYWwgcGF0Y2gsIGFzIHdlbGwgYXMgImJlZXBpbmciIHZhbHVlIGluIHByaXZhdGUgc3Ry
+dWN0LgoKLS0tCgo=

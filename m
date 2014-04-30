@@ -1,105 +1,65 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: [PATCH v3 1/7] Input: pixcir_i2c_ts: Use devres managed resource allocations
-Date: Wed, 30 Apr 2014 15:36:26 +0300
-Message-ID: <1398861392-8959-2-git-send-email-rogerq@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 2/7] Input: pixcir_i2c_ts: Initialize interrupt mode
+ and power mode
+Date: Wed, 30 Apr 2014 09:29:51 -0700
+Message-ID: <20140430162950.GA13624@core.coreip.homeip.net>
 References: <1398861392-8959-1-git-send-email-rogerq@ti.com>
+ <1398861392-8959-3-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398861392-8959-1-git-send-email-rogerq@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:55059 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422657AbaD3QaE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Apr 2014 12:30:04 -0400
+Content-Disposition: inline
+In-Reply-To: <1398861392-8959-3-git-send-email-rogerq@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roger Quadros <rogerq@ti.com>
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Use devm_() and friends for allocating memory, input device
-and IRQ.
+Hi Roger,
 
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
----
- drivers/input/touchscreen/pixcir_i2c_ts.c | 36 +++++++++++++------------------
- 1 file changed, 15 insertions(+), 21 deletions(-)
+On Wed, Apr 30, 2014 at 03:36:27PM +0300, Roger Quadros wrote:
+> +static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
+> +{
+> +	struct device *dev = &ts->client->dev;
+> +	int ret;
+> +
+> +	/* exit ISR if running, no more report parsing */
+> +	ts->exiting = true;
+> +	mb();	/* update status before we synchronize irq */
+> +
+> +	/* disable ISR from running again */
+> +	disable_irq(ts->client->irq);
+> +
+> +	/* wait till running ISR complete */
+> +	synchronize_irq(ts->client->irq);
+> +
+> +	/* disable interrupt generation */
+> +	ret = pixcir_int_enable(ts, 0);
+> +	if (ret)
+> +		dev_err(dev, "Failed to disable interrupt generation\n");
+> +
+> +	/* restore IRQ */
+> +	enable_irq(ts->client->irq);
+> +
+> +	return ret;
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 02392d2..45bc2d1 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -130,6 +130,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- {
- 	const struct pixcir_ts_platform_data *pdata =
- 			dev_get_platdata(&client->dev);
-+	struct device *dev = &client->dev;
- 	struct pixcir_i2c_ts_data *tsdata;
- 	struct input_dev *input;
- 	int error;
-@@ -139,12 +140,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
--	tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
--	input = input_allocate_device();
--	if (!tsdata || !input) {
--		dev_err(&client->dev, "Failed to allocate driver data!\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
-+	if (!tsdata)
-+		return -ENOMEM;
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input) {
-+		dev_err(&client->dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
- 	}
- 
- 	tsdata->client = client;
-@@ -165,29 +168,22 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(input, tsdata);
- 
--	error = request_threaded_irq(client->irq, NULL, pixcir_ts_isr,
--				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
--				     client->name, tsdata);
-+	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
-+					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+					  client->name, tsdata);
- 	if (error) {
--		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
--		goto err_free_mem;
-+		dev_err(dev, "failed to request irq %d\n", client->irq);
-+		return error;
- 	}
- 
- 	error = input_register_device(input);
- 	if (error)
--		goto err_free_irq;
-+		return error;
- 
- 	i2c_set_clientdata(client, tsdata);
- 	device_init_wakeup(&client->dev, 1);
- 
- 	return 0;
--
--err_free_irq:
--	free_irq(client->irq, tsdata);
--err_free_mem:
--	input_free_device(input);
--	kfree(tsdata);
--	return error;
- }
- 
- static int pixcir_i2c_ts_remove(struct i2c_client *client)
-@@ -198,10 +194,8 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
- 
- 	tsdata->exiting = true;
- 	mb();
--	free_irq(client->irq, tsdata);
- 
- 	input_unregister_device(tsdata->input);
--	kfree(tsdata);
- 
- 	return 0;
- }
+Should not this be:
+
+	pixcir_int_enable(ts, 0);
+	ts->exiting = true;
+	mb();
+	synchronize_irq(ts->client->irq);
+
+Why do we also need to disable/enable irq?
+
+By the way, disable_irq() implies synchronize_irq().
+
+Thanks.
+
 -- 
-1.8.3.2
+Dmitry

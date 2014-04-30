@@ -1,65 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/7] Input: pixcir_i2c_ts: Initialize interrupt mode
- and power mode
-Date: Wed, 30 Apr 2014 09:29:51 -0700
-Message-ID: <20140430162950.GA13624@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 1/7] Input: pixcir_i2c_ts: Use devres managed resource
+ allocations
+Date: Wed, 30 Apr 2014 09:30:41 -0700
+Message-ID: <20140430163041.GB13624@core.coreip.homeip.net>
 References: <1398861392-8959-1-git-send-email-rogerq@ti.com>
- <1398861392-8959-3-git-send-email-rogerq@ti.com>
+ <1398861392-8959-2-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:55059 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422657AbaD3QaE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Apr 2014 12:30:04 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1398861392-8959-3-git-send-email-rogerq@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1398861392-8959-2-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Roger Quadros <rogerq@ti.com>
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
 Hi Roger,
 
-On Wed, Apr 30, 2014 at 03:36:27PM +0300, Roger Quadros wrote:
-> +static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
-> +{
-> +	struct device *dev = &ts->client->dev;
-> +	int ret;
-> +
-> +	/* exit ISR if running, no more report parsing */
-> +	ts->exiting = true;
-> +	mb();	/* update status before we synchronize irq */
-> +
-> +	/* disable ISR from running again */
-> +	disable_irq(ts->client->irq);
-> +
-> +	/* wait till running ISR complete */
-> +	synchronize_irq(ts->client->irq);
-> +
-> +	/* disable interrupt generation */
-> +	ret = pixcir_int_enable(ts, 0);
-> +	if (ret)
-> +		dev_err(dev, "Failed to disable interrupt generation\n");
-> +
-> +	/* restore IRQ */
-> +	enable_irq(ts->client->irq);
-> +
-> +	return ret;
+On Wed, Apr 30, 2014 at 03:36:26PM +0300, Roger Quadros wrote:
 
-Should not this be:
+>  static int pixcir_i2c_ts_remove(struct i2c_client *client)
+> @@ -198,10 +194,8 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+>  
+>  	tsdata->exiting = true;
+>  	mb();
+> -	free_irq(client->irq, tsdata);
+>  
+>  	input_unregister_device(tsdata->input);
 
-	pixcir_int_enable(ts, 0);
-	ts->exiting = true;
-	mb();
-	synchronize_irq(ts->client->irq);
+There is no need to call input_unregister_device for managed input
+devices.
 
-Why do we also need to disable/enable irq?
-
-By the way, disable_irq() implies synchronize_irq().
+> -	kfree(tsdata);
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.8.3.2
+> 
 
 Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

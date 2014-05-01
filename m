@@ -1,12 +1,12 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v5 5/8] input: misc: Add ABI docs for AXP20x PEK
-Date: Thu,  1 May 2014 14:29:31 +0200
-Message-ID: <1398947374-3115-6-git-send-email-carlo@caione.org>
+Subject: [PATCH v5 3/8] mfd: AXP20x: Add bindings documentation
+Date: Thu,  1 May 2014 14:29:29 +0200
+Message-ID: <1398947374-3115-4-git-send-email-carlo@caione.org>
 References: <1398947374-3115-1-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBRH4RCNQKGQEJI5ZAGQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBP74RCNQKGQERRU42QQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1398947374-3115-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -18,30 +18,113 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add ABI entries for the PEK found on PMU X-Powers AXP202 and AXP209.
+Bindings documentation for the AXP20x driver. In this file also
+sub-nodes are documented.
 
 Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 ---
- Documentation/ABI/testing/sysfs-driver-input-axp-pek | 11 +++++++++++
- 1 file changed, 11 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
+ Documentation/devicetree/bindings/mfd/axp20x.txt | 93 ++++++++++++++++++++++++
+ 1 file changed, 93 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-input-axp-pek b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
+diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
 new file mode 100644
-index 0000000..080563b
+index 0000000..cc9e01b
 --- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
-@@ -0,0 +1,11 @@
-+What:		/sys/class/input/input(x)/startup
-+Date:		March 2014
-+Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-+Description:	Startup time in us. Board is powered on if the button is pressed
-+		for more than <startup_time>
++++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
+@@ -0,0 +1,93 @@
++AXP202/AXP209 device tree bindings
 +
-+What:		/sys/class/input/input(x)/shutdown
-+Date:		March 2014
-+Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-+Description:	Shutdown time in us. Board is powered off if the button is pressed
-+		for more than <shutdown_time>
++The axp20x family current members :-
++axp202 (X-Powers)
++axp209 (X-Powers)
++
++Required properties:
++- compatible: "x-powers,axp202" or "x-powers,axp209"
++- reg: The I2C slave address for the AXP chip
++- interrupt-parent: The parent interrupt controller
++- interrupts: Interrupt specifiers for interrupt sources
++- interrupt-controller: axp20x has its own internal IRQs
++- #interrupt-cells: Should be set to 1
++- acin-supply: The input supply for LDO1
++- vin2-supply: The input supply for DCDC2
++- vin3-supply: The input supply for DCDC3
++- ldo24in-supply: The input supply for LDO2, LDO4
++- ldo3in-supply: The input supply for LDO3
++- ldo5in-supply: The input supply for LDO5
++
++- regulators: A node that houses a sub-node for each regulator. The regulators are
++	      bound using their name as listed here: dcdc2, dcdc3, ldo1, ldo2,
++	      ldo3, ldo4, ldo5.  The bindings details of individual regulator
++	      device can be found in:
++	      Documentation/devicetree/bindings/regulator/regulator.txt with
++	      the exception of x-powers,dcdc-freq
++- x-powers,dcdc-freq: defines the work frequency of DC-DC in KHz
++		      (range: 750-1875). Default: 1.5MHz
++
++Optional properties for DCDCs:
++- x-powers,dcdc-workmode: 1 for PWM mode, 0 for AUTO mode
++			  Default: AUTO mode
++
++Example:
++
++axp209: pmic@34 {
++	compatible = "x-powers,axp209";
++	reg = <0x34>;
++	interrupt-parent = <&nmi_intc>;
++	interrupts = <0 8>;
++
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	acin-supply = <&axp_ipsout_reg>;
++	vin2-supply = <&axp_ipsout_reg>;
++	vin3-supply = <&axp_ipsout_reg>;
++	ldo24in-supply = <&axp_ipsout_reg>;
++	ldo3in-supply = <&axp_ipsout_reg>;
++	ldo5in-supply = <&axp_ipsout_reg>;
++
++	regulators {
++		x-powers,dcdc-freq = <1500>;
++
++		axp_vcore_reg: dcdc2 {
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <2275000>;
++			regulator-always-on;
++		};
++
++		axp_ddr_reg: dcdc3 {
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <3500000>;
++			regulator-always-on;
++		};
++
++		axp_rtc_reg: ldo1 {
++			regulator-always-on;
++		};
++
++		axp_analog_reg: ldo2 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-always-on;
++		};
++
++		axp_pll_reg: ldo3 {
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <3500000>;
++		};
++
++		axp_hdmi_reg: ldo4 {
++			regulator-min-microvolt = <1250000>;
++			regulator-max-microvolt = <3300000>;
++		};
++
++		axp_mic_reg: ldo5 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++		};
++	};
++};
++
 -- 
 1.8.3.2

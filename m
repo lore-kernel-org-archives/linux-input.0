@@ -1,73 +1,76 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: core: fix computation of the report size
-Date: Wed, 30 Apr 2014 17:48:40 -0400
-Message-ID: <1398894520-30407-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 01/15] ASoC: CS42L51 and WM8962 codecs depend on INPUT
+Date: Wed, 30 Apr 2014 18:30:06 -0700
+Message-ID: <20140501013006.GJ3245@sirena.org.uk>
+References: <1398770316-19715-1-git-send-email-kaixu.xia@linaro.org>
+ <1398770316-19715-2-git-send-email-kaixu.xia@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZG+WKzXzVby2T9Ro"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32012 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752219AbaD3Vsp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Apr 2014 17:48:45 -0400
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:53412 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750834AbaEABal (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Apr 2014 21:30:41 -0400
+Content-Disposition: inline
+In-Reply-To: <1398770316-19715-2-git-send-email-kaixu.xia@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Matthias Bayer <thematthiasbayer@gmail.com>
+To: Xia Kaixu <kaixu.xia@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linaro-kernel@lists.linaro.org, arnd@arndb.de, Liam Girdwood <lrg@slimlogic.co.uk>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Sangbeom Kim <sbkim73@samsung.com>, Lars-Peter Clausen <lars@metafoo.de>, Timur Tabi <timur@tabi.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org
 
-The extra seven bits are only required when allocating the report buffer.
-We can not use those extra bytes for the length of the report in the
-generic implementation of .request because the device might (will) refuse
-the set_report command.
-This has been verified on the Atmel touchpad found on the Samsung Ativ 9
-plus, which uses hid-multitouch and HID over I2C. Without this fix, the
-device refuses to switch to the multitouch mode, and it becomes unresponsive
-from the user point of view.
 
-Actually, this has been discussed during the initial submission of the
-commit 4fa5a7f76cc7b6ac87f57741edd2b124851d119f, see
-https://patchwork.kernel.org/patch/3621751/
+--ZG+WKzXzVby2T9Ro
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Unfortunately, I completely forgot about it later.
+On Tue, Apr 29, 2014 at 07:18:22PM +0800, Xia Kaixu wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+>=20
+> Building ARM randconfig got into a situation where CONFIG_INPUT
+> is turned off and SND_SOC_ALL_CODECS is turned on, which failed
+> for two codecs trying to use the input subsystem. Some other=20
 
-Reported-by: Matthias Bayer <thematthiasbayer@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+Applied, but...
 
-Hi Jiri,
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Liam Girdwood <lrg@slimlogic.co.uk>
+> Cc: Ben Dooks <ben-linux@fluff.org>
+> Cc: Kukjin Kim <kgene.kim@samsung.com>
+> Cc: Sangbeom Kim <sbkim73@samsung.com>
+> Cc: Lars-Peter Clausen <lars@metafoo.de>
+> Cc: Timur Tabi <timur@tabi.org>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-samsung-soc@vger.kernel.org
+> Cc: linux-input@vger.kernel.org
+> Cc: alsa-devel@alsa-project.org
 
-can you schedule this fix for 3.15?
+=2E..please don't include noise like this in patch submissions, especially
+with such long lists (which still manage to miss the driver maintainers
+concerned).
 
-Fortunately, the device required some ACPI changes, so it was not seen at all
-in 3.13 and before. I am not sure of the status of 3.14, but it is definitively
-not working in 3.15.
+--ZG+WKzXzVby2T9Ro
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Cheers,
-Benjamin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
- drivers/hid/hid-core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+iQIcBAEBAgAGBQJTYaObAAoJELSic+t+oim9Ti8P/i/b7F8wQ6kejlOzNt3cByTY
+Pravalwg7r1A0jQ/4Y6x33K1fzV/uZ0zVncUtyhybjXF0ZKklfUP4ZVvTHVrU/o4
+u7QkehQfge3cgSa1hBrq+w+jsY6PHtlQeiJ4rAUdkWpdgkG4/PWcdHovt6QqbQrW
+qrwhBp+7JHKICThHiyUjbahTBQHtHb9OSjBm6eJWqqKqUfbAc0TBhu+aWdLj3vQL
+lCXRr7kdtthq2G8lgbOemEnPDhWlgernUn71k3iKEl2OnRfDNNDe92jxu2HN+6Pk
+a1hgL3pGkhCY4auKxD3eg+jfAVW4OtNDQHgIEk8jj3+/j1Dn98CanxWtMAirlfmt
+fQbuBNU88so8bJ47lWwZ3Ydb2GVdkmMhFc/K4Sum5sbqG3f6jik5Bogh+IbTg5UQ
+RSVqrHyWZcDG9ltrsi0xg8Mj7DNGEA4t0Q2Df3ryzVvUVIBtoaJ9xt0JiVtRCCs/
+5O3zy/6iCq/YI2ed+eYMv3DwNGsdEOcOC46QFEFWlJcj20i82zmjTfMm726NNEEw
+oBiVZ6haNv1Iorq4rLIxfpH5SF5hEXpLyWJ/abF/lFjzBanE8Co9arNIvDh/x2Nx
+OpSgmcZHaiDhkJZwVNk/yH3FfUS5yXt32IL/UDiL2XQNxFErk6k1RkUJMhNAS8jx
+GNuq8VV8/l0enRFOuiPE
+=tZkN
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 963a8da..e0f6753 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1253,7 +1253,8 @@ EXPORT_SYMBOL_GPL(hid_output_report);
- 
- static int hid_report_len(struct hid_report *report)
- {
--	return ((report->size - 1) >> 3) + 1 + (report->id > 0) + 7;
-+	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
-+	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
- }
- 
- /*
-@@ -1266,7 +1267,7 @@ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags)
- 	 * of implement() working on 8 byte chunks
- 	 */
- 
--	int len = hid_report_len(report);
-+	int len = hid_report_len(report) + 7;
- 
- 	return kmalloc(len, flags);
- }
--- 
-1.9.0
-
+--ZG+WKzXzVby2T9Ro--

@@ -1,800 +1,98 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v5 8/8] ARM: sun7i/sun4i: dt: Add AXP209 support
- to various boards
-Date: Thu,  1 May 2014 14:29:34 +0200
-Message-ID: <1398947374-3115-9-git-send-email-carlo@caione.org>
-References: <1398947374-3115-1-git-send-email-carlo@caione.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: rmi: check for the existence of some optional queries before reading query 12
+Date: Thu, 1 May 2014 14:49:17 -0700
+Message-ID: <1398980957-10385-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBSX4RCNQKGQEOPJKIEA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1398947374-3115-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:53421 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751511AbaEAWF1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 May 2014 18:05:27 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: benjamin.tissoires@redhat.com, cheiny@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+The rmi4 spec defines some optional query registers in F11 which appear before
+query 12. This patch checks for the existence of some of the lesser used queries to
+ compute the location of query12 and all subsequent query registers.
+
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- arch/arm/boot/dts/sun4i-a10-a1000.dts           | 58 ++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-cubieboard.dts      | 58 ++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-hackberry.dts       | 64 ++++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-inet97fv2.dts       | 58 ++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-mini-xplus.dts      | 65 +++++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts  | 64 ++++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-pcduino.dts         | 58 ++++++++++++++++++++++
- arch/arm/boot/dts/sun7i-a20-cubieboard2.dts     | 59 ++++++++++++++++++++++
- arch/arm/boot/dts/sun7i-a20-cubietruck.dts      | 59 ++++++++++++++++++++++
- arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts | 59 ++++++++++++++++++++++
- 10 files changed, 602 insertions(+)
+ drivers/hid/hid-rmi.c | 33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10-a1000.dts b/arch/arm/boot/dts/sun4i-a10-a1000.dts
-index fa746aea..57d3fb4 100644
---- a/arch/arm/boot/dts/sun4i-a10-a1000.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-a1000.dts
-@@ -88,6 +88,56 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
- 	};
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 90ae5eb..912e008 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -546,9 +546,12 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	struct rmi_data *data = hid_get_drvdata(hdev);
+ 	u8 buf[20];
+ 	int ret;
++	bool has_query9;
++	bool has_query11;
+ 	bool has_query12;
+ 	bool has_physical_props;
+ 	unsigned x_size, y_size;
++	u16 query12_offset;
  
-@@ -125,4 +175,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-index 4684cbe..0aed114 100644
---- a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-@@ -80,6 +80,56 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
+ 	if (!data->f11.query_base_addr) {
+ 		hid_err(hdev, "No 2D sensor found, giving up.\n");
+@@ -561,6 +564,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 		hid_err(hdev, "can not get query 0: %d.\n", ret);
+ 		return ret;
+ 	}
++	has_query9 = !!(buf[0] & BIT(3));
++	has_query11 = !!(buf[0] & BIT(4));
+ 	has_query12 = !!(buf[0] & BIT(5));
  
- 		i2c1: i2c@01c2b000 {
-@@ -117,4 +167,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun4i-a10-hackberry.dts b/arch/arm/boot/dts/sun4i-a10-hackberry.dts
-index d7c17e4..c81db47 100644
---- a/arch/arm/boot/dts/sun4i-a10-hackberry.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-hackberry.dts
-@@ -82,6 +82,62 @@
- 			pinctrl-0 = <&uart0_pins_a>;
- 			status = "okay";
- 		};
-+
-+		i2c0: i2c@01c2ac00 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c0_pins_a>;
-+			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
-+		};
- 	};
+ 	/* query 1 to get the max number of fingers */
+@@ -582,11 +587,30 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	}
  
- 	reg_emac_3v3: emac-3v3 {
-@@ -102,4 +158,12 @@
- 		gpio = <&pio 7 12 0>;
- 		status = "okay";
- 	};
+ 	/*
+-	 * query 12 to know if the physical properties are reported
+-	 * (query 12 is at offset 10 for HID devices)
++	 * At least 8 queries are guaranteed to be present in F11
++	 * +1 for query12.
+ 	 */
++	query12_offset = 9;
 +
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts b/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts
-index fe9272e..5d0d3c2 100644
---- a/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-inet97fv2.dts
-@@ -34,6 +34,56 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
++	if (has_query9)
++		++query12_offset;
 +
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
++	/* query 8 to find out if query 10 exists */
++	ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
++	if (ret) {
++		hid_err(hdev, "can not read gesture information: %d.\n", ret);
++		return ret;
++	}
++	if (!!(buf[0] & BIT(2)))
++		++query12_offset;
 +
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
++	if (has_query11)
++		++query12_offset;
 +
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
++	/* query 12 to know if the physical properties are reported */
+ 	if (has_query12) {
+-		ret = rmi_read(hdev, data->f11.query_base_addr + 10, buf);
++		ret = rmi_read(hdev, data->f11.query_base_addr
++				+ query12_offset, buf);
+ 		if (ret) {
+ 			hid_err(hdev, "can not get query 12: %d.\n", ret);
+ 			return ret;
+@@ -595,7 +619,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
  
- 		usbphy: phy@01c13400 {
-@@ -66,4 +116,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts b/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts
-index dd84a9e..b23989d 100644
---- a/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-mini-xplus.dts
-@@ -47,6 +47,62 @@
- 			pinctrl-0 = <&uart0_pins_a>;
- 			status = "okay";
- 		};
-+
-+		i2c0: i2c@01c2ac00 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c0_pins_a>;
-+			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
-+		};
- 	};
- 
- 	reg_usb1_vbus: usb1-vbus {
-@@ -56,4 +112,13 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts b/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
-index 66cf0c7..004a6f0 100644
---- a/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts
-@@ -81,6 +81,62 @@
- 			pinctrl-0 = <&uart0_pins_a>;
- 			status = "okay";
- 		};
-+
-+		i2c0: i2c@01c2ac00 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c0_pins_a>;
-+			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
-+		};
- 	};
- 
- 	leds {
-@@ -108,4 +164,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun4i-a10-pcduino.dts b/arch/arm/boot/dts/sun4i-a10-pcduino.dts
-index 255b47e..fcd7c86 100644
---- a/arch/arm/boot/dts/sun4i-a10-pcduino.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-pcduino.dts
-@@ -66,6 +66,56 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupts = <0>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
- 	};
- 
-@@ -76,4 +126,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
-index 68de89f..3e748ed 100644
---- a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
-+++ b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
-@@ -66,6 +66,57 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupt-parent = <&nmi_intc>;
-+				interrupts = <0 8>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
- 
- 		i2c1: i2c@01c2b000 {
-@@ -114,4 +165,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
-index cb25d3c..d863469 100644
---- a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
-+++ b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
-@@ -73,6 +73,57 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupt-parent = <&nmi_intc>;
-+				interrupts = <0 8>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
- 
- 		i2c1: i2c@01c2b000 {
-@@ -139,4 +190,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
-diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
-index eeadf76..047340a 100644
---- a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
-+++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
-@@ -95,6 +95,57 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
- 			status = "okay";
-+
-+			axp209: pmic@34 {
-+				compatible = "x-powers,axp209";
-+				reg = <0x34>;
-+				interrupt-parent = <&nmi_intc>;
-+				interrupts = <0 8>;
-+
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+
-+				acin-supply = <&reg_axp_ipsout>;
-+				vin2-supply = <&reg_axp_ipsout>;
-+				vin3-supply = <&reg_axp_ipsout>;
-+				ldo24in-supply = <&reg_axp_ipsout>;
-+				ldo3in-supply = <&reg_axp_ipsout>;
-+				ldo5in-supply = <&reg_axp_ipsout>;
-+
-+				regulators {
-+					x-powers,dcdc-freq = <1500>;
-+
-+					axp_vcore_reg: dcdc2 {
-+						regulator-min-microvolt = <700000>;
-+						regulator-max-microvolt = <2275000>;
-+						regulator-always-on;
-+					};
-+
-+					axp_ddr_reg: dcdc3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_rtc_reg: ldo1 {
-+						regulator-always-on;
-+					};
-+
-+					axp_analog_reg: ldo2 {
-+						regulator-always-on;
-+					};
-+
-+					axp_pll_reg: ldo3 {
-+						regulator-always-on;
-+					};
-+
-+					axp_hdmi_reg: ldo4 {
-+						regulator-always-on;
-+					};
-+
-+					axp_mic_reg: ldo5 {
-+						regulator-always-on;
-+					};
-+				};
-+			};
- 		};
- 
- 		i2c1: i2c@01c2b000 {
-@@ -145,4 +196,12 @@
- 	reg_usb2_vbus: usb2-vbus {
- 		status = "okay";
- 	};
-+
-+	reg_axp_ipsout: axp_ipsout {
-+		compatible = "regulator-fixed";
-+		regulator-name = "axp-ipsout";
-+		regulator-min-microvolt = <5000000>;
-+		regulator-max-microvolt = <5000000>;
-+		regulator-always-on;
-+	};
- };
+ 		if (has_physical_props) {
+ 			ret = rmi_read_block(hdev,
+-					data->f11.query_base_addr + 11, buf, 4);
++					data->f11.query_base_addr
++						+ query12_offset + 1, buf, 4);
+ 			if (ret) {
+ 				hid_err(hdev, "can not read query 15-18: %d.\n",
+ 					ret);
 -- 
-1.8.3.2
+1.9.1
+

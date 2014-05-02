@@ -1,66 +1,98 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] hid-quirks: Add NO_INIT_REPORTS quirk for Synaptics Touch
- Pad V 103S
-Date: Fri, 2 May 2014 14:02:08 -0400
-Message-ID: <CAN+gG=EGRaSAPkFSLhQA1Ag-NsycJPgzGW+_QkdhLkJEAd+1pA@mail.gmail.com>
-References: <1399052893-3762-1-git-send-email-hdegoede@redhat.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH v2] HID: rmi: check for the existence of some optional queries before reading query 12
+Date: Fri, 2 May 2014 11:14:16 -0700
+Message-ID: <1399054456-4594-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1399052893-3762-1-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input <linux-input@vger.kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Christopher Heiny <cheiny@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>
 List-Id: linux-input@vger.kernel.org
 
-[Adding Jiri in CC]
+The rmi4 spec defines some optional query registers in F11 which appear before
+query 12. This patch checks for the existence of some of the lesser used queries to
+ compute the location of query12 and all subsequent query registers.
 
-On Fri, May 2, 2014 at 1:48 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> This touchpad seriously dislikes init reports, not only timeing out, but
-> also refusing to work after this.
->
-> Cc: stable@vger.kernel.org
-> Reported-and-tested-by: Vincent Fortier <th0ma7@gmail.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-rmi.c | 36 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-)
 
-Cheers,
-Benjamin
-
-> ---
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  2 files changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index c8af720..43f246e 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -834,6 +834,7 @@
->  #define USB_DEVICE_ID_SYNAPTICS_LTS2   0x1d10
->  #define USB_DEVICE_ID_SYNAPTICS_HD     0x0ac3
->  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD        0x1ac3
-> +#define USB_DEVICE_ID_SYNAPTICS_TP_V103        0x5710
->
->  #define USB_VENDOR_ID_THINGM           0x27b8
->  #define USB_DEVICE_ID_BLINK1           0x01ed
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index dbd8387..8e4ddb3 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -119,6 +119,7 @@ static const struct hid_blacklist {
->         { USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_LTS2, HID_QUIRK_NO_INIT_REPORTS },
->         { USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_HD, HID_QUIRK_NO_INIT_REPORTS },
->         { USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
-> +       { USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
->
->         { 0, 0 }
->  };
-> --
-> 1.9.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 90ae5eb..365c12b 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -546,9 +546,13 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	struct rmi_data *data = hid_get_drvdata(hdev);
+ 	u8 buf[20];
+ 	int ret;
++	bool has_query9;
++	bool has_query10;
++	bool has_query11;
+ 	bool has_query12;
+ 	bool has_physical_props;
+ 	unsigned x_size, y_size;
++	u16 query12_offset;
+ 
+ 	if (!data->f11.query_base_addr) {
+ 		hid_err(hdev, "No 2D sensor found, giving up.\n");
+@@ -561,6 +565,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 		hid_err(hdev, "can not get query 0: %d.\n", ret);
+ 		return ret;
+ 	}
++	has_query9 = !!(buf[0] & BIT(3));
++	has_query11 = !!(buf[0] & BIT(4));
+ 	has_query12 = !!(buf[0] & BIT(5));
+ 
+ 	/* query 1 to get the max number of fingers */
+@@ -581,12 +587,33 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 		return -ENODEV;
+ 	}
+ 
++	/* query 8 to find out if query 10 exists */
++	ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
++	if (ret) {
++		hid_err(hdev, "can not read gesture information: %d.\n", ret);
++		return ret;
++	}
++	has_query10 = !!(buf[0] & BIT(2));
++
+ 	/*
+-	 * query 12 to know if the physical properties are reported
+-	 * (query 12 is at offset 10 for HID devices)
++	 * At least 8 queries are guaranteed to be present in F11
++	 * +1 for query12.
+ 	 */
++	query12_offset = 9;
++
++	if (has_query9)
++		++query12_offset;
++
++	if (has_query10)
++		++query12_offset;
++
++	if (has_query11)
++		++query12_offset;
++
++	/* query 12 to know if the physical properties are reported */
+ 	if (has_query12) {
+-		ret = rmi_read(hdev, data->f11.query_base_addr + 10, buf);
++		ret = rmi_read(hdev, data->f11.query_base_addr
++				+ query12_offset, buf);
+ 		if (ret) {
+ 			hid_err(hdev, "can not get query 12: %d.\n", ret);
+ 			return ret;
+@@ -595,7 +622,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 
+ 		if (has_physical_props) {
+ 			ret = rmi_read_block(hdev,
+-					data->f11.query_base_addr + 11, buf, 4);
++					data->f11.query_base_addr
++						+ query12_offset + 1, buf, 4);
+ 			if (ret) {
+ 				hid_err(hdev, "can not read query 15-18: %d.\n",
+ 					ret);
+-- 
+1.9.1

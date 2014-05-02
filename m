@@ -1,98 +1,70 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: check for the existence of some optional queries before reading query 12
-Date: Thu, 1 May 2014 14:49:17 -0700
-Message-ID: <1398980957-10385-1-git-send-email-aduggan@synaptics.com>
+From: Michal Simek <monstr@monstr.eu>
+Subject: Re: [PATCH v5 2/8] dt-bindings: add vendor-prefix for X-Powers
+Date: Fri, 02 May 2014 07:24:38 +0200
+Message-ID: <53632C16.6070105@monstr.eu>
+References: <1398947374-3115-1-git-send-email-carlo@caione.org> <1398947374-3115-3-git-send-email-carlo@caione.org>
+Reply-To: monstr@monstr.eu
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:53421 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751511AbaEAWF1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 May 2014 18:05:27 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="GPPiGRwWFApoAKkIEW0FNk7vhjT3qoV88"
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1398947374-3115-3-git-send-email-carlo@caione.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Carlo Caione <carlo@caione.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, lee.jones@linaro.org, boris.brezillon@free-electrons.com
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com, cheiny@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>
 
-The rmi4 spec defines some optional query registers in F11 which appear before
-query 12. This patch checks for the existence of some of the lesser used queries to
- compute the location of query12 and all subsequent query registers.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--GPPiGRwWFApoAKkIEW0FNk7vhjT3qoV88
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-rmi.c | 33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+On 05/01/2014 02:29 PM, Carlo Caione wrote:
+> Signed-off-by: Carlo Caione <carlo@caione.org>
+> ---
+>  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Do=
+cumentation/devicetree/bindings/vendor-prefixes.txt
+> index abc3080..792cf56 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> @@ -135,3 +135,4 @@ wm	Wondermedia Technologies, Inc.
+>  xes	Extreme Engineering Solutions (X-ES)
+>  xlnx	Xilinx
+>  zyxel	ZyXEL Communications Corp.
+> +x-powers	X-Powers
+>=20
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 90ae5eb..912e008 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -546,9 +546,12 @@ static int rmi_populate_f11(struct hid_device *hdev)
- 	struct rmi_data *data = hid_get_drvdata(hdev);
- 	u8 buf[20];
- 	int ret;
-+	bool has_query9;
-+	bool has_query11;
- 	bool has_query12;
- 	bool has_physical_props;
- 	unsigned x_size, y_size;
-+	u16 query12_offset;
- 
- 	if (!data->f11.query_base_addr) {
- 		hid_err(hdev, "No 2D sensor found, giving up.\n");
-@@ -561,6 +564,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
- 		hid_err(hdev, "can not get query 0: %d.\n", ret);
- 		return ret;
- 	}
-+	has_query9 = !!(buf[0] & BIT(3));
-+	has_query11 = !!(buf[0] & BIT(4));
- 	has_query12 = !!(buf[0] & BIT(5));
- 
- 	/* query 1 to get the max number of fingers */
-@@ -582,11 +587,30 @@ static int rmi_populate_f11(struct hid_device *hdev)
- 	}
- 
- 	/*
--	 * query 12 to know if the physical properties are reported
--	 * (query 12 is at offset 10 for HID devices)
-+	 * At least 8 queries are guaranteed to be present in F11
-+	 * +1 for query12.
- 	 */
-+	query12_offset = 9;
-+
-+	if (has_query9)
-+		++query12_offset;
-+
-+	/* query 8 to find out if query 10 exists */
-+	ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
-+	if (ret) {
-+		hid_err(hdev, "can not read gesture information: %d.\n", ret);
-+		return ret;
-+	}
-+	if (!!(buf[0] & BIT(2)))
-+		++query12_offset;
-+
-+	if (has_query11)
-+		++query12_offset;
-+
-+	/* query 12 to know if the physical properties are reported */
- 	if (has_query12) {
--		ret = rmi_read(hdev, data->f11.query_base_addr + 10, buf);
-+		ret = rmi_read(hdev, data->f11.query_base_addr
-+				+ query12_offset, buf);
- 		if (ret) {
- 			hid_err(hdev, "can not get query 12: %d.\n", ret);
- 			return ret;
-@@ -595,7 +619,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
- 
- 		if (has_physical_props) {
- 			ret = rmi_read_block(hdev,
--					data->f11.query_base_addr + 11, buf, 4);
-+					data->f11.query_base_addr
-+						+ query12_offset + 1, buf, 4);
- 			if (ret) {
- 				hid_err(hdev, "can not read query 15-18: %d.\n",
- 					ret);
--- 
-1.9.1
+Keep list sorted.
 
+Thanks,
+Michal
+
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+--GPPiGRwWFApoAKkIEW0FNk7vhjT3qoV88
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlNjLBYACgkQykllyylKDCEudwCfQcMACxoh3rUfiS+yR+YeK+rk
+V9kAmQHZInHtCKhalW/odNCGAl/5pOEE
+=iDlM
+-----END PGP SIGNATURE-----
+
+--GPPiGRwWFApoAKkIEW0FNk7vhjT3qoV88--

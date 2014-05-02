@@ -1,47 +1,124 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH v5 1/8] mfd: AXP20x: Add mfd driver for
- AXP20x PMIC
-Date: Fri, 2 May 2014 10:27:38 +0200
-Message-ID: <CAOQ7t2ZNRxuRhQbr-PMUKFSiwXrypBEA1_LmT9fzw6=-+k6awQ@mail.gmail.com>
-References: <1398947374-3115-1-git-send-email-carlo@caione.org>
-	<1398947374-3115-2-git-send-email-carlo@caione.org>
-	<20140502081501.GB5206@lee--X1>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: rmi: check for the existence of some optional
+ queries before reading query 12
+Date: Fri, 2 May 2014 10:24:38 -0400
+Message-ID: <CAN+gG=EWW_FgyZU+9+7dP4cNHqbQ_MGmXjGyM2OsNmp0Y_K5BA@mail.gmail.com>
+References: <1398980957-10385-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBB6VNRWNQKGQEMTTFNLY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20140502081501.GB5206@lee--X1>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f51.google.com ([209.85.215.51]:37915 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751406AbaEBOYk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 May 2014 10:24:40 -0400
+In-Reply-To: <1398980957-10385-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Fri, May 2, 2014 at 10:15 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> This patch introduces the preliminary support for PMICs X-Powers AXP202
->> and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
->> used by A10, A13 and A20 SoCs and developed by X-Powers, a sister company
->> of Allwinner.
->>
->> The core enables support for two subsystems:
->> - PEK (Power Enable Key)
->> - Regulators
->>
->> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
->> Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->> ---
+Hi Andrew,
+
+On Thu, May 1, 2014 at 5:49 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
+> The rmi4 spec defines some optional query registers in F11 which appear before
+> query 12. This patch checks for the existence of some of the lesser used queries to
+>  compute the location of query12 and all subsequent query registers.
 >
-> I guess I can just apply this and expect not to see any adverse
-> symptoms?
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> ---
 
-It has been tested with a sun7i/cubieboard2 with to adverse symptoms.
-It's not core stuff so I guess you could apply it.
+This is quite important because the XPS 13 laptop shows currently a
+touchpad of physical size in mm of 5149 x 1972... :)
 
-Thank you,
+Thanks Andrew for taking care of it.
 
--- 
-Carlo Caione
+>  drivers/hid/hid-rmi.c | 33 +++++++++++++++++++++++++++++----
+>  1 file changed, 29 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 90ae5eb..912e008 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -546,9 +546,12 @@ static int rmi_populate_f11(struct hid_device *hdev)
+>         struct rmi_data *data = hid_get_drvdata(hdev);
+>         u8 buf[20];
+>         int ret;
+> +       bool has_query9;
+> +       bool has_query11;
+>         bool has_query12;
+>         bool has_physical_props;
+>         unsigned x_size, y_size;
+> +       u16 query12_offset;
+>
+>         if (!data->f11.query_base_addr) {
+>                 hid_err(hdev, "No 2D sensor found, giving up.\n");
+> @@ -561,6 +564,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
+>                 hid_err(hdev, "can not get query 0: %d.\n", ret);
+>                 return ret;
+>         }
+> +       has_query9 = !!(buf[0] & BIT(3));
+> +       has_query11 = !!(buf[0] & BIT(4));
+>         has_query12 = !!(buf[0] & BIT(5));
+>
+>         /* query 1 to get the max number of fingers */
+> @@ -582,11 +587,30 @@ static int rmi_populate_f11(struct hid_device *hdev)
+>         }
+>
+>         /*
+> -        * query 12 to know if the physical properties are reported
+> -        * (query 12 is at offset 10 for HID devices)
+> +        * At least 8 queries are guaranteed to be present in F11
+> +        * +1 for query12.
+>          */
+> +       query12_offset = 9;
+> +
+> +       if (has_query9)
+> +               ++query12_offset;
+> +
+> +       /* query 8 to find out if query 10 exists */
+> +       ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
+> +       if (ret) {
+> +               hid_err(hdev, "can not read gesture information: %d.\n", ret);
+> +               return ret;
+> +       }
+> +       if (!!(buf[0] & BIT(2)))
+
+For consistency, I would have prefered to have "if (has_query10)" here.
+
+Other than that, the patch is reviewed-by: Benjamin Tissoires
+<benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+> +               ++query12_offset;
+> +
+> +       if (has_query11)
+> +               ++query12_offset;
+> +
+> +       /* query 12 to know if the physical properties are reported */
+>         if (has_query12) {
+> -               ret = rmi_read(hdev, data->f11.query_base_addr + 10, buf);
+> +               ret = rmi_read(hdev, data->f11.query_base_addr
+> +                               + query12_offset, buf);
+>                 if (ret) {
+>                         hid_err(hdev, "can not get query 12: %d.\n", ret);
+>                         return ret;
+> @@ -595,7 +619,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
+>
+>                 if (has_physical_props) {
+>                         ret = rmi_read_block(hdev,
+> -                                       data->f11.query_base_addr + 11, buf, 4);
+> +                                       data->f11.query_base_addr
+> +                                               + query12_offset + 1, buf, 4);
+>                         if (ret) {
+>                                 hid_err(hdev, "can not read query 15-18: %d.\n",
+>                                         ret);
+> --
+> 1.9.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

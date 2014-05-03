@@ -1,17 +1,17 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v5 1/8] mfd: AXP20x: Add mfd driver for
- AXP20x PMIC
-Date: Fri, 2 May 2014 18:03:11 -0700
-Message-ID: <20140503010311.GD4090@lukather>
+Subject: Re: [PATCH v5 8/8] ARM: sun7i/sun4i: dt: Add AXP209
+ support to various boards
+Date: Fri, 2 May 2014 18:09:36 -0700
+Message-ID: <20140503010936.GF4090@lukather>
 References: <1398947374-3115-1-git-send-email-carlo@caione.org>
- <1398947374-3115-2-git-send-email-carlo@caione.org>
+ <1398947374-3115-9-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UoPmpPX/dBe4BELn"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBXEBSGNQKGQEXI6OMWA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="GLp9dJVi+aaipsRk"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBFMESGNQKGQEK5VO42Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1398947374-3115-2-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1398947374-3115-9-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
@@ -23,27 +23,100 @@ Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 List-Id: linux-input@vger.kernel.org
 
 
---UoPmpPX/dBe4BELn
+--GLp9dJVi+aaipsRk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 01, 2014 at 02:29:27PM +0200, Carlo Caione wrote:
-> This patch introduces the preliminary support for PMICs X-Powers AXP202
-> and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
-> used by A10, A13 and A20 SoCs and developed by X-Powers, a sister company
-> of Allwinner.
->=20
-> The core enables support for two subsystems:
-> - PEK (Power Enable Key)
-> - Regulators
->=20
+Hi,
+
+On Thu, May 01, 2014 at 02:29:34PM +0200, Carlo Caione wrote:
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/sun4i-a10-a1000.dts           | 58 +++++++++++++++++++=
++++
+>  arch/arm/boot/dts/sun4i-a10-cubieboard.dts      | 58 +++++++++++++++++++=
++++
+>  arch/arm/boot/dts/sun4i-a10-hackberry.dts       | 64 +++++++++++++++++++=
++++++
+>  arch/arm/boot/dts/sun4i-a10-inet97fv2.dts       | 58 +++++++++++++++++++=
++++
+>  arch/arm/boot/dts/sun4i-a10-mini-xplus.dts      | 65 +++++++++++++++++++=
+++++++
+>  arch/arm/boot/dts/sun4i-a10-olinuxino-lime.dts  | 64 +++++++++++++++++++=
++++++
+>  arch/arm/boot/dts/sun4i-a10-pcduino.dts         | 58 +++++++++++++++++++=
++++
+>  arch/arm/boot/dts/sun7i-a20-cubieboard2.dts     | 59 +++++++++++++++++++=
++++
+>  arch/arm/boot/dts/sun7i-a20-cubietruck.dts      | 59 +++++++++++++++++++=
++++
+>  arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts | 59 +++++++++++++++++++=
++++
+>  10 files changed, 602 insertions(+)
+>=20
+> diff --git a/arch/arm/boot/dts/sun4i-a10-a1000.dts b/arch/arm/boot/dts/su=
+n4i-a10-a1000.dts
+> index fa746aea..57d3fb4 100644
+> --- a/arch/arm/boot/dts/sun4i-a10-a1000.dts
+> +++ b/arch/arm/boot/dts/sun4i-a10-a1000.dts
+> @@ -88,6 +88,56 @@
+>  			pinctrl-names =3D "default";
+>  			pinctrl-0 =3D <&i2c0_pins_a>;
+>  			status =3D "okay";
+> +
+> +			axp209: pmic@34 {
+> +				compatible =3D "x-powers,axp209";
+> +				reg =3D <0x34>;
+> +				interrupts =3D <0>;
+> +
+> +				interrupt-controller;
+> +				#interrupt-cells =3D <1>;
+> +
+> +				acin-supply =3D <&reg_axp_ipsout>;
+> +				vin2-supply =3D <&reg_axp_ipsout>;
+> +				vin3-supply =3D <&reg_axp_ipsout>;
+> +				ldo24in-supply =3D <&reg_axp_ipsout>;
+> +				ldo3in-supply =3D <&reg_axp_ipsout>;
+> +				ldo5in-supply =3D <&reg_axp_ipsout>;
+> +
+> +				regulators {
+> +					x-powers,dcdc-freq =3D <1500>;
+> +
+> +					axp_vcore_reg: dcdc2 {
+> +						regulator-min-microvolt =3D <700000>;
+> +						regulator-max-microvolt =3D <2275000>;
+> +						regulator-always-on;
+> +					};
+> +
+> +					axp_ddr_reg: dcdc3 {
+> +						regulator-always-on;
+> +					};
+> +
+> +					axp_rtc_reg: ldo1 {
+> +						regulator-always-on;
+> +					};
+> +
+> +					axp_analog_reg: ldo2 {
+> +						regulator-always-on;
+> +					};
+> +
+> +					axp_pll_reg: ldo3 {
+> +						regulator-always-on;
+> +					};
+> +
+> +					axp_hdmi_reg: ldo4 {
+> +						regulator-always-on;
+> +					};
+> +
+> +					axp_mic_reg: ldo5 {
+> +						regulator-always-on;
 
-Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Do all these regulators need to be always on? It makes sense for the
+pll and vcore, but I don't get why the mic and hdmi regulators need
+this.
 
-Thanks!
 Maxime
 
 --=20
@@ -51,26 +124,26 @@ Maxime Ripard, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
 
---UoPmpPX/dBe4BELn
+--GLp9dJVi+aaipsRk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTZEBPAAoJEBx+YmzsjxAgeycP/A6tRF6KeV/wy3D9sWjRQOZU
-0hnxEs3i1n2y6x28+J276ffGAPuN3v7OGfk+qjlSl+UVT9FAJQGUSgMWippVh5r0
-Zqms3demyWMUgM593vyg3gyP4jM4Ob6O5ztllgg6AFRyS+tqVp/y++x0uSbjX74P
-8lqK+FpdwddK/u+2MNqUtGnE7UdNjRB+nhW9GOiR/B57Uv7Lkfwhh1/V6x8b3ZzM
-v/0qm68k/goGVP5P8GJaGrTl5f0H/jcHv7QPyn4v7rKtFzxHIDCCQWRF/3jrr6UB
-lr7miVaEH2q1kmIhyItndeJwg0JfiSp3hSOgYNl0GPLP2bc4lHgZwh+zSm6S4//6
-IC79tVCuZERPZYSC19xMru2fLwlRmbpRIjy405QLD+ycG1cY0rzd4RVbZMNwQWL5
-3Z2dPQvOYQAUu5p9Pd6f9G3j3udvA4SAUxQnTzpHXfA9aKZQUqqLkn5tlrbUOrqF
-HK/ZjpUv65WG8Tg31uSFyB9va7PqToHWLtkMexbAGCY8basmLeN3CShpbr8iZt+O
-CTTkB5cvWEosHzGftYEYBeYxtV8nK0fj3v1zg2GbzZeg711DUV/7DQU4F8tRl+bw
-lgZ7b1hWxf3pDJIxo/xBUb7DOURVZIV8tlSibiByqpbZEGWjIBenbtIs7RE30Yji
-G2+S/BNBdfAKCKmWqEGk
-=c1Na
+iQIcBAEBAgAGBQJTZEHQAAoJEBx+YmzsjxAgDiwP/jyptroqnCqV49v1R1+eMSde
+6spCF+wmEAQHGATSEKMLSVvcGkiBLK+0dIhBXSQ72lUtw0qGc02YVaqCpERj6WrE
+Awdz86aVnyAQxl8LT8/W/KQLFzECKpt8hvzfSu5cfacyW/mJzkP6WZ42YkqBIEo1
+kYYvN7o4B3zo3Q3MJMEARmTGjWOAVUhUnTQ+ePT57wZZwS1s420MX+M2myPWDF5V
+v2vwYPMpe5u7A9sF3rW79M3OdEnTG8LQu+gEaBrsCFyI992f1rzHKKO54dJeZKMB
+Nelh6nUpP3v14CqdoFslqHg7UxSUOfyGdxaAdFA+Ppf/J4M8oNd8Mnt/GKbce850
+GLrV7Z8Iv5EkjER8EHcEnfx8PpvSBTxEvNhnvOQyIUmlWHo4iYlVak4T4GZYivjX
+F1uuq03W0sic4JeZYM0Z4xevhTZb7OKgFWg80wRRWJF25V0T3nrNWdwQegrtYcEd
+IryvyFdX8zvxprnWGWcRb7ZLOTTziSYSeXt5340yvr69yslt/OnwIk7eXSFE4MyT
+jkAduV9dtpEFZ0PTfJ/ya5GRzVGlGxTWjShSsSsSRX0N5by/xK6azmMb9rpEkIAI
+H2KOVpheJGKIRr6PUHiBid6/B/arH2NauEitef5RaB83Doqn3nHsw6bdbotyZZvU
+O0xYBEdPkjg7Z4JxDk6w
+=o4j/
 -----END PGP SIGNATURE-----
 
---UoPmpPX/dBe4BELn--
+--GLp9dJVi+aaipsRk--

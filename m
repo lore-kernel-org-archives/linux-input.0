@@ -1,67 +1,82 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: Re: [PATCH v3 2/7] Input: pixcir_i2c_ts: Initialize interrupt mode
- and power mode
-Date: Mon, 5 May 2014 11:42:52 +0300
-Message-ID: <53674F0C.5040101@ti.com>
-References: <1398861392-8959-1-git-send-email-rogerq@ti.com> <1398861392-8959-3-git-send-email-rogerq@ti.com> <20140430162950.GA13624@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv3 1/5] Input: add common DT binding for touchscreens
+Date: Mon, 5 May 2014 12:51:39 -0700
+Message-ID: <20140505195139.GA26978@core.coreip.homeip.net>
+References: <1398470179-20880-1-git-send-email-sre@kernel.org>
+ <1398470179-20880-2-git-send-email-sre@kernel.org>
+ <20140505194125.GD25949@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140430162950.GA13624@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:36624 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752112AbaEETvn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 May 2014 15:51:43 -0400
+Content-Disposition: inline
+In-Reply-To: <20140505194125.GD25949@atomide.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Sebastian Reichel <sre@ring0.de>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+On Mon, May 05, 2014 at 12:41:26PM -0700, Tony Lindgren wrote:
+> * Sebastian Reichel <sre@kernel.org> [140425 16:56]:
+> > Add common DT binding documentation for touchscreen devices and
+> > implement input_parse_touchscreen_of_params, which parses the common
+> > properties and configures the input device accordingly.
+> > 
+> > The method currently does not interpret the axis inversion properties,
+> > since there is no matching flag in the generic linux input device.
+> > 
+> > Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> > ---
+> >  .../bindings/input/touchscreen/touchscreen.txt     | 27 +++++++++++++++++
+> >  drivers/input/input.c                              | 34 ++++++++++++++++++++++
+> >  include/linux/input.h                              |  8 +++++
+> >  3 files changed, 69 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > new file mode 100644
+> > index 0000000..d8e0616
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > @@ -0,0 +1,27 @@
+> > +General Touchscreen Properties:
+> > +
+> > +Optional properties for Touchscreens:
+> > + - touchscreen-size-x		: horizontal resolution of touchscreen
+> > +				  (in pixels)
+> > + - touchscreen-size-y		: vertical resolution of touchscreen
+> > +				  (in pixels)
+> > + - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
+> > +				  dependent on the controller)
+> > + - touchscreen-fuzz-x		: horizontal noise value of the absolute input
+> > +				  device (in pixels)
+> > + - touchscreen-fuzz-y		: vertical noise value of the absolute input
+> > +				  device (in pixels)
+> > + - touchscreen-fuzz-pressure	: pressure noise value of the absolute input
+> > +				  device (arbitrary range dependent on the
+> > +				  controller)
 
-On 04/30/2014 07:29 PM, Dmitry Torokhov wrote:
-> Hi Roger,
+Fuzz seems like linux-specific property, not generic one.
+
+
+> > + - touchscreen-inverted-x	: X axis is inverted (boolean)
+> > + - touchscreen-inverted-y	: Y axis is inverted (boolean)
 > 
-> On Wed, Apr 30, 2014 at 03:36:27PM +0300, Roger Quadros wrote:
->> +static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
->> +{
->> +	struct device *dev = &ts->client->dev;
->> +	int ret;
->> +
->> +	/* exit ISR if running, no more report parsing */
->> +	ts->exiting = true;
->> +	mb();	/* update status before we synchronize irq */
->> +
->> +	/* disable ISR from running again */
->> +	disable_irq(ts->client->irq);
->> +
->> +	/* wait till running ISR complete */
->> +	synchronize_irq(ts->client->irq);
->> +
->> +	/* disable interrupt generation */
->> +	ret = pixcir_int_enable(ts, 0);
->> +	if (ret)
->> +		dev_err(dev, "Failed to disable interrupt generation\n");
->> +
->> +	/* restore IRQ */
->> +	enable_irq(ts->client->irq);
->> +
->> +	return ret;
+> We probably also need something to swap x and y depending on the
+> display orientation in addition to the touchscreen-inverted-x and y.
+> Just swapping x and y is not enough depending if we rotate by 270
+> degrees instead of 90 degrees.
 > 
-> Should not this be:
-> 
-> 	pixcir_int_enable(ts, 0);
-> 	ts->exiting = true;
-> 	mb();
-> 	synchronize_irq(ts->client->irq);
-> 
-> Why do we also need to disable/enable irq?
+> Naturally that part can be added later.
 
-Yes, you are right. It seems the problem with v2 was that order of mb() and synchronize_irq() were
-reversed and thus causing the suspend/resume problem. I tried with your suggestion and it works.
-I'll send a revised series.
+So far we've been relying on upper layers (such as tslib) to perform
+such transformations rather than re-implementing it in every driver. Are
+we saying that we need to implement this in input core?
 
-> 
-> By the way, disable_irq() implies synchronize_irq().
+Thanks.
 
-OK.
-
-cheers,
--roger
+-- 
+Dmitry

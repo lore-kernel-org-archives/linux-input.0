@@ -1,68 +1,60 @@
-From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v4 0/7] Input: pixcir_i2c_ts: Add Type-B Multi-touch and DT support
-Date: Mon, 5 May 2014 12:04:31 +0300
-Message-ID: <1399280678-23925-1-git-send-email-rogerq@ti.com>
+From: "Peter F. Patel-Schneider" <pfpschneider@gmail.com>
+Subject: [PATCH] iio:hid-sensor-hub: Add in quirk for sensor hub in Lenovo
+ Ideapad Yogas
+Date: Mon, 05 May 2014 15:55:32 -0700
+Message-ID: <536816E4.2040109@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qa0-f52.google.com ([209.85.216.52]:39356 "EHLO
+	mail-qa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756752AbaEEWzi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 May 2014 18:55:38 -0400
+Received: by mail-qa0-f52.google.com with SMTP id cm18so6905163qab.11
+        for <linux-input@vger.kernel.org>; Mon, 05 May 2014 15:55:37 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, jkosina@suse.cz
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Hi Dmitry,
+The sensor hub in Lenovo Yogas needs the enumeration quirk.  I've been running 
+the patch for over a month with no problems, whereas the unpatched drivers 
+reliably mis-initialized the sensors. (This is a resending of a previous patch 
+that had formatting issues.)
 
-This series does the following
-
-- use devres managed resource allocations
-- convert to Type-B multi touch protocol
-- support upto 5 fingers with hardware supplied tracking IDs
-- device tree support
-
-Please queue this for -next (3.16). Thanks.
-
-cheers,
--roger
-
-Changelog:
-
-v4:
-- imporved pixcir_stop() as per Dmitry's suggestion.
-- removed unnecessary input_unregister_device() from .remove().
-
-v3:
-- Rebased to 3.15-rc3
-- Fixed suspend while touchscreen in use
-- Fixed module removal while touchscreen in use
-
-v2:
-- Addressed review comments and re-arranged patch order
-
-v1:
-- http://article.gmane.org/gmane.linux.kernel/1616417
-
+Signed-off-by: Peter F. Patel-Schneider <pfpschneider@gmail.com>
 ---
-Roger Quadros (7):
-  Input: pixcir_i2c_ts: Use devres managed resource allocations
-  Input: pixcir_i2c_ts: Initialize interrupt mode and power mode
-  Input: pixcir_i2c_ts: Get rid of pdata->attb_read_val()
-  Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
-  Input: pixcir_i2c_ts: support upto 5 fingers and hardware provided
-    tracking IDs
-  Input: pixcir_i2c_ts: Implement wakeup from suspend
-  Input: pixcir_i2c_ts: Add device tree support
+  drivers/hid/hid-ids.h        | 3 +++
+  drivers/hid/hid-sensor-hub.c | 3 +++
+  2 files changed, 6 insertions(+)
 
- .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  26 +
- .../devicetree/bindings/vendor-prefixes.txt        |   1 +
- drivers/input/touchscreen/pixcir_i2c_ts.c          | 524 ++++++++++++++++++---
- include/linux/input/pixcir_ts.h                    |  56 ++-
- 4 files changed, 546 insertions(+), 61 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5a5248f..f944e37 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -823,6 +823,9 @@
+  #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
+  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
 
--- 
-1.8.3.2
++#define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
++#define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
++
+  #define USB_VENDOR_ID_THINGM		0x27b8
+  #define USB_DEVICE_ID_BLINK1		0x01ed
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 46f4480..597732b 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -665,6 +665,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
+  	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
+  			USB_DEVICE_ID_INTEL_HID_SENSOR),
+  			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
++	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
++		     USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
++		     .driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+  	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
+  		     HID_ANY_ID) },
+  	{ }
+

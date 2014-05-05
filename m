@@ -1,67 +1,105 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCHv3 1/5] Input: add common DT binding for touchscreens
-Date: Mon, 5 May 2014 12:41:26 -0700
-Message-ID: <20140505194125.GD25949@atomide.com>
-References: <1398470179-20880-1-git-send-email-sre@kernel.org>
- <1398470179-20880-2-git-send-email-sre@kernel.org>
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v4 6/7] Input: pixcir_i2c_ts: Implement wakeup from suspend
+Date: Mon, 5 May 2014 12:04:37 +0300
+Message-ID: <1399280678-23925-7-git-send-email-rogerq@ti.com>
+References: <1399280678-23925-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1398470179-20880-2-git-send-email-sre@kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1399280678-23925-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-* Sebastian Reichel <sre@kernel.org> [140425 16:56]:
-> Add common DT binding documentation for touchscreen devices and
-> implement input_parse_touchscreen_of_params, which parses the common
-> properties and configures the input device accordingly.
-> 
-> The method currently does not interpret the axis inversion properties,
-> since there is no matching flag in the generic linux input device.
-> 
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> ---
->  .../bindings/input/touchscreen/touchscreen.txt     | 27 +++++++++++++++++
->  drivers/input/input.c                              | 34 ++++++++++++++++++++++
->  include/linux/input.h                              |  8 +++++
->  3 files changed, 69 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> new file mode 100644
-> index 0000000..d8e0616
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> @@ -0,0 +1,27 @@
-> +General Touchscreen Properties:
-> +
-> +Optional properties for Touchscreens:
-> + - touchscreen-size-x		: horizontal resolution of touchscreen
-> +				  (in pixels)
-> + - touchscreen-size-y		: vertical resolution of touchscreen
-> +				  (in pixels)
-> + - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
-> +				  dependent on the controller)
-> + - touchscreen-fuzz-x		: horizontal noise value of the absolute input
-> +				  device (in pixels)
-> + - touchscreen-fuzz-y		: vertical noise value of the absolute input
-> +				  device (in pixels)
-> + - touchscreen-fuzz-pressure	: pressure noise value of the absolute input
-> +				  device (arbitrary range dependent on the
-> +				  controller)
-> + - touchscreen-inverted-x	: X axis is inverted (boolean)
-> + - touchscreen-inverted-y	: Y axis is inverted (boolean)
+Improve the suspend and resume handlers to allow the device
+to wakeup the system from suspend.
 
-We probably also need something to swap x and y depending on the
-display orientation in addition to the touchscreen-inverted-x and y.
-Just swapping x and y is not enough depending if we rotate by 270
-degrees instead of 90 degrees.
+Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Acked-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+---
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 53 ++++++++++++++++++++++++++++---
+ 1 file changed, 49 insertions(+), 4 deletions(-)
 
-Naturally that part can be added later.
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 927aed1..5f6a27e 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -348,21 +348,66 @@ static void pixcir_input_close(struct input_dev *dev)
+ static int pixcir_i2c_ts_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
++	struct input_dev *input = ts->input;
++	int ret = 0;
++
++	mutex_lock(&input->mutex);
++
++	if (input->users) {
++		ret = pixcir_stop(ts);
++		if (ret)
++			goto unlock;
++	}
++
++	/*
++	 * If wakeup is enabled we need to enable interrupt generation
++	 * but don't need to process any reports i.e. ts->exiting must be true.
++	 */
++	if (device_may_wakeup(&client->dev)) {
++		/* enable wakeup interrupt generation */
++		ret = pixcir_int_enable(ts, 1);
++		if (ret) {
++			dev_err(dev, "Failed to enable interrupt generation\n");
++			goto unlock;
++		}
+ 
+-	if (device_may_wakeup(&client->dev))
+ 		enable_irq_wake(client->irq);
++	}
+ 
+-	return 0;
++unlock:
++	mutex_unlock(&input->mutex);
++
++	return ret;
+ }
+ 
+ static int pixcir_i2c_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
++	struct input_dev *input = ts->input;
++	int ret = 0;
+ 
+-	if (device_may_wakeup(&client->dev))
++	mutex_lock(&input->mutex);
++
++	if (device_may_wakeup(&client->dev)) {
+ 		disable_irq_wake(client->irq);
+ 
+-	return 0;
++		/* disable wakeup interrupt generation */
++		ret = pixcir_int_enable(ts, 0);
++		if (ret) {
++			dev_err(dev, "Failed to disable interrupt generation\n");
++			goto unlock;
++		}
++	}
++
++	if (input->users)
++		ret = pixcir_start(ts);
++
++unlock:
++	mutex_unlock(&input->mutex);
++
++	return ret;
+ }
+ #endif
+ 
+-- 
+1.8.3.2
 
-Regards,
-
-That 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

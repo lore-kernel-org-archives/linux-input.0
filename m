@@ -1,69 +1,92 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] iio:hid-sensor-hub: Add in quirk for sensor hub in Lenovo
- Ideapad Yogas
-Date: Mon, 05 May 2014 16:03:48 -0700
-Message-ID: <536818D4.8030608@linux.intel.com>
-References: <536816E4.2040109@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCHv3 1/5] Input: add common DT binding for touchscreens
+Date: Mon, 5 May 2014 13:12:02 -0700
+Message-ID: <20140505201202.GH25949@atomide.com>
+References: <1398470179-20880-1-git-send-email-sre@kernel.org>
+ <1398470179-20880-2-git-send-email-sre@kernel.org>
+ <20140505194125.GD25949@atomide.com>
+ <20140505195139.GA26978@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:43883 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756899AbaEEW7Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 5 May 2014 18:59:24 -0400
-In-Reply-To: <536816E4.2040109@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140505195139.GA26978@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Sebastian Reichel <sre@ring0.de>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Peter F. Patel-Schneider" <pfpschneider@gmail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
 
-On 05/05/2014 03:55 PM, Peter F. Patel-Schneider wrote:
-> The sensor hub in Lenovo Yogas needs the enumeration quirk.  I've been 
-> running the patch for over a month with no problems, whereas the 
-> unpatched drivers reliably mis-initialized the sensors. (This is a 
-> resending of a previous patch that had formatting issues.)
->
-> Signed-off-by: Peter F. Patel-Schneider <pfpschneider@gmail.com>
-> ---
->  drivers/hid/hid-ids.h        | 3 +++
->  drivers/hid/hid-sensor-hub.c | 3 +++
->  2 files changed, 6 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 5a5248f..f944e37 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -823,6 +823,9 @@
->  #define USB_DEVICE_ID_SYNAPTICS_HD    0x0ac3
->  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD    0x1ac3
->
-> +#define USB_VENDOR_ID_TEXAS_INSTRUMENTS    0x2047
-> +#define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA    0x0855
-> +
->  #define USB_VENDOR_ID_THINGM        0x27b8
->  #define USB_DEVICE_ID_BLINK1        0x01ed
->
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 46f4480..597732b 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -665,6 +665,9 @@ static const struct hid_device_id 
-> sensor_hub_devices[] = {
->      { HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, 
-> USB_VENDOR_ID_INTEL_1,
->              USB_DEVICE_ID_INTEL_HID_SENSOR),
->              .driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-> +    { HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, 
-> USB_VENDOR_ID_TEXAS_INSTRUMENTS,
-> +             USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
-> +             .driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
->      { HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
->               HID_ANY_ID) },
->      { }
->
->
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [140505 12:52]:
+> On Mon, May 05, 2014 at 12:41:26PM -0700, Tony Lindgren wrote:
+> > * Sebastian Reichel <sre@kernel.org> [140425 16:56]:
+> > > Add common DT binding documentation for touchscreen devices and
+> > > implement input_parse_touchscreen_of_params, which parses the common
+> > > properties and configures the input device accordingly.
+> > > 
+> > > The method currently does not interpret the axis inversion properties,
+> > > since there is no matching flag in the generic linux input device.
+> > > 
+> > > Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> > > ---
+> > >  .../bindings/input/touchscreen/touchscreen.txt     | 27 +++++++++++++++++
+> > >  drivers/input/input.c                              | 34 ++++++++++++++++++++++
+> > >  include/linux/input.h                              |  8 +++++
+> > >  3 files changed, 69 insertions(+)
+> > >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > > 
+> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > > new file mode 100644
+> > > index 0000000..d8e0616
+> > > --- /dev/null
+> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > > @@ -0,0 +1,27 @@
+> > > +General Touchscreen Properties:
+> > > +
+> > > +Optional properties for Touchscreens:
+> > > + - touchscreen-size-x		: horizontal resolution of touchscreen
+> > > +				  (in pixels)
+> > > + - touchscreen-size-y		: vertical resolution of touchscreen
+> > > +				  (in pixels)
+> > > + - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
+> > > +				  dependent on the controller)
+> > > + - touchscreen-fuzz-x		: horizontal noise value of the absolute input
+> > > +				  device (in pixels)
+> > > + - touchscreen-fuzz-y		: vertical noise value of the absolute input
+> > > +				  device (in pixels)
+> > > + - touchscreen-fuzz-pressure	: pressure noise value of the absolute input
+> > > +				  device (arbitrary range dependent on the
+> > > +				  controller)
+> 
+> Fuzz seems like linux-specific property, not generic one.
+> 
+> 
+> > > + - touchscreen-inverted-x	: X axis is inverted (boolean)
+> > > + - touchscreen-inverted-y	: Y axis is inverted (boolean)
+> > 
+> > We probably also need something to swap x and y depending on the
+> > display orientation in addition to the touchscreen-inverted-x and y.
+> > Just swapping x and y is not enough depending if we rotate by 270
+> > degrees instead of 90 degrees.
+> > 
+> > Naturally that part can be added later.
+> 
+> So far we've been relying on upper layers (such as tslib) to perform
+> such transformations rather than re-implementing it in every driver. Are
+> we saying that we need to implement this in input core?
 
-Thanks,
-Srinivas
+We seem to have that already partially implemented at least with
+ti,swap-xy in Documentation/devicetree/bindings/input/ads7846.txt.
+
+But that only works for the 90 degree rotation case as it's missing
+something similar to touchscreen-inverted-x I just noticed few days
+ago while trying to make some legacy code disappear :)
+
+No idea where rotation should be specified. But if the panel is
+rotated based on the DT property or kernel cmdline, probably the
+touchscreen should be too? In most cases touchscreens are integrated
+together with the LCD panel, and they are not separate like other
+input devices.
+
+Regards,
+
+Tony

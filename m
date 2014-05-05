@@ -1,92 +1,198 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCHv3 1/5] Input: add common DT binding for touchscreens
-Date: Mon, 5 May 2014 13:12:02 -0700
-Message-ID: <20140505201202.GH25949@atomide.com>
-References: <1398470179-20880-1-git-send-email-sre@kernel.org>
- <1398470179-20880-2-git-send-email-sre@kernel.org>
- <20140505194125.GD25949@atomide.com>
- <20140505195139.GA26978@core.coreip.homeip.net>
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v4 7/7] Input: pixcir_i2c_ts: Add device tree support
+Date: Mon, 5 May 2014 12:04:38 +0300
+Message-ID: <1399280678-23925-8-git-send-email-rogerq@ti.com>
+References: <1399280678-23925-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140505195139.GA26978@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Sebastian Reichel <sre@ring0.de>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1399280678-23925-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [140505 12:52]:
-> On Mon, May 05, 2014 at 12:41:26PM -0700, Tony Lindgren wrote:
-> > * Sebastian Reichel <sre@kernel.org> [140425 16:56]:
-> > > Add common DT binding documentation for touchscreen devices and
-> > > implement input_parse_touchscreen_of_params, which parses the common
-> > > properties and configures the input device accordingly.
-> > > 
-> > > The method currently does not interpret the axis inversion properties,
-> > > since there is no matching flag in the generic linux input device.
-> > > 
-> > > Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> > > ---
-> > >  .../bindings/input/touchscreen/touchscreen.txt     | 27 +++++++++++++++++
-> > >  drivers/input/input.c                              | 34 ++++++++++++++++++++++
-> > >  include/linux/input.h                              |  8 +++++
-> > >  3 files changed, 69 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> > > new file mode 100644
-> > > index 0000000..d8e0616
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> > > @@ -0,0 +1,27 @@
-> > > +General Touchscreen Properties:
-> > > +
-> > > +Optional properties for Touchscreens:
-> > > + - touchscreen-size-x		: horizontal resolution of touchscreen
-> > > +				  (in pixels)
-> > > + - touchscreen-size-y		: vertical resolution of touchscreen
-> > > +				  (in pixels)
-> > > + - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
-> > > +				  dependent on the controller)
-> > > + - touchscreen-fuzz-x		: horizontal noise value of the absolute input
-> > > +				  device (in pixels)
-> > > + - touchscreen-fuzz-y		: vertical noise value of the absolute input
-> > > +				  device (in pixels)
-> > > + - touchscreen-fuzz-pressure	: pressure noise value of the absolute input
-> > > +				  device (arbitrary range dependent on the
-> > > +				  controller)
-> 
-> Fuzz seems like linux-specific property, not generic one.
-> 
-> 
-> > > + - touchscreen-inverted-x	: X axis is inverted (boolean)
-> > > + - touchscreen-inverted-y	: Y axis is inverted (boolean)
-> > 
-> > We probably also need something to swap x and y depending on the
-> > display orientation in addition to the touchscreen-inverted-x and y.
-> > Just swapping x and y is not enough depending if we rotate by 270
-> > degrees instead of 90 degrees.
-> > 
-> > Naturally that part can be added later.
-> 
-> So far we've been relying on upper layers (such as tslib) to perform
-> such transformations rather than re-implementing it in every driver. Are
-> we saying that we need to implement this in input core?
+Provide device tree support and binding information.
+Also provide support for a new chip "pixcir_tangoc".
 
-We seem to have that already partially implemented at least with
-ti,swap-xy in Documentation/devicetree/bindings/input/ads7846.txt.
+Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+---
+ .../bindings/input/touchscreen/pixcir_i2c_ts.txt   | 26 ++++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+ drivers/input/touchscreen/pixcir_i2c_ts.c          | 78 ++++++++++++++++++++++
+ 3 files changed, 105 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
 
-But that only works for the 90 degree rotation case as it's missing
-something similar to touchscreen-inverted-x I just noticed few days
-ago while trying to make some legacy code disappear :)
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+new file mode 100644
+index 0000000..0ab9505
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+@@ -0,0 +1,26 @@
++* Pixcir I2C touchscreen controllers
++
++Required properties:
++- compatible: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
++- reg: I2C address of the chip
++- interrupts: interrupt to which the chip is connected
++- attb-gpio: GPIO connected to the ATTB line of the chip
++- x-size: horizontal resolution of touchscreen
++- y-size: vertical resolution of touchscreen
++
++Example:
++
++	i2c@00000000 {
++		/* ... */
++
++		pixcir_ts@5c {
++			compatible = "pixcir,pixcir_ts";
++			reg = <0x5c>;
++			interrupts = <2 0>;
++			attb-gpio = <&gpf 2 0 2>;
++			x-size = <800>;
++			y-size = <600>;
++		};
++
++		/* ... */
++	};
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index abc3080..2270ebe 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -94,6 +94,7 @@ panasonic	Panasonic Corporation
+ phytec	PHYTEC Messtechnik GmbH
+ picochip	Picochip Ltd
+ plathome	Plat'Home Co., Ltd.
++pixcir  PIXCIR MICROELECTRONICS Co., Ltd
+ powervr	PowerVR (deprecated, use img)
+ qca	Qualcomm Atheros, Inc.
+ qcom	Qualcomm Technologies, Inc
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 5f6a27e..bd547ea 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -26,6 +26,9 @@
+ #include <linux/input/mt.h>
+ #include <linux/input/pixcir_ts.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
++#include <linux/of_device.h>
+ 
+ #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
+ 
+@@ -414,16 +417,70 @@ unlock:
+ static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
+ 			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id pixcir_of_match[];
++
++static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
++{
++	struct pixcir_ts_platform_data *pdata;
++	struct device_node *np = dev->of_node;
++
++	const struct of_device_id *match;
++
++	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
++	if (!match)
++		return ERR_PTR(-EINVAL);
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++
++	pdata->chip = *(const struct pixcir_i2c_chip_data *)match->data;
++
++	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
++	/* gpio_attb validity is checked in probe */
++
++	if (of_property_read_u32(np, "x-size", &pdata->x_max)) {
++		dev_err(dev, "Failed to get x-size property\n");
++		return ERR_PTR(-EINVAL);
++	}
++	pdata->x_max -= 1;
++
++	if (of_property_read_u32(np, "y-size", &pdata->y_max)) {
++		dev_err(dev, "Failed to get y-size property\n");
++		return ERR_PTR(-EINVAL);
++	}
++	pdata->y_max -= 1;
++
++	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
++		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
++
++	return pdata;
++}
++#else
++static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
++{
++	return ERR_PTR(-EINVAL);
++}
++#endif
++
+ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 					 const struct i2c_device_id *id)
+ {
+ 	const struct pixcir_ts_platform_data *pdata =
+ 			dev_get_platdata(&client->dev);
+ 	struct device *dev = &client->dev;
++	struct device_node *np = dev->of_node;
+ 	struct pixcir_i2c_ts_data *tsdata;
+ 	struct input_dev *input;
+ 	int error;
+ 
++	if (np && !pdata) {
++		pdata = pixcir_parse_dt(dev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	}
++
+ 	if (!pdata) {
+ 		dev_err(&client->dev, "platform data not defined\n");
+ 		return -EINVAL;
+@@ -534,15 +591,36 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+ 
+ static const struct i2c_device_id pixcir_i2c_ts_id[] = {
+ 	{ "pixcir_ts", 0 },
++	{ "pixcir_tangoc", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
+ 
++#ifdef CONFIG_OF
++static const struct pixcir_i2c_chip_data pixcir_ts_data = {
++	.max_fingers = 2,
++	/* no hw id support */
++};
++
++static const struct pixcir_i2c_chip_data pixcir_tangoc_data = {
++	.max_fingers = 5,
++	.has_hw_ids = true,
++};
++
++static const struct of_device_id pixcir_of_match[] = {
++	{ .compatible = "pixcir,pixcir_ts", .data = &pixcir_ts_data },
++	{ .compatible = "pixcir,pixcir_tangoc", .data = &pixcir_tangoc_data },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, pixcir_of_match);
++#endif
++
+ static struct i2c_driver pixcir_i2c_ts_driver = {
+ 	.driver = {
+ 		.owner	= THIS_MODULE,
+ 		.name	= "pixcir_ts",
+ 		.pm	= &pixcir_dev_pm_ops,
++		.of_match_table = of_match_ptr(pixcir_of_match),
+ 	},
+ 	.probe		= pixcir_i2c_ts_probe,
+ 	.remove		= pixcir_i2c_ts_remove,
+-- 
+1.8.3.2
 
-No idea where rotation should be specified. But if the panel is
-rotated based on the DT property or kernel cmdline, probably the
-touchscreen should be too? In most cases touchscreens are integrated
-together with the LCD panel, and they are not separate like other
-input devices.
-
-Regards,
-
-Tony
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

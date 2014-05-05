@@ -1,57 +1,49 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid-quirks: Add NO_INIT_REPORTS quirk for Synaptics
- Touch Pad V 103S
-Date: Mon, 5 May 2014 15:57:51 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405051557440.3969@pobox.suse.cz>
-References: <1399052893-3762-1-git-send-email-hdegoede@redhat.com>
+Subject: Re: [PATCH] HID: core: fix computation of the report size
+Date: Mon, 5 May 2014 15:55:09 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1405051554530.3969@pobox.suse.cz>
+References: <1398894520-30407-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1399052893-3762-1-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <btissoir@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1398894520-30407-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matthias Bayer <thematthiasbayer@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2 May 2014, Hans de Goede wrote:
+On Wed, 30 Apr 2014, Benjamin Tissoires wrote:
 
-> This touchpad seriously dislikes init reports, not only timeing out, but
-> also refusing to work after this.
+> The extra seven bits are only required when allocating the report buffer.
+> We can not use those extra bytes for the length of the report in the
+> generic implementation of .request because the device might (will) refuse
+> the set_report command.
+> This has been verified on the Atmel touchpad found on the Samsung Ativ 9
+> plus, which uses hid-multitouch and HID over I2C. Without this fix, the
+> device refuses to switch to the multitouch mode, and it becomes unresponsive
+> from the user point of view.
 > 
-> Cc: stable@vger.kernel.org
-> Reported-and-tested-by: Vincent Fortier <th0ma7@gmail.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Actually, this has been discussed during the initial submission of the
+> commit 4fa5a7f76cc7b6ac87f57741edd2b124851d119f, see
+> https://patchwork.kernel.org/patch/3621751/
+> 
+> Unfortunately, I completely forgot about it later.
+> 
+> Reported-by: Matthias Bayer <thematthiasbayer@gmail.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  2 files changed, 2 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index c8af720..43f246e 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -834,6 +834,7 @@
->  #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
->  #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
->  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
-> +#define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
->  
->  #define USB_VENDOR_ID_THINGM		0x27b8
->  #define USB_DEVICE_ID_BLINK1		0x01ed
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index dbd8387..8e4ddb3 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -119,6 +119,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_LTS2, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_HD, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
-> +	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
->  
->  	{ 0, 0 }
->  };
+> Hi Jiri,
+> 
+> can you schedule this fix for 3.15?
+> 
+> Fortunately, the device required some ACPI changes, so it was not seen at all
+> in 3.13 and before. I am not sure of the status of 3.14, but it is definitively
+> not working in 3.15.
 
-Applied, thanks.
+Gah, indeed, a nasty bug.
+
+Queuing for 3.15 now, thanks!
 
 -- 
 Jiri Kosina

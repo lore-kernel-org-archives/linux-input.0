@@ -1,43 +1,128 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: Re: [PATCH v3 1/7] Input: pixcir_i2c_ts: Use devres managed resource
- allocations
-Date: Mon, 5 May 2014 11:44:10 +0300
-Message-ID: <53674F5A.3080006@ti.com>
-References: <1398861392-8959-1-git-send-email-rogerq@ti.com> <1398861392-8959-2-git-send-email-rogerq@ti.com> <20140430163041.GB13624@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140430163041.GB13624@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2] elantech: Fix elantech on Gigabyte U2442
+Date: Mon,  5 May 2014 14:34:53 +0200
+Message-ID: <1399293293-32482-1-git-send-email-hdegoede@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Philipp Wolfer <ph.wolfer@gmail.com>, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 04/30/2014 07:30 PM, Dmitry Torokhov wrote:
-> Hi Roger,
-> 
-> On Wed, Apr 30, 2014 at 03:36:26PM +0300, Roger Quadros wrote:
-> 
->>  static int pixcir_i2c_ts_remove(struct i2c_client *client)
->> @@ -198,10 +194,8 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
->>  
->>  	tsdata->exiting = true;
->>  	mb();
->> -	free_irq(client->irq, tsdata);
->>  
->>  	input_unregister_device(tsdata->input);
-> 
-> There is no need to call input_unregister_device for managed input
-> devices.
+The hw_version 3 elantech touchpad on the Gigabyte U2442 does not accept
+0x0b as initialization value for r10, this stand-alone version of the driver:
+http://planet76.com/drivers/elantech/psmouse-elantech-v6.tar.bz2
 
-OK. I'll remove that.
+Uses 0x03 which does work, so this means not setting bit 3 of r10 which sets:
+"Enable Real H/W Resolution In Absolute mode"
 
-> 
->> -	kfree(tsdata);
->>  
->>  	return 0;
->>  }
+Which will result in half the x and y resolution we get with that bit set,
+so simply not setting it everywhere is not a solution. We've been unable
+to find a way to identifty touchpads where setting the bit will fail, so this
+patch uses a dmi based blacklist for this.
 
-cheers,
--roger
+https://bugzilla.kernel.org/show_bug.cgi?id=61151
+
+Cc: stable@vger.kernel.org
+Reported-by: Philipp Wolfer <ph.wolfer@gmail.com>
+Tested-by: Philipp Wolfer <ph.wolfer@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+--
+
+Changes in v2: Add cc: stable.
+---
+ Documentation/input/elantech.txt |  5 ++++-
+ drivers/input/mouse/elantech.c   | 26 +++++++++++++++++++++++++-
+ drivers/input/mouse/elantech.h   |  1 +
+ 3 files changed, 30 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.txt
+index 5602eb7..e1ae127 100644
+--- a/Documentation/input/elantech.txt
++++ b/Documentation/input/elantech.txt
+@@ -504,9 +504,12 @@ byte 5:
+ * reg_10
+ 
+    bit   7   6   5   4   3   2   1   0
+-         0   0   0   0   0   0   0   A
++         0   0   0   0   R   F   T   A
+ 
+          A: 1 = enable absolute tracking
++         T: 1 = enable two finger mode auto correct
++         F: 1 = disable ABS Position Filter
++         R: 1 = enable real hardware resolution
+ 
+ 6.2 Native absolute mode 6 byte packet format
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 088d354..b96e978 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/input.h>
+@@ -831,7 +832,11 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
+ 		break;
+ 
+ 	case 3:
+-		etd->reg_10 = 0x0b;
++		if (etd->set_hw_resolution)
++			etd->reg_10 = 0x0b;
++		else
++			etd->reg_10 = 0x03;
++
+ 		if (elantech_write_reg(psmouse, 0x10, etd->reg_10))
+ 			rc = -1;
+ 
+@@ -1331,6 +1336,22 @@ static int elantech_reconnect(struct psmouse *psmouse)
+ }
+ 
+ /*
++ * Some hw_version 3 models go into error state when we try to set bit 3 of r10
++ */
++static const struct dmi_system_id no_hw_res_dmi_table[] = {
++#if defined(CONFIG_DMI) && defined(CONFIG_X86)
++	{
++		/* Gigabyte U2442 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "U2442"),
++		},
++	},
++#endif
++	{ }
++};
++
++/*
+  * determine hardware version and set some properties according to it.
+  */
+ static int elantech_set_properties(struct elantech_data *etd)
+@@ -1390,6 +1411,9 @@ static int elantech_set_properties(struct elantech_data *etd)
+ 	 */
+ 	etd->crc_enabled = ((etd->fw_version & 0x4000) == 0x4000);
+ 
++	/* Enable real hardware resolution on hw_version 3 ? */
++	etd->set_hw_resolution = !dmi_check_system(no_hw_res_dmi_table);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index 036a04a..9e0e2a1 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -130,6 +130,7 @@ struct elantech_data {
+ 	bool jumpy_cursor;
+ 	bool reports_pressure;
+ 	bool crc_enabled;
++	bool set_hw_resolution;
+ 	unsigned char hw_version;
+ 	unsigned int fw_version;
+ 	unsigned int single_finger_reports;
+-- 
+1.9.0

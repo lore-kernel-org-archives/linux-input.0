@@ -1,105 +1,43 @@
-From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v4 6/7] Input: pixcir_i2c_ts: Implement wakeup from suspend
-Date: Mon, 5 May 2014 12:04:37 +0300
-Message-ID: <1399280678-23925-7-git-send-email-rogerq@ti.com>
-References: <1399280678-23925-1-git-send-email-rogerq@ti.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v3 1/7] Input: pixcir_i2c_ts: Use devres managed resource
+ allocations
+Date: Mon, 5 May 2014 11:44:10 +0300
+Message-ID: <53674F5A.3080006@ti.com>
+References: <1398861392-8959-1-git-send-email-rogerq@ti.com> <1398861392-8959-2-git-send-email-rogerq@ti.com> <20140430163041.GB13624@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1399280678-23925-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140430163041.GB13624@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Improve the suspend and resume handlers to allow the device
-to wakeup the system from suspend.
+On 04/30/2014 07:30 PM, Dmitry Torokhov wrote:
+> Hi Roger,
+> 
+> On Wed, Apr 30, 2014 at 03:36:26PM +0300, Roger Quadros wrote:
+> 
+>>  static int pixcir_i2c_ts_remove(struct i2c_client *client)
+>> @@ -198,10 +194,8 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+>>  
+>>  	tsdata->exiting = true;
+>>  	mb();
+>> -	free_irq(client->irq, tsdata);
+>>  
+>>  	input_unregister_device(tsdata->input);
+> 
+> There is no need to call input_unregister_device for managed input
+> devices.
 
-Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
-Acked-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
----
- drivers/input/touchscreen/pixcir_i2c_ts.c | 53 ++++++++++++++++++++++++++++---
- 1 file changed, 49 insertions(+), 4 deletions(-)
+OK. I'll remove that.
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 927aed1..5f6a27e 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -348,21 +348,66 @@ static void pixcir_input_close(struct input_dev *dev)
- static int pixcir_i2c_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-+	struct input_dev *input = ts->input;
-+	int ret = 0;
-+
-+	mutex_lock(&input->mutex);
-+
-+	if (input->users) {
-+		ret = pixcir_stop(ts);
-+		if (ret)
-+			goto unlock;
-+	}
-+
-+	/*
-+	 * If wakeup is enabled we need to enable interrupt generation
-+	 * but don't need to process any reports i.e. ts->exiting must be true.
-+	 */
-+	if (device_may_wakeup(&client->dev)) {
-+		/* enable wakeup interrupt generation */
-+		ret = pixcir_int_enable(ts, 1);
-+		if (ret) {
-+			dev_err(dev, "Failed to enable interrupt generation\n");
-+			goto unlock;
-+		}
- 
--	if (device_may_wakeup(&client->dev))
- 		enable_irq_wake(client->irq);
-+	}
- 
--	return 0;
-+unlock:
-+	mutex_unlock(&input->mutex);
-+
-+	return ret;
- }
- 
- static int pixcir_i2c_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-+	struct input_dev *input = ts->input;
-+	int ret = 0;
- 
--	if (device_may_wakeup(&client->dev))
-+	mutex_lock(&input->mutex);
-+
-+	if (device_may_wakeup(&client->dev)) {
- 		disable_irq_wake(client->irq);
- 
--	return 0;
-+		/* disable wakeup interrupt generation */
-+		ret = pixcir_int_enable(ts, 0);
-+		if (ret) {
-+			dev_err(dev, "Failed to disable interrupt generation\n");
-+			goto unlock;
-+		}
-+	}
-+
-+	if (input->users)
-+		ret = pixcir_start(ts);
-+
-+unlock:
-+	mutex_unlock(&input->mutex);
-+
-+	return ret;
- }
- #endif
- 
--- 
-1.8.3.2
+> 
+>> -	kfree(tsdata);
+>>  
+>>  	return 0;
+>>  }
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+cheers,
+-roger

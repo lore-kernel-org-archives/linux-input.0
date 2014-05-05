@@ -1,128 +1,231 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2] elantech: Fix elantech on Gigabyte U2442
-Date: Mon,  5 May 2014 14:34:53 +0200
-Message-ID: <1399293293-32482-1-git-send-email-hdegoede@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Philipp Wolfer <ph.wolfer@gmail.com>, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v4 5/7] Input: pixcir_i2c_ts: support upto 5 fingers and hardware provided tracking IDs
+Date: Mon, 5 May 2014 12:04:36 +0300
+Message-ID: <1399280678-23925-6-git-send-email-rogerq@ti.com>
+References: <1399280678-23925-1-git-send-email-rogerq@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1399280678-23925-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The hw_version 3 elantech touchpad on the Gigabyte U2442 does not accept
-0x0b as initialization value for r10, this stand-alone version of the driver:
-http://planet76.com/drivers/elantech/psmouse-elantech-v6.tar.bz2
+Some variants of the Pixcir touch controller support upto 5
+simultaneous fingers and hardware tracking IDs. Prepare the driver
+for that.
 
-Uses 0x03 which does work, so this means not setting bit 3 of r10 which sets:
-"Enable Real H/W Resolution In Absolute mode"
-
-Which will result in half the x and y resolution we get with that bit set,
-so simply not setting it everywhere is not a solution. We've been unable
-to find a way to identifty touchpads where setting the bit will fail, so this
-patch uses a dmi based blacklist for this.
-
-https://bugzilla.kernel.org/show_bug.cgi?id=61151
-
-Cc: stable@vger.kernel.org
-Reported-by: Philipp Wolfer <ph.wolfer@gmail.com>
-Tested-by: Philipp Wolfer <ph.wolfer@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-
---
-
-Changes in v2: Add cc: stable.
+Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 ---
- Documentation/input/elantech.txt |  5 ++++-
- drivers/input/mouse/elantech.c   | 26 +++++++++++++++++++++++++-
- drivers/input/mouse/elantech.h   |  1 +
- 3 files changed, 30 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 74 ++++++++++++++++++++++++-------
+ include/linux/input/pixcir_ts.h           | 12 +++++
+ 2 files changed, 69 insertions(+), 17 deletions(-)
 
-diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.txt
-index 5602eb7..e1ae127 100644
---- a/Documentation/input/elantech.txt
-+++ b/Documentation/input/elantech.txt
-@@ -504,9 +504,12 @@ byte 5:
- * reg_10
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 3123699..927aed1 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -27,18 +27,20 @@
+ #include <linux/input/pixcir_ts.h>
+ #include <linux/gpio.h>
  
-    bit   7   6   5   4   3   2   1   0
--         0   0   0   0   0   0   0   A
-+         0   0   0   0   R   F   T   A
+-#define PIXCIR_MAX_SLOTS       2
++#define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
  
-          A: 1 = enable absolute tracking
-+         T: 1 = enable two finger mode auto correct
-+         F: 1 = disable ABS Position Filter
-+         R: 1 = enable real hardware resolution
+ struct pixcir_i2c_ts_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input;
+-	const struct pixcir_ts_platform_data *chip;
++	const struct pixcir_ts_platform_data *pdata;
+ 	bool exiting;
++	int max_fingers;	/* Max fingers supported in this instance */
+ };
  
- 6.2 Native absolute mode 6 byte packet format
-     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 088d354..b96e978 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -11,6 +11,7 @@
-  */
+ struct pixcir_touch {
+ 	int x;
+ 	int y;
++	int id;
+ };
  
- #include <linux/delay.h>
-+#include <linux/dmi.h>
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/input.h>
-@@ -831,7 +832,11 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
- 		break;
+ struct pixcir_report_data {
+@@ -49,13 +51,21 @@ struct pixcir_report_data {
+ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
+ 			    struct pixcir_report_data *report)
+ {
+-	u8 rdbuf[10], wrbuf[1] = { 0 };
++	u8 rdbuf[2 + PIXCIR_MAX_SLOTS * 5];
++	u8 wrbuf[1] = { 0 };
+ 	u8 *bufptr;
+ 	u8 touch;
+ 	int ret, i;
++	int readsize;
++	const struct pixcir_i2c_chip_data *chip = &tsdata->pdata->chip;
  
- 	case 3:
--		etd->reg_10 = 0x0b;
-+		if (etd->set_hw_resolution)
-+			etd->reg_10 = 0x0b;
-+		else
-+			etd->reg_10 = 0x03;
+ 	memset(report, 0, sizeof(struct pixcir_report_data));
+ 
++	i = chip->has_hw_ids ? 1 : 0;
++	readsize = 2 + tsdata->max_fingers * (4 + i);
++	if (readsize > sizeof(rdbuf))
++		readsize = sizeof(rdbuf);
 +
- 		if (elantech_write_reg(psmouse, 0x10, etd->reg_10))
- 			rc = -1;
+ 	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
+ 	if (ret != sizeof(wrbuf)) {
+ 		dev_err(&tsdata->client->dev,
+@@ -64,7 +74,7 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
+ 		return;
+ 	}
  
-@@ -1331,6 +1336,22 @@ static int elantech_reconnect(struct psmouse *psmouse)
+-	ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
++	ret = i2c_master_recv(tsdata->client, rdbuf, readsize);
+ 	if (ret != sizeof(rdbuf)) {
+ 		dev_err(&tsdata->client->dev,
+ 			"%s: i2c_master_recv failed(), ret=%d\n",
+@@ -73,8 +83,8 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
+ 	}
+ 
+ 	touch = rdbuf[0] & 0x7;
+-	if (touch > PIXCIR_MAX_SLOTS)
+-		touch = PIXCIR_MAX_SLOTS;
++	if (touch > tsdata->max_fingers)
++		touch = tsdata->max_fingers;
+ 
+ 	report->num_touches = touch;
+ 	bufptr = &rdbuf[2];
+@@ -83,7 +93,12 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
+ 		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
+ 		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
+ 
+-		bufptr = &bufptr[4];
++		if (chip->has_hw_ids) {
++			report->touches[i].id = bufptr[4];
++			bufptr = &bufptr[5];
++		} else {
++			bufptr = &bufptr[4];
++		}
+ 	}
  }
  
- /*
-+ * Some hw_version 3 models go into error state when we try to set bit 3 of r10
+@@ -95,22 +110,35 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
+ 	struct pixcir_touch *touch;
+ 	int n, i, slot;
+ 	struct device *dev = &ts->client->dev;
++	const struct pixcir_i2c_chip_data *chip = &ts->pdata->chip;
+ 
+ 	n = report->num_touches;
+ 	if (n > PIXCIR_MAX_SLOTS)
+ 		n = PIXCIR_MAX_SLOTS;
+ 
+-	for (i = 0; i < n; i++) {
+-		touch = &report->touches[i];
+-		pos[i].x = touch->x;
+-		pos[i].y = touch->y;
+-	}
++	if (!chip->has_hw_ids) {
++		for (i = 0; i < n; i++) {
++			touch = &report->touches[i];
++			pos[i].x = touch->x;
++			pos[i].y = touch->y;
++		}
+ 
+-	input_mt_assign_slots(ts->input, slots, pos, n);
++		input_mt_assign_slots(ts->input, slots, pos, n);
++	}
+ 
+ 	for (i = 0; i < n; i++) {
+ 		touch = &report->touches[i];
+-		slot = slots[i];
++
++		if (chip->has_hw_ids) {
++			slot = input_mt_get_slot_by_key(ts->input, touch->id);
++			if (slot < 0) {
++				dev_dbg(dev, "no free slot for id 0x%x\n",
++					touch->id);
++				continue;
++			}
++		} else {
++			slot = slots[i];
++		}
+ 
+ 		input_mt_slot(ts->input, slot);
+ 		input_mt_report_slot_state(ts->input,
+@@ -130,7 +158,7 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
+ static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+ {
+ 	struct pixcir_i2c_ts_data *tsdata = dev_id;
+-	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
++	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
+ 	struct pixcir_report_data report;
+ 
+ 	while (!tsdata->exiting) {
+@@ -359,6 +387,11 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 			dev_err(dev, "Invalid gpio_attb in pdata\n");
+ 			return -EINVAL;
+ 		}
++
++		if (pdata->chip.max_fingers <= 0) {
++			dev_err(dev, "Invalid max_fingers in pdata\n");
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
+@@ -373,7 +406,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 
+ 	tsdata->client = client;
+ 	tsdata->input = input;
+-	tsdata->chip = pdata;
++	tsdata->pdata = pdata;
+ 
+ 	input->name = client->name;
+ 	input->id.bustype = BUS_I2C;
+@@ -389,7 +422,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
+ 
+-	error = input_mt_init_slots(input, PIXCIR_MAX_SLOTS,
++	tsdata->max_fingers = tsdata->pdata->chip.max_fingers;
++	if (tsdata->max_fingers > PIXCIR_MAX_SLOTS) {
++		tsdata->max_fingers = PIXCIR_MAX_SLOTS;
++		dev_info(dev, "Limiting maximum fingers to %d\n",
++			 tsdata->max_fingers);
++	}
++
++	error = input_mt_init_slots(input, tsdata->max_fingers,
+ 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+ 	if (error) {
+ 		dev_err(dev, "Error initializing Multi-Touch slots\n");
+diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+index 160cf35..7bae83b 100644
+--- a/include/linux/input/pixcir_ts.h
++++ b/include/linux/input/pixcir_ts.h
+@@ -43,10 +43,22 @@ enum pixcir_int_mode {
+ #define PIXCIR_INT_ENABLE	(1UL << 3)
+ #define PIXCIR_INT_POL_HIGH	(1UL << 2)
+ 
++/**
++ * struct pixcir_irc_chip_data - chip related data
++ * @max_fingers:	Max number of fingers reported simultaneously by h/w
++ * @has_hw_ids:		Hardware supports finger tracking IDs
++ *
 + */
-+static const struct dmi_system_id no_hw_res_dmi_table[] = {
-+#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+	{
-+		/* Gigabyte U2442 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "U2442"),
-+		},
-+	},
-+#endif
-+	{ }
++struct pixcir_i2c_chip_data {
++	u8 max_fingers;
++	bool has_hw_ids;
 +};
 +
-+/*
-  * determine hardware version and set some properties according to it.
-  */
- static int elantech_set_properties(struct elantech_data *etd)
-@@ -1390,6 +1411,9 @@ static int elantech_set_properties(struct elantech_data *etd)
- 	 */
- 	etd->crc_enabled = ((etd->fw_version & 0x4000) == 0x4000);
+ struct pixcir_ts_platform_data {
+ 	int x_max;
+ 	int y_max;
+ 	int gpio_attb;		/* GPIO connected to ATTB line */
++	struct pixcir_i2c_chip_data chip;
+ };
  
-+	/* Enable real hardware resolution on hw_version 3 ? */
-+	etd->set_hw_resolution = !dmi_check_system(no_hw_res_dmi_table);
-+
- 	return 0;
- }
- 
-diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-index 036a04a..9e0e2a1 100644
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -130,6 +130,7 @@ struct elantech_data {
- 	bool jumpy_cursor;
- 	bool reports_pressure;
- 	bool crc_enabled;
-+	bool set_hw_resolution;
- 	unsigned char hw_version;
- 	unsigned int fw_version;
- 	unsigned int single_finger_reports;
+ #endif
 -- 
-1.9.0
+1.8.3.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

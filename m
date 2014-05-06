@@ -1,198 +1,323 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: [PATCH v5 7/7] Input: pixcir_i2c_ts: Add device tree support
-Date: Tue, 6 May 2014 14:06:12 +0300
-Message-ID: <1399374372-29123-8-git-send-email-rogerq@ti.com>
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v5 2/7] Input: pixcir_i2c_ts - initialize interrupt mode and power mode
+Date: Tue, 6 May 2014 14:06:07 +0300
+Message-ID: <1399374372-29123-3-git-send-email-rogerq@ti.com>
 References: <1399374372-29123-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:35866 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934720AbaEFLG6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 May 2014 07:06:58 -0400
-In-Reply-To: <1399374372-29123-1-git-send-email-rogerq@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1399374372-29123-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
 
-Provide device tree support and binding information.
-Also provide support for a new chip "pixcir_tangoc".
+Introduce helper functions to configure power and interrupt registers.
+Default to IDLE mode on probe as device supports auto wakeup to ACVIE mode
+on detecting finger touch.
 
-Signed-off-by: Roger Quadros <rogerq@ti.com>
+Configure interrupt mode and polarity on start up.  Power down on device
+closure or module removal.
+
+Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Acked-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- .../bindings/input/touchscreen/pixcir_i2c_ts.txt   | 26 ++++++++
- .../devicetree/bindings/vendor-prefixes.txt        |  1 +
- drivers/input/touchscreen/pixcir_i2c_ts.c          | 78 ++++++++++++++++++++++
- 3 files changed, 105 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 182 ++++++++++++++++++++++++++++--
+ include/linux/input/pixcir_ts.h           |  42 +++++++
+ 2 files changed, 216 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-new file mode 100644
-index 0000000..0ab9505
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-@@ -0,0 +1,26 @@
-+* Pixcir I2C touchscreen controllers
-+
-+Required properties:
-+- compatible: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
-+- reg: I2C address of the chip
-+- interrupts: interrupt to which the chip is connected
-+- attb-gpio: GPIO connected to the ATTB line of the chip
-+- x-size: horizontal resolution of touchscreen
-+- y-size: vertical resolution of touchscreen
-+
-+Example:
-+
-+	i2c@00000000 {
-+		/* ... */
-+
-+		pixcir_ts@5c {
-+			compatible = "pixcir,pixcir_ts";
-+			reg = <0x5c>;
-+			interrupts = <2 0>;
-+			attb-gpio = <&gpf 2 0 2>;
-+			x-size = <800>;
-+			y-size = <600>;
-+		};
-+
-+		/* ... */
-+	};
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index abc3080..2270ebe 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -94,6 +94,7 @@ panasonic	Panasonic Corporation
- phytec	PHYTEC Messtechnik GmbH
- picochip	Picochip Ltd
- plathome	Plat'Home Co., Ltd.
-+pixcir  PIXCIR MICROELECTRONICS Co., Ltd
- powervr	PowerVR (deprecated, use img)
- qca	Qualcomm Atheros, Inc.
- qcom	Qualcomm Technologies, Inc
 diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index b0f7680..a2f8100 100644
+index 8a083bd..96a1b1e 100644
 --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
 +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -26,6 +26,9 @@
- #include <linux/input/mt.h>
- #include <linux/input/pixcir_ts.h>
- #include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <linux/of_device.h>
- 
- #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
- 
-@@ -407,16 +410,70 @@ unlock:
- static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
- 			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id pixcir_of_match[];
-+
-+static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
-+{
-+	struct pixcir_ts_platform_data *pdata;
-+	struct device_node *np = dev->of_node;
-+
-+	const struct of_device_id *match;
-+
-+	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
-+	if (!match)
-+		return ERR_PTR(-EINVAL);
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
-+
-+	pdata->chip = *(const struct pixcir_i2c_chip_data *)match->data;
-+
-+	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
-+	/* gpio_attb validity is checked in probe */
-+
-+	if (of_property_read_u32(np, "x-size", &pdata->x_max)) {
-+		dev_err(dev, "Failed to get x-size property\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+	pdata->x_max -= 1;
-+
-+	if (of_property_read_u32(np, "y-size", &pdata->y_max)) {
-+		dev_err(dev, "Failed to get y-size property\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+	pdata->y_max -= 1;
-+
-+	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
-+		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
-+
-+	return pdata;
-+}
-+#else
-+static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
-+{
-+	return ERR_PTR(-EINVAL);
-+}
-+#endif
-+
- static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 					 const struct i2c_device_id *id)
- {
- 	const struct pixcir_ts_platform_data *pdata =
- 			dev_get_platdata(&client->dev);
- 	struct device *dev = &client->dev;
-+	struct device_node *np = dev->of_node;
- 	struct pixcir_i2c_ts_data *tsdata;
+@@ -29,7 +29,7 @@ struct pixcir_i2c_ts_data {
+ 	struct i2c_client *client;
  	struct input_dev *input;
- 	int error;
+ 	const struct pixcir_ts_platform_data *chip;
+-	bool exiting;
++	bool running;
+ };
  
-+	if (np && !pdata) {
-+		pdata = pixcir_parse_dt(dev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
+ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
+@@ -88,7 +88,7 @@ static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+ {
+ 	struct pixcir_i2c_ts_data *tsdata = dev_id;
+ 
+-	while (!tsdata->exiting) {
++	while (tsdata->running) {
+ 		pixcir_ts_poscheck(tsdata);
+ 
+ 		if (tsdata->chip->attb_read_val())
+@@ -100,6 +100,164 @@ static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int pixcir_set_power_mode(struct pixcir_i2c_ts_data *ts,
++				 enum pixcir_power_mode mode)
++{
++	struct device *dev = &ts->client->dev;
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_POWER_MODE);
++	if (ret < 0) {
++		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
++			__func__, PIXCIR_REG_POWER_MODE, ret);
++		return ret;
 +	}
 +
- 	if (!pdata) {
- 		dev_err(&client->dev, "platform data not defined\n");
- 		return -EINVAL;
-@@ -522,15 +579,36 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
++	ret &= ~PIXCIR_POWER_MODE_MASK;
++	ret |= mode;
++
++	/* Always AUTO_IDLE */
++	ret |= PIXCIR_POWER_ALLOW_IDLE;
++
++	ret = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_POWER_MODE, ret);
++	if (ret < 0) {
++		dev_err(dev, "%s: can't write reg 0x%x : %d\n",
++			__func__, PIXCIR_REG_POWER_MODE, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++/*
++ * Set the interrupt mode for the device i.e. ATTB line behaviour
++ *
++ * @polarity : 1 for active high, 0 for active low.
++ */
++static int pixcir_set_int_mode(struct pixcir_i2c_ts_data *ts,
++			       enum pixcir_int_mode mode, bool polarity)
++{
++	struct device *dev = &ts->client->dev;
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_INT_MODE);
++	if (ret < 0) {
++		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
++			__func__, PIXCIR_REG_INT_MODE, ret);
++		return ret;
++	}
++
++	ret &= ~PIXCIR_INT_MODE_MASK;
++	ret |= mode;
++
++	if (polarity)
++		ret |= PIXCIR_INT_POL_HIGH;
++	else
++		ret &= ~PIXCIR_INT_POL_HIGH;
++
++	ret = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_INT_MODE, ret);
++	if (ret < 0) {
++		dev_err(dev, "%s: can't write reg 0x%x : %d\n",
++			__func__, PIXCIR_REG_INT_MODE, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++/*
++ * Enable/disable interrupt generation
++ */
++static int pixcir_int_enable(struct pixcir_i2c_ts_data *ts, bool enable)
++{
++	struct device *dev = &ts->client->dev;
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(ts->client, PIXCIR_REG_INT_MODE);
++	if (ret < 0) {
++		dev_err(dev, "%s: can't read reg 0x%x : %d\n",
++			__func__, PIXCIR_REG_INT_MODE, ret);
++		return ret;
++	}
++
++	if (enable)
++		ret |= PIXCIR_INT_ENABLE;
++	else
++		ret &= ~PIXCIR_INT_ENABLE;
++
++	ret = i2c_smbus_write_byte_data(ts->client, PIXCIR_REG_INT_MODE, ret);
++	if (ret < 0) {
++		dev_err(dev, "%s: can't write reg 0x%x : %d\n",
++			__func__, PIXCIR_REG_INT_MODE, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int pixcir_start(struct pixcir_i2c_ts_data *ts)
++{
++	struct device *dev = &ts->client->dev;
++	int error;
++
++	/* LEVEL_TOUCH interrupt with active low polarity */
++	error = pixcir_set_int_mode(ts, PIXCIR_INT_LEVEL_TOUCH, 0);
++	if (error) {
++		dev_err(dev, "Failed to set interrupt mode: %d\n", error);
++		return error;
++	}
++
++	ts->running = true;
++	mb();	/* Update status before IRQ can fire */
++
++	/* enable interrupt generation */
++	error = pixcir_int_enable(ts, true);
++	if (error) {
++		dev_err(dev, "Failed to enable interrupt generation: %d\n",
++			error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
++{
++	int error;
++
++	/* Disable interrupt generation */
++	error = pixcir_int_enable(ts, false);
++	if (error) {
++		dev_err(&ts->client->dev,
++			"Failed to disable interrupt generation: %d\n",
++			error);
++		return error;
++	}
++
++	/* Exit ISR if running, no more report parsing */
++	ts->running = false;
++	mb();	/* update status before we synchronize irq */
++
++	/* Wait till running ISR is complete */
++	synchronize_irq(ts->client->irq);
++
++	return 0;
++}
++
++static int pixcir_input_open(struct input_dev *dev)
++{
++	struct pixcir_i2c_ts_data *ts = input_get_drvdata(dev);
++
++	return pixcir_start(ts);
++}
++
++static void pixcir_input_close(struct input_dev *dev)
++{
++	struct pixcir_i2c_ts_data *ts = input_get_drvdata(dev);
++
++	pixcir_stop(ts);
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static int pixcir_i2c_ts_suspend(struct device *dev)
+ {
+@@ -156,6 +314,8 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
  
- static const struct i2c_device_id pixcir_i2c_ts_id[] = {
- 	{ "pixcir_ts", 0 },
-+	{ "pixcir_tangoc", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
+ 	input->name = client->name;
+ 	input->id.bustype = BUS_I2C;
++	input->open = pixcir_input_open;
++	input->close = pixcir_input_close;
+ 	input->dev.parent = &client->dev;
  
-+#ifdef CONFIG_OF
-+static const struct pixcir_i2c_chip_data pixcir_ts_data = {
-+	.max_fingers = 2,
-+	/* no hw id support */
+ 	__set_bit(EV_KEY, input->evbit);
+@@ -176,11 +336,22 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
++	/* Always be in IDLE mode to save power, device supports auto wake */
++	error = pixcir_set_power_mode(tsdata, PIXCIR_POWER_IDLE);
++	if (error) {
++		dev_err(dev, "Failed to set IDLE mode\n");
++		return error;
++	}
++
++	/* Stop device till opened */
++	error = pixcir_stop(tsdata);
++	if (error)
++		return error;
++
+ 	error = input_register_device(input);
+ 	if (error)
+ 		return error;
+ 
+-	i2c_set_clientdata(client, tsdata);
+ 	device_init_wakeup(&client->dev, 1);
+ 
+ 	return 0;
+@@ -188,13 +359,8 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 
+ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+ {
+-	struct pixcir_i2c_ts_data *tsdata = i2c_get_clientdata(client);
+-
+ 	device_init_wakeup(&client->dev, 0);
+ 
+-	tsdata->exiting = true;
+-	mb();
+-
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+index 7163d91..7942804 100644
+--- a/include/linux/input/pixcir_ts.h
++++ b/include/linux/input/pixcir_ts.h
+@@ -1,6 +1,48 @@
+ #ifndef	_PIXCIR_I2C_TS_H
+ #define	_PIXCIR_I2C_TS_H
+ 
++/*
++ * Register map
++ */
++#define PIXCIR_REG_POWER_MODE	51
++#define PIXCIR_REG_INT_MODE	52
++
++/*
++ * Power modes:
++ * active: max scan speed
++ * idle: lower scan speed with automatic transition to active on touch
++ * halt: datasheet says sleep but this is more like halt as the chip
++ *       clocks are cut and it can only be brought out of this mode
++ *	 using the RESET pin.
++ */
++enum pixcir_power_mode {
++	PIXCIR_POWER_ACTIVE,
++	PIXCIR_POWER_IDLE,
++	PIXCIR_POWER_HALT,
 +};
 +
-+static const struct pixcir_i2c_chip_data pixcir_tangoc_data = {
-+	.max_fingers = 5,
-+	.has_hw_ids = true,
++#define PIXCIR_POWER_MODE_MASK	0x03
++#define PIXCIR_POWER_ALLOW_IDLE (1UL << 2)
++
++/*
++ * Interrupt modes:
++ * periodical: interrupt is asserted periodicaly
++ * diff coordinates: interrupt is asserted when coordinates change
++ * level on touch: interrupt level asserted during touch
++ * pulse on touch: interrupt pulse asserted druing touch
++ *
++ */
++enum pixcir_int_mode {
++	PIXCIR_INT_PERIODICAL,
++	PIXCIR_INT_DIFF_COORD,
++	PIXCIR_INT_LEVEL_TOUCH,
++	PIXCIR_INT_PULSE_TOUCH,
 +};
 +
-+static const struct of_device_id pixcir_of_match[] = {
-+	{ .compatible = "pixcir,pixcir_ts", .data = &pixcir_ts_data },
-+	{ .compatible = "pixcir,pixcir_tangoc", .data = &pixcir_tangoc_data },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pixcir_of_match);
-+#endif
++#define PIXCIR_INT_MODE_MASK	0x03
++#define PIXCIR_INT_ENABLE	(1UL << 3)
++#define PIXCIR_INT_POL_HIGH	(1UL << 2)
 +
- static struct i2c_driver pixcir_i2c_ts_driver = {
- 	.driver = {
- 		.owner	= THIS_MODULE,
- 		.name	= "pixcir_ts",
- 		.pm	= &pixcir_dev_pm_ops,
-+		.of_match_table = of_match_ptr(pixcir_of_match),
- 	},
- 	.probe		= pixcir_i2c_ts_probe,
- 	.remove		= pixcir_i2c_ts_remove,
+ struct pixcir_ts_platform_data {
+ 	int (*attb_read_val)(void);
+ 	int x_max;
 -- 
 1.8.3.2
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

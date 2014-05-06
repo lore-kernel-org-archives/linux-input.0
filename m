@@ -1,39 +1,101 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] elantech: Fix elantech on Gigabyte U2442
-Date: Mon, 5 May 2014 21:18:49 -0700
-Message-ID: <20140506041849.GB32144@core.coreip.homeip.net>
-References: <1399293293-32482-1-git-send-email-hdegoede@redhat.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: [PATCH v5 6/7] Input: pixcir_i2c_ts: Implement wakeup from suspend
+Date: Tue, 6 May 2014 14:06:11 +0300
+Message-ID: <1399374372-29123-7-git-send-email-rogerq@ti.com>
+References: <1399374372-29123-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1399293293-32482-1-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Philipp Wolfer <ph.wolfer@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1399374372-29123-1-git-send-email-rogerq@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, May 05, 2014 at 02:34:53PM +0200, Hans de Goede wrote:
-> The hw_version 3 elantech touchpad on the Gigabyte U2442 does not accept
-> 0x0b as initialization value for r10, this stand-alone version of the driver:
-> http://planet76.com/drivers/elantech/psmouse-elantech-v6.tar.bz2
-> 
-> Uses 0x03 which does work, so this means not setting bit 3 of r10 which sets:
-> "Enable Real H/W Resolution In Absolute mode"
-> 
-> Which will result in half the x and y resolution we get with that bit set,
-> so simply not setting it everywhere is not a solution. We've been unable
-> to find a way to identifty touchpads where setting the bit will fail, so this
-> patch uses a dmi based blacklist for this.
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=61151
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Philipp Wolfer <ph.wolfer@gmail.com>
-> Tested-by: Philipp Wolfer <ph.wolfer@gmail.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Improve the suspend and resume handlers to allow the device
+to wakeup the system from suspend.
 
-Applied, thank you.
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
+---
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 47 ++++++++++++++++++++++++++++---
+ 1 file changed, 43 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 0728c04..b0f7680 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -348,21 +348,59 @@ static void pixcir_input_close(struct input_dev *dev)
+ static int pixcir_i2c_ts_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
++	struct input_dev *input = ts->input;
++	int ret = 0;
++
++	mutex_lock(&input->mutex);
++
++	if (device_may_wakeup(&client->dev)) {
++		if (!input->users) {
++			ret = pixcir_start(ts);
++			if (ret) {
++				dev_err(dev, "Failed to start\n");
++				goto unlock;
++			}
++		}
+ 
+-	if (device_may_wakeup(&client->dev))
+ 		enable_irq_wake(client->irq);
++	} else if (input->users) {
++		ret = pixcir_stop(ts);
++	}
+ 
+-	return 0;
++unlock:
++	mutex_unlock(&input->mutex);
++
++	return ret;
+ }
+ 
+ static int pixcir_i2c_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
++	struct input_dev *input = ts->input;
++	int ret = 0;
++
++	mutex_lock(&input->mutex);
+ 
+-	if (device_may_wakeup(&client->dev))
++	if (device_may_wakeup(&client->dev)) {
+ 		disable_irq_wake(client->irq);
+ 
+-	return 0;
++		if (!input->users) {
++			ret = pixcir_stop(ts);
++			if (ret) {
++				dev_err(dev, "Failed to stop\n");
++				goto unlock;
++			}
++		}
++	} else if (input->users) {
++		ret = pixcir_start(ts);
++	}
++
++unlock:
++	mutex_unlock(&input->mutex);
++
++	return ret;
+ }
+ #endif
+ 
+@@ -469,6 +507,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	i2c_set_clientdata(client, tsdata);
+ 	device_init_wakeup(&client->dev, 1);
+ 
+ 	return 0;
 -- 
-Dmitry
+1.8.3.2

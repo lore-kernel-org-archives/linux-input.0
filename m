@@ -1,50 +1,79 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: core: fix computation of the report size
-Date: Mon, 5 May 2014 15:55:09 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405051554530.3969@pobox.suse.cz>
-References: <1398894520-30407-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 6/7] Input: pixcir_i2c_ts: Implement wakeup from
+ suspend
+Date: Mon, 5 May 2014 22:21:48 -0700
+Message-ID: <20140506052148.GB2608@core.coreip.homeip.net>
+References: <1399280678-23925-1-git-send-email-rogerq@ti.com>
+ <1399280678-23925-7-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398894520-30407-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matthias Bayer <thematthiasbayer@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:40752 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750893AbaEFFVw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2014 01:21:52 -0400
+Content-Disposition: inline
+In-Reply-To: <1399280678-23925-7-git-send-email-rogerq@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roger Quadros <rogerq@ti.com>
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, 30 Apr 2014, Benjamin Tissoires wrote:
-
-> The extra seven bits are only required when allocating the report buffer.
-> We can not use those extra bytes for the length of the report in the
-> generic implementation of .request because the device might (will) refuse
-> the set_report command.
-> This has been verified on the Atmel touchpad found on the Samsung Ativ 9
-> plus, which uses hid-multitouch and HID over I2C. Without this fix, the
-> device refuses to switch to the multitouch mode, and it becomes unresponsive
-> from the user point of view.
+On Mon, May 05, 2014 at 12:04:37PM +0300, Roger Quadros wrote:
+> Improve the suspend and resume handlers to allow the device
+> to wakeup the system from suspend.
 > 
-> Actually, this has been discussed during the initial submission of the
-> commit 4fa5a7f76cc7b6ac87f57741edd2b124851d119f, see
-> https://patchwork.kernel.org/patch/3621751/
-> 
-> Unfortunately, I completely forgot about it later.
-> 
-> Reported-by: Matthias Bayer <thematthiasbayer@gmail.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Roger Quadros <rogerq@ti.com>
+> Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
 > ---
+>  drivers/input/touchscreen/pixcir_i2c_ts.c | 53 ++++++++++++++++++++++++++++---
+>  1 file changed, 49 insertions(+), 4 deletions(-)
 > 
-> Hi Jiri,
-> 
-> can you schedule this fix for 3.15?
-> 
-> Fortunately, the device required some ACPI changes, so it was not seen at all
-> in 3.13 and before. I am not sure of the status of 3.14, but it is definitively
-> not working in 3.15.
+> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> index 927aed1..5f6a27e 100644
+> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+> @@ -348,21 +348,66 @@ static void pixcir_input_close(struct input_dev *dev)
+>  static int pixcir_i2c_ts_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> +	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
+> +	struct input_dev *input = ts->input;
+> +	int ret = 0;
+> +
+> +	mutex_lock(&input->mutex);
+> +
+> +	if (input->users) {
+> +		ret = pixcir_stop(ts);
+> +		if (ret)
+> +			goto unlock;
+> +	}
+> +
+> +	/*
+> +	 * If wakeup is enabled we need to enable interrupt generation
+> +	 * but don't need to process any reports i.e. ts->exiting must be true.
+> +	 */
+> +	if (device_may_wakeup(&client->dev)) {
+> +		/* enable wakeup interrupt generation */
+> +		ret = pixcir_int_enable(ts, 1);
+> +		if (ret) {
+> +			dev_err(dev, "Failed to enable interrupt generation\n");
+> +			goto unlock;
+> +		}
 
-Gah, indeed, a nasty bug.
+I am not sure why we need to disable event processing here. Why not do
 
-Queuing for 3.15 now, thanks!
+	if (device_may_wakeup(&client->dev)) {
+		enable_irq_wake(client->irq); 
+		ret = pixcir_int_enable(ts, true);
+		...
+	} else if (input->users) {
+		ret = pixcir_stop(ts);
+	}
+
+like many of the drivers do?
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

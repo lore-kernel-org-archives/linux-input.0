@@ -1,87 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Mon, 5 May 2014 21:18:18 -0700
-Message-ID: <20140506041818.GA32144@core.coreip.homeip.net>
-References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
- <1398788659.619286286@f204.i.mail.ru>
- <20140429163649.GB15953@core.coreip.homeip.net>
- <1398789659.346407871@f204.i.mail.ru>
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v4 6/7] Input: pixcir_i2c_ts: Implement wakeup from suspend
+Date: Tue, 6 May 2014 11:33:24 +0300
+Message-ID: <53689E54.5080705@ti.com>
+References: <1399280678-23925-1-git-send-email-rogerq@ti.com> <1399280678-23925-7-git-send-email-rogerq@ti.com> <20140506052148.GB2608@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:61026 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757162AbaEFESV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2014 00:18:21 -0400
-Received: by mail-pa0-f43.google.com with SMTP id bj1so3483312pad.16
-        for <linux-input@vger.kernel.org>; Mon, 05 May 2014 21:18:21 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1398789659.346407871@f204.i.mail.ru>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140506052148.GB2608-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 29, 2014 at 08:40:59PM +0400, Alexander Shiyan wrote:
-> Tue, 29 Apr 2014 09:36:49 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmitry.=
-torokhov@gmail.com>:
-> > On Tue, Apr 29, 2014 at 08:24:19PM +0400, Alexander Shiyan wrote:
-> ...
-> > > > > > > > On Sat, Apr 26, 2014 at 09:53:13AM +0400, Alexander Shi=
-yan wrote:
-> > > > > > > > > Replace existing resource handling in the driver with=
- managed
-> > > > > > > > > device resource, this ensures more consistent error v=
-alues and
-> > > > > > > > > simplifies error paths.
-> > > > > > > > > kzalloc -> devm_kzalloc
-> > > > > > > > > gpio_request_one -> devm_gpio_request_one
-> > > > > ...
-> > > > > > > > @@ -162,8 +160,7 @@ static struct gpio_keys_platform_da=
-ta *gpio_keys_polled_get_devtree_pdata(struct
-> > > > > > > >  		if (of_property_read_u32(pp, "linux,code", &button->=
-code)) {
-> > > > > > > >  			dev_err(dev, "Button without keycode: 0x%x\n",
-> > > > > > > >  				button->gpio);
-> > > > > > > > -			error =3D -EINVAL;
-> > > > > > > > -			goto err_free_pdata;
-> > > > > > > > +			return ERR_PTR(-EINVAL);
-> > > > > > > >  		}
-> > > > > > >=20
-> > > > > > > We can even use return value from of_property_read_u32() =
-on error.
-> > > > > > >=20
-> > > > > > > All other looks OK.
-> > > > > >=20
-> > > > > > Do you have hardware that uses gpio_keys_polled?
-> > > > >=20
-> > > > > Yes.
-> > > >=20
-> > > > So did you have a chance to actually try my version(s)? I would=
- feel
-> > > > much better if you had ;)
-> > >=20
-> > > Unfortunately, due to the large following weekends, I cannot do i=
-t earlier
-> > > than 2 weeks.
-> >=20
-> > That is fine, there is no rush.
->=20
-> OK. In this case it would be nice to have a separate branch with poll=
--series
-> and this patch. Can you make it?
+On 05/06/2014 08:21 AM, Dmitry Torokhov wrote:
+> On Mon, May 05, 2014 at 12:04:37PM +0300, Roger Quadros wrote:
+>> Improve the suspend and resume handlers to allow the device
+>> to wakeup the system from suspend.
+>>
+>> Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+>> Acked-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+>> ---
+>>  drivers/input/touchscreen/pixcir_i2c_ts.c | 53 ++++++++++++++++++++++++++++---
+>>  1 file changed, 49 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> index 927aed1..5f6a27e 100644
+>> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+>> @@ -348,21 +348,66 @@ static void pixcir_input_close(struct input_dev *dev)
+>>  static int pixcir_i2c_ts_suspend(struct device *dev)
+>>  {
+>>  	struct i2c_client *client = to_i2c_client(dev);
+>> +	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
+>> +	struct input_dev *input = ts->input;
+>> +	int ret = 0;
+>> +
+>> +	mutex_lock(&input->mutex);
+>> +
+>> +	if (input->users) {
+>> +		ret = pixcir_stop(ts);
+>> +		if (ret)
+>> +			goto unlock;
+>> +	}
+>> +
+>> +	/*
+>> +	 * If wakeup is enabled we need to enable interrupt generation
+>> +	 * but don't need to process any reports i.e. ts->exiting must be true.
+>> +	 */
+>> +	if (device_may_wakeup(&client->dev)) {
+>> +		/* enable wakeup interrupt generation */
+>> +		ret = pixcir_int_enable(ts, 1);
+>> +		if (ret) {
+>> +			dev_err(dev, "Failed to enable interrupt generation\n");
+>> +			goto unlock;
+>> +		}
+> 
+> I am not sure why we need to disable event processing here. Why not do
+> 
+> 	if (device_may_wakeup(&client->dev)) {
+> 		enable_irq_wake(client->irq); 
+> 		ret = pixcir_int_enable(ts, true);
+> 		...
+> 	} else if (input->users) {
+> 		ret = pixcir_stop(ts);
+> 	}
+> 
+> like many of the drivers do?
 
-I just pushed new input-polldev branch containing input polldev changes
-and your patches to gpio-keys and gpio-keys-polled. It is based on 3.14=
-=2E
+Seems to work without disabling event processing. I'll send a v5 with this
+and patch 2 fixed as per your suggestion. Thanks.
 
-Thanks.
-
---=20
-Dmitry
+cheers,
+-roger
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

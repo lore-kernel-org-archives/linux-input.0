@@ -1,79 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 6/7] Input: pixcir_i2c_ts: Implement wakeup from
- suspend
-Date: Mon, 5 May 2014 22:21:48 -0700
-Message-ID: <20140506052148.GB2608@core.coreip.homeip.net>
-References: <1399280678-23925-1-git-send-email-rogerq@ti.com>
- <1399280678-23925-7-git-send-email-rogerq@ti.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: [PATCH v5 0/7] Input: pixcir_i2c_ts: Add Type-B Multi-touch and DT support
+Date: Tue, 6 May 2014 14:06:05 +0300
+Message-ID: <1399374372-29123-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:40752 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750893AbaEFFVw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2014 01:21:52 -0400
-Content-Disposition: inline
-In-Reply-To: <1399280678-23925-7-git-send-email-rogerq@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Roger Quadros <rogerq@ti.com>
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, May 05, 2014 at 12:04:37PM +0300, Roger Quadros wrote:
-> Improve the suspend and resume handlers to allow the device
-> to wakeup the system from suspend.
-> 
-> Signed-off-by: Roger Quadros <rogerq@ti.com>
-> Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
-> ---
->  drivers/input/touchscreen/pixcir_i2c_ts.c | 53 ++++++++++++++++++++++++++++---
->  1 file changed, 49 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index 927aed1..5f6a27e 100644
-> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -348,21 +348,66 @@ static void pixcir_input_close(struct input_dev *dev)
->  static int pixcir_i2c_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-> +	struct input_dev *input = ts->input;
-> +	int ret = 0;
-> +
-> +	mutex_lock(&input->mutex);
-> +
-> +	if (input->users) {
-> +		ret = pixcir_stop(ts);
-> +		if (ret)
-> +			goto unlock;
-> +	}
-> +
-> +	/*
-> +	 * If wakeup is enabled we need to enable interrupt generation
-> +	 * but don't need to process any reports i.e. ts->exiting must be true.
-> +	 */
-> +	if (device_may_wakeup(&client->dev)) {
-> +		/* enable wakeup interrupt generation */
-> +		ret = pixcir_int_enable(ts, 1);
-> +		if (ret) {
-> +			dev_err(dev, "Failed to enable interrupt generation\n");
-> +			goto unlock;
-> +		}
+Hi Dmitry,
 
-I am not sure why we need to disable event processing here. Why not do
+This series does the following
 
-	if (device_may_wakeup(&client->dev)) {
-		enable_irq_wake(client->irq); 
-		ret = pixcir_int_enable(ts, true);
-		...
-	} else if (input->users) {
-		ret = pixcir_stop(ts);
-	}
+- use devres managed resource allocations
+- convert to Type-B multi touch protocol
+- support upto 5 fingers with hardware supplied tracking IDs
+- device tree support
 
-like many of the drivers do?
+Please queue this for -next (3.16). Thanks.
 
-Thanks.
+cheers,
+-roger
+
+Changelog:
+
+v5:
+- Changed ts->exiting flag to ts->running in patch 2.
+- Don't call pixcir_stop() from .suspend() if wakeup is required.
+
+v4:
+- Imporved pixcir_stop() as per Dmitry's suggestion.
+- Removed unnecessary input_unregister_device() from .remove().
+
+v3:
+- Rebased to 3.15-rc3
+- Fixed suspend while touchscreen in use
+- Fixed module removal while touchscreen in use
+
+v2:
+- Addressed review comments and re-arranged patch order
+
+v1:
+- http://article.gmane.org/gmane.linux.kernel/1616417
+
+--
+Roger Quadros (7):
+  Input: pixcir_i2c_ts: Use devres managed resource allocations
+  Input: pixcir_i2c_ts - initialize interrupt mode and power mode
+  Input: pixcir_i2c_ts: Get rid of pdata->attb_read_val()
+  Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
+  Input: pixcir_i2c_ts: support upto 5 fingers and hardware provided
+    tracking IDs
+  Input: pixcir_i2c_ts: Implement wakeup from suspend
+  Input: pixcir_i2c_ts: Add device tree support
+
+ .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  26 +
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ drivers/input/touchscreen/pixcir_i2c_ts.c          | 524 ++++++++++++++++++---
+ include/linux/input/pixcir_ts.h                    |  56 ++-
+ 4 files changed, 540 insertions(+), 67 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
 
 -- 
-Dmitry
+1.8.3.2

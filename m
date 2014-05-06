@@ -1,231 +1,105 @@
-From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v5 5/7] Input: pixcir_i2c_ts: support upto 5 fingers and hardware provided tracking IDs
-Date: Tue, 6 May 2014 14:06:10 +0300
-Message-ID: <1399374372-29123-6-git-send-email-rogerq@ti.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: [PATCH v5 1/7] Input: pixcir_i2c_ts: Use devres managed resource allocations
+Date: Tue, 6 May 2014 14:06:06 +0300
+Message-ID: <1399374372-29123-2-git-send-email-rogerq@ti.com>
 References: <1399374372-29123-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1399374372-29123-1-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1399374372-29123-1-git-send-email-rogerq@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Some variants of the Pixcir touch controller support upto 5
-simultaneous fingers and hardware tracking IDs. Prepare the driver
-for that.
+Use devm_() and friends for allocating memory, input device
+and IRQ.
 
-Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
 ---
- drivers/input/touchscreen/pixcir_i2c_ts.c | 74 ++++++++++++++++++++++++-------
- include/linux/input/pixcir_ts.h           | 12 +++++
- 2 files changed, 69 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 38 ++++++++++++-------------------
+ 1 file changed, 15 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 1b6e4e5..0728c04 100644
+index 02392d2..8a083bd 100644
 --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
 +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -27,18 +27,20 @@
- #include <linux/input/pixcir_ts.h>
- #include <linux/gpio.h>
- 
--#define PIXCIR_MAX_SLOTS       2
-+#define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
- 
- struct pixcir_i2c_ts_data {
- 	struct i2c_client *client;
+@@ -130,6 +130,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ {
+ 	const struct pixcir_ts_platform_data *pdata =
+ 			dev_get_platdata(&client->dev);
++	struct device *dev = &client->dev;
+ 	struct pixcir_i2c_ts_data *tsdata;
  	struct input_dev *input;
--	const struct pixcir_ts_platform_data *chip;
-+	const struct pixcir_ts_platform_data *pdata;
- 	bool running;
-+	int max_fingers;	/* Max fingers supported in this instance */
- };
+ 	int error;
+@@ -139,12 +140,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
  
- struct pixcir_touch {
- 	int x;
- 	int y;
-+	int id;
- };
- 
- struct pixcir_report_data {
-@@ -49,13 +51,21 @@ struct pixcir_report_data {
- static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 			    struct pixcir_report_data *report)
- {
--	u8 rdbuf[10], wrbuf[1] = { 0 };
-+	u8 rdbuf[2 + PIXCIR_MAX_SLOTS * 5];
-+	u8 wrbuf[1] = { 0 };
- 	u8 *bufptr;
- 	u8 touch;
- 	int ret, i;
-+	int readsize;
-+	const struct pixcir_i2c_chip_data *chip = &tsdata->pdata->chip;
- 
- 	memset(report, 0, sizeof(struct pixcir_report_data));
- 
-+	i = chip->has_hw_ids ? 1 : 0;
-+	readsize = 2 + tsdata->max_fingers * (4 + i);
-+	if (readsize > sizeof(rdbuf))
-+		readsize = sizeof(rdbuf);
+-	tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
+-	input = input_allocate_device();
+-	if (!tsdata || !input) {
+-		dev_err(&client->dev, "Failed to allocate driver data!\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
++	if (!tsdata)
++		return -ENOMEM;
 +
- 	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
- 	if (ret != sizeof(wrbuf)) {
- 		dev_err(&tsdata->client->dev,
-@@ -64,7 +74,7 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 		return;
++	input = devm_input_allocate_device(dev);
++	if (!input) {
++		dev_err(&client->dev, "Failed to allocate input device\n");
++		return -ENOMEM;
  	}
- 
--	ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
-+	ret = i2c_master_recv(tsdata->client, rdbuf, readsize);
- 	if (ret != sizeof(rdbuf)) {
- 		dev_err(&tsdata->client->dev,
- 			"%s: i2c_master_recv failed(), ret=%d\n",
-@@ -73,8 +83,8 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 	}
- 
- 	touch = rdbuf[0] & 0x7;
--	if (touch > PIXCIR_MAX_SLOTS)
--		touch = PIXCIR_MAX_SLOTS;
-+	if (touch > tsdata->max_fingers)
-+		touch = tsdata->max_fingers;
- 
- 	report->num_touches = touch;
- 	bufptr = &rdbuf[2];
-@@ -83,7 +93,12 @@ static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
- 		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
- 		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
- 
--		bufptr = &bufptr[4];
-+		if (chip->has_hw_ids) {
-+			report->touches[i].id = bufptr[4];
-+			bufptr = &bufptr[5];
-+		} else {
-+			bufptr = &bufptr[4];
-+		}
- 	}
- }
- 
-@@ -95,22 +110,35 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
- 	struct pixcir_touch *touch;
- 	int n, i, slot;
- 	struct device *dev = &ts->client->dev;
-+	const struct pixcir_i2c_chip_data *chip = &ts->pdata->chip;
- 
- 	n = report->num_touches;
- 	if (n > PIXCIR_MAX_SLOTS)
- 		n = PIXCIR_MAX_SLOTS;
- 
--	for (i = 0; i < n; i++) {
--		touch = &report->touches[i];
--		pos[i].x = touch->x;
--		pos[i].y = touch->y;
--	}
-+	if (!chip->has_hw_ids) {
-+		for (i = 0; i < n; i++) {
-+			touch = &report->touches[i];
-+			pos[i].x = touch->x;
-+			pos[i].y = touch->y;
-+		}
- 
--	input_mt_assign_slots(ts->input, slots, pos, n);
-+		input_mt_assign_slots(ts->input, slots, pos, n);
-+	}
- 
- 	for (i = 0; i < n; i++) {
- 		touch = &report->touches[i];
--		slot = slots[i];
-+
-+		if (chip->has_hw_ids) {
-+			slot = input_mt_get_slot_by_key(ts->input, touch->id);
-+			if (slot < 0) {
-+				dev_dbg(dev, "no free slot for id 0x%x\n",
-+					touch->id);
-+				continue;
-+			}
-+		} else {
-+			slot = slots[i];
-+		}
- 
- 		input_mt_slot(ts->input, slot);
- 		input_mt_report_slot_state(ts->input,
-@@ -130,7 +158,7 @@ static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
- static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
- {
- 	struct pixcir_i2c_ts_data *tsdata = dev_id;
--	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
-+	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
- 	struct pixcir_report_data report;
- 
- 	while (tsdata->running) {
-@@ -359,6 +387,11 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 			dev_err(dev, "Invalid gpio_attb in pdata\n");
- 			return -EINVAL;
- 		}
-+
-+		if (pdata->chip.max_fingers <= 0) {
-+			dev_err(dev, "Invalid max_fingers in pdata\n");
-+			return -EINVAL;
-+		}
- 	}
- 
- 	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
-@@ -373,7 +406,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
  
  	tsdata->client = client;
- 	tsdata->input = input;
--	tsdata->chip = pdata;
-+	tsdata->pdata = pdata;
+@@ -165,29 +168,22 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
  
- 	input->name = client->name;
- 	input->id.bustype = BUS_I2C;
-@@ -389,7 +422,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
+ 	input_set_drvdata(input, tsdata);
  
--	error = input_mt_init_slots(input, PIXCIR_MAX_SLOTS,
-+	tsdata->max_fingers = tsdata->pdata->chip.max_fingers;
-+	if (tsdata->max_fingers > PIXCIR_MAX_SLOTS) {
-+		tsdata->max_fingers = PIXCIR_MAX_SLOTS;
-+		dev_info(dev, "Limiting maximum fingers to %d\n",
-+			 tsdata->max_fingers);
-+	}
-+
-+	error = input_mt_init_slots(input, tsdata->max_fingers,
- 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+-	error = request_threaded_irq(client->irq, NULL, pixcir_ts_isr,
+-				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+-				     client->name, tsdata);
++	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
++					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++					  client->name, tsdata);
  	if (error) {
- 		dev_err(dev, "Error initializing Multi-Touch slots\n");
-diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
-index 160cf35..7bae83b 100644
---- a/include/linux/input/pixcir_ts.h
-+++ b/include/linux/input/pixcir_ts.h
-@@ -43,10 +43,22 @@ enum pixcir_int_mode {
- #define PIXCIR_INT_ENABLE	(1UL << 3)
- #define PIXCIR_INT_POL_HIGH	(1UL << 2)
+-		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+-		goto err_free_mem;
++		dev_err(dev, "failed to request irq %d\n", client->irq);
++		return error;
+ 	}
  
-+/**
-+ * struct pixcir_irc_chip_data - chip related data
-+ * @max_fingers:	Max number of fingers reported simultaneously by h/w
-+ * @has_hw_ids:		Hardware supports finger tracking IDs
-+ *
-+ */
-+struct pixcir_i2c_chip_data {
-+	u8 max_fingers;
-+	bool has_hw_ids;
-+};
-+
- struct pixcir_ts_platform_data {
- 	int x_max;
- 	int y_max;
- 	int gpio_attb;		/* GPIO connected to ATTB line */
-+	struct pixcir_i2c_chip_data chip;
- };
+ 	error = input_register_device(input);
+ 	if (error)
+-		goto err_free_irq;
++		return error;
  
- #endif
+ 	i2c_set_clientdata(client, tsdata);
+ 	device_init_wakeup(&client->dev, 1);
+ 
+ 	return 0;
+-
+-err_free_irq:
+-	free_irq(client->irq, tsdata);
+-err_free_mem:
+-	input_free_device(input);
+-	kfree(tsdata);
+-	return error;
+ }
+ 
+ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+@@ -198,10 +194,6 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
+ 
+ 	tsdata->exiting = true;
+ 	mb();
+-	free_irq(client->irq, tsdata);
+-
+-	input_unregister_device(tsdata->input);
+-	kfree(tsdata);
+ 
+ 	return 0;
+ }
 -- 
 1.8.3.2
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

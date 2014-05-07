@@ -1,102 +1,49 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] Input: Introduce the use of the managed version of kzalloc
-Date: Wed, 7 May 2014 10:16:38 +0530
-Message-ID: <20140507044638.GA3447@himangi-Dell>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH 01/13] Input: clps711x-keypad - Make of_device_id array const
+Date: Wed, 07 May 2014 18:11:52 +0900
+Message-ID: <022e01cf69d4$62d1e5e0$2875b1a0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:46782 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753844AbaEGEqp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 May 2014 00:46:45 -0400
-Content-Disposition: inline
+Received: from mailout4.samsung.com ([203.254.224.34]:24283 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751838AbaEGJLy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 May 2014 05:11:54 -0400
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0N5700HZG5JTEL70@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 07 May 2014 18:11:53 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>, 'Alexander Shiyan' <shc_work@mail.ru>
 
-This patch moves data allocated using kzalloc to managed data allocated
-using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
-functions.
+Make of_device_id array const, because all OF functions
+handle it as const.
 
-The following Coccinelle semantic patch was used for making the change:
-
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
-
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
-
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
-
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/input/misc/pcf50633-input.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/input/keyboard/clps711x-keypad.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/pcf50633-input.c b/drivers/input/misc/pcf50633-input.c
-index db92f4f..15ae3ad 100644
---- a/drivers/input/misc/pcf50633-input.c
-+++ b/drivers/input/misc/pcf50633-input.c
-@@ -58,16 +58,13 @@ static int pcf50633_input_probe(struct platform_device *pdev)
- 	struct input_dev *input_dev;
- 	int ret;
- 
--
--	input = kzalloc(sizeof(*input), GFP_KERNEL);
-+	input = devm_kzalloc(&pdev->dev, sizeof(*input), GFP_KERNEL);
- 	if (!input)
- 		return -ENOMEM;
- 
- 	input_dev = input_allocate_device();
--	if (!input_dev) {
--		kfree(input);
-+	if (!input_dev)
- 		return -ENOMEM;
--	}
- 
- 	platform_set_drvdata(pdev, input);
- 	input->pcf = dev_to_pcf50633(pdev->dev.parent);
-@@ -81,7 +78,6 @@ static int pcf50633_input_probe(struct platform_device *pdev)
- 	ret = input_register_device(input_dev);
- 	if (ret) {
- 		input_free_device(input_dev);
--		kfree(input);
- 		return ret;
- 	}
- 	pcf50633_register_irq(input->pcf, PCF50633_IRQ_ONKEYR,
-@@ -100,7 +96,6 @@ static int pcf50633_input_remove(struct platform_device *pdev)
- 	pcf50633_free_irq(input->pcf, PCF50633_IRQ_ONKEYF);
- 
- 	input_unregister_device(input->input_dev);
--	kfree(input);
- 
+diff --git a/drivers/input/keyboard/clps711x-keypad.c b/drivers/input/keyboard/clps711x-keypad.c
+index 3955aec..552b65c 100644
+--- a/drivers/input/keyboard/clps711x-keypad.c
++++ b/drivers/input/keyboard/clps711x-keypad.c
+@@ -185,7 +185,7 @@ static int clps711x_keypad_remove(struct platform_device *pdev)
  	return 0;
  }
+ 
+-static struct of_device_id clps711x_keypad_of_match[] = {
++static const struct of_device_id clps711x_keypad_of_match[] = {
+ 	{ .compatible = "cirrus,clps711x-keypad", },
+ 	{ }
+ };
 -- 
-1.9.1
+1.7.10.4
+
 

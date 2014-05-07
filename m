@@ -1,56 +1,102 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
-Date: Tue, 06 May 2014 16:35:12 -0600
-Message-ID: <536963A0.4060506@wwwdotorg.org>
-References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org> <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] Input: Introduce the use of the managed version of kzalloc
+Date: Wed, 7 May 2014 10:16:38 +0530
+Message-ID: <20140507044638.GA3447@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:47546 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752145AbaEFWfQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2014 18:35:16 -0400
-In-Reply-To: <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:46782 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753844AbaEGEqp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 May 2014 00:46:45 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-On 05/06/2014 04:16 PM, Benson Leung wrote:
-> Hi Stephen,
-> 
-> On Tue, May 6, 2014 at 3:13 PM, Stephen Warren <swarren@wwwdotorg.org> wrote:
->> From: Stephen Warren <swarren@nvidia.com>
->>
->> This series contains the minimum number of patches required to make the
->> Atmel MXT touchpad work on NVIDIA Tegra, which requires the device to be
->> instantiated from device tree rather than from a C board file.
->>
->> These patches are based on patches in the ChromeOS kernel. However, I took
->> a different approach to the devicetree-doesn't-provide-platform-data issue.
->> Rather than amending all users of platform data to work with or without it,
->> as the patches in the ChromeOS kernel do, I implemented a single function
->> mxt_parse_dt() to create a platform data structure from DT. This isolates
->> the changes required to a single function, rather than spreading them all
->> over the driver.
-> 
-> Please coordinate with Nick Dyer, who has a long patch series that's
-> been approved but not yet merged into the input tree. The few patches
-> you've picked from the Chrome OS kernel overlap with his patch series.
+This patch moves data allocated using kzalloc to managed data allocated
+using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+functions.
 
-Ah I remember you mentioning that before. Is Nick's work still active?
-The link you sent me to the "latest status" was nearly a year ago:
+The following Coccinelle semantic patch was used for making the change:
 
-https://lkml.org/lkml/2013/6/27/311
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
 
-... and while the github link you sent:
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
 
-https://github.com/ndyer/linux/commits/for-next-20140316-v8
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
 
-... has much more recent activity, it hasn't been touched /that/
-recently either.
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+---
+ drivers/input/misc/pcf50633-input.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-To be honest, it'd be a bit off-putting to hold up a trivial patch
-series like this and make it wait for a huge refactoring series that's
-obviously been dragging on for a long time...
+diff --git a/drivers/input/misc/pcf50633-input.c b/drivers/input/misc/pcf50633-input.c
+index db92f4f..15ae3ad 100644
+--- a/drivers/input/misc/pcf50633-input.c
++++ b/drivers/input/misc/pcf50633-input.c
+@@ -58,16 +58,13 @@ static int pcf50633_input_probe(struct platform_device *pdev)
+ 	struct input_dev *input_dev;
+ 	int ret;
+ 
+-
+-	input = kzalloc(sizeof(*input), GFP_KERNEL);
++	input = devm_kzalloc(&pdev->dev, sizeof(*input), GFP_KERNEL);
+ 	if (!input)
+ 		return -ENOMEM;
+ 
+ 	input_dev = input_allocate_device();
+-	if (!input_dev) {
+-		kfree(input);
++	if (!input_dev)
+ 		return -ENOMEM;
+-	}
+ 
+ 	platform_set_drvdata(pdev, input);
+ 	input->pcf = dev_to_pcf50633(pdev->dev.parent);
+@@ -81,7 +78,6 @@ static int pcf50633_input_probe(struct platform_device *pdev)
+ 	ret = input_register_device(input_dev);
+ 	if (ret) {
+ 		input_free_device(input_dev);
+-		kfree(input);
+ 		return ret;
+ 	}
+ 	pcf50633_register_irq(input->pcf, PCF50633_IRQ_ONKEYR,
+@@ -100,7 +96,6 @@ static int pcf50633_input_remove(struct platform_device *pdev)
+ 	pcf50633_free_irq(input->pcf, PCF50633_IRQ_ONKEYF);
+ 
+ 	input_unregister_device(input->input_dev);
+-	kfree(input);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
+

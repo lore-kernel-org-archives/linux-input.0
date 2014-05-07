@@ -1,44 +1,43 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: Re: PATCH 11/13] Input: lpc32xx_ts - Make of_device_id array const
-Date: Wed, 07 May 2014 11:36:15 +0200
-Message-ID: <5369FE8F.1030802@antcom.de>
-References: <022e01cf69d4$62d1e5e0$2875b1a0$%han@samsung.com> <023801cf69d6$36ce6ed0$a46b4c70$%han@samsung.com>
+From: =?UTF-8?q?Guido=20Mart=C3=ADnez?= <guido@vanguardiasur.com.ar>
+Subject: [RFC/PATCH 0/3] add adp5589 dt support
+Date: Wed,  7 May 2014 10:00:41 -0300
+Message-ID: <1399467644-27222-1-git-send-email-guido@vanguardiasur.com.ar>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from antcom.de ([46.38.233.243]:39816 "EHLO chuck.antcom.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932261AbaEGJle (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 May 2014 05:41:34 -0400
-In-Reply-To: <023801cf69d6$36ce6ed0$a46b4c70$%han@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: robh+dt@kernel.org
+Cc: devicetree@vger.kernel.org, =?UTF-8?q?Ezequiel=20Garc=C3=ADa?= <ezequiel@vanguardiasur.com.ar>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, =?UTF-8?q?Guido=20Mart=C3=ADnez?= <guido@vanguardiasur.com.ar>
 List-Id: linux-input@vger.kernel.org
-To: Jingoo Han <jg1.han@samsung.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org
 
-On 05/07/2014 11:24 AM, Jingoo Han wrote:
-> Make of_device_id array const, because all OF functions
-> handle it as const.
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-> ---
->  drivers/input/touchscreen/lpc32xx_ts.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/lpc32xx_ts.c b/drivers/input/touchscreen/lpc32xx_ts.c
-> index 2058253..bb47d34 100644
-> --- a/drivers/input/touchscreen/lpc32xx_ts.c
-> +++ b/drivers/input/touchscreen/lpc32xx_ts.c
-> @@ -384,7 +384,7 @@ static const struct dev_pm_ops lpc32xx_ts_pm_ops = {
->  #endif
->  
->  #ifdef CONFIG_OF
-> -static struct of_device_id lpc32xx_tsc_of_match[] = {
-> +static const struct of_device_id lpc32xx_tsc_of_match[] = {
->  	{ .compatible = "nxp,lpc3220-tsc", },
->  	{ },
->  };
-> 
+This patchset enables adp5589 keypad configuration via dt. Until now,
+this was only done via platform data.
 
-Acked-by: Roland Stigge <stigge@antcom.de>
+The adp5589 has many functions besides matrix keypad decoding. For now,
+we only support keypad related functionality: including scan time and
+pull resistors configuration.
+
+  Patch 1 adds the functionality to the driver. There is a minor change
+in old code to properly detect the device type if we're using DT.
+
+  Patch 2 adds a DT include file to specify the chip lines for the pull
+configuration with symbolic names.
+
+  Patch 3 adds the binding documentation
+
+Guido Mart=C3=ADnez (3):
+  drivers: input: keyboard: adp5589: add DT support
+  DT: input: adp5589: add adp5589 include file
+  DT: input: adp5589: add binding documentation
+
+ .../devicetree/bindings/input/adp5589.txt          |  63 +++++++
+ drivers/input/keyboard/adp5589-keys.c              | 207 +++++++++++++=
++++++++-
+ include/dt-bindings/input/adp5589.h                |   7 +
+ 3 files changed, 276 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/input/adp5589.txt
+ create mode 100644 include/dt-bindings/input/adp5589.h
+
+--=20
+2.0.0.rc0

@@ -1,54 +1,43 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 01/13] Input: clps711x-keypad - Make of_device_id array
- const
-Date: Thu, 8 May 2014 08:52:56 -0700
-Message-ID: <20140508155256.GB11231@core.coreip.homeip.net>
-References: <022e01cf69d4$62d1e5e0$2875b1a0$%han@samsung.com>
+Subject: Re: [PATCH 1/2] input: fix ps2/serio module dependency
+Date: Thu, 8 May 2014 08:59:31 -0700
+Message-ID: <20140508155931.GA11672@core.coreip.homeip.net>
+References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+ <1399560990-1402858-1-git-send-email-arnd@arndb.de>
+ <1399560990-1402858-15-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:36554 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751150AbaEHPxB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 11:53:01 -0400
-Received: by mail-pd0-f182.google.com with SMTP id v10so2462515pde.13
-        for <linux-input@vger.kernel.org>; Thu, 08 May 2014 08:53:00 -0700 (PDT)
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:51471 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754399AbaEHP7g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 11:59:36 -0400
 Content-Disposition: inline
-In-Reply-To: <022e01cf69d4$62d1e5e0$2875b1a0$%han@samsung.com>
+In-Reply-To: <1399560990-1402858-15-git-send-email-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-input@vger.kernel.org, 'Alexander Shiyan' <shc_work@mail.ru>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, May 07, 2014 at 06:11:52PM +0900, Jingoo Han wrote:
-> Make of_device_id array const, because all OF functions
-> handle it as const.
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+Hi Arnd,
 
-Applied the whole lot, thank you.
+On Thu, May 08, 2014 at 04:56:26PM +0200, Arnd Bergmann wrote:
+> @@ -71,7 +71,7 @@ config KEYBOARD_ATKBD
+>  	default y
+>  	select SERIO
+>  	select SERIO_LIBPS2
+> -	select SERIO_I8042 if X86
+> +	select SERIO_I8042 if X86 || ARCH_MIGHT_HAVE_PC_SERIO
 
-> ---
->  drivers/input/keyboard/clps711x-keypad.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/clps711x-keypad.c b/drivers/input/keyboard/clps711x-keypad.c
-> index 3955aec..552b65c 100644
-> --- a/drivers/input/keyboard/clps711x-keypad.c
-> +++ b/drivers/input/keyboard/clps711x-keypad.c
-> @@ -185,7 +185,7 @@ static int clps711x_keypad_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> -static struct of_device_id clps711x_keypad_of_match[] = {
-> +static const struct of_device_id clps711x_keypad_of_match[] = {
->  	{ .compatible = "cirrus,clps711x-keypad", },
->  	{ }
->  };
-> -- 
-> 1.7.10.4
-> 
-> 
+x86 also selects ARCH_MIGHT_HAVE_PC_SERIO so shouldn't this be
+
+	select SERIO_I8042 if ARCH_MIGHT_HAVE_PC_SERIO
+
+?
+
+I can fix it up on my side if you agree.
+
+Thanks.
 
 -- 
 Dmitry

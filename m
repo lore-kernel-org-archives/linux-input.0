@@ -1,133 +1,65 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] Input: Introduce the use of managed version of kzalloc
-Date: Thu, 8 May 2014 09:30:03 +0530
-Message-ID: <20140508040002.GA3307@himangi-Dell>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v5 8/8] ARM: sun7i/sun4i: dt: Add AXP209
+ support to various boards
+Date: Thu, 8 May 2014 10:17:16 +0200
+Message-ID: <CAOQ7t2ay7UNiCZyUw4RrQ+4O1CYUht32U_OSYkbVWRLUq8_hZw@mail.gmail.com>
+References: <1398947374-3115-1-git-send-email-carlo@caione.org>
+	<1398947374-3115-9-git-send-email-carlo@caione.org>
+	<20140503010936.GF4090@lukather>
+	<CAOQ7t2Z6rLAMGXocPNcKgOUp9iy6XZkh4O6jThPkdm5M6UMGtw@mail.gmail.com>
+	<20140505225139.GD9464@lukather>
+	<CAOQ7t2bg5jkeruVnO+9cXMxxh+SL+ANGz3R0ssSMwrHewRKyYQ@mail.gmail.com>
+	<20140508025337.GI7047@lukather>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: support.opensource@diasemi.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBDP3VSNQKGQEFV7RSEY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20140508025337.GI7047@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, wens Tsai <wens-jdAy2FN1RRM@public.gmane.org>, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch moves data allocated using kzalloc to managed data allocated
-using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
-functions. This data is the third argument to da9052_request_irq in the
-two cases below.
+On Thu, May 8, 2014 at 4:53 AM, Maxime Ripard
+<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
 
-The following Coccinelle semantic patch was used for making the change:
+<snip>
 
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
+> What I mean is that no information is still better than wrong
+> informations. If you don't have the schematics, then don't do anything
+> on this boards. Hopefully, someone with more infos on this will know
+> what to do.
 
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
+I partially agree here. Not specifying the voltage range for the
+regulators but only keeping them always-on from a practical point of
+view means that we do nothing with those regulators (see also
+https://www.mail-archive.com/linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg09532.html
+)
 
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
+> Moreover, I have the feeling that you just copy pasted all the
+> informations on this patch. The first example I'm seeing is the
+> cubieboard, for which we do have the schematics, and this patch says
+> that ldo4 is used for HDMI, and that is required to stays always on,
+> while LDO4 doesn't seem to be used at all, and that HDMI takes
+> directly its input source from DC-5V.
 
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-Acked-by: Julia Lawall <julia.lawall@lip6.fr>
----
-As a follow up patch I would like to know if it would be desirable to 
-modify request_threaded_irq to devm_request_threaded_irq in the helper
-function da9052_request_irq :
-int da9052_request_irq(struct da9052 *da9052, int irq, char *name,
-			   irq_handler_t handler, void *data)
-{
-	irq = da9052_map_irq(da9052, irq);
-	if (irq < 0)
-		return irq;
+The names for the regulators are taken from the original Allwinner
+driver and (of course) they can have nothing to do with the function
+they have in the board. I agree that this could be misleading so I'll
+change them with more general names. Concerning LDO4 that is always
+on, it was off until this v4, but I changed it back to have one common
+DT representation among all the boards.
 
-	return request_threaded_irq(irq, NULL, handler,
-				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-				     name, data);
-}
+> I guess you need some more refining on this patch.
 
- drivers/input/misc/da9052_onkey.c      | 4 +---
- drivers/input/touchscreen/da9052_tsi.c | 4 +---
- 2 files changed, 2 insertions(+), 6 deletions(-)
+Ok, I'll submit a v6 only for this patch.
 
-diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
-index 184c8f2..6fc8243 100644
---- a/drivers/input/misc/da9052_onkey.c
-+++ b/drivers/input/misc/da9052_onkey.c
-@@ -84,7 +84,7 @@ static int da9052_onkey_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	onkey = kzalloc(sizeof(*onkey), GFP_KERNEL);
-+	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!onkey || !input_dev) {
- 		dev_err(&pdev->dev, "Failed to allocate memory\n");
-@@ -126,7 +126,6 @@ err_free_irq:
- 	cancel_delayed_work_sync(&onkey->work);
- err_free_mem:
- 	input_free_device(input_dev);
--	kfree(onkey);
- 
- 	return error;
- }
-@@ -139,7 +138,6 @@ static int da9052_onkey_remove(struct platform_device *pdev)
- 	cancel_delayed_work_sync(&onkey->work);
- 
- 	input_unregister_device(onkey->input);
--	kfree(onkey);
- 
- 	return 0;
- }
-diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-index ab64d58..dff6a2e 100644
---- a/drivers/input/touchscreen/da9052_tsi.c
-+++ b/drivers/input/touchscreen/da9052_tsi.c
-@@ -238,7 +238,7 @@ static int da9052_ts_probe(struct platform_device *pdev)
- 	if (!da9052)
- 		return -EINVAL;
- 
--	tsi = kzalloc(sizeof(struct da9052_tsi), GFP_KERNEL);
-+	tsi = devm_kzalloc(&pdev->dev, sizeof(struct da9052_tsi), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!tsi || !input_dev) {
- 		error = -ENOMEM;
-@@ -311,7 +311,6 @@ err_free_datardy_irq:
- err_free_pendwn_irq:
- 	da9052_free_irq(tsi->da9052, DA9052_IRQ_PENDOWN, tsi);
- err_free_mem:
--	kfree(tsi);
- 	input_free_device(input_dev);
- 
- 	return error;
-@@ -327,7 +326,6 @@ static int  da9052_ts_remove(struct platform_device *pdev)
- 	da9052_free_irq(tsi->da9052, DA9052_IRQ_PENDOWN, tsi);
- 
- 	input_unregister_device(tsi->dev);
--	kfree(tsi);
- 
- 	return 0;
- }
+Thanks,
+
 -- 
-1.9.1
+Carlo Caione

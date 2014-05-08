@@ -1,89 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.15-rc4
-Date: Thu, 8 May 2014 08:52:22 -0700
-Message-ID: <20140508155222.GA11231@core.coreip.homeip.net>
+Subject: Re: [PATCH 01/13] Input: clps711x-keypad - Make of_device_id array
+ const
+Date: Thu, 8 May 2014 08:52:56 -0700
+Message-ID: <20140508155256.GB11231@core.coreip.homeip.net>
+References: <022e01cf69d4$62d1e5e0$2875b1a0$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:54113 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751150AbaEHPw2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 11:52:28 -0400
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:36554 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751150AbaEHPxB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 11:53:01 -0400
+Received: by mail-pd0-f182.google.com with SMTP id v10so2462515pde.13
+        for <linux-input@vger.kernel.org>; Thu, 08 May 2014 08:53:00 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <022e01cf69d4$62d1e5e0$2875b1a0$%han@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: linux-input@vger.kernel.org, 'Alexander Shiyan' <shc_work@mail.ru>
 
+On Wed, May 07, 2014 at 06:11:52PM +0900, Jingoo Han wrote:
+> Make of_device_id array const, because all OF functions
+> handle it as const.
+> 
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied the whole lot, thank you.
 
-Hi Linus,
+> ---
+>  drivers/input/keyboard/clps711x-keypad.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/clps711x-keypad.c b/drivers/input/keyboard/clps711x-keypad.c
+> index 3955aec..552b65c 100644
+> --- a/drivers/input/keyboard/clps711x-keypad.c
+> +++ b/drivers/input/keyboard/clps711x-keypad.c
+> @@ -185,7 +185,7 @@ static int clps711x_keypad_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -static struct of_device_id clps711x_keypad_of_match[] = {
+> +static const struct of_device_id clps711x_keypad_of_match[] = {
+>  	{ .compatible = "cirrus,clps711x-keypad", },
+>  	{ }
+>  };
+> -- 
+> 1.7.10.4
+> 
+> 
 
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Just a few fixups to various
-drivers.
-
-Changelog:
----------
-
-Dr. H. Nikolaus Schaller (2):
-      Input: bma150 - extend chip detection for bma180
-      Input: tca8418 - fix loading this driver as a module from a device tr=
-ee
-
-Hans de Goede (2):
-      Input: synaptics - add min/max quirk for ThinkPad Edge E431
-      Input: elantech - fix touchpad initialization on Gigabyte U2442
-
-Sheng-Liang Song (1):
-      Input: atkbd - fix keyboard not working on some LG laptops
-
-
-Diffstat:
---------
-
- Documentation/input/elantech.txt        |  5 ++++-
- drivers/input/keyboard/atkbd.c          | 29 ++++++++++++++++++++++++++++-
- drivers/input/keyboard/tca8418_keypad.c |  7 +++++++
- drivers/input/misc/bma150.c             |  4 +++-
- drivers/input/mouse/elantech.c          | 26 +++++++++++++++++++++++++-
- drivers/input/mouse/elantech.h          |  1 +
- drivers/input/mouse/synaptics.c         |  8 ++++++++
- 7 files changed, 76 insertions(+), 4 deletions(-)
-
---=20
+-- 
 Dmitry
-
-
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTa6g2AAoJEH70+W8r6ZYq+JkP/iGMxwaE+eJwchvCUOo2KLO3
-hTYAEYNd18yf9fK3o4SPILQIZPc9Wvo0gxWoCGsix+ZBIi8Fv+G1NhgI+C2dMSRy
-N9i4xAqTvjmgklzbyk1azIdyiUE1xUEidVkhmAWZSO29ml7nIkrdnxi7iyFjkSeS
-rwn2mRaAM/eezIn5b4z3yIZ6NgbwxNlGbfE2iBt4HYKU2no+hBISrYRx1K1orqkq
-Vo9O5LoXe5lt9LocOcl2HSgGx45pWmi5ByoLhwNxeBnB/wb1vbyGqzqBTdTELKf0
-MSR5p0gM3Eeis7Xbtkw0sdSHr1dJUxD4bXfXB0fLwojLSLQbCwYqrbHieNbqHct3
-JHaM9vJKP4oPz/IlSRPTY/aKzD+f1HnUfqXOJycXZIsFLOpC4MVGf/z72mYnmAFj
-ndOj2t3RuXb939SQG95T00G49ks2sx6fnFF3FuEQuzjZR59SZLCPStSsyVXfD/Ws
-wMzIrxOMfMOkrKJunTSlLYDBfuxRdmJ9di5JTSakHwqB1WBPgteWwi/VH7qzZo3N
-TmHNvJNBhneA1Wgr4jT/TRGeGhy9SMT2hZYFpHJwVN2TcvOueD4p/FbRzXJ/NThS
-fGctRS2orYz+C6vK2h3BXz1WqsEz34gjxN1IXOvoWQ5b1HrtN4LKS4bxSsqvxs8y
-ilnGfs/fROqOQoLMDMVX
-=ZAK1
------END PGP SIGNATURE-----
-
---zYM0uCDKw75PZbzx--

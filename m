@@ -1,65 +1,118 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: Re: [PATCH v5 8/8] ARM: sun7i/sun4i: dt: Add AXP209
- support to various boards
-Date: Thu, 8 May 2014 10:17:16 +0200
-Message-ID: <CAOQ7t2ay7UNiCZyUw4RrQ+4O1CYUht32U_OSYkbVWRLUq8_hZw@mail.gmail.com>
-References: <1398947374-3115-1-git-send-email-carlo@caione.org>
-	<1398947374-3115-9-git-send-email-carlo@caione.org>
-	<20140503010936.GF4090@lukather>
-	<CAOQ7t2Z6rLAMGXocPNcKgOUp9iy6XZkh4O6jThPkdm5M6UMGtw@mail.gmail.com>
-	<20140505225139.GD9464@lukather>
-	<CAOQ7t2bg5jkeruVnO+9cXMxxh+SL+ANGz3R0ssSMwrHewRKyYQ@mail.gmail.com>
-	<20140508025337.GI7047@lukather>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBDP3VSNQKGQEFV7RSEY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20140508025337.GI7047@lukather>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, wens Tsai <wens-jdAy2FN1RRM@public.gmane.org>, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Archana Patni <archana.patni@linux.intel.com>
+Subject: [PATCH] HID: i2c-hid: hid report descriptor retrieval changes
+Date: Thu,  8 May 2014 09:26:19 -0400
+Message-ID: <1399555579-10747-1-git-send-email-archana.patni@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:57134 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752147AbaEHISd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 May 2014 04:18:33 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: jic23@kernel.org, linux-input@vger.kernel.org, mika.westerberg@intel.com, srinivas.pandruvada@intel.com, Archana Patni <archana.patni@linux.intel.com>, Archana Patni <archana.patni@intel.com>, Subramony Sesha <subramony.sesha@intel.com>
 
-On Thu, May 8, 2014 at 4:53 AM, Maxime Ripard
-<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+Reading the partial HID Descriptor is causing a firmware lockup in some
+sensor hubs. Instead of a partial read, this patch implements the
+i2c hid fetch using a fixed descriptor size (30 bytes) followed by a
+verification of the BCDVersion (V01.00), and value stored in
+wHIDDescLength (30 Bytes) for V1.00 descriptors.
 
-<snip>
+As per i2c hid spec, this is the preferred model.
 
-> What I mean is that no information is still better than wrong
-> informations. If you don't have the schematics, then don't do anything
-> on this boards. Hopefully, someone with more infos on this will know
-> what to do.
+>From hid-over-i2c-protocol-spec-v1-0:
 
-I partially agree here. Not specifying the voltage range for the
-regulators but only keeping them always-on from a practical point of
-view means that we do nothing with those regulators (see also
-https://www.mail-archive.com/linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg09532.html
-)
+  There are a variety of ways a HOST may choose to retrieve
+  the HID Descriptor from the DEVICE. The following is a preferred
+  implementation but should not be considered the only implementation.
+  A HOST may read the entire HID Descriptor in a single read by
+  issuing a read for 30 Bytes to get the entire HID Descriptor
+  from the DEVICE.However, the HOST is responsible for validating that
 
-> Moreover, I have the feeling that you just copy pasted all the
-> informations on this patch. The first example I'm seeing is the
-> cubieboard, for which we do have the schematics, and this patch says
-> that ldo4 is used for HDMI, and that is required to stays always on,
-> while LDO4 doesn't seem to be used at all, and that HDMI takes
-> directly its input source from DC-5V.
+  1. The BCDVersion is V01.00 (later revisions may have different
+     descriptor lengths), and
 
-The names for the regulators are taken from the original Allwinner
-driver and (of course) they can have nothing to do with the function
-they have in the board. I agree that this could be misleading so I'll
-change them with more general names. Concerning LDO4 that is always
-on, it was off until this v4, but I changed it back to have one common
-DT representation among all the boards.
+  2. The value stored in wHIDDescLength is 30 (Bytes) for V1.00
+     descriptors.
 
-> I guess you need some more refining on this patch.
+Reported-by: Joe Tijerina <joe.tijerina@st.com>
+Signed-off-by: Archana Patni <archana.patni@intel.com>
+Signed-off-by: Subramony Sesha <subramony.sesha@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c |   45 ++++++++++++-----------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
-Ok, I'll submit a v6 only for this patch.
-
-Thanks,
-
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index b50860d..21aafc8 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -807,34 +807,18 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+ 	unsigned int dsize;
+ 	int ret;
+ 
+-	/* Fetch the length of HID description, retrieve the 4 first bytes:
+-	 * bytes 0-1 -> length
+-	 * bytes 2-3 -> bcdVersion (has to be 1.00) */
+-	ret = i2c_hid_command(client, &hid_descr_cmd, ihid->hdesc_buffer, 4);
+-
+-	i2c_hid_dbg(ihid, "%s, ihid->hdesc_buffer: %4ph\n", __func__,
+-			ihid->hdesc_buffer);
+-
++	/* i2c hid fetch using a fixed descriptor size (30 bytes) */
++	i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
++	ret = i2c_hid_command(client, &hid_descr_cmd, ihid->hdesc_buffer,
++				sizeof(struct i2c_hid_desc));
+ 	if (ret) {
+-		dev_err(&client->dev,
+-			"unable to fetch the size of HID descriptor (ret=%d)\n",
+-			ret);
+-		return -ENODEV;
+-	}
+-
+-	dsize = le16_to_cpu(hdesc->wHIDDescLength);
+-	/*
+-	 * the size of the HID descriptor should at least contain
+-	 * its size and the bcdVersion (4 bytes), and should not be greater
+-	 * than sizeof(struct i2c_hid_desc) as we directly fill this struct
+-	 * through i2c_hid_command.
+-	 */
+-	if (dsize < 4 || dsize > sizeof(struct i2c_hid_desc)) {
+-		dev_err(&client->dev, "weird size of HID descriptor (%u)\n",
+-			dsize);
++		dev_err(&client->dev, "hid_descr_cmd failed\n");
+ 		return -ENODEV;
+ 	}
+ 
++	/* Validate the length of HID descriptor, the 4 first bytes:
++	 * bytes 0-1 -> length
++	 * bytes 2-3 -> bcdVersion (has to be 1.00) */
+ 	/* check bcdVersion == 1.0 */
+ 	if (le16_to_cpu(hdesc->bcdVersion) != 0x0100) {
+ 		dev_err(&client->dev,
+@@ -843,17 +827,14 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+ 		return -ENODEV;
+ 	}
+ 
+-	i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
+-
+-	ret = i2c_hid_command(client, &hid_descr_cmd, ihid->hdesc_buffer,
+-				dsize);
+-	if (ret) {
+-		dev_err(&client->dev, "hid_descr_cmd Fail\n");
++	/* Descriptor length should be 30 bytes as per the specification */
++	dsize = le16_to_cpu(hdesc->wHIDDescLength);
++	if (dsize != sizeof(struct i2c_hid_desc)) {
++		dev_err(&client->dev, "weird size of HID descriptor (%u)\n",
++			dsize);
+ 		return -ENODEV;
+ 	}
+-
+ 	i2c_hid_dbg(ihid, "HID Descriptor: %*ph\n", dsize, ihid->hdesc_buffer);
+-
+ 	return 0;
+ }
+ 
 -- 
-Carlo Caione
+1.7.9.5
+

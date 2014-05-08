@@ -1,76 +1,57 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 1/2] input: fix ps2/serio module dependency
-Date: Thu,  8 May 2014 16:56:26 +0200
-Message-ID: <1399560990-1402858-15-git-send-email-arnd@arndb.de>
+Subject: [PATCH 2/2] input: atmel-wm97xx: only build for AVR32
+Date: Thu,  8 May 2014 16:56:27 +0200
+Message-ID: <1399560990-1402858-16-git-send-email-arnd@arndb.de>
 References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
  <1399560990-1402858-1-git-send-email-arnd@arndb.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.130]:55831 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754094AbaEHO5F (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 10:57:05 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1399560990-1402858-1-git-send-email-arnd@arndb.de>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-The ps2 mouse and keyboard drivers use the "serio" framework that
-they correctly select in Kconfig, and that in turn depends on the
-i8042 driver, which is also allowed to be disabled for architectures
-that don't have an i8042.
+Building this driver on ARM/at91 always gives us this error message:
 
-However, Kconfig also allows i8042 to be built as a module while
-the serio framework is built-in, which causes this link error:
+drivers/input/touchscreen/atmel-wm97xx.c:63:2: error: #error Unknown CPU, this driver only supports AT32AP700X CPUs.
 
-drivers/built-in.o: In function `ps2_begin_command':
-:(.text+0x26b6cc): undefined reference to `i8042_check_port_owner'
-:(.text+0x26b6d4): undefined reference to `i8042_lock_chip'
-drivers/built-in.o: In function `ps2_end_command':
-:(.text+0x26b734): undefined reference to `i8042_check_port_owner'
-:(.text+0x26b73c): undefined reference to `i8042_unlock_chip'
-
-On x86, a specific 'select SERIO_I8042' takes care of it, but
-not on the other architecture that potentially have a u8042.
-
-This patch changes the Kconfig logic to ensure that whenever
-there is an i8042, it does get used for the serio driver, avoiding
-the link error above.
+Clearly this configuration is not meant to work, so let's just prevent
+it in Kconfig. If we ever want to use it on another platform, we should
+also pass proper resources for GPIO, IRQ and memory, which are hardcoded
+to AT32AP700X at the moment.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Liam Girdwood <lrg@slimlogic.co.uk>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 ---
- drivers/input/keyboard/Kconfig | 2 +-
- drivers/input/mouse/Kconfig    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 4f115db..dd2435a 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -71,7 +71,7 @@ config KEYBOARD_ATKBD
- 	default y
- 	select SERIO
- 	select SERIO_LIBPS2
--	select SERIO_I8042 if X86
-+	select SERIO_I8042 if X86 || ARCH_MIGHT_HAVE_PC_SERIO
- 	select SERIO_GSCPS2 if GSC
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index e2f0264..fe4c264 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -640,7 +640,7 @@ config TOUCHSCREEN_WM9713
+ 
+ config TOUCHSCREEN_WM97XX_ATMEL
+ 	tristate "WM97xx Atmel accelerated touch"
+-	depends on TOUCHSCREEN_WM97XX && (AVR32 || ARCH_AT91)
++	depends on TOUCHSCREEN_WM97XX && AVR32
  	help
- 	  Say Y here if you want to use a standard AT or PS/2 keyboard. Usually
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index effa9c5..cf534ee 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -17,7 +17,7 @@ config MOUSE_PS2
- 	default y
- 	select SERIO
- 	select SERIO_LIBPS2
--	select SERIO_I8042 if X86
-+	select SERIO_I8042 if X86 || ARCH_MIGHT_HAVE_PC_SERIO
- 	select SERIO_GSCPS2 if GSC
- 	help
- 	  Say Y here if you have a PS/2 mouse connected to your system. This
+ 	  Say Y here for support for streaming mode with WM97xx touchscreens
+ 	  on Atmel AT91 or AVR32 systems with an AC97C module.
 -- 
 1.8.3.2
-

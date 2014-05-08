@@ -1,57 +1,89 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 2/2] input: atmel-wm97xx: only build for AVR32
-Date: Thu,  8 May 2014 16:56:27 +0200
-Message-ID: <1399560990-1402858-16-git-send-email-arnd@arndb.de>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
- <1399560990-1402858-1-git-send-email-arnd@arndb.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.15-rc4
+Date: Thu, 8 May 2014 08:52:22 -0700
+Message-ID: <20140508155222.GA11231@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1399560990-1402858-1-git-send-email-arnd@arndb.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:54113 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751150AbaEHPw2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 11:52:28 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Building this driver on ARM/at91 always gives us this error message:
 
-drivers/input/touchscreen/atmel-wm97xx.c:63:2: error: #error Unknown CPU, this driver only supports AT32AP700X CPUs.
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Clearly this configuration is not meant to work, so let's just prevent
-it in Kconfig. If we ever want to use it on another platform, we should
-also pass proper resources for GPIO, IRQ and memory, which are hardcoded
-to AT32AP700X at the moment.
+Hi Linus,
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/touchscreen/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Please pull from:
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index e2f0264..fe4c264 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -640,7 +640,7 @@ config TOUCHSCREEN_WM9713
- 
- config TOUCHSCREEN_WM97XX_ATMEL
- 	tristate "WM97xx Atmel accelerated touch"
--	depends on TOUCHSCREEN_WM97XX && (AVR32 || ARCH_AT91)
-+	depends on TOUCHSCREEN_WM97XX && AVR32
- 	help
- 	  Say Y here for support for streaming mode with WM97xx touchscreens
- 	  on Atmel AT91 or AVR32 systems with an AC97C module.
--- 
-1.8.3.2
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Just a few fixups to various
+drivers.
+
+Changelog:
+---------
+
+Dr. H. Nikolaus Schaller (2):
+      Input: bma150 - extend chip detection for bma180
+      Input: tca8418 - fix loading this driver as a module from a device tr=
+ee
+
+Hans de Goede (2):
+      Input: synaptics - add min/max quirk for ThinkPad Edge E431
+      Input: elantech - fix touchpad initialization on Gigabyte U2442
+
+Sheng-Liang Song (1):
+      Input: atkbd - fix keyboard not working on some LG laptops
+
+
+Diffstat:
+--------
+
+ Documentation/input/elantech.txt        |  5 ++++-
+ drivers/input/keyboard/atkbd.c          | 29 ++++++++++++++++++++++++++++-
+ drivers/input/keyboard/tca8418_keypad.c |  7 +++++++
+ drivers/input/misc/bma150.c             |  4 +++-
+ drivers/input/mouse/elantech.c          | 26 +++++++++++++++++++++++++-
+ drivers/input/mouse/elantech.h          |  1 +
+ drivers/input/mouse/synaptics.c         |  8 ++++++++
+ 7 files changed, 76 insertions(+), 4 deletions(-)
+
+--=20
+Dmitry
+
+
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTa6g2AAoJEH70+W8r6ZYq+JkP/iGMxwaE+eJwchvCUOo2KLO3
+hTYAEYNd18yf9fK3o4SPILQIZPc9Wvo0gxWoCGsix+ZBIi8Fv+G1NhgI+C2dMSRy
+N9i4xAqTvjmgklzbyk1azIdyiUE1xUEidVkhmAWZSO29ml7nIkrdnxi7iyFjkSeS
+rwn2mRaAM/eezIn5b4z3yIZ6NgbwxNlGbfE2iBt4HYKU2no+hBISrYRx1K1orqkq
+Vo9O5LoXe5lt9LocOcl2HSgGx45pWmi5ByoLhwNxeBnB/wb1vbyGqzqBTdTELKf0
+MSR5p0gM3Eeis7Xbtkw0sdSHr1dJUxD4bXfXB0fLwojLSLQbCwYqrbHieNbqHct3
+JHaM9vJKP4oPz/IlSRPTY/aKzD+f1HnUfqXOJycXZIsFLOpC4MVGf/z72mYnmAFj
+ndOj2t3RuXb939SQG95T00G49ks2sx6fnFF3FuEQuzjZR59SZLCPStSsyVXfD/Ws
+wMzIrxOMfMOkrKJunTSlLYDBfuxRdmJ9di5JTSakHwqB1WBPgteWwi/VH7qzZo3N
+TmHNvJNBhneA1Wgr4jT/TRGeGhy9SMT2hZYFpHJwVN2TcvOueD4p/FbRzXJ/NThS
+fGctRS2orYz+C6vK2h3BXz1WqsEz34gjxN1IXOvoWQ5b1HrtN4LKS4bxSsqvxs8y
+ilnGfs/fROqOQoLMDMVX
+=ZAK1
+-----END PGP SIGNATURE-----
+
+--zYM0uCDKw75PZbzx--

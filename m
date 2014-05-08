@@ -1,42 +1,55 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH] input: Request a shared interrupt for AMBA KMI devices.
-Date: Thu,  8 May 2014 13:44:13 +0100
-Message-ID: <1399553053-20305-1-git-send-email-broonie@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: hid report descriptor retrieval changes
+Date: Thu, 8 May 2014 10:16:10 -0400
+Message-ID: <CAN+gG=E7sU6rf0XR1_FkSqEejcSwNYqkLkpQBwSj7Xm53iTtRg@mail.gmail.com>
+References: <1399555579-10747-1-git-send-email-archana.patni@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:37884 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751337AbaEHMog (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 08:44:36 -0400
+Received: from mail-lb0-f178.google.com ([209.85.217.178]:46076 "EHLO
+	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751472AbaEHOQM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2014 10:16:12 -0400
+Received: by mail-lb0-f178.google.com with SMTP id w7so3578597lbi.23
+        for <linux-input@vger.kernel.org>; Thu, 08 May 2014 07:16:11 -0700 (PDT)
+In-Reply-To: <1399555579-10747-1-git-send-email-archana.patni@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Liviu Dudau <Liviu.Dudau@arm.com>, Mark Brown <broonie@linaro.org>
+To: Archana Patni <archana.patni@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, jic23@kernel.org, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, Archana Patni <archana.patni@intel.com>, Subramony Sesha <subramony.sesha@intel.com>
 
-From: Liviu Dudau <Liviu.Dudau@arm.com>
+On Thu, May 8, 2014 at 9:26 AM, Archana Patni
+<archana.patni@linux.intel.com> wrote:
+> Reading the partial HID Descriptor is causing a firmware lockup in some
+> sensor hubs. Instead of a partial read, this patch implements the
+> i2c hid fetch using a fixed descriptor size (30 bytes) followed by a
+> verification of the BCDVersion (V01.00), and value stored in
+> wHIDDescLength (30 Bytes) for V1.00 descriptors.
+>
+> As per i2c hid spec, this is the preferred model.
+>
+> From hid-over-i2c-protocol-spec-v1-0:
+>
+>   There are a variety of ways a HOST may choose to retrieve
+>   the HID Descriptor from the DEVICE. The following is a preferred
+>   implementation but should not be considered the only implementation.
+>   A HOST may read the entire HID Descriptor in a single read by
+>   issuing a read for 30 Bytes to get the entire HID Descriptor
+>   from the DEVICE.However, the HOST is responsible for validating that
+>
+>   1. The BCDVersion is V01.00 (later revisions may have different
+>      descriptor lengths), and
+>
+>   2. The value stored in wHIDDescLength is 30 (Bytes) for V1.00
+>      descriptors.
+>
+> Reported-by: Joe Tijerina <joe.tijerina@st.com>
+> Signed-off-by: Archana Patni <archana.patni@intel.com>
+> Signed-off-by: Subramony Sesha <subramony.sesha@intel.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
 
-Recent ARM boards have the KMI devices share one interrupt line rather
-than having dedicated IRQs. Update the driver to take that into account.
+This one is Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
-Signed-off-by: Mark Brown <broonie@linaro.org>
----
- drivers/input/serio/ambakmi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-index 762b08432de0..8b748d99b934 100644
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -79,7 +79,8 @@ static int amba_kmi_open(struct serio *io)
- 	writeb(divisor, KMICLKDIV);
- 	writeb(KMICR_EN, KMICR);
- 
--	ret = request_irq(kmi->irq, amba_kmi_int, 0, "kmi-pl050", kmi);
-+	ret = request_irq(kmi->irq, amba_kmi_int, IRQF_SHARED, "kmi-pl050",
-+			  kmi);
- 	if (ret) {
- 		printk(KERN_ERR "kmi: failed to claim IRQ%d\n", kmi->irq);
- 		writeb(0, KMICR);
--- 
-2.0.0.rc2
-
+Cheers,
+Benjamin

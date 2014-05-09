@@ -1,46 +1,65 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 00/22] Random ARM randconfig fixes in drivers
-Date: Fri, 9 May 2014 13:48:49 +0200
-Message-ID: <201405091348.49713.arnd@arndb.de>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
- <20140508164157.GA22224@roeck-us.net>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
+Date: Fri, 9 May 2014 19:49:08 +0100
+Message-ID: <20140509184908.GX12304@sirena.org.uk>
+References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org>
+ <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com>
+ <536963A0.4060506@wwwdotorg.org>
+ <536BAA5A.1010809@itdev.co.uk>
+ <536BB3C9.8070908@wwwdotorg.org>
+ <20140508172635.GD11672@core.coreip.homeip.net>
+ <536BE154.2090701@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20140508164157.GA22224@roeck-us.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: wsa@the-dreams.de, tony@atomide.com, linux-pci@vger.kernel.org, linus.walleij@linaro.org, nicolas.ferre@atmel.com, linux-ide@vger.kernel.org, wim@iguana.be, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, mturquette@linaro.org, vinod.koul@intel.com, linux-sh@vger.kernel.org, kishon@ti.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, plagnioj@jcrosoft.com, ohad@wizery.com, linux-watchdog@vger.kernel.org, broonie@kernel.org, bhelgaas@google.com, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, balbi@ti.com, josh.wu@atmel.com, netdev@vger.kernel.org, dmaengine@vger.kernel.org, dwmw2@infradead.org, jic23@kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="syjoJAwOg4MOHaL2"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:39567 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932143AbaEIStf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 May 2014 14:49:35 -0400
+Content-Disposition: inline
+In-Reply-To: <536BE154.2090701@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-On Thursday 08 May 2014, Guenter Roeck wrote:
-> On Thu, May 08, 2014 at 04:46:51PM +0200, Arnd Bergmann wrote:
-> > These are a bunch of fixes I had to do to get all randconfig
-> > configurations on ARM working. Most of these are really old
-> > bugs, but there are also some new ones. I don't think any of
-> > them require a backport to linux-stable.
-> > 
-> > I have checked that they are all still required on yesterday's
-> > linux-next kernel. Please apply on the appropriate trees unless
-> > there are objections.
-> > 
-> Is this series of patches also going to fix arm:allmodconfig ?
 
-Possibly, I haven't checked in a while. I'm unfortunately sitting on
-about 200 other patches in the same branch, which together fix all
-build errors in any configuration I encountered.
+--syjoJAwOg4MOHaL2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I should really do some allmodconfig/allnoconfig/allyesconfig
-builds without my series again, and prioritize sending out the
-ones required for that.
+On Thu, May 08, 2014 at 08:56:04PM +0100, Nick Dyer wrote:
 
-	Arnd
+> Thanks! I had wondered why you had left it, you never communicated this to
+> me unfortunately. Would it be preferable for me to switch to
+> request_firmware_nowait() and complete the probe asynchronously after it
+> returns?
+
+Another common option is to defer the firmware request/load until the
+device is opened, but that doesn't work for all devices.  That should
+mean that userspace is up and running.
+
+--syjoJAwOg4MOHaL2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTbSMhAAoJELSic+t+oim98YEP/3TkvTbDnoIal5lXvPk7mijb
+JcqGHc7XPa+xagdbm9vCpEo/NTeNaq0Mjm9lvIZjMcVFSUNYXA2lFO9qk+4P62oe
+GDInpkNq7QdE6yruOOU9PmTX2u3nYpyMsnU4l5Ab4oEJ7wi9H3jAhrzfHA7nPURv
+d6CXgQzATOyel6FQna04cNfw6ylAPXO17exBBoY8hlRHipaat3QrfR0gGOYFv0qZ
+7qaBReSeVz/u/ae7XMx1/mm2LuQsiUJpatYKVNgPYnOynEvaiCDi0J4ksZvkmwOF
+0YkNbD7GhF5VtOBGDP0BIXa+71uL6mUkRlOI1Dz4/crD+sggucfN3tF52N4D1yFz
+naEIk8gRT4+pQInKTqbEmzuud6VkOoYDtjOauCQcrHp4PUT/b4bgE2fDFyTGL7Ht
+1p4mvBPc1r/VeAtf9z5SKGI2hD2bh5rdqLjMGa9FCbxT7a+RKJ5sLvgFWpBTer0I
+WSlXQOpFbpTyaLeQWc1GP5m58UeAx/lSzo8mkpA4ADps6k8JWvGuP5ZZJKgYfpjp
+4AoC44FV4zr6Zggi4cbxzhvF2cxP53TmCXDggL32rWQ/b5Uu0kihbIfg/qbQzcNW
+l1ohdjUorF8mR5rJoeTBlUMNxzG5/rQUbu4zJjPJHXsjOYpKLtenkuiSwLKPyIxo
+IucXjZ578ipuNre96MND
+=D3lu
+-----END PGP SIGNATURE-----
+
+--syjoJAwOg4MOHaL2--

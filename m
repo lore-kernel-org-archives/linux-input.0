@@ -1,127 +1,165 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH v2] Input: Introduce the use of managed version of kzalloc
-Date: Sat, 10 May 2014 23:46:16 +0530
-Message-ID: <20140510181616.GA6441@himangi-Dell>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH] HID: i2c-hid: Support batch read of input events from
+ fifo
+Date: Sat, 10 May 2014 11:48:19 -0700
+Message-ID: <536E7473.4080502@linux.intel.com>
+References: <1399555929-10870-1-git-send-email-archana.patni@linux.intel.com> <CAN+gG=HQwkqcyvDfK_unSuKRVOt4dyoPDK5Rz0GswrTKL1OMEg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:58970 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754832AbaEJSQc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 May 2014 14:16:32 -0400
-Content-Disposition: inline
+Received: from mga02.intel.com ([134.134.136.20]:41432 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752029AbaEJSsV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 10 May 2014 14:48:21 -0400
+In-Reply-To: <CAN+gG=HQwkqcyvDfK_unSuKRVOt4dyoPDK5Rz0GswrTKL1OMEg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Support Opensource <support.opensource@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Archana Patni <archana.patni@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, jic23@kernel.org, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, Archana Patni <archana.patni@intel.com>, Subramony Sesha <subramony.sesha@intel.com>
 
-This patch moves data allocated using kzalloc to managed data allocated
-using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
-functions. This data is the third argument to da9052_request_irq in the
-two cases below.
+Hi Benjamin,
+On 05/08/2014 07:28 AM, Benjamin Tissoires wrote:
+> On Thu, May 8, 2014 at 9:32 AM, Archana Patni
+> <archana.patni@linux.intel.com> wrote:
+>> Some i2c_hid devices like a sensor hub have built-in fifos which
+>> can accumulate input events in their buffers and trigger an interrupt
+>> at end of a user defined event like fifo full or a timeout. The current
+>> implementation reads one event at a time in the IRQ handler leading to
+>> several hundred interrupts being necessary to flush the fifo.
+>>
+>> This patch changes the threaded IRQ handler to keep input events until
+>> there are no input events left to read. In the normal case, this will
+>> invoke one additional call to fetch an input event to check for no pending
+>> events and terminate the loop.
+> I must say, I don't like this patch.
+> It seems to me that it will solve your problem but will break other
+> devices. Nothing in the spec says what happens if the host tries to
+> read while the interrupt line is *not* asserted. I can easily imagine
+> several scenarios where the device would hang until the next available
+> data, or will just fail.
+>
+> So the proper way according to the spec is to check the status of the
+> interrupt line. This line is the responsibility of the device to be
+> asserted and we should rely on it to know if we can read again.
+>
+> However, a quick check on the interrupt API did not provide me the
+> function I would like, so I guess this is something to be work on.
+>
+> I can not ack this one until we can be sure not breaking other stuff.
+>
+> So: NACK.
+I understand your reason, there may be some HID device which will have 
+issue with this change.
+I am interested in throwing some idea, as I am trying to keep the 
+devices in deepest idle states as
+long as possible. Sensors are one of the offenders.
+- This driver can register i2c_driver, command callback. We can define 
+one of the command to set the set the max size dynamically or fire this 
+logic to empty buffers. This way, we can only enable such logic, when a 
+sensor hub has capability and notifies this capability dynamically 
+without affecting any other hid devices.
 
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-Acked-by: Julia Lawall <julia.lawall@lip6.fr>
-Acked-by: Opensource [Anthony Olech] <anthony.olech.opensource@diasemi.com>
----
-v2: shift semantic patch from description to below ---
+Thanks,
+Srinivas
 
-The following Coccinelle semantic patch was used for making the change:
-
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
-
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
-
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
-
- drivers/input/misc/da9052_onkey.c      | 4 +---
- drivers/input/touchscreen/da9052_tsi.c | 4 +---
- 2 files changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
-index 184c8f2..6fc8243 100644
---- a/drivers/input/misc/da9052_onkey.c
-+++ b/drivers/input/misc/da9052_onkey.c
-@@ -84,7 +84,7 @@ static int da9052_onkey_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	onkey = kzalloc(sizeof(*onkey), GFP_KERNEL);
-+	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!onkey || !input_dev) {
- 		dev_err(&pdev->dev, "Failed to allocate memory\n");
-@@ -126,7 +126,6 @@ err_free_irq:
- 	cancel_delayed_work_sync(&onkey->work);
- err_free_mem:
- 	input_free_device(input_dev);
--	kfree(onkey);
- 
- 	return error;
- }
-@@ -139,7 +138,6 @@ static int da9052_onkey_remove(struct platform_device *pdev)
- 	cancel_delayed_work_sync(&onkey->work);
- 
- 	input_unregister_device(onkey->input);
--	kfree(onkey);
- 
- 	return 0;
- }
-diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-index ab64d58..dff6a2e 100644
---- a/drivers/input/touchscreen/da9052_tsi.c
-+++ b/drivers/input/touchscreen/da9052_tsi.c
-@@ -238,7 +238,7 @@ static int da9052_ts_probe(struct platform_device *pdev)
- 	if (!da9052)
- 		return -EINVAL;
- 
--	tsi = kzalloc(sizeof(struct da9052_tsi), GFP_KERNEL);
-+	tsi = devm_kzalloc(&pdev->dev, sizeof(struct da9052_tsi), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!tsi || !input_dev) {
- 		error = -ENOMEM;
-@@ -311,7 +311,6 @@ err_free_datardy_irq:
- err_free_pendwn_irq:
- 	da9052_free_irq(tsi->da9052, DA9052_IRQ_PENDOWN, tsi);
- err_free_mem:
--	kfree(tsi);
- 	input_free_device(input_dev);
- 
- 	return error;
-@@ -327,7 +326,6 @@ static int  da9052_ts_remove(struct platform_device *pdev)
- 	da9052_free_irq(tsi->da9052, DA9052_IRQ_PENDOWN, tsi);
- 
- 	input_unregister_device(tsi->dev);
--	kfree(tsi);
- 
- 	return 0;
- }
--- 
-1.9.1
+> Cheers,
+> Benjamin
+>
+>> Signed-off-by: Archana Patni <archana.patni@intel.com>
+>> Signed-off-by: Subramony Sesha <subramony.sesha@intel.com>
+>> Reviewed-by: Mika Westerberg <mika.westerberg@intel.com>
+>> Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+>> ---
+>>   drivers/hid/i2c-hid/i2c-hid.c |   20 +++++++++++++-------
+>>   1 file changed, 13 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> index 21aafc8..3f09a50 100644
+>> --- a/drivers/hid/i2c-hid/i2c-hid.c
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+>> @@ -52,6 +52,7 @@
+>>   static bool debug;
+>>   module_param(debug, bool, 0444);
+>>   MODULE_PARM_DESC(debug, "print a lot of debug information");
+>> +#define MAX_INPUT_EVENT_READ 100
+>>
+>>   #define i2c_hid_dbg(ihid, fmt, arg...)                                   \
+>>   do {                                                                     \
+>> @@ -366,7 +367,7 @@ static int i2c_hid_hwreset(struct i2c_client *client)
+>>          return 0;
+>>   }
+>>
+>> -static void i2c_hid_get_input(struct i2c_hid *ihid)
+>> +static int i2c_hid_get_input(struct i2c_hid *ihid)
+>>   {
+>>          int ret, ret_size;
+>>          int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
+>> @@ -374,11 +375,11 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+>>          ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
+>>          if (ret != size) {
+>>                  if (ret < 0)
+>> -                       return;
+>> +                       return ret;
+>>
+>>                  dev_err(&ihid->client->dev, "%s: got %d data instead of %d\n",
+>>                          __func__, ret, size);
+>> -               return;
+>> +               return -EIO;
+>>          }
+>>
+>>          ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
+>> @@ -387,13 +388,13 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+>>                  /* host or device initiated RESET completed */
+>>                  if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
+>>                          wake_up(&ihid->wait);
+>> -               return;
+>> +               return 0;
+>>          }
+>>
+>>          if (ret_size > size) {
+>>                  dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+>>                          __func__, size, ret_size);
+>> -               return;
+>> +               return -EIO;
+>>          }
+>>
+>>          i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
+>> @@ -402,17 +403,22 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+>>                  hid_input_report(ihid->hid, HID_INPUT_REPORT, ihid->inbuf + 2,
+>>                                  ret_size - 2, 1);
+>>
+>> -       return;
+>> +       return 1;
+>>   }
+>>
+>>   static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
+>>   {
+>>          struct i2c_hid *ihid = dev_id;
+>> +       int ret;
+>> +       int count = 0;
+>>
+>>          if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
+>>                  return IRQ_HANDLED;
+>> +       do {
+>> +               count++;
+>> +               ret = i2c_hid_get_input(ihid);
+>>
+>> -       i2c_hid_get_input(ihid);
+>> +       } while (count < MAX_INPUT_EVENT_READ && ret > 0);
+>>
+>>          return IRQ_HANDLED;
+>>   }
+>> --
+>> 1.7.9.5
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 

@@ -1,165 +1,49 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: i2c-hid: Support batch read of input events from
- fifo
-Date: Sat, 10 May 2014 11:48:19 -0700
-Message-ID: <536E7473.4080502@linux.intel.com>
-References: <1399555929-10870-1-git-send-email-archana.patni@linux.intel.com> <CAN+gG=HQwkqcyvDfK_unSuKRVOt4dyoPDK5Rz0GswrTKL1OMEg@mail.gmail.com>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v4 0/2] input: Add new sun4i-ts driver for
+ Allwinner sunxi SoC's rtp controller
+Date: Sun, 11 May 2014 10:06:24 +0200
+Message-ID: <1399795586-18919-1-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:41432 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752029AbaEJSsV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 May 2014 14:48:21 -0400
-In-Reply-To: <CAN+gG=HQwkqcyvDfK_unSuKRVOt4dyoPDK5Rz0GswrTKL1OMEg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBCO7XSNQKGQE7MGM2KQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Archana Patni <archana.patni@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, jic23@kernel.org, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, Archana Patni <archana.patni@intel.com>, Subramony Sesha <subramony.sesha@intel.com>
 
-Hi Benjamin,
-On 05/08/2014 07:28 AM, Benjamin Tissoires wrote:
-> On Thu, May 8, 2014 at 9:32 AM, Archana Patni
-> <archana.patni@linux.intel.com> wrote:
->> Some i2c_hid devices like a sensor hub have built-in fifos which
->> can accumulate input events in their buffers and trigger an interrupt
->> at end of a user defined event like fifo full or a timeout. The current
->> implementation reads one event at a time in the IRQ handler leading to
->> several hundred interrupts being necessary to flush the fifo.
->>
->> This patch changes the threaded IRQ handler to keep input events until
->> there are no input events left to read. In the normal case, this will
->> invoke one additional call to fetch an input event to check for no pending
->> events and terminate the loop.
-> I must say, I don't like this patch.
-> It seems to me that it will solve your problem but will break other
-> devices. Nothing in the spec says what happens if the host tries to
-> read while the interrupt line is *not* asserted. I can easily imagine
-> several scenarios where the device would hang until the next available
-> data, or will just fail.
->
-> So the proper way according to the spec is to check the status of the
-> interrupt line. This line is the responsibility of the device to be
-> asserted and we should rely on it to know if we can read again.
->
-> However, a quick check on the interrupt API did not provide me the
-> function I would like, so I guess this is something to be work on.
->
-> I can not ack this one until we can be sure not breaking other stuff.
->
-> So: NACK.
-I understand your reason, there may be some HID device which will have 
-issue with this change.
-I am interested in throwing some idea, as I am trying to keep the 
-devices in deepest idle states as
-long as possible. Sensors are one of the offenders.
-- This driver can register i2c_driver, command callback. We can define 
-one of the command to set the set the max size dynamically or fire this 
-logic to empty buffers. This way, we can only enable such logic, when a 
-sensor hub has capability and notifies this capability dynamically 
-without affecting any other hid devices.
+Hi All,
 
-Thanks,
-Srinivas
+Since Maxime rightfully pointed out an error in my resend of v3, here is v4
+with that fixed.
 
-> Cheers,
-> Benjamin
->
->> Signed-off-by: Archana Patni <archana.patni@intel.com>
->> Signed-off-by: Subramony Sesha <subramony.sesha@intel.com>
->> Reviewed-by: Mika Westerberg <mika.westerberg@intel.com>
->> Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
->> ---
->>   drivers/hid/i2c-hid/i2c-hid.c |   20 +++++++++++++-------
->>   1 file changed, 13 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
->> index 21aafc8..3f09a50 100644
->> --- a/drivers/hid/i2c-hid/i2c-hid.c
->> +++ b/drivers/hid/i2c-hid/i2c-hid.c
->> @@ -52,6 +52,7 @@
->>   static bool debug;
->>   module_param(debug, bool, 0444);
->>   MODULE_PARM_DESC(debug, "print a lot of debug information");
->> +#define MAX_INPUT_EVENT_READ 100
->>
->>   #define i2c_hid_dbg(ihid, fmt, arg...)                                   \
->>   do {                                                                     \
->> @@ -366,7 +367,7 @@ static int i2c_hid_hwreset(struct i2c_client *client)
->>          return 0;
->>   }
->>
->> -static void i2c_hid_get_input(struct i2c_hid *ihid)
->> +static int i2c_hid_get_input(struct i2c_hid *ihid)
->>   {
->>          int ret, ret_size;
->>          int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
->> @@ -374,11 +375,11 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
->>          ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
->>          if (ret != size) {
->>                  if (ret < 0)
->> -                       return;
->> +                       return ret;
->>
->>                  dev_err(&ihid->client->dev, "%s: got %d data instead of %d\n",
->>                          __func__, ret, size);
->> -               return;
->> +               return -EIO;
->>          }
->>
->>          ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
->> @@ -387,13 +388,13 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
->>                  /* host or device initiated RESET completed */
->>                  if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
->>                          wake_up(&ihid->wait);
->> -               return;
->> +               return 0;
->>          }
->>
->>          if (ret_size > size) {
->>                  dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
->>                          __func__, size, ret_size);
->> -               return;
->> +               return -EIO;
->>          }
->>
->>          i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
->> @@ -402,17 +403,22 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
->>                  hid_input_report(ihid->hid, HID_INPUT_REPORT, ihid->inbuf + 2,
->>                                  ret_size - 2, 1);
->>
->> -       return;
->> +       return 1;
->>   }
->>
->>   static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
->>   {
->>          struct i2c_hid *ihid = dev_id;
->> +       int ret;
->> +       int count = 0;
->>
->>          if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
->>                  return IRQ_HANDLED;
->> +       do {
->> +               count++;
->> +               ret = i2c_hid_get_input(ihid);
->>
->> -       i2c_hid_get_input(ihid);
->> +       } while (count < MAX_INPUT_EVENT_READ && ret > 0);
->>
->>          return IRQ_HANDLED;
->>   }
->> --
->> 1.7.9.5
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Note the second patch which adds hwmon functionality has been reviewed by
+the hwon subsystem maintainer, and the sun?i*.dts changes to enable this
+have already been upstreamed.
 
+Changes since v1:
+-Use devm_kzalloc and devm_hwmon_device_register_with_groups as suggested
+ by Guenter Roeck
+-Various small cleanups suggested by Thomas Petazzoni
+-Add open/close methods and enable/disable the input related interrupts from
+ there as suggested by Dmitry
+
+Changes since v2:
+-Addressed review comments from Dmitry
+-Addressed review comments from Guenter
+-Addressed review comments from Maxime
+-Initialize ignore_fifo_data to true, the very first coordinate can be
+ wrong too
+
+Changes since v3:
+-Rename compatible from sun4i-ts to sun4i-a10-ts to match the dts entries
+ which are already upstream
+
+Thanks & Regards,
+
+Hans

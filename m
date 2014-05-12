@@ -1,76 +1,64 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 0/2] input: Add new sun4i-ts driver for
- Allwinner sunxi SoC's rtp controller
-Date: Sun, 11 May 2014 23:04:57 +0200
-Message-ID: <20140511210457.GU7047@lukather>
-References: <1399795586-18919-1-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCBSRVNFTkQgMS8yXSBpbnB1dDogZ3Bpb19rZXlzX3BvbGxl?=
+ =?UTF-8?B?ZDogQ29udmVydCB0byBkZXZtLSogQVBJ?=
+Date: Mon, 12 May 2014 11:15:02 +0400
+Message-ID: <1399878902.755384741@f304.i.mail.ru>
+References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
+ <1398789659.346407871@f204.i.mail.ru>
+ <20140506041818.GA32144@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YSDgblk1kzV93dSz"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRB76LX6NQKGQEVANHWMY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1399795586-18919-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fallback3.mail.ru ([94.100.176.58]:52137 "EHLO
+	fallback3.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751384AbaELHPT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 May 2014 03:15:19 -0400
+Received: from f304.i.mail.ru (f304.i.mail.ru [128.140.169.168])
+	by fallback3.mail.ru (mPOP.Fallback_MX) with ESMTP id 8B9DC11528C83
+	for <linux-input@vger.kernel.org>; Mon, 12 May 2014 11:15:15 +0400 (MSK)
+In-Reply-To: <20140506041818.GA32144@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-
---YSDgblk1kzV93dSz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Hans,
-
-On Sun, May 11, 2014 at 10:06:24AM +0200, Hans de Goede wrote:
-> Hi All,
->=20
-> Since Maxime rightfully pointed out an error in my resend of v3, here is =
-v4
-> with that fixed.
->=20
-> Note the second patch which adds hwmon functionality has been reviewed by
-> the hwon subsystem maintainer, and the sun?i*.dts changes to enable this
-> have already been upstreamed.
-
-For both patches,
-Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---YSDgblk1kzV93dSz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTb+X4AAoJEBx+YmzsjxAgdgIQALhQyVcGDAoLZb0dntVyQJpP
-Svw7gqLiPDz6cPEiJC7uW5QQGSv0QMyr67jR6AX9VFkCi9ay05iDTqHsglS7uwzP
-My2xvK8Sk8k8HE/VQaLPhkj/maIoXdaRuKD9Yu0SBnr3HEvF0AV9wdjC2eoSrNKK
-//pVGfRwfrkqGXf5A6cATTPa24+K0gr+h+Acy8QA1irAJq1mQ417c/KROCCMR4xl
-Jfxo0JiU0Rr6uTpnTZ1e7MsXl3IiqLhWoy3MigZ8kgtGpQruUpJLdtYljS591Kwg
-24JxTcd/AdYh6Y+g3RRW2uXoQ9a3ZoYwrtruLQvs/IRM6aREIBB+2Upr66SaB/56
-+XaUDVL18QN0Gz7PYwWSaTprZijaceCKJzbTMCv/+ZIOcQ/TJBRb6mjebIsxiOjY
-kFkmThYoc1AMMzgKAdNyvacW3/vNWi7dZ2lLgsZcWumbK+Th3gUGQdNe06i84z50
-QyOqCx7+CZJP4klPQNIaxluIFVt/rx96eN6Kj0R3pCDDC2XdqGvFQ0QUXtFwwZXf
-dVVIfaO3E2papwXfa5//Pohxj6gU6Iiv3VdfmDpICOyxUrskCSZKhLYI4vopvlJq
-y8la5eSaNSXh+eVq57sX7WP6YJE3+AaKcWkxHvPTOp39aS6nWb6WbJtzBB4d6IRc
-XpxfXiLAOVJsPMrwUk+m
-=I7Jk
------END PGP SIGNATURE-----
-
---YSDgblk1kzV93dSz--
+TW9uLCA1IE1heSAyMDE0IDIxOjE4OjE4IC0wNzAwINC+0YIgRG1pdHJ5IFRvcm9raG92IDxkbWl0
+cnkudG9yb2tob3ZAZ21haWwuY29tPjoKPiBPbiBUdWUsIEFwciAyOSwgMjAxNCBhdCAwODo0MDo1
+OVBNICswNDAwLCBBbGV4YW5kZXIgU2hpeWFuIHdyb3RlOgo+ID4gVHVlLCAyOSBBcHIgMjAxNCAw
+OTozNjo0OSAtMDcwMCDQvtGCIERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWls
+LmNvbT46Cj4gPiA+IE9uIFR1ZSwgQXByIDI5LCAyMDE0IGF0IDA4OjI0OjE5UE0gKzA0MDAsIEFs
+ZXhhbmRlciBTaGl5YW4gd3JvdGU6Cj4gPiAuLi4KPiA+ID4gPiA+ID4gPiA+ID4gT24gU2F0LCBB
+cHIgMjYsIDIwMTQgYXQgMDk6NTM6MTNBTSArMDQwMCwgQWxleGFuZGVyIFNoaXlhbiB3cm90ZToK
+PiA+ID4gPiA+ID4gPiA+ID4gPiBSZXBsYWNlIGV4aXN0aW5nIHJlc291cmNlIGhhbmRsaW5nIGlu
+IHRoZSBkcml2ZXIgd2l0aCBtYW5hZ2VkCj4gPiA+ID4gPiA+ID4gPiA+ID4gZGV2aWNlIHJlc291
+cmNlLCB0aGlzIGVuc3VyZXMgbW9yZSBjb25zaXN0ZW50IGVycm9yIHZhbHVlcyBhbmQKPiA+ID4g
+PiA+ID4gPiA+ID4gPiBzaW1wbGlmaWVzIGVycm9yIHBhdGhzLgo+ID4gPiA+ID4gPiA+ID4gPiA+
+IGt6YWxsb2MgLT4gZGV2bV9remFsbG9jCj4gPiA+ID4gPiA+ID4gPiA+ID4gZ3Bpb19yZXF1ZXN0
+X29uZSAtPiBkZXZtX2dwaW9fcmVxdWVzdF9vbmUKPiA+ID4gPiA+ID4gLi4uCj4gPiA+ID4gPiA+
+ID4gPiA+IEBAIC0xNjIsOCArMTYwLDcgQEAgc3RhdGljIHN0cnVjdCBncGlvX2tleXNfcGxhdGZv
+cm1fZGF0YSAqZ3Bpb19rZXlzX3BvbGxlZF9nZXRfZGV2dHJlZV9wZGF0YShzdHJ1Y3QKPiA+ID4g
+PiA+ID4gPiA+ID4gIAkJaWYgKG9mX3Byb3BlcnR5X3JlYWRfdTMyKHBwLCAibGludXgsY29kZSIs
+ICZidXR0b24tPmNvZGUpKSB7Cj4gPiA+ID4gPiA+ID4gPiA+ICAJCQlkZXZfZXJyKGRldiwgIkJ1
+dHRvbiB3aXRob3V0IGtleWNvZGU6IDB4JXhcbiIsCj4gPiA+ID4gPiA+ID4gPiA+ICAJCQkJYnV0
+dG9uLT5ncGlvKTsKPiA+ID4gPiA+ID4gPiA+ID4gLQkJCWVycm9yID0gLUVJTlZBTDsKPiA+ID4g
+PiA+ID4gPiA+ID4gLQkJCWdvdG8gZXJyX2ZyZWVfcGRhdGE7Cj4gPiA+ID4gPiA+ID4gPiA+ICsJ
+CQlyZXR1cm4gRVJSX1BUUigtRUlOVkFMKTsKPiA+ID4gPiA+ID4gPiA+ID4gIAkJfQo+ID4gPiA+
+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiBXZSBjYW4gZXZlbiB1c2UgcmV0dXJuIHZhbHVlIGZy
+b20gb2ZfcHJvcGVydHlfcmVhZF91MzIoKSBvbiBlcnJvci4KPiA+ID4gPiA+ID4gPiA+IAo+ID4g
+PiA+ID4gPiA+ID4gQWxsIG90aGVyIGxvb2tzIE9LLgo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4g
+PiA+IERvIHlvdSBoYXZlIGhhcmR3YXJlIHRoYXQgdXNlcyBncGlvX2tleXNfcG9sbGVkPwo+ID4g
+PiA+ID4gPiAKPiA+ID4gPiA+ID4gWWVzLgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTbyBkaWQgeW91
+IGhhdmUgYSBjaGFuY2UgdG8gYWN0dWFsbHkgdHJ5IG15IHZlcnNpb24ocyk/IEkgd291bGQgZmVl
+bAo+ID4gPiA+ID4gbXVjaCBiZXR0ZXIgaWYgeW91IGhhZCA7KQo+ID4gPiA+IAo+ID4gPiA+IFVu
+Zm9ydHVuYXRlbHksIGR1ZSB0byB0aGUgbGFyZ2UgZm9sbG93aW5nIHdlZWtlbmRzLCBJIGNhbm5v
+dCBkbyBpdCBlYXJsaWVyCj4gPiA+ID4gdGhhbiAyIHdlZWtzLgo+ID4gPiAKPiA+ID4gVGhhdCBp
+cyBmaW5lLCB0aGVyZSBpcyBubyBydXNoLgo+ID4gCj4gPiBPSy4gSW4gdGhpcyBjYXNlIGl0IHdv
+dWxkIGJlIG5pY2UgdG8gaGF2ZSBhIHNlcGFyYXRlIGJyYW5jaCB3aXRoIHBvbGwtc2VyaWVzCj4g
+PiBhbmQgdGhpcyBwYXRjaC4gQ2FuIHlvdSBtYWtlIGl0Pwo+IAo+IEkganVzdCBwdXNoZWQgbmV3
+IGlucHV0LXBvbGxkZXYgYnJhbmNoIGNvbnRhaW5pbmcgaW5wdXQgcG9sbGRldiBjaGFuZ2VzCj4g
+YW5kIHlvdXIgcGF0Y2hlcyB0byBncGlvLWtleXMgYW5kIGdwaW8ta2V5cy1wb2xsZWQuIEl0IGlz
+IGJhc2VkIG9uIDMuMTQuCgpUaGlzIHdvcmtzIGZvciBtZSBhcyBleHBlY3RlZCwgc286CgpUZXN0
+ZWQtYnk6IEFsZXhhbmRlciBTaGl5YW4gPHNoY193b3JrQG1haWwucnU+CgotLS0KCg==

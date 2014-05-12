@@ -1,107 +1,54 @@
-From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
-Subject: [PATCH] input: gpio-keys: Move the gpio-keys bindings documentation
-Date: Mon, 12 May 2014 11:33:44 -0300
-Message-ID: <1399905224-1273-1-git-send-email-ezequiel.garcia@free-electrons.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+From: United Nations <maj@junin.gob.ar>
+Subject: =?utf-8?Q?Felicit=C4=83ri?=
+Date: Mon, 12 May 2014 12:22:58 -0300 (ART)
+Message-ID: <132381478.422760.1399908178095.JavaMail.zimbra__25301.0585591712$1399908980$gmane$org@junin.gob.ar>
+Reply-To: United Nations <unitednationsgrants@admin.in.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from junin.gov.ar ([201.234.19.13]:52720 "EHLO mail.junin.gob.ar"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751692AbaELPfe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 May 2014 11:35:34 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is an input driver and belongs to input not gpio.
 
-Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
----
- .../devicetree/bindings/gpio/gpio_keys.txt         | 36 ----------------------
- .../devicetree/bindings/input/gpio-keys.txt        | 36 ++++++++++++++++++++++
- 2 files changed, 36 insertions(+), 36 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/gpio/gpio_keys.txt
- create mode 100644 Documentation/devicetree/bindings/input/gpio-keys.txt
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio_keys.txt b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
-deleted file mode 100644
-index 5c2c021..0000000
---- a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
-+++ /dev/null
-@@ -1,36 +0,0 @@
--Device-Tree bindings for input/gpio_keys.c keyboard driver
--
--Required properties:
--	- compatible = "gpio-keys";
--
--Optional properties:
--	- autorepeat: Boolean, Enable auto repeat feature of Linux input
--	  subsystem.
--
--Each button (key) is represented as a sub-node of "gpio-keys":
--Subnode properties:
--
--	- gpios: OF device-tree gpio specification.
--	- label: Descriptive name of the key.
--	- linux,code: Keycode to emit.
--
--Optional subnode-properties:
--	- linux,input-type: Specify event type this button/key generates.
--	  If not specified defaults to <1> == EV_KEY.
--	- debounce-interval: Debouncing interval time in milliseconds.
--	  If not specified defaults to 5.
--	- gpio-key,wakeup: Boolean, button can wake-up the system.
--
--Example nodes:
--
--	gpio_keys {
--			compatible = "gpio-keys";
--			#address-cells = <1>;
--			#size-cells = <0>;
--			autorepeat;
--			button@21 {
--				label = "GPIO Key UP";
--				linux,code = <103>;
--				gpios = <&gpio1 0 1>;
--			};
--			...
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
-new file mode 100644
-index 0000000..5c2c021
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
-@@ -0,0 +1,36 @@
-+Device-Tree bindings for input/gpio_keys.c keyboard driver
-+
-+Required properties:
-+	- compatible = "gpio-keys";
-+
-+Optional properties:
-+	- autorepeat: Boolean, Enable auto repeat feature of Linux input
-+	  subsystem.
-+
-+Each button (key) is represented as a sub-node of "gpio-keys":
-+Subnode properties:
-+
-+	- gpios: OF device-tree gpio specification.
-+	- label: Descriptive name of the key.
-+	- linux,code: Keycode to emit.
-+
-+Optional subnode-properties:
-+	- linux,input-type: Specify event type this button/key generates.
-+	  If not specified defaults to <1> == EV_KEY.
-+	- debounce-interval: Debouncing interval time in milliseconds.
-+	  If not specified defaults to 5.
-+	- gpio-key,wakeup: Boolean, button can wake-up the system.
-+
-+Example nodes:
-+
-+	gpio_keys {
-+			compatible = "gpio-keys";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			autorepeat;
-+			button@21 {
-+				label = "GPIO Key UP";
-+				linux,code = <103>;
-+				gpios = <&gpio1 0 1>;
-+			};
-+			...
--- 
-1.9.1
+=46elicit=C4=83ri=20
 
+Sunte=C8=9Bi unul dintre beneficiarii de pe ordinea de zi a Na=C8=9Biun=
+ilor Unite 2014/2015 Grant Award. Informa=C8=9Biile dvs. au fost verifi=
+cate =C8=99i suma de =C8=99ase milioane de euro (6.000.000,00) a fost a=
+cordat pentru a v=C4=83 =C3=AEn programul de granturi al Na=C8=9Biunilo=
+r Unite ca Date tale au fost listate pe lista c=C3=A2=C8=99tig=C4=83toa=
+re.=20
+
+Aceast=C4=83 sum=C4=83 urmeaz=C4=83 a fi utilizate de dumneavoastr=C4=83=
+ pentru orice scop, de care vor beneficia foloseste comunitatea ta.=20
+
+Informa=C8=9Biile de care avem nevoie pentru verificare sunt:=20
+
+Numele complet:=20
+adresa:=20
+Urm=C4=83tor de Kin:=20
+
+Va oferi, de asemenea, un cont bancar care premiile de finan=C8=9Bare a=
+r trebui s=C4=83 fie depus =C3=AEn. Ve=C8=9Bi avea nevoie, de asemenea,=
+ s=C4=83 pl=C4=83teasc=C4=83 doar o tax=C4=83 administrativ=C4=83 de 72=
+1 de euro (=C8=99apte sute dou=C4=83zeci =C8=99i unu de euro).=20
+
+Ajunge =C3=AEnapoi la noi c=C3=A2t mai cur=C3=A2nd posibil, astfel =C3=AE=
+nc=C3=A2t s=C4=83 pute=C8=9Bi trimite certificatul c=C3=A2=C8=99tig=C4=83=
+toare.=20
+
+Biroul Organiza=C8=9Biei Na=C8=9Biunilor Unite.=20
+2014/2015
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

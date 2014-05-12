@@ -1,82 +1,86 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: Re: [PATCH v4 00/24] input: Introduce ff-memless-next as an improved replacement for ff-memless
-Date: Mon, 12 May 2014 11:26:21 +0200
-Message-ID: <10531507.qTZk3SL8f1@sigyn>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net> <alpine.LNX.2.00.1405121112520.5813@pobox.suse.cz>
+From: "Patni, Archana" <archana.patni@intel.com>
+Subject: RE: [PATCH] HID: i2c-hid: hid report descriptor retrieval changes
+Date: Mon, 12 May 2014 09:39:34 +0000
+Message-ID: <C6E4BB9533783C4B9F391CD7AD09A49B45EB600D@BGSMSX104.gar.corp.intel.com>
+References: <1399555579-10747-1-git-send-email-archana.patni@linux.intel.com>
+ <CAN+gG=E7sU6rf0XR1_FkSqEejcSwNYqkLkpQBwSj7Xm53iTtRg@mail.gmail.com>
+ <alpine.LNX.2.00.1405121056000.5813@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from prifuk.cz ([31.31.77.140]:51804 "EHLO smtp.devoid-pointer.net"
+Received: from mga01.intel.com ([192.55.52.88]:55220 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750762AbaELJ0b convert rfc822-to-8bit (ORCPT
+	id S1754944AbaELJkE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2014 05:26:31 -0400
-In-Reply-To: <alpine.LNX.2.00.1405121112520.5813@pobox.suse.cz>
+	Mon, 12 May 2014 05:40:04 -0400
+In-Reply-To: <alpine.LNX.2.00.1405121056000.5813@pobox.suse.cz>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
+To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Archana Patni <archana.patni@linux.intel.com>, "jic23@kernel.org" <jic23@kernel.org>, linux-input <linux-input@vger.kernel.org>, "Westerberg, Mika" <mika.westerberg@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, "Sesha, Subramony" <subramony.sesha@intel.com>
 
-On Monday 12 of May 2014 11:14:42 Jiri Kosina wrote:
-> On Sat, 26 Apr 2014, Michal Mal=FD wrote:
-> > ff-memless-next (MLNX) is a largely improved version of the current
-> > ff-memless (FFML) driver. MLNX supports all force feedback effects
-> > currently available in the Linux force feedback userspace API. All
-> > effects are handled in accordance with Microsoft's DirectInput/XInp=
-ut.
-> > Most notable changes include support for conditional effects, prope=
-r
-> > handling of all periodic waveforms and improved emulation of rumble
-> > effects through periodic effects. MLNX also uses its own kernel API=
- to
-> > pass processed effects to hardware-specific drivers instead of abus=
-ing
-> > "ff_effect" struct. The API is documented in the respective header =
-file.
-> >=20
-> > MLNX has been expanded to be a direct replacement for FFML.
-> >=20
-> > Support for FF_PERIODIC and FF_RAMP has been added to all devices t=
-hat
-> > support FF_CONSTANT as a part of the port to the new API.
-> >=20
-> > This patch series:
-> > 1) Adds "ff-memless-next" module [1]
-> > 2) Ports all hardware-specific drivers to MLNX's API [2-23]
-> > 3) Removes FFML and replaces it with MLNX [24]
->=20
-> Dmitry,
->=20
-> what are your plans with this, please?
->=20
-> I personally don't really completely like having two implementations =
-of FF
-> in the kernel; can't it be really done as an extension to ff-memless?
 
-There will be no duplication. This patchset fully replaces "ff-memless"=
- with=20
-"ff-memless-next". Even though "ff-memless-next" is basically an extend=
-ed=20
-version of "ff-memless", the extent of the changes makes it look very m=
-uch like=20
-a rewrite.
 
-If you are concerned about any confusion due to the "ff-memless" -> "ff=
--memless-
-next" name change I can modify the code to make it look like "ff-memles=
-s" if=20
-you think that'd be more appropriate. However, given the scope of the c=
-hanges=20
-I considered it a better idea to implement this as a new driver to make=
- it=20
-clear that ff-memless-next behaves differently from the HW-specific dri=
-vers'=20
-perspective.
+> -----Original Message-----
+> From: Jiri Kosina [mailto:jkosina@suse.cz]
+> Sent: Monday, May 12, 2014 2:27 PM
+> To: Benjamin Tissoires
+> Cc: Archana Patni; jic23@kernel.org; linux-input; Westerberg, Mika;
+> Pandruvada, Srinivas; Patni, Archana; Sesha, Subramony
+> Subject: Re: [PATCH] HID: i2c-hid: hid report descriptor retrieval changes
+> 
+> On Thu, 8 May 2014, Benjamin Tissoires wrote:
+> 
+> > > Reading the partial HID Descriptor is causing a firmware lockup in
+> > > some sensor hubs. Instead of a partial read, this patch implements
+> > > the i2c hid fetch using a fixed descriptor size (30 bytes) followed
+> > > by a verification of the BCDVersion (V01.00), and value stored in
+> > > wHIDDescLength (30 Bytes) for V1.00 descriptors.
+> > >
+> > > As per i2c hid spec, this is the preferred model.
+> > >
+> > > From hid-over-i2c-protocol-spec-v1-0:
+> > >
+> > >   There are a variety of ways a HOST may choose to retrieve
+> > >   the HID Descriptor from the DEVICE. The following is a preferred
+> > >   implementation but should not be considered the only implementation.
+> > >   A HOST may read the entire HID Descriptor in a single read by
+> > >   issuing a read for 30 Bytes to get the entire HID Descriptor
+> > >   from the DEVICE.However, the HOST is responsible for validating
+> > > that
+> > >
+> > >   1. The BCDVersion is V01.00 (later revisions may have different
+> > >      descriptor lengths), and
+> > >
+> > >   2. The value stored in wHIDDescLength is 30 (Bytes) for V1.00
+> > >      descriptors.
+> > >
+> > > Reported-by: Joe Tijerina <joe.tijerina@st.com>
+> > > Signed-off-by: Archana Patni <archana.patni@intel.com>
+> > > Signed-off-by: Subramony Sesha <subramony.sesha@intel.com>
+> > > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > ---
+> >
+> > This one is Reviewed-by: Benjamin Tissoires
+> > <benjamin.tissoires@redhat.com>
+> 
+> Do we have any indication about how frequently are the lockups actually
+> happening in the wild? Is this a regression? (I don't think so).
+For a few devices, this behavior always occurs. This is not a regression.
 
-Michal
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> The reason I am asking is whether I should rush this in for 3.15 still, but as the
+> patch doesn't have stable annotation anyway, my understanding is that 3.16
+> is enough?
+3.16 is fine.
+
+Thanks
+Archana
+> 
+> Thanks,
+> 
+> --
+> Jiri Kosina
+> SUSE Labs

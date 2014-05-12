@@ -1,63 +1,69 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: i2c-hid: hid report descriptor retrieval changes
-Date: Mon, 12 May 2014 10:57:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405121056000.5813@pobox.suse.cz>
-References: <1399555579-10747-1-git-send-email-archana.patni@linux.intel.com> <CAN+gG=E7sU6rf0XR1_FkSqEejcSwNYqkLkpQBwSj7Xm53iTtRg@mail.gmail.com>
+Subject: Re: [PATCH v4 00/24] input: Introduce ff-memless-next as an improved
+ replacement for ff-memless
+Date: Mon, 12 May 2014 11:14:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1405121112520.5813@pobox.suse.cz>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52026 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:52478 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752479AbaELI53 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2014 04:57:29 -0400
-In-Reply-To: <CAN+gG=E7sU6rf0XR1_FkSqEejcSwNYqkLkpQBwSj7Xm53iTtRg@mail.gmail.com>
+	id S1751205AbaELJOo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 May 2014 05:14:44 -0400
+In-Reply-To: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Archana Patni <archana.patni@linux.intel.com>, jic23@kernel.org, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, Archana Patni <archana.patni@intel.com>, Subramony Sesha <subramony.sesha@intel.com>
+To: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
 
-On Thu, 8 May 2014, Benjamin Tissoires wrote:
+On Sat, 26 Apr 2014, Michal Mal=FD wrote:
 
-> > Reading the partial HID Descriptor is causing a firmware lockup in some
-> > sensor hubs. Instead of a partial read, this patch implements the
-> > i2c hid fetch using a fixed descriptor size (30 bytes) followed by a
-> > verification of the BCDVersion (V01.00), and value stored in
-> > wHIDDescLength (30 Bytes) for V1.00 descriptors.
-> >
-> > As per i2c hid spec, this is the preferred model.
-> >
-> > From hid-over-i2c-protocol-spec-v1-0:
-> >
-> >   There are a variety of ways a HOST may choose to retrieve
-> >   the HID Descriptor from the DEVICE. The following is a preferred
-> >   implementation but should not be considered the only implementation.
-> >   A HOST may read the entire HID Descriptor in a single read by
-> >   issuing a read for 30 Bytes to get the entire HID Descriptor
-> >   from the DEVICE.However, the HOST is responsible for validating that
-> >
-> >   1. The BCDVersion is V01.00 (later revisions may have different
-> >      descriptor lengths), and
-> >
-> >   2. The value stored in wHIDDescLength is 30 (Bytes) for V1.00
-> >      descriptors.
-> >
-> > Reported-by: Joe Tijerina <joe.tijerina@st.com>
-> > Signed-off-by: Archana Patni <archana.patni@intel.com>
-> > Signed-off-by: Subramony Sesha <subramony.sesha@intel.com>
-> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > ---
-> 
-> This one is Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ff-memless-next (MLNX) is a largely improved version of the current f=
+f-memless
+> (FFML) driver. MLNX supports all force feedback effects currently ava=
+ilable in
+> the Linux force feedback userspace API. All effects are handled in ac=
+cordance
+> with Microsoft's DirectInput/XInput. Most notable changes include sup=
+port for
+> conditional effects, proper handling of all periodic waveforms and im=
+proved
+> emulation of rumble effects through periodic effects. MLNX also uses =
+its own
+> kernel API to pass processed effects to hardware-specific drivers ins=
+tead of
+> abusing "ff_effect" struct. The API is documented in the respective h=
+eader
+> file.
+>=20
+> MLNX has been expanded to be a direct replacement for FFML.
+>=20
+> Support for FF_PERIODIC and FF_RAMP has been added to all devices tha=
+t
+> support FF_CONSTANT as a part of the port to the new API.
+>=20
+> This patch series:
+> 1) Adds "ff-memless-next" module [1]
+> 2) Ports all hardware-specific drivers to MLNX's API [2-23]
+> 3) Removes FFML and replaces it with MLNX [24]
 
-Do we have any indication about how frequently are the lockups actually 
-happening in the wild? Is this a regression? (I don't think so).
+Dmitry,
 
-The reason I am asking is whether I should rush this in for 3.15 still, 
-but as the patch doesn't have stable annotation anyway, my understanding 
-is that 3.16 is enough?
+what are your plans with this, please?
+
+I personally don't really completely like having two implementations of=
+ FF=20
+in the kernel; can't it be really done as an extension to ff-memless?
 
 Thanks,
 
--- 
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

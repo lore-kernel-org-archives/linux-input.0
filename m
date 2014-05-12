@@ -1,61 +1,107 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH 2/2] input: atmel-wm97xx: only build for AVR32
-Date: Mon, 12 May 2014 15:16:45 +0200
-Message-ID: <5370C9BD.4040201@atmel.com>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de> <1399560990-1402858-1-git-send-email-arnd@arndb.de> <1399560990-1402858-16-git-send-email-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:33924 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758158AbaELNQt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2014 09:16:49 -0400
-In-Reply-To: <1399560990-1402858-16-git-send-email-arnd@arndb.de>
-Sender: linux-input-owner@vger.kernel.org
+From: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+Subject: [PATCH] input: gpio-keys: Move the gpio-keys bindings documentation
+Date: Mon, 12 May 2014 11:33:44 -0300
+Message-ID: <1399905224-1273-1-git-send-email-ezequiel.garcia@free-electrons.com>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>
-Cc: linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>
 
-On 08/05/2014 16:56, Arnd Bergmann :
-> Building this driver on ARM/at91 always gives us this error message:
-> 
-> drivers/input/touchscreen/atmel-wm97xx.c:63:2: error: #error Unknown CPU, this driver only supports AT32AP700X CPUs.
-> 
-> Clearly this configuration is not meant to work, so let's just prevent
-> it in Kconfig. If we ever want to use it on another platform, we should
-> also pass proper resources for GPIO, IRQ and memory, which are hardcoded
-> to AT32AP700X at the moment.
+This is an input driver and belongs to input not gpio.
 
-Yes it seems so:
+Signed-off-by: Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+---
+ .../devicetree/bindings/gpio/gpio_keys.txt         | 36 ----------------------
+ .../devicetree/bindings/input/gpio-keys.txt        | 36 ++++++++++++++++++++++
+ 2 files changed, 36 insertions(+), 36 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/gpio/gpio_keys.txt
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-keys.txt
 
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Liam Girdwood <lrg@slimlogic.co.uk>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> ---
->  drivers/input/touchscreen/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index e2f0264..fe4c264 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -640,7 +640,7 @@ config TOUCHSCREEN_WM9713
->  
->  config TOUCHSCREEN_WM97XX_ATMEL
->  	tristate "WM97xx Atmel accelerated touch"
-> -	depends on TOUCHSCREEN_WM97XX && (AVR32 || ARCH_AT91)
-> +	depends on TOUCHSCREEN_WM97XX && AVR32
->  	help
->  	  Say Y here for support for streaming mode with WM97xx touchscreens
->  	  on Atmel AT91 or AVR32 systems with an AC97C module.
-> 
-
-
+diff --git a/Documentation/devicetree/bindings/gpio/gpio_keys.txt b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
+deleted file mode 100644
+index 5c2c021..0000000
+--- a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
++++ /dev/null
+@@ -1,36 +0,0 @@
+-Device-Tree bindings for input/gpio_keys.c keyboard driver
+-
+-Required properties:
+-	- compatible = "gpio-keys";
+-
+-Optional properties:
+-	- autorepeat: Boolean, Enable auto repeat feature of Linux input
+-	  subsystem.
+-
+-Each button (key) is represented as a sub-node of "gpio-keys":
+-Subnode properties:
+-
+-	- gpios: OF device-tree gpio specification.
+-	- label: Descriptive name of the key.
+-	- linux,code: Keycode to emit.
+-
+-Optional subnode-properties:
+-	- linux,input-type: Specify event type this button/key generates.
+-	  If not specified defaults to <1> == EV_KEY.
+-	- debounce-interval: Debouncing interval time in milliseconds.
+-	  If not specified defaults to 5.
+-	- gpio-key,wakeup: Boolean, button can wake-up the system.
+-
+-Example nodes:
+-
+-	gpio_keys {
+-			compatible = "gpio-keys";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			autorepeat;
+-			button@21 {
+-				label = "GPIO Key UP";
+-				linux,code = <103>;
+-				gpios = <&gpio1 0 1>;
+-			};
+-			...
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+new file mode 100644
+index 0000000..5c2c021
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -0,0 +1,36 @@
++Device-Tree bindings for input/gpio_keys.c keyboard driver
++
++Required properties:
++	- compatible = "gpio-keys";
++
++Optional properties:
++	- autorepeat: Boolean, Enable auto repeat feature of Linux input
++	  subsystem.
++
++Each button (key) is represented as a sub-node of "gpio-keys":
++Subnode properties:
++
++	- gpios: OF device-tree gpio specification.
++	- label: Descriptive name of the key.
++	- linux,code: Keycode to emit.
++
++Optional subnode-properties:
++	- linux,input-type: Specify event type this button/key generates.
++	  If not specified defaults to <1> == EV_KEY.
++	- debounce-interval: Debouncing interval time in milliseconds.
++	  If not specified defaults to 5.
++	- gpio-key,wakeup: Boolean, button can wake-up the system.
++
++Example nodes:
++
++	gpio_keys {
++			compatible = "gpio-keys";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			autorepeat;
++			button@21 {
++				label = "GPIO Key UP";
++				linux,code = <103>;
++				gpios = <&gpio1 0 1>;
++			};
++			...
 -- 
-Nicolas Ferre
+1.9.1
+

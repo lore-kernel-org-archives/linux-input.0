@@ -1,49 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
-Date: Mon, 12 May 2014 18:17:47 -0700
-Message-ID: <20140513011747.GC26152@core.coreip.homeip.net>
-References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org>
- <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com>
- <536963A0.4060506@wwwdotorg.org>
- <536BAA5A.1010809@itdev.co.uk>
- <536BB3C9.8070908@wwwdotorg.org>
- <20140508172635.GD11672@core.coreip.homeip.net>
- <536BE154.2090701@itdev.co.uk>
- <20140509184908.GX12304@sirena.org.uk>
+Subject: Re: [PATCH] input: pcap2: avoid calling mutex_lock() in irq handler
+Date: Mon, 12 May 2014 19:14:56 -0700
+Message-ID: <20140513021456.GE26152@core.coreip.homeip.net>
+References: <1396731290-7062-1-git-send-email-khoroshilov@ispras.ru>
+ <20140406202436.GA16739@core.coreip.homeip.net>
+ <20140406233744.c40387e9bead51ee48e5ebd1@ao2.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:44664 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751559AbaEMBRt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2014 21:17:49 -0400
-Received: by mail-pa0-f44.google.com with SMTP id ld10so9508210pab.31
-        for <linux-input@vger.kernel.org>; Mon, 12 May 2014 18:17:49 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140509184908.GX12304@sirena.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20140406233744.c40387e9bead51ee48e5ebd1@ao2.it>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org, Daniel Ribeiro <drwyrm@gmail.com>, Ilya Petrov <ilya.muromec@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@wwwdotorg.org>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-On Fri, May 09, 2014 at 07:49:08PM +0100, Mark Brown wrote:
-> On Thu, May 08, 2014 at 08:56:04PM +0100, Nick Dyer wrote:
+On Sun, Apr 06, 2014 at 11:37:44PM +0200, Antonio Ospite wrote:
+> On Sun, 6 Apr 2014 13:24:36 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> > Thanks! I had wondered why you had left it, you never communicated this to
-> > me unfortunately. Would it be preferable for me to switch to
-> > request_firmware_nowait() and complete the probe asynchronously after it
-> > returns?
+> > On Sun, Apr 06, 2014 at 12:54:50AM +0400, Alexey Khoroshilov wrote:
+> > > pcap_keys_handler() calls ezx_pcap_read() that calls mutex_lock().
+> > > pcap_keys_handler() is registered as nonthreaded irq handler,
+> > > that means sleeping function is called in irq handler.
+> > > 
+> > > The patch makes a switch to threaded irq handling.
+> > > Compile tested only.
+> > > 
+> > > Found by Linux Driver Verification project (linuxtesting.org).
+> > > 
+> > > Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> > > ---
+> > >  drivers/input/misc/pcap_keys.c | 10 ++++++----
+> > >  1 file changed, 6 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/input/misc/pcap_keys.c b/drivers/input/misc/pcap_keys.c
+> > > index cd230365166e..2a10f3a30969 100644
+> > > --- a/drivers/input/misc/pcap_keys.c
+> > > +++ b/drivers/input/misc/pcap_keys.c
+> > > @@ -79,13 +79,15 @@ static int pcap_keys_probe(struct platform_device *pdev)
+> > >  	if (err)
+> > >  		goto fail_allocate;
+> > >  
+> > > -	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
+> > > -			pcap_keys_handler, 0, "Power key", pcap_keys);
+> > > +	err = request_threaded_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
+> > > +				   NULL, pcap_keys_handler, 0,
+> > > +				   "Power key", pcap_keys);
+> > >  	if (err)
+> > >  		goto fail_register;
+> > >  
+> > > -	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
+> > > -			pcap_keys_handler, 0, "Headphone button", pcap_keys);
+> > > +	err = request_threaded_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
+> > > +				   NULL, pcap_keys_handler, 0,
+> > > +				   "Headphone button", pcap_keys);
+> > 
+> > So I guess we do need threaded IRQ here, but I do not see the pcap's
+> > irqchip specifying IRQCHIP_ONESHOT_SAFE so I do not think
+> > request_threaded_irq() without IRQF_ONESHOT would succeed.
+> > 
+> > Can someone test the change to be sure?
+> > 
 > 
-> Another common option is to defer the firmware request/load until the
-> device is opened, but that doesn't work for all devices.  That should
-> mean that userspace is up and running.
+> I can try to test it in a couple of weeks, I don't have the hardware
+> at hand right now.
 
-That would not work for input devices as firmware quite often defines
-capabilities of the devices and we need them before registering input
-device (which is the object that userspace opens).
+Antonio, did you have a chance to try this out yet?
 
-Thanks.
+Thanks!
 
 -- 
 Dmitry

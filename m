@@ -1,38 +1,41 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: rmi: fix duplicated argument to && or ||
-Date: Tue, 13 May 2014 15:23:34 -0400
-Message-ID: <CAN+gG=F12VK5xwB9UrRXEsOqj0iB8OOdEMwKZKWoSZRYmS29-A@mail.gmail.com>
-References: <1400008501-7165-1-git-send-email-benjamin.tissoires@redhat.com>
-	<alpine.LNX.2.00.1405132118200.16459@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: RE: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO.,
+  LTD.
+Date: Wed, 14 May 2014 00:32:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1405140030270.16459@pobox.suse.cz>
+References: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr> <alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz> <003a01cf488c$ab9c4400$02d4cc00$@afoi.co.kr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f170.google.com ([209.85.217.170]:48800 "EHLO
-	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752689AbaEMTXg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 May 2014 15:23:36 -0400
-In-Reply-To: <alpine.LNX.2.00.1405132118200.16459@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:39899 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751409AbaEMWcr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 May 2014 18:32:47 -0400
+In-Reply-To: <003a01cf488c$ab9c4400$02d4cc00$@afoi.co.kr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dan Carpenter <dan.carpenter@oracle.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: YongHwan Ki <kyhw@afoi.co.kr>
+Cc: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2014 at 3:18 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 13 May 2014, Benjamin Tissoires wrote:
->
->> This resulted from an unfortunate copy/paste.
->>
->> Detected automagically by kbuild.
->>
->> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->
-> I have already fixed this in the tree after seeing Dan's email.
->
-> Thanks, good catch!
+On Wed, 26 Mar 2014, YongHwan Ki wrote:
 
-Hey, thanks to you! :)
+> Sorry, I woud like to add the AFO defines in the Linux Kernel.
+> No afo defines exists in the current kernel tree.
+> I correctly changed the log for adding the afo defines.
+> 
+> Kernel Version : linux-3.14.rc7
+> Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
 
-Cheers,
-Benjamin
+Sorry, but this patch is broken again.
+
+It contains the PRIVATE RSA KEY stuff and 'dontdiff' stuff again.
+
+I can create the patch myself and add your signoff / Reported-by (please 
+let me know if you want me to do that), but it's crucial for you to fix 
+your workflow for any next submission.
+
+Especially the private key disclosure should probably better be avoided :)
+
+-- 
+Jiri Kosina
+SUSE Labs

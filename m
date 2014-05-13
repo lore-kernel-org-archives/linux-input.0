@@ -1,73 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
-Date: Mon, 12 May 2014 18:16:35 -0700
-Message-ID: <20140513011635.GB26152@core.coreip.homeip.net>
+Date: Mon, 12 May 2014 18:17:47 -0700
+Message-ID: <20140513011747.GC26152@core.coreip.homeip.net>
 References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org>
  <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com>
  <536963A0.4060506@wwwdotorg.org>
  <536BAA5A.1010809@itdev.co.uk>
  <536BB3C9.8070908@wwwdotorg.org>
- <536BDFFD.4080009@itdev.co.uk>
- <537128D0.3060005@wwwdotorg.org>
+ <20140508172635.GD11672@core.coreip.homeip.net>
+ <536BE154.2090701@itdev.co.uk>
+ <20140509184908.GX12304@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:37984 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751904AbaEMBQi (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:44664 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751559AbaEMBRt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2014 21:16:38 -0400
-Received: by mail-pa0-f47.google.com with SMTP id lf10so7053049pab.20
-        for <linux-input@vger.kernel.org>; Mon, 12 May 2014 18:16:37 -0700 (PDT)
+	Mon, 12 May 2014 21:17:49 -0400
+Received: by mail-pa0-f44.google.com with SMTP id ld10so9508210pab.31
+        for <linux-input@vger.kernel.org>; Mon, 12 May 2014 18:17:49 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <537128D0.3060005@wwwdotorg.org>
+In-Reply-To: <20140509184908.GX12304@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@wwwdotorg.org>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-On Mon, May 12, 2014 at 02:02:24PM -0600, Stephen Warren wrote:
-> On 05/08/2014 01:50 PM, Nick Dyer wrote:
-> > Stephen Warren wrote:
-> >> Anyway, I'd like to pull these patches into my local repo to build on.
-> >> Can you point me at a tree where Dmitry applied them even if not in
-> >> linux-next? Alternatively, does your github repo contain exactly the
-> >> patches from the recent mailing list posting you linked above?
-> > 
-> > https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/log/?h=atmel-mxt-ts
-> > 
-> > However, I have made minor updates on top of that to take account of API
-> > changes since he worked on them (reinit_completion).
-> > 
-> > The patches I posted at the end of March are the first 22 out of this tag:
-> > 
-> > https://github.com/ndyer/linux/tree/for-next-20140316-v8
+On Fri, May 09, 2014 at 07:49:08PM +0100, Mark Brown wrote:
+> On Thu, May 08, 2014 at 08:56:04PM +0100, Nick Dyer wrote:
 > 
-> I took those 22 patches, applied them on top of next-20150507 (which is
-> just what I happened to be developing on top of right now), and rebased
-> my patches which add DT support. You can find the result here if you want:
+> > Thanks! I had wondered why you had left it, you never communicated this to
+> > me unfortunately. Would it be preferable for me to switch to
+> > request_firmware_nowait() and complete the probe asynchronously after it
+> > returns?
 > 
-> git://github.com/swarren/linux-tegra.git tegra_dev
-> 
-> However, with that code-base, the touchpad doesn't work for me. I see a
-> long pause and errors during boot:
-> 
-> > [    1.246253] atmel_mxt_ts 1-004b: Direct firmware load failed with error -2
-> > [    1.253120] atmel_mxt_ts 1-004b: Falling back to user helper
-> > [   61.394348] atmel_mxt_ts 1-004b: Failure to request config file maxtouch.cfg
-> > [   61.403717] atmel_mxt_ts 1-004b: Family: 130 Variant: 1 Firmware V1.0.AA Objects: 22
-> 
-> ... and the touchpad doesn't work once X starts. With next-20140507 plus
-> the patches I sent to the mailing list, everything works.
-> 
-> I'm not sure if I'm supposed to have some configuration file now and
-> that's why it doesn't work, or whether some other problem has been
-> introduced? If I do need a config file, can you tell me what to put into it?
-> 
-> Thanks for any pointers.
+> Another common option is to defer the firmware request/load until the
+> device is opened, but that doesn't work for all devices.  That should
+> mean that userspace is up and running.
 
-If you build firmware into kernel or build the driver as a module it
-will work, but we do need to solve it general case as well.
+That would not work for input devices as firmware quite often defines
+capabilities of the devices and we need them before registering input
+device (which is the object that userspace opens).
 
 Thanks.
 

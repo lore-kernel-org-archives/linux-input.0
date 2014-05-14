@@ -1,74 +1,68 @@
 From: Maxime Coquelin <maxime.coquelin@st.com>
-Subject: Re: [STLinux Kernel] [PATCH v4 0/7] Add ST Keyscan driver
-Date: Wed, 14 May 2014 10:47:42 +0200
-Message-ID: <53732DAE.5010204@st.com>
-References: <1397228856-9218-1-git-send-email-gabriel.fernandez@linaro.org>
+Subject: Re: [STLinux Kernel] [PATCH v4 2/7] driver: reset: sti: add keyscan
+ for stih415
+Date: Wed, 14 May 2014 10:51:55 +0200
+Message-ID: <53732EAB.1050709@st.com>
+References: <1397228856-9218-1-git-send-email-gabriel.fernandez@linaro.org> <1397228856-9218-3-git-send-email-gabriel.fernandez@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1397228856-9218-1-git-send-email-gabriel.fernandez@linaro.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>
-Cc: devicetree@vger.kernel.org, kernel@stlinux.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Gabriel Fernandez <gabriel.fernandez@linaro.org>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:57892 "EHLO
+	mx08-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752756AbaENIxH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 May 2014 04:53:07 -0400
+In-Reply-To: <1397228856-9218-3-git-send-email-gabriel.fernandez@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Gabriel FERNANDEZ <gabriel.fernandez@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Philipp Zabel <p.zabel@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>, olof Johansson <olof@lixom.net>
+Cc: devicetree@vger.kernel.org, kernel@stlinux.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Gabriel Fernandez <gabriel.fernandez@linaro.org>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Giuseppe Condorelli <giuseppe.condorelli@st.com>
 
-Hi Gabi,
+Hi Philipp,
 
-For the reset and DT patches:
+	I am preparing the arm_soc pull request for STi platforms.
 
-Acked-by: Maxime Coquelin <maxime.coquelin@st.com>
+	In this series, there are DT patches depending on this reset patch 
+(same for patch 3).
 
-Regards,
+	Can I queue theses two reset patches in my pull request for arm_soc to 
+avoid compilation breakage?
+
+Best regards,
 Maxime
 
 On 04/11/2014 05:07 PM, Gabriel FERNANDEZ wrote:
+> Add keyscan reset on stih415 reset controller.
 >
-> Changes in v4:
-> - add reset controller management
-> - rename 'st,debounce_us' into 'st,debounce-us' in dt binding
+> Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@linaro.org>
+> ---
+>   drivers/reset/sti/reset-stih415.c                     | 1 +
+>   include/dt-bindings/reset-controller/stih415-resets.h | 1 +
+>   2 files changed, 2 insertions(+)
 >
-> Changes in v3: (bad manipulation)
+> diff --git a/drivers/reset/sti/reset-stih415.c b/drivers/reset/sti/reset-stih415.c
+> index e6f6c41..c93fd26 100644
+> --- a/drivers/reset/sti/reset-stih415.c
+> +++ b/drivers/reset/sti/reset-stih415.c
+> @@ -73,6 +73,7 @@ static const struct syscfg_reset_channel_data stih415_softresets[] = {
+>   	[STIH415_USB0_SOFTRESET] = STIH415_SRST_REAR(SYSCFG_376, 9),
+>   	[STIH415_USB1_SOFTRESET] = STIH415_SRST_REAR(SYSCFG_376, 10),
+>   	[STIH415_USB2_SOFTRESET] = STIH415_SRST_REAR(SYSCFG_376, 11),
+> +	[STIH415_KEYSCAN_SOFTRESET] = STIH415_SRST_LPM(LPM_SYSCFG_1, 8),
+>   };
 >
-> Changes in v2:
-> - use standard format for matrix keymap
-> - suppress __exit mark for keyscan_remove()
-> - Call to keyscan_stop() shoudl go into keyscan_close() implementation
-> - use of SIMPLE_DEV_PM_OPS()
-> - rename compatibility name into "st,sti-keyscan"
-> - suppress platform data management
-> - omit vendor information
-> - cosmetic change and renaming
+>   static struct syscfg_reset_controller_data stih415_powerdown_controller = {
+> diff --git a/include/dt-bindings/reset-controller/stih415-resets.h b/include/dt-bindings/reset-controller/stih415-resets.h
+> index c2f8a66..c2329fe 100644
+> --- a/include/dt-bindings/reset-controller/stih415-resets.h
+> +++ b/include/dt-bindings/reset-controller/stih415-resets.h
+> @@ -22,5 +22,6 @@
+>   #define STIH415_USB0_SOFTRESET		3
+>   #define STIH415_USB1_SOFTRESET		4
+>   #define STIH415_USB2_SOFTRESET		5
+> +#define STIH415_KEYSCAN_SOFTRESET	6
 >
-> The goal of this series is to add ST Keyscan support to ST SoCs.
-> The DT definition is added for STiH415 and STiH416 SoCs on
-> B2000 board.
->
->
-> Gabriel Fernandez (7):
->    drivers: input: keyboard: st-keyscan: add keyscan driver
->    driver: reset: sti: add keyscan for stih415
->    driver: reset: sti: add keyscan for stih416
->    ARM: STi: DT: add keyscan for stih415
->    ARM: STi: DT: add keyscan for stih416
->    ARM: STi: DT: add keyscan for stih41x-b2000
->    ARM: multi_v7_defconfig: add ST Keyscan driver
->
->   .../devicetree/bindings/input/st-keyscan.txt       |  60 +++++
->   arch/arm/boot/dts/stih415-pinctrl.dtsi             |  16 ++
->   arch/arm/boot/dts/stih415.dtsi                     |  12 +
->   arch/arm/boot/dts/stih416-pinctrl.dtsi             |  16 ++
->   arch/arm/boot/dts/stih416.dtsi                     |  12 +
->   arch/arm/boot/dts/stih41x-b2000.dtsi               |  23 ++
->   arch/arm/configs/multi_v7_defconfig                |   1 +
->   drivers/input/keyboard/Kconfig                     |  12 +
->   drivers/input/keyboard/Makefile                    |   1 +
->   drivers/input/keyboard/st-keyscan.c                | 260 +++++++++++++++++++++
->   drivers/reset/sti/reset-stih415.c                  |   1 +
->   drivers/reset/sti/reset-stih416.c                  |   1 +
->   .../dt-bindings/reset-controller/stih415-resets.h  |   1 +
->   .../dt-bindings/reset-controller/stih416-resets.h  |   1 +
->   14 files changed, 417 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/input/st-keyscan.txt
->   create mode 100644 drivers/input/keyboard/st-keyscan.c
+>   #endif /* _DT_BINDINGS_RESET_CONTROLLER_STIH415 */
 >

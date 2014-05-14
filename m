@@ -1,60 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] synaptics: Add min/max quirk for the ThinkPad W540
-Date: Wed, 14 May 2014 11:11:34 -0700
-Message-ID: <20140514181134.GE30089@core.coreip.homeip.net>
-References: <1400064364-14626-1-git-send-email-hdegoede@redhat.com>
+Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
+Date: Wed, 14 May 2014 11:14:02 -0700
+Message-ID: <20140514181402.GF30089@core.coreip.homeip.net>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
+ <1398524543-15012-2-git-send-email-madcatxster@devoid-pointer.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f51.google.com ([209.85.160.51]:38021 "EHLO
-	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751339AbaENSLi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 May 2014 14:11:38 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1400064364-14626-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1398524543-15012-2-git-send-email-madcatxster@devoid-pointer.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Michal =?iso-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 
-On Wed, May 14, 2014 at 12:46:04PM +0200, Hans de Goede wrote:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1096436
-> 
-> Cc: stable@vger.kernel.org
-> Tested-and-reported-by: ajayr@bigfoot.com
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+On Sat, Apr 26, 2014 at 05:02:00PM +0200, Michal Mal=FD wrote:
+> +
+> +/** input_ff_create_mlnx() - Register a device within ff-memless-nex=
+t and
+> + *                           the kernel force feedback system
+> + * @dev: Pointer to the struct input_dev associated with the device.
+> + * @data: Any device-specific data that shall be passed to the callb=
+ack.
+> + *        function called by ff-memless-next when a force feedback a=
+ction
+> + *        shall be performed.
+> + * @control_effect: Pointer to the callback function.
+> + * @update_date: Delay in milliseconds between two recalculations of=
+ periodic
+> + *               effects, ramp effects and envelopes. Note that this=
+ value will
+> + *               never be lower than (CONFIG_HZ / 1000) + 1 regardle=
+ss of the
+> + *               value specified here. This is not a "hard" rate lim=
+iter.
+> + *               Userspace still can submit effects at a rate faster=
+ than
+> + *               this value.
 
-*growl*
+The update rate change seems useful whether we use new ff implementatio=
+n
+or enhance the old one but I would prefer having a separate call to
+control it.
 
-Applied, thank you.
+Thanks.
 
-> ---
->  drivers/input/mouse/synaptics.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index d68d33f..d4c05b1 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1614,6 +1614,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
->  		.driver_data = (int []){1024, 5112, 2024, 4832},
->  	},
->  	{
-> +		/* Lenovo ThinkPad W540 */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad W540"),
-> +		},
-> +		.driver_data = (int []){1024, 5112, 2024, 4832},
-> +	},
-> +	{
->  		/* Lenovo Yoga S1 */
->  		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> -- 
-> 1.9.0
-> 
-
--- 
+--=20
 Dmitry

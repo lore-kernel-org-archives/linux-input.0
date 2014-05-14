@@ -1,97 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Wed, 14 May 2014 11:07:35 -0700
-Message-ID: <20140514180734.GC30089@core.coreip.homeip.net>
-References: <1398491594-2004-1-git-send-email-shc_work@mail.ru>
- <1398789659.346407871@f204.i.mail.ru>
- <20140506041818.GA32144@core.coreip.homeip.net>
- <1399878902.755384741@f304.i.mail.ru>
+Subject: Re: [PATCH RESEND] input: dts: Add commonly used event types
+Date: Wed, 14 May 2014 11:08:16 -0700
+Message-ID: <20140514180816.GD30089@core.coreip.homeip.net>
+References: <1398490639-18411-1-git-send-email-shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f54.google.com ([209.85.160.54]:42334 "EHLO
-	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750702AbaENSHi (ORCPT
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:39701 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751220AbaENSIT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 May 2014 14:07:38 -0400
-Received: by mail-pb0-f54.google.com with SMTP id jt11so1975649pbb.41
-        for <linux-input@vger.kernel.org>; Wed, 14 May 2014 11:07:37 -0700 (PDT)
+	Wed, 14 May 2014 14:08:19 -0400
 Content-Disposition: inline
-In-Reply-To: <1399878902.755384741@f304.i.mail.ru>
+In-Reply-To: <1398490639-18411-1-git-send-email-shc_work@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, May 12, 2014 at 11:15:02AM +0400, Alexander Shiyan wrote:
-> Mon, 5 May 2014 21:18:18 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmitry.t=
-orokhov@gmail.com>:
-> > On Tue, Apr 29, 2014 at 08:40:59PM +0400, Alexander Shiyan wrote:
-> > > Tue, 29 Apr 2014 09:36:49 -0700 =D0=BE=D1=82 Dmitry Torokhov <dmi=
-try.torokhov@gmail.com>:
-> > > > On Tue, Apr 29, 2014 at 08:24:19PM +0400, Alexander Shiyan wrot=
-e:
-> > > ...
-> > > > > > > > > > On Sat, Apr 26, 2014 at 09:53:13AM +0400, Alexander=
- Shiyan wrote:
-> > > > > > > > > > > Replace existing resource handling in the driver =
-with managed
-> > > > > > > > > > > device resource, this ensures more consistent err=
-or values and
-> > > > > > > > > > > simplifies error paths.
-> > > > > > > > > > > kzalloc -> devm_kzalloc
-> > > > > > > > > > > gpio_request_one -> devm_gpio_request_one
-> > > > > > > ...
-> > > > > > > > > > @@ -162,8 +160,7 @@ static struct gpio_keys_platfor=
-m_data *gpio_keys_polled_get_devtree_pdata(struct
-> > > > > > > > > >  		if (of_property_read_u32(pp, "linux,code", &butt=
-on->code)) {
-> > > > > > > > > >  			dev_err(dev, "Button without keycode: 0x%x\n",
-> > > > > > > > > >  				button->gpio);
-> > > > > > > > > > -			error =3D -EINVAL;
-> > > > > > > > > > -			goto err_free_pdata;
-> > > > > > > > > > +			return ERR_PTR(-EINVAL);
-> > > > > > > > > >  		}
-> > > > > > > > >=20
-> > > > > > > > > We can even use return value from of_property_read_u3=
-2() on error.
-> > > > > > > > >=20
-> > > > > > > > > All other looks OK.
-> > > > > > > >=20
-> > > > > > > > Do you have hardware that uses gpio_keys_polled?
-> > > > > > >=20
-> > > > > > > Yes.
-> > > > > >=20
-> > > > > > So did you have a chance to actually try my version(s)? I w=
-ould feel
-> > > > > > much better if you had ;)
-> > > > >=20
-> > > > > Unfortunately, due to the large following weekends, I cannot =
-do it earlier
-> > > > > than 2 weeks.
-> > > >=20
-> > > > That is fine, there is no rush.
-> > >=20
-> > > OK. In this case it would be nice to have a separate branch with =
-poll-series
-> > > and this patch. Can you make it?
-> >=20
-> > I just pushed new input-polldev branch containing input polldev cha=
-nges
-> > and your patches to gpio-keys and gpio-keys-polled. It is based on =
-3.14.
->=20
-> This works for me as expected, so:
->=20
-> Tested-by: Alexander Shiyan <shc_work@mail.ru>
+On Sat, Apr 26, 2014 at 09:37:19AM +0400, Alexander Shiyan wrote:
+> Patch adds commonly used event types (EV_KEY and EV_SW) to
+> devicetree bindings header for input subsystem.
+> 
+> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 
-Thank you Alexander, I queued them all for the next merge window.
+Will DT folks pick it up please?
 
---=20
+> ---
+>  include/dt-bindings/input/input.h | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/include/dt-bindings/input/input.h b/include/dt-bindings/input/input.h
+> index 042e7b3..3a141d92 100644
+> --- a/include/dt-bindings/input/input.h
+> +++ b/include/dt-bindings/input/input.h
+> @@ -9,6 +9,9 @@
+>  #ifndef _DT_BINDINGS_INPUT_INPUT_H
+>  #define _DT_BINDINGS_INPUT_INPUT_H
+>  
+> +#define EV_KEY			0x01
+> +#define EV_SW			0x05
+> +
+>  #define KEY_RESERVED		0
+>  #define KEY_ESC			1
+>  #define KEY_1			2
+> -- 
+> 1.8.3.2
+> 
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

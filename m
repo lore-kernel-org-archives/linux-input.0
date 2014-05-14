@@ -1,51 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] input: dts: Add commonly used event types
-Date: Wed, 14 May 2014 11:08:16 -0700
-Message-ID: <20140514180816.GD30089@core.coreip.homeip.net>
-References: <1398490639-18411-1-git-send-email-shc_work@mail.ru>
+Subject: Re: [PATCH] synaptics: Add min/max quirk for the ThinkPad W540
+Date: Wed, 14 May 2014 11:11:34 -0700
+Message-ID: <20140514181134.GE30089@core.coreip.homeip.net>
+References: <1400064364-14626-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:39701 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751220AbaENSIT (ORCPT
+Received: from mail-pb0-f51.google.com ([209.85.160.51]:38021 "EHLO
+	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751339AbaENSLi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 May 2014 14:08:19 -0400
+	Wed, 14 May 2014 14:11:38 -0400
 Content-Disposition: inline
-In-Reply-To: <1398490639-18411-1-git-send-email-shc_work@mail.ru>
+In-Reply-To: <1400064364-14626-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 
-On Sat, Apr 26, 2014 at 09:37:19AM +0400, Alexander Shiyan wrote:
-> Patch adds commonly used event types (EV_KEY and EV_SW) to
-> devicetree bindings header for input subsystem.
+On Wed, May 14, 2014 at 12:46:04PM +0200, Hans de Goede wrote:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1096436
 > 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+> Cc: stable@vger.kernel.org
+> Tested-and-reported-by: ajayr@bigfoot.com
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Will DT folks pick it up please?
+*growl*
+
+Applied, thank you.
 
 > ---
->  include/dt-bindings/input/input.h | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/input/mouse/synaptics.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
-> diff --git a/include/dt-bindings/input/input.h b/include/dt-bindings/input/input.h
-> index 042e7b3..3a141d92 100644
-> --- a/include/dt-bindings/input/input.h
-> +++ b/include/dt-bindings/input/input.h
-> @@ -9,6 +9,9 @@
->  #ifndef _DT_BINDINGS_INPUT_INPUT_H
->  #define _DT_BINDINGS_INPUT_INPUT_H
->  
-> +#define EV_KEY			0x01
-> +#define EV_SW			0x05
-> +
->  #define KEY_RESERVED		0
->  #define KEY_ESC			1
->  #define KEY_1			2
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index d68d33f..d4c05b1 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -1614,6 +1614,14 @@ static const struct dmi_system_id min_max_dmi_table[] __initconst = {
+>  		.driver_data = (int []){1024, 5112, 2024, 4832},
+>  	},
+>  	{
+> +		/* Lenovo ThinkPad W540 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad W540"),
+> +		},
+> +		.driver_data = (int []){1024, 5112, 2024, 4832},
+> +	},
+> +	{
+>  		/* Lenovo Yoga S1 */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 > -- 
-> 1.8.3.2
+> 1.9.0
 > 
 
 -- 

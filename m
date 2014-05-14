@@ -1,46 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: pxa27x-keypad: bug fix of getting scan code
-Date: Tue, 13 May 2014 23:12:05 -0700
-Message-ID: <20140514061205.GA13621@core.coreip.homeip.net>
-References: <1390797697-29217-1-git-send-email-chao.xie@marvell.com>
+Subject: Re: [PATCH] input: Request a shared interrupt for AMBA KMI devices.
+Date: Tue, 13 May 2014 23:19:20 -0700
+Message-ID: <20140514061920.GB13621@core.coreip.homeip.net>
+References: <1399553053-20305-1-git-send-email-broonie@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:54133 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751107AbaENGMJ (ORCPT
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:54146 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752012AbaENGTY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 May 2014 02:12:09 -0400
-Received: by mail-pb0-f42.google.com with SMTP id md12so891279pbc.15
-        for <linux-input@vger.kernel.org>; Tue, 13 May 2014 23:12:09 -0700 (PDT)
+	Wed, 14 May 2014 02:19:24 -0400
+Received: by mail-pb0-f45.google.com with SMTP id um1so1272416pbc.32
+        for <linux-input@vger.kernel.org>; Tue, 13 May 2014 23:19:24 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1390797697-29217-1-git-send-email-chao.xie@marvell.com>
+In-Reply-To: <1399553053-20305-1-git-send-email-broonie@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chao Xie <chao.xie@marvell.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, xiechao.mail@gmail.com
+To: Mark Brown <broonie@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>, linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Liviu Dudau <Liviu.Dudau@arm.com>, Mark Brown <broonie@linaro.org>
 
-On Mon, Jan 27, 2014 at 12:41:37PM +0800, Chao Xie wrote:
-> From: Chao Xie <chao.xie@marvell.com>
+On Thu, May 08, 2014 at 01:44:13PM +0100, Mark Brown wrote:
+> From: Liviu Dudau <Liviu.Dudau@arm.com>
 > 
-> The rows of pxa27x-keypad used by each boards are not fixed.
-> So in the driver, it will get the rows from DT and register
-> the keymap as:
-> matrix_keypad_build_keymap(keymap_data, NULL,
->                            pdata->matrix_key_rows,
->                            pdata->matrix_key_cols,
->                            keypad->keycodes, input_dev);
+> Recent ARM boards have the KMI devices share one interrupt line rather
+> than having dedicated IRQs. Update the driver to take that into account.
 > 
-> But the scan code is gotten as
-> MATRIX_SCAN_CODE(row, col, MATRIX_ROW_SHIFT);
-> It is not correct. Fix it as
-> MATRIX_SCAN_CODE(row, col, keypad->row_shift);
-> 
-> row_shift is calculated from pdata->matrix_key_rows.
-> 
-> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
+> Signed-off-by: Mark Brown <broonie@linaro.org>
 
-Applied with minor edits, thank you.
+Applied, thank you.
+
+> ---
+>  drivers/input/serio/ambakmi.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
+> index 762b08432de0..8b748d99b934 100644
+> --- a/drivers/input/serio/ambakmi.c
+> +++ b/drivers/input/serio/ambakmi.c
+> @@ -79,7 +79,8 @@ static int amba_kmi_open(struct serio *io)
+>  	writeb(divisor, KMICLKDIV);
+>  	writeb(KMICR_EN, KMICR);
+>  
+> -	ret = request_irq(kmi->irq, amba_kmi_int, 0, "kmi-pl050", kmi);
+> +	ret = request_irq(kmi->irq, amba_kmi_int, IRQF_SHARED, "kmi-pl050",
+> +			  kmi);
+>  	if (ret) {
+>  		printk(KERN_ERR "kmi: failed to claim IRQ%d\n", kmi->irq);
+>  		writeb(0, KMICR);
+> -- 
+> 2.0.0.rc2
+> 
 
 -- 
 Dmitry

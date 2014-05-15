@@ -1,64 +1,51 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCHv3 0/5] tsc2005 DT binding
-Date: Thu, 15 May 2014 16:23:16 +0200
-Message-ID: <20140515142315.GA15716@earth.universe>
-References: <1398470179-20880-1-git-send-email-sre@kernel.org>
+From: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v4 6/9] regulator: AXP20x: Add support for
+ regulators subsystem
+Date: Thu, 15 May 2014 20:03:06 +0200
+Message-ID: <5375015A.10701@free-electrons.com>
+References: <1397209093-10077-1-git-send-email-carlo@caione.org> <1397209093-10077-7-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.19.201]:50132 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751956AbaEOOXY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 May 2014 10:23:24 -0400
-Content-Disposition: inline
-In-Reply-To: <1398470179-20880-1-git-send-email-sre@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBCIPJ6FA2QLBBXEC2SNQKGQEXOXZ67Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1397209093-10077-7-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hello Carlo,
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 11/04/2014 11:38, Carlo Caione wrote:
+> AXP202 and AXP209 come with two synchronous step-down DC-DCs and five
+> LDOs. This patch introduces basic support for those regulators.
+>
+> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/regulator/Kconfig            |   7 +
+>  drivers/regulator/Makefile           |   1 +
+[...]
+> +	if (!np)
+> +		return 0;
+> +
+> +	regulators = of_find_node_by_name(np, "regulators");
 
-On Sat, Apr 26, 2014 at 01:56:14AM +0200, Sebastian Reichel wrote:
-> This adds device tree support for the tsc2005 touchscreen
-> controller, which is currently only used by the Nokia N900
-> board.
->=20
-> The patch does not update the reset pin handling for platform
-> data based probe to avoid merge conflicts. The n900 platform
-> code will be removed in the near future (3.16?) and the driver
-> can be simplified once that has happened.
+I know I'm late, and this patch has already been applied, but shouldn't
+we use of_get_child_by_name instead of of_find_node_by_name.
+This might lead to wrong regulators node parsing if other regulators are
+defined in the DT after the axp20x node, because, AFAIK, this function
+searches for DT nodes defined after the specified np node, but not
+necessarely children of the np node.
 
-Ping. It would be nice to see this patchset in 3.16, since its
-the last important hardware component missing for N900 DT boot.
+Best Regards,
 
--- Sebastian
+Boris
 
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJTdM3TAAoJENju1/PIO/qahKkQAInrLPv8Si/nxIsWEynE8RYm
-YjHrOzkU0EiN/RPB3DT1wZNSnAHgJ9dEiAtuhjGYBssE5pyJIdTFG7LHrd3x2jvD
-pS2pNlt8ifzzaLoB+a3j9d+QGhDejJqJ4sJKUmxSDga4fKnyKpsruV3nOM6WBruy
-vSisJKT7pK9Rqq80vtKfISN1TTs0qAnN8RXb0oNoyesrVNOHzwqn5h3impuBJ0k5
-/hd/bL3MR1F5t7MbhONYuK0UIGyTDFAkZXndCmOu90f0TOeVc/oGx0HQMEUjZSv4
-3Vb/RRQTJEzoQ1vXVpiOcZ7baa/FnzF/eONt0+bRDKsrk8/THtXdAtODeZWsVzYG
-Ey/lIco41Z1A2vRhe4umzOsG/rFszk8xYKSPAXNUaEqvAB44Dq7jQlp+nqcG0JYM
-3Spn/pLyba1HFr/c0ftTovyEWDvqpUrtoUhZZS1cOu+PqHGPa4jV2LIR29rqIDdq
-GuHE0ZQrvZuz3IzUC0m1TfTLeGBKMerjEAjZW+WxyrI0VJ6i9aGKx8X9rO7FiHNx
-BusBvlSj0+NvNPwq6bleOdaGbwB35ZZGmAPo7GLUm+asbCoQii6bAHHo4wStR1xS
-MNRRFsysWdbqfrKGHR3INGD8EzFXWrk+/AL/B6YiUqp7JPj8g3L7Uf+ow45EuN0H
-lMWsoixXgkxqzhtj1aOy
-=cPDq
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
+-- 
+Boris Brezillon, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

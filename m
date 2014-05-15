@@ -1,39 +1,322 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: Re: [PATCHv3 0/5] tsc2005 DT binding
-Date: Thu, 15 May 2014 22:16:31 +0300
-Message-ID: <20140515191631.GA4752@drone.musicnaut.iki.fi>
-References: <1398470179-20880-1-git-send-email-sre@kernel.org>
- <20140515142315.GA15716@earth.universe>
+From: Sarah Bessmer <aotos@fastmail.fm>
+Subject: [PATCH RFC] Input: xpad: Prevent corruption of urb request.
+Date: Thu, 15 May 2014 13:51:38 -0700
+Message-ID: <20140515135138.0ddddcbf@willow>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140515142315.GA15716@earth.universe>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:48385 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754824AbaEOUhq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 May 2014 16:37:46 -0400
+Received: from compute2.internal (compute2.nyi.mail.srv.osa [10.202.2.42])
+	by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 156A62167C
+	for <linux-input@vger.kernel.org>; Thu, 15 May 2014 16:37:42 -0400 (EDT)
+Received: from willow (unknown [75.175.110.81])
+	by mail.messagingengine.com (Postfix) with ESMTPA id F1CCB68013B
+	for <linux-input@vger.kernel.org>; Thu, 15 May 2014 16:37:41 -0400 (EDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi,
+xpad_play_effect() can easily be called faster than the rumble force-feedback urb request can complete,
+which will cause corruption of the urb request and can eventually lead to a kernel panic.
 
-On Thu, May 15, 2014 at 04:23:16PM +0200, Sebastian Reichel wrote:
-> On Sat, Apr 26, 2014 at 01:56:14AM +0200, Sebastian Reichel wrote:
-> > This adds device tree support for the tsc2005 touchscreen
-> > controller, which is currently only used by the Nokia N900
-> > board.
-> > 
-> > The patch does not update the reset pin handling for platform
-> > data based probe to avoid merge conflicts. The n900 platform
-> > code will be removed in the near future (3.16?) and the driver
-> > can be simplified once that has happened.
-> 
-> Ping. It would be nice to see this patchset in 3.16, since its
-> the last important hardware component missing for N900 DT boot.
+This patch prevents that from happening, deferring rumble(and LED) updates to the urb request completion routine.
 
-FWIW, for all these patches feel free to add:
 
-	Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Patch was tested against a Logitech F510.  (I was unable to test any LED functionality)
 
-Thanks for great work,
 
-A.
+Signed-off-by: Sarah Bessmer <aotos@fastmail.fm>
+---
+--- linux-3.14.4/drivers/input/joystick/xpad.c.orig	2014-05-15 13:13:39.000000000 -0700
++++ linux-3.14.4/drivers/input/joystick/xpad.c	2014-05-15 13:28:09.000000000 -0700
+@@ -78,6 +78,7 @@
+ #include <linux/stat.h>
+ #include <linux/module.h>
+ #include <linux/usb/input.h>
++#include <linux/spinlock.h>
+ 
+ #define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
+ #define DRIVER_DESC "X-Box pad driver"
+@@ -282,7 +283,15 @@ struct usb_xpad {
+ 	struct urb *irq_out;		/* urb for interrupt out report */
+ 	unsigned char *odata;		/* output data */
+ 	dma_addr_t odata_dma;
+-	struct mutex odata_mutex;
++	int odata_busy;
++
++	spinlock_t pend_lock;
++
++	unsigned pend_rum;
++	unsigned char rum_data[XPAD_PKT_LEN];
++
++	unsigned pend_led;
++	unsigned char led_data[XPAD_PKT_LEN];
+ #endif
+ 
+ #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+@@ -541,12 +550,36 @@ static void xpad_irq_out(struct urb *urb
+ 	struct usb_xpad *xpad = urb->context;
+ 	struct device *dev = &xpad->intf->dev;
+ 	int retval, status;
++	unsigned long flags;
+ 
+ 	status = urb->status;
+ 
+ 	switch (status) {
+ 	case 0:
+ 		/* success */
++		xpad->irq_out->transfer_buffer_length = 0;
++
++		spin_lock_irqsave(&xpad->pend_lock, flags);
++		if (xpad->pend_rum != 0) {
++			memcpy(xpad->odata, xpad->rum_data, xpad->pend_rum);
++			xpad->irq_out->transfer_buffer_length = xpad->pend_rum;
++			xpad->pend_rum = 0;
++		} else if (xpad->pend_led != 0) {
++			memcpy(xpad->odata, xpad->led_data, xpad->pend_led);
++			xpad->irq_out->transfer_buffer_length = xpad->pend_led;
++			xpad->pend_led = 0;
++		} else {
++			xpad->odata_busy = 0;
++		}
++		spin_unlock_irqrestore(&xpad->pend_lock, flags);
++
++		if (xpad->irq_out->transfer_buffer_length != 0) {
++			if (usb_submit_urb(xpad->irq_out, GFP_ATOMIC) != 0) {
++				spin_lock_irqsave(&xpad->pend_lock, flags);
++				xpad->odata_busy = 0;
++				spin_unlock_irqrestore(&xpad->pend_lock, flags);
++			}
++		}
+ 		return;
+ 
+ 	case -ECONNRESET:
+@@ -555,19 +588,27 @@ static void xpad_irq_out(struct urb *urb
+ 		/* this urb is terminated, clean up */
+ 		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
+ 			__func__, status);
++
++		spin_lock_irqsave(&xpad->pend_lock, flags);
++		xpad->odata_busy = 0;
++		spin_unlock_irqrestore(&xpad->pend_lock, flags);
+ 		return;
+ 
+ 	default:
+ 		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
+ 			__func__, status);
+-		goto exit;
+-	}
+ 
+-exit:
+-	retval = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (retval)
+-		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
+-			__func__, retval);
++		retval = usb_submit_urb(urb, GFP_ATOMIC);
++		if (retval) {
++			dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
++				__func__, retval);
++			spin_lock_irqsave(&xpad->pend_lock, flags);
++			xpad->odata_busy = 0;
++			spin_unlock_irqrestore(&xpad->pend_lock, flags);
++		}
++
++		return;
++	}
+ }
+ 
+ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+@@ -585,7 +626,12 @@ static int xpad_init_output(struct usb_i
+ 		goto fail1;
+ 	}
+ 
+-	mutex_init(&xpad->odata_mutex);
++	xpad->odata_busy = 0;
++
++	spin_lock_init(&xpad->pend_lock);
++
++	xpad->pend_rum = 0;
++	xpad->pend_led = 0;
+ 
+ 	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!xpad->irq_out) {
+@@ -628,61 +674,91 @@ static void xpad_stop_output(struct usb_
+ #endif
+ 
+ #ifdef CONFIG_JOYSTICK_XPAD_FF
++static int xpad_make_rum_data(struct usb_xpad *xpad, __u16 strong, __u16 weak)
++{
++	switch (xpad->xtype) {
++
++	case XTYPE_XBOX:
++		xpad->rum_data[0] = 0x00;
++		xpad->rum_data[1] = 0x06;
++		xpad->rum_data[2] = 0x00;
++		xpad->rum_data[3] = strong / 256;	/* left actuator */
++		xpad->rum_data[4] = 0x00;
++		xpad->rum_data[5] = weak / 256;	/* right actuator */
++		xpad->pend_rum = 6;
++		return 0;
++
++
++	case XTYPE_XBOX360:
++		xpad->rum_data[0] = 0x00;
++		xpad->rum_data[1] = 0x08;
++		xpad->rum_data[2] = 0x00;
++		xpad->rum_data[3] = strong / 256;  /* left actuator? */
++		xpad->rum_data[4] = weak / 256;	/* right actuator? */
++		xpad->rum_data[5] = 0x00;
++		xpad->rum_data[6] = 0x00;
++		xpad->rum_data[7] = 0x00;
++		xpad->pend_rum = 8;
++		return 0;
++
++	case XTYPE_XBOX360W:
++		xpad->rum_data[0] = 0x00;
++		xpad->rum_data[1] = 0x01;
++		xpad->rum_data[2] = 0x0F;
++		xpad->rum_data[3] = 0xC0;
++		xpad->rum_data[4] = 0x00;
++		xpad->rum_data[5] = strong / 256;
++		xpad->rum_data[6] = weak / 256;
++		xpad->rum_data[7] = 0x00;
++		xpad->rum_data[8] = 0x00;
++		xpad->rum_data[9] = 0x00;
++		xpad->rum_data[10] = 0x00;
++		xpad->rum_data[11] = 0x00;
++		xpad->pend_rum = 12;
++		return 0;
++
++	}
++	return -1;
++}
++
+ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+ {
+ 	struct usb_xpad *xpad = input_get_drvdata(dev);
+ 
+ 	if (effect->type == FF_RUMBLE) {
+-		__u16 strong = effect->u.rumble.strong_magnitude;
+-		__u16 weak = effect->u.rumble.weak_magnitude;
+-
+-		switch (xpad->xtype) {
++		unsigned long flags;
++		int mrdrv;
+ 
+-		case XTYPE_XBOX:
+-			xpad->odata[0] = 0x00;
+-			xpad->odata[1] = 0x06;
+-			xpad->odata[2] = 0x00;
+-			xpad->odata[3] = strong / 256;	/* left actuator */
+-			xpad->odata[4] = 0x00;
+-			xpad->odata[5] = weak / 256;	/* right actuator */
+-			xpad->irq_out->transfer_buffer_length = 6;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		case XTYPE_XBOX360:
+-			xpad->odata[0] = 0x00;
+-			xpad->odata[1] = 0x08;
+-			xpad->odata[2] = 0x00;
+-			xpad->odata[3] = strong / 256;  /* left actuator? */
+-			xpad->odata[4] = weak / 256;	/* right actuator? */
+-			xpad->odata[5] = 0x00;
+-			xpad->odata[6] = 0x00;
+-			xpad->odata[7] = 0x00;
+-			xpad->irq_out->transfer_buffer_length = 8;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		case XTYPE_XBOX360W:
+-			xpad->odata[0] = 0x00;
+-			xpad->odata[1] = 0x01;
+-			xpad->odata[2] = 0x0F;
+-			xpad->odata[3] = 0xC0;
+-			xpad->odata[4] = 0x00;
+-			xpad->odata[5] = strong / 256;
+-			xpad->odata[6] = weak / 256;
+-			xpad->odata[7] = 0x00;
+-			xpad->odata[8] = 0x00;
+-			xpad->odata[9] = 0x00;
+-			xpad->odata[10] = 0x00;
+-			xpad->odata[11] = 0x00;
+-			xpad->irq_out->transfer_buffer_length = 12;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
++		spin_lock_irqsave(&xpad->pend_lock, flags);
++		mrdrv = xpad_make_rum_data(xpad, effect->u.rumble.strong_magnitude,
++						effect->u.rumble.weak_magnitude);
++
++		if (mrdrv == 0 && !xpad->odata_busy) {
++			memcpy(xpad->odata, xpad->rum_data, xpad->pend_rum);
++			xpad->irq_out->transfer_buffer_length = xpad->pend_rum;
++			xpad->pend_rum = 0;
++			xpad->odata_busy = 1;
++			spin_unlock_irqrestore(&xpad->pend_lock, flags);
++
++			if (usb_submit_urb(xpad->irq_out, GFP_ATOMIC) != 0) {
++				spin_lock_irqsave(&xpad->pend_lock, flags);
++				xpad->odata_busy = 0;
++				spin_unlock_irqrestore(&xpad->pend_lock, flags);
++			}
++		} else {
++			spin_unlock_irqrestore(&xpad->pend_lock, flags);
++
++			if (mrdrv == 0) {
++				dev_dbg(&xpad->dev->dev,
++					"%s - rumble while urb busy\n", __func__);
++			}
++		}
+ 
+-		default:
++		if (mrdrv != 0) {
+ 			dev_dbg(&xpad->dev->dev,
+ 				"%s - rumble command sent to unsupported xpad type: %d\n",
+ 				__func__, xpad->xtype);
++
+ 			return -1;
+ 		}
+ 	}
+@@ -716,13 +792,30 @@ struct xpad_led {
+ static void xpad_send_led_command(struct usb_xpad *xpad, int command)
+ {
+ 	if (command >= 0 && command < 14) {
+-		mutex_lock(&xpad->odata_mutex);
+-		xpad->odata[0] = 0x01;
+-		xpad->odata[1] = 0x03;
+-		xpad->odata[2] = command;
+-		xpad->irq_out->transfer_buffer_length = 3;
+-		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+-		mutex_unlock(&xpad->odata_mutex);
++		unsigned long flags;
++
++		spin_lock_irqsave(&xpad->pend_lock, flags);
++		xpad->led_data[0] = 0x01;
++		xpad->led_data[1] = 0x03;
++		xpad->led_data[2] = command;
++		xpad->pend_led = 3;
++
++		if (!xpad->odata_busy) {
++			memcpy(xpad->odata, xpad->led_data, xpad->pend_led);
++			xpad->irq_out->transfer_buffer_length = xpad->pend_led;
++			xpad->pend_led = 0;
++			xpad->odata_busy = 1;
++			spin_unlock_irqrestore(&xpad->pend_lock, flags);
++
++			if (usb_submit_urb(xpad->irq_out, GFP_KERNEL) != 0) {
++				spin_lock_irqsave(&xpad->pend_lock, flags);
++				xpad->odata_busy = 0;
++				spin_unlock_irqrestore(&xpad->pend_lock, flags);
++			}
++		} else {
++			spin_unlock_irqrestore(&xpad->pend_lock, flags);
++			dev_dbg(&xpad->dev->dev, "%s - led while urb busy\n", __func__);
++		}
+ 	}
+ }
+ 

@@ -1,65 +1,104 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/3] synaptics: Add a matches_pnp_id helper function
-Date: Fri, 16 May 2014 20:46:48 +0200
-Message-ID: <1400266009-5436-3-git-send-email-hdegoede@redhat.com>
-References: <1400266009-5436-1-git-send-email-hdegoede@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1400266009-5436-1-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] Input: Introduce the use of the managed version of kzalloc
+Date: Sat, 17 May 2014 00:58:02 +0530
+Message-ID: <20140516192802.GA16211@himangi-Dell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:56930 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754932AbaEPT2J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 May 2014 15:28:09 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-This is a preparation patch for simplifying the min/max quirk table.
+This patch moves data allocated using kzalloc to managed data allocated
+using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+functions.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+The following Coccinelle semantic patch was used for making the change:
+
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
+
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
+
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
+
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
 ---
- drivers/input/mouse/synaptics.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+Can I make the code simpler by changing the code:
+        poll_dev = input_allocate_polled_device();
+        if (!poll_dev) {
+                error = -ENOMEM;
+                goto failed;
+        }
+to have only return -ENOMEM as there is no error message for failure of
+kzalloc and the call to input_free_polled_device does nothing when
+poll_dev is null.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 898e8bb..395ec9c 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -156,6 +156,18 @@ static const char * const topbuttonpad_pnp_ids[] = {
- 	NULL
- };
+ drivers/input/keyboard/jornada680_kbd.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/keyboard/jornada680_kbd.c b/drivers/input/keyboard/jornada680_kbd.c
+index 69b1f00..02c8f5b 100644
+--- a/drivers/input/keyboard/jornada680_kbd.c
++++ b/drivers/input/keyboard/jornada680_kbd.c
+@@ -185,7 +185,8 @@ static int jornada680kbd_probe(struct platform_device *pdev)
+ 	struct input_dev *input_dev;
+ 	int i, error;
  
-+static bool matches_pnp_id(struct psmouse *psmouse, const char * const ids[])
-+{
-+	int i;
-+
-+	if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4))
-+		for (i = 0; ids[i]; i++)
-+			if (strstr(psmouse->ps2dev.serio->firmware_id, ids[i]))
-+				return true;
-+
-+	return false;
-+}
-+
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -1365,17 +1377,8 @@ static void set_input_params(struct psmouse *psmouse,
+-	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
++	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(struct jornadakbd),
++				  GFP_KERNEL);
+ 	if (!jornadakbd)
+ 		return -ENOMEM;
  
- 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
--		/* See if this buttonpad has a top button area */
--		if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4)) {
--			for (i = 0; topbuttonpad_pnp_ids[i]; i++) {
--				if (strstr(psmouse->ps2dev.serio->firmware_id,
--					   topbuttonpad_pnp_ids[i])) {
--					__set_bit(INPUT_PROP_TOPBUTTONPAD,
--						  dev->propbit);
--					break;
--				}
--			}
--		}
-+		if (matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
-+			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
- 		/* Clickpads report only left button */
- 		__clear_bit(BTN_RIGHT, dev->keybit);
- 		__clear_bit(BTN_MIDDLE, dev->keybit);
+@@ -233,7 +234,6 @@ static int jornada680kbd_probe(struct platform_device *pdev)
+ 	printk(KERN_ERR "Jornadakbd: failed to register driver, error: %d\n",
+ 		error);
+ 	input_free_polled_device(poll_dev);
+-	kfree(jornadakbd);
+ 	return error;
+ 
+ }
+@@ -244,7 +244,6 @@ static int jornada680kbd_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_polled_device(jornadakbd->poll_dev);
+ 	input_free_polled_device(jornadakbd->poll_dev);
+-	kfree(jornadakbd);
+ 
+ 	return 0;
+ }
 -- 
-1.9.0
+1.9.1
+

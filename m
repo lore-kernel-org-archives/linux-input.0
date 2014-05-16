@@ -1,104 +1,49 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] Input: Introduce the use of the managed version of kzalloc
-Date: Sat, 17 May 2014 00:58:02 +0530
-Message-ID: <20140516192802.GA16211@himangi-Dell>
+From: "Kieran Kunhya" <kierank@obe.tv>
+Subject: usbhid: PicoLCD 256x64 USB error -71
+Date: Fri, 16 May 2014 23:28:41 +0100
+Message-ID: <032001cf7156$31a75610$94f60230$@obe.tv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:56930 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754932AbaEPT2J (ORCPT
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:64942 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752758AbaEPW2m convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 May 2014 15:28:09 -0400
-Content-Disposition: inline
+	Fri, 16 May 2014 18:28:42 -0400
+Received: by mail-wg0-f41.google.com with SMTP id z12so5482457wgg.0
+        for <linux-input@vger.kernel.org>; Fri, 16 May 2014 15:28:40 -0700 (PDT)
+Received: from KieranPC (cpc1-aztw23-2-0-cust1.aztw.cable.virginm.net. [77.98.155.2])
+        by mx.google.com with ESMTPSA id dn1sm597343wid.6.2014.05.16.15.28.39
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Fri, 16 May 2014 15:28:39 -0700 (PDT)
+Content-Language: en-gb
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+To: linux-input@vger.kernel.org
 
-This patch moves data allocated using kzalloc to managed data allocated
-using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
-functions.
+As requested I forward my bug report to the list:
 
-The following Coccinelle semantic patch was used for making the change:
+=46rom time to time on an ASRock IMB-181D motherboard this device fails=
+ to be
+added.=A0
+It seems to work reliably when using Windows 7.=A0
+The errors in dmesg vary but usually take the form:=A0
+[=A0 5.328040] usb 3-7: string descriptor 0 read error: -71=A0
+(snip)=A0
+[=A0 10.333605] usbhid 3-7:1.0: can't add hid device: -71=A0
+[=A0 10.333639] usbhid: probe of 3-7:1.0 failed with error -71=A0
+I can provide a PicoLCD unit if necessary and possibly also fund a
+fix/workaround.
 
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
+More information is available here:
+https://bugzilla.kernel.org/show_bug.cgi?id=3D76341
 
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
+Kieran Kunhya
 
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
-
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-Acked-by: Julia Lawall <julia.lawall@lip6.fr>
----
-Can I make the code simpler by changing the code:
-        poll_dev = input_allocate_polled_device();
-        if (!poll_dev) {
-                error = -ENOMEM;
-                goto failed;
-        }
-to have only return -ENOMEM as there is no error message for failure of
-kzalloc and the call to input_free_polled_device does nothing when
-poll_dev is null.
-
- drivers/input/keyboard/jornada680_kbd.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/keyboard/jornada680_kbd.c b/drivers/input/keyboard/jornada680_kbd.c
-index 69b1f00..02c8f5b 100644
---- a/drivers/input/keyboard/jornada680_kbd.c
-+++ b/drivers/input/keyboard/jornada680_kbd.c
-@@ -185,7 +185,8 @@ static int jornada680kbd_probe(struct platform_device *pdev)
- 	struct input_dev *input_dev;
- 	int i, error;
- 
--	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
-+	jornadakbd = devm_kzalloc(&pdev->dev, sizeof(struct jornadakbd),
-+				  GFP_KERNEL);
- 	if (!jornadakbd)
- 		return -ENOMEM;
- 
-@@ -233,7 +234,6 @@ static int jornada680kbd_probe(struct platform_device *pdev)
- 	printk(KERN_ERR "Jornadakbd: failed to register driver, error: %d\n",
- 		error);
- 	input_free_polled_device(poll_dev);
--	kfree(jornadakbd);
- 	return error;
- 
- }
-@@ -244,7 +244,6 @@ static int jornada680kbd_remove(struct platform_device *pdev)
- 
- 	input_unregister_polled_device(jornadakbd->poll_dev);
- 	input_free_polled_device(jornadakbd->poll_dev);
--	kfree(jornadakbd);
- 
- 	return 0;
- }
--- 
-1.9.1
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

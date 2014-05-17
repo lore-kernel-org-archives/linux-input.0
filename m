@@ -1,46 +1,51 @@
-From: "Kieran Kunhya" <kierank@obe.tv>
-Subject: usbhid: PicoLCD 256x64 USB error -71
-Date: Fri, 16 May 2014 23:28:41 +0100
-Message-ID: <032001cf7156$31a75610$94f60230$@obe.tv>
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: [PATCH 0/2] dell-wmi: Add support for Fn key combinations
+Date: Sat, 17 May 2014 16:43:35 +0200
+Message-ID: <1400337817-14473-1-git-send-email-pali.rohar@gmail.com>
+References: <201405171639.45722@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:64942 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752758AbaEPW2m convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:50729 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757116AbaEQOoV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 May 2014 18:28:42 -0400
-Received: by mail-wg0-f41.google.com with SMTP id z12so5482457wgg.0
-        for <linux-input@vger.kernel.org>; Fri, 16 May 2014 15:28:40 -0700 (PDT)
-Received: from KieranPC (cpc1-aztw23-2-0-cust1.aztw.cable.virginm.net. [77.98.155.2])
-        by mx.google.com with ESMTPSA id dn1sm597343wid.6.2014.05.16.15.28.39
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Fri, 16 May 2014 15:28:39 -0700 (PDT)
-Content-Language: en-gb
+	Sat, 17 May 2014 10:44:21 -0400
+In-Reply-To: <201405171639.45722@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-hotplug@vger.kernel.org, Matthew Garrett <mjg@redhat.com>, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
 
-As requested I forward my bug report to the list:
+This patch series add support for Fn key combinations to dell-wmi drive=
+r.
+I tested this patch series on laptop Dell Latitude E6440.
 
-=46rom time to time on an ASRock IMB-181D motherboard this device fails=
- to be
-added.=A0
-It seems to work reliably when using Windows 7.=A0
-The errors in dmesg vary but usually take the form:=A0
-[=A0 5.328040] usb 3-7: string descriptor 0 read error: -71=A0
-(snip)=A0
-[=A0 10.333605] usbhid 3-7:1.0: can't add hid device: -71=A0
-[=A0 10.333639] usbhid: probe of 3-7:1.0 failed with error -71=A0
-I can provide a PicoLCD unit if necessary and possibly also fund a
-fix/workaround.
+Here is Bios DMI table which contains scancode to keycode mapping:
 
-More information is available here:
-https://bugzilla.kernel.org/show_bug.cgi?id=3D76341
+Handle 0xB200, DMI type 178, 80 bytes
+OEM-specific Type
+        Header and Data:
+                B2 50 00 B2 07 01 0C 00 08 01 0A 00 09 01 0B 00
+                0A 01 12 00 3B 00 20 00 42 00 18 00 48 00 14 00
+                50 00 13 00 10 00 FF 00 11 00 FF 00 12 00 FF 00
+                13 00 FF 00 14 00 FF 00 1E 00 FF 00 1F 00 FF 00
+                20 00 FF 00 21 00 FF 00 22 00 FF 00 4D 00 16 00
+        Strings:
 
-Kieran Kunhya
+As you can see, more different keys are mapped to one keycode 0xFF.
+
+Pali Roh=C3=A1r (2):
+  Input: Add keycodes for some missing Fn key combinations
+  dell-wmi: Add support for Fn key combinations
+
+ drivers/platform/x86/dell-wmi.c |   27 ++++++++++++++++++++++++++-
+ include/uapi/linux/input.h      |    6 ++++++
+ 2 files changed, 32 insertions(+), 1 deletion(-)
+
+--=20
+1.7.9.5
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

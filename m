@@ -1,68 +1,52 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+From: Kieran Kunhya <kierank@obe.tv>
 Subject: Re: usbhid: PicoLCD 256x64 USB error -71
-Date: Sun, 18 May 2014 20:37:18 +0200
-Message-ID: <20140518203718.5422588f@neptune.home>
+Date: Sun, 18 May 2014 20:44:13 +0100
+Message-ID: <CAK+ULv6XasQOcqckg4OtM+e82aotYAQ-XD0TsNn-9M7kpHP+Lg@mail.gmail.com>
 References: <032001cf7156$31a75610$94f60230$@obe.tv>
+	<20140518203718.5422588f@neptune.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hygieia.santi-shop.eu ([78.46.175.2]:49158 "EHLO
-	hygieia.santi-shop.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751766AbaERSng convert rfc822-to-8bit (ORCPT
+Received: from mail-we0-f174.google.com ([74.125.82.174]:41883 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751689AbaERToP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 May 2014 14:43:36 -0400
-In-Reply-To: <032001cf7156$31a75610$94f60230$@obe.tv>
+	Sun, 18 May 2014 15:44:15 -0400
+Received: by mail-we0-f174.google.com with SMTP id k48so4703260wev.33
+        for <linux-input@vger.kernel.org>; Sun, 18 May 2014 12:44:14 -0700 (PDT)
+In-Reply-To: <20140518203718.5422588f@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kieran Kunhya <kierank@obe.tv>
+To: =?UTF-8?Q?Bruno_Pr=C3=A9mont?= <bonbons@linux-vserver.org>
 Cc: linux-input@vger.kernel.org
 
-Hi Kieran,
+On 18 May 2014 19:37, Bruno Pr=C3=A9mont <bonbons@linux-vserver.org> wr=
+ote:
+> I successfully tried on:
+> - Gigabyte mainboard (GA-A75M-UD2H) (USB2 & USB3 ports) [3.15-rc5, 64=
+bit]
+> - Acer Travelmate 66x [3.15-rc2, 32bit]
+> - Commell LE-365 [3.14, 32bit]
+> - IEI KINO-690S1 [3.14, 64bit]
 
-On Fri, 16 May 2014 "Kieran Kunhya" <kierank@obe.tv> wrote:
-> As requested I forward my bug report to the list:
->=20
-> From time to time on an ASRock IMB-181D motherboard this device fails=
- to be
-> added.=C2=A0
-> It seems to work reliably when using Windows 7.=C2=A0
-> The errors in dmesg vary but usually take the form:=C2=A0
-> [=C2=A0 5.328040] usb 3-7: string descriptor 0 read error: -71=C2=A0
-> (snip)=C2=A0
-> [=C2=A0 10.333605] usbhid 3-7:1.0: can't add hid device: -71=C2=A0
-> [=C2=A0 10.333639] usbhid: probe of 3-7:1.0 failed with error -71=C2=A0
-> I can provide a PicoLCD unit if necessary and possibly also fund a
-> fix/workaround.
->=20
-> More information is available here:
-> https://bugzilla.kernel.org/show_bug.cgi?id=3D76341
+It works fine on other machines, but not with the ASRock IMB-181D
+board from time to time. Sometimes it does start correctly, however.
+The behaviour is very confusing since Windows seems to work reliably.
 
-Hm, picoLCD works for me, but I get -71 error code if I swap both
-data pins (but with read failure "device descriptor read/64, error -71"=
-).
+> Did some previous kernel release work?
 
-Here it works with:
-  J4, pin 1 =3D red
-  J4, pin 2 =3D white
-  J4, pin 3 =3D green
-  J4, pin 4 =3D black
-  J4, pin 5 =3D n/a
+I have tried a selection of kernels in the 3.0 series.
 
-I successfully tried on:
-- Gigabyte mainboard (GA-A75M-UD2H) (USB2 & USB3 ports) [3.15-rc5, 64bi=
-t]
-- Acer Travelmate 66x [3.15-rc2, 32bit]
-- Commell LE-365 [3.14, 32bit]
-- IEI KINO-690S1 [3.14, 64bit]
+> Could you provide verbose lsusb output and firmware version for your =
+PicoLCD?
 
+I will provide this information within a few days and also verify the
+pins are correct.
 
-Did some previous kernel release work?
-Could you provide verbose lsusb output and firmware version for your Pi=
-coLCD?
+Regards,
 
-Thanks,
-Bruno
+Kieran Kunhya
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,78 +1,52 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] HID: core: fix validation of report id 0
-Date: Mon, 19 May 2014 12:01:01 -0700
-Message-ID: <CAGXu5jJLKQiC4zwYJ9dpVvELoYBKZ4OFsqKdQXQW9OyDwsdvmg@mail.gmail.com>
-References: <20140417202209.GA30268@www.outflux.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: bad handling of HID input reports for a Delcom foot pedal
+Date: Mon, 19 May 2014 15:37:08 -0400
+Message-ID: <CAN+gG=GbD-NjJUcSjYfp3rqnG9hHwmxT0ReEYFFDf88v_aS5qw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140417202209.GA30268@www.outflux.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, Roland Bosa <rbosa@logitech.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f42.google.com ([209.85.215.42]:53930 "EHLO
+	mail-la0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751940AbaESThK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2014 15:37:10 -0400
+Received: by mail-la0-f42.google.com with SMTP id el20so4497871lab.29
+        for <linux-input@vger.kernel.org>; Mon, 19 May 2014 12:37:09 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, bmills@alumni.cmu.edu
 
-Pinging on this patch... I don't see it in -next yet. I've had more
-reports of trouble with logitech devices, and this seems to solve the
-problem.
+Hi Jiri,
 
--Kees
+Please have a look at: https://bugzilla.kernel.org/show_bug.cgi?id=76461
 
-On Thu, Apr 17, 2014 at 1:22 PM, Kees Cook <keescook@chromium.org> wrote:
-> Some drivers use the first HID report in the list instead of using an
-> index. In these cases, validation uses ID 0, which was supposed to mean
-> "first known report". This fixes the problem, which was causing at least
-> the lgff family of devices to stop working since hid_validate_values
-> was being called with ID 0, but the devices used single numbered IDs
-> for their reports:
->
-> 0x05, 0x01,         /*  Usage Page (Desktop),                   */
-> 0x09, 0x05,         /*  Usage (Gamepad),                        */
-> 0xA1, 0x01,         /*  Collection (Application),               */
-> 0xA1, 0x02,         /*      Collection (Logical),               */
-> 0x85, 0x01,         /*          Report ID (1),                  */
-> ...
->
-> Reported-by: Simon Wood <simon@mungewell.org>
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/hid/hid-core.c |   12 +++++++++++-
->  1 file changed, 11 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9e8064205bc7..07ce28175168 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -839,7 +839,17 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
->          * ->numbered being checked, which may not always be the case when
->          * drivers go to access report values.
->          */
-> -       report = hid->report_enum[type].report_id_hash[id];
-> +       if (id == 0) {
-> +               /*
-> +                * Validating on id 0 means we should examine the first
-> +                * report in the list.
-> +                */
-> +               report = list_entry(
-> +                               hid->report_enum[type].report_list.next,
-> +                               struct hid_report, list);
-> +       } else {
-> +               report = hid->report_enum[type].report_id_hash[id];
-> +       }
->         if (!report) {
->                 hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
->                 return NULL;
-> --
-> 1.7.9.5
->
->
-> --
-> Kees Cook
-> Chrome OS Security
+To me, this device sends garbage and should not send the modifiers
+both in a Var input and in an Array input.
 
+I can fix it either by amending the report descriptor of the device
+(one byte to change) or by changing hid-input.c for it to send the
+events in the array processing no matter what was the previous state
+(see below).
 
+I don't know which one to pick because this seems to be a corner case,
+so fixing hid-input might not be the place, but I am afraid of
+removing part of the reports coming from the device (what if the
+modifiers are actually used for something in the report).
 
--- 
-Kees Cook
-Chrome OS Security
+Any thoughts on it?
+
+For the record, fixing hid-input would just remove the test in hid_input_field:
+
+                if (value[n] >= min && value[n] <= max
+-                       && field->usage[value[n] - min].hid
+-                       && search(field->value, value[n], count))
++                       && field->usage[value[n] - min].hid)
+                                hid_process_event(hid, field,
+&field->usage[value[n] - min], 1, interrupt);
+        }
+
+(Sorry, gmail, whitespace damaged and everything)
+
+Cheers,
+Benjamin

@@ -1,521 +1,357 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: [PATCH v6 1/7] mfd: AXP20x: Add mfd driver for AXP20x PMIC
-Date: Mon, 19 May 2014 21:47:42 +0200
-Message-ID: <1400528868-5971-2-git-send-email-carlo@caione.org>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v6 4/7] input: misc: Add driver for AXP20x Power
+ Enable Key
+Date: Mon, 19 May 2014 21:47:45 +0200
+Message-ID: <1400528868-5971-5-git-send-email-carlo@caione.org>
 References: <1400528868-5971-1-git-send-email-carlo@caione.org>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1400528868-5971-1-git-send-email-carlo@caione.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, lee.jones@linaro.org, boris.brezillon@free-electrons.com
-Cc: Carlo Caione <carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBB5575GNQKGQEDPDYOEQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1400528868-5971-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch introduces the preliminary support for PMICs X-Powers AXP202
-and AXP209. The AXP209 and AXP202 are the PMUs (Power Management Unit)
-used by A10, A13 and A20 SoCs and developed by X-Powers, a sister company
-of Allwinner.
+This patch add support for the Power Enable Key found on MFD AXP202 and
+AXP209. Besides the basic support for the button, the driver adds two
+entries in sysfs to configure the time delay for power on/off.
 
-The core enables support for two subsystems:
-- PEK (Power Enable Key)
-- Regulators
-
-Signed-off-by: Carlo Caione <carlo@caione.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/mfd/Kconfig        |  12 +++
- drivers/mfd/Makefile       |   1 +
- drivers/mfd/axp20x.c       | 258 +++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/axp20x.h | 180 +++++++++++++++++++++++++++++++
- 4 files changed, 451 insertions(+)
- create mode 100644 drivers/mfd/axp20x.c
- create mode 100644 include/linux/mfd/axp20x.h
+ drivers/input/misc/Kconfig      |  11 ++
+ drivers/input/misc/Makefile     |   1 +
+ drivers/input/misc/axp20x-pek.c | 281 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 293 insertions(+)
+ create mode 100644 drivers/input/misc/axp20x-pek.c
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 3383412..6c2a920 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -67,6 +67,18 @@ config MFD_BCM590XX
- 	help
- 	  Support for the BCM590xx PMUs from Broadcom
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 5928ea7..f4c3177 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -393,6 +393,17 @@ config INPUT_RETU_PWRBUTTON
+ 	  To compile this driver as a module, choose M here. The module will
+ 	  be called retu-pwrbutton.
  
-+config MFD_AXP20X
-+	bool "X-Powers AXP20X"
-+	select MFD_CORE
-+	select REGMAP_I2C
-+	select REGMAP_IRQ
-+	depends on I2C=y
++config INPUT_AXP20X_PEK
++	tristate "X-Powers AXP20X power button driver"
++	depends on MFD_AXP20X
 +	help
-+	  If you say Y here you get support for the X-Powers AXP202 and AXP209.
-+	  This driver include only the core APIs. You have to select individual
-+	  components like regulators or the PEK (Power Enable Key) under the
-+	  corresponding menus.
++	  Say Y here if you want to enable power key reporting via the
++	  AXP20X PMIC.
 +
- config MFD_CROS_EC
- 	tristate "ChromeOS Embedded Controller"
- 	select MFD_CORE
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 2851275..1efecf2 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -102,6 +102,7 @@ obj-$(CONFIG_PMIC_DA9052)	+= da9052-irq.o
- obj-$(CONFIG_PMIC_DA9052)	+= da9052-core.o
- obj-$(CONFIG_MFD_DA9052_SPI)	+= da9052-spi.o
- obj-$(CONFIG_MFD_DA9052_I2C)	+= da9052-i2c.o
-+obj-$(CONFIG_MFD_AXP20X)	+= axp20x.o
- 
- obj-$(CONFIG_MFD_LP3943)	+= lp3943.o
- obj-$(CONFIG_MFD_LP8788)	+= lp8788.o lp8788-irq.o
-diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
++	  To compile this driver as a module, choose M here. The module will
++	  be called axp20x-pek.
++
++
+ config INPUT_TWL4030_PWRBUTTON
+ 	tristate "TWL4030 Power button Driver"
+ 	depends on TWL4030_CORE
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 4955ad3..a25ad18 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -50,6 +50,7 @@ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+ obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
++obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+ obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
 new file mode 100644
-index 0000000..5734f8c
+index 0000000..0fba252
 --- /dev/null
-+++ b/drivers/mfd/axp20x.c
-@@ -0,0 +1,258 @@
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -0,0 +1,281 @@
 +/*
-+ * axp20x.c - MFD core driver for the X-Powers AXP202 and AXP209
++ * axp20x power button driver.
 + *
-+ * AXP20x comprises an adaptive USB-Compatible PWM charger, 2 BUCK DC-DC
-+ * converters, 5 LDOs, multiple 12-bit ADCs of voltage, current and temperature
-+ * as well as 4 configurable GPIOs.
++ * Copyright (C) 2013 Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 + *
-+ * Author: Carlo Caione <carlo@caione.org>
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
 + */
 +
-+#include <linux/err.h>
-+#include <linux/i2c.h>
++#include <linux/errno.h>
++#include <linux/irq.h>
++#include <linux/init.h>
++#include <linux/input.h>
 +#include <linux/interrupt.h>
 +#include <linux/kernel.h>
++#include <linux/mfd/axp20x.h>
 +#include <linux/module.h>
-+#include <linux/pm_runtime.h>
++#include <linux/platform_device.h>
 +#include <linux/regmap.h>
 +#include <linux/slab.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/mfd/axp20x.h>
-+#include <linux/mfd/core.h>
-+#include <linux/of_device.h>
-+#include <linux/of_irq.h>
 +
-+#define AXP20X_OFF	0x80
++#define AXP20X_PEK_STARTUP_MASK		(0xc0)
++#define AXP20X_PEK_SHUTDOWN_MASK	(0x03)
 +
-+static const struct regmap_range axp20x_writeable_ranges[] = {
-+	regmap_reg_range(AXP20X_DATACACHE(0), AXP20X_IRQ5_STATE),
-+	regmap_reg_range(AXP20X_DCDC_MODE, AXP20X_FG_RES),
++struct axp20x_pek {
++	struct axp20x_dev *axp20x;
++	struct input_dev *input;
++	int irq_dbr;
++	int irq_dbf;
 +};
 +
-+static const struct regmap_range axp20x_volatile_ranges[] = {
-+	regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IRQ5_STATE),
++struct axp20x_time {
++	unsigned int time;
++	unsigned int idx;
 +};
 +
-+static const struct regmap_access_table axp20x_writeable_table = {
-+	.yes_ranges	= axp20x_writeable_ranges,
-+	.n_yes_ranges	= ARRAY_SIZE(axp20x_writeable_ranges),
++static const struct axp20x_time startup_time[] = {
++	{ .time = 128,  .idx = 0 },
++	{ .time = 1000, .idx = 2 },
++	{ .time = 3000, .idx = 1 },
++	{ .time = 2000, .idx = 3 },
 +};
 +
-+static const struct regmap_access_table axp20x_volatile_table = {
-+	.yes_ranges	= axp20x_volatile_ranges,
-+	.n_yes_ranges	= ARRAY_SIZE(axp20x_volatile_ranges),
++static const struct axp20x_time shutdown_time[] = {
++	{ .time = 4000,  .idx = 0 },
++	{ .time = 6000,  .idx = 1 },
++	{ .time = 8000,  .idx = 2 },
++	{ .time = 10000, .idx = 3 },
 +};
 +
-+static struct resource axp20x_pek_resources[] = {
-+	{
-+		.name	= "PEK_DBR",
-+		.start	= AXP20X_IRQ_PEK_RIS_EDGE,
-+		.end	= AXP20X_IRQ_PEK_RIS_EDGE,
-+		.flags	= IORESOURCE_IRQ,
-+	}, {
-+		.name	= "PEK_DBF",
-+		.start	= AXP20X_IRQ_PEK_FAL_EDGE,
-+		.end	= AXP20X_IRQ_PEK_FAL_EDGE,
-+		.flags	= IORESOURCE_IRQ,
-+	},
++struct axp20x_pek_ext_attr {
++	const struct axp20x_time *p_time;
++	unsigned int mask;
 +};
 +
-+static const struct regmap_config axp20x_regmap_config = {
-+	.reg_bits	= 8,
-+	.val_bits	= 8,
-+	.wr_table	= &axp20x_writeable_table,
-+	.volatile_table	= &axp20x_volatile_table,
-+	.max_register	= AXP20X_FG_RES,
-+	.cache_type	= REGCACHE_RBTREE,
++static struct axp20x_pek_ext_attr axp20x_pek_startup_ext_attr = {
++	.p_time	= startup_time,
++	.mask	= AXP20X_PEK_STARTUP_MASK,
 +};
 +
-+#define AXP20X_IRQ(_irq, _off, _mask) \
-+	[AXP20X_IRQ_##_irq] = { .reg_offset = (_off), .mask = BIT(_mask) }
-+
-+static const struct regmap_irq axp20x_regmap_irqs[] = {
-+	AXP20X_IRQ(ACIN_OVER_V,		0, 7),
-+	AXP20X_IRQ(ACIN_PLUGIN,		0, 6),
-+	AXP20X_IRQ(ACIN_REMOVAL,	0, 5),
-+	AXP20X_IRQ(VBUS_OVER_V,		0, 4),
-+	AXP20X_IRQ(VBUS_PLUGIN,		0, 3),
-+	AXP20X_IRQ(VBUS_REMOVAL,	0, 2),
-+	AXP20X_IRQ(VBUS_V_LOW,		0, 1),
-+	AXP20X_IRQ(BATT_PLUGIN,		1, 7),
-+	AXP20X_IRQ(BATT_REMOVAL,	1, 6),
-+	AXP20X_IRQ(BATT_ENT_ACT_MODE,	1, 5),
-+	AXP20X_IRQ(BATT_EXIT_ACT_MODE,	1, 4),
-+	AXP20X_IRQ(CHARG,		1, 3),
-+	AXP20X_IRQ(CHARG_DONE,		1, 2),
-+	AXP20X_IRQ(BATT_TEMP_HIGH,	1, 1),
-+	AXP20X_IRQ(BATT_TEMP_LOW,	1, 0),
-+	AXP20X_IRQ(DIE_TEMP_HIGH,	2, 7),
-+	AXP20X_IRQ(CHARG_I_LOW,		2, 6),
-+	AXP20X_IRQ(DCDC1_V_LONG,	2, 5),
-+	AXP20X_IRQ(DCDC2_V_LONG,	2, 4),
-+	AXP20X_IRQ(DCDC3_V_LONG,	2, 3),
-+	AXP20X_IRQ(PEK_SHORT,		2, 1),
-+	AXP20X_IRQ(PEK_LONG,		2, 0),
-+	AXP20X_IRQ(N_OE_PWR_ON,		3, 7),
-+	AXP20X_IRQ(N_OE_PWR_OFF,	3, 6),
-+	AXP20X_IRQ(VBUS_VALID,		3, 5),
-+	AXP20X_IRQ(VBUS_NOT_VALID,	3, 4),
-+	AXP20X_IRQ(VBUS_SESS_VALID,	3, 3),
-+	AXP20X_IRQ(VBUS_SESS_END,	3, 2),
-+	AXP20X_IRQ(LOW_PWR_LVL1,	3, 1),
-+	AXP20X_IRQ(LOW_PWR_LVL2,	3, 0),
-+	AXP20X_IRQ(TIMER,		4, 7),
-+	AXP20X_IRQ(PEK_RIS_EDGE,	4, 6),
-+	AXP20X_IRQ(PEK_FAL_EDGE,	4, 5),
-+	AXP20X_IRQ(GPIO3_INPUT,		4, 3),
-+	AXP20X_IRQ(GPIO2_INPUT,		4, 2),
-+	AXP20X_IRQ(GPIO1_INPUT,		4, 1),
-+	AXP20X_IRQ(GPIO0_INPUT,		4, 0),
++static struct axp20x_pek_ext_attr axp20x_pek_shutdown_ext_attr = {
++	.p_time	= shutdown_time,
++	.mask	= AXP20X_PEK_SHUTDOWN_MASK,
 +};
 +
-+static const struct of_device_id axp20x_of_match[] = {
-+	{ .compatible = "x-powers,axp202", .data = (void *) AXP202_ID },
-+	{ .compatible = "x-powers,axp209", .data = (void *) AXP209_ID },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, axp20x_of_match);
-+
-+/*
-+ * This is useless for OF-enabled devices, but it is needed by I2C subsystem
-+ */
-+static const struct i2c_device_id axp20x_i2c_id[] = {
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, axp20x_i2c_id);
-+
-+static const struct regmap_irq_chip axp20x_regmap_irq_chip = {
-+	.name			= "axp20x_irq_chip",
-+	.status_base		= AXP20X_IRQ1_STATE,
-+	.ack_base		= AXP20X_IRQ1_STATE,
-+	.mask_base		= AXP20X_IRQ1_EN,
-+	.num_regs		= 5,
-+	.irqs			= axp20x_regmap_irqs,
-+	.num_irqs		= ARRAY_SIZE(axp20x_regmap_irqs),
-+	.mask_invert		= true,
-+	.init_ack_masked	= true,
-+};
-+
-+static const char * axp20x_supplies[] = {
-+	"acin",
-+	"vin2",
-+	"vin3",
-+	"ldo24in",
-+	"ldo3in",
-+	"ldo5in",
-+};
-+
-+static struct mfd_cell axp20x_cells[] = {
-+	{
-+		.name			= "axp20x-pek",
-+		.num_resources		= ARRAY_SIZE(axp20x_pek_resources),
-+		.resources		= axp20x_pek_resources,
-+	}, {
-+		.name			= "axp20x-regulator",
-+		.parent_supplies	= axp20x_supplies,
-+		.num_parent_supplies	= ARRAY_SIZE(axp20x_supplies),
-+	},
-+};
-+
-+static struct axp20x_dev *axp20x_pm_power_off;
-+static void axp20x_power_off(void)
++static struct axp20x_pek_ext_attr *get_axp_ext_attr(struct device_attribute *attr)
 +{
-+	regmap_write(axp20x_pm_power_off->regmap, AXP20X_OFF_CTRL,
-+		     AXP20X_OFF);
++	return container_of(attr, struct dev_ext_attribute, attr)->var;
 +}
 +
-+static int axp20x_i2c_probe(struct i2c_client *i2c,
-+			 const struct i2c_device_id *id)
++static ssize_t axp20x_show_ext_attr(struct device *dev, struct device_attribute *attr,
++				    char *buf)
 +{
-+	struct axp20x_dev *axp20x;
-+	const struct of_device_id *of_id;
-+	int ret;
++	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
++	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
++	unsigned int val;
++	int ret, i;
 +
-+	axp20x = devm_kzalloc(&i2c->dev, sizeof(*axp20x), GFP_KERNEL);
-+	if (!axp20x)
++	ret = regmap_read(axp20x_pek->axp20x->regmap, AXP20X_PEK_KEY, &val);
++	if (ret != 0)
++		return ret;
++
++	val &= axp20x_ea->mask;
++	val >>= ffs(axp20x_ea->mask) - 1;
++
++	for (i = 0; i < 4; i++)
++		if (val == axp20x_ea->p_time[i].idx)
++			val = axp20x_ea->p_time[i].time;
++
++	return sprintf(buf, "%u\n", val);
++}
++
++static ssize_t axp20x_store_ext_attr(struct device *dev, struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
++	struct axp20x_pek_ext_attr *axp20x_ea = get_axp_ext_attr(attr);
++	char val_str[20];
++	size_t len;
++	int ret, i;
++	unsigned int val, idx = 0;
++	unsigned int best_err = UINT_MAX;
++
++	val_str[sizeof(val_str) - 1] = '\0';
++	strncpy(val_str, buf, sizeof(val_str) - 1);
++	len = strlen(val_str);
++
++	if (len && val_str[len - 1] == '\n')
++		val_str[len - 1] = '\0';
++
++	ret = kstrtouint(val_str, 10, &val);
++	if (ret)
++		return ret;
++
++	for (i = 3; i >= 0; i--) {
++		unsigned int err;
++
++		err = abs(axp20x_ea->p_time[i].time - val);
++		if (err < best_err) {
++			best_err = err;
++			idx = axp20x_ea->p_time[i].idx;
++		}
++
++		if (!err)
++			break;
++	}
++
++	idx <<= ffs(axp20x_ea->mask) - 1;
++	ret = regmap_update_bits(axp20x_pek->axp20x->regmap,
++				 AXP20X_PEK_KEY,
++				 axp20x_ea->mask, idx);
++	if (ret != 0)
++		return -EINVAL;
++	return count;
++}
++
++static struct dev_ext_attribute axp20x_dev_attr_startup = {
++	.attr	= __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
++	.var	= &axp20x_pek_startup_ext_attr
++};
++
++static struct dev_ext_attribute axp20x_dev_attr_shutdown = {
++	.attr	= __ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
++	.var	= &axp20x_pek_shutdown_ext_attr
++};
++
++static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
++{
++	struct input_dev *idev = pwr;
++	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
++
++	if (irq == axp20x_pek->irq_dbr)
++		input_report_key(idev, KEY_POWER, true);
++	else if (irq == axp20x_pek->irq_dbf)
++		input_report_key(idev, KEY_POWER, false);
++
++	input_sync(idev);
++
++	return IRQ_HANDLED;
++}
++
++static int axp20x_pek_probe(struct platform_device *pdev)
++{
++	struct axp20x_pek *axp20x_pek;
++	struct axp20x_dev *axp20x;
++	struct input_dev *idev;
++	int error;
++
++	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
++				  GFP_KERNEL);
++	if (!axp20x_pek)
 +		return -ENOMEM;
 +
-+	of_id = of_match_device(axp20x_of_match, &i2c->dev);
-+	if (!of_id) {
-+		dev_err(&i2c->dev, "Unable to setup AXP20X data\n");
-+		return -ENODEV;
++	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
++	axp20x = axp20x_pek->axp20x;
++
++	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
++	if (axp20x_pek->irq_dbr < 0) {
++		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
++				axp20x_pek->irq_dbr);
++		return axp20x_pek->irq_dbr;
 +	}
-+	axp20x->variant = (long) of_id->data;
++	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
++						  axp20x_pek->irq_dbr);
 +
-+	axp20x->i2c_client = i2c;
-+	axp20x->dev = &i2c->dev;
-+	dev_set_drvdata(axp20x->dev, axp20x);
++	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
++	if (axp20x_pek->irq_dbf < 0) {
++		dev_err(&pdev->dev, "No IRQ for PEK_DBF, error=%d\n",
++				axp20x_pek->irq_dbf);
++		return axp20x_pek->irq_dbf;
++	}
++	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
++						  axp20x_pek->irq_dbf);
 +
-+	axp20x->regmap = devm_regmap_init_i2c(i2c, &axp20x_regmap_config);
-+	if (IS_ERR(axp20x->regmap)) {
-+		ret = PTR_ERR(axp20x->regmap);
-+		dev_err(&i2c->dev, "regmap init failed: %d\n", ret);
-+		return ret;
++	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
++	if (!axp20x_pek->input)
++		return -ENOMEM;
++
++	idev = axp20x_pek->input;
++
++	idev->name = "axp20x-pek";
++	idev->phys = "m1kbd/input2";
++	idev->dev.parent = &pdev->dev;
++
++	input_set_capability(idev, EV_KEY, KEY_POWER);
++
++	input_set_drvdata(idev, axp20x_pek);
++
++	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
++					  axp20x_pek_irq, 0,
++					  "axp20x-pek-dbr", idev);
++	if (error < 0) {
++		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
++			axp20x_pek->irq_dbr, error);
++
++		return error;
 +	}
 +
-+	ret = regmap_add_irq_chip(axp20x->regmap, i2c->irq,
-+				  IRQF_ONESHOT | IRQF_SHARED, -1,
-+				  &axp20x_regmap_irq_chip,
-+				  &axp20x->regmap_irqc);
-+	if (ret) {
-+		dev_err(&i2c->dev, "failed to add irq chip: %d\n", ret);
-+		return ret;
++	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
++					  axp20x_pek_irq, 0,
++					  "axp20x-pek-dbf", idev);
++	if (error < 0) {
++		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
++			axp20x_pek->irq_dbf, error);
++		return error;
 +	}
 +
-+	ret = mfd_add_devices(axp20x->dev, -1, axp20x_cells,
-+			      ARRAY_SIZE(axp20x_cells), NULL, 0, NULL);
++	error = device_create_file(&pdev->dev, &axp20x_dev_attr_startup.attr);
++	if (error)
++		return error;
 +
-+	if (ret) {
-+		dev_err(&i2c->dev, "failed to add MFD devices: %d\n", ret);
-+		regmap_del_irq_chip(i2c->irq, axp20x->regmap_irqc);
-+		return ret;
++	error = device_create_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr);
++	if (error)
++		goto clear_startup_attr;
++
++	error = input_register_device(idev);
++	if (error) {
++		dev_err(axp20x->dev, "Can't register input device: %d\n", error);
++		goto clear_attr;
 +	}
 +
-+	if (!pm_power_off) {
-+		axp20x_pm_power_off = axp20x;
-+		pm_power_off = axp20x_power_off;
-+	}
-+
-+	dev_info(&i2c->dev, "AXP20X driver loaded\n");
++	platform_set_drvdata(pdev, axp20x_pek);
 +
 +	return 0;
++
++clear_attr:
++	device_remove_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr);
++
++clear_startup_attr:
++	device_remove_file(&pdev->dev, &axp20x_dev_attr_startup.attr);
++
++	return error;
 +}
 +
-+static int axp20x_i2c_remove(struct i2c_client *i2c)
++int axp20x_pek_remove(struct platform_device *pdev)
 +{
-+	struct axp20x_dev *axp20x = i2c_get_clientdata(i2c);
-+
-+	if (axp20x == axp20x_pm_power_off) {
-+		axp20x_pm_power_off = NULL;
-+		pm_power_off = NULL;
-+	}
-+
-+	mfd_remove_devices(axp20x->dev);
-+	regmap_del_irq_chip(axp20x->i2c_client->irq, axp20x->regmap_irqc);
++	device_remove_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr);
++	device_remove_file(&pdev->dev, &axp20x_dev_attr_startup.attr);
 +
 +	return 0;
 +}
 +
-+static struct i2c_driver axp20x_i2c_driver = {
-+	.driver = {
-+		.name	= "axp20x",
-+		.owner	= THIS_MODULE,
-+		.of_match_table	= of_match_ptr(axp20x_of_match),
++static struct platform_driver axp20x_pek_driver = {
++	.probe		= axp20x_pek_probe,
++	.remove		= axp20x_pek_remove,
++	.driver		= {
++		.name		= "axp20x-pek",
++		.owner		= THIS_MODULE,
 +	},
-+	.probe		= axp20x_i2c_probe,
-+	.remove		= axp20x_i2c_remove,
-+	.id_table	= axp20x_i2c_id,
 +};
++module_platform_driver(axp20x_pek_driver);
 +
-+module_i2c_driver(axp20x_i2c_driver);
-+
-+MODULE_DESCRIPTION("PMIC MFD core driver for AXP20X");
-+MODULE_AUTHOR("Carlo Caione <carlo@caione.org>");
++MODULE_DESCRIPTION("axp20x Power Button");
++MODULE_AUTHOR("Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>");
 +MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
-new file mode 100644
-index 0000000..d0e31a2
---- /dev/null
-+++ b/include/linux/mfd/axp20x.h
-@@ -0,0 +1,180 @@
-+/*
-+ * Functions and registers to access AXP20X power management chip.
-+ *
-+ * Copyright (C) 2013, Carlo Caione <carlo@caione.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#ifndef __LINUX_MFD_AXP20X_H
-+#define __LINUX_MFD_AXP20X_H
-+
-+enum {
-+	AXP202_ID = 0,
-+	AXP209_ID,
-+};
-+
-+#define AXP20X_DATACACHE(m)		(0x04 + (m))
-+
-+/* Power supply */
-+#define AXP20X_PWR_INPUT_STATUS		0x00
-+#define AXP20X_PWR_OP_MODE		0x01
-+#define AXP20X_USB_OTG_STATUS		0x02
-+#define AXP20X_PWR_OUT_CTRL		0x12
-+#define AXP20X_DCDC2_V_OUT		0x23
-+#define AXP20X_DCDC2_LDO3_V_SCAL	0x25
-+#define AXP20X_DCDC3_V_OUT		0x27
-+#define AXP20X_LDO24_V_OUT		0x28
-+#define AXP20X_LDO3_V_OUT		0x29
-+#define AXP20X_VBUS_IPSOUT_MGMT		0x30
-+#define AXP20X_V_OFF			0x31
-+#define AXP20X_OFF_CTRL			0x32
-+#define AXP20X_CHRG_CTRL1		0x33
-+#define AXP20X_CHRG_CTRL2		0x34
-+#define AXP20X_CHRG_BAK_CTRL		0x35
-+#define AXP20X_PEK_KEY			0x36
-+#define AXP20X_DCDC_FREQ		0x37
-+#define AXP20X_V_LTF_CHRG		0x38
-+#define AXP20X_V_HTF_CHRG		0x39
-+#define AXP20X_APS_WARN_L1		0x3a
-+#define AXP20X_APS_WARN_L2		0x3b
-+#define AXP20X_V_LTF_DISCHRG		0x3c
-+#define AXP20X_V_HTF_DISCHRG		0x3d
-+
-+/* Interrupt */
-+#define AXP20X_IRQ1_EN			0x40
-+#define AXP20X_IRQ2_EN			0x41
-+#define AXP20X_IRQ3_EN			0x42
-+#define AXP20X_IRQ4_EN			0x43
-+#define AXP20X_IRQ5_EN			0x44
-+#define AXP20X_IRQ1_STATE		0x48
-+#define AXP20X_IRQ2_STATE		0x49
-+#define AXP20X_IRQ3_STATE		0x4a
-+#define AXP20X_IRQ4_STATE		0x4b
-+#define AXP20X_IRQ5_STATE		0x4c
-+
-+/* ADC */
-+#define AXP20X_ACIN_V_ADC_H		0x56
-+#define AXP20X_ACIN_V_ADC_L		0x57
-+#define AXP20X_ACIN_I_ADC_H		0x58
-+#define AXP20X_ACIN_I_ADC_L		0x59
-+#define AXP20X_VBUS_V_ADC_H		0x5a
-+#define AXP20X_VBUS_V_ADC_L		0x5b
-+#define AXP20X_VBUS_I_ADC_H		0x5c
-+#define AXP20X_VBUS_I_ADC_L		0x5d
-+#define AXP20X_TEMP_ADC_H		0x5e
-+#define AXP20X_TEMP_ADC_L		0x5f
-+#define AXP20X_TS_IN_H			0x62
-+#define AXP20X_TS_IN_L			0x63
-+#define AXP20X_GPIO0_V_ADC_H		0x64
-+#define AXP20X_GPIO0_V_ADC_L		0x65
-+#define AXP20X_GPIO1_V_ADC_H		0x66
-+#define AXP20X_GPIO1_V_ADC_L		0x67
-+#define AXP20X_PWR_BATT_H		0x70
-+#define AXP20X_PWR_BATT_M		0x71
-+#define AXP20X_PWR_BATT_L		0x72
-+#define AXP20X_BATT_V_H			0x78
-+#define AXP20X_BATT_V_L			0x79
-+#define AXP20X_BATT_CHRG_I_H		0x7a
-+#define AXP20X_BATT_CHRG_I_L		0x7b
-+#define AXP20X_BATT_DISCHRG_I_H		0x7c
-+#define AXP20X_BATT_DISCHRG_I_L		0x7d
-+#define AXP20X_IPSOUT_V_HIGH_H		0x7e
-+#define AXP20X_IPSOUT_V_HIGH_L		0x7f
-+
-+/* Power supply */
-+#define AXP20X_DCDC_MODE		0x80
-+#define AXP20X_ADC_EN1			0x82
-+#define AXP20X_ADC_EN2			0x83
-+#define AXP20X_ADC_RATE			0x84
-+#define AXP20X_GPIO10_IN_RANGE		0x85
-+#define AXP20X_GPIO1_ADC_IRQ_RIS	0x86
-+#define AXP20X_GPIO1_ADC_IRQ_FAL	0x87
-+#define AXP20X_TIMER_CTRL		0x8a
-+#define AXP20X_VBUS_MON			0x8b
-+#define AXP20X_OVER_TMP			0x8f
-+
-+/* GPIO */
-+#define AXP20X_GPIO0_CTRL		0x90
-+#define AXP20X_LDO5_V_OUT		0x91
-+#define AXP20X_GPIO1_CTRL		0x92
-+#define AXP20X_GPIO2_CTRL		0x93
-+#define AXP20X_GPIO20_SS		0x94
-+#define AXP20X_GPIO3_CTRL		0x95
-+
-+/* Battery */
-+#define AXP20X_CHRG_CC_31_24		0xb0
-+#define AXP20X_CHRG_CC_23_16		0xb1
-+#define AXP20X_CHRG_CC_15_8		0xb2
-+#define AXP20X_CHRG_CC_7_0		0xb3
-+#define AXP20X_DISCHRG_CC_31_24		0xb4
-+#define AXP20X_DISCHRG_CC_23_16		0xb5
-+#define AXP20X_DISCHRG_CC_15_8		0xb6
-+#define AXP20X_DISCHRG_CC_7_0		0xb7
-+#define AXP20X_CC_CTRL			0xb8
-+#define AXP20X_FG_RES			0xb9
-+
-+/* Regulators IDs */
-+enum {
-+	AXP20X_LDO1 = 0,
-+	AXP20X_LDO2,
-+	AXP20X_LDO3,
-+	AXP20X_LDO4,
-+	AXP20X_LDO5,
-+	AXP20X_DCDC2,
-+	AXP20X_DCDC3,
-+	AXP20X_REG_ID_MAX,
-+};
-+
-+/* IRQs */
-+enum {
-+	AXP20X_IRQ_ACIN_OVER_V = 1,
-+	AXP20X_IRQ_ACIN_PLUGIN,
-+	AXP20X_IRQ_ACIN_REMOVAL,
-+	AXP20X_IRQ_VBUS_OVER_V,
-+	AXP20X_IRQ_VBUS_PLUGIN,
-+	AXP20X_IRQ_VBUS_REMOVAL,
-+	AXP20X_IRQ_VBUS_V_LOW,
-+	AXP20X_IRQ_BATT_PLUGIN,
-+	AXP20X_IRQ_BATT_REMOVAL,
-+	AXP20X_IRQ_BATT_ENT_ACT_MODE,
-+	AXP20X_IRQ_BATT_EXIT_ACT_MODE,
-+	AXP20X_IRQ_CHARG,
-+	AXP20X_IRQ_CHARG_DONE,
-+	AXP20X_IRQ_BATT_TEMP_HIGH,
-+	AXP20X_IRQ_BATT_TEMP_LOW,
-+	AXP20X_IRQ_DIE_TEMP_HIGH,
-+	AXP20X_IRQ_CHARG_I_LOW,
-+	AXP20X_IRQ_DCDC1_V_LONG,
-+	AXP20X_IRQ_DCDC2_V_LONG,
-+	AXP20X_IRQ_DCDC3_V_LONG,
-+	AXP20X_IRQ_PEK_SHORT = 22,
-+	AXP20X_IRQ_PEK_LONG,
-+	AXP20X_IRQ_N_OE_PWR_ON,
-+	AXP20X_IRQ_N_OE_PWR_OFF,
-+	AXP20X_IRQ_VBUS_VALID,
-+	AXP20X_IRQ_VBUS_NOT_VALID,
-+	AXP20X_IRQ_VBUS_SESS_VALID,
-+	AXP20X_IRQ_VBUS_SESS_END,
-+	AXP20X_IRQ_LOW_PWR_LVL1,
-+	AXP20X_IRQ_LOW_PWR_LVL2,
-+	AXP20X_IRQ_TIMER,
-+	AXP20X_IRQ_PEK_RIS_EDGE,
-+	AXP20X_IRQ_PEK_FAL_EDGE,
-+	AXP20X_IRQ_GPIO3_INPUT,
-+	AXP20X_IRQ_GPIO2_INPUT,
-+	AXP20X_IRQ_GPIO1_INPUT,
-+	AXP20X_IRQ_GPIO0_INPUT,
-+};
-+
-+struct axp20x_dev {
-+	struct device			*dev;
-+	struct i2c_client		*i2c_client;
-+	struct regmap			*regmap;
-+	struct regmap_irq_chip_data	*regmap_irqc;
-+	long				variant;
-+};
-+
-+#endif /* __LINUX_MFD_AXP20X_H */
 -- 
 1.9.1
-

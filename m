@@ -1,42 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/22] atmel_mxt_ts patches, already signed-off
-Date: Sun, 18 May 2014 23:37:33 -0700
-Message-ID: <20140519063733.GA5209@core.coreip.homeip.net>
-References: <1395077215-10922-1-git-send-email-nick.dyer@itdev.co.uk>
- <533D3AF5.9060001@itdev.co.uk>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v5 4/8] input: misc: Add driver for
+ AXP20x Power Enable Key
+Date: Mon, 19 May 2014 09:18:23 +0200
+Message-ID: <CAOQ7t2bPHnjfpeqQjMsYJs--qpd1_1RvBEFXztTDgnf5yW=Yxg@mail.gmail.com>
+References: <1398947374-3115-1-git-send-email-carlo@caione.org>
+	<1398947374-3115-5-git-send-email-carlo@caione.org>
+	<20140503010604.GE4090@lukather>
+	<20140519055745.GL29386@core.coreip.homeip.net>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f51.google.com ([209.85.160.51]:39770 "EHLO
-	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750740AbaESGhh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2014 02:37:37 -0400
-Content-Disposition: inline
-In-Reply-To: <533D3AF5.9060001@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBQHA42NQKGQEZGJAALY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20140519055745.GL29386-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-Hi NIck,
+On Mon, May 19, 2014 at 7:57 AM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Fri, May 02, 2014 at 06:06:04PM -0700, Maxime Ripard wrote:
+>> On Thu, May 01, 2014 at 02:29:30PM +0200, Carlo Caione wrote:
+>> > This patch add support for the Power Enable Key found on MFD AXP202 and
+>> > AXP209. Besides the basic support for the button, the driver adds two
+>> > entries in sysfs to configure the time delay for power on/off.
+>> >
+>> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+>>
+>> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+>
+> Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
+> How are we merging it? MFD tree?
 
-On Thu, Apr 03, 2014 at 11:41:57AM +0100, Nick Dyer wrote:
-> Hi Dmitry-
-> 
-> Nick Dyer <nick.dyer@itdev.co.uk> wrote:
-> > Here is a set of patches for atmel_mxt_ts that you've already
-> > signed-off. I've rebased them against the most recent mainline and made
-> > some very minor changes such as INIT_COMPLETION->reinit_completion.
-> 
-> It would be useful to have some feedback about this patchset if you have time.
-> 
+No idea. Lee, can you help in merging it?
+The only thing still  left out is the DT to be merged through Maxime
+(I need to submit a v6 only for that).
 
-I applied majority of the patches, but dropped 11 (firmware loader) as
-it gives trouble in its current for when driver is compiled in and I
-also had to drop 12 and 19 because of reject dues to dropping 11.
-
-Thanks.
+Thanks,
 
 -- 
-Dmitry
+Carlo Caione

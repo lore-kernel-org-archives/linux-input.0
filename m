@@ -1,48 +1,113 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: [PATCH v6 7/7] ARM: sunxi: Add AXP20x support multi_v7_defconfig
-Date: Mon, 19 May 2014 21:47:48 +0200
-Message-ID: <1400528868-5971-8-git-send-email-carlo@caione.org>
-References: <1400528868-5971-1-git-send-email-carlo@caione.org>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1400528868-5971-1-git-send-email-carlo@caione.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, lee.jones@linaro.org, boris.brezillon@free-electrons.com
-Cc: Carlo Caione <carlo@caione.org>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] Input: tps6507x-ts: Introduce the use of the managed version
+ of kzalloc
+Date: Tue, 20 May 2014 01:24:27 +0530
+Message-ID: <20140519195427.GA17152@himangi-Dell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:51138 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932626AbaESTyf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2014 15:54:35 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-Signed-off-by: Carlo Caione <carlo@caione.org>
+This patch moves data allocated using kzalloc to managed data allocated
+using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+functions. Also, the unnecessary label err_free_mem is removed.
+
+The following Coccinelle semantic patch was used for making the change:
+
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
+
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
+
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
+
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
 ---
- arch/arm/configs/multi_v7_defconfig | 3 +++
- 1 file changed, 3 insertions(+)
+I would like to know if it is desirable to add a
+devm_input_allocate_polled_device like devm_input_allocate_device. If
+this is done, it seems that no change is required in
+input_unregister_polled_device as there is a separate call to this
+function, and then to input_free_polled_device (which would go away).
+Please let me know if this reasoning is correct.
 
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index d4e8a47..5aeea19 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -146,6 +146,7 @@ CONFIG_KEYBOARD_SPEAR=y
- CONFIG_KEYBOARD_CROS_EC=y
- CONFIG_MOUSE_PS2_ELANTECH=y
- CONFIG_INPUT_MISC=y
-+CONFIG_INPUT_AXP20X_PEK=y
- CONFIG_INPUT_MPU3050=y
- CONFIG_SERIO_AMBAKMI=y
- CONFIG_SERIAL_8250=y
-@@ -207,6 +208,7 @@ CONFIG_ARMADA_THERMAL=y
- CONFIG_WATCHDOG=y
- CONFIG_ORION_WATCHDOG=y
- CONFIG_MFD_AS3722=y
-+CONFIG_MFD_AXP20X=y
- CONFIG_MFD_CROS_EC=y
- CONFIG_MFD_CROS_EC_SPI=y
- CONFIG_MFD_MAX8907=y
-@@ -217,6 +219,7 @@ CONFIG_MFD_TPS65910=y
- CONFIG_REGULATOR_VIRTUAL_CONSUMER=y
- CONFIG_REGULATOR_AB8500=y
- CONFIG_REGULATOR_AS3722=y
-+CONFIG_REGULATOR_AXP20X=y
- CONFIG_REGULATOR_GPIO=y
- CONFIG_REGULATOR_MAX8907=y
- CONFIG_REGULATOR_PALMAS=y
+ drivers/input/touchscreen/tps6507x-ts.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+index 94cde2c..bd57be1 100644
+--- a/drivers/input/touchscreen/tps6507x-ts.c
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -233,7 +233,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+ 	 */
+ 	init_data = tps_board->tps6507x_ts_init_data;
+ 
+-	tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
++	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
+ 	if (!tsc) {
+ 		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
+ 		return -ENOMEM;
+@@ -250,8 +250,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+ 	poll_dev = input_allocate_polled_device();
+ 	if (!poll_dev) {
+ 		dev_err(tsc->dev, "Failed to allocate polled input device.\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	tsc->poll_dev = poll_dev;
+@@ -293,8 +292,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+ 
+ err_free_polled_dev:
+ 	input_free_polled_device(poll_dev);
+-err_free_mem:
+-	kfree(tsc);
+ 	return error;
+ }
+ 
+@@ -306,8 +303,6 @@ static int tps6507x_ts_remove(struct platform_device *pdev)
+ 	input_unregister_polled_device(poll_dev);
+ 	input_free_polled_device(poll_dev);
+ 
+-	kfree(tsc);
+-
+ 	return 0;
+ }
+ 
 -- 
 1.9.1
 

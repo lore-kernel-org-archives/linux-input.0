@@ -1,14 +1,12 @@
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v6 3/7] mfd: AXP20x: Add bindings documentation
-Date: Mon, 19 May 2014 21:47:44 +0200
-Message-ID: <1400528868-5971-4-git-send-email-carlo@caione.org>
-References: <1400528868-5971-1-git-send-email-carlo@caione.org>
+Subject: [PATCH v6 0/7] mfd: AXP20x: Add support for AXP202 and AXP209
+Date: Mon, 19 May 2014 21:47:41 +0200
+Message-ID: <1400528868-5971-1-git-send-email-carlo@caione.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBB5F75GNQKGQEFONPTNA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBB3N75GNQKGQEZU4LTUA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1400528868-5971-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
@@ -18,114 +16,141 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-su
 Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Bindings documentation for the AXP20x driver. In this file also
-sub-nodes are documented.
+AXP209 and AXP202 are the PMUs (Power Management Unit) used by A10, A13
+and A20 SoCs and developed by X-Powers, a sister company of Allwinner.
+AXP20x comprises an adaptive USB-Compatible PWM charger, 2 BUCK DC-DC
+converters, 5 LDOs, multiple 12-bit ADCs of voltage, current and temperature
+as well as 4 configurable GPIOs. 
 
-Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- Documentation/devicetree/bindings/mfd/axp20x.txt | 93 ++++++++++++++++++++++++
- 1 file changed, 93 insertions(+)
+This set of patches introduces the core driver and support for two different
+subsystems:
+	- Regulators
+	- PEK (Power Enable Key)
+
+Changes since v1:
+
+	- Added a new standalone patch for defconfig
+
+	- MFD core:
+	  * Removed axp,system-power-controller property
+
+	- Bindings documentation:
+	  * Corrected description for dcdc-workmode property
+	  * Removed unused axp20x-pek compatible
+
+	- Input misc PEK driver:
+	  * Fixed seconds in lower case
+
+	- Regulators subsystem:
+	  * Fixed axp20x_set_suspend_voltage()
+	  * Switched to using multi-bit control for regulators
+	  * When "regulators" node is not found driver doesn't quit
+	  * Driver is now using devm_regulator_register()
+	  * Added module_platform_driver() instead of subsys_initcall()
+
+	- DT:
+	  * Added new DTSI for AXP209
+	  * Added support for cubietruck and olinuxino-micro
+
+Changes since v2:
+
+	- Added a new patch for multi_v7_defconfig to enable MFD core
+	  and subsystems
+
+	- DT:
+	  * Dropped axp,system-power-controller property from DTS
+	  * Moved compatible and interrupt-related properties from the
+	    DTSI file to the DTS board files
+
+	- Regulators subsystem:
+	  * Deleted useless struct axp20x_regulators
+	  * Added a warning when out of specs values are used for the
+	    dcdc frequency
+
+	- MFD core:
+	  * Fixed coding style
+	  * Removed IDs from device table for i2c
+
+	- Bindings documentation:
+	  * Several corrections and fixes
+
+Changes since v3:
+
+	- Removed x-powers-axp209.dtsi file
+	- Rewritten bindings document
+
+	- MFD core:
+	  * Fixed casting
+	  * Better comments / documentation
+
+	- Input misc PEK driver:
+	  * Timings are now expressed in ms and the sysfs appies the
+	    closest possible value
+	  * No more useless pretty-printing
+	  * Removed devm_request_threaded_irq in favour of
+	    devm_request_any_context_irq
+	  * Moved from input attributes to platform device attributes
+
+	- Regulators subsystem:
+	  * Removed suspend mode (axp20x_set_suspend_voltage)
+	  * Added regulators input supply
+
+	- DT:
+	  * DTs doesn't include anymore the dtsi
+	  * Added input supplies for regulators
+
+Changes since v4:
+
+	- Removed regulator patches already applied / acked by Mark Brown
+
+	- Input misc PEK driver:
+	  * Don't print anymore the "us" unit
+	  * Added cleanup for attributes when unbindind the device
+	  * Fixed error code returned when device_create_file() fails
+
+	- DT:
+	  * Enable all the regulators on at boot-time
+       	  * Removed min and max microvolts for all the regulators but DCDC2
+	  * Moved the axp_ipsout regulator outside the MFD node
+	  
+	- MFD core:
+	  * The supply regulators are now specified in the MFD driver using
+	    regulator_bulk_register_supply_alias() and the .parent_supplies
+	    in the MFD cell
+
+Changes since v5:
+	- Added ACKs
+	- Fixed compilation warning (reported by Hans De Goede)
+	- Vendor-prefixes are now sorted
+	- Removed DT patch
+
+Carlo Caione (7):
+  mfd: AXP20x: Add mfd driver for AXP20x PMIC
+  dt-bindings: add vendor-prefix for X-Powers
+  mfd: AXP20x: Add bindings documentation
+  input: misc: Add driver for AXP20x Power Enable Key
+  input: misc: Add ABI docs for AXP20x PEK
+  ARM: sunxi: Add AXP20x support in defconfig
+  ARM: sunxi: Add AXP20x support multi_v7_defconfig
+
+ .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
+ Documentation/devicetree/bindings/mfd/axp20x.txt   |  93 +++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ arch/arm/configs/multi_v7_defconfig                |   3 +
+ arch/arm/configs/sunxi_defconfig                   |   4 +
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/axp20x-pek.c                    | 281 +++++++++++++++++++++
+ drivers/mfd/Kconfig                                |  12 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/axp20x.c                               | 258 +++++++++++++++++++
+ include/linux/mfd/axp20x.h                         | 180 +++++++++++++
+ 12 files changed, 856 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
  create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
+ create mode 100644 drivers/input/misc/axp20x-pek.c
+ create mode 100644 drivers/mfd/axp20x.c
+ create mode 100644 include/linux/mfd/axp20x.h
 
-diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
-new file mode 100644
-index 0000000..cc9e01b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
-@@ -0,0 +1,93 @@
-+AXP202/AXP209 device tree bindings
-+
-+The axp20x family current members :-
-+axp202 (X-Powers)
-+axp209 (X-Powers)
-+
-+Required properties:
-+- compatible: "x-powers,axp202" or "x-powers,axp209"
-+- reg: The I2C slave address for the AXP chip
-+- interrupt-parent: The parent interrupt controller
-+- interrupts: Interrupt specifiers for interrupt sources
-+- interrupt-controller: axp20x has its own internal IRQs
-+- #interrupt-cells: Should be set to 1
-+- acin-supply: The input supply for LDO1
-+- vin2-supply: The input supply for DCDC2
-+- vin3-supply: The input supply for DCDC3
-+- ldo24in-supply: The input supply for LDO2, LDO4
-+- ldo3in-supply: The input supply for LDO3
-+- ldo5in-supply: The input supply for LDO5
-+
-+- regulators: A node that houses a sub-node for each regulator. The regulators are
-+	      bound using their name as listed here: dcdc2, dcdc3, ldo1, ldo2,
-+	      ldo3, ldo4, ldo5.  The bindings details of individual regulator
-+	      device can be found in:
-+	      Documentation/devicetree/bindings/regulator/regulator.txt with
-+	      the exception of x-powers,dcdc-freq
-+- x-powers,dcdc-freq: defines the work frequency of DC-DC in KHz
-+		      (range: 750-1875). Default: 1.5MHz
-+
-+Optional properties for DCDCs:
-+- x-powers,dcdc-workmode: 1 for PWM mode, 0 for AUTO mode
-+			  Default: AUTO mode
-+
-+Example:
-+
-+axp209: pmic@34 {
-+	compatible = "x-powers,axp209";
-+	reg = <0x34>;
-+	interrupt-parent = <&nmi_intc>;
-+	interrupts = <0 8>;
-+
-+	interrupt-controller;
-+	#interrupt-cells = <1>;
-+
-+	acin-supply = <&axp_ipsout_reg>;
-+	vin2-supply = <&axp_ipsout_reg>;
-+	vin3-supply = <&axp_ipsout_reg>;
-+	ldo24in-supply = <&axp_ipsout_reg>;
-+	ldo3in-supply = <&axp_ipsout_reg>;
-+	ldo5in-supply = <&axp_ipsout_reg>;
-+
-+	regulators {
-+		x-powers,dcdc-freq = <1500>;
-+
-+		axp_vcore_reg: dcdc2 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <2275000>;
-+			regulator-always-on;
-+		};
-+
-+		axp_ddr_reg: dcdc3 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <3500000>;
-+			regulator-always-on;
-+		};
-+
-+		axp_rtc_reg: ldo1 {
-+			regulator-always-on;
-+		};
-+
-+		axp_analog_reg: ldo2 {
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+			regulator-always-on;
-+		};
-+
-+		axp_pll_reg: ldo3 {
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <3500000>;
-+		};
-+
-+		axp_hdmi_reg: ldo4 {
-+			regulator-min-microvolt = <1250000>;
-+			regulator-max-microvolt = <3300000>;
-+		};
-+
-+		axp_mic_reg: ldo5 {
-+			regulator-min-microvolt = <1800000>;
-+			regulator-max-microvolt = <3300000>;
-+		};
-+	};
-+};
-+
 -- 
 1.9.1

@@ -1,196 +1,71 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: [PATCH v6 7/7] Input: pixcir_i2c_ts: Add device tree support
-Date: Mon, 19 May 2014 11:27:57 +0300
-Message-ID: <5379C08D.1010209@ti.com>
-References: <1399374372-29123-1-git-send-email-rogerq@ti.com> <1399374372-29123-8-git-send-email-rogerq@ti.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 3/3] synaptics: Change min/max quirk table to pnp-id matching
+Date: Mon, 19 May 2014 10:51:09 +0200
+Message-ID: <5379C5FD.1040401@redhat.com>
+References: <1400266009-5436-1-git-send-email-hdegoede@redhat.com> <1400266009-5436-4-git-send-email-hdegoede@redhat.com> <20140518203535.GA13276@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1399374372-29123-8-git-send-email-rogerq@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20140518203535.GA13276@core.coreip.homeip.net>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+Hi,
 
-Provide device tree support and binding information.
-Also provide support for a new chip "pixcir_tangoc".
+On 05/18/2014 10:35 PM, Dmitry Torokhov wrote:
+> On Fri, May 16, 2014 at 08:46:49PM +0200, Hans de Goede wrote:
+>> Most of the affected models share pnp-ids for the touchpad. So switching
+>> to pnp-ids give us 2 advantages:
+>> 1) It shrinks the quirk list
+>> 2) It will lower the new quirk addition frequency, ie the recently added W540
+>>    quirk would not have been necessary since it uses the same LEN0034 pnp ids
+>>    as other models already added before it
+>>
+>> As an added bonus it actually puts the quirk on the actual psmouse, rather then
+>> on the machine, which is technically more correct.
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  drivers/input/mouse/synaptics.c | 149 ++++++++++------------------------------
+>>  1 file changed, 36 insertions(+), 113 deletions(-)
+>>
+>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+>> index 395ec9c..c5ec703 100644
+>> --- a/drivers/input/mouse/synaptics.c
+>> +++ b/drivers/input/mouse/synaptics.c
+>> @@ -117,6 +117,31 @@ void synaptics_reset(struct psmouse *psmouse)
+>>  }
+>>  
+>>  #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
+>> +struct min_max_quirk {
+>> +	const char * const *pnp_ids;
+>> +	int x_min, x_max, y_min, y_max;
+>> +};
+> 
+> 
+> Why don't we define this as 1 quirk per PNP id?
+> 
+> struct min_max_quirk {
+> 	const char *pnp_id;
+> 	int x_min, x_max, y_min, y_max;
+> };
+> 
+> ?
 
-Signed-off-by: Roger Quadros <rogerq@ti.com>
----
- .../bindings/input/touchscreen/pixcir_i2c_ts.txt   | 26 ++++++++
- .../devicetree/bindings/vendor-prefixes.txt        |  1 +
- drivers/input/touchscreen/pixcir_i2c_ts.c          | 78 ++++++++++++++++++++++
- 3 files changed, 105 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+1) I thought it would be better to allow multiple ids for one min/max quad,
+since there seem to only be a few types of touchpads out there, which are
+sometimes referenced to by multiple ids. IE LEN0034 and LEN2004 refer to the
+exact same touchpad (exact same firmware and board id). Also this way we avoid
+people adding entries with values which are slightly off since determining
+the min/max range on a single model will give some noise.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-new file mode 100644
-index 0000000..6e55109
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
-@@ -0,0 +1,26 @@
-+* Pixcir I2C touchscreen controllers
-+
-+Required properties:
-+- compatible: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
-+- reg: I2C address of the chip
-+- interrupts: interrupt to which the chip is connected
-+- attb-gpio: GPIO connected to the ATTB line of the chip
-+- touchscreen-size-x: horizontal resolution of touchscreen (in pixels)
-+- touchscreen-size-y: vertical resolution of touchscreen (in pixels)
-+
-+Example:
-+
-+	i2c@00000000 {
-+		/* ... */
-+
-+		pixcir_ts@5c {
-+			compatible = "pixcir,pixcir_ts";
-+			reg = <0x5c>;
-+			interrupts = <2 0>;
-+			attb-gpio = <&gpf 2 0 2>;
-+			touchscreen-size-x = <800>;
-+			touchscreen-size-y = <600>;
-+		};
-+
-+		/* ... */
-+	};
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index abc3080..2270ebe 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -94,6 +94,7 @@ panasonic	Panasonic Corporation
- phytec	PHYTEC Messtechnik GmbH
- picochip	Picochip Ltd
- plathome	Plat'Home Co., Ltd.
-+pixcir  PIXCIR MICROELECTRONICS Co., Ltd
- powervr	PowerVR (deprecated, use img)
- qca	Qualcomm Atheros, Inc.
- qcom	Qualcomm Technologies, Inc
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 43794fb..e1eb6c8 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -26,6 +26,9 @@
- #include <linux/input/mt.h>
- #include <linux/input/pixcir_ts.h>
- #include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <linux/of_device.h>
- 
- #define PIXCIR_MAX_SLOTS       5 /* Max fingers supported by driver */
- 
-@@ -407,16 +410,70 @@ unlock:
- static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
- 			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id pixcir_of_match[];
-+
-+static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
-+{
-+	struct pixcir_ts_platform_data *pdata;
-+	struct device_node *np = dev->of_node;
-+
-+	const struct of_device_id *match;
-+
-+	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
-+	if (!match)
-+		return ERR_PTR(-EINVAL);
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
-+
-+	pdata->chip = *(const struct pixcir_i2c_chip_data *)match->data;
-+
-+	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
-+	/* gpio_attb validity is checked in probe */
-+
-+	if (of_property_read_u32(np, "touchscreen-size-x", &pdata->x_max)) {
-+		dev_err(dev, "Failed to get touchscreen-size-x property\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+	pdata->x_max -= 1;
-+
-+	if (of_property_read_u32(np, "touchscreen-size-y", &pdata->y_max)) {
-+		dev_err(dev, "Failed to get touchscreen-size-y property\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+	pdata->y_max -= 1;
-+
-+	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
-+		pdata->x_max + 1, pdata->y_max + 1, pdata->gpio_attb);
-+
-+	return pdata;
-+}
-+#else
-+static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
-+{
-+	return ERR_PTR(-EINVAL);
-+}
-+#endif
-+
- static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 					 const struct i2c_device_id *id)
- {
- 	const struct pixcir_ts_platform_data *pdata =
- 			dev_get_platdata(&client->dev);
- 	struct device *dev = &client->dev;
-+	struct device_node *np = dev->of_node;
- 	struct pixcir_i2c_ts_data *tsdata;
- 	struct input_dev *input;
- 	int error;
- 
-+	if (np && !pdata) {
-+		pdata = pixcir_parse_dt(dev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
-+	}
-+
- 	if (!pdata) {
- 		dev_err(&client->dev, "platform data not defined\n");
- 		return -EINVAL;
-@@ -522,15 +579,36 @@ static int pixcir_i2c_ts_remove(struct i2c_client *client)
- 
- static const struct i2c_device_id pixcir_i2c_ts_id[] = {
- 	{ "pixcir_ts", 0 },
-+	{ "pixcir_tangoc", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
- 
-+#ifdef CONFIG_OF
-+static const struct pixcir_i2c_chip_data pixcir_ts_data = {
-+	.max_fingers = 2,
-+	/* no hw id support */
-+};
-+
-+static const struct pixcir_i2c_chip_data pixcir_tangoc_data = {
-+	.max_fingers = 5,
-+	.has_hw_ids = true,
-+};
-+
-+static const struct of_device_id pixcir_of_match[] = {
-+	{ .compatible = "pixcir,pixcir_ts", .data = &pixcir_ts_data },
-+	{ .compatible = "pixcir,pixcir_tangoc", .data = &pixcir_tangoc_data },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pixcir_of_match);
-+#endif
-+
- static struct i2c_driver pixcir_i2c_ts_driver = {
- 	.driver = {
- 		.owner	= THIS_MODULE,
- 		.name	= "pixcir_ts",
- 		.pm	= &pixcir_dev_pm_ops,
-+		.of_match_table = of_match_ptr(pixcir_of_match),
- 	},
- 	.probe		= pixcir_i2c_ts_probe,
- 	.remove		= pixcir_i2c_ts_remove,
--- 
-1.8.3.2
+2) This way we can use one helper function for the matching for both the
+INPUT_PROP_TOPBUTTONPAD quirks and for the min/max quirks.
+
+Regards,
+
+Hans

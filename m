@@ -1,47 +1,46 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v6 5/7] input: misc: Add ABI docs for AXP20x PEK
-Date: Mon, 19 May 2014 21:47:46 +0200
-Message-ID: <1400528868-5971-6-git-send-email-carlo@caione.org>
+From: Carlo Caione <carlo@caione.org>
+Subject: [PATCH v6 6/7] ARM: sunxi: Add AXP20x support in defconfig
+Date: Mon, 19 May 2014 21:47:47 +0200
+Message-ID: <1400528868-5971-7-git-send-email-carlo@caione.org>
 References: <1400528868-5971-1-git-send-email-carlo@caione.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBB6N75GNQKGQEJMCWPYI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1400528868-5971-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1400528868-5971-1-git-send-email-carlo@caione.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com, maxime.ripard@free-electrons.com, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, lee.jones@linaro.org, boris.brezillon@free-electrons.com
+Cc: Carlo Caione <carlo@caione.org>
 List-Id: linux-input@vger.kernel.org
 
-Add ABI entries for the PEK found on PMU X-Powers AXP202 and AXP209.
-
-Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Carlo Caione <carlo@caione.org>
 ---
- Documentation/ABI/testing/sysfs-driver-input-axp-pek | 11 +++++++++++
- 1 file changed, 11 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
+ arch/arm/configs/sunxi_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-input-axp-pek b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
-new file mode 100644
-index 0000000..080563b
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
-@@ -0,0 +1,11 @@
-+What:		/sys/class/input/input(x)/startup
-+Date:		March 2014
-+Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-+Description:	Startup time in us. Board is powered on if the button is pressed
-+		for more than <startup_time>
-+
-+What:		/sys/class/input/input(x)/shutdown
-+Date:		March 2014
-+Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-+Description:	Shutdown time in us. Board is powered off if the button is pressed
-+		for more than <shutdown_time>
+diff --git a/arch/arm/configs/sunxi_defconfig b/arch/arm/configs/sunxi_defconfig
+index b5df4a5..6e305da 100644
+--- a/arch/arm/configs/sunxi_defconfig
++++ b/arch/arm/configs/sunxi_defconfig
+@@ -40,6 +40,8 @@ CONFIG_SUN4I_EMAC=y
+ # CONFIG_NET_VENDOR_STMICRO is not set
+ # CONFIG_NET_VENDOR_WIZNET is not set
+ # CONFIG_WLAN is not set
++CONFIG_INPUT_MISC=y
++CONFIG_INPUT_AXP20X_PEK=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_NR_UARTS=8
+@@ -55,6 +57,7 @@ CONFIG_GPIO_SYSFS=y
+ # CONFIG_HWMON is not set
+ CONFIG_WATCHDOG=y
+ CONFIG_SUNXI_WATCHDOG=y
++CONFIG_MFD_AXP20X=y
+ # CONFIG_USB_SUPPORT is not set
+ CONFIG_NEW_LEDS=y
+ CONFIG_LEDS_CLASS=y
+@@ -69,3 +72,4 @@ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_NLS=y
+ CONFIG_PRINTK_TIME=y
++CONFIG_REGULATOR_AXP20X=y
 -- 
 1.9.1
+

@@ -1,71 +1,71 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 3/3] synaptics: Change min/max quirk table to pnp-id matching
-Date: Mon, 19 May 2014 10:51:09 +0200
-Message-ID: <5379C5FD.1040401@redhat.com>
-References: <1400266009-5436-1-git-send-email-hdegoede@redhat.com> <1400266009-5436-4-git-send-email-hdegoede@redhat.com> <20140518203535.GA13276@core.coreip.homeip.net>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v5 4/8] input: misc: Add driver for
+ AXP20x Power Enable Key
+Date: Mon, 19 May 2014 10:15:53 +0100
+Message-ID: <20140519091553.GC4978@lee--X1>
+References: <1398947374-3115-1-git-send-email-carlo@caione.org>
+ <1398947374-3115-5-git-send-email-carlo@caione.org>
+ <20140503010604.GE4090@lukather>
+ <20140519055745.GL29386@core.coreip.homeip.net>
+ <CAOQ7t2bPHnjfpeqQjMsYJs--qpd1_1RvBEFXztTDgnf5yW=Yxg@mail.gmail.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20140518203535.GA13276@core.coreip.homeip.net>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBT4X46NQKGQEC5ROIOY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <CAOQ7t2bPHnjfpeqQjMsYJs--qpd1_1RvBEFXztTDgnf5yW=Yxg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Mon, 19 May 2014, Carlo Caione wrote:
 
-On 05/18/2014 10:35 PM, Dmitry Torokhov wrote:
-> On Fri, May 16, 2014 at 08:46:49PM +0200, Hans de Goede wrote:
->> Most of the affected models share pnp-ids for the touchpad. So switching
->> to pnp-ids give us 2 advantages:
->> 1) It shrinks the quirk list
->> 2) It will lower the new quirk addition frequency, ie the recently added W540
->>    quirk would not have been necessary since it uses the same LEN0034 pnp ids
->>    as other models already added before it
->>
->> As an added bonus it actually puts the quirk on the actual psmouse, rather then
->> on the machine, which is technically more correct.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>  drivers/input/mouse/synaptics.c | 149 ++++++++++------------------------------
->>  1 file changed, 36 insertions(+), 113 deletions(-)
->>
->> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->> index 395ec9c..c5ec703 100644
->> --- a/drivers/input/mouse/synaptics.c
->> +++ b/drivers/input/mouse/synaptics.c
->> @@ -117,6 +117,31 @@ void synaptics_reset(struct psmouse *psmouse)
->>  }
->>  
->>  #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
->> +struct min_max_quirk {
->> +	const char * const *pnp_ids;
->> +	int x_min, x_max, y_min, y_max;
->> +};
-> 
-> 
-> Why don't we define this as 1 quirk per PNP id?
-> 
-> struct min_max_quirk {
-> 	const char *pnp_id;
-> 	int x_min, x_max, y_min, y_max;
-> };
-> 
-> ?
+> On Mon, May 19, 2014 at 7:57 AM, Dmitry Torokhov
+> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> > On Fri, May 02, 2014 at 06:06:04PM -0700, Maxime Ripard wrote:
+> >> On Thu, May 01, 2014 at 02:29:30PM +0200, Carlo Caione wrote:
+> >> > This patch add support for the Power Enable Key found on MFD AXP202 =
+and
+> >> > AXP209. Besides the basic support for the button, the driver adds tw=
+o
+> >> > entries in sysfs to configure the time delay for power on/off.
+> >> >
+> >> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> >>
+> >> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> >
+> > Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >
+> > How are we merging it? MFD tree?
+>=20
+> No idea. Lee, can you help in merging it?
+> The only thing still  left out is the DT to be merged through Maxime
+> (I need to submit a v6 only for that).
 
-1) I thought it would be better to allow multiple ids for one min/max quad,
-since there seem to only be a few types of touchpads out there, which are
-sometimes referenced to by multiple ids. IE LEN0034 and LEN2004 refer to the
-exact same touchpad (exact same firmware and board id). Also this way we avoid
-people adding entries with values which are slightly off since determining
-the min/max range on a single model will give some noise.
+Yes.
 
-2) This way we can use one helper function for the matching for both the
-INPUT_PROP_TOPBUTTONPAD quirks and for the min/max quirks.
+Weren't you in receipt of my email sent out an hour before this one?
 
-Regards,
+I thought you were re-sending the test though (v6?).
 
-Hans
+If you can set that, complete with all the Acks, I'd be much obliged.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

@@ -1,53 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: core: fix validation of report id 0
-Date: Mon, 19 May 2014 15:39:54 -0400
-Message-ID: <CAN+gG=FDjtX9Sz9Hy=NT0zJV6y0sbJLJav=S0S2V=+v++EE6bg@mail.gmail.com>
-References: <20140417202209.GA30268@www.outflux.net>
-	<CAGXu5jJLKQiC4zwYJ9dpVvELoYBKZ4OFsqKdQXQW9OyDwsdvmg@mail.gmail.com>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v6 2/7] dt-bindings: add vendor-prefix for X-Powers
+Date: Mon, 19 May 2014 21:47:43 +0200
+Message-ID: <1400528868-5971-3-git-send-email-carlo@caione.org>
+References: <1400528868-5971-1-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:61330 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751435AbaESTj4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2014 15:39:56 -0400
-In-Reply-To: <CAGXu5jJLKQiC4zwYJ9dpVvELoYBKZ4OFsqKdQXQW9OyDwsdvmg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBB4N75GNQKGQEXLRMV6Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1400528868-5971-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, Roland Bosa <rbosa@logitech.com>
 
-On Mon, May 19, 2014 at 3:01 PM, Kees Cook <keescook@chromium.org> wrote:
-> Pinging on this patch... I don't see it in -next yet. I've had more
-> reports of trouble with logitech devices, and this seems to solve the
-> problem.
->
-> -Kees
->
-> On Thu, Apr 17, 2014 at 1:22 PM, Kees Cook <keescook@chromium.org> wrote:
->> Some drivers use the first HID report in the list instead of using an
->> index. In these cases, validation uses ID 0, which was supposed to mean
->> "first known report". This fixes the problem, which was causing at least
->> the lgff family of devices to stop working since hid_validate_values
->> was being called with ID 0, but the devices used single numbered IDs
->> for their reports:
->>
->> 0x05, 0x01,         /*  Usage Page (Desktop),                   */
->> 0x09, 0x05,         /*  Usage (Gamepad),                        */
->> 0xA1, 0x01,         /*  Collection (Application),               */
->> 0xA1, 0x02,         /*      Collection (Logical),               */
->> 0x85, 0x01,         /*          Report ID (1),                  */
->> ...
->>
->> Reported-by: Simon Wood <simon@mungewell.org>
->> Signed-off-by: Kees Cook <keescook@chromium.org>
->> Cc: stable@vger.kernel.org
->> ---
+Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+---
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Oops, sorry, I should have commented on it earlier:
-
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index abc3080..9d27ced 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -132,6 +132,7 @@ voipac	Voipac Technologies s.r.o.
+ winbond Winbond Electronics corp.
+ wlf	Wolfson Microelectronics
+ wm	Wondermedia Technologies, Inc.
++x-powers	X-Powers
+ xes	Extreme Engineering Solutions (X-ES)
+ xlnx	Xilinx
+ zyxel	ZyXEL Communications Corp.
+-- 
+1.9.1

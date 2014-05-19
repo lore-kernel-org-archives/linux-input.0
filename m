@@ -1,35 +1,78 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 1/2] ARM: OMAP2+: remove unused omap4-keypad file and code
-Date: Mon, 19 May 2014 09:18:15 -0700
-Message-ID: <20140519161814.GE4849@atomide.com>
-References: <1400361851-32274-1-git-send-email-manabian@gmail.com>
- <1400361851-32274-2-git-send-email-manabian@gmail.com>
- <20140519053710.GD29386@core.coreip.homeip.net>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] HID: core: fix validation of report id 0
+Date: Mon, 19 May 2014 12:01:01 -0700
+Message-ID: <CAGXu5jJLKQiC4zwYJ9dpVvELoYBKZ4OFsqKdQXQW9OyDwsdvmg@mail.gmail.com>
+References: <20140417202209.GA30268@www.outflux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:53508 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751544AbaESQSX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2014 12:18:23 -0400
-Content-Disposition: inline
-In-Reply-To: <20140519053710.GD29386@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140417202209.GA30268@www.outflux.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, Roland Bosa <rbosa@logitech.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Joachim Eastwood <manabian@gmail.com>, illia.smyrnov@ti.com, linux-omap@vger.kernel.org, linux-input@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [140518 22:38]:
-> On Sat, May 17, 2014 at 11:24:10PM +0200, Joachim Eastwood wrote:
-> > This has been unused since omap4 board files went away.
-> > 
-> > Signed-off-by: Joachim Eastwood <manabian@gmail.com>
-> 
-> Tony, can I merge both through my tree?
+Pinging on this patch... I don't see it in -next yet. I've had more
+reports of trouble with logitech devices, and this seems to solve the
+problem.
 
-Yes I don't have anything touching the omap4_keyboard_init
-areas that I can think of:
+-Kees
 
-Acked-by: Tony Lindgren <tony@atomide.com>
- 
+On Thu, Apr 17, 2014 at 1:22 PM, Kees Cook <keescook@chromium.org> wrote:
+> Some drivers use the first HID report in the list instead of using an
+> index. In these cases, validation uses ID 0, which was supposed to mean
+> "first known report". This fixes the problem, which was causing at least
+> the lgff family of devices to stop working since hid_validate_values
+> was being called with ID 0, but the devices used single numbered IDs
+> for their reports:
+>
+> 0x05, 0x01,         /*  Usage Page (Desktop),                   */
+> 0x09, 0x05,         /*  Usage (Gamepad),                        */
+> 0xA1, 0x01,         /*  Collection (Application),               */
+> 0xA1, 0x02,         /*      Collection (Logical),               */
+> 0x85, 0x01,         /*          Report ID (1),                  */
+> ...
+>
+> Reported-by: Simon Wood <simon@mungewell.org>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/hid/hid-core.c |   12 +++++++++++-
+>  1 file changed, 11 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 9e8064205bc7..07ce28175168 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -839,7 +839,17 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
+>          * ->numbered being checked, which may not always be the case when
+>          * drivers go to access report values.
+>          */
+> -       report = hid->report_enum[type].report_id_hash[id];
+> +       if (id == 0) {
+> +               /*
+> +                * Validating on id 0 means we should examine the first
+> +                * report in the list.
+> +                */
+> +               report = list_entry(
+> +                               hid->report_enum[type].report_list.next,
+> +                               struct hid_report, list);
+> +       } else {
+> +               report = hid->report_enum[type].report_id_hash[id];
+> +       }
+>         if (!report) {
+>                 hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
+>                 return NULL;
+> --
+> 1.7.9.5
+>
+>
+> --
+> Kees Cook
+> Chrome OS Security
+
+
+
+-- 
+Kees Cook
+Chrome OS Security

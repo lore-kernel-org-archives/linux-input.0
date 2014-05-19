@@ -1,232 +1,57 @@
-From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v5 4/7] Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
-Date: Mon, 19 May 2014 10:42:49 +0300
-Message-ID: <5379B5F9.70900@ti.com>
-References: <1399374372-29123-1-git-send-email-rogerq@ti.com> <1399374372-29123-5-git-send-email-rogerq@ti.com> <5379ACF1.6080305@euromail.se>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v5 7/7] Input: pixcir_i2c_ts: Add device tree support
+Date: Mon, 19 May 2014 10:50:58 +0300
+Message-ID: <5379B7E2.30904@ti.com>
+References: <1399374372-29123-1-git-send-email-rogerq@ti.com> <1399374372-29123-8-git-send-email-rogerq@ti.com> <20140519055421.GF29386@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5379ACF1.6080305-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: balbi-l0cyMroinI0@public.gmane.org, dmurphy-l0cyMroinI0@public.gmane.org, mugunthanvnm-l0cyMroinI0@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:54500 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752821AbaESHvG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2014 03:51:06 -0400
+In-Reply-To: <20140519055421.GF29386@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi Henrik,
-
-On 05/19/2014 10:04 AM, Henrik Rydberg wrote:
-> Hi Roger,
-> 
-> Thanks for the patch series. I think the patch looks great in general. Please
-> see some minor comments below.
-> 
-> On 05/06/2014 01:06 PM, Roger Quadros wrote:
->> Switch to using the Type-B Multi-Touch protocol.
+On 05/19/2014 08:54 AM, Dmitry Torokhov wrote:
+> On Tue, May 06, 2014 at 02:06:12PM +0300, Roger Quadros wrote:
+>> Provide device tree support and binding information.
+>> Also provide support for a new chip "pixcir_tangoc".
 >>
->> Signed-off-by: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+>> Signed-off-by: Roger Quadros <rogerq@ti.com>
 >> ---
->>  drivers/input/touchscreen/pixcir_i2c_ts.c | 125 ++++++++++++++++++++++--------
->>  1 file changed, 94 insertions(+), 31 deletions(-)
+>>  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   | 26 ++++++++
+>>  .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+>>  drivers/input/touchscreen/pixcir_i2c_ts.c          | 78 ++++++++++++++++++++++
+>>  3 files changed, 105 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
 >>
->> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
->> index 8a7da61..1b6e4e5 100644
->> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
->> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
->> @@ -23,9 +23,12 @@
->>  #include <linux/slab.h>
->>  #include <linux/i2c.h>
->>  #include <linux/input.h>
->> +#include <linux/input/mt.h>
->>  #include <linux/input/pixcir_ts.h>
->>  #include <linux/gpio.h>
->>  
->> +#define PIXCIR_MAX_SLOTS       2
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+>> new file mode 100644
+>> index 0000000..0ab9505
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+>> @@ -0,0 +1,26 @@
+>> +* Pixcir I2C touchscreen controllers
 >> +
->>  struct pixcir_i2c_ts_data {
->>  	struct i2c_client *client;
->>  	struct input_dev *input;
->> @@ -33,12 +36,25 @@ struct pixcir_i2c_ts_data {
->>  	bool running;
->>  };
->>  
->> -static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
->> +struct pixcir_touch {
->> +	int x;
->> +	int y;
->> +};
->> +
->> +struct pixcir_report_data {
->> +	int num_touches;
->> +	struct pixcir_touch touches[PIXCIR_MAX_SLOTS];
->> +};
->> +
->> +static void pixcir_ts_parse(struct pixcir_i2c_ts_data *tsdata,
->> +			    struct pixcir_report_data *report)
->>  {
->> -	struct pixcir_i2c_ts_data *tsdata = data;
->>  	u8 rdbuf[10], wrbuf[1] = { 0 };
->> +	u8 *bufptr;
->>  	u8 touch;
->> -	int ret;
->> +	int ret, i;
->> +
->> +	memset(report, 0, sizeof(struct pixcir_report_data));
->>  
->>  	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
->>  	if (ret != sizeof(wrbuf)) {
->> @@ -56,45 +72,85 @@ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
->>  		return;
->>  	}
->>  
->> -	touch = rdbuf[0];
->> -	if (touch) {
->> -		u16 posx1 = (rdbuf[3] << 8) | rdbuf[2];
->> -		u16 posy1 = (rdbuf[5] << 8) | rdbuf[4];
->> -		u16 posx2 = (rdbuf[7] << 8) | rdbuf[6];
->> -		u16 posy2 = (rdbuf[9] << 8) | rdbuf[8];
->> -
->> -		input_report_key(tsdata->input, BTN_TOUCH, 1);
->> -		input_report_abs(tsdata->input, ABS_X, posx1);
->> -		input_report_abs(tsdata->input, ABS_Y, posy1);
->> -
->> -		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
->> -		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
->> -		input_mt_sync(tsdata->input);
->> -
->> -		if (touch == 2) {
->> -			input_report_abs(tsdata->input,
->> -					 ABS_MT_POSITION_X, posx2);
->> -			input_report_abs(tsdata->input,
->> -					 ABS_MT_POSITION_Y, posy2);
->> -			input_mt_sync(tsdata->input);
->> -		}
->> -	} else {
->> -		input_report_key(tsdata->input, BTN_TOUCH, 0);
->> +	touch = rdbuf[0] & 0x7;
->> +	if (touch > PIXCIR_MAX_SLOTS)
->> +		touch = PIXCIR_MAX_SLOTS;
->> +
->> +	report->num_touches = touch;
->> +	bufptr = &rdbuf[2];
->> +
->> +	for (i = 0; i < touch; i++) {
->> +		report->touches[i].x = (bufptr[1] << 8) | bufptr[0];
->> +		report->touches[i].y = (bufptr[3] << 8) | bufptr[2];
->> +
->> +		bufptr = &bufptr[4];
->>  	}
->> +}
+>> +Required properties:
+>> +- compatible: must be "pixcir,pixcir_ts" or "pixcir,pixcir_tangoc"
+>> +- reg: I2C address of the chip
+>> +- interrupts: interrupt to which the chip is connected
+>> +- attb-gpio: GPIO connected to the ATTB line of the chip
+>> +- x-size: horizontal resolution of touchscreen
+>> +- y-size: vertical resolution of touchscreen
 > 
-> In many places, the '&ptr[index]' form makes a lot of sense, but here, it would
-> have been clearer to use 'bufptr += 4'.
+> There is a patch by Sebastian Reichel trying to unify touchscreen OF
+> properties, I think it would be nice if we used the same properties
+> here.
 
-Agreed. I'll update it.
-
-> 
->> +
->> +static void pixcir_ts_report(struct pixcir_i2c_ts_data *ts,
->> +			     struct pixcir_report_data *report)
->> +{
->> +	struct input_mt_pos pos[PIXCIR_MAX_SLOTS];
->> +	int slots[PIXCIR_MAX_SLOTS];
->> +	struct pixcir_touch *touch;
->> +	int n, i, slot;
->> +	struct device *dev = &ts->client->dev;
->>  
->> -	input_sync(tsdata->input);
->> +	n = report->num_touches;
->> +	if (n > PIXCIR_MAX_SLOTS)
->> +		n = PIXCIR_MAX_SLOTS;
->> +
->> +	for (i = 0; i < n; i++) {
->> +		touch = &report->touches[i];
->> +		pos[i].x = touch->x;
->> +		pos[i].y = touch->y;
->> +	}
->> +
->> +	input_mt_assign_slots(ts->input, slots, pos, n);
->> +
->> +	for (i = 0; i < n; i++) {
->> +		touch = &report->touches[i];
->> +		slot = slots[i];
->> +
->> +		input_mt_slot(ts->input, slot);
->> +		input_mt_report_slot_state(ts->input,
->> +					   MT_TOOL_FINGER, true);
->> +
->> +		input_event(ts->input, EV_ABS, ABS_MT_POSITION_X, touch->x);
->> +		input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y, touch->y);
->> +
->> +		dev_dbg(dev, "%d: slot %d, x %d, y %d\n",
->> +			i, slot, touch->x, touch->y);
->> +	}
->> +
->> +	input_mt_sync_frame(ts->input);
->> +	input_sync(ts->input);
->>  }
->>  
->>  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
->>  {
->>  	struct pixcir_i2c_ts_data *tsdata = dev_id;
->>  	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
->> +	struct pixcir_report_data report;
->>  
->>  	while (tsdata->running) {
->> -		pixcir_ts_poscheck(tsdata);
->> -
->> -		if (gpio_get_value(pdata->gpio_attb))
->> +		/* parse packet */
->> +		pixcir_ts_parse(tsdata, &report);
->> +
->> +		/* report it */
->> +		pixcir_ts_report(tsdata, &report);
->> +
->> +		if (gpio_get_value(pdata->gpio_attb)) {
->> +			if (report.num_touches) {
->> +				/*
->> +				 * Last report with no finger up?
->> +				 * Do it now then.
->> +				 */
->> +				input_mt_sync_frame(tsdata->input);
->> +				input_sync(tsdata->input);
-> 
-> I think this construct is alright for this particular patch. If anything, it
-> points at a need for a better model of interrupted contacts in the core.
-
-OK. 
-
-> 
->> +			}
->>  			break;
->> +		}
->>  
->>  		msleep(20);
->>  	}
->> @@ -333,6 +389,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->>  	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
->>  	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
->>  
->> +	error = input_mt_init_slots(input, PIXCIR_MAX_SLOTS,
->> +				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
->> +	if (error) {
->> +		dev_err(dev, "Error initializing Multi-Touch slots\n");
->> +		return error;
->> +	}
->> +
->>  	input_set_drvdata(input, tsdata);
->>  
->>  	error = devm_gpio_request_one(dev, pdata->gpio_attb,
->>
-> 
->     Reviewed-by: Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>
-
-Thanks for the review.
+OK, I'll update this patch.
 
 cheers,
 -roger
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

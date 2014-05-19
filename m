@@ -1,64 +1,35 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: rmi: do not handle touchscreens through hid-rmi
-Date: Mon, 19 May 2014 10:59:04 -0400
-Message-ID: <CAN+gG=HtdpTkZ6eo_WCBuwy_XkEjycb12jtj4eBo=P1goJUeeg@mail.gmail.com>
-References: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/2] ARM: OMAP2+: remove unused omap4-keypad file and code
+Date: Mon, 19 May 2014 09:18:15 -0700
+Message-ID: <20140519161814.GE4849@atomide.com>
+References: <1400361851-32274-1-git-send-email-manabian@gmail.com>
+ <1400361851-32274-2-git-send-email-manabian@gmail.com>
+ <20140519053710.GD29386@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f49.google.com ([209.85.215.49]:53982 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752589AbaESO7G (ORCPT
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:53508 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751544AbaESQSX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2014 10:59:06 -0400
-In-Reply-To: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
+	Mon, 19 May 2014 12:18:23 -0400
+Content-Disposition: inline
+In-Reply-To: <20140519053710.GD29386@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Joachim Eastwood <manabian@gmail.com>, illia.smyrnov@ti.com, linux-omap@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Apr 23, 2014 at 10:31 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Currently, hid-rmi drives every Synaptics product, but the touchscreens
-> on the Windows tablets should be handled through hid-multitouch.
->
-> Instead of providing a long list of PIDs, rely on the scan_report
-> capability to detect which should go to hid-multitouch, and which
-> should not go to hid-rmi.
->
-> We introduce a generic HID_GROUP_HAVE_SPECIAL_DRIVER which can be reused
-> amoung other drivers if they want to have a catch rule but still
-> have multitouch devices handled through hid-multitouch.
->
-> related bug:
-> https://bugzilla.kernel.org/show_bug.cgi?id=74241
-> https://bugzilla.redhat.com/show_bug.cgi?id=1089583
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Hi Jiri,
->
-> well, this is the patch we are going to carry in Fedora as we are already
-> carrying hid-rmi.
-> Still, I am not 100% happy with it, especially the HID_GROUP_HAVE_SPECIAL_DRIVER
-> thing.
->
-> I would also say we should re-think the way the scanning is called in
-> hid_add_device because I am starting using more and more the scanning capability
-> to decide if the device should be handled by generic, a special driver or simply
-> ignored.
->
-> Anyway, this could be decided later. If you prefer me to use a hid-rmi specific
-> group like HID_GROUP_RMI instead of HID_GROUP_HAVE_SPECIAL_DRIVER, I can also
-> update the patch.
->
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [140518 22:38]:
+> On Sat, May 17, 2014 at 11:24:10PM +0200, Joachim Eastwood wrote:
+> > This has been unused since omap4 board files went away.
+> > 
+> > Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+> 
+> Tony, can I merge both through my tree?
 
-Hi Jiri,
+Yes I don't have anything touching the omap4_keyboard_init
+areas that I can think of:
 
-looks like this one did not attracted your eye yet. Can you ack / nack it?
-Without it, hid-rmi will break all the multitouch screens from
-Synaptics, which will be a little bit worrying :)
-
-Cheers,
-Benjamin
+Acked-by: Tony Lindgren <tony@atomide.com>
+ 

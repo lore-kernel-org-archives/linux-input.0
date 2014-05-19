@@ -1,75 +1,64 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [linux-sunxi] Re: [PATCH v5 4/8] input: misc: Add driver for
- AXP20x Power Enable Key
-Date: Mon, 19 May 2014 14:28:37 +0100
-Message-ID: <20140519132837.GI4978@lee--X1>
-References: <1398947374-3115-1-git-send-email-carlo@caione.org>
- <1398947374-3115-5-git-send-email-carlo@caione.org>
- <20140503010604.GE4090@lukather>
- <20140519055745.GL29386@core.coreip.homeip.net>
- <CAOQ7t2bPHnjfpeqQjMsYJs--qpd1_1RvBEFXztTDgnf5yW=Yxg@mail.gmail.com>
- <20140519091553.GC4978@lee--X1>
- <CAOQ7t2a=V_dO17Xg4VJUTV3W_OFCaE5Wuj15_Fox2jywjH+RPg@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: rmi: do not handle touchscreens through hid-rmi
+Date: Mon, 19 May 2014 10:59:04 -0400
+Message-ID: <CAN+gG=HtdpTkZ6eo_WCBuwy_XkEjycb12jtj4eBo=P1goJUeeg@mail.gmail.com>
+References: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAOQ7t2a=V_dO17Xg4VJUTV3W_OFCaE5Wuj15_Fox2jywjH+RPg@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Carlo Caione <carlo@caione.org>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org, hdegoede@redhat.com, emilio@elopez.com.ar, wens@csie.org, sameo@linux.intel.com, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, lgirdwood@gmail.com, broonie@kernel.org, boris.brezillon@free-electrons.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-sunxi@googlegroups.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f49.google.com ([209.85.215.49]:53982 "EHLO
+	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752589AbaESO7G (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2014 10:59:06 -0400
+In-Reply-To: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, 19 May 2014, Carlo Caione wrote:
+On Wed, Apr 23, 2014 at 10:31 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Currently, hid-rmi drives every Synaptics product, but the touchscreens
+> on the Windows tablets should be handled through hid-multitouch.
+>
+> Instead of providing a long list of PIDs, rely on the scan_report
+> capability to detect which should go to hid-multitouch, and which
+> should not go to hid-rmi.
+>
+> We introduce a generic HID_GROUP_HAVE_SPECIAL_DRIVER which can be reused
+> amoung other drivers if they want to have a catch rule but still
+> have multitouch devices handled through hid-multitouch.
+>
+> related bug:
+> https://bugzilla.kernel.org/show_bug.cgi?id=74241
+> https://bugzilla.redhat.com/show_bug.cgi?id=1089583
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Hi Jiri,
+>
+> well, this is the patch we are going to carry in Fedora as we are already
+> carrying hid-rmi.
+> Still, I am not 100% happy with it, especially the HID_GROUP_HAVE_SPECIAL_DRIVER
+> thing.
+>
+> I would also say we should re-think the way the scanning is called in
+> hid_add_device because I am starting using more and more the scanning capability
+> to decide if the device should be handled by generic, a special driver or simply
+> ignored.
+>
+> Anyway, this could be decided later. If you prefer me to use a hid-rmi specific
+> group like HID_GROUP_RMI instead of HID_GROUP_HAVE_SPECIAL_DRIVER, I can also
+> update the patch.
+>
 
-> On Mon, May 19, 2014 at 11:15 AM, Lee Jones <lee.jones@linaro.org> wr=
-ote:
-> > On Mon, 19 May 2014, Carlo Caione wrote:
-> >
-> >> On Mon, May 19, 2014 at 7:57 AM, Dmitry Torokhov
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > On Fri, May 02, 2014 at 06:06:04PM -0700, Maxime Ripard wrote:
-> >> >> On Thu, May 01, 2014 at 02:29:30PM +0200, Carlo Caione wrote:
-> >> >> > This patch add support for the Power Enable Key found on MFD =
-AXP202 and
-> >> >> > AXP209. Besides the basic support for the button, the driver =
-adds two
-> >> >> > entries in sysfs to configure the time delay for power on/off=
-=2E
-> >> >> >
-> >> >> > Signed-off-by: Carlo Caione <carlo@caione.org>
-> >> >>
-> >> >> Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-> >> >
-> >> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >> >
-> >> > How are we merging it? MFD tree?
-> >>
-> >> No idea. Lee, can you help in merging it?
-> >> The only thing still  left out is the DT to be merged through Maxi=
-me
-> >> (I need to submit a v6 only for that).
-> >
-> > Yes.
-> >
-> > Weren't you in receipt of my email sent out an hour before this one=
-?
->=20
-> Yes, but this email was sent before receiving yours :)
->=20
-> > I thought you were re-sending the test though (v6?).
-> >
-> > If you can set that, complete with all the Acks, I'd be much oblige=
-d.
->=20
-> Ok, no problem. I'll also fix a small compilation-warning spotted by =
-Hans.
+Hi Jiri,
 
-Great thanks, and sorry for all the typos, I was in a rush. :)
+looks like this one did not attracted your eye yet. Can you ack / nack it?
+Without it, hid-rmi will break all the multitouch screens from
+Synaptics, which will be a little bit worrying :)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Cheers,
+Benjamin

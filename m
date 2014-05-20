@@ -1,68 +1,88 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH 4/6] input: cyapa: enable/disable trackpad device based on LID state
-Date: Tue, 20 May 2014 23:07:18 +0200
-Message-ID: <3078365.io3T8cjti2@vostro.rjw.lan>
-References: <77BC725C9062764F874D79F51E1F1A8F40C14099@S04-MBX01-01.s04.local> <1507406.BNOsJcxmP9@vostro.rjw.lan> <20140520152551.GB9444@core.coreip.homeip.net>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
+Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
+Date: Tue, 20 May 2014 22:58:05 +0200
+Message-ID: <6970969.ej8OFzkVkO@sigyn>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net> <2965006.XKYHWj9YzJ@sigyn> <865ad8dbc7ae0d13c045bd2a85cff2e2.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140520152551.GB9444@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Stern <stern@rowland.harvard.edu>
-Cc: Dudley Du <dudl@cypress.com>, Benson Leung <bleung@google.com>, Daniel Kurtz <djkurtz@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.devoid-pointer.net ([31.31.77.140]:33060 "EHLO
+	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750969AbaETU6L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 May 2014 16:58:11 -0400
+In-Reply-To: <865ad8dbc7ae0d13c045bd2a85cff2e2.squirrel@mungewell.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon@mungewell.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi
 
-On Tuesday, May 20, 2014 08:25:51 AM Dmitry Torokhov wrote:
-> On Tue, May 20, 2014 at 02:40:12PM +0200, Rafael J. Wysocki wrote:
-> > On Monday, May 19, 2014 08:43:02 PM Dmitry Torokhov wrote:
-> > > Hi Dudley,
-> > > 
-> > > On Wed, Apr 16, 2014 at 08:39:34AM +0000, Dudley Du wrote:
-> > > > Rely on EV_SW and SW_LID bits to identify a LID device, and hook
-> > > > up our filter to listen for SW_LID events to enable/disable touchpad when
-> > > > LID is open/closed.
-> > > > TEST=test on Chomebooks.
-> > > 
-> > > This is a policy and it does not belong in the kernel. Please work with
-> > > Rafael to establish generic interface to put devices into low power mode
-> > > (like accelerating runtime PM idle timeout)
+On Tuesday 20 of May 2014 16:16:12 simon@mungewell.org wrote:
+> > To bring this to a conclusion we could go from, would this be an
+> > acceptable
+> > solution?
 > > 
-> > I'm not really sure what you mean here, care to be more specific?
+> > - Have the HW-specific driver talk directly to ff-core and reimplement
+> > upload(),
+> > play(), etc.
+> > - Rewrite "ff-memless-next" so that it is not a self-contained module but
+> > a
+> > library of functions.
+> > 
+> > - Have the driver either:
+> >   - Upload an effect to a device directly if the device can fully manage
+> > 
+> > the
+> > effect by itself.
+> > 
+> >   - Use provided timing functions to know when an effect should start,
+> > 
+> > stop,
+> > restart etc...
+> > 
+> >   - Use provided timing AND processing functions to combine effects that
+> > 
+> > can be
+> > combined into one, calculate periodic waveforms etc?
+> > 
+> > I have no problem with throwing my current approach away but before I
+> > start working on a new one I'd like to know which way to go...
 > 
-> I think we chatted about this before - we need a uniform interface for
-> userspace to put devices into low power mode on demand.
+> Hi all,
+> If the driver itself (hid-logitech, via hid-lg4ff for example) is more
+> involved in the creation/timing/management of the effects, does this mean
+> that we end up with code duplicated in lots of places?
 
-I'm still not sure what you mean exactly.
+Hopefully not. I tried to work out some scheme how this would work in my head 
+today and the code duplication among other drivers should be minimal. 
+Basically an equivalent of "play_effects()" - implemented in the HW-specific 
+driver - would by called as needed. Such a function would then use provided 
+helper functions to process combinable effects and check if any uncombinable 
+effects changed state. A proper rate limiting will fit into this scheme nicely 
+as well.
+The biggest advantage of this design is that the HW-specific driver will be 
+able to either handle an effect all by itself or use the provided "helper" 
+infrastructure.
 
-If you mean an interface for user space to *force* transitions into low-power
-states, we can't have it, because user space doesn't know when it is safe to
-do that.  The /sys/devices/.../power/control interface is the best we can
-give to user space to this end.
+In retrospect I've got agree with Dmitry that the current handling of 
+(semi)memless devices is not very flexible and therefore potentially 
+problematic. It'll require some extra work but we don't have to invent 
+anything entirely new here, we can just rearrange what we've already done in 
+MLNX and package it into a library.
 
-Adding Alan Stern to the recipient list, because he was inovlved in discussions
-about that.
+> Also, does this mean that the 'old' ff-memless system would remain in
+> kernel? If not, who will reworking each driver?
 
-But if you mean an interface for user space to poke at pm_runtime_idle() to
-possibly trigger a runtime suspend, that we can add I think.  Alan?
+I suppose that the maintainers would want us to move all FF drivers to this 
+architecture. If we get it right, it shouldn't require a terrible amount of 
+work to port the other drivers.
 
-> As implementation detail I thought we could require runtime PM for that and
-> simply pretend that the PM timeout expired early when userspace invokes
-> that API.
+> Regarding the question of emulated vs. real effects, can we extend the API
+> so that applications can know which effects are really supported, and
+> enable/disable emulation somehow?
 
-That'd be overly complicated IMHO.  Calling pm_runtime_idle() should suffice.
+I suppose that a few extra flags (FF_PERIODIC_EMULATED etc.) defined in 
+"uapi/linux/input.h" should suffice.
 
-> > 
-> > > and use it when userspace detects that lid is closed.
-> > 
-> > I guess we get an event then, don't we?
-> 
-> Right, userspace gets EV_SW/SW_LID input event and needs to react. In
-> this particular case the desire is to power down touchpad (since it is
-> unaccessible). I am not sure why system suspend (which I expect happen
-> in reaction to lid closing) is not enough, but that's question for
-> Dudley.
-
-OK
-
-Rafael
+Michal

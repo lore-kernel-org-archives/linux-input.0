@@ -1,75 +1,74 @@
-From: Roland Bosa <rbosa@logitech.com>
-Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Tue, 20 May 2014 15:04:52 -0700
-Message-ID: <537BD184.9090608@logitech.com>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>    <1818063.tFLKhAd1oy@sigyn>    <20140514180558.GB30089@core.coreip.homeip.net>    <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com> <8c45868c3cd4333d1098bdbc0fa83a2e.squirrel@mungewell.org>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 0/7] mfd: AXP20x: Add support for AXP202
+ and AXP209
+Date: Tue, 20 May 2014 23:23:07 +0100
+Message-ID: <20140520222307.GK12304@sirena.org.uk>
+References: <1400528868-5971-1-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog119.obsmtp.com ([74.125.149.246]:57622 "EHLO
-	na3sys009aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751171AbaETWE7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 18:04:59 -0400
-Received: by mail-pb0-f52.google.com with SMTP id rr13so726003pbb.11
-        for <linux-input@vger.kernel.org>; Tue, 20 May 2014 15:04:58 -0700 (PDT)
-In-Reply-To: <8c45868c3cd4333d1098bdbc0fa83a2e.squirrel@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fq8WU8gPn+p6mCab"
+Return-path: <linux-sunxi+bncBDQ2L75W5QGBBYNL56NQKGQEYTTAV2Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1400528868-5971-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi
 
-On 05/20/2014 12:39 PM, simon@mungewell.org wrote:
-> hopefully bring Linux into scope for force-feedback of AAA game quality.
 
-^ That's my objective too.
+--fq8WU8gPn+p6mCab
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Mostly this has come from a small group of people reverse engineering the
-> Logitech wheels, which leads to the 'tailor-made' situation. But we'd like
-> the systems/interfaces to be device agnostic.
+On Mon, May 19, 2014 at 09:47:41PM +0200, Carlo Caione wrote:
 
-I'm sure we can consolidate the support into fewer files.
+> This set of patches introduces the core driver and support for two different
+> subsystems:
+> 	- Regulators
 
-> As you how you can help...? As Michal said having a contact at Logitech to
-> whom we can ask technical questions (off list) would probably be the
-> greatest help. This would clear up any assumptions we have made, and help
-> with decisions going forward.
+>  .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
+>  Documentation/devicetree/bindings/mfd/axp20x.txt   |  93 +++++++
+>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+>  arch/arm/configs/multi_v7_defconfig                |   3 +
+>  arch/arm/configs/sunxi_defconfig                   |   4 +
+>  drivers/input/misc/Kconfig                         |  11 +
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/axp20x-pek.c                    | 281 +++++++++++++++++++++
+>  drivers/mfd/Kconfig                                |  12 +
+>  drivers/mfd/Makefile                               |   1 +
+>  drivers/mfd/axp20x.c                               | 258 +++++++++++++++++++
+>  include/linux/mfd/axp20x.h                         | 180 +++++++++++++
+>  12 files changed, 856 insertions(+)
 
-Please don't hesitate to contact me. ;-)
+The regulator changes don't appear to be showing up in the diffstat or
+obviously in the series?
 
-> It may also be the case that Logitech is working with studios/game
-> designers to improve controller performance. If any information can be
-> feed 'forward' to improve the Linux driver, that would be useful too.
+--fq8WU8gPn+p6mCab
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-IMO, there are two types of games. The "arcade" ones, which have a set
-of 'canned' force effects, which play whenever an event happens in game.
-And the "simulation" ones, which base the game on a physics engine. The
-latter can redirect some variables of their engine to the input layer
-and typically drive a constant force and maybe a spring/damper too.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-For the first type, you might want to keep a centering spring active all
-the time. Maybe you want to tweak the gain in the game settings. Maybe
-there's a gain for the centering and one for the special effects. The
-canned effects are mostly periodics with varying waveform, duration,
-amplitude and envelope. That's about it.
+iQIcBAEBAgAGBQJTe9XIAAoJELSic+t+oim98AUP/jhi3uvP5Dyqacdq+ba0bpgo
+F6fX6WVE2jFtVUgI1IlFy3vRRyl3QzEnJtRIrp8ONcy10F8imEOSPugDW66Fnx6r
+2wfTAZrtfPbyjGcLF6nSjOkDFsyJZdGAk0T824z7CSD38C6E2pa7IeSsLQmOSkZi
+p0OqghEJuWjrkSvanyeRi5JcwOPnOWyWw3qss143L016lo+iubuZRHBfQDtGknaO
+gp2/cpNi78O2+eShC9CpHA+geNbo/eO1oJ4AFIa2Jk7C0xWB4xB99RgCENFdCkAk
+OZkgz1zVzYgz/h5A4HXKvYCl7lgeaM6wUVY4gKEKRXdwCw0ELe/rXp8c/zD/eg5t
+UPTu7b0ibCzY9RtracOe/JTOmpUv3+fuDcU4kWB0kkVgfWgmbh5s6yAtTJWArK47
+OKimiaoYJfqB76Nfa+FH7sliNMea2SmNsjUDZ26OLD9fMd3Sgja0q0Nfiwf5eBA5
+xf87kXvQUFHIFT3xkWbCI55BB8wBUAt10uTI9w1dOqLpofxj46CMSeItdN4msCw4
+KHOXyDIOPlQ5u4Jw9NWQvkpqh/4qWR/VgPsMCDQy94uoOsm3KpRB6lERja3DTGO4
+U3RwN3pp9eRY8WDo3uSc/rl2U5snHSSzJmxpCYjrkZlvLmcDagNZ9WOzeZ0xWwam
+6oDGGznhA73OpSMhnBal
+=fhLr
+-----END PGP SIGNATURE-----
 
-For the second type, you don't want a centering spring. You typically
-will drive a constant force effect with the engine, with some sprinkled
-damping and maybe a slight spring here and there.
-
-I would personally put more weight and effort to get the second type
-properly implemented. The players of those games demand more realism and
-they need the subtle force changes to drive better than the competition.
-That means having a FF driver that can deal with many force updates per
-second without choking and a consistent, reproducible force output at
-the device, maybe even similar across varying devices. This translates
-into a decoupled design for accepting force updates and sending USB
-updates, as well as a device-specific layer to "calibrate" and "unify"
-the force responses across different models.
-
-Does this make sense?
-
-thanks
-roland
-
+--fq8WU8gPn+p6mCab--

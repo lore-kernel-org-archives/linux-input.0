@@ -1,51 +1,28 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: rmi: do not handle touchscreens through hid-rmi
-Date: Tue, 20 May 2014 16:33:12 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405201631310.1615@pobox.suse.cz>
-References: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: core: fix validation of report id 0
+Date: Tue, 20 May 2014 16:40:34 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1405201640020.1615@pobox.suse.cz>
+References: <20140417202209.GA30268@www.outflux.net> <CAGXu5jJLKQiC4zwYJ9dpVvELoYBKZ4OFsqKdQXQW9OyDwsdvmg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55202 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:55359 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753474AbaETOdR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 10:33:17 -0400
-In-Reply-To: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S1753554AbaETOkh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 May 2014 10:40:37 -0400
+In-Reply-To: <CAGXu5jJLKQiC4zwYJ9dpVvELoYBKZ4OFsqKdQXQW9OyDwsdvmg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, Roland Bosa <rbosa@logitech.com>
 
-On Wed, 23 Apr 2014, Benjamin Tissoires wrote:
+On Mon, 19 May 2014, Kees Cook wrote:
 
-> Currently, hid-rmi drives every Synaptics product, but the touchscreens
-> on the Windows tablets should be handled through hid-multitouch.
-> 
-> Instead of providing a long list of PIDs, rely on the scan_report
-> capability to detect which should go to hid-multitouch, and which
-> should not go to hid-rmi.
-> 
-> We introduce a generic HID_GROUP_HAVE_SPECIAL_DRIVER which can be reused
-> amoung other drivers if they want to have a catch rule but still
-> have multitouch devices handled through hid-multitouch.
-> 
-> related bug:
-> https://bugzilla.kernel.org/show_bug.cgi?id=74241
-> https://bugzilla.redhat.com/show_bug.cgi?id=1089583
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Pinging on this patch... I don't see it in -next yet. I've had more
+> reports of trouble with logitech devices, and this seems to solve the
+> problem.
 
-Hi Benjamin,
-
-sorry for not responding sooner.
-
-Yes, I have to say I find HID_GROUP_HAVE_SPECIAL_DRIVER very disgusting. 
-Especially its (non-)relation to hid_have_special_driver[] is very 
-confusing.
-
-If you could update this to be RMI-specific (i.e. create a special 
-HID_GROUP for RMI devices), I'll merge it right away.
-
+Apologizes for this taking so long time. I have now queued your patch. 
 Thanks,
 
 -- 

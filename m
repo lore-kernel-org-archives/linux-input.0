@@ -1,66 +1,93 @@
-From: Jamie Lentin <jm@lentin.co.uk>
-Subject: Re: [PATCH] hid: Add custom driver for Lenovo ThinkPad Compact
- Bluetooth Keyboard
-Date: Tue, 20 May 2014 16:19:56 +0100 (BST)
-Message-ID: <alpine.DEB.2.02.1405201555110.4059@marmot.wormnet.eu>
-References: <1395786407-11273-1-git-send-email-jm@lentin.co.uk> <alpine.LNX.2.00.1405201644230.1615@pobox.suse.cz>
+From: Benson Leung <bleung@google.com>
+Subject: Re: [PATCH 4/6] input: cyapa: enable/disable trackpad device based on
+ LID state
+Date: Tue, 20 May 2014 08:52:50 -0700
+Message-ID: <CANLzEkt1M2WuXZT56pQv7asFAWQKC6LqwTyuiz=P9VA0oYdG-w@mail.gmail.com>
+References: <77BC725C9062764F874D79F51E1F1A8F40C14099@S04-MBX01-01.s04.local>
+	<20140520034302.GB986@core.coreip.homeip.net>
+	<1507406.BNOsJcxmP9@vostro.rjw.lan>
+	<20140520152551.GB9444@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marmot.wormnet.eu ([188.246.204.87]:46366 "EHLO
-	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751266AbaETPqB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 11:46:01 -0400
-In-Reply-To: <alpine.LNX.2.00.1405201644230.1615@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140520152551.GB9444@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Dudley Du <dudl@cypress.com>, Daniel Kurtz <djkurtz@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 20 May 2014, Jiri Kosina wrote:
+Hi Dmitry and Rafael,
 
-> On Tue, 25 Mar 2014, Jamie Lentin wrote:
->
->> This keyboard requires some custom mappings for all keys to be
->> available, and the Fn-lock toggle needs to be controlled in software.
+I can provide more insight here since I implemented an early version
+of this in the atmel and cyapa drivers that are used in the chromeos
+kernel.
+
+On Tue, May 20, 2014 at 8:25 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, May 20, 2014 at 02:40:12PM +0200, Rafael J. Wysocki wrote:
+>> On Monday, May 19, 2014 08:43:02 PM Dmitry Torokhov wrote:
+>> > Hi Dudley,
+>> >
+>> > On Wed, Apr 16, 2014 at 08:39:34AM +0000, Dudley Du wrote:
+>> > > Rely on EV_SW and SW_LID bits to identify a LID device, and hook
+>> > > up our filter to listen for SW_LID events to enable/disable touchpad when
+>> > > LID is open/closed.
+>> > > TEST=test on Chomebooks.
+>> >
+>> > This is a policy and it does not belong in the kernel. Please work with
+>> > Rafael to establish generic interface to put devices into low power mode
+>> > (like accelerating runtime PM idle timeout)
 >>
->> Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
->> ---
->> I assume that Linux users want Fn-Lock enabled by default, so they can
->> get at the function keys. If this is an incorrect assumption then can
->> change it---so long as there's some way of me leaving it enabled :)
+>> I'm not really sure what you mean here, care to be more specific?
+>
+> I think we chatted about this before - we need a uniform interface for
+> userspace to put devices into low power mode on demand. As
+> implementation detail I thought we could require runtime PM for that and
+> simply pretend that the PM timeout expired early when userspace invokes
+> that API.
+>
 >>
->> Tested with and applies cleanly to 3.13.6.
+>> > and use it when userspace detects that lid is closed.
 >>
->>  drivers/hid/Kconfig                   |  10 ++
->>  drivers/hid/Makefile                  |   1 +
->>  drivers/hid/hid-core.c                |   3 +
->>  drivers/hid/hid-ids.h                 |   1 +
->>  drivers/hid/hid-lenovo-tpcompactkbd.c | 191 ++++++++++++++++++++++++++++++++++
->>  5 files changed, 206 insertions(+)
+>> I guess we get an event then, don't we?
 >
-> Jamie,
->
-> thanks for the driver.
->
-> I think it'd make more sense if this could be folded into hid-lenovo-tpkbd
-> driver. Could you please do that and resubmit?
+> Right, userspace gets EV_SW/SW_LID input event and needs to react. In
+> this particular case the desire is to power down touchpad (since it is
+> unaccessible). I am not sure why system suspend (which I expect happen
+> in reaction to lid closing) is not enough, but that's question for
+> Dudley.
 
-I can do if required, although I didn't originally since there would be no 
-common code whatsoever between the keyboards. The newer keyboard has no 
-leds to register, and no trackpoint settings are exposed like on the older 
-keyboard. Equally the newer Fn-Lock setting wouldn't make sense for the 
-older keyboards, since they have grown-up function keys. The similarity 
-stops with the name.
 
-I have both the USB and the Bluetooth versions of this keyboard now, 
-once I have finished support for both[0] I will resubmit support for both.
+Waiting for system suspend isn't sufficient here because system
+suspend takes some time to trigger from user space, and in that time,
+the B panel of the laptop may couple with the active trackpad, or the
+C panel with the active touchscreen. This may generate stray input
+events, which may in turn cancel the suspend if the drivers use
+pm_wakeup_event(), and those input events may trigger something
+unwanted in the UI (think, accidentally one-click buy something on
+Amazon, etc).
 
-Cheers,
+I came up with a requirement: When the lid is closed, as soon as
+possible, the devices must be off. That's part of the reason why
+Dudley's patch does it in the kernel rather than doing the round trip
+to user space.
 
-[0] https://github.com/lentinj/tp-compact-keyboard/blob/usb-keyboard-support/module/hid-lenovo-tpcompactkbd.c
-     if anyone is interested
+Furthermore, the policy on lid close is not always to enter suspend.
+We have something called Docked Mode, which allows the system to not
+suspend while the lid is closed if there's an external monitor
+attached. In this case, the touch devices must be disabled as well as
+again they risk generating stray events with the lid closed.
+
+I'd prefer if there was some way to establish a relationship between
+the lid and devices that must be power managed differently depending
+on the state of the lid, rather than leaving it to user space to
+manage the power management of these devices in real time and open up
+the possibility of race conditions there if user space is too slow.
+
+Thanks!
 
 -- 
-Jamie Lentin
+Benson Leung
+Software Engineer, Chrome OS
+Google Inc.
+bleung@google.com

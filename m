@@ -1,49 +1,55 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Add custom driver for Lenovo ThinkPad Compact
- Bluetooth Keyboard
-Date: Tue, 20 May 2014 16:47:05 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405201644230.1615@pobox.suse.cz>
-References: <1395786407-11273-1-git-send-email-jm@lentin.co.uk>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: rmi: do not handle touchscreens through hid-rmi
+Date: Tue, 20 May 2014 14:59:16 +0000
+Message-ID: <20140520145916.GB9028@mail.corp.redhat.com>
+References: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
+ <alpine.LNX.2.00.1405201631310.1615@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55497 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750808AbaETOrH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 10:47:07 -0400
-In-Reply-To: <1395786407-11273-1-git-send-email-jm@lentin.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1405201631310.1615@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jamie Lentin <jm@lentin.co.uk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2014, Jamie Lentin wrote:
-
-> This keyboard requires some custom mappings for all keys to be
-> available, and the Fn-lock toggle needs to be controlled in software.
+On May 20 2014 or thereabouts, Jiri Kosina wrote:
+> On Wed, 23 Apr 2014, Benjamin Tissoires wrote:
 > 
-> Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
-> ---
-> I assume that Linux users want Fn-Lock enabled by default, so they can
-> get at the function keys. If this is an incorrect assumption then can
-> change it---so long as there's some way of me leaving it enabled :)
+> > Currently, hid-rmi drives every Synaptics product, but the touchscreens
+> > on the Windows tablets should be handled through hid-multitouch.
+> > 
+> > Instead of providing a long list of PIDs, rely on the scan_report
+> > capability to detect which should go to hid-multitouch, and which
+> > should not go to hid-rmi.
+> > 
+> > We introduce a generic HID_GROUP_HAVE_SPECIAL_DRIVER which can be reused
+> > amoung other drivers if they want to have a catch rule but still
+> > have multitouch devices handled through hid-multitouch.
+> > 
+> > related bug:
+> > https://bugzilla.kernel.org/show_bug.cgi?id=74241
+> > https://bugzilla.redhat.com/show_bug.cgi?id=1089583
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > 
-> Tested with and applies cleanly to 3.13.6.
+> Hi Benjamin,
 > 
->  drivers/hid/Kconfig                   |  10 ++
->  drivers/hid/Makefile                  |   1 +
->  drivers/hid/hid-core.c                |   3 +
->  drivers/hid/hid-ids.h                 |   1 +
->  drivers/hid/hid-lenovo-tpcompactkbd.c | 191 ++++++++++++++++++++++++++++++++++
->  5 files changed, 206 insertions(+)
+> sorry for not responding sooner.
 
-Jamie,
+It's not a big deal. Actually, the Canonical folks reminded me the state
+of this patch that I completely forgot too :)
 
-thanks for the driver.
+> 
+> Yes, I have to say I find HID_GROUP_HAVE_SPECIAL_DRIVER very disgusting. 
+> Especially its (non-)relation to hid_have_special_driver[] is very 
+> confusing.
+> 
+> If you could update this to be RMI-specific (i.e. create a special 
+> HID_GROUP for RMI devices), I'll merge it right away.
 
-I think it'd make more sense if this could be folded into hid-lenovo-tpkbd 
-driver. Could you please do that and resubmit?
+Ok, I'll add this to the pile of things to do today.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin

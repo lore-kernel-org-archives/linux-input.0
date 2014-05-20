@@ -1,55 +1,99 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: rmi: do not handle touchscreens through hid-rmi
-Date: Tue, 20 May 2014 14:59:16 +0000
-Message-ID: <20140520145916.GB9028@mail.corp.redhat.com>
-References: <1398263514-7281-1-git-send-email-benjamin.tissoires@redhat.com>
- <alpine.LNX.2.00.1405201631310.1615@pobox.suse.cz>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] Input: misc : Introduce the use of the managed version of
+ kzalloc
+Date: Tue, 20 May 2014 20:39:18 +0530
+Message-ID: <20140520150918.GA6269@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f50.google.com ([209.85.160.50]:42805 "EHLO
+	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751161AbaETPJZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 May 2014 11:09:25 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1405201631310.1615@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-On May 20 2014 or thereabouts, Jiri Kosina wrote:
-> On Wed, 23 Apr 2014, Benjamin Tissoires wrote:
-> 
-> > Currently, hid-rmi drives every Synaptics product, but the touchscreens
-> > on the Windows tablets should be handled through hid-multitouch.
-> > 
-> > Instead of providing a long list of PIDs, rely on the scan_report
-> > capability to detect which should go to hid-multitouch, and which
-> > should not go to hid-rmi.
-> > 
-> > We introduce a generic HID_GROUP_HAVE_SPECIAL_DRIVER which can be reused
-> > amoung other drivers if they want to have a catch rule but still
-> > have multitouch devices handled through hid-multitouch.
-> > 
-> > related bug:
-> > https://bugzilla.kernel.org/show_bug.cgi?id=74241
-> > https://bugzilla.redhat.com/show_bug.cgi?id=1089583
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Hi Benjamin,
-> 
-> sorry for not responding sooner.
+This patch moves data allocated using kzalloc to managed data allocated
+using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+functions.
 
-It's not a big deal. Actually, the Canonical folks reminded me the state
-of this patch that I completely forgot too :)
+The following Coccinelle semantic patch was used for making the change:
 
-> 
-> Yes, I have to say I find HID_GROUP_HAVE_SPECIAL_DRIVER very disgusting. 
-> Especially its (non-)relation to hid_have_special_driver[] is very 
-> confusing.
-> 
-> If you could update this to be RMI-specific (i.e. create a special 
-> HID_GROUP for RMI devices), I'll merge it right away.
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
 
-Ok, I'll add this to the pile of things to do today.
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
 
-Cheers,
-Benjamin
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
+
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+---
+Would be better to add the definition of a
+devm_input_allocate_polled_device, like there is a
+devm_input_allocate_device defined?
+
+ drivers/input/misc/sgi_btns.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/misc/sgi_btns.c b/drivers/input/misc/sgi_btns.c
+index f104749..e2dea37 100644
+--- a/drivers/input/misc/sgi_btns.c
++++ b/drivers/input/misc/sgi_btns.c
+@@ -97,7 +97,8 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+ 	struct input_dev *input;
+ 	int error, i;
+ 
+-	bdev = kzalloc(sizeof(struct buttons_dev), GFP_KERNEL);
++	bdev = devm_kzalloc(&pdev->dev, sizeof(struct buttons_dev),
++			    GFP_KERNEL);
+ 	poll_dev = input_allocate_polled_device();
+ 	if (!bdev || !poll_dev) {
+ 		error = -ENOMEM;
+@@ -137,7 +138,6 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+ 
+  err_free_mem:
+ 	input_free_polled_device(poll_dev);
+-	kfree(bdev);
+ 	return error;
+ }
+ 
+@@ -147,7 +147,6 @@ static int sgi_buttons_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_polled_device(bdev->poll_dev);
+ 	input_free_polled_device(bdev->poll_dev);
+-	kfree(bdev);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
+

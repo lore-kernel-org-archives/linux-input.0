@@ -1,53 +1,106 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
+From: Roland Bosa <rbosa@logitech.com>
 Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Tue, 20 May 2014 23:26:54 +0200
-Message-ID: <CADbOyBTOQLewGSzXY6O1Rghw28bMtDYf5UdH9QU17DPur8hryw@mail.gmail.com>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
-	<2965006.XKYHWj9YzJ@sigyn>
-	<865ad8dbc7ae0d13c045bd2a85cff2e2.squirrel@mungewell.org>
-	<6970969.ej8OFzkVkO@sigyn>
+Date: Tue, 20 May 2014 14:38:43 -0700
+Message-ID: <537BCB63.1020200@logitech.com>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net> <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com> <10859911.6zyzadbfH9@sigyn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6970969.ej8OFzkVkO@sigyn>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog120.obsmtp.com ([74.125.149.140]:53356 "EHLO
+	na3sys009aog120.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750868AbaETVis (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 May 2014 17:38:48 -0400
+Received: by mail-pb0-f48.google.com with SMTP id rr13so699182pbb.7
+        for <linux-input@vger.kernel.org>; Tue, 20 May 2014 14:38:48 -0700 (PDT)
+In-Reply-To: <10859911.6zyzadbfH9@sigyn>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
 
-On Tue, May 20, 2014 at 10:58 PM, Michal Mal=C3=BD
-<madcatxster@devoid-pointer.net> wrote:
-> On Tuesday 20 of May 2014 16:16:12 simon@mungewell.org wrote:
->> Regarding the question of emulated vs. real effects, can we extend t=
-he API
->> so that applications can know which effects are really supported, an=
-d
->> enable/disable emulation somehow?
->
-> I suppose that a few extra flags (FF_PERIODIC_EMULATED etc.) defined =
+On 05/20/2014 12:00 PM, Michal Mal=FD wrote:
+> Hi,
+>=20
+> "ff-memless-next" was designed with behavior of Logitech devices in m=
+ind,=20
+> however it was always meant as a general replacement for the current =
+"ff-
+> memless". After some followup discussion it's unlikely that it will b=
+e=20
+> mainlined in its current form. See the discussion here=20
+> "http://www.spinics.net/lists/linux-input/msg31426.html" for more det=
+ails.
+>=20
+> We would however really appreciate some information regarding Logitec=
+h devices=20
+> specifically. Although we have reverse engineered most of things, I b=
+elieve=20
+> there are still areas we're not entirely clear about. I realize that =
+you'd=20
+> probably have to take it up with the legal deparment but if someone a=
+t=20
+> Logitech could at least take a look at what we've found so far at fil=
+l in the=20
+> blanks it'd be most helpful.
+
+I'm your guy, then. Please send any questions my way and I'll dig out
+the information you need - with the lawyer's blessings, if need be.
+
+> Please note that we found numerous bugs and DirectInput specs violati=
+ons in=20
+> the Windows driver which might have impacted our understading of how =
+the=20
+> driver works. "ff-memless-next" and "lg4ff" tries to fix or work arou=
+nd these. A=20
+> link to out-of-tree update to lg4ff which takes full advantage of "ff=
+-memless-
+> next" is also provided in this thread.
+
+lg4ff is mostly wheels, from what I saw. We should be able to fold in
+the G940 (Flight System) as well as other joysticks into the same
+driver. The underlying model driving the forces of our devices is
+essentially the same, there are just slight improvements made over the
+years to accommodate higher resolutions and more powerful micro process=
+ors.
+
+Each device has a unique number (say 2 or 4) of force 'slots' per axis,
+which is running a force calculation in firmware. Typically, one of
+these slots is allocated by the host driver for a constant force, that'=
+s
+streamed to the device (and comprises all constant and periodic forces
+sent by the 'game' - that's the combined type of your code, as far as I
+can tell). The other slot may be used for position-based effects
+(springs, centering spring) as well as velocity-based effects (dampers,
+friction) - that's the un-combinable type. There's a healthy amount of
+code in the Windows driver that you would call 'quirks' which deals wit=
+h
+deciding how to allocate multiple springs and dampers to a single slot.
+Sometimes, even the springs and dampers are being streamed in via the
+constants force, but that requires (as you pointed out earlier) a fast
+update rate and some "smartness" (I'm getting in hot territory with the
+lawyers now - let me stop).
+
+One of the key features of the design is the decoupling of the USB
+updates from the force feedback IOCTL's from the 'game'. I don't think
+this is currently the case with today's drivers. I was able to send
+force updates to a gamepad faster than the USB update rate, which led t=
+o
+some lost packets which in turn left the device in a inconsistent state
+- the motors were still rumbling although they should have stopped. If
+the 'ff-memless-next' driver offers this decoupling, it is a step in th=
+e
+right direction, IMO.
+
+I will try to apply the patch mentioned in this thread and see where it
+leads me...
+
+Thanks
+roland
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in
-> "uapi/linux/input.h" should suffice.
-
-@Dmitry:
-Now that we're talking about API changes, I would like to propose some
-additional things in the Linux FF API:
-
-- Possibility to *get* FF state variables, such as the value of the
-current GAIN, and the current AUTOCENTER:
-At the moment, only *setting* is possible.
-This poses a problem when implementing proper AUTOCENTER state
-recovery (upon closing a Windows program) in Wine, because the initial
-AUTOCENTER state was unknown.
-The same applies for GAIN.
-
-- Introduce multiple types of GAIN, apart from the current global
-GAIN, e.g. GAIN_CONSTANT and GAIN_DAMPER:
-This is mainly on request of some users, especially Logitech users: on
-Windows Logitech additionally supports to set the global Damper and
-Spring gain.
-Maybe it would be nicer to create a global gain for every supported
-Linux FF effect?
-
-Thanks,
-Elias
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

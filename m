@@ -1,82 +1,59 @@
 From: simon@mungewell.org
 Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Tue, 20 May 2014 19:30:02 -0400
-Message-ID: <1c6140633925b0838b7627e071e80761.squirrel@mungewell.org>
+Date: Tue, 20 May 2014 19:45:44 -0400
+Message-ID: <7e57db42a261a54d38a3a7bb068c3ce2.squirrel@mungewell.org>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
-    <1818063.tFLKhAd1oy@sigyn>
-    <20140514180558.GB30089@core.coreip.homeip.net>
-    <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com>
-    <8c45868c3cd4333d1098bdbc0fa83a2e.squirrel@mungewell.org>
-    <537BD184.9090608@logitech.com>
+    <2965006.XKYHWj9YzJ@sigyn>
+    <865ad8dbc7ae0d13c045bd2a85cff2e2.squirrel@mungewell.org>
+    <6970969.ej8OFzkVkO@sigyn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:52193 "EHLO
+Received: from host171.canaca.com ([67.55.55.225]:50939 "EHLO
 	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750828AbaETXaI (ORCPT
+	with ESMTP id S1750721AbaETXpq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 19:30:08 -0400
-In-Reply-To: <537BD184.9090608@logitech.com>
+	Tue, 20 May 2014 19:45:46 -0400
+In-Reply-To: <6970969.ej8OFzkVkO@sigyn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Bosa <rbosa@logitech.com>
-Cc: simon@mungewell.org, =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi
+To: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>
+Cc: simon@mungewell.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi
 
 
-> IMO, there are two types of games. The "arcade" ones, which have a set
-> of 'canned' force effects, which play whenever an event happens in game.
-> And the "simulation" ones, which base the game on a physics engine. The
-> latter can redirect some variables of their engine to the input layer
-> and typically drive a constant force and maybe a spring/damper too.
+>> Regarding the question of emulated vs. real effects, can we extend the
+>> API
+>> so that applications can know which effects are really supported, and
+>> enable/disable emulation somehow?
 >
-> For the first type, you might want to keep a centering spring active all
-> the time. Maybe you want to tweak the gain in the game settings. Maybe
-> there's a gain for the centering and one for the special effects. The
-> canned effects are mostly periodics with varying waveform, duration,
-> amplitude and envelope. That's about it.
+> I suppose that a few extra flags (FF_PERIODIC_EMULATED etc.) defined in
+> "uapi/linux/input.h" should suffice.
 
-Sounds like these are the effect files produced by FEdit tool (from MS
-DirectX SDK), and/or played back by pressing buttons when configuring the
-Logitech driver on Windows ('wooden bridge', etc)...
+The only problem is that we probably want to maintain backward
+compatibility so that older apps still see 'PERIODIC' (even though it is
+emulated).
+--
+#define FF_RUMBLE	0x50
+#define FF_PERIODIC	0x51
+#define FF_CONSTANT	0x52
+#define FF_SPRING	0x53
+#define FF_FRICTION	0x54
+#define FF_DAMPER	0x55
+#define FF_INERTIA	0x56
+#define FF_RAMP		0x57
+--
 
-Do you know if there is a mechanism for playing these under Linux?
-
-Under Windows do games just send a 'file' the DirectX driver, or do they
-parse them into individual effects to send?
-
-If format is known/public it shouldn't be hard to write a userland client
-to play them back. If this needs to be supported in the kernel that would
-be more problematic.
-
-> For the second type, you don't want a centering spring. You typically
-> will drive a constant force effect with the engine, with some sprinkled
-> damping and maybe a slight spring here and there.
->
-> I would personally put more weight and effort to get the second type
-> properly implemented. The players of those games demand more realism and
-> they need the subtle force changes to drive better than the competition.
-
-I would agree, these are probably more higher 'priority' but I think that
-the work Elias and Michal have done already implements these fairly well.
-
-I assume that most AAA games, would implement these through some middle
-layer. I think that is probably via Steam using SDL2 haptic API, we have
-been testing against SDL2's 'testhaptic'.
-
-Do you see another path (which we should be supporting/testing)?
-
-> That means having a FF driver that can deal with many force updates per
-> second without choking and a consistent, reproducible force output at
-> the device, maybe even similar across varying devices. This translates
-> into a decoupled design for accepting force updates and sending USB
-> updates, as well as a device-specific layer to "calibrate" and "unify"
-> the force responses across different models.
-
-There was some discussion about rate limiting the USB packets to the
-wheel, and how to deal if app updates too quickly. Is there an upper limit
-for the wheel itself, or is it just the USB 'pipe' which is the limiting
-factor?
+Do we therefore have to list extra items in our capabilities?
+--
+static const signed short lg4ff_wheel_effects[] = {
+	FF_CONSTANT,
+	FF_PERIODIC,
+	FF_PERIODIC_NOT_EMULATED,
+	FF_AUTOCENTER,
+	-1
+};
+--
 
 Simon
 

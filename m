@@ -1,36 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] HID: quirk for Saitek RAT7 and MMO7 mices' mode
- button
-Date: Tue, 20 May 2014 21:30:01 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405202129510.19150@pobox.suse.cz>
-References: <537B9EB0.60603@braincalibration.de>
+From: simon@mungewell.org
+Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
+Date: Tue, 20 May 2014 15:39:19 -0400
+Message-ID: <8c45868c3cd4333d1098bdbc0fa83a2e.squirrel@mungewell.org>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
+    <1818063.tFLKhAd1oy@sigyn>
+    <20140514180558.GB30089@core.coreip.homeip.net>
+    <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59616 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751420AbaETTaF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 15:30:05 -0400
-In-Reply-To: <537B9EB0.60603@braincalibration.de>
+Received: from host171.canaca.com ([67.55.55.225]:38673 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750807AbaETTjZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 May 2014 15:39:25 -0400
+In-Reply-To: <537B9FAE.9070602@logitech.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Harald Brinkmann <hbrinkmann@braincalibration.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Roland Bosa <rbosa@logitech.com>
+Cc: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi, simon@mungewell.org
 
-On Tue, 20 May 2014, Harald Brinkmann wrote:
+> Allow me to introduce myself. I'm Roland Bosa and I work for Logitech,
+> more specifically the gaming group. I have been tasked to look into
+> gaming device support for Linux and I just started following this list
+> and studying the kernel code related to the Logitech Force Feedback
+> devices. The 'ff-memless-next' module sounds tailor-made for our
+> devices. Please let me know how I can help with its development.
 
-> Some saitek mice implement a tristate button (for switching button
-> mappings in the original driver) by keeping one of three (non-physical)
-> buttons constantly pressed.
-> This breaks X and probably other userspace software.
-> This patch implements a quirk for the R.A.T.7 and M.M.O.7, tracking
-> the mode and generating presses of a single button if it changes.
-> Also the missing release event is generated instantly.
-> 
-> Signed-off-by: Harald Brinkmann <hbrinkmann@braincalibration.de>
+Hello Roland,
+Let me echo Michal's welcome.
 
-Applied, thanks.
+As you will see from the 'ff-memless-next' driver we are looking to extend
+force-feedback support to cover more than just ConstantForce support, and
+hopefully bring Linux into scope for force-feedback of AAA game quality.
 
--- 
-Jiri Kosina
-SUSE Labs
+Mostly this has come from a small group of people reverse engineering the
+Logitech wheels, which leads to the 'tailor-made' situation. But we'd like
+the systems/interfaces to be device agnostic.
+
+As you how you can help...? As Michal said having a contact at Logitech to
+whom we can ask technical questions (off list) would probably be the
+greatest help. This would clear up any assumptions we have made, and help
+with decisions going forward.
+
+It may also be the case that Logitech is working with studios/game
+designers to improve controller performance. If any information can be
+feed 'forward' to improve the Linux driver, that would be useful too.
+
+Many thanks,
+Simon Wood.
+

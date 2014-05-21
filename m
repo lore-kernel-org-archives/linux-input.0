@@ -1,76 +1,115 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
+From: Roland Bosa <rbosa@logitech.com>
 Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Wed, 21 May 2014 02:08:13 +0200
-Message-ID: <1777829.p5KaJDSX63@sigyn>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net> <6970969.ej8OFzkVkO@sigyn> <7e57db42a261a54d38a3a7bb068c3ce2.squirrel@mungewell.org>
+Date: Tue, 20 May 2014 18:17:51 -0700
+Message-ID: <537BFEBF.8010601@logitech.com>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>    <1818063.tFLKhAd1oy@sigyn>    <20140514180558.GB30089@core.coreip.homeip.net>    <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com>    <8c45868c3cd4333d1098bdbc0fa83a2e.squirrel@mungewell.org>    <537BD184.9090608@logitech.com> <1c6140633925b0838b7627e071e80761.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from prifuk.cz ([31.31.77.140]:33072 "EHLO smtp.devoid-pointer.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750721AbaEUAIS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 May 2014 20:08:18 -0400
-In-Reply-To: <7e57db42a261a54d38a3a7bb068c3ce2.squirrel@mungewell.org>
+Received: from na3sys009aog126.obsmtp.com ([74.125.149.155]:45813 "EHLO
+	na3sys009aog126.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751299AbaEUBR6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 May 2014 21:17:58 -0400
+Received: by mail-pd0-f171.google.com with SMTP id y13so845747pdi.2
+        for <linux-input@vger.kernel.org>; Tue, 20 May 2014 18:17:57 -0700 (PDT)
+In-Reply-To: <1c6140633925b0838b7627e071e80761.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: simon@mungewell.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi
+Cc: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, elias.vds@gmail.com, anssi.hannula@iki.fi
 
-On Tuesday 20 of May 2014 19:45:44 simon@mungewell.org wrote:
-> >> Regarding the question of emulated vs. real effects, can we extend the
-> >> API
-> >> so that applications can know which effects are really supported, and
-> >> enable/disable emulation somehow?
-> > 
-> > I suppose that a few extra flags (FF_PERIODIC_EMULATED etc.) defined in
-> > "uapi/linux/input.h" should suffice.
-> 
-> The only problem is that we probably want to maintain backward
-> compatibility so that older apps still see 'PERIODIC' (even though it is
-> emulated).
-> --
-> #define FF_RUMBLE	0x50
-> #define FF_PERIODIC	0x51
-> #define FF_CONSTANT	0x52
-> #define FF_SPRING	0x53
-> #define FF_FRICTION	0x54
-> #define FF_DAMPER	0x55
-> #define FF_INERTIA	0x56
-> #define FF_RAMP		0x57
-> --
-> 
-> Do we therefore have to list extra items in our capabilities?
-> --
-> static const signed short lg4ff_wheel_effects[] = {
-> 	FF_CONSTANT,
-> 	FF_PERIODIC,
-> 	FF_PERIODIC_NOT_EMULATED,
-> 	FF_AUTOCENTER,
-> 	-1
-> };
-> --
-> 
-> Simon
+On 05/20/2014 04:30 PM, simon@mungewell.org wrote:
+> Sounds like these are the effect files produced by FEdit tool (from MS
+> DirectX SDK), and/or played back by pressing buttons when configuring the
+> Logitech driver on Windows ('wooden bridge', etc)...
 
-Actually I was thinking something like this:
+Prior to the FEdit tool, there was Immersion Studio [1]. It created IFR
+files, which were read using a DLL that Immersion provided. This DLL
+produced arrays of DIEFFECTs, which had specific durations and start
+offsets. By starting the entire array, you would get the desired effect.
+Most of the original effects in the Logitech Control Panel were done
+that way (by yours truly, as a matter of fact). To "sell" the effect, a
+sound-effect was queued concurrently with the force effect.
 
-"input.h"
-#define FF_DAMPER	0x55
-#define FF_INERTIA	0x56
-#define FF_RAMP		0x57
-+# define FF_PERIODIC_EMULATED	0x58
-+# define FF_RUMBLE_EMULATED	0x59
+(Trivia: part of the "Wooden bridge" sound effect was made by smashing a
+cigarette lighter against real wooden clogs of a co-worker, then slowing
+down the audio a bit.)
 
-and
+In 2003, all of these effects were 'hardcoded' in a series of arrays of
+arrays of DI_EFFECTs. This allowed us to drop the Immersion loader DLL
+and create them on the fly.
 
-in the future "library-like" reimplementation of MLNX:
-#define EMULATE_PERIODIC BIT(0)
-#define EMULATE_RUMBLE BIT(1)
+> Do you know if there is a mechanism for playing these under Linux?
 
-kfflib_init(..., EMULATE_PERIODIC | EMULATE_RUMBLE);
-for full emulation.
+I don't - I'm fairly new to the Linux platform itself.
 
-Michal
+> Under Windows do games just send a 'file' the DirectX driver, or do they
+> parse them into individual effects to send?
 
+With the IFR approach, you call a function in a library in userland with
+the filename, and it returns an array of effects. With the FEdit tool,
+you call a function on the IDirectInputDevice and calls a given callback
+the the loaded effects.[2]
+
+At the end of the day, you end up with a series of user-land effect
+structures. It's up to the 'game' to download and start them on a given
+device.
+
+> If format is known/public it shouldn't be hard to write a userland client
+> to play them back.
+
+The file format of an IFR is probably easily deducible. There's a lot of
+textual clues to parameters and the values are also written out in
+string form.
+
+I don't have a FEdit file at hand, but I suppose it will be similar.
+
+> I assume that most AAA games, would implement these through some middle
+> layer. I think that is probably via Steam using SDL2 haptic API, we have
+> been testing against SDL2's 'testhaptic'.
+
+I wasn't aware of this layer. I must read up on it. It sounds like a
+simple way to access force feedback - I guess a game developer should
+shed some light on this...
+
+> Do you see another path (which we should be supporting/testing)?
+
+Nope, not at this time.
+
+> There was some discussion about rate limiting the USB packets to the
+> wheel, and how to deal if app updates too quickly. Is there an upper limit
+> for the wheel itself, or is it just the USB 'pipe' which is the limiting
+> factor?
+
+On the Windows side we send 125 reports/sec. The entire simulation loop
+runs with a 8ms resolution. I assume this value was chosen for some
+hardware constraints back in the days, but it has proven to be a good
+compromise for simulated periodics and physics constraints.
+
+In any case, the USB traffic should be decoupled from the app. Any force
+updates should only change state in the ff-memless[-next] driver. Any
+change there should trickle down to a 'slot' representation of the
+device. If there's any change in the slots, the device is marked as
+'dirty' and USB transfers are scheduled to send the latest state to the
+physical device.
+
+The scheduling should keep track of how many requests are in-flight and
+delay writing the next output, until the previous one has completed.
+
+Question back to the community: are there APIs in the USB layer to check
+for presence of in-progress requests? Can one add a 'completion'
+callback to a request, that gets invoked on completion/cancellation?
+
+Thanks
+roland
+
+--
+
+[1]
+http://www.immersion.com/developers/index.php?option=com_content&view=article&id=423&Itemid=684
+
+[2]
+http://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.idirectinputdevice8.idirectinputdevice8.enumeffectsinfile(v=vs.85).aspx
 

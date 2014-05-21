@@ -1,109 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2] HID: rmi: do not handle touchscreens through hid-rmi
-Date: Wed, 21 May 2014 11:15:56 -0400
-Message-ID: <1400685356-6126-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: mcs_touchkey: fix incorrect input device name
+Date: Wed, 21 May 2014 08:26:47 -0700
+Message-ID: <20140521152647.GA27151@core.coreip.homeip.net>
+References: <537C509E.10705@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51044 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752066AbaEUPQH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 11:16:07 -0400
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:38607 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751786AbaEUP0v (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 May 2014 11:26:51 -0400
+Received: by mail-pb0-f47.google.com with SMTP id rp16so1513141pbb.34
+        for <linux-input@vger.kernel.org>; Wed, 21 May 2014 08:26:51 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <537C509E.10705@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Beomho Seo <beomho.seo@samsung.com>
+Cc: linux-input@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Myungjoo Ham <myungjoo.ham@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
 
-Currently, hid-rmi drives every Synaptics product, but the touchscreens
-on the Windows tablets should be handled through hid-multitouch.
+Hi Beomho,
 
-Instead of providing a long list of PIDs, rely on the scan_report
-capability to detect which should go to hid-multitouch, and which
-should not go to hid-rmi.
+On Wed, May 21, 2014 at 04:07:10PM +0900, Beomho Seo wrote:
+> This patch fix a typo error at input device name.
+> 
+> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
+>  drivers/input/keyboard/mcs_touchkey.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+> index 1da8e0b..375b05c 100644
+> --- a/drivers/input/keyboard/mcs_touchkey.c
+> +++ b/drivers/input/keyboard/mcs_touchkey.c
+> @@ -147,7 +147,7 @@ static int mcs_touchkey_probe(struct i2c_client *client,
+>  	}
+>  	dev_info(&client->dev, "Firmware version: %d\n", fw_ver);
+> 
+> -	input_dev->name = "MELPAS MCS Touchkey";
+> +	input_dev->name = "MELFAS MCS Touchkey";
 
-related bug:
-https://bugzilla.kernel.org/show_bug.cgi?id=74241
-https://bugzilla.redhat.com/show_bug.cgi?id=1089583
+Hmm, we have the same spelling in mcs5000_ts.c...
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+Thanks.
 
-Changes in v2:
-- use HID_GROUP_RMI instead of HID_GROUP_HAVE_SPECIAL_DRIVER
-- match all the HID devices with the proper group in hid-rmi instead of only the
-  Synaptics ones (we already spoted one Razer laptop with this touchpad which has
-  a different VID/PID)
+>  	input_dev->id.bustype = BUS_I2C;
+>  	input_dev->dev.parent = &client->dev;
+>  	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+> -- 
+> 1.7.9.5
 
- drivers/hid/hid-core.c | 10 ++++++++--
- drivers/hid/hid-rmi.c  |  3 +--
- include/linux/hid.h    |  8 ++++++++
- 3 files changed, 17 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 5b74dab..bb43525 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -779,6 +779,14 @@ static int hid_scan_report(struct hid_device *hid)
- 	    (hid->group == HID_GROUP_MULTITOUCH))
- 		hid->group = HID_GROUP_MULTITOUCH_WIN_8;
- 
-+	/*
-+	* Vendor specific handlings
-+	*/
-+	if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
-+	    (hid->group == HID_GROUP_GENERIC))
-+		/* hid-rmi should take care of them, not hid-generic */
-+		hid->group = HID_GROUP_RMI;
-+
- 	vfree(parser);
- 	return 0;
- }
-@@ -1888,8 +1896,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, HID_ANY_ID) },
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_SYNAPTICS, HID_ANY_ID) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THINGM, USB_DEVICE_ID_BLINK1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index c529b03..2451c7e 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -894,8 +894,7 @@ static void rmi_remove(struct hid_device *hdev)
- }
- 
- static const struct hid_device_id rmi_id[] = {
--	{ HID_I2C_DEVICE(USB_VENDOR_ID_SYNAPTICS, HID_ANY_ID) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, HID_ANY_ID) },
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, rmi_id);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 54f855b..8ce9ff4 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -299,6 +299,9 @@ struct hid_item {
- 
- /*
-  * HID device groups
-+ *
-+ * Note: HID_GROUP_ANY is declared in linux/mod_devicetable.h
-+ * and has a value of 0x0000
-  */
- #define HID_GROUP_GENERIC			0x0001
- #define HID_GROUP_MULTITOUCH			0x0002
-@@ -306,6 +309,11 @@ struct hid_item {
- #define HID_GROUP_MULTITOUCH_WIN_8		0x0004
- 
- /*
-+ * Vendor specific HID device groups
-+ */
-+#define HID_GROUP_RMI				0x0100
-+
-+/*
-  * This is the global environment of the parser. This information is
-  * persistent for main-items. The global environment can be saved and
-  * restored with PUSH/POP statements.
 -- 
-1.9.0
-
+Dmitry

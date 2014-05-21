@@ -1,42 +1,62 @@
 From: Elias Vanderstuyft <elias.vds@gmail.com>
 Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Wed, 21 May 2014 16:08:59 +0200
-Message-ID: <CADbOyBTm73_EJJcn_Abu-ZofqiHSgzB1TQMUtcMR_042SyOkyg@mail.gmail.com>
+Date: Wed, 21 May 2014 16:22:52 +0200
+Message-ID: <CADbOyBRmAhpWVAEL=kJfqfhYWhSRQH+C3d8-mgaA7rQN=oYY1A@mail.gmail.com>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
 	<1c6140633925b0838b7627e071e80761.squirrel@mungewell.org>
 	<537BFEBF.8010601@logitech.com>
 	<2643156.2tkLFqgYFg@sigyn>
-	<CAE7qMrrH5Yeya9gKx+gbi1w39mJoEj9xw4mh3D86dLaKsWWLSQ@mail.gmail.com>
+	<CADbOyBQfHAnZYJj=z-SF77yg+yNpAzETX_W2UGh56NsZo3o8ew@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f176.google.com ([209.85.220.176]:55361 "EHLO
-	mail-vc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752259AbaEUOJA (ORCPT
+Received: from mail-ve0-f172.google.com ([209.85.128.172]:47722 "EHLO
+	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751018AbaEUOWy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 10:09:00 -0400
-In-Reply-To: <CAE7qMrrH5Yeya9gKx+gbi1w39mJoEj9xw4mh3D86dLaKsWWLSQ@mail.gmail.com>
+	Wed, 21 May 2014 10:22:54 -0400
+In-Reply-To: <CADbOyBQfHAnZYJj=z-SF77yg+yNpAzETX_W2UGh56NsZo3o8ew@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Roland Bosa <rbosa@logitech.com>, Simon Wood <simon@mungewell.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>
+To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Roland Bosa <rbosa@logitech.com>
+Cc: Simon Wood <simon@mungewell.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>
 
-On Wed, May 21, 2014 at 12:17 PM, Nestor Lopez Casado
-<nlopezcasad@logitech.com> wrote:
-> Elias, Simon, Michal,
+On Wed, May 21, 2014 at 3:35 PM, Elias Vanderstuyft <elias.vds@gmail.co=
+m> wrote:
+> On Wed, May 21, 2014 at 4:13 AM, Michal Mal=C3=BD
+> <madcatxster@devoid-pointer.net> wrote:
+>> Proper decoupling of the userspace and driver is the only important =
+thing that
+>> is missing from the current code.
 >
-> It is unfortunate that we didn't get back to  you in 2013 when you
-> asked for help in reverse engineering, oftentimes we have conflicting
-> priorities and a particular request may be left laying around for some
-> time before being addressed. But please, don't hesitate to re-kick us
-> if you feel we are not being reactive.
->
-> Let me clearly say that our intentions are to disclose as much
-> information as possible and to help the community in having great
-> support to all our hardware across all platforms. We have zero problem
-> with being asked for information.
+> Also dynamic updating of periodic effects is not yet supported in
+> "ff-memless-next".
+> This can also be important in simulation games (=3Dsecond type), e.g.
+> the "rFactor" game.
 
-OK, thanks for your reply.
-Don't worry, I understand ;)
+Oh, and I forgot some other things that need to be mentioned:
+- Trigger-button is not yet implemented, as far as I know
+- Custom force effects, in Linux it is called FF_CUSTOM. (however I
+think we can neglect this effect for now)
+- Infinite iterations in the Linux FF API is not supported.
+
+@Roland:
+Now I understand why Logitech Windows drivers have bugs in the
+periodic implementation of the DInput specs:
+Logitech seems to have based their drivers on the Immersion Studio
+visualisation of the to-be-generated periodic effects, and these
+visualisations are not conform with the DInput specs of MSDN.
+Take a quick look at the MSDN specs for e.g. SawtoothUp:
+http://msdn.microsoft.com/en-us/library/windows/desktop/ee418719%28v=3D=
+vs.85%29.aspx
+Now open the Immersion Studio (demo) and create a standard SawtoothUp
+effect, and look at the visualisation... It's wrong, right?
+Same applies for SawtoothDown and Triangle.
 
 Elias
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

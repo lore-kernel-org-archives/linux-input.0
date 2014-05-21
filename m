@@ -1,320 +1,453 @@
-From: Ted Mielczarek <ted@mielczarek.org>
-Subject: [PATCH] Support Xbox One controllers in xpad driver.
-Date: Wed, 21 May 2014 08:26:09 -0400
-Message-ID: <1400675169-26178-1-git-send-email-ted@mielczarek.org>
+From: Kieran Kunhya <kierank@obe.tv>
+Subject: Re: usbhid: PicoLCD 256x64 USB error -71
+Date: Wed, 21 May 2014 14:08:56 +0100
+Message-ID: <CAK+ULv6hLJc4mCfKKRFTQVbPCHwdTKLrFgqvw9yC99_1oaZLEw@mail.gmail.com>
+References: <032001cf7156$31a75610$94f60230$@obe.tv>
+	<20140518203718.5422588f@neptune.home>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=089e01183daaf2f94504f9e8b26a
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hapkido.dreamhost.com ([66.33.216.122]:51483 "EHLO
-	hapkido.dreamhost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751691AbaEUM0t (ORCPT
+Received: from mail-vc0-f181.google.com ([209.85.220.181]:42815 "EHLO
+	mail-vc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751073AbaEUNI5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 08:26:49 -0400
+	Wed, 21 May 2014 09:08:57 -0400
+Received: by mail-vc0-f181.google.com with SMTP id ld13so2459880vcb.12
+        for <linux-input@vger.kernel.org>; Wed, 21 May 2014 06:08:56 -0700 (PDT)
+In-Reply-To: <20140518203718.5422588f@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, Ted Mielczarek <ted@mielczarek.org>
+To: =?UTF-8?Q?Bruno_Pr=C3=A9mont?= <bonbons@linux-vserver.org>
+Cc: linux-input@vger.kernel.org
 
-Xbox One controllers require an initialization message to start sending data,
-so xpad_init_output becomes a required function. The Xbox One controller does
-not have LEDs like the Xbox 360 controller, so that functionality is not
-implemented. The format of messages controlling rumble is currently
-undocumented, so rumble support is not yet implemented.
+--089e01183daaf2f94504f9e8b26a
+Content-Type: text/plain; charset=UTF-8
 
-The only thing I'm not certain about in this patch is the check against bInterfaceNumber in xpad_probe. The Xbox One controller advertises three interfaces with the same interface class, subclass and protocol, and I couldn't see any way to match just the first one using usb_device_id.
+The pin connections match yours and I have tried with different cables.
 
-Signed-off-by: Ted Mielczarek <ted@mielczarek.org>
----
- drivers/input/joystick/xpad.c | 163 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 149 insertions(+), 14 deletions(-)
+> Did some previous kernel release work?
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 603fe0d..800e2f4 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -95,7 +95,8 @@
- #define XTYPE_XBOX        0
- #define XTYPE_XBOX360     1
- #define XTYPE_XBOX360W    2
--#define XTYPE_UNKNOWN     3
-+#define XTYPE_XBOXONE     3
-+#define XTYPE_UNKNOWN     4
- 
- static bool dpad_to_buttons;
- module_param(dpad_to_buttons, bool, S_IRUGO);
-@@ -121,6 +122,7 @@ static const struct xpad_device {
- 	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
-+	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
- 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
- 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
-@@ -245,9 +247,20 @@ static const signed short xpad_abs_triggers[] = {
- 	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,1) }, \
- 	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,129) }
- 
-+/* The Xbox One controller uses subclass 71 and protocol 208. */
-+#define XPAD_XBOXONE_VENDOR_PROTOCOL(vend,pr) \
-+	.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
-+	.idVendor = (vend), \
-+	.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
-+	.bInterfaceSubClass = 71, \
-+	.bInterfaceProtocol = (pr)
-+#define XPAD_XBOXONE_VENDOR(vend) \
-+	{ XPAD_XBOXONE_VENDOR_PROTOCOL(vend,208) }
-+
- static struct usb_device_id xpad_table[] = {
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
-+	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
- 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
-@@ -470,6 +483,101 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 	xpad360_process_packet(xpad, cmd, &data[4]);
- }
- 
-+/*
-+ *	xpadone_process_buttons
-+ *
-+ *	Process a button update packet from an Xbox one controller.
-+ */
-+static void xpadone_process_buttons(struct usb_xpad *xpad,
-+				struct input_dev *dev,
-+				unsigned char *data)
-+{
-+	/* menu/view buttons */
-+	input_report_key(dev, BTN_START,  data[4] & 0x04);
-+	input_report_key(dev, BTN_SELECT, data[4] & 0x08);
-+
-+	/* buttons A,B,X,Y */
-+	input_report_key(dev, BTN_A,	data[4] & 0x10);
-+	input_report_key(dev, BTN_B,	data[4] & 0x20);
-+	input_report_key(dev, BTN_X,	data[4] & 0x40);
-+	input_report_key(dev, BTN_Y,	data[4] & 0x80);
-+
-+	/* digital pad */
-+	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
-+		/* dpad as buttons (left, right, up, down) */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY1, data[5] & 0x04);
-+		input_report_key(dev, BTN_TRIGGER_HAPPY2, data[5] & 0x08);
-+		input_report_key(dev, BTN_TRIGGER_HAPPY3, data[5] & 0x01);
-+		input_report_key(dev, BTN_TRIGGER_HAPPY4, data[5] & 0x02);
-+	} else {
-+		input_report_abs(dev, ABS_HAT0X,
-+				 !!(data[5] & 0x08) - !!(data[5] & 0x04));
-+		input_report_abs(dev, ABS_HAT0Y,
-+				 !!(data[5] & 0x02) - !!(data[5] & 0x01));
-+	}
-+
-+	/* TL/TR */
-+	input_report_key(dev, BTN_TL,	data[5] & 0x10);
-+	input_report_key(dev, BTN_TR,	data[5] & 0x20);
-+
-+	/* stick press left/right */
-+	input_report_key(dev, BTN_THUMBL, data[5] & 0x40);
-+	input_report_key(dev, BTN_THUMBR, data[5] & 0x80);
-+
-+	if (!(xpad->mapping & MAP_STICKS_TO_NULL)) {
-+		/* left stick */
-+		input_report_abs(dev, ABS_X,
-+				 (__s16) le16_to_cpup((__le16 *)(data + 10)));
-+		input_report_abs(dev, ABS_Y,
-+				 ~(__s16) le16_to_cpup((__le16 *)(data + 12)));
-+
-+		/* right stick */
-+		input_report_abs(dev, ABS_RX,
-+				 (__s16) le16_to_cpup((__le16 *)(data + 14)));
-+		input_report_abs(dev, ABS_RY,
-+				 ~(__s16) le16_to_cpup((__le16 *)(data + 16)));
-+	}
-+
-+	/* triggers left/right */
-+	if (xpad->mapping & MAP_TRIGGERS_TO_BUTTONS) {
-+		input_report_key(dev, BTN_TL2,
-+				 (__u16) le16_to_cpup((__le16 *)(data + 6)));
-+		input_report_key(dev, BTN_TR2,
-+				 (__u16) le16_to_cpup((__le16 *)(data + 8)));
-+	} else {
-+		input_report_abs(dev, ABS_Z,
-+				 (__u16) le16_to_cpup((__le16 *)(data + 6)));
-+		input_report_abs(dev, ABS_RZ,
-+				 (__u16) le16_to_cpup((__le16 *)(data + 8)));
-+	}
-+}
-+
-+/*
-+ *	xpadone_process_packet
-+ *
-+ *	Completes a request by converting the data into events for the
-+ *	input subsystem. This version is for the Xbox One controller.
-+ *
-+ *	The report format was gleaned from
-+ *	https://github.com/kylelemons/xbox/blob/master/xbox.go
-+ */
-+
-+static void xpadone_process_packet(struct usb_xpad *xpad,
-+				u16 cmd, unsigned char *data)
-+{
-+	struct input_dev *dev = xpad->dev;
-+
-+	if (data[0] == 0x20) {
-+		xpadone_process_buttons(xpad, dev, data);
-+	} else if (data[0] == 0x07) {
-+		/* the xbox button has its own special report */
-+		input_report_key(dev, BTN_MODE, data[4] & 0x01);
-+	}
-+
-+	if (data[0] == 0x20 || data[0] == 0x07)
-+		input_sync(dev);
-+}
-+
- static void xpad_irq_in(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -502,6 +610,9 @@ static void xpad_irq_in(struct urb *urb)
- 	case XTYPE_XBOX360W:
- 		xpad360w_process_packet(xpad, 0, xpad->idata);
- 		break;
-+	case XTYPE_XBOXONE:
-+		xpadone_process_packet(xpad, 0, xpad->idata);
-+		break;
- 	default:
- 		xpad_process_packet(xpad, 0, xpad->idata);
- 	}
-@@ -535,7 +646,6 @@ static void xpad_bulk_out(struct urb *urb)
- 	}
- }
- 
--#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- static void xpad_irq_out(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -593,7 +703,11 @@ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
- 		goto fail2;
- 	}
- 
--	ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
-+	if (xpad->xtype == XTYPE_XBOXONE)
-+		/* Xbox One controller has in/out endpoints swapped. */
-+		ep_irq_out = &intf->cur_altsetting->endpoint[0].desc;
-+	else
-+		ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
- 	usb_fill_int_urb(xpad->irq_out, xpad->udev,
- 			 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
- 			 xpad->odata, XPAD_PKT_LEN,
-@@ -621,11 +735,6 @@ static void xpad_deinit_output(struct usb_xpad *xpad)
- 				xpad->odata, xpad->odata_dma);
- 	}
- }
--#else
--static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
--static void xpad_deinit_output(struct usb_xpad *xpad) {}
--static void xpad_stop_output(struct usb_xpad *xpad) {}
--#endif
- 
- #ifdef CONFIG_JOYSTICK_XPAD_FF
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
-@@ -692,7 +801,7 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
- 
- static int xpad_init_ff(struct usb_xpad *xpad)
- {
--	if (xpad->xtype == XTYPE_UNKNOWN)
-+	if (xpad->xtype == XTYPE_UNKNOWN || xpad->xtype == XTYPE_XBOXONE)
- 		return 0;
- 
- 	input_set_capability(xpad->dev, EV_FF, FF_RUMBLE);
-@@ -801,6 +910,14 @@ static int xpad_open(struct input_dev *dev)
- 	if (usb_submit_urb(xpad->irq_in, GFP_KERNEL))
- 		return -EIO;
- 
-+	if (xpad->xtype == XTYPE_XBOXONE) {
-+		/* Xbox one controller needs to be initialized. */
-+		xpad->odata[0] = 0x05;
-+		xpad->odata[1] = 0x20;
-+		xpad->irq_out->transfer_buffer_length = 2;
-+		return usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+	}
-+
- 	return 0;
- }
- 
-@@ -816,6 +933,7 @@ static void xpad_close(struct input_dev *dev)
- 
- static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
- {
-+	struct usb_xpad *xpad = input_get_drvdata(input_dev);
- 	set_bit(abs, input_dev->absbit);
- 
- 	switch (abs) {
-@@ -827,7 +945,10 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
- 		break;
- 	case ABS_Z:
- 	case ABS_RZ:	/* the triggers (if mapped to axes) */
--		input_set_abs_params(input_dev, abs, 0, 255, 0, 0);
-+		if (xpad->xtype == XTYPE_XBOXONE)
-+			input_set_abs_params(input_dev, abs, 0, 1023, 0, 0);
-+		else
-+			input_set_abs_params(input_dev, abs, 0, 255, 0, 0);
- 		break;
- 	case ABS_HAT0X:
- 	case ABS_HAT0Y:	/* the d-pad (only if dpad is mapped to axes */
-@@ -850,6 +971,15 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			break;
- 	}
- 
-+	if (xpad_device[i].xtype == XTYPE_XBOXONE
-+		&& intf->cur_altsetting->desc.bInterfaceNumber != 0) {
-+		/* The Xbox One controller lists three interfaces all with the
-+		 * same interface class, subclass and protocol. Differentiate by
-+		 * interface number.
-+		 */
-+		return -ENODEV;
-+	}
-+
- 	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!xpad || !input_dev) {
-@@ -920,7 +1050,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		__set_bit(xpad_common_btn[i], input_dev->keybit);
- 
- 	/* set up model-specific ones */
--	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX360W) {
-+	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX360W
-+		|| xpad->xtype == XTYPE_XBOXONE) {
- 		for (i = 0; xpad360_btn[i] >= 0; i++)
- 			__set_bit(xpad360_btn[i], input_dev->keybit);
- 	} else {
-@@ -933,7 +1064,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			__set_bit(xpad_btn_pad[i], input_dev->keybit);
- 	} else {
- 		for (i = 0; xpad_abs_pad[i] >= 0; i++)
--		    xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
-+			xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
- 	}
- 
- 	if (xpad->mapping & MAP_TRIGGERS_TO_BUTTONS) {
-@@ -956,7 +1087,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	if (error)
- 		goto fail5;
- 
--	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
-+	if (xpad->xtype == XTYPE_XBOXONE)
-+		/* Xbox One controller has in/out endpoints swapped. */
-+		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
-+	else
-+		ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
- 	usb_fill_int_urb(xpad->irq_in, udev,
- 			 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
- 			 xpad->idata, XPAD_PKT_LEN, xpad_irq_in,
-@@ -1010,7 +1145,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		/*
- 		 * Submit the int URB immediately rather than waiting for open
- 		 * because we get status messages from the device whether
--		 * or not any controllers are attached.  In fact, it's
-+		 * or not any controllers are attached.	 In fact, it's
- 		 * exactly the message that a controller has arrived that
- 		 * we're waiting for.
- 		 */
--- 
-1.9.1
+I should have been clearer - I have tried many kernels in the 3.0
+series and none work with this motherboard.
+Other motherboards work fine.
 
+> Could you provide verbose lsusb output and firmware version for your PicoLCD?
+
+lsusb attached, when when the device is detected.
+
+I think this corresponds to the firmware version:
+[    1.733167] usb 3-7: SerialNumber: Ver.00.03
+
+Regards,
+
+Kieran Kunhya
+
+--089e01183daaf2f94504f9e8b26a
+Content-Type: text/plain; charset=US-ASCII; name="lsusb.txt"
+Content-Disposition: attachment; filename="lsusb.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hvgn3klc0
+
+DQpCdXMgMDAxIERldmljZSAwMDI6IElEIDgwODc6ODAwOCBJbnRlbCBDb3JwLiANCkRldmljZSBE
+ZXNjcmlwdG9yOg0KICBiTGVuZ3RoICAgICAgICAgICAgICAgIDE4DQogIGJEZXNjcmlwdG9yVHlw
+ZSAgICAgICAgIDENCiAgYmNkVVNCICAgICAgICAgICAgICAgMi4wMA0KICBiRGV2aWNlQ2xhc3Mg
+ICAgICAgICAgICA5IEh1Yg0KICBiRGV2aWNlU3ViQ2xhc3MgICAgICAgICAwIFVudXNlZA0KICBi
+RGV2aWNlUHJvdG9jb2wgICAgICAgICAxIFNpbmdsZSBUVA0KICBiTWF4UGFja2V0U2l6ZTAgICAg
+ICAgIDY0DQogIGlkVmVuZG9yICAgICAgICAgICAweDgwODcgSW50ZWwgQ29ycC4NCiAgaWRQcm9k
+dWN0ICAgICAgICAgIDB4ODAwOCANCiAgYmNkRGV2aWNlICAgICAgICAgICAgMC4wNQ0KICBpTWFu
+dWZhY3R1cmVyICAgICAgICAgICAwIA0KICBpUHJvZHVjdCAgICAgICAgICAgICAgICAwIA0KICBp
+U2VyaWFsICAgICAgICAgICAgICAgICAwIA0KICBiTnVtQ29uZmlndXJhdGlvbnMgICAgICAxDQog
+IENvbmZpZ3VyYXRpb24gRGVzY3JpcHRvcjoNCiAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5
+DQogICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMg0KICAgIHdUb3RhbExlbmd0aCAgICAgICAg
+ICAgMjUNCiAgICBiTnVtSW50ZXJmYWNlcyAgICAgICAgICAxDQogICAgYkNvbmZpZ3VyYXRpb25W
+YWx1ZSAgICAgMQ0KICAgIGlDb25maWd1cmF0aW9uICAgICAgICAgIDAgDQogICAgYm1BdHRyaWJ1
+dGVzICAgICAgICAgMHhlMA0KICAgICAgU2VsZiBQb3dlcmVkDQogICAgICBSZW1vdGUgV2FrZXVw
+DQogICAgTWF4UG93ZXIgICAgICAgICAgICAgICAgMG1BDQogICAgSW50ZXJmYWNlIERlc2NyaXB0
+b3I6DQogICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICBiRGVzY3JpcHRvclR5
+cGUgICAgICAgICA0DQogICAgICBiSW50ZXJmYWNlTnVtYmVyICAgICAgICAwDQogICAgICBiQWx0
+ZXJuYXRlU2V0dGluZyAgICAgICAwDQogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxDQog
+ICAgICBiSW50ZXJmYWNlQ2xhc3MgICAgICAgICA5IEh1Yg0KICAgICAgYkludGVyZmFjZVN1YkNs
+YXNzICAgICAgMCBVbnVzZWQNCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDAgRnVsbCBz
+cGVlZCAob3Igcm9vdCkgaHViDQogICAgICBpSW50ZXJmYWNlICAgICAgICAgICAgICAwIA0KICAg
+ICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAg
+Nw0KICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1DQogICAgICAgIGJFbmRwb2ludEFk
+ZHJlc3MgICAgIDB4ODEgIEVQIDEgSU4NCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAg
+Mw0KICAgICAgICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQNCiAgICAgICAg
+ICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAgICAgIFVzYWdlIFR5cGUgICAg
+ICAgICAgICAgICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMDEgIDF4IDEg
+Ynl0ZXMNCiAgICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxMg0KSHViIERlc2NyaXB0b3I6
+DQogIGJMZW5ndGggICAgICAgICAgICAgICA5DQogIGJEZXNjcmlwdG9yVHlwZSAgICAgIDQxDQog
+IG5OYnJQb3J0cyAgICAgICAgICAgICA2DQogIHdIdWJDaGFyYWN0ZXJpc3RpYyAweDAwMDkNCiAg
+ICBQZXItcG9ydCBwb3dlciBzd2l0Y2hpbmcNCiAgICBQZXItcG9ydCBvdmVyY3VycmVudCBwcm90
+ZWN0aW9uDQogICAgVFQgdGhpbmsgdGltZSA4IEZTIGJpdHMNCiAgYlB3ck9uMlB3ckdvb2QgICAg
+ICAgIDAgKiAyIG1pbGxpIHNlY29uZHMNCiAgYkh1YkNvbnRyQ3VycmVudCAgICAgIDAgbWlsbGkg
+QW1wZXJlDQogIERldmljZVJlbW92YWJsZSAgICAweDAwDQogIFBvcnRQd3JDdHJsTWFzayAgICAw
+eGZmDQogSHViIFBvcnQgU3RhdHVzOg0KICAgUG9ydCAxOiAwMDAwLjAxMDAgcG93ZXINCiAgIFBv
+cnQgMjogMDAwMC4wMTAwIHBvd2VyDQogICBQb3J0IDM6IDAwMDAuMDEwMCBwb3dlcg0KICAgUG9y
+dCA0OiAwMDAwLjAxMDAgcG93ZXINCiAgIFBvcnQgNTogMDAwMC4wMTAwIHBvd2VyDQogICBQb3J0
+IDY6IDAwMDAuMDEwMCBwb3dlcg0KRGV2aWNlIFF1YWxpZmllciAoZm9yIG90aGVyIGRldmljZSBz
+cGVlZCk6DQogIGJMZW5ndGggICAgICAgICAgICAgICAgMTANCiAgYkRlc2NyaXB0b3JUeXBlICAg
+ICAgICAgNg0KICBiY2RVU0IgICAgICAgICAgICAgICAyLjAwDQogIGJEZXZpY2VDbGFzcyAgICAg
+ICAgICAgIDkgSHViDQogIGJEZXZpY2VTdWJDbGFzcyAgICAgICAgIDAgVW51c2VkDQogIGJEZXZp
+Y2VQcm90b2NvbCAgICAgICAgIDAgRnVsbCBzcGVlZCAob3Igcm9vdCkgaHViDQogIGJNYXhQYWNr
+ZXRTaXplMCAgICAgICAgNjQNCiAgYk51bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KRGV2aWNlIFN0
+YXR1czogICAgIDB4MDAwMQ0KICBTZWxmIFBvd2VyZWQNCg0KQnVzIDAwMiBEZXZpY2UgMDAyOiBJ
+RCA4MDg3OjgwMDAgSW50ZWwgQ29ycC4gDQpEZXZpY2UgRGVzY3JpcHRvcjoNCiAgYkxlbmd0aCAg
+ICAgICAgICAgICAgICAxOA0KICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAxDQogIGJjZFVTQiAg
+ICAgICAgICAgICAgIDIuMDANCiAgYkRldmljZUNsYXNzICAgICAgICAgICAgOSBIdWINCiAgYkRl
+dmljZVN1YkNsYXNzICAgICAgICAgMCBVbnVzZWQNCiAgYkRldmljZVByb3RvY29sICAgICAgICAg
+MSBTaW5nbGUgVFQNCiAgYk1heFBhY2tldFNpemUwICAgICAgICA2NA0KICBpZFZlbmRvciAgICAg
+ICAgICAgMHg4MDg3IEludGVsIENvcnAuDQogIGlkUHJvZHVjdCAgICAgICAgICAweDgwMDAgDQog
+IGJjZERldmljZSAgICAgICAgICAgIDAuMDUNCiAgaU1hbnVmYWN0dXJlciAgICAgICAgICAgMCAN
+CiAgaVByb2R1Y3QgICAgICAgICAgICAgICAgMCANCiAgaVNlcmlhbCAgICAgICAgICAgICAgICAg
+MCANCiAgYk51bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KICBDb25maWd1cmF0aW9uIERlc2NyaXB0
+b3I6DQogICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAgIGJEZXNjcmlwdG9yVHlwZSAg
+ICAgICAgIDINCiAgICB3VG90YWxMZW5ndGggICAgICAgICAgIDI1DQogICAgYk51bUludGVyZmFj
+ZXMgICAgICAgICAgMQ0KICAgIGJDb25maWd1cmF0aW9uVmFsdWUgICAgIDENCiAgICBpQ29uZmln
+dXJhdGlvbiAgICAgICAgICAwIA0KICAgIGJtQXR0cmlidXRlcyAgICAgICAgIDB4ZTANCiAgICAg
+IFNlbGYgUG93ZXJlZA0KICAgICAgUmVtb3RlIFdha2V1cA0KICAgIE1heFBvd2VyICAgICAgICAg
+ICAgICAgIDBtQQ0KICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KICAgICAgYkxlbmd0aCAgICAg
+ICAgICAgICAgICAgOQ0KICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNA0KICAgICAgYklu
+dGVyZmFjZU51bWJlciAgICAgICAgMA0KICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0K
+ICAgICAgYk51bUVuZHBvaW50cyAgICAgICAgICAgMQ0KICAgICAgYkludGVyZmFjZUNsYXNzICAg
+ICAgICAgOSBIdWINCiAgICAgIGJJbnRlcmZhY2VTdWJDbGFzcyAgICAgIDAgVW51c2VkDQogICAg
+ICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAwIEZ1bGwgc3BlZWQgKG9yIHJvb3QpIGh1Yg0KICAg
+ICAgaUludGVyZmFjZSAgICAgICAgICAgICAgMCANCiAgICAgIEVuZHBvaW50IERlc2NyaXB0b3I6
+DQogICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcNCiAgICAgICAgYkRlc2NyaXB0b3JU
+eXBlICAgICAgICAgNQ0KICAgICAgICBiRW5kcG9pbnRBZGRyZXNzICAgICAweDgxICBFUCAxIElO
+DQogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAgICAgIDMNCiAgICAgICAgICBUcmFuc2ZlciBU
+eXBlICAgICAgICAgICAgSW50ZXJydXB0DQogICAgICAgICAgU3luY2ggVHlwZSAgICAgICAgICAg
+ICAgIE5vbmUNCiAgICAgICAgICBVc2FnZSBUeXBlICAgICAgICAgICAgICAgRGF0YQ0KICAgICAg
+ICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDAyICAxeCAyIGJ5dGVzDQogICAgICAgIGJJbnRlcnZh
+bCAgICAgICAgICAgICAgMTINCkh1YiBEZXNjcmlwdG9yOg0KICBiTGVuZ3RoICAgICAgICAgICAg
+ICAxMQ0KICBiRGVzY3JpcHRvclR5cGUgICAgICA0MQ0KICBuTmJyUG9ydHMgICAgICAgICAgICAg
+OA0KICB3SHViQ2hhcmFjdGVyaXN0aWMgMHgwMDA5DQogICAgUGVyLXBvcnQgcG93ZXIgc3dpdGNo
+aW5nDQogICAgUGVyLXBvcnQgb3ZlcmN1cnJlbnQgcHJvdGVjdGlvbg0KICAgIFRUIHRoaW5rIHRp
+bWUgOCBGUyBiaXRzDQogIGJQd3JPbjJQd3JHb29kICAgICAgICAwICogMiBtaWxsaSBzZWNvbmRz
+DQogIGJIdWJDb250ckN1cnJlbnQgICAgICAwIG1pbGxpIEFtcGVyZQ0KICBEZXZpY2VSZW1vdmFi
+bGUgICAgMHgwMCAweDAwDQogIFBvcnRQd3JDdHJsTWFzayAgICAweGZmIDB4ZmYNCiBIdWIgUG9y
+dCBTdGF0dXM6DQogICBQb3J0IDE6IDAwMDAuMDEwMCBwb3dlcg0KICAgUG9ydCAyOiAwMDAwLjAx
+MDAgcG93ZXINCiAgIFBvcnQgMzogMDAwMC4wMTAwIHBvd2VyDQogICBQb3J0IDQ6IDAwMDAuMDEw
+MCBwb3dlcg0KICAgUG9ydCA1OiAwMDAwLjAxMDAgcG93ZXINCiAgIFBvcnQgNjogMDAwMC4wMTAw
+IHBvd2VyDQogICBQb3J0IDc6IDAwMDAuMDEwMCBwb3dlcg0KICAgUG9ydCA4OiAwMDAwLjAxMDAg
+cG93ZXINCkRldmljZSBRdWFsaWZpZXIgKGZvciBvdGhlciBkZXZpY2Ugc3BlZWQpOg0KICBiTGVu
+Z3RoICAgICAgICAgICAgICAgIDEwDQogIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDYNCiAgYmNk
+VVNCICAgICAgICAgICAgICAgMi4wMA0KICBiRGV2aWNlQ2xhc3MgICAgICAgICAgICA5IEh1Yg0K
+ICBiRGV2aWNlU3ViQ2xhc3MgICAgICAgICAwIFVudXNlZA0KICBiRGV2aWNlUHJvdG9jb2wgICAg
+ICAgICAwIEZ1bGwgc3BlZWQgKG9yIHJvb3QpIGh1Yg0KICBiTWF4UGFja2V0U2l6ZTAgICAgICAg
+IDY0DQogIGJOdW1Db25maWd1cmF0aW9ucyAgICAgIDENCkRldmljZSBTdGF0dXM6ICAgICAweDAw
+MDENCiAgU2VsZiBQb3dlcmVkDQoNCkJ1cyAwMDMgRGV2aWNlIDAwMjogSUQgMDRkODpjMDAyIE1p
+Y3JvY2hpcCBUZWNobm9sb2d5LCBJbmMuIA0KRGV2aWNlIERlc2NyaXB0b3I6DQogIGJMZW5ndGgg
+ICAgICAgICAgICAgICAgMTgNCiAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMQ0KICBiY2RVU0Ig
+ICAgICAgICAgICAgICAyLjAwDQogIGJEZXZpY2VDbGFzcyAgICAgICAgICAgIDAgKERlZmluZWQg
+YXQgSW50ZXJmYWNlIGxldmVsKQ0KICBiRGV2aWNlU3ViQ2xhc3MgICAgICAgICAwIA0KICBiRGV2
+aWNlUHJvdG9jb2wgICAgICAgICAwIA0KICBiTWF4UGFja2V0U2l6ZTAgICAgICAgICA4DQogIGlk
+VmVuZG9yICAgICAgICAgICAweDA0ZDggTWljcm9jaGlwIFRlY2hub2xvZ3ksIEluYy4NCiAgaWRQ
+cm9kdWN0ICAgICAgICAgIDB4YzAwMiANCiAgYmNkRGV2aWNlICAgICAgICAgICAgMC4wMg0KICBp
+TWFudWZhY3R1cmVyICAgICAgICAgICAxIA0KICBpUHJvZHVjdCAgICAgICAgICAgICAgICAyIA0K
+ICBpU2VyaWFsICAgICAgICAgICAgICAgICAzIA0KICBiTnVtQ29uZmlndXJhdGlvbnMgICAgICAx
+DQogIENvbmZpZ3VyYXRpb24gRGVzY3JpcHRvcjoNCiAgICBiTGVuZ3RoICAgICAgICAgICAgICAg
+ICA5DQogICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMg0KICAgIHdUb3RhbExlbmd0aCAgICAg
+ICAgICAgNDENCiAgICBiTnVtSW50ZXJmYWNlcyAgICAgICAgICAxDQogICAgYkNvbmZpZ3VyYXRp
+b25WYWx1ZSAgICAgMQ0KICAgIGlDb25maWd1cmF0aW9uICAgICAgICAgIDIgDQogICAgYm1BdHRy
+aWJ1dGVzICAgICAgICAgMHhhMA0KICAgICAgKEJ1cyBQb3dlcmVkKQ0KICAgICAgUmVtb3RlIFdh
+a2V1cA0KICAgIE1heFBvd2VyICAgICAgICAgICAgICAxNTBtQQ0KICAgIEludGVyZmFjZSBEZXNj
+cmlwdG9yOg0KICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAgICAgYkRlc2NyaXB0
+b3JUeXBlICAgICAgICAgNA0KICAgICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMA0KICAgICAg
+YkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0KICAgICAgYk51bUVuZHBvaW50cyAgICAgICAgICAg
+Mg0KICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRlcmZhY2UgRGV2aWNl
+DQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAwIE5vIFN1YmNsYXNzDQogICAgICBiSW50
+ZXJmYWNlUHJvdG9jb2wgICAgICAwIE5vbmUNCiAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAg
+IDAgDQogICAgICAgIEhJRCBEZXZpY2UgRGVzY3JpcHRvcjoNCiAgICAgICAgICBiTGVuZ3RoICAg
+ICAgICAgICAgICAgICA5DQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzMw0KICAg
+ICAgICAgIGJjZEhJRCAgICAgICAgICAgICAgIDEuMDENCiAgICAgICAgICBiQ291bnRyeUNvZGUg
+ICAgICAgICAgICAwIE5vdCBzdXBwb3J0ZWQNCiAgICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAg
+ICAgICAxDQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzNCBSZXBvcnQNCiAgICAg
+ICAgICB3RGVzY3JpcHRvckxlbmd0aCAgICAgMjkwDQogICAgICAgICBSZXBvcnQgRGVzY3JpcHRv
+cnM6IA0KICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAqKg0KICAgICAgRW5kcG9pbnQgRGVzY3Jp
+cHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNw0KICAgICAgICBiRGVzY3Jp
+cHRvclR5cGUgICAgICAgICA1DQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4ODEgIEVQ
+IDEgSU4NCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMw0KICAgICAgICAgIFRyYW5z
+ZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQNCiAgICAgICAgICBTeW5jaCBUeXBlICAgICAg
+ICAgICAgICAgTm9uZQ0KICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAgICBEYXRhDQog
+ICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwNDAgIDF4IDY0IGJ5dGVzDQogICAgICAgIGJJ
+bnRlcnZhbCAgICAgICAgICAgICAgIDENCiAgICAgIEVuZHBvaW50IERlc2NyaXB0b3I6DQogICAg
+ICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcNCiAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAg
+ICAgICAgNQ0KICAgICAgICBiRW5kcG9pbnRBZGRyZXNzICAgICAweDAxICBFUCAxIE9VVA0KICAg
+ICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQogICAgICAgICAgVHJhbnNmZXIgVHlwZSAg
+ICAgICAgICAgIEludGVycnVwdA0KICAgICAgICAgIFN5bmNoIFR5cGUgICAgICAgICAgICAgICBO
+b25lDQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERhdGENCiAgICAgICAgd01h
+eFBhY2tldFNpemUgICAgIDB4MDA0MCAgMXggNjQgYnl0ZXMNCiAgICAgICAgYkludGVydmFsICAg
+ICAgICAgICAgICAgMQ0KRGV2aWNlIFN0YXR1czogICAgIDB4MDAwMA0KICAoQnVzIFBvd2VyZWQp
+DQoNCkJ1cyAwMDMgRGV2aWNlIDAwMzogSUQgNDEzYzoxMDAzIERlbGwgQ29tcHV0ZXIgQ29ycC4g
+S2V5Ym9hcmQgSHViDQpEZXZpY2UgRGVzY3JpcHRvcjoNCiAgYkxlbmd0aCAgICAgICAgICAgICAg
+ICAxOA0KICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAxDQogIGJjZFVTQiAgICAgICAgICAgICAg
+IDEuMTANCiAgYkRldmljZUNsYXNzICAgICAgICAgICAgOSBIdWINCiAgYkRldmljZVN1YkNsYXNz
+ICAgICAgICAgMCBVbnVzZWQNCiAgYkRldmljZVByb3RvY29sICAgICAgICAgMCBGdWxsIHNwZWVk
+IChvciByb290KSBodWINCiAgYk1heFBhY2tldFNpemUwICAgICAgICAgOA0KICBpZFZlbmRvciAg
+ICAgICAgICAgMHg0MTNjIERlbGwgQ29tcHV0ZXIgQ29ycC4NCiAgaWRQcm9kdWN0ICAgICAgICAg
+IDB4MTAwMyBLZXlib2FyZCBIdWINCiAgYmNkRGV2aWNlICAgICAgICAgICAgMi4wMA0KICBpTWFu
+dWZhY3R1cmVyICAgICAgICAgICAxIERlbGwNCiAgaVByb2R1Y3QgICAgICAgICAgICAgICAgMiBE
+ZWxsIFVTQiBLZXlib2FyZCBIdWINCiAgaVNlcmlhbCAgICAgICAgICAgICAgICAgMCANCiAgYk51
+bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KICBDb25maWd1cmF0aW9uIERlc2NyaXB0b3I6DQogICAg
+Ykxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDIN
+CiAgICB3VG90YWxMZW5ndGggICAgICAgICAgIDI1DQogICAgYk51bUludGVyZmFjZXMgICAgICAg
+ICAgMQ0KICAgIGJDb25maWd1cmF0aW9uVmFsdWUgICAgIDENCiAgICBpQ29uZmlndXJhdGlvbiAg
+ICAgICAgICAyIERlbGwgVVNCIEtleWJvYXJkIEh1Yg0KICAgIGJtQXR0cmlidXRlcyAgICAgICAg
+IDB4YTANCiAgICAgIChCdXMgUG93ZXJlZCkNCiAgICAgIFJlbW90ZSBXYWtldXANCiAgICBNYXhQ
+b3dlciAgICAgICAgICAgICAgMTAwbUENCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAgICAg
+IGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAg
+IDQNCiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDANCiAgICAgIGJBbHRlcm5hdGVTZXR0
+aW5nICAgICAgIDANCiAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAgIDENCiAgICAgIGJJbnRl
+cmZhY2VDbGFzcyAgICAgICAgIDkgSHViDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAw
+IFVudXNlZA0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCBGdWxsIHNwZWVkIChvciBy
+b290KSBodWINCiAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAgIDIgRGVsbCBVU0IgS2V5Ym9h
+cmQgSHViDQogICAgICBFbmRwb2ludCBEZXNjcmlwdG9yOg0KICAgICAgICBiTGVuZ3RoICAgICAg
+ICAgICAgICAgICA3DQogICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDUNCiAgICAgICAg
+YkVuZHBvaW50QWRkcmVzcyAgICAgMHg4MSAgRVAgMSBJTg0KICAgICAgICBibUF0dHJpYnV0ZXMg
+ICAgICAgICAgICAzDQogICAgICAgICAgVHJhbnNmZXIgVHlwZSAgICAgICAgICAgIEludGVycnVw
+dA0KICAgICAgICAgIFN5bmNoIFR5cGUgICAgICAgICAgICAgICBOb25lDQogICAgICAgICAgVXNh
+Z2UgVHlwZSAgICAgICAgICAgICAgIERhdGENCiAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4
+MDAwMSAgMXggMSBieXRlcw0KICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDI0DQpIdWIg
+RGVzY3JpcHRvcjoNCiAgYkxlbmd0aCAgICAgICAgICAgICAgIDkNCiAgYkRlc2NyaXB0b3JUeXBl
+ICAgICAgNDENCiAgbk5iclBvcnRzICAgICAgICAgICAgIDMNCiAgd0h1YkNoYXJhY3RlcmlzdGlj
+IDB4MDAwZA0KICAgIFBlci1wb3J0IHBvd2VyIHN3aXRjaGluZw0KICAgIENvbXBvdW5kIGRldmlj
+ZQ0KICAgIFBlci1wb3J0IG92ZXJjdXJyZW50IHByb3RlY3Rpb24NCiAgYlB3ck9uMlB3ckdvb2Qg
+ICAgICAgMjIgKiAyIG1pbGxpIHNlY29uZHMNCiAgYkh1YkNvbnRyQ3VycmVudCAgICAxMDAgbWls
+bGkgQW1wZXJlDQogIERldmljZVJlbW92YWJsZSAgICAweDAyDQogIFBvcnRQd3JDdHJsTWFzayAg
+ICAweGZmDQogSHViIFBvcnQgU3RhdHVzOg0KICAgUG9ydCAxOiAwMDAwLjAxMDMgcG93ZXIgZW5h
+YmxlIGNvbm5lY3QNCiAgIFBvcnQgMjogMDAwMC4wMTAwIHBvd2VyDQogICBQb3J0IDM6IDAwMDAu
+MDEwMCBwb3dlcg0KRGV2aWNlIFN0YXR1czogICAgIDB4MDAwMA0KICAoQnVzIFBvd2VyZWQpDQoN
+CkJ1cyAwMDEgRGV2aWNlIDAwMTogSUQgMWQ2YjowMDAyIExpbnV4IEZvdW5kYXRpb24gMi4wIHJv
+b3QgaHViDQpEZXZpY2UgRGVzY3JpcHRvcjoNCiAgYkxlbmd0aCAgICAgICAgICAgICAgICAxOA0K
+ICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAxDQogIGJjZFVTQiAgICAgICAgICAgICAgIDIuMDAN
+CiAgYkRldmljZUNsYXNzICAgICAgICAgICAgOSBIdWINCiAgYkRldmljZVN1YkNsYXNzICAgICAg
+ICAgMCBVbnVzZWQNCiAgYkRldmljZVByb3RvY29sICAgICAgICAgMCBGdWxsIHNwZWVkIChvciBy
+b290KSBodWINCiAgYk1heFBhY2tldFNpemUwICAgICAgICA2NA0KICBpZFZlbmRvciAgICAgICAg
+ICAgMHgxZDZiIExpbnV4IEZvdW5kYXRpb24NCiAgaWRQcm9kdWN0ICAgICAgICAgIDB4MDAwMiAy
+LjAgcm9vdCBodWINCiAgYmNkRGV2aWNlICAgICAgICAgICAgMy4xNQ0KICBpTWFudWZhY3R1cmVy
+ICAgICAgICAgICAzIExpbnV4IDMuMTUuMC1yYzUrIGVoY2lfaGNkDQogIGlQcm9kdWN0ICAgICAg
+ICAgICAgICAgIDIgRUhDSSBIb3N0IENvbnRyb2xsZXINCiAgaVNlcmlhbCAgICAgICAgICAgICAg
+ICAgMSAwMDAwOjAwOjFhLjANCiAgYk51bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KICBDb25maWd1
+cmF0aW9uIERlc2NyaXB0b3I6DQogICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAgIGJE
+ZXNjcmlwdG9yVHlwZSAgICAgICAgIDINCiAgICB3VG90YWxMZW5ndGggICAgICAgICAgIDI1DQog
+ICAgYk51bUludGVyZmFjZXMgICAgICAgICAgMQ0KICAgIGJDb25maWd1cmF0aW9uVmFsdWUgICAg
+IDENCiAgICBpQ29uZmlndXJhdGlvbiAgICAgICAgICAwIA0KICAgIGJtQXR0cmlidXRlcyAgICAg
+ICAgIDB4ZTANCiAgICAgIFNlbGYgUG93ZXJlZA0KICAgICAgUmVtb3RlIFdha2V1cA0KICAgIE1h
+eFBvd2VyICAgICAgICAgICAgICAgIDBtQQ0KICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KICAg
+ICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAg
+ICAgNA0KICAgICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMA0KICAgICAgYkFsdGVybmF0ZVNl
+dHRpbmcgICAgICAgMA0KICAgICAgYk51bUVuZHBvaW50cyAgICAgICAgICAgMQ0KICAgICAgYklu
+dGVyZmFjZUNsYXNzICAgICAgICAgOSBIdWINCiAgICAgIGJJbnRlcmZhY2VTdWJDbGFzcyAgICAg
+IDAgVW51c2VkDQogICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAwIEZ1bGwgc3BlZWQgKG9y
+IHJvb3QpIGh1Yg0KICAgICAgaUludGVyZmFjZSAgICAgICAgICAgICAgMCANCiAgICAgIEVuZHBv
+aW50IERlc2NyaXB0b3I6DQogICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcNCiAgICAg
+ICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNQ0KICAgICAgICBiRW5kcG9pbnRBZGRyZXNzICAg
+ICAweDgxICBFUCAxIElODQogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAgICAgIDMNCiAgICAg
+ICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0DQogICAgICAgICAgU3luY2gg
+VHlwZSAgICAgICAgICAgICAgIE5vbmUNCiAgICAgICAgICBVc2FnZSBUeXBlICAgICAgICAgICAg
+ICAgRGF0YQ0KICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDA0ICAxeCA0IGJ5dGVzDQog
+ICAgICAgIGJJbnRlcnZhbCAgICAgICAgICAgICAgMTINCkh1YiBEZXNjcmlwdG9yOg0KICBiTGVu
+Z3RoICAgICAgICAgICAgICAgOQ0KICBiRGVzY3JpcHRvclR5cGUgICAgICA0MQ0KICBuTmJyUG9y
+dHMgICAgICAgICAgICAgMg0KICB3SHViQ2hhcmFjdGVyaXN0aWMgMHgwMDBhDQogICAgTm8gcG93
+ZXIgc3dpdGNoaW5nICh1c2IgMS4wKQ0KICAgIFBlci1wb3J0IG92ZXJjdXJyZW50IHByb3RlY3Rp
+b24NCiAgYlB3ck9uMlB3ckdvb2QgICAgICAgMTAgKiAyIG1pbGxpIHNlY29uZHMNCiAgYkh1YkNv
+bnRyQ3VycmVudCAgICAgIDAgbWlsbGkgQW1wZXJlDQogIERldmljZVJlbW92YWJsZSAgICAweDAy
+DQogIFBvcnRQd3JDdHJsTWFzayAgICAweGZmDQogSHViIFBvcnQgU3RhdHVzOg0KICAgUG9ydCAx
+OiAwMDAwLjA1MDcgaGlnaHNwZWVkIHBvd2VyIHN1c3BlbmQgZW5hYmxlIGNvbm5lY3QNCiAgIFBv
+cnQgMjogMDAwMC4wMTAwIHBvd2VyDQpEZXZpY2UgU3RhdHVzOiAgICAgMHgwMDAxDQogIFNlbGYg
+UG93ZXJlZA0KDQpCdXMgMDAyIERldmljZSAwMDE6IElEIDFkNmI6MDAwMiBMaW51eCBGb3VuZGF0
+aW9uIDIuMCByb290IGh1Yg0KRGV2aWNlIERlc2NyaXB0b3I6DQogIGJMZW5ndGggICAgICAgICAg
+ICAgICAgMTgNCiAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMQ0KICBiY2RVU0IgICAgICAgICAg
+ICAgICAyLjAwDQogIGJEZXZpY2VDbGFzcyAgICAgICAgICAgIDkgSHViDQogIGJEZXZpY2VTdWJD
+bGFzcyAgICAgICAgIDAgVW51c2VkDQogIGJEZXZpY2VQcm90b2NvbCAgICAgICAgIDAgRnVsbCBz
+cGVlZCAob3Igcm9vdCkgaHViDQogIGJNYXhQYWNrZXRTaXplMCAgICAgICAgNjQNCiAgaWRWZW5k
+b3IgICAgICAgICAgIDB4MWQ2YiBMaW51eCBGb3VuZGF0aW9uDQogIGlkUHJvZHVjdCAgICAgICAg
+ICAweDAwMDIgMi4wIHJvb3QgaHViDQogIGJjZERldmljZSAgICAgICAgICAgIDMuMTUNCiAgaU1h
+bnVmYWN0dXJlciAgICAgICAgICAgMyBMaW51eCAzLjE1LjAtcmM1KyBlaGNpX2hjZA0KICBpUHJv
+ZHVjdCAgICAgICAgICAgICAgICAyIEVIQ0kgSG9zdCBDb250cm9sbGVyDQogIGlTZXJpYWwgICAg
+ICAgICAgICAgICAgIDEgMDAwMDowMDoxZC4wDQogIGJOdW1Db25maWd1cmF0aW9ucyAgICAgIDEN
+CiAgQ29uZmlndXJhdGlvbiBEZXNjcmlwdG9yOg0KICAgIGJMZW5ndGggICAgICAgICAgICAgICAg
+IDkNCiAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAyDQogICAgd1RvdGFsTGVuZ3RoICAgICAg
+ICAgICAyNQ0KICAgIGJOdW1JbnRlcmZhY2VzICAgICAgICAgIDENCiAgICBiQ29uZmlndXJhdGlv
+blZhbHVlICAgICAxDQogICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMCANCiAgICBibUF0dHJp
+YnV0ZXMgICAgICAgICAweGUwDQogICAgICBTZWxmIFBvd2VyZWQNCiAgICAgIFJlbW90ZSBXYWtl
+dXANCiAgICBNYXhQb3dlciAgICAgICAgICAgICAgICAwbUENCiAgICBJbnRlcmZhY2UgRGVzY3Jp
+cHRvcjoNCiAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCiAgICAgIGJEZXNjcmlwdG9y
+VHlwZSAgICAgICAgIDQNCiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDANCiAgICAgIGJB
+bHRlcm5hdGVTZXR0aW5nICAgICAgIDANCiAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAgIDEN
+CiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAgICAgIDkgSHViDQogICAgICBiSW50ZXJmYWNlU3Vi
+Q2xhc3MgICAgICAwIFVudXNlZA0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCBGdWxs
+IHNwZWVkIChvciByb290KSBodWINCiAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAgIDAgDQog
+ICAgICBFbmRwb2ludCBEZXNjcmlwdG9yOg0KICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAg
+ICA3DQogICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDUNCiAgICAgICAgYkVuZHBvaW50
+QWRkcmVzcyAgICAgMHg4MSAgRVAgMSBJTg0KICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAg
+ICAzDQogICAgICAgICAgVHJhbnNmZXIgVHlwZSAgICAgICAgICAgIEludGVycnVwdA0KICAgICAg
+ICAgIFN5bmNoIFR5cGUgICAgICAgICAgICAgICBOb25lDQogICAgICAgICAgVXNhZ2UgVHlwZSAg
+ICAgICAgICAgICAgIERhdGENCiAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4MDAwNCAgMXgg
+NCBieXRlcw0KICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDEyDQpIdWIgRGVzY3JpcHRv
+cjoNCiAgYkxlbmd0aCAgICAgICAgICAgICAgIDkNCiAgYkRlc2NyaXB0b3JUeXBlICAgICAgNDEN
+CiAgbk5iclBvcnRzICAgICAgICAgICAgIDINCiAgd0h1YkNoYXJhY3RlcmlzdGljIDB4MDAwYQ0K
+ICAgIE5vIHBvd2VyIHN3aXRjaGluZyAodXNiIDEuMCkNCiAgICBQZXItcG9ydCBvdmVyY3VycmVu
+dCBwcm90ZWN0aW9uDQogIGJQd3JPbjJQd3JHb29kICAgICAgIDEwICogMiBtaWxsaSBzZWNvbmRz
+DQogIGJIdWJDb250ckN1cnJlbnQgICAgICAwIG1pbGxpIEFtcGVyZQ0KICBEZXZpY2VSZW1vdmFi
+bGUgICAgMHgwMg0KICBQb3J0UHdyQ3RybE1hc2sgICAgMHhmZg0KIEh1YiBQb3J0IFN0YXR1czoN
+CiAgIFBvcnQgMTogMDAwMC4wNTA3IGhpZ2hzcGVlZCBwb3dlciBzdXNwZW5kIGVuYWJsZSBjb25u
+ZWN0DQogICBQb3J0IDI6IDAwMDAuMDEwMCBwb3dlcg0KRGV2aWNlIFN0YXR1czogICAgIDB4MDAw
+MQ0KICBTZWxmIFBvd2VyZWQNCg0KQnVzIDAwMyBEZXZpY2UgMDAxOiBJRCAxZDZiOjAwMDIgTGlu
+dXggRm91bmRhdGlvbiAyLjAgcm9vdCBodWINCkRldmljZSBEZXNjcmlwdG9yOg0KICBiTGVuZ3Ro
+ICAgICAgICAgICAgICAgIDE4DQogIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDENCiAgYmNkVVNC
+ICAgICAgICAgICAgICAgMi4wMA0KICBiRGV2aWNlQ2xhc3MgICAgICAgICAgICA5IEh1Yg0KICBi
+RGV2aWNlU3ViQ2xhc3MgICAgICAgICAwIFVudXNlZA0KICBiRGV2aWNlUHJvdG9jb2wgICAgICAg
+ICAxIFNpbmdsZSBUVA0KICBiTWF4UGFja2V0U2l6ZTAgICAgICAgIDY0DQogIGlkVmVuZG9yICAg
+ICAgICAgICAweDFkNmIgTGludXggRm91bmRhdGlvbg0KICBpZFByb2R1Y3QgICAgICAgICAgMHgw
+MDAyIDIuMCByb290IGh1Yg0KICBiY2REZXZpY2UgICAgICAgICAgICAzLjE1DQogIGlNYW51ZmFj
+dHVyZXIgICAgICAgICAgIDMgTGludXggMy4xNS4wLXJjNSsgeGhjaV9oY2QNCiAgaVByb2R1Y3Qg
+ICAgICAgICAgICAgICAgMiB4SENJIEhvc3QgQ29udHJvbGxlcg0KICBpU2VyaWFsICAgICAgICAg
+ICAgICAgICAxIDAwMDA6MDA6MTQuMA0KICBiTnVtQ29uZmlndXJhdGlvbnMgICAgICAxDQogIENv
+bmZpZ3VyYXRpb24gRGVzY3JpcHRvcjoNCiAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQog
+ICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMg0KICAgIHdUb3RhbExlbmd0aCAgICAgICAgICAg
+MjUNCiAgICBiTnVtSW50ZXJmYWNlcyAgICAgICAgICAxDQogICAgYkNvbmZpZ3VyYXRpb25WYWx1
+ZSAgICAgMQ0KICAgIGlDb25maWd1cmF0aW9uICAgICAgICAgIDAgDQogICAgYm1BdHRyaWJ1dGVz
+ICAgICAgICAgMHhlMA0KICAgICAgU2VsZiBQb3dlcmVkDQogICAgICBSZW1vdGUgV2FrZXVwDQog
+ICAgTWF4UG93ZXIgICAgICAgICAgICAgICAgMG1BDQogICAgSW50ZXJmYWNlIERlc2NyaXB0b3I6
+DQogICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICBiRGVzY3JpcHRvclR5cGUg
+ICAgICAgICA0DQogICAgICBiSW50ZXJmYWNlTnVtYmVyICAgICAgICAwDQogICAgICBiQWx0ZXJu
+YXRlU2V0dGluZyAgICAgICAwDQogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxDQogICAg
+ICBiSW50ZXJmYWNlQ2xhc3MgICAgICAgICA5IEh1Yg0KICAgICAgYkludGVyZmFjZVN1YkNsYXNz
+ICAgICAgMCBVbnVzZWQNCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDAgRnVsbCBzcGVl
+ZCAob3Igcm9vdCkgaHViDQogICAgICBpSW50ZXJmYWNlICAgICAgICAgICAgICAwIA0KICAgICAg
+RW5kcG9pbnQgRGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNw0K
+ICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1DQogICAgICAgIGJFbmRwb2ludEFkZHJl
+c3MgICAgIDB4ODEgIEVQIDEgSU4NCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMw0K
+ICAgICAgICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQNCiAgICAgICAgICBT
+eW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAg
+ICAgICAgICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMDQgIDF4IDQgYnl0
+ZXMNCiAgICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxMg0KSHViIERlc2NyaXB0b3I6DQog
+IGJMZW5ndGggICAgICAgICAgICAgIDExDQogIGJEZXNjcmlwdG9yVHlwZSAgICAgIDQxDQogIG5O
+YnJQb3J0cyAgICAgICAgICAgIDE1DQogIHdIdWJDaGFyYWN0ZXJpc3RpYyAweDAwMGENCiAgICBO
+byBwb3dlciBzd2l0Y2hpbmcgKHVzYiAxLjApDQogICAgUGVyLXBvcnQgb3ZlcmN1cnJlbnQgcHJv
+dGVjdGlvbg0KICAgIFRUIHRoaW5rIHRpbWUgOCBGUyBiaXRzDQogIGJQd3JPbjJQd3JHb29kICAg
+ICAgIDEwICogMiBtaWxsaSBzZWNvbmRzDQogIGJIdWJDb250ckN1cnJlbnQgICAgICAwIG1pbGxp
+IEFtcGVyZQ0KICBEZXZpY2VSZW1vdmFibGUgICAgMHgwMCAweDgwDQogIFBvcnRQd3JDdHJsTWFz
+ayAgICAweGZmIDB4ZmYNCiBIdWIgUG9ydCBTdGF0dXM6DQogICBQb3J0IDE6IDAwMDAuMDEwMCBw
+b3dlcg0KICAgUG9ydCAyOiAwMDAwLjAxMDAgcG93ZXINCiAgIFBvcnQgMzogMDAwMC4wMTAwIHBv
+d2VyDQogICBQb3J0IDQ6IDAwMDAuMDEwMCBwb3dlcg0KICAgUG9ydCA1OiAwMDAwLjAxMDAgcG93
+ZXINCiAgIFBvcnQgNjogMDAwMC4wMTAwIHBvd2VyDQogICBQb3J0IDc6IDAwMDAuMDEwMyBwb3dl
+ciBlbmFibGUgY29ubmVjdA0KICAgUG9ydCA4OiAwMDAwLjAxMDAgcG93ZXINCiAgIFBvcnQgOTog
+MDAwMC4wMTAwIHBvd2VyDQogICBQb3J0IDEwOiAwMDAwLjAxMDMgcG93ZXIgZW5hYmxlIGNvbm5l
+Y3QNCiAgIFBvcnQgMTE6IDAwMDAuMDEwMCBwb3dlcg0KICAgUG9ydCAxMjogMDAwMC4wMTAwIHBv
+d2VyDQogICBQb3J0IDEzOiAwMDAwLjAxMDAgcG93ZXINCiAgIFBvcnQgMTQ6IDAwMDAuMDEwMCBw
+b3dlcg0KICAgUG9ydCAxNTogMDAwMC4wMTAwIHBvd2VyDQpEZXZpY2UgU3RhdHVzOiAgICAgMHgw
+MDAxDQogIFNlbGYgUG93ZXJlZA0KDQpCdXMgMDA0IERldmljZSAwMDE6IElEIDFkNmI6MDAwMyBM
+aW51eCBGb3VuZGF0aW9uIDMuMCByb290IGh1Yg0KRGV2aWNlIERlc2NyaXB0b3I6DQogIGJMZW5n
+dGggICAgICAgICAgICAgICAgMTgNCiAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMQ0KICBiY2RV
+U0IgICAgICAgICAgICAgICAzLjAwDQogIGJEZXZpY2VDbGFzcyAgICAgICAgICAgIDkgSHViDQog
+IGJEZXZpY2VTdWJDbGFzcyAgICAgICAgIDAgVW51c2VkDQogIGJEZXZpY2VQcm90b2NvbCAgICAg
+ICAgIDMgDQogIGJNYXhQYWNrZXRTaXplMCAgICAgICAgIDkNCiAgaWRWZW5kb3IgICAgICAgICAg
+IDB4MWQ2YiBMaW51eCBGb3VuZGF0aW9uDQogIGlkUHJvZHVjdCAgICAgICAgICAweDAwMDMgMy4w
+IHJvb3QgaHViDQogIGJjZERldmljZSAgICAgICAgICAgIDMuMTUNCiAgaU1hbnVmYWN0dXJlciAg
+ICAgICAgICAgMyBMaW51eCAzLjE1LjAtcmM1KyB4aGNpX2hjZA0KICBpUHJvZHVjdCAgICAgICAg
+ICAgICAgICAyIHhIQ0kgSG9zdCBDb250cm9sbGVyDQogIGlTZXJpYWwgICAgICAgICAgICAgICAg
+IDEgMDAwMDowMDoxNC4wDQogIGJOdW1Db25maWd1cmF0aW9ucyAgICAgIDENCiAgQ29uZmlndXJh
+dGlvbiBEZXNjcmlwdG9yOg0KICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCiAgICBiRGVz
+Y3JpcHRvclR5cGUgICAgICAgICAyDQogICAgd1RvdGFsTGVuZ3RoICAgICAgICAgICAzMQ0KICAg
+IGJOdW1JbnRlcmZhY2VzICAgICAgICAgIDENCiAgICBiQ29uZmlndXJhdGlvblZhbHVlICAgICAx
+DQogICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMCANCiAgICBibUF0dHJpYnV0ZXMgICAgICAg
+ICAweGUwDQogICAgICBTZWxmIFBvd2VyZWQNCiAgICAgIFJlbW90ZSBXYWtldXANCiAgICBNYXhQ
+b3dlciAgICAgICAgICAgICAgICAwbUENCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAgICAg
+IGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAg
+IDQNCiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDANCiAgICAgIGJBbHRlcm5hdGVTZXR0
+aW5nICAgICAgIDANCiAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAgIDENCiAgICAgIGJJbnRl
+cmZhY2VDbGFzcyAgICAgICAgIDkgSHViDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAw
+IFVudXNlZA0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCBGdWxsIHNwZWVkIChvciBy
+b290KSBodWINCiAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAgIDAgDQogICAgICBFbmRwb2lu
+dCBEZXNjcmlwdG9yOg0KICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQogICAgICAg
+IGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDUNCiAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAgICAg
+MHg4MSAgRVAgMSBJTg0KICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQogICAgICAg
+ICAgVHJhbnNmZXIgVHlwZSAgICAgICAgICAgIEludGVycnVwdA0KICAgICAgICAgIFN5bmNoIFR5
+cGUgICAgICAgICAgICAgICBOb25lDQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAg
+IERhdGENCiAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4MDAwNCAgMXggNCBieXRlcw0KICAg
+ICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDEyDQogICAgICAgIGJNYXhCdXJzdCAgICAgICAg
+ICAgICAgIDANCkh1YiBEZXNjcmlwdG9yOg0KICBiTGVuZ3RoICAgICAgICAgICAgICAxMg0KICBi
+RGVzY3JpcHRvclR5cGUgICAgICA0Mg0KICBuTmJyUG9ydHMgICAgICAgICAgICAgNg0KICB3SHVi
+Q2hhcmFjdGVyaXN0aWMgMHgwMDBhDQogICAgTm8gcG93ZXIgc3dpdGNoaW5nICh1c2IgMS4wKQ0K
+ICAgIFBlci1wb3J0IG92ZXJjdXJyZW50IHByb3RlY3Rpb24NCiAgYlB3ck9uMlB3ckdvb2QgICAg
+ICAgMTAgKiAyIG1pbGxpIHNlY29uZHMNCiAgYkh1YkNvbnRyQ3VycmVudCAgICAgIDAgbWlsbGkg
+QW1wZXJlDQogIGJIdWJEZWNMYXQgICAgICAgICAgMC4wIG1pY3JvIHNlY29uZHMNCiAgd0h1YkRl
+bGF5ICAgICAgICAgICAgIDAgbmFubyBzZWNvbmRzDQogIERldmljZVJlbW92YWJsZSAgICAweDAw
+DQogSHViIFBvcnQgU3RhdHVzOg0KICAgUG9ydCAxOiAwMDAwLjAyYTAgNUdicHMgcG93ZXIgUngu
+RGV0ZWN0DQogICBQb3J0IDI6IDAwMDAuMDJhMCA1R2JwcyBwb3dlciBSeC5EZXRlY3QNCiAgIFBv
+cnQgMzogMDAwMC4wMmEwIDVHYnBzIHBvd2VyIFJ4LkRldGVjdA0KICAgUG9ydCA0OiAwMDAwLjAy
+YTAgNUdicHMgcG93ZXIgUnguRGV0ZWN0DQogICBQb3J0IDU6IDAwMDAuMDJhMCA1R2JwcyBwb3dl
+ciBSeC5EZXRlY3QNCiAgIFBvcnQgNjogMDAwMC4wMmEwIDVHYnBzIHBvd2VyIFJ4LkRldGVjdA0K
+QmluYXJ5IE9iamVjdCBTdG9yZSBEZXNjcmlwdG9yOg0KICBiTGVuZ3RoICAgICAgICAgICAgICAg
+ICA1DQogIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMTUNCiAgd1RvdGFsTGVuZ3RoICAgICAgICAg
+ICAxNQ0KICBiTnVtRGV2aWNlQ2FwcyAgICAgICAgICAxDQogIFN1cGVyU3BlZWQgVVNCIERldmlj
+ZSBDYXBhYmlsaXR5Og0KICAgIGJMZW5ndGggICAgICAgICAgICAgICAgMTANCiAgICBiRGVzY3Jp
+cHRvclR5cGUgICAgICAgIDE2DQogICAgYkRldkNhcGFiaWxpdHlUeXBlICAgICAgMw0KICAgIGJt
+QXR0cmlidXRlcyAgICAgICAgIDB4MDINCiAgICB3U3BlZWRzU3VwcG9ydGVkICAgMHgwMDA4DQog
+ICAgICBEZXZpY2UgY2FuIG9wZXJhdGUgYXQgU3VwZXJTcGVlZCAoNUdicHMpDQogICAgYkZ1bmN0
+aW9uYWxpdHlTdXBwb3J0ICAgMw0KICAgICAgTG93ZXN0IGZ1bGx5LWZ1bmN0aW9uYWwgZGV2aWNl
+IHNwZWVkIGlzIFN1cGVyU3BlZWQgKDVHYnBzKQ0KICAgIGJVMURldkV4aXRMYXQgICAgICAgICAg
+MTAgbWljcm8gc2Vjb25kcw0KICAgIGJVMkRldkV4aXRMYXQgICAgICAgICA1MTIgbWljcm8gc2Vj
+b25kcw0KRGV2aWNlIFN0YXR1czogICAgIDB4MDAwMQ0KICBTZWxmIFBvd2VyZWQNCg0KQnVzIDAw
+MyBEZXZpY2UgMDA0OiBJRCA0MTNjOjIwMTAgRGVsbCBDb21wdXRlciBDb3JwLiBLZXlib2FyZA0K
+RGV2aWNlIERlc2NyaXB0b3I6DQogIGJMZW5ndGggICAgICAgICAgICAgICAgMTgNCiAgYkRlc2Ny
+aXB0b3JUeXBlICAgICAgICAgMQ0KICBiY2RVU0IgICAgICAgICAgICAgICAxLjEwDQogIGJEZXZp
+Y2VDbGFzcyAgICAgICAgICAgIDAgKERlZmluZWQgYXQgSW50ZXJmYWNlIGxldmVsKQ0KICBiRGV2
+aWNlU3ViQ2xhc3MgICAgICAgICAwIA0KICBiRGV2aWNlUHJvdG9jb2wgICAgICAgICAwIA0KICBi
+TWF4UGFja2V0U2l6ZTAgICAgICAgICA4DQogIGlkVmVuZG9yICAgICAgICAgICAweDQxM2MgRGVs
+bCBDb21wdXRlciBDb3JwLg0KICBpZFByb2R1Y3QgICAgICAgICAgMHgyMDEwIEtleWJvYXJkDQog
+IGJjZERldmljZSAgICAgICAgICAgIDIuMDANCiAgaU1hbnVmYWN0dXJlciAgICAgICAgICAgMSBE
+ZWxsDQogIGlQcm9kdWN0ICAgICAgICAgICAgICAgIDMgRGVsbCBVU0IgS2V5Ym9hcmQNCiAgaVNl
+cmlhbCAgICAgICAgICAgICAgICAgMCANCiAgYk51bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KICBD
+b25maWd1cmF0aW9uIERlc2NyaXB0b3I6DQogICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0K
+ICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDINCiAgICB3VG90YWxMZW5ndGggICAgICAgICAg
+IDU5DQogICAgYk51bUludGVyZmFjZXMgICAgICAgICAgMg0KICAgIGJDb25maWd1cmF0aW9uVmFs
+dWUgICAgIDENCiAgICBpQ29uZmlndXJhdGlvbiAgICAgICAgICAzIERlbGwgVVNCIEtleWJvYXJk
+DQogICAgYm1BdHRyaWJ1dGVzICAgICAgICAgMHhhMA0KICAgICAgKEJ1cyBQb3dlcmVkKQ0KICAg
+ICAgUmVtb3RlIFdha2V1cA0KICAgIE1heFBvd2VyICAgICAgICAgICAgICAgNTBtQQ0KICAgIElu
+dGVyZmFjZSBEZXNjcmlwdG9yOg0KICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAg
+ICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNA0KICAgICAgYkludGVyZmFjZU51bWJlciAgICAg
+ICAgMA0KICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0KICAgICAgYk51bUVuZHBvaW50
+cyAgICAgICAgICAgMQ0KICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRl
+cmZhY2UgRGV2aWNlDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAxIEJvb3QgSW50ZXJm
+YWNlIFN1YmNsYXNzDQogICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAxIEtleWJvYXJkDQog
+ICAgICBpSW50ZXJmYWNlICAgICAgICAgICAgICAzIERlbGwgVVNCIEtleWJvYXJkDQogICAgICAg
+IEhJRCBEZXZpY2UgRGVzY3JpcHRvcjoNCiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAg
+ICA5DQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzMw0KICAgICAgICAgIGJjZEhJ
+RCAgICAgICAgICAgICAgIDEuMTANCiAgICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgICAw
+IE5vdCBzdXBwb3J0ZWQNCiAgICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxDQogICAg
+ICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzNCBSZXBvcnQNCiAgICAgICAgICB3RGVzY3Jp
+cHRvckxlbmd0aCAgICAgIDY1DQogICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6IA0KICAgICAg
+ICAgICAqKiBVTkFWQUlMQUJMRSAqKg0KICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoNCiAgICAg
+ICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNw0KICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAg
+ICAgICA1DQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4ODEgIEVQIDEgSU4NCiAgICAg
+ICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMw0KICAgICAgICAgIFRyYW5zZmVyIFR5cGUgICAg
+ICAgICAgICBJbnRlcnJ1cHQNCiAgICAgICAgICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9u
+ZQ0KICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAgICBEYXRhDQogICAgICAgIHdNYXhQ
+YWNrZXRTaXplICAgICAweDAwMDggIDF4IDggYnl0ZXMNCiAgICAgICAgYkludGVydmFsICAgICAg
+ICAgICAgICAxMA0KICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KICAgICAgYkxlbmd0aCAgICAg
+ICAgICAgICAgICAgOQ0KICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNA0KICAgICAgYklu
+dGVyZmFjZU51bWJlciAgICAgICAgMQ0KICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0K
+ICAgICAgYk51bUVuZHBvaW50cyAgICAgICAgICAgMQ0KICAgICAgYkludGVyZmFjZUNsYXNzICAg
+ICAgICAgMyBIdW1hbiBJbnRlcmZhY2UgRGV2aWNlDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3Mg
+ICAgICAwIE5vIFN1YmNsYXNzDQogICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAwIE5vbmUN
+CiAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAgIDMgRGVsbCBVU0IgS2V5Ym9hcmQNCiAgICAg
+ICAgSElEIERldmljZSBEZXNjcmlwdG9yOg0KICAgICAgICAgIGJMZW5ndGggICAgICAgICAgICAg
+ICAgIDkNCiAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDMzDQogICAgICAgICAgYmNk
+SElEICAgICAgICAgICAgICAgMS4xMA0KICAgICAgICAgIGJDb3VudHJ5Q29kZSAgICAgICAgICAg
+IDAgTm90IHN1cHBvcnRlZA0KICAgICAgICAgIGJOdW1EZXNjcmlwdG9ycyAgICAgICAgIDENCiAg
+ICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDM0IFJlcG9ydA0KICAgICAgICAgIHdEZXNj
+cmlwdG9yTGVuZ3RoICAgICAxNDINCiAgICAgICAgIFJlcG9ydCBEZXNjcmlwdG9yczogDQogICAg
+ICAgICAgICoqIFVOQVZBSUxBQkxFICoqDQogICAgICBFbmRwb2ludCBEZXNjcmlwdG9yOg0KICAg
+ICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQogICAgICAgIGJEZXNjcmlwdG9yVHlwZSAg
+ICAgICAgIDUNCiAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAgICAgMHg4MiAgRVAgMiBJTg0KICAg
+ICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQogICAgICAgICAgVHJhbnNmZXIgVHlwZSAg
+ICAgICAgICAgIEludGVycnVwdA0KICAgICAgICAgIFN5bmNoIFR5cGUgICAgICAgICAgICAgICBO
+b25lDQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERhdGENCiAgICAgICAgd01h
+eFBhY2tldFNpemUgICAgIDB4MDAwNCAgMXggNCBieXRlcw0KICAgICAgICBiSW50ZXJ2YWwgICAg
+ICAgICAgICAgMjU1DQpEZXZpY2UgU3RhdHVzOiAgICAgMHgwMDAwDQogIChCdXMgUG93ZXJlZCkN
+Cg==
+--089e01183daaf2f94504f9e8b26a--

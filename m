@@ -1,56 +1,119 @@
-From: Elias Vanderstuyft <elias.vds@gmail.com>
-Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Wed, 21 May 2014 16:53:34 +0200
-Message-ID: <CADbOyBQxC+Epv1kz8jsBKNgYGFO0R-UPBXvn_qV8Sqb6rNw+Og@mail.gmail.com>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
-	<2965006.XKYHWj9YzJ@sigyn>
-	<537B9FAE.9070602@logitech.com>
-	<10859911.6zyzadbfH9@sigyn>
-	<537BCB63.1020200@logitech.com>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] touchscreen: Introduce the use of the managed version of
+ kzalloc
+Date: Wed, 21 May 2014 20:44:05 +0530
+Message-ID: <20140521151405.GA8526@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f182.google.com ([209.85.220.182]:44974 "EHLO
-	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751425AbaEUOxf convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:53388 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752087AbaEUPOM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 10:53:35 -0400
-In-Reply-To: <537BCB63.1020200@logitech.com>
+	Wed, 21 May 2014 11:14:12 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Bosa <rbosa@logitech.com>
-Cc: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, Simon Wood <simon@mungewell.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-On Tue, May 20, 2014 at 11:38 PM, Roland Bosa <rbosa@logitech.com> wrot=
-e:
-> On 05/20/2014 12:00 PM, Michal Mal=C4=B1 wrote:
-> There's a healthy amount of
-> code in the Windows driver that you would call 'quirks' which deals w=
-ith
-> deciding how to allocate multiple springs and dampers to a single slo=
-t.
+This patch moves data allocated using kzalloc to managed data allocated
+using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+functions. Also data allocated using input_allocate_device is moved to
+devm_input_allocate_device and unnecessary labels are removed.
 
-But 2 Spring effects with different offsets and non-zero effective
-force can't be combined into a single slot (without streaming them
-with Constant force), right?
+The following Coccinelle semantic patch was used for making the change:
 
-> Sometimes, even the springs and dampers are being streamed in via the
-> constants force, but that requires (as you pointed out earlier) a fas=
-t
-> update rate and some "smartness"
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
 
-OK, is this method used when all force-slots are already full?
-Or is it only used for some specific (restricted) devices, such as
-devices with only 2 force slots?
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
 
-And in this case, is the position of the device monitored at a speed
-higher than 8ms, in order to keep the feedback-loop stable?
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
 
-Thanks,
-Elias
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+---
+ drivers/input/touchscreen/da9034-ts.c | 17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/input/touchscreen/da9034-ts.c b/drivers/input/touchscreen/da9034-ts.c
+index 8ccf7bb..ed85744 100644
+--- a/drivers/input/touchscreen/da9034-ts.c
++++ b/drivers/input/touchscreen/da9034-ts.c
+@@ -303,7 +303,8 @@ static int da9034_touch_probe(struct platform_device *pdev)
+ 	struct input_dev *input_dev;
+ 	int ret;
+ 
+-	touch = kzalloc(sizeof(struct da9034_touch), GFP_KERNEL);
++	touch = devm_kzalloc(&pdev->dev, sizeof(struct da9034_touch),
++			     GFP_KERNEL);
+ 	if (touch == NULL) {
+ 		dev_err(&pdev->dev, "failed to allocate driver data\n");
+ 		return -ENOMEM;
+@@ -322,11 +323,10 @@ static int da9034_touch_probe(struct platform_device *pdev)
+ 	INIT_DELAYED_WORK(&touch->tsi_work, da9034_tsi_work);
+ 	touch->notifier.notifier_call = da9034_touch_notifier;
+ 
+-	input_dev = input_allocate_device();
++	input_dev = devm_input_allocate_device(&pdev->dev);
+ 	if (!input_dev) {
+ 		dev_err(&pdev->dev, "failed to allocate input device\n");
+-		ret = -ENOMEM;
+-		goto err_free_touch;
++		return -ENOMEM;
+ 	}
+ 
+ 	input_dev->name		= pdev->name;
+@@ -348,16 +348,10 @@ static int da9034_touch_probe(struct platform_device *pdev)
+ 
+ 	ret = input_register_device(input_dev);
+ 	if (ret)
+-		goto err_free_input;
++		return ret;
+ 
+ 	platform_set_drvdata(pdev, touch);
+ 	return 0;
+-
+-err_free_input:
+-	input_free_device(input_dev);
+-err_free_touch:
+-	kfree(touch);
+-	return ret;
+ }
+ 
+ static int da9034_touch_remove(struct platform_device *pdev)
+@@ -365,7 +359,6 @@ static int da9034_touch_remove(struct platform_device *pdev)
+ 	struct da9034_touch *touch = platform_get_drvdata(pdev);
+ 
+ 	input_unregister_device(touch->input_dev);
+-	kfree(touch);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
+

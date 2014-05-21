@@ -1,59 +1,53 @@
 From: Elias Vanderstuyft <elias.vds@gmail.com>
 Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Wed, 21 May 2014 16:22:52 +0200
-Message-ID: <CADbOyBRmAhpWVAEL=kJfqfhYWhSRQH+C3d8-mgaA7rQN=oYY1A@mail.gmail.com>
+Date: Wed, 21 May 2014 16:53:34 +0200
+Message-ID: <CADbOyBQxC+Epv1kz8jsBKNgYGFO0R-UPBXvn_qV8Sqb6rNw+Og@mail.gmail.com>
 References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
-	<1c6140633925b0838b7627e071e80761.squirrel@mungewell.org>
-	<537BFEBF.8010601@logitech.com>
-	<2643156.2tkLFqgYFg@sigyn>
-	<CADbOyBQfHAnZYJj=z-SF77yg+yNpAzETX_W2UGh56NsZo3o8ew@mail.gmail.com>
+	<2965006.XKYHWj9YzJ@sigyn>
+	<537B9FAE.9070602@logitech.com>
+	<10859911.6zyzadbfH9@sigyn>
+	<537BCB63.1020200@logitech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ve0-f172.google.com ([209.85.128.172]:47722 "EHLO
-	mail-ve0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751018AbaEUOWy convert rfc822-to-8bit (ORCPT
+Received: from mail-vc0-f182.google.com ([209.85.220.182]:44974 "EHLO
+	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751425AbaEUOxf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 10:22:54 -0400
-In-Reply-To: <CADbOyBQfHAnZYJj=z-SF77yg+yNpAzETX_W2UGh56NsZo3o8ew@mail.gmail.com>
+	Wed, 21 May 2014 10:53:35 -0400
+In-Reply-To: <537BCB63.1020200@logitech.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Roland Bosa <rbosa@logitech.com>
-Cc: Simon Wood <simon@mungewell.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>
+To: Roland Bosa <rbosa@logitech.com>
+Cc: =?UTF-8?B?TWljaGFsIE1hbMO9?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, Simon Wood <simon@mungewell.org>
 
-On Wed, May 21, 2014 at 3:35 PM, Elias Vanderstuyft <elias.vds@gmail.co=
-m> wrote:
-> On Wed, May 21, 2014 at 4:13 AM, Michal Mal=C3=BD
-> <madcatxster@devoid-pointer.net> wrote:
->> Proper decoupling of the userspace and driver is the only important =
-thing that
->> is missing from the current code.
->
-> Also dynamic updating of periodic effects is not yet supported in
-> "ff-memless-next".
-> This can also be important in simulation games (=3Dsecond type), e.g.
-> the "rFactor" game.
+On Tue, May 20, 2014 at 11:38 PM, Roland Bosa <rbosa@logitech.com> wrot=
+e:
+> On 05/20/2014 12:00 PM, Michal Mal=C4=B1 wrote:
+> There's a healthy amount of
+> code in the Windows driver that you would call 'quirks' which deals w=
+ith
+> deciding how to allocate multiple springs and dampers to a single slo=
+t.
 
-Oh, and I forgot some other things that need to be mentioned:
-- Trigger-button is not yet implemented, as far as I know
-- Custom force effects, in Linux it is called FF_CUSTOM. (however I
-think we can neglect this effect for now)
-- Infinite iterations in the Linux FF API is not supported.
+But 2 Spring effects with different offsets and non-zero effective
+force can't be combined into a single slot (without streaming them
+with Constant force), right?
 
-@Roland:
-Now I understand why Logitech Windows drivers have bugs in the
-periodic implementation of the DInput specs:
-Logitech seems to have based their drivers on the Immersion Studio
-visualisation of the to-be-generated periodic effects, and these
-visualisations are not conform with the DInput specs of MSDN.
-Take a quick look at the MSDN specs for e.g. SawtoothUp:
-http://msdn.microsoft.com/en-us/library/windows/desktop/ee418719%28v=3D=
-vs.85%29.aspx
-Now open the Immersion Studio (demo) and create a standard SawtoothUp
-effect, and look at the visualisation... It's wrong, right?
-Same applies for SawtoothDown and Triangle.
+> Sometimes, even the springs and dampers are being streamed in via the
+> constants force, but that requires (as you pointed out earlier) a fas=
+t
+> update rate and some "smartness"
 
+OK, is this method used when all force-slots are already full?
+Or is it only used for some specific (restricted) devices, such as
+devices with only 2 force slots?
+
+And in this case, is the position of the device monitored at a speed
+higher than 8ms, in order to keep the feedback-loop stable?
+
+Thanks,
 Elias
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

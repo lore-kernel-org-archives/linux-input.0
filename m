@@ -1,56 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mcs_touchkey: fix incorrect input device name
-Date: Wed, 21 May 2014 08:26:47 -0700
-Message-ID: <20140521152647.GA27151@core.coreip.homeip.net>
-References: <537C509E.10705@samsung.com>
+Subject: Re: [PATCH] touchscreen: Introduce the use of the managed version of
+ kzalloc
+Date: Wed, 21 May 2014 08:32:17 -0700
+Message-ID: <20140521153217.GA28195@core.coreip.homeip.net>
+References: <20140521151405.GA8526@himangi-Dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:38607 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751786AbaEUP0v (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:56635 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752321AbaEUPcV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 11:26:51 -0400
-Received: by mail-pb0-f47.google.com with SMTP id rp16so1513141pbb.34
-        for <linux-input@vger.kernel.org>; Wed, 21 May 2014 08:26:51 -0700 (PDT)
+	Wed, 21 May 2014 11:32:21 -0400
 Content-Disposition: inline
-In-Reply-To: <537C509E.10705@samsung.com>
+In-Reply-To: <20140521151405.GA8526@himangi-Dell>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Beomho Seo <beomho.seo@samsung.com>
-Cc: linux-input@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Myungjoo Ham <myungjoo.ham@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
+To: Himangi Saraogi <himangi774@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
 
-Hi Beomho,
+Hi Himangi,
 
-On Wed, May 21, 2014 at 04:07:10PM +0900, Beomho Seo wrote:
-> This patch fix a typo error at input device name.
-> 
-> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
-> ---
->  drivers/input/keyboard/mcs_touchkey.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
-> index 1da8e0b..375b05c 100644
-> --- a/drivers/input/keyboard/mcs_touchkey.c
-> +++ b/drivers/input/keyboard/mcs_touchkey.c
-> @@ -147,7 +147,7 @@ static int mcs_touchkey_probe(struct i2c_client *client,
->  	}
->  	dev_info(&client->dev, "Firmware version: %d\n", fw_ver);
-> 
-> -	input_dev->name = "MELPAS MCS Touchkey";
-> +	input_dev->name = "MELFAS MCS Touchkey";
+On Wed, May 21, 2014 at 08:44:05PM +0530, Himangi Saraogi wrote:
+> -	input_dev = input_allocate_device();
+> +	input_dev = devm_input_allocate_device(&pdev->dev);
 
-Hmm, we have the same spelling in mcs5000_ts.c...
+...
 
-Thanks.
+> @@ -365,7 +359,6 @@ static int da9034_touch_remove(struct platform_device *pdev)
+>  	struct da9034_touch *touch = platform_get_drvdata(pdev);
+>  
+>  	input_unregister_device(touch->input_dev);
 
->  	input_dev->id.bustype = BUS_I2C;
->  	input_dev->dev.parent = &client->dev;
->  	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+When using managed input devices calling input_unregister_device() is
+unnecessary. Whole da9034_touch_remove() can be removed. I fixed it up
+locally and applied your patch.
+
+Thanks!
+
+> -	kfree(touch);
+>  
+>  	return 0;
+>  }
 > -- 
-> 1.7.9.5
+> 1.9.1
+> 
 
 -- 
 Dmitry

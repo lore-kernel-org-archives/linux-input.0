@@ -1,47 +1,54 @@
-From: Beomho Seo <beomho.seo@samsung.com>
-Subject: [PATCH] Input: mcs_touchkey: fix incorrect input device name
-Date: Wed, 21 May 2014 16:07:10 +0900
-Message-ID: <537C509E.10705@samsung.com>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 0/7] mfd: AXP20x: Add support for AXP202
+ and AXP209
+Date: Wed, 21 May 2014 09:24:43 +0200
+Message-ID: <CAOQ7t2aBc5tFYk2MkfL9QqvFf5fcebwKtO97F3S=WdJ2uFE_jg@mail.gmail.com>
+References: <1400528868-5971-1-git-send-email-carlo@caione.org>
+	<20140520222307.GK12304@sirena.org.uk>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:53814 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750883AbaEUHHf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 03:07:35 -0400
-Received: from epcpsbgr3.samsung.com
- (u143.gpu120.samsung.co.kr [203.254.230.143])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0N5W00DHOX3YMQB0@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Wed, 21 May 2014 16:07:10 +0900 (KST)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBO5J6GNQKGQELZRDQ6Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20140520222307.GK12304-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, wens Tsai <wens-jdAy2FN1RRM@public.gmane.org>, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: Myungjoo Ham <myungjoo.ham@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
 
-This patch fix a typo error at input device name.
+On Wed, May 21, 2014 at 12:23 AM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> On Mon, May 19, 2014 at 09:47:41PM +0200, Carlo Caione wrote:
+>
+>> This set of patches introduces the core driver and support for two different
+>> subsystems:
+>>       - Regulators
+>
+>>  .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
+>>  Documentation/devicetree/bindings/mfd/axp20x.txt   |  93 +++++++
+>>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+>>  arch/arm/configs/multi_v7_defconfig                |   3 +
+>>  arch/arm/configs/sunxi_defconfig                   |   4 +
+>>  drivers/input/misc/Kconfig                         |  11 +
+>>  drivers/input/misc/Makefile                        |   1 +
+>>  drivers/input/misc/axp20x-pek.c                    | 281 +++++++++++++++++++++
+>>  drivers/mfd/Kconfig                                |  12 +
+>>  drivers/mfd/Makefile                               |   1 +
+>>  drivers/mfd/axp20x.c                               | 258 +++++++++++++++++++
+>>  include/linux/mfd/axp20x.h                         | 180 +++++++++++++
+>>  12 files changed, 856 insertions(+)
+>
+> The regulator changes don't appear to be showing up in the diffstat or
+> obviously in the series?
 
-Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>
----
- drivers/input/keyboard/mcs_touchkey.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Right. Cut-and-paste error.
+You have already applied the regulator patches so I didn't include
+them here (in theory I posted this series to be picked up by Lee).
 
-diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
-index 1da8e0b..375b05c 100644
---- a/drivers/input/keyboard/mcs_touchkey.c
-+++ b/drivers/input/keyboard/mcs_touchkey.c
-@@ -147,7 +147,7 @@ static int mcs_touchkey_probe(struct i2c_client *client,
- 	}
- 	dev_info(&client->dev, "Firmware version: %d\n", fw_ver);
+Thanks,
 
--	input_dev->name = "MELPAS MCS Touchkey";
-+	input_dev->name = "MELFAS MCS Touchkey";
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = &client->dev;
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY);
 -- 
-1.7.9.5
+Carlo Caione

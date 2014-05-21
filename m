@@ -1,73 +1,56 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCHv4 4/4] DTS: ARM: OMAP3-N900: Add tsc2005 support
-Date: Wed, 21 May 2014 15:19:55 -0700
-Message-ID: <20140521221955.GC14520@atomide.com>
-References: <1400693774-21306-1-git-send-email-sre@kernel.org>
- <1400693774-21306-5-git-send-email-sre@kernel.org>
+From: simon@mungewell.org
+Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
+Date: Wed, 21 May 2014 18:42:40 -0400
+Message-ID: <77e93715d28deb2ec0508f9326f9102f.squirrel@mungewell.org>
+References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
+    <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com>
+    <10859911.6zyzadbfH9@sigyn> <537BCB63.1020200@logitech.com>
+    <CADbOyBQxC+Epv1kz8jsBKNgYGFO0R-UPBXvn_qV8Sqb6rNw+Og@mail.gmail.com>
+    <537D28E3.3000401@logitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1400693774-21306-5-git-send-email-sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Sebastian Reichel <sre-GFxCN5SEZAc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:53425 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753342AbaEUWmq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 May 2014 18:42:46 -0400
+In-Reply-To: <537D28E3.3000401@logitech.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roland Bosa <rbosa@logitech.com>
+Cc: Elias Vanderstuyft <elias.vds@gmail.com>, =?iso-8859-1?Q?=22Michal_Mal=C3=BD=22?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, HID CORE LAYER <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, Simon Wood <simon@mungewell.org>
 
-* Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> [140521 10:38]:
-> This adds support for the tsc2005 touchscreen
-> to the Nokia N900 DTS file.
-> 
-> Signed-off-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Dmitry, if no other comments, feel free to pick this one too.
-This does not seem to conflict with anything I have queued:
+>> But 2 Spring effects with different offsets and non-zero effective
+>> force can't be combined into a single slot (without streaming them
+>> with Constant force), right?
+>
+> Yes - you cannot *download* two springs to a single slot. You need to
+> choose (allocate) one of them. The winner gets the slot. The losers go
+> somewhere else (they might get discarded, they might get simulated).
 
-Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-
-> ---
->  arch/arm/boot/dts/omap3-n900.dts | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
-> index 1a57b61..cb8ed2d5 100644
-> --- a/arch/arm/boot/dts/omap3-n900.dts
-> +++ b/arch/arm/boot/dts/omap3-n900.dts
-> @@ -580,9 +580,24 @@
->  	 * Also... order in the device tree actually matters here.
->  	 */
->  	tsc2005@0 {
-> -		compatible = "tsc2005";
-> +		compatible = "ti,tsc2005";
->  		spi-max-frequency = <6000000>;
->  		reg = <0>;
-> +
-> +		vio-supply = <&vio>;
-> +
-> +		reset-gpios = <&gpio4 8 GPIO_ACTIVE_HIGH>; /* 104 */
-> +		interrupts-extended = <&gpio4 4 IRQ_TYPE_EDGE_RISING>; /* 100 */
-> +
-> +		touchscreen-fuzz-x = <4>;
-> +		touchscreen-fuzz-y = <7>;
-> +		touchscreen-fuzz-pressure = <2>;
-> +		touchscreen-max-x = <4096>;
-> +		touchscreen-max-y = <4096>;
-> +		touchscreen-max-pressure = <2048>;
-> +
-> +		ti,x-plate-ohms = <280>;
-> +		ti,esd-recovery-timeout-ms = <8000>;
->  	};
->  
->  	acx565akm@2 {
-> -- 
-> 2.0.0.rc2
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+In reverse engineering, I thought that a single slot could hold two
+rotational angles/points (at which a springs would start) and that that
+the direction could be set so that both acting in the same direction with
+different forces.
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+    Byte 2 - 0x_1
+    Byte 3 - Clockwise angle, nominally on left (0x00..0xFF - 0x00 is
+fully left)
+    Byte 4 - Anti-Clockwise angle, nominally on right(0x00..0xFF)
+    Byte 5 - L/R Proportion force, upper nibble clockwise + lower nibble
+anti-clockwise (each 0x0..0xF)
+    Byte 6 - Reverse Direction; upper nibble clockwise + lower nibble
+anti-clockwise (each 0x0..0x1)
+    Byte 7 - Force (0x00..0xFF)
+--
+
+Ie. turning from fully left (00) with no force, you could hit a 'weak'
+spring (at 40) and then a 'stronger' spring (at 80).
+
+So to some degree you /can/ merge springs... but I'm not saying that you
+should :-).
+Simon
+

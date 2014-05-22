@@ -1,38 +1,146 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 20/51] Input: atmel_mxt_ts - Set default irqflags when
- there is no pdata
-Date: Thu, 22 May 2014 15:29:42 +0100
-Message-ID: <537E09D6.7050604@itdev.co.uk>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk> <1372337366-9286-21-git-send-email-nick.dyer@itdev.co.uk> <20130718171744.GC32381@polaris.bitmath.org> <20130916022533.GA6468@core.coreip.homeip.net>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] input/keyboard: Introduce the use of the managed version of
+ kzalloc
+Date: Thu, 22 May 2014 21:22:41 +0530
+Message-ID: <20140522155241.GA8976@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:56676 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751374AbaEVO3r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2014 10:29:47 -0400
-In-Reply-To: <20130916022533.GA6468@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rydberg@euromail.se, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>
 
-Dmitry Torokhov wrote:
-> On Thu, Jul 18, 2013 at 07:17:44PM +0200, rydberg@euromail.se wrote:
->>> From: Yufeng Shen <miletus@chromium.org>
->>> This is the preparation for supporting the code path when there is
->>> platform data provided and still boot the device into a sane state
->>> with backup NVRAM config.
->>>
->>> Make the irqflags default to be IRQF_TRIGGER_FALLING if no platform data is
->>> provided.
-> 
-> I think if there is no platform data we should use 0 as IRQ falgs and
-> assume that IRQ line is properly configured by the board code or via
-> device tree.
+This patch moves data allocated using kzalloc to managed data allocated
+using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+functions. The input_allocate_device is replaced by the corresponding
+devm version and error handling code is cleaned up. Also, label err and
+err1 no longer required are removed. Also, linux/device.h include is
+added to make sure the devm_*() routine declarations are unambiguously
+available.
 
-Beson/Yufeng - do you still have a requirement to probe without platform
-data or device tree? I'm just merging in some changes to add device tree
-support, and it would simplify things a bit if I can drop this patch.
+The following Coccinelle semantic patch was used for making a part of
+the change:
+
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
+
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
+
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
+
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+---
+ drivers/input/keyboard/adp5520-keys.c | 28 ++++++++--------------------
+ 1 file changed, 8 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
+index 4cc14c2..fdd6bdc 100644
+--- a/drivers/input/keyboard/adp5520-keys.c
++++ b/drivers/input/keyboard/adp5520-keys.c
+@@ -12,6 +12,7 @@
+ #include <linux/input.h>
+ #include <linux/mfd/adp5520.h>
+ #include <linux/slab.h>
++#include <linux/device.h>
+ 
+ struct adp5520_keys {
+ 	struct input_dev *input;
+@@ -89,17 +90,15 @@ static int adp5520_keys_probe(struct platform_device *pdev)
+ 	if (!(pdata->rows_en_mask && pdata->cols_en_mask))
+ 		return -EINVAL;
+ 
+-	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+ 	if (dev == NULL) {
+ 		dev_err(&pdev->dev, "failed to alloc memory\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	input = input_allocate_device();
+-	if (!input) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
+ 
+ 	dev->master = pdev->dev.parent;
+ 	dev->input = input;
+@@ -135,7 +134,7 @@ static int adp5520_keys_probe(struct platform_device *pdev)
+ 	ret = input_register_device(input);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "unable to register input device\n");
+-		goto err;
++		return ret;
+ 	}
+ 
+ 	en_mask = pdata->rows_en_mask | pdata->cols_en_mask;
+@@ -157,8 +156,7 @@ static int adp5520_keys_probe(struct platform_device *pdev)
+ 
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to write\n");
+-		ret = -EIO;
+-		goto err1;
++		return -EIO;
+ 	}
+ 
+ 	dev->notifier.notifier_call = adp5520_keys_notifier;
+@@ -166,19 +164,11 @@ static int adp5520_keys_probe(struct platform_device *pdev)
+ 			ADP5520_KP_IEN | ADP5520_KR_IEN);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register notifier\n");
+-		goto err1;
++		return ret;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, dev);
+ 	return 0;
+-
+-err1:
+-	input_unregister_device(input);
+-	input = NULL;
+-err:
+-	input_free_device(input);
+-	kfree(dev);
+-	return ret;
+ }
+ 
+ static int adp5520_keys_remove(struct platform_device *pdev)
+@@ -188,8 +178,6 @@ static int adp5520_keys_remove(struct platform_device *pdev)
+ 	adp5520_unregister_notifier(dev->master, &dev->notifier,
+ 				ADP5520_KP_IEN | ADP5520_KR_IEN);
+ 
+-	input_unregister_device(dev->input);
+-	kfree(dev);
+ 	return 0;
+ }
+ 
+-- 
+1.9.1

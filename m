@@ -1,67 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: ABS_MT_TOUCH_MAJOR metric
-Date: Thu, 22 May 2014 12:42:08 -0700
-Message-ID: <20140522194208.GB1984@core.coreip.homeip.net>
-References: <537DD98C.5090800@cypress.com>
- <20140522172353.GA1984@core.coreip.homeip.net>
- <537E5027.9010705@cypress.com>
+Subject: Re: [PATCH] dt/sparc: Introduce the use of the managed version of
+ kzalloc
+Date: Thu, 22 May 2014 12:45:39 -0700
+Message-ID: <20140522194539.GA7708@core.coreip.homeip.net>
+References: <20140522193430.GA16315@himangi-Dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:47262 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751736AbaEVTmM (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:62794 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751037AbaEVTpn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2014 15:42:12 -0400
-Received: by mail-pb0-f47.google.com with SMTP id rp16so2957962pbb.34
-        for <linux-input@vger.kernel.org>; Thu, 22 May 2014 12:42:11 -0700 (PDT)
+	Thu, 22 May 2014 15:45:43 -0400
 Content-Disposition: inline
-In-Reply-To: <537E5027.9010705@cypress.com>
+In-Reply-To: <20140522193430.GA16315@himangi-Dell>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferruh Yigit <fery@cypress.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
+To: Himangi Saraogi <himangi774@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
 
-On Thu, May 22, 2014 at 10:29:43PM +0300, Ferruh Yigit wrote:
-> On 05/22/2014 08:23 PM, Dmitry Torokhov wrote:
-> > Hi Ferruh,
-> >
-> > On Thu, May 22, 2014 at 02:03:40PM +0300, Ferruh Yigit wrote:
-> >> Hi,
-> >>
-> >> What is the metric of ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR events?
-> >>
-> >> The Linux documentation
-> >> <https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt> says:
-> >> "The length of the major axis of the contact. The length should be given
-> >> in surface units. ..."
-> >>
-> >> What does "surface units" means, is it millimeter or pixels?
-> > It is whatever unit the device reports, similarly to ABS_MT_POSITION_X
-> > and ABS_MT_POSITION_Y. Userspace can use EVIOCGABS to map device units
-> > onto common units.
-> >
-> > From include/uapi/linux/input.h (struct input_absinfo):
-> >
-> >  * Resolution for main axes (ABS_X, ABS_Y, ABS_Z) is reported in
-> >  * units per millimeter (units/mm), resolution for rotational axes
-> >  * (ABS_RX, ABS_RY, ABS_RZ) is reported in units per radian.
-> >
-> > Hope this helps.
-> >
-> Hi Dmitry,
-> 
-> I understand this works for Dmitry ABS_X, ABS_Y,
-> touchscreen reports between 0..A, screen resolution is 0..B, a mapping
-> can be done 0..A -> 0..B
-> 
-> But for ABS_MT_TOUCH_MAJOR how this scaling can be done,
-> touchscreen reports between 0..A, do we know the min/max values for
-> application side?
+Hi Himangi,
 
-I believe in normal (all?) cases we'd use the same resolution iand
-limits for ABS_MT_TOUCH_MAJOR/MINOR and ABS_X/Y and kernel not report
-any mix/max on ABS_MT_TOUCH_MAJOR/MINOR.
+On Fri, May 23, 2014 at 01:04:30AM +0530, Himangi Saraogi wrote:
+> This patch moves data allocated using kzalloc to managed data allocated
+> using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+> functions. Also the unnecessary labels are done away with.
+
+Please no more partial devm conversions. I am not interested in patches
+that change only 1 resource to be managed and leaving the rest as is.
+
+If you want to do devm conversion please do it if you convert all (or at
+least majority) of resource handling to managed resources.
+
+...
+
+> ---
+> Not compiled due to incompatible architecture.
+> 
+
+There are cross-compilers that can be used to work around such issues.
 
 Thanks.
 

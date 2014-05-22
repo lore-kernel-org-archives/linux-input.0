@@ -1,110 +1,38 @@
-From: Beomho Seo <beomho.seo@samsung.com>
-Subject: [PATCH 2/2] Input: mcs5000_ts: use devm_* functions.
-Date: Thu, 22 May 2014 20:26:20 +0900
-Message-ID: <1400757980-15156-3-git-send-email-beomho.seo@samsung.com>
-References: <1400757980-15156-1-git-send-email-beomho.seo@samsung.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 20/51] Input: atmel_mxt_ts - Set default irqflags when
+ there is no pdata
+Date: Thu, 22 May 2014 15:29:42 +0100
+Message-ID: <537E09D6.7050604@itdev.co.uk>
+References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk> <1372337366-9286-21-git-send-email-nick.dyer@itdev.co.uk> <20130718171744.GC32381@polaris.bitmath.org> <20130916022533.GA6468@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:51614 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754768AbaEVL0Y (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:56676 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751374AbaEVO3r (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2014 07:26:24 -0400
-Received: from epcpsbgr2.samsung.com
- (u142.gpu120.samsung.co.kr [203.254.230.142])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0N5Z00AS73RZZ9A0@mailout3.samsung.com> for
- linux-input@vger.kernel.org; Thu, 22 May 2014 20:26:23 +0900 (KST)
-In-reply-to: <1400757980-15156-1-git-send-email-beomho.seo@samsung.com>
+	Thu, 22 May 2014 10:29:47 -0400
+In-Reply-To: <20130916022533.GA6468@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jy0922.shim@samsung.com
-Cc: sachin.kamat@linaro.org, myungjoo.ham@samsung.com, jh80.chung@samsung.com, cw00.choi@samsung.com, Beomho Seo <beomho.seo@samsung.com>
+To: Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rydberg@euromail.se, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>
 
-This patch use devm_* functions in mcs5000_ts driver.
-As, a result, error patch and remove() function is simplified.
+Dmitry Torokhov wrote:
+> On Thu, Jul 18, 2013 at 07:17:44PM +0200, rydberg@euromail.se wrote:
+>>> From: Yufeng Shen <miletus@chromium.org>
+>>> This is the preparation for supporting the code path when there is
+>>> platform data provided and still boot the device into a sane state
+>>> with backup NVRAM config.
+>>>
+>>> Make the irqflags default to be IRQF_TRIGGER_FALLING if no platform data is
+>>> provided.
+> 
+> I think if there is no platform data we should use 0 as IRQ falgs and
+> assume that IRQ line is properly configured by the board code or via
+> device tree.
 
-Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
----
- drivers/input/touchscreen/mcs5000_ts.c |   40 +++++++++-----------------------
- 1 file changed, 11 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
-index 647e36f..b655341 100644
---- a/drivers/input/touchscreen/mcs5000_ts.c
-+++ b/drivers/input/touchscreen/mcs5000_ts.c
-@@ -197,11 +197,10 @@ static int mcs5000_ts_probe(struct i2c_client *client,
- 		return -EINVAL;
- 
- 	data = kzalloc(sizeof(struct mcs5000_ts_data), GFP_KERNEL);
--	input_dev = input_allocate_device();
-+	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!data || !input_dev) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
--		ret = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
- 	}
- 
- 	data->client = client;
-@@ -223,40 +222,24 @@ static int mcs5000_ts_probe(struct i2c_client *client,
- 	if (data->platform_data->cfg_pin)
- 		data->platform_data->cfg_pin();
- 
--	ret = request_threaded_irq(client->irq, NULL, mcs5000_ts_interrupt,
--			IRQF_TRIGGER_LOW | IRQF_ONESHOT, "mcs5000_ts", data);
--
--	if (ret < 0) {
-+	ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+			mcs5000_ts_interrupt, IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+			"mcs5000_ts", data);
-+	if (ret) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_free_mem;
-+		return ret;
- 	}
- 
- 	ret = input_register_device(data->input_dev);
--	if (ret < 0)
--		goto err_free_irq;
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to register input device\n");
-+		return ret;
-+	}
- 
- 	mcs5000_ts_phys_init(data);
- 	i2c_set_clientdata(client, data);
- 
- 	return 0;
--
--err_free_irq:
--	free_irq(client->irq, data);
--err_free_mem:
--	input_free_device(input_dev);
--	kfree(data);
--	return ret;
--}
--
--static int mcs5000_ts_remove(struct i2c_client *client)
--{
--	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
--
--	free_irq(client->irq, data);
--	input_unregister_device(data->input_dev);
--	kfree(data);
--
--	return 0;
- }
- 
- #ifdef CONFIG_PM
-@@ -291,7 +274,6 @@ MODULE_DEVICE_TABLE(i2c, mcs5000_ts_id);
- 
- static struct i2c_driver mcs5000_ts_driver = {
- 	.probe		= mcs5000_ts_probe,
--	.remove		= mcs5000_ts_remove,
- 	.driver = {
- 		.name = "mcs5000_ts",
- #ifdef CONFIG_PM
--- 
-1.7.9.5
-
+Beson/Yufeng - do you still have a requirement to probe without platform
+data or device tree? I'm just merging in some changes to add device tree
+support, and it would simplify things a bit if I can drop this patch.

@@ -1,45 +1,47 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: ABS_MT_TOUCH_MAJOR metric
-Date: Thu, 22 May 2014 21:46:09 +0200
-Message-ID: <537E5401.9000109@euromail.se>
-References: <537DD98C.5090800@cypress.com> <20140522172353.GA1984@core.coreip.homeip.net> <537E5027.9010705@cypress.com>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH] dt/sparc: Introduce the use of the managed version of
+ kzalloc
+Date: Fri, 23 May 2014 07:03:37 +0800 (SGT)
+Message-ID: <alpine.DEB.2.10.1405230700090.2606@hadrien>
+References: <20140522193430.GA16315@himangi-Dell> <20140522194539.GA7708@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:53759 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750890AbaEVUBY (ORCPT
+Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:33049 "EHLO
+	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751196AbaEVXEE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2014 16:01:24 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-h21.telenor.se (Postfix) with ESMTP id DF1EEC345
-	for <linux-input@vger.kernel.org>; Thu, 22 May 2014 21:41:08 +0200 (CEST)
-In-Reply-To: <537E5027.9010705@cypress.com>
+	Thu, 22 May 2014 19:04:04 -0400
+In-Reply-To: <20140522194539.GA7708@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferruh Yigit <fery@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Himangi Saraogi <himangi774@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
 
-Ferruh,
 
-> I understand this works for Dmitry ABS_X, ABS_Y,
-> touchscreen reports between 0..A, screen resolution is 0..B, a mapping
-> can be done 0..A -> 0..B
-> 
-> But for ABS_MT_TOUCH_MAJOR how this scaling can be done,
-> touchscreen reports between 0..A, do we know the min/max values for
-> application side?
 
-You are right to be confused here. The axes you refer to are, in a way,
-meaningless because both TOUCH_MAJOR and TOUCH_MINOR (and the corresponding
-WIDTH_MAJOR and WIDTH_MINOR) are assumed to be measured in surface coordinates,
-i.e., of the same scale as ABS_X and ABS_Y.
+On Thu, 22 May 2014, Dmitry Torokhov wrote:
 
-Historically, these axes have had specific values anyways, as an indication of
-how large a touch area can be a the specific device. This is how userland MT
-applications interpret the data. Strictly speaking, this is incorrect, but
-that's how it is.
+> Hi Himangi,
+>
+> On Fri, May 23, 2014 at 01:04:30AM +0530, Himangi Saraogi wrote:
+> > This patch moves data allocated using kzalloc to managed data allocated
+> > using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
+> > functions. Also the unnecessary labels are done away with.
+>
+> Please no more partial devm conversions. I am not interested in patches
+> that change only 1 resource to be managed and leaving the rest as is.
+>
+> If you want to do devm conversion please do it if you convert all (or at
+> least majority) of resource handling to managed resources.
 
-Henrik
+Sorry, I don't think we are clear on what is wanted.  Himangi's patches
+convert everything where a devm function is already available (to our
+knowledge).  Do you prefer that new devm functions be introduced?  On the
+one hand, that is perhaps useful from a safety point of view.  On the
+other hand, it could lead to a huge number of rarely used devm functions
+that no one knows about and to a lot of code diversity.  So I don't know
+what is the good solution.
 
+thanks,
+julia

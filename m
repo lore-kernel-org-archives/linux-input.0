@@ -1,146 +1,50 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] input/keyboard: Introduce the use of the managed version of
- kzalloc
-Date: Thu, 22 May 2014 21:22:41 +0530
-Message-ID: <20140522155241.GA8976@himangi-Dell>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: ABS_MT_TOUCH_MAJOR metric
+Date: Thu, 22 May 2014 10:23:53 -0700
+Message-ID: <20140522172353.GA1984@core.coreip.homeip.net>
+References: <537DD98C.5090800@cypress.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:58535 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751061AbaEVRX5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 May 2014 13:23:57 -0400
+Received: by mail-pb0-f47.google.com with SMTP id rp16so2797585pbb.34
+        for <linux-input@vger.kernel.org>; Thu, 22 May 2014 10:23:57 -0700 (PDT)
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+In-Reply-To: <537DD98C.5090800@cypress.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ferruh Yigit <fery@cypress.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
 
-This patch moves data allocated using kzalloc to managed data allocated
-using devm_kzalloc and cleans now unnecessary kfrees in probe and remove
-functions. The input_allocate_device is replaced by the corresponding
-devm version and error handling code is cleaned up. Also, label err and
-err1 no longer required are removed. Also, linux/device.h include is
-added to make sure the devm_*() routine declarations are unambiguously
-available.
+Hi Ferruh,
 
-The following Coccinelle semantic patch was used for making a part of
-the change:
+On Thu, May 22, 2014 at 02:03:40PM +0300, Ferruh Yigit wrote:
+> Hi,
+> 
+> What is the metric of ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR events?
+> 
+> The Linux documentation
+> <https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt> says:
+> "The length of the major axis of the contact. The length should be given
+> in surface units. ..."
+> 
+> What does "surface units" means, is it millimeter or pixels?
 
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
+It is whatever unit the device reports, similarly to ABS_MT_POSITION_X
+and ABS_MT_POSITION_Y. Userspace can use EVIOCGABS to map device units
+onto common units.
 
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
+>From include/uapi/linux/input.h (struct input_absinfo):
 
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
+ * Resolution for main axes (ABS_X, ABS_Y, ABS_Z) is reported in
+ * units per millimeter (units/mm), resolution for rotational axes
+ * (ABS_RX, ABS_RY, ABS_RZ) is reported in units per radian.
 
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
----
- drivers/input/keyboard/adp5520-keys.c | 28 ++++++++--------------------
- 1 file changed, 8 insertions(+), 20 deletions(-)
+Hope this helps.
 
-diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
-index 4cc14c2..fdd6bdc 100644
---- a/drivers/input/keyboard/adp5520-keys.c
-+++ b/drivers/input/keyboard/adp5520-keys.c
-@@ -12,6 +12,7 @@
- #include <linux/input.h>
- #include <linux/mfd/adp5520.h>
- #include <linux/slab.h>
-+#include <linux/device.h>
- 
- struct adp5520_keys {
- 	struct input_dev *input;
-@@ -89,17 +90,15 @@ static int adp5520_keys_probe(struct platform_device *pdev)
- 	if (!(pdata->rows_en_mask && pdata->cols_en_mask))
- 		return -EINVAL;
- 
--	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-+	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
- 	if (dev == NULL) {
- 		dev_err(&pdev->dev, "failed to alloc memory\n");
- 		return -ENOMEM;
- 	}
- 
--	input = input_allocate_device();
--	if (!input) {
--		ret = -ENOMEM;
--		goto err;
--	}
-+	input = devm_input_allocate_device(&pdev->dev);
-+	if (!input)
-+		return -ENOMEM;
- 
- 	dev->master = pdev->dev.parent;
- 	dev->input = input;
-@@ -135,7 +134,7 @@ static int adp5520_keys_probe(struct platform_device *pdev)
- 	ret = input_register_device(input);
- 	if (ret) {
- 		dev_err(&pdev->dev, "unable to register input device\n");
--		goto err;
-+		return ret;
- 	}
- 
- 	en_mask = pdata->rows_en_mask | pdata->cols_en_mask;
-@@ -157,8 +156,7 @@ static int adp5520_keys_probe(struct platform_device *pdev)
- 
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to write\n");
--		ret = -EIO;
--		goto err1;
-+		return -EIO;
- 	}
- 
- 	dev->notifier.notifier_call = adp5520_keys_notifier;
-@@ -166,19 +164,11 @@ static int adp5520_keys_probe(struct platform_device *pdev)
- 			ADP5520_KP_IEN | ADP5520_KR_IEN);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to register notifier\n");
--		goto err1;
-+		return ret;
- 	}
- 
- 	platform_set_drvdata(pdev, dev);
- 	return 0;
--
--err1:
--	input_unregister_device(input);
--	input = NULL;
--err:
--	input_free_device(input);
--	kfree(dev);
--	return ret;
- }
- 
- static int adp5520_keys_remove(struct platform_device *pdev)
-@@ -188,8 +178,6 @@ static int adp5520_keys_remove(struct platform_device *pdev)
- 	adp5520_unregister_notifier(dev->master, &dev->notifier,
- 				ADP5520_KP_IEN | ADP5520_KR_IEN);
- 
--	input_unregister_device(dev->input);
--	kfree(dev);
- 	return 0;
- }
- 
 -- 
-1.9.1
+Dmitry

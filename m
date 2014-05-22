@@ -1,56 +1,41 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH v4 01/24] input: Add ff-memless-next module
-Date: Wed, 21 May 2014 18:42:40 -0400
-Message-ID: <77e93715d28deb2ec0508f9326f9102f.squirrel@mungewell.org>
-References: <1398524543-15012-1-git-send-email-madcatxster@devoid-pointer.net>
-    <2965006.XKYHWj9YzJ@sigyn> <537B9FAE.9070602@logitech.com>
-    <10859911.6zyzadbfH9@sigyn> <537BCB63.1020200@logitech.com>
-    <CADbOyBQxC+Epv1kz8jsBKNgYGFO0R-UPBXvn_qV8Sqb6rNw+Og@mail.gmail.com>
-    <537D28E3.3000401@logitech.com>
+From: Beomho Seo <beomho.seo@samsung.com>
+Subject: [PATCH v2 0/3] Input: fix typo error in MELFAS touch device driver
+Date: Thu, 22 May 2014 09:02:24 +0900
+Message-ID: <537D3E90.1020805@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:53425 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753342AbaEUWmq (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:15908 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752101AbaEVACc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2014 18:42:46 -0400
-In-Reply-To: <537D28E3.3000401@logitech.com>
+	Wed, 21 May 2014 20:02:32 -0400
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0N5Y002CK840J9B0@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 22 May 2014 09:02:24 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roland Bosa <rbosa@logitech.com>
-Cc: Elias Vanderstuyft <elias.vds@gmail.com>, =?iso-8859-1?Q?=22Michal_Mal=C3=BD=22?= <madcatxster@devoid-pointer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, HID CORE LAYER <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@iki.fi>, Simon Wood <simon@mungewell.org>
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Myungjoo Ham <myungjoo.ham@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
 
+This patchset fix typo error in MELFAS touch device drivers.
 
->> But 2 Spring effects with different offsets and non-zero effective
->> force can't be combined into a single slot (without streaming them
->> with Constant force), right?
->
-> Yes - you cannot *download* two springs to a single slot. You need to
-> choose (allocate) one of them. The winner gets the slot. The losers go
-> somewhere else (they might get discarded, they might get simulated).
+Changes in v2:
+- Add patch set for mms114 and mcs5000_ts drivers.
 
-In reverse engineering, I thought that a single slot could hold two
-rotational angles/points (at which a springs would start) and that that
-the direction could be set so that both acting in the same direction with
-different forces.
---
-    Byte 2 - 0x_1
-    Byte 3 - Clockwise angle, nominally on left (0x00..0xFF - 0x00 is
-fully left)
-    Byte 4 - Anti-Clockwise angle, nominally on right(0x00..0xFF)
-    Byte 5 - L/R Proportion force, upper nibble clockwise + lower nibble
-anti-clockwise (each 0x0..0xF)
-    Byte 6 - Reverse Direction; upper nibble clockwise + lower nibble
-anti-clockwise (each 0x0..0x1)
-    Byte 7 - Force (0x00..0xFF)
---
+Beomho Seo (3):
+  Input: mcs_touchkey: fix incorrect input device name
+  Input: mms114: fix incorrect input device name
+  Input: mcs5000_ts: fix incorrect input device name
 
-Ie. turning from fully left (00) with no force, you could hit a 'weak'
-spring (at 40) and then a 'stronger' spring (at 80).
+ drivers/input/keyboard/mcs_touchkey.c  |    2 +-
+ drivers/input/touchscreen/mcs5000_ts.c |    2 +-
+ drivers/input/touchscreen/mms114.c     |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-So to some degree you /can/ merge springs... but I'm not saying that you
-should :-).
-Simon
-
+-- 
+1.7.9.5

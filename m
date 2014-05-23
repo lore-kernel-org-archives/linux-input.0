@@ -1,68 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Additional driver for USB touch support
-Date: Fri, 23 May 2014 08:51:42 -0400
-Message-ID: <CAN+gG=HA1Y-aJbt+RHYfoWJfPeypduCaCE5NKNLJJBhtMa4C6g@mail.gmail.com>
-References: <CAAFf3B-1-G9e8+2Ci1MWf2OJfXCWk38e50nOA3piTpAQLM-J7g@mail.gmail.com>
+From: Yufeng Shen <miletus@chromium.org>
+Subject: Re: [PATCH 20/51] Input: atmel_mxt_ts - Set default irqflags when
+ there is no pdata
+Date: Fri, 23 May 2014 12:37:46 -0400
+Message-ID: <CAPDwgkP5KjP6PcZBeYTMPuewO4exyUFfCX8rhzmgDO65ti=3Mg@mail.gmail.com>
+References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
+	<1372337366-9286-21-git-send-email-nick.dyer@itdev.co.uk>
+	<20130718171744.GC32381@polaris.bitmath.org>
+	<20130916022533.GA6468@core.coreip.homeip.net>
+	<537E09D6.7050604@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f53.google.com ([209.85.192.53]:55691 "EHLO
-	mail-qg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752243AbaEWMvn (ORCPT
+Received: from mail-ie0-f175.google.com ([209.85.223.175]:56687 "EHLO
+	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753160AbaEWQhr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 May 2014 08:51:43 -0400
-Received: by mail-qg0-f53.google.com with SMTP id f51so7849532qge.26
-        for <linux-input@vger.kernel.org>; Fri, 23 May 2014 05:51:42 -0700 (PDT)
-In-Reply-To: <CAAFf3B-1-G9e8+2Ci1MWf2OJfXCWk38e50nOA3piTpAQLM-J7g@mail.gmail.com>
+	Fri, 23 May 2014 12:37:47 -0400
+Received: by mail-ie0-f175.google.com with SMTP id y20so5309097ier.34
+        for <linux-input@vger.kernel.org>; Fri, 23 May 2014 09:37:47 -0700 (PDT)
+In-Reply-To: <537E09D6.7050604@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Prajosh Premdas <premdas.prajosh@gmail.com>
-Cc: daniel.ritz@gmx.ch, linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Benson Leung <bleung@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>
 
-Hi Prajosh,
-
-On Fri, May 23, 2014 at 6:55 AM, Prajosh Premdas
-<premdas.prajosh@gmail.com> wrote:
-> Hi
+On Thu, May 22, 2014 at 10:29 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
 >
-> I have some USB based touch controllers. These controllers are working
-> well using the hid_multitouch driver.
+> Dmitry Torokhov wrote:
+> > On Thu, Jul 18, 2013 at 07:17:44PM +0200, rydberg@euromail.se wrote:
+> >>> From: Yufeng Shen <miletus@chromium.org>
+> >>> This is the preparation for supporting the code path when there is
+> >>> platform data provided and still boot the device into a sane state
+> >>> with backup NVRAM config.
+> >>>
+> >>> Make the irqflags default to be IRQF_TRIGGER_FALLING if no platform data is
+> >>> provided.
+> >
+> > I think if there is no platform data we should use 0 as IRQ falgs and
+> > assume that IRQ line is properly configured by the board code or via
+> > device tree.
 >
-> I would also like to add some additional protocol support for
-> diagnostics and re calibration. I am using the touch interface for the
-> same, whereby the control endpoint is used to send the request and
-> digitizer end point is used to get the response. (it is a legacy
-> design so i cannot change it)
->
-> My plan is to add the additional driver support to this file
-> drivers/input/touchscreen/usbtouchscreen.c and disable the default
-> support for the hid_multitouch by making an entry in the hid-blacklist
-> array in this file drivers/hid/usbhid/hid-quirks.c
+> Beson/Yufeng - do you still have a requirement to probe without platform
+> data or device tree? I'm just merging in some changes to add device tree
+> support, and it would simplify things a bit if I can drop this patch.
 
-2 things:
-- adding the device to hid-blacklist either in hid-quirks or
-hid-core.c will not help, the device will still be bound to the HID
-subsystem, and the usb driver will not be able to catch it. If you
-were to go to this road, you would have to add the VID/PID to
-hid-ignore in hid-core.c
-- I don't think it is a good idea to move from hid-multitouch to
-usbtouchscreen: as far as I know, this driver only support single
-touch devices, and it will be a burden to implement the multitouch
-part
 
->
-> Is there a better idea than this?
-
-If you need to talk to the device through the control endpoint and get
-the responses through the interrupt endpoint, hidraw seems to be
-perfect for your case:
-you can either use the ioctl HIDIOCSFEATURE or directly write on the
-hidraw node to send reports, and reading back to the node will give
-you the interrupts. Bonus point, you are enterily in userspace, so no
-risk of crashing your kernel. Then, you just set up an udev rule if
-you need the commands to be launched at plug.
-
-You can find an example in samples/hidraw/hid-example.c in the kernel tree.
-
-Cheers,
-Benjamin
+It has been working for quite a while for boards/devices that don't
+provide platform
+data. If we drop the default IRQ flags, sure we can add code for each
+board to configure
+the IRQ separately, but that's just adding extra work. Is there strong
+reason why we
+should not do the default setting in the driver if it is not already
+configured in platform
+data ?

@@ -1,146 +1,84 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH] input: zforce: add regulator handling
-Date: Fri, 23 May 2014 09:51:43 +0200
-Message-ID: <6176359.OyJRL3GZkq@phil>
-References: <2587208.XYbbI8xJiH@phil> <60795928.lIAcBxC0Ao@phil>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v6 0/7] mfd: AXP20x: Add support for
+ AXP202 and AXP209
+Date: Fri, 23 May 2014 11:12:36 +0100
+Message-ID: <20140523101236.GS19747@lee--X1>
+References: <1400528868-5971-1-git-send-email-carlo@caione.org>
+ <20140520222307.GK12304@sirena.org.uk>
+ <CAOQ7t2aBc5tFYk2MkfL9QqvFf5fcebwKtO97F3S=WdJ2uFE_jg@mail.gmail.com>
+ <20140521091456.GB6679@lee--X1>
+ <CAOQ7t2bqeQ35WxXKCRgj1ijJic=2w8++9idip4-f_LnP6Ucb6A@mail.gmail.com>
+ <20140522195523.GB7708@core.coreip.homeip.net>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:38212 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751038AbaEWHsY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 May 2014 03:48:24 -0400
-In-Reply-To: <60795928.lIAcBxC0Ao@phil>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBG567SNQKGQEUSWIVXY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20140522195523.GB7708-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, wens Tsai <wens-jdAy2FN1RRM@public.gmane.org>, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org
 
-Hi Dmitry,
+> > >> >> This set of patches introduces the core driver and support for tw=
+o different
+> > >> >> subsystems:
+> > >> >>       - Regulators
+> > >> >
+> > >> >>  .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
+> > >> >>  Documentation/devicetree/bindings/mfd/axp20x.txt   |  93 +++++++
+> > >> >>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+> > >> >>  arch/arm/configs/multi_v7_defconfig                |   3 +
+> > >> >>  arch/arm/configs/sunxi_defconfig                   |   4 +
+> > >> >>  drivers/input/misc/Kconfig                         |  11 +
+> > >> >>  drivers/input/misc/Makefile                        |   1 +
+> > >> >>  drivers/input/misc/axp20x-pek.c                    | 281 +++++++=
+++++++++++++++
+> > >> >>  drivers/mfd/Kconfig                                |  12 +
+> > >> >>  drivers/mfd/Makefile                               |   1 +
+> > >> >>  drivers/mfd/axp20x.c                               | 258 +++++++=
+++++++++++++
+> > >> >>  include/linux/mfd/axp20x.h                         | 180 +++++++=
+++++++
+> > >> >>  12 files changed, 856 insertions(+)
+> > >> >
+> > >> > The regulator changes don't appear to be showing up in the diffsta=
+t or
+> > >> > obviously in the series?
+> > >>
+> > >> Right. Cut-and-paste error.
+> > >> You have already applied the regulator patches so I didn't include
+> > >> them here (in theory I posted this series to be picked up by Lee).
+> > >
+> > > That's fine.  Just tell me which patches need to stay together and
+> > > which are able to be applied through their respective subsystem trees
+> > > separately.  Then, once I have all the Acks I can apply no problem.
+> >=20
+> > Hi Lee,
+> > I'd say #1 for the MFD tree, #4 for the input subsystem, #2 #3 and #5
+> > are documentations, #6 and #7 defconfigs add-on.
+>=20
+> I am fine with the input piece going through MFD tree, no need to split
+> it from the rest.
 
-Am Dienstag, 22. April 2014, 21:19:57 schrieb Heiko St=FCbner:
-> From: Heiko Stuebner <heiko.stuebner@bq.com>
->=20
-> It's possible that the controller has an individually switchable powe=
-r
-> supply. Therefore add support to control a supplying regulator.
->=20
-> As this is not always the case, the regulator is requested as optiona=
-l.
->=20
-> Signed-off-by: Heiko Stuebner <heiko.stuebner@bq.com>
+Do you want a pull-request i.e. will this cause conflicts when Linus
+merges it with your tree, or is it okay for me to just apply it?
 
-ping?
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-
-Thanks
-Heiko
-
-> ---
->  .../bindings/input/touchscreen/zforce_ts.txt       |  4 +++
->  drivers/input/touchscreen/zforce_ts.c              | 30
-> ++++++++++++++++++++++ 2 files changed, 34 insertions(+)
->=20
-> diff --git
-> a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-> b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt i=
-ndex
-> 2faf1f1..80c37df 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.t=
-xt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.t=
-xt
-> @@ -9,6 +9,9 @@ Required properties:
->  - x-size: horizontal resolution of touchscreen
->  - y-size: vertical resolution of touchscreen
->=20
-> +Optional properties:
-> +- vdd-supply: Regulator controlling the controller supply
-> +
->  Example:
->=20
->  	i2c@00000000 {
-> @@ -18,6 +21,7 @@ Example:
->  			compatible =3D "neonode,zforce";
->  			reg =3D <0x50>;
->  			interrupts =3D <2 0>;
-> +			vdd-supply =3D <&reg_zforce_vdd>;
->=20
->  			gpios =3D <&gpio5 6 0>, /* INT */
->  				<&gpio5 9 0>; /* RST */
-> diff --git a/drivers/input/touchscreen/zforce_ts.c
-> b/drivers/input/touchscreen/zforce_ts.c index 01d30ce..39ca962 100644
-> --- a/drivers/input/touchscreen/zforce_ts.c
-> +++ b/drivers/input/touchscreen/zforce_ts.c
-> @@ -29,6 +29,8 @@
->  #include <linux/sysfs.h>
->  #include <linux/input/mt.h>
->  #include <linux/platform_data/zforce_ts.h>
-> +#include <linux/regulator/consumer.h>
-> +#include <linux/delay.h>
->  #include <linux/of.h>
->  #include <linux/of_gpio.h>
->=20
-> @@ -117,6 +119,8 @@ struct zforce_ts {
->  	const struct zforce_ts_platdata *pdata;
->  	char			phys[32];
->=20
-> +	struct regulator	*reg_vdd;
-> +
->  	bool			suspending;
->  	bool			suspended;
->  	bool			boot_complete;
-> @@ -690,6 +694,11 @@ static void zforce_reset(void *data)
->  	struct zforce_ts *ts =3D data;
->=20
->  	gpio_set_value(ts->pdata->gpio_rst, 0);
-> +
-> +	udelay(10);
-> +
-> +	if (!IS_ERR(ts->reg_vdd))
-> +		regulator_disable(ts->reg_vdd);
->  }
->=20
->  static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev=
-)
-> @@ -765,10 +774,31 @@ static int zforce_probe(struct i2c_client *clie=
-nt,
->  		return ret;
->  	}
->=20
-> +	ts->reg_vdd =3D devm_regulator_get_optional(&client->dev, "vdd");
-> +	if (IS_ERR(ts->reg_vdd) && PTR_ERR(ts->reg_vdd) =3D=3D -EPROBE_DEFE=
-R)
-> +		return PTR_ERR(ts->reg_vdd);
-> +
-> +	if (!IS_ERR(ts->reg_vdd)) {
-> +		ret =3D regulator_enable(ts->reg_vdd);
-> +		if (ret)
-> +			return ret;
-> +
-> +		/*
-> +		 * according to datasheet add 100us grace time after regular
-> +		 * regulator enable delay.
-> +		 */
-> +		udelay(100);
-> +	}
-> +
->  	ret =3D devm_add_action(&client->dev, zforce_reset, ts);
->  	if (ret) {
->  		dev_err(&client->dev, "failed to register reset action, %d\n",
->  			ret);
-> +
-> +		/* hereafter the regulator will be disabled by the action */
-> +		if (!IS_ERR(ts->reg_vdd))
-> +			regulator_disable(ts->reg_vdd);
-> +
->  		return ret;
->  	}
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

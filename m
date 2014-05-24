@@ -1,161 +1,50 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] input: tc3589x-keypad: Allocate resources using managed
- interfaces
-Date: Sat, 24 May 2014 17:48:50 +0530
-Message-ID: <20140524121850.GA6535@himangi-Dell>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 20/51] Input: atmel_mxt_ts - Set default irqflags when
+ there is no pdata
+Date: Sat, 24 May 2014 13:41:50 +0100
+Message-ID: <5380938E.5010408@itdev.co.uk>
+References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>	<1372337366-9286-21-git-send-email-nick.dyer@itdev.co.uk>	<20130718171744.GC32381@polaris.bitmath.org>	<20130916022533.GA6468@core.coreip.homeip.net>	<537E09D6.7050604@itdev.co.uk> <CAPDwgkP5KjP6PcZBeYTMPuewO4exyUFfCX8rhzmgDO65ti=3Mg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:54498 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751170AbaEXMTD (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:7610 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750845AbaEXMlz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 May 2014 08:19:03 -0400
-Content-Disposition: inline
+	Sat, 24 May 2014 08:41:55 -0400
+In-Reply-To: <CAPDwgkP5KjP6PcZBeYTMPuewO4exyUFfCX8rhzmgDO65ti=3Mg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+To: Yufeng Shen <miletus@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>
 
-This patch moves most data allocated in the probe function from
-unmanaged interfaces to managed interfaces. The kfrees and error
-handling code is done away with. Also, the unnecesary labels are
-removed. The include for linux/device.h is added to make sure the 
-devm_*() routine declarations are unambiguously available.
+Yufeng Shen wrote:
+> On Thu, May 22, 2014 at 10:29 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
+>> Dmitry Torokhov wrote:
+>>>>> Make the irqflags default to be IRQF_TRIGGER_FALLING if no platform data is
+>>>>> provided.
+>>>
+>>> I think if there is no platform data we should use 0 as IRQ falgs and
+>>> assume that IRQ line is properly configured by the board code or via
+>>> device tree.
+>>
+>> Benson/Yufeng - do you still have a requirement to probe without platform
+>> data or device tree? I'm just merging in some changes to add device tree
+>> support, and it would simplify things a bit if I can drop this patch.
+> 
+> It has been working for quite a while for boards/devices that don't 
+> provide platform data. If we drop the default IRQ flags, sure we can add
+> code for each board to configure the IRQ separately, but that's just
+> adding extra work. Is there strong reason why we should not do the
+> default setting in the driver if it is not already configured in
+> platform data?
 
-The following Coccinelle semantic patch was used for making a part of
-the change:
+OK, I will keep it in my tree for the moment, since you are using it.
 
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
+The reason I checked is that in general, I would like to be conservative
+about what is pushed upstream, because it will need maintaining for a long
+time.
 
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
-
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
-
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
----
- drivers/input/keyboard/tc3589x-keypad.c | 35 +++++++++++----------------------
- 1 file changed, 11 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
-index ad7abae..c412abe 100644
---- a/drivers/input/keyboard/tc3589x-keypad.c
-+++ b/drivers/input/keyboard/tc3589x-keypad.c
-@@ -17,6 +17,7 @@
- #include <linux/i2c.h>
- #include <linux/slab.h>
- #include <linux/mfd/tc3589x.h>
-+#include <linux/device.h>
- 
- /* Maximum supported keypad matrix row/columns size */
- #define TC3589x_MAX_KPROW               8
-@@ -376,12 +377,12 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
- 
--	keypad = kzalloc(sizeof(struct tc_keypad), GFP_KERNEL);
--	input = input_allocate_device();
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(struct tc_keypad),
-+			      GFP_KERNEL);
-+	input = devm_input_allocate_device(&pdev->dev);
- 	if (!keypad || !input) {
- 		dev_err(&pdev->dev, "failed to allocate keypad memory\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
- 	}
- 
- 	keypad->board = plat;
-@@ -400,7 +401,7 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
- 					   NULL, input);
- 	if (error) {
- 		dev_err(&pdev->dev, "Failed to build keymap\n");
--		goto err_free_mem;
-+		return error;
- 	}
- 
- 	keypad->keymap = input->keycode;
-@@ -411,20 +412,20 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
- 
- 	input_set_drvdata(input, keypad);
- 
--	error = request_threaded_irq(irq, NULL,
--			tc3589x_keypad_irq, plat->irqtype,
--			"tc3589x-keypad", keypad);
-+	error = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-+					  tc3589x_keypad_irq, plat->irqtype,
-+					  "tc3589x-keypad", keypad);
- 	if (error < 0) {
- 		dev_err(&pdev->dev,
- 				"Could not allocate irq %d,error %d\n",
- 				irq, error);
--		goto err_free_mem;
-+		return error;
- 	}
- 
- 	error = input_register_device(input);
- 	if (error) {
- 		dev_err(&pdev->dev, "Could not register input device\n");
--		goto err_free_irq;
-+		return error;
- 	}
- 
- 	/* let platform decide if keypad is a wakeup source or not */
-@@ -434,29 +435,15 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, keypad);
- 
- 	return 0;
--
--err_free_irq:
--	free_irq(irq, keypad);
--err_free_mem:
--	input_free_device(input);
--	kfree(keypad);
--	return error;
- }
- 
- static int tc3589x_keypad_remove(struct platform_device *pdev)
- {
- 	struct tc_keypad *keypad = platform_get_drvdata(pdev);
--	int irq = platform_get_irq(pdev, 0);
- 
- 	if (!keypad->keypad_stopped)
- 		tc3589x_keypad_disable(keypad);
- 
--	free_irq(irq, keypad);
--
--	input_unregister_device(keypad->input);
--
--	kfree(keypad);
--
- 	return 0;
- }
- 
--- 
-1.9.1
-
+The other reason is that in fact Atmel recommend IRQF_TRIGGER_LOW for these
+chips, not IRQF_TRIGGER_FALLING, so there is a bit of an inconsistency here.

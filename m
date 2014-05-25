@@ -1,50 +1,141 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 20/51] Input: atmel_mxt_ts - Set default irqflags when
- there is no pdata
-Date: Sat, 24 May 2014 13:41:50 +0100
-Message-ID: <5380938E.5010408@itdev.co.uk>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>	<1372337366-9286-21-git-send-email-nick.dyer@itdev.co.uk>	<20130718171744.GC32381@polaris.bitmath.org>	<20130916022533.GA6468@core.coreip.homeip.net>	<537E09D6.7050604@itdev.co.uk> <CAPDwgkP5KjP6PcZBeYTMPuewO4exyUFfCX8rhzmgDO65ti=3Mg@mail.gmail.com>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] Input: mc13783-pwrbutton: Allocate resources using managed
+ interfaces
+Date: Sun, 25 May 2014 15:44:01 +0530
+Message-ID: <20140525101400.GA19075@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:7610 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750845AbaEXMlz (ORCPT
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:50738 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751375AbaEYKOI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 May 2014 08:41:55 -0400
-In-Reply-To: <CAPDwgkP5KjP6PcZBeYTMPuewO4exyUFfCX8rhzmgDO65ti=3Mg@mail.gmail.com>
+	Sun, 25 May 2014 06:14:08 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-Yufeng Shen wrote:
-> On Thu, May 22, 2014 at 10:29 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
->> Dmitry Torokhov wrote:
->>>>> Make the irqflags default to be IRQF_TRIGGER_FALLING if no platform data is
->>>>> provided.
->>>
->>> I think if there is no platform data we should use 0 as IRQ falgs and
->>> assume that IRQ line is properly configured by the board code or via
->>> device tree.
->>
->> Benson/Yufeng - do you still have a requirement to probe without platform
->> data or device tree? I'm just merging in some changes to add device tree
->> support, and it would simplify things a bit if I can drop this patch.
-> 
-> It has been working for quite a while for boards/devices that don't 
-> provide platform data. If we drop the default IRQ flags, sure we can add
-> code for each board to configure the IRQ separately, but that's just
-> adding extra work. Is there strong reason why we should not do the
-> default setting in the driver if it is not already configured in
-> platform data?
+This patch moves most data allocated in the probe function from
+unmanaged interfaces to managed interfaces. The kfrees and error
+handling code is done away with. The unnecesary labels are
+removed. Also, linux/device.h is added to make sure the devm_*()
+routine declarations are unambiguously available. The name of label
+free_priv is changed to unlock as it does not free priv anymore.
 
-OK, I will keep it in my tree for the moment, since you are using it.
+The following Coccinelle semantic patch was used for making a part of
+the change:
 
-The reason I checked is that in general, I would like to be conservative
-about what is pushed upstream, because it will need maintaining for a long
-time.
+@platform@
+identifier p, probefn, removefn;
+@@
+struct platform_driver p = {
+  .probe = probefn,
+  .remove = removefn,
+};
 
-The other reason is that in fact Atmel recommend IRQF_TRIGGER_LOW for these
-chips, not IRQF_TRIGGER_FALLING, so there is a bit of an inconsistency here.
+@prb@
+identifier platform.probefn, pdev;
+expression e, e1, e2;
+@@
+probefn(struct platform_device *pdev, ...) {
+  <+...
+- e = kzalloc(e1, e2)
++ e = devm_kzalloc(&pdev->dev, e1, e2)
+  ...
+?-kfree(e);
+  ...+>
+}
+
+@rem depends on prb@
+identifier platform.removefn;
+expression e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
+
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+---
+Not compiled due to incompatible architecture.
+
+mc13xxx_irq_request is not devm'd, and doing so looks complicated due to
+the locks around the frees.  Is there some way to resolve this issue?
+
+To send to: Dmitry Torokhov <dmitry.torokhov@gmail.com>,linux-input@vger.kernel.org,linux-kernel@vger.kernel.org
+ drivers/input/misc/mc13783-pwrbutton.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index 0df6e8d..6afea1a 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -28,6 +28,7 @@
+ #include <linux/mfd/mc13783.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
++#include <linux/device.h>
+ 
+ struct mc13783_pwrb {
+ 	struct input_dev *pwr;
+@@ -103,17 +104,16 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	pwr = input_allocate_device();
++	pwr = devm_input_allocate_device(&pdev->dev);
+ 	if (!pwr) {
+ 		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv) {
+-		err = -ENOMEM;
+ 		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+-		goto free_input_dev;
++		return -ENOMEM;
+ 	}
+ 
+ 	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
+@@ -140,7 +140,7 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 					  button_irq, "b1on", priv);
+ 		if (err) {
+ 			dev_dbg(&pdev->dev, "Can't request irq\n");
+-			goto free_priv;
++			goto unlock;
+ 		}
+ 	}
+ 
+@@ -219,12 +219,8 @@ free_irq_b1:
+ 	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
+ 
+-free_priv:
++unlock:
+ 	mc13xxx_unlock(mc13783);
+-	kfree(priv);
+-
+-free_input_dev:
+-	input_free_device(pwr);
+ 
+ 	return err;
+ }
+@@ -247,9 +243,6 @@ static int mc13783_pwrbutton_remove(struct platform_device *pdev)
+ 
+ 	mc13xxx_unlock(priv->mc13783);
+ 
+-	input_unregister_device(priv->pwr);
+-	kfree(priv);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.9.1
+

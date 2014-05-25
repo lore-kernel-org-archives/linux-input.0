@@ -1,141 +1,97 @@
-From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] Input: mc13783-pwrbutton: Allocate resources using managed
- interfaces
-Date: Sun, 25 May 2014 15:44:01 +0530
-Message-ID: <20140525101400.GA19075@himangi-Dell>
+From: Prajosh Premdas <premdas.prajosh@gmail.com>
+Subject: Re: Additional driver for USB touch support
+Date: Sun, 25 May 2014 23:14:13 +0200
+Message-ID: <CAAFf3B-L-L2Ou9==5AK5P_Qx+10dUjVVJYrQH+mxgOMR+uaseA@mail.gmail.com>
+References: <CAAFf3B-1-G9e8+2Ci1MWf2OJfXCWk38e50nOA3piTpAQLM-J7g@mail.gmail.com>
+	<CAN+gG=HA1Y-aJbt+RHYfoWJfPeypduCaCE5NKNLJJBhtMa4C6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:50738 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751375AbaEYKOI (ORCPT
+Received: from mail-ve0-f173.google.com ([209.85.128.173]:60686 "EHLO
+	mail-ve0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751092AbaEYVOO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 May 2014 06:14:08 -0400
-Content-Disposition: inline
+	Sun, 25 May 2014 17:14:14 -0400
+Received: by mail-ve0-f173.google.com with SMTP id pa12so8509859veb.32
+        for <linux-input@vger.kernel.org>; Sun, 25 May 2014 14:14:13 -0700 (PDT)
+In-Reply-To: <CAN+gG=HA1Y-aJbt+RHYfoWJfPeypduCaCE5NKNLJJBhtMa4C6g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: julia.lawall@lip6.fr
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: daniel.ritz@gmx.ch, linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
 
-This patch moves most data allocated in the probe function from
-unmanaged interfaces to managed interfaces. The kfrees and error
-handling code is done away with. The unnecesary labels are
-removed. Also, linux/device.h is added to make sure the devm_*()
-routine declarations are unambiguously available. The name of label
-free_priv is changed to unlock as it does not free priv anymore.
+Hi Benjamin
 
-The following Coccinelle semantic patch was used for making a part of
-the change:
+Thanks for the suggestion. I have a slight probem.
 
-@platform@
-identifier p, probefn, removefn;
-@@
-struct platform_driver p = {
-  .probe = probefn,
-  .remove = removefn,
-};
+I am able to send the commands on the control endpoint 0. But i get
+the response on the interrupt endpoint which is also used by the touch
+interface. And response data starts with 06 which had been used to
+differenciate the touch data with 01 i.e. Report ID (I know this is a
+stupid design but cant change for this is a legacy system).
 
-@prb@
-identifier platform.probefn, pdev;
-expression e, e1, e2;
-@@
-probefn(struct platform_device *pdev, ...) {
-  <+...
-- e = kzalloc(e1, e2)
-+ e = devm_kzalloc(&pdev->dev, e1, e2)
-  ...
-?-kfree(e);
-  ...+>
-}
+Since a report ID with 06 is not mentioned in the Report descriptor
+this message is not forwarded to the driver even as raw data. I am
+able to read the touch data which uses the correct Report ID but not
+this data. If i change the report ID to 01 I get teh data but I cannot
+do this in the final system as this breaks our tools in Windows. Is
+there any solution to get this data up?
 
-@rem depends on prb@
-identifier platform.removefn;
-expression e;
-@@
-removefn(...) {
-  <...
-- kfree(e);
-  ...>
-}
 
-Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-Acked-by: Julia Lawall <julia.lawall@lip6.fr>
----
-Not compiled due to incompatible architecture.
 
-mc13xxx_irq_request is not devm'd, and doing so looks complicated due to
-the locks around the frees.  Is there some way to resolve this issue?
+On Fri, May 23, 2014 at 2:51 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Prajosh,
+>
+> On Fri, May 23, 2014 at 6:55 AM, Prajosh Premdas
+> <premdas.prajosh@gmail.com> wrote:
+>> Hi
+>>
+>> I have some USB based touch controllers. These controllers are working
+>> well using the hid_multitouch driver.
+>>
+>> I would also like to add some additional protocol support for
+>> diagnostics and re calibration. I am using the touch interface for the
+>> same, whereby the control endpoint is used to send the request and
+>> digitizer end point is used to get the response. (it is a legacy
+>> design so i cannot change it)
+>>
+>> My plan is to add the additional driver support to this file
+>> drivers/input/touchscreen/usbtouchscreen.c and disable the default
+>> support for the hid_multitouch by making an entry in the hid-blacklist
+>> array in this file drivers/hid/usbhid/hid-quirks.c
+>
+> 2 things:
+> - adding the device to hid-blacklist either in hid-quirks or
+> hid-core.c will not help, the device will still be bound to the HID
+> subsystem, and the usb driver will not be able to catch it. If you
+> were to go to this road, you would have to add the VID/PID to
+> hid-ignore in hid-core.c
+> - I don't think it is a good idea to move from hid-multitouch to
+> usbtouchscreen: as far as I know, this driver only support single
+> touch devices, and it will be a burden to implement the multitouch
+> part
+>
+>>
+>> Is there a better idea than this?
+>
+> If you need to talk to the device through the control endpoint and get
+> the responses through the interrupt endpoint, hidraw seems to be
+> perfect for your case:
+> you can either use the ioctl HIDIOCSFEATURE or directly write on the
+> hidraw node to send reports, and reading back to the node will give
+> you the interrupts. Bonus point, you are enterily in userspace, so no
+> risk of crashing your kernel. Then, you just set up an udev rule if
+> you need the commands to be launched at plug.
+>
+> You can find an example in samples/hidraw/hid-example.c in the kernel tree.
+>
+> Cheers,
+> Benjamin
 
-To send to: Dmitry Torokhov <dmitry.torokhov@gmail.com>,linux-input@vger.kernel.org,linux-kernel@vger.kernel.org
- drivers/input/misc/mc13783-pwrbutton.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
-index 0df6e8d..6afea1a 100644
---- a/drivers/input/misc/mc13783-pwrbutton.c
-+++ b/drivers/input/misc/mc13783-pwrbutton.c
-@@ -28,6 +28,7 @@
- #include <linux/mfd/mc13783.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-+#include <linux/device.h>
- 
- struct mc13783_pwrb {
- 	struct input_dev *pwr;
-@@ -103,17 +104,16 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	pwr = input_allocate_device();
-+	pwr = devm_input_allocate_device(&pdev->dev);
- 	if (!pwr) {
- 		dev_dbg(&pdev->dev, "Can't allocate power button\n");
- 		return -ENOMEM;
- 	}
- 
--	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv) {
--		err = -ENOMEM;
- 		dev_dbg(&pdev->dev, "Can't allocate power button\n");
--		goto free_input_dev;
-+		return -ENOMEM;
- 	}
- 
- 	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
-@@ -140,7 +140,7 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
- 					  button_irq, "b1on", priv);
- 		if (err) {
- 			dev_dbg(&pdev->dev, "Can't request irq\n");
--			goto free_priv;
-+			goto unlock;
- 		}
- 	}
- 
-@@ -219,12 +219,8 @@ free_irq_b1:
- 	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
- 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
- 
--free_priv:
-+unlock:
- 	mc13xxx_unlock(mc13783);
--	kfree(priv);
--
--free_input_dev:
--	input_free_device(pwr);
- 
- 	return err;
- }
-@@ -247,9 +243,6 @@ static int mc13783_pwrbutton_remove(struct platform_device *pdev)
- 
- 	mc13xxx_unlock(priv->mc13783);
- 
--	input_unregister_device(priv->pwr);
--	kfree(priv);
--
- 	return 0;
- }
- 
+
 -- 
-1.9.1
+Regards,
 
+Prajosh Premdas

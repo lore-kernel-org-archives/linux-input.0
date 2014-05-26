@@ -1,81 +1,105 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 3/3] synaptics: Change min/max quirk table to pnp-id matching
-Date: Mon, 26 May 2014 13:47:31 +0200
-Message-ID: <538329D3.1090902@redhat.com>
-References: <1400266009-5436-1-git-send-email-hdegoede@redhat.com> <1400266009-5436-4-git-send-email-hdegoede@redhat.com> <20140518203535.GA13276@core.coreip.homeip.net> <5379C5FD.1040401@redhat.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: PenMount 6000 usb touch controller
+Date: Mon, 26 May 2014 15:18:48 +0200
+Message-ID: <CAH9NwWe4issOhAzi7KYPRn9KvhjCOyo6coojcUGsmb6_rRZ-ww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:19573 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751501AbaEZLrf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 May 2014 07:47:35 -0400
-In-Reply-To: <5379C5FD.1040401@redhat.com>
+Received: from mail-we0-f182.google.com ([74.125.82.182]:45428 "EHLO
+	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751796AbaEZNTJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 May 2014 09:19:09 -0400
+Received: by mail-we0-f182.google.com with SMTP id t60so8112146wes.13
+        for <linux-input@vger.kernel.org>; Mon, 26 May 2014 06:19:08 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi.
 
-On 05/19/2014 10:51 AM, Hans de Goede wrote:
-> Hi,
-> 
-> On 05/18/2014 10:35 PM, Dmitry Torokhov wrote:
->> On Fri, May 16, 2014 at 08:46:49PM +0200, Hans de Goede wrote:
->>> Most of the affected models share pnp-ids for the touchpad. So switching
->>> to pnp-ids give us 2 advantages:
->>> 1) It shrinks the quirk list
->>> 2) It will lower the new quirk addition frequency, ie the recently added W540
->>>    quirk would not have been necessary since it uses the same LEN0034 pnp ids
->>>    as other models already added before it
->>>
->>> As an added bonus it actually puts the quirk on the actual psmouse, rather then
->>> on the machine, which is technically more correct.
->>>
->>> Cc: stable@vger.kernel.org
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>> ---
->>>  drivers/input/mouse/synaptics.c | 149 ++++++++++------------------------------
->>>  1 file changed, 36 insertions(+), 113 deletions(-)
->>>
->>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->>> index 395ec9c..c5ec703 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -117,6 +117,31 @@ void synaptics_reset(struct psmouse *psmouse)
->>>  }
->>>  
->>>  #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
->>> +struct min_max_quirk {
->>> +	const char * const *pnp_ids;
->>> +	int x_min, x_max, y_min, y_max;
->>> +};
->>
->>
->> Why don't we define this as 1 quirk per PNP id?
->>
->> struct min_max_quirk {
->> 	const char *pnp_id;
->> 	int x_min, x_max, y_min, y_max;
->> };
->>
->> ?
-> 
-> 1) I thought it would be better to allow multiple ids for one min/max quad,
-> since there seem to only be a few types of touchpads out there, which are
-> sometimes referenced to by multiple ids. IE LEN0034 and LEN2004 refer to the
-> exact same touchpad (exact same firmware and board id). Also this way we avoid
-> people adding entries with values which are slightly off since determining
-> the min/max range on a single model will give some noise.
-> 
-> 2) This way we can use one helper function for the matching for both the
-> INPUT_PROP_TOPBUTTONPAD quirks and for the min/max quirks.
 
-I've not heard back from you on this, does that mean that you are ok with
-taking this patch-set as is ?
+I am using the following usb touch controller:
 
-Regards,
+lsusb -s 6:2 -vvv
 
-Hans
+Bus 006 Device 002: ID 14e1:6000 Dialogue Technology Corp.
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x14e1 Dialogue Technology Corp.
+  idProduct          0x6000
+  bcdDevice           a4.b4
+  iManufacturer           1 DIALOGUE INC
+  iProduct                2 PenMount USB
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           41
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          4 full speed
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              3 EndPoint1 Interrupt Pipe
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.01
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      76
+         Report Descriptors:
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0005  1x 5 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0005  1x 5 bytes
+        bInterval               1
+Device Status:     0x0000
+  (Bus Powered)
+
+
+I can successfully use this device as a hid-generic usb mouse, but I need to get
+BTN_TOUCH events. What would be the best way to support this device? Shall
+I extend usbtouchscreen driver?
+
+thanks
+--
+Christian Gmeiner, MSc
+
+https://soundcloud.com/christian-gmeiner

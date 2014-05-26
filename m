@@ -1,78 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mc13783-pwrbutton: Allocate resources using
- managed interfaces
-Date: Sun, 25 May 2014 22:32:51 -0700
-Message-ID: <20140526053251.GC12890@core.coreip.homeip.net>
-References: <20140525101400.GA19075@himangi-Dell>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Debug: Add labels for HID Sensor Usages
+Date: Mon, 26 May 2014 10:37:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1405261036180.12047@pobox.suse.cz>
+References: <CA+BWVUTOHr-sktWtpGL7-1wTdz2suDWFjcyX=fFU+JHjs5+TTQ@mail.gmail.com> <53807397.9080807@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:45402 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751224AbaEZFcy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 May 2014 01:32:54 -0400
-Content-Disposition: inline
-In-Reply-To: <20140525101400.GA19075@himangi-Dell>
+Received: from cantor2.suse.de ([195.135.220.15]:36778 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751185AbaEZIhK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 May 2014 04:37:10 -0400
+In-Reply-To: <53807397.9080807@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Himangi Saraogi <himangi774@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Reyad Attiyat <reyad.attiyat@gmail.com>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-On Sun, May 25, 2014 at 03:44:01PM +0530, Himangi Saraogi wrote:
-> This patch moves most data allocated in the probe function from
-> unmanaged interfaces to managed interfaces. The kfrees and error
-> handling code is done away with. The unnecesary labels are
-> removed. Also, linux/device.h is added to make sure the devm_*()
-> routine declarations are unambiguously available. The name of label
-> free_priv is changed to unlock as it does not free priv anymore.
-> 
-> The following Coccinelle semantic patch was used for making a part of
-> the change:
-> 
-> @platform@
-> identifier p, probefn, removefn;
-> @@
-> struct platform_driver p = {
->   .probe = probefn,
->   .remove = removefn,
-> };
-> 
-> @prb@
-> identifier platform.probefn, pdev;
-> expression e, e1, e2;
-> @@
-> probefn(struct platform_device *pdev, ...) {
->   <+...
-> - e = kzalloc(e1, e2)
-> + e = devm_kzalloc(&pdev->dev, e1, e2)
->   ...
-> ?-kfree(e);
->   ...+>
-> }
-> 
-> @rem depends on prb@
-> identifier platform.removefn;
-> expression e;
-> @@
-> removefn(...) {
->   <...
-> - kfree(e);
->   ...>
-> }
-> 
-> Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-> Acked-by: Julia Lawall <julia.lawall@lip6.fr>
-> ---
-> Not compiled due to incompatible architecture.
-> 
-> mc13xxx_irq_request is not devm'd, and doing so looks complicated due to
-> the locks around the frees.  Is there some way to resolve this issue?
+On Sat, 24 May 2014, Jonathan Cameron wrote:
 
-Yes there us - let's leave the driver as is so we are not mixing the 2
-styles.
+> This looks reasonable to me, but I haven't checked every entry.  Also 
+> Reyad, you need to sign off on the patch if you expect anyone to pick it 
+> up.
+> 
+> Jiri, this is one for you. (note Jiri should probably have been cc'd in the
+> first place as the HID maintainer - unless he specifically asked not to be).
 
-Thanks.
+I definitely want (and need) to be CCed on such patches, thanks for 
+letting me know, Jonathan.
+
+Reyad, please add you signoff as Jonathan said, and resend the patch 
+properly to me.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

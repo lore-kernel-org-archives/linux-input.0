@@ -1,59 +1,53 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 16/18] HID: uhid: Use kmemdup instead of kmalloc + memcpy
-Date: Mon, 26 May 2014 17:33:53 +0200
-Message-ID: <CANq1E4TmoReBrwg-E1S2R7of6QEFix4H0vVKhTS=aNz=RLp5Aw@mail.gmail.com>
-References: <1401117687-28911-1-git-send-email-benoit.taine@lip6.fr>
-	<1401117687-28911-17-git-send-email-benoit.taine@lip6.fr>
+From: HUSAM AL SAYED <Husamalsayed@asia.com>
+Subject: Your Urgent reply.
+Date: Mon, 26 May 2014 21:58:35 +0400
+Message-ID: <CAKFyHyoTHpnn32KNpU9anhth5_Zt333Zbz3DBz6p7q86tfyVgA__25292.1048006558$1401127132$gmane$org@mail.gmail.com>
+Reply-To: Husamalsayed@asia.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:63419 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752252AbaEZPdy (ORCPT
+Received: from mail-we0-f194.google.com ([74.125.82.194]:43689 "EHLO
+	mail-we0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751726AbaEZR6h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 May 2014 11:33:54 -0400
-In-Reply-To: <1401117687-28911-17-git-send-email-benoit.taine@lip6.fr>
+	Mon, 26 May 2014 13:58:37 -0400
+Received: by mail-we0-f194.google.com with SMTP id t61so2681058wes.1
+        for <linux-input@vger.kernel.org>; Mon, 26 May 2014 10:58:36 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benoit Taine <benoit.taine@lip6.fr>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
 
-Hi
+Dear Friend,
 
-On Mon, May 26, 2014 at 5:21 PM, Benoit Taine <benoit.taine@lip6.fr> wrote:
-> This issue was reported by coccicheck using the semantic patch
-> at scripts/coccinelle/api/memdup.cocci
->
-> Signed-off-by: Benoit Taine <benoit.taine@lip6.fr>
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+Compliments of the day.This mail May be a surprise to you Because you
+did not give me the permission to do so and Neither do you know me but
+before I tell you about myself I want you to please forgive me for
+sending this mail without your permission I have been in search of
+someone with this last name so when I saw you online, I was pushed to
+contact you and see how best we can assist each other. I am Mr. Husam
+Al Sayed, a Bank Officer here in U.A.E. I believe it is the wish of
+God for me to come across you now. I am having an important business
+discussion I wish to share with you which I  believe will interest
+you, because it is in connection with your last name and you are going
+to benefit from it.
 
-Thanks
-David
+One Late peter who was among the death victims in the May 27 2006
+Earthquake disaster in Java, Indonesia that killed over 5,000 people.
+He was in Indonesia on a business trip and that was how he met his
+end. My bank management is yet to know about his death, I knew about
+it because he was my friend and I am his account officer.he did not
+mention any Next of Kin/ Heir when the account was opened, and he was
+not married and no children. Last week my Bank Management requested
+that he should give instructions on what to do about his funds,I know
+this will happen and that is why I have been looking for a means to
+handle the situation,
 
-> ---
-> Tested by compilation without errors.
->
->  drivers/hid/uhid.c |    5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index 0d078c3..0cb92e3 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -441,12 +441,11 @@ static int uhid_dev_create2(struct uhid_device *uhid,
->         if (uhid->rd_size <= 0 || uhid->rd_size > HID_MAX_DESCRIPTOR_SIZE)
->                 return -EINVAL;
->
-> -       uhid->rd_data = kmalloc(uhid->rd_size, GFP_KERNEL);
-> +       uhid->rd_data = kmemdup(ev->u.create2.rd_data, uhid->rd_size,
-> +                               GFP_KERNEL);
->         if (!uhid->rd_data)
->                 return -ENOMEM;
->
-> -       memcpy(uhid->rd_data, ev->u.create2.rd_data, uhid->rd_size);
-> -
->         hid = hid_allocate_device();
->         if (IS_ERR(hid)) {
->                 ret = PTR_ERR(hid);
->
+If you are interested send me your private Email Address so that i can
+send you more details of the transaction,
+Thanks for your understanding
+
+I am waiting for your reply.
+
+Best regards,
+
+Mr. Husam Al Sayed

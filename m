@@ -1,124 +1,86 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/2] Input: mcs_touchkey: use devm_* functions
-Date: Tue, 27 May 2014 08:31:04 -0700
-Message-ID: <20140527153104.GA11385@core.coreip.homeip.net>
-References: <1401188787-32173-1-git-send-email-beomho.seo@samsung.com>
- <1401188787-32173-2-git-send-email-beomho.seo@samsung.com>
+Subject: Re: [PATCH 3/3] synaptics: Change min/max quirk table to pnp-id
+ matching
+Date: Tue, 27 May 2014 09:25:58 -0700
+Message-ID: <20140527162557.GE12890@core.coreip.homeip.net>
+References: <1400266009-5436-1-git-send-email-hdegoede@redhat.com>
+ <1400266009-5436-4-git-send-email-hdegoede@redhat.com>
+ <20140518203535.GA13276@core.coreip.homeip.net>
+ <5379C5FD.1040401@redhat.com>
+ <538329D3.1090902@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:35704 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752402AbaE0PbK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 May 2014 11:31:10 -0400
-Received: by mail-pb0-f49.google.com with SMTP id jt11so9324448pbb.8
-        for <linux-input@vger.kernel.org>; Tue, 27 May 2014 08:31:09 -0700 (PDT)
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1401188787-32173-2-git-send-email-beomho.seo@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <538329D3.1090902@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Beomho Seo <beomho.seo@samsung.com>
-Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com, sachin.kamat@linaro.org, myungjoo.ham@samsung.com, jh80.chung@samsung.com, cw00.choi@samsung.com
 
-On Tue, May 27, 2014 at 08:06:25PM +0900, Beomho Seo wrote:
-> This patch use devm_* funtions in mcs_touchkey driver.
-> As a result, error path and remove() funtion is simplified.
+On Mon, May 26, 2014 at 01:47:31PM +0200, Hans de Goede wrote:
+> Hi Dmitry,
 > 
-> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> ---
-> Changes in v3:
-> - Some codes are back again. use fw_version, driver name and poweron.
-> Changes in v2:
-> - Additionally use devm_kzalloc for mcs_touchkey_data struct.
-> ---
->  drivers/input/keyboard/mcs_touchkey.c |   32 ++++++++++----------------------
->  1 file changed, 10 insertions(+), 22 deletions(-)
+> On 05/19/2014 10:51 AM, Hans de Goede wrote:
+> > Hi,
+> > 
+> > On 05/18/2014 10:35 PM, Dmitry Torokhov wrote:
+> >> On Fri, May 16, 2014 at 08:46:49PM +0200, Hans de Goede wrote:
+> >>> Most of the affected models share pnp-ids for the touchpad. So switching
+> >>> to pnp-ids give us 2 advantages:
+> >>> 1) It shrinks the quirk list
+> >>> 2) It will lower the new quirk addition frequency, ie the recently added W540
+> >>>    quirk would not have been necessary since it uses the same LEN0034 pnp ids
+> >>>    as other models already added before it
+> >>>
+> >>> As an added bonus it actually puts the quirk on the actual psmouse, rather then
+> >>> on the machine, which is technically more correct.
+> >>>
+> >>> Cc: stable@vger.kernel.org
+> >>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >>> ---
+> >>>  drivers/input/mouse/synaptics.c | 149 ++++++++++------------------------------
+> >>>  1 file changed, 36 insertions(+), 113 deletions(-)
+> >>>
+> >>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> >>> index 395ec9c..c5ec703 100644
+> >>> --- a/drivers/input/mouse/synaptics.c
+> >>> +++ b/drivers/input/mouse/synaptics.c
+> >>> @@ -117,6 +117,31 @@ void synaptics_reset(struct psmouse *psmouse)
+> >>>  }
+> >>>  
+> >>>  #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
+> >>> +struct min_max_quirk {
+> >>> +	const char * const *pnp_ids;
+> >>> +	int x_min, x_max, y_min, y_max;
+> >>> +};
+> >>
+> >>
+> >> Why don't we define this as 1 quirk per PNP id?
+> >>
+> >> struct min_max_quirk {
+> >> 	const char *pnp_id;
+> >> 	int x_min, x_max, y_min, y_max;
+> >> };
+> >>
+> >> ?
+> > 
+> > 1) I thought it would be better to allow multiple ids for one min/max quad,
+> > since there seem to only be a few types of touchpads out there, which are
+> > sometimes referenced to by multiple ids. IE LEN0034 and LEN2004 refer to the
+> > exact same touchpad (exact same firmware and board id). Also this way we avoid
+> > people adding entries with values which are slightly off since determining
+> > the min/max range on a single model will give some noise.
+> > 
+> > 2) This way we can use one helper function for the matching for both the
+> > INPUT_PROP_TOPBUTTONPAD quirks and for the min/max quirks.
 > 
-> diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
-> index 1da8e0b..bf2f785 100644
-> --- a/drivers/input/keyboard/mcs_touchkey.c
-> +++ b/drivers/input/keyboard/mcs_touchkey.c
-> @@ -113,14 +113,11 @@ static int mcs_touchkey_probe(struct i2c_client *client,
->  		return -EINVAL;
->  	}
->  
-> -	data = kzalloc(sizeof(struct mcs_touchkey_data) +
-> -			sizeof(data->keycodes[0]) * (pdata->key_maxval + 1),
-> -			GFP_KERNEL);
-> -	input_dev = input_allocate_device();
-> +	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
-> +	input_dev = devm_input_allocate_device(&client->dev);
->  	if (!data || !input_dev) {
->  		dev_err(&client->dev, "Failed to allocate memory\n");
-> -		error = -ENOMEM;
-> -		goto err_free_mem;
-> +		return -ENOMEM;
->  	}
->  
->  	data->client = client;
-> @@ -143,7 +140,7 @@ static int mcs_touchkey_probe(struct i2c_client *client,
->  	if (fw_ver < 0) {
->  		error = fw_ver;
->  		dev_err(&client->dev, "i2c read error[%d]\n", error);
-> -		goto err_free_mem;
-> +		return error;
->  	}
->  	dev_info(&client->dev, "Firmware version: %d\n", fw_ver);
->  
-> @@ -176,38 +173,29 @@ static int mcs_touchkey_probe(struct i2c_client *client,
->  		data->poweron(true);
->  	}
->  
-> -	error = request_threaded_irq(client->irq, NULL, mcs_touchkey_interrupt,
-> -				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> -				     client->dev.driver->name, data);
-> +	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +				mcs_touchkey_interrupt,	IRQF_TRIGGER_FALLING |
-> +				IRQF_ONESHOT, client->dev.driver->name, data);
->  	if (error) {
->  		dev_err(&client->dev, "Failed to register interrupt\n");
-> -		goto err_free_mem;
-> +		return error;
->  	}
->  
->  	error = input_register_device(input_dev);
->  	if (error)
-> -		goto err_free_irq;
-> +		dev_err(&client->dev, "Failed to register input device\n");
-> +		return error;
->  
->  	i2c_set_clientdata(client, data);
->  	return 0;
-> -
-> -err_free_irq:
-> -	free_irq(client->irq, data);
-> -err_free_mem:
-> -	input_free_device(input_dev);
-> -	kfree(data);
-> -	return error;
->  }
->  
->  static int mcs_touchkey_remove(struct i2c_client *client)
->  {
->  	struct mcs_touchkey_data *data = i2c_get_clientdata(client);
->  
-> -	free_irq(client->irq, data);
->  	if (data->poweron)
->  		data->poweron(false);
+> I've not heard back from you on this, does that mean that you are ok with
+> taking this patch-set as is ?
 
-This is not an equivalent transformation - in the original code IRQ was
-freed first and then platform-specific power off action was taken. Now
-the order is reversed.
+Hans,
 
-> -	input_unregister_device(data->input_dev);
-> -	kfree(data);
->  
->  	return 0;
->  }
-> -- 
-> 1.7.9.5
-> 
+Yes, I applied it.
 
 Thanks.
 

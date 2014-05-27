@@ -1,88 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] synaptics: Change min/max quirk table to pnp-id
- matching
-Date: Tue, 27 May 2014 09:25:58 -0700
-Message-ID: <20140527162557.GE12890@core.coreip.homeip.net>
-References: <1400266009-5436-1-git-send-email-hdegoede@redhat.com>
- <1400266009-5436-4-git-send-email-hdegoede@redhat.com>
- <20140518203535.GA13276@core.coreip.homeip.net>
- <5379C5FD.1040401@redhat.com>
- <538329D3.1090902@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <538329D3.1090902@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/3] Input: wacom - set stylus_in_proximity when pen is in range
+Date: Tue, 27 May 2014 16:17:44 -0700
+Message-ID: <1401232664-9699-1-git-send-email-pingc@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:34555 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751922AbaE0XRe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 May 2014 19:17:34 -0400
+Received: by mail-pa0-f54.google.com with SMTP id bj1so9901461pad.41
+        for <linux-input@vger.kernel.org>; Tue, 27 May 2014 16:17:33 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Mon, May 26, 2014 at 01:47:31PM +0200, Hans de Goede wrote:
-> Hi Dmitry,
-> 
-> On 05/19/2014 10:51 AM, Hans de Goede wrote:
-> > Hi,
-> > 
-> > On 05/18/2014 10:35 PM, Dmitry Torokhov wrote:
-> >> On Fri, May 16, 2014 at 08:46:49PM +0200, Hans de Goede wrote:
-> >>> Most of the affected models share pnp-ids for the touchpad. So switching
-> >>> to pnp-ids give us 2 advantages:
-> >>> 1) It shrinks the quirk list
-> >>> 2) It will lower the new quirk addition frequency, ie the recently added W540
-> >>>    quirk would not have been necessary since it uses the same LEN0034 pnp ids
-> >>>    as other models already added before it
-> >>>
-> >>> As an added bonus it actually puts the quirk on the actual psmouse, rather then
-> >>> on the machine, which is technically more correct.
-> >>>
-> >>> Cc: stable@vger.kernel.org
-> >>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> >>> ---
-> >>>  drivers/input/mouse/synaptics.c | 149 ++++++++++------------------------------
-> >>>  1 file changed, 36 insertions(+), 113 deletions(-)
-> >>>
-> >>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> >>> index 395ec9c..c5ec703 100644
-> >>> --- a/drivers/input/mouse/synaptics.c
-> >>> +++ b/drivers/input/mouse/synaptics.c
-> >>> @@ -117,6 +117,31 @@ void synaptics_reset(struct psmouse *psmouse)
-> >>>  }
-> >>>  
-> >>>  #ifdef CONFIG_MOUSE_PS2_SYNAPTICS
-> >>> +struct min_max_quirk {
-> >>> +	const char * const *pnp_ids;
-> >>> +	int x_min, x_max, y_min, y_max;
-> >>> +};
-> >>
-> >>
-> >> Why don't we define this as 1 quirk per PNP id?
-> >>
-> >> struct min_max_quirk {
-> >> 	const char *pnp_id;
-> >> 	int x_min, x_max, y_min, y_max;
-> >> };
-> >>
-> >> ?
-> > 
-> > 1) I thought it would be better to allow multiple ids for one min/max quad,
-> > since there seem to only be a few types of touchpads out there, which are
-> > sometimes referenced to by multiple ids. IE LEN0034 and LEN2004 refer to the
-> > exact same touchpad (exact same firmware and board id). Also this way we avoid
-> > people adding entries with values which are slightly off since determining
-> > the min/max range on a single model will give some noise.
-> > 
-> > 2) This way we can use one helper function for the matching for both the
-> > INPUT_PROP_TOPBUTTONPAD quirks and for the min/max quirks.
-> 
-> I've not heard back from you on this, does that mean that you are ok with
-> taking this patch-set as is ?
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+Reviewed-by: Jason Gerecke <killertofu@gmail.com>
+Tested-by: Jason Gerecke <killertofu@gmail.com>
+---
+ drivers/input/tablet/wacom_wac.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Hans,
-
-Yes, I applied it.
-
-Thanks.
-
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 24c0733..c98e51c 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -484,6 +484,8 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		input_report_key(input, BTN_TOUCH, 0);
+ 		input_report_abs(input, ABS_PRESSURE, 0);
+ 		input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
++		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
++			wacom->shared->stylus_in_proximity = true;
+ 	}
+ 
+ 	/* Exit report */
 -- 
-Dmitry
+1.9.1
+

@@ -1,61 +1,41 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: [PATCH] HID: hid-sensor-hub: Set report quirk for Microsoft Surface
-Date: Tue, 27 May 2014 02:29:10 -0500
-Message-ID: <1401175750-3008-1-git-send-email-reyad.attiyat@gmail.com>
+From: Beomho Seo <beomho.seo@samsung.com>
+Subject: [PATCH v3 0/2] Use devm_* functions for Melfas touch device.
+Date: Tue, 27 May 2014 20:06:24 +0900
+Message-ID: <1401188787-32173-1-git-send-email-beomho.seo@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:50375 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750884AbaE0H32 (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:13518 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751612AbaE0LG6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 May 2014 03:29:28 -0400
+	Tue, 27 May 2014 07:06:58 -0400
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0N6800F30C6TRY80@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 27 May 2014 20:06:29 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jkosina@suse.cz
-Cc: Reyad Attiyat <reyad.attiyat@gmail.com>
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jy0922.shim@samsung.com, sachin.kamat@linaro.org
+Cc: myungjoo.ham@samsung.com, jh80.chung@samsung.com, cw00.choi@samsung.com, Beomho Seo <beomho.seo@samsung.com>
 
-Add the Microsoft Surface Pro 2 Type/Touch and default device hardware ID's
-Set report quirk for the device in hid-sensor-hub
+This patch set devm_* functions in Melfas touche device driver.
+As a result, error path and remove() function is simplified.
 
-Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
----
- drivers/hid/hid-ids.h        | 3 +++
- drivers/hid/hid-sensor-hub.c | 9 +++++++++
- 2 files changed, 12 insertions(+)
+Changes in v3:
+- mcs_touchkey: Some codes are back again.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 34bb220..18e2099 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -633,6 +633,9 @@
- #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
- #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
- #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
-+#define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
-+#define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
-+#define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
- 
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index be14b56..eefaaf6 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -711,6 +711,15 @@ static const struct hid_device_id sensor_hub_devices[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
- 			USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_SURFACE_PRO_2),
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TOUCH_COVER_2),
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
-+			USB_DEVICE_ID_MS_TYPE_COVER_2),
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
- 		     HID_ANY_ID) },
- 	{ }
+Changes in v2:
+- Additionally use devm_kzalloc mcs_[touchkey/ts]_data struct.
+
+Beomho Seo (2):
+  Input: mcs_touchkey: use devm_* functions
+  Input: mcs5000_ts: use devm_* functions.
+
+ drivers/input/keyboard/mcs_touchkey.c  |   32 ++++++++----------------
+ drivers/input/touchscreen/mcs5000_ts.c |   42 +++++++++-----------------------
+ 2 files changed, 22 insertions(+), 52 deletions(-)
+
 -- 
-1.9.0
+1.7.9.5
 

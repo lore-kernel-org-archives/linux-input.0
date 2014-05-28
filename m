@@ -1,41 +1,52 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-sensor-hub: Set report quirk for Microsoft
- Surface
-Date: Wed, 28 May 2014 16:29:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1405281629330.17241@pobox.suse.cz>
-References: <1401175750-3008-1-git-send-email-reyad.attiyat@gmail.com> <alpine.LNX.2.00.1405281541100.17241@pobox.suse.cz> <20140528135358.GA27859@mail.corp.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input: soc_button_array - Remove duplicate inclusion
+ of input.h
+Date: Wed, 28 May 2014 09:34:43 -0700
+Message-ID: <20140528163443.GA6043@core.coreip.homeip.net>
+References: <1401277459-31247-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58807 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752451AbaE1O3u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 May 2014 10:29:50 -0400
-In-Reply-To: <20140528135358.GA27859@mail.corp.redhat.com>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:50556 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753478AbaE1Qeq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 May 2014 12:34:46 -0400
+Received: by mail-pa0-f51.google.com with SMTP id kq14so11330180pab.38
+        for <linux-input@vger.kernel.org>; Wed, 28 May 2014 09:34:45 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1401277459-31247-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Reyad Attiyat <reyad.attiyat@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 28 May 2014, Benjamin Tissoires wrote:
+On Wed, May 28, 2014 at 05:14:19PM +0530, Sachin Kamat wrote:
+> input.h was included twice.
+> 
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 
-> I guess this should be fine:
-> f3b0cbce01 has no more impact (there is no USB_DEVICE_ID_MS_*_2
-> anymore)
-> 
-> e24d0d399b2f will properly add the HID_GROUP_SENSOR_HUB to the sensors
-> if the report descriptor is properly set.
-> 
-> Given that the group SENSOR_HUB will be set, no other hid driver will
-> pick them, so this patch just adds the HID_SENSOR_HUB_ENUM_QUIRK to the
-> actual sensors in the surface 2.
-> 
-> So:
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Applied, thank you.
 
-Applied, thanks.
+> ---
+>  drivers/input/misc/soc_button_array.c |    1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 20c80f543d5e..5a6334be30b8 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -17,7 +17,6 @@
+>  #include <linux/acpi.h>
+>  #include <linux/gpio/consumer.h>
+>  #include <linux/gpio_keys.h>
+> -#include <linux/input.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pnp.h>
+>  
+> -- 
+> 1.7.9.5
+> 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

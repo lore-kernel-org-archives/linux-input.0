@@ -1,31 +1,24 @@
 From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] Input: 88pm860x-ts: Introduce the use of the managed version
- of kzalloc
-Date: Thu, 29 May 2014 01:36:03 +0530
-Message-ID: <20140528200603.GA10566@himangi-Dell>
+Subject: [PATCH] Input: max8925_onkey :Allocate resources using managed
+ interfaces
+Date: Thu, 29 May 2014 01:40:14 +0530
+Message-ID: <20140528201014.GA10607@himangi-Dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f54.google.com ([209.85.160.54]:51310 "EHLO
-	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751308AbaE1UGK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 May 2014 16:06:10 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: julia.lawall@lip6.fr
+List-Id: linux-input@vger.kernel.org
 
 This patch moves most data allocated in the probe function from
 unmanaged interfaces to managed interfaces. The kfrees and error
-handling code is done away with. Also, the unnecesary labels are
-removed and the function pm860x_touch_remove is removed as it becomes
-empty after removing the no longer required function calls. 
-
-This changes the order of the freeing operations in the remove
-function, putting the free_irq first, and that this may resolve a 
-potential race condition.
+handling code is done away with. The unnecesary labels are removed
+and the function max8925_onkey_remove is removed as it becomes empty
+after removing the no longer required function calls. Also,
+linux/device.h is added to make sure the devm_*() routine declarations
+are unambiguously available.
 
 The following Coccinelle semantic patch was used for making a part of
 the change:
@@ -64,95 +57,112 @@ removefn(...) {
 Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
 Acked-by: Julia Lawall <julia.lawall@lip6.fr>
 ---
- drivers/input/touchscreen/88pm860x-ts.c | 36 +++++++++------------------------
- 1 file changed, 10 insertions(+), 26 deletions(-)
+To send to: Dmitry Torokhov <dmitry.torokhov@gmail.com>,linux-input@vger.kernel.org,linux-kernel@vger.kernel.org
+ drivers/input/misc/max8925_onkey.c | 52 +++++++++++---------------------------
+ 1 file changed, 15 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/input/touchscreen/88pm860x-ts.c b/drivers/input/touchscreen/88pm860x-ts.c
-index 544e20c..30c8cc1 100644
---- a/drivers/input/touchscreen/88pm860x-ts.c
-+++ b/drivers/input/touchscreen/88pm860x-ts.c
-@@ -16,6 +16,7 @@
- #include <linux/input.h>
- #include <linux/mfd/88pm860x.h>
+diff --git a/drivers/input/misc/max8925_onkey.c b/drivers/input/misc/max8925_onkey.c
+index eef41cf..62899e5 100644
+--- a/drivers/input/misc/max8925_onkey.c
++++ b/drivers/input/misc/max8925_onkey.c
+@@ -26,6 +26,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/mfd/max8925.h>
  #include <linux/slab.h>
 +#include <linux/device.h>
  
- #define MEAS_LEN		(8)
- #define ACCURATE_BIT		(12)
-@@ -234,16 +235,16 @@ static int pm860x_touch_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
+ #define SW_INPUT		(1 << 7)	/* 0/1 -- up/down */
+ #define HARDRESET_EN		(1 << 7)
+@@ -81,12 +82,11 @@ static int max8925_onkey_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
--	touch = kzalloc(sizeof(struct pm860x_touch), GFP_KERNEL);
-+	touch = devm_kzalloc(&pdev->dev, sizeof(struct pm860x_touch),
-+			     GFP_KERNEL);
- 	if (touch == NULL)
- 		return -ENOMEM;
- 	platform_set_drvdata(pdev, touch);
- 
--	touch->idev = input_allocate_device();
-+	touch->idev = devm_input_allocate_device(&pdev->dev);
- 	if (touch->idev == NULL) {
- 		dev_err(&pdev->dev, "Failed to allocate input device!\n");
--		ret = -ENOMEM;
--		goto out;
+-	info = kzalloc(sizeof(struct max8925_onkey_info), GFP_KERNEL);
+-	input = input_allocate_device();
+-	if (!info || !input) {
+-		error = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	info = devm_kzalloc(&pdev->dev, sizeof(struct max8925_onkey_info),
++			    GFP_KERNEL);
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!info || !input)
 +		return -ENOMEM;
+ 
+ 	info->idev = input;
+ 	info->i2c = chip->i2c;
+@@ -100,55 +100,34 @@ static int max8925_onkey_probe(struct platform_device *pdev)
+ 	input->dev.parent = &pdev->dev;
+ 	input_set_capability(input, EV_KEY, KEY_POWER);
+ 
+-	error = request_threaded_irq(irq[0], NULL, max8925_onkey_handler,
+-				     IRQF_ONESHOT, "onkey-down", info);
++	error = devm_request_threaded_irq(&pdev->dev, irq[0], NULL,
++					  max8925_onkey_handler, IRQF_ONESHOT,
++					  "onkey-down", info);
+ 	if (error < 0) {
+ 		dev_err(chip->dev, "Failed to request IRQ: #%d: %d\n",
+ 			irq[0], error);
+-		goto err_free_mem;
++		return error;
  	}
  
- 	touch->idev->name = "88pm860x-touch";
-@@ -258,10 +259,11 @@ static int pm860x_touch_probe(struct platform_device *pdev)
- 	touch->res_x = res_x;
- 	input_set_drvdata(touch->idev, touch);
- 
--	ret = request_threaded_irq(touch->irq, NULL, pm860x_touch_handler,
--				   IRQF_ONESHOT, "touch", touch);
-+	ret = devm_request_threaded_irq(&pdev->dev, touch->irq, NULL,
-+					pm860x_touch_handler, IRQF_ONESHOT,
-+					"touch", touch);
- 	if (ret < 0)
--		goto out_irq;
-+		return ret;
- 
- 	__set_bit(EV_ABS, touch->idev->evbit);
- 	__set_bit(ABS_X, touch->idev->absbit);
-@@ -279,28 +281,11 @@ static int pm860x_touch_probe(struct platform_device *pdev)
- 	ret = input_register_device(touch->idev);
- 	if (ret < 0) {
- 		dev_err(chip->dev, "Failed to register touch!\n");
--		goto out_rg;
-+		return ret;
+-	error = request_threaded_irq(irq[1], NULL, max8925_onkey_handler,
+-				     IRQF_ONESHOT, "onkey-up", info);
++	error = devm_request_threaded_irq(&pdev->dev, irq[1], NULL,
++					  max8925_onkey_handler, IRQF_ONESHOT,
++					  "onkey-up", info);
+ 	if (error < 0) {
+ 		dev_err(chip->dev, "Failed to request IRQ: #%d: %d\n",
+ 			irq[1], error);
+-		goto err_free_irq0;
++		return error;
  	}
  
- 	platform_set_drvdata(pdev, touch);
+ 	error = input_register_device(info->idev);
+ 	if (error) {
+ 		dev_err(chip->dev, "Can't register input device: %d\n", error);
+-		goto err_free_irq1;
++		return error;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, info);
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
  	return 0;
--out_rg:
--	free_irq(touch->irq, touch);
--out_irq:
--	input_free_device(touch->idev);
--out:
--	kfree(touch);
--	return ret;
+-
+-err_free_irq1:
+-	free_irq(irq[1], info);
+-err_free_irq0:
+-	free_irq(irq[0], info);
+-err_free_mem:
+-	input_free_device(input);
+-	kfree(info);
+-
+-	return error;
 -}
 -
--static int pm860x_touch_remove(struct platform_device *pdev)
+-static int max8925_onkey_remove(struct platform_device *pdev)
 -{
--	struct pm860x_touch *touch = platform_get_drvdata(pdev);
+-	struct max8925_onkey_info *info = platform_get_drvdata(pdev);
+-	struct max8925_chip *chip = dev_get_drvdata(pdev->dev.parent);
 -
--	input_unregister_device(touch->idev);
--	free_irq(touch->irq, touch);
--	kfree(touch);
+-	free_irq(info->irq[0] + chip->irq_base, info);
+-	free_irq(info->irq[1] + chip->irq_base, info);
+-	input_unregister_device(info->idev);
+-	kfree(info);
+-
 -	return 0;
  }
  
- static struct platform_driver pm860x_touch_driver = {
-@@ -309,7 +294,6 @@ static struct platform_driver pm860x_touch_driver = {
- 		.owner	= THIS_MODULE,
+ #ifdef CONFIG_PM_SLEEP
+@@ -190,7 +169,6 @@ static struct platform_driver max8925_onkey_driver = {
+ 		.pm	= &max8925_onkey_pm_ops,
  	},
- 	.probe	= pm860x_touch_probe,
--	.remove	= pm860x_touch_remove,
+ 	.probe		= max8925_onkey_probe,
+-	.remove		= max8925_onkey_remove,
  };
- module_platform_driver(pm860x_touch_driver);
+ module_platform_driver(max8925_onkey_driver);
  
 -- 
 1.9.1
-

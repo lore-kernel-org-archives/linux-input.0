@@ -1,26 +1,21 @@
 From: Himangi Saraogi <himangi774@gmail.com>
-Subject: [PATCH] Input: touchscreen : Introduce the use of the managed
- version of kzalloc
-Date: Wed, 28 May 2014 23:32:14 +0530
-Message-ID: <20140528180214.GA5957@himangi-Dell>
+Subject: [PATCH] Input: 88pm860x_onkey : Introduce the use of the managed
+ version of  kzalloc
+Date: Thu, 29 May 2014 01:31:23 +0530
+Message-ID: <20140528200123.GA9946@himangi-Dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:53968 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751102AbaE1SCW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 May 2014 14:02:22 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: julia.lawall@lip6.fr
+List-Id: linux-input@vger.kernel.org
 
 This patch moves most data allocated in the probe function from
 unmanaged interfaces to managed interfaces. The kfrees and error
 handling code is done away with. Also, the unnecesary labels are
-removed and the function mrstouch_remove is removed as it becomes
+removed and the function pm860x_onkey_remove is removed as it becomes
 empty after removing the no longer required function calls. Also,
 linux/device.h include is added to make sure the devm_*() routine
 declarations are unambiguously available.
@@ -62,100 +57,100 @@ removefn(...) {
 Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
 Acked-by: Julia Lawall <julia.lawall@lip6.fr>
 ---
- drivers/input/touchscreen/intel-mid-touch.c | 39 ++++++++---------------------
- 1 file changed, 11 insertions(+), 28 deletions(-)
+ drivers/input/misc/88pm860x_onkey.c | 40 ++++++++++---------------------------
+ 1 file changed, 10 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/input/touchscreen/intel-mid-touch.c b/drivers/input/touchscreen/intel-mid-touch.c
-index 4f6b156..b1b1e8b 100644
---- a/drivers/input/touchscreen/intel-mid-touch.c
-+++ b/drivers/input/touchscreen/intel-mid-touch.c
-@@ -36,6 +36,7 @@
- #include <linux/irq.h>
- #include <linux/delay.h>
- #include <asm/intel_scu_ipc.h>
+diff --git a/drivers/input/misc/88pm860x_onkey.c b/drivers/input/misc/88pm860x_onkey.c
+index abd8453..220ce0f 100644
+--- a/drivers/input/misc/88pm860x_onkey.c
++++ b/drivers/input/misc/88pm860x_onkey.c
+@@ -26,6 +26,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/mfd/88pm860x.h>
+ #include <linux/slab.h>
 +#include <linux/device.h>
  
- /* PMIC Interrupt registers */
- #define PMIC_REG_ID1		0x00 /* PMIC ID1 register */
-@@ -580,12 +581,12 @@ static int mrstouch_probe(struct platform_device *pdev)
+ #define PM8607_WAKEUP		0x0b
+ 
+@@ -68,7 +69,8 @@ static int pm860x_onkey_probe(struct platform_device *pdev)
  		return -EINVAL;
  	}
  
--	tsdev = kzalloc(sizeof(struct mrstouch_dev), GFP_KERNEL);
--	input = input_allocate_device();
-+	tsdev = devm_kzalloc(&pdev->dev, sizeof(struct mrstouch_dev),
-+			     GFP_KERNEL);
-+	input = devm_input_allocate_device(&pdev->dev);
- 	if (!tsdev || !input) {
- 		dev_err(&pdev->dev, "unable to allocate memory\n");
--		err = -ENOMEM;
--		goto err_free_mem;
+-	info = kzalloc(sizeof(struct pm860x_onkey_info), GFP_KERNEL);
++	info = devm_kzalloc(&pdev->dev, sizeof(struct pm860x_onkey_info),
++			    GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+ 	info->chip = chip;
+@@ -76,11 +78,10 @@ static int pm860x_onkey_probe(struct platform_device *pdev)
+ 	info->dev = &pdev->dev;
+ 	info->irq = irq;
+ 
+-	info->idev = input_allocate_device();
++	info->idev = devm_input_allocate_device(&pdev->dev);
+ 	if (!info->idev) {
+ 		dev_err(chip->dev, "Failed to allocate input dev\n");
+-		ret = -ENOMEM;
+-		goto out;
 +		return -ENOMEM;
  	}
  
- 	tsdev->dev = &pdev->dev;
-@@ -598,7 +599,7 @@ static int mrstouch_probe(struct platform_device *pdev)
- 	err = mrstouch_adc_init(tsdev);
- 	if (err) {
- 		dev_err(&pdev->dev, "ADC initialization failed\n");
--		goto err_free_mem;
-+		return -ENOMEM;
+ 	info->idev->name = "88pm860x_on";
+@@ -93,42 +94,22 @@ static int pm860x_onkey_probe(struct platform_device *pdev)
+ 	ret = input_register_device(info->idev);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Can't register input device: %d\n", ret);
+-		goto out_reg;
++		return ret;
  	}
  
- 	input->name = "mrst_touchscreen";
-@@ -618,39 +619,22 @@ static int mrstouch_probe(struct platform_device *pdev)
- 	input_set_abs_params(tsdev->input, ABS_PRESSURE,
- 			     MRST_PRESSURE_MIN, MRST_PRESSURE_MAX, 0, 0);
- 
--	err = request_threaded_irq(tsdev->irq, NULL, mrstouch_pendet_irq,
--				   IRQF_ONESHOT, "mrstouch", tsdev);
-+	err = devm_request_threaded_irq(&pdev->dev, tsdev->irq, NULL,
-+					mrstouch_pendet_irq, IRQF_ONESHOT,
-+					"mrstouch", tsdev);
- 	if (err) {
- 		dev_err(tsdev->dev, "unable to allocate irq\n");
--		goto err_free_mem;
-+		return -ENOMEM;
+-	ret = request_threaded_irq(info->irq, NULL, pm860x_onkey_handler,
+-				   IRQF_ONESHOT, "onkey", info);
++	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
++					pm860x_onkey_handler, IRQF_ONESHOT,
++					"onkey", info);
+ 	if (ret < 0) {
+ 		dev_err(chip->dev, "Failed to request IRQ: #%d: %d\n",
+ 			info->irq, ret);
+-		goto out_irq;
++		return ret;
  	}
  
- 	err = input_register_device(tsdev->input);
- 	if (err) {
- 		dev_err(tsdev->dev, "unable to register input device\n");
--		goto err_free_irq;
-+		return -ENOMEM;
- 	}
+ 	platform_set_drvdata(pdev, info);
+ 	device_init_wakeup(&pdev->dev, 1);
  
- 	platform_set_drvdata(pdev, tsdev);
  	return 0;
 -
--err_free_irq:
--	free_irq(tsdev->irq, tsdev);
--err_free_mem:
--	input_free_device(input);
--	kfree(tsdev);
--	return err;
+-out_irq:
+-	input_unregister_device(info->idev);
+-	kfree(info);
+-	return ret;
+-
+-out_reg:
+-	input_free_device(info->idev);
+-out:
+-	kfree(info);
+-	return ret;
 -}
 -
--static int mrstouch_remove(struct platform_device *pdev)
+-static int pm860x_onkey_remove(struct platform_device *pdev)
 -{
--	struct mrstouch_dev *tsdev = platform_get_drvdata(pdev);
+-	struct pm860x_onkey_info *info = platform_get_drvdata(pdev);
 -
--	free_irq(tsdev->irq, tsdev);
--	input_unregister_device(tsdev->input);
--	kfree(tsdev);
--
+-	free_irq(info->irq, info);
+-	input_unregister_device(info->idev);
+-	kfree(info);
 -	return 0;
  }
  
- static struct platform_driver mrstouch_driver = {
-@@ -659,7 +643,6 @@ static struct platform_driver mrstouch_driver = {
- 		.owner	= THIS_MODULE,
+ #ifdef CONFIG_PM_SLEEP
+@@ -161,7 +142,6 @@ static struct platform_driver pm860x_onkey_driver = {
+ 		.pm	= &pm860x_onkey_pm_ops,
  	},
- 	.probe		= mrstouch_probe,
--	.remove		= mrstouch_remove,
+ 	.probe		= pm860x_onkey_probe,
+-	.remove		= pm860x_onkey_remove,
  };
- module_platform_driver(mrstouch_driver);
+ module_platform_driver(pm860x_onkey_driver);
  
 -- 
 1.9.1
-

@@ -1,63 +1,73 @@
-From: nick.dyer@itdev.co.uk
-Subject: [PATCH] Input: atmel_mxt_ts - fix invalid return from mxt_get_bootloader_version
-Date: Thu, 29 May 2014 13:34:22 +0100
-Message-ID: <1401366862-6295-1-git-send-email-nick.dyer@itdev.co.uk>
-References: <20140521122624.GB23396@mwanda>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCHv4 0/4] tsc2005 DT binding
+Date: Thu, 29 May 2014 15:33:57 +0200
+Message-ID: <20140529133356.GA4716@earth.universe>
+References: <1400693774-21306-1-git-send-email-sre@kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:59876 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755718AbaE2MjP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2014 08:39:15 -0400
-In-Reply-To: <20140521122624.GB23396@mwanda>
+Received: from mail.kernel.org ([198.145.19.201]:47904 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756576AbaE2NeH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 May 2014 09:34:07 -0400
+Content-Disposition: inline
+In-Reply-To: <1400693774-21306-1-git-send-email-sre@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-The patch e57a66aa8534: "Input: atmel_mxt_ts - read and report
-bootloader version" from May 18, 2014, leads to the following static
-checker warning:
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	drivers/input/touchscreen/atmel_mxt_ts.c:437 mxt_get_bootloader_version()
-	warn: signedness bug returning '(-5)'
+On Wed, May 21, 2014 at 07:36:10PM +0200, Sebastian Reichel wrote:
+> This adds device tree support for the tsc2005 touchscreen
+> controller, which is currently only used by the Nokia N900
+> board.
+>=20
+> The patch does not update the reset pin handling for platform
+> data based probe to avoid merge conflicts. The n900 platform
+> code will be removed in the near future (3.17?) and the driver
+> can be simplified once that has happened.
+>=20
+> Changes since v3 [0]:
+>  * Move common touchscreen DT handling code into its own file
+>  * Add regulator support to tsc2005 driver
+>  * Added N900 DTS patch for completeness. It should go via
+>    Tony's Tree of course.
 
-drivers/input/touchscreen/atmel_mxt_ts.c
-   429  static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
-   430  {
-   431          struct device *dev = &data->client->dev;
-   432          u8 buf[3];
-   433
-   434          if (val & MXT_BOOT_EXTENDED_ID) {
-   435                  if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
-   436                          dev_err(dev, "%s: i2c failure\n", __func__);
-   437                          return -EIO;
-                                       ^^^^
-This gets truncated into a number from 0-255 and anyway the caller
-doesn't check for errors.
+ping! It would be nice to have this in 3.16, since it makes
+the N900 usable with the mainline kernel when booted in DT
+mode. The DT bindings haven't changed for more than 3 weeks,
+so we don't need to wait longer for feedback from the DT
+maintainers AFAIK.
 
-(reported by Dan Carpenter)
+-- Sebastian
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index fb0e006..693b163 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -435,7 +435,7 @@ static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
- 	if (val & MXT_BOOT_EXTENDED_ID) {
- 		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
- 			dev_err(dev, "%s: i2c failure\n", __func__);
--			return -EIO;
-+			return val;
- 		}
- 
- 		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
--- 
-1.8.3.2
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iQIcBAEBCgAGBQJThzdEAAoJENju1/PIO/qaZXoQAJ9ifTNGksfdMZ7yWbgM9NKL
+6MUMajU8zESTicwRp2woT/cCfRuTUFtgdm+j4nc/yRAqikeUPMwBnOgY+IKOlb/W
+bxTdBwVeWm7OuM8jJvXwktj1Y/Mr3yo1Wr4/vHGZoK8P7EalB1m9GqAnx6fVhuMz
+iPS0dF1TvgDXa7xOQl/riFPB+bVd7v8hZhqNYjLHUvxgRf3yN2KADdohMRPyxHWl
+hZSc6Z/mnCXCk+7ompwpTzgk6IAe+Mxbmogp07AwnQbYiykZKD4sBkqt45Dih9P+
+zBGnO2iI0o986U0UC3aBlx2Vf9fi/yZO2ZK6nJS8xcz/YIagDcyjyRBAnLdrz50w
+nPEkw3WNyS+1NVXO3rUTveAZYGLUaGK1hYl9ZTrh+rsaw3Blc/YpD/Ik4Qhqy1tu
+0QUcKRSeXDnbdVqxGksG5PF6y7gSwq8Bp2+o06ICyClNax1OECQDpsZZa9U3M2AF
+X3TxtHgUlza12aOVn7G1maZY67fKHzZIlEcwTl7GDeAZWNr1zgac1MJI7VmXJ+tZ
+eShfiLG1M8kWnEdOM19XIQAq9A0EX7YmKjCEOMESx18+erQ9L9XprIUfIIrKIiIL
+dKGeIni9cllVOuEUFJP5+DwsAVbFdo1K/4cC8MckKj+1oKd3PW5XrMTOc5OYQdRX
+Dy4JB3wJ7GnBQqThOxXZ
+=Ib1e
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--

@@ -1,125 +1,171 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RESEND PATCH v4 2/2] Input: mcs5000_ts: use devm_* functions
-Date: Thu, 29 May 2014 00:10:23 -0700
-Message-ID: <20140529071021.GE11817@core.coreip.homeip.net>
-References: <1401268396-23072-1-git-send-email-beomho.seo@samsung.com>
- <1401268396-23072-3-git-send-email-beomho.seo@samsung.com>
+Subject: Re: [PATCH] Input: touchscreen : Introduce the use of the managed
+ version of kzalloc
+Date: Thu, 29 May 2014 00:15:10 -0700
+Message-ID: <20140529071510.GF11817@core.coreip.homeip.net>
+References: <20140528180214.GA5957@himangi-Dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:56042 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753763AbaE2HKZ (ORCPT
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:39502 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751952AbaE2HPN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2014 03:10:25 -0400
-Received: by mail-pb0-f42.google.com with SMTP id md12so12625485pbc.29
-        for <linux-input@vger.kernel.org>; Thu, 29 May 2014 00:10:25 -0700 (PDT)
+	Thu, 29 May 2014 03:15:13 -0400
 Content-Disposition: inline
-In-Reply-To: <1401268396-23072-3-git-send-email-beomho.seo@samsung.com>
+In-Reply-To: <20140528180214.GA5957@himangi-Dell>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Beomho Seo <beomho.seo@samsung.com>
-Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com, sachin.kamat@linaro.org, myungjoo.ham@samsung.com, jh80.chung@samsung.com, cw00.choi@samsung.com
+To: Himangi Saraogi <himangi774@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
 
-On Wed, May 28, 2014 at 06:13:16PM +0900, Beomho Seo wrote:
-> This patch use devm_* functions in mcs5000_ts driver.
-> As, a result, error patch and remove() function is simplified.
-
-Applied, thank you.
-
+On Wed, May 28, 2014 at 11:32:14PM +0530, Himangi Saraogi wrote:
+> This patch moves most data allocated in the probe function from
+> unmanaged interfaces to managed interfaces. The kfrees and error
+> handling code is done away with. Also, the unnecesary labels are
+> removed and the function mrstouch_remove is removed as it becomes
+> empty after removing the no longer required function calls. Also,
+> linux/device.h include is added to make sure the devm_*() routine
+> declarations are unambiguously available.
 > 
-> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> ---
-> Changes in v4:
-> - None.
-> Changes in v3:
-> - None.
-> Changes in v2:
-> - Additionally use devm_kzalloc for mcs_ts_data struct.
-> ---
->  drivers/input/touchscreen/mcs5000_ts.c |   42 +++++++++-----------------------
->  1 file changed, 12 insertions(+), 30 deletions(-)
+> The following Coccinelle semantic patch was used for making a part of
+> the change:
 > 
-> diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
-> index 647e36f..6b57e28 100644
-> --- a/drivers/input/touchscreen/mcs5000_ts.c
-> +++ b/drivers/input/touchscreen/mcs5000_ts.c
-> @@ -196,12 +196,11 @@ static int mcs5000_ts_probe(struct i2c_client *client,
->  	if (!dev_get_platdata(&client->dev))
->  		return -EINVAL;
+> @platform@
+> identifier p, probefn, removefn;
+> @@
+> struct platform_driver p = {
+>   .probe = probefn,
+>   .remove = removefn,
+> };
+> 
+> @prb@
+> identifier platform.probefn, pdev;
+> expression e, e1, e2;
+> @@
+> probefn(struct platform_device *pdev, ...) {
+>   <+...
+> - e = kzalloc(e1, e2)
+> + e = devm_kzalloc(&pdev->dev, e1, e2)
+>   ...
+> ?-kfree(e);
+>   ...+>
+> }
+> 
+> @rem depends on prb@
+> identifier platform.removefn;
+> expression e;
+> @@
+> removefn(...) {
+>   <...
+> - kfree(e);
+>   ...>
+> }
+> 
+> Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+> Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+> ---
+>  drivers/input/touchscreen/intel-mid-touch.c | 39 ++++++++---------------------
+>  1 file changed, 11 insertions(+), 28 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/intel-mid-touch.c b/drivers/input/touchscreen/intel-mid-touch.c
+> index 4f6b156..b1b1e8b 100644
+> --- a/drivers/input/touchscreen/intel-mid-touch.c
+> +++ b/drivers/input/touchscreen/intel-mid-touch.c
+> @@ -36,6 +36,7 @@
+>  #include <linux/irq.h>
+>  #include <linux/delay.h>
+>  #include <asm/intel_scu_ipc.h>
+> +#include <linux/device.h>
 >  
-> -	data = kzalloc(sizeof(struct mcs5000_ts_data), GFP_KERNEL);
-> -	input_dev = input_allocate_device();
-> +	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
-> +	input_dev = devm_input_allocate_device(&client->dev);
->  	if (!data || !input_dev) {
->  		dev_err(&client->dev, "Failed to allocate memory\n");
-> -		ret = -ENOMEM;
+>  /* PMIC Interrupt registers */
+>  #define PMIC_REG_ID1		0x00 /* PMIC ID1 register */
+> @@ -580,12 +581,12 @@ static int mrstouch_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	tsdev = kzalloc(sizeof(struct mrstouch_dev), GFP_KERNEL);
+> -	input = input_allocate_device();
+> +	tsdev = devm_kzalloc(&pdev->dev, sizeof(struct mrstouch_dev),
+> +			     GFP_KERNEL);
+> +	input = devm_input_allocate_device(&pdev->dev);
+>  	if (!tsdev || !input) {
+>  		dev_err(&pdev->dev, "unable to allocate memory\n");
+> -		err = -ENOMEM;
 > -		goto err_free_mem;
 > +		return -ENOMEM;
 >  	}
 >  
->  	data->client = client;
-> @@ -223,40 +222,24 @@ static int mcs5000_ts_probe(struct i2c_client *client,
->  	if (data->platform_data->cfg_pin)
->  		data->platform_data->cfg_pin();
->  
-> -	ret = request_threaded_irq(client->irq, NULL, mcs5000_ts_interrupt,
-> -			IRQF_TRIGGER_LOW | IRQF_ONESHOT, "mcs5000_ts", data);
-> -
-> -	if (ret < 0) {
-> +	ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +			mcs5000_ts_interrupt, IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +			"mcs5000_ts", data);
-> +	if (ret) {
->  		dev_err(&client->dev, "Failed to register interrupt\n");
+>  	tsdev->dev = &pdev->dev;
+> @@ -598,7 +599,7 @@ static int mrstouch_probe(struct platform_device *pdev)
+>  	err = mrstouch_adc_init(tsdev);
+>  	if (err) {
+>  		dev_err(&pdev->dev, "ADC initialization failed\n");
 > -		goto err_free_mem;
-> +		return ret;
+> +		return -ENOMEM;
 >  	}
 >  
->  	ret = input_register_device(data->input_dev);
-> -	if (ret < 0)
+>  	input->name = "mrst_touchscreen";
+> @@ -618,39 +619,22 @@ static int mrstouch_probe(struct platform_device *pdev)
+>  	input_set_abs_params(tsdev->input, ABS_PRESSURE,
+>  			     MRST_PRESSURE_MIN, MRST_PRESSURE_MAX, 0, 0);
+>  
+> -	err = request_threaded_irq(tsdev->irq, NULL, mrstouch_pendet_irq,
+> -				   IRQF_ONESHOT, "mrstouch", tsdev);
+> +	err = devm_request_threaded_irq(&pdev->dev, tsdev->irq, NULL,
+> +					mrstouch_pendet_irq, IRQF_ONESHOT,
+> +					"mrstouch", tsdev);
+>  	if (err) {
+>  		dev_err(tsdev->dev, "unable to allocate irq\n");
+> -		goto err_free_mem;
+> +		return -ENOMEM;
+
+This is bad conversion. We used to report 'err' returned by
+request_threaded_irq, but now we always report -ENOMEM. I fixed it up
+here and in other places and applied.
+
+>  	}
+>  
+>  	err = input_register_device(tsdev->input);
+>  	if (err) {
+>  		dev_err(tsdev->dev, "unable to register input device\n");
 > -		goto err_free_irq;
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "Failed to register input device\n");
-> +		return ret;
-> +	}
+> +		return -ENOMEM;
+>  	}
 >  
->  	mcs5000_ts_phys_init(data);
->  	i2c_set_clientdata(client, data);
->  
+>  	platform_set_drvdata(pdev, tsdev);
 >  	return 0;
 > -
 > -err_free_irq:
-> -	free_irq(client->irq, data);
+> -	free_irq(tsdev->irq, tsdev);
 > -err_free_mem:
-> -	input_free_device(input_dev);
-> -	kfree(data);
-> -	return ret;
+> -	input_free_device(input);
+> -	kfree(tsdev);
+> -	return err;
 > -}
 > -
-> -static int mcs5000_ts_remove(struct i2c_client *client)
+> -static int mrstouch_remove(struct platform_device *pdev)
 > -{
-> -	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
+> -	struct mrstouch_dev *tsdev = platform_get_drvdata(pdev);
 > -
-> -	free_irq(client->irq, data);
-> -	input_unregister_device(data->input_dev);
-> -	kfree(data);
+> -	free_irq(tsdev->irq, tsdev);
+> -	input_unregister_device(tsdev->input);
+> -	kfree(tsdev);
 > -
 > -	return 0;
 >  }
 >  
->  #ifdef CONFIG_PM
-> @@ -291,7 +274,6 @@ MODULE_DEVICE_TABLE(i2c, mcs5000_ts_id);
+>  static struct platform_driver mrstouch_driver = {
+> @@ -659,7 +643,6 @@ static struct platform_driver mrstouch_driver = {
+>  		.owner	= THIS_MODULE,
+>  	},
+>  	.probe		= mrstouch_probe,
+> -	.remove		= mrstouch_remove,
+>  };
+>  module_platform_driver(mrstouch_driver);
 >  
->  static struct i2c_driver mcs5000_ts_driver = {
->  	.probe		= mcs5000_ts_probe,
-> -	.remove		= mcs5000_ts_remove,
->  	.driver = {
->  		.name = "mcs5000_ts",
->  #ifdef CONFIG_PM
 > -- 
-> 1.7.9.5
+> 1.9.1
 > 
 
 -- 

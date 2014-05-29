@@ -1,43 +1,63 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: joydev devices are world readable
-Date: Thu, 29 May 2014 11:46:56 +0200
-Message-ID: <CANq1E4R+-o972FyFLQ3RVyma9ratqQmoNMr-J3vv+Y2ckuL6yg@mail.gmail.com>
-References: <op.xgl3pdtz5k9y7g@alice.jkfloris.demon.nl>
-	<CANq1E4QOOimhZ9pDLkRMvPYZBko8sWZiugHKgYwBR1gb7CKW5w@mail.gmail.com>
-	<op.xgl708il5k9y7g@alice.jkfloris.demon.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: nick.dyer@itdev.co.uk
+Subject: [PATCH] Input: atmel_mxt_ts - fix invalid return from mxt_get_bootloader_version
+Date: Thu, 29 May 2014 13:34:22 +0100
+Message-ID: <1401366862-6295-1-git-send-email-nick.dyer@itdev.co.uk>
+References: <20140521122624.GB23396@mwanda>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f182.google.com ([209.85.160.182]:64665 "EHLO
-	mail-yk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932795AbaE2Jq5 (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:59876 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755718AbaE2MjP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2014 05:46:57 -0400
-Received: by mail-yk0-f182.google.com with SMTP id 9so51882ykp.27
-        for <linux-input@vger.kernel.org>; Thu, 29 May 2014 02:46:56 -0700 (PDT)
-In-Reply-To: <op.xgl708il5k9y7g@alice.jkfloris.demon.nl>
+	Thu, 29 May 2014 08:39:15 -0400
+In-Reply-To: <20140521122624.GB23396@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Floris <jkfloris@dds.nl>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, Nick Dyer <nick.dyer@itdev.co.uk>
 
-Hi
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-On Thu, May 29, 2014 at 11:44 AM, Floris <jkfloris@dds.nl> wrote:
->> I posted an explanation on systemd-devel [1] this morning. Please note
->> that this is a policy-issue created in user-space. The kernel-side
->> cannot help you there. Furthermore, the kernel recommends using evdev
->> instead of joydev and friends. Therefore, I cannot see what you expect
->> from us.
->
->
-> just curious. If the joydev module is not recommended, why is it still
-> available and used?
+The patch e57a66aa8534: "Input: atmel_mxt_ts - read and report
+bootloader version" from May 18, 2014, leads to the following static
+checker warning:
 
-Linux has strict backwards-compatibility rules. Therefore, we cannot
-remove joydev. However, we can decide to mark it obsolete, which means
-we will not extend it anymore. Furthermore, we cannot force anyone to
-stop using joydev, so we have to continue supporting it.
+	drivers/input/touchscreen/atmel_mxt_ts.c:437 mxt_get_bootloader_version()
+	warn: signedness bug returning '(-5)'
 
-Thanks
-David
+drivers/input/touchscreen/atmel_mxt_ts.c
+   429  static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
+   430  {
+   431          struct device *dev = &data->client->dev;
+   432          u8 buf[3];
+   433
+   434          if (val & MXT_BOOT_EXTENDED_ID) {
+   435                  if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
+   436                          dev_err(dev, "%s: i2c failure\n", __func__);
+   437                          return -EIO;
+                                       ^^^^
+This gets truncated into a number from 0-255 and anyway the caller
+doesn't check for errors.
+
+(reported by Dan Carpenter)
+
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index fb0e006..693b163 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -435,7 +435,7 @@ static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
+ 	if (val & MXT_BOOT_EXTENDED_ID) {
+ 		if (mxt_bootloader_read(data, &buf[0], 3) != 0) {
+ 			dev_err(dev, "%s: i2c failure\n", __func__);
+-			return -EIO;
++			return val;
+ 		}
+ 
+ 		dev_dbg(dev, "Bootloader ID:%d Version:%d\n", buf[1], buf[2]);
+-- 
+1.8.3.2
+

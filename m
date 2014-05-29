@@ -1,54 +1,47 @@
-From: David Herrmann <dh.herrmann@gmail.com>
+From: Floris <jkfloris@dds.nl>
 Subject: Re: joydev devices are world readable
-Date: Thu, 29 May 2014 10:44:02 +0200
-Message-ID: <CANq1E4QOOimhZ9pDLkRMvPYZBko8sWZiugHKgYwBR1gb7CKW5w@mail.gmail.com>
+Date: Thu, 29 May 2014 11:44:58 +0200
+Message-ID: <op.xgl708il5k9y7g@alice.jkfloris.demon.nl>
 References: <op.xgl3pdtz5k9y7g@alice.jkfloris.demon.nl>
+ <CANq1E4QOOimhZ9pDLkRMvPYZBko8sWZiugHKgYwBR1gb7CKW5w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:55045 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932546AbaE2IoE (ORCPT
+Received: from smtp-vbr12.xs4all.nl ([194.109.24.32]:4816 "EHLO
+	smtp-vbr12.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756074AbaE2JnP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2014 04:44:04 -0400
-Received: by mail-ie0-f179.google.com with SMTP id rd18so14711iec.24
-        for <linux-input@vger.kernel.org>; Thu, 29 May 2014 01:44:02 -0700 (PDT)
-In-Reply-To: <op.xgl3pdtz5k9y7g@alice.jkfloris.demon.nl>
+	Thu, 29 May 2014 05:43:15 -0400
+Received: from alice.jkfloris.demon.nl (jkfloris.demon.nl [82.95.130.205])
+	(authenticated bits=0)
+	by smtp-vbr12.xs4all.nl (8.13.8/8.13.8) with ESMTP id s4T9hBJT034304
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Thu, 29 May 2014 11:43:13 +0200 (CEST)
+	(envelope-from jkfloris@dds.nl)
+In-Reply-To: <CANq1E4QOOimhZ9pDLkRMvPYZBko8sWZiugHKgYwBR1gb7CKW5w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Floris <jkfloris@dds.nl>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-Hi
+> I posted an explanation on systemd-devel [1] this morning. Please note
+> that this is a policy-issue created in user-space. The kernel-side
+> cannot help you there. Furthermore, the kernel recommends using evdev
+> instead of joydev and friends. Therefore, I cannot see what you expect
+> from us.
 
-On Thu, May 29, 2014 at 10:11 AM, Floris <jkfloris@dds.nl> wrote:
-> Hey,
+just curious. If the joydev module is not recommended, why is it still
+available and used?
+
+> If you want to get this solved, simply change the udev rules on your
+> system to prevent joydev devices from being world-readable.
 >
-> after asking the systemd mailing list [1] I will try this list. Maybe
-> someone can help me to solve this issue or point me to someone/ some list.
->
-> The short version of the problem:
->
-> I have created a multiseat setup with systemd. And used "loginctl attach" to
-> attach devices to an other seat. The input from the mouse and keyboard are
-> working as expected. They both only work on the seat they are attached to.
-> Nevertheless, the joysticks ignore the seat rules and works on every seat.
-> So a user from seat0 can interact with seat1. Maybe this is not directly a
-> security problem as it is annoying.
->
-> Please read the systemd-devel mailing list [1] for more information or ask
-> me if you need more information about my system or the problem.
+> Thanks
+> David
 
-I posted an explanation on systemd-devel [1] this morning. Please note
-that this is a policy-issue created in user-space. The kernel-side
-cannot help you there. Furthermore, the kernel recommends using evdev
-instead of joydev and friends. Therefore, I cannot see what you expect
-from us.
+Thank for your explanations. I will try to modify or add udev rules and
+see if I can solve this behavior.
 
-If you want to get this solved, simply change the udev rules on your
-system to prevent joydev devices from being world-readable.
+Thanks,
 
-Thanks
-David
-
-[1] http://lists.freedesktop.org/archives/systemd-devel/2014-May/019566.html
+floris

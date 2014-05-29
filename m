@@ -1,50 +1,47 @@
-From: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Fwd: [PATCH 3/3] IO: hid-sensor-magn-3d: Add in support for
- True/Magnetic North HID usages
-Date: Wed, 28 May 2014 16:59:16 -0500
-Message-ID: <CA+BWVUR0VJCbi99AEo4v_ZGcPeG_uzjYdr2LUROshUhzzKADsw@mail.gmail.com>
-References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com>
- <1401311175-12784-4-git-send-email-reyad.attiyat@gmail.com>
- <CA+BWVUQEsprV1jEzD9D0hidR0jvYeSRVGT=ESzstR4apa+nV1A@mail.gmail.com>
- <53865438.2030901@linux.intel.com> <CA+BWVUT6tC5nn--zUJ83+FvtQ-AAtZ+CmyUN0bnTEuffpTRD2Q@mail.gmail.com>
- <53865B83.8030505@linux.intel.com> <CA+BWVURydjyrnC9ec-POtn5A8gL7C93MH6pObcmmAqD4V=p0Zg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 0/3] Input: fix typo error in MELFAS touch device
+ driver
+Date: Thu, 29 May 2014 00:05:09 -0700
+Message-ID: <20140529070509.GA11817@core.coreip.homeip.net>
+References: <537D3E90.1020805@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+BWVURydjyrnC9ec-POtn5A8gL7C93MH6pObcmmAqD4V=p0Zg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:60018 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756275AbaE2HFM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 May 2014 03:05:12 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hz1so12397836pad.30
+        for <linux-input@vger.kernel.org>; Thu, 29 May 2014 00:05:11 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <537D3E90.1020805@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Beomho Seo <beomho.seo@samsung.com>
+Cc: linux-input@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, Myungjoo Ham <myungjoo.ham@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
 
-Forgot to forward to list
+On Thu, May 22, 2014 at 09:02:24AM +0900, Beomho Seo wrote:
+> This patchset fix typo error in MELFAS touch device drivers.
+> 
+> Changes in v2:
+> - Add patch set for mms114 and mcs5000_ts drivers.
+> 
+> Beomho Seo (3):
+>   Input: mcs_touchkey: fix incorrect input device name
+>   Input: mms114: fix incorrect input device name
+>   Input: mcs5000_ts: fix incorrect input device name
 
+Applied all 3, thank you.
 
----------- Forwarded message ----------
-From: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Date: Wed, May 28, 2014 at 4:57 PM
-Subject: Re: [PATCH 3/3] IO: hid-sensor-magn-3d: Add in support for
-True/Magnetic North HID usages
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> 
+>  drivers/input/keyboard/mcs_touchkey.c  |    2 +-
+>  drivers/input/touchscreen/mcs5000_ts.c |    2 +-
+>  drivers/input/touchscreen/mms114.c     |    2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> -- 
+> 1.7.9.5
 
-
-Hey Srinivas,
-
-> It shouldn't be an issue for few more attributes. The idea is that
-> we don't expose the report level parsing information to the client drivers.
-> The client shouldn't worry about which collection or report it belongs to.
->
-Makes sense.
-
-> In this way if we have to enhance the parse function for newer
-> FW changes or quirks, it is only done at one place. Clients are not
-> affected at all.
->
-> Alternatively
-> we can enhance API, which takes multiple usage ids and fills information
-> in a single call. What do you think about this?
-
-Yes this seems like a great idea. I will try and implement this and
-resubmit these patches.
-
-Thank You,
-Reyad Attiyat
+-- 
+Dmitry

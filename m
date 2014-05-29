@@ -1,42 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] ARM: OMAP2+: remove unused omap4-keypad file and code
-Date: Thu, 29 May 2014 00:33:07 -0700
-Message-ID: <20140529073307.GL11817@core.coreip.homeip.net>
-References: <1400361851-32274-1-git-send-email-manabian@gmail.com>
- <1400361851-32274-2-git-send-email-manabian@gmail.com>
- <20140519053710.GD29386@core.coreip.homeip.net>
- <20140519161814.GE4849@atomide.com>
+From: Floris <jkfloris@dds.nl>
+Subject: joydev devices are world readable
+Date: Thu, 29 May 2014 10:11:27 +0200
+Message-ID: <op.xgl3pdtz5k9y7g@alice.jkfloris.demon.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:45833 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750942AbaE2HdK (ORCPT
+Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:2448 "EHLO
+	smtp-vbr4.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754878AbaE2IJn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2014 03:33:10 -0400
-Content-Disposition: inline
-In-Reply-To: <20140519161814.GE4849@atomide.com>
+	Thu, 29 May 2014 04:09:43 -0400
+Received: from alice.jkfloris.demon.nl (jkfloris.demon.nl [82.95.130.205])
+	(authenticated bits=0)
+	by smtp-vbr4.xs4all.nl (8.13.8/8.13.8) with ESMTP id s4T89eHB010037
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Thu, 29 May 2014 10:09:41 +0200 (CEST)
+	(envelope-from jkfloris@dds.nl)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Joachim Eastwood <manabian@gmail.com>, illia.smyrnov@ti.com, linux-omap@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, May 19, 2014 at 09:18:15AM -0700, Tony Lindgren wrote:
-> * Dmitry Torokhov <dmitry.torokhov@gmail.com> [140518 22:38]:
-> > On Sat, May 17, 2014 at 11:24:10PM +0200, Joachim Eastwood wrote:
-> > > This has been unused since omap4 board files went away.
-> > > 
-> > > Signed-off-by: Joachim Eastwood <manabian@gmail.com>
-> > 
-> > Tony, can I merge both through my tree?
-> 
-> Yes I don't have anything touching the omap4_keyboard_init
-> areas that I can think of:
-> 
-> Acked-by: Tony Lindgren <tony@atomide.com>
->  
+Hey,
 
-Applied both, thank you.
+after asking the systemd mailing list [1] I will try this list. Maybe  
+someone can help me to solve this issue or point me to someone/ some list.
 
--- 
-Dmitry
+The short version of the problem:
+
+I have created a multiseat setup with systemd. And used "loginctl attach"  
+to attach devices to an other seat. The input from the mouse and keyboard  
+are working as expected. They both only work on the seat they are attached  
+to. Nevertheless, the joysticks ignore the seat rules and works on every  
+seat. So a user from seat0 can interact with seat1. Maybe this is not  
+directly a security problem as it is annoying.
+
+Please read the systemd-devel mailing list [1] for more information or ask  
+me if you need more information about my system or the problem.
+
+tia,
+
+floris
+
+[1]  
+http://lists.freedesktop.org/archives/systemd-devel/2014-May/019551.html

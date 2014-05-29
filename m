@@ -1,73 +1,156 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCHv4 0/4] tsc2005 DT binding
-Date: Thu, 29 May 2014 15:33:57 +0200
-Message-ID: <20140529133356.GA4716@earth.universe>
-References: <1400693774-21306-1-git-send-email-sre@kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+From: Beomho Seo <beomho.seo@samsung.com>
+Subject: [PATCH V5 1/1] Input: mcs_touchkey: use devm_* functions
+Date: Thu, 29 May 2014 23:15:48 +0900
+Message-ID: <1401372948-13900-2-git-send-email-beomho.seo@samsung.com>
+References: <1401372948-13900-1-git-send-email-beomho.seo@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.19.201]:47904 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756576AbaE2NeH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2014 09:34:07 -0400
-Content-Disposition: inline
-In-Reply-To: <1400693774-21306-1-git-send-email-sre@kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:13123 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935035AbaE2OPx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 May 2014 10:15:53 -0400
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0N6C00COXAAFSAD0@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 29 May 2014 23:15:51 +0900 (KST)
+In-reply-to: <1401372948-13900-1-git-send-email-beomho.seo@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jy0922.shim@samsung.com, sachin.kamat@linaro.org
+Cc: myungjoo.ham@samsung.com, jh80.chung@samsung.com, cw00.choi@samsung.com, Beomho Seo <beomho.seo@samsung.com>
 
+This patch use devm_* funtions in mcs_touchkey driver.
+As a result, error path and remove() funtion is simplified.
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+---
+Changes in v5:
+- Remove mcs_touchkey_remove function again.
+- Add devm_add_action for use action touchkey power off.
+Changes in v4:
+- free_irq are back again for equivalent transformation.
+Changes in v3:
+- Some codes are back again. use fw_version, driver name and poweron.
+Changes in v2:
+- Additionally use devm_kzalloc for mcs_touchkey_data struct.
 
-On Wed, May 21, 2014 at 07:36:10PM +0200, Sebastian Reichel wrote:
-> This adds device tree support for the tsc2005 touchscreen
-> controller, which is currently only used by the Nokia N900
-> board.
->=20
-> The patch does not update the reset pin handling for platform
-> data based probe to avoid merge conflicts. The n900 platform
-> code will be removed in the near future (3.17?) and the driver
-> can be simplified once that has happened.
->=20
-> Changes since v3 [0]:
->  * Move common touchscreen DT handling code into its own file
->  * Add regulator support to tsc2005 driver
->  * Added N900 DTS patch for completeness. It should go via
->    Tony's Tree of course.
+ drivers/input/keyboard/mcs_touchkey.c |   60 ++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 34 deletions(-)
 
-ping! It would be nice to have this in 3.16, since it makes
-the N900 usable with the mainline kernel when booted in DT
-mode. The DT bindings haven't changed for more than 3 weeks,
-so we don't need to wait longer for feedback from the DT
-maintainers AFAIK.
+diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+index 1da8e0b..be7fe3d 100644
+--- a/drivers/input/keyboard/mcs_touchkey.c
++++ b/drivers/input/keyboard/mcs_touchkey.c
+@@ -96,6 +96,13 @@ static irqreturn_t mcs_touchkey_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static void mcs_touchkey_power_off(void *mcs_data)
++{
++	struct mcs_touchkey_data *data = mcs_data;
++
++	data->poweron(false);
++}
++
+ static int mcs_touchkey_probe(struct i2c_client *client,
+ 		const struct i2c_device_id *id)
+ {
+@@ -113,14 +120,11 @@ static int mcs_touchkey_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
+ 
+-	data = kzalloc(sizeof(struct mcs_touchkey_data) +
+-			sizeof(data->keycodes[0]) * (pdata->key_maxval + 1),
+-			GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!data || !input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	data->client = client;
+@@ -143,7 +147,7 @@ static int mcs_touchkey_probe(struct i2c_client *client,
+ 	if (fw_ver < 0) {
+ 		error = fw_ver;
+ 		dev_err(&client->dev, "i2c read error[%d]\n", error);
+-		goto err_free_mem;
++		return error;
+ 	}
+ 	dev_info(&client->dev, "Firmware version: %d\n", fw_ver);
+ 
+@@ -173,43 +177,32 @@ static int mcs_touchkey_probe(struct i2c_client *client,
+ 
+ 	if (pdata->poweron) {
+ 		data->poweron = pdata->poweron;
++		error = devm_add_action(&client->dev,
++					mcs_touchkey_power_off, data);
++		if (error) {
++			dev_err(&client->dev,
++				"Failed to register  action, %d\n", error);
++			return error;
++		}
+ 		data->poweron(true);
+ 	}
+ 
+-	error = request_threaded_irq(client->irq, NULL, mcs_touchkey_interrupt,
+-				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+-				     client->dev.driver->name, data);
++	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++				mcs_touchkey_interrupt,	IRQF_TRIGGER_FALLING |
++				IRQF_ONESHOT, client->dev.driver->name, data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+-		goto err_free_mem;
++		return error;
+ 	}
+ 
+ 	error = input_register_device(input_dev);
+-	if (error)
+-		goto err_free_irq;
++	if (error) {
++		dev_err(&client->dev, "Failed to register input device\n");
++		return error;
++	}
+ 
+ 	i2c_set_clientdata(client, data);
+ 	return 0;
+-
+-err_free_irq:
+-	free_irq(client->irq, data);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(data);
+-	return error;
+-}
+-
+-static int mcs_touchkey_remove(struct i2c_client *client)
+-{
+-	struct mcs_touchkey_data *data = i2c_get_clientdata(client);
+-
+-	free_irq(client->irq, data);
+-	if (data->poweron)
+-		data->poweron(false);
+-	input_unregister_device(data->input_dev);
+-	kfree(data);
+-
+-	return 0;
+ }
+ 
+ static void mcs_touchkey_shutdown(struct i2c_client *client)
+@@ -269,7 +262,6 @@ static struct i2c_driver mcs_touchkey_driver = {
+ 		.pm	= &mcs_touchkey_pm_ops,
+ 	},
+ 	.probe		= mcs_touchkey_probe,
+-	.remove		= mcs_touchkey_remove,
+ 	.shutdown       = mcs_touchkey_shutdown,
+ 	.id_table	= mcs_touchkey_id,
+ };
+-- 
+1.7.9.5
 
--- Sebastian
-
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJThzdEAAoJENju1/PIO/qaZXoQAJ9ifTNGksfdMZ7yWbgM9NKL
-6MUMajU8zESTicwRp2woT/cCfRuTUFtgdm+j4nc/yRAqikeUPMwBnOgY+IKOlb/W
-bxTdBwVeWm7OuM8jJvXwktj1Y/Mr3yo1Wr4/vHGZoK8P7EalB1m9GqAnx6fVhuMz
-iPS0dF1TvgDXa7xOQl/riFPB+bVd7v8hZhqNYjLHUvxgRf3yN2KADdohMRPyxHWl
-hZSc6Z/mnCXCk+7ompwpTzgk6IAe+Mxbmogp07AwnQbYiykZKD4sBkqt45Dih9P+
-zBGnO2iI0o986U0UC3aBlx2Vf9fi/yZO2ZK6nJS8xcz/YIagDcyjyRBAnLdrz50w
-nPEkw3WNyS+1NVXO3rUTveAZYGLUaGK1hYl9ZTrh+rsaw3Blc/YpD/Ik4Qhqy1tu
-0QUcKRSeXDnbdVqxGksG5PF6y7gSwq8Bp2+o06ICyClNax1OECQDpsZZa9U3M2AF
-X3TxtHgUlza12aOVn7G1maZY67fKHzZIlEcwTl7GDeAZWNr1zgac1MJI7VmXJ+tZ
-eShfiLG1M8kWnEdOM19XIQAq9A0EX7YmKjCEOMESx18+erQ9L9XprIUfIIrKIiIL
-dKGeIni9cllVOuEUFJP5+DwsAVbFdo1K/4cC8MckKj+1oKd3PW5XrMTOc5OYQdRX
-Dy4JB3wJ7GnBQqThOxXZ
-=Ib1e
------END PGP SIGNATURE-----
-
---sdtB3X0nJg68CQEu--

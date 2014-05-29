@@ -1,93 +1,187 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH 2/2] gpio: gpiolib: set gpiochip_remove retval to void
-Date: Sat, 31 May 2014 09:35:39 +0200
-Message-ID: <5389864B.4000107@metafoo.de>
-References: <20140530094025.3b78301e@canb.auug.org.au>
- <1401449454-30895-1-git-send-email-berthe.ab@gmail.com>
- <1401449454-30895-2-git-send-email-berthe.ab@gmail.com>
- <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com>
- <5388C0F1.90503@gmail.com> <5388CB1B.3090802@metafoo.de>
- <20140530232922.GD25854@kroah.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 1/3] IIO: Add iio magn_north ABI documentation
+Date: Thu, 29 May 2014 17:46:47 +0100
+Message-ID: <53876477.7000503@kernel.org>
+References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com> <1401311175-12784-2-git-send-email-reyad.attiyat@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20140530232922.GD25854@kroah.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Greg KH <greg@kroah.com>
-Cc: Linux MIPS Mailing List <linux-mips@linux-mips.org>, David Daney <ddaney.cavm@gmail.com>, Linux-sh list <linux-sh@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, platform-driver-x86@vger.kernel.org, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, driverdevel <devel@driverdev.osuosl.org>, Alexandre Courbot <gnurou@gmail.com>, patches@opensource.wolfsonmicro.com, linux-samsungsoc@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, spear-devel@list.st.com, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, m@bues.ch, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1401311175-12784-2-git-send-email-reyad.attiyat@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Reyad Attiyat <reyad.attiyat@gmail.com>, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, jkosina@suse.cz
 List-Id: linux-input@vger.kernel.org
 
-On 05/31/2014 01:29 AM, Greg KH wrote:
-> On Fri, May 30, 2014 at 08:16:59PM +0200, Lars-Peter Clausen wrote:
->> On 05/30/2014 07:33 PM, David Daney wrote:
->>> On 05/30/2014 04:39 AM, Geert Uytterhoeven wrote:
->>>> On Fri, May 30, 2014 at 1:30 PM, abdoulaye berthe <berthe.ab@gmail.com>
->>>> wrote:
->>>>> --- a/drivers/gpio/gpiolib.c
->>>>> +++ b/drivers/gpio/gpiolib.c
->>>>> @@ -1263,10 +1263,9 @@ static void gpiochip_irqchip_remove(struct
->>>>> gpio_chip *gpiochip);
->>>>>    *
->>>>>    * A gpio_chip with any GPIOs still requested may not be removed.
->>>>>    */
->>>>> -int gpiochip_remove(struct gpio_chip *chip)
->>>>> +void gpiochip_remove(struct gpio_chip *chip)
->>>>>   {
->>>>>          unsigned long   flags;
->>>>> -       int             status = 0;
->>>>>          unsigned        id;
->>>>>
->>>>>          acpi_gpiochip_remove(chip);
->>>>> @@ -1278,24 +1277,15 @@ int gpiochip_remove(struct gpio_chip *chip)
->>>>>          of_gpiochip_remove(chip);
->>>>>
->>>>>          for (id = 0; id < chip->ngpio; id++) {
->>>>> -               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags)) {
->>>>> -                       status = -EBUSY;
->>>>> -                       break;
->>>>> -               }
->>>>> -       }
->>>>> -       if (status == 0) {
->>>>> -               for (id = 0; id < chip->ngpio; id++)
->>>>> -                       chip->desc[id].chip = NULL;
->>>>> -
->>>>> -               list_del(&chip->list);
->>>>> +               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags))
->>>>> +                       panic("gpio: removing gpiochip with gpios still
->>>>> requested\n");
->>>>
->>>> panic?
->>>
->>> NACK to the patch for this reason.  The strongest thing you should do here
->>> is WARN.
->>>
->>> That said, I am not sure why we need this whole patch set in the first place.
->>
->> Well, what currently happens when you remove a device that is a provider of
->> a gpio_chip which is still in use, is that the kernel crashes. Probably with
->> a rather cryptic error message. So this patch doesn't really change the
->> behavior, but makes it more explicit what is actually wrong. And even if you
->> replace the panic() by a WARN() it will again just crash slightly later.
->>
->> This is a design flaw in the GPIO subsystem that needs to be fixed.
+On 28/05/14 22:06, Reyad Attiyat wrote:
+> Update documentation for HID compass true/magnetic north sensor.
 >
-> Then fix the GPIO code properly, don't add a new panic() to the kernel.
+> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
+> ---
+>   Documentation/ABI/testing/sysfs-bus-iio | 76 +++++++++++++++++++++++++++++++++
+>   1 file changed, 76 insertions(+)
+>
+> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+> index 6e02c50..0341b2f 100644
+> --- a/Documentation/ABI/testing/sysfs-bus-iio
+> +++ b/Documentation/ABI/testing/sysfs-bus-iio
+> @@ -165,6 +165,10 @@ Description:
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_magn_x_raw
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_magn_y_raw
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_magn_z_raw
+Hmm. The question to my mind is whether people would expect a simple north to give
+them which direction north is?
+Also is it actually relevant whether they find north from a magnetometer or some other method?
+I wonder if we want to make these some sort of north referenced rotation?
+in_rot_from_true_north_raw
+in_rot_from_magnetic_north_raw
 
-Until somebody comes up with a patch that fixes this for good I think that 
-patch is still an improvement over the current situation. Rather than 
-keeping the kernel running in a inconsistent state, which might cause all 
-kinds of undefined behavior and which will lead to a crash eventually, we 
-might as well just crash the kernel at the cause of the inconsistent state. 
-This will make it obvious why it crashed (compared to a random stacktrace) 
-and will also prevent the kernel from running in a undefined state.
+Technically it is possible to get some direction information from some GPS receivers or to
+to maintain a knowledge of its location with good gyroscopes.
 
-- Lars
+Ultimately userspace doesn't care about it.  When we were using the axial magnetic functions we
+were measuring the field magnitude in that direction. As I understand it here it is just an angle?
+
+J
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_raw
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_true_raw
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_tilt_comp_raw
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_true_tilt_comp_raw
+>   KernelVersion:	2.6.35
+>   Contact:	linux-iio@vger.kernel.org
+>   Description:
+> @@ -249,6 +253,10 @@ What:		/sys/bus/iio/devices/iio:deviceX/in_magn_scale
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_magn_x_scale
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_magn_y_scale
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_magn_z_scale
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_scale
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_true_scale
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_tilt_comp_scale
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_magn_north_true_tilt_comp_scale
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_pressureY_scale
+>   What:		/sys/bus/iio/devices/iio:deviceX/in_pressure_scale
+>   KernelVersion:	2.6.35
+> @@ -436,6 +444,14 @@ What:		/sys/.../iio:deviceX/events/in_magn_y_thresh_rising_en
+>   What:		/sys/.../iio:deviceX/events/in_magn_y_thresh_falling_en
+>   What:		/sys/.../iio:deviceX/events/in_magn_z_thresh_rising_en
+>   What:		/sys/.../iio:deviceX/events/in_magn_z_thresh_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_thresh_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_thresh_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_thresh_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_thresh_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_tilt_comp_thresh_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_tilt_comp_thresh_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_thresh_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_thresh_falling_en
+>   What:		/sys/.../iio:deviceX/events/in_voltageY_supply_thresh_rising_en
+>   What:		/sys/.../iio:deviceX/events/in_voltageY_supply_thresh_falling_en
+>   What:		/sys/.../iio:deviceX/events/in_voltageY_thresh_rising_en
+> @@ -481,6 +497,14 @@ What:		/sys/.../iio:deviceX/events/in_magn_y_roc_rising_en
+>   What:		/sys/.../iio:deviceX/events/in_magn_y_roc_falling_en
+>   What:		/sys/.../iio:deviceX/events/in_magn_z_roc_rising_en
+>   What:		/sys/.../iio:deviceX/events/in_magn_z_roc_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_roc_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_roc_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_roc_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_roc_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_tilt_comp_roc_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_tilt_comp_roc_falling_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_roc_rising_en
+> +What:		/sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_roc_falling_en
+>   What:		/sys/.../iio:deviceX/events/in_voltageY_supply_roc_rising_en
+>   What:		/sys/.../iio:deviceX/events/in_voltageY_supply_roc_falling_en
+>   What:		/sys/.../iio:deviceX/events/in_voltageY_roc_rising_en
+> @@ -527,6 +551,14 @@ What:		/sys/.../events/in_magn_y_raw_thresh_rising_value
+>   What:		/sys/.../events/in_magn_y_raw_thresh_falling_value
+>   What:		/sys/.../events/in_magn_z_raw_thresh_rising_value
+>   What:		/sys/.../events/in_magn_z_raw_thresh_falling_value
+> +What:		/sys/.../events/in_magn_north_raw_thresh_rising_value
+> +What:		/sys/.../events/in_magn_north_raw_thresh_falling_value
+> +What:		/sys/.../events/in_magn_north_true_raw_thresh_rising_value
+> +What:		/sys/.../events/in_magn_north_true_raw_thresh_falling_value
+> +What:		/sys/.../events/in_magn_north_tilt_comp_raw_thresh_rising_value
+> +What:		/sys/.../events/in_magn_north_tilt_comp_raw_thresh_falling_value
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_raw_thresh_rising_value
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_raw_thresh_falling_value
+>   What:		/sys/.../events/in_voltageY_supply_raw_thresh_rising_value
+>   What:		/sys/.../events/in_voltageY_supply_raw_thresh_falling_value
+>   What:		/sys/.../events/in_voltageY_raw_thresh_rising_value
+> @@ -577,6 +609,18 @@ What:		/sys/.../events/in_magn_y_thresh_either_hysteresis
+>   What:		/sys/.../events/in_magn_z_thresh_rising_hysteresis
+>   What:		/sys/.../events/in_magn_z_thresh_falling_hysteresis
+>   What:		/sys/.../events/in_magn_z_thresh_either_hysteresis
+> +What:		/sys/.../events/in_magn_north_thresh_rising_hysteresis
+> +What:		/sys/.../events/in_magn_north_thresh_falling_hysteresis
+> +What:		/sys/.../events/in_magn_north_thresh_either_hysteresis
+> +What:		/sys/.../events/in_magn_north_true_thresh_rising_hysteresis
+> +What:		/sys/.../events/in_magn_north_true_thresh_falling_hysteresis
+> +What:		/sys/.../events/in_magn_north_true_thresh_either_hysteresis
+> +What:		/sys/.../events/in_magn_north_tilt_comp_thresh_rising_hysteresis
+> +What:		/sys/.../events/in_magn_north_tilt_comp_thresh_falling_hysteresis
+> +What:		/sys/.../events/in_magn_north_tilt_comp_thresh_either_hysteresis
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_thresh_rising_hysteresis
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_thresh_falling_hysteresis
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_thresh_either_hysteresis
+>   What:		/sys/.../events/in_voltageY_thresh_rising_hysteresis
+>   What:		/sys/.../events/in_voltageY_thresh_falling_hysteresis
+>   What:		/sys/.../events/in_voltageY_thresh_either_hysteresis
+> @@ -624,6 +668,14 @@ What:		/sys/.../events/in_magn_y_raw_roc_rising_value
+>   What:		/sys/.../events/in_magn_y_raw_roc_falling_value
+>   What:		/sys/.../events/in_magn_z_raw_roc_rising_value
+>   What:		/sys/.../events/in_magn_z_raw_roc_falling_value
+> +What:		/sys/.../events/in_magn_north_raw_roc_rising_value
+> +What:		/sys/.../events/in_magn_north_raw_roc_falling_value
+> +What:		/sys/.../events/in_magn_north_true_raw_roc_rising_value
+> +What:		/sys/.../events/in_magn_north_true_raw_roc_falling_value
+> +What:		/sys/.../events/in_magn_north_tilt_comp_raw_roc_rising_value
+> +What:		/sys/.../events/in_magn_north_tilt_comp_raw_roc_falling_value
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_raw_roc_rising_value
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_raw_roc_falling_value
+>   What:		/sys/.../events/in_voltageY_supply_raw_roc_rising_value
+>   What:		/sys/.../events/in_voltageY_supply_raw_roc_falling_value
+>   What:		/sys/.../events/in_voltageY_raw_roc_rising_value
+> @@ -679,6 +731,22 @@ What:		/sys/.../events/in_magn_z_thresh_rising_period
+>   What:		/sys/.../events/in_magn_z_thresh_falling_period
+>   What:		/sys/.../events/in_magn_z_roc_rising_period
+>   What:		/sys/.../events/in_magn_z_roc_falling_period
+> +What:		/sys/.../events/in_magn_north_thresh_rising_period
+> +What:		/sys/.../events/in_magn_north_thresh_falling_period
+> +What:		/sys/.../events/in_magn_north_roc_rising_period
+> +What:		/sys/.../events/in_magn_north_roc_falling_period
+> +What:		/sys/.../events/in_magn_north_true_thresh_rising_period
+> +What:		/sys/.../events/in_magn_north_true_thresh_falling_period
+> +What:		/sys/.../events/in_magn_north_true_roc_rising_period
+> +What:		/sys/.../events/in_magn_north_true_roc_falling_period
+> +What:		/sys/.../events/in_magn_north_tilt_comp_thresh_rising_period
+> +What:		/sys/.../events/in_magn_north_tilt_comp_thresh_falling_period
+> +What:		/sys/.../events/in_magn_north_tilt_comp_roc_rising_period
+> +What:		/sys/.../events/in_magn_north_tilt_comp_roc_falling_period
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_thresh_rising_period
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_thresh_falling_period
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_roc_rising_period
+> +What:		/sys/.../events/in_magn_north_true_tilt_comp_roc_falling_period
+>   What:		/sys/.../events/in_voltageY_supply_thresh_rising_period
+>   What:		/sys/.../events/in_voltageY_supply_thresh_falling_period
+>   What:		/sys/.../events/in_voltageY_supply_roc_rising_period
+> @@ -776,6 +844,10 @@ What:		/sys/.../iio:deviceX/scan_elements/in_anglvel_z_en
+>   What:		/sys/.../iio:deviceX/scan_elements/in_magn_x_en
+>   What:		/sys/.../iio:deviceX/scan_elements/in_magn_y_en
+>   What:		/sys/.../iio:deviceX/scan_elements/in_magn_z_en
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_en
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_true_en
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_tilt_comp_en
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_true_tilt_comp_en
+>   What:		/sys/.../iio:deviceX/scan_elements/in_timestamp_en
+>   What:		/sys/.../iio:deviceX/scan_elements/in_voltageY_supply_en
+>   What:		/sys/.../iio:deviceX/scan_elements/in_voltageY_en
+> @@ -840,6 +912,10 @@ What:		/sys/.../iio:deviceX/scan_elements/in_anglvel_z_index
+>   What:		/sys/.../iio:deviceX/scan_elements/in_magn_x_index
+>   What:		/sys/.../iio:deviceX/scan_elements/in_magn_y_index
+>   What:		/sys/.../iio:deviceX/scan_elements/in_magn_z_index
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_index
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_true_index
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_tilt_comp_index
+> +What:		/sys/.../iio:deviceX/scan_elements/in_magn_north_true_tilt_comp_index
+>   What:		/sys/.../iio:deviceX/scan_elements/in_incli_x_index
+>   What:		/sys/.../iio:deviceX/scan_elements/in_incli_y_index
+>   What:		/sys/.../iio:deviceX/scan_elements/in_timestamp_index
+>

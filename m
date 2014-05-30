@@ -1,41 +1,76 @@
-From: Filippo Sironi <filippo.sironi@gmail.com>
-Subject: writing a touchscreen device driver
-Date: Fri, 30 May 2014 18:54:21 +0200
-Message-ID: <BD5020A8-0B11-446A-B38A-C98EA21773D4@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.2\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:38473 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932531AbaE3Qy0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 May 2014 12:54:26 -0400
-Received: by mail-wi0-f182.google.com with SMTP id r20so1516099wiv.9
-        for <linux-input@vger.kernel.org>; Fri, 30 May 2014 09:54:25 -0700 (PDT)
-Received: from [192.168.0.2] ([95.237.112.39])
-        by mx.google.com with ESMTPSA id f6sm7352242wiy.19.2014.05.30.09.54.24
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Fri, 30 May 2014 09:54:24 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: David Daney <ddaney.cavm@gmail.com>
+Subject: Re: [PATCH 2/2] gpio: gpiolib: set gpiochip_remove retval to void
+Date: Fri, 30 May 2014 10:33:37 -0700
+Message-ID: <5388C0F1.90503@gmail.com>
+References: <20140530094025.3b78301e@canb.auug.org.au>        <1401449454-30895-1-git-send-email-berthe.ab@gmail.com>        <1401449454-30895-2-git-send-email-berthe.ab@gmail.com> <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: abdoulaye berthe <berthe.ab@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, m@bues.ch, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, patches@opensource.wolfsonmicro.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-samsungsoc@vger.kernel.org, spear-devel@list.st.com, platform-driver-x86@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi everyone,
+On 05/30/2014 04:39 AM, Geert Uytterhoeven wrote:
+> On Fri, May 30, 2014 at 1:30 PM, abdoulaye berthe <berthe.ab@gmail.com> wrote:
+>> --- a/drivers/gpio/gpiolib.c
+>> +++ b/drivers/gpio/gpiolib.c
+>> @@ -1263,10 +1263,9 @@ static void gpiochip_irqchip_remove(struct gpio_chip *gpiochip);
+>>    *
+>>    * A gpio_chip with any GPIOs still requested may not be removed.
+>>    */
+>> -int gpiochip_remove(struct gpio_chip *chip)
+>> +void gpiochip_remove(struct gpio_chip *chip)
+>>   {
+>>          unsigned long   flags;
+>> -       int             status = 0;
+>>          unsigned        id;
+>>
+>>          acpi_gpiochip_remove(chip);
+>> @@ -1278,24 +1277,15 @@ int gpiochip_remove(struct gpio_chip *chip)
+>>          of_gpiochip_remove(chip);
+>>
+>>          for (id = 0; id < chip->ngpio; id++) {
+>> -               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags)) {
+>> -                       status = -EBUSY;
+>> -                       break;
+>> -               }
+>> -       }
+>> -       if (status == 0) {
+>> -               for (id = 0; id < chip->ngpio; id++)
+>> -                       chip->desc[id].chip = NULL;
+>> -
+>> -               list_del(&chip->list);
+>> +               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags))
+>> +                       panic("gpio: removing gpiochip with gpios still requested\n");
+>
+> panic?
 
-I'm writing a touchscreen device driver for the PIXCIR Tango C series (http://www.pixcir.com.cn/english/products.asp?Action=Detail&ID=95) for Linux 4 Tegra 3.1.10 (I'm using a Tegra 2 series platform).
+NACK to the patch for this reason.  The strongest thing you should do 
+here is WARN.
 
-I went through the documentation and I came up with the code you can find in this gist: https://gist.github.com/filipposironi/d9ab11e232d8cae9b8f4 .
-To test the touchscreen I'm using a set of X11/Qt applications and a X11/Qt/QtWebKit browser. The touchscreen works fine with Qt controls (e.g., buttons and text areas); unfortunately, the same doesn't happen with HTML controls inside the Qt/QtWebKit browser, they struggle to get the focus (sometimes they do and sometimes they don't). Everything else (scrolling with one finger, pinch and zoom, etc. works great).
+That said, I am not sure why we need this whole patch set in the first 
+place.
 
-I initially thought the problem was inside QtWebKit; however, an eGalax touchscreen working with the device driver implemented inside drivers/hid/hid-multitouch.c behaves like a charm even with the Qt/QtWebKit browser.
-The evtest (http://cgit.freedesktop.org/evtest/) output I get from the two touchscreens is definitely the same.
+David Daney
 
-I'm wondering if there is something fundamentally wrong with my device driver (https://gist.github.com/filipposironi/d9ab11e232d8cae9b8f4) that I'm not seeing.
 
-Thanks,
-Filippo
 
-PS: I'm using Xorg 1.14.1 and evdev 2.7.3 with mtdev 1.1.3 support.
+>
+> Is this likely to happen?
+>
+> Gr{oetje,eeting}s,
+>
+>                          Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+>                                  -- Linus Torvalds
+>
+>
 

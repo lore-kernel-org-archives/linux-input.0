@@ -1,62 +1,96 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/2] gpio: gpiolib: set gpiochip_remove retval to void
-Date: Fri, 30 May 2014 13:39:15 +0200
-Message-ID: <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com>
-References: <20140530094025.3b78301e@canb.auug.org.au>
-	<1401449454-30895-1-git-send-email-berthe.ab@gmail.com>
-	<1401449454-30895-2-git-send-email-berthe.ab@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.15-rc7
+Date: Fri, 30 May 2014 08:44:01 -0700
+Message-ID: <20140530154401.GA23857@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <1401449454-30895-2-git-send-email-berthe.ab@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: abdoulaye berthe <berthe.ab@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, m@bues.ch, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, patches@opensource.wolfsonmicro.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-samsungsoc@vger.kernel.org, spear-devel@list.st.com, platform-driver-x86@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>driverdevel <deve>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:53112 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752136AbaE3PoG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 May 2014 11:44:06 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, May 30, 2014 at 1:30 PM, abdoulaye berthe <berthe.ab@gmail.com> wrote:
-> --- a/drivers/gpio/gpiolib.c
-> +++ b/drivers/gpio/gpiolib.c
-> @@ -1263,10 +1263,9 @@ static void gpiochip_irqchip_remove(struct gpio_chip *gpiochip);
->   *
->   * A gpio_chip with any GPIOs still requested may not be removed.
->   */
-> -int gpiochip_remove(struct gpio_chip *chip)
-> +void gpiochip_remove(struct gpio_chip *chip)
->  {
->         unsigned long   flags;
-> -       int             status = 0;
->         unsigned        id;
->
->         acpi_gpiochip_remove(chip);
-> @@ -1278,24 +1277,15 @@ int gpiochip_remove(struct gpio_chip *chip)
->         of_gpiochip_remove(chip);
->
->         for (id = 0; id < chip->ngpio; id++) {
-> -               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags)) {
-> -                       status = -EBUSY;
-> -                       break;
-> -               }
-> -       }
-> -       if (status == 0) {
-> -               for (id = 0; id < chip->ngpio; id++)
-> -                       chip->desc[id].chip = NULL;
-> -
-> -               list_del(&chip->list);
-> +               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags))
-> +                       panic("gpio: removing gpiochip with gpios still requested\n");
 
-panic?
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Is this likely to happen?
+Hi Linus,
 
-Gr{oetje,eeting}s,
+Please pull from:
 
-                        Geert
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+to receive updates for the input subsystem. You will get a couple of
+driver/build fixups and also redone quirk for Synaptics touchpads on
+Lenovo boxes (now using PNP IDs instead of DMI data to limit number of
+quirks).
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Changelog:
+---------
+
+Arnd Bergmann (2):
+      Input: fix ps2/serio module dependency
+      Input: atmel-wm97xx - only build for AVR32
+
+Chao Xie (1):
+      Input: pxa27x-keypad - fix generating scancode
+
+Hans de Goede (4):
+      Input: synaptics - add min/max quirk for the ThinkPad W540
+      Input: synaptics - T540p - unify with other LEN0034 models
+      Input: synaptics - add a matches_pnp_id helper function
+      Input: synaptics - change min/max quirk table to pnp-id matching
+
+Liviu Dudau (1):
+      Input: ambakmi - request a shared interrupt for AMBA KMI devices
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/Kconfig         |   2 +-
+ drivers/input/keyboard/pxa27x_keypad.c |   7 +-
+ drivers/input/mouse/Kconfig            |   2 +-
+ drivers/input/mouse/synaptics.c        | 166 ++++++++++-------------------=
+----
+ drivers/input/serio/ambakmi.c          |   3 +-
+ drivers/input/touchscreen/Kconfig      |   2 +-
+ 6 files changed, 61 insertions(+), 121 deletions(-)
+
+--=20
+Dmitry
+
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTiKdBAAoJEH70+W8r6ZYqPEEP/3i1vPSjrSF1YmyxnSwJkvmg
+/A+mj5G3hNzBGIdkqkegBQFILQiwSGkxAg48yoiTYQCYc258nRp6v0PBJdnWq1Vx
+aa59+c07CV0wd9HRjapQ1HQ17+fC9lSi2apPV8NPZYnCVDdfa3o6iVIqV2AWnOld
+6EDxiVsuCa2Dfbg2KRsKclcQQA17C0lRRPq7c+ZrksXJ/Ir7iigkMkI9PttE85vi
+8eSjXhy2OrzhIr6vNEtflFiy5+SnD4cUrjpLFtTasXBxHlTlF8y4P80XgcNCYidC
+DtCKBo1mEXcfyPT7WBIHIpJDOcqmAyZItc2iRvvRolfvTVgeUB0VJ15QQEZWDT0/
+WaK1Wu5++TvngzpE3oCs4LSJNWFtgUlfbKhebqrgFpO3VIA0SNugWOXjIT/7G4sx
+k07y51UnXM/xkKlHOFu1UTdv4xDxMTC26ibIh+2uDUwM10XhVGysH7WIINitnlW4
+dIVEksvMcYy/LJDYA/MzYyz/FYiM4f6mEQpHLW+mTWNvWIjm41NHWsdFzmOH4ryJ
+L+LOFKN19mM2OWtkcKzBaLBrUEnjbJG2xeS7E7Se3zP/vSX5xR/KnY9oonUvEMvG
+5qg59j4dcshp90RGA4PCq10naLcy/D+DUL6uM0LA8GSM/A2lDam7ppuecaFMXmtP
+Xu9rVN6nS1v3CwksMnBK
+=2/5/
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--

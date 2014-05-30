@@ -1,68 +1,53 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH 2/2] gpio: gpiolib: set gpiochip_remove retval to void
-Date: Fri, 30 May 2014 20:16:59 +0200
-Message-ID: <5388CB1B.3090802@metafoo.de>
-References: <20140530094025.3b78301e@canb.auug.org.au>        <1401449454-30895-1-git-send-email-berthe.ab@gmail.com>        <1401449454-30895-2-git-send-email-berthe.ab@gmail.com> <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com> <5388C0F1.90503@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv4 0/4] tsc2005 DT binding
+Date: Fri, 30 May 2014 12:58:21 -0700
+Message-ID: <20140530195821.GA27692@core.coreip.homeip.net>
+References: <1400693774-21306-1-git-send-email-sre@kernel.org>
+ <20140529133356.GA4716@earth.universe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5388C0F1.90503@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Daney <ddaney.cavm@gmail.com>
-Cc: abdoulaye berthe <berthe.ab@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, m@bues.ch, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, patches@opensource.wolfsonmicro.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-samsungsoc@vger.kernel.org, spear-devel@list.st.com, platform-driver-x86@vg
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:51048 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752209AbaE3T60 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 May 2014 15:58:26 -0400
+Content-Disposition: inline
+In-Reply-To: <20140529133356.GA4716@earth.universe>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 05/30/2014 07:33 PM, David Daney wrote:
-> On 05/30/2014 04:39 AM, Geert Uytterhoeven wrote:
->> On Fri, May 30, 2014 at 1:30 PM, abdoulaye berthe <berthe.ab@gmail.com>
->> wrote:
->>> --- a/drivers/gpio/gpiolib.c
->>> +++ b/drivers/gpio/gpiolib.c
->>> @@ -1263,10 +1263,9 @@ static void gpiochip_irqchip_remove(struct
->>> gpio_chip *gpiochip);
->>>    *
->>>    * A gpio_chip with any GPIOs still requested may not be removed.
->>>    */
->>> -int gpiochip_remove(struct gpio_chip *chip)
->>> +void gpiochip_remove(struct gpio_chip *chip)
->>>   {
->>>          unsigned long   flags;
->>> -       int             status = 0;
->>>          unsigned        id;
->>>
->>>          acpi_gpiochip_remove(chip);
->>> @@ -1278,24 +1277,15 @@ int gpiochip_remove(struct gpio_chip *chip)
->>>          of_gpiochip_remove(chip);
->>>
->>>          for (id = 0; id < chip->ngpio; id++) {
->>> -               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags)) {
->>> -                       status = -EBUSY;
->>> -                       break;
->>> -               }
->>> -       }
->>> -       if (status == 0) {
->>> -               for (id = 0; id < chip->ngpio; id++)
->>> -                       chip->desc[id].chip = NULL;
->>> -
->>> -               list_del(&chip->list);
->>> +               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags))
->>> +                       panic("gpio: removing gpiochip with gpios still
->>> requested\n");
->>
->> panic?
->
-> NACK to the patch for this reason.  The strongest thing you should do here
-> is WARN.
->
-> That said, I am not sure why we need this whole patch set in the first place.
+On Thu, May 29, 2014 at 03:33:57PM +0200, Sebastian Reichel wrote:
+> On Wed, May 21, 2014 at 07:36:10PM +0200, Sebastian Reichel wrote:
+> > This adds device tree support for the tsc2005 touchscreen
+> > controller, which is currently only used by the Nokia N900
+> > board.
+> > 
+> > The patch does not update the reset pin handling for platform
+> > data based probe to avoid merge conflicts. The n900 platform
+> > code will be removed in the near future (3.17?) and the driver
+> > can be simplified once that has happened.
+> > 
+> > Changes since v3 [0]:
+> >  * Move common touchscreen DT handling code into its own file
+> >  * Add regulator support to tsc2005 driver
+> >  * Added N900 DTS patch for completeness. It should go via
+> >    Tony's Tree of course.
+> 
+> ping! It would be nice to have this in 3.16, since it makes
+> the N900 usable with the mainline kernel when booted in DT
+> mode. The DT bindings haven't changed for more than 3 weeks,
+> so we don't need to wait longer for feedback from the DT
+> maintainers AFAIK.
 
-Well, what currently happens when you remove a device that is a provider of 
-a gpio_chip which is still in use, is that the kernel crashes. Probably with 
-a rather cryptic error message. So this patch doesn't really change the 
-behavior, but makes it more explicit what is actually wrong. And even if you 
-replace the panic() by a WARN() it will again just crash slightly later.
+Sebastian,
 
-This is a design flaw in the GPIO subsystem that needs to be fixed.
+I applied the series, could you please take a peek at my 'next' branch
+to make sure I did not miss anything?
 
-- Lars
+Thanks.
+
+-- 
+Dmitry

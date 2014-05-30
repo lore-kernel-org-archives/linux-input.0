@@ -1,53 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv4 0/4] tsc2005 DT binding
-Date: Fri, 30 May 2014 12:58:21 -0700
-Message-ID: <20140530195821.GA27692@core.coreip.homeip.net>
-References: <1400693774-21306-1-git-send-email-sre@kernel.org>
- <20140529133356.GA4716@earth.universe>
+Subject: Re: [PATCH 1/1] Input: max8997_haptic - Check return value of
+ regulator_enable
+Date: Fri, 30 May 2014 13:05:26 -0700
+Message-ID: <20140530200526.GB27692@core.coreip.homeip.net>
+References: <1401446173-21981-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:51048 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752209AbaE3T60 (ORCPT
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:34415 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030261AbaE3UFa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 May 2014 15:58:26 -0400
+	Fri, 30 May 2014 16:05:30 -0400
+Received: by mail-pb0-f53.google.com with SMTP id md12so2058569pbc.26
+        for <linux-input@vger.kernel.org>; Fri, 30 May 2014 13:05:29 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20140529133356.GA4716@earth.universe>
+In-Reply-To: <1401446173-21981-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, Donggeun Kim <dg77.kim@samsung.com>
 
-On Thu, May 29, 2014 at 03:33:57PM +0200, Sebastian Reichel wrote:
-> On Wed, May 21, 2014 at 07:36:10PM +0200, Sebastian Reichel wrote:
-> > This adds device tree support for the tsc2005 touchscreen
-> > controller, which is currently only used by the Nokia N900
-> > board.
-> > 
-> > The patch does not update the reset pin handling for platform
-> > data based probe to avoid merge conflicts. The n900 platform
-> > code will be removed in the near future (3.17?) and the driver
-> > can be simplified once that has happened.
-> > 
-> > Changes since v3 [0]:
-> >  * Move common touchscreen DT handling code into its own file
-> >  * Add regulator support to tsc2005 driver
-> >  * Added N900 DTS patch for completeness. It should go via
-> >    Tony's Tree of course.
-> 
-> ping! It would be nice to have this in 3.16, since it makes
-> the N900 usable with the mainline kernel when booted in DT
-> mode. The DT bindings haven't changed for more than 3 weeks,
-> so we don't need to wait longer for feedback from the DT
-> maintainers AFAIK.
+Hi Sachin,
 
-Sebastian,
+On Fri, May 30, 2014 at 04:06:13PM +0530, Sachin Kamat wrote:
+> Fixes the following warning:
+> drivers/input/misc/max8997_haptic.c:185:19: warning: ignoring return =
+value of =E2=80=98regulator_enable=E2=80=99, declared with attribute wa=
+rn_unused_result [-Wunused-result]
+>=20
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Donggeun Kim <dg77.kim@samsung.com>
+> ---
+>  drivers/input/misc/max8997_haptic.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc=
+/max8997_haptic.c
+> index 1fea5484941f..4f4c34e135f5 100644
+> --- a/drivers/input/misc/max8997_haptic.c
+> +++ b/drivers/input/misc/max8997_haptic.c
+> @@ -182,7 +182,11 @@ static void max8997_haptic_enable(struct max8997=
+_haptic *chip)
+> =20
+>  	if (!chip->enabled) {
+>  		chip->enabled =3D true;
+> -		regulator_enable(chip->regulator);
+> +		error =3D regulator_enable(chip->regulator);
+> +		if (error) {
+> +			dev_err(chip->dev, "Failed to enable regulator");
+> +			goto out;
 
-I applied the series, could you please take a peek at my 'next' branch
-to make sure I did not miss anything?
+We should not be leaving with chip->enabled =3D=3D true in this case.
+
+> +		}
+>  		max8997_haptic_configure(chip);
+>  		if (chip->mode =3D=3D MAX8997_EXTERNAL_MODE)
+>  			pwm_enable(chip->pwm);
+
+What about checking this one as well?
 
 Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

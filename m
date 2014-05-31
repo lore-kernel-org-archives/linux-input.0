@@ -1,71 +1,108 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/3] IIO: Add iio_chan modifier for True/Magnetic North
- HID usages
-Date: Sat, 31 May 2014 11:14:33 +0100
-Message-ID: <5389AB89.9080305@kernel.org>
-References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com> <1401311175-12784-3-git-send-email-reyad.attiyat@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 2/2] gpio: gpiolib: set gpiochip_remove retval to void
+Date: Sat, 31 May 2014 15:19:14 +0300
+Message-ID: <20140531121914.GM15585@mwanda>
+References: <20140530094025.3b78301e@canb.auug.org.au>
+ <1401449454-30895-1-git-send-email-berthe.ab@gmail.com>
+ <1401449454-30895-2-git-send-email-berthe.ab@gmail.com>
+ <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com>
+ <5388C0F1.90503@gmail.com> <5388CB1B.3090802@metafoo.de>
+ <20140530232922.GD25854@kroah.com> <5389864B.4000107@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401311175-12784-3-git-send-email-reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <5389864B.4000107@metafoo.de>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Linux MIPS Mailing List <linux-mips@linux-mips.org>, David Daney <ddaney.cavm@gmail.com>, Linux-sh list <linux-sh@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, platform-driver-x86@vger.kernel.org, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, driverdevel <devel@driverdev.osuosl.org>, Alexandre Courbot <gnurou@gmail.com>, patches@opensource.wolfsonmicro.com, linux-samsungsoc@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, spear-devel@list.st.com, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, m@bues.ch, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, linux-kernel@vger.kernel.o
 List-Id: linux-input@vger.kernel.org
 
-On 28/05/14 22:06, Reyad Attiyat wrote:
-> Updated iio_chan_info_enum for compass north sensor usages,
-> including magnetic/true north and tilt compensation.
->
-> Signed-off-by: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->   drivers/iio/industrialio-core.c | 4 ++++
->   include/linux/iio/types.h       | 4 ++++
->   2 files changed, 8 insertions(+)
->
-> diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-> index ede16aec..41bd377 100644
-> --- a/drivers/iio/industrialio-core.c
-> +++ b/drivers/iio/industrialio-core.c
-> @@ -84,6 +84,10 @@ static const char * const iio_modifier_names[] = {
->   	[IIO_MOD_LIGHT_RED] = "red",
->   	[IIO_MOD_LIGHT_GREEN] = "green",
->   	[IIO_MOD_LIGHT_BLUE] = "blue",
-> +	[IIO_MOD_MAGN_NORTH] = "north",
-> +	[IIO_MOD_MAGN_NORTH_TRUE] = "north_true",
-> +	[IIO_MOD_MAGN_NORTH_TILT_COMP] = "north_tilt_comp",
-> +	[IIO_MOD_MAGN_NORTH_TRUE_TILT_COMP] = "north_true_tilt_comp",
->   };
-I think we need the naming to explicitly mention north_magnetic instead
-of just north.  Whilst it is obvious what north means when you have north
-true alongside it, it won't be so obvious if one just has the north attribute
-to see in a particular driver - if anything I'd have the true as the one
-that was simply called north (as it might not be coming from a magnetometer
-thought obviously that's the most common source)   I'd also rather the enum entries
-were
-IIO_MOD_NORTH_MAGN
-IIO_MOD_NORTH_TRUE
-IIO_MOD_NORTH_MAGN_TILT_COMP
-IIO_MOD_NORTH_TRUE_TILT_COMP
+On Sat, May 31, 2014 at 09:35:39AM +0200, Lars-Peter Clausen wrote:
+> On 05/31/2014 01:29 AM, Greg KH wrote:
+> >On Fri, May 30, 2014 at 08:16:59PM +0200, Lars-Peter Clausen wrote:
+> >>On 05/30/2014 07:33 PM, David Daney wrote:
+> >>>On 05/30/2014 04:39 AM, Geert Uytterhoeven wrote:
+> >>>>On Fri, May 30, 2014 at 1:30 PM, abdoulaye berthe <berthe.ab@gmail.com>
+> >>>>wrote:
+> >>>>>--- a/drivers/gpio/gpiolib.c
+> >>>>>+++ b/drivers/gpio/gpiolib.c
+> >>>>>@@ -1263,10 +1263,9 @@ static void gpiochip_irqchip_remove(struct
+> >>>>>gpio_chip *gpiochip);
+> >>>>>   *
+> >>>>>   * A gpio_chip with any GPIOs still requested may not be removed.
+> >>>>>   */
+> >>>>>-int gpiochip_remove(struct gpio_chip *chip)
+> >>>>>+void gpiochip_remove(struct gpio_chip *chip)
+> >>>>>  {
+> >>>>>         unsigned long   flags;
+> >>>>>-       int             status = 0;
+> >>>>>         unsigned        id;
+> >>>>>
+> >>>>>         acpi_gpiochip_remove(chip);
+> >>>>>@@ -1278,24 +1277,15 @@ int gpiochip_remove(struct gpio_chip *chip)
+> >>>>>         of_gpiochip_remove(chip);
+> >>>>>
+> >>>>>         for (id = 0; id < chip->ngpio; id++) {
+> >>>>>-               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags)) {
+> >>>>>-                       status = -EBUSY;
+> >>>>>-                       break;
+> >>>>>-               }
+> >>>>>-       }
+> >>>>>-       if (status == 0) {
+> >>>>>-               for (id = 0; id < chip->ngpio; id++)
+> >>>>>-                       chip->desc[id].chip = NULL;
+> >>>>>-
+> >>>>>-               list_del(&chip->list);
+> >>>>>+               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags))
+> >>>>>+                       panic("gpio: removing gpiochip with gpios still
+> >>>>>requested\n");
+> >>>>
+> >>>>panic?
+> >>>
+> >>>NACK to the patch for this reason.  The strongest thing you should do here
+> >>>is WARN.
+> >>>
+> >>>That said, I am not sure why we need this whole patch set in the first place.
+> >>
+> >>Well, what currently happens when you remove a device that is a provider of
+> >>a gpio_chip which is still in use, is that the kernel crashes. Probably with
+> >>a rather cryptic error message. So this patch doesn't really change the
+> >>behavior, but makes it more explicit what is actually wrong. And even if you
+> >>replace the panic() by a WARN() it will again just crash slightly later.
+> >>
+> >>This is a design flaw in the GPIO subsystem that needs to be fixed.
+> >
+> >Then fix the GPIO code properly, don't add a new panic() to the kernel.
+> 
+> Until somebody comes up with a patch that fixes this for good I
+> think that patch is still an improvement over the current situation.
+> Rather than keeping the kernel running in a inconsistent state,
+> which might cause all kinds of undefined behavior and which will
+> lead to a crash eventually, we might as well just crash the kernel
+> at the cause of the inconsistent state. This will make it obvious
+> why it crashed (compared to a random stacktrace) and will also
+> prevent the kernel from running in a undefined state.
+> 
 
-It is definitely feasible that they will not come from magnetometers -
-a differential bearing is common on GPS units.
+Really, adding a panic here is not ok.  With a WARN() then you have
+time to save the dmesg to a file.
 
->
->   /* relies on pairs of these shared then separate */
-> diff --git a/include/linux/iio/types.h b/include/linux/iio/types.h
-> index 084d882..f1e8be6 100644
-> --- a/include/linux/iio/types.h
-> +++ b/include/linux/iio/types.h
-> @@ -53,6 +53,10 @@ enum iio_modifier {
->   	IIO_MOD_LIGHT_RED,
->   	IIO_MOD_LIGHT_GREEN,
->   	IIO_MOD_LIGHT_BLUE,
-> +	IIO_MOD_MAGN_NORTH,
-> +	IIO_MOD_MAGN_NORTH_TRUE,
-> +	IIO_MOD_MAGN_NORTH_TILT_COMP,
-> +	IIO_MOD_MAGN_NORTH_TRUE_TILT_COMP
->   };
->
->   enum iio_event_type {
->
+This CC list is way too huge.  We're all wondering how often this stuff
+crashes anyway?  Have you tried to fix the bug instead of just calling
+panic()?  Is there a bugzilla entry or something?  Is there a thread on
+the list?
+
+Just add a WARN() and fix the bug then cleanup the error handling.
+
+regards,
+dan carpenter

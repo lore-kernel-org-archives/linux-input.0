@@ -1,84 +1,82 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/2] gpio: gpiolib: set gpiochip_remove retval to void
-Date: Fri, 30 May 2014 16:29:22 -0700
-Message-ID: <20140530232922.GD25854@kroah.com>
-References: <20140530094025.3b78301e@canb.auug.org.au>
- <1401449454-30895-1-git-send-email-berthe.ab@gmail.com>
- <1401449454-30895-2-git-send-email-berthe.ab@gmail.com>
- <CAMuHMdV6AtjD2aqO3buzj8Eo7A7xc_+ROYnxEi2sdjMaqFiAuA@mail.gmail.com>
- <5388C0F1.90503@gmail.com> <5388CB1B.3090802@metafoo.de>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: Re: [PATCH 1/1] Input: max8997_haptic - Check return value of regulator_enable
+Date: Sat, 31 May 2014 12:29:15 +0530
+Message-ID: <CAK9yfHzOYV=7sULeC0KzDTutPNbGvHtyqXrOmR2-FCX98c4FDg@mail.gmail.com>
+References: <1401446173-21981-1-git-send-email-sachin.kamat@linaro.org>
+	<20140530200526.GB27692@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <5388CB1B.3090802@metafoo.de>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Linux MIPS Mailing List <linux-mips@linux-mips.org>, David Daney <ddaney.cavm@gmail.com>, Linux-sh list <linux-sh@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, platform-driver-x86@vger.kernel.org, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, driverdevel <devel@driverdev.osuosl.org>, Alexandre Courbot <gnurou@gmail.com>, patches@opensource.wolfsonmicro.com, linux-samsungsoc@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, spear-devel@list.st.com, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, m@bues.ch, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-wireless <linux-wireless@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f169.google.com ([209.85.214.169]:41507 "EHLO
+	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751708AbaEaG7P convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 May 2014 02:59:15 -0400
+Received: by mail-ob0-f169.google.com with SMTP id vb8so2742675obc.28
+        for <linux-input@vger.kernel.org>; Fri, 30 May 2014 23:59:15 -0700 (PDT)
+In-Reply-To: <20140530200526.GB27692@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, May 30, 2014 at 08:16:59PM +0200, Lars-Peter Clausen wrote:
-> On 05/30/2014 07:33 PM, David Daney wrote:
-> >On 05/30/2014 04:39 AM, Geert Uytterhoeven wrote:
-> >>On Fri, May 30, 2014 at 1:30 PM, abdoulaye berthe <berthe.ab@gmail.com>
-> >>wrote:
-> >>>--- a/drivers/gpio/gpiolib.c
-> >>>+++ b/drivers/gpio/gpiolib.c
-> >>>@@ -1263,10 +1263,9 @@ static void gpiochip_irqchip_remove(struct
-> >>>gpio_chip *gpiochip);
-> >>>   *
-> >>>   * A gpio_chip with any GPIOs still requested may not be removed.
-> >>>   */
-> >>>-int gpiochip_remove(struct gpio_chip *chip)
-> >>>+void gpiochip_remove(struct gpio_chip *chip)
-> >>>  {
-> >>>         unsigned long   flags;
-> >>>-       int             status = 0;
-> >>>         unsigned        id;
-> >>>
-> >>>         acpi_gpiochip_remove(chip);
-> >>>@@ -1278,24 +1277,15 @@ int gpiochip_remove(struct gpio_chip *chip)
-> >>>         of_gpiochip_remove(chip);
-> >>>
-> >>>         for (id = 0; id < chip->ngpio; id++) {
-> >>>-               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags)) {
-> >>>-                       status = -EBUSY;
-> >>>-                       break;
-> >>>-               }
-> >>>-       }
-> >>>-       if (status == 0) {
-> >>>-               for (id = 0; id < chip->ngpio; id++)
-> >>>-                       chip->desc[id].chip = NULL;
-> >>>-
-> >>>-               list_del(&chip->list);
-> >>>+               if (test_bit(FLAG_REQUESTED, &chip->desc[id].flags))
-> >>>+                       panic("gpio: removing gpiochip with gpios still
-> >>>requested\n");
-> >>
-> >>panic?
-> >
-> >NACK to the patch for this reason.  The strongest thing you should do here
-> >is WARN.
-> >
-> >That said, I am not sure why we need this whole patch set in the first place.
-> 
-> Well, what currently happens when you remove a device that is a provider of
-> a gpio_chip which is still in use, is that the kernel crashes. Probably with
-> a rather cryptic error message. So this patch doesn't really change the
-> behavior, but makes it more explicit what is actually wrong. And even if you
-> replace the panic() by a WARN() it will again just crash slightly later.
-> 
-> This is a design flaw in the GPIO subsystem that needs to be fixed.
+- Donggeun (as his mail bounces)
 
-Then fix the GPIO code properly, don't add a new panic() to the kernel.
+ Hi Dmitry,
 
-greg k-h
+On 31 May 2014 01:35, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote=
+:
+> Hi Sachin,
+>
+> On Fri, May 30, 2014 at 04:06:13PM +0530, Sachin Kamat wrote:
+>> Fixes the following warning:
+>> drivers/input/misc/max8997_haptic.c:185:19: warning: ignoring return=
+ value of =E2=80=98regulator_enable=E2=80=99, declared with attribute w=
+arn_unused_result [-Wunused-result]
+>>
+>> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>> Cc: Donggeun Kim <dg77.kim@samsung.com>
+>> ---
+>>  drivers/input/misc/max8997_haptic.c |    6 +++++-
+>>  1 file changed, 5 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/mis=
+c/max8997_haptic.c
+>> index 1fea5484941f..4f4c34e135f5 100644
+>> --- a/drivers/input/misc/max8997_haptic.c
+>> +++ b/drivers/input/misc/max8997_haptic.c
+>> @@ -182,7 +182,11 @@ static void max8997_haptic_enable(struct max899=
+7_haptic *chip)
+>>
+>>       if (!chip->enabled) {
+>>               chip->enabled =3D true;
+>> -             regulator_enable(chip->regulator);
+>> +             error =3D regulator_enable(chip->regulator);
+>> +             if (error) {
+>> +                     dev_err(chip->dev, "Failed to enable regulator=
+");
+>> +                     goto out;
+>
+> We should not be leaving with chip->enabled =3D=3D true in this case.
+
+Right.
+
+>
+>> +             }
+>>               max8997_haptic_configure(chip);
+>>               if (chip->mode =3D=3D MAX8997_EXTERNAL_MODE)
+>>                       pwm_enable(chip->pwm);
+>
+> What about checking this one as well?
+
+OK.
+
+ ---
+With warm regards,
+Sachin
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

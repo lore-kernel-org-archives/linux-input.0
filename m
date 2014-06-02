@@ -1,33 +1,53 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: [PATCHv2 0/3] IIO: Add support for compass north usage attribute
-Date: Mon,  2 Jun 2014 18:14:47 -0500
-Message-ID: <1401750890-31854-1-git-send-email-reyad.attiyat@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:37022 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753049AbaFBXPF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jun 2014 19:15:05 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCHv2 2/3] IIO: Add iio_chan modifier for True/Magnetic North HID usages
+Date: Mon,  2 Jun 2014 18:14:49 -0500
+Message-ID: <1401750890-31854-3-git-send-email-reyad.attiyat@gmail.com>
+References: <1401750890-31854-1-git-send-email-reyad.attiyat@gmail.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1401750890-31854-1-git-send-email-reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Cc: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, jkosina@suse.cz
-Cc: Reyad Attiyat <reyad.attiyat@gmail.com>
 
-The following patches allow the hid-sensor-magn-3d driver to handle
-the north usage attribute. It allows the driver to dynamically
-create IIO channels depending on which HID reports are found.
+Updated iio modifier enum for compass north usages,
+including magnetic/true north with tilt compensation.
 
-Reyad Attiyat (3):
-  IIO: Documentation: Add north attribute to ABI docs
-  IIO: Add iio_chan modifier for True/Magnetic North HID usages
-  IIO: hid-sensor-magn-3d: Add in support for True/Magnetic North HID
-    usages
+Signed-off-by: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/iio/industrialio-core.c | 4 ++++
+ include/linux/iio/types.h       | 4 ++++
+ 2 files changed, 8 insertions(+)
 
- Documentation/ABI/testing/sysfs-bus-iio       |  76 ++++++++
- drivers/iio/industrialio-core.c               |   4 +
- drivers/iio/magnetometer/hid-sensor-magn-3d.c | 271 +++++++++++++++++---------
- include/linux/iio/types.h                     |   4 +
- 4 files changed, 261 insertions(+), 94 deletions(-)
-
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index ede16aec..2f523b5 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -84,6 +84,10 @@ static const char * const iio_modifier_names[] = {
+ 	[IIO_MOD_LIGHT_RED] = "red",
+ 	[IIO_MOD_LIGHT_GREEN] = "green",
+ 	[IIO_MOD_LIGHT_BLUE] = "blue",
++	[IIO_MOD_NORTH_MAGN] = "north_magnetic",
++	[IIO_MOD_NORTH_TRUE] = "north_true",
++	[IIO_MOD_NORTH_MAGN_TILT_COMP] = "north_magnetic_tilt_comp",
++	[IIO_MOD_NORTH_TRUE_TILT_COMP] = "north_true_tilt_comp",
+ };
+ 
+ /* relies on pairs of these shared then separate */
+diff --git a/include/linux/iio/types.h b/include/linux/iio/types.h
+index 084d882..5bf8847 100644
+--- a/include/linux/iio/types.h
++++ b/include/linux/iio/types.h
+@@ -53,6 +53,10 @@ enum iio_modifier {
+ 	IIO_MOD_LIGHT_RED,
+ 	IIO_MOD_LIGHT_GREEN,
+ 	IIO_MOD_LIGHT_BLUE,
++	IIO_MOD_NORTH_MAGN,
++	IIO_MOD_NORTH_TRUE,
++	IIO_MOD_NORTH_MAGN_TILT_COMP,
++	IIO_MOD_NORTH_TRUE_TILT_COMP
+ };
+ 
+ enum iio_event_type {
 -- 
 1.9.3
-

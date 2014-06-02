@@ -1,36 +1,33 @@
-From: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/3] IIO: Add iio_chan modifier for True/Magnetic North
- HID usages
-Date: Mon, 2 Jun 2014 14:54:40 -0500
-Message-ID: <CA+BWVUSHUT9r=RHX3ubn6Byq=cX4wkfHsoc4Kh1FFFuLvW6GSw@mail.gmail.com>
-References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com>
- <1401311175-12784-3-git-send-email-reyad.attiyat@gmail.com> <5389AB89.9080305@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5389AB89.9080305-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: [PATCHv2 0/3] IIO: Add support for compass north usage attribute
+Date: Mon,  2 Jun 2014 18:14:47 -0500
+Message-ID: <1401750890-31854-1-git-send-email-reyad.attiyat@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:37022 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753049AbaFBXPF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jun 2014 19:15:05 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, jic23@kernel.org, srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, jkosina@suse.cz
+Cc: Reyad Attiyat <reyad.attiyat@gmail.com>
 
-Hey Jonathan,
->
-> I think we need the naming to explicitly mention north_magnetic instead
-> of just north.  Whilst it is obvious what north means when you have north
-> true alongside it, it won't be so obvious if one just has the north
-> attribute
-> to see in a particular driver - if anything I'd have the true as the one
-> that was simply called north (as it might not be coming from a magnetometer
-> thought obviously that's the most common source)   I'd also rather the enum
-> entries
-> were
-> IIO_MOD_NORTH_MAGN
-> IIO_MOD_NORTH_TRUE
-> IIO_MOD_NORTH_MAGN_TILT_COMP
-> IIO_MOD_NORTH_TRUE_TILT_COMP
->
-> It is definitely feasible that they will not come from magnetometers -
-> a differential bearing is common on GPS units.
+The following patches allow the hid-sensor-magn-3d driver to handle
+the north usage attribute. It allows the driver to dynamically
+create IIO channels depending on which HID reports are found.
 
-Makes sense to me. I will update the patches with your suggestions. Thanks.
+Reyad Attiyat (3):
+  IIO: Documentation: Add north attribute to ABI docs
+  IIO: Add iio_chan modifier for True/Magnetic North HID usages
+  IIO: hid-sensor-magn-3d: Add in support for True/Magnetic North HID
+    usages
+
+ Documentation/ABI/testing/sysfs-bus-iio       |  76 ++++++++
+ drivers/iio/industrialio-core.c               |   4 +
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 271 +++++++++++++++++---------
+ include/linux/iio/types.h                     |   4 +
+ 4 files changed, 261 insertions(+), 94 deletions(-)
+
+-- 
+1.9.3
+

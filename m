@@ -1,72 +1,36 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCHv4 0/4] tsc2005 DT binding
-Date: Mon, 2 Jun 2014 18:59:50 +0200
-Message-ID: <20140602165950.GA28338@earth.universe>
-References: <1400693774-21306-1-git-send-email-sre@kernel.org>
- <20140529133356.GA4716@earth.universe>
- <20140530195821.GA27692@core.coreip.homeip.net>
+From: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/3] IIO: Add iio_chan modifier for True/Magnetic North
+ HID usages
+Date: Mon, 2 Jun 2014 14:54:40 -0500
+Message-ID: <CA+BWVUSHUT9r=RHX3ubn6Byq=cX4wkfHsoc4Kh1FFFuLvW6GSw@mail.gmail.com>
+References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com>
+ <1401311175-12784-3-git-send-email-reyad.attiyat@gmail.com> <5389AB89.9080305@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.19.201]:57534 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752278AbaFBQ74 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Jun 2014 12:59:56 -0400
-Content-Disposition: inline
-In-Reply-To: <20140530195821.GA27692@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5389AB89.9080305-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hey Jonathan,
+>
+> I think we need the naming to explicitly mention north_magnetic instead
+> of just north.  Whilst it is obvious what north means when you have north
+> true alongside it, it won't be so obvious if one just has the north
+> attribute
+> to see in a particular driver - if anything I'd have the true as the one
+> that was simply called north (as it might not be coming from a magnetometer
+> thought obviously that's the most common source)   I'd also rather the enum
+> entries
+> were
+> IIO_MOD_NORTH_MAGN
+> IIO_MOD_NORTH_TRUE
+> IIO_MOD_NORTH_MAGN_TILT_COMP
+> IIO_MOD_NORTH_TRUE_TILT_COMP
+>
+> It is definitely feasible that they will not come from magnetometers -
+> a differential bearing is common on GPS units.
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Dmitry,
-
-On Fri, May 30, 2014 at 12:58:21PM -0700, Dmitry Torokhov wrote:
-> On Thu, May 29, 2014 at 03:33:57PM +0200, Sebastian Reichel wrote:
-> > On Wed, May 21, 2014 at 07:36:10PM +0200, Sebastian Reichel wrote:
-> > ping! It would be nice to have this in 3.16, since it makes
-> > the N900 usable with the mainline kernel when booted in DT
-> > mode. The DT bindings haven't changed for more than 3 weeks,
-> > so we don't need to wait longer for feedback from the DT
-> > maintainers AFAIK.
->=20
-> I applied the series, could you please take a peek at my 'next' branch
-> to make sure I did not miss anything?
-
-Patches look ok, I also tested the branch on the phone and get
-events after running the selftest once (which resets the
-controller). Without running the selftest no events get reported.
-I will have a look at that in the next days.
-
--- Sebastian
-
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJTjK2GAAoJENju1/PIO/qao74QAKe+qHPl5CkgROrv/SQrnQq0
-XWGGsFaibeKr9cKKwa+zdhEn+eoGZqYI7bt5tfdHsjvlq60/+WwL84+KDuS3IQZF
-wETZHLbMgirGbjC1AKumopvzCGq8pG6S2dPeHU3NSyjpjY6lT3tV6wPhZWVlKaxm
-0BBLCnqXsq6WrO4H2rbgq1MxTL1tSHc6il4F5wniwP1+kAvgye58UIYHNL2D8geG
-x52uCcdEJ2gBRhCofRn43xDpy0p2auFKYtYkZSwA4k4uED14UwBK27ng0s1zMQ+t
-pxqa659x6t3byVuz+bu1NE/s7FJrltLMSR+noLqXivnHnmgybzbg9k4L0hRsAbH7
-OnjdjimUvN6EL5J/Xw/wA6pPBfK9HcwTjCrvz7LnxgmxuS7qcAiISfBGDdw9eKz0
-9Yep8gxwv8RTRNS0Dik7F9oUFjSS2hKDVOHRR6JIYgd4Rhdp3GH7cyG1f8d3EsUX
-WsGsHLxQz3+bJ4vmIJuXw10GPRwwd+qixXcFKkzOyNyqWh7m9vTATEyr1yT1ht10
-qpy7z6JRznK97ileXKuf5nltwMc6Qq4De0vv3NYCXsX/4dQvh3FMAWEQBIlxl152
-qVokixWYe7e0eZgqQeWvSzpPrZeB5XQ8FYl8CiUSDRGz710qn1dqA/6+B17Ug5gY
-Y7N541AoaLp91mpPk588
-=v0Ij
------END PGP SIGNATURE-----
-
---ibTvN161/egqYuK8--
+Makes sense to me. I will update the patches with your suggestions. Thanks.

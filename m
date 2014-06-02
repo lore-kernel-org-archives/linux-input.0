@@ -1,149 +1,228 @@
-From: Guido =?iso-8859-1?Q?Mart=EDnez?= <guido-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: Re: [RFC/PATCH 1/3] drivers: input: keyboard: adp5589: add DT support
-Date: Mon, 2 Jun 2014 12:36:45 -0300
-Message-ID: <20140602153645.GA26073@fox>
-References: <1399467644-27222-1-git-send-email-guido@vanguardiasur.com.ar>
- <1399467644-27222-2-git-send-email-guido@vanguardiasur.com.ar>
- <20140518204009.GB13276@core.coreip.homeip.net>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/3] IIO: Add iio magn_north ABI documentation
+Date: Mon, 02 Jun 2014 08:54:57 -0700
+Message-ID: <538C9E51.2000806@linux.intel.com>
+References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com> <1401311175-12784-2-git-send-email-reyad.attiyat@gmail.com> <53876477.7000503@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140518204009.GB13276-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel =?iso-8859-1?Q?Garc=EDa?= <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <53876477.7000503-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry, sorry for the terribly late reply.
-
-On Sun, May 18, 2014 at 01:40:09PM -0700, Dmitry Torokhov wrote:
-> Hi Guido,
->=20
-> On Wed, May 07, 2014 at 10:00:42AM -0300, Guido Mart=EDnez wrote:
-> > Add DT support for the Analog ADP5589 matrix keypad decoding functi=
-ons.
-> >=20
-> > Signed-off-by: Guido Mart=EDnez <guido-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-> > ---
-> >  drivers/input/keyboard/adp5589-keys.c | 207 ++++++++++++++++++++++=
-+++++++++++-
-> >  1 file changed, 206 insertions(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/=
-keyboard/adp5589-keys.c
-> > index 6329549..2b232c0 100644
-> > --- a/drivers/input/keyboard/adp5589-keys.c
-> > +++ b/drivers/input/keyboard/adp5589-keys.c
-> > @@ -18,7 +18,10 @@
-> >  #include <linux/i2c.h>
-> >  #include <linux/gpio.h>
-> >  #include <linux/slab.h>
-> > +#include <linux/of.h>
-> > +#include <linux/err.h>
-> > =20
-> > +#include <linux/input/matrix_keypad.h>
-> >  #include <linux/input/adp5589.h>
-> > =20
-> >  /* ADP5589/ADP5585 Common Registers */
-> > @@ -246,6 +249,14 @@ struct adp5589_kpad {
-> >  #endif
-> >  };
-> > =20
-> > +static struct of_device_id adp5589_of_match[] =3D {
-> > +	{
-> > +		.compatible =3D "adi,adp5589",
-> > +		.data =3D (void *)ADP5589
-> > +	},
-> > +	{ },
-> > +};
-> > +
-> >  /*
-> >   *  ADP5589 / ADP5585 derivative / variant handling
-> >   */
-> > @@ -858,6 +869,188 @@ static void adp5589_report_switch_state(struc=
-t adp5589_kpad *kpad)
-> >  	input_sync(kpad->input);
-> >  }
-> > =20
-> > +#ifdef CONFIG_OF
-> > +static int adp5589_key(int row, int col)
-> > +{
-> > +	return col + row * 11;
-> > +}
-> > +
-> > +static int adp5589_dt_read_keymap(struct device *dev,
-> > +				  struct adp5589_kpad_platform_data *pdata,
-> > +				  const struct device_node *node)
-> > +{
-> > +	int i;
-> > +	const u32 *dt_keymap;
-> > +	unsigned short *keymap;
-> > +	int keymap_len;
-> > +
-> > +	dt_keymap =3D of_get_property(node, "linux,keymap", &keymap_len);
-> > +	if (!dt_keymap) {
-> > +		dev_err(dev, "missing dt keymap\n");
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	if (keymap_len % sizeof(u32)) {
-> > +		dev_err(dev, "malformed keymap (len=3D%i)\n", keymap_len);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	keymap_len /=3D sizeof(u32);
-> > +
-> > +	keymap =3D devm_kzalloc(dev, ADP5589_KEYMAPSIZE * sizeof(u32),
-> > +			      GFP_KERNEL);
-> > +	if (!keymap)
-> > +		return -ENOMEM;
-> > +
-> > +	for (i =3D 0; i < keymap_len; i++) {
-> > +		u32 val;
-> > +		u16 key;
-> > +		u8 row, col;
-> > +
-> > +		val =3D be32_to_cpup(&dt_keymap[i]);
-> > +
-> > +		row =3D KEY_ROW(val);
-> > +		col =3D KEY_COL(val);
-> > +		key =3D KEY_VAL(val);
-> > +
-> > +		if (row > ADP5589_MAX_ROW_NUM) {
-> > +			dev_err(dev, "invalid row number (%i)\n", row);
-> > +			return -EINVAL;
-> > +		}
-> > +
-> > +		if (col > ADP5589_MAX_COL_NUM) {
-> > +			dev_err(dev, "invalid column number (%i)\n", col);
-> > +			return -EINVAL;
-> > +		}
-> > +
-> > +		pdata->keypad_en_mask |=3D ADP_ROW(row);
-> > +		pdata->keypad_en_mask |=3D ADP_COL(col);
-> > +
-> > +		keymap[adp5589_key(row, col)] =3D key;
-> > +	}
-> > +
-> > +	pdata->keymap =3D keymap;
-> > +	pdata->keymapsize =3D ADP5589_KEYMAPSIZE;
->=20
-> I was wondering if we could also move non-DT variant to matrix-keypad
-> infrastructure and use matrix_keypad_build_keymap and friends to hand=
-le
-> this uniformly.
-
-Seems like a good idea, I'll look into it.
-
-Thanks for reviewing this!
-
---=20
-Guido Mart=EDnez, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On 05/29/2014 09:46 AM, Jonathan Cameron wrote:
+> On 28/05/14 22:06, Reyad Attiyat wrote:
+>> Update documentation for HID compass true/magnetic north sensor.
+>>
+>> Signed-off-by: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> ---
+>>   Documentation/ABI/testing/sysfs-bus-iio | 76 
+>> +++++++++++++++++++++++++++++++++
+>>   1 file changed, 76 insertions(+)
+>>
+>> diff --git a/Documentation/ABI/testing/sysfs-bus-iio 
+>> b/Documentation/ABI/testing/sysfs-bus-iio
+>> index 6e02c50..0341b2f 100644
+>> --- a/Documentation/ABI/testing/sysfs-bus-iio
+>> +++ b/Documentation/ABI/testing/sysfs-bus-iio
+>> @@ -165,6 +165,10 @@ Description:
+>>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_x_raw
+>>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_y_raw
+>>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_z_raw
+> Hmm. The question to my mind is whether people would expect a simple 
+> north to give
+> them which direction north is?
+> Also is it actually relevant whether they find north from a 
+> magnetometer or some other method?
+> I wonder if we want to make these some sort of north referenced rotation?
+> in_rot_from_true_north_raw
+> in_rot_from_magnetic_north_raw
+>
+> Technically it is possible to get some direction information from some 
+> GPS receivers or to
+> to maintain a knowledge of its location with good gyroscopes.
+>
+> Ultimately userspace doesn't care about it.  When we were using the 
+> axial magnetic functions we
+> were measuring the field magnitude in that direction. As I understand 
+> it here it is just an angle?
+Yes, they are angles. Default units are degrees, which we should convert 
+to radians as a standard unit for IIO.
+Thanks,
+Srinivas
+>
+> J
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_raw
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_raw
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_tilt_comp_raw
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_tilt_comp_raw
+>>   KernelVersion:    2.6.35
+>>   Contact:    linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>   Description:
+>> @@ -249,6 +253,10 @@ What: 
+>> /sys/bus/iio/devices/iio:deviceX/in_magn_scale
+>>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_x_scale
+>>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_y_scale
+>>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_z_scale
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_scale
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_scale
+>> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_tilt_comp_scale
+>> +What: 
+>> /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_tilt_comp_scale
+>>   What: /sys/bus/iio/devices/iio:deviceX/in_pressureY_scale
+>>   What: /sys/bus/iio/devices/iio:deviceX/in_pressure_scale
+>>   KernelVersion:    2.6.35
+>> @@ -436,6 +444,14 @@ What: 
+>> /sys/.../iio:deviceX/events/in_magn_y_thresh_rising_en
+>>   What: /sys/.../iio:deviceX/events/in_magn_y_thresh_falling_en
+>>   What: /sys/.../iio:deviceX/events/in_magn_z_thresh_rising_en
+>>   What: /sys/.../iio:deviceX/events/in_magn_z_thresh_falling_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_thresh_rising_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_thresh_falling_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_true_thresh_rising_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_true_thresh_falling_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_thresh_rising_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_thresh_falling_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_thresh_rising_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_thresh_falling_en
+>>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_thresh_rising_en
+>>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_thresh_falling_en
+>>   What: /sys/.../iio:deviceX/events/in_voltageY_thresh_rising_en
+>> @@ -481,6 +497,14 @@ What: 
+>> /sys/.../iio:deviceX/events/in_magn_y_roc_rising_en
+>>   What: /sys/.../iio:deviceX/events/in_magn_y_roc_falling_en
+>>   What: /sys/.../iio:deviceX/events/in_magn_z_roc_rising_en
+>>   What: /sys/.../iio:deviceX/events/in_magn_z_roc_falling_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_roc_rising_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_roc_falling_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_true_roc_rising_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_true_roc_falling_en
+>> +What: /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_roc_rising_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_roc_falling_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_roc_rising_en
+>> +What: 
+>> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_roc_falling_en
+>>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_roc_rising_en
+>>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_roc_falling_en
+>>   What: /sys/.../iio:deviceX/events/in_voltageY_roc_rising_en
+>> @@ -527,6 +551,14 @@ What: 
+>> /sys/.../events/in_magn_y_raw_thresh_rising_value
+>>   What: /sys/.../events/in_magn_y_raw_thresh_falling_value
+>>   What:        /sys/.../events/in_magn_z_raw_thresh_rising_value
+>>   What: /sys/.../events/in_magn_z_raw_thresh_falling_value
+>> +What: /sys/.../events/in_magn_north_raw_thresh_rising_value
+>> +What: /sys/.../events/in_magn_north_raw_thresh_falling_value
+>> +What: /sys/.../events/in_magn_north_true_raw_thresh_rising_value
+>> +What: /sys/.../events/in_magn_north_true_raw_thresh_falling_value
+>> +What: /sys/.../events/in_magn_north_tilt_comp_raw_thresh_rising_value
+>> +What: /sys/.../events/in_magn_north_tilt_comp_raw_thresh_falling_value
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_raw_thresh_rising_value
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_raw_thresh_falling_value
+>>   What: /sys/.../events/in_voltageY_supply_raw_thresh_rising_value
+>>   What: /sys/.../events/in_voltageY_supply_raw_thresh_falling_value
+>>   What: /sys/.../events/in_voltageY_raw_thresh_rising_value
+>> @@ -577,6 +609,18 @@ What: 
+>> /sys/.../events/in_magn_y_thresh_either_hysteresis
+>>   What: /sys/.../events/in_magn_z_thresh_rising_hysteresis
+>>   What: /sys/.../events/in_magn_z_thresh_falling_hysteresis
+>>   What: /sys/.../events/in_magn_z_thresh_either_hysteresis
+>> +What: /sys/.../events/in_magn_north_thresh_rising_hysteresis
+>> +What: /sys/.../events/in_magn_north_thresh_falling_hysteresis
+>> +What: /sys/.../events/in_magn_north_thresh_either_hysteresis
+>> +What: /sys/.../events/in_magn_north_true_thresh_rising_hysteresis
+>> +What: /sys/.../events/in_magn_north_true_thresh_falling_hysteresis
+>> +What: /sys/.../events/in_magn_north_true_thresh_either_hysteresis
+>> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_rising_hysteresis
+>> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_falling_hysteresis
+>> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_either_hysteresis
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_thresh_rising_hysteresis
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_thresh_falling_hysteresis
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_thresh_either_hysteresis
+>>   What: /sys/.../events/in_voltageY_thresh_rising_hysteresis
+>>   What: /sys/.../events/in_voltageY_thresh_falling_hysteresis
+>>   What: /sys/.../events/in_voltageY_thresh_either_hysteresis
+>> @@ -624,6 +668,14 @@ What: 
+>> /sys/.../events/in_magn_y_raw_roc_rising_value
+>>   What:        /sys/.../events/in_magn_y_raw_roc_falling_value
+>>   What:        /sys/.../events/in_magn_z_raw_roc_rising_value
+>>   What:        /sys/.../events/in_magn_z_raw_roc_falling_value
+>> +What:        /sys/.../events/in_magn_north_raw_roc_rising_value
+>> +What: /sys/.../events/in_magn_north_raw_roc_falling_value
+>> +What: /sys/.../events/in_magn_north_true_raw_roc_rising_value
+>> +What: /sys/.../events/in_magn_north_true_raw_roc_falling_value
+>> +What: /sys/.../events/in_magn_north_tilt_comp_raw_roc_rising_value
+>> +What: /sys/.../events/in_magn_north_tilt_comp_raw_roc_falling_value
+>> +What: /sys/.../events/in_magn_north_true_tilt_comp_raw_roc_rising_value
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_raw_roc_falling_value
+>>   What: /sys/.../events/in_voltageY_supply_raw_roc_rising_value
+>>   What: /sys/.../events/in_voltageY_supply_raw_roc_falling_value
+>>   What:        /sys/.../events/in_voltageY_raw_roc_rising_value
+>> @@ -679,6 +731,22 @@ What: 
+>> /sys/.../events/in_magn_z_thresh_rising_period
+>>   What:        /sys/.../events/in_magn_z_thresh_falling_period
+>>   What:        /sys/.../events/in_magn_z_roc_rising_period
+>>   What:        /sys/.../events/in_magn_z_roc_falling_period
+>> +What:        /sys/.../events/in_magn_north_thresh_rising_period
+>> +What: /sys/.../events/in_magn_north_thresh_falling_period
+>> +What:        /sys/.../events/in_magn_north_roc_rising_period
+>> +What:        /sys/.../events/in_magn_north_roc_falling_period
+>> +What: /sys/.../events/in_magn_north_true_thresh_rising_period
+>> +What: /sys/.../events/in_magn_north_true_thresh_falling_period
+>> +What: /sys/.../events/in_magn_north_true_roc_rising_period
+>> +What: /sys/.../events/in_magn_north_true_roc_falling_period
+>> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_rising_period
+>> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_falling_period
+>> +What: /sys/.../events/in_magn_north_tilt_comp_roc_rising_period
+>> +What: /sys/.../events/in_magn_north_tilt_comp_roc_falling_period
+>> +What: /sys/.../events/in_magn_north_true_tilt_comp_thresh_rising_period
+>> +What: 
+>> /sys/.../events/in_magn_north_true_tilt_comp_thresh_falling_period
+>> +What: /sys/.../events/in_magn_north_true_tilt_comp_roc_rising_period
+>> +What: /sys/.../events/in_magn_north_true_tilt_comp_roc_falling_period
+>>   What: /sys/.../events/in_voltageY_supply_thresh_rising_period
+>>   What: /sys/.../events/in_voltageY_supply_thresh_falling_period
+>>   What: /sys/.../events/in_voltageY_supply_roc_rising_period
+>> @@ -776,6 +844,10 @@ What: 
+>> /sys/.../iio:deviceX/scan_elements/in_anglvel_z_en
+>>   What:        /sys/.../iio:deviceX/scan_elements/in_magn_x_en
+>>   What:        /sys/.../iio:deviceX/scan_elements/in_magn_y_en
+>>   What:        /sys/.../iio:deviceX/scan_elements/in_magn_z_en
+>> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_en
+>> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_true_en
+>> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_tilt_comp_en
+>> +What: 
+>> /sys/.../iio:deviceX/scan_elements/in_magn_north_true_tilt_comp_en
+>>   What: /sys/.../iio:deviceX/scan_elements/in_timestamp_en
+>>   What: /sys/.../iio:deviceX/scan_elements/in_voltageY_supply_en
+>>   What:        /sys/.../iio:deviceX/scan_elements/in_voltageY_en
+>> @@ -840,6 +912,10 @@ What: 
+>> /sys/.../iio:deviceX/scan_elements/in_anglvel_z_index
+>>   What: /sys/.../iio:deviceX/scan_elements/in_magn_x_index
+>>   What: /sys/.../iio:deviceX/scan_elements/in_magn_y_index
+>>   What: /sys/.../iio:deviceX/scan_elements/in_magn_z_index
+>> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_index
+>> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_true_index
+>> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_tilt_comp_index
+>> +What: 
+>> /sys/.../iio:deviceX/scan_elements/in_magn_north_true_tilt_comp_index
+>>   What: /sys/.../iio:deviceX/scan_elements/in_incli_x_index
+>>   What: /sys/.../iio:deviceX/scan_elements/in_incli_y_index
+>>   What: /sys/.../iio:deviceX/scan_elements/in_timestamp_index
+>>
+>
+>

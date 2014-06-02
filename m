@@ -1,228 +1,72 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 1/3] IIO: Add iio magn_north ABI documentation
-Date: Mon, 02 Jun 2014 08:54:57 -0700
-Message-ID: <538C9E51.2000806@linux.intel.com>
-References: <1401311175-12784-1-git-send-email-reyad.attiyat@gmail.com> <1401311175-12784-2-git-send-email-reyad.attiyat@gmail.com> <53876477.7000503@kernel.org>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCHv4 0/4] tsc2005 DT binding
+Date: Mon, 2 Jun 2014 18:59:50 +0200
+Message-ID: <20140602165950.GA28338@earth.universe>
+References: <1400693774-21306-1-git-send-email-sre@kernel.org>
+ <20140529133356.GA4716@earth.universe>
+ <20140530195821.GA27692@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53876477.7000503-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.19.201]:57534 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752278AbaFBQ74 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Jun 2014 12:59:56 -0400
+Content-Disposition: inline
+In-Reply-To: <20140530195821.GA27692@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 05/29/2014 09:46 AM, Jonathan Cameron wrote:
-> On 28/05/14 22:06, Reyad Attiyat wrote:
->> Update documentation for HID compass true/magnetic north sensor.
->>
->> Signed-off-by: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->>   Documentation/ABI/testing/sysfs-bus-iio | 76 
->> +++++++++++++++++++++++++++++++++
->>   1 file changed, 76 insertions(+)
->>
->> diff --git a/Documentation/ABI/testing/sysfs-bus-iio 
->> b/Documentation/ABI/testing/sysfs-bus-iio
->> index 6e02c50..0341b2f 100644
->> --- a/Documentation/ABI/testing/sysfs-bus-iio
->> +++ b/Documentation/ABI/testing/sysfs-bus-iio
->> @@ -165,6 +165,10 @@ Description:
->>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_x_raw
->>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_y_raw
->>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_z_raw
-> Hmm. The question to my mind is whether people would expect a simple 
-> north to give
-> them which direction north is?
-> Also is it actually relevant whether they find north from a 
-> magnetometer or some other method?
-> I wonder if we want to make these some sort of north referenced rotation?
-> in_rot_from_true_north_raw
-> in_rot_from_magnetic_north_raw
->
-> Technically it is possible to get some direction information from some 
-> GPS receivers or to
-> to maintain a knowledge of its location with good gyroscopes.
->
-> Ultimately userspace doesn't care about it.  When we were using the 
-> axial magnetic functions we
-> were measuring the field magnitude in that direction. As I understand 
-> it here it is just an angle?
-Yes, they are angles. Default units are degrees, which we should convert 
-to radians as a standard unit for IIO.
-Thanks,
-Srinivas
->
-> J
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_raw
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_raw
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_tilt_comp_raw
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_tilt_comp_raw
->>   KernelVersion:    2.6.35
->>   Contact:    linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->>   Description:
->> @@ -249,6 +253,10 @@ What: 
->> /sys/bus/iio/devices/iio:deviceX/in_magn_scale
->>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_x_scale
->>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_y_scale
->>   What:        /sys/bus/iio/devices/iio:deviceX/in_magn_z_scale
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_scale
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_scale
->> +What: /sys/bus/iio/devices/iio:deviceX/in_magn_north_tilt_comp_scale
->> +What: 
->> /sys/bus/iio/devices/iio:deviceX/in_magn_north_true_tilt_comp_scale
->>   What: /sys/bus/iio/devices/iio:deviceX/in_pressureY_scale
->>   What: /sys/bus/iio/devices/iio:deviceX/in_pressure_scale
->>   KernelVersion:    2.6.35
->> @@ -436,6 +444,14 @@ What: 
->> /sys/.../iio:deviceX/events/in_magn_y_thresh_rising_en
->>   What: /sys/.../iio:deviceX/events/in_magn_y_thresh_falling_en
->>   What: /sys/.../iio:deviceX/events/in_magn_z_thresh_rising_en
->>   What: /sys/.../iio:deviceX/events/in_magn_z_thresh_falling_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_thresh_rising_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_thresh_falling_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_true_thresh_rising_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_true_thresh_falling_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_thresh_rising_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_thresh_falling_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_thresh_rising_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_thresh_falling_en
->>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_thresh_rising_en
->>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_thresh_falling_en
->>   What: /sys/.../iio:deviceX/events/in_voltageY_thresh_rising_en
->> @@ -481,6 +497,14 @@ What: 
->> /sys/.../iio:deviceX/events/in_magn_y_roc_rising_en
->>   What: /sys/.../iio:deviceX/events/in_magn_y_roc_falling_en
->>   What: /sys/.../iio:deviceX/events/in_magn_z_roc_rising_en
->>   What: /sys/.../iio:deviceX/events/in_magn_z_roc_falling_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_roc_rising_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_roc_falling_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_true_roc_rising_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_true_roc_falling_en
->> +What: /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_roc_rising_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_tilt_comp_roc_falling_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_roc_rising_en
->> +What: 
->> /sys/.../iio:deviceX/events/in_magn_north_true_tilt_comp_roc_falling_en
->>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_roc_rising_en
->>   What: /sys/.../iio:deviceX/events/in_voltageY_supply_roc_falling_en
->>   What: /sys/.../iio:deviceX/events/in_voltageY_roc_rising_en
->> @@ -527,6 +551,14 @@ What: 
->> /sys/.../events/in_magn_y_raw_thresh_rising_value
->>   What: /sys/.../events/in_magn_y_raw_thresh_falling_value
->>   What:        /sys/.../events/in_magn_z_raw_thresh_rising_value
->>   What: /sys/.../events/in_magn_z_raw_thresh_falling_value
->> +What: /sys/.../events/in_magn_north_raw_thresh_rising_value
->> +What: /sys/.../events/in_magn_north_raw_thresh_falling_value
->> +What: /sys/.../events/in_magn_north_true_raw_thresh_rising_value
->> +What: /sys/.../events/in_magn_north_true_raw_thresh_falling_value
->> +What: /sys/.../events/in_magn_north_tilt_comp_raw_thresh_rising_value
->> +What: /sys/.../events/in_magn_north_tilt_comp_raw_thresh_falling_value
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_raw_thresh_rising_value
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_raw_thresh_falling_value
->>   What: /sys/.../events/in_voltageY_supply_raw_thresh_rising_value
->>   What: /sys/.../events/in_voltageY_supply_raw_thresh_falling_value
->>   What: /sys/.../events/in_voltageY_raw_thresh_rising_value
->> @@ -577,6 +609,18 @@ What: 
->> /sys/.../events/in_magn_y_thresh_either_hysteresis
->>   What: /sys/.../events/in_magn_z_thresh_rising_hysteresis
->>   What: /sys/.../events/in_magn_z_thresh_falling_hysteresis
->>   What: /sys/.../events/in_magn_z_thresh_either_hysteresis
->> +What: /sys/.../events/in_magn_north_thresh_rising_hysteresis
->> +What: /sys/.../events/in_magn_north_thresh_falling_hysteresis
->> +What: /sys/.../events/in_magn_north_thresh_either_hysteresis
->> +What: /sys/.../events/in_magn_north_true_thresh_rising_hysteresis
->> +What: /sys/.../events/in_magn_north_true_thresh_falling_hysteresis
->> +What: /sys/.../events/in_magn_north_true_thresh_either_hysteresis
->> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_rising_hysteresis
->> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_falling_hysteresis
->> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_either_hysteresis
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_thresh_rising_hysteresis
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_thresh_falling_hysteresis
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_thresh_either_hysteresis
->>   What: /sys/.../events/in_voltageY_thresh_rising_hysteresis
->>   What: /sys/.../events/in_voltageY_thresh_falling_hysteresis
->>   What: /sys/.../events/in_voltageY_thresh_either_hysteresis
->> @@ -624,6 +668,14 @@ What: 
->> /sys/.../events/in_magn_y_raw_roc_rising_value
->>   What:        /sys/.../events/in_magn_y_raw_roc_falling_value
->>   What:        /sys/.../events/in_magn_z_raw_roc_rising_value
->>   What:        /sys/.../events/in_magn_z_raw_roc_falling_value
->> +What:        /sys/.../events/in_magn_north_raw_roc_rising_value
->> +What: /sys/.../events/in_magn_north_raw_roc_falling_value
->> +What: /sys/.../events/in_magn_north_true_raw_roc_rising_value
->> +What: /sys/.../events/in_magn_north_true_raw_roc_falling_value
->> +What: /sys/.../events/in_magn_north_tilt_comp_raw_roc_rising_value
->> +What: /sys/.../events/in_magn_north_tilt_comp_raw_roc_falling_value
->> +What: /sys/.../events/in_magn_north_true_tilt_comp_raw_roc_rising_value
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_raw_roc_falling_value
->>   What: /sys/.../events/in_voltageY_supply_raw_roc_rising_value
->>   What: /sys/.../events/in_voltageY_supply_raw_roc_falling_value
->>   What:        /sys/.../events/in_voltageY_raw_roc_rising_value
->> @@ -679,6 +731,22 @@ What: 
->> /sys/.../events/in_magn_z_thresh_rising_period
->>   What:        /sys/.../events/in_magn_z_thresh_falling_period
->>   What:        /sys/.../events/in_magn_z_roc_rising_period
->>   What:        /sys/.../events/in_magn_z_roc_falling_period
->> +What:        /sys/.../events/in_magn_north_thresh_rising_period
->> +What: /sys/.../events/in_magn_north_thresh_falling_period
->> +What:        /sys/.../events/in_magn_north_roc_rising_period
->> +What:        /sys/.../events/in_magn_north_roc_falling_period
->> +What: /sys/.../events/in_magn_north_true_thresh_rising_period
->> +What: /sys/.../events/in_magn_north_true_thresh_falling_period
->> +What: /sys/.../events/in_magn_north_true_roc_rising_period
->> +What: /sys/.../events/in_magn_north_true_roc_falling_period
->> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_rising_period
->> +What: /sys/.../events/in_magn_north_tilt_comp_thresh_falling_period
->> +What: /sys/.../events/in_magn_north_tilt_comp_roc_rising_period
->> +What: /sys/.../events/in_magn_north_tilt_comp_roc_falling_period
->> +What: /sys/.../events/in_magn_north_true_tilt_comp_thresh_rising_period
->> +What: 
->> /sys/.../events/in_magn_north_true_tilt_comp_thresh_falling_period
->> +What: /sys/.../events/in_magn_north_true_tilt_comp_roc_rising_period
->> +What: /sys/.../events/in_magn_north_true_tilt_comp_roc_falling_period
->>   What: /sys/.../events/in_voltageY_supply_thresh_rising_period
->>   What: /sys/.../events/in_voltageY_supply_thresh_falling_period
->>   What: /sys/.../events/in_voltageY_supply_roc_rising_period
->> @@ -776,6 +844,10 @@ What: 
->> /sys/.../iio:deviceX/scan_elements/in_anglvel_z_en
->>   What:        /sys/.../iio:deviceX/scan_elements/in_magn_x_en
->>   What:        /sys/.../iio:deviceX/scan_elements/in_magn_y_en
->>   What:        /sys/.../iio:deviceX/scan_elements/in_magn_z_en
->> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_en
->> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_true_en
->> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_tilt_comp_en
->> +What: 
->> /sys/.../iio:deviceX/scan_elements/in_magn_north_true_tilt_comp_en
->>   What: /sys/.../iio:deviceX/scan_elements/in_timestamp_en
->>   What: /sys/.../iio:deviceX/scan_elements/in_voltageY_supply_en
->>   What:        /sys/.../iio:deviceX/scan_elements/in_voltageY_en
->> @@ -840,6 +912,10 @@ What: 
->> /sys/.../iio:deviceX/scan_elements/in_anglvel_z_index
->>   What: /sys/.../iio:deviceX/scan_elements/in_magn_x_index
->>   What: /sys/.../iio:deviceX/scan_elements/in_magn_y_index
->>   What: /sys/.../iio:deviceX/scan_elements/in_magn_z_index
->> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_index
->> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_true_index
->> +What: /sys/.../iio:deviceX/scan_elements/in_magn_north_tilt_comp_index
->> +What: 
->> /sys/.../iio:deviceX/scan_elements/in_magn_north_true_tilt_comp_index
->>   What: /sys/.../iio:deviceX/scan_elements/in_incli_x_index
->>   What: /sys/.../iio:deviceX/scan_elements/in_incli_y_index
->>   What: /sys/.../iio:deviceX/scan_elements/in_timestamp_index
->>
->
->
+
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Dmitry,
+
+On Fri, May 30, 2014 at 12:58:21PM -0700, Dmitry Torokhov wrote:
+> On Thu, May 29, 2014 at 03:33:57PM +0200, Sebastian Reichel wrote:
+> > On Wed, May 21, 2014 at 07:36:10PM +0200, Sebastian Reichel wrote:
+> > ping! It would be nice to have this in 3.16, since it makes
+> > the N900 usable with the mainline kernel when booted in DT
+> > mode. The DT bindings haven't changed for more than 3 weeks,
+> > so we don't need to wait longer for feedback from the DT
+> > maintainers AFAIK.
+>=20
+> I applied the series, could you please take a peek at my 'next' branch
+> to make sure I did not miss anything?
+
+Patches look ok, I also tested the branch on the phone and get
+events after running the selftest once (which resets the
+controller). Without running the selftest no events get reported.
+I will have a look at that in the next days.
+
+-- Sebastian
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJTjK2GAAoJENju1/PIO/qao74QAKe+qHPl5CkgROrv/SQrnQq0
+XWGGsFaibeKr9cKKwa+zdhEn+eoGZqYI7bt5tfdHsjvlq60/+WwL84+KDuS3IQZF
+wETZHLbMgirGbjC1AKumopvzCGq8pG6S2dPeHU3NSyjpjY6lT3tV6wPhZWVlKaxm
+0BBLCnqXsq6WrO4H2rbgq1MxTL1tSHc6il4F5wniwP1+kAvgye58UIYHNL2D8geG
+x52uCcdEJ2gBRhCofRn43xDpy0p2auFKYtYkZSwA4k4uED14UwBK27ng0s1zMQ+t
+pxqa659x6t3byVuz+bu1NE/s7FJrltLMSR+noLqXivnHnmgybzbg9k4L0hRsAbH7
+OnjdjimUvN6EL5J/Xw/wA6pPBfK9HcwTjCrvz7LnxgmxuS7qcAiISfBGDdw9eKz0
+9Yep8gxwv8RTRNS0Dik7F9oUFjSS2hKDVOHRR6JIYgd4Rhdp3GH7cyG1f8d3EsUX
+WsGsHLxQz3+bJ4vmIJuXw10GPRwwd+qixXcFKkzOyNyqWh7m9vTATEyr1yT1ht10
+qpy7z6JRznK97ileXKuf5nltwMc6Qq4De0vv3NYCXsX/4dQvh3FMAWEQBIlxl152
+qVokixWYe7e0eZgqQeWvSzpPrZeB5XQ8FYl8CiUSDRGz710qn1dqA/6+B17Ug5gY
+Y7N541AoaLp91mpPk588
+=v0Ij
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--

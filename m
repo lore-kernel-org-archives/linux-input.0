@@ -1,410 +1,85 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCHv2 3/3] IIO: hid-sensor-magn-3d: Add in support for True/Magnetic
- North HID usages
-Date: Tue, 03 Jun 2014 10:43:11 -0700
-Message-ID: <538E092F.9040004@linux.intel.com>
-References: <1401750890-31854-1-git-send-email-reyad.attiyat@gmail.com> <1401750890-31854-4-git-send-email-reyad.attiyat@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401750890-31854-4-git-send-email-reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input - synaptics: fix resolution for manually provided min/max
+Date: Tue,  3 Jun 2014 13:59:35 -0400
+Message-ID: <1401818375-7212-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
 List-Id: linux-input@vger.kernel.org
 
-On 06/02/2014 04:14 PM, Reyad Attiyat wrote:
-> Updated magn_3d_channel enum for all possible north channels
->
-> Added functions to setup iio_chan_spec array depending on which hid usage reports are found
->
-> Renamed magn_val to iio_val to differentiate the index being used
->
-> Updated magn_3d_state struct to hold pointer array (magn_val_addr[]) which points to iio_val[]
->
-> Updated magn_3d_parse_report to scan for all compass usages and create iio channels for each
->
-> Signed-off-by: Reyad Attiyat <reyad.attiyat-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->   drivers/iio/magnetometer/hid-sensor-magn-3d.c | 271 +++++++++++++++++---------
->   1 file changed, 177 insertions(+), 94 deletions(-)
->
-> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> index 6d162b7..32f4d90 100644
-> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-> @@ -34,63 +34,54 @@ enum magn_3d_channel {
->   	CHANNEL_SCAN_INDEX_X,
->   	CHANNEL_SCAN_INDEX_Y,
->   	CHANNEL_SCAN_INDEX_Z,
-> +	CHANNEL_SCAN_INDEX_NORTH_MAGN,
-> +	CHANNEL_SCAN_INDEX_NORTH_TRUE,
-> +	CHANNEL_SCAN_INDEX_NORTH_TILT_COMP,
-> +	CHANNEL_SCAN_INDEX_NORTH_TRUE_TILT_COMP,
->   	MAGN_3D_CHANNEL_MAX,
->   };
->
-> +#define IIO_CHANNEL_MAX MAGN_3D_CHANNEL_MAX
-> +
->   struct magn_3d_state {
->   	struct hid_sensor_hub_callbacks callbacks;
->   	struct hid_sensor_common common_attributes;
->   	struct hid_sensor_hub_attribute_info magn[MAGN_3D_CHANNEL_MAX];
-> -	u32 magn_val[MAGN_3D_CHANNEL_MAX];
-> -};
-> +	u32 *magn_val_addr[MAGN_3D_CHANNEL_MAX];
->
-> -static const u32 magn_3d_addresses[MAGN_3D_CHANNEL_MAX] = {
-> -	HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_X_AXIS,
-> -	HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Y_AXIS,
-> -	HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Z_AXIS
-> +	u32 iio_val[IIO_CHANNEL_MAX];
-> +	int num_iio_channels;
->   };
->
-> -/* Channel definitions */
-> -static const struct iio_chan_spec magn_3d_channels[] = {
-> -	{
-> -		.type = IIO_MAGN,
-> -		.modified = 1,
-> -		.channel2 = IIO_MOD_X,
-> -		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> -		BIT(IIO_CHAN_INFO_SCALE) |
-> -		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> -		BIT(IIO_CHAN_INFO_HYSTERESIS),
-> -		.scan_index = CHANNEL_SCAN_INDEX_X,
-> -	}, {
-> -		.type = IIO_MAGN,
-> -		.modified = 1,
-> -		.channel2 = IIO_MOD_Y,
-> -		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> -		BIT(IIO_CHAN_INFO_SCALE) |
-> -		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> -		BIT(IIO_CHAN_INFO_HYSTERESIS),
-> -		.scan_index = CHANNEL_SCAN_INDEX_Y,
-> -	}, {
-> -		.type = IIO_MAGN,
-> -		.modified = 1,
-> -		.channel2 = IIO_MOD_Z,
-> -		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> -		BIT(IIO_CHAN_INFO_SCALE) |
-> -		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> -		BIT(IIO_CHAN_INFO_HYSTERESIS),
-> -		.scan_index = CHANNEL_SCAN_INDEX_Z,
+commit 421e08c41fda fixed the reported min/max for the X and Y axis,
+but unfortunately, it broke the resolution of those same axis.
 
-May be we should have a field in const struct iio_chan_spec, so that we
-can dynamically enable disable channels. In this way we can statically 
-define channels, but can be enabled/disabled dynamically.
+On the t540p, the resolution is the same regarding X and Y. It is not
+a problem for xf86-input-synaptics because this driver is only interested
+in the ratio between X and Y.
+Unfortunately, xf86-input-cmt uses directly the resolution, and having a
+null resolution leads to some divide by 0 errors, which are translated by
+-infinity in the resulting coordinates.
 
+Reported-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+---
 
-> +/* Find index into magn_3d_state magn[] and magn_val_addr[] from HID Usage  */
-> +static int magn_3d_usage_id_to_chan_index(unsigned usage_id){
-> +	int offset = -1;
-> +
-> +	switch (usage_id) {
-> +	case HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_X_AXIS:
-> +		offset = CHANNEL_SCAN_INDEX_X;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Y_AXIS:
-> +		offset = CHANNEL_SCAN_INDEX_Y;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Z_AXIS:
-> +		offset = CHANNEL_SCAN_INDEX_Z;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH:
-> +		offset = CHANNEL_SCAN_INDEX_NORTH_TILT_COMP;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_COMP_TRUE_NORTH:
-> +		offset = CHANNEL_SCAN_INDEX_NORTH_TRUE_TILT_COMP;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_MAGN_NORTH:
-> +		offset = CHANNEL_SCAN_INDEX_NORTH_MAGN;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_TRUE_NORTH:
-> +		offset = CHANNEL_SCAN_INDEX_NORTH_TRUE;
-> +		break;
->   	}
-> -};
->
-> -/* Adjust channel real bits based on report descriptor */
-> -static void magn_3d_adjust_channel_bit_mask(struct iio_chan_spec *channels,
-> -						int channel, int size)
-> -{
-> -	channels[channel].scan_type.sign = 's';
-> -	/* Real storage bits will change based on the report desc. */
-> -	channels[channel].scan_type.realbits = size * 8;
-> -	/* Maximum size of a sample to capture is u32 */
-> -	channels[channel].scan_type.storagebits = sizeof(u32) * 8;
-> +	return offset;
->   }
->
->   /* Channel read_raw handler */
-> @@ -101,21 +92,31 @@ static int magn_3d_read_raw(struct iio_dev *indio_dev,
->   {
->   	struct magn_3d_state *magn_state = iio_priv(indio_dev);
->   	int report_id = -1;
-> -	u32 address;
-> +	unsigned usage_id;
-> +	int chan_index = -1;
->   	int ret;
->   	int ret_type;
->
-> +	dev_dbg(&indio_dev->dev, "magn_3d_read_raw\n");
-> +
->   	*val = 0;
->   	*val2 = 0;
->   	switch (mask) {
->   	case 0:
-> +		/* We store the HID usage ID of the iio channel
-> +		 * in its address field
-> +		 */
-> +		usage_id = chan->address;
-> +		chan_index = magn_3d_usage_id_to_chan_index(usage_id);
-> +		if(chan_index < 0)
-> +			return -EINVAL;
-> +
->   		report_id =
-> -			magn_state->magn[chan->scan_index].report_id;
-> -		address = magn_3d_addresses[chan->scan_index];
-> +			magn_state->magn[chan_index].report_id;
->   		if (report_id >= 0)
->   			*val = sensor_hub_input_attr_get_raw_value(
->   				magn_state->common_attributes.hsdev,
-> -				HID_USAGE_SENSOR_COMPASS_3D, address,
-> +				HID_USAGE_SENSOR_COMPASS_3D, usage_id,
->   				report_id);
->   		else {
->   			*val = 0;
-> @@ -202,12 +203,13 @@ static int magn_3d_proc_event(struct hid_sensor_hub_device *hsdev,
->   				magn_state->common_attributes.data_ready);
->   	if (magn_state->common_attributes.data_ready)
->   		hid_sensor_push_data(indio_dev,
-> -				magn_state->magn_val,
-> -				sizeof(magn_state->magn_val));
-> +				&(magn_state->iio_val),
-> +				sizeof(magn_state->iio_val));
->
->   	return 0;
->   }
->
-> +
->   /* Capture samples in local storage */
->   static int magn_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
->   				unsigned usage_id,
-> @@ -217,63 +219,143 @@ static int magn_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
->   	struct iio_dev *indio_dev = platform_get_drvdata(priv);
->   	struct magn_3d_state *magn_state = iio_priv(indio_dev);
->   	int offset;
-> +	u32 *magn_val;
->   	int ret = -EINVAL;
->
-> -	switch (usage_id) {
-> +	offset = magn_3d_usage_id_to_chan_index(usage_id);
-> +	if(offset < 0)
-> +		return ret;
-> +
-> +	magn_val = magn_state->magn_val_addr[offset];
-> +	if(!magn_val)
-> +		return ret;
-> +
-> +	*(magn_val) =  *(u32 *)raw_data;
-> +
-> +	return 0;
-> +}
-> +
-> +/* Setup the iio_chan_spec for HID Usage ID */
-> +static int magn_3d_setup_new_iio_chan(struct hid_sensor_hub_device *hsdev,
-> +				unsigned usage_id,
-> +				unsigned attr_usage_id,
-> +				struct iio_chan_spec *iio_chans,
-> +				struct magn_3d_state *st)
-> +{
-> +	int ret = -1;
-> +	int iio_index;
-> +	int magn_index;
-> +	struct iio_chan_spec *channel;
-> +
-> +	/* Setup magn_3d_state for new channel */
-> +	magn_index = magn_3d_usage_id_to_chan_index(attr_usage_id);
-> +	if(magn_index < 0 || magn_index >= MAGN_3D_CHANNEL_MAX){
-> +		return -1;
-> +	}
-> +
-> +	/* Check if usage attribute exists in the sensor hub device */
-> +	ret = sensor_hub_input_get_attribute_info(hsdev,
-> +		HID_INPUT_REPORT,
-> +		usage_id,
-> +		attr_usage_id,
-> +		&(st->magn[magn_index]));
-> +	if(ret != 0){
-> +		/* Usage not found. Nothing to setup.*/
-> +		return 0;
-> +	}
-> +
-> +	iio_index = st->num_iio_channels;
-> +	if(iio_index < 0 || iio_index >= IIO_CHANNEL_MAX){
-> +		return -2;
-> +	}
-> +
-> +	/* Check if this usage hasn't been setup */
-> +	if(st->magn_val_addr[magn_index] != NULL){
-> +		return -3;
-> +	}
-> +	st->magn_val_addr[magn_index] = &(st->iio_val[iio_index]);
-> +
-> +	/* Setup IIO Channel spec */
-> +	channel = &(iio_chans[iio_index]);
-> +
-> +	channel->type = IIO_MAGN;
-> +	channel->address = attr_usage_id;
-> +	channel->modified = 1;
-> +
-> +	switch (attr_usage_id){
-> +	case HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH:
-> +		channel->channel2 = IIO_MOD_NORTH_MAGN_TILT_COMP;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_COMP_TRUE_NORTH:
-> +		channel->channel2 = IIO_MOD_NORTH_TRUE_TILT_COMP;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_MAGN_NORTH:
-> +		channel->channel2 = IIO_MOD_NORTH_MAGN;
-> +		break;
-> +	case HID_USAGE_SENSOR_ORIENT_TRUE_NORTH:
-> +		channel->channel2 = IIO_MOD_NORTH_TRUE;
-> +		break;
->   	case HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_X_AXIS:
-> +		channel->channel2 = IIO_MOD_X;
-> +		break;
->   	case HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Y_AXIS:
-> +		channel->channel2 = IIO_MOD_Y;
-> +		break;
->   	case HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Z_AXIS:
-> -		offset = usage_id - HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_X_AXIS;
-> -		magn_state->magn_val[CHANNEL_SCAN_INDEX_X + offset] =
-> -						*(u32 *)raw_data;
-> -		ret = 0;
-> -	break;
-> -	default:
-> +		channel->channel2 = IIO_MOD_Z;
->   		break;
-> +	default:
-> +		return -4;
->   	}
->
-> +	channel->info_mask_shared_by_type =
-> +		BIT(IIO_CHAN_INFO_OFFSET) |
-> +		BIT(IIO_CHAN_INFO_SCALE) |
-> +		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +		BIT(IIO_CHAN_INFO_HYSTERESIS);
-> +
-> +	channel->scan_type.sign = 's';
-> +	/* Real storage bits will change based on the report desc. */
-> +	channel->scan_type.realbits = st->magn[magn_index].size * 8;
-> +	/* Maximum size of a sample to capture is u32 */
-> +	channel->scan_type.storagebits = sizeof(u32) * 8;
-> +
-> +	(st->num_iio_channels)++;
-> +	ret = 0;
-> +
->   	return ret;
->   }
->
-> -/* Parse report which is specific to an usage id*/
-> +/* Read the HID reports and setup IIO Channels */
->   static int magn_3d_parse_report(struct platform_device *pdev,
->   				struct hid_sensor_hub_device *hsdev,
-> -				struct iio_chan_spec *channels,
-> +				struct iio_chan_spec *iio_chans,
->   				unsigned usage_id,
->   				struct magn_3d_state *st)
->   {
-> -	int ret;
-> +	int ret = 0;
->   	int i;
->
-> -	for (i = 0; i <= CHANNEL_SCAN_INDEX_Z; ++i) {
-> -		ret = sensor_hub_input_get_attribute_info(hsdev,
-> -				HID_INPUT_REPORT,
-> -				usage_id,
-> -				HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_X_AXIS + i,
-> -				&st->magn[CHANNEL_SCAN_INDEX_X + i]);
-> -		if (ret < 0)
-> -			break;
-> -		magn_3d_adjust_channel_bit_mask(channels,
-> -				CHANNEL_SCAN_INDEX_X + i,
-> -				st->magn[CHANNEL_SCAN_INDEX_X + i].size);
-> -	}
-> -	dev_dbg(&pdev->dev, "magn_3d %x:%x, %x:%x, %x:%x\n",
-> -			st->magn[0].index,
-> -			st->magn[0].report_id,
-> -			st->magn[1].index, st->magn[1].report_id,
-> -			st->magn[2].index, st->magn[2].report_id);
-> -
-> -	/* Set Sensitivity field ids, when there is no individual modifier */
-> -	if (st->common_attributes.sensitivity.index < 0) {
-> -		sensor_hub_input_get_attribute_info(hsdev,
-> -			HID_FEATURE_REPORT, usage_id,
-> -			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS |
-> -			HID_USAGE_SENSOR_DATA_ORIENTATION,
-> -			&st->common_attributes.sensitivity);
-> -		dev_dbg(&pdev->dev, "Sensitivity index:report %d:%d\n",
-> -			st->common_attributes.sensitivity.index,
-> -			st->common_attributes.sensitivity.report_id);
-> -	}
-> +	dev_dbg(&pdev->dev, "magn_3d_parse_reports Usage ID: %x\n", usage_id);
-> +	for(i = HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_X_AXIS;
-> +	    i <= HID_USAGE_SENSOR_ORIENT_MAGN_FLUX_Z_AXIS && ret == 0;
-> +		i++)
-> +			ret = magn_3d_setup_new_iio_chan(hsdev,
-> +					usage_id,
-> +					i,
-> +					iio_chans,
-> +					st);
-> +
-> +	dev_dbg(&pdev->dev, "magn_3d_parse_reports Found %d\n magnetic axis. Returned: %d", st->num_iio_channels, ret);
-> +	for(i = HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH;
-> +	    i <= HID_USAGE_SENSOR_ORIENT_TRUE_NORTH && ret == 0;
-> +		i++)
-> +			ret = magn_3d_setup_new_iio_chan(hsdev,
-> +					usage_id,
-> +					i,
-> +					iio_chans,
-> +					st);
-> +	dev_dbg(&pdev->dev, "magn_3d_parse_reports Found %d\n magnetic channels. Returned: %d", st->num_iio_channels, ret);
->
-I think we need to present angle in radians. Are you basing change 
-present in linux-next? This will automatically do in this function.
+Hi Dmitry,
 
->   	return ret;
->   }
-> @@ -307,10 +389,11 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
->   		return ret;
->   	}
->
-> -	channels = kmemdup(magn_3d_channels, sizeof(magn_3d_channels),
-> -			   GFP_KERNEL);
-> +	channels = kcalloc(MAGN_3D_CHANNEL_MAX,
-> +			sizeof(struct iio_chan_spec),
-> +			GFP_KERNEL);
+in the original submission, the test for the quirk was at the end of the
+synaptics_resolution() function. However, there was a mixmatch with the config
+in this original submission and you had to change the patch slightly.
+Unfortunately, this change created this bug which was hard to notice, which is
+why it comes that late in the cycle (and also because we are trying to find out
+if xf86-input-cmt could replace xf86-input-synaptics).
 
-I don't see kfree. Try devm_kcalloc?
+Anyway, as mentioned in the commit message, this will not harm a big majority
+of users, because only those using ChromeOS will be impacted (not sure they
+have the Lenovo 40 series in their kernel either).
 
->   	if (!channels) {
-> -		dev_err(&pdev->dev, "failed to duplicate channels\n");
-> +		dev_err(&pdev->dev, "failed to allocate memory for iio channel\n");
->   		return -ENOMEM;
->   	}
->
-> @@ -322,7 +405,7 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
->   	}
->
->   	indio_dev->channels = channels;
-> -	indio_dev->num_channels = ARRAY_SIZE(magn_3d_channels);
-> +	indio_dev->num_channels = magn_state->num_iio_channels;
->   	indio_dev->dev.parent = &pdev->dev;
->   	indio_dev->info = &magn_3d_info;
->   	indio_dev->name = name;
->
-Thanks,
-Srinivas
+Again, it's your call to leave or not the stable@ tag, but given that all we
+put regarding those crappy devices are tagged as such, I put it there also.
+
+Cheers,
+Benjamin
+
+ drivers/input/mouse/synaptics.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index c5ec703..9cff1f8 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -347,15 +347,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 	unsigned char resp[3];
+ 	int i;
+ 
+-	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++)
+-		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
+-			priv->x_min = min_max_pnpid_table[i].x_min;
+-			priv->x_max = min_max_pnpid_table[i].x_max;
+-			priv->y_min = min_max_pnpid_table[i].y_min;
+-			priv->y_max = min_max_pnpid_table[i].y_max;
+-			return 0;
+-		}
+-
+ 	if (SYN_ID_MAJOR(priv->identity) < 4)
+ 		return 0;
+ 
+@@ -366,6 +357,15 @@ static int synaptics_resolution(struct psmouse *psmouse)
+ 		}
+ 	}
+ 
++	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++)
++		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
++			priv->x_min = min_max_pnpid_table[i].x_min;
++			priv->x_max = min_max_pnpid_table[i].x_max;
++			priv->y_min = min_max_pnpid_table[i].y_min;
++			priv->y_max = min_max_pnpid_table[i].y_max;
++			return 0;
++		}
++
+ 	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 5 &&
+ 	    SYN_CAP_MAX_DIMENSIONS(priv->ext_cap_0c)) {
+ 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MAX_COORDS, resp)) {
+-- 
+1.9.0

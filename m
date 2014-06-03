@@ -1,55 +1,37 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] elantech: Don't set bit 1 of reg_10 when the no_hw_res quirk is set
-Date: Tue,  3 Jun 2014 10:31:05 +0200
-Message-ID: <1401784265-18325-1-git-send-email-hdegoede@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: James Lademann <jwlademann@gmail.com>, Philipp Wolfer <ph.wolfer@gmail.com>, linux-input@vger.kernel.org, stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: input - Add two new usages for digitizer
+Date: Tue, 3 Jun 2014 13:32:12 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1406031332020.11302@pobox.suse.cz>
+References: <1401754792-5607-1-git-send-email-pingc@wacom.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:38699 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751189AbaFCLcO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Jun 2014 07:32:14 -0400
+In-Reply-To: <1401754792-5607-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-The touchpad on the GIGABYTE U2442 not only stops communicating when we try
-to set bit 3 (enable real hardware resolution) of reg_10, but on some BIOS
-versions also when we set bit 1 (enable two finger mode auto correct).
+On Mon, 2 Jun 2014, Ping Cheng wrote:
 
-I've asked the original reporter of:
-https://bugzilla.kernel.org/show_bug.cgi?id=61151
+> On Feb 17, 2014, two new usages are approved to HID usage Table 18 -
+> Digitizer Page:
+> 
+> 5A	Secondary Barrel Switch		MC	16.4
+> 5B	Transducer Serial Number	SV	16.3.1
+> 
+> This patch adds relevant definitions to hid/input. It also removes
+> outdated comments in hid.h.
+> 
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-To check that not setting bit 1 does not lead to any adverse effects on
-his model / BIOS revision, and it does not, so this commit fixes the touchpad
-not working on these versions by simply never setting bit 1 for laptop models
-with the no_hw_res quirk.
+Applied, thanks.
 
-Reported-and-tested-by: James Lademann <jwlademann@gmail.com>
-Tested-by: Philipp Wolfer <ph.wolfer@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/elantech.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index b96e978..4d79821 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -835,7 +835,7 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
- 		if (etd->set_hw_resolution)
- 			etd->reg_10 = 0x0b;
- 		else
--			etd->reg_10 = 0x03;
-+			etd->reg_10 = 0x01;
- 
- 		if (elantech_write_reg(psmouse, 0x10, etd->reg_10))
- 			rc = -1;
-@@ -1336,7 +1336,8 @@ static int elantech_reconnect(struct psmouse *psmouse)
- }
- 
- /*
-- * Some hw_version 3 models go into error state when we try to set bit 3 of r10
-+ * Some hw_version 3 models go into error state when we try to set
-+ * bit 3 and/or bit 1 of r10
-  */
- static const struct dmi_system_id no_hw_res_dmi_table[] = {
- #if defined(CONFIG_DMI) && defined(CONFIG_X86)
 -- 
-2.0.0
+Jiri Kosina
+SUSE Labs

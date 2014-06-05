@@ -1,56 +1,38 @@
-From: =?UTF-8?B?Qml0YWkgVGFtw6Fz?= <bitai.tamas@gmail.com>
-Subject: ThinkPad X300 touchpad
-Date: Thu, 5 Jun 2014 15:36:07 +0200
-Message-ID: <CAL6qf2s2H1a5eZF8D0Ww4t3EezMCZWdPh63tp7kaWZXzU0W-3Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Mathias Krause <minipli@googlemail.com>
+Subject: [PATCH] HID: usbhid: remove unneeded initialization of quirks_param[]
+Date: Thu,  5 Jun 2014 21:20:51 +0200
+Message-ID: <1401996051-7951-1-git-send-email-minipli@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f42.google.com ([74.125.82.42]:47515 "EHLO
-	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751118AbaFENgJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jun 2014 09:36:09 -0400
-Received: by mail-wg0-f42.google.com with SMTP id y10so1092110wgg.1
-        for <linux-input@vger.kernel.org>; Thu, 05 Jun 2014 06:36:07 -0700 (PDT)
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:59564 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751926AbaFETVB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Jun 2014 15:21:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Mathias Krause <minipli@googlemail.com>
 
-Dear kernel Developers,
+The quirks_param array is located in the BSS, no need to explicitly
+initialize it with NULL.
 
-I am trying to get working the touchpad of my ThinkPad X300. Googling
-for "thinkpad x300 touchpad alps" gives a number of results from
-forums.lenovo.com where people state it is an ALPS touchpad.
+Signed-off-by: Mathias Krause <minipli@googlemail.com>
+---
+ drivers/hid/usbhid/hid-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I use Arch Linux, kernel version 3.14.4-1, and it is recognized as
-PS/2 Generic Mouse.
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 7b88f4cb99..37d2a95c5a 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -58,7 +58,7 @@ module_param_named(ignoreled, ignoreled, uint, 0644);
+ MODULE_PARM_DESC(ignoreled, "Autosuspend with active leds");
+ 
+ /* Quirks specified at module load time */
+-static char *quirks_param[MAX_USBHID_BOOT_QUIRKS] = { [ 0 ... (MAX_USBHID_BOOT_QUIRKS - 1) ] = NULL };
++static char *quirks_param[MAX_USBHID_BOOT_QUIRKS];
+ module_param_array_named(quirks, quirks_param, charp, NULL, 0444);
+ MODULE_PARM_DESC(quirks, "Add/modify USB HID quirks by specifying "
+ 		" quirks=vendorID:productID:quirks"
+-- 
+1.7.10.4
 
-I have tried everything I found on forums with a reasonable research
-effort, without success.
-
-Interestingly, however, at some point (unfortunately, I don't remember
-which setup it was with, but I am pretty sure it was when I tried the
-patch available at https://github.com/he1per/psmouse-dkms-alpsv7) I
-managed to recognize the touchpad as PS/2 ALPS DualPoint Touchpad, or
-something similar (unfortunately I didn't take a note of it), then I
-changed things in my 50-synaptics.conf, rebooted, and the touchpad was
-detected as PS/2 Generic Mouse again! As far as I understand things,
-this shouldn't happen!
-
-I saw others reporting that the touchpad works for them under Linux --
-for example, here:
-
-https://github.com/tsgates/arch-wiki-markdown/blob/master/wiki/Lenovo_T=
-hinkpad_X300.md
-
-So, I guess there must be a solution, and I would be so happy if you
-guys could help me finding it.
-
-Thank you in advance,
-
-Tam=C3=A1s
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

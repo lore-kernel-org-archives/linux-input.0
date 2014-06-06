@@ -1,461 +1,284 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v2 5/14] input: cyapa: add read firmware image and raw data
- interfaces in debugfs system
-Date: Fri, 6 Jun 2014 07:28:52 +0000
-Message-ID: <77BC725C9062764F874D79F51E1F1A8F4406C8C3@S04-MBX01-01.s04.local>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH v2] leds: USB: Add support for MSI GT683R led panels
+Date: Fri, 6 Jun 2014 11:47:52 +0200
+Message-ID: <20140606094752.GB9307@localhost>
+References: <1402003746-6354-1-git-send-email-janne.kanniainen@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_000_77BC725C9062764F874D79F51E1F1A8F4406C8C3S04MBX0101s04lo_"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: zh-CN
+Content-Disposition: inline
+In-Reply-To: <1402003746-6354-1-git-send-email-janne.kanniainen@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>
-Cc: Benson Leung <bleung@google.com>, Lily Rui <lily@cypress.com>, Daniel Kurtz <djkurtz@google.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Janne Kanniainen <janne.kanniainen@gmail.com>
+Cc: cooloney@gmail.com, rpurdie@rpsys.net, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
---_000_77BC725C9062764F874D79F51E1F1A8F4406C8C3S04MBX0101s04lo_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+[ +CC: Jiri, linux-input, linux-usb (again) ]
 
-Add read_fw and raw_data debugfs interfaces for easier issues location
-and collection when report by user.
-TEST=3Dtest on Chomebooks.
+First of all, please reply to the original thread and make sure to not
+drop people or lists from CC.
 
-Signed-off-by: Du, Dudley <dudl@cypress.com>
----
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index 3b80de6..b5dc9f9 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -39,6 +39,9 @@
+On Fri, Jun 06, 2014 at 12:29:06AM +0300, Janne Kanniainen wrote:
+> This driver adds support for USB controlled led panels that exist in
+> MSI GT683R laptop.
 
- const char unique_str[] =3D "CYTRA";
+I had a change to look at bit closer at this today and it turns out this
+is a HID device and as such is already claimed by the HID driver.
 
-+/* global root node of the cyapa debugfs directory. */
-+static struct dentry *cyapa_debugfs_root;
-+
+There was a quirk added for this particular VID/PID by commit
+620ae90ed8ca ("HID: usbhid: quirk for MSI GX680R led panel") in order to
+avoid a 10s delay at boot due to missing report descriptors:
 
- void cyapa_enable_irq(struct cyapa *cyapa)
- {
-@@ -205,6 +208,9 @@ const struct cyapa_dev_ops cyapa_default_ops =3D {
-        NULL,
-        NULL,
+	https://bugzilla.redhat.com/show_bug.cgi?id=907221
+	http://www.spinics.net/lists/linux-usb/msg54756.html
 
-+       NULL,
-+       NULL,
-+
-        cyapa_default_irq_handler,
-        NULL,
-        NULL,
-@@ -554,6 +560,205 @@ done:
- }
+Since this is a HID device (and the control requests you're doing are
+Set_Report requests) you should probably implement this as a specific
+HID driver if there's no generic support you can use directly.
 
- /*
-+ **************************************************************
-+ * debugfs interface
-+ **************************************************************
-+*/
-+static int cyapa_debugfs_open(struct inode *inode, struct file *file)
-+{
-+       struct cyapa *cyapa =3D inode->i_private;
-+       int ret;
-+
-+       if (!cyapa)
-+               return -ENODEV;
-+
-+       ret =3D mutex_lock_interruptible(&cyapa->debugfs_mutex);
-+       if (ret)
-+               return ret;
-+
-+       if (!kobject_get(&cyapa->client->dev.kobj)) {
-+               ret =3D -ENODEV;
-+               goto out;
-+       }
-+
-+       file->private_data =3D cyapa;
-+
-+       if (cyapa->read_fw_image) {
-+               ret =3D 0;
-+               goto out;
-+       }
-+
-+       if (!cyapa_state_sync_enter(cyapa))
-+               return -EBUSY;
-+       /*
-+        * If firmware hasn't been read yet, read it all in one pass.
-+        * Subsequent opens will reuse the data in this same buffer.
-+        */
-+       if (cyapa->ops->cyapa_read_fw)
-+               ret =3D cyapa->ops->cyapa_read_fw(cyapa);
-+       else
-+               ret =3D -EPERM;
-+       cyapa_state_sync_exit(cyapa);
-+
-+       /* redetect trackpad device states. */
-+       cyapa_detect_async(cyapa, 0);
-+
-+out:
-+       mutex_unlock(&cyapa->debugfs_mutex);
-+       return ret;
-+}
-+
-+static int cyapa_debugfs_release(struct inode *inode, struct file *file)
-+{
-+       struct cyapa *cyapa =3D file->private_data;
-+       int ret;
-+
-+       if (!cyapa)
-+               return 0;
-+
-+       ret =3D mutex_lock_interruptible(&cyapa->debugfs_mutex);
-+       if (ret)
-+               return ret;
-+       file->private_data =3D NULL;
-+       kobject_put(&cyapa->client->dev.kobj);
-+       mutex_unlock(&cyapa->debugfs_mutex);
-+
-+       return 0;
-+}
-+
-+/* Return some bytes from the buffered firmware image, starting from *ppos=
- */
-+static ssize_t cyapa_debugfs_read_fw(struct file *file, char __user *buffe=
-r,
-+                                    size_t count, loff_t *ppos)
-+{
-+       struct cyapa *cyapa =3D file->private_data;
-+
-+       if (!cyapa->read_fw_image)
-+               return -EINVAL;
-+
-+       if (*ppos >=3D cyapa->read_fw_image_size)
-+               return 0;
-+
-+       if (count + *ppos > cyapa->read_fw_image_size)
-+               count =3D cyapa->read_fw_image_size - *ppos;
-+
-+       if (copy_to_user(buffer, &cyapa->read_fw_image[*ppos], count))
-+               return -EFAULT;
-+
-+       *ppos +=3D count;
-+       return count;
-+}
-+
-+static const struct file_operations cyapa_read_fw_fops =3D {
-+       .open =3D cyapa_debugfs_open,
-+       .release =3D cyapa_debugfs_release,
-+       .read =3D cyapa_debugfs_read_fw
-+};
-+
-+static int cyapa_debugfs_raw_data_open(struct inode *inode, struct file *f=
-ile)
-+{
-+       struct cyapa *cyapa =3D inode->i_private;
-+       int ret;
-+
-+       if (!cyapa)
-+               return -ENODEV;
-+
-+       ret =3D mutex_lock_interruptible(&cyapa->debugfs_mutex);
-+       if (ret)
-+               return ret;
-+
-+       if (!kobject_get(&cyapa->client->dev.kobj)) {
-+               ret =3D -ENODEV;
-+               goto out;
-+       }
-+
-+       file->private_data =3D cyapa;
-+
-+       if (!cyapa_state_sync_enter(cyapa)) {
-+               ret =3D -EBUSY;
-+               goto out;
-+       }
-+       if (cyapa->ops->cyapa_read_raw_data)
-+               ret =3D cyapa->ops->cyapa_read_raw_data(cyapa);
-+       else
-+               ret =3D -EPERM;
-+       cyapa_state_sync_exit(cyapa);
-+out:
-+       mutex_unlock(&cyapa->debugfs_mutex);
-+       return ret;
-+}
-+
-+static int cyapa_debugfs_raw_data_release(struct inode *inode,
-+                               struct file *file)
-+{
-+       struct cyapa *cyapa =3D file->private_data;
-+       int ret;
-+
-+       if (!cyapa)
-+               return 0;
-+
-+       ret =3D mutex_lock_interruptible(&cyapa->debugfs_mutex);
-+       if (ret)
-+               return ret;
-+       file->private_data =3D NULL;
-+       kobject_put(&cyapa->client->dev.kobj);
-+       mutex_unlock(&cyapa->debugfs_mutex);
-+
-+       return 0;
-+}
-+
-+/* Always return the sensors' latest raw data from trackpad device. */
-+static ssize_t cyapa_debugfs_read_raw_data(struct file *file,
-+                                    char __user *buffer,
-+                                    size_t count, loff_t *ppos)
-+{
-+       struct cyapa *cyapa =3D file->private_data;
-+
-+       if (!cyapa->tp_raw_data)
-+               return -EINVAL;
-+
-+       if (*ppos >=3D cyapa->tp_raw_data_size)
-+               return 0;
-+
-+       if (count + *ppos > cyapa->tp_raw_data_size)
-+               count =3D cyapa->tp_raw_data_size - *ppos;
-+
-+       if (copy_to_user(buffer, &cyapa->tp_raw_data[*ppos], count))
-+               return -EFAULT;
-+
-+       *ppos +=3D count;
-+       return count;
-+}
-+
-+static const struct file_operations cyapa_read_raw_data_fops =3D {
-+       .open =3D cyapa_debugfs_raw_data_open,
-+       .release =3D cyapa_debugfs_raw_data_release,
-+       .read =3D cyapa_debugfs_read_raw_data
-+};
-+
-+static int cyapa_debugfs_init(struct cyapa *cyapa)
-+{
-+       struct device *dev =3D &cyapa->client->dev;
-+
-+       if (!cyapa_debugfs_root)
-+               return -ENODEV;
-+
-+       cyapa->dentry_dev =3D debugfs_create_dir(kobject_name(&dev->kobj),
-+                                              cyapa_debugfs_root);
-+
-+       if (!cyapa->dentry_dev)
-+               return -ENODEV;
-+
-+       mutex_init(&cyapa->debugfs_mutex);
-+
-+       debugfs_create_file(CYAPA_DEBUGFS_READ_FW, S_IRUSR, cyapa->dentry_d=
-ev,
-+                           cyapa, &cyapa_read_fw_fops);
-+
-+       debugfs_create_file(CYAPA_DEBUGFS_RAW_DATA, S_IRUSR, cyapa->dentry_=
-dev,
-+                           cyapa, &cyapa_read_raw_data_fops);
-+       return 0;
-+}
-+
-+/*
-  * Sysfs Interface.
-  */
+I've added Jiri Kosina (and linux-input) who knows a lot more about the
+HID layer and how this is supposed to be implemented as CC.
 
-@@ -947,6 +1152,13 @@ static int cyapa_probe(struct i2c_client *client,
-        if (sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group))
-                dev_warn(dev, "error creating sysfs entries.\n");
+> Changes in v2:
+> 	- sorted headers to alphabetic order
+> 	- using devm_kzalloc
+> 	- using BIT(n)
+> 	- using usb_control_msg instead of usb_submit_urb
+> 	- removing unneeded code
 
-+       /* Create a global debugfs root for all cyapa devices */
-+       cyapa_debugfs_root =3D debugfs_create_dir("cyapa", NULL);
-+       if (cyapa_debugfs_root =3D=3D ERR_PTR(-ENODEV))
-+               cyapa_debugfs_root =3D NULL;
-+       if (cyapa_debugfs_init(cyapa))
-+               dev_warn(dev, "error creating debugfs entries.\n");
-+
- #ifdef CONFIG_PM_SLEEP
-        if (device_can_wakeup(dev) &&
-            sysfs_merge_group(&client->dev.kobj, &cyapa_power_wakeup_group)=
-)
-@@ -978,8 +1190,19 @@ static int cyapa_remove(struct i2c_client *client)
- #ifdef CONFIG_PM_RUNTIME
-        sysfs_unmerge_group(&client->dev.kobj, &cyapa_power_runtime_group);
- #endif
-+
-+       kfree(cyapa->read_fw_image);
-+       cyapa->read_fw_image =3D NULL;
-+       cyapa->read_fw_image_size =3D 0;
-+       kfree(cyapa->tp_raw_data);
-+       cyapa->tp_raw_data =3D NULL;
-+       cyapa->tp_raw_data_size =3D 0;
-        free_irq(cyapa->irq, cyapa);
+There are still some issues in the code below, but I'll only point out
+the more problematic ones for now.
 
-+       debugfs_remove_recursive(cyapa->dentry_dev);
-+       debugfs_remove_recursive(cyapa_debugfs_root);
-+       mutex_destroy(&cyapa->debugfs_mutex);
-+
-        input_unregister_device(cyapa->input);
-        if (cyapa->ops->cyapa_set_power_mode)
-                cyapa->ops->cyapa_set_power_mode(cyapa, PWR_MODE_OFF, 0);
-diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
-index 3e72fca..319f19d 100644
---- a/drivers/input/mouse/cyapa.h
-+++ b/drivers/input/mouse/cyapa.h
-@@ -173,6 +173,9 @@ struct cyapa_dev_ops {
-        ssize_t (*cyapa_calibrate_store)(struct device *,
-                        struct device_attribute *, const char *, size_t);
+> Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
+> ---
+>  drivers/leds/Kconfig       |   6 ++
+>  drivers/leds/Makefile      |   1 +
+>  drivers/leds/leds-gt683r.c | 158 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 165 insertions(+)
+>  create mode 100644 drivers/leds/leds-gt683r.c
+> 
+> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> index 6de9dfb..2cffa0c 100644
+> --- a/drivers/leds/Kconfig
+> +++ b/drivers/leds/Kconfig
+> @@ -487,6 +487,12 @@ config LEDS_BLINKM
+>  	  This option enables support for the BlinkM RGB LED connected
+>  	  through I2C. Say Y to enable support for the BlinkM LED.
+>  
+> +config LEDS_GT683R
+> +       tristate "LED support for the MSI GT683R"
+> +       depends on LEDS_CLASS && USB
+> +       help
+> +         This option enables support for the MSI GT683R LEDS
+> +
+>  comment "LED Triggers"
+>  source "drivers/leds/trigger/Kconfig"
+>  
+> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+> index 3cd76db..af5fb4e 100644
+> --- a/drivers/leds/Makefile
+> +++ b/drivers/leds/Makefile
+> @@ -54,6 +54,7 @@ obj-$(CONFIG_LEDS_ASIC3)		+= leds-asic3.o
+>  obj-$(CONFIG_LEDS_MAX8997)		+= leds-max8997.o
+>  obj-$(CONFIG_LEDS_LM355x)		+= leds-lm355x.o
+>  obj-$(CONFIG_LEDS_BLINKM)		+= leds-blinkm.o
+> +obj-$(CONFIG_LEDS_GT683R)		+= leds-gt683r.o
+>  
+>  # LED SPI Drivers
+>  obj-$(CONFIG_LEDS_DAC124S085)		+= leds-dac124s085.o
+> diff --git a/drivers/leds/leds-gt683r.c b/drivers/leds/leds-gt683r.c
+> new file mode 100644
+> index 0000000..5a204ea
+> --- /dev/null
+> +++ b/drivers/leds/leds-gt683r.c
+> @@ -0,0 +1,158 @@
+> +/*
+> + * MSI GT683R led driver
+> + *
+> + * Copyright (c) 2014 Janne Kanniainen <janne.kanniainen@gmail.com>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of
+> + * the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/leds.h>
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +#include <linux/usb.h>
+> +
+> +#define USB_DEVICE_ID_MSI_GT683R_LED_PANEL	0xff00
+> +#define USB_VENDOR_ID_MSI			0x1770
+> +
+> +#define GT683R_LED_BACK				BIT(0)
+> +#define GT683R_LED_SIDE				BIT(1)
+> +#define GT683R_LED_FRONT			BIT(2)
+> +#define GT683R_LED_ALL (GT683R_LED_BACK | GT683R_LED_SIDE | GT683R_LED_FRONT)
+> +
+> +#define GT683R_LED_OFF				0
+> +#define GT683R_LED_AUDIO			2
+> +#define GT683R_LED_BREATHING			3
+> +#define GT683R_LED_NORMAL			5
+> +
+> +struct gt683r_led {
+> +	struct usb_device *usb_dev;
+> +	struct usb_endpoint_descriptor *ep;
+> +	struct led_classdev led_dev;
+> +	struct mutex lock;
+> +	struct work_struct work;
+> +	enum led_brightness brightness;
+> +};
+> +
+> +static const struct usb_device_id gt683r_led_id[] = {
+> +	{ USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+> +	{ }
+> +};
+> +
+> +static const u64 gt683r_led_select_leds = 0x300201ULL;
+> +static const u64 gt683r_led_select_type = 0x100200201ULL;
 
-+       int (*cyapa_read_fw)(struct cyapa *);
-+       int (*cyapa_read_raw_data)(struct cyapa *);
-+
-        size_t (*cyapa_get_private_size)(void);
-        int (*cyapa_private_init)(struct cyapa *cyapa, void *private_mem);
+No, you'd still want to use byte arrays for this in order to handle
+endianess (if you are to keep these at all).
 
-@@ -244,6 +247,17 @@ struct cyapa {
-        bool irq_enabled;
-        bool prev_irq_enabled;
+For arrays you can use the ARRAY_SIZE() macro if that was the reason for
+this change. I should have mentioned that when I pointed out that you
+cannot use strlen().
 
-+       /* per-instance debugfs root */
-+       struct dentry *dentry_dev;
-+
-+       /* Buffer to store firmware read using debugfs */
-+       struct mutex debugfs_mutex;
-+       u8 *read_fw_image;
-+       size_t read_fw_image_size;
-+       /* Buffer to store sensors' raw data */
-+       u8 *tp_raw_data;
-+       size_t tp_raw_data_size;
-+
-        const struct cyapa_dev_ops *ops;
- };
+Where did you get these (HID report) values from by the way?
 
-This message and any attachments may contain Cypress (or its subsidiaries) =
-confidential information. If it has been received in error, please advise t=
-he sender and immediately delete this message.
+> +
+> +static void gt683r_brightness_set(struct led_classdev *led_cdev,
+> +				  enum led_brightness brightness)
+> +{
+> +	struct gt683r_led *led =
+> +			container_of(led_cdev, struct gt683r_led, led_dev);
+> +
+> +	mutex_lock(&led->lock);
 
---_000_77BC725C9062764F874D79F51E1F1A8F4406C8C3S04MBX0101s04lo_
-Content-Disposition: attachment; filename="winmail.dat"
-Content-Transfer-Encoding: base64
-Content-Type: application/ms-tnef; name="winmail.dat"
+You cannot grab a mutex here since this function can be called from
+interrupt context (if I remember correctly). Either way, you shouldn't
+be holding the lock until the work task has finished...
 
-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
-dT/AKk4Lkf6GVVMPtP+frV9b4NBgxlAggHMnvwD/zDCLoFjisE+z8lr5tQ+GZN9a/pWfBjbGSoRc
-KslRXDdz1Dgv1VRobDBnsGgwc39Q8jiQ0cA4kKsAjCENcGj35nBKEMSRYasAjPHVcC/w/USgeaTx
-hkDtkCCB1xAzgPhzdWJbsOWQMZAz4Tlg/4zxAPDj0siQotHJMCCAUOD71ZCNAC4NAO2AdxGNYDOA
-/xHgQwDwQQ2AYaHRwMcBGuM9XmBwziTRsIvQzRF0aP+5o0iAIJHFQUow5nDIgSTw/myrAEiAARCM
-kc2wxIgNpgx9fRQA0VAfAEIAAQAAABQAAABEAHUAZABsAGUAeQAgAEQAdQAAAB8AZQABAAAAIgAA
-AGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAAAB8AZAABAAAACgAAAFMATQBUAFAA
-AAAAAAIBQQABAAAAWAAAAAAAAACBKx+kvqMQGZ1uAN0BD1QCAAAAgEQAdQBkAGwAZQB5ACAARAB1
-AAAAUwBNAFQAUAAAAGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAfAAJdAQAAACIA
-AABkAHUAZABsAEAAYwB5AHAAcgBlAHMAcwAuAGMAbwBtAAAAAAAfAOVfAQAAACoAAABzAGkAcAA6
-AGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAAAB8AGgwBAAAAFAAAAEQAdQBkAGwA
-ZQB5ACAARAB1AAAAHwAfDAEAAAAiAAAAZAB1AGQAbABAAGMAeQBwAHIAZQBzAHMALgBjAG8AbQAA
-AAAAHwAeDAEAAAAKAAAAUwBNAFQAUAAAAAAAAgEZDAEAAABYAAAAAAAAAIErH6S+oxAZnW4A3QEP
-VAIAAACARAB1AGQAbABlAHkAIABEAHUAAABTAE0AVABQAAAAZAB1AGQAbABAAGMAeQBwAHIAZQBz
-AHMALgBjAG8AbQAAAB8AAV0BAAAAIgAAAGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0A
-AAAAAB8A+D8BAAAAFAAAAEQAdQBkAGwAZQB5ACAARAB1AAAAHwAjQAEAAAAiAAAAZAB1AGQAbABA
-AGMAeQBwAHIAZQBzAHMALgBjAG8AbQAAAAAAHwAiQAEAAAAKAAAAUwBNAFQAUAAAAAAAAgH5PwEA
-AABYAAAAAAAAAIErH6S+oxAZnW4A3QEPVAIAAACARAB1AGQAbABlAHkAIABEAHUAAABTAE0AVABQ
-AAAAZAB1AGQAbABAAGMAeQBwAHIAZQBzAHMALgBjAG8AbQAAAB8ACV0BAAAAIgAAAGQAdQBkAGwA
-QABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAAAB8AMUABAAAAAgAAAAAAAAALAEA6AQAAAB8AMEAB
-AAAAAgAAAAAAAAAfABoAAQAAABIAAABJAFAATQAuAE4AbwB0AGUAAAAAAAMA8T8ECAAACwBAOgEA
-AAADAP0/qAMAAAIBCzABAAAAEAAAAAXjuiGHOsdDs/y79iPvHT4DABcAAQAAAEAAOQAA0hz3WIHP
-AUAACDBtjVf3WIHPAQsAKQAAAAAACwAjAAAAAAAfAACAhgMCAAAAAADAAAAAAAAARgEAAAAeAAAA
-YQBjAGMAZQBwAHQAbABhAG4AZwB1AGEAZwBlAAAAAAABAAAAGgAAAHoAaAAtAEMATgAsACAAZQBu
-AC0AVQBTAAAAAAALAACACCAGAAAAAADAAAAAAAAARgAAAAAGhQAAAAAAAB8ANwABAAAAwAAAAFsA
-UABBAFQAQwBIACAAdgAyACAANQAvADEANABdACAAaQBuAHAAdQB0ADoAIABjAHkAYQBwAGEAOgAg
-AGEAZABkACAAcgBlAGEAZAAgAGYAaQByAG0AdwBhAHIAZQAgAGkAbQBhAGcAZQAgAGEAbgBkACAA
-cgBhAHcAIABkAGEAdABhACAAaQBuAHQAZQByAGYAYQBjAGUAcwAgAGkAbgAgAGQAZQBiAHUAZwBm
-AHMAIABzAHkAcwB0AGUAbQAAAB8APQABAAAAAgAAAAAAAAADADYAAAAAAAIBcQABAAAAFgAAAAHP
-gVjpZ2XbE3RTUUeZscCAiZ/qiK4AAB8AcAABAAAAwAAAAFsAUABBAFQAQwBIACAAdgAyACAANQAv
-ADEANABdACAAaQBuAHAAdQB0ADoAIABjAHkAYQBwAGEAOgAgAGEAZABkACAAcgBlAGEAZAAgAGYA
-aQByAG0AdwBhAHIAZQAgAGkAbQBhAGcAZQAgAGEAbgBkACAAcgBhAHcAIABkAGEAdABhACAAaQBu
-AHQAZQByAGYAYQBjAGUAcwAgAGkAbgAgAGQAZQBiAHUAZwBmAHMAIABzAHkAcwB0AGUAbQAAAB8A
-NRABAAAAhAAAADwANwA3AEIAQwA3ADIANQBDADkAMAA2ADIANwA2ADQARgA4ADcANABEADcAOQBG
-ADUAMQBFADEARgAxAEEAOABGADQANAAwADYAQwA4AEMAMwBAAFMAMAA0AC0ATQBCAFgAMAAxAC0A
-MAAxAC4AcwAwADQALgBsAG8AYwBhAGwAPgAAAAMA3j+fTgAACwAAgAggBgAAAAAAwAAAAAAAAEYA
-AAAAA4UAAAAAAAADAACACCAGAAAAAADAAAAAAAAARgAAAAABhQAAAAAAAAMAAIADIAYAAAAAAMAA
-AAAAAABGAAAAAAGBAAAAAAAAAwCAEP////8FAACAAyAGAAAAAADAAAAAAAAARgAAAAACgQAAAAAA
-AAAAAAALAACAAyAGAAAAAADAAAAAAAAARgAAAAAcgQAAAAAAAEAABzBJeL31WIHPAQsAAgABAAAA
-AwAmAAAAAAACARAwAQAAAEYAAAAAAAAAsR+hOTAgUUadtKVw3tCf1AcAd7xyXJBidk+HTXn1Hh8a
-jwAAAJk8GwAAuqc+7svX90Cjdu81/GFZiQAYg/zDSgAAAAAfAPo/AQAAABQAAABEAHUAZABsAGUA
-eQAgAEQAdQAAAAMACVkBAAAAAwAAgAggBgAAAAAAwAAAAAAAAEYAAAAAEIUAAAAAAAAfAACAH6Tr
-M6h6LkK+e3nhqY5UswEAAAA4AAAAQwBvAG4AdgBlAHIAcwBhAHQAaQBvAG4ASQBuAGQAZQB4AFQA
-cgBhAGMAawBpAG4AZwBFAHgAAAABAAAAugAAAEkASQA9ADAAMQBDAEYAOAAxADUAOABFADkANgA3
-ADYANQBEAEIAMQAzADcANAA1ADMANQAxADQANwA5ADkAQgAxAEMAMAA4ADAAOAA5ADkARgBFAEEA
-OAA4AEEARQA7AFYAZQByAHMAaQBvAG4APQBWAGUAcgBzAGkAbwBuACAAMQA0AC4AMwAgACgAQgB1
-AGkAbABkACAAMQA3ADQALgAwACkALAAgAFMAdABhAGcAZQA9AEgANAAAAAAAAwAAgAMgBgAAAAAA
-wAAAAAAAAEYAAAAAE4EAAAEAAAADAACAAyAGAAAAAADAAAAAAAAARgAAAAAjgQAA////fwMAAIAD
-IAYAAAAAAMAAAAAAAABGAAAAABCBAAAAAAAAAwAAgAMgBgAAAAAAwAAAAAAAAEYAAAAAEYEAAAAA
-AAALAACAAyAGAAAAAADAAAAAAAAARgAAAAAkgQAAAAAAAAsAAIADIAYAAAAAAMAAAAAAAABGAAAA
-ACyBAAAAAAAAAwAAgAMgBgAAAAAAwAAAAAAAAEYAAAAAKYEAAAAAAAADAACAAyAGAAAAAADAAAAA
-AAAARgAAAAAqgQAAAAAAAB8AAIADIAYAAAAAAMAAAAAAAABGAAAAACeBAAABAAAAAgAAAAAAAAAD
-AACAAyAGAAAAAADAAAAAAAAARgAAAAASgQAAAQAAAB8AAIADIAYAAAAAAMAAAAAAAABGAAAAACGB
-AAABAAAAAgAAAAAAAAALAACAAyAGAAAAAADAAAAAAAAARgAAAAADgQAAAAAAAAsAAIADIAYAAAAA
-AMAAAAAAAABGAAAAACaBAAAAAAAACwAAgAggBgAAAAAAwAAAAAAAAEYAAAAADoUAAAAAAAADAACA
-CCAGAAAAAADAAAAAAAAARgAAAAAYhQAAAAAAAAsAAIAIIAYAAAAAAMAAAAAAAABGAAAAAIKFAAAA
-AAAAAwANNP0/AAAfAACAhgMCAAAAAADAAAAAAAAARgEAAAAgAAAAeAAtAG0AcwAtAGgAYQBzAC0A
-YQB0AHQAYQBjAGgAAAABAAAAAgAAAAAAAAAfAACAhgMCAAAAAADAAAAAAAAARgEAAAAiAAAAeAAt
-AG8AcgBpAGcAaQBuAGEAdABpAG4AZwAtAGkAcAAAAAAAAQAAAB4AAABbADEAMAAuADMAMAAuADEA
-MgAuADEANAA2AF0AAAAAAJiz
+> +
+> +	led->brightness = brightness;
+> +
+> +	schedule_work(&led->work);
+> +}
+> +
+> +static int gt683r_led_snd_msg(struct gt683r_led *led, u64 msg)
+> +{
+> +	int result = usb_control_msg(led->usb_dev,
+> +				usb_sndctrlpipe(led->usb_dev,
+> +						led->ep->bEndpointAddress),
 
---_000_77BC725C9062764F874D79F51E1F1A8F4406C8C3S04MBX0101s04lo_--
+No need to store the endpoint in the led struct as the address of
+endpoint 0 is 0.
+
+> +				0x09, 0x22, 0x0301, 0x0000,
+> +				&msg, sizeof(u64), USB_CTRL_SET_TIMEOUT);
+
+You cannot use a stack allocated buffer (msg) for the data transfer as
+some platforms can't do DMA from the stack.
+
+> +	if (result)
+> +		dev_err(&led->usb_dev->dev,
+> +			"Failed to send control message: %i\n", result);
+> +
+> +	return result;
+> +}
+> +
+> +static void gt683r_led_set(struct gt683r_led *led, char type)
+> +{
+> +	gt683r_led_snd_msg(led, gt683r_led_select_leds |
+> +			(GT683R_LED_ALL << 24));
+> +	gt683r_led_snd_msg(led, gt683r_led_select_type |
+> +			(type << 24));
+> +}
+> +
+> +static void gt683r_led_work(struct work_struct *work)
+> +{
+> +	struct gt683r_led *led =
+> +			container_of(work, struct gt683r_led, work);
+> +
+> +	if (led->brightness)
+> +		gt683r_led_set(led, GT683R_LED_NORMAL);
+> +	else
+> +		gt683r_led_set(led, GT683R_LED_OFF);
+> +
+> +	mutex_unlock(&led->lock);
+> +}
+> +
+> +static struct led_classdev gt683r_led_dev = {
+> +	.name = "gt683r-led",
+> +	.brightness_set = gt683r_brightness_set,
+> +	.max_brightness = 1,
+> +	.flags = LED_CORE_SUSPENDRESUME,
+> +};
+> +
+> +static int gt683r_led_probe(struct usb_interface *intf,
+> +			    const struct usb_device_id *id)
+> +{
+> +	int ret = 0;
+> +	struct gt683r_led *led =
+> +		devm_kzalloc(&intf->dev, sizeof(struct gt683r_led), GFP_KERNEL);
+
+Again, please split definition and allocation.
+
+> +	if (!led)
+> +		return -ENOMEM;
+> +
+> +	led->usb_dev = interface_to_usbdev(intf);
+> +	usb_set_intfdata(intf, led);
+> +
+> +	led->ep = &led->usb_dev->ep0.desc;
+> +	if (!usb_endpoint_xfer_control(led->ep) ||
+> +		usb_endpoint_maxp(led->ep) != sizeof(u64))
+> +		return -EINVAL;
+
+EP0 is a control endpoint, and you probably don't need the
+max-packet-size test either.
+
+> +
+> +	led->led_dev = gt683r_led_dev;
+> +	ret = led_classdev_register(&led->usb_dev->dev, &led->led_dev);
+> +	if (ret) {
+> +		dev_err(&led->usb_dev->dev, "Could not register led_classdev\n");
+> +		return ret;
+> +	}
+> +
+> +	mutex_init(&led->lock);
+> +	INIT_WORK(&led->work, gt683r_led_work);
+> +
+> +	return 0;
+> +}
+> +
+> +static void gt683r_led_disconnect(struct usb_interface *intf)
+> +{
+> +	struct gt683r_led *led = usb_get_intfdata(intf);
+> +
+> +	led_classdev_unregister(&led->led_dev);
+> +	cancel_work_sync(&led->work);
+> +}
+> +
+> +static struct usb_driver gt683r_led_driver = {
+> +	.probe = gt683r_led_probe,
+> +	.disconnect = gt683r_led_disconnect,
+> +	.name = "GT683R Led Driver",
+> +	.id_table = gt683r_led_id,
+> +};
+> +
+> +module_usb_driver(gt683r_led_driver);
+> +
+> +MODULE_AUTHOR("Janne Kanniainen");
+> +MODULE_DESCRIPTION("MSI GT683R led driver");
+> +MODULE_LICENSE("GPL");
+
+Johan

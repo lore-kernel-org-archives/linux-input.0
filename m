@@ -1,102 +1,104 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: edt-ft5x06 - fix an i2c write for M09 support
-Date: Sat, 7 Jun 2014 22:36:41 -0700
-Message-ID: <20140608053641.GB24310@core.coreip.homeip.net>
-References: <5393A60C.8040207@kernelconcepts.de>
+Subject: Re: [PATCH] Input - synaptics: fix resolution for manually provided
+ min/max
+Date: Sat, 7 Jun 2014 22:40:55 -0700
+Message-ID: <20140608054055.GA6982@core.coreip.homeip.net>
+References: <1401818375-7212-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:40870 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752321AbaFHFgo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Jun 2014 01:36:44 -0400
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:45741 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752537AbaFHFk6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Jun 2014 01:40:58 -0400
 Content-Disposition: inline
-In-Reply-To: <5393A60C.8040207@kernelconcepts.de>
+In-Reply-To: <1401818375-7212-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Budig <simon.budig@kernelconcepts.de>
-Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Henrik Rydberg <rydberg@euromail.se>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Fugang Duan <B38611@freescale.com>, Jingoo Han <jg1.han@samsung.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, Robert =?iso-8859-1?Q?W=F6rle?= <rwoerle@mibtec.de>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Sun, Jun 08, 2014 at 01:53:48AM +0200, Simon Budig wrote:
-> Hi all.
->=20
-> I received notice from Robert W=F6rle who spotted a bug in the ft5x06
-> driver (M09 support) which can result in bogus values being written i=
-nto
-> the configuration registers.
->=20
-> Paul wrote:
-> > I think i found the problem, as the driver sends 3 bytes instead of=
- 2
-> > when accessing a register on the M09 firmware.
-> > Therefore , writing to gain seems to overflow into the offset regis=
-ter.
-> >=20
-> > This seems to be even in the lastet upstream driver so i created a =
-patch
-> > for this driver  which you find attached.
-> >=20
-> > @Simon Budig
-> >=20
-> > Find attached a patch to fix this edt driver bug, feel free to comm=
-ent ,
-> > test and commit upstream ;-)
->=20
-> He is right, his fix is correct. Please include his patch into the
-> repository.
->=20
-> Acked-By: Simon Budig <simon.budig@kernelconcepts.de>
-
-Applied, thank you.
-
->=20
-> Thanks,
->         Simon
-> --=20
->        Simon Budig                        kernel concepts GmbH
->        simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
->        +49-271-771091-17                  D-57072 Siegen
->=20
-
-> From 36b9ac0e8206efefc8795c925b0f3b63ab29fd08 Mon Sep 17 00:00:00 200=
-1
-> From: Robert Woerle <robert@linuxdevelopment.de>
-> Date: Wed, 28 May 2014 13:22:09 +0200
-> Subject: [PATCH] Input: edt-ft5x06 - fix i2c writes to 2 bytes on M09
->  firmware
->=20
-> Signed-off-by: Robert Woerle <robert@linuxdevelopment.de>
+On Tue, Jun 03, 2014 at 01:59:35PM -0400, Benjamin Tissoires wrote:
+> commit 421e08c41fda fixed the reported min/max for the X and Y axis,
+> but unfortunately, it broke the resolution of those same axis.
+> 
+> On the t540p, the resolution is the same regarding X and Y. It is not
+> a problem for xf86-input-synaptics because this driver is only interested
+> in the ratio between X and Y.
+> Unfortunately, xf86-input-cmt uses directly the resolution, and having a
+> null resolution leads to some divide by 0 errors, which are translated by
+> -infinity in the resulting coordinates.
+> 
+> Reported-by: Peter Hutterer <peter.hutterer@who-t.net>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: stable@vger.kernel.org
 > ---
->  drivers/input/touchscreen/edt-ft5x06.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/t=
-ouchscreen/edt-ft5x06.c
-> index f8815be..d4f3399 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -271,7 +271,7 @@ static int edt_ft5x06_register_write(struct edt_f=
-t5x06_ts_data *tsdata,
->  		wrbuf[0] =3D addr;
->  		wrbuf[1] =3D value;
-> =20
-> -		return edt_ft5x06_ts_readwrite(tsdata->client, 3,
-> +		return edt_ft5x06_ts_readwrite(tsdata->client, 2,
->  					wrbuf, 0, NULL);
-> =20
->  	default:
-> --=20
-> 1.7.9.5
->=20
+> 
+> Hi Dmitry,
+> 
+> in the original submission, the test for the quirk was at the end of the
+> synaptics_resolution() function. However, there was a mixmatch with the config
+> in this original submission and you had to change the patch slightly.
+> Unfortunately, this change created this bug which was hard to notice, which is
+> why it comes that late in the cycle (and also because we are trying to find out
+> if xf86-input-cmt could replace xf86-input-synaptics).
 
+Hmm, I guess we are not going to quirk very old hardware so the change
+is fine, applied.
 
+> 
+> Anyway, as mentioned in the commit message, this will not harm a big majority
+> of users, because only those using ChromeOS will be impacted (not sure they
+> have the Lenovo 40 series in their kernel either).
+> 
+> Again, it's your call to leave or not the stable@ tag, but given that all we
+> put regarding those crappy devices are tagged as such, I put it there also.
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/input/mouse/synaptics.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index c5ec703..9cff1f8 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -347,15 +347,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
+>  	unsigned char resp[3];
+>  	int i;
+>  
+> -	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++)
+> -		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
+> -			priv->x_min = min_max_pnpid_table[i].x_min;
+> -			priv->x_max = min_max_pnpid_table[i].x_max;
+> -			priv->y_min = min_max_pnpid_table[i].y_min;
+> -			priv->y_max = min_max_pnpid_table[i].y_max;
+> -			return 0;
+> -		}
+> -
+>  	if (SYN_ID_MAJOR(priv->identity) < 4)
+>  		return 0;
+>  
+> @@ -366,6 +357,15 @@ static int synaptics_resolution(struct psmouse *psmouse)
+>  		}
+>  	}
+>  
+> +	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++)
+> +		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
+> +			priv->x_min = min_max_pnpid_table[i].x_min;
+> +			priv->x_max = min_max_pnpid_table[i].x_max;
+> +			priv->y_min = min_max_pnpid_table[i].y_min;
+> +			priv->y_max = min_max_pnpid_table[i].y_max;
+> +			return 0;
+> +		}
+> +
+>  	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 5 &&
+>  	    SYN_CAP_MAX_DIMENSIONS(priv->ext_cap_0c)) {
+>  		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MAX_COORDS, resp)) {
+> -- 
+> 1.9.0
+> 
 
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

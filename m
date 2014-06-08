@@ -1,103 +1,69 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input - synaptics: fix resolution for manually provided
- min/max
-Date: Sat, 7 Jun 2014 22:40:55 -0700
-Message-ID: <20140608054055.GA6982@core.coreip.homeip.net>
-References: <1401818375-7212-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] elantech: Don't set bit 1 of reg_10 when the no_hw_res
+ quirk is set
+Date: Sat, 7 Jun 2014 23:08:15 -0700
+Message-ID: <20140608060815.GB6982@core.coreip.homeip.net>
+References: <1401784265-18325-1-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:45741 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752537AbaFHFk6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Jun 2014 01:40:58 -0400
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1401818375-7212-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1401784265-18325-1-git-send-email-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: James Lademann <jwlademann@gmail.com>, Philipp Wolfer <ph.wolfer@gmail.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Tue, Jun 03, 2014 at 01:59:35PM -0400, Benjamin Tissoires wrote:
-> commit 421e08c41fda fixed the reported min/max for the X and Y axis,
-> but unfortunately, it broke the resolution of those same axis.
+On Tue, Jun 03, 2014 at 10:31:05AM +0200, Hans de Goede wrote:
+> The touchpad on the GIGABYTE U2442 not only stops communicating when we try
+> to set bit 3 (enable real hardware resolution) of reg_10, but on some BIOS
+> versions also when we set bit 1 (enable two finger mode auto correct).
 > 
-> On the t540p, the resolution is the same regarding X and Y. It is not
-> a problem for xf86-input-synaptics because this driver is only interested
-> in the ratio between X and Y.
-> Unfortunately, xf86-input-cmt uses directly the resolution, and having a
-> null resolution leads to some divide by 0 errors, which are translated by
-> -infinity in the resulting coordinates.
+> I've asked the original reporter of:
+> https://bugzilla.kernel.org/show_bug.cgi?id=61151
 > 
-> Reported-by: Peter Hutterer <peter.hutterer@who-t.net>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> To check that not setting bit 1 does not lead to any adverse effects on
+> his model / BIOS revision, and it does not, so this commit fixes the touchpad
+> not working on these versions by simply never setting bit 1 for laptop models
+> with the no_hw_res quirk.
+> 
+> Reported-and-tested-by: James Lademann <jwlademann@gmail.com>
+> Tested-by: Philipp Wolfer <ph.wolfer@gmail.com>
 > Cc: stable@vger.kernel.org
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+
+Applied, thank you.
+
 > ---
+>  drivers/input/mouse/elantech.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> Hi Dmitry,
-> 
-> in the original submission, the test for the quirk was at the end of the
-> synaptics_resolution() function. However, there was a mixmatch with the config
-> in this original submission and you had to change the patch slightly.
-> Unfortunately, this change created this bug which was hard to notice, which is
-> why it comes that late in the cycle (and also because we are trying to find out
-> if xf86-input-cmt could replace xf86-input-synaptics).
-
-Hmm, I guess we are not going to quirk very old hardware so the change
-is fine, applied.
-
-> 
-> Anyway, as mentioned in the commit message, this will not harm a big majority
-> of users, because only those using ChromeOS will be impacted (not sure they
-> have the Lenovo 40 series in their kernel either).
-> 
-> Again, it's your call to leave or not the stable@ tag, but given that all we
-> put regarding those crappy devices are tagged as such, I put it there also.
-> 
-> Cheers,
-> Benjamin
-> 
->  drivers/input/mouse/synaptics.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index c5ec703..9cff1f8 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -347,15 +347,6 @@ static int synaptics_resolution(struct psmouse *psmouse)
->  	unsigned char resp[3];
->  	int i;
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index b96e978..4d79821 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -835,7 +835,7 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
+>  		if (etd->set_hw_resolution)
+>  			etd->reg_10 = 0x0b;
+>  		else
+> -			etd->reg_10 = 0x03;
+> +			etd->reg_10 = 0x01;
 >  
-> -	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++)
-> -		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
-> -			priv->x_min = min_max_pnpid_table[i].x_min;
-> -			priv->x_max = min_max_pnpid_table[i].x_max;
-> -			priv->y_min = min_max_pnpid_table[i].y_min;
-> -			priv->y_max = min_max_pnpid_table[i].y_max;
-> -			return 0;
-> -		}
-> -
->  	if (SYN_ID_MAJOR(priv->identity) < 4)
->  		return 0;
+>  		if (elantech_write_reg(psmouse, 0x10, etd->reg_10))
+>  			rc = -1;
+> @@ -1336,7 +1336,8 @@ static int elantech_reconnect(struct psmouse *psmouse)
+>  }
 >  
-> @@ -366,6 +357,15 @@ static int synaptics_resolution(struct psmouse *psmouse)
->  		}
->  	}
->  
-> +	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++)
-> +		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
-> +			priv->x_min = min_max_pnpid_table[i].x_min;
-> +			priv->x_max = min_max_pnpid_table[i].x_max;
-> +			priv->y_min = min_max_pnpid_table[i].y_min;
-> +			priv->y_max = min_max_pnpid_table[i].y_max;
-> +			return 0;
-> +		}
-> +
->  	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 5 &&
->  	    SYN_CAP_MAX_DIMENSIONS(priv->ext_cap_0c)) {
->  		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_MAX_COORDS, resp)) {
+>  /*
+> - * Some hw_version 3 models go into error state when we try to set bit 3 of r10
+> + * Some hw_version 3 models go into error state when we try to set
+> + * bit 3 and/or bit 1 of r10
+>   */
+>  static const struct dmi_system_id no_hw_res_dmi_table[] = {
+>  #if defined(CONFIG_DMI) && defined(CONFIG_X86)
 > -- 
-> 1.9.0
+> 2.0.0
 > 
 
 -- 

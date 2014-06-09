@@ -1,74 +1,46 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v2] leds: USB: Add support for MSI GT683R led panels
-Date: Mon, 9 Jun 2014 13:42:22 +0200
-Message-ID: <20140609114222.GC9307@localhost>
-References: <1402003746-6354-1-git-send-email-janne.kanniainen@gmail.com>
- <20140606094752.GB9307@localhost>
- <CAEEjW04UAsi7yOdmF3FZ3sLE7m7B-VAH0prDPYjaMXarAfNwcw@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RESEND: PATCH 1/2] mfd: tc3589x: Add device tree bindings
+Date: Mon, 9 Jun 2014 14:14:20 +0200
+Message-ID: <CACRpkdbhqoywNyHuXzo2Oqjz5ybcM_DhsRDYy28_qN8K0RYE_w@mail.gmail.com>
+References: <1397028480-15413-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAEEjW04UAsi7yOdmF3FZ3sLE7m7B-VAH0prDPYjaMXarAfNwcw@mail.gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>, Bryan Wu <cooloney@gmail.com>, rpurdie@rpsys.net, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oa0-f52.google.com ([209.85.219.52]:57433 "EHLO
+	mail-oa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932680AbaFIMOU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Jun 2014 08:14:20 -0400
+Received: by mail-oa0-f52.google.com with SMTP id j17so2178170oag.39
+        for <linux-input@vger.kernel.org>; Mon, 09 Jun 2014 05:14:20 -0700 (PDT)
+In-Reply-To: <1397028480-15413-1-git-send-email-linus.walleij@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>
 
-On Sat, Jun 07, 2014 at 01:12:39PM +0300, Janne Kanniainen wrote:
-> > First of all, please reply to the original thread and make sure to not
-> > drop people or lists from CC.
-> 
-> Sorry this is my first patch and i didn't know that. Now I know.
-> 
-> > For arrays you can use the ARRAY_SIZE() macro if that was the reason for
-> > this change. I should have mentioned that when I pointed out that you
-> > cannot use strlen().
-> 
-> That wasn't the reason. I just thought it might be better to use u64
-> than char[8]. I know why I can't use strlen and that was only careless
-> error. And there was lot of them :( I will be more careful next time.
+On Wed, Apr 9, 2014 at 9:28 AM, Linus Walleij <linus.walleij@linaro.org> wrote:
 
-No problem, that's what review is for, and the second version was much
-cleaner even if there were still a few issues (some hard to know about,
-such as the DMA from stack issue, which is also a very common error).
+> This defines the device tree bindings for the Toshiba TC3589x
+> series of multi-purpose expanders. Only the stuff I can test
+> is defined: GPIO and keypad. Others may implement more
+> subdevices further down the road.
+>
+> This is to complement
+> commit a435ae1d51e2f18414f2a87219fdbe068231e692
+> "mfd: Enable the tc3589x for Device Tree" which left off
+> the definition of the device tree bindings.
+>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v2->v3:
+> - Fix the keys/rows bindings to be u32 rather than
+>   /bits/ 8, inconsistency noted by Mark Rutland.
+> ChangeLog v1->v2:
+> - Include a verbose example in the DT bindings.
+> - Explain why this is a stand-alone bindings patch.
 
-> > Where did you get these (HID report) values from by the way?
-> 
-> I got them by reverse engineering.
+Lee, ping on this - it seems to have fallen to the floor at some
+point...
 
-Traffic sniffing?
-
-> >> +
-> >> +static void gt683r_brightness_set(struct led_classdev *led_cdev,
-> >> +                               enum led_brightness brightness)
-> >> +{
-> >> +     struct gt683r_led *led =
-> >> +                     container_of(led_cdev, struct gt683r_led, led_dev);
-> >> +
-> >> +     mutex_lock(&led->lock);
-> >
-> > You cannot grab a mutex here since this function can be called from
-> > interrupt context (if I remember correctly). Either way, you shouldn't
-> > be holding the lock until the work task has finished...
-> 
-> I thought use asked me to put some lock there:
-> 
-> >> +
-> >> +static void gt683r_brightness_set(struct led_classdev *led_cdev,
-> >> +                               enum led_brightness brightness)
-> >> +{
-> >> +     struct gt683r_led *led =
-> >> +                     container_of(led_cdev, struct gt683r_led, led_dev);
-> >> +
-> >> +     led->brightness = brightness;
-> >
-> > Missing locking?
-
-I asked if locking was missing and did not specify how you should be
-adding it. ;)
-
-In fact, it seems you can get away with not adding any locking here.
-Just do the (mutex) locking in gt683r_led_set (or gt683r_led_work).
-
-Johan
+Yours,
+Linus Walleij

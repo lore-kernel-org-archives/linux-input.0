@@ -1,53 +1,102 @@
-From: Brian Norris <computersforpeace@gmail.com>
-Subject: [PATCH] HID: drop remove Unicode non-breaking space from Kconfig
-Date: Tue, 10 Jun 2014 14:35:36 -0700
-Message-ID: <1402436136-17918-1-git-send-email-computersforpeace@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jamie Lentin <jm@lentin.co.uk>
+Subject: [PATCH v2 1/2] Loosen seams to allow support of other keyboards
+Date: Tue, 10 Jun 2014 23:24:53 +0100
+Message-ID: <1402439094-25464-2-git-send-email-jm@lentin.co.uk>
+References: <1402439094-25464-1-git-send-email-jm@lentin.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f52.google.com ([209.85.216.52]:41627 "EHLO
-	mail-qa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753247AbaFJVf4 (ORCPT
+Received: from marmot.wormnet.eu ([188.246.204.87]:43352 "EHLO
+	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751948AbaFJWqB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Jun 2014 17:35:56 -0400
+	Tue, 10 Jun 2014 18:46:01 -0400
+In-Reply-To: <1402439094-25464-1-git-send-email-jm@lentin.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Brian Norris <computersforpeace@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
 
-There is a UTF-8 non-breaking space character (0xc2 0xa0) after the "Y"
-in "Say Y here". This is probably not intentional. Replace it with a
-standard ASCII space (0x20).
-
-If you can't see a difference here, I don't blame you :)
-
-Signed-off-by: Brian Norris <computersforpeace@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
 ---
- drivers/hid/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-lenovo-tpkbd.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 800c8b60f7a2..08c9693e6f83 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -785,7 +785,7 @@ config HID_XINMO
- 	depends on HID
- 	---help---
- 	Support for Xin-Mo devices that are not fully compliant with the HID
--	standard. Currently only supports the Xin-Mo Dual Arcade. Say Y=C2=A0=
-here
-+	standard. Currently only supports the Xin-Mo Dual Arcade. Say Y here
- 	if you have a Xin-Mo Dual Arcade controller.
-=20
- config HID_ZEROPLUS
---=20
-1.9.1
+diff --git a/drivers/hid/hid-lenovo-tpkbd.c b/drivers/hid/hid-lenovo-tpkbd.c
+index 2d25b6c..3bec9f5 100644
+--- a/drivers/hid/hid-lenovo-tpkbd.c
++++ b/drivers/hid/hid-lenovo-tpkbd.c
+@@ -1,5 +1,6 @@
+ /*
+- *  HID driver for Lenovo ThinkPad USB Keyboard with TrackPoint
++ *  HID driver for Lenovo:-
++ *  * ThinkPad USB Keyboard with TrackPoint
+  *
+  *  Copyright (c) 2012 Bernhard Seibold
+  */
+@@ -35,7 +36,7 @@ struct tpkbd_data_pointer {
+ 
+ #define map_key_clear(c) hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+ 
+-static int tpkbd_input_mapping(struct hid_device *hdev,
++static int tpkbd_input_mapping_tp(struct hid_device *hdev,
+ 		struct hid_input *hi, struct hid_field *field,
+ 		struct hid_usage *usage, unsigned long **bit, int *max)
+ {
+@@ -48,6 +49,15 @@ static int tpkbd_input_mapping(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static int tpkbd_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	if (hdev->product == USB_DEVICE_ID_LENOVO_TPKBD)
++		return tpkbd_input_mapping_tp(hdev, hi, field, usage, bit, max);
++	return 0;
++}
++
+ #undef map_key_clear
+ 
+ static int tpkbd_features_set(struct hid_device *hdev)
+@@ -338,6 +348,11 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
+ 	char *name_mute, *name_micmute;
+ 	int i;
+ 
++	/* Ignore unless tpkbd_input_mapping_tp marked it as a pointer */
++	if (!hid_get_drvdata(hdev))
++		return 0;
++	hid_set_drvdata(hdev, NULL);
++
+ 	/* Validate required reports. */
+ 	for (i = 0; i < 4; i++) {
+ 		if (!hid_validate_values(hdev, HID_FEATURE_REPORT, 4, i, 1))
+@@ -408,12 +423,9 @@ static int tpkbd_probe(struct hid_device *hdev,
+ 		goto err;
+ 	}
+ 
+-	if (hid_get_drvdata(hdev)) {
+-		hid_set_drvdata(hdev, NULL);
+-		ret = tpkbd_probe_tp(hdev);
+-		if (ret)
+-			goto err_hid;
+-	}
++	if (hdev->product == USB_DEVICE_ID_LENOVO_TPKBD
++			&& tpkbd_probe_tp(hdev))
++		goto err_hid;
+ 
+ 	return 0;
+ err_hid:
+@@ -437,7 +449,10 @@ static void tpkbd_remove_tp(struct hid_device *hdev)
+ 
+ static void tpkbd_remove(struct hid_device *hdev)
+ {
+-	if (hid_get_drvdata(hdev))
++	if (!hid_get_drvdata(hdev))
++		return;
++
++	if (hdev->product == USB_DEVICE_ID_LENOVO_TPKBD)
+ 		tpkbd_remove_tp(hdev);
+ 
+ 	hid_hw_stop(hdev);
+-- 
+2.0.0.rc2
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

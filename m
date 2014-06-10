@@ -1,157 +1,33 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: Re: [PATCH] HID: hid-sensor-hub: Make all locks of dyn_callback_lock
- disable interrupts.
-Date: Tue, 10 Jun 2014 15:13:34 -0500
-Message-ID: <CA+BWVUQJdLhC-XB2F+6g9BqPzhA7iy8u_z4nUWdq1H3eYD7FFg@mail.gmail.com>
-References: <1402431097-3883-1-git-send-email-reyad.attiyat@gmail.com>
+From: Janne Kanniainen <janne.kanniainen@gmail.com>
+Subject: Re: [PATCH v2] leds: USB: Add support for MSI GT683R led panels
+Date: Wed, 11 Jun 2014 00:10:55 +0300
+Message-ID: <CAEEjW06BnCiLyDDL82fjhFtwg5LyaGzKP+swzLFNKKwmZcvViQ@mail.gmail.com>
+References: <1402003746-6354-1-git-send-email-janne.kanniainen@gmail.com>
+	<20140606094752.GB9307@localhost>
+	<CAEEjW04UAsi7yOdmF3FZ3sLE7m7B-VAH0prDPYjaMXarAfNwcw@mail.gmail.com>
+	<20140609114222.GC9307@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1402431097-3883-1-git-send-email-reyad.attiyat@gmail.com>
+In-Reply-To: <20140609114222.GC9307@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
-Cc: Reyad Attiyat <reyad.attiyat@gmail.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Bryan Wu <cooloney@gmail.com>, rpurdie@rpsys.net, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hey Jiri,
-I read your other email and see this is now staged. You can ignore
-this sorry for the noise.
+>> > Where did you get these (HID report) values from by the way?
+>>
+>> I got them by reverse engineering.
+>
+> Traffic sniffing?
+>
 
-On Tue, Jun 10, 2014 at 3:11 PM, Reyad Attiyat <reyad.attiyat@gmail.com> wrote:
-> The dynamic callback lock (dyn_callback_lock) must not be interrupted
-> when locked because the lock is used in the interrupt handler function sensor_hub_raw_event().
->
-> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
-> ---
->  drivers/hid/hid-sensor-hub.c | 31 ++++++++++++++++++-------------
->  1 file changed, 18 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index a8d5c8f..6547138 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -133,10 +133,11 @@ static struct hid_sensor_hub_callbacks *sensor_hub_get_callback(
->                                         struct hid_sensor_hub_device **hsdev,
->                                         void **priv)
->  {
-> +       unsigned long flags;
->         struct hid_sensor_hub_callbacks_list *callback;
->         struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
->
-> -       spin_lock(&pdata->dyn_callback_lock);
-> +       spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
->         list_for_each_entry(callback, &pdata->dyn_callback_list, list)
->                 if (callback->usage_id == usage_id &&
->                         (collection_index >=
-> @@ -145,10 +146,10 @@ static struct hid_sensor_hub_callbacks *sensor_hub_get_callback(
->                                 callback->hsdev->end_collection_index)) {
->                         *priv = callback->priv;
->                         *hsdev = callback->hsdev;
-> -                       spin_unlock(&pdata->dyn_callback_lock);
-> +                       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->                         return callback->usage_callback;
->                 }
-> -       spin_unlock(&pdata->dyn_callback_lock);
-> +       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->
->         return NULL;
->  }
-> @@ -157,19 +158,20 @@ int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
->                         u32 usage_id,
->                         struct hid_sensor_hub_callbacks *usage_callback)
->  {
-> +       unsigned long flags;
->         struct hid_sensor_hub_callbacks_list *callback;
->         struct sensor_hub_data *pdata = hid_get_drvdata(hsdev->hdev);
->
-> -       spin_lock(&pdata->dyn_callback_lock);
-> +       spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
->         list_for_each_entry(callback, &pdata->dyn_callback_list, list)
->                 if (callback->usage_id == usage_id &&
->                                                 callback->hsdev == hsdev) {
-> -                       spin_unlock(&pdata->dyn_callback_lock);
-> +                       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->                         return -EINVAL;
->                 }
->         callback = kzalloc(sizeof(*callback), GFP_ATOMIC);
->         if (!callback) {
-> -               spin_unlock(&pdata->dyn_callback_lock);
-> +               spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->                 return -ENOMEM;
->         }
->         callback->hsdev = hsdev;
-> @@ -177,7 +179,7 @@ int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
->         callback->usage_id = usage_id;
->         callback->priv = NULL;
->         list_add_tail(&callback->list, &pdata->dyn_callback_list);
-> -       spin_unlock(&pdata->dyn_callback_lock);
-> +       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->
->         return 0;
->  }
-> @@ -186,10 +188,11 @@ EXPORT_SYMBOL_GPL(sensor_hub_register_callback);
->  int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
->                                 u32 usage_id)
->  {
-> +       unsigned long flags;
->         struct hid_sensor_hub_callbacks_list *callback;
->         struct sensor_hub_data *pdata = hid_get_drvdata(hsdev->hdev);
->
-> -       spin_lock(&pdata->dyn_callback_lock);
-> +       spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
->         list_for_each_entry(callback, &pdata->dyn_callback_list, list)
->                 if (callback->usage_id == usage_id &&
->                                                 callback->hsdev == hsdev) {
-> @@ -197,7 +200,7 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
->                         kfree(callback);
->                         break;
->                 }
-> -       spin_unlock(&pdata->dyn_callback_lock);
-> +       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->
->         return 0;
->  }
-> @@ -376,34 +379,36 @@ EXPORT_SYMBOL_GPL(sensor_hub_input_get_attribute_info);
->  #ifdef CONFIG_PM
->  static int sensor_hub_suspend(struct hid_device *hdev, pm_message_t message)
->  {
-> +       unsigned long flags;
->         struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
->         struct hid_sensor_hub_callbacks_list *callback;
->
->         hid_dbg(hdev, " sensor_hub_suspend\n");
-> -       spin_lock(&pdata->dyn_callback_lock);
-> +       spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
->         list_for_each_entry(callback, &pdata->dyn_callback_list, list) {
->                 if (callback->usage_callback->suspend)
->                         callback->usage_callback->suspend(
->                                         callback->hsdev, callback->priv);
->         }
-> -       spin_unlock(&pdata->dyn_callback_lock);
-> +       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->
->         return 0;
->  }
->
->  static int sensor_hub_resume(struct hid_device *hdev)
->  {
-> +       unsigned long flags;
->         struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
->         struct hid_sensor_hub_callbacks_list *callback;
->
->         hid_dbg(hdev, " sensor_hub_resume\n");
-> -       spin_lock(&pdata->dyn_callback_lock);
-> +       spin_lock_irqsave(&pdata->dyn_callback_lock, flags);
->         list_for_each_entry(callback, &pdata->dyn_callback_list, list) {
->                 if (callback->usage_callback->resume)
->                         callback->usage_callback->resume(
->                                         callback->hsdev, callback->priv);
->         }
-> -       spin_unlock(&pdata->dyn_callback_lock);
-> +       spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
->
->         return 0;
->  }
-> --
-> 1.9.3
->
+Yes.
+
+
+> In fact, it seems you can get away with not adding any locking here.
+> Just do the (mutex) locking in gt683r_led_set (or gt683r_led_work).
+
+Ok I will fix it.
+
+Janne

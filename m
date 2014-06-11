@@ -1,53 +1,56 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] HID: rmi: Protect PM-only functions by #ifdef CONFIG_PM
-Date: Wed, 11 Jun 2014 21:03:18 +0200
-Message-ID: <1402513398-17546-1-git-send-email-geert@linux-m68k.org>
+Subject: [PATCH] Input: st-keyscan - Protect PM-only functions by #ifdef CONFIG_PM_SLEEP
+Date: Wed, 11 Jun 2014 21:04:53 +0200
+Message-ID: <1402513493-17613-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f170.google.com ([74.125.82.170]:47634 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751578AbaFKTDY (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:63066 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751273AbaFKTE4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jun 2014 15:03:24 -0400
+	Wed, 11 Jun 2014 15:04:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
-If CONFIG_PM=3Dn:
+If CONFIG_PM_SLEEP=3Dn:
 
-drivers/hid/hid-rmi.c:432: warning: =E2=80=98rmi_post_reset=E2=80=99 de=
-fined but not used
-drivers/hid/hid-rmi.c:437: warning: =E2=80=98rmi_post_resume=E2=80=99 d=
-efined but not used
+drivers/input/keyboard/st-keyscan.c:219: warning: =E2=80=98keyscan_susp=
+end=E2=80=99 defined but not used
+drivers/input/keyboard/st-keyscan.c:236: warning: =E2=80=98keyscan_resu=
+me=E2=80=99 defined but not used
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
- drivers/hid/hid-rmi.c | 2 ++
+ drivers/input/keyboard/st-keyscan.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 2451c7e5febd..578bbe65902b 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -428,6 +428,7 @@ static int rmi_raw_event(struct hid_device *hdev,
+diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboa=
+rd/st-keyscan.c
+index 758b48731415..668e3cf4b491 100644
+--- a/drivers/input/keyboard/st-keyscan.c
++++ b/drivers/input/keyboard/st-keyscan.c
+@@ -215,6 +215,7 @@ static int keyscan_probe(struct platform_device *pd=
+ev)
  	return 0;
  }
 =20
-+#ifdef CONFIG_PM
- static int rmi_post_reset(struct hid_device *hdev)
++#ifdef CONFIG_PM_SLEEP
+ static int keyscan_suspend(struct device *dev)
  {
- 	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-@@ -437,6 +438,7 @@ static int rmi_post_resume(struct hid_device *hdev)
- {
- 	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
+ 	struct platform_device *pdev =3D to_platform_device(dev);
+@@ -249,6 +250,7 @@ static int keyscan_resume(struct device *dev)
+ 	mutex_unlock(&input->mutex);
+ 	return retval;
  }
-+#endif /* CONFIG_PM */
++#endif /* CONFIG_PM_SLEEP */
 =20
- #define RMI4_MAX_PAGE 0xff
- #define RMI4_PAGE_SIZE 0x0100
+ static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keyscan_=
+resume);
+=20
 --=20
 1.9.1
 

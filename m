@@ -1,30 +1,40 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 0/2] Add support for Lenovo Compact Keyboard
-Date: Wed, 11 Jun 2014 12:57:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406111256550.1321@pobox.suse.cz>
-References: <1402439094-25464-1-git-send-email-jm@lentin.co.uk>
+Subject: Re: [PATCH v3] leds: USB: HID: Add support for MSI GT683R led
+ panels
+Date: Wed, 11 Jun 2014 13:25:49 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1406111325000.1321@pobox.suse.cz>
+References: <CAEEjW06BnCiLyDDL82fjhFtwg5LyaGzKP+swzLFNKKwmZcvViQ@mail.gmail.com> <1402435299-16410-1-git-send-email-janne.kanniainen@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52364 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751835AbaFKK5Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jun 2014 06:57:25 -0400
-In-Reply-To: <1402439094-25464-1-git-send-email-jm@lentin.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <1402435299-16410-1-git-send-email-janne.kanniainen@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Janne Kanniainen <janne.kanniainen@gmail.com>
+Cc: cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, johan@kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jamie Lentin <jm@lentin.co.uk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 10 Jun 2014, Jamie Lentin wrote:
+On Wed, 11 Jun 2014, Janne Kanniainen wrote:
 
-> This patchset follows on from my previous attempt[1] to add support for
-> these keyboards from Lenovo.
+> This driver adds support for USB controlled led panels that exists in MSI GT683R laptop
+> 
+> Changes in v2:
+> 	- sorted headers to alphabetic order
+> 	- using devm_kzalloc
+> 	- using BIT(n)
+> 	- using usb_control_msg instead of usb_submit_urb
+> 	- removing unneeded code
+> 
+> Changes in v3:
+> 	- implemented as HID device
+> 	- some cleanups and bug fixes
+> 
+> Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
 
-Jamie,
+Thanks for the driver. Johan, as you did a very good job reviewing this 
+before I managed to get to it, I'd be glad to put your Reviewed-by: to the 
+commit before commiting it, if you are going to provide it.
 
-thanks for the driver. Please re-send v3 with Antonio's comments 
-addressed, and I'll be happy to apply it.
+Thanks,
 
 -- 
 Jiri Kosina

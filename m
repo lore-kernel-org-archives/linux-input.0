@@ -1,51 +1,58 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
-Date: Wed, 11 Jun 2014 12:17:20 -0600
-Message-ID: <53989D30.1000605@wwwdotorg.org>
-References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org> <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com> <536963A0.4060506@wwwdotorg.org> <536BAA5A.1010809@itdev.co.uk> <536BB3C9.8070908@wwwdotorg.org> <536BDFFD.4080009@itdev.co.uk> <537128D0.3060005@wwwdotorg.org> <53763B06.7020100@itdev.co.uk> <53763F95.6000609@wwwdotorg.org> <537B8087.1040306@itdev.co.uk>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] HID: rmi: Protect PM-only functions by #ifdef CONFIG_PM
+Date: Wed, 11 Jun 2014 21:03:18 +0200
+Message-ID: <1402513398-17546-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:57089 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752640AbaFKSRY (ORCPT
+Received: from mail-we0-f170.google.com ([74.125.82.170]:47634 "EHLO
+	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751578AbaFKTDY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jun 2014 14:17:24 -0400
-In-Reply-To: <537B8087.1040306@itdev.co.uk>
+	Wed, 11 Jun 2014 15:03:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
-On 05/20/2014 10:19 AM, Nick Dyer wrote:
-> Stephen Warren wrote:
->> On 05/16/2014 10:21 AM, Nick Dyer wrote:
->>> Thanks for this. Would you be happy for me to pick these changes up and
->>> include them along with the other work I am sending to Dmitry? I am just
->>> beginning to do various updates to the whole series, one of the things I
->>> need to sort out is the device tree support.
->>
->> That would be fine. I assume you'd only take the 2 Atmel driver patches.
->> I'll send the Tegra patches separately once the driver is merged.
-> 
-> Great! Dmitry has merged some of the patches I sent now, so I'm just
-> working on updating to take account of that and adding the device tree
-> changes, and taking account of a couple of other review comments.
-...
->>> I will need to add device tree parameters for the touchscreen as well as
->>> the touchpad, of course.
->>>
->>> By the way, the driver should work without any firmware file and just use
->>> the firmware and configuration from NVRAM - request_firmware() returns a
->>> failure and it continues through mxt_initialize().
->>
->> Hmmm. I couldn't get that to work after applying the patches you posted.
->> However, it did with what's already in linux-next plus the patches I sent.
-> 
-> I will test this on my setup and see if I can figure out what is causing
-> the problem.
+If CONFIG_PM=3Dn:
 
-Nick, did you get anywhere reproducing my problem? Unfortunately with
-your recent patches merged, I can't get the touchpad working at all,
-whereas before I had a few simple patches that made it work:-(
+drivers/hid/hid-rmi.c:432: warning: =E2=80=98rmi_post_reset=E2=80=99 de=
+fined but not used
+drivers/hid/hid-rmi.c:437: warning: =E2=80=98rmi_post_resume=E2=80=99 d=
+efined but not used
+
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/hid/hid-rmi.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 2451c7e5febd..578bbe65902b 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -428,6 +428,7 @@ static int rmi_raw_event(struct hid_device *hdev,
+ 	return 0;
+ }
+=20
++#ifdef CONFIG_PM
+ static int rmi_post_reset(struct hid_device *hdev)
+ {
+ 	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
+@@ -437,6 +438,7 @@ static int rmi_post_resume(struct hid_device *hdev)
+ {
+ 	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
+ }
++#endif /* CONFIG_PM */
+=20
+ #define RMI4_MAX_PAGE 0xff
+ #define RMI4_PAGE_SIZE 0x0100
+--=20
+1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,64 +1,69 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: rmi: Protect PM-only functions by #ifdef
- CONFIG_PM
-Date: Thu, 12 Jun 2014 10:29:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406121029000.1321@pobox.suse.cz>
-References: <1402513398-17546-1-git-send-email-geert@linux-m68k.org>
+From: Gabriel Fernandez <gabriel.fernandez@st.com>
+Subject: Re: [PATCH] Input: st-keyscan - Protect PM-only functions by #ifdef
+ CONFIG_PM_SLEEP
+Date: Thu, 12 Jun 2014 10:36:12 +0200
+Message-ID: <5399667C.20203@st.com>
+References: <1402513493-17613-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41429 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932740AbaFLIbk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Jun 2014 04:31:40 -0400
-In-Reply-To: <1402513398-17546-1-git-send-email-geert@linux-m68k.org>
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:57873 "EHLO
+	mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932399AbaFLIgt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Jun 2014 04:36:49 -0400
+In-Reply-To: <1402513493-17613-1-git-send-email-geert@linux-m68k.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 11 Jun 2014, Geert Uytterhoeven wrote:
+Thanks Geert
 
-> If CONFIG_PM=3Dn:
->=20
-> drivers/hid/hid-rmi.c:432: warning: =E2=80=98rmi_post_reset=E2=80=99 =
-defined but not used
-> drivers/hid/hid-rmi.c:437: warning: =E2=80=98rmi_post_resume=E2=80=99=
- defined but not used
->=20
+Acked-by : Gabriel Fernandez <gabriel.fernandez@linaro.org>
+
+Best Regards
+
+
+On 06/11/2014 09:04 PM, Geert Uytterhoeven wrote:
+> If CONFIG_PM_SLEEP=3Dn:
+>
+> drivers/input/keyboard/st-keyscan.c:219: warning: =E2=80=98keyscan_su=
+spend=E2=80=99 defined but not used
+> drivers/input/keyboard/st-keyscan.c:236: warning: =E2=80=98keyscan_re=
+sume=E2=80=99 defined but not used
+>
 > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 > ---
->  drivers/hid/hid-rmi.c | 2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 2451c7e5febd..578bbe65902b 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -428,6 +428,7 @@ static int rmi_raw_event(struct hid_device *hdev,
->  	return 0;
->  }
-> =20
-> +#ifdef CONFIG_PM
->  static int rmi_post_reset(struct hid_device *hdev)
->  {
->  	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
-> @@ -437,6 +438,7 @@ static int rmi_post_resume(struct hid_device *hde=
-v)
->  {
->  	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
->  }
-> +#endif /* CONFIG_PM */
-> =20
->  #define RMI4_MAX_PAGE 0xff
->  #define RMI4_PAGE_SIZE 0x0100
+>   drivers/input/keyboard/st-keyscan.c | 2 ++
+>   1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyb=
+oard/st-keyscan.c
+> index 758b48731415..668e3cf4b491 100644
+> --- a/drivers/input/keyboard/st-keyscan.c
+> +++ b/drivers/input/keyboard/st-keyscan.c
+> @@ -215,6 +215,7 @@ static int keyscan_probe(struct platform_device *=
+pdev)
+>   	return 0;
+>   }
+>  =20
+> +#ifdef CONFIG_PM_SLEEP
+>   static int keyscan_suspend(struct device *dev)
+>   {
+>   	struct platform_device *pdev =3D to_platform_device(dev);
+> @@ -249,6 +250,7 @@ static int keyscan_resume(struct device *dev)
+>   	mutex_unlock(&input->mutex);
+>   	return retval;
+>   }
+> +#endif /* CONFIG_PM_SLEEP */
+>  =20
+>   static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keysc=
+an_resume);
+>  =20
 
-Applied, thanks for spotting it.
-
---=20
-Jiri Kosina
-SUSE Labs
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

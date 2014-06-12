@@ -1,33 +1,43 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
-Date: Thu, 12 Jun 2014 12:25:06 +0100
-Message-ID: <53998E12.8050408@itdev.co.uk>
-References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org> <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com> <536963A0.4060506@wwwdotorg.org> <536BAA5A.1010809@itdev.co.uk> <536BB3C9.8070908@wwwdotorg.org> <536BDFFD.4080009@itdev.co.uk> <537128D0.3060005@wwwdotorg.org> <53763B06.7020100@itdev.co.uk> <53763F95.6000609@wwwdotorg.org> <537B8087.1040306@itdev.co.uk> <53989D30.1000605@wwwdotorg.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: Input: psmouse - switch to using dev_*() for messages
+Date: Thu, 12 Jun 2014 17:29:12 +0300
+Message-ID: <20140612142912.GA13103@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:3647 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932985AbaFLLZL (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:29321 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755910AbaFLO3Y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Jun 2014 07:25:11 -0400
-In-Reply-To: <53989D30.1000605@wwwdotorg.org>
+	Thu, 12 Jun 2014 10:29:24 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Stephen Warren wrote:
->> I will test this on my setup and see if I can figure out what is causing
->> the problem.
-> 
-> Nick, did you get anywhere reproducing my problem? Unfortunately with
-> your recent patches merged, I can't get the touchpad working at all,
-> whereas before I had a few simple patches that made it work:-(
+Hello Dmitry Torokhov,
 
-I haven't been able to reproduce your issue, I have a devicetree based
-system that will successfully probe without a config file.
+This is a semi-automatic email about new static checker warnings.
 
-Could you send me the dmesg output with all of the driver debug enabled? It
-would be good to see how far it is getting.
+The patch b5d21704361e: "Input: psmouse - switch to using dev_*() for
+messages" from Oct 10, 2011, leads to the following Smatch complaint:
+
+drivers/input/mouse/psmouse-base.c:1512 psmouse_reconnect()
+	 error: we previously assumed 'psmouse' could be null (see line 1511)
+
+drivers/input/mouse/psmouse-base.c
+  1510	
+  1511		if (!drv || !psmouse) {
+                             ^^^^^^^
+Old check.
+
+  1512			psmouse_dbg(psmouse,
+                                    ^^^^^^^
+New dereference.
+
+  1513				    "reconnect request, but serio is disconnected, ignoring...\n");
+  1514			return -1;
+
+regards,
+dan carpenter

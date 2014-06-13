@@ -1,69 +1,46 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] Input - wacom: put a flag when the led are initialized
-Date: Fri, 13 Jun 2014 16:29:32 -0400
-Message-ID: <1402691372-26282-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38616 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753427AbaFMU3e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jun 2014 16:29:34 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] Revert "Input: wacom - testing result shows get_report is unnecessary."
+Date: Fri, 13 Jun 2014 16:32:18 -0400
+Message-ID: <1402691538-26392-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aristeu Rozanski <aris@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-This solves a bug with the wireless receiver:
-- at plug, the wireless receiver does not know which Wacom device it is
-  connected to, so it does not actually creates all the LEDs
-- when the tablet connects, wacom->wacom_wac.features.type is set to the
-  proper device so that wacom_wac can understand the packets
-- when the receiver is unplugged, it detects that a LED should have been
-  created (based on wacom->wacom_wac.features.type) and tries to remove
-  it: crash when removing the sysfs group.
+This reverts commit 1b2faaf7e219fc2905d75afcd4c815e5d39eda80.
 
-Side effect, we can now safely call several times wacom_destroy_leds().
+The Intuos4 series presents a bug in which it hangs if it receives
+a set feature command while switching to the enhanced mode.
+This bug is triggered when plugging an Intuos 4 while having
+a gnome user session up and running.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/tablet/wacom.h     | 1 +
- drivers/input/tablet/wacom_sys.c | 6 ++++++
- 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
-index 70b1e71..f13ad31 100644
---- a/drivers/input/tablet/wacom.h
-+++ b/drivers/input/tablet/wacom.h
-@@ -120,6 +120,7 @@ struct wacom {
- 		u8 hlv;       /* status led brightness button pressed (1..127) */
- 		u8 img_lum;   /* OLED matrix display brightness */
- 	} led;
-+	bool led_initialized;
- 	struct power_supply battery;
- };
- 
+Hi Aris,
+
+actually, you bisected the bug, so can I consider that I have your signed-off-by?
+
+Cheers,
+Benjamin
+
+ drivers/input/tablet/wacom_sys.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 94096fd..7087b33 100644
+index 7087b33..319a3ff 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -1016,12 +1016,18 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		return error;
- 	}
- 	wacom_led_control(wacom);
-+	wacom->led_initialized = true;
+@@ -536,6 +536,9 @@ static int wacom_set_device_mode(struct usb_interface *intf, int report_id, int
  
- 	return 0;
- }
+ 		error = wacom_set_report(intf, WAC_HID_FEATURE_REPORT,
+ 		                         report_id, rep_data, length, 1);
++		if (error >= 0)
++			error = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
++			                         report_id, rep_data, length, 1);
+ 	} while ((error < 0 || rep_data[1] != mode) && limit++ < WAC_MSG_RETRIES);
  
- static void wacom_destroy_leds(struct wacom *wacom)
- {
-+	if (!wacom->led_initialized)
-+		return;
-+
-+	wacom->led_initialized = false;
-+
- 	switch (wacom->wacom_wac.features.type) {
- 	case INTUOS4S:
- 	case INTUOS4:
+ 	kfree(rep_data);
 -- 
 1.9.0
-

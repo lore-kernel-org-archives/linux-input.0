@@ -1,50 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input - wacom: remove phys field in struct wacom
-Date: Fri, 13 Jun 2014 16:55:35 -0400
-Message-ID: <20140613205534.GB30355@mail.corp.redhat.com>
-References: <1402691344-26196-1-git-send-email-benjamin.tissoires@redhat.com>
- <20140613203545.GA31651@core.coreip.homeip.net>
- <20140613204826.GA30355@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51922 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751401AbaFMUzp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jun 2014 16:55:45 -0400
-Content-Disposition: inline
-In-Reply-To: <20140613204826.GA30355@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Subject: [PATCH v3 0/2] Input: Support in the elantech driver of the trackpoint present on for instance Lenovo L530
+Date: Fri, 13 Jun 2014 23:21:11 +0200
+Message-ID: <1402694473-11518-1-git-send-email-ulrik.debie-os@e2big.org>
+References: <20140613205547.GA5244@lantern>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20140613205547.GA5244@lantern>
+Sender: stable-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, ulrik.debie-os@e2big.org
+List-Id: linux-input@vger.kernel.org
 
-On Jun 13 2014 or thereabouts, Benjamin Tissoires wrote:
-> On Jun 13 2014 or thereabouts, Dmitry Torokhov wrote:
-> > On Fri, Jun 13, 2014 at 04:29:04PM -0400, Benjamin Tissoires wrote:
-> > > This field is not used, remove it.
-> > 
-> > We must have lost the assignment, but it should be assigned to phys of
-> > corresponding input device. 
-> 
-> hehe. Even in 2007, when the files moved under drivers/input/tablet,
-> there is no mention of assigning input_dev->phys :)
-> 
-> I can send a patch to fix the other way around if you prefer (add
-> input_dev->phys).
-> 
+Patch 1 adds support for trackpoint on elantech driver for v3 models.
+Patch 2 adds a psmouse_reset when the elantech probes fails. Patch 2 depends on Patch 1.
 
-Actually, I found the culprit:
-$ git describe c5b7c7c395a34f12cdf246d66c1feeff2933d584
-v2.6.14-21-gc5b7c7c
----> Thu Sep 15 02:01:47 2005
 
-I should have wait one more year to fix it :)
+Changes since v2:
+* psmouse_reset change is now moved to a separate patch
+* comments/white spaces/newlines  cleanup
+* Unexpected trackpoint message warning now only printed once
+* removed some unnecessary casts
+* Deleted etd->trackpoint_present and use instead etd->tp_dev to indicate the
+  presence of a trackpoint
+* Propagate the error when elantech_init fails
 
-No one complain about it for nearly 10 years, so I am not sure it will
-help assigning the ->phys field of input_dev.
+Changes since v1:
+* New patch now with reference to 3.14rc1
+* Added etd->trackpoint_present to indicate presence of trackpoint (based
+  on MSB of etd->capabilities[0])
+* trackpoint will only be registered now when MSB of etd->capabilities[0] is
+  set; got confirmation that this is the indicator of trackpoint
+* Added input_unregister_device/input_free_device in elantech_disconnect()
+* Fixed a bug in cleaning up when elantech_init fails
+* Rename commit to be more specific (now also applicable to future elantech
+  v3 models with trackpoint)
+* input device name 'TPPS/2 IBM TrackPoint' changed to
+  'Elantech PS/2 TrackPoint', this patch is not ibm/lenovo specific!
+* dev2 renamed to tp_dev to indicate that this is the trackpoint device
+* etd->phys renamed to etd->tp_phys
+* Added Lenovo 530 and Fujitsu H730 to the laptop list because those are now
+  also known.
+* Added psmouse_reset at the end of elantech_init when it fails
+* Added warning when trackpoint packets are received with no trackpoint detected
 
-It's your call, Dmitry.
+The patches are also available from:
+https://github.com/ulrikdb/linux/commit/f8570efe466fb835b76f11fdbaf277fea9999a42
+https://github.com/ulrikdb/linux/commit/69ab8ef8cf96237a90b393607727d080930d4469
 
-Cheers,
-Benjamin
+
+Ulrik De Bie (2):
+  elantech: Add support for trackpoint found on some v3 models
+  elantech: Call psmouse_reset when elantech probe fails
+
+ drivers/input/mouse/elantech.c | 120 +++++++++++++++++++++++++++++++++++++++--
+ drivers/input/mouse/elantech.h |   3 ++
+ 2 files changed, 119 insertions(+), 4 deletions(-)
+
+-- 
+2.0.0

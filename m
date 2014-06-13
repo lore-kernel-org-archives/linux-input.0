@@ -1,46 +1,64 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] Revert "Input: wacom - testing result shows get_report is unnecessary."
-Date: Fri, 13 Jun 2014 16:32:18 -0400
-Message-ID: <1402691538-26392-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aristeu Rozanski <aris@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input - wacom: remove phys field in struct wacom
+Date: Fri, 13 Jun 2014 13:35:46 -0700
+Message-ID: <20140613203545.GA31651@core.coreip.homeip.net>
+References: <1402691344-26196-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:58198 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753160AbaFMUft (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Jun 2014 16:35:49 -0400
+Content-Disposition: inline
+In-Reply-To: <1402691344-26196-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This reverts commit 1b2faaf7e219fc2905d75afcd4c815e5d39eda80.
+On Fri, Jun 13, 2014 at 04:29:04PM -0400, Benjamin Tissoires wrote:
+> This field is not used, remove it.
 
-The Intuos4 series presents a bug in which it hangs if it receives
-a set feature command while switching to the enhanced mode.
-This bug is triggered when plugging an Intuos 4 while having
-a gnome user session up and running.
+We must have lost the assignment, but it should be assigned to phys of
+corresponding input device. 
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/input/tablet/wacom.h     | 1 -
+>  drivers/input/tablet/wacom_sys.c | 2 --
+>  2 files changed, 3 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+> index 9ebf0ed..70b1e71 100644
+> --- a/drivers/input/tablet/wacom.h
+> +++ b/drivers/input/tablet/wacom.h
+> @@ -114,7 +114,6 @@ struct wacom {
+>  	struct mutex lock;
+>  	struct work_struct work;
+>  	bool open;
+> -	char phys[32];
+>  	struct wacom_led {
+>  		u8 select[2]; /* status led selector (0..3) */
+>  		u8 llv;       /* status led brightness no button (1..127) */
+> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+> index 2c613cd..94096fd 100644
+> --- a/drivers/input/tablet/wacom_sys.c
+> +++ b/drivers/input/tablet/wacom_sys.c
+> @@ -1323,8 +1323,6 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+>  	wacom->intf = intf;
+>  	mutex_init(&wacom->lock);
+>  	INIT_WORK(&wacom->work, wacom_wireless_work);
+> -	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+> -	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
+>  
+>  	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+>  
+> -- 
+> 1.9.0
+> 
 
-Hi Aris,
-
-actually, you bisected the bug, so can I consider that I have your signed-off-by?
-
-Cheers,
-Benjamin
-
- drivers/input/tablet/wacom_sys.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 7087b33..319a3ff 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -536,6 +536,9 @@ static int wacom_set_device_mode(struct usb_interface *intf, int report_id, int
- 
- 		error = wacom_set_report(intf, WAC_HID_FEATURE_REPORT,
- 		                         report_id, rep_data, length, 1);
-+		if (error >= 0)
-+			error = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
-+			                         report_id, rep_data, length, 1);
- 	} while ((error < 0 || rep_data[1] != mode) && limit++ < WAC_MSG_RETRIES);
- 
- 	kfree(rep_data);
 -- 
-1.9.0
+Dmitry

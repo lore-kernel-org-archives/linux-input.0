@@ -1,58 +1,26 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH v2 5/6] ARM: dts: imx25: mbimxsd25: Add touchscreen support.
-Date: Fri, 13 Jun 2014 14:10:54 -0300
-Message-ID: <CAOMZO5AqR42NXXgMi+euaUmGt8CVZ8LLpVDYyej_Z_=YP0gvjw@mail.gmail.com>
-References: <1392913312-9030-1-git-send-email-mpa@pengutronix.de>
-	<1402672899-6995-1-git-send-email-denis@eukrea.com>
-	<1402672899-6995-6-git-send-email-denis@eukrea.com>
+From: Janne Kanniainen <janne.kanniainen@gmail.com>
+Subject: Re: [PATCH v5] leds: USB: HID: Add support for MSI GT683R led panels
+Date: Fri, 13 Jun 2014 20:19:26 +0300
+Message-ID: <CAEEjW05PL7ZqnKypCYP4SP9hzKeDii=GouHLJ2u5xtR0yCTO2w@mail.gmail.com>
+References: <20140612090636.GK10256@localhost>
+	<1402605252-9620-1-git-send-email-janne.kanniainen@gmail.com>
+	<20140613075411.GG10940@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f177.google.com ([209.85.220.177]:54516 "EHLO
-	mail-vc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753742AbaFMRKz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jun 2014 13:10:55 -0400
-In-Reply-To: <1402672899-6995-6-git-send-email-denis@eukrea.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140613075411.GG10940@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Bryan Wu <cooloney@gmail.com>, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Denis Carikli <denis@eukrea.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Markus Pargmann <mpa@pengutronix.de>
 
-Hi Denis,
+> Ok, so you decided to continue setting mode on every LED brightness
+> update. That should be fine, but you never answered my question about
+> whether it is necessary?
 
-On Fri, Jun 13, 2014 at 12:21 PM, Denis Carikli <denis@eukrea.com> wrote:
-> Signed-off-by: Denis Carikli <denis@eukrea.com>
-> ---
->  .../imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts  |   13 +++++++++++++
->  1 file changed, 13 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
-> index 9797280..047918d 100644
-> --- a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
-> +++ b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
-> @@ -70,3 +70,16 @@
->         lcd-supply = <&reg_lcd_3v3>;
->         status = "okay";
->  };
-> +
-> +&tscadc {
-> +       status = "okay";
-> +
-> +       tsc: tcq@50030400 {
-> +               compatible = "fsl,imx25-tcq";
-> +               reg = <0x50030400 0x60>;
-> +               interrupt-parent = <&tscadc>;
-> +               interrupts = <0>;
-> +               fsl,wires = <4>;
-> +               fsl,pen-debounce = <100>;
+I decided to do it that way because official driver did it as well. I
+can check if it is necessary.
 
-What about just keeping only inside the dts:
+> You're almost done. One last update? :)
 
-&tsadc {
-   status = "okay";
-}
-
-Then the rest could go to the imx25.dtsi.
-
-fsl,wires and fsl,pen-debounce could be overwritten by board dts if needed.
+Yeah, I hope so :)

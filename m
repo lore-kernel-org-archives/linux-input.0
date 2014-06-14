@@ -1,108 +1,51 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] Input - wacom: put a flag when the led are initialized
-Date: Fri, 13 Jun 2014 17:28:56 -0700
-Message-ID: <CAF8JNhKBodDC0=M0evsN4xSn7+qPvQZ52XF+mfusgT_1L3Ks8w@mail.gmail.com>
-References: <1402691372-26282-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 2/2] Add support for Compact (Bluetooth|USB) keyboard
+ with Trackpoint
+Date: Sat, 14 Jun 2014 07:33:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1406140731420.1321@pobox.suse.cz>
+References: <1402439094-25464-1-git-send-email-jm@lentin.co.uk> <1402439094-25464-3-git-send-email-jm@lentin.co.uk> <20140611103616.79b40e7b0bbf3447837921fc@ao2.it> <alpine.DEB.2.02.1406112253440.4059@marmot.wormnet.eu>
+ <20140613234538.c960b52757f554699f2dbd1f@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:46395 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753196AbaFNA26 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jun 2014 20:28:58 -0400
-In-Reply-To: <1402691372-26282-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from cantor2.suse.de ([195.135.220.15]:58236 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751218AbaFNFdo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 Jun 2014 01:33:44 -0400
+In-Reply-To: <20140613234538.c960b52757f554699f2dbd1f@ao2.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Antonio Ospite <ao2@ao2.it>
+Cc: Jamie Lentin <jm@lentin.co.uk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+On Fri, 13 Jun 2014, Antonio Ospite wrote:
 
-On Fri, Jun 13, 2014 at 1:29 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> This solves a bug with the wireless receiver:
+> > Previously the tpkbd driver had various functions marked "_tp" to indicate 
+> > that it's for the "mouse" half of the keyboard as the kernel sees it, 
+> > however it does nothing special with the keyboard half. I was intending 
+> > (somewhat sloppily) to repurpose this into having versions of each 
+> > function for each keyboard, and a common function to switch between them. 
+> > Should make it fairly easy to add extra keyboards in the future.
+> > 
+> > The problem, as ever, is choosing decent names for them. It should 
+> > probably be either:-
+> > 
+> > * tpkbd_input_mapping_usbkbd
+> > * tpkbd_input_mapping_compactkbd
+> > ...and tpkbd_input_mapping switches between them
+> > 
+> > or rename the driver to hid-lenovo and do:-
+> > 
+> 
+> I am OK with a rename. Most files in drivers/hid are per-vendor after
+> all. Jiri?
 
-Your patch does get rid of the crash. But, it does not fix it at the
-root cause.
+Fine by me; the module doesn't take any parameters, so we are not risking 
+introducing regression for people who'd have put parameter settings in 
+modprobe.conf or some such.
 
-> - at plug, the wireless receiver does not know which Wacom device it is
->   connected to, so it does not actually creates all the LEDs
+So please go ahead with the rename.
 
-This is the root cause - LEDs are not created for wireless devices.
-Neither here, nor later when a real device is connected.
-
-> - when the tablet connects, wacom->wacom_wac.features.type is set to the
->   proper device so that wacom_wac can understand the packets
-
-LEDs are not created for any wireless devices since we don't call
-wacom_initialize_leds() when real tablets are connected.
-
-> - when the receiver is unplugged, it detects that a LED should have been
->   created (based on wacom->wacom_wac.features.type) and tries to remove
->   it: crash when removing the sysfs group.
-
-When receiver is unplugged, it remembers the last tablet that
-connected to it. If that tablet supports LEDs, wacom_destroy_leds() is
-called. But, no LEDs were initialized. That's why it crashes.
-
-> Side effect, we can now safely call several times wacom_destroy_leds().
-
-led_initialized will never be true if we keep wacom_initialize_leds()
-inside probe().
-
-To make initialize_leds() and desctroy_leds() work for wireless
-devices, we need to move them to wacom_wireless_work() where we know
-what type of tablet is connected/disconnected.
-
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Thank you for your support. But, sorry
-
-NAKed-by: Ping Cheng <pingc@wacom.com>
-
-Ping
-
-> ---
->  drivers/input/tablet/wacom.h     | 1 +
->  drivers/input/tablet/wacom_sys.c | 6 ++++++
->  2 files changed, 7 insertions(+)
->
-> diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
-> index 70b1e71..f13ad31 100644
-> --- a/drivers/input/tablet/wacom.h
-> +++ b/drivers/input/tablet/wacom.h
-> @@ -120,6 +120,7 @@ struct wacom {
->                 u8 hlv;       /* status led brightness button pressed (1..127) */
->                 u8 img_lum;   /* OLED matrix display brightness */
->         } led;
-> +       bool led_initialized;
->         struct power_supply battery;
->  };
->
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-> index 94096fd..7087b33 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -1016,12 +1016,18 @@ static int wacom_initialize_leds(struct wacom *wacom)
->                 return error;
->         }
->         wacom_led_control(wacom);
-> +       wacom->led_initialized = true;
->
->         return 0;
->  }
->
->  static void wacom_destroy_leds(struct wacom *wacom)
->  {
-> +       if (!wacom->led_initialized)
-> +               return;
-> +
-> +       wacom->led_initialized = false;
-> +
->         switch (wacom->wacom_wac.features.type) {
->         case INTUOS4S:
->         case INTUOS4:
-> --
-> 1.9.0
->
+-- 
+Jiri Kosina
+SUSE Labs

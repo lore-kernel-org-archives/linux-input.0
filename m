@@ -1,84 +1,104 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH v2 2/2] Add support for Compact (Bluetooth|USB) keyboard
- with Trackpoint
-Date: Fri, 13 Jun 2014 23:45:38 +0200
-Message-ID: <20140613234538.c960b52757f554699f2dbd1f@ao2.it>
-References: <1402439094-25464-1-git-send-email-jm@lentin.co.uk>
-	<1402439094-25464-3-git-send-email-jm@lentin.co.uk>
-	<20140611103616.79b40e7b0bbf3447837921fc@ao2.it>
-	<alpine.DEB.2.02.1406112253440.4059@marmot.wormnet.eu>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH] input: touchscreen: ti_am335x_tsc: warn about incorrect
+ spelling
+Date: Fri, 13 Jun 2014 19:23:55 -0500
+Message-ID: <20140614002355.GB24821@saruman.home>
+References: <20131118114029.GD30853@e106331-lin.cambridge.arm.com>
+ <1384788541-16338-1-git-send-email-balbi@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jy6Sn24JjFx/iggw"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:64750 "EHLO smtp205.alice.it"
+Received: from arroyo.ext.ti.com ([192.94.94.40]:52475 "EHLO arroyo.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751986AbaFMVp5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Jun 2014 17:45:57 -0400
-In-Reply-To: <alpine.DEB.2.02.1406112253440.4059@marmot.wormnet.eu>
+	id S1754120AbaFNAYa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Jun 2014 20:24:30 -0400
+Content-Disposition: inline
+In-Reply-To: <1384788541-16338-1-git-send-email-balbi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jamie Lentin <jm@lentin.co.uk>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, dmitry.torokhov@gmail.com, rob.herring@calxeda.com, Pawel.Moll@arm.com, swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk, bcousson@baylibre.com, Tony Lindgren <tony@atomide.com>, devicetree@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, 12 Jun 2014 09:56:41 +0100 (BST)
-Jamie Lentin <jm@lentin.co.uk> wrote:
+--jy6Sn24JjFx/iggw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On Wed, 11 Jun 2014, Antonio Ospite wrote:
-> 
+Hi,
 
-[...]
+Here's another patch which has been pending for months.
 
-> >> +static int tpcompactkbd_input_mapping(struct hid_device *hdev,
-> >
-> > Maybe name these functions like tpkbd_input_mapping_compact()?
-> >
-> > This way the namespace is more consistent, and follows the logic of
-> > patch 1/2 more closely.
-> >
-> > Use this scheme at least for functions which have a _tp() counterpart.
-> 
-> Previously the tpkbd driver had various functions marked "_tp" to indicate 
-> that it's for the "mouse" half of the keyboard as the kernel sees it, 
-> however it does nothing special with the keyboard half. I was intending 
-> (somewhat sloppily) to repurpose this into having versions of each 
-> function for each keyboard, and a common function to switch between them. 
-> Should make it fairly easy to add extra keyboards in the future.
-> 
-> The problem, as ever, is choosing decent names for them. It should 
-> probably be either:-
-> 
-> * tpkbd_input_mapping_usbkbd
-> * tpkbd_input_mapping_compactkbd
-> ...and tpkbd_input_mapping switches between them
-> 
-> or rename the driver to hid-lenovo and do:-
-> 
+On Mon, Nov 18, 2013 at 09:29:01AM -0600, Felipe Balbi wrote:
+> In the hopes that people run new kernels on
+> their devices, let's add a warning message
+> asking users to have their DTS file fixed.
+>=20
+> The goal is that by Linux 4.0 we will be
+> able to remove support for the bogus version
+> of our touchscreen's DTS.
+>=20
+> Suggested-by: Mark Rutland <mark.rutland@arm.com>
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
+> ---
+>=20
+> Here you go, I've added your Suggested-by Mark,
+> if you wish I can remove or change to something
+> else.
+>=20
+> cheers
+>=20
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/to=
+uchscreen/ti_am335x_tsc.c
+> index b61df9d..91302cd 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -354,9 +354,12 @@ static int titsc_parse_dt(struct platform_device *pd=
+ev,
+>  	 */
+>  	err =3D of_property_read_u32(node, "ti,coordinate-readouts",
+>  			&ts_dev->coordinate_readouts);
+> -	if (err < 0)
+> +	if (err < 0) {
+> +		dev_warn(&pdev->dev, "please use 'ti,coordinate-readouts' instead\n");
+>  		err =3D of_property_read_u32(node, "ti,coordiante-readouts",
+>  				&ts_dev->coordinate_readouts);
+> +	}
+> +
+>  	if (err < 0)
+>  		return err;
+> =20
+> --=20
+> 1.8.4.GIT
+>=20
 
-I am OK with a rename. Most files in drivers/hid are per-vendor after
-all. Jiri?
+--=20
+balbi
 
-> * lenovo_input_mapping_tpkbd
-> * lenovo_input_mapping_compacttp
+--jy6Sn24JjFx/iggw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-I think you meant lenovo_input_mapping_compactkbd ? :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-> ...and lenovo_input_mapping switches between them
-> 
-> The latter seems a bit too invasive, but I'm not sure how obvious with the 
-> former that it'd be that the "Compact USB keyboard" is in-fact a 
-> compactkbd not a usbkbd. The former is probably what I'll go for unless 
-> you have any thoughts.
-> 
-[...]
+iQIcBAEBAgAGBQJTm5YbAAoJEIaOsuA1yqREA78P/iLF0BHGBbl9ppi7nKhphItv
+1xu5HKVN0YcI9e6EtUGfc5GWwQXZ3KXsuceAIzbugf0ofUT86Wh2ewhHRf3Aei2T
+aJllzrnVI8BSZT0HSD+t6P5AOe2VpyNk5Cx39FPswwYqq0JMLFmobMxESPE8wkn9
+YooKKBEXLrqA5A6COOFlYCAeFRGdvu9T6PMf11qQf8Y6+pEL1+BI7+MBEELxjtii
+uiCVnrw0dwMdTtLVk89Izhj3204NbxG+k902NBioDniie/5LW1vy32ri2xQro7EQ
+0UT8xbhUbkblDyAuSg94HcpdcveUxMHXGMWaV74ijTvg2zw4GH7C99PzstvgF4fj
+GcyUr343kp1sEQtsfRvB10qrsD7NjEeLDCTPYehlui5+tz/b/fjkdCoqT1B3ZHOB
+SRk2yYDsk8CrMjAZ/2bv1PuoPFYeEMRDilKnINCKWAPv50zOQChOTUsTeQpvnw0B
+X7338qT8EqWCUpX/qEaFCP/uIyqxvSsG1JjRpgxuQ1abDwOiTPXhCFKAp1PLGcYX
+LD5S8PEg2vN+kGbihIV7ref9GFAzTK4Io8zVdH+YNsHEcFj0OeTTxBpDaEOKdj7d
+2arElTOZHfSz3GEv5S1Zn9CElWJCTPsYln02oAAkR2Q13QlMwVOINYZwg+Bl3s6C
+8JIbi8Yl0txJcGNe83AE
+=vAUv
+-----END PGP SIGNATURE-----
 
-Ciao,
-   Antonio
-
--- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+--jy6Sn24JjFx/iggw--

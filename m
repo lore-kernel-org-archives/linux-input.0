@@ -1,47 +1,82 @@
-From: Janne Kanniainen <janne.kanniainen@gmail.com>
-Subject: Re: [PATCH v5] leds: USB: HID: Add support for MSI GT683R led panels
-Date: Sun, 15 Jun 2014 02:23:25 +0300
-Message-ID: <CAEEjW04wA3PT2=oE4Z=tP-RWkmyiWpM5NzCH5Owwh8vCRbqMTA@mail.gmail.com>
-References: <20140612090636.GK10256@localhost>
-	<1402605252-9620-1-git-send-email-janne.kanniainen@gmail.com>
-	<20140614224222.GE1389@xo-6d-61-c0.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: touchscreen: ti_am335x_tsc: warn about incorrect
+ spelling
+Date: Sun, 15 Jun 2014 00:16:36 -0700
+Message-ID: <20140615071636.GA23746@core.coreip.homeip.net>
+References: <20131118114029.GD30853@e106331-lin.cambridge.arm.com>
+ <1384788541-16338-1-git-send-email-balbi@ti.com>
+ <20140614002355.GB24821@saruman.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140614224222.GE1389@xo-6d-61-c0.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jiri Kosina <jkosina@suse.cz>, Johan Hovold <johan@kernel.org>, Bryan Wu <cooloney@gmail.com>, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:47562 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751260AbaFOHQk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Jun 2014 03:16:40 -0400
+Content-Disposition: inline
+In-Reply-To: <20140614002355.GB24821@saruman.home>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, rob.herring@calxeda.com, Pawel.Moll@arm.com, swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk, bcousson@baylibre.com, Tony Lindgren <tony@atomide.com>, devicetree@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
 
-> Hi!
+On Fri, Jun 13, 2014 at 07:23:55PM -0500, Felipe Balbi wrote:
+> Hi,
+> 
+> Here's another patch which has been pending for months.
 
-Hi.
+Sorry, lost track of this one, applied.
 
->> --- /dev/null
->> +++ b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
->> @@ -0,0 +1,10 @@
->> +What:                /sys/class/hidraw/<hidraw>/device/state
->> +Date:                Jun 2014
->> +KernelVersion:       3.15
->> +Contact:     Janne Kanniainen <janne.kanniainen@gmail.com>
->> +Description:
->> +             Set the mode of LEDs
->> +
->> +             0 - normal
->> +             1 - audio
->> +             2 - breathing
->
-> THat's some strange interface. Don't we normally use led triggers for this?
+> 
+> On Mon, Nov 18, 2013 at 09:29:01AM -0600, Felipe Balbi wrote:
+> > In the hopes that people run new kernels on
+> > their devices, let's add a warning message
+> > asking users to have their DTS file fixed.
+> > 
+> > The goal is that by Linux 4.0 we will be
+> > able to remove support for the bogus version
+> > of our touchscreen's DTS.
+> > 
+> > Suggested-by: Mark Rutland <mark.rutland@arm.com>
+> > Signed-off-by: Felipe Balbi <balbi@ti.com>
+> > ---
+> > 
+> > Here you go, I've added your Suggested-by Mark,
+> > if you wish I can remove or change to something
+> > else.
+> > 
+> > cheers
+> > 
+> >  drivers/input/touchscreen/ti_am335x_tsc.c | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > index b61df9d..91302cd 100644
+> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > @@ -354,9 +354,12 @@ static int titsc_parse_dt(struct platform_device *pdev,
+> >  	 */
+> >  	err = of_property_read_u32(node, "ti,coordinate-readouts",
+> >  			&ts_dev->coordinate_readouts);
+> > -	if (err < 0)
+> > +	if (err < 0) {
+> > +		dev_warn(&pdev->dev, "please use 'ti,coordinate-readouts' instead\n");
+> >  		err = of_property_read_u32(node, "ti,coordiante-readouts",
+> >  				&ts_dev->coordinate_readouts);
+> > +	}
+> > +
+> >  	if (err < 0)
+> >  		return err;
+> >  
+> > -- 
+> > 1.8.4.GIT
+> > 
+> 
+> -- 
+> balbi
 
-I can implement it that way, if you all think that it is correct way.
-What do Jiri and Johan thinks of it?
-
-> And the mode of the LED should really be in /sys/class/leds, not in hidraw somewhere...
-
-The problem is that all panels can only be in one mode at the time.
-For example front panel can't be in breathing mode while side panel is
-in normal mode.
 
 
-Janne
+-- 
+Dmitry

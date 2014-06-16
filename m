@@ -1,42 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] touchscreen: sun4i-ts: A10 (sun4i) has
- double the temperature precision
-Date: Mon, 16 Jun 2014 14:30:48 -0700
-Message-ID: <20140616213048.GA422@core.coreip.homeip.net>
-References: <1402943069-19420-1-git-send-email-hdegoede@redhat.com>
- <1402943069-19420-2-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBDWE7WOAKGQEA2PRXCQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1402943069-19420-2-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Tong Zhang <lovewilliam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Doug Anderson <dianders@chromium.org>
+Subject: [PATCH 0/10] Batch of cleanup patches for cros_ec
+Date: Mon, 16 Jun 2014 14:39:50 -0700
+Message-ID: <1402954800-28215-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Andrew Bresticker <abrestic@chromium.org>, swarren@wwwdotorg.org, olof@lixom.net, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, sjg@chromium.org, Wolfram Sang <wsa@the-dreams.de>, broonie@kernel.org, Doug Anderson <dianders@chromium.org>, vpalatin@chromium.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Hans,
+This is a batch of cleanup patches picked from the ChromeOS 3.8 kernel
+tree and applied to ToT.  Most of these patches were authored by Bill
+Richardson (CCed).  Where appropriate I've squashed patches together,
+though I have erred on the side of keeping patches logically distinct
+rather than squashing into one big cleanup patch.
 
-On Mon, Jun 16, 2014 at 08:24:28PM +0200, Hans de Goede wrote:
-> Testing has revealed that the temperature in the rtp controller of the A10
-> (sun4i) SoC has a resolution of 50 milli degrees / step, where as the
-> A13 (sun5i) and later models have 100 milli degrees / step.
-> 
-> Add a new sun5i-a13-ts compatible to differentiate the newer models and
-> set the resolution based on the compatible string.
-> 
-> This fixes the temperature reported on the A10 being twice as high as expected.
+There is very little functionality added by this series, but this gets
+us closer to how things look in the ChromeOS tree so we can add more
+patches atop it.  In general I took the oldest patches from our tree
+and stopped picking when I got to a reasonable patch size (10
+patches).  There are about 5 more cleanup patches still in the
+ChromeOS tree, then some more major functionality patches.
 
-Should we maybe add explicit temperature steps property so that we won;t
-need to patch again if they decided to change resolution again?
+Note that I didn't take the "cros_ec_dev" userspace inteface, the
+"LPC" implementation, the "vboot context" implementation, and patches
+relating to exynos5250-spring when picking patches.  These bits are
+very separate (and big!) and can be added and debated separately after
+we've got cleanup in.  Whenever patches touched those pieces of the
+code I ignored that part of the patch.  In general I did take cleanup
+code that was intended to make it easier to later add these bits.
 
-Thanks.
+I have tested basic functionality of these patches on exynos5250-snow
+and exynos5420-peach-pit.
+
+
+Bill Richardson (9):
+  mfd: cros_ec: Fix the comment on cros_ec_remove()
+  mfd: cros_ec: IRQs for cros_ec should be optional
+  mfd: cros_ec: Allow static din/dout buffers with cros_ec_register()
+  mfd: cros_ec: Tweak struct cros_ec_device for clarity
+  mfd: cros_ec: Use struct cros_ec_command to communicate with the EC
+  mfd: cros_ec: cleanup: remove unused fields from struct cros_ec_device
+  mfd: cros_ec: cleanup: Remove EC wrapper functions
+  mfd: cros_ec: Check result code from EC messages
+  mfd: cros_ec: ec_dev->cmd_xfer() returns number of bytes received from
+    EC
+
+Simon Glass (1):
+  mdf: cros_ec: Detect in-progress commands
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c |  17 ++++--
+ drivers/input/keyboard/cros_ec_keyb.c   |  14 ++++-
+ drivers/mfd/cros_ec.c                   |  76 +++++++-----------------
+ drivers/mfd/cros_ec_i2c.c               |  44 ++++++++------
+ drivers/mfd/cros_ec_spi.c               |  43 ++++++++------
+ include/linux/mfd/cros_ec.h             | 100 +++++++++++++++-----------------
+ 6 files changed, 144 insertions(+), 150 deletions(-)
 
 -- 
-Dmitry
+2.0.0.526.g5318336

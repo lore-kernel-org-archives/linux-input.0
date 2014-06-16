@@ -1,66 +1,37 @@
-From: Alexander Clouter <alex@digriz.org.uk>
-Subject: Re: [PATCH v3 0/2] Add support for Lenovo Compact Keyboard
-Date: Sun, 15 Jun 2014 22:32:06 +0100
-Message-ID: <b2a949a6-cd86-437c-a746-d71394f228d6@email.android.com>
-References: <1402864790-7478-1-git-send-email-jm@lentin.co.uk>
+From: Anish Varghese <anishva@gmail.com>
+Subject: Problem with detecting Elantech touchpad
+Date: Mon, 16 Jun 2014 13:29:37 +1000
+Message-ID: <539E64A1.1010901@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marmot.wormnet.eu ([188.246.204.87]:55455 "EHLO
-	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751990AbaFOVcK (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:47968 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753106AbaFPD3o (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Jun 2014 17:32:10 -0400
-In-Reply-To: <1402864790-7478-1-git-send-email-jm@lentin.co.uk>
+	Sun, 15 Jun 2014 23:29:44 -0400
+Received: by mail-pa0-f51.google.com with SMTP id hz1so802429pad.24
+        for <linux-input@vger.kernel.org>; Sun, 15 Jun 2014 20:29:43 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jamie Lentin <jm@lentin.co.uk>, Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Anish Varghese <anishva@gmail.com>
 
-Tested-by: Alexander Clouter <alex@digriz.org.uk>
+Hi,
 
-On 15 June 2014 21:39:48 GMT+01:00, Jamie Lentin <jm@lentin.co.uk> wrote:
->This patchset follows on from my previous attempts to add support for
->these keyboards from Lenovo.
->
->Changes since v2: https://lkml.org/lkml/2014/6/10/730
->* Rename hid-lenovo-tpkbd to hid-lenovo, to make it obvious this is
->  for any Lenovo-manufactured device [Antonio Ospite, Jiri Kosina]
->* Style fixes: function calls in conditions, combine checks for 
->  both USB & BT keyboards [Antonio Ospite]
->
->Changes since v1: https://lkml.org/lkml/2014/3/25/535
->* Merge driver into hid-lenovo-tpkbd.c instead of creating our own
->  driver for the hardware [Jiri Kosina]
->* Remove key mappings which are now supported by standard
->* Use KEY_FILE for Fn-F12 (opens My Computer on Windows)
->* Support the USB variant as well as Bluetooth
->* Expose the Fn Lock setting as a sysfs attribute instead of trying to
->  build a mechanism to toggle into the kernel
->
->Applies against 3.14.5, tested with Bluetooth and USB variants of the
->Compact Keyboard with Trackpoint, as well as the original Thinkpad USB
->keyboard (thanks to Alexander Clouter).
->
->Cheers,
->
->Jamie Lentin (2):
->  Rename hid-lenovo-tpkbd to hid-lenovo, so we can add other keyboards
->  Add support for Compact (Bluetooth|USB) keyboard with Trackpoint
->
-> drivers/hid/Kconfig            |  16 +-
-> drivers/hid/Makefile           |   2 +-
-> drivers/hid/hid-core.c         |   2 +
-> drivers/hid/hid-ids.h          |   2 +
-> drivers/hid/hid-lenovo-tpkbd.c | 462 ---------------------------
->drivers/hid/hid-lenovo.c       | 697
->+++++++++++++++++++++++++++++++++++++++++
-> include/linux/hid.h            |   1 +
-> 7 files changed, 712 insertions(+), 470 deletions(-)
-> delete mode 100644 drivers/hid/hid-lenovo-tpkbd.c
-> create mode 100644 drivers/hid/hid-lenovo.c
+I'm facing an issue with the Elantech touchpad in my Gigabyte P34G 
+laptop. I mentioned this in one of the Elantech touchpad bugs in 
+bugzilla.kernel.org and I was asked to send a mail about the issue to 
+this address. The problem is that occasionally the touchpad is simply 
+not detected at bootup. I'm running Ubuntu 14.04 with kernel 3.13.0-29. 
+(Had the same issue with previous versions as well)
 
--- 
-Alexander Clouter
+This exact problem has been described very well by a gentleman on: 
+https://bbs.archlinux.org/viewtopic.php?id=174217 (I can provide fresh 
+logs if required)
+
+I would appreciate it if you could help in resolving this issue.
+
+Thanks,
+Anish.

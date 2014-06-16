@@ -1,41 +1,33 @@
-From: James Cloos <cloos@jhcloos.com>
-Subject: hid-lenovo-tpkbd unknown key/button events
-Date: Mon, 16 Jun 2014 06:41:28 +0000
-Message-ID: <m3egypuzjb.fsf@carbon.jhcloos.org>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH v5] leds: USB: HID: Add support for MSI GT683R led panels
+Date: Mon, 16 Jun 2014 09:39:57 +0200
+Message-ID: <20140616073957.GA20636@localhost>
+References: <20140612090636.GK10256@localhost>
+ <1402605252-9620-1-git-send-email-janne.kanniainen@gmail.com>
+ <20140613075411.GG10940@localhost>
+ <CAEEjW05PL7ZqnKypCYP4SP9hzKeDii=GouHLJ2u5xtR0yCTO2w@mail.gmail.com>
+ <CAEEjW06FJta+csEevj+AT_uUfRTwQe3TgVBErJmjygpPbgE__w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ore.jhcloos.com ([198.147.23.85]:59302 "EHLO ore.jhcloos.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753989AbaFPGvI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jun 2014 02:51:08 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAEEjW06FJta+csEevj+AT_uUfRTwQe3TgVBErJmjygpPbgE__w@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Janne Kanniainen <janne.kanniainen@gmail.com>
+Cc: Johan Hovold <johan@kernel.org>, Jiri Kosina <jkosina@suse.cz>, Bryan Wu <cooloney@gmail.com>, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-My Lenovo ThinkPad Keyboard with TrackPoint reports two keys/buttons
-events which have no names in input.h.
+On Sun, Jun 15, 2014 at 05:59:40PM +0300, Janne Kanniainen wrote:
+> >> Ok, so you decided to continue setting mode on every LED brightness
+> >> update. That should be fine, but you never answered my question about
+> >> whether it is necessary?
+> >
+> > I decided to do it that way because official driver did it as well. I
+> > can check if it is necessary.
+> 
+> Ok, I checked this one and every time you update LEDs brightness you
+> will need to update mode also.
 
-Event 282 (0x11A) is generated on the pointer devices via Fn-F9:
+Ok, great. Then we know.
 
-  Event: time 1402899841.080255, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90018
-  Event: time 1402899841.080255, type 1 (EV_KEY), code 282 (?), value 1
-  Event: time 1402899841.080255, -------------- SYN_REPORT ------------
-  Event: time 1402899841.176247, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90018
-  Event: time 1402899841.176247, type 1 (EV_KEY), code 282 (?), value 0
-  Event: time 1402899841.176247, -------------- SYN_REPORT ------------
-
-I have not found how to generate event 286 (0x11E).
-
-Lenovo documents Fn-F9 on:
-
-  http://support.lenovo.com/en_US/detail.page?LegacyDocID=MIGR-42883
-
-as ThinkPad EasyEject Utility.
-
-Are there any other devices known to generate codes in the 0x118-0x11F
-range?  Woulditbe beneficial to come up with names for them?
-
--JimC
--- 
-James Cloos <cloos@jhcloos.com>         OpenPGP: 0x997A9F17ED7DAEA6
+Johan

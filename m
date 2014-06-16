@@ -1,7 +1,7 @@
 From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 5/6] ARM: dts: imx25: mbimxsd25: Add touchscreen support.
-Date: Mon, 16 Jun 2014 11:28:52 +0200
-Message-ID: <1402910933-20534-5-git-send-email-denis@eukrea.com>
+Subject: [PATCH v3 4/6] ARM: dts: imx25: Add TSC and ADC support
+Date: Mon, 16 Jun 2014 11:28:51 +0200
+Message-ID: <1402910933-20534-4-git-send-email-denis@eukrea.com>
 References: <1402910933-20534-1-git-send-email-denis@eukrea.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1402910933-20534-1-git-send-email-denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
@@ -13,30 +13,58 @@ List-Id: linux-input@vger.kernel.org
 Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 ---
 Changelog v2->v3:
-- Most of the non-board specific tsc and tscadc
-  parts were moved to imx25.dtsi. So this patch
-  was adapted to that.
-- Thanks to a fix in the tsc driver, the 
-  'fsl,pen-debounce = <100>;' is not necessary anymore.
+- Added ADC controller support: making a separate patch
+  for it would have been overkill.
+- Moved the common TSC and ADC sub-nodes inside this patch
+  instead of having a copy in each dts using it.
 ---
- .../imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts  |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/boot/dts/imx25.dtsi |   30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
-index 9797280..df24046 100644
---- a/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
-+++ b/arch/arm/boot/dts/imx25-eukrea-mbimxsd25-baseboard-cmo-qvga.dts
-@@ -70,3 +70,11 @@
- 	lcd-supply = <&reg_lcd_3v3>;
- 	status = "okay";
- };
+diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
+index 98783f5..3187342 100644
+--- a/arch/arm/boot/dts/imx25.dtsi
++++ b/arch/arm/boot/dts/imx25.dtsi
+@@ -264,13 +264,37 @@
+ 				status = "disabled";
+ 			};
+ 
+-			tsc: tsc@50030000 {
+-				compatible = "fsl,imx25-adc", "fsl,imx21-tsc";
+-				reg = <0x50030000 0x4000>;
++			tscadc: tscadc@50030000 {
++				compatible = "fsl,imx25-tsadc";
++				reg = <0x50030000 0xc>;
+ 				interrupts = <46>;
+ 				clocks = <&clks 119>;
+ 				clock-names = "ipg";
++				interrupt-controller;
++				#interrupt-cells = <1>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++				ranges;
+ 				status = "disabled";
 +
-+&tsc {
-+	status = "okay";
-+};
++				adc: adc@50030800 {
++					compatible = "fsl,imx25-gcq";
++					reg = <0x50030800 0x60>;
++					interrupt-parent = <&tscadc>;
++					interrupts = <1>;
++					#address-cells = <1>;
++					#size-cells = <0>;
++					status = "disabled";
++				};
 +
-+&tscadc {
-+	status = "okay";
-+};
++				tsc: tcq@50030400 {
++					compatible = "fsl,imx25-tcq";
++					reg = <0x50030400 0x60>;
++					interrupt-parent = <&tscadc>;
++					interrupts = <0>;
++					fsl,wires = <4>;
++					status = "disabled";
++				};
+ 			};
+ 
+ 			ssi1: ssi@50034000 {
 -- 
 1.7.9.5

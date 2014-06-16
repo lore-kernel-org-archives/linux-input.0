@@ -1,506 +1,341 @@
-From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 1/6] mfd: fsl imx25 Touchscreen ADC driver
-Date: Mon, 16 Jun 2014 11:28:48 +0200
-Message-ID: <1402910933-20534-1-git-send-email-denis@eukrea.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Cc: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH v2] Input: evdev - add event-mask API
+Date: Mon, 16 Jun 2014 12:09:18 +0200
+Message-ID: <1402913358-682-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:62372 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754926AbaFPKJi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Jun 2014 06:09:38 -0400
+Received: by mail-wi0-f181.google.com with SMTP id n3so3732344wiv.14
+        for <linux-input@vger.kernel.org>; Mon, 16 Jun 2014 03:09:36 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <lennart@poettering.net>, David Herrmann <dh.herrmann@gmail.com>
 
-From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Hardware manufacturers group keys in the weirdest way possible. This may
+cause a power-key to be grouped together with normal keyboard keys and
+thus be reported on the same kernel interface.
 
-This is the core driver for imx25 touchscreen/adc driver. The module
-has one shared ADC and two different conversion queues which use the
-ADC. The two queues are identical. Both can be used for general purpose
-ADC but one is meant to be used for touchscreens.
+However, user-space is often only interested in specific sets of events.
+For instance, daemons dealing with system-reboot (like systemd-logind)
+listen for KEY_POWER, but are not interested in any main keyboard keys.
+Usually, power keys are reported via separate interfaces, however,
+some i8042 boards report it in the AT matrix. To avoid waking up those
+system daemons on each key-press, we had two ideas:
+ - split off KEY_POWER into a separate interface unconditionally
+ - allow masking a specific set of events on evdev FDs
 
-This driver is the core which manages the central components and
-registers of the TSC/ADC unit. It manages the IRQs and forwards them to
-the correct components.
+Splitting of KEY_POWER is a rather weird way to deal with this and may
+break backwards-compatibility. It is also specific to KEY_POWER and might
+be required for other stuff, too. Moreover, we might end up with a huge
+set of input-devices just to have them properly split.
 
-Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+Hence, this patchset implements the second idea: An event-mask to specify
+which events you're interested in. Two ioctls allow setting this mask for
+each event-type. If not set, all events are reported. The type==0 entry is
+used same as in EVIOCGBIT to set the actual EV_* mask of masked events.
+This way, you have a two-level filter.
+
+We are heavily forward-compatible to new event-types and event-codes. So
+new user-space will be able to run on an old kernel which doesn't know the
+given event-codes or event-types.
+
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
-Changelog v2->v3:
-- None
----
- .../devicetree/bindings/mfd/fsl-imx25-tsadc.txt    |   46 ++++
- drivers/mfd/Kconfig                                |    9 +
- drivers/mfd/Makefile                               |    2 +
- drivers/mfd/fsl-imx25-tsadc.c                      |  232 ++++++++++++++++++++
- include/linux/mfd/imx25-tsadc.h                    |  138 ++++++++++++
- 5 files changed, 427 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
- create mode 100644 drivers/mfd/fsl-imx25-tsadc.c
- create mode 100644 include/linux/mfd/imx25-tsadc.h
+v2:
+ - Drop empty SYN_REPORT
+ - turn evdev_get_mask_cnt() into an array-lookup
+ - add documentation
+ - fix coding-style
 
-diff --git a/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-new file mode 100644
-index 0000000..a857af0e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/fsl-imx25-tsadc.txt
-@@ -0,0 +1,46 @@
-+Freescale mx25 ADC/TSC multifunction device
-+
-+This device combines two general purpose conversion queues one used for general
-+ADC and the other used for touchscreens.
-+
-+Required properties:
-+ - compatible: Should be "fsl,imx25-tsadc".
-+ - reg: Memory range of the device.
-+ - interrupts: Interrupt for this device as described in
-+   interrupts/interrupts.txt
-+ - clocks: An 'ipg' clock defined as described in clocks/clock.txt
-+ - interrupt-controller: This device is an interrupt controller. It controls
-+   the interrupts of both conversion queues.
-+ - #interrupt-cells: Should be '<1>'.
-+ - #address-cells: Should be '<1>'.
-+ - #size-cells: Should be '<1>'.
-+ - ranges
-+
-+This device includes two conversion queues which can be added as subnodes.
-+The first queue is for the touchscreen, the second for general purpose ADC.
-+
-+Example:
-+	tscadc: tscadc@50030000 {
-+		compatible = "fsl,imx25-tsadc";
-+		reg = <0x50030000 0xc>;
-+		interrupts = <46>;
-+		clocks = <&clks 119>;
-+		clock-names = "ipg";
-+		interrupt-controller;
-+		#interrupt-cells = <1>;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges;
-+
-+		tsc: tcq@50030400 {
-+			compatible = "fsl,imx25-tcq";
-+			reg = <0x50030400 0x60>;
-+			...
-+		};
-+
-+		adc: gcq@50030800 {
-+			compatible = "fsl,imx25-gcq";
-+			reg = <0x50030800 0x60>;
-+			...
-+		};
+ drivers/input/evdev.c      | 156 ++++++++++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/input.h |  53 +++++++++++++++
+ 2 files changed, 207 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index fd325ec..f8367190 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -51,10 +51,130 @@ struct evdev_client {
+ 	struct list_head node;
+ 	int clkid;
+ 	bool revoked;
++	unsigned long *evmasks[EV_CNT];
+ 	unsigned int bufsize;
+ 	struct input_event buffer[];
+ };
+ 
++static size_t evdev_get_mask_cnt(unsigned int type)
++{
++	static size_t counts[EV_CNT] = {
++		/* EV_SYN==0 is EV_CNT, _not_ SYN_CNT, see EVIOCGBIT */
++		[EV_SYN] = EV_CNT,
++		[EV_KEY] = KEY_CNT,
++		[EV_REL] = REL_CNT,
++		[EV_ABS] = ABS_CNT,
++		[EV_MSC] = MSC_CNT,
++		[EV_SW] = SW_CNT,
++		[EV_LED] = LED_CNT,
++		[EV_SND] = SND_CNT,
++		[EV_FF] = FF_CNT,
 +	};
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index ee8204c..73f4e66 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -183,6 +183,15 @@ config MFD_DA9063
- 	  Additional drivers must be enabled in order to use the functionality
- 	  of the device.
- 
-+config MFD_MX25_TSADC
-+	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
-+	depends on ARCH_MXC
-+	select REGMAP_MMIO
-+	help
-+	  Enable support for the integrated Touchscreen and ADC unit of the
-+	  i.MX25 processors. They consist of a conversion queue for general
-+	  purpose ADC and a queue for Touchscreens.
 +
- config MFD_MC13XXX
- 	tristate
- 	depends on (SPI_MASTER || I2C)
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 8afedba..7ff1013 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -78,6 +78,8 @@ obj-$(CONFIG_TWL4030_POWER)    += twl4030-power.o
- obj-$(CONFIG_MFD_TWL4030_AUDIO)	+= twl4030-audio.o
- obj-$(CONFIG_TWL6040_CORE)	+= twl6040.o
- 
-+obj-$(CONFIG_MFD_MX25_TSADC)	+= fsl-imx25-tsadc.o
++	return (type < EV_CNT) ? counts[type] : 0;
++}
 +
- obj-$(CONFIG_MFD_MC13XXX)	+= mc13xxx-core.o
- obj-$(CONFIG_MFD_MC13XXX_SPI)	+= mc13xxx-spi.o
- obj-$(CONFIG_MFD_MC13XXX_I2C)	+= mc13xxx-i2c.o
-diff --git a/drivers/mfd/fsl-imx25-tsadc.c b/drivers/mfd/fsl-imx25-tsadc.c
-new file mode 100644
-index 0000000..10332c2
---- /dev/null
-+++ b/drivers/mfd/fsl-imx25-tsadc.c
-@@ -0,0 +1,232 @@
-+/*
-+ * Copyright 2014 Markus Pargmann, Pengutronix <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
++/* must be called with evdev-mutex held */
++static int evdev_set_mask(struct evdev_client *client,
++			  unsigned int type,
++			  const void __user *codes,
++			  u32 codes_size)
++{
++	unsigned long flags, *mask, *oldmask;
++	size_t cnt, size;
++
++	/* unknown masks are simply ignored for forward-compat */
++	cnt = evdev_get_mask_cnt(type);
++	if (!cnt)
++		return 0;
++
++	/* we allow 'codes_size > size' for forward-compat */
++	size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
++
++	mask = kzalloc(size, GFP_KERNEL);
++	if (!mask)
++		return -ENOMEM;
++
++	if (copy_from_user(mask, codes, min_t(size_t, codes_size, size))) {
++		kfree(mask);
++		return -EFAULT;
++	}
++
++	spin_lock_irqsave(&client->buffer_lock, flags);
++	oldmask = client->evmasks[type];
++	client->evmasks[type] = mask;
++	spin_unlock_irqrestore(&client->buffer_lock, flags);
++
++	kfree(oldmask);
++
++	return 0;
++}
++
++/* must be called with evdev-mutex held */
++static int evdev_get_mask(struct evdev_client *client,
++			  unsigned int type,
++			  void __user *codes,
++			  u32 codes_size)
++{
++	unsigned long *mask;
++	size_t cnt, size, min, i;
++	u8 __user *out;
++
++	/* we allow unknown types and 'codes_size > size' for forward-compat */
++	cnt = evdev_get_mask_cnt(type);
++	size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
++	min = min_t(size_t, codes_size, size);
++
++	if (cnt > 0) {
++		mask = client->evmasks[type];
++		if (mask) {
++			if (copy_to_user(codes, mask, min))
++				return -EFAULT;
++		} else {
++			/* fake mask with all bits set */
++			out = (u8 __user*)codes;
++			for (i = 0; i < min; ++i) {
++				if (put_user((u8)0xff,  out + i))
++					return -EFAULT;
++			}
++		}
++	}
++
++	codes = (u8*)codes + min;
++	codes_size -= min;
++
++	if (codes_size > 0 && clear_user(codes, codes_size))
++		return -EFAULT;
++
++	return 0;
++}
++
++/* requires the buffer lock to be held */
++static bool __evdev_is_masked(struct evdev_client *client,
++			      unsigned int type,
++			      unsigned int code)
++{
++	unsigned long *mask;
++	size_t cnt;
++
++	/* EV_SYN and unknown codes are never masked */
++	if (type == EV_SYN || type >= EV_CNT)
++		return false;
++
++	/* first test whether the type is masked */
++	mask = client->evmasks[0];
++	if (mask && !test_bit(type, mask))
++		return true;
++
++	/* unknown values are never masked */
++	cnt = evdev_get_mask_cnt(type);
++	if (!cnt || code >= cnt)
++		return false;
++
++	mask = client->evmasks[type];
++	return mask && !test_bit(code, mask);
++}
++
+ /* flush queued events of type @type, caller must hold client->buffer_lock */
+ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ {
+@@ -177,12 +297,21 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	spin_lock(&client->buffer_lock);
+ 
+ 	for (v = vals; v != vals + count; v++) {
++		if (__evdev_is_masked(client, v->type, v->code))
++			continue;
++
++		if (v->type == EV_SYN && v->code == SYN_REPORT) {
++			/* drop empty SYN_REPORT */
++			if (client->packet_head == client->head)
++				continue;
++
++			wakeup = true;
++		}
++
+ 		event.type = v->type;
+ 		event.code = v->code;
+ 		event.value = v->value;
+ 		__pass_event(client, &event);
+-		if (v->type == EV_SYN && v->code == SYN_REPORT)
+-			wakeup = true;
+ 	}
+ 
+ 	spin_unlock(&client->buffer_lock);
+@@ -365,6 +494,7 @@ static int evdev_release(struct inode *inode, struct file *file)
+ {
+ 	struct evdev_client *client = file->private_data;
+ 	struct evdev *evdev = client->evdev;
++	unsigned int i;
+ 
+ 	mutex_lock(&evdev->mutex);
+ 	evdev_ungrab(evdev, client);
+@@ -372,6 +502,9 @@ static int evdev_release(struct inode *inode, struct file *file)
+ 
+ 	evdev_detach_client(evdev, client);
+ 
++	for (i = 0; i < EV_CNT; ++i)
++		kfree(client->evmasks[i]);
++
+ 	if (is_vmalloc_addr(client))
+ 		vfree(client);
+ 	else
+@@ -811,6 +944,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 	struct evdev *evdev = client->evdev;
+ 	struct input_dev *dev = evdev->handle.dev;
+ 	struct input_absinfo abs;
++	struct input_mask mask;
+ 	struct ff_effect effect;
+ 	int __user *ip = (int __user *)p;
+ 	unsigned int i, t, u, v;
+@@ -872,6 +1006,24 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		else
+ 			return evdev_revoke(evdev, client, file);
+ 
++	case EVIOCGMASK:
++		if (copy_from_user(&mask, p, sizeof(mask)))
++			return -EFAULT;
++
++		return evdev_get_mask(client,
++				      mask.type,
++				      (void*)(long)mask.codes_ptr,
++				      mask.codes_size);
++
++	case EVIOCSMASK:
++		if (copy_from_user(&mask, p, sizeof(mask)))
++			return -EFAULT;
++
++		return evdev_set_mask(client,
++				      mask.type,
++				      (const void*)(long)mask.codes_ptr,
++				      mask.codes_size);
++
+ 	case EVIOCSCLOCKID:
+ 		if (copy_from_user(&i, p, sizeof(unsigned int)))
+ 			return -EFAULT;
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 19df18c..4753f94 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -97,6 +97,12 @@ struct input_keymap_entry {
+ 	__u8  scancode[32];
+ };
+ 
++struct input_mask {
++	__u32 type;
++	__u32 codes_size;
++	__u64 codes_ptr;
++};
++
+ #define EVIOCGVERSION		_IOR('E', 0x01, int)			/* get driver version */
+ #define EVIOCGID		_IOR('E', 0x02, struct input_id)	/* get device ID */
+ #define EVIOCGREP		_IOR('E', 0x03, unsigned int[2])	/* get repeat settings */
+@@ -154,6 +160,53 @@ struct input_keymap_entry {
+ #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
+ #define EVIOCREVOKE		_IOW('E', 0x91, int)			/* Revoke device access */
+ 
++/**
++ * EVIOCGMASK - Retrieve current event-mask
 + *
-+ * The code contained herein is licensed under the GNU General Public
-+ * License. You may obtain a copy of the GNU General Public License
-+ * Version 2 or later at the following locations:
++ * This retrieves the current event-mask for a specific event-type. The
++ * argument must be of type "struct input_mask" and specifies the event-type to
++ * query, the receive buffer and the size of the receive buffer.
 + *
-+ * http://www.opensource.org/licenses/gpl-license.html
-+ * http://www.gnu.org/copyleft/gpl.html
++ * The event-mask is a per-client mask that specifies which events are forwarded
++ * to the client. Each event-code is represented by a single bit in the
++ * event-mask. If set, the event is not-masked. If unset, the event is masked
++ * and will never be queued on the client's receive buffer.
++ *
++ * This ioctl provides full forward-compatibility. That means, if a kernel is
++ * queried for an unknown event-type or if the receive buffer is larger than the
++ * number of event-codes known to the kernel, the kernel will return all zeroes
++ * for those codes (which means, those codes are masked). This effectively
++ * means, codes unknown to the kernel are always considered hard-masked.
++ * If the receive buffer is too small to contain the whole event-mask, a
++ * truncated mask is copied to user-space.
++ *
++ * This ioctl may fail with ENODEV in case the file is revoked. EFAULT is
++ * returned if the receive-buffer points to invalid memory. EINVAL is returned
++ * if the kernel does not implement the ioctl.
 + */
++#define EVIOCGMASK		_IOR('E', 0x92, struct input_mask)	/* Get event-masks */
 +
-+#include <linux/clk.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/irqdesc.h>
-+#include <linux/irqdomain.h>
-+#include <linux/irqchip/chained_irq.h>
-+#include <linux/mfd/imx25-tsadc.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
++/**
++ * EVIOCSMASK - Set event-mask
++ *
++ * This is the counterpart to EVIOCGMASK. Instead of receiving the current
++ * event-mask, this changes the client's event-mask for a specific type. See
++ * EVIOCGMASK for a description of event-masks and the argument-type.
++ *
++ * This ioctl provides full forward-compatibility. If the passed event-type is
++ * unknown to the kernel, or if the number of codes is bigger than known to the
++ * kernel, the ioctl is still accepted and applied. However, any unknown codes
++ * are left untouched and stay masked. That means, the kernel hard-masks unknown
++ * codes regardless of what the client requests.
++ * If the new mask doesn't cover all known event-codes, all remaining codes are
++ * automatically cleared and thus masked.
++ *
++ * This ioctl may fail with ENODEV in case the file is revoked. EFAULT is
++ * returned if the receive-buffer points to invalid memory. EINVAL is returned
++ * if the kernel does not implement the ioctl.
++ */
++#define EVIOCSMASK		_IOW('E', 0x93, struct input_mask)	/* Set event-masks */
 +
-+struct mx25_tsadc_priv {
-+	struct regmap *regs;
-+	struct irq_domain *domain;
-+	struct clk *clk;
-+};
-+
-+static struct regmap_config mx25_tsadc = {
-+	.fast_io = true,
-+	.max_register = 0x8,
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_stride = 4,
-+};
-+
-+struct regmap *mx25_tsadc_get_regmap(struct device *dev)
-+{
-+	struct platform_device *pdev;
-+	struct mx25_tsadc_priv *priv;
-+
-+	if (!dev)
-+		return NULL;
-+
-+	pdev = container_of(dev, struct platform_device, dev);
-+	priv = platform_get_drvdata(pdev);
-+	if (IS_ERR_OR_NULL(priv->regs))
-+		return NULL;
-+
-+	return priv->regs;
-+}
-+EXPORT_SYMBOL(mx25_tsadc_get_regmap);
-+
-+struct clk *mx25_tsadc_get_ipg(struct device *dev)
-+{
-+	struct platform_device *pdev;
-+	struct mx25_tsadc_priv *priv;
-+
-+	if (!dev)
-+		return NULL;
-+
-+	pdev = container_of(dev, struct platform_device, dev);
-+	priv = platform_get_drvdata(pdev);
-+	if (IS_ERR_OR_NULL(priv->clk))
-+		return NULL;
-+
-+	return priv->clk;
-+}
-+EXPORT_SYMBOL(mx25_tsadc_get_ipg);
-+
-+static void mx25_tsadc_irq_handler(u32 irq, struct irq_desc *desc)
-+{
-+	struct mx25_tsadc_priv *priv = irq_desc_get_handler_data(desc);
-+	struct irq_chip *chip = irq_get_chip(irq);
-+	u32 status;
-+
-+	chained_irq_enter(chip, desc);
-+
-+	regmap_read(priv->regs, MX25_TSC_TGSR, &status);
-+
-+	if (status & MX25_TGSR_GCQ_INT)
-+		generic_handle_irq(irq_find_mapping(priv->domain, 1));
-+
-+	if (status & MX25_TGSR_TCQ_INT)
-+		generic_handle_irq(irq_find_mapping(priv->domain, 0));
-+
-+	chained_irq_exit(chip, desc);
-+}
-+
-+static void mx25_tsadc_nop(struct irq_data *d)
-+{
-+}
-+
-+static int mx25_tsadc_set_wake_nop(struct irq_data *d, unsigned int state)
-+{
-+	return 0;
-+}
-+
-+static struct irq_chip mx25_tsadc_irq_chip = {
-+	.name = "mx25-tsadc",
-+	.irq_ack = mx25_tsadc_nop,
-+	.irq_mask = mx25_tsadc_nop,
-+	.irq_unmask = mx25_tsadc_nop,
-+	.irq_set_wake = mx25_tsadc_set_wake_nop,
-+};
-+
-+static int mx25_tsadc_domain_map(struct irq_domain *d, unsigned int irq,
-+			     irq_hw_number_t hwirq)
-+{
-+	struct mx25_tsadc_priv *priv = d->host_data;
-+
-+	irq_set_chip_data(irq, priv);
-+	irq_set_chip_and_handler(irq, &mx25_tsadc_irq_chip,
-+				 handle_level_irq);
-+
-+
-+	set_irq_flags(irq, IRQF_VALID);
-+
-+	return 0;
-+}
-+
-+static struct irq_domain_ops mx25_tsadc_domain_ops = {
-+	.map = mx25_tsadc_domain_map,
-+	.xlate = irq_domain_xlate_onecell,
-+};
-+
-+static int mx25_tsadc_setup_irq(struct platform_device *pdev,
-+		struct mx25_tsadc_priv *priv)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	int irq;
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(dev, "Failed to get irq\n");
-+		return irq;
-+	}
-+
-+	priv->domain = irq_domain_add_simple(np, 2, 0, &mx25_tsadc_domain_ops,
-+			priv);
-+	if (!priv->domain) {
-+		dev_err(dev, "Failed to add irq domain\n");
-+		return -ENOMEM;
-+	}
-+
-+	irq_set_chained_handler(irq, mx25_tsadc_irq_handler);
-+	irq_set_handler_data(irq, priv);
-+
-+	return 0;
-+}
-+
-+static int mx25_tsadc_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct mx25_tsadc_priv *priv;
-+	struct resource *iores;
-+	int ret;
-+	void __iomem *iomem;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	iomem = devm_ioremap_resource(dev, iores);
-+	if (IS_ERR(iomem)) {
-+		dev_err(dev, "Failed to remap iomem\n");
-+		return PTR_ERR(iomem);
-+	}
-+
-+	priv->regs = regmap_init_mmio(dev, iomem, &mx25_tsadc);
-+	if (IS_ERR(priv->regs)) {
-+		dev_err(dev, "Failed to initialize regmap\n");
-+		return PTR_ERR(priv->regs);
-+	}
-+
-+	priv->clk = devm_clk_get(dev, "ipg");
-+	if (IS_ERR(priv->clk)) {
-+		dev_err(dev, "Failed to get ipg clock\n");
-+		return PTR_ERR(priv->clk);
-+	}
-+
-+	/* Enable clock and reset the component */
-+	regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_CLK_EN,
-+			MX25_TGCR_CLK_EN);
-+	regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_TSC_RST,
-+			MX25_TGCR_TSC_RST);
-+
-+	/* Setup powersaving mode, but enable internal reference voltage */
-+	regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_POWERMODE_MASK,
-+			MX25_TGCR_POWERMODE_SAVE);
-+	regmap_update_bits(priv->regs, MX25_TSC_TGCR, MX25_TGCR_INTREFEN,
-+			MX25_TGCR_INTREFEN);
-+
-+	ret = mx25_tsadc_setup_irq(pdev, priv);
-+	if (ret) {
-+		dev_err(dev, "Failed to setup irqs\n");
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, priv);
-+
-+	of_platform_populate(np, NULL, NULL, dev);
-+
-+	dev_info(dev, "i.MX25 Touchscreen and ADC core driver loaded\n");
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id mx25_tsadc_ids[] = {
-+	{ .compatible = "fsl,imx25-tsadc", },
-+	{ /* Sentinel */ }
-+};
-+
-+static struct platform_driver mx25_tsadc_driver = {
-+	.driver		= {
-+		.name	= "mx25-tsadc",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = mx25_tsadc_ids,
-+	},
-+	.probe		= mx25_tsadc_probe,
-+};
-+module_platform_driver(mx25_tsadc_driver);
-+
-+MODULE_DESCRIPTION("MFD for ADC/TSC for Freescale mx25");
-+MODULE_AUTHOR("Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:mx25-tsadc");
-diff --git a/include/linux/mfd/imx25-tsadc.h b/include/linux/mfd/imx25-tsadc.h
-new file mode 100644
-index 0000000..6fba341
---- /dev/null
-+++ b/include/linux/mfd/imx25-tsadc.h
-@@ -0,0 +1,138 @@
-+#ifndef _LINUX_INCLUDE_INPUT_IMX25_TSADC_H_
-+#define _LINUX_INCLUDE_INPUT_IMX25_TSADC_H_
-+
-+struct regmap;
-+struct device;
-+struct clk;
-+
-+struct regmap *mx25_tsadc_get_regmap(struct device *dev);
-+struct clk *mx25_tsadc_get_ipg(struct device *dev);
-+
-+#define MX25_TSC_TGCR 0x00
-+#define MX25_TSC_TGSR 0x04
-+#define MX25_TSC_TICR 0x08
-+
-+/* The same register layout for TC and GC queue */
-+#define MX25_ADCQ_FIFO 0x00
-+#define MX25_ADCQ_CR 0x04
-+#define MX25_ADCQ_SR 0x08
-+#define MX25_ADCQ_MR 0x0c
-+#define MX25_ADCQ_ITEM_7_0 0x20
-+#define MX25_ADCQ_ITEM_15_8 0x24
-+#define MX25_ADCQ_CFG(n) (0x40 + ((n) * 0x4))
-+
-+/* Register values */
-+/* Queue Config register */
-+#define MX25_ADCQ_MR_MASK 0xffffffff
-+
-+/* TGCR */
-+#define MX25_TGCR_PDBTIME(x) ((x) << 25)
-+#define MX25_TGCR_PDBTIME_MASK MX25_TGCR_PDBTIME(0x7f)
-+#define MX25_TGCR_PDBEN (1 << 24)
-+#define MX25_TGCR_PDEN (1 << 23)
-+#define MX25_TGCR_ADCCLKCFG(x) ((x) << 16)
-+#define MX25_TGCR_GET_ADCCLK(x) (((x) >> 16) & 0x1f)
-+#define MX25_TGCR_INTREFEN (1 << 10)
-+#define MX25_TGCR_POWERMODE_MASK (3 << 8)
-+#define MX25_TGCR_POWERMODE_SAVE (1 << 8)
-+#define MX25_TGCR_POWERMODE_ON (2 << 8)
-+#define MX25_TGCR_STLC (1 << 5)
-+#define MX25_TGCR_SLPC (1 << 4)
-+#define MX25_TGCR_FUNC_RST (1 << 2)
-+#define MX25_TGCR_TSC_RST (1 << 1)
-+#define MX25_TGCR_CLK_EN (1 << 0)
-+
-+/* TGSR */
-+#define MX25_TGSR_SLP_INT (1 << 2)
-+#define MX25_TGSR_GCQ_INT (1 << 1)
-+#define MX25_TGSR_TCQ_INT (1 << 0)
-+
-+/* ADCQ_ITEM_* */
-+#define _MX25_ADCQ_ITEM(item, x) ((x) << ((item) * 4))
-+#define MX25_ADCQ_ITEM(item, x) ((item) >= 8 ? \
-+		_MX25_ADCQ_ITEM((item) - 8, (x)) : _MX25_ADCQ_ITEM((item), (x)))
-+
-+/* ADCQ_FIFO (TCQFIFO and GCQFIFO) */
-+#define MX25_ADCQ_FIFO_DATA(x) (((x) >> 4) & 0xfff)
-+#define MX25_ADCQ_FIFO_ID(x) ((x) & 0xf)
-+
-+/* ADCQ_CR (TCQR and GCQR) */
-+#define MX25_ADCQ_CR_PDCFG_LEVEL (1 << 19)
-+#define MX25_ADCQ_CR_PDMSK (1 << 18)
-+#define MX25_ADCQ_CR_FRST (1 << 17)
-+#define MX25_ADCQ_CR_QRST (1 << 16)
-+#define MX25_ADCQ_CR_RWAIT_MASK (0xf << 12)
-+#define MX25_ADCQ_CR_RWAIT(x) ((x) << 12)
-+#define MX25_ADCQ_CR_WMRK_MASK (0xf << 8)
-+#define MX25_ADCQ_CR_WMRK(x) ((x) << 8)
-+#define MX25_ADCQ_CR_LITEMID_MASK (0xf << 4)
-+#define MX25_ADCQ_CR_LITEMID(x) ((x) << 4)
-+#define MX25_ADCQ_CR_RPT (1 << 3)
-+#define MX25_ADCQ_CR_FQS (1 << 2)
-+#define MX25_ADCQ_CR_QSM_MASK 0x3
-+#define MX25_ADCQ_CR_QSM_PD 0x1
-+#define MX25_ADCQ_CR_QSM_FQS 0x2
-+#define MX25_ADCQ_CR_QSM_FQS_PD 0x3
-+
-+/* ADCQ_SR (TCQSR and GCQSR) */
-+#define MX25_ADCQ_SR_FDRY (1 << 15)
-+#define MX25_ADCQ_SR_FULL (1 << 14)
-+#define MX25_ADCQ_SR_EMPT (1 << 13)
-+#define MX25_ADCQ_SR_FDN(x) (((x) >> 8) & 0x1f)
-+#define MX25_ADCQ_SR_FRR (1 << 6)
-+#define MX25_ADCQ_SR_FUR (1 << 5)
-+#define MX25_ADCQ_SR_FOR (1 << 4)
-+#define MX25_ADCQ_SR_EOQ (1 << 1)
-+#define MX25_ADCQ_SR_PD (1 << 0)
-+
-+/* ADCQ_MR (TCQMR and GCQMR) */
-+#define MX25_ADCQ_MR_FDRY_DMA (1 << 31)
-+#define MX25_ADCQ_MR_FER_DMA (1 << 22)
-+#define MX25_ADCQ_MR_FUR_DMA (1 << 21)
-+#define MX25_ADCQ_MR_FOR_DMA (1 << 20)
-+#define MX25_ADCQ_MR_EOQ_DMA (1 << 17)
-+#define MX25_ADCQ_MR_PD_DMA (1 << 16)
-+#define MX25_ADCQ_MR_FDRY_IRQ (1 << 15)
-+#define MX25_ADCQ_MR_FER_IRQ (1 << 6)
-+#define MX25_ADCQ_MR_FUR_IRQ (1 << 5)
-+#define MX25_ADCQ_MR_FOR_IRQ (1 << 4)
-+#define MX25_ADCQ_MR_EOQ_IRQ (1 << 1)
-+#define MX25_ADCQ_MR_PD_IRQ (1 << 0)
-+
-+/* ADCQ_CFG (TICR, TCC0-7,GCC0-7) */
-+#define MX25_ADCQ_CFG_SETTLING_TIME(x) ((x) << 24)
-+#define MX25_ADCQ_CFG_IGS (1 << 20)
-+#define MX25_ADCQ_CFG_NOS_MASK (0xf << 16)
-+#define MX25_ADCQ_CFG_NOS(x) (((x) - 1) << 16)
-+#define MX25_ADCQ_CFG_WIPER (1 << 15)
-+#define MX25_ADCQ_CFG_YNLR (1 << 14)
-+#define MX25_ADCQ_CFG_YPLL_HIGH 0
-+#define MX25_ADCQ_CFG_YPLL_OFF (1 << 12)
-+#define MX25_ADCQ_CFG_YPLL_LOW (3 << 12)
-+#define MX25_ADCQ_CFG_XNUR_HIGH 0
-+#define MX25_ADCQ_CFG_XNUR_OFF (1 << 10)
-+#define MX25_ADCQ_CFG_XNUR_LOW (3 << 10)
-+#define MX25_ADCQ_CFG_XPUL_OFF (1 << 9)
-+#define MX25_ADCQ_CFG_XPUL_HIGH 0
-+#define MX25_ADCQ_CFG_REFP_YP 0
-+#define MX25_ADCQ_CFG_REFP_XP (1 << 7)
-+#define MX25_ADCQ_CFG_REFP_EXT (2 << 7)
-+#define MX25_ADCQ_CFG_REFP_INT (3 << 7)
-+#define MX25_ADCQ_CFG_REFP_MASK (3 << 7)
-+#define MX25_ADCQ_CFG_IN_XP 0
-+#define MX25_ADCQ_CFG_IN_YP (1 << 4)
-+#define MX25_ADCQ_CFG_IN_XN (2 << 4)
-+#define MX25_ADCQ_CFG_IN_YN (3 << 4)
-+#define MX25_ADCQ_CFG_IN_WIPER (4 << 4)
-+#define MX25_ADCQ_CFG_IN_AUX0 (5 << 4)
-+#define MX25_ADCQ_CFG_IN_AUX1 (6 << 4)
-+#define MX25_ADCQ_CFG_IN_AUX2 (7 << 4)
-+#define MX25_ADCQ_CFG_REFN_XN 0
-+#define MX25_ADCQ_CFG_REFN_YN (1 << 2)
-+#define MX25_ADCQ_CFG_REFN_NGND (2 << 2)
-+#define MX25_ADCQ_CFG_REFN_NGND2 (3 << 2)
-+#define MX25_ADCQ_CFG_REFN_MASK (3 << 2)
-+#define MX25_ADCQ_CFG_PENIACK (1 << 1)
-+
-+
-+#endif  /* _LINUX_INCLUDE_INPUT_IMX25_TSADC_H_ */
+ #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
+ 
+ /*
 -- 
-1.7.9.5
+2.0.0
+

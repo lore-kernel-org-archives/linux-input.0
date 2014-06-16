@@ -1,7 +1,7 @@
 From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 4/6] ARM: dts: imx25: Add TSC and ADC support
-Date: Mon, 16 Jun 2014 11:28:51 +0200
-Message-ID: <1402910933-20534-4-git-send-email-denis@eukrea.com>
+Subject: [PATCH v3 6/6] ARM: imx_v4_v5_defconfig: Add I.MX25 Touchscreen controller and ADC support.
+Date: Mon, 16 Jun 2014 11:28:53 +0200
+Message-ID: <1402910933-20534-6-git-send-email-denis@eukrea.com>
 References: <1402910933-20534-1-git-send-email-denis@eukrea.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1402910933-20534-1-git-send-email-denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
@@ -13,58 +13,39 @@ List-Id: linux-input@vger.kernel.org
 Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 ---
 Changelog v2->v3:
-- Added ADC controller support: making a separate patch
-  for it would have been overkill.
-- Moved the common TSC and ADC sub-nodes inside this patch
-  instead of having a copy in each dts using it.
+- Added ADC support, splitting it would be overkill.
 ---
- arch/arm/boot/dts/imx25.dtsi |   30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ arch/arm/configs/imx_v4_v5_defconfig |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-index 98783f5..3187342 100644
---- a/arch/arm/boot/dts/imx25.dtsi
-+++ b/arch/arm/boot/dts/imx25.dtsi
-@@ -264,13 +264,37 @@
- 				status = "disabled";
- 			};
- 
--			tsc: tsc@50030000 {
--				compatible = "fsl,imx25-adc", "fsl,imx21-tsc";
--				reg = <0x50030000 0x4000>;
-+			tscadc: tscadc@50030000 {
-+				compatible = "fsl,imx25-tsadc";
-+				reg = <0x50030000 0xc>;
- 				interrupts = <46>;
- 				clocks = <&clks 119>;
- 				clock-names = "ipg";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+				#address-cells = <1>;
-+				#size-cells = <1>;
-+				ranges;
- 				status = "disabled";
-+
-+				adc: adc@50030800 {
-+					compatible = "fsl,imx25-gcq";
-+					reg = <0x50030800 0x60>;
-+					interrupt-parent = <&tscadc>;
-+					interrupts = <1>;
-+					#address-cells = <1>;
-+					#size-cells = <0>;
-+					status = "disabled";
-+				};
-+
-+				tsc: tcq@50030400 {
-+					compatible = "fsl,imx25-tcq";
-+					reg = <0x50030400 0x60>;
-+					interrupt-parent = <&tscadc>;
-+					interrupts = <0>;
-+					fsl,wires = <4>;
-+					status = "disabled";
-+				};
- 			};
- 
- 			ssi1: ssi@50034000 {
+diff --git a/arch/arm/configs/imx_v4_v5_defconfig b/arch/arm/configs/imx_v4_v5_defconfig
+index 397f43c..580c367 100644
+--- a/arch/arm/configs/imx_v4_v5_defconfig
++++ b/arch/arm/configs/imx_v4_v5_defconfig
+@@ -98,6 +98,7 @@ CONFIG_KEYBOARD_IMX=y
+ # CONFIG_INPUT_MOUSE is not set
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_TOUCHSCREEN_ADS7846=m
++CONFIG_TOUCHSCREEN_MX25=y
+ CONFIG_TOUCHSCREEN_MC13783=y
+ # CONFIG_LEGACY_PTYS is not set
+ CONFIG_SERIAL_8250=m
+@@ -118,6 +119,7 @@ CONFIG_HWMON=m
+ CONFIG_SENSORS_MC13783_ADC=m
+ CONFIG_WATCHDOG=y
+ CONFIG_IMX2_WDT=y
++CONFIG_MFD_MX25_TSADC=y
+ CONFIG_MFD_MC13XXX_SPI=y
+ CONFIG_REGULATOR=y
+ CONFIG_REGULATOR_FIXED_VOLTAGE=y
+@@ -184,6 +186,8 @@ CONFIG_DMADEVICES=y
+ CONFIG_IMX_SDMA=y
+ CONFIG_IMX_DMA=y
+ # CONFIG_IOMMU_SUPPORT is not set
++CONFIG_IIO=y
++CONFIG_FSL_MX25_ADC=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT3_FS=y
+ CONFIG_EXT4_FS=y
 -- 
 1.7.9.5

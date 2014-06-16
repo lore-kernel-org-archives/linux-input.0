@@ -1,33 +1,55 @@
 From: Johan Hovold <johan@kernel.org>
 Subject: Re: [PATCH v5] leds: USB: HID: Add support for MSI GT683R led panels
-Date: Mon, 16 Jun 2014 09:39:57 +0200
-Message-ID: <20140616073957.GA20636@localhost>
+Date: Mon, 16 Jun 2014 09:45:03 +0200
+Message-ID: <20140616074503.GB20636@localhost>
 References: <20140612090636.GK10256@localhost>
  <1402605252-9620-1-git-send-email-janne.kanniainen@gmail.com>
- <20140613075411.GG10940@localhost>
- <CAEEjW05PL7ZqnKypCYP4SP9hzKeDii=GouHLJ2u5xtR0yCTO2w@mail.gmail.com>
- <CAEEjW06FJta+csEevj+AT_uUfRTwQe3TgVBErJmjygpPbgE__w@mail.gmail.com>
+ <20140614224222.GE1389@xo-6d-61-c0.localdomain>
+ <CAEEjW04wA3PT2=oE4Z=tP-RWkmyiWpM5NzCH5Owwh8vCRbqMTA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-leds-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAEEjW06FJta+csEevj+AT_uUfRTwQe3TgVBErJmjygpPbgE__w@mail.gmail.com>
+In-Reply-To: <CAEEjW04wA3PT2=oE4Z=tP-RWkmyiWpM5NzCH5Owwh8vCRbqMTA@mail.gmail.com>
 Sender: linux-leds-owner@vger.kernel.org
 To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>, Jiri Kosina <jkosina@suse.cz>, Bryan Wu <cooloney@gmail.com>, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Pavel Machek <pavel@ucw.cz>, Jiri Kosina <jkosina@suse.cz>, Johan Hovold <johan@kernel.org>, Bryan Wu <cooloney@gmail.com>, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jun 15, 2014 at 05:59:40PM +0300, Janne Kanniainen wrote:
-> >> Ok, so you decided to continue setting mode on every LED brightness
-> >> update. That should be fine, but you never answered my question about
-> >> whether it is necessary?
-> >
-> > I decided to do it that way because official driver did it as well. I
-> > can check if it is necessary.
+On Sun, Jun 15, 2014 at 02:23:25AM +0300, Janne Kanniainen wrote:
+> > Hi!
 > 
-> Ok, I checked this one and every time you update LEDs brightness you
-> will need to update mode also.
+> Hi.
+> 
+> >> --- /dev/null
+> >> +++ b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+> >> @@ -0,0 +1,10 @@
+> >> +What:                /sys/class/hidraw/<hidraw>/device/state
+> >> +Date:                Jun 2014
+> >> +KernelVersion:       3.15
+> >> +Contact:     Janne Kanniainen <janne.kanniainen@gmail.com>
+> >> +Description:
+> >> +             Set the mode of LEDs
+> >> +
+> >> +             0 - normal
+> >> +             1 - audio
+> >> +             2 - breathing
+> >
+> > THat's some strange interface. Don't we normally use led triggers
+> > for this?
+> 
+> I can implement it that way, if you all think that it is correct way.
+> What do Jiri and Johan thinks of it?
+> 
+> > And the mode of the LED should really be in /sys/class/leds, not in
+> > hidraw somewhere...
+> 
+> The problem is that all panels can only be in one mode at the time.
+> For example front panel can't be in breathing mode while side panel is
+> in normal mode.
 
-Ok, great. Then we know.
+As Janne explained above, it's really an attribute of the parent device
+and not the individual LEDs. The latter could still use the software
+timer trigger to blink independently.
 
 Johan

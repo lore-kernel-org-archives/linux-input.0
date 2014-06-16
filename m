@@ -1,82 +1,110 @@
-From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v3 1/6] mfd: fsl imx25 Touchscreen ADC driver
-Date: Mon, 16 Jun 2014 17:55:31 +0200
-Message-ID: <539F1373.9090006@eukrea.com>
-References: <1402910933-20534-1-git-send-email-denis@eukrea.com> <20140616112649.GQ14323@lee--X1>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input - wacom: put a flag when the led are initialized
+Date: Mon, 16 Jun 2014 12:33:04 -0400
+Message-ID: <20140616163304.GB11091@mail.corp.redhat.com>
+References: <1402691372-26282-1-git-send-email-benjamin.tissoires@redhat.com>
+ <CAF8JNhKBodDC0=M0evsN4xSn7+qPvQZ52XF+mfusgT_1L3Ks8w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140616112649.GQ14323@lee--X1>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAF8JNhKBodDC0=M0evsN4xSn7+qPvQZ52XF+mfusgT_1L3Ks8w@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 06/16/2014 01:26 PM, Lee Jones wrote:
->
->> +static void mx25_tsadc_nop(struct irq_data *d)
->> +{
->> +}
->
-> Err, no, this is not required.  Just don't populate the call-backs.
->
->> +static int mx25_tsadc_set_wake_nop(struct irq_data *d, unsigned int state)
->> +{
->> +	return 0;
->> +}
->> +
->> +static struct irq_chip mx25_tsadc_irq_chip = {
->> +	.name = "mx25-tsadc",
->> +	.irq_ack = mx25_tsadc_nop,
->> +	.irq_mask = mx25_tsadc_nop,
->> +	.irq_unmask = mx25_tsadc_nop,
->
-> No need to do this.
+Hi Ping,
 
-I can avoid all callbacks but the irq_mask/irq_unmask ones:
-Even if I add some flags to prevent it to be called during probe, it 
-can't be avoided to be called when an IRQ arrives.
+On Jun 13 2014 or thereabouts, Ping Cheng wrote:
+> Hi Benjamin,
+> 
+> On Fri, Jun 13, 2014 at 1:29 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > This solves a bug with the wireless receiver:
+> 
+> Your patch does get rid of the crash. But, it does not fix it at the
+> root cause.
 
-It's called by handle_level_irq, which is setup as handler in 
-mx25_tsadc_domain_map. I don't think it's a good idea to rewrite it not 
-to depend on irq_mask/irq_unmask.
+True, it fixes the crash, does not get rid of the root cause, but it is
+still required. See later.
 
-Here's what happens when an IRQ arrives (Shortened version):
-[<c005391c>] (handle_level_irq)
-[<c0050930>] (generic_handle_irq)
-[<c02dc544>] (mx25_tsadc_irq_handler)
-[<c0050930>] (generic_handle_irq)
-[<c0009e64>] (handle_IRQ)
-[<c0008710>] (avic_handle_irq)
-[...]
+> 
+> > - at plug, the wireless receiver does not know which Wacom device it is
+> >   connected to, so it does not actually creates all the LEDs
+> 
+> This is the root cause - LEDs are not created for wireless devices.
+> Neither here, nor later when a real device is connected.
 
-Then handle_level_irq it runs mask_ack_irq inconditionally.
-mask_ack_irq in turn will try to executes irq_mask_ack or else irq_mask 
-(without checking if it's NULL) and then will provoke the NULL pointer.
+Yep
 
-Instead when I look in drivers/mfd/ I see the following drivers which 
-have some dummy handlers:
-wm8994-irq.c, ucb1x00-core.c, tc6393xb.c, htc-egpio.c, arizona-irq.c
+> 
+> > - when the tablet connects, wacom->wacom_wac.features.type is set to the
+> >   proper device so that wacom_wac can understand the packets
+> 
+> LEDs are not created for any wireless devices since we don't call
+> wacom_initialize_leds() when real tablets are connected.
 
-So I wonder if dummy callbacks are allowed or if it's an old practice 
-that has been deprecated.
+Yep
 
-Else I wonder how to avoid them:
-- By setting some flags (which ones?).
-- Or by re-architecting the IRQ handling between the MFD and its 
-sub-devices in a way that the mfd driver is responsible for enabling and 
-disabling the IRQs (instead of its subdevices). That would be done 
-inside .irq_enable() and a .irq_disable().
-Most of the mfd drivers that handle an IRQ controller have theses callbacks.
+> 
+> > - when the receiver is unplugged, it detects that a LED should have been
+> >   created (based on wacom->wacom_wac.features.type) and tries to remove
+> >   it: crash when removing the sysfs group.
+> 
+> When receiver is unplugged, it remembers the last tablet that
+> connected to it. If that tablet supports LEDs, wacom_destroy_leds() is
+> called. But, no LEDs were initialized. That's why it crashes.
 
-In the later case, how the subdevice would enable the interrupts, would 
-it be done automatically? or would it have to enable the parent mfd's 
-interrupts trough explicit callbacks or wrapper functions that will call 
-the callbacks(irq_enable and so on, with the irq taken from the mfd's 
-private struct).
+Yep
 
-I've fixed the rest of the concerns but I'll wait for an answer before 
-resending so I can fix this issue too.
+> 
+> > Side effect, we can now safely call several times wacom_destroy_leds().
+> 
+> led_initialized will never be true if we keep wacom_initialize_leds()
+> inside probe().
 
-Denis.
+If you are talking about wireless devices only, yes, this value will
+never be true. That's the purpose of this patch actually :)
+
+> 
+> To make initialize_leds() and desctroy_leds() work for wireless
+> devices, we need to move them to wacom_wireless_work() where we know
+> what type of tablet is connected/disconnected.
+
+Unfortunately, this does not work:
+- we *can* create the LEDs sysfs in the wireless work
+- this will prevent the crash
+- the user will think it can control the LEDs
+- actually these LEDs control will do nothing because LEDs handling for
+  wireless devices goes through the WL interface, and not the PEN
+  interface of the WL receiver.
+- we need to implement a specific led_handling for the wireless receiver
+  (which will need to know which type of tablet is connected to it)
+- we still need a way to say that the pen intf which is declared as the
+  connected device does not has a LED sysfs.
+
+We could add a quirk to the wacom_wac->features saying that the
+connection is wireless, so there is no LED attached to the interface.
+
+Still, there will be some work to do to properly handle the LED
+configuration from the WL receiver. This work has to be done in the
+kernel, but also in the user space (g-s-d) because now, the led control
+will not be on the pen device, but on a plain usb device without input.
+
+If you prefer, I can add such a quirk. But my only concern is here to
+fix the kernel oops, not to add features which would require more
+testing across different hardware and development on the user space
+side.
+
+> 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> Thank you for your support. But, sorry
+> 
+> NAKed-by: Ping Cheng <pingc@wacom.com>
+
+Please reconsider it or validate the quirk approach I mentioned.
+
+Cheers,
+Benjamin

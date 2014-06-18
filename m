@@ -1,115 +1,55 @@
-From: Doug Anderson <dianders@chromium.org>
+From: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH 08/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
-Date: Tue, 17 Jun 2014 21:27:49 -0700
-Message-ID: <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
+Date: Tue, 17 Jun 2014 22:05:14 -0700
+Message-ID: <CAPnjgZ22q3-+YGPP3=GeYgk6fxCaaOJV5RZbViiKPgga_bRtGg@mail.gmail.com>
 References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
 	<1402954800-28215-9-git-send-email-dianders@chromium.org>
 	<CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
+	<CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f169.google.com ([209.85.220.169]:35258 "EHLO
-	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751488AbaFRE1v (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jun 2014 00:27:51 -0400
-Received: by mail-vc0-f169.google.com with SMTP id la4so282624vcb.0
-        for <linux-input@vger.kernel.org>; Tue, 17 Jun 2014 21:27:50 -0700 (PDT)
-In-Reply-To: <CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Sonny Rao <sonnyrao-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lk <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Simon Glass <sjg@chromium.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Vincent Palatin <vpalatin@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Simon,
+Hi Doug,
 
-On Tue, Jun 17, 2014 at 8:42 PM, Simon Glass <sjg@chromium.org> wrote:
->> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
->> index 4083796..dc37b6b 100644
->> --- a/drivers/input/keyboard/cros_ec_keyb.c
->> +++ b/drivers/input/keyboard/cros_ec_keyb.c
->> @@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_dev *dev)
->>
->>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
->>  {
->> -       return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
->> -                                         kb_state, ckdev->cols);
->> +       int ret;
->> +       struct cros_ec_command msg = {
->> +               .version = 0,
->> +               .command = EC_CMD_MKBP_STATE,
->> +               .outdata = NULL,
->> +               .outsize = 0,
->> +               .indata = kb_state,
->> +               .insize = ckdev->cols,
->> +       };
->> +
->> +       ret = ckdev->ec->cmd_xfer(ckdev->ec, &msg);
+On 17 June 2014 21:27, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+> Simon,
 >
-> Do we need ret?
-
-No.  If you wish I will spin without it.  Let me know.
-
-Note that locally this code includes a comment between the above and the return:
-  /* FIXME: This assumes msg.result == EC_RES_SUCCESS */
-
-Given that this is not a new problem introduced in this code, that it
-still hasn't been fixed locally in the ChromeOS tree, and that
-generally FIXMEs don't seem to be left in the code upstream, I left it
-out.
-
->> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
->> index 2b0c598..60c0880 100644
->> --- a/include/linux/mfd/cros_ec.h
->> +++ b/include/linux/mfd/cros_ec.h
->> @@ -63,9 +63,10 @@ struct cros_ec_command {
->>   * @was_wake_device: true if this device was set to wake the system from
->>   * sleep at the last suspend
->>   * @event_notifier: interrupt event notifier for transport devices
->> - * @command_send: send a command
->> - * @command_recv: receive a response
->> - * @command_sendrecv: send a command and receive a response
->> + * @cmd_xfer: send command to EC and get response
->> + *     Returns 0 if the communication succeeded, but that doesn't mean the EC
->> + *     was happy with the command it got. Caller should check msg.result for
->> + *     the EC's result code.
->>   *
->>   * @priv: Private data
->>   * @irq: Interrupt to use
->> @@ -83,7 +84,6 @@ struct cros_ec_command {
->>   * @parent: pointer to parent device (e.g. i2c or spi device)
->>   * @wake_enabled: true if this device can wake the system from sleep
->>   * @lock: one transaction at a time
->> - * @cmd_xfer: low-level channel to the EC
->>   */
->>  struct cros_ec_device {
+> On Tue, Jun 17, 2014 at 8:42 PM, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+>>> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+>>> index 4083796..dc37b6b 100644
+>>> --- a/drivers/input/keyboard/cros_ec_keyb.c
+>>> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+>>> @@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_dev *dev)
+>>>
+>>>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
+>>>  {
+>>> -       return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
+>>> -                                         kb_state, ckdev->cols);
+>>> +       int ret;
+>>> +       struct cros_ec_command msg = {
+>>> +               .version = 0,
+>>> +               .command = EC_CMD_MKBP_STATE,
+>>> +               .outdata = NULL,
+>>> +               .outsize = 0,
+>>> +               .indata = kb_state,
+>>> +               .insize = ckdev->cols,
+>>> +       };
+>>> +
+>>> +       ret = ckdev->ec->cmd_xfer(ckdev->ec, &msg);
 >>
->> @@ -94,13 +94,8 @@ struct cros_ec_device {
->>         bool was_wake_device;
->>         struct class *cros_class;
->>         struct blocking_notifier_head event_notifier;
->> -       int (*command_send)(struct cros_ec_device *ec,
->> -                           uint16_t cmd, void *out_buf, int out_len);
->> -       int (*command_recv)(struct cros_ec_device *ec,
->> -                           uint16_t cmd, void *in_buf, int in_len);
->> -       int (*command_sendrecv)(struct cros_ec_device *ec,
->> -                               uint16_t cmd, void *out_buf, int out_len,
->> -                               void *in_buf, int in_len);
->> +       int (*cmd_xfer)(struct cros_ec_device *ec,
->> +                       struct cros_ec_command *msg);
->>
->>         /* These are used to implement the platform-specific interface */
->>         void *priv;
->> @@ -112,8 +107,6 @@ struct cros_ec_device {
->>         struct device *parent;
->>         bool wake_enabled;
->>         struct mutex lock;
->> -       int (*cmd_xfer)(struct cros_ec_device *ec,
->> -                       struct cros_ec_command *msg);
+>> Do we need ret?
 >
-> Seems odd - maybe this line move of cmd_xfer() should be in an earlier patch?
+> No.  If you wish I will spin without it.  Let me know.
+>
+> Note that locally this code includes a comment between the above and the return:
+>   /* FIXME: This assumes msg.result == EC_RES_SUCCESS */
 
-It got moved from "private" to public.  Bill reorganized all the
-public stuff at the top and the private at the bottom.
+It's not important to me, and you've explained the other question.
 
--Doug
+Reviewed-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>

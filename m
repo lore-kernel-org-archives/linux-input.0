@@ -1,119 +1,206 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] Input - wacom: put a flag when the led are initialized
-Date: Tue, 17 Jun 2014 14:14:55 -0700
-Message-ID: <CAF8JNh+FBAAn4zM+ziUU4hLVdnJvYkDyF-iPb3zTvQsgzfcT=w@mail.gmail.com>
+From: Simon Glass <sjg@chromium.org>
+Subject: Re: [PATCH 08/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
+Date: Tue, 17 Jun 2014 20:42:14 -0700
+Message-ID: <CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
+References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
+	<1402954800-28215-9-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1402954800-28215-9-git-send-email-dianders@chromium.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Vincent Palatin <vpalatin@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
+Hi Doug,
 
-On Monday, June 16, 2014, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
+On 16 June 2014 14:39, Doug Anderson <dianders@chromium.org> wrote:
+> From: Bill Richardson <wfrichar@chromium.org>
 >
-> Hi Ping,
+> Remove the three wrapper functions that talk to the EC without passing all
+> the desired arguments and just use the underlying communication function
+> that passes everything in a struct intead.
 >
-> On Jun 13 2014 or thereabouts, Ping Cheng wrote:
-> > Hi Benjamin,
-> >
-> > On Fri, Jun 13, 2014 at 1:29 PM, Benjamin Tissoires
-> > <benjamin.tissoires@redhat.com> wrote:
-> > > This solves a bug with the wireless receiver:
-> >
-> > Your patch does get rid of the crash. But, it does not fix it at the
-> > root cause.
+> This is internal code refactoring only. Nothing should change.
 >
-> True, it fixes the crash, does not get rid of the root cause, but it is
-> still required. See later.
+> Signed-off-by: Bill Richardson <wfrichar@chromium.org>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> ---
+>  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 15 +++++++++++----
+>  drivers/input/keyboard/cros_ec_keyb.c   | 14 ++++++++++++--
+>  drivers/mfd/cros_ec.c                   | 32 --------------------------------
+>  include/linux/mfd/cros_ec.h             | 19 ++++++-------------
+>  4 files changed, 29 insertions(+), 51 deletions(-)
 >
-> >
-> > > - at plug, the wireless receiver does not know which Wacom device it is
-> > >   connected to, so it does not actually creates all the LEDs
-> >
-> > This is the root cause - LEDs are not created for wireless devices.
-> > Neither here, nor later when a real device is connected.
+> diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> index 8e7a714..dd07818 100644
+> --- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> +++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> @@ -183,6 +183,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+>         u8 *request = NULL;
+>         u8 *response = NULL;
+>         int result;
+> +       struct cros_ec_command msg;
 >
-> Yep
+>         request_len = ec_i2c_count_message(i2c_msgs, num);
+>         if (request_len < 0) {
+> @@ -218,9 +219,15 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+>         }
 >
-> >
-> > > - when the tablet connects, wacom->wacom_wac.features.type is set to the
-> > >   proper device so that wacom_wac can understand the packets
-> >
-> > LEDs are not created for any wireless devices since we don't call
-> > wacom_initialize_leds() when real tablets are connected.
+>         ec_i2c_construct_message(request, i2c_msgs, num, bus_num);
+> -       result = bus->ec->command_sendrecv(bus->ec, EC_CMD_I2C_PASSTHRU,
+> -                                          request, request_len,
+> -                                          response, response_len);
+> +
+> +       msg.version = 0;
+> +       msg.command = EC_CMD_I2C_PASSTHRU;
+> +       msg.outdata = request;
+> +       msg.outsize = request_len;
+> +       msg.indata = response;
+> +       msg.insize = response_len;
+> +
+> +       result = bus->ec->cmd_xfer(bus->ec, &msg);
+>         if (result)
+>                 goto exit;
 >
-> Yep
+> @@ -258,7 +265,7 @@ static int ec_i2c_probe(struct platform_device *pdev)
+>         u32 remote_bus;
+>         int err;
 >
-> >
-> > > - when the receiver is unplugged, it detects that a LED should have been
-> > >   created (based on wacom->wacom_wac.features.type) and tries to remove
-> > >   it: crash when removing the sysfs group.
-> >
-> > When receiver is unplugged, it remembers the last tablet that
-> > connected to it. If that tablet supports LEDs, wacom_destroy_leds() is
-> > called. But, no LEDs were initialized. That's why it crashes.
+> -       if (!ec->command_sendrecv) {
+> +       if (!ec->cmd_xfer) {
+>                 dev_err(dev, "Missing sendrecv\n");
+>                 return -EINVAL;
+>         }
+> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> index 4083796..dc37b6b 100644
+> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> @@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_dev *dev)
 >
-> Yep
->
-> >
-> > > Side effect, we can now safely call several times wacom_destroy_leds().
-> >
-> > led_initialized will never be true if we keep wacom_initialize_leds()
-> > inside probe().
->
-> If you are talking about wireless devices only, yes, this value will
-> never be true. That's the purpose of this patch actually :)
->
-> >
-> > To make initialize_leds() and desctroy_leds() work for wireless
-> > devices, we need to move them to wacom_wireless_work() where we know
-> > what type of tablet is connected/disconnected.
->
-> Unfortunately, this does not work:
-> - we *can* create the LEDs sysfs in the wireless work
-> - this will prevent the crash
-> - the user will think it can control the LEDs
-> - actually these LEDs control will do nothing because LEDs handling for
->   wireless devices goes through the WL interface, and not the PEN
->   interface of the WL receiver.
-> - we need to implement a specific led_handling for the wireless receiver
->   (which will need to know which type of tablet is connected to it)
-> - we still need a way to say that the pen intf which is declared as the
->   connected device does not has a LED sysfs.
->
-> We could add a quirk to the wacom_wac->features saying that the
-> connection is wireless, so there is no LED attached to the interface.
->
-> Still, there will be some work to do to properly handle the LED
-> configuration from the WL receiver. This work has to be done in the
-> kernel, but also in the user space (g-s-d) because now, the led control
-> will not be on the pen device, but on a plain usb device without input.
->
-> If you prefer, I can add such a quirk. But my only concern is here to
-> fix the kernel oops, not to add features which would require more
-> testing across different hardware and development on the user space
-> side.
->
-> >
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >
-> > Thank you for your support. But, sorry
-> >
-> > NAKed-by: Ping Cheng <pingc@wacom.com>
->
-> Please reconsider it or validate the quirk approach I mentioned.
+>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
+>  {
+> -       return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
+> -                                         kb_state, ckdev->cols);
+> +       int ret;
+> +       struct cros_ec_command msg = {
+> +               .version = 0,
+> +               .command = EC_CMD_MKBP_STATE,
+> +               .outdata = NULL,
+> +               .outsize = 0,
+> +               .indata = kb_state,
+> +               .insize = ckdev->cols,
+> +       };
+> +
+> +       ret = ckdev->ec->cmd_xfer(ckdev->ec, &msg);
 
+Do we need ret?
 
-I see your point. My concern was once we fixed the crash here, we
-would forget to fix the actual problem.
+> +       return ret;
+>  }
+>
+>  static int cros_ec_keyb_work(struct notifier_block *nb,
+> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> index d242714..6dd91e9 100644
+> --- a/drivers/mfd/cros_ec.c
+> +++ b/drivers/mfd/cros_ec.c
+> @@ -44,34 +44,6 @@ int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
+>  }
+>  EXPORT_SYMBOL(cros_ec_prepare_tx);
+>
+> -static int cros_ec_command_sendrecv(struct cros_ec_device *ec_dev,
+> -               uint16_t cmd, void *out_buf, int out_len,
+> -               void *in_buf, int in_len)
+> -{
+> -       struct cros_ec_command msg;
+> -
+> -       msg.version = cmd >> 8;
+> -       msg.command = cmd & 0xff;
+> -       msg.outdata = out_buf;
+> -       msg.outsize = out_len;
+> -       msg.indata = in_buf;
+> -       msg.insize = in_len;
+> -
+> -       return ec_dev->cmd_xfer(ec_dev, &msg);
+> -}
+> -
+> -static int cros_ec_command_recv(struct cros_ec_device *ec_dev,
+> -               uint16_t cmd, void *buf, int buf_len)
+> -{
+> -       return cros_ec_command_sendrecv(ec_dev, cmd, NULL, 0, buf, buf_len);
+> -}
+> -
+> -static int cros_ec_command_send(struct cros_ec_device *ec_dev,
+> -               uint16_t cmd, void *buf, int buf_len)
+> -{
+> -       return cros_ec_command_sendrecv(ec_dev, cmd, buf, buf_len, NULL, 0);
+> -}
+> -
+>  static irqreturn_t ec_irq_thread(int irq, void *data)
+>  {
+>         struct cros_ec_device *ec_dev = data;
+> @@ -104,10 +76,6 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+>
+>         BLOCKING_INIT_NOTIFIER_HEAD(&ec_dev->event_notifier);
+>
+> -       ec_dev->command_send = cros_ec_command_send;
+> -       ec_dev->command_recv = cros_ec_command_recv;
+> -       ec_dev->command_sendrecv = cros_ec_command_sendrecv;
+> -
+>         if (ec_dev->din_size) {
+>                 ec_dev->din = devm_kzalloc(dev, ec_dev->din_size, GFP_KERNEL);
+>                 if (!ec_dev->din)
+> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+> index 2b0c598..60c0880 100644
+> --- a/include/linux/mfd/cros_ec.h
+> +++ b/include/linux/mfd/cros_ec.h
+> @@ -63,9 +63,10 @@ struct cros_ec_command {
+>   * @was_wake_device: true if this device was set to wake the system from
+>   * sleep at the last suspend
+>   * @event_notifier: interrupt event notifier for transport devices
+> - * @command_send: send a command
+> - * @command_recv: receive a response
+> - * @command_sendrecv: send a command and receive a response
+> + * @cmd_xfer: send command to EC and get response
+> + *     Returns 0 if the communication succeeded, but that doesn't mean the EC
+> + *     was happy with the command it got. Caller should check msg.result for
+> + *     the EC's result code.
+>   *
+>   * @priv: Private data
+>   * @irq: Interrupt to use
+> @@ -83,7 +84,6 @@ struct cros_ec_command {
+>   * @parent: pointer to parent device (e.g. i2c or spi device)
+>   * @wake_enabled: true if this device can wake the system from sleep
+>   * @lock: one transaction at a time
+> - * @cmd_xfer: low-level channel to the EC
+>   */
+>  struct cros_ec_device {
+>
+> @@ -94,13 +94,8 @@ struct cros_ec_device {
+>         bool was_wake_device;
+>         struct class *cros_class;
+>         struct blocking_notifier_head event_notifier;
+> -       int (*command_send)(struct cros_ec_device *ec,
+> -                           uint16_t cmd, void *out_buf, int out_len);
+> -       int (*command_recv)(struct cros_ec_device *ec,
+> -                           uint16_t cmd, void *in_buf, int in_len);
+> -       int (*command_sendrecv)(struct cros_ec_device *ec,
+> -                               uint16_t cmd, void *out_buf, int out_len,
+> -                               void *in_buf, int in_len);
+> +       int (*cmd_xfer)(struct cros_ec_device *ec,
+> +                       struct cros_ec_command *msg);
+>
+>         /* These are used to implement the platform-specific interface */
+>         void *priv;
+> @@ -112,8 +107,6 @@ struct cros_ec_device {
+>         struct device *parent;
+>         bool wake_enabled;
+>         struct mutex lock;
+> -       int (*cmd_xfer)(struct cros_ec_device *ec,
+> -                       struct cros_ec_command *msg);
 
-For the time being, let's make sure we can move on. So,
+Seems odd - maybe this line move of cmd_xfer() should be in an earlier patch?
 
-Acked-by: Ping Cheng <pingc@wacom.com>.
-
-Cheers,
-
-Ping
+Regards,
+Simon

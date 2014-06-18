@@ -1,134 +1,159 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 08/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
-Date: Wed, 18 Jun 2014 08:40:49 +0100
-Message-ID: <20140618074049.GD21030@lee--X1>
-References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
- <1402954800-28215-9-git-send-email-dianders@chromium.org>
- <CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
- <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 3/7] mfd: AXP20x: Add bindings documentation
+Date: Wed, 18 Jun 2014 10:06:16 +0100
+Message-ID: <20140618090616.GA23945@lee--X1>
+References: <1400528868-5971-1-git-send-email-carlo@caione.org>
+ <1400528868-5971-4-git-send-email-carlo@caione.org>
+ <539FED44.1050904@free-electrons.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBDVNQWOQKGQEBAZ4IAI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <539FED44.1050904-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Simon Glass <sjg@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Vincent Palatin <vpalatin@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-> >> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input=
-/keyboard/cros_ec_keyb.c
-> >> index 4083796..dc37b6b 100644
-> >> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> >> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> >> @@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_d=
-ev *dev)
-> >>
-> >>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uin=
-t8_t *kb_state)
-> >>  {
-> >> -       return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STAT=
-E,
-> >> -                                         kb_state, ckdev->cols);
-> >> +       int ret;
-> >> +       struct cros_ec_command msg =3D {
-> >> +               .version =3D 0,
-> >> +               .command =3D EC_CMD_MKBP_STATE,
-> >> +               .outdata =3D NULL,
-> >> +               .outsize =3D 0,
-> >> +               .indata =3D kb_state,
-> >> +               .insize =3D ckdev->cols,
-> >> +       };
-> >> +
-> >> +       ret =3D ckdev->ec->cmd_xfer(ckdev->ec, &msg);
-> >
-> > Do we need ret?
+> On 19/05/2014 21:47, Carlo Caione wrote:
+> > Bindings documentation for the AXP20x driver. In this file also
+> > sub-nodes are documented.
 >=20
-> No.  If you wish I will spin without it.  Let me know.
->=20
-> Note that locally this code includes a comment between the above and =
-the return:
->   /* FIXME: This assumes msg.result =3D=3D EC_RES_SUCCESS */
->=20
-> Given that this is not a new problem introduced in this code, that it
-> still hasn't been fixed locally in the ChromeOS tree, and that
-> generally FIXMEs don't seem to be left in the code upstream, I left i=
-t
-> out.
+> I think this patch has been forgotten (I didn't find it in linus' tree
+> or linux-next tree).
 
-As you're re-spinning anyway, please fix this and add my:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+This patch-set became confusing.  Some of the patches were applied in
+v5 and were still submitted for v6.  I need Carlo to rebase on top of
+v3.16-rc1+ and re-submit with the Acks he's collected so far.
 
-> >> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_=
-ec.h
-> >> index 2b0c598..60c0880 100644
-> >> --- a/include/linux/mfd/cros_ec.h
-> >> +++ b/include/linux/mfd/cros_ec.h
-> >> @@ -63,9 +63,10 @@ struct cros_ec_command {
-> >>   * @was_wake_device: true if this device was set to wake the syst=
-em from
-> >>   * sleep at the last suspend
-> >>   * @event_notifier: interrupt event notifier for transport device=
-s
-> >> - * @command_send: send a command
-> >> - * @command_recv: receive a response
-> >> - * @command_sendrecv: send a command and receive a response
-> >> + * @cmd_xfer: send command to EC and get response
-> >> + *     Returns 0 if the communication succeeded, but that doesn't=
- mean the EC
-> >> + *     was happy with the command it got. Caller should check msg=
-=2Eresult for
-> >> + *     the EC's result code.
-> >>   *
-> >>   * @priv: Private data
-> >>   * @irq: Interrupt to use
-> >> @@ -83,7 +84,6 @@ struct cros_ec_command {
-> >>   * @parent: pointer to parent device (e.g. i2c or spi device)
-> >>   * @wake_enabled: true if this device can wake the system from sl=
-eep
-> >>   * @lock: one transaction at a time
-> >> - * @cmd_xfer: low-level channel to the EC
-> >>   */
-> >>  struct cros_ec_device {
-> >>
-> >> @@ -94,13 +94,8 @@ struct cros_ec_device {
-> >>         bool was_wake_device;
-> >>         struct class *cros_class;
-> >>         struct blocking_notifier_head event_notifier;
-> >> -       int (*command_send)(struct cros_ec_device *ec,
-> >> -                           uint16_t cmd, void *out_buf, int out_l=
-en);
-> >> -       int (*command_recv)(struct cros_ec_device *ec,
-> >> -                           uint16_t cmd, void *in_buf, int in_len=
-);
-> >> -       int (*command_sendrecv)(struct cros_ec_device *ec,
-> >> -                               uint16_t cmd, void *out_buf, int o=
-ut_len,
-> >> -                               void *in_buf, int in_len);
-> >> +       int (*cmd_xfer)(struct cros_ec_device *ec,
-> >> +                       struct cros_ec_command *msg);
-> >>
-> >>         /* These are used to implement the platform-specific inter=
-face */
-> >>         void *priv;
-> >> @@ -112,8 +107,6 @@ struct cros_ec_device {
-> >>         struct device *parent;
-> >>         bool wake_enabled;
-> >>         struct mutex lock;
-> >> -       int (*cmd_xfer)(struct cros_ec_device *ec,
-> >> -                       struct cros_ec_command *msg);
+> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+> > Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> > ---
+> >  Documentation/devicetree/bindings/mfd/axp20x.txt | 93 ++++++++++++++++=
+++++++++
+> >  1 file changed, 93 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
 > >
-> > Seems odd - maybe this line move of cmd_xfer() should be in an earl=
-ier patch?
+> > diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documen=
+tation/devicetree/bindings/mfd/axp20x.txt
+> > new file mode 100644
+> > index 0000000..cc9e01b
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
+> > @@ -0,0 +1,93 @@
+> > +AXP202/AXP209 device tree bindings
+> > +
+> > +The axp20x family current members :-
+> > +axp202 (X-Powers)
+> > +axp209 (X-Powers)
+> > +
+> > +Required properties:
+> > +- compatible: "x-powers,axp202" or "x-powers,axp209"
+> > +- reg: The I2C slave address for the AXP chip
+> > +- interrupt-parent: The parent interrupt controller
+> > +- interrupts: Interrupt specifiers for interrupt sources
+> > +- interrupt-controller: axp20x has its own internal IRQs
+> > +- #interrupt-cells: Should be set to 1
+> > +- acin-supply: The input supply for LDO1
+> > +- vin2-supply: The input supply for DCDC2
+> > +- vin3-supply: The input supply for DCDC3
+> > +- ldo24in-supply: The input supply for LDO2, LDO4
+> > +- ldo3in-supply: The input supply for LDO3
+> > +- ldo5in-supply: The input supply for LDO5
+> > +
+> > +- regulators: A node that houses a sub-node for each regulator. The re=
+gulators are
+> > +	      bound using their name as listed here: dcdc2, dcdc3, ldo1, ldo2=
+,
+> > +	      ldo3, ldo4, ldo5.  The bindings details of individual regulator
+> > +	      device can be found in:
+> > +	      Documentation/devicetree/bindings/regulator/regulator.txt with
+> > +	      the exception of x-powers,dcdc-freq
+> > +- x-powers,dcdc-freq: defines the work frequency of DC-DC in KHz
+> > +		      (range: 750-1875). Default: 1.5MHz
+> > +
+> > +Optional properties for DCDCs:
+> > +- x-powers,dcdc-workmode: 1 for PWM mode, 0 for AUTO mode
+> > +			  Default: AUTO mode
+> > +
+> > +Example:
+> > +
+> > +axp209: pmic@34 {
+> > +	compatible =3D "x-powers,axp209";
+> > +	reg =3D <0x34>;
+> > +	interrupt-parent =3D <&nmi_intc>;
+> > +	interrupts =3D <0 8>;
+> > +
+> > +	interrupt-controller;
+> > +	#interrupt-cells =3D <1>;
+> > +
+> > +	acin-supply =3D <&axp_ipsout_reg>;
+> > +	vin2-supply =3D <&axp_ipsout_reg>;
+> > +	vin3-supply =3D <&axp_ipsout_reg>;
+> > +	ldo24in-supply =3D <&axp_ipsout_reg>;
+> > +	ldo3in-supply =3D <&axp_ipsout_reg>;
+> > +	ldo5in-supply =3D <&axp_ipsout_reg>;
+> > +
+> > +	regulators {
+> > +		x-powers,dcdc-freq =3D <1500>;
+> > +
+> > +		axp_vcore_reg: dcdc2 {
+> > +			regulator-min-microvolt =3D <700000>;
+> > +			regulator-max-microvolt =3D <2275000>;
+> > +			regulator-always-on;
+> > +		};
+> > +
+> > +		axp_ddr_reg: dcdc3 {
+> > +			regulator-min-microvolt =3D <700000>;
+> > +			regulator-max-microvolt =3D <3500000>;
+> > +			regulator-always-on;
+> > +		};
+> > +
+> > +		axp_rtc_reg: ldo1 {
+> > +			regulator-always-on;
+> > +		};
+> > +
+> > +		axp_analog_reg: ldo2 {
+> > +			regulator-min-microvolt =3D <1800000>;
+> > +			regulator-max-microvolt =3D <3300000>;
+> > +			regulator-always-on;
+> > +		};
+> > +
+> > +		axp_pll_reg: ldo3 {
+> > +			regulator-min-microvolt =3D <700000>;
+> > +			regulator-max-microvolt =3D <3500000>;
+> > +		};
+> > +
+> > +		axp_hdmi_reg: ldo4 {
+> > +			regulator-min-microvolt =3D <1250000>;
+> > +			regulator-max-microvolt =3D <3300000>;
+> > +		};
+> > +
+> > +		axp_mic_reg: ldo5 {
+> > +			regulator-min-microvolt =3D <1800000>;
+> > +			regulator-max-microvolt =3D <3300000>;
+> > +		};
+> > +	};
+> > +};
+> > +
 >=20
-> It got moved from "private" to public.  Bill reorganized all the
-> public stuff at the top and the private at the bottom.
->=20
-> -Doug
 
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Follow Linaro: Facebook | Twitter | Blog
+
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

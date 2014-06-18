@@ -1,344 +1,507 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH v3] Input: evdev - add event-mask API
-Date: Wed, 18 Jun 2014 07:42:38 +0200
-Message-ID: <1403070158-31489-1-git-send-email-dh.herrmann@gmail.com>
-References: <1402913358-682-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:49454 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752032AbaFRFm4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jun 2014 01:42:56 -0400
-Received: by mail-wi0-f180.google.com with SMTP id hi2so445395wib.7
-        for <linux-input@vger.kernel.org>; Tue, 17 Jun 2014 22:42:55 -0700 (PDT)
-In-Reply-To: <1402913358-682-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v8] leds: USB: HID: Add support for MSI GT683R led panels
+Date: Wed, 18 Jun 2014 09:39:50 +0200
+Message-ID: <20140618073950.GC31163@localhost>
+References: <20140617134602.GB28179@localhost>
+ <1403023304-7953-1-git-send-email-janne.kanniainen@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1403023304-7953-1-git-send-email-janne.kanniainen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Janne Kanniainen <janne.kanniainen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: jkosina-AlSwsSmVLrQ@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, David Herrmann <dh.herrmann@gmail.com>
 
-Hardware manufacturers group keys in the weirdest way possible. This may
-cause a power-key to be grouped together with normal keyboard keys and
-thus be reported on the same kernel interface.
+On Tue, Jun 17, 2014 at 07:41:44PM +0300, Janne Kanniainen wrote:
+> This driver adds support for USB controlled led panels that exists in
+> MSI GT683R laptop
+> 
+> Changes in v2:
+> 	- sorted headers to alphabetic order
+> 	- using devm_kzalloc
+> 	- using BIT(n)
+> 	- using usb_control_msg instead of usb_submit_urb
+> 	- removing unneeded code
+> Changes in v3:
+> 	- implemented as HID device
+> 	- some cleanups and bug fixes
+> 
+> Changes in v4:
+> 	- more cleanups
+> 	- support for selecting leds
+> 	- suppport for selecting status
+> 
+> Changes in v5:
+> 	- mode attribute documented under Documentation/ABI
+> 	- made array for led_classdev
+> 	- led devices uses now recommended naming scheme
+> 
+> Changes in v6:
+> 	- flush_work added
+> 	- using hid device name instead of hard coded gt683r
+> 	- allocating name buffers with devm_kzalloc
+> 
+> Changes in v7:
+> 	- buf with for fixed
+> 
+> Changes in v8:
+> 	- some cleanups and bugs fixed
 
-However, user-space is often only interested in specific sets of events.
-For instance, daemons dealing with system-reboot (like systemd-logind)
-listen for KEY_POWER, but are not interested in any main keyboard keys.
-Usually, power keys are reported via separate interfaces, however,
-some i8042 boards report it in the AT matrix. To avoid waking up those
-system daemons on each key-press, we had two ideas:
- - split off KEY_POWER into a separate interface unconditionally
- - allow filtering a specific set of events on evdev FDs
+Great job, Janne. I have a few really minor style issues I just noted
+and that I point out below, but that's it.
 
-Splitting of KEY_POWER is a rather weird way to deal with this and may
-break backwards-compatibility. It is also specific to KEY_POWER and might
-be required for other stuff, too. Moreover, we might end up with a huge
-set of input-devices just to have them properly split.
+> Signed-off-by: Janne Kanniainen <janne.kanniainen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  .../ABI/testing/sysfs-class-hid-driver-gt683r      |  14 +
+>  drivers/hid/Kconfig                                |  14 +
+>  drivers/hid/Makefile                               |   1 +
+>  drivers/hid/hid-core.c                             |   1 +
+>  drivers/hid/hid-gt683r.c                           | 308 +++++++++++++++++++++
+>  drivers/hid/hid-ids.h                              |   2 +-
+>  drivers/hid/usbhid/hid-quirks.c                    |   2 +-
+>  7 files changed, 340 insertions(+), 2 deletions(-)
+>  create mode 100644 Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+>  create mode 100644 drivers/hid/hid-gt683r.c
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+> new file mode 100644
+> index 0000000..317e9d5
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+> @@ -0,0 +1,14 @@
+> +What:		/sys/class/hidraw/<hidraw>/device/leds_mode
+> +Date:		Jun 2014
+> +KernelVersion:	3.17
+> +Contact:	Janne Kanniainen <janne.kanniainen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> +Description:
+> +		Set the mode of LEDs
+> +
+> +		0 - normal
+> +		1 - audio
+> +		2 - breathing
+> +
+> +		Normal: LEDs are fully on when enabled
+> +		Audio:  LEDs brightness depends on sound level
+> +		Breathing: LEDs brightness varies at human breathing rate
+> \ No newline at end of file
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 7af9d0b..e2f4590 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -261,6 +261,20 @@ config HOLTEK_FF
+>  	  Say Y here if you have a Holtek On Line Grip based game controller
+>  	  and want to have force feedback support for it.
+>  
+> +config HID_GT683R
+> +	tristate "MSI GT68xR LED support"
+> +	depends on LEDS_CLASS && USB_HID
+> +	---help---
+> +	Say Y here if you want to enable support for the three MSI GT68xR LEDs
+> +
+> +	This driver support following modes:
+> +	  - Normal: LEDs are fully on when enabled
+> +	  - Audio:  LEDs brightness depends on sound level
+> +	  - Breathing: LEDs brightness varies at human breathing rate
+> +
+> +	Currently the following devices are know to be supported:
+> +	  - MSI GT683R
+> +
+>  config HID_HUION
+>  	tristate "Huion tablets"
+>  	depends on USB_HID
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index fc712dd..7129311 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -48,6 +48,7 @@ obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
+>  obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+>  obj-$(CONFIG_HID_ELO)		+= hid-elo.o
+>  obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+> +obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
+>  obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+>  obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
+>  obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-mouse.o
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index da52279..ec88fdb 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1827,6 +1827,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2) },
+> diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+> new file mode 100644
+> index 0000000..19959ac
+> --- /dev/null
+> +++ b/drivers/hid/hid-gt683r.c
+> @@ -0,0 +1,308 @@
+> +/*
+> + * MSI GT683R led driver
+> + *
+> + * Copyright (c) 2014 Janne Kanniainen <janne.kanniainen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of
+> + * the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +#include <linux/kernel.h>
+> +#include <linux/leds.h>
+> +#include <linux/module.h>
+> +
+> +#include "hid-ids.h"
+> +
+> +#define GT683R_BUFFER_SIZE			8
+> +
+> +/*
+> + * GT683R_LED_OFF: all LEDs are off
+> + * GT683R_LED_AUDIO: LEDs brightness depends on sound level
+> + * GT683R_LED_BREATHING: LEDs brightness varies at human breathing rate
+> + * GT683R_LED_NORMAL: LEDs are fully on when enabled
+> + */
+> +enum gt683r_led_mode {
+> +	GT683R_LED_OFF = 0,
+> +	GT683R_LED_AUDIO = 2,
+> +	GT683R_LED_BREATHING = 3,
+> +	GT683R_LED_NORMAL = 5
+> +};
+> +
+> +enum gt683r_panels {
+> +	GT683R_LED_BACK = 0,
+> +	GT683R_LED_SIDE = 1,
+> +	GT683R_LED_FRONT = 2,
+> +	GT683R_LED_COUNT,
+> +};
+> +
+> +static const char * const gt683r_panel_names[] = {
+> +	"back",
+> +	"side",
+> +	"front",
+> +};
+> +
+> +struct gt683r_led {
+> +	struct hid_device *hdev;
+> +	struct led_classdev led_devs[GT683R_LED_COUNT];
+> +	struct mutex lock;
+> +	struct work_struct work;
+> +	enum led_brightness brightnesses[GT683R_LED_COUNT];
+> +	enum gt683r_led_mode mode;
+> +};
+> +
+> +static const struct hid_device_id gt683r_led_id[] = {
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+> +	{ }
+> +};
+> +
+> +static void gt683r_brightness_set(struct led_classdev *led_cdev,
+> +				enum led_brightness brightness)
+> +{
+> +	int i;
+> +	struct device *dev = led_cdev->dev->parent;
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct gt683r_led *led = hid_get_drvdata(hdev);
+> +
+> +	for (i = 0; i < GT683R_LED_COUNT; i++) {
+> +		if (&led->led_devs[i] == led_cdev)
 
-Hence, this patchset implements the second idea: An event-mask to specify
-which events you're interested in. Two ioctls allow setting this mask for
-each event-type. If not set, all events are reported. The type==0 entry is
-used same as in EVIOCGBIT to set the actual EV_* mask of filtered events.
-This way, you have a two-level filter.
+I'd prefer to have led_cdev on the left here comparing against the
+"constant" structs on the right.
 
-We are heavily forward-compatible to new event-types and event-codes. So
-new user-space will be able to run on an old kernel which doesn't know the
-given event-codes or event-types.
+> +			break;
+> +	}
+> +
+> +	if (i < GT683R_LED_COUNT) {
+> +		led->brightnesses[i] = brightness;
+> +		schedule_work(&led->work);
+> +	}
+> +}
+> +
+> +static ssize_t leds_mode_show(struct device *dev,
+> +				struct device_attribute *attr,
+> +				char *buf)
+> +{
+> +	u8 sysfs_mode;
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct gt683r_led *led = hid_get_drvdata(hdev);
+> +
+> +	if (led->mode == GT683R_LED_NORMAL)
+> +		sysfs_mode = 0;
+> +	else if (led->mode == GT683R_LED_AUDIO)
+> +		sysfs_mode = 1;
+> +	else
+> +		sysfs_mode = 2;
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
+> +}
+> +
+> +static ssize_t leds_mode_store(struct device *dev,
+> +				struct device_attribute *attr,
+> +				const char *buf, size_t count)
+> +{
+> +	u8 sysfs_mode;
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct gt683r_led *led = hid_get_drvdata(hdev);
+> +
+> +
+> +	if (kstrtou8(buf, 10, &sysfs_mode) || sysfs_mode > 2)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&led->lock);
+> +
+> +	if (sysfs_mode == 0)
+> +		led->mode = GT683R_LED_NORMAL;
+> +	else if (sysfs_mode == 1)
+> +		led->mode = GT683R_LED_AUDIO;
+> +	else
+> +		led->mode = GT683R_LED_BREATHING;
+> +
+> +	mutex_unlock(&led->lock);
+> +	schedule_work(&led->work);
+> +
+> +	return count;
+> +}
+> +
+> +static int gt683r_led_snd_msg(struct gt683r_led *led, u8 *msg)
+> +{
+> +	int ret;
+> +
+> +	ret = hid_hw_raw_request(led->hdev, msg[0], msg, GT683R_BUFFER_SIZE,
+> +				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+> +	if (ret != GT683R_BUFFER_SIZE) {
+> +		hid_err(led->hdev,
+> +			"failed to send set report request: %i\n", ret);
+> +		if (ret < 0)
+> +			return ret;
+> +		return -EIO;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int gt683r_leds_set(struct gt683r_led *led, u8 leds)
+> +{
+> +	int ret;
+> +	u8 *buffer;
+> +
+> +	buffer = kzalloc(GT683R_BUFFER_SIZE, GFP_KERNEL);
+> +	if (!buffer)
+> +		return -ENOMEM;
+> +
+> +	buffer[0] = 0x01;
+> +	buffer[1] = 0x02;
+> +	buffer[2] = 0x30;
+> +	buffer[3] = leds;
+> +	ret = gt683r_led_snd_msg(led, buffer);
+> +
+> +	kfree(buffer);
+> +	return ret;
+> +}
+> +
+> +static int gt683r_mode_set(struct gt683r_led *led, u8 mode)
+> +{
+> +	int ret;
+> +	u8 *buffer;
+> +
+> +	buffer = kzalloc(GT683R_BUFFER_SIZE, GFP_KERNEL);
+> +	if (!buffer)
+> +		return -ENOMEM;
+> +
+> +	buffer[0] = 0x01;
+> +	buffer[1] = 0x02;
+> +	buffer[2] = 0x20;
+> +	buffer[3] = mode;
+> +	buffer[4] = 0x01;
+> +	ret = gt683r_led_snd_msg(led, buffer);
+> +
+> +	kfree(buffer);
+> +	return ret;
+> +}
+> +
+> +static void gt683r_led_work(struct work_struct *work)
+> +{
+> +	int i;
+> +	u8 leds = 0;
+> +	u8 mode;
+> +	struct gt683r_led *led = container_of(work, struct gt683r_led, work);
+> +
+> +	mutex_lock(&led->lock);
+> +
+> +	for (i = 0; i < GT683R_LED_COUNT; i++) {
+> +		if (led->brightnesses[i])
+> +			leds |= BIT(i);
+> +	}
+> +
+> +	if (gt683r_leds_set(led, leds))
+> +		goto fail;
+> +
+> +	if (leds)
+> +		mode = led->mode;
+> +	else
+> +		mode = GT683R_LED_OFF;
+> +
+> +	gt683r_mode_set(led, mode);
+> +fail:
+> +	mutex_unlock(&led->lock);
+> +}
+> +
+> +static DEVICE_ATTR_RW(leds_mode);
+> +
+> +static int gt683r_led_probe(struct hid_device *hdev,
+> +			const struct hid_device_id *id)
+> +{
+> +	int i, ret, name_sz;
 
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
-v3:
- - rewording (Peter)
+One declaration per line.
 
- drivers/input/evdev.c      | 156 ++++++++++++++++++++++++++++++++++++++++++++-
- include/uapi/linux/input.h |  56 ++++++++++++++++
- 2 files changed, 210 insertions(+), 2 deletions(-)
+> +	char *name;
+> +	struct gt683r_led *led;
+> +
+> +	led = devm_kzalloc(&hdev->dev, sizeof(struct gt683r_led), GFP_KERNEL);
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index fd325ec..6386882 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -51,10 +51,130 @@ struct evdev_client {
- 	struct list_head node;
- 	int clkid;
- 	bool revoked;
-+	unsigned long *evmasks[EV_CNT];
- 	unsigned int bufsize;
- 	struct input_event buffer[];
- };
- 
-+static size_t evdev_get_mask_cnt(unsigned int type)
-+{
-+	static size_t counts[EV_CNT] = {
-+		/* EV_SYN==0 is EV_CNT, _not_ SYN_CNT, see EVIOCGBIT */
-+		[EV_SYN] = EV_CNT,
-+		[EV_KEY] = KEY_CNT,
-+		[EV_REL] = REL_CNT,
-+		[EV_ABS] = ABS_CNT,
-+		[EV_MSC] = MSC_CNT,
-+		[EV_SW] = SW_CNT,
-+		[EV_LED] = LED_CNT,
-+		[EV_SND] = SND_CNT,
-+		[EV_FF] = FF_CNT,
-+	};
-+
-+	return (type < EV_CNT) ? counts[type] : 0;
-+}
-+
-+/* must be called with evdev-mutex held */
-+static int evdev_set_mask(struct evdev_client *client,
-+			  unsigned int type,
-+			  const void __user *codes,
-+			  u32 codes_size)
-+{
-+	unsigned long flags, *mask, *oldmask;
-+	size_t cnt, size;
-+
-+	/* unknown masks are simply ignored for forward-compat */
-+	cnt = evdev_get_mask_cnt(type);
-+	if (!cnt)
-+		return 0;
-+
-+	/* we allow 'codes_size > size' for forward-compat */
-+	size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
-+
-+	mask = kzalloc(size, GFP_KERNEL);
-+	if (!mask)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(mask, codes, min_t(size_t, codes_size, size))) {
-+		kfree(mask);
-+		return -EFAULT;
-+	}
-+
-+	spin_lock_irqsave(&client->buffer_lock, flags);
-+	oldmask = client->evmasks[type];
-+	client->evmasks[type] = mask;
-+	spin_unlock_irqrestore(&client->buffer_lock, flags);
-+
-+	kfree(oldmask);
-+
-+	return 0;
-+}
-+
-+/* must be called with evdev-mutex held */
-+static int evdev_get_mask(struct evdev_client *client,
-+			  unsigned int type,
-+			  void __user *codes,
-+			  u32 codes_size)
-+{
-+	unsigned long *mask;
-+	size_t cnt, size, min, i;
-+	u8 __user *out;
-+
-+	/* we allow unknown types and 'codes_size > size' for forward-compat */
-+	cnt = evdev_get_mask_cnt(type);
-+	size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
-+	min = min_t(size_t, codes_size, size);
-+
-+	if (cnt > 0) {
-+		mask = client->evmasks[type];
-+		if (mask) {
-+			if (copy_to_user(codes, mask, min))
-+				return -EFAULT;
-+		} else {
-+			/* fake mask with all bits set */
-+			out = (u8 __user*)codes;
-+			for (i = 0; i < min; ++i) {
-+				if (put_user((u8)0xff,  out + i))
-+					return -EFAULT;
-+			}
-+		}
-+	}
-+
-+	codes = (u8*)codes + min;
-+	codes_size -= min;
-+
-+	if (codes_size > 0 && clear_user(codes, codes_size))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
-+/* requires the buffer lock to be held */
-+static bool __evdev_is_filtered(struct evdev_client *client,
-+				unsigned int type,
-+				unsigned int code)
-+{
-+	unsigned long *mask;
-+	size_t cnt;
-+
-+	/* EV_SYN and unknown codes are never filtered */
-+	if (type == EV_SYN || type >= EV_CNT)
-+		return false;
-+
-+	/* first test whether the type is filtered */
-+	mask = client->evmasks[0];
-+	if (mask && !test_bit(type, mask))
-+		return true;
-+
-+	/* unknown values are never filtered */
-+	cnt = evdev_get_mask_cnt(type);
-+	if (!cnt || code >= cnt)
-+		return false;
-+
-+	mask = client->evmasks[type];
-+	return mask && !test_bit(code, mask);
-+}
-+
- /* flush queued events of type @type, caller must hold client->buffer_lock */
- static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- {
-@@ -177,12 +297,21 @@ static void evdev_pass_values(struct evdev_client *client,
- 	spin_lock(&client->buffer_lock);
- 
- 	for (v = vals; v != vals + count; v++) {
-+		if (__evdev_is_filtered(client, v->type, v->code))
-+			continue;
-+
-+		if (v->type == EV_SYN && v->code == SYN_REPORT) {
-+			/* drop empty SYN_REPORT */
-+			if (client->packet_head == client->head)
-+				continue;
-+
-+			wakeup = true;
-+		}
-+
- 		event.type = v->type;
- 		event.code = v->code;
- 		event.value = v->value;
- 		__pass_event(client, &event);
--		if (v->type == EV_SYN && v->code == SYN_REPORT)
--			wakeup = true;
- 	}
- 
- 	spin_unlock(&client->buffer_lock);
-@@ -365,6 +494,7 @@ static int evdev_release(struct inode *inode, struct file *file)
- {
- 	struct evdev_client *client = file->private_data;
- 	struct evdev *evdev = client->evdev;
-+	unsigned int i;
- 
- 	mutex_lock(&evdev->mutex);
- 	evdev_ungrab(evdev, client);
-@@ -372,6 +502,9 @@ static int evdev_release(struct inode *inode, struct file *file)
- 
- 	evdev_detach_client(evdev, client);
- 
-+	for (i = 0; i < EV_CNT; ++i)
-+		kfree(client->evmasks[i]);
-+
- 	if (is_vmalloc_addr(client))
- 		vfree(client);
- 	else
-@@ -811,6 +944,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 	struct evdev *evdev = client->evdev;
- 	struct input_dev *dev = evdev->handle.dev;
- 	struct input_absinfo abs;
-+	struct input_mask mask;
- 	struct ff_effect effect;
- 	int __user *ip = (int __user *)p;
- 	unsigned int i, t, u, v;
-@@ -872,6 +1006,24 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 		else
- 			return evdev_revoke(evdev, client, file);
- 
-+	case EVIOCGMASK:
-+		if (copy_from_user(&mask, p, sizeof(mask)))
-+			return -EFAULT;
-+
-+		return evdev_get_mask(client,
-+				      mask.type,
-+				      (void*)(long)mask.codes_ptr,
-+				      mask.codes_size);
-+
-+	case EVIOCSMASK:
-+		if (copy_from_user(&mask, p, sizeof(mask)))
-+			return -EFAULT;
-+
-+		return evdev_set_mask(client,
-+				      mask.type,
-+				      (const void*)(long)mask.codes_ptr,
-+				      mask.codes_size);
-+
- 	case EVIOCSCLOCKID:
- 		if (copy_from_user(&i, p, sizeof(unsigned int)))
- 			return -EFAULT;
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 19df18c..f6ace0e 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -97,6 +97,12 @@ struct input_keymap_entry {
- 	__u8  scancode[32];
- };
- 
-+struct input_mask {
-+	__u32 type;
-+	__u32 codes_size;
-+	__u64 codes_ptr;
-+};
-+
- #define EVIOCGVERSION		_IOR('E', 0x01, int)			/* get driver version */
- #define EVIOCGID		_IOR('E', 0x02, struct input_id)	/* get device ID */
- #define EVIOCGREP		_IOR('E', 0x03, unsigned int[2])	/* get repeat settings */
-@@ -154,6 +160,56 @@ struct input_keymap_entry {
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
- #define EVIOCREVOKE		_IOW('E', 0x91, int)			/* Revoke device access */
- 
-+/**
-+ * EVIOCGMASK - Retrieve current event-mask
-+ *
-+ * This retrieves the current event-mask for a specific event-type. The
-+ * argument must be of type "struct input_mask" and specifies the event-type to
-+ * query, the receive buffer and the size of the receive buffer.
-+ *
-+ * The event-mask is a per-client mask that specifies which events are forwarded
-+ * to the client. Each event-code is represented by a single bit in the
-+ * event-mask. If the bit is set, the event is passed to the client normally.
-+ * Otherwise, the event is filtered and and will never be queued on the
-+ * client's receive buffer.
-+ * Event-masks do not affect global state of an input-device. They only affect
-+ * the open-file they're applied on. Each open-file (i.e, file-description) can
-+ * have a different event-mask.
-+ *
-+ * The default event-mask for a client has all bits set, i.e. all events are
-+ * forwarded to the client. If a kernel is queried for an unknown event-type
-+ * or if the receive buffer is larger than the number of event-codes known to
-+ * the kernel, the kernel returns all zeroes for those codes.
-+ *
-+ * At maximum, codes_size bytes are copied.
-+ *
-+ * This ioctl may fail with ENODEV in case the file is revoked, EFAULT
-+ * if the receive-buffer points to invalid memory, or EINVAL if the kernel
-+ * does not implement the ioctl.
-+ */
-+#define EVIOCGMASK		_IOR('E', 0x92, struct input_mask)	/* Get event-masks */
-+
-+/**
-+ * EVIOCSMASK - Set event-mask
-+ *
-+ * This is the counterpart to EVIOCGMASK. Instead of receiving the current
-+ * event-mask, this changes the client's event-mask for a specific type. See
-+ * EVIOCGMASK for a description of event-masks and the argument-type.
-+ *
-+ * This ioctl provides full forward-compatibility. If the passed event-type is
-+ * unknown to the kernel, or if the number of codes is bigger than known to the
-+ * kernel, the ioctl is still accepted and applied. However, any unknown codes
-+ * are left untouched and stay cleared. That means, the kernel always filters
-+ * unknown codes regardless of what the client requests.
-+ * If the new mask doesn't cover all known event-codes, all remaining codes are
-+ * automatically cleared and thus filtered.
-+ *
-+ * This ioctl may fail with ENODEV in case the file is revoked. EFAULT is
-+ * returned if the receive-buffer points to invalid memory. EINVAL is returned
-+ * if the kernel does not implement the ioctl.
-+ */
-+#define EVIOCSMASK		_IOW('E', 0x93, struct input_mask)	/* Set event-masks */
-+
- #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
- 
- /*
--- 
-2.0.0
+Preferred form for passing the size to kmalloc and friends is
+sizeof(*led) (in case the type of led ever changes). It's also shorter
+and often more readable.
 
+> +	if (!led)
+> +		return -ENOMEM;
+> +
+> +	led->mode = GT683R_LED_NORMAL;
+> +	led->hdev = hdev;
+> +	hid_set_drvdata(hdev, led);
+> +
+> +	ret = hid_parse(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "hid parsing failed\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+> +	if (ret) {
+> +		hid_err(hdev, "hw start failed\n");
+> +		return ret;
+> +	}
+> +
+> +	for (i = 0; i < GT683R_LED_COUNT; i++) {
+> +		name_sz = strlen(dev_name(&hdev->dev)) +
+> +			strlen(gt683r_panel_names[i]) + 3;
+
+Try to indent continuation lines at least two tabs further than the
+preceding line.
+
+> +
+> +		name = devm_kzalloc(&hdev->dev, sizeof(char) * name_sz,
+> +				GFP_KERNEL);
+
+No need to do sizeof(char) which is always 1 (so no need to break this
+line either).
+
+> +		if (!name) {
+> +			ret = -ENOMEM;
+> +			goto fail;
+> +		}
+> +
+> +		snprintf(name, name_sz, "%s::%s",
+> +			dev_name(&hdev->dev), gt683r_panel_names[i]);
+
+On more tab here.
+
+> +		led->led_devs[i].name = name;
+> +		led->led_devs[i].max_brightness = 1;
+> +		led->led_devs[i].brightness_set = gt683r_brightness_set;
+> +		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
+> +		if (ret) {
+> +			hid_err(hdev, "could not register led device\n");
+> +			goto fail;
+> +		}
+> +	}
+> +
+> +	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
+> +	if (ret) {
+> +		hid_err(hdev, "could not make mode attribute file\n");
+> +		goto fail;
+> +	}
+> +
+> +	mutex_init(&led->lock);
+> +	INIT_WORK(&led->work, gt683r_led_work);
+> +
+> +	return 0;
+> +
+> +fail:
+> +	for (i = i - 1; i >= 0; i--)
+> +		led_classdev_unregister(&led->led_devs[i]);
+> +	hid_hw_stop(hdev);
+> +	return ret;
+> +}
+> +
+> +static void gt683r_led_remove(struct hid_device *hdev)
+> +{
+> +	int i;
+> +	struct gt683r_led *led = hid_get_drvdata(hdev);
+> +
+> +	device_remove_file(&hdev->dev, &dev_attr_leds_mode);
+> +	for (i = 0; i < GT683R_LED_COUNT; i++)
+> +		led_classdev_unregister(&led->led_devs[i]);
+> +	flush_work(&led->work);
+> +	hid_hw_stop(hdev);
+> +}
+> +
+> +static struct hid_driver gt683r_led_driver = {
+> +	.probe = gt683r_led_probe,
+> +	.remove = gt683r_led_remove,
+> +	.name = "gt683r_led",
+> +	.id_table = gt683r_led_id,
+> +};
+> +
+> +module_hid_driver(gt683r_led_driver);
+> +
+> +MODULE_AUTHOR("Janne Kanniainen");
+> +MODULE_DESCRIPTION("MSI GT683R led driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 34bb220..3692d37 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -641,7 +641,7 @@
+>  #define USB_DEVICE_ID_GENIUS_KB29E	0x3004
+>  
+>  #define USB_VENDOR_ID_MSI		0x1770
+> -#define USB_DEVICE_ID_MSI_GX680R_LED_PANEL	0xff00
+> +#define USB_DEVICE_ID_MSI_GT683R_LED_PANEL 0xff00
+>  
+>  #define USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR 0x0400
+>  #define USB_DEVICE_ID_N_S_HARMONY	0xc359
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 8e4ddb3..c640e1d 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -73,7 +73,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
+> -	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+> +	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+
+Thanks,
+Johan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,43 +1,40 @@
-From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake
- the system up
-Date: Thu, 19 Jun 2014 11:40:06 +0100
-Message-ID: <20140619114006.72ac8e06@alan.etchedpixels.co.uk>
-References: <53A2340D.9030503@linux.intel.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH 13/24] Drivers:input: Use is_compat_task for ARM64 also.
+Date: Thu, 19 Jun 2014 13:50:25 +0100
+Message-ID: <20140619125025.GB8476@arm.com>
+References: <1400914939-9708-1-git-send-email-apinski@cavium.com>
+ <1400914939-9708-14-git-send-email-apinski@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:43144 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751399AbaFSKk0 (ORCPT
+Received: from fw-tnat.austin.arm.com ([217.140.110.23]:27592 "EHLO
+	collaborate-mta1.arm.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754019AbaFSMua (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jun 2014 06:40:26 -0400
-In-Reply-To: <53A2340D.9030503@linux.intel.com>
+	Thu, 19 Jun 2014 08:50:30 -0400
+Content-Disposition: inline
+In-Reply-To: <1400914939-9708-14-git-send-email-apinski@cavium.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Li, Aubrey" <aubrey.li@linux.intel.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Andrew Pinski <apinski@cavium.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 19 Jun 2014 08:51:25 +0800
-"Li, Aubrey" <aubrey.li@linux.intel.com> wrote:
+On Sat, May 24, 2014 at 12:02:08AM -0700, Andrew Pinski wrote:
+> diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
+> index 148f66f..6656957 100644
+> --- a/drivers/input/input-compat.h
+> +++ b/drivers/input/input-compat.h
+> @@ -19,7 +19,7 @@
+>  
+>  /* Note to the author of this code: did it ever occur to
+>     you why the ifdefs are needed? Think about it again. -AK */
+> -#if defined(CONFIG_X86_64) || defined(CONFIG_TILE)
+> +#if defined(CONFIG_X86_64) || defined(CONFIG_TILE) || defined(CONFIG_ARM64)
+>  #  define INPUT_COMPAT_TEST is_compat_task()
+>  #elif defined(CONFIG_S390)
+>  #  define INPUT_COMPAT_TEST test_thread_flag(TIF_31BIT)
 
-> When the wakeup attribute is set, the GPIO button is capable of
-> waking up the system from sleep states, including the "freeze"
-> sleep state.  For that to work, its driver needs to pass the
-> IRQF_NO_SUSPEND flag to devm_request_any_context_irq(), or the
-> interrupt will be disabled by suspend_device_irqs() and the
-> system won't be woken up by it from the "freeze" sleep state.
-> 
-> The suspend_device_irqs() routine is a workaround for drivers
-> that mishandle interrupts triggered when the devices handled
-> by them are suspended, so it is safe to use IRQF_NO_SUSPEND in
-> all drivers that don't have that problem.
-> 
-> The affected/tested machines include Dell Venue 11 Pro and Asus T100TA.
-> 
-> Signed-off-by: Aubrey Li <aubrey.li@linux.intel.com>
-> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+And this patch could be removed if we keep TIF_32BIT common.
 
-Reviewed-by: Alan Cox <alan@linux.intel.com>
-
+-- 
+Catalin

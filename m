@@ -1,62 +1,43 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Mapping of F11 and F12 on new lenovo laptops and Lenovo Compact Keyboard
-Date: Thu, 19 Jun 2014 10:41:21 +0200
-Message-ID: <53A2A231.4030700@redhat.com>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake
+ the system up
+Date: Thu, 19 Jun 2014 11:40:06 +0100
+Message-ID: <20140619114006.72ac8e06@alan.etchedpixels.co.uk>
+References: <53A2340D.9030503@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:24424 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757862AbaFSIlj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jun 2014 04:41:39 -0400
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:43144 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399AbaFSKk0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Jun 2014 06:40:26 -0400
+In-Reply-To: <53A2340D.9030503@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jamie Lentin <jm@lentin.co.uk>, Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>
-Cc: linux-usb <linux-input@vger.kernel.org>, "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>
+To: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Hi Jamie,
+On Thu, 19 Jun 2014 08:51:25 +0800
+"Li, Aubrey" <aubrey.li@linux.intel.com> wrote:
 
-I saw your patch-set for the Lenovo Compact Keyboard on the lwn.net
-kernel page.
+> When the wakeup attribute is set, the GPIO button is capable of
+> waking up the system from sleep states, including the "freeze"
+> sleep state.  For that to work, its driver needs to pass the
+> IRQF_NO_SUSPEND flag to devm_request_any_context_irq(), or the
+> interrupt will be disabled by suspend_device_irqs() and the
+> system won't be woken up by it from the "freeze" sleep state.
+> 
+> The suspend_device_irqs() routine is a workaround for drivers
+> that mishandle interrupts triggered when the devices handled
+> by them are suspended, so it is safe to use IRQF_NO_SUSPEND in
+> all drivers that don't have that problem.
+> 
+> The affected/tested machines include Dell Venue 11 Pro and Asus T100TA.
+> 
+> Signed-off-by: Aubrey Li <aubrey.li@linux.intel.com>
+> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-This spiked my interest as I'm the author of this patch:
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/platform/x86/thinkpad_acpi.c?id=8b9dd4fab26a0f328420cbda0845a325f45bcd92
-
-Which adds mapping for the F9 - F12 on the Lenovo *40 series
-laptops, which have the same weird symbols on F11 and F12 as the
-Lenovo Compact Keyboard, the ones which you describe as:
-
-/* Fn-F11: View open applications (3 boxes) */
-/* Fn-F12: Open My computer (6 boxes) USB-only */
-
-You map these to:
-KEY_FN_F11
-KEY_FILE
-
-Where as my (already merged into Linus tree) patch maps these to:
-
-KEY_SCALE
-KEY_COMPUTER
-
-Which are defined in linux/uapi/input.h as:
-
-#define KEY_SCALE               120     /* AL Compiz Scale (Expose) */
-#define KEY_COMPUTER            157
-
-Which I believe maps closes to View open applications (which to me
-sounds like expose mode) and Open My computer.
-
-Note that on the laptops the keys have their special meaning by
-default and using Fn turns them back into normal F11 keys, so
-KEY_FN_F11 seems like a particular bad match as that suggests
-a key combo which it is not on the laptops.
-
-Anyways lets discuss and coordinate, so that we end up with the
-same mappings for the weird symbols on F11 and F12 for the laptops
-and for the Lenovo Compact Keyboard.
-
-Regards,
-
-Hans
+Reviewed-by: Alan Cox <alan@linux.intel.com>
 

@@ -1,32 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v9] leds: USB: HID: Add support for MSI GT683R led
- panels
-Date: Thu, 19 Jun 2014 00:10:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406190009560.2303@pobox.suse.cz>
-References: <20140618073950.GC31163@localhost> <1403107502-14106-1-git-send-email-janne.kanniainen@gmail.com> <20140618161150.GH31163@localhost>
+From: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Subject: [PATCH] GPIO button wth wakeup attribute is supposed to wake the
+ system up
+Date: Thu, 19 Jun 2014 08:51:25 +0800
+Message-ID: <53A2340D.9030503@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20140618161150.GH31163@localhost>
-Sender: linux-leds-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Janne Kanniainen <janne.kanniainen@gmail.com>, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 18 Jun 2014, Johan Hovold wrote:
+When the wakeup attribute is set, the GPIO button is capable of
+waking up the system from sleep states, including the "freeze"
+sleep state.  For that to work, its driver needs to pass the
+IRQF_NO_SUSPEND flag to devm_request_any_context_irq(), or the
+interrupt will be disabled by suspend_device_irqs() and the
+system won't be woken up by it from the "freeze" sleep state.
 
-> > This driver adds support for USB controlled led panels that exists in
-> > MSI GT683R laptop
-> > 
-> > Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
-> 
-> Reviewed-by: Johan Hovold <johan@kernel.org>
-> 
-> Thanks, Janne!
+The suspend_device_irqs() routine is a workaround for drivers
+that mishandle interrupts triggered when the devices handled
+by them are suspended, so it is safe to use IRQF_NO_SUSPEND in
+all drivers that don't have that problem.
 
-Now applied. Thanks Janne for the driver, and thanks a lot Johan for a 
-very careful review, I really appreciate it.
+The affected/tested machines include Dell Venue 11 Pro and Asus T100TA.
 
+Signed-off-by: Aubrey Li <aubrey.li@linux.intel.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+ drivers/input/keyboard/gpio_keys.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 8c98e97..b046dc6 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -527,6 +527,14 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	if (!button->can_disable)
+ 		irqflags |= IRQF_SHARED;
+ 
++	/*
++	 * If platform has specified the wakeup attribute of the button,
++	 * we add IRQF_NO_SUSPEND to desc->action->flag. So the wake up
++	 * interrupt will not be disabled in suspend_device_irqs
++	 */
++	if (button->wakeup)
++		irqflags |= IRQF_NO_SUSPEND;
++
+ 	error = devm_request_any_context_irq(&pdev->dev, bdata->irq,
+ 					     isr, irqflags, desc, bdata);
+ 	if (error < 0) {
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.10.4

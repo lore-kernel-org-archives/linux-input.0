@@ -1,46 +1,66 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [RFC] Input: uinput - add new UINPUT_DEV_SETUP ioctl
-Date: Fri, 20 Jun 2014 13:14:45 +0200
-Message-ID: <CANq1E4QVvE_KPykvx=BmFi5VKqH_BUdiv4O=-Hsyp5_JN-=kaw@mail.gmail.com>
-References: <1403183515-15621-1-git-send-email-dh.herrmann@gmail.com>
-	<20140620005557.GA22050@jelly.redhat.com>
-	<CANq1E4Sx4=ko=sbbOR-S=gOsnHU7m6asiz3XGzU_BD81F9mqeA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH v2 1/2] Input: uinput - add UI_GET_VERSION ioctl
+Date: Fri, 20 Jun 2014 13:26:39 +0200
+Message-ID: <1403263600-24736-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:36279 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965558AbaFTLOq (ORCPT
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:33878 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966744AbaFTL07 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jun 2014 07:14:46 -0400
-Received: by mail-ig0-f171.google.com with SMTP id h18so386066igc.16
-        for <linux-input@vger.kernel.org>; Fri, 20 Jun 2014 04:14:45 -0700 (PDT)
-In-Reply-To: <CANq1E4Sx4=ko=sbbOR-S=gOsnHU7m6asiz3XGzU_BD81F9mqeA@mail.gmail.com>
+	Fri, 20 Jun 2014 07:26:59 -0400
+Received: by mail-wg0-f45.google.com with SMTP id l18so3642387wgh.16
+        for <linux-input@vger.kernel.org>; Fri, 20 Jun 2014 04:26:58 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Hi
+This ioctl is the counterpart to EVIOCGVERSION and returns the
+uinput-version the kernel was compiled with.
 
-On Fri, Jun 20, 2014 at 1:10 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
->>> + *             abs: This is an appended array that contains parameters for ABS
->>> + *                  axes. See "struct input_absinfo" for a description of these
->>> + *                  fields. This array is copied unchanged into the kernel for
->>> + *                  all specified axes. However, to have effect, you must also
->>> + *                  enable the wanted axes via UI_SET_ABSBIT.
->>
->> last sentence: "Only axes previously enabled with UI_SET_ABSBIT are copied."
->
-> This is not true. All axes are copied. That's how uinput always
-> worked. You can set UI_SET_ABSBIT after SETUP. However, given that we
-> do the "uinput_validate_absbits" only on SETUP, you would get weird
-> errors during UI_DEV_CREATE if the axis data was invalid (afaik
-> uinput_register_device() validates those values. Not sure, though).
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/input/misc/uinput.c | 6 ++++++
+ include/uapi/linux/uinput.h | 9 +++++++++
+ 2 files changed, 15 insertions(+)
 
-Ok, I changed my mind again. I now explicitly ignore any axes not
-enabled via UI_SET_ABSBIT. I think you're right and that's how users
-would expect this to work.
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 615324c..a2a3895 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -722,6 +722,12 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+ 	}
+ 
+ 	switch (cmd) {
++		case UI_GET_VERSION:
++			if (put_user(UINPUT_VERSION,
++				     (unsigned int __user*)p))
++				retval = -EFAULT;
++			goto out;
++
+ 		case UI_DEV_CREATE:
+ 			retval = uinput_create_device(udev);
+ 			goto out;
+diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+index 0389b48..19339cf 100644
+--- a/include/uapi/linux/uinput.h
++++ b/include/uapi/linux/uinput.h
+@@ -84,6 +84,15 @@ struct uinput_ff_erase {
+  */
+ #define UI_GET_SYSNAME(len)	_IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
+ 
++/**
++ * UI_GET_VERSION - Return uinput version of the kernel
++ *
++ * This writes the kernel's uinput version into the integer pointed to by the
++ * ioctl argument. The uinput-version is hard-coded in the kernel and
++ * independent of the uinput device.
++ */
++#define UI_GET_VERSION _IOR(UINPUT_IOCTL_BASE, 301, unsigned int)
++
+ /*
+  * To write a force-feedback-capable driver, the upload_effect
+  * and erase_effect callbacks in input_dev must be implemented.
+-- 
+2.0.0
 
-Thanks
-David

@@ -1,40 +1,42 @@
-From: Nicholas Krause <xerofoify@gmail.com>
-Subject: [PATCH] Fixes kernel panic with Null pointer in hid-appleir.c
-Date: Fri, 20 Jun 2014 12:25:15 -0400
-Message-ID: <1403281515-5508-1-git-send-email-xerofoify@gmail.com>
+From: Ahmet Inan <ainan@mathematik.uni-freiburg.de>
+Subject: [PATCH] Input: synaptics - give touchpad 1 second to settle after S2R
+Date: Sat, 21 Jun 2014 10:33:42 +0200
+Message-ID: <1403339622-9171-1-git-send-email-ainan@mathematik.uni-freiburg.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:35908 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754097AbaFTQZV (ORCPT
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:41304 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754734AbaFUIen (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Jun 2014 12:25:21 -0400
+	Sat, 21 Jun 2014 04:34:43 -0400
+Received: by mail-wi0-f182.google.com with SMTP id bs8so1842415wib.15
+        for <linux-input@vger.kernel.org>; Sat, 21 Jun 2014 01:34:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Ahmet Inan <ainan@mathematik.uni-freiburg.de>
 
-In for loop of function appleir_input_configured we hit
-a Null pointer after the for loop due to array_size not
-being correct needs to be changed to input_dev->keycodemax.
+Since we are resuming now in 0.5 Seconds, we have to give the touchpad
+some time to settle before issuing a psmouse_reset.
 
-Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+This fixes the endless reconnect / resync cycle after resuming from S2R.
+
+Signed-off-by: Ahmet Inan <ainan@mathematik.uni-freiburg.de>
 ---
- drivers/hid/hid-appleir.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
-index 0e6a42d..ab0a702 100644
---- a/drivers/hid/hid-appleir.c
-+++ b/drivers/hid/hid-appleir.c
-@@ -272,7 +272,7 @@ static void appleir_input_configured(struct hid_device *hid,
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index c5ec703..059fca0 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1473,6 +1473,7 @@ static int synaptics_reconnect(struct psmouse *psmouse)
+ 	int retry = 0;
+ 	int error;
  
- 	memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
--	for (i = 0; i < ARRAY_SIZE(appleir_key_table); i++)
-+	for (i = 0; i < ARRAY_SIZE(input_dev->keycodemax); i++)
- 		set_bit(appleir->keymap[i], input_dev->keybit);
- 	clear_bit(KEY_RESERVED, input_dev->keybit);
- }
++	ssleep(1);
+ 	do {
+ 		psmouse_reset(psmouse);
+ 		if (retry) {
 -- 
-1.9.1
+1.8.5.5
 

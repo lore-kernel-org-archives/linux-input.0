@@ -1,19 +1,19 @@
 From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 3/6] iio: adc: fsl,imx25-gcq driver
-Date: Sat, 21 Jun 2014 11:30:55 +0100
-Message-ID: <53A55EDF.4010104@kernel.org>
-References: <1392913312-9030-1-git-send-email-mpa@pengutronix.de> <1402672899-6995-1-git-send-email-denis@eukrea.com> <1402672899-6995-4-git-send-email-denis@eukrea.com>
+Subject: Re: [PATCH v3 3/6] iio: adc: fsl,imx25-gcq driver
+Date: Sat, 21 Jun 2014 11:45:15 +0100
+Message-ID: <53A5623B.7090009@kernel.org>
+References: <1402910933-20534-1-git-send-email-denis@eukrea.com> <1402910933-20534-3-git-send-email-denis@eukrea.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1402672899-6995-4-git-send-email-denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1402910933-20534-3-git-send-email-denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: =?ISO-8859-1?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
+Cc: =?ISO-8859-1?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 13/06/14 16:21, Denis Carikli wrote:
+On 16/06/14 10:28, Denis Carikli wrote:
 > From: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 >
 > This is a conversion queue driver for the mx25 SoC. It uses the central
@@ -28,17 +28,26 @@ On 13/06/14 16:21, Denis Carikli wrote:
 >
 > Signed-off-by: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 > Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Couple of little bits + I think we have enough 'interesting' bits
-in the device tree binding that we are going to need an Ack from a device
-tree maintainer.  Note any patch at all with device tree bindings should
-be cc'd to devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-
+> ---
+> Changelog v2->v3:
+> - Fixed compilation: I forgott to tell that this IIO patch was untested
+>    in the previous cover letter. Now it is tested at runtime:
+>    I left the touchscreen connected but I configured the TSC as an ADC
+>    instead, set the refp to internal reference, and the refn to ngnd_adc(3)
+>    for the first 4 channels(xp,yp,xn,yn) and observed the values changing
+>    while touching the resistive 4-wire touchscreen.
+> - MX25_IIO_CHAN now became MX25_GCQ_CHAN and its .address is now gone
+>    and the code using it adapted.
+> - The instances of struct iio_dev were renamed from idev to indio_dev.
+> - regmap_read return value is now checked in mx25_gcq_read_raw.
+> - Comparisons with MX25_NUM_CFGS are now fixed
+> - Cosmetics fix in a multiline comment.
 > ---
 >   .../devicetree/bindings/iio/adc/fsl,imx25-gcq.txt  |   54 ++++
 >   drivers/iio/adc/Kconfig                            |    7 +
 >   drivers/iio/adc/Makefile                           |    1 +
->   drivers/iio/adc/fsl-imx25-gcq.c                    |  338 ++++++++++++++++++++
->   4 files changed, 400 insertions(+)
+>   drivers/iio/adc/fsl-imx25-gcq.c                    |  342 ++++++++++++++++++++
+>   4 files changed, 404 insertions(+)
 >   create mode 100644 Documentation/devicetree/bindings/iio/adc/fsl,imx25-gcq.txt
 >   create mode 100644 drivers/iio/adc/fsl-imx25-gcq.c
 >
@@ -102,8 +111,6 @@ be cc'd to devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 > +			fsl,adc-refn = <3>;
 > +		};
 > +	};
-This lot is involved enough that we'll need a devicetree maintainer
-ack I think...
 > diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
 > index a80d236..58efb8d 100644
 > --- a/drivers/iio/adc/Kconfig
@@ -136,10 +143,10 @@ ack I think...
 >   obj-$(CONFIG_MCP320X) += mcp320x.o
 > diff --git a/drivers/iio/adc/fsl-imx25-gcq.c b/drivers/iio/adc/fsl-imx25-gcq.c
 > new file mode 100644
-> index 0000000..1ae697c
+> index 0000000..685cac5
 > --- /dev/null
 > +++ b/drivers/iio/adc/fsl-imx25-gcq.c
-> @@ -0,0 +1,338 @@
+> @@ -0,0 +1,342 @@
 > +/*
 > + * Copyright 2014 Markus Pargmann, Pengutronix <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 > + *
@@ -185,30 +192,23 @@ ack I think...
 > +	int irq;
 > +};
 > +
-> +#define MX25_IIO_CHAN(chan, id) {\
+> +#define MX25_CQG_CHAN(chan, id) {\
 > +		.type = IIO_VOLTAGE,\
 > +		.indexed = 1,\
 > +		.channel = chan,\
-> +		.address = chan,\
-No real point in setting address if it is equal to channel.  Just use
-channel instead.  Address is just here for when it is convenient to store
-something like a register address rather than for a copy of the index.
 > +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),	\
-No known info on converting this to real voltages?  I'd normally expect
-a scale parameter at least with any raw channel output, but fair enough
-if it's not obvous what this should be.
 > +		.datasheet_name = id,				\
 > +	}
 > +
 > +static const struct iio_chan_spec mx25_gcq_channels[MX25_NUM_CFGS] = {
-> +	MX25_IIO_CHAN(0, "xp"),
-> +	MX25_IIO_CHAN(1, "yp"),
-> +	MX25_IIO_CHAN(2, "xn"),
-> +	MX25_IIO_CHAN(3, "yn"),
-> +	MX25_IIO_CHAN(4, "wiper"),
-> +	MX25_IIO_CHAN(5, "inaux0"),
-> +	MX25_IIO_CHAN(6, "inaux1"),
-> +	MX25_IIO_CHAN(7, "inaux2"),
+> +	MX25_CQG_CHAN(0, "xp"),
+> +	MX25_CQG_CHAN(1, "yp"),
+> +	MX25_CQG_CHAN(2, "xn"),
+> +	MX25_CQG_CHAN(3, "yn"),
+> +	MX25_CQG_CHAN(4, "wiper"),
+> +	MX25_CQG_CHAN(5, "inaux0"),
+> +	MX25_CQG_CHAN(6, "inaux1"),
+> +	MX25_CQG_CHAN(7, "inaux2"),
 > +};
 > +
 > +static void mx25_gcq_disable_eoq(struct mx25_gcq_priv *priv)
@@ -224,9 +224,6 @@ if it's not obvous what this should be.
 > +
 > +static irqreturn_t mx25_gcq_irq(int irq, void *data)
 > +{
-I suppose there isn't that much in here, but could it be a threaded
-irq without loosing anything significant?  A general good practice
-element rather than a specific comment on what you have here!
 > +	struct mx25_gcq_priv *priv = data;
 > +	u32 stats;
 > +
@@ -248,23 +245,23 @@ element rather than a specific comment on what you have here!
 > +	return IRQ_HANDLED;
 > +}
 > +
-> +static int mx25_gcq_read_raw(struct iio_dev *idev,
+> +static int mx25_gcq_read_raw(struct iio_dev *indio_dev,
 > +		struct iio_chan_spec const *chan, int *val, int *val2,
 > +		long mask)
 > +{
-> +	struct mx25_gcq_priv *priv = iio_priv(idev);
-> +	unsigned long timeout;
+> +	struct mx25_gcq_priv *priv = iio_priv(indio_dev);
+> +	long timeout;
 > +	u32 data;
 > +	int ret;
 > +
 > +	if (mask != IIO_CHAN_INFO_RAW)
 > +		return -EINVAL;
 > +
-> +	mutex_lock(&idev->mlock);
+> +	mutex_lock(&indio_dev->mlock);
 > +
 > +	/* Setup the configuration we want to use */
 > +	regmap_write(priv->regs, MX25_ADCQ_ITEM_7_0,
-> +			MX25_ADCQ_ITEM(0, chan->address));
+> +			MX25_ADCQ_ITEM(0, chan->channel));
 > +
 > +	mx25_gcq_enable_eoq(priv);
 > +
@@ -275,22 +272,25 @@ element rather than a specific comment on what you have here!
 > +	timeout = wait_for_completion_interruptible_timeout(&priv->completed,
 > +			MX25_GCQ_TIMEOUT);
 > +	if (timeout < 0) {
-> +		dev_err(&idev->dev, "ADC wait for measurement failed\n");
+> +		dev_err(&indio_dev->dev, "ADC wait for measurement failed\n");
 > +		ret = timeout;
 > +		goto out;
 > +	} else if (timeout == 0) {
-> +		dev_err(&idev->dev, "ADC timed out\n");
+> +		dev_err(&indio_dev->dev, "ADC timed out\n");
 > +		ret = -ETIMEDOUT;
 > +		goto out;
 > +	}
 > +
-> +	regmap_read(priv->regs, MX25_ADCQ_FIFO, &data);
+> +	ret = regmap_read(priv->regs, MX25_ADCQ_FIFO, &data);
+> +	if (ret)
+> +		return ret;
+> +
 > +	*val = MX25_ADCQ_FIFO_DATA(data);
 > +
 > +	ret = IIO_VAL_INT;
 > +
 > +out:
-> +	mutex_unlock(&idev->mlock);
+> +	mutex_unlock(&indio_dev->mlock);
 > +
 > +	return ret;
 > +}
@@ -316,8 +316,9 @@ element rather than a specific comment on what you have here!
 > +	int i;
 > +
 > +	/* Setup all configurations registers with a default conversion
-> +	 * configuration for each input */
-> +	for (i = 0; i != MX25_NUM_CFGS; ++i)
+> +	 * configuration for each input
+> +	 */
+> +	for (i = 0; i < MX25_NUM_CFGS; ++i)
 > +		regmap_write(priv->regs, MX25_ADCQ_CFG(i),
 > +				MX25_ADCQ_CFG_YPLL_OFF |
 > +				MX25_ADCQ_CFG_XNUR_OFF |
@@ -336,7 +337,8 @@ element rather than a specific comment on what you have here!
 > +			dev_err(dev, "Failed to get reg property\n");
 > +			return ret;
 > +		}
-> +		if (reg > MX25_NUM_CFGS) {
+> +
+> +		if (reg >= MX25_NUM_CFGS) {
 > +			dev_err(dev, "reg value is greater than the number of available configuration registers\n");
 > +			return -EINVAL;
 > +		}
@@ -349,7 +351,7 @@ element rather than a specific comment on what you have here!
 > +		if (refn < 0 || refn > 3) {
 > +			dev_err(dev, "Invalid fsl,adc-refn property value %d\n",
 > +							refn);
-> +			return -EINVAL
+> +			return -EINVAL;
 > +		}
 > +
 > +		ret = of_property_read_u32(child, "fsl,adc-refp", &refp);
@@ -381,21 +383,20 @@ element rather than a specific comment on what you have here!
 > +
 > +static int mx25_gcq_probe(struct platform_device *pdev)
 > +{
-> +	struct iio_dev *idev;
+> +	struct iio_dev *indio_dev;
 > +	struct mx25_gcq_priv *priv;
 > +	struct resource *res;
 > +	struct device *dev = &pdev->dev;
 > +	int ret;
 > +	void __iomem *mem;
 > +
-> +	idev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
-> +	if (!idev)
+> +	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+> +	if (!indio_dev)
 > +		return -ENOMEM;
 > +
-> +	priv = iio_priv(idev);
+> +	priv = iio_priv(indio_dev);
 > +
 > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-check this succeeded.
 > +	mem = devm_ioremap_resource(dev, res);
 > +	if (!mem)
 > +		return -ENOMEM;
@@ -410,9 +411,6 @@ check this succeeded.
 > +
 > +	ret = mx25_gcq_setup_cfgs(pdev, priv);
 > +	if (ret)
-This looks suspect given you haven't actually gained
-the irq yet (any time we have a return ret after a goto
-something tends to be interesting!)
 > +		goto err_irq_free;
 > +
 > +	priv->clk = mx25_tsadc_get_ipg(pdev->dev.parent);
@@ -425,25 +423,23 @@ something tends to be interesting!)
 > +	priv->irq = platform_get_irq(pdev, 0);
 > +	if (priv->irq <= 0) {
 > +		dev_err(dev, "Failed to get IRQ\n");
-> +		err = priv->irq;
+> +		ret = priv->irq;
 > +		goto err_clk_unprepare;
 > +	}
 > +
-> +	ret = request_irq(priv->irq, mx25_gcq_irq, NULL, pdev->name,
+> +	ret = request_irq(priv->irq, mx25_gcq_irq, 0, pdev->name,
 > +			priv);
-As mentioned above, could this be a threaded irq without
-causing significant problems?
 > +	if (ret) {
 > +		dev_err(dev, "Failed requesting IRQ\n");
 > +		goto err_clk_unprepare;
 > +	}
 > +
-> +	idev->dev.parent = &pdev->dev;
-> +	idev->channels = mx25_gcq_channels;
-> +	idev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
-> +	idev->info = &mx25_gcq_iio_info;
+> +	indio_dev->dev.parent = &pdev->dev;
+> +	indio_dev->channels = mx25_gcq_channels;
+> +	indio_dev->num_channels = ARRAY_SIZE(mx25_gcq_channels);
+> +	indio_dev->info = &mx25_gcq_iio_info;
 > +
-> +	ret = iio_device_register(idev);
+> +	ret = iio_device_register(indio_dev);
 > +	if (ret) {
 > +		dev_err(dev, "Failed to register iio device\n");
 > +		goto err_irq_free;
@@ -465,9 +461,9 @@ causing significant problems?
 > +static int mx25_gcq_remove(struct platform_device *pdev)
 > +{
 > +	struct mx25_gcq_priv *priv = platform_get_drvdata(pdev);
-> +	struct iio_dev *idev = iio_priv_to_dev(pdev);
+> +	struct iio_dev *indio_dev = iio_priv_to_dev(pdev);
 > +
-> +	iio_device_unregister(idev);
+> +	iio_device_unregister(indio_dev);
 > +	free_irq(priv->irq, (void *)priv);
 > +	clk_disable_unprepare(priv->clk);
 > +
@@ -476,7 +472,7 @@ causing significant problems?
 > +
 > +static struct of_device_id mx25_gcq_ids[] = {
 > +	{ .compatible = "fsl,imx25-gcq", },
-> +	{ /* Senitel */ }
+> +	{ /* Sentinel */ }
 > +};
 > +
 > +static struct platform_driver mx25_gcq_driver = {

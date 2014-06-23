@@ -1,206 +1,37 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v10] leds: USB: HID: Add support for MSI GT683R led panels
-Date: Mon, 23 Jun 2014 19:27:45 +0200
-Message-ID: <20140623172745.GB22424@localhost>
-References: <20140623161723.GA20421@kroah.com>
- <1403543808-8228-1-git-send-email-janne.kanniainen@gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v3 3/6] iio: adc: fsl,imx25-gcq driver
+Date: Mon, 23 Jun 2014 19:13:14 +0100
+Message-ID: <53A86E3A.6000400@kernel.org>
+References: <1402910933-20534-1-git-send-email-denis@eukrea.com> <1402910933-20534-3-git-send-email-denis@eukrea.com> <53A563B0.60708@kernel.org> <53A85922.1000209@eukrea.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1403543808-8228-1-git-send-email-janne.kanniainen@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: johan@kernel.org, greg@kroah.com, jkosina@suse.cz, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.19.201]:60664 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752671AbaFWSLP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Jun 2014 14:11:15 -0400
+In-Reply-To: <53A85922.1000209@eukrea.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Denis Carikli <denis@eukrea.com>, Shawn Guo <shawn.guo@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabio Estevam <festevam@gmail.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>
+Cc: =?ISO-8859-1?Q?Eric_B=E9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Markus Pargmann <mpa@pengutronix.de>
 
-On Mon, Jun 23, 2014 at 08:16:48PM +0300, Janne Kanniainen wrote:
-> This driver adds support for USB controlled led panels that exists in
-> MSI GT683R laptop
-> 
-> Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
-> ---
-> Changes in v2:
-> 	- sorted headers to alphabetic order
-> 	- using devm_kzalloc
-> 	- using BIT(n)
-> 	- using usb_control_msg instead of usb_submit_urb
-> 	- removing unneeded code
-> Changes in v3:
-> 	- implemented as HID device
-> 	- some cleanups and bug fixes
-> Changes in v4:
-> 	- more cleanups
-> 	- support for selecting leds
-> 	- suppport for selecting status
-> 
-> Changes in v5:
-> 	- mode attribute documented under Documentation/ABI
-> 	- made array for led_classdev
-> 	- led devices uses now recommended naming scheme
-> 
-> Changes in v6:
-> 	- flush_work added
-> 	- using hid device name instead of hard coded gt683r
-> 	- allocating name buffers with devm_kzalloc
-> 
-> Changes in v7:
-> 	- buf with for fixed
-> 
-> Changes in v8:
-> 	- some cleanups and bugs fixed
-> 
-> Changes in v9:
-> 	- few style issues fixed
-> 
-> Changes in v10:
-> 	- race condition fixed
-> 	- using proper attribute group
+On 23/06/14 17:43, Denis Carikli wrote:
+> On 06/21/2014 12:51 PM, Jonathan Cameron wrote:
+>>> +static irqreturn_t mx25_gcq_irq(int irq, void *data)
+>>> +{
+>>> +    struct mx25_gcq_priv *priv = data;
+>>> +    u32 stats;
+>> Not that much in here, but perhaps still makes sense for this to be a
+>> threaded
+>> irq?
+> What would be the advantage of converting it to be a threaded IRQ?
+>
+> I guess that there will be no use of IRQF_SHARED and that only this driver will have to handle the GCQ IRQ in the future.
+>
+Fair enough.  Was more of an idle thought that anything else!
 
-You need to send a separate patch on top of v9, which Jiri has already
-applied to his tree.
 
-<snip>
 
-> +static DEVICE_ATTR_RW(leds_mode);
-> +
-> +static struct attribute *gt683r_attributes[] = {
-> +	&dev_attr_leds_mode.attr,
-> +	NULL,
-> +};
-> +
-> +static struct attribute_group gt683r_attribute_group = {
-> +	.attrs = gt683r_attributes
-> +};
-> +
-> +static int gt683r_led_probe(struct hid_device *hdev,
-> +			const struct hid_device_id *id)
-> +{
-> +	int i;
-> +	int ret;
-> +	int name_sz;
-> +	char *name;
-> +	struct gt683r_led *led;
-> +
-> +	led = devm_kzalloc(&hdev->dev, sizeof(*led), GFP_KERNEL);
-> +	if (!led)
-> +		return -ENOMEM;
-> +
-> +	mutex_init(&led->lock);
-> +	INIT_WORK(&led->work, gt683r_led_work);
-> +
-> +	led->mode = GT683R_LED_NORMAL;
-> +	led->hdev = hdev;
-> +	hid_set_drvdata(hdev, led);
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "hid parsing failed\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-> +	if (ret) {
-> +		hid_err(hdev, "hw start failed\n");
-> +		return ret;
-> +	}
-> +
-> +	for (i = 0; i < GT683R_LED_COUNT; i++) {
-> +		name_sz = strlen(dev_name(&hdev->dev)) +
-> +				strlen(gt683r_panel_names[i]) + 3;
-> +
-> +		name = devm_kzalloc(&hdev->dev, name_sz, GFP_KERNEL);
-> +		if (!name) {
-> +			ret = -ENOMEM;
-> +			goto fail;
-> +		}
-> +
-> +		snprintf(name, name_sz, "%s::%s",
-> +				dev_name(&hdev->dev), gt683r_panel_names[i]);
-> +		led->led_devs[i].name = name;
-> +		led->led_devs[i].max_brightness = 1;
-> +		led->led_devs[i].brightness_set = gt683r_brightness_set;
-> +		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
-> +		if (ret) {
-> +			hid_err(hdev, "could not register led device\n");
-> +			goto fail;
-> +		}
-> +	}
-> +
-> +	ret = sysfs_create_group(&led->hdev->dev.kobj, &gt683r_attribute_group);
-> +	if (ret) {
-> +		hid_err(hdev, "failed to create sysfs attributes\n");
-> +		goto fail;
-> +	}
 
-This does not solve the race Greg is referring to. There's some more
-info here:
-
-	http://kroah.com/log/blog/2013/06/26/how-to-create-a-sysfs-file-correctly/
-
-but I'm not sure exactly how you'd apply that to an HID driver. Perhaps
-you could use the struct device_driver in struct hid_driver (although it
-is currently marked as "private").
-
-Johan
-
-> +
-> +	return 0;
-> +
-> +fail:
-> +	for (i = i - 1; i >= 0; i--)
-> +		led_classdev_unregister(&led->led_devs[i]);
-> +	hid_hw_stop(hdev);
-> +	return ret;
-> +}
-> +
-> +static void gt683r_led_remove(struct hid_device *hdev)
-> +{
-> +	int i;
-> +	struct gt683r_led *led = hid_get_drvdata(hdev);
-> +
-> +	sysfs_remove_group(&led->hdev->dev.kobj, &gt683r_attribute_group);
-> +	for (i = 0; i < GT683R_LED_COUNT; i++)
-> +		led_classdev_unregister(&led->led_devs[i]);
-> +	flush_work(&led->work);
-> +	hid_hw_stop(hdev);
-> +}
-> +
-> +static struct hid_driver gt683r_led_driver = {
-> +	.probe = gt683r_led_probe,
-> +	.remove = gt683r_led_remove,
-> +	.name = "gt683r_led",
-> +	.id_table = gt683r_led_id,
-> +};
-> +
-> +module_hid_driver(gt683r_led_driver);
-> +
-> +MODULE_AUTHOR("Janne Kanniainen");
-> +MODULE_DESCRIPTION("MSI GT683R led driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 34bb220..3692d37 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -641,7 +641,7 @@
->  #define USB_DEVICE_ID_GENIUS_KB29E	0x3004
->  
->  #define USB_VENDOR_ID_MSI		0x1770
-> -#define USB_DEVICE_ID_MSI_GX680R_LED_PANEL	0xff00
-> +#define USB_DEVICE_ID_MSI_GT683R_LED_PANEL 0xff00
->  
->  #define USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR 0x0400
->  #define USB_DEVICE_ID_N_S_HARMONY	0xc359
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 8e4ddb3..c640e1d 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -73,7 +73,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
-> -	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
-> +	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },

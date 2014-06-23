@@ -1,89 +1,324 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4/5] Input - wacom: split out the pad device for DTUS
-Date: Mon, 23 Jun 2014 16:57:18 -0400
-Message-ID: <1403557039-1487-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 2/5] Input - wacom: split out the pad device for Intuos/Cintiq
+Date: Mon, 23 Jun 2014 16:57:16 -0400
+Message-ID: <1403557039-1487-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1403557039-1487-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51653 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756874AbaFWU5e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Jun 2014 16:57:34 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1403557039-1487-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
+List-Id: linux-input@vger.kernel.org
 
-MSC_SERIAL can be safely removed from the pad device.
+MSC_SERIAL can be safely dropped for pad input devices.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/tablet/wacom_wac.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/input/tablet/wacom_wac.c | 208 +++++++++++++++++++++++----------------
+ 1 file changed, 122 insertions(+), 86 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 5aaa3d2..d3aef3a 100644
+index 4b16a34..8807ab5 100644
 --- a/drivers/input/tablet/wacom_wac.c
 +++ b/drivers/input/tablet/wacom_wac.c
-@@ -217,17 +217,13 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
- 			"%s: received unknown report #%d", __func__, data[0]);
- 		return 0;
- 	} else if (data[0] == WACOM_REPORT_DTUSPAD) {
+@@ -584,6 +584,7 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 
+ 	/* pad packets. Works as a second tool and is always in prox */
+ 	if (data[0] == WACOM_REPORT_INTUOSPAD || data[0] == WACOM_REPORT_INTUOS5PAD) {
 +		input = wacom->pad_input;
- 		input_report_key(input, BTN_0, (data[1] & 0x01));
- 		input_report_key(input, BTN_1, (data[1] & 0x02));
- 		input_report_key(input, BTN_2, (data[1] & 0x04));
- 		input_report_key(input, BTN_3, (data[1] & 0x08));
- 		input_report_abs(input, ABS_MISC,
- 				 data[1] & 0x0f ? PAD_DEVICE_ID : 0);
--		/*
--		 * Serial number is required when expresskeys are
--		 * reported through pen interface.
--		 */
--		input_event(input, EV_MSC, MSC_SERIAL, 0xf0);
- 		return 1;
- 	} else {
- 		prox = data[1] & 0x80;
-@@ -257,7 +253,6 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
- 			wacom->id[0] = 0;
- 		input_report_key(input, wacom->tool[0], prox);
- 		input_report_abs(input, ABS_MISC, wacom->id[0]);
--		input_event(input, EV_MSC, MSC_SERIAL, 1);
- 		return 1;
+ 		if (features->type >= INTUOS4S && features->type <= INTUOS4L) {
+ 			input_report_key(input, BTN_0, (data[2] & 0x01));
+ 			input_report_key(input, BTN_1, (data[3] & 0x01));
+@@ -773,7 +774,6 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
+ 		}
+-		input_event(input, EV_MSC, MSC_SERIAL, 0xffffffff);
+                 return 1;
  	}
- }
-@@ -1615,7 +1610,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+@@ -1656,61 +1656,20 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		break;
+ 
+ 	case WACOM_24HD:
+-		__set_bit(BTN_A, input_dev->keybit);
+-		__set_bit(BTN_B, input_dev->keybit);
+-		__set_bit(BTN_C, input_dev->keybit);
+-		__set_bit(BTN_X, input_dev->keybit);
+-		__set_bit(BTN_Y, input_dev->keybit);
+-		__set_bit(BTN_Z, input_dev->keybit);
+-
+-		for (i = 6; i < 10; i++)
+-			__set_bit(BTN_0 + i, input_dev->keybit);
+-
+-		__set_bit(KEY_PROG1, input_dev->keybit);
+-		__set_bit(KEY_PROG2, input_dev->keybit);
+-		__set_bit(KEY_PROG3, input_dev->keybit);
+-
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		input_set_abs_params(input_dev, ABS_THROTTLE, 0, 71, 0, 0);
+ 		/* fall through */
+ 
+ 	case DTK:
+-		for (i = 0; i < 6; i++)
+-			__set_bit(BTN_0 + i, input_dev->keybit);
+-
+ 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 
+ 		wacom_setup_cintiq(wacom_wac);
+ 		break;
+ 
+ 	case WACOM_22HD:
+-		__set_bit(KEY_PROG1, input_dev->keybit);
+-		__set_bit(KEY_PROG2, input_dev->keybit);
+-		__set_bit(KEY_PROG3, input_dev->keybit);
+-		/* fall through */
+-
+ 	case WACOM_21UX2:
+-		__set_bit(BTN_A, input_dev->keybit);
+-		__set_bit(BTN_B, input_dev->keybit);
+-		__set_bit(BTN_C, input_dev->keybit);
+-		__set_bit(BTN_X, input_dev->keybit);
+-		__set_bit(BTN_Y, input_dev->keybit);
+-		__set_bit(BTN_Z, input_dev->keybit);
+-		__set_bit(BTN_BASE, input_dev->keybit);
+-		__set_bit(BTN_BASE2, input_dev->keybit);
+-		/* fall through */
+-
+ 	case WACOM_BEE:
+-		__set_bit(BTN_8, input_dev->keybit);
+-		__set_bit(BTN_9, input_dev->keybit);
+-		/* fall through */
+-
+ 	case CINTIQ:
+-		for (i = 0; i < 8; i++)
+-			__set_bit(BTN_0 + i, input_dev->keybit);
+-
+-		input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
+-		input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 
+ 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+@@ -1719,9 +1678,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		break;
+ 
+ 	case WACOM_13HD:
+-		for (i = 0; i < 9; i++)
+-			__set_bit(BTN_0 + i, input_dev->keybit);
+-
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 		wacom_setup_cintiq(wacom_wac);
+@@ -1729,21 +1685,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 	case INTUOS3:
+ 	case INTUOS3L:
+-		__set_bit(BTN_4, input_dev->keybit);
+-		__set_bit(BTN_5, input_dev->keybit);
+-		__set_bit(BTN_6, input_dev->keybit);
+-		__set_bit(BTN_7, input_dev->keybit);
+-
+-		input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
+-		/* fall through */
+-
+ 	case INTUOS3S:
+-		__set_bit(BTN_0, input_dev->keybit);
+-		__set_bit(BTN_1, input_dev->keybit);
+-		__set_bit(BTN_2, input_dev->keybit);
+-		__set_bit(BTN_3, input_dev->keybit);
+-
+-		input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		/* fall through */
+ 
+@@ -1757,20 +1699,11 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 	case INTUOS5L:
+ 	case INTUOSPM:
+ 	case INTUOSPL:
+-		if (features->device_type == BTN_TOOL_PEN) {
+-			__set_bit(BTN_7, input_dev->keybit);
+-			__set_bit(BTN_8, input_dev->keybit);
+-		}
+-		/* fall through */
+-
+ 	case INTUOS5S:
+ 	case INTUOSPS:
+ 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 
+ 		if (features->device_type == BTN_TOOL_PEN) {
+-			for (i = 0; i < 7; i++)
+-				__set_bit(BTN_0 + i, input_dev->keybit);
+-
+ 			input_set_abs_params(input_dev, ABS_DISTANCE, 0,
+ 					      features->distance_max,
+ 					      0, 0);
+@@ -1791,14 +1724,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 	case INTUOS4:
+ 	case INTUOS4L:
+-		__set_bit(BTN_7, input_dev->keybit);
+-		__set_bit(BTN_8, input_dev->keybit);
+-		/* fall through */
+-
+ 	case INTUOS4S:
+-		for (i = 0; i < 7; i++)
+-			__set_bit(BTN_0 + i, input_dev->keybit);
+-
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		wacom_setup_intuos(wacom_wac);
+ 
+@@ -1922,17 +1848,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		break;
+ 
+ 	case CINTIQ_HYBRID:
+-		__set_bit(BTN_1, input_dev->keybit);
+-		__set_bit(BTN_2, input_dev->keybit);
+-		__set_bit(BTN_3, input_dev->keybit);
+-		__set_bit(BTN_4, input_dev->keybit);
+-
+-		__set_bit(BTN_5, input_dev->keybit);
+-		__set_bit(BTN_6, input_dev->keybit);
+-		__set_bit(BTN_7, input_dev->keybit);
+-		__set_bit(BTN_8, input_dev->keybit);
+-		__set_bit(BTN_0, input_dev->keybit);
+-
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 
+@@ -1946,6 +1861,7 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
  				   struct wacom_wac *wacom_wac)
  {
  	struct wacom_features *features = &wacom_wac->features;
--	int i;
++	int i;
  
  	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
  
-@@ -1765,11 +1759,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 	case DTUS:
- 	case PL:
- 	case DTU:
--		if (features->type == DTUS) {
--			input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
--			for (i = 0; i < 4; i++)
--				__set_bit(BTN_0 + i, input_dev->keybit);
--		}
- 		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
- 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
- 		__set_bit(BTN_STYLUS, input_dev->keybit);
-@@ -1985,6 +1974,11 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
+@@ -1957,6 +1873,126 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
+ 	input_set_abs_params(input_dev, ABS_Y, 0, 1, 0, 0);
  
- 		break;
- 
-+	case DTUS:
-+		for (i = 0; i < 4; i++)
+ 	switch (features->type) {
++	case WACOM_24HD:
++		__set_bit(BTN_A, input_dev->keybit);
++		__set_bit(BTN_B, input_dev->keybit);
++		__set_bit(BTN_C, input_dev->keybit);
++		__set_bit(BTN_X, input_dev->keybit);
++		__set_bit(BTN_Y, input_dev->keybit);
++		__set_bit(BTN_Z, input_dev->keybit);
++
++		for (i = 0; i < 10; i++)
 +			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		__set_bit(KEY_PROG1, input_dev->keybit);
++		__set_bit(KEY_PROG2, input_dev->keybit);
++		__set_bit(KEY_PROG3, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
++		input_set_abs_params(input_dev, ABS_THROTTLE, 0, 71, 0, 0);
 +		break;
 +
- 	case INTUOSHT:
- 	case BAMBOO_PT:
- 		/* pad device is on the touch interface */
++	case DTK:
++		for (i = 0; i < 6; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		break;
++
++	case WACOM_22HD:
++		__set_bit(KEY_PROG1, input_dev->keybit);
++		__set_bit(KEY_PROG2, input_dev->keybit);
++		__set_bit(KEY_PROG3, input_dev->keybit);
++		/* fall through */
++
++	case WACOM_21UX2:
++		__set_bit(BTN_A, input_dev->keybit);
++		__set_bit(BTN_B, input_dev->keybit);
++		__set_bit(BTN_C, input_dev->keybit);
++		__set_bit(BTN_X, input_dev->keybit);
++		__set_bit(BTN_Y, input_dev->keybit);
++		__set_bit(BTN_Z, input_dev->keybit);
++		__set_bit(BTN_BASE, input_dev->keybit);
++		__set_bit(BTN_BASE2, input_dev->keybit);
++		/* fall through */
++
++	case WACOM_BEE:
++		__set_bit(BTN_8, input_dev->keybit);
++		__set_bit(BTN_9, input_dev->keybit);
++		/* fall through */
++
++	case CINTIQ:
++		for (i = 0; i < 8; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
++		input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
++		break;
++
++	case WACOM_13HD:
++		for (i = 0; i < 9; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
++		break;
++
++	case INTUOS3:
++	case INTUOS3L:
++		__set_bit(BTN_4, input_dev->keybit);
++		__set_bit(BTN_5, input_dev->keybit);
++		__set_bit(BTN_6, input_dev->keybit);
++		__set_bit(BTN_7, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
++		/* fall through */
++
++	case INTUOS3S:
++		__set_bit(BTN_0, input_dev->keybit);
++		__set_bit(BTN_1, input_dev->keybit);
++		__set_bit(BTN_2, input_dev->keybit);
++		__set_bit(BTN_3, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
++		break;
++
++	case INTUOS5:
++	case INTUOS5L:
++	case INTUOSPM:
++	case INTUOSPL:
++		__set_bit(BTN_7, input_dev->keybit);
++		__set_bit(BTN_8, input_dev->keybit);
++		/* fall through */
++
++	case INTUOS5S:
++	case INTUOSPS:
++		/* touch interface does not have the pad device */
++		if (features->device_type != BTN_TOOL_PEN)
++			return 1;
++
++		for (i = 0; i < 7; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
++		break;
++
++	case INTUOS4:
++	case INTUOS4L:
++		__set_bit(BTN_7, input_dev->keybit);
++		__set_bit(BTN_8, input_dev->keybit);
++		/* fall through */
++
++	case INTUOS4S:
++		for (i = 0; i < 7; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
++		break;
++
++	case CINTIQ_HYBRID:
++		for (i = 0; i < 9; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
++
++		break;
++
+ 	default:
+ 		/* no pad supported */
+ 		return 1;
 -- 
 1.9.0
-

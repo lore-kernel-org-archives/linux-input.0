@@ -1,35 +1,76 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH v10] leds: USB: HID: Add support for MSI GT683R led panels
-Date: Mon, 23 Jun 2014 14:24:32 -0400
-Message-ID: <20140623182432.GB30831@kroah.com>
-References: <20140623161723.GA20421@kroah.com>
- <1403543808-8228-1-git-send-email-janne.kanniainen@gmail.com>
- <20140623182324.GA30831@kroah.com>
+From: Daniel Nicoletti <dantti12@gmail.com>
+Subject: Re: PATCH change for HID_BATTERY_STRENGTH kconfig
+Date: Mon, 23 Jun 2014 16:08:23 -0300
+Message-ID: <CACo8zOcm3B7WdQpHA3J2ZtP6AWUrtAo_L63mpYJR0w13jNwLpQ@mail.gmail.com>
+References: <CACo8zOfAf3cUNh4MZcQvYByiu=D5S1aA4qiH_HFuvz5GYMJF7g@mail.gmail.com>
+	<alpine.LNX.2.00.1305240016180.13213@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140623182324.GA30831@kroah.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: johan@kernel.org, jkosina@suse.cz, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f52.google.com ([74.125.82.52]:51804 "EHLO
+	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753952AbaFWTI0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Jun 2014 15:08:26 -0400
+Received: by mail-wg0-f52.google.com with SMTP id b13so6783736wgh.11
+        for <linux-input@vger.kernel.org>; Mon, 23 Jun 2014 12:08:23 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1305240016180.13213@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Jun 23, 2014 at 02:23:24PM -0400, Greg KH wrote:
-> On Mon, Jun 23, 2014 at 08:16:48PM +0300, Janne Kanniainen wrote:
-> > +	ret = sysfs_create_group(&led->hdev->dev.kobj, &gt683r_attribute_group);
-> > +	if (ret) {
-> > +		hid_err(hdev, "failed to create sysfs attributes\n");
-> > +		goto fail;
-> > +	}
-> 
-> No, you need to set the attribute group _before_ you call
-> led_classdev_register, as that is where the device will be created in
-> sysfs.  Surely the other led drivers already do this?  I'm almost afraid
-> to go look...
+2013-05-23 19:16 GMT-03:00 Jiri Kosina <jkosina@suse.cz>:
+> On Mon, 13 May 2013, Daniel Nicoletti wrote:
+>
+>> Hi,
+>> I'd like to propose this patch while removes the need for
+>> hid to be compiled build-in, as this is the same behavior
+>> that WiiMote and Wacom have.
+>> Is this ok?
+>
+> Makes sense to me. Could you please resend with proper changelog and
+> Signed-off-by: line?
+>
+> Thanks.
 
-Yes, they do it already, set .dev_attr_group and you should be fine.
+Sorry it took more than a year for me to do this,
+so I called git send-email, and so far the CC and
+linux-input didn't get it, tho it said result OK.
+git send-email --to "Jiri Kosina <jkosina@suse.cz>" --cc
+"linux-input@vger.kernel.org"
+0001-HID-Allows-for-HID_BATTERY_STRENGTH-config-be-enable.patch
 
-thanks,
+I'm pasting it here hoping gmail doesn't screw
+it, if you prefer that I send it using the above
+command mind you telling what I did wrong?
 
-greg k-h
+Thanks.
+
+>From df740fd81dffbb74e13c622392fe9a945006fd3c Mon Sep 17 00:00:00 2001
+From: Daniel Nicoletti <dantti12@gmail.com>
+Date: Mon, 23 Jun 2014 10:31:47 -0300
+Subject: [PATCH] HID: Allows for HID_BATTERY_STRENGTH config be enabled
+ without the need for HID module to be built-in.
+
+Signed-off-by: Daniel Nicoletti <dantti12@gmail.com>
+---
+ drivers/hid/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index fb52f3f..d6d85ad 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -27,7 +27,8 @@ if HID
+
+ config HID_BATTERY_STRENGTH
+        bool "Battery level reporting for HID devices"
+-       depends on HID && POWER_SUPPLY && HID = POWER_SUPPLY
++       depends on HID
++       select POWER_SUPPLY
+        default n
+        ---help---
+        This option adds support of reporting battery strength (for HID devices
+-- 
+2.0.0

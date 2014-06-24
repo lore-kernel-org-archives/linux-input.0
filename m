@@ -1,29 +1,107 @@
-From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2 3/6] iio: adc: fsl,imx25-gcq driver
-Date: Tue, 24 Jun 2014 12:38:43 +0200
-Message-ID: <53A95533.8090500@eukrea.com>
-References: <1392913312-9030-1-git-send-email-mpa@pengutronix.de> <1402672899-6995-1-git-send-email-denis@eukrea.com> <1402672899-6995-4-git-send-email-denis@eukrea.com> <53A55EDF.4010104@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53A55EDF.4010104-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: =?ISO-8859-1?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: [PATCH 2/4] HID: sony: Always override the Sixaxis descriptor
+Date: Tue, 24 Jun 2014 13:28:41 +0200
+Message-ID: <1403609323-27283-3-git-send-email-ao2@ao2.it>
+References: <1403609323-27283-1-git-send-email-ao2@ao2.it>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp206.alice.it ([82.57.200.102]:15672 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753637AbaFXMML (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Jun 2014 08:12:11 -0400
+In-Reply-To: <1403609323-27283-1-git-send-email-ao2@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ao2@ao2.it>, Jiri Kosina <jkosina@suse.cz>, simon@mungewell.org, Frank Praznik <frank.praznik@oh.rr.com>
 
-On 06/21/2014 12:30 PM, Jonathan Cameron wrote:
->> +        .info_mask_separate = BIT(IIO_CHAN_INFO_RAW),    \
-> No known info on converting this to real voltages?  I'd normally expect
-> a scale parameter at least with any raw channel output, but fair enough
-> if it's not obvous what this should be.
+Simplify the logic of overriding the Sixaxis HID descriptor, this will
+make it easier to amend the descriptor in future commits.
 
-We know the internal reference voltage.
-We can also know the external reference voltage by representing it as a 
-regulator.
+The current code does this:
 
-Since there are many combinations should a regulator for each 
-reference(external reference, xp, yp, xn and yn) be used?
+	if (original sixaxis via USB or BT)
+		fixup only a part of the descriptor
+	else if (sixaxis compatible controller)
+		override the _whole_ descriptor
 
-Denis.
+but the end result is exactly the same, except for the trailing zero in
+the case of original BT controllers.
+
+So let's just regularize the process, and always override the HID
+descriptor.
+
+Always overriding the descriptor changes the current semantic a little
+bit, before this change the BT descriptor still had the trailing zero
+byte, while now it is exactly the same as the descriptor of the
+controller via USB, but that does not affect proper operation of the
+device.
+
+Note that overriding the whole descriptor for original devices is not
+strictly necessary for now, but it simplifies the code and in the future
+the report descriptor will be patched further and keys will be remapped,
+so it's handy to have only one place to patch.
+
+Signed-off-by: Antonio Ospite <ao2@ao2.it>
+---
+ drivers/hid/hid-sony.c | 31 ++++++++++---------------------
+ 1 file changed, 10 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index a77269b..11026b5 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -56,13 +56,7 @@
+ 
+ #define MAX_LEDS 4
+ 
+-static const u8 sixaxis_rdesc_fixup[] = {
+-	0x95, 0x13, 0x09, 0x01, 0x81, 0x02, 0x95, 0x0C,
+-	0x81, 0x01, 0x75, 0x10, 0x95, 0x04, 0x26, 0xFF,
+-	0x03, 0x46, 0xFF, 0x03, 0x09, 0x01, 0x81, 0x02
+-};
+-
+-static const u8 sixaxis_rdesc_fixup2[] = {
++static __u8 sixaxis_rdesc[] = {
+ 	0x05, 0x01, 0x09, 0x04, 0xa1, 0x01, 0xa1, 0x02,
+ 	0x85, 0x01, 0x75, 0x08, 0x95, 0x01, 0x15, 0x00,
+ 	0x26, 0xff, 0x00, 0x81, 0x03, 0x75, 0x01, 0x95,
+@@ -778,6 +772,13 @@ struct sony_sc {
+ 	__u8 led_count;
+ };
+ 
++static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
++			     unsigned int *rsize)
++{
++	*rsize = sizeof(sixaxis_rdesc);
++	return sixaxis_rdesc;
++}
++
+ static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			     unsigned int *rsize)
+ {
+@@ -857,20 +858,8 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		*rsize = sizeof(dualshock4_bt_rdesc);
+ 	}
+ 
+-	/* The HID descriptor exposed over BT has a trailing zero byte */
+-	if ((((sc->quirks & SIXAXIS_CONTROLLER_USB) && *rsize == 148) ||
+-			((sc->quirks & SIXAXIS_CONTROLLER_BT) && *rsize == 149)) &&
+-			rdesc[83] == 0x75) {
+-		hid_info(hdev, "Fixing up Sony Sixaxis report descriptor\n");
+-		memcpy((void *)&rdesc[83], (void *)&sixaxis_rdesc_fixup,
+-			sizeof(sixaxis_rdesc_fixup));
+-	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB &&
+-		   *rsize > sizeof(sixaxis_rdesc_fixup2)) {
+-		hid_info(hdev, "Sony Sixaxis clone detected. Using original report descriptor (size: %d clone; %d new)\n",
+-			 *rsize, (int)sizeof(sixaxis_rdesc_fixup2));
+-		*rsize = sizeof(sixaxis_rdesc_fixup2);
+-		memcpy(rdesc, &sixaxis_rdesc_fixup2, *rsize);
+-	}
++	if (sc->quirks & SIXAXIS_CONTROLLER)
++		return sixaxis_fixup(hdev, rdesc, rsize);
+ 
+ 	if (sc->quirks & PS3REMOTE)
+ 		return ps3remote_fixup(hdev, rdesc, rsize);
+-- 
+2.0.0
+

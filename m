@@ -1,7 +1,7 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 11/13] input: lm8323: fix attribute-creation race
-Date: Wed, 25 Jun 2014 19:08:54 +0200
-Message-ID: <1403716136-32694-12-git-send-email-johan@kernel.org>
+Subject: [PATCH 13/13] leds: lp55xx-common: fix attribute-creation race
+Date: Wed, 25 Jun 2014 19:08:56 +0200
+Message-ID: <1403716136-32694-14-git-send-email-johan@kernel.org>
 References: <1403716136-32694-1-git-send-email-johan@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1403716136-32694-1-git-send-email-johan@kernel.org>
@@ -10,73 +10,77 @@ To: Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Use the attribute groups of the led-class to create the time attribute
+Use the attribute groups of the led-class to create the LED attributes
 during probe in order to avoid racing with userspace.
 
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/input/keyboard/lm8323.c | 22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+ drivers/leds/leds-lp55xx-common.c | 22 +++-------------------
+ 1 file changed, 3 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-index 0b42118cbf8f..cb32e2b506b7 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -558,6 +558,12 @@ static ssize_t lm8323_pwm_store_time(struct device *dev,
- }
- static DEVICE_ATTR(time, 0644, lm8323_pwm_show_time, lm8323_pwm_store_time);
+diff --git a/drivers/leds/leds-lp55xx-common.c b/drivers/leds/leds-lp55xx-common.c
+index 3fbfb31602c7..77c26bc32eed 100644
+--- a/drivers/leds/leds-lp55xx-common.c
++++ b/drivers/leds/leds-lp55xx-common.c
+@@ -127,15 +127,12 @@ static DEVICE_ATTR(led_current, S_IRUGO | S_IWUSR, lp55xx_show_current,
+ 		lp55xx_store_current);
+ static DEVICE_ATTR(max_current, S_IRUGO , lp55xx_show_max_current, NULL);
  
-+static struct attribute *lm8323_pwm_attrs[] = {
-+	&dev_attr_time.attr,
-+	NULL
-+};
-+ATTRIBUTE_GROUPS(lm8323_pwm);
-+
- static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
- 		    const char *name)
- {
-@@ -580,16 +586,11 @@ static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
- 	if (name) {
- 		pwm->cdev.name = name;
- 		pwm->cdev.brightness_set = lm8323_pwm_set_brightness;
-+		pwm->cdev.groups = lm8323_pwm_groups;
- 		if (led_classdev_register(dev, &pwm->cdev) < 0) {
- 			dev_err(dev, "couldn't register PWM %d\n", id);
- 			return -1;
- 		}
--		if (device_create_file(pwm->cdev.dev,
--					&dev_attr_time) < 0) {
--			dev_err(dev, "couldn't register time attribute\n");
--			led_classdev_unregister(&pwm->cdev);
--			return -1;
--		}
- 		pwm->enabled = true;
+-static struct attribute *lp55xx_led_attributes[] = {
++static struct attribute *lp55xx_led_attrs[] = {
+ 	&dev_attr_led_current.attr,
+ 	&dev_attr_max_current.attr,
+ 	NULL,
+ };
+-
+-static struct attribute_group lp55xx_led_attr_group = {
+-	.attrs = lp55xx_led_attributes
+-};
++ATTRIBUTE_GROUPS(lp55xx_led);
+ 
+ static void lp55xx_set_brightness(struct led_classdev *cdev,
+ 			     enum led_brightness brightness)
+@@ -176,6 +173,7 @@ static int lp55xx_init_led(struct lp55xx_led *led,
  	}
  
-@@ -753,11 +754,8 @@ fail3:
- 	device_remove_file(&client->dev, &dev_attr_disable_kp);
- fail2:
- 	while (--pwm >= 0)
--		if (lm->pwm[pwm].enabled) {
--			device_remove_file(lm->pwm[pwm].cdev.dev,
--					   &dev_attr_time);
-+		if (lm->pwm[pwm].enabled)
- 			led_classdev_unregister(&lm->pwm[pwm].cdev);
--		}
- fail1:
- 	input_free_device(idev);
- 	kfree(lm);
-@@ -777,10 +775,8 @@ static int lm8323_remove(struct i2c_client *client)
- 	device_remove_file(&lm->client->dev, &dev_attr_disable_kp);
+ 	led->cdev.brightness_set = lp55xx_set_brightness;
++	led->cdev.groups = lp55xx_led_groups;
  
- 	for (i = 0; i < 3; i++)
--		if (lm->pwm[i].enabled) {
--			device_remove_file(lm->pwm[i].cdev.dev, &dev_attr_time);
-+		if (lm->pwm[i].enabled)
- 			led_classdev_unregister(&lm->pwm[i].cdev);
--		}
+ 	if (pdata->led_config[chan].name) {
+ 		led->cdev.name = pdata->led_config[chan].name;
+@@ -185,24 +183,12 @@ static int lp55xx_init_led(struct lp55xx_led *led,
+ 		led->cdev.name = name;
+ 	}
  
- 	kfree(lm);
+-	/*
+-	 * register led class device for each channel and
+-	 * add device attributes
+-	 */
+-
+ 	ret = led_classdev_register(dev, &led->cdev);
+ 	if (ret) {
+ 		dev_err(dev, "led register err: %d\n", ret);
+ 		return ret;
+ 	}
  
+-	ret = sysfs_create_group(&led->cdev.dev->kobj, &lp55xx_led_attr_group);
+-	if (ret) {
+-		dev_err(dev, "led sysfs err: %d\n", ret);
+-		led_classdev_unregister(&led->cdev);
+-		return ret;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -520,8 +506,6 @@ void lp55xx_unregister_leds(struct lp55xx_led *led, struct lp55xx_chip *chip)
+ 
+ 	for (i = 0; i < chip->num_leds; i++) {
+ 		each = led + i;
+-		sysfs_remove_group(&each->cdev.dev->kobj,
+-						&lp55xx_led_attr_group);
+ 		led_classdev_unregister(&each->cdev);
+ 		flush_work(&each->brightness_work);
+ 	}
 -- 
 1.8.5.5

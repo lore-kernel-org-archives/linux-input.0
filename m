@@ -1,122 +1,134 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/2] HID: leds: move led_mode attribute to led-class
- devices in MSI GT683R driver
-Date: Wed, 25 Jun 2014 13:55:41 +0200
-Message-ID: <20140625115541.GA1409@localhost>
-References: <20140624145003.GA6607@localhost>
- <1403638718-11448-1-git-send-email-janne.kanniainen@gmail.com>
- <1403638718-11448-2-git-send-email-janne.kanniainen@gmail.com>
- <20140624195651.GA13694@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Janne Kanniainen <janne.kanniainen@gmail.com>
+Subject: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R driver
+Date: Wed, 25 Jun 2014 18:59:26 +0300
+Message-ID: <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
+References: <20140625115541.GA1409@localhost>
 Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140624195651.GA13694@kroah.com>
+In-Reply-To: <20140625115541.GA1409@localhost>
 Sender: linux-leds-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Janne Kanniainen <janne.kanniainen@gmail.com>, johan@kernel.org, bjorn@mork.no, jkosina@suse.cz, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: johan@kernel.org
+Cc: greg@kroah.com, bjorn@mork.no, jkosina@suse.cz, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 24, 2014 at 03:56:51PM -0400, Greg KH wrote:
-> On Tue, Jun 24, 2014 at 10:38:38PM +0300, Janne Kanniainen wrote:
+Use attribute-groups to fix race condition.
 
-> >  static int gt683r_led_probe(struct hid_device *hdev,
-> >  			const struct hid_device_id *id)
-> > @@ -261,6 +272,7 @@ static int gt683r_led_probe(struct hid_device *hdev,
-> >  		led->led_devs[i].name = name;
-> >  		led->led_devs[i].max_brightness = 1;
-> >  		led->led_devs[i].brightness_set = gt683r_brightness_set;
-> > +
-> >  		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
-> >  		if (ret) {
-> >  			hid_err(hdev, "could not register led device\n");
-> > @@ -268,17 +280,29 @@ static int gt683r_led_probe(struct hid_device *hdev,
-> >  		}
-> >  	}
-> >  
-> > -	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
-> > -	if (ret) {
-> > -		hid_err(hdev, "could not make mode attribute file\n");
-> > -		goto fail;
-> > +	for (i = 0; i < GT683R_LED_COUNT; i++) {
-> > +		led->dev_attr_group[i] = &gt683r_group;
-> > +
-> > +		ret = sysfs_create_group(&led->led_devs[i].dev->kobj,
-> > +					led->dev_attr_group[i]);
-> 
-> why not use sysfs_create_groups()?
-> 
-> And why are you doing it this way, the led device should have the
-> attribute group and it should be created automatically by the driver
-> core, no driver should need to create it like you are doing so here.
-
-Turns out it was easier said than done when I asked Janne to move the
-attribute. And all led drivers with custom attributes currently suffer
-from this race.
-
-Janne, you'll need to apply patch below and then set the groups field of
-the led_devs before registering them. You can use the ATTRIBUTE_GROUPS
-macro in the following way:
-
-	static struct attribute *gt683r_led_attrs[] = {
-       		&dev_attr_msi_mode.attr,
-       		NULL,
-	};
-	ATTRIBUTE_GROUPS(gt683r_led);
-
-and then set .groups to gt683r_led_groups.
-
-I have started fixing some of the other led drivers and I'll try to
-submit a series (including the below patch) later today.
-
-Thanks,
-Johan
-
-
->From 226f1de5e094f2ec99f45d486652505ef915af73 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Wed, 25 Jun 2014 12:33:18 +0200
-Subject: [PATCH] leds: add led-class attribute-group support
-
-Allow led-class devices to be created with optional attribute groups.
-
-This is needed in order to allow led drivers to create custom device
-attributes in a race-free manner.
-
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
 ---
- drivers/leds/led-class.c | 5 +++--
- include/linux/leds.h     | 2 ++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ .../ABI/testing/sysfs-class-hid-driver-gt683r      |  6 +++--
+ drivers/hid/hid-gt683r.c                           | 31 +++++++++++++---------
+ 2 files changed, 22 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
-index f37d63cf726b..aa29198fca3e 100644
---- a/drivers/leds/led-class.c
-+++ b/drivers/leds/led-class.c
-@@ -210,8 +210,9 @@ static const struct dev_pm_ops leds_class_dev_pm_ops = {
-  */
- int led_classdev_register(struct device *parent, struct led_classdev *led_cdev)
+diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+index 317e9d5..c97970a 100644
+--- a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
++++ b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+@@ -1,9 +1,11 @@
+-What:		/sys/class/hidraw/<hidraw>/device/leds_mode
++What:		/sys/class/leds/<led>/msi_mode
+ Date:		Jun 2014
+ KernelVersion:	3.17
+ Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
+ Description:
+-		Set the mode of LEDs
++		Set the mode of LEDs. You should notice that changing the mode
++		of one LED will update the mode of its two sibling devices as
++		well
+ 
+ 		0 - normal
+ 		1 - audio
+diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+index 073bd80..aba6636 100644
+--- a/drivers/hid/hid-gt683r.c
++++ b/drivers/hid/hid-gt683r.c
+@@ -84,12 +84,13 @@ static void gt683r_brightness_set(struct led_classdev *led_cdev,
+ 	}
+ }
+ 
+-static ssize_t leds_mode_show(struct device *dev,
++static ssize_t msi_mode_show(struct device *led_dev,
+ 				struct device_attribute *attr,
+ 				char *buf)
  {
--	led_cdev->dev = device_create(leds_class, parent, 0, led_cdev,
--				      "%s", led_cdev->name);
-+	led_cdev->dev = device_create_with_groups(leds_class, parent, 0,
-+					led_cdev, led_cdev->groups,
-+					"%s", led_cdev->name);
- 	if (IS_ERR(led_cdev->dev))
- 		return PTR_ERR(led_cdev->dev);
+ 	u8 sysfs_mode;
+-	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
++	struct hid_device *hdev = container_of(led_dev->parent,
++					struct hid_device, dev);
+ 	struct gt683r_led *led = hid_get_drvdata(hdev);
  
-diff --git a/include/linux/leds.h b/include/linux/leds.h
-index 0287ab296689..e43686472197 100644
---- a/include/linux/leds.h
-+++ b/include/linux/leds.h
-@@ -63,6 +63,8 @@ struct led_classdev {
- 				     unsigned long *delay_off);
+ 	if (led->mode == GT683R_LED_NORMAL)
+@@ -102,15 +103,15 @@ static ssize_t leds_mode_show(struct device *dev,
+ 	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
+ }
  
- 	struct device		*dev;
-+	const struct attribute_group	**groups;
+-static ssize_t leds_mode_store(struct device *dev,
++static ssize_t msi_mode_store(struct device *led_dev,
+ 				struct device_attribute *attr,
+ 				const char *buf, size_t count)
+ {
+ 	u8 sysfs_mode;
+-	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
++	struct hid_device *hdev = container_of(led_dev->parent,
++					struct hid_device, dev);
+ 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 
+-
+ 	if (kstrtou8(buf, 10, &sysfs_mode) || sysfs_mode > 2)
+ 		return -EINVAL;
+ 
+@@ -212,7 +213,14 @@ fail:
+ 	mutex_unlock(&led->lock);
+ }
+ 
+-static DEVICE_ATTR_RW(leds_mode);
++static DEVICE_ATTR_RW(msi_mode);
 +
- 	struct list_head	 node;			/* LED Device list */
- 	const char		*default_trigger;	/* Trigger to use */
++static struct attribute *gt683r_led_attrs[] = {
++	&dev_attr_msi_mode.attr,
++	NULL
++};
++
++ATTRIBUTE_GROUPS(gt683r_led);
  
+ static int gt683r_led_probe(struct hid_device *hdev,
+ 			const struct hid_device_id *id)
+@@ -261,6 +269,8 @@ static int gt683r_led_probe(struct hid_device *hdev,
+ 		led->led_devs[i].name = name;
+ 		led->led_devs[i].max_brightness = 1;
+ 		led->led_devs[i].brightness_set = gt683r_brightness_set;
++		led->led_devs[i].groups = gt683r_led_groups;
++
+ 		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
+ 		if (ret) {
+ 			hid_err(hdev, "could not register led device\n");
+@@ -268,17 +278,12 @@ static int gt683r_led_probe(struct hid_device *hdev,
+ 		}
+ 	}
+ 
+-	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
+-	if (ret) {
+-		hid_err(hdev, "could not make mode attribute file\n");
+-		goto fail;
+-	}
+-
+ 	return 0;
+ 
+ fail:
+ 	for (i = i - 1; i >= 0; i--)
+ 		led_classdev_unregister(&led->led_devs[i]);
++
+ 	hid_hw_stop(hdev);
+ 	return ret;
+ }
+@@ -288,9 +293,9 @@ static void gt683r_led_remove(struct hid_device *hdev)
+ 	int i;
+ 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 
+-	device_remove_file(&hdev->dev, &dev_attr_leds_mode);
+ 	for (i = 0; i < GT683R_LED_COUNT; i++)
+ 		led_classdev_unregister(&led->led_devs[i]);
++
+ 	flush_work(&led->work);
+ 	hid_hw_stop(hdev);
+ }
 -- 
-1.8.5.5
+1.9.2

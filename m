@@ -1,68 +1,81 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 08/13] leds: ns2: fix attribute-creation race
-Date: Wed, 25 Jun 2014 19:08:51 +0200
-Message-ID: <1403716136-32694-9-git-send-email-johan@kernel.org>
+Subject: [PATCH 04/13] leds: lm355x: fix attribute-creation race
+Date: Wed, 25 Jun 2014 19:08:47 +0200
+Message-ID: <1403716136-32694-5-git-send-email-johan@kernel.org>
 References: <1403716136-32694-1-git-send-email-johan@kernel.org>
-Return-path: <linux-leds-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1403716136-32694-1-git-send-email-johan@kernel.org>
-Sender: linux-leds-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Use the attribute groups of the led-class to create the sata attribute
-during probe in order to avoid racing with userspace.
+Use the attribute groups of the led-class to create the indicator-LED
+attributes during probe in order to avoid racing with userspace.
+
+Note that the comment about the pattern attribute only being for LM3554
+was incorrect and did not match the code (the original leds-lm3556
+driver had the attribute before LM3554 support was added).
 
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/leds/leds-ns2.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/leds/leds-lm355x.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/leds/leds-ns2.c b/drivers/leds/leds-ns2.c
-index efa625883c83..231993d1fe21 100644
---- a/drivers/leds/leds-ns2.c
-+++ b/drivers/leds/leds-ns2.c
-@@ -185,6 +185,12 @@ static ssize_t ns2_led_sata_show(struct device *dev,
+diff --git a/drivers/leds/leds-lm355x.c b/drivers/leds/leds-lm355x.c
+index 591eb5e58ae3..f5112cb2d991 100644
+--- a/drivers/leds/leds-lm355x.c
++++ b/drivers/leds/leds-lm355x.c
+@@ -413,6 +413,12 @@ out:
  
- static DEVICE_ATTR(sata, 0644, ns2_led_sata_show, ns2_led_sata_store);
+ static DEVICE_ATTR(pattern, S_IWUSR, NULL, lm3556_indicator_pattern_store);
  
-+static struct attribute *ns2_led_attrs[] = {
-+	&dev_attr_sata.attr,
++static struct attribute *lm355x_indicator_attrs[] = {
++	&dev_attr_pattern.attr,
 +	NULL
 +};
-+ATTRIBUTE_GROUPS(ns2_led);
++ATTRIBUTE_GROUPS(lm355x_indicator);
 +
- static int
- create_ns2_led(struct platform_device *pdev, struct ns2_led_data *led_dat,
- 	       const struct ns2_led *template)
-@@ -219,6 +225,7 @@ create_ns2_led(struct platform_device *pdev, struct ns2_led_data *led_dat,
- 	led_dat->cdev.blink_set = NULL;
- 	led_dat->cdev.brightness_set = ns2_led_set;
- 	led_dat->cdev.flags |= LED_CORE_SUSPENDRESUME;
-+	led_dat->cdev.groups = ns2_led_groups;
- 	led_dat->cmd = template->cmd;
- 	led_dat->slow = template->slow;
+ static const struct regmap_config lm355x_regmap = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -501,25 +507,18 @@ static int lm355x_probe(struct i2c_client *client,
+ 	else
+ 		chip->cdev_indicator.max_brightness = 8;
+ 	chip->cdev_indicator.brightness_set = lm355x_indicator_brightness_set;
++	/* indicator pattern control only for LM3556 */
++	if (id->driver_data == CHIP_LM3556)
++		chip->cdev_indicator.groups = lm355x_indicator_groups;
+ 	err = led_classdev_register((struct device *)
+ 				    &client->dev, &chip->cdev_indicator);
+ 	if (err < 0)
+ 		goto err_create_indicator_file;
+-	/* indicator pattern control only for LM3554 */
+-	if (id->driver_data == CHIP_LM3556) {
+-		err =
+-		    device_create_file(chip->cdev_indicator.dev,
+-				       &dev_attr_pattern);
+-		if (err < 0)
+-			goto err_create_pattern_file;
+-	}
  
-@@ -235,20 +242,11 @@ create_ns2_led(struct platform_device *pdev, struct ns2_led_data *led_dat,
- 	if (ret < 0)
- 		return ret;
- 
--	ret = device_create_file(led_dat->cdev.dev, &dev_attr_sata);
--	if (ret < 0)
--		goto err_free_cdev;
--
+ 	dev_info(&client->dev, "%s is initialized\n",
+ 		 lm355x_name[id->driver_data]);
  	return 0;
--
--err_free_cdev:
--	led_classdev_unregister(&led_dat->cdev);
--	return ret;
- }
  
- static void delete_ns2_led(struct ns2_led_data *led_dat)
- {
--	device_remove_file(led_dat->cdev.dev, &dev_attr_sata);
- 	led_classdev_unregister(&led_dat->cdev);
- }
+-err_create_pattern_file:
+-	led_classdev_unregister(&chip->cdev_indicator);
+ err_create_indicator_file:
+ 	led_classdev_unregister(&chip->cdev_torch);
+ err_create_torch_file:
+@@ -534,8 +533,6 @@ static int lm355x_remove(struct i2c_client *client)
+ 	struct lm355x_reg_data *preg = chip->regs;
  
+ 	regmap_write(chip->regmap, preg[REG_OPMODE].regno, 0);
+-	if (chip->type == CHIP_LM3556)
+-		device_remove_file(chip->cdev_indicator.dev, &dev_attr_pattern);
+ 	led_classdev_unregister(&chip->cdev_indicator);
+ 	flush_work(&chip->work_indicator);
+ 	led_classdev_unregister(&chip->cdev_torch);
 -- 
 1.8.5.5

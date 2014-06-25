@@ -1,78 +1,37 @@
 From: Bryan Wu <cooloney@gmail.com>
-Subject: Re: [PATCH 00/13] leds: fix attribute-creation races
-Date: Wed, 25 Jun 2014 15:46:19 -0700
-Message-ID: <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com>
-References: <1403716136-32694-1-git-send-email-johan@kernel.org>
+Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R driver
+Date: Wed, 25 Jun 2014 15:55:10 -0700
+Message-ID: <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
+References: <20140625115541.GA1409@localhost> <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
+ <20140625174109.GE1409@localhost> <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <1403716136-32694-1-git-send-email-johan@kernel.org>
-Sender: linux-leds-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Johan Hovold <johan@kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 25, 2014 at 10:08 AM, Johan Hovold <johan@kernel.org> wrote:
-> LED-class device attributes should be created using the attribute groups
-> of struct device, rather than be added manually after the device has
-> been registered in order to avoid racing with userspace.
+On Wed, Jun 25, 2014 at 12:09 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 25 Jun 2014, Johan Hovold wrote:
 >
-> The first patch adds an attribute groups field to struct led_classdev,
-> which is used during registration to add device attributes in a
-> race-free manner.
+>> Did you see the attribute-race series I posted? Not sure how best to
+>> handle the dependency, as those patches should probably go in through
+>> the LEDs tree, while the first patch in that series (adding the groups
+>> field) is a dependency for this patch.
+>>
+>> Jiri, how would this best be solved?
 >
-> The remaining patches convert the current racy LED-device attribute
-> creations to use the new facility. Hopefully my grep-patterns have
-> caught most instances. Note that this also tends to simplify probe error
-> paths.
->
-> The lp55xx-common failed to remove the attribute group it is currently
-> creating, something which is fixed separately.
->
-> Note that this series include one driver from drivers/input/keyboard.
->
-> The individual led-driver patches have been compile tested only.
+> I think the best course of action here is to gather Acks from the
+> respective maintainers, and take the whole lot trough a single tree
+> (probably the leds tree in this case) to avoid unnecessary intra-tree
+> dependencies in a rather straighforward situation like this.
 >
 
-Thanks a lot for driving this. I will applied this patchset into my
--devel branch. After I got the Ack from Input guys, I will apply it to
-my for-next branch then.
+I think the better place is HID/input tree, since this patch depends
+on the initial one which is not in my tree.
+I'm going to merge Johan's whole patchset and this patch probably
+depends Johan's work too.
 
 -Bryan
-
-> Johan
->
->
-> Johan Hovold (13):
->   leds: add led-class attribute-group support
->   leds: lm3550: fix attribute-creation race
->   leds: lm3533: fix attribute-creation race
->   leds: lm355x: fix attribute-creation race
->   leds: lm3642: fix attribute-creation race
->   leds: max8997: fix attribute-creation race
->   leds: netxbig: fix attribute-creation race
->   leds: ns2: fix attribute-creation race
->   leds: ss4200: fix attribute-creation race
->   leds: wm831x-status: fix attribute-creation race
->   input: lm8323: fix attribute-creation race
->   leds: lp55xx-common: fix sysfs entry leak
->   leds: lp55xx-common: fix attribute-creation race
->
->  drivers/input/keyboard/lm8323.c   | 22 +++++++++-------------
->  drivers/leds/led-class.c          |  5 +++--
->  drivers/leds/leds-lm3530.c        | 20 +++++++-------------
->  drivers/leds/leds-lm3533.c        | 20 ++++++++------------
->  drivers/leds/leds-lm355x.c        | 21 +++++++++------------
->  drivers/leds/leds-lm3642.c        | 30 ++++++++++++++----------------
->  drivers/leds/leds-lp55xx-common.c | 20 +++-----------------
->  drivers/leds/leds-max8997.c       | 16 +++++++---------
->  drivers/leds/leds-netxbig.c       | 26 ++++++++++++--------------
->  drivers/leds/leds-ns2.c           | 16 +++++++---------
->  drivers/leds/leds-ss4200.c        | 14 +++++++++-----
->  drivers/leds/leds-wm831x-status.c | 23 +++++++++--------------
->  include/linux/leds.h              |  2 ++
->  13 files changed, 99 insertions(+), 136 deletions(-)
->
-> --
-> 1.8.5.5
->

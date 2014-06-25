@@ -1,157 +1,38 @@
-From: Janne Kanniainen <janne.kanniainen@gmail.com>
-Subject: [PATCH 2/2 v3] HID: leds: move led_mode attribute to led-class devices in MSI GT683R driver
-Date: Wed, 25 Jun 2014 21:13:09 +0300
-Message-ID: <1403719989-19989-1-git-send-email-janne.kanniainen@gmail.com>
-References: <20140625174109.GE1409@localhost>
-Return-path: <linux-leds-owner@vger.kernel.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R
+ driver
+Date: Wed, 25 Jun 2014 21:09:33 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
+References: <20140625115541.GA1409@localhost> <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com> <20140625174109.GE1409@localhost>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:46797 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752642AbaFYTJg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Jun 2014 15:09:36 -0400
 In-Reply-To: <20140625174109.GE1409@localhost>
-Sender: linux-leds-owner@vger.kernel.org
-To: johan@kernel.org, jkosina@suse.cz
-Cc: greg@kroah.com, bjorn@mork.no, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: Janne Kanniainen <janne.kanniainen@gmail.com>, greg@kroah.com, bjorn@mork.no, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-Move led_mode attribute from HID device to led-class devices and rename it
-msi_mode. This will also fix race condition by using attribute-groups.
+On Wed, 25 Jun 2014, Johan Hovold wrote:
 
-Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
----
+> Did you see the attribute-race series I posted? Not sure how best to
+> handle the dependency, as those patches should probably go in through
+> the LEDs tree, while the first patch in that series (adding the groups
+> field) is a dependency for this patch.
+> 
+> Jiri, how would this best be solved?
 
-Changes in v3:
-	- Style fixes
-	- Rename sysfs-class-hid-driver-gt683r to sysfs-class-leds-driver-gt683r
+I think the best course of action here is to gather Acks from the 
+respective maintainers, and take the whole lot trough a single tree 
+(probably the leds tree in this case) to avoid unnecessary intra-tree 
+dependencies in a rather straighforward situation like this.
 
- .../ABI/testing/sysfs-class-hid-driver-gt683r      | 14 -----------
- .../ABI/testing/sysfs-class-leds-driver-gt683r     | 16 +++++++++++++
- drivers/hid/hid-gt683r.c                           | 28 ++++++++++++----------
- 3 files changed, 32 insertions(+), 26 deletions(-)
- delete mode 100644 Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
- create mode 100644 Documentation/ABI/testing/sysfs-class-leds-driver-gt683r
+Thanks,
 
-diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-deleted file mode 100644
-index 317e9d5..0000000
---- a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-+++ /dev/null
-@@ -1,14 +0,0 @@
--What:		/sys/class/hidraw/<hidraw>/device/leds_mode
--Date:		Jun 2014
--KernelVersion:	3.17
--Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
--Description:
--		Set the mode of LEDs
--
--		0 - normal
--		1 - audio
--		2 - breathing
--
--		Normal: LEDs are fully on when enabled
--		Audio:  LEDs brightness depends on sound level
--		Breathing: LEDs brightness varies at human breathing rate
-\ No newline at end of file
-diff --git a/Documentation/ABI/testing/sysfs-class-leds-driver-gt683r b/Documentation/ABI/testing/sysfs-class-leds-driver-gt683r
-new file mode 100644
-index 0000000..29769fb
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-leds-driver-gt683r
-@@ -0,0 +1,16 @@
-+What:		/sys/class/leds/<led>/msi_mode
-+Date:		Jun 2014
-+KernelVersion:	3.17
-+Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
-+Description:
-+		Set the mode of LEDs. You should notice that changing the mode
-+		of one LED will update the mode of its two sibling devices as
-+		well.
-+
-+		0 - normal
-+		1 - audio
-+		2 - breathing
-+
-+		Normal: LEDs are fully on when enabled
-+		Audio:  LEDs brightness depends on sound level
-+		Breathing: LEDs brightness varies at human breathing rate
-\ No newline at end of file
-diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
-index 073bd80..ba27ee1 100644
---- a/drivers/hid/hid-gt683r.c
-+++ b/drivers/hid/hid-gt683r.c
-@@ -84,12 +84,13 @@ static void gt683r_brightness_set(struct led_classdev *led_cdev,
- 	}
- }
- 
--static ssize_t leds_mode_show(struct device *dev,
-+static ssize_t msi_mode_show(struct device *dev,
- 				struct device_attribute *attr,
- 				char *buf)
- {
- 	u8 sysfs_mode;
--	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct hid_device *hdev = container_of(dev->parent,
-+					struct hid_device, dev);
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
- 
- 	if (led->mode == GT683R_LED_NORMAL)
-@@ -102,12 +103,13 @@ static ssize_t leds_mode_show(struct device *dev,
- 	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
- }
- 
--static ssize_t leds_mode_store(struct device *dev,
-+static ssize_t msi_mode_store(struct device *dev,
- 				struct device_attribute *attr,
- 				const char *buf, size_t count)
- {
- 	u8 sysfs_mode;
--	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct hid_device *hdev = container_of(dev->parent,
-+					struct hid_device, dev);
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
- 
- 
-@@ -212,7 +214,14 @@ fail:
- 	mutex_unlock(&led->lock);
- }
- 
--static DEVICE_ATTR_RW(leds_mode);
-+static DEVICE_ATTR_RW(msi_mode);
-+
-+static struct attribute *gt683r_led_attrs[] = {
-+	&dev_attr_msi_mode.attr,
-+	NULL
-+};
-+
-+ATTRIBUTE_GROUPS(gt683r_led);
- 
- static int gt683r_led_probe(struct hid_device *hdev,
- 			const struct hid_device_id *id)
-@@ -261,6 +270,8 @@ static int gt683r_led_probe(struct hid_device *hdev,
- 		led->led_devs[i].name = name;
- 		led->led_devs[i].max_brightness = 1;
- 		led->led_devs[i].brightness_set = gt683r_brightness_set;
-+		led->led_devs[i].groups = gt683r_led_groups;
-+
- 		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
- 		if (ret) {
- 			hid_err(hdev, "could not register led device\n");
-@@ -268,12 +279,6 @@ static int gt683r_led_probe(struct hid_device *hdev,
- 		}
- 	}
- 
--	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
--	if (ret) {
--		hid_err(hdev, "could not make mode attribute file\n");
--		goto fail;
--	}
--
- 	return 0;
- 
- fail:
-@@ -288,7 +293,6 @@ static void gt683r_led_remove(struct hid_device *hdev)
- 	int i;
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
- 
--	device_remove_file(&hdev->dev, &dev_attr_leds_mode);
- 	for (i = 0; i < GT683R_LED_COUNT; i++)
- 		led_classdev_unregister(&led->led_devs[i]);
- 	flush_work(&led->work);
 -- 
-1.9.2
+Jiri Kosina
+SUSE Labs

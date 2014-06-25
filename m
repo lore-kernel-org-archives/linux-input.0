@@ -1,134 +1,65 @@
-From: Janne Kanniainen <janne.kanniainen@gmail.com>
-Subject: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R driver
-Date: Wed, 25 Jun 2014 18:59:26 +0300
-Message-ID: <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
-References: <20140625115541.GA1409@localhost>
+From: Johan Hovold <johan@kernel.org>
+Subject: [PATCH 00/13] leds: fix attribute-creation races
+Date: Wed, 25 Jun 2014 19:08:43 +0200
+Message-ID: <1403716136-32694-1-git-send-email-johan@kernel.org>
 Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20140625115541.GA1409@localhost>
 Sender: linux-leds-owner@vger.kernel.org
-To: johan@kernel.org
-Cc: greg@kroah.com, bjorn@mork.no, jkosina@suse.cz, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>
+To: Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Use attribute-groups to fix race condition.
+LED-class device attributes should be created using the attribute groups
+of struct device, rather than be added manually after the device has
+been registered in order to avoid racing with userspace.
 
-Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
----
- .../ABI/testing/sysfs-class-hid-driver-gt683r      |  6 +++--
- drivers/hid/hid-gt683r.c                           | 31 +++++++++++++---------
- 2 files changed, 22 insertions(+), 15 deletions(-)
+The first patch adds an attribute groups field to struct led_classdev,
+which is used during registration to add device attributes in a
+race-free manner.  
 
-diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-index 317e9d5..c97970a 100644
---- a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-+++ b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-@@ -1,9 +1,11 @@
--What:		/sys/class/hidraw/<hidraw>/device/leds_mode
-+What:		/sys/class/leds/<led>/msi_mode
- Date:		Jun 2014
- KernelVersion:	3.17
- Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
- Description:
--		Set the mode of LEDs
-+		Set the mode of LEDs. You should notice that changing the mode
-+		of one LED will update the mode of its two sibling devices as
-+		well
- 
- 		0 - normal
- 		1 - audio
-diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
-index 073bd80..aba6636 100644
---- a/drivers/hid/hid-gt683r.c
-+++ b/drivers/hid/hid-gt683r.c
-@@ -84,12 +84,13 @@ static void gt683r_brightness_set(struct led_classdev *led_cdev,
- 	}
- }
- 
--static ssize_t leds_mode_show(struct device *dev,
-+static ssize_t msi_mode_show(struct device *led_dev,
- 				struct device_attribute *attr,
- 				char *buf)
- {
- 	u8 sysfs_mode;
--	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct hid_device *hdev = container_of(led_dev->parent,
-+					struct hid_device, dev);
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
- 
- 	if (led->mode == GT683R_LED_NORMAL)
-@@ -102,15 +103,15 @@ static ssize_t leds_mode_show(struct device *dev,
- 	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
- }
- 
--static ssize_t leds_mode_store(struct device *dev,
-+static ssize_t msi_mode_store(struct device *led_dev,
- 				struct device_attribute *attr,
- 				const char *buf, size_t count)
- {
- 	u8 sysfs_mode;
--	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct hid_device *hdev = container_of(led_dev->parent,
-+					struct hid_device, dev);
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
- 
--
- 	if (kstrtou8(buf, 10, &sysfs_mode) || sysfs_mode > 2)
- 		return -EINVAL;
- 
-@@ -212,7 +213,14 @@ fail:
- 	mutex_unlock(&led->lock);
- }
- 
--static DEVICE_ATTR_RW(leds_mode);
-+static DEVICE_ATTR_RW(msi_mode);
-+
-+static struct attribute *gt683r_led_attrs[] = {
-+	&dev_attr_msi_mode.attr,
-+	NULL
-+};
-+
-+ATTRIBUTE_GROUPS(gt683r_led);
- 
- static int gt683r_led_probe(struct hid_device *hdev,
- 			const struct hid_device_id *id)
-@@ -261,6 +269,8 @@ static int gt683r_led_probe(struct hid_device *hdev,
- 		led->led_devs[i].name = name;
- 		led->led_devs[i].max_brightness = 1;
- 		led->led_devs[i].brightness_set = gt683r_brightness_set;
-+		led->led_devs[i].groups = gt683r_led_groups;
-+
- 		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
- 		if (ret) {
- 			hid_err(hdev, "could not register led device\n");
-@@ -268,17 +278,12 @@ static int gt683r_led_probe(struct hid_device *hdev,
- 		}
- 	}
- 
--	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
--	if (ret) {
--		hid_err(hdev, "could not make mode attribute file\n");
--		goto fail;
--	}
--
- 	return 0;
- 
- fail:
- 	for (i = i - 1; i >= 0; i--)
- 		led_classdev_unregister(&led->led_devs[i]);
-+
- 	hid_hw_stop(hdev);
- 	return ret;
- }
-@@ -288,9 +293,9 @@ static void gt683r_led_remove(struct hid_device *hdev)
- 	int i;
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
- 
--	device_remove_file(&hdev->dev, &dev_attr_leds_mode);
- 	for (i = 0; i < GT683R_LED_COUNT; i++)
- 		led_classdev_unregister(&led->led_devs[i]);
-+
- 	flush_work(&led->work);
- 	hid_hw_stop(hdev);
- }
+The remaining patches convert the current racy LED-device attribute
+creations to use the new facility. Hopefully my grep-patterns have
+caught most instances. Note that this also tends to simplify probe error
+paths.
+
+The lp55xx-common failed to remove the attribute group it is currently
+creating, something which is fixed separately.
+
+Note that this series include one driver from drivers/input/keyboard.
+
+The individual led-driver patches have been compile tested only.
+
+Johan
+
+
+Johan Hovold (13):
+  leds: add led-class attribute-group support
+  leds: lm3550: fix attribute-creation race
+  leds: lm3533: fix attribute-creation race
+  leds: lm355x: fix attribute-creation race
+  leds: lm3642: fix attribute-creation race
+  leds: max8997: fix attribute-creation race
+  leds: netxbig: fix attribute-creation race
+  leds: ns2: fix attribute-creation race
+  leds: ss4200: fix attribute-creation race
+  leds: wm831x-status: fix attribute-creation race
+  input: lm8323: fix attribute-creation race
+  leds: lp55xx-common: fix sysfs entry leak
+  leds: lp55xx-common: fix attribute-creation race
+
+ drivers/input/keyboard/lm8323.c   | 22 +++++++++-------------
+ drivers/leds/led-class.c          |  5 +++--
+ drivers/leds/leds-lm3530.c        | 20 +++++++-------------
+ drivers/leds/leds-lm3533.c        | 20 ++++++++------------
+ drivers/leds/leds-lm355x.c        | 21 +++++++++------------
+ drivers/leds/leds-lm3642.c        | 30 ++++++++++++++----------------
+ drivers/leds/leds-lp55xx-common.c | 20 +++-----------------
+ drivers/leds/leds-max8997.c       | 16 +++++++---------
+ drivers/leds/leds-netxbig.c       | 26 ++++++++++++--------------
+ drivers/leds/leds-ns2.c           | 16 +++++++---------
+ drivers/leds/leds-ss4200.c        | 14 +++++++++-----
+ drivers/leds/leds-wm831x-status.c | 23 +++++++++--------------
+ include/linux/leds.h              |  2 ++
+ 13 files changed, 99 insertions(+), 136 deletions(-)
+
 -- 
-1.9.2
+1.8.5.5

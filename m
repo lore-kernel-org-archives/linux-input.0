@@ -1,96 +1,77 @@
 From: Bryan Wu <cooloney@gmail.com>
-Subject: Re: [PATCH 11/13] input: lm8323: fix attribute-creation race
-Date: Wed, 25 Jun 2014 15:45:08 -0700
-Message-ID: <CAK5ve-LJUV7BryNCRJMOUxON6MBE=oEvonTqFJ+mzgKx1J6j0w@mail.gmail.com>
-References: <1403716136-32694-1-git-send-email-johan@kernel.org> <1403716136-32694-12-git-send-email-johan@kernel.org>
+Subject: Re: [PATCH 00/13] leds: fix attribute-creation races
+Date: Wed, 25 Jun 2014 15:46:19 -0700
+Message-ID: <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com>
+References: <1403716136-32694-1-git-send-email-johan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f181.google.com ([209.85.217.181]:37876 "EHLO
-	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750925AbaFYWpb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Jun 2014 18:45:31 -0400
-In-Reply-To: <1403716136-32694-12-git-send-email-johan@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <1403716136-32694-1-git-send-email-johan@kernel.org>
+Sender: linux-leds-owner@vger.kernel.org
 To: Johan Hovold <johan@kernel.org>
 Cc: Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
+List-Id: linux-input@vger.kernel.org
 
 On Wed, Jun 25, 2014 at 10:08 AM, Johan Hovold <johan@kernel.org> wrote:
-> Use the attribute groups of the led-class to create the time attribute
-> during probe in order to avoid racing with userspace.
+> LED-class device attributes should be created using the attribute groups
+> of struct device, rather than be added manually after the device has
+> been registered in order to avoid racing with userspace.
+>
+> The first patch adds an attribute groups field to struct led_classdev,
+> which is used during registration to add device attributes in a
+> race-free manner.
+>
+> The remaining patches convert the current racy LED-device attribute
+> creations to use the new facility. Hopefully my grep-patterns have
+> caught most instances. Note that this also tends to simplify probe error
+> paths.
+>
+> The lp55xx-common failed to remove the attribute group it is currently
+> creating, something which is fixed separately.
+>
+> Note that this series include one driver from drivers/input/keyboard.
+>
+> The individual led-driver patches have been compile tested only.
 >
 
-I'm about to merge this, but need an Ack from input subsystem maintainers.
-Dmitry or Jiri, are you OK with this patch?
+Thanks a lot for driving this. I will applied this patchset into my
+-devel branch. After I got the Ack from Input guys, I will apply it to
+my for-next branch then.
 
 -Bryan
 
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/input/keyboard/lm8323.c | 22 +++++++++-------------
->  1 file changed, 9 insertions(+), 13 deletions(-)
+> Johan
 >
-> diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-> index 0b42118cbf8f..cb32e2b506b7 100644
-> --- a/drivers/input/keyboard/lm8323.c
-> +++ b/drivers/input/keyboard/lm8323.c
-> @@ -558,6 +558,12 @@ static ssize_t lm8323_pwm_store_time(struct device *dev,
->  }
->  static DEVICE_ATTR(time, 0644, lm8323_pwm_show_time, lm8323_pwm_store_time);
 >
-> +static struct attribute *lm8323_pwm_attrs[] = {
-> +       &dev_attr_time.attr,
-> +       NULL
-> +};
-> +ATTRIBUTE_GROUPS(lm8323_pwm);
-> +
->  static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
->                     const char *name)
->  {
-> @@ -580,16 +586,11 @@ static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
->         if (name) {
->                 pwm->cdev.name = name;
->                 pwm->cdev.brightness_set = lm8323_pwm_set_brightness;
-> +               pwm->cdev.groups = lm8323_pwm_groups;
->                 if (led_classdev_register(dev, &pwm->cdev) < 0) {
->                         dev_err(dev, "couldn't register PWM %d\n", id);
->                         return -1;
->                 }
-> -               if (device_create_file(pwm->cdev.dev,
-> -                                       &dev_attr_time) < 0) {
-> -                       dev_err(dev, "couldn't register time attribute\n");
-> -                       led_classdev_unregister(&pwm->cdev);
-> -                       return -1;
-> -               }
->                 pwm->enabled = true;
->         }
+> Johan Hovold (13):
+>   leds: add led-class attribute-group support
+>   leds: lm3550: fix attribute-creation race
+>   leds: lm3533: fix attribute-creation race
+>   leds: lm355x: fix attribute-creation race
+>   leds: lm3642: fix attribute-creation race
+>   leds: max8997: fix attribute-creation race
+>   leds: netxbig: fix attribute-creation race
+>   leds: ns2: fix attribute-creation race
+>   leds: ss4200: fix attribute-creation race
+>   leds: wm831x-status: fix attribute-creation race
+>   input: lm8323: fix attribute-creation race
+>   leds: lp55xx-common: fix sysfs entry leak
+>   leds: lp55xx-common: fix attribute-creation race
 >
-> @@ -753,11 +754,8 @@ fail3:
->         device_remove_file(&client->dev, &dev_attr_disable_kp);
->  fail2:
->         while (--pwm >= 0)
-> -               if (lm->pwm[pwm].enabled) {
-> -                       device_remove_file(lm->pwm[pwm].cdev.dev,
-> -                                          &dev_attr_time);
-> +               if (lm->pwm[pwm].enabled)
->                         led_classdev_unregister(&lm->pwm[pwm].cdev);
-> -               }
->  fail1:
->         input_free_device(idev);
->         kfree(lm);
-> @@ -777,10 +775,8 @@ static int lm8323_remove(struct i2c_client *client)
->         device_remove_file(&lm->client->dev, &dev_attr_disable_kp);
->
->         for (i = 0; i < 3; i++)
-> -               if (lm->pwm[i].enabled) {
-> -                       device_remove_file(lm->pwm[i].cdev.dev, &dev_attr_time);
-> +               if (lm->pwm[i].enabled)
->                         led_classdev_unregister(&lm->pwm[i].cdev);
-> -               }
->
->         kfree(lm);
+>  drivers/input/keyboard/lm8323.c   | 22 +++++++++-------------
+>  drivers/leds/led-class.c          |  5 +++--
+>  drivers/leds/leds-lm3530.c        | 20 +++++++-------------
+>  drivers/leds/leds-lm3533.c        | 20 ++++++++------------
+>  drivers/leds/leds-lm355x.c        | 21 +++++++++------------
+>  drivers/leds/leds-lm3642.c        | 30 ++++++++++++++----------------
+>  drivers/leds/leds-lp55xx-common.c | 20 +++-----------------
+>  drivers/leds/leds-max8997.c       | 16 +++++++---------
+>  drivers/leds/leds-netxbig.c       | 26 ++++++++++++--------------
+>  drivers/leds/leds-ns2.c           | 16 +++++++---------
+>  drivers/leds/leds-ss4200.c        | 14 +++++++++-----
+>  drivers/leds/leds-wm831x-status.c | 23 +++++++++--------------
+>  include/linux/leds.h              |  2 ++
+>  13 files changed, 99 insertions(+), 136 deletions(-)
 >
 > --
 > 1.8.5.5

@@ -1,74 +1,63 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 02/13] leds: lm3550: fix attribute-creation race
-Date: Wed, 25 Jun 2014 19:08:45 +0200
-Message-ID: <1403716136-32694-3-git-send-email-johan@kernel.org>
+Subject: [PATCH 09/13] leds: ss4200: fix attribute-creation race
+Date: Wed, 25 Jun 2014 19:08:52 +0200
+Message-ID: <1403716136-32694-10-git-send-email-johan@kernel.org>
 References: <1403716136-32694-1-git-send-email-johan@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-leds-owner@vger.kernel.org>
 In-Reply-To: <1403716136-32694-1-git-send-email-johan@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-leds-owner@vger.kernel.org
 To: Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Use the attribute groups of the led-class to create the mode attribute
+Use the attribute groups of the led-class to create the blink attribute
 during probe in order to avoid racing with userspace.
 
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/leds/leds-lm3530.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ drivers/leds/leds-ss4200.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/leds/leds-lm3530.c b/drivers/leds/leds-lm3530.c
-index 652368c2ea9a..91325de3cd33 100644
---- a/drivers/leds/leds-lm3530.c
-+++ b/drivers/leds/leds-lm3530.c
-@@ -400,6 +400,12 @@ static ssize_t lm3530_mode_set(struct device *dev, struct device_attribute
- }
- static DEVICE_ATTR(mode, 0644, lm3530_mode_get, lm3530_mode_set);
+diff --git a/drivers/leds/leds-ss4200.c b/drivers/leds/leds-ss4200.c
+index 2eb3ef62962b..046cb7008745 100644
+--- a/drivers/leds/leds-ss4200.c
++++ b/drivers/leds/leds-ss4200.c
+@@ -469,6 +469,12 @@ static ssize_t nas_led_blink_store(struct device *dev,
  
-+static struct attribute *lm3530_attrs[] = {
-+	&dev_attr_mode.attr,
+ static DEVICE_ATTR(blink, 0644, nas_led_blink_show, nas_led_blink_store);
+ 
++static struct attribute *nasgpio_led_attrs[] = {
++	&dev_attr_blink.attr,
 +	NULL
 +};
-+ATTRIBUTE_GROUPS(lm3530);
++ATTRIBUTE_GROUPS(nasgpio_led);
 +
- static int lm3530_probe(struct i2c_client *client,
- 			   const struct i2c_device_id *id)
+ static int register_nasgpio_led(int led_nr)
  {
-@@ -436,6 +442,7 @@ static int lm3530_probe(struct i2c_client *client,
- 	drvdata->led_dev.name = LM3530_LED_DEV;
- 	drvdata->led_dev.brightness_set = lm3530_brightness_set;
- 	drvdata->led_dev.max_brightness = MAX_BRIGHTNESS;
-+	drvdata->led_dev.groups = lm3530_groups;
- 
- 	i2c_set_clientdata(client, drvdata);
- 
-@@ -461,26 +468,13 @@ static int lm3530_probe(struct i2c_client *client,
- 		return err;
- 	}
- 
--	err = device_create_file(drvdata->led_dev.dev, &dev_attr_mode);
--	if (err < 0) {
--		dev_err(&client->dev, "File device creation failed: %d\n", err);
--		err = -ENODEV;
--		goto err_create_file;
--	}
--
- 	return 0;
--
--err_create_file:
--	led_classdev_unregister(&drvdata->led_dev);
--	return err;
+ 	int ret;
+@@ -481,20 +487,18 @@ static int register_nasgpio_led(int led_nr)
+ 		led->brightness = LED_FULL;
+ 	led->brightness_set = nasgpio_led_set_brightness;
+ 	led->blink_set = nasgpio_led_set_blink;
++	led->groups = nasgpio_led_groups;
+ 	ret = led_classdev_register(&nas_gpio_pci_dev->dev, led);
+ 	if (ret)
+ 		return ret;
+-	ret = device_create_file(led->dev, &dev_attr_blink);
+-	if (ret)
+-		led_classdev_unregister(led);
+-	return ret;
++
++	return 0;
  }
  
- static int lm3530_remove(struct i2c_client *client)
+ static void unregister_nasgpio_led(int led_nr)
  {
- 	struct lm3530_data *drvdata = i2c_get_clientdata(client);
- 
--	device_remove_file(drvdata->led_dev.dev, &dev_attr_mode);
--
- 	lm3530_led_disable(drvdata);
- 	led_classdev_unregister(&drvdata->led_dev);
- 	return 0;
+ 	struct led_classdev *led = get_classdev_for_led_nr(led_nr);
+ 	led_classdev_unregister(led);
+-	device_remove_file(led->dev, &dev_attr_blink);
+ }
+ /*
+  * module load/initialization
 -- 
 1.8.5.5

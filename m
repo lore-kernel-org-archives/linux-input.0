@@ -1,60 +1,46 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Drop cast
-Date: Fri, 27 Jun 2014 00:35:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406270035140.21386@pobox.suse.cz>
-References: <20140626172852.GA2878@himangi-Dell>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 00/13] leds: fix attribute-creation races
+Date: Thu, 26 Jun 2014 19:25:06 -0400
+Message-ID: <20140626232506.GA26949@kroah.com>
+References: <1403716136-32694-1-git-send-email-johan@kernel.org>
+ <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140626172852.GA2878@himangi-Dell>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Himangi Saraogi <himangi774@gmail.com>
-Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Bryan Wu <cooloney@gmail.com>
+Cc: Johan Hovold <johan@kernel.org>, Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 26 Jun 2014, Himangi Saraogi wrote:
+On Wed, Jun 25, 2014 at 03:46:19PM -0700, Bryan Wu wrote:
+> On Wed, Jun 25, 2014 at 10:08 AM, Johan Hovold <johan@kernel.org> wrote:
+> > LED-class device attributes should be created using the attribute groups
+> > of struct device, rather than be added manually after the device has
+> > been registered in order to avoid racing with userspace.
+> >
+> > The first patch adds an attribute groups field to struct led_classdev,
+> > which is used during registration to add device attributes in a
+> > race-free manner.
+> >
+> > The remaining patches convert the current racy LED-device attribute
+> > creations to use the new facility. Hopefully my grep-patterns have
+> > caught most instances. Note that this also tends to simplify probe error
+> > paths.
+> >
+> > The lp55xx-common failed to remove the attribute group it is currently
+> > creating, something which is fixed separately.
+> >
+> > Note that this series include one driver from drivers/input/keyboard.
+> >
+> > The individual led-driver patches have been compile tested only.
+> >
+> 
+> Thanks a lot for driving this. I will applied this patchset into my
+> -devel branch. After I got the Ack from Input guys, I will apply it to
+> my for-next branch then.
 
-> This patch removes the cast on data of type void* as it is not needed.
-> The following Coccinelle semantic patch was used for making the change:
-> 
-> @r@
-> expression x;
-> void* e;
-> type T;
-> identifier f;
-> @@
-> 
-> (
->   *((T *)e)
-> |
->   ((T *)x)[...]
-> |
->   ((T *)x)->f
-> |
-> - (T *)
->   e
-> )
-> 
-> Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-> Acked-by: Julia Lawall <julia.lawall@lip6.fr>
-> ---
->  drivers/hid/hid-roccat-lua.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-roccat-lua.c b/drivers/hid/hid-roccat-lua.c
-> index 6adc0fa..65e2e76 100644
-> --- a/drivers/hid/hid-roccat-lua.c
-> +++ b/drivers/hid/hid-roccat-lua.c
-> @@ -61,7 +61,7 @@ static ssize_t lua_sysfs_write(struct file *fp, struct kobject *kobj,
->  		return -EINVAL;
->  
->  	mutex_lock(&lua->lua_lock);
-> -	retval = roccat_common2_send(usb_dev, command, (void *)buf, real_size);
-> +	retval = roccat_common2_send(usb_dev, command, buf, real_size);
->  	mutex_unlock(&lua->lua_lock);
+Series looks good to me, Johan, thanks for doing this work.
 
-Applied, thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
+greg k-h

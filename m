@@ -1,37 +1,55 @@
-From: Bryan Wu <cooloney@gmail.com>
-Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R driver
-Date: Wed, 25 Jun 2014 15:55:10 -0700
-Message-ID: <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
-References: <20140625115541.GA1409@localhost> <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
- <20140625174109.GE1409@localhost> <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] HID: roccat: Drop cast
+Date: Thu, 26 Jun 2014 22:58:52 +0530
+Message-ID: <20140626172852.GA2878@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Johan Hovold <johan@kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 25, 2014 at 12:09 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 25 Jun 2014, Johan Hovold wrote:
->
->> Did you see the attribute-race series I posted? Not sure how best to
->> handle the dependency, as those patches should probably go in through
->> the LEDs tree, while the first patch in that series (adding the groups
->> field) is a dependency for this patch.
->>
->> Jiri, how would this best be solved?
->
-> I think the best course of action here is to gather Acks from the
-> respective maintainers, and take the whole lot trough a single tree
-> (probably the leds tree in this case) to avoid unnecessary intra-tree
-> dependencies in a rather straighforward situation like this.
->
+This patch removes the cast on data of type void* as it is not needed.
+The following Coccinelle semantic patch was used for making the change:
 
-I think the better place is HID/input tree, since this patch depends
-on the initial one which is not in my tree.
-I'm going to merge Johan's whole patchset and this patch probably
-depends Johan's work too.
+@r@
+expression x;
+void* e;
+type T;
+identifier f;
+@@
 
--Bryan
+(
+  *((T *)e)
+|
+  ((T *)x)[...]
+|
+  ((T *)x)->f
+|
+- (T *)
+  e
+)
+
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+---
+ drivers/hid/hid-roccat-lua.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-roccat-lua.c b/drivers/hid/hid-roccat-lua.c
+index 6adc0fa..65e2e76 100644
+--- a/drivers/hid/hid-roccat-lua.c
++++ b/drivers/hid/hid-roccat-lua.c
+@@ -61,7 +61,7 @@ static ssize_t lua_sysfs_write(struct file *fp, struct kobject *kobj,
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&lua->lua_lock);
+-	retval = roccat_common2_send(usb_dev, command, (void *)buf, real_size);
++	retval = roccat_common2_send(usb_dev, command, buf, real_size);
+ 	mutex_unlock(&lua->lua_lock);
+ 
+ 	return retval ? retval : real_size;
+-- 
+1.9.1

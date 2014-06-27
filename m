@@ -1,32 +1,70 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 00/13] leds: fix attribute-creation races
-Date: Fri, 27 Jun 2014 12:05:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406271204480.21386@pobox.suse.cz>
-References: <1403716136-32694-1-git-send-email-johan@kernel.org> <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com> <20140626232506.GA26949@kroah.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 07/10] mfd: cros_ec: cleanup: Remove EC wrapper
+ functions
+Date: Fri, 27 Jun 2014 14:31:09 +0200
+Message-ID: <20140627123109.GA29156@katana>
+References: <1403115247-8853-1-git-send-email-dianders@chromium.org>
+ <1403115247-8853-8-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52416 "EHLO mx2.suse.de"
+Received: from sauhun.de ([89.238.76.85]:52061 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752826AbaF0KFu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jun 2014 06:05:50 -0400
-In-Reply-To: <20140626232506.GA26949@kroah.com>
+	id S1750858AbaF0MbQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jun 2014 08:31:16 -0400
+Content-Disposition: inline
+In-Reply-To: <1403115247-8853-8-git-send-email-dianders@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Bryan Wu <cooloney@gmail.com>, Johan Hovold <johan@kernel.org>, Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, =?ISO-8859-15?Q?Bj=F8rn_Mork?= <bjorn@mork.no>
+To: Doug Anderson <dianders@chromium.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, swarren@wwwdotorg.org, olof@lixom.net, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, sjg@chromium.org, broonie@kernel.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, geert@linux-m68k.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 26 Jun 2014, Greg Kroah-Hartman wrote:
 
-> > Thanks a lot for driving this. I will applied this patchset into my
-> > -devel branch. After I got the Ack from Input guys, I will apply it to
-> > my for-next branch then.
-> 
-> Series looks good to me, Johan, thanks for doing this work.
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, looks good to me as well, thanks. The lm8323 change should be Acked 
-by Dmitry though, as it's in his area.
+On Wed, Jun 18, 2014 at 11:14:04AM -0700, Doug Anderson wrote:
+> From: Bill Richardson <wfrichar@chromium.org>
+>=20
+> Remove the three wrapper functions that talk to the EC without passing all
+> the desired arguments and just use the underlying communication function
+> that passes everything in a struct intead.
+>=20
+> This is internal code refactoring only. Nothing should change.
+>=20
+> Signed-off-by: Bill Richardson <wfrichar@chromium.org>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> Reviewed-by: Simon Glass <sjg@chromium.org>
 
--- 
-Jiri Kosina
-SUSE Labs
+For the I2C part:
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTrWQMAAoJEBQN5MwUoCm22xAP/0CrHAEE9+JkDSmZAsY3SNtg
+yJLcUySCx0tG+3OwPHCpuhWjQxUgBmfQjI1Z+jcANR6It1xQMbym9KntbjpkDFkn
+UIJzO6qANakBKotnfx+baBuIDg5XgTrikaGVkwaUBH8RhzEV+RSFGNar2L/OMS12
+L/jRrJv+mB2cRsECxuxm4BQnrUckFza0pSmxVxXoTQh+/6Ip4YobmUnrmfGNxr3Q
+uMC6YM2Cqm+rTLaaB3IDHL7xY6B6TEk19baYk8Yj4ayVOrSgTlSdOvmyldCMUbtV
+lI29oJaIkg8/keiWJWX5273iRZHDiCodHyYnw5FZ94JR/DUPrFe7WQGZbfzlBrkF
++c5u41mgT8s9FB7gLwdiyHryq2LkHyloHjAF/vNCKRAPuJDdrpAoTo+jmOSuC84i
+vHeaeF9nk5kg47K3AihzYc3TY4ivGOMRSzFEcrFSm+li2oZkTHYYvDxwm+nmxdCd
+60pLuMXh2tte5ZMpbrZHXJHeHvePemilPK1w6qdxNyyEcIDyz0/4vxERTyxtgvCa
+54CXbRnIIOGdgc2H8T6phFbYg4FhtiLaff/JC0fpFPumcrDv96UN+fVWppdJ8oZf
+uN881vD3wdtLD993pn8Z5EYklLxsjPhmmcZcYOz2d3D1y0O130Fh/6wsCeVFnVos
+LpdIvoj6xSOdD0pM7pae
+=qTdx
+-----END PGP SIGNATURE-----
+
+--6c2NcOVqGQ03X4Wi--

@@ -1,30 +1,44 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: usbhid: quirk for PM1610 and PM1640 Touchscreen.
-Date: Fri, 27 Jun 2014 16:04:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406271604220.21386@pobox.suse.cz>
-References: <1403857328-38892-1-git-send-email-penmount.touch@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 07/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
+Date: Fri, 27 Jun 2014 11:47:55 -0700
+Message-ID: <CAKdAkRRuG2sAbwD+WU-w95AkLsHC7CBHmB60+rLn=ZqhSUF+sA@mail.gmail.com>
+References: <1403115247-8853-1-git-send-email-dianders@chromium.org>
+	<1403115247-8853-8-git-send-email-dianders@chromium.org>
+	<20140627123109.GA29156@katana>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59410 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752740AbaF0OEd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jun 2014 10:04:33 -0400
-In-Reply-To: <1403857328-38892-1-git-send-email-penmount.touch@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140627123109.GA29156@katana>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Doug Anderson <dianders@chromium.org>, Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Simon Glass <sjg@chromium.org>, Mark Brown <broonie@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: John Sung <penmount.touch@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 27 Jun 2014, John Sung wrote:
+On Fri, Jun 27, 2014 at 5:31 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Wed, Jun 18, 2014 at 11:14:04AM -0700, Doug Anderson wrote:
+>> From: Bill Richardson <wfrichar@chromium.org>
+>>
+>> Remove the three wrapper functions that talk to the EC without passing all
+>> the desired arguments and just use the underlying communication function
+>> that passes everything in a struct intead.
+>>
+>> This is internal code refactoring only. Nothing should change.
+>>
+>> Signed-off-by: Bill Richardson <wfrichar@chromium.org>
+>> Signed-off-by: Doug Anderson <dianders@chromium.org>
+>> Acked-by: Lee Jones <lee.jones@linaro.org>
+>> Reviewed-by: Simon Glass <sjg@chromium.org>
+>
+> For the I2C part:
+>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>
 
-> These device needs to be added to the quirks list with HID_QUIRK_NOGET,
-> otherwise they will reset upon receiving the get input report requests.
-> 
-> Signed-off-by: John Sung <penmount.touch@gmail.com>
+I'm good with input bits as well.
 
-Applied, thanks.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

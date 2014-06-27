@@ -1,46 +1,43 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 00/13] leds: fix attribute-creation races
-Date: Thu, 26 Jun 2014 19:25:06 -0400
-Message-ID: <20140626232506.GA26949@kroah.com>
-References: <1403716136-32694-1-git-send-email-johan@kernel.org>
- <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH] HID: roccat: Drop cast
+Date: Fri, 27 Jun 2014 07:29:39 +0200 (CEST)
+Message-ID: <alpine.DEB.2.02.1406270729110.2016@localhost6.localdomain6>
+References: <20140626172852.GA2878@himangi-Dell> <1403804286.7977.58.camel@joe-AO725>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAK5ve-JVBoeW+a+1PKcfCwNOC+HOdKUD=1iFrTJAZ_tqh10yuQ@mail.gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Bryan Wu <cooloney@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>, Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:18906
+	"EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750729AbaF0F3o (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jun 2014 01:29:44 -0400
+In-Reply-To: <1403804286.7977.58.camel@joe-AO725>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Himangi Saraogi <himangi774@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2014 at 03:46:19PM -0700, Bryan Wu wrote:
-> On Wed, Jun 25, 2014 at 10:08 AM, Johan Hovold <johan@kernel.org> wrote:
-> > LED-class device attributes should be created using the attribute groups
-> > of struct device, rather than be added manually after the device has
-> > been registered in order to avoid racing with userspace.
-> >
-> > The first patch adds an attribute groups field to struct led_classdev,
-> > which is used during registration to add device attributes in a
-> > race-free manner.
-> >
-> > The remaining patches convert the current racy LED-device attribute
-> > creations to use the new facility. Hopefully my grep-patterns have
-> > caught most instances. Note that this also tends to simplify probe error
-> > paths.
-> >
-> > The lp55xx-common failed to remove the attribute group it is currently
-> > creating, something which is fixed separately.
-> >
-> > Note that this series include one driver from drivers/input/keyboard.
-> >
-> > The individual led-driver patches have been compile tested only.
-> >
+
+
+On Thu, 26 Jun 2014, Joe Perches wrote:
+
+> On Thu, 2014-06-26 at 22:58 +0530, Himangi Saraogi wrote:
+> > This patch removes the cast on data of type void* as it is not needed.
 > 
-> Thanks a lot for driving this. I will applied this patchset into my
-> -devel branch. After I got the Ack from Input guys, I will apply it to
-> my for-next branch then.
+> Hi Himangi
+> 
+> The cast of a const void * to a void * was odd.
+> 
+> Maybe a mechanism to verify appropriateness of
+> loss of constness for any pointer might be useful.
 
-Series looks good to me, Johan, thanks for doing this work.
+I tried the following, but didn't find anything interesting:
 
-greg k-h
+@disable drop_cast@
+type T;
+const T e;
+@@
+
+* (T)e
+
+julia

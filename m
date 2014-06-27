@@ -1,157 +1,47 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH] HID: roccat: Drop cast
-Date: Fri, 27 Jun 2014 09:59:13 +0200 (CEST)
-Message-ID: <alpine.DEB.2.10.1406270956470.2594@hadrien>
-References: <20140626172852.GA2878@himangi-Dell>  <1403804286.7977.58.camel@joe-AO725>  <alpine.DEB.2.02.1406270729110.2016@localhost6.localdomain6> <1403848366.7977.92.camel@joe-AO725>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: John Sung <penmount.touch@gmail.com>
+Subject: [PATCH] HID: usbhid: quirk for PM1610 and PM1640 Touchscreen.
+Date: Fri, 27 Jun 2014 16:22:08 +0800
+Message-ID: <1403857328-38892-1-git-send-email-penmount.touch@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1403848366.7977.92.camel@joe-AO725>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Himangi Saraogi <himangi774@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: penmount.touch@gmail.com
 List-Id: linux-input@vger.kernel.org
 
+These device needs to be added to the quirks list with HID_QUIRK_NOGET,
+otherwise they will reset upon receiving the get input report requests.
 
+Signed-off-by: John Sung <penmount.touch@gmail.com>
+---
+ drivers/hid/hid-ids.h           |    2 ++
+ drivers/hid/usbhid/hid-quirks.c |    2 ++
+ 2 files changed, 4 insertions(+)
 
-On Thu, 26 Jun 2014, Joe Perches wrote:
-
-> On Fri, 2014-06-27 at 07:29 +0200, Julia Lawall wrote:
-> > On Thu, 26 Jun 2014, Joe Perches wrote:
-> > > The cast of a const void * to a void * was odd.
-> > >
-> > > Maybe a mechanism to verify appropriateness of
-> > > loss of constness for any pointer might be useful.
-> >
-> > I tried the following, but didn't find anything interesting:
-> >
-> > @disable drop_cast@
-> > type T;
-> > const T e;
-> > @@
-> >
-> > * (T)e
->
-> What code does this match?
-> Do you have an example match?
->
-> This doesn't find a cast of a void type like:
->
-> void func(const void * const p)
-> {
-> 	char *p2 = p;
->
-> 	p2[0] = 1;
-> }
-
-The results are below.  Except in the first case, none are pointer types.
-The first case looks very intentional, although if the intention is
-needed, perhaps the types should be listed differently.
-
-I was surprised not to get more results.  Maybe there is not enough type
-information.  I did use --all-includes but not --recursive-includes, ie
-only explicitly mentioned include files are taken into account.
-
-My rule doesn't consider implicit casts like in your example.  I can try
-that.
-
-julia
-
-
-diff -u -p /var/linuxes/linux-next/lib/devres.c /tmp/nothing/lib/devres.c
---- /var/linuxes/linux-next/lib/devres.c
-+++ /tmp/nothing/lib/devres.c
-@@ -296,7 +296,6 @@ void __iomem *pcim_iomap(struct pci_dev
-
- 	BUG_ON(bar >= PCIM_IOMAP_MAX);
-
--	tbl = (void __iomem **)pcim_iomap_table(pdev);
- 	if (!tbl || tbl[bar])	/* duplicate mappings not allowed */
- 		return NULL;
-
-@@ -319,7 +318,6 @@ void pcim_iounmap(struct pci_dev *pdev,
-
- 	pci_iounmap(pdev, addr);
-
--	tbl = (void __iomem **)pcim_iomap_table(pdev);
- 	BUG_ON(!tbl);
-
- 	for (i = 0; i < PCIM_IOMAP_MAX; i++)
-diff -u -p /var/linuxes/linux-next/drivers/video/fbdev/smscufx.c /tmp/nothing/drivers/video/fbdev/smscufx.c
---- /var/linuxes/linux-next/drivers/video/fbdev/smscufx.c
-+++ /tmp/nothing/drivers/video/fbdev/smscufx.c
-@@ -976,7 +976,6 @@ static void ufx_dpy_deferred_io(struct f
- 		const int width = dev->info->var.xres;
- 		const int y = (cur->index << PAGE_SHIFT) / (width * 2);
- 		int height = (PAGE_SIZE / (width * 2)) + 1;
--		height = min(height, (int)(dev->info->var.yres - y));
-
- 		BUG_ON(y >= dev->info->var.yres);
- 		BUG_ON((y + height) > dev->info->var.yres);
-diff -u -p /var/linuxes/linux-next/drivers/mtd/chips/jedec_probe.c /tmp/nothing/drivers/mtd/chips/jedec_probe.c
---- /var/linuxes/linux-next/drivers/mtd/chips/jedec_probe.c
-+++ /tmp/nothing/drivers/mtd/chips/jedec_probe.c
-@@ -2027,11 +2027,8 @@ static inline int jedec_match( uint32_t
- 		}
- 		break;
- 	case CFI_DEVICETYPE_X16:
--		mfr = (uint16_t)finfo->mfr_id;
--		id = (uint16_t)finfo->dev_id;
- 		break;
- 	case CFI_DEVICETYPE_X32:
--		mfr = (uint16_t)finfo->mfr_id;
- 		id = (uint32_t)finfo->dev_id;
- 		break;
- 	default:
-diff -u -p /var/linuxes/linux-next/drivers/net/wireless/libertas/defs.h /tmp/nothing/drivers/net/wireless/libertas/defs.h
---- /var/linuxes/linux-next/drivers/net/wireless/libertas/defs.h
-+++ /tmp/nothing/drivers/net/wireless/libertas/defs.h
-@@ -105,7 +105,6 @@ static inline void lbs_deb_hex(unsigned
- 					printk("\n");
- 				printk(DRV_NAME " %s: ", prompt);
- 			}
--			printk("%02x ", (u8) * buf);
- 			buf++;
- 		}
- 		printk("\n");
-diff -u -p /var/linuxes/linux-next/drivers/media/i2c/tvp5150.c /tmp/nothing/drivers/media/i2c/tvp5150.c
---- /var/linuxes/linux-next/drivers/media/i2c/tvp5150.c
-+++ /tmp/nothing/drivers/media/i2c/tvp5150.c
-@@ -95,7 +95,6 @@ static void dump_reg_range(struct v4l2_s
- {
- 	int i = 0;
-
--	while (init != (u8)(end + 1)) {
- 		if ((i % max_line) == 0) {
- 			if (i > 0)
- 				printk("\n");
-diff -u -p /var/linuxes/linux-next/net/netfilter/ipvs/ip_vs_sync.c /tmp/nothing/net/netfilter/ipvs/ip_vs_sync.c
---- /var/linuxes/linux-next/net/netfilter/ipvs/ip_vs_sync.c
-+++ /tmp/nothing/net/netfilter/ipvs/ip_vs_sync.c
-@@ -1543,7 +1543,6 @@ ip_vs_send_async(struct socket *sock, co
- 	iov.iov_base     = (void *)buffer;
- 	iov.iov_len      = length;
-
--	len = kernel_sendmsg(sock, &msg, &iov, 1, (size_t)(length));
-
- 	LeaveFunction(7);
- 	return len;
-@@ -1575,7 +1574,6 @@ ip_vs_receive(struct socket *sock, char
-
- 	/* Receive a packet */
- 	iov.iov_base     = buffer;
--	iov.iov_len      = (size_t)buflen;
-
- 	len = kernel_recvmsg(sock, &msg, &iov, 1, buflen, MSG_DONTWAIT);
-
-diff -u -p /var/linuxes/linux-next/net/ipv4/tcp_output.c /tmp/nothing/net/ipv4/tcp_output.c
---- /var/linuxes/linux-next/net/ipv4/tcp_output.c
-+++ /tmp/nothing/net/ipv4/tcp_output.c
-@@ -177,7 +177,6 @@ static void tcp_event_data_sent(struct t
- 	/* If it is a reply for ato after last received
- 	 * packet, enter pingpong mode.
- 	 */
--	if ((u32)(now - icsk->icsk_ack.lrcvtime) < icsk->icsk_ack.ato &&
- 	    (!dst || !dst_metric(dst, RTAX_QUICKACK)))
- 			icsk->icsk_ack.pingpong = 1;
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7370ae3..37af778 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -715,6 +715,8 @@
+ 
+ #define USB_VENDOR_ID_PENMOUNT		0x14e1
+ #define USB_DEVICE_ID_PENMOUNT_PCI	0x3500
++#define USB_DEVICE_ID_PENMOUNT_1610	0x1610
++#define USB_DEVICE_ID_PENMOUNT_1640	0x1640
+ 
+ #define USB_VENDOR_ID_PETALYNX		0x18b1
+ #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 13ca192..587d3aa 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -76,6 +76,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1610, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1640, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+1.7.9.5

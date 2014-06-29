@@ -1,40 +1,57 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH v2 2/6] input: touchscreen: imx25 tcq driver
-Date: Sun, 29 Jun 2014 12:49:01 +0100
-Message-ID: <20140629114901.GO32514@n2100.arm.linux.org.uk>
-References: <1392913312-9030-1-git-send-email-mpa@pengutronix.de> <1402672899-6995-1-git-send-email-denis@eukrea.com> <1402672899-6995-3-git-send-email-denis@eukrea.com> <53A55BD8.7030905@kernel.org> <CAOMZO5BxZDX5TDZdUCbpTw2LpVC=vr4cnn4eSpzd_023wcy+Fg@mail.gmail.com> <53AFF1C4.1010402@kernel.org>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH] HID: roccat: Drop cast
+Date: Sun, 29 Jun 2014 18:34:14 +0200 (CEST)
+Message-ID: <alpine.DEB.2.02.1406291832430.2036@localhost6.localdomain6>
+References: <20140626172852.GA2878@himangi-Dell>  <1403804286.7977.58.camel@joe-AO725>  <alpine.DEB.2.02.1406270729110.2016@localhost6.localdomain6> <1403848366.7977.92.camel@joe-AO725>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <53AFF1C4.1010402-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Eric =?iso-8859-1?Q?B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:38253 "EHLO
+	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751558AbaF2QeS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Jun 2014 12:34:18 -0400
+In-Reply-To: <1403848366.7977.92.camel@joe-AO725>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Himangi Saraogi <himangi774@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Jun 29, 2014 at 12:00:20PM +0100, Jonathan Cameron wrote:
-> On 21/06/14 20:55, Fabio Estevam wrote:
->> On Sat, Jun 21, 2014 at 7:18 AM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
->>>> +
->>>> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>>
->>> Could this not in theory fail?
->>
->> Yes, but devm_ioremap_resource will take care of it, so we don't need
->> to check for error here.
-> Nothing like counter intuitive behaviour.  Ah well.
->
-> Thanks for explaining this!
 
-Maybe it would be better to have:
 
-	mem = platform_ioremap_resource(pdev, IORESOURCE_MEM, 0);
+On Thu, 26 Jun 2014, Joe Perches wrote:
 
-which wraps up both the platform_get_resource() call with
-devm_ioremap_resource() so driver writers don't have to be concerned
-about this aspect?
+> On Fri, 2014-06-27 at 07:29 +0200, Julia Lawall wrote:
+> > On Thu, 26 Jun 2014, Joe Perches wrote:
+> > > The cast of a const void * to a void * was odd.
+> > > 
+> > > Maybe a mechanism to verify appropriateness of
+> > > loss of constness for any pointer might be useful.
+> > 
+> > I tried the following, but didn't find anything interesting:
+> > 
+> > @disable drop_cast@
+> > type T;
+> > const T e;
+> > @@
+> > 
+> > * (T)e
+> 
+> What code does this match?
+> Do you have an example match?
+> 
+> This doesn't find a cast of a void type like:
+> 
+> void func(const void * const p)
+> {
+> 	char *p2 = p;
+> 
+> 	p2[0] = 1;
+> }
 
--- 
-FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
-improving, and getting towards what was expected from it.
+Is this a real example?  Because gcc complains about this sort of problem.  
+I made a semantic patch that detects this, but since gcc does the same 
+thing, it doesn't seem very interesting.  Coccinelle gives a few false 
+positives due to lack of type information.
+
+julia

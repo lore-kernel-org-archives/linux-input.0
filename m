@@ -1,57 +1,39 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH] HID: roccat: Drop cast
-Date: Sun, 29 Jun 2014 18:34:14 +0200 (CEST)
-Message-ID: <alpine.DEB.2.02.1406291832430.2036@localhost6.localdomain6>
-References: <20140626172852.GA2878@himangi-Dell>  <1403804286.7977.58.camel@joe-AO725>  <alpine.DEB.2.02.1406270729110.2016@localhost6.localdomain6> <1403848366.7977.92.camel@joe-AO725>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v7 2/6] dt-bindings: add vendor-prefix for X-Powers
+Date: Sun, 29 Jun 2014 20:23:53 +0200
+Message-ID: <1404066237-20234-3-git-send-email-carlo@caione.org>
+References: <1404066237-20234-1-git-send-email-carlo@caione.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:38253 "EHLO
-	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751558AbaF2QeS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Jun 2014 12:34:18 -0400
-In-Reply-To: <1403848366.7977.92.camel@joe-AO725>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBRFTYGOQKGQEWKSW4ZI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1404066237-20234-1-git-send-email-carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Himangi Saraogi <himangi774@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+---
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-On Thu, 26 Jun 2014, Joe Perches wrote:
-
-> On Fri, 2014-06-27 at 07:29 +0200, Julia Lawall wrote:
-> > On Thu, 26 Jun 2014, Joe Perches wrote:
-> > > The cast of a const void * to a void * was odd.
-> > > 
-> > > Maybe a mechanism to verify appropriateness of
-> > > loss of constness for any pointer might be useful.
-> > 
-> > I tried the following, but didn't find anything interesting:
-> > 
-> > @disable drop_cast@
-> > type T;
-> > const T e;
-> > @@
-> > 
-> > * (T)e
-> 
-> What code does this match?
-> Do you have an example match?
-> 
-> This doesn't find a cast of a void type like:
-> 
-> void func(const void * const p)
-> {
-> 	char *p2 = p;
-> 
-> 	p2[0] = 1;
-> }
-
-Is this a real example?  Because gcc complains about this sort of problem.  
-I made a semantic patch that detects this, but since gcc does the same 
-thing, it doesn't seem very interesting.  Coccinelle gives a few false 
-positives due to lack of type information.
-
-julia
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index 46a311e..0d5a80c 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -140,6 +140,7 @@ voipac	Voipac Technologies s.r.o.
+ winbond Winbond Electronics corp.
+ wlf	Wolfson Microelectronics
+ wm	Wondermedia Technologies, Inc.
++x-powers	X-Powers
+ xes	Extreme Engineering Solutions (X-ES)
+ xlnx	Xilinx
+ zyxel	ZyXEL Communications Corp.
+-- 
+1.9.1

@@ -1,52 +1,52 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R
- driver
-Date: Mon, 30 Jun 2014 12:47:44 +0200
-Message-ID: <20140630104744.GB2486@localhost>
-References: <20140625115541.GA1409@localhost>
- <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
- <20140625174109.GE1409@localhost>
- <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
- <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] hid: sensor-hub, fix potential memory leak
+Date: Mon, 30 Jun 2014 13:22:05 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1406301322000.28307@pobox.suse.cz>
+References: <1404120888-10692-1-git-send-email-jslaby@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Bryan Wu <cooloney@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Johan Hovold <johan@kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:41177 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750913AbaF3LWH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 07:22:07 -0400
+In-Reply-To: <1404120888-10692-1-git-send-email-jslaby@suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jirislaby@gmail.com, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
-On Wed, Jun 25, 2014 at 03:55:10PM -0700, Bryan Wu wrote:
-> On Wed, Jun 25, 2014 at 12:09 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> > On Wed, 25 Jun 2014, Johan Hovold wrote:
-> >
-> >> Did you see the attribute-race series I posted? Not sure how best to
-> >> handle the dependency, as those patches should probably go in through
-> >> the LEDs tree, while the first patch in that series (adding the groups
-> >> field) is a dependency for this patch.
-> >>
-> >> Jiri, how would this best be solved?
-> >
-> > I think the best course of action here is to gather Acks from the
-> > respective maintainers, and take the whole lot trough a single tree
-> > (probably the leds tree in this case) to avoid unnecessary intra-tree
-> > dependencies in a rather straighforward situation like this.
+On Mon, 30 Jun 2014, Jiri Slaby wrote:
+
+> hsdev is not freed in sensor_hub_probe when kasprintf inside the for
+> loop fails. This is because hsdev is not set to platform_data yet (to
+> be freed by the code in the err_no_mem label). So free the memory
+> explicitly in the 'if' branch, as this is the only place where this is
+> (and will) be needed.
 > 
-> I think the better place is HID/input tree, since this patch depends
-> on the initial one which is not in my tree.
-> I'm going to merge Johan's whole patchset and this patch probably
-> depends Johan's work too.
+> Reported-by: coverity
+> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+> Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>
+> Cc: Jiri Kosina <jkosina@suse.cz>
+> ---
+>  drivers/hid/hid-sensor-hub.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index a8d5c8faf8cf..584e17ce80e4 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -632,6 +632,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  			if (name == NULL) {
+>  				hid_err(hdev, "Failed MFD device name\n");
+>  					ret = -ENOMEM;
+> +					kfree(hsdev);
+>  					goto err_no_mem;
+>  			}
+>  			sd->hid_sensor_hub_client_devs[
 
-Dmitry has ACKed the input-patch and Bryan has applied that one and the
-leds-patches to his tree (of which the first one is a dependency of this
-patch).
+Applied, thanks.
 
-Jiri, are you saying that the gt683r-driver should go in through his
-tree as well, that is all three patches including the first that you
-have already applied? I just assumed your for-next branch was immutable,
-but perhaps I was mistaken.
-
-Thanks,
-Johan
+-- 
+Jiri Kosina
+SUSE Labs

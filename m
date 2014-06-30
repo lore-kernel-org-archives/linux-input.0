@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 10/15] Input - wacom: use hid_info instead of plain dev_info
-Date: Mon, 30 Jun 2014 17:26:21 -0400
-Message-ID: <1404163586-29582-11-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 09/15] Input - wacom: register power device at the HID level
+Date: Mon, 30 Jun 2014 17:26:20 -0400
+Message-ID: <1404163586-29582-10-git-send-email-benjamin.tissoires@redhat.com>
 References: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,41 +10,33 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
-Removes one more need of usb and intf.
+Use the HID device as the parent for the power device when dealing with
+a wireless receiver.
+Removes one more usb dependency and does not break user space.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/tablet/wacom_sys.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/input/tablet/wacom_sys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 2313f1a..2208b4a 100644
+index 6fe7a6c..2313f1a 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -1101,12 +1101,11 @@ static void wacom_wireless_work(struct work_struct *work)
- 	wacom_wac2->input = NULL;
+@@ -969,12 +969,12 @@ static int wacom_initialize_battery(struct wacom *wacom)
+ 		wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+ 		wacom->battery.use_for_apm = 0;
  
- 	if (wacom_wac->pid == 0) {
--		dev_info(&wacom->intf->dev, "wireless tablet disconnected\n");
-+		hid_info(wacom->hdev, "wireless tablet disconnected\n");
- 	} else {
- 		const struct hid_device_id *id = wacom_ids;
+-		error = power_supply_register(&wacom->usbdev->dev,
++		error = power_supply_register(&wacom->hdev->dev,
+ 					      &wacom->battery);
  
--		dev_info(&wacom->intf->dev,
--			 "wireless tablet connected with PID %x\n",
-+		hid_info(wacom->hdev, "wireless tablet connected with PID %x\n",
- 			 wacom_wac->pid);
+ 		if (!error)
+ 			power_supply_powers(&wacom->battery,
+-					    &wacom->usbdev->dev);
++					    &wacom->hdev->dev);
+ 	}
  
- 		while (id->bus) {
-@@ -1117,8 +1116,7 @@ static void wacom_wireless_work(struct work_struct *work)
- 		}
- 
- 		if (!id->bus) {
--			dev_info(&wacom->intf->dev,
--				 "ignoring unknown PID.\n");
-+			hid_info(wacom->hdev, "ignoring unknown PID.\n");
- 			return;
- 		}
- 
+ 	return error;
 -- 
 2.0.0

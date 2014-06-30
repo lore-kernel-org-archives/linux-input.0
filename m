@@ -1,44 +1,44 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] HID: roccat: Drop cast
-Date: Mon, 30 Jun 2014 11:08:08 +0200
-Message-ID: <CAMuHMdWy-x4XimMDac1YtpSXZ4SnVN1zNKyQs6XPP7gvKOJBdg@mail.gmail.com>
-References: <20140626172852.GA2878@himangi-Dell>
-	<1403804286.7977.58.camel@joe-AO725>
-	<alpine.DEB.2.02.1406270729110.2016@localhost6.localdomain6>
-	<1403848366.7977.92.camel@joe-AO725>
-	<alpine.DEB.2.02.1406291832430.2036@localhost6.localdomain6>
-	<1404066349.9064.60.camel@joe-AO725>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 1/1] hid: sensor-hub, fix potential memory leak
+Date: Mon, 30 Jun 2014 11:34:48 +0200
+Message-ID: <1404120888-10692-1-git-send-email-jslaby@suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:39334 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754432AbaF3JIK (ORCPT
+Received: from ip4-83-240-18-248.cust.nbox.cz ([83.240.18.248]:51224 "EHLO
+	ip4-83-240-18-248.cust.nbox.cz" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754976AbaF3Jez (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 05:08:10 -0400
-In-Reply-To: <1404066349.9064.60.camel@joe-AO725>
+	Mon, 30 Jun 2014 05:34:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, Himangi Saraogi <himangi774@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: jkosina@suse.cz
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jirislaby@gmail.com, Jiri Slaby <jslaby@suse.cz>, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
-On Sun, Jun 29, 2014 at 8:25 PM, Joe Perches <joe@perches.com> wrote:
-> I think I've seen code in the kernel like
->         char *p2 = (void *)p;
-> where p is const and p2 is dereferenced and set.
+hsdev is not freed in sensor_hub_probe when kasprintf inside the for
+loop fails. This is because hsdev is not set to platform_data yet (to
+be freed by the code in the err_no_mem label). So free the memory
+explicitly in the 'if' branch, as this is the only place where this is
+(and will) be needed.
 
-I can imagine there's code like that.
+Reported-by: coverity
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-sensor-hub.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Still hoping for gcc to gain an option to warn about all casts, except in header
-files...
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index a8d5c8faf8cf..584e17ce80e4 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -632,6 +632,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 			if (name == NULL) {
+ 				hid_err(hdev, "Failed MFD device name\n");
+ 					ret = -ENOMEM;
++					kfree(hsdev);
+ 					goto err_no_mem;
+ 			}
+ 			sd->hid_sensor_hub_client_devs[
+-- 
+2.0.0
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds

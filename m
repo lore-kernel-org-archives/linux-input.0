@@ -1,44 +1,92 @@
-From: Patrik Fimml <patrikf@chromium.org>
-Subject: Re: [PATCH v2 0/14] input: cyapa: re-architecture driver to support
- multi-trackpads in one driver
-Date: Mon, 30 Jun 2014 12:59:35 -0700
-Message-ID: <20140630195935.GA18256@google.com>
-References: <CAEn7tidaRxbLwQti8joDgq48K2YCAVE3uG-q6ZR=jEWAgm2tPg@mail.gmail.com>
- <77BC725C9062764F874D79F51E1F1A8F4C902B3B@S04-MBX01-01.s04.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 00/15] Input - Wacom: switch from an USB to a HID driver
+Date: Mon, 30 Jun 2014 17:26:11 -0400
+Message-ID: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:63934 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753348AbaF3T7i (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 15:59:38 -0400
-Received: by mail-pa0-f41.google.com with SMTP id fb1so9260761pad.0
-        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2014 12:59:38 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <77BC725C9062764F874D79F51E1F1A8F4C902B3B@S04-MBX01-01.s04.local>
+Received: from mx1.redhat.com ([209.132.183.28]:25373 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751124AbaF3V0k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 17:26:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Benson Leung <bleung@google.com>, Lily Rui <lily@cypress.com>, Daniel Kurtz <djkurtz@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
-Hi Dudley,
+Hi guys,
 
-On Mon, Jun 30, 2014 at 05:43:06AM +0000, Dudley Du wrote:
-> Attached are the patches files, I sent it firstly.
+this patch series is a cleanup for the Wacom USB driver.
 
-Thanks for the response, I was able to apply the patches now.
+I started working on this topic when I saw patches floating around which
+implemented a report descriptor parser within the wacom.ko module.
+However, we already have a nice HID subsystem which is more generic than the
+HID implementation we can find in this USB driver.
+Further details of the benefits (code reduction, regression tests) are hopefully
+explained in the commit messages of the corresponding patches.
 
-The attached files lack headers and commit messages though, so I don't have
-fine-grained history in my git tree for convenient later review. The file names
-suggest to me that you might just have copy-and-pasted the patches from
-somewhere.
+Also, I am working on a way to handle the new Wacom tablets in a more generic
+way in the hid tree, so consider this patch series as a first step in this
+direction.
 
-It would be great if you could attach them again in the format produced by "git
-format-patch", with no further modifications done by hand. (If you feel the
-need to do modifications, you should modify the actual commits e.g. with "git
-rebase -i" before using format-patch.) Others can then simply import your
-changes - including commit messages - into their tree with "git am".
+This patch series transfers the wacom.ko driver from the input tree into the hid
+tree. I did not made the corresponding move of the files in the series hoping
+that we will find a way to achieve it if this step is validated.
 
-Thanks,
-Patrik
+IMO, the smoothest path would be that Jiri takes care of the wacom driver
+in the input tree (and that we move into into the hid subfolder). This can be
+achieve if the current pending wacom patches are applied in the hid tree too.
+
+Another solution could be to keep the wacom changes in the input tree and put the
+hid changes in the hid tree by using separate commits. Once 3.17 is out, we can
+then change the module into the hid subfolder.
+
+I wanted to send this patch series right now so we can figure out how we will
+handle the transition.
+
+I am pretty confident the patch series does not break any existing device
+(except for the required user space changes which can be handled correctly if
+we tackle them right now). The USB commands are executed in the same way,
+and the protocol handling is also done in the same way.
+
+Anyway, the net difference in lines of code (-307) should be enough to be of
+interest.
+
+Note: This patch series requires the current pending wacom patches to be applied.
+I set up a tree with all the patch applied if anyone wants to give a try:
+https://github.com/bentiss/linux/commits/hid-wacom-legacy-3.16-rc3
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (15):
+  Input - wacom: include and use linux/hid.h
+  Input - wacom: switch from an USB driver to a HID driver
+  Input - wacom: use hid communication instead of plain usb
+  Input - wacom: use HID core to actually fetch the report descriptor
+  Input - wacom: compute the HID report size to get the actual packet
+    size
+  Input - wacom: install LED/OLED sysfs files in the HID device instead
+    of USB
+  Input - wacom: register the input devices on top of the HID one
+  Input - wacom: remove usb dependency for siblings devices
+  Input - wacom: register power device at the HID level
+  Input - wacom: use hid_info instead of plain dev_info
+  HID: uhid: add and set HID_TYPE_UHID for uhid devices
+  Input - wacom: use in-kernel HID parser
+  Input - wacom: use hidinput_calc_abs_res instead of duplicating its
+    code
+  Input - wacom: remove field pktlen declaration in the list of devices
+  Input - wacom: keep wacom_ids ordered
+
+ drivers/hid/hid-core.c           |  15 +-
+ drivers/hid/hid-wacom.c          |   2 +-
+ drivers/hid/uhid.c               |   2 +
+ drivers/input/tablet/wacom.h     |   7 +-
+ drivers/input/tablet/wacom_sys.c | 908 +++++++++++++--------------------------
+ drivers/input/tablet/wacom_wac.c | 647 ++++++++++++++--------------
+ drivers/input/tablet/wacom_wac.h |  10 +-
+ include/linux/hid.h              |   4 +-
+ 8 files changed, 644 insertions(+), 951 deletions(-)
+
+-- 
+2.0.0
+

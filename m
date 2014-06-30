@@ -1,44 +1,66 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v7 3/6] input: misc: Add driver for AXP20x
- Power Enable Key
-Date: Mon, 30 Jun 2014 19:43:22 +0200
-Message-ID: <CAOQ7t2ZSJgyyHxEgSxOfL=R8eAW47rYgeXfHY-FE0Ne5v=h6Ew@mail.gmail.com>
-References: <1404066237-20234-1-git-send-email-carlo@caione.org>
-	<1404066237-20234-4-git-send-email-carlo@caione.org>
-	<20140630094712.GX7262@leverpostej>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBBO6DY2OQKGQEDQOJQFY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20140630094712.GX7262@leverpostej>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, "lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Subject: [PATCH] Input: s3c2410_ts: Move to clk_prepare_enable/clk_disable_unprepare
+Date: Mon, 30 Jun 2014 22:09:37 +0300
+Message-ID: <1404155377-2862-1-git-send-email-anarsoul@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:51243 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932125AbaF3TLw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 15:11:52 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Vasily Khoruzhick <anarsoul@gmail.com>
 
-On Mon, Jun 30, 2014 at 11:47 AM, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org> wrote:
->> +static struct platform_driver axp20x_pek_driver = {
->> +       .probe          = axp20x_pek_probe,
->> +       .remove         = axp20x_pek_remove,
->> +       .driver         = {
->> +               .name           = "axp20x-pek",
->> +               .owner          = THIS_MODULE,
->> +       },
->> +};
->> +module_platform_driver(axp20x_pek_driver);
->
-> So this requires platform data rather than a DTB? Or have I missed
-> something?
+Use clk_prepare_enable/clk_disable_unprepare to make the driver
+work properly with common clock framework.
 
-It is not loaded by DTB but by the MFD core driver (axp20x). So I
-assume this is still a platform device.
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ drivers/input/touchscreen/s3c2410_ts.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Regards,
-
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index 19cb247..c0e0baa 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -264,7 +264,7 @@ static int s3c2410ts_probe(struct platform_device *pdev)
+ 		return -ENOENT;
+ 	}
+ 
+-	clk_enable(ts.clock);
++	clk_prepare_enable(ts.clock);
+ 	dev_dbg(dev, "got and enabled clocks\n");
+ 
+ 	ts.irq_tc = ret = platform_get_irq(pdev, 0);
+@@ -369,7 +369,7 @@ static int s3c2410ts_remove(struct platform_device *pdev)
+ 	free_irq(ts.irq_tc, ts.input);
+ 	del_timer_sync(&touch_timer);
+ 
+-	clk_disable(ts.clock);
++	clk_disable_unprepare(ts.clock);
+ 	clk_put(ts.clock);
+ 
+ 	input_unregister_device(ts.input);
+@@ -383,7 +383,7 @@ static int s3c2410ts_suspend(struct device *dev)
+ {
+ 	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
+ 	disable_irq(ts.irq_tc);
+-	clk_disable(ts.clock);
++	clk_disable_unprepare(ts.clock);
+ 
+ 	return 0;
+ }
+@@ -393,7 +393,7 @@ static int s3c2410ts_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct s3c2410_ts_mach_info *info = dev_get_platdata(&pdev->dev);
+ 
+-	clk_enable(ts.clock);
++	clk_prepare_enable(ts.clock);
+ 	enable_irq(ts.irq_tc);
+ 
+ 	/* Initialise registers */
 -- 
-Carlo Caione
+2.0.0
+

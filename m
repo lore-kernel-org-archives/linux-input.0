@@ -1,81 +1,87 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 11/15] HID: uhid: add and set HID_TYPE_UHID for uhid devices
-Date: Mon, 30 Jun 2014 17:26:22 -0400
-Message-ID: <1404163586-29582-12-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 07/15] Input - wacom: register the input devices on top of the HID one
+Date: Mon, 30 Jun 2014 17:26:18 -0400
+Message-ID: <1404163586-29582-8-git-send-email-benjamin.tissoires@redhat.com>
 References: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:38675 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754260AbaF3V0t (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 17:26:49 -0400
 In-Reply-To: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
-List-Id: linux-input@vger.kernel.org
 
-Some wacom devices checks on the .type field of hid_device. However,
-uhid never set it, and as a result, we can not use uhid with some of
-the wacom tablets.
+Matches the current behavior of the HID subsystem and removes one more
+dependency over USB.
 
-Create a HID type HID_TYPE_UHID which is set by uhid and taken into
-account by wacom.ko.
-
-With this patch, the wacom.ko driver is completely agnostic of the
-USB layer, except for the Wireless Receiver. That means that starting
-from now, we can check every changes through uhis and comparing the
-resulting kernel device.
+The current user space clients which relies on this to fetch the
+LEDs path need an update. However, we already break them in the
+kernel v3.11 for the Bluetooth Wacom devices. They are going to be fixed
+soon.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/uhid.c               | 2 ++
- drivers/input/tablet/wacom_sys.c | 3 ++-
- include/linux/hid.h              | 3 ++-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/input/tablet/wacom.h     |  1 -
+ drivers/input/tablet/wacom_sys.c | 15 ++++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 0cb92e3..6dbe2e0 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -407,6 +407,7 @@ static int uhid_dev_create(struct uhid_device *uhid,
- 	hid->country = ev->u.create.country;
- 	hid->driver_data = uhid;
- 	hid->dev.parent = uhid_misc.this_device;
-+	hid->type = HID_TYPE_UHID;
- 
- 	uhid->hid = hid;
- 	uhid->running = true;
-@@ -467,6 +468,7 @@ static int uhid_dev_create2(struct uhid_device *uhid,
- 	hid->country = ev->u.create2.country;
- 	hid->driver_data = uhid;
- 	hid->dev.parent = uhid_misc.this_device;
-+	hid->type = HID_TYPE_UHID;
- 
- 	uhid->hid = hid;
- 	uhid->running = true;
+diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+index a931221..a678f82 100644
+--- a/drivers/input/tablet/wacom.h
++++ b/drivers/input/tablet/wacom.h
+@@ -112,7 +112,6 @@ struct wacom {
+ 	struct hid_device *hdev;
+ 	struct mutex lock;
+ 	struct work_struct work;
+-	char phys[32];
+ 	struct wacom_led {
+ 		u8 select[2]; /* status led selector (0..3) */
+ 		u8 llv;       /* status led brightness no button (1..127) */
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 2208b4a..065c6d5 100644
+index 6f4bf6d..0d0397d 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -1261,7 +1261,8 @@ static int wacom_probe(struct hid_device *hdev,
- 		goto fail1;
- 	}
+@@ -992,8 +992,7 @@ static void wacom_destroy_battery(struct wacom *wacom)
+ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
+ {
+ 	struct input_dev *input_dev;
+-	struct usb_interface *intf = wacom->intf;
+-	struct usb_device *dev = interface_to_usbdev(intf);
++	struct hid_device *hdev = wacom->hdev;
+ 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
  
--	if (features->check_for_hid_type && features->hid_type != hdev->type) {
-+	if (hdev->type != HID_TYPE_UHID &&
-+	    features->check_for_hid_type && features->hid_type != hdev->type) {
- 		error = -ENODEV;
- 		goto fail1;
- 	}
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 9732299..df3c103 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -448,7 +448,8 @@ struct hid_input {
- enum hid_type {
- 	HID_TYPE_OTHER = 0,
- 	HID_TYPE_USBMOUSE,
--	HID_TYPE_USBNONE
-+	HID_TYPE_USBNONE,
-+	HID_TYPE_UHID
- };
+ 	input_dev = input_allocate_device();
+@@ -1001,11 +1000,15 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
+ 		return NULL;
  
- struct hid_driver;
+ 	input_dev->name = wacom_wac->name;
+-	input_dev->phys = wacom->phys;
+-	input_dev->dev.parent = &intf->dev;
++	input_dev->phys = hdev->phys;
++	input_dev->dev.parent = &hdev->dev;
+ 	input_dev->open = wacom_open;
+ 	input_dev->close = wacom_close;
+-	usb_to_input_id(dev, &input_dev->id);
++	input_dev->uniq = hdev->uniq;
++	input_dev->id.bustype = hdev->bus;
++	input_dev->id.vendor  = hdev->vendor;
++	input_dev->id.product = hdev->product;
++	input_dev->id.version = hdev->version;
+ 	input_set_drvdata(input_dev, wacom);
+ 
+ 	return input_dev;
+@@ -1269,8 +1272,6 @@ static int wacom_probe(struct hid_device *hdev,
+ 	wacom->intf = intf;
+ 	mutex_init(&wacom->lock);
+ 	INIT_WORK(&wacom->work, wacom_wireless_work);
+-	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+-	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
+ 
+ 	/* set the default size in case we do not get them from hid */
+ 	wacom_set_default_phy(features);
 -- 
 2.0.0
+

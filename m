@@ -1,60 +1,44 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] drivers/hid/hid-picolcd_debugfs.c: remove unnecessary
- NULL test before debugfs_remove
-Date: Mon, 30 Jun 2014 09:54:57 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406300954510.28307@pobox.suse.cz>
-References: <1403962503-8507-1-git-send-email-fabf@skynet.be>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] HID: roccat: Drop cast
+Date: Mon, 30 Jun 2014 11:08:08 +0200
+Message-ID: <CAMuHMdWy-x4XimMDac1YtpSXZ4SnVN1zNKyQs6XPP7gvKOJBdg@mail.gmail.com>
+References: <20140626172852.GA2878@himangi-Dell>
+	<1403804286.7977.58.camel@joe-AO725>
+	<alpine.DEB.2.02.1406270729110.2016@localhost6.localdomain6>
+	<1403848366.7977.92.camel@joe-AO725>
+	<alpine.DEB.2.02.1406291832430.2036@localhost6.localdomain6>
+	<1404066349.9064.60.camel@joe-AO725>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37634 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754384AbaF3HzA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 03:55:00 -0400
-In-Reply-To: <1403962503-8507-1-git-send-email-fabf@skynet.be>
+Received: from mail-la0-f44.google.com ([209.85.215.44]:39334 "EHLO
+	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754432AbaF3JIK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 05:08:10 -0400
+In-Reply-To: <1404066349.9064.60.camel@joe-AO725>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabian Frederick <fabf@skynet.be>
-Cc: linux-kernel@vger.kernel.org, bonbons@linux-vserver.org, linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, Himangi Saraogi <himangi774@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sat, 28 Jun 2014, Fabian Frederick wrote:
+On Sun, Jun 29, 2014 at 8:25 PM, Joe Perches <joe@perches.com> wrote:
+> I think I've seen code in the kernel like
+>         char *p2 = (void *)p;
+> where p is const and p2 is dereferenced and set.
 
-> Fix checkpatch warning:
-> WARNING: debugfs_remove(NULL) is safe this check is probably not required
-> 
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Fabian Frederick <fabf@skynet.be>
-> ---
->  drivers/hid/hid-picolcd_debugfs.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
-> index 024cdf3..3c13af6 100644
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -883,16 +883,13 @@ void picolcd_exit_devfs(struct picolcd_data *data)
->  
->  	dent = data->debug_reset;
->  	data->debug_reset = NULL;
-> -	if (dent)
-> -		debugfs_remove(dent);
-> +	debugfs_remove(dent);
->  	dent = data->debug_eeprom;
->  	data->debug_eeprom = NULL;
-> -	if (dent)
-> -		debugfs_remove(dent);
-> +	debugfs_remove(dent);
->  	dent = data->debug_flash;
->  	data->debug_flash = NULL;
-> -	if (dent)
-> -		debugfs_remove(dent);
-> +	debugfs_remove(dent);
->  	mutex_destroy(&data->mutex_flash);
->  }
+I can imagine there's code like that.
 
-Applied, thanks.
+Still hoping for gcc to gain an option to warn about all casts, except in header
+files...
 
--- 
-Jiri Kosina
-SUSE Labs
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

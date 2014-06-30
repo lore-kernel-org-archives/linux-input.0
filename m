@@ -1,39 +1,44 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
-Date: Mon, 30 Jun 2014 10:11:05 -0600
-Message-ID: <53B18C19.6030404@wwwdotorg.org>
-References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org> <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com> <536963A0.4060506@wwwdotorg.org> <536BAA5A.1010809@itdev.co.uk> <536BB3C9.8070908@wwwdotorg.org> <536BDFFD.4080009@itdev.co.uk> <537128D0.3060005@wwwdotorg.org> <53763B06.7020100@itdev.co.uk> <53763F95.6000609@wwwdotorg.org> <537B8087.1040306@itdev.co.uk>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v7 3/6] input: misc: Add driver for AXP20x
+ Power Enable Key
+Date: Mon, 30 Jun 2014 19:43:22 +0200
+Message-ID: <CAOQ7t2ZSJgyyHxEgSxOfL=R8eAW47rYgeXfHY-FE0Ne5v=h6Ew@mail.gmail.com>
+References: <1404066237-20234-1-git-send-email-carlo@caione.org>
+	<1404066237-20234-4-git-send-email-carlo@caione.org>
+	<20140630094712.GX7262@leverpostej>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:41731 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756361AbaF3QLJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 12:11:09 -0400
-In-Reply-To: <537B8087.1040306@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBO6DY2OQKGQEDQOJQFY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20140630094712.GX7262@leverpostej>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, "lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-On 05/20/2014 10:19 AM, Nick Dyer wrote:
-> Stephen Warren wrote:
->> On 05/16/2014 10:21 AM, Nick Dyer wrote:
->>> Thanks for this. Would you be happy for me to pick these changes up and
->>> include them along with the other work I am sending to Dmitry? I am just
->>> beginning to do various updates to the whole series, one of the things I
->>> need to sort out is the device tree support.
->>
->> That would be fine. I assume you'd only take the 2 Atmel driver patches.
->> I'll send the Tegra patches separately once the driver is merged.
-> 
-> Great! Dmitry has merged some of the patches I sent now, so I'm just
-> working on updating to take account of that and adding the device tree
-> changes, and taking account of a couple of other review comments.
+On Mon, Jun 30, 2014 at 11:47 AM, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org> wrote:
+>> +static struct platform_driver axp20x_pek_driver = {
+>> +       .probe          = axp20x_pek_probe,
+>> +       .remove         = axp20x_pek_remove,
+>> +       .driver         = {
+>> +               .name           = "axp20x-pek",
+>> +               .owner          = THIS_MODULE,
+>> +       },
+>> +};
+>> +module_platform_driver(axp20x_pek_driver);
+>
+> So this requires platform data rather than a DTB? Or have I missed
+> something?
 
-Nick, did you get anywhere with taking my DT patches and resending them?
-Would you like me to resend them instead? I was really hoping to see
-them working in 3.17. Unfortunately, I'm away for ~2.5 weeks starting in
-a couple of days, so I won't be able to get them into 3.17 myself.
+It is not loaded by DTB but by the MFD core driver (axp20x). So I
+assume this is still a platform device.
+
+Regards,
+
+-- 
+Carlo Caione

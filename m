@@ -1,30 +1,60 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v2 0/14] input: cyapa: re-architecture driver to support
- multi-trackpads in one driver
-Date: Mon, 30 Jun 2014 06:54:57 +0000
-Message-ID: <77BC725C9062764F874D79F51E1F1A8F4C902D71@S04-MBX01-01.s04.local>
-References: <CAEn7tidaRxbLwQti8joDgq48K2YCAVE3uG-q6ZR=jEWAgm2tPg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] drivers/hid/hid-picolcd_debugfs.c: remove unnecessary
+ NULL test before debugfs_remove
+Date: Mon, 30 Jun 2014 09:54:57 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1406300954510.28307@pobox.suse.cz>
+References: <1403962503-8507-1-git-send-email-fabf@skynet.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay-s04-hub002.domainlocalhost.com ([74.115.207.101]:34946
-	"EHLO relay-S04-HUB002.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752131AbaF3Gy7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 02:54:59 -0400
-In-Reply-To: <CAEn7tidaRxbLwQti8joDgq48K2YCAVE3uG-q6ZR=jEWAgm2tPg@mail.gmail.com>
-Content-Language: zh-CN
+Received: from cantor2.suse.de ([195.135.220.15]:37634 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754384AbaF3HzA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 03:55:00 -0400
+In-Reply-To: <1403962503-8507-1-git-send-email-fabf@skynet.be>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Patrik Fimml <patrikf@google.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Benson Leung <bleung@google.com>, Lily Rui <lily@cypress.com>, Daniel Kurtz <djkurtz@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Fabian Frederick <fabf@skynet.be>
+Cc: linux-kernel@vger.kernel.org, bonbons@linux-vserver.org, linux-input@vger.kernel.org
 
-SGkgQWxsLA0KDQpTb3JyeSBmb3IgdGhlIGRpc3R1cmIgYWdhaW4uDQpUaGUgMTQgY2F5cGEgVjIg
-cGF0Y2hlcyBJIHJlLXNlbnQgdGhyb3VnaCAxNDo0MSB0byAxNDo0NSBhdCAyMDE0LzYvMzAgc3Rp
-bGwgaGF2ZSBzb21lIG9mIHRoZW0gY29ycnVwdGVkIGJ5IHRoZSBtYWlsIHNlcnZlci4NClBsZWFz
-ZSBpZ25vcmUgdGhlbS4gSSB3aWxsIHRyeSB0byBmaXggdGhlbS4NCg0KVGhhbmtzLA0KRHVkbGV5
-DQpUaGlzIG1lc3NhZ2UgYW5kIGFueSBhdHRhY2htZW50cyBtYXkgY29udGFpbiBDeXByZXNzIChv
-ciBpdHMgc3Vic2lkaWFyaWVzKSBjb25maWRlbnRpYWwgaW5mb3JtYXRpb24uIElmIGl0IGhhcyBi
-ZWVuIHJlY2VpdmVkIGluIGVycm9yLCBwbGVhc2UgYWR2aXNlIHRoZSBzZW5kZXIgYW5kIGltbWVk
-aWF0ZWx5IGRlbGV0ZSB0aGlzIG1lc3NhZ2UuDQo=
+On Sat, 28 Jun 2014, Fabian Frederick wrote:
+
+> Fix checkpatch warning:
+> WARNING: debugfs_remove(NULL) is safe this check is probably not required
+> 
+> Cc: Jiri Kosina <jkosina@suse.cz>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Fabian Frederick <fabf@skynet.be>
+> ---
+>  drivers/hid/hid-picolcd_debugfs.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
+> index 024cdf3..3c13af6 100644
+> --- a/drivers/hid/hid-picolcd_debugfs.c
+> +++ b/drivers/hid/hid-picolcd_debugfs.c
+> @@ -883,16 +883,13 @@ void picolcd_exit_devfs(struct picolcd_data *data)
+>  
+>  	dent = data->debug_reset;
+>  	data->debug_reset = NULL;
+> -	if (dent)
+> -		debugfs_remove(dent);
+> +	debugfs_remove(dent);
+>  	dent = data->debug_eeprom;
+>  	data->debug_eeprom = NULL;
+> -	if (dent)
+> -		debugfs_remove(dent);
+> +	debugfs_remove(dent);
+>  	dent = data->debug_flash;
+>  	data->debug_flash = NULL;
+> -	if (dent)
+> -		debugfs_remove(dent);
+> +	debugfs_remove(dent);
+>  	mutex_destroy(&data->mutex_flash);
+>  }
+
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

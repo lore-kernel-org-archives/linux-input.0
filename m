@@ -1,42 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Fixes kernel panic with Null pointer in hid-appleir.c
-Date: Mon, 30 Jun 2014 16:38:04 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1406301636100.28307@pobox.suse.cz>
-References: <1403281515-5508-1-git-send-email-xerofoify@gmail.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 0/4] Input: atmel_mxt_ts - make it work on Tegra
+Date: Mon, 30 Jun 2014 10:11:05 -0600
+Message-ID: <53B18C19.6030404@wwwdotorg.org>
+References: <1399414392-32572-1-git-send-email-swarren@wwwdotorg.org> <CANLzEkv8To0gWWYBF3JjRDqt+1xGUhQiYJJUwovVhBDEMW569Q@mail.gmail.com> <536963A0.4060506@wwwdotorg.org> <536BAA5A.1010809@itdev.co.uk> <536BB3C9.8070908@wwwdotorg.org> <536BDFFD.4080009@itdev.co.uk> <537128D0.3060005@wwwdotorg.org> <53763B06.7020100@itdev.co.uk> <53763F95.6000609@wwwdotorg.org> <537B8087.1040306@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1403281515-5508-1-git-send-email-xerofoify@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Krause <xerofoify@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:41731 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756361AbaF3QLJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2014 12:11:09 -0400
+In-Reply-To: <537B8087.1040306@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-On Fri, 20 Jun 2014, Nicholas Krause wrote:
-
-> In for loop of function appleir_input_configured we hit
-> a Null pointer after the for loop due to array_size not
-> being correct needs to be changed to input_dev->keycodemax.
+On 05/20/2014 10:19 AM, Nick Dyer wrote:
+> Stephen Warren wrote:
+>> On 05/16/2014 10:21 AM, Nick Dyer wrote:
+>>> Thanks for this. Would you be happy for me to pick these changes up and
+>>> include them along with the other work I am sending to Dmitry? I am just
+>>> beginning to do various updates to the whole series, one of the things I
+>>> need to sort out is the device tree support.
+>>
+>> That would be fine. I assume you'd only take the 2 Atmel driver patches.
+>> I'll send the Tegra patches separately once the driver is merged.
 > 
-> Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
-> ---
->  drivers/hid/hid-appleir.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
-> index 0e6a42d..ab0a702 100644
-> --- a/drivers/hid/hid-appleir.c
-> +++ b/drivers/hid/hid-appleir.c
-> @@ -272,7 +272,7 @@ static void appleir_input_configured(struct hid_device *hid,
->  	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
->  
->  	memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
-> -	for (i = 0; i < ARRAY_SIZE(appleir_key_table); i++)
-> +	for (i = 0; i < ARRAY_SIZE(input_dev->keycodemax); i++)
+> Great! Dmitry has merged some of the patches I sent now, so I'm just
+> working on updating to take account of that and adding the device tree
+> changes, and taking account of a couple of other review comments.
 
-Ugh, how is this supposed to work? input_dev->keycodemax is int, not 
-array. I think you actually want sizeof(appleir->keymap) there.
-
--- 
-Jiri Kosina
-SUSE Labs
+Nick, did you get anywhere with taking my DT patches and resending them?
+Would you like me to resend them instead? I was really hoping to see
+them working in 3.17. Unfortunately, I'm away for ~2.5 weeks starting in
+a couple of days, so I won't be able to get them into 3.17 myself.

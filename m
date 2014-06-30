@@ -1,66 +1,44 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: [PATCH] Input: s3c2410_ts: Move to clk_prepare_enable/clk_disable_unprepare
-Date: Mon, 30 Jun 2014 22:09:37 +0300
-Message-ID: <1404155377-2862-1-git-send-email-anarsoul@gmail.com>
+From: Patrik Fimml <patrikf@chromium.org>
+Subject: Re: [PATCH v2 0/14] input: cyapa: re-architecture driver to support
+ multi-trackpads in one driver
+Date: Mon, 30 Jun 2014 12:59:35 -0700
+Message-ID: <20140630195935.GA18256@google.com>
+References: <CAEn7tidaRxbLwQti8joDgq48K2YCAVE3uG-q6ZR=jEWAgm2tPg@mail.gmail.com>
+ <77BC725C9062764F874D79F51E1F1A8F4C902B3B@S04-MBX01-01.s04.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:51243 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932125AbaF3TLw (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:63934 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753348AbaF3T7i (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 15:11:52 -0400
+	Mon, 30 Jun 2014 15:59:38 -0400
+Received: by mail-pa0-f41.google.com with SMTP id fb1so9260761pad.0
+        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2014 12:59:38 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <77BC725C9062764F874D79F51E1F1A8F4C902B3B@S04-MBX01-01.s04.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Vasily Khoruzhick <anarsoul@gmail.com>
+To: Dudley Du <dudl@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Benson Leung <bleung@google.com>, Lily Rui <lily@cypress.com>, Daniel Kurtz <djkurtz@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Use clk_prepare_enable/clk_disable_unprepare to make the driver
-work properly with common clock framework.
+Hi Dudley,
 
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
----
- drivers/input/touchscreen/s3c2410_ts.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+On Mon, Jun 30, 2014 at 05:43:06AM +0000, Dudley Du wrote:
+> Attached are the patches files, I sent it firstly.
 
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index 19cb247..c0e0baa 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -264,7 +264,7 @@ static int s3c2410ts_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
- 
--	clk_enable(ts.clock);
-+	clk_prepare_enable(ts.clock);
- 	dev_dbg(dev, "got and enabled clocks\n");
- 
- 	ts.irq_tc = ret = platform_get_irq(pdev, 0);
-@@ -369,7 +369,7 @@ static int s3c2410ts_remove(struct platform_device *pdev)
- 	free_irq(ts.irq_tc, ts.input);
- 	del_timer_sync(&touch_timer);
- 
--	clk_disable(ts.clock);
-+	clk_disable_unprepare(ts.clock);
- 	clk_put(ts.clock);
- 
- 	input_unregister_device(ts.input);
-@@ -383,7 +383,7 @@ static int s3c2410ts_suspend(struct device *dev)
- {
- 	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
- 	disable_irq(ts.irq_tc);
--	clk_disable(ts.clock);
-+	clk_disable_unprepare(ts.clock);
- 
- 	return 0;
- }
-@@ -393,7 +393,7 @@ static int s3c2410ts_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct s3c2410_ts_mach_info *info = dev_get_platdata(&pdev->dev);
- 
--	clk_enable(ts.clock);
-+	clk_prepare_enable(ts.clock);
- 	enable_irq(ts.irq_tc);
- 
- 	/* Initialise registers */
--- 
-2.0.0
+Thanks for the response, I was able to apply the patches now.
 
+The attached files lack headers and commit messages though, so I don't have
+fine-grained history in my git tree for convenient later review. The file names
+suggest to me that you might just have copy-and-pasted the patches from
+somewhere.
+
+It would be great if you could attach them again in the format produced by "git
+format-patch", with no further modifications done by hand. (If you feel the
+need to do modifications, you should modify the actual commits e.g. with "git
+rebase -i" before using format-patch.) Others can then simply import your
+changes - including commit messages - into their tree with "git am".
+
+Thanks,
+Patrik

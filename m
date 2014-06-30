@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 06/15] Input - wacom: install LED/OLED sysfs files in the HID device instead of USB
-Date: Mon, 30 Jun 2014 17:26:17 -0400
-Message-ID: <1404163586-29582-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 05/15] Input - wacom: compute the HID report size to get the actual packet size
+Date: Mon, 30 Jun 2014 17:26:16 -0400
+Message-ID: <1404163586-29582-6-git-send-email-benjamin.tissoires@redhat.com>
 References: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,118 +10,140 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
-Removes one more dependency over USB, but requires some changes in
-the user space to find the sysfs files correctly.
+This removes an USB dependency and is more accurate: the computed pktlen
+is the actual maximum size of the reports forwarded by the device.
 
-This patch breaks the user space. However, the number of program
-accessing the LEDs is quite limited and we can easily patch them
-to handle the new HID behavior.
+Given that the pktlen is correctly computed/validated, we can store it now
+in the features struct instead of having a special handling in the rest of
+the code.
+
+Likewise, this information is not mandatory anymore in the description
+of devices in wacom_wac.c. They will be removed in a separate patch.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/tablet/wacom_sys.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/input/tablet/wacom_sys.c | 58 ++++++++++++++++++----------------------
+ 1 file changed, 26 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 3f1cee6..6f4bf6d 100644
+index cd3d936..3f1cee6 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -675,7 +675,7 @@ out:
- static ssize_t wacom_led_select_store(struct device *dev, int set_id,
- 				      const char *buf, size_t count)
+@@ -149,7 +149,6 @@ static int wacom_parse_logical_collection(unsigned char *report,
+ 	if (features->type == BAMBOO_PT) {
+ 
+ 		/* Logical collection is only used by 3rd gen Bamboo Touch */
+-		features->pktlen = WACOM_PKGLEN_BBTOUCH3;
+ 		features->device_type = BTN_TOOL_FINGER;
+ 
+ 		features->x_max = features->y_max =
+@@ -240,29 +239,6 @@ static int wacom_parse_hid(struct hid_device *hdev,
+ 					features->device_type = BTN_TOOL_FINGER;
+ 					/* touch device at least supports one touch point */
+ 					touch_max = 1;
+-					switch (features->type) {
+-					case TABLETPC2FG:
+-						features->pktlen = WACOM_PKGLEN_TPC2FG;
+-						break;
+-
+-					case MTSCREEN:
+-					case WACOM_24HDT:
+-						features->pktlen = WACOM_PKGLEN_MTOUCH;
+-						break;
+-
+-					case MTTPC:
+-					case MTTPC_B:
+-						features->pktlen = WACOM_PKGLEN_MTTPC;
+-						break;
+-
+-					case BAMBOO_PT:
+-						features->pktlen = WACOM_PKGLEN_BBTOUCH;
+-						break;
+-
+-					default:
+-						features->pktlen = WACOM_PKGLEN_GRAPHIRE;
+-						break;
+-					}
+ 
+ 					switch (features->type) {
+ 					case BAMBOO_PT:
+@@ -305,8 +281,6 @@ static int wacom_parse_hid(struct hid_device *hdev,
+ 					}
+ 				} else if (pen) {
+ 					/* penabled only accepts exact bytes of data */
+-					if (features->type >= TABLETPC)
+-						features->pktlen = WACOM_PKGLEN_GRAPHIRE;
+ 					features->device_type = BTN_TOOL_PEN;
+ 					features->x_max =
+ 						get_unaligned_le16(&report[i + 3]);
+@@ -1227,12 +1201,34 @@ static void wacom_calculate_res(struct wacom_features *features)
+ 						    features->unitExpo);
+ }
+ 
++static int wacom_hid_report_len(struct hid_report *report)
++{
++	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
++	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
++}
++
++static size_t wacom_compute_pktlen(struct hid_device *hdev)
++{
++	struct hid_report_enum *report_enum;
++	struct hid_report *report;
++	size_t size = 0;
++
++	report_enum = hdev->report_enum + HID_INPUT_REPORT;
++
++	list_for_each_entry(report, &report_enum->report_list, list) {
++		size_t report_size = wacom_hid_report_len(report);
++		if (report_size > size)
++			size = report_size;
++	}
++
++	return size;
++}
++
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
  {
--	struct hid_device *hdev = dev_get_drvdata(dev);
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	unsigned int id;
- 	int err;
-@@ -703,7 +703,7 @@ static ssize_t wacom_led##SET_ID##_select_store(struct device *dev,	\
- static ssize_t wacom_led##SET_ID##_select_show(struct device *dev,	\
- 	struct device_attribute *attr, char *buf)			\
- {									\
--	struct hid_device *hdev = dev_get_drvdata(dev);			\
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);\
- 	struct wacom *wacom = hid_get_drvdata(hdev);			\
- 	return snprintf(buf, 2, "%d\n", wacom->led.select[SET_ID]);	\
- }									\
-@@ -738,7 +738,7 @@ static ssize_t wacom_luminance_store(struct wacom *wacom, u8 *dest,
- static ssize_t wacom_##name##_luminance_store(struct device *dev,	\
- 	struct device_attribute *attr, const char *buf, size_t count)	\
- {									\
--	struct hid_device *hdev = dev_get_drvdata(dev);			\
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);\
- 	struct wacom *wacom = hid_get_drvdata(hdev);			\
- 									\
- 	return wacom_luminance_store(wacom, &wacom->led.field,		\
-@@ -754,7 +754,7 @@ DEVICE_LUMINANCE_ATTR(buttons, img_lum);
- static ssize_t wacom_button_image_store(struct device *dev, int button_id,
- 					const char *buf, size_t count)
- {
--	struct hid_device *hdev = dev_get_drvdata(dev);
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	int err;
+ 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+-	struct usb_endpoint_descriptor *endpoint;
+ 	struct wacom *wacom;
+ 	struct wacom_wac *wacom_wac;
+ 	struct wacom_features *features;
+@@ -1258,6 +1254,7 @@ static int wacom_probe(struct hid_device *hdev,
+ 	wacom_wac = &wacom->wacom_wac;
+ 	wacom_wac->features = *((struct wacom_features *)id->driver_data);
+ 	features = &wacom_wac->features;
++	features->pktlen = wacom_compute_pktlen(hdev);
+ 	if (features->pktlen > WACOM_PKGLEN_MAX) {
+ 		error = -EINVAL;
+ 		goto fail1;
+@@ -1275,8 +1272,6 @@ static int wacom_probe(struct hid_device *hdev,
+ 	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+ 	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
  
-@@ -845,7 +845,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		wacom->led.llv = 10;
- 		wacom->led.hlv = 20;
- 		wacom->led.img_lum = 10;
--		error = sysfs_create_group(&wacom->intf->dev.kobj,
-+		error = sysfs_create_group(&wacom->hdev->dev.kobj,
- 					   &intuos4_led_attr_group);
- 		break;
+-	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+-
+ 	/* set the default size in case we do not get them from hid */
+ 	wacom_set_default_phy(features);
  
-@@ -857,7 +857,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		wacom->led.hlv = 0;
- 		wacom->led.img_lum = 0;
+@@ -1287,13 +1282,12 @@ static int wacom_probe(struct hid_device *hdev,
  
--		error = sysfs_create_group(&wacom->intf->dev.kobj,
-+		error = sysfs_create_group(&wacom->hdev->dev.kobj,
- 					   &cintiq_led_attr_group);
- 		break;
+ 	/*
+ 	 * Intuos5 has no useful data about its touch interface in its
+-	 * HID descriptor. If this is the touch interface (wMaxPacketSize
++	 * HID descriptor. If this is the touch interface (PacketSize
+ 	 * of WACOM_PKGLEN_BBTOUCH3), override the table values.
+ 	 */
+ 	if (features->type >= INTUOS5S && features->type <= INTUOSHT) {
+-		if (endpoint->wMaxPacketSize == WACOM_PKGLEN_BBTOUCH3) {
++		if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+ 			features->device_type = BTN_TOOL_FINGER;
+-			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
  
-@@ -874,7 +874,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 			wacom->led.hlv = 0;
- 			wacom->led.img_lum = 0;
- 
--			error = sysfs_create_group(&wacom->intf->dev.kobj,
-+			error = sysfs_create_group(&wacom->hdev->dev.kobj,
- 						  &intuos5_led_attr_group);
- 		} else
- 			return 0;
-@@ -885,7 +885,7 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 	}
- 
- 	if (error) {
--		dev_err(&wacom->intf->dev,
-+		hid_err(wacom->hdev,
- 			"cannot create sysfs group err: %d\n", error);
- 		return error;
- 	}
-@@ -906,13 +906,13 @@ static void wacom_destroy_leds(struct wacom *wacom)
- 	case INTUOS4S:
- 	case INTUOS4:
- 	case INTUOS4L:
--		sysfs_remove_group(&wacom->intf->dev.kobj,
-+		sysfs_remove_group(&wacom->hdev->dev.kobj,
- 				   &intuos4_led_attr_group);
- 		break;
- 
- 	case WACOM_24HD:
- 	case WACOM_21UX2:
--		sysfs_remove_group(&wacom->intf->dev.kobj,
-+		sysfs_remove_group(&wacom->hdev->dev.kobj,
- 				   &cintiq_led_attr_group);
- 		break;
- 
-@@ -923,7 +923,7 @@ static void wacom_destroy_leds(struct wacom *wacom)
- 	case INTUOSPM:
- 	case INTUOSPL:
- 		if (wacom->wacom_wac.features.device_type == BTN_TOOL_PEN)
--			sysfs_remove_group(&wacom->intf->dev.kobj,
-+			sysfs_remove_group(&wacom->hdev->dev.kobj,
- 					   &intuos5_led_attr_group);
- 		break;
- 	}
+ 			features->x_max = 4096;
+ 			features->y_max = 4096;
 -- 
 2.0.0

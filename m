@@ -1,85 +1,52 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/2 v3] HID: leds: move led_mode attribute to led-class
- devices in MSI GT683R driver
-Date: Mon, 30 Jun 2014 12:39:11 +0200
-Message-ID: <20140630103911.GA2486@localhost>
-References: <20140625174109.GE1409@localhost>
- <1403719989-19989-1-git-send-email-janne.kanniainen@gmail.com>
+Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R
+ driver
+Date: Mon, 30 Jun 2014 12:47:44 +0200
+Message-ID: <20140630104744.GB2486@localhost>
+References: <20140625115541.GA1409@localhost>
+ <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
+ <20140625174109.GE1409@localhost>
+ <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
+ <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-leds-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1403719989-19989-1-git-send-email-janne.kanniainen@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: johan@kernel.org, jkosina@suse.cz, greg@kroah.com, bjorn@mork.no, cooloney@gmail.com, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Bryan Wu <cooloney@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Johan Hovold <johan@kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 25, 2014 at 09:13:09PM +0300, Janne Kanniainen wrote:
-> Move led_mode attribute from HID device to led-class devices and rename it
-> msi_mode. This will also fix race condition by using attribute-groups.
+On Wed, Jun 25, 2014 at 03:55:10PM -0700, Bryan Wu wrote:
+> On Wed, Jun 25, 2014 at 12:09 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> > On Wed, 25 Jun 2014, Johan Hovold wrote:
+> >
+> >> Did you see the attribute-race series I posted? Not sure how best to
+> >> handle the dependency, as those patches should probably go in through
+> >> the LEDs tree, while the first patch in that series (adding the groups
+> >> field) is a dependency for this patch.
+> >>
+> >> Jiri, how would this best be solved?
+> >
+> > I think the best course of action here is to gather Acks from the
+> > respective maintainers, and take the whole lot trough a single tree
+> > (probably the leds tree in this case) to avoid unnecessary intra-tree
+> > dependencies in a rather straighforward situation like this.
 > 
-> Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
-> ---
-> 
-> Changes in v3:
-> 	- Style fixes
-> 	- Rename sysfs-class-hid-driver-gt683r to sysfs-class-leds-driver-gt683r
-> 
->  .../ABI/testing/sysfs-class-hid-driver-gt683r      | 14 -----------
->  .../ABI/testing/sysfs-class-leds-driver-gt683r     | 16 +++++++++++++
->  drivers/hid/hid-gt683r.c                           | 28 ++++++++++++----------
->  3 files changed, 32 insertions(+), 26 deletions(-)
->  delete mode 100644 Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
->  create mode 100644 Documentation/ABI/testing/sysfs-class-leds-driver-gt683r
-> 
-> diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-> deleted file mode 100644
-> index 317e9d5..0000000
-> --- a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-> +++ /dev/null
-> @@ -1,14 +0,0 @@
-> -What:		/sys/class/hidraw/<hidraw>/device/leds_mode
-> -Date:		Jun 2014
-> -KernelVersion:	3.17
-> -Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
-> -Description:
-> -		Set the mode of LEDs
-> -
-> -		0 - normal
-> -		1 - audio
-> -		2 - breathing
-> -
-> -		Normal: LEDs are fully on when enabled
-> -		Audio:  LEDs brightness depends on sound level
-> -		Breathing: LEDs brightness varies at human breathing rate
-> \ No newline at end of file
-> diff --git a/Documentation/ABI/testing/sysfs-class-leds-driver-gt683r b/Documentation/ABI/testing/sysfs-class-leds-driver-gt683r
-> new file mode 100644
-> index 0000000..29769fb
-> --- /dev/null
-> +++ b/Documentation/ABI/testing/sysfs-class-leds-driver-gt683r
-> @@ -0,0 +1,16 @@
-> +What:		/sys/class/leds/<led>/msi_mode
+> I think the better place is HID/input tree, since this patch depends
+> on the initial one which is not in my tree.
+> I'm going to merge Johan's whole patchset and this patch probably
+> depends Johan's work too.
 
-The ABI-file name now sort of matches the attribute path and there are
-examples of attributes being documented in this particular way, but
-naming is far from consistent in Documentation/ABI.
+Dmitry has ACKed the input-patch and Bryan has applied that one and the
+leds-patches to his tree (of which the first one is a dependency of this
+patch).
 
-Perhaps we should use the name field of the attribute group and kill two
-birds with one stone by making the sysfs file name match the attribute
-path, while also making it even more obvious that the mode attribute is a
-driver specific attribute (and not a common led class one) by placing it
-in a subdirectory.
+Jiri, are you saying that the gt683r-driver should go in through his
+tree as well, that is all three patches including the first that you
+have already applied? I just assumed your for-next branch was immutable,
+but perhaps I was mistaken.
 
-That is, if you set the .name field to "gt683r" (and rename the
-attribute and ABI-file again) then the file name and attribute path
-could match:
-
-	Documentation/ABI/testing/sysfs-class-leds-gt683r
-
-	What:		/sys/class/leds/<led>/gt683r/mode
-
-Both patches look good otherwise.
-
+Thanks,
 Johan

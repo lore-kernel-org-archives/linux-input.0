@@ -1,35 +1,68 @@
-From: Phil Sutter <phil.sutter@viprinet.com>
-Subject: [PATCH] drivers/Makefile: always enter hid/ subdirectory
-Date: Tue,  1 Jul 2014 18:04:59 +0200
-Message-ID: <1404230699-22037-1-git-send-email-phil.sutter@viprinet.com>
-Return-path: <linux-kbuild-owner@vger.kernel.org>
-Sender: linux-kbuild-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Michal Marek <mmarek@suse.cz>, linux-kbuild@vger.kernel.org
+From: Stephen Warren <swarren@nvidia.com>
+Subject: RE: atmel_mxt_ts: defaulting irqflags to IRQF_TRIGGER_FALLING
+Date: Tue, 1 Jul 2014 16:14:30 +0000
+Message-ID: <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
+References: <53B284AE.3070302@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:17364 "EHLO
+	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753109AbaGAQOc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2014 12:14:32 -0400
+In-Reply-To: <53B284AE.3070302@ti.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sekhar Nori <nsekhar@ti.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux OMAP List <linux-omap@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>
 
-Depending the subdir traversal on CONFIG_HID does not suffice for USB
-boot protocol drivers residing in drivers/hid/usbhid/ and being
-independent of the full HID system.
+Sekhar Nori wrote at Tuesday, July 01, 2014 3:52 AM:
+> Nick,
+> 
+> I have been using your for-next branch to base my development of
+> touchscreen support on TI's DRA7x EVM. With the recent updates,
+> it has worked out great and once I got the configuration right,
+> it was just a question of adding DT data for the platform.
+> 
+> Now, there is one problem with Stephen's patch defaulting the irqflags
+> to IRQF_TRIGGER_FALLING. The interrupt controller I am using (ARM GIC)
+> does not seem to support that and the device fails to probe:
 
-Signed-off-by: Phil Sutter <phil.sutter@viprinet.com>
----
- drivers/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On the Tegra systems I have, IRQF_TRIGGER_FALLING is the correct (or at
+least a valid) choice. That's probably because the Atmel IRQ signal is
+routed to our GPIO controller, which is also an IRQ controller, and then
+"forwarded" up the chain to the GIC, with the polarity the GIC expects.
 
-diff --git a/drivers/Makefile b/drivers/Makefile
-index f98b50d..9f12999 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -126,7 +126,7 @@ ifndef CONFIG_ARCH_USES_GETTIMEOFFSET
- obj-y				+= clocksource/
- endif
- obj-$(CONFIG_DCA)		+= dca/
--obj-$(CONFIG_HID)		+= hid/
-+obj-y				+= hid/
- obj-$(CONFIG_PPC_PS3)		+= ps3/
- obj-$(CONFIG_OF)		+= of/
- obj-$(CONFIG_SSB)		+= ssb/
+If IRQ_TRIGGER_FALLING doesn't work everywhere, then we'll need to add
+some kind of DT property to configure the polarity of the IRQ output.
+
+> [    1.932798] genirq: Setting trigger mode 2 for irq 151 failed (gic_set_type+0x0/0xf0)
+> [    1.941340] atmel_mxt_ts 0-004a: Failed to register interrupt
+> [    1.947452] atmel_mxt_ts: probe of 0-004a failed with error -22
+> 
+> Attached patch does the trick for me:
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 71154c2..f2d3f72 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -3155,9 +3155,6 @@ static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+>  	pdata->gpio_reset = of_get_named_gpio_flags(dev->of_node,
+>  		"atmel,reset-gpio", 0, NULL);
+> 
+> -	/* Default to this. Properties can be added to configure it later */
+> -	pdata->irqflags = IRQF_TRIGGER_FALLING;
+> -
+>  	of_property_read_string(dev->of_node, "atmel,cfg_name",
+>  				&pdata->cfg_name);
+> 
+> Can you switch to leaving the platform to specify flags (at least for the DT case)?
+> 
+> Thanks,
+> Sekhar
+
 -- 
-1.8.5.5
+nvpublic
 

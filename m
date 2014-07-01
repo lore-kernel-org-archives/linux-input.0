@@ -1,68 +1,173 @@
-From: Stephen Warren <swarren@nvidia.com>
-Subject: RE: atmel_mxt_ts: defaulting irqflags to IRQF_TRIGGER_FALLING
-Date: Tue, 1 Jul 2014 16:14:30 +0000
-Message-ID: <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
-References: <53B284AE.3070302@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:17364 "EHLO
-	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753109AbaGAQOc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2014 12:14:32 -0400
-In-Reply-To: <53B284AE.3070302@ti.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+From: Janne Kanniainen <janne.kanniainen@gmail.com>
+Subject: [PATCH 2/2 v4] HID: leds: move led_mode attribute to led-class devices in MSI GT683R driver
+Date: Tue,  1 Jul 2014 20:50:54 +0300
+Message-ID: <1404237054-12906-1-git-send-email-janne.kanniainen@gmail.com>
+References: <20140630103911.GA2486@localhost>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140630103911.GA2486@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+To: johan@kernel.org
+Cc: cooloney@gmail.com, jkosina@suse.cz, greg@kroah.com, bjorn@mork.no, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Sekhar Nori <nsekhar@ti.com>, Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux OMAP List <linux-omap@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>
 
-Sekhar Nori wrote at Tuesday, July 01, 2014 3:52 AM:
-> Nick,
-> 
-> I have been using your for-next branch to base my development of
-> touchscreen support on TI's DRA7x EVM. With the recent updates,
-> it has worked out great and once I got the configuration right,
-> it was just a question of adding DT data for the platform.
-> 
-> Now, there is one problem with Stephen's patch defaulting the irqflags
-> to IRQF_TRIGGER_FALLING. The interrupt controller I am using (ARM GIC)
-> does not seem to support that and the device fails to probe:
+Move led_mode attribute from HID device to led-class devices and rename it
+msi_mode. This will also fix race condition by using attribute-groups.
 
-On the Tegra systems I have, IRQF_TRIGGER_FALLING is the correct (or at
-least a valid) choice. That's probably because the Atmel IRQ signal is
-routed to our GPIO controller, which is also an IRQ controller, and then
-"forwarded" up the chain to the GIC, with the polarity the GIC expects.
+Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
+---
 
-If IRQ_TRIGGER_FALLING doesn't work everywhere, then we'll need to add
-some kind of DT property to configure the polarity of the IRQ output.
+Changes in v3:
+	- Style fixes
+	- Rename sysfs-class-hid-driver-gt683r to sysfs-class-leds-driver-gt683r
 
-> [    1.932798] genirq: Setting trigger mode 2 for irq 151 failed (gic_set_type+0x0/0xf0)
-> [    1.941340] atmel_mxt_ts 0-004a: Failed to register interrupt
-> [    1.947452] atmel_mxt_ts: probe of 0-004a failed with error -22
-> 
-> Attached patch does the trick for me:
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 71154c2..f2d3f72 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -3155,9 +3155,6 @@ static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
->  	pdata->gpio_reset = of_get_named_gpio_flags(dev->of_node,
->  		"atmel,reset-gpio", 0, NULL);
-> 
-> -	/* Default to this. Properties can be added to configure it later */
-> -	pdata->irqflags = IRQF_TRIGGER_FALLING;
-> -
->  	of_property_read_string(dev->of_node, "atmel,cfg_name",
->  				&pdata->cfg_name);
-> 
-> Can you switch to leaving the platform to specify flags (at least for the DT case)?
-> 
-> Thanks,
-> Sekhar
+Changes in v4:
+	- Rename sysfs-class-leds-driver-gt683r to sysfs-class-leds-gt683r
+	- Change "What: " to /sys/class/leds/<led>/gt683r/mode
+	- Change .name from gt683r_led to gt683r
 
+ .../ABI/testing/sysfs-class-hid-driver-gt683r      | 14 ----------
+ Documentation/ABI/testing/sysfs-class-leds-gt683r  | 16 ++++++++++++
+ drivers/hid/hid-gt683r.c                           | 30 ++++++++++++----------
+ 3 files changed, 33 insertions(+), 27 deletions(-)
+ delete mode 100644 Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+ create mode 100644 Documentation/ABI/testing/sysfs-class-leds-gt683r
+
+diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
+deleted file mode 100644
+index 317e9d5..0000000
+--- a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
++++ /dev/null
+@@ -1,14 +0,0 @@
+-What:		/sys/class/hidraw/<hidraw>/device/leds_mode
+-Date:		Jun 2014
+-KernelVersion:	3.17
+-Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
+-Description:
+-		Set the mode of LEDs
+-
+-		0 - normal
+-		1 - audio
+-		2 - breathing
+-
+-		Normal: LEDs are fully on when enabled
+-		Audio:  LEDs brightness depends on sound level
+-		Breathing: LEDs brightness varies at human breathing rate
+\ No newline at end of file
+diff --git a/Documentation/ABI/testing/sysfs-class-leds-gt683r b/Documentation/ABI/testing/sysfs-class-leds-gt683r
+new file mode 100644
+index 0000000..e4fae60
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-class-leds-gt683r
+@@ -0,0 +1,16 @@
++What:		/sys/class/leds/<led>/gt683r/mode
++Date:		Jun 2014
++KernelVersion:	3.17
++Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
++Description:
++		Set the mode of LEDs. You should notice that changing the mode
++		of one LED will update the mode of its two sibling devices as
++		well.
++
++		0 - normal
++		1 - audio
++		2 - breathing
++
++		Normal: LEDs are fully on when enabled
++		Audio:  LEDs brightness depends on sound level
++		Breathing: LEDs brightness varies at human breathing rate
+\ No newline at end of file
+diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+index 073bd80..f743444 100644
+--- a/drivers/hid/hid-gt683r.c
++++ b/drivers/hid/hid-gt683r.c
+@@ -84,12 +84,13 @@ static void gt683r_brightness_set(struct led_classdev *led_cdev,
+ 	}
+ }
+ 
+-static ssize_t leds_mode_show(struct device *dev,
++static ssize_t mode_show(struct device *dev,
+ 				struct device_attribute *attr,
+ 				char *buf)
+ {
+ 	u8 sysfs_mode;
+-	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
++	struct hid_device *hdev = container_of(dev->parent,
++					struct hid_device, dev);
+ 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 
+ 	if (led->mode == GT683R_LED_NORMAL)
+@@ -102,12 +103,13 @@ static ssize_t leds_mode_show(struct device *dev,
+ 	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
+ }
+ 
+-static ssize_t leds_mode_store(struct device *dev,
++static ssize_t mode_store(struct device *dev,
+ 				struct device_attribute *attr,
+ 				const char *buf, size_t count)
+ {
+ 	u8 sysfs_mode;
+-	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
++	struct hid_device *hdev = container_of(dev->parent,
++					struct hid_device, dev);
+ 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 
+ 
+@@ -212,7 +214,14 @@ fail:
+ 	mutex_unlock(&led->lock);
+ }
+ 
+-static DEVICE_ATTR_RW(leds_mode);
++static DEVICE_ATTR_RW(mode);
++
++static struct attribute *gt683r_led_attrs[] = {
++	&dev_attr_mode.attr,
++	NULL
++};
++
++ATTRIBUTE_GROUPS(gt683r_led);
+ 
+ static int gt683r_led_probe(struct hid_device *hdev,
+ 			const struct hid_device_id *id)
+@@ -261,6 +270,8 @@ static int gt683r_led_probe(struct hid_device *hdev,
+ 		led->led_devs[i].name = name;
+ 		led->led_devs[i].max_brightness = 1;
+ 		led->led_devs[i].brightness_set = gt683r_brightness_set;
++		led->led_devs[i].groups = gt683r_led_groups;
++
+ 		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
+ 		if (ret) {
+ 			hid_err(hdev, "could not register led device\n");
+@@ -268,12 +279,6 @@ static int gt683r_led_probe(struct hid_device *hdev,
+ 		}
+ 	}
+ 
+-	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
+-	if (ret) {
+-		hid_err(hdev, "could not make mode attribute file\n");
+-		goto fail;
+-	}
+-
+ 	return 0;
+ 
+ fail:
+@@ -288,7 +293,6 @@ static void gt683r_led_remove(struct hid_device *hdev)
+ 	int i;
+ 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 
+-	device_remove_file(&hdev->dev, &dev_attr_leds_mode);
+ 	for (i = 0; i < GT683R_LED_COUNT; i++)
+ 		led_classdev_unregister(&led->led_devs[i]);
+ 	flush_work(&led->work);
+@@ -298,7 +302,7 @@ static void gt683r_led_remove(struct hid_device *hdev)
+ static struct hid_driver gt683r_led_driver = {
+ 	.probe = gt683r_led_probe,
+ 	.remove = gt683r_led_remove,
+-	.name = "gt683r_led",
++	.name = "gt683r",
+ 	.id_table = gt683r_led_id,
+ };
+ 
 -- 
-nvpublic
+1.9.2
 
+Did you mean like this?

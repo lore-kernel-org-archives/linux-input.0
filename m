@@ -1,77 +1,62 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/2 v4] HID: leds: move led_mode attribute to led-class
- devices in MSI GT683R driver
-Date: Tue, 1 Jul 2014 22:16:27 +0200
-Message-ID: <20140701201627.GA30605@localhost>
-References: <20140630103911.GA2486@localhost>
- <1404237054-12906-1-git-send-email-janne.kanniainen@gmail.com>
+From: Nick Krause <xerofoify@gmail.com>
+Subject: Re: [PATCH v2] hid-appleir: Fix kernel panic due to null pointer
+Date: Tue, 1 Jul 2014 18:21:21 -0400
+Message-ID: <CAPDOMVgWweKUgW29g=xWtNJTtqbm7BB27+prW11MC4v5xZeE6g@mail.gmail.com>
+References: <1404180865-3681-1-git-send-email-xerofoify@gmail.com>
+	<alpine.LNX.2.00.1407010837370.1655@pobox.suse.cz>
+	<20140701065021.GA887@mguzik.redhat.com>
+	<alpine.LNX.2.00.1407010852160.1655@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1404237054-12906-1-git-send-email-janne.kanniainen@gmail.com>
+In-Reply-To: <alpine.LNX.2.00.1407010852160.1655@pobox.suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: johan@kernel.org, cooloney@gmail.com, jkosina@suse.cz, greg@kroah.com, bjorn@mork.no, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Mateusz Guzik <mguzik@redhat.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 01, 2014 at 08:50:54PM +0300, Janne Kanniainen wrote:
-  
-> -static DEVICE_ATTR_RW(leds_mode);
-> +static DEVICE_ATTR_RW(mode);
-> +
-> +static struct attribute *gt683r_led_attrs[] = {
-> +	&dev_attr_mode.attr,
-> +	NULL
-> +};
-> +
-> +ATTRIBUTE_GROUPS(gt683r_led);
+So I am wondering them should I can it to sizeof(appleir_keymap)?
+Nick
 
-I was referring to the name field of struct attribute_group (and not of
-struct hid_driver). Specifically, that means that you cannot use the
-ATTRIBUTE_GROUPS macro (which leaves the name field unset), but rather
-should define the two corresponding structs directly as follows:
-
-	static const struct attribute_group gt683r_led_group = {
-	       .name = "gt683r",
-	       .attrs = gt683r_led_attrs,
-	};
-	
-	static const struct attribute_group *gt683r_led_groups[] = {
-	       &gt683r_led_group,
-	       NULL
-	};
-
-That way the mode attribute will be created in a subdirectory (named
-gt683r) of the led class device.
-
->  static int gt683r_led_probe(struct hid_device *hdev,
->  			const struct hid_device_id *id)
-> @@ -261,6 +270,8 @@ static int gt683r_led_probe(struct hid_device *hdev,
->  		led->led_devs[i].name = name;
->  		led->led_devs[i].max_brightness = 1;
->  		led->led_devs[i].brightness_set = gt683r_brightness_set;
-> +		led->led_devs[i].groups = gt683r_led_groups;
-> +
->  		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
->  		if (ret) {
->  			hid_err(hdev, "could not register led device\n");
-> @@ -268,12 +279,6 @@ static int gt683r_led_probe(struct hid_device *hdev,
->  		}
->  	}
-
-<snip>
-
-> @@ -298,7 +302,7 @@ static void gt683r_led_remove(struct hid_device *hdev)
->  static struct hid_driver gt683r_led_driver = {
->  	.probe = gt683r_led_probe,
->  	.remove = gt683r_led_remove,
-> -	.name = "gt683r_led",
-> +	.name = "gt683r",
-
-So you should skip this bit.
-
->  	.id_table = gt683r_led_id,
->  };
-
-Johan
+On Tue, Jul 1, 2014 at 2:55 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 1 Jul 2014, Mateusz Guzik wrote:
+>
+>> > > Fixes a null pointer in appleir_input_configured due to reading
+>> > > into wrong size array. Changed the variable to input_dev->keycodemax.
+>> >
+>> > This is a stale changelog from the previous buggy version.
+>> >
+>> > > Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+>> > > ---
+>> > >  drivers/hid/hid-appleir.c | 2 +-
+>> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+>> > >
+>> > > diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
+>> > > index 0e6a42d..cc02df4 100644
+>> > > --- a/drivers/hid/hid-appleir.c
+>> > > +++ b/drivers/hid/hid-appleir.c
+>> > > @@ -272,7 +272,7 @@ static void appleir_input_configured(struct hid_device *hid,
+>> > >   input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+>> > >
+>> > >   memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
+>> > > - for (i = 0; i < ARRAY_SIZE(appleir_key_table); i++)
+>> > > + for (i = 0; i < appleir->keymap; i++)
+>> >
+>> > This is wrong. appleir->keymap is an array, and you want to count its
+>> > elements.
+>> >
+>>
+>> But where the claim of 'null pointer' is coming from (or reading/writing
+>> past the array for that matter)?
+>>
+>> Replacing appleir_key_table with appleir->keymap is a noop anyway
+>> because:
+>> unsigned short keymap[ARRAY_SIZE(appleir_key_table)];
+>
+> It's not really equivalent. ARRAY_SIZE counts the number of short-sized
+> elements, sizeof() counts the number of bytes that fit into the data
+> structure (which is twice as much, as sizeof(unsigned short) == 2).
+>
+> --
+> Jiri Kosina
+> SUSE Labs

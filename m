@@ -1,64 +1,53 @@
-From: Bryan Wu <cooloney@gmail.com>
-Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R driver
-Date: Mon, 30 Jun 2014 16:17:10 -0700
-Message-ID: <CAK5ve-+-wkiG6n2Z5aPXQ7gYEDPwcAtPzjOLB+wyi+7h+8=8Hg@mail.gmail.com>
-References: <20140625115541.GA1409@localhost> <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com>
- <20140625174109.GE1409@localhost> <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz>
- <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
- <20140630104744.GB2486@localhost> <alpine.LNX.2.00.1406301330240.28307@pobox.suse.cz>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v2 0/14] input: cyapa: re-architecture driver to support
+ multi-trackpads in one driver
+Date: Tue, 1 Jul 2014 01:23:07 +0000
+Message-ID: <77BC725C9062764F874D79F51E1F1A8F4C902ED4@S04-MBX01-01.s04.local>
+References: <CAEn7tidaRxbLwQti8joDgq48K2YCAVE3uG-q6ZR=jEWAgm2tPg@mail.gmail.com>
+ <77BC725C9062764F874D79F51E1F1A8F4C902B3B@S04-MBX01-01.s04.local>
+ <20140630195935.GA18256@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f45.google.com ([209.85.215.45]:44948 "EHLO
-	mail-la0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751539AbaF3XRd (ORCPT
+Received: from relay-s04-hub005.domainlocalhost.com ([74.115.207.216]:36922
+	"EHLO relay-S04-HUB005.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752576AbaGABXW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 19:17:33 -0400
-In-Reply-To: <alpine.LNX.2.00.1406301330240.28307@pobox.suse.cz>
+	Mon, 30 Jun 2014 21:23:22 -0400
+In-Reply-To: <20140630195935.GA18256@google.com>
+Content-Language: zh-CN
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Johan Hovold <johan@kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Patrik Fimml <patrikf@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Benson Leung <bleung@google.com>, Lily Rui <lily@cypress.com>, Daniel Kurtz <djkurtz@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Jun 30, 2014 at 4:33 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Mon, 30 Jun 2014, Johan Hovold wrote:
->
->> > I think the better place is HID/input tree, since this patch depends
->> > on the initial one which is not in my tree.
->> > I'm going to merge Johan's whole patchset and this patch probably
->> > depends Johan's work too.
->>
->> Dmitry has ACKed the input-patch and Bryan has applied that one and the
->> leds-patches to his tree (of which the first one is a dependency of this
->> patch).
->>
->> Jiri, are you saying that the gt683r-driver should go in through his
->> tree as well, that is all three patches including the first that you
->> have already applied? I just assumed your for-next branch was immutable,
->> but perhaps I was mistaken.
->
-> Well, for-next branch is a collection of all the topic branches I am
-> queuing for the following merge window.
->
-> I am never really rebasing it, but I can definitely not include
-> 'for-3.17/hid-gt683r' topic branch in the pile I will be sending to Linus
-> (all the scheduled branches are getting merged into 'for-linus' only when
-> merge window open). So the only potential conflict between hid.git and
-> Bryan's tree would be in linux-next (and probably there will be none, git
-> can handle duplicate patches nicely).
->
-> So once Bryan confirms he's queued it (please preserve my Signoff from my
-> tree), then I will just not include for-3.17/hid-gt683r branch in pull
-> request to Linus and all is fine.
->
-
-I'm OK to merge Janne's first patch for HID GT683R through my tree
-with you guys' SOB.
-I'm also OK to merge this incremental patchset here. Please confirm it
-if I didn't misunderstand here.
-
-Also Janne or someone, can you post the original first patch to me or
-point me where is it?
-
-Thanks,
--Bryan
+SGkgUGF0cmlrLA0KDQpUaGFua3MgZm9yIHlvdXIgcGF0aWVudCBhbmQgZGV0YWlsIGluc3RydWN0
+aW9ucy4NCkkgd2lsbCB0cnkgdG8gZml4IHRoZXNlIGlzc3VlcyBhbmQgcmVzdWJtaXQgYWdhaW4u
+DQoNClRoYW5rcywNCkR1ZGxleQ0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZy
+b206IFBhdHJpayBGaW1tbCBbbWFpbHRvOnBhdHJpa2ZAY2hyb21pdW0ub3JnXQ0KPiBTZW50OiBU
+dWVzZGF5LCBKdWx5IDAxLCAyMDE0IDQ6MDAgQU0NCj4gVG86IER1ZGxleSBEdQ0KPiBDYzogRG1p
+dHJ5IFRvcm9raG92OyBSYWZhZWwgSi4gV3lzb2NraTsgQWxhbiBTdGVybjsgQmVuc29uIExldW5n
+OyBMaWx5IFJ1aTsNCj4gRGFuaWVsIEt1cnR6OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7
+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MiAw
+LzE0XSBpbnB1dDogY3lhcGE6IHJlLWFyY2hpdGVjdHVyZSBkcml2ZXIgdG8gc3VwcG9ydA0KPiBt
+dWx0aS10cmFja3BhZHMgaW4gb25lIGRyaXZlcg0KPg0KPiBIaSBEdWRsZXksDQo+DQo+IE9uIE1v
+biwgSnVuIDMwLCAyMDE0IGF0IDA1OjQzOjA2QU0gKzAwMDAsIER1ZGxleSBEdSB3cm90ZToNCj4g
+PiBBdHRhY2hlZCBhcmUgdGhlIHBhdGNoZXMgZmlsZXMsIEkgc2VudCBpdCBmaXJzdGx5Lg0KPg0K
+PiBUaGFua3MgZm9yIHRoZSByZXNwb25zZSwgSSB3YXMgYWJsZSB0byBhcHBseSB0aGUgcGF0Y2hl
+cyBub3cuDQo+DQo+IFRoZSBhdHRhY2hlZCBmaWxlcyBsYWNrIGhlYWRlcnMgYW5kIGNvbW1pdCBt
+ZXNzYWdlcyB0aG91Z2gsIHNvIEkgZG9uJ3QgaGF2ZQ0KPiBmaW5lLWdyYWluZWQgaGlzdG9yeSBp
+biBteSBnaXQgdHJlZSBmb3IgY29udmVuaWVudCBsYXRlciByZXZpZXcuIFRoZSBmaWxlDQo+IG5h
+bWVzDQo+IHN1Z2dlc3QgdG8gbWUgdGhhdCB5b3UgbWlnaHQganVzdCBoYXZlIGNvcHktYW5kLXBh
+c3RlZCB0aGUgcGF0Y2hlcyBmcm9tDQo+IHNvbWV3aGVyZS4NCj4NCj4gSXQgd291bGQgYmUgZ3Jl
+YXQgaWYgeW91IGNvdWxkIGF0dGFjaCB0aGVtIGFnYWluIGluIHRoZSBmb3JtYXQgcHJvZHVjZWQg
+YnkNCj4gImdpdA0KPiBmb3JtYXQtcGF0Y2giLCB3aXRoIG5vIGZ1cnRoZXIgbW9kaWZpY2F0aW9u
+cyBkb25lIGJ5IGhhbmQuIChJZiB5b3UgZmVlbCB0aGUNCj4gbmVlZCB0byBkbyBtb2RpZmljYXRp
+b25zLCB5b3Ugc2hvdWxkIG1vZGlmeSB0aGUgYWN0dWFsIGNvbW1pdHMgZS5nLiB3aXRoICJnaXQN
+Cj4gcmViYXNlIC1pIiBiZWZvcmUgdXNpbmcgZm9ybWF0LXBhdGNoLikgT3RoZXJzIGNhbiB0aGVu
+IHNpbXBseSBpbXBvcnQgeW91cg0KPiBjaGFuZ2VzIC0gaW5jbHVkaW5nIGNvbW1pdCBtZXNzYWdl
+cyAtIGludG8gdGhlaXIgdHJlZSB3aXRoICJnaXQgYW0iLg0KPg0KPiBUaGFua3MsDQo+IFBhdHJp
+aw0KVGhpcyBtZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAo
+b3IgaXRzIHN1YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMg
+YmVlbiByZWNlaXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1l
+ZGlhdGVseSBkZWxldGUgdGhpcyBtZXNzYWdlLg0K

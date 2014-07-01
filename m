@@ -1,53 +1,39 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v2 0/14] input: cyapa: re-architecture driver to support
- multi-trackpads in one driver
-Date: Tue, 1 Jul 2014 01:23:07 +0000
-Message-ID: <77BC725C9062764F874D79F51E1F1A8F4C902ED4@S04-MBX01-01.s04.local>
-References: <CAEn7tidaRxbLwQti8joDgq48K2YCAVE3uG-q6ZR=jEWAgm2tPg@mail.gmail.com>
- <77BC725C9062764F874D79F51E1F1A8F4C902B3B@S04-MBX01-01.s04.local>
- <20140630195935.GA18256@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Nicholas Krause <xerofoify@gmail.com>
+Subject: [PATCH v2] hid-appleir: Fix kernel panic due to null pointer
+Date: Mon, 30 Jun 2014 22:14:25 -0400
+Message-ID: <1404180865-3681-1-git-send-email-xerofoify@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay-s04-hub005.domainlocalhost.com ([74.115.207.216]:36922
-	"EHLO relay-S04-HUB005.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752576AbaGABXW (ORCPT
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:41614 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751237AbaGACOb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2014 21:23:22 -0400
-In-Reply-To: <20140630195935.GA18256@google.com>
-Content-Language: zh-CN
+	Mon, 30 Jun 2014 22:14:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Patrik Fimml <patrikf@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Benson Leung <bleung@google.com>, Lily Rui <lily@cypress.com>, Daniel Kurtz <djkurtz@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-SGkgUGF0cmlrLA0KDQpUaGFua3MgZm9yIHlvdXIgcGF0aWVudCBhbmQgZGV0YWlsIGluc3RydWN0
-aW9ucy4NCkkgd2lsbCB0cnkgdG8gZml4IHRoZXNlIGlzc3VlcyBhbmQgcmVzdWJtaXQgYWdhaW4u
-DQoNClRoYW5rcywNCkR1ZGxleQ0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZy
-b206IFBhdHJpayBGaW1tbCBbbWFpbHRvOnBhdHJpa2ZAY2hyb21pdW0ub3JnXQ0KPiBTZW50OiBU
-dWVzZGF5LCBKdWx5IDAxLCAyMDE0IDQ6MDAgQU0NCj4gVG86IER1ZGxleSBEdQ0KPiBDYzogRG1p
-dHJ5IFRvcm9raG92OyBSYWZhZWwgSi4gV3lzb2NraTsgQWxhbiBTdGVybjsgQmVuc29uIExldW5n
-OyBMaWx5IFJ1aTsNCj4gRGFuaWVsIEt1cnR6OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7
-IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2MiAw
-LzE0XSBpbnB1dDogY3lhcGE6IHJlLWFyY2hpdGVjdHVyZSBkcml2ZXIgdG8gc3VwcG9ydA0KPiBt
-dWx0aS10cmFja3BhZHMgaW4gb25lIGRyaXZlcg0KPg0KPiBIaSBEdWRsZXksDQo+DQo+IE9uIE1v
-biwgSnVuIDMwLCAyMDE0IGF0IDA1OjQzOjA2QU0gKzAwMDAsIER1ZGxleSBEdSB3cm90ZToNCj4g
-PiBBdHRhY2hlZCBhcmUgdGhlIHBhdGNoZXMgZmlsZXMsIEkgc2VudCBpdCBmaXJzdGx5Lg0KPg0K
-PiBUaGFua3MgZm9yIHRoZSByZXNwb25zZSwgSSB3YXMgYWJsZSB0byBhcHBseSB0aGUgcGF0Y2hl
-cyBub3cuDQo+DQo+IFRoZSBhdHRhY2hlZCBmaWxlcyBsYWNrIGhlYWRlcnMgYW5kIGNvbW1pdCBt
-ZXNzYWdlcyB0aG91Z2gsIHNvIEkgZG9uJ3QgaGF2ZQ0KPiBmaW5lLWdyYWluZWQgaGlzdG9yeSBp
-biBteSBnaXQgdHJlZSBmb3IgY29udmVuaWVudCBsYXRlciByZXZpZXcuIFRoZSBmaWxlDQo+IG5h
-bWVzDQo+IHN1Z2dlc3QgdG8gbWUgdGhhdCB5b3UgbWlnaHQganVzdCBoYXZlIGNvcHktYW5kLXBh
-c3RlZCB0aGUgcGF0Y2hlcyBmcm9tDQo+IHNvbWV3aGVyZS4NCj4NCj4gSXQgd291bGQgYmUgZ3Jl
-YXQgaWYgeW91IGNvdWxkIGF0dGFjaCB0aGVtIGFnYWluIGluIHRoZSBmb3JtYXQgcHJvZHVjZWQg
-YnkNCj4gImdpdA0KPiBmb3JtYXQtcGF0Y2giLCB3aXRoIG5vIGZ1cnRoZXIgbW9kaWZpY2F0aW9u
-cyBkb25lIGJ5IGhhbmQuIChJZiB5b3UgZmVlbCB0aGUNCj4gbmVlZCB0byBkbyBtb2RpZmljYXRp
-b25zLCB5b3Ugc2hvdWxkIG1vZGlmeSB0aGUgYWN0dWFsIGNvbW1pdHMgZS5nLiB3aXRoICJnaXQN
-Cj4gcmViYXNlIC1pIiBiZWZvcmUgdXNpbmcgZm9ybWF0LXBhdGNoLikgT3RoZXJzIGNhbiB0aGVu
-IHNpbXBseSBpbXBvcnQgeW91cg0KPiBjaGFuZ2VzIC0gaW5jbHVkaW5nIGNvbW1pdCBtZXNzYWdl
-cyAtIGludG8gdGhlaXIgdHJlZSB3aXRoICJnaXQgYW0iLg0KPg0KPiBUaGFua3MsDQo+IFBhdHJp
-aw0KVGhpcyBtZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAo
-b3IgaXRzIHN1YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMg
-YmVlbiByZWNlaXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1l
-ZGlhdGVseSBkZWxldGUgdGhpcyBtZXNzYWdlLg0K
+Fixes a null pointer in appleir_input_configured due to reading
+into wrong size array. Changed the variable to input_dev->keycodemax.
+
+Signed-off-by: Nicholas Krause <xerofoify@gmail.com>
+---
+ drivers/hid/hid-appleir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
+index 0e6a42d..cc02df4 100644
+--- a/drivers/hid/hid-appleir.c
++++ b/drivers/hid/hid-appleir.c
+@@ -272,7 +272,7 @@ static void appleir_input_configured(struct hid_device *hid,
+ 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+ 
+ 	memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
+-	for (i = 0; i < ARRAY_SIZE(appleir_key_table); i++)
++	for (i = 0; i < appleir->keymap; i++)
+ 		set_bit(appleir->keymap[i], input_dev->keybit);
+ 	clear_bit(KEY_RESERVED, input_dev->keybit);
+ }
+-- 
+1.9.1
+

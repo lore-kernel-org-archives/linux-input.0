@@ -1,52 +1,43 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: atmel_mxt_ts: defaulting irqflags to IRQF_TRIGGER_FALLING
-Date: Tue, 1 Jul 2014 15:21:42 +0530
-Message-ID: <53B284AE.3070302@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:35811 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755731AbaGAJvv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Jul 2014 05:51:51 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] synaptics: Add min/max quirk for pnp-id LEN2002 (Edge E531)
+Date: Tue,  1 Jul 2014 12:40:12 +0200
+Message-ID: <1404211212-10382-1-git-send-email-hdegoede@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Stephen Warren <swarren@nvidia.com>, linux-input@vger.kernel.org, Linux OMAP List <linux-omap@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Nick,
+https://bugzilla.redhat.com/show_bug.cgi?id=1114768
 
-I have been using your for-next branch to base my development of 
-touchscreen support on TI's DRA7x EVM. With the recent updates,
-it has worked out great and once I got the configuration right,
-it was just a question of adding DT data for the platform.
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/synaptics.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Now, there is one problem with Stephen's patch defaulting the irqflags 
-to IRQF_TRIGGER_FALLING. The interrupt controller I am using (ARM GIC) 
-does not seem to support that and the device fails to probe:
-
-[    1.932798] genirq: Setting trigger mode 2 for irq 151 failed (gic_set_type+0x0/0xf0)
-[    1.941340] atmel_mxt_ts 0-004a: Failed to register interrupt
-[    1.947452] atmel_mxt_ts: probe of 0-004a failed with error -22
-
-Attached patch does the trick for me:
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 71154c2..f2d3f72 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3155,9 +3155,6 @@ static struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
- 	pdata->gpio_reset = of_get_named_gpio_flags(dev->of_node,
- 		"atmel,reset-gpio", 0, NULL);
- 
--	/* Default to this. Properties can be added to configure it later */
--	pdata->irqflags = IRQF_TRIGGER_FALLING;
--
- 	of_property_read_string(dev->of_node, "atmel,cfg_name",
- 				&pdata->cfg_name); 
-
-Can you switch to leaving the platform to specify flags (at least for the DT case)?
-
-Thanks,
-Sekhar
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 75a5154..84c72f6 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -132,7 +132,8 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
+ 		1232, 5710, 1156, 4696
+ 	},
+ 	{
+-		(const char * const []){"LEN0034", "LEN0036", "LEN2004", NULL},
++		(const char * const []){"LEN0034", "LEN0036", "LEN2002",
++					"LEN2004", NULL},
+ 		1024, 5112, 2024, 4832
+ 	},
+ 	{
+@@ -168,7 +169,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
+ 	"LEN0049",
+ 	"LEN2000",
+ 	"LEN2001", /* Edge E431 */
+-	"LEN2002",
++	"LEN2002", /* Edge E531 */
+ 	"LEN2003",
+ 	"LEN2004", /* L440 */
+ 	"LEN2005",
+-- 
+2.0.0

@@ -1,163 +1,145 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] Input - wacom: split out the pad device for the wireless receiver
-Date: Wed, 2 Jul 2014 15:05:55 -0700
-Message-ID: <CAF8JNhLVS7JMczwcvxURqTBb5SOfR7YNqWTrtvqy7dnJfsc6Hg@mail.gmail.com>
-References: <1404337044-15142-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 00/15] Input - Wacom: switch from an USB to a HID driver
+Date: Wed, 2 Jul 2014 16:33:21 -0700
+Message-ID: <CANRwn3S9NwAET06sttcniN2391fY5+W-ZGAmvOqr1c_6AJ=J6g@mail.gmail.com>
+References: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:56037 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751593AbaGBWF5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jul 2014 18:05:57 -0400
-In-Reply-To: <1404337044-15142-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-la0-f54.google.com ([209.85.215.54]:61001 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750822AbaGBXdX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jul 2014 19:33:23 -0400
+In-Reply-To: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, linuxwacom-devel <linuxwacom-devel@lists.sourceforge.net>
 
-On Wed, Jul 2, 2014 at 2:37 PM, Benjamin Tissoires
+On Mon, Jun 30, 2014 at 2:26 PM, Benjamin Tissoires
 <benjamin.tissoires@redhat.com> wrote:
-> The Wireless Receiver should also behave in the same way than regular
-> USB devices.
+> Hi guys,
 >
-> To simplify the unregistering of the different devices,
-> wacom_unregister_inputs() is introduced.
-> For consistency, the function wacom_register_input() is renamed into
-> wacom_register_input().
-
-wacom_register_inputs().
-
+> this patch series is a cleanup for the Wacom USB driver.
 >
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Reviewed-by: Ping Cheng <pingc@wacom.com>.
-
-Ping
-
-> ---
+> I started working on this topic when I saw patches floating around wh=
+ich
+> implemented a report descriptor parser within the wacom.ko module.
+> However, we already have a nice HID subsystem which is more generic t=
+han the
+> HID implementation we can find in this USB driver.
+> Further details of the benefits (code reduction, regression tests) ar=
+e hopefully
+> explained in the commit messages of the corresponding patches.
 >
-> Hi,
+> Also, I am working on a way to handle the new Wacom tablets in a more=
+ generic
+> way in the hid tree, so consider this patch series as a first step in=
+ this
+> direction.
 >
-> I noticed this afternoon that the "pad-in-a-separate-device" was missing the
-> conversion for the Wireless Receiver too :(
-> So here is a fix.
+> This patch series transfers the wacom.ko driver from the input tree i=
+nto the hid
+> tree. I did not made the corresponding move of the files in the serie=
+s hoping
+> that we will find a way to achieve it if this step is validated.
 >
-> I also have a patch for hid-wacom to behave in the same way regarding the
-> bluetooth devices. I'll send it once we know a little bit more about how will be
-> handled wacom.ko in 3.17.
+> IMO, the smoothest path would be that Jiri takes care of the wacom dr=
+iver
+> in the input tree (and that we move into into the hid subfolder). Thi=
+s can be
+> achieve if the current pending wacom patches are applied in the hid t=
+ree too.
+>
+> Another solution could be to keep the wacom changes in the input tree=
+ and put the
+> hid changes in the hid tree by using separate commits. Once 3.17 is o=
+ut, we can
+> then change the module into the hid subfolder.
+>
+> I wanted to send this patch series right now so we can figure out how=
+ we will
+> handle the transition.
+>
+> I am pretty confident the patch series does not break any existing de=
+vice
+> (except for the required user space changes which can be handled corr=
+ectly if
+> we tackle them right now). The USB commands are executed in the same =
+way,
+> and the protocol handling is also done in the same way.
+>
+> Anyway, the net difference in lines of code (-307) should be enough t=
+o be of
+> interest.
+>
+> Note: This patch series requires the current pending wacom patches to=
+ be applied.
+> I set up a tree with all the patch applied if anyone wants to give a =
+try:
+> https://github.com/bentiss/linux/commits/hid-wacom-legacy-3.16-rc3
 >
 > Cheers,
 > Benjamin
 >
->  drivers/input/tablet/wacom_sys.c | 46 ++++++++++++++++++++--------------------
->  1 file changed, 23 insertions(+), 23 deletions(-)
+> Benjamin Tissoires (15):
+>   Input - wacom: include and use linux/hid.h
+>   Input - wacom: switch from an USB driver to a HID driver
+>   Input - wacom: use hid communication instead of plain usb
+>   Input - wacom: use HID core to actually fetch the report descriptor
+>   Input - wacom: compute the HID report size to get the actual packet
+>     size
+>   Input - wacom: install LED/OLED sysfs files in the HID device inste=
+ad
+>     of USB
+>   Input - wacom: register the input devices on top of the HID one
+>   Input - wacom: remove usb dependency for siblings devices
+>   Input - wacom: register power device at the HID level
+>   Input - wacom: use hid_info instead of plain dev_info
+>   HID: uhid: add and set HID_TYPE_UHID for uhid devices
+>   Input - wacom: use in-kernel HID parser
+>   Input - wacom: use hidinput_calc_abs_res instead of duplicating its
+>     code
+>   Input - wacom: remove field pktlen declaration in the list of devic=
+es
+>   Input - wacom: keep wacom_ids ordered
 >
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-> index 598efd4..a70aa01 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -1148,7 +1148,17 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
->         return input_dev;
->  }
+>  drivers/hid/hid-core.c           |  15 +-
+>  drivers/hid/hid-wacom.c          |   2 +-
+>  drivers/hid/uhid.c               |   2 +
+>  drivers/input/tablet/wacom.h     |   7 +-
+>  drivers/input/tablet/wacom_sys.c | 908 +++++++++++++----------------=
+----------
+>  drivers/input/tablet/wacom_wac.c | 647 ++++++++++++++--------------
+>  drivers/input/tablet/wacom_wac.h |  10 +-
+>  include/linux/hid.h              |   4 +-
+>  8 files changed, 644 insertions(+), 951 deletions(-)
 >
-> -static int wacom_register_input(struct wacom *wacom)
-> +static void wacom_unregister_inputs(struct wacom *wacom)
-> +{
-> +       if (wacom->wacom_wac.input)
-> +               input_unregister_device(wacom->wacom_wac.input);
-> +       if (wacom->wacom_wac.pad_input)
-> +               input_unregister_device(wacom->wacom_wac.pad_input);
-> +       wacom->wacom_wac.input = NULL;
-> +       wacom->wacom_wac.pad_input = NULL;
-> +}
-> +
-> +static int wacom_register_inputs(struct wacom *wacom)
->  {
->         struct input_dev *input_dev, *pad_input_dev;
->         struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
-> @@ -1220,16 +1230,12 @@ static void wacom_wireless_work(struct work_struct *work)
->         /* Stylus interface */
->         wacom1 = usb_get_intfdata(usbdev->config->interface[1]);
->         wacom_wac1 = &(wacom1->wacom_wac);
-> -       if (wacom_wac1->input)
-> -               input_unregister_device(wacom_wac1->input);
-> -       wacom_wac1->input = NULL;
-> +       wacom_unregister_inputs(wacom1);
->
->         /* Touch interface */
->         wacom2 = usb_get_intfdata(usbdev->config->interface[2]);
->         wacom_wac2 = &(wacom2->wacom_wac);
-> -       if (wacom_wac2->input)
-> -               input_unregister_device(wacom_wac2->input);
-> -       wacom_wac2->input = NULL;
-> +       wacom_unregister_inputs(wacom2);
->
->         if (wacom_wac->pid == 0) {
->                 dev_info(&wacom->intf->dev, "wireless tablet disconnected\n");
-> @@ -1259,9 +1265,11 @@ static void wacom_wireless_work(struct work_struct *work)
->                 wacom_wac1->features.device_type = BTN_TOOL_PEN;
->                 snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
->                          wacom_wac1->features.name);
-> +               snprintf(wacom_wac1->pad_name, WACOM_NAME_MAX, "%s (WL) Pad",
-> +                        wacom_wac1->features.name);
->                 wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
->                 wacom_wac1->shared->type = wacom_wac1->features.type;
-> -               error = wacom_register_input(wacom1);
-> +               error = wacom_register_inputs(wacom1);
->                 if (error)
->                         goto fail;
->
-> @@ -1279,7 +1287,9 @@ static void wacom_wireless_work(struct work_struct *work)
->                         else
->                                 snprintf(wacom_wac2->name, WACOM_NAME_MAX,
->                                          "%s (WL) Pad",wacom_wac2->features.name);
-> -                       error = wacom_register_input(wacom2);
-> +                       snprintf(wacom_wac2->pad_name, WACOM_NAME_MAX,
-> +                                "%s (WL) Pad", wacom_wac2->features.name);
-> +                       error = wacom_register_inputs(wacom2);
->                         if (error)
->                                 goto fail;
->
-> @@ -1296,15 +1306,8 @@ static void wacom_wireless_work(struct work_struct *work)
->         return;
->
->  fail:
-> -       if (wacom_wac2->input) {
-> -               input_unregister_device(wacom_wac2->input);
-> -               wacom_wac2->input = NULL;
-> -       }
-> -
-> -       if (wacom_wac1->input) {
-> -               input_unregister_device(wacom_wac1->input);
-> -               wacom_wac1->input = NULL;
-> -       }
-> +       wacom_unregister_inputs(wacom1);
-> +       wacom_unregister_inputs(wacom2);
->         return;
->  }
->
-> @@ -1450,7 +1453,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
->                 goto fail4;
->
->         if (!(features->quirks & WACOM_QUIRK_NO_INPUT)) {
-> -               error = wacom_register_input(wacom);
-> +               error = wacom_register_inputs(wacom);
->                 if (error)
->                         goto fail5;
->         }
-> @@ -1490,10 +1493,7 @@ static void wacom_disconnect(struct usb_interface *intf)
->
->         usb_kill_urb(wacom->irq);
->         cancel_work_sync(&wacom->work);
-> -       if (wacom->wacom_wac.input)
-> -               input_unregister_device(wacom->wacom_wac.input);
-> -       if (wacom->wacom_wac.pad_input)
-> -               input_unregister_device(wacom->wacom_wac.pad_input);
-> +       wacom_unregister_inputs(wacom);
->         wacom_destroy_battery(wacom);
->         wacom_destroy_leds(wacom);
->         usb_free_urb(wacom->irq);
 > --
 > 2.0.0
 >
+
+*cracks knuckles*
+
+Well, guess I better get to work poking and prodding at these and the
+pad patches. A very quick review doesn't raise any significant flags,
+though I do have a question or two that I might have for you in the
+next few days (need to read through the code more carefully to be sure
+I understand it correctly). My 24HDT is having some trouble
+initializing with the patches applied, but I'll need some time to
+track down the cause. Not sure how much I'll get done this week
+(holiday weekend) but next week I should have some feedback.
+
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,50 +1,56 @@
-From: Sekhar Nori <nsekhar@ti.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 Subject: Re: atmel_mxt_ts: defaulting irqflags to IRQF_TRIGGER_FALLING
-Date: Wed, 2 Jul 2014 16:19:12 +0530
-Message-ID: <53B3E3A8.4070605@ti.com>
-References: <53B284AE.3070302@ti.com> <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
+Date: Wed, 02 Jul 2014 12:54:26 +0100
+Message-ID: <53B3F2F2.90707@itdev.co.uk>
+References: <53B284AE.3070302@ti.com> <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com> <53B3E3A8.4070605@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:44251 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751017AbaGBKtV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Jul 2014 06:49:21 -0400
-In-Reply-To: <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:16232 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751073AbaGBLya (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jul 2014 07:54:30 -0400
+In-Reply-To: <53B3E3A8.4070605@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@nvidia.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+To: Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@nvidia.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux OMAP List <linux-omap@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>
 
-On Tuesday 01 July 2014 09:44 PM, Stephen Warren wrote:
-> Sekhar Nori wrote at Tuesday, July 01, 2014 3:52 AM:
->> Nick,
+On 02/07/14 11:49, Sekhar Nori wrote:
+> On Tuesday 01 July 2014 09:44 PM, Stephen Warren wrote:
+>> On the Tegra systems I have, IRQF_TRIGGER_FALLING is the correct (or at
+>> least a valid) choice. That's probably because the Atmel IRQ signal is
+>> routed to our GPIO controller, which is also an IRQ controller, and then
+>> "forwarded" up the chain to the GIC, with the polarity the GIC expects.
 >>
->> I have been using your for-next branch to base my development of
->> touchscreen support on TI's DRA7x EVM. With the recent updates,
->> it has worked out great and once I got the configuration right,
->> it was just a question of adding DT data for the platform.
->>
->> Now, there is one problem with Stephen's patch defaulting the irqflags
->> to IRQF_TRIGGER_FALLING. The interrupt controller I am using (ARM GIC)
->> does not seem to support that and the device fails to probe:
+>> If IRQ_TRIGGER_FALLING doesn't work everywhere, then we'll need to add
+>> some kind of DT property to configure the polarity of the IRQ output.
 > 
-> On the Tegra systems I have, IRQF_TRIGGER_FALLING is the correct (or at
-> least a valid) choice. That's probably because the Atmel IRQ signal is
-> routed to our GPIO controller, which is also an IRQ controller, and then
-> "forwarded" up the chain to the GIC, with the polarity the GIC expects.
+> Yeah, I think so too.
 > 
-> If IRQ_TRIGGER_FALLING doesn't work everywhere, then we'll need to add
-> some kind of DT property to configure the polarity of the IRQ output.
+> Nick,
+> 
+> If you are going to rebase your branch, will you be able to fold in the
+> patch in my previous e-mail? Else, I can send a more formal patch to you.
 
-Yeah, I think so too.
+Either IRQF_TRIGGER_FALLING or IRQF_TRIGGER_LOW will work with these chips
+(it isn't a question of polarity but whether it's edge- or level-
+triggered). There isn't a sensible default. Atmel prefer IRQF_TRIGGER_LOW,
+however I've seen some IRQ controllers will revert to a polled mode for
+IRQF_TRIGGER_LOW, which kills performance.
 
-Nick,
+So, the sensible course of action seems to be to remove the default
+IRQF_TRIGGER_FALLING in the device tree parsing, and provide a device tree
+parameter for the flags. If you agree, I will sort this out at my end, you
+don't need to send a patch.
 
-If you are going to rebase your branch, will you be able to fold in the
-patch in my previous e-mail? Else, I can send a more formal patch to you.
+I have to leave it in in the case where there is neither static platform
+data, or device tree node, because that is used for some systems, but that
+shouldn't affect either of you.
 
-Thanks,
-Sekhar
+BTW, I do have a set of patches ready to send, once this change is made.
 
+cheers
+
+Nick

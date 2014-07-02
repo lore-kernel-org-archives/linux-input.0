@@ -1,172 +1,149 @@
-From: Janne Kanniainen <janne.kanniainen@gmail.com>
-Subject: [PATCH 2/2 v5] HID: leds: move led_mode attribute to led-class devices in MSI GT683R driver
-Date: Wed,  2 Jul 2014 20:37:59 +0300
-Message-ID: <1404322679-19521-1-git-send-email-janne.kanniainen@gmail.com>
-References: <20140701201627.GA30605@localhost>
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20140701201627.GA30605@localhost>
-Sender: linux-leds-owner@vger.kernel.org
-To: johan@kernel.org
-Cc: cooloney@gmail.com, jkosina@suse.cz, greg@kroah.com, bjorn@mork.no, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Janne Kanniainen <janne.kanniainen@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input - wacom: split out the pad device for the wireless receiver
+Date: Wed,  2 Jul 2014 17:37:24 -0400
+Message-ID: <1404337044-15142-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:51236 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751228AbaGBVh1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jul 2014 17:37:27 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Move led_mode attribute from HID device to led-class devices. This will also fix race condition by using attribute-groups.
+The Wireless Receiver should also behave in the same way than regular
+USB devices.
 
-Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
+To simplify the unregistering of the different devices,
+wacom_unregister_inputs() is introduced.
+For consistency, the function wacom_register_input() is renamed into
+wacom_register_input().
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-Changes in v3:
-	- Style fixes
-	- Rename sysfs-class-hid-driver-gt683r to sysfs-class-leds-driver-gt683r
+Hi,
 
-Changes in v4:
-	- Rename sysfs-class-leds-driver-gt683r to sysfs-class-leds-gt683r
-	- Change "What: " to /sys/class/leds/<led>/gt683r/mode
-	- Change .name from gt683r_led to gt683r
+I noticed this afternoon that the "pad-in-a-separate-device" was missing the
+conversion for the Wireless Receiver too :(
+So here is a fix.
 
-Changes in v5:
-	- Move mode attribute to gt683r/mode
+I also have a patch for hid-wacom to behave in the same way regarding the
+bluetooth devices. I'll send it once we know a little bit more about how will be
+handled wacom.ko in 3.17.
 
- .../ABI/testing/sysfs-class-hid-driver-gt683r      | 14 ---------
- Documentation/ABI/testing/sysfs-class-leds-gt683r  | 16 ++++++++++
- drivers/hid/hid-gt683r.c                           | 36 ++++++++++++++--------
- 3 files changed, 40 insertions(+), 26 deletions(-)
- delete mode 100644 Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
- create mode 100644 Documentation/ABI/testing/sysfs-class-leds-gt683r
+Cheers,
+Benjamin
 
-diff --git a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r b/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-deleted file mode 100644
-index 317e9d5..0000000
---- a/Documentation/ABI/testing/sysfs-class-hid-driver-gt683r
-+++ /dev/null
-@@ -1,14 +0,0 @@
--What:		/sys/class/hidraw/<hidraw>/device/leds_mode
--Date:		Jun 2014
--KernelVersion:	3.17
--Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
--Description:
--		Set the mode of LEDs
--
--		0 - normal
--		1 - audio
--		2 - breathing
--
--		Normal: LEDs are fully on when enabled
--		Audio:  LEDs brightness depends on sound level
--		Breathing: LEDs brightness varies at human breathing rate
-\ No newline at end of file
-diff --git a/Documentation/ABI/testing/sysfs-class-leds-gt683r b/Documentation/ABI/testing/sysfs-class-leds-gt683r
-new file mode 100644
-index 0000000..e4fae60
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-leds-gt683r
-@@ -0,0 +1,16 @@
-+What:		/sys/class/leds/<led>/gt683r/mode
-+Date:		Jun 2014
-+KernelVersion:	3.17
-+Contact:	Janne Kanniainen <janne.kanniainen@gmail.com>
-+Description:
-+		Set the mode of LEDs. You should notice that changing the mode
-+		of one LED will update the mode of its two sibling devices as
-+		well.
-+
-+		0 - normal
-+		1 - audio
-+		2 - breathing
-+
-+		Normal: LEDs are fully on when enabled
-+		Audio:  LEDs brightness depends on sound level
-+		Breathing: LEDs brightness varies at human breathing rate
-\ No newline at end of file
-diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
-index 073bd80..0d6f135 100644
---- a/drivers/hid/hid-gt683r.c
-+++ b/drivers/hid/hid-gt683r.c
-@@ -84,12 +84,13 @@ static void gt683r_brightness_set(struct led_classdev *led_cdev,
- 	}
+ drivers/input/tablet/wacom_sys.c | 46 ++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 598efd4..a70aa01 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -1148,7 +1148,17 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
+ 	return input_dev;
  }
  
--static ssize_t leds_mode_show(struct device *dev,
-+static ssize_t mode_show(struct device *dev,
- 				struct device_attribute *attr,
- 				char *buf)
+-static int wacom_register_input(struct wacom *wacom)
++static void wacom_unregister_inputs(struct wacom *wacom)
++{
++	if (wacom->wacom_wac.input)
++		input_unregister_device(wacom->wacom_wac.input);
++	if (wacom->wacom_wac.pad_input)
++		input_unregister_device(wacom->wacom_wac.pad_input);
++	wacom->wacom_wac.input = NULL;
++	wacom->wacom_wac.pad_input = NULL;
++}
++
++static int wacom_register_inputs(struct wacom *wacom)
  {
- 	u8 sysfs_mode;
--	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct hid_device *hdev = container_of(dev->parent,
-+					struct hid_device, dev);
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 	struct input_dev *input_dev, *pad_input_dev;
+ 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
+@@ -1220,16 +1230,12 @@ static void wacom_wireless_work(struct work_struct *work)
+ 	/* Stylus interface */
+ 	wacom1 = usb_get_intfdata(usbdev->config->interface[1]);
+ 	wacom_wac1 = &(wacom1->wacom_wac);
+-	if (wacom_wac1->input)
+-		input_unregister_device(wacom_wac1->input);
+-	wacom_wac1->input = NULL;
++	wacom_unregister_inputs(wacom1);
  
- 	if (led->mode == GT683R_LED_NORMAL)
-@@ -102,12 +103,13 @@ static ssize_t leds_mode_show(struct device *dev,
- 	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
- }
+ 	/* Touch interface */
+ 	wacom2 = usb_get_intfdata(usbdev->config->interface[2]);
+ 	wacom_wac2 = &(wacom2->wacom_wac);
+-	if (wacom_wac2->input)
+-		input_unregister_device(wacom_wac2->input);
+-	wacom_wac2->input = NULL;
++	wacom_unregister_inputs(wacom2);
  
--static ssize_t leds_mode_store(struct device *dev,
-+static ssize_t mode_store(struct device *dev,
- 				struct device_attribute *attr,
- 				const char *buf, size_t count)
- {
- 	u8 sysfs_mode;
--	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+	struct hid_device *hdev = container_of(dev->parent,
-+					struct hid_device, dev);
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
+ 	if (wacom_wac->pid == 0) {
+ 		dev_info(&wacom->intf->dev, "wireless tablet disconnected\n");
+@@ -1259,9 +1265,11 @@ static void wacom_wireless_work(struct work_struct *work)
+ 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
+ 		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
+ 			 wacom_wac1->features.name);
++		snprintf(wacom_wac1->pad_name, WACOM_NAME_MAX, "%s (WL) Pad",
++			 wacom_wac1->features.name);
+ 		wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
+ 		wacom_wac1->shared->type = wacom_wac1->features.type;
+-		error = wacom_register_input(wacom1);
++		error = wacom_register_inputs(wacom1);
+ 		if (error)
+ 			goto fail;
  
+@@ -1279,7 +1287,9 @@ static void wacom_wireless_work(struct work_struct *work)
+ 			else
+ 				snprintf(wacom_wac2->name, WACOM_NAME_MAX,
+ 					 "%s (WL) Pad",wacom_wac2->features.name);
+-			error = wacom_register_input(wacom2);
++			snprintf(wacom_wac2->pad_name, WACOM_NAME_MAX,
++				 "%s (WL) Pad", wacom_wac2->features.name);
++			error = wacom_register_inputs(wacom2);
+ 			if (error)
+ 				goto fail;
  
-@@ -212,7 +214,22 @@ fail:
- 	mutex_unlock(&led->lock);
- }
- 
--static DEVICE_ATTR_RW(leds_mode);
-+static DEVICE_ATTR_RW(mode);
-+
-+static struct attribute *gt683r_led_attrs[] = {
-+	&dev_attr_mode.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group gt683r_led_group = {
-+	.name = "gt683r",
-+	.attrs = gt683r_led_attrs,
-+};
-+
-+static const struct attribute_group *gt683r_led_groups[] = {
-+	&gt683r_led_group,
-+	NULL
-+};
- 
- static int gt683r_led_probe(struct hid_device *hdev,
- 			const struct hid_device_id *id)
-@@ -261,6 +278,8 @@ static int gt683r_led_probe(struct hid_device *hdev,
- 		led->led_devs[i].name = name;
- 		led->led_devs[i].max_brightness = 1;
- 		led->led_devs[i].brightness_set = gt683r_brightness_set;
-+		led->led_devs[i].groups = gt683r_led_groups;
-+
- 		ret = led_classdev_register(&hdev->dev, &led->led_devs[i]);
- 		if (ret) {
- 			hid_err(hdev, "could not register led device\n");
-@@ -268,12 +287,6 @@ static int gt683r_led_probe(struct hid_device *hdev,
- 		}
- 	}
- 
--	ret = device_create_file(&led->hdev->dev, &dev_attr_leds_mode);
--	if (ret) {
--		hid_err(hdev, "could not make mode attribute file\n");
--		goto fail;
--	}
--
- 	return 0;
+@@ -1296,15 +1306,8 @@ static void wacom_wireless_work(struct work_struct *work)
+ 	return;
  
  fail:
-@@ -288,7 +301,6 @@ static void gt683r_led_remove(struct hid_device *hdev)
- 	int i;
- 	struct gt683r_led *led = hid_get_drvdata(hdev);
+-	if (wacom_wac2->input) {
+-		input_unregister_device(wacom_wac2->input);
+-		wacom_wac2->input = NULL;
+-	}
+-
+-	if (wacom_wac1->input) {
+-		input_unregister_device(wacom_wac1->input);
+-		wacom_wac1->input = NULL;
+-	}
++	wacom_unregister_inputs(wacom1);
++	wacom_unregister_inputs(wacom2);
+ 	return;
+ }
  
--	device_remove_file(&hdev->dev, &dev_attr_leds_mode);
- 	for (i = 0; i < GT683R_LED_COUNT; i++)
- 		led_classdev_unregister(&led->led_devs[i]);
- 	flush_work(&led->work);
+@@ -1450,7 +1453,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 		goto fail4;
+ 
+ 	if (!(features->quirks & WACOM_QUIRK_NO_INPUT)) {
+-		error = wacom_register_input(wacom);
++		error = wacom_register_inputs(wacom);
+ 		if (error)
+ 			goto fail5;
+ 	}
+@@ -1490,10 +1493,7 @@ static void wacom_disconnect(struct usb_interface *intf)
+ 
+ 	usb_kill_urb(wacom->irq);
+ 	cancel_work_sync(&wacom->work);
+-	if (wacom->wacom_wac.input)
+-		input_unregister_device(wacom->wacom_wac.input);
+-	if (wacom->wacom_wac.pad_input)
+-		input_unregister_device(wacom->wacom_wac.pad_input);
++	wacom_unregister_inputs(wacom);
+ 	wacom_destroy_battery(wacom);
+ 	wacom_destroy_leds(wacom);
+ 	usb_free_urb(wacom->irq);
 -- 
-1.9.2
+2.0.0
+

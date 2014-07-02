@@ -1,32 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2 v2] HID: leds: Use attribute-groups in MSI GT683R
- driver
-Date: Wed, 2 Jul 2014 10:56:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407021054580.1655@pobox.suse.cz>
-References: <20140625115541.GA1409@localhost> <1403711966-13003-1-git-send-email-janne.kanniainen@gmail.com> <20140625174109.GE1409@localhost> <alpine.LNX.2.00.1406252107070.15939@pobox.suse.cz> <CAK5ve-JnqpogKaG1V=mfvKEHMPb8ma4Zeyz9rF4kT-W2Gj=p0A@mail.gmail.com>
- <20140630104744.GB2486@localhost> <alpine.LNX.2.00.1406301330240.28307@pobox.suse.cz> <CAK5ve-+-wkiG6n2Z5aPXQ7gYEDPwcAtPzjOLB+wyi+7h+8=8Hg@mail.gmail.com> <20140701084832.GC1162@localhost>
- <CAK5ve-JYjDRfoyTYcc5zRNds-UF=MzK5Jc+31NQYCsEQp5ZHoA@mail.gmail.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: atmel_mxt_ts: defaulting irqflags to IRQF_TRIGGER_FALLING
+Date: Wed, 2 Jul 2014 16:19:12 +0530
+Message-ID: <53B3E3A8.4070605@ti.com>
+References: <53B284AE.3070302@ti.com> <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35771 "EHLO mx2.suse.de"
+Received: from comal.ext.ti.com ([198.47.26.152]:44251 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751854AbaGBI4u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Jul 2014 04:56:50 -0400
-In-Reply-To: <CAK5ve-JYjDRfoyTYcc5zRNds-UF=MzK5Jc+31NQYCsEQp5ZHoA@mail.gmail.com>
+	id S1751017AbaGBKtV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jul 2014 06:49:21 -0400
+In-Reply-To: <5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bryan Wu <cooloney@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>, Janne Kanniainen <janne.kanniainen@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, =?ISO-8859-15?Q?Bj=F8rn_Mork?= <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Stephen Warren <swarren@nvidia.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux OMAP List <linux-omap@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>
 
-On Tue, 1 Jul 2014, Bryan Wu wrote:
+On Tuesday 01 July 2014 09:44 PM, Stephen Warren wrote:
+> Sekhar Nori wrote at Tuesday, July 01, 2014 3:52 AM:
+>> Nick,
+>>
+>> I have been using your for-next branch to base my development of
+>> touchscreen support on TI's DRA7x EVM. With the recent updates,
+>> it has worked out great and once I got the configuration right,
+>> it was just a question of adding DT data for the platform.
+>>
+>> Now, there is one problem with Stephen's patch defaulting the irqflags
+>> to IRQF_TRIGGER_FALLING. The interrupt controller I am using (ARM GIC)
+>> does not seem to support that and the device fails to probe:
+> 
+> On the Tegra systems I have, IRQF_TRIGGER_FALLING is the correct (or at
+> least a valid) choice. That's probably because the Atmel IRQ signal is
+> routed to our GPIO controller, which is also an IRQ controller, and then
+> "forwarded" up the chain to the GIC, with the polarity the GIC expects.
+> 
+> If IRQ_TRIGGER_FALLING doesn't work everywhere, then we'll need to add
+> some kind of DT property to configure the polarity of the IRQ output.
 
-> Great, I just cherry-picked and applied to my tree
-> http://git.kernel.org/cgit/linux/kernel/git/cooloney/linux-leds.git/commit/?h=for-next&id=f471d9480275796dea2ac7ec249b050e70a2888d
+Yeah, I think so too.
 
-Ok, perfect, thanks. I am marking my 'for-3.17/hid-gt683r' so that it 
-wouldn't be contained in the for-linus merge window pile.
+Nick,
 
--- 
-Jiri Kosina
-SUSE Labs
+If you are going to rebase your branch, will you be able to fold in the
+patch in my previous e-mail? Else, I can send a more formal patch to you.
+
+Thanks,
+Sekhar
+

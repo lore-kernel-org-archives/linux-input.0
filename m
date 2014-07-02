@@ -1,170 +1,63 @@
-From: Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [PATCH] soc_button_array: fix the issue that button device
- can't be enumerated since 3.16-rc1
-Date: Wed, 02 Jul 2014 22:01:53 +0800
-Message-ID: <1404309713.8366.94.camel@rzhang1-toshiba>
-References: <1404309504.8366.93.camel@rzhang1-toshiba>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: atmel_mxt_ts: defaulting irqflags to IRQF_TRIGGER_FALLING
+Date: Wed, 2 Jul 2014 10:25:36 -0700
+Message-ID: <CAKdAkRTueVK8ynFR7AJeeJL7SPK60U0EHESeONqqoBF_vXJQxA@mail.gmail.com>
+References: <53B284AE.3070302@ti.com>
+	<5995217832cc40f5bcf132ac5c6c2546@HQMAIL105.nvidia.com>
+	<53B3E3A8.4070605@ti.com>
+	<53B3F2F2.90707@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:22616 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751708AbaGBOCf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Jul 2014 10:02:35 -0400
-In-Reply-To: <1404309504.8366.93.camel@rzhang1-toshiba>
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:59877 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754010AbaGBRZh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jul 2014 13:25:37 -0400
+In-Reply-To: <53B3F2F2.90707@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux OMAP List <linux-omap@vger.kernel.org>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>
 
->From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
-From: Jin Yao <yao.jin@linux.intel.com>
-Date: Thu, 26 Jun 2014 10:26:44 +0800
-Subject: [PATCH] soc_button_array: fix the issue that button device can't be
- enumerated since 3.16-rc1
+On Wed, Jul 2, 2014 at 4:54 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
+> On 02/07/14 11:49, Sekhar Nori wrote:
+>> On Tuesday 01 July 2014 09:44 PM, Stephen Warren wrote:
+>>> On the Tegra systems I have, IRQF_TRIGGER_FALLING is the correct (or at
+>>> least a valid) choice. That's probably because the Atmel IRQ signal is
+>>> routed to our GPIO controller, which is also an IRQ controller, and then
+>>> "forwarded" up the chain to the GIC, with the polarity the GIC expects.
+>>>
+>>> If IRQ_TRIGGER_FALLING doesn't work everywhere, then we'll need to add
+>>> some kind of DT property to configure the polarity of the IRQ output.
+>>
+>> Yeah, I think so too.
+>>
+>> Nick,
+>>
+>> If you are going to rebase your branch, will you be able to fold in the
+>> patch in my previous e-mail? Else, I can send a more formal patch to you.
+>
+> Either IRQF_TRIGGER_FALLING or IRQF_TRIGGER_LOW will work with these chips
+> (it isn't a question of polarity but whether it's edge- or level-
+> triggered). There isn't a sensible default. Atmel prefer IRQF_TRIGGER_LOW,
+> however I've seen some IRQ controllers will revert to a polled mode for
+> IRQF_TRIGGER_LOW, which kills performance.
+>
+> So, the sensible course of action seems to be to remove the default
+> IRQF_TRIGGER_FALLING in the device tree parsing, and provide a device tree
+> parameter for the flags. If you agree, I will sort this out at my end, you
+> don't need to send a patch.
+>
+> I have to leave it in in the case where there is neither static platform
+> data, or device tree node, because that is used for some systems, but that
+> shouldn't affect either of you.
 
-ACPI device enumeration mechanism changed a lot since 3.16-rc1.
-ACPI device objects with _HID will be enumerated to platform bus by default.
-For the existing PNP drivers that probe the PNPACPI devices, the device ids
-are listed explicitly in drivers/acpi/acpi_pnp.c. And ACPI folks will
-continue their effort on shrinking this id list by converting the PNP drivers
-to platform drivers.
-But unfortunately, soc_button_array device id, aka, "PNP0C40", is missing
-during this transition.
+In this case board code should take care of setting up the interrupt
+properly and the driver should simply use 0 as flags in request_irq().
+By the way, doesn't generic DT infrastructure already allow specifying
+interrupt triggers and sets them up properly?
 
-Thus soc_button_array driver fails to probe any device since 3.16-rc1 because
-the device is enumerated to platform bus instead.
+Thanks.
 
-A simply fix is to add device id PNP0C40 back to drivers/acpi/acpi_pnp.c,
-but given that the soc_button_array driver will be converted to platform
-driver sooner or later, and the id will be removed from the list again,
-it is better to fix the problem in one time.
-
-This patch fixes the problem by converting the soc_button_driver
-from PNP bus to platform bus.
-
-Signed-off-by: Jin Yao <yao.jin@intel.com>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
----
- drivers/input/misc/soc_button_array.c | 60 ++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 5a6334b..16ca162 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -18,7 +18,7 @@
- #include <linux/gpio/consumer.h>
- #include <linux/gpio_keys.h>
- #include <linux/platform_device.h>
--#include <linux/pnp.h>
-+#include <linux/acpi.h>
- 
- /*
-  * Definition of buttons on the tablet. The ACPI index of each button
-@@ -67,7 +67,7 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
- }
- 
- static struct platform_device *
--soc_button_device_create(struct pnp_dev *pdev,
-+soc_button_device_create(struct platform_device *pdev,
- 			 const struct soc_button_info *button_info,
- 			 bool autorepeat)
- {
-@@ -135,30 +135,40 @@ soc_button_device_create(struct pnp_dev *pdev,
- 	return ERR_PTR(error);
- }
- 
--static void soc_button_remove(struct pnp_dev *pdev)
-+static int soc_button_remove(struct platform_device *pdev)
- {
--	struct soc_button_data *priv = pnp_get_drvdata(pdev);
-+	struct soc_button_data *priv = platform_get_drvdata(pdev);
-+
- 	int i;
- 
- 	for (i = 0; i < BUTTON_TYPES; i++)
- 		if (priv->children[i])
- 			platform_device_unregister(priv->children[i]);
-+
-+	return 0;
- }
- 
--static int soc_button_pnp_probe(struct pnp_dev *pdev,
--				const struct pnp_device_id *id)
-+static int soc_button_probe(struct platform_device *pdev)
- {
--	const struct soc_button_info *button_info = (void *)id->driver_data;
-+	struct device *dev = &pdev->dev;
-+	const struct acpi_device_id *id;
-+	struct soc_button_info *button_info;
- 	struct soc_button_data *priv;
- 	struct platform_device *pd;
- 	int i;
- 	int error;
- 
-+	id = acpi_match_device(dev->driver->acpi_match_table, dev);
-+	if (!id)
-+		return -ENODEV;
-+
-+	button_info = (struct soc_button_info *)id->driver_data;
-+
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
--	pnp_set_drvdata(pdev, priv);
-+	platform_set_drvdata(pdev, priv);
- 
- 	for (i = 0; i < BUTTON_TYPES; i++) {
- 		pd = soc_button_device_create(pdev, button_info, i == 0);
-@@ -189,30 +199,22 @@ static struct soc_button_info soc_button_PNP0C40[] = {
- 	{ }
- };
- 
--static const struct pnp_device_id soc_button_pnp_match[] = {
--	{ .id = "PNP0C40", .driver_data = (long)soc_button_PNP0C40 },
--	{ .id = "" }
-+static const struct acpi_device_id soc_button_acpi_match[] = {
-+	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
-+	{ }
- };
--MODULE_DEVICE_TABLE(pnp, soc_button_pnp_match);
- 
--static struct pnp_driver soc_button_pnp_driver = {
--	.name		= KBUILD_MODNAME,
--	.id_table	= soc_button_pnp_match,
--	.probe          = soc_button_pnp_probe,
-+MODULE_DEVICE_TABLE(acpi, soc_button_acpi_match);
-+
-+static struct platform_driver soc_button_driver = {
-+	.probe          = soc_button_probe,
- 	.remove		= soc_button_remove,
-+	.driver		= {
-+		.name = KBUILD_MODNAME,
-+		.owner = THIS_MODULE,
-+		.acpi_match_table = ACPI_PTR(soc_button_acpi_match),
-+	},
- };
--
--static int __init soc_button_init(void)
--{
--	return pnp_register_driver(&soc_button_pnp_driver);
--}
--
--static void __exit soc_button_exit(void)
--{
--	pnp_unregister_driver(&soc_button_pnp_driver);
--}
--
--module_init(soc_button_init);
--module_exit(soc_button_exit);
-+module_platform_driver(soc_button_driver);
- 
- MODULE_LICENSE("GPL");
 -- 
-1.8.3.2
-
-
-
+Dmitry

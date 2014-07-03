@@ -1,39 +1,89 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/2 v5] HID: leds: move led_mode attribute to led-class
- devices in MSI GT683R driver
-Date: Thu, 3 Jul 2014 10:28:30 +0200
-Message-ID: <20140703082830.GB16590@localhost>
-References: <20140701201627.GA30605@localhost>
- <1404322679-19521-1-git-send-email-janne.kanniainen@gmail.com>
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v7 0/5] Input: pixcir_i2c_ts: Add Type-B Multi-touch and
+ DT support
+Date: Thu, 3 Jul 2014 12:34:38 +0300
+Message-ID: <53B523AE.70601@ti.com>
+References: <1402997507-9736-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1404322679-19521-1-git-send-email-janne.kanniainen@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Janne Kanniainen <janne.kanniainen@gmail.com>
-Cc: johan@kernel.org, cooloney@gmail.com, jkosina@suse.cz, greg@kroah.com, bjorn@mork.no, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1402997507-9736-1-git-send-email-rogerq@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, tony@atomide.com
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 02, 2014 at 08:37:59PM +0300, Janne Kanniainen wrote:
-> Move led_mode attribute from HID device to led-class devices. This will also fix race condition by using attribute-groups.
+Hi Dmitry,
+
+Gentle reminder to pick this series for -next. Thanks :).
+
+cheers,
+-roger
+
+On 06/17/2014 12:31 PM, Roger Quadros wrote:
+> Hi Dmitry,
 > 
-> Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
-
-Looks good now. Thanks!
-
-Perhaps you can resend both patches as a series (call both v6) so it's
-easy to figure which version that is to be applied.
-
-I also noticed that your subject line is a bit long (will end up as the
-commit summary). Using for example
-
-	HID: gt683r: move mode attribute to led-class devices
-
-would make it more concise.
-
-Oh, and your commit message lacks line breaks (around 72 cols). You
-could fix that as well.
-
-Thanks again,
-Johan
+> These are the pending patches that didn't go through in the 3.16 merge window.
+> Please queue them for -next. Thanks.
+> 
+> The series does the following
+> - convert to Type-B multi touch protocol
+> - support upto 5 fingers with hardware supplied tracking IDs
+> - device tree support
+> 
+> Tony,
+> 
+> The last 2 patches fix the touch screen size property in the device tree since
+> we now use the unified touch screen properties.
+> 
+> cheers,
+> -roger
+> 
+> Changelog:
+> 
+> v7:
+> - Rebased on 3.16-rc1.
+> 
+> v6:
+> - Use unified touchscreen bindings.
+> - Update pointer math i.e. bufptr += 4 instead of &bufptr[4];
+> 
+> v5:
+> - Changed ts->exiting flag to ts->running in patch 2.
+> - Don't call pixcir_stop() from .suspend() if wakeup is required.
+> 
+> v4:
+> - Imporved pixcir_stop() as per Dmitry's suggestion.
+> - Removed unnecessary input_unregister_device() from .remove().
+> 
+> v3:
+> - Rebased to 3.15-rc3
+> - Fixed suspend while touchscreen in use
+> - Fixed module removal while touchscreen in use
+> 
+> v2:
+> - Addressed review comments and re-arranged patch order
+> 
+> v1:
+> - http://article.gmane.org/gmane.linux.kernel/1616417
+> 
+> --
+> 
+> Roger Quadros (5):
+>   Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
+>   Input: pixcir_i2c_ts: support upto 5 fingers and hardware provided
+>     tracking IDs
+>   Input: pixcir_i2c_ts: Add device tree support
+>   ARM: dts: am43x-epos-evm: Update binding for touchscreen size
+>   ARM: dts: am437x-gp-evm: Update binding for touchscreen size
+> 
+>  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  26 +++
+>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+>  arch/arm/boot/dts/am437x-gp-evm.dts                |   4 +-
+>  arch/arm/boot/dts/am43x-epos-evm.dts               |   4 +-
+>  drivers/input/touchscreen/pixcir_i2c_ts.c          | 251 ++++++++++++++++++---
+>  include/linux/input/pixcir_ts.h                    |  12 +
+>  6 files changed, 259 insertions(+), 39 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+> 

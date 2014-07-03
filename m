@@ -1,41 +1,60 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 2/6] input: touchscreen: imx25 tcq driver
-Date: Thu, 03 Jul 2014 18:57:00 +0100
-Message-ID: <53B5996C.5000204@kernel.org>
-References: <1392913312-9030-1-git-send-email-mpa@pengutronix.de> <1402672899-6995-1-git-send-email-denis@eukrea.com> <1402672899-6995-3-git-send-email-denis@eukrea.com> <53A55BD8.7030905@kernel.org> <CAOMZO5BxZDX5TDZdUCbpTw2LpVC=vr4cnn4eSpzd_023wcy+Fg@mail.gmail.com> <53AFF1C4.1010402@kernel.org> <20140629114901.GO32514@n2100.arm.linux.org.uk>
+From: Bryan Wu <cooloney@gmail.com>
+Subject: Re: [PATCH 1/2 v6] HID: gt683r: fix race condition
+Date: Thu, 3 Jul 2014 11:13:09 -0700
+Message-ID: <CAK5ve-+gmOEAKjSnKaWz2K_xs6LzDUP6LN2Y33J-22UV=eFM2Q@mail.gmail.com>
+References: <20140703082830.GB16590@localhost> <1404407829-1815-1-git-send-email-janne.kanniainen@gmail.com>
+ <20140703173421.GO16590@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140629114901.GO32514-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, =?ISO-8859-1?Q?Eric_B=E9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f45.google.com ([209.85.215.45]:45870 "EHLO
+	mail-la0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752874AbaGCSNc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jul 2014 14:13:32 -0400
+In-Reply-To: <20140703173421.GO16590@localhost>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: Janne Kanniainen <janne.kanniainen@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Greg Kroah-Hartman <greg@kroah.com>, =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>, lkml <linux-kernel@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, linux-usb@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 29/06/14 12:49, Russell King - ARM Linux wrote:
-> On Sun, Jun 29, 2014 at 12:00:20PM +0100, Jonathan Cameron wrote:
->> On 21/06/14 20:55, Fabio Estevam wrote:
->>> On Sat, Jun 21, 2014 at 7:18 AM, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
->>>>> +
->>>>> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>>>
->>>> Could this not in theory fail?
->>>
->>> Yes, but devm_ioremap_resource will take care of it, so we don't need
->>> to check for error here.
->> Nothing like counter intuitive behaviour.  Ah well.
+On Thu, Jul 3, 2014 at 10:34 AM, Johan Hovold <johan@kernel.org> wrote:
+> On Thu, Jul 03, 2014 at 08:17:08PM +0300, Janne Kanniainen wrote:
+>> This will fix race condition noticed by Oliver Neukum. Sysfs files are
+>> created before mutex and work are initialized.
 >>
->> Thanks for explaining this!
+>> Signed-off-by: Janne Kanniainen <janne.kanniainen@gmail.com>
 >
-> Maybe it would be better to have:
+> Reviewed-by: Johan Hovold <johan@kernel.org>
 >
-> 	mem = platform_ioremap_resource(pdev, IORESOURCE_MEM, 0);
->
-> which wraps up both the platform_get_resource() call with
-> devm_ioremap_resource() so driver writers don't have to be concerned
-> about this aspect?
->
-Good idea.
 
-Something like that would certainly make more sense to me.
+Good, merged to my tree.
+-Bryan
+
+>> ---
+>>  drivers/hid/hid-gt683r.c | 6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+>> index 077f7a1..073bd80 100644
+>> --- a/drivers/hid/hid-gt683r.c
+>> +++ b/drivers/hid/hid-gt683r.c
+>> @@ -227,6 +227,9 @@ static int gt683r_led_probe(struct hid_device *hdev,
+>>       if (!led)
+>>               return -ENOMEM;
+>>
+>> +     mutex_init(&led->lock);
+>> +     INIT_WORK(&led->work, gt683r_led_work);
+>> +
+>>       led->mode = GT683R_LED_NORMAL;
+>>       led->hdev = hdev;
+>>       hid_set_drvdata(hdev, led);
+>> @@ -271,9 +274,6 @@ static int gt683r_led_probe(struct hid_device *hdev,
+>>               goto fail;
+>>       }
+>>
+>> -     mutex_init(&led->lock);
+>> -     INIT_WORK(&led->work, gt683r_led_work);
+>> -
+>>       return 0;
+>>
+>>  fail:

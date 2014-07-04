@@ -1,86 +1,145 @@
-From: "Dudley Du" <dudlx@outlook.com>
-Subject: [PATCH v3 0/14] input: cyapa: re-architecture driver to support multi-trackpads in one driver
-Date: Fri, 4 Jul 2014 18:26:12 +0800
-Message-ID: <001401cf9772$618c6310$24a52930$@com>
+From: "Dudley Du" <dudlx@tom.com>
+Subject: [PATCH v3 2/14] input: cyapa: add cyapa driver power management interfaces support
+Date: Fri, 4 Jul 2014 18:37:54 +0800
+Message-ID: <001901cf9774$039af080$0ad0d180$@com>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpfreer209.163vip.net ([61.135.158.116]:58678 "HELO
-	smtp.tom.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1755368AbaGDKgn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Jul 2014 06:36:43 -0400
-Received: from smtp.tom.com (unknown [172.24.173.69])
-	by bjzjm-tm-app3.localdomain (SMTP) with ESMTP id C565A1C2C37
-	for <linux-input@vger.kernel.org>; Fri,  4 Jul 2014 18:26:13 +0800 (CST)
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: zh-cn
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: 'Alan Stern' <stern@rowland.harvard.edu>, 'Benson Leung' <bleung@google.com>, 'Patrik Fimml' <patrikf@google.com>, "'Rafael J. Wysocki'" <rjw@rjwysocki.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 'Dudley Du' <dudl@cypress.com>
+Cc: Alan Shi WKsh <alan.shi@weikeng.com.cn>, 'Benson Leung' <bleung@google.com>, 'Patrik Fimml' <patrikf@google.com>, "'Rafael J. Wysocki'" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 'Dudley Du' <dudl@cypress.com>
+List-Id: linux-input@vger.kernel.org
 
-This patch set is made based on kernel 3.16-rc2.
-It's aimed to re-architecture the cyapa driver to support
-old gen3 trackpad device and new gen5 trackpad device in one
-cyapa driver for easily productions support based on
-customers' requirements, and add sysfs functions and interfaces
-supported that required by users and customers.
-Because the earlier gen3 and the latest gen5 trackpad devies using
-two different chipsets, and have different protocol and interfaces.
-If supported these two trackpad devices in two different drivers, then
-it will be difficult to manage productions and later firmware updates.
-it will cause customer don't know which one to use and update
-because these two trackpad devices have been used and integrated
-in same one productions at a time, so must to support these two trackpad
-devices in same on driver.
+Add suspend_scanrate_ms power management interfaces in device's
+power group, so users or applications can control the power management
+strategy of trackpad device as their requirements.
+TEST=test on Chromebooks.
 
-Compared with previous v2 patches, v3 patches fix some spell and
-alignment issues, and rename some functions for better understanding
-based on review comments.
+Signed-off-by: Dudley Du <dudl@cypress.com>
+---
+ drivers/input/mouse/cyapa.c |   93 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 93 insertions(+)
 
-The new architecture is made of:
-cyapa.c - the core of the architecture, supply interfaces and
-functions to system and read trackpad devices.
-cyapa_gen3.c - functions support for gen3 trackpad devices,
-cyapa_gen5.c - functions support for gen5 trackpad devices.
-
-Beside this introduction patch, it has 14 patches listed as below.
-For these patches each one is patched based on previous one.
-
-patch 1/14: re-architecture cyapa driver with core functions,
-and applying the device detecting function in async thread to speed
-up system boot time.
-
-patch 2/14: add cyapa driver power management interfaces support.
-
-patch 3/14: add cyapa driver runtime power management interfaces support.
-
-patch 4/14: add cyapa key function interfaces in sysfs system.
-Including read firmware version, get production ID, read baseline,
-re-calibrate trackpad baselines and do trackpad firmware update.
-
-patch 5/14: add read firmware image and read raw trackpad device'
-sensors' raw data interface in debugfs system.
-
-patch 6/14: add gen3 trackpad device basic functions support.
-
-patch 7/14: add gen3 trackpad device firmware update function support.
-
-patch 8/14: add gen3 trackpad device report baseline and do force
-re-calibrate functions support.
-
-patch 9/14: add gen3 trackpad device read firmware image function support.
-
-patch 10/14: add gen5 trackpad device basic functions support.
-
-patch 11/14: add gen5 trackpad device firmware update function support.
-
-patch 12/14: add gen5 trackpad device report baseline and do force
-re-calibrate functions support.
-
-patch 13/14: add gen5 trackpad device read firmware image and report
-sensors' raw data values functions support.
-
-patch 14/14: add function to monitor LID close event to off trackpad device.
-
+diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+index bc735b3..992e02f 100644
+--- a/drivers/input/mouse/cyapa.c
++++ b/drivers/input/mouse/cyapa.c
+@@ -502,6 +502,90 @@ u16 cyapa_pwr_cmd_to_sleep_time(u8 pwr_mode)
+ 				   : (encoded_time - 5) * 20;
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static ssize_t cyapa_show_suspend_scanrate(struct device *dev,
++					   struct device_attribute *attr,
++					   char *buf)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	u8 pwr_cmd = cyapa->suspend_power_mode;
++	u16 sleep_time;
++	int len;
++
++	if (!cyapa_state_sync_enter(cyapa))
++		return -EBUSY;
++	pwr_cmd = cyapa->suspend_power_mode;
++	sleep_time = cyapa->suspend_sleep_time;
++	cyapa_state_sync_exit(cyapa);
++
++	if (pwr_cmd == PWR_MODE_BTN_ONLY)
++		len = scnprintf(buf, PAGE_SIZE, "%s\n", BTN_ONLY_MODE_NAME);
++	else if (pwr_cmd == PWR_MODE_OFF)
++		len = scnprintf(buf, PAGE_SIZE, "%s\n", OFF_MODE_NAME);
++	else {
++		if (cyapa->gen == CYAPA_GEN3)
++			sleep_time = cyapa_pwr_cmd_to_sleep_time(pwr_cmd);
++		len = scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
++	}
++
++	return len;
++}
++
++static u16 cyapa_clamp_sleep_time(u16 sleep_time)
++{
++	if (sleep_time > 1000)
++		sleep_time = 1000;
++	return sleep_time;
++}
++
++static ssize_t cyapa_update_suspend_scanrate(struct device *dev,
++					     struct device_attribute *attr,
++					     const char *buf, size_t count)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	u16 sleep_time;
++
++	if (buf == NULL || count == 0)
++		goto invalidparam;
++
++	if (!cyapa_state_sync_enter(cyapa))
++		return -EBUSY;
++
++	if (sysfs_streq(buf, BTN_ONLY_MODE_NAME))
++		cyapa->suspend_power_mode = PWR_MODE_BTN_ONLY;
++	else if (sysfs_streq(buf, OFF_MODE_NAME))
++		cyapa->suspend_power_mode = PWR_MODE_OFF;
++	else if (!kstrtou16(buf, 10, &sleep_time)) {
++		cyapa->suspend_sleep_time = cyapa_clamp_sleep_time(sleep_time);
++		cyapa->suspend_power_mode =
++			cyapa_sleep_time_to_pwr_cmd(cyapa->suspend_sleep_time);
++	} else
++		goto invalidparam;
++
++	cyapa_state_sync_exit(cyapa);
++	return count;
++
++invalidparam:
++	cyapa_state_sync_exit(cyapa);
++	dev_err(dev, "invalid suspend scanrate ms parameters\n");
++	return -EINVAL;
++}
++
++static DEVICE_ATTR(suspend_scanrate_ms, S_IRUGO|S_IWUSR,
++		   cyapa_show_suspend_scanrate,
++		   cyapa_update_suspend_scanrate);
++
++static struct attribute *cyapa_power_wakeup_entries[] = {
++	&dev_attr_suspend_scanrate_ms.attr,
++	NULL,
++};
++
++static const struct attribute_group cyapa_power_wakeup_group = {
++	.name = power_group_name,
++	.attrs = cyapa_power_wakeup_entries,
++};
++#endif /* CONFIG_PM_SLEEP */
++
+ void cyapa_detect_async(void *data, async_cookie_t cookie)
+ {
+ 	struct cyapa *cyapa = (struct cyapa *)data;
+@@ -598,6 +682,12 @@ static int cyapa_probe(struct i2c_client *client,
+ 	}
+ 	cyapa_disable_irq(cyapa);
+ 
++#ifdef CONFIG_PM_SLEEP
++	if (device_can_wakeup(dev) &&
++	    sysfs_merge_group(&client->dev.kobj, &cyapa_power_wakeup_group))
++		dev_warn(dev, "error creating wakeup power entries.\n");
++#endif /* CONFIG_PM_SLEEP */
++
+ 	async_schedule(cyapa_detect_and_start, cyapa);
+ 	return 0;
+ 
+@@ -613,6 +703,9 @@ static int cyapa_remove(struct i2c_client *client)
+ {
+ 	struct cyapa *cyapa = i2c_get_clientdata(client);
+ 
++#ifdef CONFIG_PM_SLEEP
++	sysfs_unmerge_group(&client->dev.kobj, &cyapa_power_wakeup_group);
++#endif
+ 	free_irq(cyapa->irq, cyapa);
+ 
+ 	input_unregister_device(cyapa->input);
+-- 
+1.7.9.5

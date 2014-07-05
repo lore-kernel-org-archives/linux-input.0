@@ -1,22 +1,51 @@
-From: glory <gloryrubel@hotmail.com>
-Subject: Hello dear,
-Date: Fri, 4 Jul 2014 16:27:47 +0200 (CEST)
-Message-ID: <20514298.928911404484067813.JavaMail.root__34844.3124596544$1404484212$gmane$org@wmail48>
-Reply-To: glory <gloryrubel@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Patrick Plattes <patrick@erdbeere.net>
+Subject: [PATCH] fix for jabra gn9350e (hid)
+Date: Sat,  5 Jul 2014 08:58:06 +0200
+Message-ID: <1404543486-21080-1-git-send-email-patrick@erdbeere.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outrelay03.libero.it ([212.52.84.103]:58469 "EHLO
-	outrelay03.libero.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751948AbaGDO3j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jul 2014 10:29:39 -0400
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:54330 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751874AbaGEG6S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jul 2014 02:58:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Patrick Plattes <patrick@erdbeere.net>
 
-Hello dear, please do not be offended to receive this massage,My Name is miss
-Glory Rubel, I saw your today, and become very interest to be your friend And 
-i
-have an important issue to discuse with you if you accept Please contact me
-back on my private email address:( gloryrubel@hotmail.com ) for more details
-about me, thanks,
+Ignore Jabra GN9350E HID interface. USB audio is working nicely,
+but registering as HID blocks USB mouse buttons. Since special userspace
+programs are needed we will avoid attaching usbhid drivers in general.
+
+Signed-off-by: Patrick Plattes <patrick@erdbeere.net>
+---
+ drivers/hid/hid-core.c | 1 +
+ drivers/hid/hid-ids.h  | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8ed66fd..dbe9510 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2266,6 +2266,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IMATION, USB_DEVICE_ID_DISC_STAKKA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_410) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_510) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_GN9350E) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KBGEAR, USB_DEVICE_ID_KBGEAR_JAMSTUDIO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_GPEN_560) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6d00bb9..1861a59 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -488,6 +488,7 @@
+ #define USB_VENDOR_ID_JABRA		0x0b0e
+ #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
+ #define USB_DEVICE_ID_JABRA_SPEAK_510	0x0420
++#define USB_DEVICE_ID_JABRA_GN9350E	0x9350
+ 
+ #define USB_VENDOR_ID_JESS		0x0c45
+ #define USB_DEVICE_ID_JESS_YUREX	0x1010
+-- 
+1.9.1
+

@@ -1,57 +1,64 @@
-From: Sekhar Nori <nsekhar@ti.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Mon, 7 Jul 2014 16:51:08 +0530
-Message-ID: <53BA82A4.5070104@ti.com>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>
+Date: Mon, 07 Jul 2014 12:38:19 +0100
+Message-ID: <53BA86AB.8050603@itdev.co.uk>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <53BA82A4.5070104@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: nick.dyer@itdev.co.uk, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:62580 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751939AbaGGLiY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2014 07:38:24 -0400
+In-Reply-To: <53BA82A4.5070104@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sekhar Nori <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-Hi Nick,
-
-On Thursday 03 July 2014 08:31 PM, nick.dyer@itdev.co.uk wrote:
-> Hi Dimitry-
+On 07/07/14 12:21, Sekhar Nori wrote:
+> I was unable to get the touchscreen working on my board after applying 
+> just these patches. It does work correctly with your for-next branch so 
+> I guess I need to wait for you to post the rest of your patches too.
 > 
-> Here is another set of atmel_mxt_ts patches for upstream. There are some
-> really useful new features, but I hope nothing too controversial.
+> Here are the relevant messages at boot. Full boot log is available here 
+> (in case you want to have a look): http://paste.ubuntu.com/7759703/
+> 
+> [    2.315717] atmel_mxt_ts 0-004a: Direct firmware load failed with error -2
+> [    2.322949] atmel_mxt_ts 0-004a: Falling back to user helper
+> [    5.934924] atmel_mxt_ts 0-004a: Wait for completion timed out.
+> [    5.941237] atmel_mxt_ts 0-004a: Warning: Info CRC error - device=0x000000 file=0x8EE45C
+> [    7.294769] atmel_mxt_ts 0-004a: Wait for completion timed out.
+> [    7.300976] atmel_mxt_ts 0-004a: Resetting chip
+> [   10.574729] atmel_mxt_ts 0-004a: Wait for completion timed out.
+> [   10.581010] atmel_mxt_ts 0-004a: Error -110 updating config
+> [   10.626788] atmel_mxt_ts 0-004a: Family: 128 Variant: 1 Firmware V1.6.AB Objects: 17
+> 
+> One key difference is that these patches try to load the config at 
+> probe where as with your -next branch that is avoided in the DT case. 
+> This is also missing the new update_cfg sysfs interface (which I guess 
+> you will post as follow-on patches).
+> 
+> The wait_for_completion() times out because the interrupt never 
+> arrives. Even later when testing using evtest, I do not see interrupts 
+> coming. There are only two interrupts that arrive during boot and it 
+> stays that way. There is something going on with the way interrupts are 
+> handled. I havent debugged further yet. This problem is not there with 
+> your for-next branch.
 
-I was unable to get the touchscreen working on my board after applying 
-just these patches. It does work correctly with your for-next branch so 
-I guess I need to wait for you to post the rest of your patches too.
+Thanks for trying this, apologies that it didn't work.
 
-Here are the relevant messages at boot. Full boot log is available here 
-(in case you want to have a look): http://paste.ubuntu.com/7759703/
+Looking at it, I've a feeling that this is the solution for the issue you see:
+https://github.com/ndyer/linux/commit/4e8f8d56361b09a2a
 
-[    2.315717] atmel_mxt_ts 0-004a: Direct firmware load failed with error -2
-[    2.322949] atmel_mxt_ts 0-004a: Falling back to user helper
-[    5.934924] atmel_mxt_ts 0-004a: Wait for completion timed out.
-[    5.941237] atmel_mxt_ts 0-004a: Warning: Info CRC error - device=0x000000 file=0x8EE45C
-[    7.294769] atmel_mxt_ts 0-004a: Wait for completion timed out.
-[    7.300976] atmel_mxt_ts 0-004a: Resetting chip
-[   10.574729] atmel_mxt_ts 0-004a: Wait for completion timed out.
-[   10.581010] atmel_mxt_ts 0-004a: Error -110 updating config
-[   10.626788] atmel_mxt_ts 0-004a: Family: 128 Variant: 1 Firmware V1.6.AB Objects: 17
+Although, the fact that it says the device is reporting the Info CRC to be
+0x000000 is rather odd, as well.
 
-One key difference is that these patches try to load the config at 
-probe where as with your -next branch that is avoided in the DT case. 
-This is also missing the new update_cfg sysfs interface (which I guess 
-you will post as follow-on patches).
+It would be useful if you could turn on all the debug in the driver and
+re-test (#define DEBUG 1 at the top). However, if you don't have time, I
+will try and reproduce on my test system.
 
-The wait_for_completion() times out because the interrupt never 
-arrives. Even later when testing using evtest, I do not see interrupts 
-coming. There are only two interrupts that arrive during boot and it 
-stays that way. There is something going on with the way interrupts are 
-handled. I havent debugged further yet. This problem is not there with 
-your for-next branch.
+cheers
 
-I used your mxt-app to dump configuration in both cases and its exactly
-the same.
-
-Thanks,
-Sekhar
+Nick

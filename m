@@ -1,122 +1,163 @@
 From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: Re: [PATCH] HID: cp2112: fix gpio value in gpio_direction_output
-Date: Tue, 8 Jul 2014 00:01:50 +0800
-Message-ID: <CAAj6DX1UgwxvGEr2twznoSfGLEZ2ojcB0fyotSgQ0648ZU=KLQ@mail.gmail.com>
-References: <1404022428-2816-1-git-send-email-borneo.antonio@gmail.com>
-	<CAN+gG=GM9FqZJwJF0G41E9oWEjcWDeavd=kfZ9qcXvoAkmUdpA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH v2] HID: cp2112: add I2C mode
+Date: Tue,  8 Jul 2014 07:25:39 +0800
+Message-ID: <1404775539-10727-1-git-send-email-borneo.antonio@gmail.com>
+References: <CAN+gG=F2wyFw0mR2RxSEz_RNPp3a+zr0R3an38NNU4NVDSYFMQ@mail.gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f181.google.com ([209.85.214.181]:39175 "EHLO
-	mail-ob0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750917AbaGGQBv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2014 12:01:51 -0400
-In-Reply-To: <CAN+gG=GM9FqZJwJF0G41E9oWEjcWDeavd=kfZ9qcXvoAkmUdpA@mail.gmail.com>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:55721 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751307AbaGGXZq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2014 19:25:46 -0400
+In-Reply-To: <CAN+gG=F2wyFw0mR2RxSEz_RNPp3a+zr0R3an38NNU4NVDSYFMQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, David Barksdale <dbarksdale@uplogix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: David Barksdale <dbarksdale@uplogix.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Antonio Borneo <borneo.antonio@gmail.com>
 
-On Mon, Jul 7, 2014 at 10:03 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Sun, Jun 29, 2014 at 2:13 AM, Antonio Borneo
-> <borneo.antonio@gmail.com> wrote:
->> CP2112 does not offer an atomic method to set both gpio
->> direction and value.
->> Also it does not permit to set gpio value before putting
->> gpio in output. In fact, accordingly to Silicon Labs
->> AN495, Rev. 0.2, cpt. 4.4, the HID report to set gpio
->> values "does not affect any pins that are not configured
->> as outputs".
->>
->> This is confirmed on evaluation board CP2112-EK.
->> With current driver, after execute:
->>         echo in > /sys/class/gpio/gpio248/direction
->>         echo low > /sys/class/gpio/gpio248/direction
->> gpio output is still high. Only after a following
->>         echo low > /sys/class/gpio/gpio248/direction
->> gpio output gets low.
->>
->> Fix driver by changing order of operations; first set
->> direction then set value.
->>
->> The drawback of this new sequence is that we can have
->> a pulse on gpio pin when direction is changed from
->> input to output-low, but this cannot be avoided on
->> current CP2112.
->
-> In this case, does keeping the first cp2112_gpio_set() before setting
-> the output direction prevents the pulse?
-> If so, then you can just keep the current code, and simply add the
-> cp2112_gpio_set() at the end of cp2112_gpio_direction_output().
+cp2112 supports single I2C read/write transactions.
+It can't combine I2C transactions.
 
-Hi Benjamin,
+Add master_xfer, using similar code flow as for smbus_xfer.
 
-unfortunately this would not prevent the pulse.
-In fact:
+Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ChangeLog v1->v2:
+- In cp2112_i2c_xfer() set variable "ret" directly with the
+  expected return value: either an error number or the number
+  of transferred messages.
+---
+ drivers/hid/hid-cp2112.c | 103 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 102 insertions(+), 1 deletion(-)
 
-a) if gpio is already output
-- the first cp2112_gpio_set() will set the value
-- then cp2112_gpio_direction_output() would be redundant
-- finally the second cp2112_gpio_set() would be redundant too.
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3952d90..a822db5 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -429,6 +429,105 @@ static int cp2112_write_req(void *buf, u8 slave_address, u8 command, u8 *data,
+ 	return data_length + 4;
+ }
+ 
++static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
++				u8 data_length)
++{
++	struct cp2112_write_req_report *report = buf;
++
++	if (data_length > sizeof(report->data))
++		return -EINVAL;
++
++	report->report = CP2112_DATA_WRITE_REQUEST;
++	report->slave_address = slave_address << 1;
++	report->length = data_length;
++	memcpy(report->data, data, data_length);
++	return data_length + 3;
++}
++
++static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			   int num)
++{
++	struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
++	struct hid_device *hdev = dev->hdev;
++	u8 buf[64];
++	ssize_t count;
++	unsigned int retries;
++	int ret;
++
++	hid_dbg(hdev, "I2C %d messages\n", num);
++
++	if (num != 1) {
++		hid_err(hdev,
++			"Multi-message I2C transactions not supported\n");
++		return -EOPNOTSUPP;
++	}
++
++	if (msgs->flags & I2C_M_RD)
++		count = cp2112_read_req(buf, msgs->addr, msgs->len);
++	else
++		count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
++					     msgs->len);
++
++	if (count < 0)
++		return count;
++
++	ret = hid_hw_power(hdev, PM_HINT_FULLON);
++	if (ret < 0) {
++		hid_err(hdev, "power management error: %d\n", ret);
++		return ret;
++	}
++
++	ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
++	if (ret < 0) {
++		hid_warn(hdev, "Error starting transaction: %d\n", ret);
++		goto power_normal;
++	}
++
++	for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
++		ret = cp2112_xfer_status(dev);
++		if (-EBUSY == ret)
++			continue;
++		if (ret < 0)
++			goto power_normal;
++		break;
++	}
++
++	if (XFER_STATUS_RETRIES <= retries) {
++		hid_warn(hdev, "Transfer timed out, cancelling.\n");
++		buf[0] = CP2112_CANCEL_TRANSFER;
++		buf[1] = 0x01;
++
++		ret = cp2112_hid_output(hdev, buf, 2, HID_OUTPUT_REPORT);
++		if (ret < 0)
++			hid_warn(hdev, "Error cancelling transaction: %d\n",
++				 ret);
++
++		ret = -ETIMEDOUT;
++		goto power_normal;
++	}
++
++	if (!(msgs->flags & I2C_M_RD))
++		goto finish;
++
++	ret = cp2112_read(dev, msgs->buf, msgs->len);
++	if (ret < 0)
++		goto power_normal;
++	if (ret != msgs->len) {
++		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
++		ret = -EIO;
++		goto power_normal;
++	}
++
++finish:
++	/* return the number of transferred messages */
++	ret = 1;
++
++power_normal:
++	hid_hw_power(hdev, PM_HINT_NORMAL);
++	hid_dbg(hdev, "I2C transfer finished: %d\n", ret);
++	return ret;
++}
++
+ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+ 		       unsigned short flags, char read_write, u8 command,
+ 		       int size, union i2c_smbus_data *data)
+@@ -595,7 +694,8 @@ power_normal:
+ 
+ static u32 cp2112_functionality(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_SMBUS_BYTE |
++	return I2C_FUNC_I2C |
++		I2C_FUNC_SMBUS_BYTE |
+ 		I2C_FUNC_SMBUS_BYTE_DATA |
+ 		I2C_FUNC_SMBUS_WORD_DATA |
+ 		I2C_FUNC_SMBUS_BLOCK_DATA |
+@@ -605,6 +705,7 @@ static u32 cp2112_functionality(struct i2c_adapter *adap)
+ }
+ 
+ static const struct i2c_algorithm smbus_algorithm = {
++	.master_xfer	= cp2112_i2c_xfer,
+ 	.smbus_xfer	= cp2112_xfer,
+ 	.functionality	= cp2112_functionality,
+ };
+-- 
+2.0.1
 
-b) if gpio is input
-- the first cp2112_gpio_set() would be ignored, as explained in AN495
-- then cp2112_gpio_direction_output() would put gpio in output.
-Accordingly to my experiments the value is set high
-- finally the second cp2112_gpio_set() would set the proper value. If
-value is different from what is set by cp2112_gpio_direction_output()
-we get a pulse.
-
-That's why I removed the first cp2112_gpio_set() or, better, I moved
-it after setting gpio direction.
-
-Thanks for the review.
-Antonio
-
->
-> In both case, this is:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->
-> Cheers,
-> Benjamin
->
->>
->> Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
->> ---
->>  drivers/hid/hid-cp2112.c | 8 ++++++--
->>  1 file changed, 6 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->> index 56be85a..3952d90 100644
->> --- a/drivers/hid/hid-cp2112.c
->> +++ b/drivers/hid/hid-cp2112.c
->> @@ -240,8 +240,6 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
->>         u8 buf[5];
->>         int ret;
->>
->> -       cp2112_gpio_set(chip, offset, value);
->> -
->>         ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
->>                                        sizeof(buf), HID_FEATURE_REPORT,
->>                                        HID_REQ_GET_REPORT);
->> @@ -260,6 +258,12 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
->>                 return ret;
->>         }
->>
->> +       /*
->> +        * Set gpio value when output direction is already set,
->> +        * as specified in AN495, Rev. 0.2, cpt. 4.4
->> +        */
->> +       cp2112_gpio_set(chip, offset, value);
->> +
->>         return 0;
->>  }
->>
->> --
->> 2.0.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html

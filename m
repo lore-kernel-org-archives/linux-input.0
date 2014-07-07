@@ -1,73 +1,148 @@
-From: Bryan Mills <bmills@alumni.cmu.edu>
-Subject: Re: bad handling of HID input reports for a Delcom foot pedal
-Date: Sun, 6 Jul 2014 16:52:09 -0400
-Message-ID: <CAKvz5rrBbgbo16uANTpOgk8VbZ58LyR007m6KqUyue2J2OeqJA@mail.gmail.com>
-References: <CAN+gG=GbD-NjJUcSjYfp3rqnG9hHwmxT0ReEYFFDf88v_aS5qw@mail.gmail.com>
- <alpine.LNX.2.00.1406181411590.2303@pobox.suse.cz>
+From: NeilBrown <neilb@suse.de>
+Subject: Re: [PATCH] gpio_keys, twl4030-pwrbutton: stay awake for 1sec on
+ resume
+Date: Mon, 7 Jul 2014 20:42:44 +1000
+Message-ID: <20140707204244.00488846@notabene.brown>
+References: <1403906118-23517-1-git-send-email-lukas@goldelico.com>
+	<20140628170820.GF23634@xo-6d-61-c0.localdomain>
+	<BD5D0538-BD03-4CD8-8E12-2344AD7ED669@goldelico.com>
+	<20140628200410.GA7561@amd.pavel.ucw.cz>
+	<53B6846A.4030201@goldelico.com>
+	<20140704220336.5e809819@notabene.brown>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+ boundary="Sig_/90A8i0iwp1cdgOPYYdGj=iZ"; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f48.google.com ([209.85.192.48]:56657 "EHLO
-	mail-qg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751171AbaGFUwu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Jul 2014 16:52:50 -0400
-Received: by mail-qg0-f48.google.com with SMTP id q108so3060749qgd.35
-        for <linux-input@vger.kernel.org>; Sun, 06 Jul 2014 13:52:49 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1406181411590.2303@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:57055 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752575AbaGGKmy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Jul 2014 06:42:54 -0400
+In-Reply-To: <20140704220336.5e809819@notabene.brown>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Lukas Maerdian <lukas@goldelico.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Dr. H. Nikolaus Schaller" <hns@goldelico.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Marek Belisko <marek@goldelico.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, stern@rowland.harvard.edu
 
-On Wed, Jun 18, 2014 at 8:13 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Mon, 19 May 2014, Benjamin Tissoires wrote:
-> > Hi Jiri,
-> >
-> > Please have a look at: https://bugzilla.kernel.org/show_bug.cgi?id=76461
-> >
-> > To me, this device sends garbage and should not send the modifiers
-> > both in a Var input and in an Array input.
-> >
-> > I can fix it either by amending the report descriptor of the device
-> > (one byte to change) or by changing hid-input.c for it to send the
-> > events in the array processing no matter what was the previous state
-> > (see below).
-> >
-> > I don't know which one to pick because this seems to be a corner case,
-> > so fixing hid-input might not be the place, but I am afraid of
-> > removing part of the reports coming from the device (what if the
-> > modifiers are actually used for something in the report).
-> >
-> > Any thoughts on it?
-> >
-> > For the record, fixing hid-input would just remove the test in hid_input_field:
-> >
-> >                 if (value[n] >= min && value[n] <= max
-> > -                       && field->usage[value[n] - min].hid
-> > -                       && search(field->value, value[n], count))
-> > +                       && field->usage[value[n] - min].hid)
-> >                                 hid_process_event(hid, field,
-> > &field->usage[value[n] - min], 1, interrupt);
-> >         }
-> >
-> > (Sorry, gmail, whitespace damaged and everything)
->
-> So if modifying the report descriptor is not the option (which is what I
-> understood from Bryan's mail), I have to say I don't really like this
-> change in hid_input_field(), as it's really rather "non obvious".
->
-> How about just creating a device specific input event quirk for this?
->
-> --
-> Jiri Kosina
-> SUSE Labs
+--Sig_/90A8i0iwp1cdgOPYYdGj=iZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-A device-specific quirk would be fine.
+On Fri, 4 Jul 2014 22:03:36 +1000 NeilBrown <neilb@suse.de> wrote:
 
-But what's wrong with simply removing the "search" test?  It's a no-op
-for non-quirky devices (which don't send redundant keycodes) and a bug
-for quirky ones (which should take the union of redundant keycodes
-instead of dropping them).
+> On Fri, 04 Jul 2014 12:39:38 +0200 Lukas Maerdian <lukas@goldelico.com> w=
+rote:
+>=20
+> > Hi all!
+> >=20
+> > On 28.06.2014 22:04 UTC+0200, Pavel Machek wrote:
+> > >> And the msec parameter is described as:
+> > >>
+> > >> @msec: Anticipated event processing time (in milliseconds).
+> > >>
+> > >> Isn't calling pm_wakeup_event() with a non-zero msec the standard
+> > >> method to handle this situation? And it is used in other drivers. E.=
+g. in
+> > >> _mmc_detect_change() or hub_suspend().
+> > >=20
+> > >  * Notify the PM core of a wakeup event whose source is @ws that will
+> > >    take                   =20
+> > >  * approximately @msec milliseconds to be processed by the kernel.  If
+> > >    @ws is                =20
+> > >  * not active, activate it.  If @msec is nonzero, set up the @ws'
+> > >    timer to                   =20
+> > >  * execute pm_wakeup_timer_fn() in future.                           =
+                        =20
+> > >=20
+> > > Will take @msec milliseconds to be processed by the _kernel_. Yes, USB
+> > > probing takes a lot of time in kernel. But you are using this
+> > > parameter to wait for userspace...
+> >=20
+> > Well, it's not exactly waiting for userspace: The kernel goes to
+> > suspend, before even being fully resumed.
+> >=20
+> > In any case, 0 msec (i.e. nothing) seems to be insufficient, even for
+> > just the in kernel processing. And I think that's exactly the root cause
+> > of this race condition between the device drivers and the autosleep
+> > module. Of course this only materializes if CONFIG_PM_AUTOSLEEP and
+> > CONFIG_PM_WAKELOCKS are enabled, which is rarely used up to now, I gues=
+s.
+> >=20
+> > I think we either need some way of signaling that the kernel has fully
+> > finished resuming, before autosleep sets the system to suspend state
+> > again, or we need to set appropriate delays in the individual device
+> > drivers, to give them enough time to process the resume event.
+> >=20
+> > As the pm_wakeup_event() call is already in place, I assume, that
+> > setting appropriate processing times for each individual driver was the
+> > intended way to go...
+> >=20
+> > I've CCed Neil Brown, who inserted the pm_wakeup_even() call with a
+> > 0msec argument in both of the discussed drivers, so maybe he can shed
+> > some light in this discussion?
+> >=20
+> > Best regards,
+> >   Lukas
+>=20
+> You definitely shouldn't need a timeout.
+>=20
+> I know I understood the whole "autosleep" design once, but I never really
+> liked it and memory fades.....
+>=20
+> I think that a key part of using autosleep was that userspace needs to use
+> epoll with the EPOLLWAKEUP flag to listen for any events which can wake f=
+rom
+> suspend.
+>=20
+> If user-space is doing that properly, then the simple pm_wakeup_event(dev=
+,0)
+> is enough to ensure that the event gets through epoll and into user-space.
+> I think userspace needs to take a wakelock before reading the event, thou=
+gh I
+> don't recall the exact details.
+>=20
+> So: if Android is trying to use autosleep and finding that an event wakes=
+ the
+> device but it goes back to sleep again before it can handle the event, th=
+en
+> either the driver isn't doing the basic pm_wakeup_event, or android
+> user-space isn't using epoll and EPOLLWAKEUP as required.
 
-Removing the test produces simpler code and handles the quirky devices
-correctly without the need to check for them explicitly.
+The man pages for epoll-ctl(2) and epoll(7) now document the use of
+EPOLLWAKEUP.
+I don't think a formatted version is available yet but the raw version can =
+be
+seen at
+  http://git.kernel.org/cgit/docs/man-pages/man-pages.git/tree/man2/epoll_c=
+tl.2
+and=20
+  http://git.kernel.org/cgit/docs/man-pages/man-pages.git/tree/man7/epoll.7
+
+and you can right-click the "plain" link to down load, then
+   man --local-file epoll_ctl.2
+to read it nicely.
+
+NeilBrown
+
+--Sig_/90A8i0iwp1cdgOPYYdGj=iZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIVAwUBU7p5pDnsnt1WYoG5AQLQYhAArhHlot4bQTl7IABdktTVrTu8WyvFxMb0
+Qax3DguI2rBjIZT0M/bb+Fk5vsOfBp0EU2Je+0Wdj2EFpiR4TAA0BfpjosyjJTx1
+TtTAiP5Qm2mGodhx3Jy/HTJeCkwoCvmFgHUPJvjlcJ5xPAPdsqPQImllg9qRrG3i
+kqKWr94gxPyMRBSmip69z66DuYNSwQBPTCGbkRtuTe146bLRIxeOTEI5E9XaQFEO
+s/0tPWc+Iy1HgICtLhrXf5Ua9Gzdi+3cICvaMpvQq257VN4L+DCvZ8XxoV3lsFge
+MYrI9qdtImfHwWfwAfpR4fej2gRAxTtXj8PpyRrOTzzCRiWFKZAjZYz39N8x8+5w
+wduyvjiA/i1dlR8IjxlT5FSqrcPKVDYfMvbWi4x8a+X4PKbyaYXwxyHyfVTUFNuk
+LlrSPPt2qV3L+O2fCZZOC9heJiPnwC2CCFAkPP5MJA0rgvKl+RT56bwD/OSuE2Dp
+ui3Rxg1X3DohdNbPY+pjIT7MpK9UooKnXVLEGAeEFnGyhVOrqhGMc6TiHx1UKAl8
+4jDrS4Wap87bxphAf4c0XAGnxAqekvORec5KMxjYBw33wEAhn9fJnMi13JSUBzsa
+jHjOGo3enrYntlVEf15X0gH64upKkhfMi+/9+vIomn2PESBPBzS4XJ73SWQHsluT
+o/8wmiyRy1Y=
+=mdxL
+-----END PGP SIGNATURE-----
+
+--Sig_/90A8i0iwp1cdgOPYYdGj=iZ--

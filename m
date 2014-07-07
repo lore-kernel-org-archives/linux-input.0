@@ -1,57 +1,230 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: cp2112: fix gpio value in gpio_direction_output
-Date: Mon, 7 Jul 2014 17:07:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407071707490.1655@pobox.suse.cz>
-References: <1404022428-2816-1-git-send-email-borneo.antonio@gmail.com> <CAN+gG=GM9FqZJwJF0G41E9oWEjcWDeavd=kfZ9qcXvoAkmUdpA@mail.gmail.com>
+From: Antonio Borneo <borneo.antonio@gmail.com>
+Subject: Re: [PATCH] HID: cp2112: add I2C mode
+Date: Mon, 7 Jul 2014 23:32:19 +0800
+Message-ID: <CAAj6DX2fEqk-gBeismE2+9hbKE7ofES1p_a78trGKzaBjz_2Ow@mail.gmail.com>
+References: <1404022473-2862-1-git-send-email-borneo.antonio@gmail.com>
+	<CAN+gG=G-xqc5J8J8ndfL2d8SY3K4+d80LNQX7cgfUeA3ap=oYA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34013 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752462AbaGGPIC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Jul 2014 11:08:02 -0400
-In-Reply-To: <CAN+gG=GM9FqZJwJF0G41E9oWEjcWDeavd=kfZ9qcXvoAkmUdpA@mail.gmail.com>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:42269 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751119AbaGGPcW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2014 11:32:22 -0400
+In-Reply-To: <CAN+gG=G-xqc5J8J8ndfL2d8SY3K4+d80LNQX7cgfUeA3ap=oYA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-input <linux-input@vger.kernel.org>, David Barksdale <dbarksdale@uplogix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, David Barksdale <dbarksdale@uplogix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, 7 Jul 2014, Benjamin Tissoires wrote:
+On Mon, Jul 7, 2014 at 9:57 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Antonio,
+>
+> On Sun, Jun 29, 2014 at 2:14 AM, Antonio Borneo
+> <borneo.antonio@gmail.com> wrote:
+>> cp2112 supports single I2C read/write transactions.
+>> It can't combine I2C transactions.
+>>
+>> Add master_xfer, using similar code flow as for smbus_xfer.
+>
+> Thanks for taking the time to implement it. I wanted to add this
+> functionality, but did not found the time to finalize/submit the
+> patches.
+> So here is a review.
 
-> > CP2112 does not offer an atomic method to set both gpio
-> > direction and value.
-> > Also it does not permit to set gpio value before putting
-> > gpio in output. In fact, accordingly to Silicon Labs
-> > AN495, Rev. 0.2, cpt. 4.4, the HID report to set gpio
-> > values "does not affect any pins that are not configured
-> > as outputs".
-> >
-> > This is confirmed on evaluation board CP2112-EK.
-> > With current driver, after execute:
-> >         echo in > /sys/class/gpio/gpio248/direction
-> >         echo low > /sys/class/gpio/gpio248/direction
-> > gpio output is still high. Only after a following
-> >         echo low > /sys/class/gpio/gpio248/direction
-> > gpio output gets low.
-> >
-> > Fix driver by changing order of operations; first set
-> > direction then set value.
-> >
-> > The drawback of this new sequence is that we can have
-> > a pulse on gpio pin when direction is changed from
-> > input to output-low, but this cannot be avoided on
-> > current CP2112.
-> 
-> In this case, does keeping the first cp2112_gpio_set() before setting
-> the output direction prevents the pulse?
-> If so, then you can just keep the current code, and simply add the
-> cp2112_gpio_set() at the end of cp2112_gpio_direction_output().
-> 
-> In both case, this is:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Ciao Benjamin,
 
-I am queuing this for 3.17, thanks.
+thanks for the review.
+My comments inline below
 
--- 
-Jiri Kosina
-SUSE Labs
+>>
+>> Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+>> ---
+>>  drivers/hid/hid-cp2112.c | 102 ++++++++++++++++++++++++++++++++++++++++++++++-
+>>  1 file changed, 101 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>> index 3952d90..1260a8a 100644
+>> --- a/drivers/hid/hid-cp2112.c
+>> +++ b/drivers/hid/hid-cp2112.c
+>> @@ -429,6 +429,104 @@ static int cp2112_write_req(void *buf, u8 slave_address, u8 command, u8 *data,
+>>         return data_length + 4;
+>>  }
+>>
+>> +static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
+>> +                               u8 data_length)
+>> +{
+>> +       struct cp2112_write_req_report *report = buf;
+>> +
+>> +       if (data_length > sizeof(report->data))
+>> +               return -EINVAL;
+>> +
+>> +       report->report = CP2112_DATA_WRITE_REQUEST;
+>> +       report->slave_address = slave_address << 1;
+>> +       report->length = data_length;
+>> +       memcpy(report->data, data, data_length);
+>> +       return data_length + 3;
+>> +}
+>> +
+>> +static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>> +                          int num)
+>> +{
+>> +       struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
+>> +       struct hid_device *hdev = dev->hdev;
+>> +       u8 buf[64];
+>> +       ssize_t count;
+>> +       unsigned int retries;
+>> +       int ret;
+>> +
+>> +       hid_dbg(hdev, "I2C %d messages\n", num);
+>> +
+>> +       if (num != 1) {
+>> +               hid_err(hdev,
+>> +                       "Multi-message I2C transactions not supported\n");
+>
+> This is a shame. You can just externalize the following block (in pseudo code):
+> { - read/write_req
+>   - hid_output
+>   - xfer_status
+>   - read}
+>
+> and then just use a for loop to call this sequence for each incoming message.
+
+The parameter "num" is for sending a "combined I2C transaction" in which
+a series of messages is sent "without" stop-bits between the messages.
+You can get full description searching for "i2c_transfer" in
+  - Documentation/i2c/writing-clients
+  - Documentation/i2c/i2c-protocol
+Since CP2112 does not support this feature, I return EOPNOTSUPP as is done in
+  drivers/i2c/busses/i2c-powermac.c
+
+If I implement the loop, as you suggest, CP2112 will just send a
+sequence of independent messages, each with its own stop bit.
+
+Probably the error message could be more explicit by mentioning the
+word "combined".
+I lazily copied the same message from i2c-powermac think it's clear enough.
+
+>
+>> +               return -EOPNOTSUPP;
+>> +       }
+>> +
+>> +       if (msgs->flags & I2C_M_RD)
+>> +               count = cp2112_read_req(buf, msgs->addr, msgs->len);
+>> +       else
+>> +               count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
+>> +                                            msgs->len);
+>> +
+>> +       if (count < 0)
+>> +               return count;
+>> +
+>> +       ret = hid_hw_power(hdev, PM_HINT_FULLON);
+>> +       if (ret < 0) {
+>> +               hid_err(hdev, "power management error: %d\n", ret);
+>> +               return ret;
+>> +       }
+>> +
+>> +       ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
+>> +       if (ret < 0) {
+>> +               hid_warn(hdev, "Error starting transaction: %d\n", ret);
+>> +               goto power_normal;
+>> +       }
+>> +
+>> +       for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
+>> +               ret = cp2112_xfer_status(dev);
+>> +               if (-EBUSY == ret)
+>> +                       continue;
+>> +               if (ret < 0)
+>> +                       goto power_normal;
+>> +               break;
+>> +       }
+>> +
+>> +       if (XFER_STATUS_RETRIES <= retries) {
+>> +               hid_warn(hdev, "Transfer timed out, cancelling.\n");
+>> +               buf[0] = CP2112_CANCEL_TRANSFER;
+>> +               buf[1] = 0x01;
+>> +
+>> +               ret = cp2112_hid_output(hdev, buf, 2, HID_OUTPUT_REPORT);
+>> +               if (ret < 0)
+>> +                       hid_warn(hdev, "Error cancelling transaction: %d\n",
+>> +                                ret);
+>> +
+>> +               ret = -ETIMEDOUT;
+>> +               goto power_normal;
+>> +       }
+>> +
+>> +       if (!(msgs->flags & I2C_M_RD)) {
+>> +               ret = 0;
+>> +               goto power_normal;
+>> +       }
+>> +
+>> +       ret = cp2112_read(dev, msgs->buf, msgs->len);
+>> +       if (ret < 0)
+>> +               goto power_normal;
+>> +       if (ret != msgs->len) {
+>> +               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+>> +               ret = -EIO;
+>> +               goto power_normal;
+>> +       }
+>> +
+>> +       ret = 0;
+>
+> ret = num;
+>
+>> +power_normal:
+>> +       hid_hw_power(hdev, PM_HINT_NORMAL);
+>> +       hid_dbg(hdev, "I2C transfer finished: %d\n", ret);
+>> +       return (ret) ? ret : 1;
+>
+> and "return ret;"
+
+Not sure I catch what you mean, here. Please confirm my understanding.
+
+>From a comment inside include/linux/i2c.h
+        /* master_xfer should return the number of messages successfully
+           processed, or a negative value on error */
+
+In the code above I set "ret" to an error number or to zero.
+Then return the error number or the number of messages (equal to 1, as
+explained above).
+
+Do you prefer I set "ret" directly to 1 instead of 0?
+
+I can send a V2 for this.
+In this case I would not change the debug message above that prints
+"ret" and I will just print the current value for "ret".
+
+Best Regards,
+Antonio
+
+>
+>> +}
+>> +
+>>  static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+>>                        unsigned short flags, char read_write, u8 command,
+>>                        int size, union i2c_smbus_data *data)
+>> @@ -595,7 +693,8 @@ power_normal:
+>>
+>>  static u32 cp2112_functionality(struct i2c_adapter *adap)
+>>  {
+>> -       return I2C_FUNC_SMBUS_BYTE |
+>> +       return I2C_FUNC_I2C |
+>> +               I2C_FUNC_SMBUS_BYTE |
+>>                 I2C_FUNC_SMBUS_BYTE_DATA |
+>>                 I2C_FUNC_SMBUS_WORD_DATA |
+>>                 I2C_FUNC_SMBUS_BLOCK_DATA |
+>> @@ -605,6 +704,7 @@ static u32 cp2112_functionality(struct i2c_adapter *adap)
+>>  }
+>>
+>>  static const struct i2c_algorithm smbus_algorithm = {
+>> +       .master_xfer    = cp2112_i2c_xfer,
+>>         .smbus_xfer     = cp2112_xfer,
+>>         .functionality  = cp2112_functionality,
+>>  };
+>> --
+>> 2.0.1
+>>
+>
+> Cheers,
+> Benjamin

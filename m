@@ -1,64 +1,186 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Mon, 07 Jul 2014 12:38:19 +0100
-Message-ID: <53BA86AB.8050603@itdev.co.uk>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <53BA82A4.5070104@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: cp2112: add I2C mode
+Date: Mon, 7 Jul 2014 09:57:38 -0400
+Message-ID: <CAN+gG=G-xqc5J8J8ndfL2d8SY3K4+d80LNQX7cgfUeA3ap=oYA@mail.gmail.com>
+References: <1404022473-2862-1-git-send-email-borneo.antonio@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:62580 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751939AbaGGLiY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2014 07:38:24 -0400
-In-Reply-To: <53BA82A4.5070104@ti.com>
+Received: from mail-la0-f50.google.com ([209.85.215.50]:36718 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753067AbaGGN5l (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2014 09:57:41 -0400
+In-Reply-To: <1404022473-2862-1-git-send-email-borneo.antonio@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sekhar Nori <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
+To: Antonio Borneo <borneo.antonio@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, David Barksdale <dbarksdale@uplogix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 07/07/14 12:21, Sekhar Nori wrote:
-> I was unable to get the touchscreen working on my board after applying 
-> just these patches. It does work correctly with your for-next branch so 
-> I guess I need to wait for you to post the rest of your patches too.
-> 
-> Here are the relevant messages at boot. Full boot log is available here 
-> (in case you want to have a look): http://paste.ubuntu.com/7759703/
-> 
-> [    2.315717] atmel_mxt_ts 0-004a: Direct firmware load failed with error -2
-> [    2.322949] atmel_mxt_ts 0-004a: Falling back to user helper
-> [    5.934924] atmel_mxt_ts 0-004a: Wait for completion timed out.
-> [    5.941237] atmel_mxt_ts 0-004a: Warning: Info CRC error - device=0x000000 file=0x8EE45C
-> [    7.294769] atmel_mxt_ts 0-004a: Wait for completion timed out.
-> [    7.300976] atmel_mxt_ts 0-004a: Resetting chip
-> [   10.574729] atmel_mxt_ts 0-004a: Wait for completion timed out.
-> [   10.581010] atmel_mxt_ts 0-004a: Error -110 updating config
-> [   10.626788] atmel_mxt_ts 0-004a: Family: 128 Variant: 1 Firmware V1.6.AB Objects: 17
-> 
-> One key difference is that these patches try to load the config at 
-> probe where as with your -next branch that is avoided in the DT case. 
-> This is also missing the new update_cfg sysfs interface (which I guess 
-> you will post as follow-on patches).
-> 
-> The wait_for_completion() times out because the interrupt never 
-> arrives. Even later when testing using evtest, I do not see interrupts 
-> coming. There are only two interrupts that arrive during boot and it 
-> stays that way. There is something going on with the way interrupts are 
-> handled. I havent debugged further yet. This problem is not there with 
-> your for-next branch.
+Hi Antonio,
 
-Thanks for trying this, apologies that it didn't work.
+On Sun, Jun 29, 2014 at 2:14 AM, Antonio Borneo
+<borneo.antonio@gmail.com> wrote:
+> cp2112 supports single I2C read/write transactions.
+> It can't combine I2C transactions.
+>
+> Add master_xfer, using similar code flow as for smbus_xfer.
 
-Looking at it, I've a feeling that this is the solution for the issue you see:
-https://github.com/ndyer/linux/commit/4e8f8d56361b09a2a
+Thanks for taking the time to implement it. I wanted to add this
+functionality, but did not found the time to finalize/submit the
+patches.
+So here is a review.
 
-Although, the fact that it says the device is reporting the Info CRC to be
-0x000000 is rather odd, as well.
+>
+> Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+> ---
+>  drivers/hid/hid-cp2112.c | 102 ++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 101 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> index 3952d90..1260a8a 100644
+> --- a/drivers/hid/hid-cp2112.c
+> +++ b/drivers/hid/hid-cp2112.c
+> @@ -429,6 +429,104 @@ static int cp2112_write_req(void *buf, u8 slave_address, u8 command, u8 *data,
+>         return data_length + 4;
+>  }
+>
+> +static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
+> +                               u8 data_length)
+> +{
+> +       struct cp2112_write_req_report *report = buf;
+> +
+> +       if (data_length > sizeof(report->data))
+> +               return -EINVAL;
+> +
+> +       report->report = CP2112_DATA_WRITE_REQUEST;
+> +       report->slave_address = slave_address << 1;
+> +       report->length = data_length;
+> +       memcpy(report->data, data, data_length);
+> +       return data_length + 3;
+> +}
+> +
+> +static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+> +                          int num)
+> +{
+> +       struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
+> +       struct hid_device *hdev = dev->hdev;
+> +       u8 buf[64];
+> +       ssize_t count;
+> +       unsigned int retries;
+> +       int ret;
+> +
+> +       hid_dbg(hdev, "I2C %d messages\n", num);
+> +
+> +       if (num != 1) {
+> +               hid_err(hdev,
+> +                       "Multi-message I2C transactions not supported\n");
 
-It would be useful if you could turn on all the debug in the driver and
-re-test (#define DEBUG 1 at the top). However, if you don't have time, I
-will try and reproduce on my test system.
+This is a shame. You can just externalize the following block (in pseudo code):
+{ - read/write_req
+  - hid_output
+  - xfer_status
+  - read}
 
-cheers
+and then just use a for loop to call this sequence for each incoming message.
 
-Nick
+> +               return -EOPNOTSUPP;
+> +       }
+> +
+> +       if (msgs->flags & I2C_M_RD)
+> +               count = cp2112_read_req(buf, msgs->addr, msgs->len);
+> +       else
+> +               count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
+> +                                            msgs->len);
+> +
+> +       if (count < 0)
+> +               return count;
+> +
+> +       ret = hid_hw_power(hdev, PM_HINT_FULLON);
+> +       if (ret < 0) {
+> +               hid_err(hdev, "power management error: %d\n", ret);
+> +               return ret;
+> +       }
+> +
+> +       ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
+> +       if (ret < 0) {
+> +               hid_warn(hdev, "Error starting transaction: %d\n", ret);
+> +               goto power_normal;
+> +       }
+> +
+> +       for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
+> +               ret = cp2112_xfer_status(dev);
+> +               if (-EBUSY == ret)
+> +                       continue;
+> +               if (ret < 0)
+> +                       goto power_normal;
+> +               break;
+> +       }
+> +
+> +       if (XFER_STATUS_RETRIES <= retries) {
+> +               hid_warn(hdev, "Transfer timed out, cancelling.\n");
+> +               buf[0] = CP2112_CANCEL_TRANSFER;
+> +               buf[1] = 0x01;
+> +
+> +               ret = cp2112_hid_output(hdev, buf, 2, HID_OUTPUT_REPORT);
+> +               if (ret < 0)
+> +                       hid_warn(hdev, "Error cancelling transaction: %d\n",
+> +                                ret);
+> +
+> +               ret = -ETIMEDOUT;
+> +               goto power_normal;
+> +       }
+> +
+> +       if (!(msgs->flags & I2C_M_RD)) {
+> +               ret = 0;
+> +               goto power_normal;
+> +       }
+> +
+> +       ret = cp2112_read(dev, msgs->buf, msgs->len);
+> +       if (ret < 0)
+> +               goto power_normal;
+> +       if (ret != msgs->len) {
+> +               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+> +               ret = -EIO;
+> +               goto power_normal;
+> +       }
+> +
+> +       ret = 0;
+
+ret = num;
+
+> +power_normal:
+> +       hid_hw_power(hdev, PM_HINT_NORMAL);
+> +       hid_dbg(hdev, "I2C transfer finished: %d\n", ret);
+> +       return (ret) ? ret : 1;
+
+and "return ret;"
+
+> +}
+> +
+>  static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+>                        unsigned short flags, char read_write, u8 command,
+>                        int size, union i2c_smbus_data *data)
+> @@ -595,7 +693,8 @@ power_normal:
+>
+>  static u32 cp2112_functionality(struct i2c_adapter *adap)
+>  {
+> -       return I2C_FUNC_SMBUS_BYTE |
+> +       return I2C_FUNC_I2C |
+> +               I2C_FUNC_SMBUS_BYTE |
+>                 I2C_FUNC_SMBUS_BYTE_DATA |
+>                 I2C_FUNC_SMBUS_WORD_DATA |
+>                 I2C_FUNC_SMBUS_BLOCK_DATA |
+> @@ -605,6 +704,7 @@ static u32 cp2112_functionality(struct i2c_adapter *adap)
+>  }
+>
+>  static const struct i2c_algorithm smbus_algorithm = {
+> +       .master_xfer    = cp2112_i2c_xfer,
+>         .smbus_xfer     = cp2112_xfer,
+>         .functionality  = cp2112_functionality,
+>  };
+> --
+> 2.0.1
+>
+
+Cheers,
+Benjamin

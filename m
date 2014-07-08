@@ -1,38 +1,175 @@
-From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 1/1] input: remove unnecessary break after goto
-Date: Tue,  8 Jul 2014 18:37:36 +0200
-Message-ID: <1404837456-7321-1-git-send-email-fabf@skynet.be>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH] soc_button_array: fix the issue that button device can't be enumerated since 3.16-rc1
+Date: Tue, 08 Jul 2014 22:50:04 +0200
+Message-ID: <2556427.cdnVoQoSXY@vostro.rjw.lan>
+References: <1404309504.8366.93.camel@rzhang1-toshiba> <1404309713.8366.94.camel@rzhang1-toshiba>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay006.isp.belgacom.be ([195.238.6.172]:19110 "EHLO
-	mailrelay006.isp.belgacom.be" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752883AbaGHQhl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Jul 2014 12:37:41 -0400
+Received: from v094114.home.net.pl ([79.96.170.134]:52004 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752912AbaGHUb7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jul 2014 16:31:59 -0400
+In-Reply-To: <1404309713.8366.94.camel@rzhang1-toshiba>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Fabian Frederick <fabf@skynet.be>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org
+To: Zhang Rui <rui.zhang@intel.com>
+Cc: dmitry.torokhov@gmail.com, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Fabian Frederick <fabf@skynet.be>
----
- drivers/input/misc/keyspan_remote.c | 1 -
- 1 file changed, 1 deletion(-)
+On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
+> From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
+> From: Jin Yao <yao.jin@linux.intel.com>
+> Date: Thu, 26 Jun 2014 10:26:44 +0800
+> Subject: [PATCH] soc_button_array: fix the issue that button device can't be
+>  enumerated since 3.16-rc1
 
-diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
-index 01f3b5b..a3fe4a9 100644
---- a/drivers/input/misc/keyspan_remote.c
-+++ b/drivers/input/misc/keyspan_remote.c
-@@ -392,7 +392,6 @@ static void keyspan_irq_recv(struct urb *urb)
- 
- 	default:
- 		goto resubmit;
--		break;
- 	}
- 
- 	if (debug)
+Hi Rui,
+
+For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
+It is too late to do the conversion at this point IMO and we can do it later.
+
+> ACPI device enumeration mechanism changed a lot since 3.16-rc1.
+> ACPI device objects with _HID will be enumerated to platform bus by default.
+> For the existing PNP drivers that probe the PNPACPI devices, the device ids
+> are listed explicitly in drivers/acpi/acpi_pnp.c. And ACPI folks will
+> continue their effort on shrinking this id list by converting the PNP drivers
+> to platform drivers.
+> But unfortunately, soc_button_array device id, aka, "PNP0C40", is missing
+> during this transition.
+> 
+> Thus soc_button_array driver fails to probe any device since 3.16-rc1 because
+> the device is enumerated to platform bus instead.
+> 
+> A simply fix is to add device id PNP0C40 back to drivers/acpi/acpi_pnp.c,
+> but given that the soc_button_array driver will be converted to platform
+> driver sooner or later, and the id will be removed from the list again,
+> it is better to fix the problem in one time.
+> 
+> This patch fixes the problem by converting the soc_button_driver
+> from PNP bus to platform bus.
+> 
+> Signed-off-by: Jin Yao <yao.jin@intel.com>
+> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+> ---
+>  drivers/input/misc/soc_button_array.c | 60 ++++++++++++++++++-----------------
+>  1 file changed, 31 insertions(+), 29 deletions(-)
+> 
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 5a6334b..16ca162 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -18,7 +18,7 @@
+>  #include <linux/gpio/consumer.h>
+>  #include <linux/gpio_keys.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/pnp.h>
+> +#include <linux/acpi.h>
+>  
+>  /*
+>   * Definition of buttons on the tablet. The ACPI index of each button
+> @@ -67,7 +67,7 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
+>  }
+>  
+>  static struct platform_device *
+> -soc_button_device_create(struct pnp_dev *pdev,
+> +soc_button_device_create(struct platform_device *pdev,
+>  			 const struct soc_button_info *button_info,
+>  			 bool autorepeat)
+>  {
+> @@ -135,30 +135,40 @@ soc_button_device_create(struct pnp_dev *pdev,
+>  	return ERR_PTR(error);
+>  }
+>  
+> -static void soc_button_remove(struct pnp_dev *pdev)
+> +static int soc_button_remove(struct platform_device *pdev)
+>  {
+> -	struct soc_button_data *priv = pnp_get_drvdata(pdev);
+> +	struct soc_button_data *priv = platform_get_drvdata(pdev);
+> +
+>  	int i;
+>  
+>  	for (i = 0; i < BUTTON_TYPES; i++)
+>  		if (priv->children[i])
+>  			platform_device_unregister(priv->children[i]);
+> +
+> +	return 0;
+>  }
+>  
+> -static int soc_button_pnp_probe(struct pnp_dev *pdev,
+> -				const struct pnp_device_id *id)
+> +static int soc_button_probe(struct platform_device *pdev)
+>  {
+> -	const struct soc_button_info *button_info = (void *)id->driver_data;
+> +	struct device *dev = &pdev->dev;
+> +	const struct acpi_device_id *id;
+> +	struct soc_button_info *button_info;
+>  	struct soc_button_data *priv;
+>  	struct platform_device *pd;
+>  	int i;
+>  	int error;
+>  
+> +	id = acpi_match_device(dev->driver->acpi_match_table, dev);
+> +	if (!id)
+> +		return -ENODEV;
+> +
+> +	button_info = (struct soc_button_info *)id->driver_data;
+> +
+>  	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>  	if (!priv)
+>  		return -ENOMEM;
+>  
+> -	pnp_set_drvdata(pdev, priv);
+> +	platform_set_drvdata(pdev, priv);
+>  
+>  	for (i = 0; i < BUTTON_TYPES; i++) {
+>  		pd = soc_button_device_create(pdev, button_info, i == 0);
+> @@ -189,30 +199,22 @@ static struct soc_button_info soc_button_PNP0C40[] = {
+>  	{ }
+>  };
+>  
+> -static const struct pnp_device_id soc_button_pnp_match[] = {
+> -	{ .id = "PNP0C40", .driver_data = (long)soc_button_PNP0C40 },
+> -	{ .id = "" }
+> +static const struct acpi_device_id soc_button_acpi_match[] = {
+> +	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
+> +	{ }
+>  };
+> -MODULE_DEVICE_TABLE(pnp, soc_button_pnp_match);
+>  
+> -static struct pnp_driver soc_button_pnp_driver = {
+> -	.name		= KBUILD_MODNAME,
+> -	.id_table	= soc_button_pnp_match,
+> -	.probe          = soc_button_pnp_probe,
+> +MODULE_DEVICE_TABLE(acpi, soc_button_acpi_match);
+> +
+> +static struct platform_driver soc_button_driver = {
+> +	.probe          = soc_button_probe,
+>  	.remove		= soc_button_remove,
+> +	.driver		= {
+> +		.name = KBUILD_MODNAME,
+> +		.owner = THIS_MODULE,
+> +		.acpi_match_table = ACPI_PTR(soc_button_acpi_match),
+> +	},
+>  };
+> -
+> -static int __init soc_button_init(void)
+> -{
+> -	return pnp_register_driver(&soc_button_pnp_driver);
+> -}
+> -
+> -static void __exit soc_button_exit(void)
+> -{
+> -	pnp_unregister_driver(&soc_button_pnp_driver);
+> -}
+> -
+> -module_init(soc_button_init);
+> -module_exit(soc_button_exit);
+> +module_platform_driver(soc_button_driver);
+>  
+>  MODULE_LICENSE("GPL");
+> 
+
 -- 
-1.8.4.5
-
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.

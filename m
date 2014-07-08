@@ -1,173 +1,72 @@
 From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] soc_button_array: fix the issue that button device can't be enumerated since 3.16-rc1
-Date: Tue, 08 Jul 2014 22:50:04 +0200
-Message-ID: <2556427.cdnVoQoSXY@vostro.rjw.lan>
-References: <1404309504.8366.93.camel@rzhang1-toshiba> <1404309713.8366.94.camel@rzhang1-toshiba>
+Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake the system up
+Date: Tue, 08 Jul 2014 22:52:52 +0200
+Message-ID: <13019301.98tkdHyOVf@vostro.rjw.lan>
+References: <53A2340D.9030503@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:52004 "HELO
+Received: from v094114.home.net.pl ([79.96.170.134]:56747 "HELO
 	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752912AbaGHUb7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jul 2014 16:31:59 -0400
-In-Reply-To: <1404309713.8366.94.camel@rzhang1-toshiba>
+	with SMTP id S1750845AbaGHUer (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jul 2014 16:34:47 -0400
+In-Reply-To: <53A2340D.9030503@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhang Rui <rui.zhang@intel.com>
-Cc: dmitry.torokhov@gmail.com, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
+To: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
 
-On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
-> From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
-> From: Jin Yao <yao.jin@linux.intel.com>
-> Date: Thu, 26 Jun 2014 10:26:44 +0800
-> Subject: [PATCH] soc_button_array: fix the issue that button device can't be
->  enumerated since 3.16-rc1
+On Thursday, June 19, 2014 08:51:25 AM Li, Aubrey wrote:
+> When the wakeup attribute is set, the GPIO button is capable of
+> waking up the system from sleep states, including the "freeze"
+> sleep state.  For that to work, its driver needs to pass the
+> IRQF_NO_SUSPEND flag to devm_request_any_context_irq(), or the
+> interrupt will be disabled by suspend_device_irqs() and the
+> system won't be woken up by it from the "freeze" sleep state.
+> 
+> The suspend_device_irqs() routine is a workaround for drivers
+> that mishandle interrupts triggered when the devices handled
+> by them are suspended, so it is safe to use IRQF_NO_SUSPEND in
+> all drivers that don't have that problem.
+> 
+> The affected/tested machines include Dell Venue 11 Pro and Asus T100TA.
+> 
+> Signed-off-by: Aubrey Li <aubrey.li@linux.intel.com>
+> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Hi Rui,
+OK
 
-For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
-It is too late to do the conversion at this point IMO and we can do it later.
+Due to the lack of response (ie. no objections) and because the issue
+addressed by this patch is real, I'm queuing it up as a PM-related fix
+for 3.17.
 
-> ACPI device enumeration mechanism changed a lot since 3.16-rc1.
-> ACPI device objects with _HID will be enumerated to platform bus by default.
-> For the existing PNP drivers that probe the PNPACPI devices, the device ids
-> are listed explicitly in drivers/acpi/acpi_pnp.c. And ACPI folks will
-> continue their effort on shrinking this id list by converting the PNP drivers
-> to platform drivers.
-> But unfortunately, soc_button_array device id, aka, "PNP0C40", is missing
-> during this transition.
-> 
-> Thus soc_button_array driver fails to probe any device since 3.16-rc1 because
-> the device is enumerated to platform bus instead.
-> 
-> A simply fix is to add device id PNP0C40 back to drivers/acpi/acpi_pnp.c,
-> but given that the soc_button_array driver will be converted to platform
-> driver sooner or later, and the id will be removed from the list again,
-> it is better to fix the problem in one time.
-> 
-> This patch fixes the problem by converting the soc_button_driver
-> from PNP bus to platform bus.
-> 
-> Signed-off-by: Jin Yao <yao.jin@intel.com>
-> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Rafael
+
+
 > ---
->  drivers/input/misc/soc_button_array.c | 60 ++++++++++++++++++-----------------
->  1 file changed, 31 insertions(+), 29 deletions(-)
+>  drivers/input/keyboard/gpio_keys.c |    8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-> index 5a6334b..16ca162 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -18,7 +18,7 @@
->  #include <linux/gpio/consumer.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/platform_device.h>
-> -#include <linux/pnp.h>
-> +#include <linux/acpi.h>
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 8c98e97..b046dc6 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -527,6 +527,14 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  	if (!button->can_disable)
+>  		irqflags |= IRQF_SHARED;
 >  
->  /*
->   * Definition of buttons on the tablet. The ACPI index of each button
-> @@ -67,7 +67,7 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index)
->  }
->  
->  static struct platform_device *
-> -soc_button_device_create(struct pnp_dev *pdev,
-> +soc_button_device_create(struct platform_device *pdev,
->  			 const struct soc_button_info *button_info,
->  			 bool autorepeat)
->  {
-> @@ -135,30 +135,40 @@ soc_button_device_create(struct pnp_dev *pdev,
->  	return ERR_PTR(error);
->  }
->  
-> -static void soc_button_remove(struct pnp_dev *pdev)
-> +static int soc_button_remove(struct platform_device *pdev)
->  {
-> -	struct soc_button_data *priv = pnp_get_drvdata(pdev);
-> +	struct soc_button_data *priv = platform_get_drvdata(pdev);
+> +	/*
+> +	 * If platform has specified the wakeup attribute of the button,
+> +	 * we add IRQF_NO_SUSPEND to desc->action->flag. So the wake up
+> +	 * interrupt will not be disabled in suspend_device_irqs
+> +	 */
+> +	if (button->wakeup)
+> +		irqflags |= IRQF_NO_SUSPEND;
 > +
->  	int i;
->  
->  	for (i = 0; i < BUTTON_TYPES; i++)
->  		if (priv->children[i])
->  			platform_device_unregister(priv->children[i]);
-> +
-> +	return 0;
->  }
->  
-> -static int soc_button_pnp_probe(struct pnp_dev *pdev,
-> -				const struct pnp_device_id *id)
-> +static int soc_button_probe(struct platform_device *pdev)
->  {
-> -	const struct soc_button_info *button_info = (void *)id->driver_data;
-> +	struct device *dev = &pdev->dev;
-> +	const struct acpi_device_id *id;
-> +	struct soc_button_info *button_info;
->  	struct soc_button_data *priv;
->  	struct platform_device *pd;
->  	int i;
->  	int error;
->  
-> +	id = acpi_match_device(dev->driver->acpi_match_table, dev);
-> +	if (!id)
-> +		return -ENODEV;
-> +
-> +	button_info = (struct soc_button_info *)id->driver_data;
-> +
->  	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
->  	if (!priv)
->  		return -ENOMEM;
->  
-> -	pnp_set_drvdata(pdev, priv);
-> +	platform_set_drvdata(pdev, priv);
->  
->  	for (i = 0; i < BUTTON_TYPES; i++) {
->  		pd = soc_button_device_create(pdev, button_info, i == 0);
-> @@ -189,30 +199,22 @@ static struct soc_button_info soc_button_PNP0C40[] = {
->  	{ }
->  };
->  
-> -static const struct pnp_device_id soc_button_pnp_match[] = {
-> -	{ .id = "PNP0C40", .driver_data = (long)soc_button_PNP0C40 },
-> -	{ .id = "" }
-> +static const struct acpi_device_id soc_button_acpi_match[] = {
-> +	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
-> +	{ }
->  };
-> -MODULE_DEVICE_TABLE(pnp, soc_button_pnp_match);
->  
-> -static struct pnp_driver soc_button_pnp_driver = {
-> -	.name		= KBUILD_MODNAME,
-> -	.id_table	= soc_button_pnp_match,
-> -	.probe          = soc_button_pnp_probe,
-> +MODULE_DEVICE_TABLE(acpi, soc_button_acpi_match);
-> +
-> +static struct platform_driver soc_button_driver = {
-> +	.probe          = soc_button_probe,
->  	.remove		= soc_button_remove,
-> +	.driver		= {
-> +		.name = KBUILD_MODNAME,
-> +		.owner = THIS_MODULE,
-> +		.acpi_match_table = ACPI_PTR(soc_button_acpi_match),
-> +	},
->  };
-> -
-> -static int __init soc_button_init(void)
-> -{
-> -	return pnp_register_driver(&soc_button_pnp_driver);
-> -}
-> -
-> -static void __exit soc_button_exit(void)
-> -{
-> -	pnp_unregister_driver(&soc_button_pnp_driver);
-> -}
-> -
-> -module_init(soc_button_init);
-> -module_exit(soc_button_exit);
-> +module_platform_driver(soc_button_driver);
->  
->  MODULE_LICENSE("GPL");
+>  	error = devm_request_any_context_irq(&pdev->dev, bdata->irq,
+>  					     isr, irqflags, desc, bdata);
+>  	if (error < 0) {
 > 
 
 -- 

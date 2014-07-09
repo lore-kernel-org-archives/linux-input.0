@@ -1,57 +1,77 @@
 From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake the system up
-Date: Wed, 09 Jul 2014 14:45:15 +0200
-Message-ID: <4301161.i6ArOLmcsg@vostro.rjw.lan>
-References: <53A2340D.9030503@linux.intel.com> <18261725.84uqcyZ8CE@vostro.rjw.lan> <20140709005434.GB14935@core.coreip.homeip.net>
+Subject: Re: [PATCH] soc_button_array: fix the issue that button device can't be enumerated since 3.16-rc1
+Date: Wed, 09 Jul 2014 14:51:20 +0200
+Message-ID: <8282078.gKYV3eC76j@vostro.rjw.lan>
+References: <1404309504.8366.93.camel@rzhang1-toshiba> <2556427.cdnVoQoSXY@vostro.rjw.lan> <1404872845.26526.2.camel@rzhang1-toshiba>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140709005434.GB14935@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Li, Aubrey" <aubrey.li@linux.intel.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Linux PM list <linux-pm@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from v094114.home.net.pl ([79.96.170.134]:63914 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1756140AbaGIMdO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2014 08:33:14 -0400
+In-Reply-To: <1404872845.26526.2.camel@rzhang1-toshiba>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Zhang Rui <rui.zhang@intel.com>
+Cc: dmitry.torokhov@gmail.com, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
 
-On Tuesday, July 08, 2014 05:54:35 PM Dmitry Torokhov wrote:
-> On Wed, Jul 09, 2014 at 02:59:33AM +0200, Rafael J. Wysocki wrote:
-> > On Tuesday, July 08, 2014 05:15:06 PM Dmitry Torokhov wrote:
-> > > On Wed, Jul 09, 2014 at 01:06:07AM +0200, Rafael J. Wysocki wrote:
-
-[cut]
-
-> > > 
-> > > When device driver marks IRQ as a wakeup source I believe it is prepared
-> > > to handle it (or it would shut it off explicitly).
+On Wednesday, July 09, 2014 10:27:25 AM Zhang Rui wrote:
+> On Tue, 2014-07-08 at 22:50 +0200, Rafael J. Wysocki wrote:
+> > On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
+> > > From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
+> > > From: Jin Yao <yao.jin@linux.intel.com>
+> > > Date: Thu, 26 Jun 2014 10:26:44 +0800
+> > > Subject: [PATCH] soc_button_array: fix the issue that button device can't be
+> > >  enumerated since 3.16-rc1
 > > 
-> > I can agree with that.
+> > Hi Rui,
 > > 
-> > Are you suggesting that __disable_irq() should check irq_data for
-> > IRQD_WAKEUP_STATE and skip the IRQ (in the 'suspend' case) if that is set?
+> > For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
+> > It is too late to do the conversion at this point IMO and we can do it later.
 > 
-> Yes, something like that.
+> Okay, then please take the patch below.
+> 
+> From 846c16d9d863723ef9a2d9722778bce0633ea24c Mon Sep 17 00:00:00 2001
+> From: Zhang Rui <rui.zhang@intel.com>
+> Date: Wed, 9 Jul 2014 10:19:38 +0800
+> Subject: [PATCH] ACPI: add soc_button_array device id in acpi_pnp id list
+> 
+> soc_button_array pnp driver is introduced in 3.15.
+> But in commit eec15edbb0e14485998635ea7c62e30911b465f0,
+> when reworking the PNPACPI device enumeration, we missed
+> the soc_button_array device id.
+> 
+> This results in a regression in 3.16-rc1 that soc_button_array
+> pnp device fails to be enumerated.
+> 
+> Fix the problem by adding soc_button_array device id into the
+> acpi_pnp scan handler id list.
+> 
+> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
 
-OK
+Queued up as a fix for 3.16, thanks!
 
-Aubrey, can you please check if the appended patch helps on the T100?
+> ---
+>  drivers/acpi/acpi_pnp.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/acpi/acpi_pnp.c b/drivers/acpi/acpi_pnp.c
+> index 6703c1f..4ddb0dc 100644
+> --- a/drivers/acpi/acpi_pnp.c
+> +++ b/drivers/acpi/acpi_pnp.c
+> @@ -14,6 +14,8 @@
+>  #include <linux/module.h>
+>  
+>  static const struct acpi_device_id acpi_pnp_device_ids[] = {
+> +	/* soc_button_array */
+> +	{"PNP0C40"},
+>  	/* pata_isapnp */
+>  	{"PNP0600"},		/* Generic ESDI/IDE/ATA compatible hard disk controller */
+>  	/* floppy */
+> 
 
-Rafael
-
----
- kernel/irq/manage.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux-pm/kernel/irq/manage.c
-===================================================================
---- linux-pm.orig/kernel/irq/manage.c
-+++ linux-pm/kernel/irq/manage.c
-@@ -385,7 +385,8 @@ setup_affinity(unsigned int irq, struct
- void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
- {
- 	if (suspend) {
--		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
-+		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND)
-+		    || irqd_has_set(&desc->irq_data, IRQD_WAKEUP_STATE))
- 			return;
- 		desc->istate |= IRQS_SUSPENDED;
- 	}
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.

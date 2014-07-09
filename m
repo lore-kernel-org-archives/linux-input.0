@@ -1,43 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] soc_button_array: fix the issue that button device can't
- be enumerated since 3.16-rc1
-Date: Wed, 9 Jul 2014 09:57:32 -0700
-Message-ID: <20140709165732.GD10364@core.coreip.homeip.net>
-References: <1404309504.8366.93.camel@rzhang1-toshiba>
- <1404309713.8366.94.camel@rzhang1-toshiba>
- <2556427.cdnVoQoSXY@vostro.rjw.lan>
+From: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Input: Add Acer Aspire 5710 to nomux blacklist
+Date: Wed, 9 Jul 2014 19:48:21 +0200
+Message-ID: <20140709174821.GA30912@suse.cz>
+References: <alpine.LNX.2.00.1406251139070.15939@pobox.suse.cz>
+ <20140709165438.GC10364@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:52387 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756579AbaGIQ5g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2014 12:57:36 -0400
-Received: by mail-pa0-f47.google.com with SMTP id kq14so9468490pab.20
-        for <linux-input@vger.kernel.org>; Wed, 09 Jul 2014 09:57:36 -0700 (PDT)
+Received: from jablonecka.jablonka.cz ([91.219.244.36]:49701 "EHLO
+	jablonecka.jablonka.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754252AbaGISMJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2014 14:12:09 -0400
 Content-Disposition: inline
-In-Reply-To: <2556427.cdnVoQoSXY@vostro.rjw.lan>
+In-Reply-To: <20140709165438.GC10364@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Zhang Rui <rui.zhang@intel.com>, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, hdegoede@redhat.com
 
-On Tue, Jul 08, 2014 at 10:50:04PM +0200, Rafael J. Wysocki wrote:
-> On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
-> > From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
-> > From: Jin Yao <yao.jin@linux.intel.com>
-> > Date: Thu, 26 Jun 2014 10:26:44 +0800
-> > Subject: [PATCH] soc_button_array: fix the issue that button device can't be
-> >  enumerated since 3.16-rc1
+On Wed, Jul 09, 2014 at 09:54:38AM -0700, Dmitry Torokhov wrote:
+> On Wed, Jun 25, 2014 at 11:42:43AM +0200, Jiri Kosina wrote:
+> > Acer Aspire needs to be added to nomux blacklist, otherwise the touchpad 
+> > misbehaves rather randomly.
+> > 
+> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> > 
+> > ---
+> > 
+> > Hi Dmitry,
+> > 
+> > I've come across this a few year old patch originating from our internal 
+> > bugzilla, which was apparently been lost between the cracks somewhere. 
+> > We've been carrying it in our kernel tree for quite some time ... could 
+> > you please apply it? Thanks.
 > 
-> Hi Rui,
+> I will. I also wonder if by now we should stop defaulting to MUX mode:
+> all newer desktop/server boxes use USB, only laptops still use PS/2,
+
+MUX mode was only ever available on laptops - no desktop computer I'm
+aware of ever had it.
+
+> and quite a few of them not implement active MUX properly. 
+
+Do you still get reports of non-working, but advertized Active
+Multiplexing mode on new laptops?
+
+> I also expect
+> that most of external PS/2 mice are dead by now, so number of cases when
+
+One would at least hope so. Sadly, internal mice and PS/2 keyboards
+aren't going to go away any soon, due to larger power consumption of USB
+devices.
+
+> we have users with PS/2 touchpad + external PS/2 mouse + working active
+> MUX is exceedingly small.
 > 
-> For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
-> It is too late to do the conversion at this point IMO and we can do it later.
+> Let's pull Vojtech in ;)
 
-But for 3.17 this patch is the right way of doing things, right?
-
-Thanks.
+What I'd prefer is to, based on DMI data, report but not enable by
+default Active MUX mode on any machine manufactured after a certain
+date. Plus have a DMI-based whitelist for machines that absolutely
+needed, if any are found later.
 
 -- 
-Dmitry
+Vojtech Pavlik
+Director SUSE Labs

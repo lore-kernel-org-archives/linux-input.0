@@ -1,77 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: s3c2410_ts: Move to
- clk_prepare_enable/clk_disable_unprepare
-Date: Tue, 8 Jul 2014 18:00:49 -0700
-Message-ID: <20140709010049.GC14935@core.coreip.homeip.net>
-References: <1404155377-2862-1-git-send-email-anarsoul@gmail.com>
+From: Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH] soc_button_array: fix the issue that button device
+ can't be enumerated since 3.16-rc1
+Date: Wed, 09 Jul 2014 10:27:25 +0800
+Message-ID: <1404872845.26526.2.camel@rzhang1-toshiba>
+References: <1404309504.8366.93.camel@rzhang1-toshiba>
+	 <1404309713.8366.94.camel@rzhang1-toshiba>
+	 <2556427.cdnVoQoSXY@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1404155377-2862-1-git-send-email-anarsoul@gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Vasily Khoruzhick <anarsoul@gmail.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:51326 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751163AbaGIC1i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Jul 2014 22:27:38 -0400
+In-Reply-To: <2556427.cdnVoQoSXY@vostro.rjw.lan>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: dmitry.torokhov@gmail.com, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
 
-On Mon, Jun 30, 2014 at 10:09:37PM +0300, Vasily Khoruzhick wrote:
-> Use clk_prepare_enable/clk_disable_unprepare to make the driver
-> work properly with common clock framework.
+On Tue, 2014-07-08 at 22:50 +0200, Rafael J. Wysocki wrote:
+> On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
+> > From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
+> > From: Jin Yao <yao.jin@linux.intel.com>
+> > Date: Thu, 26 Jun 2014 10:26:44 +0800
+> > Subject: [PATCH] soc_button_array: fix the issue that button device can't be
+> >  enumerated since 3.16-rc1
 > 
-> Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-> ---
->  drivers/input/touchscreen/s3c2410_ts.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> Hi Rui,
 > 
-> diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-> index 19cb247..c0e0baa 100644
-> --- a/drivers/input/touchscreen/s3c2410_ts.c
-> +++ b/drivers/input/touchscreen/s3c2410_ts.c
-> @@ -264,7 +264,7 @@ static int s3c2410ts_probe(struct platform_device *pdev)
->  		return -ENOENT;
->  	}
->  
-> -	clk_enable(ts.clock);
-> +	clk_prepare_enable(ts.clock);
->  	dev_dbg(dev, "got and enabled clocks\n");
->  
->  	ts.irq_tc = ret = platform_get_irq(pdev, 0);
-> @@ -369,7 +369,7 @@ static int s3c2410ts_remove(struct platform_device *pdev)
->  	free_irq(ts.irq_tc, ts.input);
->  	del_timer_sync(&touch_timer);
->  
-> -	clk_disable(ts.clock);
-> +	clk_disable_unprepare(ts.clock);
->  	clk_put(ts.clock);
->  
->  	input_unregister_device(ts.input);
-> @@ -383,7 +383,7 @@ static int s3c2410ts_suspend(struct device *dev)
->  {
->  	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
->  	disable_irq(ts.irq_tc);
-> -	clk_disable(ts.clock);
-> +	clk_disable_unprepare(ts.clock);
+> For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
+> It is too late to do the conversion at this point IMO and we can do it later.
 
-Do we really need to unprepare on suspend? Why simply disabling is not
-enough here?
+Okay, then please take the patch below.
 
-Thanks.
+>From 846c16d9d863723ef9a2d9722778bce0633ea24c Mon Sep 17 00:00:00 2001
+From: Zhang Rui <rui.zhang@intel.com>
+Date: Wed, 9 Jul 2014 10:19:38 +0800
+Subject: [PATCH] ACPI: add soc_button_array device id in acpi_pnp id list
 
->  
->  	return 0;
->  }
-> @@ -393,7 +393,7 @@ static int s3c2410ts_resume(struct device *dev)
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct s3c2410_ts_mach_info *info = dev_get_platdata(&pdev->dev);
->  
-> -	clk_enable(ts.clock);
-> +	clk_prepare_enable(ts.clock);
->  	enable_irq(ts.irq_tc);
->  
->  	/* Initialise registers */
-> -- 
-> 2.0.0
-> 
+soc_button_array pnp driver is introduced in 3.15.
+But in commit eec15edbb0e14485998635ea7c62e30911b465f0,
+when reworking the PNPACPI device enumeration, we missed
+the soc_button_array device id.
 
+This results in a regression in 3.16-rc1 that soc_button_array
+pnp device fails to be enumerated.
+
+Fix the problem by adding soc_button_array device id into the
+acpi_pnp scan handler id list.
+
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+---
+ drivers/acpi/acpi_pnp.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/acpi/acpi_pnp.c b/drivers/acpi/acpi_pnp.c
+index 6703c1f..4ddb0dc 100644
+--- a/drivers/acpi/acpi_pnp.c
++++ b/drivers/acpi/acpi_pnp.c
+@@ -14,6 +14,8 @@
+ #include <linux/module.h>
+ 
+ static const struct acpi_device_id acpi_pnp_device_ids[] = {
++	/* soc_button_array */
++	{"PNP0C40"},
+ 	/* pata_isapnp */
+ 	{"PNP0600"},		/* Generic ESDI/IDE/ATA compatible hard disk controller */
+ 	/* floppy */
 -- 
-Dmitry
+1.8.3.2
+
+
+

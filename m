@@ -1,83 +1,49 @@
-From: "Li, Aubrey" <aubrey.li@linux.intel.com>
-Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake
- the system up
-Date: Thu, 10 Jul 2014 10:27:46 +0800
-Message-ID: <53BDFA22.2000409@linux.intel.com>
-References: <53A2340D.9030503@linux.intel.com> <18261725.84uqcyZ8CE@vostro.rjw.lan> <20140709005434.GB14935@core.coreip.homeip.net> <4301161.i6ArOLmcsg@vostro.rjw.lan>
+From: Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH] soc_button_array: fix the issue that button device
+ can't be enumerated since 3.16-rc1
+Date: Thu, 10 Jul 2014 14:24:02 +0800
+Message-ID: <1404973442.28592.7.camel@rzhang1-toshiba>
+References: <1404309504.8366.93.camel@rzhang1-toshiba>
+	 <1404309713.8366.94.camel@rzhang1-toshiba>
+	 <2556427.cdnVoQoSXY@vostro.rjw.lan>
+	 <20140709165732.GD10364@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:9863 "EHLO mga14.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:52690 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755380AbaGJC2T (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Jul 2014 22:28:19 -0400
-In-Reply-To: <4301161.i6ArOLmcsg@vostro.rjw.lan>
+	id S1750702AbaGJGYH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Jul 2014 02:24:07 -0400
+In-Reply-To: <20140709165732.GD10364@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Linux PM list <linux-pm@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
 
-On 2014/7/9 20:45, Rafael J. Wysocki wrote:
-> On Tuesday, July 08, 2014 05:54:35 PM Dmitry Torokhov wrote:
->> On Wed, Jul 09, 2014 at 02:59:33AM +0200, Rafael J. Wysocki wrote:
->>> On Tuesday, July 08, 2014 05:15:06 PM Dmitry Torokhov wrote:
->>>> On Wed, Jul 09, 2014 at 01:06:07AM +0200, Rafael J. Wysocki wrote:
+On Wed, 2014-07-09 at 09:57 -0700, Dmitry Torokhov wrote:
+> On Tue, Jul 08, 2014 at 10:50:04PM +0200, Rafael J. Wysocki wrote:
+> > On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
+> > > From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
+> > > From: Jin Yao <yao.jin@linux.intel.com>
+> > > Date: Thu, 26 Jun 2014 10:26:44 +0800
+> > > Subject: [PATCH] soc_button_array: fix the issue that button device can't be
+> > >  enumerated since 3.16-rc1
+> > 
+> > Hi Rui,
+> > 
+> > For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
+> > It is too late to do the conversion at this point IMO and we can do it later.
 > 
-> [cut]
+> But for 3.17 this patch is the right way of doing things, right?
 > 
->>>>
->>>> When device driver marks IRQ as a wakeup source I believe it is prepared
->>>> to handle it (or it would shut it off explicitly).
->>>
->>> I can agree with that.
->>>
->>> Are you suggesting that __disable_irq() should check irq_data for
->>> IRQD_WAKEUP_STATE and skip the IRQ (in the 'suspend' case) if that is set?
->>
->> Yes, something like that.
-> 
-> OK
+yes, but it needs a bit more work to revert the "PNP0C40" id from
+drivers/acpi/acpi_pnp.c.
+I will send an updated one once the "Adding PNP0C40 id" patch is merged.
 
-Many thanks to you both for the discussion.
+thanks,
+rui
+> Thanks.
 > 
-> Aubrey, can you please check if the appended patch helps on the T100?
 
-I verified this patch on T100, it works as expected, freeze can be waken
-up by reverting my patch and applying this one.
-
-Is this a final solution?
-
-Thanks,
--Aubrey
-
-> 
-> Rafael
-> 
-> ---
->  kernel/irq/manage.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> Index: linux-pm/kernel/irq/manage.c
-> ===================================================================
-> --- linux-pm.orig/kernel/irq/manage.c
-> +++ linux-pm/kernel/irq/manage.c
-> @@ -385,7 +385,8 @@ setup_affinity(unsigned int irq, struct
->  void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
->  {
->  	if (suspend) {
-> -		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
-> +		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND)
-> +		    || irqd_has_set(&desc->irq_data, IRQD_WAKEUP_STATE))
->  			return;
->  		desc->istate |= IRQS_SUSPENDED;
->  	}
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 

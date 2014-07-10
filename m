@@ -1,33 +1,83 @@
-From: andrea <mariofutire@gmail.com>
-Subject: Re: PS3 controller and vibration
-Date: Wed, 09 Jul 2014 20:51:30 +0100
-Message-ID: <53BD9D42.5050809@googlemail.com>
-References: <lpk5ru$5ak$1@ger.gmane.org> <CALDEARhCi+0TidoTmsDoYEnVUedCc-1m2AnLypkimJbkJfWaYQ@mail.gmail.com>
+From: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake
+ the system up
+Date: Thu, 10 Jul 2014 10:27:46 +0800
+Message-ID: <53BDFA22.2000409@linux.intel.com>
+References: <53A2340D.9030503@linux.intel.com> <18261725.84uqcyZ8CE@vostro.rjw.lan> <20140709005434.GB14935@core.coreip.homeip.net> <4301161.i6ArOLmcsg@vostro.rjw.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:60620 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753779AbaGITvf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2014 15:51:35 -0400
-Received: by mail-wi0-f179.google.com with SMTP id cc10so3354388wib.12
-        for <linux-input@vger.kernel.org>; Wed, 09 Jul 2014 12:51:33 -0700 (PDT)
-In-Reply-To: <CALDEARhCi+0TidoTmsDoYEnVUedCc-1m2AnLypkimJbkJfWaYQ@mail.gmail.com>
+Received: from mga14.intel.com ([192.55.52.115]:9863 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755380AbaGJC2T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Jul 2014 22:28:19 -0400
+In-Reply-To: <4301161.i6ArOLmcsg@vostro.rjw.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Wright <michaelwr@android.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Linux PM list <linux-pm@vger.kernel.org>
 
-On 09/07/14 20:47, Michael Wright wrote:
-> Check to see if it says DUALSHOCK 3 on the top. Regular SIXAXIS
-> controllers don't support force feedback.
+On 2014/7/9 20:45, Rafael J. Wysocki wrote:
+> On Tuesday, July 08, 2014 05:54:35 PM Dmitry Torokhov wrote:
+>> On Wed, Jul 09, 2014 at 02:59:33AM +0200, Rafael J. Wysocki wrote:
+>>> On Tuesday, July 08, 2014 05:15:06 PM Dmitry Torokhov wrote:
+>>>> On Wed, Jul 09, 2014 at 01:06:07AM +0200, Rafael J. Wysocki wrote:
+> 
+> [cut]
+> 
+>>>>
+>>>> When device driver marks IRQ as a wakeup source I believe it is prepared
+>>>> to handle it (or it would shut it off explicitly).
+>>>
+>>> I can agree with that.
+>>>
+>>> Are you suggesting that __disable_irq() should check irq_data for
+>>> IRQD_WAKEUP_STATE and skip the IRQ (in the 'suspend' case) if that is set?
+>>
+>> Yes, something like that.
+> 
+> OK
 
-it does not.
+Many thanks to you both for the discussion.
+> 
+> Aubrey, can you please check if the appended patch helps on the T100?
 
-is vibration the same as rumble?
-I must have dreamed then, I was pretty sure it did in the past.
+I verified this patch on T100, it works as expected, freeze can be waken
+up by reverting my patch and applying this one.
 
-thanks
+Is this a final solution?
 
+Thanks,
+-Aubrey
+
+> 
+> Rafael
+> 
+> ---
+>  kernel/irq/manage.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> Index: linux-pm/kernel/irq/manage.c
+> ===================================================================
+> --- linux-pm.orig/kernel/irq/manage.c
+> +++ linux-pm/kernel/irq/manage.c
+> @@ -385,7 +385,8 @@ setup_affinity(unsigned int irq, struct
+>  void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
+>  {
+>  	if (suspend) {
+> -		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
+> +		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND)
+> +		    || irqd_has_set(&desc->irq_data, IRQD_WAKEUP_STATE))
+>  			return;
+>  		desc->istate |= IRQS_SUSPENDED;
+>  	}
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 

@@ -1,81 +1,57 @@
-From: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Input: Add Acer Aspire 5710 to nomux blacklist
-Date: Thu, 10 Jul 2014 10:45:51 +0200
-Message-ID: <20140710084551.GA26864@suse.cz>
-References: <alpine.LNX.2.00.1406251139070.15939@pobox.suse.cz>
- <20140709165438.GC10364@core.coreip.homeip.net>
- <20140709174821.GA30912@suse.cz>
- <20140709193830.GE10364@core.coreip.homeip.net>
- <53BE4180.4030907@redhat.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH] GPIO button wth wakeup attribute is supposed to wake the system up
+Date: Thu, 10 Jul 2014 13:27:02 +0200
+Message-ID: <1614271.1peg23gJZx@vostro.rjw.lan>
+References: <53A2340D.9030503@linux.intel.com> <4301161.i6ArOLmcsg@vostro.rjw.lan> <53BDFA22.2000409@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59633 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751944AbaGJIpz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jul 2014 04:45:55 -0400
-Content-Disposition: inline
-In-Reply-To: <53BE4180.4030907@redhat.com>
+Received: from v094114.home.net.pl ([79.96.170.134]:60724 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751083AbaGJLIz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Jul 2014 07:08:55 -0400
+In-Reply-To: <53BDFA22.2000409@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Linux PM list <linux-pm@vger.kernel.org>
 
-On Thu, Jul 10, 2014 at 09:32:16AM +0200, Hans de Goede wrote:
-
-> >>> I also expect
-> >>> that most of external PS/2 mice are dead by now, so number of cases when
-> >>
-> >> One would at least hope so. Sadly, internal mice and PS/2 keyboards
-> >> aren't going to go away any soon, due to larger power consumption of USB
-> >> devices.
+On Thursday, July 10, 2014 10:27:46 AM Li, Aubrey wrote:
+> On 2014/7/9 20:45, Rafael J. Wysocki wrote:
+> > On Tuesday, July 08, 2014 05:54:35 PM Dmitry Torokhov wrote:
+> >> On Wed, Jul 09, 2014 at 02:59:33AM +0200, Rafael J. Wysocki wrote:
+> >>> On Tuesday, July 08, 2014 05:15:06 PM Dmitry Torokhov wrote:
+> >>>> On Wed, Jul 09, 2014 at 01:06:07AM +0200, Rafael J. Wysocki wrote:
 > > 
-> > Right, but we are not talking about mouse vs keyboard, they use separate
-> > ports anyway, it is touchpad plus external PS/2 mouse case where active
-> > MUX might help.
-> 
-> What about laptops with both a touchpad and a trackpoint ? I think in most
-> cases the trackpoint works through some sort of pass-through mode of the
-> touchpad (or is outright part of the touchpad ps/2 device), but are we
-> sure there are no cases where the trackpoint and touchpad are really
-> separate ps/2 devices hookedup through an active mux ?
-
-I'm not aware of any current machines using active multiplexing for
-that. There are basically two touchpad manufacturers: Synaptics and
-ALPS. Synaptics has a nearly transparent passthrough mode and
-touchpoints are connected through that. ALPS basically manufactures a
-touchpad+touchpoint combo device and thus doesn't need a fully
-transparent passthrough.
-
-Active multiplexing was typically used for external PS/2 ports on
-laptops, because the manufacturer couldn't anticipate the protocol of
-the externally connected device.
-
-> >>> we have users with PS/2 touchpad + external PS/2 mouse + working active
-> >>> MUX is exceedingly small.
+> > [cut]
+> > 
+> >>>>
+> >>>> When device driver marks IRQ as a wakeup source I believe it is prepared
+> >>>> to handle it (or it would shut it off explicitly).
 > >>>
-> >>> Let's pull Vojtech in ;)
+> >>> I can agree with that.
+> >>>
+> >>> Are you suggesting that __disable_irq() should check irq_data for
+> >>> IRQD_WAKEUP_STATE and skip the IRQ (in the 'suspend' case) if that is set?
 > >>
-> >> What I'd prefer is to, based on DMI data, report but not enable by
-> >> default Active MUX mode on any machine manufactured after a certain
-> >> date. Plus have a DMI-based whitelist for machines that absolutely
-> >> needed, if any are found later.
+> >> Yes, something like that.
 > > 
-> > Looking at the changes to nomux blacklist sometimes even trying MUX
-> > messes up KBC. Instead of playing date games I'd rather simply make
-> > i8042.nomux default. I'm fine with having whitelist for boxes that
-> > actually need and support muxing properly.
+> > OK
 > 
-> I'm a bit skeptical about making this change, see above.
+> Many thanks to you both for the discussion.
+> > 
+> > Aubrey, can you please check if the appended patch helps on the T100?
+> 
+> I verified this patch on T100, it works as expected, freeze can be waken
+> up by reverting my patch and applying this one.
 
-I'm not too keen about it either, as it could break existing setups. 
+Thanks!
 
-But I have to concede that any working hardware still using both
-external and internal PS/2 and thus needing Active Multiplexing is most
-likely to be found in museums today.
+> Is this a final solution?
 
-So the risk of breakage isn't all that big.
+I hope so.  I'll resend it with a proper changelog later today.
 
--- 
-Vojtech Pavlik
-Director SUSE Labs
+Rafael
+

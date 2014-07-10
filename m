@@ -1,100 +1,66 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: Add Acer Aspire 5710 to nomux blacklist
-Date: Thu, 10 Jul 2014 17:20:55 +0200
-Message-ID: <53BEAF57.30409@redhat.com>
-References: <alpine.LNX.2.00.1406251139070.15939@pobox.suse.cz> <20140709165438.GC10364@core.coreip.homeip.net> <20140709174821.GA30912@suse.cz> <20140709193830.GE10364@core.coreip.homeip.net> <53BE4180.4030907@redhat.com> <20140710084551.GA26864@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/5] Input - wacom: battery enhancements and unifying hid-wacom and wacom
+Date: Thu, 10 Jul 2014 14:44:55 -0400
+Message-ID: <1405017900-16024-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37917 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41760 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751334AbaGJPVD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jul 2014 11:21:03 -0400
-In-Reply-To: <20140710084551.GA26864@suse.cz>
+	id S1751279AbaGJSpV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Jul 2014 14:45:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi,
+Hi guys,
 
-On 07/10/2014 10:45 AM, Vojtech Pavlik wrote:
-> On Thu, Jul 10, 2014 at 09:32:16AM +0200, Hans de Goede wrote:
-> 
->>>>> I also expect
->>>>> that most of external PS/2 mice are dead by now, so number of cases when
->>>>
->>>> One would at least hope so. Sadly, internal mice and PS/2 keyboards
->>>> aren't going to go away any soon, due to larger power consumption of USB
->>>> devices.
->>>
->>> Right, but we are not talking about mouse vs keyboard, they use separate
->>> ports anyway, it is touchpad plus external PS/2 mouse case where active
->>> MUX might help.
->>
->> What about laptops with both a touchpad and a trackpoint ? I think in most
->> cases the trackpoint works through some sort of pass-through mode of the
->> touchpad (or is outright part of the touchpad ps/2 device), but are we
->> sure there are no cases where the trackpoint and touchpad are really
->> separate ps/2 devices hookedup through an active mux ?
-> 
-> I'm not aware of any current machines using active multiplexing for
-> that. There are basically two touchpad manufacturers: Synaptics and
-> ALPS.
+Continuing on the Wacom cleanup, here are 5 patches.
 
-And elantech
+The first two enhance the battery reporting for the Wireless receiver by
+adding the status of the battery (discharging, full, charging) - inspired by
+the code found in hid-wacom.c, and also by adding notifications to the power
+system so that upower knows when the battery changed.
 
-> Synaptics has a nearly transparent passthrough mode and
-> touchpoints are connected through that. ALPS basically manufactures a
-> touchpad+touchpoint combo device and thus doesn't need a fully
-> transparent passthrough.
+The last three are the handling of the two Wacom Bluetooth devices in wacom.ko.
+Some enhancements here:
+- Intuos4 now supports other tools than just the plain stylus (mouse, artpen, ...)
+- one less driver for Wacom (~700 lines of code less in total)
+- unifying access to LEDs/OLEDs from Bluetooth and USB devices
 
-Elantech now a days also produces a combo like alps.
+However, I did not backport the speed attribute and the ac power device (which
+is infered by the battery status). I don't know if there are users of those two,
+so I let them aside for now. Przemo, any ideas if this is actually used?
 
-> Active multiplexing was typically used for external PS/2 ports on
-> laptops, because the manufacturer couldn't anticipate the protocol of
-> the externally connected device.
+This whole code is based on top of the previous HID conversion patches.
+I pushed a branch with all I have queued on the list here:
+https://github.com/bentiss/linux/commits/hid-wacom-legacy-3.16-rc4
 
-Right, but what about users who still have a laptop with an external
-ps/2 port which they happen to also still use ?
+Again, given that there has been no answer on how this can be merged upstream
+(Jiri? Dmitry?), I just piled those on top of the previous.
+I wouldn't to resplit the input and hid specific changes if this is the choice
+that is made.
 
+Cheers,
+Benjamin
 
+Benjamin Tissoires (5):
+  Input - wacom: enhance Wireless Receiver battery reporting
+  Input - wacom: use a specific name for the battery device
+  Input - wacom: handle Graphire BT tablets in wacom.ko
+  Input - wacom: handle Intuos 4 BT in wacom.ko
+  HID: remove hid-wacom Bluetooth driver
 
-> 
->>>>> we have users with PS/2 touchpad + external PS/2 mouse + working active
->>>>> MUX is exceedingly small.
->>>>>
->>>>> Let's pull Vojtech in ;)
->>>>
->>>> What I'd prefer is to, based on DMI data, report but not enable by
->>>> default Active MUX mode on any machine manufactured after a certain
->>>> date. Plus have a DMI-based whitelist for machines that absolutely
->>>> needed, if any are found later.
->>>
->>> Looking at the changes to nomux blacklist sometimes even trying MUX
->>> messes up KBC. Instead of playing date games I'd rather simply make
->>> i8042.nomux default. I'm fine with having whitelist for boxes that
->>> actually need and support muxing properly.
->>
->> I'm a bit skeptical about making this change, see above.
-> 
-> I'm not too keen about it either, as it could break existing setups. 
-> 
-> But I have to concede that any working hardware still using both
-> external and internal PS/2 and thus needing Active Multiplexing is most
-> likely to be found in museums today.
-> 
-> So the risk of breakage isn't all that big.
+ drivers/hid/Kconfig              |   8 -
+ drivers/hid/Makefile             |   1 -
+ drivers/hid/hid-core.c           |   2 -
+ drivers/hid/hid-wacom.c          | 973 ---------------------------------------
+ drivers/input/tablet/wacom.h     |   6 +
+ drivers/input/tablet/wacom_sys.c | 114 ++++-
+ drivers/input/tablet/wacom_wac.c | 189 +++++++-
+ drivers/input/tablet/wacom_wac.h |   8 +
+ 8 files changed, 303 insertions(+), 998 deletions(-)
+ delete mode 100644 drivers/hid/hid-wacom.c
 
-One of the nice things about Linux is that in general we've pretty
-decent support for older hardware, so if we decide to flip the nomux
-default, I think we should really do so based on some BIOS cut-off
-date, so as to not break older model laptops.
+-- 
+2.0.0
 
-Regards,
-
-Hans
-
-
-> 

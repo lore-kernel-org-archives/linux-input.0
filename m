@@ -1,51 +1,87 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH] Input: Add driver for Microchip's CAP1106
-Date: Fri, 11 Jul 2014 19:42:27 +0200
-Message-ID: <53C02203.50601@zonque.org>
-References: <1405064550-12222-1-git-send-email-zonque@gmail.com> <CANq1E4ThSi5x23uzBbjidM9qnLnWYBwAxeg+i8Dmv0HCPR8CZw@mail.gmail.com> <53BFB300.1040500@zonque.org> <20140711173336.GA492@core.coreip.homeip.net>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: rmi: add additional checks for the existence of optional queries in order to compute the address of Query 12.
+Date: Fri, 11 Jul 2014 14:35:50 -0700
+Message-ID: <1405114551-24354-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from svenfoo.org ([82.94.215.22]:36377 "EHLO mail.zonque.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751345AbaGKRma (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jul 2014 13:42:30 -0400
-In-Reply-To: <20140711173336.GA492@core.coreip.homeip.net>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:64491 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750918AbaGKVxQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jul 2014 17:53:16 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, "list@mail.zonque.de: HID CORE LAYER" <linux-input@vger.kernel.org>, Mark Brown <broonie@kernel.org>, devicetree@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On 07/11/2014 07:33 PM, Dmitry Torokhov wrote:
-> On Fri, Jul 11, 2014 at 11:48:48AM +0200, Daniel Mack wrote:
->> On 07/11/2014 11:43 AM, David Herrmann wrote:
->>>> +static void cap1106_work(struct work_struct *w)
->>>>> +{
->>>>> +       struct cap1106_priv *priv = container_of(w, struct cap1106_priv, work);
->>>>> +       unsigned int status;
->>>>> +       int ret, i;
->>>>> +
->>>>> +       spin_lock(&priv->lock);
->>> If your worker started and is _about_ to take the spinlock, you might
->>> dead-lock with cap1106_close(). They might already hold the spinlock
->>> and then call cancel_work_sync(), thus waiting for this task to take
->>> the lock end exit..
->>>
->>> How about you add "bool closed : 1;" to your cap1106_priv structure
->>> and drop the lock here, but..
->>>
->>
->> Thanks for the review, David. Will look into it and send a v2 with these
->> changes soon.
-> 
-> Why aren't you using threaded oneshot IRQ for this? Then you would not
-> need all this dancing around with worker and enabling/disabling
-> interrupt.
+There are additional queries which are optional and may not be present depending on the configuration of the firmware. Knowing which queries are present is needed to properly compute the address of Query 12 and all subsequent queries. Additional bits in Query 1 are used to indicate the presence of these optional queries.
 
-Ah, right, that's much nicer indeed.
-Thanks for the pointer! I'll post v3 later.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/hid-rmi.c | 35 +++++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
-
-Daniel
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 578bbe6..3221a95 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -549,10 +549,12 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	u8 buf[20];
+ 	int ret;
+ 	bool has_query9;
+-	bool has_query10;
++	bool has_query10 = false;
+ 	bool has_query11;
+ 	bool has_query12;
+ 	bool has_physical_props;
++	bool has_gestures;
++	bool has_rel;
+ 	unsigned x_size, y_size;
+ 	u16 query12_offset;
+ 
+@@ -589,19 +591,32 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	/* query 8 to find out if query 10 exists */
+-	ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
+-	if (ret) {
+-		hid_err(hdev, "can not read gesture information: %d.\n", ret);
+-		return ret;
++	has_rel = !!(buf[0] & BIT(3));
++	has_gestures = !!(buf[0] & BIT(5));
++
++	if (has_gestures) {
++		/* query 8 to find out if query 10 exists */
++		ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
++		if (ret) {
++			hid_err(hdev, "can not read gesture information: %d.\n",
++				ret);
++			return ret;
++		}
++		has_query10 = !!(buf[0] & BIT(2));
+ 	}
+-	has_query10 = !!(buf[0] & BIT(2));
+ 
+ 	/*
+-	 * At least 8 queries are guaranteed to be present in F11
+-	 * +1 for query12.
++	 * At least 4 queries are guaranteed to be present in F11
++	 * +1 for query 5 which is present since absolute events are
++	 * reported and +1 for query 12.
+ 	 */
+-	query12_offset = 9;
++	query12_offset = 6;
++
++	if (has_rel)
++		++query12_offset; /* query 6 is present */
++
++	if (has_gestures)
++		query12_offset += 2; /* query 7 and 8 are present */
+ 
+ 	if (has_query9)
+ 		++query12_offset;
+-- 
+1.9.1
 

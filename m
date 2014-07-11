@@ -1,481 +1,86 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: [PATCH v3] Input: Add driver for Microchip's CAP1106
-Date: Sat, 12 Jul 2014 00:49:45 +0200
-Message-ID: <1405118985-6567-1-git-send-email-zonque@gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: i2c-hid: call the hid driver's suspend and resume callbacks
+Date: Fri, 11 Jul 2014 16:34:18 -0700
+Message-ID: <1405121658-3853-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f170.google.com ([74.125.82.170]:34648 "EHLO
-	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751926AbaGKWt4 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:15096 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751012AbaGKXl5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jul 2014 18:49:56 -0400
+	Fri, 11 Jul 2014 19:41:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, broonie@kernel.org, dh.herrmann@gmail.com, devicetree@vger.kernel.org, Daniel Mack <zonque@gmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Vincent Huang <vincent.huang@tw.synaptics.com>
 
-This patch adds a driver for Microchips CAP1106, an I2C driven, 6-channel
-capacitive touch sensor.
+Currently, the i2c-hid driver does not call the suspend, resume, and
+reset_resume callbacks in the hid_driver struct when those events occur.
+This means that HID drivers for i2c-hid devices will not be able to execute
+commands which may be needed during suspend or resume. One example is when a
+touchpad using the hid-multitouch driver gets reset by i2c-hid coming out of
+resume. Since the reset_resume callback never gets called the device is never
+put back into the correct input mode. This patch calls the suspend and resume
+callbacks and tries to duplicate the functionality of the usb-hid driver.
 
-For now, only the capacitive buttons are supported, and no specific
-settings that can be tweaked for individual channels, except for the
-device-wide sensitivity gain. The defaults seem to work just fine out of
-the box, so I'll leave configurable parameters for someone who's in need
-of them and who can actually measure the impact. All registers are
-prepared, however. Many of them are just not used for now.
-
-The implementation does not make any attempt to be compatible to platform
-data driven boards, but fully depends on CONFIG_OF.
-
-Power management functions are also left for volounteers with the ability
-to actually test them.
-
-Signed-off-by: Daniel Mack <zonque@gmail.com>
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
 ---
-v2:                                                                              
- * Fix potential deadlocks pointed out by David.
+Hi Benjamin,
 
-v3:
- * Use devm_request_threaded_irq() and get rid of the work struct.
- * Drop ->open() and ->close() as it isn't actually needed for an
-   interrupt-driven device. This way, we can also get rid of the
-   locking entirely.
+This is the patch which Vincent and I came up with to fix the behavior which we were seeing with touchpads not being operational after resuming. We only use the reset_resume callback since i2c_hid_resume is always doing a hardware reset and it doesn't seem like there is a condition in which the standard resume callback would be appropriate. Also, is a full hardware reset always needed when resuming?
 
- .../devicetree/bindings/input/cap1106.txt          |  63 ++++
- drivers/input/keyboard/Kconfig                     |  10 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/cap1106.c                   | 322 +++++++++++++++++++++
- 4 files changed, 396 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/cap1106.txt
- create mode 100644 drivers/input/keyboard/cap1106.c
+ drivers/hid/i2c-hid/i2c-hid.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/cap1106.txt b/Documentation/devicetree/bindings/input/cap1106.txt
-new file mode 100644
-index 0000000..57f5af3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/cap1106.txt
-@@ -0,0 +1,63 @@
-+Device tree bindings for Microchip CAP1106, 6 channel capacitive touch sensor
-+
-+The node for this driver must be a child of a I2C controller node, as the
-+device communication via I2C only.
-+
-+Required properties:
-+
-+	compatible:		Must be "microchip,cap1106"
-+	reg:			The I2C slave address of the device.
-+				Only 0x28 is valid.
-+	interrupt:		Node describing the interrupt line the device's
-+				ALERT#/CM_IRQ# pin is connected to.
-+
-+Optional properties:
-+
-+	autorepeat:		Enables the Linux input system's autorepeat
-+				feature on the input device.
-+	microchip,sensor-gain:	Defines the gain of the sensor circuitry. This
-+				effectively controls the sensitivity, as a
-+				smaller delta capacitance is required to
-+				generate the same delta count values.
-+				Valid values are 1, 2, 4, and 8.
-+				By default, a gain of 1 is set.
-+
-+To define details of each individual button channel, six subnodes can be
-+specified. Inside each of those, the following property is valid:
-+
-+	linux,keycode:	Specify the numeric identifier of the keycode to be
-+			generated when this channel is activated. If this
-+			property is omitted, KEY_A, KEY_B, etc are used as
-+			defaults.
-+
-+Example:
-+
-+i2c_controller {
-+	cap1106@28 {
-+		compatible = "microchip,cap1106";
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <0 0>;
-+		reg = <0x28>;
-+		autorepeat;
-+		microchip,sensor-gain = <2>;
-+
-+		up {
-+			linux,keycode = <103>; /* KEY_UP */
-+		};
-+		right {
-+			linux,keycode = <106>; /* KEY_RIGHT */
-+		};
-+		down {
-+			linux,keycode = <108>; /* KEY_DOWN */
-+		};
-+		left {
-+			linux,keycode = <105>; /* KEY_LEFT */
-+		};
-+		pagedown {
-+			linux,keycode = <109>; /* KEY_PAGEDOWN */
-+		};
-+		pageup {
-+			linux,keycode = <104>; /* KEY_PAGEUP */
-+		};
-+	};
-+}
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index f7e79b4..a3958c6 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -665,4 +665,14 @@ config KEYBOARD_CROS_EC
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called cros_ec_keyb.
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 21aafc8..747d544 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1054,21 +1054,29 @@ static int i2c_hid_remove(struct i2c_client *client)
+ static int i2c_hid_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct i2c_hid *ihid = i2c_get_clientdata(client);
++	struct hid_device *hid = ihid->hid;
++	int ret = 0;
  
-+config KEYBOARD_CAP1106
-+	tristate "Microchip CAP1106 touch sensor"
-+	depends on OF && I2C
-+	select REGMAP_I2C
-+	help
-+	  Say Y here to enable the CAP1106 touch sensor driver.
+ 	disable_irq(client->irq);
+ 	if (device_may_wakeup(&client->dev))
+ 		enable_irq_wake(client->irq);
+ 
++	if (hid->driver && hid->driver->suspend)
++		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called cap1106.
-+
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 7504ae1..0a33456 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -11,6 +11,7 @@ obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- obj-$(CONFIG_KEYBOARD_ATARI)		+= atakbd.o
- obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
-+obj-$(CONFIG_KEYBOARD_CAP1106)		+= cap1106.o
- obj-$(CONFIG_KEYBOARD_CLPS711X)		+= clps711x-keypad.o
- obj-$(CONFIG_KEYBOARD_CROS_EC)		+= cros_ec_keyb.o
- obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
-diff --git a/drivers/input/keyboard/cap1106.c b/drivers/input/keyboard/cap1106.c
-new file mode 100644
-index 0000000..14142af
---- /dev/null
-+++ b/drivers/input/keyboard/cap1106.c
-@@ -0,0 +1,322 @@
-+/*
-+ * Input driver for Microchip CAP1106, 6 channel capacitive touch sensor
-+ *
-+ * http://www.microchip.com/wwwproducts/Devices.aspx?product=CAP1106
-+ *
-+ * (c) 2014 Daniel Mack <linux@zonque.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/of_irq.h>
-+#include <linux/regmap.h>
-+#include <linux/i2c.h>
-+#include <linux/gpio/consumer.h>
-+
-+#define CAP1106_REG_MAIN_CONTROL	0x00
-+#define CAP1106_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
-+#define CAP1106_REG_MAIN_CONTROL_GAIN_MASK	(0xc0)
-+#define CAP1106_REG_GENERAL_STATUS	0x02
-+#define CAP1106_REG_SENSOR_INPUT	0x03
-+#define CAP1106_REG_NOISE_FLAG_STATUS	0x0a
-+#define CAP1106_REG_SENOR_DELTA(X)	(0x10 + (X))
-+#define CAP1106_REG_SENSITIVITY_CONTROL	0x1f
-+#define CAP1106_REG_CONFIG		0x20
-+#define CAP1106_REG_SENSOR_ENABLE	0x21
-+#define CAP1106_REG_SENSOR_CONFIG	0x22
-+#define CAP1106_REG_SENSOR_CONFIG2	0x23
-+#define CAP1106_REG_SAMPLING_CONFIG	0x24
-+#define CAP1106_REG_CALIBRATION		0x25
-+#define CAP1106_REG_INT_ENABLE		0x26
-+#define CAP1106_REG_REPEAT_RATE		0x28
-+#define CAP1106_REG_MT_CONFIG		0x2a
-+#define CAP1106_REG_MT_PATTERN_CONFIG	0x2b
-+#define CAP1106_REG_MT_PATTERN		0x2d
-+#define CAP1106_REG_RECALIB_CONFIG	0x2f
-+#define CAP1106_REG_SENSOR_THRESH(X)	(0x30 + (X))
-+#define CAP1106_REG_SENSOR_NOISE_THRESH	0x38
-+#define CAP1106_REG_STANDBY_CHANNEL	0x40
-+#define CAP1106_REG_STANDBY_CONFIG	0x41
-+#define CAP1106_REG_STANDBY_SENSITIVITY	0x42
-+#define CAP1106_REG_STANDBY_THRESH	0x43
-+#define CAP1106_REG_CONFIG2		0x44
-+#define CAP1106_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
-+#define CAP1106_REG_SENSOR_CALIB	(0xb1 + (X))
-+#define CAP1106_REG_SENSOR_CALIB_LSB1	0xb9
-+#define CAP1106_REG_SENSOR_CALIB_LSB2	0xba
-+#define CAP1106_REG_PRODUCT_ID		0xfd
-+#define CAP1106_REG_MANUFACTURER_ID	0xfe
-+#define CAP1106_REG_REVISION		0xff
-+
-+#define CAP1106_NUM_CHN 6
-+#define CAP1106_PRODUCT_ID	0x55
-+#define CAP1106_MANUFACTURER_ID	0x5d
-+
-+struct cap1106_priv {
-+	struct regmap *regmap;
-+	struct input_dev *idev;
-+
-+	/* config */
-+	unsigned int keycodes[CAP1106_NUM_CHN];
-+};
-+
-+static const struct reg_default cap1106_reg_defaults[] = {
-+	{ CAP1106_REG_MAIN_CONTROL,		0x00 },
-+	{ CAP1106_REG_GENERAL_STATUS,		0x00 },
-+	{ CAP1106_REG_SENSOR_INPUT,		0x00 },
-+	{ CAP1106_REG_NOISE_FLAG_STATUS,	0x00 },
-+	{ CAP1106_REG_SENSITIVITY_CONTROL,	0x2f },
-+	{ CAP1106_REG_CONFIG,			0x20 },
-+	{ CAP1106_REG_SENSOR_ENABLE,		0x3f },
-+	{ CAP1106_REG_SENSOR_CONFIG,		0xa4 },
-+	{ CAP1106_REG_SENSOR_CONFIG2,		0x07 },
-+	{ CAP1106_REG_SAMPLING_CONFIG,		0x39 },
-+	{ CAP1106_REG_CALIBRATION,		0x00 },
-+	{ CAP1106_REG_INT_ENABLE,		0x3f },
-+	{ CAP1106_REG_REPEAT_RATE,		0x3f },
-+	{ CAP1106_REG_MT_CONFIG,		0x80 },
-+	{ CAP1106_REG_MT_PATTERN_CONFIG,	0x00 },
-+	{ CAP1106_REG_MT_PATTERN,		0x3f },
-+	{ CAP1106_REG_RECALIB_CONFIG,		0x8a },
-+	{ CAP1106_REG_SENSOR_THRESH(0),		0x40 },
-+	{ CAP1106_REG_SENSOR_THRESH(1),		0x40 },
-+	{ CAP1106_REG_SENSOR_THRESH(2),		0x40 },
-+	{ CAP1106_REG_SENSOR_THRESH(3),		0x40 },
-+	{ CAP1106_REG_SENSOR_THRESH(4),		0x40 },
-+	{ CAP1106_REG_SENSOR_THRESH(5),		0x40 },
-+	{ CAP1106_REG_SENSOR_NOISE_THRESH,	0x01 },
-+	{ CAP1106_REG_STANDBY_CHANNEL,		0x00 },
-+	{ CAP1106_REG_STANDBY_CONFIG,		0x39 },
-+	{ CAP1106_REG_STANDBY_SENSITIVITY,	0x02 },
-+	{ CAP1106_REG_STANDBY_THRESH,		0x40 },
-+	{ CAP1106_REG_CONFIG2,			0x40 },
-+	{ CAP1106_REG_SENSOR_CALIB_LSB1,	0x00 },
-+	{ CAP1106_REG_SENSOR_CALIB_LSB2,	0x00 },
-+};
-+
-+static bool cap1106_volatile_reg(struct device *dev, unsigned int reg)
-+{
-+	switch (reg) {
-+	case CAP1106_REG_MAIN_CONTROL:
-+	case CAP1106_REG_SENSOR_INPUT:
-+	case CAP1106_REG_SENOR_DELTA(0):
-+	case CAP1106_REG_SENOR_DELTA(1):
-+	case CAP1106_REG_SENOR_DELTA(2):
-+	case CAP1106_REG_SENOR_DELTA(3):
-+	case CAP1106_REG_SENOR_DELTA(4):
-+	case CAP1106_REG_SENOR_DELTA(5):
-+	case CAP1106_REG_PRODUCT_ID:
-+	case CAP1106_REG_MANUFACTURER_ID:
-+	case CAP1106_REG_REVISION:
-+		return true;
+ 	/* Save some power */
+ 	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int i2c_hid_resume(struct device *dev)
+ {
+ 	int ret;
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct i2c_hid *ihid = i2c_get_clientdata(client);
++	struct hid_device *hid = ihid->hid;
+ 
+ 	enable_irq(client->irq);
+ 	ret = i2c_hid_hwreset(client);
+@@ -1078,6 +1086,11 @@ static int i2c_hid_resume(struct device *dev)
+ 	if (device_may_wakeup(&client->dev))
+ 		disable_irq_wake(client->irq);
+ 
++	if (hid->driver && hid->driver->reset_resume) {
++		ret = hid->driver->reset_resume(hid);
++		return ret;
 +	}
 +
-+	return false;
-+}
-+
-+static const struct regmap_config cap1106_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+
-+	.max_register = CAP1106_REG_REVISION,
-+	.reg_defaults = cap1106_reg_defaults,
-+
-+	.num_reg_defaults = ARRAY_SIZE(cap1106_reg_defaults),
-+	.cache_type = REGCACHE_RBTREE,
-+	.volatile_reg = cap1106_volatile_reg,
-+};
-+
-+static irqreturn_t cap1106_thread_func(int irq_num, void *data)
-+{
-+	struct cap1106_priv *priv = data;
-+	unsigned int status;
-+	int ret, i;
-+
-+	/*
-+	 * Deassert interrupt. This needs to be done before reading the status
-+	 * registers, which will not carry valid values otherwise.
-+	 */
-+	ret = regmap_update_bits(priv->regmap, CAP1106_REG_MAIN_CONTROL, 1, 0);
-+	if (ret < 0)
-+		goto out;
-+
-+	ret = regmap_read(priv->regmap, CAP1106_REG_SENSOR_INPUT, &status);
-+	if (ret < 0)
-+		goto out;
-+
-+	for (i = 0; i < CAP1106_NUM_CHN; i++)
-+		input_report_key(priv->idev, priv->keycodes[i],
-+				 status & (1 << i));
-+
-+	input_sync(priv->idev);
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+static int cap1106_i2c_probe(struct i2c_client *i2c_client,
-+			     const struct i2c_device_id *id)
-+{
-+	struct device *dev = &i2c_client->dev;
-+	struct device_node *child, *node;
-+	struct cap1106_priv *priv;
-+	unsigned int val, rev;
-+	int i, ret, irq;
-+	u8 gain = 0;
-+	u32 tmp32;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap1106_regmap_config);
-+	if (IS_ERR(priv->regmap))
-+		return PTR_ERR(priv->regmap);
-+
-+	ret = regmap_read(priv->regmap, CAP1106_REG_PRODUCT_ID, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (val != CAP1106_PRODUCT_ID) {
-+		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
-+			val, CAP1106_PRODUCT_ID);
-+		return -ENODEV;
-+	}
-+
-+	ret = regmap_read(priv->regmap, CAP1106_REG_MANUFACTURER_ID, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (val != CAP1106_MANUFACTURER_ID) {
-+		dev_err(dev, "Manufacturer ID: Got 0x%02x, expected 0x%02x\n",
-+			val, CAP1106_MANUFACTURER_ID);
-+		return -ENODEV;
-+	}
-+
-+	ret = regmap_read(priv->regmap, CAP1106_REG_REVISION, &rev);
-+	if (ret < 0)
-+		return ret;
-+
-+	dev_info(dev, "CAP1106 detected, revision 0x%02x\n", rev);
-+	i2c_set_clientdata(i2c_client, priv);
-+	node = dev->of_node;
-+
-+	if (!of_property_read_u32(node, "microchip,sensor-gain", &tmp32)) {
-+		if (is_power_of_2(tmp32) && tmp32 <= 8)
-+			gain = ilog2(tmp32);
-+		else
-+			dev_err(dev, "Invalid sensor-gain value %d\n", tmp32);
-+	}
-+
-+	ret = regmap_update_bits(priv->regmap, CAP1106_REG_MAIN_CONTROL,
-+				 CAP1106_REG_MAIN_CONTROL_GAIN_MASK,
-+				 gain << CAP1106_REG_MAIN_CONTROL_GAIN_SHIFT);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* disable autorepeat. The Linux input system has its own handling. */
-+	ret = regmap_write(priv->regmap, CAP1106_REG_REPEAT_RATE, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* set the defaults */
-+	for (i = 0; i < CAP1106_NUM_CHN; i++)
-+		priv->keycodes[i] = KEY_A + i;
-+
-+	i = 0;
-+	for_each_child_of_node(node, child) {
-+		if (i == CAP1106_NUM_CHN) {
-+			dev_err(dev, "Too many button nodes.\n");
-+			return -EINVAL;
-+		}
-+
-+		if (!of_property_read_u32(child, "linux,keycode", &tmp32))
-+			priv->keycodes[i] = tmp32;
-+
-+		i++;
-+	}
-+
-+	priv->idev = devm_input_allocate_device(dev);
-+	if (!priv->idev)
-+		return -ENOMEM;
-+
-+	priv->idev->name = "CAP1106 capacitive touch sensor";
-+	priv->idev->id.bustype = BUS_I2C;
-+	priv->idev->evbit[0] = BIT_MASK(EV_KEY);
-+
-+	if (of_get_property(node, "autorepeat", NULL))
-+		__set_bit(EV_REP, priv->idev->evbit);
-+
-+	for (i = 0; i < CAP1106_NUM_CHN; i++) {
-+		unsigned int code = priv->keycodes[i];
-+		priv->idev->keybit[BIT_WORD(code)] |= BIT_MASK(code);
-+	}
-+
-+	priv->idev->id.vendor = CAP1106_MANUFACTURER_ID;
-+	priv->idev->id.product = CAP1106_PRODUCT_ID;
-+	priv->idev->id.version = rev;
-+
-+	input_set_drvdata(priv->idev, priv);
-+
-+	ret = input_register_device(priv->idev);
-+	if (ret < 0)
-+		return ret;
-+
-+	irq = irq_of_parse_and_map(node, 0);
-+	if (!irq) {
-+		dev_err(dev, "Unable to parse or map IRQ\n");
-+		return -ENXIO;
-+	}
-+
-+	ret = devm_request_threaded_irq(dev, irq, NULL, cap1106_thread_func,
-+					IRQF_ONESHOT, dev_name(dev), priv);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int cap1106_i2c_remove(struct i2c_client *i2c_client)
-+{
-+	struct cap1106_priv *priv = i2c_get_clientdata(i2c_client);
-+
-+	input_unregister_device(priv->idev);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id cap1106_dt_ids[] = {
-+	{ .compatible = "microchip,cap1106", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, cap1106_dt_ids);
-+
-+static const struct i2c_device_id cap1106_i2c_ids[] = {
-+	{ "cap1106", 0 },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, cap1106_i2c_ids);
-+
-+static struct i2c_driver cap1106_i2c_driver = {
-+	.driver = {
-+		.name	= "cap1106",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = cap1106_dt_ids,
-+	},
-+	.id_table	= cap1106_i2c_ids,
-+	.probe		= cap1106_i2c_probe,
-+	.remove		= cap1106_i2c_remove,
-+};
-+
-+module_i2c_driver(cap1106_i2c_driver);
-+
-+MODULE_ALIAS("platform:" DRV_NAME);
-+MODULE_DESCRIPTION("Microchip CAP1106 driver");
-+MODULE_AUTHOR("Daniel Mack <linux@zonque.org>");
-+MODULE_LICENSE("GPL v2");
+ 	return 0;
+ }
+ #endif
 -- 
-1.9.3
+1.9.1
 

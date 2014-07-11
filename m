@@ -1,118 +1,97 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 0/5] Input - wacom: split out pad data from the stylus
- input device
-Date: Thu, 10 Jul 2014 18:21:13 -0700
-Message-ID: <CANRwn3QsdGOnmuH3=PP=YaX1NpXrZwcB_1ccnTZ_bg2au=KJXg@mail.gmail.com>
-References: <1403557039-1487-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: Add Acer Aspire 5710 to nomux blacklist
+Date: Fri, 11 Jul 2014 09:10:56 +0200
+Message-ID: <53BF8E00.8030102@redhat.com>
+References: <alpine.LNX.2.00.1406251139070.15939@pobox.suse.cz> <20140709165438.GC10364@core.coreip.homeip.net> <20140709174821.GA30912@suse.cz> <20140709193830.GE10364@core.coreip.homeip.net> <53BE4180.4030907@redhat.com> <20140710084551.GA26864@suse.cz> <53BEAF57.30409@redhat.com> <20140710211113.GB37059@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:55151 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751095AbaGKBVP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jul 2014 21:21:15 -0400
-In-Reply-To: <1403557039-1487-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:17668 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751154AbaGKHLD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jul 2014 03:11:03 -0400
+In-Reply-To: <20140710211113.GB37059@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, linuxwacom-devel <linuxwacom-devel@lists.sourceforge.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Mon, Jun 23, 2014 at 1:57 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi,
->
-> This patch series aims at simplifying the handling of Wacom devices f=
-rom the user
-> space point of view. As mentioned in the commit message from 1/5, the=
- pad data
-> are interleaved into the stylus input for some devices, and into the =
-touch input
-> for others.
->
-> It doesn't makes real sense to interleave pad with stylus because pad=
- data are
-> not linked to the absolute position of a stylus (or its presence). It=
- is a
-> device by itself which should have its own input node.
->
-> It will also help the handling of the old Wacom Graphire 4 which shar=
-es its
-> BTN_LEFT and BTN_RIGHT in its pad and in the mouse.
->
-> Again, it's not a problem right now because the user space is current=
-ly dealing
-> with it, but for the Wayland libinput implementation, having somethin=
-g clear
-> will really help.
->
-> This patch series does not break current X11 behavior, the only chang=
-e from the
-> user will be that an input device will appear as "Wacom ... Pad pad".
->
-> I tried to test/debug it as extensively as possible, but I do not gua=
-rantee any
-> mistake :(
->
-> Tested on:
-> - Bamboo 16FG 4x5
-> - Bamboo 2FG
-> - BambooFun 4x5
-> - Bamboo
-> - Cintiq 12WX
-> - Cintiq 21UX2
-> - Cintiq 21UX
-> - Cintiq 22HD
-> - Cintiq 22HDT
-> - Cintiq 24HD
-> - DTU2231
-> - Graphire3
-> - Intuos3 9x12
-> - Intuos4 WL
-> - Intuos5 touch M
-> - Intuos Pro S
->
-> Note: this patch series might requesting to apply the patch for input=
-->phys
-> I just sent:
-> https://patchwork.kernel.org/patch/4404391/
->
->
-> Cheers,
-> Benjamin
->
-> Benjamin Tissoires (5):
->   Input - wacom: create a separate input device for pads
->   Input - wacom: split out the pad device for Intuos/Cintiq
->   Input - wacom: split out the pad device for Bamboos
->   Input - wacom: split out the pad device for DTUS
->   Input - wacom: split out the pad device for Graphire G4 and MO
->
->  drivers/input/tablet/wacom.h     |   2 +
->  drivers/input/tablet/wacom_sys.c |  63 +++++++-
->  drivers/input/tablet/wacom_wac.c | 328 ++++++++++++++++++++++++-----=
-----------
->  drivers/input/tablet/wacom_wac.h |   2 +
->  4 files changed, 259 insertions(+), 136 deletions(-)
->
-> --
-> 1.9.0
->
+Hi,
 
-These look fine to me as well (aside from the one minor comment):
+On 07/10/2014 11:11 PM, Dmitry Torokhov wrote:
 
-Reviewed-by: Jason Gerecke <killertofu@gmail.com>
+<snip>
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> I'm not aware of any current machines using active multiplexing for
+>>> that. There are basically two touchpad manufacturers: Synaptics and
+>>> ALPS.
+>>
+>> And elantech
+>>
+>>> Synaptics has a nearly transparent passthrough mode and
+>>> touchpoints are connected through that. ALPS basically manufactures a
+>>> touchpad+touchpoint combo device and thus doesn't need a fully
+>>> transparent passthrough.
+>>
+>> Elantech now a days also produces a combo like alps.
+> 
+> They still wire it up internally and route all data through AUX port and
+> not use active MUX for that.
+
+Right, that is what I was trying to say with "like alps", sorry if that
+was not clear. This was not meant as an argument against changing the
+nomux default, just meant to complete the list.
+
+<offtopic>
+
+BTW while completing the list, there now is a new player called Focaltech,
+used at least in the Asus X450 and Asus X550. These new devices don't
+even work in mouse emulation mode unless psmouse.proto=bare is used.
+
+I'm working on a pnp-id based patch to detect this and switch to
+psmouse.proto=bare before we upset them (no idea about the native protocol)
+
+Although native support would be better of course, so if anyone has a
+contact at Focaltech that would be great.
+
+But for some reason my patch ain't working. I'll send it upstream as soon
+as I've worked out the kinks, this is being tracked here:
+https://bugzilla.redhat.com/show_bug.cgi?id=1110011
+
+</offtopic>
+
+<snip>
+
+>> One of the nice things about Linux is that in general we've pretty
+>> decent support for older hardware, so if we decide to flip the nomux
+>> default, I think we should really do so based on some BIOS cut-off
+>> date, so as to not break older model laptops.
+> 
+> I think historically IBM and HPs had working MUX support while other's
+> did might advertise support and fail miserably when we would try
+> activating it.
+> 
+> Given that now majority of mice are USB even if we select wrong default
+> on some older box I think it would be acceptable as opposed to a newer
+> box not having touchpad at all...
+
+I'm still not 100% sure if having some curt-off date would not be better,
+but if you prefer just flipping the default everywhere lets go for that.
+
+<semi-random-related-idea>
+
+I guess that for anything except really really old boxes, the ps/2
+will be part of the superio chip. super-io chips are relatively
+easy to identify / probe in a safe manner. So do you know if the
+ps/2 muxing is usually part of the super-io, or if it is an
+extra chip?
+
+If it is part of the superio then building a whitelist based on
+superio ids may be an idea (once we get whitelist requests).
+
+</semi-random-related-idea>
+
+Regards,
+
+Hans

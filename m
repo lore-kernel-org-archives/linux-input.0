@@ -1,47 +1,162 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 05/15] Input - wacom: compute the HID report size to get
- the actual packet size
-Date: Thu, 10 Jul 2014 18:09:59 -0700
-Message-ID: <CANRwn3R4LG0SoDR5hKC+LehTWxnmJsKsVsXdkkx4MrDxUwPZNQ@mail.gmail.com>
+Subject: Re: [PATCH 00/15] Input - Wacom: switch from an USB to a HID driver
+Date: Thu, 10 Jul 2014 18:17:23 -0700
+Message-ID: <CANRwn3TP3ROaxU6AuzLobJt7cE1mAQViKhTUwg2aVw=2XoxDBg@mail.gmail.com>
 References: <1404163586-29582-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1404163586-29582-6-git-send-email-benjamin.tissoires@redhat.com>
+	<CANRwn3S9NwAET06sttcniN2391fY5+W-ZGAmvOqr1c_6AJ=J6g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f177.google.com ([209.85.217.177]:51370 "EHLO
-	mail-lb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751481AbaGKBKC convert rfc822-to-8bit (ORCPT
+Received: from mail-lb0-f178.google.com ([209.85.217.178]:42410 "EHLO
+	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751441AbaGKBRZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jul 2014 21:10:02 -0400
-In-Reply-To: <1404163586-29582-6-git-send-email-benjamin.tissoires@redhat.com>
+	Thu, 10 Jul 2014 21:17:25 -0400
+In-Reply-To: <CANRwn3S9NwAET06sttcniN2391fY5+W-ZGAmvOqr1c_6AJ=J6g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, linuxwacom-devel <linuxwacom-devel@lists.sourceforge.net>
 
-On Mon, Jun 30, 2014 at 2:26 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> This removes an USB dependency and is more accurate: the computed pkt=
-len
-> is the actual maximum size of the reports forwarded by the device.
+On Wed, Jul 2, 2014 at 4:33 PM, Jason Gerecke <killertofu@gmail.com> wr=
+ote:
+> On Mon, Jun 30, 2014 at 2:26 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Hi guys,
+>>
+>> this patch series is a cleanup for the Wacom USB driver.
+>>
+>> I started working on this topic when I saw patches floating around w=
+hich
+>> implemented a report descriptor parser within the wacom.ko module.
+>> However, we already have a nice HID subsystem which is more generic =
+than the
+>> HID implementation we can find in this USB driver.
+>> Further details of the benefits (code reduction, regression tests) a=
+re hopefully
+>> explained in the commit messages of the corresponding patches.
+>>
+>> Also, I am working on a way to handle the new Wacom tablets in a mor=
+e generic
+>> way in the hid tree, so consider this patch series as a first step i=
+n this
+>> direction.
+>>
+>> This patch series transfers the wacom.ko driver from the input tree =
+into the hid
+>> tree. I did not made the corresponding move of the files in the seri=
+es hoping
+>> that we will find a way to achieve it if this step is validated.
+>>
+>> IMO, the smoothest path would be that Jiri takes care of the wacom d=
+river
+>> in the input tree (and that we move into into the hid subfolder). Th=
+is can be
+>> achieve if the current pending wacom patches are applied in the hid =
+tree too.
+>>
+>> Another solution could be to keep the wacom changes in the input tre=
+e and put the
+>> hid changes in the hid tree by using separate commits. Once 3.17 is =
+out, we can
+>> then change the module into the hid subfolder.
+>>
+>> I wanted to send this patch series right now so we can figure out ho=
+w we will
+>> handle the transition.
+>>
+>> I am pretty confident the patch series does not break any existing d=
+evice
+>> (except for the required user space changes which can be handled cor=
+rectly if
+>> we tackle them right now). The USB commands are executed in the same=
+ way,
+>> and the protocol handling is also done in the same way.
+>>
+>> Anyway, the net difference in lines of code (-307) should be enough =
+to be of
+>> interest.
+>>
+>> Note: This patch series requires the current pending wacom patches t=
+o be applied.
+>> I set up a tree with all the patch applied if anyone wants to give a=
+ try:
+>> https://github.com/bentiss/linux/commits/hid-wacom-legacy-3.16-rc3
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> Benjamin Tissoires (15):
+>>   Input - wacom: include and use linux/hid.h
+>>   Input - wacom: switch from an USB driver to a HID driver
+>>   Input - wacom: use hid communication instead of plain usb
+>>   Input - wacom: use HID core to actually fetch the report descripto=
+r
+>>   Input - wacom: compute the HID report size to get the actual packe=
+t
+>>     size
+>>   Input - wacom: install LED/OLED sysfs files in the HID device inst=
+ead
+>>     of USB
+>>   Input - wacom: register the input devices on top of the HID one
+>>   Input - wacom: remove usb dependency for siblings devices
+>>   Input - wacom: register power device at the HID level
+>>   Input - wacom: use hid_info instead of plain dev_info
+>>   HID: uhid: add and set HID_TYPE_UHID for uhid devices
+>>   Input - wacom: use in-kernel HID parser
+>>   Input - wacom: use hidinput_calc_abs_res instead of duplicating it=
+s
+>>     code
+>>   Input - wacom: remove field pktlen declaration in the list of devi=
+ces
+>>   Input - wacom: keep wacom_ids ordered
+>>
+>>  drivers/hid/hid-core.c           |  15 +-
+>>  drivers/hid/hid-wacom.c          |   2 +-
+>>  drivers/hid/uhid.c               |   2 +
+>>  drivers/input/tablet/wacom.h     |   7 +-
+>>  drivers/input/tablet/wacom_sys.c | 908 +++++++++++++---------------=
+-----------
+>>  drivers/input/tablet/wacom_wac.c | 647 ++++++++++++++--------------
+>>  drivers/input/tablet/wacom_wac.h |  10 +-
+>>  include/linux/hid.h              |   4 +-
+>>  8 files changed, 644 insertions(+), 951 deletions(-)
+>>
+>> --
+>> 2.0.0
+>>
 >
-> Given that the pktlen is correctly computed/validated, we can store i=
-t now
-> in the features struct instead of having a special handling in the re=
-st of
-> the code.
+> *cracks knuckles*
 >
-> Likewise, this information is not mandatory anymore in the descriptio=
-n
-> of devices in wacom_wac.c. They will be removed in a separate patch.
+> Well, guess I better get to work poking and prodding at these and the
+> pad patches. A very quick review doesn't raise any significant flags,
+> though I do have a question or two that I might have for you in the
+> next few days (need to read through the code more carefully to be sur=
+e
+> I understand it correctly). My 24HDT is having some trouble
+> initializing with the patches applied, but I'll need some time to
+> track down the cause. Not sure how much I'll get done this week
+> (holiday weekend) but next week I should have some feedback.
 >
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Jason
+> ---
+> Now instead of four in the eights place /
+> you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+> (That is to say, eight) to the two,     /
+> But you can=E2=80=99t take seven from three,    /
+> So you look at the sixty-fours....
 
-I'm concerned this new function could be fooled if we release a tablet
-that has one report which is longer than the desired report, but none
-of the hardware I tested was like this and it would be fairly easy to
-address even if it did happen. Thought I should mention it though.
+I've had a chance to try out a dozen tablets with these modifications
+and for the most part things seem to work fine. The 24HDT issue I
+mentioned above was due to a conflict with some other patches I was
+testing and can be ignored. Aside from the other known issues you've
+already mentioned (and my inline comments), there's not much that I
+can say (other than that I found some odd [but apparently unrelated]
+issues with wacom_w8001 and isdv4-serial-inputattach...)
+
+Reviewed-by: Jason Gerecke <killertofu@gmail.com>
+Tested-by: Jason Gerecke <killertofu@gmail.com>
 
 Jason
 ---
@@ -50,165 +165,6 @@ you=E2=80=99ve got three, =E2=80=98Cause you added one  /
 (That is to say, eight) to the two,     /
 But you can=E2=80=99t take seven from three,    /
 So you look at the sixty-fours....
-
-
-> ---
->  drivers/input/tablet/wacom_sys.c | 58 ++++++++++++++++++------------=
-----------
->  1 file changed, 26 insertions(+), 32 deletions(-)
->
-> diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/=
-wacom_sys.c
-> index cd3d936..3f1cee6 100644
-> --- a/drivers/input/tablet/wacom_sys.c
-> +++ b/drivers/input/tablet/wacom_sys.c
-> @@ -149,7 +149,6 @@ static int wacom_parse_logical_collection(unsigne=
-d char *report,
->         if (features->type =3D=3D BAMBOO_PT) {
->
->                 /* Logical collection is only used by 3rd gen Bamboo =
-Touch */
-> -               features->pktlen =3D WACOM_PKGLEN_BBTOUCH3;
->                 features->device_type =3D BTN_TOOL_FINGER;
->
->                 features->x_max =3D features->y_max =3D
-> @@ -240,29 +239,6 @@ static int wacom_parse_hid(struct hid_device *hd=
-ev,
->                                         features->device_type =3D BTN=
-_TOOL_FINGER;
->                                         /* touch device at least supp=
-orts one touch point */
->                                         touch_max =3D 1;
-> -                                       switch (features->type) {
-> -                                       case TABLETPC2FG:
-> -                                               features->pktlen =3D =
-WACOM_PKGLEN_TPC2FG;
-> -                                               break;
-> -
-> -                                       case MTSCREEN:
-> -                                       case WACOM_24HDT:
-> -                                               features->pktlen =3D =
-WACOM_PKGLEN_MTOUCH;
-> -                                               break;
-> -
-> -                                       case MTTPC:
-> -                                       case MTTPC_B:
-> -                                               features->pktlen =3D =
-WACOM_PKGLEN_MTTPC;
-> -                                               break;
-> -
-> -                                       case BAMBOO_PT:
-> -                                               features->pktlen =3D =
-WACOM_PKGLEN_BBTOUCH;
-> -                                               break;
-> -
-> -                                       default:
-> -                                               features->pktlen =3D =
-WACOM_PKGLEN_GRAPHIRE;
-> -                                               break;
-> -                                       }
->
->                                         switch (features->type) {
->                                         case BAMBOO_PT:
-> @@ -305,8 +281,6 @@ static int wacom_parse_hid(struct hid_device *hde=
-v,
->                                         }
->                                 } else if (pen) {
->                                         /* penabled only accepts exac=
-t bytes of data */
-> -                                       if (features->type >=3D TABLE=
-TPC)
-> -                                               features->pktlen =3D =
-WACOM_PKGLEN_GRAPHIRE;
->                                         features->device_type =3D BTN=
-_TOOL_PEN;
->                                         features->x_max =3D
->                                                 get_unaligned_le16(&r=
-eport[i + 3]);
-> @@ -1227,12 +1201,34 @@ static void wacom_calculate_res(struct wacom_=
-features *features)
->                                                     features->unitExp=
-o);
->  }
->
-> +static int wacom_hid_report_len(struct hid_report *report)
-> +{
-> +       /* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->i=
-d > 0) */
-> +       return ((report->size - 1) >> 3) + 1 + (report->id > 0);
-> +}
-> +
-> +static size_t wacom_compute_pktlen(struct hid_device *hdev)
-> +{
-> +       struct hid_report_enum *report_enum;
-> +       struct hid_report *report;
-> +       size_t size =3D 0;
-> +
-> +       report_enum =3D hdev->report_enum + HID_INPUT_REPORT;
-> +
-> +       list_for_each_entry(report, &report_enum->report_list, list) =
-{
-> +               size_t report_size =3D wacom_hid_report_len(report);
-> +               if (report_size > size)
-> +                       size =3D report_size;
-> +       }
-> +
-> +       return size;
-> +}
-> +
->  static int wacom_probe(struct hid_device *hdev,
->                 const struct hid_device_id *id)
->  {
->         struct usb_interface *intf =3D to_usb_interface(hdev->dev.par=
-ent);
->         struct usb_device *dev =3D interface_to_usbdev(intf);
-> -       struct usb_endpoint_descriptor *endpoint;
->         struct wacom *wacom;
->         struct wacom_wac *wacom_wac;
->         struct wacom_features *features;
-> @@ -1258,6 +1254,7 @@ static int wacom_probe(struct hid_device *hdev,
->         wacom_wac =3D &wacom->wacom_wac;
->         wacom_wac->features =3D *((struct wacom_features *)id->driver=
-_data);
->         features =3D &wacom_wac->features;
-> +       features->pktlen =3D wacom_compute_pktlen(hdev);
->         if (features->pktlen > WACOM_PKGLEN_MAX) {
->                 error =3D -EINVAL;
->                 goto fail1;
-> @@ -1275,8 +1272,6 @@ static int wacom_probe(struct hid_device *hdev,
->         usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
->         strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
->
-> -       endpoint =3D &intf->cur_altsetting->endpoint[0].desc;
-> -
->         /* set the default size in case we do not get them from hid *=
-/
->         wacom_set_default_phy(features);
->
-> @@ -1287,13 +1282,12 @@ static int wacom_probe(struct hid_device *hde=
-v,
->
->         /*
->          * Intuos5 has no useful data about its touch interface in it=
-s
-> -        * HID descriptor. If this is the touch interface (wMaxPacket=
-Size
-> +        * HID descriptor. If this is the touch interface (PacketSize
->          * of WACOM_PKGLEN_BBTOUCH3), override the table values.
->          */
->         if (features->type >=3D INTUOS5S && features->type <=3D INTUO=
-SHT) {
-> -               if (endpoint->wMaxPacketSize =3D=3D WACOM_PKGLEN_BBTO=
-UCH3) {
-> +               if (features->pktlen =3D=3D WACOM_PKGLEN_BBTOUCH3) {
->                         features->device_type =3D BTN_TOOL_FINGER;
-> -                       features->pktlen =3D WACOM_PKGLEN_BBTOUCH3;
->
->                         features->x_max =3D 4096;
->                         features->y_max =3D 4096;
-> --
-> 2.0.0
->
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

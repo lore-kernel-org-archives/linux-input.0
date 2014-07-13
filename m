@@ -1,69 +1,118 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Date: Sun, 13 Jul 2014 23:02:28 +0800
-Message-ID: <53C29F84.6010108@gmail.com>
-References: <53C1F7DE.3060102@gmail.com>	<201407130545.23004.marex@denx.de>
- <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
- <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de>
- <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de>
- <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de>
+From: Himangi Saraogi <himangi774@gmail.com>
+Subject: [PATCH] Input: ambakmi - Use managed interfaces
+Date: Sun, 13 Jul 2014 23:00:51 +0530
+Message-ID: <20140713173051.GA4299@himangi-Dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <53C296C2.30304@metafoo.de>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no, thierry.reding@gmail.com, Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Richard Weinberger <richard@nod.at>, msalter@redhat.com, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:63528 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754064AbaGMRa6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Jul 2014 13:30:58 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-On 07/13/2014 10:25 PM, Lars-Peter Clausen wrote:
-> On 07/13/2014 04:03 PM, Richard Weinberger wrote:
->> Am 13.07.2014 15:56, schrieb Lars-Peter Clausen:
->>> On 07/13/2014 03:40 PM, Richard Weinberger wrote:
->>>> Am 13.07.2014 15:26, schrieb Lars-Peter Clausen:
->>>>> On 07/13/2014 11:45 AM, Richard Weinberger wrote:
->>>>>> Am 13.07.2014 11:27, schrieb Lennox Wu:
->>>>>>> As I said before, some configurations don't make sense.
->>>>>>
->>>>>> If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
->>>>>> Chen's fixes seem reasonable as not all architectures support iomem.
->>>>>
->>>>> Maybe we should stub out ioremap() and friends when COMPILE_TEST is enabled to avoid these linker errors. That's in my opinion better than turning most of the 'depends on
->>>>> COMPILE_TEST' into 'depends on COMPILE_TEST && HAS_IOMEM'. The issue comes up quite a lot and it is often overlooked when adding a driver that can be build when COMPILE_TEST is
->>>>> enabled.
->>>>
->>>> And what should this stub do?
->>>> Except calling BUG()...
->>>
->>> return NULL;
->>>
->>> It's for compile testing, it's not meant to work at runtime.
->>
->> Hm, I really don't like the idea of having a non-working kernel.
->> IMHO either it should build _and_ run and nothing else.
->> Greg, what do you think?
-> 
-> The kernel will still be working fine and you can run it on a system. The drivers which use ioremap() or similar are probably not instantiated on a system that does not provide HAS_IOMEM. But even if it was the driver should handle ioremap() returning NULL gracefully and abort the driver probe. That said you'll probably not run a kernel that was built with COMPILE_TEST on your real hardware since it contains so many drivers that are completely useless on your hardware. The idea of COMPILE_TEST is to have as much compile test exposure as possible to the code that is enabled by COMPILE_TEST. Stubbing out ioremap() and friends when HAS_IOMEM is not set and COMPILE_TEST is set makes it easier to get there.
-> 
+This patch introduces the use of managed interfaces like devm_clk_get,
+devm_kalloc etc. devm_ioremap_resource is used instead of
+amba_request_regions and devm_ioremap. It also does away with the functions
+to free the allocated memory in probe and remove functions. Also, some
+labels in the probe function are removed.
 
-For me, welcome Greg's idea or suggestion for it.
+Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
+Acked-by: Julia Lawall <julia.lawall@lip6.fr>
+---
+ drivers/input/serio/ambakmi.c | 44 ++++++++++---------------------------------
+ 1 file changed, 10 insertions(+), 34 deletions(-)
 
-And also if the reply contents are wrapped (e.g. within 80 or less), that
-will generate a better display under other members' email clients.
-
-
-Thanks
+diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
+index 8b748d9..405a175 100644
+--- a/drivers/input/serio/ambakmi.c
++++ b/drivers/input/serio/ambakmi.c
+@@ -23,6 +23,7 @@
+ #include <linux/clk.h>
+ 
+ #include <asm/io.h>
++#include <linux/io.h>
+ #include <asm/irq.h>
+ 
+ #define KMI_BASE	(kmi->base)
+@@ -112,19 +113,10 @@ static int amba_kmi_probe(struct amba_device *dev,
+ {
+ 	struct amba_kmi_port *kmi;
+ 	struct serio *io;
+-	int ret;
+-
+-	ret = amba_request_regions(dev, NULL);
+-	if (ret)
+-		return ret;
+-
+-	kmi = kzalloc(sizeof(struct amba_kmi_port), GFP_KERNEL);
+-	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
+-	if (!kmi || !io) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+ 
++	io = devm_kzalloc(&dev->dev, sizeof(struct serio), GFP_KERNEL);
++	if (!io)
++		return -ENOMEM;
+ 
+ 	io->id.type	= SERIO_8042;
+ 	io->write	= amba_kmi_write;
+@@ -135,32 +127,20 @@ static int amba_kmi_probe(struct amba_device *dev,
+ 	io->port_data	= kmi;
+ 	io->dev.parent	= &dev->dev;
+ 
++	kmi->base	= devm_ioremap_resource(&dev->dev, &dev->res);
++	if (IS_ERR(kmi->base))
++		return PTR_ERR(kmi->base);
+ 	kmi->io		= io;
+-	kmi->base	= ioremap(dev->res.start, resource_size(&dev->res));
+-	if (!kmi->base) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+ 
+-	kmi->clk = clk_get(&dev->dev, "KMIREFCLK");
+-	if (IS_ERR(kmi->clk)) {
+-		ret = PTR_ERR(kmi->clk);
+-		goto unmap;
+-	}
++	kmi->clk = devm_clk_get(&dev->dev, "KMIREFCLK");
++	if (IS_ERR(kmi->clk))
++		return PTR_ERR(kmi->clk);
+ 
+ 	kmi->irq = dev->irq[0];
+ 	amba_set_drvdata(dev, kmi);
+ 
+ 	serio_register_port(kmi->io);
+ 	return 0;
+-
+- unmap:
+-	iounmap(kmi->base);
+- out:
+-	kfree(kmi);
+-	kfree(io);
+-	amba_release_regions(dev);
+-	return ret;
+ }
+ 
+ static int amba_kmi_remove(struct amba_device *dev)
+@@ -168,10 +148,6 @@ static int amba_kmi_remove(struct amba_device *dev)
+ 	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
+ 
+ 	serio_unregister_port(kmi->io);
+-	clk_put(kmi->clk);
+-	iounmap(kmi->base);
+-	kfree(kmi);
+-	amba_release_regions(dev);
+ 	return 0;
+ }
+ 
 -- 
-Chen Gang
+1.9.1
 
-Open share and attitude like air water and life which God blessed

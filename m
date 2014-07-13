@@ -1,12 +1,12 @@
 From: Jamie Lentin <jm@lentin.co.uk>
-Subject: [PATCH v4 2/4] Make all base functions switch depending on product ID
-Date: Sun, 13 Jul 2014 08:24:20 +0100
-Message-ID: <1405236262-8070-3-git-send-email-jm@lentin.co.uk>
+Subject: [PATCH v4 3/4] Style fixes
+Date: Sun, 13 Jul 2014 08:24:21 +0100
+Message-ID: <1405236262-8070-4-git-send-email-jm@lentin.co.uk>
 References: <1405236262-8070-1-git-send-email-jm@lentin.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marmot.wormnet.eu ([188.246.204.87]:48935 "EHLO
+Received: from marmot.wormnet.eu ([188.246.204.87]:48933 "EHLO
 	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751555AbaGMHYd (ORCPT
+	with ESMTP id S1752789AbaGMHYd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Sun, 13 Jul 2014 03:24:33 -0400
 In-Reply-To: <1405236262-8070-1-git-send-email-jm@lentin.co.uk>
@@ -17,108 +17,35 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@
 
 Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
 ---
- drivers/hid/hid-lenovo.c | 45 ++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 38 insertions(+), 7 deletions(-)
+ drivers/hid/hid-lenovo.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 0320b96..d11e337 100644
+index d11e337..a1a693c 100644
 --- a/drivers/hid/hid-lenovo.c
 +++ b/drivers/hid/hid-lenovo.c
-@@ -1,5 +1,6 @@
- /*
-- *  HID driver for Lenovo ThinkPad USB Keyboard with TrackPoint
-+ *  HID driver for Lenovo:
-+ *  - ThinkPad USB Keyboard with TrackPoint (tpkbd)
-  *
-  *  Copyright (c) 2012 Bernhard Seibold
-  */
-@@ -47,6 +48,19 @@ static int lenovo_input_mapping_tpkbd(struct hid_device *hdev,
- 	return 0;
- }
- 
-+static int lenovo_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_LENOVO_TPKBD:
-+		return lenovo_input_mapping_tpkbd(hdev, hi, field,
-+							usage, bit, max);
-+	}
-+
-+	return 0;
-+}
-+
- #undef map_key_clear
- 
- static int lenovo_features_set_tpkbd(struct hid_device *hdev)
-@@ -337,6 +351,16 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+@@ -349,7 +349,7 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	struct lenovo_drvdata_tpkbd *data_pointer;
+ 	size_t name_sz = strlen(dev_name(dev)) + 16;
  	char *name_mute, *name_micmute;
- 	int i;
+-	int i;
++	int i, ret;
  
-+	/*
-+	 * If this is the pointer half of the keyboard, input_mapping should
-+	 * have set drvdata to 1. Otherwise, it's the keyboard which needs
-+	 * nothing special doing to it.
-+	 */
-+	if (!hid_get_drvdata(hdev))
-+		return 0;
-+
-+	hid_set_drvdata(hdev, NULL);
-+
- 	/* Validate required reports. */
- 	for (i = 0; i < 4; i++) {
- 		if (!hid_validate_values(hdev, HID_FEATURE_REPORT, 4, i, 1))
-@@ -409,12 +433,13 @@ static int lenovo_probe(struct hid_device *hdev,
- 		goto err;
- 	}
+ 	/*
+ 	 * If this is the pointer half of the keyboard, input_mapping should
+@@ -369,10 +369,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 3, 0, 2))
+ 		return -ENODEV;
  
--	if (hid_get_drvdata(hdev)) {
--		hid_set_drvdata(hdev, NULL);
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_LENOVO_TPKBD:
- 		ret = lenovo_probe_tpkbd(hdev);
--		if (ret)
--			goto err_hid;
-+		break;
- 	}
+-	if (sysfs_create_group(&hdev->dev.kobj,
+-				&lenovo_attr_group_tpkbd)) {
++	ret = sysfs_create_group(&hdev->dev.kobj, &lenovo_attr_group_tpkbd);
 +	if (ret)
-+		goto err_hid;
+ 		hid_warn(hdev, "Could not create sysfs group\n");
+-	}
  
- 	return 0;
- err_hid:
-@@ -430,6 +455,9 @@ static void lenovo_remove_tpkbd(struct hid_device *hdev)
- 	sysfs_remove_group(&hdev->dev.kobj,
- 			&lenovo_attr_group_tpkbd);
- 
-+	if (data_pointer == NULL)
-+		return;
-+
- 	led_classdev_unregister(&data_pointer->led_micmute);
- 	led_classdev_unregister(&data_pointer->led_mute);
- 
-@@ -438,8 +466,11 @@ static void lenovo_remove_tpkbd(struct hid_device *hdev)
- 
- static void lenovo_remove(struct hid_device *hdev)
- {
--	if (hid_get_drvdata(hdev))
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_LENOVO_TPKBD:
- 		lenovo_remove_tpkbd(hdev);
-+		break;
-+	}
- 
- 	hid_hw_stop(hdev);
- }
-@@ -454,7 +485,7 @@ MODULE_DEVICE_TABLE(hid, lenovo_devices);
- static struct hid_driver lenovo_driver = {
- 	.name = "lenovo",
- 	.id_table = lenovo_devices,
--	.input_mapping = lenovo_input_mapping_tpkbd,
-+	.input_mapping = lenovo_input_mapping,
- 	.probe = lenovo_probe,
- 	.remove = lenovo_remove,
- };
+ 	data_pointer = devm_kzalloc(&hdev->dev,
+ 				    sizeof(struct lenovo_drvdata_tpkbd),
 -- 
 2.0.0
 

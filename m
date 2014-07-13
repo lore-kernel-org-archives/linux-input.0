@@ -1,90 +1,88 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+From: Julia Lawall <julia.lawall@lip6.fr>
 Subject: Re: [PATCH] Input: ambakmi - Use managed interfaces
-Date: Sun, 13 Jul 2014 19:21:23 +0100
-Message-ID: <20140713182123.GM21766@n2100.arm.linux.org.uk>
-References: <20140713173051.GA4299@himangi-Dell> <20140713175308.GL21766@n2100.arm.linux.org.uk> <alpine.DEB.2.02.1407132010130.2060@localhost6.localdomain6>
+Date: Sun, 13 Jul 2014 20:29:56 +0200 (CEST)
+Message-ID: <alpine.DEB.2.02.1407132029080.2060@localhost6.localdomain6>
+References: <20140713173051.GA4299@himangi-Dell> <20140713175308.GL21766@n2100.arm.linux.org.uk> <alpine.DEB.2.02.1407132010130.2060@localhost6.localdomain6> <20140713182123.GM21766@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gw-1.arm.linux.org.uk ([78.32.30.217]:37557 "EHLO
-	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750921AbaGMSV3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Jul 2014 14:21:29 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.02.1407132010130.2060@localhost6.localdomain6>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140713182123.GM21766@n2100.arm.linux.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, Himangi Saraogi <himangi774@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Himangi Saraogi <himangi774@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Jul 13, 2014 at 08:11:29PM +0200, Julia Lawall wrote:
-> On Sun, 13 Jul 2014, Russell King - ARM Linux wrote:
+
+
+On Sun, 13 Jul 2014, Russell King - ARM Linux wrote:
+
+> On Sun, Jul 13, 2014 at 08:11:29PM +0200, Julia Lawall wrote:
+> > On Sun, 13 Jul 2014, Russell King - ARM Linux wrote:
+> > 
+> > > On Sun, Jul 13, 2014 at 11:00:51PM +0530, Himangi Saraogi wrote:
+> > > > @@ -23,6 +23,7 @@
+> > > >  #include <linux/clk.h>
+> > > >  
+> > > >  #include <asm/io.h>
+> > > > +#include <linux/io.h>
+> > > 
+> > > NAK - please include either linux/io.h _or_ asm/io.h but not both.
+> > > 
+> > > > @@ -112,19 +113,10 @@ static int amba_kmi_probe(struct amba_device *dev,
+> > > >  {
+> > > >  	struct amba_kmi_port *kmi;
+> > > >  	struct serio *io;
+> > > > -	int ret;
+> > > > -
+> > > > -	ret = amba_request_regions(dev, NULL);
+> > > > -	if (ret)
+> > > > -		return ret;
+> > > 
+> > > I'm /really/ not happy about that going.
+> > 
+> > Could you explain why?  I looked at the code several times, and I couldn't 
+> > see how it was different than request_mem_region, which is merged into 
+> > devm_ioremap_resource.
 > 
-> > On Sun, Jul 13, 2014 at 11:00:51PM +0530, Himangi Saraogi wrote:
-> > > @@ -23,6 +23,7 @@
-> > >  #include <linux/clk.h>
-> > >  
-> > >  #include <asm/io.h>
-> > > +#include <linux/io.h>
-> > 
-> > NAK - please include either linux/io.h _or_ asm/io.h but not both.
-> > 
-> > > @@ -112,19 +113,10 @@ static int amba_kmi_probe(struct amba_device *dev,
-> > >  {
-> > >  	struct amba_kmi_port *kmi;
-> > >  	struct serio *io;
-> > > -	int ret;
-> > > -
-> > > -	ret = amba_request_regions(dev, NULL);
-> > > -	if (ret)
-> > > -		return ret;
-> > 
-> > I'm /really/ not happy about that going.
+> Check what gets used for the name of the resource.
 > 
-> Could you explain why?  I looked at the code several times, and I couldn't 
-> see how it was different than request_mem_region, which is merged into 
-> devm_ioremap_resource.
+> Now, consider that most devices when they are registered have their
+> resource names set to the device name.
+> 
+> Then realise that devm_ioremap_resource() uses the resource name or
+> the device name again.  So, what you end up with in /proc/iomem is
+> a load of stupidity - you don't get to see there which drivers are
+> making use of the resources, only a load of duplicated information
+> about what devices are using the regions.
+> 
+> This is contary to other bus types (like PCI) where the _device_ takes
+> the non-busy parent resource, and the driver takes the busy resource
+> using the _driver_ name, not the device name.  The exception to this
+> is network drivers which have in the past used the network device
+> name.
+> 
+> Here's an example.  x86:
+> 
+>   fc000000-fc01ffff : 0000:00:19.0	<--- device name
+>     fc000000-fc01ffff : e1000e		<--- driver name
+>   fc020000-fc023fff : 0000:00:1b.0	<--- device name
+>     fc020000-fc023fff : ICH HD audio	<--- driver name
+>   fc024000-fc024fff : 0000:00:03.3
+>   fc025000-fc025fff : 0000:00:19.0	<--- device name
+>     fc025000-fc025fff : e1000e		<--- driver name
+>   fc226000-fc2267ff : 0000:00:1f.2	<--- device name
+>     fc226000-fc2267ff : ahci		<--- driver name
+> 
+> etc.  When using devm_ioremap_resource() this ends up as:
+> 
+> 02184000-021841ff : /soc/aips-bus@02100000/usb@02184000
+>   02184000-021841ff : /soc/aips-bus@02100000/usb@02184000
+> 02184200-021843ff : /soc/aips-bus@02100000/usb@02184200
+>   02184200-021843ff : /soc/aips-bus@02100000/usb@02184200
+> 
+> which is really pointless duplicating the resource name like that.  It
+> conveys no additional useful information.
 
-Check what gets used for the name of the resource.
+OK, thanks very much.
 
-Now, consider that most devices when they are registered have their
-resource names set to the device name.
-
-Then realise that devm_ioremap_resource() uses the resource name or
-the device name again.  So, what you end up with in /proc/iomem is
-a load of stupidity - you don't get to see there which drivers are
-making use of the resources, only a load of duplicated information
-about what devices are using the regions.
-
-This is contary to other bus types (like PCI) where the _device_ takes
-the non-busy parent resource, and the driver takes the busy resource
-using the _driver_ name, not the device name.  The exception to this
-is network drivers which have in the past used the network device
-name.
-
-Here's an example.  x86:
-
-  fc000000-fc01ffff : 0000:00:19.0	<--- device name
-    fc000000-fc01ffff : e1000e		<--- driver name
-  fc020000-fc023fff : 0000:00:1b.0	<--- device name
-    fc020000-fc023fff : ICH HD audio	<--- driver name
-  fc024000-fc024fff : 0000:00:03.3
-  fc025000-fc025fff : 0000:00:19.0	<--- device name
-    fc025000-fc025fff : e1000e		<--- driver name
-  fc226000-fc2267ff : 0000:00:1f.2	<--- device name
-    fc226000-fc2267ff : ahci		<--- driver name
-
-etc.  When using devm_ioremap_resource() this ends up as:
-
-02184000-021841ff : /soc/aips-bus@02100000/usb@02184000
-  02184000-021841ff : /soc/aips-bus@02100000/usb@02184000
-02184200-021843ff : /soc/aips-bus@02100000/usb@02184200
-  02184200-021843ff : /soc/aips-bus@02100000/usb@02184200
-
-which is really pointless duplicating the resource name like that.  It
-conveys no additional useful information.
-
--- 
-FTTC broadband for 0.8mile line: currently at 9.5Mbps down 400kbps up
-according to speedtest.net.
+julia

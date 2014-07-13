@@ -1,36 +1,124 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for 'devm_ioremap_resource'
-Date: Sun, 13 Jul 2014 05:45:22 +0200
-Message-ID: <201407130545.23004.marex@denx.de>
-References: <53C1F7DE.3060102@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53C1F7DE.3060102-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chen Gang <gang.chen.5i5j-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, schwidefsky-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org, teg-B22kvLQNl6c@public.gmane.org, Mischa.Jonker-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, richard-/L3Ra7n9ekc@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liqin Chen <liqin.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lennox Wu <lennox.wu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Jamie Lentin <jm@lentin.co.uk>
+Subject: [PATCH v4 2/4] Make all base functions switch depending on product ID
+Date: Sun, 13 Jul 2014 08:24:20 +0100
+Message-ID: <1405236262-8070-3-git-send-email-jm@lentin.co.uk>
+References: <1405236262-8070-1-git-send-email-jm@lentin.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from marmot.wormnet.eu ([188.246.204.87]:48935 "EHLO
+	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751555AbaGMHYd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Jul 2014 03:24:33 -0400
+In-Reply-To: <1405236262-8070-1-git-send-email-jm@lentin.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
 
-On Sunday, July 13, 2014 at 05:07:10 AM, Chen Gang wrote:
-> Several drivers need 'devm_ioremap_resource' which need HAS_IOMEM enabled.
-> So let them depend on HAS_IOMEM.
-> 
-> The related error (with allmodconfig under score):
-> 
->     MODPOST 1365 modules
->   ERROR: "devm_ioremap_resource" [drivers/watchdog/tegra_wdt.ko] undefined!
->   ERROR: "devm_ioremap_resource" [drivers/watchdog/of_xilinx_wdt.ko]
-> undefined! ERROR: "devm_ioremap_resource"
-> [drivers/staging/iio/adc/mxs-lradc.ko] undefined! ERROR:
-> "devm_ioremap_resource" [drivers/pwm/pwm-clps711x.ko] undefined! ERROR:
-> "devm_ioremap_resource" [drivers/input/serio/olpc_apsp.ko] undefined!
-> ERROR: "devm_ioremap_resource" [drivers/input/serio/arc_ps2.ko] undefined!
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+---
+ drivers/hid/hid-lenovo.c | 45 ++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 38 insertions(+), 7 deletions(-)
 
-This stuff should go through different trees, so I'd suggest to split this into 
-multiple patches. Thanks for catching this stuff !
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 0320b96..d11e337 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -1,5 +1,6 @@
+ /*
+- *  HID driver for Lenovo ThinkPad USB Keyboard with TrackPoint
++ *  HID driver for Lenovo:
++ *  - ThinkPad USB Keyboard with TrackPoint (tpkbd)
+  *
+  *  Copyright (c) 2012 Bernhard Seibold
+  */
+@@ -47,6 +48,19 @@ static int lenovo_input_mapping_tpkbd(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static int lenovo_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	switch (hdev->product) {
++	case USB_DEVICE_ID_LENOVO_TPKBD:
++		return lenovo_input_mapping_tpkbd(hdev, hi, field,
++							usage, bit, max);
++	}
++
++	return 0;
++}
++
+ #undef map_key_clear
+ 
+ static int lenovo_features_set_tpkbd(struct hid_device *hdev)
+@@ -337,6 +351,16 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	char *name_mute, *name_micmute;
+ 	int i;
+ 
++	/*
++	 * If this is the pointer half of the keyboard, input_mapping should
++	 * have set drvdata to 1. Otherwise, it's the keyboard which needs
++	 * nothing special doing to it.
++	 */
++	if (!hid_get_drvdata(hdev))
++		return 0;
++
++	hid_set_drvdata(hdev, NULL);
++
+ 	/* Validate required reports. */
+ 	for (i = 0; i < 4; i++) {
+ 		if (!hid_validate_values(hdev, HID_FEATURE_REPORT, 4, i, 1))
+@@ -409,12 +433,13 @@ static int lenovo_probe(struct hid_device *hdev,
+ 		goto err;
+ 	}
+ 
+-	if (hid_get_drvdata(hdev)) {
+-		hid_set_drvdata(hdev, NULL);
++	switch (hdev->product) {
++	case USB_DEVICE_ID_LENOVO_TPKBD:
+ 		ret = lenovo_probe_tpkbd(hdev);
+-		if (ret)
+-			goto err_hid;
++		break;
+ 	}
++	if (ret)
++		goto err_hid;
+ 
+ 	return 0;
+ err_hid:
+@@ -430,6 +455,9 @@ static void lenovo_remove_tpkbd(struct hid_device *hdev)
+ 	sysfs_remove_group(&hdev->dev.kobj,
+ 			&lenovo_attr_group_tpkbd);
+ 
++	if (data_pointer == NULL)
++		return;
++
+ 	led_classdev_unregister(&data_pointer->led_micmute);
+ 	led_classdev_unregister(&data_pointer->led_mute);
+ 
+@@ -438,8 +466,11 @@ static void lenovo_remove_tpkbd(struct hid_device *hdev)
+ 
+ static void lenovo_remove(struct hid_device *hdev)
+ {
+-	if (hid_get_drvdata(hdev))
++	switch (hdev->product) {
++	case USB_DEVICE_ID_LENOVO_TPKBD:
+ 		lenovo_remove_tpkbd(hdev);
++		break;
++	}
+ 
+ 	hid_hw_stop(hdev);
+ }
+@@ -454,7 +485,7 @@ MODULE_DEVICE_TABLE(hid, lenovo_devices);
+ static struct hid_driver lenovo_driver = {
+ 	.name = "lenovo",
+ 	.id_table = lenovo_devices,
+-	.input_mapping = lenovo_input_mapping_tpkbd,
++	.input_mapping = lenovo_input_mapping,
+ 	.probe = lenovo_probe,
+ 	.remove = lenovo_remove,
+ };
+-- 
+2.0.0
 
-Best regards,
-Marek Vasut

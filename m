@@ -1,88 +1,81 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH] Input: ambakmi - Use managed interfaces
-Date: Sun, 13 Jul 2014 20:29:56 +0200 (CEST)
-Message-ID: <alpine.DEB.2.02.1407132029080.2060@localhost6.localdomain6>
-References: <20140713173051.GA4299@himangi-Dell> <20140713175308.GL21766@n2100.arm.linux.org.uk> <alpine.DEB.2.02.1407132010130.2060@localhost6.localdomain6> <20140713182123.GM21766@n2100.arm.linux.org.uk>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+Date: Sun, 13 Jul 2014 12:22:02 -0700
+Message-ID: <20140713192202.GA19090@kroah.com>
+References: <53C1F7DE.3060102@gmail.com> <201407130545.23004.marex@denx.de>
+ <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
+ <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de>
+ <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de>
+ <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140713182123.GM21766@n2100.arm.linux.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, Himangi Saraogi <himangi774@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <53C296C2.30304@metafoo.de>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, devel@driverdev.osuosl.org, Chen Gang <gang.chen.5i5j@gmail.com>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Richard Weinberger <richard@nod.at>, dmitry.torokhov@gmail.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, jic23@kernel.org, teg@jklm.no, Martin Schwidefsky <schwidefsky@de.ibm.com>, thierry.reding@gmail.com, msalter@redhat.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, knaack.h@gmx.de, linux-input@vger.kernel.org, Mischa.Jonker@synopsys.com, Lennox Wu <lennox.wu@gmail.com>, linux-watchdog@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Sun, Jul 13, 2014 at 04:25:06PM +0200, Lars-Peter Clausen wrote:
+> On 07/13/2014 04:03 PM, Richard Weinberger wrote:
+> >Am 13.07.2014 15:56, schrieb Lars-Peter Clausen:
+> >>On 07/13/2014 03:40 PM, Richard Weinberger wrote:
+> >>>Am 13.07.2014 15:26, schrieb Lars-Peter Clausen:
+> >>>>On 07/13/2014 11:45 AM, Richard Weinberger wrote:
+> >>>>>Am 13.07.2014 11:27, schrieb Lennox Wu:
+> >>>>>>As I said before, some configurations don't make sense.
+> >>>>>
+> >>>>>If such a configuration can be achieved using allmod/yesconfig it has to be fixed.
+> >>>>>Chen's fixes seem reasonable as not all architectures support iomem.
+> >>>>
+> >>>>Maybe we should stub out ioremap() and friends when COMPILE_TEST is enabled to avoid these linker errors. That's in my opinion better than turning most of the 'depends on
+> >>>>COMPILE_TEST' into 'depends on COMPILE_TEST && HAS_IOMEM'. The issue comes up quite a lot and it is often overlooked when adding a driver that can be build when COMPILE_TEST is
+> >>>>enabled.
+> >>>
+> >>>And what should this stub do?
+> >>>Except calling BUG()...
+> >>
+> >>return NULL;
+> >>
+> >>It's for compile testing, it's not meant to work at runtime.
+> >
+> >Hm, I really don't like the idea of having a non-working kernel.
+> >IMHO either it should build _and_ run and nothing else.
+> >Greg, what do you think?
+> 
+> The kernel will still be working fine and you can run it on a system. The
+> drivers which use ioremap() or similar are probably not instantiated on a
+> system that does not provide HAS_IOMEM. But even if it was the driver should
+> handle ioremap() returning NULL gracefully and abort the driver probe. That
+> said you'll probably not run a kernel that was built with COMPILE_TEST on
+> your real hardware since it contains so many drivers that are completely
+> useless on your hardware. The idea of COMPILE_TEST is to have as much
+> compile test exposure as possible to the code that is enabled by
+> COMPILE_TEST. Stubbing out ioremap() and friends when HAS_IOMEM is not set
+> and COMPILE_TEST is set makes it easier to get there.
 
+I run my kernels with COMPILE_TEST enabled as I need to build test
+things that I don't happen to use.
 
-On Sun, 13 Jul 2014, Russell King - ARM Linux wrote:
+I like the 'return NULL' option for this, it hits us all the time, might
+as well fix it properly like this so that we don't have to deal with
+Kconfig changes everywhere.
 
-> On Sun, Jul 13, 2014 at 08:11:29PM +0200, Julia Lawall wrote:
-> > On Sun, 13 Jul 2014, Russell King - ARM Linux wrote:
-> > 
-> > > On Sun, Jul 13, 2014 at 11:00:51PM +0530, Himangi Saraogi wrote:
-> > > > @@ -23,6 +23,7 @@
-> > > >  #include <linux/clk.h>
-> > > >  
-> > > >  #include <asm/io.h>
-> > > > +#include <linux/io.h>
-> > > 
-> > > NAK - please include either linux/io.h _or_ asm/io.h but not both.
-> > > 
-> > > > @@ -112,19 +113,10 @@ static int amba_kmi_probe(struct amba_device *dev,
-> > > >  {
-> > > >  	struct amba_kmi_port *kmi;
-> > > >  	struct serio *io;
-> > > > -	int ret;
-> > > > -
-> > > > -	ret = amba_request_regions(dev, NULL);
-> > > > -	if (ret)
-> > > > -		return ret;
-> > > 
-> > > I'm /really/ not happy about that going.
-> > 
-> > Could you explain why?  I looked at the code several times, and I couldn't 
-> > see how it was different than request_mem_region, which is merged into 
-> > devm_ioremap_resource.
-> 
-> Check what gets used for the name of the resource.
-> 
-> Now, consider that most devices when they are registered have their
-> resource names set to the device name.
-> 
-> Then realise that devm_ioremap_resource() uses the resource name or
-> the device name again.  So, what you end up with in /proc/iomem is
-> a load of stupidity - you don't get to see there which drivers are
-> making use of the resources, only a load of duplicated information
-> about what devices are using the regions.
-> 
-> This is contary to other bus types (like PCI) where the _device_ takes
-> the non-busy parent resource, and the driver takes the busy resource
-> using the _driver_ name, not the device name.  The exception to this
-> is network drivers which have in the past used the network device
-> name.
-> 
-> Here's an example.  x86:
-> 
->   fc000000-fc01ffff : 0000:00:19.0	<--- device name
->     fc000000-fc01ffff : e1000e		<--- driver name
->   fc020000-fc023fff : 0000:00:1b.0	<--- device name
->     fc020000-fc023fff : ICH HD audio	<--- driver name
->   fc024000-fc024fff : 0000:00:03.3
->   fc025000-fc025fff : 0000:00:19.0	<--- device name
->     fc025000-fc025fff : e1000e		<--- driver name
->   fc226000-fc2267ff : 0000:00:1f.2	<--- device name
->     fc226000-fc2267ff : ahci		<--- driver name
-> 
-> etc.  When using devm_ioremap_resource() this ends up as:
-> 
-> 02184000-021841ff : /soc/aips-bus@02100000/usb@02184000
->   02184000-021841ff : /soc/aips-bus@02100000/usb@02184000
-> 02184200-021843ff : /soc/aips-bus@02100000/usb@02184200
->   02184200-021843ff : /soc/aips-bus@02100000/usb@02184200
-> 
-> which is really pointless duplicating the resource name like that.  It
-> conveys no additional useful information.
+Also put a big "This platform does not support IOMEM" error printk in
+there, so that people have a chance to figure out what is going on if
+they happen to run such a driver on a platform that can't support it.
 
-OK, thanks very much.
+thanks,
 
-julia
+greg k-h

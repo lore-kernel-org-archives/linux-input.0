@@ -1,151 +1,476 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH v2] Input: Add driver for Microchip's CAP1106
-Date: Mon, 14 Jul 2014 12:20:17 +0200
-Message-ID: <53C3AEE1.4030805@zonque.org>
-References: <1405073193-21448-1-git-send-email-zonque@gmail.com> <20140714095247.GB4980@leverpostej>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH v4 4/4] Add support for Compact (Bluetooth|USB) keyboard
+ with Trackpoint
+Date: Mon, 14 Jul 2014 12:21:26 +0200
+Message-ID: <20140714122126.659608839f1cf296d77e1734@ao2.it>
+References: <1405236262-8070-1-git-send-email-jm@lentin.co.uk>
+	<1405236262-8070-5-git-send-email-jm@lentin.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from svenfoo.org ([82.94.215.22]:43202 "EHLO mail.zonque.de"
+Received: from smtp205.alice.it ([82.57.200.101]:9217 "EHLO smtp205.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754538AbaGNKUX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jul 2014 06:20:23 -0400
-In-Reply-To: <20140714095247.GB4980@leverpostej>
+	id S1753305AbaGNKVm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jul 2014 06:21:42 -0400
+In-Reply-To: <1405236262-8070-5-git-send-email-jm@lentin.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "dtor@mail.ru" <dtor@mail.ru>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "broonie@kernel.org" <broonie@kernel.org>, "dh.herrmann@gmail.com" <dh.herrmann@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Jamie Lentin <jm@lentin.co.uk>
+Cc: Jiri Kosina <jkosina@suse.cz>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Mark,
+On Sun, 13 Jul 2014 08:24:22 +0100
+Jamie Lentin <jm@lentin.co.uk> wrote:
 
-thanks a lot for your feedback! Much appreciated.
+> Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
 
-On 07/14/2014 11:52 AM, Mark Rutland wrote:
-> On Fri, Jul 11, 2014 at 11:06:33AM +0100, Daniel Mack wrote:
+Almost there, I swear :)
 
->> +++ b/Documentation/devicetree/bindings/input/cap1106.txt
->> @@ -0,0 +1,63 @@
->> +Device tree bindings for Microchip CAP1106, 6 channel capacitive touch sensor
->> +
->> +The node for this driver must be a child of a I2C controller node, as the
->> +device communication via I2C only.
->> +
->> +Required properties:
->> +
->> +       compatible:             Must be "microchip,cap1106"
->> +       reg:                    The I2C slave address of the device.
->> +                               Only 0x28 is valid.
->> +       interrupt:              Node describing the interrupt line the device's
->> +                               ALERT#/CM_IRQ# pin is connected to.
+> ---
+>  Documentation/ABI/testing/sysfs-driver-hid-lenovo |  12 ++
+>  drivers/hid/Kconfig                               |   2 +
+>  drivers/hid/hid-core.c                            |   2 +
+>  drivers/hid/hid-ids.h                             |   2 +
+>  drivers/hid/hid-lenovo.c                          | 203 ++++++++++++++++++++++
+>  include/linux/hid.h                               |   1 +
+>  6 files changed, 222 insertions(+)
 > 
-> s/interrupt/interrupts/
+> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo b/Documentation/ABI/testing/sysfs-driver-hid-lenovo
+> index 57b92cb..53a0725 100644
+> --- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo
+> +++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo
+> @@ -4,18 +4,21 @@ Contact:	linux-input@vger.kernel.org
+>  Description:	This controls if mouse clicks should be generated if the trackpoint is quickly pressed. How fast this press has to be
+>  		is being controlled by press_speed.
+>  		Values are 0 or 1.
+> +		Applies to Thinkpad USB Keyboard with TrackPoint.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/dragging
+>  Date:		July 2011
+>  Contact:	linux-input@vger.kernel.org
+>  Description:	If this setting is enabled, it is possible to do dragging by pressing the trackpoint. This requires press_to_select to be enabled.
+>  		Values are 0 or 1.
+> +		Applies to Thinkpad USB Keyboard with TrackPoint.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/release_to_select
+>  Date:		July 2011
+>  Contact:	linux-input@vger.kernel.org
+>  Description:	For details regarding this setting please refer to http://www.pc.ibm.com/ww/healthycomputing/trkpntb.html
+>  		Values are 0 or 1.
+> +		Applies to Thinkpad USB Keyboard with TrackPoint.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/select_right
+>  Date:		July 2011
+> @@ -23,16 +26,25 @@ Contact:	linux-input@vger.kernel.org
+>  Description:	This setting controls if the mouse click events generated by pressing the trackpoint (if press_to_select is enabled) generate
+>  		a left or right mouse button click.
+>  		Values are 0 or 1.
+> +		Applies to Thinkpad USB Keyboard with TrackPoint.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/sensitivity
+>  Date:		July 2011
+>  Contact:	linux-input@vger.kernel.org
+>  Description:	This file contains the trackpoint sensitivity.
+>  		Values are decimal integers from 1 (lowest sensitivity) to 255 (highest sensitivity).
+> +		Applies to Thinkpad USB Keyboard with TrackPoint.
+>  
+>  What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/press_speed
+>  Date:		July 2011
+>  Contact:	linux-input@vger.kernel.org
+>  Description:	This setting controls how fast the trackpoint needs to be pressed to generate a mouse click if press_to_select is enabled.
+>  		Values are decimal integers from 1 (slowest) to 255 (fastest).
+> +		Applies to Thinkpad USB Keyboard with TrackPoint.
+>  
+> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/fn_lock
+> +Date:		July 2014
+> +Contact:	linux-input@vger.kernel.org
+> +Description:	This setting controls whether Fn Lock is enabled on the keyboard (i.e. if F1 is Mute or F1)
+> +		Values are 0 or 1
+> +		Applies to ThinkPad Compact (USB|Bluetooth) Keyboard with TrackPoint.
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 9b7acfc..1e19292 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -343,6 +343,8 @@ config HID_LENOVO
+>  	Thinkpad standalone keyboards, e.g:
+>  	- ThinkPad USB Keyboard with TrackPoint (supports extra LEDs and trackpoint
+>  	  configuration)
+> +	- ThinkPad Compact Bluetooth Keyboard with TrackPoint (supports Fn keys)
+> +	- ThinkPad Compact USB Keyboard with TrackPoint (supports Fn keys)
+>  
+>  config HID_LOGITECH
+>  	tristate "Logitech devices" if EXPERT
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 55841bd..81b3bb6 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1798,6 +1798,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_LCPOWER_LC1000 ) },
+>  #if IS_ENABLED(CONFIG_HID_LENOVO)
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
+>  #endif
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 6d00bb9..d2e2a96 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -560,6 +560,8 @@
+>  
+>  #define USB_VENDOR_ID_LENOVO		0x17ef
+>  #define USB_DEVICE_ID_LENOVO_TPKBD	0x6009
+> +#define USB_DEVICE_ID_LENOVO_CUSBKBD	0x6047
+> +#define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
+>  
+>  #define USB_VENDOR_ID_LG		0x1fd2
+>  #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+> index a1a693c..46c5db0 100644
+> --- a/drivers/hid/hid-lenovo.c
+> +++ b/drivers/hid/hid-lenovo.c
+> @@ -1,8 +1,11 @@
+>  /*
+>   *  HID driver for Lenovo:
+>   *  - ThinkPad USB Keyboard with TrackPoint (tpkbd)
+> + *  - ThinkPad Compact Bluetooth Keyboard with TrackPoint (cptkbd)
+> + *  - ThinkPad Compact USB Keyboard with TrackPoint (cptkbd)
+>   *
+>   *  Copyright (c) 2012 Bernhard Seibold
+> + *  Copyright (c) 2014 Jamie Lentin <jm@lentin.co.uk>
+>   */
+>  
+>  /*
+> @@ -33,6 +36,10 @@ struct lenovo_drvdata_tpkbd {
+>  	int press_speed;
+>  };
+>  
+> +struct lenovo_drvdata_cptkbd {
+> +	bool fn_lock;
+> +};
+> +
+>  #define map_key_clear(c) hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+>  
+>  static int lenovo_input_mapping_tpkbd(struct hid_device *hdev,
+> @@ -48,6 +55,49 @@ static int lenovo_input_mapping_tpkbd(struct hid_device *hdev,
+>  	return 0;
+>  }
+>  
+> +static int lenovo_input_mapping_cptkbd(struct hid_device *hdev,
+> +		struct hid_input *hi, struct hid_field *field,
+> +		struct hid_usage *usage, unsigned long **bit, int *max)
+> +{
+> +	/* HID_UP_LNVENDOR = USB, HID_UP_MSVENDOR = BT */
+> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR ||
+> +	    (usage->hid & HID_USAGE_PAGE) == HID_UP_LNVENDOR) {
+> +		set_bit(EV_REP, hi->input->evbit);
+> +		switch (usage->hid & HID_USAGE) {
+> +		case 0x00f1: /* Fn-F4: Mic mute */
+> +			map_key_clear(KEY_MICMUTE);
+> +			return 1;
+> +		case 0x00f2: /* Fn-F5: Brightness down */
+> +			map_key_clear(KEY_BRIGHTNESSDOWN);
+> +			return 1;
+> +		case 0x00f3: /* Fn-F6: Brightness up */
+> +			map_key_clear(KEY_BRIGHTNESSUP);
+> +			return 1;
+> +		case 0x00f4: /* Fn-F7: External display (projector) */
+> +			map_key_clear(KEY_SWITCHVIDEOMODE);
+> +			return 1;
+> +		case 0x00f5: /* Fn-F8: Wireless */
+> +			map_key_clear(KEY_WLAN);
+> +			return 1;
+> +		case 0x00f6: /* Fn-F9: Control panel */
+> +			map_key_clear(KEY_CONFIG);
+> +			return 1;
+> +		case 0x00f8: /* Fn-F11: View open applications (3 boxes) */
+> +			map_key_clear(KEY_SCALE);
+> +			return 1;
+> +		case 0x00fa: /* Fn-Esc: Fn-lock toggle */
+> +			map_key_clear(KEY_FN_ESC);
+> +			return 1;
+> +		case 0x00fb: /* Fn-F12: Open My computer (6 boxes) USB-only */
+> +			/* NB: This mapping is invented in raw_event below */
+> +			map_key_clear(KEY_FILE);
+> +			return 1;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int lenovo_input_mapping(struct hid_device *hdev,
+>  		struct hid_input *hi, struct hid_field *field,
+>  		struct hid_usage *usage, unsigned long **bit, int *max)
+> @@ -56,6 +106,10 @@ static int lenovo_input_mapping(struct hid_device *hdev,
+>  	case USB_DEVICE_ID_LENOVO_TPKBD:
+>  		return lenovo_input_mapping_tpkbd(hdev, hi, field,
+>  							usage, bit, max);
+> +	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+> +	case USB_DEVICE_ID_LENOVO_CBTKBD:
+> +		return lenovo_input_mapping_cptkbd(hdev, hi, field,
+> +							usage, bit, max);
+>  	}
+>  
+>  	return 0;
+> @@ -63,6 +117,100 @@ static int lenovo_input_mapping(struct hid_device *hdev,
+>  
+>  #undef map_key_clear
+>  
+> +/* Send a config command to the keyboard */
+> +static int lenovo_send_cmd_cptkbd(struct hid_device *hdev,
+> +			unsigned char byte2, unsigned char byte3)
+> +{
+> +	int ret;
+> +	unsigned char buf[] = {0x18, byte2, byte3};
+> +
+> +	switch (hdev->product) {
+> +	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+> +		ret = hid_hw_raw_request(hdev, 0x13, buf, sizeof(buf),
+> +					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+> +		break;
+> +	case USB_DEVICE_ID_LENOVO_CBTKBD:
+> +		ret = hid_hw_output_report(hdev, buf, sizeof(buf));
+> +		break;
+> +	default:
+> +		ret = -EINVAL;
+>
+
+Add an explicit break? For regularity.
+
+> +	}
+> +
+> +	return ret < 0 ? ret : 0; /* BT returns 0, USB returns sizeof(buf) */
+> +}
+
+Alternatively you could just return 'ret' and check for < 0 in the
+callers, leaving the comment and adding "On Success ...".
+
+BTW, you never actually propagate the negative error codes.
+
+I you don't want this function to just return bool (e.g. return (ret >=
+0)), at least print the returned error code in the messages after the
+callers.
+
+> +
+> +static void lenovo_features_set_cptkbd(struct hid_device *hdev)
+> +{
+> +	struct lenovo_drvdata_cptkbd *tpcsc = hid_get_drvdata(hdev);
+> +
+> +	if (lenovo_send_cmd_cptkbd(hdev, 0x05, tpcsc->fn_lock ? 0x01 : 0x00))
+
+Try to avoid function calls in conditions.
+
+> +		hid_err(hdev, "Fn-lock setting failed\n");
+
+Print 'ret' if lenovo_send_cmd_cptkbd() returns the negative error
+codes.
+
+> +}
+> +
+> +static ssize_t attr_fn_lock_show_cptkbd(struct device *dev,
+> +		struct device_attribute *attr,
+> +		char *buf)
+> +{
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct lenovo_drvdata_cptkbd *tpcsc = hid_get_drvdata(hdev);
+> +
+> +	return snprintf(buf, PAGE_SIZE, "%u\n", tpcsc->fn_lock);
+> +}
+> +
+> +static ssize_t attr_fn_lock_store_cptkbd(struct device *dev,
+> +		struct device_attribute *attr,
+> +		const char *buf,
+> +		size_t count)
+> +{
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct lenovo_drvdata_cptkbd *tpcsc = hid_get_drvdata(hdev);
+> +	int value;
+> +
+> +	if (kstrtoint(buf, 10, &value))
+
+Function called in condition; however this is consistent with the other
+invocation of kstrtoint() in the file, so you can leave it as it is as
+an exception to the general rule.
+
+> +		return -EINVAL;
+> +	if (value < 0 || value > 1)
+> +		return -EINVAL;
+> +
+> +	tpcsc->fn_lock = !!value;
+> +	lenovo_features_set_cptkbd(hdev);
+> +
+> +	return count;
+> +}
+> +
+> +static struct device_attribute dev_attr_fn_lock_cptkbd =
+> +	__ATTR(fn_lock, S_IWUSR | S_IRUGO,
+> +			attr_fn_lock_show_cptkbd,
+> +			attr_fn_lock_store_cptkbd);
+> +
+> +static struct attribute *lenovo_attributes_cptkbd[] = {
+> +	&dev_attr_fn_lock_cptkbd.attr,
+> +	NULL
+> +};
+> +
+> +static const struct attribute_group lenovo_attr_group_cptkbd = {
+> +	.attrs = lenovo_attributes_cptkbd,
+> +};
+> +
+> +static int lenovo_raw_event(struct hid_device *hdev,
+> +			struct hid_report *report, u8 *data, int size)
+> +{
+> +	/*
+> +	 * Compact USB keyboard's Fn-F12 report holds down many other keys, and
+> +	 * its own key is outside the usage page range. Remove extra
+> +	 * keypresses and remap to inside usage page.
+> +	 */
+> +	if (unlikely(hdev->product == USB_DEVICE_ID_LENOVO_CUSBKBD
+> +			&& size == 3
+> +			&& data[0] == 0x15
+> +			&& data[1] == 0x94
+> +			&& data[2] == 0x01)) {
+> +		data[1] = 0x0;
+> +		data[2] = 0x4;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int lenovo_features_set_tpkbd(struct hid_device *hdev)
+>  {
+>  	struct hid_report *report;
+> @@ -415,6 +563,44 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+>  	return 0;
+>  }
+>  
+> +static int lenovo_probe_cptkbd(struct hid_device *hdev)
+> +{
+> +	int ret;
+> +	struct lenovo_drvdata_cptkbd *tpcsc;
+> +
+> +	tpcsc = devm_kzalloc(&hdev->dev, sizeof(*tpcsc), GFP_KERNEL);
+> +	if (tpcsc == NULL) {
+> +		hid_err(hdev, "can't alloc keyboard descriptor\n");
+> +		return -ENOMEM;
+> +	}
+> +	hid_set_drvdata(hdev, tpcsc);
+> +
+> +	/* All the custom action happens on the mouse device for USB */
+> +	if (hdev->product == USB_DEVICE_ID_LENOVO_CUSBKBD
+> +			&& hdev->type != HID_TYPE_USBMOUSE) {
+> +		hid_dbg(hdev, "Ignoring keyboard half of device\n");
+> +		return 0;
+> +	}
+
+Maybe you can anticipate this check and avoid allocation in this case?
+Not a big deal anyway.
+
+> +
+> +	/*
+> +	 * Tell the keyboard a driver understands it, and turn F7, F9, F11 into
+> +	 * regular keys
+> +	 */
+> +	ret = lenovo_send_cmd_cptkbd(hdev, 0x01, 0x03);
+> +	if (ret)
+> +		hid_warn(hdev, "Failed to switch F7/9/11 into regular keys\n");
+
+Print 'ret' here.
+
+> +
+> +	/* Turn Fn-Lock on by default */
+> +	tpcsc->fn_lock = 1;
+
+tpcsc->fn_lock = true;
+
+> +	lenovo_features_set_cptkbd(hdev);
+> +
+> +	if (sysfs_create_group(&hdev->dev.kobj,
+> +				&lenovo_attr_group_cptkbd))
+
+Function called in condition.
+
+> +		hid_warn(hdev, "Could not create sysfs group\n");
+> +
+> +	return 0;
+> +}
+> +
+>  static int lenovo_probe(struct hid_device *hdev,
+>  		const struct hid_device_id *id)
+>  {
+> @@ -436,6 +622,10 @@ static int lenovo_probe(struct hid_device *hdev,
+>  	case USB_DEVICE_ID_LENOVO_TPKBD:
+>  		ret = lenovo_probe_tpkbd(hdev);
+>  		break;
+> +	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+> +	case USB_DEVICE_ID_LENOVO_CBTKBD:
+> +		ret = lenovo_probe_cptkbd(hdev);
+> +		break;
+>  	}
+>  	if (ret)
+>  		goto err_hid;
+> @@ -463,12 +653,22 @@ static void lenovo_remove_tpkbd(struct hid_device *hdev)
+>  	hid_set_drvdata(hdev, NULL);
+>  }
+>  
+> +static void lenovo_remove_cptkbd(struct hid_device *hdev)
+> +{
+> +	sysfs_remove_group(&hdev->dev.kobj,
+> +			&lenovo_attr_group_cptkbd);
+> +}
+> +
+>  static void lenovo_remove(struct hid_device *hdev)
+>  {
+>  	switch (hdev->product) {
+>  	case USB_DEVICE_ID_LENOVO_TPKBD:
+>  		lenovo_remove_tpkbd(hdev);
+>  		break;
+> +	case USB_DEVICE_ID_LENOVO_CUSBKBD:
+> +	case USB_DEVICE_ID_LENOVO_CBTKBD:
+> +		lenovo_remove_cptkbd(hdev);
+> +		break;
+>  	}
+>  
+>  	hid_hw_stop(hdev);
+> @@ -476,6 +676,8 @@ static void lenovo_remove(struct hid_device *hdev)
+>  
+>  static const struct hid_device_id lenovo_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
+>  	{ }
+>  };
+>  
+> @@ -487,6 +689,7 @@ static struct hid_driver lenovo_driver = {
+>  	.input_mapping = lenovo_input_mapping,
+>  	.probe = lenovo_probe,
+>  	.remove = lenovo_remove,
+> +	.raw_event = lenovo_raw_event,
+>  };
+>  module_hid_driver(lenovo_driver);
+>  
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 77632cf..fca74f1 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -167,6 +167,7 @@ struct hid_item {
+>  #define HID_UP_MSVENDOR		0xff000000
+>  #define HID_UP_CUSTOM		0x00ff0000
+>  #define HID_UP_LOGIVENDOR	0xffbc0000
+> +#define HID_UP_LNVENDOR		0xffa00000
+>  #define HID_UP_SENSOR		0x00200000
+>  
+>  #define HID_USAGE		0x0000ffff
+> -- 
+> 2.0.0
 > 
-> This is a _property_, not a node.
-
-Yes, I reworded that description a couple of times. Together with
-interrupt-parent, it's actually a property referencing a node ;) Will fix.
-
-> I take it the device only has a single interrupt line?
-
-Yes.
-
->> +
->> +Optional properties:
->> +
->> +       autorepeat:             Enables the Linux input system's autorepeat
->> +                               feature on the input device.
->> +       microchip,sensor-gain:  Defines the gain of the sensor circuitry. This
->> +                               effectively controls the sensitivity, as a
->> +                               smaller delta capacitance is required to
->> +                               generate the same delta count values.
->> +                               Valid values are 1, 2, 4, and 8.
->> +                               By default, a gain of 1 is set.
-> 
-> Does the official documentation describe this in absolute terms?
-
-The documentation describes the gain feature as "1, 2, 4, or 8", so I
-kept it like this in the bindings. Internally, the register stores that
-value in 2 bits. The driver takes care for the translation.
-
->> +To define details of each individual button channel, six subnodes can be
->> +specified. Inside each of those, the following property is valid:
->> +
->> +       linux,keycode:  Specify the numeric identifier of the keycode to be
->> +                       generated when this channel is activated. If this
->> +                       property is omitted, KEY_A, KEY_B, etc are used as
->> +                       defaults.
-> 
-> What are those subnodes, and how are they told apart? Name, compatible?
-> 
-> I strongly recommend against relying on the order of the DT. It's very
-> easy for that to get messed up and makes things hard to read.
-> 
-> Is is not possible to use linux,keymap and treat the buttons as a
-> matrix keypad? Then you don't need subnodes at all, and you can have a
-> sparse keymap if you want.
-
-Hmm, I thought about that, but there are - in theory - more details that
-could be specified per channel. I left those functions out for the first
-version, as I have no good way to test them.
-
-Hence, my idea was to have everything related to one channel nicely
-grouped in a subnode. I've also seen bindings that rely on the order of
-subnodes before, for example in regulator drivers.
-
-But I agree with you that it makes board definitions error-prone.
-
-linux,keycode feels a bit overkill here though, so I'd rather go for a
-fixed-size linux,keycodes property. The number of entries is fixed,
-anyway. Would you be fine with that?
-
->> +struct cap1106_priv {
->> +       struct regmap *regmap;
->> +       struct input_dev *idev;
->> +       struct work_struct work;
->> +       spinlock_t lock;
->> +       bool closed:1;
-> 
-> I don't think you're saving anything here by trying to have a bool
-> bitfield.
-
-That variable has been dropped in v3 already :)
-
->> +       i = 0;
->> +       for_each_child_of_node(node, child) {
->> +               if (i == CAP1106_NUM_CHN) {
->> +                       dev_err(dev, "Too many button nodes.\n");
->> +                       return -EINVAL;
->> +               }
->> +
->> +               if (!of_property_read_u32(child, "linux,keycode", &tmp32))
->> +                       priv->keycodes[i] = tmp32;
->> +
->> +               i++;
->> +       }
-> 
-> I don't think that it is a good idea to rely on the order of sub-nodes
-> in the DTB.
-
-Jup, I agree. As mentioned above, I'd like to solve that with
-linux,keycode for now.
-
-> [...]
-> 
->> +       if (of_get_property(node, "autorepeat", NULL))
->> +               __set_bit(EV_REP, priv->idev->evbit);
-> 
-> Use of_property_read_bool.
-
-Will do, thanks.
-
-> /me mutters usual grumblings about the autorepeat property.
-
-I took that from the gpio-keys driver. Is there a better way to denote
-such a feature?
 
 
-Thanks,
-Daniel
+-- 
+Antonio Ospite
+http://ao2.it
 
-
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

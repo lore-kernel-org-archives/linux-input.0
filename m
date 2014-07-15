@@ -1,81 +1,172 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Date: Tue, 15 Jul 2014 09:11:19 +0800
-Message-ID: <53C47FB7.6080304@gmail.com>
-References: <201407130545.23004.marex@denx.de> <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com> <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de> <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de> <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de> <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at> <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at> <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at> <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com> <53C47B76.4080306@roeck-us.net>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH v2] Input: Add driver for Microchip's CAP1106
+Date: Tue, 15 Jul 2014 09:51:38 +0100
+Message-ID: <20140715085138.GR26465@leverpostej>
+References: <1405073193-21448-1-git-send-email-zonque@gmail.com>
+ <20140714095247.GB4980@leverpostej>
+ <53C3AEE1.4030805@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pwm-owner@vger.kernel.org>
-In-Reply-To: <53C47B76.4080306@roeck-us.net>
-Sender: linux-pwm-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, Richard Weinberger <richard@nod.at>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no, Thierry Reding <thierry.reding@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org, arnd@arndb.de, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:49920 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758047AbaGOIv6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jul 2014 04:51:58 -0400
+Content-Disposition: inline
+In-Reply-To: <53C3AEE1.4030805@zonque.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Mack <daniel@zonque.org>
+Cc: "dtor@mail.ru" <dtor@mail.ru>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "broonie@kernel.org" <broonie@kernel.org>, "dh.herrmann@gmail.com" <dh.herrmann@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
+On Mon, Jul 14, 2014 at 11:20:17AM +0100, Daniel Mack wrote:
+> Hi Mark,
+> 
+> thanks a lot for your feedback! Much appreciated.
+> 
+> On 07/14/2014 11:52 AM, Mark Rutland wrote:
+> > On Fri, Jul 11, 2014 at 11:06:33AM +0100, Daniel Mack wrote:
+> 
+> >> +++ b/Documentation/devicetree/bindings/input/cap1106.txt
+> >> @@ -0,0 +1,63 @@
+> >> +Device tree bindings for Microchip CAP1106, 6 channel capacitive touch sensor
+> >> +
+> >> +The node for this driver must be a child of a I2C controller node, as the
+> >> +device communication via I2C only.
+> >> +
+> >> +Required properties:
+> >> +
+> >> +       compatible:             Must be "microchip,cap1106"
+> >> +       reg:                    The I2C slave address of the device.
+> >> +                               Only 0x28 is valid.
+> >> +       interrupt:              Node describing the interrupt line the device's
+> >> +                               ALERT#/CM_IRQ# pin is connected to.
+> > 
+> > s/interrupt/interrupts/
+> > 
+> > This is a _property_, not a node.
+> 
+> Yes, I reworded that description a couple of times. Together with
+> interrupt-parent, it's actually a property referencing a node ;) Will fix.
+> 
+> > I take it the device only has a single interrupt line?
+> 
+> Yes.
 
+Ok, that sounds fine then.
 
-On 07/15/2014 08:53 AM, Guenter Roeck wrote:
-> On 07/14/2014 05:34 PM, Chen Gang wrote:
->> On 07/14/2014 05:22 PM, Chen Gang wrote:
->>>
->>> =E5=9C=A8 2014=E5=B9=B47=E6=9C=8814=E6=97=A5=EF=BC=8C=E4=B8=8B=E5=8D=
-=884:57=EF=BC=8CRichard Weinberger <richard@nod.at> =E5=86=99=E9=81=93=EF=
-=BC=9A
->>>
->>>> Am 14.07.2014 10:48, schrieb Lars-Peter Clausen:
->>>>> On 07/14/2014 10:31 AM, Richard Weinberger wrote:
->>>>>> Am 13.07.2014 22:17, schrieb Greg Kroah-Hartman:
->>>>>>> On Sun, Jul 13, 2014 at 09:33:38PM +0200, Richard Weinberger wr=
-ote:
->>>>>>>> Maybe we could add COMPILE_TEST to the version string too?
->>>>>>>> Just to detect such kernels fast in user bug reports...
->>>>>>>
->>>>>>> What kind of bug report are you going to get?
->>>>>>
->>>>>> User manages to enable CONFIG_FOO by selecting COMPILE_TEST and
->>>>>> complains that it does not work. :)
->>>>>
->>>>> These drivers are typically drivers for some SoC peripheral and t=
-he
->>>>> device will simply physically not exist on a platform that does n=
-ot
->>>>> provide HAS_IOMEM. This is not really any
->>>>> different from making the driver selectable via COMPILE_TEST for
->>>>> any other platform. To hit the issue you'd have to instantiate a
->>>>> device driver instance for a device that
->>>>> physically does not exist. This will always result in a failure.
->>>>
->>>> Okay, you have convinced me. :)
->>>>
->>
->> After search the history patches, I found one related patch which ma=
-de
->> by myself (when I am in Asianux):
->>
->>    "https://lkml.org/lkml/2013/7/1/641"
->>
->> For me, it is a long discussion, and forced many members have to joi=
-n
->> in. Please help check again.
->>
->=20
-> One thing you could try would be to return NULL (or where appropriate
-> an error) in the #else case of CONFIG_HAS_IOMEM and CONFIG_HAS_IOPORT=
-,
-> ie dont take COMPILE_TEST into account at all. Obviously that means
-> you won't be able to dump a warning message in the COMPILE_TEST
-> case, but at least the code would compile. The rejection of above pat=
-ch
-> would make a good case for this approach.
->=20
+> >> +
+> >> +Optional properties:
+> >> +
+> >> +       autorepeat:             Enables the Linux input system's autorepeat
+> >> +                               feature on the input device.
+> >> +       microchip,sensor-gain:  Defines the gain of the sensor circuitry. This
+> >> +                               effectively controls the sensitivity, as a
+> >> +                               smaller delta capacitance is required to
+> >> +                               generate the same delta count values.
+> >> +                               Valid values are 1, 2, 4, and 8.
+> >> +                               By default, a gain of 1 is set.
+> > 
+> > Does the official documentation describe this in absolute terms?
+> 
+> The documentation describes the gain feature as "1, 2, 4, or 8", so I
+> kept it like this in the bindings. Internally, the register stores that
+> value in 2 bits. The driver takes care for the translation.
 
-OK, thanks: at least, it can be improved.  But still welcome any other
-opinions of another related members.
+That sounds fine.
 
-Thanks.
---=20
-Chen Gang
+> >> +To define details of each individual button channel, six subnodes can be
+> >> +specified. Inside each of those, the following property is valid:
+> >> +
+> >> +       linux,keycode:  Specify the numeric identifier of the keycode to be
+> >> +                       generated when this channel is activated. If this
+> >> +                       property is omitted, KEY_A, KEY_B, etc are used as
+> >> +                       defaults.
+> > 
+> > What are those subnodes, and how are they told apart? Name, compatible?
+> > 
+> > I strongly recommend against relying on the order of the DT. It's very
+> > easy for that to get messed up and makes things hard to read.
+> > 
+> > Is is not possible to use linux,keymap and treat the buttons as a
+> > matrix keypad? Then you don't need subnodes at all, and you can have a
+> > sparse keymap if you want.
+> 
+> Hmm, I thought about that, but there are - in theory - more details that
+> could be specified per channel. I left those functions out for the first
+> version, as I have no good way to test them.
 
-Open, share, and attitude like air, water, and life which God blessed
+Ok. Could you elaborate on what those details might be? It might make
+sense to have these as nodes if there are arbitrary properties to
+describe for each button, but I'm not familiar enough with the hardware
+to make a call either way.
+
+> Hence, my idea was to have everything related to one channel nicely
+> grouped in a subnode. I've also seen bindings that rely on the order of
+> subnodes before, for example in regulator drivers.
+
+Sure. There's plenty of bad practice in DT bindings and code. There's
+just too much of it going on to get everything sane, and it's not always
+possible to fix the insane stuff if people are already using it.
+
+> But I agree with you that it makes board definitions error-prone.
+> 
+> linux,keycode feels a bit overkill here though, so I'd rather go for a
+> fixed-size linux,keycodes property. The number of entries is fixed,
+> anyway. Would you be fine with that?
+
+Assuming no-one's likely to want a sparse keymap (i.e. one where some
+keys do nothing) then that's probably ok.
+
+> >> +struct cap1106_priv {
+> >> +       struct regmap *regmap;
+> >> +       struct input_dev *idev;
+> >> +       struct work_struct work;
+> >> +       spinlock_t lock;
+> >> +       bool closed:1;
+> > 
+> > I don't think you're saving anything here by trying to have a bool
+> > bitfield.
+> 
+> That variable has been dropped in v3 already :)
+> 
+> >> +       i = 0;
+> >> +       for_each_child_of_node(node, child) {
+> >> +               if (i == CAP1106_NUM_CHN) {
+> >> +                       dev_err(dev, "Too many button nodes.\n");
+> >> +                       return -EINVAL;
+> >> +               }
+> >> +
+> >> +               if (!of_property_read_u32(child, "linux,keycode", &tmp32))
+> >> +                       priv->keycodes[i] = tmp32;
+> >> +
+> >> +               i++;
+> >> +       }
+> > 
+> > I don't think that it is a good idea to rely on the order of sub-nodes
+> > in the DTB.
+> 
+> Jup, I agree. As mentioned above, I'd like to solve that with
+> linux,keycode for now.
+> 
+> > [...]
+> > 
+> >> +       if (of_get_property(node, "autorepeat", NULL))
+> >> +               __set_bit(EV_REP, priv->idev->evbit);
+> > 
+> > Use of_property_read_bool.
+> 
+> Will do, thanks.
+> 
+> > /me mutters usual grumblings about the autorepeat property.
+> 
+> I took that from the gpio-keys driver. Is there a better way to denote
+> such a feature?
+
+Unfortunately not, given current practice. My gripe is that it's a Linux
+detail that were describing rather than a property of the device. We can
+forget about that for now.
+
+Thanks,
+Mark.

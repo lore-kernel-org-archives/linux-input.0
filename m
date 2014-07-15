@@ -1,94 +1,99 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 06/23] Input - wacom: split out the pad device for DTUS
-Date: Tue, 15 Jul 2014 14:45:29 -0400
-Message-ID: <1405449946-11515-7-git-send-email-benjamin.tissoires@redhat.com>
-References: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: rmi: add additional checks for the existence of
+ optional queries in order to compute the address of Query 12.
+Date: Tue, 15 Jul 2014 15:07:02 -0400
+Message-ID: <20140715190702.GB21045@mail.corp.redhat.com>
+References: <1405114551-24354-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40713 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:9244 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932902AbaGOSp4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jul 2014 14:45:56 -0400
-In-Reply-To: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S932760AbaGOTHQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jul 2014 15:07:16 -0400
+Content-Disposition: inline
+In-Reply-To: <1405114551-24354-1-git-send-email-aduggan@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-MSC_SERIAL can be safely removed from the pad device.
+On Jul 11 2014 or thereabouts, Andrew Duggan wrote:
+> There are additional queries which are optional and may not be present depending on the configuration of the firmware. Knowing which queries are present is needed to properly compute the address of Query 12 and all subsequent queries. Additional bits in Query 1 are used to indicate the presence of these optional queries.
+> 
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> ---
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Reviewed-by: Ping Cheng <pingc@wacom.com>
-Reviewed-by: Jason Gerecke <killertofu@gmail.com>
----
+Looks good to me
 
-no changes in v2
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
- drivers/input/tablet/wacom_wac.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 4a40381..e7ce16e 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -217,17 +217,13 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
- 			"%s: received unknown report #%d", __func__, data[0]);
- 		return 0;
- 	} else if (data[0] == WACOM_REPORT_DTUSPAD) {
-+		input = wacom->pad_input;
- 		input_report_key(input, BTN_0, (data[1] & 0x01));
- 		input_report_key(input, BTN_1, (data[1] & 0x02));
- 		input_report_key(input, BTN_2, (data[1] & 0x04));
- 		input_report_key(input, BTN_3, (data[1] & 0x08));
- 		input_report_abs(input, ABS_MISC,
- 				 data[1] & 0x0f ? PAD_DEVICE_ID : 0);
--		/*
--		 * Serial number is required when expresskeys are
--		 * reported through pen interface.
--		 */
--		input_event(input, EV_MSC, MSC_SERIAL, 0xf0);
- 		return 1;
- 	} else {
- 		prox = data[1] & 0x80;
-@@ -257,7 +253,6 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
- 			wacom->id[0] = 0;
- 		input_report_key(input, wacom->tool[0], prox);
- 		input_report_abs(input, ABS_MISC, wacom->id[0]);
--		input_event(input, EV_MSC, MSC_SERIAL, 1);
- 		return 1;
- 	}
- }
-@@ -1615,7 +1610,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 				   struct wacom_wac *wacom_wac)
- {
- 	struct wacom_features *features = &wacom_wac->features;
--	int i;
- 
- 	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 
-@@ -1759,11 +1753,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 	case DTUS:
- 	case PL:
- 	case DTU:
--		if (features->type == DTUS) {
--			input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
--			for (i = 0; i < 4; i++)
--				__set_bit(BTN_0 + i, input_dev->keybit);
--		}
- 		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
- 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
- 		__set_bit(BTN_STYLUS, input_dev->keybit);
-@@ -1971,6 +1960,11 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 
- 		break;
- 
-+	case DTUS:
-+		for (i = 0; i < 4; i++)
-+			__set_bit(BTN_0 + i, input_dev->keybit);
-+		break;
-+
- 	case INTUOSHT:
- 	case BAMBOO_PT:
- 		/* pad device is on the touch interface */
--- 
-2.0.0
-
+>  drivers/hid/hid-rmi.c | 35 +++++++++++++++++++++++++----------
+>  1 file changed, 25 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 578bbe6..3221a95 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -549,10 +549,12 @@ static int rmi_populate_f11(struct hid_device *hdev)
+>  	u8 buf[20];
+>  	int ret;
+>  	bool has_query9;
+> -	bool has_query10;
+> +	bool has_query10 = false;
+>  	bool has_query11;
+>  	bool has_query12;
+>  	bool has_physical_props;
+> +	bool has_gestures;
+> +	bool has_rel;
+>  	unsigned x_size, y_size;
+>  	u16 query12_offset;
+>  
+> @@ -589,19 +591,32 @@ static int rmi_populate_f11(struct hid_device *hdev)
+>  		return -ENODEV;
+>  	}
+>  
+> -	/* query 8 to find out if query 10 exists */
+> -	ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
+> -	if (ret) {
+> -		hid_err(hdev, "can not read gesture information: %d.\n", ret);
+> -		return ret;
+> +	has_rel = !!(buf[0] & BIT(3));
+> +	has_gestures = !!(buf[0] & BIT(5));
+> +
+> +	if (has_gestures) {
+> +		/* query 8 to find out if query 10 exists */
+> +		ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
+> +		if (ret) {
+> +			hid_err(hdev, "can not read gesture information: %d.\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +		has_query10 = !!(buf[0] & BIT(2));
+>  	}
+> -	has_query10 = !!(buf[0] & BIT(2));
+>  
+>  	/*
+> -	 * At least 8 queries are guaranteed to be present in F11
+> -	 * +1 for query12.
+> +	 * At least 4 queries are guaranteed to be present in F11
+> +	 * +1 for query 5 which is present since absolute events are
+> +	 * reported and +1 for query 12.
+>  	 */
+> -	query12_offset = 9;
+> +	query12_offset = 6;
+> +
+> +	if (has_rel)
+> +		++query12_offset; /* query 6 is present */
+> +
+> +	if (has_gestures)
+> +		query12_offset += 2; /* query 7 and 8 are present */
+>  
+>  	if (has_query9)
+>  		++query12_offset;
+> -- 
+> 1.9.1
+> 

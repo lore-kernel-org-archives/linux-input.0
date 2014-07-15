@@ -1,71 +1,78 @@
-From: Alexander Stein <alexander.stein@systec-electronic.com>
-Subject: Re: [PATCH] PM / sleep / irq: Do not suspend wakeup interrupts
-Date: Tue, 15 Jul 2014 14:36:46 +0200
-Message-ID: <1983952.dL0Czm4hJT@ws-stein>
-References: <53A2340D.9030503@linux.intel.com> <2067046.JFGH9LUctP@ws-stein> <1776825.8kf9TZPye4@vostro.rjw.lan>
+From: Chen Gang <gang.chen.5i5j@gmail.com>
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+Date: Tue, 15 Jul 2014 22:38:25 +0800
+Message-ID: <53C53CE1.4090803@gmail.com>
+References: <201407130545.23004.marex@denx.de>
+ <CAF0htA60juBVkPo2HQKMDGcEr-wRzRVL_6JgHAa+7WVE_E8M0Q@mail.gmail.com>
+ <53C25551.1050909@nod.at> <53C288F0.3070001@metafoo.de>
+ <53C28C4A.70907@nod.at> <53C29015.5070607@metafoo.de>
+ <53C291C8.6050303@nod.at> <53C296C2.30304@metafoo.de>
+ <20140713192202.GA19090@kroah.com> <53C2DF12.6040507@nod.at>
+ <20140713201753.GA29955@kroah.com> <53C39569.9020802@nod.at>
+ <53C3994C.1010309@metafoo.de> <53C39B66.4060500@nod.at>
+ <5A40E1FC-CA61-4AFF-B205-4BAC175AA7AC@gmail.com> <53C47725.8000005@gmail.com>
+ <53C47B76.4080306@roeck-us.net> <53C47FB7.6080304@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1776825.8kf9TZPye4@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>, "Li, Aubrey" <aubrey.li@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Linux PM list <linux-pm@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <53C47FB7.6080304@gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Guenter Roeck <linux@roeck-us.net>, Richard Weinberger <richard@nod.at>
+Cc: linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no, Thierry Reding <thierry.reding@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday 15 July 2014 14:50:28, Rafael J. Wysocki wrote:
-> On Tuesday, July 15, 2014 02:22:25 PM Alexander Stein wrote:
-> > On Thursday 10 July 2014 23:37:54, Rafael J. Wysocki wrote:
-> > > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > > 
-> > > If an IRQ has been configured for wakeup via enable_irq_wake(), the
-> > > driver who has done that must be prepared for receiving interrupts
-> > > after suspend_device_irqs() has returned, so there is no need to
-> > > "suspend" such IRQs.  Moreover, if drivers using enable_irq_wake()
-> > > actually want to receive interrupts after suspend_device_irqs() has
-> > > returned, they need to add IRQF_NO_SUSPEND to the IRQ flags while
-> > > requesting the IRQs, which shouldn't be necessary (it also goes a bit
-> > > too far, as IRQF_NO_SUSPEND causes the IRQ to be ignored by
-> > > suspend_device_irqs() all the time regardless of whether or not it
-> > > has been configured for signaling wakeup).
-> > > 
-> > > For the above reasons, make __disable_irq() ignore IRQ descriptors
-> > > with IRQD_WAKEUP_STATE set when its suspend argument is true which
-> > > effectively causes them to behave like IRQs with IRQF_NO_SUSPEND
-> > > set.
-> > > 
-> > > This also allows IRQs configured for wakeup via enable_irq_wake()
-> > > to work as wakeup interrupts for the "freeze" (suspend-to-idle)
-> > > sleep mode automatically just like for any other sleep states.
-> > > 
-> > > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > > ---
-> > >  kernel/irq/manage.c |    3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > Index: linux-pm/kernel/irq/manage.c
-> > > ===================================================================
-> > > --- linux-pm.orig/kernel/irq/manage.c
-> > > +++ linux-pm/kernel/irq/manage.c
-> > > @@ -385,7 +385,8 @@ setup_affinity(unsigned int irq, struct
-> > >  void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
-> > >  {
-> > >  	if (suspend) {
-> > > -		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
-> > > +		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND)
-> > > +		    || irqd_has_set(&desc->irq_data, IRQD_WAKEUP_STATE))
-> > >  			return;
-> > >  		desc->istate |= IRQS_SUSPENDED;
-> > >  	}
-> > 
-> > Nice, this fixes my wakeup problem from freeze using gpio-keys. Unfortunately my SPI-attached touchscreen controller cannot be used for wakeup from freeze. Using it to wakeup from mem does work instead. Any ideas what might be wrong in this case?
-> 
-> Not without looking at the code in question.
-> 
-> One guess would be a missing call to enable_irq_wake().
-
-No, ads7846.c does call 'enable_irq_wake(ts->spi->irq)'. So is this a platform or driver specific problem?
-
-Regards,
-Alexander
-
+T24gMDcvMTUvMjAxNCAwOToxMSBBTSwgQ2hlbiBHYW5nIHdyb3RlOgo+IAo+IAo+IE9uIDA3LzE1
+LzIwMTQgMDg6NTMgQU0sIEd1ZW50ZXIgUm9lY2sgd3JvdGU6Cj4+IE9uIDA3LzE0LzIwMTQgMDU6
+MzQgUE0sIENoZW4gR2FuZyB3cm90ZToKPj4+IE9uIDA3LzE0LzIwMTQgMDU6MjIgUE0sIENoZW4g
+R2FuZyB3cm90ZToKPj4+Pgo+Pj4+IOWcqCAyMDE05bm0N+aciDE05pel77yM5LiL5Y2INDo1N++8
+jFJpY2hhcmQgV2VpbmJlcmdlciA8cmljaGFyZEBub2QuYXQ+IOWGmemBk++8mgo+Pj4+Cj4+Pj4+
+IEFtIDE0LjA3LjIwMTQgMTA6NDgsIHNjaHJpZWIgTGFycy1QZXRlciBDbGF1c2VuOgo+Pj4+Pj4g
+T24gMDcvMTQvMjAxNCAxMDozMSBBTSwgUmljaGFyZCBXZWluYmVyZ2VyIHdyb3RlOgo+Pj4+Pj4+
+IEFtIDEzLjA3LjIwMTQgMjI6MTcsIHNjaHJpZWIgR3JlZyBLcm9haC1IYXJ0bWFuOgo+Pj4+Pj4+
+PiBPbiBTdW4sIEp1bCAxMywgMjAxNCBhdCAwOTozMzozOFBNICswMjAwLCBSaWNoYXJkIFdlaW5i
+ZXJnZXIgd3JvdGU6Cj4+Pj4+Pj4+PiBNYXliZSB3ZSBjb3VsZCBhZGQgQ09NUElMRV9URVNUIHRv
+IHRoZSB2ZXJzaW9uIHN0cmluZyB0b28/Cj4+Pj4+Pj4+PiBKdXN0IHRvIGRldGVjdCBzdWNoIGtl
+cm5lbHMgZmFzdCBpbiB1c2VyIGJ1ZyByZXBvcnRzLi4uCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFdoYXQg
+a2luZCBvZiBidWcgcmVwb3J0IGFyZSB5b3UgZ29pbmcgdG8gZ2V0Pwo+Pj4+Pj4+Cj4+Pj4+Pj4g
+VXNlciBtYW5hZ2VzIHRvIGVuYWJsZSBDT05GSUdfRk9PIGJ5IHNlbGVjdGluZyBDT01QSUxFX1RF
+U1QgYW5kCj4+Pj4+Pj4gY29tcGxhaW5zIHRoYXQgaXQgZG9lcyBub3Qgd29yay4gOikKPj4+Pj4+
+Cj4+Pj4+PiBUaGVzZSBkcml2ZXJzIGFyZSB0eXBpY2FsbHkgZHJpdmVycyBmb3Igc29tZSBTb0Mg
+cGVyaXBoZXJhbCBhbmQgdGhlCj4+Pj4+PiBkZXZpY2Ugd2lsbCBzaW1wbHkgcGh5c2ljYWxseSBu
+b3QgZXhpc3Qgb24gYSBwbGF0Zm9ybSB0aGF0IGRvZXMgbm90Cj4+Pj4+PiBwcm92aWRlIEhBU19J
+T01FTS4gVGhpcyBpcyBub3QgcmVhbGx5IGFueQo+Pj4+Pj4gZGlmZmVyZW50IGZyb20gbWFraW5n
+IHRoZSBkcml2ZXIgc2VsZWN0YWJsZSB2aWEgQ09NUElMRV9URVNUIGZvcgo+Pj4+Pj4gYW55IG90
+aGVyIHBsYXRmb3JtLiBUbyBoaXQgdGhlIGlzc3VlIHlvdSdkIGhhdmUgdG8gaW5zdGFudGlhdGUg
+YQo+Pj4+Pj4gZGV2aWNlIGRyaXZlciBpbnN0YW5jZSBmb3IgYSBkZXZpY2UgdGhhdAo+Pj4+Pj4g
+cGh5c2ljYWxseSBkb2VzIG5vdCBleGlzdC4gVGhpcyB3aWxsIGFsd2F5cyByZXN1bHQgaW4gYSBm
+YWlsdXJlLgo+Pj4+Pgo+Pj4+PiBPa2F5LCB5b3UgaGF2ZSBjb252aW5jZWQgbWUuIDopCj4+Pj4+
+Cj4+Pgo+Pj4gQWZ0ZXIgc2VhcmNoIHRoZSBoaXN0b3J5IHBhdGNoZXMsIEkgZm91bmQgb25lIHJl
+bGF0ZWQgcGF0Y2ggd2hpY2ggbWFkZQo+Pj4gYnkgbXlzZWxmICh3aGVuIEkgYW0gaW4gQXNpYW51
+eCk6Cj4+Pgo+Pj4gICAgImh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDEzLzcvMS82NDEiCj4+Pgo+
+Pj4gRm9yIG1lLCBpdCBpcyBhIGxvbmcgZGlzY3Vzc2lvbiwgYW5kIGZvcmNlZCBtYW55IG1lbWJl
+cnMgaGF2ZSB0byBqb2luCj4+PiBpbi4gUGxlYXNlIGhlbHAgY2hlY2sgYWdhaW4uCj4+Pgo+Pgo+
+PiBPbmUgdGhpbmcgeW91IGNvdWxkIHRyeSB3b3VsZCBiZSB0byByZXR1cm4gTlVMTCAob3Igd2hl
+cmUgYXBwcm9wcmlhdGUKPj4gYW4gZXJyb3IpIGluIHRoZSAjZWxzZSBjYXNlIG9mIENPTkZJR19I
+QVNfSU9NRU0gYW5kIENPTkZJR19IQVNfSU9QT1JULAo+PiBpZSBkb250IHRha2UgQ09NUElMRV9U
+RVNUIGludG8gYWNjb3VudCBhdCBhbGwuIE9idmlvdXNseSB0aGF0IG1lYW5zCj4+IHlvdSB3b24n
+dCBiZSBhYmxlIHRvIGR1bXAgYSB3YXJuaW5nIG1lc3NhZ2UgaW4gdGhlIENPTVBJTEVfVEVTVAo+
+PiBjYXNlLCBidXQgYXQgbGVhc3QgdGhlIGNvZGUgd291bGQgY29tcGlsZS4gVGhlIHJlamVjdGlv
+biBvZiBhYm92ZSBwYXRjaAo+PiB3b3VsZCBtYWtlIGEgZ29vZCBjYXNlIGZvciB0aGlzIGFwcHJv
+YWNoLgo+Pgo+IAo+IE9LLCB0aGFua3M6IGF0IGxlYXN0LCBpdCBjYW4gYmUgaW1wcm92ZWQuICBC
+dXQgc3RpbGwgd2VsY29tZSBhbnkgb3RoZXIKPiBvcGluaW9ucyBvZiBhbm90aGVyIHJlbGF0ZWQg
+bWVtYmVycy4KPiAKCklmIG5vIHJlcGx5IHdpdGhpbiAzIGRheXMgKDIwMTQtMDctMTgpLCBJIHNo
+YWxsIHRyeSB0byBzZW5kIHJlbGF0ZWQKcGF0Y2ggZm9yIGl0IHdpdGhpbiB0aGlzIHdlZWsgZW5k
+ICgyMDE0LTA3LTIwKS4KClRoYW5rcy4KLS0gCkNoZW4gR2FuZwoKT3BlbiBzaGFyZSBhbmQgYXR0
+aXR1ZGUgbGlrZSBhaXIgd2F0ZXIgYW5kIGxpZmUgd2hpY2ggR29kIGJsZXNzZWQKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZGV2ZWwgbWFpbGluZyBsaXN0
+CmRldmVsQGxpbnV4ZHJpdmVycHJvamVjdC5vcmcKaHR0cDovL2RyaXZlcmRldi5saW51eGRyaXZl
+cnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8vZHJpdmVyZGV2LWRldmVsCg==

@@ -1,48 +1,49 @@
-From: Markus Niebel <list-09_linux_input@tqsc.de>
-Subject: [RFC] edt-ft5x06 - cannot see IRQ Qfrom device after DT probe
-Date: Tue, 15 Jul 2014 19:43:57 +0200
-Message-ID: <53C5685D.1090008@tqsc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 01/23] Revert "Input: wacom - testing result shows get_report is unnecessary."
+Date: Tue, 15 Jul 2014 14:45:24 -0400
+Message-ID: <1405449946-11515-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay01.ispgateway.de ([80.67.31.39]:48846 "EHLO
-	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932078AbaGORhL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jul 2014 13:37:11 -0400
-Received: from [89.246.71.91] (helo=mail6.tqsc.de)
-	by smtprelay01.ispgateway.de with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.68)
-	(envelope-from <list-09_linux_input@tqsc.de>)
-	id 1X76a9-0003WM-U9
-	for linux-input@vger.kernel.org; Tue, 15 Jul 2014 19:32:01 +0200
-Received: from sc1209091.tqsc.de ([192.168.168.49] helo=[127.0.0.1])
-	by mail6.tqsc.de with esmtpsa (TLS1.0:DHE_RSA_AES_128_CBC_SHA1:16)
-	(Exim 4.69)
-	(envelope-from <list-09_linux_input@tqsc.de>)
-	id 1X76a9-0001D7-HE
-	for linux-input@vger.kernel.org; Tue, 15 Jul 2014 19:32:01 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:31297 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932650AbaGOSpw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jul 2014 14:45:52 -0400
+In-Reply-To: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hallo,
+This reverts commit 1b2faaf7e219fc2905d75afcd4c815e5d39eda80.
 
-working with said tochcontroller we found that the IRQ is not seen in the following scenario:
+The Intuos4 series presents a bug in which it hangs if it receives
+a set feature command while switching to the enhanced mode.
+This bug is triggered when plugging an Intuos 4 while having
+a gnome user session up and running.
 
-- bootloader uses pin as an output for some reason 
-- pin is configured as GPIO and as INT source via device tree
-- driver loads correctly and communicates over I2C
-- IRQs not seen by CPU becaus pin is still configured as output
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Aristeu Rozanski <aris@redhat.com>
+---
 
-- when adding an int-gpios node to devicetree and parsing this gpio the gpio will be configured as input
-- IRQ can be seen by CPU
+no changes in v2
 
-Question:
+ drivers/input/tablet/wacom_sys.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-- shall we add an int-gpio property to enable gpio pin config as input or
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 2c613cd..72b1724 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -536,6 +536,9 @@ static int wacom_set_device_mode(struct usb_interface *intf, int report_id, int
+ 
+ 		error = wacom_set_report(intf, WAC_HID_FEATURE_REPORT,
+ 		                         report_id, rep_data, length, 1);
++		if (error >= 0)
++			error = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
++			                         report_id, rep_data, length, 1);
+ 	} while ((error < 0 || rep_data[1] != mode) && limit++ < WAC_MSG_RETRIES);
+ 
+ 	kfree(rep_data);
+-- 
+2.0.0
 
-Regards
-
-Markus Niebel

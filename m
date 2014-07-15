@@ -1,198 +1,92 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 16/23] Input - wacom: remove usb dependency for siblings devices
-Date: Tue, 15 Jul 2014 14:45:39 -0400
-Message-ID: <1405449946-11515-17-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 15/23] Input - wacom: register the input devices on top of the HID one
+Date: Tue, 15 Jul 2014 14:45:38 -0400
+Message-ID: <1405449946-11515-16-git-send-email-benjamin.tissoires@redhat.com>
 References: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:47097 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932941AbaGOSqD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jul 2014 14:46:03 -0400
 In-Reply-To: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Wacom tablets can share different physical sensors on one physical device.
-These are called siblings in the code. The current way of implementation
-relies on the USB topology to be able to share data amongs those sensors.
+Matches the current behavior of the HID subsystem and removes one more
+dependency over USB.
 
-We can replace the code to match a HID subsystem, without involving the USB
-topology:
-- the first probed sensor does not find any siblings in the list
-  wacom_udev_list, so it creates its own wacom_hdev_data with its own
-  struct hid_device
-- the other sensor checks the current list of siblings in wacom_hdev_data,
-  and if there is a match, it associates itself to the matched device.
-
-To be sure that we are not associating different sensors from different
-physical devices, we also check for the phys path of the hid device which
-contains the USB topology.
+The current user space clients which relies on this to fetch the
+LEDs path need an update. However, we already break them in the
+kernel v3.11 for the Bluetooth Wacom devices. They are going to be fixed
+soon.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Reviewed-by: Jason Gerecke <killertofu@gmail.com>
 Tested-by: Jason Gerecke <killertofu@gmail.com>
 ---
 
-changes in v2:
-- use Jason's suggestion to find the sibblings devices
+no changes in v2
 
- drivers/input/tablet/wacom_sys.c | 76 +++++++++++++++++++---------------------
- 1 file changed, 37 insertions(+), 39 deletions(-)
+ drivers/input/tablet/wacom.h     |  1 -
+ drivers/input/tablet/wacom_sys.c | 15 ++++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+index b921239..dd67b7d 100644
+--- a/drivers/input/tablet/wacom.h
++++ b/drivers/input/tablet/wacom.h
+@@ -112,7 +112,6 @@ struct wacom {
+ 	struct hid_device *hdev;
+ 	struct mutex lock;
+ 	struct work_struct work;
+-	char phys[32];
+ 	struct wacom_led {
+ 		u8 select[2]; /* status led selector (0..3) */
+ 		u8 llv;       /* status led brightness no button (1..127) */
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 2650443..8065bac 100644
+index 6e21064..2650443 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -488,46 +488,48 @@ static int wacom_retrieve_hid_descriptor(struct hid_device *hdev,
- 	return error;
- }
- 
--struct wacom_usbdev_data {
-+struct wacom_hdev_data {
- 	struct list_head list;
- 	struct kref kref;
--	struct usb_device *dev;
-+	struct hid_device *dev;
- 	struct wacom_shared shared;
- };
- 
- static LIST_HEAD(wacom_udev_list);
- static DEFINE_MUTEX(wacom_udev_list_lock);
- 
--static struct usb_device *wacom_get_sibling(struct usb_device *dev, int vendor, int product)
-+static bool wacom_are_sibling(struct hid_device *hdev,
-+		struct hid_device *sibling)
+@@ -986,8 +986,7 @@ static void wacom_destroy_battery(struct wacom *wacom)
+ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
  {
--	int port1;
--	struct usb_device *sibling;
--
--	if (vendor == 0 && product == 0)
--		return dev;
-+	struct wacom *wacom = hid_get_drvdata(hdev);
-+	struct wacom_features *features = &wacom->wacom_wac.features;
-+	int vid = features->oVid;
-+	int pid = features->oPid;
-+	int n1,n2;
+ 	struct input_dev *input_dev;
+-	struct usb_interface *intf = wacom->intf;
+-	struct usb_device *dev = interface_to_usbdev(intf);
++	struct hid_device *hdev = wacom->hdev;
+ 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
  
--	if (dev->parent == NULL)
--		return NULL;
-+	if (vid == 0 && pid == 0) {
-+		vid = hdev->vendor;
-+		pid = hdev->product;
-+	}
+ 	input_dev = input_allocate_device();
+@@ -995,11 +994,15 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
+ 		return NULL;
  
--	usb_hub_for_each_child(dev->parent, port1, sibling) {
--		struct usb_device_descriptor *d;
--		if (sibling == NULL)
--			continue;
-+	if (vid != sibling->vendor || pid != sibling->product)
-+		return false;
+ 	input_dev->name = wacom_wac->name;
+-	input_dev->phys = wacom->phys;
+-	input_dev->dev.parent = &intf->dev;
++	input_dev->phys = hdev->phys;
++	input_dev->dev.parent = &hdev->dev;
+ 	input_dev->open = wacom_open;
+ 	input_dev->close = wacom_close;
+-	usb_to_input_id(dev, &input_dev->id);
++	input_dev->uniq = hdev->uniq;
++	input_dev->id.bustype = hdev->bus;
++	input_dev->id.vendor  = hdev->vendor;
++	input_dev->id.product = hdev->product;
++	input_dev->id.version = hdev->version;
+ 	input_set_drvdata(input_dev, wacom);
  
--		d = &sibling->descriptor;
--		if (d->idVendor == vendor && d->idProduct == product)
--			return sibling;
--	}
-+	/* Compare the physical path. */
-+	n1 = strrchr(hdev->phys, '.') - hdev->phys;
-+	n2 = strrchr(sibling->phys, '.') - sibling->phys;
-+	if (n1 != n2 || n1 <= 0 || n2 <= 0)
-+		return false;
+ 	return input_dev;
+@@ -1266,8 +1269,6 @@ static int wacom_probe(struct hid_device *hdev,
+ 	wacom->intf = intf;
+ 	mutex_init(&wacom->lock);
+ 	INIT_WORK(&wacom->work, wacom_wireless_work);
+-	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+-	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
  
--	return NULL;
-+	return !strncmp(hdev->phys, sibling->phys, n1);
- }
- 
--static struct wacom_usbdev_data *wacom_get_usbdev_data(struct usb_device *dev)
-+static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
- {
--	struct wacom_usbdev_data *data;
-+	struct wacom_hdev_data *data;
- 
- 	list_for_each_entry(data, &wacom_udev_list, list) {
--		if (data->dev == dev) {
-+		if (wacom_are_sibling(hdev, data->dev)) {
- 			kref_get(&data->kref);
- 			return data;
- 		}
-@@ -536,28 +538,29 @@ static struct wacom_usbdev_data *wacom_get_usbdev_data(struct usb_device *dev)
- 	return NULL;
- }
- 
--static int wacom_add_shared_data(struct wacom_wac *wacom,
--				 struct usb_device *dev)
-+static int wacom_add_shared_data(struct hid_device *hdev)
- {
--	struct wacom_usbdev_data *data;
-+	struct wacom *wacom = hid_get_drvdata(hdev);
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_hdev_data *data;
- 	int retval = 0;
- 
- 	mutex_lock(&wacom_udev_list_lock);
- 
--	data = wacom_get_usbdev_data(dev);
-+	data = wacom_get_hdev_data(hdev);
- 	if (!data) {
--		data = kzalloc(sizeof(struct wacom_usbdev_data), GFP_KERNEL);
-+		data = kzalloc(sizeof(struct wacom_hdev_data), GFP_KERNEL);
- 		if (!data) {
- 			retval = -ENOMEM;
- 			goto out;
- 		}
- 
- 		kref_init(&data->kref);
--		data->dev = dev;
-+		data->dev = hdev;
- 		list_add_tail(&data->list, &wacom_udev_list);
- 	}
- 
--	wacom->shared = &data->shared;
-+	wacom_wac->shared = &data->shared;
- 
- out:
- 	mutex_unlock(&wacom_udev_list_lock);
-@@ -566,8 +569,8 @@ out:
- 
- static void wacom_release_shared_data(struct kref *kref)
- {
--	struct wacom_usbdev_data *data =
--		container_of(kref, struct wacom_usbdev_data, kref);
-+	struct wacom_hdev_data *data =
-+		container_of(kref, struct wacom_hdev_data, kref);
- 
- 	mutex_lock(&wacom_udev_list_lock);
- 	list_del(&data->list);
-@@ -578,10 +581,10 @@ static void wacom_release_shared_data(struct kref *kref)
- 
- static void wacom_remove_shared_data(struct wacom_wac *wacom)
- {
--	struct wacom_usbdev_data *data;
-+	struct wacom_hdev_data *data;
- 
- 	if (wacom->shared) {
--		data = container_of(wacom->shared, struct wacom_usbdev_data, shared);
-+		data = container_of(wacom->shared, struct wacom_hdev_data, shared);
- 		kref_put(&data->kref, wacom_release_shared_data);
- 		wacom->shared = NULL;
- 	}
-@@ -1308,8 +1311,6 @@ static int wacom_probe(struct hid_device *hdev,
- 		"%s Pad", features->name);
- 
- 	if (features->quirks & WACOM_QUIRK_MULTI_INPUT) {
--		struct usb_device *other_dev;
--
- 		/* Append the device type to the name */
- 		if (features->device_type != BTN_TOOL_FINGER)
- 			strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
-@@ -1318,10 +1319,7 @@ static int wacom_probe(struct hid_device *hdev,
- 		else
- 			strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
- 
--		other_dev = wacom_get_sibling(dev, features->oVid, features->oPid);
--		if (other_dev == NULL || wacom_get_usbdev_data(other_dev) == NULL)
--			other_dev = dev;
--		error = wacom_add_shared_data(wacom_wac, other_dev);
-+		error = wacom_add_shared_data(hdev);
- 		if (error)
- 			goto fail1;
- 	}
+ 	/* set the default size in case we do not get them from hid */
+ 	wacom_set_default_phy(features);
 -- 
 2.0.0
+

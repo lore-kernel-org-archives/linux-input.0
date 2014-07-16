@@ -1,40 +1,33 @@
-From: Kevin Cernekee <cernekee@gmail.com>
-Subject: Re: Power-managing devices that are not of interest at some point in time
-Date: Wed, 16 Jul 2014 11:55:16 -0700
-Message-ID: <CAJiQ=7CorBMaO80xcEx4ygYFDJxxav_yyPs2jegKo3vrX1REHA@mail.gmail.com>
-References: <CAE_wzQ82xsuDQrw8Q6auoG9fowr4VZkcUgciPXe2s9PTAmJ=RA@mail.gmail.com>
- <Pine.LNX.4.44L0.1407161400150.1028-100000@iolanthe.rowland.org>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: Power-managing devices that are not of interest at some point
+ in time
+Date: Wed, 16 Jul 2014 23:36:05 +0200
+Message-ID: <1405546565.23419.3.camel@linux-fkkt.site>
+References: <Pine.LNX.4.44L0.1407161400150.1028-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.44L0.1407161400150.1028-100000@iolanthe.rowland.org>
-Sender: linux-pm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dtor@google.com>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Benson Leung <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dtor@google.com>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 16, 2014 at 11:08 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
->> I am not so much concerned about userspace, but about reusing of as
->> much of existing PM framework in the drivers. Right now it is very
->> hard to correctly track dependencies between general open/close,
->> system suspend/resume, and various runtime-PM transitions. Adding yet
->> another PM mechanism into the mix will just add more complexity.
->
-> Would it make sense to unbind the drivers for these devices when the
-> lid is closed?  With the drivers gone, there would naturally be no I/O
-> interactions with the hardware and the class devices would disappear.
+On Wed, 2014-07-16 at 14:08 -0400, Alan Stern wrote:
+> > I am not so much concerned about userspace, but about reusing of as
+> > much of existing PM framework in the drivers. Right now it is very
+> > hard to correctly track dependencies between general open/close,
+> > system suspend/resume, and various runtime-PM transitions. Adding
+> yet
+> > another PM mechanism into the mix will just add more complexity.
+> 
+> Would it make sense to unbind the drivers for these devices when the 
+> lid is closed?  With the drivers gone, there would naturally be no 
 
-FWIW, per your earlier recommendation[1], that is the approach that my
-group has been using to disable various host controllers when Linux is
-running (not suspended) but certain power-hungry peripherals are not
-needed.  It has mostly worked out OK; each driver typically implements
-its own special PHY init/shutdown procedure, and calls into the common
-clk_* functions to enable/disable the appropriate clocks.
+No, because I don't want settings of my devices to disappear.
+You can do that only for stateless devices. And I doubt you can
+tell in general which devices are stateless.
 
-Obviously the application needs to be able to cope with disappearing
-devices, and you wouldn't want to have any filesystems mounted on top
-of them when the unbind event happens.
-
-Our devices are on an SoC's internal bus, not PCI.
-
-[1] http://lists.linuxfoundation.org/pipermail/linux-pm/2012-April/033976.html
+	Regards
+		Oliver

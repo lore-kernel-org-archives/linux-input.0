@@ -1,87 +1,52 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: Power-managing devices that are not of interest at some point in time
-Date: Thu, 17 Jul 2014 01:33:50 +0200
-Message-ID: <1463038.d2xocpRFLY@vostro.rjw.lan>
-References: <20140716013206.GA13409@google.com> <5611777.bNi5p029gt@vostro.rjw.lan> <1405552422.17757.5.camel@nuvo>
+From: Patrik Fimml <patrikf@chromium.org>
+Subject: Re: Power-managing devices that are not of interest at some point in
+ time
+Date: Wed, 16 Jul 2014 16:17:07 -0700
+Message-ID: <20140716231707.GA24781@google.com>
+References: <20140716013206.GA13409@google.com>
+ <5611777.bNi5p029gt@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1405552422.17757.5.camel@nuvo>
-Sender: linux-pm-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Dmitry Torokhov <dtor@google.com>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:62026 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753212AbaGPXRK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jul 2014 19:17:10 -0400
+Received: by mail-pa0-f44.google.com with SMTP id eu11so2161060pac.3
+        for <linux-input@vger.kernel.org>; Wed, 16 Jul 2014 16:17:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <5611777.bNi5p029gt@vostro.rjw.lan>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Dmitry Torokhov <dtor@google.com>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thursday, July 17, 2014 01:13:42 AM Bastien Nocera wrote:
-> On Thu, 2014-07-17 at 01:11 +0200, Rafael J. Wysocki wrote:
-> > On Tuesday, July 15, 2014 06:32:06 PM Patrik Fimml wrote:
-> > > (Re-sending with correct mailing list addresses.)
-> > > 
-> > > Hi,
-> > > 
-> > > When the lid of a laptop is closed, certain devices can no longer
-> > > provide interesting input or will even produce bogus input, such as:
-> > > 
-> > > - input devices: touchscreen, touchpad, keyboard
-> > > - sensors: ambient light sensor, accelerometer, magnetometer
-> > > - a video camera mounted on the lid
-> > > - display backlight
-> > > 
-> > > Various workarounds cover some of these cases, and we have some ugly
-> > > hacks in ChromeOS to make things work. It would be nice if a userspace
-> > > power management daemon could listen to the lid-close event, and then
-> > > have a way to temporarily power off these devices, potentially through
-> > > sysfs.
-> > > 
-> > > I've been discussing this with Dmitry and Benson (cc'd), and we've been
-> > > wondering whether we could come up with a generic solution that could
-> > > benefit multiple device classes.
-> > > 
-> > > There's some overlap with runtime PM here. The action to be taken in
-> > > such a situation would probably be similar to a runtime suspend. The
-> > > match is not perfect though, since devices with more than two power
-> > > states might want to enter different states depending on the situation.
-> > > 
-> > > It's somewhat difficult to get the semantics right, since handles to
-> > > such devices might still be open. It might be easier to implement
-> > > behavior specific to device classes. On the other hand, it would be nice
-> > > to have a uniform way of shutting devices down, and not introduce
-> > > another possible path for a device to enter a power-saving state.
-> > > 
-> > > Rafael, can you give us your opinion on this?
-> > 
-> > Let me try to understand the scenario in the first place.
-> > 
-> > To start with, a number of devices is in use (that is, open, there are
-> > applications listening/talking to them etc).  Now, an event happens, such
-> > as a laptop lid close and you want some of those devices, but possibly
-> > not all of them, to quiesce themselves and go into low-power states.
-> > 
-> > Is that correct?
+On Thu, Jul 17, 2014 at 01:11:31AM +0200, Rafael J. Wysocki wrote:
+> Let me try to understand the scenario in the first place.
 > 
-> FWIW, I wouldn't build all this complication into the kernel, I would
-> expect:
-> - the kernel to make it easy to detect which of those devices are
-> internal to the machine
-> - make it easy to detect the state of the whole machine (for some
-> laptops like the Yoga, there's no SW_TABLET reporting)
-> - let well-behaved user-space handle the combined information (eg. it's
-> an internal device + lid is closed = shouldn't be used)
+> To start with, a number of devices is in use (that is, open, there are
+> applications listening/talking to them etc).  Now, an event happens, such
+> as a laptop lid close and you want some of those devices, but possibly
+> not all of them, to quiesce themselves and go into low-power states.
 > 
-> For input devices for example, I'd build this into gnome-settings-daemon
-> or gnome-shell directly, both of which have knowledge about input
-> devices used. I'd expect other desktop environments to do similar
-> things.
-> 
-> Applications can already check the lid status (through UPower), and with
-> the additional metadata from the kernel, know that the webcam won't be
-> usable when the lid is closed. Switching to external webcam, a webcam on
-> the outside of the case, or switch off the video stream would then be
-> the expected behaviour.
+> Is that correct?
 
-Well, is the scenario I described correct or not?  If not, then what
-exactly is the scenario you want to be able to handle?
+Yes, that is accurate.
 
-Rafael
+The primary example is a laptop with an external monitor and mouse
+attached which you're using with the lid closed. You want the mouse to
+work, but input from the touchpad that might result from the lid being
+close to it should be skipped. Also, the touchpad should enter a
+low-power state.
 
+We think that triggering this is probably best done in userspace, but
+we would need a way of telling devices to quiesce themselves.
+
+And as Oliver has pointed out, it might be desirable to preserve some
+state/settings of devices. And it's probably undesirable to go through
+the whole process of completely unregistering the device and then
+probing/resetting/configuring it again.
+
+Kind regards,
+Patrik

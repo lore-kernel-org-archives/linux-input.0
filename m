@@ -1,48 +1,54 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: Power-managing devices that are not of interest at some point in time
-Date: Wed, 16 Jul 2014 10:12:23 -0700
-Message-ID: <CANLzEkum3xM5iqXr7W3C0rxWa1SC56Q2hv7aHvut2rOvV098aQ@mail.gmail.com>
-References: <20140716013206.GA13409@google.com>
-	<Pine.LNX.4.44L0.1407161006260.1028-100000@iolanthe.rowland.org>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Power-managing devices that are not of interest at some point
+ in time
+Date: Wed, 16 Jul 2014 14:08:09 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1407161400150.1028-100000@iolanthe.rowland.org>
+References: <CAE_wzQ82xsuDQrw8Q6auoG9fowr4VZkcUgciPXe2s9PTAmJ=RA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.1407161006260.1028-100000@iolanthe.rowland.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Dmitry Torokhov <dtor@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <CAE_wzQ82xsuDQrw8Q6auoG9fowr4VZkcUgciPXe2s9PTAmJ=RA@mail.gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Dmitry Torokhov <dtor@google.com>
+Cc: Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 16, 2014 at 7:17 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
+On Wed, 16 Jul 2014, Dmitry Torokhov wrote:
 
->> Various workarounds cover some of these cases, and we have some ugly
->> hacks in ChromeOS to make things work. It would be nice if a userspace
->> power management daemon could listen to the lid-close event, and then
->> have a way to temporarily power off these devices, potentially through
->> sysfs.
->
-> Isn't it common for laptops to go into system suspend when the lid is
-> closed?
+> > The general design of Linux's runtime PM is that the PM core tells
+> > drivers when their devices are no longer being used, and it's up to the
+> > driver to select an appropriate low-power state.  That philosophy
+> > doesn't fit well with the problem you want to solve, because you want
+> > to turn off devices even when they _are_ still in use.
+> 
+> This does not sound quite right to me. We can tell PM core when
+> devices absolutely can not go to low power mode, but certain devices
+> can go into lower power state and wake up themselves even if there are
+> users: i.e. mice and keyboards with autosuspend. I guess it depends
+> what you define as being "in use".
 
-It's common, but it does not cover all possible cases. As was
-mentioned by Dmitry, the user may dock his laptop, close his lid and
-use external display, keyboard, and mouse. In that case, the internal
-devices should be disabled or else they may send bogus input when the
-laptop's B panel couples with the touchpad, for example.
+True.  Right now the PM core relies on subsystems and drivers to tell 
+it when a device is or isn't in use.
 
-Even in the case where system suspend happens, we don't want to depend
-on that state change to disable these devices. It may take some time
-before the system enters suspend, and in the meantime the input
-devices with the lid closed may inadvertently cancel suspend by
-generating a pm_wakeup_event(), which is not what we want.
+> > A separate sysfs interface might work out better.
+> >
+> 
+> I am not so much concerned about userspace, but about reusing of as
+> much of existing PM framework in the drivers. Right now it is very
+> hard to correctly track dependencies between general open/close,
+> system suspend/resume, and various runtime-PM transitions. Adding yet
+> another PM mechanism into the mix will just add more complexity.
 
-Other scenarios outside of lid close where such a feature would be
-helpful would be for transforming form-factors such as Yoga style
-laptops where the screen can fold back into tablet mode, and the C
-panel touchpad and keyboard should be disabled.
+Would it make sense to unbind the drivers for these devices when the 
+lid is closed?  With the drivers gone, there would naturally be no I/O 
+interactions with the hardware and the class devices would disappear.
 
+The respective subsystems could then use their own runtime PM
+mechanisms to power down the driverless devices.  (Except for PCI,
+unfortunately, which has a policy of leaving driverless devices at full
+power.  I was told this is a relic from the days before in-kernel mode
+switching for displays was common, when user programs like the X server
+would drive displays directly, without using a kernel driver.)
 
--- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung@chromium.org
+Alan Stern
+

@@ -1,63 +1,81 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: [RFC] edt-ft5x06 - cannot see IRQ Qfrom device after DT probe
-Date: Wed, 16 Jul 2014 12:01:42 +0200
-Message-ID: <53C64D86.1010808@kernelconcepts.de>
-References: <53C5685D.1090008@tqsc.de>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Power-managing devices that are not of interest at some point
+ in time
+Date: Wed, 16 Jul 2014 10:17:45 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1407161006260.1028-100000@iolanthe.rowland.org>
+References: <20140716013206.GA13409@google.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="LdnngclUrGgIMjV56sUT8PnomIoaTPIKN"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:59353 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756397AbaGPKa0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jul 2014 06:30:26 -0400
-In-Reply-To: <53C5685D.1090008@tqsc.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20140716013206.GA13409@google.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Patrik Fimml <patrikf@chromium.org>
+Cc: linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Dmitry Torokhov <dtor@google.com>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Markus Niebel <list-09_linux_input@tqsc.de>, linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---LdnngclUrGgIMjV56sUT8PnomIoaTPIKN
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+On Tue, 15 Jul 2014, Patrik Fimml wrote:
 
-On 15/07/14 19:43, Markus Niebel wrote:
-> - when adding an int-gpios node to devicetree and parsing this gpio the=
- gpio will be configured as input
-> - IRQ can be seen by CPU
->=20
-> Question:
->=20
-> - shall we add an int-gpio property to enable gpio pin config as input =
-or
+> (Re-sending with correct mailing list addresses.)
+> 
+> Hi,
+> 
+> When the lid of a laptop is closed, certain devices can no longer
+> provide interesting input or will even produce bogus input, such as:
+> 
+> - input devices: touchscreen, touchpad, keyboard
 
-Shouldn't it be possible to configure the pin as input directly from the
-device tree, indepently from the touch driver section?
+Just to be clear: The laptop's internal keyboard can't be used, but
+external keyboards can.  The same goes for touchscreens and touchpads.
 
-Bye,
-        Simon
+> - sensors: ambient light sensor, accelerometer, magnetometer
 
---=20
-       Simon Budig                        kernel concepts GmbH
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
+Why can't the accelerometer or magnetometer be used when the lid is 
+closed?
 
+> - a video camera mounted on the lid
+> - display backlight
 
+I can think of one possible use for a video camera mounted inside the
+lid.  It's the modern analog of the age-old question: Does the
+refrigerator light go out when the door is closed?  Using the video
+camera, users will be able to check whether the display backlight goes
+out when the lid is closed.  :-)
 
---LdnngclUrGgIMjV56sUT8PnomIoaTPIKN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+> Various workarounds cover some of these cases, and we have some ugly
+> hacks in ChromeOS to make things work. It would be nice if a userspace
+> power management daemon could listen to the lid-close event, and then
+> have a way to temporarily power off these devices, potentially through
+> sysfs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-Comment: Using GnuPG with Icedove - http://www.enigmail.net/
+Isn't it common for laptops to go into system suspend when the lid is 
+closed?
 
-iEYEARECAAYFAlPGTYYACgkQO2O/RXesiHBuMQCeN8w0fo3JE2+kJDLDji3U2F7f
-O+IAoLu4fQqOCLcJgyvNupXBYkzh6WI+
-=JHB8
------END PGP SIGNATURE-----
+> I've been discussing this with Dmitry and Benson (cc'd), and we've been
+> wondering whether we could come up with a generic solution that could
+> benefit multiple device classes.
+> 
+> There's some overlap with runtime PM here. The action to be taken in
+> such a situation would probably be similar to a runtime suspend. The
+> match is not perfect though, since devices with more than two power
+> states might want to enter different states depending on the situation.
+> 
+> It's somewhat difficult to get the semantics right, since handles to
+> such devices might still be open. It might be easier to implement
+> behavior specific to device classes. On the other hand, it would be nice
+> to have a uniform way of shutting devices down, and not introduce
+> another possible path for a device to enter a power-saving state.
 
---LdnngclUrGgIMjV56sUT8PnomIoaTPIKN--
+What's the difference between shutting a device down and entering a 
+power-saving state?  That is, why shouldn't the first be considered an 
+example of the second?
+
+The general design of Linux's runtime PM is that the PM core tells
+drivers when their devices are no longer being used, and it's up to the
+driver to select an appropriate low-power state.  That philosophy
+doesn't fit well with the problem you want to solve, because you want
+to turn off devices even when they _are_ still in use.
+
+A separate sysfs interface might work out better.
+
+Alan Stern
+

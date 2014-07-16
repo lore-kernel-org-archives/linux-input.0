@@ -1,74 +1,57 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] PM / sleep / irq: Do not suspend wakeup interrupts
-Date: Wed, 16 Jul 2014 02:45:35 +0200
-Message-ID: <2263851.c6Khxbl5Dm@vostro.rjw.lan>
-References: <53A2340D.9030503@linux.intel.com> <1776825.8kf9TZPye4@vostro.rjw.lan> <1983952.dL0Czm4hJT@ws-stein>
+From: Patrik Fimml <patrikf@chromium.org>
+Subject: Power-managing devices that are not of interest at some point in time
+Date: Tue, 15 Jul 2014 18:32:06 -0700
+Message-ID: <20140716013206.GA13409@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1983952.dL0Czm4hJT@ws-stein>
-Sender: linux-pm-owner@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, "Li, Aubrey" <aubrey.li@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Linux PM list <linux-pm@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:50684 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757492AbaGPBcJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jul 2014 21:32:09 -0400
+Received: by mail-pd0-f182.google.com with SMTP id fp1so285536pdb.41
+        for <linux-input@vger.kernel.org>; Tue, 15 Jul 2014 18:32:09 -0700 (PDT)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Dmitry Torokhov <dtor@google.com>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tuesday, July 15, 2014 02:36:46 PM Alexander Stein wrote:
-> On Tuesday 15 July 2014 14:50:28, Rafael J. Wysocki wrote:
-> > On Tuesday, July 15, 2014 02:22:25 PM Alexander Stein wrote:
-> > > On Thursday 10 July 2014 23:37:54, Rafael J. Wysocki wrote:
-> > > > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > > > 
-> > > > If an IRQ has been configured for wakeup via enable_irq_wake(), the
-> > > > driver who has done that must be prepared for receiving interrupts
-> > > > after suspend_device_irqs() has returned, so there is no need to
-> > > > "suspend" such IRQs.  Moreover, if drivers using enable_irq_wake()
-> > > > actually want to receive interrupts after suspend_device_irqs() has
-> > > > returned, they need to add IRQF_NO_SUSPEND to the IRQ flags while
-> > > > requesting the IRQs, which shouldn't be necessary (it also goes a bit
-> > > > too far, as IRQF_NO_SUSPEND causes the IRQ to be ignored by
-> > > > suspend_device_irqs() all the time regardless of whether or not it
-> > > > has been configured for signaling wakeup).
-> > > > 
-> > > > For the above reasons, make __disable_irq() ignore IRQ descriptors
-> > > > with IRQD_WAKEUP_STATE set when its suspend argument is true which
-> > > > effectively causes them to behave like IRQs with IRQF_NO_SUSPEND
-> > > > set.
-> > > > 
-> > > > This also allows IRQs configured for wakeup via enable_irq_wake()
-> > > > to work as wakeup interrupts for the "freeze" (suspend-to-idle)
-> > > > sleep mode automatically just like for any other sleep states.
-> > > > 
-> > > > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > > > ---
-> > > >  kernel/irq/manage.c |    3 ++-
-> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > > 
-> > > > Index: linux-pm/kernel/irq/manage.c
-> > > > ===================================================================
-> > > > --- linux-pm.orig/kernel/irq/manage.c
-> > > > +++ linux-pm/kernel/irq/manage.c
-> > > > @@ -385,7 +385,8 @@ setup_affinity(unsigned int irq, struct
-> > > >  void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
-> > > >  {
-> > > >  	if (suspend) {
-> > > > -		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
-> > > > +		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND)
-> > > > +		    || irqd_has_set(&desc->irq_data, IRQD_WAKEUP_STATE))
-> > > >  			return;
-> > > >  		desc->istate |= IRQS_SUSPENDED;
-> > > >  	}
-> > > 
-> > > Nice, this fixes my wakeup problem from freeze using gpio-keys. Unfortunately my SPI-attached touchscreen controller cannot be used for wakeup from freeze. Using it to wakeup from mem does work instead. Any ideas what might be wrong in this case?
-> > 
-> > Not without looking at the code in question.
-> > 
-> > One guess would be a missing call to enable_irq_wake().
-> 
-> No, ads7846.c does call 'enable_irq_wake(ts->spi->irq)'. So is this a platform or driver specific problem?
+(Re-sending with correct mailing list addresses.)
 
-Well, both code paths are identical from the driver's perspective, so I'd bet
-on the platform, but that's only a guess at this point.
+Hi,
 
-Rafael
+When the lid of a laptop is closed, certain devices can no longer
+provide interesting input or will even produce bogus input, such as:
 
+- input devices: touchscreen, touchpad, keyboard
+- sensors: ambient light sensor, accelerometer, magnetometer
+- a video camera mounted on the lid
+- display backlight
+
+Various workarounds cover some of these cases, and we have some ugly
+hacks in ChromeOS to make things work. It would be nice if a userspace
+power management daemon could listen to the lid-close event, and then
+have a way to temporarily power off these devices, potentially through
+sysfs.
+
+I've been discussing this with Dmitry and Benson (cc'd), and we've been
+wondering whether we could come up with a generic solution that could
+benefit multiple device classes.
+
+There's some overlap with runtime PM here. The action to be taken in
+such a situation would probably be similar to a runtime suspend. The
+match is not perfect though, since devices with more than two power
+states might want to enter different states depending on the situation.
+
+It's somewhat difficult to get the semantics right, since handles to
+such devices might still be open. It might be easier to implement
+behavior specific to device classes. On the other hand, it would be nice
+to have a uniform way of shutting devices down, and not introduce
+another possible path for a device to enter a power-saving state.
+
+Rafael, can you give us your opinion on this?
+
+Kind regards,
+Patrik

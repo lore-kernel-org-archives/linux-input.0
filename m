@@ -1,60 +1,87 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: Power-managing devices that are not of interest at some point
- in time
-Date: Thu, 17 Jul 2014 08:01:48 +0200
-Message-ID: <1405576908.27806.10.camel@linux-fkkt.site>
-References: <20140716013206.GA13409@google.com>
-	 <5611777.bNi5p029gt@vostro.rjw.lan> <1405552422.17757.5.camel@nuvo>
-	 <1463038.d2xocpRFLY@vostro.rjw.lan>
+From: "Dudley Du" <dudley.dulixin@gmail.com>
+Subject: [PATCH v4 0/14] input: cyapa: re-architecture driver to support multi-trackpads in one driver
+Date: Thu, 17 Jul 2014 14:45:09 +0800
+Message-ID: <53c77101.0374440a.664d.46e2@mx.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+	charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42522 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751698AbaGQGBw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jul 2014 02:01:52 -0400
-In-Reply-To: <1463038.d2xocpRFLY@vostro.rjw.lan>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:61771 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751907AbaGQGpX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Jul 2014 02:45:23 -0400
+Content-Language: zh-cn
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Bastien Nocera <hadess@hadess.net>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Dmitry Torokhov <dtor@google.com>, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Benson Leung <bleung@google.com>, Patrik Fimml <patrikf@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 2014-07-17 at 01:33 +0200, Rafael J. Wysocki wrote:
-> On Thursday, July 17, 2014 01:13:42 AM Bastien Nocera wrote:
+This patch set is made based on kernel 3.16.0-rc5.
+It's aimed to re-architecture the cyapa driver to support
+old gen3 trackpad device and new gen5 trackpad device in one
+cyapa driver for easily productions support based on
+customers' requirements, and add sysfs functions and interfaces
+supported that required by users and customers.
+Because the earlier gen3 and the latest gen5 trackpad devies using
+two different chipsets, and have different protocol and interfaces.
+If supported these two trackpad devices in two different drivers, then
+it will be difficult to manage productions and later firmware updates.
+it will cause customer don't know which one to use and update
+because these two trackpad devices have been used and integrated
+in same one productions at a time, so must to support these two trackpad
+devices in same on driver.
 
-> > Applications can already check the lid status (through UPower), and with
-> > the additional metadata from the kernel, know that the webcam won't be
-> > usable when the lid is closed. Switching to external webcam, a webcam on
-> > the outside of the case, or switch off the video stream would then be
-> > the expected behaviour.
-> 
-> Well, is the scenario I described correct or not?  If not, then what
-> exactly is the scenario you want to be able to handle?
+Compare to v3, it has below changes:
+1) Eliminate irq-state-remembering logic, remove irq help functions;
+2) Remove state sync help functions instead of mutex_lock/mutex_unlock;
+3) Fix comments and charaters errors and not consistent issues.
+4) Fix other issues that pointed out in the review.
 
-Well, I think you need to add that you want user space to tell the
-kernel that devices should not do remote wakeup under some conditions.
-And I think this should not be limited to lid closure. And thus it
-does not belong into the kernel.
 
-A good example would be mice. From the kernel side runtime power
-management works just fine. In practice it is rarely usable because
-remote wakeup doesn't work well enough in common mice. It would
-be good enough if the screen saver were working.
+The new architecture is made of:
+cyapa.c - the core of the architecture, supply interfaces and
+functions to system and read trackpad devices.
+cyapa_gen3.c - functions support for gen3 trackpad devices,
+cyapa_gen5.c - functions support for gen5 trackpad devices.
 
-So I think lacking is the ability to model that remote wakeup
-capabilities are
+Beside this introduction patch, it has 14 patches listed as below.
+For these patches each one is patched based on previous one.
 
-- dependent on external events
-- binary capable or incapable
+patch 1/14: re-architecture cyapa driver with core functions,
+and applying the device detecting function in async thread to speed
+up system boot time.
 
-And we might introduce a system similar to rfkill that tells
-devices that they are useless and hence idle due to external factors
-(the internal webcam, keyboard, touchscreen ...)
-Putting this into user space is difficult because you cannot really
-fully close a keyboard.
+patch 2/14: add cyapa driver power management interfaces support.
 
-	Regards
-		Oliver
+patch 3/14: add cyapa driver runtime power management interfaces support.
 
+patch 4/14: add cyapa key function interfaces in sysfs system.
+Including read firmware version, get production ID, read baseline,
+re-calibrate trackpad baselines and do trackpad firmware update.
+
+patch 5/14: add read firmware image and read raw trackpad device'
+sensors' raw data interface in debugfs system.
+
+patch 6/14: add gen3 trackpad device basic functions support.
+
+patch 7/14: add gen3 trackpad device firmware update function support.
+
+patch 8/14: add gen3 trackpad device report baseline and do force
+re-calibrate functions support.
+
+patch 9/14: add gen3 trackpad device read firmware image function support.
+
+patch 10/14: add gen5 trackpad device basic functions support.
+
+patch 11/14: add gen5 trackpad device firmware update function support.
+
+patch 12/14: add gen5 trackpad device report baseline and do force
+re-calibrate functions support.
+
+patch 13/14: add gen5 trackpad device read firmware image and report
+sensors' raw data values functions support.
+
+patch 14/14: add function to monitor LID close event to off trackpad device.
 

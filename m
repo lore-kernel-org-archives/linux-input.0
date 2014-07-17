@@ -1,56 +1,106 @@
-From: Dmitry Torokhov <dtor@google.com>
-Subject: Re: Power-managing devices that are not of interest at some point in time
-Date: Thu, 17 Jul 2014 09:59:19 -0700
-Message-ID: <3088260.XkiUM6Vtxh@dtor-glaptop>
-References: <Pine.LNX.4.44L0.1407171029210.1517-100000@iolanthe.rowland.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: i2c-hid: call the hid driver's suspend and resume
+ callbacks
+Date: Thu, 17 Jul 2014 13:00:31 -0400
+Message-ID: <20140717170031.GC27586@mail.corp.redhat.com>
+References: <1405121658-3853-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.1407171029210.1517-100000@iolanthe.rowland.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Bastien Nocera <hadess@hadess.net>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:53753 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751197AbaGQRB2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Jul 2014 13:01:28 -0400
+Content-Disposition: inline
+In-Reply-To: <1405121658-3853-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Vincent Huang <vincent.huang@tw.synaptics.com>, Mika Westerberg <mika.westerberg@intel.com>
 
-On Thursday, July 17, 2014 10:39:16 AM Alan Stern wrote:
-> On Wed, 16 Jul 2014, Dmitry Torokhov wrote:
-> > We are not planning on implementing the policy in kernel, that's
-> > indeed task for userspace; but unless we bring in the heavy hammer of
-> > forcibly unbinding drivers, we do not currently have universal
-> > mechanism of quiescing devices.
+On Jul 11 2014 or thereabouts, Andrew Duggan wrote:
+> Currently, the i2c-hid driver does not call the suspend, resume, and
+> reset_resume callbacks in the hid_driver struct when those events occur.
+> This means that HID drivers for i2c-hid devices will not be able to execute
+> commands which may be needed during suspend or resume. One example is when a
+> touchpad using the hid-multitouch driver gets reset by i2c-hid coming out of
+> resume. Since the reset_resume callback never gets called the device is never
+> put back into the correct input mode. This patch calls the suspend and resume
+> callbacks and tries to duplicate the functionality of the usb-hid driver.
 > 
-> We sort of do: the ->freeze() callback.  But it wasn't intended for
-> this kind of use; drivers may very well expect that userspace will
-> already be frozen when the callback runs.  Besides, ->freeze() is
-> supposed to quiesce devices without powering them down, whereas you
-> want to do both.
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
+> ---
+> Hi Benjamin,
+> 
+> This is the patch which Vincent and I came up with to fix the behavior which we were seeing with touchpads not being operational after resuming. We only use the reset_resume callback since i2c_hid_resume is always doing a hardware reset and it doesn't seem like there is a condition in which the standard resume callback would be appropriate. Also, is a full hardware reset always needed when resuming?
 
-Right.
+Hi Andrew,
+
+well, the PM management of i2c_hid has been handled by Mika (in CC) and
+I am unfortunately not able to have a strong opinion on this. I still
+lack of hardware properly supporting the suspend/resume mechanism.
+
+So, you are in charge of that. IIRC, nothing prevents from not calling
+hw_reset, but I guess this was the safer implementation we could have.
+
+Anyway, the patch looks good:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
 
 > 
-> What you're asking for is different from anything the PM subsystem has
-> done before.
-
-Right.
-
-> Given this fact, I don't see any alternatives to adding a
-> new API or repurposing an existing API.  Either one would be somewhat
-> painful.
+>  drivers/hid/i2c-hid/i2c-hid.c | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
 > 
-> For example, we could arrange to invoke ->suspend().  However, since
-> the circumstances would be unusual (userspace is still running,
-> ->prepare() was not called beforehand, ->suspend_irq() won't be called
-> afterward), subsystems and drivers may very well react inappropriately.
-
-I do not think anybody expects that drivers would not have to be modified to 
-support this functionality; I expect drivers would have to declare themselves 
-"queiscable" and therefore would assert that they will act according to 
-whatever rules we set up. I only want to make sure that this new state is 
-added to existing list of PM states rather than creating completely new 
-facility, so that driver authors have a chance to understand PM state 
-transitions that involve their driver. 
-
-Thanks,
-Dmitry
-
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 21aafc8..747d544 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1054,21 +1054,29 @@ static int i2c_hid_remove(struct i2c_client *client)
+>  static int i2c_hid_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	struct hid_device *hid = ihid->hid;
+> +	int ret = 0;
+>  
+>  	disable_irq(client->irq);
+>  	if (device_may_wakeup(&client->dev))
+>  		enable_irq_wake(client->irq);
+>  
+> +	if (hid->driver && hid->driver->suspend)
+> +		ret = hid->driver->suspend(hid, PMSG_SUSPEND);
+> +
+>  	/* Save some power */
+>  	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+>  
+> -	return 0;
+> +	return ret;
+>  }
+>  
+>  static int i2c_hid_resume(struct device *dev)
+>  {
+>  	int ret;
+>  	struct i2c_client *client = to_i2c_client(dev);
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	struct hid_device *hid = ihid->hid;
+>  
+>  	enable_irq(client->irq);
+>  	ret = i2c_hid_hwreset(client);
+> @@ -1078,6 +1086,11 @@ static int i2c_hid_resume(struct device *dev)
+>  	if (device_may_wakeup(&client->dev))
+>  		disable_irq_wake(client->irq);
+>  
+> +	if (hid->driver && hid->driver->reset_resume) {
+> +		ret = hid->driver->reset_resume(hid);
+> +		return ret;
+> +	}
+> +
+>  	return 0;
+>  }
+>  #endif
+> -- 
+> 1.9.1
+> 

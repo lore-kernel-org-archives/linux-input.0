@@ -1,64 +1,82 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Date: Thu, 17 Jul 2014 23:05:12 +0200
-Message-ID: <5190668.jExaFa8pKn@wuerfel>
-References: <201407130545.23004.marex@denx.de> <53C7B365.4080000@gmail.com>
- <53C834EA.5030605@tilera.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH v2] HID: rmi: check that report ids exist in the report_id_hash before accessing their size
+Date: Thu, 17 Jul 2014 16:14:44 -0700
+Message-ID: <1405638885-8014-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <53C834EA.5030605@tilera.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Chris Metcalf <cmetcalf@tilera.com>
-Cc: linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no, Thierry Reding <thierry.reding@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, linux-watchdog@vger.kernel.org, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Richard Weinberger <richard@nod.at>, Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com, Guenter Roeck <linux@roeck-us.net>, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, Chen Gang <gang.chen.5i5j@gmail.com>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:32990 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758071AbaGQXWe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Jul 2014 19:22:34 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thursday 17 July 2014 16:41:14 Chris Metcalf wrote:
-> On 7/17/2014 7:28 AM, Chen Gang wrote:
-> > On 07/17/2014 06:48 PM, Arnd Bergmann wrote:
-> >> AFAICT, NO_IOMEM only has a real purpose on UML these days. Could we take
-> >> a shortcut here and make COMPILE_TEST depend on !UML? Getting random stuff
-> >> to build on UML seems pointless to me and we special-case it in a number of
-> >> places already.
-> >>
-> > According to current source code, tile still has chance to choose
-> > NO_IOMEM, for me, welcome the tile's maintainer's ideas or suggestions.
-> 
-> I'm not really sure.  It's true that on tile, if you don't enable PCI
-> support there's no other I/O memory (or I/O port) space you can use.
-> We pretty much always enable PCI support in our kernel, though.  I'm
-> kind of surprised that other architectures don't also have the model
-> that IOMEM requires PCI, but perhaps most architectures just don't
-> encode that in the Kconfig file?
+It is possible that the hid-rmi driver could get loaded onto a device which does not have the
+expected report ids. This should not happen because it would indicate that the hid-rmi driver is
+not compatible with that device. However, if it does happen it should return an error from probe
+instead of dereferencing a null pointer.
 
-Only s390 as far as I know. Most architectures have integrated
-peripherals that use MMIO without PCI.
+related bug:
+https://bugzilla.kernel.org/show_bug.cgi?id=80091
 
-> My observation is just that if I remove the "NO_IOMEM if !PCI" from
-> arch/tile/Kconfig, my build fails with ioremap() undefined.  No doubt I
-> could work around that, but my assumption was that NO_IOMEM was exactly the
-> right thing to express the fact that without PCI there is no I/O memory 
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+Added hid_err messages as suggested by Benjamin. This fixes the null pointer dereference from
+bug 80091 while the next patch addresses the binding issue in hid-core.
 
-Your assumption is correct.
+ drivers/hid/hid-rmi.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-For tile by itself it would certainly be best to leave this
-dependency, it makes no sense to enable IOMEM without PCI.
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 3221a95..260be7a 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -848,6 +848,8 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct rmi_data *data = NULL;
+ 	int ret;
+ 	size_t alloc_size;
++	struct hid_report *input_report;
++	struct hid_report *output_report;
+ 
+ 	data = devm_kzalloc(&hdev->dev, sizeof(struct rmi_data), GFP_KERNEL);
+ 	if (!data)
+@@ -866,12 +868,26 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
+-	data->input_report_size = (hdev->report_enum[HID_INPUT_REPORT]
+-		.report_id_hash[RMI_ATTN_REPORT_ID]->size >> 3)
+-		+ 1 /* report id */;
+-	data->output_report_size = (hdev->report_enum[HID_OUTPUT_REPORT]
+-		.report_id_hash[RMI_WRITE_REPORT_ID]->size >> 3)
+-		+ 1 /* report id */;
++	input_report = hdev->report_enum[HID_INPUT_REPORT]
++			.report_id_hash[RMI_ATTN_REPORT_ID];
++	if (!input_report) {
++		hid_err(hdev, "device does not have expected input report\n");
++		ret = -ENODEV;
++		return ret;
++	}
++
++	data->input_report_size = (input_report->size >> 3) + 1 /* report id */;
++
++	output_report = hdev->report_enum[HID_OUTPUT_REPORT]
++			.report_id_hash[RMI_WRITE_REPORT_ID];
++	if (!output_report) {
++		hid_err(hdev, "device does not have expected output report\n");
++		ret = -ENODEV;
++		return ret;
++	}
++
++	data->output_report_size = (output_report->size >> 3)
++					+ 1 /* report id */;
+ 
+ 	alloc_size = data->output_report_size + data->input_report_size;
+ 
+-- 
+1.9.1
 
-That doesn't solve the problem of COMPILE_TEST enabling drivers
-that require IOMEM though. An easy hack for that would be to
-make COMPILE_TEST depend on HAS_IOMEM, but it gets into hacky territory
-there, and it's not clear if this is any better than the original patch
-to provide fallbacks for ioremap and friends. Definitely simpler
-though.
-
-	Arnd

@@ -1,107 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: rmi: check that report ids exist in the
- report_id_hash before accessing their size
-Date: Thu, 17 Jul 2014 12:07:05 -0400
-Message-ID: <20140717160704.GA27586@mail.corp.redhat.com>
-References: <1405546717-6582-1-git-send-email-aduggan@synaptics.com>
+From: Dmitry Torokhov <dtor@google.com>
+Subject: Re: Power-managing devices that are not of interest at some point in time
+Date: Thu, 17 Jul 2014 09:59:19 -0700
+Message-ID: <3088260.XkiUM6Vtxh@dtor-glaptop>
+References: <Pine.LNX.4.44L0.1407171029210.1517-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:14977 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933701AbaGQQHU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jul 2014 12:07:20 -0400
-Content-Disposition: inline
-In-Reply-To: <1405546717-6582-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1407171029210.1517-100000@iolanthe.rowland.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Bastien Nocera <hadess@hadess.net>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Jul 16 2014 or thereabouts, Andrew Duggan wrote:
-> It is possible that the hid-rmi driver could get loaded onto a device which does not have the
-> expected report ids. This should not happen because it would indicate that the hid-rmi driver is
-> not compatible with that device. However, if it does happen it should return an error from probe
-> instead of dereferencing a null pointer.
+On Thursday, July 17, 2014 10:39:16 AM Alan Stern wrote:
+> On Wed, 16 Jul 2014, Dmitry Torokhov wrote:
+> > We are not planning on implementing the policy in kernel, that's
+> > indeed task for userspace; but unless we bring in the heavy hammer of
+> > forcibly unbinding drivers, we do not currently have universal
+> > mechanism of quiescing devices.
 > 
-> related bug:
-> https://bugzilla.kernel.org/show_bug.cgi?id=80091
+> We sort of do: the ->freeze() callback.  But it wasn't intended for
+> this kind of use; drivers may very well expect that userspace will
+> already be frozen when the callback runs.  Besides, ->freeze() is
+> supposed to quiesce devices without powering them down, whereas you
+> want to do both.
+
+Right.
+
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> ---
+> What you're asking for is different from anything the PM subsystem has
+> done before.
 
-Hi Andrew,
+Right.
 
-I think this patch is required. We can not afford having a null pointer
-in a driver. So yes, I think Jiri should take this one. I just have a
-few nitpick inlined in the code.
-
-However, this patch will prevent the driver to fail, but the falsely
-bound device will not be driven by anybody, which means that you will
-break the keyboard/touchpad/whatever which is not using the right
-driver.
-
-So yes, we need that, but we also defintively have to fix hid-core too
-to not bind them to hid-rmi.
-
->  drivers/hid/hid-rmi.c | 26 ++++++++++++++++++++------
->  1 file changed, 20 insertions(+), 6 deletions(-)
+> Given this fact, I don't see any alternatives to adding a
+> new API or repurposing an existing API.  Either one would be somewhat
+> painful.
 > 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 3221a95..7f0927a 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -848,6 +848,8 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	struct rmi_data *data = NULL;
->  	int ret;
->  	size_t alloc_size;
-> +	struct hid_report *input_report;
-> +	struct hid_report *output_report;
->  
->  	data = devm_kzalloc(&hdev->dev, sizeof(struct rmi_data), GFP_KERNEL);
->  	if (!data)
-> @@ -866,12 +868,24 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		return ret;
->  	}
->  
-> -	data->input_report_size = (hdev->report_enum[HID_INPUT_REPORT]
-> -		.report_id_hash[RMI_ATTN_REPORT_ID]->size >> 3)
-> -		+ 1 /* report id */;
-> -	data->output_report_size = (hdev->report_enum[HID_OUTPUT_REPORT]
-> -		.report_id_hash[RMI_WRITE_REPORT_ID]->size >> 3)
-> -		+ 1 /* report id */;
-> +	input_report = hdev->report_enum[HID_INPUT_REPORT]
-> +			.report_id_hash[RMI_ATTN_REPORT_ID];
-> +	if (!input_report) {
-> +		ret = -ENODEV;
-> +		return ret;
+> For example, we could arrange to invoke ->suspend().  However, since
+> the circumstances would be unusual (userspace is still running,
+> ->prepare() was not called beforehand, ->suspend_irq() won't be called
+> afterward), subsystems and drivers may very well react inappropriately.
 
-In its current state, the driver will be silently unbound, and the user
-will never get any explanations on why nothing works. So please add an
-hid_err message telling why hid-rmi gave up.
+I do not think anybody expects that drivers would not have to be modified to 
+support this functionality; I expect drivers would have to declare themselves 
+"queiscable" and therefore would assert that they will act according to 
+whatever rules we set up. I only want to make sure that this new state is 
+added to existing list of PM states rather than creating completely new 
+facility, so that driver authors have a chance to understand PM state 
+transitions that involve their driver. 
 
-> +	}
-> +
-> +	data->input_report_size = (input_report->size >> 3) + 1 /* report id */;
-> +
-> +	output_report = hdev->report_enum[HID_OUTPUT_REPORT]
-> +			.report_id_hash[RMI_WRITE_REPORT_ID];
-> +	if (!output_report) {
-> +		ret = -ENODEV;
-> +		return ret;
+Thanks,
+Dmitry
 
-ditto.
-
-Cheers,
-Benjamin
-
-> +	}
-> +
-> +	data->output_report_size = (output_report->size >> 3)
-> +					+ 1 /* report id */;
->  
->  	alloc_size = data->output_report_size + data->input_report_size;
->  
-> -- 
-> 1.9.1
-> 

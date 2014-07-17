@@ -1,222 +1,42 @@
-From: "Dudley Du" <dudley.dulixin@gmail.com>
-Subject: [PATCH v4 14/14] input: cyapa: add function to monitor LID close event to off trackpad device
-Date: Thu, 17 Jul 2014 15:00:47 +0800
-Message-ID: <53c774ae.aa84460a.5c97.4c7a@mx.google.com>
+From: Daniel Mack <daniel@zonque.org>
+Subject: Re: [PATCH v4] Input: Add driver for Microchip's CAP1106
+Date: Thu, 17 Jul 2014 09:55:54 +0200
+Message-ID: <53C7818A.30703@zonque.org>
+References: <1405348082-24210-1-git-send-email-zonque@gmail.com> <20140714184642.GA38980@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:63940 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752917AbaGQHBF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jul 2014 03:01:05 -0400
-Content-Language: zh-cn
+Received: from svenfoo.org ([82.94.215.22]:56640 "EHLO mail.zonque.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753838AbaGQHz6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Jul 2014 03:55:58 -0400
+In-Reply-To: <20140714184642.GA38980@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Benson Leung <bleung@google.com>, Patrik Fimml <patrikf@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dudley Du <dudl@cypress.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, broonie@kernel.org, dh.herrmann@gmail.com, devicetree@vger.kernel.org, mark.rutland@arm.com
 
-Add the function to monitor lid close event to suspend and resume
-trackpad device.
-Because system suspend takes some time to trigger from user space,
-and in that time, the lid panel of the laptop may couple with the
-active trackpad. This may generate stray input events, which may
-in turn cancel the suspend if the drivers use pm_wakup_event(), and
-those input events may trigger something unwanted in the UI.
-So this patch adds the function to do off the trackpad device quickly.
-When the lid is closed, as soon as possible, the trakcpad device must
-be off. And furthermore, the policy on lid close is not always to
-enter suspend (lid closed with external display), and at this time,
-the trackpad device must be disabled as well as again to avoid the
-risk of generating stray events.
-TEST=test on Chromebooks.
+On 07/14/2014 08:46 PM, Dmitry Torokhov wrote:
+> On Mon, Jul 14, 2014 at 04:28:02PM +0200, Daniel Mack wrote:
+>> +
+>> +static int cap1106_i2c_remove(struct i2c_client *i2c_client)
+>> +{
+>> +	struct cap1106_priv *priv = i2c_get_clientdata(i2c_client);
+>> +
+>> +	input_unregister_device(priv->idev);
+>> +
+> 
+> No need to call unregister on managed input devices.
 
-Signed-off-by: Dudley Du <dudl@cypress.com>
----
- drivers/input/mouse/cyapa.c |  136 +++++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/cyapa.h |    4 +-
- 2 files changed, 139 insertions(+), 1 deletion(-)
+Addressed in v5, which I posted already.
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index a5f6473..a681a3b 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -1072,6 +1072,140 @@ static const struct attribute_group cyapa_sysfs_group = {
- 	.attrs = cyapa_sysfs_entries,
- };
- 
-+
-+/*
-+ * We rely on EV_SW and SW_LID bits to identify a LID device, and hook
-+ * up our filter to listen for SW_LID events to enable/disable touchpad when
-+ * LID is open/closed.
-+ */
-+static const struct input_device_id lid_device_ids[] = {
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
-+			 INPUT_DEVICE_ID_MATCH_SWBIT,
-+		.evbit = { BIT_MASK(EV_SW) },
-+		.swbit = { BIT_MASK(SW_LID) },
-+	},
-+	{ },
-+};
-+
-+static int lid_device_connect(struct input_handler *handler,
-+			      struct input_dev *dev,
-+			      const struct input_device_id *id)
-+{
-+	struct input_handle *lid_handle;
-+	int error;
-+
-+	pr_info("cyapa: LID device: '%s' connected\n", dev->name);
-+	lid_handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
-+	if (!lid_handle)
-+		return -ENOMEM;
-+
-+	lid_handle->dev = dev;
-+	lid_handle->handler = handler;
-+	lid_handle->name = "lid_event_handler";
-+	lid_handle->private = handler->private;
-+
-+	error = input_register_handle(lid_handle);
-+	if (error) {
-+		pr_err("Failed to register lid_event_handler, error %d\n",
-+		       error);
-+		goto err_free;
-+	}
-+
-+	error = input_open_device(lid_handle);
-+	if (error) {
-+		pr_err("Failed to open input device, error %d\n", error);
-+		goto err_unregister;
-+	}
-+
-+	return 0;
-+err_unregister:
-+	input_unregister_handle(lid_handle);
-+err_free:
-+	kfree(lid_handle);
-+	return error;
-+}
-+
-+static void lid_device_disconnect(struct input_handle *handle)
-+{
-+	input_close_device(handle);
-+	input_unregister_handle(handle);
-+	kfree(handle);
-+}
-+
-+static bool lid_event_filter(struct input_handle *handle,
-+			     unsigned int type, unsigned int code, int value)
-+{
-+	struct cyapa *cyapa = handle->private;
-+	struct device *dev = &cyapa->client->dev;
-+
-+	if (type == EV_SW && code == SW_LID) {
-+		pr_info("cyapa %s: %s touch device\n",
-+			dev_name(&cyapa->client->dev),
-+			(value ? "disable" : "enable"));
-+		if (cyapa->suspended) {
-+			/*
-+			 * If the lid event filter is called while suspended,
-+			 * there is no guarantee that the underlying i2cs are
-+			 * resumed at this point, so it is not safe to issue
-+			 * the command to change power modes.
-+			 * Instead, rely on cyapa_resume to set us back to
-+			 * PWR_MODE_FULL_ACTIVE.
-+			 */
-+			pr_info("cyapa %s: skipping lid pm change in suspend\n",
-+				dev_name(&cyapa->client->dev));
-+			return false;
-+		}
-+		if (value == 0) {
-+			if (cyapa->ops->set_power_mode)
-+				cyapa->ops->set_power_mode(cyapa,
-+						PWR_MODE_FULL_ACTIVE, 0);
-+			pm_runtime_set_active(dev);
-+			pm_runtime_enable(dev);
-+		} else {
-+			pm_runtime_disable(dev);
-+			if (cyapa->ops->set_power_mode)
-+				cyapa->ops->set_power_mode(cyapa,
-+						PWR_MODE_OFF, 0);
-+		}
-+	}
-+
-+	return false;
-+}
-+
-+static void lid_event_register_handler(struct cyapa *cyapa)
-+{
-+	int error;
-+	struct input_handler *lid_handler = &cyapa->lid_handler;
-+
-+	if (cyapa->lid_handler_registered) {
-+		pr_err("lid handler is registered already\n");
-+		return;
-+	}
-+
-+	lid_handler->filter	= lid_event_filter;
-+	lid_handler->connect	= lid_device_connect;
-+	lid_handler->disconnect	= lid_device_disconnect;
-+	lid_handler->name	= "cyapa_lid_event_handler";
-+	lid_handler->id_table	= lid_device_ids;
-+	lid_handler->private	= cyapa;
-+
-+	error = input_register_handler(lid_handler);
-+	if (error) {
-+		pr_err("Failed to register lid handler(%d)\n", error);
-+		return;
-+	}
-+	cyapa->lid_handler_registered = true;
-+}
-+
-+static void lid_event_unregister_handler(struct cyapa *cyapa)
-+{
-+	if (cyapa->lid_handler_registered) {
-+		input_unregister_handler(&cyapa->lid_handler);
-+		cyapa->lid_handler_registered = false;
-+	}
-+}
-+
- void cyapa_detect_async(void *data, async_cookie_t cookie)
- {
- 	struct cyapa *cyapa = (struct cyapa *)data;
-@@ -1091,6 +1225,7 @@ static void cyapa_detect_and_start(void *data, async_cookie_t cookie)
- 	cyapa_detect_async(data, cookie);
- 
- 	cyapa_start_runtime(cyapa);
-+	lid_event_register_handler(cyapa);
- }
- 
- static int cyapa_tp_modules_init(struct cyapa *cyapa)
-@@ -1239,6 +1374,7 @@ static int cyapa_remove(struct i2c_client *client)
- 	mutex_destroy(&cyapa->debugfs_mutex);
- 
- 	input_unregister_device(cyapa->input);
-+	lid_event_unregister_handler(cyapa);
- 	if (cyapa->ops->set_power_mode)
- 		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
- 	cyapa_tp_modules_uninit(cyapa);
-diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
-index 728bf70..ff3ac00 100644
---- a/drivers/input/mouse/cyapa.h
-+++ b/drivers/input/mouse/cyapa.h
-@@ -271,8 +271,10 @@ struct cyapa {
- 	size_t tp_raw_data_size;
- 
- 	const struct cyapa_dev_ops *ops;
--};
- 
-+	bool lid_handler_registered;
-+	struct input_handler lid_handler;
-+};
- 
- 
- ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
--- 
-1.7.9.5
+> Otherwise if DT guys are happy with bindings I am happy with the patch.
 
+That seems to be the case. I guess we're done then :)
+
+Thanks again for the reviews, everyone.
+
+
+Daniel
 

@@ -1,62 +1,88 @@
-From: Richard Weinberger <richard@nod.at>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Date: Fri, 18 Jul 2014 12:51:10 +0200
-Message-ID: <53C8FC1E.9090003@nod.at>
-References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel> <53C7A819.40403@metafoo.de> <6485666.LVFO2YCEQx@wuerfel> <53C8114D.30601@nod.at> <53C86C10.2000608@gmail.com> <53C8CE59.3060103@nod.at> <53C8FA78.1020501@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: rmi: check that report ids exist in the
+ report_id_hash before accessing their size
+Date: Fri, 18 Jul 2014 09:03:51 -0400
+Message-ID: <20140718130351.GA9108@mail.corp.redhat.com>
+References: <1405638885-8014-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.ns.miles-group.at ([95.130.255.143]:65276 "EHLO radon.swed.at"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755971AbaGRKvQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jul 2014 06:51:16 -0400
-In-Reply-To: <53C8FA78.1020501@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1405638885-8014-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Chen Gang <gang.chen.5i5j@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Lars-Peter Clausen <lars@metafoo.de>
-Cc: Guenter Roeck <linux@roeck-us.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, teg@jklm.no, Thierry Reding <thierry.reding@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
-Am 18.07.2014 12:44, schrieb Chen Gang:
-> On 07/18/2014 03:35 PM, Richard Weinberger wrote:
->> Am 18.07.2014 02:36, schrieb Chen Gang:
->>>
->>> On 07/18/2014 02:09 AM, Richard Weinberger wrote:
->>>> Am 17.07.2014 12:48, schrieb Arnd Bergmann:
->>>>> AFAICT, NO_IOMEM only has a real purpose on UML these days. Could we take
->>>>> a shortcut here and make COMPILE_TEST depend on !UML? Getting random stuff
->>>>> to build on UML seems pointless to me and we special-case it in a number of
->>>>> places already.
->>>>
->>>> If UML is the only arch without io memory the dependency on !UML seems
->>>> reasonable to me. :-)
->>>>
->>>
->>> For me, if only uml left, I suggest to implement dummy functions within
->>> uml instead of let CONFIG_UML appear in generic include directory. And
->>> then remove all HAS_IOMEM and NO_IOMEM from kernel.
->>
->> Erm, this is something completely different.
->> I thought we're focusing on COMPILE_TEST?
->>
+On Jul 17 2014 or thereabouts, Andrew Duggan wrote:
+> It is possible that the hid-rmi driver could get loaded onto a device which does not have the
+> expected report ids. This should not happen because it would indicate that the hid-rmi driver is
+> not compatible with that device. However, if it does happen it should return an error from probe
+> instead of dereferencing a null pointer.
 > 
-> COMPILE_TEST is none-architecture specific, but UML is. So in generic
-> include folder, if we're focusing on choosing whether COMPILE_TEST or
-> UML, for me, I will choose COMPILE_TEST.
+> related bug:
+> https://bugzilla.kernel.org/show_bug.cgi?id=80091
 > 
-> If we're not only focusing on COMPILE_TEST, for me, if something only
-> depend on one architecture, I'd like to put them under "arch/*/" folder.
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> ---
+> Added hid_err messages as suggested by Benjamin. This fixes the null pointer dereference from
+> bug 80091 while the next patch addresses the binding issue in hid-core.
+
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
 > 
-> Especially, after that, we can remove all HAS_IOMEM and NO_IOMEM, nobody
-> has to think of them again. :-)
-
-And then we end up with a solution that on UML a lot of completely useless
-drivers are build which fail in various interesting manners because you'll
-add stubs for all kinds of io memory related functions to arch/um/?
-We had this kind of discussion already. You'll need more than ioremap...
-
-I like Arnd's idea *much* more to make COMPILE_TEST depend on !UML.
-
-Thanks,
-//richard
+>  drivers/hid/hid-rmi.c | 28 ++++++++++++++++++++++------
+>  1 file changed, 22 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 3221a95..260be7a 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -848,6 +848,8 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	struct rmi_data *data = NULL;
+>  	int ret;
+>  	size_t alloc_size;
+> +	struct hid_report *input_report;
+> +	struct hid_report *output_report;
+>  
+>  	data = devm_kzalloc(&hdev->dev, sizeof(struct rmi_data), GFP_KERNEL);
+>  	if (!data)
+> @@ -866,12 +868,26 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		return ret;
+>  	}
+>  
+> -	data->input_report_size = (hdev->report_enum[HID_INPUT_REPORT]
+> -		.report_id_hash[RMI_ATTN_REPORT_ID]->size >> 3)
+> -		+ 1 /* report id */;
+> -	data->output_report_size = (hdev->report_enum[HID_OUTPUT_REPORT]
+> -		.report_id_hash[RMI_WRITE_REPORT_ID]->size >> 3)
+> -		+ 1 /* report id */;
+> +	input_report = hdev->report_enum[HID_INPUT_REPORT]
+> +			.report_id_hash[RMI_ATTN_REPORT_ID];
+> +	if (!input_report) {
+> +		hid_err(hdev, "device does not have expected input report\n");
+> +		ret = -ENODEV;
+> +		return ret;
+> +	}
+> +
+> +	data->input_report_size = (input_report->size >> 3) + 1 /* report id */;
+> +
+> +	output_report = hdev->report_enum[HID_OUTPUT_REPORT]
+> +			.report_id_hash[RMI_WRITE_REPORT_ID];
+> +	if (!output_report) {
+> +		hid_err(hdev, "device does not have expected output report\n");
+> +		ret = -ENODEV;
+> +		return ret;
+> +	}
+> +
+> +	data->output_report_size = (output_report->size >> 3)
+> +					+ 1 /* report id */;
+>  
+>  	alloc_size = data->output_report_size + data->input_report_size;
+>  
+> -- 
+> 1.9.1
+> 

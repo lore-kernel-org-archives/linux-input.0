@@ -1,60 +1,77 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Power-managing devices that are not of interest at some point
- in time
-Date: Fri, 18 Jul 2014 11:19:07 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1407181107450.979-100000@iolanthe.rowland.org>
-References: <2674541.jV2qHCZlHf@vostro.rjw.lan>
+From: Lennox Wu <lennox.wu@gmail.com>
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
+ 'devm_ioremap_resource'
+Date: Fri, 18 Jul 2014 23:37:21 +0800
+Message-ID: <CAF0htA6Vvp+d4=wPuqJJhT+FxEUoT9mbJ3_NQuEJTP-hniS-KQ@mail.gmail.com>
+References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel>
+ <53C7A819.40403@metafoo.de> <6485666.LVFO2YCEQx@wuerfel>
+ <53C8114D.30601@nod.at> <53C86C10.2000608@gmail.com>
+ <53C8CE59.3060103@nod.at> <53C8FA78.1020501@gmail.com>
+ <53C8FC1E.9090003@nod.at>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <2674541.jV2qHCZlHf@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Dmitry Torokhov <dtor@google.com>, Bastien Nocera <hadess@hadess.net>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <53C8FC1E.9090003@nod.at>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Richard Weinberger <richard@nod.at>
+Cc: linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Tom Gundersen <teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>, linux-watchdog@vger.kernel.org, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com, Guenter Roeck <linux@roeck-us.net>, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, Chen Gang <gang.chen.5i5j@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 18 Jul 2014, Rafael J. Wysocki wrote:
+Score can provide dummy functions if HAS_IOMEM  and NO_IOMEM will be
+removed, even if we indeed have no IOMEM.
 
-> > > the problem really seems to be that drivers are not
-> > > aggressive enough with starting PM transitions (using runtime PM) when they
-> > > see no activity.  Thus it seems that when the lid is closed, it'll be good
-> > > to switch the drivers into a "more aggressive runtime PM mode" in which
-> > > they will use any opportunity to start a power transition without worrying
-> > > about extra latencies resulting from that.  In that mode they should also
-> > > disable remote wakeup.  I think this should be sufficient to address the
-> > > use case at hand.
-> > 
-> > OK, so how do we let the drivers know that they should start being aggressive 
-> > with PM and that they should disable remote wakeup? I'd rather not add 
-> > subsystem-specific interface for this, that is why we are reaching out in the 
-> > first place.
-> 
-> For disabling remote wakeup we have a PM QoS flag that I'm not entirely happy
-> with, so I guess we can replace it with something saner (I talked about that
-> with Alan during the last year's LinuxCon, but then didn't have the time to
-> get to that).
+Best,
+Lennox
 
-Right.  We discussed changing .../power/wakeup so that it could contain
-"enabled", "disabled", or "off", where "off" would mean remote wakeup
-should be disabled even during runtime suspend.
-
-> For the whole thing I guess we can add a sysfs attribute under devices/.../power
-> that will need to be exposed by drivers supporting that feature.  I'm not sure
-> how to call it, though.
-
-"runtime_mode"?
-
-Will this really be capable of doing what Dmitry wants?  I don't know
-how the drivers in question work.  But if a driver increments the
-runtime usage count each time the device file is opened, forcibly
-setting the usage count back to 0 won't be easy.
-
-Also, would putting the camera into runtime suspend prevent it from
-showing up on a list of available video devices?  I doubt it.  More
-likely, the video driver would have to unregister the class device
-while remaining bound to the physical device.  Probably other drivers
-would have to do the same sort of thing.  (I don't know whether doing
-this would retain the settings as Oliver wants, though.)
-
-Alan Stern
-
+2014-07-18 18:51 GMT+08:00 Richard Weinberger <richard@nod.at>:
+> Am 18.07.2014 12:44, schrieb Chen Gang:
+>> On 07/18/2014 03:35 PM, Richard Weinberger wrote:
+>>> Am 18.07.2014 02:36, schrieb Chen Gang:
+>>>>
+>>>> On 07/18/2014 02:09 AM, Richard Weinberger wrote:
+>>>>> Am 17.07.2014 12:48, schrieb Arnd Bergmann:
+>>>>>> AFAICT, NO_IOMEM only has a real purpose on UML these days. Could we take
+>>>>>> a shortcut here and make COMPILE_TEST depend on !UML? Getting random stuff
+>>>>>> to build on UML seems pointless to me and we special-case it in a number of
+>>>>>> places already.
+>>>>>
+>>>>> If UML is the only arch without io memory the dependency on !UML seems
+>>>>> reasonable to me. :-)
+>>>>>
+>>>>
+>>>> For me, if only uml left, I suggest to implement dummy functions within
+>>>> uml instead of let CONFIG_UML appear in generic include directory. And
+>>>> then remove all HAS_IOMEM and NO_IOMEM from kernel.
+>>>
+>>> Erm, this is something completely different.
+>>> I thought we're focusing on COMPILE_TEST?
+>>>
+>>
+>> COMPILE_TEST is none-architecture specific, but UML is. So in generic
+>> include folder, if we're focusing on choosing whether COMPILE_TEST or
+>> UML, for me, I will choose COMPILE_TEST.
+>>
+>> If we're not only focusing on COMPILE_TEST, for me, if something only
+>> depend on one architecture, I'd like to put them under "arch/*/" folder.
+>>
+>> Especially, after that, we can remove all HAS_IOMEM and NO_IOMEM, nobody
+>> has to think of them again. :-)
+>
+> And then we end up with a solution that on UML a lot of completely useless
+> drivers are build which fail in various interesting manners because you'll
+> add stubs for all kinds of io memory related functions to arch/um/?
+> We had this kind of discussion already. You'll need more than ioremap...
+>
+> I like Arnd's idea *much* more to make COMPILE_TEST depend on !UML.
+>
+> Thanks,
+> //richard

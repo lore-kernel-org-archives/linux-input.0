@@ -1,84 +1,69 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Date: Sat, 19 Jul 2014 02:02:22 +0800
-Message-ID: <53C9612E.3040001@gmail.com>
-References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel> <53C7A819.40403@metafoo.de> <6485666.LVFO2YCEQx@wuerfel> <53C8114D.30601@nod.at> <53C86C10.2000608@gmail.com> <53C8CE59.3060103@nod.at> <53C8FA78.1020501@gmail.com> <53C8FC1E.9090003@nod.at> <CAF0htA6Vvp+d4=wPuqJJhT+FxEUoT9mbJ3_NQuEJTP-hniS-KQ@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Power-managing devices that are not of interest at some point
+ in time
+Date: Fri, 18 Jul 2014 15:00:46 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1407181439560.979-100000@iolanthe.rowland.org>
+References: <20140718174712.GA3156@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pwm-owner@vger.kernel.org>
-In-Reply-To: <CAF0htA6Vvp+d4=wPuqJJhT+FxEUoT9mbJ3_NQuEJTP-hniS-KQ@mail.gmail.com>
-Sender: linux-pwm-owner@vger.kernel.org
-To: Lennox Wu <lennox.wu@gmail.com>
-Cc: Richard Weinberger <richard@nod.at>, Arnd Bergmann <arnd@arndb.de>, Lars-Peter Clausen <lars@metafoo.de>, Guenter Roeck <linux@roeck-us.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Tom Gundersen <teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:55813 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1757232AbaGRTAr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jul 2014 15:00:47 -0400
+In-Reply-To: <20140718174712.GA3156@google.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Patrik Fimml <patrikf@chromium.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Dmitry Torokhov <dtor@google.com>, Bastien Nocera <hadess@hadess.net>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 07/18/2014 11:37 PM, Lennox Wu wrote:
-> Score can provide dummy functions if HAS_IOMEM  and NO_IOMEM will be
-> removed, even if we indeed have no IOMEM.
+On Fri, 18 Jul 2014, Patrik Fimml wrote:
+
+>  2. Give userspace a way of quiescing a device. Handles to the device
+>     stay open, but the device will no longer perform its function and,
+>     if possible, power down.
+
+"Quiescing" is the wrong word.  "Quiescing a device" means stopping the
+device from doing anything, which isn't what you want.  You want to
+ignore any activity the device may generate and reduce the device's
+power consumption as much as possible.  A better word would be
+"deactivating".
+
+> For input devices, this makes a lot of sense in my opinion.
+
+I agree.
+
+> The notable difference to runtime PM as we have it today is that with
+> runtime PM, a device typically goes to a low-power state because it is
+> idle. In our scenario, we want to forcibly quiesce it even if it is not
+> idle (and if it continues to provide events in a low-power mode, we
+> want to ignore them instead of passing them on). So maybe integration
+> with runtime PM is not the best fit.
 > 
+> Perhaps the best way to go forward would be to add a new property for
+> all devices that support quiescing so userspace has a uniform way of
+> doing things, but have subsystems (and potentially the device driver)
+> decide what action is appropriate to quiesce a device. Some subsystems
+> might be able to provide a default implementation (e.g. input could just
+> skip all events that are reported from the device driver).
 
-Thank you for your reply, for score, your ideas is OK to me.
+You mentioned that handles to the device would remain open.  So when 
+the user opens the lid again, the old handles would start functioning, 
+right?
 
+This has the disadvantage that the class device could not be
+unregistered, because doing so would invalidate the open handles.  
+Under such circumestances, how would a userspace video program know not
+to list a camera built into the lid among the possible video sources
+(an example given earlier in this discussion)?  The program would have
+to make an explicit test of the "deactivate" property -- it wouldn't
+automatically become aware that the camera wasn't available.
 
-And for the COMPILE_TEST needs still discussing below:
+Would it sometimes be okay to unregister the class device and
+invalidate the old handles, forcing programs to open new handles when
+the lid is opened?  This would reduce the number of changes user 
+programs would need.
 
-> 2014-07-18 18:51 GMT+08:00 Richard Weinberger <richard@nod.at>:
->> Am 18.07.2014 12:44, schrieb Chen Gang:
->>> On 07/18/2014 03:35 PM, Richard Weinberger wrote:
->>>> Am 18.07.2014 02:36, schrieb Chen Gang:
->>>>>
->>>>> On 07/18/2014 02:09 AM, Richard Weinberger wrote:
->>>>>> Am 17.07.2014 12:48, schrieb Arnd Bergmann:
->>>>>>> AFAICT, NO_IOMEM only has a real purpose on UML these days. Could we take
->>>>>>> a shortcut here and make COMPILE_TEST depend on !UML? Getting random stuff
->>>>>>> to build on UML seems pointless to me and we special-case it in a number of
->>>>>>> places already.
->>>>>>
->>>>>> If UML is the only arch without io memory the dependency on !UML seems
->>>>>> reasonable to me. :-)
->>>>>>
->>>>>
->>>>> For me, if only uml left, I suggest to implement dummy functions within
->>>>> uml instead of let CONFIG_UML appear in generic include directory. And
->>>>> then remove all HAS_IOMEM and NO_IOMEM from kernel.
->>>>
->>>> Erm, this is something completely different.
->>>> I thought we're focusing on COMPILE_TEST?
->>>>
->>>
->>> COMPILE_TEST is none-architecture specific, but UML is. So in generic
->>> include folder, if we're focusing on choosing whether COMPILE_TEST or
->>> UML, for me, I will choose COMPILE_TEST.
->>>
->>> If we're not only focusing on COMPILE_TEST, for me, if something only
->>> depend on one architecture, I'd like to put them under "arch/*/" folder.
->>>
->>> Especially, after that, we can remove all HAS_IOMEM and NO_IOMEM, nobody
->>> has to think of them again. :-)
->>
->> And then we end up with a solution that on UML a lot of completely useless
->> drivers are build which fail in various interesting manners because you'll
->> add stubs for all kinds of io memory related functions to arch/um/?
->> We had this kind of discussion already. You'll need more than ioremap...
->>
->> I like Arnd's idea *much* more to make COMPILE_TEST depend on !UML.
->>
+Alan Stern
 
-That will let UML itself against COMPILE_TEST (but all the other
-architectures not).
-
-And if let COMPILE_TEST depend on !UML, can we still remove all
-HAS_IOMEM and NO_IOMEM from kernel? (I guess so).
-
-If we can remove them, we can send related patch firstly -- that will
-let current discussion be in UML architecture wide instead of kernel
-wide.
-
-
-Thanks.
--- 
-Chen Gang
-
-Open share and attitude like air water and life which God blessed

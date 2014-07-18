@@ -1,69 +1,146 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 1/2] input: wacom: Support up to 2048 pressure levels with ISDv4
-Date: Fri, 18 Jul 2014 16:12:21 -0700
-Message-ID: <CANRwn3TSsZMvGU1Oj1iu2a24JKxXfa2fsk8236fj7ek7TgEWeg@mail.gmail.com>
-References: <1404164806-5141-1-git-send-email-killertofu@gmail.com>
+From: Dmitry Torokhov <dtor@google.com>
+Subject: Re: Power-managing devices that are not of interest at some point in time
+Date: Fri, 18 Jul 2014 16:16:50 -0700
+Message-ID: <1451627.FURGiR949u@dtor-glaptop>
+References: <Pine.LNX.4.44L0.1407181557020.979-100000@iolanthe.rowland.org> <2443949.K0iePsg3Aa@vostro.rjw.lan> <1693424.kPNUQHOHlX@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f51.google.com ([209.85.215.51]:57293 "EHLO
-	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756528AbaGRXMX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jul 2014 19:12:23 -0400
-Received: by mail-la0-f51.google.com with SMTP id el20so3326330lab.10
-        for <linux-input@vger.kernel.org>; Fri, 18 Jul 2014 16:12:22 -0700 (PDT)
-In-Reply-To: <1404164806-5141-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1693424.kPNUQHOHlX@vostro.rjw.lan>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Patrik Fimml <patrikf@chromium.org>, Bastien Nocera <hadess@hadess.net>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>
 
-On Mon, Jun 30, 2014 at 2:46 PM, Jason Gerecke <killertofu@gmail.com> w=
-rote:
-> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
-> ---
->  drivers/input/tablet/wacom_wac.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
-wacom_wac.c
-> index 977d05c..61a45a5 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -1093,7 +1093,7 @@ static int wacom_tpc_pen(struct wacom_wac *waco=
-m)
->                 input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
->                 input_report_abs(input, ABS_X, le16_to_cpup((__le16 *=
-)&data[2]));
->                 input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *=
-)&data[4]));
-> -               input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x0=
-3) << 8) | data[6]);
-> +               input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x0=
-7) << 8) | data[6]);
->                 input_report_key(input, BTN_TOUCH, data[1] & 0x05);
->                 input_report_key(input, wacom->tool[0], prox);
->                 return 1;
-> --
-> 2.0.0
->
+On Saturday, July 19, 2014 12:55:09 AM Rafael J. Wysocki wrote:
+> On Saturday, July 19, 2014 12:19:39 AM Rafael J. Wysocki wrote:
+> > On Friday, July 18, 2014 02:45:40 PM Dmitry Torokhov wrote:
+> > > On Friday, July 18, 2014 11:59:18 PM Rafael J. Wysocki wrote:
+> > > > On Friday, July 18, 2014 02:26:21 PM Dmitry Torokhov wrote:
+> > > > > On Friday, July 18, 2014 04:09:46 PM Alan Stern wrote:
+> > > > > > On Fri, 18 Jul 2014, Patrik Fimml wrote:
+> > > > > > > On Fri, Jul 18, 2014 at 03:00:46PM -0400, Alan Stern wrote:
+> > > > [cut]
+> > > > 
+> > > > > > > I'm not sure what the appropriate action for a video camera is
+> > > > > > > anyway.
+> > > > > > > Should it go away completely, including its device? Should it be
+> > > > > > > there,
+> > > > > > > but certainly not be the default choice when there is an
+> > > > > > > external
+> > > > > > > camera? I'm thinking along the lines of some application's
+> > > > > > > settings
+> > > > > > > dialog here, where it might be desirable to still be able to
+> > > > > > > select
+> > > > > > > the
+> > > > > > > internal camera for future recordings.
+> > > > > > > 
+> > > > > > > Of course, userspace could still decide simply not to
+> > > > > > > quiesce|deactivate|inhibit the device if that was desired.
+> > > > > > 
+> > > > > > There's some question about how much of userspace needs to get
+> > > > > > involved.  Just the daemon that manages these configuration
+> > > > > > changes, or
+> > > > > > other programs as well?  I guess that's not really our problem...
+> > > > > 
+> > > > > We need to provide means of implementing policy; the policy itself
+> > > > > is not
+> > > > > really our concern ;)
+> > > > > 
+> > > > > > In the end, it sounds like you're suggesting a new pair of PM
+> > > > > > callbacks: ->deactivate() and ->reactivate(), or ->inhibit() and
+> > > > > > ->uninhibit().  Plus an optional (?) sysfs interface for invoking
+> > > > > > the
+> > > > > > callbacks.
+> > > > > 
+> > > > > We do need sysfs interface so that userspace can talk to the devices
+> > > > > in
+> > > > > question; and we also need to make sure that PM core is aware of the
+> > > > > new
+> > > > > callbacks and provides guarantees about their interactions with
+> > > > > system-
+> > > > > and
+> > > > > runtime-PM callbacks so that individual drivers do not have to sort
+> > > > > it out
+> > > > > on their own.
+> > > > 
+> > > > A step back, please.
+> > > > 
+> > > > I have no idea why those need to be PM callbacks.
+> > > > 
+> > > > What you need really seems to be a way to tell a driver "ignore input
+> > > > from
+> > > > this device from now on as it is most likely bogus".  A natural
+> > > > reaction of
+> > > > the driver to that might be to stop processing input from the device
+> > > > and
+> > > > then runtime suspend it (and prevent it from generating remote wakeup
+> > > > as
+> > > > that may be bogus as well), but I don't see why the PM core needs to
+> > > > be
+> > > > involved in that at all.
+> > > 
+> > > So that we do not need to handle cases like:
+> > > 
+> > > - I am already in idle state and request comes to inhibit, what do I do
+> > > (in
+> > 
+> > > driver) or:
+> > I'm not sure why being "suspended" or not matters here.  The PM core
+> > doesn't know what physical state the device is in anyway and the driver
+> > or subsystem (or another layer such as ACPI) has to track that.
+> > 
+> > Also it seems that it should be perfectly fine to ignore input from the
+> > device without suspending it as well as it is perfectly fine to be
+> > suspended while you are generally not ignoring the input (just because
+> > there is no input at the moment, for example).
+> > 
+> > Yes, it make sense to suspend the device when you know you'll ignore input
+> > going forward, but then if the real goal is to prevent bogus input from
+> > reaching applications, then this isn't a power management problem even.
+> 
+> The area where it must interact with power management is wakeup, both remote
+> wakeup at run time and wakeup from system suspend.  In particular, there's
+> the question whether or not a device ignoring its input should be regarded
+> as a wakeup source.
 
-Just making sure these two patches don't get lost in all the work
-Benjamin's doing. They're going to conflict, so depending on the
-timeline for merging his patches, we can either push these up now(ish)
-or I'll rebase afterwards.
+I'd say no.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Anyway, even though it is very tempting to declare inhibit a "deeper" state of 
+runtime suspend maybe you are right and inhibit should really be separate from 
+PM and drivers would have to sort out all the possible state permutations.
+
+Considering input devices:
+
+input_open(): check if device is inhibited, if so do nothing. Otherwise try 
+waking up itself and parent (via pm_runtime_get_sync() on itself), this will 
+power up the device. Do additional configuration if needed.
+
+input_close(): check if device is inhibited, if not do pm_runtime_put (_sync? 
+to make sure we power off properly and not leave device up and running? or 
+should we power down manually not waiting for runtime PM)?
+
+inhibit(): check if device is opened, if opened do pm_runtime_put_sync().
+
+uninhibit(): if device is opened do pm_runtime_get_sync(), let runtime PM 
+bring up the device. Do additional config if needed -> very similar to 
+input_open(), different condition.
+
+runtime_suspend(): power down the device. If not inhibited enable as wakeup 
+source.
+
+runtime_resume(): power up the device if device is opened and not inhibited.
+
+system_suspend(): check if device is opened, not inhibited and not in 
+runtimesuspend  already; power down.
+
+system_resume(): power up the device if it is opened and not inhibited. I 
+guess it's OK to wake up device that shoudl be runtime-PM-idle since it will 
+go to back sleep shortly.
+
+Ugh.. This is complicated...
+
+Thanks,
+Dmitry
+

@@ -1,225 +1,364 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH RESEND 4/5] Input: uinput - add new UINPUT_DEV_SETUP ioctl
-Date: Sat, 19 Jul 2014 15:10:44 +0200
-Message-ID: <1405775445-4454-5-git-send-email-dh.herrmann@gmail.com>
+Subject: [RFC RESEND 5/5] Input: evdev - add new EVIOCGABSRANGE ioctl
+Date: Sat, 19 Jul 2014 15:10:45 +0200
+Message-ID: <1405775445-4454-6-git-send-email-dh.herrmann@gmail.com>
 References: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f173.google.com ([74.125.82.173]:52339 "EHLO
-	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754812AbaGSNLF (ORCPT
+Received: from mail-wg0-f42.google.com ([74.125.82.42]:40823 "EHLO
+	mail-wg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754859AbaGSNLH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Jul 2014 09:11:05 -0400
-Received: by mail-we0-f173.google.com with SMTP id q58so5785760wes.32
-        for <linux-input@vger.kernel.org>; Sat, 19 Jul 2014 06:11:04 -0700 (PDT)
+	Sat, 19 Jul 2014 09:11:07 -0400
+Received: by mail-wg0-f42.google.com with SMTP id l18so4508770wgh.13
+        for <linux-input@vger.kernel.org>; Sat, 19 Jul 2014 06:11:06 -0700 (PDT)
 In-Reply-To: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@google.com>, David Herrmann <dh.herrmann@gmail.com>
 
-This adds a new ioctl UINPUT_DEV_SETUP that replaces the old device setup
-method (by write()'ing "struct uinput_user_dev" to the node). The old
-method is not easily extendable and requires huge payloads. Furthermore,
-overloading write() without properly versioned objects is error-prone.
+When we introduced the slotted MT ABS extensions, we didn't take care to
+make SYN_DROPPED recoverable. Imagine a client recevies a SYN_DROPPED and
+syncs its current state via EVIOCGABS. It has to call this ioctl for each
+and every ABS code separately. Besides being horribly slow, this series
+of ioctl-calls is not atomic. The kernel might queue new ABS events while
+the client fetches the data.
 
-Therefore, we introduce a new ioctl to replace the old method. The ioctl
-supports all features of the old method, plus a "resolution" field for
-absinfo. Furthermore, it's properly forward-compatible to new ABS codes
-and a growing "struct input_absinfo" structure.
+Now for normal ABS codes this is negligible as ABS values provide absolute
+data. That is, there is usually no need to resync ABS codes as we don't
+need previous values to interpret the next ABS code. Furthermore, most ABS
+codes are also sent pretty frequently so a refresh is usually useless.
 
-The ioctl also allows user-space to skip unknown axes if not set. The
-payload-size can now be specified by the caller. There is no need to copy
-the whole array temporarily into the kernel, but instead we can iterate
-over it and copy each value manually.
+However, with the introduction of slotted ABS axes we added a relative
+component: ABS_MT_SLOT. If a client syncs all ABS codes via EVIOCGABS
+while the kernel has ABS-events and an ABS_MT_SLOT event queued, the
+client will think any read ABS-event is for the retrieved SLOT, however,
+this is not true as all events until the next ABS_MT_SLOT event are for
+the previously active slot:
 
-Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+    Kernel queue is: { ABS_DROPPED,
+                       ABS_MT_POSITION_X(slot: 0),
+                       ABS_MT_SLOT(slot: 1),
+                       ABS_MT_POSITION_X(slot: 1) }
+    Client reads ABS_DROPPED from queue.
+    Client syncs all ABS values:
+      As part of that, client syncs ABS_MT_SLOT, which is 1 in the current
+      view of the kernel.
+    Client reads ABS_MT_POSITION_X and attributes it to slot 1 instead of
+    slot 0, as the slot-value is not explicit.
+
+This is just a simple example how the relative information provided by the
+ABS_MT_SLOT axis can be problematic to clients.
+
+Now there are many ways to fix this:
+ * Make ABS_MT_SLOT a per-evdev-client attribute. On each
+   EVIOCGABS(ABS_MT_SLOT) we can add fake ABS_MT_SLOT events to the queue.
+   => Ugly and overkill
+ * Flush all ABS events when clients read ABS_MT_SLOT.
+   => Ugly hack and client might loose important ABS_MT_* events
+ * Provide atomic EVIOCGABS API.
+   => Sounds good!
+
+This patch introduces EVIOCGABSRANGE. Unlike EVIOCGABS, this ioctl only
+fetches ABS values, rather than the whole "struct input_absinfo" set.
+However, the new ioctl can fetch a range of ABS axes atomically and will
+flush matching events from the client's receive queue. Moreover, you can
+fetch all axes for *all* slots with a single call.
+
+This way, a client can simply run EVIOCGABSRANGE(0, ABS_CNT) and it will
+receive a consistent view of the whole ABS state, while the kernel flushes
+the receive-buffer for a consistent view.
+While most clients probably only need
+EVIOCGABSRANGE(ABS_MT_SLOT, ABS_MT_TOOL_y - ABS_MT_SLOT + 1), the ioctl
+allows to receive an arbitrary range of axes.
+
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/input/misc/uinput.c | 69 +++++++++++++++++++++++++++++++++++++++++++--
- include/uapi/linux/uinput.h | 55 ++++++++++++++++++++++++++++++++++--
- 2 files changed, 118 insertions(+), 6 deletions(-)
+ drivers/input/evdev.c      | 180 ++++++++++++++++++++++++++++++++++++++++++++-
+ include/uapi/linux/input.h |  44 ++++++++++-
+ 2 files changed, 219 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index a2a3895..0f45595 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -371,8 +371,67 @@ static int uinput_allocate_device(struct uinput_device *udev)
- 	return 0;
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 6386882..7a25a7a 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -175,8 +175,9 @@ static bool __evdev_is_filtered(struct evdev_client *client,
+ 	return mask && !test_bit(code, mask);
  }
  
--static int uinput_setup_device(struct uinput_device *udev,
--			       const char __user *buffer, size_t count)
-+static int uinput_dev_setup(struct uinput_device *udev,
-+			    struct uinput_setup __user *arg)
+-/* flush queued events of type @type, caller must hold client->buffer_lock */
+-static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
++/* flush queued, matching events, caller must hold client->buffer_lock */
++static void __evdev_flush_queue(struct evdev_client *client, unsigned int type,
++				unsigned int code_first, unsigned int code_last)
+ {
+ 	unsigned int i, head, num;
+ 	unsigned int mask = client->bufsize - 1;
+@@ -195,7 +196,9 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 		ev = &client->buffer[i];
+ 		is_report = ev->type == EV_SYN && ev->code == SYN_REPORT;
+ 
+-		if (ev->type == type) {
++		if (ev->type == type &&
++		    ev->code >= code_first &&
++		    ev->code <= code_last) {
+ 			/* drop matched entry */
+ 			continue;
+ 		} else if (is_report && !num) {
+@@ -786,6 +789,172 @@ static int handle_eviocgbit(struct input_dev *dev,
+ 	return bits_to_user(bits, len, size, p, compat_mode);
+ }
+ 
++static inline void free_absrange(s32 **pages, size_t page_cnt)
 +{
-+	struct uinput_setup setup;
-+	struct input_dev *dev;
-+	int i, retval;
++	if (page_cnt > 1) {
++		while (page_cnt > 0) {
++			if (!pages[--page_cnt])
++				break;
++			__free_page(virt_to_page(pages[page_cnt]));
++		}
++		kfree(pages);
++	} else if (page_cnt == 1) {
++		kfree(pages);
++	}
++}
 +
-+	if (udev->state == UIST_CREATED)
-+		return -EINVAL;
-+	if (copy_from_user(&setup, arg, sizeof(setup)))
-+		return -EFAULT;
-+	if (!setup.name[0])
-+		return -EINVAL;
-+	/* So far we only support the original "struct input_absinfo", but be
-+	 * forward compatible and allow larger payloads. */
-+	if (setup.absinfo_size < sizeof(struct input_absinfo))
-+		return -EINVAL;
++static inline s32 *absrange_ptr(s32 **pages, size_t page_cnt, size_t slots,
++				size_t i_code, size_t j_slot)
++{
++	size_t idx, off;
 +
-+	dev = udev->dev;
-+	dev->id = setup.id;
-+	udev->ff_effects_max = setup.ff_effects_max;
++	idx = (i_code * slots + j_slot) / (PAGE_SIZE / sizeof(s32));
++	off = (i_code * slots + j_slot) % (PAGE_SIZE / sizeof(s32));
 +
-+	kfree(dev->name);
-+	dev->name = kstrndup(setup.name, UINPUT_MAX_NAME_SIZE, GFP_KERNEL);
-+	if (!dev->name)
-+		return -ENOMEM;
++	if (page_cnt == 1)
++		return &((s32*)pages)[off];
++	else
++		return &pages[idx][off];
++}
 +
-+	if (setup.abs_cnt > ABS_CNT)
-+		setup.abs_cnt = ABS_CNT;
++static inline ssize_t fetch_absrange(struct evdev_client *client,
++				     struct input_dev *dev, size_t start,
++				     size_t count, size_t slots, s32 ***out)
++{
++	size_t size, page_cnt, i, j;
++	unsigned long flags;
++	s32 **pages;
 +
-+	if (setup.abs_cnt > 0) {
-+		u8 __user *p = (u8 __user*)arg->abs;
++	/*
++	 * Fetch data atomically from the device and flush buffers. We need to
++	 * allocate a temporary buffer as copy_to_user() is not allowed while
++	 * holding spinlocks. However, to-be-copied data might be huge and
++	 * high-order allocations should be avoided. Therefore, do the
++	 * page-allocation manually.
++	 */
 +
-+		input_alloc_absinfo(dev);
-+		if (!dev->absinfo)
++	BUILD_BUG_ON(PAGE_SIZE % sizeof(s32) != 0);
++
++	size = sizeof(s32) * count * slots;
++	page_cnt = DIV_ROUND_UP(size, PAGE_SIZE);
++	if (page_cnt < 1) {
++		return 0;
++	} else if (page_cnt == 1) {
++		pages = kzalloc(size, GFP_TEMPORARY);
++		if (!pages)
++			return -ENOMEM;
++	} else {
++		pages = kzalloc(sizeof(*pages) * page_cnt, GFP_TEMPORARY);
++		if (!pages)
 +			return -ENOMEM;
 +
-+		for (i = 0; i < setup.abs_cnt; ++i, p += setup.absinfo_size) {
-+			struct input_absinfo absinfo;
-+
-+			if (!test_bit(i, dev->absbit))
-+				continue;
-+
-+			if (copy_from_user(&absinfo, p, sizeof(absinfo)))
-+				return -EFAULT;
-+
-+			dev->absinfo[i] = absinfo;
++		for (i = 0; i < page_cnt; ++i) {
++			pages[i] = (void*)get_zeroed_page(GFP_TEMPORARY);
++			if (!pages[i]) {
++				free_absrange(pages, page_cnt);
++				return -ENOMEM;
++			}
 +		}
 +	}
 +
-+	retval = uinput_validate_absbits(dev);
-+	if (retval < 0)
-+		return retval;
++	spin_lock_irqsave(&dev->event_lock, flags);
++	spin_lock(&client->buffer_lock);
 +
-+	udev->state = UIST_SETUP_COMPLETE;
-+	return 0;
++	for (i = 0; i < count; ++i) {
++		__u16 code;
++		bool is_mt;
++
++		code = start + i;
++		is_mt = input_is_mt_value(code);
++		if (is_mt && !dev->mt)
++			continue;
++
++		for (j = 0; j < slots; ++j) {
++			__s32 v;
++
++			if (is_mt)
++				v = input_mt_get_value(&dev->mt->slots[j],
++						       code);
++			else
++				v = dev->absinfo[code].value;
++
++			*absrange_ptr(pages, page_cnt, slots, i, j) = v;
++
++			if (!is_mt)
++				break;
++		}
++	}
++
++	spin_unlock(&client->buffer_lock);
++	__evdev_flush_queue(client, EV_ABS, start, start + count - 1);
++	spin_unlock_irqrestore(&dev->event_lock, flags);
++
++	*out = pages;
++	return page_cnt;
 +}
 +
-+/* legacy setup via write() */
-+static int uinput_setup_device_legacy(struct uinput_device *udev,
-+				      const char __user *buffer, size_t count)
- {
- 	struct uinput_user_dev	*user_dev;
- 	struct input_dev	*dev;
-@@ -475,7 +534,7 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
- 
- 	retval = udev->state == UIST_CREATED ?
- 			uinput_inject_events(udev, buffer, count) :
--			uinput_setup_device(udev, buffer, count);
-+			uinput_setup_device_legacy(udev, buffer, count);
- 
- 	mutex_unlock(&udev->mutex);
- 
-@@ -736,6 +795,10 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			uinput_destroy_device(udev);
- 			goto out;
- 
-+		case UI_DEV_SETUP:
-+			retval = uinput_dev_setup(udev, p);
-+			goto out;
++static int evdev_handle_get_absrange(struct evdev_client *client,
++				     struct input_dev *dev,
++				     struct input_absrange __user *p)
++{
++	size_t slots, code, count, i, j;
++	struct input_absrange absbuf;
++	s32 **vals = NULL;
++	ssize_t val_cnt;
++	s32 __user *b;
++	int retval;
 +
- 		case UI_SET_EVBIT:
- 			retval = uinput_set_bit(arg, evbit, EV_MAX);
- 			goto out;
-diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-index 19339cf..04a3876 100644
---- a/include/uapi/linux/uinput.h
-+++ b/include/uapi/linux/uinput.h
-@@ -20,6 +20,8 @@
-  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-  *
-  * Changes/Revisions:
-+ *	0.5	06/20/2014 (David Herrmann <dh.herrmann@gmail.com>
-+ *		- add UI_DEV_SETUP ioctl
-  *	0.4	01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-  *		- add UI_GET_SYSNAME ioctl
-  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
-@@ -37,8 +39,8 @@
- #include <linux/types.h>
- #include <linux/input.h>
++	if (!dev->absinfo)
++		return -EINVAL;
++	if (copy_from_user(&absbuf, p, sizeof(absbuf)))
++		return -EFAULT;
++
++	slots = min_t(size_t, dev->mt ? dev->mt->num_slots : 1, absbuf.slots);
++	code = min_t(size_t, absbuf.code, ABS_CNT);
++	count = min_t(size_t, absbuf.count, ABS_CNT);
++
++	/* first fetch data atomically from device */
++
++	if (code + count > ABS_CNT)
++		count = ABS_CNT - code;
++
++	if (!slots || !count) {
++		val_cnt = 0;
++	} else {
++		val_cnt = fetch_absrange(client, dev, code, count,
++					 slots, &vals);
++		if (val_cnt < 0)
++			return val_cnt;
++	}
++
++	/* now copy data to user-space */
++
++	b = (void __user*)(unsigned long)absbuf.buffer;
++	for (i = 0; i < absbuf.count; ++i) {
++		for (j = 0; j < absbuf.slots; ++j, ++b) {
++			s32 v;
++
++			if (i >= count || j >= slots)
++				v = 0;
++			else
++				v = *absrange_ptr(vals, val_cnt, slots, i, j);
++
++			if (put_user(v, b)) {
++				retval = -EFAULT;
++				goto out;
++			}
++		}
++	}
++
++	retval = 0;
++
++out:
++	free_absrange(vals, val_cnt);
++	if (retval < 0)
++		evdev_queue_syn_dropped(client);
++	return retval;
++}
++
+ static int evdev_handle_get_keycode(struct input_dev *dev, void __user *p)
+ {
+ 	struct input_keymap_entry ke = {
+@@ -889,7 +1058,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
  
--#define UINPUT_VERSION		4
--
-+#define UINPUT_VERSION		5
-+#define UINPUT_MAX_NAME_SIZE	80
+ 	spin_unlock(&dev->event_lock);
  
- struct uinput_ff_upload {
- 	__u32			request_id;
-@@ -93,6 +95,54 @@ struct uinput_ff_erase {
+-	__evdev_flush_queue(client, type);
++	__evdev_flush_queue(client, type, 0, UINT_MAX);
+ 
+ 	spin_unlock_irq(&client->buffer_lock);
+ 
+@@ -1006,6 +1175,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		else
+ 			return evdev_revoke(evdev, client, file);
+ 
++	case EVIOCGABSRANGE:
++		return evdev_handle_get_absrange(client, dev, p);
++
+ 	case EVIOCGMASK:
+ 		if (copy_from_user(&mask, p, sizeof(mask)))
+ 			return -EFAULT;
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index f6ace0e..9f851d4 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -32,7 +32,7 @@ struct input_event {
+  * Protocol version.
   */
- #define UI_GET_VERSION _IOR(UINPUT_IOCTL_BASE, 301, unsigned int)
  
-+struct uinput_setup {
-+	__u64 absinfo_size;
-+	struct input_id id;
-+	char name[UINPUT_MAX_NAME_SIZE];
-+	__u32 ff_effects_max;
-+	__u32 abs_cnt;
-+	struct input_absinfo abs[];
+-#define EV_VERSION		0x010001
++#define EV_VERSION		0x010002
+ 
+ /*
+  * IOCTLs (0x00 - 0x7f)
+@@ -210,6 +210,48 @@ struct input_mask {
+  */
+ #define EVIOCSMASK		_IOW('E', 0x93, struct input_mask)	/* Set event-masks */
+ 
++struct input_absrange {
++	__u16 slots;
++	__u16 code;
++	__u32 count;
++	__u64 buffer;
 +};
 +
 +/**
-+ * UI_DEV_SETUP - Set device parameters for setup
++ * EVIOCGABSRANGE - Fetch range of ABS values
 + *
-+ * This ioctl sets parameters for the input-device to be created. It must be
-+ * issued *before* calling UI_DEV_CREATE or it will fail. This ioctl supersedes
-+ * the old "struct uinput_user_dev" method, which wrote this data via write().
++ * This fetches the current values of a range of ABS codes atomically. The range
++ * of codes to fetch and the buffer-types are passed as "struct input_absrange",
++ * which has the following fields:
++ *      slots: Number of MT slots to fetch data for.
++ *       code: First ABS axis to query.
++ *      count: Number of ABS axes to query starting at @code.
++ *     buffer: Pointer to a receive buffer where to store the fetched ABS
++ *             values. This buffer must be an array of __s32 with at least
++ *             (@slots * @code) elements. The buffer is interpreted as two
++ *             dimensional __s32 array, declared as: __s32[slots][codes]
 + *
-+ * This ioctl takes a "struct uinput_setup" object as argument. The fields of
-+ * this object are as follows:
-+ *    absinfo_size: This field *must* be initialized to
-+ *                  "sizeof(struct input_absinfo)". It allows to extend the API
-+ *                  to support more absinfo fields. Older kernels ignore unknown
-+ *                  extensions to "struct input_absinfo".
-+ *              id: See the description of "struct input_id". This field is
-+ *                  copied unchanged into the new device.
-+ *            name: This is used unchanged as name for the new device.
-+ *  ff_effects_max: This limits the maximum numbers of force-feedback effects.
-+ *                  See below for a description of FF with uinput.
-+ *         abs_cnt: This field defines the amount of elements in the following
-+ *                  "abs" array. Axes beyond the kernel's ABS_CNT are ignored.
-+ *             abs: This is an appended array that contains parameters for ABS
-+ *                  axes. See "struct input_absinfo" for a description of these
-+ *                  fields. This array is copied unchanged into the kernel for
-+ *                  all specified axes. Axes not enabled via UI_SET_ABSBIT are
-+ *                  ignored.
++ * Compared to EVIOCGABS this ioctl allows to retrieve a range of ABS codes
++ * atomically regarding any concurrent buffer modifications. Furthermore, any
++ * pending events for codes that were retrived via this call are flushed from
++ * the client's receive buffer. But unlike EVIOCGABS, this ioctl only returns
++ * the current value of an axis, rather than the whole "struct input_absinfo"
++ * set. All fields of "struct input_absinfo" except for the value are constant,
++ * though.
 + *
-+ * This ioctl can be called multiple times and will overwrite previous values.
-+ * If this ioctl fails with -EINVAL, you're recommended to use the old
-+ * "uinput_user_dev" method via write() as fallback, in case you run on an old
-+ * kernel that does not support this ioctl.
++ * The kernel's current view of the ABS axes is copied into the provided buffer.
++ * If an ABS axis is not enabled on the device, its value will be zero. Also, if
++ * an axis is not a slotted MT-axis, values for all but the first slot will be
++ * 0. If @slots is greater than the actual number of slots provided by the
++ * device, values for all slots higher than that will be 0.
 + *
-+ * This ioctl may fail with -EINVAL if it is not supported or if you passed
-+ * incorrect values, -ENOMEM if the kernel runs out of memory or -EFAULT if the
-+ * passed uinput_setup object cannot be read/written.
-+ * If this call fails, partial data may have already been applied to the
-+ * internal device.
++ * This call may fail with -EINVAL if the kernel doesn't support this call or
++ * the arguments are invalid, with -ENODEV if access was revoked, -ENOMEM if the
++ * kernel couldn't allocate temporary buffers for data-copy or -EFAULT if the
++ * passed pointer was invalid.
 + */
-+#define UI_DEV_SETUP _IOWR(UINPUT_IOCTL_BASE, 302, struct uinput_setup)
++#define EVIOCGABSRANGE		_IOR('E', 0x94, struct input_absrange)
 +
- /*
-  * To write a force-feedback-capable driver, the upload_effect
-  * and erase_effect callbacks in input_dev must be implemented.
-@@ -144,7 +194,6 @@ struct uinput_ff_erase {
- #define UI_FF_UPLOAD		1
- #define UI_FF_ERASE		2
+ #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
  
--#define UINPUT_MAX_NAME_SIZE	80
- struct uinput_user_dev {
- 	char name[UINPUT_MAX_NAME_SIZE];
- 	struct input_id id;
+ /*
 -- 
 2.0.2
 

@@ -1,131 +1,54 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
- 'devm_ioremap_resource'
-Date: Sun, 20 Jul 2014 17:56:32 +0800
-Message-ID: <53CB9250.3090903@gmail.com>
-References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel>
- <53C7A819.40403@metafoo.de> <6485666.LVFO2YCEQx@wuerfel>
- <53C8114D.30601@nod.at> <53C86C10.2000608@gmail.com>
- <53C8CE59.3060103@nod.at> <53C8FA78.1020501@gmail.com>
- <53C8FC1E.9090003@nod.at>
- <CAF0htA6Vvp+d4=wPuqJJhT+FxEUoT9mbJ3_NQuEJTP-hniS-KQ@mail.gmail.com>
- <53C9612E.3040001@gmail.com> <53CB801D.1030603@gmail.com>
- <53CB8FBF.2070206@nod.at> <53CB9134.7080705@gmail.com>
+From: Bivolaru Catalin <bivolaru.catalin@gmail.com>
+Subject: [PATCH] staging: input: sunkbd.c: Fix coding style
+Date: Sun, 20 Jul 2014 15:01:03 +0300
+Message-ID: <20140720120103.GA5294@kalio-PC>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <53CB9134.7080705@gmail.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Richard Weinberger <richard@nod.at>
-Cc: linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, heiko.carstens@de.ibm.com, Tom Gundersen <teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>, Lennox Wu <lennox.wu@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com, Guenter Roeck <linux@roeck-us.net>, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, cmetcalf@tilera.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:63147 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752008AbaGTMBH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 Jul 2014 08:01:07 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: kernel-janitors@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: paul.gortmaker@windriver.com
 
-On 07/20/2014 05:51 PM, Chen Gang wrote:
-> On 07/20/2014 05:45 PM, Richard Weinberger wrote:
->>
->>
->> Am 20.07.2014 10:38, schrieb Chen Gang:
->>> On 07/19/2014 02:02 AM, Chen Gang wrote:
->>>>> 2014-07-18 18:51 GMT+08:00 Richard Weinberger <richard@nod.at>:
->>>>>> Am 18.07.2014 12:44, schrieb Chen Gang:
->>>>>>> On 07/18/2014 03:35 PM, Richard Weinberger wrote:
->>>>>>>> Am 18.07.2014 02:36, schrieb Chen Gang:
->>>>>>>>>
->>>>>>>>> On 07/18/2014 02:09 AM, Richard Weinberger wrote:
->>>>>>>>>> Am 17.07.2014 12:48, schrieb Arnd Bergmann:
->>>>>>>>>>> AFAICT, NO_IOMEM only has a real purpose on UML these days. Could we take
->>>>>>>>>>> a shortcut here and make COMPILE_TEST depend on !UML? Getting random stuff
->>>>>>>>>>> to build on UML seems pointless to me and we special-case it in a number of
->>>>>>>>>>> places already.
->>>>>>>>>>
->>>>>>>>>> If UML is the only arch without io memory the dependency on !UML seems
->>>>>>>>>> reasonable to me. :-)
->>>>>>>>>>
->>>>>>>>>
->>>>>>>>> For me, if only uml left, I suggest to implement dummy functions within
->>>>>>>>> uml instead of let CONFIG_UML appear in generic include directory. And
->>>>>>>>> then remove all HAS_IOMEM and NO_IOMEM from kernel.
->>>>>>>>
->>>>>>>> Erm, this is something completely different.
->>>>>>>> I thought we're focusing on COMPILE_TEST?
->>>>>>>>
->>>>>>>
->>>>>>> COMPILE_TEST is none-architecture specific, but UML is. So in generic
->>>>>>> include folder, if we're focusing on choosing whether COMPILE_TEST or
->>>>>>> UML, for me, I will choose COMPILE_TEST.
->>>>>>>
->>>>>>> If we're not only focusing on COMPILE_TEST, for me, if something only
->>>>>>> depend on one architecture, I'd like to put them under "arch/*/" folder.
->>>>>>>
->>>>>>> Especially, after that, we can remove all HAS_IOMEM and NO_IOMEM, nobody
->>>>>>> has to think of them again. :-)
->>>>>>
->>>>>> And then we end up with a solution that on UML a lot of completely useless
->>>>>> drivers are build which fail in various interesting manners because you'll
->>>>>> add stubs for all kinds of io memory related functions to arch/um/?
->>>>>> We had this kind of discussion already. You'll need more than ioremap...
->>>>>>
->>>>>> I like Arnd's idea *much* more to make COMPILE_TEST depend on !UML.
->>>>>>
->>>>
->>>> That will let UML itself against COMPILE_TEST (but all the other
->>>> architectures not).
->>>>
->>>> And if let COMPILE_TEST depend on !UML, can we still remove all
->>>> HAS_IOMEM and NO_IOMEM from kernel? (I guess so).
->>>>
->>>> If we can remove them, we can send related patch firstly -- that will
->>>> let current discussion be in UML architecture wide instead of kernel
->>>> wide.
->>>>
->>>
->>> Next, I shall:
->>>
->>>  - Remove HAS_IOMEM and NO_IOMEM from kernel, firstly.
->>
->> This needs to be last, otherwise lot's of stuff will break.
->>
-> 
-> OK, thanks, that sounds reasonable to me.
-> 
->>>  - Try to make dummy IOMEM functions for score architecture.
->>>
->>>  - Continue discussing with UML for it.
->>
->> If you find sane dummy functions for both UML and score I'm fine with it.
->>
-> 
-> For me, what you said is necessary, tile and s390 also need dummy IOMEM
-> when !PCI.
-> 
-> So for me, I shall implement them in "include/asm-generic", and let uml,
-> score, tile and s390 use dummy IOMEM when they need.
-> 
-> Welcome any other members ideas, suggestions and completions.
-> 
-> 
+Fix coding style with regard to missing spaces after , and the column limit
+that was violated after the first change.
 
-And sorry, I can not finish this discussion and send patch for it within
-this week, for it is really a long necessary discussion.
+Signed-off-by: Bivolaru Catalin <bivolaru.catalin@gmail.com>
+---
 
-But, hope we can finish this discussion and send patch for it within
-this month (but in current condition, I am not quite sure).
+The change was tested only by compilation.
 
-And after finish discussion, welcome any other members help sending
-related patch for it (e.g. implement dummy IOMEM in "asm-generic",
-remove all IOMEM in kernel wide).
-
-Thanks.
--- 
-Chen Gang
-
-Open share and attitude like air water and life which God blessed
+diff --git a/drivers/input/keyboard/sunkbd.c b/drivers/input/keyboard/sunkbd.c
+index dc6bb9d..25ba6b6 100644
+--- a/drivers/input/keyboard/sunkbd.c
++++ b/drivers/input/keyboard/sunkbd.c
+@@ -42,14 +42,15 @@ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
+ 
+ static unsigned char sunkbd_keycode[128] = {
+-	  0,128,114,129,115, 59, 60, 68, 61, 87, 62, 88, 63,100, 64,112,
+-	 65, 66, 67, 56,103,119, 99, 70,105,130,131,108,106,  1,  2,  3,
+-	  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 41, 14,110,113, 98, 55,
+-	116,132, 83,133,102, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+-	 26, 27,111,127, 71, 72, 73, 74,134,135,107,  0, 29, 30, 31, 32,
+-	 33, 34, 35, 36, 37, 38, 39, 40, 43, 28, 96, 75, 76, 77, 82,136,
+-	104,137, 69, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,101,
+-	 79, 80, 81,  0,  0,  0,138, 58,125, 57,126,109, 86, 78
++	  0, 128, 114, 129, 115,  59,  60,  68,  61,  87,  62,  88,  63, 100,
++	 64, 112,  65,  66,  67,  56, 103, 119,  99,  70, 105, 130, 131, 108,
++	106,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,
++	 41,  14, 110, 113,  98,  55, 116, 132,  83, 133, 102,  15,  16,  17,
++	 18,  19,  20,  21,  22,  23,  24,  25,  26,  27, 111, 127,  71,  72,
++	 73,  74, 134, 135, 107,   0,  29,  30,  31,  32,  33,  34,  35,  36,
++	 37,  38,  39,  40,  43,  28,  96,  75,  76,  77,  82, 136, 104, 137,
++	 69,  42,  44,  45,  46,  47,  48,  49,  50,  51,  52,  53,  54, 101,
++	 79,  80,  81,   0,   0,   0, 138,  58, 125,  57, 126, 109,  86,  78
+ };
+ 
+ #define SUNKBD_CMD_RESET	0x1

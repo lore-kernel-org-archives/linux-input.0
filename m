@@ -1,49 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] input: remove unnecessary break after goto
-Date: Sun, 20 Jul 2014 13:43:25 -0700
-Message-ID: <20140720204325.GD18347@core.coreip.homeip.net>
-References: <1404837456-7321-1-git-send-email-fabf@skynet.be>
+Subject: Re: [PATCH] Input: st-keyscan - Fix 'defined but not used' compiler
+ warnings
+Date: Sun, 20 Jul 2014 13:43:42 -0700
+Message-ID: <20140720204342.GE18347@core.coreip.homeip.net>
+References: <1404809278-2604-1-git-send-email-tklauser@distanz.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:60908 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753157AbaGTUn3 (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:53272 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753526AbaGTUnp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jul 2014 16:43:29 -0400
+	Sun, 20 Jul 2014 16:43:45 -0400
+Received: by mail-pa0-f42.google.com with SMTP id lf10so8589758pab.1
+        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2014 13:43:45 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1404837456-7321-1-git-send-email-fabf@skynet.be>
+In-Reply-To: <1404809278-2604-1-git-send-email-tklauser@distanz.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabian Frederick <fabf@skynet.be>
-Cc: linux-kernel@vger.kernel.org, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org
+To: Tobias Klauser <tklauser@distanz.ch>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
 
-On Tue, Jul 08, 2014 at 06:37:36PM +0200, Fabian Frederick wrote:
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Fabian Frederick <fabf@skynet.be>
+On Tue, Jul 08, 2014 at 10:47:58AM +0200, Tobias Klauser wrote:
+> Add #ifdef CONFIG_PM_SLEEP around keyscan_supend() and keyscan_resume() to fix
+> the following compiler warnings occuring if CONFIG_PM_SLEEP is unset:
+> 
+>   + /scratch/kisskb/src/drivers/input/keyboard/st-keyscan.c: warning: 'keyscan_resume' defined but not used [-Wunused-function]:  => 235:12
+>   + /scratch/kisskb/src/drivers/input/keyboard/st-keyscan.c: warning: 'keyscan_suspend' defined but not used [-Wunused-function]:  => 218:12
+> 
+> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Link: https://lkml.org/lkml/2014/7/8/109
+> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+
 
 Applied, thank you.
 
 > ---
->  drivers/input/misc/keyspan_remote.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/input/keyboard/st-keyscan.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
-> index 01f3b5b..a3fe4a9 100644
-> --- a/drivers/input/misc/keyspan_remote.c
-> +++ b/drivers/input/misc/keyspan_remote.c
-> @@ -392,7 +392,6 @@ static void keyspan_irq_recv(struct urb *urb)
+> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+> index 758b487..de7be4f 100644
+> --- a/drivers/input/keyboard/st-keyscan.c
+> +++ b/drivers/input/keyboard/st-keyscan.c
+> @@ -215,6 +215,7 @@ static int keyscan_probe(struct platform_device *pdev)
+>  	return 0;
+>  }
 >  
->  	default:
->  		goto resubmit;
-> -		break;
->  	}
+> +#ifdef CONFIG_PM_SLEEP
+>  static int keyscan_suspend(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+> @@ -249,6 +250,7 @@ static int keyscan_resume(struct device *dev)
+>  	mutex_unlock(&input->mutex);
+>  	return retval;
+>  }
+> +#endif
 >  
->  	if (debug)
+>  static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keyscan_resume);
+>  
 > -- 
-> 1.8.4.5
+> 2.0.1
+> 
 > 
 
 -- 

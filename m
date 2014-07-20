@@ -1,8 +1,8 @@
-From: Richard Weinberger <richard@nod.at>
+From: Chen Gang <gang.chen.5i5j@gmail.com>
 Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for
  'devm_ioremap_resource'
-Date: Sun, 20 Jul 2014 11:45:35 +0200
-Message-ID: <53CB8FBF.2070206@nod.at>
+Date: Sun, 20 Jul 2014 17:45:40 +0800
+Message-ID: <53CB8FC4.4050009@gmail.com>
 References: <201407130545.23004.marex@denx.de> <6823014.2plXDE9VA9@wuerfel>
  <53C7A819.40403@metafoo.de> <6485666.LVFO2YCEQx@wuerfel>
  <53C8114D.30601@nod.at> <53C86C10.2000608@gmail.com>
@@ -24,13 +24,11 @@ List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driver
  <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
 Errors-To: driverdev-devel-bounces@linuxdriverproject.org
 Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Chen Gang <gang.chen.5i5j@gmail.com>, Lennox Wu <lennox.wu@gmail.com>
-Cc: linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Tom Gundersen <teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com, Guenter Roeck <linux@roeck-us.net>, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mischa.Jonker@synopsys.com, jic23@kernel.org
+To: Lennox Wu <lennox.wu@gmail.com>
+Cc: linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, heiko.carstens@de.ibm.com, Tom Gundersen <teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Richard Weinberger <richard@nod.at>, Geert Uytterhoeven <geert@linux-m68k.org>, msalter@redhat.com, Guenter Roeck <linux@roeck-us.net>, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, cmetcalf@tilera.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, jic23@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
-
-Am 20.07.2014 10:38, schrieb Chen Gang:
+On 07/20/2014 04:38 PM, Chen Gang wrote:
 > On 07/19/2014 02:02 AM, Chen Gang wrote:
 >>> 2014-07-18 18:51 GMT+08:00 Richard Weinberger <richard@nod.at>:
 >>>> Am 18.07.2014 12:44, schrieb Chen Gang:
@@ -88,14 +86,31 @@ Am 20.07.2014 10:38, schrieb Chen Gang:
 > Next, I shall:
 > 
 >  - Remove HAS_IOMEM and NO_IOMEM from kernel, firstly.
-
-This needs to be last, otherwise lot's of stuff will break.
-
+> 
 >  - Try to make dummy IOMEM functions for score architecture.
 > 
 >  - Continue discussing with UML for it.
+>
+ 
+Oh, sorry, I forgot, after remove IOMEM from kernel, also s390 and tile
+need implement dummy IOMEM if !PCI.
 
-If you find sane dummy functions for both UML and score I'm fine with it.
+If possible, I shall try to implement the dummy IOMEM in 'asm-generic',
+and let uml, score, s390 and tile use them when they need.
 
-Thanks,
-//richard
+> 
+> By the way: how about HAS_DMA? can we treat it as HAS_IOMEM (remove
+> it from kernel)? (for me, I guess we can not).
+> 
+> 
+> At present, I shall finish sending patch for removing IOMEM today, and
+> continue to welcome any ideas, suggestions or completions for IOMEM or
+> DMA.
+> 
+> 
+
+Thanks.
+-- 
+Chen Gang
+
+Open share and attitude like air water and life which God blessed

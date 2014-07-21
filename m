@@ -1,67 +1,117 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: st-keyscan - Fix 'defined but not used' compiler
- warnings
-Date: Sun, 20 Jul 2014 13:43:42 -0700
-Message-ID: <20140720204342.GE18347@core.coreip.homeip.net>
-References: <1404809278-2604-1-git-send-email-tklauser@distanz.ch>
+Subject: Re: [PATCH RESEND 2/5] Input: uinput - uinput_validate_absbits()
+ cleanup
+Date: Sun, 20 Jul 2014 17:34:00 -0700
+Message-ID: <20140721003400.GA22552@core.coreip.homeip.net>
+References: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
+ <1405775445-4454-3-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:53272 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753526AbaGTUnp (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:51396 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751353AbaGUAeH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jul 2014 16:43:45 -0400
-Received: by mail-pa0-f42.google.com with SMTP id lf10so8589758pab.1
-        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2014 13:43:45 -0700 (PDT)
+	Sun, 20 Jul 2014 20:34:07 -0400
+Received: by mail-pa0-f53.google.com with SMTP id kq14so8749323pab.12
+        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2014 17:34:07 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1404809278-2604-1-git-send-email-tklauser@distanz.ch>
+In-Reply-To: <1405775445-4454-3-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias Klauser <tklauser@distanz.ch>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dtor@google.com>
 
-On Tue, Jul 08, 2014 at 10:47:58AM +0200, Tobias Klauser wrote:
-> Add #ifdef CONFIG_PM_SLEEP around keyscan_supend() and keyscan_resume() to fix
-> the following compiler warnings occuring if CONFIG_PM_SLEEP is unset:
+On Sat, Jul 19, 2014 at 03:10:42PM +0200, David Herrmann wrote:
+> This moves basic checks and setup from uinput_setup_device() into
+> uinput_validate_absbits() to make it easier to use. This way, we can call
+> it from other places without copying the boilerplate code.
 > 
->   + /scratch/kisskb/src/drivers/input/keyboard/st-keyscan.c: warning: 'keyscan_resume' defined but not used [-Wunused-function]:  => 235:12
->   + /scratch/kisskb/src/drivers/input/keyboard/st-keyscan.c: warning: 'keyscan_suspend' defined but not used [-Wunused-function]:  => 218:12
-> 
-> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Link: https://lkml.org/lkml/2014/7/8/109
-> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-
+> Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/keyboard/st-keyscan.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/input/misc/uinput.c | 40 +++++++++++++++++++++-------------------
+>  1 file changed, 21 insertions(+), 19 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
-> index 758b487..de7be4f 100644
-> --- a/drivers/input/keyboard/st-keyscan.c
-> +++ b/drivers/input/keyboard/st-keyscan.c
-> @@ -215,6 +215,7 @@ static int keyscan_probe(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_PM_SLEEP
->  static int keyscan_suspend(struct device *dev)
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 8569362..615324c 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -311,7 +311,13 @@ static int uinput_open(struct inode *inode, struct file *file)
+>  static int uinput_validate_absbits(struct input_dev *dev)
 >  {
->  	struct platform_device *pdev = to_platform_device(dev);
-> @@ -249,6 +250,7 @@ static int keyscan_resume(struct device *dev)
->  	mutex_unlock(&input->mutex);
->  	return retval;
+>  	unsigned int cnt;
+> -	int retval = 0;
+> +	int nslot;
+> +
+> +	if (!test_bit(EV_ABS, dev->evbit))
+> +		return 0;
+> +
+> +	/* check if absmin/absmax/absfuzz/absflat are filled as
+> +	 * told in Documentation/input/input-programming.txt */
+>  
+>  	for (cnt = 0; cnt < ABS_CNT; cnt++) {
+>  		int min, max;
+> @@ -327,8 +333,7 @@ static int uinput_validate_absbits(struct input_dev *dev)
+>  				UINPUT_NAME, cnt,
+>  				input_abs_get_min(dev, cnt),
+>  				input_abs_get_max(dev, cnt));
+> -			retval = -EINVAL;
+> -			break;
+> +			return -EINVAL;
+>  		}
+>  
+>  		if (input_abs_get_flat(dev, cnt) >
+> @@ -340,11 +345,18 @@ static int uinput_validate_absbits(struct input_dev *dev)
+>  				input_abs_get_flat(dev, cnt),
+>  				input_abs_get_min(dev, cnt),
+>  				input_abs_get_max(dev, cnt));
+> -			retval = -EINVAL;
+> -			break;
+> +			return -EINVAL;
+>  		}
+>  	}
+> -	return retval;
+> +
+> +	if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> +		nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> +		input_mt_init_slots(dev, nslot, 0);
+> +	} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> +		input_set_events_per_packet(dev, 60);
+> +	}
+> +
+> +	return 0;
 >  }
-> +#endif
 >  
->  static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keyscan_resume);
+>  static int uinput_allocate_device(struct uinput_device *udev)
+> @@ -410,19 +422,9 @@ static int uinput_setup_device(struct uinput_device *udev,
+>  		input_abs_set_flat(dev, i, user_dev->absflat[i]);
+>  	}
 >  
+> -	/* check if absmin/absmax/absfuzz/absflat are filled as
+> -	 * told in Documentation/input/input-programming.txt */
+> -	if (test_bit(EV_ABS, dev->evbit)) {
+> -		retval = uinput_validate_absbits(dev);
+> -		if (retval < 0)
+> -			goto exit;
+> -		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> -			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> -			input_mt_init_slots(dev, nslot, 0);
+> -		} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> -			input_set_events_per_packet(dev, 60);
+> -		}
+> -	}
+> +	retval = uinput_validate_absbits(dev);
+> +	if (retval < 0)
+> +		goto exit;
+>  
+>  	udev->state = UIST_SETUP_COMPLETE;
+>  	retval = count;
 > -- 
-> 2.0.1
-> 
+> 2.0.2
 > 
 
 -- 

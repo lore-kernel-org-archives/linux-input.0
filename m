@@ -1,31 +1,29 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 2/5] Input: uinput - uinput_validate_absbits()
- cleanup
-Date: Sun, 20 Jul 2014 17:34:00 -0700
-Message-ID: <20140721003400.GA22552@core.coreip.homeip.net>
+Subject: Re: [PATCH RESEND 3/5] Input: uinput - add UI_GET_VERSION ioctl
+Date: Sun, 20 Jul 2014 17:34:14 -0700
+Message-ID: <20140721003413.GB22552@core.coreip.homeip.net>
 References: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
- <1405775445-4454-3-git-send-email-dh.herrmann@gmail.com>
+ <1405775445-4454-4-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:51396 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751353AbaGUAeH (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:57468 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751353AbaGUAeR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jul 2014 20:34:07 -0400
-Received: by mail-pa0-f53.google.com with SMTP id kq14so8749323pab.12
-        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2014 17:34:07 -0700 (PDT)
+	Sun, 20 Jul 2014 20:34:17 -0400
+Received: by mail-pa0-f47.google.com with SMTP id kx10so8597037pab.20
+        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2014 17:34:17 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1405775445-4454-3-git-send-email-dh.herrmann@gmail.com>
+In-Reply-To: <1405775445-4454-4-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
 Cc: linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dtor@google.com>
 
-On Sat, Jul 19, 2014 at 03:10:42PM +0200, David Herrmann wrote:
-> This moves basic checks and setup from uinput_setup_device() into
-> uinput_validate_absbits() to make it easier to use. This way, we can call
-> it from other places without copying the boilerplate code.
+On Sat, Jul 19, 2014 at 03:10:43PM +0200, David Herrmann wrote:
+> This ioctl is the counterpart to EVIOCGVERSION and returns the
+> uinput-version the kernel was compiled with.
 > 
 > Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
 > Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
@@ -33,83 +31,47 @@ On Sat, Jul 19, 2014 at 03:10:42PM +0200, David Herrmann wrote:
 Applied, thank you.
 
 > ---
->  drivers/input/misc/uinput.c | 40 +++++++++++++++++++++-------------------
->  1 file changed, 21 insertions(+), 19 deletions(-)
+>  drivers/input/misc/uinput.c | 6 ++++++
+>  include/uapi/linux/uinput.h | 9 +++++++++
+>  2 files changed, 15 insertions(+)
 > 
 > diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 8569362..615324c 100644
+> index 615324c..a2a3895 100644
 > --- a/drivers/input/misc/uinput.c
 > +++ b/drivers/input/misc/uinput.c
-> @@ -311,7 +311,13 @@ static int uinput_open(struct inode *inode, struct file *file)
->  static int uinput_validate_absbits(struct input_dev *dev)
->  {
->  	unsigned int cnt;
-> -	int retval = 0;
-> +	int nslot;
-> +
-> +	if (!test_bit(EV_ABS, dev->evbit))
-> +		return 0;
-> +
-> +	/* check if absmin/absmax/absfuzz/absflat are filled as
-> +	 * told in Documentation/input/input-programming.txt */
->  
->  	for (cnt = 0; cnt < ABS_CNT; cnt++) {
->  		int min, max;
-> @@ -327,8 +333,7 @@ static int uinput_validate_absbits(struct input_dev *dev)
->  				UINPUT_NAME, cnt,
->  				input_abs_get_min(dev, cnt),
->  				input_abs_get_max(dev, cnt));
-> -			retval = -EINVAL;
-> -			break;
-> +			return -EINVAL;
->  		}
->  
->  		if (input_abs_get_flat(dev, cnt) >
-> @@ -340,11 +345,18 @@ static int uinput_validate_absbits(struct input_dev *dev)
->  				input_abs_get_flat(dev, cnt),
->  				input_abs_get_min(dev, cnt),
->  				input_abs_get_max(dev, cnt));
-> -			retval = -EINVAL;
-> -			break;
-> +			return -EINVAL;
->  		}
->  	}
-> -	return retval;
-> +
-> +	if (test_bit(ABS_MT_SLOT, dev->absbit)) {
-> +		nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
-> +		input_mt_init_slots(dev, nslot, 0);
-> +	} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
-> +		input_set_events_per_packet(dev, 60);
-> +	}
-> +
-> +	return 0;
->  }
->  
->  static int uinput_allocate_device(struct uinput_device *udev)
-> @@ -410,19 +422,9 @@ static int uinput_setup_device(struct uinput_device *udev,
->  		input_abs_set_flat(dev, i, user_dev->absflat[i]);
+> @@ -722,6 +722,12 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
 >  	}
 >  
-> -	/* check if absmin/absmax/absfuzz/absflat are filled as
-> -	 * told in Documentation/input/input-programming.txt */
-> -	if (test_bit(EV_ABS, dev->evbit)) {
-> -		retval = uinput_validate_absbits(dev);
-> -		if (retval < 0)
-> -			goto exit;
-> -		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
-> -			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
-> -			input_mt_init_slots(dev, nslot, 0);
-> -		} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
-> -			input_set_events_per_packet(dev, 60);
-> -		}
-> -	}
-> +	retval = uinput_validate_absbits(dev);
-> +	if (retval < 0)
-> +		goto exit;
+>  	switch (cmd) {
+> +		case UI_GET_VERSION:
+> +			if (put_user(UINPUT_VERSION,
+> +				     (unsigned int __user*)p))
+> +				retval = -EFAULT;
+> +			goto out;
+> +
+>  		case UI_DEV_CREATE:
+>  			retval = uinput_create_device(udev);
+>  			goto out;
+> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+> index 0389b48..19339cf 100644
+> --- a/include/uapi/linux/uinput.h
+> +++ b/include/uapi/linux/uinput.h
+> @@ -84,6 +84,15 @@ struct uinput_ff_erase {
+>   */
+>  #define UI_GET_SYSNAME(len)	_IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
 >  
->  	udev->state = UIST_SETUP_COMPLETE;
->  	retval = count;
+> +/**
+> + * UI_GET_VERSION - Return uinput version of the kernel
+> + *
+> + * This writes the kernel's uinput version into the integer pointed to by the
+> + * ioctl argument. The uinput-version is hard-coded in the kernel and
+> + * independent of the uinput device.
+> + */
+> +#define UI_GET_VERSION _IOR(UINPUT_IOCTL_BASE, 301, unsigned int)
+> +
+>  /*
+>   * To write a force-feedback-capable driver, the upload_effect
+>   * and erase_effect callbacks in input_dev must be implemented.
 > -- 
 > 2.0.2
 > 

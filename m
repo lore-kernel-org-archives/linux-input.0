@@ -1,89 +1,150 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] iio: exynos-adc: add experimental touchscreen support
-Date: Mon, 21 Jul 2014 09:19:32 -0700
-Message-ID: <20140721161932.GA12180@core.coreip.homeip.net>
-References: <1405663186-26464-1-git-send-email-cw00.choi@samsung.com>
- <5158672.dMAnnUQc7Z@wuerfel>
- <20140721144442.GB9112@core.coreip.homeip.net>
- <6569004.FG0IRy8WyL@wuerfel>
+Subject: Re: [PATCH RESEND] input: zforce: add regulator handling
+Date: Mon, 21 Jul 2014 10:42:08 -0700
+Message-ID: <20140721174208.GA34322@core.coreip.homeip.net>
+References: <2587208.XYbbI8xJiH@phil>
+ <2184295.fEH4OJRW3F@diego>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:53451 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932647AbaGUQTg (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:39432 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932363AbaGURmN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2014 12:19:36 -0400
+	Mon, 21 Jul 2014 13:42:13 -0400
 Content-Disposition: inline
-In-Reply-To: <6569004.FG0IRy8WyL@wuerfel>
+In-Reply-To: <2184295.fEH4OJRW3F@diego>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, mark.rutland@arm.com, devicetree@vger.kernel.org, kgene.kim@samsung.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-iio@vger.kernel.org, t.figa@samsung.com, rdunlap@infradead.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Ben Dooks <ben-linux@fluff.org>, galak@codeaurora.org, ch.naveen@samsung.com, linux-input <linux-input@vger.kernel.org>, heiko.stuebner@bq.com
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org
 
-On Mon, Jul 21, 2014 at 05:11:27PM +0200, Arnd Bergmann wrote:
-> On Monday 21 July 2014 07:44:42 Dmitry Torokhov wrote:
-> > > > 
-> > > > It would be nice to actually close the device even if someone is
-> > > > touching screen. Please implement open/close methods and have them set a
-> > > > flag that you would check here.
-> > > 
-> > > Ok. I think it's even better to move the request_irq() into the open function,
-> > > which will avoid the flag and defer the error handling into the actual opening,
-> > > as well as syncing the running irq with the close function.
-> > 
-> > I do not quite like acquiring resources needed in open. I think drivers should
-> > do all resource acquisition in probe() and leave open()/close() to
-> > activate/quiesce devices.
-> 
-> Ok, I'll move it back then. I'm not sure what I'm supposed to do
-> in open/close then. Isn't it enough to check info->input->users
-> like this?
-> 
-> static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
-> {
->         struct exynos_adc *info = dev_id;
->         struct iio_dev *dev = dev_get_drvdata(info->dev);
->         u32 x, y;
->         bool pressed;
->         int ret;
-> 
->         while (info->input->users) {
->                 ret = exynos_read_s3c64xx_ts(dev, &x, &y);
->                 if (ret == -ETIMEDOUT)
->                         break;
-> 
->                 pressed = x & y & ADC_DATX_PRESSED;
->                 if (!pressed) {
->                         input_report_key(info->input, BTN_TOUCH, 0);
->                         input_sync(info->input);
->                         break;
->                 }
-> 
->                 input_report_abs(info->input, ABS_X, x & ADC_DATX_MASK);
->                 input_report_abs(info->input, ABS_Y, y & ADC_DATY_MASK);
->                 input_report_key(info->input, BTN_TOUCH, 1);
->                 input_sync(info->input);
-> 
->                 msleep(1);
->         };
-> 
->         writel(0, ADC_V1_CLRINTPNDNUP(info->regs));
-> 
->         return IRQ_HANDLED;
-> }
-> 
-> I could do enable_irq()/disable_irq(), but that leaves a small
-> race at startup where we request the irq line and then immediately
-> disable it again.
+On Mon, Jul 21, 2014 at 05:20:11PM +0200, Heiko St=FCbner wrote:
+> From: Heiko Stuebner <heiko.stuebner@bq.com>
+>=20
+> It's possible that the controller has an individually switchable powe=
+r supply.
+> Therefore add support to control a supplying regulator.
+>=20
+> As this is not always the case, the regulator is requested as optiona=
+l.
+>=20
+> Signed-off-by: Heiko Stuebner <heiko.stuebner@bq.com>
 
-I think the above (or a separate flag in driver structure) coupled with
-enable/disable IRQ is fine - input core can deal with calls to input_report_*
-on devices that have been properly allocated but have not been registered yet.
+Applied (with minimal edits to avoid repeated IS_ERR/PTR_ERR), thank
+you.
 
-drivers/input/keyboard/samsung-keypad.c does similar handling.
+> ---
+>  .../bindings/input/touchscreen/zforce_ts.txt       |  4 +++
+>  drivers/input/touchscreen/zforce_ts.c              | 30 ++++++++++++=
+++++++++++
+>  2 files changed, 34 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/zfor=
+ce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_=
+ts.txt
+> index 2faf1f1..80c37df 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.t=
+xt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.t=
+xt
+> @@ -9,6 +9,9 @@ Required properties:
+>  - x-size: horizontal resolution of touchscreen
+>  - y-size: vertical resolution of touchscreen
+> =20
+> +Optional properties:
+> +- vdd-supply: Regulator controlling the controller supply
+> +
+>  Example:
+> =20
+>  	i2c@00000000 {
+> @@ -18,6 +21,7 @@ Example:
+>  			compatible =3D "neonode,zforce";
+>  			reg =3D <0x50>;
+>  			interrupts =3D <2 0>;
+> +			vdd-supply =3D <&reg_zforce_vdd>;
+> =20
+>  			gpios =3D <&gpio5 6 0>, /* INT */
+>  				<&gpio5 9 0>; /* RST */
+> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/to=
+uchscreen/zforce_ts.c
+> index 01d30ce..39ca962 100644
+> --- a/drivers/input/touchscreen/zforce_ts.c
+> +++ b/drivers/input/touchscreen/zforce_ts.c
+> @@ -29,6 +29,8 @@
+>  #include <linux/sysfs.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/platform_data/zforce_ts.h>
+> +#include <linux/regulator/consumer.h>
+> +#include <linux/delay.h>
+>  #include <linux/of.h>
+>  #include <linux/of_gpio.h>
+> =20
+> @@ -117,6 +119,8 @@ struct zforce_ts {
+>  	const struct zforce_ts_platdata *pdata;
+>  	char			phys[32];
+> =20
+> +	struct regulator	*reg_vdd;
+> +
+>  	bool			suspending;
+>  	bool			suspended;
+>  	bool			boot_complete;
+> @@ -690,6 +694,11 @@ static void zforce_reset(void *data)
+>  	struct zforce_ts *ts =3D data;
+> =20
+>  	gpio_set_value(ts->pdata->gpio_rst, 0);
+> +
+> +	udelay(10);
+> +
+> +	if (!IS_ERR(ts->reg_vdd))
+> +		regulator_disable(ts->reg_vdd);
+>  }
+> =20
+>  static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev=
+)
+> @@ -765,10 +774,31 @@ static int zforce_probe(struct i2c_client *clie=
+nt,
+>  		return ret;
+>  	}
+> =20
+> +	ts->reg_vdd =3D devm_regulator_get_optional(&client->dev, "vdd");
+> +	if (IS_ERR(ts->reg_vdd) && PTR_ERR(ts->reg_vdd) =3D=3D -EPROBE_DEFE=
+R)
+> +		return PTR_ERR(ts->reg_vdd);
+> +
+> +	if (!IS_ERR(ts->reg_vdd)) {
+> +		ret =3D regulator_enable(ts->reg_vdd);
+> +		if (ret)
+> +			return ret;
+> +
+> +		/*
+> +		 * according to datasheet add 100us grace time after regular
+> +		 * regulator enable delay.
+> +		 */
+> +		udelay(100);
+> +	}
+> +
+>  	ret =3D devm_add_action(&client->dev, zforce_reset, ts);
+>  	if (ret) {
+>  		dev_err(&client->dev, "failed to register reset action, %d\n",
+>  			ret);
+> +
+> +		/* hereafter the regulator will be disabled by the action */
+> +		if (!IS_ERR(ts->reg_vdd))
+> +			regulator_disable(ts->reg_vdd);
+> +
+>  		return ret;
+>  	}
+> =20
+> --=20
+> 1.9.0
+>=20
 
-Thanks.
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

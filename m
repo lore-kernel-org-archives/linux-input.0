@@ -1,245 +1,110 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/2] iio: exynos-adc: add experimental touchscreen support
-Date: Mon, 21 Jul 2014 12:26:24 +0200
-Message-ID: <6295669.xsr4x9Lmj1@wuerfel>
-References: <1405663186-26464-1-git-send-email-cw00.choi@samsung.com> <20140720202842.GB18347@core.coreip.homeip.net> <5158672.dMAnnUQc7Z@wuerfel>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: Re: [PATCH v4 1/4] Rename hid-lenovo-tpkbd to hid-lenovo
+Date: Mon, 21 Jul 2014 15:55:01 +0200
+Message-ID: <20140721155501.5c223e1e00518c7bb94d0835@ao2.it>
+References: <1405236262-8070-1-git-send-email-jm@lentin.co.uk>
+	<1405236262-8070-2-git-send-email-jm@lentin.co.uk>
+	<20140714114227.161b4bf0767e1bbf3268852c@ao2.it>
+	<alpine.DEB.2.02.1407181016170.17078@marmot.wormnet.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <5158672.dMAnnUQc7Z@wuerfel>
-Sender: linux-doc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, linux-arm-kernel@lists.infradead.org, Chanwoo Choi <cw00.choi@samsung.com>, ch.naveen@samsung.com, mark.rutland@arm.com, devicetree@vger.kernel.org, kgene.kim@samsung.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-iio@vger.kernel.org, t.figa@samsung.com, rdunlap@infradead.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, robh+dt@kernel.org, galak@codeaurora.org, heiko.stuebner@bq.com, Ben Dooks <ben-linux@fluff.org>, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp206.alice.it ([82.57.200.102]:51277 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932099AbaGUNzV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Jul 2014 09:55:21 -0400
+In-Reply-To: <alpine.DEB.2.02.1407181016170.17078@marmot.wormnet.eu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jamie Lentin <jm@lentin.co.uk>
+Cc: Jiri Kosina <jkosina@suse.cz>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Monday 21 July 2014 12:23:58 Arnd Bergmann wrote:
+On Fri, 18 Jul 2014 10:35:35 +0100 (BST)
+Jamie Lentin <jm@lentin.co.uk> wrote:
+
+> On Mon, 14 Jul 2014, Antonio Ospite wrote:
 > 
-> Thanks a lot for the review! I'll send out the new version after some build testing.
+> > On Sun, 13 Jul 2014 08:24:19 +0100
+> > Jamie Lentin <jm@lentin.co.uk> wrote:
+> >
+> >> Rename module and all functions within so we can add support for other
+> >> keyboards in the same file. Rename the _tp postfix to _tpkbd, to
+> >> signify functions relevant to the TP USB keyboard.
+> >>
+> >> Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+> >
+> > Reviewed-by: Antonio Ospite <ao2@ao2.it>
+> >
+> > Patch looks good to me, easier to validate now :)
+> >
+> > A few ideas below for some possible _future_ cleanups, but no reason to
+> > hold this one any longer IMHO.
+> >
+> > Ciao,
+> >   Antonio
+> >
+> >> ---
+> >>  ...er-hid-lenovo-tpkbd => sysfs-driver-hid-lenovo} |   0
+> >>  drivers/hid/Kconfig                                |  14 +-
+> >>  drivers/hid/Makefile                               |   2 +-
+> >>  drivers/hid/hid-core.c                             |   2 +-
+> >>  drivers/hid/{hid-lenovo-tpkbd.c => hid-lenovo.c}   | 185 +++++++++++----------
+> >>  5 files changed, 102 insertions(+), 101 deletions(-)
+> >>  rename Documentation/ABI/testing/{sysfs-driver-hid-lenovo-tpkbd => sysfs-driver-hid-lenovo} (100%)
+> >>  rename drivers/hid/{hid-lenovo-tpkbd.c => hid-lenovo.c} (64%)
+> >>
 
-Here are the changes I did to the adc driver based on the review comments.
-I'll start a new thread for the updated version that includes the changes.
+[...]
+> >> -static int tpkbd_features_set(struct hid_device *hdev)
+> >> +static int lenovo_features_set_tpkbd(struct hid_device *hdev)
+> >>  {
+> >>  	struct hid_report *report;
+> >> -	struct tpkbd_data_pointer *data_pointer = hid_get_drvdata(hdev);
+> >> +	struct lenovo_drvdata_tpkbd *data_pointer = hid_get_drvdata(hdev);
+> >
+> >
+> > I think the word "pointer" here is misleading, sometimes in other parts
+> > of the driver it is used as a synonym of trackpoint, but
+> > lenovo_drvdata_tpkbd also contains data about leds, so here it looks
+> > like it refers to C pointers. I'd call the variable tpkbd_data or
+> > tpkbd_drvdata, throughout the driver. What do you think?
+> 
+> Yes, the rationale behind the name really isn't obvious but all meanings 
+> are sorta correct, so it's not that bad :P
+> 
+> I like tpkbd_drvdata better though, and can correct it in the compact 
+> keyboard code too. I wanted to make the variable names match, but didn't 
+> get around to it, so will do it next time around.
+>
 
-diff --git a/drivers/iio/adc/exynos_adc.c b/drivers/iio/adc/exynos_adc.c
-index 3d2caea05977..823d7ebc7f52 100644
---- a/drivers/iio/adc/exynos_adc.c
-+++ b/drivers/iio/adc/exynos_adc.c
-@@ -67,6 +67,9 @@
- 
- #define ADC_S3C2410_CON_SELMUX(x) (((x)&0x7)<<3)
- 
-+/* touch screen always uses channel 0 */
-+#define ADC_S3C2410_MUX_TS	0
-+
- /* ADCTSC Register Bits */
- #define ADC_S3C2443_TSC_UD_SEN		(1u << 8)
- #define ADC_S3C2410_TSC_YM_SEN		(1u << 7)
-@@ -106,6 +109,7 @@
- #define ADC_CON_EN_START	(1u << 0)
- #define ADC_DATX_PRESSED	(1u << 15)
- #define ADC_DATX_MASK		0xFFF
-+#define ADC_DATY_MASK		0xFFF
- 
- #define EXYNOS_ADC_TIMEOUT	(msecs_to_jiffies(100))
- 
-@@ -123,10 +127,12 @@ struct exynos_adc {
- 
- 	struct completion	completion;
- 
--	bool			read_ts;
- 	u32			value;
--	u32			value2;
- 	unsigned int            version;
-+
-+	bool			read_ts;
-+	u32			ts_x;
-+	u32			ts_y;
- };
- 
- struct exynos_adc_data {
-@@ -396,21 +402,14 @@ static int exynos_read_raw(struct iio_dev *indio_dev,
- 	return ret;
- }
- 
--static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev,
--				struct iio_chan_spec const *chan,
--				int *val,
--				int *val2,
--				long mask)
-+static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x, int *y)
- {
- 	struct exynos_adc *info = iio_priv(indio_dev);
- 	unsigned long timeout;
- 	int ret;
- 
--	if (mask != IIO_CHAN_INFO_RAW)
--		return -EINVAL;
--
- 	mutex_lock(&indio_dev->mlock);
--	info->read_ts = 1;
-+	info->read_ts = true;
- 
- 	reinit_completion(&info->completion);
- 
-@@ -418,7 +417,7 @@ static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev,
- 	       ADC_V1_TSC(info->regs));
- 
- 	/* Select the ts channel to be used and Trigger conversion */
--	info->data->start_conv(info, 0);
-+	info->data->start_conv(info, ADC_S3C2410_MUX_TS);
- 
- 	timeout = wait_for_completion_timeout
- 			(&info->completion, EXYNOS_ADC_TIMEOUT);
-@@ -428,12 +427,12 @@ static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev,
- 			info->data->init_hw(info);
- 		ret = -ETIMEDOUT;
- 	} else {
--		*val = info->value;
--		*val2 = info->value2;
--		ret = IIO_VAL_INT;
-+		*x = info->ts_x;
-+		*y = info->ts_y;
-+		ret = 0;
- 	}
- 
--	info->read_ts = 0;
-+	info->read_ts = false;
- 	mutex_unlock(&indio_dev->mlock);
- 
- 	return ret;
-@@ -445,8 +444,8 @@ static irqreturn_t exynos_adc_isr(int irq, void *dev_id)
- 
- 	/* Read value */
- 	if (info->read_ts) {
--		info->value = readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
--		info->value2 = readl(ADC_V1_DATY(info->regs)) & ADC_DATX_MASK;
-+		info->ts_x = readl(ADC_V1_DATX(info->regs));
-+		info->ts_y = readl(ADC_V1_DATY(info->regs));
- 		writel(ADC_TSC_WAIT4INT | ADC_S3C2443_TSC_UD_SEN, ADC_V1_TSC(info->regs));
- 	} else {
- 		info->value = readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
-@@ -477,7 +476,7 @@ static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
- 	int ret;
- 
- 	do {
--		ret =exynos_read_s3c64xx_ts(dev, NULL, &x, &y, IIO_CHAN_INFO_RAW);
-+		ret = exynos_read_s3c64xx_ts(dev, &x, &y);
- 		if (ret == -ETIMEDOUT)
- 			break;
- 
-@@ -486,11 +485,15 @@ static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
- 			break;
- 
- 		input_report_abs(info->input, ABS_X, x & ADC_DATX_MASK);
--		input_report_abs(info->input, ABS_Y, y & ADC_DATX_MASK);
-+		input_report_abs(info->input, ABS_Y, y & ADC_DATY_MASK);
- 		input_report_key(info->input, BTN_TOUCH, 1);
- 		input_sync(info->input);
- 
- 		msleep(1);
-+
-+		/* device may have been closed while touched */
-+		if (!info->input->users)
-+			return IRQ_HANDLED;
- 	} while (1);
- 
- 	input_report_key(info->input, BTN_TOUCH, 0);
-@@ -552,10 +555,28 @@ static int exynos_adc_remove_devices(struct device *dev, void *c)
- 	return 0;
- }
- 
-+static int exynos_adc_ts_open(struct input_dev *dev)
-+{
-+	struct exynos_adc *info = input_get_drvdata(dev);
-+
-+	return request_threaded_irq(info->tsirq, NULL, exynos_ts_isr,
-+				    0, "touchscreen", info);
-+}
-+
-+static void exynos_adc_ts_close(struct input_dev *dev)
-+{
-+	struct exynos_adc *info = input_get_drvdata(dev);
-+
-+	free_irq(info->tsirq, info);
-+}
-+
- static int exynos_adc_ts_init(struct exynos_adc *info)
- {
- 	int ret;
- 
-+	if (info->tsirq <= 0)
-+		return -ENODEV;
-+
- 	info->input = input_allocate_device();
- 	if (!info->input)
- 		return -ENOMEM;
-@@ -566,33 +587,17 @@ static int exynos_adc_ts_init(struct exynos_adc *info)
- 	input_set_abs_params(info->input, ABS_X, 0, 0x3FF, 0, 0);
- 	input_set_abs_params(info->input, ABS_Y, 0, 0x3FF, 0, 0);
- 
--	/* data from s3c2410_ts driver */
- 	info->input->name = "S3C24xx TouchScreen";
- 	info->input->id.bustype = BUS_HOST;
--	info->input->id.vendor = 0xDEAD;
--	info->input->id.product = 0xBEEF;
--	info->input->id.version = 0x0200;
-+	info->input->open = exynos_adc_ts_open;
-+	info->input->close = exynos_adc_ts_close;
-+	
-+	input_set_drvdata(info->input, info);
- 
- 	ret = input_register_device(info->input);
--	if (ret) {
-+	if (ret)
- 		input_free_device(info->input);
--		goto err;
--	}
--
--	if (info->tsirq > 0)
--		ret = request_threaded_irq(info->irq, NULL, exynos_ts_isr,
--					0, "touchscreen", info);
--	if (ret < 0) {
--		dev_err(info->dev, "failed requesting touchsccreen irq, irq = %d\n",
--							info->irq);
--		goto err_input;
--	}
--
--	return 0;
- 
--err_input:
--	input_unregister_device(info->input);
--err:
- 	return ret;
- }
- 
-@@ -602,7 +607,7 @@ static int exynos_adc_probe(struct platform_device *pdev)
- 	struct device_node *np = pdev->dev.of_node;
- 	struct iio_dev *indio_dev = NULL;
- 	struct resource	*mem;
--	bool has_ts;
-+	bool has_ts = false;
- 	int ret = -ENODEV;
- 	int irq;
- 
-@@ -711,7 +716,10 @@ static int exynos_adc_probe(struct platform_device *pdev)
- 	if (info->data->init_hw)
- 		info->data->init_hw(info);
- 
--	has_ts = of_property_read_bool(pdev->dev.of_node, "has-touchscreen");
-+	/* leave out any TS related code if unreachable */
-+	if (IS_BUILTIN(CONFIG_INPUT) ||
-+	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE)))
-+		has_ts = of_property_read_bool(pdev->dev.of_node, "has-touchscreen");
- 	if (has_ts)
- 		ret = exynos_adc_ts_init(info);
- 	if (ret)
-@@ -752,7 +760,7 @@ static int exynos_adc_remove(struct platform_device *pdev)
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct exynos_adc *info = iio_priv(indio_dev);
- 
--	input_free_device(info->input);	
-+	input_unregister_device(info->input);	
- 	device_for_each_child(&indio_dev->dev, NULL,
- 				exynos_adc_remove_devices);
- 	iio_device_unregister(indio_dev);
+IMHO you can very well use data_pointer for now so the names are
+consistent with the current ones; a cleanup can be done later to make
+the naming more straightforward too.
 
+> > And the driver could standardize on the word "trackpoint" where
+> > appropriate in order to eliminate any ambiguity.
+> 
+> The key other place I can think of that this happens is for the USB 
+> compact keyboard, for it's HID_TYPE_USBMOUSE half (versus the keyboard 
+> half). Saying trackpoint there is a mis-truth, since it's also where all 
+> the extra keys hide. But I'll have a look through anyway.
+> 
+
+I meant: where "pointer" means trackpoint let's just use "trackpoint",
+where pointer means "not keyboard" (like in data_pointer apparently)
+something else can be used if "trackpoint" is too specific.
+
+But again, this is cleanup: it'd be nice to have it eventually but not
+worth blocking this patchset.
+
+Thanks,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

@@ -1,94 +1,99 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH RESEND 4/5] Input: uinput - add new UINPUT_DEV_SETUP ioctl
-Date: Mon, 21 Jul 2014 23:08:59 +0200
-Message-ID: <CANq1E4QiB8trV4eJ0drPsHhCV=ijU+3FGRu0RYz=WJ0UfOReUQ@mail.gmail.com>
-References: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
-	<1405775445-4454-5-git-send-email-dh.herrmann@gmail.com>
-	<20140721010110.GD22552@core.coreip.homeip.net>
-	<CANq1E4S0=h=PccuHVAFPMgdMvGWyBLitpaeJAkZ--PmuTT0xxg@mail.gmail.com>
-	<20140721201155.GA10889@core.coreip.homeip.net>
+From: hadess@hadess.net
+Subject: Re: Power-managing devices that are not of interest at some point
+ in time
+Date: Tue, 22 Jul 2014 01:23:14 +0200
+Message-ID: <00d187033b8082c2400a38175f7a4dd8@hadess.net>
+References: <Pine.LNX.4.44L0.1407181557020.979-100000@iolanthe.rowland.org>
+ <2443949.K0iePsg3Aa@vostro.rjw.lan> <1693424.kPNUQHOHlX@vostro.rjw.lan>
+ <1451627.FURGiR949u@dtor-glaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:59955 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753090AbaGUVJB (ORCPT
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:46409 "EHLO
+	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750795AbaGUXX2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2014 17:09:01 -0400
-Received: by mail-ie0-f172.google.com with SMTP id lx4so7329826iec.31
-        for <linux-input@vger.kernel.org>; Mon, 21 Jul 2014 14:08:59 -0700 (PDT)
-In-Reply-To: <20140721201155.GA10889@core.coreip.homeip.net>
+	Mon, 21 Jul 2014 19:23:28 -0400
+In-Reply-To: <1451627.FURGiR949u@dtor-glaptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Dmitry Torokhov <dtor@google.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi
+On 2014-07-19 01:16, Dmitry Torokhov wrote:
+<snip>
+> I'd say no.
+> 
+> Anyway, even though it is very tempting to declare inhibit a "deeper" 
+> state of
+> runtime suspend maybe you are right and inhibit should really be 
+> separate from
+> PM and drivers would have to sort out all the possible state 
+> permutations.
+> 
+> Considering input devices:
+> 
+> input_open(): check if device is inhibited, if so do nothing. Otherwise 
+> try
+> waking up itself and parent (via pm_runtime_get_sync() on itself), this 
+> will
+> power up the device. Do additional configuration if needed.
+> 
+> input_close(): check if device is inhibited, if not do pm_runtime_put 
+> (_sync?
+> to make sure we power off properly and not leave device up and running? 
+> or
+> should we power down manually not waiting for runtime PM)?
+> 
+> inhibit(): check if device is opened, if opened do 
+> pm_runtime_put_sync().
+> 
+> uninhibit(): if device is opened do pm_runtime_get_sync(), let runtime 
+> PM
+> bring up the device. Do additional config if needed -> very similar to
+> input_open(), different condition.
+> 
+> runtime_suspend(): power down the device. If not inhibited enable as 
+> wakeup
+> source.
+> 
+> runtime_resume(): power up the device if device is opened and not 
+> inhibited.
+> 
+> system_suspend(): check if device is opened, not inhibited and not in
+> runtimesuspend  already; power down.
+> 
+> system_resume(): power up the device if it is opened and not inhibited. 
+> I
+> guess it's OK to wake up device that shoudl be runtime-PM-idle since it 
+> will
+> go to back sleep shortly.
+> 
+> Ugh.. This is complicated...
 
-On Mon, Jul 21, 2014 at 10:11 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Jul 21, 2014 at 08:22:09AM +0200, David Herrmann wrote:
->> I know, but there is no "old absinfo". Once we extend "struct absinfo"
->> I expect this code to change to:
->>
->> {
->>         /* initially supported absinfo had size 24 */
->>         if (setup.absinfo_size < 24)
->>                return -EINVAL;
->>
->>         /* ...pseudo code... */
->>         memset(&absinfo, 0, sizeof(absinfo));
->>         memcpy(&absinfo, sth->absinfo, MIN(setup.absinfo_size,
->> sizeof(absinfo)));
->> }
->>
->> This allows you to use this ioctl with old absinfo objects. I can
->> change the current code to this already, if you want? I tried to avoid
->> it, because a memset() is not neccessarily an appropriate way to
->> initialize unset fields.
->> I cal also add support for "absinfo" without the "resolution" field,
->> which I think is the only field that wasn't available in the initial
->> structure.
->
-> I think for now I would do:
->
->         /*
->          * Whoever is changing struct input_absinfo will have to take
->          * care of backwards compatibility.
->          */
->         BUILD_BUG_ON(sizeof(struct input_absinfo)) != 24);
->         if (setup.absinfo_size != sizeof(struct input_absinfo))
->                 return -EINVAL;
->
->         ...
->
-> and later when we detect setup.absinfo_size < sizeof(struct
-> input_absinfo) we'll have to take care about backwards compatibility. We
-> do not need to take care of forward compatibility as we do not know if
-> userspace will be satisfied with partial results or not and newer
-> userspace can deal with proper handling of older kernels.
+Seriously complicated. The compositor and/or X.org can handle most of 
+that for
+input devices already. For the camera, you want the application to know 
+that
+the device is present, but not usable, instead of making it vanish or 
+rendering
+it unusable. And if you wanted to implement this in the kernel, even 
+with the aid
+of a user-space daemon, you're still missing the most important part, 
+the device
+tagging.
 
-I'm not sure I agree. I'm a fan of forward-compatibility, but that's
-probably a matter of taste. I will change my code accordingly.
+Once you've tagged the devices which would need to be left alone when 
+the lid is
+closed, or the laptop is in tablet mode, see if the problem can be 
+solved within
+user-space alone. I'm fairly certain it wouldn't take too long to fix 
+Xorg
+or a state-of-the-art compositor to behave properly.
 
-> By the way, I realize I do not like the new IOCTL as it is - it's too
-> big and would be hard to extend if we want to change items other than
-> absinfo. Why don't we create UI_DEV_SETUP that only sets name, id, and
-> number of effects, and add UI_SET_ABSAXIS that would take:
->
->         struct uinput_abs_setup {
->                 __u16   code;   /* axis code */
->                 /* __u16 filler; */
->                 struct input_absinfo absinfo;
->         }
+All I see right now is making it harder to write devices drivers with no 
+real benefits.
 
-Hm, that is actually a good idea. I will give it a try.
-
-> By the way, while you are hacking on uinput can we also fix formatting
-> style of switch/case and switch printk() to pr_debug() and friends? I'd
-> do it myself but do not want to step on your toes.
-
-Yepp, I will include those in the next revision.
-
-Thanks
-David
+Cheers

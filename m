@@ -1,116 +1,90 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH RESEND 4/5] Input: uinput - add new UINPUT_DEV_SETUP ioctl
-Date: Mon, 21 Jul 2014 08:22:09 +0200
-Message-ID: <CANq1E4S0=h=PccuHVAFPMgdMvGWyBLitpaeJAkZ--PmuTT0xxg@mail.gmail.com>
-References: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
-	<1405775445-4454-5-git-send-email-dh.herrmann@gmail.com>
-	<20140721010110.GD22552@core.coreip.homeip.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/2] iio: exynos-adc: add experimental touchscreen support
+Date: Mon, 21 Jul 2014 12:23:58 +0200
+Message-ID: <5158672.dMAnnUQc7Z@wuerfel>
+References: <1405663186-26464-1-git-send-email-cw00.choi@samsung.com> <53CBC969.4090704@kernel.org> <20140720202842.GB18347@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:65119 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752718AbaGUGWK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2014 02:22:10 -0400
-Received: by mail-ig0-f181.google.com with SMTP id h3so2495995igd.8
-        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2014 23:22:09 -0700 (PDT)
-In-Reply-To: <20140721010110.GD22552@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140720202842.GB18347@core.coreip.homeip.net>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Jonathan Cameron <jic23@kernel.org>, linux-arm-kernel@lists.infradead.org, Chanwoo Choi <cw00.choi@samsung.com>, ch.naveen@samsung.com, mark.rutland@arm.com, devicetree@vger.kernel.org, kgene.kim@samsung.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-iio@vger.kernel.org, t.figa@samsung.com, rdunlap@infradead.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, robh+dt@kernel.org, galak@codeaurora.org, heiko.stuebner@bq.com, Ben Dooks <ben-linux@fluff.org>, linux-input <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-Hi
+On Sunday 20 July 2014 13:28:42 Dmitry Torokhov wrote:
+> On Sun, Jul 20, 2014 at 02:51:37PM +0100, Jonathan Cameron wrote:
+> > >>+
+> > >>+    do {
+> > >>+        ret =exynos_read_s3c64xx_ts(dev, NULL, &x, &y, IIO_CHAN_INFO_RAW);
+> > >= exynos
+> > >>+        if (ret == -ETIMEDOUT)
+> > >>+            break;
+> > >>+
+> > >>+        pressed = x & y & ADC_DATX_PRESSED;
+> > >>+        if (!pressed)
+> > >>+            break;
+> > >>+
+> > >>+        input_report_abs(info->input, ABS_X, x & ADC_DATX_MASK);
+> > >>+        input_report_abs(info->input, ABS_Y, y & ADC_DATX_MASK);
+> > >>+        input_report_key(info->input, BTN_TOUCH, 1);
+> > >>+        input_sync(info->input);
+> > >>+
+> > >>+        msleep(1);
+> > >>+    } while (1);
+> 
+> It would be nice to actually close the device even if someone is
+> touching screen. Please implement open/close methods and have them set a
+> flag that you would check here.
 
-On Mon, Jul 21, 2014 at 3:01 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi David,
->
-> On Sat, Jul 19, 2014 at 03:10:44PM +0200, David Herrmann wrote:
->> This adds a new ioctl UINPUT_DEV_SETUP that replaces the old device setup
->> method (by write()'ing "struct uinput_user_dev" to the node). The old
->> method is not easily extendable and requires huge payloads. Furthermore,
->> overloading write() without properly versioned objects is error-prone.
->>
->> Therefore, we introduce a new ioctl to replace the old method. The ioctl
->> supports all features of the old method, plus a "resolution" field for
->> absinfo. Furthermore, it's properly forward-compatible to new ABS codes
->> and a growing "struct input_absinfo" structure.
->>
->> The ioctl also allows user-space to skip unknown axes if not set. The
->> payload-size can now be specified by the caller. There is no need to copy
->> the whole array temporarily into the kernel, but instead we can iterate
->> over it and copy each value manually.
->>
->> Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
->> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
->> ---
->>  drivers/input/misc/uinput.c | 69 +++++++++++++++++++++++++++++++++++++++++++--
->>  include/uapi/linux/uinput.h | 55 ++++++++++++++++++++++++++++++++++--
->>  2 files changed, 118 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
->> index a2a3895..0f45595 100644
->> --- a/drivers/input/misc/uinput.c
->> +++ b/drivers/input/misc/uinput.c
->> @@ -371,8 +371,67 @@ static int uinput_allocate_device(struct uinput_device *udev)
->>       return 0;
->>  }
->>
->> -static int uinput_setup_device(struct uinput_device *udev,
->> -                            const char __user *buffer, size_t count)
->> +static int uinput_dev_setup(struct uinput_device *udev,
->> +                         struct uinput_setup __user *arg)
->> +{
->> +     struct uinput_setup setup;
->> +     struct input_dev *dev;
->> +     int i, retval;
->> +
->> +     if (udev->state == UIST_CREATED)
->> +             return -EINVAL;
->> +     if (copy_from_user(&setup, arg, sizeof(setup)))
->> +             return -EFAULT;
->> +     if (!setup.name[0])
->> +             return -EINVAL;
->> +     /* So far we only support the original "struct input_absinfo", but be
->> +      * forward compatible and allow larger payloads. */
->> +     if (setup.absinfo_size < sizeof(struct input_absinfo))
->> +             return -EINVAL;
->
-> No, we can not do this, as it breaks backward compatibility (the most
-> important one!). If we were to increase size of in-kernel input_absinfo
-> in let's say 3.20, userspace compiled against older kernel headers
-> (but using the new ioctl available let's say since 3.16 - don't hold me
-> to the numbers ;) ), would break since it wold start tripping on thi
-> check.
->
-> The proper way to handle it is to convert "old" absinfo into new one,
-> applying as much as we can.
+Ok. I think it's even better to move the request_irq() into the open function,
+which will avoid the flag and defer the error handling into the actual opening,
+as well as syncing the running irq with the close function.
 
-I know, but there is no "old absinfo". Once we extend "struct absinfo"
-I expect this code to change to:
+> > >>+    /* data from s3c2410_ts driver */
+> > >>+    info->input->name = "S3C24xx TouchScreen";
+> > >>+    info->input->id.bustype = BUS_HOST;
+> > >>+    info->input->id.vendor = 0xDEAD;
+> > >>+    info->input->id.product = 0xBEEF;
+> 
+> You do not need to fill these entries with fake data.
 
-{
-        /* initially supported absinfo had size 24 */
-        if (setup.absinfo_size < 24)
-               return -EINVAL;
+Ok, I wondered about this, but didn't want to change too much from
+the old driver (I changed the version number).
 
-        /* ...pseudo code... */
-        memset(&absinfo, 0, sizeof(absinfo));
-        memcpy(&absinfo, sth->absinfo, MIN(setup.absinfo_size,
-sizeof(absinfo)));
-}
+> > >>+    info->input->id.version = 0x0200;
 
-This allows you to use this ioctl with old absinfo objects. I can
-change the current code to this already, if you want? I tried to avoid
-it, because a memset() is not neccessarily an appropriate way to
-initialize unset fields.
-I cal also add support for "absinfo" without the "resolution" field,
-which I think is the only field that wasn't available in the initial
-structure.
+Do I need this?
 
-Let me know which way you prefer.
+> > >>@@ -576,6 +728,11 @@ static int exynos_adc_probe(struct platform_device *pdev)
+> > >>  err_of_populate:
+> > >>      device_for_each_child(&indio_dev->dev, NULL,
+> > >>                  exynos_adc_remove_devices);
+> > >>+    if (has_ts) {
+> > >>+        input_unregister_device(info->input);
+> > >>+        free_irq(info->tsirq, info);
+> 
+> Are we sure that device is quiesced here and interrupt won't arrive
+> between input_unregister_device() and free_irq()? I guess if you
+> properly implement open/close it won't matter.
+ 
+Should be fixed now.
 
-Thanks
-David
+> > >>+err_iio:
+> > >>      iio_device_unregister(indio_dev);
+> > >>  err_irq:
+> > >>      free_irq(info->irq, info);
+> > >>@@ -595,9 +752,12 @@ static int exynos_adc_remove(struct platform_device *pdev)
+> > >>      struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+> > >>      struct exynos_adc *info = iio_priv(indio_dev);
+> > >>
+> > >>+    input_free_device(info->input);
+> 
+> Should be unregister, not free.
+
+Ok.
+
+Thanks a lot for the review! I'll send out the new version after some build testing.
+
+	Arnd

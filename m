@@ -1,49 +1,41 @@
-From: Markus Niebel <list-09_linux_input@tqsc.de>
-Subject: Re: [RFC] edt-ft5x06 - cannot see IRQ Qfrom device after DT probe
-Date: Tue, 22 Jul 2014 12:40:04 +0200
-Message-ID: <53CE3F84.5030301@tqsc.de>
-References: <53C5685D.1090008@tqsc.de> <53C64D86.1010808@kernelconcepts.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] drivers: Let several drivers depends on HAS_IOMEM for 'devm_ioremap_resource'
+Date: Tue, 22 Jul 2014 12:32:06 +0200
+Message-ID: <179292068.QXZf3Zcqzf@wuerfel>
+References: <201407130545.23004.marex@denx.de> <53CB801D.1030603@gmail.com> <53CB8FC4.4050009@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay01.ispgateway.de ([80.67.31.24]:52518 "EHLO
-	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751272AbaGVK2H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jul 2014 06:28:07 -0400
-In-Reply-To: <53C64D86.1010808@kernelconcepts.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <53CB8FC4.4050009@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: Lennox Wu <lennox.wu@gmail.com>, Richard Weinberger <richard@nod.at>, Lars-Peter Clausen <lars@metafoo.de>, Guenter Roeck <linux@roeck-us.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-iio@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Tom Gundersen <teg@jklm.no>, Thierry Reding <thierry.reding@gmail.com>, Marek Vasut <marex@denx.de>, Liqin Chen <liqin.linux@gmail.com>, msalter@redhat.com, linux-pwm@vger.kernel.org, devel@driverdev.osuosl.org, linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, knaack.h@gmx.de, Martin Schwidefsky <schwidefsky@de.ibm.com>, jic23@kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, cmetcalf@tilera.com, heiko.carstens@de.ibm.com
 List-Id: linux-input@vger.kernel.org
-To: Simon Budig <simon.budig@kernelconcepts.de>, linux-input@vger.kernel.org
 
-Am 16.07.2014 12:01, wrote Simon Budig:
-> On 15/07/14 19:43, Markus Niebel wrote:
->> - when adding an int-gpios node to devicetree and parsing this gpio the gpio will be configured as input
->> - IRQ can be seen by CPU
->>
->> Question:
->>
->> - shall we add an int-gpio property to enable gpio pin config as input or
+On Sunday 20 July 2014 17:45:40 Chen Gang wrote:
+> > 
+> > Next, I shall:
+> > 
+> >  - Remove HAS_IOMEM and NO_IOMEM from kernel, firstly.
+> > 
+> >  - Try to make dummy IOMEM functions for score architecture.
+> > 
+> >  - Continue discussing with UML for it.
+> >
+>  
+> Oh, sorry, I forgot, after remove IOMEM from kernel, also s390 and tile
+> need implement dummy IOMEM if !PCI.
 > 
-> Shouldn't it be possible to configure the pin as input directly from the
-> device tree, indepently from the touch driver section?
+> If possible, I shall try to implement the dummy IOMEM in 'asm-generic',
+> and let uml, score, s390 and tile use them when they need.
 
-I don't see, how to do that, maybe I did miss the right point.
+Sorry for going round in circles, but looking back at the original patches,
+adding the extra 'depends on HAS_IOMEM' does seem much better than the
+other suggestions that came afterwards.
 
-I digged through the gpio code. There are drivers (gpio-omap) that make sure, that gpio is configured as
-input and others that don't care (gpio-mxc / gpio-mxs).
+In particular, removing HAS_IOMEM and NO_IOMEM sounds like an awful idea
+to me. I'd rather add a HAS_IOPORT in addition to also catch architectures
+that have no support for PC-style PIO.
 
-seeing this I posted "gpio: gpio-mxc: make sure gpio is input when request IRQ" on linux-arm-kernel
-
-Global question is: how can we make sure, that the driver that request the IRQ requests also the GPIO (implicit or like in the old platfrom data days explicit)? But thats beyond input devices and my knowledge. 
-
-Regards
-
-Markus
-
-> 
-> Bye,
->         Simon
-> 
-
+	Arnd

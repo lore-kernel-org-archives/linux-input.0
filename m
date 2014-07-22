@@ -1,90 +1,103 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: [RFC] edt-ft5x06 - cannot see IRQ Qfrom device after DT probe
-Date: Tue, 22 Jul 2014 15:47:55 +0200
-Message-ID: <53CE6B8B.20008@kernelconcepts.de>
-References: <53C5685D.1090008@tqsc.de> <53C64D86.1010808@kernelconcepts.de> <53CE3F84.5030301@tqsc.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 0/5] Input - wacom: battery enhancements and unifying
+ hid-wacom and wacom
+Date: Tue, 22 Jul 2014 09:49:23 -0400
+Message-ID: <20140722134923.GA357@mail.corp.redhat.com>
+References: <1405017900-16024-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1405804548.13990.7.camel@fedora-lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="2oc4rW12eBuEqptpfNEHedU1UTWWFwSpA"
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:41450 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750870AbaGVNsE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jul 2014 09:48:04 -0400
-In-Reply-To: <53CE3F84.5030301@tqsc.de>
+Received: from mx1.redhat.com ([209.132.183.28]:11052 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751090AbaGVNto (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jul 2014 09:49:44 -0400
+Content-Disposition: inline
+In-Reply-To: <1405804548.13990.7.camel@fedora-lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Markus Niebel <list-09_linux_input@tqsc.de>, linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---2oc4rW12eBuEqptpfNEHedU1UTWWFwSpA
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Hi Przemo,
 
-On 22/07/14 12:40, Markus Niebel wrote:
-> Am 16.07.2014 12:01, wrote Simon Budig:
->> On 15/07/14 19:43, Markus Niebel wrote:
->>> - when adding an int-gpios node to devicetree and parsing this=20
->>> gpio the gpio will be configured as input - IRQ can be seen by=20
->>> CPU
->>>=20
->>> Question:
->>>=20
->>> - shall we add an int-gpio property to enable gpio pin config as=20
->>> input or
->>=20
->> Shouldn't it be possible to configure the pin as input directly=20
->> from the device tree, indepently from the touch driver section?
->=20
-> I don't see, how to do that, maybe I did miss the right point.
+On Jul 19 2014 or thereabouts, Przemo Firszt wrote:
+> Dnia 2014-07-10, czw o godzinie 14:44 -0400, Benjamin Tissoires pisze:
+> > Hi guys,
+> > 
+> > Continuing on the Wacom cleanup, here are 5 patches.
+> > 
+> > The first two enhance the battery reporting for the Wireless receiver by
+> > adding the status of the battery (discharging, full, charging) - inspired by
+> > the code found in hid-wacom.c, and also by adding notifications to the power
+> > system so that upower knows when the battery changed.
+> > 
+> > The last three are the handling of the two Wacom Bluetooth devices in wacom.ko.
+> > Some enhancements here:
+> > - Intuos4 now supports other tools than just the plain stylus (mouse, artpen, ...)
+> > - one less driver for Wacom (~700 lines of code less in total)
+> > - unifying access to LEDs/OLEDs from Bluetooth and USB devices
+> > 
+> > However, I did not backport the speed attribute and the ac power device (which
+> > is infered by the battery status). I don't know if there are users of those two,
+> > so I let them aside for now. Przemo, any ideas if this is actually used?
+> > 
+> > This whole code is based on top of the previous HID conversion patches.
+> > I pushed a branch with all I have queued on the list here:
+> > https://github.com/bentiss/linux/commits/hid-wacom-legacy-3.16-rc4
+> > 
+> > Again, given that there has been no answer on how this can be merged upstream
+> > (Jiri? Dmitry?), I just piled those on top of the previous.
+> > I wouldn't to resplit the input and hid specific changes if this is the choice
+> > that is made.
+> > 
+> > Cheers,
+> > Benjamin
+> > 
+> > Benjamin Tissoires (5):
+> >   Input - wacom: enhance Wireless Receiver battery reporting
+> >   Input - wacom: use a specific name for the battery device
+> >   Input - wacom: handle Graphire BT tablets in wacom.ko
+> >   Input - wacom: handle Intuos 4 BT in wacom.ko
+> >   HID: remove hid-wacom Bluetooth driver
+> > 
+> >  drivers/hid/Kconfig              |   8 -
+> >  drivers/hid/Makefile             |   1 -
+> >  drivers/hid/hid-core.c           |   2 -
+> >  drivers/hid/hid-wacom.c          | 973 ---------------------------------------
+> >  drivers/input/tablet/wacom.h     |   6 +
+> >  drivers/input/tablet/wacom_sys.c | 114 ++++-
+> >  drivers/input/tablet/wacom_wac.c | 189 +++++++-
+> >  drivers/input/tablet/wacom_wac.h |   8 +
+> >  8 files changed, 303 insertions(+), 998 deletions(-)
+> >  delete mode 100644 drivers/hid/hid-wacom.c
+> > 
+> Benjamin,
+> I think we might try to fix that [1] as well when making changes to the
+> sysfs entries. Currently every tablet connected wirelessly will trigger
+> creating new sysfs entries:
+> 
+> /sys/class/power_supply/wacom_ac
+> /sys/class/power_supply/wacom_battery
+> 
+> so sysfs is not happy about attempts to create duplicates. We need to
+> distinguish between devices using consecutive numbers or something else.
+> 
+> [1] https://sourceforge.net/p/linuxwacom/bugs/248/
 
-Try looking at
+Right. In this first attempt, I tried to change "wacom_" by the actual
+name of the tablet. I would thought it was OK because no one will ever
+try to plug the same model twice. I was wrong, and a counter seem to be
+the solution for that. I'll address that in the v2.
 
-Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
+Also note that the bug is both in the current USB driver (wacom.ko) and
+the bluetooth one (hid-wacom.ko). Merging these two drivers will prevent
+us to have to do this fix twice :)
 
-There you have the "input-enable" generic property.
+Just as a head up, I will not be able to work on this patch series
+before Thursday (I mean testing with actual hardware). I'd be happy if
+we can manage to push that in 3.17, but this will mostly depend if
+Dmitry is fine with the USB-to-HID conversion of the wacom.ko driver.
 
-> Global question is: how can we make sure, that the driver that=20
-> request the IRQ requests also the GPIO (implicit or like in the old=20
-> platfrom data days explicit)? But thats beyond input devices and my=20
-> knowledge.
-
-The driver does not depend on the IRQ coming from a "real" CPU gpio. It
-*could* be an external gpio expander or whatever (whether that is a good
-idea is debatable of course). When I submitted the first version of the
-driver it had bits in it to configure the pin properly. The feedback
-basically was to remove that, because it made some assumptions that you
-can map the IRQ to the relevant GPIO, which is not always possible.
-
-I hope that helps.
-
-(But really, your bootloader really should have a *very* good reason to
-configure the touch irq pin as output - I have the impression that right
-now there are two outputs driving against each other in your setup - not
-healthy for the hardware).
-
-Bye,
-        Simon
-
---=20
-       Simon Budig                        kernel concepts GmbH
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
-
-
---2oc4rW12eBuEqptpfNEHedU1UTWWFwSpA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlPOa4sACgkQO2O/RXesiHCbUwCeOao1JtSlx3jgH0VPC/KDcZEo
-ShgAn1veVuTsz9jMSsHz1ejPOmwDyVWg
-=+0XU
------END PGP SIGNATURE-----
-
---2oc4rW12eBuEqptpfNEHedU1UTWWFwSpA--
+Cheers,
+Benjamin

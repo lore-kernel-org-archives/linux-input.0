@@ -1,355 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 Subject: Re: [PATCH v2] iio: exynos-adc: add experimental touchscreen support
-Date: Tue, 22 Jul 2014 11:09:04 -0700
-Message-ID: <20140722180904.GB5489@core.coreip.homeip.net>
-References: <5068889.1KfVx3ksNo@wuerfel>
+Date: Tue, 22 Jul 2014 20:33:44 +0200
+Message-ID: <5072247.HRN2kuegE2@wuerfel>
+References: <5068889.1KfVx3ksNo@wuerfel> <20140722180904.GB5489@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5068889.1KfVx3ksNo@wuerfel>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, kgene.kim@samsung.com, pawel.moll@arm.com, t.figa@samsung.com, linux-kernel@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Ben Dooks <ben-linux@fluff.org>, galak@codeaurora.org, ch.naveen@samsung.com, linux-input <linux-input@vger.kernel.org>, heiko.stuebner@bq.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140722180904.GB5489-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, heiko.stuebner-K3U4GQvHnyU@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 22, 2014 at 03:03:12PM +0200, Arnd Bergmann wrote:
-> This adds support for the touchscreen on Samsung s3c64xx.
-> The driver is completely untested but shows roughly how
-> it could be done, following the example of the at91 driver.
+On Tuesday 22 July 2014 11:09:04 Dmitry Torokhov wrote:
+> > @@ -565,6 +722,15 @@ static int exynos_adc_probe(struct platform_device *pdev)
+> >       if (info->data->init_hw)
+> >               info->data->init_hw(info);
+> >  
+> > +     /* leave out any TS related code if unreachable */
+> > +     if (IS_BUILTIN(CONFIG_INPUT) ||
+> > +         (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE)))
 > 
-> Open questions include:
+> This is ugly... We need IS_SUBSYSTEM_AVAILABLE() wrapper for this...
 > 
-> - compared to the old plat-samsung/adc driver, there is
->   no support for prioritizing ts over other clients, nor
->   for oversampling. From my reading of the code, the
->   priorities didn't actually have any effect at all, but
->   the oversampling might be needed. Maybe the original
->   authors have some insight.
+> Anyway,
 > 
-> - We probably need to add support for platform_data as well,
->   I've skipped this so far.
+> Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
-> This should address all previous comments, and I've also added
-> a write to ADC_V1_DLY() as the old driver does.
-> 
-> diff --git a/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt b/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
-> index cad81b666a67..ba30836c73cb 100644
-> --- a/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
-> +++ b/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
-> @@ -43,6 +43,10 @@ Required properties:
->  				       and compatible ADC block)
->  - vdd-supply		VDD input supply.
->  
-> +Optional properties:
-> +- has-touchscreen:	If present, indicates that a touchscreen is
-> +			connected an usable.
-> +
->  Note: child nodes can be added for auto probing from device tree.
->  
->  Example: adding device info in dtsi file
-> diff --git a/drivers/iio/adc/exynos_adc.c b/drivers/iio/adc/exynos_adc.c
-> index 420c5cda09c3..3b684a117b9c 100644
-> --- a/drivers/iio/adc/exynos_adc.c
-> +++ b/drivers/iio/adc/exynos_adc.c
-> @@ -34,6 +34,7 @@
->  #include <linux/regulator/consumer.h>
->  #include <linux/of_platform.h>
->  #include <linux/err.h>
-> +#include <linux/input.h>
->  
->  #include <linux/iio/iio.h>
->  #include <linux/iio/machine.h>
-> @@ -66,6 +67,9 @@
->  
->  #define ADC_S3C2410_CON_SELMUX(x) (((x)&0x7)<<3)
->  
-> +/* touch screen always uses channel 0 */
-> +#define ADC_S3C2410_MUX_TS	0
-> +
->  /* ADCTSC Register Bits */
->  #define ADC_S3C2443_TSC_UD_SEN		(1u << 8)
->  #define ADC_S3C2410_TSC_YM_SEN		(1u << 7)
-> @@ -103,24 +107,32 @@
->  
->  /* Bit definitions common for ADC_V1 and ADC_V2 */
->  #define ADC_CON_EN_START	(1u << 0)
-> +#define ADC_DATX_PRESSED	(1u << 15)
->  #define ADC_DATX_MASK		0xFFF
-> +#define ADC_DATY_MASK		0xFFF
->  
->  #define EXYNOS_ADC_TIMEOUT	(msecs_to_jiffies(100))
->  
->  struct exynos_adc {
->  	struct exynos_adc_data	*data;
->  	struct device		*dev;
-> +	struct input_dev	*input;
->  	void __iomem		*regs;
->  	void __iomem		*enable_reg;
->  	struct clk		*clk;
->  	struct clk		*sclk;
->  	unsigned int		irq;
-> +	unsigned int		tsirq;
->  	struct regulator	*vdd;
->  
->  	struct completion	completion;
->  
->  	u32			value;
->  	unsigned int            version;
-> +
-> +	bool			read_ts;
-> +	u32			ts_x;
-> +	u32			ts_y;
->  };
->  
->  struct exynos_adc_data {
-> @@ -205,6 +217,9 @@ static void exynos_adc_v1_init_hw(struct exynos_adc *info)
->  	/* Enable 12-bit ADC resolution */
->  	con1 |= ADC_V1_CON_RES;
->  	writel(con1, ADC_V1_CON(info->regs));
-> +
-> +	/* set default touchscreen delay */
-> +	writel(10000, ADC_V1_DLY(info->regs));
->  }
->  
->  static void exynos_adc_v1_exit_hw(struct exynos_adc *info)
-> @@ -390,12 +405,54 @@ static int exynos_read_raw(struct iio_dev *indio_dev,
->  	return ret;
->  }
->  
-> +static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x, int *y)
-> +{
-> +	struct exynos_adc *info = iio_priv(indio_dev);
-> +	unsigned long timeout;
-> +	int ret;
-> +
-> +	mutex_lock(&indio_dev->mlock);
-> +	info->read_ts = true;
-> +
-> +	reinit_completion(&info->completion);
-> +
-> +	writel(ADC_S3C2410_TSC_PULL_UP_DISABLE | ADC_TSC_AUTOPST,
-> +	       ADC_V1_TSC(info->regs));
-> +
-> +	/* Select the ts channel to be used and Trigger conversion */
-> +	info->data->start_conv(info, ADC_S3C2410_MUX_TS);
-> +
-> +	timeout = wait_for_completion_timeout
-> +			(&info->completion, EXYNOS_ADC_TIMEOUT);
-> +	if (timeout == 0) {
-> +		dev_warn(&indio_dev->dev, "Conversion timed out! Resetting\n");
-> +		if (info->data->init_hw)
-> +			info->data->init_hw(info);
-> +		ret = -ETIMEDOUT;
-> +	} else {
-> +		*x = info->ts_x;
-> +		*y = info->ts_y;
-> +		ret = 0;
-> +	}
-> +
-> +	info->read_ts = false;
-> +	mutex_unlock(&indio_dev->mlock);
-> +
-> +	return ret;
-> +}
-> +
->  static irqreturn_t exynos_adc_isr(int irq, void *dev_id)
->  {
->  	struct exynos_adc *info = (struct exynos_adc *)dev_id;
->  
->  	/* Read value */
-> -	info->value = readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
-> +	if (info->read_ts) {
-> +		info->ts_x = readl(ADC_V1_DATX(info->regs));
-> +		info->ts_y = readl(ADC_V1_DATY(info->regs));
-> +		writel(ADC_TSC_WAIT4INT | ADC_S3C2443_TSC_UD_SEN, ADC_V1_TSC(info->regs));
-> +	} else {
-> +		info->value = readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
-> +	}
->  
->  	/* clear irq */
->  	if (info->data->clear_irq)
-> @@ -406,6 +463,46 @@ static irqreturn_t exynos_adc_isr(int irq, void *dev_id)
->  	return IRQ_HANDLED;
->  }
->  
-> +/*
-> + * Here we (ab)use a threaded interrupt handler to stay running
-> + * for as long as the touchscreen remains pressed, we report
-> + * a new event with the latest data and then sleep until the
-> + * next timer tick. This mirrors the behavior of the old
-> + * driver, with much less code.
-> + */
-> +static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
-> +{
-> +	struct exynos_adc *info = dev_id;
-> +	struct iio_dev *dev = dev_get_drvdata(info->dev);
-> +	u32 x, y;
-> +	bool pressed;
-> +	int ret;
-> +
-> +	while (info->input->users) {
-> +		ret = exynos_read_s3c64xx_ts(dev, &x, &y);
-> +		if (ret == -ETIMEDOUT)
-> +			break;
-> +
-> +		pressed = x & y & ADC_DATX_PRESSED;
-> +		if (!pressed) {
-> +			input_report_key(info->input, BTN_TOUCH, 0);
-> +			input_sync(info->input);
-> +			break;
-> +		}
-> +
-> +		input_report_abs(info->input, ABS_X, x & ADC_DATX_MASK);
-> +		input_report_abs(info->input, ABS_Y, y & ADC_DATY_MASK);
-> +		input_report_key(info->input, BTN_TOUCH, 1);
-> +		input_sync(info->input);
-> +
-> +		msleep(1);
-> +	};
-> +
-> +	writel(0, ADC_V1_CLRINTPNDNUP(info->regs));
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
->  static int exynos_adc_reg_access(struct iio_dev *indio_dev,
->  			      unsigned reg, unsigned writeval,
->  			      unsigned *readval)
-> @@ -457,12 +554,66 @@ static int exynos_adc_remove_devices(struct device *dev, void *c)
->  	return 0;
->  }
->  
-> +static int exynos_adc_ts_open(struct input_dev *dev)
-> +{
-> +	struct exynos_adc *info = input_get_drvdata(dev);
-> +
-> +	enable_irq(info->tsirq);
-> +
-> +	return 0;
-> +}
-> +
-> +static void exynos_adc_ts_close(struct input_dev *dev)
-> +{
-> +	struct exynos_adc *info = input_get_drvdata(dev);
-> +
-> +	disable_irq(info->tsirq);
-> +}
-> +
-> +static int exynos_adc_ts_init(struct exynos_adc *info)
-> +{
-> +	int ret;
-> +
-> +	if (info->tsirq <= 0)
-> +		return -ENODEV;
-> +
-> +	info->input = input_allocate_device();
-> +	if (!info->input)
-> +		return -ENOMEM;
-> +
-> +	info->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +	info->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +
-> +	input_set_abs_params(info->input, ABS_X, 0, 0x3FF, 0, 0);
-> +	input_set_abs_params(info->input, ABS_Y, 0, 0x3FF, 0, 0);
-> +
-> +	info->input->name = "S3C24xx TouchScreen";
-> +	info->input->id.bustype = BUS_HOST;
-> +	info->input->open = exynos_adc_ts_open;
-> +	info->input->close = exynos_adc_ts_close;
-> +	
-> +	input_set_drvdata(info->input, info);
-> +
-> +	ret = input_register_device(info->input);
-> +	if (ret)
-> +		input_free_device(info->input);
-> +
-> +	disable_irq(info->tsirq);
-> +	ret = request_threaded_irq(info->tsirq, NULL, exynos_ts_isr,
-> +				   0, "touchscreen", info);
-> +	if (ret)
-> +		input_unregister_device(info->input);
-> +
-> +	return ret;
-> +}
-> +
->  static int exynos_adc_probe(struct platform_device *pdev)
->  {
->  	struct exynos_adc *info = NULL;
->  	struct device_node *np = pdev->dev.of_node;
->  	struct iio_dev *indio_dev = NULL;
->  	struct resource	*mem;
-> +	bool has_ts = false;
->  	int ret = -ENODEV;
->  	int irq;
->  
-> @@ -498,8 +649,14 @@ static int exynos_adc_probe(struct platform_device *pdev)
->  		dev_err(&pdev->dev, "no irq resource?\n");
->  		return irq;
->  	}
-> -
->  	info->irq = irq;
-> +
-> +	irq = platform_get_irq(pdev, 1);
-> +	if (irq == -EPROBE_DEFER)
-> +		return irq; 
-> +
-> +	info->tsirq = irq;
-> +
->  	info->dev = &pdev->dev;
->  
->  	init_completion(&info->completion);
-> @@ -565,6 +722,15 @@ static int exynos_adc_probe(struct platform_device *pdev)
->  	if (info->data->init_hw)
->  		info->data->init_hw(info);
->  
-> +	/* leave out any TS related code if unreachable */
-> +	if (IS_BUILTIN(CONFIG_INPUT) ||
-> +	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE)))
-
-This is ugly... We need IS_SUBSYSTEM_AVAILABLE() wrapper for this...
-
-Anyway,
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-
-> +		has_ts = of_property_read_bool(pdev->dev.of_node, "has-touchscreen");
-> +	if (has_ts)
-> +		ret = exynos_adc_ts_init(info);
-> +	if (ret)
-> +		goto err_iio;
-> +
->  	ret = of_platform_populate(np, exynos_adc_match, NULL, &indio_dev->dev);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "failed adding child nodes\n");
-> @@ -576,6 +742,11 @@ static int exynos_adc_probe(struct platform_device *pdev)
->  err_of_populate:
->  	device_for_each_child(&indio_dev->dev, NULL,
->  				exynos_adc_remove_devices);
-> +	if (has_ts) {
-> +		input_unregister_device(info->input);
-> +		free_irq(info->tsirq, info);
-> +	}
-> +err_iio:
->  	iio_device_unregister(indio_dev);
->  err_irq:
->  	free_irq(info->irq, info);
-> @@ -595,6 +766,11 @@ static int exynos_adc_remove(struct platform_device *pdev)
->  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
->  	struct exynos_adc *info = iio_priv(indio_dev);
->  
-> +	if (IS_BUILTIN(CONFIG_INPUT) ||
-> +	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE))) {
-> +		free_irq(info->tsirq, info);
-> +		input_unregister_device(info->input);
-> +	}
->  	device_for_each_child(&indio_dev->dev, NULL,
->  				exynos_adc_remove_devices);
->  	iio_device_unregister(indio_dev);
 > 
 
--- 
-Dmitry
+I actually have a patch to introduce IS_REACHABLE() for this purpose,
+but I haven't sent it out for review yet. The main user of this would
+be drivers/media, which had the correct logic earlier until someone
+tried to "simplify" it by replacing it all with IS_ENABLED()...
+
+	Arnd

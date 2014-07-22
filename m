@@ -1,65 +1,73 @@
-From: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Subject: Re: [PATCH 3/3] driver:gpio remove all usage of
- gpio_remove retval in driver
-Date: Tue, 22 Jul 2014 16:17:28 -0300
-Message-ID: <20140722161728.712d961e.m.chehab@samsung.com>
-References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>
- <1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
- <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
- <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
+Date: Tue, 22 Jul 2014 14:34:52 -0600
+Message-ID: <53CECAEC.8080905@wwwdotorg.org>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-reply-to: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-mips@linux-mips.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Matthew Garrett <matthew.garrett@nebula.com>, Samuel Ortiz <sameo@linux.intel.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, "arm@kernel.org" <arm@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Michael
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:33137 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932068AbaGVUe5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jul 2014 16:34:57 -0400
+In-Reply-To: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: nick.dyer@itdev.co.uk
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 
-Em Tue, 22 Jul 2014 17:08:13 +0200
-Linus Walleij <linus.walleij@linaro.org> escreveu:
+On 07/03/2014 09:01 AM, nick.dyer@itdev.co.uk wrote:
+> Hi Dimitry-
+> 
+> Here is another set of atmel_mxt_ts patches for upstream. There are some
+> really useful new features, but I hope nothing too controversial.
 
-> On Sat, Jul 12, 2014 at 10:30 PM, abdoulaye berthe <berthe.ab@gmail.com> wrote:
-> 
-> Heads up. Requesting ACKs for this patch or I'm atleast warning that it will be
-> applied. We're getting rid of the return value from gpiochip_remove().
-> 
-> > this remove all reference to gpio_remove retval in all driver
-> > except pinctrl and gpio. the same thing is done for gpio and
-> > pinctrl in two different patches.
-> >
-> > Signed-off-by: abdoulaye berthe <berthe.ab@gmail.com>
-> (...)
-> 
-> I think this patch probably needs to be broken down per-subsystem as it
-> hits all over the map. But let's start requesting ACKs for the
-> individual pieces.
-> Actually I think it will be OK to merge because there is likely not much churn
-> around these code sites.
-> 
-> I'm a bit torn between just wanting a big patch for this hitting drivers/gpio
-> and smaller patches hitting one subsystem at a time. We should be able
-> to hammer this in one switch strike.
-> 
+Unfortunately, I still can't get these to work on my system.
+
+Per your "Re: atmel_mxt_ts: defaulting irqflags to
+IRQF_TRIGGER_FALLING", I set up the IRQ type in the Tegra DT file, and
+then applied this series on top of next-20140721. The driver appears to
+initialize OK, but neither X nor evtest see any events from the device.
+The IRQ count in /proc/interrupts doesn't increase when I touch the
+touchpad, but does when I press it hard enough to trigger the physical
+button. A boot log with debug enabled follows. No additional kernel log
+messages are generated by touches or clicks. Do you have any idea what I
+should try?
+
+> [    1.634289] atmel_mxt_ts 1-004b: T37 Start:142 Size:130 Instances:1 Report IDs:0-0
+> [    1.641889] atmel_mxt_ts 1-004b: T44 Start:272 Size:1 Instances:1 Report IDs:0-0
+> [    1.649316] atmel_mxt_ts 1-004b: T5 Start:273 Size:9 Instances:1 Report IDs:0-0
+> [    1.656631] atmel_mxt_ts 1-004b: T6 Start:282 Size:6 Instances:1 Report IDs:1-1
+> [    1.663960] atmel_mxt_ts 1-004b: T38 Start:288 Size:8 Instances:1 Report IDs:0-0
+> [    1.671376] atmel_mxt_ts 1-004b: T7 Start:296 Size:4 Instances:1 Report IDs:0-0
+> [    1.678703] atmel_mxt_ts 1-004b: T8 Start:300 Size:10 Instances:1 Report IDs:0-0
+> [    1.686104] atmel_mxt_ts 1-004b: T9 Start:310 Size:36 Instances:1 Report IDs:2-11
+> [    1.693605] atmel_mxt_ts 1-004b: T15 Start:346 Size:11 Instances:1 Report IDs:12-12
+> [    1.701286] atmel_mxt_ts 1-004b: T18 Start:357 Size:2 Instances:1 Report IDs:0-0
+> [    1.708701] atmel_mxt_ts 1-004b: T19 Start:359 Size:6 Instances:1 Report IDs:13-13
+> [    1.716276] atmel_mxt_ts 1-004b: T23 Start:365 Size:15 Instances:1 Report IDs:14-14
+> [    1.723950] atmel_mxt_ts 1-004b: T25 Start:380 Size:15 Instances:1 Report IDs:15-15
+> [    1.731622] atmel_mxt_ts 1-004b: T40 Start:395 Size:5 Instances:1 Report IDs:0-0
+> [    1.739037] atmel_mxt_ts 1-004b: T42 Start:400 Size:10 Instances:1 Report IDs:16-16
+> [    1.746697] atmel_mxt_ts 1-004b: T46 Start:410 Size:9 Instances:1 Report IDs:17-17
+> [    1.754282] atmel_mxt_ts 1-004b: T47 Start:419 Size:13 Instances:1 Report IDs:0-0
+> [    1.761783] atmel_mxt_ts 1-004b: T55 Start:432 Size:6 Instances:1 Report IDs:0-0
+> [    1.769195] atmel_mxt_ts 1-004b: T56 Start:438 Size:40 Instances:1 Report IDs:18-18
+> [    1.776855] atmel_mxt_ts 1-004b: T57 Start:478 Size:3 Instances:1 Report IDs:19-19
+> [    1.784441] atmel_mxt_ts 1-004b: T61 Start:481 Size:5 Instances:2 Report IDs:20-21
+> [    1.792028] atmel_mxt_ts 1-004b: T62 Start:491 Size:54 Instances:1 Report IDs:22-22
+> [    1.821133] atmel_mxt_ts 1-004b: T6 Config Checksum: 0xC4CC1B
+> [    1.826899] atmel_mxt_ts 1-004b: T6 Status 0x80 RESET
+> [    1.831983] atmel_mxt_ts 1-004b: message: 00 20 00 00 00 00 00 00
+> [    1.831998] atmel_mxt_ts 1-004b: Interrupt triggered but zero messages
+> [    1.844743] atmel_mxt_ts 1-004b: Direct firmware load for maxtouch.cfg failed with error -2
+> [    1.854145] atmel_mxt_ts 1-004b: Initialized power cfg: ACTV 16, IDLE 32
+> [    1.862567] atmel_mxt_ts 1-004b: Touchscreen size X2040Y1360
+> [    1.863232] input: Atmel maXTouch Touchpad as /devices/soc0/7000c400.i2c/i2c-1/1-004b/input/input1
+> [    1.888976] atmel_mxt_ts 1-004b: Family: 130 Variant: 1 Firmware V1.0.AA Objects: 22
 ...
-> >  drivers/media/dvb-frontends/cxd2820r_core.c    | 10 +++-------
-> 
-> Mauro can you ACK this?
-
-Acked-by: Mauro Carvalho Chehab <m.chehab@samsung.com>
-> 
-> (Hm that looks weird. Mental note to look closer at this.)
-
-What's weird there?
-
-Regards,
-Mauro
+> [    8.591036] atmel_mxt_ts 1-004b: Set T7 ACTV:16 IDLE:32
+> [    8.629419] atmel_mxt_ts 1-004b: Set T7 ACTV:0 IDLE:0
+> [    8.669210] atmel_mxt_ts 1-004b: Set T7 ACTV:16 IDLE:32

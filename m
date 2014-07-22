@@ -1,58 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: document INPUT_PROP_TOPBUTTONPAD
-Date: Mon, 21 Jul 2014 17:58:14 -0700
-Message-ID: <20140722005814.GA37237@core.coreip.homeip.net>
-References: <20140722000018.GA10920@jelly.redhat.com>
+From: Markus Niebel <list-09_linux_input@tqsc.de>
+Subject: Re: [RFC] edt-ft5x06 - cannot see IRQ Qfrom device after DT probe
+Date: Tue, 22 Jul 2014 12:40:04 +0200
+Message-ID: <53CE3F84.5030301@tqsc.de>
+References: <53C5685D.1090008@tqsc.de> <53C64D86.1010808@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:46661 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751612AbaGVA6S (ORCPT
+Received: from smtprelay01.ispgateway.de ([80.67.31.24]:52518 "EHLO
+	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751272AbaGVK2H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2014 20:58:18 -0400
-Received: by mail-pa0-f52.google.com with SMTP id bj1so10738065pad.25
-        for <linux-input@vger.kernel.org>; Mon, 21 Jul 2014 17:58:18 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20140722000018.GA10920@jelly.redhat.com>
+	Tue, 22 Jul 2014 06:28:07 -0400
+In-Reply-To: <53C64D86.1010808@kernelconcepts.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Simon Budig <simon.budig@kernelconcepts.de>, linux-input@vger.kernel.org
 
-On Tue, Jul 22, 2014 at 10:00:18AM +1000, Peter Hutterer wrote:
-> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-
-Applied, thank you.
-
-> ---
->  Documentation/input/event-codes.txt | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+Am 16.07.2014 12:01, wrote Simon Budig:
+> On 15/07/14 19:43, Markus Niebel wrote:
+>> - when adding an int-gpios node to devicetree and parsing this gpio the gpio will be configured as input
+>> - IRQ can be seen by CPU
+>>
+>> Question:
+>>
+>> - shall we add an int-gpio property to enable gpio pin config as input or
 > 
-> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> index f82ba9c..7ff7bf4 100644
-> --- a/Documentation/input/event-codes.txt
-> +++ b/Documentation/input/event-codes.txt
-> @@ -281,6 +281,19 @@ gestures can normally be extracted from it.
->  If INPUT_PROP_SEMI_MT is not set, the device is assumed to be a true MT
->  device.
->  
-> +INPUT_PROP_TOPBUTTONPAD:
-> +-----------------------
-> +Some laptops, most notably the Lenovo *40 series provide a trackstick
-> +device but do not have physical buttons associated with the trackstick
-> +device. Instead, the top area of the touchpad is marked to show
-> +visual/haptic areas for left, middle, right buttons intended to be used
-> +with the trackstick.
-> +
-> +If INPUT_PROP_TOPBUTTONPAD is set, userspace should emulate buttons
-> +accordingly. This property does not affect kernel behavior.
-> +The kernel does not provide button emulation for such devices but treats
-> +them as any other INPUT_PROP_BUTTONPAD device.
-> +
->  Guidelines:
->  ==========
->  The guidelines below ensure proper single-touch and multi-finger functionality.
-> -- 
-> 1.9.3
+> Shouldn't it be possible to configure the pin as input directly from the
+> device tree, indepently from the touch driver section?
+
+I don't see, how to do that, maybe I did miss the right point.
+
+I digged through the gpio code. There are drivers (gpio-omap) that make sure, that gpio is configured as
+input and others that don't care (gpio-mxc / gpio-mxs).
+
+seeing this I posted "gpio: gpio-mxc: make sure gpio is input when request IRQ" on linux-arm-kernel
+
+Global question is: how can we make sure, that the driver that request the IRQ requests also the GPIO (implicit or like in the old platfrom data days explicit)? But thats beyond input devices and my knowledge. 
+
+Regards
+
+Markus
+
 > 
+> Bye,
+>         Simon
+> 
+

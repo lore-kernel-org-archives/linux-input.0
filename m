@@ -1,49 +1,133 @@
-From: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] iio: exynos-adc: add experimental touchscreen support
-Date: Tue, 22 Jul 2014 19:59:58 +0530
-Message-ID: <53CE7566.8020906@gmail.com>
-References: <5068889.1KfVx3ksNo@wuerfel>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/3] driver:gpio remove all usage of gpio_remove retval in driver
+Date: Tue, 22 Jul 2014 17:08:13 +0200
+Message-ID: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>
+	<1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
+	<1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5068889.1KfVx3ksNo@wuerfel>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, heiko.stuebner-K3U4GQvHnyU@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
+Sender: linux-serial-owner@vger.kernel.org
+To: abdoulaye berthe <berthe.ab@gmail.com>, "arm@kernel.org" <arm@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Matthew Garrett <matthew.garrett@nebula.com>, Michael Buesch <m@bues.ch>, Greg KH <gregkh@linuxfoundation.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
 List-Id: linux-input@vger.kernel.org
 
+On Sat, Jul 12, 2014 at 10:30 PM, abdoulaye berthe <berthe.ab@gmail.com=
+> wrote:
 
-On Tuesday 22 July 2014 06:33 PM, Arnd Bergmann wrote:
+Heads up. Requesting ACKs for this patch or I'm atleast warning that it=
+ will be
+applied. We're getting rid of the return value from gpiochip_remove().
 
+> this remove all reference to gpio_remove retval in all driver
+> except pinctrl and gpio. the same thing is done for gpio and
+> pinctrl in two different patches.
+>
+> Signed-off-by: abdoulaye berthe <berthe.ab@gmail.com>
 (...)
 
->   
-> +static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x, int *y)
-> +{
-> +	struct exynos_adc *info = iio_priv(indio_dev);
-> +	unsigned long timeout;
-> +	int ret;
-> +
-> +	mutex_lock(&indio_dev->mlock);
-> +	info->read_ts = true;
-> +
-> +	reinit_completion(&info->completion);
-> +
-> +	writel(ADC_S3C2410_TSC_PULL_UP_DISABLE | ADC_TSC_AUTOPST,
-> +	       ADC_V1_TSC(info->regs));
-> +
-> +	/* Select the ts channel to be used and Trigger conversion */
-> +	info->data->start_conv(info, ADC_S3C2410_MUX_TS);
-> +
-> +	timeout = wait_for_completion_timeout
-> +			(&info->completion, EXYNOS_ADC_TIMEOUT);
+I think this patch probably needs to be broken down per-subsystem as it
+hits all over the map. But let's start requesting ACKs for the
+individual pieces.
+Actually I think it will be OK to merge because there is likely not muc=
+h churn
+around these code sites.
 
-Should be properly aligned:
+I'm a bit torn between just wanting a big patch for this hitting driver=
+s/gpio
+and smaller patches hitting one subsystem at a time. We should be able
+to hammer this in one switch strike.
 
-	wait_for_completion_timeout(&info->completion,
-				    EXYNOS_ADC_TIMEOUT);
+>  arch/arm/common/scoop.c                        | 10 ++--------
 
--- 
-Regards,
-Varka Bhadram
+ARM SoC folks, can you ACK this?
+
+>  arch/mips/txx9/generic/setup.c                 |  4 ++--
+
+Ralf can you ACK this?
+
+>  arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c |  3 ++-
+
+Benji, can you ACK this?
+
+>  arch/sh/boards/mach-x3proto/gpio.c             |  6 ++----
+
+Aha noone can ACK this, whatever...
+
+>  drivers/bcma/driver_gpio.c                     |  3 ++-
+
+Rafa=C5=82 can you ACK this?
+
+>  drivers/hid/hid-cp2112.c                       |  6 ++----
+
+Jiri can you ACK this?
+
+>  drivers/input/keyboard/adp5588-keys.c          |  4 +---
+>  drivers/input/keyboard/adp5589-keys.c          |  4 +---
+>  drivers/input/touchscreen/ad7879.c             | 10 +++-------
+
+Dmitry can you ACK this?
+
+>  drivers/leds/leds-pca9532.c                    | 10 ++--------
+>  drivers/leds/leds-tca6507.c                    |  7 ++-----
+
+Bryan can you ACK this?
+
+>  drivers/media/dvb-frontends/cxd2820r_core.c    | 10 +++-------
+
+Mauro can you ACK this?
+
+(Hm that looks weird. Mental note to look closer at this.)
+
+>  drivers/mfd/asic3.c                            |  3 ++-
+>  drivers/mfd/htc-i2cpld.c                       |  8 +-------
+>  drivers/mfd/sm501.c                            | 17 +++-------------=
+-
+>  drivers/mfd/tc6393xb.c                         | 13 ++++---------
+>  drivers/mfd/ucb1x00-core.c                     |  8 ++------
+
+Lee/Sam can either of you ACK this?
+
+>  drivers/pinctrl/pinctrl-abx500.c               | 15 +++------------
+>  drivers/pinctrl/pinctrl-exynos5440.c           |  6 +-----
+>  drivers/pinctrl/pinctrl-msm.c                  | 10 +++-------
+>  drivers/pinctrl/pinctrl-nomadik.c              |  2 +-
+>  drivers/pinctrl/pinctrl-samsung.c              | 14 ++++----------
+
+Abdoulaye: these should be in the other patch for pinctrl.
+
+>  drivers/platform/x86/intel_pmic_gpio.c         |  3 +--
+
+Matthew can you ACK this?
+
+>  drivers/ssb/driver_gpio.c                      |  3 ++-
+
+Michael can you (A) ACK this and
+(B) think of moving this driver to drivers/gpio... Patches welcome.
+
+>  drivers/staging/vme/devices/vme_pio2_gpio.c    |  4 +---
+>  drivers/tty/serial/max310x.c                   | 10 ++++------
+
+Greg can you ACK this?
+
+>  drivers/video/fbdev/via/via-gpio.c             | 10 +++-------
+
+Tomi can you ACK this?
+
+>  sound/soc/codecs/wm5100.c                      |  5 +----
+>  sound/soc/codecs/wm8903.c                      |  6 +-----
+>  sound/soc/codecs/wm8962.c                      |  5 +----
+>  sound/soc/codecs/wm8996.c                      |  6 +-----
+
+Liam || Mark can you ACK this?
+
+Yours,
+Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe linux-serial"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

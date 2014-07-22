@@ -1,15 +1,17 @@
-From: Michael =?UTF-8?B?QsO8c2No?= <m@bues.ch>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH 3/3] driver:gpio remove all usage of
  gpio_remove retval in driver
-Date: Tue, 22 Jul 2014 17:17:04 +0200
-Message-ID: <20140722171704.71e34e9e@wiggum>
+Date: Tue, 22 Jul 2014 17:01:58 +0100
+Message-ID: <20140722160158.GE23210@lee--X1>
 References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>
  <1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
  <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
  <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2285203138184650228=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
 In-Reply-To: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
 List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
  <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
@@ -21,66 +23,38 @@ List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
 Errors-To: alsa-devel-bounces@alsa-project.org
 Sender: alsa-devel-bounces@alsa-project.org
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-mips@linux-mips.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Matthew Garrett <matthew.garrett@nebula.com>, Samuel Ortiz <sameo@linux.intel.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, "arm@kernel.org" <arm@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Mark Brown <broonie@kernel.org>Greg KH <g>
+Cc: linux-mips@linux-mips.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Matthew Garrett <matthew.garrett@nebula.com>, Samuel Ortiz <sameo@linux.intel.com>, =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, "arm@kernel.org" <arm@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Michael Buesch <m@bues.ch>, Greg KH <gregkh>
 List-Id: linux-input@vger.kernel.org
 
---===============2285203138184650228==
-Content-Type: multipart/signed; micalg=pgp-sha1;
- boundary="Sig_/hrgAhs9Mivj2jERYWhjEYIr"; protocol="application/pgp-signature"
-
---Sig_/hrgAhs9Mivj2jERYWhjEYIr
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 22 Jul 2014 17:08:13 +0200
-Linus Walleij <linus.walleij@linaro.org> wrote:
-
-> >  drivers/ssb/driver_gpio.c                      |  3 ++-
->=20
-> Michael can you (A) ACK this and
-
-Acked-by: Michael B=C3=BCsch <m@bues.ch>
-
-> (B) think of moving this driver to drivers/gpio... Patches welcome.
-
-This is not that easy, as it is not a driver on its own, but integral part =
-of ssb.
-I don't think it's a good idea to move it out.
-
-I'll accept well tested patches, though.
-
---=20
-Michael
-
---Sig_/hrgAhs9Mivj2jERYWhjEYIr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJTzoBwAAoJEPUyvh2QjYsOuF8QAKSf5P1KzGQpBDdHpy/lCXaV
-R2TFv+8h2wn2BfjBh+lKc3WV2FvdFwXNO/5kM6g7Nlku2bdjfGNeFyXVvEnESF3n
-bFvmgNEI0AA65zZoxsKGcEFRxz9iijewT+ZpkbwwS2uscmRhKUhSyoz58CiyARxS
-KBedPNO3SV++34XI9Jfrn7wpZs4CIiGcMqKIFGTV756Gb0luSLeaH9ThvZVS0poV
-adME8vN50KL2hYN72J6WXDaZlKlQ22tqrMDq8DyYbfSyis2rDQPin9PDtw52TF4q
-YU+QiqxlSSHPP7LVh6mJCMjC6jtrcOvzebKw5N6qpYSaNUsa2geB6VWMRzzUiu4b
-tXZTgJQjdpdAtafdJLDUs+EynykaTvcZYX8wgtfen6NfxvbjerxI6OOvi1j4H3Z/
-wZmIO6olkR1KA3PGj9OcCmIZoY2fjOf4EApWYngFWMiPkaIFBn+OiCAGrQpZPBWU
-rFGCM3BeslULWldG5VSwwURgp3dQS/kHegnrddD9M1WH7CInBmHsWxQwocyh0RMu
-gP4yGTtAYcp2SjY35SMnw9+L9BjRzqmBd74fJRD8iR7Iw7++14QArX3JBaXfbtok
-OAZDoMPWIZxemzvP7L+QYb5LS6+H4FoRkNhbDYvodI0WtAng6UF/QFKjrr6gqfoy
-wyRrZ5RjRjp2yMo4qnNm
-=qF+A
------END PGP SIGNATURE-----
-
---Sig_/hrgAhs9Mivj2jERYWhjEYIr--
-
---===============2285203138184650228==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-
---===============2285203138184650228==--
+T24gVHVlLCAyMiBKdWwgMjAxNCwgTGludXMgV2FsbGVpaiB3cm90ZToKCj4gT24gU2F0LCBKdWwg
+MTIsIDIwMTQgYXQgMTA6MzAgUE0sIGFiZG91bGF5ZSBiZXJ0aGUgPGJlcnRoZS5hYkBnbWFpbC5j
+b20+IHdyb3RlOgo+IAo+IEhlYWRzIHVwLiBSZXF1ZXN0aW5nIEFDS3MgZm9yIHRoaXMgcGF0Y2gg
+b3IgSSdtIGF0bGVhc3Qgd2FybmluZyB0aGF0IGl0IHdpbGwgYmUKPiBhcHBsaWVkLiBXZSdyZSBn
+ZXR0aW5nIHJpZCBvZiB0aGUgcmV0dXJuIHZhbHVlIGZyb20gZ3Bpb2NoaXBfcmVtb3ZlKCkuCj4g
+Cj4gPiB0aGlzIHJlbW92ZSBhbGwgcmVmZXJlbmNlIHRvIGdwaW9fcmVtb3ZlIHJldHZhbCBpbiBh
+bGwgZHJpdmVyCj4gPiBleGNlcHQgcGluY3RybCBhbmQgZ3Bpby4gdGhlIHNhbWUgdGhpbmcgaXMg
+ZG9uZSBmb3IgZ3BpbyBhbmQKPiA+IHBpbmN0cmwgaW4gdHdvIGRpZmZlcmVudCBwYXRjaGVzLgo+
+ID4KPiA+IFNpZ25lZC1vZmYtYnk6IGFiZG91bGF5ZSBiZXJ0aGUgPGJlcnRoZS5hYkBnbWFpbC5j
+b20+Cj4gKC4uLikKPiAKPiBJIHRoaW5rIHRoaXMgcGF0Y2ggcHJvYmFibHkgbmVlZHMgdG8gYmUg
+YnJva2VuIGRvd24gcGVyLXN1YnN5c3RlbSBhcyBpdAo+IGhpdHMgYWxsIG92ZXIgdGhlIG1hcC4g
+QnV0IGxldCdzIHN0YXJ0IHJlcXVlc3RpbmcgQUNLcyBmb3IgdGhlCj4gaW5kaXZpZHVhbCBwaWVj
+ZXMuCj4gQWN0dWFsbHkgSSB0aGluayBpdCB3aWxsIGJlIE9LIHRvIG1lcmdlIGJlY2F1c2UgdGhl
+cmUgaXMgbGlrZWx5IG5vdCBtdWNoIGNodXJuCj4gYXJvdW5kIHRoZXNlIGNvZGUgc2l0ZXMuCj4g
+Cj4gSSdtIGEgYml0IHRvcm4gYmV0d2VlbiBqdXN0IHdhbnRpbmcgYSBiaWcgcGF0Y2ggZm9yIHRo
+aXMgaGl0dGluZyBkcml2ZXJzL2dwaW8KPiBhbmQgc21hbGxlciBwYXRjaGVzIGhpdHRpbmcgb25l
+IHN1YnN5c3RlbSBhdCBhIHRpbWUuIFdlIHNob3VsZCBiZSBhYmxlCj4gdG8gaGFtbWVyIHRoaXMg
+aW4gb25lIHN3aXRjaCBzdHJpa2UuCgpJdCB3b3VsZCBiZSBiZXR0ZXIgaWYgeW91IGNvdWxkIGRl
+dmlzZSBhIHBsYW4gdG8gbWFrZSB0aGUgc3dpdGNoIGEKc3Vic3lzdGVtIGF0IGEgdGltZS4KClsu
+Li5dCgo+ID4gIGRyaXZlcnMvbWZkL2FzaWMzLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAgMyArKy0KPiA+ICBkcml2ZXJzL21mZC9odGMtaTJjcGxkLmMgICAgICAgICAgICAgICAgICAg
+ICAgIHwgIDggKy0tLS0tLS0KPiA+ICBkcml2ZXJzL21mZC9zbTUwMS5jICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIHwgMTcgKysrLS0tLS0tLS0tLS0tLS0KPiA+ICBkcml2ZXJzL21mZC90YzYz
+OTN4Yi5jICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTMgKysrKy0tLS0tLS0tLQo+ID4gIGRy
+aXZlcnMvbWZkL3VjYjF4MDAtY29yZS5jICAgICAgICAgICAgICAgICAgICAgfCAgOCArKy0tLS0t
+LQo+IAo+IExlZS9TYW0gY2FuIGVpdGhlciBvZiB5b3UgQUNLIHRoaXM/CgpJIGRvbid0IHNlZSBh
+bnkgY29kZT8KCi0tIApMZWUgSm9uZXMKTGluYXJvIFNUTWljcm9lbGVjdHJvbmljcyBMYW5kaW5n
+IFRlYW0gTGVhZApMaW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNv
+Q3MKRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlz
+dApBbHNhLWRldmVsQGFsc2EtcHJvamVjdC5vcmcKaHR0cDovL21haWxtYW4uYWxzYS1wcm9qZWN0
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Fsc2EtZGV2ZWwK

@@ -1,133 +1,77 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/3] driver:gpio remove all usage of gpio_remove retval in driver
-Date: Tue, 22 Jul 2014 17:08:13 +0200
-Message-ID: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 3/3] driver:gpio remove all usage of
+ gpio_remove retval in driver
+Date: Tue, 22 Jul 2014 16:11:25 +0100
+Message-ID: <20140722151125.GS17528@sirena.org.uk>
 References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>
-	<1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
-	<1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
+ <1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
+ <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
+ <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
-Sender: linux-serial-owner@vger.kernel.org
-To: abdoulaye berthe <berthe.ab@gmail.com>, "arm@kernel.org" <arm@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Matthew Garrett <matthew.garrett@nebula.com>, Michael Buesch <m@bues.ch>, Greg KH <gregkh@linuxfoundation.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
+Content-Type: multipart/mixed; boundary="===============6413639885557492536=="
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-mips@linux-mips.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Matthew Garrett <matthew.garrett@nebula.com>, Samuel Ortiz <sameo@linux.intel.com>, =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, "arm@kernel.org" <arm@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Michael Buesch <m@bues.ch>, Greg KH <gregkh>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jul 12, 2014 at 10:30 PM, abdoulaye berthe <berthe.ab@gmail.com=
-> wrote:
 
-Heads up. Requesting ACKs for this patch or I'm atleast warning that it=
- will be
-applied. We're getting rid of the return value from gpiochip_remove().
+--===============6413639885557492536==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="11IAkegDWp8TRrA/"
+Content-Disposition: inline
 
-> this remove all reference to gpio_remove retval in all driver
-> except pinctrl and gpio. the same thing is done for gpio and
-> pinctrl in two different patches.
->
-> Signed-off-by: abdoulaye berthe <berthe.ab@gmail.com>
-(...)
 
-I think this patch probably needs to be broken down per-subsystem as it
-hits all over the map. But let's start requesting ACKs for the
-individual pieces.
-Actually I think it will be OK to merge because there is likely not muc=
-h churn
-around these code sites.
+--11IAkegDWp8TRrA/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'm a bit torn between just wanting a big patch for this hitting driver=
-s/gpio
-and smaller patches hitting one subsystem at a time. We should be able
-to hammer this in one switch strike.
+On Tue, Jul 22, 2014 at 05:08:13PM +0200, Linus Walleij wrote:
 
->  arch/arm/common/scoop.c                        | 10 ++--------
+> Heads up. Requesting ACKs for this patch or I'm atleast warning that it will be
+> applied. We're getting rid of the return value from gpiochip_remove().
 
-ARM SoC folks, can you ACK this?
+Can someone send the patch please?  Splitting it up per-subsystem would
+probably be easier...
 
->  arch/mips/txx9/generic/setup.c                 |  4 ++--
+--11IAkegDWp8TRrA/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Ralf can you ACK this?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
->  arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c |  3 ++-
+iQIcBAEBAgAGBQJTzn8aAAoJELSic+t+oim9qWYP/j2SOMQLkG2CavmmSFDKr57D
+I8wsXXkl2SzMR1t1T8XQHH4/i1kTxROPWDX81ujrkwpEMcbMvQhM6Mewj+1BHgij
+KGTeP2cMT97Oo0b6U2JRsumyLep0kVo/nheFLTUkD78Vp8abIyi1FuRdppKEjYts
+Fu+jJIWQJEw/HKcmdZsTaeQawLXmJ4qOUVjB5+X/sspavG0Nji8JtSXN2MHyCr9j
+t52GpALDSl4wctfIYg76S/TQxRCd150MKupuUhheMYsVtGfWjqay5fQWd9GACjhC
+/74HdiFf1O6nSU2dwbGVntfmU+6CBmkD8XSI0PnyV/4GQR8zofnqzcsHrUXihkzd
+TcgtL0CMizQ5kJPONMoZAFIoZwNHBTxmuFJgoUV2ChU/EyXTVsX9xLs6pgUtnd1E
+Y7B23ErhwwTuXN0qG3Od6OIg2QhAMGKHzBA7HJgtSFVkvtXq1DdCZyYVfttUo+Xi
+KcCZEnXPu/4Ore7cYhQmxqmoeC4Qm86iklGxLgW6jq7u5bRs9Y879NX3c6IZoJuO
+6xIzE8ZtOdlMqpkBELCEZw8/1A9batmaMqEBRbtn4hTpyGouH4QUyypPy41kHC1H
+uYEOJMmAwo51acA4PNGyNPxGclD+fHd+Y4GAfbjX+OoCFcyJIQ3e46F3BQlNs2bS
+da/t3Z8Wx+xtFh0M1tdp
+=XaZs
+-----END PGP SIGNATURE-----
 
-Benji, can you ACK this?
+--11IAkegDWp8TRrA/--
 
->  arch/sh/boards/mach-x3proto/gpio.c             |  6 ++----
+--===============6413639885557492536==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Aha noone can ACK this, whatever...
 
->  drivers/bcma/driver_gpio.c                     |  3 ++-
-
-Rafa=C5=82 can you ACK this?
-
->  drivers/hid/hid-cp2112.c                       |  6 ++----
-
-Jiri can you ACK this?
-
->  drivers/input/keyboard/adp5588-keys.c          |  4 +---
->  drivers/input/keyboard/adp5589-keys.c          |  4 +---
->  drivers/input/touchscreen/ad7879.c             | 10 +++-------
-
-Dmitry can you ACK this?
-
->  drivers/leds/leds-pca9532.c                    | 10 ++--------
->  drivers/leds/leds-tca6507.c                    |  7 ++-----
-
-Bryan can you ACK this?
-
->  drivers/media/dvb-frontends/cxd2820r_core.c    | 10 +++-------
-
-Mauro can you ACK this?
-
-(Hm that looks weird. Mental note to look closer at this.)
-
->  drivers/mfd/asic3.c                            |  3 ++-
->  drivers/mfd/htc-i2cpld.c                       |  8 +-------
->  drivers/mfd/sm501.c                            | 17 +++-------------=
--
->  drivers/mfd/tc6393xb.c                         | 13 ++++---------
->  drivers/mfd/ucb1x00-core.c                     |  8 ++------
-
-Lee/Sam can either of you ACK this?
-
->  drivers/pinctrl/pinctrl-abx500.c               | 15 +++------------
->  drivers/pinctrl/pinctrl-exynos5440.c           |  6 +-----
->  drivers/pinctrl/pinctrl-msm.c                  | 10 +++-------
->  drivers/pinctrl/pinctrl-nomadik.c              |  2 +-
->  drivers/pinctrl/pinctrl-samsung.c              | 14 ++++----------
-
-Abdoulaye: these should be in the other patch for pinctrl.
-
->  drivers/platform/x86/intel_pmic_gpio.c         |  3 +--
-
-Matthew can you ACK this?
-
->  drivers/ssb/driver_gpio.c                      |  3 ++-
-
-Michael can you (A) ACK this and
-(B) think of moving this driver to drivers/gpio... Patches welcome.
-
->  drivers/staging/vme/devices/vme_pio2_gpio.c    |  4 +---
->  drivers/tty/serial/max310x.c                   | 10 ++++------
-
-Greg can you ACK this?
-
->  drivers/video/fbdev/via/via-gpio.c             | 10 +++-------
-
-Tomi can you ACK this?
-
->  sound/soc/codecs/wm5100.c                      |  5 +----
->  sound/soc/codecs/wm8903.c                      |  6 +-----
->  sound/soc/codecs/wm8962.c                      |  5 +----
->  sound/soc/codecs/wm8996.c                      |  6 +-----
-
-Liam || Mark can you ACK this?
-
-Yours,
-Linus Walleij
---
-To unsubscribe from this list: send the line "unsubscribe linux-serial"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--===============6413639885557492536==--

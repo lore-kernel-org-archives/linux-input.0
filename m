@@ -1,64 +1,355 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] driver:gpio remove all usage of
- gpio_remove retval in driver
-Date: Tue, 22 Jul 2014 10:51:22 -0700
-Message-ID: <20140722175121.GA5489@core.coreip.homeip.net>
-References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>
- <1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
- <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
- <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+Subject: Re: [PATCH v2] iio: exynos-adc: add experimental touchscreen support
+Date: Tue, 22 Jul 2014 11:09:04 -0700
+Message-ID: <20140722180904.GB5489@core.coreip.homeip.net>
+References: <5068889.1KfVx3ksNo@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-mips@linux-mips.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Matthew Garrett <matthew.garrett@nebula.com>, Samuel Ortiz <sameo@linux.intel.com>, =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, "arm@kernel.org" <arm@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Michael
+In-Reply-To: <5068889.1KfVx3ksNo@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, kgene.kim@samsung.com, pawel.moll@arm.com, t.figa@samsung.com, linux-kernel@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Ben Dooks <ben-linux@fluff.org>, galak@codeaurora.org, ch.naveen@samsung.com, linux-input <linux-input@vger.kernel.org>, heiko.stuebner@bq.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 22, 2014 at 05:08:13PM +0200, Linus Walleij wrote:
-> On Sat, Jul 12, 2014 at 10:30 PM, abdoulaye berthe <berthe.ab@gmail.com> wrote:
+On Tue, Jul 22, 2014 at 03:03:12PM +0200, Arnd Bergmann wrote:
+> This adds support for the touchscreen on Samsung s3c64xx.
+> The driver is completely untested but shows roughly how
+> it could be done, following the example of the at91 driver.
 > 
-> Heads up. Requesting ACKs for this patch or I'm atleast warning that it will be
-> applied. We're getting rid of the return value from gpiochip_remove().
+> Open questions include:
 > 
-> > this remove all reference to gpio_remove retval in all driver
-> > except pinctrl and gpio. the same thing is done for gpio and
-> > pinctrl in two different patches.
-> >
-> > Signed-off-by: abdoulaye berthe <berthe.ab@gmail.com>
-> (...)
+> - compared to the old plat-samsung/adc driver, there is
+>   no support for prioritizing ts over other clients, nor
+>   for oversampling. From my reading of the code, the
+>   priorities didn't actually have any effect at all, but
+>   the oversampling might be needed. Maybe the original
+>   authors have some insight.
 > 
-> I think this patch probably needs to be broken down per-subsystem as it
-> hits all over the map. But let's start requesting ACKs for the
-> individual pieces.
-> Actually I think it will be OK to merge because there is likely not much churn
-> around these code sites.
+> - We probably need to add support for platform_data as well,
+>   I've skipped this so far.
 > 
-> I'm a bit torn between just wanting a big patch for this hitting drivers/gpio
-> and smaller patches hitting one subsystem at a time. We should be able
-> to hammer this in one switch strike.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> This should address all previous comments, and I've also added
+> a write to ADC_V1_DLY() as the old driver does.
+> 
+> diff --git a/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt b/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
+> index cad81b666a67..ba30836c73cb 100644
+> --- a/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
+> +++ b/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
+> @@ -43,6 +43,10 @@ Required properties:
+>  				       and compatible ADC block)
+>  - vdd-supply		VDD input supply.
+>  
+> +Optional properties:
+> +- has-touchscreen:	If present, indicates that a touchscreen is
+> +			connected an usable.
+> +
+>  Note: child nodes can be added for auto probing from device tree.
+>  
+>  Example: adding device info in dtsi file
+> diff --git a/drivers/iio/adc/exynos_adc.c b/drivers/iio/adc/exynos_adc.c
+> index 420c5cda09c3..3b684a117b9c 100644
+> --- a/drivers/iio/adc/exynos_adc.c
+> +++ b/drivers/iio/adc/exynos_adc.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/of_platform.h>
+>  #include <linux/err.h>
+> +#include <linux/input.h>
+>  
+>  #include <linux/iio/iio.h>
+>  #include <linux/iio/machine.h>
+> @@ -66,6 +67,9 @@
+>  
+>  #define ADC_S3C2410_CON_SELMUX(x) (((x)&0x7)<<3)
+>  
+> +/* touch screen always uses channel 0 */
+> +#define ADC_S3C2410_MUX_TS	0
+> +
+>  /* ADCTSC Register Bits */
+>  #define ADC_S3C2443_TSC_UD_SEN		(1u << 8)
+>  #define ADC_S3C2410_TSC_YM_SEN		(1u << 7)
+> @@ -103,24 +107,32 @@
+>  
+>  /* Bit definitions common for ADC_V1 and ADC_V2 */
+>  #define ADC_CON_EN_START	(1u << 0)
+> +#define ADC_DATX_PRESSED	(1u << 15)
+>  #define ADC_DATX_MASK		0xFFF
+> +#define ADC_DATY_MASK		0xFFF
+>  
+>  #define EXYNOS_ADC_TIMEOUT	(msecs_to_jiffies(100))
+>  
+>  struct exynos_adc {
+>  	struct exynos_adc_data	*data;
+>  	struct device		*dev;
+> +	struct input_dev	*input;
+>  	void __iomem		*regs;
+>  	void __iomem		*enable_reg;
+>  	struct clk		*clk;
+>  	struct clk		*sclk;
+>  	unsigned int		irq;
+> +	unsigned int		tsirq;
+>  	struct regulator	*vdd;
+>  
+>  	struct completion	completion;
+>  
+>  	u32			value;
+>  	unsigned int            version;
+> +
+> +	bool			read_ts;
+> +	u32			ts_x;
+> +	u32			ts_y;
+>  };
+>  
+>  struct exynos_adc_data {
+> @@ -205,6 +217,9 @@ static void exynos_adc_v1_init_hw(struct exynos_adc *info)
+>  	/* Enable 12-bit ADC resolution */
+>  	con1 |= ADC_V1_CON_RES;
+>  	writel(con1, ADC_V1_CON(info->regs));
+> +
+> +	/* set default touchscreen delay */
+> +	writel(10000, ADC_V1_DLY(info->regs));
+>  }
+>  
+>  static void exynos_adc_v1_exit_hw(struct exynos_adc *info)
+> @@ -390,12 +405,54 @@ static int exynos_read_raw(struct iio_dev *indio_dev,
+>  	return ret;
+>  }
+>  
+> +static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x, int *y)
+> +{
+> +	struct exynos_adc *info = iio_priv(indio_dev);
+> +	unsigned long timeout;
+> +	int ret;
+> +
+> +	mutex_lock(&indio_dev->mlock);
+> +	info->read_ts = true;
+> +
+> +	reinit_completion(&info->completion);
+> +
+> +	writel(ADC_S3C2410_TSC_PULL_UP_DISABLE | ADC_TSC_AUTOPST,
+> +	       ADC_V1_TSC(info->regs));
+> +
+> +	/* Select the ts channel to be used and Trigger conversion */
+> +	info->data->start_conv(info, ADC_S3C2410_MUX_TS);
+> +
+> +	timeout = wait_for_completion_timeout
+> +			(&info->completion, EXYNOS_ADC_TIMEOUT);
+> +	if (timeout == 0) {
+> +		dev_warn(&indio_dev->dev, "Conversion timed out! Resetting\n");
+> +		if (info->data->init_hw)
+> +			info->data->init_hw(info);
+> +		ret = -ETIMEDOUT;
+> +	} else {
+> +		*x = info->ts_x;
+> +		*y = info->ts_y;
+> +		ret = 0;
+> +	}
+> +
+> +	info->read_ts = false;
+> +	mutex_unlock(&indio_dev->mlock);
+> +
+> +	return ret;
+> +}
+> +
+>  static irqreturn_t exynos_adc_isr(int irq, void *dev_id)
+>  {
+>  	struct exynos_adc *info = (struct exynos_adc *)dev_id;
+>  
+>  	/* Read value */
+> -	info->value = readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
+> +	if (info->read_ts) {
+> +		info->ts_x = readl(ADC_V1_DATX(info->regs));
+> +		info->ts_y = readl(ADC_V1_DATY(info->regs));
+> +		writel(ADC_TSC_WAIT4INT | ADC_S3C2443_TSC_UD_SEN, ADC_V1_TSC(info->regs));
+> +	} else {
+> +		info->value = readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
+> +	}
+>  
+>  	/* clear irq */
+>  	if (info->data->clear_irq)
+> @@ -406,6 +463,46 @@ static irqreturn_t exynos_adc_isr(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +/*
+> + * Here we (ab)use a threaded interrupt handler to stay running
+> + * for as long as the touchscreen remains pressed, we report
+> + * a new event with the latest data and then sleep until the
+> + * next timer tick. This mirrors the behavior of the old
+> + * driver, with much less code.
+> + */
+> +static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
+> +{
+> +	struct exynos_adc *info = dev_id;
+> +	struct iio_dev *dev = dev_get_drvdata(info->dev);
+> +	u32 x, y;
+> +	bool pressed;
+> +	int ret;
+> +
+> +	while (info->input->users) {
+> +		ret = exynos_read_s3c64xx_ts(dev, &x, &y);
+> +		if (ret == -ETIMEDOUT)
+> +			break;
+> +
+> +		pressed = x & y & ADC_DATX_PRESSED;
+> +		if (!pressed) {
+> +			input_report_key(info->input, BTN_TOUCH, 0);
+> +			input_sync(info->input);
+> +			break;
+> +		}
+> +
+> +		input_report_abs(info->input, ABS_X, x & ADC_DATX_MASK);
+> +		input_report_abs(info->input, ABS_Y, y & ADC_DATY_MASK);
+> +		input_report_key(info->input, BTN_TOUCH, 1);
+> +		input_sync(info->input);
+> +
+> +		msleep(1);
+> +	};
+> +
+> +	writel(0, ADC_V1_CLRINTPNDNUP(info->regs));
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+>  static int exynos_adc_reg_access(struct iio_dev *indio_dev,
+>  			      unsigned reg, unsigned writeval,
+>  			      unsigned *readval)
+> @@ -457,12 +554,66 @@ static int exynos_adc_remove_devices(struct device *dev, void *c)
+>  	return 0;
+>  }
+>  
+> +static int exynos_adc_ts_open(struct input_dev *dev)
+> +{
+> +	struct exynos_adc *info = input_get_drvdata(dev);
+> +
+> +	enable_irq(info->tsirq);
+> +
+> +	return 0;
+> +}
+> +
+> +static void exynos_adc_ts_close(struct input_dev *dev)
+> +{
+> +	struct exynos_adc *info = input_get_drvdata(dev);
+> +
+> +	disable_irq(info->tsirq);
+> +}
+> +
+> +static int exynos_adc_ts_init(struct exynos_adc *info)
+> +{
+> +	int ret;
+> +
+> +	if (info->tsirq <= 0)
+> +		return -ENODEV;
+> +
+> +	info->input = input_allocate_device();
+> +	if (!info->input)
+> +		return -ENOMEM;
+> +
+> +	info->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	info->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> +	input_set_abs_params(info->input, ABS_X, 0, 0x3FF, 0, 0);
+> +	input_set_abs_params(info->input, ABS_Y, 0, 0x3FF, 0, 0);
+> +
+> +	info->input->name = "S3C24xx TouchScreen";
+> +	info->input->id.bustype = BUS_HOST;
+> +	info->input->open = exynos_adc_ts_open;
+> +	info->input->close = exynos_adc_ts_close;
+> +	
+> +	input_set_drvdata(info->input, info);
+> +
+> +	ret = input_register_device(info->input);
+> +	if (ret)
+> +		input_free_device(info->input);
+> +
+> +	disable_irq(info->tsirq);
+> +	ret = request_threaded_irq(info->tsirq, NULL, exynos_ts_isr,
+> +				   0, "touchscreen", info);
+> +	if (ret)
+> +		input_unregister_device(info->input);
+> +
+> +	return ret;
+> +}
+> +
+>  static int exynos_adc_probe(struct platform_device *pdev)
+>  {
+>  	struct exynos_adc *info = NULL;
+>  	struct device_node *np = pdev->dev.of_node;
+>  	struct iio_dev *indio_dev = NULL;
+>  	struct resource	*mem;
+> +	bool has_ts = false;
+>  	int ret = -ENODEV;
+>  	int irq;
+>  
+> @@ -498,8 +649,14 @@ static int exynos_adc_probe(struct platform_device *pdev)
+>  		dev_err(&pdev->dev, "no irq resource?\n");
+>  		return irq;
+>  	}
+> -
+>  	info->irq = irq;
+> +
+> +	irq = platform_get_irq(pdev, 1);
+> +	if (irq == -EPROBE_DEFER)
+> +		return irq; 
+> +
+> +	info->tsirq = irq;
+> +
+>  	info->dev = &pdev->dev;
+>  
+>  	init_completion(&info->completion);
+> @@ -565,6 +722,15 @@ static int exynos_adc_probe(struct platform_device *pdev)
+>  	if (info->data->init_hw)
+>  		info->data->init_hw(info);
+>  
+> +	/* leave out any TS related code if unreachable */
+> +	if (IS_BUILTIN(CONFIG_INPUT) ||
+> +	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE)))
 
-...
+This is ugly... We need IS_SUBSYSTEM_AVAILABLE() wrapper for this...
 
-> 
-> >  drivers/input/keyboard/adp5588-keys.c          |  4 +---
-> >  drivers/input/keyboard/adp5589-keys.c          |  4 +---
-> >  drivers/input/touchscreen/ad7879.c             | 10 +++-------
-> 
-> Dmitry can you ACK this?
+Anyway,
 
 Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+
+> +		has_ts = of_property_read_bool(pdev->dev.of_node, "has-touchscreen");
+> +	if (has_ts)
+> +		ret = exynos_adc_ts_init(info);
+> +	if (ret)
+> +		goto err_iio;
+> +
+>  	ret = of_platform_populate(np, exynos_adc_match, NULL, &indio_dev->dev);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "failed adding child nodes\n");
+> @@ -576,6 +742,11 @@ static int exynos_adc_probe(struct platform_device *pdev)
+>  err_of_populate:
+>  	device_for_each_child(&indio_dev->dev, NULL,
+>  				exynos_adc_remove_devices);
+> +	if (has_ts) {
+> +		input_unregister_device(info->input);
+> +		free_irq(info->tsirq, info);
+> +	}
+> +err_iio:
+>  	iio_device_unregister(indio_dev);
+>  err_irq:
+>  	free_irq(info->irq, info);
+> @@ -595,6 +766,11 @@ static int exynos_adc_remove(struct platform_device *pdev)
+>  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+>  	struct exynos_adc *info = iio_priv(indio_dev);
+>  
+> +	if (IS_BUILTIN(CONFIG_INPUT) ||
+> +	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE))) {
+> +		free_irq(info->tsirq, info);
+> +		input_unregister_device(info->input);
+> +	}
+>  	device_for_each_child(&indio_dev->dev, NULL,
+>  				exynos_adc_remove_devices);
+>  	iio_device_unregister(indio_dev);
+> 
 
 -- 
 Dmitry

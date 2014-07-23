@@ -1,96 +1,230 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] input: driver for touchscreen on iPaq h3xxx
-Date: Wed, 23 Jul 2014 10:10:16 +0200
-Message-ID: <CACRpkdZimiX2NPfcpTcYsS2LF-VTL8J=hYA9kZFw8U36w+YnaA@mail.gmail.com>
-References: <1405157481-10348-1-git-send-email-linus.walleij@linaro.org>
-	<20140713025936.GA29513@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH v2] input: driver for touchscreen on iPaq h3xxx
+Date: Wed, 23 Jul 2014 10:20:14 +0200
+Message-ID: <1406103614-12438-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:53970 "EHLO
-	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757092AbaGWIKR (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:49601 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757390AbaGWIUX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jul 2014 04:10:17 -0400
-Received: by mail-oi0-f47.google.com with SMTP id x69so603814oia.34
-        for <linux-input@vger.kernel.org>; Wed, 23 Jul 2014 01:10:16 -0700 (PDT)
-In-Reply-To: <20140713025936.GA29513@core.coreip.homeip.net>
+	Wed, 23 Jul 2014 04:20:23 -0400
+Received: by mail-wg0-f44.google.com with SMTP id m15so774200wgh.27
+        for <linux-input@vger.kernel.org>; Wed, 23 Jul 2014 01:20:20 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Dmitry Artamonow <mad_soft@inbox.ru>, Alessandro GARDICH <gremlin@gremlin.it>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Dmitry Artamonow <mad_soft@inbox.ru>, Alessandro GARDICH <gremlin@gremlin.it>, Linus Walleij <linus.walleij@linaro.org>
 
-On Sun, Jul 13, 2014 at 4:59 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Linus, Dmitry,
->
-> On Sat, Jul 12, 2014 at 11:31:21AM +0200, Linus Walleij wrote:
->> From: Dmitry Artamonow <mad_soft@inbox.ru>
->
-> So is this Dmitry's or Alessandro's work?
+From: Dmitry Artamonow <mad_soft@inbox.ru>
 
-Multiple authors. Alessandro, Dmitry and me. In order of sign-off...
-The only viable rule I have for multiple authors is to attribute it
-to the author who wrote the bulk of the code, and that comes
-from Dmitry.
+This adds a driver for the touchscreen connected to the
+Atmel microcontroller on the iPAQ h3xxx series.
 
->> +#include <linux/mfd/ipaq-micro.h>
->
-> Has this been merged already?
+Based on a driver from handhelds.org 2.6.21 kernel, written
+by Alessandro GARDICH, with the bulk of the code for the
+new input architecture rewritten by Dmitry Atamonow, and
+the final polish by Linus Walleij.
 
-Yes. v3.16 merge window.
+Signed-off-by: Alessandro GARDICH <gremlin@gremlin.it>
+Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v1->v2:
+- More verbose Kconfig selection text including module info.
+- Use be16_to_cpup() to deserialize protocol.
+- Cut fake pressure event reporting.
+- Report button events properly.
+- Use devm_input_allocate_device() to allocate input device.
+- Use input_set_capability() to set up capabilities.
+---
+ drivers/input/touchscreen/Kconfig         |  12 +++
+ drivers/input/touchscreen/Makefile        |   1 +
+ drivers/input/touchscreen/ipaq-micro-ts.c | 141 ++++++++++++++++++++++++++++++
+ 3 files changed, 154 insertions(+)
+ create mode 100644 drivers/input/touchscreen/ipaq-micro-ts.c
 
->> +static void micro_ts_receive(void *data, int len, unsigned char *msg)
->> +{
->> +     struct touchscreen_data *ts = data;
->> +
->> +     if (len == 4) {
->> +             input_report_abs(ts->input, ABS_X, (msg[2]<<8)+msg[3]);
->
-> be16_to_cpup()?
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index a23a94bb4bcb..6bb9a7dd23b6 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -471,6 +471,18 @@ config TOUCHSCREEN_HP7XX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called jornada720_ts.
+ 
++config TOUCHSCREEN_IPAQ_MICRO
++	tristate "HP iPAQ Atmel Micro ASIC touchscreen"
++	depends on MFD_IPAQ_MICRO
++	help
++	  Say Y here to enable support for the touchscreen attached to
++	  the Atmel Micro peripheral controller on iPAQ h3100/h3600/h3700
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ipaq-micro-ts.
++
+ config TOUCHSCREEN_HTCPEN
+ 	tristate "HTC Shift X9500 touchscreen"
+ 	depends on ISA
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 126479d8c29a..4be94fce41af 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+ obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+ obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
++obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
+ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+diff --git a/drivers/input/touchscreen/ipaq-micro-ts.c b/drivers/input/touchscreen/ipaq-micro-ts.c
+new file mode 100644
+index 000000000000..d044b06b1bfb
+--- /dev/null
++++ b/drivers/input/touchscreen/ipaq-micro-ts.c
+@@ -0,0 +1,141 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * h3600 atmel micro companion support, touchscreen subdevice
++ * Author : Alessandro Gardich <gremlin@gremlin.it>
++ * Author : Dmitry Artamonow <mad_soft@inbox.ru>
++ * Author : Linus Walleij <linus.walleij@linaro.org>
++ *
++ */
++
++#include <asm/byteorder.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/pm.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/mfd/ipaq-micro.h>
++
++struct touchscreen_data {
++	struct input_dev *input;
++	struct ipaq_micro *micro;
++};
++
++static void micro_ts_receive(void *data, int len, unsigned char *msg)
++{
++	struct touchscreen_data *ts = data;
++
++	if (len == 4) {
++		input_report_abs(ts->input, ABS_X,
++				 be16_to_cpup((__be16 *) &msg[2]));
++		input_report_abs(ts->input, ABS_Y,
++				 be16_to_cpup((__be16 *) &msg[0]));
++		input_report_key(ts->input, BTN_TOUCH, 1);
++	}
++	if (len == 0) {
++		input_report_abs(ts->input, ABS_X, 0);
++		input_report_abs(ts->input, ABS_Y, 0);
++		input_report_key(ts->input, BTN_TOUCH, 0);
++	}
++	input_sync(ts->input);
++}
++
++
++static int micro_ts_probe(struct platform_device *pdev)
++{
++	struct touchscreen_data *ts;
++	int ret;
++
++	ts = devm_kzalloc(&pdev->dev, sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++	ts->micro = dev_get_drvdata(pdev->dev.parent);
++
++	platform_set_drvdata(pdev, ts);
++
++	ts->input = devm_input_allocate_device(&pdev->dev);
++	if (!ts->input) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++        }
++
++	input_set_capability(ts->input, EV_KEY, BTN_TOUCH);
++	input_set_capability(ts->input, EV_ABS, ABS_X);
++	input_set_capability(ts->input, EV_ABS, ABS_Y);
++	input_set_abs_params(ts->input, ABS_X, 0, 1023, 0, 0);
++	input_set_abs_params(ts->input, ABS_Y, 0, 1023, 0, 0);
++
++	ts->input->name = "ipaq micro ts";
++
++	ret = input_register_device(ts->input);
++	if (ret) {
++		dev_err(&pdev->dev, "error registering touch input\n");
++		return ret;
++	}
++
++	spin_lock(&ts->micro->lock);
++	ts->micro->ts = micro_ts_receive;
++	ts->micro->ts_data = ts;
++	spin_unlock(&ts->micro->lock);
++
++	dev_info(&pdev->dev, "iPAQ micro touchscreen\n");
++	return 0;
++}
++
++static int micro_ts_remove(struct platform_device *pdev)
++{
++	struct touchscreen_data *ts = platform_get_drvdata(pdev);
++
++	spin_lock(&ts->micro->lock);
++	ts->micro->ts = NULL;
++	ts->micro->ts_data = NULL;
++	spin_unlock(&ts->micro->lock);
++
++	return 0;
++}
++
++static int micro_ts_suspend(struct device *dev)
++{
++	struct touchscreen_data *ts = dev_get_drvdata(dev);
++
++	spin_lock(&ts->micro->lock);
++	ts->micro->ts = NULL;
++	ts->micro->ts_data = NULL;
++	spin_unlock(&ts->micro->lock);
++	return 0;
++}
++
++static int micro_ts_resume(struct device *dev)
++{
++	struct touchscreen_data *ts = dev_get_drvdata(dev);
++
++	spin_lock(&ts->micro->lock);
++	ts->micro->ts = micro_ts_receive;
++	ts->micro->ts_data = ts;
++	spin_unlock(&ts->micro->lock);
++	return 0;
++}
++
++static const struct dev_pm_ops micro_ts_dev_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(micro_ts_suspend, micro_ts_resume)
++};
++
++struct platform_driver micro_ts_device_driver = {
++	.driver  = {
++		.name    = "ipaq-micro-ts",
++		.pm	= &micro_ts_dev_pm_ops,
++	},
++	.probe   = micro_ts_probe,
++	.remove  = micro_ts_remove,
++};
++module_platform_driver(micro_ts_device_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("driver for iPAQ Atmel micro touchscreen");
++MODULE_ALIAS("platform:ipaq-micro-ts");
+-- 
+1.9.3
 
-Yes! Replacing everywhere.
-
->> +             input_report_abs(ts->input, ABS_Y, (msg[0]<<8)+msg[1]);
->> +             input_report_abs(ts->input, ABS_PRESSURE, 1);
->
-> Please no fake pressure events, update your tslib instead.
->
->> +             input_report_key(ts->input, BTN_TOUCH, 0);
->
-> This seems completely backwards.
-
-Yeah... I wonder what happened here.
-
->> +     ts->input = input_allocate_device();
->
-> Error handling please; also consider using devm_input_allocate_device().
->
->> +
->> +     ts->input->evbit[0] = BIT(EV_ABS);
->> +     ts->input->absbit[0] = BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE);
->> +     input_set_abs_params(ts->input, ABS_X, 0, 1023, 0, 0);
->> +     input_set_abs_params(ts->input, ABS_Y, 0, 1023, 0, 0);
->> +     input_set_abs_params(ts->input, ABS_PRESSURE, 0x0, 0x1, 0, 0);
->> +
->
-> You are missing setting BTN_TOUCH in capabilities so events you are
-> trying to send in micro_ts_receive will not go anywhere.
-
-Yeah. And I switched this to using just input_set_capability().
-
->> +     spin_lock(&ts->micro->lock);
->> +     ts->micro->ts = NULL;
->> +     ts->micro->ts_data = NULL;
->> +     spin_unlock(&ts->micro->lock);
->
-> What is the point here?
-
-Unregistering the callbacks so the MFD core device will stop
-calling them. Or we will crash the kernel when removing the
-driver as next event arrives.
-
-Sending v2 soon.
-
-Yours,
-Linus Walleij

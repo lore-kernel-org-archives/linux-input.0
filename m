@@ -1,85 +1,460 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Wed, 23 Jul 2014 11:22:54 -0600
-Message-ID: <53CFEF6E.2060905@wwwdotorg.org>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <53CECAEC.8080905@wwwdotorg.org> <53CFD50C.4040509@itdev.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input: driver for touchscreen on iPaq h3xxx
+Date: Wed, 23 Jul 2014 10:32:23 -0700
+Message-ID: <20140723173223.GA25132@core.coreip.homeip.net>
+References: <1406103614-12438-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:37632 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932285AbaGWRW7 (ORCPT
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:54057 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756793AbaGWRc2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jul 2014 13:22:59 -0400
-In-Reply-To: <53CFD50C.4040509@itdev.co.uk>
+	Wed, 23 Jul 2014 13:32:28 -0400
+Received: by mail-pd0-f171.google.com with SMTP id z10so2008618pdj.2
+        for <linux-input@vger.kernel.org>; Wed, 23 Jul 2014 10:32:27 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1406103614-12438-1-git-send-email-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-input@vger.kernel.org, Dmitry Artamonow <mad_soft@inbox.ru>, Alessandro GARDICH <gremlin@gremlin.it>
 
-On 07/23/2014 09:30 AM, Nick Dyer wrote:
-> On 22/07/14 21:34, Stephen Warren wrote:
->> Unfortunately, I still can't get these to work on my system.
->>
->> Per your "Re: atmel_mxt_ts: defaulting irqflags to
->> IRQF_TRIGGER_FALLING", I set up the IRQ type in the Tegra DT file, and
->> then applied this series on top of next-20140721. The driver appears to
->> initialize OK, but neither X nor evtest see any events from the device.
->> The IRQ count in /proc/interrupts doesn't increase when I touch the
->> touchpad, but does when I press it hard enough to trigger the physical
->> button.
-> 
-> You're using the T19/GPIO support, then? In which case, there appears to be
-> something wrong on the touch controller rather than the driver itself.
+Hi Linus,
 
-I assume I'm using T19, since there's a physical click action on the
-touchpad along with the normal touch detection.
+On Wed, Jul 23, 2014 at 10:20:14AM +0200, Linus Walleij wrote:
+> From: Dmitry Artamonow <mad_soft@inbox.ru>
+> 
+> This adds a driver for the touchscreen connected to the
+> Atmel microcontroller on the iPAQ h3xxx series.
+> 
+> Based on a driver from handhelds.org 2.6.21 kernel, written
+> by Alessandro GARDICH, with the bulk of the code for the
+> new input architecture rewritten by Dmitry Atamonow, and
+> the final polish by Linus Walleij.
+> 
+> Signed-off-by: Alessandro GARDICH <gremlin@gremlin.it>
+> Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - More verbose Kconfig selection text including module info.
+> - Use be16_to_cpup() to deserialize protocol.
+> - Cut fake pressure event reporting.
+> - Report button events properly.
+> - Use devm_input_allocate_device() to allocate input device.
+> - Use input_set_capability() to set up capabilities.
+> ---
+>  drivers/input/touchscreen/Kconfig         |  12 +++
+>  drivers/input/touchscreen/Makefile        |   1 +
+>  drivers/input/touchscreen/ipaq-micro-ts.c | 141 ++++++++++++++++++++++++++++++
+>  3 files changed, 154 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/ipaq-micro-ts.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index a23a94bb4bcb..6bb9a7dd23b6 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -471,6 +471,18 @@ config TOUCHSCREEN_HP7XX
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called jornada720_ts.
+>  
+> +config TOUCHSCREEN_IPAQ_MICRO
+> +	tristate "HP iPAQ Atmel Micro ASIC touchscreen"
+> +	depends on MFD_IPAQ_MICRO
+> +	help
+> +	  Say Y here to enable support for the touchscreen attached to
+> +	  the Atmel Micro peripheral controller on iPAQ h3100/h3600/h3700
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called ipaq-micro-ts.
+> +
+>  config TOUCHSCREEN_HTCPEN
+>  	tristate "HTC Shift X9500 touchscreen"
+>  	depends on ISA
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 126479d8c29a..4be94fce41af 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -46,6 +46,7 @@ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+>  obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+>  obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+>  obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
+>  obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+>  obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+> diff --git a/drivers/input/touchscreen/ipaq-micro-ts.c b/drivers/input/touchscreen/ipaq-micro-ts.c
+> new file mode 100644
+> index 000000000000..d044b06b1bfb
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/ipaq-micro-ts.c
+> @@ -0,0 +1,141 @@
+> +/*
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * h3600 atmel micro companion support, touchscreen subdevice
+> + * Author : Alessandro Gardich <gremlin@gremlin.it>
+> + * Author : Dmitry Artamonow <mad_soft@inbox.ru>
+> + * Author : Linus Walleij <linus.walleij@linaro.org>
+> + *
+> + */
+> +
+> +#include <asm/byteorder.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/pm.h>
+> +#include <linux/delay.h>
+> +#include <linux/device.h>
+> +#include <linux/input.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/mfd/ipaq-micro.h>
+> +
+> +struct touchscreen_data {
+> +	struct input_dev *input;
+> +	struct ipaq_micro *micro;
+> +};
+> +
+> +static void micro_ts_receive(void *data, int len, unsigned char *msg)
+> +{
+> +	struct touchscreen_data *ts = data;
+> +
+> +	if (len == 4) {
+> +		input_report_abs(ts->input, ABS_X,
+> +				 be16_to_cpup((__be16 *) &msg[2]));
+> +		input_report_abs(ts->input, ABS_Y,
+> +				 be16_to_cpup((__be16 *) &msg[0]));
+> +		input_report_key(ts->input, BTN_TOUCH, 1);
+> +	}
+> +	if (len == 0) {
+> +		input_report_abs(ts->input, ABS_X, 0);
+> +		input_report_abs(ts->input, ABS_Y, 0);
+> +		input_report_key(ts->input, BTN_TOUCH, 0);
+> +	}
+> +	input_sync(ts->input);
 
->> A boot log with debug enabled follows. No additional kernel log
->> messages are generated by touches or clicks.
-> 
-> Perhaps I should add some debug to mxt_input_button() - currently it will
-> not debug the fact that a click is received, although I guess that you will
-> see it in getevent.
-> 
->> Do you have any idea what I should try?
-> 
-> I am suspicious that it may be that the power sequencing isn't quite right,
-> which sometimes leads to parts of the chip not working properly (eg GPIO
-> buttons working, but no touch).
-> 
-> The patch "use deep sleep when stopped" removes the reset on every resume
-> (which would otherwise kill resume performance). But that reset tends to
-> paper over a device which hasn't been powered up properly in the first place.
-> 
-> Could you try issuing a manual reset and see if the touch starts working? I
-> would normally do this by compiling our obp-utils software from
-> https://github.com/atmel-maxtouch/obp-utils using ndk-build and doing
-> something like:
-> 
-> mxt-app -d i2c-dev:1-004b --reset
-> 
-> (you need CONFIG_I2C_DEBUG to make /dev/i2c-1 appear)
+We should probably pull input_sync() up into these 2 branches so that we
+do not try to send sync on empty packets.
 
-That didn't make any difference.
+> +}
+> +
+> +
+> +static int micro_ts_probe(struct platform_device *pdev)
+> +{
+> +	struct touchscreen_data *ts;
+> +	int ret;
+> +
+> +	ts = devm_kzalloc(&pdev->dev, sizeof(*ts), GFP_KERNEL);
+> +	if (!ts)
+> +		return -ENOMEM;
+> +	ts->micro = dev_get_drvdata(pdev->dev.parent);
+> +
+> +	platform_set_drvdata(pdev, ts);
+> +
+> +	ts->input = devm_input_allocate_device(&pdev->dev);
+> +	if (!ts->input) {
+> +		dev_err(&pdev->dev, "failed to allocate input device\n");
+> +		return -ENOMEM;
+> +        }
+> +
+> +	input_set_capability(ts->input, EV_KEY, BTN_TOUCH);
+> +	input_set_capability(ts->input, EV_ABS, ABS_X);
+> +	input_set_capability(ts->input, EV_ABS, ABS_Y);
+> +	input_set_abs_params(ts->input, ABS_X, 0, 1023, 0, 0);
+> +	input_set_abs_params(ts->input, ABS_Y, 0, 1023, 0, 0);
+> +
+> +	ts->input->name = "ipaq micro ts";
+> +
+> +	ret = input_register_device(ts->input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "error registering touch input\n");
+> +		return ret;
+> +	}
+> +
+> +	spin_lock(&ts->micro->lock);
+> +	ts->micro->ts = micro_ts_receive;
+> +	ts->micro->ts_data = ts;
+> +	spin_unlock(&ts->micro->lock);
 
-I also tried the tool interactively. the "Display raw (M)essages" option
-never displayed anything, and the couple of self-tests I tried just
-timed out. "Read (I)nfo block" did display some values that seemed like
-they might be correct rather than random data.
+The receiver callback is called form interrupt context, as far as I can
+see, so these must be _irq() or _irqsave().
 
-Interestingly though, I did bisect the series and found "Input:
-atmel_mxt_ts - use deep sleep mode when stopped" causes the problem. If
-I apply the whole series and revert that one patch, the touchpad works
-for mouse movement, but interestingly not for taps or physical clicks.
+> +
+> +	dev_info(&pdev->dev, "iPAQ micro touchscreen\n");
+> +	return 0;
+> +}
+> +
+> +static int micro_ts_remove(struct platform_device *pdev)
+> +{
+> +	struct touchscreen_data *ts = platform_get_drvdata(pdev);
+> +
+> +	spin_lock(&ts->micro->lock);
+> +	ts->micro->ts = NULL;
+> +	ts->micro->ts_data = NULL;
+> +	spin_unlock(&ts->micro->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static int micro_ts_suspend(struct device *dev)
+> +{
+> +	struct touchscreen_data *ts = dev_get_drvdata(dev);
+> +
+> +	spin_lock(&ts->micro->lock);
+> +	ts->micro->ts = NULL;
+> +	ts->micro->ts_data = NULL;
+> +	spin_unlock(&ts->micro->lock);
+> +	return 0;
+> +}
+> +
+> +static int micro_ts_resume(struct device *dev)
+> +{
+> +	struct touchscreen_data *ts = dev_get_drvdata(dev);
+> +
+> +	spin_lock(&ts->micro->lock);
+> +	ts->micro->ts = micro_ts_receive;
+> +	ts->micro->ts_data = ts;
+> +	spin_unlock(&ts->micro->lock);
+> +	return 0;
+> +}
 
-...
->>> [    1.831998] atmel_mxt_ts 1-004b: Interrupt triggered but zero messages
-> 
-> FWIW, this warning generally means you should be using the CHG line mode 1
-> in T18 COMMSCONFIG. It's benign, though.
+We should protect these with CONFIG_PM_SLEEP to avoid "unused" warnings.
 
-I'm not sure how I would adjust this; all firmware/config/... was
-flashed into the touchpad device itself before I received the system,
-and I don't have any firmware files on my host system.
+> +
+> +static const struct dev_pm_ops micro_ts_dev_pm_ops = {
+> +	SET_SYSTEM_SLEEP_PM_OPS(micro_ts_suspend, micro_ts_resume)
+> +};
+> +
+> +struct platform_driver micro_ts_device_driver = {
+> +	.driver  = {
+> +		.name    = "ipaq-micro-ts",
+> +		.pm	= &micro_ts_dev_pm_ops,
+> +	},
+> +	.probe   = micro_ts_probe,
+> +	.remove  = micro_ts_remove,
+> +};
+> +module_platform_driver(micro_ts_device_driver);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("driver for iPAQ Atmel micro touchscreen");
+> +MODULE_ALIAS("platform:ipaq-micro-ts");
+
+I've done the changes locally, please take a look.
+
+Thanks.
+
+-- 
+Dmitry
+
+
+Input: driver for touchscreen on iPaq h3xxx
+
+From: Dmitry Artamonow <mad_soft@inbox.ru>
+
+This adds a driver for the touchscreen connected to the Atmel
+microcontroller on the iPAQ h3xxx series.
+
+Based on a driver from handhelds.org 2.6.21 kernel, written by Alessandro
+GARDICH, with the bulk of the code for the new input architecture rewritten
+by Dmitry Atamonow, and the final polish by Linus Walleij.
+
+Signed-off-by: Alessandro GARDICH <gremlin@gremlin.it>
+Signed-off-by: Dmitry Artamonow <mad_soft@inbox.ru>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/Kconfig         |   12 ++
+ drivers/input/touchscreen/Makefile        |    1 
+ drivers/input/touchscreen/ipaq-micro-ts.c |  142 +++++++++++++++++++++++++++++
+ 3 files changed, 155 insertions(+)
+ create mode 100644 drivers/input/touchscreen/ipaq-micro-ts.c
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index a23a94b..6bb9a7d 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -471,6 +471,18 @@ config TOUCHSCREEN_HP7XX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called jornada720_ts.
+ 
++config TOUCHSCREEN_IPAQ_MICRO
++	tristate "HP iPAQ Atmel Micro ASIC touchscreen"
++	depends on MFD_IPAQ_MICRO
++	help
++	  Say Y here to enable support for the touchscreen attached to
++	  the Atmel Micro peripheral controller on iPAQ h3100/h3600/h3700
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ipaq-micro-ts.
++
+ config TOUCHSCREEN_HTCPEN
+ 	tristate "HTC Shift X9500 touchscreen"
+ 	depends on ISA
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 126479d..4be94fc 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
+ obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+ obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
++obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
+ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+diff --git a/drivers/input/touchscreen/ipaq-micro-ts.c b/drivers/input/touchscreen/ipaq-micro-ts.c
+new file mode 100644
+index 0000000..53fa5c3
+--- /dev/null
++++ b/drivers/input/touchscreen/ipaq-micro-ts.c
+@@ -0,0 +1,142 @@
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * h3600 atmel micro companion support, touchscreen subdevice
++ * Author : Alessandro Gardich <gremlin@gremlin.it>
++ * Author : Dmitry Artamonow <mad_soft@inbox.ru>
++ * Author : Linus Walleij <linus.walleij@linaro.org>
++ *
++ */
++
++#include <asm/byteorder.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/pm.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/mfd/ipaq-micro.h>
++
++struct touchscreen_data {
++	struct input_dev *input;
++	struct ipaq_micro *micro;
++};
++
++static void micro_ts_receive(void *data, int len, unsigned char *msg)
++{
++	struct touchscreen_data *ts = data;
++
++	if (len == 4) {
++		input_report_abs(ts->input, ABS_X,
++				 be16_to_cpup((__be16 *) &msg[2]));
++		input_report_abs(ts->input, ABS_Y,
++				 be16_to_cpup((__be16 *) &msg[0]));
++		input_report_key(ts->input, BTN_TOUCH, 1);
++		input_sync(ts->input);
++	} else if (len == 0) {
++		input_report_abs(ts->input, ABS_X, 0);
++		input_report_abs(ts->input, ABS_Y, 0);
++		input_report_key(ts->input, BTN_TOUCH, 0);
++		input_sync(ts->input);
++	}
++}
++
++static int micro_ts_probe(struct platform_device *pdev)
++{
++	struct touchscreen_data *ts;
++	int ret;
++
++	ts = devm_kzalloc(&pdev->dev, sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++	ts->micro = dev_get_drvdata(pdev->dev.parent);
++
++	platform_set_drvdata(pdev, ts);
++
++	ts->input = devm_input_allocate_device(&pdev->dev);
++	if (!ts->input) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	input_set_capability(ts->input, EV_KEY, BTN_TOUCH);
++	input_set_capability(ts->input, EV_ABS, ABS_X);
++	input_set_capability(ts->input, EV_ABS, ABS_Y);
++	input_set_abs_params(ts->input, ABS_X, 0, 1023, 0, 0);
++	input_set_abs_params(ts->input, ABS_Y, 0, 1023, 0, 0);
++
++	ts->input->name = "ipaq micro ts";
++
++	ret = input_register_device(ts->input);
++	if (ret) {
++		dev_err(&pdev->dev, "error registering touch input\n");
++		return ret;
++	}
++
++	spin_lock_irq(&ts->micro->lock);
++	ts->micro->ts = micro_ts_receive;
++	ts->micro->ts_data = ts;
++	spin_unlock_irq(&ts->micro->lock);
++
++	dev_info(&pdev->dev, "iPAQ micro touchscreen\n");
++	return 0;
++}
++
++static int micro_ts_remove(struct platform_device *pdev)
++{
++	struct touchscreen_data *ts = platform_get_drvdata(pdev);
++
++	spin_lock_irq(&ts->micro->lock);
++	ts->micro->ts = NULL;
++	ts->micro->ts_data = NULL;
++	spin_unlock_irq(&ts->micro->lock);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int micro_ts_suspend(struct device *dev)
++{
++	struct touchscreen_data *ts = dev_get_drvdata(dev);
++
++	spin_lock_irq(&ts->micro->lock);
++	ts->micro->ts = NULL;
++	ts->micro->ts_data = NULL;
++	spin_unlock_irq(&ts->micro->lock);
++	return 0;
++}
++
++static int micro_ts_resume(struct device *dev)
++{
++	struct touchscreen_data *ts = dev_get_drvdata(dev);
++
++	spin_lock_irq(&ts->micro->lock);
++	ts->micro->ts = micro_ts_receive;
++	ts->micro->ts_data = ts;
++	spin_unlock_irq(&ts->micro->lock);
++	return 0;
++}
++#endif
++
++static const struct dev_pm_ops micro_ts_dev_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(micro_ts_suspend, micro_ts_resume)
++};
++
++static struct platform_driver micro_ts_device_driver = {
++	.driver	= {
++		.name	= "ipaq-micro-ts",
++		.pm	= &micro_ts_dev_pm_ops,
++	},
++	.probe	= micro_ts_probe,
++	.remove	= micro_ts_remove,
++};
++module_platform_driver(micro_ts_device_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("driver for iPAQ Atmel micro touchscreen");
++MODULE_ALIAS("platform:ipaq-micro-ts");

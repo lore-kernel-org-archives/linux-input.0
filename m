@@ -1,53 +1,84 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 5/5] hid: huion: Handle tablets with UC-Logic vendor ID
-Date: Wed, 23 Jul 2014 10:43:59 -0400
-Message-ID: <CAN+gG=GS6mTvcouzn+-nhvnUy3R2xbqigb4heLYN1XohrZo4hQ@mail.gmail.com>
-References: <1406119378-24551-1-git-send-email-spbnick@gmail.com>
-	<1406119378-24551-6-git-send-email-spbnick@gmail.com>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: [PATCH 4/5] hid: huion: Switch to generating report descriptor
+Date: Wed, 23 Jul 2014 17:59:57 +0300
+Message-ID: <53CFCDED.1030607@gmail.com>
+References: <1406119378-24551-1-git-send-email-spbnick@gmail.com>	<1406119378-24551-5-git-send-email-spbnick@gmail.com> <CAN+gG=FapAjC3C5oMg2UvpAvXN6pzuG5ovjfXPygGorjPjTKcw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f43.google.com ([209.85.215.43]:37862 "EHLO
-	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757032AbaGWOoA (ORCPT
+Received: from mail-we0-f175.google.com ([74.125.82.175]:39029 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753996AbaGWPAB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jul 2014 10:44:00 -0400
-Received: by mail-la0-f43.google.com with SMTP id hr17so1006946lab.16
-        for <linux-input@vger.kernel.org>; Wed, 23 Jul 2014 07:43:59 -0700 (PDT)
-In-Reply-To: <1406119378-24551-6-git-send-email-spbnick@gmail.com>
+	Wed, 23 Jul 2014 11:00:01 -0400
+Received: by mail-we0-f175.google.com with SMTP id t60so1320791wes.6
+        for <linux-input@vger.kernel.org>; Wed, 23 Jul 2014 08:00:00 -0700 (PDT)
+In-Reply-To: <CAN+gG=FapAjC3C5oMg2UvpAvXN6pzuG5ovjfXPygGorjPjTKcw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Wed, Jul 23, 2014 at 8:42 AM, Nikolai Kondrashov <spbnick@gmail.com> wrote:
-> Add handling of Huion tablets with UC-Logic vendor ID, but the same
-> product ID to hid-huion driver. A Huion H580 was seen using it.
+On 07/23/2014 05:42 PM, Benjamin Tissoires wrote:
+> On Wed, Jul 23, 2014 at 8:42 AM, Nikolai Kondrashov <spbnick@gmail.com> wrote:
+>> Switch to generating tablet pen report descriptor from a template and
+>> parameters retrieved from string descriptor 0x64.
+>>
+>> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+>> ---
 >
-> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-> ---
+> This is a nice solution.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Thanks, Benjamin :)
 
->  drivers/hid/hid-huion.c | 1 +
->  1 file changed, 1 insertion(+)
+>> -       rc = usb_string(hid_to_usb_dev(hdev), 0x64, buf, sizeof(buf));
+>> -       if (rc < 0)
+>> -               return rc;
+>> +       /*
+>> +        * Read string descriptor containing tablet parameters. The specific
+>> +        * string descriptor and data were discovered by sniffing the Windows
+>> +        * driver traffic.
+>> +        * NOTE: This enables fully-functional tablet mode.
+>> +        */
+>> +       rc = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
+>> +                               USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
+>> +                               (USB_DT_STRING << 8) + 0x64,
+>> +                               0x0409, buf, sizeof(buf),
+>> +                               USB_CTRL_GET_TIMEOUT);
 >
-> diff --git a/drivers/hid/hid-huion.c b/drivers/hid/hid-huion.c
-> index e6f5338..1006c2a 100644
-> --- a/drivers/hid/hid-huion.c
-> +++ b/drivers/hid/hid-huion.c
-> @@ -247,6 +247,7 @@ static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
+> Just out of curiosity, you are replacing usb_string() by
+> usb_control_msg(). They both seem to do the same, so why bother
+> changing the call?
+
+Well, actually they don't seem to do the same and the main difference is that
+usb_string attempts to convert the data from UTF-16LE to UTF-8, which would be
+undesirable for the binary contents we expect there.
+
+>> +               resolution = le16_to_cpu(buf[5]);
+>> +               if (resolution == 0) {
+>> +                       params[HUION_PH_ID_X_PM] = 0;
+>> +                       params[HUION_PH_ID_Y_PM] = 0;
 >
->  static const struct hid_device_id huion_devices[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_HUION_TABLET) },
->         { }
->  };
->  MODULE_DEVICE_TABLE(hid, huion_devices);
-> --
-> 2.0.1
+> This is not good (not your code I mean). I know OEMs tend to not care
+> about resolution, but Wayland will for the tablet protocol. The idea
+> will be to report the coordinate in mm so that we can have a constant
+> reporting across vendors/products.
 >
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Did you ever fall in this case? and if so, isn't there any way of
+> retrieving the actual resolution or an approximation?
+
+Thankfully not. This is merely a protection against division-by-zero
+exception in case they start doing that.
+
+BTW, it's nice that Wayland tries to actually use the resolution.
+
+> The rest looks fair enough, so even with my questions:
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Thanks for the review, Benjamin!
+
+Will send a new version soon.
+
+Sincerely,
+Nick

@@ -1,47 +1,32 @@
-From: Brad Slayter <slayterkernel@gmail.com>
-Subject: [PATCH] hid: hid-apple: Fixed 2 spacing style issues
-Date: Wed, 23 Jul 2014 15:47:07 -0500
-Message-ID: <1406148427-4073-1-git-send-email-slayterkernel@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Brad Slayter <slayterkernel@gmail.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 04/15] Input: atmel_mxt_ts - implement device tree support
+Date: Wed, 23 Jul 2014 15:36:56 -0600
+Message-ID: <53D02AF8.5000100@wwwdotorg.org>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <1404399697-26484-5-git-send-email-nick.dyer@itdev.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:37487 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933386AbaGWVhB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Jul 2014 17:37:01 -0400
+In-Reply-To: <1404399697-26484-5-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick.dyer@itdev.co.uk, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@nvidia.com>
 
-Fixed a spacing issue in a struct def and a funcion call.
+On 07/03/2014 09:01 AM, nick.dyer@itdev.co.uk wrote:
+> From: Stephen Warren <swarren@nvidia.com>
+> 
+> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Signed-off-by: Brad Slayter <slayterkernel@gmail.com>
----
- drivers/hid/hid-apple.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index f822fd2..8e0a0a4 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -157,10 +157,10 @@ static const struct apple_key_translation apple_iso_keyboard[] = {
- };
- 
- static const struct apple_key_translation swapped_option_cmd_keys[] = {
--	{ KEY_LEFTALT,	KEY_LEFTMETA },
--	{ KEY_LEFTMETA,	KEY_LEFTALT },
--	{ KEY_RIGHTALT,	KEY_RIGHTMETA },
--	{ KEY_RIGHTMETA,KEY_RIGHTALT },
-+	{ KEY_LEFTALT,	 KEY_LEFTMETA },
-+	{ KEY_LEFTMETA,	 KEY_LEFTALT },
-+	{ KEY_RIGHTALT,	 KEY_RIGHTMETA },
-+	{ KEY_RIGHTMETA, KEY_RIGHTALT },
- 	{ }
- };
- 
-@@ -200,7 +200,7 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		else
- 			table = apple_fn_keys;
- 
--		trans = apple_find_translation (table, usage->code);
-+		trans = apple_find_translation(table, usage->code);
- 
- 		if (trans) {
- 			if (test_bit(usage->code, asc->pressed_fn))
--- 
-1.7.10.4
+Hmm. It looks like the version of this patch that was actually applied
+varies quite a bit from what was posted, in particular in the
+implementation and call site of mxt_parse_dt(). It'd be nice if the
+commit log had been adjusted to mention this, so it didn't look like *I*
+caused all those compile errors and warnings that the 0-day builder just
+found:-(

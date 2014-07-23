@@ -1,57 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] synaptics: Add min/max quirk for pnp-id LEN2002 (Edge
- E531)
-Date: Tue, 22 Jul 2014 23:08:01 -0700
-Message-ID: <20140723060801.GC25004@core.coreip.homeip.net>
-References: <1404211212-10382-1-git-send-email-hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: s3c2410_ts: Move to
+ clk_prepare_enable/clk_disable_unprepare
+Date: Tue, 22 Jul 2014 23:09:14 -0700
+Message-ID: <20140723060913.GD25004@core.coreip.homeip.net>
+References: <1404155377-2862-1-git-send-email-anarsoul@gmail.com>
+ <20140709010049.GC14935@core.coreip.homeip.net>
+ <2138540.gOK28iFQ6r@vasilykh-desktop-i5>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1404211212-10382-1-git-send-email-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <2138540.gOK28iFQ6r@vasilykh-desktop-i5>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Vasily Khoruzhick <anarsoul@gmail.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 01, 2014 at 12:40:12PM +0200, Hans de Goede wrote:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1114768
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Hi Vasily,
 
-Applied, thank you.
+On Wed, Jul 09, 2014 at 12:13:41PM +0300, Vasily Khoruzhick wrote:
+> On 8 July 2014 18:00:49 Dmitry Torokhov wrote:
+> 
+> Hi Dmitry,
+> 
+> > > 
+> > > -	clk_disable(ts.clock);
+> > > +	clk_disable_unprepare(ts.clock);
+> > 
+> > Do we really need to unprepare on suspend? Why simply disabling is not
+> > enough here?
+> 
+> You're right, disabling should be enough here. I'll resend a patch after 
+> testing on a hardware.
 
-> ---
->  drivers/input/mouse/synaptics.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 75a5154..84c72f6 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -132,7 +132,8 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
->  		1232, 5710, 1156, 4696
->  	},
->  	{
-> -		(const char * const []){"LEN0034", "LEN0036", "LEN2004", NULL},
-> +		(const char * const []){"LEN0034", "LEN0036", "LEN2002",
-> +					"LEN2004", NULL},
->  		1024, 5112, 2024, 4832
->  	},
->  	{
-> @@ -168,7 +169,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
->  	"LEN0049",
->  	"LEN2000",
->  	"LEN2001", /* Edge E431 */
-> -	"LEN2002",
-> +	"LEN2002", /* Edge E531 */
->  	"LEN2003",
->  	"LEN2004", /* L440 */
->  	"LEN2005",
-> -- 
-> 2.0.0
-> 
+I ended up cutting out suspend/resume parts and applying.
+
+Thanks.
 
 -- 
 Dmitry

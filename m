@@ -1,37 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 23/23] Input - wacom: Move the USB (now hid) Wacom
- driver in drivers/hid
-Date: Thu, 24 Jul 2014 13:25:48 -0700
-Message-ID: <20140724202548.GD26752@core.coreip.homeip.net>
-References: <1405449946-11515-1-git-send-email-benjamin.tissoires@redhat.com>
- <1405449946-11515-24-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input: wacom_serial4 - prepare for wacom USB moving to HID
+Date: Thu, 24 Jul 2014 13:31:09 -0700
+Message-ID: <20140724203108.GA9191@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:55953 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934176AbaGXUZx (ORCPT
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:48859 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934503AbaGXUbO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2014 16:25:53 -0400
+	Thu, 24 Jul 2014 16:31:14 -0400
 Content-Disposition: inline
-In-Reply-To: <1405449946-11515-24-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Julian Squires <julian@cipht.net>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2014 at 02:45:46PM -0400, Benjamin Tissoires wrote:
-> wacom.ko is now a full HID driver, we have to move it into the proper
-> subdirectory: drivers/hid.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+wacom_wac.h will be moving to drivers/hid. Since we only need 3 definitions
+from it let's simply copy them over.
 
-Hmm, this breaks the new wacom_serial4 driver that wants wacom_wac.h. It
-looks like it only wants STYLUS_DEVICE_ID, ERASER_DEVICE_ID, and
-CURSOR_DEVICE_ID definitions, I think I will just copy them into
-wacom_serial4.c and be done with it. Hans?
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/tablet/wacom_serial4.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Thanks.
+diff --git a/drivers/input/tablet/wacom_serial4.c b/drivers/input/tablet/wacom_serial4.c
+index d3d251e..deef50e 100644
+--- a/drivers/input/tablet/wacom_serial4.c
++++ b/drivers/input/tablet/wacom_serial4.c
+@@ -149,6 +149,11 @@ MODULE_LICENSE("GPL");
+ #define F_HAS_STYLUS2		0x02
+ #define F_HAS_SCROLLWHEEL	0x04
+ 
++/* device IDs */
++#define STYLUS_DEVICE_ID	0x02
++#define CURSOR_DEVICE_ID	0x06
++#define ERASER_DEVICE_ID	0x0A
++
+ enum { STYLUS = 1, ERASER, CURSOR };
+ 
+ static const struct {
+-- 
+2.0.0.526.g5318336
+
 
 -- 
 Dmitry

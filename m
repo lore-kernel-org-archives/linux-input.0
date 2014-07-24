@@ -1,63 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 3/4] HID: lenovo: Style fixes
-Date: Wed, 23 Jul 2014 16:37:00 -0700
-Message-ID: <20140723233700.GA37304@core.coreip.homeip.net>
-References: <1406154648-14000-1-git-send-email-jm@lentin.co.uk>
- <1406154648-14000-4-git-send-email-jm@lentin.co.uk>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: Linux 3.16-rc6
+Date: Wed, 23 Jul 2014 17:37:43 -0700
+Message-ID: <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com>
+References: <CA+55aFzJKxzw_as9iGgeM=MdQ6trUkQLDuoEr8nxj88sOqQnQA@mail.gmail.com>
+	<20140723095327.GA23131@pd.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:65376 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758059AbaGWXhF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jul 2014 19:37:05 -0400
-Content-Disposition: inline
-In-Reply-To: <1406154648-14000-4-git-send-email-jm@lentin.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140723095327.GA23131@pd.tnic>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jamie Lentin <jm@lentin.co.uk>
-Cc: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jamie,
+On Wed, Jul 23, 2014 at 2:53 AM, Borislav Petkov <bp@alien8.de> wrote:
+>
+> Well, it looks like we f*cked up something after -rc5 since I'm starting
+> to see lockdep splats all over the place which I didn't see before. I'm
+> running rc6 + tip/master.
+>
+> There was one in r8169 yesterday:
+>
+> https://lkml.kernel.org/r/20140722081840.GA6462@pd.tnic
+>
+> and now I'm seeing the following in a kvm guest. I'm adding some more
+> lists to CC which look like might be related, judging from the stack
+> traces.
 
-On Wed, Jul 23, 2014 at 11:30:47PM +0100, Jamie Lentin wrote:
-> Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
-> ---
->  drivers/hid/hid-lenovo.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-> index a56b9e7..6d55939 100644
-> --- a/drivers/hid/hid-lenovo.c
-> +++ b/drivers/hid/hid-lenovo.c
-> @@ -350,6 +350,7 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
->  	size_t name_sz = strlen(dev_name(dev)) + 16;
->  	char *name_mute, *name_micmute;
->  	int i;
-> +	int ret;
->  
->  	/*
->  	 * Only register extra settings against subdevice where input_mapping
-> @@ -368,10 +369,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
->  	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 3, 0, 2))
->  		return -ENODEV;
->  
-> -	if (sysfs_create_group(&hdev->dev.kobj,
-> -				&lenovo_attr_group_tpkbd)) {
-> +	ret = sysfs_create_group(&hdev->dev.kobj, &lenovo_attr_group_tpkbd);
-> +	if (ret)
->  		hid_warn(hdev, "Could not create sysfs group\n");
-> -	}
->  
->  	data_pointer = devm_kzalloc(&hdev->dev,
->  				    sizeof(struct lenovo_drvdata_tpkbd),
+Hmm. I'm not seeing the reason for this.
 
+> [   31.704282] [ INFO: possible irq lock inversion dependency detected ]
+> [   31.704282] 3.16.0-rc6+ #1 Not tainted
+> [   31.704282] ---------------------------------------------------------
+> [   31.704282] Xorg/3484 just changed the state of lock:
+> [   31.704282]  (tasklist_lock){.?.+..}, at: [<ffffffff81184b19>] send_sigio+0x59/0x1b0
+> [   31.704282] but this lock took another, HARDIRQ-unsafe lock in the past:
+> [   31.704282]  (&(&p->alloc_lock)->rlock){+.+...}
 
-This change does not make sense unless you show the error code in the
-warning.
+Ok, so the claim is that there's a 'p->alloc_lock' (ie "task_lock()")
+that is inside the tasklist_lock, which would indeed be wrong. But I'm
+not seeing it. The "shortest dependencies" thing seems to imply
+__set_task_comm(), but that only takes task_lock.
 
-Thanks.
+Unless there is something in tip/master. Can you check that this is
+actually in plain -rc6?
 
--- 
-Dmitry
+Or maybe I'm just blind. Those lockdep splats are easy to get wrong.
+Adding PeterZ and Ingo to the list just because they are my lockdep
+go-to people.
+
+                 Linus

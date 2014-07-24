@@ -1,57 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: add i2c/smbus driver for elan touchpad
-Date: Thu, 24 Jul 2014 11:05:16 -0700
-Message-ID: <20140724180516.GA26752@core.coreip.homeip.net>
-References: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 00/10] Input - wacom: conversion to HID driver, series 2
+Date: Thu, 24 Jul 2014 14:13:55 -0400
+Message-ID: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:45430 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933154AbaGXSFV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2014 14:05:21 -0400
-Content-Disposition: inline
-In-Reply-To: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
+Received: from mx1.redhat.com ([209.132.183.28]:49229 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759628AbaGXSOZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jul 2014 14:14:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Duson Lin <dusonlin@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bleung@chromium.org, agnescheng@chromium.org, phoenix@emc.com.tw, jeff.chuang@emc.com.tw
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi,
+Hi Dmitry,
 
-On Tue, Jan 07, 2014 at 11:08:03AM +0800, Duson Lin wrote:
-> +/*
-> + ******************************************************************
-> + * General functions
-> + ******************************************************************
-> + */
-> +/*
-> + * (value from firmware) * 10 + 790 = dpi
-> + * we also have to convert dpi to dots/mm (*10/254 to avoid floating point)
-> + */
-> +static unsigned int elan_convert_res(char val)
-> +{
-> +	int res;
-> +	if (val & 0x80) {
-> +		val = ~val + 1;
-> +		res = (790 - val * 10) * 10 / 254;
-> +	} else
-> +		res = (val * 10 + 790) * 10 / 254;
-> +	return res;
-> +}
+this is the second series I told you about for wacom.ko. This series also have
+a good number of removed lines of code. \o/
 
-Why isn't this simply:
+The first patch is Jason's one that I finally decided to take with me. His
+previous submission still applied correctly even after the moving of the files
+(git is definitively awesome).
 
-	res = ((int)val * 10 + 790) * 10 / 254;
+The second one is a patch I sent earlier and forgot to include in the v2 of
+the first series. It might have been dropped during my many rebases. So here
+he is.
 
-?
+The rest is for one part enhancing the battery reporting system (to make it
+equal to the one in hid-wacom, and even slightly better). The other part
+is the actual merge of hid-wacom into wacom which gives the same user space API
+for bluetooth and USB devices, fixes the pad-in-a-separate-input-dev, and
+fixes the missing tools not supported in the previous implementation of
+hid-wacom for Intuos 4 BT.
 
-If high bit is 1 you basically do the 2 complement by hand to get to
-positive and then subtract. Which shoudl be the same as adding positive
-value.
+Hi Jason,
 
-Thanks.
+I took your patch through this series, I hope you don't mind,
+
+Hi Przemo,
+
+Normally, this series contains all the bits of hid-wacom (except the custom
+LED/OLED API). Please tell me if I am missing anything and if you like the
+change.
+
+Cheers,
+Benjamin
+
+
+Benjamin Tissoires (9):
+  Input - wacom: put a flag when the led are initialized
+  Input - wacom: enhance Wireless Receiver battery reporting
+  Input - wacom: use a uniq name for the battery device
+  Input - wacom: register an ac power supply for wireless devices
+  Input - wacom: prepare the driver to include BT devices
+  Input - wacom: handle Graphire BT tablets in wacom.ko
+  Input - wacom: handle Intuos 4 BT in wacom.ko
+  Input - wacom: add copyright note and bump version to 2.0
+  HID: remove hid-wacom Bluetooth driver
+
+Jason Gerecke (1):
+  Input - wacom: Support up to 2048 pressure levels with ISDv4
+
+ drivers/hid/Kconfig     |  10 +-
+ drivers/hid/Makefile    |   3 +-
+ drivers/hid/hid-core.c  |   2 -
+ drivers/hid/hid-wacom.c | 973 ------------------------------------------------
+ drivers/hid/wacom.h     |  11 +
+ drivers/hid/wacom_sys.c | 217 ++++++++++-
+ drivers/hid/wacom_wac.c | 195 +++++++++-
+ drivers/hid/wacom_wac.h |  10 +
+ 8 files changed, 415 insertions(+), 1006 deletions(-)
+ delete mode 100644 drivers/hid/hid-wacom.c
 
 -- 
-Dmitry
+2.0.1
+

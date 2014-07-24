@@ -1,54 +1,62 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH v2 07/10] Input - wacom: handle Graphire BT tablets in wacom.ko
-Date: Thu, 24 Jul 2014 13:43:39 -0700
-Message-ID: <CAF8JNhJypqDf_1e1heza8G_faPhtyKqxS19dg+_+AEFYvWCeuw@mail.gmail.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
+Date: Thu, 24 Jul 2014 15:19:01 -0600
+Message-ID: <53D17845.4020507@wwwdotorg.org>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <53CECAEC.8080905@wwwdotorg.org> <53CFD50C.4040509@itdev.co.uk> <53CFEF6E.2060905@wwwdotorg.org> <53D10E78.4010908@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:34698 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934176AbaGXUnl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2014 16:43:41 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <53D10E78.4010908@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Jul 24, 2014 at 12:58 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On 07/24/2014 07:47 AM, Nick Dyer wrote:
+> On 23/07/14 18:22, Stephen Warren wrote:
+>> That didn't make any difference.
+>>
+>> I also tried the tool interactively. the "Display raw (M)essages" option
+>> never displayed anything, and the couple of self-tests I tried just
+>> timed out. "Read (I)nfo block" did display some values that seemed like
+>> they might be correct rather than random data.
+>>
+>> Interestingly though, I did bisect the series and found "Input:
+>> atmel_mxt_ts - use deep sleep mode when stopped" causes the problem. If
+>> I apply the whole series and revert that one patch, the touchpad works
+>> for mouse movement, but interestingly not for taps or physical clicks.
 >
-> On Thu, Jul 24, 2014 at 03:43:52PM -0400, Benjamin Tissoires wrote:
-> > On Jul 24 2014 or thereabouts, Dmitry Torokhov wrote:
-> > > Hi Benjamin,
-> > >
-> > > On Thu, Jul 24, 2014 at 02:14:02PM -0400, Benjamin Tissoires wrote:
-> > > > +                 } else if (features->type == GRAPHIRE_BT) {
-> > > > +                         /* Compute distance between mouse and tablet */
-> > > > +                         rw = 44 - (data[6] >> 2);
-> > > > +                         if (rw < 0)
-> > > > +                                 rw = 0;
-> > > > +                         else if (rw > 31)
-> > > > +                                 rw = 31;
-> > >
-> > >                             rw = clamp_val(rw, 0, 31);
-> > >
-> > > ?
-> >
-> > could be...
-> >
-> > I'll do the tests and resubmit later the v3. I'll wait a little in case
-> > you have other comments on the other patches :)
+> Could you dump out the config for me (when it's in the failed state)? This
+> can be done by running:
 >
-> How about doing it incrementally - the patch is still sound as far as I
-> am concerned. I will wait a bit for other to chime in with comments or
-> acks before applying this series.
+> mxt-app [device] --save fail.xcfg
 
+That command always experiences a timeout error, but still seems to dump 
+something out. Is this timeout error an issue? I'm a little hesitant to 
+modify the COMMSCONFIG settings until I know load/save are really working.
 
-Thank you Benjamin and Dmitry for your support. The whole series is:
+root@localhost:~/obp-utils# ./mxt-app -d i2c-dev:1-004b --save 
+~/mxt-save-no-movement.xml
+Version:1.16-65-g0a4c
+Registered i2c-dev adapter:1 address:0x4b
+Opening config file /root/mxt-save-no-movement.xml...
+REPORTALL command issued
+Timeout
 
-Acked-by: Ping Cheng <pingc@wacom.com>
+I've uploaded 2 logs to:
 
-Cheers,
+http://avon.wwwdotorg.org/downloads/mxt-logs/
+(note there's no directory indexing, so manually add the filenames below 
+to the URL)
 
-Ping
+mxt-save-no-movement.xml
+
+This is with the whole series applied. Neither mouse movement nor clicks 
+works. I tried mxt-app --reset and it made no difference to the dump 
+results.
+
+mxt-save-move-ok-no-clicking.xml
+
+This is with "Input: atmel_mxt_ts - use deep sleep mode when stopped" 
+reverted; mouse movement works, but clicking doesn't.

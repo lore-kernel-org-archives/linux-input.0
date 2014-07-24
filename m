@@ -1,39 +1,57 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: Linux 3.16-rc6
-Date: Thu, 24 Jul 2014 18:34:03 +0200
-Message-ID: <20140724163403.GP19239@pd.tnic>
-References: <CA+55aFzJKxzw_as9iGgeM=MdQ6trUkQLDuoEr8nxj88sOqQnQA@mail.gmail.com>
- <20140723095327.GA23131@pd.tnic>
- <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com>
- <20140724064353.GW9918@twins.programming.kicks-ass.net>
- <20140724084126.GB19239@pd.tnic>
- <20140724122513.GM19239@pd.tnic>
- <20140724125814.GX6758@twins.programming.kicks-ass.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: add i2c/smbus driver for elan touchpad
+Date: Thu, 24 Jul 2014 11:05:16 -0700
+Message-ID: <20140724180516.GA26752@core.coreip.homeip.net>
+References: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:45430 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933154AbaGXSFV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jul 2014 14:05:21 -0400
 Content-Disposition: inline
-In-Reply-To: <20140724125814.GX6758@twins.programming.kicks-ass.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Waiman Long <Waiman.Long@hp.com>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+In-Reply-To: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Duson Lin <dusonlin@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bleung@chromium.org, agnescheng@chromium.org, phoenix@emc.com.tw, jeff.chuang@emc.com.tw
 
-On Thu, Jul 24, 2014 at 02:58:14PM +0200, Peter Zijlstra wrote:
-> Of course we should have made the lockdep change before merging qrwlock,
-> and that's entirely my fail, but with qrwlock in these new semantics are
-> already a reality.
-> 
-> We could of course disable qrwlock until all such issues are cleared up
-> (its the safe option)...
+Hi,
 
-So we leave in the lockdep change and disable qrwlock ontop of
-tip/locking/core. Nothing's hurt yet as this whole pile is queued for
-3.17 anyway.
+On Tue, Jan 07, 2014 at 11:08:03AM +0800, Duson Lin wrote:
+> +/*
+> + ******************************************************************
+> + * General functions
+> + ******************************************************************
+> + */
+> +/*
+> + * (value from firmware) * 10 + 790 = dpi
+> + * we also have to convert dpi to dots/mm (*10/254 to avoid floating point)
+> + */
+> +static unsigned int elan_convert_res(char val)
+> +{
+> +	int res;
+> +	if (val & 0x80) {
+> +		val = ~val + 1;
+> +		res = (790 - val * 10) * 10 / 254;
+> +	} else
+> +		res = (val * 10 + 790) * 10 / 254;
+> +	return res;
+> +}
+
+Why isn't this simply:
+
+	res = ((int)val * 10 + 790) * 10 / 254;
+
+?
+
+If high bit is 1 you basically do the 2 complement by hand to get to
+positive and then subtract. Which shoudl be the same as adding positive
+value.
+
+Thanks.
 
 -- 
-Regards/Gruss,
-    Boris.
-
-Sent from a fat crate under my desk. Formatting is fine.
---
+Dmitry

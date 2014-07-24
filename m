@@ -1,26 +1,29 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 04/15] Input: atmel_mxt_ts - implement device tree support
-Date: Thu, 24 Jul 2014 16:10:22 +0100
-Message-ID: <53D121DE.8070401@itdev.co.uk>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <1404399697-26484-5-git-send-email-nick.dyer@itdev.co.uk> <53D02AF8.5000100@wwwdotorg.org>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - split config update a bit
+Date: Thu, 24 Jul 2014 16:34:18 +0100
+Message-ID: <53D1277A.2020006@itdev.co.uk>
+References: <20140723232954.GA13095@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <53D02AF8.5000100@wwwdotorg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@nvidia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:23073 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759114AbaGXPeV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jul 2014 11:34:21 -0400
+In-Reply-To: <20140723232954.GA13095@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, linux-kernel@vger.kernel.org
 
-On 23/07/14 22:36, Stephen Warren wrote:
-> Hmm. It looks like the version of this patch that was actually applied
-> varies quite a bit from what was posted, in particular in the
-> implementation and call site of mxt_parse_dt(). It'd be nice if the
-> commit log had been adjusted to mention this, so it didn't look like *I*
-> caused all those compile errors and warnings that the 0-day builder just
-> found:-(
+On 24/07/14 00:29, Dmitry Torokhov wrote:
+> Let's split config update code a bit so it is hopefully a bit easier to
+> read. Also, the firmware update callback should be the entity releasing
+> firmware blob, not lower layers.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Apologies for my part in this. It doesn't help that this patch went through
-several revisions. Is there a best practice for when to remove
-signed-off-by or change authorship documented anywhere?
+Thanks, this is obviously sensible. I will bring this into my patch series
+and test it.

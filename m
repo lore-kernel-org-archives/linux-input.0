@@ -1,50 +1,75 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 04/15] Input: atmel_mxt_ts - implement device tree support
-Date: Thu, 24 Jul 2014 10:04:04 -0600
-Message-ID: <53D12E74.5070508@wwwdotorg.org>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <1404399697-26484-5-git-send-email-nick.dyer@itdev.co.uk> <53D02AF8.5000100@wwwdotorg.org> <53D121DE.8070401@itdev.co.uk>
+From: =?ISO-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
+Subject: Trouble with an HP stylus
+Date: Thu, 24 Jul 2014 17:52:27 +0200
+Message-ID: <2325454.r4RE9vHMoF@romarin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:59334 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933259AbaGXQEK (ORCPT
+Received: from nef2.ens.fr ([129.199.96.40]:2901 "EHLO nef2.ens.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759002AbaGXQXq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2014 12:04:10 -0400
-In-Reply-To: <53D121DE.8070401@itdev.co.uk>
+	Thu, 24 Jul 2014 12:23:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@nvidia.com>
+To: jkosina@suse.cz, linux-input@vger.kernel.org
 
-On 07/24/2014 09:10 AM, Nick Dyer wrote:
-> On 23/07/14 22:36, Stephen Warren wrote:
->> Hmm. It looks like the version of this patch that was actually applied
->> varies quite a bit from what was posted, in particular in the
->> implementation and call site of mxt_parse_dt(). It'd be nice if the
->> commit log had been adjusted to mention this, so it didn't look like *I*
->> caused all those compile errors and warnings that the 0-day builder just
->> found:-(
-> 
-> Apologies for my part in this. It doesn't help that this patch went through
-> several revisions. Is there a best practice for when to remove
-> signed-off-by or change authorship documented anywhere?
+Hi,
 
-My comment was more directed at the diff between what you posted and
-what was applied.
+I have a HP EliteBook Revolve 810 (which is a hybrid laptop/tablet) wit=
+h
+the HP active pen that goes with it. I have installed fedora 20 (kernel
+3.15.6-200.fc20.x86_64) on this, and the pen does not work out of the b=
+ox.
+Playing with evtest, it appears that the kernel reports the X coordinat=
+e in
+ABS_X and in ABS_Y, while the Y coordinate goes into ABS_Z and ABS_RX; =
+here
+are a few lines of output:
 
-I believe the usual practice is:
+Event: time 1406153996.865044, -------------- SYN_REPORT ------------
+Event: time 1406153996.873047, type 3 (EV_ABS), code 0 (ABS_X), value 1=
+087
+Event: time 1406153996.873047, type 3 (EV_ABS), code 1 (ABS_Y), value 1=
+087
+Event: time 1406153996.873047, type 3 (EV_ABS), code 2 (ABS_Z), value 1=
+599
+Event: time 1406153996.873047, type 3 (EV_ABS), code 3 (ABS_RX), value =
+1599
 
-* If completely re-writing a patch using another as inspiration, change
-the author and credit them in free-form text, or perhaps with a
-Based-on-work-by: tag.
+Of course, XOrg's evdev driver is confused and the pointer is stuck on =
+the
+diagonal X=3DY.
 
-* If generally keeping the patch, but just changing a few things, make a
-note of it in between the s-o-b lines, e.g.:
+I guess this hardware needs a new quirk to usbhid, unless there is alre=
+ady
+a way to correct it ?
 
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-[assign directly to pdata->t19_keymap to avoid a temporary, description
-of other changes ...]
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Here is the content of /sys/class/input/event8/device/uevent:
+
+PRODUCT=3D3/3eb/840b/111
+NAME=3D"Atmel Atmel maXTouch Digitizer Pen"
+PHYS=3D"usb-0000:00:1a.0-1.1/input0"
+UNIQ=3D""
+PROP=3D0
+EV=3D1b
+KEY=3Dc01 1 0 0 0 0
+ABS=3D100000f
+MSC=3D10
+MODALIAS=3Dinput:b0003v03EBp840Be0111-
+e0,1,3,4,k100,140,14A,14B,ra0,1,2,3,18,m4,lsfw
+
+I hope I gave enough information on this. I don't read the mailing list=
+,
+please CC any answer.
+
+Thanks,
+
+	=C3=89ric Brunet
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

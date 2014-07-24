@@ -1,72 +1,49 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: Linux 3.16-rc6
-Date: Thu, 24 Jul 2014 08:43:53 +0200
-Message-ID: <20140724064353.GW9918@twins.programming.kicks-ass.net>
-References: <CA+55aFzJKxzw_as9iGgeM=MdQ6trUkQLDuoEr8nxj88sOqQnQA@mail.gmail.com>
- <20140723095327.GA23131@pd.tnic>
- <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/3] driver:gpio remove all usage of
+	gpio_remove retval in driver
+Date: Thu, 24 Jul 2014 10:29:22 +0200
+Message-ID: <CACRpkdaEF14cB+=SjTHgwGH0z88v82Q_UNPvjzDAbpOb_2ec5Q@mail.gmail.com>
+References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>
+ <1405197014-25225-1-git-send-email-berthe.ab@gmail.com>
+ <1405197014-25225-4-git-send-email-berthe.ab@gmail.com>
+ <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+ <20140722151125.GS17528@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:40443 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751248AbaGXGoF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2014 02:44:05 -0400
-Content-Disposition: inline
-In-Reply-To: <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20140722151125.GS17528@sirena.org.uk>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Mark Brown <broonie@kernel.org>
+Cc: linux-mips@linux-mips.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Matthew Garrett <matthew.garrett@nebula.com>, Samuel Ortiz <sameo@linux.intel.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, abdoulaye berthe <berthe.ab@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, "arm@kernel.org" <arm@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Michael Buesch <m@bues.ch>, Greg KH <gregkh>
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Jul 23, 2014 at 05:37:43PM -0700, Linus Torvalds wrote:
-> On Wed, Jul 23, 2014 at 2:53 AM, Borislav Petkov <bp@alien8.de> wrote:
-> >
-> > Well, it looks like we f*cked up something after -rc5 since I'm starting
-> > to see lockdep splats all over the place which I didn't see before. I'm
-> > running rc6 + tip/master.
-> >
-> > There was one in r8169 yesterday:
-> >
-> > https://lkml.kernel.org/r/20140722081840.GA6462@pd.tnic
-> >
-> > and now I'm seeing the following in a kvm guest. I'm adding some more
-> > lists to CC which look like might be related, judging from the stack
-> > traces.
-> 
-> Hmm. I'm not seeing the reason for this.
-> 
-> > [   31.704282] [ INFO: possible irq lock inversion dependency detected ]
-> > [   31.704282] 3.16.0-rc6+ #1 Not tainted
-> > [   31.704282] ---------------------------------------------------------
-> > [   31.704282] Xorg/3484 just changed the state of lock:
-> > [   31.704282]  (tasklist_lock){.?.+..}, at: [<ffffffff81184b19>] send_sigio+0x59/0x1b0
-> > [   31.704282] but this lock took another, HARDIRQ-unsafe lock in the past:
-> > [   31.704282]  (&(&p->alloc_lock)->rlock){+.+...}
-> 
-> Ok, so the claim is that there's a 'p->alloc_lock' (ie "task_lock()")
-> that is inside the tasklist_lock, which would indeed be wrong. But I'm
-> not seeing it. The "shortest dependencies" thing seems to imply
-> __set_task_comm(), but that only takes task_lock.
-> 
-> Unless there is something in tip/master. 
+On Tue, Jul 22, 2014 at 5:11 PM, Mark Brown <broonie@kernel.org> wrote:
+> On Tue, Jul 22, 2014 at 05:08:13PM +0200, Linus Walleij wrote:
+>
+>> Heads up. Requesting ACKs for this patch or I'm atleast warning that it will be
+>> applied. We're getting rid of the return value from gpiochip_remove().
+>
+> Can someone send the patch please?  Splitting it up per-subsystem would
+> probably be easier...
 
-lkml.kernel.org/r/tip-e0645a111cb44e01adc6bfff34f683323863f4d2@git.kernel.org
+OK Abdoulaye maybe we can do it a piece at a time?
 
-Its supposed to change lockdep to the stricter semantics provided by the
-qrwlock.
+I have removed the __must_check attribute from gpiochip_remove()
+in the gpiolib, so the compiler won't complain about this being missing
+anymore as of kernel v3.17. I also dropped the check in the GPIO
+and pin control subsystem, and other subsystems can start
+dropping the checks too if they are OK with the build warnings
+from the kautobuild until the __must_check removal has propagated
+upstream.
 
-Where the rwlock used to be unfair and reader biased, qrwlock is 'fair'
-and only allows interrupt recursion.
-
-> Can you check that this is
-> actually in plain -rc6?
-> 
-> Or maybe I'm just blind. Those lockdep splats are easy to get wrong.
-> Adding PeterZ and Ingo to the list just because they are my lockdep
-> go-to people.
-
-I've been staring at this splat from borislav since yesterday morning
-and confusing myself properly.. I'll continue doing so until I'm
-decided.
+Yours,
+Linus Walleij

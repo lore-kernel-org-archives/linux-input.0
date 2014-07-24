@@ -1,62 +1,43 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Thu, 24 Jul 2014 15:19:01 -0600
-Message-ID: <53D17845.4020507@wwwdotorg.org>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk> <53CECAEC.8080905@wwwdotorg.org> <53CFD50C.4040509@itdev.co.uk> <53CFEF6E.2060905@wwwdotorg.org> <53D10E78.4010908@itdev.co.uk>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: Linux 3.16-rc6
+Date: Thu, 24 Jul 2014 23:45:49 +0200
+Message-ID: <20140724214549.GU19239@pd.tnic>
+References: <CA+55aFzJKxzw_as9iGgeM=MdQ6trUkQLDuoEr8nxj88sOqQnQA@mail.gmail.com>
+ <20140723095327.GA23131@pd.tnic>
+ <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com>
+ <20140724064353.GW9918@twins.programming.kicks-ass.net>
+ <20140724084126.GB19239@pd.tnic>
+ <20140724122513.GM19239@pd.tnic>
+ <20140724125814.GX6758@twins.programming.kicks-ass.net>
+ <CA+55aFynW5xSRQvY6xO+mxmt6yh7mFkMjy-pgJXpXNy8qDMcPA@mail.gmail.com>
+ <20140724183643.GM3935@laptop>
+ <53D16EC4.1000801@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <53D10E78.4010908@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.skyhub.de ([78.46.96.112]:60413 "EHLO mail.skyhub.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759583AbaGXVpz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jul 2014 17:45:55 -0400
+Content-Disposition: inline
+In-Reply-To: <53D16EC4.1000801@hp.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Waiman Long <waiman.long@hp.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 07/24/2014 07:47 AM, Nick Dyer wrote:
-> On 23/07/14 18:22, Stephen Warren wrote:
->> That didn't make any difference.
->>
->> I also tried the tool interactively. the "Display raw (M)essages" option
->> never displayed anything, and the couple of self-tests I tried just
->> timed out. "Read (I)nfo block" did display some values that seemed like
->> they might be correct rather than random data.
->>
->> Interestingly though, I did bisect the series and found "Input:
->> atmel_mxt_ts - use deep sleep mode when stopped" causes the problem. If
->> I apply the whole series and revert that one patch, the touchpad works
->> for mouse movement, but interestingly not for taps or physical clicks.
->
-> Could you dump out the config for me (when it's in the failed state)? This
-> can be done by running:
->
-> mxt-app [device] --save fail.xcfg
+On Thu, Jul 24, 2014 at 04:38:28PM -0400, Waiman Long wrote:
+> Borislav, can you apply the following patch on top of the lockdep
+> patch to see if it can fix the problem?
 
-That command always experiences a timeout error, but still seems to dump 
-something out. Is this timeout error an issue? I'm a little hesitant to 
-modify the COMMSCONFIG settings until I know load/save are really working.
+It is too late here for me to test anything but the ingridients to
+reproduce are nothing special. Just grab a kvm guest and pick out the
+locking or so options out of the .config I sent previously. Then boot it
+a couple of times, it triggers pretty easy after a couple of tries.
 
-root@localhost:~/obp-utils# ./mxt-app -d i2c-dev:1-004b --save 
-~/mxt-save-no-movement.xml
-Version:1.16-65-g0a4c
-Registered i2c-dev adapter:1 address:0x4b
-Opening config file /root/mxt-save-no-movement.xml...
-REPORTALL command issued
-Timeout
+-- 
+Regards/Gruss,
+    Boris.
 
-I've uploaded 2 logs to:
-
-http://avon.wwwdotorg.org/downloads/mxt-logs/
-(note there's no directory indexing, so manually add the filenames below 
-to the URL)
-
-mxt-save-no-movement.xml
-
-This is with the whole series applied. Neither mouse movement nor clicks 
-works. I tried mxt-app --reset and it made no difference to the dump 
-results.
-
-mxt-save-move-ok-no-clicking.xml
-
-This is with "Input: atmel_mxt_ts - use deep sleep mode when stopped" 
-reverted; mouse movement works, but clicking doesn't.
+Sent from a fat crate under my desk. Formatting is fine.
+--

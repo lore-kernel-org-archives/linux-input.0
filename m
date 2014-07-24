@@ -1,70 +1,159 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 02/10] Input - wacom: put a flag when the led are initialized
-Date: Thu, 24 Jul 2014 14:13:57 -0400
-Message-ID: <1406225645-32141-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 05/10] Input - wacom: register an ac power supply for wireless devices
+Date: Thu, 24 Jul 2014 14:14:00 -0400
+Message-ID: <1406225645-32141-6-git-send-email-benjamin.tissoires@redhat.com>
 References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:23734 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934294AbaGXSOw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jul 2014 14:14:52 -0400
 In-Reply-To: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-This solves a bug with the wireless receiver:
-- at plug, the wireless receiver does not know which Wacom device it is
-  connected to, so it does not actually creates all the LEDs
-- when the tablet connects, wacom->wacom_wac.features.type is set to the
-  proper device so that wacom_wac can understand the packets
-- when the receiver is unplugged, it detects that a LED should have been
-  created (based on wacom->wacom_wac.features.type) and tries to remove
-  it: crash when removing the sysfs group.
-
-Side effect, we can now safely call several times wacom_destroy_leds().
+This is used by HID Bluetooth devices but also add some more information
+to the USB Wireless Receiver.
+We are just porting the bits from hid-wacom.c to the common driver here.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Ping Cheng <pingc@wacom.com>
 ---
 
-no changes in v2
+new in v2
 
- drivers/hid/wacom.h     | 1 +
- drivers/hid/wacom_sys.c | 6 ++++++
- 2 files changed, 7 insertions(+)
+ drivers/hid/wacom.h     |  1 +
+ drivers/hid/wacom_sys.c | 58 ++++++++++++++++++++++++++++++++++++++++++++-----
+ drivers/hid/wacom_wac.h |  1 +
+ 3 files changed, 55 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index dd67b7d..a678f82 100644
+index 99516ba..2b5562b 100644
 --- a/drivers/hid/wacom.h
 +++ b/drivers/hid/wacom.h
-@@ -118,6 +118,7 @@ struct wacom {
- 		u8 hlv;       /* status led brightness button pressed (1..127) */
- 		u8 img_lum;   /* OLED matrix display brightness */
+@@ -120,6 +120,7 @@ struct wacom {
  	} led;
-+	bool led_initialized;
+ 	bool led_initialized;
  	struct power_supply battery;
++	struct power_supply ac;
  };
  
+ static inline void wacom_schedule_work(struct wacom_wac *wacom_wac)
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 9dbb6dd..c857b3d 100644
+index eb8705d..d0d06b8 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -729,12 +729,18 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 		return error;
- 	}
- 	wacom_led_control(wacom);
-+	wacom->led_initialized = true;
+@@ -774,6 +774,12 @@ static enum power_supply_property wacom_battery_props[] = {
+ 	POWER_SUPPLY_PROP_CAPACITY
+ };
  
- 	return 0;
++static enum power_supply_property wacom_ac_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_SCOPE,
++};
++
+ static int wacom_battery_get_property(struct power_supply *psy,
+ 				      enum power_supply_property psp,
+ 				      union power_supply_propval *val)
+@@ -806,14 +812,38 @@ static int wacom_battery_get_property(struct power_supply *psy,
+ 	return ret;
  }
  
- static void wacom_destroy_leds(struct wacom *wacom)
++static int wacom_ac_get_property(struct power_supply *psy,
++				enum power_supply_property psp,
++				union power_supply_propval *val)
++{
++	struct wacom *wacom = container_of(psy, struct wacom, ac);
++	int ret = 0;
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		/* fall through */
++	case POWER_SUPPLY_PROP_ONLINE:
++		val->intval = wacom->wacom_wac.ps_connected;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++	return ret;
++}
++
+ static int wacom_initialize_battery(struct wacom *wacom)
  {
-+	if (!wacom->led_initialized)
-+		return;
+-	int error = 0;
+ 	static atomic_t battery_no = ATOMIC_INIT(0);
++	int error;
+ 	unsigned long n;
+ 
+ 	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
+ 		n = atomic_inc_return(&battery_no) - 1;
 +
-+	wacom->led_initialized = false;
+ 		wacom->battery.properties = wacom_battery_props;
+ 		wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
+ 		wacom->battery.get_property = wacom_battery_get_property;
+@@ -822,15 +852,31 @@ static int wacom_initialize_battery(struct wacom *wacom)
+ 		wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+ 		wacom->battery.use_for_apm = 0;
+ 
++		wacom->ac.properties = wacom_ac_props;
++		wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
++		wacom->ac.get_property = wacom_ac_get_property;
++		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
++		wacom->ac.name = wacom->wacom_wac.ac_name;
++		wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
++		wacom->ac.use_for_apm = 0;
 +
- 	switch (wacom->wacom_wac.features.type) {
- 	case INTUOS4S:
- 	case INTUOS4:
+ 		error = power_supply_register(&wacom->hdev->dev,
+ 					      &wacom->battery);
++		if (error)
++			return error;
++
++		power_supply_powers(&wacom->battery, &wacom->hdev->dev);
++
++		error = power_supply_register(&wacom->hdev->dev, &wacom->ac);
++		if (error) {
++			power_supply_unregister(&wacom->battery);
++			return error;
++		}
+ 
+-		if (!error)
+-			power_supply_powers(&wacom->battery,
+-					    &wacom->hdev->dev);
++		power_supply_powers(&wacom->ac, &wacom->hdev->dev);
+ 	}
+ 
+-	return error;
++	return 0;
+ }
+ 
+ static void wacom_destroy_battery(struct wacom *wacom)
+@@ -839,6 +885,8 @@ static void wacom_destroy_battery(struct wacom *wacom)
+ 	     wacom->battery.dev) {
+ 		power_supply_unregister(&wacom->battery);
+ 		wacom->battery.dev = NULL;
++		power_supply_unregister(&wacom->ac);
++		wacom->ac.dev = NULL;
+ 	}
+ }
+ 
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 6cdf707..3433a0e 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -155,6 +155,7 @@ struct wacom_wac {
+ 	char name[WACOM_NAME_MAX];
+ 	char pad_name[WACOM_NAME_MAX];
+ 	char bat_name[WACOM_NAME_MAX];
++	char ac_name[WACOM_NAME_MAX];
+ 	unsigned char data[WACOM_PKGLEN_MAX];
+ 	int tool[2];
+ 	int id[2];
 -- 
 2.0.1
+

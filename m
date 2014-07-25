@@ -1,63 +1,110 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: Re: [PATCH] hid: usbhid: Use flag HID_DISCONNECTED when a usb device
- is removed
-Date: Fri, 25 Jul 2014 14:06:32 -0500
-Message-ID: <CA+BWVUSiQak2Sc-H3hAEjgyVwZFVGbGv+3B1z8B3k3vdWm40VA@mail.gmail.com>
-References: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: [PATCH v2 00/10] Input - wacom: conversion to HID driver,
+ series 2
+Date: Fri, 25 Jul 2014 20:26:16 +0100
+Message-ID: <1406316376.12682.18.camel@fedora-lan>
+References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
+	 <1406292140.2664.17.camel@fedora-lan>
+	 <20140725125820.GA12268@mail.corp.redhat.com>
+	 <1406295035.2664.43.camel@fedora-lan>
+	 <20140725145400.GB12268@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:62357 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760913AbaGYTGz (ORCPT
+Received: from aso-006-i450.relay.mailchannels.net ([23.91.64.131]:10451 "EHLO
+	relay.mailchannels.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1760793AbaGYT0Y convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 15:06:55 -0400
-In-Reply-To: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
+	Fri, 25 Jul 2014 15:26:24 -0400
+In-Reply-To: <20140725145400.GB12268@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: Reyad Attiyat <reyad.attiyat@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-The kernel panic happened when the iio sensor hid usb device was
-removed. It tries to set the power state by calling hid_hw_request().
-This was on kernel 3.16-rc6
-https://gist.github.com/soda0289/2ff543d9cfff6f92c360#file-kernel-panic-when-iio-sensor-usb-device-is-removed
+Dnia 2014-07-25, pi=C4=85 o godzinie 10:54 -0400, Benjamin Tissoires pi=
+sze:
+> [..]
+Hi Benjamin,
+> =20
+> > If I understand you correctly we cannot have the same entry point i=
+n
+> > sysfs for OLEDs unless we can tell userspace somehow if the tablet =
+is
+> > conected over USB or over bluetooth. The hardware of Intuos4 Wirele=
+ss
+> > over bluetooth allows only 1-bit images. The same hardware over USB
+> > allows 4-bit images. Formatting of the images is also completely
+>=20
+> Holy crap! I missed that. I did not noticed the 1-bit vs 4-bits
+> difference :(
+>=20
+> > different and it's not "plain". Check [1] for usb and exisitng
+> > hid-wacom.c/wacom_scramble function for bluetooth.
+>=20
+> Maybe I overlooked it, but I thought that in case of USB, the scrambl=
+ing
+> is done in user space, and in case of BT, the same scrambling made in=
+ the
+> kernel. They looks very similar so I thought the user-space scramble =
+for
+> USB would have fit. However, the 4-bits/1-bits kills that assumption.
 
-On Fri, Jul 25, 2014 at 12:13 AM, Reyad Attiyat <reyad.attiyat@gmail.com> wrote:
-> Set disconnected flag in struct usbhid when a usb device
-> is removed. Check for disconnected flag before sending urb
-> requests. This prevents a kernel panic when a hid driver calls
-> hid_hw_request() after removing a usb device.
->
-> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
-> ---
->  drivers/hid/usbhid/hid-core.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 7b88f4c..c8fa957 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -536,7 +536,8 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
->         int head;
->         struct usbhid_device *usbhid = hid->driver_data;
->
-> -       if ((hid->quirks & HID_QUIRK_NOGET) && dir == USB_DIR_IN)
-> +       if (((hid->quirks & HID_QUIRK_NOGET) && dir == USB_DIR_IN) ||
-> +               test_bit(HID_DISCONNECTED, &usbhid->iofl))
->                 return;
->
->         if (usbhid->urbout && dir == USB_DIR_OUT && report->type == HID_OUTPUT_REPORT) {
-> @@ -1366,6 +1367,9 @@ static void usbhid_disconnect(struct usb_interface *intf)
->                 return;
->
->         usbhid = hid->driver_data;
-> +       spin_lock_irq(&usbhid->lock);   /* Sync with error and led handlers */
-> +       set_bit(HID_DISCONNECTED, &usbhid->iofl);
-> +       spin_unlock_irq(&usbhid->lock);
->         hid_destroy_device(hid);
->         kfree(usbhid);
->  }
-> --
-> 1.9.3
->
+You're correct - USB requires scrambling in the user space, but
+scrambling for USB is different than for BT. Example of USB scramble is
+here: https://github.com/PrzemoF/i4oled/blob/master/src/i4oled.c#L401
+
+> >=20
+> > If we want to make it consistent single entry on kernel level we
+> > probably have to implement image conversion in the kernel. The user=
+ land
+> > would always use 4-bit, plain formatted images and kernel driver wo=
+uld
+> > convert them to 4-bit, wacom usb format or 1-bit wacom bluetooth fo=
+rmat
+> > depending on how the tablet is connected.
+> >=20
+> > The downside of this approach is that the user land wouldn't have 1=
+00%
+> > control over 1-bit images for bluetooth as kernel would have to cre=
+ate
+> > them from 4-bit images.
+>=20
+> The USB interface is *very* simple:
+> - if incoming data !=3D 1024 -> reject
+> - forward everything to the device without in kernel treatment*
+>=20
+> How about just changing the expected size to 256 in case of a BT tabl=
+et,
+> and let the user-space scramble in both cases and forward proper raw
+> data?
+>=20
+> This way, user space will still have control over 1-bit vs 4-bits, an=
+d
+> the changes required in the kernel will be small enough.
+Sounds good to me. Bit more coding in gnome, but it's a small thing.
+
+> My concern is that I'd like to have this series in 3.17 and I will no=
+t
+> have access to the hardware until next week :/
+> Having all of the user-spaces breakages in the same kernel release wi=
+ll
+> I think simplify the user space work.
+I agree.
+
+P.S. Could you send me that set of 23 patches using git-send-email that
+I should apply on top of linux-next? I got it from lkml, but there is
+still something messed (fails on patch 09/23). Of course, if it's not a
+problem for you :-)
+
+--=20
+Kind regards,
+Przemo Firszt
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

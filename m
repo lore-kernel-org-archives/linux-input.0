@@ -1,54 +1,59 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: Input: atmel_mxt_ts - initialise IRQ before probing
-Date: Fri, 25 Jul 2014 15:20:21 +0300
-Message-ID: <20140725122021.GA528@mwanda>
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: [PATCH v2 00/10] Input - wacom: conversion to HID driver,
+ series 2
+Date: Fri, 25 Jul 2014 13:42:20 +0100
+Message-ID: <1406292140.2664.17.camel@fedora-lan>
+References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:35454 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760134AbaGYMUo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 08:20:44 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 
-Hello Nick Dyer,
+Dnia 2014-07-24, czw o godzinie 14:13 -0400, Benjamin Tissoires pisze:
+[..]
+> Hi Przemo,
+Hi Benjamin,
+> Normally, this series contains all the bits of hid-wacom (except the custom
+> LED/OLED API). Please tell me if I am missing anything and if you like the
+> change.
 
-The patch dd24dcf566d0: "Input: atmel_mxt_ts - initialise IRQ before
-probing" from Jul 23, 2014, leads to the following static checker
-warning:
+I can't cleanly apply your set yet to test it, so:
 
-drivers/input/touchscreen/atmel_mxt_ts.c:1701 mxt_initialize()
-	 warn: we tested 'error' before and it was 'false'
+Acked-by: Przemo Firszt <przemo@firszt.eu>
 
-drivers/input/touchscreen/atmel_mxt_ts.c
-  1693          /* Get object table information */
-  1694          error = mxt_get_object_table(data);
-  1695          if (error) {
-  1696                  dev_err(&client->dev, "Error %d reading object table\n", error);
-  1697                  return error;
-  1698          }
-  1699  
-  1700          mxt_acquire_irq(data);
+What's your plan about LED/OLED API? 
 
-Probably error = mxt_acquire_irq(data) was intended here?
+> Benjamin Tissoires (9):
+>   Input - wacom: put a flag when the led are initialized
+>   Input - wacom: enhance Wireless Receiver battery reporting
+>   Input - wacom: use a uniq name for the battery device
+>   Input - wacom: register an ac power supply for wireless devices
+>   Input - wacom: prepare the driver to include BT devices
+>   Input - wacom: handle Graphire BT tablets in wacom.ko
+>   Input - wacom: handle Intuos 4 BT in wacom.ko
+>   Input - wacom: add copyright note and bump version to 2.0
+>   HID: remove hid-wacom Bluetooth driver
+> 
+> Jason Gerecke (1):
+>   Input - wacom: Support up to 2048 pressure levels with ISDv4
+> 
+>  drivers/hid/Kconfig     |  10 +-
+>  drivers/hid/Makefile    |   3 +-
+>  drivers/hid/hid-core.c  |   2 -
+>  drivers/hid/hid-wacom.c | 973 ------------------------------------------------
+>  drivers/hid/wacom.h     |  11 +
+>  drivers/hid/wacom_sys.c | 217 ++++++++++-
+>  drivers/hid/wacom_wac.c | 195 +++++++++-
+>  drivers/hid/wacom_wac.h |  10 +
+>  8 files changed, 415 insertions(+), 1006 deletions(-)
+>  delete mode 100644 drivers/hid/hid-wacom.c
+> 
 
-  1701          if (error)
-  1702                  goto err_free_object_table;
-  1703  
-  1704          request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
-  1705                                  &data->client->dev, GFP_KERNEL, data,
-  1706                                  mxt_config_cb);
-  1707  
-  1708          return 0;
-  1709  
-  1710  err_free_object_table:
-  1711          mxt_free_object_table(data);
-  1712          return error;
-  1713  }
-
-regards,
-dan carpenter
+-- 
+Kind regards,
+Przemo Firszt

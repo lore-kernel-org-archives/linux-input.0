@@ -1,82 +1,54 @@
-From: pramod.gurav.etc@gmail.com
-Subject: [PATCH v2] Input: soc_button_array: Remove kfree on data allocated with devm_zalloc
-Date: Fri, 25 Jul 2014 17:04:34 +0530
-Message-ID: <1406288074-28725-1-git-send-email-pramod.gurav@smartplayin.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: Input: atmel_mxt_ts - initialise IRQ before probing
+Date: Fri, 25 Jul 2014 15:20:21 +0300
+Message-ID: <20140725122021.GA528@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:64464 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760091AbaGYLbB (ORCPT
+Received: from userp1040.oracle.com ([156.151.31.81]:35454 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760134AbaGYMUo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 07:31:01 -0400
+	Fri, 25 Jul 2014 08:20:44 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, linux-input@vger.kernel.org
 
-From: Pramod Gurav <pramod.gurav@smartplayin.com>
+Hello Nick Dyer,
 
-This patch does below:
-- Removes kfree done on data allocated with devm_zalloc in probe
-  path of the driver.
-- Adds a check on return value from devm_kzalloc which was missing
+The patch dd24dcf566d0: "Input: atmel_mxt_ts - initialise IRQ before
+probing" from Jul 23, 2014, leads to the following static checker
+warning:
 
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Lejun Zhu <lejun.zhu@linux.intel.com>
-CC: Sachin Kamat <sachin.kamat@linaro.org>
+drivers/input/touchscreen/atmel_mxt_ts.c:1701 mxt_initialize()
+	 warn: we tested 'error' before and it was 'false'
 
-Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
----
- drivers/input/misc/soc_button_array.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+drivers/input/touchscreen/atmel_mxt_ts.c
+  1693          /* Get object table information */
+  1694          error = mxt_get_object_table(data);
+  1695          if (error) {
+  1696                  dev_err(&client->dev, "Error %d reading object table\n", error);
+  1697                  return error;
+  1698          }
+  1699  
+  1700          mxt_acquire_irq(data);
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 5a6334b..fc64ec6 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -83,6 +83,9 @@ soc_button_device_create(struct pnp_dev *pdev,
- 				       sizeof(*gpio_keys_pdata) +
- 					sizeof(*gpio_keys) * MAX_NBUTTONS,
- 				       GFP_KERNEL);
-+	if (!gpio_keys_pdata)
-+		return ERR_PTR(-ENOMEM);
-+
- 	gpio_keys = (void *)(gpio_keys_pdata + 1);
- 
- 	for (info = button_info; info->name; info++) {
-@@ -102,20 +105,16 @@ soc_button_device_create(struct pnp_dev *pdev,
- 		n_buttons++;
- 	}
- 
--	if (n_buttons == 0) {
--		error = -ENODEV;
--		goto err_free_mem;
--	}
-+	if (n_buttons == 0)
-+		return ERR_PTR(-ENODEV);
- 
- 	gpio_keys_pdata->buttons = gpio_keys;
- 	gpio_keys_pdata->nbuttons = n_buttons;
- 	gpio_keys_pdata->rep = autorepeat;
- 
- 	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
--	if (!pd) {
--		error = -ENOMEM;
--		goto err_free_mem;
--	}
-+	if (!pd)
-+		return ERR_PTR(-ENOMEM);
- 
- 	error = platform_device_add_data(pd, gpio_keys_pdata,
- 					 sizeof(*gpio_keys_pdata));
-@@ -130,8 +129,6 @@ soc_button_device_create(struct pnp_dev *pdev,
- 
- err_free_pdev:
- 	platform_device_put(pd);
--err_free_mem:
--	devm_kfree(&pdev->dev, gpio_keys_pdata);
- 	return ERR_PTR(error);
- }
- 
--- 
-1.7.9.5
+Probably error = mxt_acquire_irq(data) was intended here?
 
+  1701          if (error)
+  1702                  goto err_free_object_table;
+  1703  
+  1704          request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
+  1705                                  &data->client->dev, GFP_KERNEL, data,
+  1706                                  mxt_config_cb);
+  1707  
+  1708          return 0;
+  1709  
+  1710  err_free_object_table:
+  1711          mxt_free_object_table(data);
+  1712          return error;
+  1713  }
+
+regards,
+dan carpenter

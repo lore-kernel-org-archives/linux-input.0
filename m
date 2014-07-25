@@ -1,50 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: add i2c/smbus driver for elan touchpad
-Date: Fri, 25 Jul 2014 13:06:56 -0700
-Message-ID: <20140725200656.GA2827@core.coreip.homeip.net>
-References: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
- <20140724180516.GA26752@core.coreip.homeip.net>
- <73E9FA09-55D6-409D-A902-29CC3F414CBF@emc.com.tw>
- <20140725182053.GA23356@core.coreip.homeip.net>
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: [PATCH v2 00/10] Input - wacom: conversion to HID driver,
+ series 2
+Date: Fri, 25 Jul 2014 23:13:32 +0100
+Message-ID: <1406326412.4674.22.camel@fedora-lan>
+References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:65027 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934548AbaGYUHA (ORCPT
+Received: from si-002-i51.relay.mailchannels.net ([184.154.112.225]:10920 "EHLO
+	relay.mailchannels.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751953AbaGYWNk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 16:07:00 -0400
-Content-Disposition: inline
-In-Reply-To: <20140725182053.GA23356@core.coreip.homeip.net>
+	Fri, 25 Jul 2014 18:13:40 -0400
+In-Reply-To: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: cheng wei Lin <dusonlin@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bleung@chromium.org, agnescheng@chromium.org, =?utf-8?B?IlNSRDEgJiM2NTUzMzvonazouJAmIzY1NTMzOyYjNjU1MzM7P+mDvSYjNjU1?= =?utf-8?Q?33=3B&#65533=3B&#65533=3B&#65533=3B=22?= <phoenix@emc.com.tw>, jeff.chuang@emc.com.tw
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Jul 25, 2014 at 11:20:53AM -0700, Dmitry Torokhov wrote:
-> Hi Duson,
-> 
-> On Sat, Jul 26, 2014 at 02:05:02AM +0800, cheng wei Lin wrote:
-> > Hi Dmitry,
-> > 
-> > Sorry for late to reply you and thanks for your command
-> > 
-> > Yes, I also agree, it looks great than my original code.
-> 
-> Thank you for confirming.
-> 
-> > So, should I modify this and upstream v3 patch for you?
-> 
-> No, that is fine, I'll fix it up on my end.
+Dnia 2014-07-24, czw o godzinie 14:13 -0400, Benjamin Tissoires pisze:
+[..]
+Hi Benjamin,
+I'm testing the whole series including the OLED patch that's not on the
+list yet.
 
-Hmm, I am also looking at elan_get_x_resolution() and in case of SMB
-we'll never get negative result since we are doing
-"elan_convert_res(val[1] & 0x0F)". Was it intended as such, or do we
-need to extend sign here via
+Hardware: 2 x Intuos4 Wireless tested on usb and bluetooth until noted
+otherwise.
 
-	(((char)(val[1] & 0x0F)) << 4) >> 4;
+What works:
+1. Tablet in general, pressure, tilt, buttons etc.
+2. Battery reporting (including gnome). The double wireless tablet bug
+is gone:
 
-Thanks.
+$ ls /sys/class/power_supply/
+AC  BAT0  wacom_ac_2  wacom_ac_3  wacom_battery_2  wacom_battery_3
+
+3. Setting LED selector value
+4. Setting LED selector brightness (default and pressed)
+5. Rendering images to button displays works on usb ONLY.
+
+$ i4oled -d /sys/bus/hid/drivers/wacom/0003\:056A\:00BC.0009/wacom_led/button0_rawimg -t Linux
+
+On bluetooth writing image goes fine (no error), but there is nothing showing up,
+so I suspect the brightness of OLED displays is not set properly.
+
+That's the code before changes:
+
+        led = wdata->led_selector | 0x04;
+        buf = kzalloc(9, GFP_KERNEL);
+        if (buf) {
+                buf[0] = WAC_CMD_LED_CONTROL;
+                buf[1] = led;
+                buf[2] = value >> 2;
+                buf[3] = value;
+                /* use fixed brightness for OLEDs */
+                buf[4] = 0x08;
+                hid_hw_raw_request(hdev, buf[0], buf, 9, HID_FEATURE_REPORT,
+                                   HID_REQ_SET_REPORT);
+                kfree(buf);
+        }
+
+I don't remember for sure, but I think the range of brightness might be different
+over usb and over bluetooth.
+
+TL;DR: the only thing that needs to be fixed is image-over-bluetooth, probably caused by not
+setting or incorrect setting of OLED brightness. 
 
 -- 
-Dmitry
+Kind regards,
+Przemo Firszt
+
+

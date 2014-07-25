@@ -1,52 +1,95 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: [PATCH] hid: usbhid: Use flag HID_DISCONNECTED when a usb device is removed
-Date: Fri, 25 Jul 2014 00:13:01 -0500
-Message-ID: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
+From: pramod.gurav.etc@gmail.com
+Subject: [PATCH] Input: soc_button_array: Remove kfree on data allocated with devm_zalloc
+Date: Fri, 25 Jul 2014 12:39:40 +0530
+Message-ID: <1406272180-25101-1-git-send-email-pramod.gurav@smartplayin.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:49601 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750855AbaGYFNa (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:44572 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750828AbaGYHGC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 01:13:30 -0400
+	Fri, 25 Jul 2014 03:06:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, srinivas.pandruvada@linux.intel.com, linux-kernel@vger.kernel.org
-Cc: Reyad Attiyat <reyad.attiyat@gmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>
 
-Set disconnected flag in struct usbhid when a usb device
-is removed. Check for disconnected flag before sending urb
-requests. This prevents a kernel panic when a hid driver calls
-hid_hw_request() after removing a usb device.
+From: Pramod Gurav <pramod.gurav@smartplayin.com>
 
-Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
+This patch does below:
+- Removes kfree done on data allocated with devm_zalloc in probe
+  path of the driver.
+- Adds a check on return value from devm_kzalloc which was missing
+  and renames a lable from err_free_mem to err_mem.
+- Adds couple of dev_err on failure to allocate memory
+
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Lejun Zhu <lejun.zhu@linux.intel.com>
+CC: Sachin Kamat <sachin.kamat@linaro.org>
+
+Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
 ---
- drivers/hid/usbhid/hid-core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/input/misc/soc_button_array.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 7b88f4c..c8fa957 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -536,7 +536,8 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
- 	int head;
- 	struct usbhid_device *usbhid = hid->driver_data;
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 5a6334b..ac82971 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -83,6 +83,13 @@ soc_button_device_create(struct pnp_dev *pdev,
+ 				       sizeof(*gpio_keys_pdata) +
+ 					sizeof(*gpio_keys) * MAX_NBUTTONS,
+ 				       GFP_KERNEL);
++	if (!gpio_keys_pdata) {
++		dev_err(&pdev->dev,
++			"Can't allocate memory for gpio_keys_platform_data\n");
++		error = -ENOMEM;
++		goto err_mem;
++	}
++
+ 	gpio_keys = (void *)(gpio_keys_pdata + 1);
  
--	if ((hid->quirks & HID_QUIRK_NOGET) && dir == USB_DIR_IN)
-+	if (((hid->quirks & HID_QUIRK_NOGET) && dir == USB_DIR_IN) ||
-+		test_bit(HID_DISCONNECTED, &usbhid->iofl))
- 		return;
+ 	for (info = button_info; info->name; info++) {
+@@ -104,7 +111,7 @@ soc_button_device_create(struct pnp_dev *pdev,
  
- 	if (usbhid->urbout && dir == USB_DIR_OUT && report->type == HID_OUTPUT_REPORT) {
-@@ -1366,6 +1367,9 @@ static void usbhid_disconnect(struct usb_interface *intf)
- 		return;
+ 	if (n_buttons == 0) {
+ 		error = -ENODEV;
+-		goto err_free_mem;
++		goto err_mem;
+ 	}
  
- 	usbhid = hid->driver_data;
-+	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
-+	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	spin_unlock_irq(&usbhid->lock);
- 	hid_destroy_device(hid);
- 	kfree(usbhid);
+ 	gpio_keys_pdata->buttons = gpio_keys;
+@@ -114,7 +121,7 @@ soc_button_device_create(struct pnp_dev *pdev,
+ 	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
+ 	if (!pd) {
+ 		error = -ENOMEM;
+-		goto err_free_mem;
++		goto err_mem;
+ 	}
+ 
+ 	error = platform_device_add_data(pd, gpio_keys_pdata,
+@@ -130,8 +137,7 @@ soc_button_device_create(struct pnp_dev *pdev,
+ 
+ err_free_pdev:
+ 	platform_device_put(pd);
+-err_free_mem:
+-	devm_kfree(&pdev->dev, gpio_keys_pdata);
++err_mem:
+ 	return ERR_PTR(error);
  }
+ 
+@@ -155,8 +161,11 @@ static int soc_button_pnp_probe(struct pnp_dev *pdev,
+ 	int error;
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
++	if (!priv) {
++		dev_err(&pdev->dev,
++			"Can't allocate memory for soc_button_data\n");
+ 		return -ENOMEM;
++	}
+ 
+ 	pnp_set_drvdata(pdev, priv);
+ 
 -- 
-1.9.3
+1.7.9.5
 

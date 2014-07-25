@@ -1,94 +1,72 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: Linux 3.16-rc6
-Date: Fri, 25 Jul 2014 18:10:02 +0200
-Message-ID: <20140725161002.GE6758@twins.programming.kicks-ass.net>
-References: <CA+55aFzJKxzw_as9iGgeM=MdQ6trUkQLDuoEr8nxj88sOqQnQA@mail.gmail.com>
- <20140723095327.GA23131@pd.tnic>
- <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com>
- <20140724064353.GW9918@twins.programming.kicks-ass.net>
- <20140724084126.GB19239@pd.tnic>
- <20140724122513.GM19239@pd.tnic>
- <20140724125814.GX6758@twins.programming.kicks-ass.net>
- <CA+55aFynW5xSRQvY6xO+mxmt6yh7mFkMjy-pgJXpXNy8qDMcPA@mail.gmail.com>
- <20140724183643.GM3935@laptop>
- <53D16EC4.1000801@hp.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: soc_button_array: Remove kfree on data
+ allocated with devm_zalloc
+Date: Fri, 25 Jul 2014 09:22:58 -0700
+Message-ID: <20140725162258.GA12254@core.coreip.homeip.net>
+References: <1406288074-28725-1-git-send-email-pramod.gurav@smartplayin.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mio/lN7rX3OFvPvp"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:34443 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932605AbaGYQKW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 12:10:22 -0400
-Content-Disposition: inline
-In-Reply-To: <53D16EC4.1000801@hp.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-
-
---mio/lN7rX3OFvPvp
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1406288074-28725-1-git-send-email-pramod.gurav@smartplayin.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: pramod.gurav.etc@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Pramod Gurav <pramod.gurav@smartplayin.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>
+List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 24, 2014 at 04:38:28PM -0400, Waiman Long wrote:
-> Yes, I think I may have a solution for that.
->=20
-> Borislav, can you apply the following patch on top of the lockdep patch to
-> see if it can fix the problem?
->=20
-> diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-> index d24e433..507a8ce 100644
-> --- a/kernel/locking/lockdep.c
-> +++ b/kernel/locking/lockdep.c
-> @@ -3595,6 +3595,12 @@ void lock_acquire(struct lockdep_map *lock, unsign=
-ed int
->         raw_local_irq_save(flags);
->         check_flags(flags);
->=20
-> +       /*
-> +        * An interrupt recursive read in interrupt context can be consid=
-ered
-> +        * to be the same as a recursive read from checking perspective.
-> +        */
-> +       if ((read =3D=3D 3) && in_interrupt())
-> +               read =3D 2;
->         current->lockdep_recursion =3D 1;
->         trace_lock_acquire(lock, subclass, trylock, read, check, nest_loc=
-k, ip);
->         __lock_acquire(lock, subclass, trylock, read, check,
+Hi Pramod,
 
-Just had another look at the initial patch and it cannot be right, even
-with the above.
+On Fri, Jul 25, 2014 at 05:04:34PM +0530, pramod.gurav.etc@gmail.com wrote:
+> From: Pramod Gurav <pramod.gurav@smartplayin.com>
+> 
+> This patch does below:
+> - Removes kfree done on data allocated with devm_zalloc in probe
+>   path of the driver.
+> - Adds a check on return value from devm_kzalloc which was missing
+> 
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> CC: Lejun Zhu <lejun.zhu@linux.intel.com>
+> CC: Sachin Kamat <sachin.kamat@linaro.org>
+> 
+> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+> ---
+>  drivers/input/misc/soc_button_array.c |   17 +++++++----------
+>  1 file changed, 7 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 5a6334b..fc64ec6 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -83,6 +83,9 @@ soc_button_device_create(struct pnp_dev *pdev,
+>  				       sizeof(*gpio_keys_pdata) +
+>  					sizeof(*gpio_keys) * MAX_NBUTTONS,
+>  				       GFP_KERNEL);
+> +	if (!gpio_keys_pdata)
+> +		return ERR_PTR(-ENOMEM);
 
-The problem is you cannot use in_interrupt() in check_deadlock().
-Check_deadlock() must be context invariant, it should only test the
-chain state and not rely on where or when its called.
+OK, that makes sense.
 
+> +
+>  	gpio_keys = (void *)(gpio_keys_pdata + 1);
+>  
+>  	for (info = button_info; info->name; info++) {
+> @@ -102,20 +105,16 @@ soc_button_device_create(struct pnp_dev *pdev,
+>  		n_buttons++;
+>  	}
+>  
+> -	if (n_buttons == 0) {
+> -		error = -ENODEV;
+> -		goto err_free_mem;
+> -	}
+> +	if (n_buttons == 0)
+> +		return ERR_PTR(-ENODEV);
 
+But that one and the rest don't, because failure in
+soc_button_device_create() does not necessarily mean that binding for
+the whole device will fail. In this case we do not want unused memory
+hang around.
 
---mio/lN7rX3OFvPvp
-Content-Type: application/pgp-signature
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJT0oFaAAoJEHZH4aRLwOS6+14P/2KJ9un5Fdb3CqY5Y3y1OW7p
-4u82Df8al6up/dZHH8SnOqo5KH7a8Bk/nyzDpYYlbsaUvZydRrtY22fOaqxdCEkB
-RQFIBigNaYQJ6WQos/yTehOvXOtchKry7ljQZsjMciVkmXFTsPESjsmvwcOT9EUr
-XMb3PzpDhS45IFKRaDw95+UUPVWbvGb5orkz99DTyROTa7joVikDE5ykkyBVW+lz
-wSMrCkDRYVcwQRKysf6zEaITnAccASJBZ320XjgSin64jScWTH8vabYsYUNaIy/v
-e5CFaDVWsLbJz67Gu8P0aOTD/G+UhC372HV4EgOVw6vYdG+d/keDRAGL+e+T9ryL
-nMPl7u01mr5W0bi6IjaA9tvULwaI6mqBRw5O/ivzHpOIxebtB8FSatzNNaWLoG8N
-5jajbuuHH9dTbbCLhoa1Kjt+vphJd/6Y3YtCOx7oYnUj0VaoJdbaDQKiI4+nstk8
-L/zVCOvn5QhAmR/2S2iFQAxcYIRUjmBBc8KiKKexmd/xLWK6zTAsLvPvho7yGnJm
-d9DmDoDOtbN4SAIXDLCbL5VtkNpQ6dYoQG5pOfj0Q6wA+5tiZr3NhnChgHI/vBac
-z0rHCIHwbXLFpU7XHZAZv2SRK7T/27F79LlZ4jbC01qK/W1IrzMcTQjRUDp0cq6I
-Otfczwoir1is/N3Zd1mq
-=gT4v
------END PGP SIGNATURE-----
-
---mio/lN7rX3OFvPvp--
+-- 
+Dmitry

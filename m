@@ -1,497 +1,72 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v4] Input: synaptics-rmi4: Add F30 support
-Date: Thu, 24 Jul 2014 16:47:21 -0700
-Message-ID: <1406245641-6263-1-git-send-email-aduggan@synaptics.com>
+From: Alexandre Courbot <gnurou@gmail.com>
+Subject: Re: [PATCH] gpio: extend gpiod_get*() with flags parameter
+Date: Fri, 25 Jul 2014 10:36:43 +0900
+Message-ID: <CAAVeFu+R+UWtxftWBM3qghNnf9O6SOf5AeNC-qemG7W05hiuAQ@mail.gmail.com>
+References: <1406214298-20062-1-git-send-email-acourbot@nvidia.com>
+ <1496956.3bpx902hFg@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:62839 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S934753AbaGXXzV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2014 19:55:21 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1496956.3bpx902hFg@avalon>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-wireless <linux-wireless@vger.kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-mmc <linux-mmc@vger.kernel.org>, Chris Ball <chris@printf.net>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Liam Girdwood <lgirdwood@gmail.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>, Florian Fainelli <f.fainelli@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Alexander Shiyan <shc_work@mail.ru>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Paul Handrigan <Paul.Handrigan@cirrus.com>, linux-iio@vger.kernel.org, linux-omap@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, Hans Verkuil <hans.verkuil@cisco.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.o
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-RMI4 Function 0x30 provides support for GPIOs, LEDs and mechanical
-buttons.  In particular, the mechanical button support is used in
-an increasing number of touchpads.
+On Fri, Jul 25, 2014 at 1:23 AM, Laurent Pinchart
+<laurent.pinchart@ideasonboard.com> wrote:
+>> diff --git a/Documentation/gpio/consumer.txt
+>> b/Documentation/gpio/consumer.txt index 7ff30d2..a3fb1d7 100644
+>> --- a/Documentation/gpio/consumer.txt
+>> +++ b/Documentation/gpio/consumer.txt
+>> @@ -29,13 +29,24 @@ gpiod_get() functions. Like many other kernel
+>> subsystems, gpiod_get() takes the device that will use the GPIO and the
+>> function the requested GPIO is supposed to fulfill:
+>>
+>> -     struct gpio_desc *gpiod_get(struct device *dev, const char *con_id)
+>> +     struct gpio_desc *gpiod_get(struct device *dev, const char *con_id,
+>> +                                 enum gpio_flags flags)
+>
+> I assume you mean enum gpiod_flags here and in the rest of the documentation.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Signed-off-by: Allie Xiong <axiong@synaptics.com>
-Acked-by: Christopher Heiny <cheiny@synaptics.com>
----
-I discovered that the v3 version of this patch from March wasn't compatible with the version
-of the driver currently in the synaptics-rmi4 branch. This patch fixes that. The only difference
-from v3 is adding a #define and fixing a spacing issue.
+Indeed, thanks for pointing it out.
 
- drivers/input/rmi4/Kconfig   |  12 ++
- drivers/input/rmi4/Makefile  |   1 +
- drivers/input/rmi4/rmi_f30.c | 400 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/rmi.h          |   7 +-
- 4 files changed, 419 insertions(+), 1 deletion(-)
- create mode 100644 drivers/input/rmi4/rmi_f30.c
+>
+>>  If a function is implemented by using several GPIOs together (e.g. a simple
+>> LED device that displays digits), an additional index argument can be
+>> specified:
+>>
+>>       struct gpio_desc *gpiod_get_index(struct device *dev,
+>> -                                       const char *con_id, unsigned int idx)
+>> +                                       const char *con_id, unsigned int idx,
+>> +                                       enum gpio_flags flags)
+>> +
+>> +The flags parameter is used to optionally specify a direction and initial
+>> value +for the GPIO. Values can be:
+>> +
+>> +* AS_IS or 0 to not initialize the GPIO at all. The direction must be set
+>> later
+>> +  with one of the dedicated functions.
+>> +* INPUT to initialize the GPIO as input.
+>> +* OUTPUT_LOW to initialize the GPIO as output with a value of 0.
+>> +* OUTPUT_HIGH to initialize the GPIO as output with a value of 1.
+>
+> Pretty please, could you at least prefix that with GPIOD_ ? Those names are
+> too generic.
+>
+> How about renaming them to GPIOD_AS_IS, GPIOD_IN, GPIOD_OUT_INIT_LOW and
+> GPIOD_OUT_INIT_HIGH in order to match the GPIOF_ flags ?
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index d0c7b6e..14d5f49 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -63,3 +63,15 @@ config RMI4_F11_PEN
- 	  If your system is not recognizing pen touches and you know your
- 	  sensor supports pen input, you probably want to turn this feature
- 	  off.
-+
-+config RMI4_F30
-+        tristate "RMI4 Function 30 (GPIO LED)"
-+        depends on RMI4_CORE
-+        help
-+          Say Y here if you want to add support for RMI4 function 30.
-+
-+          Function 30 provides GPIO and LED support for RMI4 devices. This
-+	  includes support for buttons on TouchPads and ClickPads.
-+
-+          To compile this driver as a module, choose M here: the
-+          module will be called rmi-f30.
-diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-index 5c6bad5..ecffd72 100644
---- a/drivers/input/rmi4/Makefile
-+++ b/drivers/input/rmi4/Makefile
-@@ -3,6 +3,7 @@ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
- 
- # Function drivers
- obj-$(CONFIG_RMI4_F11) += rmi_f11.o
-+obj-$(CONFIG_RMI4_F30) += rmi_f30.o
- 
- # Transports
- obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
-diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
-new file mode 100644
-index 0000000..05cc8e8
---- /dev/null
-+++ b/drivers/input/rmi4/rmi_f30.c
-@@ -0,0 +1,400 @@
-+/*
-+ * Copyright (c) 2012 - 2014 Synaptics Incorporated
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/rmi.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/gpio.h>
-+#include <linux/leds.h>
-+#include "rmi_driver.h"
-+
-+#define NAME_BUFFER_SIZE			256
-+#define RMI_F30_QUERY_SIZE			2
-+
-+/* Defs for Query 0 */
-+#define RMI_F30_EXTENDED_PATTERNS		0x01
-+#define RMI_F30_HAS_MAPPABLE_BUTTONS		(1 << 1)
-+#define RMI_F30_HAS_LED			(1 << 2)
-+#define RMI_F30_HAS_GPIO			(1 << 3)
-+#define RMI_F30_HAS_HAPTIC			(1 << 4)
-+#define RMI_F30_HAS_GPIO_DRV_CTL		(1 << 5)
-+#define RMI_F30_HAS_MECH_MOUSE_BTNS		(1 << 6)
-+
-+/* Defs for Query 1 */
-+#define RMI_F30_GPIO_LED_COUNT			0x1F
-+
-+/* Defs for Control Registers */
-+#define RMI_F30_CTRL_1_GPIO_DEBOUNCE		0x01
-+#define RMI_F30_CTRL_1_HALT			(1 << 4)
-+#define RMI_F30_CTRL_1_HALTED			(1 << 5)
-+#define RMI_F30_CTRL_10_NUM_MECH_MOUSE_BTNS	0x03
-+
-+struct rmi_f30_ctrl_data {
-+	int address;
-+	int length;
-+	u8 *regs;
-+};
-+
-+#define RMI_F30_CTRL_MAX_REGS		32
-+#define RMI_F30_CTRL_MAX_BYTES		((RMI_F30_CTRL_MAX_REGS + 7) >> 3)
-+#define RMI_F30_CTRL_MAX_REG_BLOCKS	11
-+
-+#define RMI_F30_CTRL_REGS_MAX_SIZE (RMI_F30_CTRL_MAX_BYTES		\
-+					+ 1				\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ 6				\
-+					+ RMI_F30_CTRL_MAX_REGS		\
-+					+ RMI_F30_CTRL_MAX_REGS		\
-+					+ RMI_F30_CTRL_MAX_BYTES	\
-+					+ 1				\
-+					+ 1)
-+
-+struct f30_data {
-+	/* Query Data */
-+	bool has_extended_pattern;
-+	bool has_mappable_buttons;
-+	bool has_led;
-+	bool has_gpio;
-+	bool has_haptic;
-+	bool has_gpio_driver_control;
-+	bool has_mech_mouse_btns;
-+	u8 gpioled_count;
-+
-+	u8 register_count;
-+
-+	/* Control Register Data */
-+	struct rmi_f30_ctrl_data ctrl[RMI_F30_CTRL_MAX_REG_BLOCKS];
-+	u8 ctrl_regs[RMI_F30_CTRL_REGS_MAX_SIZE];
-+	u32 ctrl_regs_size;
-+
-+	u8 data_regs[RMI_F30_CTRL_MAX_BYTES];
-+	u16 *gpioled_key_map;
-+	u8 *gpioled_sense_map;
-+
-+	char input_phys[NAME_BUFFER_SIZE];
-+	struct input_dev *input;
-+};
-+
-+static int rmi_f30_read_control_parameters(struct rmi_function *fn,
-+						struct f30_data *f30)
-+{
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	int error = 0;
-+
-+	error = rmi_read_block(rmi_dev, fn->fd.control_base_addr,
-+				f30->ctrl_regs, f30->ctrl_regs_size);
-+	if (error) {
-+		dev_err(&rmi_dev->dev, "%s : Could not read control registers at 0x%x error (%d)\n",
-+			__func__, fn->fd.control_base_addr, error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
-+{
-+	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-+	int retval;
-+	int gpiled = 0;
-+	int value = 0;
-+	int i;
-+	int reg_num;
-+
-+	/* Read the gpi led data. */
-+	retval = rmi_read_block(fn->rmi_dev, fn->fd.data_base_addr,
-+		f30->data_regs, f30->register_count);
-+
-+	if (retval) {
-+		dev_err(&fn->dev, "%s: Failed to read F30 data registers.\n",
-+			__func__);
-+		return retval;
-+	}
-+
-+	for (reg_num = 0; reg_num < f30->register_count; ++reg_num) {
-+		for (i = 0; gpiled < f30->gpioled_count && i < 8; ++i,
-+			++gpiled) {
-+			if (f30->gpioled_key_map[gpiled] != 0) {
-+				value = (((f30->data_regs[reg_num] >> i) & 0x01)
-+					 == f30->gpioled_sense_map[gpiled]);
-+
-+				dev_dbg(&fn->dev,
-+					"%s: call input report key (0x%04x) value (0x%02x)",
-+					__func__,
-+					f30->gpioled_key_map[gpiled], value);
-+				input_report_key(f30->input,
-+					f30->gpioled_key_map[gpiled],
-+					value);
-+			}
-+
-+		}
-+	}
-+
-+	input_sync(f30->input); /* sync after groups of events */
-+	return 0;
-+}
-+
-+static int rmi_f30_register_device(struct rmi_function *fn)
-+{
-+	int i;
-+	int rc;
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-+	struct rmi_driver *driver = fn->rmi_dev->driver;
-+	struct input_dev *input_dev;
-+
-+	input_dev = devm_input_allocate_device(&fn->dev);
-+	if (!input_dev) {
-+		dev_err(&fn->dev, "Failed to allocate input device.\n");
-+		return -ENOMEM;
-+	}
-+
-+	f30->input = input_dev;
-+
-+	if (driver->set_input_params) {
-+		rc = driver->set_input_params(rmi_dev, input_dev);
-+		if (rc < 0) {
-+			dev_err(&fn->dev, "%s: Error in setting input device.\n",
-+				__func__);
-+			return rc;
-+		}
-+	}
-+	sprintf(f30->input_phys, "%s/input0", dev_name(&fn->dev));
-+	input_dev->phys = f30->input_phys;
-+	input_dev->dev.parent = &rmi_dev->dev;
-+	input_set_drvdata(input_dev, f30);
-+
-+	set_bit(EV_SYN, input_dev->evbit);
-+	set_bit(EV_KEY, input_dev->evbit);
-+
-+	input_dev->keycode = f30->gpioled_key_map;
-+	input_dev->keycodesize = sizeof(u16);
-+	input_dev->keycodemax = f30->gpioled_count;
-+
-+	for (i = 0; i < f30->gpioled_count; i++) {
-+		if (f30->gpioled_key_map[i] != 0)
-+			input_set_capability(input_dev, EV_KEY,
-+						f30->gpioled_key_map[i]);
-+	}
-+
-+	rc = input_register_device(input_dev);
-+	if (rc < 0) {
-+		dev_err(&fn->dev, "Failed to register input device.\n");
-+		return rc;
-+	}
-+	return 0;
-+}
-+
-+static int rmi_f30_config(struct rmi_function *fn)
-+{
-+	struct f30_data *f30 = dev_get_drvdata(&fn->dev);
-+	int error;
-+
-+	/* Write Control Register values back to device */
-+	error = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
-+				f30->ctrl_regs, f30->ctrl_regs_size);
-+	if (error) {
-+		dev_err(&fn->rmi_dev->dev,
-+			"%s : Could not write control registers at 0x%x error (%d)\n",
-+			__func__, fn->fd.control_base_addr, error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static inline void rmi_f30_set_ctrl_data(struct rmi_f30_ctrl_data *ctrl,
-+					int *ctrl_addr, int len, u8 **reg)
-+{
-+	ctrl->address = *ctrl_addr;
-+	ctrl->length = len;
-+	ctrl->regs = *reg;
-+	*ctrl_addr += len;
-+	*reg += len;
-+}
-+
-+static inline int rmi_f30_initialize(struct rmi_function *fn)
-+{
-+	struct f30_data *f30;
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
-+	const struct rmi_device_platform_data *pdata;
-+	int retval = 0;
-+	int control_address;
-+	u8 buf[RMI_F30_QUERY_SIZE];
-+	u8 *ctrl_reg;
-+	u8 *map_memory;
-+
-+	f30 = devm_kzalloc(&fn->dev, sizeof(struct f30_data),
-+			   GFP_KERNEL);
-+	if (!f30) {
-+		dev_err(&fn->dev, "Failed to allocate f30_data.\n");
-+		return -ENOMEM;
-+	}
-+	dev_set_drvdata(&fn->dev, f30);
-+
-+	retval = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr, buf,
-+				RMI_F30_QUERY_SIZE);
-+
-+	if (retval) {
-+		dev_err(&fn->dev, "Failed to read query register.\n");
-+		return retval;
-+	}
-+
-+	f30->has_extended_pattern = buf[0] & RMI_F30_EXTENDED_PATTERNS;
-+	f30->has_mappable_buttons = buf[0] & RMI_F30_HAS_MAPPABLE_BUTTONS;
-+	f30->has_led = buf[0] & RMI_F30_HAS_LED;
-+	f30->has_gpio = buf[0] & RMI_F30_HAS_GPIO;
-+	f30->has_haptic = buf[0] & RMI_F30_HAS_HAPTIC;
-+	f30->has_gpio_driver_control = buf[0] & RMI_F30_HAS_GPIO_DRV_CTL;
-+	f30->has_mech_mouse_btns = buf[0] & RMI_F30_HAS_MECH_MOUSE_BTNS;
-+	f30->gpioled_count = buf[1] & RMI_F30_GPIO_LED_COUNT;
-+
-+	f30->register_count = (f30->gpioled_count + 7) >> 3;
-+
-+	control_address = fn->fd.control_base_addr;
-+	ctrl_reg = f30->ctrl_regs;
-+
-+	/* Allocate buffers for the control registers */
-+	if (f30->has_led && f30->has_led)
-+		rmi_f30_set_ctrl_data(&f30->ctrl[0], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+	rmi_f30_set_ctrl_data(&f30->ctrl[1], &control_address, sizeof(u8),
-+				&ctrl_reg);
-+
-+	if (f30->has_gpio) {
-+		rmi_f30_set_ctrl_data(&f30->ctrl[2], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[3], &control_address,
-+					f30->register_count, &ctrl_reg);
-+	}
-+
-+	if (f30->has_led) {
-+		int ctrl5_len;
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[4], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+		if (f30->has_extended_pattern)
-+			ctrl5_len = 6;
-+		else
-+			ctrl5_len = 2;
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[5], &control_address,
-+					ctrl5_len, &ctrl_reg);
-+	}
-+
-+	if (f30->has_led || f30->has_gpio_driver_control) {
-+		/* control 6 uses a byte per gpio/led */
-+		rmi_f30_set_ctrl_data(&f30->ctrl[6], &control_address,
-+					f30->gpioled_count, &ctrl_reg);
-+	}
-+
-+	if (f30->has_mappable_buttons) {
-+		/* control 7 uses a byte per gpio/led */
-+		rmi_f30_set_ctrl_data(&f30->ctrl[7], &control_address,
-+					f30->gpioled_count, &ctrl_reg);
-+	}
-+
-+	if (f30->has_haptic) {
-+		rmi_f30_set_ctrl_data(&f30->ctrl[8], &control_address,
-+					f30->register_count, &ctrl_reg);
-+
-+		rmi_f30_set_ctrl_data(&f30->ctrl[9], &control_address,
-+					sizeof(u8), &ctrl_reg);
-+	}
-+
-+	if (f30->has_mech_mouse_btns)
-+		rmi_f30_set_ctrl_data(&f30->ctrl[10], &control_address,
-+					sizeof(u8), &ctrl_reg);
-+
-+	f30->ctrl_regs_size = ctrl_reg - f30->ctrl_regs
-+				?: RMI_F30_CTRL_REGS_MAX_SIZE;
-+
-+	map_memory = devm_kzalloc(&fn->dev,
-+				(f30->gpioled_count
-+				* (sizeof(u16) + sizeof(u8))),
-+				GFP_KERNEL);
-+	if (!map_memory) {
-+		dev_err(&fn->dev, "Failed to allocate gpioled map memory.\n");
-+		return -ENOMEM;
-+	}
-+
-+	f30->gpioled_key_map = (u16 *)map_memory;
-+	f30->gpioled_sense_map = map_memory + sizeof(u16)
-+					* f30->gpioled_count;
-+
-+	pdata = rmi_get_platform_data(rmi_dev);
-+	if (pdata) {
-+		if (!pdata->gpioled_map) {
-+			dev_warn(&fn->dev,
-+				"%s - gpioled_map is NULL", __func__);
-+		} else if (!pdata->gpioled_map->map) {
-+			dev_warn(&fn->dev,
-+				 "Platform Data button map is missing!\n");
-+		} else {
-+			int i;
-+			for (i = 0; i < f30->gpioled_count
-+				|| i < pdata->gpioled_map->ngpioleds; i++) {
-+				f30->gpioled_key_map[i] =
-+					pdata->gpioled_map->map[i].button;
-+				f30->gpioled_sense_map[i] =
-+					pdata->gpioled_map->map[i].sense;
-+			}
-+		}
-+	}
-+
-+	retval = rmi_f30_read_control_parameters(fn, f30);
-+	if (retval < 0) {
-+		dev_err(&fn->dev,
-+			"Failed to initialize F19 control params.\n");
-+		return retval;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rmi_f30_probe(struct rmi_function *fn)
-+{
-+	int rc;
-+
-+	rc = rmi_f30_initialize(fn);
-+	if (rc < 0)
-+		goto error_exit;
-+
-+	rc = rmi_f30_register_device(fn);
-+	if (rc < 0)
-+		goto error_exit;
-+
-+	return 0;
-+
-+error_exit:
-+	return rc;
-+
-+}
-+
-+static struct rmi_function_handler rmi_f30_handler = {
-+	.driver = {
-+		.name = "rmi_f30",
-+	},
-+	.func = 0x30,
-+	.probe = rmi_f30_probe,
-+	.config = rmi_f30_config,
-+	.attention = rmi_f30_attention,
-+};
-+
-+module_rmi_driver(rmi_f30_handler);
-+
-+MODULE_AUTHOR("Allie Xiong <axiong@synaptics.com>");
-+MODULE_AUTHOR("Andrew Duggan <aduggan@synaptics.com>");
-+MODULE_DESCRIPTION("RMI F30 module");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index ca35b2f..5150eb9 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -146,9 +146,14 @@ struct rmi_button_map {
- 	u8 *map;
- };
- 
-+struct rmi_f30_button {
-+	u16 button;
-+	int sense;
-+};
-+
- struct rmi_f30_gpioled_map {
- 	u8 ngpioleds;
--	u8 *map;
-+	struct rmi_f30_button *map;
- };
- 
- /**
--- 
-1.9.1
+Yeah, you're right, the possibility of name collision is quite high here.
 
+Thanks,
+Alex.

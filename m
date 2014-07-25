@@ -1,41 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: add i2c/smbus driver for elan touchpad
-Date: Fri, 25 Jul 2014 11:20:53 -0700
-Message-ID: <20140725182053.GA23356@core.coreip.homeip.net>
-References: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
- <20140724180516.GA26752@core.coreip.homeip.net>
- <73E9FA09-55D6-409D-A902-29CC3F414CBF@emc.com.tw>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: wacom_serial4 - prepare for wacom USB moving to
+ HID
+Date: Fri, 25 Jul 2014 21:06:28 +0200
+Message-ID: <53D2AAB4.1090109@redhat.com>
+References: <20140724203108.GA9191@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:57645 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751244AbaGYSU4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 14:20:56 -0400
-Content-Disposition: inline
-In-Reply-To: <73E9FA09-55D6-409D-A902-29CC3F414CBF@emc.com.tw>
+Received: from mx1.redhat.com ([209.132.183.28]:61815 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758923AbaGYTGe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Jul 2014 15:06:34 -0400
+In-Reply-To: <20140724203108.GA9191@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: cheng wei Lin <dusonlin@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bleung@chromium.org, agnescheng@chromium.org, =?utf-8?B?IlNSRDEgJiM2NTUzMzvonazouJAmIzY1NTMzOyYjNjU1MzM7P+mDvSYjNjU1?= =?utf-8?Q?33=3B&#65533=3B&#65533=3B&#65533=3B=22?= <phoenix@emc.com.tw>, jeff.chuang@emc.com.tw
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Julian Squires <julian@cipht.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Duson,
+Hi,
 
-On Sat, Jul 26, 2014 at 02:05:02AM +0800, cheng wei Lin wrote:
-> Hi Dmitry,
+On 07/24/2014 10:31 PM, Dmitry Torokhov wrote:
+> wacom_wac.h will be moving to drivers/hid. Since we only need 3 definitions
+> from it let's simply copy them over.
 > 
-> Sorry for late to reply you and thanks for your command
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Ack, but you will want to drop the #include of wacom_wac.h yoo.
+
+Regards,
+
+Hans
+
+> ---
+>  drivers/input/tablet/wacom_serial4.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> Yes, I also agree, it looks great than my original code.
-
-Thank you for confirming.
-
-> So, should I modify this and upstream v3 patch for you?
-
-No, that is fine, I'll fix it up on my end.
-
-Thanks.
-
--- 
-Dmitry
+> diff --git a/drivers/input/tablet/wacom_serial4.c b/drivers/input/tablet/wacom_serial4.c
+> index d3d251e..deef50e 100644
+> --- a/drivers/input/tablet/wacom_serial4.c
+> +++ b/drivers/input/tablet/wacom_serial4.c
+> @@ -149,6 +149,11 @@ MODULE_LICENSE("GPL");
+>  #define F_HAS_STYLUS2		0x02
+>  #define F_HAS_SCROLLWHEEL	0x04
+>  
+> +/* device IDs */
+> +#define STYLUS_DEVICE_ID	0x02
+> +#define CURSOR_DEVICE_ID	0x06
+> +#define ERASER_DEVICE_ID	0x0A
+> +
+>  enum { STYLUS = 1, ERASER, CURSOR };
+>  
+>  static const struct {
+> 

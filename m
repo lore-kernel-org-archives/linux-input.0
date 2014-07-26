@@ -1,61 +1,56 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH] Input: synaptics - properly initialize slots for semi-MT
-Date: Sat, 26 Jul 2014 17:50:06 +0200
-Message-ID: <53D3CE2E.3040103@bitmath.org>
-References: <20140726002751.GA16660@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:43207 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751533AbaGZP5u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Jul 2014 11:57:50 -0400
-In-Reply-To: <20140726002751.GA16660@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Subject: [PATCH] hid: uhid.c:  Cleaning up missing null-terminate in conjunction with strncpy
+Date: Sat, 26 Jul 2014 18:46:38 +0200
+Message-ID: <1406393198-5306-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+And removed unnecessary magic numbers.
 
-On 07/26/2014 02:27 AM, Dmitry Torokhov wrote:
-> Semi-MT devices are pointers too, so let's tell that to
-> input_mt_init_slots(), as well as let it set up the devices as semi-MT,
-> instead of us doing it manually.
-> 
-> Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
-> Reviewed-by: Benson Leung <bleung@chromium.org>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/mouse/synaptics.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index ef9e0b8..fe607e9 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1371,11 +1371,11 @@ static void set_input_params(struct psmouse *psmouse,
->  		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
->  		__set_bit(BTN_TOOL_QUINTTAP, dev->keybit);
->  	} else if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
-> -		/* Non-image sensors with AGM use semi-mt */
-> -		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
-> -		input_mt_init_slots(dev, 2, 0);
->  		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
->  					ABS_MT_POSITION_Y);
-> +		/* Non-image sensors with AGM use semi-mt */
-> +		input_mt_init_slots(dev, 2,
-> +				    INPUT_MT_POINTER | INPUT_MT_SEMI_MT);
->  	}
+Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+---
+ drivers/hid/uhid.c |   18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-As long as DOUBLE_TAP is set unconditionally in this path anyways, it should be
-ok. I have a vague memory of refraining from this exact change at some point,
-because of the many branches of settings.
-
->  
->  	if (SYN_CAP_PALMDETECT(priv->capabilities))
-> 
-
-Henrik
-
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 0cb92e3..b72ab0c 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -392,12 +392,9 @@ static int uhid_dev_create(struct uhid_device *uhid,
+ 		goto err_free;
+ 	}
+ 
+-	strncpy(hid->name, ev->u.create.name, 127);
+-	hid->name[127] = 0;
+-	strncpy(hid->phys, ev->u.create.phys, 63);
+-	hid->phys[63] = 0;
+-	strncpy(hid->uniq, ev->u.create.uniq, 63);
+-	hid->uniq[63] = 0;
++	strlcpy(hid->name, ev->u.create.name, sizeof(hid->name));
++	strlcpy(hid->phys, ev->u.create.phys, sizeof(hid->phys));
++	strlcpy(hid->uniq, ev->u.create.uniq, sizeof(hid->uniq));
+ 
+ 	hid->ll_driver = &uhid_hid_driver;
+ 	hid->bus = ev->u.create.bus;
+@@ -452,12 +449,9 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+ 		goto err_free;
+ 	}
+ 
+-	strncpy(hid->name, ev->u.create2.name, 127);
+-	hid->name[127] = 0;
+-	strncpy(hid->phys, ev->u.create2.phys, 63);
+-	hid->phys[63] = 0;
+-	strncpy(hid->uniq, ev->u.create2.uniq, 63);
+-	hid->uniq[63] = 0;
++	strlcpy(hid->name, ev->u.create2.name, sizeof(hid->name));
++	strlcpy(hid->phys, ev->u.create2.phys, sizeof(hid->phys));
++	strlcpy(hid->uniq, ev->u.create2.uniq, sizeof(hid->uniq));
+ 
+ 	hid->ll_driver = &uhid_hid_driver;
+ 	hid->bus = ev->u.create2.bus;
+-- 
+1.7.10.4

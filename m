@@ -1,53 +1,52 @@
-From: Jamie Lentin <jm@lentin.co.uk>
-Subject: Re: [PATCH v5 0/4] HID: lenovo: Add support for Lenovo Compact
- Keyboard
-Date: Sat, 26 Jul 2014 11:09:35 +0100 (BST)
-Message-ID: <alpine.DEB.2.02.1407261047480.24969@marmot.wormnet.eu>
-References: <1406154648-14000-1-git-send-email-jm@lentin.co.uk> <20140725160527.13cbeae1108fce5e09b6daae@ao2.it>
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: [PATCH v2 00/10] Input - wacom: conversion to HID driver,
+ series 2
+Date: Sat, 26 Jul 2014 12:55:48 +0100
+Message-ID: <1406375748.2611.0.camel@fedora-lan>
+References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
+	 <1406326412.4674.22.camel@fedora-lan>
+	 <20140725231509.GA2279@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marmot.wormnet.eu ([188.246.204.87]:35833 "EHLO
-	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750732AbaGZKJr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Jul 2014 06:09:47 -0400
-In-Reply-To: <20140725160527.13cbeae1108fce5e09b6daae@ao2.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140725231509.GA2279@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: Jiri Kosina <jkosina@suse.cz>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2014, Antonio Ospite wrote:
 
-> On Wed, 23 Jul 2014 23:30:44 +0100
-> Jamie Lentin <jm@lentin.co.uk> wrote:
->
->> This patchset follows on from my previous attempts to add support for
->> these keyboards from Lenovo.
->>
->> Antonio, I've used cptkbd_data and left data_pointer for now. It'd be
->> an easy patch to change data_pointer to tpkbd_data, but is drifting
->> away from what this patchset is supposed to do. Could send that
->> afterwards though.
->>
->
-> Sure, no problem. I think we are good to go.
->
-> BTW I was considering picking up one of such compact keyboards myself,
-> but I read that the BT one uses the USB cable only for charging
-> and it does not show as a USB HID device when plugged in, can you
-> confirm that?
+Dnia 2014-07-25, pi=C4=85 o godzinie 19:15 -0400, Benjamin Tissoires pi=
+sze:
+> [..]
+Hi Bejnamin,
+> > I don't remember for sure, but I think the range of brightness migh=
+t be different
+> > over usb and over bluetooth.
+>=20
+> Maybe you can try setting the sysfs file "buttons_luminance" with the
+> value 8 to check if this will solve the bug.
+No, that doesn't make any difference.
+=20
+> The bug might also be linked to the slight difference while setting u=
+p
+> the transfer of the image (WAC_CMD_ICON_START) with the value of buf[=
+1]
+> set to 1 in USB, while it was 0 on bluetooth.
+>=20
+> The weird thing is that I remembered having set the OLED (though
+> scrambled) with these patches applied. I guess the scrambling was due=
+ to
+> the 4-bit vs 1-bit. But I definitively had some results.
+I spotted something:
+hid-wacom:c (before modifications)
+#define WAC_CMD_ICON_TRANSFER       0x26
 
-Yes, nothing happens over USB other than charging. It's slightly 
-irritating since I have to keep something else to hand for booting, or try 
-and get a dongle that goes into a HID proxy mode.
+wacom_sys.c: (after modifications)
+#define WAC_CMD_ICON_XFER       0x23
 
-That said, I quite like it as a keyboard and happily use it for working 
-all day. Interestingly the bluetooth version is nicer to type on than the 
-USB version, even though they look physically identical. This could be 
-they came from different batches rather than using better keys for the 
-Bluetooth version.
-
-> Thanks,
->   Antonio
+Changing it fixes the problem. Patches to follow soon.
+--=20
+Kind regards,
+Przemo Firszt

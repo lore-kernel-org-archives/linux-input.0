@@ -1,48 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/14] alps: bugfixes, cleanups and new hardware support
-Date: Fri, 25 Jul 2014 22:59:02 -0700
-Message-ID: <20140726055902.GB31435@core.coreip.homeip.net>
-References: <1404919459-23561-1-git-send-email-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: cheng wei Lin <dusonlin@emc.com.tw>
+Subject: Re: [PATCH v2] Input: add i2c/smbus driver for elan touchpad
+Date: Sat, 26 Jul 2014 16:12:58 +0800
+Message-ID: <4BE637D2-E28B-4344-B77A-6260566F7CF6@emc.com.tw>
+References: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw> <20140724180516.GA26752@core.coreip.homeip.net> <73E9FA09-55D6-409D-A902-29CC3F414CBF@emc.com.tw> <20140725182053.GA23356@core.coreip.homeip.net> <20140725200656.GA2827@core.coreip.homeip.net>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:55527 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750737AbaGZF7H (ORCPT
+Received: from elanic.emc.com.tw ([192.72.220.188]:43680 "EHLO
+	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750774AbaGZINP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Jul 2014 01:59:07 -0400
-Received: by mail-pd0-f175.google.com with SMTP id r10so6801398pdi.34
-        for <linux-input@vger.kernel.org>; Fri, 25 Jul 2014 22:59:05 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1404919459-23561-1-git-send-email-hdegoede@redhat.com>
+	Sat, 26 Jul 2014 04:13:15 -0400
+In-Reply-To: <20140725200656.GA2827@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, bleung@chromium.org, agnescheng@chromium.org, =?big5?B?IlNSRDEgJiM2NTUzMzvntr3uJiM2NTUzMzsmIzY1NTMzOz+zoyYj?= =?big5?B?NjU1MzM7JiM2NTUzMzsmIzY1NTMzOyYjNjU1MzM7Ig==?= <phoenix@emc.com.tw>, jeff.chuang@emc.com.tw
 
-Hi Hans,
+Hi Dmitry,
 
-On Wed, Jul 09, 2014 at 05:24:05PM +0200, Hans de Goede wrote:
-> Hi All,
-> 
-> This series started out as a single patch to add support for a new model
-> of alps touchpad, called PROTO_V7 in this patchset.
-> 
-> While working on this I ended up doing some refactoring as preparation, which
-> I tested on a Rushmore alps touchpad, which lead to some bugfixes and more
-> cleanups, etc.
-> 
-> The result is a 14 patch patch-set, which:
-> 
-> 1) Significantly improves multi-touch support on V3 and V4 models (including
->    the Rushmore V3 variant)
-> 2) Improves the code quality / readability quite a bit
-> 3) Adds support for PROTO_V7
+Yes, we intend to do this. Could you help to keep the original code, th=
+ank you.
 
-Excellent series, very easy to read. I have applied everything but v7
-support as I have questions about that patch.
+Duson=20
 
-Thanks.
 
--- 
-Dmitry
+Dmitry Torokhov <dmitry.torokhov@gmail.com> =A9=F3 2014/7/26 =A4W=A4=C8=
+4:06 =BCg=B9D=A1G
+
+> On Fri, Jul 25, 2014 at 11:20:53AM -0700, Dmitry Torokhov wrote:
+>> Hi Duson,
+>>=20
+>> On Sat, Jul 26, 2014 at 02:05:02AM +0800, cheng wei Lin wrote:
+>>> Hi Dmitry,
+>>>=20
+>>> Sorry for late to reply you and thanks for your command
+>>>=20
+>>> Yes, I also agree, it looks great than my original code.
+>>=20
+>> Thank you for confirming.
+>>=20
+>>> So, should I modify this and upstream v3 patch for you?
+>>=20
+>> No, that is fine, I'll fix it up on my end.
+>=20
+> Hmm, I am also looking at elan_get_x_resolution() and in case of SMB
+> we'll never get negative result since we are doing
+> "elan_convert_res(val[1] & 0x0F)". Was it intended as such, or do we
+> need to extend sign here via
+>=20
+> 	(((char)(val[1] & 0x0F)) << 4) >> 4;
+>=20
+> Thanks.
+>=20
+> --=20
+> Dmitry
+>=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,54 +1,115 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: synaptics - properly initialize slots for semi-MT
-Date: Fri, 25 Jul 2014 17:27:53 -0700
-Message-ID: <20140726002751.GA16660@core.coreip.homeip.net>
+Subject: Re: [PATCH v2 06/10] Input - wacom: prepare the driver to include BT
+ devices
+Date: Fri, 25 Jul 2014 17:39:09 -0700
+Message-ID: <20140726003909.GA16900@core.coreip.homeip.net>
+References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1406225645-32141-7-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:60606 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751199AbaGZA16 (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:36420 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751459AbaGZAjN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 20:27:58 -0400
+	Fri, 25 Jul 2014 20:39:13 -0400
 Content-Disposition: inline
+In-Reply-To: <1406225645-32141-7-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Semi-MT devices are pointers too, so let's tell that to
-input_mt_init_slots(), as well as let it set up the devices as semi-MT,
-instead of us doing it manually.
+Hi Benjamin,
 
-Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/synaptics.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On Thu, Jul 24, 2014 at 02:14:01PM -0400, Benjamin Tissoires wrote:
+> Now that wacom is a hid driver, there is no point in having a separate
+> driver for bluetooth devices.
+> This patch prepares the common paths of Bluetooth devices in the
+> common wacom driver.
+> It also adds the sysfs file "speed" used by Bluetooth devices.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> 
+> new in v2
+> 
+>  drivers/hid/wacom_sys.c | 70 ++++++++++++++++++++++++++++++++++++++++++++++---
+>  drivers/hid/wacom_wac.h |  2 ++
+>  2 files changed, 69 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index d0d06b8..add76ec 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -262,6 +262,12 @@ static int wacom_set_device_mode(struct hid_device *hdev, int report_id,
+>  	return error < 0 ? error : 0;
+>  }
+>  
+> +static int wacom_bt_query_tablet_data(struct hid_device *hdev, u8 speed,
+> +		struct wacom_features *features)
+> +{
+> +	return 0;
+> +}
+> +
+>  /*
+>   * Switch the tablet into its most-capable mode. Wacom tablets are
+>   * typically configured to power-up in a mode which sends mouse-like
+> @@ -272,6 +278,9 @@ static int wacom_set_device_mode(struct hid_device *hdev, int report_id,
+>  static int wacom_query_tablet_data(struct hid_device *hdev,
+>  		struct wacom_features *features)
+>  {
+> +	if (hdev->bus == BUS_BLUETOOTH)
+> +		return wacom_bt_query_tablet_data(hdev, 1, features);
+> +
+>  	if (features->device_type == BTN_TOOL_FINGER) {
+>  		if (features->type > TABLETPC) {
+>  			/* MT Tablet PC touch */
+> @@ -890,6 +899,38 @@ static void wacom_destroy_battery(struct wacom *wacom)
+>  	}
+>  }
+>  
+> +static ssize_t wacom_show_speed(struct device *dev,
+> +				struct device_attribute
+> +				*attr, char *buf)
+> +{
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct wacom *wacom = hid_get_drvdata(hdev);
+> +
+> +	return snprintf(buf, PAGE_SIZE, "%i\n", wacom->wacom_wac.bt_high_speed);
+> +}
+> +
+> +static ssize_t wacom_store_speed(struct device *dev,
+> +				struct device_attribute *attr,
+> +				const char *buf, size_t count)
+> +{
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +	struct wacom *wacom = hid_get_drvdata(hdev);
+> +	int new_speed;
+> +
+> +	if (sscanf(buf, "%1d", &new_speed ) != 1)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index ef9e0b8..fe607e9 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1371,11 +1371,11 @@ static void set_input_params(struct psmouse *psmouse,
- 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
- 		__set_bit(BTN_TOOL_QUINTTAP, dev->keybit);
- 	} else if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
--		/* Non-image sensors with AGM use semi-mt */
--		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
--		input_mt_init_slots(dev, 2, 0);
- 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
- 					ABS_MT_POSITION_Y);
-+		/* Non-image sensors with AGM use semi-mt */
-+		input_mt_init_slots(dev, 2,
-+				    INPUT_MT_POINTER | INPUT_MT_SEMI_MT);
- 	}
- 
- 	if (SYN_CAP_PALMDETECT(priv->capabilities))
--- 
-2.0.0.526.g5318336
+Checkpach is unhappy with ')' placement and I agree with it.
 
+> +		return -EINVAL;
+
+kstrtou8?
+
+> +
+> +	if (new_speed == 0 || new_speed == 1) {
+> +		wacom_bt_query_tablet_data(hdev, new_speed,
+> +				&wacom->wacom_wac.features);
+> +		return strnlen(buf, PAGE_SIZE);
+
+This is weird. Normally you want to return count since you should refuse
+input with excessive data.
+
+> +	} else
+> +		return -EINVAL;
+
+Need braces on both branches.
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,81 +1,54 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 11/10] Input - wacom: Check for bluetooth protocol while setting OLEDs
-Date: Fri, 25 Jul 2014 19:20:11 -0400
-Message-ID: <1406330411-7851-1-git-send-email-benjamin.tissoires@redhat.com>
-References: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: synaptics - properly initialize slots for semi-MT
+Date: Fri, 25 Jul 2014 17:27:53 -0700
+Message-ID: <20140726002751.GA16660@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53543 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751168AbaGYXUb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2014 19:20:31 -0400
-In-Reply-To: <1406225645-32141-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:60606 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751199AbaGZA16 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Jul 2014 20:27:58 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org
 
-Bluetooth Intuos 4 use 1-bit definition while the USB ones use a 4-bits
-definition. This changes the size of the raw image we receive, and thus
-the kernel will only accept 1-bit images for Bluetooth and 4-bits for
-USB.
+Semi-MT devices are pointers too, so let's tell that to
+input_mt_init_slots(), as well as let it set up the devices as semi-MT,
+instead of us doing it manually.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+Reviewed-by: Benson Leung <bleung@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/wacom_sys.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/input/mouse/synaptics.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 3adc6ef..42f139f 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -531,12 +531,14 @@ static int wacom_led_control(struct wacom *wacom)
- 	return retval;
- }
- 
--static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *img)
-+static int wacom_led_putimage(struct wacom *wacom, int button_id,
-+		const unsigned len, const void *img)
- {
- 	unsigned char *buf;
- 	int i, retval;
-+	const unsigned chunk_len = len / 4; /* 4 chunks are needed to be sent */
- 
--	buf = kzalloc(259, GFP_KERNEL);
-+	buf = kzalloc(chunk_len + 3 , GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
-@@ -552,11 +554,11 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *im
- 	buf[1] = button_id & 0x07;
- 	for (i = 0; i < 4; i++) {
- 		buf[2] = i;
--		memcpy(buf + 3, img + i * 256, 256);
-+		memcpy(buf + 3, img + i * chunk_len, chunk_len);
- 
- 		retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
- 					  WAC_CMD_ICON_XFER,
--					  buf, 259, WAC_CMD_RETRIES);
-+					  buf, chunk_len + 3, WAC_CMD_RETRIES);
- 		if (retval < 0)
- 			break;
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index ef9e0b8..fe607e9 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1371,11 +1371,11 @@ static void set_input_params(struct psmouse *psmouse,
+ 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
+ 		__set_bit(BTN_TOOL_QUINTTAP, dev->keybit);
+ 	} else if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
+-		/* Non-image sensors with AGM use semi-mt */
+-		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+-		input_mt_init_slots(dev, 2, 0);
+ 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
+ 					ABS_MT_POSITION_Y);
++		/* Non-image sensors with AGM use semi-mt */
++		input_mt_init_slots(dev, 2,
++				    INPUT_MT_POINTER | INPUT_MT_SEMI_MT);
  	}
-@@ -657,13 +659,14 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
- 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	int err;
-+	const unsigned len = hdev->bus == BUS_BLUETOOTH ? 256 : 1024;
  
--	if (count != 1024)
-+	if (count != len)
- 		return -EINVAL;
- 
- 	mutex_lock(&wacom->lock);
- 
--	err = wacom_led_putimage(wacom, button_id, buf);
-+	err = wacom_led_putimage(wacom, button_id, len, buf);
- 
- 	mutex_unlock(&wacom->lock);
- 
+ 	if (SYN_CAP_PALMDETECT(priv->capabilities))
 -- 
-2.0.1
+2.0.0.526.g5318336
 
+
+-- 
+Dmitry

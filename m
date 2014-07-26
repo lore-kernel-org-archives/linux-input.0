@@ -1,53 +1,51 @@
-From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Subject: [PATCH] hid: hid-prodikeys.c:  Cleaning up missing null-terminate in conjunction with strncpy
-Date: Sat, 26 Jul 2014 16:21:32 +0200
-Message-ID: <1406384492-2442-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+From: Jamie Lentin <jm@lentin.co.uk>
+Subject: [PATCH v6 3/4] HID: lenovo: Don't call function in condition, show error codes
+Date: Sat, 26 Jul 2014 15:42:27 +0100
+Message-ID: <1406385747-2444-1-git-send-email-jm@lentin.co.uk>
+References: <1406154648-14000-4-git-send-email-jm@lentin.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f169.google.com ([74.125.82.169]:46188 "EHLO
-	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750810AbaGZOUH (ORCPT
+Received: from marmot.wormnet.eu ([188.246.204.87]:38475 "EHLO
+	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751717AbaGZOmg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Jul 2014 10:20:07 -0400
-Received: by mail-we0-f169.google.com with SMTP id u56so5542396wes.0
-        for <linux-input@vger.kernel.org>; Sat, 26 Jul 2014 07:20:05 -0700 (PDT)
+	Sat, 26 Jul 2014 10:42:36 -0400
+In-Reply-To: <1406154648-14000-4-git-send-email-jm@lentin.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
-Cc: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
 
-Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
-
-Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
 ---
- drivers/hid/hid-prodikeys.c |    8 ++++----
+ drivers/hid/hid-lenovo.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-index 91fab97..007c7f5 100644
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -641,9 +641,9 @@ static int pcmidi_snd_initialise(struct pcmidi_snd *pm)
- 		goto fail;
- 	}
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index a56b9e7..f96bf09 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -350,6 +350,7 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	size_t name_sz = strlen(dev_name(dev)) + 16;
+ 	char *name_mute, *name_micmute;
+ 	int i;
++	int ret;
  
--	strncpy(card->driver, shortname, sizeof(card->driver));
--	strncpy(card->shortname, shortname, sizeof(card->shortname));
--	strncpy(card->longname, longname, sizeof(card->longname));
-+	strlcpy(card->driver, shortname, sizeof(card->driver));
-+	strlcpy(card->shortname, shortname, sizeof(card->shortname));
-+	strlcpy(card->longname, longname, sizeof(card->longname));
+ 	/*
+ 	 * Only register extra settings against subdevice where input_mapping
+@@ -368,10 +369,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 3, 0, 2))
+ 		return -ENODEV;
  
- 	/* Set up rawmidi */
- 	err = snd_rawmidi_new(card, card->shortname, 0,
-@@ -654,7 +654,7 @@ static int pcmidi_snd_initialise(struct pcmidi_snd *pm)
- 		goto fail;
- 	}
- 	pm->rwmidi = rwmidi;
--	strncpy(rwmidi->name, card->shortname, sizeof(rwmidi->name));
-+	strlcpy(rwmidi->name, card->shortname, sizeof(rwmidi->name));
- 	rwmidi->info_flags = SNDRV_RAWMIDI_INFO_INPUT;
- 	rwmidi->private_data = pm;
+-	if (sysfs_create_group(&hdev->dev.kobj,
+-				&lenovo_attr_group_tpkbd)) {
+-		hid_warn(hdev, "Could not create sysfs group\n");
+-	}
++	ret = sysfs_create_group(&hdev->dev.kobj, &lenovo_attr_group_tpkbd);
++	if (ret)
++		hid_warn(hdev, "Could not create sysfs group: %d\n", ret);
  
+ 	data_pointer = devm_kzalloc(&hdev->dev,
+ 				    sizeof(struct lenovo_drvdata_tpkbd),
 -- 
-1.7.10.4
+2.0.0
 

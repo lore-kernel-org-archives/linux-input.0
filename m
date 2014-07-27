@@ -1,40 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] Input: synaptics-rmi4: Add F30 support
-Date: Sun, 27 Jul 2014 00:26:24 -0700
-Message-ID: <20140727072624.GA15556@core.coreip.homeip.net>
-References: <1406245641-6263-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - fix compiler warnings in F11
+Date: Sun, 27 Jul 2014 00:27:22 -0700
+Message-ID: <20140727072722.GB15556@core.coreip.homeip.net>
+References: <20140723061130.GA22639@core.coreip.homeip.net>
+ <53D0644F.608@synaptics.com>
+ <53D167A9.3020402@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:38285 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751054AbaG0H01 (ORCPT
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:54039 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751054AbaG0H1Y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Jul 2014 03:26:27 -0400
-Received: by mail-pd0-f176.google.com with SMTP id y10so7979500pdj.35
-        for <linux-input@vger.kernel.org>; Sun, 27 Jul 2014 00:26:27 -0700 (PDT)
+	Sun, 27 Jul 2014 03:27:24 -0400
 Content-Disposition: inline
-In-Reply-To: <1406245641-6263-1-git-send-email-aduggan@synaptics.com>
+In-Reply-To: <53D167A9.3020402@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, Christopher Heiny <cheiny@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-
-On Thu, Jul 24, 2014 at 04:47:21PM -0700, Andrew Duggan wrote:
-> RMI4 Function 0x30 provides support for GPIOs, LEDs and mechanical
-> buttons.  In particular, the mechanical button support is used in
-> an increasing number of touchpads.
+On Thu, Jul 24, 2014 at 01:08:09PM -0700, Andrew Duggan wrote:
+> On 07/23/2014 06:41 PM, Christopher Heiny wrote:
+> >On 07/22/2014 11:11 PM, Dmitry Torokhov wrote:
+> >>Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >
+> >I've reviewed this, and can say:
+> >
+> >Acked-by: Christopher Heiny <cheiny@synaptics.com>
+> >
+> >but I haven't had a chance to apply it to my build tree.
+> >
+> >Andrew - I'll be OOO for a couple of days.  Can you do that, and
+> >add a Tested-by: or rev the patch, as appropriate?
+> >
+> >                Thanks,
+> >                    Chris
+> >
+> It compiles cleanly and works on my test system.
 > 
+> Tested-by: Andrew Duggan <aduggan@synaptics.com>
 
-I was reading the spec for F30 and it looks to me that instead instead of basic
-keymap it should actually implement a gpio chip plus LED devices (probably
-later). Then, if GPIOs are indeed attached to buttons one can use standard
-gpio_keys driver to create input device.
-
-Thanks.
+Thank you Andrew and Chris, I'll apply it to the branch then.
 
 -- 
 Dmitry

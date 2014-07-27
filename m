@@ -1,47 +1,368 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - fix compiler warnings in F11
-Date: Sun, 27 Jul 2014 00:27:22 -0700
-Message-ID: <20140727072722.GB15556@core.coreip.homeip.net>
-References: <20140723061130.GA22639@core.coreip.homeip.net>
- <53D0644F.608@synaptics.com>
- <53D167A9.3020402@synaptics.com>
+From: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH v2] iio: exynos-adc: add experimental touchscreen support
+Date: Sun, 27 Jul 2014 23:10:21 +0200
+Message-ID: <53D56ABD.8080808@gmx.de>
+References: <5068889.1KfVx3ksNo@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:54039 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751054AbaG0H1Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Jul 2014 03:27:24 -0400
-Content-Disposition: inline
-In-Reply-To: <53D167A9.3020402@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5068889.1KfVx3ksNo@wuerfel>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, heiko.stuebner-K3U4GQvHnyU@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2014 at 01:08:09PM -0700, Andrew Duggan wrote:
-> On 07/23/2014 06:41 PM, Christopher Heiny wrote:
-> >On 07/22/2014 11:11 PM, Dmitry Torokhov wrote:
-> >>Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >
-> >I've reviewed this, and can say:
-> >
-> >Acked-by: Christopher Heiny <cheiny@synaptics.com>
-> >
-> >but I haven't had a chance to apply it to my build tree.
-> >
-> >Andrew - I'll be OOO for a couple of days.  Can you do that, and
-> >add a Tested-by: or rev the patch, as appropriate?
-> >
-> >                Thanks,
-> >                    Chris
-> >
-> It compiles cleanly and works on my test system.
-> 
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
-
-Thank you Andrew and Chris, I'll apply it to the branch then.
-
--- 
-Dmitry
+Arnd Bergmann schrieb:
+> This adds support for the touchscreen on Samsung s3c64xx.
+> The driver is completely untested but shows roughly how
+> it could be done, following the example of the at91 driver.
+>
+> Open questions include:
+>
+> - compared to the old plat-samsung/adc driver, there is
+>   no support for prioritizing ts over other clients, nor
+>   for oversampling. From my reading of the code, the
+>   priorities didn't actually have any effect at all, but
+>   the oversampling might be needed. Maybe the original
+>   authors have some insight.
+>
+> - We probably need to add support for platform_data as well,
+>   I've skipped this so far.
+>
+> Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+> ---
+> This should address all previous comments, and I've also added
+> a write to ADC_V1_DLY() as the old driver does.
+Just two minor issues inline.
+>
+> diff --git a/Documentation/devicetree/bindings/arm/samsung/exynos-adc=
+=2Etxt b/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
+> index cad81b666a67..ba30836c73cb 100644
+> --- a/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
+> +++ b/Documentation/devicetree/bindings/arm/samsung/exynos-adc.txt
+> @@ -43,6 +43,10 @@ Required properties:
+>  				       and compatible ADC block)
+>  - vdd-supply		VDD input supply.
+> =20
+> +Optional properties:
+> +- has-touchscreen:	If present, indicates that a touchscreen is
+> +			connected an usable.
+Typo: and
+> +
+>  Note: child nodes can be added for auto probing from device tree.
+> =20
+>  Example: adding device info in dtsi file
+> diff --git a/drivers/iio/adc/exynos_adc.c b/drivers/iio/adc/exynos_ad=
+c.c
+> index 420c5cda09c3..3b684a117b9c 100644
+> --- a/drivers/iio/adc/exynos_adc.c
+> +++ b/drivers/iio/adc/exynos_adc.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/of_platform.h>
+>  #include <linux/err.h>
+> +#include <linux/input.h>
+> =20
+>  #include <linux/iio/iio.h>
+>  #include <linux/iio/machine.h>
+> @@ -66,6 +67,9 @@
+> =20
+>  #define ADC_S3C2410_CON_SELMUX(x) (((x)&0x7)<<3)
+> =20
+> +/* touch screen always uses channel 0 */
+> +#define ADC_S3C2410_MUX_TS	0
+> +
+>  /* ADCTSC Register Bits */
+>  #define ADC_S3C2443_TSC_UD_SEN		(1u << 8)
+>  #define ADC_S3C2410_TSC_YM_SEN		(1u << 7)
+> @@ -103,24 +107,32 @@
+> =20
+>  /* Bit definitions common for ADC_V1 and ADC_V2 */
+>  #define ADC_CON_EN_START	(1u << 0)
+> +#define ADC_DATX_PRESSED	(1u << 15)
+>  #define ADC_DATX_MASK		0xFFF
+> +#define ADC_DATY_MASK		0xFFF
+> =20
+>  #define EXYNOS_ADC_TIMEOUT	(msecs_to_jiffies(100))
+> =20
+>  struct exynos_adc {
+>  	struct exynos_adc_data	*data;
+>  	struct device		*dev;
+> +	struct input_dev	*input;
+>  	void __iomem		*regs;
+>  	void __iomem		*enable_reg;
+>  	struct clk		*clk;
+>  	struct clk		*sclk;
+>  	unsigned int		irq;
+> +	unsigned int		tsirq;
+>  	struct regulator	*vdd;
+> =20
+>  	struct completion	completion;
+> =20
+>  	u32			value;
+>  	unsigned int            version;
+> +
+> +	bool			read_ts;
+> +	u32			ts_x;
+> +	u32			ts_y;
+>  };
+> =20
+>  struct exynos_adc_data {
+> @@ -205,6 +217,9 @@ static void exynos_adc_v1_init_hw(struct exynos_a=
+dc *info)
+>  	/* Enable 12-bit ADC resolution */
+>  	con1 |=3D ADC_V1_CON_RES;
+>  	writel(con1, ADC_V1_CON(info->regs));
+> +
+> +	/* set default touchscreen delay */
+Any information about how many =B5s/ms it is actually set with this val=
+ue?
+> +	writel(10000, ADC_V1_DLY(info->regs));
+>  }
+> =20
+>  static void exynos_adc_v1_exit_hw(struct exynos_adc *info)
+> @@ -390,12 +405,54 @@ static int exynos_read_raw(struct iio_dev *indi=
+o_dev,
+>  	return ret;
+>  }
+> =20
+> +static int exynos_read_s3c64xx_ts(struct iio_dev *indio_dev, int *x,=
+ int *y)
+> +{
+> +	struct exynos_adc *info =3D iio_priv(indio_dev);
+> +	unsigned long timeout;
+> +	int ret;
+> +
+> +	mutex_lock(&indio_dev->mlock);
+> +	info->read_ts =3D true;
+> +
+> +	reinit_completion(&info->completion);
+> +
+> +	writel(ADC_S3C2410_TSC_PULL_UP_DISABLE | ADC_TSC_AUTOPST,
+> +	       ADC_V1_TSC(info->regs));
+> +
+> +	/* Select the ts channel to be used and Trigger conversion */
+> +	info->data->start_conv(info, ADC_S3C2410_MUX_TS);
+> +
+> +	timeout =3D wait_for_completion_timeout
+> +			(&info->completion, EXYNOS_ADC_TIMEOUT);
+> +	if (timeout =3D=3D 0) {
+> +		dev_warn(&indio_dev->dev, "Conversion timed out! Resetting\n");
+> +		if (info->data->init_hw)
+> +			info->data->init_hw(info);
+> +		ret =3D -ETIMEDOUT;
+> +	} else {
+> +		*x =3D info->ts_x;
+> +		*y =3D info->ts_y;
+> +		ret =3D 0;
+> +	}
+> +
+> +	info->read_ts =3D false;
+> +	mutex_unlock(&indio_dev->mlock);
+> +
+> +	return ret;
+> +}
+> +
+>  static irqreturn_t exynos_adc_isr(int irq, void *dev_id)
+>  {
+>  	struct exynos_adc *info =3D (struct exynos_adc *)dev_id;
+> =20
+>  	/* Read value */
+> -	info->value =3D readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
+> +	if (info->read_ts) {
+> +		info->ts_x =3D readl(ADC_V1_DATX(info->regs));
+> +		info->ts_y =3D readl(ADC_V1_DATY(info->regs));
+> +		writel(ADC_TSC_WAIT4INT | ADC_S3C2443_TSC_UD_SEN, ADC_V1_TSC(info-=
+>regs));
+> +	} else {
+> +		info->value =3D readl(ADC_V1_DATX(info->regs)) & ADC_DATX_MASK;
+> +	}
+> =20
+>  	/* clear irq */
+>  	if (info->data->clear_irq)
+> @@ -406,6 +463,46 @@ static irqreturn_t exynos_adc_isr(int irq, void =
+*dev_id)
+>  	return IRQ_HANDLED;
+>  }
+> =20
+> +/*
+> + * Here we (ab)use a threaded interrupt handler to stay running
+> + * for as long as the touchscreen remains pressed, we report
+> + * a new event with the latest data and then sleep until the
+> + * next timer tick. This mirrors the behavior of the old
+> + * driver, with much less code.
+> + */
+> +static irqreturn_t exynos_ts_isr(int irq, void *dev_id)
+> +{
+> +	struct exynos_adc *info =3D dev_id;
+> +	struct iio_dev *dev =3D dev_get_drvdata(info->dev);
+> +	u32 x, y;
+> +	bool pressed;
+> +	int ret;
+> +
+> +	while (info->input->users) {
+> +		ret =3D exynos_read_s3c64xx_ts(dev, &x, &y);
+> +		if (ret =3D=3D -ETIMEDOUT)
+> +			break;
+> +
+> +		pressed =3D x & y & ADC_DATX_PRESSED;
+> +		if (!pressed) {
+> +			input_report_key(info->input, BTN_TOUCH, 0);
+> +			input_sync(info->input);
+> +			break;
+> +		}
+> +
+> +		input_report_abs(info->input, ABS_X, x & ADC_DATX_MASK);
+> +		input_report_abs(info->input, ABS_Y, y & ADC_DATY_MASK);
+> +		input_report_key(info->input, BTN_TOUCH, 1);
+> +		input_sync(info->input);
+> +
+> +		msleep(1);
+> +	};
+> +
+> +	writel(0, ADC_V1_CLRINTPNDNUP(info->regs));
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+>  static int exynos_adc_reg_access(struct iio_dev *indio_dev,
+>  			      unsigned reg, unsigned writeval,
+>  			      unsigned *readval)
+> @@ -457,12 +554,66 @@ static int exynos_adc_remove_devices(struct dev=
+ice *dev, void *c)
+>  	return 0;
+>  }
+> =20
+> +static int exynos_adc_ts_open(struct input_dev *dev)
+> +{
+> +	struct exynos_adc *info =3D input_get_drvdata(dev);
+> +
+> +	enable_irq(info->tsirq);
+> +
+> +	return 0;
+> +}
+> +
+> +static void exynos_adc_ts_close(struct input_dev *dev)
+> +{
+> +	struct exynos_adc *info =3D input_get_drvdata(dev);
+> +
+> +	disable_irq(info->tsirq);
+> +}
+> +
+> +static int exynos_adc_ts_init(struct exynos_adc *info)
+> +{
+> +	int ret;
+> +
+> +	if (info->tsirq <=3D 0)
+> +		return -ENODEV;
+> +
+> +	info->input =3D input_allocate_device();
+> +	if (!info->input)
+> +		return -ENOMEM;
+> +
+> +	info->input->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	info->input->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
+> +
+> +	input_set_abs_params(info->input, ABS_X, 0, 0x3FF, 0, 0);
+> +	input_set_abs_params(info->input, ABS_Y, 0, 0x3FF, 0, 0);
+> +
+> +	info->input->name =3D "S3C24xx TouchScreen";
+> +	info->input->id.bustype =3D BUS_HOST;
+> +	info->input->open =3D exynos_adc_ts_open;
+> +	info->input->close =3D exynos_adc_ts_close;
+> +=09
+> +	input_set_drvdata(info->input, info);
+> +
+> +	ret =3D input_register_device(info->input);
+> +	if (ret)
+> +		input_free_device(info->input);
+> +
+> +	disable_irq(info->tsirq);
+> +	ret =3D request_threaded_irq(info->tsirq, NULL, exynos_ts_isr,
+> +				   0, "touchscreen", info);
+> +	if (ret)
+> +		input_unregister_device(info->input);
+> +
+> +	return ret;
+> +}
+> +
+>  static int exynos_adc_probe(struct platform_device *pdev)
+>  {
+>  	struct exynos_adc *info =3D NULL;
+>  	struct device_node *np =3D pdev->dev.of_node;
+>  	struct iio_dev *indio_dev =3D NULL;
+>  	struct resource	*mem;
+> +	bool has_ts =3D false;
+>  	int ret =3D -ENODEV;
+>  	int irq;
+> =20
+> @@ -498,8 +649,14 @@ static int exynos_adc_probe(struct platform_devi=
+ce *pdev)
+>  		dev_err(&pdev->dev, "no irq resource?\n");
+>  		return irq;
+>  	}
+> -
+>  	info->irq =3D irq;
+> +
+> +	irq =3D platform_get_irq(pdev, 1);
+> +	if (irq =3D=3D -EPROBE_DEFER)
+> +		return irq;=20
+> +
+> +	info->tsirq =3D irq;
+> +
+>  	info->dev =3D &pdev->dev;
+> =20
+>  	init_completion(&info->completion);
+> @@ -565,6 +722,15 @@ static int exynos_adc_probe(struct platform_devi=
+ce *pdev)
+>  	if (info->data->init_hw)
+>  		info->data->init_hw(info);
+> =20
+> +	/* leave out any TS related code if unreachable */
+> +	if (IS_BUILTIN(CONFIG_INPUT) ||
+> +	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE)))
+> +		has_ts =3D of_property_read_bool(pdev->dev.of_node, "has-touchscre=
+en");
+> +	if (has_ts)
+> +		ret =3D exynos_adc_ts_init(info);
+> +	if (ret)
+> +		goto err_iio;
+> +
+>  	ret =3D of_platform_populate(np, exynos_adc_match, NULL, &indio_dev=
+->dev);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "failed adding child nodes\n");
+> @@ -576,6 +742,11 @@ static int exynos_adc_probe(struct platform_devi=
+ce *pdev)
+>  err_of_populate:
+>  	device_for_each_child(&indio_dev->dev, NULL,
+>  				exynos_adc_remove_devices);
+> +	if (has_ts) {
+> +		input_unregister_device(info->input);
+> +		free_irq(info->tsirq, info);
+> +	}
+> +err_iio:
+>  	iio_device_unregister(indio_dev);
+>  err_irq:
+>  	free_irq(info->irq, info);
+> @@ -595,6 +766,11 @@ static int exynos_adc_remove(struct platform_dev=
+ice *pdev)
+>  	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
+>  	struct exynos_adc *info =3D iio_priv(indio_dev);
+> =20
+> +	if (IS_BUILTIN(CONFIG_INPUT) ||
+> +	    (IS_MODULE(CONFIG_INPUT) && config_enabled(MODULE))) {
+> +		free_irq(info->tsirq, info);
+> +		input_unregister_device(info->input);
+> +	}
+>  	device_for_each_child(&indio_dev->dev, NULL,
+>  				exynos_adc_remove_devices);
+>  	iio_device_unregister(indio_dev);
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" =
+in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>

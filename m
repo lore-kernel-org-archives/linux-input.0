@@ -1,111 +1,99 @@
-From: pramod.gurav.etc@gmail.com
-Subject: [PATCH] input: ads7846: Switch to managed version of kzalloc and cleanups
-Date: Mon, 28 Jul 2014 14:16:55 +0530
-Message-ID: <1406537216-25936-1-git-send-email-pramod.gurav@smartplayin.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:54768 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751471AbaG1In3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 04:43:29 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Roger Quadros <rogerq@ti.com>
+Subject: Re: [PATCH v7 0/5] Input: pixcir_i2c_ts: Add Type-B Multi-touch and
+ DT support
+Date: Mon, 28 Jul 2014 12:16:08 +0300
+Message-ID: <53D614D8.4070309@ti.com>
+References: <1402997507-9736-1-git-send-email-rogerq@ti.com> <53B523AE.70601@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <53B523AE.70601@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, tony@atomide.com
+Cc: rydberg@euromail.se, balbi@ti.com, dmurphy@ti.com, mugunthanvnm@ti.com, nsekhar@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Paul Gortmaker <paul.gortmaker@windriver.com>, Mark Brown <broonie@linaro.org>, Fabio Estevam <fabio.estevam@freescale.com>
 
-From: Pramod Gurav <pramod.gurav@smartplayin.com>
+Hi Dmitry,
 
-This switches memory allocations from kzalloc to devm_kzalloc.
-This also changes the way return checks were done on failure cases
-of three allocations. The checks were clubbed together and hence
-must be done seperately to avoid calling kfree on unallocated memory.
+Gentle ping. Would be nice to get these into 3.17. Thanks :).
 
-Moreover in case of input_allocate_device failure, we were calling
-input_free_device which is not needed.
+cheers,
+-roger
 
-input device must be released(input_free_device) when ads7846_probe_dt
-fails hence adds a fix there as well.
-
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: Guenter Roeck <linux@roeck-us.net>
-CC: Paul Gortmaker <paul.gortmaker@windriver.com>
-CC: Mark Brown <broonie@linaro.org>
-CC: Fabio Estevam <fabio.estevam@freescale.com>
-
-Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
----
-Earlier when kzalloc was used to allocate, the error check for all three
-resources (ts, packet, input_dev) was done together. This I felt might
-cause a problem in case any of these allocations fails and we may end up
-calling kfree on unallocated memory. Moving to managed resource solves this
-anyway as we remove references of kfree in probe fail path.
-
-
-
-Moving to managed resources solves this anyway.
- drivers/input/touchscreen/ads7846.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index da201b8..d229b8d 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1282,13 +1282,17 @@ static int ads7846_probe(struct spi_device *spi)
- 	if (err < 0)
- 		return err;
- 
--	ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL);
--	packet = kzalloc(sizeof(struct ads7846_packet), GFP_KERNEL);
-+	ts = devm_kzalloc(&spi->dev, sizeof(*ts), GFP_KERNEL);
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	packet = devm_kzalloc(&spi->dev, sizeof(*packet), GFP_KERNEL);
-+	if (!packet)
-+		return -ENOMEM;
-+
- 	input_dev = input_allocate_device();
--	if (!ts || !packet || !input_dev) {
--		err = -ENOMEM;
--		goto err_free_mem;
--	}
-+	if (!input_dev)
-+		return -ENOMEM;
- 
- 	spi_set_drvdata(spi, ts);
- 
-@@ -1302,8 +1306,10 @@ static int ads7846_probe(struct spi_device *spi)
- 	pdata = dev_get_platdata(&spi->dev);
- 	if (!pdata) {
- 		pdata = ads7846_probe_dt(&spi->dev);
--		if (IS_ERR(pdata))
--			return PTR_ERR(pdata);
-+		if (IS_ERR(pdata)) {
-+			err = PTR_ERR(pdata);
-+			goto err_free_mem;
-+		}
- 	}
- 
- 	ts->model = pdata->model ? : 7846;
-@@ -1450,8 +1456,6 @@ static int ads7846_probe(struct spi_device *spi)
- 		ts->filter_cleanup(ts->filter_data);
-  err_free_mem:
- 	input_free_device(input_dev);
--	kfree(packet);
--	kfree(ts);
- 	return err;
- }
- 
-@@ -1484,9 +1488,6 @@ static int ads7846_remove(struct spi_device *spi)
- 	if (ts->filter_cleanup)
- 		ts->filter_cleanup(ts->filter_data);
- 
--	kfree(ts->packet);
--	kfree(ts);
--
- 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
- 
- 	return 0;
--- 
-1.7.9.5
+On 07/03/2014 12:34 PM, Roger Quadros wrote:
+> Hi Dmitry,
+> 
+> Gentle reminder to pick this series for -next. Thanks :).
+> 
+> cheers,
+> -roger
+> 
+> On 06/17/2014 12:31 PM, Roger Quadros wrote:
+>> Hi Dmitry,
+>>
+>> These are the pending patches that didn't go through in the 3.16 merge window.
+>> Please queue them for -next. Thanks.
+>>
+>> The series does the following
+>> - convert to Type-B multi touch protocol
+>> - support upto 5 fingers with hardware supplied tracking IDs
+>> - device tree support
+>>
+>> Tony,
+>>
+>> The last 2 patches fix the touch screen size property in the device tree since
+>> we now use the unified touch screen properties.
+>>
+>> cheers,
+>> -roger
+>>
+>> Changelog:
+>>
+>> v7:
+>> - Rebased on 3.16-rc1.
+>>
+>> v6:
+>> - Use unified touchscreen bindings.
+>> - Update pointer math i.e. bufptr += 4 instead of &bufptr[4];
+>>
+>> v5:
+>> - Changed ts->exiting flag to ts->running in patch 2.
+>> - Don't call pixcir_stop() from .suspend() if wakeup is required.
+>>
+>> v4:
+>> - Imporved pixcir_stop() as per Dmitry's suggestion.
+>> - Removed unnecessary input_unregister_device() from .remove().
+>>
+>> v3:
+>> - Rebased to 3.15-rc3
+>> - Fixed suspend while touchscreen in use
+>> - Fixed module removal while touchscreen in use
+>>
+>> v2:
+>> - Addressed review comments and re-arranged patch order
+>>
+>> v1:
+>> - http://article.gmane.org/gmane.linux.kernel/1616417
+>>
+>> --
+>>
+>> Roger Quadros (5):
+>>   Input: pixcir_i2c_ts: Use Type-B Multi-Touch protocol
+>>   Input: pixcir_i2c_ts: support upto 5 fingers and hardware provided
+>>     tracking IDs
+>>   Input: pixcir_i2c_ts: Add device tree support
+>>   ARM: dts: am43x-epos-evm: Update binding for touchscreen size
+>>   ARM: dts: am437x-gp-evm: Update binding for touchscreen size
+>>
+>>  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  26 +++
+>>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+>>  arch/arm/boot/dts/am437x-gp-evm.dts                |   4 +-
+>>  arch/arm/boot/dts/am43x-epos-evm.dts               |   4 +-
+>>  drivers/input/touchscreen/pixcir_i2c_ts.c          | 251 ++++++++++++++++++---
+>>  include/linux/input/pixcir_ts.h                    |  12 +
+>>  6 files changed, 259 insertions(+), 39 deletions(-)
+>>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
+>>
+> 
 

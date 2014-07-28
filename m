@@ -1,53 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCHES v2] Add support for more Huion tablets
-Date: Mon, 28 Jul 2014 11:33:37 -0400
-Message-ID: <CAN+gG=EPK-KENSFBYLEaX_OzaAUHrvU=1mnBgmPoCQgM9rLuXA@mail.gmail.com>
-References: <53CFC950.90703@gmail.com>
-	<1406133117-29243-1-git-send-email-spbnick@gmail.com>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: Linux 3.16-rc6
+Date: Mon, 28 Jul 2014 12:37:14 -0400
+Message-ID: <53D67C3A.1060401@hp.com>
+References: <CA+55aFzJKxzw_as9iGgeM=MdQ6trUkQLDuoEr8nxj88sOqQnQA@mail.gmail.com> <20140723095327.GA23131@pd.tnic> <CA+55aFzPs4uF=eR7jCnpyBtgWNRkX-uDfXeo5u34VEvT8_yyzw@mail.gmail.com> <20140724064353.GW9918@twins.programming.kicks-ass.net> <20140724084126.GB19239@pd.tnic> <20140724122513.GM19239@pd.tnic> <20140724125814.GX6758@twins.programming.kicks-ass.net> <CA+55aFynW5xSRQvY6xO+mxmt6yh7mFkMjy-pgJXpXNy8qDMcPA@mail.gmail.com> <20140724183643.GM3935@laptop> <53D16EC4.1000801@hp.com> <20140725161002.GE6758@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f49.google.com ([209.85.215.49]:50416 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752247AbaG1Pdi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 11:33:38 -0400
-Received: by mail-la0-f49.google.com with SMTP id hz20so5462929lab.8
-        for <linux-input@vger.kernel.org>; Mon, 28 Jul 2014 08:33:37 -0700 (PDT)
-In-Reply-To: <1406133117-29243-1-git-send-email-spbnick@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140725161002.GE6758@twins.programming.kicks-ass.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-On Wed, Jul 23, 2014 at 12:31 PM, Nikolai Kondrashov <spbnick@gmail.com> wrote:
-> Hi everyone,
+On 07/25/2014 12:10 PM, Peter Zijlstra wrote:
+> On Thu, Jul 24, 2014 at 04:38:28PM -0400, Waiman Long wrote:
+>> Yes, I think I may have a solution for that.
+>>
+>> Borislav, can you apply the following patch on top of the lockdep patch to
+>> see if it can fix the problem?
+>>
+>> diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+>> index d24e433..507a8ce 100644
+>> --- a/kernel/locking/lockdep.c
+>> +++ b/kernel/locking/lockdep.c
+>> @@ -3595,6 +3595,12 @@ void lock_acquire(struct lockdep_map *lock, unsigned int
+>>          raw_local_irq_save(flags);
+>>          check_flags(flags);
+>>
+>> +       /*
+>> +        * An interrupt recursive read in interrupt context can be considered
+>> +        * to be the same as a recursive read from checking perspective.
+>> +        */
+>> +       if ((read == 3)&&  in_interrupt())
+>> +               read = 2;
+>>          current->lockdep_recursion = 1;
+>>          trace_lock_acquire(lock, subclass, trylock, read, check, nest_lock, ip);
+>>          __lock_acquire(lock, subclass, trylock, read, check,
+> Just had another look at the initial patch and it cannot be right, even
+> with the above.
 >
-> This is the second version of the patch set adding support for more Huion
-> tablets [1].
+> The problem is you cannot use in_interrupt() in check_deadlock().
+> Check_deadlock() must be context invariant, it should only test the
+> chain state and not rely on where or when its called.
 >
-> This version has the "hid: huion: Invert in-range on specific product" patch
-> removed as requested by Benjamin Tissoires.
 >
-> Tested with Huion H610N.
->
-> Nick
->
-> [PATCH 1/4] hid: huion: Use "tablet" instead of specific model
-> [PATCH 2/4] hid: huion: Don't ignore other interfaces
-> [PATCH 3/4] hid: huion: Switch to generating report descriptor
-> [PATCH 4/4] hid: huion: Handle tablets with UC-Logic vendor ID
->
->  drivers/hid/hid-core.c  |   2 +-
->  drivers/hid/hid-huion.c | 265 ++++++++++++++++++++++++++++++++----------------
->  drivers/hid/hid-ids.h   |   2 +-
->  3 files changed, 177 insertions(+), 92 deletions(-)
->
-> [1] http://thread.gmane.org/gmane.linux.kernel.input/37187
 
-Just so that the info does not get lost, the v2 of the patch series is still:
+I am planning to take out the check in check_deadlock and only have the 
+test in lock_acquire which change a 3 to 2 when in interrupt context. 
+Now my question is whether to do it as a new patch on top of the 
+existing one in tip or a total replacement. I also intend to use 
+symbolic names for the read states for better readability as suggested 
+by John.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
+-Longman

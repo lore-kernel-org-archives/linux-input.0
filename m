@@ -1,42 +1,93 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v2] iio: exynos-adc: add experimental touchscreen support
-Date: Sun, 27 Jul 2014 23:50:51 +0200
-Message-ID: <1743122.0WWLup698P@diego>
-References: <5068889.1KfVx3ksNo@wuerfel> <53D56ABD.8080808@gmx.de>
+From: pramod gurav <pramod.gurav.etc@gmail.com>
+Subject: Re: [PATCH v2] Input: soc_button_array: Remove kfree on data
+ allocated with devm_zalloc
+Date: Mon, 28 Jul 2014 12:20:41 +0530
+Message-ID: <CAMf-jSm1d0wAJ3C_yFhqnoDPSLqeDcc-ow0D=bwmLUcC9sXjLA@mail.gmail.com>
+References: <1406288074-28725-1-git-send-email-pramod.gurav@smartplayin.com>
+	<20140725162258.GA12254@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53D56ABD.8080808-Mmb7MZpHnFY@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f46.google.com ([209.85.215.46]:57659 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750948AbaG1Gum (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jul 2014 02:50:42 -0400
+In-Reply-To: <20140725162258.GA12254@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pramod Gurav <pramod.gurav@smartplayin.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>
 
-Am Sonntag, 27. Juli 2014, 23:10:21 schrieb Hartmut Knaack:
-> Arnd Bergmann schrieb:
-> > @@ -205,6 +217,9 @@ static void exynos_adc_v1_init_hw(struct exynos=
-_adc
-> > *info)>=20
-> >  	/* Enable 12-bit ADC resolution */
-> >  	con1 |=3D ADC_V1_CON_RES;
-> >  	writel(con1, ADC_V1_CON(info->regs));
-> >=20
-> > +
-> > +	/* set default touchscreen delay */
->=20
-> Any information about how many =B5s/ms it is actually set with this v=
-alue?
+Hi Dmitry,
 
-"ADC conversion is delayed by counting this value. Counting clock is pc=
-lk."
-So, I guess here 10000 pclk ticks.
+Thanks for the review.
+
+On Fri, Jul 25, 2014 at 9:52 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Pramod,
+>
+> On Fri, Jul 25, 2014 at 05:04:34PM +0530, pramod.gurav.etc@gmail.com wrote:
+>> From: Pramod Gurav <pramod.gurav@smartplayin.com>
+>>
+>> This patch does below:
+>> - Removes kfree done on data allocated with devm_zalloc in probe
+>>   path of the driver.
+>> - Adds a check on return value from devm_kzalloc which was missing
+>>
+>> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> CC: Lejun Zhu <lejun.zhu@linux.intel.com>
+>> CC: Sachin Kamat <sachin.kamat@linaro.org>
+>>
+>> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+>> ---
+>>  drivers/input/misc/soc_button_array.c |   17 +++++++----------
+>>  1 file changed, 7 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+>> index 5a6334b..fc64ec6 100644
+>> --- a/drivers/input/misc/soc_button_array.c
+>> +++ b/drivers/input/misc/soc_button_array.c
+>> @@ -83,6 +83,9 @@ soc_button_device_create(struct pnp_dev *pdev,
+>>                                      sizeof(*gpio_keys_pdata) +
+>>                                       sizeof(*gpio_keys) * MAX_NBUTTONS,
+>>                                      GFP_KERNEL);
+>> +     if (!gpio_keys_pdata)
+>> +             return ERR_PTR(-ENOMEM);
+>
+> OK, that makes sense.
+>
+>> +
+>>       gpio_keys = (void *)(gpio_keys_pdata + 1);
+>>
+>>       for (info = button_info; info->name; info++) {
+>> @@ -102,20 +105,16 @@ soc_button_device_create(struct pnp_dev *pdev,
+>>               n_buttons++;
+>>       }
+>>
+>> -     if (n_buttons == 0) {
+>> -             error = -ENODEV;
+>> -             goto err_free_mem;
+>> -     }
+>> +     if (n_buttons == 0)
+>> +             return ERR_PTR(-ENODEV);
+>
+> But that one and the rest don't, because failure in
+> soc_button_device_create() does not necessarily mean that binding for
+> the whole device will fail. In this case we do not want unused memory
+> hang around.
+Agree. Should resend the patch with only the error check after mem
+allocation and will be little more careful while sending any such
+change. :)
+
+>
+> Thanks.
+>
+> --
+> Dmitry
 
 
-Heiko
 
->=20
-> > +	writel(10000, ADC_V1_DLY(info->regs));
-> >=20
-> >  }
-> > =20
+-- 
+Thanks and Regards
+Pramod

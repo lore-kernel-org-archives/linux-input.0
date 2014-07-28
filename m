@@ -1,60 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: wacom: Support up to 2048 pressure levels
- with ISDv4
-Date: Mon, 28 Jul 2014 11:00:40 -0700
-Message-ID: <20140728180040.GA29714@core.coreip.homeip.net>
-References: <1404164806-5141-1-git-send-email-killertofu@gmail.com>
- <CANRwn3TSsZMvGU1Oj1iu2a24JKxXfa2fsk8236fj7ek7TgEWeg@mail.gmail.com>
+From: "Murphy, Dan" <dmurphy@ti.com>
+Subject: Re: [v2] input: drv260x: Add TI drv260x haptics driver
+Date: Mon, 28 Jul 2014 18:02:23 +0000
+Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DAF68F@DFLE09.ent.ti.com>
+References: <1406566403-1436-1-git-send-email-dmurphy@ti.com>
+ <20140728174334.GD8982@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:41486 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751073AbaG1SAo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 14:00:44 -0400
-Received: by mail-pd0-f182.google.com with SMTP id fp1so10362667pdb.27
-        for <linux-input@vger.kernel.org>; Mon, 28 Jul 2014 11:00:44 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CANRwn3TSsZMvGU1Oj1iu2a24JKxXfa2fsk8236fj7ek7TgEWeg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
 
-On Fri, Jul 18, 2014 at 04:12:21PM -0700, Jason Gerecke wrote:
-> On Mon, Jun 30, 2014 at 2:46 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
-> > ---
-> >  drivers/input/tablet/wacom_wac.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-> > index 977d05c..61a45a5 100644
-> > --- a/drivers/input/tablet/wacom_wac.c
-> > +++ b/drivers/input/tablet/wacom_wac.c
-> > @@ -1093,7 +1093,7 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
-> >                 input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
-> >                 input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
-> >                 input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
-> > -               input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x03) << 8) | data[6]);
-> > +               input_report_abs(input, ABS_PRESSURE, ((data[7] & 0x07) << 8) | data[6]);
-> >                 input_report_key(input, BTN_TOUCH, data[1] & 0x05);
-> >                 input_report_key(input, wacom->tool[0], prox);
-> >                 return 1;
-> > --
-> > 2.0.0
-> >
+Dmitry
+
+Thanks for the comments
+
+On 07/28/2014 12:43 PM, Dmitry Torokhov wrote:
+> Hi Dan,
 > 
-> Just making sure these two patches don't get lost in all the work
-> Benjamin's doing. They're going to conflict, so depending on the
-> timeline for merging his patches, we can either push these up now(ish)
-> or I'll rebase afterwards.
+> On Mon, Jul 28, 2014 at 11:53:23AM -0500, Dan Murphy wrote:
+>> Add the TI drv260x haptics/vibrator driver.
+>> This device uses the input force feedback
+>> to produce a wave form to driver an
+>> ERM or LRA actuator device.
+>>
+>> The initial driver supports the devices
+>> real time playback mode.  But the device
+>> has additional wave patterns in ROM.
+> 
+> As it presented the device appears to be a memoryless device, however
+> you present it to the rest of the system as if it can support playback
+> of multiple effects simultaneously, which is incorrect.
+> 
+> My guess that you need to engage the memoryless input library to schedule
+> handling multiple effects for your device, including ramping up, ramping
+> down, stopping playback when effects runs out, etc.
+> 
+> Thanks.
+>  
+> 
 
-Benjamin added the first one to his series and I adjusted the 2nd one to
-apply on top of his and applied.
 
-Thanks.
+I had written the driver originally to be a memless device.
+
+But when calling the driver from user space I was not getting the duration,
+strength of any information from the ff_device structure except the type.
+The values in the structure were all being passed as 0's.
+
+I will attempt it again as a memless device.
+
+Dan
 
 -- 
-Dmitry
+------------------
+Dan Murphy

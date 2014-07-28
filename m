@@ -1,45 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [v2] input: drv260x: Add TI drv260x haptics driver
-Date: Mon, 28 Jul 2014 10:43:34 -0700
-Message-ID: <20140728174334.GD8982@core.coreip.homeip.net>
-References: <1406566403-1436-1-git-send-email-dmurphy@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 3/4] HID: lenovo: Don't call function in condition,
+ show error codes
+Date: Mon, 28 Jul 2014 10:46:05 -0700
+Message-ID: <20140728174605.GE8982@core.coreip.homeip.net>
+References: <1406154648-14000-4-git-send-email-jm@lentin.co.uk>
+ <1406385747-2444-1-git-send-email-jm@lentin.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:48596 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750985AbaG1RqJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jul 2014 13:46:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1406566403-1436-1-git-send-email-dmurphy-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dan Murphy <dmurphy-l0cyMroinI0@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1406385747-2444-1-git-send-email-jm@lentin.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jamie Lentin <jm@lentin.co.uk>
+Cc: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dan,
-
-On Mon, Jul 28, 2014 at 11:53:23AM -0500, Dan Murphy wrote:
-> Add the TI drv260x haptics/vibrator driver.
-> This device uses the input force feedback
-> to produce a wave form to driver an
-> ERM or LRA actuator device.
+On Sat, Jul 26, 2014 at 03:42:27PM +0100, Jamie Lentin wrote:
+> Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+> ---
+>  drivers/hid/hid-lenovo.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> The initial driver supports the devices
-> real time playback mode.  But the device
-> has additional wave patterns in ROM.
+> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+> index a56b9e7..f96bf09 100644
+> --- a/drivers/hid/hid-lenovo.c
+> +++ b/drivers/hid/hid-lenovo.c
+> @@ -350,6 +350,7 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+>  	size_t name_sz = strlen(dev_name(dev)) + 16;
+>  	char *name_mute, *name_micmute;
+>  	int i;
+> +	int ret;
+>  
+>  	/*
+>  	 * Only register extra settings against subdevice where input_mapping
+> @@ -368,10 +369,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+>  	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 3, 0, 2))
+>  		return -ENODEV;
+>  
+> -	if (sysfs_create_group(&hdev->dev.kobj,
+> -				&lenovo_attr_group_tpkbd)) {
+> -		hid_warn(hdev, "Could not create sysfs group\n");
+> -	}
+> +	ret = sysfs_create_group(&hdev->dev.kobj, &lenovo_attr_group_tpkbd);
+> +	if (ret)
+> +		hid_warn(hdev, "Could not create sysfs group: %d\n", ret);
 
-As it presented the device appears to be a memoryless device, however
-you present it to the rest of the system as if it can support playback
-of multiple effects simultaneously, which is incorrect.
-
-My guess that you need to engage the memoryless input library to schedule
-handling multiple effects for your device, including ramping up, ramping
-down, stopping playback when effects runs out, etc.
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 Thanks.
- 
+
 -- 
 Dmitry
-
-P.S. If you are using devm_ there is devm_input_allocate_dveice().
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

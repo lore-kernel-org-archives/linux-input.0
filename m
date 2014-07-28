@@ -1,37 +1,80 @@
-From: pramod gurav <pramod.gurav.etc@gmail.com>
-Subject: Re: [PATCH v2] Input: soc_button_array: Remove kfree on data
- allocated with devm_zalloc
-Date: Mon, 28 Jul 2014 12:54:20 +0530
-Message-ID: <CAMf-jSngNZC4DT9oK52f9zPRPzbhp6yBKLjrunH1hknSwiqRuw@mail.gmail.com>
-References: <1406288074-28725-1-git-send-email-pramod.gurav@smartplayin.com>
-	<20140725162258.GA12254@core.coreip.homeip.net>
-	<CAMf-jSm1d0wAJ3C_yFhqnoDPSLqeDcc-ow0D=bwmLUcC9sXjLA@mail.gmail.com>
-	<9c56a845-2005-49c5-90c3-1d22a89fad20@email.android.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] hid: uhid.c: Cleaning up missing null-terminate in
+ conjunction with strncpy
+Date: Mon, 28 Jul 2014 10:31:58 +0200
+Message-ID: <CANq1E4RudWAmim_xsuhrtVE_OSLn6fTON+oUT3u-r3JL4LhtjA@mail.gmail.com>
+References: <1406393198-5306-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:65316 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750945AbaG1HYW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 03:24:22 -0400
-In-Reply-To: <9c56a845-2005-49c5-90c3-1d22a89fad20@email.android.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1406393198-5306-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pramod Gurav <pramod.gurav@smartplayin.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>
 
-On Mon, Jul 28, 2014 at 12:40 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On July 27, 2014 11:50:41 PM PDT, pramod gurav <pramod.gurav.etc@gmail.com> wrote:
->>Hi Dmitry,
->>
+Hi
 
+On Sat, Jul 26, 2014 at 6:46 PM, Rickard Strandqvist
+<rickard_strandqvist@spectrumdigital.se> wrote:
+> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
+> And removed unnecessary magic numbers.
 >
-> No need to resend, I picked out the good bits and applied.
-Thanks. :)
+> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+> ---
+>  drivers/hid/uhid.c |   18 ++++++------------
+>  1 file changed, 6 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> index 0cb92e3..b72ab0c 100644
+> --- a/drivers/hid/uhid.c
+> +++ b/drivers/hid/uhid.c
+> @@ -392,12 +392,9 @@ static int uhid_dev_create(struct uhid_device *uhid,
+>                 goto err_free;
+>         }
+>
+> -       strncpy(hid->name, ev->u.create.name, 127);
+> -       hid->name[127] = 0;
+> -       strncpy(hid->phys, ev->u.create.phys, 63);
+> -       hid->phys[63] = 0;
+> -       strncpy(hid->uniq, ev->u.create.uniq, 63);
+> -       hid->uniq[63] = 0;
+> +       strlcpy(hid->name, ev->u.create.name, sizeof(hid->name));
+> +       strlcpy(hid->phys, ev->u.create.phys, sizeof(hid->phys));
+> +       strlcpy(hid->uniq, ev->u.create.uniq, sizeof(hid->uniq));
 
+NAK, this patch is wrong. strlcpy() is *not* a replacement for
+strncpy(). Please see lib/string.c or the man-page of strlcpy(3). It
+calls strlen() on the source, which strncpy() does not. "ev" was
+copied unmodified from user-space and might not be NULL-terminated,
+therefore, strncpy() is the right choice.
 
--- 
-Thanks and Regards
-Pramod
+Btw., please avoid commit-messages that sound like bug-fixes, which
+this definitely is not. hid_allocate_device() cleans the object to
+ZERO, therefore, you're guaranteed that there's a proper
+NULL-terminator, independent of the contents of ev->u.xyz.
+
+Thanks
+David
+
+>         hid->ll_driver = &uhid_hid_driver;
+>         hid->bus = ev->u.create.bus;
+> @@ -452,12 +449,9 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+>                 goto err_free;
+>         }
+>
+> -       strncpy(hid->name, ev->u.create2.name, 127);
+> -       hid->name[127] = 0;
+> -       strncpy(hid->phys, ev->u.create2.phys, 63);
+> -       hid->phys[63] = 0;
+> -       strncpy(hid->uniq, ev->u.create2.uniq, 63);
+> -       hid->uniq[63] = 0;
+> +       strlcpy(hid->name, ev->u.create2.name, sizeof(hid->name));
+> +       strlcpy(hid->phys, ev->u.create2.phys, sizeof(hid->phys));
+> +       strlcpy(hid->uniq, ev->u.create2.uniq, sizeof(hid->uniq));
+>
+>         hid->ll_driver = &uhid_hid_driver;
+>         hid->bus = ev->u.create2.bus;
+> --
+> 1.7.10.4
+>

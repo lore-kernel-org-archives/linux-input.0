@@ -1,41 +1,135 @@
-From: simon@mungewell.org
-Subject: Re: [v2] input: drv260x: Add TI drv260x haptics driver
-Date: Mon, 28 Jul 2014 13:59:34 -0400
-Message-ID: <5adf0339146a7b655a77053195aa892c.squirrel@mungewell.org>
-References: <1406566403-1436-1-git-send-email-dmurphy@ti.com>
-    <20140728174334.GD8982@core.coreip.homeip.net>
+From: Patrik Fimml <patrikf@chromium.org>
+Subject: Re: Power-managing devices that are not of interest at some point in
+ time
+Date: Mon, 28 Jul 2014 12:58:22 -0700
+Message-ID: <20140728195822.GA20708@google.com>
+References: <Pine.LNX.4.44L0.1407181557020.979-100000@iolanthe.rowland.org>
+ <2443949.K0iePsg3Aa@vostro.rjw.lan>
+ <1693424.kPNUQHOHlX@vostro.rjw.lan>
+ <1451627.FURGiR949u@dtor-glaptop>
+ <00d187033b8082c2400a38175f7a4dd8@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:39512 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750952AbaG1Shc (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:35370 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751806AbaG1T6Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 14:37:32 -0400
-In-Reply-To: <20140728174334.GD8982@core.coreip.homeip.net>
+	Mon, 28 Jul 2014 15:58:25 -0400
+Received: by mail-pa0-f42.google.com with SMTP id lf10so11153287pab.1
+        for <linux-input@vger.kernel.org>; Mon, 28 Jul 2014 12:58:25 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <00d187033b8082c2400a38175f7a4dd8@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Murphy <dmurphy@ti.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>, Elias Vanderstuyft <elias.vds@gmail.com>
+To: hadess@hadess.net
+Cc: Dmitry Torokhov <dtor@google.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Alan Stern <stern@rowland.harvard.edu>, Patrik Fimml <patrikf@chromium.org>, linux-pm@vger.kernel.org, Benson Leung <bleung@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+(Note: Your email arrived here with lines wrapped in a hard-to-read way,
+not sure where the problem lies.)
 
->> The initial driver supports the devices
->> real time playback mode.  But the device
->> has additional wave patterns in ROM.
->
-> As it presented the device appears to be a memoryless device, however
-> you present it to the rest of the system as if it can support playback
-> of multiple effects simultaneously, which is incorrect.
->
-> My guess that you need to engage the memoryless input library to schedule
-> handling multiple effects for your device, including ramping up, ramping
-> down, stopping playback when effects runs out, etc.
+On Tue, Jul 22, 2014 at 01:23:14AM +0200, hadess@hadess.net wrote:
+> On 2014-07-19 01:16, Dmitry Torokhov wrote:
+> <snip>
+> >I'd say no.
+> >
+> >Anyway, even though it is very tempting to declare inhibit a
+> >"deeper" state of
+> >runtime suspend maybe you are right and inhibit should really be
+> >separate from
+> >PM and drivers would have to sort out all the possible state
+> >permutations.
+> >
+> >Considering input devices:
+> >
+> >input_open(): check if device is inhibited, if so do nothing.
+> >Otherwise try
+> >waking up itself and parent (via pm_runtime_get_sync() on itself),
+> >this will
+> >power up the device. Do additional configuration if needed.
+> >
+> >input_close(): check if device is inhibited, if not do
+> >pm_runtime_put (_sync?
+> >to make sure we power off properly and not leave device up and
+> >running? or
+> >should we power down manually not waiting for runtime PM)?
+> >
+> >inhibit(): check if device is opened, if opened do
+> >pm_runtime_put_sync().
+> >
+> >uninhibit(): if device is opened do pm_runtime_get_sync(), let
+> >runtime PM
+> >bring up the device. Do additional config if needed -> very similar to
+> >input_open(), different condition.
+> >
+> >runtime_suspend(): power down the device. If not inhibited enable
+> >as wakeup
+> >source.
+> >
+> >runtime_resume(): power up the device if device is opened and not
+> >inhibited.
+> >
+> >system_suspend(): check if device is opened, not inhibited and not in
+> >runtimesuspend  already; power down.
+> >
+> >system_resume(): power up the device if it is opened and not
+> >inhibited. I
+> >guess it's OK to wake up device that shoudl be runtime-PM-idle
+> >since it will
+> >go to back sleep shortly.
+> >
+> >Ugh.. This is complicated...
+> 
+> Seriously complicated. The compositor and/or X.org can handle most
+> of that for
+> input devices already. For the camera, you want the application to
+> know that
+> the device is present, but not usable, instead of making it vanish
+> or rendering
+> it unusable. And if you wanted to implement this in the kernel, even
+> with the aid
+> of a user-space daemon, you're still missing the most important
+> part, the device
+> tagging.
 
-Hi Dan,
-Elias and Michal (cc'ed) are working on a kernel/userland library to
-handle sending multiple force feedback signals to 'simple' devices,
-perhaps you should engage with them.
+I agree that the behaviour for e.g. the camera is debatable. Our primary
+concern is input devices for now, but we were trying to see whether such
+a functionality might be desired for other device classes as well.
 
-Simon
+> Once you've tagged the devices which would need to be left alone
+> when the lid is
+> closed, or the laptop is in tablet mode, see if the problem can be
+> solved within
+> user-space alone. I'm fairly certain it wouldn't take too long to
+> fix Xorg
+> or a state-of-the-art compositor to behave properly.
 
+This would not allow you to power down the touchscreen more than to a
+"idle" state without further modifications to drivers.
+
+We also want to make sure that the kernel ignores input from these
+devices for S3 suspend, so that stray touch inputs do not abort a
+suspend that is about to happen.
+
+And also, I think Xorg is not necessarily the proper layer for this.
+It's a bit theoretical, but: If there were other users of the input
+device, they would also want to ignore the events.
+
+> All I see right now is making it harder to write devices drivers
+> with no real benefits.
+
+I don't see this problem at all. Just like drivers don't have to
+implement runtime PM, they wouldn't be required to implement inhibit()
+and its counterpart. But if they do implement such functionality, we
+give them a standard interface to expose it.
+
+If we stick with the example of input devices, we can even have a simple
+default implementation in the device class (skipping any generated
+events) and bring the basic behaviour to unmodified drivers for free.
+
+Even if you did not have the "inhibit" interface, if you wanted to power
+down the touchscreen completely when it's not accessible, this would
+require very similar driver modifications.
+
+Regards,
+Patrik

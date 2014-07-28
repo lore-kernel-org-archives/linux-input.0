@@ -1,80 +1,111 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] hid: uhid.c: Cleaning up missing null-terminate in
- conjunction with strncpy
-Date: Mon, 28 Jul 2014 10:31:58 +0200
-Message-ID: <CANq1E4RudWAmim_xsuhrtVE_OSLn6fTON+oUT3u-r3JL4LhtjA@mail.gmail.com>
-References: <1406393198-5306-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1406393198-5306-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+From: pramod.gurav.etc@gmail.com
+Subject: [PATCH] input: ads7846: Switch to managed version of kzalloc and cleanups
+Date: Mon, 28 Jul 2014 14:16:55 +0530
+Message-ID: <1406537216-25936-1-git-send-email-pramod.gurav@smartplayin.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:54768 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751471AbaG1In3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jul 2014 04:43:29 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Paul Gortmaker <paul.gortmaker@windriver.com>, Mark Brown <broonie@linaro.org>, Fabio Estevam <fabio.estevam@freescale.com>
 
-Hi
+From: Pramod Gurav <pramod.gurav@smartplayin.com>
 
-On Sat, Jul 26, 2014 at 6:46 PM, Rickard Strandqvist
-<rickard_strandqvist@spectrumdigital.se> wrote:
-> Replacing strncpy with strlcpy to avoid strings that lacks null terminate.
-> And removed unnecessary magic numbers.
->
-> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-> ---
->  drivers/hid/uhid.c |   18 ++++++------------
->  1 file changed, 6 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index 0cb92e3..b72ab0c 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -392,12 +392,9 @@ static int uhid_dev_create(struct uhid_device *uhid,
->                 goto err_free;
->         }
->
-> -       strncpy(hid->name, ev->u.create.name, 127);
-> -       hid->name[127] = 0;
-> -       strncpy(hid->phys, ev->u.create.phys, 63);
-> -       hid->phys[63] = 0;
-> -       strncpy(hid->uniq, ev->u.create.uniq, 63);
-> -       hid->uniq[63] = 0;
-> +       strlcpy(hid->name, ev->u.create.name, sizeof(hid->name));
-> +       strlcpy(hid->phys, ev->u.create.phys, sizeof(hid->phys));
-> +       strlcpy(hid->uniq, ev->u.create.uniq, sizeof(hid->uniq));
+This switches memory allocations from kzalloc to devm_kzalloc.
+This also changes the way return checks were done on failure cases
+of three allocations. The checks were clubbed together and hence
+must be done seperately to avoid calling kfree on unallocated memory.
 
-NAK, this patch is wrong. strlcpy() is *not* a replacement for
-strncpy(). Please see lib/string.c or the man-page of strlcpy(3). It
-calls strlen() on the source, which strncpy() does not. "ev" was
-copied unmodified from user-space and might not be NULL-terminated,
-therefore, strncpy() is the right choice.
+Moreover in case of input_allocate_device failure, we were calling
+input_free_device which is not needed.
 
-Btw., please avoid commit-messages that sound like bug-fixes, which
-this definitely is not. hid_allocate_device() cleans the object to
-ZERO, therefore, you're guaranteed that there's a proper
-NULL-terminator, independent of the contents of ev->u.xyz.
+input device must be released(input_free_device) when ads7846_probe_dt
+fails hence adds a fix there as well.
 
-Thanks
-David
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Guenter Roeck <linux@roeck-us.net>
+CC: Paul Gortmaker <paul.gortmaker@windriver.com>
+CC: Mark Brown <broonie@linaro.org>
+CC: Fabio Estevam <fabio.estevam@freescale.com>
 
->         hid->ll_driver = &uhid_hid_driver;
->         hid->bus = ev->u.create.bus;
-> @@ -452,12 +449,9 @@ static int uhid_dev_create2(struct uhid_device *uhid,
->                 goto err_free;
->         }
->
-> -       strncpy(hid->name, ev->u.create2.name, 127);
-> -       hid->name[127] = 0;
-> -       strncpy(hid->phys, ev->u.create2.phys, 63);
-> -       hid->phys[63] = 0;
-> -       strncpy(hid->uniq, ev->u.create2.uniq, 63);
-> -       hid->uniq[63] = 0;
-> +       strlcpy(hid->name, ev->u.create2.name, sizeof(hid->name));
-> +       strlcpy(hid->phys, ev->u.create2.phys, sizeof(hid->phys));
-> +       strlcpy(hid->uniq, ev->u.create2.uniq, sizeof(hid->uniq));
->
->         hid->ll_driver = &uhid_hid_driver;
->         hid->bus = ev->u.create2.bus;
-> --
-> 1.7.10.4
->
+Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+---
+Earlier when kzalloc was used to allocate, the error check for all three
+resources (ts, packet, input_dev) was done together. This I felt might
+cause a problem in case any of these allocations fails and we may end up
+calling kfree on unallocated memory. Moving to managed resource solves this
+anyway as we remove references of kfree in probe fail path.
+
+
+
+Moving to managed resources solves this anyway.
+ drivers/input/touchscreen/ads7846.c |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index da201b8..d229b8d 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1282,13 +1282,17 @@ static int ads7846_probe(struct spi_device *spi)
+ 	if (err < 0)
+ 		return err;
+ 
+-	ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL);
+-	packet = kzalloc(sizeof(struct ads7846_packet), GFP_KERNEL);
++	ts = devm_kzalloc(&spi->dev, sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++
++	packet = devm_kzalloc(&spi->dev, sizeof(*packet), GFP_KERNEL);
++	if (!packet)
++		return -ENOMEM;
++
+ 	input_dev = input_allocate_device();
+-	if (!ts || !packet || !input_dev) {
+-		err = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	if (!input_dev)
++		return -ENOMEM;
+ 
+ 	spi_set_drvdata(spi, ts);
+ 
+@@ -1302,8 +1306,10 @@ static int ads7846_probe(struct spi_device *spi)
+ 	pdata = dev_get_platdata(&spi->dev);
+ 	if (!pdata) {
+ 		pdata = ads7846_probe_dt(&spi->dev);
+-		if (IS_ERR(pdata))
+-			return PTR_ERR(pdata);
++		if (IS_ERR(pdata)) {
++			err = PTR_ERR(pdata);
++			goto err_free_mem;
++		}
+ 	}
+ 
+ 	ts->model = pdata->model ? : 7846;
+@@ -1450,8 +1456,6 @@ static int ads7846_probe(struct spi_device *spi)
+ 		ts->filter_cleanup(ts->filter_data);
+  err_free_mem:
+ 	input_free_device(input_dev);
+-	kfree(packet);
+-	kfree(ts);
+ 	return err;
+ }
+ 
+@@ -1484,9 +1488,6 @@ static int ads7846_remove(struct spi_device *spi)
+ 	if (ts->filter_cleanup)
+ 		ts->filter_cleanup(ts->filter_data);
+ 
+-	kfree(ts->packet);
+-	kfree(ts);
+-
+ 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+ 
+ 	return 0;
+-- 
+1.7.9.5
+

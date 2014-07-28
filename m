@@ -1,72 +1,82 @@
-From: Pramod Gurav <pramod.gurav.etc@gmail.com>
-Subject: Re: [PATCH] input: ads7846: Switch to managed version of kzalloc and cleanups
-Date: Mon, 28 Jul 2014 22:37:18 +0530
-Message-ID: <CAMf-jSmHpRLOOcmmW7qOPbwUv3oCtJMvFcqP2LVObE9qQL+D9g@mail.gmail.com>
-References: <1406537216-25936-1-git-send-email-pramod.gurav@smartplayin.com>
-	<20140728164935.GA8982@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
+Date: Mon, 28 Jul 2014 10:28:53 -0700
+Message-ID: <20140728172853.GB8982@core.coreip.homeip.net>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>
+ <53CECAEC.8080905@wwwdotorg.org>
+ <53CFD50C.4040509@itdev.co.uk>
+ <53CFEF6E.2060905@wwwdotorg.org>
+ <53D10E78.4010908@itdev.co.uk>
+ <53D17845.4020507@wwwdotorg.org>
+ <53D26572.3030404@itdev.co.uk>
+ <53D2B8D0.5090000@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f54.google.com ([209.85.215.54]:51123 "EHLO
-	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750912AbaG1RHU (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:63813 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750825AbaG1R26 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 13:07:20 -0400
-In-Reply-To: <20140728164935.GA8982@core.coreip.homeip.net>
+	Mon, 28 Jul 2014 13:28:58 -0400
+Content-Disposition: inline
+In-Reply-To: <53D2B8D0.5090000@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pramod Gurav <pramod.gurav@smartplayin.com>, Guenter Roeck <linux@roeck-us.net>, Paul Gortmaker <paul.gortmaker@windriver.com>, Mark Brown <broonie@linaro.org>, Fabio Estevam <fabio.estevam@freescale.com>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Yufeng Shen <miletus@google.com>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 
-Thanks Dmitry for reviewing.
+On Fri, Jul 25, 2014 at 02:06:40PM -0600, Stephen Warren wrote:
+> On 07/25/2014 08:10 AM, Nick Dyer wrote:
+> >On 24/07/14 22:19, Stephen Warren wrote:
+> ...
+> >>I've uploaded 2 logs to:
+> >>
+> >>http://avon.wwwdotorg.org/downloads/mxt-logs/
+> >>(note there's no directory indexing, so manually add the filenames below to
+> >>the URL)
+> >>
+> >>mxt-save-no-movement.xml
+> >>
+> >>This is with the whole series applied. Neither mouse movement nor clicks
+> >>works. I tried mxt-app --reset and it made no difference to the dump results.
+> >>
+> >>mxt-save-move-ok-no-clicking.xml
+> >>
+> >>This is with "Input: atmel_mxt_ts - use deep sleep mode when stopped"
+> >>reverted; mouse movement works, but clicking doesn't.
+> >
+> >Great, this has identified the issue with mouse movement (touch).
+> >
+> >The config programmed into the NVRAM on your touch controller has the first
+> >byte of the T9 touchscreen object set to zero. This is the CTRL byte which
+> >enables/disables the touch object and what it reports. It is relying on
+> >this to enable the touchscreen on resume:
+> >
+> >https://github.com/dtor/input/blob/9d8dc3e529/drivers/input/touchscreen/atmel_mxt_ts.c#L2005-L2006
+> >
+> >My "use deep sleep mode when stopped" patch stops the driver writing to the
+> >T9.CTRL byte, so whatever config you have in NVRAM for that byte will be
+> >used (ie zero, disabled). Going forward, deep sleep is more generic.
+> >Indeed, newer chips do not have T9 at all, or they might be using other
+> >touch objects. The deep sleep mode is a lower power state to be in, and is
+> >what Atmel recommends.
+> >
+> >However, it does mean changing the maxtouch cfg - you can write the 0x83 to
+> >the first byte of T9 and save it to NVRAM, by doing:
+> >
+> >mxt-app [device] -W -T9 83
+> >mxt-app [device] --backup
+> 
+> If I do that, then both mouse movement and "touch" clicks work:-)
+> 
+> (Dmitry, I guess that means it's fine to go ahead and apply "Input:
+> atmel_mxt_ts - use deep sleep mode when stopped".)
 
-On Mon, Jul 28, 2014 at 10:19 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Pramod,
->
-> On Mon, Jul 28, 2014 at 02:16:55PM +0530, pramod.gurav.etc@gmail.com wrote:
->> From: Pramod Gurav <pramod.gurav@smartplayin.com>
->>
->> This switches memory allocations from kzalloc to devm_kzalloc.
->> This also changes the way return checks were done on failure cases
->> of three allocations. The checks were clubbed together and hence
->> must be done seperately to avoid calling kfree on unallocated memory.
->>
->> Moreover in case of input_allocate_device failure, we were calling
->> input_free_device which is not needed.
->
-> But not hurting either - like kfree() and many other "cleanup" functions
-> in kernel they are happily accept NULL input (so that cleanup code is
-> less branchy).
->>
-Great. Good to learn.
->> input device must be released(input_free_device) when ads7846_probe_dt
->> fails hence adds a fix there as well.
->
-> That is the real bug, could you send me a patch that fixes just that (by
-> jumping to err_free_mem)?
-Sure I will.
+OK, I've applied it (but because it now last I had to resolve a few
+conflicts so if somebody could take a peek at my next branch that would
+be great).
 
->
-> The rest I'd like to leave as is unless you can convert _all_ resources
-> to be managed ones: mixing up 2 styles (manual and automatic release) is
-> bound to have issues (like we had with ads7846_probe_dt which assumed
-> that since it was releasing its resources automatically the rest would
-> be released automatically as well.
-
-I thought I would use a managed input_device allocation in a separate patch.
-I will convert all allocations to managed then.
-
-This driver also registers a irq. You suggest to convert it to managed as well?
-I was planning to do that?
->
-> Thanks.
->
-> --
-> Dmitry
-
-
+Thanks.
 
 -- 
-Thanks and Regards
-Pramod
+Dmitry

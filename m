@@ -1,86 +1,79 @@
-From: "Murphy, Dan" <dmurphy@ti.com>
-Subject: Re: [v2] input: drv260x: Add TI drv260x haptics driver
-Date: Mon, 28 Jul 2014 21:21:26 +0000
-Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DB1A79@DFLE09.ent.ti.com>
-References: <1406566403-1436-1-git-send-email-dmurphy@ti.com>
-    <20140728174334.GD8982@core.coreip.homeip.net>
- <5adf0339146a7b655a77053195aa892c.squirrel@mungewell.org>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
+Date: Mon, 28 Jul 2014 15:23:28 -0600
+Message-ID: <53D6BF50.3070306@wwwdotorg.org>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>	<53CECAEC.8080905@wwwdotorg.org>	<53CFD50C.4040509@itdev.co.uk>	<53CFEF6E.2060905@wwwdotorg.org>	<53D10E78.4010908@itdev.co.uk>	<53D17845.4020507@wwwdotorg.org>	<53D26572.3030404@itdev.co.uk>	<53D2B8D0.5090000@wwwdotorg.org> <CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:33851 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751968AbaG1VVf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 17:21:35 -0400
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yufeng Shen <miletus@chromium.org>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: "simon@mungewell.org" <simon@mungewell.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, =?iso-8859-1?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>, Elias Vanderstuyft <elias.vds@gmail.com>
 
-Dmitry
-
-On 07/28/2014 12:59 PM, simon@mungewell.org wrote:
-> 
->>> The initial driver supports the devices
->>> real time playback mode.  But the device
->>> has additional wave patterns in ROM.
+On 07/28/2014 02:20 PM, Yufeng Shen wrote:
+> On Fri, Jul 25, 2014 at 4:06 PM, Stephen Warren <swarren@wwwdotorg.org> wrote:
 >>
->> As it presented the device appears to be a memoryless device, however
->> you present it to the rest of the system as if it can support playback
->> of multiple effects simultaneously, which is incorrect.
+>> On 07/25/2014 08:10 AM, Nick Dyer wrote:
+>>>
+>>> On 24/07/14 22:19, Stephen Warren wrote:
 >>
->> My guess that you need to engage the memoryless input library to schedule
->> handling multiple effects for your device, including ramping up, ramping
->> down, stopping playback when effects runs out, etc.
-> 
-> Hi Dan,
-> Elias and Michal (cc'ed) are working on a kernel/userland library to
-> handle sending multiple force feedback signals to 'simple' devices,
-> perhaps you should engage with them.
-> 
-> Simon
-> 
-> 
+>> ...
+>>
+>>>> I've uploaded 2 logs to:
+>>>>
+>>>> http://avon.wwwdotorg.org/downloads/mxt-logs/
+>>>> (note there's no directory indexing, so manually add the filenames below to
+>>>> the URL)
+>>>>
+>>>> mxt-save-no-movement.xml
+>>>>
+>>>> This is with the whole series applied. Neither mouse movement nor clicks
+>>>> works. I tried mxt-app --reset and it made no difference to the dump results.
+>>>>
+>>>> mxt-save-move-ok-no-clicking.xml
+>>>>
+>>>> This is with "Input: atmel_mxt_ts - use deep sleep mode when stopped"
+>>>> reverted; mouse movement works, but clicking doesn't.
+>>>
+>>>
+>>> Great, this has identified the issue with mouse movement (touch).
+>>>
+>>> The config programmed into the NVRAM on your touch controller has the first
+>>> byte of the T9 touchscreen object set to zero. This is the CTRL byte which
+>>> enables/disables the touch object and what it reports. It is relying on
+>>> this to enable the touchscreen on resume:
+>>>
+>>> https://github.com/dtor/input/blob/9d8dc3e529/drivers/input/touchscreen/atmel_mxt_ts.c#L2005-L2006
+>>>
+>>> My "use deep sleep mode when stopped" patch stops the driver writing to the
+>>> T9.CTRL byte, so whatever config you have in NVRAM for that byte will be
+>>> used (ie zero, disabled). Going forward, deep sleep is more generic.
+>>> Indeed, newer chips do not have T9 at all, or they might be using other
+>>> touch objects. The deep sleep mode is a lower power state to be in, and is
+>>> what Atmel recommends.
+>>>
+>>> However, it does mean changing the maxtouch cfg - you can write the 0x83 to
+>>> the first byte of T9 and save it to NVRAM, by doing:
+>>>
+>>> mxt-app [device] -W -T9 83
+>>> mxt-app [device] --backup
+>>
+>>
+>> If I do that, then both mouse movement and "touch" clicks work:-)
+>>
+>> (Dmitry, I guess that means it's fine to go ahead and apply "Input: atmel_mxt_ts - use deep sleep mode when stopped".)
+>>
+>> I wonder why the configuration NVRAM in my device was incorrect though? I'm CCing a few ChromeOS people to try and find out any relevant history for the touchpad NVRAM settings on Venice2. Perhaps this is simply something that wasn't noticed because the driver used to initialize this configuration bit, so nobody realized the config in NVRAM was wrong.
+>
+> Where did you get the configuration file ? It is possible that we rely
+> too much on mxt_start to turn on the T9.CTRL bit and have neglected
+> its setting in the config file.
+> If you can tell me where you get the config file I can do a check.
 
-OK I looked at the memless devices and got it to work.
-Don't know why replay.length is always 0 but at least I got the
-magnitude.  It seems that the input framework expects the user space
-to manage the on/off of the vibrator in RUMBLE mode.  Unless
-I missed something while going through the code.
-
-This family of devices has the ability to do real time playback,
-play an index in a pre-programmed library and have feedback waveforms programmed
-into the device to be played.
-
-The RTP mode is covered in this patch set.  But I am also interested in
-setting the pre-programmed libraries as well as setting my own custom waveform.
-
-I believe the custom is handled via the FF_PERIODIC with the waveform being FF_CUSTOM.
-I am not really a big fan of mixing the FF_CUSTOM in the periodic.  This could be broken
-out so that the driver can handle the custom waveforms.
-
-But I am not sure with the existing framework we can set a library or index of the 
-library. (Short of adding sysfs nodes which I don't want to do)
-
-My thought would be to add FF_LIBRARY as a force feedback type and create a structure like
-
-struct ff_library {
-	__u16 library;
-	__u16 index;
-};
-
-to be able to program the driver to play a certain library/index combo when play is called.
-Of course the driver would have to set the max libraries and max indices within the library.
-
-Let me know if this is something we can add and I can RFC a patch for it.
-
-Dan
-
-P.S.  Got the P.S. will use devm as suggested.
-
--- 
-------------------
-Dan Murphy
+It was already flashed into the touchpad when I received the board. I 
+did try to track down the firmware/config files a few months ago, but 
+didn't manage to; I was told since they were already flashed so I didn't 
+need them. The board is Venice2.

@@ -1,65 +1,41 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Tue, 29 Jul 2014 17:26:50 +0100
-Message-ID: <53D7CB4A.5020709@itdev.co.uk>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>	<53CECAEC.8080905@wwwdotorg.org>	<53CFD50C.4040509@itdev.co.uk>	<53CFEF6E.2060905@wwwdotorg.org>	<53D10E78.4010908@itdev.co.uk>	<53D17845.4020507@wwwdotorg.org>	<53D26572.3030404@itdev.co.uk>	<53D2B8D0.5090000@wwwdotorg.org> <CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com> <53D6BF50.3070306@wwwdotorg.org> <53D6DFE7.3040901@wwwdotorg.org>
+Date: Tue, 29 Jul 2014 17:43:41 +0100
+Message-ID: <53D7CF3D.9080808@itdev.co.uk>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>	<53CECAEC.8080905@wwwdotorg.org>	<53CFD50C.4040509@itdev.co.uk>	<53CFEF6E.2060905@wwwdotorg.org>	<53D10E78.4010908@itdev.co.uk>	<53D17845.4020507@wwwdotorg.org>	<53D26572.3030404@itdev.co.uk>	<53D2B8D0.5090000@wwwdotorg.org>	<CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>	<53D6BF50.3070306@wwwdotorg.org>	<53D6DFE7.3040901@wwwdotorg.org> <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:20544 "EHLO
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:6409 "EHLO
 	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750852AbaG2Q05 (ORCPT
+	with ESMTP id S1752527AbaG2Qnp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 12:26:57 -0400
-In-Reply-To: <53D6DFE7.3040901@wwwdotorg.org>
+	Tue, 29 Jul 2014 12:43:45 -0400
+In-Reply-To: <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>, Yufeng Shen <miletus@chromium.org>
+To: Yufeng Shen <miletus@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 
-On 29/07/14 00:42, Stephen Warren wrote:
-> Anyway, here's the diff between the two config files:
+On 29/07/14 01:10, Yufeng Shen wrote:
+> T37 (0x25) is DEBUG_DIAGNOSTIC object which the host can read debugging info
+> from. It is not useful to have a initial config for it so usually CrOS
+> system would just
+> don't include configuration for this object.
 > 
->> # diff -u mxt-save-after-t9-83-write.xml 224sl.raw
->> --- mxt-save-after-t9-83-write.xml    2014-07-25 19:41:45.000000000 +0000
->> +++ 224sl.raw    2014-07-28 23:25:49.000000000 +0000
->> @@ -1,8 +1,7 @@
->>  OBP_RAW V1
->>  82 01 10 AA 12 0C 16
->>  F5AF33
->> -000000
->> -0025 0000 0082 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> +E21E65
->>  0026 0000 0008 00 00 00 00 00 00 00 00
->>  0007 0000 0004 20 10 32 00
->>  0008 0000 000A 1E 00 28 28 00 00 00 00 00 00
-> 
-> It seems that the T25(?) entry is missing in the new/expected configuration
-> file. I figured I'd try out the new/expected configuration file, so did:
+> Nick, I want to confirm with you that does T37 contribute to config
+> checksum computation?
 
-0x25 = 37. T37 is the diagnostic debug object. A change was made fairly
-recently to the tools to save this object into the config files, which is
-the reason why it is missing in one of your files. But the difference is
-essentially meaningless for your purposes, and writing those zeros to the
-chip won't affect anything.
+You are correct.
 
-> # ./obp-utils/mxt-app -d i2c-dev:1-004b --load 224sl.raw
-> # ./obp-utils/mxt-app -d i2c-dev:1-004b --save
-> mxt-save-after-loading-224sl.raw.xml
+>> At this point, mxt-save-after-loading-224sl.raw.xml contains identical
+>> content to mxt-save-after-t9-83-write.xml (my previous backup). It looks
+>> like the new configuration isn't being loaded correctly, or perhaps
+>> configuration loading doesn't delete entries that are simply not in the new
+>> configuration file?
 > 
-> At this point, mxt-save-after-loading-224sl.raw.xml contains identical
-> content to mxt-save-after-t9-83-write.xml (my previous backup). It looks
-> like the new configuration isn't being loaded correctly, or perhaps
-> configuration loading doesn't delete entries that are simply not in the new
-> configuration file?
-> 
-> I subsequently did the following in case --save is reading from the NVRAM
-> rather than RAM:
+> Yeah, I would guess since T37 is not in the config, so whatever in the NVRAM
+> stays the same and when you --save its original value gets dumped.
 
-The --save command reads from RAM. There's no way of reading from NVRAM.
+Yes. You need to call --zero to get a truly blank config, before loading.

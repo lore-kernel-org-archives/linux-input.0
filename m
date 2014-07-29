@@ -1,62 +1,75 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 04/12] HID: uhid: avoid magic-numbers when setting strings
-Date: Tue, 29 Jul 2014 17:14:18 +0200
-Message-ID: <1406646866-999-5-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 03/12] HID: uhid: avoid dangling pointers in uhid context
+Date: Tue, 29 Jul 2014 17:14:17 +0200
+Message-ID: <1406646866-999-4-git-send-email-dh.herrmann@gmail.com>
 References: <1406646866-999-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f41.google.com ([74.125.82.41]:57620 "EHLO
-	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752764AbaG2POw (ORCPT
+Received: from mail-we0-f169.google.com ([74.125.82.169]:46143 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752764AbaG2POv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 11:14:52 -0400
-Received: by mail-wg0-f41.google.com with SMTP id z12so9148821wgg.12
-        for <linux-input@vger.kernel.org>; Tue, 29 Jul 2014 08:14:51 -0700 (PDT)
+	Tue, 29 Jul 2014 11:14:51 -0400
+Received: by mail-we0-f169.google.com with SMTP id u56so9382927wes.0
+        for <linux-input@vger.kernel.org>; Tue, 29 Jul 2014 08:14:50 -0700 (PDT)
 In-Reply-To: <1406646866-999-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Avoid hard-coding the target buffer sizes and use sizeof() instead. This
-also makes us future-proof to buffer-extensions later on.
+Avoid keeping uhid->rd_data and uhid->rd_size set in case
+uhid_dev_create2() fails. This is non-critical as we never flip
+uhid->running and thus never enter uhid_dev_destroy(). However, it's much
+nicer for debugging if pointers are only set if they point to valid data.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/uhid.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/hid/uhid.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index bf13746..5dee8bd 100644
+index c05b544..bf13746 100644
 --- a/drivers/hid/uhid.c
 +++ b/drivers/hid/uhid.c
-@@ -363,7 +363,7 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+@@ -363,20 +363,24 @@ static int uhid_dev_create2(struct uhid_device *uhid,
  			    const struct uhid_event *ev)
  {
  	struct hid_device *hid;
--	size_t rd_size;
-+	size_t rd_size, len;
- 	void *rd_data;
++	size_t rd_size;
++	void *rd_data;
  	int ret;
  
-@@ -387,12 +387,12 @@ static int uhid_dev_create2(struct uhid_device *uhid,
- 		goto err_free;
- 	}
+ 	if (uhid->running)
+ 		return -EALREADY;
  
--	strncpy(hid->name, ev->u.create2.name, 127);
--	hid->name[127] = 0;
--	strncpy(hid->phys, ev->u.create2.phys, 63);
--	hid->phys[63] = 0;
--	strncpy(hid->uniq, ev->u.create2.uniq, 63);
--	hid->uniq[63] = 0;
-+	len = min(sizeof(hid->name), sizeof(ev->u.create2.name)) - 1;
-+	strncpy(hid->name, ev->u.create2.name, len);
-+	len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys)) - 1;
-+	strncpy(hid->phys, ev->u.create2.phys, len);
-+	len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq)) - 1;
-+	strncpy(hid->uniq, ev->u.create2.uniq, len);
+-	uhid->rd_size = ev->u.create2.rd_size;
+-	if (uhid->rd_size <= 0 || uhid->rd_size > HID_MAX_DESCRIPTOR_SIZE)
++	rd_size = ev->u.create2.rd_size;
++	if (rd_size <= 0 || rd_size > HID_MAX_DESCRIPTOR_SIZE)
+ 		return -EINVAL;
  
- 	hid->ll_driver = &uhid_hid_driver;
- 	hid->bus = ev->u.create2.bus;
+-	uhid->rd_data = kmemdup(ev->u.create2.rd_data, uhid->rd_size,
+-				GFP_KERNEL);
+-	if (!uhid->rd_data)
++	rd_data = kmemdup(ev->u.create2.rd_data, rd_size, GFP_KERNEL);
++	if (!rd_data)
+ 		return -ENOMEM;
+ 
++	uhid->rd_size = rd_size;
++	uhid->rd_data = rd_data;
++
+ 	hid = hid_allocate_device();
+ 	if (IS_ERR(hid)) {
+ 		ret = PTR_ERR(hid);
+@@ -416,6 +420,8 @@ err_hid:
+ 	uhid->running = false;
+ err_free:
+ 	kfree(uhid->rd_data);
++	uhid->rd_data = NULL;
++	uhid->rd_size = 0;
+ 	return ret;
+ }
+ 
 -- 
 2.0.3
 

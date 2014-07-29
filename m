@@ -1,288 +1,190 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 12/12] HID: uhid: update documentation
-Date: Tue, 29 Jul 2014 17:14:26 +0200
-Message-ID: <1406646866-999-13-git-send-email-dh.herrmann@gmail.com>
-References: <1406646866-999-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f175.google.com ([74.125.82.175]:34216 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754099AbaG2PPH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 11:15:07 -0400
-Received: by mail-we0-f175.google.com with SMTP id t60so9067441wes.6
-        for <linux-input@vger.kernel.org>; Tue, 29 Jul 2014 08:15:06 -0700 (PDT)
-In-Reply-To: <1406646866-999-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
+Date: Tue, 29 Jul 2014 10:16:12 -0600
+Message-ID: <53D7C8CC.1050201@wwwdotorg.org>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>	<53CECAEC.8080905@wwwdotorg.org>	<53CFD50C.4040509@itdev.co.uk>	<53CFEF6E.2060905@wwwdotorg.org>	<53D10E78.4010908@itdev.co.uk>	<53D17845.4020507@wwwdotorg.org>	<53D26572.3030404@itdev.co.uk>	<53D2B8D0.5090000@wwwdotorg.org>	<CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>	<53D6BF50.3070306@wwwdotorg.org>	<53D6DFE7.3040901@wwwdotorg.org> <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yufeng Shen <miletus@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Remove legacy bits, refer people to hid-transport.txt and add descriptions
-for all new features.
+On 07/28/2014 06:10 PM, Yufeng Shen wrote:
+> On Mon, Jul 28, 2014 at 7:42 PM, Stephen Warren <swarren@wwwdotorg.org> wrote:
+>> On 07/28/2014 03:23 PM, Stephen Warren wrote:
+>>> On 07/28/2014 02:20 PM, Yufeng Shen wrote:
+>>
+>> ...
+>>
+>>>> Where did you get the configuration file ? It is possible that we rely
+>>>> too much on mxt_start to turn on the T9.CTRL bit and have neglected
+>>>> its setting in the config file.
+>>>> If you can tell me where you get the config file I can do a check.
+>>>
+>>>
+>>> It was already flashed into the touchpad when I received the board. I
+>>> did try to track down the firmware/config files a few months ago, but
+>>> didn't manage to; I was told since they were already flashed so I didn't
+>>> need them. The board is Venice2.
+>>
+>> OK, I received the configuration and firmware file that's supposed to be in
+>> the touchpad.
+>>
+>> I can see that the config file I was given has the "83" byte in the T9
+>> configuration, and in fact /almost/ exactly matches the configuration I
+>> have. I don't know why my T9 configuration was wrong before, but I suspect
+>> it's not worth trying to track that down.
+>>
+>> Anyway, here's the diff between the two config files:
+>>
+>>> # diff -u mxt-save-after-t9-83-write.xml 224sl.raw
+>>> --- mxt-save-after-t9-83-write.xml      2014-07-25 19:41:45.000000000
+>>> +0000
+>>> +++ 224sl.raw   2014-07-28 23:25:49.000000000 +0000
+>>> @@ -1,8 +1,7 @@
+>>>   OBP_RAW V1
+>>>   82 01 10 AA 12 0C 16
+>>>   F5AF33
+>>> -000000
+>>> -0025 0000 0082 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 00 00 00 00 00 00 00 00 00 00 00
+>>> +E21E65
+>>>   0026 0000 0008 00 00 00 00 00 00 00 00
+>>>   0007 0000 0004 20 10 32 00
+>>>   0008 0000 000A 1E 00 28 28 00 00 00 00 00 00
+>>
+>>
+>> It seems that the T25(?) entry is missing in the new/expected configuration
+>> file. I figured I'd try out the new/expected configuration file, so did:
+>
+> T37 (0x25) is DEBUG_DIAGNOSTIC object which the host can read debugging info
+> from. It is not useful to have a initial config for it so usually CrOS
+> system would just don't include configuration for this object.
 
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
- Documentation/hid/uhid.txt | 179 +++++++++++++++++++++++----------------------
- 1 file changed, 92 insertions(+), 87 deletions(-)
+OK, that makes sense.
 
-diff --git a/Documentation/hid/uhid.txt b/Documentation/hid/uhid.txt
-index 54c8f97..c8656dd 100644
---- a/Documentation/hid/uhid.txt
-+++ b/Documentation/hid/uhid.txt
-@@ -1,28 +1,13 @@
-       UHID - User-space I/O driver support for HID subsystem
-      ========================================================
- 
--The HID subsystem needs two kinds of drivers. In this document we call them:
-+UHID allows user-space to implement HID transport drivers. Please see
-+hid-transport.txt for an introduction into HID transport drivers. This document
-+relies heavily on the definitions declared there.
- 
-- 1. The "HID I/O Driver" is the driver that performs raw data I/O to the
--    low-level device. Internally, they register an hid_ll_driver structure with
--    the HID core. They perform device setup, read raw data from the device and
--    push it into the HID subsystem and they provide a callback so the HID
--    subsystem can send data to the device.
--
-- 2. The "HID Device Driver" is the driver that parses HID reports and reacts on
--    them. There are generic drivers like "generic-usb" and "generic-bluetooth"
--    which adhere to the HID specification and provide the standardizes features.
--    But there may be special drivers and quirks for each non-standard device out
--    there. Internally, they use the hid_driver structure.
--
--Historically, the USB stack was the first subsystem to provide an HID I/O
--Driver. However, other standards like Bluetooth have adopted the HID specs and
--may provide HID I/O Drivers, too. The UHID driver allows to implement HID I/O
--Drivers in user-space and feed the data into the kernel HID-subsystem.
--
--This allows user-space to operate on the same level as USB-HID, Bluetooth-HID
--and similar. It does not provide a way to write HID Device Drivers, though. Use
--hidraw for this purpose.
-+With UHID, a user-space transport driver can create kernel hid-devices for each
-+device connected to the user-space controlled bus. The UHID API defines the I/O
-+events provided from the kernel to user-space and vice versa.
- 
- There is an example user-space application in ./samples/uhid/uhid-example.c
- 
-@@ -42,8 +27,9 @@ by setting O_NONBLOCK.
- struct uhid_event {
-         __u32 type;
-         union {
--                struct uhid_create_req create;
--                struct uhid_data_req data;
-+                struct uhid_create2_req create2;
-+                struct uhid_output_req output;
-+                struct uhid_input2_req input2;
-                 ...
-         } u;
- };
-@@ -54,8 +40,11 @@ multiple write()'s. A single event must always be sent as a whole. Furthermore,
- only a single event can be sent per read() or write(). Pending data is ignored.
- If you want to handle multiple events in a single syscall, then use vectored
- I/O with readv()/writev().
-+The "type" field defines the payload. For each type, there is a
-+payload-structure available in the union "u" (except for empty payloads). This
-+payload contains management and/or device data.
- 
--The first thing you should do is sending an UHID_CREATE event. This will
-+The first thing you should do is sending an UHID_CREATE2 event. This will
- register the device. UHID will respond with an UHID_START event. You can now
- start sending data to and reading data from UHID. However, unless UHID sends the
- UHID_OPEN event, the internally attached HID Device Driver has no user attached.
-@@ -69,12 +58,20 @@ ref-counting for you.
- You may decide to ignore UHID_OPEN/UHID_CLOSE, though. I/O is allowed even
- though the device may have no users.
- 
--If you want to send data to the HID subsystem, you send an HID_INPUT event with
--your raw data payload. If the kernel wants to send data to the device, you will
--read an UHID_OUTPUT or UHID_OUTPUT_EV event.
-+If you want to send data on the interrupt channel to the HID subsystem, you send
-+an HID_INPUT2 event with your raw data payload. If the kernel wants to send data
-+on the interrupt channel to the device, you will read an UHID_OUTPUT event.
-+Data requests on the control channel are currently limited to GET_REPORT and
-+SET_REPORT (no other data reports on the control channel are defined so far).
-+Those requests are always synchronous. That means, the kernel sends
-+UHID_GET_REPORT and UHID_SET_REPORT events and requires you to forward them to
-+the device on the control channel. Once the device responds, you must forward
-+the response via UHID_GET_REPORT_REPLY and UHID_SET_REPORT_REPLY to the kernel.
-+The kernel blocks internal driver-execution during such round-trips (times out
-+after a hard-coded period).
- 
- If your device disconnects, you should send an UHID_DESTROY event. This will
--unregister the device. You can now send UHID_CREATE again to register a new
-+unregister the device. You can now send UHID_CREATE2 again to register a new
- device.
- If you close() the fd, the device is automatically unregistered and destroyed
- internally.
-@@ -82,73 +79,79 @@ internally.
- write()
- -------
- write() allows you to modify the state of the device and feed input data into
--the kernel. The following types are supported: UHID_CREATE, UHID_DESTROY and
--UHID_INPUT. The kernel will parse the event immediately and if the event ID is
-+the kernel. The kernel will parse the event immediately and if the event ID is
- not supported, it will return -EOPNOTSUPP. If the payload is invalid, then
- -EINVAL is returned, otherwise, the amount of data that was read is returned and
--the request was handled successfully.
-+the request was handled successfully. O_NONBLOCK does not affect write() as
-+writes are always handled immediately in a non-blocking fashion. Future requests
-+might make use of O_NONBLOCK, though.
- 
--  UHID_CREATE:
-+  UHID_CREATE2:
-   This creates the internal HID device. No I/O is possible until you send this
--  event to the kernel. The payload is of type struct uhid_create_req and
-+  event to the kernel. The payload is of type struct uhid_create2_req and
-   contains information about your device. You can start I/O now.
- 
--  UHID_CREATE2:
--  Same as UHID_CREATE, but the HID report descriptor data (rd_data) is an array
--  inside struct uhid_create2_req, instead of a pointer to a separate array.
--  Enables use from languages that don't support pointers, e.g. Python.
--
-   UHID_DESTROY:
-   This destroys the internal HID device. No further I/O will be accepted. There
-   may still be pending messages that you can receive with read() but no further
-   UHID_INPUT events can be sent to the kernel.
--  You can create a new device by sending UHID_CREATE again. There is no need to
-+  You can create a new device by sending UHID_CREATE2 again. There is no need to
-   reopen the character device.
- 
--  UHID_INPUT:
--  You must send UHID_CREATE before sending input to the kernel! This event
--  contains a data-payload. This is the raw data that you read from your device.
--  The kernel will parse the HID reports and react on it.
--
-   UHID_INPUT2:
--  Same as UHID_INPUT, but the data array is the last field of uhid_input2_req.
--  Enables userspace to write only the required bytes to kernel (ev.type +
--  ev.u.input2.size + the part of the data array that matters), instead of
--  the entire struct uhid_input2_req.
--
--  UHID_FEATURE_ANSWER:
--  If you receive a UHID_FEATURE request you must answer with this request. You
--  must copy the "id" field from the request into the answer. Set the "err" field
--  to 0 if no error occurred or to EIO if an I/O error occurred.
-+  You must send UHID_CREATE2 before sending input to the kernel! This event
-+  contains a data-payload. This is the raw data that you read from your device
-+  on the interrupt channel. The kernel will parse the HID reports.
-+
-+  UHID_GET_REPORT_REPLY:
-+  If you receive a UHID_GET_REPORT request you must answer with this request.
-+  You  must copy the "id" field from the request into the answer. Set the "err"
-+  field to 0 if no error occurred or to EIO if an I/O error occurred.
-   If "err" is 0 then you should fill the buffer of the answer with the results
--  of the feature request and set "size" correspondingly.
-+  of the GET_REPORT request and set "size" correspondingly.
-+
-+  UHID_SET_REPORT_REPLY:
-+  This is the SET_REPORT equivalent of UHID_GET_REPORT_REPLY. Unlike GET_REPORT,
-+  SET_REPORT never returns a data buffer, therefore, it's sufficient to set the
-+  "id" and "err" fields correctly.
- 
- read()
- ------
--read() will return a queued output report. These output reports can be of type
--UHID_START, UHID_STOP, UHID_OPEN, UHID_CLOSE, UHID_OUTPUT or UHID_OUTPUT_EV. No
--reaction is required to any of them but you should handle them according to your
--needs. Only UHID_OUTPUT and UHID_OUTPUT_EV have payloads.
-+read() will return a queued output report. No reaction is required to any of
-+them but you should handle them according to your needs.
- 
-   UHID_START:
-   This is sent when the HID device is started. Consider this as an answer to
--  UHID_CREATE. This is always the first event that is sent.
-+  UHID_CREATE2. This is always the first event that is sent. Note that this
-+  event might not be available immediately after write(UHID_CREATE2) returns.
-+  Device drivers might required delayed setups.
-+  This event contains a payload of type uhid_start_req. The "dev_flags" field
-+  describes special behaviors of a device. The following flags are defined:
-+      UHID_DEV_NUMBERED_FEATURE_REPORTS:
-+      UHID_DEV_NUMBERED_OUTPUT_REPORTS:
-+      UHID_DEV_NUMBERED_INPUT_REPORTS:
-+          Each of these flags defines whether a given report-type uses numbered
-+          reports. If numbered reports are used for a type, all messages from
-+          the kernel already have the report-number as prefix. Otherwise, no
-+          prefix is added by the kernel.
-+          For messages sent by user-space to the kernel, you must adjust the
-+          prefixes according to these flags.
- 
-   UHID_STOP:
-   This is sent when the HID device is stopped. Consider this as an answer to
-   UHID_DESTROY.
--  If the kernel HID device driver closes the device manually (that is, you
--  didn't send UHID_DESTROY) then you should consider this device closed and send
--  an UHID_DESTROY event. You may want to reregister your device, though. This is
--  always the last message that is sent to you unless you reopen the device with
--  UHID_CREATE.
-+  If you didn't destroy your device via UHID_DESTROY, but the kernel sends an
-+  UHID_STOP event, this should usually be ignored. It means that the kernel
-+  reloaded/changed the device driver loaded on your HID device (or some other
-+  maintenance actions happened).
-+  You can usually ignored any UHID_STOP events safely.
- 
-   UHID_OPEN:
-   This is sent when the HID device is opened. That is, the data that the HID
-   device provides is read by some other process. You may ignore this event but
-   it is useful for power-management. As long as you haven't received this event
-   there is actually no other process that reads your data so there is no need to
--  send UHID_INPUT events to the kernel.
-+  send UHID_INPUT2 events to the kernel.
- 
-   UHID_CLOSE:
-   This is sent when there are no more processes which read the HID data. It is
-@@ -156,27 +159,29 @@ needs. Only UHID_OUTPUT and UHID_OUTPUT_EV have payloads.
- 
-   UHID_OUTPUT:
-   This is sent if the HID device driver wants to send raw data to the I/O
--  device. You should read the payload and forward it to the device. The payload
--  is of type "struct uhid_data_req".
-+  device on the interrupt channel. You should read the payload and forward it to
-+  the device. The payload is of type "struct uhid_data_req".
-   This may be received even though you haven't received UHID_OPEN, yet.
- 
--  UHID_OUTPUT_EV (obsolete):
--  Same as UHID_OUTPUT but this contains a "struct input_event" as payload. This
--  is called for force-feedback, LED or similar events which are received through
--  an input device by the HID subsystem. You should convert this into raw reports
--  and send them to your device similar to events of type UHID_OUTPUT.
--  This is no longer sent by newer kernels. Instead, HID core converts it into a
--  raw output report and sends it via UHID_OUTPUT.
--
--  UHID_FEATURE:
--  This event is sent if the kernel driver wants to perform a feature request as
--  described in the HID specs. The report-type and report-number are available in
--  the payload.
--  The kernel serializes feature requests so there will never be two in parallel.
--  However, if you fail to respond with a UHID_FEATURE_ANSWER in a time-span of 5
--  seconds, then the requests will be dropped and a new one might be sent.
--  Therefore, the payload also contains an "id" field that identifies every
--  request.
--
--Document by:
--  David Herrmann <dh.herrmann@googlemail.com>
-+  UHID_GET_REPORT:
-+  This event is sent if the kernel driver wants to perform a GET_REPORT request
-+  on the control channeld as described in the HID specs. The report-type and
-+  report-number are available in the payload.
-+  The kernel serializes GET_REPORT requests so there will never be two in
-+  parallel. However, if you fail to respond with a UHID_GET_REPORT_REPLY, the
-+  request might silently time out.
-+  Once you read a GET_REPORT request, you shall forward it to the hid device and
-+  remember the "id" field in the payload. Once your hid device responds to the
-+  GET_REPORT (or if it fails), you must send a UHID_GET_REPORT_REPLY to the
-+  kernel with the exact same "id" as in the request. If the request already
-+  timed out, the kernel will ignore the response silently. The "id" field is
-+  never re-used, so conflicts cannot happen.
-+
-+  UHID_SET_REPORT:
-+  This is the SET_REPORT equivalent of UHID_GET_REPORT. On receipt, you shall
-+  send a SET_REPORT request to your hid device. Once it replies, you must tell
-+  the kernel about it via UHID_SET_REPORT_REPLY.
-+  The same restrictions as for UHID_GET_REPORT apply.
-+
-+----------------------------------------------------
-+Written 2012, David Herrmann <dh.herrmann@gmail.com>
--- 
-2.0.3
+I also tested mxt-app --zero to clear the config, the dumped it with 
+--save to verify it was cleared, then --load 224sl.raw and then --save 
+to verify it was programmed back correctly. That seemed to all work fine.
 
+I then tried updating the firmware. This didn't work at all.
+
+First I tried via mxt-app:
+
+> root@localhost:~# ./obp-utils/mxt-app -d i2c-dev:1-004b --flash 130.1_1.0.170.bin
+> Version:1.16-65-g0a4c
+> Opening firmware file 130.1_1.0.170.bin
+> Registered i2c-dev adapter:1 address:0x4b
+> Chip detected
+> Current firmware version: 1.0.AA
+> Skipping version check
+> Resetting in bootloader mode
+> Registered i2c-dev adapter:1 address:0x25
+> Error Remote I/O error (121) reading from i2c
+> Bootloader read failure
+> Bootloader not found
+
+Then I power-cycled and tried via the atmel_mxt_ts modules' sysfs files:
+
+> root@localhost:~# echo 1 > /sys/devices/soc0/7000c400.i2c/i2c-1/1-004b/update_fw
+> [   38.495420] atmel_mxt_ts 1-004b: mxt_bootloader_read: i2c recv failed (-121)
+> [   38.506208] atmel_mxt_ts 1-004b: mxt_bootloader_read: i2c recv failed (-121)
+> [   38.513836] atmel_mxt_ts 1-004b: The firmware update failed(-121)
+> -bash: echo: write error: Remote I/O error
+
+I also found that removing the module (even without attempting a FW 
+update) yields:
+
+After attempted FW update via sysfs:
+
+> root@localhost:~# rmmod ./atmel_mxt_ts.ko
+> [   81.995672] Unable to handle kernel NULL pointer dereference at virtual address 00000364
+> [   82.003828] pgd = e8cd0000
+> [   82.006548] [00000364] *pgd=00000000
+> [   82.010221] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+> [   82.015537] Modules linked in: atmel_mxt_ts(-)
+> [   82.020007] CPU: 0 PID: 836 Comm: rmmod Not tainted 3.16.0-rc7-next-20140729-00011-gead0778e710c-dirty #7
+> [   82.029559] task: e98ba140 ti: e8cc8000 task.ti: e8cc8000
+> [   82.034961] PC is at input_unregister_device+0x8/0x70
+> [   82.040010] LR is at mxt_remove+0x28/0x44 [atmel_mxt_ts]
+> [   82.045315] pc : [<c039de7c>]    lr : [<bf000410>]    psr: 60000113
+> [   82.045315] sp : e8cc9f08  ip : e97c7900  fp : 00000800
+> [   82.056774] r10: 00000000  r9 : e8cc8000  r8 : c000e924
+> [   82.061990] r7 : 00000081  r6 : ea1a7a54  r5 : bf003660  r4 : 00000000
+> [   82.068505] r3 : 0000000c  r2 : 0000000a  r1 : 00000000  r0 : 00000000
+> [   82.075024] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+> [   82.082146] Control: 10c5387d  Table: a8cd006a  DAC: 00000015
+> [   82.087882] Process rmmod (pid: 836, stack limit = 0xe8cc8240)
+> [   82.093704] Stack: (0xe8cc9f08 to 0xe8cca000)
+> [   82.098055] 9f00:                   e9a4e040 bf000410 ea1a7a20 c03bbe24 c03bbde0 c02dc12c
+> [   82.106221] 9f20: bf003660 ea1a7a20 bf003660 c02dc910 bf003660 bf003704 00000800 c02dbfbc
+> [   82.114386] 9f40: 00000000 c0081cdc e9f29018 00000000 bf003704 00000800 e8cc9f4c 656d7461
+> [   82.122550] 9f60: 786d5f6c 73745f74 00000000 e98ba63c 00000000 c08c0d74 00000800 c0039d60
+> [   82.130716] 9f80: e8c964c0 e8cc8000 e8cc8000 e8cc8000 c000e924 00010ef0 b6f3dd08 00000002
+> [   82.138881] 9fa0: 00000000 c000e7a0 b6f3dd08 00000002 b6f3dd38 00000800 0cadcf00 0cadcf00
+> [   82.147046] 9fc0: b6f3dd08 00000002 00000000 00000081 b6f3dd08 b6f3d008 beeac848 00000800
+> [   82.155211] 9fe0: b6e65070 beeac5c4 b6ee02e9 b6e6507c 80000010 b6f3dd38 00000000 00000000
+> [   82.163392] [<c039de7c>] (input_unregister_device) from [<bf000410>] (mxt_remove+0x28/0x44 [atmel_mxt_ts])
+> [   82.173042] [<bf000410>] (mxt_remove [atmel_mxt_ts]) from [<c03bbe24>] (i2c_device_remove+0x44/0x5c)
+> [   82.182171] [<c03bbe24>] (i2c_device_remove) from [<c02dc12c>] (__device_release_driver+0x70/0xc4)
+> [   82.191122] [<c02dc12c>] (__device_release_driver) from [<c02dc910>] (driver_detach+0xac/0xb0)
+> [   82.199726] [<c02dc910>] (driver_detach) from [<c02dbfbc>] (bus_remove_driver+0x4c/0x90)
+> [   82.207810] [<c02dbfbc>] (bus_remove_driver) from [<c0081cdc>] (SyS_delete_module+0x108/0x194)
+> [   82.216417] [<c0081cdc>] (SyS_delete_module) from [<c000e7a0>] (ret_fast_syscall+0x0/0x30)
+> [   82.224672] Code: c089ecf0 c0786790 e92d4010 e1a04000 (e5d03364)
+> [   82.231059] ---[ end trace e485a1b642f0d1d1 ]---
+> Segmentation fault
+
+After nothing but insmod:
+
+> root@localhost:~# rmmod atmel_mxt_ts
+> [   25.499625] Alignment trap: not handling instruction e1923f9f at [<c05ec6d8>]
+> [   25.506763] Unhandled fault: alignment exception (0x001) at 0x6b6b6cc7
+> [   25.513298] Internal error: : 1 [#1] PREEMPT SMP ARM
+> [   25.518260] Modules linked in: atmel_mxt_ts(-)
+> [   25.522724] CPU: 0 PID: 831 Comm: rmmod Not tainted 3.16.0-rc7-next-20140729-00011-gead0778e710c-dirty #7
+> [   25.532277] task: ea205380 ti: e97d0000 task.ti: e97d0000
+> [   25.537674] PC is at _raw_spin_lock_irqsave+0x2c/0x64
+> [   25.542724] LR is at devres_remove+0x20/0x80
+> [   25.546988] pc : [<c05ec6dc>]    lr : [<c02dec90>]    psr: 20000193
+> [   25.546988] sp : e97d1ed0  ip : e9b5b5c0  fp : 00000800
+> [   25.558446] r10: c039dee4  r9 : e97d0000  r8 : c039c278
+> [   25.563662] r7 : e9a7d400  r6 : ea1a7a54  r5 : 6b6b6cc7  r4 : 6b6b6b6b
+> [   25.570178] r3 : e97d0000  r2 : 6b6b6cc7  r1 : 00000001  r0 : 20000113
+> [   25.576696] Flags: nzCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
+> [   25.583905] Control: 10c5387d  Table: a996406a  DAC: 00000015
+> [   25.589641] Process rmmod (pid: 831, stack limit = 0xe97d0240)
+> [   25.595464] Stack: (0xe97d1ed0 to 0xe97d2000)
+> [   25.599816] 1ec0:                                     e9a7d400 e9a7d400 00000000 ea1a7a54
+> [   25.607983] 1ee0: 00000081 c000e924 00000000 c02df508 e9a7d400 c039de9c e8c16b80 bf0003a4
+> [   25.616148] 1f00: 00000019 e8c16b80 bf003660 bf000418 ea1a7a20 c03bbe24 c03bbde0 c02dc12c
+> [   25.624313] 1f20: bf003660 ea1a7a20 bf003660 c02dc910 bf003660 bf003704 00000800 c02dbfbc
+> [   25.632478] 1f40: 00000000 c0081cdc e9fe0e78 00000000 bf003704 00000800 e97d1f4c 656d7461
+> [   25.640644] 1f60: 786d5f6c 73745f74 00000000 ea20587c 00000000 c08c0d74 00000800 c0039d60
+> [   25.648808] 1f80: e9b8d880 e97d0000 e97d0000 e97d0000 c000e924 00010ef0 b6fe7d08 00000002
+> [   25.656973] 1fa0: 00000000 c000e7a0 b6fe7d08 00000002 b6fe7d38 00000800 7a392d00 7a392d00
+> [   25.665138] 1fc0: b6fe7d08 00000002 00000000 00000081 b6fe7d08 b6fe7008 be857858 00000800
+> [   25.673303] 1fe0: b6f0f070 be8575d4 b6f8a2e9 b6f0f07c 80000010 b6fe7d38 00000000 00000000
+> [   25.681479] [<c05ec6dc>] (_raw_spin_lock_irqsave) from [<c02dec90>] (devres_remove+0x20/0x80)
+> [   25.689999] [<c02dec90>] (devres_remove) from [<c02df508>] (devres_destroy+0x8/0x24)
+> [   25.697738] [<c02df508>] (devres_destroy) from [<c039de9c>] (input_unregister_device+0x28/0x70)
+> [   25.706435] [<c039de9c>] (input_unregister_device) from [<bf0003a4>] (mxt_free_object_table+0x14/0x58 [atmel_mxt_ts])
+> [   25.717037] [<bf0003a4>] (mxt_free_object_table [atmel_mxt_ts]) from [<bf000418>] (mxt_remove+0x30/0x44 [atmel_mxt_ts])
+> [   25.727813] [<bf000418>] (mxt_remove [atmel_mxt_ts]) from [<c03bbe24>] (i2c_device_remove+0x44/0x5c)
+> [   25.736940] [<c03bbe24>] (i2c_device_remove) from [<c02dc12c>] (__device_release_driver+0x70/0xc4)
+> [   25.745891] [<c02dc12c>] (__device_release_driver) from [<c02dc910>] (driver_detach+0xac/0xb0)
+> [   25.754494] [<c02dc910>] (driver_detach) from [<c02dbfbc>] (bus_remove_driver+0x4c/0x90)
+> [   25.762579] [<c02dbfbc>] (bus_remove_driver) from [<c0081cdc>] (SyS_delete_module+0x108/0x194)
+> [   25.771184] [<c0081cdc>] (SyS_delete_module) from [<c000e7a0>] (ret_fast_syscall+0x0/0x30)
+> [   25.779438] Code: e2811001 e5831004 f592f000 e1923f9f (e2831801)
+> [   25.785524] ---[ end trace fd2f70b3c6f48889 ]---
+> [   25.790136] note: rmmod[831] exited with preempt_count 1
+> Segmentation fault

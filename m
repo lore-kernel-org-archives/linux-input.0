@@ -1,67 +1,60 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH] hid: huion: Fix sparse warnings
-Date: Tue, 29 Jul 2014 15:50:06 +0300
-Message-ID: <1406638206-6108-1-git-send-email-spbnick@gmail.com>
-References: <alpine.LNX.2.00.1407291121530.16390@pobox.suse.cz>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f172.google.com ([74.125.82.172]:36736 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750867AbaG2MuV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 08:50:21 -0400
-Received: by mail-we0-f172.google.com with SMTP id x48so8878598wes.3
-        for <linux-input@vger.kernel.org>; Tue, 29 Jul 2014 05:50:16 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1407291121530.16390@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [PATCH 0/7] Second batch of cleanups for cros_ec
+Date: Tue, 29 Jul 2014 14:58:11 +0200
+Message-ID: <53D79A63.4010500@collabora.co.uk>
+References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk> <53D79328.8060609@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <53D79328.8060609-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?ISO-8859-15?Q?Andreas_F=E4rber?= <afaerber-l3A5Bk7waGM@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Fix sparse warnings in hid-huion.c by using correct buffer type for
-retrieved string descriptor.
+Hi Andreas,
 
-The warnings in question were:
+On 07/29/2014 02:27 PM, Andreas F=E4rber wrote:
+> Hi Javier,
+>=20
+> Am 28.07.2014 14:19, schrieb Javier Martinez Canillas:
+>> The patches in this series are authored by different people
+>> (all on cc) and consist of the following:
+>>=20
+>> Andrew Bresticker (3):
+>>   mfd: cros_ec: stop calling ->cmd_xfer() directly
+>>   mfd: cros_ec: move locking into cros_ec_cmd_xfer
+>>   mfd: cros_ec: wait for completion of commands that return IN_PROGR=
+ESS
+>>=20
+>> Derek Basehore (1):
+>>   i2c: i2c-cros-ec-tunnel: Set retries to 3
+>>=20
+>> Doug Anderson (1):
+>>   mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
+>>=20
+>> Todd Broch (2):
+>>   mfd: cros_ec: Instantiate sub-devices from device tree
+>>   Input: cros_ec_keyb: Optimize ghosting algorithm.
+>=20
+> When you submit other people's patches, I believe you still need to s=
+ign
+> them off as submitter. In particular when you rebased them.
+>=20
 
-    drivers/hid/hid-huion.c:144:44: sparse: cast to restricted __le16
-    drivers/hid/hid-huion.c:145:44: sparse: cast to restricted __le16
-    drivers/hid/hid-huion.c:146:51: sparse: cast to restricted __le16
-    drivers/hid/hid-huion.c:147:30: sparse: cast to restricted __le16
+You are right. I thought that given that I only rebased the patches and=
+ removed
+changes for files that are not yet in mainline I shouldn't add my s-o-b=
+=2E
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
----
+But looking at the Developer's Certificate of Origin 1.1 rule (b) it se=
+ems that
+I should had added my s-o-b as well.
 
-Hi Jiri, Benjamin,
+> Regards,
+> Andreas
+>=20
 
-Thanks for the review. There is one minor problem, though. I didn't run a
-sparse check and only just got a message with "sparse" warnings. This patch
-fixes them.
-
-If you wouldn't like adding a tiny patch like this, I can send another version
-of the original patches. Otherwise, please feel free to just fixup my "Switch
-to generating report descriptor" commit with this one.
-
-I'll try to remember to run sparse next time before submitting the patches.
-
-Thank you.
-
-Nick
-
- drivers/hid/hid-huion.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-huion.c b/drivers/hid/hid-huion.c
-index 438b54e..60f44cd 100644
---- a/drivers/hid/hid-huion.c
-+++ b/drivers/hid/hid-huion.c
-@@ -115,7 +115,7 @@ static int huion_tablet_enable(struct hid_device *hdev)
- 	int rc;
- 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
- 	struct huion_drvdata *drvdata = hid_get_drvdata(hdev);
--	u16 buf[6];
-+	__le16 buf[6];
- 
- 	/*
- 	 * Read string descriptor containing tablet parameters. The specific
--- 
-2.0.1
-
+Thanks a lot and best regards,
+Javier

@@ -1,53 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: huion: Fix sparse warnings
-Date: Tue, 29 Jul 2014 15:06:35 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407291504370.16390@pobox.suse.cz>
-References: <alpine.LNX.2.00.1407291121530.16390@pobox.suse.cz> <1406638206-6108-1-git-send-email-spbnick@gmail.com>
+From: =?ISO-8859-15?Q?Andreas_F=E4rber?= <afaerber@suse.de>
+Subject: Re: [PATCH 7/7] Input: cros_ec_keyb: Optimize ghosting algorithm.
+Date: Tue, 29 Jul 2014 15:08:16 +0200
+Message-ID: <53D79CC0.9050508@suse.de>
+References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk> <1406549967-21291-8-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44489 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753380AbaG2NGg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 09:06:36 -0400
-In-Reply-To: <1406638206-6108-1-git-send-email-spbnick@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1406549967-21291-8-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: linux-input@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Tue, 29 Jul 2014, Nikolai Kondrashov wrote:
+Am 28.07.2014 14:19, schrieb Javier Martinez Canillas:
+> From: Todd Broch <tbroch@chromium.org>
+>=20
+> Previous algorithm was a bit conservative and complicating with
+> respect to identifying key ghosting.  This CL uses the bitops hamming
+> weight function (hweight8) to count the number of matching rows for
+> colM & colN.  If that number is > 1 ghosting is present.
+>=20
+> Additionally it removes NULL keys and our one virtual keypress
+> KEY_BATTERY from consideration as these inputs are never physical
+> keypresses.
+>=20
+> Signed-off-by: Todd Broch <tbroch@chromium.org>
+> Reviewed-by: Vincent Palatin <vpalatin@chromium.org>
+> Reviewed-by: Luigi Semenzato <semenzato@chromium.org>
 
-> Fix sparse warnings in hid-huion.c by using correct buffer type for
-> retrieved string descriptor.
-> 
-> The warnings in question were:
-> 
->     drivers/hid/hid-huion.c:144:44: sparse: cast to restricted __le16
->     drivers/hid/hid-huion.c:145:44: sparse: cast to restricted __le16
->     drivers/hid/hid-huion.c:146:51: sparse: cast to restricted __le16
->     drivers/hid/hid-huion.c:147:30: sparse: cast to restricted __le16
+This seems to fix my Ctrl+O problems on Spring reported a while ago,
 
-Interestingly enough, my sparse doesn't seem to report this problem 
-(running sparse is part of my machinery before pushing anything out).
+Tested-by: Andreas F=E4rber <afaerber@suse.de>
 
-> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-> ---
-> 
-> Hi Jiri, Benjamin,
-> 
-> Thanks for the review. There is one minor problem, though. I didn't run a
-> sparse check and only just got a message with "sparse" warnings. This patch
-> fixes them.
-> 
-> If you wouldn't like adding a tiny patch like this, I can send another version
-> of the original patches. Otherwise, please feel free to just fixup my "Switch
-> to generating report descriptor" commit with this one.
+Thanks,
+Andreas
 
-Yup, I'll be applying this on top of your previous one.
-
-Thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
+--=20
+SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6rffer; HRB 16746 AG N=FCrn=
+berg

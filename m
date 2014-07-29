@@ -1,63 +1,84 @@
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Subject: Re: [PATCH 3/3] driver:gpio remove all usage of gpio_remove retval
- in driver
-Date: Tue, 29 Jul 2014 14:30:56 +0300
-Message-ID: <53D785F0.1000309@ti.com>
-References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>	<1405197014-25225-1-git-send-email-berthe.ab@gmail.com>	<1405197014-25225-4-git-send-email-berthe.ab@gmail.com> <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: PATCH change for HID_BATTERY_STRENGTH kconfig
+Date: Tue, 29 Jul 2014 13:39:18 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1407291339040.16390@pobox.suse.cz>
+References: <CACo8zOfAf3cUNh4MZcQvYByiu=D5S1aA4qiH_HFuvz5GYMJF7g@mail.gmail.com> <alpine.LNX.2.00.1305240016180.13213@pobox.suse.cz> <CACo8zOcm3B7WdQpHA3J2ZtP6AWUrtAo_L63mpYJR0w13jNwLpQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1"
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
-Sender: linux-serial-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, abdoulaye berthe <berthe.ab@gmail.com>, "arm@kernel.org" <arm@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Matthew Garrett <matthew.garrett@nebula.com>, Michael Buesch <m@bues.ch>, Greg KH <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:42730 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753087AbaG2LjU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jul 2014 07:39:20 -0400
+In-Reply-To: <CACo8zOcm3B7WdQpHA3J2ZtP6AWUrtAo_L63mpYJR0w13jNwLpQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Nicoletti <dantti12@gmail.com>
+Cc: linux-input@vger.kernel.org
 
---nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+On Mon, 23 Jun 2014, Daniel Nicoletti wrote:
 
-On 22/07/14 18:08, Linus Walleij wrote:
-> On Sat, Jul 12, 2014 at 10:30 PM, abdoulaye berthe <berthe.ab@gmail.com=
-> wrote:
->=20
-> Heads up. Requesting ACKs for this patch or I'm atleast warning that it=
- will be
-> applied. We're getting rid of the return value from gpiochip_remove().
+> 2013-05-23 19:16 GMT-03:00 Jiri Kosina <jkosina@suse.cz>:
+> > On Mon, 13 May 2013, Daniel Nicoletti wrote:
+> >
+> >> Hi,
+> >> I'd like to propose this patch while removes the need for
+> >> hid to be compiled build-in, as this is the same behavior
+> >> that WiiMote and Wacom have.
+> >> Is this ok?
+> >
+> > Makes sense to me. Could you please resend with proper changelog and
+> > Signed-off-by: line?
+> >
+> > Thanks.
+> 
+> Sorry it took more than a year for me to do this,
+> so I called git send-email, and so far the CC and
+> linux-input didn't get it, tho it said result OK.
+> git send-email --to "Jiri Kosina <jkosina@suse.cz>" --cc
+> "linux-input@vger.kernel.org"
+> 0001-HID-Allows-for-HID_BATTERY_STRENGTH-config-be-enable.patch
+> 
+> I'm pasting it here hoping gmail doesn't screw
+> it, if you prefer that I send it using the above
+> command mind you telling what I did wrong?
+> 
+> Thanks.
+> 
+> >From df740fd81dffbb74e13c622392fe9a945006fd3c Mon Sep 17 00:00:00 2001
+> From: Daniel Nicoletti <dantti12@gmail.com>
+> Date: Mon, 23 Jun 2014 10:31:47 -0300
+> Subject: [PATCH] HID: Allows for HID_BATTERY_STRENGTH config be enabled
+>  without the need for HID module to be built-in.
+> 
 
->>  drivers/video/fbdev/via/via-gpio.c             | 10 +++-------
->=20
-> Tomi can you ACK this?
+It'd be nice to insert a few sentences of changelog here.
 
-Acked-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Thanks.
 
- Tomi
+> Signed-off-by: Daniel Nicoletti <dantti12@gmail.com>
+> ---
+>  drivers/hid/Kconfig | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index fb52f3f..d6d85ad 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -27,7 +27,8 @@ if HID
+> 
+>  config HID_BATTERY_STRENGTH
+>         bool "Battery level reporting for HID devices"
+> -       depends on HID && POWER_SUPPLY && HID = POWER_SUPPLY
+> +       depends on HID
+> +       select POWER_SUPPLY
+>         default n
+>         ---help---
+>         This option adds support of reporting battery strength (for HID devices
+> -- 
+> 2.0.0
+> 
 
-
-
---nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT14X1AAoJEPo9qoy8lh71gvsP/iJDf8dcnv2JZFloH/noIb3s
-DCXfxyTW2zDeWEEH7rLW+fP5JKu5TutqOCF2Y85HaPa/DV1iMI4S+IUeEwNiw0wd
-JTwMqUbS2ua22J87F1Oc5kXshDk+uqLRfpxO7xs0Pd/JcsrOgA7zqJN67jeDwQo/
-XsiRTBmJ3CNR/qur7AKN8toHdZp+KaHZ/4cazUxxp/cu71eFuRfFJMjE/cGk8cva
-fsIrugCAFjYIy3z88VtW4VPj1rcNDYUlxcklbpNtosOKUuPfNoDwToLUCdjE22G9
-v93XHZKlv0iWso5fo9HA2BTDK7N37WMsyktqF1ULEUiKIyoWs6a0WG9eREVLKlpi
-ugiCLH6c4jQYycmSTmFGZnzuhz5hN5oirXpKtba6hVHh6ZNkIkGtFElGTZYjVhKn
-k06HXBVTTYwf4pg2PGSGPsl2dIx0Zyl8pG+iFn10LSxELxbNU6N/wYzf6LquPLok
-cnnfX2riaFV6DgQHhHlTqr0tN6NFb8smYeH9rq37+4GyVYnokXuBMJ+qQ5In8BDZ
-9ZgW2N1PH2aRO2RZERVwll4otqtZgJcmWdAgeZzjkl0nBpWH8X78c41O3T3LUscq
-3cDDyXHCLDGabHGuab5JPofNnN1GW8xM/wN8jLmH/abZICdjfGqRVzaQh7FJjc97
-PbSJaJG3ZaHHHc6LWcil
-=W85Y
------END PGP SIGNATURE-----
-
---nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1--
+-- 
+Jiri Kosina
+SUSE Labs

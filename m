@@ -1,74 +1,127 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Tue, 29 Jul 2014 18:06:06 +0100
-Message-ID: <53D7D47E.5060906@itdev.co.uk>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>	<53CECAEC.8080905@wwwdotorg.org>	<53CFD50C.4040509@itdev.co.uk>	<53CFEF6E.2060905@wwwdotorg.org>	<53D10E78.4010908@itdev.co.uk>	<53D17845.4020507@wwwdotorg.org>	<53D26572.3030404@itdev.co.uk>	<53D2B8D0.5090000@wwwdotorg.org>	<CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>	<53D6BF50.3070306@wwwdotorg.org>	<53D6DFE7.3040901@wwwdotorg.org> <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com> <53D7C8CC.1050201@wwwdotorg.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/2] Input - wacom: Remove passing id for wacom_set_report
+Date: Tue, 29 Jul 2014 14:12:31 -0400
+Message-ID: <CAN+gG=E37Ao_5gd=T+sRAPRZk5zX-d4-DQLDReH6SMw3TpOWGg@mail.gmail.com>
+References: <1406375969-4453-1-git-send-email-przemo@firszt.eu>
+	<1406375969-4453-2-git-send-email-przemo@firszt.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:21145 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750708AbaG2RGN (ORCPT
+Received: from mail-lb0-f169.google.com ([209.85.217.169]:55656 "EHLO
+	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750980AbaG2SMd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 13:06:13 -0400
-In-Reply-To: <53D7C8CC.1050201@wwwdotorg.org>
+	Tue, 29 Jul 2014 14:12:33 -0400
+In-Reply-To: <1406375969-4453-2-git-send-email-przemo@firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>, Yufeng Shen <miletus@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-On 29/07/14 17:16, Stephen Warren wrote:
-> I then tried updating the firmware. This didn't work at all.
-> 
-> First I tried via mxt-app:
-> 
->> root@localhost:~# ./obp-utils/mxt-app -d i2c-dev:1-004b --flash
->> 130.1_1.0.170.bin
->> Version:1.16-65-g0a4c
->> Opening firmware file 130.1_1.0.170.bin
->> Registered i2c-dev adapter:1 address:0x4b
->> Chip detected
->> Current firmware version: 1.0.AA
->> Skipping version check
->> Resetting in bootloader mode
->> Registered i2c-dev adapter:1 address:0x25
->> Error Remote I/O error (121) reading from i2c
->> Bootloader read failure
->> Bootloader not found
-> 
-> Then I power-cycled and tried via the atmel_mxt_ts modules' sysfs files:
-> 
->> root@localhost:~# echo 1 >
->> /sys/devices/soc0/7000c400.i2c/i2c-1/1-004b/update_fw
->> [   38.495420] atmel_mxt_ts 1-004b: mxt_bootloader_read: i2c recv failed
->> (-121)
->> [   38.506208] atmel_mxt_ts 1-004b: mxt_bootloader_read: i2c recv failed
->> (-121)
->> [   38.513836] atmel_mxt_ts 1-004b: The firmware update failed(-121)
->> -bash: echo: write error: Remote I/O error
+On Sat, Jul 26, 2014 at 7:59 AM, Przemo Firszt <przemo@firszt.eu> wrote:
+> Every call of wacom_set_report was passing "id" as a separate parameter
+> and buffer also passed the same information. We can use first u8 of the
+> buffer instead of "id"
+>
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+> ---
 
-OK - that's the same error in both cases, it has tried to switch the device
-into bootloader mode, however it is not responding on the bootloader I2C
-address.
+At first, I was not going to take this one without any other
+approvers, because we had such a discussion in the hid subsystem about
+the same problem with respect to hid_hw_raw_request().
+But after a second thought, we control much things here, and this
+patch would have saved me 30 min this morning while I was wondering
+why your 1/2 fix was not working.
 
-Couple of things to check:
-- is the device in deep sleep mode when you run the mxt-app command? can
-you try doing "mxt-app [device] -W -T7 FFFF" which will make sure it is
-definitely not sleeping first.
-- if you do "mxt-app [device] -i" straight after the --flash failure, does
-it respond (which would mean it hasn't actioned the reset-into-bootloader
-command)
+I'll take this through my patch submission to Dmitry.
 
-> I also found that removing the module (even without attempting a FW update)
-> yields:
-> 
-> After attempted FW update via sysfs:
-> 
->> root@localhost:~# rmmod ./atmel_mxt_ts.ko
->> [   81.995672] Unable to handle kernel NULL pointer dereference at virtual address 00000364
+Cheers,
+Benjamin
 
-Not good. It's trying to free an input device which isn't registered at
-that point. In a later patch in my series I add a guard around that
-(mxt_free_input_device):
-https://github.com/ndyer/linux/commit/bb4800ff8c185
+>  drivers/hid/wacom_sys.c | 27 +++++++++++++--------------
+>  1 file changed, 13 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 51437e2..db17198 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -36,13 +36,13 @@ static int wacom_get_report(struct hid_device *hdev, u8 type, u8 id,
+>         return retval;
+>  }
+>
+> -static int wacom_set_report(struct hid_device *hdev, u8 type, u8 id,
+> -                           void *buf, size_t size, unsigned int retries)
+> +static int wacom_set_report(struct hid_device *hdev, u8 type, u8 *buf,
+> +                           size_t size, unsigned int retries)
+>  {
+>         int retval;
+>
+>         do {
+> -               retval = hid_hw_raw_request(hdev, id, buf, size, type,
+> +               retval = hid_hw_raw_request(hdev, buf[0], buf, size, type,
+>                                 HID_REQ_SET_REPORT);
+>         } while ((retval == -ETIMEDOUT || retval == -EPIPE) && --retries);
+>
+> @@ -251,8 +251,8 @@ static int wacom_set_device_mode(struct hid_device *hdev, int report_id,
+>                 rep_data[0] = report_id;
+>                 rep_data[1] = mode;
+>
+> -               error = wacom_set_report(hdev, HID_FEATURE_REPORT,
+> -                                        report_id, rep_data, length, 1);
+> +               error = wacom_set_report(hdev, HID_FEATURE_REPORT, rep_data,
+> +                                        length, 1);
+>                 if (error >= 0)
+>                         error = wacom_get_report(hdev, HID_FEATURE_REPORT,
+>                                                  report_id, rep_data, length, 1);
+> @@ -525,8 +525,8 @@ static int wacom_led_control(struct wacom *wacom)
+>                 buf[4] = wacom->led.img_lum;
+>         }
+>
+> -       retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
+> -                                 WAC_CMD_LED_CONTROL, buf, 9, WAC_CMD_RETRIES);
+> +       retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf, 9,
+> +                                 WAC_CMD_RETRIES);
+>         kfree(buf);
+>
+>         return retval;
+> @@ -546,8 +546,8 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id,
+>         /* Send 'start' command */
+>         buf[0] = WAC_CMD_ICON_START;
+>         buf[1] = 1;
+> -       retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
+> -                                 WAC_CMD_ICON_START, buf, 2, WAC_CMD_RETRIES);
+> +       retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf, 2,
+> +                                 WAC_CMD_RETRIES);
+>         if (retval < 0)
+>                 goto out;
+>
+> @@ -557,9 +557,8 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id,
+>                 buf[2] = i;
+>                 memcpy(buf + 3, img + i * chunk_len, chunk_len);
+>
+> -               retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
+> -                                         WAC_CMD_ICON_XFER,
+> -                                         buf, chunk_len + 3, WAC_CMD_RETRIES);
+> +               retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf,
+> +                                         chunk_len + 3, WAC_CMD_RETRIES);
+>                 if (retval < 0)
+>                         break;
+>         }
+> @@ -567,8 +566,8 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id,
+>         /* Send 'stop' */
+>         buf[0] = WAC_CMD_ICON_START;
+>         buf[1] = 0;
+> -       wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, WAC_CMD_ICON_START,
+> -                        buf, 2, WAC_CMD_RETRIES);
+> +       wacom_set_report(wacom->hdev, HID_FEATURE_REPORT, buf, 2,
+> +                        WAC_CMD_RETRIES);
+>
+>  out:
+>         kfree(buf);
+> --
+> 1.9.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

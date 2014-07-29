@@ -1,28 +1,25 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: rmi: check that report ids exist in the
- report_id_hash before accessing their size
-Date: Tue, 29 Jul 2014 11:29:42 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407291129320.16390@pobox.suse.cz>
-References: <1405638885-8014-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH] HID: rmi: only bind the hid-rmi driver to the mouse
+ interface of composite USB devices
+Date: Tue, 29 Jul 2014 11:29:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1407291129440.16390@pobox.suse.cz>
+References: <1405638885-8014-1-git-send-email-aduggan@synaptics.com> <1405638885-8014-2-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40114 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751619AbaG2J3o (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 05:29:44 -0400
-In-Reply-To: <1405638885-8014-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1405638885-8014-2-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andrew Duggan <aduggan@synaptics.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
 On Thu, 17 Jul 2014, Andrew Duggan wrote:
 
-> It is possible that the hid-rmi driver could get loaded onto a device which does not have the
-> expected report ids. This should not happen because it would indicate that the hid-rmi driver is
-> not compatible with that device. However, if it does happen it should return an error from probe
-> instead of dereferencing a null pointer.
+> On composite HID devices there may be multiple HID devices on separate interfaces, but hid-rmi
+> should only bind to the mouse interface. One example is the Dell Venue 11 Pro's keyboard dock
+> which contains a composite USB device with a HID touchpad and HID keyboard on separate intefaces.
+> Since the USB Vendor ID is Synaptic's, hid-core is currently trying to bind hid-rmi to all\of
+> the HID devices. This patch ensures that hid-rmi only binds to the mouse interface.
 > 
 > related bug:
 > https://bugzilla.kernel.org/show_bug.cgi?id=80091

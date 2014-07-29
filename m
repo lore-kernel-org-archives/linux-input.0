@@ -1,33 +1,63 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: usbhid: Use flag HID_DISCONNECTED when a usb device
- is removed
-Date: Tue, 29 Jul 2014 13:06:51 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407291303570.16390@pobox.suse.cz>
-References: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Subject: Re: [PATCH 3/3] driver:gpio remove all usage of gpio_remove retval
+ in driver
+Date: Tue, 29 Jul 2014 14:30:56 +0300
+Message-ID: <53D785F0.1000309@ti.com>
+References: <CACRpkda6mzVdaN0cvOxpbsxWyCv2nGyDXOjZg_5aT8u7SSQeUw@mail.gmail.com>	<1405197014-25225-1-git-send-email-berthe.ab@gmail.com>	<1405197014-25225-4-git-send-email-berthe.ab@gmail.com> <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42215 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753296AbaG2LGy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 07:06:54 -0400
-In-Reply-To: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1"
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdasp9bLULT7NJM9nYX58rRSsQKXFddOLz9Ah6kp-j-3=Q@mail.gmail.com>
+Sender: linux-serial-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, abdoulaye berthe <berthe.ab@gmail.com>, "arm@kernel.org" <arm@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Matthew Garrett <matthew.garrett@nebula.com>, Michael Buesch <m@bues.ch>, Greg KH <gregkh@linuxfoundation.org>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mips@linux-mips.org, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
 List-Id: linux-input@vger.kernel.org
-To: Reyad Attiyat <reyad.attiyat@gmail.com>
-Cc: linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com, linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2014, Reyad Attiyat wrote:
+--nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-> Set disconnected flag in struct usbhid when a usb device
-> is removed. Check for disconnected flag before sending urb
-> requests. This prevents a kernel panic when a hid driver calls
-> hid_hw_request() after removing a usb device.
-> 
-> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
+On 22/07/14 18:08, Linus Walleij wrote:
+> On Sat, Jul 12, 2014 at 10:30 PM, abdoulaye berthe <berthe.ab@gmail.com=
+> wrote:
+>=20
+> Heads up. Requesting ACKs for this patch or I'm atleast warning that it=
+ will be
+> applied. We're getting rid of the return value from gpiochip_remove().
 
-I've included the full oops output into the changelog and applied, thanks.
+>>  drivers/video/fbdev/via/via-gpio.c             | 10 +++-------
+>=20
+> Tomi can you ACK this?
 
--- 
-Jiri Kosina
-SUSE Labs
+Acked-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+
+ Tomi
+
+
+
+--nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJT14X1AAoJEPo9qoy8lh71gvsP/iJDf8dcnv2JZFloH/noIb3s
+DCXfxyTW2zDeWEEH7rLW+fP5JKu5TutqOCF2Y85HaPa/DV1iMI4S+IUeEwNiw0wd
+JTwMqUbS2ua22J87F1Oc5kXshDk+uqLRfpxO7xs0Pd/JcsrOgA7zqJN67jeDwQo/
+XsiRTBmJ3CNR/qur7AKN8toHdZp+KaHZ/4cazUxxp/cu71eFuRfFJMjE/cGk8cva
+fsIrugCAFjYIy3z88VtW4VPj1rcNDYUlxcklbpNtosOKUuPfNoDwToLUCdjE22G9
+v93XHZKlv0iWso5fo9HA2BTDK7N37WMsyktqF1ULEUiKIyoWs6a0WG9eREVLKlpi
+ugiCLH6c4jQYycmSTmFGZnzuhz5hN5oirXpKtba6hVHh6ZNkIkGtFElGTZYjVhKn
+k06HXBVTTYwf4pg2PGSGPsl2dIx0Zyl8pG+iFn10LSxELxbNU6N/wYzf6LquPLok
+cnnfX2riaFV6DgQHhHlTqr0tN6NFb8smYeH9rq37+4GyVYnokXuBMJ+qQ5In8BDZ
+9ZgW2N1PH2aRO2RZERVwll4otqtZgJcmWdAgeZzjkl0nBpWH8X78c41O3T3LUscq
+3cDDyXHCLDGabHGuab5JPofNnN1GW8xM/wN8jLmH/abZICdjfGqRVzaQh7FJjc97
+PbSJaJG3ZaHHHc6LWcil
+=W85Y
+-----END PGP SIGNATURE-----
+
+--nDvig6w1IaO5idwNJGff6KXjnBUdsJGt1--

@@ -1,134 +1,224 @@
 From: "Murphy, Dan" <dmurphy@ti.com>
 Subject: Re: [v2] input: drv260x: Add TI drv260x haptics driver
-Date: Tue, 29 Jul 2014 13:41:57 +0000
-Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DB2A71@DFLE09.ent.ti.com>
+Date: Tue, 29 Jul 2014 13:50:48 +0000
+Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DB2AAD@DFLE09.ent.ti.com>
 References: <1406566403-1436-1-git-send-email-dmurphy@ti.com>
- <5adf0339146a7b655a77053195aa892c.squirrel@mungewell.org>
- <00FC9A978A94B7418C33AFAE8A35ED49DB1A79@DFLE09.ent.ti.com>
- <2696156.zc98nP9bBH@sigyn>
+ <20140729093701.GJ2576@leverpostej>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:38114 "EHLO bear.ext.ti.com"
+Received: from comal.ext.ti.com ([198.47.26.152]:36721 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750960AbaG2NmG convert rfc822-to-8bit (ORCPT
+	id S1750933AbaG2Nu5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 09:42:06 -0400
+	Tue, 29 Jul 2014 09:50:57 -0400
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?Michal_Mal=FD?= <madcatxster@devoid-pointer.net>
-Cc: "simon@mungewell.org" <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Elias Vanderstuyft <elias.vds@gmail.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-Michal
+Mark
 
 Thanks for the feedback
 
-On 07/29/2014 07:09 AM, Michal Mal=FD wrote:
-> On Monday 28 of July 2014 21:21:26 Murphy, Dan wrote:
->> Dmitry
+On 07/29/2014 04:37 AM, Mark Rutland wrote:
+> On Mon, Jul 28, 2014 at 05:53:23PM +0100, Dan Murphy wrote:
+>> Add the TI drv260x haptics/vibrator driver.
+>> This device uses the input force feedback
+>> to produce a wave form to driver an
+>> ERM or LRA actuator device.
 >>
->> On 07/28/2014 12:59 PM, simon@mungewell.org wrote:
->>>>> The initial driver supports the devices
->>>>> real time playback mode.  But the device
->>>>> has additional wave patterns in ROM.
->>>>
->>>> As it presented the device appears to be a memoryless device, howe=
-ver
->>>> you present it to the rest of the system as if it can support play=
-back
->>>> of multiple effects simultaneously, which is incorrect.
->>>>
->>>> My guess that you need to engage the memoryless input library to s=
-chedule
->>>> handling multiple effects for your device, including ramping up, r=
-amping
->>>> down, stopping playback when effects runs out, etc.
->>>
->>> Hi Dan,
->>> Elias and Michal (cc'ed) are working on a kernel/userland library t=
-o
->>> handle sending multiple force feedback signals to 'simple' devices,
->>> perhaps you should engage with them.
->>>
->>> Simon
->=20
-> Hi Dan,
->=20
-> since I spent some time trying to improve the memoryless library I ca=
-n=20
-> hopefully provide you with some hints.
->=20
-> If I'm reading this right, your device cannot play more than one effe=
-ct at once=20
-> but it can operate eihter in RTP mode where the user controls the ope=
-ration of=20
-> the motors directly on in an automated mode where the device follows =
-some pre-
-> programmed waveform. These two modes are mutually exclusive.
+>> The initial driver supports the devices
+>> real time playback mode.  But the device
+>> has additional wave patterns in ROM.
+>>
+>> This functionality will be added in
+>> future patchsets.
+>>
+>> Product data sheet is located here:
+>> http://www.ti.com/product/drv2605
+>>
+>> Signed-off-by: Dan Murphy <dmurphy@ti.com>
+>> ---
+>>
+>> v2 - Fixed binding doc and patch headline - https://patchwork.kernel.org/patch/4619641/
+>>
+>>  .../devicetree/bindings/input/ti,drv260x.txt       |   44 ++
+>>  drivers/input/misc/Kconfig                         |    9 +
+>>  drivers/input/misc/Makefile                        |    1 +
+>>  drivers/input/misc/drv260x.c                       |  537 ++++++++++++++++++++
+>>  include/dt-bindings/input/ti-drv260x.h             |   30 ++
+>>  include/linux/input/drv260x.h                      |  181 +++++++
+>>  6 files changed, 802 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/input/ti,drv260x.txt
+>>  create mode 100644 drivers/input/misc/drv260x.c
+>>  create mode 100644 include/dt-bindings/input/ti-drv260x.h
+>>  create mode 100644 include/linux/input/drv260x.h
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.txt b/Documentation/devicetree/bindings/input/ti,drv260x.txt
+>> new file mode 100644
+>> index 0000000..930429b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/input/ti,drv260x.txt
+>> @@ -0,0 +1,44 @@
+>> +Texas Instruments - drv260x Haptics driver family
+>> +
+>> +The drv260x family serial control bus communicates through I2C protocols
+>> +
+>> +Required properties:
+>> +       - compatible - One of:
+>> +               "ti,drv2604" - DRV2604
+>> +               "ti,drv2605" - DRV2605
+>> +               "ti,drv2605l" - DRV2605L
+>> +       - reg -  I2C slave address
+>> +       - mode - Power up mode of the chip (defined in include/dt-bindings/input/ti-drv260x.h)
+>> +               DRV260X_RTP_MODE - Real time playback mode
+>> +               DRV260X_LRA_MODE - Linear Resonance Actuator mode (Piezoelectric)
+>> +               DRV260X_ERM_MODE - Eccentric Rotating Mass mode (Rotary vibrator)
+> 
+> What exactly are these, and why does the kernel not decide?
 
-Actually there is one other mode here, that is the ability to program i=
-n a
-waveform to be played.  So that makes 3 modes I have to think about sup=
-porting.
+The LRA and ERM are vibrator types.  These are specific to the product and the kernel cannot decide.
+The kernel driver needs to be told what type of vibrator is connected.  The driver then
+sets the voltages and other settings to drive the vibrator type safely. All vibrators are dumb and do not
+have IDs identifying themselves so there is no self discovery here.
 
-I know there are products out there that would like to and do customize=
- their feedback
-based on certain user actions.
+RTP is not a vibrator type but just a mode you can place the device into.  I can probably remove that
+and have the user space or driver take care of that setting.
 
-=46or the custom mode I could use the FF_CUSTOM id but not sure
-how that fits into the Periodic structure.  If I can get two out of 3 t=
-hat would be
-great.
+> 
+>> +       - library_sel - Library to use at power up (defined in include/dt-bindings/input/ti-drv260x.h)
+> 
+> Please s/_/-/ in all property names.
+> 
+>> +               DRV260X_LIB_A - Pre-programmed Library
+>> +               DRV260X_LIB_B - Pre-programmed Library
+>> +               DRV260X_LIB_C - Pre-programmed Library
+>> +               DRV260X_LIB_D - Pre-programmed Library
+>> +               DRV260X_LIB_E - Pre-programmed Library
+>> +               DRV260X_LIB_F - Pre-programmed Library
+> 
+> What exactly are these, and why does the kernel not decide?
+> 
+>> +
+>> +Optional properties:
+>> +       - enable-gpio - gpio pin to enable/disable the device.
+>> +       - vib_rated_voltage - The rated voltage of the actuator.  If this is not
+>> +                                                 set then the value will be defaulted to 0x90 in the
+>> +                                                 driver.
+> 
+> What units is this in?
 
->=20
-> If my understanding of the problem is correct, you will struggle both=
- with=20
-> memoryless library and your own imlementation. The memoryless library=
- is quite=20
-> simplistic and it doesn't have any sort of "passthrough" mode so you =
-would not=20
-> be able to do anything besides RTP that way.
->=20
-> On the other hand if you decide to write your own implementation of e=
-ffect=20
-> handling you will end up duplicating a lot of code that already exist=
-s in the=20
-> memoryless library and has been proven to work.
->=20
-> A possible solution for the problem would be to separate the function=
-s that=20
-> control effect timing from the memoryless library and make them globa=
-lly=20
-> accessible. I believe that this would simplify any customized haptic=20
-> implementation considerably and it might be a decent interim solution=
- before=20
-> the project Simon mentioned is ready.
+Good catch I was thinking this when I was writing the documentation but forgot to add
+it.  I will fix the formatting here and below as well.
 
-How far are you on finishing the project?
-If it is only a little bit out I can just keep with the memless RTP mod=
-e
-as a start and then implement the other functions once the solution is =
-accepted.
+> 
+> Don't mention the driver, just say "if not 0x90" (but with a better
+> description of what 0x90 actually means).
+> 
+
+OK
+
+>> +       - vib_overdrive_voltage - The overdrive voltage of the actuator.
+>> +                                                       If this is not set then the value
+>> +                                                       will be defaulted to 0x90 in the driver.
+> 
+> Similarly on both points.
+> 
+> [...]
+> 
+
+Same as above as well
+
+>> +static int drv260x_probe(struct i2c_client *client,
+>> +                          const struct i2c_device_id *id)
+>> +{
+>> +       struct drv260x_data *haptics;
+>> +       struct device_node *np = client->dev.of_node;
+>> +       struct drv260x_platform_data *pdata = client->dev.platform_data;
+>> +       struct ff_device *ff;
+>> +       int ret;
+>> +       int voltage;
+>> +
+>> +       haptics = devm_kzalloc(&client->dev, sizeof(*haptics), GFP_KERNEL);
+>> +       if (!haptics)
+>> +               return -ENOMEM;
+>> +
+>> +       haptics->rated_voltage = DRV260X_DEF_OD_CLAMP_VOLT;
+>> +       haptics->rated_voltage = DRV260X_DEF_RATED_VOLT;
+>> +
+>> +       if (np) {
+>> +               ret = of_property_read_u32(np, "mode", &haptics->mode);
+>> +               if (ret < 0) {
+>> +                       dev_err(&client->dev,
+>> +                               "%s: No entry for mode\n", __func__);
+>> +
+>> +                       return ret;
+>> +               }
+> 
+> No sanity checking on the actual value?
+> 
+> As far as I can see, haptics->mode is an int, not a u32.
+> 
+
+Will fix this and all points below.
+
+>> +               ret = of_property_read_u32(np, "library_sel",
+>> +                                       &haptics->library);
+>> +               if (ret < 0) {
+>> +                       dev_err(&client->dev,
+>> +                               "%s: No entry for library selection\n", __func__);
+>> +
+>> +                       return ret;
+>> +               }
+> 
+> Sanity checking?
+> 
+> haptics->library is not a u32.
+> 
+>> +               ret = of_property_read_u32(np, "vib_rated_voltage",
+>> +                                       &voltage);
+>> +               if (!ret)
+>> +                       haptics->rated_voltage = drv260x_calculate_voltage(voltage);
+>> +
+>> +
+>> +               ret = of_property_read_u32(np, "vib_overdrive_voltage",
+>> +                                       &voltage);
+>> +               if (!ret)
+>> +                       haptics->overdrive_voltage = drv260x_calculate_voltage(voltage);
+>> +
+> 
+> And again, on both points.
+> 
+>> +       } else if (pdata) {
+>> +               haptics->mode = pdata->mode;
+>> +               haptics->library = pdata->library_selection;
+>> +               if (pdata->vib_overdrive_voltage)
+>> +                       haptics->overdrive_voltage = drv260x_calculate_voltage(pdata->vib_overdrive_voltage);
+>> +               if (pdata->vib_rated_voltage)
+>> +                       haptics->rated_voltage = drv260x_calculate_voltage(pdata->vib_rated_voltage);
+>> +       } else {
+>> +               dev_err(&client->dev, "Platform data not set\n");
+>> +               return -ENODEV;
+>> +       }
+>> +
+>> +       haptics->regulator = regulator_get(&client->dev, "vbat");
+> 
+> This wasn't in the binding.
+
+Yep will add it.
+
 
 Dan
 
->=20
-> If there is anybody interested in such a solution I can probably whip=
- up a=20
-> patch for it quite quickly.
->=20
-> Regards,
-> Michal
->=20
+> 
+> Thanks,
+> Mark.
+> 
 
 
---=20
+-- 
 ------------------
 Dan Murphy
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

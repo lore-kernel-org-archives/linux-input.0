@@ -1,49 +1,69 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH] hid: huion: Fix sparse warnings
-Date: Tue, 29 Jul 2014 16:24:08 +0300
-Message-ID: <53D7A078.8050206@gmail.com>
-References: <alpine.LNX.2.00.1407291121530.16390@pobox.suse.cz> <1406638206-6108-1-git-send-email-spbnick@gmail.com> <alpine.LNX.2.00.1407291504370.16390@pobox.suse.cz>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH 6/7] mfd: cros_ec: Instantiate sub-devices from device
+ tree
+Date: Tue, 29 Jul 2014 15:28:00 +0200
+Message-ID: <53D7A160.7010801@collabora.co.uk>
+References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk> <1406549967-21291-7-git-send-email-javier.martinez@collabora.co.uk> <53D794E1.1090003@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f172.google.com ([74.125.82.172]:51700 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750960AbaG2NYP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 09:24:15 -0400
-Received: by mail-we0-f172.google.com with SMTP id x48so9033165wes.31
-        for <linux-input@vger.kernel.org>; Tue, 29 Jul 2014 06:24:14 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1407291504370.16390@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <53D794E1.1090003@suse.de>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: =?ISO-8859-15?Q?Andreas_F=E4rber?= <afaerber@suse.de>, Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On 07/29/2014 04:06 PM, Jiri Kosina wrote:
-> On Tue, 29 Jul 2014, Nikolai Kondrashov wrote:
->
->> Fix sparse warnings in hid-huion.c by using correct buffer type for
->> retrieved string descriptor.
->>
->> The warnings in question were:
->>
->>      drivers/hid/hid-huion.c:144:44: sparse: cast to restricted __le16
->>      drivers/hid/hid-huion.c:145:44: sparse: cast to restricted __le16
->>      drivers/hid/hid-huion.c:146:51: sparse: cast to restricted __le16
->>      drivers/hid/hid-huion.c:147:30: sparse: cast to restricted __le16
->
-> Interestingly enough, my sparse doesn't seem to report this problem
-> (running sparse is part of my machinery before pushing anything out).
+Hello Andreas,
 
-The above only appears with CF=-D__CHECK_ENDIAN__.
+On 07/29/2014 02:34 PM, Andreas F=E4rber wrote:
+> Hi Javier,
+>=20
+> Am 28.07.2014 14:19, schrieb Javier Martinez Canillas:
+>> From: Todd Broch <tbroch@chromium.org>
+>>=20
+>> If the EC device tree node has sub-nodes, try to instantiate them as
+>> MFD sub-devices.  We can configure the EC features provided by the b=
+oard.
+>>=20
+>> Signed-off-by: Todd Broch <tbroch@chromium.org>
+>=20
+> This is provoking the blunt question: What sub-devices is it good for=
+?
+> I.e., do you have a matching DT patchset that adds such devices?
+>=20
 
->> If you wouldn't like adding a tiny patch like this, I can send another version
->> of the original patches. Otherwise, please feel free to just fixup my "Switch
->> to generating report descriptor" commit with this one.
->
-> Yup, I'll be applying this on top of your previous one.
+=46or Peach Pit and Pi, the matching DTS changes is [0]. But answering =
+your
+question it is to instantiate the subdevices that can be child nodes of=
+ either
+cros-ec-spi or cros-ec-i2c. So for the devices that are directly connec=
+ted to
+the EC Cortex-M through i2c.
 
-Thanks!
+> In particular I'm wondering whether that would help with the tps65090=
+ on
+> Spring? It's a "power-regulator" sub-node of cros-ec in 3.8.
+>=20
 
-Nick
+Spring is a little more complicated since the EC in Spring don't have t=
+he full
+EC_CMD_I2C_PASSTHRU. So the downstream Chrome OS 3.8 kernel has a forke=
+d
+tps65090 driver (drivers/regulator/cros_ec-tps65090.c) that talks direc=
+tly with
+the cros_ec MFD driver, you can get more info from [1] in the "About Sp=
+ring"
+section.
+
+> Thanks,
+> Andreas
+>=20
+
+Best regards,
+Javier
+
+[0]:
+https://git.kernel.org/cgit/linux/kernel/git/kgene/linux-samsung.git/co=
+mmit/?h=3Dfor-next&id=3D8060098bbb564d27a287057a93d4fe3bfd266290
+[1]: http://code.google.com/p/chromium/issues/detail?id=3D391797

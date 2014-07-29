@@ -1,73 +1,48 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@devoid-pointer.net>
-Subject: Re: [v2] input: drv260x: Add TI drv260x haptics driver
-Date: Tue, 29 Jul 2014 14:08:59 +0200
-Message-ID: <2696156.zc98nP9bBH@sigyn>
-References: <1406566403-1436-1-git-send-email-dmurphy@ti.com> <5adf0339146a7b655a77053195aa892c.squirrel@mungewell.org> <00FC9A978A94B7418C33AFAE8A35ED49DB1A79@DFLE09.ent.ti.com>
+From: =?ISO-8859-15?Q?Andreas_F=E4rber?= <afaerber-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH 0/7] Second batch of cleanups for cros_ec
+Date: Tue, 29 Jul 2014 14:27:20 +0200
+Message-ID: <53D79328.8060609@suse.de>
+References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.devoid-pointer.net ([31.31.77.140]:49980 "EHLO
-	smtp.devoid-pointer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750999AbaG2MPl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 08:15:41 -0400
-In-Reply-To: <00FC9A978A94B7418C33AFAE8A35ED49DB1A79@DFLE09.ent.ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1406549967-21291-1-git-send-email-javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "Murphy, Dan" <dmurphy@ti.com>
-Cc: "simon@mungewell.org" <simon@mungewell.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Elias Vanderstuyft <elias.vds@gmail.com>
 
-On Monday 28 of July 2014 21:21:26 Murphy, Dan wrote:
-> Dmitry
-> 
-> On 07/28/2014 12:59 PM, simon@mungewell.org wrote:
-> >>> The initial driver supports the devices
-> >>> real time playback mode.  But the device
-> >>> has additional wave patterns in ROM.
-> >> 
-> >> As it presented the device appears to be a memoryless device, however
-> >> you present it to the rest of the system as if it can support playback
-> >> of multiple effects simultaneously, which is incorrect.
-> >> 
-> >> My guess that you need to engage the memoryless input library to schedule
-> >> handling multiple effects for your device, including ramping up, ramping
-> >> down, stopping playback when effects runs out, etc.
-> > 
-> > Hi Dan,
-> > Elias and Michal (cc'ed) are working on a kernel/userland library to
-> > handle sending multiple force feedback signals to 'simple' devices,
-> > perhaps you should engage with them.
-> > 
-> > Simon
+Hi Javier,
 
-Hi Dan,
+Am 28.07.2014 14:19, schrieb Javier Martinez Canillas:
+> The patches in this series are authored by different people
+> (all on cc) and consist of the following:
+>=20
+> Andrew Bresticker (3):
+>   mfd: cros_ec: stop calling ->cmd_xfer() directly
+>   mfd: cros_ec: move locking into cros_ec_cmd_xfer
+>   mfd: cros_ec: wait for completion of commands that return IN_PROGRE=
+SS
+>=20
+> Derek Basehore (1):
+>   i2c: i2c-cros-ec-tunnel: Set retries to 3
+>=20
+> Doug Anderson (1):
+>   mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
+>=20
+> Todd Broch (2):
+>   mfd: cros_ec: Instantiate sub-devices from device tree
+>   Input: cros_ec_keyb: Optimize ghosting algorithm.
 
-since I spent some time trying to improve the memoryless library I can 
-hopefully provide you with some hints.
-
-If I'm reading this right, your device cannot play more than one effect at once 
-but it can operate eihter in RTP mode where the user controls the operation of 
-the motors directly on in an automated mode where the device follows some pre-
-programmed waveform. These two modes are mutually exclusive.
-
-If my understanding of the problem is correct, you will struggle both with 
-memoryless library and your own imlementation. The memoryless library is quite 
-simplistic and it doesn't have any sort of "passthrough" mode so you would not 
-be able to do anything besides RTP that way.
-
-On the other hand if you decide to write your own implementation of effect 
-handling you will end up duplicating a lot of code that already exists in the 
-memoryless library and has been proven to work.
-
-A possible solution for the problem would be to separate the functions that 
-control effect timing from the memoryless library and make them globally 
-accessible. I believe that this would simplify any customized haptic 
-implementation considerably and it might be a decent interim solution before 
-the project Simon mentioned is ready.
-
-If there is anybody interested in such a solution I can probably whip up a 
-patch for it quite quickly.
+When you submit other people's patches, I believe you still need to sig=
+n
+them off as submitter. In particular when you rebased them.
 
 Regards,
-Michal
+Andreas
+
+--=20
+SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6rffer; HRB 16746 AG N=FCrn=
+berg

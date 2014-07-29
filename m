@@ -1,119 +1,119 @@
-From: Yufeng Shen <miletus@chromium.org>
-Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
-Date: Mon, 28 Jul 2014 20:10:19 -0400
-Message-ID: <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com>
-References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>
-	<53CECAEC.8080905@wwwdotorg.org>
-	<53CFD50C.4040509@itdev.co.uk>
-	<53CFEF6E.2060905@wwwdotorg.org>
-	<53D10E78.4010908@itdev.co.uk>
-	<53D17845.4020507@wwwdotorg.org>
-	<53D26572.3030404@itdev.co.uk>
-	<53D2B8D0.5090000@wwwdotorg.org>
-	<CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>
-	<53D6BF50.3070306@wwwdotorg.org>
-	<53D6DFE7.3040901@wwwdotorg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] alps: rushmore and v7 resolution support
+Date: Tue, 29 Jul 2014 10:07:32 +0200
+Message-ID: <1406621252-5569-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:61015 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752254AbaG2AKU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jul 2014 20:10:20 -0400
-Received: by mail-ie0-f181.google.com with SMTP id rp18so7596522iec.40
-        for <linux-input@vger.kernel.org>; Mon, 28 Jul 2014 17:10:20 -0700 (PDT)
-In-Reply-To: <53D6DFE7.3040901@wwwdotorg.org>
+Received: from mx1.redhat.com ([209.132.183.28]:47348 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751044AbaG2IHn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jul 2014 04:07:43 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On Mon, Jul 28, 2014 at 7:42 PM, Stephen Warren <swarren@wwwdotorg.org> wrote:
-> On 07/28/2014 03:23 PM, Stephen Warren wrote:
->>
->> On 07/28/2014 02:20 PM, Yufeng Shen wrote:
->
-> ...
->
->>> Where did you get the configuration file ? It is possible that we rely
->>> too much on mxt_start to turn on the T9.CTRL bit and have neglected
->>> its setting in the config file.
->>> If you can tell me where you get the config file I can do a check.
->>
->>
->> It was already flashed into the touchpad when I received the board. I
->> did try to track down the firmware/config files a few months ago, but
->> didn't manage to; I was told since they were already flashed so I didn't
->> need them. The board is Venice2.
->
->
-> OK, I received the configuration and firmware file that's supposed to be in
-> the touchpad.
->
-> I can see that the config file I was given has the "83" byte in the T9
-> configuration, and in fact /almost/ exactly matches the configuration I
-> have. I don't know why my T9 configuration was wrong before, but I suspect
-> it's not worth trying to track that down.
->
-> Anyway, here's the diff between the two config files:
->
->> # diff -u mxt-save-after-t9-83-write.xml 224sl.raw
->> --- mxt-save-after-t9-83-write.xml      2014-07-25 19:41:45.000000000
->> +0000
->> +++ 224sl.raw   2014-07-28 23:25:49.000000000 +0000
->> @@ -1,8 +1,7 @@
->>  OBP_RAW V1
->>  82 01 10 AA 12 0C 16
->>  F5AF33
->> -000000
->> -0025 0000 0082 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->> 00 00 00 00 00 00 00 00 00 00 00
->> +E21E65
->>  0026 0000 0008 00 00 00 00 00 00 00 00
->>  0007 0000 0004 20 10 32 00
->>  0008 0000 000A 1E 00 28 28 00 00 00 00 00 00
->
->
-> It seems that the T25(?) entry is missing in the new/expected configuration
-> file. I figured I'd try out the new/expected configuration file, so did:
->
+Add support for querying the physical size from the touchpad for rushmore
+and v7 touchpads, and use that to tell userspace the device resolution.
 
-T37 (0x25) is DEBUG_DIAGNOSTIC object which the host can read debugging info
-from. It is not useful to have a initial config for it so usually CrOS
-system would just
-don't include configuration for this object.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/alps.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/alps.h |  2 ++
+ 2 files changed, 50 insertions(+)
 
-Nick, I want to confirm with you that does T37 contribute to config
-checksum computation ?
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index ac9fdbd..1531387 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1783,6 +1783,45 @@ error:
+ 	return -1;
+ }
+ 
++static int alps_get_v3_v7_resolution(struct psmouse *psmouse, int reg_pitch)
++{
++	int reg, x_pitch, y_pitch, x_electrode, y_electrode, x_phys, y_phys;
++	struct alps_data *priv = psmouse->private;
++
++	reg = alps_command_mode_read_reg(psmouse, reg_pitch);
++	if (reg < 0)
++		return reg;
++
++	x_pitch = (char)(reg << 4) >> 4; /* sign extend lower 4 bits */
++	x_pitch = 50 + 2 * x_pitch; /* In 0.1 mm units */
++
++	y_pitch = (char)reg >> 4; /* sign extend upper 4 bits */
++	y_pitch = 36 + 2 * y_pitch; /* In 0.1 mm units */
++
++	reg = alps_command_mode_read_reg(psmouse, reg_pitch + 1);
++	if (reg < 0)
++		return reg;
++
++	x_electrode = (char)(reg << 4) >> 4; /* sign extend lower 4 bits */
++	x_electrode = 17 + x_electrode;
++
++	y_electrode = (char)reg >> 4; /* sign extend upper 4 bits */
++	y_electrode = 13 + y_electrode;
++
++	x_phys = x_pitch * (x_electrode - 1); /* In 0.1 mm units */
++	y_phys = y_pitch * (y_electrode - 1); /* In 0.1 mm units */
++
++	priv->x_res = priv->x_max * 10 / x_phys; /* units / mm */
++	priv->y_res = priv->y_max * 10 / y_phys; /* units / mm */
++
++	psmouse_info(psmouse,
++		"alps: pitch %dx%d num-electrodes %dx%d physical size %dx%d mm res %dx%d\n",
++		x_pitch, y_pitch, x_electrode, y_electrode,
++		x_phys / 10, y_phys / 10, priv->x_res, priv->y_res);
++
++	return 0;
++}
++
+ static int alps_hw_init_rushmore_v3(struct psmouse *psmouse)
+ {
+ 	struct alps_data *priv = psmouse->private;
+@@ -1803,6 +1842,9 @@ static int alps_hw_init_rushmore_v3(struct psmouse *psmouse)
+ 	    alps_command_mode_write_reg(psmouse, 0xc2cb, 0x00))
+ 		goto error;
+ 
++	if (alps_get_v3_v7_resolution(psmouse, 0xc2da))
++		goto error;
++
+ 	reg_val = alps_command_mode_read_reg(psmouse, 0xc2c6);
+ 	if (reg_val == -1)
+ 		goto error;
+@@ -1988,6 +2030,9 @@ static int alps_hw_init_v7(struct psmouse *psmouse)
+ 	    alps_command_mode_read_reg(psmouse, 0xc2d9) == -1)
+ 		goto error;
+ 
++	if (alps_get_v3_v7_resolution(psmouse, 0xc397))
++		goto error;
++
+ 	if (alps_command_mode_write_reg(psmouse, 0xc2c9, 0x64))
+ 		goto error;
+ 
+@@ -2221,6 +2266,9 @@ static void alps_set_abs_params_mt(struct alps_data *priv,
+ 	input_set_abs_params(dev1, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
+ 	input_set_abs_params(dev1, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
+ 
++	input_abs_set_res(dev1, ABS_MT_POSITION_X, priv->x_res);
++	input_abs_set_res(dev1, ABS_MT_POSITION_Y, priv->y_res);
++
+ 	input_mt_init_slots(dev1, MAX_TOUCHES, INPUT_MT_POINTER |
+ 		INPUT_MT_DROP_UNUSED | INPUT_MT_TRACK | INPUT_MT_SEMI_MT);
+ 
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index a98ac9b..66240b4 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -174,6 +174,8 @@ struct alps_data {
+ 	int y_max;
+ 	int x_bits;
+ 	int y_bits;
++	unsigned int x_res;
++	unsigned int y_res;
+ 
+ 	int (*hw_init)(struct psmouse *psmouse);
+ 	void (*process_packet)(struct psmouse *psmouse);
+-- 
+2.0.1
 
-> # ./obp-utils/mxt-app -d i2c-dev:1-004b --load 224sl.raw
-> # ./obp-utils/mxt-app -d i2c-dev:1-004b --save
-> mxt-save-after-loading-224sl.raw.xml
->
-> At this point, mxt-save-after-loading-224sl.raw.xml contains identical
-> content to mxt-save-after-t9-83-write.xml (my previous backup). It looks
-> like the new configuration isn't being loaded correctly, or perhaps
-> configuration loading doesn't delete entries that are simply not in the new
-> configuration file?
->
-
-Yeah, I would guess since T37 is not in the config, so whatever in the NVRAM
-stays the same and when you --save its original value gets dumped.
-
-> I subsequently did the following in case --save is reading from the NVRAM
-> rather than RAM:
->
-> # ./obp-utils/mxt-app -d i2c-dev:1-004b --backup
-> # ./obp-utils/mxt-app -d i2c-dev:1-004b --save
-> mxt-save-after-loading-224sl.raw.xml
->
-> ... but that made no difference.
->
-> I haven't yet tried upgrading or otherwise using the new firmware image. I'd
-> like to make sure config load/save is fully working first, in case there's
-> any common problem between the two.

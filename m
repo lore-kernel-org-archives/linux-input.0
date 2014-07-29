@@ -1,47 +1,57 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: rmi: change logging level of log messages related
- to unexpected reports
-Date: Tue, 29 Jul 2014 11:10:02 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407291109380.16390@pobox.suse.cz>
-References: <1405114551-24354-1-git-send-email-aduggan@synaptics.com> <1405114551-24354-2-git-send-email-aduggan@synaptics.com> <20140715190723.GC21045@mail.corp.redhat.com>
+Subject: Re: [PATCH] HID: i2c-hid: call the hid driver's suspend and resume
+ callbacks
+Date: Tue, 29 Jul 2014 11:11:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1407291111320.16390@pobox.suse.cz>
+References: <1405121658-3853-1-git-send-email-aduggan@synaptics.com> <20140717170031.GC27586@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140715190723.GC21045@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Benjamin_Tissoires_=A0?= <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:39782 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752780AbaG2JL7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jul 2014 05:11:59 -0400
+In-Reply-To: <20140717170031.GC27586@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vincent Huang <vincent.huang@tw.synaptics.com>, Mika Westerberg <mika.westerberg@intel.com>
 
-On Tue, 15 Jul 2014, Benjamin Tissoires =C2=A0 wrote:
+On Thu, 17 Jul 2014, Benjamin Tissoires wrote:
 
-> On Jul 11 2014 or thereabouts, Andrew Duggan wrote:
-> > Userspace tools may use hidraw to perform operations on the device =
-from userspace while
-> > hid-rmi is bound to the device. This can cause hid-rmi to print err=
-or messages when its
-> > ->raw_event() callback gets called as the reports pass through the =
-HID stack. In this case
-> > receiving responses which were not initiated by hid-rmi is not actu=
-ally an error so the resulting
-> > error messages are incorrect and misleading. This patch changes the=
- log messages to debug so
-> > that the messages can be turned on in the event that there is a pro=
-blem and there is not
-> > a userspace tool running.
-> >=20
+> > Currently, the i2c-hid driver does not call the suspend, resume, and
+> > reset_resume callbacks in the hid_driver struct when those events occur.
+> > This means that HID drivers for i2c-hid devices will not be able to execute
+> > commands which may be needed during suspend or resume. One example is when a
+> > touchpad using the hid-multitouch driver gets reset by i2c-hid coming out of
+> > resume. Since the reset_resume callback never gets called the device is never
+> > put back into the correct input mode. This patch calls the suspend and resume
+> > callbacks and tries to duplicate the functionality of the usb-hid driver.
+> > 
 > > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> > Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
 > > ---
->=20
-> Fair enough
->=20
+> > Hi Benjamin,
+> > 
+> > This is the patch which Vincent and I came up with to fix the behavior which we were seeing with touchpads not being operational after resuming. We only use the reset_resume callback since i2c_hid_resume is always doing a hardware reset and it doesn't seem like there is a condition in which the standard resume callback would be appropriate. Also, is a full hardware reset always needed when resuming?
+> 
+> Hi Andrew,
+> 
+> well, the PM management of i2c_hid has been handled by Mika (in CC) and
+> I am unfortunately not able to have a strong opinion on this. I still
+> lack of hardware properly supporting the suspend/resume mechanism.
+> 
+> So, you are in charge of that. IIRC, nothing prevents from not calling
+> hw_reset, but I guess this was the safer implementation we could have.
+> 
+> Anyway, the patch looks good:
 > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[ sorry for late response, I am just re-appearing from vacation-land ]
+I am queuing this for 3.17. Mika, if you have any objections, please speak 
+up.
 
-Applied, thanks.
+Thanks,
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs

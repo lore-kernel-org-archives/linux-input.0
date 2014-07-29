@@ -1,28 +1,32 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] fix for jabra gn9350e (hid)
-Date: Tue, 29 Jul 2014 11:58:21 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1407291158120.16390@pobox.suse.cz>
-References: <1404543486-21080-1-git-send-email-patrick@erdbeere.net>
+Subject: Re: [PATCH] hid: usbhid: Use flag HID_DISCONNECTED when a usb device
+ is removed
+Date: Tue, 29 Jul 2014 13:06:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1407291303570.16390@pobox.suse.cz>
+References: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41218 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:42215 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752168AbaG2J6Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2014 05:58:24 -0400
-In-Reply-To: <1404543486-21080-1-git-send-email-patrick@erdbeere.net>
+	id S1753296AbaG2LGy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jul 2014 07:06:54 -0400
+In-Reply-To: <1406265181-4009-1-git-send-email-reyad.attiyat@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Patrick Plattes <patrick@erdbeere.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Reyad Attiyat <reyad.attiyat@gmail.com>
+Cc: linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com, linux-kernel@vger.kernel.org
 
-On Sat, 5 Jul 2014, Patrick Plattes wrote:
+On Fri, 25 Jul 2014, Reyad Attiyat wrote:
 
-> Ignore Jabra GN9350E HID interface. USB audio is working nicely,
-> but registering as HID blocks USB mouse buttons. Since special userspace
-> programs are needed we will avoid attaching usbhid drivers in general.
+> Set disconnected flag in struct usbhid when a usb device
+> is removed. Check for disconnected flag before sending urb
+> requests. This prevents a kernel panic when a hid driver calls
+> hid_hw_request() after removing a usb device.
+> 
+> Signed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
 
-Applied.
+I've included the full oops output into the changelog and applied, thanks.
 
 -- 
 Jiri Kosina

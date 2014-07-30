@@ -1,149 +1,164 @@
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
+From: Pramod Gurav <pramod.gurav.etc@gmail.com>
 Subject: Re: [PATCH] Input: jornada720_ts: Switch to using Managed resources
-Date: Wed, 30 Jul 2014 09:18:25 -0400
-Message-ID: <53D8F0A1.3000800@windriver.com>
+Date: Wed, 30 Jul 2014 18:58:08 +0530
+Message-ID: <CAMf-jSmYwyBwbs+sW7EiTQwkjA8rqqi=0Fbo-S8_4x1XW+=iNA@mail.gmail.com>
 References: <1406722183-22678-1-git-send-email-pramod.gurav@smartplayin.com>
+	<53D8F0A1.3000800@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.windriver.com ([147.11.146.13]:56509 "EHLO
-	mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751370AbaG3NSJ (ORCPT
+Received: from mail-lb0-f171.google.com ([209.85.217.171]:36904 "EHLO
+	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751502AbaG3N2N (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jul 2014 09:18:09 -0400
-In-Reply-To: <1406722183-22678-1-git-send-email-pramod.gurav@smartplayin.com>
+	Wed, 30 Jul 2014 09:28:13 -0400
+In-Reply-To: <53D8F0A1.3000800@windriver.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pramod Gurav <pramod.gurav@smartplayin.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 14-07-30 08:09 AM, Pramod Gurav wrote:
-> This switches the driver to using managed resources to simplify
-> error handling and to do away with remove function.
-> 
-> Also fixes some indentations by replacing spaces with tabs.
-> 
-> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> CC: Paul Gortmaker <paul.gortmaker@windriver.com>
-> 
-> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
-> ---
->  drivers/input/touchscreen/jornada720_ts.c |   62 ++++++++++-------------------
->  1 file changed, 20 insertions(+), 42 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/jornada720_ts.c b/drivers/input/touchscreen/jornada720_ts.c
-> index 7324c5c..0c23bba 100644
-> --- a/drivers/input/touchscreen/jornada720_ts.c
-> +++ b/drivers/input/touchscreen/jornada720_ts.c
-> @@ -37,21 +37,21 @@ struct jornada_ts {
->  static void jornada720_ts_collect_data(struct jornada_ts *jornada_ts)
->  {
->  
-> -    /* 3 low word X samples */
-> -    jornada_ts->x_data[0] = jornada_ssp_byte(TXDUMMY);
-> -    jornada_ts->x_data[1] = jornada_ssp_byte(TXDUMMY);
-> -    jornada_ts->x_data[2] = jornada_ssp_byte(TXDUMMY);
-> +	/* 3 low word X samples */
-> +	jornada_ts->x_data[0] = jornada_ssp_byte(TXDUMMY);
-> +	jornada_ts->x_data[1] = jornada_ssp_byte(TXDUMMY);
-> +	jornada_ts->x_data[2] = jornada_ssp_byte(TXDUMMY);
+On Wed, Jul 30, 2014 at 6:48 PM, Paul Gortmaker
+<paul.gortmaker@windriver.com> wrote:
+> On 14-07-30 08:09 AM, Pramod Gurav wrote:
+>> This switches the driver to using managed resources to simplify
+>> error handling and to do away with remove function.
+>>
+>> Also fixes some indentations by replacing spaces with tabs.
+>>
+>> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> CC: Paul Gortmaker <paul.gortmaker@windriver.com>
+>>
+>> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+>> ---
+>>  drivers/input/touchscreen/jornada720_ts.c |   62 ++++++++++-------------------
+>>  1 file changed, 20 insertions(+), 42 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/jornada720_ts.c b/drivers/input/touchscreen/jornada720_ts.c
+>> index 7324c5c..0c23bba 100644
+>> --- a/drivers/input/touchscreen/jornada720_ts.c
+>> +++ b/drivers/input/touchscreen/jornada720_ts.c
+>> @@ -37,21 +37,21 @@ struct jornada_ts {
+>>  static void jornada720_ts_collect_data(struct jornada_ts *jornada_ts)
+>>  {
+>>
+>> -    /* 3 low word X samples */
+>> -    jornada_ts->x_data[0] = jornada_ssp_byte(TXDUMMY);
+>> -    jornada_ts->x_data[1] = jornada_ssp_byte(TXDUMMY);
+>> -    jornada_ts->x_data[2] = jornada_ssp_byte(TXDUMMY);
+>> +     /* 3 low word X samples */
+>> +     jornada_ts->x_data[0] = jornada_ssp_byte(TXDUMMY);
+>> +     jornada_ts->x_data[1] = jornada_ssp_byte(TXDUMMY);
+>> +     jornada_ts->x_data[2] = jornada_ssp_byte(TXDUMMY);
+>
+> Please don't mix pure whitespace changes with technical changes.
+> While I can't fault you for wanting to get rid of the 4 space
+> tabs, it makes review more complicated when they are mixed in
+> a single commit.
 
-Please don't mix pure whitespace changes with technical changes.
-While I can't fault you for wanting to get rid of the 4 space
-tabs, it makes review more complicated when they are mixed in
-a single commit.
+Thanks for highlighting that. Will send two patches then.
 
-P.
---
+>
+> P.
+> --
+>
+>>
+>> -    /* 3 low word Y samples */
+>> -    jornada_ts->y_data[0] = jornada_ssp_byte(TXDUMMY);
+>> -    jornada_ts->y_data[1] = jornada_ssp_byte(TXDUMMY);
+>> -    jornada_ts->y_data[2] = jornada_ssp_byte(TXDUMMY);
+>> +     /* 3 low word Y samples */
+>> +     jornada_ts->y_data[0] = jornada_ssp_byte(TXDUMMY);
+>> +     jornada_ts->y_data[1] = jornada_ssp_byte(TXDUMMY);
+>> +     jornada_ts->y_data[2] = jornada_ssp_byte(TXDUMMY);
+>>
+>> -    /* combined x samples bits */
+>> -    jornada_ts->x_data[3] = jornada_ssp_byte(TXDUMMY);
+>> +     /* combined x samples bits */
+>> +     jornada_ts->x_data[3] = jornada_ssp_byte(TXDUMMY);
+>>
+>> -    /* combined y samples bits */
+>> -    jornada_ts->y_data[3] = jornada_ssp_byte(TXDUMMY);
+>> +     /* combined y samples bits */
+>> +     jornada_ts->y_data[3] = jornada_ssp_byte(TXDUMMY);
+>>  }
+>>
+>>  static int jornada720_ts_average(int coords[4])
+>> @@ -104,13 +104,10 @@ static int jornada720_ts_probe(struct platform_device *pdev)
+>>       struct input_dev *input_dev;
+>>       int error;
+>>
+>> -     jornada_ts = kzalloc(sizeof(struct jornada_ts), GFP_KERNEL);
+>> -     input_dev = input_allocate_device();
+>> -
+>> -     if (!jornada_ts || !input_dev) {
+>> -             error = -ENOMEM;
+>> -             goto fail1;
+>> -     }
+>> +     jornada_ts = devm_kzalloc(&pdev->dev, sizeof(*jornada_ts), GFP_KERNEL);
+>> +     input_dev = devm_input_allocate_device(&pdev->dev);
+>> +     if (!jornada_ts || !input_dev)
+>> +             return -ENOMEM;
+>>
+>>       platform_set_drvdata(pdev, jornada_ts);
+>>
+>> @@ -126,36 +123,18 @@ static int jornada720_ts_probe(struct platform_device *pdev)
+>>       input_set_abs_params(input_dev, ABS_X, 270, 3900, 0, 0);
+>>       input_set_abs_params(input_dev, ABS_Y, 180, 3700, 0, 0);
+>>
+>> -     error = request_irq(IRQ_GPIO9,
+>> +     error = devm_request_irq(&pdev->dev, IRQ_GPIO9,
+>>                       jornada720_ts_interrupt,
+>>                       IRQF_TRIGGER_RISING,
+>>                       "HP7XX Touchscreen driver", pdev);
+>>       if (error) {
+>> -             printk(KERN_INFO "HP7XX TS : Unable to acquire irq!\n");
+>> -             goto fail1;
+>> +             dev_err(&pdev->dev, "HP7XX TS : Unable to acquire irq!\n");
+>> +             return error;
+>>       }
+>>
+>>       error = input_register_device(jornada_ts->dev);
+>>       if (error)
+>> -             goto fail2;
+>> -
+>> -     return 0;
+>> -
+>> - fail2:
+>> -     free_irq(IRQ_GPIO9, pdev);
+>> - fail1:
+>> -     input_free_device(input_dev);
+>> -     kfree(jornada_ts);
+>> -     return error;
+>> -}
+>> -
+>> -static int jornada720_ts_remove(struct platform_device *pdev)
+>> -{
+>> -     struct jornada_ts *jornada_ts = platform_get_drvdata(pdev);
+>> -
+>> -     free_irq(IRQ_GPIO9, pdev);
+>> -     input_unregister_device(jornada_ts->dev);
+>> -     kfree(jornada_ts);
+>> +             return error;
+>>
+>>       return 0;
+>>  }
+>> @@ -165,7 +144,6 @@ MODULE_ALIAS("platform:jornada_ts");
+>>
+>>  static struct platform_driver jornada720_ts_driver = {
+>>       .probe          = jornada720_ts_probe,
+>> -     .remove         = jornada720_ts_remove,
+>>       .driver         = {
+>>               .name   = "jornada_ts",
+>>               .owner  = THIS_MODULE,
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
->  
-> -    /* 3 low word Y samples */
-> -    jornada_ts->y_data[0] = jornada_ssp_byte(TXDUMMY);
-> -    jornada_ts->y_data[1] = jornada_ssp_byte(TXDUMMY);
-> -    jornada_ts->y_data[2] = jornada_ssp_byte(TXDUMMY);
-> +	/* 3 low word Y samples */
-> +	jornada_ts->y_data[0] = jornada_ssp_byte(TXDUMMY);
-> +	jornada_ts->y_data[1] = jornada_ssp_byte(TXDUMMY);
-> +	jornada_ts->y_data[2] = jornada_ssp_byte(TXDUMMY);
->  
-> -    /* combined x samples bits */
-> -    jornada_ts->x_data[3] = jornada_ssp_byte(TXDUMMY);
-> +	/* combined x samples bits */
-> +	jornada_ts->x_data[3] = jornada_ssp_byte(TXDUMMY);
->  
-> -    /* combined y samples bits */
-> -    jornada_ts->y_data[3] = jornada_ssp_byte(TXDUMMY);
-> +	/* combined y samples bits */
-> +	jornada_ts->y_data[3] = jornada_ssp_byte(TXDUMMY);
->  }
->  
->  static int jornada720_ts_average(int coords[4])
-> @@ -104,13 +104,10 @@ static int jornada720_ts_probe(struct platform_device *pdev)
->  	struct input_dev *input_dev;
->  	int error;
->  
-> -	jornada_ts = kzalloc(sizeof(struct jornada_ts), GFP_KERNEL);
-> -	input_dev = input_allocate_device();
-> -
-> -	if (!jornada_ts || !input_dev) {
-> -		error = -ENOMEM;
-> -		goto fail1;
-> -	}
-> +	jornada_ts = devm_kzalloc(&pdev->dev, sizeof(*jornada_ts), GFP_KERNEL);
-> +	input_dev = devm_input_allocate_device(&pdev->dev);
-> +	if (!jornada_ts || !input_dev)
-> +		return -ENOMEM;
->  
->  	platform_set_drvdata(pdev, jornada_ts);
->  
-> @@ -126,36 +123,18 @@ static int jornada720_ts_probe(struct platform_device *pdev)
->  	input_set_abs_params(input_dev, ABS_X, 270, 3900, 0, 0);
->  	input_set_abs_params(input_dev, ABS_Y, 180, 3700, 0, 0);
->  
-> -	error = request_irq(IRQ_GPIO9,
-> +	error = devm_request_irq(&pdev->dev, IRQ_GPIO9,
->  			jornada720_ts_interrupt,
->  			IRQF_TRIGGER_RISING,
->  			"HP7XX Touchscreen driver", pdev);
->  	if (error) {
-> -		printk(KERN_INFO "HP7XX TS : Unable to acquire irq!\n");
-> -		goto fail1;
-> +		dev_err(&pdev->dev, "HP7XX TS : Unable to acquire irq!\n");
-> +		return error;
->  	}
->  
->  	error = input_register_device(jornada_ts->dev);
->  	if (error)
-> -		goto fail2;
-> -
-> -	return 0;
-> -
-> - fail2:
-> -	free_irq(IRQ_GPIO9, pdev);
-> - fail1:
-> -	input_free_device(input_dev);
-> -	kfree(jornada_ts);
-> -	return error;
-> -}
-> -
-> -static int jornada720_ts_remove(struct platform_device *pdev)
-> -{
-> -	struct jornada_ts *jornada_ts = platform_get_drvdata(pdev);
-> -
-> -	free_irq(IRQ_GPIO9, pdev);
-> -	input_unregister_device(jornada_ts->dev);
-> -	kfree(jornada_ts);
-> +		return error;
->  
->  	return 0;
->  }
-> @@ -165,7 +144,6 @@ MODULE_ALIAS("platform:jornada_ts");
->  
->  static struct platform_driver jornada720_ts_driver = {
->  	.probe		= jornada720_ts_probe,
-> -	.remove		= jornada720_ts_remove,
->  	.driver		= {
->  		.name	= "jornada_ts",
->  		.owner	= THIS_MODULE,
-> 
+
+
+-- 
+Thanks and Regards
+Pramod

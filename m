@@ -1,109 +1,52 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: Re: [PATCH v3 4/7] Input - wacom: Check for bluetooth protocol
- while setting OLEDs
-Date: Tue, 29 Jul 2014 23:53:32 +0100
-Message-ID: <1406674412.24026.1.camel@fedora-lan>
-References: <1406659385-3256-1-git-send-email-benjamin.tissoires@redhat.com>
-	 <1406659385-3256-5-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1406659385-3256-5-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] hid: sony: Default initialize all elements of the LED max_brightness array to 1.
+Date: Tue, 29 Jul 2014 19:55:48 -0700
+Message-ID: <1406688948-33348-1-git-send-email-frank.praznik@oh.rr.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:35527 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751895AbaG3C5Y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jul 2014 22:57:24 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Dnia 2014-07-29, wto o godzinie 14:43 -0400, Benjamin Tissoires pisze:
-> Bluetooth Intuos 4 use 1-bit definition while the USB ones use a 4-bits
-> definition. This changes the size of the raw image we receive, and thus
-> the kernel will only accept 1-bit images for Bluetooth and 4-bits for
-> USB.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/wacom_sys.c | 29 +++++++++++++++++++++--------
->  1 file changed, 21 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index f5c9c56..a12cd9c 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -20,6 +20,7 @@
->  #define WAC_CMD_LED_CONTROL	0x20
->  #define WAC_CMD_ICON_START	0x21
->  #define WAC_CMD_ICON_XFER	0x23
-> +#define WAC_CMD_ICON_BT_XFER	0x26
->  #define WAC_CMD_RETRIES		10
->  
->  static int wacom_get_report(struct hid_device *hdev, u8 type, u8 id,
-> @@ -526,12 +527,14 @@ static int wacom_led_control(struct wacom *wacom)
->  	return retval;
->  }
->  
-> -static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *img)
-> +static int wacom_led_putimage(struct wacom *wacom, int button_id, u8 xfer_id,
-> +		const unsigned len, const void *img)
->  {
->  	unsigned char *buf;
->  	int i, retval;
-> +	const unsigned chunk_len = len / 4; /* 4 chunks are needed to be sent */
->  
-> -	buf = kzalloc(259, GFP_KERNEL);
-> +	buf = kzalloc(chunk_len + 3 , GFP_KERNEL);
->  	if (!buf)
->  		return -ENOMEM;
->  
-> @@ -543,15 +546,15 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *im
->  	if (retval < 0)
->  		goto out;
->  
-> -	buf[0] = WAC_CMD_ICON_XFER;
-> +	buf[0] = xfer_id;
->  	buf[1] = button_id & 0x07;
->  	for (i = 0; i < 4; i++) {
->  		buf[2] = i;
-> -		memcpy(buf + 3, img + i * 256, 256);
-> +		memcpy(buf + 3, img + i * chunk_len, chunk_len);
->  
->  		retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
-> -					  WAC_CMD_ICON_XFER,
-> -					  buf, 259, WAC_CMD_RETRIES);
-> +					  xfer_id, buf, chunk_len + 3,
-> +					  WAC_CMD_RETRIES);
->  		if (retval < 0)
->  			break;
->  	}
-> @@ -652,13 +655,23 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
->  	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
->  	struct wacom *wacom = hid_get_drvdata(hdev);
->  	int err;
-> +	unsigned len;
-> +	u8 xfer_id;
->  
-> -	if (count != 1024)
-> +	if (hdev->bus == BUS_BLUETOOTH) {
-> +		len = 256;
-> +		xfer_id = WAC_CMD_ICON_BT_XFER;
-> +	} else {
-> +		len = 1024;
-> +		xfer_id = WAC_CMD_ICON_XFER;
-> +	}
-> +
-> +	if (count != len)
->  		return -EINVAL;
->  
->  	mutex_lock(&wacom->lock);
->  
-> -	err = wacom_led_putimage(wacom, button_id, buf);
-> +	err = wacom_led_putimage(wacom, button_id, xfer_id, len, buf);
->  
->  	mutex_unlock(&wacom->lock);
+Previously only the first element of the array was initialized to 1
+leading to potential incorrect max brightness values for the LEDs
+on the Dualshock 3 and buzzer controllers.
 
-Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+Use a designated initializer to initialize the whole array to the
+correct value.
 
-I'll test the whole series tomorrow.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+
+This patch is against jikos/hid.git/for-3.16/upstream-fixes
+It applies cleanly against for-3.17/sony as well
+
+This error never created any noticeable effects since the max value was
+set to LED_FULL by the led initialization code if it was 0 and it was
+clamped to 1 in the led setting code if the user tried to set a higher
+value. This fix is needed in the interest of correctness though.
+
+ drivers/hid/hid-sony.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 2259eaa..e435223 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1307,7 +1307,7 @@ static int sony_leds_init(struct sony_sc *sc)
+ 	static const char * const ds4_name_str[] = { "red", "green", "blue",
+ 						  "global" };
+ 	__u8 initial_values[MAX_LEDS] = { 0 };
+-	__u8 max_brightness[MAX_LEDS] = { 1 };
++	__u8 max_brightness[MAX_LEDS] = { [0 ... (MAX_LEDS - 1)] = 1 };
+ 	__u8 use_hw_blink[MAX_LEDS] = { 0 };
+ 
+ 	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
 -- 
-Kind regards,
-Przemo Firszt
+1.9.1
+

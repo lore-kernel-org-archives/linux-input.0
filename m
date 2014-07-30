@@ -1,33 +1,31 @@
-From: Fabian Morision <fmorision1@gmail.com>
-Subject: -- Re: Very Urgent............
-Date: Thu, 31 Jul 2014 01:27:03 +0200
-Message-ID: <CABfGM6_nBUSgO_4D4Wi_h67VQOty+jYQXqE0JDvRx0gL-rj_bw__2866.93507009677$1406764436$gmane$org@mail.gmail.com>
+From: ROYAL ASSURED LOANS <info@royaloan.com>
+Subject: Kredit-Angebot
+Date: Thu, 31 Jul 2014 00:40:55 +0100
+Message-ID: <2f16bcc2d6fb0b4fe0db2616030fd9d6__12933.4179604941$1406770740$gmane$org@univers.su>
+Reply-To: <choulee75@yahoo.com.hk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f67.google.com ([209.85.192.67]:35243 "EHLO
-	mail-qg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753709AbaG3Xxk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jul 2014 19:53:40 -0400
-Received: by mail-qg0-f67.google.com with SMTP id f51so808418qge.10
-        for <linux-input@vger.kernel.org>; Wed, 30 Jul 2014 16:53:39 -0700 (PDT)
+Received: from mail.univers.su ([89.105.137.51]:41082 "EHLO univers.su"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752288AbaGaBio (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jul 2014 21:38:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Greetings from gulf region
 
-Thanks for the e-mail. I am very interested on funding lucrative
-business partnership with you acting as the manager and sole
-controller of the investment while i remain a silent investor for a
-period of ten yrs , though I am only looking at investment
-opportunities within the range you specified for a start. You can
-reply me here (fmorision@yahoo.com)
 
-Let me know your thought asap
+--=20
+Wir bieten privaten und gewerblichen Darlehen ohne Sicherheiten (nur=20
+Identifikation) bei 3% Zinssatz, ab =E2=82=AC 10.000 bis =E2=82=AC 90.0=
+00.000 in 1 Jahr=20
+bis 20 Jahren Laufzeit =C3=BCberall in der Welt.
 
-Regards
-
-Financial Consultant
-
-Mr.Fabian Morision
+Anna.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

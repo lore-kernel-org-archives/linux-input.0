@@ -1,125 +1,48 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH v3 4/7] Input - wacom: Check for bluetooth protocol while
- setting OLEDs
-Date: Thu, 31 Jul 2014 08:56:49 -0700
-Message-ID: <CAF8JNhK1R3mzfJA2OZwZv3-KwqpFBkOjDmzM1JkZW_Wix+Ww8g@mail.gmail.com>
-References: <1406659385-3256-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1406659385-3256-5-git-send-email-benjamin.tissoires@redhat.com>
-	<1406674412.24026.1.camel@fedora-lan>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Add ROHM BU21023/24 Dual touch support resistive
+ touchscreens
+Date: Thu, 31 Jul 2014 10:16:55 -0700
+Message-ID: <20140731171655.GA5631@core.coreip.homeip.net>
+References: <20140731195434.d141b39f3920686485c64191@linux-mips.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:57558 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751292AbaGaP4v (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:52948 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750911AbaGaRQ6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2014 11:56:51 -0400
-In-Reply-To: <1406674412.24026.1.camel@fedora-lan>
+	Thu, 31 Jul 2014 13:16:58 -0400
+Received: by mail-pd0-f172.google.com with SMTP id ft15so3864316pdb.3
+        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2014 10:16:58 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20140731195434.d141b39f3920686485c64191@linux-mips.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Yoichi Yuasa <yuasa@linux-mips.org>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Jul 29, 2014 at 3:53 PM, Przemo Firszt <przemo@firszt.eu> wrote:
-> Dnia 2014-07-29, wto o godzinie 14:43 -0400, Benjamin Tissoires pisze:
->> Bluetooth Intuos 4 use 1-bit definition while the USB ones use a 4-bits
->> definition. This changes the size of the raw image we receive, and thus
->> the kernel will only accept 1-bit images for Bluetooth and 4-bits for
->> USB.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  drivers/hid/wacom_sys.c | 29 +++++++++++++++++++++--------
->>  1 file changed, 21 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
->> index f5c9c56..a12cd9c 100644
->> --- a/drivers/hid/wacom_sys.c
->> +++ b/drivers/hid/wacom_sys.c
->> @@ -20,6 +20,7 @@
->>  #define WAC_CMD_LED_CONTROL  0x20
->>  #define WAC_CMD_ICON_START   0x21
->>  #define WAC_CMD_ICON_XFER    0x23
->> +#define WAC_CMD_ICON_BT_XFER 0x26
->>  #define WAC_CMD_RETRIES              10
->>
->>  static int wacom_get_report(struct hid_device *hdev, u8 type, u8 id,
->> @@ -526,12 +527,14 @@ static int wacom_led_control(struct wacom *wacom)
->>       return retval;
->>  }
->>
->> -static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *img)
->> +static int wacom_led_putimage(struct wacom *wacom, int button_id, u8 xfer_id,
->> +             const unsigned len, const void *img)
->>  {
->>       unsigned char *buf;
->>       int i, retval;
->> +     const unsigned chunk_len = len / 4; /* 4 chunks are needed to be sent */
->>
->> -     buf = kzalloc(259, GFP_KERNEL);
->> +     buf = kzalloc(chunk_len + 3 , GFP_KERNEL);
->>       if (!buf)
->>               return -ENOMEM;
->>
->> @@ -543,15 +546,15 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *im
->>       if (retval < 0)
->>               goto out;
->>
->> -     buf[0] = WAC_CMD_ICON_XFER;
->> +     buf[0] = xfer_id;
->>       buf[1] = button_id & 0x07;
->>       for (i = 0; i < 4; i++) {
->>               buf[2] = i;
->> -             memcpy(buf + 3, img + i * 256, 256);
->> +             memcpy(buf + 3, img + i * chunk_len, chunk_len);
->>
->>               retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
->> -                                       WAC_CMD_ICON_XFER,
->> -                                       buf, 259, WAC_CMD_RETRIES);
->> +                                       xfer_id, buf, chunk_len + 3,
->> +                                       WAC_CMD_RETRIES);
->>               if (retval < 0)
->>                       break;
->>       }
->> @@ -652,13 +655,23 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
->>       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
->>       struct wacom *wacom = hid_get_drvdata(hdev);
->>       int err;
->> +     unsigned len;
->> +     u8 xfer_id;
->>
->> -     if (count != 1024)
->> +     if (hdev->bus == BUS_BLUETOOTH) {
->> +             len = 256;
->> +             xfer_id = WAC_CMD_ICON_BT_XFER;
->> +     } else {
->> +             len = 1024;
->> +             xfer_id = WAC_CMD_ICON_XFER;
->> +     }
->> +
->> +     if (count != len)
->>               return -EINVAL;
->>
->>       mutex_lock(&wacom->lock);
->>
->> -     err = wacom_led_putimage(wacom, button_id, buf);
->> +     err = wacom_led_putimage(wacom, button_id, xfer_id, len, buf);
->>
->>       mutex_unlock(&wacom->lock);
->
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+Hi Yuichi,
 
-Reviewed-by: Ping Cheng <pingc@wacom.com>
+On Thu, Jul 31, 2014 at 07:54:34PM +0900, Yoichi Yuasa wrote:
+> Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
 
-> I'll test the whole series tomorrow.
+I few high-level comments:
 
-I'd like to see Przemo's Tested-by tag here as well. Przemo, are you
-done with your testing?
+- please get rid of polling - it is not useful in production mode;
+- switch to threaded interrupts so that you do not need to manage
+  workqueue/work/timers;
+- new drivers should use MT-B protocol with proper contact tracking. If device
+  does not do good job at tracking contacts you can use input's core matching
+algorithm (input_mt_assign_slots).
+- please provide ST emulation as well (input_mt_report_pointer_emulation).
+- the way you requesting firmware in probe path means you need to build
+  firmware image into kernel or be careful how you pack it to avoid timeouts on
+  boot. Since the device properties are not changing you might want to postpone
+  that until somebody tries to open the device.
+- please add error handling for IO operations.
+- managed resources simplify the code.
 
-Thank you Przemo and Benjamin for your effort in making this
-transition smooth and successful. We, at Wacom, are very grateful to
-be part of this great community.
+Thanks.
 
-Cheers,
-
-Ping
+-- 
+Dmitry

@@ -1,40 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 05/06] input synaptics-rmi4: Add firmware update
- support
-Date: Thu, 31 Jul 2014 10:53:23 -0700
-Message-ID: <20140731175323.GB5631@core.coreip.homeip.net>
-References: <1394675637-23853-1-git-send-email-cheiny@synaptics.com>
- <1394675637-23853-5-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH] Input: imx_keypad - Remove ifdef
+Date: Thu, 31 Jul 2014 15:42:05 -0300
+Message-ID: <1406832125-3814-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:60591 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751066AbaGaRx1 (ORCPT
+Received: from mail-vc0-f177.google.com ([209.85.220.177]:52921 "EHLO
+	mail-vc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751502AbaGaSm0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2014 13:53:27 -0400
-Received: by mail-pa0-f42.google.com with SMTP id lf10so4038104pab.15
-        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2014 10:53:26 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1394675637-23853-5-git-send-email-cheiny@synaptics.com>
+	Thu, 31 Jul 2014 14:42:26 -0400
+Received: by mail-vc0-f177.google.com with SMTP id hy4so4829675vcb.22
+        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2014 11:42:25 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-Hi Christopher,
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-On Wed, Mar 12, 2014 at 06:53:56PM -0700, Christopher Heiny wrote:
-> Add support for updating firmware on RMI4 devices with V5 bootloader.
+We can annonate the suspend/resume functions with '__maybe_unused' and get rid
+of the ifdef, which makes the code smaller and simpler
 
-I am wondering why F34 is not following the staindard RMI function
-implementation. By that I mean that it does not declare itself as struct
-rmi_function_handler and does not rely on RMI core to bind itself to the device
-if device supports it.
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/keyboard/imx_keypad.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-By the way, isn't rmi_extract_u32() is the same as le32_to_cpup()?
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 8280cb1..20a99c3 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -531,8 +531,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int imx_kbd_suspend(struct device *dev)
++static int __maybe_unused imx_kbd_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+@@ -552,7 +551,7 @@ static int imx_kbd_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int imx_kbd_resume(struct device *dev)
++static int __maybe_unused imx_kbd_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+@@ -575,7 +574,6 @@ err_clk:
+ 
+ 	return ret;
+ }
+-#endif
+ 
+ static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
+ 
 -- 
-Dmitry
+1.9.1
+

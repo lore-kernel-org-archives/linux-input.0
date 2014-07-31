@@ -1,73 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: mcs5000_ts - Remove ifdef
-Date: Wed, 30 Jul 2014 23:01:23 -0700
-Message-ID: <20140731060123.GA4844@core.coreip.homeip.net>
-References: <1406737039-1404-1-git-send-email-festevam@gmail.com>
- <1406737039-1404-2-git-send-email-festevam@gmail.com>
+Subject: Re: [PATCH] input: ads7846: Release resources on failure for clean
+ exit
+Date: Wed, 30 Jul 2014 23:01:38 -0700
+Message-ID: <20140731060138.GB4844@core.coreip.homeip.net>
+References: <1406699677-1347-1-git-send-email-pramod.gurav.etc@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:33969 "EHLO
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:46361 "EHLO
 	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751499AbaGaGB1 (ORCPT
+	with ESMTP id S1751499AbaGaGBn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2014 02:01:27 -0400
-Received: by mail-pa0-f49.google.com with SMTP id hz1so2955501pad.36
-        for <linux-input@vger.kernel.org>; Wed, 30 Jul 2014 23:01:27 -0700 (PDT)
+	Thu, 31 Jul 2014 02:01:43 -0400
 Content-Disposition: inline
-In-Reply-To: <1406737039-1404-2-git-send-email-festevam@gmail.com>
+In-Reply-To: <1406699677-1347-1-git-send-email-pramod.gurav.etc@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: beomho.seo@samsung.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Pramod Gurav <pramod.gurav.etc@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Pramod Gurav <pramod.gurav@smartplayin.com>, Lejun Zhu <lejun.zhu@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>
 
-On Wed, Jul 30, 2014 at 01:17:19PM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
+On Wed, Jul 30, 2014 at 11:24:37AM +0530, Pramod Gurav wrote:
+> From: Pramod Gurav <pramod.gurav@smartplayin.com>
 > 
-> We can annonate the suspend/resume functions with '__maybe_unused' and get rid
-> of the ifdef, which makes the code smaller and simpler.
+> Input device must be released(input_free_device) when ads7846_probe_dt
+> fails. This fixes the same by releasing resources on failure.
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> CC: Lejun Zhu <lejun.zhu@linux.intel.com>
+> CC: Sachin Kamat <sachin.kamat@linaro.org>
+> 
+> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
 
-Applied both, thank you.
+Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/mcs5000_ts.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+>  drivers/input/touchscreen/ads7846.c |    6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
-> index 1fb760c..8b47e1f 100644
-> --- a/drivers/input/touchscreen/mcs5000_ts.c
-> +++ b/drivers/input/touchscreen/mcs5000_ts.c
-> @@ -248,8 +248,7 @@ static int mcs5000_ts_probe(struct i2c_client *client,
->  	return 0;
->  }
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index da201b8..e57ba52 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -1302,8 +1302,10 @@ static int ads7846_probe(struct spi_device *spi)
+>  	pdata = dev_get_platdata(&spi->dev);
+>  	if (!pdata) {
+>  		pdata = ads7846_probe_dt(&spi->dev);
+> -		if (IS_ERR(pdata))
+> -			return PTR_ERR(pdata);
+> +		if (IS_ERR(pdata)) {
+> +			err = PTR_ERR(pdata);
+> +			goto err_free_mem;
+> +		}
+>  	}
 >  
-> -#ifdef CONFIG_PM_SLEEP
-> -static int mcs5000_ts_suspend(struct device *dev)
-> +static int __maybe_unused mcs5000_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
->  
-> @@ -259,7 +258,7 @@ static int mcs5000_ts_suspend(struct device *dev)
->  	return 0;
->  }
->  
-> -static int mcs5000_ts_resume(struct device *dev)
-> +static int __maybe_unused mcs5000_ts_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
->  	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
-> @@ -269,7 +268,6 @@ static int mcs5000_ts_resume(struct device *dev)
->  
->  	return 0;
->  }
-> -#endif
->  
->  static SIMPLE_DEV_PM_OPS(mcs5000_ts_pm, mcs5000_ts_suspend, mcs5000_ts_resume);
->  
+>  	ts->model = pdata->model ? : 7846;
 > -- 
-> 1.9.1
+> 1.7.9.5
 > 
 
 -- 

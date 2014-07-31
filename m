@@ -1,228 +1,125 @@
-From: Pramod Gurav <pramod.gurav@smartplayin.com>
-Subject: Re: [PATCH] input: Add ROHM BU21023/24 Dual touch support resistive
- touchscreens
-Date: Thu, 31 Jul 2014 17:24:42 +0530
-Message-ID: <53DA2E82.1040704@smartplayin.com>
-References: <20140731195434.d141b39f3920686485c64191@linux-mips.org>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH v3 4/7] Input - wacom: Check for bluetooth protocol while
+ setting OLEDs
+Date: Thu, 31 Jul 2014 08:56:49 -0700
+Message-ID: <CAF8JNhK1R3mzfJA2OZwZv3-KwqpFBkOjDmzM1JkZW_Wix+Ww8g@mail.gmail.com>
+References: <1406659385-3256-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1406659385-3256-5-git-send-email-benjamin.tissoires@redhat.com>
+	<1406674412.24026.1.camel@fedora-lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp120.ord1c.emailsrvr.com ([108.166.43.120]:54448 "EHLO
-	smtp120.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750702AbaGaLvA (ORCPT
+Received: from mail-lb0-f171.google.com ([209.85.217.171]:57558 "EHLO
+	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751292AbaGaP4v (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2014 07:51:00 -0400
-In-Reply-To: <20140731195434.d141b39f3920686485c64191@linux-mips.org>
+	Thu, 31 Jul 2014 11:56:51 -0400
+In-Reply-To: <1406674412.24026.1.camel@fedora-lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yoichi Yuasa <yuasa@linux-mips.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-Hi Yoichi,
+On Tue, Jul 29, 2014 at 3:53 PM, Przemo Firszt <przemo@firszt.eu> wrote:
+> Dnia 2014-07-29, wto o godzinie 14:43 -0400, Benjamin Tissoires pisze:
+>> Bluetooth Intuos 4 use 1-bit definition while the USB ones use a 4-bits
+>> definition. This changes the size of the raw image we receive, and thus
+>> the kernel will only accept 1-bit images for Bluetooth and 4-bits for
+>> USB.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>  drivers/hid/wacom_sys.c | 29 +++++++++++++++++++++--------
+>>  1 file changed, 21 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+>> index f5c9c56..a12cd9c 100644
+>> --- a/drivers/hid/wacom_sys.c
+>> +++ b/drivers/hid/wacom_sys.c
+>> @@ -20,6 +20,7 @@
+>>  #define WAC_CMD_LED_CONTROL  0x20
+>>  #define WAC_CMD_ICON_START   0x21
+>>  #define WAC_CMD_ICON_XFER    0x23
+>> +#define WAC_CMD_ICON_BT_XFER 0x26
+>>  #define WAC_CMD_RETRIES              10
+>>
+>>  static int wacom_get_report(struct hid_device *hdev, u8 type, u8 id,
+>> @@ -526,12 +527,14 @@ static int wacom_led_control(struct wacom *wacom)
+>>       return retval;
+>>  }
+>>
+>> -static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *img)
+>> +static int wacom_led_putimage(struct wacom *wacom, int button_id, u8 xfer_id,
+>> +             const unsigned len, const void *img)
+>>  {
+>>       unsigned char *buf;
+>>       int i, retval;
+>> +     const unsigned chunk_len = len / 4; /* 4 chunks are needed to be sent */
+>>
+>> -     buf = kzalloc(259, GFP_KERNEL);
+>> +     buf = kzalloc(chunk_len + 3 , GFP_KERNEL);
+>>       if (!buf)
+>>               return -ENOMEM;
+>>
+>> @@ -543,15 +546,15 @@ static int wacom_led_putimage(struct wacom *wacom, int button_id, const void *im
+>>       if (retval < 0)
+>>               goto out;
+>>
+>> -     buf[0] = WAC_CMD_ICON_XFER;
+>> +     buf[0] = xfer_id;
+>>       buf[1] = button_id & 0x07;
+>>       for (i = 0; i < 4; i++) {
+>>               buf[2] = i;
+>> -             memcpy(buf + 3, img + i * 256, 256);
+>> +             memcpy(buf + 3, img + i * chunk_len, chunk_len);
+>>
+>>               retval = wacom_set_report(wacom->hdev, HID_FEATURE_REPORT,
+>> -                                       WAC_CMD_ICON_XFER,
+>> -                                       buf, 259, WAC_CMD_RETRIES);
+>> +                                       xfer_id, buf, chunk_len + 3,
+>> +                                       WAC_CMD_RETRIES);
+>>               if (retval < 0)
+>>                       break;
+>>       }
+>> @@ -652,13 +655,23 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
+>>       struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+>>       struct wacom *wacom = hid_get_drvdata(hdev);
+>>       int err;
+>> +     unsigned len;
+>> +     u8 xfer_id;
+>>
+>> -     if (count != 1024)
+>> +     if (hdev->bus == BUS_BLUETOOTH) {
+>> +             len = 256;
+>> +             xfer_id = WAC_CMD_ICON_BT_XFER;
+>> +     } else {
+>> +             len = 1024;
+>> +             xfer_id = WAC_CMD_ICON_XFER;
+>> +     }
+>> +
+>> +     if (count != len)
+>>               return -EINVAL;
+>>
+>>       mutex_lock(&wacom->lock);
+>>
+>> -     err = wacom_led_putimage(wacom, button_id, buf);
+>> +     err = wacom_led_putimage(wacom, button_id, xfer_id, len, buf);
+>>
+>>       mutex_unlock(&wacom->lock);
+>
+> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
 
-On Thursday 31 July 2014 04:24 PM, Yoichi Yuasa wrote:
-> Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
-> ---
->  drivers/input/touchscreen/Kconfig        |   11 +
->  drivers/input/touchscreen/Makefile       |    1 +
->  drivers/input/touchscreen/rohm_bu21023.c |  791 ++++++++++++++++++++++++++++++
->  drivers/input/touchscreen/rohm_bu21023.h |  255 ++++++++++
->  4 files changed, 1058 insertions(+)
+Reviewed-by: Ping Cheng <pingc@wacom.com>
 
-[snip]
+> I'll test the whole series tomorrow.
 
-> +
-> +/*
-> + * rohm_i2c_burst_read - execute combined I2C message for ROHM BU21023/24
-> + * @adap: Handle to I2C bus
-> + * @msgs: combined messages to execute
-> + * @num: Number of messages to be executed.
-> + *
-> + * Returns negative errno, else the number of messages executed.
-> + *
-> + * Note
-> + * In BU21023/24 burst read, stop condition is needed after "address write".
-> + * Therefore, transmission is performed in 2 steps.
-> + */
-> +static inline int rohm_i2c_burst_read(struct i2c_adapter *adap,
-> +				      struct i2c_msg *msgs, int num)
-> +{
-> +	int ret, i;
-> +
-> +	if (!adap->algo->master_xfer) {
-> +		dev_dbg(&adap->dev, "I2C level transfers not supported\n");
-Should it be dev_err?
+I'd like to see Przemo's Tested-by tag here as well. Przemo, are you
+done with your testing?
 
-> +		return -EOPNOTSUPP;
-> +	}
-> +
-> +	i2c_lock_adapter(adap);
-> +
-> +	for (i = 0; i < num; i++) {
-> +		ret = __i2c_transfer(adap, &msgs[i], 1);
-.
-[snip]
-.
-> +
-> +	return 0;
-> +}
-> +
-> +static int rohm_bu21023_i2c_probe(struct i2c_client *client,
-> +				  const struct i2c_device_id *id)
-> +{
-> +	struct rohm_ts_data *ts;
-> +	struct device *dev = &client->dev;
-> +	struct input_dev *input_dev;
-> +	int ret;
-> +
-> +	ts = kzalloc(sizeof(struct rohm_ts_data), GFP_KERNEL);
-Can you please move to managed resources? devm_kzalloc in this case?
+Thank you Przemo and Benjamin for your effort in making this
+transition smooth and successful. We, at Wacom, are very grateful to
+be part of this great community.
 
-> +	if (!ts)
-> +		return -ENOMEM;
-> +
-> +	INIT_WORK(&ts->work, rohm_ts_work_func);
-> +
-> +	ts->client = client;
-> +	i2c_set_clientdata(client, ts);
-> +
-> +	ret = rohm_ts_device_init(client);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to device initialization\n");
-> +		goto err_ts_free_exit;
-> +	}
-> +
-> +	input_dev = input_allocate_device();
-Same here as well. You can use devm_input_allocate_device here. These
-helps in error handling and clean unbinding of driver.
+Cheers,
 
-> +	if (!input_dev) {
-> +		ret = -ENOMEM;
-> +		dev_err(dev, "Failed to allocate input device\n");
-> +		goto err_ts_free_exit;
-> +	}
-> +
-> +	input_dev->name = BU21023_NAME;
-> +	input_dev->id.bustype = BUS_I2C;
-> +	input_dev->dev.parent = &client->dev;
-> +
-> +	ts->input_dev = input_dev;
-> +
-> +	set_bit(EV_SYN, input_dev->evbit);
-> +	set_bit(EV_KEY, input_dev->evbit);
-> +	set_bit(EV_ABS, input_dev->evbit);
-> +
-> +	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> +			     ROHM_TS_ABS_X_MIN, ROHM_TS_ABS_X_MAX, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> +			     ROHM_TS_ABS_Y_MIN, ROHM_TS_ABS_Y_MAX, 0, 0);
-> +
-> +	ret = input_register_device(input_dev);
-> +	if (ret) {
-> +		dev_err(dev, "Unable to register input device\n");
-> +		goto err_input_free_device_exit;
-> +	}
-> +
-> +	ts->workqueue = create_singlethread_workqueue("rohm_ts_wq");
-> +	if (!ts->workqueue) {
-> +		dev_err(dev, "Cannot create workqueue\n");
-> +		ret = -ENOMEM;
-> +		goto err_input_unregister_device_exit;
-> +	}
-> +
-> +	if (client->irq) {
-> +		ret = request_irq(client->irq, rohm_ts_irq_handler,
-> +				  IRQF_TRIGGER_FALLING, client->name, ts);
-Use devm_request_irq.
-> +
-> +		/* If the request IRQ failed, use polling mode */
-> +		if (!ret)
-> +			ts->use_irq = 1;
-> +	}
-> +
-> +	hrtimer_init(&ts->hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	ts->hrtimer.function = rohm_ts_timer_func;
-> +	if (!ts->use_irq)
-> +		hrtimer_start(&ts->hrtimer, INACTIVE_POLLING_INTERVAL_KTIME,
-> +			      HRTIMER_MODE_REL);
-> +
-> +	dev_info(dev, "%s mode\n", ts->use_irq ? "interrupt" : "polling");
-> +
-> +	return 0;
-> +
-> +err_input_unregister_device_exit:
-> +	input_unregister_device(input_dev);
-> +
-> +err_input_free_device_exit:
-> +	input_free_device(input_dev);
-> +
-> +err_ts_free_exit:
-> +	kfree(ts);
-> +
-> +	return ret;
-You can get rid of these lables with managed resources as they will be
-release automatically when device is unbinded.
-
-> +}
-> +
-> +static int rohm_bu21023_i2c_remove(struct i2c_client *client)
-> +{
-> +	struct rohm_ts_data *ts = i2c_get_clientdata(client);
-> +
-> +	if (ts->use_irq)
-> +		free_irq(client->irq, ts);
-Use of Managed resources will get rid of this as well.
-> +	else
-> +		hrtimer_cancel(&ts->hrtimer);
-> +
-> +	if (ts->workqueue)
-> +		destroy_workqueue(ts->workqueue);
-> +
-> +	input_unregister_device(ts->input_dev);
-This too.
-> +
-> +	i2c_smbus_write_byte_data(client, SYSTEM,
-> +				  ANALOG_POWER_ON | CPU_POWER_OFF);
-> +
-> +	i2c_smbus_write_byte_data(client, SYSTEM,
-> +				  ANALOG_POWER_OFF | CPU_POWER_OFF);
-> +
-> +	kfree(ts);
-This too.
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct i2c_device_id rohm_bu21023_i2c_id[] = {
-> +	{BU21023_NAME, 0},
-> +	{},
-> +};
-> +
-> +MODULE_DEVICE_TABLE(i2c, rohm_bu21023_i2c_id);
-> +
-> +static struct i2c_driver rohm_bu21023_i2c_driver = {
-> +	.driver = {
-> +		   .name = BU21023_NAME,
-> +		   },
-> +	.probe = rohm_bu21023_i2c_probe,
-> +	.remove = rohm_bu21023_i2c_remove,
-> +	.id_table = rohm_bu21023_i2c_id,
-> +};
-> +
-> +module_i2c_driver(rohm_bu21023_i2c_driver);
-> +
-> +MODULE_DESCRIPTION("ROHM BU21023/24 Touchscreen driver");
-> +MODULE_LICENSE("GPL");
-Make it GPL v2.
-MODULE_AUTHOR missing.
-
-> diff --git a/drivers/input/touchscreen/rohm_bu21023.h b/drivers/input/touchscreen/rohm_bu21023.h
-> new file mode 100644
-> index 0000000..2db32848
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/rohm_bu21023.h
-
-[snip]
-
-> 
+Ping

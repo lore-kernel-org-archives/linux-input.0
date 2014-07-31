@@ -1,48 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Add ROHM BU21023/24 Dual touch support resistive
- touchscreens
-Date: Thu, 31 Jul 2014 10:16:55 -0700
-Message-ID: <20140731171655.GA5631@core.coreip.homeip.net>
-References: <20140731195434.d141b39f3920686485c64191@linux-mips.org>
+From: simon@mungewell.org
+Subject: Re: PATCH hid: Implement mode switching on Logitech gaming wheels
+ accordingly to the documentation
+Date: Thu, 31 Jul 2014 13:29:57 -0400
+Message-ID: <f86b6b4fbf48ce4cbeb9b537794a4eb8.squirrel@mungewell.org>
+References: <3335238.KGDcEM6DjH@sigyn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:52948 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750911AbaGaRQ6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2014 13:16:58 -0400
-Received: by mail-pd0-f172.google.com with SMTP id ft15so3864316pdb.3
-        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2014 10:16:58 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20140731195434.d141b39f3920686485c64191@linux-mips.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3335238.KGDcEM6DjH@sigyn>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, edwin@velds.nl, "elias.vds@gmail.com" <elias.vds@gmail.com>, "simon@mungewell.org" <simon@mungewell.org>, Roland Bosa <rbosa@logitech.com>
 List-Id: linux-input@vger.kernel.org
-To: Yoichi Yuasa <yuasa@linux-mips.org>
-Cc: linux-input@vger.kernel.org
 
-Hi Yuichi,
 
-On Thu, Jul 31, 2014 at 07:54:34PM +0900, Yoichi Yuasa wrote:
-> Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
+> +#define LG4FF_MSW_MIN 0
+> +#define LG4FF_MSW_NATIVE 0	/* Switch device to its native mode (if
+> applicable) */
+> +#define LG4FF_MSW_DONTSWITCH 1	/* Leave device in its current mode */
+> +#define LG4FF_MSW_DFP 2		/* Switch device so that it emulates Driving
+> Force Pro (only G25, G27, DFGT) */
+> +#define LG4FF_MSW_G25 3		/* Switch device so that it emulates G25 (only
+> G27) */
+> +#define LG4FF_MSW_MAX 3
 
-I few high-level comments:
+Just to let everyone know I am looking at this patch, and have emailed
+Michal some questions on whether it covers all options for control.
 
-- please get rid of polling - it is not useful in production mode;
-- switch to threaded interrupts so that you do not need to manage
-  workqueue/work/timers;
-- new drivers should use MT-B protocol with proper contact tracking. If device
-  does not do good job at tracking contacts you can use input's core matching
-algorithm (input_mt_assign_slots).
-- please provide ST emulation as well (input_mt_report_pointer_emulation).
-- the way you requesting firmware in probe path means you need to build
-  firmware image into kernel or be careful how you pack it to avoid timeouts on
-  boot. Since the device properties are not changing you might want to postpone
-  that until somebody tries to open the device.
-- please add error handling for IO operations.
-- managed resources simplify the code.
-
-Thanks.
-
--- 
-Dmitry
+Cheers,
+Simon.

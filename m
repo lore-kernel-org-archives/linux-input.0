@@ -1,19 +1,25 @@
 From: Dexuan Cui <decui@microsoft.com>
-Subject: [PATCH] HID: hyperv: register as a wakeup source
-Date: Fri,  1 Aug 2014 07:26:41 -0700
-Message-ID: <1406903201-7210-1-git-send-email-decui@microsoft.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from p3plsmtps2ded04.prod.phx3.secureserver.net ([208.109.80.198]:48652
-	"EHLO p3plsmtps2ded04.prod.phx3.secureserver.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751008AbaHANYu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 Aug 2014 09:24:50 -0400
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH] Input: hyperv-keyboard: register as a wakeup source
+Date: Fri,  1 Aug 2014 07:28:24 -0700
+Message-ID: <1406903304-7256-1-git-send-email-decui@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, driverdev-devel@linuxdriverproject.org, olaf@aepfle.de, apw@canonical.com, jasowang@redhat.com
+Cc: haiyangz@microsoft.com
 List-Id: linux-input@vger.kernel.org
-To: gregkh@linuxfoundation.org, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, driverdev-devel@linuxdriverproject.org, olaf@aepfle.de, apw@canonical.com, jasowang@redhat.com
-Cc: kys@microsoft.com, haiyangz@microsoft.com
 
-With this patch, we can move the mouse to wake up the VM after the VM executes
+With this patch, we can press a key to wake up the VM after the VM executes
 "echo freeze > /sys/power/state".
 
 This addresses part of https://bugzilla.redhat.com/show_bug.cgi?id=1086100
@@ -21,40 +27,46 @@ This addresses part of https://bugzilla.redhat.com/show_bug.cgi?id=1086100
 Cc: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Dexuan Cui <decui@microsoft.com>
 ---
- drivers/hid/hid-hyperv.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/serio/hyperv-keyboard.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index f52dbcb..31fad64 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -308,6 +308,9 @@ static void mousevsc_on_receive(struct hv_device *device,
- 		memcpy(input_dev->input_buf, input_report->buffer, len);
- 		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
- 				 input_dev->input_buf, len, 1);
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+index 6132619..e74e5d6 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -170,6 +170,15 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
+ 			serio_interrupt(kbd_dev->hv_serio, scan_code, 0);
+ 		}
+ 		spin_unlock_irqrestore(&kbd_dev->lock, flags);
 +
-+		pm_wakeup_event(&input_dev->device->device, 0);
++		/*
++		 * Only trigger a wakeup on key down, otherwise
++		 * "echo freeze > /sys/power/state" can't really enter the
++		 * state because the Enter-UP can trigger a wakeup at once.
++		 */
++		if (!(info & IS_BREAK))
++			pm_wakeup_event(&hv_dev->device, 0);
 +
  		break;
+ 
  	default:
- 		pr_err("unsupported hid msg type - type %d len %d",
-@@ -549,6 +552,8 @@ static int mousevsc_probe(struct hv_device *device,
- 		goto probe_err2;
- 	}
+@@ -376,6 +385,9 @@ static int hv_kbd_probe(struct hv_device *hv_dev,
+ 		goto err_close_vmbus;
  
-+	device_init_wakeup(&device->device, true);
+ 	serio_register_port(kbd_dev->hv_serio);
 +
- 	input_dev->connected = true;
- 	input_dev->init_complete = true;
++	device_init_wakeup(&hv_dev->device, true);
++
+ 	return 0;
  
-@@ -571,6 +576,7 @@ static int mousevsc_remove(struct hv_device *dev)
+ err_close_vmbus:
+@@ -390,6 +402,7 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
  {
- 	struct mousevsc_dev *input_dev = hv_get_drvdata(dev);
+ 	struct hv_kbd_dev *kbd_dev = hv_get_drvdata(hv_dev);
  
-+	device_init_wakeup(&dev->device, false);
- 	vmbus_close(dev->channel);
- 	hid_hw_stop(input_dev->hid_device);
- 	hid_destroy_device(input_dev->hid_device);
++	device_init_wakeup(&hv_dev->device, false);
+ 	serio_unregister_port(kbd_dev->hv_serio);
+ 	vmbus_close(hv_dev->channel);
+ 	kfree(kbd_dev);
 -- 
 1.9.1
-

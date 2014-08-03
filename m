@@ -1,36 +1,40 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: Re: [PATCH 2/7] i2c: i2c-cros-ec-tunnel: Set retries to 3
-Date: Fri, 01 Aug 2014 20:05:57 +0200
-Message-ID: <53DBD705.2060706@collabora.co.uk>
-References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk> <1406549967-21291-3-git-send-email-javier.martinez@collabora.co.uk> <20140801175912.GF3277@katana>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: [Question: Drivers/input/evdev.c] How to get instance of struct evdev
+ in some driver ?
+Date: Sun, 3 Aug 2014 12:05:11 +0530
+Message-ID: <CADYu30-RSdvCmtyn0NmZ4weDsgqhcieV86s9+7OTVJOQEQiSpA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20140801175912.GF3277@katana>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f53.google.com ([209.85.215.53]:50320 "EHLO
+	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750860AbaHCGfN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Aug 2014 02:35:13 -0400
+Received: by mail-la0-f53.google.com with SMTP id gl10so4478532lab.12
+        for <linux-input@vger.kernel.org>; Sat, 02 Aug 2014 23:35:11 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello Wolfram,
+Dear Mr. Torokhov and Linux-Input Community,
+Greetings of the day !! :)
 
-On 08/01/2014 07:59 PM, Wolfram Sang wrote:
->>  
->> +#define I2C_MAX_RETRIES 3
-> 
-> I think a define for this is overkill, yet I don't really mind.
->
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
->
+I am stuck at one point and could not find the solution over internet.
+Can you please help in answering my query below:
 
-Thanks a lot.
+As you know, struct evdev is defined in evdev.c and not in some header file.
+So, Is it possible to get instance of struct evdev in some input
+peripheral driver ?
+If possible, then how can we get it ?
 
-> I assume this goes via MFD, let me know if I should take it.
-> 
+In the input peripheral driver,
+we can get instance struct input_dev by including input.h file
+and then calling input_allocate_device().
+struct input_dev = input_allocate_device();
 
-Yes, if possible I prefer if all the series are picked by Lee Jones to avoid any
-dependencies.
+May be evdev is embedded somewhere in input_dev.
+So, can we get the instance of evdev using input_dev ?
 
-Best regards,
-Javier
+Thanks in Advance !
+
+-- Aniroop Mathur

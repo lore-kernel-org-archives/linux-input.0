@@ -1,69 +1,70 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v4] Input - wacom: add copyright note and bump version to 2.0
-Date: Tue,  5 Aug 2014 11:05:43 -0400
-Message-ID: <1407251143-10044-1-git-send-email-benjamin.tissoires@redhat.com>
-References: <1406659385-3256-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input - wacom: only register once the MODULE_* macros
+Date: Tue,  5 Aug 2014 11:08:12 -0400
+Message-ID: <1407251292-10177-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59622 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:15442 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754689AbaHEPGJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Aug 2014 11:06:09 -0400
-In-Reply-To: <1406659385-3256-7-git-send-email-benjamin.tissoires@redhat.com>
+	id S1755077AbaHEPIe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Aug 2014 11:08:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Reviewed-by: Ping Cheng <pingc@wacom.com>
-Tested-by: Przemo Firszt <przemo@firszt.eu>
+Putting the various MODULE_* makes them appear several times in modinfo
+because wacom.h is used both in wacom_sys.c and wacom_wac.h.
+Having the macros near the module declaration makes them appear only once.
+
+Add also MODULE_VERSION(DRIVER_VERSION) to export the current version
+number.
+
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-changes in v4:
-- also update the DRIVER_VERSION macro
+Dmitry,
 
-Hi Dmitry,
-
-if you could replace the v3 of this patch by this v4 in your pull request
-to Linus, that would be better. Ping notified me about this last Friday, so I
-kept her Rev-by.
+I guess this one could sneak on top of your pull request too.
+If not, then I'll push Jiri to take it in one of the future rc :)
 
 Cheers,
 Benjamin
 
- drivers/hid/wacom.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/wacom.h     | 4 ----
+ drivers/hid/wacom_sys.c | 5 +++++
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index 0b89ee7..8cc4406 100644
+index 8cc4406..64bc1b2 100644
 --- a/drivers/hid/wacom.h
 +++ b/drivers/hid/wacom.h
-@@ -12,6 +12,7 @@
-  *  Copyright (c) 2001 Frederic Lepied		<flepied@mandrakesoft.com>
-  *  Copyright (c) 2004 Panagiotis Issaris	<panagiotis.issaris@mech.kuleuven.ac.be>
-  *  Copyright (c) 2002-2011 Ping Cheng		<pingc@wacom.com>
-+ *  Copyright (c) 2014 Benjamin Tissoires	<benjamin.tissoires@redhat.com>
-  *
-  *  ChangeLog:
-  *      v0.1 (vp)  - Initial release
-@@ -72,6 +73,8 @@
-  *      v1.52 (pc) - Query Wacom data upon system resume
-  *                 - add defines for features->type
-  *                 - add new devices (0x9F, 0xE2, and 0XE3)
-+ *      v2.00 (bt) - conversion to a HID driver
-+ *                 - integration of the Bluetooth devices
-  */
- 
- /*
-@@ -93,7 +96,7 @@
- /*
-  * Version Information
-  */
--#define DRIVER_VERSION "v1.53"
-+#define DRIVER_VERSION "v2.00"
- #define DRIVER_AUTHOR "Vojtech Pavlik <vojtech@ucw.cz>"
+@@ -101,10 +101,6 @@
  #define DRIVER_DESC "USB Wacom tablet driver"
  #define DRIVER_LICENSE "GPL"
+ 
+-MODULE_AUTHOR(DRIVER_AUTHOR);
+-MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
+-
+ #define USB_VENDOR_ID_WACOM	0x056a
+ #define USB_VENDOR_ID_LENOVO	0x17ef
+ 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 6e0c191..ff4ec50 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1437,6 +1437,11 @@ static int wacom_reset_resume(struct hid_device *hdev)
+ 	return wacom_resume(hdev);
+ }
+ 
++MODULE_VERSION(DRIVER_VERSION);
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE(DRIVER_LICENSE);
++
+ static struct hid_driver wacom_driver = {
+ 	.name =		"wacom",
+ 	.id_table =	wacom_ids,
 -- 
 2.0.4
 

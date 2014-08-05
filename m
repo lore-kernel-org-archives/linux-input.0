@@ -1,55 +1,26 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: Re: [PATCH] Input - wacom: update the ABI doc according to latest
- changes
-Date: Tue, 05 Aug 2014 15:53:22 +0000
-Message-ID: <20140805155322.Horde.z62yLr1B-ZT7v4rMGcPaVA9@webmail.firszt.eu>
-References: <1407252899-10293-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Michael Welling <mwelling@emacinc.com>
+Subject: TSC2004 driver
+Date: Tue, 5 Aug 2014 12:06:40 -0500
+Message-ID: <20140805170640.GA8830@sysresccd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed; DelSp=Yes
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from si-002-i47.relay.mailchannels.net ([184.154.112.221]:51354 "EHLO
-	relay.mailchannels.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753119AbaHEPxb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Aug 2014 11:53:31 -0400
-In-Reply-To: <1407252899-10293-1-git-send-email-benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, hvaibhav@ti.com
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
+The TSC2004 driver has yet to appear in the mainline kernel. We have
+been using the driver referenced here as provided by TI:
 
-Quoting Benjamin Tissoires <benjamin.tissoires@redhat.com>:
+https://www.mail-archive.com/linux-omap@vger.kernel.org/msg22018.html
 
-> Now the devices show up under hid no matter the connection. So update the
-> sysfs path to the shortest and common one.
-> The ABI has also been unified regarding the OLEDs, but Bluetooth handle
-> only 1-bit images instead of 4.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Guys,
->
-> by updating this and working on the g-s-d client side for OLEDs, I think now
-> that we should also keep the oled*_img for Bluetooth and implement this file
-> for USB too. The user space code gets messy quite fast due to the need to
-> support old and new kernels, whereas if we handle the scrambling in  
-> the kernel,
-> it should be quite straightforward.
-> Of course, we have to keep the current button<n>_rawimg for backward
-> compatibility.
-[..]
-Hi Benjamin,
-For whatever it's worth, you have my vote for scrambling for usb/bt in  
-the kernel.
-I'm not sure about requirement for backward compatibility (the user space will
-be broken anyway).
+Are there any plans of supporting this device in the mainline kernel?
 
-I proposed it a while ago [1]
+Mysteriously a device tree entry was found in the following file:
+arch/arm/boot/dts/omap4-var-som-om44.dtsi
 
-[1] http://www.gossamer-threads.com/lists/linux/kernel/1593583
+This is obviously pointing to an out of tree driver that is not easily
+obtained.
 
-Regards,
-Przemo Firszt
-
+Suggestions?

@@ -1,79 +1,236 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: hyperv-keyboard: register as a wakeup source
-Date: Wed, 6 Aug 2014 13:33:39 -0700
-Message-ID: <20140806203339.GA22889@core.coreip.homeip.net>
-References: <1406903304-7256-1-git-send-email-decui@microsoft.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input - wacom: update the ABI doc according to latest
+ changes
+Date: Wed, 6 Aug 2014 16:44:08 -0400
+Message-ID: <20140806204408.GC15018@mail.corp.redhat.com>
+References: <1407252899-10293-1-git-send-email-benjamin.tissoires@redhat.com>
+ <CAF8JNhKQAZz_a-=5qyqS4rgdv-8Lr=i=uKJMwz_iR4c7cq-cvg@mail.gmail.com>
+ <20140805213436.GC29591@mail.corp.redhat.com>
+ <CAF8JNhKR8uDB4AS5B00y-m7MCH6H8CHGegRb+W8ahS+gdtveNg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:59512 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753151AbaHFUdn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Aug 2014 16:33:43 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:20411 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751549AbaHFUoc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Aug 2014 16:44:32 -0400
 Content-Disposition: inline
-In-Reply-To: <1406903304-7256-1-git-send-email-decui@microsoft.com>
+In-Reply-To: <CAF8JNhKR8uDB4AS5B00y-m7MCH6H8CHGegRb+W8ahS+gdtveNg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dexuan Cui <decui@microsoft.com>
-Cc: gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, driverdev-devel@linuxdriverproject.org, olaf@aepfle.de, apw@canonical.com, jasowang@redhat.com, kys@microsoft.com, haiyangz@microsoft.com
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-On Fri, Aug 01, 2014 at 07:28:24AM -0700, Dexuan Cui wrote:
-> With this patch, we can press a key to wake up the VM after the VM executes
-> "echo freeze > /sys/power/state".
+On Aug 05 2014 or thereabouts, Ping Cheng wrote:
+> On Tue, Aug 5, 2014 at 2:34 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > Hi Ping,
+> >
+> > On Aug 05 2014 or thereabouts, Ping Cheng wrote:
+> >> Thank you Benjamin for updating the ABI docs. My comments are inline.
+> >>
+> >> With those lines updated, this patch is:
+> >>
+> >> Reviewed-by: Ping Cheng <pingc@wacom.com>
+> >
+> > Thanks!
+> >
+> >>
+> >> Cheers,
+> >>
+> >> Ping
+> >>
+> >> On Tue, Aug 5, 2014 at 8:34 AM, Benjamin Tissoires
+> >> <benjamin.tissoires@redhat.com> wrote:
+> >> > Now the devices show up under hid no matter the connection. So update the
+> >> > sysfs path to the shortest and common one.
+> >> > The ABI has also been unified regarding the OLEDs, but Bluetooth handle
+> >> > only 1-bit images instead of 4.
+> >> >
+> >> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >> > ---
+> >> >
+> >> > Guys,
+> >> >
+> >> > by updating this and working on the g-s-d client side for OLEDs, I think now
+> >> > that we should also keep the oled*_img for Bluetooth and implement this file
+> >> > for USB too. The user space code gets messy quite fast due to the need to
+> >> > support old and new kernels, whereas if we handle the scrambling in the kernel,
+> >> > it should be quite straightforward.
+> >> > Of course, we have to keep the current button<n>_rawimg for backward
+> >> > compatibility.
+> >> >
+> >> > Any thoughts?
+> >> >
+> >> > Cheers,
+> >> > Benjamin
+> >> >
+> >> >  Documentation/ABI/testing/sysfs-driver-wacom | 56 ++++++++++------------------
+> >> >  1 file changed, 20 insertions(+), 36 deletions(-)
+> >> >
+> >> > diff --git a/Documentation/ABI/testing/sysfs-driver-wacom b/Documentation/ABI/testing/sysfs-driver-wacom
+> >> > index 7fc7810..c75ed4c 100644
+> >> > --- a/Documentation/ABI/testing/sysfs-driver-wacom
+> >> > +++ b/Documentation/ABI/testing/sysfs-driver-wacom
+> >> > @@ -1,47 +1,26 @@
+> >> > -WWhat:         /sys/class/hidraw/hidraw*/device/oled*_img
+> >> > -Date:          June 2012
+> >> > -Contact:       linux-bluetooth@vger.kernel.org
+> >> > -Description:
+> >> > -               The /sys/class/hidraw/hidraw*/device/oled*_img files control
+> >> > -               OLED mocro displays on Intuos4 Wireless tablet. Accepted image
+> >> > -               has to contain 256 bytes (64x32 px 1 bit colour). The format
+> >> > -               is the same as PBM image 62x32px without header (64 bits per
+> >> > -               horizontal line, 32 lines). An example of setting OLED No. 0:
+> >> > -               dd bs=256 count=1 if=img_file of=[path to oled0_img]/oled0_img
+> >> > -               The attribute is read only and no local copy of the image is
+> >> > -               stored.
+> >> > -
+> >> > -What:          /sys/class/hidraw/hidraw*/device/speed
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/speed
+> >> >  Date:          April 2010
+> >>
+> >> Should the Date be updated?
+> >
+> > I don't think that this one should. The ABI is the same since April
+> > 2010, and the "new" path works also for older kernels. So basically,
+> > here, for Bluetooth, there has been no changes.
 > 
-> This addresses part of https://bugzilla.redhat.com/show_bug.cgi?id=1086100
+> Oh, I see your point. But, don't we consider path part of the interface?
+> 
 
-I am sorry but this bug is not open to the public. Please avoid
-mentioning such bugs in changelogs. Otherwise I'll apply it.
+Well, in this case, both the path /sys/class/hidraw/hidraw*/device/speed
+and /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/speed refers to the same
+device, even in April 2010.
+
+/sys/class/hidraw/hidraw*/device is IMO not accurate because you have to
+check all the hidraw devices to find the right one.
+/sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/speed gives you the correct
+at first sight. This is just a fix to have a more reliable path in the
+documentation, not a change.
+
+Cheers,
+Benjamin
 
 > 
-> Cc: K. Y. Srinivasan <kys@microsoft.com>
-> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> ---
->  drivers/input/serio/hyperv-keyboard.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-> index 6132619..e74e5d6 100644
-> --- a/drivers/input/serio/hyperv-keyboard.c
-> +++ b/drivers/input/serio/hyperv-keyboard.c
-> @@ -170,6 +170,15 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
->  			serio_interrupt(kbd_dev->hv_serio, scan_code, 0);
->  		}
->  		spin_unlock_irqrestore(&kbd_dev->lock, flags);
-> +
-> +		/*
-> +		 * Only trigger a wakeup on key down, otherwise
-> +		 * "echo freeze > /sys/power/state" can't really enter the
-> +		 * state because the Enter-UP can trigger a wakeup at once.
-> +		 */
-> +		if (!(info & IS_BREAK))
-> +			pm_wakeup_event(&hv_dev->device, 0);
-> +
->  		break;
->  
->  	default:
-> @@ -376,6 +385,9 @@ static int hv_kbd_probe(struct hv_device *hv_dev,
->  		goto err_close_vmbus;
->  
->  	serio_register_port(kbd_dev->hv_serio);
-> +
-> +	device_init_wakeup(&hv_dev->device, true);
-> +
->  	return 0;
->  
->  err_close_vmbus:
-> @@ -390,6 +402,7 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
->  {
->  	struct hv_kbd_dev *kbd_dev = hv_get_drvdata(hv_dev);
->  
-> +	device_init_wakeup(&hv_dev->device, false);
->  	serio_unregister_port(kbd_dev->hv_serio);
->  	vmbus_close(hv_dev->channel);
->  	kfree(kbd_dev);
-> -- 
-> 1.9.1
-> 
-
--- 
-Dmitry
+> >>
+> >> >  Kernel Version:        2.6.35
+> >>
+> >> This patch is planned for 3.16, right?
+> >
+> > Same comment than before (about not touching it).
+> > This will be planned for 3.17, 3.16 has been out last Sunday.
+> >
+> >>
+> >> >  Contact:       linux-bluetooth@vger.kernel.org
+> >> >  Description:
+> >> > -               The /sys/class/hidraw/hidraw*/device/speed file controls
+> >> > -               reporting speed of Wacom bluetooth tablet. Reading from
+> >> > -               this file returns 1 if tablet reports in high speed mode
+> >> > +               The /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/speed file
+> >> > +               controls reporting speed of Wacom bluetooth tablet. Reading
+> >> > +               from this file returns 1 if tablet reports in high speed mode
+> >> >                 or 0 otherwise. Writing to this file one of these values
+> >> >                 switches reporting speed.
+> >> >
+> >> > -What:          /sys/class/leds/0005\:056A\:00BD.0001\:selector\:*/
+> >> > -Date:          May 2012
+> >> > -Kernel Version:        3.5
+> >> > -Contact:       linux-bluetooth@vger.kernel.org
+> >> > -Description:
+> >> > -               LED selector for Intuos4 WL. There are 4 leds, but only one LED
+> >> > -               can be lit at a time. Max brightness is 127.
+> >> > -
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/led
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/led
+> >> >  Date:          August 2011
+> >>
+> >> Same here and other 6 dates below
+> >
+> > We can probably update these dates. I let them untouched because the
+> > ABI did not changed but only the path did.
+> >
+> >>
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> >                 Attribute group for control of the status LEDs and the OLEDs.
+> >> >                 This attribute group is only available for Intuos 4 M, L,
+> >> > -               and XL (with LEDs and OLEDs), Intuos 5 (LEDs only), and Cintiq
+> >> > -               21UX2 and Cintiq 24HD (LEDs only). Therefore its presence
+> >> > -               implicitly signifies the presence of said LEDs and OLEDs on the
+> >> > -               tablet device.
+> >> > +               and XL (with LEDs and OLEDs), Intuos 4 WL, Intuos 5 (LEDs only),
+> >> > +               Intuos Pro (LEDs only) and Cintiq 21UX2 and Cintiq 24HD
+> >> > +               (LEDs only). Therefore its presence implicitly signifies the
+> >> > +               presence of said LEDs and OLEDs on the tablet device.
+> >> >
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status0_luminance
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/status0_luminance
+> >> >  Date:          August 2011
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> > @@ -50,7 +29,7 @@ Description:
+> >> >                 button is pressed on the stylus. This luminance level is
+> >> >                 normally lower than the level when a button is pressed.
+> >> >
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status1_luminance
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/status1_luminance
+> >> >  Date:          August 2011
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> > @@ -58,7 +37,7 @@ Description:
+> >> >                 when the stylus touches the tablet surface, or any button is
+> >> >                 pressed on the stylus.
+> >> >
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led0_select
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/status_led0_select
+> >> >  Date:          August 2011
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> > @@ -67,7 +46,7 @@ Description:
+> >> >                 24HD) status LEDs is active (0..3). The other three LEDs on the
+> >> >                 same side are always inactive.
+> >> >
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/status_led1_select
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/status_led1_select
+> >> >  Date:          September 2011
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> > @@ -75,14 +54,14 @@ Description:
+> >> >                 and Cintiq 24HD) status LEDs is active (0..3). The other three LEDs on
+> >> >                 the left are always inactive.
+> >> >
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/buttons_luminance
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/buttons_luminance
+> >> >  Date:          August 2011
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> >                 Writing to this file sets the overall luminance level (0..15)
+> >>
+> >> We need to specify that this ABI is only for Intuos 4 (USB and Bluetooth).
+> >
+> > Yep. We can carry this fix too in this patch.
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >>
+> >> >                 of all eight button OLED displays.)
+> >> >
+> >> > -What:          /sys/bus/usb/devices/<busnum>-<devnum>:<cfg>.<intf>/wacom_led/button<n>_rawimg
+> >> > +What:          /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/wacom_led/button<n>_rawimg
+> >> >  Date:          August 2011
+> >> >  Contact:       linux-input@vger.kernel.org
+> >> >  Description:
+> >> > @@ -93,3 +72,8 @@ Description:
+> >> >                 byte chunk encodes the image data for two consecutive lines on
+> >> >                 the display. The low nibble of each byte contains the first
+> >> >                 line, and the high nibble contains the second line.
+> >> > +               When the Wacom Intuos 4 is connected over Bluetooth, the
+> >> > +               image has to contain 256 bytes (64x32 px 1 bit colour).
+> >> > +               The format is also scrambled, like in the USB mode, and it can
+> >> > +               be summarized by converting 76543210 into GECA6420.
+> >> > +                                           HGFEDCBA      HFDB7531
+> >> > --
+> >> > 2.0.4
+> >> >

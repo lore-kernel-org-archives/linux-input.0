@@ -1,25 +1,41 @@
-From: KM <kmh09791@gmail.com>
-Subject: Hi
-Date: Wed,  6 Aug 2014 08:19:28 +0300 (FET)
-Message-ID: <20140806053407.1B235523564@steveas.by>
-Reply-To: groll_8@rediffmail.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: TSC2004 driver
+Date: Wed, 6 Aug 2014 12:37:27 -0700
+Message-ID: <20140806193727.GB24718@core.coreip.homeip.net>
+References: <20140805170640.GA8830@sysresccd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from steveas.by ([31.130.202.82]:54367 "EHLO steveas.by"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753680AbaHFLte (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Aug 2014 07:49:34 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140805170640.GA8830@sysresccd>
+Sender: linux-omap-owner@vger.kernel.org
+To: Michael Welling <mwelling@emacinc.com>
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, hvaibhav@ti.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Can I talk to you, I will be very glad if you permit me to talk to you for an important deal.
+Hi Michael,
 
+On Tue, Aug 05, 2014 at 12:06:40PM -0500, Michael Welling wrote:
+> The TSC2004 driver has yet to appear in the mainline kernel. We have
+> been using the driver referenced here as provided by TI:
+> 
+> https://www.mail-archive.com/linux-omap@vger.kernel.org/msg22018.html
+> 
+> Are there any plans of supporting this device in the mainline kernel?
 
-Regards,
+I still believe that support for TSC2004 should be added 5to tsc2007, they are
+too much alike to be separate drivers.
 
-KM.
+> 
+> Mysteriously a device tree entry was found in the following file:
+> arch/arm/boot/dts/omap4-var-som-om44.dtsi
+> 
+> This is obviously pointing to an out of tree driver that is not easily
+> obtained.
+> 
+> Suggestions?
 
+Thanks.
 
+-- 
+Dmitry

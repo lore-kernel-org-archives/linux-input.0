@@ -1,59 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - Fix double free of input device
-Date: Thu, 7 Aug 2014 09:55:45 -0700
-Message-ID: <20140807165545.GB22421@core.coreip.homeip.net>
+Subject: Re: Minor fixes for atmel_mxt_ts
+Date: Thu, 7 Aug 2014 09:59:32 -0700
+Message-ID: <20140807165932.GA23198@core.coreip.homeip.net>
 References: <1407420438-6289-1-git-send-email-nick.dyer@itdev.co.uk>
- <1407420438-6289-2-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:61080 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932567AbaHGQzu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Aug 2014 12:55:50 -0400
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:44337 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932538AbaHGQ7g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Aug 2014 12:59:36 -0400
 Content-Disposition: inline
-In-Reply-To: <1407420438-6289-2-git-send-email-nick.dyer@itdev.co.uk>
+In-Reply-To: <1407420438-6289-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: nick.dyer@itdev.co.uk
 Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@wwwdotorg.org>
 
-On Thu, Aug 07, 2014 at 03:07:17PM +0100, nick.dyer@itdev.co.uk wrote:
-> From: Stephen Warren <swarren@wwwdotorg.org>
-> 
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 03b8571..da497db 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -1353,8 +1353,10 @@ static int mxt_get_info(struct mxt_data *data)
->  
->  static void mxt_free_object_table(struct mxt_data *data)
->  {
-> -	input_unregister_device(data->input_dev);
-> -	data->input_dev = NULL;
-> +	if (data->input_dev) {
-> +		input_unregister_device(data->input_dev);
-> +		data->input_dev = NULL;
-> +	}
->  
->  	kfree(data->object_table);
->  	data->object_table = NULL;
-> @@ -2194,7 +2196,6 @@ static int mxt_remove(struct i2c_client *client)
->  
->  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
->  	free_irq(data->irq, data);
-> -	input_unregister_device(data->input_dev);
->  	mxt_free_object_table(data);
->  	kfree(data);
+Hi Nick,
 
-No. Let's have mxt_free_object_table() only free object table, and let's
-call input_unregister_device() explicitly where needed, like we do in
-mxt_remove().
+On Thu, Aug 07, 2014 at 03:07:16PM +0100, nick.dyer@itdev.co.uk wrote:
+> Hi Dmitry-
+> 
+> It would be good to get these minor fixes applied to atmel_mxt_ts.
+>
+
+I applied your 2nd batch but it will have to go in 2nd batch as I am
+ready to post pull request.
+
+BTW, did you have any issues with the 2 patches I posted a couple weeks
+ago or I can apply them as well?
 
 Thanks.
 

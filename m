@@ -1,35 +1,43 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH 1/1] ARM: dts: Add Peach Pit and Pi dts entry for atmel touchpad
-Date: Wed, 6 Aug 2014 19:18:02 -0700
-Message-ID: <CAD=FV=VinL5msfGUrxT06vDiRW2ZCGU4cJpgQ5rhxTdrZihxYw@mail.gmail.com>
-References: <1407373713-26281-1-git-send-email-javier.martinez@collabora.co.uk>
-	<CAOMZO5CsUKuAcDMzHhy32457ihGqEBTdUijDbwA7QwUqq-ukbQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH] HID:hid-logitech: Prevent possibility of infinite loop when using /sys interface
+Date: Wed,  6 Aug 2014 20:52:31 -0600
+Message-ID: <1407379951-7038-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:62253 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754766AbaHGCSD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Aug 2014 22:18:03 -0400
-Received: by mail-vc0-f170.google.com with SMTP id lf12so5334761vcb.15
-        for <linux-input@vger.kernel.org>; Wed, 06 Aug 2014 19:18:02 -0700 (PDT)
-In-Reply-To: <CAOMZO5CsUKuAcDMzHhy32457ihGqEBTdUijDbwA7QwUqq-ukbQ@mail.gmail.com>
+Received: from smtp-out-02.shaw.ca ([64.59.136.138]:3144 "EHLO
+	smtp-out-02.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754510AbaHGDCH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Aug 2014 23:02:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Kukjin Kim <kgene.kim@samsung.com>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
 
-Fabio,
+If the device data is not accessible for some reason, returning 0 will cause the call to be
+continuously called again as none of the string has been 'consumed'.
+---
+ drivers/hid/hid-lg4ff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On Wed, Aug 6, 2014 at 6:35 PM, Fabio Estevam <festevam@gmail.com> wrote:
-> On Wed, Aug 6, 2014 at 10:08 PM, Javier Martinez Canillas
-> <javier.martinez@collabora.co.uk> wrote:
->
->> +&hsi2c_8 {
->> +       status = "okay";
->> +       clock-frequency = <333000>;
->
-> Doesn't it work at the more standard 400kHz i2c frequency?
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index cc2bd20..7835717 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -451,13 +451,13 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
+ 	drv_data = hid_get_drvdata(hid);
+ 	if (!drv_data) {
+ 		hid_err(hid, "Private driver data not found!\n");
+-		return 0;
++		return -EINVAL;
+ 	}
+ 
+ 	entry = drv_data->device_props;
+ 	if (!entry) {
+ 		hid_err(hid, "Device properties not found!\n");
+-		return 0;
++		return -EINVAL;
+ 	}
+ 
+ 	if (range == 0)
+-- 
+1.9.1
 
-I'm pretty sure that they had signaling problems at 400kHz, but
-perhaps Benson will rememer.

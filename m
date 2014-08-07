@@ -1,76 +1,22 @@
-From: Tomasz Figa <tomasz.figa@gmail.com>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - Get IRQ edge/level flags on
- DT booting
-Date: Thu, 07 Aug 2014 03:14:32 +0200
-Message-ID: <53E2D2F8.7010606@gmail.com>
-References: <1407372486-25881-1-git-send-email-javier.martinez@collabora.co.uk>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH 1/1] ARM: dts: Add Peach Pit and Pi dts entry for atmel touchpad
+Date: Wed, 6 Aug 2014 22:35:42 -0300
+Message-ID: <CAOMZO5CsUKuAcDMzHhy32457ihGqEBTdUijDbwA7QwUqq-ukbQ@mail.gmail.com>
+References: <1407373713-26281-1-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:64421 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754174AbaHGBOi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Aug 2014 21:14:38 -0400
-In-Reply-To: <1407372486-25881-1-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1407373713-26281-1-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Kukjin Kim <kgene.kim@samsung.com>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Javier,
+On Wed, Aug 6, 2014 at 10:08 PM, Javier Martinez Canillas
+<javier.martinez@collabora.co.uk> wrote:
 
-On 07.08.2014 02:48, Javier Martinez Canillas wrote:
-> The Atmel maXTouch driver assumed that the IRQ type flags will
-> always be passed using platform data but this is not true when
-> booting using Device Trees. In these setups the interrupt type
-> was ignored by the driver when requesting an IRQ.
-> 
-> This means that it will fail if a machine specified other type
-> than IRQ_TYPE_NONE. The right approach is to get the IRQ flags
-> that was parsed by OF from the "interrupt" Device Tree propery.
+> +&hsi2c_8 {
+> +       status = "okay";
+> +       clock-frequency = <333000>;
 
-Have you observed an actual failure due to this? I believe that
-irq_of_parse_and_map() already sets up IRQ trigger type based on DT
-data, by calling irq_create_of_mapping() which in turn calls
-irq_set_irq_type().
-
-> 
-> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 03b8571..0fb56c9 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -22,6 +22,7 @@
->  #include <linux/i2c.h>
->  #include <linux/i2c/atmel_mxt_ts.h>
->  #include <linux/input/mt.h>
-> +#include <linux/irq.h>
->  #include <linux/interrupt.h>
->  #include <linux/of.h>
->  #include <linux/slab.h>
-> @@ -2130,6 +2131,7 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	struct mxt_data *data;
->  	const struct mxt_platform_data *pdata;
->  	int error;
-> +	unsigned long irqflags;
->  
->  	pdata = dev_get_platdata(&client->dev);
->  	if (!pdata) {
-> @@ -2156,8 +2158,13 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	init_completion(&data->reset_completion);
->  	init_completion(&data->crc_completion);
->  
-> +	if (client->dev.of_node)
-> +		irqflags = irq_get_trigger_type(client->irq);
-
-It might be a bit cleaner to just assign the flags to pdata->irqflags in
-mxt_parse_dt() instead. That would also account for the fact that pdata,
-if provided, should have priority over DT.
-
-Best regards,
-Tomasz
+Doesn't it work at the more standard 400kHz i2c frequency?

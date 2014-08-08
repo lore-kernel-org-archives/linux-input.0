@@ -1,24 +1,28 @@
-From: Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 1/1] Input: atmel_mxt_ts - Get IRQ edge/level flags
- on DT booting
-Date: Fri, 08 Aug 2014 20:41:06 +0200
-Message-ID: <53E519C2.9060405@gmail.com>
-References: <1407397492-17475-1-git-send-email-javier.martinez@collabora.co.uk> <53E4D9A5.908@itdev.co.uk> <20140808162146.GC26820@core.coreip.homeip.net> <53E4FD1B.6060600@collabora.co.uk> <53E5170C.10302@collabora.co.uk>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v2 1/1] Input: atmel_mxt_ts - Get IRQ edge/level flags on
+ DT booting
+Date: Fri, 8 Aug 2014 13:54:10 -0700
+Message-ID: <CAD=FV=WSNqjHLLbTh1LBF3RFrCnWnj498hivivcmx1SbuYp=Hw@mail.gmail.com>
+References: <1407397492-17475-1-git-send-email-javier.martinez@collabora.co.uk>
+	<53E4D9A5.908@itdev.co.uk>
+	<20140808162146.GC26820@core.coreip.homeip.net>
+	<53E4FD1B.6060600@collabora.co.uk>
+	<53E5170C.10302@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53E5170C.10302-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Nick Dyer <nick.dyer-8YpZQSjhsQH10XsdtD+oqA@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Yufeng Shen <miletus-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Abraham <thomas.ab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <53E5170C.10302@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, Tomasz Figa <tomasz.figa@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Abraham <thomas.ab@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-+CC Linus, as this became also pinctrl related.
+Hi,
 
-On 08.08.2014 20:29, Javier Martinez Canillas wrote:
+On Fri, Aug 8, 2014 at 11:29 AM, Javier Martinez Canillas
+<javier.martinez@collabora.co.uk> wrote:
 > Hello,
-> 
+>
 > On 08/08/2014 06:38 PM, Javier Martinez Canillas wrote:
 >>
 >>
@@ -27,50 +31,40 @@ On 08.08.2014 20:29, Javier Martinez Canillas wrote:
 >> Does this make any sense? Maybe is related to the pin not being muxed in the
 >> correct function when the "interrupts" property is parsed by OF?
 >>
-> 
+>
 > So after a conversation with Tomasz Figa over IRC the problem was after all that
 > the pin was reconfigured. The IRQ trigger type resulted to be just a red herring
 > and not a direct cause.
-> 
+>
 > The pinctrl-eyxnos driver does the IRQ pinmux setup in the .irq_set_type
 > function handler. So what happened was that OF parsed the "interrupts" property
 > and called exynos_irq_set_type() which did the pinmux setup.
-> 
+>
 > But after that, due a DTS pinctrl configuration the pin function was changed as
 > a GPIO input and that happened before the atmel driver was probed. So when the
 > driver called request_threaded_irq(), the correct flags were used but the pin
 > was not configured as an IRQ anymore so IRQ were not fired.
-> 
+>
 > Setting a trigger type just had the side effect of calling exynos_irq_set_type()
 > which again setup the pin as an IRQ.
-> 
+>
 > To fix the issue a variation of patch [0] will be posted that moves the IRQ
 > pinmux setup from .irq_set_type to the .irq_request_resources function handler.
 > That way the pin will be setup as IRQ regardless of the the trigger type [1]
 > when someone calls request_[threaded]_irq().
-> 
+>
 > Only the mentioned patch fixes the issue but Tomasz said that even a call to
 > gpio_direction_{input,output} can change the pin configuration so he will post
 > another patch that will add a bit mask to samsung_pin_bank to prevent any pinmux
 > reconfiguration.
 
-To add a bit more information about the hardware, setting up a GPIO
-interrupt on Samsung SoCs is a two-step operation - in addition to
-trigger configuration in a dedicated register, the pinmux must be also
-reconfigured to GPIO interrupt, which is a different function than
-normal GPIO input, although I/O-wise they both behave in the same way
-and gpio_get_value() can be used on a pin configured as IRQ as well.
+Would just making a device tree change fix this?  AKA for the pin, do:
 
-I'm afraid that such design implies that handling of this in the driver
-must be done on a very low level, because it involves three possible
-interfaces changing the pinmux - pinctrl, GPIO and irqchip and such
-subtletes like gpio_direction_input() that shouldn't neither fail if a
-pin is already configured as an interrupt nor change the configuration
-to normal input.
+  samsung,pin-function = <0xf>;
 
-Best regards,
-Tomasz
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have some vague recollection that I set interrupts to pin-function
+"0" by default for some reason (assuming they would go to 0xf when
+interrupts were enabled).  ...but I can't for the life of me remember
+if it was a good reason or just seemed like the right thing to do.
+
+-Doug

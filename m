@@ -1,144 +1,89 @@
-From: Tomasz Figa <tomasz.figa@gmail.com>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - Get IRQ edge/level flags on
- DT booting
-Date: Fri, 08 Aug 2014 18:25:02 +0200
-Message-ID: <53E4F9DE.6070801@gmail.com>
-References: <1407372486-25881-1-git-send-email-javier.martinez@collabora.co.uk> <53E2D2F8.7010606@gmail.com> <53E2DAAC.1060602@collabora.co.uk> <20140807060926.GA651@core.coreip.homeip.net> <53E32F9D.2080705@collabora.co.uk> <20140807164725.GA22421@core.coreip.homeip.net> <53E4CF8D.7080302@collabora.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: da9052_onkey: convert to use devm_*
+Date: Fri, 8 Aug 2014 09:26:10 -0700
+Message-ID: <20140808162610.GE26820@core.coreip.homeip.net>
+References: <1407482324-17713-1-git-send-email-kiran.padwal@smartplayin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f172.google.com ([74.125.82.172]:40076 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756226AbaHHQZI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 12:25:08 -0400
-In-Reply-To: <53E4CF8D.7080302@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1407482324-17713-1-git-send-email-kiran.padwal@smartplayin.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kiran Padwal <kiran.padwal@smartplayin.com>
+Cc: support.opensource@diasemi.com, anthony.olech.opensource@diasemi.com, david.chen@diasemi.com, kiran.padwal21@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-+CC Thomas, Jason and Ben
+Hi Kiran,
 
-On 08.08.2014 15:24, Javier Martinez Canillas wrote:
-> Hello,
+On Fri, Aug 08, 2014 at 12:48:44PM +0530, Kiran Padwal wrote:
+> Converting to devm functions can make the code smaller and cleaner.
+
+I'd rather not mix use of managed and non-managed resources in one
+driver.
+
+Thanks.
+
 > 
-> On 08/07/2014 06:47 PM, Dmitry Torokhov wrote:
->>
->> Actually, I take this back. In mainline everything as it should: if
->> pdata does not specify particular trigger the flags requested end up
->> being IRQF_ONESHOT, which should preserve trigger bits previously set up
->> by the board or OF code. In Chrome kernel we have:
->>
+> Signed-off-by: Kiran Padwal <kiran.padwal@smartplayin.com>
+> ---
+>  drivers/input/misc/da9052_onkey.c |   20 +++++++++-----------
+>  1 file changed, 9 insertions(+), 11 deletions(-)
 > 
-> In theory it should work as Dmitry and Nick said since if no trigger flags are
-> set then whatever was set before (by OF, platform code, ACPI) should be used.
-> 
-> I also verified what Tomasz mentioned that the IRQ trigger type is parsed and
-> set correctly by OF:
-> 
-> irq_of_parse_and_map()
-> 	 irq_create_of_mapping()
-> 		irq_set_irq_type()
-> 			__irq_set_trigger()
-> 				chip->irq_set_type()
-> 					exynos_irq_set_type()
-> 
-> But for some reason it doesn't work for me unless I set the trigger type in the
-> flags passed to request_threaded_irq().
-> 
-> I found that what makes it to work is the logic in __setup_irq() [0] that Nick
-> pointed out on a previous email:
-> 
-> 		/* Setup the type (level, edge polarity) if configured: */
-> 		if (new->flags & IRQF_TRIGGER_MASK) {
-> 			ret = __irq_set_trigger(desc, irq,
-> 					new->flags & IRQF_TRIGGER_MASK);
-> 
-> 			if (ret)
-> 				goto out_mask;
-> 		}
-> 
-> So __irq_set_trigger() is only executed if the struct irqaction flags has a
-> trigger flag which makes sense since this shouldn't be necessary with DT due
-> __irq_set_trigger() being called from irq_create_of_mapping() before when the
-> "interrupts" property is parsed.
-> 
-> But for some reason it is necessary for me... I checked that struct irq_data
-> state_use_accessors value is correct and even tried setting that value to
-> new->flags after the mentioned code block but it makes no difference. Input
-> events are not reported by evtest and AFAICT interrupts are not being generated.
-> 
-> It works though if the trigger type is passed to request_threaded_irq() like
-> $subject does or if new->flags are set before the new->flags & IRQF_TRIGGER_MASK
-> conditional.
-> 
-> For example, with the following changes interrupts are fired correctly:
-> 
-> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-> index 3dc6a61..2d8adbb 100644
-> --- a/kernel/irq/manage.c
-> +++ b/kernel/irq/manage.c
-> @@ -1169,6 +1169,9 @@ __setup_irq(unsigned int irq, struct irq_desc *desc,
-> struct irqaction *new)
-> 
->                 init_waitqueue_head(&desc->wait_for_threads);
-> 
-> +               if (!(new->flags & IRQF_TRIGGER_MASK))
-> +                       new->flags |= irqd_get_trigger_type(desc);
+> diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
+> index 184c8f2..909441e 100644
+> --- a/drivers/input/misc/da9052_onkey.c
+> +++ b/drivers/input/misc/da9052_onkey.c
+> @@ -84,12 +84,14 @@ static int da9052_onkey_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	onkey = kzalloc(sizeof(*onkey), GFP_KERNEL);
+> -	input_dev = input_allocate_device();
+> -	if (!onkey || !input_dev) {
+> -		dev_err(&pdev->dev, "Failed to allocate memory\n");
+> -		error = -ENOMEM;
+> -		goto err_free_mem;
+> +	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
+> +	if (!onkey)
+> +		return -ENOMEM;
 > +
->                 /* Setup the type (level, edge polarity) if configured: */
->                 if (new->flags & IRQF_TRIGGER_MASK) {
->                         ret = __irq_set_trigger(desc, irq,
+> +	input_dev = devm_input_allocate_device(&pdev->dev);
+> +	if (!input_dev) {
+> +		dev_err(&pdev->dev, "Failed to allocate input device\n");
+> +		return -ENOMEM;
+>  	}
+>  
+>  	onkey->input = input_dev;
+> @@ -108,7 +110,7 @@ static int da9052_onkey_probe(struct platform_device *pdev)
+>  	if (error < 0) {
+>  		dev_err(onkey->da9052->dev,
+>  			"Failed to register ONKEY IRQ: %d\n", error);
+> -		goto err_free_mem;
+> +		return error;
+>  	}
+>  
+>  	error = input_register_device(onkey->input);
+> @@ -124,9 +126,6 @@ static int da9052_onkey_probe(struct platform_device *pdev)
+>  err_free_irq:
+>  	da9052_free_irq(onkey->da9052, DA9052_IRQ_NONKEY, onkey);
+>  	cancel_delayed_work_sync(&onkey->work);
+> -err_free_mem:
+> -	input_free_device(input_dev);
+> -	kfree(onkey);
+>  
+>  	return error;
+>  }
+> @@ -139,7 +138,6 @@ static int da9052_onkey_remove(struct platform_device *pdev)
+>  	cancel_delayed_work_sync(&onkey->work);
+>  
+>  	input_unregister_device(onkey->input);
+> -	kfree(onkey);
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.7.9.5
 > 
-> Any ideas what could be wrong here?
-> 				
->> 	/* Default to falling edge if no platform data provided */
->> 	irqflags = data->pdata ? data->pdata->irqflags : IRQF_TRIGGER_FALLING;
->> 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
->> 				     irqflags | IRQF_ONESHOT,
->> 				     client->name, data);
->>
-> 
-> Exactly, that's how I found the issue. When I compared both drivers I noticed
-> that the Chrome OS driver did that and since all the supported platforms are DT
-> based, the above is equivalent to just IRQF_TRIGGER_FALLING | IRQF_ONESHOT.
-> 
-> So according to my explanation, new->flags & IRQF_TRIGGER_MASK is true so
-> __irq_set_trigger() is executed and that's why it works with the Chrome OS driver.
-> 
-> In fact the Chrome OS DTS does not set a trigger type in the "interrupts" property:
-> 
-> trackpad@4b {
-> 	reg=<0x4b>;
-> 	compatible="atmel,atmel_mxt_tp";
-> 	interrupts=<1 0>;
-> 	interrupt-parent=<&gpx1>;
-> 	wakeup-source;
-> };
-> 
-> 
->> which I believe should go away. If it is needed on ACPI systems we need
->> to figure out how to do things we can do with OF there.
->>
-> 
-> The above code should not be related to ACPI systems since whatever code that
-> parses an ACPI table should just call irq_set_irq_type() like is made by OF, so
-> request_threaded_irq() should just work with ACPI too.
-> 
-> I agree it should go away but first I want to understand why is needed in the
-> first place. Unfortunately commit:
-> 
-> 031f136 ("Input: atmel_mxt_ts - Set default irqflags when there is no pdata")
-> 
-> from the Chrome OS 3.8 does not explain why this is needed, instead of adding
-> this information in the DTS (e.g: interrupts=<1 IRQ_TYPE_EDGE_FALLING>).
-> 
->> Thanks.
->>
-> 
-> Best regards,
-> Javier
-> 
-> [0]: http://lxr.free-electrons.com/source/kernel/irq/manage.c#L1172
-> 
+
+-- 
+Dmitry

@@ -1,33 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: da9055_onkey: convert to use devm_*
-Date: Fri, 8 Aug 2014 00:42:15 -0700
-Message-ID: <20140808074215.GA10253@core.coreip.homeip.net>
-References: <1407482212-17669-1-git-send-email-kiran.padwal@smartplayin.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH] Input: cap1106 - allow changing key mapping from userspace
+Date: Fri, 08 Aug 2014 12:27:53 +0200
+Message-ID: <53E4A629.3040008@gmail.com>
+References: <20140721012045.GA4395@core.coreip.homeip.net> <20140807062033.GD651@core.coreip.homeip.net> <53E321B0.9040701@gmail.com> <20140808065038.GC8103@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:42111 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753593AbaHHHmT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 03:42:19 -0400
-Content-Disposition: inline
-In-Reply-To: <1407482212-17669-1-git-send-email-kiran.padwal@smartplayin.com>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:49243 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756296AbaHHK17 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 06:27:59 -0400
+In-Reply-To: <20140808065038.GC8103@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kiran Padwal <kiran.padwal@smartplayin.com>
-Cc: support.opensource@diasemi.com, anthony.olech.opensource@diasemi.com, david.chen@diasemi.com, kiran.padwal21@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Kiran,
+On 08/08/2014 08:50 AM, Dmitry Torokhov wrote:
+> On Thu, Aug 07, 2014 at 08:50:24AM +0200, Daniel Mack wrote:
+>> Hi Dmitry,
+>>
+>> On 08/07/2014 08:20 AM, Dmitry Torokhov wrote:
+>>> On Sun, Jul 20, 2014 at 06:20:49PM -0700, Dmitry Torokhov wrote:
+>>>> Wire up support for EVIOC{G|S}KEYCODE to allow users change key mappings
+>>>> from userspace.
+>>>>
+>>>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>>> ---
+>>>>
+>>>> Just compiled, not tested.
+>>>
+>>> *ping* Any chance you could give it a try? Thanks!
+>>
+>> Oh, sorry, I didn't realize you're waiting for me on this.
+>>
+>> Unfortunately, I can't test it myself anymore, as I had to return the
+>> board I found this chip on. But as the change looks very straight
+>> forward, I'd suggest you just apply that patch and I ask the vendor to
+>> give it a quick try. In case of any problems, I'll let you know. Does
+>> that sound feasible?
+> 
+> OK, I'll put you down as reviewed-by then so we can share the glory (and the
+> blame ;))
 
-On Fri, Aug 08, 2014 at 12:46:52PM +0530, Kiran Padwal wrote:
-> Converting to devm functions can make the code smaller and cleaner.
+Alright, thanks :)
 
-Unfortunately it also makes it incorrect. As presented this conversion
-introduces race on driver removal. Before doing any more devm conversions
-please try to spot it or ping me back in a couple of days if you'd like it
-explained.
 
-Thanks.
+Thanks,
+Daniel
 
--- 
-Dmitry

@@ -1,52 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: cap1106 - allow changing key mapping from
- userspace
-Date: Thu, 7 Aug 2014 23:50:38 -0700
-Message-ID: <20140808065038.GC8103@core.coreip.homeip.net>
-References: <20140721012045.GA4395@core.coreip.homeip.net>
- <20140807062033.GD651@core.coreip.homeip.net>
- <53E321B0.9040701@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:52674 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752547AbaHHGum (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 02:50:42 -0400
-Content-Disposition: inline
-In-Reply-To: <53E321B0.9040701@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Kiran Padwal <kiran.padwal@smartplayin.com>
+Subject: [PATCH 1/2] Input: da9055_onkey: Remove unnecessary OOM meassage
+Date: Fri,  8 Aug 2014 12:44:57 +0530
+Message-ID: <1407482097-17624-1-git-send-email-kiran.padwal@smartplayin.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: support.opensource@diasemi.com, dmitry.torokhov@gmail.com
+Cc: anthony.olech.opensource@diasemi.com, david.chen@diasemi.com, kiran.padwal21@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kiran Padwal <kiran.padwal@smartplayin.com>
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2014 at 08:50:24AM +0200, Daniel Mack wrote:
-> Hi Dmitry,
-> 
-> On 08/07/2014 08:20 AM, Dmitry Torokhov wrote:
-> > On Sun, Jul 20, 2014 at 06:20:49PM -0700, Dmitry Torokhov wrote:
-> >> Wire up support for EVIOC{G|S}KEYCODE to allow users change key mappings
-> >> from userspace.
-> >>
-> >> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >> ---
-> >>
-> >> Just compiled, not tested.
-> > 
-> > *ping* Any chance you could give it a try? Thanks!
-> 
-> Oh, sorry, I didn't realize you're waiting for me on this.
-> 
-> Unfortunately, I can't test it myself anymore, as I had to return the
-> board I found this chip on. But as the change looks very straight
-> forward, I'd suggest you just apply that patch and I ask the vendor to
-> give it a quick try. In case of any problems, I'll let you know. Does
-> that sound feasible?
+There is no need to print out-of-memory errors since this is already
+done by the memory management subsystem which even calls dump_stack().
 
-OK, I'll put you down as reviewed-by then so we can share the glory (and the
-blame ;))
+Signed-off-by: Kiran Padwal <kiran.padwal@smartplayin.com>
+---
+ drivers/input/misc/da9055_onkey.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
+index 4765799..ed6eaa9 100644
+--- a/drivers/input/misc/da9055_onkey.c
++++ b/drivers/input/misc/da9055_onkey.c
+@@ -87,10 +87,8 @@ static int da9055_onkey_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
+-	if (!onkey) {
+-		dev_err(&pdev->dev, "Failed to allocate memory\n");
++	if (!onkey)
+ 		return -ENOMEM;
+-	}
+ 
+ 	input_dev = input_allocate_device();
+ 	if (!input_dev) {
 -- 
-Dmitry
+1.7.9.5

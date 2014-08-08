@@ -1,47 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input - wacom: update the ABI doc according to latest
- changes
-Date: Thu, 7 Aug 2014 23:40:08 -0700
-Message-ID: <20140808064008.GB8103@core.coreip.homeip.net>
-References: <1407444232-4005-1-git-send-email-benjamin.tissoires@redhat.com>
- <CAF8JNhJuWMPMQzur2rHOSNVSsa6-sM5kZDA2pBNT5ABws340vg@mail.gmail.com>
+Subject: Re: [PATCH] Input: cap1106 - allow changing key mapping from
+ userspace
+Date: Thu, 7 Aug 2014 23:50:38 -0700
+Message-ID: <20140808065038.GC8103@core.coreip.homeip.net>
+References: <20140721012045.GA4395@core.coreip.homeip.net>
+ <20140807062033.GD651@core.coreip.homeip.net>
+ <53E321B0.9040701@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:50723 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751193AbaHHGkM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 02:40:12 -0400
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:52674 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752547AbaHHGum (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 02:50:42 -0400
 Content-Disposition: inline
-In-Reply-To: <CAF8JNhJuWMPMQzur2rHOSNVSsa6-sM5kZDA2pBNT5ABws340vg@mail.gmail.com>
+In-Reply-To: <53E321B0.9040701@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, Przemo Firszt <przemo@firszt.eu>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Daniel Mack <zonque@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2014 at 01:54:22PM -0700, Ping Cheng wrote:
-> On Thu, Aug 7, 2014 at 1:43 PM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > Now the devices show up under hid no matter the connection (for USB
-> > and Bluetooth, not serial nor i2c).
-> >
-> > The USB devices can now be easily found under
-> > /sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>
-> >
-> > The Bluetooth devices could also be found under this path since their
-> > inclusion (April 2010), so this patch fixes the unprecise "hidraw*" path
-> > for them.
-> >
-> > The ABI has been unified while setting the LEDs and OLEDs. So Bluetooth
-> > devices lost their own LED selector but use the USB sysfs attribute.
-> > For OLEDs, Bluetooth devices handle only 1-bit images instead of 4 for USB.
-> > The documentation has been updated to match this.
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On Thu, Aug 07, 2014 at 08:50:24AM +0200, Daniel Mack wrote:
+> Hi Dmitry,
 > 
-> Reviewed-by: Ping Cheng <pingc@wacom.com>
+> On 08/07/2014 08:20 AM, Dmitry Torokhov wrote:
+> > On Sun, Jul 20, 2014 at 06:20:49PM -0700, Dmitry Torokhov wrote:
+> >> Wire up support for EVIOC{G|S}KEYCODE to allow users change key mappings
+> >> from userspace.
+> >>
+> >> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >> ---
+> >>
+> >> Just compiled, not tested.
+> > 
+> > *ping* Any chance you could give it a try? Thanks!
+> 
+> Oh, sorry, I didn't realize you're waiting for me on this.
+> 
+> Unfortunately, I can't test it myself anymore, as I had to return the
+> board I found this chip on. But as the change looks very straight
+> forward, I'd suggest you just apply that patch and I ask the vendor to
+> give it a quick try. In case of any problems, I'll let you know. Does
+> that sound feasible?
 
-Applied, thank you.
+OK, I'll put you down as reviewed-by then so we can share the glory (and the
+blame ;))
+
+Thanks.
 
 -- 
 Dmitry

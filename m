@@ -1,165 +1,84 @@
-From: nick.dyer@itdev.co.uk
-Subject: [PATCH 1/2] Input: atmel_mxt_ts - simplify mxt_initialize a bit
-Date: Fri,  8 Aug 2014 16:58:02 +0100
-Message-ID: <1407513483-30050-2-git-send-email-nick.dyer@itdev.co.uk>
-References: <20140807165932.GA23198@core.coreip.homeip.net>
- <1407513483-30050-1-git-send-email-nick.dyer@itdev.co.uk>
+From: Fredrik Hallenberg <megahallon@gmail.com>
+Subject: Re: Backslash repeat bug
+Date: Fri, 8 Aug 2014 18:08:15 +0200
+Message-ID: <CAMsZVf-SUJEHT1SewXwtnfd4=60v6Akk0deR3tsuH_DYMiYFRw@mail.gmail.com>
+References: <CAMsZVf-Y5202EyYod+ZDfjEd_OS7N2oOFYEMniCc5Z12B14uqA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:42207 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755887AbaHHP6L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 11:58:11 -0400
-In-Reply-To: <1407513483-30050-1-git-send-email-nick.dyer@itdev.co.uk>
+Received: from mail-qa0-f44.google.com ([209.85.216.44]:49556 "EHLO
+	mail-qa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751433AbaHHQIP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 12:08:15 -0400
+Received: by mail-qa0-f44.google.com with SMTP id f12so5722318qad.3
+        for <linux-input@vger.kernel.org>; Fri, 08 Aug 2014 09:08:15 -0700 (PDT)
+In-Reply-To: <CAMsZVf-Y5202EyYod+ZDfjEd_OS7N2oOFYEMniCc5Z12B14uqA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>, Stephen Warren <swarren@wwwdotorg.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+To: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+I just found bugzilla bug #70181 which is the same problem as I
+describe but seen with a QPAD MK-85 keyboard. I will add my findings
+to that bug.
 
-I think having control flow with 2 goto/labels/flags is quite hard to read,
-this version is a bit more readable IMO.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 81 +++++++++++++++++---------------
- 1 file changed, 42 insertions(+), 39 deletions(-)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d50c614..a5f943d 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -359,7 +359,6 @@ static int mxt_bootloader_read(struct mxt_data *data,
- 	msg.buf = val;
- 
- 	ret = i2c_transfer(data->client->adapter, &msg, 1);
--
- 	if (ret == 1) {
- 		ret = 0;
- 	} else {
-@@ -414,6 +413,7 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data, bool retry)
- 	case 0x5b:
- 		bootloader = appmode - 0x26;
- 		break;
-+
- 	default:
- 		dev_err(&data->client->dev,
- 			"Appmode i2c address 0x%02x not found\n",
-@@ -425,20 +425,20 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data, bool retry)
- 	return 0;
- }
- 
--static int mxt_probe_bootloader(struct mxt_data *data, bool retry)
-+static int mxt_probe_bootloader(struct mxt_data *data, bool alt_address)
- {
- 	struct device *dev = &data->client->dev;
--	int ret;
-+	int error;
- 	u8 val;
- 	bool crc_failure;
- 
--	ret = mxt_lookup_bootloader_address(data, retry);
--	if (ret)
--		return ret;
-+	error = mxt_lookup_bootloader_address(data, alt_address);
-+	if (error)
-+		return error;
- 
--	ret = mxt_bootloader_read(data, &val, 1);
--	if (ret)
--		return ret;
-+	error = mxt_bootloader_read(data, &val, 1);
-+	if (error)
-+		return error;
- 
- 	/* Check app crc fail mode */
- 	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
-@@ -1645,41 +1645,39 @@ static void mxt_config_cb(const struct firmware *cfg, void *ctx)
- static int mxt_initialize(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
-+	int recovery_attempts = 0;
- 	int error;
--	bool alt_bootloader_addr = false;
--	bool retry = false;
- 
--retry_info:
--	error = mxt_get_info(data);
--	if (error) {
--retry_bootloader:
--		error = mxt_probe_bootloader(data, alt_bootloader_addr);
-+	while (1) {
-+		error = mxt_get_info(data);
-+		if (!error)
-+			break;
-+
-+		/* Check bootloader state */
-+		error = mxt_probe_bootloader(data, false);
- 		if (error) {
--			if (alt_bootloader_addr) {
-+			dev_info(&client->dev, "Trying alternate bootloader address\n");
-+			error = mxt_probe_bootloader(data, true);
-+			if (error) {
- 				/* Chip is not in appmode or bootloader mode */
- 				return error;
- 			}
-+		}
- 
--			dev_info(&client->dev, "Trying alternate bootloader address\n");
--			alt_bootloader_addr = true;
--			goto retry_bootloader;
--		} else {
--			if (retry) {
--				dev_err(&client->dev, "Could not recover from bootloader mode\n");
--				/*
--				 * We can reflash from this state, so do not
--				 * abort init
--				 */
--				data->in_bootloader = true;
--				return 0;
--			}
--
--			/* Attempt to exit bootloader into app mode */
--			mxt_send_bootloader_cmd(data, false);
--			msleep(MXT_FW_RESET_TIME);
--			retry = true;
--			goto retry_info;
-+		/* OK, we are in bootloader, see if we can recover */
-+		if (++recovery_attempts > 1) {
-+			dev_err(&client->dev, "Could not recover from bootloader mode\n");
-+			/*
-+			 * We can reflash from this state, so do not
-+			 * abort initialization.
-+			 */
-+			data->in_bootloader = true;
-+			return 0;
- 		}
-+
-+		/* Attempt to exit bootloader into app mode */
-+		mxt_send_bootloader_cmd(data, false);
-+		msleep(MXT_FW_RESET_TIME);
- 	}
- 
- 	/* Get object table information */
-@@ -1693,9 +1691,14 @@ retry_bootloader:
- 	if (error)
- 		goto err_free_object_table;
- 
--	request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
--				&data->client->dev, GFP_KERNEL, data,
--				mxt_config_cb);
-+	error = request_firmware_nowait(THIS_MODULE, true, MXT_CFG_NAME,
-+					&client->dev, GFP_KERNEL, data,
-+					mxt_config_cb);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to invoke firmware loader: %d\n",
-+			error);
-+		goto err_free_object_table;
-+	}
- 
- 	return 0;
- 
--- 
-1.9.1
-
+On Fri, Aug 8, 2014 at 4:11 PM, Fredrik Hallenberg <megahallon@gmail.com> wrote:
+> Hi,
+>
+> On my Corsair K70 keyboard, when pressing some key and then the
+> backslash key (KEY_BACKSLASH) in rapid succession the backslash
+> character will be repeated three times. This bug has been mentioned on
+> this list before (by Norbert Veber on the 24th of februrary) but there
+> was no responses, also Norbert consider it a problem with Corsair
+> keyboards but as I describe below I feel it is more of a general
+> problem in the HID input code.
+>
+> This bug is discussed on the Corsair forums, but it seems the exact
+> same thing also happens with Gigabyte Osmium and QPAD MK85, possibly
+> it is a problem on all keyboards supporting n-key rollover.
+>
+> I believe the root cause of this is that the keyboard reports all keys
+> including both HID keys 0x31 and 0x32 which are both mapped to
+> KEY_BACKSLASH in hid-input.c. I am using a nordic keyboard meaning
+> KEY_BACKSLASH is labeled "apostrophe" and that HID key 0x32 is
+> reported. A US keyboard has a backslash key which should report 0x31.
+>
+> I have added some traces before the input_event call at the end of
+> hidinput_report_event. When pressing A key and then apostrophe,
+> something like this is seen (omitting all inactive keys):
+>
+> VALUE 1 CODE 30 HID 0x4
+> VALUE 0 CODE 43 HID 0x31
+> VALUE 0 CODE 43 HID 0x32
+> Output: a
+>
+> VALUE 1 CODE 30 HID 0x4
+> VALUE 0 CODE 43 HID 0x31
+> VALUE 1 CODE 43 HID 0x32
+> Output: '
+>
+> VALUE 0 CODE 30 HID 0x4
+> VALUE 0 CODE 43 HID 0x31
+> VALUE 1 CODE 43 HID 0x32
+> Output: '
+>
+> VALUE 0 CODE 30 HID 0x4
+> VALUE 0 CODE 43 HID 0x31
+> VALUE 1 CODE 43 HID 0x32
+> Output: '
+>
+> VALUE 0 CODE 30 HID 0x4
+> VALUE 0 CODE 43 HID 0x31
+> VALUE 0 CODE 43 HID 0x32
+>
+> So the fact that 0x31 is inactive will cause bad release events on key
+> 43 to be sent.
+>
+> I have made a simple patch that tracks which of the two variants is
+> active and ignores the other one. It works but I don't have much
+> knowledge on HID input so before posting it would like to know if
+> someone has input on how to do a cleaner fix. I am happy to help with
+> testing or implementation if I am able.
+>
+> Regards,
+>
+> Fredrik

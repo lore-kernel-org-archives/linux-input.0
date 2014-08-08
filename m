@@ -1,7 +1,7 @@
 From: Kiran Padwal <kiran.padwal@smartplayin.com>
-Subject: [PATCH 2/2] Input: da9055_onkey: convert to use devm_*
-Date: Fri,  8 Aug 2014 12:46:52 +0530
-Message-ID: <1407482212-17669-1-git-send-email-kiran.padwal@smartplayin.com>
+Subject: [PATCH] Input: da9052_onkey: convert to use devm_*
+Date: Fri,  8 Aug 2014 12:48:44 +0530
+Message-ID: <1407482324-17713-1-git-send-email-kiran.padwal@smartplayin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: support.opensource@diasemi.com, dmitry.torokhov@gmail.com
@@ -12,72 +12,60 @@ Converting to devm functions can make the code smaller and cleaner.
 
 Signed-off-by: Kiran Padwal <kiran.padwal@smartplayin.com>
 ---
- drivers/input/misc/da9055_onkey.c |   22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ drivers/input/misc/da9052_onkey.c |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
-index ed6eaa9..1a1e760 100644
---- a/drivers/input/misc/da9055_onkey.c
-+++ b/drivers/input/misc/da9055_onkey.c
-@@ -90,9 +90,9 @@ static int da9055_onkey_probe(struct platform_device *pdev)
- 	if (!onkey)
- 		return -ENOMEM;
+diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
+index 184c8f2..909441e 100644
+--- a/drivers/input/misc/da9052_onkey.c
++++ b/drivers/input/misc/da9052_onkey.c
+@@ -84,12 +84,14 @@ static int da9052_onkey_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
+-	onkey = kzalloc(sizeof(*onkey), GFP_KERNEL);
 -	input_dev = input_allocate_device();
-+	input_dev = devm_input_allocate_device(&pdev->dev);
- 	if (!input_dev) {
+-	if (!onkey || !input_dev) {
 -		dev_err(&pdev->dev, "Failed to allocate memory\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
++	if (!onkey)
++		return -ENOMEM;
++
++	input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!input_dev) {
 +		dev_err(&pdev->dev, "Failed to allocate input device\n");
- 		return -ENOMEM;
++		return -ENOMEM;
  	}
  
-@@ -107,43 +107,33 @@ static int da9055_onkey_probe(struct platform_device *pdev)
- 
- 	INIT_DELAYED_WORK(&onkey->work, da9055_onkey_work);
- 
--	err = request_threaded_irq(irq, NULL, da9055_onkey_irq,
-+	err = devm_request_threaded_irq(&pdev->dev, irq, NULL, da9055_onkey_irq,
- 				   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
- 				   "ONKEY", onkey);
- 	if (err < 0) {
- 		dev_err(&pdev->dev,
- 			"Failed to register ONKEY IRQ %d, error = %d\n",
- 			irq, err);
--		goto err_free_input;
-+		return err;
+ 	onkey->input = input_dev;
+@@ -108,7 +110,7 @@ static int da9052_onkey_probe(struct platform_device *pdev)
+ 	if (error < 0) {
+ 		dev_err(onkey->da9052->dev,
+ 			"Failed to register ONKEY IRQ: %d\n", error);
+-		goto err_free_mem;
++		return error;
  	}
  
- 	err = input_register_device(input_dev);
- 	if (err) {
- 		dev_err(&pdev->dev, "Unable to register input device, %d\n",
- 			err);
--		goto err_free_irq;
-+		cancel_delayed_work_sync(&onkey->work);
-+		return err;
- 	}
+ 	error = input_register_device(onkey->input);
+@@ -124,9 +126,6 @@ static int da9052_onkey_probe(struct platform_device *pdev)
+ err_free_irq:
+ 	da9052_free_irq(onkey->da9052, DA9052_IRQ_NONKEY, onkey);
+ 	cancel_delayed_work_sync(&onkey->work);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(onkey);
  
- 	platform_set_drvdata(pdev, onkey);
+ 	return error;
+ }
+@@ -139,7 +138,6 @@ static int da9052_onkey_remove(struct platform_device *pdev)
+ 	cancel_delayed_work_sync(&onkey->work);
+ 
+ 	input_unregister_device(onkey->input);
+-	kfree(onkey);
  
  	return 0;
--
--err_free_irq:
--	free_irq(irq, onkey);
--	cancel_delayed_work_sync(&onkey->work);
--err_free_input:
--	input_free_device(input_dev);
--
--	return err;
  }
- 
- static int da9055_onkey_remove(struct platform_device *pdev)
- {
- 	struct da9055_onkey *onkey = platform_get_drvdata(pdev);
--	int irq = platform_get_irq_byname(pdev, "ONKEY");
- 
--	irq = regmap_irq_get_virq(onkey->da9055->irq_data, irq);
--	free_irq(irq, onkey);
- 	cancel_delayed_work_sync(&onkey->work);
- 	input_unregister_device(onkey->input);
- 
 -- 
 1.7.9.5

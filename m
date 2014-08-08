@@ -1,56 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: da9055_onkey: Remove unnecessary OOM meassage
-Date: Fri, 8 Aug 2014 09:26:54 -0700
-Message-ID: <20140808162654.GF26820@core.coreip.homeip.net>
-References: <1407482097-17624-1-git-send-email-kiran.padwal@smartplayin.com>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH v2 1/1] Input: atmel_mxt_ts - Get IRQ edge/level flags
+ on DT booting
+Date: Fri, 08 Aug 2014 18:38:51 +0200
+Message-ID: <53E4FD1B.6060600@collabora.co.uk>
+References: <1407397492-17475-1-git-send-email-javier.martinez@collabora.co.uk> <53E4D9A5.908@itdev.co.uk> <20140808162146.GC26820@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:32823 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752646AbaHHQ06 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 12:26:58 -0400
-Content-Disposition: inline
-In-Reply-To: <1407482097-17624-1-git-send-email-kiran.padwal@smartplayin.com>
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:36143 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752670AbaHHQjA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 12:39:00 -0400
+In-Reply-To: <20140808162146.GC26820@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kiran Padwal <kiran.padwal@smartplayin.com>
-Cc: support.opensource@diasemi.com, anthony.olech.opensource@diasemi.com, david.chen@diasemi.com, kiran.padwal21@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Tomasz Figa <tomasz.figa@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Abraham <thomas.ab@samsung.com>
 
-On Fri, Aug 08, 2014 at 12:44:57PM +0530, Kiran Padwal wrote:
-> There is no need to print out-of-memory errors since this is already
-> done by the memory management subsystem which even calls dump_stack().
++Thomas Gleixner, Jason Cooper, Benjamin Herrenschmidt and Thomas Abraham
 
-This is implementation detail as far as I am concerned. We might switch
-dumping stack off down the road.
+Hello Dmitry,
 
-Thanks.
-
+On 08/08/2014 06:21 PM, Dmitry Torokhov wrote:
+> On Fri, Aug 08, 2014 at 03:07:33PM +0100, Nick Dyer wrote:
+>> On 07/08/14 08:44, Javier Martinez Canillas wrote:
+>> > The Atmel maXTouch driver assumed that the IRQ type flags will
+>> > always be passed using platform data but this is not true when
+>> > booting using Device Trees. In these setups the interrupt type
+>> > was ignored by the driver when requesting an IRQ.
+>> > 
+>> > This means that it will fail if a machine specified other type
+>> > than IRQ_TYPE_NONE. The right approach is to get the IRQ flags
+>> > that was parsed by OF from the "interrupt" Device Tree propery.
+>> > 
+>> > Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+>> 
+>> I'm happy for this to go in if Dmitry will accept it. It does seem to be a
+>> quirk of some platforms that it is necessary, but it's only one line.
 > 
-> Signed-off-by: Kiran Padwal <kiran.padwal@smartplayin.com>
-> ---
->  drivers/input/misc/da9055_onkey.c |    4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
-> index 4765799..ed6eaa9 100644
-> --- a/drivers/input/misc/da9055_onkey.c
-> +++ b/drivers/input/misc/da9055_onkey.c
-> @@ -87,10 +87,8 @@ static int da9055_onkey_probe(struct platform_device *pdev)
->  	}
->  
->  	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
-> -	if (!onkey) {
-> -		dev_err(&pdev->dev, "Failed to allocate memory\n");
-> +	if (!onkey)
->  		return -ENOMEM;
-> -	}
->  
->  	input_dev = input_allocate_device();
->  	if (!input_dev) {
-> -- 
-> 1.7.9.5
+> I'd rather not as it masks the deeper platform issue. There might be
+> other drovers also expecting platform/OF code set up interrupt triggers
+> and working/not working by chance.
 > 
 
--- 
-Dmitry
+I totally agree. When posted the patch I thought that it was the right fix but
+after your explanation and studying the IRQ core I see that as you said this i
+just hiding a more fundamental issue. We should fix the root cause instead of
+adding a workaround for every driver.
+
+> Can we figure out why the platform in question needs this change?
+> 
+
+I dig further on this. First I wanted to see if the problem was on IRQ core or
+in the irqchip driver so I tried calling the chip's .irq_set_type function
+handler directly using the flags set by __irq_set_trigger() the first time that
+it's called from OF when the "interrupts" property is parsed.
+
+Doing that makes the device to trigger interrupts so the problem seems to be
+related to the pinctrl-exynos driver and is not in the IRQ core.
+
+So, this is the change I did just for testing purposes to make it work again:
+
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 3dc6a61..ed76b25 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -1176,6 +1176,10 @@ __setup_irq(unsigned int irq, struct irq_desc *desc,
+struct irqaction *new)
+
+ 			if (ret)
+ 				goto out_mask;
++		} else if (irq == 283 /* mapped IRQ number for touchpad */) {
++			struct irq_chip *chip = desc->irq_data.chip;
++			chip->irq_set_type(&desc->irq_data,
++					   irq_get_trigger_type(irq));
+ 		}
+
+ 		desc->istate &= ~(IRQS_AUTODETECT | IRQS_SPURIOUS_DISABLED | \
+
+
+It seems as if the first call to exynos_irq_set_type() that is made by OF is a
+no-op while the second call is the one that actually setups the hw correctly.
+Does this make any sense? Maybe is related to the pin not being muxed in the
+correct function when the "interrupts" property is parsed by OF?
+
+Now I added some debug logs to see what could be different but all the variables
+have the same values in both cases:
+
+When called happens due irq_parse_and_map():
+
+irq 283 type 2 pin 1 shift 4 base 4026679296 reg_con 3588 con 32 flags 0 mask 0
+
+When called happens due request_threaded_irq():
+
+irq 283 type 2 pin 1 shift 4 base 4026679296 reg_con 3588 con 32 flags 0 mask 0
+
+I would really appreciate if someone that is more familiar with the driver or
+this chip can provide some hints.
+
+Thanks a lot and best regards,
+Javier

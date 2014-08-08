@@ -1,107 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 05/06] input synaptics-rmi4: Add firmware update support
-Date: Fri, 08 Aug 2014 14:20:02 -0700 (PDT)
-Message-ID: <2390465.gm6axfJUyt@dtor-glaptop>
-References: <1394675637-23853-1-git-send-email-cheiny@synaptics.com> <20140807064251.GE651@core.coreip.homeip.net> <53E53CAF.6000802@synaptics.com>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH v2 1/1] Input: atmel_mxt_ts - Get IRQ edge/level flags
+ on DT booting
+Date: Sat, 09 Aug 2014 00:26:25 +0200
+Message-ID: <53E54E91.9060905@collabora.co.uk>
+References: <1407397492-17475-1-git-send-email-javier.martinez@collabora.co.uk>	<53E4D9A5.908@itdev.co.uk>	<20140808162146.GC26820@core.coreip.homeip.net>	<53E4FD1B.6060600@collabora.co.uk>	<53E5170C.10302@collabora.co.uk> <CAD=FV=WSNqjHLLbTh1LBF3RFrCnWnj498hivivcmx1SbuYp=Hw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:60582 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932574AbaHHVUD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2014 17:20:03 -0400
-Received: by mail-pa0-f50.google.com with SMTP id et14so7803075pad.23
-        for <linux-input@vger.kernel.org>; Fri, 08 Aug 2014 14:20:03 -0700 (PDT)
-In-Reply-To: <53E53CAF.6000802@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAD=FV=WSNqjHLLbTh1LBF3RFrCnWnj498hivivcmx1SbuYp=Hw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, Tomasz Figa <tomasz.figa@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Abraham <thomas.ab@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Erol Eryilmaz <erol.eryilmaz@synaptics.com>, Bob Balcomb <bob.balcomb@synaptics.com>
 
-On Friday, August 08, 2014 02:10:07 PM Christopher Heiny wrote:
-> On 08/06/2014 11:42 PM, Dmitry Torokhov wrote:
-> > On Wed, Aug 06, 2014 at 04:28:26PM -0700, Christopher Heiny wrote:
-> >> [I sent this last Thursday, but it never showed up on the input
-> >> list. I'm assuming nobody else saw it.]
-> >> 
-> >> On 07/31/2014 02:58 PM, Dmitry Torokhov wrote:
-> >>> On Thu, Jul 31, 2014 at 02:43:47PM -0700, Christopher Heiny wrote:
-> >>>> On 07/31/2014 02:19 PM, Dmitry Torokhov wrote:
-> >>>>> On Thu, Jul 31, 2014 at 02:00:14PM -0700, Christopher Heiny wrote:
-> >>>>>>> On 07/31/2014 10:53 AM, Dmitry Torokhov wrote:
-> >>>>>>>>> Hi Christopher,
-> >>>>>>>>> 
-> >>>>>>>>> On Wed, Mar 12, 2014 at 06:53:56PM -0700, Christopher Heiny wrote:
-> >>>>>>>>>>> Add support for updating firmware on RMI4 devices with V5
-> >>>>>>>>>>> bootloader.
-> >>>>>>>>> 
-> >>>>>>>>> I am wondering why F34 is not following the staindard RMI function
-> >>>>>>>>> implementation. By that I mean that it does not declare itself as
-> >>>>>>>>> struct
-> >>>>>>>>> rmi_function_handler and does not rely on RMI core to bind itself
-> >>>>>>>>> to the device if device supports it.
-> >>>>>>> 
-> >>>>>>> Hi Dmitry,
-> >>>>>>> 
-> >>>>>>> We originally had an F34 implementation that followed the RMI4
-> >>>>>>> function standard and exposed most of the basic F34 operations via
-> >>>>>>> sysfs. However, we got feedback (both on LKML and offline) (a)
-> >>>>>>> recommending to use request_firmware, and (b) improve reflash times
-> >>>>>>> while (c) reducing impact on boot time, and (d) "get rid of all that
-> >>>>>>> sysfs crap" (paraphrased, but close to it).
-> >>>>>>> 
-> >>>>>>> So after looking at how some other drivers use request_firmware, we
-> >>>>>>> came up with the current approach.  Switching to request_firmware
-> >>>>>>> definitely sped up the reflash times!  Including a check to see if
-> >>>>>>> firmware update is required before setting up the RMI4
-> >>>>>>> sensor/function structures also significantly reduced boot times.
-> >>>>> 
-> >>>>> I am not suggesting you stop using request-firmware or introduce
-> >>>>> bazillion of new sysfs attributes. I just wondered why you have manual
-> >>>>> "binding" of F34 functionality instead of standrad RMI4 function
-> >>>>> binding, liek you do for F01, F11 and so forth.
-> >>>> 
-> >>>> Sorry!  My answer wasn't very clear on that part, was it?
-> >>>> 
-> >>>> The manual binding gets the reflash (if required) done very early in
-> >>>> the boot/probe process.  This eliminates the need to set up the
-> >>>> whole sensor + functions structure, tear it down in order to
-> >>>> reflash, and then build it all back up again.  It is felt that the
-> >>>> time savings is significant, especially on highly featured products.
-> >>> 
-> >>> I am sorry but I have hard time accepting this argument. How often do
-> >>> you reflash devices during normal operation and how long does it take to
-> >>> initialize the device compared to getting entire userspace up and
-> >>> running to be able to actually supply or serve flash data (even without
-> >>> using usermode helper to flash you need filesystem with the firmware to
-> >>> be mounted)?
-> >> 
-> >> That was my argument exactly, but that was the direction we were
-> >> pushed.  I'd much rather implement it as we discussed offline
-> >> earlier this week.  If you were to say: "I'm sorry, but this simply
-> >> can't be merged as it stands." you wouldn't get any argument from me
-> >> on technical grounds. There might be people who will argue about the
-> >> additional calendar time it would take to restructure it, though.
-> > 
-> > OK, then I will just say this: "I'm sorry, but this simply can't be merged
-> > as it stands."
-> > 
-> > Now, I am talking about mainline here, I am fairly certain we can resolve
-> > scheduling issues between what you currently have and what is needed in
-> > the
-> > end.
+Hello Doug,
+
+On 08/08/2014 10:54 PM, Doug Anderson wrote:
+> Hi,
+>>
+>> To fix the issue a variation of patch [0] will be posted that moves the IRQ
+>> pinmux setup from .irq_set_type to the .irq_request_resources function handler.
+>> That way the pin will be setup as IRQ regardless of the the trigger type [1]
+>> when someone calls request_[threaded]_irq().
+>>
+>> Only the mentioned patch fixes the issue but Tomasz said that even a call to
+>> gpio_direction_{input,output} can change the pin configuration so he will post
+>> another patch that will add a bit mask to samsung_pin_bank to prevent any pinmux
+>> reconfiguration.
 > 
-> OK.  The question on our end becomes - can we accept the current
-> implementation as a baseline while we rework the implementation to use a
-> conformant F34 implementation?  Our rough estimation is that this will
-> be ready around the end of this month or early next month.
+> Would just making a device tree change fix this?  AKA for the pin, do:
+> 
+>   samsung,pin-function = <0xf>;
+> 
 
-Chris,
+Yes, when configuring the pin as 0xf (GPIO interrupt) instead of 0x0 (GPIO
+input) the issue is not present indeed. So after Nick answer my question about
+what I got wrong with the "linux,gpio-keymap" property, I will change the pin
+function when re-posing the DTS changes for the atmel touchpad.
 
-We have a couple months till the next merge window.
+> I have some vague recollection that I set interrupts to pin-function
+> "0" by default for some reason (assuming they would go to 0xf when
+> interrupts were enabled).  ...but I can't for the life of me remember
+> if it was a good reason or just seemed like the right thing to do.
+> 
 
-Thanks.
+It would be great to know if there is a good reason. I see indeed that all
+pinctrl setup in the Peach Pit/Pi and Snow DTS that involves interrupts are
+using 0x0 as the pin function. Since as Tomasz explained Samsung SoC makes a
+difference between GPIO-IRQ and GPIO input I guess that it's better to change
+those to 0xf instead. What do you think?
 
--- 
-Dmitry
+Regardless of this though I think that both the patch to move the IRQ
+pinmux setup from .irq_set_type to the .irq_request_resources and the patch to
+to prevent any pinmux reconfiguration are good improvements to avoid future
+issues like the one we found here.
+
+> -Doug
+> 
+
+Best regards,
+Javier

@@ -1,71 +1,47 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [RFC RESEND 5/5] Input: evdev - add new EVIOCGABSRANGE ioctl
-Date: Mon, 11 Aug 2014 12:13:16 +1000
-Message-ID: <20140811021316.GA26242@jelly.redhat.com>
-References: <1405775445-4454-1-git-send-email-dh.herrmann@gmail.com>
- <1405775445-4454-6-git-send-email-dh.herrmann@gmail.com>
- <20140806013519.GA11429@jelly.redhat.com>
- <CANq1E4QB3wiHRTjb_4xmVvXwOZvdpOQR9nZtnaZt=k2GaLJAmw@mail.gmail.com>
- <20140808174742.GG26820@core.coreip.homeip.net>
- <CANq1E4R14eOiXQ9p7XOPiOBuOnNns+EwgQMqrwOqeVKn4y8vAQ@mail.gmail.com>
- <20140810231759.GA10731@jelly.redhat.com>
- <20140811000134.GA12650@core.coreip.homeip.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 1/1] Input: atmel_mxt_ts - Get IRQ edge/level flags on
+ DT booting
+Date: Mon, 11 Aug 2014 10:32:19 +0200
+Message-ID: <CACRpkdZ9-5Pw-SHFNuGtvxDDHrA13ShSSFN9uZRBLTfpe=m5ug@mail.gmail.com>
+References: <1407397492-17475-1-git-send-email-javier.martinez@collabora.co.uk>
+	<53E4D9A5.908@itdev.co.uk>
+	<20140808162146.GC26820@core.coreip.homeip.net>
+	<53E4FD1B.6060600@collabora.co.uk>
+	<53E5170C.10302@collabora.co.uk>
+	<CAD=FV=WSNqjHLLbTh1LBF3RFrCnWnj498hivivcmx1SbuYp=Hw@mail.gmail.com>
+	<53E54E91.9060905@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:46234 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751711AbaHKCNR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Aug 2014 22:13:17 -0400
-Content-Disposition: inline
-In-Reply-To: <20140811000134.GA12650@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <53E54E91.9060905@collabora.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Doug Anderson <dianders@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, Tomasz Figa <tomasz.figa@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Abraham <thomas.ab@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@google.com>
 
-On Sun, Aug 10, 2014 at 05:01:35PM -0700, Dmitry Torokhov wrote:
-[...]
-> > >
-> > >    is about handling corner-cases. If we make SYN_DROPPED
-> > >    handling cause SYN_DROPPED, we can just ignore it.
-> > 
-> > yep, that too was my first thought. with a plain resync ioctl you're pretty
-> > much guaranteed to get SYN_DROPPED before the client manages to handle the
-> > resync. Even if you reduce the number of events as above because the most
-> > common occurance for SYN_DROPPED is in the ABS_MT range which we cannot
-> > meaningfully reduce.
-> 
-> Hmm, that's a problem... But is it? We need to make sure that buffer is large
-> enough for the MT device to transmit all it's contacts properly. We can not
-> expect that we'll always be able to reduce number of events if a user actively
-> uses 10 contacts. IOW we need to solve this issue regardless of this proposed
-> sync ioctl.
->
-> Maybe we need to review drivers and see if they need to supply their own hints
-> or update hinting logic in core?
- 
-The buffer is already large enough for at least one full report from the
-device plus a few extra events [1]. for the devices we see SYN_REPORT most
-frequently dumping the state means filling up the buffer to the almost
-maximum. To give some room for movement, we need to increase the queue by at
-least a factor 2. That gives us with room for one whole sync report and at
-least one full extra event. Anything smaller we get the side-effect
-that a client that is too slow and gets a SYN_DROPPED is actually worse off
-because now the buffer is so full from the sync that a SYN_DROPPED is even
-more likely to occur than before.
+I guess this discussion is about drivers/pinctrl/samsung/pinctrl-exynos.c?
 
-We also need to define the behaviour for the queue filling up while the
-client is in the middle of a sync. That means the client must be
-able to handle SYN_DROPPED as well as SYN_SYNC_DONE during a sync or the
-kernel protects the events up to SYN_SYNC_DONE in the queue in the case of
-a SYN_DROPPED.
+Or else I'm not really following this... $SUBJECT is a bit confusing.
 
-Either way it's IMO more complicated than having a separate buffer for the
-sync state.
+On Sat, Aug 9, 2014 at 12:26 AM, Javier Martinez Canillas
+<javier.martinez@collabora.co.uk> wrote:
 
-Cheers,
-   Peter
+> Regardless of this though I think that both the patch to move the IRQ
+> pinmux setup from .irq_set_type to the .irq_request_resources and the patch to
+> to prevent any pinmux reconfiguration are good improvements to avoid future
+> issues like the one we found here.
 
-[1] almost, it doesn't account for EV_SW for example
+I think someone should look into switching the Samsung/Exynos pinctrl
+driver to the gpiolib irqchip helpers, I looked at it but was scared by
+the special wkup chip and stuff I can't test.
+
+The irqchip helpers will atleast help out in flagging GPIO lines as
+used for IRQs so the core can keep track of stuff and show that
+properly in debugfs.
+
+The orthogonality compliance between GPIO and irqchip must
+however be solved in the driver itself, the core only helps out
+in blocking some abuse of the API.
+
+Yours,
+Linus Walleij

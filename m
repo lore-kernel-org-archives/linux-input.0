@@ -1,43 +1,31 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH] input/joystick: use get_cycles on ARMv8
-Date: Mon, 11 Aug 2014 16:42:10 +0100
-Message-ID: <1407771730-1641-1-git-send-email-broonie@kernel.org>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCHES] HID: huion: Fix "doing dma on the stack"
+Date: Mon, 11 Aug 2014 20:45:30 +0300
+Message-ID: <1407779132-26749-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:58368 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754389AbaHKPmX (ORCPT
+Received: from mail-we0-f170.google.com ([74.125.82.170]:36606 "EHLO
+	mail-we0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751506AbaHKRpw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Aug 2014 11:42:23 -0400
+	Mon, 11 Aug 2014 13:45:52 -0400
+Received: by mail-we0-f170.google.com with SMTP id w62so8891526wes.29
+        for <linux-input@vger.kernel.org>; Mon, 11 Aug 2014 10:45:50 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, DIGImend-devel <DIGImend-devel@lists.sourceforge.net>
 
-From: Mark Brown <broonie@linaro.org>
+Hi everyone,
 
-As with ARM the ARMv8 architecture provides a cycle counter which can be
-used to provide a high resolution time for the joystick driver and silence
-the build warning that results from not having a precise timer on ARMv8,
-making allmodconfig and allyesconfig quieter.
+These two patches work towards fixing the "doing dma on the stack" reported by
+a static analyzer (I'm not sure which one) for my recent changes to hid-huion
+driver.
 
-Signed-off-by: Mark Brown <broonie@linaro.org>
----
- drivers/input/joystick/analog.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The first one is easier to read with whitespace changes ingored (-w).
 
-diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
-index 9135606c8649..ab0fdcd36e18 100644
---- a/drivers/input/joystick/analog.c
-+++ b/drivers/input/joystick/analog.c
-@@ -158,7 +158,7 @@ static unsigned int get_time_pit(void)
- #define GET_TIME(x)	rdtscl(x)
- #define DELTA(x,y)	((y)-(x))
- #define TIME_NAME	"TSC"
--#elif defined(__alpha__) || defined(CONFIG_MN10300) || defined(CONFIG_ARM) || defined(CONFIG_TILE)
-+#elif defined(__alpha__) || defined(CONFIG_MN10300) || defined(CONFIG_ARM) || defined(CONFIG_ARM64) || defined(CONFIG_TILE)
- #define GET_TIME(x)	do { x = get_cycles(); } while (0)
- #define DELTA(x,y)	((y)-(x))
- #define TIME_NAME	"get_cycles"
--- 
-2.0.1
+Both patches were tested by me with a Huion H610N tablet.
 
+Nick
+
+ drivers/hid/hid-huion.c | 128 +++++++++++++++++++++++++++++-------------------
+ 1 file changed, 78 insertions(+), 50 deletions(-)

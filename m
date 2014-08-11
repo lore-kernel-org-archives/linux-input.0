@@ -1,57 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: wacom - Fix compiler warning if !CONFIG_PM
-Date: Mon, 11 Aug 2014 10:42:38 -0400
-Message-ID: <20140811144238.GA10029@mail.corp.redhat.com>
-References: <1407604023-7429-1-git-send-email-geert@linux-m68k.org>
- <alpine.LNX.2.00.1408092238290.15220@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH] input/joystick: use get_cycles on ARMv8
+Date: Mon, 11 Aug 2014 16:42:10 +0100
+Message-ID: <1407771730-1641-1-git-send-email-broonie@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52296 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753438AbaHKOms (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Aug 2014 10:42:48 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1408092238290.15220@pobox.suse.cz>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:58368 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754389AbaHKPmX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Aug 2014 11:42:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>
 
-On Aug 09 2014 or thereabouts, Jiri Kosina wrote:
-> On Sat, 9 Aug 2014, Geert Uytterhoeven wrote:
->=20
-> > If CONFIG_PM is not set:
-> >=20
-> > drivers/hid/wacom_sys.c:1436: warning: =E2=80=98wacom_reset_resume=E2=
-=80=99 defined but
-> > not used
-> >=20
-> > Protect the unused functions by #ifdef CONFIG_PM to fix this.
-> >=20
-> > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
->=20
-> Thanks Geert.
->=20
-> hid-wacom is in a sort of temporary mode of operation, being moved fr=
-om=20
-> Input to HID driver.
->=20
-> Adding Benjamin and Dmitry to CC, as this will likely still go throug=
-h=20
-> Dmitry's queue.
->=20
+From: Mark Brown <broonie@linaro.org>
 
-Thanks for fixing this Geert.
+As with ARM the ARMv8 architecture provides a cycle counter which can be
+used to provide a high resolution time for the joystick driver and silence
+the build warning that results from not having a precise timer on ARMv8,
+making allmodconfig and allyesconfig quieter.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Mark Brown <broonie@linaro.org>
+---
+ drivers/input/joystick/analog.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Cheers,
-Benjamin
+diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+index 9135606c8649..ab0fdcd36e18 100644
+--- a/drivers/input/joystick/analog.c
++++ b/drivers/input/joystick/analog.c
+@@ -158,7 +158,7 @@ static unsigned int get_time_pit(void)
+ #define GET_TIME(x)	rdtscl(x)
+ #define DELTA(x,y)	((y)-(x))
+ #define TIME_NAME	"TSC"
+-#elif defined(__alpha__) || defined(CONFIG_MN10300) || defined(CONFIG_ARM) || defined(CONFIG_TILE)
++#elif defined(__alpha__) || defined(CONFIG_MN10300) || defined(CONFIG_ARM) || defined(CONFIG_ARM64) || defined(CONFIG_TILE)
+ #define GET_TIME(x)	do { x = get_cycles(); } while (0)
+ #define DELTA(x,y)	((y)-(x))
+ #define TIME_NAME	"get_cycles"
+-- 
+2.0.1
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

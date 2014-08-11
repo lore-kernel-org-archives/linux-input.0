@@ -1,99 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: atmel_mxt_ts - fix a few issues reported by Coverity
-Date: Mon, 11 Aug 2014 11:03:09 -0700
-Message-ID: <20140811180307.GA25677@core.coreip.homeip.net>
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: Re: HID: huion: Switch to generating report descriptor
+Date: Mon, 11 Aug 2014 21:09:19 +0300
+Message-ID: <53E906CF.9030306@gmail.com>
+References: <20140731094012.GH30276@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:43525 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752717AbaHKSDN (ORCPT
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:55666 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753096AbaHKSJW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Aug 2014 14:03:13 -0400
-Content-Disposition: inline
+	Mon, 11 Aug 2014 14:09:22 -0400
+Received: by mail-wi0-f173.google.com with SMTP id f8so4695913wiw.0
+        for <linux-input@vger.kernel.org>; Mon, 11 Aug 2014 11:09:21 -0700 (PDT)
+In-Reply-To: <20140731094012.GH30276@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Stephen Warren <swarren@nvidia.com>, linux-kernel@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input@vger.kernel.org
 
-This should fix the following issues reported by Coverity:
+Hi Dan,
 
-*** CID 1230625:  Logically dead code  (DEADCODE)
-/drivers/input/touchscreen/atmel_mxt_ts.c: 1692 in mxt_initialize()
+On 07/31/2014 12:40 PM, Dan Carpenter wrote:
+> The patch f8dd5cb2c6d0: "HID: huion: Switch to generating report
+> descriptor" from Jul 23, 2014, leads to the following static checker
+> warning:
+>
+> 	drivers/hid/hid-huion.c:126 huion_tablet_enable()
+> 	error: doing dma on the stack (buf)
 
-*** CID 1230627:  Missing break in switch  (MISSING_BREAK)
-/drivers/input/touchscreen/atmel_mxt_ts.c: 1436 in mxt_get_object_table()
+Thanks a lot for notifying about the problem.
+I just submitted two patches fixing this under subject "HID: huion: Fix "doing
+dma on the stack"".
 
-*** CID 1230629:  Out-of-bounds write  (OVERRUN)
-/drivers/input/touchscreen/atmel_mxt_ts.c: 1267 in mxt_update_cfg()
-
-*** CID 1230632:  Unused pointer value  (UNUSED_VALUE)
-/drivers/input/touchscreen/atmel_mxt_ts.c: 1211 in mxt_update_cfg()
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index bbaf3ff..db178ed 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1098,8 +1098,12 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
- 			/* Skip object */
- 			for (i = 0; i < size; i++) {
- 				ret = sscanf(cfg->data + data_pos, "%hhx%n",
--					     &val,
--					     &offset);
-+					     &val, &offset);
-+				if (ret != 1) {
-+					dev_err(dev, "Bad format in T%d at %d\n",
-+						type, i);
-+					return -EINVAL;
-+				}
- 				data_pos += offset;
- 			}
- 			continue;
-@@ -1139,7 +1143,8 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
- 				     &val,
- 				     &offset);
- 			if (ret != 1) {
--				dev_err(dev, "Bad format in T%d\n", type);
-+				dev_err(dev, "Bad format in T%d at %d\n",
-+					type, i);
- 				return -EINVAL;
- 			}
- 			data_pos += offset;
-@@ -1149,8 +1154,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
- 
- 			byte_offset = reg + i - cfg_start_ofs;
- 
--			if (byte_offset >= 0 &&
--			    byte_offset <= config_mem_size) {
-+			if (byte_offset >= 0 && byte_offset < config_mem_size) {
- 				*(config_mem + byte_offset) = val;
- 			} else {
- 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
-@@ -1454,6 +1458,7 @@ static int mxt_get_object_table(struct mxt_data *data)
- 				data->T5_msg_size = mxt_obj_size(object) - 1;
- 			}
- 			data->T5_address = object->start_address;
-+			break;
- 		case MXT_GEN_COMMAND_T6:
- 			data->T6_reportid = min_id;
- 			data->T6_address = object->start_address;
-@@ -1707,7 +1712,7 @@ static int mxt_initialize(struct mxt_data *data)
- 		return error;
- 	}
- 
--	mxt_acquire_irq(data);
-+	error = mxt_acquire_irq(data);
- 	if (error)
- 		goto err_free_object_table;
- 
--- 
-2.0.0.526.g5318336
-
-
--- 
-Dmitry
+Sincerely,
+Nick

@@ -1,97 +1,57 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH] Input: serio: make HYPERV_KEYBOARD depend on SERIO_I8042=y
-Date: Tue, 12 Aug 2014 18:01:54 +0000
-Message-ID: <423148fadd52409a95064eca25e71340@BY2PR0301MB0711.namprd03.prod.outlook.com>
-References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
- <20140812032148.GB6867@kroah.com>
- <EE124450C0AAF944A40DD71E61F878C9920A1C@SINEX14MBXC417.southpacific.corp.microsoft.com>
- <20140812060108.GA13231@kroah.com>
- <EE124450C0AAF944A40DD71E61F878C9920EAF@SINEX14MBXC417.southpacific.corp.microsoft.com>
- <20140812175435.GA22386@core.coreip.homeip.net>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RESEND: PATCH 1/2] mfd: tc3589x: Add device tree bindings
+Date: Tue, 12 Aug 2014 20:02:02 +0200
+Message-ID: <CACRpkdY2xjp9=muE5WFoN3smzgC+cqR0ijgD306nXi7owEGyyw@mail.gmail.com>
+References: <1397028480-15413-1-git-send-email-linus.walleij@linaro.org>
+	<20140617202340.GW29841@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20140812175435.GA22386@core.coreip.homeip.net>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dexuan Cui <decui@microsoft.com>, Vojtech Pavlik <vojtech@suse.cz>
-Cc: "olaf@aepfle.de" <olaf@aepfle.de>, Greg KH <gregkh@linuxfoundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f181.google.com ([209.85.214.181]:45833 "EHLO
+	mail-ob0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753199AbaHLSCD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Aug 2014 14:02:03 -0400
+Received: by mail-ob0-f181.google.com with SMTP id va2so7572943obc.12
+        for <linux-input@vger.kernel.org>; Tue, 12 Aug 2014 11:02:02 -0700 (PDT)
+In-Reply-To: <20140617202340.GW29841@lee--X1>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>
 
+On Tue, Jun 17, 2014 at 10:23 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Wed, 09 Apr 2014, Linus Walleij wrote:
+>
+>> This defines the device tree bindings for the Toshiba TC3589x
+>> series of multi-purpose expanders. Only the stuff I can test
+>> is defined: GPIO and keypad. Others may implement more
+>> subdevices further down the road.
+>>
+>> This is to complement
+>> commit a435ae1d51e2f18414f2a87219fdbe068231e692
+>> "mfd: Enable the tc3589x for Device Tree" which left off
+>> the definition of the device tree bindings.
+>>
+>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>> ---
+>> ChangeLog v2->v3:
+>> - Fix the keys/rows bindings to be u32 rather than
+>>   /bits/ 8, inconsistency noted by Mark Rutland.
+>> ChangeLog v1->v2:
+>> - Include a verbose example in the DT bindings.
+>> - Explain why this is a stand-alone bindings patch.
+>> ---
+>>  Documentation/devicetree/bindings/mfd/tc3589x.txt | 107 ++++++++++++++++++++++
+>>  1 file changed, 107 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/mfd/tc3589x.txt
+>
+> Looks about right, been on the list for ages and doesn't add any new
+> properties.  Applied, thanks.
 
+This wasn't in the v3.17 pull request AFAICT :-(
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Tuesday, August 12, 2014 10:55 AM
-> To: Dexuan Cui
-> Cc: Greg KH; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
-> driverdev-devel@linuxdriverproject.org; olaf@aepfle.de;
-> apw@canonical.com; jasowang@redhat.com; KY Srinivasan; Haiyang Zhang
-> Subject: Re: [PATCH] Input: serio: make HYPERV_KEYBOARD depend on
-> SERIO_I8042=y
-> 
-> On Tue, Aug 12, 2014 at 07:15:25AM +0000, Dexuan Cui wrote:
-> > > -----Original Message-----
-> > > From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> > > owner@vger.kernel.org] On Behalf Of Greg KH
-> > > > > What exactly needs to be done to fix this "correctly" that is
-> > > > > going to take too much work at the moment?
-> > > >
-> > > > To decouple the dependency between the hyperv-keyboard and i8042
-> > > > modules, I suppose we probably have to re-implement
-> > > > hyperv-keyboard by using input_allocate_device(),
-> > > > input_register_device(), and using
-> > > > input_report_key() to pass the key strokes to the high level.
-> > >
-> > > Yes, that would be the best thing to do,
-> 
-> Why? The backend still delivers AT keyboard data, so why does it make sense
-> to write a new driver instead of making sure you can load
-> atkbd/libps2 even without i8042 loaded?
-> 
-> > > and shouldn't be that hard to
-> > > create an input driver, it's pretty simple code, right?
-> > Hi Greg,
-> > Thanks for the confirmation!
-> > I didn't use the APIs before.
-> > I think I need a couple of days to code, test and debug it while I
-> > have many  things at hand at present. :-(
-> >
-> > > > I'll have to need some time for further investigation and a new
-> > > > implementation. Before the new code is completely ready, IMHO the
-> > > > patch can help to avoid a bad user experience like Arch Linux
-> > > > working as a Generation 2 hyper-v guest.
-> > >
-> > > You are still preventing Arch from working here, as the driver can't
-> > > be built at all, right?
-> > The driver can build(compile) fine.
-> > The issue is: the latest Arch Linux release doesn't have a working
-> > (virtual) keyboard when it runs as Generation 2 hyper-v guest -- when
-> > it runs as a "traditional" Generation 1 hyper-v guest, everything works fine.
-> > I hope this patch can temporarily help Arch users if they find the
-> > issue and if they can rebuild the kernel.
-> 
-> The Arch users can simply select to build i8042 into the kernel as a
-> workaround.
-> 
-> The proper solution is to allow loading libps2 module even if i8042 did not find
-> its device. I wish I could simply drop this i8042_lock_chip and stuff, but
-> unfortunately i8042 ports are not truly independent. We need to figure a
-> way for libps2 to engage locking in i8042 if the driver is loaded, otherwise just
-> ignore it.
+Did it get dropped to the floor accidentally?
 
-When I first wrote this driver, we took the decision not to replicate all the code in the at keyboard driver and to
-make this  a serio based driver. I like the proposal made by Dmitry here.
-
-Regards,
-
-K. Y
+Yours,
+Linus Walleij

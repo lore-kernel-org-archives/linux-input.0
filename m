@@ -1,56 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID:hid-logitech: Prevent possibility of infinite loop
- when using /sys interface
-Date: Tue, 12 Aug 2014 16:30:20 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1408121630000.15220@pobox.suse.cz>
-References: <1407379951-7038-1-git-send-email-simon@mungewell.org>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - fix a few issues reported by Coverity
+Date: Tue, 12 Aug 2014 17:38:55 +0100
+Message-ID: <53EA431F.6020908@itdev.co.uk>
+References: <20140811180307.GA25677@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38521 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752393AbaHLOaW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Aug 2014 10:30:22 -0400
-In-Reply-To: <1407379951-7038-1-git-send-email-simon@mungewell.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:11672 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752685AbaHLQjE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Aug 2014 12:39:04 -0400
+In-Reply-To: <20140811180307.GA25677@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Stephen Warren <swarren@nvidia.com>, linux-kernel@vger.kernel.org
 
-On Wed, 6 Aug 2014, Simon Wood wrote:
-
-> If the device data is not accessible for some reason, returning 0 will cause the call to be
-> continuously called again as none of the string has been 'consumed'.
-
-Hi Simon,
-
-this patch is missing signoff.
-
-> ---
->  drivers/hid/hid-lg4ff.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 11/08/14 19:03, Dmitry Torokhov wrote:
+> This should fix the following issues reported by Coverity:
 > 
-> diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-> index cc2bd20..7835717 100644
-> --- a/drivers/hid/hid-lg4ff.c
-> +++ b/drivers/hid/hid-lg4ff.c
-> @@ -451,13 +451,13 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
->  	drv_data = hid_get_drvdata(hid);
->  	if (!drv_data) {
->  		hid_err(hid, "Private driver data not found!\n");
-> -		return 0;
-> +		return -EINVAL;
->  	}
->  
->  	entry = drv_data->device_props;
->  	if (!entry) {
->  		hid_err(hid, "Device properties not found!\n");
-> -		return 0;
-> +		return -EINVAL;
->  	}
->  
->  	if (range == 0)
+> *** CID 1230625:  Logically dead code  (DEADCODE)
+> /drivers/input/touchscreen/atmel_mxt_ts.c: 1692 in mxt_initialize()
+> 
+> *** CID 1230627:  Missing break in switch  (MISSING_BREAK)
+> /drivers/input/touchscreen/atmel_mxt_ts.c: 1436 in mxt_get_object_table()
+> 
+> *** CID 1230629:  Out-of-bounds write  (OVERRUN)
+> /drivers/input/touchscreen/atmel_mxt_ts.c: 1267 in mxt_update_cfg()
+> 
+> *** CID 1230632:  Unused pointer value  (UNUSED_VALUE)
+> /drivers/input/touchscreen/atmel_mxt_ts.c: 1211 in mxt_update_cfg()
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
--- 
-Jiri Kosina
-SUSE Labs
+I've reviewed these changes and they look correct to me. Apologies that
+they slipped through, most of it is bad merging on my part I think.
+
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>

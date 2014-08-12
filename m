@@ -1,46 +1,29 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Retire gamecon?
-Date: Tue, 12 Aug 2014 13:28:45 -0700
-Message-ID: <20140812202845.GA21474@core.coreip.homeip.net>
-References: <20140812170722.GC5563@core.coreip.homeip.net>
- <alpine.LNX.2.00.1408122212340.15220@pobox.suse.cz>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - fix a few issues reported by Coverity
+Date: Tue, 12 Aug 2014 22:08:48 +0100
+Message-ID: <53EA8260.4020306@itdev.co.uk>
+References: <20140811180307.GA25677@core.coreip.homeip.net> <53EA431F.6020908@itdev.co.uk> <53EA43A4.2070301@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:46394 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754734AbaHLU2s (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:35898 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754169AbaHLVIz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Aug 2014 16:28:48 -0400
-Received: by mail-pa0-f46.google.com with SMTP id lj1so13525091pab.5
-        for <linux-input@vger.kernel.org>; Tue, 12 Aug 2014 13:28:48 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1408122212340.15220@pobox.suse.cz>
+	Tue, 12 Aug 2014 17:08:55 -0400
+In-Reply-To: <53EA43A4.2070301@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Stephen Warren <swarren@nvidia.com>, linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2014 at 10:17:42PM +0200, Jiri Kosina wrote:
-> On Tue, 12 Aug 2014, Dmitry Torokhov wrote:
+On 12/08/14 17:41, Stephen Warren wrote:
+>> I've reviewed these changes and they look correct to me. Apologies that
+>> they slipped through, most of it is bad merging on my part I think.
+>>
+>> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 > 
-> > I am wondering it it is time to retire gamecon support from the kernel. 
-> 
-> Absolutely no objections from me on this, but I guess Vojtech's opinion is 
-> much more relevant here, as he has actually *seen* this hardware (I 
-> guess) :)
-> 
-> > It hasn't been working well ever since cpufreq became mainstream and it 
-> > becomes increasingly hard to find hardware and software that would run 
-> > on such old hardware.
-> 
-> Makes me wonder though what makes gamecon so special among other drivers 
-> of such kind (such as JOYSTICK_DB9, to name one randomly picked example).
+> Don't you mean Acked-by or Reviewed-by?
 
-Sorry, I actually meant gameport, not gamecon. I obviously did not have enough
-coffee when I sent out that message.
-
-Thanks.
-
--- 
-Dmitry
+You are right, Acked-by is probably more appropriate in this case.

@@ -1,38 +1,58 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: HID: huion: Switch to generating report descriptor
-Date: Mon, 11 Aug 2014 21:09:19 +0300
-Message-ID: <53E906CF.9030306@gmail.com>
-References: <20140731094012.GH30276@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Dexuan Cui <decui@microsoft.com>
+Subject: [PATCH] Input: serio: make HYPERV_KEYBOARD depend on SERIO_I8042=y
+Date: Mon, 11 Aug 2014 20:30:40 -0700
+Message-ID: <1407814240-4275-1-git-send-email-decui@microsoft.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:55666 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753096AbaHKSJW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Aug 2014 14:09:22 -0400
-Received: by mail-wi0-f173.google.com with SMTP id f8so4695913wiw.0
-        for <linux-input@vger.kernel.org>; Mon, 11 Aug 2014 11:09:21 -0700 (PDT)
-In-Reply-To: <20140731094012.GH30276@mwanda>
+Received: from p3plsmtps2ded03.prod.phx3.secureserver.net ([208.109.80.60]:41494
+	"EHLO p3plsmtps2ded03.prod.phx3.secureserver.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754083AbaHLC2K (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Aug 2014 22:28:10 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-input@vger.kernel.org
+To: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, driverdev-devel@linuxdriverproject.org, olaf@aepfle.de, apw@canonical.com, jasowang@redhat.com
+Cc: kys@microsoft.com, haiyangz@microsoft.com
 
-Hi Dan,
+hyperv_keyboard invokes serio_interrupt(), which needs a valid serio driver
+like atkbd.c.
+atkbd.c depends on libps2.c because it invokes ps2_command().
+libps2.c depends on i8042.c because it invokes i8042_check_port_owner().
+As a result, hyperv_keyboard actually depends on i8042.c.
 
-On 07/31/2014 12:40 PM, Dan Carpenter wrote:
-> The patch f8dd5cb2c6d0: "HID: huion: Switch to generating report
-> descriptor" from Jul 23, 2014, leads to the following static checker
-> warning:
->
-> 	drivers/hid/hid-huion.c:126 huion_tablet_enable()
-> 	error: doing dma on the stack (buf)
+For a Generation 2 Hyper-V VM (meaning no i8042 device emulated), if a Linux
+VM (like Arch Linux) happens to configure CONFIG_SERIO_I8042=m rather than
+=y, atkbd.ko can't load because i8042.ko can't load(due to no i8042 device
+emulated) and finally hyperv_keyboard can't work and the user can't input:
+https://bugs.archlinux.org/task/39820
+(Ubuntu/RHEL/SUSE aren't affected since they use CONFIG_SERIO_I8042=y)
 
-Thanks a lot for notifying about the problem.
-I just submitted two patches fixing this under subject "HID: huion: Fix "doing
-dma on the stack"".
+Decoupling the dependency between hyperv_keyboard and i8042 needs
+non-trivial efforts and is hence a long term goal.
 
-Sincerely,
-Nick
+For now, let's make the dependency explicit so people can beware of this.
+
+Thank Claudio for the initial reporting, investigation and suggesting the fix.
+
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reported-by: Claudio Latini <claudio.latini@live.com>
+Cc: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/input/serio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index bc2d474..3277bff 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -273,7 +273,7 @@ config SERIO_OLPC_APSP
+ 
+ config HYPERV_KEYBOARD
+ 	tristate "Microsoft Synthetic Keyboard driver"
+-	depends on HYPERV
++	depends on HYPERV && SERIO_I8042=y
+ 	default HYPERV
+ 	help
+ 	  Select this option to enable the Hyper-V Keyboard driver.
+-- 
+1.9.1
+

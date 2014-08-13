@@ -1,157 +1,85 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v5] input: drv260x: Add TI drv260x haptics driver
-Date: Wed, 13 Aug 2014 10:20:01 +0100
-Message-ID: <20140813092001.GB32644@leverpostej>
-References: <1406834089-15095-1-git-send-email-dmurphy@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: serio: make HYPERV_KEYBOARD depend on
+ SERIO_I8042=y
+Date: Wed, 13 Aug 2014 08:56:44 -0700
+Message-ID: <20140813155644.GA6940@core.coreip.homeip.net>
+References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
+ <20140812032148.GB6867@kroah.com>
+ <EE124450C0AAF944A40DD71E61F878C9920A1C@SINEX14MBXC417.southpacific.corp.microsoft.com>
+ <20140812060108.GA13231@kroah.com>
+ <EE124450C0AAF944A40DD71E61F878C9920EAF@SINEX14MBXC417.southpacific.corp.microsoft.com>
+ <20140812175435.GA22386@core.coreip.homeip.net>
+ <EE124450C0AAF944A40DD71E61F878C9925D21@SINEX14MBXC417.southpacific.corp.microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:34415 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750757AbaHMP4s (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Aug 2014 11:56:48 -0400
 Content-Disposition: inline
-In-Reply-To: <1406834089-15095-1-git-send-email-dmurphy@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Murphy <dmurphy@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "madcatxster@devoid-pointer.net" <madcatxster@devoid-pointer.net>, "simon@mungewell.org" <simon@mungewell.org>, "elias.vds@gmail.com" <elias.vds@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+In-Reply-To: <EE124450C0AAF944A40DD71E61F878C9925D21@SINEX14MBXC417.southpacific.corp.microsoft.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dexuan Cui <decui@microsoft.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 
-Hi Dan,
-
-Apologies for the delay.
-
-On Thu, Jul 31, 2014 at 08:14:49PM +0100, Dan Murphy wrote:
-> Add the TI drv260x haptics/vibrator driver.
-> This device uses the input force feedback
-> to produce a wave form to driver an
-> ERM or LRA actuator device.
+On Wed, Aug 13, 2014 at 05:24:35AM +0000, Dexuan Cui wrote:
+> > -----Original Message-----
+> > From: Dmitry Torokhov
+> > Sent: Wednesday, August 13, 2014 1:55 AM
+> > > > > To decouple the dependency between the hyperv-keyboard and i8042
+> > > > > modules, I suppose we probably have to re-implement hyperv-
+> > keyboard by
+> > > > > using input_allocate_device(), input_register_device(), and using
+> > > > > input_report_key() to pass the key strokes to the high level.
+> > > >
+> > > > Yes, that would be the best thing to do,
+> > 
+> > Why? The backend still delivers AT keyboard data, so why does it make
+> > sense to write a new driver instead of making sure you can load
+> > atkbd/libps2 even without i8042 loaded?
 > 
-> The initial driver supports the devices
-> real time playback mode.  But the device
-> has additional wave patterns in ROM.
+> Hi Dmitry,
+> Thanks for pointing this out!
+> I didn't realize input_report_key() can't accept AT keyboard scan codes.
 > 
-> This functionality will be added in
-> future patchsets.
+> > > The issue is: the latest Arch Linux release doesn't have a working (virtual)
+> > > keyboard when it runs as Generation 2 hyper-v guest -- when it runs as
+> > > a "traditional" Generation 1 hyper-v guest, everything works fine.
+> > > I hope this patch can temporarily help Arch users if they find the issue
+> > > and if they can rebuild the kernel.
+> > 
+> > The Arch users can simply select to build i8042 into the kernel as a
+> > workaround.
+> I agree.
 > 
-> Product data sheet is located here:
-> http://www.ti.com/product/drv2605
+> > The proper solution is to allow loading libps2 module even if i8042 did
+> > not find its device. I wish I could simply drop this i8042_lock_chip and
+> > stuff, but unfortunately i8042 ports are not truly independent. We need
+> > to figure a way for libps2 to engage locking in i8042 if the driver is
+> > loaded, otherwise just ignore it.
+> > 
+> > Dmitry
+> Yeah, this seems the right solution.
 > 
-> Signed-off-by: Dan Murphy <dmurphy@ti.com>
-> ---
-> 
-> v5 - Move register defines to c file and rm header file, error check
-> init in probe, fixed identation, remove empty labels in probe
-> and just return on fail and removed the remove callback and function.
-> Did not factor out the suspend into a stop function. - https://patchwork.kernel.org/patch/4649631/
-> v4 - Convert regulator to devm, added error checking where required,
-> updated bindings doc, moved dt parsing to separate call and made platform
-> data the first data point, moved vibrator enable and mode programming from
-> play entry to worker thread, added user check and input mutex in suspend/resume
-> calls, moved platform data to individual file and into include platform-data directory,
-> removed file names from file headers - https://patchwork.kernel.org/patch/4642221/
-> v3 - Updated binding doc, changed to memless device, updated input alloc to
-> devm, removed mutex locking, add sanity checks for mode and library - https://patchwork.kernel.org/patch/4635421/
-> v2 - Fixed binding doc and patch headline - https://patchwork.kernel.org/patch/4619641/
-> 
-> 
->  .../devicetree/bindings/input/ti,drv260x.txt       |   50 ++
->  drivers/input/misc/Kconfig                         |    9 +
->  drivers/input/misc/Makefile                        |    1 +
->  drivers/input/misc/drv260x.c                       |  697 ++++++++++++++++++++
->  include/dt-bindings/input/ti-drv260x.h             |   35 +
->  include/linux/platform_data/drv260x-pdata.h        |   29 +
->  6 files changed, 821 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/ti,drv260x.txt
->  create mode 100644 drivers/input/misc/drv260x.c
->  create mode 100644 include/dt-bindings/input/ti-drv260x.h
->  create mode 100644 include/linux/platform_data/drv260x-pdata.h
-> 
-> diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.txt b/Documentation/devicetree/bindings/input/ti,drv260x.txt
-> new file mode 100644
-> index 0000000..8e6970d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/ti,drv260x.txt
-> @@ -0,0 +1,50 @@
-> +Texas Instruments - drv260x Haptics driver family
-> +
-> +The drv260x family serial control bus communicates through I2C protocols
-> +
-> +Required properties:
-> +       - compatible - One of:
-> +               "ti,drv2604" - DRV2604
-> +               "ti,drv2605" - DRV2605
-> +               "ti,drv2605l" - DRV2605L
-> +       - reg -  I2C slave address
-> +       - supply- Required supply regulators are:
-> +               "vbat" - battery voltage
+> How about this:
+> in libps2.c let's add  and export a function pointer
+> i8042_lock_chip_if_port_owner: it is used to replace the current 
+> 	if (i8042_check_port_owner(ps2dev->serio))
+> 		i8042_lock_chip();
+> The function pointer has a default value NULL, and in i8042.c: i8042_init()
+> we set the function pointer if an i8042 device is found?
 
-This looks a bit odd, and seems to imply the name would be supply-vbat,
-which doesn't sound right. I assume this should be vbat-supply?
+Hmm, that would make i8042 depend on libps2, which might be OK, but how
+do you deal with the locking here? I.e. what happens if you unload i8042
+right when we go through this sequence?
 
-If so, just have this as:
+Maybe we need to split i8042_lock_chip() and friends into a separate
+module that always loads, even if i8042 is not present.
 
-- vbat-supply - regulator supplying battery voltage.
+Thanks.
 
-> +       - mode - Power up mode of the chip (defined in include/dt-bindings/input/ti-drv260x.h)
-> +               DRV260X_LRA_MODE - Linear Resonance Actuator mode (Piezoelectric)
-> +               DRV260X_LRA_NO_CAL_MODE - This is a LRA Mode but there is no calibration
-> +                               sequence during init.  And the device is configured for real
-> +                               time playback mode (RTP mode).
-> +               DRV260X_ERM_MODE - Eccentric Rotating Mass mode (Rotary vibrator)
-> +       - library-sel - These are ROM based waveforms pre-programmed into the IC.
-> +                               This should be set to set the library to use at power up.
-> +                               (defined in include/dt-bindings/input/ti-drv260x.h)
-> +               DRV260X_LIB_A - Pre-programmed Library
-> +               DRV260X_LIB_B - Pre-programmed Library
-> +               DRV260X_LIB_C - Pre-programmed Library
-> +               DRV260X_LIB_D - Pre-programmed Library
-> +               DRV260X_LIB_E - Pre-programmed Library
-> +               DRV260X_LIB_F - Pre-programmed Library
-
-In the datasheet these seem to be ERM libraries A-E, then LRA library
-(not F).
-
-How does the library selection interact with the mode? Surely it only
-makes sense to select an ERM library in ERM mode?
-
-> +
-> +Optional properties:
-> +       - enable-gpio - gpio pin to enable/disable the device.
-> +       - vib_rated_voltage - The rated voltage of the actuator in millivolts.
-> +                         If this is not set then the value will be defaulted to
-> +                         3.2 v.
-> +       - vib_overdrive_voltage - The overdrive voltage of the actuator in millivolts.
-> +                         If this is not set then the value will be defaulted to
-> +                         3.2 v.
-
-It looks like you forogt to s/_/-/ here when the code was last updated.
-
-These would be better suffixed with -mv given they are in millivolts
-rather than volts.
-
-> +               enable-gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
-> +               mode = <DRV260X_LRA_MODE>;
-> +               library-sel = <DRV260X_LIB_SEL_DEFAULT>;
-
-This value is not described above. What happens if
-DRV260X_LIB_SEL_DEFAULT is selected?
-
-[...]
-
-> +/**
-> + * Rated and Overdriver Voltages:
-> + * Calculated using the formula r = v * 255 / 5.6
-> + * where r is what will be written to the register
-> + * and v is the rated or overdriver voltage of the actuator
-> + **/
-> +#define DRV260X_DEF_RATED_VOLT         0x90
-> +#define DRV260X_DEF_OD_CLAMP_VOLT      0x90
-> +
-> +static int drv260x_calculate_voltage(int voltage)
-> +{
-> +       return (voltage * 255 / 5600);
-> +}
-> +
-
-Shouldn't the comment be attached to the function rather than the
-defines?
-
-Thanks,
-Mark.
+-- 
+Dmitry

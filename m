@@ -1,83 +1,34 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: serio: make HYPERV_KEYBOARD depend on
- SERIO_I8042=y
-Date: Wed, 13 Aug 2014 08:56:44 -0700
-Message-ID: <20140813155644.GA6940@core.coreip.homeip.net>
-References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
- <20140812032148.GB6867@kroah.com>
- <EE124450C0AAF944A40DD71E61F878C9920A1C@SINEX14MBXC417.southpacific.corp.microsoft.com>
- <20140812060108.GA13231@kroah.com>
- <EE124450C0AAF944A40DD71E61F878C9920EAF@SINEX14MBXC417.southpacific.corp.microsoft.com>
- <20140812175435.GA22386@core.coreip.homeip.net>
- <EE124450C0AAF944A40DD71E61F878C9925D21@SINEX14MBXC417.southpacific.corp.microsoft.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - fix a few issues reported by
+ Coverity
+Date: Wed, 13 Aug 2014 09:14:11 -0700
+Message-ID: <20140813161410.GA14682@core.coreip.homeip.net>
+References: <20140811180307.GA25677@core.coreip.homeip.net>
+ <53EA431F.6020908@itdev.co.uk>
+ <53EA43A4.2070301@wwwdotorg.org>
+ <53EA8260.4020306@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:34415 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750757AbaHMP4s (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Aug 2014 11:56:48 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <EE124450C0AAF944A40DD71E61F878C9925D21@SINEX14MBXC417.southpacific.corp.microsoft.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <53EA8260.4020306@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, linux-input@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Stephen Warren <swarren@nvidia.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dexuan Cui <decui@microsoft.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 
-On Wed, Aug 13, 2014 at 05:24:35AM +0000, Dexuan Cui wrote:
-> > -----Original Message-----
-> > From: Dmitry Torokhov
-> > Sent: Wednesday, August 13, 2014 1:55 AM
-> > > > > To decouple the dependency between the hyperv-keyboard and i8042
-> > > > > modules, I suppose we probably have to re-implement hyperv-
-> > keyboard by
-> > > > > using input_allocate_device(), input_register_device(), and using
-> > > > > input_report_key() to pass the key strokes to the high level.
-> > > >
-> > > > Yes, that would be the best thing to do,
+On Tue, Aug 12, 2014 at 10:08:48PM +0100, Nick Dyer wrote:
+> On 12/08/14 17:41, Stephen Warren wrote:
+> >> I've reviewed these changes and they look correct to me. Apologies that
+> >> they slipped through, most of it is bad merging on my part I think.
+> >>
+> >> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 > > 
-> > Why? The backend still delivers AT keyboard data, so why does it make
-> > sense to write a new driver instead of making sure you can load
-> > atkbd/libps2 even without i8042 loaded?
+> > Don't you mean Acked-by or Reviewed-by?
 > 
-> Hi Dmitry,
-> Thanks for pointing this out!
-> I didn't realize input_report_key() can't accept AT keyboard scan codes.
-> 
-> > > The issue is: the latest Arch Linux release doesn't have a working (virtual)
-> > > keyboard when it runs as Generation 2 hyper-v guest -- when it runs as
-> > > a "traditional" Generation 1 hyper-v guest, everything works fine.
-> > > I hope this patch can temporarily help Arch users if they find the issue
-> > > and if they can rebuild the kernel.
-> > 
-> > The Arch users can simply select to build i8042 into the kernel as a
-> > workaround.
-> I agree.
-> 
-> > The proper solution is to allow loading libps2 module even if i8042 did
-> > not find its device. I wish I could simply drop this i8042_lock_chip and
-> > stuff, but unfortunately i8042 ports are not truly independent. We need
-> > to figure a way for libps2 to engage locking in i8042 if the driver is
-> > loaded, otherwise just ignore it.
-> > 
-> > Dmitry
-> Yeah, this seems the right solution.
-> 
-> How about this:
-> in libps2.c let's add  and export a function pointer
-> i8042_lock_chip_if_port_owner: it is used to replace the current 
-> 	if (i8042_check_port_owner(ps2dev->serio))
-> 		i8042_lock_chip();
-> The function pointer has a default value NULL, and in i8042.c: i8042_init()
-> we set the function pointer if an i8042 device is found?
+> You are right, Acked-by is probably more appropriate in this case.
 
-Hmm, that would make i8042 depend on libps2, which might be OK, but how
-do you deal with the locking here? I.e. what happens if you unload i8042
-right when we go through this sequence?
-
-Maybe we need to split i8042_lock_chip() and friends into a separate
-module that always loads, even if i8042 is not present.
+OK, I put you as "asked-by" then.
 
 Thanks.
 

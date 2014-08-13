@@ -1,36 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - fix a few issues reported by
- Coverity
-Date: Wed, 13 Aug 2014 09:14:11 -0700
-Message-ID: <20140813161410.GA14682@core.coreip.homeip.net>
-References: <20140811180307.GA25677@core.coreip.homeip.net>
- <53EA431F.6020908@itdev.co.uk>
- <53EA43A4.2070301@wwwdotorg.org>
- <53EA8260.4020306@itdev.co.uk>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: [Question: Drivers/input/evdev.c] What is the use of write function
+ in evdev_fops?
+Date: Wed, 13 Aug 2014 22:16:34 +0530
+Message-ID: <CADYu30-WqEUF-BiefJBo9yWUpKKX_zoLZGXsrJSdC46N8w0OVg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <53EA8260.4020306@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, linux-input@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Stephen Warren <swarren@nvidia.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:65018 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753165AbaHMQqg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Aug 2014 12:46:36 -0400
+Received: by mail-lb0-f175.google.com with SMTP id 10so3570lbg.34
+        for <linux-input@vger.kernel.org>; Wed, 13 Aug 2014 09:46:34 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Aug 12, 2014 at 10:08:48PM +0100, Nick Dyer wrote:
-> On 12/08/14 17:41, Stephen Warren wrote:
-> >> I've reviewed these changes and they look correct to me. Apologies that
-> >> they slipped through, most of it is bad merging on my part I think.
-> >>
-> >> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> > 
-> > Don't you mean Acked-by or Reviewed-by?
-> 
-> You are right, Acked-by is probably more appropriate in this case.
+Dear Mr. Torokhov and Linux-Input Community,
+Greetings of the day !! :)
 
-OK, I put you as "asked-by" then.
+I have not seen some good use of write function in input subsystem.
+I am trying find the good uses of write function in Input subsystem,
+but could not find the solution over internet.
+Can you please help in answering my query below:
 
-Thanks.
+As you know, in evdev.c file, fops is defined as below
+struct file_operations evdev_fops = {
+.read           = evdev_read,
+.write          = evdev_write,
+...
+}
 
--- 
-Dmitry
+So in what cases, evdev_write function is used ?
+One case I can think of is that, it can be used in input device simulator
+to write the recorded data back into buffer.
+
+Thanks and Regards,
+Aniroop Mathur

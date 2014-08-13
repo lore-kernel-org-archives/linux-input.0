@@ -1,71 +1,43 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RESEND: PATCH 1/2] mfd: tc3589x: Add device tree bindings
-Date: Wed, 13 Aug 2014 09:03:01 +0100
-Message-ID: <20140813080301.GA18712@lee--X1>
-References: <1397028480-15413-1-git-send-email-linus.walleij@linaro.org>
- <20140617202340.GW29841@lee--X1>
- <CACRpkdY2xjp9=muE5WFoN3smzgC+cqR0ijgD306nXi7owEGyyw@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] hid: Add mapping for special keys on compaq ku 0133 keyboard
+Date: Wed, 13 Aug 2014 10:38:49 +0200
+Message-ID: <53EB2419.4000503@redhat.com>
+References: <1407885290-3067-1-git-send-email-hdegoede@redhat.com> <20140812233530.GA9498@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdY2xjp9=muE5WFoN3smzgC+cqR0ijgD306nXi7owEGyyw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:57399 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750757AbaHMIix (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Aug 2014 04:38:53 -0400
+In-Reply-To: <20140812233530.GA9498@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 12 Aug 2014, Linus Walleij wrote:
+Hi,
 
-> On Tue, Jun 17, 2014 at 10:23 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wr=
-ote:
-> > On Wed, 09 Apr 2014, Linus Walleij wrote:
-> >
-> >> This defines the device tree bindings for the Toshiba TC3589x
-> >> series of multi-purpose expanders. Only the stuff I can test
-> >> is defined: GPIO and keypad. Others may implement more
-> >> subdevices further down the road.
-> >>
-> >> This is to complement
-> >> commit a435ae1d51e2f18414f2a87219fdbe068231e692
-> >> "mfd: Enable the tc3589x for Device Tree" which left off
-> >> the definition of the device tree bindings.
-> >>
-> >> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> >> ---
-> >> ChangeLog v2->v3:
-> >> - Fix the keys/rows bindings to be u32 rather than
-> >>   /bits/ 8, inconsistency noted by Mark Rutland.
-> >> ChangeLog v1->v2:
-> >> - Include a verbose example in the DT bindings.
-> >> - Explain why this is a stand-alone bindings patch.
-> >> ---
-> >>  Documentation/devicetree/bindings/mfd/tc3589x.txt | 107 +++++++++=
-+++++++++++++
-> >>  1 file changed, 107 insertions(+)
-> >>  create mode 100644 Documentation/devicetree/bindings/mfd/tc3589x.=
-txt
-> >
-> > Looks about right, been on the list for ages and doesn't add any ne=
-w
-> > properties.  Applied, thanks.
->=20
-> This wasn't in the v3.17 pull request AFAICT :-(
->=20
-> Did it get dropped to the floor accidentally?
+On 08/13/2014 01:35 AM, Dmitry Torokhov wrote:
+> On Wed, Aug 13, 2014 at 01:14:50AM +0200, Hans de Goede wrote:
+>> The compaq ku 0133 keyboard has 8 special keys at the top:
+>> http://lackof.org/taggart/hacking/keyboard/cpqwireless.jpg
+>>
+>> 3 of these use standard HID usage codes from the consumer page, the 5
+>> others use part of the reserved 0x07 - 0x1f range.
+>>
+>> This commit adds mapping for this keyboard for these reserved codes, making
+>> the other 5 keys work.
+> 
+> Can't we just load the proper keymap through udev without writing yet another
+> kernel driver?
 
-It doesn't look like this was ever actually applied to the MFD tree
-i.e I can't find it in my git history (reflog), sorry Linus.  I have a
--fixes branch and will attempt to send this patch as a part of that.
+Hmm, in this case I don't see any reason why not. ATM I don't have access
+to the keyboard in question. I'll try writing a udev hwdb entry for it, assuming
+that works I'll send that upstream to the u-boot guys. If it does not work for
+some reason, then I'll send a v2 of this patch.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+
+Hans

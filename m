@@ -1,52 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Remove superfluous assignment in
- edt_ft5x06_register_write()
-Date: Wed, 13 Aug 2014 15:29:22 -0700
-Message-ID: <20140813222921.GB11620@core.coreip.homeip.net>
-References: <1407960005.4388.2.camel@ubuntu>
+From: Dexuan Cui <decui@microsoft.com>
+Subject: RE: [PATCH] Input: serio: make HYPERV_KEYBOARD depend on
+ SERIO_I8042=y
+Date: Thu, 14 Aug 2014 06:07:11 +0000
+Message-ID: <EE124450C0AAF944A40DD71E61F878C9929597@SINEX14MBXC417.southpacific.corp.microsoft.com>
+References: <1407814240-4275-1-git-send-email-decui@microsoft.com>
+ <20140812032148.GB6867@kroah.com>
+ <EE124450C0AAF944A40DD71E61F878C9920A1C@SINEX14MBXC417.southpacific.corp.microsoft.com>
+ <20140812060108.GA13231@kroah.com>
+ <EE124450C0AAF944A40DD71E61F878C9920EAF@SINEX14MBXC417.southpacific.corp.microsoft.com>
+ <20140812175435.GA22386@core.coreip.homeip.net>
+ <EE124450C0AAF944A40DD71E61F878C9925D21@SINEX14MBXC417.southpacific.corp.microsoft.com>
+ <20140813155644.GA6940@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:36192 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752877AbaHMW30 (ORCPT
+Received: from mail-bn1blp0187.outbound.protection.outlook.com ([207.46.163.187]:54894
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752450AbaHNGIc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Aug 2014 18:29:26 -0400
-Received: by mail-pd0-f175.google.com with SMTP id r10so434161pdi.34
-        for <linux-input@vger.kernel.org>; Wed, 13 Aug 2014 15:29:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1407960005.4388.2.camel@ubuntu>
+	Thu, 14 Aug 2014 02:08:32 -0400
+In-Reply-To: <20140813155644.GA6940@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maks Naumov <maksqwe1@ukr.net>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 
-On Wed, Aug 13, 2014 at 01:00:05PM -0700, Maks Naumov wrote:
-> Signed-off-by: Maks Naumov <maksqwe1@ukr.net>
+> -----Original Message-----
+> From: Dmitry Torokhov
+> > How about this:
+> > in libps2.c let's add  and export a function pointer
+> > i8042_lock_chip_if_port_owner: it is used to replace the current
+> > 	if (i8042_check_port_owner(ps2dev->serio))
+> > 		i8042_lock_chip();
+> > The function pointer has a default value NULL, and in i8042.c: i8042_init()
+> > we set the function pointer if an i8042 device is found?
+> 
+> Hmm, that would make i8042 depend on libps2, which might be OK, but how
+> do you deal with the locking here? I.e. what happens if you unload i8042
+> right when we go through this sequence?
+Ok, I got it.
 
-Applied, thank you.
+> Maybe we need to split i8042_lock_chip() and friends into a separate
+> module that always loads, even if i8042 is not present.
+> Dmitry
+Good idea!
 
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 5a6d50c..8857d5b 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -262,7 +262,6 @@ static int edt_ft5x06_register_write(struct edt_ft5x06_ts_data *tsdata,
->  	case M06:
->  		wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
->  		wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
-> -		wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
->  		wrbuf[2] = value;
->  		wrbuf[3] = wrbuf[0] ^ wrbuf[1] ^ wrbuf[2];
->  		return edt_ft5x06_ts_readwrite(tsdata->client, 4,
-> -- 
-> 1.9.1
-> 
-> 
-> 
+However the more difficult thing is 
+i8042_check_port_owner() -- used by  libps2.c too.
+Then  the separate module will also have to include and EXPORT
+	DEFINE_SPINLOCK(i8042_lock);
+	struct i8042_port i8042_ports[I8042_NUM_PORTS];
+?
 
--- 
-Dmitry
+This seems a non-trivial change... :-(
+
+Thanks,
+-- Dexuan

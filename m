@@ -1,36 +1,36 @@
-From: "Webmail Maintenance Team" <info@webmail.org>
-Subject: Attention Email User
-Date: Thu, 14 Aug 2014 11:44:58 -0300
-Message-ID: <deba6341c807e7a6fb031eea0c273b8a.squirrel__2517.24517806924$1408028021$gmane$org@webmail.unf.edu.ar>
-Reply-To: customercare_1@outlook.com
+From: simon@mungewell.org
+Subject: Re: PATCH hid: Implement mode switching on Logitech gaming wheels
+ accordingly to the documentation
+Date: Thu, 14 Aug 2014 12:30:02 -0400
+Message-ID: <629e44bcbdb7061b2f004cf9125fed9b.squirrel@mungewell.org>
+References: <3335238.KGDcEM6DjH@sigyn>
+    <f86b6b4fbf48ce4cbeb9b537794a4eb8.squirrel@mungewell.org>
+    <alpine.LNX.2.00.1408121509550.15220@pobox.suse.cz>
+    <4338127.9nsJWYLUyM@sigyn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns1.unf.edu.ar ([170.210.232.249]:48442 "EHLO pak.unf.edu.ar"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750963AbaHNOxQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Aug 2014 10:53:16 -0400
+Received: from host171.canaca.com ([67.55.55.225]:40004 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751110AbaHNQaI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Aug 2014 12:30:08 -0400
+In-Reply-To: <4338127.9nsJWYLUyM@sigyn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@devoid-pointer.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, "simon@mungewell.org" <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, edwin@velds.nl, "elias.vds@gmail.com" <elias.vds@gmail.com>, Roland Bosa <rbosa@logitech.com>
 
-Attention Email User
 
+> Simon mailed me his revised patchset which has the changes broken out into
+> four separate patches and allows to switch "extended compatibility" modes
+> on
+> the fly through sysfs. I looked them over and I they seem fine to me. I
+> suppose he'll submit them for review very soon.
 
-
-A DGTFX virus has been detected in your folders. Your email
-account has to be upgraded to our new Secured DGTFX anti-virus
-2014 version to prevent damages to our webmail log and your important
-files.Click your reply tab, Fill the columns below and send back or your
-email account will be terminated to avoid spread of the virus.
-
-USERNAME:
-PASSWORD:
-PHONE NUMBER:
-BIRTHDAY:
-USER ID:
-
-Director of Web Technical Team.
-Note that your password will be encrypted
-with 1024-bit RSA keys for your password safety
+Whilst it is my intention to submit them, I might not achieve the 'very
+soon' part.... earliest I think would be mid next week as they still need
+a little tweaking.
+Simon
 

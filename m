@@ -1,196 +1,159 @@
-From: "Murphy, Dan" <dmurphy@ti.com>
-Subject: Re: [PATCH v5] input: drv260x: Add TI drv260x haptics driver
-Date: Thu, 14 Aug 2014 17:44:04 +0000
-Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DE6FF3@DFLE09.ent.ti.com>
-References: <1406834089-15095-1-git-send-email-dmurphy@ti.com>
- <20140813092001.GB32644@leverpostej>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [Question: Drivers/input/evdev.c] What is the use of write
+ function in evdev_fops?
+Date: Fri, 15 Aug 2014 00:55:35 +0530
+Message-ID: <CADYu30_oB94oORguEu3+Ri4YFu6Vuo1qBvsmFmFbSpZufJ49aQ@mail.gmail.com>
+References: <CADYu30-WqEUF-BiefJBo9yWUpKKX_zoLZGXsrJSdC46N8w0OVg@mail.gmail.com>
+	<20140813170639.GA16164@core.coreip.homeip.net>
+	<CADYu30-OBXKQTMD_kAmjfrYoXvO0NkcaPac5kpe1hmbXy473Ww@mail.gmail.com>
+	<20140813185851.GA34103@core.coreip.homeip.net>
+	<CADYu30_XWpoYmFyGB7Pe9xkG0kyCUJo03NO0U2kycBfY83J3OA@mail.gmail.com>
+	<a3bd7d64-136e-42ea-98ca-e7992b48cc01@email.android.com>
+	<CADYu308G3_50JTEfwOnRy4U4x8U_FTpuxqLhHqmqWiCAwAYH7w@mail.gmail.com>
+	<8453fbc4-dfb7-4d93-acc9-e0151c8901ed@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:53452 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752445AbaHNRoQ convert rfc822-to-8bit (ORCPT
+Received: from mail-la0-f50.google.com ([209.85.215.50]:51047 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753774AbaHNTZh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Aug 2014 13:44:16 -0400
-Content-Language: en-US
+	Thu, 14 Aug 2014 15:25:37 -0400
+Received: by mail-la0-f50.google.com with SMTP id pi18so1569345lab.37
+        for <linux-input@vger.kernel.org>; Thu, 14 Aug 2014 12:25:35 -0700 (PDT)
+In-Reply-To: <8453fbc4-dfb7-4d93-acc9-e0151c8901ed@email.android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "madcatxster@devoid-pointer.net" <madcatxster@devoid-pointer.net>, "simon@mungewell.org" <simon@mungewell.org>, "elias.vds@gmail.com" <elias.vds@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Mark
-
-On 08/13/2014 04:20 AM, Mark Rutland wrote:
-> Hi Dan,
-> 
-> Apologies for the delay.
-> 
-
-No worries.  Thanks for the comments
-
-> On Thu, Jul 31, 2014 at 08:14:49PM +0100, Dan Murphy wrote:
->> Add the TI drv260x haptics/vibrator driver.
->> This device uses the input force feedback
->> to produce a wave form to driver an
->> ERM or LRA actuator device.
+On Thu, Aug 14, 2014 at 1:12 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On August 13, 2014 12:28:46 PM PDT, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+>>On Thu, Aug 14, 2014 at 12:50 AM, Dmitry Torokhov
+>><dmitry.torokhov@gmail.com> wrote:
+>>> On August 13, 2014 12:10:16 PM PDT, Aniroop Mathur
+>><aniroop.mathur@gmail.com> wrote:
+>>>>On Thu, Aug 14, 2014 at 12:28 AM, Dmitry Torokhov
+>>>><dmitry.torokhov@gmail.com> wrote:
+>>>>> On Wed, Aug 13, 2014 at 11:41:20PM +0530, Aniroop Mathur wrote:
+>>>>>> Hello Mr. Torokhov :)
+>>>>>>
+>>>>>> On Wed, Aug 13, 2014 at 10:36 PM, Dmitry Torokhov
+>>>>>> <dmitry.torokhov@gmail.com> wrote:
+>>>>>> > Hi Aniroop,
+>>>>>> >
+>>>>>> > On Wed, Aug 13, 2014 at 10:16:34PM +0530, Aniroop Mathur wrote:
+>>>>>> >> Dear Mr. Torokhov and Linux-Input Community,
+>>>>>> >> Greetings of the day !! :)
+>>>>>> >>
+>>>>>> >> I have not seen some good use of write function in input
+>>>>subsystem.
+>>>>>> >> I am trying find the good uses of write function in Input
+>>>>subsystem,
+>>>>>> >> but could not find the solution over internet.
+>>>>>> >> Can you please help in answering my query below:
+>>>>>> >>
+>>>>>> >> As you know, in evdev.c file, fops is defined as below
+>>>>>> >> struct file_operations evdev_fops = {
+>>>>>> >> .read           = evdev_read,
+>>>>>> >> .write          = evdev_write,
+>>>>>> >> ...
+>>>>>> >> }
+>>>>>> >>
+>>>>>> >> So in what cases, evdev_write function is used ?
+>>>>>> >> One case I can think of is that, it can be used in input device
+>>>>simulator
+>>>>>> >> to write the recorded data back into buffer.
+>>>>>> >
+>>>>>> > You are right, majority of times you are reading from the
+>>buffer.
+>>>>Still,
+>>>>>> > sometimes you want to control hardware state, for example,
+>>toggle
+>>>>keyboard LED.
+>>>>>> > That can be achieved by writing appropriate event to the event
+>>>>device.
+>>>>>> >
+>>>>>>
+>>>>>> Okay. :)
+>>>>>> So it means application upon receiving some key value,
+>>>>>> it can write EV_LED type of event to keyboard input device node
+>>>>>> and if  dev->event function is defined in driver, driver can
+>>request
+>>>>>> hardware to toggle led.
+>>>>>> Similarly, it can be done for cases like sound (EV_SND, force
+>>>>>> feedback(EV_FF), etc
+>>>>>> Right ?
+>>>>>
+>>>>> Yes.
+>>>>>
+>>>>>>
+>>>>>> > For simulators I think uinput is suited the best.
+>>>>>> >
+>>>>>>
+>>>>>> As i know, in case of uinput, there is only one device node
+>>>>>> /dev/uinput or /dev/input/uinput.
+>>>>>> and to distinguish the events, we can use event type and code.
+>>>>>>
+>>>>>> But, if we are simulating multiple devices together like
+>>>>>> accelerometer, gyro, mag, light, compass, etc
+>>>>>> then any two devices can have same event type and code.
+>>>>>> Like accel and gyro can both have EV_REL and REL_X/Y/Z.
+>>>>>> In such a case, we won't be able to distinguish between accel and
+>>>>gyro events.
+>>>>>>
+>>>>>> Instead if we use accel and gyro separate device nodes,
+>>>>>> there is no such problem because device nodes itself are
+>>different.
+>>>>:)
+>>>>>> So for such case, I think simulation through proper device node is
+>>>>better.
+>>>>>
+>>>>> Even though there is only one /dev/input/uinput every user (an
+>>entity
+>>>>> opening that device node) will end up creating it's very own and
+>>>>> separate input device, with separate bitmasks, events, etc, etc.
+>>>>>
+>>>>
+>>>>How to use bitmasks to distinguish between two events ?
+>>>>In below code, I can only see type and code as
+>>>>identification variables.
+>>>>Can we use bitmask too here ?
+>>>>
+>>>>fd = open("/dev/uinput", O_RDWR);
+>>>>
+>>>
+>>> You need to open 2 separate file descriptors.
+>>>
 >>
->> The initial driver supports the devices
->> real time playback mode.  But the device
->> has additional wave patterns in ROM.
+>>2 separate file descriptors like below ?
+>>int fd1 = open("/dev/uinput", O_RDWR);
+>>int fd2 = open("/dev/uinput", O_RDWR);
 >>
->> This functionality will be added in
->> future patchsets.
+>>But my reading data will still come in struct input_event as mentioned
+>>above.
+>>It has only time, type, code and value.
+>>So, how we can use bitmask here ?
 >>
->> Product data sheet is located here:
->> http://www.ti.com/product/drv2605
->>
->> Signed-off-by: Dan Murphy <dmurphy@ti.com>
->> ---
->>
->> v5 - Move register defines to c file and rm header file, error check
->> init in probe, fixed identation, remove empty labels in probe
->> and just return on fail and removed the remove callback and function.
->> Did not factor out the suspend into a stop function. - https://patchwork.kernel.org/patch/4649631/
->> v4 - Convert regulator to devm, added error checking where required,
->> updated bindings doc, moved dt parsing to separate call and made platform
->> data the first data point, moved vibrator enable and mode programming from
->> play entry to worker thread, added user check and input mutex in suspend/resume
->> calls, moved platform data to individual file and into include platform-data directory,
->> removed file names from file headers - https://patchwork.kernel.org/patch/4642221/
->> v3 - Updated binding doc, changed to memless device, updated input alloc to
->> devm, removed mutex locking, add sanity checks for mode and library - https://patchwork.kernel.org/patch/4635421/
->> v2 - Fixed binding doc and patch headline - https://patchwork.kernel.org/patch/4619641/
->>
->>
->>  .../devicetree/bindings/input/ti,drv260x.txt       |   50 ++
->>  drivers/input/misc/Kconfig                         |    9 +
->>  drivers/input/misc/Makefile                        |    1 +
->>  drivers/input/misc/drv260x.c                       |  697 ++++++++++++++++++++
->>  include/dt-bindings/input/ti-drv260x.h             |   35 +
->>  include/linux/platform_data/drv260x-pdata.h        |   29 +
->>  6 files changed, 821 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/ti,drv260x.txt
->>  create mode 100644 drivers/input/misc/drv260x.c
->>  create mode 100644 include/dt-bindings/input/ti-drv260x.h
->>  create mode 100644 include/linux/platform_data/drv260x-pdata.h
->>
->> diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.txt b/Documentation/devicetree/bindings/input/ti,drv260x.txt
->> new file mode 100644
->> index 0000000..8e6970d
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/ti,drv260x.txt
->> @@ -0,0 +1,50 @@
->> +Texas Instruments - drv260x Haptics driver family
->> +
->> +The drv260x family serial control bus communicates through I2C protocols
->> +
->> +Required properties:
->> +       - compatible - One of:
->> +               "ti,drv2604" - DRV2604
->> +               "ti,drv2605" - DRV2605
->> +               "ti,drv2605l" - DRV2605L
->> +       - reg -  I2C slave address
->> +       - supply- Required supply regulators are:
->> +               "vbat" - battery voltage
-> 
-> This looks a bit odd, and seems to imply the name would be supply-vbat,
-> which doesn't sound right. I assume this should be vbat-supply?
-> 
-> If so, just have this as:
-> 
-> - vbat-supply - regulator supplying battery voltage.
+>>struct input_event {
+>>struct timeval time;
+>>__u16 type;
+>>__u16 code;
+>>__s32 value;
+>> };
+>
+> By opening 2 fds you'll end up creating 2 separate input devices with separate evdev nodes, etc, so you will not mix up input events.
+>
+> I think at this time you should just try actually using uinput and that should clear things for you.
+>
 
-Will change this.
+Can you please explain what do you mean by separate evdev nodes ?
+Do you mean two separate evdev nodes for uinput ?
+But as we discussed before, there is only one node in case of uinput
+i.e. /dev/uinput.
 
-> 
->> +       - mode - Power up mode of the chip (defined in include/dt-bindings/input/ti-drv260x.h)
->> +               DRV260X_LRA_MODE - Linear Resonance Actuator mode (Piezoelectric)
->> +               DRV260X_LRA_NO_CAL_MODE - This is a LRA Mode but there is no calibration
->> +                               sequence during init.  And the device is configured for real
->> +                               time playback mode (RTP mode).
->> +               DRV260X_ERM_MODE - Eccentric Rotating Mass mode (Rotary vibrator)
->> +       - library-sel - These are ROM based waveforms pre-programmed into the IC.
->> +                               This should be set to set the library to use at power up.
->> +                               (defined in include/dt-bindings/input/ti-drv260x.h)
->> +               DRV260X_LIB_A - Pre-programmed Library
->> +               DRV260X_LIB_B - Pre-programmed Library
->> +               DRV260X_LIB_C - Pre-programmed Library
->> +               DRV260X_LIB_D - Pre-programmed Library
->> +               DRV260X_LIB_E - Pre-programmed Library
->> +               DRV260X_LIB_F - Pre-programmed Library
-> 
-> In the datasheet these seem to be ERM libraries A-E, then LRA library
-> (not F).
-> 
-> How does the library selection interact with the mode? Surely it only
-> makes sense to select an ERM library in ERM mode?
-> 
+Kindly elaborate more.
 
-OK yeah.  I will update these to call out ERM vs LRA libraries and add a check in the code
-to make sure there is no mis-match of lib to mode
-
-
->> +
->> +Optional properties:
->> +       - enable-gpio - gpio pin to enable/disable the device.
->> +       - vib_rated_voltage - The rated voltage of the actuator in millivolts.
->> +                         If this is not set then the value will be defaulted to
->> +                         3.2 v.
->> +       - vib_overdrive_voltage - The overdrive voltage of the actuator in millivolts.
->> +                         If this is not set then the value will be defaulted to
->> +                         3.2 v.
-> 
-> It looks like you forogt to s/_/-/ here when the code was last updated.
-> 
-> These would be better suffixed with -mv given they are in millivolts
-> rather than volts.
-
-SGTM.  Will update
-
-> 
->> +               enable-gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
->> +               mode = <DRV260X_LRA_MODE>;
->> +               library-sel = <DRV260X_LIB_SEL_DEFAULT>;
-> 
-> This value is not described above. What happens if
-> DRV260X_LIB_SEL_DEFAULT is selected?
-> 
-
-I removed the default and change to empty as that is what the
-default mode is is an empty library.
-
-> [...]
-> 
->> +/**
->> + * Rated and Overdriver Voltages:
->> + * Calculated using the formula r = v * 255 / 5.6
->> + * where r is what will be written to the register
->> + * and v is the rated or overdriver voltage of the actuator
->> + **/
->> +#define DRV260X_DEF_RATED_VOLT         0x90
->> +#define DRV260X_DEF_OD_CLAMP_VOLT      0x90
->> +
->> +static int drv260x_calculate_voltage(int voltage)
->> +{
->> +       return (voltage * 255 / 5600);
->> +}
->> +
-> 
-> Shouldn't the comment be attached to the function rather than the
-> defines?
-
-Moved
-
-Thanks Again
-Dan
-
-> 
-> Thanks,
-> Mark.
-> 
-
-
--- 
-------------------
-Dan Murphy
+Thanks,
+Aniroop

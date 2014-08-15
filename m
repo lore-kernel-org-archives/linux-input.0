@@ -1,38 +1,60 @@
-From: Arjun Sreedharan <arjun024@gmail.com>
-Subject: [PATCH] remove explicit devm_kfree
-Date: Fri, 15 Aug 2014 20:56:05 +0530
-Message-ID: <1408116365-3013-1-git-send-email-arjun024@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:42377 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750884AbaHOP0X (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Aug 2014 11:26:23 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: test program to check usb hid devices
+Date: Fri, 15 Aug 2014 11:26:23 -0400
+Message-ID: <CAN+gG=E5RDcU=S+of3aCsAkD6e6dZvpg6nQn0k6fpWP8VDJByw@mail.gmail.com>
+References: <CANudz+s-2QFtpxDqj2O-tJkhEM0oWoFvjWb=xrt+F_eUmPXaog@mail.gmail.com>
+	<063D6719AE5E284EB5DD2968C1650D6D17478786@AcuExch.aculab.com>
+	<CANudz+tUuopx=HT0FcKJ8Ak6_K0yz-nRf7=FwtcMDH9WW1MfbA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANudz+tUuopx=HT0FcKJ8Ak6_K0yz-nRf7=FwtcMDH9WW1MfbA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: loody <miloody-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Laight <David.Laight-JxhZ9S5GRejQT0dZR+AlfA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: lejun.zhu@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Memory allocated with devm_kzalloc() is freed automatically when device
-out of scope.
+If I understood correctly, you just want to dump the hid output.
 
-Signed-off-by: Arjun Sreedharan <arjun024@gmail.com>
----
- drivers/input/misc/soc_button_array.c | 1 -
- 1 file changed, 1 deletion(-)
+You can just cat /sys/kernel/debug/hid/*/events if debugfs is mounted.
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 5a6334b..123e59f 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -131,7 +131,6 @@ soc_button_device_create(struct pnp_dev *pdev,
- err_free_pdev:
- 	platform_device_put(pd);
- err_free_mem:
--	devm_kfree(&pdev->dev, gpio_keys_pdata);
- 	return ERR_PTR(error);
- }
- 
--- 
-1.7.11.7
+Or you may want to have a look at these 2 projects:
+hid-recorder -> http://bentiss.github.io/hid-replay-docs/
+usbhid-dump-> https://github.com/DIGImend/usbhid-dump (part of the
+DIGImend project)
 
+Cheers,
+Benjamin
+
+On Fri, Aug 15, 2014 at 10:31 AM, loody <miloody-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> hi David:
+>
+> 2014-08-15 20:54 GMT+08:00 David Laight <David.Laight-JxhZ9S5GRejQT0dZR+AlfA@public.gmane.org>:
+>> From: loody
+>>> Is there any test program we can use to capture input data send from
+>>> usb keyboard/mouse?
+>>
+>> google usbmon
+> Sorry for making you confused.
+> What I need is not monitor usb bus data.
+> What I need is some user mode program, and when I execute it, it will
+> driver usb HID keyboard/mouse to work.
+> And I can print out the hex value those device send once user press
+> any key on keyboard or moving mouse around.
+>
+> It should be like I think
+> hid_device=hid_open(xxx);
+> while(1){
+>       data = get input data(hid_device);
+>       printf("0x%x\n",data);
+> }
+>
+> Appreciate your kind help,
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

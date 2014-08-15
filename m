@@ -1,48 +1,106 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCHv2] HID:hid-logitech: Prevent possibility of infinite loop when using /sys interface
-Date: Thu, 14 Aug 2014 20:43:01 -0600
-Message-ID: <1408070581-2460-1-git-send-email-simon@mungewell.org>
-References: <alpine.LNX.2.00.1408121630000.15220@pobox.suse.cz>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out-03.shaw.ca ([64.59.136.139]:51779 "EHLO
-	smtp-out-02.shaw.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752688AbaHOCnQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Aug 2014 22:43:16 -0400
-In-Reply-To: <alpine.LNX.2.00.1408121630000.15220@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.17-rc0 (part 2)
+Date: Thu, 14 Aug 2014 23:12:42 -0700
+Message-ID: <20140815061242.GA23913@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
 
-If the device data is not accessible for some reason, returning 0 will cause the call to be
-continuously called again as none of the string has been 'consumed'.
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-lg4ff.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index cc2bd20..7835717 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -451,13 +451,13 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
- 	drv_data = hid_get_drvdata(hid);
- 	if (!drv_data) {
- 		hid_err(hid, "Private driver data not found!\n");
--		return 0;
-+		return -EINVAL;
- 	}
- 
- 	entry = drv_data->device_props;
- 	if (!entry) {
- 		hid_err(hid, "Device properties not found!\n");
--		return 0;
-+		return -EINVAL;
- 	}
- 
- 	if (range == 0)
--- 
-1.9.1
+Hi Linus,
 
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2nd round of updates for the input subsystem. Mostly small
+fixups to the code merged in the first round (atmel_mxt_ts, wacom) but
+also a smallish patch to xbox driver to support Xbox One controllers and
+a patch to better handle Synaptics profile sensors found in Cr-48
+Chromebooks that should not affect any other devices.
+
+Changelog:
+---------
+
+Dmitry Torokhov (5):
+      Input: synaptics - properly initialize slots for semi-MT
+      Input: cap1106 - allow changing key mapping from userspace
+      Input: atmel_mxt_ts - simplify mxt_initialize a bit
+      Input: atmel_mxt_ts - split config update a bit
+      Input: atmel_mxt_ts - fix a few issues reported by Coverity
+
+Geert Uytterhoeven (1):
+      Input: wacom - fix compiler warning if !CONFIG_PM
+
+Henrik Rydberg (2):
+      Input: MT - make slot cleanup callable outside mt_sync_frame()
+      Input: synaptics - use firmware data for Cr-48
+
+Maks Naumov (1):
+      Input: edt-ft5x06 - remove superfluous assignment
+
+Mark Brown (1):
+      Input: joystick - use get_cycles on ARMv8
+
+Nick Dyer (1):
+      Input: atmel_mxt_ts - mXT224 DMA quirk was fixed in firmware v2.0.AA
+
+Ted Mielczarek (1):
+      Input: xpad - add support for Xbox One controllers
+
+
+Diffstat:
+--------
+
+ drivers/hid/wacom_sys.c                  |   2 +
+ drivers/input/input-mt.c                 |  38 +++-
+ drivers/input/joystick/analog.c          |   2 +-
+ drivers/input/joystick/xpad.c            | 174 +++++++++++++--
+ drivers/input/keyboard/cap1106.c         |   8 +-
+ drivers/input/mouse/synaptics.c          |  72 +++++-
+ drivers/input/touchscreen/atmel_mxt_ts.c | 366 +++++++++++++++++----------=
+----
+ drivers/input/touchscreen/edt-ft5x06.c   |   1 -
+ include/linux/input/mt.h                 |   1 +
+ 9 files changed, 462 insertions(+), 202 deletions(-)
+
+--=20
+Dmitry
+
+
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJT7aTaAAoJEH70+W8r6ZYqo6cP/iO58RX8EBi/8uxrrTMNoSZ3
+2M3xzW7loj5hdQKNz4tyOXMBM63t7Ax7y74OlS+iTvHaAxe6KxXzmYacHMn+zDBd
++VCD/Jz3I3Q+OC7FPbK7V1Iw8N1N/bq/a3xGsY8eXguSuBryHP5A+3XmG9VamkTh
+3xTnQBhLcPTb0986+ogKwsnmY9k+iUzGye5V/8kS6zTyvTlBfjVr2fofPD8KHtWC
+DJhQhF1pJyZRjBUavaoZenCwC/gN8vTgpLb+oyOsY+/VqjTKh3oWCpUxC1nWB69d
+Eng5XrQhBbtxY2ShqxFAO6l8vs8nhdHnW5qihdlTFKJkBOxQq8JycFqpjjamjpoT
+qVdBY2OkgEbNRgfgXPum63uVZ0sZaMjyeSggEJDIhQFkhiq+lUpbSc4kVHdoV9Qo
+gDbhfYL6UTilYlNhzLkElYi5t1vixL6dKr5JT5tYdT2b+YU4l+hOUarYemqxBET/
+QtSMakO8F6c5C5BhHoFVbvadwW6iE4pmU6I9CaYMlIB50pUmL8BAk2wPo7MD73zp
+4rv8B/2IUkmUSE7wnoZRRRw0MNysFwzHR0uBWHAHS29o8NYiD2vTI/YMHtd+F54e
+CRMR/4SuYj931CHbAn4Y6xvBvdtvzsFDBAV9e4NRlJbbkw4/M561vkOJWGSLJPSC
+jSK6PORfDUxxXXd1szh8
+=894H
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--

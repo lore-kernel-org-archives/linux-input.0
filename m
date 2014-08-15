@@ -1,57 +1,48 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - Add keycodes array example
-Date: Fri, 15 Aug 2014 10:13:14 -0600
-Message-ID: <53EE319A.1030304@wwwdotorg.org>
-References: <1407372486-25881-1-git-send-email-javier.martinez@collabora.co.uk> <1407372486-25881-2-git-send-email-javier.martinez@collabora.co.uk> <53E37329.4020002@itdev.co.uk> <53E4E41D.4070703@collabora.co.uk> <53EDF6B4.7080804@collabora.co.uk> <53EE307E.8060507@itdev.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] remove explicit devm_kfree
+Date: Fri, 15 Aug 2014 09:51:58 -0700
+Message-ID: <20140815165158.GA25225@core.coreip.homeip.net>
+References: <1408116365-3013-1-git-send-email-arjun024@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:39393 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751005AbaHOQM7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Aug 2014 12:12:59 -0400
-In-Reply-To: <53EE307E.8060507@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1408116365-3013-1-git-send-email-arjun024@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arjun Sreedharan <arjun024@gmail.com>
+Cc: lejun.zhu@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 08/15/2014 10:08 AM, Nick Dyer wrote:
-> On 15/08/14 13:01, Javier Martinez Canillas wrote:
->>> By passing all these keycodes the touchpad worked as expected for me and the
->>> driver did the same than the Chrome OS driver that has these keycodes hardcoded
->>> when is_tp is true.
->>>
->>>> at the protocol guide for T19.
->>>
->>> I don't have access to proper documentation and I wouldn't expect people to have
->>> access to non-public docs in order to use a Device Tree binding.
->>>
->>> That's why I wanted to document an example, so using this property could be
->>> easier for others and they shouldn't have to look at the driver in order to
->>> figure it out (and getting it wrong as you said :) )
->>>
->>> So it would be great if you could provide an example on how this is supposed to
->>> be used.
->>
->> Any comments on this? I would really appreciate if you can expand on how
->> this DT property is supposed to be used so I can re-spin the atmel support
->> patch for Peach boards.
->
-> The below patch improves the documentation for the gpio-property.
+On Fri, Aug 15, 2014 at 08:56:05PM +0530, Arjun Sreedharan wrote:
+> Memory allocated with devm_kzalloc() is freed automatically when device
+> out of scope.
 
-That patch makes sense, and is a nice description,
-Acked-by: Stephen Warren <swarren@nvidia.com>
+But in this case the device does not necessarily goes "out of scope" and we
+still want to release memory.
 
-> diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+Thanks.
 
->   Example:
->
->          touch@4b {
->
+> 
+> Signed-off-by: Arjun Sreedharan <arjun024@gmail.com>
+> ---
+>  drivers/input/misc/soc_button_array.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 5a6334b..123e59f 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -131,7 +131,6 @@ soc_button_device_create(struct pnp_dev *pdev,
+>  err_free_pdev:
+>  	platform_device_put(pd);
+>  err_free_mem:
+> -	devm_kfree(&pdev->dev, gpio_keys_pdata);
+>  	return ERR_PTR(error);
+>  }
+>  
+> -- 
+> 1.7.11.7
+> 
 
-Perhaps it makes sense to add a linux,gpio-keymap property into the 
-example too though; IIRC there was an earlier patch to the docs that did 
-this?
+-- 
+Dmitry

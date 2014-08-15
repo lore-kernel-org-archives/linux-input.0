@@ -1,43 +1,38 @@
-From: loody <miloody@gmail.com>
-Subject: Re: test program to check usb hid devices
-Date: Fri, 15 Aug 2014 22:31:13 +0800
-Message-ID: <CANudz+tUuopx=HT0FcKJ8Ak6_K0yz-nRf7=FwtcMDH9WW1MfbA@mail.gmail.com>
-References: <CANudz+s-2QFtpxDqj2O-tJkhEM0oWoFvjWb=xrt+F_eUmPXaog@mail.gmail.com>
-	<063D6719AE5E284EB5DD2968C1650D6D17478786@AcuExch.aculab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Arjun Sreedharan <arjun024@gmail.com>
+Subject: [PATCH] remove explicit devm_kfree
+Date: Fri, 15 Aug 2014 20:56:05 +0530
+Message-ID: <1408116365-3013-1-git-send-email-arjun024@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f172.google.com ([74.125.82.172]:49993 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750846AbaHOObP (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:42377 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750884AbaHOP0X (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Aug 2014 10:31:15 -0400
-In-Reply-To: <063D6719AE5E284EB5DD2968C1650D6D17478786@AcuExch.aculab.com>
+	Fri, 15 Aug 2014 11:26:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Laight <David.Laight@aculab.com>
-Cc: "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: lejun.zhu@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-hi David:
+Memory allocated with devm_kzalloc() is freed automatically when device
+out of scope.
 
-2014-08-15 20:54 GMT+08:00 David Laight <David.Laight@aculab.com>:
-> From: loody
->> Is there any test program we can use to capture input data send from
->> usb keyboard/mouse?
->
-> google usbmon
-Sorry for making you confused.
-What I need is not monitor usb bus data.
-What I need is some user mode program, and when I execute it, it will
-driver usb HID keyboard/mouse to work.
-And I can print out the hex value those device send once user press
-any key on keyboard or moving mouse around.
+Signed-off-by: Arjun Sreedharan <arjun024@gmail.com>
+---
+ drivers/input/misc/soc_button_array.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-It should be like I think
-hid_device=hid_open(xxx);
-while(1){
-      data = get input data(hid_device);
-      printf("0x%x\n",data);
-}
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 5a6334b..123e59f 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -131,7 +131,6 @@ soc_button_device_create(struct pnp_dev *pdev,
+ err_free_pdev:
+ 	platform_device_put(pd);
+ err_free_mem:
+-	devm_kfree(&pdev->dev, gpio_keys_pdata);
+ 	return ERR_PTR(error);
+ }
+ 
+-- 
+1.7.11.7
 
-Appreciate your kind help,

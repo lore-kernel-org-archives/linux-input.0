@@ -1,69 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: hyperv-keyboard - implement Type Clipboard Text
-Date: Fri, 15 Aug 2014 09:57:33 -0700
-Message-ID: <20140815165733.GB25225@core.coreip.homeip.net>
-References: <1408095719-19117-1-git-send-email-decui@microsoft.com>
+Subject: [PATCH] Input: atmel_mxt_ts - remove unneeded check
+Date: Sun, 17 Aug 2014 07:28:52 -0700
+Message-ID: <20140817142851.GA21153@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:34470 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751256AbaHQO27 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Aug 2014 10:28:59 -0400
 Content-Disposition: inline
-In-Reply-To: <1408095719-19117-1-git-send-email-decui@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Dexuan Cui <decui@microsoft.com>
-Cc: olaf@aepfle.de, gregkh@linuxfoundation.org, jasowang@redhat.com, driverdev-devel@linuxdriverproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, apw@canonical.com, haiyangz@microsoft.com
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@wwwdotorg.org>, linux-kernel@vger.kernel.org
 
-Hi Dexuan,
+This fixes the following issue reported by Coverity:
 
-On Fri, Aug 15, 2014 at 02:41:59AM -0700, Dexuan Cui wrote:
-> In the menu of the Hyper-V's Virtual Machine Connection, there is a feature
-> called "Clipboard | Type clipboard text", which can be used to copy a string
-> in the host's clipboard into the guest's current input focus(text console or
-> a GUI window).
-> 
-> Currently the feature doesn't work for Linux VM because the driver
-> hyperv-keyboard hasn't been enhanced to support it -- this patch is made
-> to do it.
-> 
-> For each char in the string, the host sends 2 events (key down/up with the
-> char's UNICODE value) to the guest.
-> The patch finds each char's scan codes of key down/up, and injects the
-> scan codes to the serio keyboard module.
-> 
-> Known issues:
-> 1) Only printable ASCII chars are supported, and unsupported chars are
-> ignored. It seems unlikely to support generic UNICODE chars because there
-> is not a generic API to inject a UNICODE char to text mode console, KDE,
-> gnome, etc.
-> 
-> 2) When we use the feature, make sure the CapsLock state of the VM's
-> (virtual) keyboard is OFF because this patch assumes it -- we'll try to
-> fix this later, probably by tracking the state of virtual CapsLock, because
-> it looks the keyboard module doesn't supply an API for us to query the state
-> of the keyboard.
-> 
-> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+** CID 1231785:  Unsigned compared against 0  (NO_EFFECT)
+/drivers/input/touchscreen/atmel_mxt_ts.c: 1157 in mxt_prepare_cfg_mem()
 
-No way. If you want to do this this way, do it in hypervisor code and keep
-feeding AT scan codes to hyperv-keyboard, although I am pretty sure users of
-French, Czech and other keyboard layouts with numbers in upper register and
-symbols in lower will have a few choice words for you.
+The variable 'byte_offset' is declared as unsigned int and therefore can never
+be less than 0.
 
-If you want real cut-and-paste support in various DEs I'd recommend working
-with VMware on open-vm-tools package to see what can be shared/reused there.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Consider this NACked with prejudice.
-
-Thanks.
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index db178ed..8780c9a 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1154,7 +1154,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
+ 
+ 			byte_offset = reg + i - cfg_start_ofs;
+ 
+-			if (byte_offset >= 0 && byte_offset < config_mem_size) {
++			if (byte_offset < config_mem_size) {
+ 				*(config_mem + byte_offset) = val;
+ 			} else {
+ 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
+-- 
+2.1.0.rc2.206.gedb03e5
 
 
 -- 

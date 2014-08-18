@@ -1,84 +1,70 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [Question: Drivers/input/evdev.c] What is the use of write
- function in evdev_fops?
-Date: Mon, 18 Aug 2014 11:57:59 +1000
-Message-ID: <20140818015759.GA13994@jelly.redhat.com>
-References: <20140813170639.GA16164@core.coreip.homeip.net>
- <CADYu30-OBXKQTMD_kAmjfrYoXvO0NkcaPac5kpe1hmbXy473Ww@mail.gmail.com>
- <20140813185851.GA34103@core.coreip.homeip.net>
- <CADYu30_XWpoYmFyGB7Pe9xkG0kyCUJo03NO0U2kycBfY83J3OA@mail.gmail.com>
- <a3bd7d64-136e-42ea-98ca-e7992b48cc01@email.android.com>
- <CADYu308G3_50JTEfwOnRy4U4x8U_FTpuxqLhHqmqWiCAwAYH7w@mail.gmail.com>
- <8453fbc4-dfb7-4d93-acc9-e0151c8901ed@email.android.com>
- <CADYu30_oB94oORguEu3+Ri4YFu6Vuo1qBvsmFmFbSpZufJ49aQ@mail.gmail.com>
- <20140814201903.GB13458@core.coreip.homeip.net>
- <CADYu308JT8owRimn4i9mW4eKa3T--yjCdbGns1O9R_WWx_uF-w@mail.gmail.com>
+From: Dexuan Cui <decui@microsoft.com>
+Subject: RE: [PATCH] Input: hyperv-keyboard - implement Type Clipboard Text
+Date: Mon, 18 Aug 2014 03:54:51 +0000
+Message-ID: <EE124450C0AAF944A40DD71E61F878C9933040@SINEX14MBXC417.southpacific.corp.microsoft.com>
+References: <1408095719-19117-1-git-send-email-decui@microsoft.com>
+ <20140815165733.GB25225@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:48477 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751810AbaHRB6D (ORCPT
+Received: from mail-bl2lp0208.outbound.protection.outlook.com ([207.46.163.208]:3393
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751716AbaHRDzh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Aug 2014 21:58:03 -0400
-Content-Disposition: inline
-In-Reply-To: <CADYu308JT8owRimn4i9mW4eKa3T--yjCdbGns1O9R_WWx_uF-w@mail.gmail.com>
+	Sun, 17 Aug 2014 23:55:37 -0400
+In-Reply-To: <20140815165733.GB25225@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 
-On Fri, Aug 15, 2014 at 02:01:48AM +0530, Aniroop Mathur wrote:
-[...]
-> >> >>
-> >> >>2 separate file descriptors like below ?
-> >> >>int fd1 = open("/dev/uinput", O_RDWR);
-> >> >>int fd2 = open("/dev/uinput", O_RDWR);
-> >> >>
-> >> >>But my reading data will still come in struct input_event as mentioned
-> >> >>above.
-> >> >>It has only time, type, code and value.
-> >> >>So, how we can use bitmask here ?
-> >> >>
-> >> >>struct input_event {
-> >> >>struct timeval time;
-> >> >>__u16 type;
-> >> >>__u16 code;
-> >> >>__s32 value;
-> >> >> };
-> >> >
-> >> > By opening 2 fds you'll end up creating 2 separate input devices with separate evdev nodes, etc, so you will not mix up input events.
-> >> >
-> >> > I think at this time you should just try actually using uinput and that should clear things for you.
-> >> >
-> >>
-> >> Can you please explain what do you mean by separate evdev nodes ?
-> >> Do you mean two separate evdev nodes for uinput ?
-> >> But as we discussed before, there is only one node in case of uinput
-> >> i.e. /dev/uinput.
+> -----Original Message-----
+> From: Dmitry Torokhov
+> Sent: Saturday, August 16, 2014 0:58 AM
+> To: Dexuan Cui
+> > For each char in the string, the host sends 2 events (key down/up with the
+> > char's UNICODE value) to the guest.
+> > The patch finds each char's scan codes of key down/up, and injects the
+> > scan codes to the serio keyboard module.
 > >
-> > Uinput allows to creating input devices driven from userspace. You can
-> > create as many separate input devices as you want by opening
-> > /dev/uinput several times since it creates a device per file descriptor.
-> > Each of these input devices will get evdev attached to it and will get
-> > it's own /dev/input/eventX node created.
+> > Known issues:
+> > 1) Only printable ASCII chars are supported, and unsupported chars are
+> > ignored. It seems unlikely to support generic UNICODE chars because there
+> > is not a generic API to inject a UNICODE char to text mode console, KDE,
+> > gnome, etc.
 > >
-> > Really, please try using uinput, it will clear a lot if things for you.
-> > For example, see what http://www.freedesktop.org/wiki/Evemu/ does.
+> > 2) When we use the feature, make sure the CapsLock state of the VM's
+> > (virtual) keyboard is OFF because this patch assumes it -- we'll try to
+> > fix this later, probably by tracking the state of virtual CapsLock, because
+> > it looks the keyboard module doesn't supply an API for us to query the
+> state
+> > of the keyboard.
 > >
-> 
-> 
-> Thank you Mr. Torokhov for the discussion and answering my queries. :)
-> I will try to explore more.
+> No way. If you want to do this this way, do it in hypervisor code and keep
+> feeding AT scan codes to hyperv-keyboard, although I am pretty sure users
+Hi Dmitry,
+Yeah, I had the same wish, but later I found this seems unlikely because IMO
+the feature was firstly invented for Windows VM + generic UNICODE chars,
+and we know there is no "scan code" for generic UNICODE chars... :-(
 
-I recommend you look at libevdev if you're planning to use uinput. evemu
-uses that now too and it makes a whole bunch of stuff easier and less likely
-to go wrong.
-http://freedesktop.org/wiki/Software/libevdev/
+> of
+> French, Czech and other keyboard layouts with numbers in upper register
+> and
+> symbols in lower will have a few choice words for you.
+Sorry, I can't understand what these are.
+Can you please give more details or a link to further info?
 
-specifically:
-http://www.freedesktop.org/software/libevdev/doc/1.2/group__uinput.html
+> If you want real cut-and-paste support in various DEs I'd recommend
+> working
+> with VMware on open-vm-tools package to see what can be shared/reused
+> there.
+> Consider this NACked with prejudice.
+> Dmitry
+Thanks for the suggestion!
+Let me study open-vm-tools and report back.
 
-Cheers,
-   Peter
-
+Thanks,
+-- Dexuan

@@ -1,70 +1,56 @@
-From: Dexuan Cui <decui@microsoft.com>
-Subject: RE: [PATCH] Input: hyperv-keyboard - implement Type Clipboard Text
-Date: Mon, 18 Aug 2014 03:54:51 +0000
-Message-ID: <EE124450C0AAF944A40DD71E61F878C9933040@SINEX14MBXC417.southpacific.corp.microsoft.com>
-References: <1408095719-19117-1-git-send-email-decui@microsoft.com>
- <20140815165733.GB25225@core.coreip.homeip.net>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - Add keycodes array example
+Date: Mon, 18 Aug 2014 15:20:04 +0200
+Message-ID: <53F1FD84.5020901@collabora.co.uk>
+References: <1407372486-25881-1-git-send-email-javier.martinez@collabora.co.uk> <1407372486-25881-2-git-send-email-javier.martinez@collabora.co.uk> <53E37329.4020002@itdev.co.uk> <53E4E41D.4070703@collabora.co.uk> <53EDF6B4.7080804@collabora.co.uk> <53EE307E.8060507@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2lp0208.outbound.protection.outlook.com ([207.46.163.208]:3393
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751716AbaHRDzh convert rfc822-to-8bit (ORCPT
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:41717 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751142AbaHRNUL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Aug 2014 23:55:37 -0400
-In-Reply-To: <20140815165733.GB25225@core.coreip.homeip.net>
-Content-Language: en-US
+	Mon, 18 Aug 2014 09:20:11 -0400
+In-Reply-To: <53EE307E.8060507@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Dmitry Torokhov
-> Sent: Saturday, August 16, 2014 0:58 AM
-> To: Dexuan Cui
-> > For each char in the string, the host sends 2 events (key down/up with the
-> > char's UNICODE value) to the guest.
-> > The patch finds each char's scan codes of key down/up, and injects the
-> > scan codes to the serio keyboard module.
-> >
-> > Known issues:
-> > 1) Only printable ASCII chars are supported, and unsupported chars are
-> > ignored. It seems unlikely to support generic UNICODE chars because there
-> > is not a generic API to inject a UNICODE char to text mode console, KDE,
-> > gnome, etc.
-> >
-> > 2) When we use the feature, make sure the CapsLock state of the VM's
-> > (virtual) keyboard is OFF because this patch assumes it -- we'll try to
-> > fix this later, probably by tracking the state of virtual CapsLock, because
-> > it looks the keyboard module doesn't supply an API for us to query the
-> state
-> > of the keyboard.
-> >
-> No way. If you want to do this this way, do it in hypervisor code and keep
-> feeding AT scan codes to hyperv-keyboard, although I am pretty sure users
-Hi Dmitry,
-Yeah, I had the same wish, but later I found this seems unlikely because IMO
-the feature was firstly invented for Windows VM + generic UNICODE chars,
-and we know there is no "scan code" for generic UNICODE chars... :-(
+Hello Nick,
 
-> of
-> French, Czech and other keyboard layouts with numbers in upper register
-> and
-> symbols in lower will have a few choice words for you.
-Sorry, I can't understand what these are.
-Can you please give more details or a link to further info?
+On 08/15/2014 06:08 PM, Nick Dyer wrote:
+>> 
+>> Any comments on this? I would really appreciate if you can expand on how
+>> this DT property is supposed to be used so I can re-spin the atmel support
+>> patch for Peach boards.
+> 
+> The below patch improves the documentation for the gpio-property. Stephen
+> Warren has a good example here:
+> https://github.com/swarren/linux-tegra/commit/09789801
+> 
+> trackpad@4b {
+>   compatible = "atmel,maxtouch";
+>   reg = <0x4b>;
+>   interrupt-parent = <&gpio>;
+>   interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_LOW>;
+>   linux,gpio-keymap = <0 0 0 BTN_LEFT>;
+> };
+> 
+> This maps BTN_LEFT to the 4th bit of the T19 message. I haven't looked up
+> what GPIO number that corresponds to on the mXT224SL that he has, it varies
+> with the particular maXTouch device you have.
+> 
+> Hope this helps.
+>
 
-> If you want real cut-and-paste support in various DEs I'd recommend
-> working
-> with VMware on open-vm-tools package to see what can be shared/reused
-> there.
-> Consider this NACked with prejudice.
-> Dmitry
-Thanks for the suggestion!
-Let me study open-vm-tools and report back.
+Thanks a lot for the patch and the pointer to Stephen's DTS. I'll do some
+experimentation then to figure out the right values since I don't have
+proper documentation. Fortunately the Chrome OS 3.8 downstream driver
+works on -next so I can use evdev to compare if both drivers behave the same.
 
-Thanks,
--- Dexuan
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+
+Best regards,
+Javier

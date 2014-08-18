@@ -1,73 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: hyperv-keyboard - implement Type Clipboard Text
-Date: Mon, 18 Aug 2014 11:51:52 -0700
-Message-ID: <20140818185151.GB31121@core.coreip.homeip.net>
-References: <1408095719-19117-1-git-send-email-decui@microsoft.com>
- <20140815165733.GB25225@core.coreip.homeip.net>
- <EE124450C0AAF944A40DD71E61F878C9933040@SINEX14MBXC417.southpacific.corp.microsoft.com>
+From: Nishanth Menon <nm@ti.com>
+Subject: [PATCH 0/2] Input: palmas: add support for palmas power button
+Date: Mon, 18 Aug 2014 15:13:28 -0500
+Message-ID: <1408392810-16011-1-git-send-email-nm@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:38022 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751676AbaHRSwC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Aug 2014 14:52:02 -0400
-Content-Disposition: inline
-In-Reply-To: <EE124450C0AAF944A40DD71E61F878C9933040@SINEX14MBXC417.southpacific.corp.microsoft.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:36102 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751353AbaHRUOc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Aug 2014 16:14:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dexuan Cui <decui@microsoft.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Dmitry Torokhov <dtor@mail.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Nishanth Menon <nm@ti.com>
 
-On Mon, Aug 18, 2014 at 03:54:51AM +0000, Dexuan Cui wrote:
-> > -----Original Message-----
-> > From: Dmitry Torokhov
-> > Sent: Saturday, August 16, 2014 0:58 AM
-> > To: Dexuan Cui
-> > > For each char in the string, the host sends 2 events (key down/up with the
-> > > char's UNICODE value) to the guest.
-> > > The patch finds each char's scan codes of key down/up, and injects the
-> > > scan codes to the serio keyboard module.
-> > >
-> > > Known issues:
-> > > 1) Only printable ASCII chars are supported, and unsupported chars are
-> > > ignored. It seems unlikely to support generic UNICODE chars because there
-> > > is not a generic API to inject a UNICODE char to text mode console, KDE,
-> > > gnome, etc.
-> > >
-> > > 2) When we use the feature, make sure the CapsLock state of the VM's
-> > > (virtual) keyboard is OFF because this patch assumes it -- we'll try to
-> > > fix this later, probably by tracking the state of virtual CapsLock, because
-> > > it looks the keyboard module doesn't supply an API for us to query the
-> > state
-> > > of the keyboard.
-> > >
-> > No way. If you want to do this this way, do it in hypervisor code and keep
-> > feeding AT scan codes to hyperv-keyboard, although I am pretty sure users
-> Hi Dmitry,
-> Yeah, I had the same wish, but later I found this seems unlikely because IMO
-> the feature was firstly invented for Windows VM + generic UNICODE chars,
-> and we know there is no "scan code" for generic UNICODE chars... :-(
+Many Palmas PMIC variants have support for power button feature. This
+feature depends on certain One Time Program (OTP) and board pull configurations
+(POWERHOLD signal). However, on many platforms such as DRA72-evm, OMAP5-uevm,
+this may be used to generate input events similar to twl4030-pwrbutton.c
 
-Do you know what guest is running? You could potentially gate on that.
+Series is based on v3.17-rc1
+Nishanth Menon (2):
+  doc: dt/bindings: input: introduce palmas power button description
+  Input: misc: introduce palmas-pwrbutton
 
-> 
-> > of
-> > French, Czech and other keyboard layouts with numbers in upper register
-> > and
-> > symbols in lower will have a few choice words for you.
-> Sorry, I can't understand what these are.
-> Can you please give more details or a link to further info?
-
-On French and many other European layouts to produce a number one needs to use
-Shift key, instead of simply using lower register, as on US or UK layouts. I.e.
-if you send scancode for KEY_3 through your proposed implementation it will
-produce '#' and KEY_SHIFT + KEY_3 will result in '3'.
-
-There are also issues with QWERTY/AZERTY and other layouts...
-
-Thanks.
+ .../bindings/input/ti,palmas-pwrbutton.txt         |   32 ++
+ drivers/input/misc/Kconfig                         |   10 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/palmas-pwrbutton.c              |  313 ++++++++++++++++++++
+ 4 files changed, 356 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
+ create mode 100644 drivers/input/misc/palmas-pwrbutton.c
 
 -- 
-Dmitry
+1.7.9.5
+

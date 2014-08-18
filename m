@@ -1,149 +1,84 @@
-From: pancho horrillo <pancho@pancho.name>
-Subject: [PATCH] HID: usbhid: quirk for NEC Corp. PA302W monitor
-Date: Mon, 18 Aug 2014 00:35:40 +0200
-Message-ID: <20140817223540.GA13561@potito.inittab.org>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [Question: Drivers/input/evdev.c] What is the use of write
+ function in evdev_fops?
+Date: Mon, 18 Aug 2014 11:57:59 +1000
+Message-ID: <20140818015759.GA13994@jelly.redhat.com>
+References: <20140813170639.GA16164@core.coreip.homeip.net>
+ <CADYu30-OBXKQTMD_kAmjfrYoXvO0NkcaPac5kpe1hmbXy473Ww@mail.gmail.com>
+ <20140813185851.GA34103@core.coreip.homeip.net>
+ <CADYu30_XWpoYmFyGB7Pe9xkG0kyCUJo03NO0U2kycBfY83J3OA@mail.gmail.com>
+ <a3bd7d64-136e-42ea-98ca-e7992b48cc01@email.android.com>
+ <CADYu308G3_50JTEfwOnRy4U4x8U_FTpuxqLhHqmqWiCAwAYH7w@mail.gmail.com>
+ <8453fbc4-dfb7-4d93-acc9-e0151c8901ed@email.android.com>
+ <CADYu30_oB94oORguEu3+Ri4YFu6Vuo1qBvsmFmFbSpZufJ49aQ@mail.gmail.com>
+ <20140814201903.GB13458@core.coreip.homeip.net>
+ <CADYu308JT8owRimn4i9mW4eKa3T--yjCdbGns1O9R_WWx_uF-w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from potito.inittab.org ([5.199.142.158]:57016 "EHLO
-	potito.inittab.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751479AbaHQWm7 (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:48477 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751810AbaHRB6D (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Aug 2014 18:42:59 -0400
+	Sun, 17 Aug 2014 21:58:03 -0400
 Content-Disposition: inline
+In-Reply-To: <CADYu308JT8owRimn4i9mW4eKa3T--yjCdbGns1O9R_WWx_uF-w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-This device has an odd HID entry and causes a 10 second delay in boot.
-Add this device to the quirks list with HID_QUIRK_NO_INIT_REPORTS.
+On Fri, Aug 15, 2014 at 02:01:48AM +0530, Aniroop Mathur wrote:
+[...]
+> >> >>
+> >> >>2 separate file descriptors like below ?
+> >> >>int fd1 = open("/dev/uinput", O_RDWR);
+> >> >>int fd2 = open("/dev/uinput", O_RDWR);
+> >> >>
+> >> >>But my reading data will still come in struct input_event as mentioned
+> >> >>above.
+> >> >>It has only time, type, code and value.
+> >> >>So, how we can use bitmask here ?
+> >> >>
+> >> >>struct input_event {
+> >> >>struct timeval time;
+> >> >>__u16 type;
+> >> >>__u16 code;
+> >> >>__s32 value;
+> >> >> };
+> >> >
+> >> > By opening 2 fds you'll end up creating 2 separate input devices with separate evdev nodes, etc, so you will not mix up input events.
+> >> >
+> >> > I think at this time you should just try actually using uinput and that should clear things for you.
+> >> >
+> >>
+> >> Can you please explain what do you mean by separate evdev nodes ?
+> >> Do you mean two separate evdev nodes for uinput ?
+> >> But as we discussed before, there is only one node in case of uinput
+> >> i.e. /dev/uinput.
+> >
+> > Uinput allows to creating input devices driven from userspace. You can
+> > create as many separate input devices as you want by opening
+> > /dev/uinput several times since it creates a device per file descriptor.
+> > Each of these input devices will get evdev attached to it and will get
+> > it's own /dev/input/eventX node created.
+> >
+> > Really, please try using uinput, it will clear a lot if things for you.
+> > For example, see what http://www.freedesktop.org/wiki/Evemu/ does.
+> >
+> 
+> 
+> Thank you Mr. Torokhov for the discussion and answering my queries. :)
+> I will try to explore more.
 
-[EDIT OUT THE FOLLOWING AS NEEDED IF EXPLANATION IS TOO MUCH, THIS LINE INCL.]
+I recommend you look at libevdev if you're planning to use uinput. evemu
+uses that now too and it makes a whole bunch of stuff easier and less likely
+to go wrong.
+http://freedesktop.org/wiki/Software/libevdev/
 
-dmesg shows the 10 second delay, which hinders normal operation
-(e.g., using the keyboard):
+specifically:
+http://www.freedesktop.org/software/libevdev/doc/1.2/group__uinput.html
 
-  [ +10.098394] hid-generic 0003:0409:042F.005A: timeout initializing reports
+Cheers,
+   Peter
 
-Passing this arg to the kernel fixes the issue:
-
-  usbhid.quirks=0x0409:0x042f:0x20000000
-
-This patch expresses precisely the above quirk.
-
-See https://bugzilla.redhat.com/attachment.cgi?id=710695 for a similar case.
-
-For reference, here is the output of 'lsusb -v -d 0409:042f':
-
-Bus 002 Device 003: ID 0409:042f NEC Corp.
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0409 NEC Corp.
-  idProduct          0x042f
-  bcdDevice            0.01
-  iManufacturer           1 NEC
-  iProduct                2 PA302W
-  iSerial                 3 3X100603TW
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           41
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.10
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      39
-         Report Descriptors:
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               1
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               1
-Device Status:     0x0001
-  Self Powered
-
-Signed-off-by: pancho horrillo <pancho@pancho.name>
----
- drivers/hid/hid-ids.h           | 3 +++
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 2 files changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 25cd674..d636c37 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -665,6 +665,9 @@
- #define USB_VENDOR_ID_NEC		0x073e
- #define USB_DEVICE_ID_NEC_USB_GAME_PAD	0x0301
- 
-+#define USB_VENDOR_ID_NEC_CORP		0x0409
-+#define USB_DEVICE_ID_NEC_CORP_PA302W	0x042f
-+
- #define USB_VENDOR_ID_NEXIO		0x1870
- #define USB_DEVICE_ID_NEXIO_MULTITOUCH_420	0x010d
- #define USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750	0x0110
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 15225f3..34c1bc9 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -41,6 +41,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_NATSU, USB_DEVICE_ID_NATSU_GAMEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_NEC, USB_DEVICE_ID_NEC_USB_GAME_PAD, HID_QUIRK_BADPAD },
-+	{ USB_VENDOR_ID_NEC_CORP, USB_DEVICE_ID_NEC_CORP_PA302W, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NEXTWINDOW, USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN, HID_QUIRK_MULTI_INPUT},
- 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
--- 
-2.0.4
-
--- 
-pancho horrillo
-
-To be conscious that
-you are ignorant is a great step
-to knowledge.
-
-		Benjamin Disraeli

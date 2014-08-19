@@ -1,68 +1,86 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: "Murphy, Dan" <dmurphy@ti.com>
 Subject: Re: [PATCH v6] input: drv260x: Add TI drv260x haptics driver
-Date: Tue, 19 Aug 2014 12:24:01 -0700
-Message-ID: <20140819192401.GA32080@core.coreip.homeip.net>
+Date: Tue, 19 Aug 2014 19:35:06 +0000
+Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DEC1EF@DFLE09.ent.ti.com>
 References: <1408117670-19750-1-git-send-email-dmurphy@ti.com>
+ <20140819192401.GA32080@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1408117670-19750-1-git-send-email-dmurphy-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dan Murphy <dmurphy-l0cyMroinI0@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:37059 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751878AbaHSTfM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Aug 2014 15:35:12 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-Hi Dan,
+Dmitry
 
-On Fri, Aug 15, 2014 at 10:47:50AM -0500, Dan Murphy wrote:
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 2ff4425..99f6762 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -676,4 +676,13 @@ config INPUT_SOC_BUTTON_ARRAY
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called soc_button_array.
->  
-> +config INPUT_DRV260X_HAPTICS
-> +	tristate "TI DRV260X haptics support"
-> +	depends on INPUT && I2C
+On 08/19/2014 02:24 PM, Dmitry Torokhov wrote:
+> Hi Dan,
+> 
+> On Fri, Aug 15, 2014 at 10:47:50AM -0500, Dan Murphy wrote:
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index 2ff4425..99f6762 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -676,4 +676,13 @@ config INPUT_SOC_BUTTON_ARRAY
+>>  	  To compile this driver as a module, choose M here: the
+>>  	  module will be called soc_button_array.
+>>  
+>> +config INPUT_DRV260X_HAPTICS
+>> +	tristate "TI DRV260X haptics support"
+>> +	depends on INPUT && I2C
+> 
+> This also needs "select REGMAP_I2C"
+> 
 
-This also needs "select REGMAP_I2C"
+This one is OK
 
-> +	help
-> +	  Say Y to enable support for the TI DRV260X haptics driver.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called drv260x-haptics.
-> +
+>> +	help
+>> +	  Say Y to enable support for the TI DRV260X haptics driver.
+>> +
+>> +	  To compile this driver as a module, choose M here: the
+>> +	  module will be called drv260x-haptics.
+>> +
+> 
+> [...]
+> 
+>> +#ifndef _LINUX_DRV260X_PDATA_H
+>> +#define _LINUX_DRV260X_PDATA_H
+>> +
+>> +struct drv260x_platform_data {
+>> +	int enable_gpio;
+> 
+> I do not see this used anywhere.
 
-[...]
+But this is actually used here
 
-> +#ifndef _LINUX_DRV260X_PDATA_H
-> +#define _LINUX_DRV260X_PDATA_H
-> +
-> +struct drv260x_platform_data {
-> +	int enable_gpio;
+haptics->enable_gpio = devm_gpiod_get(&client->dev, "enable");
 
-I do not see this used anywhere.
+for the non-dt case
 
-> +	u32 library_selection;
-> +	u32 mode;
-> +	u32 vib_rated_voltage;
-> +	u32 vib_overdrive_voltage;
-> +};
-> +
-> +#endif
+> 
+>> +	u32 library_selection;
+>> +	u32 mode;
+>> +	u32 vib_rated_voltage;
+>> +	u32 vib_overdrive_voltage;
+>> +};
+>> +
+>> +#endif
+> 
+> I fixed up the above issues and did a few more formatting changes and applied
+> to my 'next' branch. Please take a peek and holler if you see something wrong.
+> 
+> Thanks.
+> 
 
-I fixed up the above issues and did a few more formatting changes and applied
-to my 'next' branch. Please take a peek and holler if you see something wrong.
-
-Thanks.
 
 -- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+------------------
+Dan Murphy

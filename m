@@ -1,54 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - remove unneeded check
-Date: Tue, 19 Aug 2014 11:56:40 -0700
-Message-ID: <20140819185639.GA26302@core.coreip.homeip.net>
-References: <20140817142851.GA21153@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v6] input: drv260x: Add TI drv260x haptics driver
+Date: Tue, 19 Aug 2014 12:24:01 -0700
+Message-ID: <20140819192401.GA32080@core.coreip.homeip.net>
+References: <1408117670-19750-1-git-send-email-dmurphy@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140817142851.GA21153@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Stephen Warren <swarren@wwwdotorg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1408117670-19750-1-git-send-email-dmurphy-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dan Murphy <dmurphy-l0cyMroinI0@public.gmane.org>
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Aug 17, 2014 at 07:28:52AM -0700, Dmitry Torokhov wrote:
-> This fixes the following issue reported by Coverity:
-> 
-> ** CID 1231785:  Unsigned compared against 0  (NO_EFFECT)
-> /drivers/input/touchscreen/atmel_mxt_ts.c: 1157 in mxt_prepare_cfg_mem()
-> 
-> The variable 'byte_offset' is declared as unsigned int and therefore can never
-> be less than 0.
-> 
+Hi Dan,
 
-Withdrawn - Linus recommended to become intimate with the compiler instead.
+On Fri, Aug 15, 2014 at 10:47:50AM -0500, Dan Murphy wrote:
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 2ff4425..99f6762 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -676,4 +676,13 @@ config INPUT_SOC_BUTTON_ARRAY
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called soc_button_array.
+>  
+> +config INPUT_DRV260X_HAPTICS
+> +	tristate "TI DRV260X haptics support"
+> +	depends on INPUT && I2C
 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index db178ed..8780c9a 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -1154,7 +1154,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
->  
->  			byte_offset = reg + i - cfg_start_ofs;
->  
-> -			if (byte_offset >= 0 && byte_offset < config_mem_size) {
-> +			if (byte_offset < config_mem_size) {
->  				*(config_mem + byte_offset) = val;
->  			} else {
->  				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
-> -- 
-> 2.1.0.rc2.206.gedb03e5
-> 
-> 
-> -- 
-> Dmitry
+This also needs "select REGMAP_I2C"
+
+> +	help
+> +	  Say Y to enable support for the TI DRV260X haptics driver.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called drv260x-haptics.
+> +
+
+[...]
+
+> +#ifndef _LINUX_DRV260X_PDATA_H
+> +#define _LINUX_DRV260X_PDATA_H
+> +
+> +struct drv260x_platform_data {
+> +	int enable_gpio;
+
+I do not see this used anywhere.
+
+> +	u32 library_selection;
+> +	u32 mode;
+> +	u32 vib_rated_voltage;
+> +	u32 vib_overdrive_voltage;
+> +};
+> +
+> +#endif
+
+I fixed up the above issues and did a few more formatting changes and applied
+to my 'next' branch. Please take a peek and holler if you see something wrong.
+
+Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

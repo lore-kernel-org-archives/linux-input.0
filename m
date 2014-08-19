@@ -1,76 +1,95 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Murphy, Dan" <dmurphy@ti.com>
 Subject: Re: [PATCH v6] input: drv260x: Add TI drv260x haptics driver
-Date: Tue, 19 Aug 2014 13:07:48 -0700
-Message-ID: <20140819200748.GB3626@core.coreip.homeip.net>
+Date: Tue, 19 Aug 2014 20:13:32 +0000
+Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DEC3E6@DFLE09.ent.ti.com>
 References: <1408117670-19750-1-git-send-email-dmurphy@ti.com>
  <20140819192401.GA32080@core.coreip.homeip.net>
  <00FC9A978A94B7418C33AFAE8A35ED49DEC1EF@DFLE09.ent.ti.com>
+ <20140819200748.GB3626@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <00FC9A978A94B7418C33AFAE8A35ED49DEC1EF@DFLE09.ent.ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Murphy, Dan" <dmurphy@ti.com>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:60744 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751284AbaHSUNh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Aug 2014 16:13:37 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-On Tue, Aug 19, 2014 at 07:35:06PM +0000, Murphy, Dan wrote:
-> Dmitry
+On 08/19/2014 03:07 PM, Dmitry Torokhov wrote:
+> On Tue, Aug 19, 2014 at 07:35:06PM +0000, Murphy, Dan wrote:
+>> Dmitry
+>>
+>> On 08/19/2014 02:24 PM, Dmitry Torokhov wrote:
+>>> Hi Dan,
+>>>
+>>> On Fri, Aug 15, 2014 at 10:47:50AM -0500, Dan Murphy wrote:
+>>>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>>>> index 2ff4425..99f6762 100644
+>>>> --- a/drivers/input/misc/Kconfig
+>>>> +++ b/drivers/input/misc/Kconfig
+>>>> @@ -676,4 +676,13 @@ config INPUT_SOC_BUTTON_ARRAY
+>>>>  	  To compile this driver as a module, choose M here: the
+>>>>  	  module will be called soc_button_array.
+>>>>  
+>>>> +config INPUT_DRV260X_HAPTICS
+>>>> +	tristate "TI DRV260X haptics support"
+>>>> +	depends on INPUT && I2C
+>>>
+>>> This also needs "select REGMAP_I2C"
+>>>
+>>
+>> This one is OK
+>>
+>>>> +	help
+>>>> +	  Say Y to enable support for the TI DRV260X haptics driver.
+>>>> +
+>>>> +	  To compile this driver as a module, choose M here: the
+>>>> +	  module will be called drv260x-haptics.
+>>>> +
+>>>
+>>> [...]
+>>>
+>>>> +#ifndef _LINUX_DRV260X_PDATA_H
+>>>> +#define _LINUX_DRV260X_PDATA_H
+>>>> +
+>>>> +struct drv260x_platform_data {
+>>>> +	int enable_gpio;
+>>>
+>>> I do not see this used anywhere.
+>>
+>> But this is actually used here
+>>
+>> haptics->enable_gpio = devm_gpiod_get(&client->dev, "enable");
+>>
+>> for the non-dt case
 > 
-> On 08/19/2014 02:24 PM, Dmitry Torokhov wrote:
-> > Hi Dan,
-> > 
-> > On Fri, Aug 15, 2014 at 10:47:50AM -0500, Dan Murphy wrote:
-> >> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> >> index 2ff4425..99f6762 100644
-> >> --- a/drivers/input/misc/Kconfig
-> >> +++ b/drivers/input/misc/Kconfig
-> >> @@ -676,4 +676,13 @@ config INPUT_SOC_BUTTON_ARRAY
-> >>  	  To compile this driver as a module, choose M here: the
-> >>  	  module will be called soc_button_array.
-> >>  
-> >> +config INPUT_DRV260X_HAPTICS
-> >> +	tristate "TI DRV260X haptics support"
-> >> +	depends on INPUT && I2C
-> > 
-> > This also needs "select REGMAP_I2C"
-> > 
+> "haptics" is not instance of drv260x_platform_data but drv260x_data which
+> defines:
 > 
-> This one is OK
+> struct drv260x_data {
+> 	...
+> 	struct gpio_desc *enable_gpio;
+> 	...
 > 
-> >> +	help
-> >> +	  Say Y to enable support for the TI DRV260X haptics driver.
-> >> +
-> >> +	  To compile this driver as a module, choose M here: the
-> >> +	  module will be called drv260x-haptics.
-> >> +
-> > 
-> > [...]
-> > 
-> >> +#ifndef _LINUX_DRV260X_PDATA_H
-> >> +#define _LINUX_DRV260X_PDATA_H
-> >> +
-> >> +struct drv260x_platform_data {
-> >> +	int enable_gpio;
-> > 
-> > I do not see this used anywhere.
+> That one I kept.
 > 
-> But this is actually used here
-> 
-> haptics->enable_gpio = devm_gpiod_get(&client->dev, "enable");
-> 
-> for the non-dt case
 
-"haptics" is not instance of drv260x_platform_data but drv260x_data which
-defines:
+Yes that is correct but the enable_gpio for non-dt enabled devices this enable_gpio
+needs to come from the platform data structure.  Without the enable gpio in the platform data
+structure there is no way for non-dt enabled devices to set the gpio value.
 
-struct drv260x_data {
-	...
-	struct gpio_desc *enable_gpio;
-	...
+The haptics instance just stores the gpio descriptor returned from this call.
 
-That one I kept.
+The devm_gpiod looks at the platform data is CONFIG_OF is not set.
+
+Dan
 
 -- 
-Dmitry
+------------------
+Dan Murphy

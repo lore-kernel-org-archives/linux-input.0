@@ -1,114 +1,189 @@
-From: Dexuan Cui <decui@microsoft.com>
-Subject: RE: [PATCH] Input: hyperv-keyboard - implement Type Clipboard Text
-Date: Tue, 19 Aug 2014 08:55:39 +0000
-Message-ID: <EE124450C0AAF944A40DD71E61F878C9936FC3@SINEX14MBXC417.southpacific.corp.microsoft.com>
-References: <1408095719-19117-1-git-send-email-decui@microsoft.com>
- <20140815165733.GB25225@core.coreip.homeip.net>
- <EE124450C0AAF944A40DD71E61F878C9933040@SINEX14MBXC417.southpacific.corp.microsoft.com>
- <20140818185151.GB31121@core.coreip.homeip.net>
+From: Nishanth Menon <nm@ti.com>
+Subject: Re: [PATCH 2/2] Input: misc: introduce palmas-pwrbutton
+Date: Tue, 19 Aug 2014 05:17:52 -0500
+Message-ID: <53F32450.5070809@ti.com>
+References: <1408392810-16011-1-git-send-email-nm@ti.com> <1408392810-16011-3-git-send-email-nm@ti.com> <20140819052344.GA21199@core.coreip.homeip.net>
+Reply-To: nm@ti.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20140818185151.GB31121@core.coreip.homeip.net>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140819052344.GA21199@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, Haiyang Zhang <haiyangz@microsoft.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Dmitry Torokhov
-> Sent: Tuesday, August 19, 2014 2:52 AM
-> To: Dexuan Cui
-> On Mon, Aug 18, 2014 at 03:54:51AM +0000, Dexuan Cui wrote:
-> > > -----Original Message-----
-> > > From: Dmitry Torokhov
-> > > Sent: Saturday, August 16, 2014 0:58 AM
-> > > To: Dexuan Cui
-> > > > For each char in the string, the host sends 2 events (key down/up with
-> the
-> > > > char's UNICODE value) to the guest.
-> > > > The patch finds each char's scan codes of key down/up, and injects the
-> > > > scan codes to the serio keyboard module.
-> > > >
-> > > No way. If you want to do this this way, do it in hypervisor code and keep
-> > > feeding AT scan codes to hyperv-keyboard, although I am pretty sure
-> users
-> > Hi Dmitry,
-> > Yeah, I had the same wish, but later I found this seems unlikely because
-> IMO
-> > the feature was firstly invented for Windows VM + generic UNICODE chars,
-> > and we know there is no "scan code" for generic UNICODE chars... :-(
+Hi Dmitry
+On 08/19/2014 12:23 AM, Dmitry Torokhov wrote:
+Thanks for the review.
+
+[...]
+>> +
+>> +/**
+>> + * pwron_irq() - button press isr
+>> + * @irq:		irq
+>> + * @palmas_pwron:	pwron struct
+>> + */
+>> +static irqreturn_t pwron_irq(int irq, void *palmas_pwron)
+>> +{
+>> +	struct palmas_pwron *pwron = palmas_pwron;
+>> +	struct input_dev *input_dev = pwron->input_dev;
+>> +
+>> +	cancel_delayed_work_sync(&pwron->input_work);
+>> +
+>> +	pwron->current_state = PALMAS_PWR_KEY_PRESS;
+>> +
+>> +	input_report_key(input_dev, KEY_POWER, pwron->current_state);
+>> +	pm_wakeup_event(input_dev->dev.parent, 0);
+>> +	input_sync(input_dev);
+>> +
+>> +	schedule_delayed_work(&pwron->input_work, 0);
 >
-> Do you know what guest is running? You could potentially gate on that.
-I'm not sure if the host knows this or not.
-But even if the host knows this, IMO it seems bad for the host to discriminate
-between Windows guest and Linux guest. And generally there is no scan code
-for UNICODE chars.
+> Instead of cancel/schedule use mod_delayed_work. BTW, why do you need to
+> schedule immediately instead of waiting key_recheck_ms? Also, are there any
 
-And, here the patch tries to use a light-weight and straightforward method
-to achieve the basic functionality of "Type (host) clipboard text (to guest)" --
-the patch doesn't use the guest's X11 clipboard and it works for both text
-mode tty and X11 window's input (for English keyboard layout. Please see my
-below reply).
+Good point, I had missed these. Will fix.
 
-I studied open-vm-tools.sourceforge.net and
-github.com/vmware/open-vm-tools.
-My impression is: it's a pretty big collection of utilities/daemons and its code
-seems bound to vmware-specific  features, maybe that's why it's called
-"open-vm-tools" rather than "generic-vm-tools" :-)
-1)  2517/2528 of the commits of the git repo are from vmware;
-2) In Ubuntu 14.04, the utilities of open-vm-tools are just named as
-vmware-XXX (I checked this by "dpkg-query -L open-vm-tools");
-3) about the text copy&paste functionality between host/guest in either
-direction, the implementation of open-vm-tools uses host/guest X11
-clipboards and hence doesn't work in real text mode tty terminal, and,
-vmware-specific implementation of backdoor() is extensively used -- I
-don't think there is such an equivalent in other hypervisors'
-environment, AFAIK.
+> concerns about need to debounce?
 
-So IMHO it's impractical for me to re-use open-vm-tools here?
+I believe PMIC already takes care of debounce, let me see if there are 
+configuration registers possible. if yes, I think it might be nice to 
+add in.
 
-> > > of
-> > > French, Czech and other keyboard layouts with numbers in upper register
-> > > and
-> > > symbols in lower will have a few choice words for you.
-> > Sorry, I can't understand what these are.
-> > Can you please give more details or a link to further info?
+[...]
+
+>> +
+>> +	irq = platform_get_irq(pdev, 0);
+>> +
+>> +	device_init_wakeup(dev, 1);
+>> +
+>> +	ret = devm_request_threaded_irq(dev, irq, NULL, pwron_irq,
+>> +					IRQF_TRIGGER_HIGH |
+>> +					IRQF_TRIGGER_LOW,
+>> +					dev_name(dev),
+>> +					pwron);
 >
-> On French and many other European layouts to produce a number one
-> needs to use
-> Shift key, instead of simply using lower register, as on US or UK layouts. I.e.
-> if you send scancode for KEY_3 through your proposed implementation it will
-> produce '#' and KEY_SHIFT + KEY_3 will result in '3'.
+> I am confused about this code sequence. Why do we get IRQ, then set up wakeup,
+> and then request irq? Normally you get irq number, and then you request it, and
+> then do other stuff.
+
+Uggh.. right.. will fix.
+
 >
-> There are also issues with QWERTY/AZERTY and other layouts...
-> Dmitry
+>> +	if (ret < 0) {
+>> +		dev_err(dev, "Can't get IRQ for pwron: %d\n", ret);
+>> +		return ret;
+>> +	}
+>> +
+>> +	enable_irq_wake(irq);
+>
+> Shouldn't this be in suspend callback?
 
-Hi Dmitry,
-Thanks for pointing this out!
-This is a real issue -- my patch only works for English layout. :-(
+yes, it should have been.. my bad.. :( thanks for catching it.
 
-I wrongly assumed  there is a 1:1 mapping between an ASCII char and a
-scan code -- this is not true considering different keyboard layouts(keymaps).
+>> +
+>> +	ret = input_register_device(input_dev);
+>> +	if (ret) {
+>> +		dev_dbg(dev, "Can't register power button: %d\n", ret);
+>> +		goto out_irq_wake;
+>> +	}
+>> +	pwron->irq = irq;
+>> +
+>> +	pwron->key_recheck_ms = PALMAS_PWR_KEY_Q_TIME_MS;
+>> +
+>> +	platform_set_drvdata(pdev, pwron);
+>> +
+>> +	return 0;
+>> +
+>> +out_irq_wake:
+>> +	disable_irq_wake(irq);
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static int palmas_pwron_remove(struct platform_device *pdev)
+>> +{
+>> +	struct palmas_pwron *pwron = platform_get_drvdata(pdev);
+>> +
+>> +	disable_irq_wake(pwron->irq);
+>
+> Should be in resume callback().
 
-So looks it's impossible for me to implement the functionality through the
-path of the keyboard input subsystem... :-(
-A feasible method would be: I can write a lightweight userland daemon,
-just like open-vm-tools, which receives the string from the host and passes it
-to the X11 windowing system directly using X11 APIs(this doesn't work in text
-mode however).
+yep.
 
-Looking forward to your comment.
+>
+>> +	input_unregister_device(pwron->input_dev);
+>
+> With devm you do not need to unregister input device. However this has problem:
+> what will happen if interrupt arrives here and we schedule workqueue? You need
+> free interrupt then cancel work and then free input device. Similar needs to be
+> done in probe(). I'd recommend not use devm_* here as you need to manually
+> unwind anyway.
 
-Thanks,
--- Dexuan
+True. I will fix these as well.
+
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_PM
+>> +/**
+>> + * palmas_pwron_suspend() - suspend handler
+>> + * @dev:	power button device
+>> + *
+>> + * Cancel all pending work items for the power button
+>> + */
+>> +static int palmas_pwron_suspend(struct device *dev)
+>> +{
+>> +	struct platform_device *pdev = to_platform_device(dev);
+>> +	struct palmas_pwron *pwron = platform_get_drvdata(pdev);
+>> +
+>> +	cancel_delayed_work_sync(&pwron->input_work);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static UNIVERSAL_DEV_PM_OPS(palmas_pwron_pm, palmas_pwron_suspend, NULL, NULL);
+>
+> Why universal? Do they make sense for runtime pm?
+>
+>> +
+>> +#else
+>> +static UNIVERSAL_DEV_PM_OPS(palmas_pwron_pm, NULL, NULL, NULL);
+>> +#endif
+>
+> You do not need to protect these with #ifdef and have 2 versions, just pull
+> UNIVERSAL_DEV_PM_OPS (and change to SIMPLE_DEV_PM_OPS) out of #idef code.
+
+I will just switch over to SIMPLE_DEV_PM_OPS here.. it is better here. 
+Thanks for the suggestion.
+
+>> +
+>> +#ifdef CONFIG_OF
+>> +static struct of_device_id of_palmas_pwr_match[] = {
+>> +	{.compatible = "ti,palmas-pwrbutton"},
+>> +	{},
+>> +};
+>> +
+>> +MODULE_DEVICE_TABLE(of, of_palmas_pwr_match);
+>> +#endif
+>> +
+>> +static struct platform_driver palmas_pwron_driver = {
+>> +	.probe = palmas_pwron_probe,
+>> +	.remove = palmas_pwron_remove,
+>> +	.driver = {
+>> +		   .name = "palmas_pwrbutton",
+>> +		   .owner = THIS_MODULE,
+>> +		   .of_match_table = of_match_ptr(of_palmas_pwr_match),
+>> +		   .pm = &palmas_pwron_pm,
+>> +		   },
+>
+> Weird indentation here.
+
+Ugggh.. Lindent.. :(
+
+
+---
+Regards,
+Nishanth Menon

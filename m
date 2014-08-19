@@ -1,91 +1,114 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] doc: dt/bindings: input: introduce palmas power
- button description
-Date: Mon, 18 Aug 2014 22:28:42 -0700
-Message-ID: <20140819052842.GB21199@core.coreip.homeip.net>
-References: <1408392810-16011-1-git-send-email-nm@ti.com>
- <1408392810-16011-2-git-send-email-nm@ti.com>
+From: Dexuan Cui <decui@microsoft.com>
+Subject: RE: [PATCH] Input: hyperv-keyboard - implement Type Clipboard Text
+Date: Tue, 19 Aug 2014 08:55:39 +0000
+Message-ID: <EE124450C0AAF944A40DD71E61F878C9936FC3@SINEX14MBXC417.southpacific.corp.microsoft.com>
+References: <1408095719-19117-1-git-send-email-decui@microsoft.com>
+ <20140815165733.GB25225@core.coreip.homeip.net>
+ <EE124450C0AAF944A40DD71E61F878C9933040@SINEX14MBXC417.southpacific.corp.microsoft.com>
+ <20140818185151.GB31121@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f180.google.com ([209.85.192.180]:52943 "EHLO
-	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750838AbaHSF2q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Aug 2014 01:28:46 -0400
-Content-Disposition: inline
-In-Reply-To: <1408392810-16011-2-git-send-email-nm@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20140818185151.GB31121@core.coreip.homeip.net>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, "driverdev-devel@linuxdriverproject.org" <driverdev-devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: linux-input@vger.kernel.org
-To: Nishanth Menon <nm@ti.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Mon, Aug 18, 2014 at 03:13:29PM -0500, Nishanth Menon wrote:
-> Many palmas family of PMICs have support for interrupt based power
-> button. This allows the device to notify the processor of external
-> push button events over the shared palmas interrupt.
-> 
-> Document the hardware support for the same.
-> 
-> Signed-off-by: Nishanth Menon <nm@ti.com>
-> ---
->  .../bindings/input/ti,palmas-pwrbutton.txt         |   32 ++++++++++++++++++++
->  1 file changed, 32 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt b/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
-> new file mode 100644
-> index 0000000..6a89bcd
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
-> @@ -0,0 +1,32 @@
-> +Texas Instruments Palmas family power button module
-> +
-> +This module is part of the Palmas family of PMICs. For more details
-> +about the whole chip see:
-> +Documentation/devicetree/bindings/mfd/palmas.txt.
-> +
-> +This module provides a simple power button event via an Interrupt.
-> +
-> +Required properties:
-> +- compatible: should be one of the following
-> +   - "ti,palmas-pwrbutton": For Palmas compatible power on button
-> +- interrupt-parent: Parent interrupt device, must be handle of palmas node.
-> +- interrupts: Interrupt number of power button submodule on device.
-> +
-> +Optional Properties:
-> +
-> +- ti,palmas-long-press-seconds: Duration in seconds which the power
-> +  button should be kept pressed for Palmas to power off automatically.
-> +  NOTE: This depends on OTP support and POWERHOLD signal configuration
-> +  on platform.
+> -----Original Message-----
+> From: Dmitry Torokhov
+> Sent: Tuesday, August 19, 2014 2:52 AM
+> To: Dexuan Cui
+> On Mon, Aug 18, 2014 at 03:54:51AM +0000, Dexuan Cui wrote:
+> > > -----Original Message-----
+> > > From: Dmitry Torokhov
+> > > Sent: Saturday, August 16, 2014 0:58 AM
+> > > To: Dexuan Cui
+> > > > For each char in the string, the host sends 2 events (key down/up with
+> the
+> > > > char's UNICODE value) to the guest.
+> > > > The patch finds each char's scan codes of key down/up, and injects the
+> > > > scan codes to the serio keyboard module.
+> > > >
+> > > No way. If you want to do this this way, do it in hypervisor code and keep
+> > > feeding AT scan codes to hyperv-keyboard, although I am pretty sure
+> users
+> > Hi Dmitry,
+> > Yeah, I had the same wish, but later I found this seems unlikely because
+> IMO
+> > the feature was firstly invented for Windows VM + generic UNICODE chars,
+> > and we know there is no "scan code" for generic UNICODE chars... :-(
+>
+> Do you know what guest is running? You could potentially gate on that.
+I'm not sure if the host knows this or not.
+But even if the host knows this, IMO it seems bad for the host to discriminate
+between Windows guest and Linux guest. And generally there is no scan code
+for UNICODE chars.
 
-Only a few values are valid for this property, I think you should mention that.
+And, here the patch tries to use a light-weight and straightforward method
+to achieve the basic functionality of "Type (host) clipboard text (to guest)" --
+the patch doesn't use the guest's X11 clipboard and it works for both text
+mode tty and X11 window's input (for English keyboard layout. Please see my
+below reply).
 
-> +
-> +Example:
-> +
-> +&palmas {
-> +	palmas_pwr_button: pwrbutton {
-> +		compatible = "ti,palmas-pwrbutton";
-> +		interrupt-parent = <&tps659038>;
-> +		interrupts = <1 IRQ_TYPE_NONE>;
+I studied open-vm-tools.sourceforge.net and
+github.com/vmware/open-vm-tools.
+My impression is: it's a pretty big collection of utilities/daemons and its code
+seems bound to vmware-specific  features, maybe that's why it's called
+"open-vm-tools" rather than "generic-vm-tools" :-)
+1)  2517/2528 of the commits of the git repo are from vmware;
+2) In Ubuntu 14.04, the utilities of open-vm-tools are just named as
+vmware-XXX (I checked this by "dpkg-query -L open-vm-tools");
+3) about the text copy&paste functionality between host/guest in either
+direction, the implementation of open-vm-tools uses host/guest X11
+clipboards and hence doesn't work in real text mode tty terminal, and,
+vmware-specific implementation of backdoor() is extensively used -- I
+don't think there is such an equivalent in other hypervisors'
+environment, AFAIK.
 
-Why none? Can we specify appropriate trigger here instead of hard-coding in the
-driver?
+So IMHO it's impractical for me to re-use open-vm-tools here?
 
-> +		wakeup-source;
+> > > of
+> > > French, Czech and other keyboard layouts with numbers in upper register
+> > > and
+> > > symbols in lower will have a few choice words for you.
+> > Sorry, I can't understand what these are.
+> > Can you please give more details or a link to further info?
+>
+> On French and many other European layouts to produce a number one
+> needs to use
+> Shift key, instead of simply using lower register, as on US or UK layouts. I.e.
+> if you send scancode for KEY_3 through your proposed implementation it will
+> produce '#' and KEY_SHIFT + KEY_3 will result in '3'.
+>
+> There are also issues with QWERTY/AZERTY and other layouts...
+> Dmitry
 
-What handles this attribute? I do not see it handled in the driver.
+Hi Dmitry,
+Thanks for pointing this out!
+This is a real issue -- my patch only works for English layout. :-(
 
-> +		ti,palmas-long-press-seconds = <12>;
-> +	};
-> +};
-> -- 
-> 1.7.9.5
-> 
+I wrongly assumed  there is a 1:1 mapping between an ASCII char and a
+scan code -- this is not true considering different keyboard layouts(keymaps).
 
-Thanks.
+So looks it's impossible for me to implement the functionality through the
+path of the keyboard input subsystem... :-(
+A feasible method would be: I can write a lightweight userland daemon,
+just like open-vm-tools, which receives the string from the host and passes it
+to the X11 windowing system directly using X11 APIs(this doesn't work in text
+mode however).
 
--- 
-Dmitry
+Looking forward to your comment.
+
+Thanks,
+-- Dexuan

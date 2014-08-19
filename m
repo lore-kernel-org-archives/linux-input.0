@@ -1,73 +1,70 @@
-From: "Murphy, Dan" <dmurphy@ti.com>
-Subject: Re: [PATCH v6] input: drv260x: Add TI drv260x haptics driver
-Date: Tue, 19 Aug 2014 20:55:14 +0000
-Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DEC525@DFLE09.ent.ti.com>
-References: <1408117670-19750-1-git-send-email-dmurphy@ti.com>
- <20140819192401.GA32080@core.coreip.homeip.net>
- <00FC9A978A94B7418C33AFAE8A35ED49DEC1EF@DFLE09.ent.ti.com>
- <20140819200748.GB3626@core.coreip.homeip.net>
- <00FC9A978A94B7418C33AFAE8A35ED49DEC3E6@DFLE09.ent.ti.com>
- <20140819202438.GD3626@core.coreip.homeip.net>
+From: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>
+Subject: [PATCH] sparc: i8042-sparcio.h: fix unused kbd_res warning
+Date: Tue, 19 Aug 2014 23:09:37 +0200
+Message-ID: <1408482577-17837-1-git-send-email-vincent.stehle@laposte.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:39933 "EHLO comal.ext.ti.com"
+Received: from smtp2-g21.free.fr ([212.27.42.2]:39736 "EHLO smtp2-g21.free.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750936AbaHSUzV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Aug 2014 16:55:21 -0400
-Content-Language: en-US
+	id S1750861AbaHSVJy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Aug 2014 17:09:54 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, sparclinux@vger.kernel.org
+Cc: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>
 
-Dmitry
+kbd_res is used only when CONFIG_PCI is defined; condition its declarat=
+ion as
+well. This fixes the following compilation warning:
 
-On 08/19/2014 03:24 PM, Dmitry Torokhov wrote:
-> On Tue, Aug 19, 2014 at 08:13:32PM +0000, Murphy, Dan wrote:
->> On 08/19/2014 03:07 PM, Dmitry Torokhov wrote:
->>> On Tue, Aug 19, 2014 at 07:35:06PM +0000, Murphy, Dan wrote:
->>>> Dmitry
->>>>
+  drivers/input/serio/i8042-sparcio.h:20:25: warning: =E2=80=98kbd_res=E2=
+=80=99 defined but not used [-Wunused-variable]
 
-<snip>
+Signed-off-by: Vincent Stehl=C3=A9 <vincent.stehle@laposte.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+---
 
->>> 	...
->>>
->>> That one I kept.
->>>
->>
->> Yes that is correct but the enable_gpio for non-dt enabled devices this enable_gpio
->> needs to come from the platform data structure.  Without the enable gpio in the platform data
->> structure there is no way for non-dt enabled devices to set the gpio value.
-> 
-> What else uses the platform data structure? You are accessing gpio by name, not
-> by number, in the driver so I am not sure how non-dt case will use u32 defined
-> in platform data.
-> 
->>
->> The haptics instance just stores the gpio descriptor returned from this call.
-> 
-> Right.
-> 
->>
->> The devm_gpiod looks at the platform data is CONFIG_OF is not set.
-> 
-> Umm, how? You do not pass it anywhere...
+Hi,
 
-OK I drop my argument after drilling through gpio code.
+This can be seen with e.g. sparc alldefconfig.
 
-Removal of this is OK.
+Best regards,
 
-Thanks
+V.
 
-> 
-> Thanks.
-> 
+ drivers/input/serio/i8042-sparcio.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/=
+i8042-sparcio.h
+index d6aa4c6..93cb791 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -17,7 +17,6 @@ static int i8042_aux_irq =3D -1;
+ #define I8042_MUX_PHYS_DESC "sparcps2/serio%d"
+=20
+ static void __iomem *kbd_iobase;
+-static struct resource *kbd_res;
+=20
+ #define I8042_COMMAND_REG	(kbd_iobase + 0x64UL)
+ #define I8042_DATA_REG		(kbd_iobase + 0x60UL)
+@@ -44,6 +43,8 @@ static inline void i8042_write_command(int val)
+=20
+ #ifdef CONFIG_PCI
+=20
++static struct resource *kbd_res;
++
+ #define OBP_PS2KBD_NAME1	"kb_ps2"
+ #define OBP_PS2KBD_NAME2	"keyboard"
+ #define OBP_PS2MS_NAME1		"kdmouse"
+--=20
+2.1.0.rc1
 
--- 
-------------------
-Dan Murphy
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

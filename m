@@ -1,109 +1,34 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: [RESEND PATCH 4/7] mfd: cros_ec: move locking into cros_ec_cmd_xfer
-Date: Wed, 20 Aug 2014 14:13:29 +0200
-Message-ID: <1408536812-7836-5-git-send-email-javier.martinez@collabora.co.uk>
-References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:43145 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753635AbaHTMOI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Aug 2014 08:14:08 -0400
-In-Reply-To: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 1/2] SOUND: kill gameport bits
+Date: Wed, 20 Aug 2014 13:29:02 +0100
+Message-ID: <20140820132902.7eed767f@alan.etchedpixels.co.uk>
+References: <20140820024638.GA25240@rhlx01.hs-esslingen.de>
+	<20140820051815.GA1109@core.coreip.homeip.net>
+	<s5hwqa3hetu.wl-tiwai@suse.de>
+	<20140820063130.GA11226@core.coreip.homeip.net>
+	<s5htx57hc89.wl-tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <s5htx57hc89.wl-tiwai@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Mohr <andi@lisas.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
-From: Andrew Bresticker <abrestic@chromium.org>
+> It's the gameport core code that is currently broken under some
+> situation, right?  If so, marking it as broken is the first step, and
+> we don't need to touch else.  We may fix it later, or we may not.  If
+> the thing isn't improved, then we can drop the whole stuff.
 
-Now that there's a central cros_ec_cmd_xfer(), move the locking
-out of the SPI and LPC drivers.
+It's only broken on x86 with frequency changing. x86 is not the only
+platform with ISA or PCI bus or gameports.
 
-Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-Reviewed-by: Simon Glass <sjg@chromium.org>
-Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
----
- drivers/mfd/cros_ec.c     | 10 +++++++++-
- drivers/mfd/cros_ec_spi.c | 11 -----------
- 2 files changed, 9 insertions(+), 12 deletions(-)
+It really ought to go via staging, and the other arch maintainers be
+asked. The m68k and mips world does include a department of relics and
+retro-computing 8)
 
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index a9faebd..c53804a 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -65,7 +65,13 @@ EXPORT_SYMBOL(cros_ec_check_result);
- int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
- 		     struct cros_ec_command *msg)
- {
--	return ec_dev->cmd_xfer(ec_dev, msg);
-+	int ret;
-+
-+	mutex_lock(&ec_dev->lock);
-+	ret = ec_dev->cmd_xfer(ec_dev, msg);
-+	mutex_unlock(&ec_dev->lock);
-+
-+	return ret;
- }
- EXPORT_SYMBOL(cros_ec_cmd_xfer);
- 
-@@ -98,6 +104,8 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 			return -ENOMEM;
- 	}
- 
-+	mutex_init(&ec_dev->lock);
-+
- 	err = mfd_add_devices(dev, 0, cros_devs,
- 			      ARRAY_SIZE(cros_devs),
- 			      NULL, ec_dev->irq, NULL);
-diff --git a/drivers/mfd/cros_ec_spi.c b/drivers/mfd/cros_ec_spi.c
-index b396705..bf6e08e 100644
---- a/drivers/mfd/cros_ec_spi.c
-+++ b/drivers/mfd/cros_ec_spi.c
-@@ -79,13 +79,11 @@
-  *	if no record
-  * @end_of_msg_delay: used to set the delay_usecs on the spi_transfer that
-  *      is sent when we want to turn off CS at the end of a transaction.
-- * @lock: mutex to ensure only one user of cros_ec_cmd_xfer_spi at a time
-  */
- struct cros_ec_spi {
- 	struct spi_device *spi;
- 	s64 last_transfer_ns;
- 	unsigned int end_of_msg_delay;
--	struct mutex lock;
- };
- 
- static void debug_packet(struct device *dev, const char *name, u8 *ptr,
-@@ -232,13 +230,6 @@ static int cros_ec_cmd_xfer_spi(struct cros_ec_device *ec_dev,
- 	int sum;
- 	int ret = 0, final_ret;
- 
--	/*
--	 * We have the shared ec_dev buffer plus we do lots of separate spi_sync
--	 * calls, so we need to make sure only one person is using this at a
--	 * time.
--	 */
--	mutex_lock(&ec_spi->lock);
--
- 	len = cros_ec_prepare_tx(ec_dev, ec_msg);
- 	dev_dbg(ec_dev->dev, "prepared, len=%d\n", len);
- 
-@@ -327,7 +318,6 @@ exit:
- 	if (ec_msg->command == EC_CMD_REBOOT_EC)
- 		msleep(EC_REBOOT_DELAY_MS);
- 
--	mutex_unlock(&ec_spi->lock);
- 	return ret;
- }
- 
-@@ -359,7 +349,6 @@ static int cros_ec_spi_probe(struct spi_device *spi)
- 	if (ec_spi == NULL)
- 		return -ENOMEM;
- 	ec_spi->spi = spi;
--	mutex_init(&ec_spi->lock);
- 	ec_dev = devm_kzalloc(dev, sizeof(*ec_dev), GFP_KERNEL);
- 	if (!ec_dev)
- 		return -ENOMEM;
--- 
-2.0.1
+I suspect nobody cares however.
 
+Alan

@@ -1,44 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] SOUND: kill gameport bits
-Date: Wed, 20 Aug 2014 07:49:54 -0700
-Message-ID: <20140820144952.GB18099@core.coreip.homeip.net>
-References: <20140820024638.GA25240@rhlx01.hs-esslingen.de>
- <20140820051815.GA1109@core.coreip.homeip.net>
- <s5hwqa3hetu.wl-tiwai@suse.de>
- <20140820063130.GA11226@core.coreip.homeip.net>
- <s5htx57hc89.wl-tiwai@suse.de>
- <s5hfvgrwe59.wl-tiwai@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Subject: [PATCH RESEND v4 0/2] Input: Support in the elantech driver of the trackpoint present on for instance Lenovo L530
+Date: Wed, 20 Aug 2014 20:18:10 +0200
+Message-ID: <1408558692-11736-1-git-send-email-ulrik.debie-os@e2big.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:50389 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752148AbaHTOuC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Aug 2014 10:50:02 -0400
-Content-Disposition: inline
-In-Reply-To: <s5hfvgrwe59.wl-tiwai@suse.de>
+Received: from e2big.org ([198.61.226.133]:52600 "EHLO e2big.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752743AbaHTS5V (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Aug 2014 14:57:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andreas Mohr <andi@lisas.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, ulrik.debie-os@e2big.org
 
-On Wed, Aug 20, 2014 at 02:15:30PM +0200, Takashi Iwai wrote:
-> At Wed, 20 Aug 2014 09:05:58 +0200,
-> Takashi Iwai wrote:
-> > Well, it worked on my test machine a year ago or so.  Maybe I had a
-> > good luck.
-> 
-> FYI, now I tested again an analog joystick on SB Live put on a Dell
-> IvyBridge desktop with 3.17-rc1 x86-64 kernel, and it worked fine as
-> is.
-> 
-> So it's not that broken.
+Hi Dmitry,
 
-That's probably because in your system TSCs are stable when switching CPU
-frequency. Earlier systems had bunch of issues there IIRC.
+I posted these 2 months ago, but haven't seen any comments from you.
+Could you please review these ?
 
-Thanks.
+Thanks,
+Ulrik
+
+Patch 1 adds support for trackpoint on elantech driver for v3 models.
+Patch 2 adds a psmouse_reset when the elantech probes fails. Patch 2 depends
+on Patch 1.
+
+Changes since v3:
+* Patch1: added (correct) error after input_allocate_device failure in elantech_init()
+* Patch2: added more explanation to the why
+
+Changes since v2:
+* psmouse_reset change is now moved to a separate patch
+* comments/white spaces/newlines  cleanup
+* Unexpected trackpoint message warning now only printed once
+* removed some unnecessary casts
+* Deleted etd->trackpoint_present and use instead etd->tp_dev to indicate the
+  presence of a trackpoint
+* Propagate the error when elantech_init fails
+
+Changes since v1:
+* New patch now with reference to 3.14rc1
+* Added etd->trackpoint_present to indicate presence of trackpoint (based
+  on MSB of etd->capabilities[0])
+* trackpoint will only be registered now when MSB of etd->capabilities[0] is
+  set; got confirmation that this is the indicator of trackpoint
+* Added input_unregister_device/input_free_device in elantech_disconnect()
+* Fixed a bug in cleaning up when elantech_init fails
+* Rename commit to be more specific (now also applicable to future elantech
+  v3 models with trackpoint)
+* input device name 'TPPS/2 IBM TrackPoint' changed to
+  'Elantech PS/2 TrackPoint', this patch is not ibm/lenovo specific!
+* dev2 renamed to tp_dev to indicate that this is the trackpoint device
+* etd->phys renamed to etd->tp_phys
+* Added Lenovo 530 and Fujitsu H730 to the laptop list because those are now
+  also known.
+* Added psmouse_reset at the end of elantech_init when it fails
+* Added warning when trackpoint packets are received with no trackpoint detected
+
+The patches are also available from:
+https://github.com/ulrikdb/linux/commit/53d8424bc2143d34c2be76064892079fe1917a9e
+https://github.com/ulrikdb/linux/commit/cf12fcc6cdf51a7aad48d056750478aecd9d7eca
+
+
+
+Ulrik De Bie (2):
+  elantech: Add support for trackpoint found on some v3 models
+  elantech: Call psmouse_reset when elantech probe fails
+
+ drivers/input/mouse/elantech.c | 123 +++++++++++++++++++++++++++++++++++++++--
+ drivers/input/mouse/elantech.h |   3 +
+ 2 files changed, 122 insertions(+), 4 deletions(-)
 
 -- 
-Dmitry
+2.1.0.rc1
+

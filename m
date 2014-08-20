@@ -1,75 +1,42 @@
 From: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Subject: [PATCH RESEND v4 0/2] Input: Support in the elantech driver of the trackpoint present on for instance Lenovo L530
-Date: Wed, 20 Aug 2014 20:18:10 +0200
-Message-ID: <1408558692-11736-1-git-send-email-ulrik.debie-os@e2big.org>
+Subject: [PATCH RESEND v4 2/2] elantech: Call psmouse_reset when elantech probe fails
+Date: Wed, 20 Aug 2014 20:18:12 +0200
+Message-ID: <1408558692-11736-3-git-send-email-ulrik.debie-os@e2big.org>
+References: <1408558692-11736-1-git-send-email-ulrik.debie-os@e2big.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:52600 "EHLO e2big.org"
+Received: from e2big.org ([198.61.226.133]:52598 "EHLO e2big.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752743AbaHTS5V (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Aug 2014 14:57:21 -0400
+	id S1752734AbaHTS5S (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Aug 2014 14:57:18 -0400
+In-Reply-To: <1408558692-11736-1-git-send-email-ulrik.debie-os@e2big.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, ulrik.debie-os@e2big.org
 
-Hi Dmitry,
+elantech_init() calls elantech_set_absolute_mode which sets the driver in
+an absolute mode. When after this the elantech_init fails, it is best
+to turn the ps/2 mouse emulation mode back on by calling psmouse_reset()
+so that it can work as a regular mouse.
 
-I posted these 2 months ago, but haven't seen any comments from you.
-Could you please review these ?
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+---
+ drivers/input/mouse/elantech.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-Ulrik
-
-Patch 1 adds support for trackpoint on elantech driver for v3 models.
-Patch 2 adds a psmouse_reset when the elantech probes fails. Patch 2 depends
-on Patch 1.
-
-Changes since v3:
-* Patch1: added (correct) error after input_allocate_device failure in elantech_init()
-* Patch2: added more explanation to the why
-
-Changes since v2:
-* psmouse_reset change is now moved to a separate patch
-* comments/white spaces/newlines  cleanup
-* Unexpected trackpoint message warning now only printed once
-* removed some unnecessary casts
-* Deleted etd->trackpoint_present and use instead etd->tp_dev to indicate the
-  presence of a trackpoint
-* Propagate the error when elantech_init fails
-
-Changes since v1:
-* New patch now with reference to 3.14rc1
-* Added etd->trackpoint_present to indicate presence of trackpoint (based
-  on MSB of etd->capabilities[0])
-* trackpoint will only be registered now when MSB of etd->capabilities[0] is
-  set; got confirmation that this is the indicator of trackpoint
-* Added input_unregister_device/input_free_device in elantech_disconnect()
-* Fixed a bug in cleaning up when elantech_init fails
-* Rename commit to be more specific (now also applicable to future elantech
-  v3 models with trackpoint)
-* input device name 'TPPS/2 IBM TrackPoint' changed to
-  'Elantech PS/2 TrackPoint', this patch is not ibm/lenovo specific!
-* dev2 renamed to tp_dev to indicate that this is the trackpoint device
-* etd->phys renamed to etd->tp_phys
-* Added Lenovo 530 and Fujitsu H730 to the laptop list because those are now
-  also known.
-* Added psmouse_reset at the end of elantech_init when it fails
-* Added warning when trackpoint packets are received with no trackpoint detected
-
-The patches are also available from:
-https://github.com/ulrikdb/linux/commit/53d8424bc2143d34c2be76064892079fe1917a9e
-https://github.com/ulrikdb/linux/commit/cf12fcc6cdf51a7aad48d056750478aecd9d7eca
-
-
-
-Ulrik De Bie (2):
-  elantech: Add support for trackpoint found on some v3 models
-  elantech: Call psmouse_reset when elantech probe fails
-
- drivers/input/mouse/elantech.c | 123 +++++++++++++++++++++++++++++++++++++++--
- drivers/input/mouse/elantech.h |   3 +
- 2 files changed, 122 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 5dd620a..771291c 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1620,6 +1620,7 @@ int elantech_init(struct psmouse *psmouse)
+ 	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
+ 			   &elantech_attr_group);
+  init_fail:
++	psmouse_reset(psmouse);
+ 	kfree(etd);
+ 	return error;
+ }
 -- 
 2.1.0.rc1
 

@@ -1,130 +1,103 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: USB reset xhci_hcd for ELAN touchscreen
-Date: Wed, 20 Aug 2014 08:20:43 -0500 (CDT)
-Message-ID: <alpine.LNX.2.00.1408200817330.23162@pobox.suse.cz>
-References: <874n047rre.fsf@nemi.mork.no> <Pine.LNX.4.44L0.1406011203140.16904-100000@netrider.rowland.org> <20140601174321.GA29188@kroah.com> <20140707092442.GF29098@localhost> <20140708053430.GA840@kroah.com> <20140709130733.GA10078@localhost>
- <20140714182526.GA12963@localhost>
+From: Andreas Mohr <andi@lisas.de>
+Subject: Re: [PATCH 1/2] SOUND: kill gameport bits
+Date: Wed, 20 Aug 2014 16:27:19 +0200
+Message-ID: <20140820142719.GA15319@rhlx01.hs-esslingen.de>
+References: <20140820024638.GA25240@rhlx01.hs-esslingen.de>
+ <20140820051815.GA1109@core.coreip.homeip.net>
+ <s5hwqa3hetu.wl-tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46472 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750938AbaHTNUr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Aug 2014 09:20:47 -0400
-In-Reply-To: <20140714182526.GA12963@localhost>
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:44153 "EHLO
+	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750870AbaHTO10 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Aug 2014 10:27:26 -0400
+Content-Disposition: inline
+In-Reply-To: <s5hwqa3hetu.wl-tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Alan Stern <stern@rowland.harvard.edu>, =?ISO-8859-15?Q?Bj=F8rn_Mork?= <bjorn@mork.no>, Sarah Sharp <sarah.a.sharp@linux.intel.com>, Drew Von Spreecken <drewvs@gmail.com>, linux-usb@vger.kernel.org, Mathias Nyman <mathias.nyman@intel.com>, linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Mohr <andi@lisas.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, 14 Jul 2014, Johan Hovold wrote:
+Hi,
 
-> From 8101c0dfd42a232f1d2872de4f412d8d61d5646f Mon Sep 17 00:00:00 2001
-> From: Johan Hovold <johan@kernel.org>
-> Date: Mon, 14 Jul 2014 18:43:31 +0200
-> Subject: [PATCH] HID: usbhid: add HID_QUIRK_IN
+Sorry for having introduced a cut in discussion threading (broken
+formatting which caused In-Reply-To header loss).
+
+Will add several slightly disconnected items in single mail
+due to restricted environment.
+
+On Wed, Aug 20, 2014 at 08:09:49AM +0200, Takashi Iwai wrote:
+> At Tue, 19 Aug 2014 22:18:15 -0700,
+> Dmitry Torokhov wrote:
+> > 
+> > Hi Andreas,
+> > 
+> > On Wed, Aug 20, 2014 at 04:46:38AM +0200, Andreas Mohr wrote:
+> > > drivers (where the ones I'm owning hardware of are intended to be in
+> > > active maintenance)
+> > 
+> > Are you actively testing gameport interfaces with real joysticks/gamepads on
+> > these cards? And what software is still in use that runs on these old boxes
+> > (with mainline kernel)?
 > 
-> Add quirk to submit the interrupt-in urb already at start() rather than
-> at open().
-> 
-> This is needed for devices that disconnects from the bus unless the
-> interrupt endpoint has been polled at least once or when not responding
-> to input events.
+> MPlayer and some programs have the joystick interface (even often
+> activated as default), IIRC.  I don't use it.  But I tested it
+> sometime ago.
 
-It's not really super-nice, but if no other way around it has been found 
-to be possible in USB core, I am willing to take this.
+BTW, I have a slightly extended vested interest in that topic since I
+did initial joystick driver support on Wine, too...
+(Read: there is the possibility of using many Windows apps with their
+joystick support, too - not to mention the various arcade emulators
+which probably have that as well).
 
-> ---
->  drivers/hid/usbhid/hid-core.c | 26 +++++++++++++++++++++++---
->  include/linux/hid.h           |  1 +
->  2 files changed, 24 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 7b88f4c..4b5d986 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -82,7 +82,7 @@ static int hid_start_in(struct hid_device *hid)
->  	struct usbhid_device *usbhid = hid->driver_data;
->  
->  	spin_lock_irqsave(&usbhid->lock, flags);
-> -	if (hid->open > 0 &&
-> +	if ((hid->open > 0 || hid->quirks & HID_QUIRK_IN) &&
->  			!test_bit(HID_DISCONNECTED, &usbhid->iofl) &&
->  			!test_bit(HID_SUSPENDED, &usbhid->iofl) &&
->  			!test_and_set_bit(HID_IN_RUNNING, &usbhid->iofl)) {
-> @@ -292,6 +292,8 @@ static void hid_irq_in(struct urb *urb)
->  	case 0:			/* success */
->  		usbhid_mark_busy(usbhid);
->  		usbhid->retry_delay = 0;
-> +		if ((hid->quirks & HID_QUIRK_IN) && !hid->open)
-> +			break;
->  		hid_input_report(urb->context, HID_INPUT_REPORT,
->  				 urb->transfer_buffer,
->  				 urb->actual_length, 1);
-> @@ -734,8 +736,10 @@ void usbhid_close(struct hid_device *hid)
->  	if (!--hid->open) {
->  		spin_unlock_irq(&usbhid->lock);
->  		hid_cancel_delayed_stuff(usbhid);
-> -		usb_kill_urb(usbhid->urbin);
-> -		usbhid->intf->needs_remote_wakeup = 0;
-> +		if (!(hid->quirks & HID_QUIRK_IN)) {
-> +			usb_kill_urb(usbhid->urbin);
-> +			usbhid->intf->needs_remote_wakeup = 0;
-> +		}
->  	} else {
->  		spin_unlock_irq(&usbhid->lock);
->  	}
-> @@ -1133,6 +1137,20 @@ static int usbhid_start(struct hid_device *hid)
->  
->  	set_bit(HID_STARTED, &usbhid->iofl);
->  
-> +	hid->quirks |= HID_QUIRK_IN;	/* FIXME */
+> > > Also, I'm left wondering why e.g. my Athlon XP system (a very popular
+> > > choice for longer times) would be affected by Cpufreq...
+> > > And there are no details on how exactly cpufreq is a problem or how this
+> > > timing issue could be fixed...
+> > 
+> > If you take a look at gameport_measure_speed() in gameport.c you will see that
+> > it counts cycles for timing, which obviously does not work that well when CPU
+> > frequency changes.
+> > 
+> > The bugs have been opened in bugzilla/reported on lists ages ago but nobody
+> > stepped up to fix that.
 
-This of course needs to be set on per-device basis :)
+He probably meant one issue filed about this problem here:
+"Direct use of tsc: Analog joystick doesn't work properly with CPU
+frequency scaling activated"
+https://bugzilla.kernel.org/show_bug.cgi?id=12297
+right?
 
-> +	if (hid->quirks & HID_QUIRK_IN) {
-> +		ret = usb_autopm_get_interface(usbhid->intf);
-> +		if (ret)
-> +			goto fail;
-> +		usbhid->intf->needs_remote_wakeup = 1;
-> +		ret = hid_start_in(hid);
-> +		if (ret) {
-> +			dev_err(&hid->dev,
-> +				"failed to start in urb: %d\n", ret);
-> +		}
-> +		usb_autopm_put_interface(usbhid->intf);
-> +	}
-> +
->  	/* Some keyboards don't work until their LEDs have been set.
->  	 * Since BIOSes do set the LEDs, it must be safe for any device
->  	 * that supports the keyboard boot protocol.
-> @@ -1165,6 +1183,8 @@ static void usbhid_stop(struct hid_device *hid)
->  	if (WARN_ON(!usbhid))
->  		return;
->  
-> +	usbhid->intf->needs_remote_wakeup = 0;
-> +
->  	clear_bit(HID_STARTED, &usbhid->iofl);
->  	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
->  	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 77632cf..13f81ae 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -286,6 +286,7 @@ struct hid_item {
->  #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
->  #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
->  #define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
-> +#define HID_QUIRK_IN				0x00000400
+> Hm, can't we just use the standard ktime for measuring the time diff?
+> And, I guess only few programs care the speed parameter.
 
-0x00000400 has been removed before dynamic quirks started to be possible, 
-so there is no potential clash, that's fine.
+For clocksource matters, I've got an initial patch for Azt3328 which
+adds its 1MHz timer as a clocksource, which probably means that on this
+hardware the gameport would be accurate for both digital and non-digital
+modes (not that that would help much for machines without this soundcard
+which also don't sport a high-res timer...).
 
-I'd just propose some more descriptive name for the quirk ... how about 
-something like HID_QUIRK_EARLY_INTERRUPT?
+Since I've got some more patches waiting for some gameport compatible
+soundcard devices, I should be able to take this opportunity to retest
+gameport support, too...
+And since there's in fact my VIA system which has my second azt3328 in
+its single-slot PCI and which in fact probably is a cpufreq system,
+I might be able to work on fixing the cpufreq timer issue (but if
+Vojtech managed to golden his offer to work on a fix to this issue, I
+would be far from unhappy :).
 
-Thanks,
 
--- 
-Jiri Kosina
-SUSE Labs
+
+BTW, I think I spotted a bug in the gameport removal commit (one driver
+did an if (!joystick) ... where the subsequent line was removed as well
+even though logically it quite likely shouldn't).
+
+
+>From my POV it would be much more favourable to do this relatively simple(??)
+timer fix rather than removing an entire subsystem since it's partially(?)
+broken.
+
+Andreas Mohr

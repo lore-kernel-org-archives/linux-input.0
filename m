@@ -1,96 +1,30 @@
-From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: [RESEND PATCH 6/7] mfd: cros_ec: Instantiate sub-devices from device tree
-Date: Wed, 20 Aug 2014 14:13:31 +0200
-Message-ID: <1408536812-7836-7-git-send-email-javier.martinez@collabora.co.uk>
-References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1408536812-7836-1-git-send-email-javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 1/2] SOUND: kill gameport bits
+Date: Wed, 20 Aug 2014 13:20:14 +0100
+Message-ID: <20140820132014.5acc35f4@alan.etchedpixels.co.uk>
+References: <20140820024638.GA25240@rhlx01.hs-esslingen.de>
+	<20140820051815.GA1109@core.coreip.homeip.net>
+	<20140820063951.GA6791@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 251.110.2.81.in-addr.arpa ([81.2.110.251]:50970 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752267AbaHTMUb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Aug 2014 08:20:31 -0400
+In-Reply-To: <20140820063951.GA6791@suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Mohr <andi@lisas.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>
 
-From: Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> It wouldn't be hard to fix: That code was developed when the timing
+> infrastructure in the kernel was non-existent, making use of it today
+> would make things a lot easier.
 
-If the EC device tree node has sub-nodes, try to instantiate them as
-MFD sub-devices.  We can configure the EC features provided by the board.
+You can also use pm_qos on most machines to stop PM messing it up. Ugly
+but works.
 
-Signed-off-by: Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
----
- drivers/mfd/cros_ec.c | 40 ++++++++++++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index 634c434..96c926c 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -21,6 +21,7 @@
- #include <linux/slab.h>
- #include <linux/module.h>
- #include <linux/mfd/core.h>
-+#include <linux/of_platform.h>
- #include <linux/mfd/cros_ec.h>
- #include <linux/mfd/cros_ec_commands.h>
- #include <linux/delay.h>
-@@ -109,22 +110,16 @@ int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
- EXPORT_SYMBOL(cros_ec_cmd_xfer);
- 
- static const struct mfd_cell cros_devs[] = {
--	{
--		.name = "cros-ec-keyb",
--		.id = 1,
--		.of_compatible = "google,cros-ec-keyb",
--	},
--	{
--		.name = "cros-ec-i2c-tunnel",
--		.id = 2,
--		.of_compatible = "google,cros-ec-i2c-tunnel",
--	},
- };
- 
- int cros_ec_register(struct cros_ec_device *ec_dev)
- {
- 	struct device *dev = ec_dev->dev;
- 	int err = 0;
-+#ifdef CONFIG_OF
-+	struct device_node *node;
-+	int id = ARRAY_SIZE(cros_devs);
-+#endif
- 
- 	if (ec_dev->din_size) {
- 		ec_dev->din = devm_kzalloc(dev, ec_dev->din_size, GFP_KERNEL);
-@@ -146,6 +141,31 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 		dev_err(dev, "failed to add mfd devices\n");
- 		return err;
- 	}
-+#ifdef CONFIG_OF
-+	/*
-+	 * Add sub-devices declared in the device tree.  NOTE they should NOT be
-+	 * declared in cros_devs
-+	 */
-+	for_each_child_of_node(dev->of_node, node) {
-+		char name[128];
-+		struct mfd_cell cell = {
-+			.id = 0,
-+			.name = name,
-+		};
-+
-+		if (of_modalias_node(node, name, sizeof(name)) < 0) {
-+			dev_err(dev, "modalias failure on %s\n",
-+				node->full_name);
-+			continue;
-+		}
-+		dev_dbg(dev, "adding MFD sub-device %s\n", node->name);
-+		cell.of_compatible = of_get_property(node, "compatible", NULL);
-+		err = mfd_add_devices(dev, ++id, &cell, 1, NULL, ec_dev->irq,
-+				      NULL);
-+		if (err)
-+			dev_err(dev, "fail to add %s\n", node->full_name);
-+	}
-+#endif
- 
- 	dev_info(dev, "Chrome EC device registered\n");
- 
--- 
-2.0.1
+Alan

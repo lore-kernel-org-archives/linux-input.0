@@ -1,121 +1,38 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: fix a couple of off-by-ones
-Date: Thu, 21 Aug 2014 10:46:12 -0500 (CDT)
-Message-ID: <alpine.LNX.2.00.1408211045280.23162@pobox.suse.cz>
+From: Nishanth Menon <nm@ti.com>
+Subject: [PATCH V2 0/2] Input: palmas: add support for palmas power button
+Date: Thu, 21 Aug 2014 11:02:13 -0500
+Message-ID: <1408636935-29515-1-git-send-email-nm@ti.com>
+References: <1408392810-16011-1-git-send-email-nm@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43725 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751656AbaHUPqP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Aug 2014 11:46:15 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1408392810-16011-1-git-send-email-nm@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Nishanth Menon <nm@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Ben Hawkes <hawkes@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There are a few very theoretical off-by-one bugs in report descriptor size 
-checking when performing a pre-parsing fixup. Fix those.
+Many Palmas PMIC variants have support for power button feature. This
+feature depends on certain One Time Program (OTP) and board pull
+configurations (POWERHOLD signal). However, on many platforms such
+as DRA72-evm, OMAP5-uevm, this may be used to generate input events
+similar to twl4030-pwrbutton.c
 
-Cc: stable@vger.kernel.org
-Reported-by: Ben Hawkes <hawkes@google.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-cherry.c   | 2 +-
- drivers/hid/hid-kye.c      | 2 +-
- drivers/hid/hid-lg.c       | 4 ++--
- drivers/hid/hid-monterey.c | 2 +-
- drivers/hid/hid-petalynx.c | 2 +-
- drivers/hid/hid-sunplus.c  | 2 +-
- 6 files changed, 7 insertions(+), 7 deletions(-)
+Series is based on v3.17-rc1
 
-diff --git a/drivers/hid/hid-cherry.c b/drivers/hid/hid-cherry.c
-index 1bdcccc..f745d2c 100644
---- a/drivers/hid/hid-cherry.c
-+++ b/drivers/hid/hid-cherry.c
-@@ -28,7 +28,7 @@
- static __u8 *ch_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	if (*rsize >= 17 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
-+	if (*rsize >= 18 && rdesc[11] == 0x3c && rdesc[12] == 0x02) {
- 		hid_info(hdev, "fixing up Cherry Cymotion report descriptor\n");
- 		rdesc[11] = rdesc[16] = 0xff;
- 		rdesc[12] = rdesc[17] = 0x03;
-diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
-index e776963..b92bf01 100644
---- a/drivers/hid/hid-kye.c
-+++ b/drivers/hid/hid-kye.c
-@@ -300,7 +300,7 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		 *   - change the button usage range to 4-7 for the extra
- 		 *     buttons
- 		 */
--		if (*rsize >= 74 &&
-+		if (*rsize >= 75 &&
- 			rdesc[61] == 0x05 && rdesc[62] == 0x08 &&
- 			rdesc[63] == 0x19 && rdesc[64] == 0x08 &&
- 			rdesc[65] == 0x29 && rdesc[66] == 0x0f &&
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index a976f48..f91ff14 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -345,14 +345,14 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	struct usb_device_descriptor *udesc;
- 	__u16 bcdDevice, rev_maj, rev_min;
- 
--	if ((drv_data->quirks & LG_RDESC) && *rsize >= 90 && rdesc[83] == 0x26 &&
-+	if ((drv_data->quirks & LG_RDESC) && *rsize >= 91 && rdesc[83] == 0x26 &&
- 			rdesc[84] == 0x8c && rdesc[85] == 0x02) {
- 		hid_info(hdev,
- 			 "fixing up Logitech keyboard report descriptor\n");
- 		rdesc[84] = rdesc[89] = 0x4d;
- 		rdesc[85] = rdesc[90] = 0x10;
- 	}
--	if ((drv_data->quirks & LG_RDESC_REL_ABS) && *rsize >= 50 &&
-+	if ((drv_data->quirks & LG_RDESC_REL_ABS) && *rsize >= 51 &&
- 			rdesc[32] == 0x81 && rdesc[33] == 0x06 &&
- 			rdesc[49] == 0x81 && rdesc[50] == 0x06) {
- 		hid_info(hdev,
-diff --git a/drivers/hid/hid-monterey.c b/drivers/hid/hid-monterey.c
-index 9e14c00..25daf28 100644
---- a/drivers/hid/hid-monterey.c
-+++ b/drivers/hid/hid-monterey.c
-@@ -24,7 +24,7 @@
- static __u8 *mr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	if (*rsize >= 30 && rdesc[29] == 0x05 && rdesc[30] == 0x09) {
-+	if (*rsize >= 31 && rdesc[29] == 0x05 && rdesc[30] == 0x09) {
- 		hid_info(hdev, "fixing up button/consumer in HID report descriptor\n");
- 		rdesc[30] = 0x0c;
- 	}
-diff --git a/drivers/hid/hid-petalynx.c b/drivers/hid/hid-petalynx.c
-index 736b250..6aca4f2 100644
---- a/drivers/hid/hid-petalynx.c
-+++ b/drivers/hid/hid-petalynx.c
-@@ -25,7 +25,7 @@
- static __u8 *pl_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	if (*rsize >= 60 && rdesc[39] == 0x2a && rdesc[40] == 0xf5 &&
-+	if (*rsize >= 62 && rdesc[39] == 0x2a && rdesc[40] == 0xf5 &&
- 			rdesc[41] == 0x00 && rdesc[59] == 0x26 &&
- 			rdesc[60] == 0xf9 && rdesc[61] == 0x00) {
- 		hid_info(hdev, "fixing up Petalynx Maxter Remote report descriptor\n");
-diff --git a/drivers/hid/hid-sunplus.c b/drivers/hid/hid-sunplus.c
-index 87fc91e..91072fa 100644
---- a/drivers/hid/hid-sunplus.c
-+++ b/drivers/hid/hid-sunplus.c
-@@ -24,7 +24,7 @@
- static __u8 *sp_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	if (*rsize >= 107 && rdesc[104] == 0x26 && rdesc[105] == 0x80 &&
-+	if (*rsize >= 112 && rdesc[104] == 0x26 && rdesc[105] == 0x80 &&
- 			rdesc[106] == 0x03) {
- 		hid_info(hdev, "fixing up Sunplus Wireless Desktop report descriptor\n");
- 		rdesc[105] = rdesc[110] = 0x03;
+V2 of the series incorporating comments from http://marc.info/?l=linux-input&m=140839287431882&w=2
+
+Nishanth Menon (2):
+  doc: dt/bindings: input: introduce palmas power button description
+  Input: misc: introduce palmas-pwrbutton
+
+ .../bindings/input/ti,palmas-pwrbutton.txt         |   36 ++
+ drivers/input/misc/Kconfig                         |   10 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/palmas-pwrbutton.c              |  356 ++++++++++++++++++++
+ 4 files changed, 403 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
+ create mode 100644 drivers/input/misc/palmas-pwrbutton.c
+
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.5

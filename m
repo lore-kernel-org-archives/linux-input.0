@@ -1,177 +1,60 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [RFC 4/4] HID:hid-logitech: Add mode control via /sys interface
-Date: Wed, 20 Aug 2014 22:51:42 -0600
-Message-ID: <1408596702-3895-4-git-send-email-simon@mungewell.org>
-References: <1408596702-3895-1-git-send-email-simon@mungewell.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/2] SOUND: kill gameport bits
+Date: Thu, 21 Aug 2014 09:16:10 +0200
+Message-ID: <CAMuHMdXctPvoJGOOVPA+a=ZGqYHsttTw3eGNU1sNGRcidshF3A@mail.gmail.com>
+References: <20140820024638.GA25240@rhlx01.hs-esslingen.de>
+	<20140820051815.GA1109@core.coreip.homeip.net>
+	<s5hwqa3hetu.wl-tiwai@suse.de>
+	<20140820063130.GA11226@core.coreip.homeip.net>
+	<s5htx57hc89.wl-tiwai@suse.de>
+	<s5hfvgrwe59.wl-tiwai@suse.de>
+	<20140820144952.GB18099@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out-05.shaw.ca ([64.59.134.13]:60961 "EHLO
-	smtp-out-05.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751430AbaHUFBN (ORCPT
+Received: from mail-la0-f48.google.com ([209.85.215.48]:63037 "EHLO
+	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751006AbaHUHQM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Aug 2014 01:01:13 -0400
-In-Reply-To: <1408596702-3895-1-git-send-email-simon@mungewell.org>
+	Thu, 21 Aug 2014 03:16:12 -0400
+In-Reply-To: <20140820144952.GB18099@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Takashi Iwai <tiwai@suse.de>, Andreas Mohr <andi@lisas.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>
 
----
- drivers/hid/hid-lg4ff.c | 81 +++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 78 insertions(+), 3 deletions(-)
+Hi Dmitry,
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index 0ba0838..1be561e 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -41,11 +41,16 @@ static void hid_lg4ff_set_range_g25(struct hid_device *hid, u16 range);
- static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *attr, char *buf);
- static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
- 
-+static ssize_t lg4ff_mode_show(struct device *dev, struct device_attribute *attr, char *buf);
-+static ssize_t lg4ff_mode_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
-+
- static DEVICE_ATTR(range, S_IRWXU | S_IRWXG | S_IROTH, lg4ff_range_show, lg4ff_range_store);
-+static DEVICE_ATTR(mode, S_IRWXU | S_IRWXG | S_IROTH, lg4ff_mode_show, lg4ff_mode_store);
- 
- struct lg4ff_device_entry {
- 	__u32 product_id;
- 	__u16 type;
-+	__u16 mode;
- 	__u16 range;
- 	__u16 min_range;
- 	__u16 max_range;
-@@ -362,7 +367,7 @@ static int lg4ff_switch_mode(struct hid_device *hid, __u16 type, int mode)
- 		value[6] = 0x00;
- 
- 		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
--		return 0;
-+		return LG4FF_MSW_G25;
- 	}
- 
- 	if (mode == LG4FF_MSW_DFP) {
-@@ -375,7 +380,7 @@ static int lg4ff_switch_mode(struct hid_device *hid, __u16 type, int mode)
- 		value[6] = 0x00;
- 
- 		hid_hw_request(hid, report, HID_REQ_SET_REPORT);
--		return 0;
-+		return LG4FF_MSW_DFP;
- 	}
- 
- 	/* Prevent compat mode on USB reset */
-@@ -400,7 +405,7 @@ static int lg4ff_switch_mode(struct hid_device *hid, __u16 type, int mode)
- 	value[6] = 0x00;
- 
- 	hid_hw_request(hid, report, HID_REQ_SET_REPORT);
--	return 0;
-+	return mode;
- }
- 
- /* Read current range and display it in terminal */
-@@ -461,6 +466,66 @@ static ssize_t lg4ff_range_store(struct device *dev, struct device_attribute *at
- 	return count;
- }
- 
-+/* Read current mode and display it in terminal */
-+static ssize_t lg4ff_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hid = to_hid_device(dev);
-+	struct lg4ff_device_entry *entry;
-+	struct lg_drv_data *drv_data;
-+	size_t count;
-+
-+	drv_data = hid_get_drvdata(hid);
-+	if (!drv_data) {
-+		hid_err(hid, "Private driver data not found!\n");
-+		return 0;
-+	}
-+
-+	entry = drv_data->device_props;
-+	if (!entry) {
-+		hid_err(hid, "Device properties not found!\n");
-+		return 0;
-+	}
-+
-+	count = scnprintf(buf, PAGE_SIZE, "%u\n", entry->mode);
-+	return count;
-+}
-+
-+/* Set mode to user specified value */
-+static ssize_t lg4ff_mode_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct hid_device *hid = to_hid_device(dev);
-+	struct lg4ff_device_entry *entry;
-+	struct lg_drv_data *drv_data;
-+	int err;
-+	__u16 mode = simple_strtoul(buf, NULL, 10);
-+
-+	drv_data = hid_get_drvdata(hid);
-+	if (!drv_data) {
-+		hid_err(hid, "Private driver data not found!\n");
-+		return -EINVAL;
-+	}
-+
-+	entry = drv_data->device_props;
-+	if (!entry) {
-+		hid_err(hid, "Device properties not found!\n");
-+		return -EINVAL;
-+	}
-+
-+	if (mode == entry->mode) {
-+		dbg_hid("Device is already in mode %d\n", mode);
-+		return count;
-+	}
-+
-+	err = lg4ff_switch_mode(hid, entry->type, mode);
-+	if (err != mode) {
-+		hid_err(hid, "Unable to switch mode\n");
-+		return -1;
-+	}
-+
-+	entry->mode = mode;
-+	return count;
-+}
-+
- #ifdef CONFIG_LEDS_CLASS
- static void lg4ff_set_leds(struct hid_device *hid, __u8 leds)
- {
-@@ -583,6 +648,7 @@ int lg4ff_init(struct hid_device *hid, const int switch_mode)
- 	entry->product_id = hid->product;
- 	entry->set_range = NULL;
- 	entry->type = LG4FF_MSW_EMU;
-+	entry->mode = LG4FF_MSW_EMU;
- 
- 	/* Check which wheel has been connected */
- 	bcdDevice = le16_to_cpu(udesc->bcdDevice);
-@@ -602,6 +668,11 @@ int lg4ff_init(struct hid_device *hid, const int switch_mode)
- 			entry->min_range = 40;
- 			entry->max_range = 900;
- 			entry->set_range = s->set_range;
-+
-+			if (switch_mode == LG4FF_MSW_NAT)
-+				entry->mode = s->type;
-+			else
-+				entry->mode = switch_mode;
- 		}
- 
- 		if (hid->product == USB_DEVICE_ID_LOGITECH_WHEEL && switch_mode != LG4FF_MSW_EMU) {
-@@ -635,6 +706,9 @@ int lg4ff_init(struct hid_device *hid, const int switch_mode)
- 	error = device_create_file(&hid->dev, &dev_attr_range);
- 	if (error)
- 		return error;
-+	error = device_create_file(&hid->dev, &dev_attr_mode);
-+	if (error)
-+		return error;
- 	dbg_hid("sysfs interface created\n");
- 
- 	/* Set the maximum range to start with */
-@@ -705,6 +779,7 @@ int lg4ff_deinit(struct hid_device *hid)
- 	struct lg_drv_data *drv_data;
- 
- 	device_remove_file(&hid->dev, &dev_attr_range);
-+	device_remove_file(&hid->dev, &dev_attr_mode);
- 
- 	drv_data = hid_get_drvdata(hid);
- 	if (!drv_data) {
--- 
-1.9.1
+On Wed, Aug 20, 2014 at 4:49 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Wed, Aug 20, 2014 at 02:15:30PM +0200, Takashi Iwai wrote:
+>> At Wed, 20 Aug 2014 09:05:58 +0200,
+>> Takashi Iwai wrote:
+>> > Well, it worked on my test machine a year ago or so.  Maybe I had a
+>> > good luck.
+>>
+>> FYI, now I tested again an analog joystick on SB Live put on a Dell
+>> IvyBridge desktop with 3.17-rc1 x86-64 kernel, and it worked fine as
+>> is.
+>>
+>> So it's not that broken.
+>
+> That's probably because in your system TSCs are stable when switching CPU
+> frequency. Earlier systems had bunch of issues there IIRC.
 
+>From the success stories above, it seems gameport doesn't work on only
+a limited number of systems.
+
+Perhaps the subsystem can fail with a big fat warning at runtime if such
+a system is detected?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

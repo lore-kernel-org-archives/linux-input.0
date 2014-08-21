@@ -1,79 +1,62 @@
-From: "Murphy, Dan" <dmurphy@ti.com>
-Subject: Re: [PATCH 1/2] doc: dt/bindings: input: introduce TI DRV2667
- haptic driver description
-Date: Thu, 21 Aug 2014 18:30:40 +0000
-Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49DF0933@DFLE09.ent.ti.com>
-References: <1408645143-25690-1-git-send-email-dmurphy@ti.com>
- <1408645143-25690-2-git-send-email-dmurphy@ti.com>
- <53F63A68.1080002@cogentembedded.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: USB reset xhci_hcd for ELAN touchscreen
+Date: Thu, 21 Aug 2014 13:38:26 -0500 (CDT)
+Message-ID: <alpine.LNX.2.00.1408211337050.23162@pobox.suse.cz>
+References: <874n047rre.fsf@nemi.mork.no> <Pine.LNX.4.44L0.1406011203140.16904-100000@netrider.rowland.org> <20140601174321.GA29188@kroah.com> <20140707092442.GF29098@localhost> <20140708053430.GA840@kroah.com> <20140709130733.GA10078@localhost>
+ <20140714182526.GA12963@localhost> <alpine.LNX.2.00.1408200817330.23162@pobox.suse.cz> <20140821105407.GF24090@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:58413 "EHLO arroyo.ext.ti.com"
+Received: from cantor2.suse.de ([195.135.220.15]:46930 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753759AbaHUSbG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Aug 2014 14:31:06 -0400
-Content-Language: en-US
+	id S1752833AbaHUSib (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Aug 2014 14:38:31 -0400
+In-Reply-To: <20140821105407.GF24090@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Johan Hovold <johan@kernel.org>
+Cc: Greg KH <gregkh@linuxfoundation.org>, Alan Stern <stern@rowland.harvard.edu>, =?ISO-8859-15?Q?Bj=F8rn_Mork?= <bjorn@mork.no>, Sarah Sharp <sarah.a.sharp@linux.intel.com>, Drew Von Spreecken <drewvs@gmail.com>, linux-usb@vger.kernel.org, Mathias Nyman <mathias.nyman@intel.com>, linux-input@vger.kernel.org
 
-Sergei
+On Thu, 21 Aug 2014, Johan Hovold wrote:
 
-On 08/21/2014 01:29 PM, Sergei Shtylyov wrote:
-> Hello.
+> > It's not really super-nice, but if no other way around it has been found 
+> > to be possible in USB core, I am willing to take this.
 > 
-> On 08/21/2014 10:19 PM, Dan Murphy wrote:
+> Agreed, it's not that nice, but I'm not aware of any other way to
+> prevent the device firmware from disconnecting.
 > 
->> DRV2667 is a haptic/vibrator driver for Linear Resonant Actuators.
->> Adding dt binding for this part
-> 
->> Signed-off-by: Dan Murphy <dmurphy@ti.com>
->> ---
->>   .../devicetree/bindings/input/ti,drv2667.txt       |   18 ++++++++++++++++++
->>   1 file changed, 18 insertions(+)
->>   create mode 100644 Documentation/devicetree/bindings/input/ti,drv2667.txt
-> 
->> diff --git a/Documentation/devicetree/bindings/input/ti,drv2667.txt b/Documentation/devicetree/bindings/input/ti,drv2667.txt
->> new file mode 100644
->> index 0000000..525216d
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/ti,drv2667.txt
->> @@ -0,0 +1,18 @@
->> +Texas Instruments - drv2667 Haptics driver
->> +
->> +The drv2667 uses serial control bus communicates through I2C protocols
-> 
->     I can't parse that.
-> 
+> Autosuspend still seems to work, so it would not cause much overhead
+> for people not actually using the touchscreen (as long as autosuspend
+> is enabled) either.
 
-Hmmm.. It made sense when I typed it.  Will fix
+Okay, good. Will be waiting for your polished patch for this.
 
->> +
->> +Required properties:
->> +	- compatible - "ti,drv2667" - DRV2667
->> +	- reg -  I2C slave address
->> +	- vbat-supply - Required supply regulator
->> +
->> +Example:
->> +
->> +drv2667: drv2667@59 {
->> +		compatible = "ti,drv2667";
->> +		reg = <0x59>;
+[ ... snip ... ]
+> > > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > > index 77632cf..13f81ae 100644
+> > > --- a/include/linux/hid.h
+> > > +++ b/include/linux/hid.h
+> > > @@ -286,6 +286,7 @@ struct hid_item {
+> > >  #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
+> > >  #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
+> > >  #define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
+> > > +#define HID_QUIRK_IN				0x00000400
+> > 
+> > 0x00000400 has been removed before dynamic quirks started to be possible, 
+> > so there is no potential clash, that's fine.
+> > 
+> > I'd just propose some more descriptive name for the quirk ... how about 
+> > something like HID_QUIRK_EARLY_INTERRUPT?
 > 
->     You say "vbat-supply" is mandatory, yet you don't have it in your example?
+> Yeah, IN was just a working name. How about HID_QUIRK_ALWAYS_POLL or
+> similar as it is not just about disconnect before the device is opened,
+> but also if there's an event after the device has been closed (e.g.
+> stopping X)?
 
-I will add this as well.
+HID_QUIRK_ALWAYS_POLL sounds good.
 
-> 
-> WBR, Sergei
-> 
-> 
-
+Thanks,
 
 -- 
-------------------
-Dan Murphy
+Jiri Kosina
+SUSE Labs

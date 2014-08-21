@@ -1,30 +1,49 @@
 From: Dan Murphy <dmurphy@ti.com>
-Subject: input: drv2667: add support for drv2667 haptic driver
-Date: Thu, 21 Aug 2014 13:19:01 -0500
-Message-ID: <1408645143-25690-1-git-send-email-dmurphy@ti.com>
+Subject: [PATCH 1/2] doc: dt/bindings: input: introduce TI DRV2667 haptic driver description
+Date: Thu, 21 Aug 2014 13:19:02 -0500
+Message-ID: <1408645143-25690-2-git-send-email-dmurphy@ti.com>
+References: <1408645143-25690-1-git-send-email-dmurphy@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:45498 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752854AbaHUST3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Aug 2014 14:19:29 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1408645143-25690-1-git-send-email-dmurphy@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Dan Murphy <dmurphy@ti.com>
+List-Id: linux-input@vger.kernel.org
 
-Adding support for the TI DRV2667 haptic driver.
-This device driver a linear resonant actuator (LRA)
-based on user space requests to provide either a
-vibration or a haptic tactile response to an input.
+DRV2667 is a haptic/vibrator driver for Linear Resonant Actuators.
+Adding dt binding for this part
 
-This device has the ability to store wave patterns in RAM
-and these patterns can be executed based on user input.
+Signed-off-by: Dan Murphy <dmurphy@ti.com>
+---
+ .../devicetree/bindings/input/ti,drv2667.txt       |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/ti,drv2667.txt
 
-For this initial series I added just the basic vibration
-pattern along that will continuously execute until
-the user indicates to stop.
-
-[PATCH 1/2] doc: dt/bindings: input: introduce TI DRV2667 haptic
-[PATCH 2/2] input: misc: Add support for the DRV2667 haptic driver
+diff --git a/Documentation/devicetree/bindings/input/ti,drv2667.txt b/Documentation/devicetree/bindings/input/ti,drv2667.txt
+new file mode 100644
+index 0000000..525216d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/ti,drv2667.txt
+@@ -0,0 +1,18 @@
++Texas Instruments - drv2667 Haptics driver
++
++The drv2667 uses serial control bus communicates through I2C protocols
++
++Required properties:
++	- compatible - "ti,drv2667" - DRV2667
++	- reg -  I2C slave address
++	- vbat-supply - Required supply regulator
++
++Example:
++
++drv2667: drv2667@59 {
++		compatible = "ti,drv2667";
++		reg = <0x59>;
++};
++
++For more product information please see the link below:
++http://www.ti.com/product/drv2667
+-- 
+1.7.9.5

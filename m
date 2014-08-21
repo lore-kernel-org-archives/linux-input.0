@@ -1,39 +1,93 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [RESEND PATCH 4/7] mfd: cros_ec: move locking into cros_ec_cmd_xfer
-Date: Wed, 20 Aug 2014 15:36:01 -0700
-Message-ID: <CAD=FV=WAMKrmDTQbDrjR2XtFcNVUuzJfWspN5a7nE7kLWS9=4A@mail.gmail.com>
-References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
-	<1408536812-7836-5-git-send-email-javier.martinez@collabora.co.uk>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v4 0/14] input: cyapa: re-architecture driver to support
+ multi-trackpads in one driver
+Date: Thu, 21 Aug 2014 01:36:24 +0000
+Message-ID: <77BC725C9062764F874D79F51E1F1A8F4C940AAC@S04-MBX01-01.s04.local>
+References: <53c77101.0374440a.664d.46e2@mx.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1408536812-7836-5-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay-s04-hub006.domainlocalhost.com ([74.115.207.217]:5034
+	"EHLO relay-S04-HUB006.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750834AbaHUBl6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Aug 2014 21:41:58 -0400
+In-Reply-To: <53c77101.0374440a.664d.46e2@mx.google.com>
+Content-Language: zh-CN
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dudley Du <dudley.dulixin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Benson Leung <bleung@google.com>, Patrik Fimml <patrikf@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Javier,
-
-On Wed, Aug 20, 2014 at 5:13 AM, Javier Martinez Canillas
-<javier.martinez@collabora.co.uk> wrote:
-> From: Andrew Bresticker <abrestic@chromium.org>
->
-> Now that there's a central cros_ec_cmd_xfer(), move the locking
-> out of the SPI and LPC drivers.
-
-Slight nit that the LPC driver doesn't exist upstream.  This is in
-prep for adding the LPC driver, though.
-
-
-> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-> Reviewed-by: Simon Glass <sjg@chromium.org>
-> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-> ---
->  drivers/mfd/cros_ec.c     | 10 +++++++++-
->  drivers/mfd/cros_ec_spi.c | 11 -----------
->  2 files changed, 9 insertions(+), 12 deletions(-)
-
-After comment nitfix:
-
-Reviewed-by: Doug Anderson <dianders@chromium.org>
+SGkgRG1pdHJ5LCBQYXRyaWssDQoNCklzIHRoZXJlIGFueSB1cGRhdGUgb3IgZmVlZGJhY2sgb24g
+dGhlIHJlLXN1Ym1pdHRlZCB2NCBjeWFwYSBkcml2ZXIgcGF0Y2hlcz8NCg0KVGhhbmtzLA0KRHVk
+bGV5DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQt
+b3duZXJAdmdlci5rZXJuZWwub3JnIFttYWlsdG86bGludXgtaW5wdXQtDQo+IG93bmVyQHZnZXIu
+a2VybmVsLm9yZ10gT24gQmVoYWxmIE9mIER1ZGxleSBEdQ0KPiBTZW50OiBUaHVyc2RheSwgSnVs
+eSAxNywgMjAxNCAyOjQ1IFBNDQo+IFRvOiBEbWl0cnkgVG9yb2tob3Y7IFJhZmFlbCBKLiBXeXNv
+Y2tpDQo+IENjOiBCZW5zb24gTGV1bmc7IFBhdHJpayBGaW1tbDsgbGludXgtaW5wdXRAdmdlci5r
+ZXJuZWwub3JnOyBsaW51eC0NCj4ga2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBb
+UEFUQ0ggdjQgMC8xNF0gaW5wdXQ6IGN5YXBhOiByZS1hcmNoaXRlY3R1cmUgZHJpdmVyIHRvIHN1
+cHBvcnQNCj4gbXVsdGktdHJhY2twYWRzIGluIG9uZSBkcml2ZXINCj4NCj4gVGhpcyBwYXRjaCBz
+ZXQgaXMgbWFkZSBiYXNlZCBvbiBrZXJuZWwgMy4xNi4wLXJjNS4NCj4gSXQncyBhaW1lZCB0byBy
+ZS1hcmNoaXRlY3R1cmUgdGhlIGN5YXBhIGRyaXZlciB0byBzdXBwb3J0DQo+IG9sZCBnZW4zIHRy
+YWNrcGFkIGRldmljZSBhbmQgbmV3IGdlbjUgdHJhY2twYWQgZGV2aWNlIGluIG9uZQ0KPiBjeWFw
+YSBkcml2ZXIgZm9yIGVhc2lseSBwcm9kdWN0aW9ucyBzdXBwb3J0IGJhc2VkIG9uDQo+IGN1c3Rv
+bWVycycgcmVxdWlyZW1lbnRzLCBhbmQgYWRkIHN5c2ZzIGZ1bmN0aW9ucyBhbmQgaW50ZXJmYWNl
+cw0KPiBzdXBwb3J0ZWQgdGhhdCByZXF1aXJlZCBieSB1c2VycyBhbmQgY3VzdG9tZXJzLg0KPiBC
+ZWNhdXNlIHRoZSBlYXJsaWVyIGdlbjMgYW5kIHRoZSBsYXRlc3QgZ2VuNSB0cmFja3BhZCBkZXZp
+ZXMgdXNpbmcNCj4gdHdvIGRpZmZlcmVudCBjaGlwc2V0cywgYW5kIGhhdmUgZGlmZmVyZW50IHBy
+b3RvY29sIGFuZCBpbnRlcmZhY2VzLg0KPiBJZiBzdXBwb3J0ZWQgdGhlc2UgdHdvIHRyYWNrcGFk
+IGRldmljZXMgaW4gdHdvIGRpZmZlcmVudCBkcml2ZXJzLCB0aGVuDQo+IGl0IHdpbGwgYmUgZGlm
+ZmljdWx0IHRvIG1hbmFnZSBwcm9kdWN0aW9ucyBhbmQgbGF0ZXIgZmlybXdhcmUgdXBkYXRlcy4N
+Cj4gaXQgd2lsbCBjYXVzZSBjdXN0b21lciBkb24ndCBrbm93IHdoaWNoIG9uZSB0byB1c2UgYW5k
+IHVwZGF0ZQ0KPiBiZWNhdXNlIHRoZXNlIHR3byB0cmFja3BhZCBkZXZpY2VzIGhhdmUgYmVlbiB1
+c2VkIGFuZCBpbnRlZ3JhdGVkDQo+IGluIHNhbWUgb25lIHByb2R1Y3Rpb25zIGF0IGEgdGltZSwg
+c28gbXVzdCB0byBzdXBwb3J0IHRoZXNlIHR3byB0cmFja3BhZA0KPiBkZXZpY2VzIGluIHNhbWUg
+b24gZHJpdmVyLg0KPg0KPiBDb21wYXJlIHRvIHYzLCBpdCBoYXMgYmVsb3cgY2hhbmdlczoNCj4g
+MSkgRWxpbWluYXRlIGlycS1zdGF0ZS1yZW1lbWJlcmluZyBsb2dpYywgcmVtb3ZlIGlycSBoZWxw
+IGZ1bmN0aW9uczsNCj4gMikgUmVtb3ZlIHN0YXRlIHN5bmMgaGVscCBmdW5jdGlvbnMgaW5zdGVh
+ZCBvZiBtdXRleF9sb2NrL211dGV4X3VubG9jazsNCj4gMykgRml4IGNvbW1lbnRzIGFuZCBjaGFy
+YXRlcnMgZXJyb3JzIGFuZCBub3QgY29uc2lzdGVudCBpc3N1ZXMuDQo+IDQpIEZpeCBvdGhlciBp
+c3N1ZXMgdGhhdCBwb2ludGVkIG91dCBpbiB0aGUgcmV2aWV3Lg0KPg0KPg0KPiBUaGUgbmV3IGFy
+Y2hpdGVjdHVyZSBpcyBtYWRlIG9mOg0KPiBjeWFwYS5jIC0gdGhlIGNvcmUgb2YgdGhlIGFyY2hp
+dGVjdHVyZSwgc3VwcGx5IGludGVyZmFjZXMgYW5kDQo+IGZ1bmN0aW9ucyB0byBzeXN0ZW0gYW5k
+IHJlYWQgdHJhY2twYWQgZGV2aWNlcy4NCj4gY3lhcGFfZ2VuMy5jIC0gZnVuY3Rpb25zIHN1cHBv
+cnQgZm9yIGdlbjMgdHJhY2twYWQgZGV2aWNlcywNCj4gY3lhcGFfZ2VuNS5jIC0gZnVuY3Rpb25z
+IHN1cHBvcnQgZm9yIGdlbjUgdHJhY2twYWQgZGV2aWNlcy4NCj4NCj4gQmVzaWRlIHRoaXMgaW50
+cm9kdWN0aW9uIHBhdGNoLCBpdCBoYXMgMTQgcGF0Y2hlcyBsaXN0ZWQgYXMgYmVsb3cuDQo+IEZv
+ciB0aGVzZSBwYXRjaGVzIGVhY2ggb25lIGlzIHBhdGNoZWQgYmFzZWQgb24gcHJldmlvdXMgb25l
+Lg0KPg0KPiBwYXRjaCAxLzE0OiByZS1hcmNoaXRlY3R1cmUgY3lhcGEgZHJpdmVyIHdpdGggY29y
+ZSBmdW5jdGlvbnMsDQo+IGFuZCBhcHBseWluZyB0aGUgZGV2aWNlIGRldGVjdGluZyBmdW5jdGlv
+biBpbiBhc3luYyB0aHJlYWQgdG8gc3BlZWQNCj4gdXAgc3lzdGVtIGJvb3QgdGltZS4NCj4NCj4g
+cGF0Y2ggMi8xNDogYWRkIGN5YXBhIGRyaXZlciBwb3dlciBtYW5hZ2VtZW50IGludGVyZmFjZXMg
+c3VwcG9ydC4NCj4NCj4gcGF0Y2ggMy8xNDogYWRkIGN5YXBhIGRyaXZlciBydW50aW1lIHBvd2Vy
+IG1hbmFnZW1lbnQgaW50ZXJmYWNlcyBzdXBwb3J0Lg0KPg0KPiBwYXRjaCA0LzE0OiBhZGQgY3lh
+cGEga2V5IGZ1bmN0aW9uIGludGVyZmFjZXMgaW4gc3lzZnMgc3lzdGVtLg0KPiBJbmNsdWRpbmcg
+cmVhZCBmaXJtd2FyZSB2ZXJzaW9uLCBnZXQgcHJvZHVjdGlvbiBJRCwgcmVhZCBiYXNlbGluZSwN
+Cj4gcmUtY2FsaWJyYXRlIHRyYWNrcGFkIGJhc2VsaW5lcyBhbmQgZG8gdHJhY2twYWQgZmlybXdh
+cmUgdXBkYXRlLg0KPg0KPiBwYXRjaCA1LzE0OiBhZGQgcmVhZCBmaXJtd2FyZSBpbWFnZSBhbmQg
+cmVhZCByYXcgdHJhY2twYWQgZGV2aWNlJw0KPiBzZW5zb3JzJyByYXcgZGF0YSBpbnRlcmZhY2Ug
+aW4gZGVidWdmcyBzeXN0ZW0uDQo+DQo+IHBhdGNoIDYvMTQ6IGFkZCBnZW4zIHRyYWNrcGFkIGRl
+dmljZSBiYXNpYyBmdW5jdGlvbnMgc3VwcG9ydC4NCj4NCj4gcGF0Y2ggNy8xNDogYWRkIGdlbjMg
+dHJhY2twYWQgZGV2aWNlIGZpcm13YXJlIHVwZGF0ZSBmdW5jdGlvbiBzdXBwb3J0Lg0KPg0KPiBw
+YXRjaCA4LzE0OiBhZGQgZ2VuMyB0cmFja3BhZCBkZXZpY2UgcmVwb3J0IGJhc2VsaW5lIGFuZCBk
+byBmb3JjZQ0KPiByZS1jYWxpYnJhdGUgZnVuY3Rpb25zIHN1cHBvcnQuDQo+DQo+IHBhdGNoIDkv
+MTQ6IGFkZCBnZW4zIHRyYWNrcGFkIGRldmljZSByZWFkIGZpcm13YXJlIGltYWdlIGZ1bmN0aW9u
+IHN1cHBvcnQuDQo+DQo+IHBhdGNoIDEwLzE0OiBhZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UgYmFz
+aWMgZnVuY3Rpb25zIHN1cHBvcnQuDQo+DQo+IHBhdGNoIDExLzE0OiBhZGQgZ2VuNSB0cmFja3Bh
+ZCBkZXZpY2UgZmlybXdhcmUgdXBkYXRlIGZ1bmN0aW9uIHN1cHBvcnQuDQo+DQo+IHBhdGNoIDEy
+LzE0OiBhZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UgcmVwb3J0IGJhc2VsaW5lIGFuZCBkbyBmb3Jj
+ZQ0KPiByZS1jYWxpYnJhdGUgZnVuY3Rpb25zIHN1cHBvcnQuDQo+DQo+IHBhdGNoIDEzLzE0OiBh
+ZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UgcmVhZCBmaXJtd2FyZSBpbWFnZSBhbmQgcmVwb3J0DQo+
+IHNlbnNvcnMnIHJhdyBkYXRhIHZhbHVlcyBmdW5jdGlvbnMgc3VwcG9ydC4NCj4NCj4gcGF0Y2gg
+MTQvMTQ6IGFkZCBmdW5jdGlvbiB0byBtb25pdG9yIExJRCBjbG9zZSBldmVudCB0byBvZmYgdHJh
+Y2twYWQgZGV2aWNlLg0KPg0KPiAtLQ0KPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDog
+c2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtaW5wdXQiIGluDQo+IHRoZSBib2R5IG9m
+IGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3JnDQo+IE1vcmUgbWFqb3Jkb21v
+IGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KVGhp
+cyBtZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRz
+IHN1YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiBy
+ZWNlaXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVs
+eSBkZWxldGUgdGhpcyBtZXNzYWdlLg0K

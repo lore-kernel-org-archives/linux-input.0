@@ -1,38 +1,56 @@
-From: Markus Trippelsdorf <markus@trippelsdorf.de>
-Subject: Re: [GIT PULL] HID
-Date: Fri, 22 Aug 2014 09:40:30 +0200
-Message-ID: <20140822074030.GA297@x4>
-References: <alpine.LNX.2.00.1408211146110.23162@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
+ next hid_start_in
+Date: Fri, 22 Aug 2014 02:45:40 -0500 (CDT)
+Message-ID: <alpine.LNX.2.00.1408220240430.23162@pobox.suse.cz>
+References: <1408692913-12336-1-git-send-email-vichy.kuo@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1408211146110.23162@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Hawkes <hawkes@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:53874 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755212AbaHVHpm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Aug 2014 03:45:42 -0400
+In-Reply-To: <1408692913-12336-1-git-send-email-vichy.kuo@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: CheChun Kuo <vichy.kuo@gmail.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On 2014.08.21 at 12:43 -0500, Jiri Kosina wrote:
+On Fri, 22 Aug 2014, CheChun Kuo wrote:
 
->       HID: logitech: perform bounds checking on device_id early enough
+> 	HID IR device will not response to any command send from host when 
+> it is finishing paring and tring to reset itself. During this period of 
+> time, usb_cleaer_halt will be fail and if hid_start_in soon again, we 
+> has the possibility trap in infinite loop.
+> 
+> Signed-off-by: CheChun Kuo <vichy.kuo@gmail.com>
+> ---
+>  drivers/hid/usbhid/hid-core.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 79cf503..256b102 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -122,7 +122,8 @@ static void hid_reset(struct work_struct *work)
+>  		dev_dbg(&usbhid->intf->dev, "clear halt\n");
+>  		rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
+>  		clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
+> -		hid_start_in(hid);
+> +		if (rc == 0)
+> +			hid_start_in(hid);
+>  	}
 
-The commit above (ad3e14d7c5268c2e) causes the bounds checking to always
-fail on my monolithic kernel (without modules):
+I'd need a more detailed explanation for this patch, as I don't understand 
+neither the text in the changelog nor the patch itself. Namely:
 
-...
-[    2.922617] usb 4-2: new full-speed USB device number 2 using ohci-pci
-[    2.996587] udevd[98]: starting eudev version 1.0
-[    3.071203] random: nonblocking pool is initialized
-[    3.108360] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:12.1-2/input2
-[    3.163208] input: Logitech Unifying Device. Wireless PID:4026 as /devices/pci0000:00/0000:00:12.1/usb4/4-2/4-2:1.2/0003:046D:C52B.0003/0003:046D:C52B.0004/input/input2
-[    3.163511] logitech-djdevice 0003:046D:C52B.0004: input,hidraw1: USB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:4026] on usb-0000:00:12.1-2:1
-[    3.164121] logitech-djreceiver 0003:046D:C52B.0003: logi_dj_raw_event: invalid device index:0
-[    3.289261] usb 3-1: new low-speed USB device number 2 using ohci-pci
-[    3.457606] input: HID 046a:0011 as /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/0003:046A:0011.0005/input/input3
-[    3.457794] hid-generic 0003:046A:0011.0005: input,hidraw2: USB HID v1.10 Keyboard [HID 046a:0011] on usb-0000:00:12.0-1/input0
-[    3.712886] Switched to clocksource tsc
-...
+- which IR devices are showing this behavior?
+- where does the infinite loop come from? hid_reset() should error out 
+  properly if usb_clear_halt() fails and HID_IN_RUNNING flag is not set
+
+Thanks,
 
 -- 
-Markus
+Jiri Kosina
+SUSE Labs

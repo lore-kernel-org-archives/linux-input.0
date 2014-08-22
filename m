@@ -1,65 +1,40 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH 1/2] doc: dt/bindings: input: introduce TI DRV2667 haptic
- driver description
-Date: Thu, 21 Aug 2014 23:32:47 +0400
-Message-ID: <53F6495F.9050204@cogentembedded.com>
-References: <1408645143-25690-1-git-send-email-dmurphy@ti.com> <1408645143-25690-2-git-send-email-dmurphy@ti.com> <53F642AF.3070200@cogentembedded.com> <00FC9A978A94B7418C33AFAE8A35ED49DF0ABE@DFLE09.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: CheChun Kuo <vichy.kuo@gmail.com>
+Subject: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for next hid_start_in
+Date: Fri, 22 Aug 2014 15:35:13 +0800
+Message-ID: <1408692913-12336-1-git-send-email-vichy.kuo@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:37841 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753717AbaHUTcv (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:35832 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755847AbaHVHgB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Aug 2014 15:32:51 -0400
-Received: by mail-lb0-f171.google.com with SMTP id l4so8662439lbv.16
-        for <linux-input@vger.kernel.org>; Thu, 21 Aug 2014 12:32:49 -0700 (PDT)
-In-Reply-To: <00FC9A978A94B7418C33AFAE8A35ED49DF0ABE@DFLE09.ent.ti.com>
+	Fri, 22 Aug 2014 03:36:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Murphy, Dan" <dmurphy@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, CheChun Kuo <vichy.kuo@gmail.com>
 
-On 08/21/2014 11:14 PM, Murphy, Dan wrote:
+	HID IR device will not response to any command send from host when it is finishing paring and tring to reset itself.
+During this period of time, usb_cleaer_halt will be fail and if hid_start_in soon again, we has the possibility trap in infinite loop.
 
-[...]
+Signed-off-by: CheChun Kuo <vichy.kuo@gmail.com>
+---
+ drivers/hid/usbhid/hid-core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
->>> DRV2667 is a haptic/vibrator driver for Linear Resonant Actuators.
->>> Adding dt binding for this part
-
->>> Signed-off-by: Dan Murphy <dmurphy@ti.com>
->>> ---
->>>    .../devicetree/bindings/input/ti,drv2667.txt       |   18 ++++++++++++++++++
->>>    1 file changed, 18 insertions(+)
->>>    create mode 100644 Documentation/devicetree/bindings/input/ti,drv2667.txt
-
->>> diff --git a/Documentation/devicetree/bindings/input/ti,drv2667.txt b/Documentation/devicetree/bindings/input/ti,drv2667.txt
->>> new file mode 100644
->>> index 0000000..525216d
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/input/ti,drv2667.txt
->>> @@ -0,0 +1,18 @@
->>> +Texas Instruments - drv2667 Haptics driver
->>> +
->>> +The drv2667 uses serial control bus communicates through I2C protocols
->>> +
->>> +Required properties:
->>> +	- compatible - "ti,drv2667" - DRV2667
->>> +	- reg -  I2C slave address
->>> +	- vbat-supply - Required supply regulator
->>> +
->>> +Example:
->>> +
->>> +drv2667: drv2667@59 {
-
->>      The ePAPR standard [1] has something to say on this matter:
-
-> What is this reference?  Did not know this existed so wanted to read up on it.
-
-    Sorry, forgot to paste the link. :-<
-
-[1] http://www.power.org/resources/downloads/Power_ePAPR_APPROVED_v1.0.pdf
-
-WBR, Sergei
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 79cf503..256b102 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -122,7 +122,8 @@ static void hid_reset(struct work_struct *work)
+ 		dev_dbg(&usbhid->intf->dev, "clear halt\n");
+ 		rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
+ 		clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
+-		hid_start_in(hid);
++		if (rc == 0)
++			hid_start_in(hid);
+ 	}
+ 
+ 	else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+-- 
+1.7.9.5
 

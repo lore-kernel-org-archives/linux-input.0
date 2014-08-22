@@ -1,121 +1,177 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH v2] doc: dt/bindings: input: Fix drv260x binding document
-Date: Fri, 22 Aug 2014 12:16:41 -0500
-Message-ID: <20140822171641.GE27616@saruman.home>
-References: <1408727539-15996-1-git-send-email-dmurphy@ti.com>
-Reply-To: <balbi@ti.com>
+From: vichy <vichy.kuo@gmail.com>
+Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
+ next hid_start_in
+Date: Sat, 23 Aug 2014 01:38:30 +0800
+Message-ID: <CAOVJa8HLSQ9cqEHR8srT3QikvJ6i0ZYFqmOZ7MvMpN5aULdk9A@mail.gmail.com>
+References: <CAOVJa8F5HoS48wYn5-yHCeioYNOOGEKwXg6WujCQH0QxA44o=Q@mail.gmail.com>
+	<Pine.LNX.4.44L0.1408220950340.1291-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BQPnanjtCNWHyqYD"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:40408 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932393AbaHVRRK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Aug 2014 13:17:10 -0400
-Content-Disposition: inline
-In-Reply-To: <1408727539-15996-1-git-send-email-dmurphy@ti.com>
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:37888 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932503AbaHVRib (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Aug 2014 13:38:31 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1408220950340.1291-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Murphy <dmurphy@ti.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jiri Kosina <jkosina@suse.cz>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
 
---BQPnanjtCNWHyqYD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+hi alan and all:
 
-On Fri, Aug 22, 2014 at 12:12:19PM -0500, Dan Murphy wrote:
-> Update the drv260x dt binding document:
-> - Change the node name to the devices function not the
-> device name.
-> - Add vbat-supply to the example.
-> - Fix indentation of the example.
->=20
-> Signed-off-by: Dan Murphy <dmurphy@ti.com>
-
-Reviewed-by: Felipe Balbi <balbi@ti.com>
-
-> ---
->=20
-> v2 - Address comments on indentation, node declaration, add vbat-supply,
-> removed description as it did not make sense - https://patchwork.kernel.o=
-rg/patch/4765141/
->=20
->  .../devicetree/bindings/input/ti,drv260x.txt       |   23 ++++++++++----=
-------
->  1 file changed, 11 insertions(+), 12 deletions(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.txt b/Doc=
-umentation/devicetree/bindings/input/ti,drv260x.txt
-> index a9c8519..ee09c8f 100644
-> --- a/Documentation/devicetree/bindings/input/ti,drv260x.txt
-> +++ b/Documentation/devicetree/bindings/input/ti,drv260x.txt
-> @@ -1,6 +1,4 @@
-> -Texas Instruments - drv260x Haptics driver family
+> I recently posted (but did not submit) a more comprehensive solution to
+> this and other related problems.  For example, HID devices typically
+> run at low speed or full speed.  When attached through a hub to an EHCI
+> controller (very common on modern systems), unplugging the device
+> causes -EPIPE errors, so the driver calls usb_clear_halt and restarts
+> the interrupt pipe.  Of course, the same failure occurs again, so
+> there's a lengthy flurry of useless error messages.
+>
+> This patch changes the driver so that after usb_clear_halt fails, it
+> will try to do a port reset.  And if that fails, the driver will be
+> unbound from the device.  This avoids infinite loops.
+>
+> What do you think?
+>
+> Alan Stern
+>
+>
+>
+> Index: usb-3.16/drivers/hid/usbhid/hid-core.c
+> ===================================================================
+> --- usb-3.16.orig/drivers/hid/usbhid/hid-core.c
+> +++ usb-3.16/drivers/hid/usbhid/hid-core.c
+> @@ -116,40 +116,24 @@ static void hid_reset(struct work_struct
+>         struct usbhid_device *usbhid =
+>                 container_of(work, struct usbhid_device, reset_work);
+>         struct hid_device *hid = usbhid->hid;
+> -       int rc = 0;
+> +       int rc;
+>
+>         if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
+>                 dev_dbg(&usbhid->intf->dev, "clear halt\n");
+>                 rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
+>                 clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
+> -               hid_start_in(hid);
+> -       }
 > -
-> -The drv260x family serial control bus communicates through I2C protocols
-> +* Texas Instruments - drv260x Haptics driver family
-> =20
->  Required properties:
->  	- compatible - One of:
-> @@ -37,15 +35,16 @@ Optional properties:
->  			  3.2 v.
->  Example:
-> =20
-> -drv2605l: drv2605l@5a {
-> -		compatible =3D "ti,drv2605l";
-> -		reg =3D <0x5a>;
-> -		enable-gpio =3D <&gpio1 28 GPIO_ACTIVE_HIGH>;
-> -		mode =3D <DRV260X_LRA_MODE>;
-> -		library-sel =3D <DRV260X_LIB_LRA>;
-> -		vib-rated-mv =3D <3200>;
-> -		vib-overdriver-mv =3D <3200>;
-> -};
-> +haptics: haptics@5a {
-> +	compatible =3D "ti,drv2605l";
-> +	reg =3D <0x5a>;
-> +	vbat-supply =3D <&vbat>;
-> +	enable-gpio =3D <&gpio1 28 GPIO_ACTIVE_HIGH>;
-> +	mode =3D <DRV260X_LRA_MODE>;
-> +	library-sel =3D <DRV260X_LIB_LRA>;
-> +	vib-rated-mv =3D <3200>;
-> +	vib-overdriver-mv =3D <3200>;
-> +}
-> =20
->  For more product information please see the link below:
->  http://www.ti.com/product/drv2605
-> --=20
-> 1.7.9.5
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> -       else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+> -               dev_dbg(&usbhid->intf->dev, "resetting device\n");
+> -               rc = usb_lock_device_for_reset(hid_to_usb_dev(hid), usbhid->intf);
+>                 if (rc == 0) {
+> -                       rc = usb_reset_device(hid_to_usb_dev(hid));
+> -                       usb_unlock_device(hid_to_usb_dev(hid));
+> +                       hid_start_in(hid);
+> +               } else {
+> +                       dev_dbg(&usbhid->intf->dev,
+> +                                       "clear-halt failed: %d\n", rc);
+> +                       set_bit(HID_RESET_PENDING, &usbhid->iofl);
+>                 }
+> -               clear_bit(HID_RESET_PENDING, &usbhid->iofl);
+>         }
+>
+> -       switch (rc) {
+> -       case 0:
+> -               if (!test_bit(HID_IN_RUNNING, &usbhid->iofl))
+> -                       hid_io_error(hid);
+> -               break;
+> -       default:
+> -               hid_err(hid, "can't reset device, %s-%s/input%d, status %d\n",
+> -                       hid_to_usb_dev(hid)->bus->bus_name,
+> -                       hid_to_usb_dev(hid)->devpath,
+> -                       usbhid->ifnum, rc);
+> -               /* FALLTHROUGH */
+> -       case -EHOSTUNREACH:
+> -       case -ENODEV:
+> -       case -EINTR:
+> -               break;
+> +       if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+> +               dev_dbg(&usbhid->intf->dev, "resetting device\n");
+> +               usb_queue_reset_device(usbhid->intf);
+>         }
+>  }
+from your patch, I have some questions:
+a. in Alan's version, if both HID_CLEAR_HALT and HID_RESET_PENDING are
+set, hid_reset will both "clear ep halt" and "reset devcie".
+But in original one, even HID_CLEAR_HALT and HID_RESET_PENDING are
+both set, hid_reset only do one of them.
+is there any special reason in original hid_reset to use below flow?
+    if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
+            xxxxx
+    } else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+            xxxxxx
+    }
 
---=20
-balbi
+b. in original hid_reset, if "Clear halt ep" or "Rest device" success
+or none of those flags raise up, it will call hid_io_error for later
+resending the urb. Shall we need to call "hid_io_error(hid);" in the
+end if "clear halt" or "reset device" success?
 
---BQPnanjtCNWHyqYD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+c. why we chose to use usb_queue_reset_device instead of usb_reset_device()?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+d. shall we "useusb_lock_device_for_reset(hid_to_usb_dev(hid),
+usbhid->intf)" or "spin_lock_irq(&usbhid->lock)" before calling
+usb_queue_reset_device?
 
-iQIcBAEBAgAGBQJT93r5AAoJEIaOsuA1yqREoboP/0qCml1IzbBPQvnhyOwo9bx0
-Pus2zWyA/NAHXKI65HC4nh+9bqvKpiB8HUAyjtMBm6PcpEiYzx/4ewXKB7RmSPAS
-bVRrgrRyrsR25Q43tm+u+mC1GhhfDAZ/5583XHhV/QHbtyf9nmgf5x34PvFGx3uO
-3KDMOpu5CTpmb0p+Awa/VL33Uk9GojtVx/68kVnEzk3gg9/IOp26KiOcWpvhXMmU
-wOAN8BlfGMcZHXAOwbxPeIa39qm+rYLU6A003uVZQj+YMISIUk8Z2s1QjjNkkUX7
-4EmXMBlnvVP9k5nrUApHXMNcpFT7Gcaj6FJMor2PV1z6y+W7CFiSVuq1KCc0svuy
-uYCJ7q0sBY1Dzl3WeoDqdxR/Lqa9nMl2+kZ/YHg4HbGXrWNZ3vARf3FonArXPRps
-4tX468FaLzDzJa+Hl5k1gwdzXNH6iH1gofcDCde2myl4MGhKSyiKspZlY7mVgEK+
-esgLZhI4FPTrrfZhdMBJz+hsJqXL8jo8rGG2QSK+hY2csg7HeTtvzg9pd8LKfiEZ
-A5fAEVScMD3BRX0wsbh52bKpeUvLBTdnGxyApzqO9Ej/VGmuOrzAJ3agPY/L+Mur
-hs3ITvhPHH2c+10vn46rZyE+PdOriL43TKOxnRzOMr7Ex77zn/kB91KaSPNPz7Z1
-nKf+V6na1P8HPUjMQM9T
-=P+xf
------END PGP SIGNATURE-----
+I append patch for explaining my questions.
+Appreciate your kind help,
 
---BQPnanjtCNWHyqYD--
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 256b102..aa321f9 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -116,18 +116,22 @@ static void hid_reset(struct work_struct *work)
+        struct usbhid_device *usbhid =
+                container_of(work, struct usbhid_device, reset_work);
+        struct hid_device *hid = usbhid->hid;
+-       int rc = 0;
++       int rc;
+
+        if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
+                dev_dbg(&usbhid->intf->dev, "clear halt\n");
+                rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
+                clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
+-               if (rc == 0)
++               if (rc == 0) {
+                        hid_start_in(hid);
++               } else {
++                       dev_dbg(&usbhid->intf->dev,
++                                       "clear-halt failed: %d\n", rc);
++                       set_bit(HID_RESET_PENDING, &usbhid->iofl);
++               }
+        }
+
+-       else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+-               dev_dbg(&usbhid->intf->dev, "resetting device\n");
++       if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+                rc = usb_lock_device_for_reset(hid_to_usb_dev(hid),
+usbhid->intf);
+                if (rc == 0) {
+                        rc = usb_reset_device(hid_to_usb_dev(hid));
+@@ -136,22 +140,8 @@ static void hid_reset(struct work_struct *work)
+                clear_bit(HID_RESET_PENDING, &usbhid->iofl);
+        }
+
+-       switch (rc) {
+-       case 0:
+-               if (!test_bit(HID_IN_RUNNING, &usbhid->iofl))
+-                       hid_io_error(hid);
+-               break;
+-       default:
+-               hid_err(hid, "can't reset device, %s-%s/input%d, status %d\n",
+-                       hid_to_usb_dev(hid)->bus->bus_name,
+-                       hid_to_usb_dev(hid)->devpath,
+-                       usbhid->ifnum, rc);
+-               /* FALLTHROUGH */
+-       case -EHOSTUNREACH:
+-       case -ENODEV:
+-       case -EINTR:
+-               break;
+-       }
++       if (!test_bit(HID_IN_RUNNING, &usbhid->iofl) || (rc == 0))
++               hid_io_error(hid);
+ }
+
+ /* Main I/O error handler */

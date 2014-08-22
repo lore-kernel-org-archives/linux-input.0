@@ -1,40 +1,38 @@
-From: CheChun Kuo <vichy.kuo@gmail.com>
-Subject: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for next hid_start_in
-Date: Fri, 22 Aug 2014 15:35:13 +0800
-Message-ID: <1408692913-12336-1-git-send-email-vichy.kuo@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:35832 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755847AbaHVHgB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Aug 2014 03:36:01 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Markus Trippelsdorf <markus@trippelsdorf.de>
+Subject: Re: [GIT PULL] HID
+Date: Fri, 22 Aug 2014 09:40:30 +0200
+Message-ID: <20140822074030.GA297@x4>
+References: <alpine.LNX.2.00.1408211146110.23162@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1408211146110.23162@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Hawkes <hawkes@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, CheChun Kuo <vichy.kuo@gmail.com>
 
-	HID IR device will not response to any command send from host when it is finishing paring and tring to reset itself.
-During this period of time, usb_cleaer_halt will be fail and if hid_start_in soon again, we has the possibility trap in infinite loop.
+On 2014.08.21 at 12:43 -0500, Jiri Kosina wrote:
 
-Signed-off-by: CheChun Kuo <vichy.kuo@gmail.com>
----
- drivers/hid/usbhid/hid-core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+>       HID: logitech: perform bounds checking on device_id early enough
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 79cf503..256b102 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -122,7 +122,8 @@ static void hid_reset(struct work_struct *work)
- 		dev_dbg(&usbhid->intf->dev, "clear halt\n");
- 		rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
- 		clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
--		hid_start_in(hid);
-+		if (rc == 0)
-+			hid_start_in(hid);
- 	}
- 
- 	else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+The commit above (ad3e14d7c5268c2e) causes the bounds checking to always
+fail on my monolithic kernel (without modules):
+
+...
+[    2.922617] usb 4-2: new full-speed USB device number 2 using ohci-pci
+[    2.996587] udevd[98]: starting eudev version 1.0
+[    3.071203] random: nonblocking pool is initialized
+[    3.108360] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:12.1-2/input2
+[    3.163208] input: Logitech Unifying Device. Wireless PID:4026 as /devices/pci0000:00/0000:00:12.1/usb4/4-2/4-2:1.2/0003:046D:C52B.0003/0003:046D:C52B.0004/input/input2
+[    3.163511] logitech-djdevice 0003:046D:C52B.0004: input,hidraw1: USB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:4026] on usb-0000:00:12.1-2:1
+[    3.164121] logitech-djreceiver 0003:046D:C52B.0003: logi_dj_raw_event: invalid device index:0
+[    3.289261] usb 3-1: new low-speed USB device number 2 using ohci-pci
+[    3.457606] input: HID 046a:0011 as /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/0003:046A:0011.0005/input/input3
+[    3.457794] hid-generic 0003:046A:0011.0005: input,hidraw2: USB HID v1.10 Keyboard [HID 046a:0011] on usb-0000:00:12.0-1/input0
+[    3.712886] Switched to clocksource tsc
+...
+
 -- 
-1.7.9.5
-
+Markus

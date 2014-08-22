@@ -1,177 +1,99 @@
-From: vichy <vichy.kuo@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
  next hid_start_in
-Date: Sat, 23 Aug 2014 01:38:30 +0800
-Message-ID: <CAOVJa8HLSQ9cqEHR8srT3QikvJ6i0ZYFqmOZ7MvMpN5aULdk9A@mail.gmail.com>
-References: <CAOVJa8F5HoS48wYn5-yHCeioYNOOGEKwXg6WujCQH0QxA44o=Q@mail.gmail.com>
-	<Pine.LNX.4.44L0.1408220950340.1291-100000@iolanthe.rowland.org>
+Date: Fri, 22 Aug 2014 14:23:58 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1408221358030.967-100000@iolanthe.rowland.org>
+References: <CAOVJa8HLSQ9cqEHR8srT3QikvJ6i0ZYFqmOZ7MvMpN5aULdk9A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f182.google.com ([209.85.214.182]:37888 "EHLO
-	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932503AbaHVRib (ORCPT
+Received: from iolanthe.rowland.org ([192.131.102.54]:40911 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S932593AbaHVSX7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Aug 2014 13:38:31 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1408220950340.1291-100000@iolanthe.rowland.org>
+	Fri, 22 Aug 2014 14:23:59 -0400
+In-Reply-To: <CAOVJa8HLSQ9cqEHR8srT3QikvJ6i0ZYFqmOZ7MvMpN5aULdk9A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
+To: vichy <vichy.kuo@gmail.com>
 Cc: Jiri Kosina <jkosina@suse.cz>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
 
-hi alan and all:
+On Sat, 23 Aug 2014, vichy wrote:
 
-> I recently posted (but did not submit) a more comprehensive solution to
-> this and other related problems.  For example, HID devices typically
-> run at low speed or full speed.  When attached through a hub to an EHCI
-> controller (very common on modern systems), unplugging the device
-> causes -EPIPE errors, so the driver calls usb_clear_halt and restarts
-> the interrupt pipe.  Of course, the same failure occurs again, so
-> there's a lengthy flurry of useless error messages.
->
-> This patch changes the driver so that after usb_clear_halt fails, it
-> will try to do a port reset.  And if that fails, the driver will be
-> unbound from the device.  This avoids infinite loops.
->
-> What do you think?
->
-> Alan Stern
->
->
->
-> Index: usb-3.16/drivers/hid/usbhid/hid-core.c
-> ===================================================================
-> --- usb-3.16.orig/drivers/hid/usbhid/hid-core.c
-> +++ usb-3.16/drivers/hid/usbhid/hid-core.c
-> @@ -116,40 +116,24 @@ static void hid_reset(struct work_struct
->         struct usbhid_device *usbhid =
->                 container_of(work, struct usbhid_device, reset_work);
->         struct hid_device *hid = usbhid->hid;
-> -       int rc = 0;
-> +       int rc;
->
->         if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
->                 dev_dbg(&usbhid->intf->dev, "clear halt\n");
->                 rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
->                 clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
-> -               hid_start_in(hid);
-> -       }
-> -
-> -       else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
-> -               dev_dbg(&usbhid->intf->dev, "resetting device\n");
-> -               rc = usb_lock_device_for_reset(hid_to_usb_dev(hid), usbhid->intf);
->                 if (rc == 0) {
-> -                       rc = usb_reset_device(hid_to_usb_dev(hid));
-> -                       usb_unlock_device(hid_to_usb_dev(hid));
-> +                       hid_start_in(hid);
-> +               } else {
-> +                       dev_dbg(&usbhid->intf->dev,
-> +                                       "clear-halt failed: %d\n", rc);
-> +                       set_bit(HID_RESET_PENDING, &usbhid->iofl);
->                 }
-> -               clear_bit(HID_RESET_PENDING, &usbhid->iofl);
->         }
->
-> -       switch (rc) {
-> -       case 0:
-> -               if (!test_bit(HID_IN_RUNNING, &usbhid->iofl))
-> -                       hid_io_error(hid);
-> -               break;
-> -       default:
-> -               hid_err(hid, "can't reset device, %s-%s/input%d, status %d\n",
-> -                       hid_to_usb_dev(hid)->bus->bus_name,
-> -                       hid_to_usb_dev(hid)->devpath,
-> -                       usbhid->ifnum, rc);
-> -               /* FALLTHROUGH */
-> -       case -EHOSTUNREACH:
-> -       case -ENODEV:
-> -       case -EINTR:
-> -               break;
-> +       if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
-> +               dev_dbg(&usbhid->intf->dev, "resetting device\n");
-> +               usb_queue_reset_device(usbhid->intf);
->         }
->  }
-from your patch, I have some questions:
-a. in Alan's version, if both HID_CLEAR_HALT and HID_RESET_PENDING are
-set, hid_reset will both "clear ep halt" and "reset devcie".
-But in original one, even HID_CLEAR_HALT and HID_RESET_PENDING are
-both set, hid_reset only do one of them.
-is there any special reason in original hid_reset to use below flow?
-    if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
-            xxxxx
-    } else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
-            xxxxxx
-    }
+> from your patch, I have some questions:
+> a. in Alan's version, if both HID_CLEAR_HALT and HID_RESET_PENDING are
+> set, hid_reset will both "clear ep halt" and "reset devcie".
+> But in original one, even HID_CLEAR_HALT and HID_RESET_PENDING are
+> both set, hid_reset only do one of them.
 
-b. in original hid_reset, if "Clear halt ep" or "Rest device" success
-or none of those flags raise up, it will call hid_io_error for later
-resending the urb. Shall we need to call "hid_io_error(hid);" in the
-end if "clear halt" or "reset device" success?
+Yes.  In my patch, the clear-halt handler will turn on the
+HID_RESET_PENDING bit if something goes wrong.  In that case we want to
+do both things.
 
-c. why we chose to use usb_queue_reset_device instead of usb_reset_device()?
+> is there any special reason in original hid_reset to use below flow?
+>     if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
+>             xxxxx
+>     } else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+>             xxxxxx
+>     }
 
-d. shall we "useusb_lock_device_for_reset(hid_to_usb_dev(hid),
-usbhid->intf)" or "spin_lock_irq(&usbhid->lock)" before calling
-usb_queue_reset_device?
+No special reason.  We probably never thought that both flags would be
+set.
 
-I append patch for explaining my questions.
-Appreciate your kind help,
+> b. in original hid_reset, if "Clear halt ep" or "Rest device" success
+> or none of those flags raise up, it will call hid_io_error for later
+> resending the urb.
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 256b102..aa321f9 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -116,18 +116,22 @@ static void hid_reset(struct work_struct *work)
-        struct usbhid_device *usbhid =
-                container_of(work, struct usbhid_device, reset_work);
-        struct hid_device *hid = usbhid->hid;
--       int rc = 0;
-+       int rc;
+No, the clear-halt part calls hid_start_in when everything works.  It 
+doesn't call hid_io_error, because hid_start_in turns on the 
+HID_IN_RUNNING flag.
 
-        if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
-                dev_dbg(&usbhid->intf->dev, "clear halt\n");
-                rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
-                clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
--               if (rc == 0)
-+               if (rc == 0) {
-                        hid_start_in(hid);
-+               } else {
-+                       dev_dbg(&usbhid->intf->dev,
-+                                       "clear-halt failed: %d\n", rc);
-+                       set_bit(HID_RESET_PENDING, &usbhid->iofl);
-+               }
-        }
+> Shall we need to call "hid_io_error(hid);" in the
+> end if "clear halt" or "reset device" success?
 
--       else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
--               dev_dbg(&usbhid->intf->dev, "resetting device\n");
-+       if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
-                rc = usb_lock_device_for_reset(hid_to_usb_dev(hid),
-usbhid->intf);
-                if (rc == 0) {
-                        rc = usb_reset_device(hid_to_usb_dev(hid));
-@@ -136,22 +140,8 @@ static void hid_reset(struct work_struct *work)
-                clear_bit(HID_RESET_PENDING, &usbhid->iofl);
-        }
+In the clear-halt case, we don't have to because we call hid_start_in.
 
--       switch (rc) {
--       case 0:
--               if (!test_bit(HID_IN_RUNNING, &usbhid->iofl))
--                       hid_io_error(hid);
--               break;
--       default:
--               hid_err(hid, "can't reset device, %s-%s/input%d, status %d\n",
--                       hid_to_usb_dev(hid)->bus->bus_name,
--                       hid_to_usb_dev(hid)->devpath,
--                       usbhid->ifnum, rc);
--               /* FALLTHROUGH */
--       case -EHOSTUNREACH:
--       case -ENODEV:
--       case -EINTR:
--               break;
--       }
-+       if (!test_bit(HID_IN_RUNNING, &usbhid->iofl) || (rc == 0))
-+               hid_io_error(hid);
- }
+In the reset device case, we don't have to because hid_post_reset calls 
+hid_start_in if there are no errors.
 
- /* Main I/O error handler */
+> c. why we chose to use usb_queue_reset_device instead of usb_reset_device()?
+
+I originally tried using usb_reset_device, and it caused a deadlock:
+
+	Unplug the HID device.
+
+	I/O error occurs.  hid_io_error schedules reset_work.
+
+	The reset_work callback routine is hid_reset.  It calls
+	usb_reset_device.
+
+	The reset fails because the device is gone.  At the end of the 
+	reset, hid_post_reset is called.
+
+	hid_post_reset returns 1 because hid_get_class_descriptor 
+	fails.
+
+	Because the post_reset routine failed, usb_reset_device calls
+	usb_unbind_and_rebind_marked_interfaces.
+
+	That routine indirectly calls usbhid_disconnect.
+
+	usbhid_disconnect calls usbhid_close by way of 
+	hid_destroy_device.
+
+	usbhid_close calls hid_cancel_delayed_stuff.
+
+	hid_cancel_delayed_stuff calls cancel_work_sync for reset_work.
+
+So the reset_work routine tries to cancel itself synchronously while it
+is running.  usb_queue_reset_device was carefully written to avoid such 
+deadlocks.
+
+> d. shall we "useusb_lock_device_for_reset(hid_to_usb_dev(hid),
+> usbhid->intf)" or "spin_lock_irq(&usbhid->lock)" before calling
+> usb_queue_reset_device?
+
+No.  usb_queue_reset_device takes care of the locking.
+
+Alan Stern
+

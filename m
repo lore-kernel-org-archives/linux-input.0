@@ -1,91 +1,307 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
- next hid_start_in
-Date: Sun, 24 Aug 2014 11:34:57 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1408241127320.26310-100000@netrider.rowland.org>
-References: <CAOVJa8FgtSDM-F=Nu1kOU_Ax_6a0_U3jKU6_PKPDoVD9zW+JWg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 5/14] input: cyapa: add read firmware image and raw
+ data interfaces in debugfs system
+Date: Fri, 22 Aug 2014 16:51:38 -0700
+Message-ID: <20140822235138.GA24242@core.coreip.homeip.net>
+References: <53c772c1.e683460a.3dd2.4a4c@mx.google.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:44805 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752684AbaHXPe6 (ORCPT
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:63584 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752706AbaHXVwf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Aug 2014 11:34:58 -0400
-In-Reply-To: <CAOVJa8FgtSDM-F=Nu1kOU_Ax_6a0_U3jKU6_PKPDoVD9zW+JWg@mail.gmail.com>
+	Sun, 24 Aug 2014 17:52:35 -0400
+Content-Disposition: inline
+In-Reply-To: <53c772c1.e683460a.3dd2.4a4c@mx.google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: vichy <vichy.kuo@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dudley Du <dudley.dulixin@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Benson Leung <bleung@google.com>, Patrik Fimml <patrikf@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dudley Du <dudl@cypress.com>
 
-On Sun, 24 Aug 2014, vichy wrote:
+Hi Dudley,
 
-> hi Alan:
-> >
-> > I originally tried using usb_reset_device, and it caused a deadlock:
-> >
-> >         Unplug the HID device.
-> >
-> >         I/O error occurs.  hid_io_error schedules reset_work.
-> >
-> >         The reset_work callback routine is hid_reset.  It calls
-> >         usb_reset_device.
-> >
-> >         The reset fails because the device is gone.  At the end of the
-> >         reset, hid_post_reset is called.
-> >
-> >         hid_post_reset returns 1 because hid_get_class_descriptor
-> >         fails.
-> >
-> >         Because the post_reset routine failed, usb_reset_device calls
-> >         usb_unbind_and_rebind_marked_interfaces.
+On Thu, Jul 17, 2014 at 02:52:36PM +0800, Dudley Du wrote:
+> Add read_fw and raw_data debugfs interfaces for easier issues location
+> and collection when report by user.
+> TEST=test on Chromebooks.
 > 
-> "usb_unbind_and_rebind_marked_interfaces" is called if config
-> parameter is not null,
-> it seems no matter post_reset routine fail or not.
-
-Yes, that's right.  I should have said: "Because the post_reset routine 
-failed, usb_unbind_and_rebind_marked_interfaces indirectly calls 
-usbhid_disconnect.
-
-> >         That routine indirectly calls usbhid_disconnect.
+> Signed-off-by: Dudley Du <dudl@cypress.com>
+> ---
+>  drivers/input/mouse/cyapa.c |  219 +++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 219 insertions(+)
 > 
-> Why that routine, usb_reset_device, will call usbhid_disconnect?
-> No matter port reset success or fail, usbhid_disconnect should not be
-> called except that did happen disconnection.
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index 53c9d59..ae24b02 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -39,6 +39,8 @@
+>  
+>  const char unique_str[] = "CYTRA";
+>  
+> +/* Global root node of the cyapa debugfs directory. */
+> +static struct dentry *cyapa_debugfs_root;
+>  
+>  
+>  ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
+> @@ -461,6 +463,205 @@ done:
+>  }
+>  
+>  /*
+> + **************************************************************
+> + * debugfs interface
+> + **************************************************************
+> +*/
+> +static int cyapa_debugfs_open(struct inode *inode, struct file *file)
+> +{
+> +	struct cyapa *cyapa = inode->i_private;
+> +	int ret;
+> +
+> +	if (!cyapa)
+> +		return -ENODEV;
+> +
+> +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (!kobject_get(&cyapa->client->dev.kobj)) {
 
-usbhid_disconnect gets called when the driver is unbound, regardless of
-whether the device was unplugged.  The kernel unbinds a driver when a
-device is reset but the driver isn't able to handle the reset.
+Why not get_device() here and elsewhere?
 
-> >         usbhid_disconnect calls usbhid_close by way of
-> >         hid_destroy_device.
+> +		ret = -ENODEV;
+> +		goto out;
+> +	}
+> +
+> +	file->private_data = cyapa;
+> +
+> +	if (cyapa->fw_image) {
+> +		ret = 0;
+> +		goto out;
+> +	}
+> +
+> +	mutex_lock(&cyapa->state_sync_lock);
+> +	/*
+> +	 * If firmware hasn't been read yet, read it all in one pass.
+> +	 * Subsequent opens will reuse the data in this same buffer.
+> +	 */
+> +	if (cyapa->ops->read_fw)
+> +		ret = cyapa->ops->read_fw(cyapa);
+> +	else
+> +		ret = -EPERM;
+> +	mutex_unlock(&cyapa->state_sync_lock);
+> +
+> +	/* Redetect trackpad device states. */
+> +	cyapa_detect_async(cyapa, 0);
+> +
+> +out:
+> +	mutex_unlock(&cyapa->debugfs_mutex);
+> +	return ret;
+> +}
+> +
+> +static int cyapa_debugfs_release(struct inode *inode, struct file *file)
+> +{
+> +	struct cyapa *cyapa = file->private_data;
+> +	int ret;
+> +
+> +	if (!cyapa)
+> +		return 0;
+> +
+> +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> +	if (ret)
+> +		return ret;
+> +	file->private_data = NULL;
+> +	kobject_put(&cyapa->client->dev.kobj);
+> +	mutex_unlock(&cyapa->debugfs_mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +/* Return some bytes from the buffered firmware image, starting from *ppos */
+> +static ssize_t cyapa_debugfs_read_fw(struct file *file, char __user *buffer,
+> +				     size_t count, loff_t *ppos)
+> +{
+> +	struct cyapa *cyapa = file->private_data;
+> +
+> +	if (!cyapa->fw_image)
+> +		return -EINVAL;
+> +
+> +	if (*ppos >= cyapa->fw_image_size)
+> +		return 0;
+> +
+> +	if (count + *ppos > cyapa->fw_image_size)
+> +		count = cyapa->fw_image_size - *ppos;
+> +
+> +	if (copy_to_user(buffer, &cyapa->fw_image[*ppos], count))
+> +		return -EFAULT;
+> +
+> +	*ppos += count;
+> +	return count;
+> +}
+> +
+> +static const struct file_operations cyapa_read_fw_fops = {
+> +	.open = cyapa_debugfs_open,
+> +	.release = cyapa_debugfs_release,
+> +	.read = cyapa_debugfs_read_fw
+> +};
+> +
+> +static int cyapa_debugfs_raw_data_open(struct inode *inode, struct file *file)
+> +{
+> +	struct cyapa *cyapa = inode->i_private;
+> +	int ret;
+> +
+> +	if (!cyapa)
+> +		return -ENODEV;
+> +
+> +	/* Start to be supported after Gen5 trackpad devices. */
+> +	if (cyapa->gen < CYAPA_GEN5)
+> +		return -ENOTSUPP;
+> +
+> +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (!kobject_get(&cyapa->client->dev.kobj)) {
+> +		ret = -ENODEV;
+> +		goto out;
+> +	}
+> +
+> +	file->private_data = cyapa;
+> +
+> +	mutex_lock(&cyapa->state_sync_lock);
+> +	if (cyapa->ops->read_raw_data)
+> +		ret = cyapa->ops->read_raw_data(cyapa);
+> +	else
+> +		ret = -EPERM;
+> +	mutex_unlock(&cyapa->state_sync_lock);
+> +out:
+> +	mutex_unlock(&cyapa->debugfs_mutex);
+> +	return ret;
+> +}
+> +
+> +static int cyapa_debugfs_raw_data_release(struct inode *inode,
+> +				struct file *file)
+> +{
+> +	struct cyapa *cyapa = file->private_data;
+> +	int ret;
+> +
+> +	if (!cyapa)
+> +		return 0;
+> +
+> +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> +	if (ret)
+> +		return ret;
+> +	file->private_data = NULL;
+> +	kobject_put(&cyapa->client->dev.kobj);
+> +	mutex_unlock(&cyapa->debugfs_mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +/* Always return the sensors' latest raw data from trackpad device. */
+> +static ssize_t cyapa_debugfs_read_raw_data(struct file *file,
+> +				     char __user *buffer,
+> +				     size_t count, loff_t *ppos)
+> +{
+> +	struct cyapa *cyapa = file->private_data;
+> +
+> +	if (!cyapa->tp_raw_data)
+> +		return -EINVAL;
+> +
+> +	if (*ppos >= cyapa->tp_raw_data_size)
+> +		return 0;
+> +
+> +	if (count + *ppos > cyapa->tp_raw_data_size)
+> +		count = cyapa->tp_raw_data_size - *ppos;
+> +
+> +	if (copy_to_user(buffer, &cyapa->tp_raw_data[*ppos], count))
+> +		return -EFAULT;
+> +
+> +	*ppos += count;
+> +	return count;
+> +}
+> +
+> +static const struct file_operations cyapa_read_raw_data_fops = {
+> +	.open = cyapa_debugfs_raw_data_open,
+> +	.release = cyapa_debugfs_raw_data_release,
+> +	.read = cyapa_debugfs_read_raw_data
+> +};
+> +
+> +static int cyapa_debugfs_init(struct cyapa *cyapa)
+> +{
+> +	struct device *dev = &cyapa->client->dev;
+> +
+> +	if (!cyapa_debugfs_root)
+> +		return -ENODEV;
+> +
+> +	cyapa->dentry_dev = debugfs_create_dir(kobject_name(&dev->kobj),
+> +					       cyapa_debugfs_root);
+> +
+> +	if (!cyapa->dentry_dev)
+> +		return -ENODEV;
+> +
+> +	mutex_init(&cyapa->debugfs_mutex);
+> +
+> +	debugfs_create_file(CYAPA_DEBUGFS_READ_FW, S_IRUSR, cyapa->dentry_dev,
+> +			    cyapa, &cyapa_read_fw_fops);
+> +
+> +	debugfs_create_file(CYAPA_DEBUGFS_RAW_DATA, S_IRUSR, cyapa->dentry_dev,
+> +			    cyapa, &cyapa_read_raw_data_fops);
+> +	return 0;
+> +}
+> +
+> +/*
+>   * Sysfs Interface.
+>   */
+>  
+> @@ -869,6 +1070,13 @@ static int cyapa_probe(struct i2c_client *client,
+>  	if (sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group))
+>  		dev_warn(dev, "error creating sysfs entries.\n");
+>  
+> +	/* Create a global debugfs root for all cyapa devices */
+> +	cyapa_debugfs_root = debugfs_create_dir("cyapa", NULL);
+> +	if (cyapa_debugfs_root == ERR_PTR(-ENODEV))
+> +		cyapa_debugfs_root = NULL;
+> +	if (cyapa_debugfs_init(cyapa))
+> +		dev_warn(dev, "error creating debugfs entries.\n");
+> +
+>  #ifdef CONFIG_PM_SLEEP
+>  	if (device_can_wakeup(dev) &&
+>  	    sysfs_merge_group(&client->dev.kobj, &cyapa_power_wakeup_group))
+> @@ -902,8 +1110,19 @@ static int cyapa_remove(struct i2c_client *client)
+>  #ifdef CONFIG_PM_RUNTIME
+>  	sysfs_unmerge_group(&client->dev.kobj, &cyapa_power_runtime_group);
+>  #endif
+> +
+> +	kfree(cyapa->fw_image);
+> +	cyapa->fw_image = NULL;
+> +	cyapa->fw_image_size = 0;
+> +	kfree(cyapa->tp_raw_data);
+> +	cyapa->tp_raw_data = NULL;
+> +	cyapa->tp_raw_data_size = 0;
+
+This should be happening only after you remove debugfs entries.
+
+
+>  	free_irq(cyapa->irq, cyapa);
+>  
+> +	debugfs_remove_recursive(cyapa->dentry_dev);
+> +	debugfs_remove_recursive(cyapa_debugfs_root);
+
+Hm, it seems that your debugfs entries are created per-devce, but you remove
+all of them at one when very first device us unbound. You probably want to
+create and destroy root of your debugfs hierarchy on module level.
+
+> +	mutex_destroy(&cyapa->debugfs_mutex);
+> +
+>  	input_unregister_device(cyapa->input);
+>  	if (cyapa->ops->set_power_mode)
+>  		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
+> -- 
+> 1.7.9.5
 > 
-> below is the content of hid_destroy and hid_remove_device, but I
-> cannot find where usbhid_close be called by way of hid_destroy_device.
-> static void hid_remove_device(struct hid_device *hdev)
-> {
->     if (hdev->status & HID_STAT_ADDED) {
->         device_del(&hdev->dev);
->         hid_debug_unregister(hdev);
->         hdev->status &= ~HID_STAT_ADDED;
->     }
->     kfree(hdev->dev_rdesc);
->     hdev->dev_rdesc = NULL;
->     hdev->dev_rsize = 0;
-> }
 > 
-> void hid_destroy_device(struct hid_device *hdev)
-> {
->     hid_remove_device(hdev);
->     put_device(&hdev->dev);
-> }
 
-I don't remember the entire call chain.  It was pretty long.  
-hid_destroy_device calls hid_remove_device, which calls device_del,
-which calls lots of other things.  If you really want to see all the
-details, put a dump_stack() call in usbhid_close and examine what it
-prints in the kernel log when you unplug an HID device.
+Thanks.
 
-Alan Stern
-
+-- 
+Dmitry

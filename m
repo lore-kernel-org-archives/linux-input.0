@@ -1,55 +1,88 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
- next hid_start_in
-Date: Fri, 22 Aug 2014 02:45:40 -0500 (CDT)
-Message-ID: <alpine.LNX.2.00.1408220240430.23162@pobox.suse.cz>
-References: <1408692913-12336-1-git-send-email-vichy.kuo@gmail.com>
+Subject: Re: [GIT PULL] HID
+Date: Fri, 22 Aug 2014 03:00:06 -0500 (CDT)
+Message-ID: <alpine.LNX.2.00.1408220257050.23162@pobox.suse.cz>
+References: <alpine.LNX.2.00.1408211146110.23162@pobox.suse.cz> <20140822074030.GA297@x4>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53874 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:54128 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755212AbaHVHpm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Aug 2014 03:45:42 -0400
-In-Reply-To: <1408692913-12336-1-git-send-email-vichy.kuo@gmail.com>
+	id S1753658AbaHVIAI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Aug 2014 04:00:08 -0400
+In-Reply-To: <20140822074030.GA297@x4>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: CheChun Kuo <vichy.kuo@gmail.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Markus Trippelsdorf <markus@trippelsdorf.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Hawkes <hawkes@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Fri, 22 Aug 2014, CheChun Kuo wrote:
+On Fri, 22 Aug 2014, Markus Trippelsdorf wrote:
 
-> 	HID IR device will not response to any command send from host when 
-> it is finishing paring and tring to reset itself. During this period of 
-> time, usb_cleaer_halt will be fail and if hid_start_in soon again, we 
-> has the possibility trap in infinite loop.
+> >       HID: logitech: perform bounds checking on device_id early enough
 > 
-> Signed-off-by: CheChun Kuo <vichy.kuo@gmail.com>
-> ---
->  drivers/hid/usbhid/hid-core.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> The commit above (ad3e14d7c5268c2e) causes the bounds checking to always
+> fail on my monolithic kernel (without modules):
 > 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 79cf503..256b102 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -122,7 +122,8 @@ static void hid_reset(struct work_struct *work)
->  		dev_dbg(&usbhid->intf->dev, "clear halt\n");
->  		rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
->  		clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
-> -		hid_start_in(hid);
-> +		if (rc == 0)
-> +			hid_start_in(hid);
->  	}
+> ...
+> [    2.922617] usb 4-2: new full-speed USB device number 2 using ohci-pci
+> [    2.996587] udevd[98]: starting eudev version 1.0
+> [    3.071203] random: nonblocking pool is initialized
+> [    3.108360] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:12.1-2/input2
+> [    3.163208] input: Logitech Unifying Device. Wireless PID:4026 as /devices/pci0000:00/0000:00:12.1/usb4/4-2/4-2:1.2/0003:046D:C52B.0003/0003:046D:C52B.0004/input/input2
+> [    3.163511] logitech-djdevice 0003:046D:C52B.0004: input,hidraw1: USB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:4026] on usb-0000:00:12.1-2:1
+> [    3.164121] logitech-djreceiver 0003:046D:C52B.0003: logi_dj_raw_event: invalid device index:0
+> [    3.289261] usb 3-1: new low-speed USB device number 2 using ohci-pci
+> [    3.457606] input: HID 046a:0011 as /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/0003:046A:0011.0005/input/input3
+> [    3.457794] hid-generic 0003:046A:0011.0005: input,hidraw2: USB HID v1.10 Keyboard [HID 046a:0011] on usb-0000:00:12.0-1/input0
+> [    3.712886] Switched to clocksource tsc
 
-I'd need a more detailed explanation for this patch, as I don't understand 
-neither the text in the changelog nor the patch itself. Namely:
+Thanks a lot for a timely report.
 
-- which IR devices are showing this behavior?
-- where does the infinite loop come from? hid_reset() should error out 
-  properly if usb_clear_halt() fails and HID_IN_RUNNING flag is not set
+I am travelling till next week and don't unfortunately have the hardware 
+here with me to test momentarily, so please take this with a lot of grains 
+of salt (maybe Benjamin would be able to look into this before I'd be able 
+to on monday ... ?).
 
-Thanks,
+Does the shot-in-the-dakr patch below put things back in shape for you?
+
+
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index b7ba829..d9ae77f 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -861,7 +861,7 @@ static void logi_dj_remove(struct hid_device *hdev)
+ 	 * have finished and no more raw_event callbacks should arrive after
+ 	 * the remove callback was triggered so no locks are put around the
+ 	 * code below */
+-	for (i = 0; i < (DJ_MAX_PAIRED_DEVICES + DJ_DEVICE_INDEX_MIN); i++) {
++	for (i = 0; i < (DJ_MAX_PAIRED_DEVICES + DJ_DEVICE_INDEX_MIN + 1); i++) {
+ 		dj_dev = djrcv_dev->paired_dj_devices[i];
+ 		if (dj_dev != NULL) {
+ 			hid_destroy_device(dj_dev->hdev);
+diff --git a/drivers/hid/hid-logitech-dj.h b/drivers/hid/hid-logitech-dj.h
+index 4a40003..1f630e4 100644
+--- a/drivers/hid/hid-logitech-dj.h
++++ b/drivers/hid/hid-logitech-dj.h
+@@ -27,8 +27,8 @@
+ 
+ #define DJ_MAX_PAIRED_DEVICES			6
+ #define DJ_MAX_NUMBER_NOTIFICATIONS		8
+-#define DJ_DEVICE_INDEX_MIN 			1
+-#define DJ_DEVICE_INDEX_MAX 			6
++#define DJ_DEVICE_INDEX_MIN 			0
++#define DJ_DEVICE_INDEX_MAX 			5
+ 
+ #define DJREPORT_SHORT_LENGTH			15
+ #define DJREPORT_LONG_LENGTH			32
+@@ -97,7 +97,7 @@ struct dj_report {
+ struct dj_receiver_dev {
+ 	struct hid_device *hdev;
+ 	struct dj_device *paired_dj_devices[DJ_MAX_PAIRED_DEVICES +
+-					    DJ_DEVICE_INDEX_MIN];
++					    DJ_DEVICE_INDEX_MIN + 1];
+ 	struct work_struct work;
+ 	struct kfifo notif_fifo;
+ 	spinlock_t lock;
 
 -- 
 Jiri Kosina

@@ -1,113 +1,90 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/2] HID: logitech-dj: prevent false errors to be shown
-Date: Fri, 22 Aug 2014 16:16:05 -0400
-Message-ID: <1408738566-6805-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Paul Menzel <paulepanter@users.sourceforge.net>
+Subject: Lenovo T60 and X60: psmouse serio1: alps: Unknown ALPS touchpad:
+ E7=10 00 64, EC=10 00 64
+Date: Sat, 23 Aug 2014 12:16:27 +0200
+Message-ID: <1408788987.2724.25.camel@mattotaupa>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
+	boundary="=-DmhWVQFnqzwu6MTuDg//"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.gw90.de ([188.40.100.199]:60518 "EHLO mail.gw90.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752336AbaHWKmm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 23 Aug 2014 06:42:42 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>
 
-Commit "HID: logitech: perform bounds checking on device_id early
-enough" unfortunately leaks some errors to dmesg which are not real
-ones:
-- if the report is not a DJ one, then there is not point in checking
-  the device_id
-- the receiver (index 0) can also receive some notifications which
-  can be safely ignored given the current implementation
 
-Move out the test regarding the report_id and also discards
-printing errors when the receiver got notified.
+--=-DmhWVQFnqzwu6MTuDg//
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-logitech-dj.c | 43 +++++++++++++++++++++++++------------------
- drivers/hid/hid-logitech-dj.h |  1 +
- 2 files changed, 26 insertions(+), 18 deletions(-)
+Dear Linux developers,
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index b7ba829..9bf8637 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -656,7 +656,6 @@ static int logi_dj_raw_event(struct hid_device *hdev,
- 	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
- 	struct dj_report *dj_report = (struct dj_report *) data;
- 	unsigned long flags;
--	bool report_processed = false;
- 
- 	dbg_hid("%s, size:%d\n", __func__, size);
- 
-@@ -683,34 +682,42 @@ static int logi_dj_raw_event(struct hid_device *hdev,
- 	 * device (via hid_input_report() ) and return 1 so hid-core does not do
- 	 * anything else with it.
- 	 */
-+
-+	/* case 1) */
-+	if (data[0] != REPORT_ID_DJ_SHORT)
-+		return false;
-+
- 	if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
- 	    (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
--		dev_err(&hdev->dev, "%s: invalid device index:%d\n",
-+		/*
-+		 * Device index is wrong, bail out.
-+		 * This driver can ignore safely the receiver notifications,
-+		 * so ignore those reports too.
-+		 */
-+		if (dj_report->device_index != DJ_RECEIVER_INDEX)
-+			dev_err(&hdev->dev, "%s: invalid device index:%d\n",
- 				__func__, dj_report->device_index);
- 		return false;
- 	}
- 
- 	spin_lock_irqsave(&djrcv_dev->lock, flags);
--	if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
--		switch (dj_report->report_type) {
--		case REPORT_TYPE_NOTIF_DEVICE_PAIRED:
--		case REPORT_TYPE_NOTIF_DEVICE_UNPAIRED:
--			logi_dj_recv_queue_notification(djrcv_dev, dj_report);
--			break;
--		case REPORT_TYPE_NOTIF_CONNECTION_STATUS:
--			if (dj_report->report_params[CONNECTION_STATUS_PARAM_STATUS] ==
--			    STATUS_LINKLOSS) {
--				logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
--			}
--			break;
--		default:
--			logi_dj_recv_forward_report(djrcv_dev, dj_report);
-+	switch (dj_report->report_type) {
-+	case REPORT_TYPE_NOTIF_DEVICE_PAIRED:
-+	case REPORT_TYPE_NOTIF_DEVICE_UNPAIRED:
-+		logi_dj_recv_queue_notification(djrcv_dev, dj_report);
-+		break;
-+	case REPORT_TYPE_NOTIF_CONNECTION_STATUS:
-+		if (dj_report->report_params[CONNECTION_STATUS_PARAM_STATUS] ==
-+		    STATUS_LINKLOSS) {
-+			logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
- 		}
--		report_processed = true;
-+		break;
-+	default:
-+		logi_dj_recv_forward_report(djrcv_dev, dj_report);
- 	}
- 	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
- 
--	return report_processed;
-+	return true;
- }
- 
- static int logi_dj_probe(struct hid_device *hdev,
-diff --git a/drivers/hid/hid-logitech-dj.h b/drivers/hid/hid-logitech-dj.h
-index 4a40003..daeb0aa 100644
---- a/drivers/hid/hid-logitech-dj.h
-+++ b/drivers/hid/hid-logitech-dj.h
-@@ -27,6 +27,7 @@
- 
- #define DJ_MAX_PAIRED_DEVICES			6
- #define DJ_MAX_NUMBER_NOTIFICATIONS		8
-+#define DJ_RECEIVER_INDEX			0
- #define DJ_DEVICE_INDEX_MIN 			1
- #define DJ_DEVICE_INDEX_MAX 			6
- 
--- 
-2.1.0
+
+with at least Linux 3.12, 3.13 and 3.14 the Linux kernel log contains a
+message about an unknown ALPS touchpad.
+
+[=E2=80=A6]
+[    8.793232] psmouse serio1: alps: Unknown ALPS touchpad: E7=3D10 00 64, =
+EC=3D10 00 64
+[    9.068102] Console: switching to colour frame buffer device 128x48
+[    9.072053] i915 0000:00:02.0: fb0: inteldrmfb frame buffer device
+[    9.072056] i915 0000:00:02.0: registered panic notifier
+[    9.072075] [drm] Initialized i915 1.6.0 20080730 for 0000:00:02.0 on mi=
+nor 0
+[    9.073703] hda_intel: probe_mask set to 0x1 for device 17aa:2010
+[    9.074158] snd_hda_intel 0000:00:1b.0: irq 47 for MSI/MSI-X
+[    9.104435] input: HDA Digital PCBeep as /devices/pci0000:00/0000:00:1b.=
+0/input/input8
+[    9.107546] input: HDA Intel Front Headphone as /devices/pci0000:00/0000=
+:00:1b.0/sound/card0/input13
+[    9.107678] input: HDA Intel Line Out as /devices/pci0000:00/0000:00:1b.=
+0/sound/card0/input12
+[    9.107793] input: HDA Intel Line as /devices/pci0000:00/0000:00:1b.0/so=
+und/card0/input11
+[    9.107909] input: HDA Intel Front Mic as /devices/pci0000:00/0000:00:1b=
+.0/sound/card0/input10
+[    9.108044] input: HDA Intel Rear Mic as /devices/pci0000:00/0000:00:1b.=
+0/sound/card0/input9
+[    9.168843] psmouse serio1: trackpoint: IBM TrackPoint firmware: 0x0e, b=
+uttons: 3/3
+[    9.189695] input: TPPS/2 IBM TrackPoint as /devices/platform/i8042/seri=
+o1/input/input6
+[=E2=80=A6]
+
+The Lenovo T60 actually has a touchpad, a trackpoint and three buttons,
+where the Lenovo X60 only has a trackpoint and three buttons.
+
+Searching the Web with this message, there are also hits for other
+laptop models.
+
+Looking at `drivers/input/mouse/alps.c` the values checked there for E7
+and EC are not related at all. It=E2=80=99s also interesting that E7 and EC
+contain the same values.
+
+Is that the trackpoint device detected later and should therefore be
+ignored?
+
+
+Thanks,
+
+Paul
+
+--=-DmhWVQFnqzwu6MTuDg//
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEABECAAYFAlP4ahYACgkQPX1aK2wOHVjlCgCgjEdoZPPBwNtl8ndGXXeIqCCH
+pcAAnAmnyhJ2VI9Y8M3QarHxAWnHboVo
+=eYjr
+-----END PGP SIGNATURE-----
+
+--=-DmhWVQFnqzwu6MTuDg//--
+

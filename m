@@ -1,100 +1,85 @@
-From: Andreas Mohr <andi@lisas.de>
-Subject: Re: [PATCH 1/2] SOUND: kill gameport bits
-Date: Sun, 24 Aug 2014 07:07:16 +0200
-Message-ID: <20140824050716.GA523@rhlx01.hs-esslingen.de>
-References: <20140820024638.GA25240@rhlx01.hs-esslingen.de>
- <20140820051815.GA1109@core.coreip.homeip.net>
- <s5hwqa3hetu.wl-tiwai@suse.de>
- <20140820063130.GA11226@core.coreip.homeip.net>
- <s5htx57hc89.wl-tiwai@suse.de>
- <s5h4mx6rshs.wl-tiwai@suse.de>
+From: vichy <vichy.kuo@gmail.com>
+Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
+ next hid_start_in
+Date: Sun, 24 Aug 2014 22:52:30 +0800
+Message-ID: <CAOVJa8FgtSDM-F=Nu1kOU_Ax_6a0_U3jKU6_PKPDoVD9zW+JWg@mail.gmail.com>
+References: <CAOVJa8HLSQ9cqEHR8srT3QikvJ6i0ZYFqmOZ7MvMpN5aULdk9A@mail.gmail.com>
+	<Pine.LNX.4.44L0.1408221358030.967-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:38875 "EHLO
-	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750883AbaHXFHY (ORCPT
+Received: from mail-oa0-f54.google.com ([209.85.219.54]:63840 "EHLO
+	mail-oa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752510AbaHXOwb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Aug 2014 01:07:24 -0400
-Content-Disposition: inline
-In-Reply-To: <s5h4mx6rshs.wl-tiwai@suse.de>
+	Sun, 24 Aug 2014 10:52:31 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1408221358030.967-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Mohr <andi@lisas.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jiri Kosina <jkosina@suse.cz>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, Aug 21, 2014 at 01:29:03PM +0200, Takashi Iwai wrote:
-> I did a quick hack and it seems working on my box.
-> The patch is below.
+hi Alan:
+>
+> I originally tried using usb_reset_device, and it caused a deadlock:
+>
+>         Unplug the HID device.
+>
+>         I/O error occurs.  hid_io_error schedules reset_work.
+>
+>         The reset_work callback routine is hid_reset.  It calls
+>         usb_reset_device.
+>
+>         The reset fails because the device is gone.  At the end of the
+>         reset, hid_post_reset is called.
+>
+>         hid_post_reset returns 1 because hid_get_class_descriptor
+>         fails.
+>
+>         Because the post_reset routine failed, usb_reset_device calls
+>         usb_unbind_and_rebind_marked_interfaces.
 
-Thanks!!
+"usb_unbind_and_rebind_marked_interfaces" is called if config
+parameter is not null,
+it seems no matter post_reset routine fail or not.
 
-Further comments below.
+>
+>         That routine indirectly calls usbhid_disconnect.
 
-I will be testing this ASAP.
-> +static bool use_ktime = true;
-> +module_param(use_ktime, bool, 0400);
+Why that routine, usb_reset_device, will call usbhid_disconnect?
+No matter port reset success or fail, usbhid_disconnect should not be
+called except that did happen disconnection.
 
-Towards final commit, should probably add param docs on what may be switched here and why.
+>
+>         usbhid_disconnect calls usbhid_close by way of
+>         hid_destroy_device.
 
-> +
->  /*
->   * gameport_mutex protects entire gameport subsystem and is taken
->   * every time gameport port or driver registrered or unregistered.
-> @@ -76,6 +80,36 @@ static unsigned int get_time_pit(void)
->  
->  static int gameport_measure_speed(struct gameport *gameport)
->  {
-> +	unsigned int i, t, tx;
-> +	u64 t1, t2;
-> +	unsigned long flags;
-> +
-> +	if (gameport_open(gameport, NULL, GAMEPORT_MODE_RAW))
-> +		return 0;
-> +
-> +	tx = ~0;
-> +
-> +	for (i = 0; i < 50; i++) {
-> +		local_irq_save(flags);
-> +		t1 = ktime_get_ns();
-> +		for (t = 0; t < 50; t++)
-> +			gameport_read(gameport);
-> +		t2 = ktime_get_ns();
-> +		local_irq_restore(flags);
-> +		udelay(i * 10);
-> +		if (t2 - t1 < tx)
-> +			tx = t2 - t1;
+below is the content of hid_destroy and hid_remove_device, but I
+cannot find where usbhid_close be called by way of hid_destroy_device.
+static void hid_remove_device(struct hid_device *hdev)
+{
+    if (hdev->status & HID_STAT_ADDED) {
+        device_del(&hdev->dev);
+        hid_debug_unregister(hdev);
+        hdev->status &= ~HID_STAT_ADDED;
+    }
+    kfree(hdev->dev_rdesc);
+    hdev->dev_rdesc = NULL;
+    hdev->dev_rsize = 0;
+}
 
-This impl is not doing the more complex t3, t2, t1 calculation
-that the PIT impl is doing (likely for the uncommented purpose
-of eliminating timer I/O delay from timing consideration).
-Do/don't ktime/TSC impls better need such an I/O timing correction,
-or are they so fast relative to gameport I/O delays
-that it does not matter? (probably the case for TSC at least).
-
-
-Oh, and any reason that such a speed calculation remains painfully duplicated
-in both source files? That's possibly done for layering reasons,
-but I'd have to analyze it further.
-
-> +static inline u64 get_time(void)
-> +{
-> +	if (use_ktime) {
-> +		return ktime_get_ns();
-> +	} else {
-> +		unsigned int x;
-> +		GET_TIME(x);
-> +		return x;
-> +	}
-> +}
-
-It might be useful to have a first commit to introduce these helpers,
-and a second commit to then add ktime support (to keep review code size
-down).
-
-Thanks,
-
-Andreas Mohr
-
--- 
-GNU/Linux. It's not the software that's free, it's you.
+void hid_destroy_device(struct hid_device *hdev)
+{
+    hid_remove_device(hdev);
+    put_device(&hdev->dev);
+}
+>
+>         usbhid_close calls hid_cancel_delayed_stuff.
+>
+>         hid_cancel_delayed_stuff calls cancel_work_sync for reset_work.
+>
+> So the reset_work routine tries to cancel itself synchronously while it
+> is running.  usb_queue_reset_device was carefully written to avoid such
+> deadlocks.
+>
+thanks for your help,

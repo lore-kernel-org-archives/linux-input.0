@@ -1,75 +1,54 @@
-From: Thomas Poussevin <thomas.poussevin@parrot.com>
-Subject: Input sync flag when registering.
-Date: Mon, 25 Aug 2014 10:52:51 +0200
-Message-ID: <53FAF963.9020403@parrot.com>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
+ next hid_start_in
+Date: Mon, 25 Aug 2014 12:21:27 +0200
+Message-ID: <1408962087.10300.15.camel@linux-fkkt.site>
+References: <Pine.LNX.4.44L0.1408221358030.967-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------090906060109020908050500"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.aswsp.com ([193.34.35.150]:30073 "EHLO mail.aswsp.com"
+Received: from cantor2.suse.de ([195.135.220.15]:43211 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750941AbaHYI6P (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Aug 2014 04:58:15 -0400
+	id S1752145AbaHYKV3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Aug 2014 06:21:29 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1408221358030.967-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: vichy <vichy.kuo@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
 
---------------090906060109020908050500
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2014-08-22 at 14:23 -0400, Alan Stern wrote:
+> On Sat, 23 Aug 2014, vichy wrote:
+> 
+> > from your patch, I have some questions:
+> > a. in Alan's version, if both HID_CLEAR_HALT and HID_RESET_PENDING are
+> > set, hid_reset will both "clear ep halt" and "reset devcie".
+> > But in original one, even HID_CLEAR_HALT and HID_RESET_PENDING are
+> > both set, hid_reset only do one of them.
+> 
+> Yes.  In my patch, the clear-halt handler will turn on the
+> HID_RESET_PENDING bit if something goes wrong.  In that case we want to
+> do both things.
 
-Hi,
-I noticed that with touchscreen drivers that don't explicitly call a 
-input_sync after input_register_device, suspend to ram is blocked if no 
-event is sent, because the input_dev created is considered as not 
-synchronized. The problem was seen with Atmel mxt driver. When any event 
-is sent, the driver explicitly ask a sync, so the problem is solved.
-The problem occurs only when the screen has never send any event before 
-suspend to ram.
-I solved it setting the sync element to true (when input dev is created, 
-no element is pending).
-Is there a better way to solve the problem ?
-Thanks.
-Thomas.
+Why? If we reset, why bother clearing a halt? Especially as this
+may mean waiting the full 5 seconds for a timeout.
 
+> > is there any special reason in original hid_reset to use below flow?
+> >     if (test_bit(HID_CLEAR_HALT, &usbhid->iofl)) {
+> >             xxxxx
+> >     } else if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+> >             xxxxxx
+> >     }
+> 
+> No special reason.  We probably never thought that both flags would be
+> set.
 
---------------090906060109020908050500
-Content-Type: text/x-patch;
-	name="0001-DEV-input-Set-input-sync-param-default-status-to-tru.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename*0="0001-DEV-input-Set-input-sync-param-default-status-to-tru.pa";
-	filename*1="tch"
+Yes. And I'd say if this ever happens HID_RESET_PENDING must have
+priority and implicitly clears a halt.
 
->From d0edf89b99de37e366d5ad1ab08e3c936ac553ae Mon Sep 17 00:00:00 2001
-From: Thomas Poussevin <thomas.poussevin@parrot.com>
-Date: Fri, 22 Aug 2014 17:56:17 +0200
-Subject: [PATCH] [input] Set input sync param default status to true, to
- prevent touchscreen suspend fails. Problems used to happen only when
- touchsreen had not been touched since boot. When the first event is sent,
- input status is actualized.
-
-Signed-off-by: Thomas Poussevin <thomas.poussevin@parrot.com>
----
- drivers/input/input.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 8921c61..c214b39 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1652,6 +1652,7 @@ struct input_dev *input_allocate_device(void)
- 	if (dev) {
- 		dev->dev.type = &input_dev_type;
- 		dev->dev.class = &input_class;
-+		dev->sync = true;
- 		device_initialize(&dev->dev);
- 		mutex_init(&dev->mutex);
- 		spin_lock_init(&dev->event_lock);
--- 
-1.9.2
+	Regards
+		Oliver
 
 
 
-
---------------090906060109020908050500--

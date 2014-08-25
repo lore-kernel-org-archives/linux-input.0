@@ -1,44 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 0/7] Second batch of cleanups for cros_ec
-Date: Mon, 25 Aug 2014 11:01:52 -0700
-Message-ID: <20140825180152.GA31693@core.coreip.homeip.net>
-References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
- <20140825170533.GA29350@core.coreip.homeip.net>
- <53FB7221.8090804@collabora.co.uk>
+Subject: Re: Input sync flag when registering.
+Date: Mon, 25 Aug 2014 11:19:06 -0700
+Message-ID: <20140825181906.GA35881@core.coreip.homeip.net>
+References: <53FAF963.9020403@parrot.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:42045 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750938AbaHYSTR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Aug 2014 14:19:17 -0400
+Received: by mail-pd0-f182.google.com with SMTP id fp1so20632523pdb.41
+        for <linux-input@vger.kernel.org>; Mon, 25 Aug 2014 11:19:16 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <53FB7221.8090804@collabora.co.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+In-Reply-To: <53FAF963.9020403@parrot.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thomas Poussevin <thomas.poussevin@parrot.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Aug 25, 2014 at 07:28:01PM +0200, Javier Martinez Canillas wrote:
-> Hello Dmitry,
-> 
-> On 08/25/2014 07:05 PM, Dmitry Torokhov wrote:
-> >> 
-> >> Patches #1, #2, #6 and #7 do not depend of others so they can be
-> >> merged independently but patches #3, #4 and #5 have to be merged
-> >> in that specific order since they depend on the previous one. 
-> > 
-> > #7 does not apply to my tree (I guess it depends on the 1st batch which I
-> > expect will go through MFD tree?). Maybe you could rebase it on top of my next
-> > so it can be applied sooner? Or it really needs parts of patchset #1?
-> > 
-> 
-> The first batch sent by Doug did indeed touch this driver and the patches
-> were merged through the MFD tree for 3.17 as you said. I see that your
-> next branch is based on 3.16-rc6 and that is why it does not apply cleanly.
-> 
-> I guess you will rebase your next branch for 3.18 on top of 3.17-rc1
-> anyways which will fix this issue? If not please let me know and I can of
-> course re-spin the patch so it applies cleanly on top of 3.16-rc6.
+Hi Thomas,
 
-I normally merge with mainline around -rc3 so please ping me around that time
-if you do not see the patch in my tree.
+On Mon, Aug 25, 2014 at 10:52:51AM +0200, Thomas Poussevin wrote:
+> Hi,
+> I noticed that with touchscreen drivers that don't explicitly call a
+> input_sync after input_register_device, suspend to ram is blocked if
+> no event is sent, because the input_dev created is considered as not
+> synchronized. The problem was seen with Atmel mxt driver. When any
+> event is sent, the driver explicitly ask a sync, so the problem is
+> solved.
+> The problem occurs only when the screen has never send any event
+> before suspend to ram.
+> I solved it setting the sync element to true (when input dev is
+> created, no element is pending).
+> Is there a better way to solve the problem ?
+
+It is not clear to me what the problem is. The kernel as far as I
+remember never checked state of 'sync' field when executing suspend
+callbacks. Moreover there is no longer 'sync' field at all in mainline.
+
+It sounds like some userspace code makes assumptions that are not always
+valid.
 
 Thanks.
 

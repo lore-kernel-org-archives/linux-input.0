@@ -1,101 +1,89 @@
 From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: [PATCH v2 6/7] mfd: cros_ec: Instantiate sub-devices from device tree
-Date: Mon, 25 Aug 2014 15:40:07 +0200
-Message-ID: <1408974008-17184-7-git-send-email-javier.martinez@collabora.co.uk>
+Subject: [PATCH v2 5/7] mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
+Date: Mon, 25 Aug 2014 15:40:06 +0200
+Message-ID: <1408974008-17184-6-git-send-email-javier.martinez@collabora.co.uk>
 References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:46166 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932365AbaHYNki (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Aug 2014 09:40:38 -0400
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-From: Todd Broch <tbroch@chromium.org>
+From: Andrew Bresticker <abrestic@chromium.org>
 
-If the EC device tree node has sub-nodes, try to instantiate them as
-MFD sub-devices.  We can configure the EC features provided by the board.
+When an EC command returns EC_RES_IN_PROGRESS, we need to query
+the state of the EC until it indicates that it is no longer busy.
+Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
+commands (e.g. keyboard, I2C passtru) aren't issued to the EC while
+it is working on the in-progress command.
 
-Signed-off-by: Todd Broch <tbroch@chromium.org>
+Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 ---
 
 Changes since v1:
- - Don't leave an empty struct mfd_cell array. Suggested by Lee Jones.
- - Just use of_platform_populate() instead of manually iterating through
-   sub-devices and calling mfd_add_devices. Suggested by Lee Jones.
+ - The *xfer() calls don't modify the passed cros_ec_command so there is
+   no need to populate it inside the for loop. Suggested by Lee Jones.
 ---
- drivers/mfd/cros_ec.c | 35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ drivers/mfd/cros_ec.c | 34 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index cd0c93c..ab70791 100644
+index c53804a..cd0c93c 100644
 --- a/drivers/mfd/cros_ec.c
 +++ b/drivers/mfd/cros_ec.c
-@@ -21,6 +21,7 @@
- #include <linux/slab.h>
- #include <linux/module.h>
+@@ -23,6 +23,10 @@
  #include <linux/mfd/core.h>
-+#include <linux/of_platform.h>
  #include <linux/mfd/cros_ec.h>
  #include <linux/mfd/cros_ec_commands.h>
- #include <linux/delay.h>
-@@ -107,22 +108,12 @@ int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
- }
- EXPORT_SYMBOL(cros_ec_cmd_xfer);
++#include <linux/delay.h>
++
++#define EC_COMMAND_RETRIES	50
++#define EC_RETRY_DELAY_MS	10
  
--static const struct mfd_cell cros_devs[] = {
--	{
--		.name = "cros-ec-keyb",
--		.id = 1,
--		.of_compatible = "google,cros-ec-keyb",
--	},
--	{
--		.name = "cros-ec-i2c-tunnel",
--		.id = 2,
--		.of_compatible = "google,cros-ec-i2c-tunnel",
--	},
--};
--
- int cros_ec_register(struct cros_ec_device *ec_dev)
+ int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
+ 		       struct cros_ec_command *msg)
+@@ -65,10 +69,38 @@ EXPORT_SYMBOL(cros_ec_check_result);
+ int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
+ 		     struct cros_ec_command *msg)
  {
- 	struct device *dev = ec_dev->dev;
-+#ifdef CONFIG_OF
-+	struct device_node *node = dev->of_node;
-+#endif
- 	int err = 0;
+-	int ret;
++	int ret, i;
++	struct cros_ec_command status_msg;
++	struct ec_response_get_comms_status status;
  
- 	if (ec_dev->din_size) {
-@@ -138,13 +129,19 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 
- 	mutex_init(&ec_dev->lock);
- 
--	err = mfd_add_devices(dev, 0, cros_devs,
--			      ARRAY_SIZE(cros_devs),
--			      NULL, ec_dev->irq, NULL);
--	if (err) {
--		dev_err(dev, "failed to add mfd devices\n");
--		return err;
-+#ifdef CONFIG_OF
-+	/*
-+	 * Add sub-devices declared in the device tree.  NOTE they should NOT be
-+	 * declared in cros_devs
-+	 */
-+	if (node) {
-+		err = of_platform_populate(node, NULL, NULL, dev);
-+		if (err) {
-+			dev_err(dev, "fail to add %s\n", node->full_name);
-+			return err;
+ 	mutex_lock(&ec_dev->lock);
+ 	ret = ec_dev->cmd_xfer(ec_dev, msg);
++	if (ret == -EAGAIN && msg->result == EC_RES_IN_PROGRESS) {
++		/*
++		 * Query the EC's status until it's no longer busy or
++		 * we encounter an error.
++		 */
++		status_msg.version = 0;
++		status_msg.command = EC_CMD_GET_COMMS_STATUS;
++		status_msg.outdata = NULL;
++		status_msg.outsize = 0;
++		status_msg.indata = (uint8_t *)&status;
++		status_msg.insize = sizeof(status);
++
++		for (i = 0; i < EC_COMMAND_RETRIES; i++) {
++			msleep(EC_RETRY_DELAY_MS);
++
++			ret = ec_dev->cmd_xfer(ec_dev, &status_msg);
++			if (ret < 0)
++				break;
++
++			msg->result = status_msg.result;
++			if (status_msg.result != EC_RES_SUCCESS)
++				break;
++			if (!(status.flags & EC_COMMS_STATUS_PROCESSING))
++				break;
 +		}
- 	}
-+#endif
++	}
+ 	mutex_unlock(&ec_dev->lock);
  
- 	dev_info(dev, "Chrome EC device registered\n");
- 
+ 	return ret;
 -- 
 2.0.1
-

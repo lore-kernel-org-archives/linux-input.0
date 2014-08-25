@@ -1,89 +1,48 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: [PATCH v2 5/7] mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
-Date: Mon, 25 Aug 2014 15:40:06 +0200
-Message-ID: <1408974008-17184-6-git-send-email-javier.martinez@collabora.co.uk>
-References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+From: Sistemas administrador <rukiyeasar@mersin.edu.tr>
+Subject: (unknown)
+Date: Mon, 25 Aug 2014 17:16:29 +0300 (EEST)
+Message-ID: <88504569.11065.1408976189257.JavaMail.root@mail.mersin.edu.tr>
+Reply-To: sistemasadmin@barid.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.mersin.edu.tr ([193.255.128.3]:63336 "EHLO
+	mail.mersin.edu.tr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932492AbaHYOYI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Aug 2014 10:24:08 -0400
+Subject: 
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Andrew Bresticker <abrestic@chromium.org>
+ATENCI=C3=93N;
 
-When an EC command returns EC_RES_IN_PROGRESS, we need to query
-the state of the EC until it indicates that it is no longer busy.
-Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
-commands (e.g. keyboard, I2C passtru) aren't issued to the EC while
-it is working on the in-progress command.
+Su buz=C3=B3n ha superado el l=C3=ADmite de almacenamiento, que es de 5=
+ GB definidos por el administrador, quien actualmente est=C3=A1 ejecuta=
+ndo en 10.9GB, no puede ser capaz de enviar o recibir correo nuevo hast=
+a que vuelva a validar su buz=C3=B3n de correo electr=C3=B3nico. Para r=
+evalidar su buz=C3=B3n de correo, env=C3=ADe la siguiente informaci=C3=B3=
+n a continuaci=C3=B3n:
 
-Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-Reviewed-by: Simon Glass <sjg@chromium.org>
-Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
----
+nombre:
+Nombre de usuario:
+contrase=C3=B1a:
+Confirmar contrase=C3=B1a:
+E-mail:
+tel=C3=A9fono:
 
-Changes since v1:
- - The *xfer() calls don't modify the passed cros_ec_command so there is
-   no need to populate it inside the for loop. Suggested by Lee Jones.
----
- drivers/mfd/cros_ec.c | 34 +++++++++++++++++++++++++++++++++-
- 1 file changed, 33 insertions(+), 1 deletion(-)
+Si usted no puede revalidar su buz=C3=B3n, el buz=C3=B3n se deshabilita=
+r=C3=A1!
 
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index c53804a..cd0c93c 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -23,6 +23,10 @@
- #include <linux/mfd/core.h>
- #include <linux/mfd/cros_ec.h>
- #include <linux/mfd/cros_ec_commands.h>
-+#include <linux/delay.h>
-+
-+#define EC_COMMAND_RETRIES	50
-+#define EC_RETRY_DELAY_MS	10
- 
- int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
- 		       struct cros_ec_command *msg)
-@@ -65,10 +69,38 @@ EXPORT_SYMBOL(cros_ec_check_result);
- int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
- 		     struct cros_ec_command *msg)
- {
--	int ret;
-+	int ret, i;
-+	struct cros_ec_command status_msg;
-+	struct ec_response_get_comms_status status;
- 
- 	mutex_lock(&ec_dev->lock);
- 	ret = ec_dev->cmd_xfer(ec_dev, msg);
-+	if (ret == -EAGAIN && msg->result == EC_RES_IN_PROGRESS) {
-+		/*
-+		 * Query the EC's status until it's no longer busy or
-+		 * we encounter an error.
-+		 */
-+		status_msg.version = 0;
-+		status_msg.command = EC_CMD_GET_COMMS_STATUS;
-+		status_msg.outdata = NULL;
-+		status_msg.outsize = 0;
-+		status_msg.indata = (uint8_t *)&status;
-+		status_msg.insize = sizeof(status);
-+
-+		for (i = 0; i < EC_COMMAND_RETRIES; i++) {
-+			msleep(EC_RETRY_DELAY_MS);
-+
-+			ret = ec_dev->cmd_xfer(ec_dev, &status_msg);
-+			if (ret < 0)
-+				break;
-+
-+			msg->result = status_msg.result;
-+			if (status_msg.result != EC_RES_SUCCESS)
-+				break;
-+			if (!(status.flags & EC_COMMS_STATUS_PROCESSING))
-+				break;
-+		}
-+	}
- 	mutex_unlock(&ec_dev->lock);
- 
- 	return ret;
--- 
-2.0.1
+Disculpa las molestias.
+C=C3=B3digo de verificaci=C3=B3n: es: 006524
+Correo Soporte T=C3=A9cnico =C2=A9 2014
+
+=C2=A1gracias
+Sistemas administrador
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

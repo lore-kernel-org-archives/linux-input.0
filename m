@@ -1,308 +1,335 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND v4 1/2] elantech: Add support for trackpoint found
- on some v3 models
-Date: Sun, 24 Aug 2014 15:14:24 -0700
-Message-ID: <20140824221424.GA15090@core.coreip.homeip.net>
-References: <1408558692-11736-1-git-send-email-ulrik.debie-os@e2big.org>
- <1408558692-11736-2-git-send-email-ulrik.debie-os@e2big.org>
+From: "Dudley Du" <dudley.dulixin@gmail.com>
+Subject: RE: [PATCH v4 5/14] input: cyapa: add read firmware image and raw data interfaces in debugfs system
+Date: Mon, 25 Aug 2014 10:26:45 +0800
+Message-ID: <53fa9efa.e724460a.3174.ffffaa88@mx.google.com>
+References: <53c772c1.e683460a.3dd2.4a4c@mx.google.com> <20140822235138.GA24242@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:43595 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751830AbaHXWO1 (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:64366 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753774AbaHYC1I convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Aug 2014 18:14:27 -0400
-Received: by mail-pd0-f176.google.com with SMTP id y10so19094024pdj.21
-        for <linux-input@vger.kernel.org>; Sun, 24 Aug 2014 15:14:27 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1408558692-11736-2-git-send-email-ulrik.debie-os@e2big.org>
+	Sun, 24 Aug 2014 22:27:08 -0400
+In-Reply-To: <20140822235138.GA24242@core.coreip.homeip.net>
+Content-Language: zh-cn
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, David Herrmann <dh.herrmann@gmail.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Benson Leung <bleung@google.com>, Patrik Fimml <patrikf@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Ulrik,
+Hi Dmitry,
 
-On Wed, Aug 20, 2014 at 08:18:11PM +0200, Ulrik De Bie wrote:
-> +
-> +	t = (((u32)packet[0] & 0xF8) << 24) | ((u32)packet[1] << 16)
-> +		| (u32)packet[2] << 8 | (u32)packet[3];
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Saturday, August 23, 2014 7:52 AM
+> To: Dudley Du
+> Cc: Rafael J. Wysocki; Benson Leung; Patrik Fimml; linux-input@vger.kernel.org;
+> linux-kernel@vger.kernel.org; Dudley Du
+> Subject: Re: [PATCH v4 5/14] input: cyapa: add read firmware image and raw
+> data interfaces in debugfs system
+> 
+> Hi Dudley,
+> 
+> On Thu, Jul 17, 2014 at 02:52:36PM +0800, Dudley Du wrote:
+> > Add read_fw and raw_data debugfs interfaces for easier issues location
+> > and collection when report by user.
+> > TEST=test on Chromebooks.
+> >
+> > Signed-off-by: Dudley Du <dudl@cypress.com>
+> > ---
+> >  drivers/input/mouse/cyapa.c |  219
+> +++++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 219 insertions(+)
+> >
+> > diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> > index 53c9d59..ae24b02 100644
+> > --- a/drivers/input/mouse/cyapa.c
+> > +++ b/drivers/input/mouse/cyapa.c
+> > @@ -39,6 +39,8 @@
+> >
+> >  const char unique_str[] = "CYTRA";
+> >
+> > +/* Global root node of the cyapa debugfs directory. */
+> > +static struct dentry *cyapa_debugfs_root;
+> >
+> >
+> >  ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
+> > @@ -461,6 +463,205 @@ done:
+> >  }
+> >
+> >  /*
+> > + **************************************************************
+> > + * debugfs interface
+> > + **************************************************************
+> > +*/
+> > +static int cyapa_debugfs_open(struct inode *inode, struct file *file)
+> > +{
+> > +	struct cyapa *cyapa = inode->i_private;
+> > +	int ret;
+> > +
+> > +	if (!cyapa)
+> > +		return -ENODEV;
+> > +
+> > +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	if (!kobject_get(&cyapa->client->dev.kobj)) {
+> 
+> Why not get_device() here and elsewhere?
 
-Majority of devices with Elantech will be little-endian devices, so if we use
-get_unaligned_le32() we'll save a few ops. Does the version of patch below
-still work for you?
+Thanks. I will use get_device()/put_device() instead.
 
-Thanks!
+> 
+> > +		ret = -ENODEV;
+> > +		goto out;
+> > +	}
+> > +
+> > +	file->private_data = cyapa;
+> > +
+> > +	if (cyapa->fw_image) {
+> > +		ret = 0;
+> > +		goto out;
+> > +	}
+> > +
+> > +	mutex_lock(&cyapa->state_sync_lock);
+> > +	/*
+> > +	 * If firmware hasn't been read yet, read it all in one pass.
+> > +	 * Subsequent opens will reuse the data in this same buffer.
+> > +	 */
+> > +	if (cyapa->ops->read_fw)
+> > +		ret = cyapa->ops->read_fw(cyapa);
+> > +	else
+> > +		ret = -EPERM;
+> > +	mutex_unlock(&cyapa->state_sync_lock);
+> > +
+> > +	/* Redetect trackpad device states. */
+> > +	cyapa_detect_async(cyapa, 0);
+> > +
+> > +out:
+> > +	mutex_unlock(&cyapa->debugfs_mutex);
+> > +	return ret;
+> > +}
+> > +
+> > +static int cyapa_debugfs_release(struct inode *inode, struct file *file)
+> > +{
+> > +	struct cyapa *cyapa = file->private_data;
+> > +	int ret;
+> > +
+> > +	if (!cyapa)
+> > +		return 0;
+> > +
+> > +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> > +	if (ret)
+> > +		return ret;
+> > +	file->private_data = NULL;
+> > +	kobject_put(&cyapa->client->dev.kobj);
+> > +	mutex_unlock(&cyapa->debugfs_mutex);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/* Return some bytes from the buffered firmware image, starting from *ppos
+> */
+> > +static ssize_t cyapa_debugfs_read_fw(struct file *file, char __user *buffer,
+> > +				     size_t count, loff_t *ppos)
+> > +{
+> > +	struct cyapa *cyapa = file->private_data;
+> > +
+> > +	if (!cyapa->fw_image)
+> > +		return -EINVAL;
+> > +
+> > +	if (*ppos >= cyapa->fw_image_size)
+> > +		return 0;
+> > +
+> > +	if (count + *ppos > cyapa->fw_image_size)
+> > +		count = cyapa->fw_image_size - *ppos;
+> > +
+> > +	if (copy_to_user(buffer, &cyapa->fw_image[*ppos], count))
+> > +		return -EFAULT;
+> > +
+> > +	*ppos += count;
+> > +	return count;
+> > +}
+> > +
+> > +static const struct file_operations cyapa_read_fw_fops = {
+> > +	.open = cyapa_debugfs_open,
+> > +	.release = cyapa_debugfs_release,
+> > +	.read = cyapa_debugfs_read_fw
+> > +};
+> > +
+> > +static int cyapa_debugfs_raw_data_open(struct inode *inode, struct file
+> *file)
+> > +{
+> > +	struct cyapa *cyapa = inode->i_private;
+> > +	int ret;
+> > +
+> > +	if (!cyapa)
+> > +		return -ENODEV;
+> > +
+> > +	/* Start to be supported after Gen5 trackpad devices. */
+> > +	if (cyapa->gen < CYAPA_GEN5)
+> > +		return -ENOTSUPP;
+> > +
+> > +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	if (!kobject_get(&cyapa->client->dev.kobj)) {
+> > +		ret = -ENODEV;
+> > +		goto out;
+> > +	}
+> > +
+> > +	file->private_data = cyapa;
+> > +
+> > +	mutex_lock(&cyapa->state_sync_lock);
+> > +	if (cyapa->ops->read_raw_data)
+> > +		ret = cyapa->ops->read_raw_data(cyapa);
+> > +	else
+> > +		ret = -EPERM;
+> > +	mutex_unlock(&cyapa->state_sync_lock);
+> > +out:
+> > +	mutex_unlock(&cyapa->debugfs_mutex);
+> > +	return ret;
+> > +}
+> > +
+> > +static int cyapa_debugfs_raw_data_release(struct inode *inode,
+> > +				struct file *file)
+> > +{
+> > +	struct cyapa *cyapa = file->private_data;
+> > +	int ret;
+> > +
+> > +	if (!cyapa)
+> > +		return 0;
+> > +
+> > +	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
+> > +	if (ret)
+> > +		return ret;
+> > +	file->private_data = NULL;
+> > +	kobject_put(&cyapa->client->dev.kobj);
+> > +	mutex_unlock(&cyapa->debugfs_mutex);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/* Always return the sensors' latest raw data from trackpad device. */
+> > +static ssize_t cyapa_debugfs_read_raw_data(struct file *file,
+> > +				     char __user *buffer,
+> > +				     size_t count, loff_t *ppos)
+> > +{
+> > +	struct cyapa *cyapa = file->private_data;
+> > +
+> > +	if (!cyapa->tp_raw_data)
+> > +		return -EINVAL;
+> > +
+> > +	if (*ppos >= cyapa->tp_raw_data_size)
+> > +		return 0;
+> > +
+> > +	if (count + *ppos > cyapa->tp_raw_data_size)
+> > +		count = cyapa->tp_raw_data_size - *ppos;
+> > +
+> > +	if (copy_to_user(buffer, &cyapa->tp_raw_data[*ppos], count))
+> > +		return -EFAULT;
+> > +
+> > +	*ppos += count;
+> > +	return count;
+> > +}
+> > +
+> > +static const struct file_operations cyapa_read_raw_data_fops = {
+> > +	.open = cyapa_debugfs_raw_data_open,
+> > +	.release = cyapa_debugfs_raw_data_release,
+> > +	.read = cyapa_debugfs_read_raw_data
+> > +};
+> > +
+> > +static int cyapa_debugfs_init(struct cyapa *cyapa)
+> > +{
+> > +	struct device *dev = &cyapa->client->dev;
+> > +
+> > +	if (!cyapa_debugfs_root)
+> > +		return -ENODEV;
+> > +
+> > +	cyapa->dentry_dev = debugfs_create_dir(kobject_name(&dev->kobj),
+> > +					       cyapa_debugfs_root);
+> > +
+> > +	if (!cyapa->dentry_dev)
+> > +		return -ENODEV;
+> > +
+> > +	mutex_init(&cyapa->debugfs_mutex);
+> > +
+> > +	debugfs_create_file(CYAPA_DEBUGFS_READ_FW, S_IRUSR, cyapa->dentry_dev,
+> > +			    cyapa, &cyapa_read_fw_fops);
+> > +
+> > +	debugfs_create_file(CYAPA_DEBUGFS_RAW_DATA, S_IRUSR, cyapa->dentry_dev,
+> > +			    cyapa, &cyapa_read_raw_data_fops);
+> > +	return 0;
+> > +}
+> > +
+> > +/*
+> >   * Sysfs Interface.
+> >   */
+> >
+> > @@ -869,6 +1070,13 @@ static int cyapa_probe(struct i2c_client *client,
+> >  	if (sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group))
+> >  		dev_warn(dev, "error creating sysfs entries.\n");
+> >
+> > +	/* Create a global debugfs root for all cyapa devices */
+> > +	cyapa_debugfs_root = debugfs_create_dir("cyapa", NULL);
+> > +	if (cyapa_debugfs_root == ERR_PTR(-ENODEV))
+> > +		cyapa_debugfs_root = NULL;
+> > +	if (cyapa_debugfs_init(cyapa))
+> > +		dev_warn(dev, "error creating debugfs entries.\n");
+> > +
+> >  #ifdef CONFIG_PM_SLEEP
+> >  	if (device_can_wakeup(dev) &&
+> >  	    sysfs_merge_group(&client->dev.kobj, &cyapa_power_wakeup_group))
+> > @@ -902,8 +1110,19 @@ static int cyapa_remove(struct i2c_client *client)
+> >  #ifdef CONFIG_PM_RUNTIME
+> >  	sysfs_unmerge_group(&client->dev.kobj, &cyapa_power_runtime_group);
+> >  #endif
+> > +
+> > +	kfree(cyapa->fw_image);
+> > +	cyapa->fw_image = NULL;
+> > +	cyapa->fw_image_size = 0;
+> > +	kfree(cyapa->tp_raw_data);
+> > +	cyapa->tp_raw_data = NULL;
+> > +	cyapa->tp_raw_data_size = 0;
+> 
+> This should be happening only after you remove debugfs entries.
 
--- 
-Dmitry
+Thanks, will change to the correct order.
+
+> 
+> 
+> >  	free_irq(cyapa->irq, cyapa);
+> >
+> > +	debugfs_remove_recursive(cyapa->dentry_dev);
+> > +	debugfs_remove_recursive(cyapa_debugfs_root);
+> 
+> Hm, it seems that your debugfs entries are created per-devce, but you remove
+> all of them at one when very first device us unbound. You probably want to
+> create and destroy root of your debugfs hierarchy on module level.
 
 
-Input: elantech - add support for trackpoint found on some v3 models
+Yes. You are correct.
+I would change it to use module_init()/module_exit() to create and remove cyapa_debugfs_root.
 
-From: Ulrik De Bie <ulrik.debie-os@e2big.org>
 
-Some elantech v3 touchpad equipped laptops also have a trackpoint, before
-this commit, these give sync errors. With this patch, the trackpoint is
-provided as another input device: 'Elantech PS/2 TrackPoint'
+> 
+> > +	mutex_destroy(&cyapa->debugfs_mutex);
+> > +
+> >  	input_unregister_device(cyapa->input);
+> >  	if (cyapa->ops->set_power_mode)
+> >  		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
+> > --
+> > 1.7.9.5
+> >
+> >
+> 
+> Thanks.
+> 
+> --
+> Dmitry
 
-The patch will also output messages that do not follow the expected pattern.
-In the mean time I've seen 2 unknown packets occasionally:
-0x04 , 0x00 , 0x00 , 0x00 , 0x00 , 0x00
-0x00 , 0x00 , 0x00 , 0x02 , 0x00 , 0x00
-I don't know what those are for, but they can be safely ignored.
-
-Currently all packets that are not known to v3 touchpad and where
-packet[3] (the fourth byte) lowest nibble is 6 are now recognized as
-PACKET_TRACKPOINT and processed by the new elantech_report_trackpoint.
-
-This has been verified to work on a laptop Lenovo L530 where the
-touchpad/trackpoint combined identify themselves as:
-psmouse serio1: elantech: assuming hardware version 3 (with firmware version 0x350f02)
-psmouse serio1: elantech: Synaptics capabilities query result 0xb9, 0x15, 0x0c.
-
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/elantech.c |  136 +++++++++++++++++++++++++++++++++++++---
- drivers/input/mouse/elantech.h |    3 +
- 2 files changed, 130 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index ee2a04d..b4d645a 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -18,6 +18,7 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <asm/unaligned.h>
- #include "psmouse.h"
- #include "elantech.h"
- 
-@@ -403,6 +404,68 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
- 	input_sync(dev);
- }
- 
-+static void elantech_report_trackpoint(struct psmouse *psmouse,
-+				       int packet_type)
-+{
-+	/*
-+	 * byte 0:  0   0 ~sx ~sy   0   M   R   L
-+	 * byte 1: sx   0   0   0   0   0   0   0
-+	 * byte 2: sy   0   0   0   0   0   0   0
-+	 * byte 3:  0   0  sy  sx   0   1   1   0
-+	 * byte 4: x7  x6  x5  x4  x3  x2  x1  x0
-+	 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
-+	 *
-+	 * x and y are written in two's complement spread
-+	 * over 9 bits with sx/sy the relative top bit and
-+	 * x7..x0 and y7..y0 the lower bits.
-+	 * The sign of y is opposite to what the input driver
-+	 * expects for a relative movement
-+	 */
-+
-+	struct elantech_data *etd = psmouse->private;
-+	struct input_dev *tp_dev = etd->tp_dev;
-+	unsigned char *packet = psmouse->packet;
-+	int x, y;
-+	u32 t;
-+
-+	if (dev_WARN_ONCE(&psmouse->ps2dev.serio->dev,
-+			  !tp_dev,
-+			  psmouse_fmt("Unexpected trackpoint message\n"))) {
-+		if (etd->debug == 1)
-+			elantech_packet_dump(psmouse);
-+		return;
-+	}
-+
-+	t = get_unaligned_le32(&packet[0]);
-+
-+	switch (t & ~7U) {
-+	case 0x06000030U:
-+	case 0x16008020U:
-+	case 0x26800010U:
-+	case 0x36808000U:
-+		x = packet[4] - (int)(packet[1] << 1);
-+		y = (int)(packet[2] << 1) - packet[5];
-+
-+		input_report_key(tp_dev, BTN_LEFT, packet[0] & 0x01);
-+		input_report_key(tp_dev, BTN_RIGHT, packet[0] & 0x02);
-+		input_report_key(tp_dev, BTN_MIDDLE, packet[0] & 0x04);
-+
-+		input_report_rel(tp_dev, REL_X, x);
-+		input_report_rel(tp_dev, REL_Y, y);
-+
-+		input_sync(tp_dev);
-+
-+		break;
-+
-+	default:
-+		/* Dump unexpected packet sequences if debug=1 (default) */
-+		if (etd->debug == 1)
-+			elantech_packet_dump(psmouse);
-+
-+		break;
-+	}
-+}
-+
- /*
-  * Interpret complete data packets and report absolute mode input events for
-  * hardware version 3. (12 byte packets for two fingers)
-@@ -715,6 +778,8 @@ static int elantech_packet_check_v3(struct psmouse *psmouse)
- 
- 		if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
- 			return PACKET_V3_TAIL;
-+		if ((packet[3] & 0x0f) == 0x06)
-+			return PACKET_TRACKPOINT;
- 	}
- 
- 	return PACKET_UNKNOWN;
-@@ -791,14 +856,23 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
- 
- 	case 3:
- 		packet_type = elantech_packet_check_v3(psmouse);
--		/* ignore debounce */
--		if (packet_type == PACKET_DEBOUNCE)
--			return PSMOUSE_FULL_PACKET;
--
--		if (packet_type == PACKET_UNKNOWN)
-+		switch (packet_type) {
-+		case PACKET_UNKNOWN:
- 			return PSMOUSE_BAD_DATA;
- 
--		elantech_report_absolute_v3(psmouse, packet_type);
-+		case PACKET_DEBOUNCE:
-+			/* ignore debounce */
-+			break;
-+
-+		case PACKET_TRACKPOINT:
-+			elantech_report_trackpoint(psmouse, packet_type);
-+			break;
-+
-+		default:
-+			elantech_report_absolute_v3(psmouse, packet_type);
-+			break;
-+		}
-+
- 		break;
- 
- 	case 4:
-@@ -1018,8 +1092,10 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
-  * Asus UX31               0x361f00        20, 15, 0e      clickpad
-  * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
-  * Avatar AVIU-145A2       0x361f00        ?               clickpad
-+ * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
-  * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
-  * Lenovo L430             0x350f02        b9, 15, 0c      2 hw buttons (*)
-+ * Lenovo L530             0x350f02        b9, 15, 0c      2 hw buttons (*)
-  * Samsung NF210           0x150b00        78, 14, 0a      2 hw buttons
-  * Samsung NP770Z5E        0x575f01        10, 15, 0f      clickpad
-  * Samsung NP700Z5B        0x361f06        21, 15, 0f      clickpad
-@@ -1029,6 +1105,8 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
-  * Samsung RF710           0x450f00        ?               2 hw buttons
-  * System76 Pangolin       0x250f01        ?               2 hw buttons
-  * (*) + 3 trackpoint buttons
-+ * (**) + 0 trackpoint buttons
-+ * Note: Lenovo L430 and Lenovo L430 have the same fw_version/caps
-  */
- static void elantech_set_buttonpad_prop(struct psmouse *psmouse)
- {
-@@ -1324,6 +1402,10 @@ int elantech_detect(struct psmouse *psmouse, bool set_properties)
-  */
- static void elantech_disconnect(struct psmouse *psmouse)
- {
-+	struct elantech_data *etd = psmouse->private;
-+
-+	if (etd->tp_dev)
-+		input_unregister_device(etd->tp_dev);
- 	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
- 			   &elantech_attr_group);
- 	kfree(psmouse->private);
-@@ -1438,8 +1520,10 @@ static int elantech_set_properties(struct elantech_data *etd)
- int elantech_init(struct psmouse *psmouse)
- {
- 	struct elantech_data *etd;
--	int i, error;
-+	int i;
-+	int error = -EINVAL;
- 	unsigned char param[3];
-+	struct input_dev *tp_dev;
- 
- 	psmouse->private = etd = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
- 	if (!etd)
-@@ -1498,14 +1582,48 @@ int elantech_init(struct psmouse *psmouse)
- 		goto init_fail;
- 	}
- 
-+	/* The MSB indicates the presence of the trackpoint */
-+	if ((etd->capabilities[0] & 0x80) == 0x80) {
-+		tp_dev = input_allocate_device();
-+
-+		if (!tp_dev) {
-+			error = -ENOMEM;
-+			goto init_fail_tp_alloc;
-+		}
-+
-+		etd->tp_dev = tp_dev;
-+		snprintf(etd->tp_phys, sizeof(etd->tp_phys), "%s/input1",
-+			psmouse->ps2dev.serio->phys);
-+		tp_dev->phys = etd->tp_phys;
-+		tp_dev->name = "Elantech PS/2 TrackPoint";
-+		tp_dev->id.bustype = BUS_I8042;
-+		tp_dev->id.vendor  = 0x0002;
-+		tp_dev->id.product = PSMOUSE_ELANTECH;
-+		tp_dev->id.version = 0x0000;
-+		tp_dev->dev.parent = &psmouse->ps2dev.serio->dev;
-+		tp_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
-+		tp_dev->relbit[BIT_WORD(REL_X)] =
-+			BIT_MASK(REL_X) | BIT_MASK(REL_Y);
-+		tp_dev->keybit[BIT_WORD(BTN_LEFT)] =
-+			BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) |
-+			BIT_MASK(BTN_RIGHT);
-+		error = input_register_device(etd->tp_dev);
-+		if (error < 0)
-+			goto init_fail_tp_reg;
-+	}
-+
- 	psmouse->protocol_handler = elantech_process_byte;
- 	psmouse->disconnect = elantech_disconnect;
- 	psmouse->reconnect = elantech_reconnect;
- 	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
- 
- 	return 0;
--
-+ init_fail_tp_reg:
-+	input_free_device(tp_dev);
-+ init_fail_tp_alloc:
-+	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
-+			   &elantech_attr_group);
-  init_fail:
- 	kfree(etd);
--	return -1;
-+	return error;
- }
-diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-index 9e0e2a1..6f3afec 100644
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -94,6 +94,7 @@
- #define PACKET_V4_HEAD			0x05
- #define PACKET_V4_MOTION		0x06
- #define PACKET_V4_STATUS		0x07
-+#define PACKET_TRACKPOINT		0x08
- 
- /*
-  * track up to 5 fingers for v4 hardware
-@@ -114,6 +115,8 @@ struct finger_pos {
- };
- 
- struct elantech_data {
-+	struct input_dev *tp_dev;	/* Relative device for trackpoint */
-+	char tp_phys[32];
- 	unsigned char reg_07;
- 	unsigned char reg_10;
- 	unsigned char reg_11;

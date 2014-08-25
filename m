@@ -1,55 +1,116 @@
 From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: [PATCH v2 2/7] i2c: i2c-cros-ec-tunnel: Set retries to 3
-Date: Mon, 25 Aug 2014 15:40:03 +0200
-Message-ID: <1408974008-17184-3-git-send-email-javier.martinez@collabora.co.uk>
+Subject: [PATCH v2 4/7] mfd: cros_ec: move locking into cros_ec_cmd_xfer
+Date: Mon, 25 Aug 2014 15:40:05 +0200
+Message-ID: <1408974008-17184-5-git-send-email-javier.martinez@collabora.co.uk>
 References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:46142 "EHLO
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:46154 "EHLO
 	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932261AbaHYNk2 (ORCPT
+	with ESMTP id S932262AbaHYNkd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Aug 2014 09:40:28 -0400
+	Mon, 25 Aug 2014 09:40:33 -0400
 In-Reply-To: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
-From: Derek Basehore <dbasehore@chromium.org>
+From: Andrew Bresticker <abrestic@chromium.org>
 
-Since the i2c bus can get wedged on the EC sometimes, set the number of retries
-to 3. Since we un-wedge the bus immediately after the wedge happens, this is the
-correct fix since only one transfer will fail.
+Now that there's a central cros_ec_cmd_xfer(), move the locking
+out of the SPI driver.
 
-Signed-off-by: Derek Basehore <dbasehore@chromium.org>
-Reviewed-by: Doug Anderson <dianders@chromium.org>
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Reviewed-by: Doug Anderson <dianders@chromium.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/i2c/busses/i2c-cros-ec-tunnel.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index 3c15dcc..97e6369 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -16,6 +16,8 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- 
-+#define I2C_MAX_RETRIES 3
+Changes since v1:
+ - Remove mention of LPC driver in the commit message since it does not
+   exist in mainline yet. Suggested by Doug Anderson.
+---
+ drivers/mfd/cros_ec.c     | 10 +++++++++-
+ drivers/mfd/cros_ec_spi.c | 11 -----------
+ 2 files changed, 9 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+index a9faebd..c53804a 100644
+--- a/drivers/mfd/cros_ec.c
++++ b/drivers/mfd/cros_ec.c
+@@ -65,7 +65,13 @@ EXPORT_SYMBOL(cros_ec_check_result);
+ int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
+ 		     struct cros_ec_command *msg)
+ {
+-	return ec_dev->cmd_xfer(ec_dev, msg);
++	int ret;
 +
- /**
-  * struct ec_i2c_device - Driver data for I2C tunnel
-  *
-@@ -290,6 +292,7 @@ static int ec_i2c_probe(struct platform_device *pdev)
- 	bus->adap.algo_data = bus;
- 	bus->adap.dev.parent = &pdev->dev;
- 	bus->adap.dev.of_node = np;
-+	bus->adap.retries = I2C_MAX_RETRIES;
++	mutex_lock(&ec_dev->lock);
++	ret = ec_dev->cmd_xfer(ec_dev, msg);
++	mutex_unlock(&ec_dev->lock);
++
++	return ret;
+ }
+ EXPORT_SYMBOL(cros_ec_cmd_xfer);
  
- 	err = i2c_add_adapter(&bus->adap);
- 	if (err) {
+@@ -98,6 +104,8 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 			return -ENOMEM;
+ 	}
+ 
++	mutex_init(&ec_dev->lock);
++
+ 	err = mfd_add_devices(dev, 0, cros_devs,
+ 			      ARRAY_SIZE(cros_devs),
+ 			      NULL, ec_dev->irq, NULL);
+diff --git a/drivers/mfd/cros_ec_spi.c b/drivers/mfd/cros_ec_spi.c
+index b396705..bf6e08e 100644
+--- a/drivers/mfd/cros_ec_spi.c
++++ b/drivers/mfd/cros_ec_spi.c
+@@ -79,13 +79,11 @@
+  *	if no record
+  * @end_of_msg_delay: used to set the delay_usecs on the spi_transfer that
+  *      is sent when we want to turn off CS at the end of a transaction.
+- * @lock: mutex to ensure only one user of cros_ec_cmd_xfer_spi at a time
+  */
+ struct cros_ec_spi {
+ 	struct spi_device *spi;
+ 	s64 last_transfer_ns;
+ 	unsigned int end_of_msg_delay;
+-	struct mutex lock;
+ };
+ 
+ static void debug_packet(struct device *dev, const char *name, u8 *ptr,
+@@ -232,13 +230,6 @@ static int cros_ec_cmd_xfer_spi(struct cros_ec_device *ec_dev,
+ 	int sum;
+ 	int ret = 0, final_ret;
+ 
+-	/*
+-	 * We have the shared ec_dev buffer plus we do lots of separate spi_sync
+-	 * calls, so we need to make sure only one person is using this at a
+-	 * time.
+-	 */
+-	mutex_lock(&ec_spi->lock);
+-
+ 	len = cros_ec_prepare_tx(ec_dev, ec_msg);
+ 	dev_dbg(ec_dev->dev, "prepared, len=%d\n", len);
+ 
+@@ -327,7 +318,6 @@ exit:
+ 	if (ec_msg->command == EC_CMD_REBOOT_EC)
+ 		msleep(EC_REBOOT_DELAY_MS);
+ 
+-	mutex_unlock(&ec_spi->lock);
+ 	return ret;
+ }
+ 
+@@ -359,7 +349,6 @@ static int cros_ec_spi_probe(struct spi_device *spi)
+ 	if (ec_spi == NULL)
+ 		return -ENOMEM;
+ 	ec_spi->spi = spi;
+-	mutex_init(&ec_spi->lock);
+ 	ec_dev = devm_kzalloc(dev, sizeof(*ec_dev), GFP_KERNEL);
+ 	if (!ec_dev)
+ 		return -ENOMEM;
 -- 
 2.0.1
 

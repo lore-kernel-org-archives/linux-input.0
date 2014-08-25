@@ -1,578 +1,393 @@
-From: Dan Murphy <dmurphy@ti.com>
-Subject: [PATCH v2 2/2] input: misc: Add support for the DRV2667 haptic driver
-Date: Mon, 25 Aug 2014 10:26:52 -0500
-Message-ID: <1408980413-8763-2-git-send-email-dmurphy@ti.com>
-References: <1408980413-8763-1-git-send-email-dmurphy@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: add support for PenMount HID TouchScreen Driver
+Date: Mon, 25 Aug 2014 11:43:09 -0400
+Message-ID: <CAN+gG=Gpze-CA_LRa-69+M_rL3HzSiM_DwMAW1TW8xkA_Kc82w@mail.gmail.com>
+References: <1408978083-569-1-git-send-email-christian.gmeiner@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1408980413-8763-1-git-send-email-dmurphy@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, sergei.shtylyov@cogentembedded.com, Dan Murphy <dmurphy@ti.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f47.google.com ([209.85.192.47]:45709 "EHLO
+	mail-qg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754123AbaHYPnK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Aug 2014 11:43:10 -0400
+Received: by mail-qg0-f47.google.com with SMTP id i50so13171793qgf.6
+        for <linux-input@vger.kernel.org>; Mon, 25 Aug 2014 08:43:09 -0700 (PDT)
+In-Reply-To: <1408978083-569-1-git-send-email-christian.gmeiner@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Adding support for the DRV2667 haptic driver.
-This device has the ability to store vibration
-patterns in RAM and execute them once the GO bit
-is set.
+On Mon, Aug 25, 2014 at 10:48 AM, Christian Gmeiner
+<christian.gmeiner@gmail.com> wrote:
+> This driver is a cleaned up version of
+> http://git.android-x86.org/?p=kernel/cdv.git;a=blob_plain;f=drivers/hid/hid-penmount.c;hb=HEAD
 
-The initial driver sets a basic waveform in the
-first waveform sequence and will play the waveform
-when the GO bit is set and will continously play
-the waveform until the GO bit is unset.
+This is definitively weird. According to your driver, it should go by
+default through hid-multitouch and behave correctly (at least the
+multi-touch versions, and I would say yours too).
 
-Data sheet is here:
-http://www.ti.com/product/drv2667
+Can you send me some touch recordings of your device with
+hid-recorder[1] please? No need to remove your driver, it will capture
+raw input events, so you should be just fine.
+If the default binding does not work and if we can not make this work
+through hid-multitouch, then I'll have some comments on your patch,
+but I keep that for later :)
 
-Signed-off-by: Dan Murphy <dmurphy@ti.com>
----
+Cheers,
+Benjamin
 
-v2 - No updates since no comments - https://patchwork.kernel.org/patch/4759391/
+[1] http://bentiss.github.io/hid-replay-docs/
 
- drivers/input/misc/Kconfig   |   11 +
- drivers/input/misc/Makefile  |    1 +
- drivers/input/misc/drv2667.c |  500 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 512 insertions(+)
- create mode 100644 drivers/input/misc/drv2667.c
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 41d0ae6..51891f6 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -687,4 +687,15 @@ config INPUT_DRV260X_HAPTICS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called drv260x-haptics.
- 
-+config INPUT_DRV2667_HAPTICS
-+	tristate "TI DRV2667 haptics support"
-+	depends on INPUT && I2C
-+	select INPUT_FF_MEMLESS
-+	select REGMAP_I2C
-+	help
-+	  Say Y to enable support for the TI DRV2667 haptics driver.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called drv260x-haptics.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index cd4bc2d..e0cee17 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -27,6 +27,7 @@ obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
- obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-+obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
- obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
- obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
- obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
-diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
-new file mode 100644
-index 0000000..0f43758
---- /dev/null
-+++ b/drivers/input/misc/drv2667.c
-@@ -0,0 +1,500 @@
-+/*
-+ * DRV2667 haptics driver family
-+ *
-+ * Author: Dan Murphy <dmurphy@ti.com>
-+ *
-+ * Copyright: (C) 2014 Texas Instruments, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/regulator/consumer.h>
-+
-+/* Contol registers */
-+#define DRV2667_STATUS	0x00
-+#define DRV2667_CTRL_1	0x01
-+#define DRV2667_CTRL_2	0x02
-+/* Waveform sequencer */
-+#define DRV2667_WV_SEQ_0	0x03
-+#define DRV2667_WV_SEQ_1	0x04
-+#define DRV2667_WV_SEQ_2	0x05
-+#define DRV2667_WV_SEQ_3	0x06
-+#define DRV2667_WV_SEQ_4	0x07
-+#define DRV2667_WV_SEQ_5	0x08
-+#define DRV2667_WV_SEQ_6	0x09
-+#define DRV2667_WV_SEQ_7	0x0A
-+#define DRV2667_FIFO		0x0B
-+#define DRV2667_PAGE		0xFF
-+#define DRV2667_MAX_REG		DRV2667_PAGE
-+
-+#define DRV2667_PAGE_0		0x00
-+#define DRV2667_PAGE_1		0x01
-+#define DRV2667_PAGE_2		0x02
-+#define DRV2667_PAGE_3		0x03
-+#define DRV2667_PAGE_4		0x04
-+#define DRV2667_PAGE_5		0x05
-+#define DRV2667_PAGE_6		0x06
-+#define DRV2667_PAGE_7		0x07
-+#define DRV2667_PAGE_8		0x08
-+
-+/* RAM fields */
-+#define DRV2667_RAM_HDR_SZ	0x0
-+/* RAM Header addresses */
-+#define DRV2667_RAM_START_HI	0x01
-+#define DRV2667_RAM_START_LO	0x02
-+#define DRV2667_RAM_STOP_HI		0x03
-+#define DRV2667_RAM_STOP_LO		0x04
-+#define DRV2667_RAM_REPEAT_CT	0x05
-+/* RAM data addresses */
-+#define DRV2667_RAM_AMP		0x06
-+#define DRV2667_RAM_FREQ	0x07
-+#define DRV2667_RAM_DURATION	0x08
-+#define DRV2667_RAM_ENVELOPE	0x09
-+
-+/* Control 1 Register */
-+#define DRV2667_25_VPP_GAIN		0x00
-+#define DRV2667_50_VPP_GAIN		0x01
-+#define DRV2667_75_VPP_GAIN		0x02
-+#define DRV2667_100_VPP_GAIN	0x03
-+#define DRV2667_DIGITAL_IN		0xfc
-+#define DRV2667_ANALOG_IN		(1 << 2)
-+
-+/* Control 2 Register */
-+#define DRV2667_GO			(1 << 0)
-+#define DRV2667_STANDBY		(1 << 6)
-+#define DRV2667_DEV_RST		(1 << 7)
-+
-+/* RAM Envelope settings */
-+#define DRV2667_NO_ENV			0x00
-+#define DRV2667_32_MS_ENV		0x01
-+#define DRV2667_64_MS_ENV		0x02
-+#define DRV2667_96_MS_ENV		0x03
-+#define DRV2667_128_MS_ENV		0x04
-+#define DRV2667_160_MS_ENV		0x05
-+#define DRV2667_192_MS_ENV		0x06
-+#define DRV2667_224_MS_ENV		0x07
-+#define DRV2667_256_MS_ENV		0x08
-+#define DRV2667_512_MS_ENV		0x09
-+#define DRV2667_768_MS_ENV		0x0a
-+#define DRV2667_1024_MS_ENV		0x0b
-+#define DRV2667_1280_MS_ENV		0x0c
-+#define DRV2667_1536_MS_ENV		0x0d
-+#define DRV2667_1792_MS_ENV		0x0e
-+#define DRV2667_2048_MS_ENV		0x0f
-+
-+/**
-+ * struct drv2667_data -
-+ * @input_dev - Pointer to the input device
-+ * @client - Pointer to the I2C client
-+ * @regmap - Register map of the device
-+ * @work - Work item used to off load the enable/disable of the vibration
-+ * @regulator - Pointer to the regulator for the IC
-+ * @magnitude - Magnitude of the vibration event
-+**/
-+struct drv2667_data {
-+	struct input_dev *input_dev;
-+	struct i2c_client *client;
-+	struct regmap *regmap;
-+	struct work_struct work;
-+	struct regulator *regulator;
-+	u32 page;
-+	u32 magnitude;
-+	u32 frequency;
-+};
-+
-+static struct reg_default drv2667_reg_defs[] = {
-+	{ DRV2667_STATUS, 0x02 },
-+	{ DRV2667_CTRL_1, 0x28 },
-+	{ DRV2667_CTRL_2, 0x40 },
-+	{ DRV2667_WV_SEQ_0, 0x00 },
-+	{ DRV2667_WV_SEQ_1, 0x00 },
-+	{ DRV2667_WV_SEQ_2, 0x00 },
-+	{ DRV2667_WV_SEQ_3, 0x00 },
-+	{ DRV2667_WV_SEQ_4, 0x00 },
-+	{ DRV2667_WV_SEQ_5, 0x00 },
-+	{ DRV2667_WV_SEQ_6, 0x00 },
-+	{ DRV2667_WV_SEQ_7, 0x00 },
-+	{ DRV2667_FIFO, 0x00 },
-+	{ DRV2667_PAGE, 0x00 },
-+};
-+
-+static int drv2667_set_waveform_freq(struct drv2667_data *haptics)
-+{
-+	unsigned int read_buf;
-+	int freq;
-+	int error;
-+
-+	/* Per the data sheet:
-+	 * Sinusoid Frequency (Hz) = 7.8125 x Frequency
-+	 */
-+	freq = (haptics->frequency * 1000) / 78125;
-+	if (freq <= 0) {
-+		dev_err(&haptics->client->dev,
-+			"ERROR: Frequency calculated to %i\n", freq);
-+		return -EINVAL;
-+	}
-+
-+	error = regmap_read(haptics->regmap, DRV2667_PAGE, &read_buf);
-+	if (error) {
-+		dev_err(&haptics->client->dev,
-+			"Failed to read the page number: %d\n", error);
-+		return -EIO;
-+	}
-+
-+	if (read_buf == DRV2667_PAGE_0 ||
-+		haptics->page != read_buf) {
-+		error = regmap_write(haptics->regmap,
-+				DRV2667_PAGE, haptics->page);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to set the page: %d\n", error);
-+			return -EIO;
-+		}
-+	}
-+
-+	error = regmap_write(haptics->regmap, DRV2667_RAM_FREQ,	freq);
-+	if (error)
-+		dev_err(&haptics->client->dev,
-+				"Failed to set the frequency: %d\n", error);
-+
-+	/* Reset back to original page */
-+	if (read_buf == DRV2667_PAGE_0 ||
-+		haptics->page != read_buf) {
-+		error = regmap_write(haptics->regmap, DRV2667_PAGE, read_buf);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+					"Failed to set the page: %d\n", error);
-+				return -EIO;
-+			}
-+	}
-+
-+	return error;
-+}
-+
-+static void drv2667_worker(struct work_struct *work)
-+{
-+	struct drv2667_data *haptics = container_of(work, struct drv2667_data, work);
-+	int error;
-+
-+	if (haptics->magnitude) {
-+		error = regmap_write(haptics->regmap,
-+				DRV2667_PAGE, haptics->page);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to set the page: %d\n", error);
-+			return;
-+		}
-+
-+		error = regmap_write(haptics->regmap, DRV2667_RAM_AMP,
-+				haptics->magnitude);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to set the amplitude: %d\n", error);
-+			return;
-+		}
-+
-+		error = regmap_write(haptics->regmap,
-+				DRV2667_PAGE, DRV2667_PAGE_0);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to set the page: %d\n", error);
-+			return;
-+		}
-+
-+		error = regmap_write(haptics->regmap,
-+				DRV2667_CTRL_2, DRV2667_GO);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to set the GO bit: %d\n", error);
-+		}
-+	} else {
-+		error = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-+				DRV2667_GO, 0);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to unset the GO bit: %d\n", error);
-+		}
-+	}
-+}
-+
-+static int drv2667_haptics_play(struct input_dev *input, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct drv2667_data *haptics = input_get_drvdata(input);
-+
-+	if (effect->u.rumble.strong_magnitude > 0)
-+		haptics->magnitude = effect->u.rumble.strong_magnitude;
-+	else if (effect->u.rumble.weak_magnitude > 0)
-+		haptics->magnitude = effect->u.rumble.weak_magnitude;
-+	else
-+		haptics->magnitude = 0;
-+
-+	schedule_work(&haptics->work);
-+
-+	return 0;
-+}
-+
-+static void drv2667_close(struct input_dev *input)
-+{
-+	struct drv2667_data *haptics = input_get_drvdata(input);
-+	int error;
-+
-+	cancel_work_sync(&haptics->work);
-+
-+	error = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-+				DRV2667_STANDBY, 1);
-+	if (error)
-+		dev_err(&haptics->client->dev,
-+			"Failed to enter standby mode: %d\n", error);
-+}
-+
-+static const struct reg_default drv2667_init_regs[] = {
-+	{ DRV2667_CTRL_2, 0 },
-+	{ DRV2667_CTRL_1, DRV2667_25_VPP_GAIN },
-+	{ DRV2667_WV_SEQ_0, 1 },
-+	{ DRV2667_WV_SEQ_1, 0 }
-+};
-+
-+static const struct reg_default drv2667_page1_init[] = {
-+	{ DRV2667_RAM_HDR_SZ, 0x05 },
-+	{ DRV2667_RAM_START_HI, 0x80 },
-+	{ DRV2667_RAM_START_LO, 0x06 },
-+	{ DRV2667_RAM_STOP_HI, 0x00 },
-+	{ DRV2667_RAM_STOP_LO, 0x09 },
-+	{ DRV2667_RAM_REPEAT_CT, 0 },
-+	{ DRV2667_RAM_DURATION, 0x05 },
-+	{ DRV2667_RAM_ENVELOPE, DRV2667_NO_ENV },
-+	{ DRV2667_RAM_AMP, 0x60 },
-+};
-+
-+static int drv2667_init(struct drv2667_data *haptics)
-+{
-+	int error;
-+
-+	/* Set default haptic frequency to 195Hz on Page 1*/
-+	haptics->frequency = 195;
-+	haptics->page = DRV2667_PAGE_1;
-+
-+	error = regmap_register_patch(haptics->regmap,
-+				      drv2667_init_regs,
-+				      ARRAY_SIZE(drv2667_init_regs));
-+	if (error) {
-+		dev_err(&haptics->client->dev,
-+			"Failed to write init registers: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	error = regmap_write(haptics->regmap, DRV2667_PAGE, haptics->page);
-+	if (error) {
-+		dev_err(&haptics->client->dev, "Failed to set page: %d\n",
-+			error);
-+		goto error_out;
-+	}
-+
-+	error = drv2667_set_waveform_freq(haptics);
-+	if (error)
-+		goto error_page;
-+
-+	error = regmap_register_patch(haptics->regmap,
-+				      drv2667_page1_init,
-+				      ARRAY_SIZE(drv2667_page1_init));
-+	if (error) {
-+		dev_err(&haptics->client->dev,
-+			"Failed to write page registers: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	error = regmap_write(haptics->regmap, DRV2667_PAGE, DRV2667_PAGE_0);
-+	return error;
-+
-+error_page:
-+	regmap_write(haptics->regmap, DRV2667_PAGE, DRV2667_PAGE_0);
-+error_out:
-+	return error;
-+}
-+
-+static const struct regmap_config drv2667_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+
-+	.max_register = DRV2667_MAX_REG,
-+	.reg_defaults = drv2667_reg_defs,
-+	.num_reg_defaults = ARRAY_SIZE(drv2667_reg_defs),
-+	.cache_type = REGCACHE_NONE,
-+};
-+
-+static int drv2667_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct drv2667_data *haptics;
-+	int error;
-+
-+	haptics = devm_kzalloc(&client->dev, sizeof(*haptics), GFP_KERNEL);
-+	if (!haptics)
-+		return -ENOMEM;
-+
-+	haptics->regulator = devm_regulator_get(&client->dev, "vbat");
-+	if (IS_ERR(haptics->regulator)) {
-+		error = PTR_ERR(haptics->regulator);
-+		dev_err(&client->dev,
-+			"unable to get regulator, error: %d\n", error);
-+		return error;
-+	}
-+
-+	haptics->input_dev = devm_input_allocate_device(&client->dev);
-+	if (!haptics->input_dev) {
-+		dev_err(&client->dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	haptics->input_dev->name = "drv2667:haptics";
-+	haptics->input_dev->dev.parent = client->dev.parent;
-+	haptics->input_dev->close = drv2667_close;
-+	input_set_drvdata(haptics->input_dev, haptics);
-+	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(haptics->input_dev, NULL,
-+					drv2667_haptics_play);
-+	if (error) {
-+		dev_err(&client->dev, "input_ff_create() failed: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	INIT_WORK(&haptics->work, drv2667_worker);
-+
-+	haptics->client = client;
-+	i2c_set_clientdata(client, haptics);
-+
-+	haptics->regmap = devm_regmap_init_i2c(client, &drv2667_regmap_config);
-+	if (IS_ERR(haptics->regmap)) {
-+		error = PTR_ERR(haptics->regmap);
-+		dev_err(&client->dev, "Failed to allocate register map: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	error = drv2667_init(haptics);
-+	if (error) {
-+		dev_err(&client->dev, "Device init failed: %d\n", error);
-+		return error;
-+	}
-+
-+	error = input_register_device(haptics->input_dev);
-+	if (error) {
-+		dev_err(&client->dev, "couldn't register input device: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int drv2667_suspend(struct device *dev)
-+{
-+	struct drv2667_data *haptics = dev_get_drvdata(dev);
-+	int ret = 0;
-+
-+	mutex_lock(&haptics->input_dev->mutex);
-+
-+	if (haptics->input_dev->users) {
-+		ret = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-+				DRV2667_STANDBY, 1);
-+		if (ret) {
-+			dev_err(dev, "Failed to set standby mode\n");
-+			regulator_disable(haptics->regulator);
-+			goto out;
-+		}
-+
-+		ret = regulator_disable(haptics->regulator);
-+		if (ret) {
-+			dev_err(dev, "Failed to disable regulator\n");
-+			regmap_update_bits(haptics->regmap,
-+					   DRV2667_CTRL_2,
-+					   DRV2667_STANDBY, 0);
-+		}
-+	}
-+out:
-+	mutex_unlock(&haptics->input_dev->mutex);
-+	return ret;
-+}
-+
-+static int drv2667_resume(struct device *dev)
-+{
-+	struct drv2667_data *haptics = dev_get_drvdata(dev);
-+	int ret = 0;
-+
-+	mutex_lock(&haptics->input_dev->mutex);
-+
-+	if (haptics->input_dev->users) {
-+		ret = regulator_enable(haptics->regulator);
-+		if (ret) {
-+			dev_err(dev, "Failed to enable regulator\n");
-+			goto out;
-+		}
-+
-+		ret = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-+					 DRV2667_STANDBY, 0);
-+		if (ret) {
-+			dev_err(dev, "Failed to unset standby mode\n");
-+			regulator_disable(haptics->regulator);
-+			goto out;
-+		}
-+
-+	}
-+
-+out:
-+	mutex_unlock(&haptics->input_dev->mutex);
-+	return ret;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(drv2667_pm_ops, drv2667_suspend, drv2667_resume);
-+
-+static const struct i2c_device_id drv2667_id[] = {
-+	{ "drv2667", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, drv2667_id);
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id drv2667_of_match[] = {
-+	{ .compatible = "ti,drv2667", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, drv2667_of_match);
-+#endif
-+
-+static struct i2c_driver drv2667_driver = {
-+	.probe		= drv2667_probe,
-+	.driver		= {
-+		.name	= "drv2667-haptics",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(drv2667_of_match),
-+		.pm	= &drv2667_pm_ops,
-+	},
-+	.id_table = drv2667_id,
-+};
-+module_i2c_driver(drv2667_driver);
-+
-+MODULE_ALIAS("platform:drv2667-haptics");
-+MODULE_DESCRIPTION("TI DRV2667 haptics driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Dan Murphy <dmurphy@ti.com>");
--- 
-1.7.9.5
+
+>
+> As I only have a PenMount 6000 to test I removed the multi touch support from the dirver.
+>
+> Bus 002 Device 006: ID 14e1:6000 Dialogue Technology Corp.
+> Device Descriptor:
+>   bLength                18
+>   bDescriptorType         1
+>   bcdUSB               1.10
+>   bDeviceClass            0 (Defined at Interface level)
+>   bDeviceSubClass         0
+>   bDeviceProtocol         0
+>   bMaxPacketSize0        64
+>   idVendor           0x14e1 Dialogue Technology Corp.
+>   idProduct          0x6000
+>   bcdDevice           a4.b4
+>   iManufacturer           1 DIALOGUE INC
+>   iProduct                2 PenMount USB
+>   iSerial                 0
+>   bNumConfigurations      1
+>   Configuration Descriptor:
+>     bLength                 9
+>     bDescriptorType         2
+>     wTotalLength           41
+>     bNumInterfaces          1
+>     bConfigurationValue     1
+>     iConfiguration          4 full speed
+>     bmAttributes         0xa0
+>       (Bus Powered)
+>       Remote Wakeup
+>     MaxPower              500mA
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        0
+>       bAlternateSetting       0
+>       bNumEndpoints           2
+>       bInterfaceClass         3 Human Interface Device
+>       bInterfaceSubClass      0 No Subclass
+>       bInterfaceProtocol      0 None
+>       iInterface              3 EndPoint1 Interrupt Pipe
+>         HID Device Descriptor:
+>           bLength                 9
+>           bDescriptorType        33
+>           bcdHID               1.01
+>           bCountryCode            0 Not supported
+>           bNumDescriptors         1
+>           bDescriptorType        34 Report
+>           wDescriptorLength      76
+>          Report Descriptors:
+>            ** UNAVAILABLE **
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x81  EP 1 IN
+>         bmAttributes            3
+>           Transfer Type            Interrupt
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0005  1x 5 bytes
+>         bInterval               1
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x02  EP 2 OUT
+>         bmAttributes            3
+>           Transfer Type            Interrupt
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0005  1x 5 bytes
+>         bInterval               1
+> Device Status:     0x0000
+>   (Bus Powered)
+>
+> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+> ---
+>  drivers/hid/Kconfig        |   6 ++
+>  drivers/hid/Makefile       |   1 +
+>  drivers/hid/hid-core.c     |   1 +
+>  drivers/hid/hid-ids.h      |   1 +
+>  drivers/hid/hid-penmount.c | 200 +++++++++++++++++++++++++++++++++++++++++++++
+>  5 files changed, 209 insertions(+)
+>  create mode 100644 drivers/hid/hid-penmount.c
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index c18d5d7..0351b66 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -530,6 +530,12 @@ config PANTHERLORD_FF
+>           Say Y here if you have a PantherLord/GreenAsia based game controller
+>           or adapter and want to enable force feedback support for it.
+>
+> +config HID_PENMOUNT
+> +       tristate "Penmount touch device"
+> +       depends on USB_HID
+> +       ---help---
+> +         Say Y here if you have a Penmount based touch controller.
+> +
+>  config HID_PETALYNX
+>         tristate "Petalynx Maxter remote control"
+>         depends on HID
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index 4dbac7f..e2850d8 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -71,6 +71,7 @@ obj-$(CONFIG_HID_NTRIG)               += hid-ntrig.o
+>  obj-$(CONFIG_HID_ORTEK)                += hid-ortek.o
+>  obj-$(CONFIG_HID_PRODIKEYS)    += hid-prodikeys.o
+>  obj-$(CONFIG_HID_PANTHERLORD)  += hid-pl.o
+> +obj-$(CONFIG_HID_PENMOUNT)     += hid-penmount.o
+>  obj-$(CONFIG_HID_PETALYNX)     += hid-petalynx.o
+>  obj-$(CONFIG_HID_PICOLCD)      += hid-picolcd.o
+>  hid-picolcd-y                  += hid-picolcd_core.o
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 12b6e67..6827196 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1880,6 +1880,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
+>  #if IS_ENABLED(CONFIG_HID_ROCCAT)
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 25cd674..3943ffe 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -722,6 +722,7 @@
+>  #define USB_DEVICE_ID_PENMOUNT_PCI     0x3500
+>  #define USB_DEVICE_ID_PENMOUNT_1610    0x1610
+>  #define USB_DEVICE_ID_PENMOUNT_1640    0x1640
+> +#define USB_DEVICE_ID_PENMOUNT_6000    0x6000
+>
+>  #define USB_VENDOR_ID_PETALYNX         0x18b1
+>  #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE   0x0037
+> diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
+> new file mode 100644
+> index 0000000..3a630d1
+> --- /dev/null
+> +++ b/drivers/hid/hid-penmount.c
+> @@ -0,0 +1,200 @@
+> +/*
+> + *  HID driver for PenMount touchscreens
+> + *
+> + *  Copyright (c) 2011 PenMount Touch Solutions <penmount@seed.net.tw>
+> + *
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/hid.h>
+> +#include <linux/version.h>
+> +#include <linux/input/mt.h>
+> +#include "hid-ids.h"
+> +
+> +struct penmount_priv {
+> +       u8 touch;
+> +       bool touching;
+> +       u16 x;
+> +       u16 y;
+> +};
+> +
+> +static int penmount_input_mapping(struct hid_device *hdev,
+> +               struct hid_input *hi, struct hid_field *field,
+> +               struct hid_usage *usage, unsigned long **bit, int *max)
+> +{
+> +       struct input_dev *dev = hi->input;
+> +       int mapped = 0;
+> +
+> +       switch (usage->hid & HID_USAGE_PAGE) {
+> +       case HID_UP_GENDESK:
+> +               switch (usage->hid) {
+> +               case HID_GD_X:
+> +                       hid_map_usage(hi, usage, bit, max, EV_ABS, ABS_X);
+> +                       mapped = 1;
+> +                       break;
+> +               case HID_GD_Y:
+> +                       hid_map_usage(hi, usage, bit, max, EV_ABS, ABS_Y);
+> +                       mapped = 1;
+> +                       break;
+> +               }
+> +               break;
+> +       case HID_UP_BUTTON:
+> +               hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+> +               mapped = 1;
+> +               break;
+> +       case HID_UP_DIGITIZER:
+> +               switch (usage->hid) {
+> +               case HID_DG_TIPSWITCH:
+> +                       hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+> +                       mapped = 1;
+> +                       break;
+> +               case HID_DG_CONTACTID:
+> +                       input_mt_init_slots(dev, 1, 0);
+> +                       mapped = -1;
+> +                       break;
+> +               case HID_DG_INRANGE:
+> +               case HID_DG_CONFIDENCE:
+> +                       mapped = -1;
+> +                       break;
+> +               }
+> +               break;
+> +       }
+> +
+> +       return mapped;
+> +}
+> +
+> +static void penmount_process(struct input_dev *dev, struct penmount_priv *priv)
+> +{
+> +       if (!priv->touching) {
+> +               if (priv->touch) {
+> +                       input_report_key(dev, BTN_TOUCH, 1);
+> +                       priv->touching = true;
+> +               }
+> +       } else {
+> +               if (!priv->touch) {
+> +                       input_report_key(dev, BTN_TOUCH, 0);
+> +                       priv->touching = false;
+> +               }
+> +       }
+> +
+> +       input_report_abs(dev, ABS_X, priv->x);
+> +       input_report_abs(dev, ABS_Y, priv->y);
+> +       input_sync(dev);
+> +
+> +       priv->touch = 0;
+> +}
+> +
+> +static int penmount_event(struct hid_device *hdev, struct hid_field *field,
+> +               struct hid_usage *usage, __s32 value)
+> +{
+> +       if (hdev->claimed & HID_CLAIMED_INPUT) {
+> +               struct penmount_priv *priv = hid_get_drvdata(hdev);
+> +               struct input_dev *dev = field->hidinput->input;
+> +
+> +               switch (usage->hid) {
+> +               case HID_DG_TIPSWITCH:
+> +                       priv->touch = value;
+> +                       break;
+> +               case HID_GD_X:
+> +                       priv->x = value;
+> +                       break;
+> +               case HID_GD_Y:
+> +                       priv->y = value;
+> +                       break;
+> +               default:
+> +                       /* fallback to the generic hidinput handling */
+> +                       return 0;
+> +               }
+> +
+> +               penmount_process(dev, priv);
+> +       }
+> +
+> +       if ((hdev->claimed & HID_CLAIMED_HIDDEV) && (hdev->hiddev_hid_event))
+> +               hdev->hiddev_hid_event(hdev, field, usage, value);
+> +
+> +       return 1;
+> +}
+> +
+> +static int penmount_probe(struct hid_device *hdev,
+> +               const struct hid_device_id *id)
+> +{
+> +       struct penmount_priv *priv;
+> +       int ret = 0;
+> +
+> +       priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+> +       if (!priv)
+> +               return -ENOMEM;
+> +
+> +       hid_set_drvdata(hdev, priv);
+> +
+> +       ret = hid_parse(hdev);
+> +       if (ret) {
+> +               hid_err(hdev, "parse failed\n");
+> +               goto err_free;
+> +       }
+> +
+> +       ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> +       if (ret) {
+> +               hid_err(hdev, "hw start failed\n");
+> +               goto err_free;
+> +       }
+> +
+> +       return 0;
+> +
+> +err_free:
+> +       kfree(priv);
+> +       return ret;
+> +}
+> +
+> +static void penmount_remove(struct hid_device *hdev)
+> +{
+> +       struct penmount_priv *priv = hid_get_drvdata(hdev);
+> +
+> +       hid_hw_stop(hdev);
+> +       kfree(priv);
+> +}
+> +
+> +static const struct hid_device_id penmount_devices[] = {
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
+> +       { }
+> +};
+> +MODULE_DEVICE_TABLE(hid, penmount_devices);
+> +
+> +static const struct hid_usage_id penmount_usages[] = {
+> +       { HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
+> +       { HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1 }
+> +};
+> +
+> +static struct hid_driver penmount_driver = {
+> +       .name = "hid-penmount",
+> +       .id_table = penmount_devices,
+> +       .probe = penmount_probe,
+> +       .remove = penmount_remove,
+> +       .input_mapping = penmount_input_mapping,
+> +       .usage_table = penmount_usages,
+> +       .event = penmount_event,
+> +};
+> +
+> +static int __init penmount_init(void)
+> +{
+> +       return hid_register_driver(&penmount_driver);
+> +}
+> +
+> +static void __exit penmount_exit(void)
+> +{
+> +       hid_unregister_driver(&penmount_driver);
+> +}
+> +
+> +module_init(penmount_init);
+> +module_exit(penmount_exit);
+> +
+> +MODULE_AUTHOR("PenMount Touch Solutions <penmount@seed.net.tw>");
+> +MODULE_DESCRIPTION("PenMount HID TouchScreen Driver");
+> +MODULE_LICENSE("GPL");
+> --
+> 1.9.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

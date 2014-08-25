@@ -1,48 +1,49 @@
-From: Sistemas administrador <rukiyeasar@mersin.edu.tr>
-Subject: (unknown)
-Date: Mon, 25 Aug 2014 17:16:29 +0300 (EEST)
-Message-ID: <88504569.11065.1408976189257.JavaMail.root@mail.mersin.edu.tr>
-Reply-To: sistemasadmin@barid.com
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
+ next hid_start_in
+Date: Mon, 25 Aug 2014 10:26:26 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1408251025000.1385-100000@iolanthe.rowland.org>
+References: <CAOVJa8FT_KvjNS=EPuxNmetmyicDX0jnPOv3A5Hb9rCOiaN47A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.mersin.edu.tr ([193.255.128.3]:63336 "EHLO
-	mail.mersin.edu.tr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932492AbaHYOYI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Aug 2014 10:24:08 -0400
-Subject: 
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAOVJa8FT_KvjNS=EPuxNmetmyicDX0jnPOv3A5Hb9rCOiaN47A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: vichy <vichy.kuo-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-ATENCI=C3=93N;
+On Mon, 25 Aug 2014, vichy wrote:
 
-Su buz=C3=B3n ha superado el l=C3=ADmite de almacenamiento, que es de 5=
- GB definidos por el administrador, quien actualmente est=C3=A1 ejecuta=
-ndo en 10.9GB, no puede ser capaz de enviar o recibir correo nuevo hast=
-a que vuelva a validar su buz=C3=B3n de correo electr=C3=B3nico. Para r=
-evalidar su buz=C3=B3n de correo, env=C3=ADe la siguiente informaci=C3=B3=
-n a continuaci=C3=B3n:
+> hi Oliver:
+> 
+> 2014-08-25 18:21 GMT+08:00 Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>:
+> > On Fri, 2014-08-22 at 14:23 -0400, Alan Stern wrote:
+> >> On Sat, 23 Aug 2014, vichy wrote:
+> >>
+> >> > from your patch, I have some questions:
+> >> > a. in Alan's version, if both HID_CLEAR_HALT and HID_RESET_PENDING are
+> >> > set, hid_reset will both "clear ep halt" and "reset devcie".
+> >> > But in original one, even HID_CLEAR_HALT and HID_RESET_PENDING are
+> >> > both set, hid_reset only do one of them.
+> >>
+> >> Yes.  In my patch, the clear-halt handler will turn on the
+> >> HID_RESET_PENDING bit if something goes wrong.  In that case we want to
+> >> do both things.
+> >
+> > Why? If we reset, why bother clearing a halt? Especially as this
+> > may mean waiting the full 5 seconds for a timeout.
+> I think what Alan mean is IF CLEAR HALT fail, we reset the device.
+> That is what below "In that case" mean.
+>  "In that case we want to do both things."
 
-nombre:
-Nombre de usuario:
-contrase=C3=B1a:
-Confirmar contrase=C3=B1a:
-E-mail:
-tel=C3=A9fono:
+Exactly.  Suppose initially HID_CLEAR_HALT is set and HID_RESET_PENDING 
+is off.  If the usb_clear_halt call fails, we want to recover by 
+performing a reset.
 
-Si usted no puede revalidar su buz=C3=B3n, el buz=C3=B3n se deshabilita=
-r=C3=A1!
+Alan Stern
 
-Disculpa las molestias.
-C=C3=B3digo de verificaci=C3=B3n: es: 006524
-Correo Soporte T=C3=A9cnico =C2=A9 2014
-
-=C2=A1gracias
-Sistemas administrador
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

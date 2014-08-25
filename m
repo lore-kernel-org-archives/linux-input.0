@@ -1,40 +1,33 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] HID: logitech-dj: prevent false errors to be shown
-Date: Mon, 25 Aug 2014 03:00:18 -0500 (CDT)
-Message-ID: <alpine.LNX.2.00.1408250300030.23162@pobox.suse.cz>
-References: <1408738566-6805-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1408250249150.23162@pobox.suse.cz> <20140825075552.GA298@x4>
+Subject: Re: [PATCH 00/12] HID: Convert UHID to new HID transport-layer
+Date: Mon, 25 Aug 2014 10:34:21 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1408251033450.2992@pobox.suse.cz>
+References: <1406646866-999-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140825075552.GA298@x4>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Markus Trippelsdorf <markus@trippelsdorf.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Hawkes <hawkes@google.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:36473 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750769AbaHYIe0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Aug 2014 04:34:26 -0400
+In-Reply-To: <1406646866-999-1-git-send-email-dh.herrmann@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Mon, 25 Aug 2014, Markus Trippelsdorf wrote:
+On Tue, 29 Jul 2014, David Herrmann wrote:
 
-> > > Commit "HID: logitech: perform bounds checking on device_id early
-> > > enough" unfortunately leaks some errors to dmesg which are not real
-> > > ones:
-> > > - if the report is not a DJ one, then there is not point in checking
-> > >   the device_id
-> > > - the receiver (index 0) can also receive some notifications which
-> > >   can be safely ignored given the current implementation
-> > > 
-> > > Move out the test regarding the report_id and also discards
-> > > printing errors when the receiver got notified.
-> > > 
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > 
-> > I have now queued this one for 3.17. Adding Markus to CC -- Markus, this 
-> > should make the spurious error messages you have reported go away.
+> Hi
 > 
-> Indeed it does. Feel free to add:
-> 
-> Reported-and-tested-by: Markus Trippelsdorf <markus@trippelsdorf.de>
+> When Benjamin cleanup up the transport layer, he left UHID mostly unconverted
+> due to ABI issues. I promised to take a look, so here're the patches.
 
-Excellent, thanks. Will be pushing it to Linus this week.
+Hi David,
+
+now queued for 3.18 in for-3.18/uhid branch.
+
+Thanks,
 
 -- 
 Jiri Kosina

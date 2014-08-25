@@ -1,44 +1,74 @@
-From: vichy <vichy.kuo@gmail.com>
-Subject: Re: [PATCH 1/1] HID: usbhid: add usb_clear_halt determination for
- next hid_start_in
-Date: Mon, 25 Aug 2014 20:56:02 +0800
-Message-ID: <CAOVJa8FT_KvjNS=EPuxNmetmyicDX0jnPOv3A5Hb9rCOiaN47A@mail.gmail.com>
-References: <Pine.LNX.4.44L0.1408221358030.967-100000@iolanthe.rowland.org>
-	<1408962087.10300.15.camel@linux-fkkt.site>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: [PATCH v2 0/7] Second batch of cleanups for cros_ec
+Date: Mon, 25 Aug 2014 15:40:01 +0200
+Message-ID: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f51.google.com ([209.85.219.51]:57718 "EHLO
-	mail-oa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753406AbaHYM4D (ORCPT
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:46134 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932261AbaHYNkZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Aug 2014 08:56:03 -0400
-In-Reply-To: <1408962087.10300.15.camel@linux-fkkt.site>
+	Mon, 25 Aug 2014 09:40:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jkosina@suse.cz>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
-hi Oliver:
+This is a second batch of cleanups patches for the mfd cros_ec
+driver and its subdevices drivers. The first batch of cleanups
+was posted by Doug Anderson [0] and have already been merged.
+The patches were picked from the ChromeOS 3.8 kernel and after
+these no cleanups patches for cros_ec are left, only commits
+that add cros ec support not yet available in mainline.
 
-2014-08-25 18:21 GMT+08:00 Oliver Neukum <oneukum@suse.de>:
-> On Fri, 2014-08-22 at 14:23 -0400, Alan Stern wrote:
->> On Sat, 23 Aug 2014, vichy wrote:
->>
->> > from your patch, I have some questions:
->> > a. in Alan's version, if both HID_CLEAR_HALT and HID_RESET_PENDING are
->> > set, hid_reset will both "clear ep halt" and "reset devcie".
->> > But in original one, even HID_CLEAR_HALT and HID_RESET_PENDING are
->> > both set, hid_reset only do one of them.
->>
->> Yes.  In my patch, the clear-halt handler will turn on the
->> HID_RESET_PENDING bit if something goes wrong.  In that case we want to
->> do both things.
->
-> Why? If we reset, why bother clearing a halt? Especially as this
-> may mean waiting the full 5 seconds for a timeout.
-I think what Alan mean is IF CLEAR HALT fail, we reset the device.
-That is what below "In that case" mean.
- "In that case we want to do both things."
+This is a second version of the patch series that addresses
+issues pointed out by Doug Anderson and Lee Jones on v1 [1].
 
-BR,
+There is almost no functionality added on this series but the
+idea is to reduce the delta between the mainline drivers and
+the ones in the downstream Chrome OS 3.8 kernel so the missing
+functionality can be added on top once these cleanups patches
+are merged. The missing functionlity currently in mainline is:
+
+- Chrome OS Embedded Controller userspace device interface
+- Chrome OS Embedded Controller Low Pin Count (LPC) inteface
+- Access to vboot context stored on a block device
+- Access to vboot context stored on EC's nvram
+
+The patches in this series are authored by different people
+(all on cc) and consist of the following:
+
+Andrew Bresticker (3):
+  mfd: cros_ec: stop calling ->cmd_xfer() directly
+  mfd: cros_ec: move locking into cros_ec_cmd_xfer
+  mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
+
+Derek Basehore (1):
+  i2c: i2c-cros-ec-tunnel: Set retries to 3
+
+Doug Anderson (1):
+  mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
+
+Todd Broch (2):
+  mfd: cros_ec: Instantiate sub-devices from device tree
+  Input: cros_ec_keyb: Optimize ghosting algorithm.
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c |  5 +-
+ drivers/input/keyboard/cros_ec_keyb.c   | 94 ++++++++++++++++++---------------
+ drivers/mfd/cros_ec.c                   | 78 ++++++++++++++++++++-------
+ drivers/mfd/cros_ec_spi.c               | 20 ++++---
+ include/linux/mfd/cros_ec.h             | 24 ++++++---
+ 5 files changed, 141 insertions(+), 80 deletions(-)
+
+Patches #1, #2, #6 and #7 do not depend of others so they can be
+merged independently but patches #3, #4 and #5 have to be merged
+in that specific order since they depend on the previous one. 
+
+Best regards,
+Javier
+
+[0]: https://lkml.org/lkml/2014/6/16/681
+[1]: http://comments.gmane.org/gmane.linux.drivers.i2c/19256
+

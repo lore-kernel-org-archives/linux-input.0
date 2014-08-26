@@ -1,50 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: ALPS - suppress message about 'Unknown touchpad'
-Date: Mon, 25 Aug 2014 11:30:32 -0700
-Message-ID: <20140825183031.GA5151@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: input: force generic axis to be mapped to their
+ user space axis
+Date: Tue, 26 Aug 2014 09:25:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1408260925420.2992@pobox.suse.cz>
+References: <1408986430-24451-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:54535 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752760AbaHYSah (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Aug 2014 14:30:37 -0400
-Content-Disposition: inline
+Received: from cantor2.suse.de ([195.135.220.15]:36116 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755391AbaHZHZ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Aug 2014 03:25:56 -0400
+In-Reply-To: <1408986430-24451-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Paul Menzel <paulepanter@users.sourceforge.net>, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: =?ISO-8859-15?Q?=C9ric_Brunet?= <Eric.Brunet@lps.ens.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When we fail to match data returned by E7 and EC reports we state that we
-found "Unknown ALPS touchpad" whereas it is most likely it is not ALPS
-touchpad at all. Change wording a bit and reduce the message to debug so
-that it does not litter users logs and confuse them.
+On Mon, 25 Aug 2014, Benjamin Tissoires wrote:
 
-Reported-by: Paul Menzel <paulepanter@users.sourceforge.net>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/alps.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> Atmel 840B digitizer presents a stylus interface which reports twice
+> the X coordinate and then twice the Y coordinate. In its current
+> implementation, hid-input assign the first X to X, then the second to=
+ Y,
+> then the first Y to Z, then the second one to RX.
+>=20
+> This is wrong, and X should always be mapped to X, no matter what.
+> A solution consists in forcing X, Y, Z, RX, RY, RZ to be mapped to th=
+eir
+> correct user space counter part.
+>=20
+> Reported-by: =C3=89ric Brunet <Eric.Brunet@lps.ens.fr>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index a59a1a6..a956b98 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -2234,8 +2234,8 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- 		return 0;
- 	}
- 
--	psmouse_info(psmouse,
--		     "Unknown ALPS touchpad: E7=%3ph, EC=%3ph\n", e7, ec);
-+	psmouse_dbg(psmouse,
-+		    "Likely not an ALPS touchpad: E7=%3ph, EC=%3ph\n", e7, ec);
- 
- 	return -EINVAL;
- }
--- 
-2.1.0.rc2.206.gedb03e5
+Applied, thanks.
 
-
--- 
-Dmitry
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

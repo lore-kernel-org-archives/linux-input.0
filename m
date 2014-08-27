@@ -1,31 +1,58 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [BUG] hid-multitouch ignores all event after recent patch in
- 3.17-rc1 to input_mt_sync_frame()
-Date: Wed, 27 Aug 2014 08:20:28 +0200
-Message-ID: <53FD78AC.6060006@euromail.se>
-References: <CA+BWVURnxeQUJnDDhO=q=67sCK2NGq7_W=8wAN5qDjTKk14yAg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 1/2] HID: magicmouse: sanity check report size in raw_event()
+ callback
+Date: Wed, 27 Aug 2014 09:12:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1408270911130.2992@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:34743 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754562AbaH0GnH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Aug 2014 02:43:07 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 72EE284090
-	for <linux-input@vger.kernel.org>; Wed, 27 Aug 2014 08:17:54 +0200 (CEST)
-In-Reply-To: <CA+BWVURnxeQUJnDDhO=q=67sCK2NGq7_W=8wAN5qDjTKk14yAg@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:57680 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751871AbaH0HM0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Aug 2014 03:12:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Reyad Attiyat <reyad.attiyat@gmail.com>, bleung@chromium.org, dmitry.torokhov@gmail.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-> What would be the best way to solve this, is it ok to simply re add that line?
+The report passed to us from transport driver could potentially be 
+arbitrarily large, therefore we better sanity-check it so that 
+magicmouse_emit_touch() gets only valid values of raw_id.
 
-Not quite, but put an "else" in front and it is ok. A patch to that effect is
-already on its way to Linus, so you will soon be able to cherry-pick it.
+Cc: stable@vger.kernel.org
+Reported-by: Steven Vittitoe <scvitti@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-magicmouse.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Thanks,
-Henrik
-
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index ecc2cbf..29a74c1 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -290,6 +290,11 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 		if (size < 4 || ((size - 4) % 9) != 0)
+ 			return 0;
+ 		npoints = (size - 4) / 9;
++		if (npoints > 15) {
++			hid_warn(hdev, "invalid size value (%d) for TRACKPAD_REPORT_ID\n",
++					size);
++			return 0;
++		}
+ 		msc->ntouches = 0;
+ 		for (ii = 0; ii < npoints; ii++)
+ 			magicmouse_emit_touch(msc, ii, data + ii * 9 + 4);
+@@ -307,6 +312,11 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 		if (size < 6 || ((size - 6) % 8) != 0)
+ 			return 0;
+ 		npoints = (size - 6) / 8;
++		if (npoints > 15) {
++			hid_warn(hdev, "invalid size value (%d) for MOUSE_REPORT_ID\n",
++					size);
++			return 0;
++		}
+ 		msc->ntouches = 0;
+ 		for (ii = 0; ii < npoints; ii++)
+ 			magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
+-- 
+1.9.2

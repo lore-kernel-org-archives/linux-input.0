@@ -1,36 +1,31 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: [BUG] hid-multitouch ignores all event after recent patch in 3.17-rc1
- to input_mt_sync_frame()
-Date: Wed, 27 Aug 2014 00:45:17 -0500
-Message-ID: <CA+BWVURnxeQUJnDDhO=q=67sCK2NGq7_W=8wAN5qDjTKk14yAg@mail.gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [BUG] hid-multitouch ignores all event after recent patch in
+ 3.17-rc1 to input_mt_sync_frame()
+Date: Wed, 27 Aug 2014 08:20:28 +0200
+Message-ID: <53FD78AC.6060006@euromail.se>
+References: <CA+BWVURnxeQUJnDDhO=q=67sCK2NGq7_W=8wAN5qDjTKk14yAg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:57936 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756560AbaH0Fpi (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:34743 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754562AbaH0GnH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Aug 2014 01:45:38 -0400
-Received: by mail-wi0-f175.google.com with SMTP id ho1so5230923wib.2
-        for <linux-input@vger.kernel.org>; Tue, 26 Aug 2014 22:45:37 -0700 (PDT)
+	Wed, 27 Aug 2014 02:43:07 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 72EE284090
+	for <linux-input@vger.kernel.org>; Wed, 27 Aug 2014 08:17:54 +0200 (CEST)
+In-Reply-To: <CA+BWVURnxeQUJnDDhO=q=67sCK2NGq7_W=8wAN5qDjTKk14yAg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: rydberg@euromail.se, bleung@chromium.org, dmitry.torokhov@gmail.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Reyad Attiyat <reyad.attiyat@gmail.com>, bleung@chromium.org, dmitry.torokhov@gmail.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Hello Henrik Rydberg,
+> What would be the best way to solve this, is it ok to simply re add that line?
 
-I noticed a recent patch to input-mt.c breaks hid-multitouch on my MS Surface:
+Not quite, but put an "else" in front and it is ok. A patch to that effect is
+already on its way to Linus, so you will soon be able to cherry-pick it.
 
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/input-mt.c?id=f8ec894945e7d205ce62be59e55e72c4304e4739
+Thanks,
+Henrik
 
-This device uses a special quirk in the hid-multitouch driver to
-ignore duplicate input events. This quirk uses the inline function
-input_mt_is_used() to determine if an input frame is a duplicate. In
-the patch you remove the line, mt->frame++, from the function
-input_mt_sync_frame(). This causes the is_used function to return true
-as the frame number never increases.
-
-What would be the best way to solve this, is it ok to simply re add that line?
-
-Thank You,
-Reyad Attiyat

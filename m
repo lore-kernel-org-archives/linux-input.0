@@ -1,59 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: misc: drv260x: add check for ERM mode and LRA
- Libraries
-Date: Tue, 26 Aug 2014 15:46:18 -0700
-Message-ID: <20140826224618.GD8377@core.coreip.homeip.net>
-References: <1408716696-1126-1-git-send-email-dmurphy@ti.com>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: [BUG] hid-multitouch ignores all event after recent patch in 3.17-rc1
+ to input_mt_sync_frame()
+Date: Wed, 27 Aug 2014 00:45:17 -0500
+Message-ID: <CA+BWVURnxeQUJnDDhO=q=67sCK2NGq7_W=8wAN5qDjTKk14yAg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1408716696-1126-1-git-send-email-dmurphy@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Murphy <dmurphy@ti.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:57936 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756560AbaH0Fpi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Aug 2014 01:45:38 -0400
+Received: by mail-wi0-f175.google.com with SMTP id ho1so5230923wib.2
+        for <linux-input@vger.kernel.org>; Tue, 26 Aug 2014 22:45:37 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: rydberg@euromail.se, bleung@chromium.org, dmitry.torokhov@gmail.com, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Fri, Aug 22, 2014 at 09:11:36AM -0500, Dan Murphy wrote:
-> Add a check to ensure that LRA libraries are not mixed with
-> the ERM mode.
-> 
-> If ERM mode and the Library is empty "OR" the
-> LRA library then exit.
-> 
-> As the LRA and empty libraries are not applicable for
-> the ERM actuator.
-> 
-> Signed-off-by: Dan Murphy <dmurphy@ti.com>
+Hello Henrik Rydberg,
 
-Applied, thank you.
+I noticed a recent patch to input-mt.c breaks hid-multitouch on my MS Surface:
 
-> ---
->  drivers/input/misc/drv260x.c |    8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-> index a7a19e6..d6a26a7 100644
-> --- a/drivers/input/misc/drv260x.c
-> +++ b/drivers/input/misc/drv260x.c
-> @@ -564,6 +564,14 @@ static int drv260x_probe(struct i2c_client *client,
->  		return -EINVAL;
->  	}
->  
-> +	if (haptics->mode == DRV260X_ERM_MODE &&
-> +	    haptics->library == DRV260X_LIB_EMPTY ||
-> +	    haptics->library == DRV260X_LIB_LRA) {
-> +		dev_err(&client->dev,
-> +			"ERM Mode with LRA Library mismatch\n");
-> +		return -EINVAL;
-> +	}
-> +
->  	haptics->regulator = devm_regulator_get(&client->dev, "vbat");
->  	if (IS_ERR(haptics->regulator)) {
->  		error = PTR_ERR(haptics->regulator);
-> -- 
-> 1.7.9.5
-> 
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/input-mt.c?id=f8ec894945e7d205ce62be59e55e72c4304e4739
 
--- 
-Dmitry
+This device uses a special quirk in the hid-multitouch driver to
+ignore duplicate input events. This quirk uses the inline function
+input_mt_is_used() to determine if an input frame is a duplicate. In
+the patch you remove the line, mt->frame++, from the function
+input_mt_sync_frame(). This causes the is_used function to return true
+as the frame number never increases.
+
+What would be the best way to solve this, is it ok to simply re add that line?
+
+Thank You,
+Reyad Attiyat

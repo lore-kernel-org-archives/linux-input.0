@@ -1,155 +1,74 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: [PATCH] HID: add support for PenMount HID TouchScreen Driver v3
-Date: Wed, 27 Aug 2014 11:35:15 +0200
-Message-ID: <1409132115-31707-1-git-send-email-christian.gmeiner@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/2] HID: magicmouse: sanity check report size in
+ raw_event() callback
+Date: Wed, 27 Aug 2014 09:54:33 -0400
+Message-ID: <CAN+gG=G_o4ZBDqYT+HvYCW2TwQaw-TcF1FzBSp7dzFpfet_Z+w@mail.gmail.com>
+References: <alpine.LNX.2.00.1408270911130.2992@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f177.google.com ([209.85.212.177]:37104 "EHLO
-	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932862AbaH0JeV (ORCPT
+Received: from mail-qc0-f178.google.com ([209.85.216.178]:48903 "EHLO
+	mail-qc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933404AbaH0Nye (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Aug 2014 05:34:21 -0400
-Received: by mail-wi0-f177.google.com with SMTP id ho1so103553wib.16
-        for <linux-input@vger.kernel.org>; Wed, 27 Aug 2014 02:34:17 -0700 (PDT)
+	Wed, 27 Aug 2014 09:54:34 -0400
+In-Reply-To: <alpine.LNX.2.00.1408270911130.2992@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: benjamin.tissoires@gmail.com, Christian Gmeiner <christian.gmeiner@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-This patch adds a seperate hid-penmount driver to work
-around an issue with the HID report descriptor. The
-descriptor does not contain the ContactID usage and as
-result the touchscreen is represented as normal mouse
-to the system.
+On Wed, Aug 27, 2014 at 3:12 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> The report passed to us from transport driver could potentially be
+> arbitrarily large, therefore we better sanity-check it so that
+> magicmouse_emit_touch() gets only valid values of raw_id.
+>
+> Cc: stable@vger.kernel.org
+> Reported-by: Steven Vittitoe <scvitti@google.com>
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-This driver maps the button 0 emitted by the touchscreen
-to BTN_TOUCH. This makes it possible to use touch events
-in userspace.
+Fair enough.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-changes from v1 to v2
- - incorporated feedback from Benjamin Tissoires
-changes from v2 to v3
- - add missing hid-core.c and hid-ids.h changes
+Cheers,
+Benjamin
 
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
----
- drivers/hid/Kconfig        |  6 ++++++
- drivers/hid/Makefile       |  1 +
- drivers/hid/hid-core.c     |  1 +
- drivers/hid/hid-ids.h      |  1 +
- drivers/hid/hid-penmount.c | 51 ++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 60 insertions(+)
- create mode 100644 drivers/hid/hid-penmount.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index c18d5d7..0351b66 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -530,6 +530,12 @@ config PANTHERLORD_FF
- 	  Say Y here if you have a PantherLord/GreenAsia based game controller
- 	  or adapter and want to enable force feedback support for it.
- 
-+config HID_PENMOUNT
-+	tristate "Penmount touch device"
-+	depends on USB_HID
-+	---help---
-+	  Say Y here if you have a Penmount based touch controller.
-+
- config HID_PETALYNX
- 	tristate "Petalynx Maxter remote control"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 4dbac7f..e2850d8 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -71,6 +71,7 @@ obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
- obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
- obj-$(CONFIG_HID_PRODIKEYS)	+= hid-prodikeys.o
- obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
-+obj-$(CONFIG_HID_PENMOUNT)	+= hid-penmount.o
- obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
- obj-$(CONFIG_HID_PICOLCD)	+= hid-picolcd.o
- hid-picolcd-y			+= hid-picolcd_core.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 12b6e67..6827196 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1880,6 +1880,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
- #if IS_ENABLED(CONFIG_HID_ROCCAT)
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 25cd674..3943ffe 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -722,6 +722,7 @@
- #define USB_DEVICE_ID_PENMOUNT_PCI	0x3500
- #define USB_DEVICE_ID_PENMOUNT_1610	0x1610
- #define USB_DEVICE_ID_PENMOUNT_1640	0x1640
-+#define USB_DEVICE_ID_PENMOUNT_6000	0x6000
- 
- #define USB_VENDOR_ID_PETALYNX		0x18b1
- #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
-diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
-new file mode 100644
-index 0000000..02de4b8
---- /dev/null
-+++ b/drivers/hid/hid-penmount.c
-@@ -0,0 +1,51 @@
-+/*
-+ *  HID driver for PenMount touchscreens
-+ *
-+ *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner@gmail.com>
-+ *
-+ *  based on hid-penmount copyrighted by
-+ *    PenMount Touch Solutions <penmount@seed.net.tw>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/hid.h>
-+#include "hid-ids.h"
-+
-+static int penmount_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	int mapped = 0;
-+
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
-+		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
-+		mapped = 1;
-+	}
-+
-+	return mapped;
-+}
-+
-+static const struct hid_device_id penmount_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, penmount_devices);
-+
-+static struct hid_driver penmount_driver = {
-+	.name = "hid-penmount",
-+	.id_table = penmount_devices,
-+	.input_mapping = penmount_input_mapping,
-+};
-+
-+module_hid_driver(penmount_driver);
-+
-+MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
-+MODULE_DESCRIPTION("PenMount HID TouchScreen driver");
-+MODULE_LICENSE("GPL");
--- 
-1.9.3
-
+> ---
+>  drivers/hid/hid-magicmouse.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+>
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index ecc2cbf..29a74c1 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -290,6 +290,11 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+>                 if (size < 4 || ((size - 4) % 9) != 0)
+>                         return 0;
+>                 npoints = (size - 4) / 9;
+> +               if (npoints > 15) {
+> +                       hid_warn(hdev, "invalid size value (%d) for TRACKPAD_REPORT_ID\n",
+> +                                       size);
+> +                       return 0;
+> +               }
+>                 msc->ntouches = 0;
+>                 for (ii = 0; ii < npoints; ii++)
+>                         magicmouse_emit_touch(msc, ii, data + ii * 9 + 4);
+> @@ -307,6 +312,11 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+>                 if (size < 6 || ((size - 6) % 8) != 0)
+>                         return 0;
+>                 npoints = (size - 6) / 8;
+> +               if (npoints > 15) {
+> +                       hid_warn(hdev, "invalid size value (%d) for MOUSE_REPORT_ID\n",
+> +                                       size);
+> +                       return 0;
+> +               }
+>                 msc->ntouches = 0;
+>                 for (ii = 0; ii < npoints; ii++)
+>                         magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
+> --
+> 1.9.2
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

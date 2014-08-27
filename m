@@ -1,83 +1,155 @@
-From: Thomas Poussevin <thomas.poussevin@parrot.com>
-Subject: Re: Input sync flag when registering.
-Date: Wed, 27 Aug 2014 11:12:43 +0200
-Message-ID: <53FDA10B.8010601@parrot.com>
-References: <53FAF963.9020403@parrot.com> <20140825181906.GA35881@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH] HID: add support for PenMount HID TouchScreen Driver v3
+Date: Wed, 27 Aug 2014 11:35:15 +0200
+Message-ID: <1409132115-31707-1-git-send-email-christian.gmeiner@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.aswsp.com ([193.34.35.150]:60217 "EHLO mail.aswsp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751721AbaH0JMq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Aug 2014 05:12:46 -0400
-In-Reply-To: <20140825181906.GA35881@core.coreip.homeip.net>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:37104 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932862AbaH0JeV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Aug 2014 05:34:21 -0400
+Received: by mail-wi0-f177.google.com with SMTP id ho1so103553wib.16
+        for <linux-input@vger.kernel.org>; Wed, 27 Aug 2014 02:34:17 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: benjamin.tissoires@gmail.com, Christian Gmeiner <christian.gmeiner@gmail.com>
 
-Le 25/08/2014 20:19, Dmitry Torokhov a =E9crit :
-> Hi Thomas,
->
-> On Mon, Aug 25, 2014 at 10:52:51AM +0200, Thomas Poussevin wrote:
->> Hi,
->> I noticed that with touchscreen drivers that don't explicitly call a
->> input_sync after input_register_device, suspend to ram is blocked if
->> no event is sent, because the input_dev created is considered as not
->> synchronized. The problem was seen with Atmel mxt driver. When any
->> event is sent, the driver explicitly ask a sync, so the problem is
->> solved.
->> The problem occurs only when the screen has never send any event
->> before suspend to ram.
->> I solved it setting the sync element to true (when input dev is
->> created, no element is pending).
->> Is there a better way to solve the problem ?
-> It is not clear to me what the problem is. The kernel as far as I
-> remember never checked state of 'sync' field when executing suspend
-> callbacks. Moreover there is no longer 'sync' field at all in mainlin=
-e.
->
-> It sounds like some userspace code makes assumptions that are not alw=
-ays
-> valid.
->
-> Thanks.
->
+This patch adds a seperate hid-penmount driver to work
+around an issue with the HID report descriptor. The
+descriptor does not contain the ContactID usage and as
+result the touchscreen is represented as normal mouse
+to the system.
 
-Indeed, there is no longer 'sync' field in mainline. I realized i misse=
-d=20
-some commits, specifically  "Input: Send events one packet at a time" o=
-ne.
+This driver maps the button 0 emitted by the touchscreen
+to BTN_TOUCH. This makes it possible to use touch events
+in userspace.
 
-Before theses commits, there used to be this problem, that is not=20
-relevant anymore :
-It happened when Atmel mxt driver goes to suspend. mxt_stop func send a=
-=20
-"input_sync" to mxt input device.
-A input_sync has never been send before in input events.
-The input_sync consists in : input_event(dev, EV_SYN, SYN_REPORT, 0);
-In input_handle_event, if (!dev->sync) , then dev->sync =3D true;=20
-disposition =3D INPUT_PASS_TO_HANDLERS; . So finally there is a call to=
-=20
-input_pass_event(dev, type, code, value);
-But the input device created by mxt driver is allready suspending.
-Suspend is canceled.
+changes from v1 to v2
+ - incorporated feedback from Benjamin Tissoires
+changes from v2 to v3
+ - add missing hid-core.c and hid-ids.h changes
 
-So i have 2 solutions (other than kernel update): either, in mxt driver=
-,=20
-sending a input_sync after creating input device in order than the=20
-suspend sync call is not the first one (dev->sync will be true next=20
-time). Either, in the input driver, the default value of sync field is=20
-true (coherent with a just created device). I choosed this one.
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+---
+ drivers/hid/Kconfig        |  6 ++++++
+ drivers/hid/Makefile       |  1 +
+ drivers/hid/hid-core.c     |  1 +
+ drivers/hid/hid-ids.h      |  1 +
+ drivers/hid/hid-penmount.c | 51 ++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 60 insertions(+)
+ create mode 100644 drivers/hid/hid-penmount.c
 
-Thanks.
-Thomas.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c18d5d7..0351b66 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -530,6 +530,12 @@ config PANTHERLORD_FF
+ 	  Say Y here if you have a PantherLord/GreenAsia based game controller
+ 	  or adapter and want to enable force feedback support for it.
+ 
++config HID_PENMOUNT
++	tristate "Penmount touch device"
++	depends on USB_HID
++	---help---
++	  Say Y here if you have a Penmount based touch controller.
++
+ config HID_PETALYNX
+ 	tristate "Petalynx Maxter remote control"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4dbac7f..e2850d8 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -71,6 +71,7 @@ obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
+ obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
+ obj-$(CONFIG_HID_PRODIKEYS)	+= hid-prodikeys.o
+ obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
++obj-$(CONFIG_HID_PENMOUNT)	+= hid-penmount.o
+ obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
+ obj-$(CONFIG_HID_PICOLCD)	+= hid-picolcd.o
+ hid-picolcd-y			+= hid-picolcd_core.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 12b6e67..6827196 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1880,6 +1880,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
+ #if IS_ENABLED(CONFIG_HID_ROCCAT)
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 25cd674..3943ffe 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -722,6 +722,7 @@
+ #define USB_DEVICE_ID_PENMOUNT_PCI	0x3500
+ #define USB_DEVICE_ID_PENMOUNT_1610	0x1610
+ #define USB_DEVICE_ID_PENMOUNT_1640	0x1640
++#define USB_DEVICE_ID_PENMOUNT_6000	0x6000
+ 
+ #define USB_VENDOR_ID_PETALYNX		0x18b1
+ #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
+diff --git a/drivers/hid/hid-penmount.c b/drivers/hid/hid-penmount.c
+new file mode 100644
+index 0000000..02de4b8
+--- /dev/null
++++ b/drivers/hid/hid-penmount.c
+@@ -0,0 +1,51 @@
++/*
++ *  HID driver for PenMount touchscreens
++ *
++ *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner@gmail.com>
++ *
++ *  based on hid-penmount copyrighted by
++ *    PenMount Touch Solutions <penmount@seed.net.tw>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/hid.h>
++#include "hid-ids.h"
++
++static int penmount_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	int mapped = 0;
++
++	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
++		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++		mapped = 1;
++	}
++
++	return mapped;
++}
++
++static const struct hid_device_id penmount_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, penmount_devices);
++
++static struct hid_driver penmount_driver = {
++	.name = "hid-penmount",
++	.id_table = penmount_devices,
++	.input_mapping = penmount_input_mapping,
++};
++
++module_hid_driver(penmount_driver);
++
++MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
++MODULE_DESCRIPTION("PenMount HID TouchScreen driver");
++MODULE_LICENSE("GPL");
+-- 
+1.9.3
 
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

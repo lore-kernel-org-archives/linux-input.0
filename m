@@ -1,47 +1,51 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] m68k/atari: Remove obsolete keyboard_tasklet scheduling
-Date: Fri, 29 Aug 2014 18:14:56 +0200
-Message-ID: <1409328896-8457-1-git-send-email-geert@linux-m68k.org>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] hid: sony: Set the Sixaxis cable state correctly
+Date: Fri, 29 Aug 2014 13:11:52 -0400
+Message-ID: <1409332312-2414-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from andre.telenet-ops.be ([195.130.132.53]:49539 "EHLO
-	andre.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753675AbaH2QO5 (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.225]:20676 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753268AbaH2RML (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Aug 2014 12:14:57 -0400
+	Fri, 29 Aug 2014 13:12:11 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Schmitz <schmitzmic@gmail.com>
-Cc: linux-m68k@lists.linux-m68k.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-If CONFIG_VT=n:
+Bit 3 in byte 31 of the Sixaxis report indicates whether the battery is
+charging or not charging as opposed to whether or not the cable is plugged in.
+As a result, when connected via USB and fully charged, the power_supply status
+is wrongly reported as 'Discharging' instead of 'Full'.
 
-arch/m68k/atari/built-in.o: In function `atari_keyboard_interrupt':
-atakeyb.c:(.text+0x1846): undefined reference to `keyboard_tasklet'
-atakeyb.c:(.text+0x1852): undefined reference to `keyboard_tasklet'
+Use the battery level value to set the cable state so that the power status
+is reported correctly as that seems to be the only reliable way to determine the
+cable status on the Sixaxis.
 
-I think the keyboard_tasklet scheduling is no longer needed, as I
-believe it's handled by drivers/tty/vt/keyboard.c based on events
-received from the input subsystem. So just remove it.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
-Not tested on real hardware. ARAnyM doesn't have keyboard LEDs.
+ drivers/hid/hid-sony.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- arch/m68k/atari/atakeyb.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/arch/m68k/atari/atakeyb.c b/arch/m68k/atari/atakeyb.c
-index 95022b04b62d..1e2be1d34635 100644
---- a/arch/m68k/atari/atakeyb.c
-+++ b/arch/m68k/atari/atakeyb.c
-@@ -170,7 +170,6 @@ repeat:
- 	if (acia_stat & ACIA_RDRF) {
- 		/* received a character */
- 		scancode = acia.key_data;	/* get it or reset the ACIA, I'll get it! */
--		tasklet_schedule(&keyboard_tasklet);
- 	interpret_scancode:
- 		switch (kb_state.state) {
- 		case KEYBOARD:
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index c372368..ecc6616 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -935,12 +935,13 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
+ 	if (rd[30] >= 0xee) {
+ 		battery_capacity = 100;
+ 		battery_charging = !(rd[30] & 0x01);
++		cable_state = 1;
+ 	} else {
+ 		__u8 index = rd[30] <= 5 ? rd[30] : 5;
+ 		battery_capacity = sixaxis_battery_capacity[index];
+ 		battery_charging = 0;
++		cable_state = 0;
+ 	}
+-	cable_state = !(rd[31] & 0x04);
+ 
+ 	spin_lock_irqsave(&sc->lock, flags);
+ 	sc->cable_state = cable_state;
 -- 
-1.9.1
+1.9.3
 

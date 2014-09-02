@@ -1,56 +1,35 @@
-From: Daniel Mack <zonque@gmail.com>
+From: Klaus Goger <klaus.goger@theobroma-systems.com>
 Subject: Re: [PATCH] Input: cap1106 - fix register definition
-Date: Tue, 02 Sep 2014 09:43:34 +0200
-Message-ID: <54057526.9050503@gmail.com>
-References: <1409639544-30420-1-git-send-email-klaus.goger@theobroma-systems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Date: Tue, 2 Sep 2014 13:01:11 +0200
+Message-ID: <53EB1EFA-3BFF-4818-A524-B3ED3CF62D56@theobroma-systems.com>
+References: <1409639544-30420-1-git-send-email-klaus.goger@theobroma-systems.com> <54057526.9050503@gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 6.6 \(1510\))
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f47.google.com ([74.125.82.47]:55352 "EHLO
-	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752272AbaIBHnh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Sep 2014 03:43:37 -0400
-In-Reply-To: <1409639544-30420-1-git-send-email-klaus.goger@theobroma-systems.com>
+Received: from vegas.theobroma-systems.com ([144.76.126.164]:54437 "EHLO
+	mail.theobroma-systems.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750863AbaIBLRd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Sep 2014 07:17:33 -0400
+In-Reply-To: <54057526.9050503@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Klaus Goger <klaus.goger@theobroma-systems.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Mack <zonque@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 09/02/2014 08:32 AM, Klaus Goger wrote:
-> Use the correct register address for Calibration Active and Interrupt
-> Enable
+On Sep 2, 2014, at 9:43 AM, Daniel Mack <zonque@gmail.com> wrote:
+> On 09/02/2014 08:32 AM, Klaus Goger wrote:
+>> Use the correct register address for Calibration Active and Interrupt
+>> Enable
+>> 
+>> Signed-off-by: Klaus Goger <klaus.goger@theobroma-systems.com>
 > 
-> Signed-off-by: Klaus Goger <klaus.goger@theobroma-systems.com>
+> These register definitions are currently unused, but your fix is
+> correct. Just curious - are you planning to send patches that make use
+> of them?
 
-These register definitions are currently unused, but your fix is
-correct. Just curious - are you planning to send patches that make use
-of them?
-
-  Acked-by: Daniel Mack <zonque@gmail.com>
-
-
-Thanks,
-Daniel
-
-> ---
->  drivers/input/keyboard/cap1106.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/cap1106.c b/drivers/input/keyboard/cap1106.c
-> index 180b184..d70b65a 100644
-> --- a/drivers/input/keyboard/cap1106.c
-> +++ b/drivers/input/keyboard/cap1106.c
-> @@ -33,8 +33,8 @@
->  #define CAP1106_REG_SENSOR_CONFIG	0x22
->  #define CAP1106_REG_SENSOR_CONFIG2	0x23
->  #define CAP1106_REG_SAMPLING_CONFIG	0x24
-> -#define CAP1106_REG_CALIBRATION		0x25
-> -#define CAP1106_REG_INT_ENABLE		0x26
-> +#define CAP1106_REG_CALIBRATION		0x26
-> +#define CAP1106_REG_INT_ENABLE		0x27
->  #define CAP1106_REG_REPEAT_RATE		0x28
->  #define CAP1106_REG_MT_CONFIG		0x2a
->  #define CAP1106_REG_MT_PATTERN_CONFIG	0x2b
-> 
-
+I want to use CAP1106_REG_SENSITIVITY_CONTROL but I have yet to
+decide how to expose it to the user. Probably adding another device tree
+option. But somehow it feels like cluttering up the dts.
+Once I have settled about that I will send patches.

@@ -1,116 +1,73 @@
-From: Benjamin Tissoires <btissoir@redhat.com>
-Subject: Re: [PATCH 2/2] input/mouse: Add missing POINTER / DIRECT properties
- to a bunch of drivers
-Date: Tue, 2 Sep 2014 10:38:34 -0400
-Message-ID: <20140902143834.GC25423@mail.corp.redhat.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 0/2] input: Add INPUT_PROP_POINTING_STICK property
+Date: Tue, 2 Sep 2014 16:50:53 +0200
+Message-ID: <CANq1E4RMKmM3Qk09-hd49VSH2On_n8-x7sOp7OKd9Ww-48sLzw@mail.gmail.com>
 References: <1409661804-10489-1-git-send-email-hdegoede@redhat.com>
- <1409661804-10489-3-git-send-email-hdegoede@redhat.com>
+	<CANq1E4TU9Q3eWm25LhySk28de7r4tjZTLaCMHLOfVo738fnoFg@mail.gmail.com>
+	<5405D6D4.4070406@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56942 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750752AbaIBOij (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Sep 2014 10:38:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1409661804-10489-3-git-send-email-hdegoede@redhat.com>
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:46373 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753704AbaIBOux (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Sep 2014 10:50:53 -0400
+Received: by mail-ie0-f182.google.com with SMTP id rd18so7812290iec.27
+        for <linux-input@vger.kernel.org>; Tue, 02 Sep 2014 07:50:53 -0700 (PDT)
+In-Reply-To: <5405D6D4.4070406@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Sep 02 2014 or thereabouts, Hans de Goede wrote:
-> I've not done a full audit of all mouse drivers, I noticed these ones were
-> missing the POINTER property while working on the POINTING_STICK property.
+Hi
 
-I am not sure about this one. INPUT_PROP_POINTER is the default behavior
-when no properties are set. The current Xorg/libinput code should
-already be aware of that and uses this to be able to be backward
-compatible.
-Adding the info now, will not change anything in the user-space code and
-we will not be able to remove the compat code before a long time.
+On Tue, Sep 2, 2014 at 4:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> On 09/02/2014 02:55 PM, David Herrmann wrote:
+>> Hi
+>>
+>> On Tue, Sep 2, 2014 at 2:43 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>>> Hi,
+>>>
+>>> It is useful for userspace to know that they're not dealing with a regular
+>>> mouse but rather with a pointing stick (e.g. a trackpoint) so that userspace
+>>> can e.g. automatically enable middle button scrollwheel emulation.
+>>>
+>>> It is impossible to tell the difference from the evdev info without resorting
+>>> to putting a list of device / driver names in userspace, this is undesirable.
+>>
+>> ..so it is better to put that table into the kernel?
+>
+> No not a table, at the kernel level we actually have different drivers
+> for pointer sticks and for other mouse (and mouse like devices), so this is
+> a simple matter of adding a single line of code to all of 4 drivers.
+>
+> We could have a table in userspace matching the driver/model strings used
+> by those 4 drivers, but what if a 5th pops up ?
 
-So, really, I am not in favor, nor I will opposite my vote regarding
-this patch.
+Ok, for now it's pretty easy as all "pointing stick" drivers are
+already separate in the kernel. But imagine a new generation of
+"pointing stick" devices is an HID device handled by hid-input.c. What
+do you do? To set the INPUT_PROPERTY bit, you need to add a driver for
+this vid/did combination. Seems overkill, so we'd probably not set
+this property bit for this device and let user-space deal with it. Now
+we end up with two places to store such information.
 
-Cheers,
-Benjamin
+We already fix scancode/keycode mappings via hwdb as it would be
+excessive to write kernel drivers for all devices just to fix those.
+Imo, device properties are very similar to this. We have to draw a
+line between properties the kernel should detect and expose, and
+properties we detect in user-space. We already gave up defining ABS_
+axes for everything (I mean, we report all kinds of data via ABS_X,
+ranging from trackpad, to pressure and accelerometer data). User-space
+needs to detect what devices it deals with, to know what the different
+axes event-bits mean.
 
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/input/mouse/alps.c          | 1 +
->  drivers/input/mouse/elantech.c      | 1 +
->  drivers/input/mouse/psmouse-base.c  | 2 ++
->  drivers/input/mouse/synaptics_usb.c | 5 +++++
->  drivers/input/mouse/trackpoint.c    | 1 +
->  5 files changed, 10 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 9de3c25..d7020ad 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2373,6 +2373,7 @@ int alps_init(struct psmouse *psmouse)
->  	dev2->keybit[BIT_WORD(BTN_LEFT)] =
->  		BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
->  
-> +	__set_bit(INPUT_PROP_POINTER, dev2->propbit);
->  	if (priv->flags & ALPS_DUALPOINT)
->  		__set_bit(INPUT_PROP_POINTING_STICK, dev2->propbit);
->  
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index c767f7e..daaf82f 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1608,6 +1608,7 @@ int elantech_init(struct psmouse *psmouse)
->  			BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) |
->  			BIT_MASK(BTN_RIGHT);
->  
-> +		__set_bit(INPUT_PROP_POINTER, tp_dev->propbit);
->  		__set_bit(INPUT_PROP_POINTING_STICK, tp_dev->propbit);
->  
->  		error = input_register_device(etd->tp_dev);
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index 5c1237d..a44d655 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -685,6 +685,8 @@ static void psmouse_apply_defaults(struct psmouse *psmouse)
->  	__set_bit(REL_X, input_dev->relbit);
->  	__set_bit(REL_Y, input_dev->relbit);
->  
-> +	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> +
->  	psmouse->set_rate = psmouse_set_rate;
->  	psmouse->set_resolution = psmouse_set_resolution;
->  	psmouse->poll = psmouse_poll;
-> diff --git a/drivers/input/mouse/synaptics_usb.c b/drivers/input/mouse/synaptics_usb.c
-> index db3973d..6bcc018 100644
-> --- a/drivers/input/mouse/synaptics_usb.c
-> +++ b/drivers/input/mouse/synaptics_usb.c
-> @@ -402,6 +402,11 @@ static int synusb_probe(struct usb_interface *intf,
->  		__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
->  	}
->  
-> +	if (synusb->flags & SYNUSB_TOUCHSCREEN)
-> +		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-> +	else
-> +		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> +
->  	__set_bit(BTN_LEFT, input_dev->keybit);
->  	__set_bit(BTN_RIGHT, input_dev->keybit);
->  	__set_bit(BTN_MIDDLE, input_dev->keybit);
-> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> index b377462..30c8b69 100644
-> --- a/drivers/input/mouse/trackpoint.c
-> +++ b/drivers/input/mouse/trackpoint.c
-> @@ -393,6 +393,7 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
->  	if ((button_info & 0x0f) >= 3)
->  		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
->  
-> +	__set_bit(INPUT_PROP_POINTER, psmouse->dev->propbit);
->  	__set_bit(INPUT_PROP_POINTING_STICK, psmouse->dev->propbit);
->  
->  	trackpoint_defaults(psmouse->private);
-> -- 
-> 2.1.0
-> 
+Yeah, the POINTING_STICK property turns out to be trivial, so please
+go ahead. I just want to remind you, that we need a user-space
+database, anyway. And hwdb entries can be added via simple distro
+updates (even users can regenerate it themselves). Kernel driver
+changes are way more heavy.. and slow.
+
+Thanks
+David

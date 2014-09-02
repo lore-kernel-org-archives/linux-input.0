@@ -1,73 +1,71 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 0/2] input: Add INPUT_PROP_POINTING_STICK property
-Date: Tue, 2 Sep 2014 16:50:53 +0200
-Message-ID: <CANq1E4RMKmM3Qk09-hd49VSH2On_n8-x7sOp7OKd9Ww-48sLzw@mail.gmail.com>
-References: <1409661804-10489-1-git-send-email-hdegoede@redhat.com>
-	<CANq1E4TU9Q3eWm25LhySk28de7r4tjZTLaCMHLOfVo738fnoFg@mail.gmail.com>
-	<5405D6D4.4070406@redhat.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 00/15] atmel_mxt_ts - device tree, bootloader, etc
+Date: Tue, 02 Sep 2014 09:45:22 -0600
+Message-ID: <5405E612.9030402@wwwdotorg.org>
+References: <1404399697-26484-1-git-send-email-nick.dyer@itdev.co.uk>	<53CECAEC.8080905@wwwdotorg.org>	<53CFD50C.4040509@itdev.co.uk>	<53CFEF6E.2060905@wwwdotorg.org>	<53D10E78.4010908@itdev.co.uk>	<53D17845.4020507@wwwdotorg.org>	<53D26572.3030404@itdev.co.uk>	<53D2B8D0.5090000@wwwdotorg.org>	<CAPDwgkNrBRJRR6WtoPSfs8Yq=ui-Ptjju4mJ=9h=95YVFuxw7g@mail.gmail.com>	<53D6BF50.3070306@wwwdotorg.org>	<53D6DFE7.3040901@wwwdotorg.org> <CAPDwgkPL1utj3DFoFbOCcJsASpf+12nvKg1KcseV_MhEz66eiw@mail.gmail.com> <53D7C8CC.1050201@wwwdotorg.org> <53D7D47E.5060906@itdev.co.uk> <53D7F561.1000603@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:46373 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753704AbaIBOux (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Sep 2014 10:50:53 -0400
-Received: by mail-ie0-f182.google.com with SMTP id rd18so7812290iec.27
-        for <linux-input@vger.kernel.org>; Tue, 02 Sep 2014 07:50:53 -0700 (PDT)
-In-Reply-To: <5405D6D4.4070406@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <53D7F561.1000603@wwwdotorg.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Yufeng Shen <miletus@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, benson Leung <bleung@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-Hi
-
-On Tue, Sep 2, 2014 at 4:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> On 09/02/2014 02:55 PM, David Herrmann wrote:
->> Hi
->>
->> On Tue, Sep 2, 2014 at 2:43 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->>> Hi,
+On 07/29/2014 01:26 PM, Stephen Warren wrote:
+> On 07/29/2014 11:06 AM, Nick Dyer wrote:
+>> On 29/07/14 17:16, Stephen Warren wrote:
+...
+>>> I also found that removing the module (even without attempting a FW
+>>> update) yields:
 >>>
->>> It is useful for userspace to know that they're not dealing with a regular
->>> mouse but rather with a pointing stick (e.g. a trackpoint) so that userspace
->>> can e.g. automatically enable middle button scrollwheel emulation.
+>>> After attempted FW update via sysfs:
 >>>
->>> It is impossible to tell the difference from the evdev info without resorting
->>> to putting a list of device / driver names in userspace, this is undesirable.
+>>>> root@localhost:~# rmmod ./atmel_mxt_ts.ko
+>>>> [   81.995672] Unable to handle kernel NULL pointer dereference at
+>>>> virtual address 00000364
 >>
->> ..so it is better to put that table into the kernel?
+>> Not good. It's trying to free an input device which isn't registered at
+>> that point. In a later patch in my series I add a guard around that
+>> (mxt_free_input_device):
+>> https://github.com/ndyer/linux/commit/bb4800ff8c185
 >
-> No not a table, at the kernel level we actually have different drivers
-> for pointer sticks and for other mouse (and mouse like devices), so this is
-> a simple matter of adding a single line of code to all of 4 drivers.
+> It looks like 8d01a84b86b0 "Input: atmel_mxt_ts - implement T100 touch
+> object support" from that branch is what solves the issue.
 >
-> We could have a table in userspace matching the driver/model strings used
-> by those 4 drivers, but what if a 5th pops up ?
+> Ah, in linux-next, it's simply a double-unregister; both mxt_remove()
+> and mxt_free_object_table() call
+> input_unregister_device(data->input_dev). I think it would make sense to
+> send the following patch for 3.17. Do you agree?
 
-Ok, for now it's pretty easy as all "pointing stick" drivers are
-already separate in the kernel. But imagine a new generation of
-"pointing stick" devices is an HID device handled by hid-input.c. What
-do you do? To set the INPUT_PROPERTY bit, you need to add a driver for
-this vid/did combination. Seems overkill, so we'd probably not set
-this property bit for this device and let user-space deal with it. Now
-we end up with two places to store such information.
+Nick, I see the fix below isn't in linux-next as of next-20140829. IIRC, 
+you'd sent the patch below but there had been some comments on it by 
+Dmitry. Unfortunately, I don't recall the patch subject to search for 
+it. Anyway, are you planning on re-spinning the patch so it can be applied?
 
-We already fix scancode/keycode mappings via hwdb as it would be
-excessive to write kernel drivers for all devices just to fix those.
-Imo, device properties are very similar to this. We have to draw a
-line between properties the kernel should detect and expose, and
-properties we detect in user-space. We already gave up defining ABS_
-axes for everything (I mean, we report all kinds of data via ABS_X,
-ranging from trackpad, to pressure and accelerometer data). User-space
-needs to detect what devices it deals with, to know what the different
-axes event-bits mean.
-
-Yeah, the POINTING_STICK property turns out to be trivial, so please
-go ahead. I just want to remind you, that we need a user-space
-database, anyway. And hwdb entries can be added via simple distro
-updates (even users can regenerate it themselves). Kernel driver
-changes are way more heavy.. and slow.
-
-Thanks
-David
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
+> b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 03b85711cb70..da497dbf9735 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -1353,8 +1353,10 @@ static int mxt_get_info(struct mxt_data *data)
+>
+>   static void mxt_free_object_table(struct mxt_data *data)
+>   {
+> -    input_unregister_device(data->input_dev);
+> -    data->input_dev = NULL;
+> +    if (data->input_dev) {
+> +        input_unregister_device(data->input_dev);
+> +        data->input_dev = NULL;
+> +    }
+>
+>       kfree(data->object_table);
+>       data->object_table = NULL;
+> @@ -2194,7 +2196,6 @@ static int mxt_remove(struct i2c_client *client)
+>
+>       sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+>       free_irq(data->irq, data);
+> -    input_unregister_device(data->input_dev);
+>       mxt_free_object_table(data);
+>       kfree(data);

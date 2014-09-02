@@ -1,41 +1,41 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2 0/4] input: Add new sun4i-lradc-keys driver
-Date: Mon, 01 Sep 2014 15:53:53 +0200
-Message-ID: <54047A71.3070207@redhat.com>
-References: <1388656707-16181-1-git-send-email-hdegoede@redhat.com> <CAGb2v66VZqpHyghs5xn=RdDUVU=2PxFw5BJ-R5Xpsk-nfoDM0Q@mail.gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDRZXY4CYYORB77USGQAKGQEZTNU4OA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <CAGb2v66VZqpHyghs5xn=RdDUVU=2PxFw5BJ-R5Xpsk-nfoDM0Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+From: Klaus Goger <klaus.goger@theobroma-systems.com>
+Subject: [PATCH] Input: cap1106 - fix register definition
+Date: Tue,  2 Sep 2014 08:32:24 +0200
+Message-ID: <1409639544-30420-1-git-send-email-klaus.goger@theobroma-systems.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vegas.theobroma-systems.com ([144.76.126.164]:48049 "EHLO
+	mail.theobroma-systems.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750751AbaIBGrd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Sep 2014 02:47:33 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Klaus Goger <klaus.goger@theobroma-systems.com>
 
-Hi,
+Use the correct register address for Calibration Active and Interrupt
+Enable
 
-On 09/01/2014 03:47 PM, Chen-Yu Tsai wrote:
-> Hi Hans,
-> 
-> It seems this series didn't get any attention. Care to respin on top
-> of the latest tree?
-> 
-> FYI, I have the series rebased on top of sunxi-next:
-> https://github.com/wens/linux/commits/others/sunxi-lradc-input-v2
+Signed-off-by: Klaus Goger <klaus.goger@theobroma-systems.com>
+---
+ drivers/input/keyboard/cap1106.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-The problem is not it not getting attention, the problem is people were
-unhappy with the dt-bindings for this. I've a pretty good idea of how
-to fix up the bindings, but -ENOTIME so far. If you've a board you can
-test this on and want to take a shot at fixing it up, I can get into
-a little bit more detail.
+diff --git a/drivers/input/keyboard/cap1106.c b/drivers/input/keyboard/cap1106.c
+index 180b184..d70b65a 100644
+--- a/drivers/input/keyboard/cap1106.c
++++ b/drivers/input/keyboard/cap1106.c
+@@ -33,8 +33,8 @@
+ #define CAP1106_REG_SENSOR_CONFIG	0x22
+ #define CAP1106_REG_SENSOR_CONFIG2	0x23
+ #define CAP1106_REG_SAMPLING_CONFIG	0x24
+-#define CAP1106_REG_CALIBRATION		0x25
+-#define CAP1106_REG_INT_ENABLE		0x26
++#define CAP1106_REG_CALIBRATION		0x26
++#define CAP1106_REG_INT_ENABLE		0x27
+ #define CAP1106_REG_REPEAT_RATE		0x28
+ #define CAP1106_REG_MT_CONFIG		0x2a
+ #define CAP1106_REG_MT_PATTERN_CONFIG	0x2b
+-- 
+1.9.0
 
-Regards,
-
-Hans

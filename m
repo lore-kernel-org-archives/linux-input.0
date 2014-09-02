@@ -1,96 +1,50 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/2] input/mouse: Add missing POINTER / DIRECT properties to a bunch of drivers
-Date: Tue,  2 Sep 2014 14:43:24 +0200
-Message-ID: <1409661804-10489-3-git-send-email-hdegoede@redhat.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 0/2] input: Add INPUT_PROP_POINTING_STICK property
+Date: Tue, 2 Sep 2014 14:55:53 +0200
+Message-ID: <CANq1E4TU9Q3eWm25LhySk28de7r4tjZTLaCMHLOfVo738fnoFg@mail.gmail.com>
 References: <1409661804-10489-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:6446 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754059AbaIBMnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Sep 2014 08:43:32 -0400
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:46595 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753621AbaIBMzy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Sep 2014 08:55:54 -0400
+Received: by mail-ie0-f172.google.com with SMTP id rd18so7545480iec.17
+        for <linux-input@vger.kernel.org>; Tue, 02 Sep 2014 05:55:53 -0700 (PDT)
 In-Reply-To: <1409661804-10489-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-I've not done a full audit of all mouse drivers, I noticed these ones were
-missing the POINTER property while working on the POINTING_STICK property.
+Hi
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/alps.c          | 1 +
- drivers/input/mouse/elantech.c      | 1 +
- drivers/input/mouse/psmouse-base.c  | 2 ++
- drivers/input/mouse/synaptics_usb.c | 5 +++++
- drivers/input/mouse/trackpoint.c    | 1 +
- 5 files changed, 10 insertions(+)
+On Tue, Sep 2, 2014 at 2:43 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi,
+>
+> It is useful for userspace to know that they're not dealing with a regular
+> mouse but rather with a pointing stick (e.g. a trackpoint) so that userspace
+> can e.g. automatically enable middle button scrollwheel emulation.
+>
+> It is impossible to tell the difference from the evdev info without resorting
+> to putting a list of device / driver names in userspace, this is undesirable.
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 9de3c25..d7020ad 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -2373,6 +2373,7 @@ int alps_init(struct psmouse *psmouse)
- 	dev2->keybit[BIT_WORD(BTN_LEFT)] =
- 		BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
- 
-+	__set_bit(INPUT_PROP_POINTER, dev2->propbit);
- 	if (priv->flags & ALPS_DUALPOINT)
- 		__set_bit(INPUT_PROP_POINTING_STICK, dev2->propbit);
- 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index c767f7e..daaf82f 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1608,6 +1608,7 @@ int elantech_init(struct psmouse *psmouse)
- 			BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) |
- 			BIT_MASK(BTN_RIGHT);
- 
-+		__set_bit(INPUT_PROP_POINTER, tp_dev->propbit);
- 		__set_bit(INPUT_PROP_POINTING_STICK, tp_dev->propbit);
- 
- 		error = input_register_device(etd->tp_dev);
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 5c1237d..a44d655 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -685,6 +685,8 @@ static void psmouse_apply_defaults(struct psmouse *psmouse)
- 	__set_bit(REL_X, input_dev->relbit);
- 	__set_bit(REL_Y, input_dev->relbit);
- 
-+	__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
- 	psmouse->set_rate = psmouse_set_rate;
- 	psmouse->set_resolution = psmouse_set_resolution;
- 	psmouse->poll = psmouse_poll;
-diff --git a/drivers/input/mouse/synaptics_usb.c b/drivers/input/mouse/synaptics_usb.c
-index db3973d..6bcc018 100644
---- a/drivers/input/mouse/synaptics_usb.c
-+++ b/drivers/input/mouse/synaptics_usb.c
-@@ -402,6 +402,11 @@ static int synusb_probe(struct usb_interface *intf,
- 		__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
- 	}
- 
-+	if (synusb->flags & SYNUSB_TOUCHSCREEN)
-+		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-+	else
-+		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+
- 	__set_bit(BTN_LEFT, input_dev->keybit);
- 	__set_bit(BTN_RIGHT, input_dev->keybit);
- 	__set_bit(BTN_MIDDLE, input_dev->keybit);
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index b377462..30c8b69 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -393,6 +393,7 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 	if ((button_info & 0x0f) >= 3)
- 		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
- 
-+	__set_bit(INPUT_PROP_POINTER, psmouse->dev->propbit);
- 	__set_bit(INPUT_PROP_POINTING_STICK, psmouse->dev->propbit);
- 
- 	trackpoint_defaults(psmouse->private);
--- 
-2.1.0
+..so it is better to put that table into the kernel?
 
+I thought the plan was to avoid putting more hardware tables into the
+kernel. All those tables are always loaded into RAM, whereas solutions
+like udev hwdb can provide the exact same features in user-space but
+avoid loading it into RAM, except if used. hwdb is pretty nice to
+store information about hardware. It is not meant for configuration or
+volatile data, but rather as read-only lookup table for hardware
+information.
+
+You could easily extend the hwdb with a trackpoint variable that marks
+specific devices as trackpoints.
+
+Anyhow, if you guys want it in the kernel, go ahead. I just don't see
+the advantage of having it in kernel-space.
+
+Thanks
+David

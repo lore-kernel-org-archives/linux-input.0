@@ -1,35 +1,35 @@
-From: Klaus Goger <klaus.goger@theobroma-systems.com>
-Subject: Re: [PATCH] Input: cap1106 - fix register definition
-Date: Tue, 2 Sep 2014 13:01:11 +0200
-Message-ID: <53EB1EFA-3BFF-4818-A524-B3ED3CF62D56@theobroma-systems.com>
-References: <1409639544-30420-1-git-send-email-klaus.goger@theobroma-systems.com> <54057526.9050503@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 6.6 \(1510\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 0/2] input: Add INPUT_PROP_POINTING_STICK property
+Date: Tue,  2 Sep 2014 14:43:22 +0200
+Message-ID: <1409661804-10489-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vegas.theobroma-systems.com ([144.76.126.164]:54437 "EHLO
-	mail.theobroma-systems.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750863AbaIBLRd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Sep 2014 07:17:33 -0400
-In-Reply-To: <54057526.9050503@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:31078 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753962AbaIBMn2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Sep 2014 08:43:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org
 
-On Sep 2, 2014, at 9:43 AM, Daniel Mack <zonque@gmail.com> wrote:
-> On 09/02/2014 08:32 AM, Klaus Goger wrote:
->> Use the correct register address for Calibration Active and Interrupt
->> Enable
->> 
->> Signed-off-by: Klaus Goger <klaus.goger@theobroma-systems.com>
-> 
-> These register definitions are currently unused, but your fix is
-> correct. Just curious - are you planning to send patches that make use
-> of them?
+Hi,
 
-I want to use CAP1106_REG_SENSITIVITY_CONTROL but I have yet to
-decide how to expose it to the user. Probably adding another device tree
-option. But somehow it feels like cluttering up the dts.
-Once I have settled about that I will send patches.
+It is useful for userspace to know that they're not dealing with a regular
+mouse but rather with a pointing stick (e.g. a trackpoint) so that userspace
+can e.g. automatically enable middle button scrollwheel emulation.
+
+It is impossible to tell the difference from the evdev info without resorting
+to putting a list of device / driver names in userspace, this is undesirable.
+
+These patches add a property which allows userspace to see if a device is a
+pointing stick, and set it on all the pointing stick drivers.
+
+Note these patch apply on top of the current dtor/input.git for-linus
+branch. Specifically they depend upon a2418fc4a13 (Input: elantech - add
+support for trackpoint found on some v3 models).
+
+Regards,
+
+Hans
+
+

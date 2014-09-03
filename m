@@ -1,45 +1,48 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] elantech: Fix detection of touchpad on ASUS s301l
-Date: Wed,  3 Sep 2014 16:24:02 +0200
-Message-ID: <1409754242-10196-1-git-send-email-hdegoede@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: hid-thingm: kernel panic on remove
+Date: Wed, 3 Sep 2014 16:37:05 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1409031636170.12309@pobox.suse.cz>
+References: <20140902174659.GA1811@datura.dylex.net> <54062150.2010800@gmail.com> <alpine.LNX.2.00.1409022328470.12309@pobox.suse.cz> <20140903023531.GA1128@datura.dylex.net> <alpine.LNX.2.00.1409030928200.12309@pobox.suse.cz> <20140903081723.GA1153@datura.dylex.net>
+ <alpine.LNX.2.00.1409031021230.12309@pobox.suse.cz> <20140903130348.GA1161@datura.dylex.net> <alpine.LNX.2.00.1409031509070.12309@pobox.suse.cz> <20140903141601.GA1866@datura.dylex.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:36787 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932402AbaICOhH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Sep 2014 10:37:07 -0400
+In-Reply-To: <20140903141601.GA1866@datura.dylex.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dylan Alex Simon <dylan-kernel@dylex.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
 
-http://mariusmonton.com/?p=3D489
+On Wed, 3 Sep 2014, Dylan Alex Simon wrote:
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: M=C3=A0rius Monton <marius.monton@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/elantech.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+> I think that did the trick.  I've run through the whole cycle about 20 times
+> in various conditions, and it seems solid so far.  Thanks!
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elant=
-ech.c
-index daaf82f..fad7367 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1331,6 +1331,13 @@ static bool elantech_is_signature_valid(const un=
-signed char *param)
- 	if (param[1] =3D=3D 0)
- 		return true;
-=20
-+	/*
-+	 * Some models have a revision higher then 20. Meaning param[2] may
-+	 * be 10 or 20, skip the rates check for these.
-+	 */
-+	if (param[0] =3D=3D 0x46 && (param[1] & 0xef) =3D=3D 0x0f && param[2]=
- < 40)
-+		return true;
-+
- 	for (i =3D 0; i < ARRAY_SIZE(rates); i++)
- 		if (param[2] =3D=3D rates[i])
- 			return false;
---=20
-2.1.0
+Thanks. I actually think that the minimal necessary fix is below. Could 
+you please do a (hopefully last) round of testing with just this patch 
+applied?
+
+diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+index 134be89..c1d21fa 100644
+--- a/drivers/hid/hid-thingm.c
++++ b/drivers/hid/hid-thingm.c
+@@ -208,10 +208,10 @@ unregister_red:
+ 
+ static void thingm_remove_rgb(struct thingm_rgb *rgb)
+ {
+-	flush_work(&rgb->work);
+ 	led_classdev_unregister(&rgb->red.ldev);
+ 	led_classdev_unregister(&rgb->green.ldev);
+ 	led_classdev_unregister(&rgb->blue.ldev);
++	flush_work(&rgb->work);
+ }
+ 
+ static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
+
+-- 
+Jiri Kosina
+SUSE Labs

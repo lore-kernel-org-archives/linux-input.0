@@ -1,43 +1,89 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH] HID: hid-sensor-hub: Adding USB_DEVICE_ID_STM_HID_SENSOR device id
-Date: Wed,  3 Sep 2014 16:00:54 -0700
-Message-ID: <1409785254-20245-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:20202 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757341AbaICXCG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Sep 2014 19:02:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.17-rc0 (part 2)
+Date: Wed, 3 Sep 2014 16:47:34 -0700
+Message-ID: <20140903234734.GA2487@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: elad@fedoraproject.org, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Adding USB_DEVICE_ID_STM_HID_SENSOR again in the quirk table. During 3.16 merge
-cycle somehow quirk for device id USB_DEVICE_ID_STM_HID_SENSOR is missing.
-I see commit dde3b45cd74e ("HID: hid-sensor-hub: new device id and quirk
-for STM Sensor hub") added new id USB_DEVICE_ID_STM_HID_SENSOR_1,
-but didn't really delete the old device id.
-Anyway we need to add this back, otherwise it breaks ST sensor hubs.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c | 3 +++
- 1 file changed, 3 insertions(+)
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 2ac2576..e6d8e18 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -709,6 +709,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
- 			USB_DEVICE_ID_MS_TYPE_COVER_2),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
-+			USB_DEVICE_ID_STM_HID_SENSOR),
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
- 			USB_DEVICE_ID_STM_HID_SENSOR_1),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
--- 
-1.9.3
+Hi Linus,
 
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. You will get a fix for MT
+breakage, enhancement to Elantech PS/2 driver and a couple of assorted
+fixes.
+
+Changelog:
+---------
+
+Dmitry Torokhov (2):
+      Input: fix used slots detection breakage
+      Input: ALPS - suppress message about 'Unknown touchpad'
+
+Nick Dyer (1):
+      Input: atmel_mxt_ts - improve description of gpio-keymap property
+
+Ulrik De Bie (2):
+      Input: elantech - reset the device when elantech probe fails
+      Input: elantech - add support for trackpoint found on some v3 models
+
+Vincent Stehl=E9 (1):
+      Input: sparc - i8042-sparcio.h: fix unused kbd_res warning
+
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/atmel,maxtouch.txt   |  11 ++
+ drivers/input/input-mt.c                           |  30 +++--
+ drivers/input/mouse/alps.c                         |   4 +-
+ drivers/input/mouse/elantech.c                     | 137 +++++++++++++++++=
+++--
+ drivers/input/mouse/elantech.h                     |   3 +
+ drivers/input/serio/i8042-sparcio.h                |   3 +-
+ 6 files changed, 164 insertions(+), 24 deletions(-)
+
+--=20
+Dmitry
+
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUB6iWAAoJEH70+W8r6ZYqRRsQAJsq1lhcYk4QCo93GT6JLmnN
+30pqEeKqGohugGQeZ+MmK6Z1zC8w5Lss6JVxAOlr7pfvNMlmydcPJxQLlsn1tPqE
+bmsAq7rqNlHW9hbr6HB07xdhjIX/OoUKC61ZcQbRwZi87DkT25Lmze9KJ7xg047Z
+txNBTZbwsrel6I/tYWGpUEO3EdubLa8sMUTV4SCqfYBX3Ehr6FPr6GuQty2qB9wa
+izFBkbS+dnunku51dYWjfRoQj6RE65cHvtfGrUo7GetrsmsC4nXuqTBvyYEpi0Yq
+U8W0fJ7CjjnZ2voDk6rdkSJTJT8KCvEMNVMoyY5/ltkLmJas0/uzykGAb0fcKCZA
+UY6Q1zIn+kaykip0qmanTzF5vkBPZkOgh+rXH3KP+ZnvCUqRBf44KvxbFsF7u1vl
+LfK1ijlFOMFDQuGXvO9Z+TR5MN0hNIrgpKV6DbQGQKuLEqkYl0v08yaCxakodHJR
+z4a5RHIKSURPOqh/HZBAt19dtfhVwgICnGRN7y+pNk2jIduSVCmzQbqhDGYRry4a
+dKso6WESeKHx01wD7vJOJuGqZD2YGUvSiL1ukpMuIoHhmD3E2/hux9cMeLaZ/IlZ
+uTCG6SvSK3LDCyQ5uPkHz/68rannnV8wVsBpXjGzLR2o2vACSs5jyoJueewxzf8E
+ciaJ5bly7IGun5ugbusr
+=bYfJ
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

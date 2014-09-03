@@ -1,38 +1,63 @@
-From: Husam Al Sayed <oscar55@post.sk>
-Subject: FROM: Husam Al Sayed
-Date: Wed, 3 Sep 2014 20:56:32 +0200 (CEST)
-Message-ID: <201862227.347304.1409770592327.JavaMail.root@mbox05>
-Reply-To: "alsayedhusa@hotmail.com" <alsayedhusa@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-Cc: m.hulsman@tudelft.nl, r.marek@assembler.cz, khali@linux-fr.org, lm-sensors@lm-sensors.org, pierre@ossman.eu, wim@iguana.be, linux-watchdog@vger.kernel.org, zaga@fly.cc.fer.hr, linux-scsi@vger.kernel.org, dh.herrmann@googlemail.com, david@hardeman.nu, inaky.perez-gonzalez@intel.com, linux-wimax@intel.com, wimax@linuxwimax.org, mitr@volny.cz, acme@ghostprotocols.net, broonie@kernel.org, lrg@slimlogic.co.uk, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, tj@kernel.org, andrew.hendry@gmail.com, linux-x25@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, matthew.garrett@nebula.com, platform-driver-x86@vger.kernel.org, tony.luck@intel.com
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: wacom: Add support for the Cintiq Companion
+Date: Wed,  3 Sep 2014 15:43:25 -0400
+Message-ID: <1409773405-18030-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:34498 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751543AbaICTnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Sep 2014 15:43:32 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-FROM: Husam Al Sayed.
+The Wacom Cintiq Companion shares the same sensor than the Cintiq
+Companion Hybrid, with the exception of the different PIDs.
 
-EMAIL:alsayedhusa@hotmail.com
- 
-Hello,
- 
-I decided to write you this proposal in good faith, believing that you will
-not betray me. I am Mr. Husam Al Sayed, a Bank officer here in U.A.E.
- 
-One Mr. Peter Adams, a citizen of your country and Crude Oil dealer made a fixed deposit with my bank in 2005 for 108 calendar months, valued at US$30,000,000.00 (Thirty Million United State Dollars) the due date for this deposit contract was last 22nd of January 2014. Sadly Peter was among the death victims in the May 27 2006 Earthquake disaster in Java, Indonesia that killed over 5,000 people. He was in Indonesia on a business trip and that was how he met his untimely end. My bank management is yet to know about his death, I knew about it because he was my friend and I am his Account Officer. Peter did not mention any Next of Kin/ Heir when the account was opened, he was not married and no children. Last week my Bank Management requested that Peter should give instructions on what to do 
- about his funds, if to renew the contract.
- 
-I know this will happen and that is why I have been looking for a means to handle the situation, because if my Bank Directors happens to know that Peter is dead and do not have any Heir, they will take the funds for their personal use, so I don't want such to happen. That is why I am seeking your co-operation to present you as the Next of Kin/ Heir to the account, since you are a foreigner and my bank head quarters will release the account to you. There is no risk involved; the transaction will be executed under a legitimate arrangement that will protect us from any breach of law. It is better that we claim the money, than allowing the Bank Directors to take it, they are rich already. I am not a greedy person, so I am suggesting we share the funds in this ratio, 50/50%, equal sharing. Let 
- me know your mind on this and please do treat this information highly confidential. We shall go over the details once I receive your urgent response. Please Urgently get back to me through this email address as soon as possible:
- 
- 
- 
-Have a nice day and God bless. Anticipating your communication.
- 
-Regards,
-FROM: Husam Al Sayed.
-EMAIL: alsayedhusa@hotmail.com
-_____________________________________________________________________
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-Presny televizny program najdete na http://www.ahaho.sk
+Hi,
+
+I guess this could now go through Jiri's tree given that it applies on top of a
+plain 3.17-rcX. It can be scheduled for either 3.17 or 3.18 (no preferences on
+my side).
+
+Cheers,
+Benjamin
+
+ drivers/hid/wacom_wac.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index aa6a08e..c3cbbfb 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2573,6 +2573,14 @@ static const struct wacom_features wacom_features_0x309 =
+ 	{ "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
+ 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10,
+ 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
++static const struct wacom_features wacom_features_0x30A =
++	{ "Wacom ISDv5 30A", 59352, 33648, 2047, 63,
++	  CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 200, 200,
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x30C };
++static const struct wacom_features wacom_features_0x30C =
++	{ "Wacom ISDv5 30C", .type = WACOM_24HDT, /* Touch */
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x30A, .touch_max = 10,
++	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
+ 
+ #define USB_DEVICE_WACOM(prod)						\
+ 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
+@@ -2708,6 +2716,8 @@ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x304) },
+ 	{ USB_DEVICE_WACOM(0x307) },
+ 	{ USB_DEVICE_WACOM(0x309) },
++	{ USB_DEVICE_WACOM(0x30A) },
++	{ USB_DEVICE_WACOM(0x30C) },
+ 	{ USB_DEVICE_WACOM(0x30E) },
+ 	{ USB_DEVICE_WACOM(0x314) },
+ 	{ USB_DEVICE_WACOM(0x315) },
+-- 
+2.1.0
+

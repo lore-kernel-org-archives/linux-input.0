@@ -1,36 +1,61 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: wacom: Add support for the Cintiq Companion
-Date: Wed, 3 Sep 2014 23:44:14 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1409032343380.12309@pobox.suse.cz>
-References: <1409773405-18030-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: hid-thingm: kernel panic on remove
+Date: Wed, 3 Sep 2014 23:47:17 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1409032346210.12309@pobox.suse.cz>
+References: <20140902174659.GA1811@datura.dylex.net> <54062150.2010800@gmail.com> <CAN+gG=HZfXp5dEdsRRcmia9Da0p8VT1Rj9TLB-cahiUDkCQujA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44584 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:44667 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751285AbaICVoQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Sep 2014 17:44:16 -0400
-In-Reply-To: <1409773405-18030-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S1754925AbaICVrT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Sep 2014 17:47:19 -0400
+In-Reply-To: <CAN+gG=HZfXp5dEdsRRcmia9Da0p8VT1Rj9TLB-cahiUDkCQujA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dylan Alex Simon <dylan-kernel@dylex.net>, linux-input <linux-input@vger.kernel.org>
 
 On Wed, 3 Sep 2014, Benjamin Tissoires wrote:
 
-> The Wacom Cintiq Companion shares the same sensor than the Cintiq
-> Companion Hybrid, with the exception of the different PIDs.
+> > From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Date: Tue, 2 Sep 2014 15:50:43 -0400
+> > Subject: [PATCH] HID: thingm: set the proper error code before leaving
+> >
+> > In case of an unsupported firmware, the driver bails out without setting
+> > the LEDs interfaces, but forget to set the proper error code.
+> > err is then still equal to 0 and the hid subsytem consider the device
+> > to be in perfect shape.
+> > When removing it, thingm_remove() tries to unbind the rgb LEDs which
+> > has not been created, leading to a segfault.
+> >
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> >  drivers/hid/hid-thingm.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
+> > index 134be89..f91f971 100644
+> > --- a/drivers/hid/hid-thingm.c
+> > +++ b/drivers/hid/hid-thingm.c
+> > @@ -250,6 +250,7 @@ static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >
+> >         if (!tdev->fwinfo) {
+> >                 hid_err(hdev, "unsupported firmware %c\n", tdev->version.major);
+> > +               err = -ENODEV;
+> >                 goto stop;
+> >         }
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi,
-> 
-> I guess this could now go through Jiri's tree given that it applies on top of a
-> plain 3.17-rcX. It can be scheduled for either 3.17 or 3.18 (no preferences on
-> my side).
+> Jiri, could you still consider including this one? If Thingm decides
+> to create a firmware with 3.X, it will fail, so I guess this is still
+> required, even if it does not fix Dylan's problem.
 
-I have now queued it in hid.git#for-3.18/wacom. Thanks,
+It's now queued in for-3.17/upstream-fixes. I don't think it justifies 
+pull request to Linus by itself, but if there is anything else that does, 
+it'll piggy-back. Otherwise it'll go into 3.18. Please shout if it's not 
+okay.
+
+Thanks,
 
 -- 
 Jiri Kosina

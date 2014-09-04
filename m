@@ -1,57 +1,44 @@
 From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v2 4/4] mfd: max77693: Update DT binding to support haptic
-Date: Fri, 05 Sep 2014 00:01:31 +0900
-Message-ID: <1409842891-26549-5-git-send-email-jaewon02.kim@samsung.com>
+Subject: [PATCH v2 3/4] mfd: max77693: add haptic of_compatible in mfd_cell
+Date: Fri, 05 Sep 2014 00:01:30 +0900
+Message-ID: <1409842891-26549-4-git-send-email-jaewon02.kim@samsung.com>
 References: <1409842891-26549-1-git-send-email-jaewon02.kim@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:47058 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751379AbaIDPBw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 11:01:52 -0400
 In-reply-to: <1409842891-26549-1-git-send-email-jaewon02.kim@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>
-List-Id: linux-input@vger.kernel.org
 
-This patch add haptic DT binding documentation and example
-to support haptic driver in max77693 Multifunction device.
+This patch add haptic of_compatible in order to use the haptic
+device driver using Devicetree.
 
 Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
 Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 ---
- Documentation/devicetree/bindings/mfd/max77693.txt |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/mfd/max77693.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/max77693.txt b/Documentation/devicetree/bindings/mfd/max77693.txt
-index 11921cc..d178b9e 100644
---- a/Documentation/devicetree/bindings/mfd/max77693.txt
-+++ b/Documentation/devicetree/bindings/mfd/max77693.txt
-@@ -27,6 +27,17 @@ Optional properties:
+diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
+index fbfed56..03fd431 100644
+--- a/drivers/mfd/max77693.c
++++ b/drivers/mfd/max77693.c
+@@ -46,7 +46,10 @@ static const struct mfd_cell max77693_devs[] = {
+ 	{ .name = "max77693-charger", },
+ 	{ .name = "max77693-flash", },
+ 	{ .name = "max77693-muic", },
+-	{ .name = "max77693-haptic", },
++	{
++	  .name = "max77693-haptic",
++	  .of_compatible = "maxim,max77693-haptic",
++	},
+ };
  
- 	[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
- 
-+- haptic : The haptic of max77693 have to be instantiated under subnod
-+  named "haptic" using the following haptic format in example.
-+  Haptic sensation from motor can be changed by changing a period cycle in pwms.
-+
-+ Required properties:
-+	- compatible : Must be "maxim,max77693-hpatic"
-+	- haptic-supply : power supply for haptic motor
-+		[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
-+	- pwms : phandle to the physical PWM device,
-+		[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
-+
- Example:
- 	max77693@66 {
- 		compatible = "maxim,max77693";
-@@ -52,4 +63,11 @@ Example:
- 					regulator-boot-on;
- 			};
- 		};
-+
-+		haptic {
-+			compatible = "maxim,max77693-haptic";
-+			haptic-supply = <&haptic_supply>;
-+			pwms = <&pwm 0 40000 0>;
-+			pwm-names = "haptic";
-+		};
- 	};
+ static const struct regmap_config max77693_regmap_config = {
 -- 
 1.7.9.5
+

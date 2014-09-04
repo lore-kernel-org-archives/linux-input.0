@@ -1,50 +1,43 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 1/3] Input: ti_am335x_tsc: Fix incorrect step config 5 wire touschscreen
-Date: Thu,  4 Sep 2014 16:39:13 +0200
-Message-ID: <1409841555-11336-1-git-send-email-bigeasy@linutronix.de>
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: [PATCH v2 0/4] Add max77693 haptic driver
+Date: Fri, 05 Sep 2014 00:01:27 +0900
+Message-ID: <1409842891-26549-1-git-send-email-jaewon02.kim@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:52628 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751437AbaIDOjc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 10:39:32 -0400
+Received: from mailout2.samsung.com ([203.254.224.25]:55302 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750776AbaIDPBu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 11:01:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-omap@vger.kernel.org, Jeff Lance <j-lance1@ti.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>
 
-From: Jeff Lance <j-lance1@ti.com>
+This series adds max77693 haptic driver.
+The max77693 is a Multifunction device with PMIC, CHARGER, LED,
+MUIC, HAPTIC and this series is haptic device driver in MAX77693.
+The haptic driver use regmap method for i2c communication and
+support force feedback framework in input device.
 
-The step config setting for a 5 wire touchscreen is incorrectly sets the
-Y coordinates.
-It was broken while we moved to DT. If you look close, the change was:
+Changes in v2:
+ - split to documentation and mfd patchs.
+ - Documentation : change explanation of haptic 
+ - Documentation : remove pwm-names propertie in example
 
-|- STEPCONFIG_XNP | STEPCONFIG_YPN;
-|+ ts_dev->bit_xn | ts_dev->bit_yp;
+Jaewon Kim (4):
+  mfd: max77693: Initialize haptic register map
+  Input: misc: Add haptic driver on max77693
+  mfd: max77693: add haptic of_compatible in mfd_cell
+  mfd: max77693: Update DT binding to support haptic
 
-while bit_xn = STEPCONFIG_XNN and bit_yp = STEPCONFIG_YNN. Not quite the
-same :)
+ Documentation/devicetree/bindings/mfd/max77693.txt |   18 ++
+ drivers/input/misc/Kconfig                         |   12 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/max77693-haptic.c               |  333 ++++++++++++++++++++
+ drivers/mfd/max77693.c                             |   26 +-
+ include/linux/mfd/max77693-private.h               |    9 +
+ 6 files changed, 395 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/input/misc/max77693-haptic.c
 
-Fixes: bb76dc09ddfc ("input: ti_am33x_tsc: Order of TSC wires, made
-configurable")
-Signed-off-by: Jeff Lance <j-lance1@ti.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 2ce649520fe0..092fa8b31c67 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -157,7 +157,7 @@ static void titsc_step_config(struct titsc *ts_dev)
- 		break;
- 	case 5:
- 		config |= ts_dev->bit_xp | STEPCONFIG_INP_AN4 |
--				ts_dev->bit_xn | ts_dev->bit_yp;
-+				STEPCONFIG_XNP | STEPCONFIG_YPN;
- 		break;
- 	case 8:
- 		config |= ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
 -- 
-2.1.0
+1.7.9.5
 

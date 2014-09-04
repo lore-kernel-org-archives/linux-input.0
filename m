@@ -1,592 +1,259 @@
-From: "Murphy, Dan" <dmurphy@ti.com>
-Subject: Re: [PATCH v2 2/2] input: misc: Add support for the DRV2667 haptic
- driver
-Date: Thu, 4 Sep 2014 13:22:02 +0000
-Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49E385CF@DFLE09.ent.ti.com>
-References: <1408980413-8763-1-git-send-email-dmurphy@ti.com>
- <1408980413-8763-2-git-send-email-dmurphy@ti.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 2/3] input: ti_am335x_tsc: Remove DT wire-config parameter
+Date: Thu,  4 Sep 2014 16:39:14 +0200
+Message-ID: <1409841555-11336-2-git-send-email-bigeasy@linutronix.de>
+References: <1409841555-11336-1-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:52589 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751187AbaIDNW1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 09:22:27 -0400
-Content-Language: en-US
+Received: from www.linutronix.de ([62.245.132.108]:52613 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751437AbaIDOjY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 10:39:24 -0400
+In-Reply-To: <1409841555-11336-1-git-send-email-bigeasy@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "sergei.shtylyov@cogentembedded.com" <sergei.shtylyov@cogentembedded.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-omap@vger.kernel.org, Jeff Lance <j-lance1@ti.com>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Bumping x2
+=46rom: Jeff Lance <j-lance1@ti.com>
 
-On 08/25/2014 10:26 AM, Murphy, Dan wrote:
-> Adding support for the DRV2667 haptic driver.
-> This device has the ability to store vibration
-> patterns in RAM and execute them once the GO bit
-> is set.
-> 
-> The initial driver sets a basic waveform in the
-> first waveform sequence and will play the waveform
-> when the GO bit is set and will continously play
-> the waveform until the GO bit is unset.
-> 
-> Data sheet is here:
-> http://www.ti.com/product/drv2667
-> 
-> Signed-off-by: Dan Murphy <dmurphy@ti.com>
-> ---
-> 
-> v2 - No updates since no comments - https://patchwork.kernel.org/patch/4759391/
-> 
->  drivers/input/misc/Kconfig   |   11 +
->  drivers/input/misc/Makefile  |    1 +
->  drivers/input/misc/drv2667.c |  500 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 512 insertions(+)
->  create mode 100644 drivers/input/misc/drv2667.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 41d0ae6..51891f6 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -687,4 +687,15 @@ config INPUT_DRV260X_HAPTICS
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called drv260x-haptics.
->  
-> +config INPUT_DRV2667_HAPTICS
-> +	tristate "TI DRV2667 haptics support"
-> +	depends on INPUT && I2C
-> +	select INPUT_FF_MEMLESS
-> +	select REGMAP_I2C
-> +	help
-> +	  Say Y to enable support for the TI DRV2667 haptics driver.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called drv260x-haptics.
-> +
->  endif
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index cd4bc2d..e0cee17 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -27,6 +27,7 @@ obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
->  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
->  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
->  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
-> +obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
->  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
->  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
->  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
-> diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
-> new file mode 100644
-> index 0000000..0f43758
-> --- /dev/null
-> +++ b/drivers/input/misc/drv2667.c
-> @@ -0,0 +1,500 @@
-> +/*
-> + * DRV2667 haptics driver family
-> + *
-> + * Author: Dan Murphy <dmurphy@ti.com>
-> + *
-> + * Copyright: (C) 2014 Texas Instruments, Inc.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> + * General Public License for more details.
-> + */
-> +
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/slab.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
-> +
-> +/* Contol registers */
-> +#define DRV2667_STATUS	0x00
-> +#define DRV2667_CTRL_1	0x01
-> +#define DRV2667_CTRL_2	0x02
-> +/* Waveform sequencer */
-> +#define DRV2667_WV_SEQ_0	0x03
-> +#define DRV2667_WV_SEQ_1	0x04
-> +#define DRV2667_WV_SEQ_2	0x05
-> +#define DRV2667_WV_SEQ_3	0x06
-> +#define DRV2667_WV_SEQ_4	0x07
-> +#define DRV2667_WV_SEQ_5	0x08
-> +#define DRV2667_WV_SEQ_6	0x09
-> +#define DRV2667_WV_SEQ_7	0x0A
-> +#define DRV2667_FIFO		0x0B
-> +#define DRV2667_PAGE		0xFF
-> +#define DRV2667_MAX_REG		DRV2667_PAGE
-> +
-> +#define DRV2667_PAGE_0		0x00
-> +#define DRV2667_PAGE_1		0x01
-> +#define DRV2667_PAGE_2		0x02
-> +#define DRV2667_PAGE_3		0x03
-> +#define DRV2667_PAGE_4		0x04
-> +#define DRV2667_PAGE_5		0x05
-> +#define DRV2667_PAGE_6		0x06
-> +#define DRV2667_PAGE_7		0x07
-> +#define DRV2667_PAGE_8		0x08
-> +
-> +/* RAM fields */
-> +#define DRV2667_RAM_HDR_SZ	0x0
-> +/* RAM Header addresses */
-> +#define DRV2667_RAM_START_HI	0x01
-> +#define DRV2667_RAM_START_LO	0x02
-> +#define DRV2667_RAM_STOP_HI		0x03
-> +#define DRV2667_RAM_STOP_LO		0x04
-> +#define DRV2667_RAM_REPEAT_CT	0x05
-> +/* RAM data addresses */
-> +#define DRV2667_RAM_AMP		0x06
-> +#define DRV2667_RAM_FREQ	0x07
-> +#define DRV2667_RAM_DURATION	0x08
-> +#define DRV2667_RAM_ENVELOPE	0x09
-> +
-> +/* Control 1 Register */
-> +#define DRV2667_25_VPP_GAIN		0x00
-> +#define DRV2667_50_VPP_GAIN		0x01
-> +#define DRV2667_75_VPP_GAIN		0x02
-> +#define DRV2667_100_VPP_GAIN	0x03
-> +#define DRV2667_DIGITAL_IN		0xfc
-> +#define DRV2667_ANALOG_IN		(1 << 2)
-> +
-> +/* Control 2 Register */
-> +#define DRV2667_GO			(1 << 0)
-> +#define DRV2667_STANDBY		(1 << 6)
-> +#define DRV2667_DEV_RST		(1 << 7)
-> +
-> +/* RAM Envelope settings */
-> +#define DRV2667_NO_ENV			0x00
-> +#define DRV2667_32_MS_ENV		0x01
-> +#define DRV2667_64_MS_ENV		0x02
-> +#define DRV2667_96_MS_ENV		0x03
-> +#define DRV2667_128_MS_ENV		0x04
-> +#define DRV2667_160_MS_ENV		0x05
-> +#define DRV2667_192_MS_ENV		0x06
-> +#define DRV2667_224_MS_ENV		0x07
-> +#define DRV2667_256_MS_ENV		0x08
-> +#define DRV2667_512_MS_ENV		0x09
-> +#define DRV2667_768_MS_ENV		0x0a
-> +#define DRV2667_1024_MS_ENV		0x0b
-> +#define DRV2667_1280_MS_ENV		0x0c
-> +#define DRV2667_1536_MS_ENV		0x0d
-> +#define DRV2667_1792_MS_ENV		0x0e
-> +#define DRV2667_2048_MS_ENV		0x0f
-> +
-> +/**
-> + * struct drv2667_data -
-> + * @input_dev - Pointer to the input device
-> + * @client - Pointer to the I2C client
-> + * @regmap - Register map of the device
-> + * @work - Work item used to off load the enable/disable of the vibration
-> + * @regulator - Pointer to the regulator for the IC
-> + * @magnitude - Magnitude of the vibration event
-> +**/
-> +struct drv2667_data {
-> +	struct input_dev *input_dev;
-> +	struct i2c_client *client;
-> +	struct regmap *regmap;
-> +	struct work_struct work;
-> +	struct regulator *regulator;
-> +	u32 page;
-> +	u32 magnitude;
-> +	u32 frequency;
-> +};
-> +
-> +static struct reg_default drv2667_reg_defs[] = {
-> +	{ DRV2667_STATUS, 0x02 },
-> +	{ DRV2667_CTRL_1, 0x28 },
-> +	{ DRV2667_CTRL_2, 0x40 },
-> +	{ DRV2667_WV_SEQ_0, 0x00 },
-> +	{ DRV2667_WV_SEQ_1, 0x00 },
-> +	{ DRV2667_WV_SEQ_2, 0x00 },
-> +	{ DRV2667_WV_SEQ_3, 0x00 },
-> +	{ DRV2667_WV_SEQ_4, 0x00 },
-> +	{ DRV2667_WV_SEQ_5, 0x00 },
-> +	{ DRV2667_WV_SEQ_6, 0x00 },
-> +	{ DRV2667_WV_SEQ_7, 0x00 },
-> +	{ DRV2667_FIFO, 0x00 },
-> +	{ DRV2667_PAGE, 0x00 },
-> +};
-> +
-> +static int drv2667_set_waveform_freq(struct drv2667_data *haptics)
-> +{
-> +	unsigned int read_buf;
-> +	int freq;
-> +	int error;
-> +
-> +	/* Per the data sheet:
-> +	 * Sinusoid Frequency (Hz) = 7.8125 x Frequency
-> +	 */
-> +	freq = (haptics->frequency * 1000) / 78125;
-> +	if (freq <= 0) {
-> +		dev_err(&haptics->client->dev,
-> +			"ERROR: Frequency calculated to %i\n", freq);
-> +		return -EINVAL;
-> +	}
-> +
-> +	error = regmap_read(haptics->regmap, DRV2667_PAGE, &read_buf);
-> +	if (error) {
-> +		dev_err(&haptics->client->dev,
-> +			"Failed to read the page number: %d\n", error);
-> +		return -EIO;
-> +	}
-> +
-> +	if (read_buf == DRV2667_PAGE_0 ||
-> +		haptics->page != read_buf) {
-> +		error = regmap_write(haptics->regmap,
-> +				DRV2667_PAGE, haptics->page);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +				"Failed to set the page: %d\n", error);
-> +			return -EIO;
-> +		}
-> +	}
-> +
-> +	error = regmap_write(haptics->regmap, DRV2667_RAM_FREQ,	freq);
-> +	if (error)
-> +		dev_err(&haptics->client->dev,
-> +				"Failed to set the frequency: %d\n", error);
-> +
-> +	/* Reset back to original page */
-> +	if (read_buf == DRV2667_PAGE_0 ||
-> +		haptics->page != read_buf) {
-> +		error = regmap_write(haptics->regmap, DRV2667_PAGE, read_buf);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +					"Failed to set the page: %d\n", error);
-> +				return -EIO;
-> +			}
-> +	}
-> +
-> +	return error;
-> +}
-> +
-> +static void drv2667_worker(struct work_struct *work)
-> +{
-> +	struct drv2667_data *haptics = container_of(work, struct drv2667_data, work);
-> +	int error;
-> +
-> +	if (haptics->magnitude) {
-> +		error = regmap_write(haptics->regmap,
-> +				DRV2667_PAGE, haptics->page);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +				"Failed to set the page: %d\n", error);
-> +			return;
-> +		}
-> +
-> +		error = regmap_write(haptics->regmap, DRV2667_RAM_AMP,
-> +				haptics->magnitude);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +				"Failed to set the amplitude: %d\n", error);
-> +			return;
-> +		}
-> +
-> +		error = regmap_write(haptics->regmap,
-> +				DRV2667_PAGE, DRV2667_PAGE_0);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +				"Failed to set the page: %d\n", error);
-> +			return;
-> +		}
-> +
-> +		error = regmap_write(haptics->regmap,
-> +				DRV2667_CTRL_2, DRV2667_GO);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +				"Failed to set the GO bit: %d\n", error);
-> +		}
-> +	} else {
-> +		error = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-> +				DRV2667_GO, 0);
-> +		if (error) {
-> +			dev_err(&haptics->client->dev,
-> +				"Failed to unset the GO bit: %d\n", error);
-> +		}
-> +	}
-> +}
-> +
-> +static int drv2667_haptics_play(struct input_dev *input, void *data,
-> +				struct ff_effect *effect)
-> +{
-> +	struct drv2667_data *haptics = input_get_drvdata(input);
-> +
-> +	if (effect->u.rumble.strong_magnitude > 0)
-> +		haptics->magnitude = effect->u.rumble.strong_magnitude;
-> +	else if (effect->u.rumble.weak_magnitude > 0)
-> +		haptics->magnitude = effect->u.rumble.weak_magnitude;
-> +	else
-> +		haptics->magnitude = 0;
-> +
-> +	schedule_work(&haptics->work);
-> +
-> +	return 0;
-> +}
-> +
-> +static void drv2667_close(struct input_dev *input)
-> +{
-> +	struct drv2667_data *haptics = input_get_drvdata(input);
-> +	int error;
-> +
-> +	cancel_work_sync(&haptics->work);
-> +
-> +	error = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-> +				DRV2667_STANDBY, 1);
-> +	if (error)
-> +		dev_err(&haptics->client->dev,
-> +			"Failed to enter standby mode: %d\n", error);
-> +}
-> +
-> +static const struct reg_default drv2667_init_regs[] = {
-> +	{ DRV2667_CTRL_2, 0 },
-> +	{ DRV2667_CTRL_1, DRV2667_25_VPP_GAIN },
-> +	{ DRV2667_WV_SEQ_0, 1 },
-> +	{ DRV2667_WV_SEQ_1, 0 }
-> +};
-> +
-> +static const struct reg_default drv2667_page1_init[] = {
-> +	{ DRV2667_RAM_HDR_SZ, 0x05 },
-> +	{ DRV2667_RAM_START_HI, 0x80 },
-> +	{ DRV2667_RAM_START_LO, 0x06 },
-> +	{ DRV2667_RAM_STOP_HI, 0x00 },
-> +	{ DRV2667_RAM_STOP_LO, 0x09 },
-> +	{ DRV2667_RAM_REPEAT_CT, 0 },
-> +	{ DRV2667_RAM_DURATION, 0x05 },
-> +	{ DRV2667_RAM_ENVELOPE, DRV2667_NO_ENV },
-> +	{ DRV2667_RAM_AMP, 0x60 },
-> +};
-> +
-> +static int drv2667_init(struct drv2667_data *haptics)
-> +{
-> +	int error;
-> +
-> +	/* Set default haptic frequency to 195Hz on Page 1*/
-> +	haptics->frequency = 195;
-> +	haptics->page = DRV2667_PAGE_1;
-> +
-> +	error = regmap_register_patch(haptics->regmap,
-> +				      drv2667_init_regs,
-> +				      ARRAY_SIZE(drv2667_init_regs));
-> +	if (error) {
-> +		dev_err(&haptics->client->dev,
-> +			"Failed to write init registers: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
-> +	error = regmap_write(haptics->regmap, DRV2667_PAGE, haptics->page);
-> +	if (error) {
-> +		dev_err(&haptics->client->dev, "Failed to set page: %d\n",
-> +			error);
-> +		goto error_out;
-> +	}
-> +
-> +	error = drv2667_set_waveform_freq(haptics);
-> +	if (error)
-> +		goto error_page;
-> +
-> +	error = regmap_register_patch(haptics->regmap,
-> +				      drv2667_page1_init,
-> +				      ARRAY_SIZE(drv2667_page1_init));
-> +	if (error) {
-> +		dev_err(&haptics->client->dev,
-> +			"Failed to write page registers: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
-> +	error = regmap_write(haptics->regmap, DRV2667_PAGE, DRV2667_PAGE_0);
-> +	return error;
-> +
-> +error_page:
-> +	regmap_write(haptics->regmap, DRV2667_PAGE, DRV2667_PAGE_0);
-> +error_out:
-> +	return error;
-> +}
-> +
-> +static const struct regmap_config drv2667_regmap_config = {
-> +	.reg_bits = 8,
-> +	.val_bits = 8,
-> +
-> +	.max_register = DRV2667_MAX_REG,
-> +	.reg_defaults = drv2667_reg_defs,
-> +	.num_reg_defaults = ARRAY_SIZE(drv2667_reg_defs),
-> +	.cache_type = REGCACHE_NONE,
-> +};
-> +
-> +static int drv2667_probe(struct i2c_client *client,
-> +			 const struct i2c_device_id *id)
-> +{
-> +	struct drv2667_data *haptics;
-> +	int error;
-> +
-> +	haptics = devm_kzalloc(&client->dev, sizeof(*haptics), GFP_KERNEL);
-> +	if (!haptics)
-> +		return -ENOMEM;
-> +
-> +	haptics->regulator = devm_regulator_get(&client->dev, "vbat");
-> +	if (IS_ERR(haptics->regulator)) {
-> +		error = PTR_ERR(haptics->regulator);
-> +		dev_err(&client->dev,
-> +			"unable to get regulator, error: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	haptics->input_dev = devm_input_allocate_device(&client->dev);
-> +	if (!haptics->input_dev) {
-> +		dev_err(&client->dev, "Failed to allocate input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	haptics->input_dev->name = "drv2667:haptics";
-> +	haptics->input_dev->dev.parent = client->dev.parent;
-> +	haptics->input_dev->close = drv2667_close;
-> +	input_set_drvdata(haptics->input_dev, haptics);
-> +	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
-> +
-> +	error = input_ff_create_memless(haptics->input_dev, NULL,
-> +					drv2667_haptics_play);
-> +	if (error) {
-> +		dev_err(&client->dev, "input_ff_create() failed: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
-> +	INIT_WORK(&haptics->work, drv2667_worker);
-> +
-> +	haptics->client = client;
-> +	i2c_set_clientdata(client, haptics);
-> +
-> +	haptics->regmap = devm_regmap_init_i2c(client, &drv2667_regmap_config);
-> +	if (IS_ERR(haptics->regmap)) {
-> +		error = PTR_ERR(haptics->regmap);
-> +		dev_err(&client->dev, "Failed to allocate register map: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
-> +	error = drv2667_init(haptics);
-> +	if (error) {
-> +		dev_err(&client->dev, "Device init failed: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	error = input_register_device(haptics->input_dev);
-> +	if (error) {
-> +		dev_err(&client->dev, "couldn't register input device: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM_SLEEP
-> +static int drv2667_suspend(struct device *dev)
-> +{
-> +	struct drv2667_data *haptics = dev_get_drvdata(dev);
-> +	int ret = 0;
-> +
-> +	mutex_lock(&haptics->input_dev->mutex);
-> +
-> +	if (haptics->input_dev->users) {
-> +		ret = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-> +				DRV2667_STANDBY, 1);
-> +		if (ret) {
-> +			dev_err(dev, "Failed to set standby mode\n");
-> +			regulator_disable(haptics->regulator);
-> +			goto out;
-> +		}
-> +
-> +		ret = regulator_disable(haptics->regulator);
-> +		if (ret) {
-> +			dev_err(dev, "Failed to disable regulator\n");
-> +			regmap_update_bits(haptics->regmap,
-> +					   DRV2667_CTRL_2,
-> +					   DRV2667_STANDBY, 0);
-> +		}
-> +	}
-> +out:
-> +	mutex_unlock(&haptics->input_dev->mutex);
-> +	return ret;
-> +}
-> +
-> +static int drv2667_resume(struct device *dev)
-> +{
-> +	struct drv2667_data *haptics = dev_get_drvdata(dev);
-> +	int ret = 0;
-> +
-> +	mutex_lock(&haptics->input_dev->mutex);
-> +
-> +	if (haptics->input_dev->users) {
-> +		ret = regulator_enable(haptics->regulator);
-> +		if (ret) {
-> +			dev_err(dev, "Failed to enable regulator\n");
-> +			goto out;
-> +		}
-> +
-> +		ret = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
-> +					 DRV2667_STANDBY, 0);
-> +		if (ret) {
-> +			dev_err(dev, "Failed to unset standby mode\n");
-> +			regulator_disable(haptics->regulator);
-> +			goto out;
-> +		}
-> +
-> +	}
-> +
-> +out:
-> +	mutex_unlock(&haptics->input_dev->mutex);
-> +	return ret;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(drv2667_pm_ops, drv2667_suspend, drv2667_resume);
-> +
-> +static const struct i2c_device_id drv2667_id[] = {
-> +	{ "drv2667", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, drv2667_id);
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id drv2667_of_match[] = {
-> +	{ .compatible = "ti,drv2667", },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, drv2667_of_match);
-> +#endif
-> +
-> +static struct i2c_driver drv2667_driver = {
-> +	.probe		= drv2667_probe,
-> +	.driver		= {
-> +		.name	= "drv2667-haptics",
-> +		.owner	= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(drv2667_of_match),
-> +		.pm	= &drv2667_pm_ops,
-> +	},
-> +	.id_table = drv2667_id,
-> +};
-> +module_i2c_driver(drv2667_driver);
-> +
-> +MODULE_ALIAS("platform:drv2667-haptics");
-> +MODULE_DESCRIPTION("TI DRV2667 haptics driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Dan Murphy <dmurphy@ti.com>");
-> 
+With the touschscreen in am335x, you do not have the option to mux the
+analog input lines. You must connect the analog input to the correspond=
+ing
+touchscreen terminal.
+This patch removes the code that is parsing the ti,wire-config and uses
+the "default" parameters instead.
+In short,
+	inp_xp =3D> STEPCONFIG_INP(0)
+	inp_xn =3D> STEPCONFIG_INP(1)
+	inp_yp =3D> STEPCONFIG_INP(2)
+	inp_yn =3D> STEPCONFIG_INP(3)
+	bit_xp =3D> STEPCONFIG_XPP
+	bit_xn =3D> STEPCONFIG_XNN
+	bit_yp =3D> STEPCONFIG_YPP
+	bit_yn =3D> STEPCONFIG_YNN
 
+Cc: "Beno=C3=AEt Cousson" <bcousson@baylibre.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Jeff Lance <j-lance1@ti.com>
+[bigeasy: refresh, drop AIN defines.]
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c | 109 +++++-----------------=
+--------
+ 1 file changed, 16 insertions(+), 93 deletions(-)
 
--- 
-------------------
-Dan Murphy
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
+touchscreen/ti_am335x_tsc.c
+index 092fa8b31c67..92fb473621b0 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -33,13 +33,6 @@
+ #define SEQ_SETTLE		275
+ #define MAX_12BIT		((1 << 12) - 1)
+=20
+-static const int config_pins[] =3D {
+-	STEPCONFIG_XPP,
+-	STEPCONFIG_XNN,
+-	STEPCONFIG_YPP,
+-	STEPCONFIG_YNN,
+-};
+-
+ struct titsc {
+ 	struct input_dev	*input;
+ 	struct ti_tscadc_dev	*mfd_tscadc;
+@@ -48,9 +41,6 @@ struct titsc {
+ 	unsigned int		x_plate_resistance;
+ 	bool			pen_down;
+ 	int			coordinate_readouts;
+-	u32			config_inp[4];
+-	u32			bit_xp, bit_xn, bit_yp, bit_yn;
+-	u32			inp_xp, inp_xn, inp_yp, inp_yn;
+ 	u32			step_mask;
+ };
+=20
+@@ -65,58 +55,6 @@ static void titsc_writel(struct titsc *tsc, unsigned=
+ int reg,
+ 	writel(val, tsc->mfd_tscadc->tscadc_base + reg);
+ }
+=20
+-static int titsc_config_wires(struct titsc *ts_dev)
+-{
+-	u32 analog_line[4];
+-	u32 wire_order[4];
+-	int i, bit_cfg;
+-
+-	for (i =3D 0; i < 4; i++) {
+-		/*
+-		 * Get the order in which TSC wires are attached
+-		 * w.r.t. each of the analog input lines on the EVM.
+-		 */
+-		analog_line[i] =3D (ts_dev->config_inp[i] & 0xF0) >> 4;
+-		wire_order[i] =3D ts_dev->config_inp[i] & 0x0F;
+-		if (WARN_ON(analog_line[i] > 7))
+-			return -EINVAL;
+-		if (WARN_ON(wire_order[i] > ARRAY_SIZE(config_pins)))
+-			return -EINVAL;
+-	}
+-
+-	for (i =3D 0; i < 4; i++) {
+-		int an_line;
+-		int wi_order;
+-
+-		an_line =3D analog_line[i];
+-		wi_order =3D wire_order[i];
+-		bit_cfg =3D config_pins[wi_order];
+-		if (bit_cfg =3D=3D 0)
+-			return -EINVAL;
+-		switch (wi_order) {
+-		case 0:
+-			ts_dev->bit_xp =3D bit_cfg;
+-			ts_dev->inp_xp =3D an_line;
+-			break;
+-
+-		case 1:
+-			ts_dev->bit_xn =3D bit_cfg;
+-			ts_dev->inp_xn =3D an_line;
+-			break;
+-
+-		case 2:
+-			ts_dev->bit_yp =3D bit_cfg;
+-			ts_dev->inp_yp =3D an_line;
+-			break;
+-		case 3:
+-			ts_dev->bit_yn =3D bit_cfg;
+-			ts_dev->inp_yn =3D an_line;
+-			break;
+-		}
+-	}
+-	return 0;
+-}
+-
+ static void titsc_step_config(struct titsc *ts_dev)
+ {
+ 	unsigned int	config;
+@@ -124,19 +62,17 @@ static void titsc_step_config(struct titsc *ts_dev=
+)
+ 	int end_step;
+ 	u32 stepenable;
+=20
+-	config =3D STEPCONFIG_MODE_HWSYNC |
+-			STEPCONFIG_AVG_16 | ts_dev->bit_xp;
++	config =3D STEPCONFIG_MODE_HWSYNC | STEPCONFIG_AVG_16 | STEPCONFIG_XP=
+P;
+ 	switch (ts_dev->wires) {
+ 	case 4:
+-		config |=3D STEPCONFIG_INP(ts_dev->inp_yp) | ts_dev->bit_xn;
++		config |=3D STEPCONFIG_INP(2) | STEPCONFIG_XNN;
+ 		break;
+ 	case 5:
+-		config |=3D ts_dev->bit_yn |
+-				STEPCONFIG_INP_AN4 | ts_dev->bit_xn |
+-				ts_dev->bit_yp;
++		config |=3D STEPCONFIG_YNN | STEPCONFIG_INP_AN4 | STEPCONFIG_XNN |
++				STEPCONFIG_YPP;
+ 		break;
+ 	case 8:
+-		config |=3D STEPCONFIG_INP(ts_dev->inp_yp) | ts_dev->bit_xn;
++		config |=3D STEPCONFIG_INP(2) | STEPCONFIG_XNN;
+ 		break;
+ 	}
+=20
+@@ -147,20 +83,18 @@ static void titsc_step_config(struct titsc *ts_dev=
+)
+ 		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+ 	}
+=20
+-	config =3D 0;
+-	config =3D STEPCONFIG_MODE_HWSYNC |
+-			STEPCONFIG_AVG_16 | ts_dev->bit_yn |
++	config =3D STEPCONFIG_MODE_HWSYNC | STEPCONFIG_AVG_16 | STEPCONFIG_YN=
+N |
+ 			STEPCONFIG_INM_ADCREFM;
+ 	switch (ts_dev->wires) {
+ 	case 4:
+-		config |=3D ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
++		config |=3D STEPCONFIG_YPP | STEPCONFIG_INP(0);
+ 		break;
+ 	case 5:
+-		config |=3D ts_dev->bit_xp | STEPCONFIG_INP_AN4 |
++		config |=3D STEPCONFIG_XPP | STEPCONFIG_INP_AN4 |
+ 				STEPCONFIG_XNP | STEPCONFIG_YPN;
+ 		break;
+ 	case 8:
+-		config |=3D ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
++		config |=3D STEPCONFIG_YPP | STEPCONFIG_INP(0);
+ 		break;
+ 	}
+=20
+@@ -172,24 +106,23 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+ 	}
+=20
+ 	/* Charge step configuration */
+-	config =3D ts_dev->bit_xp | ts_dev->bit_yn |
+-			STEPCHARGE_RFP_XPUL | STEPCHARGE_RFM_XNUR |
+-			STEPCHARGE_INM_AN1 | STEPCHARGE_INP(ts_dev->inp_yp);
++	config =3D STEPCONFIG_XPP | STEPCONFIG_YNN | STEPCHARGE_RFP_XPUL |
++		STEPCHARGE_RFM_XNUR | STEPCHARGE_INM_AN1 | STEPCHARGE_INP(2);
+=20
+ 	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
+ 	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
+=20
+ 	/* coordinate_readouts * 2 =E2=80=A6 coordinate_readouts * 2 + 2 is f=
+or Z */
+ 	config =3D STEPCONFIG_MODE_HWSYNC |
+-			STEPCONFIG_AVG_16 | ts_dev->bit_yp |
+-			ts_dev->bit_xn | STEPCONFIG_INM_ADCREFM |
+-			STEPCONFIG_INP(ts_dev->inp_xp);
++			STEPCONFIG_AVG_16 | STEPCONFIG_YPP |
++			STEPCONFIG_XNN | STEPCONFIG_INM_ADCREFM |
++			STEPCONFIG_INP(0);
+ 	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+ 	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+ 			STEPCONFIG_OPENDLY);
+=20
+ 	end_step++;
+-	config |=3D STEPCONFIG_INP(ts_dev->inp_yn);
++	config |=3D STEPCONFIG_INP(3);
+ 	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+ 	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+ 			STEPCONFIG_OPENDLY);
+@@ -364,12 +297,7 @@ static int titsc_parse_dt(struct platform_device *=
+pdev,
+ 		err =3D of_property_read_u32(node, "ti,coordiante-readouts",
+ 				&ts_dev->coordinate_readouts);
+ 	}
+-
+-	if (err < 0)
+-		return err;
+-
+-	return of_property_read_u32_array(node, "ti,wire-config",
+-			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
++	return err;
+ }
+=20
+ /*
+@@ -411,11 +339,6 @@ static int titsc_probe(struct platform_device *pde=
+v)
+ 	}
+=20
+ 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+-	err =3D titsc_config_wires(ts_dev);
+-	if (err) {
+-		dev_err(&pdev->dev, "wrong i/p wire configuration\n");
+-		goto err_free_irq;
+-	}
+ 	titsc_step_config(ts_dev);
+ 	titsc_writel(ts_dev, REG_FIFO0THR,
+ 			ts_dev->coordinate_readouts * 2 + 2 - 1);
+--=20
+2.1.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

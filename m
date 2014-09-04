@@ -1,71 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: thingm: fix workqueue race on remove
-Date: Thu, 4 Sep 2014 09:02:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1409040901050.12309@pobox.suse.cz>
-References: <54062150.2010800@gmail.com> <alpine.LNX.2.00.1409022328470.12309@pobox.suse.cz> <20140903023531.GA1128@datura.dylex.net> <alpine.LNX.2.00.1409030928200.12309@pobox.suse.cz> <20140903081723.GA1153@datura.dylex.net> <alpine.LNX.2.00.1409031021230.12309@pobox.suse.cz>
- <20140903130348.GA1161@datura.dylex.net> <alpine.LNX.2.00.1409031509070.12309@pobox.suse.cz> <20140903141601.GA1866@datura.dylex.net> <alpine.LNX.2.00.1409031636170.12309@pobox.suse.cz> <20140904010519.GA13189@datura.dylex.net>
+From: "Murphy, Dan" <dmurphy@ti.com>
+Subject: Re: [PATCH v2 1/2] doc: dt/bindings: input: introduce TI DRV2667
+ haptic driver description
+Date: Thu, 4 Sep 2014 13:21:48 +0000
+Message-ID: <00FC9A978A94B7418C33AFAE8A35ED49E385C5@DFLE09.ent.ti.com>
+References: <1408980413-8763-1-git-send-email-dmurphy@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49980 "EHLO mx2.suse.de"
+Received: from arroyo.ext.ti.com ([192.94.94.40]:56123 "EHLO arroyo.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751068AbaIDHCN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Sep 2014 03:02:13 -0400
-In-Reply-To: <20140904010519.GA13189@datura.dylex.net>
+	id S1750846AbaIDNWO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 09:22:14 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dylan Alex Simon <dylan-kernel@dylex.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Vivien Didelot <vivien.didelot@savoirfairelinux.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "sergei.shtylyov@cogentembedded.com" <sergei.shtylyov@cogentembedded.com>
 
-thingm_remove_rgb() needs to flush the workqueue after all the LED classes 
-have been unregistered, otherwise the removal might race with another LED 
-event coming, causing thingm_led_set() to schedule additional work after 
-thingm_remove_rgb() has flushed it. This obviously causes oops later, as 
-the scheduled work has been freed in the meantime.
+Bumping x2
 
-In addition to that, move the hid_hw_stop() to an earlier place, so that 
-dmesg is not polluted by failure messages about not being able to write 
-the LED while the device is being shut down.
+On 08/25/2014 10:26 AM, Murphy, Dan wrote:
+> DRV2667 is a haptic/vibrator driver for Linear Resonant Actuators.
+> Adding dt binding for this part
+> 
+> Signed-off-by: Dan Murphy <dmurphy@ti.com>
+> ---
+> 
+> v2 - Removed extra tabs, changed node to function not device
+> added vbat-supply, and removed confusing description - https://patchwork.kernel.org/patch/4759381/
+> 
+>  .../devicetree/bindings/input/ti,drv2667.txt       |   17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/ti,drv2667.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/ti,drv2667.txt b/Documentation/devicetree/bindings/input/ti,drv2667.txt
+> new file mode 100644
+> index 0000000..996382c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/ti,drv2667.txt
+> @@ -0,0 +1,17 @@
+> +* Texas Instruments - drv2667 Haptics driver
+> +
+> +Required properties:
+> +	- compatible - "ti,drv2667" - DRV2667
+> +	- reg -  I2C slave address
+> +	- vbat-supply - Required supply regulator
+> +
+> +Example:
+> +
+> +haptics: haptics@59 {
+> +	compatible = "ti,drv2667";
+> +	reg = <0x59>;
+> +	vbat-supply = <&vbat>;
+> +};
+> +
+> +For more product information please see the link below:
+> +http://www.ti.com/product/drv2667
+> 
 
-Reported-and-tested-by: Dylan Alex Simon <dylan-kernel@dylex.net>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
-
-Queued in hid.git#for-3.18/upstream
-
- drivers/hid/hid-thingm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
-index 134be89..f206398 100644
---- a/drivers/hid/hid-thingm.c
-+++ b/drivers/hid/hid-thingm.c
-@@ -208,10 +208,10 @@ unregister_red:
- 
- static void thingm_remove_rgb(struct thingm_rgb *rgb)
- {
--	flush_work(&rgb->work);
- 	led_classdev_unregister(&rgb->red.ldev);
- 	led_classdev_unregister(&rgb->green.ldev);
- 	led_classdev_unregister(&rgb->blue.ldev);
-+	flush_work(&rgb->work);
- }
- 
- static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
-@@ -286,10 +286,10 @@ static void thingm_remove(struct hid_device *hdev)
- 	struct thingm_device *tdev = hid_get_drvdata(hdev);
- 	int i;
- 
-+	hid_hw_stop(hdev);
-+
- 	for (i = 0; i < tdev->fwinfo->numrgb; ++i)
- 		thingm_remove_rgb(tdev->rgb + i);
--
--	hid_hw_stop(hdev);
- }
- 
- static const struct hid_device_id thingm_table[] = {
 
 -- 
-Jiri Kosina
-SUSE Labs
+------------------
+Dan Murphy

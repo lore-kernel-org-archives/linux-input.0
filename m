@@ -1,60 +1,53 @@
-From: Dylan Alex Simon <dylan-kernel@dylex.net>
-Subject: Re: hid-thingm: kernel panic on remove
-Date: Wed, 3 Sep 2014 21:05:19 -0400
-Message-ID: <20140904010519.GA13189@datura.dylex.net>
-References: <54062150.2010800@gmail.com>
- <alpine.LNX.2.00.1409022328470.12309@pobox.suse.cz>
- <20140903023531.GA1128@datura.dylex.net>
- <alpine.LNX.2.00.1409030928200.12309@pobox.suse.cz>
- <20140903081723.GA1153@datura.dylex.net>
- <alpine.LNX.2.00.1409031021230.12309@pobox.suse.cz>
- <20140903130348.GA1161@datura.dylex.net>
- <alpine.LNX.2.00.1409031509070.12309@pobox.suse.cz>
- <20140903141601.GA1866@datura.dylex.net>
- <alpine.LNX.2.00.1409031636170.12309@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: hid-sensor-hub: Adding USB_DEVICE_ID_STM_HID_SENSOR
+ device id
+Date: Thu, 4 Sep 2014 08:50:14 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1409040849520.12309@pobox.suse.cz>
+References: <1409785254-20245-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from datura.dylex.net ([66.114.66.16]:36984 "EHLO datura.dylex.net"
+Received: from cantor2.suse.de ([195.135.220.15]:49899 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933102AbaIDBFX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Sep 2014 21:05:23 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1409031636170.12309@pobox.suse.cz>
+	id S1751068AbaIDGuS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Sep 2014 02:50:18 -0400
+In-Reply-To: <1409785254-20245-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: elad@fedoraproject.org, linux-input@vger.kernel.org
 
->From Jiri Kosina <jkosina@suse.cz>, Wed, Sep 03, 2014 at 04:37:05PM +0200:
-> On Wed, 3 Sep 2014, Dylan Alex Simon wrote:
-> 
-> > I think that did the trick.  I've run through the whole cycle about 20 times
-> > in various conditions, and it seems solid so far.  Thanks!
-> 
-> Thanks. I actually think that the minimal necessary fix is below. Could 
-> you please do a (hopefully last) round of testing with just this patch 
-> applied?
-> 
-> diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
-> index 134be89..c1d21fa 100644
-> --- a/drivers/hid/hid-thingm.c
-> +++ b/drivers/hid/hid-thingm.c
-> @@ -208,10 +208,10 @@ unregister_red:
->  
->  static void thingm_remove_rgb(struct thingm_rgb *rgb)
->  {
-> -	flush_work(&rgb->work);
->  	led_classdev_unregister(&rgb->red.ldev);
->  	led_classdev_unregister(&rgb->green.ldev);
->  	led_classdev_unregister(&rgb->blue.ldev);
-> +	flush_work(&rgb->work);
->  }
->  
->  static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> 
+On Wed, 3 Sep 2014, Srinivas Pandruvada wrote:
 
-(Sorry, didn't get a chance back at the machine until now.)  This seems to be
-working fine, as well.  I now do get the "failed to write color" messages
-again when unplugging, which didn't show up with the other patch, but no
-panics.
+> Adding USB_DEVICE_ID_STM_HID_SENSOR again in the quirk table. During 3.16 merge
+> cycle somehow quirk for device id USB_DEVICE_ID_STM_HID_SENSOR is missing.
+> I see commit dde3b45cd74e ("HID: hid-sensor-hub: new device id and quirk
+> for STM Sensor hub") added new id USB_DEVICE_ID_STM_HID_SENSOR_1,
+> but didn't really delete the old device id.
+> Anyway we need to add this back, otherwise it breaks ST sensor hubs.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> ---
+>  drivers/hid/hid-sensor-hub.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 2ac2576..e6d8e18 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -709,6 +709,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
+>  			USB_DEVICE_ID_MS_TYPE_COVER_2),
+>  			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+>  	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
+> +			USB_DEVICE_ID_STM_HID_SENSOR),
+> +			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+> +	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
+>  			USB_DEVICE_ID_STM_HID_SENSOR_1),
+>  			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+>  	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
+
+Queued for 3.17.
+
+-- 
+Jiri Kosina
+SUSE Labs

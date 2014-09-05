@@ -1,106 +1,73 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH] mfd: ti_am335x_tscadc: Update logic in CTRL register for 5-wire TS
-Date: Thu,  4 Sep 2014 19:01:57 +0200
-Message-ID: <1409850117-5156-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>, linux-omap@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jeff Lance <j-lance1@ti.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: John DeSilva <desilvjo@umich.edu>
+Subject: [PATCH] HID: Add Holtek USB ID 04d9:a0c2 ETEKCITY Scroll
+Date: Thu,  4 Sep 2014 21:08:05 -0400
+Message-ID: <1409879285-15816-1-git-send-email-desilvjo@umich.edu>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ig0-f170.google.com ([209.85.213.170]:33167 "EHLO
+	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754184AbaIEBJE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 21:09:04 -0400
+Received: by mail-ig0-f170.google.com with SMTP id h3so19152igd.3
+        for <linux-input@vger.kernel.org>; Thu, 04 Sep 2014 18:09:02 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, John DeSilva <desilvjo@umich.edu>
 
-From: Jeff Lance <j-lance1@ti.com>
+The report descriptor for the HOLTEK USB ID 04d9:a0c2 (ETEKCITY Scroll
+T-140 Gaming Mouse) is set to a very large amount of consumer usages
+(2^16), exceeding HID_MAX_USAGES. Added id, bindings and comments for
+the mouse, and reduced the usage and logical maximums to 0x2fff,
+consistent with the other mice in the category.
+Tested on the hardware.
 
-The logic in AFE_Pen_Ctrl bitmask in the CTRL register is different for five
-wire versus four or eight wire touschscreens. This patch should fix this for
-five-wire touch screens. There should be no change needed here for four and
-eight wire tousch screens.
-
-Signed-off-by: Jeff Lance <j-lance1@ti.com>
-[bigeasy: keep the change mfd only]
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: John C. DeSilva <desilvjo@umich.edu>
 ---
-I've been looking at moving this piece and the idle mode setting into the
-TSC driver. Kinda odd that I have to patch within the MFD driver for this
-TSC related change.
-Anyone disagrees?
+ drivers/hid/hid-holtek-mouse.c | 4 ++++
+ drivers/hid/hid-ids.h          | 1 +
+ 2 files changed, 5 insertions(+)
 
- drivers/mfd/ti_am335x_tscadc.c       | 30 +++++++++++++++++-------------
- include/linux/mfd/ti_am335x_tscadc.h |  1 +
- 2 files changed, 18 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index dd4bf5816221..6c9cfb8c1d01 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -241,18 +241,20 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	tscadc_writel(tscadc, REG_CLKDIV, tscadc->clk_div);
+diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
+index d60fbd0..78b3a0c 100644
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -29,6 +29,7 @@
+  *   and Zalman ZM-GM1
+  * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
+  * - USB ID 04d9:a072, sold as LEETGION Hellion Gaming Mouse
++ * - USB ID 04d9:a0c2, sold as ETEKCITY Scroll T-140 Gaming Mouse
+  */
  
- 	/* Set the control register bits */
--	ctrl = CNTRLREG_STEPCONFIGWRT |
--			CNTRLREG_STEPID;
--	if (tsc_wires > 0)
--		ctrl |= CNTRLREG_4WIRE | CNTRLREG_TSCENB;
-+	ctrl = CNTRLREG_STEPCONFIGWRT |	CNTRLREG_STEPID;
- 	tscadc_writel(tscadc, REG_CTRL, ctrl);
+ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+@@ -42,6 +43,7 @@ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		switch (hdev->product) {
+ 		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067:
+ 		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072:
++		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2:
+ 			if (*rsize >= 122 && rdesc[115] == 0xff && rdesc[116] == 0x7f
+ 					&& rdesc[120] == 0xff && rdesc[121] == 0x7f) {
+ 				hid_info(hdev, "Fixing up report descriptor\n");
+@@ -74,6 +76,8 @@ static const struct hid_device_id holtek_mouse_devices[] = {
+ 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+ 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
++			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, holtek_mouse_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 25cd674..c7b36ad 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -479,6 +479,7 @@
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A070	0xa070
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072	0xa072
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
++#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
+ #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
  
- 	/* Set register bits for Idle Config Mode */
--	if (tsc_wires > 0)
-+	if (tsc_wires > 0) {
-+		tscadc->tsc_wires = tsc_wires;
-+		if (tsc_wires == 5)
-+			ctrl |= CNTRLREG_5WIRE | CNTRLREG_TSCENB;
-+		else
-+			ctrl |= CNTRLREG_4WIRE | CNTRLREG_TSCENB;
- 		tscadc_idle_config(tscadc);
-+	}
- 
- 	/* Enable the TSC module enable bit */
--	ctrl = tscadc_readl(tscadc, REG_CTRL);
- 	ctrl |= CNTRLREG_TSCSSENB;
- 	tscadc_writel(tscadc, REG_CTRL, ctrl);
- 
-@@ -324,21 +326,23 @@ static int tscadc_suspend(struct device *dev)
- static int tscadc_resume(struct device *dev)
- {
- 	struct ti_tscadc_dev	*tscadc_dev = dev_get_drvdata(dev);
--	unsigned int restore, ctrl;
-+	u32 ctrl;
- 
- 	pm_runtime_get_sync(dev);
- 
- 	/* context restore */
- 	ctrl = CNTRLREG_STEPCONFIGWRT |	CNTRLREG_STEPID;
--	if (tscadc_dev->tsc_cell != -1)
--		ctrl |= CNTRLREG_TSCENB | CNTRLREG_4WIRE;
- 	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
- 
--	if (tscadc_dev->tsc_cell != -1)
-+	if (tscadc_dev->tsc_cell != -1) {
-+		if (tscadc_dev->tsc_wires == 5)
-+			ctrl |= CNTRLREG_5WIRE | CNTRLREG_TSCENB;
-+		else
-+			ctrl |= CNTRLREG_4WIRE | CNTRLREG_TSCENB;
- 		tscadc_idle_config(tscadc_dev);
--	restore = tscadc_readl(tscadc_dev, REG_CTRL);
--	tscadc_writel(tscadc_dev, REG_CTRL,
--			(restore | CNTRLREG_TSCSSENB));
-+	}
-+	ctrl |= CNTRLREG_TSCSSENB;
-+	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
- 
- 	tscadc_writel(tscadc_dev, REG_CLKDIV, tscadc_dev->clk_div);
- 
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index fb96c84dada5..e2e70053470e 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -155,6 +155,7 @@ struct ti_tscadc_dev {
- 	void __iomem *tscadc_base;
- 	int irq;
- 	int used_cells;	/* 1-2 */
-+	int tsc_wires;
- 	int tsc_cell;	/* -1 if not used */
- 	int adc_cell;	/* -1 if not used */
- 	struct mfd_cell cells[TSCADC_CELLS];
+ #define USB_VENDOR_ID_IMATION		0x0718
 -- 
-2.1.0
+1.8.5.5
+

@@ -1,80 +1,90 @@
-From: John Sung <penmount.touch@gmail.com>
-Subject: [PATCH] Input: serport: Add compat_ioctl routine to support 32bit inputtattach in 64bit systems
-Date: Fri,  5 Sep 2014 21:04:37 +0800
-Message-ID: <1409922277-4497-1-git-send-email-penmount.touch@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:62964 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932083AbaIENF3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2014 09:05:29 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: rmi: check sanity of the incoming report
+Date: Fri,  5 Sep 2014 09:57:15 -0400
+Message-ID: <1409925435-6556-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: penmount.touch@gmail.com
 
-When running a 32-bit inputattach utility in a 64-bit system, there will be error code "inputattach: can't set device type". This is caused by the serport device driver not supporting compat_ioctl, so that SPIOCSTYPE ioctl fails.
+In the Dell XPS 13 9333, it appears that sometimes the bus get confused
+and corrupts the incoming data. It fills the input report with the
+sentinel value "ff". Synaptics told us that such behavior does not comes
+from the touchpad itself, so we filter out such reports here.
 
-Signed-off-by: John Sung <penmount.touch@gmail.com>
+Unfortunately, we can not simply discard the incoming data because they
+may contain useful information. Most of the time, the misbehavior is
+quite near the end of the report, so we can still use the valid part of
+it.
+
+Fixes:
+https://bugzilla.redhat.com/show_bug.cgi?id=1123584
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/serio/serport.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/hid/hid-rmi.c | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-index 0cb7ef5..4b68c29 100644
---- a/drivers/input/serio/serport.c
-+++ b/drivers/input/serio/serport.c
-@@ -22,6 +22,8 @@
- #include <linux/serio.h>
- #include <linux/tty.h>
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 8389e81..db92c3b 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -320,9 +320,6 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
+ 	int offset;
+ 	int i;
  
-+#include <asm/compat.h>
-+
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Input device TTY line discipline");
- MODULE_LICENSE("GPL");
-@@ -31,6 +33,8 @@ MODULE_ALIAS_LDISC(N_MOUSE);
- #define SERPORT_ACTIVE	2
- #define SERPORT_DEAD	3
+-	if (size < hdata->f11.report_size)
+-		return 0;
+-
+ 	if (!(irq & hdata->f11.irq_mask))
+ 		return 0;
  
-+#define SPIOCSTYPE32 (_IOW('q', 0x01, compat_ulong_t))
+@@ -332,9 +329,13 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
+ 		int fs_bit_position = (i & 0x3) << 1;
+ 		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
+ 					0x03;
++		int position = offset + 5 * i;
 +
- struct serport {
- 	struct tty_struct *tty;
- 	wait_queue_head_t wait;
-@@ -221,6 +225,25 @@ static int serport_ldisc_ioctl(struct tty_struct * tty, struct file * file, unsi
- 	return -EINVAL;
++		if (position + 5 > size)
++			/* partial report, go on with what we received */
++			break;
+ 
+-		rmi_f11_process_touch(hdata, i, finger_state,
+-				&data[offset + 5 * i]);
++		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
+ 	}
+ 	input_mt_sync_frame(hdata->input);
+ 	input_sync(hdata->input);
+@@ -412,9 +413,29 @@ static int rmi_read_data_event(struct hid_device *hdev, u8 *data, int size)
+ 	return 1;
  }
  
-+static long serport_ldisc_compat_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
++static int rmi_check_sanity(struct hid_device *hdev, u8 *data, int size)
 +{
-+	struct serport *serport = (struct serport*) tty->disc_data;
-+	unsigned long type;
++	int valid_size = size;
++	/*
++	 * On the Dell XPS 13 9333, the bus sometimes get confused and fills
++	 * the report with a sentinel value "ff". Synaptics told us that such
++	 * behavior does not comes from the touchpad itself, so we filter out
++	 * such reports here.
++	 */
 +
-+	if (cmd == SPIOCSTYPE32) {
-+		if (get_user(type, (unsigned long __user *) arg))
-+			return -EFAULT;
++	while ((data[valid_size - 1] == 0xff) && valid_size > 0)
++		valid_size--;
 +
-+		serport->id.proto = type & 0x000000ff;
-+		serport->id.id	  = (type & 0x0000ff00) >> 8;
-+		serport->id.extra = (type & 0x00ff0000) >> 16;
-+
-+		return 0;
-+	}
-+
-+	return -EINVAL;
++	return valid_size;
 +}
 +
- static void serport_ldisc_write_wakeup(struct tty_struct * tty)
+ static int rmi_raw_event(struct hid_device *hdev,
+ 		struct hid_report *report, u8 *data, int size)
  {
- 	struct serport *serport = (struct serport *) tty->disc_data;
-@@ -243,6 +266,7 @@ static struct tty_ldisc_ops serport_ldisc = {
- 	.close =	serport_ldisc_close,
- 	.read =		serport_ldisc_read,
- 	.ioctl =	serport_ldisc_ioctl,
-+	.compat_ioctl =	serport_ldisc_compat_ioctl,
- 	.receive_buf =	serport_ldisc_receive,
- 	.write_wakeup =	serport_ldisc_write_wakeup
- };
++	size = rmi_check_sanity(hdev, data, size);
++	if (size < 2)
++		return 0;
++
+ 	switch (data[0]) {
+ 	case RMI_READ_DATA_REPORT_ID:
+ 		return rmi_read_data_event(hdev, data, size);
 -- 
-1.7.9.5
-
+2.1.0

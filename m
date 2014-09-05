@@ -1,520 +1,90 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: Re: [PATCH v2 2/4] Input: misc: Add haptic driver on max77693
-Date: Fri, 05 Sep 2014 12:00:29 +0900
-Message-ID: <5409274D.7080105@samsung.com>
-References: <1409842891-26549-1-git-send-email-jaewon02.kim@samsung.com>
- <1409842891-26549-3-git-send-email-jaewon02.kim@samsung.com>
- <20140904165958.GA10224@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Add Holtek USB ID 04d9:a0c2 ETEKCITY Scroll
+Date: Fri, 5 Sep 2014 10:35:23 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1409051034470.12309@pobox.suse.cz>
+References: <1409879285-15816-1-git-send-email-desilvjo@umich.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:48175 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751299AbaIEDAc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2014 23:00:32 -0400
-In-reply-to: <20140904165958.GA10224@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:43949 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751999AbaIEIf0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Sep 2014 04:35:26 -0400
+In-Reply-To: <1409879285-15816-1-git-send-email-desilvjo@umich.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>
+To: John DeSilva <desilvjo@umich.edu>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry Torokhov
+On Thu, 4 Sep 2014, John DeSilva wrote:
 
-thanks to review my patchs.
+> The report descriptor for the HOLTEK USB ID 04d9:a0c2 (ETEKCITY Scroll
+> T-140 Gaming Mouse) is set to a very large amount of consumer usages
+> (2^16), exceeding HID_MAX_USAGES. Added id, bindings and comments for
+> the mouse, and reduced the usage and logical maximums to 0x2fff,
+> consistent with the other mice in the category.
+> Tested on the hardware.
+> 
+> Signed-off-by: John C. DeSilva <desilvjo@umich.edu>
 
-2014=EB=85=84 09=EC=9B=94 05=EC=9D=BC 01:59=EC=97=90 Dmitry Torokhov =EC=
-=9D=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
-> Hi Jaewon,
->
-> On Fri, Sep 05, 2014 at 12:01:29AM +0900, Jaewon Kim wrote:
->> This patch add max77693-haptic device driver to support the haptic c=
-ontroller
->> on MAX77693. The MAX77693 is a Multifunction device with PMIC, CHARG=
-ER, LED,
->> MUIC, HAPTIC and the patch is haptic device driver in the MAX77693. =
-This driver
->> support external pwm and LRA(Linear Resonant Actuator) motor. User c=
-an control
->> the haptic driver by using force feedback framework.
->>
->> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
->> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
->> ---
->>   drivers/input/misc/Kconfig           |   12 ++
->>   drivers/input/misc/Makefile          |    1 +
->>   drivers/input/misc/max77693-haptic.c |  333 ++++++++++++++++++++++=
-++++++++++++
->>   include/linux/mfd/max77693-private.h |    9 +
->>   4 files changed, 355 insertions(+)
->>   create mode 100644 drivers/input/misc/max77693-haptic.c
->>
->> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
->> index 2ff4425..c597c52 100644
->> --- a/drivers/input/misc/Kconfig
->> +++ b/drivers/input/misc/Kconfig
->> @@ -144,6 +144,18 @@ config INPUT_M68K_BEEP
->>   	tristate "M68k Beeper support"
->>   	depends on M68K
->>  =20
->> +config INPUT_MAX77693_HAPTIC
->> +	tristate "MAXIM MAX77693 haptic controller support"
->> +	depends on MFD_MAX77693 && PWM
->> +	select INPUT_FF_MEMLESS
->> +	help
->> +	  This option enables device driver support for the haptic control=
-ler
->> +	  on MAXIM MAX77693 chip. This driver supports ff-memless interfac=
-e
->> +	  from input framework.
->> +
->> +	  To compile this driver as module, choose M here: the
->> +	  module will be called max77693-haptic.
->> +
->>   config INPUT_MAX8925_ONKEY
->>   	tristate "MAX8925 ONKEY support"
->>   	depends on MFD_MAX8925
->> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefi=
-le
->> index 4955ad3..b28570c 100644
->> --- a/drivers/input/misc/Makefile
->> +++ b/drivers/input/misc/Makefile
->> @@ -35,6 +35,7 @@ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+=3D ixp4xx-beep=
-er.o
->>   obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+=3D keyspan_remote.o
->>   obj-$(CONFIG_INPUT_KXTJ9)		+=3D kxtj9.o
->>   obj-$(CONFIG_INPUT_M68K_BEEP)		+=3D m68kspkr.o
->> +obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+=3D max77693-haptic.o
->>   obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+=3D max8925_onkey.o
->>   obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+=3D max8997_haptic.o
->>   obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+=3D mc13783-pwrbutton.o
->> diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/mi=
-sc/max77693-haptic.c
->> new file mode 100644
->> index 0000000..2a69496
->> --- /dev/null
->> +++ b/drivers/input/misc/max77693-haptic.c
->> @@ -0,0 +1,333 @@
->> +/*
->> + * max77693-haptic.c - MAXIM MAX77693 Haptic device driver
->> + *
->> + * Copyright (C) 2014 Samsung Electronics
->> + * Jaewon Kim <jaewon02.kim@samsung.com>
->> + *
->> + * This program is not provided / owned by Maxim Integrated Product=
-s.
->> + *
->> + * This program is free software; you can redistribute it and/or mo=
-dify
->> + * it under the terms of the GNU General Public License as publishe=
-d by
->> + * the Free Software Foundation; either version 2 of the License, o=
-r
->> + * (at your option) any later version.
->> + */
->> +
->> +#include <linux/err.h>
->> +#include <linux/init.h>
->> +#include <linux/i2c.h>
->> +#include <linux/regmap.h>
->> +#include <linux/input.h>
->> +#include <linux/module.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/pwm.h>
->> +#include <linux/slab.h>
->> +#include <linux/workqueue.h>
->> +#include <linux/regulator/consumer.h>
->> +#include <linux/mfd/max77693.h>
->> +#include <linux/mfd/max77693-private.h>
->> +
->> +#define MAX_MAGNITUDE_SHIFT	16
->> +
->> +enum max77693_haptic_motor_type {
->> +	MAX77693_HAPTIC_ERM =3D 0,
->> +	MAX77693_HAPTIC_LRA,
->> +};
->> +
->> +enum max77693_haptic_pulse_mode {
->> +	MAX77693_HAPTIC_EXTERNAL_MODE =3D 0,
->> +	MAX77693_HAPTIC_INTERNAL_MODE,
->> +};
->> +
->> +enum max77693_haptic_pwm_divisor {
->> +	MAX77693_HAPTIC_PWM_DIVISOR_32 =3D 0,
->> +	MAX77693_HAPTIC_PWM_DIVISOR_64,
->> +	MAX77693_HAPTIC_PWM_DIVISOR_128,
->> +	MAX77693_HAPTIC_PWM_DIVISOR_256,
->> +};
->> +
->> +struct max77693_haptic {
->> +	struct regmap *regmap_pmic;
->> +	struct regmap *regmap_haptic;
->> +	struct device *dev;
->> +	struct input_dev *input_dev;
->> +	struct pwm_device *pwm_dev;
->> +	struct regulator *motor_reg;
->> +
->> +	bool enabled;
->> +	unsigned int magnitude;
->> +	enum max77693_haptic_motor_type type;
->> +	enum max77693_haptic_pulse_mode mode;
->> +	enum max77693_haptic_pwm_divisor pwm_divisor;
->> +
->> +	struct mutex mutex;
->> +	struct work_struct work;
->> +};
->> +
->> +static int max77693_haptic_set_duty_cycle(struct max77693_haptic *h=
-aptic,
->> +						unsigned int pwm_duty)
->> +{
->> +	int ret;
->> +	int delta =3D (haptic->pwm_dev->period + pwm_duty)/2;
->> +
->> +	ret =3D pwm_config(haptic->pwm_dev, delta, haptic->pwm_dev->period=
-);
->> +	if (ret) {
->> +		dev_err(haptic->dev, "cannot configuration pwm\n");
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static int max77693_haptic_configure(struct max77693_haptic *haptic=
-,
->> +						unsigned int enable)
->> +{
->> +	int ret;
->> +	unsigned int value =3D 0;
->> +
->> +	value =3D ((haptic->type << MAX77693_CONFIG2_MODE) |
->> +		(enable << MAX77693_CONFIG2_MEN) |
->> +		(haptic->mode << MAX77693_CONFIG2_HTYP) |
->> +		(haptic->pwm_divisor));
->> +
->> +	ret =3D regmap_write(haptic->regmap_haptic,
->> +				MAX77693_HAPTIC_REG_CONFIG2, value);
->> +	if (ret) {
->> +		dev_err(haptic->dev, "cannot write haptic regmap\n");
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static int max77693_haptic_lowsys(struct max77693_haptic *haptic,
->> +						unsigned int enable)
->> +{
->> +	int ret;
->> +
->> +	ret =3D regmap_update_bits(haptic->regmap_pmic,
->> +			MAX77693_PMIC_REG_LSCNFG,
->> +			MAX77693_PMIC_LOW_SYS_MASK,
->> +			enable << MAX77693_PMIC_LOW_SYS_SHIFT);
->> +	if (ret) {
->> +		dev_err(haptic->dev, "cannot update pmic regmap\n");
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static void max77693_haptic_enable(struct max77693_haptic *haptic)
->> +{
->> +	int ret;
->> +
->> +	if (haptic->enabled)
->> +		return;
->> +
->> +	ret =3D pwm_enable(haptic->pwm_dev);
->> +	if (ret < 0) {
->> +		dev_err(haptic->dev, "cannot enable haptic pwm device");
->> +		return;
->> +	}
->> +
->> +	ret =3D regulator_enable(haptic->motor_reg);
->> +	if (ret) {
->> +		dev_err(haptic->dev, "cannot enable haptic regulator\n");
->> +		goto err_pwm_enable;
->> +	}
->> +
->> +	ret =3D max77693_haptic_lowsys(haptic, 1);
->> +	if (ret)
->> +		goto err_enable_lowsys;
->> +
->> +	ret =3D max77693_haptic_configure(haptic, 1);
->> +	if (ret < 0)
->> +		goto err_enable_config;
->> +
->> +	haptic->enabled =3D true;
->> +
->> +	return;
->> +
->> +err_enable_config:
->> +	max77693_haptic_lowsys(haptic, 0);
->> +err_enable_lowsys:
->> +	regulator_disable(haptic->motor_reg);
->> +err_pwm_enable:
->> +	pwm_disable(haptic->pwm_dev);
->> +}
->> +
->> +static void max77693_haptic_disable(struct max77693_haptic *haptic)
->> +{
->> +	int ret;
->> +
->> +	if (!haptic->enabled)
->> +		return;
->> +
->> +	ret =3D max77693_haptic_configure(haptic, 0);
->> +	if (ret < 0)
-> Why sometimes you test for negative errors and sometimes for !=3D 0 f=
-rom the same
-> MFD core? Can you settle on one, preferably 0/!0, in which case pleas=
-e also call
-> local local variables holding the result 'error' so that you have seq=
-uences:
->
-> 	error =3D action();
-> 	if (error)
-> 		handle_error;
-Ok, i will settle on.
->
->> +		return;
->> +
->> +	ret =3D max77693_haptic_lowsys(haptic, 0);
->> +	if (ret)
->> +		goto err_disable_lowsys;
->> +
->> +	ret =3D regulator_disable(haptic->motor_reg);
->> +	if (ret) {
->> +		dev_err(haptic->dev, "cannot disable haptic regulator\n");
->> +		goto err_reg_disable;
->> +	}
->> +
->> +	pwm_disable(haptic->pwm_dev);
->> +	haptic->enabled =3D false;
->> +
->> +	return;
->> +
->> +err_reg_disable:
->> +	max77693_haptic_lowsys(haptic, 1);
->> +err_disable_lowsys:
->> +	max77693_haptic_configure(haptic, 1);
->> +}
->> +
->> +static void max77693_haptic_play_work(struct work_struct *work)
->> +{
->> +	struct max77693_haptic *haptic =3D
->> +			container_of(work, struct max77693_haptic, work);
->> +
->> +	mutex_lock(&haptic->mutex);
-> Workqueues are not reentrant by default, you do not need this mutex.
-I will remove them.
->
->> +	if (haptic->magnitude)
->> +		max77693_haptic_enable(haptic);
->> +	else
->> +		max77693_haptic_disable(haptic);
-> Hmm, do you really want to bounce regulator on and off on every buzz?=
- I guess
-> it may save some power...
-Yes, You are right.
+Thanks for the patch.
 
->
->> +	mutex_unlock(&haptic->mutex);
->> +}
->> +
->> +static int max77693_haptic_play_effect(struct input_dev *dev, void =
-*data,
->> +				struct ff_effect *effect)
->> +{
->> +	struct max77693_haptic *haptic =3D input_get_drvdata(dev);
->> +	uint64_t period_mag_multi;
->> +	unsigned int pwm_duty;
->> +	int ret;
->> +
->> +	haptic->magnitude =3D effect->u.rumble.strong_magnitude;
->> +	if (!haptic->magnitude)
->> +		haptic->magnitude =3D effect->u.rumble.weak_magnitude;
->> +
->> +	/*
->> +	 * The magnitude comes from force-feedback interface.
->> +	 * The formula convert magnitude to pwm_duty as following:
->> +	 * - pwm_duty =3D (magnitude * pwm_period) / MAX_MAGNITUDE(0xFFFF)
->> +	 */
->> +	period_mag_multi =3D (int64_t)(haptic->pwm_dev->period *
->> +						haptic->magnitude);
->> +	pwm_duty =3D (unsigned int)(period_mag_multi >> MAX_MAGNITUDE_SHIF=
-T);
->> +	ret =3D max77693_haptic_set_duty_cycle(haptic, pwm_duty);
-> Why is this done here and not in max77693_haptic_play_work? Is it eve=
-n safe to
-> access the device here (you are running under a spinlock with interru=
-pts off).
-I miss that is in spinlock.
-max77693_haptic_set_duty_cycle() will move in workqueue.
+> ---
+>  drivers/hid/hid-holtek-mouse.c | 4 ++++
+>  drivers/hid/hid-ids.h          | 1 +
+>  2 files changed, 5 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
+> index d60fbd0..78b3a0c 100644
+> --- a/drivers/hid/hid-holtek-mouse.c
+> +++ b/drivers/hid/hid-holtek-mouse.c
+> @@ -29,6 +29,7 @@
+>   *   and Zalman ZM-GM1
+>   * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
+>   * - USB ID 04d9:a072, sold as LEETGION Hellion Gaming Mouse
+> + * - USB ID 04d9:a0c2, sold as ETEKCITY Scroll T-140 Gaming Mouse
+>   */
+>  
+>  static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> @@ -42,6 +43,7 @@ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  		switch (hdev->product) {
+>  		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067:
+>  		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072:
+> +		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2:
+>  			if (*rsize >= 122 && rdesc[115] == 0xff && rdesc[116] == 0x7f
+>  					&& rdesc[120] == 0xff && rdesc[121] == 0x7f) {
+>  				hid_info(hdev, "Fixing up report descriptor\n");
+> @@ -74,6 +76,8 @@ static const struct hid_device_id holtek_mouse_devices[] = {
+>  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+>  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+> +			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
 
->
->> +	if (ret)
->> +		return ret;
->> +
->> +	schedule_work(&haptic->work);
->> +
->> +	return 0;
->> +}
->> +
->> +static void max77693_haptic_close(struct input_dev *dev)
->> +{
->> +	struct max77693_haptic *haptic =3D input_get_drvdata(dev);
->> +
->> +	cancel_work_sync(&haptic->work);
->> +	max77693_haptic_disable(haptic);
->> +}
->> +
->> +static int max77693_haptic_probe(struct platform_device *pdev)
->> +{
->> +	struct max77693_dev *max77693 =3D dev_get_drvdata(pdev->dev.parent=
-);
->> +	struct max77693_haptic *haptic;
->> +	int ret =3D 0;
->> +
->> +	haptic =3D devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
->> +	if (!haptic)
->> +		return -ENOMEM;
->> +
->> +	haptic->regmap_pmic =3D max77693->regmap;
->> +	haptic->regmap_haptic =3D max77693->regmap_haptic;
->> +	haptic->dev =3D &pdev->dev;
->> +	haptic->type =3D MAX77693_HAPTIC_LRA;
->> +	haptic->mode =3D MAX77693_HAPTIC_EXTERNAL_MODE;
->> +	haptic->pwm_divisor =3D MAX77693_HAPTIC_PWM_DIVISOR_128;
->> +	mutex_init(&haptic->mutex);
->> +
->> +	/* Get pwm and regulatot for haptic device */
->> +	haptic->pwm_dev =3D devm_pwm_get(&pdev->dev, NULL);
->> +	if (IS_ERR(haptic->pwm_dev)) {
->> +		dev_err(&pdev->dev, "failed to get pwm device\n");
->> +		return PTR_ERR(haptic->pwm_dev);
->> +	}
->> +
->> +	haptic->motor_reg =3D devm_regulator_get(&pdev->dev, "haptic");
->> +	if (IS_ERR(haptic->motor_reg)) {
->> +		dev_err(&pdev->dev, "failed to get regulator\n");
->> +		return PTR_ERR(haptic->motor_reg);
->> +	}
->> +
->> +	/* Initialize input device for haptic device */
->> +	haptic->input_dev =3D devm_input_allocate_device(&pdev->dev);
->> +	if (!haptic->input_dev) {
->> +		dev_err(&pdev->dev, "failed to allocate input device\n");
->> +		return -ENOMEM;
->> +	}
->> +
->> +	haptic->input_dev->name =3D "max77693-haptic";
->> +	haptic->input_dev->id.version =3D 1;
->> +	haptic->input_dev->dev.parent =3D &pdev->dev;
->> +	haptic->input_dev->close =3D max77693_haptic_close;
->> +	input_set_drvdata(haptic->input_dev, haptic);
->> +	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
->> +
->> +	ret =3D input_ff_create_memless(haptic->input_dev, NULL,
->> +				max77693_haptic_play_effect);
->> +	if (ret) {
->> +		dev_err(&pdev->dev, "failed to create force-feedback\n");
->> +		return ret;
->> +	}
->> +
->> +	ret =3D input_register_device(haptic->input_dev);
->> +	if (ret) {
->> +		dev_err(&pdev->dev, "failed to register input device\n");
->> +		goto err_input_device;
->> +	}
->> +
->> +	INIT_WORK(&haptic->work, max77693_haptic_play_work);
->> +
->> +	platform_set_drvdata(pdev, haptic);
->> +
->> +	return 0;
->> +
->> +err_input_device:
->> +	input_ff_destroy(haptic->input_dev);
-> No need to call, will be done automatically.
->
->> +
->> +	return ret;
->> +}
->> +
->> +static int max77693_haptic_remove(struct platform_device *pdev)
->> +{
->> +	struct max77693_haptic *haptic =3D platform_get_drvdata(pdev);
->> +
->> +	max77693_haptic_disable(haptic);
-> It is done in close() so no need to cal here.
->
->> +	input_unregister_device(haptic->input_dev);
-> You are using devm so no need to call it either. Just remove
-> max77693_haptic_remove() altogether.
-Ok. i will remove unnecessary unregister functions.
+You also need entry in hid_have_special_driver[] to make sure that 
+hid-core doesn't override hid-holtek-mouse.
 
->
-> What you need I think is suspend/resume to make sure the device is sh=
-ut off
-> when system is suspending.
+Could you please fix that and resend? Thanks.
 
-If haptic motor buzzing when device entening suspend state, i turn off=20
-motor.
-but, i think resume code not necessary in this driver.
->> +
->> +	return 0;
->> +}
->> +
->> +static struct platform_driver max77693_haptic_driver =3D {
->> +	.driver		=3D {
->> +		.name	=3D "max77693-haptic",
->> +		.owner	=3D THIS_MODULE,
->> +	},
->> +	.probe		=3D max77693_haptic_probe,
->> +	.remove		=3D max77693_haptic_remove,
->> +};
->> +module_platform_driver(max77693_haptic_driver);
->> +
->> +MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
->> +MODULE_DESCRIPTION("MAXIM MAX77693 Haptic driver");
->> +MODULE_ALIAS("platform:max77693-haptic");
->> +MODULE_LICENSE("GPL");
->> diff --git a/include/linux/mfd/max77693-private.h b/include/linux/mf=
-d/max77693-private.h
->> index c466ff3..d0e578f 100644
->> --- a/include/linux/mfd/max77693-private.h
->> +++ b/include/linux/mfd/max77693-private.h
->> @@ -251,6 +251,15 @@ enum max77693_haptic_reg {
->>   	MAX77693_HAPTIC_REG_END,
->>   };
->>  =20
->> +/* max77693-pmic LSCNFG configuraton register */
->> +#define MAX77693_PMIC_LOW_SYS_MASK      0x80
->> +#define MAX77693_PMIC_LOW_SYS_SHIFT     7
->> +
->> +/* max77693-haptic configuration register */
->> +#define MAX77693_CONFIG2_MODE           7
->> +#define MAX77693_CONFIG2_MEN            6
->> +#define MAX77693_CONFIG2_HTYP           5
->> +
->>   enum max77693_irq_source {
->>   	LED_INT =3D 0,
->>   	TOPSYS_INT,
->> --=20
->> 1.7.9.5
->>
-> Thanks.
->
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, holtek_mouse_devices);
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 25cd674..c7b36ad 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -479,6 +479,7 @@
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A070	0xa070
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072	0xa072
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+> +#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
+>  #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
+>  
+>  #define USB_VENDOR_ID_IMATION		0x0718
+> -- 
+> 1.8.5.5
+> 
 
-Thanks
-Jaewon Kim.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

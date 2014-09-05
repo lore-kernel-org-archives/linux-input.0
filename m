@@ -1,89 +1,80 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v3 1/4] mfd: max77693: Initialize haptic register map
-Date: Fri, 05 Sep 2014 20:48:19 +0900
-Message-ID: <1409917702-17009-2-git-send-email-jaewon02.kim@samsung.com>
-References: <1409917702-17009-1-git-send-email-jaewon02.kim@samsung.com>
+From: John Sung <penmount.touch@gmail.com>
+Subject: [PATCH] Input: serport: Add compat_ioctl routine to support 32bit inputtattach in 64bit systems
+Date: Fri,  5 Sep 2014 21:04:37 +0800
+Message-ID: <1409922277-4497-1-git-send-email-penmount.touch@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:15509 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932137AbaIELtC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2014 07:49:02 -0400
-In-reply-to: <1409917702-17009-1-git-send-email-jaewon02.kim@samsung.com>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:62964 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932083AbaIENF3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2014 09:05:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: penmount.touch@gmail.com
 
-This patch add regmap_haptic initialization to use haptic register map
-in haptic device driver.
+When running a 32-bit inputattach utility in a 64-bit system, there will be error code "inputattach: can't set device type". This is caused by the serport device driver not supporting compat_ioctl, so that SPIOCSTYPE ioctl fails.
 
-Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: John Sung <penmount.touch@gmail.com>
 ---
- drivers/mfd/max77693.c |   21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/input/serio/serport.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
-index 249c139..fbfed56 100644
---- a/drivers/mfd/max77693.c
-+++ b/drivers/mfd/max77693.c
-@@ -144,6 +144,12 @@ static const struct regmap_irq_chip max77693_muic_irq_chip = {
- 	.num_irqs		= ARRAY_SIZE(max77693_muic_irqs),
- };
+diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+index 0cb7ef5..4b68c29 100644
+--- a/drivers/input/serio/serport.c
++++ b/drivers/input/serio/serport.c
+@@ -22,6 +22,8 @@
+ #include <linux/serio.h>
+ #include <linux/tty.h>
  
-+static const struct regmap_config max77693_regmap_haptic_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = MAX77693_HAPTIC_REG_END,
-+};
++#include <asm/compat.h>
 +
- static int max77693_i2c_probe(struct i2c_client *i2c,
- 			      const struct i2c_device_id *id)
- {
-@@ -193,6 +199,15 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
- 	}
- 	i2c_set_clientdata(max77693->haptic, max77693);
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Input device TTY line discipline");
+ MODULE_LICENSE("GPL");
+@@ -31,6 +33,8 @@ MODULE_ALIAS_LDISC(N_MOUSE);
+ #define SERPORT_ACTIVE	2
+ #define SERPORT_DEAD	3
  
-+	max77693->regmap_haptic = devm_regmap_init_i2c(max77693->haptic,
-+					&max77693_regmap_haptic_config);
-+	if (IS_ERR(max77693->regmap_haptic)) {
-+		ret = PTR_ERR(max77693->regmap_haptic);
-+		dev_err(max77693->dev,
-+			"failed to initialize haptic register map: %d\n", ret);
-+		goto err_regmap;
++#define SPIOCSTYPE32 (_IOW('q', 0x01, compat_ulong_t))
++
+ struct serport {
+ 	struct tty_struct *tty;
+ 	wait_queue_head_t wait;
+@@ -221,6 +225,25 @@ static int serport_ldisc_ioctl(struct tty_struct * tty, struct file * file, unsi
+ 	return -EINVAL;
+ }
+ 
++static long serport_ldisc_compat_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct serport *serport = (struct serport*) tty->disc_data;
++	unsigned long type;
++
++	if (cmd == SPIOCSTYPE32) {
++		if (get_user(type, (unsigned long __user *) arg))
++			return -EFAULT;
++
++		serport->id.proto = type & 0x000000ff;
++		serport->id.id	  = (type & 0x0000ff00) >> 8;
++		serport->id.extra = (type & 0x00ff0000) >> 16;
++
++		return 0;
 +	}
 +
- 	/*
- 	 * Initialize register map for MUIC device because use regmap-muic
- 	 * instance of MUIC device when irq of max77693 is initialized
-@@ -204,7 +219,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
- 		ret = PTR_ERR(max77693->regmap_muic);
- 		dev_err(max77693->dev,
- 			"failed to allocate register map: %d\n", ret);
--		goto err_regmap_muic;
-+		goto err_regmap;
- 	}
- 
- 	ret = regmap_add_irq_chip(max77693->regmap, max77693->irq,
-@@ -214,7 +229,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
- 				&max77693->irq_data_led);
- 	if (ret) {
- 		dev_err(max77693->dev, "failed to add irq chip: %d\n", ret);
--		goto err_regmap_muic;
-+		goto err_regmap;
- 	}
- 
- 	ret = regmap_add_irq_chip(max77693->regmap, max77693->irq,
-@@ -265,7 +280,7 @@ err_irq_charger:
- 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_topsys);
- err_irq_topsys:
- 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_led);
--err_regmap_muic:
-+err_regmap:
- 	i2c_unregister_device(max77693->haptic);
- err_i2c_haptic:
- 	i2c_unregister_device(max77693->muic);
++	return -EINVAL;
++}
++
+ static void serport_ldisc_write_wakeup(struct tty_struct * tty)
+ {
+ 	struct serport *serport = (struct serport *) tty->disc_data;
+@@ -243,6 +266,7 @@ static struct tty_ldisc_ops serport_ldisc = {
+ 	.close =	serport_ldisc_close,
+ 	.read =		serport_ldisc_read,
+ 	.ioctl =	serport_ldisc_ioctl,
++	.compat_ioctl =	serport_ldisc_compat_ioctl,
+ 	.receive_buf =	serport_ldisc_receive,
+ 	.write_wakeup =	serport_ldisc_write_wakeup
+ };
 -- 
 1.7.9.5
 

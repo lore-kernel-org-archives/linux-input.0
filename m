@@ -1,90 +1,62 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Add Holtek USB ID 04d9:a0c2 ETEKCITY Scroll
-Date: Fri, 5 Sep 2014 10:35:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1409051034470.12309@pobox.suse.cz>
-References: <1409879285-15816-1-git-send-email-desilvjo@umich.edu>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: [PATCH v3 4/4] mfd: max77693: Update DT binding to support haptic
+Date: Fri, 05 Sep 2014 20:48:22 +0900
+Message-ID: <1409917702-17009-5-git-send-email-jaewon02.kim@samsung.com>
+References: <1409917702-17009-1-git-send-email-jaewon02.kim@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43949 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751999AbaIEIf0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 5 Sep 2014 04:35:26 -0400
-In-Reply-To: <1409879285-15816-1-git-send-email-desilvjo@umich.edu>
+Received: from mailout4.samsung.com ([203.254.224.34]:64756 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932068AbaIELtB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2014 07:49:01 -0400
+In-reply-to: <1409917702-17009-1-git-send-email-jaewon02.kim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John DeSilva <desilvjo@umich.edu>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>
 
-On Thu, 4 Sep 2014, John DeSilva wrote:
+This patch add haptic DT binding documentation and example
+to support haptic driver in max77693 Multifunction device.
 
-> The report descriptor for the HOLTEK USB ID 04d9:a0c2 (ETEKCITY Scroll
-> T-140 Gaming Mouse) is set to a very large amount of consumer usages
-> (2^16), exceeding HID_MAX_USAGES. Added id, bindings and comments for
-> the mouse, and reduced the usage and logical maximums to 0x2fff,
-> consistent with the other mice in the category.
-> Tested on the hardware.
-> 
-> Signed-off-by: John C. DeSilva <desilvjo@umich.edu>
+Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ Documentation/devicetree/bindings/mfd/max77693.txt |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Thanks for the patch.
-
-> ---
->  drivers/hid/hid-holtek-mouse.c | 4 ++++
->  drivers/hid/hid-ids.h          | 1 +
->  2 files changed, 5 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
-> index d60fbd0..78b3a0c 100644
-> --- a/drivers/hid/hid-holtek-mouse.c
-> +++ b/drivers/hid/hid-holtek-mouse.c
-> @@ -29,6 +29,7 @@
->   *   and Zalman ZM-GM1
->   * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
->   * - USB ID 04d9:a072, sold as LEETGION Hellion Gaming Mouse
-> + * - USB ID 04d9:a0c2, sold as ETEKCITY Scroll T-140 Gaming Mouse
->   */
->  
->  static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-> @@ -42,6 +43,7 @@ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
->  		switch (hdev->product) {
->  		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067:
->  		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072:
-> +		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2:
->  			if (*rsize >= 122 && rdesc[115] == 0xff && rdesc[116] == 0x7f
->  					&& rdesc[120] == 0xff && rdesc[121] == 0x7f) {
->  				hid_info(hdev, "Fixing up report descriptor\n");
-> @@ -74,6 +76,8 @@ static const struct hid_device_id holtek_mouse_devices[] = {
->  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
->  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
-> +			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
-
-You also need entry in hid_have_special_driver[] to make sure that 
-hid-core doesn't override hid-holtek-mouse.
-
-Could you please fix that and resend? Thanks.
-
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, holtek_mouse_devices);
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 25cd674..c7b36ad 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -479,6 +479,7 @@
->  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A070	0xa070
->  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072	0xa072
->  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
-> +#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
->  #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
->  
->  #define USB_VENDOR_ID_IMATION		0x0718
-> -- 
-> 1.8.5.5
-> 
-
+diff --git a/Documentation/devicetree/bindings/mfd/max77693.txt b/Documentation/devicetree/bindings/mfd/max77693.txt
+index 11921cc..d178b9e 100644
+--- a/Documentation/devicetree/bindings/mfd/max77693.txt
++++ b/Documentation/devicetree/bindings/mfd/max77693.txt
+@@ -27,6 +27,17 @@ Optional properties:
+ 
+ 	[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
+ 
++- haptic : The haptic of max77693 have to be instantiated under subnod
++  named "haptic" using the following haptic format in example.
++  Haptic sensation from motor can be changed by changing a period cycle in pwms.
++
++ Required properties:
++	- compatible : Must be "maxim,max77693-hpatic"
++	- haptic-supply : power supply for haptic motor
++		[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
++	- pwms : phandle to the physical PWM device,
++		[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
++
+ Example:
+ 	max77693@66 {
+ 		compatible = "maxim,max77693";
+@@ -52,4 +63,11 @@ Example:
+ 					regulator-boot-on;
+ 			};
+ 		};
++
++		haptic {
++			compatible = "maxim,max77693-haptic";
++			haptic-supply = <&haptic_supply>;
++			pwms = <&pwm 0 40000 0>;
++			pwm-names = "haptic";
++		};
+ 	};
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.5
+

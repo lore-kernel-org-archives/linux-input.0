@@ -1,90 +1,110 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: rmi: check sanity of the incoming report
-Date: Fri,  5 Sep 2014 09:57:15 -0400
-Message-ID: <1409925435-6556-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/2] HID: usbhid: add always-poll quirk
+Date: Fri,  5 Sep 2014 18:08:47 +0200
+Message-ID: <1409933328-7190-2-git-send-email-johan@kernel.org>
+References: <alpine.LNX.2.00.1408211337050.23162@pobox.suse.cz>
+ <1409933328-7190-1-git-send-email-johan@kernel.org>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409933328-7190-1-git-send-email-johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn-yOkvZcmFvRU@public.gmane.org>, Sarah Sharp <sarah.a.sharp-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Drew Von Spreecken <drewvs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mathias Nyman <mathias.nyman-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-In the Dell XPS 13 9333, it appears that sometimes the bus get confused
-and corrupts the incoming data. It fills the input report with the
-sentinel value "ff". Synaptics told us that such behavior does not comes
-from the touchpad itself, so we filter out such reports here.
+Add quirk to make sure that a device is always polled for input events
+even if it hasn't been opened.
 
-Unfortunately, we can not simply discard the incoming data because they
-may contain useful information. Most of the time, the misbehavior is
-quite near the end of the report, so we can still use the valid part of
-it.
+This is needed for devices that disconnects from the bus unless the
+interrupt endpoint has been polled at least once or when not responding
+to an input event (e.g. after having shut down X).
 
-Fixes:
-https://bugzilla.redhat.com/show_bug.cgi?id=1123584
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
- drivers/hid/hid-rmi.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ drivers/hid/usbhid/hid-core.c | 26 +++++++++++++++++++++++---
+ include/linux/hid.h           |  1 +
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 8389e81..db92c3b 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -320,9 +320,6 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
- 	int offset;
- 	int i;
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 7b88f4c..d8b6976 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -82,7 +82,7 @@ static int hid_start_in(struct hid_device *hid)
+ 	struct usbhid_device *usbhid = hid->driver_data;
  
--	if (size < hdata->f11.report_size)
--		return 0;
--
- 	if (!(irq & hdata->f11.irq_mask))
- 		return 0;
- 
-@@ -332,9 +329,13 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
- 		int fs_bit_position = (i & 0x3) << 1;
- 		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
- 					0x03;
-+		int position = offset + 5 * i;
-+
-+		if (position + 5 > size)
-+			/* partial report, go on with what we received */
+ 	spin_lock_irqsave(&usbhid->lock, flags);
+-	if (hid->open > 0 &&
++	if ((hid->open > 0 || hid->quirks & HID_QUIRK_ALWAYS_POLL) &&
+ 			!test_bit(HID_DISCONNECTED, &usbhid->iofl) &&
+ 			!test_bit(HID_SUSPENDED, &usbhid->iofl) &&
+ 			!test_and_set_bit(HID_IN_RUNNING, &usbhid->iofl)) {
+@@ -292,6 +292,8 @@ static void hid_irq_in(struct urb *urb)
+ 	case 0:			/* success */
+ 		usbhid_mark_busy(usbhid);
+ 		usbhid->retry_delay = 0;
++		if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) && !hid->open)
 +			break;
- 
--		rmi_f11_process_touch(hdata, i, finger_state,
--				&data[offset + 5 * i]);
-+		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
+ 		hid_input_report(urb->context, HID_INPUT_REPORT,
+ 				 urb->transfer_buffer,
+ 				 urb->actual_length, 1);
+@@ -734,8 +736,10 @@ void usbhid_close(struct hid_device *hid)
+ 	if (!--hid->open) {
+ 		spin_unlock_irq(&usbhid->lock);
+ 		hid_cancel_delayed_stuff(usbhid);
+-		usb_kill_urb(usbhid->urbin);
+-		usbhid->intf->needs_remote_wakeup = 0;
++		if (!(hid->quirks & HID_QUIRK_ALWAYS_POLL)) {
++			usb_kill_urb(usbhid->urbin);
++			usbhid->intf->needs_remote_wakeup = 0;
++		}
+ 	} else {
+ 		spin_unlock_irq(&usbhid->lock);
  	}
- 	input_mt_sync_frame(hdata->input);
- 	input_sync(hdata->input);
-@@ -412,9 +413,29 @@ static int rmi_read_data_event(struct hid_device *hdev, u8 *data, int size)
- 	return 1;
- }
+@@ -1133,6 +1137,19 @@ static int usbhid_start(struct hid_device *hid)
  
-+static int rmi_check_sanity(struct hid_device *hdev, u8 *data, int size)
-+{
-+	int valid_size = size;
-+	/*
-+	 * On the Dell XPS 13 9333, the bus sometimes get confused and fills
-+	 * the report with a sentinel value "ff". Synaptics told us that such
-+	 * behavior does not comes from the touchpad itself, so we filter out
-+	 * such reports here.
-+	 */
+ 	set_bit(HID_STARTED, &usbhid->iofl);
+ 
++	if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
++		ret = usb_autopm_get_interface(usbhid->intf);
++		if (ret)
++			goto fail;
++		usbhid->intf->needs_remote_wakeup = 1;
++		ret = hid_start_in(hid);
++		if (ret) {
++			dev_err(&hid->dev,
++				"failed to start in urb: %d\n", ret);
++		}
++		usb_autopm_put_interface(usbhid->intf);
++	}
 +
-+	while ((data[valid_size - 1] == 0xff) && valid_size > 0)
-+		valid_size--;
+ 	/* Some keyboards don't work until their LEDs have been set.
+ 	 * Since BIOSes do set the LEDs, it must be safe for any device
+ 	 * that supports the keyboard boot protocol.
+@@ -1165,6 +1182,9 @@ static void usbhid_stop(struct hid_device *hid)
+ 	if (WARN_ON(!usbhid))
+ 		return;
+ 
++	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
++		usbhid->intf->needs_remote_wakeup = 0;
 +
-+	return valid_size;
-+}
-+
- static int rmi_raw_event(struct hid_device *hdev,
- 		struct hid_report *report, u8 *data, int size)
- {
-+	size = rmi_check_sanity(hdev, data, size);
-+	if (size < 2)
-+		return 0;
-+
- 	switch (data[0]) {
- 	case RMI_READ_DATA_REPORT_ID:
- 		return rmi_read_data_event(hdev, data, size);
+ 	clear_bit(HID_STARTED, &usbhid->iofl);
+ 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+ 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 77632cf..05eb710 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -286,6 +286,7 @@ struct hid_item {
+ #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
+ #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
+ #define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
++#define HID_QUIRK_ALWAYS_POLL			0x00000400
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+ #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
 -- 
-2.1.0
+1.8.5.5
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

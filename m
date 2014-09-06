@@ -1,177 +1,120 @@
-From: Goffredo Baroncelli <kreijack@inwind.it>
-Subject: Re: Driver for Logitech M560
-Date: Fri, 05 Sep 2014 19:47:44 +0200
-Message-ID: <5409F740.9000706@inwind.it>
-References: <5404C6F4.1000800@inwind.it> <CAN+gG=HMUJBWQj65OKRfoPiyzzRPXLVveA6V2S_a1dSJXKJc3g@mail.gmail.com>
-Reply-To: kreijack@inwind.it
+From: Benjamin Valentin <benpicco@zedat.fu-berlin.de>
+Subject: [PATCH] xpad: sync device IDs with xboxdrv
+Date: Sat, 6 Sep 2014 14:47:27 +0200
+Message-ID: <20140906144727.29b44f5a@rechenknecht2k7>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outrelay06.libero.it ([212.52.84.110]:51629 "EHLO
-	outrelay06.libero.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750772AbaIERlO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2014 13:41:14 -0400
-In-Reply-To: <CAN+gG=HMUJBWQj65OKRfoPiyzzRPXLVveA6V2S_a1dSJXKJc3g@mail.gmail.com>
+Received: from outpost1.zedat.fu-berlin.de ([130.133.4.66]:50926 "EHLO
+	outpost1.zedat.fu-berlin.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751802AbaIFMzi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 6 Sep 2014 08:55:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, HID CORE LAYER <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ted Mielczarek <ted@mielczarek.org>, Paul Gortmaker <paul.gortmaker@windriver.com>
 
-On 09/03/2014 11:36 PM, Benjamin Tissoires wrote:
-> Hi Goffredo,
-> 
-> On Mon, Sep 1, 2014 at 3:20 PM, Goffredo Baroncelli <kreijack@inwind.it> wrote:
->> Hi Benjamin,
->>
->> following the Nestor suggestion, I rewrote the driver for the
->> mouse Logitech M560 on the basis of your work (branch "for-whot").
-> 
-> Just for the record. This branch is located here:
-> https://github.com/bentiss/hid-logitech-dj/tree/for-whot and I
-> *really* need to finish this work so that everything can go upstream
-> :(
+The userspace xboxdrv driver knows some more device ids than the kernel.
+This patch adds the missing xbox gamepads from [1] to xpad.c
 
-:-) For me this is not a problem. I solved my issue (I made a dkms
-package for this mouse), but I want to share my effort..
+[1] https://github.com/Grumbel/xboxdrv/blob/master/src/xpad_device.cpp
 
-> 
->>
->> The Logitech M560 is is a mouse designed for windows 8.
->> Comparing to a standard one, some buttons (the middle one and the
->> two ones placed on the side) are bounded to a key combination
->> instead of a classic "mouse" button.
->>
->> Think this mouse as a pair of mouse and keyboard. When the middle
->> button is pressed the it sends a key (as keyboard)
->> combination, the same for the other two side button.
->> Instead the left/right/wheel work correctly.
->> To complicate further the things, the middle button send a
->> key combination the odd press, and another one for the even press;
->> in the latter case it sends also a left click. But the worst thing
->> is that no event is generated when the middle button is released.
->>
->> Moreover this device is a wireless mouse which uses the unifying
->> receiver.
->>
->> I discovered that it is possible to re-configure the mouse
->> sending a command (see function m560_send_config_command()).
->> After this command the mouse sends some sequence when the
->> buttons are pressed and/or released (see comments for
->> an explanation of the mouse protocol).
->>
->> If the mouse is "silent" (no data is sent) for more than
->> PACKET_TIMEOUT seconds (currently 10), when the next packet
->> comes, the driver try to reconfigure it.
->> This because it is possible that the mouse is switched-off
->> and lost its setting. Se we need to reconfigure.
-> 
-> This just looks weird. I am pretty sure we managed to properly tackle
-> that for the touchpads, there should not be any difference with the
-> mouse. Or maybe we did not?
-> Anyway, calling this every timeout is not a good solution IMO.
+Signed-off-by: Benjamin Valentin <benpicco@zedat.fu-berlin.de>
+---
+ drivers/input/joystick/xpad.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-I looked at the wtp source, and I was not able to find anything.
-Anyway I will remove the reset-by-timeout; eventually I split this
-in another patch for further development
-> 
-> 
->>
->> Benjamin, I have to highlight three things:
->> when the dj driver detects a disconnection, it
->> sends a sequence like
->>
->>   0x01 0x00 0x00 0x00 0x00 0x00 0x00 ...
->>   0x02 0x00 0x00 0x00 0x00 0x00 0x00 ...
->>
->> because the mouse is both a keyboard (0x01) and
->> a mouse (0x02). But this sequence is a valid one
->> (when two buttons are released) due to the strangeness
->> of the protocol.
->>
->> Can I suggest to send in these case a sequence like
->>
->>   <device_type> 0xff 0xff 0xff 0xff 0xff 0xff....
->>
->> ? I suspect that this would be less common.
-> 
-> Nope. This does not work. The idea behind sending the "null" report is
-> that this report will reset the current state of the keyboards/mice by
-> sending a "all buttons are now released" event. It is _not_ designed
-> as a marker that the device has been disconnected.
-> 
-> If you need this info, then another mechanism has to be used.
-
-Have you any suggestions ?
-
-> 
->>
->> Another thing that seemed strange to me is that report
->> with ID equal 0x20 and 0x21 are handled so the packet
->> are forwarded to the driver from the 3rd byte onward.
-> 
-> Yes. 0x20 and 0x21 are DJ reports, which encapsulate a mouse/keyboard
-> report coming from the DJ device.
-> To be properly handled by the final driver, we have to remove the
-> encapsulation fields so that the reports are just plain HID.
-> 
->> In the others cases (this mouse send also packet with
->> ID=0x11) the report id forwarded as is (without
->> by-passing the first two bytes). It is the expected
->> behaviour, or the code was written on the basis the
->> assumption that the devices send ID=0x20/0x21 and the
->> other ID are sent only by the receiver ?
-> 
-> No. The 0x10/0x11 reports are from the HID++ Logitech-specific
-> implementation, and must be forwarded as is. They have to be handled
-> as such by the final driver, and so, they must keep their report ID.
-
-Ok, I don't have any problem about that. I want to be sure that it
-is intentionally and not an hole discovered due to the M560 mouse 
-protocol.
-
-> 
->>
->> Finally I have to point out that to work, this driver
->> has to be inserted BEFORE the hid_logitech_dj
->>
->> In fact I had to add a file /etc/modprobe.d/hid-logitech_dj.conf
->> as below
->>
->> install hid_logitech_dj modprobe hid_logitech_m560; sleep 5s ; modprobe --ignore-install hid_logitech_dj
->>
->> It is possible that the "sleep 5s" is not needed.
-> 
-> Hmm. This might be because there are some conflicts between your
-> current install and the one you just changed. I would not worry about
-> that. When this work will land upstream, there will be not problems.
-> 
-> I still did not decided if I am going to take this right now into the
-> github tree or not (and make a deeper review).
-> 
-> BTW, there is no need to send such patch to the LKML currently, you
-> are working against my non upstream branch. What you can do is either
-> setup a github clone with your patch/modifications if you want to
-> share them, or I can also pull this in a separate branch.
-
-Ok, I will prepare (I hope this week-end) a github repo for a pull.
-Let me to remove the reset-by-timeout code.
-
-> 
-> Once I'll finish the changes I want to do to hid-logitech-dj and
-> hid-logitech-hidpp, then we can think of merging that in my
-> submission.
-> Sorry, I still need a little bit of time to finish up this work.
-
-Ok, thanks
-
-> Cheers,
-> Benjamin
-> 
-[... cut ... cut ... ]
-
-G.Baroncelli
-
--- 
-gpg @keyserver.linux.it: Goffredo Baroncelli (kreijackATinwind.it>
-Key fingerprint BBF5 1610 0B64 DAC6 5F7D  17B2 0EDA 9B37 8B82 E0B5
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 177602c..5ebf37d 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -126,7 +126,9 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
++	{ 0x044f, 0xb326, "Thrustmaster Gamepad GP XID", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
++	{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
+@@ -140,10 +142,17 @@ static const struct xpad_device {
+ 	{ 0x0738, 0x4540, "Mad Catz Beat Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", 0, XTYPE_XBOX },
+ 	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x0738, 0x4718, "Mad Catz Street Fighter IV FightStick SE", 0, XTYPE_XBOX360 },
++	{ 0x0738, 0x4726, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4728, "Mad Catz Street Fighter IV FightPad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
++	{ 0x0738, 0x4740, "Mad Catz Beat Pad", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
++	{ 0x0738, 0xb726, "Mad Catz Xbox controller - MW2", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0xbeef, "Mad Catz JOYTECH NEO SE Advanced GamePad", XTYPE_XBOX360 },
++	{ 0x0738, 0xcb02, "Saitek Cyborg Rumble Pad - PC/Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x0738, 0xcb03, "Saitek P3200 Rumble Pad - PC/Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x0738, 0xf738, "Super SFIV FightStick TE S", 0, XTYPE_XBOX360 },
+ 	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", DANCEPAD_MAP_CONFIG, XTYPE_XBOX },
+ 	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", 0, XTYPE_XBOX },
+@@ -156,28 +165,49 @@ static const struct xpad_device {
+ 	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", 0, XTYPE_XBOX },
+ 	{ 0x0e6f, 0x0006, "Edge wireless Controller", 0, XTYPE_XBOX },
+ 	{ 0x0e6f, 0x0105, "HSM3 Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
++	{ 0x0e6f, 0x0113, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0201, "Pelican PL-3601 'TSZ' Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
++	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", 0, XTYPE_XBOX },
++	{ 0x0e8f, 0x3008, "Generic xbox control (dealextreme)", 0, XTYPE_XBOX },
++	{ 0x0f0d, 0x000a, "Hori Co. DOA4 FightStick", 0, XTYPE_XBOX360 },
+ 	{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0f0d, 0x0016, "Hori Real Arcade Pro.EX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+ 	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
++	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x8809, "Xbox DDR dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", 0, XTYPE_XBOX360 },
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
++	{ 0x15e4, 0x3f00, "Power A Mini Pro Elite", 0, XTYPE_XBOX360 },
++	{ 0x15e4, 0x3f0a, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
++	{ 0x15e4, 0x3f10, "Batarang Xbox 360 controller", 0, XTYPE_XBOX360 },
++	{ 0x162e, 0xbeef, "Joytech Neo-Se Take2", 0, XTYPE_XBOX360 },
+ 	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", 0, XTYPE_XBOX360 },
+ 	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
++	{ 0x1bad, 0xf023, "MLG Pro Circuit Controller (Xbox)", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 0, XTYPE_XBOX360 },
++	{ 0x1bad, 0xf038, "Street Fighter IV FightStick TE", 0, XTYPE_XBOX360 },
++	{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf901, "Gamestop Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf903, "Tron Xbox 360 controller", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5500, "Hori XBOX 360 EX 2 with Turbo", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5501, "Hori Real Arcade Pro VX-SA", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
++	{ 0x24c6, 0x5b02, "Thrustmaster, Inc. GPX Controller", 0, XTYPE_XBOX360 },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
+ };
+@@ -274,6 +304,9 @@ static struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
+ 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
++	XPAD_XBOX360_VENDOR(0x1532),		/* Razer Sabertooth */
++	XPAD_XBOX360_VENDOR(0x15e4),		/* Numark X-Box 360 controllers */
++	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
+ 	{ }
+ };
+ 

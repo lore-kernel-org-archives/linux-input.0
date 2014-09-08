@@ -1,65 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: rmi: check sanity of the incoming report
-Date: Mon, 8 Sep 2014 10:13:17 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1409081012160.5523@pobox.suse.cz>
-References: <1409925435-6556-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1409925435-6556-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH] usbhid: fix PIXART optical mouse
+Date: Mon,  8 Sep 2014 11:21:49 +0200
+Message-ID: <1410168109-16005-1-git-send-email-oneukum@suse.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:51754 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753103AbaIHJVy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Sep 2014 05:21:54 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.com, linux-input@vger.kernel.org, johan@kernel.org
+Cc: Oliver Neukum <oneukum@suse.de>
 
-On Fri, 5 Sep 2014, Benjamin Tissoires wrote:
+This mouse keeps disconnecting in runlevel 3. It needs the
+ALWAYS_POLL quirk.
 
-> In the Dell XPS 13 9333, it appears that sometimes the bus get confused
-> and corrupts the incoming data. It fills the input report with the
-> sentinel value "ff". Synaptics told us that such behavior does not comes
-> from the touchpad itself, so we filter out such reports here.
-> 
-> Unfortunately, we can not simply discard the incoming data because they
-> may contain useful information. Most of the time, the misbehavior is
-> quite near the end of the report, so we can still use the valid part of
-> it.
-> 
-> Fixes:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1123584
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-rmi.c | 31 ++++++++++++++++++++++++++-----
->  1 file changed, 26 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 8389e81..db92c3b 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -320,9 +320,6 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
->  	int offset;
->  	int i;
->  
-> -	if (size < hdata->f11.report_size)
-> -		return 0;
-> -
->  	if (!(irq & hdata->f11.irq_mask))
->  		return 0;
->  
-> @@ -332,9 +329,13 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
->  		int fs_bit_position = (i & 0x3) << 1;
->  		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
->  					0x03;
-> +		int position = offset + 5 * i;
-> +
-> +		if (position + 5 > size)
-> +			/* partial report, go on with what we received */
-> +			break;
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+---
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-Do you perhaps want to warn the user here, so that he knows that things 
-are getting a little bit hairy? Or is this happening so often that it 
-makes no sense to warn about it?
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0d2e07d..c2aca75 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -736,6 +736,7 @@
+ #define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL	0xff
+ 
+ #define USB_VENDOR_ID_PIXART				0x093a
++#define USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE		0x2510
+ #define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN	0x8001
+ #define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1	0x8002
+ #define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2	0x8003
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index ca18136..8c97e63 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -80,6 +80,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1610, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1640, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.4.5
+

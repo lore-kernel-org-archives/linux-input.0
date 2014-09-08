@@ -1,173 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: synaptics - add support for ForcePads
-Date: Mon, 8 Sep 2014 09:55:22 -0700
-Message-ID: <20140908165520.GA35051@core.coreip.homeip.net>
+From: Deborah Mayher <Deborahm@wrschool.net>
+Subject: RE:
+Date: Mon, 8 Sep 2014 11:36:41 -0600
+Message-ID: <6A286AB51AD8EC4180C4B2E9EF1D0A027AAD7F0260__5523.83456747538$1410199562$gmane$org@exmb01.wrschool.net>
+References: <6A286AB51AD8EC4180C4B2E9EF1D0A027AAD7EFF1E@exmb01.wrschool.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from [192.199.228.4] ([192.199.228.4]:15029 "EHLO
+	sserver.wrschool.net" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752183AbaIHSFp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Sep 2014 14:05:45 -0400
+In-Reply-To: <6A286AB51AD8EC4180C4B2E9EF1D0A027AAD7EFF1E@exmb01.wrschool.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-ForcePads are found on HP EliteBook 1040 laptops. They lack any kind of
-physical buttons, instead they generate primary button click when user
-presses somewhat hard on the surface of the touchpad. Unfortunately they
-also report primary button click whenever there are 2 or more contacts
-on the pad, messing up all multi-finger gestures (2-finger scrolling,
-multi-finger tapping, etc). To cope with this behavior we introduce a
-delay (currently 50 msecs) in reporting primary press in case more
-contacts appear.
-
-For now we are using DMI matching to detect ForcePads, hopefully we'll
-be able to figure a better way down the road.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/synaptics.c | 80 ++++++++++++++++++++++++++++++++---------
- drivers/input/mouse/synaptics.h |  5 +++
- 2 files changed, 69 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e8573c6..5de1bb6 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -618,6 +618,8 @@ static void synaptics_parse_agm(const unsigned char buf[],
- 	priv->agm_pending = true;
- }
- 
-+static bool is_forcepad;
-+
- static int synaptics_parse_hw_state(const unsigned char buf[],
- 				    struct synaptics_data *priv,
- 				    struct synaptics_hw_state *hw)
-@@ -629,10 +631,58 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 			 ((buf[0] & 0x04) >> 1) |
- 			 ((buf[3] & 0x04) >> 2));
- 
-+		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
-+			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
-+		    hw->w == 2) {
-+			synaptics_parse_agm(buf, priv, hw);
-+			return 1;
-+		}
-+
-+		hw->x = (((buf[3] & 0x10) << 8) |
-+			 ((buf[1] & 0x0f) << 8) |
-+			 buf[4]);
-+		hw->y = (((buf[3] & 0x20) << 7) |
-+			 ((buf[1] & 0xf0) << 4) |
-+			 buf[5]);
-+		hw->z = buf[2];
-+
- 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
- 
--		if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
-+		if (is_forcepad) {
-+			/* XXX is there a proper capability bit for this? */
-+			/*
-+			 * ForcePads, like Clickpads, use middle button
-+			 * bits to report primary button clicks.
-+			 * Unfortunately they report primary button not only
-+			 * when user presses on the pad above certain threshold,
-+			 * but also when there are more than one finger on the
-+			 * touchpad, which interferes with out multi-finger
-+			 * gestures.
-+			 */
-+			if (hw->z == 0) {
-+				/* No contacts */
-+				priv->press = priv->report_press = false;
-+			} else if (hw->w >= 4 && ((buf[0] ^ buf[3]) & 0x01)) {
-+				/*
-+				 * Single-finger touch with pressure above
-+				 * the threshold.
-+				 */
-+				if  (!priv->press) {
-+					priv->press_start = jiffies;
-+					priv->press = true;
-+				} else if (time_after(jiffies,
-+						priv->press_start +
-+							msecs_to_jiffies(50))) {
-+					priv->report_press = true;
-+				}
-+			} else {
-+				priv->press = false;
-+			}
-+
-+			hw->left = priv->report_press;
-+
-+		} else if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 			/*
- 			 * Clickpad's button is transmitted as middle button,
- 			 * however, since it is primary button, we will report
-@@ -651,21 +701,6 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
- 		}
- 
--		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
--			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
--		    hw->w == 2) {
--			synaptics_parse_agm(buf, priv, hw);
--			return 1;
--		}
--
--		hw->x = (((buf[3] & 0x10) << 8) |
--			 ((buf[1] & 0x0f) << 8) |
--			 buf[4]);
--		hw->y = (((buf[3] & 0x20) << 7) |
--			 ((buf[1] & 0xf0) << 4) |
--			 buf[5]);
--		hw->z = buf[2];
--
- 		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
- 		    ((buf[0] ^ buf[3]) & 0x02)) {
- 			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
-@@ -1642,11 +1677,24 @@ static const struct dmi_system_id __initconst cr48_dmi_table[] = {
- 	{ }
- };
- 
-+static const struct dmi_system_id forcepad_dmi_table[] __initconst = {
-+#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP EliteBook Folio 1040 G1"),
-+		},
-+	},
-+#endif
-+	{ }
-+};
-+
- void __init synaptics_module_init(void)
- {
- 	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
- 	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
- 	cr48_profile_sensor = dmi_check_system(cr48_dmi_table);
-+	is_forcepad = dmi_check_system(forcepad_dmi_table);
- }
- 
- static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index e594af0..adc80c9 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -177,6 +177,11 @@ struct synaptics_data {
- 	 */
- 	struct synaptics_hw_state agm;
- 	bool agm_pending;			/* new AGM packet received */
-+
-+	/* ForcePad handling */
-+	unsigned long				press_start;
-+	bool					press;
-+	bool					report_press;
- };
- 
- void synaptics_module_init(void);
--- 
-2.1.0.rc2.206.gedb03e5
+To: Deborah Mayher <Deborahm@wrschool.net>
 
 
--- 
-Dmitry
+
+
+
+________________________________
+From: Deborah Mayher
+Sent: Monday, September 08, 2014 10:13 AM
+To: Deborah Mayher
+Subject:
+
+
+
+IT_Helpdesk is currently migrating from old outlook to the new Outlook Web access 2014 to strengthen our security.  You need to update your account immediately for activation. Click the website below for activation:
+
+Click Here<http://motorgumishop.hu/tmp/393934>
+
+You will not be able to send or receive mail if activation is not complete.
+
+IT Message Center.

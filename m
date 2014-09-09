@@ -1,55 +1,36 @@
-From: Yoichi Yuasa <yuasa@linux-mips.org>
-Subject: Re: [PATCH RESEND v3] input: Add ROHM BU21023/24 Dual touch support
- resistive touchscreens
-Date: Tue, 9 Sep 2014 18:40:11 +0900
-Message-ID: <20140909184011.aceeccef44cfb15828c84d6e@linux-mips.org>
-References: <20140828114536.a28f06bcd8a7ada3a912e3bc@linux-mips.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Handle spurious backslash key repeats on some
+ keyboards
+Date: Tue, 9 Sep 2014 11:42:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1409091141340.5523@pobox.suse.cz>
+References: <1407664566-5303-1-git-send-email-megahallon@gmail.com> <CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo-sg1500.iij4u.or.jp ([210.130.239.5]:51279 "EHLO
-	mo-sg.iij4u.or.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755191AbaIIJk0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 05:40:26 -0400
-In-Reply-To: <20140828114536.a28f06bcd8a7ada3a912e3bc@linux-mips.org>
+Received: from cantor2.suse.de ([195.135.220.15]:42014 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756097AbaIIJnA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Sep 2014 05:43:00 -0400
+In-Reply-To: <CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: yuasa@linux-mips.org, linux-input@vger.kernel.org
+To: Fredrik Hallenberg <megahallon@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Tue, 9 Sep 2014, Fredrik Hallenberg wrote:
 
-I updated the driver according to your comments. 
-Furthermore, is there any comment? 
+> Hi, time for a bump on this one.
 
-Thanks,
+Do you have any idea how common this pattern is? How many keyboards have 
+you encountered doing this?
 
-Yoichi
+I hate to be polluting generic code with such strange quirks ... we've 
+spent quite some time factoring those out to specific drivers.
+So knowing how commong this is could be helpful in deciding how to handle 
+this.
 
-On Thu, 28 Aug 2014 11:45:36 +0900
-Yoichi Yuasa <yuasa@linux-mips.org> wrote:
+Thanks.
 
-> v3 Changes:
-> - fix multi touch slots initialization
-> - fix set_bit BTN_TOUCH
-> - remove input_unregister_device()
-> - switch to __set_bit()
-> 
-> v2 Changes:
-> - remove polling mode
-> - switch to threaded interrupt
-> - switch to managed resources
-> - use MT-B protocol with input_mt_assign_slots
-> - provide ST emulation
-> - firmware load and device initialization are shifted at opening the device
-> - add error handling for IO operations
-> 
-> Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
-> ---
->  drivers/input/touchscreen/Kconfig        |   11 +
->  drivers/input/touchscreen/Makefile       |    1 +
->  drivers/input/touchscreen/rohm_bu21023.c |  931 ++++++++++++++++++++++++++++++
->  drivers/input/touchscreen/rohm_bu21023.h |  258 +++++++++
->  4 files changed, 1201 insertions(+)
-> 
+-- 
+Jiri Kosina
+SUSE Labs

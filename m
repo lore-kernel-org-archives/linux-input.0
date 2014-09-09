@@ -1,47 +1,40 @@
-From: Masanari Iida <standby24x7@gmail.com>
-Subject: [PATCH] Input:wm971x: Fix typo in module param description of wm971[23].c
-Date: Tue,  9 Sep 2014 20:02:48 +0900
-Message-ID: <1410260568-13955-1-git-send-email-standby24x7@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, broonie@kernel.org, linux-input@vger.kernel.org, lrg@slimlogic.co.uk, rdunlap@infradead.org
-Cc: Masanari Iida <standby24x7@gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH] Input: atmel_mxt_ts: Add of node type to the i2c table
+Date: Tue, 09 Sep 2014 13:36:27 +0100
+Message-ID: <540EF44B.4070907@itdev.co.uk>
+References: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:38146 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753585AbaIIMgb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 08:36:31 -0400
+In-Reply-To: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
-This patch fix spelling typo in module parameter
-description of wm9712.c and wm9713.c
+On 09/09/14 08:52, Sjoerd Simons wrote:
+> For i2c devices in OF the modalias exposed to userspace is i2c:<node
+> type>, for the Maxtouch driver this is i2c:maxtouch.
+> 
+> Add maxtouch to the i2c id table such that userspace can correctly
+> load the module for the device and drop the OF table as it's not
+> needed for i2c devices.
+> 
+> Signed-off-by: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
 
-Signed-off-by: Masanari Iida <standby24x7@gmail.com>
----
- drivers/input/touchscreen/wm9712.c | 2 +-
- drivers/input/touchscreen/wm9713.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+I've tested this and it does work. In fact, it seems that you can use
+	compatible = "i2c:atmel,maxtouch";
 
-diff --git a/drivers/input/touchscreen/wm9712.c b/drivers/input/touchscreen/wm9712.c
-index 16b5211..705ffa1 100644
---- a/drivers/input/touchscreen/wm9712.c
-+++ b/drivers/input/touchscreen/wm9712.c
-@@ -41,7 +41,7 @@
-  */
- static int rpu = 8;
- module_param(rpu, int, 0);
--MODULE_PARM_DESC(rpu, "Set internal pull up resitor for pen detect.");
-+MODULE_PARM_DESC(rpu, "Set internal pull up resistor for pen detect.");
- 
- /*
-  * Set current used for pressure measurement.
-diff --git a/drivers/input/touchscreen/wm9713.c b/drivers/input/touchscreen/wm9713.c
-index 7405353..572a5a6 100644
---- a/drivers/input/touchscreen/wm9713.c
-+++ b/drivers/input/touchscreen/wm9713.c
-@@ -41,7 +41,7 @@
-  */
- static int rpu = 8;
- module_param(rpu, int, 0);
--MODULE_PARM_DESC(rpu, "Set internal pull up resitor for pen detect.");
-+MODULE_PARM_DESC(rpu, "Set internal pull up resistor for pen detect.");
- 
- /*
-  * Set current used for pressure measurement.
--- 
-2.1.0.60.g85f0837
+because the "atmel," is ignored in the matching.
+
+Before I could ack this patch, we will need to update this dts file:
+	arch/arm/boot/dts/s5pv210-goni.dts
+and this documentation file:
+	Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+
+thanks!

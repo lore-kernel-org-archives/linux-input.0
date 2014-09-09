@@ -1,47 +1,125 @@
-From: Benson Leung <bleung@google.com>
-Subject: Re: [PATCH V5 14/14] input: cyapa: add function to monitor LID close
- event to off trackpad device
-Date: Tue, 9 Sep 2014 13:09:13 +0800
-Message-ID: <CANLzEku4fxNbNQ6fufpAvQ2YWnZ1gpZZugxZm2xbguTAm+_q-g@mail.gmail.com>
-References: <54003b5a.ac26460a.73fc.ffffe939@mx.google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54003b5a.ac26460a.73fc.ffffe939@mx.google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dudley Du <dudley.dulixin@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, patrik@google.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: John Sung <penmount.touch@gmail.com>
+Subject: [PATCH v2] Input: serport: Add compat_ioctl routine to support 32bit inputattach in 64bit systems
+Date: Tue,  9 Sep 2014 13:20:28 +0800
+Message-ID: <1410240028-9377-1-git-send-email-penmount.touch@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:35705 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751451AbaIIF0i (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 01:26:38 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: penmount.touch@gmail.com
 
-Hi Dudley,
+When running a 32-bit inputattach utility in a 64-bit system, there will be error code "inputattach: can't set device type". This is caused by the serport device driver not supporting compat_ioctl, so that SPIOCSTYPE ioctl fails.
 
+Changes in v2:
+(1) Codes of the compat_ioctl are protected by #ifdef CONFIG_COMPAT.
+(2) Add a new function serport_set_type() for common codes used by serport_ldisc_ioctl() and serport_ldisc_compat_ioctl().
 
-On Fri, Aug 29, 2014 at 4:35 PM, Dudley Du <dudley.dulixin@gmail.com> wrote:
-> Add the function to monitor lid close event to suspend and resume
-> trackpad device.
-> Because system suspend takes some time to trigger from user space,
-> and in that time, the lid panel of the laptop may couple with the
-> active trackpad. This may generate stray input events, which may
-> in turn cancel the suspend if the drivers use pm_wakup_event(), and
-> those input events may trigger something unwanted in the UI.
-> So this patch adds the function to do off the trackpad device quickly.
-> When the lid is closed, as soon as possible, the trakcpad device must
-> be off. And furthermore, the policy on lid close is not always to
-> enter suspend (lid closed with external display), and at this time,
-> the trackpad device must be disabled as well as again to avoid the
-> risk of generating stray events.
-> TEST=test on Chromebooks.
->
-> Signed-off-by: Dudley Du <dudl@cyrpess.com>
+Signed-off-by: John Sung <penmount.touch@gmail.com>
+---
+ drivers/input/serio/serport.c |   57 +++++++++++++++++++++++++++++++++--------
+ 1 file changed, 46 insertions(+), 11 deletions(-)
 
-So, I think for the chromeos-kernel, we are moving away from this hack
-lid filter solution. Very soon we'll remove this in favor of something
-else, so my suggestion would be to drop this from your patch series.
-
-
-
+diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+index 0cb7ef5..1decaa2 100644
+--- a/drivers/input/serio/serport.c
++++ b/drivers/input/serio/serport.c
+@@ -22,6 +22,10 @@
+ #include <linux/serio.h>
+ #include <linux/tty.h>
+ 
++#ifdef CONFIG_COMPAT
++#include <linux/compat.h>
++#endif
++
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Input device TTY line discipline");
+ MODULE_LICENSE("GPL");
+@@ -40,6 +44,30 @@ struct serport {
+ 	unsigned long flags;
+ };
+ 
++#ifdef CONFIG_COMPAT
++#define SPIOCSTYPE32 (_IOW('q', 0x01, compat_ulong_t))
++#endif
++
++/*
++ * serport_set_type() is called by serport_ldisc_ioctl() and
++ * serport_ldisc_compat_ioctl() to set up the serio_device_id values
++ */
++
++static int serport_set_type(struct tty_struct *tty, unsigned long arg)
++{
++	struct serport *serport = (struct serport *) tty->disc_data;
++	unsigned long type;
++
++	if (get_user(type, (unsigned long __user *) arg))
++		return -EFAULT;
++
++	serport->id.proto = type & 0x000000ff;
++	serport->id.id	  = (type & 0x0000ff00) >> 8;
++	serport->id.extra = (type & 0x00ff0000) >> 16;
++
++	return 0;
++}
++
+ /*
+  * Callback functions from the serio code.
+  */
+@@ -204,18 +232,8 @@ static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file, u
+ 
+ static int serport_ldisc_ioctl(struct tty_struct * tty, struct file * file, unsigned int cmd, unsigned long arg)
+ {
+-	struct serport *serport = (struct serport*) tty->disc_data;
+-	unsigned long type;
+-
+ 	if (cmd == SPIOCSTYPE) {
+-		if (get_user(type, (unsigned long __user *) arg))
+-			return -EFAULT;
+-
+-		serport->id.proto = type & 0x000000ff;
+-		serport->id.id	  = (type & 0x0000ff00) >> 8;
+-		serport->id.extra = (type & 0x00ff0000) >> 16;
+-
+-		return 0;
++		return serport_set_type(tty, arg);
+ 	}
+ 
+ 	return -EINVAL;
+@@ -232,6 +250,20 @@ static void serport_ldisc_write_wakeup(struct tty_struct * tty)
+ 	spin_unlock_irqrestore(&serport->lock, flags);
+ }
+ 
++#ifdef CONFIG_COMPAT
++/*
++ * serport_ldisc_compat_ioctl() allows to set the port protocol, and device ID
++ */
++
++static long serport_ldisc_compat_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
++{
++	if (cmd == SPIOCSTYPE32)
++		return serport_set_type(tty, arg);
++
++	return -EINVAL;
++}
++#endif
++
+ /*
+  * The line discipline structure.
+  */
+@@ -243,6 +275,9 @@ static struct tty_ldisc_ops serport_ldisc = {
+ 	.close =	serport_ldisc_close,
+ 	.read =		serport_ldisc_read,
+ 	.ioctl =	serport_ldisc_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl =	serport_ldisc_compat_ioctl,
++#endif
+ 	.receive_buf =	serport_ldisc_receive,
+ 	.write_wakeup =	serport_ldisc_write_wakeup
+ };
 -- 
-Benson Leung
-Software Engineer, Chrome OS
-Google Inc.
-bleung@google.com
+1.7.9.5
+

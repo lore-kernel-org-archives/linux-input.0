@@ -1,66 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - add support for ForcePads
-Date: Tue, 9 Sep 2014 16:15:18 -0700
-Message-ID: <20140909231518.GA4908@core.coreip.homeip.net>
-References: <20140908165520.GA35051@core.coreip.homeip.net>
- <540EAFD1.2040307@redhat.com>
- <20140909170636.GA28774@core.coreip.homeip.net>
- <540F7A19.3070704@synaptics.com>
- <20140909225725.GA18901@core.coreip.homeip.net>
- <540F8816.5080908@redhat.com>
+Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - downgrade warning about empty
+ interrupts
+Date: Tue, 9 Sep 2014 16:40:10 -0700
+Message-ID: <20140909234010.GA5971@core.coreip.homeip.net>
+References: <1410274249-3469-1-git-send-email-nick.dyer@itdev.co.uk>
+ <1410274249-3469-2-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:38494 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751659AbaIIXkO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 19:40:14 -0400
 Content-Disposition: inline
-In-Reply-To: <540F8816.5080908@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1410274249-3469-2-git-send-email-nick.dyer@itdev.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: nick.dyer@itdev.co.uk
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 
-On Wed, Sep 10, 2014 at 01:07:02AM +0200, Hans de Goede wrote:
-> Hi,
+On Tue, Sep 09, 2014 at 03:50:48PM +0100, nick.dyer@itdev.co.uk wrote:
+> From: Nick Dyer <nick.dyer@itdev.co.uk>
 > 
-> On 09/10/2014 12:57 AM, Dmitry Torokhov wrote:
-> > On Tue, Sep 09, 2014 at 03:07:21PM -0700, Andrew Duggan wrote:
-> >> On 09/09/2014 10:06 AM, Dmitry Torokhov wrote:
-> >>> On Tue, Sep 09, 2014 at 09:44:17AM +0200, Hans de Goede wrote:
-> >>>> Hi,
-> >>>>
-> >>>> On 09/08/2014 06:55 PM, Dmitry Torokhov wrote:
-> >>>>> ForcePads are found on HP EliteBook 1040 laptops. They lack any kind of
-> >>>>> physical buttons, instead they generate primary button click when user
-> >>>>> presses somewhat hard on the surface of the touchpad. Unfortunately they
-> >>>>> also report primary button click whenever there are 2 or more contacts
-> >>>>> on the pad, messing up all multi-finger gestures (2-finger scrolling,
-> >>>>> multi-finger tapping, etc). To cope with this behavior we introduce a
-> >>>>> delay (currently 50 msecs) in reporting primary press in case more
-> >>>>> contacts appear.
-> >>>>>
-> >>>>> For now we are using DMI matching to detect ForcePads, hopefully we'll
-> >>>>> be able to figure a better way down the road.
-> >>>> What about using the pnp-id, in my experience with the recent lenovo
-> >>>> laptops that tends to be more reliable.
-> >>> Not sure. So far I only know of HP 1040 having it. FWIW:
-> >>>
-> >>> dtor@dtor-glaptop:~$ cat /sys/bus/pnp/drivers/i8042\ aux/00\:07/id
-> >>> SYN300d
-> >>> SYN0100
-> >>> SYN0002
-> >>> PNP0f13
-> >>>
-> >>> I think if we see generalities we can switch over later. I hope
-> >>> Chris/Andrew will come with a capability bit though :)
-> >>
-> >> The ForcePad capabilities bit is 1 << 15.
-> > 
-> > Awesome, thanks!
-> > 
-> > Then I guess the patch below is what we'll be needing for these devices.
+> In the case where the CHG/interrupt line mode is not configured correctly,
+> this warning is output to dmesg output for each interrupt. Downgrade the
+> message to debug.
 > 
-> Yep, the patch looks good to me.
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Thanks, I'll put you down as reviewed-by then.
+Applied, thank you.
+
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index db178ed..d954b81 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -837,7 +837,12 @@ static irqreturn_t mxt_process_messages_t44(struct mxt_data *data)
+>  	count = data->msg_buf[0];
+>  
+>  	if (count == 0) {
+> -		dev_warn(dev, "Interrupt triggered but zero messages\n");
+> +		/*
+> +		 * This condition is caused by the CHG line being configured
+> +		 * in Mode 0. It results in unnecessary I2C operations but it
+> +		 * is benign.
+> +		 */
+> +		dev_dbg(dev, "Interrupt triggered but zero messages\n");
+>  		return IRQ_NONE;
+>  	} else if (count > data->max_reportid) {
+>  		dev_err(dev, "T44 count %d exceeded max report id\n", count);
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry

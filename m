@@ -1,166 +1,84 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: synaptics - add support for ForcePads
-Date: Tue, 09 Sep 2014 21:29:42 +0200
-Message-ID: <540F5526.8050902@redhat.com>
-References: <20140908165520.GA35051@core.coreip.homeip.net> <540EAFD1.2040307@redhat.com> <20140909170636.GA28774@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: matrix_keypad - make driver useable with GPIO
+ drivers requiring threaded irqs
+Date: Tue, 9 Sep 2014 14:42:45 -0700
+Message-ID: <20140909214245.GD28774@core.coreip.homeip.net>
+References: <1410251584-5031-1-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:31805 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751119AbaIIT3w (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Sep 2014 15:29:52 -0400
-In-Reply-To: <20140909170636.GA28774@core.coreip.homeip.net>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:43349 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751541AbaIIVmu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 17:42:50 -0400
+Content-Disposition: inline
+In-Reply-To: <1410251584-5031-1-git-send-email-LW@KARO-electronics.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
+To: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Gortmaker <paul.gortmaker@windriver.com>
 
-Hi,
+On Tue, Sep 09, 2014 at 10:33:04AM +0200, Lothar Wa=DFmann wrote:
+> When trying to use the matrix-keypad driver with GPIO drivers that
+> require nested irq handlers (e.g. I2C GPIO adapters like PCA9554),
+> request_irq() fails because the GPIO driver requires a threaded
+> interrupt handler.
+>=20
+> Use request_any_context_irq() to be able to use any GPIO driver as
+> keypad driver.
+>=20
+> Signed-off-by: Lothar Wa=DFmann <LW@KARO-electronics.de>
 
-On 09/09/2014 07:06 PM, Dmitry Torokhov wrote:
-> On Tue, Sep 09, 2014 at 09:44:17AM +0200, Hans de Goede wrote:
->> Hi,
->>
->> On 09/08/2014 06:55 PM, Dmitry Torokhov wrote:
->>> ForcePads are found on HP EliteBook 1040 laptops. They lack any kind of
->>> physical buttons, instead they generate primary button click when user
->>> presses somewhat hard on the surface of the touchpad. Unfortunately they
->>> also report primary button click whenever there are 2 or more contacts
->>> on the pad, messing up all multi-finger gestures (2-finger scrolling,
->>> multi-finger tapping, etc). To cope with this behavior we introduce a
->>> delay (currently 50 msecs) in reporting primary press in case more
->>> contacts appear.
->>>
->>> For now we are using DMI matching to detect ForcePads, hopefully we'll
->>> be able to figure a better way down the road.
->>
->> What about using the pnp-id, in my experience with the recent lenovo
->> laptops that tends to be more reliable.
->
-> Not sure. So far I only know of HP 1040 having it. FWIW:
->
-> dtor@dtor-glaptop:~$ cat /sys/bus/pnp/drivers/i8042\ aux/00\:07/id
-> SYN300d
-> SYN0100
-> SYN0002
-> PNP0f13
+Applied, thank you.
 
-Hmm, those look pretty generic. Maybe the 300d is specific.
+> ---
+>  drivers/input/keyboard/matrix_keypad.c |    9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/k=
+eyboard/matrix_keypad.c
+> index 8d2e19e..e651fa6 100644
+> --- a/drivers/input/keyboard/matrix_keypad.c
+> +++ b/drivers/input/keyboard/matrix_keypad.c
+> @@ -332,23 +332,24 @@ static int matrix_keypad_init_gpio(struct platf=
+orm_device *pdev,
+>  	}
+> =20
+>  	if (pdata->clustered_irq > 0) {
+> -		err =3D request_irq(pdata->clustered_irq,
+> +		err =3D request_any_context_irq(pdata->clustered_irq,
+>  				matrix_keypad_interrupt,
+>  				pdata->clustered_irq_flags,
+>  				"matrix-keypad", keypad);
+> -		if (err) {
+> +		if (err < 0) {
+>  			dev_err(&pdev->dev,
+>  				"Unable to acquire clustered interrupt\n");
+>  			goto err_free_rows;
+>  		}
+>  	} else {
+>  		for (i =3D 0; i < pdata->num_row_gpios; i++) {
+> -			err =3D request_irq(gpio_to_irq(pdata->row_gpios[i]),
+> +			err =3D request_any_context_irq(
+> +					gpio_to_irq(pdata->row_gpios[i]),
+>  					matrix_keypad_interrupt,
+>  					IRQF_TRIGGER_RISING |
+>  					IRQF_TRIGGER_FALLING,
+>  					"matrix-keypad", keypad);
+> -			if (err) {
+> +			if (err < 0) {
+>  				dev_err(&pdev->dev,
+>  					"Unable to acquire interrupt for GPIO line %i\n",
+>  					pdata->row_gpios[i]);
+> --=20
+> 1.7.10.4
+>=20
 
-> I think if we see generalities we can switch over later. I hope
-> Chris/Andrew will come with a capability bit though :)
->
->>
->> Christopher, Andrew (added to the CC), can one of you tell us if there
->> is a capability bit to detect this, and if not can you perhaps provide
->> a list of pnp-ids of devices which behave like this ?
->>
->>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> ---
->>>   drivers/input/mouse/synaptics.c | 80 ++++++++++++++++++++++++++++++++---------
->>>   drivers/input/mouse/synaptics.h |  5 +++
->>>   2 files changed, 69 insertions(+), 16 deletions(-)
->>>
->>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->>> index e8573c6..5de1bb6 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -618,6 +618,8 @@ static void synaptics_parse_agm(const unsigned char buf[],
->>>   	priv->agm_pending = true;
->>>   }
->>>
->>> +static bool is_forcepad;
->>> +
->>>   static int synaptics_parse_hw_state(const unsigned char buf[],
->>>   				    struct synaptics_data *priv,
->>>   				    struct synaptics_hw_state *hw)
->>> @@ -629,10 +631,58 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->>>   			 ((buf[0] & 0x04) >> 1) |
->>>   			 ((buf[3] & 0x04) >> 2));
->>>
->>> +		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
->>> +			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
->>> +		    hw->w == 2) {
->>> +			synaptics_parse_agm(buf, priv, hw);
->>> +			return 1;
->>> +		}
->>> +
->>> +		hw->x = (((buf[3] & 0x10) << 8) |
->>> +			 ((buf[1] & 0x0f) << 8) |
->>> +			 buf[4]);
->>> +		hw->y = (((buf[3] & 0x20) << 7) |
->>> +			 ((buf[1] & 0xf0) << 4) |
->>> +			 buf[5]);
->>> +		hw->z = buf[2];
->>> +
->>>   		hw->left  = (buf[0] & 0x01) ? 1 : 0;
->>>   		hw->right = (buf[0] & 0x02) ? 1 : 0;
->>>
->>
->> Moving this up means that on clickpads the button will no longer
->> be checked + set for hw->w == 2 packets. That seems like an unintended
->> side effect.
->
-> I guess we can call it a side effect, but it is fine - we parse AGM and
-> stash the data, then when 2nd packet comes we parse and act upon it. In
-> the old code we'd parse x, y, z, in AGM etc. and then have it
-> overwritten with the data from the 2nd packet, here we do not bother.
->
->> If this is intended then this should probably be in its own
->> patch.
->
-> It does not make sense on its own as ForcePad support needs to know
-> values of Z and W when deciding how to handle primary click, otherwise
-> the old code was just fine.
-
-Ok.
-
->
->>
->>> -		if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
->>> +		if (is_forcepad) {
->>> +			/* XXX is there a proper capability bit for this? */
->>> +			/*
->>> +			 * ForcePads, like Clickpads, use middle button
->>> +			 * bits to report primary button clicks.
->>> +			 * Unfortunately they report primary button not only
->>> +			 * when user presses on the pad above certain threshold,
->>> +			 * but also when there are more than one finger on the
->>> +			 * touchpad, which interferes with out multi-finger
->>> +			 * gestures.
->>> +			 */
->>> +			if (hw->z == 0) {
->>> +				/* No contacts */
->>> +				priv->press = priv->report_press = false;
->>> +			} else if (hw->w >= 4 && ((buf[0] ^ buf[3]) & 0x01)) {
->>> +				/*
->>> +				 * Single-finger touch with pressure above
->>> +				 * the threshold.
->>> +				 */
->>> +				if  (!priv->press) {
->>> +					priv->press_start = jiffies;
->>> +					priv->press = true;
->>> +				} else if (time_after(jiffies,
->>> +						priv->press_start +
->>> +							msecs_to_jiffies(50))) {
->>> +					priv->report_press = true;
->>> +				}
->>
->> You're not setting a timer here, instead relying on there to be further events,
->> that is probably ok, but maybe put a comment to that extent here ?
->
-> I can, any suggestion on what you want me to say? "If single point
-> contact held pressure long enough start reporting primary click"?
-
-What I mean is that this will not work if the finger is held perfectly still,
-at least AFAIK no more packets will be send in that case, but maybe that is
-me thinking too much in userspace terms where no evdev events will be
-generated in that case. If the touchpad will continue repeating events with
-exact the same location + pressure, then there is nothing to worry about
-and you can ignore my request for a comment.
-
-Regards,
-
-Hans
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

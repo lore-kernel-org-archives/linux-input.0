@@ -1,63 +1,71 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 3/4] mfd: max77693: add haptic of_compatible in
- mfd_cell
-Date: Tue, 9 Sep 2014 09:15:35 +0100
-Message-ID: <20140909081535.GI30307@lee--X1>
-References: <1409917702-17009-1-git-send-email-jaewon02.kim@samsung.com>
- <1409917702-17009-4-git-send-email-jaewon02.kim@samsung.com>
+From: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
+Subject: [PATCH] Input: matrix_keypad - make driver useable with GPIO drivers requiring threaded irqs
+Date: Tue,  9 Sep 2014 10:33:04 +0200
+Message-ID: <1410251584-5031-1-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:51456 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751040AbaIIIPl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 04:15:41 -0400
-Received: by mail-ie0-f179.google.com with SMTP id rl12so3618475iec.38
-        for <linux-input@vger.kernel.org>; Tue, 09 Sep 2014 01:15:40 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1409917702-17009-4-git-send-email-jaewon02.kim@samsung.com>
+Received: from mail.karo-electronics.de ([81.173.242.67]:56978 "EHLO
+	mail.karo-electronics.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751300AbaIIIdH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 04:33:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaewon Kim <jaewon02.kim@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 
-On Fri, 05 Sep 2014, Jaewon Kim wrote:
+When trying to use the matrix-keypad driver with GPIO drivers that
+require nested irq handlers (e.g. I2C GPIO adapters like PCA9554),
+request_irq() fails because the GPIO driver requires a threaded
+interrupt handler.
 
-> This patch add haptic of_compatible in order to use the haptic
-> device driver using Devicetree.
->=20
-> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
-> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-> ---
->  drivers/mfd/max77693.c |    5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
-> index fbfed56..03fd431 100644
-> --- a/drivers/mfd/max77693.c
-> +++ b/drivers/mfd/max77693.c
-> @@ -46,7 +46,10 @@ static const struct mfd_cell max77693_devs[] =3D {
->  	{ .name =3D "max77693-charger", },
->  	{ .name =3D "max77693-flash", },
->  	{ .name =3D "max77693-muic", },
-> -	{ .name =3D "max77693-haptic", },
-> +	{
-> +	  .name =3D "max77693-haptic",
-> +	  .of_compatible =3D "maxim,max77693-haptic",
-> +	},
+Use request_any_context_irq() to be able to use any GPIO driver as
+keypad driver.
 
-Proper tabbing please.
+Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+---
+ drivers/input/keyboard/matrix_keypad.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
->  };
-> =20
->  static const struct regmap_config max77693_regmap_config =3D {
-
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/key=
+board/matrix_keypad.c
+index 8d2e19e..e651fa6 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -332,23 +332,24 @@ static int matrix_keypad_init_gpio(struct platfor=
+m_device *pdev,
+ 	}
+=20
+ 	if (pdata->clustered_irq > 0) {
+-		err =3D request_irq(pdata->clustered_irq,
++		err =3D request_any_context_irq(pdata->clustered_irq,
+ 				matrix_keypad_interrupt,
+ 				pdata->clustered_irq_flags,
+ 				"matrix-keypad", keypad);
+-		if (err) {
++		if (err < 0) {
+ 			dev_err(&pdev->dev,
+ 				"Unable to acquire clustered interrupt\n");
+ 			goto err_free_rows;
+ 		}
+ 	} else {
+ 		for (i =3D 0; i < pdata->num_row_gpios; i++) {
+-			err =3D request_irq(gpio_to_irq(pdata->row_gpios[i]),
++			err =3D request_any_context_irq(
++					gpio_to_irq(pdata->row_gpios[i]),
+ 					matrix_keypad_interrupt,
+ 					IRQF_TRIGGER_RISING |
+ 					IRQF_TRIGGER_FALLING,
+ 					"matrix-keypad", keypad);
+-			if (err) {
++			if (err < 0) {
+ 				dev_err(&pdev->dev,
+ 					"Unable to acquire interrupt for GPIO line %i\n",
+ 					pdata->row_gpios[i]);
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+1.7.10.4
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,36 +1,46 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH] Input: atmel_mxt_ts: Add of node type to the i2c table
-Date: Tue, 09 Sep 2014 11:29:05 +0100
-Message-ID: <540ED671.5020103@itdev.co.uk>
-References: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk> <540ED495.20609@collabora.co.uk>
+From: Fredrik Hallenberg <megahallon@gmail.com>
+Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
+Date: Tue, 9 Sep 2014 12:37:02 +0200
+Message-ID: <CAMsZVf_Pe6r1AiM-5e-tewJaTESSNG3M6rbh8FT0AszkfswAdw@mail.gmail.com>
+References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
+	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
+	<alpine.LNX.2.00.1409091141340.5523@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <540ED495.20609@collabora.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qc0-f170.google.com ([209.85.216.170]:54482 "EHLO
+	mail-qc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756319AbaIIKhD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 06:37:03 -0400
+Received: by mail-qc0-f170.google.com with SMTP id r5so17558206qcx.29
+        for <linux-input@vger.kernel.org>; Tue, 09 Sep 2014 03:37:02 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1409091141340.5523@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On 09/09/14 11:21, Javier Martinez Canillas wrote:
-> On 09/09/2014 09:52 AM, Sjoerd Simons wrote:
->> For i2c devices in OF the modalias exposed to userspace is i2c:<node
->> type>, for the Maxtouch driver this is i2c:maxtouch.
->>
->> Add maxtouch to the i2c id table such that userspace can correctly
->> load the module for the device and drop the OF table as it's not
->> needed for i2c devices.
-> I see that Lee is working to allow the I2C subsystem to not need an I2C ID
-> table to match [0]. I'll let Lee to comment what the future plans are and if
-> his series are going to solve your issue since I'm not that familiar with the
-> I2C core.
-> 
-> Best regards,
-> Javier
-> 
-> [0]: https://lkml.org/lkml/2014/6/20/199
+I have seen reports for Gigabyte Osmium, Corsair Vengeance K-series
+and QPAD MK-series. There are probably more. The reason I chose to not
+make it a quirk specific to some specific hardware is that it feels
+more like a general problem caused by the fact the there are two HID
+key codes mapped to a single Linux key code.
 
-I can see the benefit of not having the duplication. Am I correct that
-you're saying that it might make more sense to remove the i2c ids rather
-than the OF table, if Lee's changes are accepted?
+On Tue, Sep 9, 2014 at 11:42 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 9 Sep 2014, Fredrik Hallenberg wrote:
+>
+>> Hi, time for a bump on this one.
+>
+> Do you have any idea how common this pattern is? How many keyboards have
+> you encountered doing this?
+>
+> I hate to be polluting generic code with such strange quirks ... we've
+> spent quite some time factoring those out to specific drivers.
+> So knowing how commong this is could be helpful in deciding how to handle
+> this.
+>
+> Thanks.
+>
+> --
+> Jiri Kosina
+> SUSE Labs

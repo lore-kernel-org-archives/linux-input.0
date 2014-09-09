@@ -1,125 +1,198 @@
-From: John Sung <penmount.touch@gmail.com>
-Subject: [PATCH v2] Input: serport: Add compat_ioctl routine to support 32bit inputattach in 64bit systems
-Date: Tue,  9 Sep 2014 13:20:28 +0800
-Message-ID: <1410240028-9377-1-git-send-email-penmount.touch@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: synaptics - add support for ForcePads
+Date: Tue, 09 Sep 2014 09:44:17 +0200
+Message-ID: <540EAFD1.2040307@redhat.com>
+References: <20140908165520.GA35051@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:35705 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751451AbaIIF0i (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 01:26:38 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:21465 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755571AbaIIHo1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Sep 2014 03:44:27 -0400
+In-Reply-To: <20140908165520.GA35051@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: penmount.touch@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
 
-When running a 32-bit inputattach utility in a 64-bit system, there will be error code "inputattach: can't set device type". This is caused by the serport device driver not supporting compat_ioctl, so that SPIOCSTYPE ioctl fails.
+Hi,
 
-Changes in v2:
-(1) Codes of the compat_ioctl are protected by #ifdef CONFIG_COMPAT.
-(2) Add a new function serport_set_type() for common codes used by serport_ldisc_ioctl() and serport_ldisc_compat_ioctl().
+On 09/08/2014 06:55 PM, Dmitry Torokhov wrote:
+> ForcePads are found on HP EliteBook 1040 laptops. They lack any kind of
+> physical buttons, instead they generate primary button click when user
+> presses somewhat hard on the surface of the touchpad. Unfortunately they
+> also report primary button click whenever there are 2 or more contacts
+> on the pad, messing up all multi-finger gestures (2-finger scrolling,
+> multi-finger tapping, etc). To cope with this behavior we introduce a
+> delay (currently 50 msecs) in reporting primary press in case more
+> contacts appear.
+> 
+> For now we are using DMI matching to detect ForcePads, hopefully we'll
+> be able to figure a better way down the road.
 
-Signed-off-by: John Sung <penmount.touch@gmail.com>
----
- drivers/input/serio/serport.c |   57 +++++++++++++++++++++++++++++++++--------
- 1 file changed, 46 insertions(+), 11 deletions(-)
+What about using the pnp-id, in my experience with the recent lenovo
+laptops that tends to be more reliable.
 
-diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-index 0cb7ef5..1decaa2 100644
---- a/drivers/input/serio/serport.c
-+++ b/drivers/input/serio/serport.c
-@@ -22,6 +22,10 @@
- #include <linux/serio.h>
- #include <linux/tty.h>
- 
-+#ifdef CONFIG_COMPAT
-+#include <linux/compat.h>
-+#endif
-+
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Input device TTY line discipline");
- MODULE_LICENSE("GPL");
-@@ -40,6 +44,30 @@ struct serport {
- 	unsigned long flags;
- };
- 
-+#ifdef CONFIG_COMPAT
-+#define SPIOCSTYPE32 (_IOW('q', 0x01, compat_ulong_t))
-+#endif
-+
-+/*
-+ * serport_set_type() is called by serport_ldisc_ioctl() and
-+ * serport_ldisc_compat_ioctl() to set up the serio_device_id values
-+ */
-+
-+static int serport_set_type(struct tty_struct *tty, unsigned long arg)
-+{
-+	struct serport *serport = (struct serport *) tty->disc_data;
-+	unsigned long type;
-+
-+	if (get_user(type, (unsigned long __user *) arg))
-+		return -EFAULT;
-+
-+	serport->id.proto = type & 0x000000ff;
-+	serport->id.id	  = (type & 0x0000ff00) >> 8;
-+	serport->id.extra = (type & 0x00ff0000) >> 16;
-+
-+	return 0;
-+}
-+
- /*
-  * Callback functions from the serio code.
-  */
-@@ -204,18 +232,8 @@ static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file, u
- 
- static int serport_ldisc_ioctl(struct tty_struct * tty, struct file * file, unsigned int cmd, unsigned long arg)
- {
--	struct serport *serport = (struct serport*) tty->disc_data;
--	unsigned long type;
--
- 	if (cmd == SPIOCSTYPE) {
--		if (get_user(type, (unsigned long __user *) arg))
--			return -EFAULT;
--
--		serport->id.proto = type & 0x000000ff;
--		serport->id.id	  = (type & 0x0000ff00) >> 8;
--		serport->id.extra = (type & 0x00ff0000) >> 16;
--
--		return 0;
-+		return serport_set_type(tty, arg);
- 	}
- 
- 	return -EINVAL;
-@@ -232,6 +250,20 @@ static void serport_ldisc_write_wakeup(struct tty_struct * tty)
- 	spin_unlock_irqrestore(&serport->lock, flags);
- }
- 
-+#ifdef CONFIG_COMPAT
-+/*
-+ * serport_ldisc_compat_ioctl() allows to set the port protocol, and device ID
-+ */
-+
-+static long serport_ldisc_compat_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	if (cmd == SPIOCSTYPE32)
-+		return serport_set_type(tty, arg);
-+
-+	return -EINVAL;
-+}
-+#endif
-+
- /*
-  * The line discipline structure.
-  */
-@@ -243,6 +275,9 @@ static struct tty_ldisc_ops serport_ldisc = {
- 	.close =	serport_ldisc_close,
- 	.read =		serport_ldisc_read,
- 	.ioctl =	serport_ldisc_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl =	serport_ldisc_compat_ioctl,
-+#endif
- 	.receive_buf =	serport_ldisc_receive,
- 	.write_wakeup =	serport_ldisc_write_wakeup
- };
--- 
-1.7.9.5
+Christopher, Andrew (added to the CC), can one of you tell us if there
+is a capability bit to detect this, and if not can you perhaps provide
+a list of pnp-ids of devices which behave like this ?
 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/mouse/synaptics.c | 80 ++++++++++++++++++++++++++++++++---------
+>  drivers/input/mouse/synaptics.h |  5 +++
+>  2 files changed, 69 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index e8573c6..5de1bb6 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -618,6 +618,8 @@ static void synaptics_parse_agm(const unsigned char buf[],
+>  	priv->agm_pending = true;
+>  }
+>  
+> +static bool is_forcepad;
+> +
+>  static int synaptics_parse_hw_state(const unsigned char buf[],
+>  				    struct synaptics_data *priv,
+>  				    struct synaptics_hw_state *hw)
+> @@ -629,10 +631,58 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  			 ((buf[0] & 0x04) >> 1) |
+>  			 ((buf[3] & 0x04) >> 2));
+>  
+> +		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
+> +			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
+> +		    hw->w == 2) {
+> +			synaptics_parse_agm(buf, priv, hw);
+> +			return 1;
+> +		}
+> +
+> +		hw->x = (((buf[3] & 0x10) << 8) |
+> +			 ((buf[1] & 0x0f) << 8) |
+> +			 buf[4]);
+> +		hw->y = (((buf[3] & 0x20) << 7) |
+> +			 ((buf[1] & 0xf0) << 4) |
+> +			 buf[5]);
+> +		hw->z = buf[2];
+> +
+>  		hw->left  = (buf[0] & 0x01) ? 1 : 0;
+>  		hw->right = (buf[0] & 0x02) ? 1 : 0;
+>  
+
+Moving this up means that on clickpads the button will no longer
+be checked + set for hw->w == 2 packets. That seems like an unintended
+side effect. If this is intended then this should probably be in its own
+patch.
+
+> -		if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+> +		if (is_forcepad) {
+> +			/* XXX is there a proper capability bit for this? */
+> +			/*
+> +			 * ForcePads, like Clickpads, use middle button
+> +			 * bits to report primary button clicks.
+> +			 * Unfortunately they report primary button not only
+> +			 * when user presses on the pad above certain threshold,
+> +			 * but also when there are more than one finger on the
+> +			 * touchpad, which interferes with out multi-finger
+> +			 * gestures.
+> +			 */
+> +			if (hw->z == 0) {
+> +				/* No contacts */
+> +				priv->press = priv->report_press = false;
+> +			} else if (hw->w >= 4 && ((buf[0] ^ buf[3]) & 0x01)) {
+> +				/*
+> +				 * Single-finger touch with pressure above
+> +				 * the threshold.
+> +				 */
+> +				if  (!priv->press) {
+> +					priv->press_start = jiffies;
+> +					priv->press = true;
+> +				} else if (time_after(jiffies,
+> +						priv->press_start +
+> +							msecs_to_jiffies(50))) {
+> +					priv->report_press = true;
+> +				}
+
+You're not setting a timer here, instead relying on there to be further events,
+that is probably ok, but maybe put a comment to that extent here ?
+
+> +			} else {
+> +				priv->press = false;
+> +			}
+> +
+> +			hw->left = priv->report_press;
+> +
+> +		} else if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+>  			/*
+>  			 * Clickpad's button is transmitted as middle button,
+>  			 * however, since it is primary button, we will report
+> @@ -651,21 +701,6 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
+>  		}
+>  
+> -		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
+> -			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
+> -		    hw->w == 2) {
+> -			synaptics_parse_agm(buf, priv, hw);
+> -			return 1;
+> -		}
+> -
+> -		hw->x = (((buf[3] & 0x10) << 8) |
+> -			 ((buf[1] & 0x0f) << 8) |
+> -			 buf[4]);
+> -		hw->y = (((buf[3] & 0x20) << 7) |
+> -			 ((buf[1] & 0xf0) << 4) |
+> -			 buf[5]);
+> -		hw->z = buf[2];
+> -
+>  		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
+>  		    ((buf[0] ^ buf[3]) & 0x02)) {
+>  			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+> @@ -1642,11 +1677,24 @@ static const struct dmi_system_id __initconst cr48_dmi_table[] = {
+>  	{ }
+>  };
+>  
+> +static const struct dmi_system_id forcepad_dmi_table[] __initconst = {
+> +#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+> +	{
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "HP EliteBook Folio 1040 G1"),
+> +		},
+> +	},
+> +#endif
+> +	{ }
+> +};
+> +
+>  void __init synaptics_module_init(void)
+>  {
+>  	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
+>  	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
+>  	cr48_profile_sensor = dmi_check_system(cr48_dmi_table);
+> +	is_forcepad = dmi_check_system(forcepad_dmi_table);
+>  }
+>  
+>  static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+> index e594af0..adc80c9 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -177,6 +177,11 @@ struct synaptics_data {
+>  	 */
+>  	struct synaptics_hw_state agm;
+>  	bool agm_pending;			/* new AGM packet received */
+> +
+> +	/* ForcePad handling */
+> +	unsigned long				press_start;
+> +	bool					press;
+> +	bool					report_press;
+>  };
+>  
+>  void synaptics_module_init(void);
+> 
+
+Regards,
+
+Hans

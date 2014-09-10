@@ -1,48 +1,89 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - fix double free of input device
-Date: Tue, 9 Sep 2014 16:49:22 -0700
-Message-ID: <20140909234922.GB5971@core.coreip.homeip.net>
-References: <1410274249-3469-1-git-send-email-nick.dyer@itdev.co.uk>
- <1410274249-3469-3-git-send-email-nick.dyer@itdev.co.uk>
+From: Dudley Du <dudlx@outlook.com>
+Subject: [PATCH v6 00/13] input: cyapa: re-architecture driver to support multi-trackpads in one driver
+Date: Wed, 10 Sep 2014 12:33:52 +0800
+Message-ID: <BAY176-DS113F7C9EFFF3BA8B47782ABDCF0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:64789 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751519AbaIIXt0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Sep 2014 19:49:26 -0400
-Content-Disposition: inline
-In-Reply-To: <1410274249-3469-3-git-send-email-nick.dyer@itdev.co.uk>
+Received: from bay004-omc1s1.hotmail.com ([65.54.190.12]:50237 "EHLO
+	BAY004-OMC1S1.hotmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750719AbaIJEi7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Sep 2014 00:38:59 -0400
+Content-Language: zh-cn
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: nick.dyer@itdev.co.uk
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: bleung@google.com, patrikf@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2014 at 03:50:49PM +0100, nick.dyer@itdev.co.uk wrote:
-> From: Stephen Warren <swarren@wwwdotorg.org>
-> 
-> [reworked after comments by Dmitry Torokhov. Move free of input device into
-> separate function. Only call in paths that require it. Move mxt_initialize
-> after sysfs init, because otherwise an error in the sysfs init may interfere
-> with the async return from the firmware loader. Add guards for sysfs
-> functions. ]
+This v6 patch set is updated based on cyapa v5 patches, it has below updates:
+1) Remove patch 14 of the lid filtering from the cyapa driver.
 
-Ugh... there is still problem with asycn firmware loading: you need to
-make sure it is done before you try to unbind the dveice. I also do not
-see what stops several firmware update requests to happen
-simultaneously. Once you add proper handling for that you can use the
-same lock in sysfs read methods.
+v5 patch set updates compared with cyapa v4 patches:
+1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+2) Fix memories freed before debugfs entries issue;
+3) Make cyapa_debugs_root valid in driver module level
+   in module_init()/moudle_exit() ;
+4) Fix i2c_transfer() may return partial transfer issues.
+5) Add cyapa->removed flag to avoid detecting thread may still running
+   when driver module is removed.
+6) Fix the meanings of some comments and return error code not clear issue.
 
-Another option is wait a bit and see what's the outcome of async probing
-discussion on LKML is and maybe we can stop using
-request_firmware_nowait() in probe path but rather have device core fire
-off probe asynchronously.
+This patch set is aimed to re-architecture the cyapa driver to support
+old gen3 trackpad device and new gen5 trackpad device in one
+cyapa driver for easily productions support based on
+customers' requirements, and add sysfs functions and interfaces
+supported that required by users and customers.
+Because the earlier gen3 and the latest gen5 trackpad devies using
+two different chipsets, and have different protocol and interfaces.
+If supported these two trackpad devices in two different drivers, then
+it will be difficult to manage productions and later firmware updates.
+it will cause customer don't know which one to use and update
+because these two trackpad devices have been used and integrated
+in same one productions at a time, so must to support these two trackpad
+devices in same on driver.
 
-I'd rather have fix for input device freeing be separate from
-sysfs/firmware/config loading changes.
+The new architecture is made of:
+cyapa.c - the core of the architecture, supply interfaces and
+functions to system and read trackpad devices.
+cyapa_gen3.c - functions support for gen3 trackpad devices,
+cyapa_gen5.c - functions support for gen5 trackpad devices.
 
+Beside this introduction patch, it has 14 patches listed as below.
+For these patches each one is patched based on previous one.
 
-Thanks.
+patch 1/13: re-architecture cyapa driver with core functions,
+and applying the device detecting function in async thread to speed
+up system boot time.
 
--- 
-Dmitry
+patch 2/13: add cyapa driver power management interfaces support.
+
+patch 3/13: add cyapa driver runtime power management interfaces support.
+
+patch 4/13: add cyapa key function interfaces in sysfs system.
+Including read firmware version, get production ID, read baseline,
+re-calibrate trackpad baselines and do trackpad firmware update.
+
+patch 5/13: add read firmware image and read raw trackpad device'
+sensors' raw data interface in debugfs system.
+
+patch 6/13: add gen3 trackpad device basic functions support.
+
+patch 7/13: add gen3 trackpad device firmware update function support.
+
+patch 8/13: add gen3 trackpad device report baseline and do force
+re-calibrate functions support.
+
+patch 9/13: add gen3 trackpad device read firmware image function support.
+
+patch 10/13: add gen5 trackpad device basic functions support.
+
+patch 11/13: add gen5 trackpad device firmware update function support.
+
+patch 12/13: add gen5 trackpad device report baseline and do force
+re-calibrate functions support.
+
+patch 13/13: add gen5 trackpad device read firmware image and report
+sensors' raw data values functions support.
+

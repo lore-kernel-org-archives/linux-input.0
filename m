@@ -1,23 +1,30 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 3.17-rc4
-Date: Wed, 10 Sep 2014 14:04:14 -0700
-Message-ID: <20140910210414.GA24104@core.coreip.homeip.net>
-References: <20140815061242.GA23913@core.coreip.homeip.net>
+Subject: [git pull] Input updates for 3.17-rc4
+Date: Wed, 10 Sep 2014 14:08:48 -0700
+Message-ID: <20140910210848.GB24104@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:64746 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752225AbaIJVER (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:63664 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753019AbaIJVIw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Sep 2014 17:04:17 -0400
+	Wed, 10 Sep 2014 17:08:52 -0400
 Content-Disposition: inline
-In-Reply-To: <20140815061242.GA23913@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+
+
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+[ Not sure how I managed to send previous request as a reply, resending
+  signed just in case... ]
 
 Hi Linus,
 
@@ -42,8 +49,7 @@ Dmitry Torokhov (1):
 Hans de Goede (3):
       Input: elantech - fix detection of touchpad on ASUS s301l
       Input: add INPUT_PROP_POINTING_STICK property
-      Input: add missing POINTER / DIRECT properties to a bunch of driv=
-ers
+      Input: add missing POINTER / DIRECT properties to a bunch of drivers
 
 John Sung (1):
       Input: serport - add compat handling for SPIOCSTYPE ioctl
@@ -72,8 +78,8 @@ Diffstat:
  drivers/input/mouse/alps.c               |  4 ++
  drivers/input/mouse/elantech.c           | 11 ++++++
  drivers/input/mouse/psmouse-base.c       |  2 +
- drivers/input/mouse/synaptics.c          | 68 ++++++++++++++++++++++++=
---------
+ drivers/input/mouse/synaptics.c          | 68 ++++++++++++++++++++++++----=
+----
  drivers/input/mouse/synaptics.h          | 11 ++++++
  drivers/input/mouse/synaptics_usb.c      |  6 +++
  drivers/input/mouse/trackpoint.c         |  3 ++
@@ -86,8 +92,27 @@ Diffstat:
 
 --=20
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUEL3gAAoJEH70+W8r6ZYq05MP+wQ9b61UsEUWdgMxBaWpJlDa
+UJcvtPyCWDtOEwR2acioS6upI4ZQU94vsB4LlzLtOE+8h4QuUWAy4rRLrrxy2E8M
+78OFA8KoCCb8e+ZJ6pFqdaieErC2YeaGWImgv/H7VFxKOKmu2K+Ko0e8R3vcmjeP
+O/Z3SM7QaBRye1Fga7ZDzqA8abqQrjC8TJU5GBuufy1l2vWom+Qx5zLW2CIzLajs
+S0aNcUE3tLziVijuiKBr7PgHEqwhd+kBsf1YCHK95M5lrp0hJzcX31Alud3hn4UV
+QtaQFPj+KnOEAaJ25m01PISHKiXPlTZKPbmRJVYfja4kKBUWihG78BcIFzFnYaWc
+TXbpb02pYLYk+2QeiLc7x5Af2lwxy0hl9wAnYwI7vBsDx7luPOQP9F5MYbjMeMam
+gpbbc5VMFB1CzxrylB6NPBtFHdvBADiJMDvO33VJKuuo9xxAjwXY7wzVAQDSLI3D
+/t20xyRtHtL0KXYQ7W4sL7prOFAlx/G6T4fuicc8bsP9TL9ZtCcmSm6+nen8H0gV
+oTZXpxEkyXA70oskgkBORFsSRio4ZAGp3tHz7ta9BrMF2qXmP7lBtUa3aY0sBNSI
+ej5gZmUoENIw1mfLgFltdVWwV0hTHp9CRdeRHCWnA9sKHbR8khi9YaunlW0tA5sk
+28rKgPM6qblrsJGMyWiX
+=Xgcr
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

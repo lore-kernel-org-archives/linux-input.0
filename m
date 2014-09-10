@@ -1,71 +1,93 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: atkbd - Fix broken keyboard in another LG laptop
-Date: Wed, 10 Sep 2014 13:52:13 -0700
-Message-ID: <20140910205213.GD38736@core.coreip.homeip.net>
-References: <1410372374-11591-1-git-send-email-jsagarribay@gmail.com>
+Subject: Re: [git pull] Input updates for 3.17-rc4
+Date: Wed, 10 Sep 2014 14:04:14 -0700
+Message-ID: <20140910210414.GA24104@core.coreip.homeip.net>
+References: <20140815061242.GA23913@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:64746 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752225AbaIJVER (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Sep 2014 17:04:17 -0400
 Content-Disposition: inline
-In-Reply-To: <1410372374-11591-1-git-send-email-jsagarribay@gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: Jaime Velasco Juan <jsagarribay@gmail.com>
-Cc: linux-input@vger.kernel.org, stable@vger.kernel.org, Sheng-Liang Song <ssl@chromium.org>
+In-Reply-To: <20140815061242.GA23913@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Jamie,
+Hi Linus,
 
-On Wed, Sep 10, 2014 at 07:06:14PM +0100, Jaime Velasco Juan wrote:
-> This model has the same quirk as others, see 3d725caa9dcc "Input:
-> atkbd - fix keyboard not working on some LG laptops"
-> 
+Please pull from:
 
-How about the patch below instead?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Thanks!
+to receive updates for the input subsystem. You will get an update to
+Synaptics PS/2 driver to handle "ForcePads" (currently found in HP
+EliteBook 1040 laptops), a change for Elan PS/2 driver to detect newer
+touchpads, bunch of devices get annotated as Trackpoint and/or Pointer
+to help userspace classify and handle them, plus assorted driver fixes.
 
--- 
+Changelog:
+---------
+
+Dmitry Torokhov (1):
+      Input: synaptics - add support for ForcePads
+
+Hans de Goede (3):
+      Input: elantech - fix detection of touchpad on ASUS s301l
+      Input: add INPUT_PROP_POINTING_STICK property
+      Input: add missing POINTER / DIRECT properties to a bunch of driv=
+ers
+
+John Sung (1):
+      Input: serport - add compat handling for SPIOCSTYPE ioctl
+
+Klaus Goger (1):
+      Input: cap1106 - fix register definition
+
+Lothar Wa=DFmann (1):
+      Input: matrix_keypad - use request_any_context_irq()
+
+Masanari Iida (1):
+      Input: wm971x - fix typo in module parameter description
+
+Nick Dyer (1):
+      Input: atmel_mxt_ts - downgrade warning about empty interrupts
+
+Stephen Warren (1):
+      Input: atmel_mxt_ts - fix double free of input device
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/cap1106.c         |  4 +-
+ drivers/input/keyboard/matrix_keypad.c   |  9 +++--
+ drivers/input/mouse/alps.c               |  4 ++
+ drivers/input/mouse/elantech.c           | 11 ++++++
+ drivers/input/mouse/psmouse-base.c       |  2 +
+ drivers/input/mouse/synaptics.c          | 68 ++++++++++++++++++++++++=
+--------
+ drivers/input/mouse/synaptics.h          | 11 ++++++
+ drivers/input/mouse/synaptics_usb.c      |  6 +++
+ drivers/input/mouse/trackpoint.c         |  3 ++
+ drivers/input/serio/serport.c            | 45 +++++++++++++++++----
+ drivers/input/touchscreen/atmel_mxt_ts.c | 25 +++++++++---
+ drivers/input/touchscreen/wm9712.c       |  2 +-
+ drivers/input/touchscreen/wm9713.c       |  2 +-
+ include/uapi/linux/input.h               |  1 +
+ 14 files changed, 156 insertions(+), 37 deletions(-)
+
+--=20
 Dmitry
-
-Input: atkbd - do not try 'deactivate' keyboard on any LG laptops
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-We are getting more and more reports about LG laptops not having
-functioning keyboard if we try to deactivate keyboard during probe.
-Given that having keyboard deactivated is merely "nice to have"
-instead of a hard requirement for probing, let's disable it on all
-LG boxes instead of trying to hunt down particular models.
-
-This change is prompted by patches trying to add "LG Electronics"/"ROCKY"
-and "LG Electronics"/"LW60-F27B" to the DMI list.
-
-https://bugzilla.kernel.org/show_bug.cgi?id=77051
-
-Cc: stable@vger.kernel.org
-Reported-by: Jaime Velasco Juan <jsagarribay@gmail.com>
-Reported-by: Georgios Tsalikis <georgios@tsalikis.net>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/atkbd.c |    8 --------
- 1 file changed, 8 deletions(-)
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 2dd1d0d..6f5d795 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -1791,14 +1791,6 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LW25-B7HV"),
--		},
--		.callback = atkbd_deactivate_fixup,
--	},
--	{
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "P1-J273B"),
- 		},
- 		.callback = atkbd_deactivate_fixup,
- 	},
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

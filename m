@@ -1,33 +1,29 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2 v2] Input: atmel_mxt_ts - fix double free of input
- device
-Date: Wed, 10 Sep 2014 11:07:45 -0700
-Message-ID: <20140910180745.GA38736@core.coreip.homeip.net>
-References: <541060D8.9020707@itdev.co.uk>
- <1410359581-16284-1-git-send-email-nick.dyer@itdev.co.uk>
- <54108A30.80003@wwwdotorg.org>
+Subject: Re: [PATCH v2] Input: serport: Add compat_ioctl routine to support
+ 32bit inputattach in 64bit systems
+Date: Wed, 10 Sep 2014 11:08:39 -0700
+Message-ID: <20140910180839.GB38736@core.coreip.homeip.net>
+References: <1410240028-9377-1-git-send-email-penmount.touch@gmail.com>
+ <20140909181421.GB28774@core.coreip.homeip.net>
+ <CAKw_OUUdUA8v=e6=A4EEDpesskbOsZuQrO1Qqm87W6ayurz4Fg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <54108A30.80003@wwwdotorg.org>
+In-Reply-To: <CAKw_OUUdUA8v=e6=A4EEDpesskbOsZuQrO1Qqm87W6ayurz4Fg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: nick.dyer@itdev.co.uk, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
+To: John Sung <penmount.touch@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 10, 2014 at 11:28:16AM -0600, Stephen Warren wrote:
-> On 09/10/2014 08:33 AM, nick.dyer@itdev.co.uk wrote:
-> >From: Stephen Warren <swarren@wwwdotorg.org>
-> >
-> >[reworked after comments by Dmitry Torokhov. Move free of input device into
-> >separate function. Only call in paths that require it.]
-> >Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+On Wed, Sep 10, 2014 at 10:18:14AM +0800, John Sung wrote:
+> Hi Dmitry,
 > 
-> I re-tested this, and see no issues after inserting/removing the
-> module a few times.
+> I tried the patch, and it works with my 32-bit inputattach.
 
-Applied, thank you.
+Excellent, I queued it up for mainline.
+
+Thanks.
 
 -- 
 Dmitry

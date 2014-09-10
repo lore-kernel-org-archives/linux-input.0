@@ -1,30 +1,41 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 2/2 v2] Input: atmel_mxt_ts - fix double free of input
- device
-Date: Wed, 10 Sep 2014 11:28:16 -0600
-Message-ID: <54108A30.80003@wwwdotorg.org>
-References: <541060D8.9020707@itdev.co.uk> <1410359581-16284-1-git-send-email-nick.dyer@itdev.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:46615 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752599AbaIJR2F (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Sep 2014 13:28:05 -0400
-In-Reply-To: <1410359581-16284-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: Jaime Velasco Juan <jsagarribay@gmail.com>
+Subject: [PATCH] input: atkbd - Fix broken keyboard in another LG laptop
+Date: Wed, 10 Sep 2014 19:06:14 +0100
+Message-ID: <1410372374-11591-1-git-send-email-jsagarribay@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sheng-Liang Song <ssl@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: nick.dyer@itdev.co.uk, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 
-On 09/10/2014 08:33 AM, nick.dyer@itdev.co.uk wrote:
-> From: Stephen Warren <swarren@wwwdotorg.org>
->
-> [reworked after comments by Dmitry Torokhov. Move free of input device into
-> separate function. Only call in paths that require it.]
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+This model has the same quirk as others, see 3d725caa9dcc "Input:
+atkbd - fix keyboard not working on some LG laptops"
 
-I re-tested this, and see no issues after inserting/removing the module 
-a few times.
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaime Velasco Juan <jsagarribay@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sheng-Liang Song <ssl@chromium.org>
+---
+ drivers/input/keyboard/atkbd.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 2dd1d0d..a58653c 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1802,6 +1802,13 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LG Electronics"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LW60-F27B"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{ }
+ };
+ 
+-- 
+2.1.0

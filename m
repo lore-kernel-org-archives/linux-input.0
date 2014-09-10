@@ -1,77 +1,48 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
-Date: Wed, 10 Sep 2014 16:22:13 +0200
-Message-ID: <CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
-References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
-	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
-	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
-	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
-	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 2/2] Input: atmel_mxt_ts - fix double free of input device
+Date: Wed, 10 Sep 2014 15:31:52 +0100
+Message-ID: <541060D8.9020707@itdev.co.uk>
+References: <1410274249-3469-1-git-send-email-nick.dyer@itdev.co.uk> <1410274249-3469-3-git-send-email-nick.dyer@itdev.co.uk> <20140909234922.GB5971@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:39419 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751411AbaIJOWP (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:3001 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752841AbaIJOb4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Sep 2014 10:22:15 -0400
-Received: by mail-ie0-f174.google.com with SMTP id lx4so3052704iec.19
-        for <linux-input@vger.kernel.org>; Wed, 10 Sep 2014 07:22:14 -0700 (PDT)
-In-Reply-To: <CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
+	Wed, 10 Sep 2014 10:31:56 -0400
+In-Reply-To: <20140909234922.GB5971@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fredrik Hallenberg <megahallon@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Yufeng Shen <miletus@google.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Sekhar Nori <nsekhar@ti.com>
 
-Hi
+On 10/09/14 00:49, Dmitry Torokhov wrote:
+> On Tue, Sep 09, 2014 at 03:50:49PM +0100, nick.dyer@itdev.co.uk wrote:
+>> From: Stephen Warren <swarren@wwwdotorg.org>
+>>
+>> [reworked after comments by Dmitry Torokhov. Move free of input device into
+>> separate function. Only call in paths that require it. Move mxt_initialize
+>> after sysfs init, because otherwise an error in the sysfs init may interfere
+>> with the async return from the firmware loader. Add guards for sysfs
+>> functions. ]
+> 
+> Ugh... there is still problem with asycn firmware loading: you need to
+> make sure it is done before you try to unbind the dveice. I also do not
+> see what stops several firmware update requests to happen
+> simultaneously. Once you add proper handling for that you can use the
+> same lock in sysfs read methods.
 
-On Wed, Sep 10, 2014 at 1:13 PM, Fredrik Hallenberg
-<megahallon@gmail.com> wrote:
-> The keyboards in question have n-key rollover, this seems to be
-> implemented by sending every single key id every time the keyboard is
-> polled, this includes several keys that does not exist physically for
-> example 0x31. This may be a bit excessive but not broken. If I press
-> a-key and '-key in rapid succession, I get the following events
-> (omitting all other keys):
+Yes, I see what you mean. I will try and straighten it out.
+
+> Another option is wait a bit and see what's the outcome of async probing
+> discussion on LKML is and maybe we can stop using
+> request_firmware_nowait() in probe path but rather have device core fire
+> off probe asynchronously.
 >
-> VALUE 1 CODE 30 HID 0x4
-> VALUE 0 CODE 43 HID 0x31
-> VALUE 0 CODE 43 HID 0x32
-> Output: a
->
-> VALUE 1 CODE 30 HID 0x4
-> VALUE 0 CODE 43 HID 0x31  - 43 is up
-> VALUE 1 CODE 43 HID 0x32  - 43 is down
-> Output: '
->
-> VALUE 0 CODE 30 HID 0x4
-> VALUE 0 CODE 43 HID 0x31  - 43 is up
-> VALUE 1 CODE 43 HID 0x32  - 43 is down
-> Output: '
->
-> VALUE 0 CODE 30 HID 0x4
-> VALUE 0 CODE 43 HID 0x31  - 43 is up
-> VALUE 1 CODE 43 HID 0x32  - 43 is down
-> Output: '
->
-> So even though the keyboard is behaving a bit weird the problem is in
-> the kernel as it will interpret 0x31 and 0x32 as the same key.
+> I'd rather have fix for input device freeing be separate from
+> sysfs/firmware/config loading changes.
 
-Thanks for the information! Please include that in follow-up
-commit-messages so others can see it as well. I don't think a report
-descriptor is needed, anymore.
-
-This indeed explains the problem. We only track keys on the keycode
-level, not scancode level. Therefore, you get weird key-up or
-key-repeat events depending on the scan-order.
-
-The nicest fix, obviously, is to blacklist keys that are not
-physically present on the keyboard. But I assume the keyboard reports
-either key depending on the model (standard vs. European). Given that
-this key is indeed special as we only have a single keycode for it, we
-probably need some quirk like yours. I'd like to hear Dmitry's
-comments on this, maybe he has had similar problems with non-HID
-keyboards.
-
-Thanks
-David
+I agree, it is better to fix the common issue with a straightforward patch.
+I have split it apart and will send this patch now.

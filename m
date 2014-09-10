@@ -1,40 +1,44 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] i8042: Add Fujitsu U574 to no_timeout dmi table
-Date: Wed, 10 Sep 2014 20:33:55 +0200
-Message-ID: <1410374035-5461-1-git-send-email-hdegoede@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/4] HID: wacom - Add default permission defines for sysfs attributes
+Date: Wed, 10 Sep 2014 11:40:04 -0700
+Message-ID: <1410374404-25832-1-git-send-email-pingc@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:43193 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752363AbaIJSkO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Sep 2014 14:40:14 -0400
+Received: by mail-pd0-f172.google.com with SMTP id v10so12879643pde.3
+        for <linux-input@vger.kernel.org>; Wed, 10 Sep 2014 11:40:14 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: killertofu@gmail.com, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>, "Paul A. Tessier" <phernost@gmail.com>
 
-https://bugzilla.kernel.org/show_bug.cgi?id=69731
+RW : ug=rw,o=r
+WO : ug=w
 
-Cc: stable@vger.kernel.org
-Reported-by: Jason Robinson <mail@jasonrobinson.me>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Paul A. Tessier <phernost@gmail.com>
+Signed-Off-by: Ping Cheng <pingc@wacom.com>
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/wacom_sys.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 136b7b20..2f08daa 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -608,6 +608,14 @@ static const struct dmi_system_id __initconst i8042_dmi_notimeout_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv4 Notebook PC"),
- 		},
- 	},
-+	{
-+		/* Fujitsu U574 laptop */
-+		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK U574"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index f0db7ec..2ce102b 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -23,6 +23,9 @@
+ #define WAC_CMD_ICON_BT_XFER	0x26
+ #define WAC_CMD_RETRIES		10
  
++#define DEV_ATTR_RW_PERM (S_IRUGO | S_IWUSR | S_IWGRP)
++#define DEV_ATTR_WO_PERM (S_IWUSR | S_IWGRP)
++
+ static int wacom_get_report(struct hid_device *hdev, u8 type, u8 id,
+ 			    void *buf, size_t size, unsigned int retries)
+ {
 -- 
-2.1.0
+1.9.1
+

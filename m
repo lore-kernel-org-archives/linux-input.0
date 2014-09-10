@@ -1,29 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: serport: Add compat_ioctl routine to support
- 32bit inputattach in 64bit systems
-Date: Wed, 10 Sep 2014 11:08:39 -0700
-Message-ID: <20140910180839.GB38736@core.coreip.homeip.net>
-References: <1410240028-9377-1-git-send-email-penmount.touch@gmail.com>
- <20140909181421.GB28774@core.coreip.homeip.net>
- <CAKw_OUUdUA8v=e6=A4EEDpesskbOsZuQrO1Qqm87W6ayurz4Fg@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Status of the plan to set i8042.nomux=1 by default ?
+Date: Wed, 10 Sep 2014 20:10:09 +0200
+Message-ID: <54109401.4000809@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKw_OUUdUA8v=e6=A4EEDpesskbOsZuQrO1Qqm87W6ayurz4Fg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: John Sung <penmount.touch@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:43250 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752770AbaIJSKN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Sep 2014 14:10:13 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-usb <linux-input@vger.kernel.org>
 
-On Wed, Sep 10, 2014 at 10:18:14AM +0800, John Sung wrote:
-> Hi Dmitry,
-> 
-> I tried the patch, and it works with my 32-bit inputattach.
+Hi Dmitry,
 
-Excellent, I queued it up for mainline.
+I wonder what the status of $subject is ?
 
-Thanks.
+I'm asking because a user joined the discussion here:
+https://bugzilla.kernel.org/show_bug.cgi?id=77391
 
--- 
-Dmitry
+And I ended up debugging his problem a bit, and his laptop
+needs i8042.nomux=1 .
+
+I've asked him for dmi strings for adding a quirk, but as discussed
+a while back, it may be better to just flip the default.
+
+###
+
+Note the bug itself is about an unrelated issue, the user added a
+me too comment while he clearly has a completely different issue.
+
+Not sure if I've already brought the issue the bug is about up,
+I've a proof of concept patch for working around it here:
+
+http://git.linuxtv.org/cgit.cgi/hgoede/gspca.git/log/?h=input-work
+
+The "psmouse: Add support for detecting FocalTech PS/2 touchpads"
+commit explains it if you're curious. Or you can just wait for me to
+actually get the patch to work (it still does not work for some
+reason), and then I'll post it to the list :)
+
+Regards,
+
+Hans

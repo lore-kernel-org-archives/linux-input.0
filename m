@@ -1,63 +1,58 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/4 v2] HID: wacom - Clean up of sysfs
-Date: Wed, 10 Sep 2014 12:40:30 -0700
-Message-ID: <1410378030-14504-1-git-send-email-pingc@wacom.com>
+Subject: [PATCH 3/4 v2] HID: wacom - remove report_id from wacom_get_report interface
+Date: Wed, 10 Sep 2014 12:41:04 -0700
+Message-ID: <1410378064-14545-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:33545 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751074AbaIJTkl (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:46787 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751624AbaIJTlK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Sep 2014 15:40:41 -0400
-Received: by mail-pd0-f169.google.com with SMTP id fp1so6194223pdb.28
-        for <linux-input@vger.kernel.org>; Wed, 10 Sep 2014 12:40:40 -0700 (PDT)
+	Wed, 10 Sep 2014 15:41:10 -0400
+Received: by mail-pd0-f180.google.com with SMTP id ft15so9665306pdb.25
+        for <linux-input@vger.kernel.org>; Wed, 10 Sep 2014 12:41:10 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz
-Cc: killertofu@gmail.com, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>, "Paul A. Tessier" <phernost@gmail.com>
+Cc: killertofu@gmail.com, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-changed to scnprintf(buf, PAGE_SIZE, ... ) as suggested in sysfs.txt
-for show functions
+It is assigned in buf[0] anyway.
 
-Signed-off-by: Paul A. Tessier <phernost@gmail.com>
-Signed-Off-by: Ping Cheng <pingc@wacom.com>
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
-v2: Move actual permission to patch one.
-
- drivers/hid/wacom_sys.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/hid/wacom_sys.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 950a205..4a7b9c8 100644
+index 4a7b9c8..f911f97 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -605,7 +605,8 @@ static ssize_t wacom_led##SET_ID##_select_show(struct device *dev,	\
- {									\
- 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);\
- 	struct wacom *wacom = hid_get_drvdata(hdev);			\
--	return snprintf(buf, 2, "%d\n", wacom->led.select[SET_ID]);	\
-+	return scnprintf(buf, PAGE_SIZE, "%d\n",			\
-+			 wacom->led.select[SET_ID]);			\
- }									\
- static DEVICE_ATTR(status_led##SET_ID##_select, DEV_ATTR_RW_PERM,	\
- 		    wacom_led##SET_ID##_select_show,			\
-@@ -644,8 +645,15 @@ static ssize_t wacom_##name##_luminance_store(struct device *dev,	\
- 	return wacom_luminance_store(wacom, &wacom->led.field,		\
- 				     buf, count);			\
- }									\
-+static ssize_t wacom_##name##_luminance_show(struct device *dev,	\
-+	struct device_attribute *attr, char *buf)			\
-+{									\
-+	struct wacom *wacom = dev_get_drvdata(dev);			\
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", wacom->led.field);	\
-+}									\
- static DEVICE_ATTR(name##_luminance, DEV_ATTR_RW_PERM,			\
--		   NULL, wacom_##name##_luminance_store)
-+		   wacom_##name##_luminance_show,			\
-+		   wacom_##name##_luminance_store)
+@@ -26,13 +26,13 @@
+ #define DEV_ATTR_RW_PERM (S_IRUGO | S_IWUSR | S_IWGRP)
+ #define DEV_ATTR_WO_PERM (S_IWUSR | S_IWGRP)
  
- DEVICE_LUMINANCE_ATTR(status0, llv);
- DEVICE_LUMINANCE_ATTR(status1, hlv);
+-static int wacom_get_report(struct hid_device *hdev, u8 type, u8 id,
+-			    void *buf, size_t size, unsigned int retries)
++static int wacom_get_report(struct hid_device *hdev, u8 type, u8 *buf,
++			    size_t size, unsigned int retries)
+ {
+ 	int retval;
+ 
+ 	do {
+-		retval = hid_hw_raw_request(hdev, id, buf, size, type,
++		retval = hid_hw_raw_request(hdev, buf[0], buf, size, type,
+ 				HID_REQ_GET_REPORT);
+ 	} while ((retval == -ETIMEDOUT || retval == -EPIPE) && --retries);
+ 
+@@ -258,7 +258,7 @@ static int wacom_set_device_mode(struct hid_device *hdev, int report_id,
+ 					 length, 1);
+ 		if (error >= 0)
+ 			error = wacom_get_report(hdev, HID_FEATURE_REPORT,
+-			                         report_id, rep_data, length, 1);
++			                         rep_data, length, 1);
+ 	} while ((error < 0 || rep_data[1] != mode) && limit++ < WAC_MSG_RETRIES);
+ 
+ 	kfree(rep_data);
 -- 
 1.9.1
 

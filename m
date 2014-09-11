@@ -1,43 +1,41 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] i8042: Add nomux quirk for Avatar AVIU-145A6
-Date: Thu, 11 Sep 2014 10:46:53 +0200
-Message-ID: <1410425213-7777-1-git-send-email-hdegoede@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hugo P <saurosii@gmail.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org
+From: Fredrik Hallenberg <megahallon@gmail.com>
+Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
+Date: Thu, 11 Sep 2014 10:50:40 +0200
+Message-ID: <CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
+References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
+	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
+	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
+	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
+	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
+	<CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
+	<20140910225134.GH38736@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f50.google.com ([209.85.192.50]:63693 "EHLO
+	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751629AbaIKIul (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Sep 2014 04:50:41 -0400
+Received: by mail-qg0-f50.google.com with SMTP id z60so5149344qgd.9
+        for <linux-input@vger.kernel.org>; Thu, 11 Sep 2014 01:50:41 -0700 (PDT)
+In-Reply-To: <20140910225134.GH38736@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-The sys_vendor / product_name are somewhat generic unfortunately, so this
-may lead to some false positives. But nomux usually does no harm, where as
-not having it clearly is causing problems on the Avatar AVIU-145A6.
+>> The nicest fix, obviously, is to blacklist keys that are not
+>> physically present on the keyboard. But I assume the keyboard reports
+>
+> Hmm, somebody could still load keymap with duplicate keycodes though...
+>
 
-https://bugzilla.kernel.org/show_bug.cgi?id=77391
+The HID mapping is hardcoded, so only key code 43 will have this
+problem regardless of user keymaps.
 
-Cc: stable@vger.kernel.org
-Reported-by: Hugo P <saurosii@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+Regarding blacklisting it would be good but I don't think there is any
+way to know in advance which key (0x31 or 0x32) the keyboard actually
+uses. If anybody has ideas on how this could be done let me know.
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 2f08daa..713e3dd 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -465,6 +465,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv4 Notebook PC"),
- 		},
- 	},
-+	{
-+		/* Avatar AVIU-145A6 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "IC4I"),
-+		},
-+	},
- 	{ }
- };
- 
--- 
-2.1.0
+Jiri, do you still think this should be a hardware specific quirk?

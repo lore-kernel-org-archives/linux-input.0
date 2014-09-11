@@ -1,108 +1,77 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/3] psmouse: Add psmouse_matches_pnp_id helper function
-Date: Thu, 11 Sep 2014 10:50:46 +0200
-Message-ID: <1410425447-9575-2-git-send-email-hdegoede@redhat.com>
-References: <1410425447-9575-1-git-send-email-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49997 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752856AbaIKIuw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Sep 2014 04:50:52 -0400
-In-Reply-To: <1410425447-9575-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH] Input: atmel_mxt_ts: Add of node type to the i2c table
+Date: Thu, 11 Sep 2014 10:19:54 +0100
+Message-ID: <5411693A.3050300@itdev.co.uk>
+References: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk>	 <540ED495.20609@collabora.co.uk> <20140910092832.GM30307@lee--X1> <1410422429.2857.16.camel@collabora.co.uk> <54115F6E.3010007@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <54115F6E.3010007@collabora.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, "Bowens, Alan" <Alan.Bowens@atmel.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-The matches_pnp_id function from the synaptics driver is useful for other
-drivers too. Make it a generic psmouse helper function.
+On 11/09/14 09:38, Javier Martinez Canillas wrote:
+> To expand on what Sjoerd already said and just to be sure everyone is on the
+> same page.
+> 
+> The problem is that right now the driver reports the following modalias:
+> 
+> # cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
+> i2c:maxtouch
+> 
+> but if you look at the module information, that is not a valid alias:
+> 
+> # modinfo atmel_mxt_ts | grep alias
+> alias:          i2c:mXT224
+> alias:          i2c:atmel_mxt_tp
+> alias:          i2c:atmel_mxt_ts
+> alias:          i2c:qt602240_ts
+> alias:          of:N*T*Catmel,maxtouch*
+> 
+> which means that udev/kmod can't load the module automatically based on the
+> alias information.
+> 
+> The aliases are filled by both MODULE_DEVICE_TABLE(i2c, mxt_id) and
+> MODULE_DEVICE_TABLE(of, mxt_of_match) so after Sjoerd's patch:
+> 
+> # cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
+> i2c:maxtouch
+> 
+> # modinfo atmel_mxt_ts | grep alias
+> alias:          i2c:mXT224
+> alias:          i2c:maxtouch
+> alias:          i2c:atmel_mxt_tp
+> alias:          i2c:atmel_mxt_ts
+> alias:          i2c:qt602240_ts
+> 
+> which matches the reported uevent so the module will be auto-loaded.
+> 
+> This is because the I2C subsystem hardcodes i2c:<client->name>, if you look at
+> drivers/i2c/i2c-core.c:
+> 
+> /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
+> static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+> {
+> ...
+>         if (add_uevent_var(env, "MODALIAS=%s%s",
+>                            I2C_MODULE_PREFIX, client->name))
+> ...
+> }
+> 
+> I've looked at Lee's series and AFAICT that remains the same so I second
+> Sjoerd that module auto-loading will continue to be broken.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/mouse/psmouse-base.c | 14 ++++++++++++++
- drivers/input/mouse/psmouse.h      |  1 +
- drivers/input/mouse/synaptics.c    | 17 +++--------------
- 3 files changed, 18 insertions(+), 14 deletions(-)
+Thanks for the clear explanation.
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index b4e1f01..02e68c3 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -462,6 +462,20 @@ static int psmouse_poll(struct psmouse *psmouse)
- 			   PSMOUSE_CMD_POLL | (psmouse->pktsize << 8));
- }
- 
-+/*
-+ * psmouse_matches_pnp_id - check if psmouse matches one of the passed in ids.
-+ */
-+bool psmouse_matches_pnp_id(struct psmouse *psmouse, const char * const ids[])
-+{
-+	int i;
-+
-+	if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4))
-+		for (i = 0; ids[i]; i++)
-+			if (strstr(psmouse->ps2dev.serio->firmware_id, ids[i]))
-+				return true;
-+
-+	return false;
-+}
- 
- /*
-  * Genius NetMouse magic init.
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 2f0b39d..f4cf664 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -108,6 +108,7 @@ void psmouse_set_resolution(struct psmouse *psmouse, unsigned int resolution);
- psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse);
- int psmouse_activate(struct psmouse *psmouse);
- int psmouse_deactivate(struct psmouse *psmouse);
-+bool psmouse_matches_pnp_id(struct psmouse *psmouse, const char * const ids[]);
- 
- struct psmouse_attribute {
- 	struct device_attribute dattr;
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e8573c6..854caca 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -185,18 +185,6 @@ static const char * const topbuttonpad_pnp_ids[] = {
- 	NULL
- };
- 
--static bool matches_pnp_id(struct psmouse *psmouse, const char * const ids[])
--{
--	int i;
--
--	if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4))
--		for (i = 0; ids[i]; i++)
--			if (strstr(psmouse->ps2dev.serio->firmware_id, ids[i]))
--				return true;
--
--	return false;
--}
--
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -362,7 +350,8 @@ static int synaptics_resolution(struct psmouse *psmouse)
- 	}
- 
- 	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
--		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
-+		if (psmouse_matches_pnp_id(psmouse,
-+					   min_max_pnpid_table[i].pnp_ids)) {
- 			priv->x_min = min_max_pnpid_table[i].x_min;
- 			priv->x_max = min_max_pnpid_table[i].x_max;
- 			priv->y_min = min_max_pnpid_table[i].y_min;
-@@ -1456,7 +1445,7 @@ static void set_input_params(struct psmouse *psmouse,
- 
- 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
--		if (matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
-+		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
- 			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
- 		/* Clickpads report only left button */
- 		__clear_bit(BTN_RIGHT, dev->keybit);
--- 
-2.1.0
+The i2c aliases are a bit confusing. The original device the driver was
+written for was called qt602240, which was renamed by Atmel to mXT224 when
+the chip series was called "maXTouch". The driver now actually supports
+many other chips which aren't listed (more than 20 devices that I've
+personally tested). I could add them all, but it would be an extremely long
+list. It may be preferable to use the generic name maXTouch.
 
+So I think the sensible thing to do here would be to add "maxtouch" to the
+i2c list to fix the module autoload issue.

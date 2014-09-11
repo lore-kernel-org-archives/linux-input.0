@@ -1,123 +1,77 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] Input: atmel_mxt_ts: Add of node type to the i2c table
-Date: Thu, 11 Sep 2014 13:24:55 +0200
-Message-ID: <54118687.8040802@collabora.co.uk>
-References: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk> <540ED495.20609@collabora.co.uk> <20140910092832.GM30307@lee--X1> <1410422429.2857.16.camel@collabora.co.uk> <54115F6E.3010007@collabora.co.uk> <5411693A.3050300@itdev.co.uk> <20140911110829.GA5149@katana>
+Date: Thu, 11 Sep 2014 13:35:48 +0200
+Message-ID: <20140911113548.GB5149@katana>
+References: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk>
+ <540ED495.20609@collabora.co.uk>
+ <20140910092832.GM30307@lee--X1>
+ <1410422429.2857.16.camel@collabora.co.uk>
+ <54115F6E.3010007@collabora.co.uk>
+ <5411693A.3050300@itdev.co.uk>
+ <20140911110829.GA5149@katana>
+ <54118687.8040802@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20140911110829.GA5149@katana>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, "Bowens, Alan" <Alan.Bowens@atmel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dc+cDN39EJAMEtIO"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:51795 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753507AbaIKLfp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Sep 2014 07:35:45 -0400
+Content-Disposition: inline
+In-Reply-To: <54118687.8040802@collabora.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, "Bowens, Alan" <Alan.Bowens@atmel.com>
 
-Hello Wolfram,
 
-On 09/11/2014 01:08 PM, Wolfram Sang wrote:
-> 
-> Funny timing. I am just reviewing the series from Lee and also stumbled
-> over modaliases, too...
-> 
-> On Thu, Sep 11, 2014 at 10:19:54AM +0100, Nick Dyer wrote:
->> On 11/09/14 09:38, Javier Martinez Canillas wrote:
->> > To expand on what Sjoerd already said and just to be sure everyone is on the
->> > same page.
->> > 
->> > The problem is that right now the driver reports the following modalias:
->> > 
->> > # cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->> > i2c:maxtouch
->> > 
->> > but if you look at the module information, that is not a valid alias:
->> > 
->> > # modinfo atmel_mxt_ts | grep alias
->> > alias:          i2c:mXT224
->> > alias:          i2c:atmel_mxt_tp
->> > alias:          i2c:atmel_mxt_ts
->> > alias:          i2c:qt602240_ts
->> > alias:          of:N*T*Catmel,maxtouch*
->> > 
->> > which means that udev/kmod can't load the module automatically based on the
->> > alias information.
->> > 
->> > The aliases are filled by both MODULE_DEVICE_TABLE(i2c, mxt_id) and
->> > MODULE_DEVICE_TABLE(of, mxt_of_match) so after Sjoerd's patch:
->> > 
->> > # cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->> > i2c:maxtouch
->> > 
->> > # modinfo atmel_mxt_ts | grep alias
->> > alias:          i2c:mXT224
->> > alias:          i2c:maxtouch
->> > alias:          i2c:atmel_mxt_tp
->> > alias:          i2c:atmel_mxt_ts
->> > alias:          i2c:qt602240_ts
->> > 
->> > which matches the reported uevent so the module will be auto-loaded.
->> > 
->> > This is because the I2C subsystem hardcodes i2c:<client->name>, if you look at
->> > drivers/i2c/i2c-core.c:
->> > 
->> > /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
->> > static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
->> > {
->> > ...
->> >         if (add_uevent_var(env, "MODALIAS=%s%s",
->> >                            I2C_MODULE_PREFIX, client->name))
->> > ...
->> > }
->> > 
->> > I've looked at Lee's series and AFAICT that remains the same so I second
->> > Sjoerd that module auto-loading will continue to be broken.
-> 
-> I think the above code in the i2c core needs a fix. Will have a closer
-> look after lunch.
-> 
+--dc+cDN39EJAMEtIO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Agreed, I just posted an RFC patch [0] with the fix but as Sjoerd pointed out
-on an internal review, changing that will regress all the drivers that were
-relying on the old behavior.
 
->> The i2c aliases are a bit confusing. The original device the driver was
->> written for was called qt602240, which was renamed by Atmel to mXT224 when
->> the chip series was called "maXTouch". The driver now actually supports
->> many other chips which aren't listed (more than 20 devices that I've
->> personally tested). I could add them all, but it would be an extremely long
->> list. It may be preferable to use the generic name maXTouch.
-> 
-> This is probably true for some more I2C devices. Like RTCs being
-> compatible or, most prominent, EEPROMS. I don't want to have a list of
-> all vendors producing 24c02s if they are all compatible. If generic
-> entries are frowned upon, I'd agree on a "first come, first served" policy:
-> Somebody provides one compatible-property with the vendor which happens
-> to be on that board, and the others have to reuse that
-> compatible-property since they are, well, compatible.
-> 
+> > This is a workaround. It would make sense, however, to add it because we
+> > want to support i2c_board_info structures.
+> >=20
+>=20
+> I think it really depends if an IP block can be used on non-DT platforms
+> (which I think is true for this trackpad) but if a driver is for an IP bl=
+ock
+> that can only be used on a DT-only platform (e.g: a PMIC that is controll=
+ed
+> over I2C and is only compatible with a DT-only SoC) then I don't think we=
+ need
+> to support the i2c_board_info structure and can get rid of the I2C ID tab=
+le on
+> these drivers once Lee series land.
 
-Agreed.
+That is exactly what I meant. It should be only added if there is a
+reason other than "workaround". If you say, it doesn't make sense on
+non-DT, then it should not be added.
 
->> So I think the sensible thing to do here would be to add "maxtouch" to the
->> i2c list to fix the module autoload issue.
-> 
-> This is a workaround. It would make sense, however, to add it because we
-> want to support i2c_board_info structures.
-> 
 
-I think it really depends if an IP block can be used on non-DT platforms
-(which I think is true for this trackpad) but if a driver is for an IP block
-that can only be used on a DT-only platform (e.g: a PMIC that is controlled
-over I2C and is only compatible with a DT-only SoC) then I don't think we need
-to support the i2c_board_info structure and can get rid of the I2C ID table on
-these drivers once Lee series land.
+--dc+cDN39EJAMEtIO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> Regards,
-> 
->    Wolfram
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Best regards,
-Javier
+iQIcBAEBAgAGBQJUEYkTAAoJEBQN5MwUoCm2LhYQAJziqMlFB0VpGXDHW4jwJLne
+ZNO9Zs65dd1TG+sUJK+jSCGaWeO6BOdNU4AdDHzAIvouKrjUou5BaenD3L7z8nv5
+VjqWLL8E3h1ip2QRJmtds0KsuZBFkYgEOI6AxiJ7NnOgSTSMI7/wDkB08/HdFNu7
+GEEfMIo9rftaChPwss/kuAQ3LOVMXvIQ721k8Fy2yWVQ6a6dwS0kZJTiWtVR1ZnT
+E3ObOESY43+OsRJcskiYN740Aq1cyf9l6PjmKaHzBspE/ZEPQTDmaF1gwtYnF5Fp
+AOTabZit69orHS41WXTaB34fnDqp3Qz+pA7T1OnuVoGo9ZjvbnvCph48Elm8hPeh
+U5cq4FdF8/9nHlZYnfDmDMjI6CQzA+EapFAzp+6XMuVvIuCu60TXNRpB2xeEaPmZ
+jMi3WYC/2VdtB+DOHJkrVpzCKYgNc1mELz8tAVwP4qMsvBTvs0F5xRkuxLzXdXn3
+8pItbVd2cS+/7N+AAa5jXbS4Jc1PlKdU24dLdl7YZCvohLmkoDhiNlVuuTWdD1a+
+2iTmvIMj7GI0OJdfkWIWu1Uw9dt3RIoEbg4BLIIlP7yPiYjyemkaehphZO25MFo7
+akYjmxvqQPlofcJnsCCRqwjx97AQ4b3dndYBVUIEayI34dVfiR7bI9pEzCkTf/sr
+ZPd2zEOB99WvmA3BP+75
+=5Osf
+-----END PGP SIGNATURE-----
 
-[0]: https://patchwork.ozlabs.org/patch/388200/
+--dc+cDN39EJAMEtIO--

@@ -1,49 +1,57 @@
 From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v4 0/4] Add max77693 haptic driver
-Date: Thu, 11 Sep 2014 21:54:18 +0900
-Message-ID: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
+Subject: [PATCH v4 4/4] mfd: max77693: Update DT binding to support haptic
+Date: Thu, 11 Sep 2014 21:54:22 +0900
+Message-ID: <1410440062-19963-5-git-send-email-jaewon02.kim@samsung.com>
+References: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 Cc: Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jaewon Kim <jaewon02.kim@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-This series adds max77693 haptic driver.
-The max77693 is a Multifunction device with PMIC, CHARGER, LED,
-MUIC, HAPTIC and this series is haptic device driver in MAX77693.
-The haptic driver use regmap method for i2c communication and
-support force feedback framework in input device.
+This patch add haptic DT binding documentation and example
+to support haptic driver in max77693 Multifunction device.
 
-Changes in v4:
- - mfd : fix tabbing in mfd_cell
- - driver : move regulator enable/disable to input open()/close()
- - driver : add resume function
+Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ Documentation/devicetree/bindings/mfd/max77693.txt |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-Changes in v3:
- - driver : remove mutex in workqueue
- - driver : mv max77693_haptic_set_duty_cyle() to workqueue.
- - driver : remove max77693_haptic_remove[]
- - driver : add suspend() function to turn-off entering suspend.
-
-Changes in v2:
- - split to documentation and mfd patchs.
- - Documentation : change explanation of haptic 
- - Documentation : remove pwm-names propertie in example
-
-Jaewon Kim (4):
-  mfd: max77693: Initialize haptic register map
-  Input: misc: Add haptic driver on max77693
-  mfd: max77693: add haptic of_compatible in mfd_cell
-  mfd: max77693: Update DT binding to support haptic
-
- Documentation/devicetree/bindings/mfd/max77693.txt |   18 +
- drivers/input/misc/Kconfig                         |   12 +
- drivers/input/misc/Makefile                        |    1 +
- drivers/input/misc/max77693-haptic.c               |  354 ++++++++++++++++++++
- drivers/mfd/max77693.c                             |   26 +-
- include/linux/mfd/max77693-private.h               |    9 +
- 6 files changed, 416 insertions(+), 4 deletions(-)
- create mode 100644 drivers/input/misc/max77693-haptic.c
-
+diff --git a/Documentation/devicetree/bindings/mfd/max77693.txt b/Documentation/devicetree/bindings/mfd/max77693.txt
+index 11921cc..d178b9e 100644
+--- a/Documentation/devicetree/bindings/mfd/max77693.txt
++++ b/Documentation/devicetree/bindings/mfd/max77693.txt
+@@ -27,6 +27,17 @@ Optional properties:
+ 
+ 	[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
+ 
++- haptic : The haptic of max77693 have to be instantiated under subnod
++  named "haptic" using the following haptic format in example.
++  Haptic sensation from motor can be changed by changing a period cycle in pwms.
++
++ Required properties:
++	- compatible : Must be "maxim,max77693-hpatic"
++	- haptic-supply : power supply for haptic motor
++		[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
++	- pwms : phandle to the physical PWM device,
++		[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
++
+ Example:
+ 	max77693@66 {
+ 		compatible = "maxim,max77693";
+@@ -52,4 +63,11 @@ Example:
+ 					regulator-boot-on;
+ 			};
+ 		};
++
++		haptic {
++			compatible = "maxim,max77693-haptic";
++			haptic-supply = <&haptic_supply>;
++			pwms = <&pwm 0 40000 0>;
++			pwm-names = "haptic";
++		};
+ 	};
 -- 
 1.7.9.5

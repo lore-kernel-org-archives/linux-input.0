@@ -1,102 +1,78 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Fwd: [PATCH] HID: wacom: make the WL connection friendly for the desktop
-Date: Thu, 11 Sep 2014 11:08:04 -0700
-Message-ID: <CAF8JNh+uckyW160F8QORrTLNq8GMcLrwA9WpW1AR8SL_nej1nA@mail.gmail.com>
-References: <1410455644-11732-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CAF8JNh+U80vPUQ7263cRGFJCZkzsO7nSAg3KOtfOy5Bsp_Xajw@mail.gmail.com>
+From: Fredrik Hallenberg <megahallon@gmail.com>
+Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
+Date: Thu, 11 Sep 2014 22:35:52 +0200
+Message-ID: <CAMsZVf_K1ji75K3CcqGjED01Lppbk8gFSw0ADB-QOG=wVYiF_g@mail.gmail.com>
+References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
+	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
+	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
+	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
+	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
+	<CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
+	<20140910225134.GH38736@core.coreip.homeip.net>
+	<CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
+	<CANq1E4TjgTs+4_84NZGCctGpNJ4x5VG05_ej9=eGjczcdim6Yg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:43847 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751053AbaIKSIL (ORCPT
+Received: from mail-qg0-f50.google.com ([209.85.192.50]:51883 "EHLO
+	mail-qg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757290AbaIKUfy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Sep 2014 14:08:11 -0400
-In-Reply-To: <CAF8JNh+U80vPUQ7263cRGFJCZkzsO7nSAg3KOtfOy5Bsp_Xajw@mail.gmail.com>
+	Thu, 11 Sep 2014 16:35:54 -0400
+Received: by mail-qg0-f50.google.com with SMTP id z60so6234205qgd.9
+        for <linux-input@vger.kernel.org>; Thu, 11 Sep 2014 13:35:52 -0700 (PDT)
+In-Reply-To: <CANq1E4TjgTs+4_84NZGCctGpNJ4x5VG05_ej9=eGjczcdim6Yg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Thu, Sep 11, 2014 at 10:14 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> Currently, tablets connected to the WL receiver all share the same
-> VID/PID. There is no way for the user space to know which one is which
-> besides parsing the name. We can force the PID to be set to the
-> actual hardware. This way, the input device will have the correct PID
-> which can be match in libwacom.
+Thanks I had no idea about the hwdb but I have tried it now, it works if I use
 
+KEYBOARD_KEY_70031=reserved
 
-Nice job, Benjamin! Thank you, on behalf of wireless tablet users ;-).
+on my nordic keyboard, but a US keyboard user would have to use
+scancode 70032 instead. If you chose the wrong one the backslash key
+will be disabled.
 
->
-> With only this trick, the pad input does not inherit the ID_INPUT_TABLET
-> udev property from its parent. We can force udev to accept it by declaring
-> a BTN_STYLUS which is never used.
+I don't think this is good solution as long as there is no way to
+detect which version is used with the hardware matcher string.
 
+However I suppose udev should make it possible to do some kind of
+script that does something similar to my original patch, that is,
+detects which of the two keys in actually used and disables the other
+one.
 
-BTN_STYLUS can be confusing to userland clients that retrieve it to
-decide tool types. But, without it, the client is already confused
-with joystick. So, unless we introduce a new tool type, which I
-proposed a few years ago and was rejected, we may have to keep clients
-confused. With that said, the patch is
-
+On Thu, Sep 11, 2014 at 2:41 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
 >
-> This way, tablets connected through WL can be used from the user point of
-> view in the same way they are used while connected through wire.
+> On Thu, Sep 11, 2014 at 10:50 AM, Fredrik Hallenberg
+> <megahallon@gmail.com> wrote:
+>>>> The nicest fix, obviously, is to blacklist keys that are not
+>>>> physically present on the keyboard. But I assume the keyboard reports
+>>>
+>>> Hmm, somebody could still load keymap with duplicate keycodes though...
+>>>
+>>
+>> The HID mapping is hardcoded, so only key code 43 will have this
+>> problem regardless of user keymaps.
 >
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-
-Reviewed-by: Ping Cheng <pingc@wacom.com>
-
-Cheers,
-
-Ping
-
-> ---
+> I think Dmitry is talking about setkeycode() which can change the
+> keycode a scancode is mapped to. This is indeed a problem, but I
+> thought we implicitly tell people to not map two scancodes to the same
+> keycode.. we simply don't support it (as we only have 1bit state per
+> keycode, and 0bit per scancode).
 >
-> Hi guys,
+> But this reminds me: we can use udev hwdb and setkeycode() to fix your
+> keyboard. Simply add this to /lib/udev/hwdb.d/60-keyboard.hwdb:
+>     keyboard:name:*Corsair*:dmi:bvn*:bvr*:bd*:svn*:pn*:pvr*
+>         KEYBOARD_KEY_32=0
 >
-> to continue on Ping's work regarding the Wireless reciever, here is a patch
-> which allows to have the same user experience regardless the transport layer.
-> Unfortunately, a libwacom patch is also required, but once both are applied,
-> there is no differences between the wired and wireless connections. Yeah!
+> this will run setkeycode(0x32, KEY_RESERVED) and thus disable the key
+> 0x32 entirely.
+> Adding properly crafted match-rules to udev should solve this mess, I
+> guess. Imho, this is the cleanest solution, but depends on udev, of
+> course.
 >
-> Cheers,
-> Benjamin
->
->  drivers/hid/wacom_sys.c | 2 +-
->  drivers/hid/wacom_wac.c | 3 +++
->  2 files changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 9e4e188..a8b7f16 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -1035,7 +1035,7 @@ static struct input_dev *wacom_allocate_input(struct wacom *wacom)
->         input_dev->uniq = hdev->uniq;
->         input_dev->id.bustype = hdev->bus;
->         input_dev->id.vendor  = hdev->vendor;
-> -       input_dev->id.product = hdev->product;
-> +       input_dev->id.product = wacom_wac->pid ? wacom_wac->pid : hdev->product;
->         input_dev->id.version = hdev->version;
->         input_set_drvdata(input_dev, wacom);
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index c3cbbfb..b8180e4 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1990,6 +1990,9 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
->         input_set_abs_params(input_dev, ABS_X, 0, 1, 0, 0);
->         input_set_abs_params(input_dev, ABS_Y, 0, 1, 0, 0);
->
-> +       /* kept for making udev and libwacom accepting the pad */
-> +       __set_bit(BTN_STYLUS, input_dev->keybit);
-> +
->         switch (features->type) {
->         case GRAPHIRE_BT:
->                 __set_bit(BTN_0, input_dev->keybit);
-> --
-> 2.1.0
->
+> Thanks
+> David

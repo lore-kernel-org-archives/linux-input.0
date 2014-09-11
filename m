@@ -1,49 +1,52 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 3/3] psmouse: Add support for detecting FocalTech PS/2
- touchpads
-Date: Thu, 11 Sep 2014 19:31:13 +0200
-Message-ID: <5411DC61.2050003@redhat.com>
-References: <1410425447-9575-1-git-send-email-hdegoede@redhat.com> <1410425447-9575-3-git-send-email-hdegoede@redhat.com> <20140911172619.GD13083@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - fix merge in DT documentation
+Date: Thu, 11 Sep 2014 10:32:57 -0700
+Message-ID: <20140911173256.GA36295@core.coreip.homeip.net>
+References: <1407372486-25881-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1407372486-25881-2-git-send-email-javier.martinez@collabora.co.uk>
+ <53E37329.4020002@itdev.co.uk>
+ <53E4E41D.4070703@collabora.co.uk>
+ <53EDF6B4.7080804@collabora.co.uk>
+ <53EE307E.8060507@itdev.co.uk>
+ <53EE319A.1030304@wwwdotorg.org>
+ <5411B73E.4040404@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44123 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750999AbaIKRbX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Sep 2014 13:31:23 -0400
-In-Reply-To: <20140911172619.GD13083@core.coreip.homeip.net>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:35113 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751120AbaIKRdC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Sep 2014 13:33:02 -0400
+Content-Disposition: inline
+In-Reply-To: <5411B73E.4040404@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Stephen Warren <swarren@nvidia.com>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
-
-On 09/11/2014 07:26 PM, Dmitry Torokhov wrote:
-> Hi Hans,
+On Thu, Sep 11, 2014 at 03:52:46PM +0100, Nick Dyer wrote:
+> On 15/08/14 17:13, Stephen Warren wrote:
+> >>> Any comments on this? I would really appreciate if you can expand on how
+> >>> this DT property is supposed to be used so I can re-spin the atmel support
+> >>> patch for Peach boards.
+> >>
+> >> The below patch improves the documentation for the gpio-property.
+> > 
+> > That patch makes sense, and is a nice description,
+> > Acked-by: Stephen Warren <swarren@nvidia.com>
 > 
-> On Thu, Sep 11, 2014 at 10:50:47AM +0200, Hans de Goede wrote:
->> @@ -722,6 +723,13 @@ static int psmouse_extensions(struct psmouse *psmouse,
->>  {
->>  	bool synaptics_hardware = false;
->>  
->> +/* Always check for focaltech, this is safe as it uses pnp-id matching */
->> +	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
->> +		/* Not supported yet, use bare protocol */
->> +		psmouse_max_proto = max_proto = PSMOUSE_PS2;
->> +		goto reset_to_defaults;
+> Hi Dmitry-
 > 
-> Why do we need to jump to a new label instead of simply saying
+> Something went a bit wrong in merging f5940231a - there's a bit of repeated
+> text that's been introduced.
+> 
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Once we had figured out that psmouse.proto=bare at least made this
-touchpad work in mouse emulation mode, that is the first thing I did, but it
-is not enough. We also need to set psmouse_max_proto to short-circuit
-psmouse_initialize and do the reset.
+Hmm, not sure how I messed this up, but I will queue the patch for the
+next push.
 
-I'm trying to get access to one of the affected laptops to see if we can
-do better.
+Thanks.
 
-Regards,
-
-Hans
+-- 
+Dmitry

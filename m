@@ -1,60 +1,90 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
-Date: Thu, 11 Sep 2014 14:41:25 +0200
-Message-ID: <CANq1E4TjgTs+4_84NZGCctGpNJ4x5VG05_ej9=eGjczcdim6Yg@mail.gmail.com>
-References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
-	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
-	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
-	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
-	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
-	<CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
-	<20140910225134.GH38736@core.coreip.homeip.net>
-	<CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: [PATCH v4 1/4] mfd: max77693: Initialize haptic register map
+Date: Thu, 11 Sep 2014 21:54:19 +0900
+Message-ID: <1410440062-19963-2-git-send-email-jaewon02.kim@samsung.com>
+References: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f176.google.com ([209.85.213.176]:58294 "EHLO
-	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754600AbaIKMl0 (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:57473 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755096AbaIKMy2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Sep 2014 08:41:26 -0400
-Received: by mail-ig0-f176.google.com with SMTP id hn15so840500igb.9
-        for <linux-input@vger.kernel.org>; Thu, 11 Sep 2014 05:41:25 -0700 (PDT)
-In-Reply-To: <CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
+	Thu, 11 Sep 2014 08:54:28 -0400
+In-reply-to: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fredrik Hallenberg <megahallon@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jaewon Kim <jaewon02.kim@samsung.com>
 
-Hi
+This patch add regmap_haptic initialization to use haptic register map
+in haptic device driver.
 
-On Thu, Sep 11, 2014 at 10:50 AM, Fredrik Hallenberg
-<megahallon@gmail.com> wrote:
->>> The nicest fix, obviously, is to blacklist keys that are not
->>> physically present on the keyboard. But I assume the keyboard reports
->>
->> Hmm, somebody could still load keymap with duplicate keycodes though...
->>
->
-> The HID mapping is hardcoded, so only key code 43 will have this
-> problem regardless of user keymaps.
+Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/mfd/max77693.c |   21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-I think Dmitry is talking about setkeycode() which can change the
-keycode a scancode is mapped to. This is indeed a problem, but I
-thought we implicitly tell people to not map two scancodes to the same
-keycode.. we simply don't support it (as we only have 1bit state per
-keycode, and 0bit per scancode).
+diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
+index 249c139..fbfed56 100644
+--- a/drivers/mfd/max77693.c
++++ b/drivers/mfd/max77693.c
+@@ -144,6 +144,12 @@ static const struct regmap_irq_chip max77693_muic_irq_chip = {
+ 	.num_irqs		= ARRAY_SIZE(max77693_muic_irqs),
+ };
+ 
++static const struct regmap_config max77693_regmap_haptic_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.max_register = MAX77693_HAPTIC_REG_END,
++};
++
+ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 			      const struct i2c_device_id *id)
+ {
+@@ -193,6 +199,15 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 	}
+ 	i2c_set_clientdata(max77693->haptic, max77693);
+ 
++	max77693->regmap_haptic = devm_regmap_init_i2c(max77693->haptic,
++					&max77693_regmap_haptic_config);
++	if (IS_ERR(max77693->regmap_haptic)) {
++		ret = PTR_ERR(max77693->regmap_haptic);
++		dev_err(max77693->dev,
++			"failed to initialize haptic register map: %d\n", ret);
++		goto err_regmap;
++	}
++
+ 	/*
+ 	 * Initialize register map for MUIC device because use regmap-muic
+ 	 * instance of MUIC device when irq of max77693 is initialized
+@@ -204,7 +219,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 		ret = PTR_ERR(max77693->regmap_muic);
+ 		dev_err(max77693->dev,
+ 			"failed to allocate register map: %d\n", ret);
+-		goto err_regmap_muic;
++		goto err_regmap;
+ 	}
+ 
+ 	ret = regmap_add_irq_chip(max77693->regmap, max77693->irq,
+@@ -214,7 +229,7 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 				&max77693->irq_data_led);
+ 	if (ret) {
+ 		dev_err(max77693->dev, "failed to add irq chip: %d\n", ret);
+-		goto err_regmap_muic;
++		goto err_regmap;
+ 	}
+ 
+ 	ret = regmap_add_irq_chip(max77693->regmap, max77693->irq,
+@@ -265,7 +280,7 @@ err_irq_charger:
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_topsys);
+ err_irq_topsys:
+ 	regmap_del_irq_chip(max77693->irq, max77693->irq_data_led);
+-err_regmap_muic:
++err_regmap:
+ 	i2c_unregister_device(max77693->haptic);
+ err_i2c_haptic:
+ 	i2c_unregister_device(max77693->muic);
+-- 
+1.7.9.5
 
-But this reminds me: we can use udev hwdb and setkeycode() to fix your
-keyboard. Simply add this to /lib/udev/hwdb.d/60-keyboard.hwdb:
-    keyboard:name:*Corsair*:dmi:bvn*:bvr*:bd*:svn*:pn*:pvr*
-        KEYBOARD_KEY_32=0
-
-this will run setkeycode(0x32, KEY_RESERVED) and thus disable the key
-0x32 entirely.
-Adding properly crafted match-rules to udev should solve this mess, I
-guess. Imho, this is the cleanest solution, but depends on udev, of
-course.
-
-Thanks
-David

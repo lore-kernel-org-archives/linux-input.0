@@ -1,45 +1,60 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH] Input: atmel_mxt_ts: Add of node type to the i2c table
-Date: Thu, 11 Sep 2014 13:24:34 +0100
-Message-ID: <54119482.6070506@itdev.co.uk>
-References: <1410249158-18192-1-git-send-email-sjoerd.simons@collabora.co.uk> <540ED495.20609@collabora.co.uk> <20140910092832.GM30307@lee--X1> <1410422429.2857.16.camel@collabora.co.uk> <54115F6E.3010007@collabora.co.uk> <5411693A.3050300@itdev.co.uk> <20140911110829.GA5149@katana> <54118687.8040802@collabora.co.uk> <20140911113548.GB5149@katana> <54118A7E.4090902@collabora.co.uk>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
+Date: Thu, 11 Sep 2014 14:41:25 +0200
+Message-ID: <CANq1E4TjgTs+4_84NZGCctGpNJ4x5VG05_ej9=eGjczcdim6Yg@mail.gmail.com>
+References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
+	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
+	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
+	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
+	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
+	<CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
+	<20140910225134.GH38736@core.coreip.homeip.net>
+	<CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:9527 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754587AbaIKMYj (ORCPT
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:58294 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754600AbaIKMl0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Sep 2014 08:24:39 -0400
-In-Reply-To: <54118A7E.4090902@collabora.co.uk>
+	Thu, 11 Sep 2014 08:41:26 -0400
+Received: by mail-ig0-f176.google.com with SMTP id hn15so840500igb.9
+        for <linux-input@vger.kernel.org>; Thu, 11 Sep 2014 05:41:25 -0700 (PDT)
+In-Reply-To: <CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, "Bowens, Alan" <Alan.Bowens@atmel.com>, Benson Leung <bleung@chromium.org>, yufeng Shen <miletus@google.com>
+To: Fredrik Hallenberg <megahallon@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On 11/09/14 12:41, Javier Martinez Canillas wrote:
-> On 09/11/2014 01:35 PM, Wolfram Sang wrote:
->>>> This is a workaround. It would make sense, however, to add it because we
->>>> want to support i2c_board_info structures.
->>>>
->>>
->>> I think it really depends if an IP block can be used on non-DT platforms
->>> (which I think is true for this trackpad) but if a driver is for an IP block
->>> that can only be used on a DT-only platform (e.g: a PMIC that is controlled
->>> over I2C and is only compatible with a DT-only SoC) then I don't think we need
->>> to support the i2c_board_info structure and can get rid of the I2C ID table on
->>> these drivers once Lee series land.
+Hi
+
+On Thu, Sep 11, 2014 at 10:50 AM, Fredrik Hallenberg
+<megahallon@gmail.com> wrote:
+>>> The nicest fix, obviously, is to blacklist keys that are not
+>>> physically present on the keyboard. But I assume the keyboard reports
 >>
->> That is exactly what I meant. It should be only added if there is a
->> reason other than "workaround". If you say, it doesn't make sense on
->> non-DT, then it should not be added.
-> 
-> Sorry for explaining myself badly. I just tried to say that this is a decision
-> that has to be made on a per-driver basis but I don't really know if makes
-> sense or not in this case since I don't know if this device is (or could be)
-> shipped on non-DT platforms. Nick is in a much better position to answer that
-> question.
+>> Hmm, somebody could still load keymap with duplicate keycodes though...
+>>
+>
+> The HID mapping is hardcoded, so only key code 43 will have this
+> problem regardless of user keymaps.
 
-There are plenty of out-of-tree users of this driver which don't use DT.
-The most significant use I'm aware of is on Chromium OS systems.
+I think Dmitry is talking about setkeycode() which can change the
+keycode a scancode is mapped to. This is indeed a problem, but I
+thought we implicitly tell people to not map two scancodes to the same
+keycode.. we simply don't support it (as we only have 1bit state per
+keycode, and 0bit per scancode).
+
+But this reminds me: we can use udev hwdb and setkeycode() to fix your
+keyboard. Simply add this to /lib/udev/hwdb.d/60-keyboard.hwdb:
+    keyboard:name:*Corsair*:dmi:bvn*:bvr*:bd*:svn*:pn*:pvr*
+        KEYBOARD_KEY_32=0
+
+this will run setkeycode(0x32, KEY_RESERVED) and thus disable the key
+0x32 entirely.
+Adding properly crafted match-rules to udev should solve this mess, I
+guess. Imho, this is the cleanest solution, but depends on udev, of
+course.
+
+Thanks
+David

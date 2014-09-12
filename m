@@ -1,108 +1,171 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/3] psmouse: Add psmouse_matches_pnp_id helper function
-Date: Fri, 12 Sep 2014 11:08:31 +0200
-Message-ID: <1410512912-11609-3-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH v2 3/3] psmouse: Add support for detecting FocalTech PS/2 touchpads
+Date: Fri, 12 Sep 2014 11:08:32 +0200
+Message-ID: <1410512912-11609-4-git-send-email-hdegoede@redhat.com>
 References: <1410512912-11609-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33086 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47390 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751977AbaILJIj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Sep 2014 05:08:39 -0400
+	id S1751977AbaILJIl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Sep 2014 05:08:41 -0400
 In-Reply-To: <1410512912-11609-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-The matches_pnp_id function from the synaptics driver is useful for other
-drivers too. Make it a generic psmouse helper function.
+The Asus X450 and X550 laptops use a PS/2 touchpad from a new manufacturer
+called FocalTech:
+
+https://bugzilla.kernel.org/show_bug.cgi?id=77391
+https://bugzilla.redhat.com/show_bug.cgi?id=1110011
+
+The protocol for these devices is not known at this time, but even without
+knowing the protocol they need some special handling. They get upset by some
+of our other PS/2 device probing, and once upset generate random mouse events
+making things unusable even with an external mouse.
+
+This patch adds detection of these devices based on their pnp ids, and when
+they are detected, treats them as a bare ps/2 mouse. Doing things this way
+they at least work in their ps/2 mouse emulation mode.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/psmouse-base.c | 14 ++++++++++++++
- drivers/input/mouse/psmouse.h      |  1 +
- drivers/input/mouse/synaptics.c    | 17 +++--------------
- 3 files changed, 18 insertions(+), 14 deletions(-)
+ drivers/input/mouse/Makefile       |  2 +-
+ drivers/input/mouse/focaltech.c    | 52 ++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/focaltech.h    | 22 ++++++++++++++++
+ drivers/input/mouse/psmouse-base.c | 10 ++++++++
+ 4 files changed, 85 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/input/mouse/focaltech.c
+ create mode 100644 drivers/input/mouse/focaltech.h
 
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index c25efdb..dda507f 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -23,7 +23,7 @@ obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
+ obj-$(CONFIG_MOUSE_SYNAPTICS_USB)	+= synaptics_usb.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
+ 
+-psmouse-objs := psmouse-base.o synaptics.o
++psmouse-objs := psmouse-base.o synaptics.o focaltech.o
+ 
+ psmouse-$(CONFIG_MOUSE_PS2_ALPS)	+= alps.o
+ psmouse-$(CONFIG_MOUSE_PS2_ELANTECH)	+= elantech.o
+diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+new file mode 100644
+index 0000000..f4d657e
+--- /dev/null
++++ b/drivers/input/mouse/focaltech.c
+@@ -0,0 +1,52 @@
++/*
++ * Focaltech TouchPad PS/2 mouse driver
++ *
++ * Copyright (c) 2014 Red Hat Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * Red Hat authors:
++ *
++ * Hans de Goede <hdegoede@redhat.com>
++ */
++
++/*
++ * The Focaltech PS/2 touchpad protocol is unknown. This drivers deals with
++ * detection only, to avoid further detection attempts confusing the touchpad
++ * this way it at least works in PS/2 mouse compatibility mode.
++ */
++
++#include <linux/device.h>
++#include <linux/libps2.h>
++#include "psmouse.h"
++
++static const char * const focaltech_pnp_ids[] = {
++	"FLT0101",
++	"FLT0102",
++	"FLT0103",
++	NULL
++};
++
++int focaltech_detect(struct psmouse *psmouse, bool set_properties)
++{
++	if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
++		return -ENODEV;
++
++	if (set_properties) {
++		psmouse->vendor = "FocalTech";
++		psmouse->name = "FocalTech Touchpad in mouse emulation mode";
++	}
++
++	return 0;
++}
++
++int focaltech_init(struct psmouse *psmouse)
++{
++	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
++	psmouse_reset(psmouse);
++
++	return 0;
++}
+diff --git a/drivers/input/mouse/focaltech.h b/drivers/input/mouse/focaltech.h
+new file mode 100644
+index 0000000..498650c
+--- /dev/null
++++ b/drivers/input/mouse/focaltech.h
+@@ -0,0 +1,22 @@
++/*
++ * Focaltech TouchPad PS/2 mouse driver
++ *
++ * Copyright (c) 2014 Red Hat Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * Red Hat authors:
++ *
++ * Hans de Goede <hdegoede@redhat.com>
++ */
++
++#ifndef _FOCALTECH_H
++#define _FOCALTECH_H
++
++int focaltech_detect(struct psmouse *psmouse, bool set_properties);
++int focaltech_init(struct psmouse *psmouse);
++
++#endif
 diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index b4e1f01..02e68c3 100644
+index 02e68c3..ae1e76b 100644
 --- a/drivers/input/mouse/psmouse-base.c
 +++ b/drivers/input/mouse/psmouse-base.c
-@@ -462,6 +462,20 @@ static int psmouse_poll(struct psmouse *psmouse)
- 			   PSMOUSE_CMD_POLL | (psmouse->pktsize << 8));
- }
+@@ -35,6 +35,7 @@
+ #include "elantech.h"
+ #include "sentelic.h"
+ #include "cypress_ps2.h"
++#include "focaltech.h"
  
-+/*
-+ * psmouse_matches_pnp_id - check if psmouse matches one of the passed in ids.
-+ */
-+bool psmouse_matches_pnp_id(struct psmouse *psmouse, const char * const ids[])
-+{
-+	int i;
-+
-+	if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4))
-+		for (i = 0; ids[i]; i++)
-+			if (strstr(psmouse->ps2dev.serio->firmware_id, ids[i]))
-+				return true;
-+
-+	return false;
-+}
+ #define DRIVER_DESC	"PS/2 mouse driver"
  
+@@ -722,6 +723,15 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ {
+ 	bool synaptics_hardware = false;
+ 
++/* Always check for focaltech, this is safe as it uses pnp-id matching */
++	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
++		if (!set_properties || focaltech_init(psmouse) == 0) {
++			/* Not supported yet, use bare protocol */
++			psmouse_max_proto = PSMOUSE_PS2;
++			return PSMOUSE_PS2;
++		}
++	}
++
  /*
-  * Genius NetMouse magic init.
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 2f0b39d..f4cf664 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -108,6 +108,7 @@ void psmouse_set_resolution(struct psmouse *psmouse, unsigned int resolution);
- psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse);
- int psmouse_activate(struct psmouse *psmouse);
- int psmouse_deactivate(struct psmouse *psmouse);
-+bool psmouse_matches_pnp_id(struct psmouse *psmouse, const char * const ids[]);
- 
- struct psmouse_attribute {
- 	struct device_attribute dattr;
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e8573c6..854caca 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -185,18 +185,6 @@ static const char * const topbuttonpad_pnp_ids[] = {
- 	NULL
- };
- 
--static bool matches_pnp_id(struct psmouse *psmouse, const char * const ids[])
--{
--	int i;
--
--	if (!strncmp(psmouse->ps2dev.serio->firmware_id, "PNP:", 4))
--		for (i = 0; ids[i]; i++)
--			if (strstr(psmouse->ps2dev.serio->firmware_id, ids[i]))
--				return true;
--
--	return false;
--}
--
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -362,7 +350,8 @@ static int synaptics_resolution(struct psmouse *psmouse)
- 	}
- 
- 	for (i = 0; min_max_pnpid_table[i].pnp_ids; i++) {
--		if (matches_pnp_id(psmouse, min_max_pnpid_table[i].pnp_ids)) {
-+		if (psmouse_matches_pnp_id(psmouse,
-+					   min_max_pnpid_table[i].pnp_ids)) {
- 			priv->x_min = min_max_pnpid_table[i].x_min;
- 			priv->x_max = min_max_pnpid_table[i].x_max;
- 			priv->y_min = min_max_pnpid_table[i].y_min;
-@@ -1456,7 +1445,7 @@ static void set_input_params(struct psmouse *psmouse,
- 
- 	if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
--		if (matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
-+		if (psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids))
- 			__set_bit(INPUT_PROP_TOPBUTTONPAD, dev->propbit);
- 		/* Clickpads report only left button */
- 		__clear_bit(BTN_RIGHT, dev->keybit);
+  * We always check for lifebook because it does not disturb mouse
+  * (it only checks DMI information).
 -- 
 2.1.0
 

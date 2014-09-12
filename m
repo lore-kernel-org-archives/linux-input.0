@@ -1,33 +1,151 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: wacom: make the WL connection friendly for the
- desktop
-Date: Fri, 12 Sep 2014 14:16:02 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1409121415450.5523@pobox.suse.cz>
-References: <1410455644-11732-1-git-send-email-benjamin.tissoires@redhat.com> <CAF8JNh+U80vPUQ7263cRGFJCZkzsO7nSAg3KOtfOy5Bsp_Xajw@mail.gmail.com>
+From: Fredrik Hallenberg <megahallon@gmail.com>
+Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
+Date: Fri, 12 Sep 2014 19:36:31 +0200
+Message-ID: <CAMsZVf-2_eFKoqgO1+bEB4ziA1e9-z4rYviy_r9ksjmAUAe5Sg@mail.gmail.com>
+References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
+	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
+	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
+	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
+	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
+	<CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
+	<20140910225134.GH38736@core.coreip.homeip.net>
+	<CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
+	<CANq1E4TjgTs+4_84NZGCctGpNJ4x5VG05_ej9=eGjczcdim6Yg@mail.gmail.com>
+	<CAMsZVf_K1ji75K3CcqGjED01Lppbk8gFSw0ADB-QOG=wVYiF_g@mail.gmail.com>
+	<CANq1E4Qw3_0M7BCgDJTX0WGHU+CnFdnuASX0JfEK-Btkc=7Rsg@mail.gmail.com>
+	<CAMsZVf-r6GvPOUEUye9wcLrT-g8SXkk5b3HKBDDTyHjAj38aKQ@mail.gmail.com>
+	<CANq1E4Rw7q9QpA1UYsjuu9umB_AE2qE6JhNKQ9e8W3xp+m_2EA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary=001a11c2cafcc6a9a00502e1b96e
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57220 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753226AbaILMQF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Sep 2014 08:16:05 -0400
-In-Reply-To: <CAF8JNh+U80vPUQ7263cRGFJCZkzsO7nSAg3KOtfOy5Bsp_Xajw@mail.gmail.com>
+Received: from mail-qa0-f54.google.com ([209.85.216.54]:50566 "EHLO
+	mail-qa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751170AbaILRgc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Sep 2014 13:36:32 -0400
+Received: by mail-qa0-f54.google.com with SMTP id v10so1096517qac.27
+        for <linux-input@vger.kernel.org>; Fri, 12 Sep 2014 10:36:31 -0700 (PDT)
+In-Reply-To: <CANq1E4Rw7q9QpA1UYsjuu9umB_AE2qE6JhNKQ9e8W3xp+m_2EA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Thu, 11 Sep 2014, Ping Cheng wrote:
+--001a11c2cafcc6a9a00502e1b96e
+Content-Type: text/plain; charset=UTF-8
 
-> > This way, tablets connected through WL can be used from the user point of
-> > view in the same way they are used while connected through wire.
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Reviewed-by: Ping Cheng <pingc@wacom.com>
+Here is the output from lsusb, let me know if you need more information.
 
-Applied to for-3.18/wacom.
+Note this is the nordic version so if they are using the country code
+at all it should have some other value than 0. As I mentioned I
+checked a few other nordic/swedish keyboards and all of them use code
+0.
 
--- 
-Jiri Kosina
-SUSE Labs
+Anyway as you say there could be some other value that could be used,
+I will try to find someone with a US-version of this keyboard and
+compare the values.
+
+On Fri, Sep 12, 2014 at 1:47 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Fri, Sep 12, 2014 at 1:34 PM, Fredrik Hallenberg
+> <megahallon@gmail.com> wrote:
+>> Is the country tag derived from the bCountryCode seen in the HID
+>> device descriptor seen when doing "lsusb -v"?
+>
+> Yes, it is.
+>
+>> If so it probably wont work as it says "0 (Not supported)" on my
+>> keyboard and a few others I have tested.
+>
+> "0" might also be used as default, so it's not surprising that your
+> US-style keyboard uses "0".
+>
+> Furthermore, the non-US style keyboards might even use different
+> product IDs or version numbers. So it'd be nice if you could include a
+> full set of device information here.
+>
+> Thanks
+> David
+
+--001a11c2cafcc6a9a00502e1b96e
+Content-Type: text/plain; charset=US-ASCII; name="corsair_k70.txt"
+Content-Disposition: attachment; filename="corsair_k70.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hzzsan780
+
+CkJ1cyAwMDEgRGV2aWNlIDAwMzogSUQgMWIxYzoxYjA5IENvcnNhaXIgCkRldmljZSBEZXNjcmlw
+dG9yOgogIGJMZW5ndGggICAgICAgICAgICAgICAgMTgKICBiRGVzY3JpcHRvclR5cGUgICAgICAg
+ICAxCiAgYmNkVVNCICAgICAgICAgICAgICAgMi4wMAogIGJEZXZpY2VDbGFzcyAgICAgICAgICAg
+IDAgKERlZmluZWQgYXQgSW50ZXJmYWNlIGxldmVsKQogIGJEZXZpY2VTdWJDbGFzcyAgICAgICAg
+IDAgCiAgYkRldmljZVByb3RvY29sICAgICAgICAgMCAKICBiTWF4UGFja2V0U2l6ZTAgICAgICAg
+IDY0CiAgaWRWZW5kb3IgICAgICAgICAgIDB4MWIxYyBDb3JzYWlyCiAgaWRQcm9kdWN0ICAgICAg
+ICAgIDB4MWIwOSAKICBiY2REZXZpY2UgICAgICAgICAgICAxLjA5CiAgaU1hbnVmYWN0dXJlciAg
+ICAgICAgICAgMSBDb3JzYWlyCiAgaVByb2R1Y3QgICAgICAgICAgICAgICAgMiBDb3JzYWlyIEs3
+MFIgR2FtaW5nIEtleWJvYXJkCiAgaVNlcmlhbCAgICAgICAgICAgICAgICAgMCAKICBiTnVtQ29u
+ZmlndXJhdGlvbnMgICAgICAxCiAgQ29uZmlndXJhdGlvbiBEZXNjcmlwdG9yOgogICAgYkxlbmd0
+aCAgICAgICAgICAgICAgICAgOQogICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMgogICAgd1Rv
+dGFsTGVuZ3RoICAgICAgICAgICA4NAogICAgYk51bUludGVyZmFjZXMgICAgICAgICAgMwogICAg
+YkNvbmZpZ3VyYXRpb25WYWx1ZSAgICAgMQogICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMCAK
+ICAgIGJtQXR0cmlidXRlcyAgICAgICAgIDB4YTAKICAgICAgKEJ1cyBQb3dlcmVkKQogICAgICBS
+ZW1vdGUgV2FrZXVwCiAgICBNYXhQb3dlciAgICAgICAgICAgICAgNTAwbUEKICAgIEludGVyZmFj
+ZSBEZXNjcmlwdG9yOgogICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5CiAgICAgIGJEZXNj
+cmlwdG9yVHlwZSAgICAgICAgIDQKICAgICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMAogICAg
+ICBiQWx0ZXJuYXRlU2V0dGluZyAgICAgICAwCiAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAg
+IDEKICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRlcmZhY2UgRGV2aWNl
+CiAgICAgIGJJbnRlcmZhY2VTdWJDbGFzcyAgICAgIDEgQm9vdCBJbnRlcmZhY2UgU3ViY2xhc3MK
+ICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMSBLZXlib2FyZAogICAgICBpSW50ZXJmYWNl
+ICAgICAgICAgICAgICAwIAogICAgICAgIEhJRCBEZXZpY2UgRGVzY3JpcHRvcjoKICAgICAgICAg
+IGJMZW5ndGggICAgICAgICAgICAgICAgIDkKICAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAg
+ICAgMzMKICAgICAgICAgIGJjZEhJRCAgICAgICAgICAgICAgIDEuMTEKICAgICAgICAgIGJDb3Vu
+dHJ5Q29kZSAgICAgICAgICAgIDAgTm90IHN1cHBvcnRlZAogICAgICAgICAgYk51bURlc2NyaXB0
+b3JzICAgICAgICAgMQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAzNCBSZXBvcnQK
+ICAgICAgICAgIHdEZXNjcmlwdG9yTGVuZ3RoICAgICAgNjUKICAgICAgICAgUmVwb3J0IERlc2Ny
+aXB0b3JzOiAKICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAqKgogICAgICBFbmRwb2ludCBEZXNj
+cmlwdG9yOgogICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcKICAgICAgICBiRGVzY3Jp
+cHRvclR5cGUgICAgICAgICA1CiAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAgICAgMHg4MSAgRVAg
+MSBJTgogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAgICAgIDMKICAgICAgICAgIFRyYW5zZmVy
+IFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQKICAgICAgICAgIFN5bmNoIFR5cGUgICAgICAgICAg
+ICAgICBOb25lCiAgICAgICAgICBVc2FnZSBUeXBlICAgICAgICAgICAgICAgRGF0YQogICAgICAg
+IHdNYXhQYWNrZXRTaXplICAgICAweDAwMDggIDF4IDggYnl0ZXMKICAgICAgICBiSW50ZXJ2YWwg
+ICAgICAgICAgICAgICAxCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoKICAgICAgYkxlbmd0aCAg
+ICAgICAgICAgICAgICAgOQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA0CiAgICAgIGJJ
+bnRlcmZhY2VOdW1iZXIgICAgICAgIDEKICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMAog
+ICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAg
+ICAgIDMgSHVtYW4gSW50ZXJmYWNlIERldmljZQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAg
+ICAwIE5vIFN1YmNsYXNzCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgIDAgTm9uZQogICAg
+ICBpSW50ZXJmYWNlICAgICAgICAgICAgICAwIAogICAgICAgIEhJRCBEZXZpY2UgRGVzY3JpcHRv
+cjoKICAgICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkKICAgICAgICAgIGJEZXNjcmlw
+dG9yVHlwZSAgICAgICAgMzMKICAgICAgICAgIGJjZEhJRCAgICAgICAgICAgICAgIDEuMTEKICAg
+ICAgICAgIGJDb3VudHJ5Q29kZSAgICAgICAgICAgIDAgTm90IHN1cHBvcnRlZAogICAgICAgICAg
+Yk51bURlc2NyaXB0b3JzICAgICAgICAgMQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAg
+ICAzNCBSZXBvcnQKICAgICAgICAgIHdEZXNjcmlwdG9yTGVuZ3RoICAgICAgMjUKICAgICAgICAg
+UmVwb3J0IERlc2NyaXB0b3JzOiAKICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAqKgogICAgICBF
+bmRwb2ludCBEZXNjcmlwdG9yOgogICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcKICAg
+ICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1CiAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAg
+ICAgMHg4MiAgRVAgMiBJTgogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAgICAgIDMKICAgICAg
+ICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQKICAgICAgICAgIFN5bmNoIFR5
+cGUgICAgICAgICAgICAgICBOb25lCiAgICAgICAgICBVc2FnZSBUeXBlICAgICAgICAgICAgICAg
+RGF0YQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMDQgIDF4IDQgYnl0ZXMKICAgICAg
+ICBiSW50ZXJ2YWwgICAgICAgICAgICAgICAxCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoKICAg
+ICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAg
+ICA0CiAgICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDIKICAgICAgYkFsdGVybmF0ZVNldHRp
+bmcgICAgICAgMAogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxCiAgICAgIGJJbnRlcmZh
+Y2VDbGFzcyAgICAgICAgIDMgSHVtYW4gSW50ZXJmYWNlIERldmljZQogICAgICBiSW50ZXJmYWNl
+U3ViQ2xhc3MgICAgICAwIE5vIFN1YmNsYXNzCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAg
+IDAgTm9uZQogICAgICBpSW50ZXJmYWNlICAgICAgICAgICAgICAwIAogICAgICAgIEhJRCBEZXZp
+Y2UgRGVzY3JpcHRvcjoKICAgICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkKICAgICAg
+ICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMzMKICAgICAgICAgIGJjZEhJRCAgICAgICAgICAg
+ICAgIDEuMTEKICAgICAgICAgIGJDb3VudHJ5Q29kZSAgICAgICAgICAgIDAgTm90IHN1cHBvcnRl
+ZAogICAgICAgICAgYk51bURlc2NyaXB0b3JzICAgICAgICAgMQogICAgICAgICAgYkRlc2NyaXB0
+b3JUeXBlICAgICAgICAzNCBSZXBvcnQKICAgICAgICAgIHdEZXNjcmlwdG9yTGVuZ3RoICAgICAg
+MzcKICAgICAgICAgUmVwb3J0IERlc2NyaXB0b3JzOiAKICAgICAgICAgICAqKiBVTkFWQUlMQUJM
+RSAqKgogICAgICBFbmRwb2ludCBEZXNjcmlwdG9yOgogICAgICAgIGJMZW5ndGggICAgICAgICAg
+ICAgICAgIDcKICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1CiAgICAgICAgYkVuZHBv
+aW50QWRkcmVzcyAgICAgMHg4MyAgRVAgMyBJTgogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAg
+ICAgIDMKICAgICAgICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQKICAgICAg
+ICAgIFN5bmNoIFR5cGUgICAgICAgICAgICAgICBOb25lCiAgICAgICAgICBVc2FnZSBUeXBlICAg
+ICAgICAgICAgICAgRGF0YQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMGYgIDF4IDE1
+IGJ5dGVzCiAgICAgICAgYkludGVydmFsICAgICAgICAgICAgICAgMQpEZXZpY2UgU3RhdHVzOiAg
+ICAgMHgwMDAwCiAgKEJ1cyBQb3dlcmVkKQo=
+--001a11c2cafcc6a9a00502e1b96e--

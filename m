@@ -1,44 +1,72 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 3/3] psmouse: Add support for detecting FocalTech PS/2
- touchpads
-Date: Sat, 13 Sep 2014 10:10:23 +0200
-Message-ID: <5413FBEF.3020101@redhat.com>
-References: <1410512912-11609-1-git-send-email-hdegoede@redhat.com> <1410512912-11609-4-git-send-email-hdegoede@redhat.com> <20140913002629.GA12622@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH 1/2] hid: sony: Corrections for the DualShock 4 HID descriptor
+Date: Sun, 14 Sep 2014 11:56:38 -0400
+Message-ID: <1410710199-14383-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:31047 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751824AbaIMIK2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Sep 2014 04:10:28 -0400
-In-Reply-To: <20140913002629.GA12622@core.coreip.homeip.net>
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.230]:35854 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752697AbaINP4v (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 14 Sep 2014 11:56:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Hi,
+Fix a few minor issues in the HID descriptor:
+ - A 6 bit entry had a logical maximum of 255 when the largest it can be is 63.
+ - A logical max value was incorrectly being set to -1 instead of 255.
+ - Set the min/max of the gyroscopes to -8192/8191 as that is the range of
+   values which represent the true controller orientation.  Any values beyond
+   those extents are just noise.
 
-On 09/13/2014 02:26 AM, Dmitry Torokhov wrote:
-> Hi Hans,
-> 
-> On Fri, Sep 12, 2014 at 11:08:32AM +0200, Hans de Goede wrote:
->> +/* Always check for focaltech, this is safe as it uses pnp-id matching */
->> +	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
->> +		if (!set_properties || focaltech_init(psmouse) == 0) {
->> +			/* Not supported yet, use bare protocol */
->> +			psmouse_max_proto = PSMOUSE_PS2;
-> 
-> I do not believe we need to muck with psmouse_max_proto here, so I'll
-> drop it and apply.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+ drivers/hid/hid-sony.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Oh, but we do need to set psmouse_max_proto, otherwise this won't work, as
-I already tried to explain in the review of v1 (but clearly failed to do so).
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index ecc6616..75da56d 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -176,7 +176,7 @@ static u8 dualshock4_usb_rdesc[] = {
+ 	0x75, 0x06,         /*      Report Size (6),                */
+ 	0x95, 0x01,         /*      Report Count (1),               */
+ 	0x15, 0x00,         /*      Logical Minimum (0),            */
+-	0x25, 0x7F,         /*      Logical Maximum (127),          */
++	0x25, 0x3F,         /*      Logical Maximum (63),           */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x05, 0x01,         /*      Usage Page (Desktop),           */
+ 	0x09, 0x33,         /*      Usage (Rx),                     */
+@@ -200,14 +200,14 @@ static u8 dualshock4_usb_rdesc[] = {
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x19, 0x43,         /*      Usage Minimum (43h),            */
+ 	0x29, 0x45,         /*      Usage Maximum (45h),            */
+-	0x16, 0xFF, 0xBF,   /*      Logical Minimum (-16385),       */
+-	0x26, 0x00, 0x40,   /*      Logical Maximum (16384),        */
++	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
++	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
+ 	0x95, 0x03,         /*      Report Count (3),               */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
+ 	0x09, 0x21,         /*      Usage (21h),                    */
+ 	0x15, 0x00,         /*      Logical Minimum (0),            */
+-	0x25, 0xFF,         /*      Logical Maximum (255),          */
++	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
+ 	0x75, 0x08,         /*      Report Size (8),                */
+ 	0x95, 0x27,         /*      Report Count (39),              */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+@@ -509,8 +509,8 @@ static u8 dualshock4_bt_rdesc[] = {
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x19, 0x43,         /*      Usage Minimum (43h),            */
+ 	0x29, 0x45,         /*      Usage Maximum (45h),            */
+-	0x16, 0xFF, 0xBF,   /*      Logical Minimum (-16385),       */
+-	0x26, 0x00, 0x40,   /*      Logical Maximum (16384),        */
++	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
++	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
+ 	0x95, 0x03,         /*      Report Count (3),               */
+ 	0x81, 0x02,         /*      Input (Variable),               */
+ 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
+-- 
+2.1.0
 
-psmouse_initialize() checks psmouse_max_proto, and if it is not set to
-PSMOUSE_PS2 does things which upsets these touchpads.
-
-Regards,
-
-Hans

@@ -1,26 +1,29 @@
-From: David Herrmann <dh.herrmann@gmail.com>
+From: Fredrik Hallenberg <megahallon@gmail.com>
 Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
-Date: Sun, 14 Sep 2014 19:03:13 +0200
-Message-ID: <CANq1E4TT+tz8b-mrGO4CyA8H-C9apgRF8Qhc5C7pd5sbF6sFhA@mail.gmail.com>
+Date: Mon, 15 Sep 2014 00:53:22 +0200
+Message-ID: <CAMsZVf9k814m+OH=B_gXnnM64+soc_cV9ztm87FoHpfCZyDAMQ@mail.gmail.com>
 References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
 	<CANq1E4RVV1nEbtiAkiePtSF-K8CdnS7hmts_8hqDOi=mWsE4MA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:52887 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752679AbaINRDO (ORCPT
+Received: from mail-qg0-f44.google.com ([209.85.192.44]:35337 "EHLO
+	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752870AbaINWxX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Sep 2014 13:03:14 -0400
-Received: by mail-ie0-f169.google.com with SMTP id rl12so3489944iec.28
-        for <linux-input@vger.kernel.org>; Sun, 14 Sep 2014 10:03:13 -0700 (PDT)
+	Sun, 14 Sep 2014 18:53:23 -0400
+Received: by mail-qg0-f44.google.com with SMTP id f51so3200097qge.31
+        for <linux-input@vger.kernel.org>; Sun, 14 Sep 2014 15:53:22 -0700 (PDT)
 In-Reply-To: <CANq1E4RVV1nEbtiAkiePtSF-K8CdnS7hmts_8hqDOi=mWsE4MA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fredrik Hallenberg <megahallon@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-Hi
+Thank you for this, I felt that it would be difficult to do a good
+solution with hwdb but could not really back this up. It is also nice
+to see a much better patch than mine, I did not have enough knowledge
+on the input system to do a proper one.
 
 On Sun, Sep 14, 2014 at 6:45 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
 > Hi
@@ -100,7 +103,44 @@ On Sun, Sep 14, 2014 at 6:45 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
 > +                           value[n] != field->value[n])
 > +                               hid_process_event(hid, field,
 > &field->usage[n], value[n], interrupt);
-
-This should probably be:
-  (HID_MAIN_ITEM_RELATIVE | HID_MAIN_ITEM_BUFFERED_BYTE)
-..though I wonder whether buffered-byte makes much sense without "relative"..
+>                         continue;
+>                 }
+>
+>
+> @Jiri: Any comments on this? I now agree with Fredrik that this is
+> better solved in HID core. It is a generic problem..
+>
+> In HID, we save values per scancode / HID-field, additionally to
+> input-core saving them per keycode / input-code. This patch basically
+> makes use of this and avoids sending events for scan-codes that didn't
+> change, but accidentally map to the same keycode as another key (which
+> might have a different state than this one).
+>
+> If this looks reasonable, I can prepare a patch with a proper
+> commit-log and give it a spin here.
+>
+> Thanks
+> David
+>
+>>         /* report the usage code as scancode if the key status has changed */
+>>         if (usage->type == EV_KEY && !!test_bit(usage->code, input->key) != value)
+>>                 input_event(input, EV_MSC, MSC_SCAN, usage->hid);
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index f53c4a9..1c59f8f 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -448,6 +448,7 @@ struct hid_input {
+>>         struct list_head list;
+>>         struct hid_report *report;
+>>         struct input_dev *input;
+>> +       unsigned backslash_usage;
+>>  };
+>>
+>>  enum hid_type {
+>> --
+>> 2.1.0.rc1
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

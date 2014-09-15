@@ -1,54 +1,54 @@
-From: Nishanth Menon <nm@ti.com>
-Subject: Re: randconfig build error with next-20140915, in drivers/input/misc/palmas-pwrbutton.c
-Date: Mon, 15 Sep 2014 12:30:22 -0500
-Message-ID: <5417222E.30201@ti.com>
-References: <CA+r1ZhjG4oSVSWnO4SXomJArxJdnUpdSHeGxV41Z4Hw1B8eEaQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 3/3] psmouse: Add support for detecting FocalTech PS/2
+ touchpads
+Date: Mon, 15 Sep 2014 10:39:57 -0700
+Message-ID: <20140915173957.GA14457@core.coreip.homeip.net>
+References: <1410512912-11609-1-git-send-email-hdegoede@redhat.com>
+ <1410512912-11609-4-git-send-email-hdegoede@redhat.com>
+ <20140913002629.GA12622@core.coreip.homeip.net>
+ <5413FBEF.3020101@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:56020 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753223AbaIORa3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Sep 2014 13:30:29 -0400
-In-Reply-To: <CA+r1ZhjG4oSVSWnO4SXomJArxJdnUpdSHeGxV41Z4Hw1B8eEaQ@mail.gmail.com>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:57911 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754078AbaIORkD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Sep 2014 13:40:03 -0400
+Received: by mail-pa0-f50.google.com with SMTP id bj1so6853938pad.9
+        for <linux-input@vger.kernel.org>; Mon, 15 Sep 2014 10:40:02 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <5413FBEF.3020101@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, Benjamin Tissoires <btissoir@redhat.com>, linux-input@vger.kernel.org
 
-On 09/15/2014 09:40 AM, Jim Davis wrote:
-> Building with the attached random configuration file,
+On Sat, Sep 13, 2014 at 10:10:23AM +0200, Hans de Goede wrote:
+> Hi,
 > 
-> FATAL: modpost: GPL-incompatible module palmas-pwrbutton.ko uses GPL-only symbol
->  'platform_driver_unregister'
-> make[1]: *** [__modpost] Error 1
+> On 09/13/2014 02:26 AM, Dmitry Torokhov wrote:
+> > Hi Hans,
+> > 
+> > On Fri, Sep 12, 2014 at 11:08:32AM +0200, Hans de Goede wrote:
+> >> +/* Always check for focaltech, this is safe as it uses pnp-id matching */
+> >> +	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
+> >> +		if (!set_properties || focaltech_init(psmouse) == 0) {
+> >> +			/* Not supported yet, use bare protocol */
+> >> +			psmouse_max_proto = PSMOUSE_PS2;
+> > 
+> > I do not believe we need to muck with psmouse_max_proto here, so I'll
+> > drop it and apply.
 > 
-For some reason, I was unable to reproduce this in my build with ARM
-OMAP5 configuration... but with the x86 configuration, I was.
+> Oh, but we do need to set psmouse_max_proto, otherwise this won't work, as
+> I already tried to explain in the review of v1 (but clearly failed to do so).
+> 
+> psmouse_initialize() checks psmouse_max_proto, and if it is not set to
+> PSMOUSE_PS2 does things which upsets these touchpads.
 
-https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/?h=next&id=adff5962fdd2f29bac943bc014ebd529444b2153
+Ouch.. so even basic set rate/set resolution messes it up? Wow...
 
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/module.h#n101
-
-I used MODULE_LICENSE("GPL V2")
-
-Looks like a typo crept in. And s/V/v seems to squelch the warning(at
-least in the x86 build) for the randconfig. I will post a patch
-accordingly. Thanks for catching the same.
-
- diff --git a/drivers/input/misc/palmas-pwrbutton.c
-b/drivers/input/misc/palmas-pwrbutton.c
- index 3f90211..06ffe04 100644
- --- a/drivers/input/misc/palmas-pwrbutton.c
- +++ b/drivers/input/misc/palmas-pwrbutton.c
- @@ -326,5 +326,5 @@ module_platform_driver(palmas_pwron_driver);
-
-  MODULE_ALIAS("platform:palmas-pwrbutton");
-  MODULE_DESCRIPTION("Palmas Power Button");
- -MODULE_LICENSE("GPL V2");
- +MODULE_LICENSE("GPL v2");
-  MODULE_AUTHOR("Texas Instruments Inc.");
+Thanks.
 
 -- 
-Regards,
-Nishanth Menon
+Dmitry

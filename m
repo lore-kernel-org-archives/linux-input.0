@@ -1,56 +1,64 @@
-From: Nishanth Menon <nm@ti.com>
-Subject: Re: randconfig build error with next-20140915, in drivers/input/misc/palmas-pwrbutton.c
-Date: Mon, 15 Sep 2014 14:15:22 -0500
-Message-ID: <54173ACA.1010709@ti.com>
-References: <CA+r1ZhjG4oSVSWnO4SXomJArxJdnUpdSHeGxV41Z4Hw1B8eEaQ@mail.gmail.com> <5417222E.30201@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: palmas-pwrbutton: Fix typo in License
+Date: Mon, 15 Sep 2014 14:35:26 -0700
+Message-ID: <20140915213525.GA13468@core.coreip.homeip.net>
+References: <1410803937-27022-1-git-send-email-nm@ti.com>
+ <5417294C.2010506@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5417222E.30201@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:56113 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756119AbaIOVff (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Sep 2014 17:35:35 -0400
+Content-Disposition: inline
+In-Reply-To: <5417294C.2010506@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nishanth Menon <nm@ti.com>
+Cc: Jim Davis <jim.epost@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Stephen Rothwell <sfr@canb.auug.org.au>
 
-On 09/15/2014 12:30 PM, Nishanth Menon wrote:
-> On 09/15/2014 09:40 AM, Jim Davis wrote:
->> Building with the attached random configuration file,
->>
->> FATAL: modpost: GPL-incompatible module palmas-pwrbutton.ko uses GPL-only symbol
->>  'platform_driver_unregister'
->> make[1]: *** [__modpost] Error 1
->>
-> For some reason, I was unable to reproduce this in my build with ARM
-> OMAP5 configuration... but with the x86 configuration, I was.
+On Mon, Sep 15, 2014 at 01:00:44PM -0500, Nishanth Menon wrote:
+> On 09/15/2014 12:58 PM, Nishanth Menon wrote:
+> > Follow the license string convention indicated in include/linux/module.h
+> > (don't capitalize v).
+> > 
+> > This fixes following randconfig warning:
+> > FATAL: modpost: GPL-incompatible module palmas-pwrbutton.ko uses GPL-only symbol 'platform_driver_unregister'
+> > 
+> Uggh.. forgot to add:
 > 
-> https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/?h=next&id=adff5962fdd2f29bac943bc014ebd529444b2153
-> 
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/module.h#n101
-> 
-> I used MODULE_LICENSE("GPL V2")
-> 
-> Looks like a typo crept in. And s/V/v seems to squelch the warning(at
-> least in the x86 build) for the randconfig. I will post a patch
-> accordingly. Thanks for catching the same.
-> 
->  diff --git a/drivers/input/misc/palmas-pwrbutton.c
-> b/drivers/input/misc/palmas-pwrbutton.c
->  index 3f90211..06ffe04 100644
->  --- a/drivers/input/misc/palmas-pwrbutton.c
->  +++ b/drivers/input/misc/palmas-pwrbutton.c
->  @@ -326,5 +326,5 @@ module_platform_driver(palmas_pwron_driver);
-> 
->   MODULE_ALIAS("platform:palmas-pwrbutton");
->   MODULE_DESCRIPTION("Palmas Power Button");
->  -MODULE_LICENSE("GPL V2");
->  +MODULE_LICENSE("GPL v2");
->   MODULE_AUTHOR("Texas Instruments Inc.");
-> 
+> Fixes: adff5962fdd2 ("Input: introduce palmas-pwrbutton")
 
-To close this thread, posted:
-https://patchwork.kernel.org/patch/4907121/
+Applied both, thank you.
 
+> 
+> > Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+> > Reported-by: Jim Davis <jim.epost@gmail.com>
+> > Signed-off-by: Nishanth Menon <nm@ti.com>
+> > ---
+> > Reported thread http://marc.info/?l=linux-input&m=141080223209150&w=2
+> > 
+> >  drivers/input/misc/palmas-pwrbutton.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/misc/palmas-pwrbutton.c b/drivers/input/misc/palmas-pwrbutton.c
+> > index 3f90211..4ed6f78 100644
+> > --- a/drivers/input/misc/palmas-pwrbutton.c
+> > +++ b/drivers/input/misc/palmas-pwrbutton.c
+> > @@ -326,5 +326,5 @@ module_platform_driver(palmas_pwron_driver);
+> >  
+> >  MODULE_ALIAS("platform:palmas-pwrbutton");
+> >  MODULE_DESCRIPTION("Palmas Power Button");
+> > -MODULE_LICENSE("GPL V2");
+> > +MODULE_LICENSE("GPL v2");
+> >  MODULE_AUTHOR("Texas Instruments Inc.");
+> > 
+> 
+> -- 
+> Regards,
+> Nishanth Menon
 
 -- 
-Regards,
-Nishanth Menon
+Dmitry

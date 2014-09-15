@@ -1,73 +1,102 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID: add new gamepad LED constants
-Date: Mon, 15 Sep 2014 15:58:09 -0700
-Message-ID: <20140915225809.GA31798@core.coreip.homeip.net>
-References: <1410750811-11156-1-git-send-email-michaelwr@google.com>
- <CANq1E4RY8cF1de4_rdS3Whjrf0bboYMtii4_nYNM2mEJuAKMfQ@mail.gmail.com>
- <CAON4U=OTzqOYDCeT-rFM8trvD80_kQxirZ+Yu5nOjc84v15XLA@mail.gmail.com>
- <20140915215728.GB13468@core.coreip.homeip.net>
- <CANq1E4TK1=mD0Xh5KuydoONqiex79HggvoM9XRhorogmxqBqhw@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 4/4] mfd: max77693: Update DT binding to support haptic
+Date: Tue, 16 Sep 2014 00:00:43 +0100
+Message-ID: <20140915230043.GI25162@lee--X1>
+References: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
+ <1410440062-19963-5-git-send-email-jaewon02.kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:56575 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755220AbaIOW6P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Sep 2014 18:58:15 -0400
-Received: by mail-pa0-f41.google.com with SMTP id bj1so7482834pad.14
-        for <linux-input@vger.kernel.org>; Mon, 15 Sep 2014 15:58:15 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CANq1E4TK1=mD0Xh5KuydoONqiex79HggvoM9XRhorogmxqBqhw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1410440062-19963-5-git-send-email-jaewon02.kim@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jaewon Kim <jaewon02.kim@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Michael Wright <michaelwr@android.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Michael Wright <michaelwr@google.com>, Jiri Kosina <jkosina@suse.cz>
 
-Hi David,
+On Thu, 11 Sep 2014, Jaewon Kim wrote:
 
-On Tue, Sep 16, 2014 at 12:15:08AM +0200, David Herrmann wrote:
-> Hi
-> 
-> On Mon, Sep 15, 2014 at 11:57 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Mon, Sep 15, 2014 at 11:03:47AM -0700, Michael Wright wrote:
-> >> > Why not introduce all 8 player LEDs as described in the document? You
-> >> > should be safe increasing LED_MAX to 0x1f.
-> >>
-> >> Wasn't sure if it was safe to bump it since it could potentially break apps
-> >> until they recompile against the new API.
-> >
-> > I'd rather we did not add any new input LED definitions but rather
-> > looked into switching to LED subsystem, at least for new LEDs.
-> 
-> Why?
+> This patch add haptic DT binding documentation and example
+> to support haptic driver in max77693 Multifunction device.
+>=20
+> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/max77693.txt |   18 ++++++++++=
+++++++++
+>  1 file changed, 18 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/mfd/max77693.txt b/Doc=
+umentation/devicetree/bindings/mfd/max77693.txt
+> index 11921cc..d178b9e 100644
+> --- a/Documentation/devicetree/bindings/mfd/max77693.txt
+> +++ b/Documentation/devicetree/bindings/mfd/max77693.txt
+> @@ -27,6 +27,17 @@ Optional properties:
+> =20
+>  	[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
+> =20
+> +- haptic : The haptic of max77693 have to be instantiated under subn=
+od
 
-Because we have a proper subsystem that represents LEDs.
+Perhaps a description as to what "The haptic" is might be handy?
 
-> The LED subsystem lacks any unprivileged API to control LEDs.
+s/have/has
 
-As far as I can see it is the same as for input devices. You just need
-to make sure the device owner can access needed attributes, such as
-brightness.
+s/subnod/subnode
 
-> There's no cdev to control write-access to the LED API. /sys has never
-> been intended as unprivileged API
+What do you mean by "under" a subnode?  Do you mean "as a" subnode?
 
-chmod/chown works just fine on sysfs attributes.
+> +  named "haptic" using the following haptic format in example.
 
-> so I'd really prefer if we add
-> proper input codes to control those. At least I cannot see the
-> advantage of the led subsystem over input EV_LED codes. Care to
-> elaborate?
-> 
+What is the "haptic format"?  It just looks like a normal node to me.
 
-LEDs should be controlled via LED subsystem. The fact that they happen
-to be located on a given device does not mean they belong to input
-subsystem. The same as LEds on network card are not part of network stack,
-etc.
+> +  Haptic sensation from motor can be changed by changing a period cy=
+cle in pwms.
 
-Thanks.
+Is "Haptic sensation" a technical term?
 
--- 
-Dmitry
+s/from motor/from a motor/
+
+s/changed by changing/changed by varying/
+
+s/period cycle/duty cycle/
+
+s/in pwms/in the pwms property/
+
+> +
+> + Required properties:
+> +	- compatible : Must be "maxim,max77693-hpatic"
+> +	- haptic-supply : power supply for haptic motor
+
+s/for haptic/for the haptic/
+
+> +		[*] refer Documentation/devicetree/bindings/regulator/regulator.tx=
+t
+> +	- pwms : phandle to the physical PWM device,
+
+It's not just the phandle though is it?
+
+> +		[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
+> +
+>  Example:
+>  	max77693@66 {
+>  		compatible =3D "maxim,max77693";
+> @@ -52,4 +63,11 @@ Example:
+>  					regulator-boot-on;
+>  			};
+>  		};
+> +
+> +		haptic {
+> +			compatible =3D "maxim,max77693-haptic";
+> +			haptic-supply =3D <&haptic_supply>;
+> +			pwms =3D <&pwm 0 40000 0>;
+> +			pwm-names =3D "haptic";
+> +		};
+>  	};
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

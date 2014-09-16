@@ -1,138 +1,57 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 4/4] mfd: max77693: Update DT binding to support haptic
-Date: Tue, 16 Sep 2014 15:40:42 -0700
-Message-ID: <20140916224042.GR25162@lee--X1>
+Subject: Re: [PATCH v4 3/4] mfd: max77693: add haptic of_compatible in
+ mfd_cell
+Date: Tue, 16 Sep 2014 15:41:48 -0700
+Message-ID: <20140916224148.GS25162@lee--X1>
 References: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
- <1410440062-19963-5-git-send-email-jaewon02.kim@samsung.com>
- <20140915230043.GI25162@lee--X1>
- <5417EDFE.7030700@samsung.com>
+ <1410440062-19963-4-git-send-email-jaewon02.kim@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:61368 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752512AbaIPWlF (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:54079 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752938AbaIPWmJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Sep 2014 18:41:05 -0400
-Received: by mail-pd0-f181.google.com with SMTP id w10so724418pde.40
-        for <linux-input@vger.kernel.org>; Tue, 16 Sep 2014 15:41:04 -0700 (PDT)
+	Tue, 16 Sep 2014 18:42:09 -0400
+Received: by mail-pd0-f174.google.com with SMTP id v10so714334pde.33
+        for <linux-input@vger.kernel.org>; Tue, 16 Sep 2014 15:42:08 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <5417EDFE.7030700@samsung.com>
+In-Reply-To: <1410440062-19963-4-git-send-email-jaewon02.kim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jaewon Kim <jaewon02.kim@samsung.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, 16 Sep 2014, Jaewon Kim wrote:
-> 2014=EB=85=84 09=EC=9B=94 16=EC=9D=BC 08:00=EC=97=90 Lee Jones =EC=9D=
-=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
-> >On Thu, 11 Sep 2014, Jaewon Kim wrote:
-> >
-> >>This patch add haptic DT binding documentation and example
-> >>to support haptic driver in max77693 Multifunction device.
-> >>
-> >>Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
-> >>Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-> >>---
-> >>  Documentation/devicetree/bindings/mfd/max77693.txt |   18 +++++++=
-+++++++++++
-> >>  1 file changed, 18 insertions(+)
-> >>
-> >>diff --git a/Documentation/devicetree/bindings/mfd/max77693.txt b/D=
-ocumentation/devicetree/bindings/mfd/max77693.txt
-> >>index 11921cc..d178b9e 100644
-> >>--- a/Documentation/devicetree/bindings/mfd/max77693.txt
-> >>+++ b/Documentation/devicetree/bindings/mfd/max77693.txt
-> >>@@ -27,6 +27,17 @@ Optional properties:
-> >>  	[*] refer Documentation/devicetree/bindings/regulator/regulator.=
-txt
-> >>+- haptic : The haptic of max77693 have to be instantiated under su=
-bnod
-> >Perhaps a description as to what "The haptic" is might be handy?
-> Ok, I will add description about haptic.
+On Thu, 11 Sep 2014, Jaewon Kim wrote:
+
+> This patch add haptic of_compatible in order to use the haptic
+> device driver using Devicetree.
 >=20
-> >
-> >s/have/has
-> >
-> >s/subnod/subnode
-> >
-> >What do you mean by "under" a subnode?  Do you mean "as a" subnode?
+> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+> ---
+>  drivers/mfd/max77693.c |    5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
-I see what you did here now.  You copied this from the discription
-above.  That will also need to be changed.
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-> >>+  named "haptic" using the following haptic format in example.
-> >What is the "haptic format"?  It just looks like a normal node to me=
-=2E
-> >
-> >>+  Haptic sensation from motor can be changed by changing a period =
-cycle in pwms.
-> >Is "Haptic sensation" a technical term?
-> >
-> >s/from motor/from a motor/
-> >
-> >s/changed by changing/changed by varying/
-> >
-> >s/period cycle/duty cycle/
-> >
-> >s/in pwms/in the pwms property/
-> How is it if I change in this way?
->=20
-> haptic : Referring to the term Haptic, It is the use of advanced
-> vibration patterns
->     and waveforms to convey information to a user or operator.
->=20
->     MAX77693 uses PWM and MOTOR in order to give Haptic.
->     The Haptic from a motor can be changed by varying a period/duty
-> cycle in pwms.
-
-Hmm... How about:
-
-The MAX77693 haptic device utilises a PWM controlled motor to provide
-users with tactile feedback.  PWM period and duty-cycle are varied in
-order to provide the approprite level of feedback.
-
-> >>+
-> >>+ Required properties:
-> >>+	- compatible : Must be "maxim,max77693-hpatic"
-> >>+	- haptic-supply : power supply for haptic motor
-> >s/for haptic/for the haptic/
-> >
-> >>+		[*] refer Documentation/devicetree/bindings/regulator/regulator.=
-txt
-> >>+	- pwms : phandle to the physical PWM device,
-> >It's not just the phandle though is it?
-> Do you want more description?
-
-Yes please.
-
-> Or it mean the wrong?
->=20
-> >
-> >>+		[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
-> >>+
-> >>  Example:
-> >>  	max77693@66 {
-> >>  		compatible =3D "maxim,max77693";
-> >>@@ -52,4 +63,11 @@ Example:
-> >>  					regulator-boot-on;
-> >>  			};
-> >>  		};
-> >>+
-> >>+		haptic {
-> >>+			compatible =3D "maxim,max77693-haptic";
-> >>+			haptic-supply =3D <&haptic_supply>;
-> >>+			pwms =3D <&pwm 0 40000 0>;
-> >>+			pwm-names =3D "haptic";
-> >>+		};
-> >>  	};
->=20
-> Thank you for feedback.
-> And plz review "[PATCH v4 3/4] mfd: max77693: add haptic
-> of_compatible in mfd_cell".
-
-
+> diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
+> index fbfed56..5b516fe 100644
+> --- a/drivers/mfd/max77693.c
+> +++ b/drivers/mfd/max77693.c
+> @@ -46,7 +46,10 @@ static const struct mfd_cell max77693_devs[] =3D {
+>  	{ .name =3D "max77693-charger", },
+>  	{ .name =3D "max77693-flash", },
+>  	{ .name =3D "max77693-muic", },
+> -	{ .name =3D "max77693-haptic", },
+> +	{
+> +		.name =3D "max77693-haptic",
+> +		.of_compatible =3D "maxim,max77693-haptic",
+> +	},
+>  };
+> =20
+>  static const struct regmap_config max77693_regmap_config =3D {
 
 --=20
 Lee Jones

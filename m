@@ -1,129 +1,76 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: Re: [PATCH v4 4/4] mfd: max77693: Update DT binding to support haptic
-Date: Tue, 16 Sep 2014 16:59:58 +0900
-Message-ID: <5417EDFE.7030700@samsung.com>
-References: <1410440062-19963-1-git-send-email-jaewon02.kim@samsung.com>
- <1410440062-19963-5-git-send-email-jaewon02.kim@samsung.com>
- <20140915230043.GI25162@lee--X1>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] HID: add new gamepad LED constants
+Date: Tue, 16 Sep 2014 12:00:26 +0200
+Message-ID: <CANq1E4R80GwEL43ngV5-8cWXTQAchfCOwpYSxUZfL7Hxy5yVSw@mail.gmail.com>
+References: <1410750811-11156-1-git-send-email-michaelwr@google.com>
+	<CANq1E4RY8cF1de4_rdS3Whjrf0bboYMtii4_nYNM2mEJuAKMfQ@mail.gmail.com>
+	<CAON4U=OTzqOYDCeT-rFM8trvD80_kQxirZ+Yu5nOjc84v15XLA@mail.gmail.com>
+	<20140915215728.GB13468@core.coreip.homeip.net>
+	<CANq1E4TK1=mD0Xh5KuydoONqiex79HggvoM9XRhorogmxqBqhw@mail.gmail.com>
+	<20140915225809.GA31798@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:54444 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752144AbaIPIAI (ORCPT
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:38035 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753369AbaIPKA1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Sep 2014 04:00:08 -0400
-In-reply-to: <20140915230043.GI25162@lee--X1>
+	Tue, 16 Sep 2014 06:00:27 -0400
+Received: by mail-ig0-f169.google.com with SMTP id a13so3448846igq.4
+        for <linux-input@vger.kernel.org>; Tue, 16 Sep 2014 03:00:26 -0700 (PDT)
+In-Reply-To: <20140915225809.GA31798@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Wright <michaelwr@android.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Michael Wright <michaelwr@google.com>, Jiri Kosina <jkosina@suse.cz>
 
-Dear Lee Jones,
+Hi
 
+On Tue, Sep 16, 2014 at 12:58 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>> The LED subsystem lacks any unprivileged API to control LEDs.
+>
+> As far as I can see it is the same as for input devices. You just need
+> to make sure the device owner can access needed attributes, such as
+> brightness.
+>
+>> There's no cdev to control write-access to the LED API. /sys has never
+>> been intended as unprivileged API
+>
+> chmod/chown works just fine on sysfs attributes.
 
-2014=EB=85=84 09=EC=9B=94 16=EC=9D=BC 08:00=EC=97=90 Lee Jones =EC=9D=B4=
-(=EA=B0=80) =EC=93=B4 =EA=B8=80:
-> On Thu, 11 Sep 2014, Jaewon Kim wrote:
->
->> This patch add haptic DT binding documentation and example
->> to support haptic driver in max77693 Multifunction device.
->>
->> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
->> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
->> ---
->>   Documentation/devicetree/bindings/mfd/max77693.txt |   18 ++++++++=
-++++++++++
->>   1 file changed, 18 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/mfd/max77693.txt b/Do=
-cumentation/devicetree/bindings/mfd/max77693.txt
->> index 11921cc..d178b9e 100644
->> --- a/Documentation/devicetree/bindings/mfd/max77693.txt
->> +++ b/Documentation/devicetree/bindings/mfd/max77693.txt
->> @@ -27,6 +27,17 @@ Optional properties:
->>  =20
->>   	[*] refer Documentation/devicetree/bindings/regulator/regulator.t=
-xt
->>  =20
->> +- haptic : The haptic of max77693 have to be instantiated under sub=
-nod
-> Perhaps a description as to what "The haptic" is might be handy?
-Ok, I will add description about haptic.
+Sure it is. You can even use ACLs. But that doesn't mean it provides a
+proper API environment. Udev maintainers have always said "sysfs is
+only writable by root". Reasons mostly being the following:
 
->
-> s/have/has
->
-> s/subnod/subnode
->
-> What do you mean by "under" a subnode?  Do you mean "as a" subnode?
->
->> +  named "haptic" using the following haptic format in example.
-> What is the "haptic format"?  It just looks like a normal node to me.
->
->> +  Haptic sensation from motor can be changed by changing a period c=
-ycle in pwms.
-> Is "Haptic sensation" a technical term?
->
-> s/from motor/from a motor/
->
-> s/changed by changing/changed by varying/
->
-> s/period cycle/duty cycle/
->
-> s/in pwms/in the pwms property/
-How is it if I change in this way?
+* sysfs exists only once. Unlike char-devs, you cannot create multiple
+independent entry-points to the device node. Instead, there's only a
+single entry point which has to be shared between all users (across
+sessions, across containers, across user-namespaces, across
+pid-namespaces).
 
-haptic : Referring to the term Haptic, It is the use of advanced=20
-vibration patterns
-     and waveforms to convey information to a user or operator.
+* sysfs does not provide per-file contexts. Unlike char-devs, sysfs
+never knows the context of the user that writes into an attribute. It
+cannot associate private data to the open file and it cannot track the
+time the user releases the device again. It cannot multiplex across
+multiple simultaneous users.
 
-     MAX77693 uses PWM and MOTOR in order to give Haptic.
-     The Haptic from a motor can be changed by varying a period/duty=20
-cycle in pwms.
+* sysfs is not "lightweight". People always say they don't want full
+blown char-devs because sysfs is much lighter. Don't know where that
+came from.. but looking at the amount of inodes and files needed for
+sysfs APIs, it's definitely not faster nor smaller than char-devs.
 
->
->> +
->> + Required properties:
->> +	- compatible : Must be "maxim,max77693-hpatic"
->> +	- haptic-supply : power supply for haptic motor
-> s/for haptic/for the haptic/
->
->> +		[*] refer Documentation/devicetree/bindings/regulator/regulator.t=
-xt
->> +	- pwms : phandle to the physical PWM device,
-> It's not just the phandle though is it?
-Do you want more description?
-Or it mean the wrong?
+Just look at IIO to see what happens if you write evdev-like APIs
+based on sysfs attributes "because it's lightweight". It's a mess.
 
->
->> +		[*] refer Documentation/devicetree/bindings/pwm/pwm.txt
->> +
->>   Example:
->>   	max77693@66 {
->>   		compatible =3D "maxim,max77693";
->> @@ -52,4 +63,11 @@ Example:
->>   					regulator-boot-on;
->>   			};
->>   		};
->> +
->> +		haptic {
->> +			compatible =3D "maxim,max77693-haptic";
->> +			haptic-supply =3D <&haptic_supply>;
->> +			pwms =3D <&pwm 0 40000 0>;
->> +			pwm-names =3D "haptic";
->> +		};
->>   	};
+Sure, one solution would be to provide char-devs for LEDs. But then
+one char-dev per LED sounds like overkill, so my proposal is to
+include it in the input API like we always did. You're free to
+disagree on that. I'm just saying that sysfs APIs to access LEDs on
+GamePads (which this patch is mostly targeted at, I guess) is making
+user-space life miserable. It's the same discussion we had with
+backlights for years and we're trying eagerly to merge them into the
+DRM char-devs.
 
-Thank you for feedback.
-And plz review "[PATCH v4 3/4] mfd: max77693: add haptic of_compatible=20
-in mfd_cell".
-
-thanks.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks
+David

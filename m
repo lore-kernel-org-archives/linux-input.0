@@ -1,41 +1,136 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 15/22] Input: edt-ft5x06 - Replace strnicmp with
- strncasecmp
-Date: Wed, 17 Sep 2014 09:26:08 -0700
-Message-ID: <20140917162608.GA25297@core.coreip.homeip.net>
-References: <1410900696-6481-1-git-send-email-linux@rasmusvillemoes.dk>
- <1410900696-6481-16-git-send-email-linux@rasmusvillemoes.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] hid: sony: Set the DualShock 4 touchpad bits in the input_configured callback
+Date: Wed, 17 Sep 2014 13:23:33 -0400
+Message-ID: <1410974613-2377-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:33870 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755428AbaIQQ0O (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.229]:44548 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755391AbaIQRas (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Sep 2014 12:26:14 -0400
-Content-Disposition: inline
-In-Reply-To: <1410900696-6481-16-git-send-email-linux@rasmusvillemoes.dk>
+	Wed, 17 Sep 2014 13:30:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Tue, Sep 16, 2014 at 10:51:29PM +0200, Rasmus Villemoes wrote:
-> The kernel used to contain two functions for length-delimited,
-> case-insensitive string comparison, strnicmp with correct semantics
-> and a slightly buggy strncasecmp. The latter is the POSIX name, so
-> strnicmp was renamed to strncasecmp, and strnicmp made into a wrapper
-> for the new strncasecmp to avoid breaking existing users.
-> 
-> To allow the compat wrapper strnicmp to be removed at some point in
-> the future, and to avoid the extra indirection cost, do
-> s/strnicmp/strncasecmp/g.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Set the DualShock4 touchpad bits in the input_configured callback
+so that they are registered properly for any input devices created
+during hid_hw_start.
 
-Applied, thank you.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
+---
+ This fixes the issue with touch axes either not being present or being 
+ incorrectly mapped to axis 0 in the joydev device.
+
+ drivers/hid/hid-sony.c | 73 ++++++++++++++++++++++++++++----------------------
+ 1 file changed, 41 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 96a8ec5..41beb48 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1084,6 +1084,38 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	return 0;
+ }
+ 
++static int sony_register_touchpad(struct hid_input *hi, int touch_count,
++					int w, int h)
++{
++	struct input_dev *input_dev = hi->input;
++	int ret;
++
++	ret = input_mt_init_slots(input_dev, touch_count, 0);
++	if (ret < 0)
++		return ret;
++
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
++
++	return 0;
++}
++
++static void sony_input_configured(struct hid_device *hdev,
++					struct hid_input *hidinput)
++{
++	struct sony_sc *sc = hid_get_drvdata(hdev);
++
++	/*
++	 * The Dualshock 4 touchpad supports 2 touches and has a
++	 * resolution of 1920x940.
++	 */
++	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
++		if (sony_register_touchpad(hidinput, 2, 1920, 940) != 0)
++			hid_err(sc->hdev,
++				"Unable to initialize multi-touch slots\n");
++	}
++}
++
+ /*
+  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
+  * to "operational".  Without this, the ps3 controller will not report any
+@@ -1656,26 +1688,6 @@ static void sony_battery_remove(struct sony_sc *sc)
+ 	sc->battery.name = NULL;
+ }
+ 
+-static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+-					int w, int h)
+-{
+-	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
+-						struct hid_input, list);
+-	struct input_dev *input_dev = hidinput->input;
+-	int ret;
+-
+-	ret = input_mt_init_slots(input_dev, touch_count, 0);
+-	if (ret < 0) {
+-		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
+-		return ret;
+-	}
+-
+-	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
+-	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
+-
+-	return 0;
+-}
+-
+ /*
+  * If a controller is plugged in via USB while already connected via Bluetooth
+  * it will show up as two devices. A global list of connected controllers and
+@@ -1925,11 +1937,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 				goto err_stop;
+ 			}
+ 		}
+-		/*
+-		 * The Dualshock 4 touchpad supports 2 touches and has a
+-		 * resolution of 1920x940.
+-		 */
+-		ret = sony_register_touchpad(sc, 2, 1920, 940);
++
+ 		if (ret < 0)
+ 			goto err_stop;
+ 
+@@ -2039,13 +2047,14 @@ static const struct hid_device_id sony_devices[] = {
+ MODULE_DEVICE_TABLE(hid, sony_devices);
+ 
+ static struct hid_driver sony_driver = {
+-	.name          = "sony",
+-	.id_table      = sony_devices,
+-	.input_mapping = sony_mapping,
+-	.probe         = sony_probe,
+-	.remove        = sony_remove,
+-	.report_fixup  = sony_report_fixup,
+-	.raw_event     = sony_raw_event
++	.name             = "sony",
++	.id_table         = sony_devices,
++	.input_mapping    = sony_mapping,
++	.input_configured = sony_input_configured,
++	.probe            = sony_probe,
++	.remove           = sony_remove,
++	.report_fixup     = sony_report_fixup,
++	.raw_event        = sony_raw_event
+ };
+ 
+ static int __init sony_init(void)
 -- 
-Dmitry
+2.1.0
+

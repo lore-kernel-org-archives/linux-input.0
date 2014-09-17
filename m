@@ -1,136 +1,95 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH] hid: sony: Set the DualShock 4 touchpad bits in the input_configured callback
-Date: Wed, 17 Sep 2014 13:23:33 -0400
-Message-ID: <1410974613-2377-1-git-send-email-frank.praznik@oh.rr.com>
+From: Andreas Mohr <andi@lisas.de>
+Subject: Re: [PATCH v2] Input: joystick - Use ktime for measuring timing
+Date: Wed, 17 Sep 2014 21:23:37 +0200
+Message-ID: <20140917192337.GA27319@rhlx01.hs-esslingen.de>
+References: <s5h8ulrzcwy.wl-tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.229]:44548 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755391AbaIQRas (ORCPT
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:54618 "EHLO
+	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756450AbaIQTXk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Sep 2014 13:30:48 -0400
+	Wed, 17 Sep 2014 15:23:40 -0400
+Content-Disposition: inline
+In-Reply-To: <s5h8ulrzcwy.wl-tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Clemens Ladisch <clemens@ladisch.de>, Andreas Mohr <andi@lisas.de>, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Set the DualShock4 touchpad bits in the input_configured callback
-so that they are registered properly for any input devices created
-during hid_hw_start.
+Hi,
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+On Wed, Sep 10, 2014 at 05:57:17PM +0200, Takashi Iwai wrote:
+> The current codes in gameport and analog joystick drivers for the time
+> accounting have a long-standing problem when the system is running
+> with CPU freq; since the timing is measured via TSC or sample counter,
+> the calculation isn't reliable.
 
----
- This fixes the issue with touch axes either not being present or being 
- incorrectly mapped to axis 0 in the joydev device.
+Thank you very much for having followed through on this!
+(somehow you never seem to disappoint me :)
 
- drivers/hid/hid-sony.c | 73 ++++++++++++++++++++++++++++----------------------
- 1 file changed, 41 insertions(+), 32 deletions(-)
+While working on testing this and doing various gameport/soundcard modifications,
+I'm afraid I have seen the following checkpatch.pl (of v3.16) warnings:
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 96a8ec5..41beb48 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1084,6 +1084,38 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
- 
-+static int sony_register_touchpad(struct hid_input *hi, int touch_count,
-+					int w, int h)
+WARNING: Missing a blank line after declarations
+#164: FILE: drivers/input/joystick/analog.c:192:
++               unsigned int x;
++               GET_TIME(x);
+
+WARNING: line over 80 characters
+#224: FILE: drivers/input/joystick/analog.c:301:
++                               port->axes[j] = (delta(start, time[i]) << ANALOG_FUZZ_BITS) / port->loop;
+
+
+BTW the commit as-is will not be compatible with v3.16
+since there's no ktime_get_ns() there yet
+and (to add insult to injury) even the #include header files have changed, too.
+
+That's a bit of a pity since I just had intended to say
+that it's a very good idea
+to release a quick(&dirty) initial timing hotfix for gameport handling
+*prior* to possibly doing any subsequent less-related gameport cleanup commits,
+since the quick initial timing hotfix would be very prominent -stable material,
+except it... ain't so (--> life sucks :-).
+
+So, for -stable reasons it might be very worthwhile
+to add some compat code to the analog.c patch -
+I am currently using the following compat fix (on v3.16):
+
+--- a/drivers/input/joystick/analog.c
++++ b/drivers/input/joystick/analog.c
+@@ -36,7 +36,14 @@
+ #include <linux/gameport.h>
+ #include <linux/jiffies.h>
+ #include <linux/timex.h>
+-#include <linux/timekeeping.h>
++//#include <linux/timekeeping.h>
++#include <linux/hrtimer.h>
++
++static inline u64 ktime_get_ns(void)
 +{
-+	struct input_dev *input_dev = hi->input;
-+	int ret;
-+
-+	ret = input_mt_init_slots(input_dev, touch_count, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
-+
-+	return 0;
++       return ktime_to_ns(ktime_get());
 +}
 +
-+static void sony_input_configured(struct hid_device *hdev,
-+					struct hid_input *hidinput)
-+{
-+	struct sony_sc *sc = hid_get_drvdata(hdev);
-+
-+	/*
-+	 * The Dualshock 4 touchpad supports 2 touches and has a
-+	 * resolution of 1920x940.
-+	 */
-+	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
-+		if (sony_register_touchpad(hidinput, 2, 1920, 940) != 0)
-+			hid_err(sc->hdev,
-+				"Unable to initialize multi-touch slots\n");
-+	}
-+}
-+
- /*
-  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
-  * to "operational".  Without this, the ps3 controller will not report any
-@@ -1656,26 +1688,6 @@ static void sony_battery_remove(struct sony_sc *sc)
- 	sc->battery.name = NULL;
- }
- 
--static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
--					int w, int h)
--{
--	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
--						struct hid_input, list);
--	struct input_dev *input_dev = hidinput->input;
--	int ret;
--
--	ret = input_mt_init_slots(input_dev, touch_count, 0);
--	if (ret < 0) {
--		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
--		return ret;
--	}
--
--	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
--	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
--
--	return 0;
--}
--
- /*
-  * If a controller is plugged in via USB while already connected via Bluetooth
-  * it will show up as two devices. A global list of connected controllers and
-@@ -1925,11 +1937,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 				goto err_stop;
- 			}
- 		}
--		/*
--		 * The Dualshock 4 touchpad supports 2 touches and has a
--		 * resolution of 1920x940.
--		 */
--		ret = sony_register_touchpad(sc, 2, 1920, 940);
-+
- 		if (ret < 0)
- 			goto err_stop;
- 
-@@ -2039,13 +2047,14 @@ static const struct hid_device_id sony_devices[] = {
- MODULE_DEVICE_TABLE(hid, sony_devices);
- 
- static struct hid_driver sony_driver = {
--	.name          = "sony",
--	.id_table      = sony_devices,
--	.input_mapping = sony_mapping,
--	.probe         = sony_probe,
--	.remove        = sony_remove,
--	.report_fixup  = sony_report_fixup,
--	.raw_event     = sony_raw_event
-+	.name             = "sony",
-+	.id_table         = sony_devices,
-+	.input_mapping    = sony_mapping,
-+	.input_configured = sony_input_configured,
-+	.probe            = sony_probe,
-+	.remove           = sony_remove,
-+	.report_fixup     = sony_report_fixup,
-+	.raw_event        = sony_raw_event
- };
- 
- static int __init sony_init(void)
--- 
-2.1.0
 
+
+(which obviously isn't fit for purpose yet
+since you'd need a versioned #include conditional,
+and the name of this function when unconditionally added
+is in direct conflict with the same-name > v3.16 one)
+
+
+So, should that commit be improved
+to have a simple versioning check
+in order to be fully -stable deployable,
+or would -stable be handled differently anyway?
+(I'll now have these updates and checkpatch.pl stuff
+maintained in a FIXUP commit locally)
+
+So much for a quick status update
+(I'll be rebooting into 3.16 now - my last kernel build was as low as 3.11.x even, WOW).
+
+Thanks,
+
+Andreas Mohr

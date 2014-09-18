@@ -1,100 +1,55 @@
-From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: [PATCH v4 5/5] mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
-Date: Thu, 18 Sep 2014 17:18:58 +0200
-Message-ID: <1411053538-17237-6-git-send-email-javier.martinez@collabora.co.uk>
-References: <1411053538-17237-1-git-send-email-javier.martinez@collabora.co.uk>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1411053538-17237-1-git-send-email-javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Gwendal Grignou <gwendal-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: joystick - Use ktime for measuring timing
+Date: Thu, 18 Sep 2014 09:56:42 -0700
+Message-ID: <20140918165642.GA14809@core.coreip.homeip.net>
+References: <s5h8ulrzcwy.wl-tiwai@suse.de>
+ <20140917192337.GA27319@rhlx01.hs-esslingen.de>
+ <s5hmw9x8km7.wl-tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <s5hmw9x8km7.wl-tiwai@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andreas Mohr <andi@lisas.de>, Clemens Ladisch <clemens@ladisch.de>, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+On Thu, Sep 18, 2014 at 09:15:44AM +0200, Takashi Iwai wrote:
+> At Wed, 17 Sep 2014 21:23:37 +0200,
+> Andreas Mohr wrote:
+> > 
+> > Hi,
+> > 
+> > On Wed, Sep 10, 2014 at 05:57:17PM +0200, Takashi Iwai wrote:
+> > > The current codes in gameport and analog joystick drivers for the time
+> > > accounting have a long-standing problem when the system is running
+> > > with CPU freq; since the timing is measured via TSC or sample counter,
+> > > the calculation isn't reliable.
+> > 
+> > Thank you very much for having followed through on this!
+> > (somehow you never seem to disappoint me :)
+> > 
+> > While working on testing this and doing various gameport/soundcard modifications,
+> > I'm afraid I have seen the following checkpatch.pl (of v3.16) warnings:
+> > 
+> > WARNING: Missing a blank line after declarations
+> > #164: FILE: drivers/input/joystick/analog.c:192:
+> > +               unsigned int x;
+> > +               GET_TIME(x);
+> > 
+> > WARNING: line over 80 characters
+> > #224: FILE: drivers/input/joystick/analog.c:301:
+> > +                               port->axes[j] = (delta(start, time[i]) << ANALOG_FUZZ_BITS) / port->loop;
+> 
+> Both are cosmetic and I won't be bothered if it were sent to my tree,
+> for example ;)  It depends on the maintainer, so if Dmitry wants these
+> to be fixed, I'm willing to resubmit, of course.
 
-When an EC command returns EC_RES_IN_PROGRESS, we need to query
-the state of the EC until it indicates that it is no longer busy.
-Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
-commands (e.g. keyboard, I2C passtru) aren't issued to the EC while
-it is working on the in-progress command.
+No, I do not. If there is a large rework we might want to reformat it,
+otherwise let's leave it as is.
 
-The 10 milliseconds delay and the number of retries are the values
-that were used by the flashrom tool when retrying commands.
+Thanks.
 
-Signed-off-by: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Reviewed-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
----
-
-Changes since v3:
- - Fix us time and use raw values instead of a define. Suggested by Lee Jones.
-
-Changes since v2:
- - Explain in the commit message from where the delay and retry values come from.
-   Commented by Andrew Bresticker.
- - Move the needed definitions inside the if block. Suggested by Lee Jones.
- - Only check if result is EC_RES_IN_PROGRESS instead of checking also if ret is
-   -EAGAIN since the former implies the later. Suggested by Lee Jones.
- - Use usleep_range() instead of msleep() since doesn't handle values between 1~20.
-   Suggested by Lee Jones.
-
-Changes since v1:
- - The *xfer() calls don't modify the passed cros_ec_command so there is
-   no need to populate it inside the for loop. Suggested by Lee Jones.
-
- drivers/mfd/cros_ec.c | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
-
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index c53804a..fc0c81e 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -23,6 +23,9 @@
- #include <linux/mfd/core.h>
- #include <linux/mfd/cros_ec.h>
- #include <linux/mfd/cros_ec_commands.h>
-+#include <linux/delay.h>
-+
-+#define EC_COMMAND_RETRIES	50
- 
- int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
- 		       struct cros_ec_command *msg)
-@@ -69,6 +72,36 @@ int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
- 
- 	mutex_lock(&ec_dev->lock);
- 	ret = ec_dev->cmd_xfer(ec_dev, msg);
-+	if (msg->result == EC_RES_IN_PROGRESS) {
-+		int i;
-+		struct cros_ec_command status_msg;
-+		struct ec_response_get_comms_status status;
-+
-+		status_msg.version = 0;
-+		status_msg.command = EC_CMD_GET_COMMS_STATUS;
-+		status_msg.outdata = NULL;
-+		status_msg.outsize = 0;
-+		status_msg.indata = (uint8_t *)&status;
-+		status_msg.insize = sizeof(status);
-+
-+		/*
-+		 * Query the EC's status until it's no longer busy or
-+		 * we encounter an error.
-+		 */
-+		for (i = 0; i < EC_COMMAND_RETRIES; i++) {
-+			usleep_range(10000, 11000);
-+
-+			ret = ec_dev->cmd_xfer(ec_dev, &status_msg);
-+			if (ret < 0)
-+				break;
-+
-+			msg->result = status_msg.result;
-+			if (status_msg.result != EC_RES_SUCCESS)
-+				break;
-+			if (!(status.flags & EC_COMMS_STATUS_PROCESSING))
-+				break;
-+		}
-+	}
- 	mutex_unlock(&ec_dev->lock);
- 
- 	return ret;
 -- 
-2.1.0
+Dmitry

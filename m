@@ -1,42 +1,52 @@
-From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
-Subject: [PATCH 0/2 v2]  Add OF match tables for the ChromeOs EC subdevices
-Date: Fri, 19 Sep 2014 10:08:11 +0200
-Message-ID: <1411114093-3505-1-git-send-email-sjoerd.simons@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.135.160]:41409 "EHLO
-	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750707AbaISIJ5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Sep 2014 04:09:57 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: [PATCH 1/2 v2] i2c: cros-ec-tunnel: Add of match table
+Date: Fri, 19 Sep 2014 10:08:12 +0200
+Message-ID: <1411114093-3505-2-git-send-email-sjoerd.simons@collabora.co.uk>
+References: <1411114093-3505-1-git-send-email-sjoerd.simons@collabora.co.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1411114093-3505-1-git-send-email-sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Doug Anderson <dianders@chromium.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Sjoerd Simons <sjoerd.simons@collabora.co.uk>
 
-[ This is essentially a resend, adding Javiers reviewed-by and fixing some small
-identation issues in the second patch. Also added Wolfgang and Dimitry in the
-to, as i missed them last time ]
+To enable the cros-ec-tunnel driver to be auto-loaded when build as a
+module add an of match table (and export it) to match the modalias
+information passed on to userspace as the Cros EC MFD driver registers
+the MFD subdevices with an of_compatibility string.
 
-The ChromeOS EC MFD driver registers its sub-devices with both a (platform)
-name and an OF compatibility string. As a result of this the modalias passed on
-to user-space will be based on the OF compatibility string. Thus to be able to
-rely on autoloading in case the subdevices are build as modules they need to
-export the necessary module aliases based to match the of information.
-
-The two patches in these series add the requird of match information to the EC
-subdevices
-
-I guess the first patch should through the i2c tree while the second one would
-be for the input tree?
-
-Sjoerd Simons (2):
-  i2c: cros-ec-tunnel: Add of match table
-  input: cros_ec_keyb: Add of match table
+Signed-off-by: Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Reviewed-by: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+---
+ Changes in v2: none
 
  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 9 +++++++++
- drivers/input/keyboard/cros_ec_keyb.c   | 9 +++++++++
- 2 files changed, 18 insertions(+)
+ 1 file changed, 9 insertions(+)
 
+diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+index 05e033c..0403ec1 100644
+--- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
++++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+@@ -310,11 +310,20 @@ static int ec_i2c_remove(struct platform_device *dev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id cros_ec_i2c_of_match[] = {
++	{ .compatible = "google,cros-ec-i2c-tunnel" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, cros_ec_i2c_of_match);
++#endif
++
+ static struct platform_driver ec_i2c_tunnel_driver = {
+ 	.probe = ec_i2c_probe,
+ 	.remove = ec_i2c_remove,
+ 	.driver = {
+ 		.name = "cros-ec-i2c-tunnel",
++		.of_match_table = of_match_ptr(cros_ec_i2c_of_match),
+ 	},
+ };
+ 
 -- 
 2.1.0
-

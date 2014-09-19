@@ -1,140 +1,91 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v2] hid: sony: Set touchpad bits in the input_configured callback
-Date: Thu, 18 Sep 2014 21:15:01 -0400
-Message-ID: <1411089301-1546-1-git-send-email-frank.praznik@oh.rr.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.229]:51871 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751235AbaISBPV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Sep 2014 21:15:21 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Dudley Du <dudlx@outlook.com>
+Subject: [PATCH v7 00/13] input: cyapa: re-architecture driver to support multi-trackpads in one driver
+Date: Fri, 19 Sep 2014 09:46:04 +0800
+Message-ID: <BAY176-DS1CF90ADC5F6847795A5F2BDB40@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: zh-cn
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: bleung@google.com, patrikf@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Set the DualShock4 touchpad bits in the input_configured callback
-so that they are registered properly for any input devices created
-during hid_hw_start.
+V7 patches have below updates compared with v6 patches:
+1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+V6 patches have below updates compared with v5 patches:
+1) Remove patch 14 of the lid filtering from the cyapa driver.
 
----
+V5 patches have below updates compared with v4 patches:
+1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+2) Fix memories freed before debugfs entries issue;
+3) Make cyapa_debugs_root valid in driver module level
+   in module_init()/moudle_exit() ;
+4) Fix i2c_transfer() may return partial transfer issues.
+5) Add cyapa->removed flag to avoid detecting thread may still running
+   when driver module is removed.
+6) Fix the meanings of some comments and return error code not clear issue.
 
- v2: Remove an unnecessary if (ret < 0) goto err_stop; check.
+This patch set is aimed to re-architecture the cyapa driver to support
+old gen3 trackpad device and new gen5 trackpad device in one
+cyapa driver for easily productions support based on
+customers' requirements, and add sysfs functions and interfaces
+supported that required by users and customers.
+Because the earlier gen3 and the latest gen5 trackpad devies using
+two different chipsets, and have different protocol and interfaces.
+If supported these two trackpad devices in two different drivers, then
+it will be difficult to manage productions and later firmware updates.
+it will cause customer don't know which one to use and update
+because these two trackpad devices have been used and integrated
+in same one productions at a time, so must to support these two trackpad
+devices in same on driver.
 
- This fixes the issue with touch axes being incorrectly mapped to axis 0 in
- the corresponding joydev device.
+The new architecture is made of:
+cyapa.c - the core of the architecture, supply interfaces and
+functions to system and read trackpad devices.
+cyapa.h - header file including macros and data structure definitions.
+cyapa_gen3.c - functions support for gen3 trackpad devices,
+cyapa_gen5.c - functions support for gen5 trackpad devices.
 
- drivers/hid/hid-sony.c | 74 +++++++++++++++++++++++++++-----------------------
- 1 file changed, 40 insertions(+), 34 deletions(-)
+Beside this introduction patch, it has 14 patches listed as below.
+For these patches each one is patched based on previous one.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 96a8ec5..5baa311 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1084,6 +1084,38 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
- 
-+static int sony_register_touchpad(struct hid_input *hi, int touch_count,
-+					int w, int h)
-+{
-+	struct input_dev *input_dev = hi->input;
-+	int ret;
-+
-+	ret = input_mt_init_slots(input_dev, touch_count, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
-+
-+	return 0;
-+}
-+
-+static void sony_input_configured(struct hid_device *hdev,
-+					struct hid_input *hidinput)
-+{
-+	struct sony_sc *sc = hid_get_drvdata(hdev);
-+
-+	/*
-+	 * The Dualshock 4 touchpad supports 2 touches and has a
-+	 * resolution of 1920x940.
-+	 */
-+	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
-+		if (sony_register_touchpad(hidinput, 2, 1920, 940) != 0)
-+			hid_err(sc->hdev,
-+				"Unable to initialize multi-touch slots\n");
-+	}
-+}
-+
- /*
-  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
-  * to "operational".  Without this, the ps3 controller will not report any
-@@ -1656,26 +1688,6 @@ static void sony_battery_remove(struct sony_sc *sc)
- 	sc->battery.name = NULL;
- }
- 
--static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
--					int w, int h)
--{
--	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
--						struct hid_input, list);
--	struct input_dev *input_dev = hidinput->input;
--	int ret;
--
--	ret = input_mt_init_slots(input_dev, touch_count, 0);
--	if (ret < 0) {
--		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
--		return ret;
--	}
--
--	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
--	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
--
--	return 0;
--}
--
- /*
-  * If a controller is plugged in via USB while already connected via Bluetooth
-  * it will show up as two devices. A global list of connected controllers and
-@@ -1925,13 +1937,6 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 				goto err_stop;
- 			}
- 		}
--		/*
--		 * The Dualshock 4 touchpad supports 2 touches and has a
--		 * resolution of 1920x940.
--		 */
--		ret = sony_register_touchpad(sc, 2, 1920, 940);
--		if (ret < 0)
--			goto err_stop;
- 
- 		sony_init_work(sc, dualshock4_state_worker);
- 	} else {
-@@ -2039,13 +2044,14 @@ static const struct hid_device_id sony_devices[] = {
- MODULE_DEVICE_TABLE(hid, sony_devices);
- 
- static struct hid_driver sony_driver = {
--	.name          = "sony",
--	.id_table      = sony_devices,
--	.input_mapping = sony_mapping,
--	.probe         = sony_probe,
--	.remove        = sony_remove,
--	.report_fixup  = sony_report_fixup,
--	.raw_event     = sony_raw_event
-+	.name             = "sony",
-+	.id_table         = sony_devices,
-+	.input_mapping    = sony_mapping,
-+	.input_configured = sony_input_configured,
-+	.probe            = sony_probe,
-+	.remove           = sony_remove,
-+	.report_fixup     = sony_report_fixup,
-+	.raw_event        = sony_raw_event
- };
- 
- static int __init sony_init(void)
--- 
-2.1.0
+patch 1/13: re-architecture cyapa driver with core functions,
+and applying the device detecting function in async thread to speed
+up system boot time.
 
+patch 2/13: add cyapa driver power management interfaces support.
+
+patch 3/13: add cyapa driver runtime power management interfaces support.
+
+patch 4/13: add cyapa key function interfaces in sysfs system.
+Including read firmware version, get production ID, read baseline,
+re-calibrate trackpad baselines and do trackpad firmware update.
+
+patch 5/13: add read firmware image and read raw trackpad device'
+sensors' raw data interface in debugfs system.
+
+patch 6/13: add gen3 trackpad device basic functions support.
+
+patch 7/13: add gen3 trackpad device firmware update function support.
+
+patch 8/13: add gen3 trackpad device report baseline and do force
+re-calibrate functions support.
+
+patch 9/13: add gen3 trackpad device read firmware image function support.
+
+patch 10/13: add gen5 trackpad device basic functions support.
+
+patch 11/13: add gen5 trackpad device firmware update function support.
+
+patch 12/13: add gen5 trackpad device report baseline and do force
+re-calibrate functions support.
+
+patch 13/13: add gen5 trackpad device read firmware image and report
+sensors' raw data values functions support.

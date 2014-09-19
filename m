@@ -1,7 +1,7 @@
 From: Dudley Du <dudlx@outlook.com>
-Subject: [PATCH v7 02/13] input: cyapa: add cyapa driver power management interfaces support
-Date: Fri, 19 Sep 2014 09:46:25 +0800
-Message-ID: <BAY176-DS1023C6738AEA89A1BC85DBDB40@phx.gbl>
+Subject: [PATCH v7 05/13] input: cyapa: add read firmware image and raw data interfaces in debugfs system
+Date: Fri, 19 Sep 2014 09:46:49 +0800
+Message-ID: <BAY176-DS1E46A1A154573233FC5AFBDB40@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
@@ -12,125 +12,281 @@ To: dmitry.torokhov@gmail.com, rydberg@euromail.se
 Cc: bleung@google.com, patrikf@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add suspend_scanrate_ms power management interfaces in device's
-power group, so users or applications can control the power management
-strategy of trackpad device as their requirements.
+Add read_fw and raw_data debugfs interfaces for easier issues location
+and collection when report by user.
 TEST=test on Chromebooks.
 
 Signed-off-by: Dudley Du <dudl@cypress.com>
 ---
- drivers/input/mouse/cyapa.c | 85 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 85 insertions(+)
+ drivers/input/mouse/cyapa.c | 221 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 221 insertions(+)
 
 diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index db5e500..249768e 100644
+index dd78e89..5e48309 100644
 --- a/drivers/input/mouse/cyapa.c
 +++ b/drivers/input/mouse/cyapa.c
-@@ -433,6 +433,82 @@ u16 cyapa_pwr_cmd_to_sleep_time(u8 pwr_mode)
- 				   : (encoded_time - 5) * 20;
+@@ -39,6 +39,8 @@
+ 
+ const char unique_str[] = "CYTRA";
+ 
++/* Global root node of the cyapa debugfs directory. */
++static struct dentry *cyapa_debugfs_root;
+ 
+ 
+ ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
+@@ -470,6 +472,205 @@ done:
  }
  
-+#ifdef CONFIG_PM_SLEEP
-+static ssize_t cyapa_show_suspend_scanrate(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
+ /*
++ **************************************************************
++ * debugfs interface
++ **************************************************************
++*/
++static int cyapa_debugfs_open(struct inode *inode, struct file *file)
 +{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	u8 pwr_cmd = cyapa->suspend_power_mode;
-+	u16 sleep_time;
-+	int len;
++	struct cyapa *cyapa = inode->i_private;
++	int ret;
 +
-+	mutex_lock(&cyapa->state_sync_lock);
-+	pwr_cmd = cyapa->suspend_power_mode;
-+	sleep_time = cyapa->suspend_sleep_time;
-+	mutex_unlock(&cyapa->state_sync_lock);
++	if (!cyapa)
++		return -ENODEV;
 +
-+	if (pwr_cmd == PWR_MODE_BTN_ONLY)
-+		len = scnprintf(buf, PAGE_SIZE, "%s\n", BTN_ONLY_MODE_NAME);
-+	else if (pwr_cmd == PWR_MODE_OFF)
-+		len = scnprintf(buf, PAGE_SIZE, "%s\n", OFF_MODE_NAME);
-+	else {
-+		if (cyapa->gen == CYAPA_GEN3)
-+			sleep_time = cyapa_pwr_cmd_to_sleep_time(pwr_cmd);
-+		len = scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
++	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
++	if (ret)
++		return ret;
++
++	if (!get_device(&cyapa->client->dev)) {
++		ret = -ENODEV;
++		goto out;
 +	}
 +
-+	return len;
-+}
++	file->private_data = cyapa;
 +
-+static u16 cyapa_clamp_sleep_time(u16 sleep_time)
-+{
-+	if (sleep_time > 1000)
-+		sleep_time = 1000;
-+	return sleep_time;
-+}
-+
-+static ssize_t cyapa_update_suspend_scanrate(struct device *dev,
-+					     struct device_attribute *attr,
-+					     const char *buf, size_t count)
-+{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	u16 sleep_time;
++	if (cyapa->fw_image) {
++		ret = 0;
++		goto out;
++	}
 +
 +	mutex_lock(&cyapa->state_sync_lock);
-+
-+	if (sysfs_streq(buf, BTN_ONLY_MODE_NAME))
-+		cyapa->suspend_power_mode = PWR_MODE_BTN_ONLY;
-+	else if (sysfs_streq(buf, OFF_MODE_NAME))
-+		cyapa->suspend_power_mode = PWR_MODE_OFF;
-+	else if (!kstrtou16(buf, 10, &sleep_time)) {
-+		cyapa->suspend_sleep_time = cyapa_clamp_sleep_time(sleep_time);
-+		cyapa->suspend_power_mode =
-+			cyapa_sleep_time_to_pwr_cmd(cyapa->suspend_sleep_time);
-+	} else
-+		count = 0;
-+
++	/*
++	 * If firmware hasn't been read yet, read it all in one pass.
++	 * Subsequent opens will reuse the data in this same buffer.
++	 */
++	if (cyapa->ops->read_fw)
++		ret = cyapa->ops->read_fw(cyapa);
++	else
++		ret = -EPERM;
 +	mutex_unlock(&cyapa->state_sync_lock);
-+	if (!count)
-+		dev_err(dev, "invalid suspend scanrate ms parameters\n");
-+	return count ? count : -EINVAL;
++
++	/* Redetect trackpad device states. */
++	cyapa_detect_async(cyapa, 0);
++
++out:
++	mutex_unlock(&cyapa->debugfs_mutex);
++	return ret;
 +}
 +
-+static DEVICE_ATTR(suspend_scanrate_ms, S_IRUGO|S_IWUSR,
-+		   cyapa_show_suspend_scanrate,
-+		   cyapa_update_suspend_scanrate);
++static int cyapa_debugfs_release(struct inode *inode, struct file *file)
++{
++	struct cyapa *cyapa = file->private_data;
++	int ret;
 +
-+static struct attribute *cyapa_power_wakeup_entries[] = {
-+	&dev_attr_suspend_scanrate_ms.attr,
-+	NULL,
++	if (!cyapa)
++		return 0;
++
++	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
++	if (ret)
++		return ret;
++	file->private_data = NULL;
++	put_device(&cyapa->client->dev);
++	mutex_unlock(&cyapa->debugfs_mutex);
++
++	return 0;
++}
++
++/* Return some bytes from the buffered firmware image, starting from *ppos */
++static ssize_t cyapa_debugfs_read_fw(struct file *file, char __user *buffer,
++				     size_t count, loff_t *ppos)
++{
++	struct cyapa *cyapa = file->private_data;
++
++	if (!cyapa->fw_image)
++		return -EINVAL;
++
++	if (*ppos >= cyapa->fw_image_size)
++		return 0;
++
++	if (count + *ppos > cyapa->fw_image_size)
++		count = cyapa->fw_image_size - *ppos;
++
++	if (copy_to_user(buffer, &cyapa->fw_image[*ppos], count))
++		return -EFAULT;
++
++	*ppos += count;
++	return count;
++}
++
++static const struct file_operations cyapa_read_fw_fops = {
++	.open = cyapa_debugfs_open,
++	.release = cyapa_debugfs_release,
++	.read = cyapa_debugfs_read_fw
 +};
 +
-+static const struct attribute_group cyapa_power_wakeup_group = {
-+	.name = power_group_name,
-+	.attrs = cyapa_power_wakeup_entries,
++static int cyapa_debugfs_raw_data_open(struct inode *inode, struct file *file)
++{
++	struct cyapa *cyapa = inode->i_private;
++	int ret;
++
++	if (!cyapa)
++		return -ENODEV;
++
++	/* Start to be supported after Gen5 trackpad devices. */
++	if (cyapa->gen < CYAPA_GEN5)
++		return -ENOTSUPP;
++
++	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
++	if (ret)
++		return ret;
++
++	if (!get_device(&cyapa->client->dev)) {
++		ret = -ENODEV;
++		goto out;
++	}
++
++	file->private_data = cyapa;
++
++	mutex_lock(&cyapa->state_sync_lock);
++	if (cyapa->ops->read_raw_data)
++		ret = cyapa->ops->read_raw_data(cyapa);
++	else
++		ret = -EPERM;
++	mutex_unlock(&cyapa->state_sync_lock);
++out:
++	mutex_unlock(&cyapa->debugfs_mutex);
++	return ret;
++}
++
++static int cyapa_debugfs_raw_data_release(struct inode *inode,
++				struct file *file)
++{
++	struct cyapa *cyapa = file->private_data;
++	int ret;
++
++	if (!cyapa)
++		return 0;
++
++	ret = mutex_lock_interruptible(&cyapa->debugfs_mutex);
++	if (ret)
++		return ret;
++	file->private_data = NULL;
++	put_device(&cyapa->client->dev);
++	mutex_unlock(&cyapa->debugfs_mutex);
++
++	return 0;
++}
++
++/* Always return the sensors' latest raw data from trackpad device. */
++static ssize_t cyapa_debugfs_read_raw_data(struct file *file,
++				     char __user *buffer,
++				     size_t count, loff_t *ppos)
++{
++	struct cyapa *cyapa = file->private_data;
++
++	if (!cyapa->tp_raw_data)
++		return -EINVAL;
++
++	if (*ppos >= cyapa->tp_raw_data_size)
++		return 0;
++
++	if (count + *ppos > cyapa->tp_raw_data_size)
++		count = cyapa->tp_raw_data_size - *ppos;
++
++	if (copy_to_user(buffer, &cyapa->tp_raw_data[*ppos], count))
++		return -EFAULT;
++
++	*ppos += count;
++	return count;
++}
++
++static const struct file_operations cyapa_read_raw_data_fops = {
++	.open = cyapa_debugfs_raw_data_open,
++	.release = cyapa_debugfs_raw_data_release,
++	.read = cyapa_debugfs_read_raw_data
 +};
-+#endif /* CONFIG_PM_SLEEP */
 +
- void cyapa_detect_async(void *data, async_cookie_t cookie)
- {
- 	struct cyapa *cyapa = (struct cyapa *)data;
-@@ -527,6 +603,12 @@ static int cyapa_probe(struct i2c_client *client,
- 		goto err_uninit_tp_modules;
- 	}
- 
-+#ifdef CONFIG_PM_SLEEP
-+	if (device_can_wakeup(dev) &&
-+	    sysfs_merge_group(&client->dev.kobj, &cyapa_power_wakeup_group))
-+		dev_warn(dev, "error creating wakeup power entries.\n");
-+#endif /* CONFIG_PM_SLEEP */
++static int cyapa_debugfs_init(struct cyapa *cyapa)
++{
++	struct device *dev = &cyapa->client->dev;
 +
- 	async_schedule(cyapa_detect_and_start, cyapa);
- 	return 0;
++	if (!cyapa_debugfs_root)
++		return -ENODEV;
++
++	cyapa->dentry_dev = debugfs_create_dir(kobject_name(&dev->kobj),
++					       cyapa_debugfs_root);
++
++	if (!cyapa->dentry_dev)
++		return -ENODEV;
++
++	mutex_init(&cyapa->debugfs_mutex);
++
++	debugfs_create_file(CYAPA_DEBUGFS_READ_FW, S_IRUSR, cyapa->dentry_dev,
++			    cyapa, &cyapa_read_fw_fops);
++
++	debugfs_create_file(CYAPA_DEBUGFS_RAW_DATA, S_IRUSR, cyapa->dentry_dev,
++			    cyapa, &cyapa_read_raw_data_fops);
++	return 0;
++}
++
++/*
+  * Sysfs Interface.
+  */
  
-@@ -549,6 +631,9 @@ static int cyapa_remove(struct i2c_client *client)
- 	cyapa->removed = true;
- 	mutex_unlock(&cyapa->state_sync_lock);
+@@ -887,6 +1088,9 @@ static int cyapa_probe(struct i2c_client *client,
+ 	if (sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group))
+ 		dev_warn(dev, "error creating sysfs entries.\n");
  
-+#ifdef CONFIG_PM_SLEEP
-+	sysfs_unmerge_group(&client->dev.kobj, &cyapa_power_wakeup_group);
-+#endif
++	if (cyapa_debugfs_init(cyapa))
++		dev_warn(dev, "error creating debugfs entries.\n");
++
+ #ifdef CONFIG_PM_SLEEP
+ 	if (device_can_wakeup(dev) &&
+ 	    sysfs_merge_group(&client->dev.kobj, &cyapa_power_wakeup_group))
+@@ -928,6 +1132,16 @@ static int cyapa_remove(struct i2c_client *client)
+ 
  	free_irq(cyapa->irq, cyapa);
  
++	debugfs_remove_recursive(cyapa->dentry_dev);
++	mutex_destroy(&cyapa->debugfs_mutex);
++
++	kfree(cyapa->fw_image);
++	cyapa->fw_image = NULL;
++	cyapa->fw_image_size = 0;
++	kfree(cyapa->tp_raw_data);
++	cyapa->tp_raw_data = NULL;
++	cyapa->tp_raw_data_size = 0;
++
  	input_unregister_device(cyapa->input);
+ 	if (cyapa->ops->set_power_mode)
+ 		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
+@@ -1064,6 +1278,11 @@ static int __init cyapa_init(void)
+ {
+ 	int ret;
+ 
++	/* Create a global debugfs root for all cyapa devices */
++	cyapa_debugfs_root = debugfs_create_dir("cyapa", NULL);
++	if (cyapa_debugfs_root == ERR_PTR(-ENODEV))
++		cyapa_debugfs_root = NULL;
++
+ 	ret = i2c_add_driver(&cyapa_driver);
+ 	if (ret) {
+ 		pr_err("cyapa driver register FAILED.\n");
+@@ -1075,6 +1294,8 @@ static int __init cyapa_init(void)
+ 
+ static void __exit cyapa_exit(void)
+ {
++	debugfs_remove_recursive(cyapa_debugfs_root);
++
+ 	i2c_del_driver(&cyapa_driver);
+ }
+ 
 -- 
 1.9.1

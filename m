@@ -1,62 +1,30 @@
-From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH] input: clps711x-keypad: Remove cond_resched() call
-Date: Fri, 19 Sep 2014 12:29:06 +0400
-Message-ID: <1411115346-22034-1-git-send-email-shc_work@mail.ru>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback4.mail.ru ([94.100.181.169]:43031 "EHLO
-	fallback4.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754082AbaISIoQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Sep 2014 04:44:16 -0400
-Received: from smtp53.i.mail.ru (smtp53.i.mail.ru [94.100.177.113])
-	by fallback4.mail.ru (mPOP.Fallback_MX) with ESMTP id 31DE033150B
-	for <linux-input@vger.kernel.org>; Fri, 19 Sep 2014 12:29:31 +0400 (MSK)
-Sender: linux-input-owner@vger.kernel.org
+From: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/3] cap1106: add support for cap11xx variants
+Date: Sat, 20 Sep 2014 20:01:06 -0700
+Message-ID: <1411268469-21283-1-git-send-email-mranostay@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, zonque-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
 
-cond_resched() is not works as expected for clps711x-keypad driver
-and cause runtime error.
-This patch replaces this call with udelay().
+These patches enable using cap11xx devices that have different
+number of capacitance channels, and using active-high on the
+interrupt output.
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
----
- drivers/input/keyboard/clps711x-keypad.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Matt Ranostay (3):
+  cap1106: Add support for various cap11xx devices
+  cap1106: support for active-high interrupt option
+  dt: cap1106 active-high property addition
 
-diff --git a/drivers/input/keyboard/clps711x-keypad.c b/drivers/input/keyboard/clps711x-keypad.c
-index 552b65c..650205d 100644
---- a/drivers/input/keyboard/clps711x-keypad.c
-+++ b/drivers/input/keyboard/clps711x-keypad.c
-@@ -9,13 +9,13 @@
-  * (at your option) any later version.
-  */
- 
-+#include <linux/delay.h>
- #include <linux/input.h>
- #include <linux/input-polldev.h>
- #include <linux/module.h>
- #include <linux/of_gpio.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
--#include <linux/sched.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/mfd/syscon.h>
- #include <linux/mfd/syscon/clps711x.h>
-@@ -54,9 +54,9 @@ static void clps711x_keypad_poll(struct input_polled_dev *dev)
- 
- 			/* Read twice for protection against fluctuations */
- 			do {
--				state = gpiod_get_value_cansleep(data->desc);
--				cond_resched();
--				state1 = gpiod_get_value_cansleep(data->desc);
-+				state = gpiod_get_value(data->desc);
-+				udelay(5);
-+				state1 = gpiod_get_value(data->desc);
- 			} while (state != state1);
- 
- 			if (test_bit(col, data->last_state) != state) {
+ .../devicetree/bindings/input/cap1106.txt          |  4 ++
+ drivers/input/keyboard/cap1106.c                   | 58 ++++++++++++----------
+ 2 files changed, 35 insertions(+), 27 deletions(-)
+
 -- 
-1.8.5.5
+1.9.1
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

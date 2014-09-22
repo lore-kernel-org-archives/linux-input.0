@@ -1,59 +1,65 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: input: Finish TransducerSerialNumber implementation
-Date: Mon, 22 Sep 2014 09:58:50 -0700
-Message-ID: <1411405130-1663-1-git-send-email-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] soc_button_array: fix the issue that button device can't
+ be enumerated since 3.16-rc1
+Date: Mon, 22 Sep 2014 10:36:30 -0700
+Message-ID: <20140922173630.GA22421@core.coreip.homeip.net>
+References: <1404309504.8366.93.camel@rzhang1-toshiba>
+ <1404309713.8366.94.camel@rzhang1-toshiba>
+ <2556427.cdnVoQoSXY@vostro.rjw.lan>
+ <20140709165732.GD10364@core.coreip.homeip.net>
+ <1406702719.10148.3.camel@rzhang1-toshiba>
+ <1411350272.1280.51.camel@rzhang1-toshiba>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:41485 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754519AbaIVQ64 (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:57290 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753879AbaIVRgg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Sep 2014 12:58:56 -0400
-Received: by mail-pa0-f49.google.com with SMTP id lf10so4925199pab.36
-        for <linux-input@vger.kernel.org>; Mon, 22 Sep 2014 09:58:56 -0700 (PDT)
+	Mon, 22 Sep 2014 13:36:36 -0400
+Received: by mail-pd0-f172.google.com with SMTP id y10so4789524pdj.17
+        for <linux-input@vger.kernel.org>; Mon, 22 Sep 2014 10:36:35 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1411350272.1280.51.camel@rzhang1-toshiba>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, benjamin.tissoires@redhat.com, pinglinux@gmail.com
-Cc: Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Zhang Rui <rui.zhang@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, yao.jin@intel.com, linux-input <linux-input@vger.kernel.org>
 
-The commit which introduced TransducerSerialNumber (368c966) is missing
-two crucial implementation details. Firstly, the commit does not set the
-type/code/bit/max fields as expected later down the code which can cause
-the driver to crash when a tablet with this usage is connected. Secondly,
-the code to send a MSC_SERIAL event to userspace when this usage is seen
-in a report is nowhere to be found. This commit addresses both issues.
+On Mon, Sep 22, 2014 at 09:44:32AM +0800, Zhang Rui wrote:
+> Hi, Dmitry,
+> 
+> On Wed, 2014-07-30 at 14:45 +0800, Zhang Rui wrote:
+> > Hi, Dmitry,
+> > 
+> > On Wed, 2014-07-09 at 09:57 -0700, Dmitry Torokhov wrote:
+> > > On Tue, Jul 08, 2014 at 10:50:04PM +0200, Rafael J. Wysocki wrote:
+> > > > On Wednesday, July 02, 2014 10:01:53 PM Zhang Rui wrote:
+> > > > > From c2ee1886ba230d9d93d2ea2f350b1dc1a2d5ead5 Mon Sep 17 00:00:00 2001
+> > > > > From: Jin Yao <yao.jin@linux.intel.com>
+> > > > > Date: Thu, 26 Jun 2014 10:26:44 +0800
+> > > > > Subject: [PATCH] soc_button_array: fix the issue that button device can't be
+> > > > >  enumerated since 3.16-rc1
+> > > > 
+> > > > Hi Rui,
+> > > > 
+> > > > For 3.16 I'm afraid we need to add the missing device ID to the PNP list.
+> > > > It is too late to do the conversion at this point IMO and we can do it later.
+> > > 
+> > > But for 3.17 this patch is the right way of doing things, right?
+> > 
+> > This is the patch we should use for 3.17.
+> > Compared with the previous version, I just removed the soc_button_array id
+> > from acpi pnp id list, which was added in 3.16-rc5, as an urgent fix.
+> > 
+> > Please review.
+> > 
+> Can you please take a look at this patch?
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/hid-input.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Ah, yes, it looks good. I think it's OK to hold it for 3.18 though,
+right?
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 2619f7f..abed624 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -690,6 +690,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 
- 		case 0x5b: /* TransducerSerialNumber */
- 			set_bit(MSC_SERIAL, input->mscbit);
-+			usage->type = EV_MSC;
-+			usage->code = MSC_SERIAL;
-+			bit = input->mscbit;
-+			max = MSC_MAX;
- 			break;
- 
- 		default:  goto unknown;
-@@ -1041,6 +1045,11 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 		input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
- 	}
- 
-+	if (usage->hid == (HID_UP_DIGITIZER | 0x005b)) { /* TransducerSerialNumber */
-+		input_event(input, EV_MSC, MSC_SERIAL, value);
-+		return;
-+	}
-+
- 	if (usage->hid == (HID_UP_PID | 0x83UL)) { /* Simultaneous Effects Max */
- 		dbg_hid("Maximum Effects - %d\n",value);
- 		return;
+Thanks.
+
 -- 
-2.1.0
-
+Dmitry

@@ -1,69 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: HID: wacom: regression - system freezes when resuming from S3 suspend
-Date: Mon, 22 Sep 2014 11:52:12 -0400
-Message-ID: <CAN+gG=EfKHqo2++ejxJMqDxpOnav5qiVRJMRjXoDOrbWQVMnBQ@mail.gmail.com>
-References: <542039C1.1000605@in.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: input: Finish TransducerSerialNumber implementation
+Date: Mon, 22 Sep 2014 09:58:50 -0700
+Message-ID: <1411405130-1663-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f179.google.com ([209.85.216.179]:60595 "EHLO
-	mail-qc0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753588AbaIVPwM (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:41485 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754519AbaIVQ64 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Sep 2014 11:52:12 -0400
-Received: by mail-qc0-f179.google.com with SMTP id r5so273677qcx.24
-        for <linux-input@vger.kernel.org>; Mon, 22 Sep 2014 08:52:12 -0700 (PDT)
-In-Reply-To: <542039C1.1000605@in.tum.de>
+	Mon, 22 Sep 2014 12:58:56 -0400
+Received: by mail-pa0-f49.google.com with SMTP id lf10so4925199pab.36
+        for <linux-input@vger.kernel.org>; Mon, 22 Sep 2014 09:58:56 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonas Jelten <jelten@in.tum.de>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org, jkosina@suse.cz, benjamin.tissoires@redhat.com, pinglinux@gmail.com
+Cc: Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mon, Sep 22, 2014 at 11:01 AM, Jonas Jelten <jelten@in.tum.de> wrote:
-> Hi!
->
-> I encountered that my system freezes when resuming my Lenovo X220t with
-> integrated Wacom ISDv4 tablet from S3 suspend.
->
-> Currently running 3.17.0-rc6, I started to bisect and found that this
-> commit causes the issue:
->
-> commit 29b4739134c73a2873adec93346f09bb76d6a794
-> Author: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Date:   Thu Jul 24 12:52:23 2014 -0700
->
->     Input: wacom - switch from an USB driver to a HID driver
->
->
-> Running 3.17.0-rc6, right after boot, this shows up in the log:
->
-> [   25.843484] wacom 0003:056A:00E6.0001: usb_submit_urb(ctrl) failed: -1
-> [   25.843531] wacom 0003:056A:00E6.0001: timeout initializing reports
-> [   25.843886] wacom 0003:056A:00E6.0001: hidraw0: USB HID v1.11 Device
-> [Tablet ISD-V4] on usb-0000:00:1d.0-1.5/input0
-> [   25.846036] input: Wacom ISDv4 E6 Finger as
-> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5:1.1/0003:056A:00E6.0002/input/input18
->
-> When suspending, the screen goes off and about 8 seconds later, the
-> machine actually suspends.
->
-> Right after the (instant) resume, I can see the frame buffer I had when
-> suspending (X screen) for about 10 seconds. During that time, no sysrq
-> works. After this short period, the tty1-framebuffer appears, with
-> messed up linebreaks (no carriage returns occur any more), and the
-> capslock-led starts blinking. Sysrq keys still don't work. The system is
-> completely frozen.
->
-> Running the kernel from the bisected first good commit, the suspend is
-> faster (under 1 second) and the resume does not crash.
->
-> I just saw the "HID: wacom: fix timeout on probe for some wacoms" mail,
-> which probably has to do something with my problem.
->
-> Any ideas?
+The commit which introduced TransducerSerialNumber (368c966) is missing
+two crucial implementation details. Firstly, the commit does not set the
+type/code/bit/max fields as expected later down the code which can cause
+the driver to crash when a tablet with this usage is connected. Secondly,
+the code to send a MSC_SERIAL event to userspace when this usage is seen
+in a report is nowhere to be found. This commit addresses both issues.
 
-Yes, this commit will fix your problem. It has just been delayed for
-3.17.1 as mentioned by Jiri today.
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/hid-input.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Cheers,
-Benjamin
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 2619f7f..abed624 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -690,6 +690,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 
+ 		case 0x5b: /* TransducerSerialNumber */
+ 			set_bit(MSC_SERIAL, input->mscbit);
++			usage->type = EV_MSC;
++			usage->code = MSC_SERIAL;
++			bit = input->mscbit;
++			max = MSC_MAX;
+ 			break;
+ 
+ 		default:  goto unknown;
+@@ -1041,6 +1045,11 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 		input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
+ 	}
+ 
++	if (usage->hid == (HID_UP_DIGITIZER | 0x005b)) { /* TransducerSerialNumber */
++		input_event(input, EV_MSC, MSC_SERIAL, value);
++		return;
++	}
++
+ 	if (usage->hid == (HID_UP_PID | 0x83UL)) { /* Simultaneous Effects Max */
+ 		dbg_hid("Maximum Effects - %d\n",value);
+ 		return;
+-- 
+2.1.0
+

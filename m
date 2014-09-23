@@ -1,79 +1,75 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: How to indicate hover touch when exact distance unknown?
-Date: Tue, 23 Sep 2014 10:59:16 -0400
-Message-ID: <20140923145916.GA3110@mail.corp.redhat.com>
-References: <CAG_cf+dJfiqW_V1k4MfGMBNUK9Kgc4=9BPAuum7dbs6rkmAgrQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: input: Finish TransducerSerialNumber implementation
+Date: Tue, 23 Sep 2014 11:12:24 -0400
+Message-ID: <20140923151224.GB3110@mail.corp.redhat.com>
+References: <1411405130-1663-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:22934 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:4269 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753901AbaIWO7v (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Sep 2014 10:59:51 -0400
+	id S1752593AbaIWPMd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Sep 2014 11:12:33 -0400
 Content-Disposition: inline
-In-Reply-To: <CAG_cf+dJfiqW_V1k4MfGMBNUK9Kgc4=9BPAuum7dbs6rkmAgrQ@mail.gmail.com>
+In-Reply-To: <1411405130-1663-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Cc: hdegoede@redhat.com, rydberg@euromail.se, jikos@jikos.cz, David Herrmann <dh.herrmann@gmail.com>, peter.hutterer@who-t.net, dmitry.torokhov@gmail.com, Linux Input <linux-input@vger.kernel.org>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, pinglinux@gmail.com, Jason Gerecke <jason.gerecke@wacom.com>
 
-Hi Andrew,
+Hi Jason,
 
-On Sep 23 2014 or thereabouts, Andrew de los Reyes wrote:
-> Hi folks,
+On Sep 22 2014 or thereabouts, Jason Gerecke wrote:
+> The commit which introduced TransducerSerialNumber (368c966) is missing
+> two crucial implementation details. Firstly, the commit does not set the
+> type/code/bit/max fields as expected later down the code which can cause
+> the driver to crash when a tablet with this usage is connected. Secondly,
+> the code to send a MSC_SERIAL event to userspace when this usage is seen
+> in a report is nowhere to be found. This commit addresses both issues.
 > 
-> More and more we're seeing touch input devices that support detection of
-> fingers that are above the surface and not touching. We were thinking of
-> writing a kernel patch for one such device. Normally we would indicate
-> distance with ABS_MT_DISTANCE, but we ran into the problem that sometimes
-> the hardware will not be able to report a distance (or will stop reporting
-> a distance when it's too great a number), and we had the (bad) idea to
-> simply report a value or 1 or 255 or something like that when distance is
-> unknown.
-
-FWIW, hid-multitouch already support those devices.
-ABS_MT_DISTANCE is set with a min/max of 0/1 when we detect win8
-certified panels with hovering capability. By default the spec does not
-provide the distance IIRC, and you only have one byte: InRange.
-
-I think Xorg can deal with that (the touch emulation discards the
-ABS_MT_DISTANCE, but the xorg-evdev driver should be smart enough to not
-take BTN_TOUCH into account).
-
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> ---
+>  drivers/hid/hid-input.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 > 
-> Dmitry warned that a similar thing happened with PRESSURE a while ago, and
-> it was a mess as different drivers did different things.
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 2619f7f..abed624 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -690,6 +690,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  
+>  		case 0x5b: /* TransducerSerialNumber */
+>  			set_bit(MSC_SERIAL, input->mscbit);
+> +			usage->type = EV_MSC;
+> +			usage->code = MSC_SERIAL;
+> +			bit = input->mscbit;
+> +			max = MSC_MAX;
+>  			break;
+>  
+>  		default:  goto unknown;
+> @@ -1041,6 +1045,11 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+>  		input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
+>  	}
+>  
+> +	if (usage->hid == (HID_UP_DIGITIZER | 0x005b)) { /* TransducerSerialNumber */
+> +		input_event(input, EV_MSC, MSC_SERIAL, value);
+> +		return;
+> +	}
+> +
 
-As I said, IIRC, xorg-evdev is fine with that. For generic desktop, we
-have to make sure libinput is aware, and then you only have to handle
-your own xorg chromebook driver. This is not something which scares me
-that much, especially given that this is what hid-multitouch reports
-since the v3.9 kernel.
-libinput is based on a per slot device information, so it is really easy
-to implement if it is not already in place. xorg-Synaptics and xorg-Wacom
-should not be ported to wayland from what I understood, so the mess with
-several implementations can be solved easily.
+Are you sure that the generic call to 
+"input_event(input, usage->type, usage->code, value);" in the end of
+hidinput_hid_event() is not sufficient enough?
 
-> 
-> We are now wondering if we should come up with a standard way to indicate
-> hover with or without distance (or with distance being optional). Dmitry
-> had the idea for a new tool type, HOVER; FINGER would be for touches that
-> are actually touching.
-
-The tool is still the finger. So I am not very happy with having a new
-tool. In the end, it may also disturb older clients which will not know
-what to do with HOVER.
-And the ABS_MT_DISTANCE approach used to be fully retro-compatible
-(assuming that the hovering distance is small enough for the user not to
-detect it).
-
-> 
-> What do folks here think?
-> 
-
-I made my point. Unfortunately, I never had in my hand such device, so
-I can not guarantee this approach is the best.
+As long as the usage/code are set in the hid_usage struct, you should be
+fine.
 
 Cheers,
 Benjamin
 
+>  	if (usage->hid == (HID_UP_PID | 0x83UL)) { /* Simultaneous Effects Max */
+>  		dbg_hid("Maximum Effects - %d\n",value);
+>  		return;
+> -- 
+> 2.1.0
+> 

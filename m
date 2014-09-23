@@ -1,170 +1,64 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: [PATCH v2 1/2] cap1106: Add support for various cap11xx devices
-Date: Mon, 22 Sep 2014 21:04:16 -0700
-Message-ID: <1411445057-30048-2-git-send-email-mranostay@gmail.com>
-References: <1411445057-30048-1-git-send-email-mranostay@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1411445057-30048-1-git-send-email-mranostay@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: galak@codeaurora.org, dmitry.torokhov@gmail.com, zonque@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org
-Cc: devicetree@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
+From: Daniel Mack <daniel@zonque.org>
+Subject: Re: [PATCH v2 1/2] cap1106: Add support for various cap11xx devices
+Date: Tue, 23 Sep 2014 08:46:34 +0200
+Message-ID: <5421174A.7060101@zonque.org>
+References: <1411445057-30048-1-git-send-email-mranostay@gmail.com> <1411445057-30048-2-git-send-email-mranostay@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from svenfoo.org ([82.94.215.22]:44406 "EHLO mail.zonque.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751833AbaIWGqh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Sep 2014 02:46:37 -0400
+In-Reply-To: <1411445057-30048-2-git-send-email-mranostay@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Matt Ranostay <mranostay@gmail.com>, galak@codeaurora.org, dmitry.torokhov@gmail.com, zonque@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org
+Cc: devicetree@vger.kernel.org
 
-Several other variants of the cap11xx device exists with a varying
-number of capacitance detection channels. Add support for creating
-the channels dynamically.
+On 09/23/2014 06:04 AM, Matt Ranostay wrote:
+> diff --git a/drivers/input/keyboard/cap1106.c b/drivers/input/keyboard/cap1106.c
+> index d70b65a..07f9e88 100644
+> --- a/drivers/input/keyboard/cap1106.c
+> +++ b/drivers/input/keyboard/cap1106.c
+> @@ -55,8 +55,6 @@
+>  #define CAP1106_REG_MANUFACTURER_ID	0xfe
+>  #define CAP1106_REG_REVISION		0xff
+>  
+> -#define CAP1106_NUM_CHN 6
+> -#define CAP1106_PRODUCT_ID	0x55
+>  #define CAP1106_MANUFACTURER_ID	0x5d
+>  
+>  struct cap1106_priv {
+> @@ -64,7 +62,25 @@ struct cap1106_priv {
+>  	struct input_dev *idev;
+>  
+>  	/* config */
+> -	unsigned short keycodes[CAP1106_NUM_CHN];
+> +	u32 *keycodes;
+> +	unsigned int num_channels;
+> +};
+> +
+> +struct cap11xx_hw_model {
+> +	uint8_t product_id;
+> +	unsigned int num_channels;
+> +};
+> +
+> +enum {
+> +	CAP1106,
+> +	CAP1126,
+> +	CAP1188,
+> +};
+> +
+> +struct cap11xx_hw_model cap11xx_devices[] = {
 
-Signed-off-by: Matt Ranostay <mranostay@gmail.com>
----
- drivers/input/keyboard/cap1106.c | 64 +++++++++++++++++++++++++++-------------
- 1 file changed, 44 insertions(+), 20 deletions(-)
+This can be static const.
 
-diff --git a/drivers/input/keyboard/cap1106.c b/drivers/input/keyboard/cap1106.c
-index d70b65a..07f9e88 100644
---- a/drivers/input/keyboard/cap1106.c
-+++ b/drivers/input/keyboard/cap1106.c
-@@ -55,8 +55,6 @@
- #define CAP1106_REG_MANUFACTURER_ID	0xfe
- #define CAP1106_REG_REVISION		0xff
- 
--#define CAP1106_NUM_CHN 6
--#define CAP1106_PRODUCT_ID	0x55
- #define CAP1106_MANUFACTURER_ID	0x5d
- 
- struct cap1106_priv {
-@@ -64,7 +62,25 @@ struct cap1106_priv {
- 	struct input_dev *idev;
- 
- 	/* config */
--	unsigned short keycodes[CAP1106_NUM_CHN];
-+	u32 *keycodes;
-+	unsigned int num_channels;
-+};
-+
-+struct cap11xx_hw_model {
-+	uint8_t product_id;
-+	unsigned int num_channels;
-+};
-+
-+enum {
-+	CAP1106,
-+	CAP1126,
-+	CAP1188,
-+};
-+
-+struct cap11xx_hw_model cap11xx_devices[] = {
-+	[CAP1106] = { .product_id = 0x55, .num_channels = 6 },
-+	[CAP1126] = { .product_id = 0x53, .num_channels = 6 },
-+	[CAP1188] = { .product_id = 0x50, .num_channels = 8 },
- };
- 
- static const struct reg_default cap1106_reg_defaults[] = {
-@@ -151,7 +167,7 @@ static irqreturn_t cap1106_thread_func(int irq_num, void *data)
- 	if (ret < 0)
- 		goto out;
- 
--	for (i = 0; i < CAP1106_NUM_CHN; i++)
-+	for (i = 0; i < priv->num_channels; i++)
- 		input_report_key(priv->idev, priv->keycodes[i],
- 				 status & (1 << i));
- 
-@@ -188,14 +204,23 @@ static int cap1106_i2c_probe(struct i2c_client *i2c_client,
- 	struct device *dev = &i2c_client->dev;
- 	struct cap1106_priv *priv;
- 	struct device_node *node;
-+	struct cap11xx_hw_model *cap = &cap11xx_devices[id->driver_data];
- 	int i, error, irq, gain = 0;
- 	unsigned int val, rev;
--	u32 gain32, keycodes[CAP1106_NUM_CHN];
-+	u32 gain32;
- 
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
-+	BUG_ON(!cap->num_channels);
-+
-+	priv->num_channels = cap->num_channels;
-+	priv->keycodes = devm_kcalloc(dev,
-+		priv->num_channels, sizeof(u32), GFP_KERNEL);
-+	if (!priv->keycodes)
-+		return -ENOMEM;
-+
- 	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap1106_regmap_config);
- 	if (IS_ERR(priv->regmap))
- 		return PTR_ERR(priv->regmap);
-@@ -204,9 +229,9 @@ static int cap1106_i2c_probe(struct i2c_client *i2c_client,
- 	if (error)
- 		return error;
- 
--	if (val != CAP1106_PRODUCT_ID) {
-+	if (val != cap->product_id) {
- 		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
--			val, CAP1106_PRODUCT_ID);
-+			val, cap->product_id);
- 		return -ENODEV;
- 	}
- 
-@@ -235,17 +260,12 @@ static int cap1106_i2c_probe(struct i2c_client *i2c_client,
- 			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
- 	}
- 
--	BUILD_BUG_ON(ARRAY_SIZE(keycodes) != ARRAY_SIZE(priv->keycodes));
--
- 	/* Provide some useful defaults */
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		keycodes[i] = KEY_A + i;
-+	for (i = 0; i < priv->num_channels; i++)
-+		priv->keycodes[i] = KEY_A + i;
- 
- 	of_property_read_u32_array(node, "linux,keycodes",
--				   keycodes, ARRAY_SIZE(keycodes));
--
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		priv->keycodes[i] = keycodes[i];
-+		priv->keycodes, priv->num_channels);
- 
- 	error = regmap_update_bits(priv->regmap, CAP1106_REG_MAIN_CONTROL,
- 				   CAP1106_REG_MAIN_CONTROL_GAIN_MASK,
-@@ -269,17 +289,17 @@ static int cap1106_i2c_probe(struct i2c_client *i2c_client,
- 	if (of_property_read_bool(node, "autorepeat"))
- 		__set_bit(EV_REP, priv->idev->evbit);
- 
--	for (i = 0; i < CAP1106_NUM_CHN; i++)
-+	for (i = 0; i < priv->num_channels; i++)
- 		__set_bit(priv->keycodes[i], priv->idev->keybit);
- 
- 	__clear_bit(KEY_RESERVED, priv->idev->keybit);
- 
- 	priv->idev->keycode = priv->keycodes;
--	priv->idev->keycodesize = sizeof(priv->keycodes[0]);
--	priv->idev->keycodemax = ARRAY_SIZE(priv->keycodes);
-+	priv->idev->keycodesize = sizeof(u32);
-+	priv->idev->keycodemax = priv->num_channels;
- 
- 	priv->idev->id.vendor = CAP1106_MANUFACTURER_ID;
--	priv->idev->id.product = CAP1106_PRODUCT_ID;
-+	priv->idev->id.product = cap->product_id;
- 	priv->idev->id.version = rev;
- 
- 	priv->idev->open = cap1106_input_open;
-@@ -313,12 +333,16 @@ static int cap1106_i2c_probe(struct i2c_client *i2c_client,
- 
- static const struct of_device_id cap1106_dt_ids[] = {
- 	{ .compatible = "microchip,cap1106", },
-+	{ .compatible = "microchip,cap1126", },
-+	{ .compatible = "microchip,cap1188", },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, cap1106_dt_ids);
- 
- static const struct i2c_device_id cap1106_i2c_ids[] = {
--	{ "cap1106", 0 },
-+	{ "cap1106", CAP1106 },
-+	{ "cap1126", CAP1126 },
-+	{ "cap1188", CAP1188 },
- 	{}
- };
- MODULE_DEVICE_TABLE(i2c, cap1106_i2c_ids);
--- 
-1.9.1
+And, as I said, there should be a 3rd patch that renames the file and
+its functions, structs, defines etc to the more generic "11xx" variants.
+
+
+Thanks,
+Daniel
+

@@ -1,46 +1,61 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH] input/serio/i8042-x86ia64io.h: Fix Asus X450LCP touchpad detection
-Date: Tue, 23 Sep 2014 12:24:33 -0300
-Message-ID: <1411485873-4245-1-git-send-email-marcos.souza.org@gmail.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Tom Gundersen <teg@jklm.no>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, stable@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/5] HID: wacom: introduce generic HID handling
+Date: Tue, 23 Sep 2014 12:08:04 -0400
+Message-ID: <1411488489-10625-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37878 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932144AbaIWQIR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Sep 2014 12:08:17 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, killertofu@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Hi guys,
 
-Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Tom Gundersen <teg@jklm.no>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org
-Cc: stable@vger.kernel.org
----
- drivers/input/serio/i8042-x86ia64io.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+So, this patch series aims at supporting natively any future HID compliant wacom
+tablet. Those found on the various laptops (ISDv4/5) already are HID compliant
+and they should work in the future without any modification of the kernel.
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 136b7b20..ec6cb72 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -465,6 +465,15 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv4 Notebook PC"),
- 		},
- 	},
-+	{
-+		/* Asus X450LCP */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "X450LCP"),
-+		},
-+	},
-+
-+
- 	{ }
- };
- 
+Few things to note here:
+- I used the PID 0x00E6 found on the Lenovo X230 for the tests
+- I did not removed its entry in the list because there is a slightly different
+  behavior while using this patch set: when more than two fingers are on the
+  screen, the tablet stops sending finger events, while with the wacom
+  proprietary bits, it continues to send them. Besides that, the events emitted
+  before and after the patch series are the same (at least on the E6)
+- I can not rely on hid-input directly because wacom wants to be in control of
+  the input devices it creates. This might be solved in the future, but for now
+  it is just easier to rewrite the few mapping/events handling than trying to
+  fit in the hid-input model.
+- there will still be more specific use cases to handle later (see the joke of
+  the MS surface 3 pen[1] for instance), but this should give a roughly working
+  pen/touch support for those future devices.
+
+Jason, I would be very glad if you could conduct a few tests for this on the
+ISDv4/5 sensors you have.
+
+Cheers,
+Benjamin
+
+[1] http://who-t.blogspot.com/2014/09/stylus-behaviour-on-microsoft-surface-3.html
+
+Benjamin Tissoires (5):
+  HID: wacom: rename failN with some meaningful information
+  HID: wacom: split out input allocation and registration
+  HID: wacom: move allocation of inputs earlier
+  HID: wacom: implement generic HID handling for pen generic devices
+  HID: wacom: implement the finger part of the HID generic handling
+
+ drivers/hid/hid-core.c  |   3 +
+ drivers/hid/wacom.h     |   6 +
+ drivers/hid/wacom_sys.c | 184 +++++++++++++++++++++--------
+ drivers/hid/wacom_wac.c | 299 ++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/wacom_wac.h |  17 +++
+ include/linux/hid.h     |   2 +
+ 6 files changed, 462 insertions(+), 49 deletions(-)
+
 -- 
-1.9.3
+2.1.0
+

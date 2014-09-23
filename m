@@ -1,104 +1,74 @@
-From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Subject: Re: How to indicate hover touch when exact distance unknown?
-Date: Tue, 23 Sep 2014 09:46:43 -0700
-Message-ID: <CAG_cf+fuugk4QK_1BtWnJWzunWT4QeSus_2cuPpYH_8UCUjMOQ@mail.gmail.com>
-References: <CAG_cf+dJfiqW_V1k4MfGMBNUK9Kgc4=9BPAuum7dbs6rkmAgrQ@mail.gmail.com>
- <20140923145916.GA3110@mail.corp.redhat.com> <20140923162811.GB40700@core.coreip.homeip.net>
+From: Jason Gerecke <Jason.Gerecke@wacom.com>
+Subject: RE: [PATCH] HID: input: Finish TransducerSerialNumber implementation
+Date: Tue, 23 Sep 2014 17:59:33 +0000
+Message-ID: <6B3C86448604A642A31AAD3F8C07EA7724F0B8CD@Exchange1.wacom.com>
+References: <1411405130-1663-1-git-send-email-killertofu@gmail.com>
+ <20140923151224.GB3110@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f41.google.com ([209.85.213.41]:63748 "EHLO
-	mail-yh0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755502AbaIWQrF (ORCPT
+Received: from exprod5og110.obsmtp.com ([64.18.0.20]:38125 "HELO
+	exprod5og110.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1755777AbaIWSFH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Sep 2014 12:47:05 -0400
-Received: by mail-yh0-f41.google.com with SMTP id b6so2857728yha.14
-        for <linux-input@vger.kernel.org>; Tue, 23 Sep 2014 09:47:03 -0700 (PDT)
-In-Reply-To: <20140923162811.GB40700@core.coreip.homeip.net>
+	Tue, 23 Sep 2014 14:05:07 -0400
+In-Reply-To: <20140923151224.GB3110@mail.corp.redhat.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, hdegoede@redhat.com, rydberg@euromail.se, jikos@jikos.cz, David Herrmann <dh.herrmann@gmail.com>, peter.hutterer@who-t.net, Linux Input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jkosina@suse.cz" <jkosina@suse.cz>, "pinglinux@gmail.com" <pinglinux@gmail.com>
 
-On Tue, Sep 23, 2014 at 9:28 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Benjamin,
->
-> On Tue, Sep 23, 2014 at 10:59:16AM -0400, Benjamin Tissoires wrote:
->> Hi Andrew,
->>
->> On Sep 23 2014 or thereabouts, Andrew de los Reyes wrote:
->> > Hi folks,
->> >
->> > More and more we're seeing touch input devices that support detection of
->> > fingers that are above the surface and not touching. We were thinking of
->> > writing a kernel patch for one such device. Normally we would indicate
->> > distance with ABS_MT_DISTANCE, but we ran into the problem that sometimes
->> > the hardware will not be able to report a distance (or will stop reporting
->> > a distance when it's too great a number), and we had the (bad) idea to
->> > simply report a value or 1 or 255 or something like that when distance is
->> > unknown.
->>
->> FWIW, hid-multitouch already support those devices.
->> ABS_MT_DISTANCE is set with a min/max of 0/1 when we detect win8
->> certified panels with hovering capability. By default the spec does not
->> provide the distance IIRC, and you only have one byte: InRange.
->
-> Hmm, I missed that and this is unfortunate. The ABS capabilities
-> advertised by the devices should match their real capabilities. If
-> device can't properly report distance it should not be using
-> ABS_MT_DISTANCE/ABS_DISTANCE...
->
->>
->> I think Xorg can deal with that (the touch emulation discards the
->> ABS_MT_DISTANCE, but the xorg-evdev driver should be smart enough to not
->> take BTN_TOUCH into account).
->>
->> >
->> > Dmitry warned that a similar thing happened with PRESSURE a while ago, and
->> > it was a mess as different drivers did different things.
->>
->> As I said, IIRC, xorg-evdev is fine with that. For generic desktop, we
->> have to make sure libinput is aware, and then you only have to handle
->> your own xorg chromebook driver. This is not something which scares me
->> that much, especially given that this is what hid-multitouch reports
->> since the v3.9 kernel.
->> libinput is based on a per slot device information, so it is really easy
->> to implement if it is not already in place. xorg-Synaptics and xorg-Wacom
->> should not be ported to wayland from what I understood, so the mess with
->> several implementations can be solved easily.
->>
->> >
->> > We are now wondering if we should come up with a standard way to indicate
->> > hover with or without distance (or with distance being optional). Dmitry
->> > had the idea for a new tool type, HOVER; FINGER would be for touches that
->> > are actually touching.
->>
->> The tool is still the finger.
->
-> Do we reliably know that it is a finger and not a pen or eraser or some
-> other tool? If we do then obviously introducing new tool will not fly.
-
-On a capacitive sensor, I think we do know, at least for finger vs
-active stylus. To be fair, I do not spend much time working with
-styluses, so I may not have the most info.
-
->
->> So I am not very happy with having a new
->> tool. In the end, it may also disturb older clients which will not know
->> what to do with HOVER.
->> And the ABS_MT_DISTANCE approach used to be fully retro-compatible
->> (assuming that the hovering distance is small enough for the user not to
->> detect it).
->
-> Except that if we start getting devices that can actually tell the
-> distance we'd need special casing 0/1 handling, no?
->
-> Thanks.
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMg
+W21haWx0bzpiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbV0NCj4gU2VudDogVHVlc2RheSwg
+U2VwdGVtYmVyIDIzLCAyMDE0IDg6MTIgQU0NCj4gVG86IEphc29uIEdlcmVja2UNCj4gQ2M6IGxp
+bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgamtvc2luYUBzdXNlLmN6OyBwaW5nbGludXhAZ21h
+aWwuY29tOw0KPiBKYXNvbiBHZXJlY2tlDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIEhJRDogaW5w
+dXQ6IEZpbmlzaCBUcmFuc2R1Y2VyU2VyaWFsTnVtYmVyDQo+IGltcGxlbWVudGF0aW9uDQo+IA0K
+PiBIaSBKYXNvbiwNCj4gDQo+IE9uIFNlcCAyMiAyMDE0IG9yIHRoZXJlYWJvdXRzLCBKYXNvbiBH
+ZXJlY2tlIHdyb3RlOg0KPiA+IFRoZSBjb21taXQgd2hpY2ggaW50cm9kdWNlZCBUcmFuc2R1Y2Vy
+U2VyaWFsTnVtYmVyICgzNjhjOTY2KSBpcw0KPiA+IG1pc3NpbmcgdHdvIGNydWNpYWwgaW1wbGVt
+ZW50YXRpb24gZGV0YWlscy4gRmlyc3RseSwgdGhlIGNvbW1pdCBkb2VzDQo+ID4gbm90IHNldCB0
+aGUgdHlwZS9jb2RlL2JpdC9tYXggZmllbGRzIGFzIGV4cGVjdGVkIGxhdGVyIGRvd24gdGhlIGNv
+ZGUNCj4gPiB3aGljaCBjYW4gY2F1c2UgdGhlIGRyaXZlciB0byBjcmFzaCB3aGVuIGEgdGFibGV0
+IHdpdGggdGhpcyB1c2FnZSBpcw0KPiA+IGNvbm5lY3RlZC4gU2Vjb25kbHksIHRoZSBjb2RlIHRv
+IHNlbmQgYSBNU0NfU0VSSUFMIGV2ZW50IHRvIHVzZXJzcGFjZQ0KPiA+IHdoZW4gdGhpcyB1c2Fn
+ZSBpcyBzZWVuIGluIGEgcmVwb3J0IGlzIG5vd2hlcmUgdG8gYmUgZm91bmQuIFRoaXMgY29tbWl0
+DQo+IGFkZHJlc3NlcyBib3RoIGlzc3Vlcy4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEphc29u
+IEdlcmVja2UgPGphc29uLmdlcmVja2VAd2Fjb20uY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJz
+L2hpZC9oaWQtaW5wdXQuYyB8IDkgKysrKysrKysrDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCA5IGlu
+c2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtaW5wdXQu
+YyBiL2RyaXZlcnMvaGlkL2hpZC1pbnB1dC5jIGluZGV4DQo+ID4gMjYxOWY3Zi4uYWJlZDYyNCAx
+MDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2hpZC9oaWQtaW5wdXQuYw0KPiA+ICsrKyBiL2RyaXZl
+cnMvaGlkL2hpZC1pbnB1dC5jDQo+ID4gQEAgLTY5MCw2ICs2OTAsMTAgQEAgc3RhdGljIHZvaWQg
+aGlkaW5wdXRfY29uZmlndXJlX3VzYWdlKHN0cnVjdA0KPiA+IGhpZF9pbnB1dCAqaGlkaW5wdXQs
+IHN0cnVjdCBoaWRfZmllbA0KPiA+DQo+ID4gIAkJY2FzZSAweDViOiAvKiBUcmFuc2R1Y2VyU2Vy
+aWFsTnVtYmVyICovDQo+ID4gIAkJCXNldF9iaXQoTVNDX1NFUklBTCwgaW5wdXQtPm1zY2JpdCk7
+DQo+ID4gKwkJCXVzYWdlLT50eXBlID0gRVZfTVNDOw0KPiA+ICsJCQl1c2FnZS0+Y29kZSA9IE1T
+Q19TRVJJQUw7DQo+ID4gKwkJCWJpdCA9IGlucHV0LT5tc2NiaXQ7DQo+ID4gKwkJCW1heCA9IE1T
+Q19NQVg7DQo+ID4gIAkJCWJyZWFrOw0KPiA+DQo+ID4gIAkJZGVmYXVsdDogIGdvdG8gdW5rbm93
+bjsNCj4gPiBAQCAtMTA0MSw2ICsxMDQ1LDExIEBAIHZvaWQgaGlkaW5wdXRfaGlkX2V2ZW50KHN0
+cnVjdCBoaWRfZGV2aWNlICpoaWQsDQo+IHN0cnVjdCBoaWRfZmllbGQgKmZpZWxkLCBzdHJ1Y3QN
+Cj4gPiAgCQlpbnB1dF9ldmVudChpbnB1dCwgRVZfS0VZLCBCVE5fVE9VQ0gsIHZhbHVlID4gYSAr
+ICgoYiAtIGEpDQo+ID4+IDMpKTsNCj4gPiAgCX0NCj4gPg0KPiA+ICsJaWYgKHVzYWdlLT5oaWQg
+PT0gKEhJRF9VUF9ESUdJVElaRVIgfCAweDAwNWIpKSB7IC8qDQo+IFRyYW5zZHVjZXJTZXJpYWxO
+dW1iZXIgKi8NCj4gPiArCQlpbnB1dF9ldmVudChpbnB1dCwgRVZfTVNDLCBNU0NfU0VSSUFMLCB2
+YWx1ZSk7DQo+ID4gKwkJcmV0dXJuOw0KPiA+ICsJfQ0KPiA+ICsNCj4gDQo+IEFyZSB5b3Ugc3Vy
+ZSB0aGF0IHRoZSBnZW5lcmljIGNhbGwgdG8NCj4gImlucHV0X2V2ZW50KGlucHV0LCB1c2FnZS0+
+dHlwZSwgdXNhZ2UtPmNvZGUsIHZhbHVlKTsiIGluIHRoZSBlbmQgb2YNCj4gaGlkaW5wdXRfaGlk
+X2V2ZW50KCkgaXMgbm90IHN1ZmZpY2llbnQgZW5vdWdoPw0KPiANCj4gQXMgbG9uZyBhcyB0aGUg
+dXNhZ2UvY29kZSBhcmUgc2V0IGluIHRoZSBoaWRfdXNhZ2Ugc3RydWN0LCB5b3Ugc2hvdWxkIGJl
+IGZpbmUuDQo+IA0KPiBDaGVlcnMsDQo+IEJlbmphbWluDQo+IA0KDQpIbW1tLi4uIFRoaXMgbWln
+aHQgYmUgYW4gaXNzdWUgd2l0aCB0aGUgSElEIGRlc2NyaXB0b3IsIGFjdHVhbGx5LiBJdCBsb29r
+cyBsaWtlIG15IGhhcmR3YXJlIGRvZXNuJ3Qgc2V0IHRoZSBsb2dpY2FsIG1pbmltdW0gYW5kIG1h
+eGltdW0gZm9yIHRoZSBmaWVsZCwgc28gdGhlIChxdWl0ZSBvdXQtb2YtcmFuZ2UpIHZhbHVlIGlz
+IGlnbm9yZWQuIEkgc3RhcnQgc2VlaW5nIGRhdGEgYWZ0ZXIgcGF0Y2hpbmcgdGhlIGRlc2NyaXB0
+b3IgdG8gYWRkIHRoZXNlIGluLCBidXQgdGhlIGNvZGUgaXMgc2V0IHRvIE1TQ19QVUxTRUxFRCBp
+bnN0ZWFkIG9mIE1TQ19TRVJJQUwuIEkgc3VzcGVjdCB0aGF0IHRoZSBleGlzdGluZyBjYWxsIHRv
+ICdzZXRfYml0JyBpbiB0aGUgVHJhbnNkdWNlclNlcmlhbE51bWJlciBjYXNlIGlzIHRvIGJsYW1l
+ICh3aGljaCBtYWtlcyBpdCBhY3QgbGlrZSAnbWFwX2ZvbycgaW5zdGVhZCBvZiAnbWFwX2Zvb19j
+bGVhcicpLg0KDQpVcGRhdGVkIHBhdGNoIGZvcnRoY29taW5nLi4uDQoNCkphc29uDQoNCj4gPiAg
+CWlmICh1c2FnZS0+aGlkID09IChISURfVVBfUElEIHwgMHg4M1VMKSkgeyAvKiBTaW11bHRhbmVv
+dXMgRWZmZWN0cw0KPiBNYXggKi8NCj4gPiAgCQlkYmdfaGlkKCJNYXhpbXVtIEVmZmVjdHMgLSAl
+ZFxuIix2YWx1ZSk7DQo+ID4gIAkJcmV0dXJuOw0KPiA+IC0tDQo+ID4gMi4xLjANCj4gPg0K

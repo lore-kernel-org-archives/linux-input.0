@@ -1,296 +1,91 @@
-From: Yoichi Yuasa <yuasa@linux-mips.org>
-Subject: [PATCH v3 2/2] input: bu21023_ts: Add calibration function
-Date: Thu, 25 Sep 2014 00:19:16 +0900
-Message-ID: <20140925001916.c78535ec293e354c27e5f9fa@linux-mips.org>
-References: <20140925001647.dd48571a3c0ceda5c25ab669@linux-mips.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: HID: wacom: regression - system freezes when resuming from S3 suspend
+Date: Wed, 24 Sep 2014 15:27:12 -0400
+Message-ID: <CAN+gG=HqiV1omKjhUEV22sWO8DVjiTY0t04qxmO7YtE540RsOw@mail.gmail.com>
+References: <542039C1.1000605@in.tum.de>
+	<CAN+gG=EfKHqo2++ejxJMqDxpOnav5qiVRJMRjXoDOrbWQVMnBQ@mail.gmail.com>
+	<54221EFF.2060501@in.tum.de>
+	<alpine.LNX.2.00.1409241032490.32397@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo-sg1500.iij4u.or.jp ([210.130.239.5]:40626 "EHLO
-	mo-sg.iij4u.or.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753001AbaIXPUp (ORCPT
+Received: from mail-qa0-f53.google.com ([209.85.216.53]:34402 "EHLO
+	mail-qa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753693AbaIXT1N (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Sep 2014 11:20:45 -0400
-In-Reply-To: <20140925001647.dd48571a3c0ceda5c25ab669@linux-mips.org>
+	Wed, 24 Sep 2014 15:27:13 -0400
+Received: by mail-qa0-f53.google.com with SMTP id cm18so3611870qab.12
+        for <linux-input@vger.kernel.org>; Wed, 24 Sep 2014 12:27:13 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1409241032490.32397@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: yuasa@linux-mips.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jonas Jelten <jelten@in.tum.de>, linux-input <linux-input@vger.kernel.org>
 
-Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
----
- drivers/input/touchscreen/rohm_bu21023.c |  250 ++++++++++++++++++++++++++++++
- 1 file changed, 250 insertions(+)
+On Wed, Sep 24, 2014 at 4:34 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 24 Sep 2014, Jonas Jelten wrote:
+>
+>> >> I encountered that my system freezes when resuming my Lenovo X220t with
+>> >> integrated Wacom ISDv4 tablet from S3 suspend.
+>> >>
+>> >> Currently running 3.17.0-rc6, I started to bisect and found that this
+>> >> commit causes the issue:
+>> >>
+>> >> commit 29b4739134c73a2873adec93346f09bb76d6a794
+>> >> Author: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> >> Date:   Thu Jul 24 12:52:23 2014 -0700
+>> >>
+>> >>     Input: wacom - switch from an USB driver to a HID driver
+>> >>
+>> >>
+>> >> Running 3.17.0-rc6, right after boot, this shows up in the log:
+>> >>
+>> >> [   25.843484] wacom 0003:056A:00E6.0001: usb_submit_urb(ctrl) failed: -1
+>> >> [   25.843531] wacom 0003:056A:00E6.0001: timeout initializing reports
+>> >> [   25.843886] wacom 0003:056A:00E6.0001: hidraw0: USB HID v1.11 Device
+>> >> [Tablet ISD-V4] on usb-0000:00:1d.0-1.5/input0
+>> >> [   25.846036] input: Wacom ISDv4 E6 Finger as
+>> >> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.5/2-1.5:1.1/0003:056A:00E6.0002/input/input18
+>> >>
+>> >> When suspending, the screen goes off and about 8 seconds later, the
+>> >> machine actually suspends.
+>> >>
+>> >> Right after the (instant) resume, I can see the frame buffer I had when
+>> >> suspending (X screen) for about 10 seconds. During that time, no sysrq
+>> >> works. After this short period, the tty1-framebuffer appears, with
+>> >> messed up linebreaks (no carriage returns occur any more), and the
+>> >> capslock-led starts blinking. Sysrq keys still don't work. The system is
+>> >> completely frozen.
+>> >>
+>> >> Running the kernel from the bisected first good commit, the suspend is
+>> >> faster (under 1 second) and the resume does not crash.
+>> >>
+>> >> I just saw the "HID: wacom: fix timeout on probe for some wacoms" mail,
+>> >> which probably has to do something with my problem.
+>> >>
+>> >> Any ideas?
+>> >
+>> > Yes, this commit will fix your problem. It has just been delayed for
+>> > 3.17.1 as mentioned by Jiri today.
+>>
+>> Are you sure it's a good idea to let the kernel crash into 3.17.0 and
+>> fix it later in stable? I suspect many X220t users could be affected.
+>
+> Okay, my initial understanding was that this is just about the 10s delay.
+> How exactly does it crash on resume, and do we have any idea why it
+> crashes, and why "HID: wacom: fix timeout on probe for some wacoms" fixes
+> it?
+>
 
-diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
-index a35a914..de6717f 100644
---- a/drivers/input/touchscreen/rohm_bu21023.c
-+++ b/drivers/input/touchscreen/rohm_bu21023.c
-@@ -72,6 +72,251 @@ static inline int rohm_i2c_burst_read(struct i2c_adapter *adap,
- 	return ret;
- }
- 
-+static int rohm_ts_manual_calibration(struct rohm_ts_data *ts)
-+{
-+	struct i2c_client *client = ts->client;
-+	struct device *dev = &client->dev;
-+	struct i2c_msg msg[2];
-+	u8 buf[33];
-+	u8 addr_buf;		/* burst read start address */
-+
-+	int retry;
-+	bool success = false;
-+	bool first_time = true;
-+	bool calibration_done;
-+
-+	u8 reg1, reg2, reg3;
-+	s32 reg1_orig, reg2_orig, reg3_orig;
-+	s32 val;
-+
-+	int calib_x = 0, calib_y = 0;
-+	int reg_x, reg_y;
-+	int err_x, err_y;
-+
-+	int err = 0, ret;
-+	int i;
-+
-+	addr_buf = PRM1_X_H;
-+	msg[0].addr = client->addr;
-+	msg[0].flags = 0;
-+	msg[0].len = 1;
-+	msg[0].buf = &addr_buf;
-+
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].len = sizeof(buf);
-+	msg[1].buf = buf;
-+
-+#define READ_CALIB_BUF(reg)	((u16)buf[((reg) - PRM1_X_H)])
-+
-+	reg1_orig = i2c_smbus_read_byte_data(client, CALIBRATION_REG1);
-+	if (reg1_orig < 0)
-+		return reg1_orig;
-+
-+	reg2_orig = i2c_smbus_read_byte_data(client, CALIBRATION_REG2);
-+	if (reg2_orig < 0)
-+		return reg2_orig;
-+
-+	reg3_orig = i2c_smbus_read_byte_data(client, CALIBRATION_REG3);
-+	if (reg3_orig < 0)
-+		return reg3_orig;
-+
-+	ret = i2c_smbus_write_byte_data(client, INT_MASK,
-+					COORD_UPDATE | SLEEP_IN | SLEEP_OUT |
-+					PROGRAM_LOAD_DONE);
-+	if (ret) {
-+		err = ret;
-+		goto err_exit;
-+	}
-+
-+	ret = i2c_smbus_write_byte_data(client, TEST1, DUALTOUCH_STABILIZE_ON);
-+	if (ret) {
-+		err = ret;
-+		goto err_exit;
-+	}
-+
-+	for (retry = 0; retry < CALIBRATION_RETRY_MAX; retry++) {
-+		/* wait 2 sampling for update */
-+		mdelay(2 * SAMPLING_DELAY);
-+
-+		ret = rohm_i2c_burst_read(client->adapter, msg, 2);
-+		if (ret < 0) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		if (READ_CALIB_BUF(TOUCH) & TOUCH_DETECT)
-+			continue;
-+
-+		if (first_time) {
-+			/* generate calibration parameter */
-+			calib_x =
-+			    (READ_CALIB_BUF(PRM1_X_H) << 2 |
-+			     READ_CALIB_BUF(PRM1_X_L)) - AXIS_OFFSET;
-+			calib_y =
-+			    (READ_CALIB_BUF(PRM1_Y_H) << 2 |
-+			     READ_CALIB_BUF(PRM1_Y_L)) - AXIS_OFFSET;
-+
-+			ret = i2c_smbus_write_byte_data(client, TEST1,
-+							DUALTOUCH_STABILIZE_ON |
-+							DUALTOUCH_REG_ON);
-+			if (ret) {
-+				err = ret;
-+				goto err_exit;
-+			}
-+
-+			first_time = false;
-+		} else {
-+			/* generate adjustment parameter */
-+			err_x = READ_CALIB_BUF(PRM1_X_H) << 2 |
-+			    READ_CALIB_BUF(PRM1_X_L);
-+			err_y = READ_CALIB_BUF(PRM1_Y_H) << 2 |
-+			    READ_CALIB_BUF(PRM1_Y_L);
-+
-+			/* X axis ajust */
-+			if (err_x <= 4)
-+				calib_x -= AXIS_ADJUST;
-+			else if (err_x >= 60)
-+				calib_x += AXIS_ADJUST;
-+
-+			/* Y axis ajust */
-+			if (err_y <= 4)
-+				calib_y -= AXIS_ADJUST;
-+			else if (err_y >= 60)
-+				calib_y += AXIS_ADJUST;
-+		}
-+
-+		/* generate calibration setting value */
-+		reg_x = calib_x + ((calib_x & 0x200) << 1);
-+		reg_y = calib_y + ((calib_y & 0x200) << 1);
-+
-+		/* convert for register format */
-+		reg1 = reg_x >> 3;
-+		reg2 = (reg_y & 0x7) << 4 | (reg_x & 0x7);
-+		reg3 = reg_y >> 3;
-+
-+		ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG1, reg1);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG2, reg2);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG3, reg3);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		/*
-+		 * force calibration sequcence
-+		 */
-+		ret = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
-+						FORCE_CALIBRATION_OFF);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		ret = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
-+						FORCE_CALIBRATION_ON);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		/* clear all interrupts */
-+		ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		/*
-+		 * Wait for the status change of calibration, max 10 sampling
-+		 */
-+		calibration_done = false;
-+
-+		for (i = 0; i < 10; i++) {
-+			mdelay(SAMPLING_DELAY);
-+
-+			val = i2c_smbus_read_byte_data(client, TOUCH_GESTURE);
-+			if (!(val & CALIBRATION_MASK)) {
-+				calibration_done = true;
-+				break;
-+			} else if (val < 0) {
-+				err = val;
-+				goto err_exit;
-+			}
-+		}
-+
-+		if (calibration_done) {
-+			val = i2c_smbus_read_byte_data(client, INT_STATUS);
-+			if (val == CALIBRATION_DONE) {
-+				success = true;
-+				break;
-+			} else if (val < 0) {
-+				err = val;
-+				goto err_exit;
-+			}
-+		} else
-+			dev_warn(dev, "Calibration timeout\n");
-+	}
-+
-+	if (!success) {
-+		ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG1,
-+						reg1_orig);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG2,
-+						reg2_orig);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG3,
-+						reg3_orig);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		/* calibration data enable */
-+		ret = i2c_smbus_write_byte_data(client, TEST1,
-+						DUALTOUCH_STABILIZE_ON |
-+						DUALTOUCH_REG_ON);
-+		if (ret) {
-+			err = ret;
-+			goto err_exit;
-+		}
-+
-+		/* wait 10 sampling */
-+		mdelay(10 * SAMPLING_DELAY);
-+
-+		err = -EBUSY;
-+	}
-+
-+err_exit:
-+	ret = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
-+	if (!ret)
-+		/* Clear all interrupts */
-+		ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
-+
-+	if (!err && ret)
-+		err = ret;
-+
-+	return err;
-+}
-+
- static unsigned long inactive_polling_interval[2] = { 1, 0 };
- static unsigned long active_polling_interval[2] = { 0, 10000000 };
- 
-@@ -228,6 +473,11 @@ static irqreturn_t rohm_ts_soft_irq(int irq, void *dev_id)
- 	input_mt_report_pointer_emulation(input_dev, true);
- 	input_sync(input_dev);
- 
-+	if (READ_POS_BUF(TOUCH_GESTURE) & CALIBRATION_REQUEST) {
-+		if (rohm_ts_manual_calibration(ts) < 0)
-+			dev_warn(dev, "Failed to manual calibration\n");
-+	}
-+
- 	i2c_smbus_write_byte_data(client, INT_MASK,
- 				  CALIBRATION_DONE | SLEEP_OUT | SLEEP_IN |
- 				  PROGRAM_LOAD_DONE);
--- 
-1.7.9.5
+I am not sure (I can not see how actually) that there is a kernel oops
+on resume (what you intend by "crash").
+However, if the system disable/enable the USB ports both on suspend &
+resume (this is where I do not understand), the hid core layer will
+try to get the current report states from the device. The device does
+not answer, so this adds the delay on both suspend and resume, which
+can be quite annoying.
 
+It's just a ugly lock with a 5-8 sec timeouts, not an actual crash.
+
+Cheers,
+Benjamin

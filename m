@@ -1,522 +1,1014 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH v2] Input: driver for the Goodix touchpanel
-Date: Wed, 24 Sep 2014 16:43:58 +0200
-Message-ID: <1411569838.29315.22.camel@hadess.net>
+From: Yoichi Yuasa <yuasa@linux-mips.org>
+Subject: [PATCH v3 1/2] input: Add ROHM BU21023/24 Dual touch support
+ resistive touchscreens
+Date: Thu, 25 Sep 2014 00:18:03 +0900
+Message-ID: <20140925001803.170862999d9216b431a6eb70@linux-mips.org>
+References: <20140925001647.dd48571a3c0ceda5c25ab669@linux-mips.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:52622 "EHLO
-	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750767AbaIXOow (ORCPT
+Received: from mo-sg1501.iij4u.or.jp ([210.130.239.6]:40081 "EHLO
+	mo-sg.iij4u.or.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753001AbaIXPUi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Sep 2014 10:44:52 -0400
+	Wed, 24 Sep 2014 11:20:38 -0400
+In-Reply-To: <20140925001647.dd48571a3c0ceda5c25ab669@linux-mips.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: yuasa@linux-mips.org, linux-input@vger.kernel.org
 
-Add a driver for the Goodix touchscreen panel found in Onda v975w
-tablets. The driver is based off the Android driver gt9xx.c found
-in some Android code dumps, but now bears no resemblance to the original
-driver.
-
-The driver was tested on the aforementioned tablet.
-
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Tested-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
 ---
- MAINTAINERS                        |   6 +
- drivers/input/touchscreen/Kconfig  |  13 ++
- drivers/input/touchscreen/Makefile |   1 +
- drivers/input/touchscreen/goodix.c | 423 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 443 insertions(+)
- create mode 100644 drivers/input/touchscreen/goodix.c
+ drivers/input/touchscreen/Kconfig        |   11 +
+ drivers/input/touchscreen/Makefile       |    1 +
+ drivers/input/touchscreen/rohm_bu21023.c |  680 ++++++++++++++++++++++++++++++
+ drivers/input/touchscreen/rohm_bu21023.h |  258 ++++++++++++
+ 4 files changed, 950 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 670b3dc..7a37464 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4057,6 +4057,12 @@ L:	linux-media@vger.kernel.org
- S:	Maintained
- F:	drivers/media/usb/go7007/
- 
-+GOODIX TOUCHSCREEN
-+M:	Bastien Nocera <hadess@hadess.net>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/input/touchscreen/goodix.c
-+
- GPIO SUBSYSTEM
- M:	Linus Walleij <linus.walleij@linaro.org>
- M:	Alexandre Courbot <gnurou@gmail.com>
 diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 6bb9a7d..c328df3 100644
+index 6bb9a7d..9ae5c88 100644
 --- a/drivers/input/touchscreen/Kconfig
 +++ b/drivers/input/touchscreen/Kconfig
-@@ -283,6 +283,19 @@ config TOUCHSCREEN_FUJITSU
+@@ -950,4 +950,15 @@ config TOUCHSCREEN_ZFORCE
  	  To compile this driver as a module, choose M here: the
- 	  module will be called fujitsu-ts.
+ 	  module will be called zforce_ts.
  
-+config TOUCHSCREEN_GOODIX
-+	tristate "Goodix I2C touchscreen"
-+	depends on I2C && ACPI
++config TOUCHSCREEN_ROHM_BU21023
++	tristate "ROHM BU21023/24 Dual touch support resistive touchscreens"
++	depends on I2C
 +	help
-+	  Say Y here if you have the Goodix touchscreen (such as one
-+	  installed in Onda v975w tablets) connected to your
-+	  system.
++	  Say Y here if you have a touchscreen using ROHM BU21023/24.
 +
 +	  If unsure, say N.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called goodix.
++	  module will be called bu21023_ts.
 +
- config TOUCHSCREEN_ILI210X
- 	tristate "Ilitek ILI210X based touchscreen"
- 	depends on I2C
+ endif
 diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 4be94fc..55af212 100644
+index 4be94fc..af766d0 100644
 --- a/drivers/input/touchscreen/Makefile
 +++ b/drivers/input/touchscreen/Makefile
-@@ -33,6 +33,7 @@ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
- obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
- obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
- obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
- obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
- obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
- obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+@@ -52,6 +52,7 @@ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
++obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
 new file mode 100644
-index 0000000..fd02b5e
+index 0000000..a35a914
 --- /dev/null
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -0,0 +1,423 @@
++++ b/drivers/input/touchscreen/rohm_bu21023.c
+@@ -0,0 +1,680 @@
 +/*
-+ *  driver for Goodix Touchscreens
++ * ROHM BU21023/24 Dual touch support resistive touch screen driver
++ * Copyright (C) 2012 ROHM CO.,LTD.
 + *
-+ *  Copyright (c) 2014 Red Hat Inc.
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
 + *
-+ *  This code is based on gt9xx.c authored by andrew@goodix.com:
-+ *
-+ *  2010 - 2012 Goodix Technology.
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
 + */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; version 2 of the License.
-+ */
-+
-+#include <linux/kernel.h>
++#include <linux/delay.h>
++#include <linux/firmware.h>
++#include <linux/hrtimer.h>
 +#include <linux/i2c.h>
 +#include <linux/input.h>
 +#include <linux/input/mt.h>
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/irq.h>
 +#include <linux/interrupt.h>
++#include <linux/module.h>
 +#include <linux/slab.h>
-+#include <asm/unaligned.h>
 +
-+struct goodix_ts_data {
++#include "rohm_bu21023.h"
++
++struct rohm_ts_data {
 +	struct i2c_client *client;
 +	struct input_dev *input_dev;
-+	int abs_x_max;
-+	int abs_y_max;
-+	unsigned int max_touch_num;
-+	unsigned int int_trigger_type;
++
++	bool initialized;
++
++	unsigned int untouch_count;
++	unsigned int single_touch_count;
++	unsigned int dual_touch_count;
++	unsigned int prev_touch_report;
 +};
 +
-+#define GOODIX_MAX_HEIGHT		4096
-+#define GOODIX_MAX_WIDTH		4096
-+#define GOODIX_INT_TRIGGER		1
-+#define GOODIX_MAX_TOUCH		10
-+
-+#define GOODIX_CONFIG_MAX_LENGTH	240
-+
-+/* Register defineS */
-+#define GOODIX_READ_COOR_ADDR		0x814E
-+#define GOODIX_REG_CONFIG_DATA		0x8047
-+#define GOODIX_REG_VERSION		0x8140
-+
-+#define RESOLUTION_LOC		1
-+#define TRIGGER_LOC		6
-+
-+static const char *goodix_ts_name = "Goodix Capacitive TouchScreen";
-+static const unsigned long goodix_irq_flags[] = {
-+	IRQ_TYPE_EDGE_RISING,
-+	IRQ_TYPE_EDGE_FALLING,
-+	IRQ_TYPE_LEVEL_LOW,
-+	IRQ_TYPE_LEVEL_HIGH,
-+};
-+
-+/**
-+ * goodix_i2c_read - read data from a register of the i2c slave device.
++/*
++ * rohm_i2c_burst_read - execute combined I2C message for ROHM BU21023/24
++ * @adap: Handle to I2C bus
++ * @msgs: combined messages to execute
++ * @num: Number of messages to be executed.
 + *
-+ * @client: i2c device.
-+ * @reg: the register to read from.
-+ * @buf: raw write data buffer.
-+ * @len: length of the buffer to write
-+ */
-+static int goodix_i2c_read(struct i2c_client *client,
-+				u16 reg, u8 *buf, int len)
-+{
-+	struct i2c_msg msgs[2];
-+	u16 wbuf = cpu_to_be16(reg);
-+	int ret;
-+
-+	msgs[0].flags = 0;
-+	msgs[0].addr  = client->addr;
-+	msgs[0].len   = 2;
-+	msgs[0].buf   = (u8 *) &wbuf;
-+
-+	msgs[1].flags = I2C_M_RD;
-+	msgs[1].addr  = client->addr;
-+	msgs[1].len   = len;
-+	msgs[1].buf   = buf;
-+
-+	ret = i2c_transfer(client->adapter, msgs, 2);
-+	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
-+}
-+
-+/**
-+ * goodix_i2c_write - write data to the i2c slave device.
++ * Returns negative errno, else the number of messages executed.
 + *
-+ * @client: i2c device.
-+ * @reg: the register to read to.
-+ * @buf: raw write data buffer.
-+ * @len: length of the buffer to write
++ * Note
++ * In BU21023/24 burst read, stop condition is needed after "address write".
++ * Therefore, transmission is performed in 2 steps.
 + */
-+static int goodix_i2c_write(struct i2c_client *client,
-+				u16 reg, u8 *buf, int len)
++static inline int rohm_i2c_burst_read(struct i2c_adapter *adap,
++				      struct i2c_msg *msgs, int num)
 +{
-+	struct i2c_msg msg;
-+	int ret;
-+	u8 *wbuf;
-+	u16 *addr;
++	int ret, i;
 +
-+	wbuf = kzalloc(len + 2, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	addr = ((u16 *) &wbuf[0]);
-+	*addr = cpu_to_be16(reg);
-+	memcpy(&wbuf[2], buf, len);
-+
-+	msg.flags = 0;
-+	msg.addr  = client->addr;
-+	msg.len   = len + 2;
-+	msg.buf   = wbuf;
-+
-+	ret = i2c_transfer(client->adapter, &msg, 1);
-+	kfree(wbuf);
-+	return ret < 0 ? ret : (ret != 1 ? -EIO : 0);
-+}
-+
-+static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-+{
-+	int touch_num;
-+	int ret;
-+
-+	ret = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR, data, 10);
-+	if (ret < 0) {
-+		dev_err(&ts->client->dev, "I2C transfer error (%d)\n", ret);
-+		return ret;
++	if (!adap->algo->master_xfer) {
++		dev_err(&adap->dev, "I2C level transfers not supported\n");
++		return -EOPNOTSUPP;
 +	}
 +
-+	touch_num = data[0] & 0x0f;
-+	if (touch_num > GOODIX_MAX_TOUCH)
-+		return -EPROTO;
++	i2c_lock_adapter(adap);
 +
-+	if (touch_num > 1) {
-+		ret = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR + 10,
-+				   &data[10], 8 * (touch_num - 1));
++	for (i = 0; i < num; i++) {
++		ret = __i2c_transfer(adap, &msgs[i], 1);
 +		if (ret < 0)
-+			return ret;
++			break;
++
++		ret = i;
 +	}
 +
-+	return touch_num;
++	i2c_unlock_adapter(adap);
++
++	return ret;
 +}
 +
-+static void goodix_ts_parse_touch(struct goodix_ts_data *ts, u8 *coor_data)
++static unsigned long inactive_polling_interval[2] = { 1, 0 };
++static unsigned long active_polling_interval[2] = { 0, 10000000 };
++
++module_param_array(inactive_polling_interval, ulong, NULL, S_IRUGO | S_IWUSR);
++module_param_array(active_polling_interval, ulong, NULL, S_IRUGO | S_IWUSR);
++
++MODULE_PARM_DESC(inactive_polling_interval,
++		 "Polling interval for un-touch detection");
++MODULE_PARM_DESC(active_polling_interval,
++		 "Polling interval for touch detection");
++
++#define INACTIVE_POLLING_INTERVAL_KTIME	\
++	ktime_set(inactive_polling_interval[0], inactive_polling_interval[1])
++#define ACTIVE_POLLING_INTERVAL_KTIME	\
++	ktime_set(active_polling_interval[0], active_polling_interval[1])
++
++static unsigned int untouch_threshold[3] = { 0, 1, 5 };
++static unsigned int single_touch_threshold[3] = { 0, 0, 4 };
++static unsigned int dual_touch_threshold[3] = { 10, 8, 0 };
++
++module_param_array(untouch_threshold, uint, NULL, S_IRUGO | S_IWUSR);
++module_param_array(single_touch_threshold, uint, NULL, S_IRUGO | S_IWUSR);
++module_param_array(dual_touch_threshold, uint, NULL, S_IRUGO | S_IWUSR);
++
++MODULE_PARM_DESC(untouch_threshold, "Thresholds for un-touch detection");
++MODULE_PARM_DESC(single_touch_threshold,
++		 "Thresholds for single touch detection");
++MODULE_PARM_DESC(dual_touch_threshold, "Thresholds for dual touch detection");
++
++static irqreturn_t rohm_ts_soft_irq(int irq, void *dev_id)
 +{
-+	int id = coor_data[0] & 0x0F;
-+	int input_x = get_unaligned_le16(&coor_data[1]);
-+	int input_y = get_unaligned_le16(&coor_data[3]);
-+	int input_w = get_unaligned_le16(&coor_data[5]);
++	struct rohm_ts_data *ts = dev_id;
++	struct i2c_client *client = ts->client;
++	struct input_dev *input_dev = ts->input_dev;
++	struct device *dev = &client->dev;
 +
-+	input_mt_slot(ts->input_dev, id);
-+	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
-+	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
-+	input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
-+	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
-+	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
-+}
++	struct i2c_msg msg[2];
++	u16 addr = client->addr;
++	u8 addr_buf;
++	u8 buf[10];		/* for 0x20-0x29 */
 +
-+/**
-+ * goodix_process_events - Process incoming events
-+ *
-+ * @ts: our goodix_ts_data pointer
-+ *
-+ * Called when the IRQ is triggered. Read the current device state, and push
-+ * the input events to the user space.
-+ */
-+static void goodix_process_events(struct goodix_ts_data *ts)
-+{
-+	u8  point_data[1 + 8 * GOODIX_MAX_TOUCH + 1];
-+	int touch_num;
-+	int i;
++	struct input_mt_pos pos[BU21023_MAX_SLOTS];
++	int slots[BU21023_MAX_SLOTS];
++	u8 touch_flags;
++	unsigned int threshold;
++	int touch_report = 0;
++	unsigned int prev_touch_report = ts->prev_touch_report;
 +
-+	touch_num = goodix_ts_read_input_report(ts, point_data);
-+	if (touch_num < 0)
-+		return;
++	s32 status;
++	int i, ret;
 +
-+	for (i = 0; i < touch_num; i++)
-+		goodix_ts_parse_touch(ts, &point_data[1 + 8 * i]);
++	status = i2c_smbus_read_byte_data(client, INT_STATUS);
++	if (!status)
++		return IRQ_NONE;
 +
-+	input_mt_sync_frame(ts->input_dev);
-+	input_sync(ts->input_dev);
-+}
++	if (status < 0)
++		return IRQ_HANDLED;
 +
-+/**
-+ * goodix_ts_irq_handler - The IRQ handler
-+ *
-+ * @irq: interrupt number.
-+ * @dev_id: private data pointer.
-+ */
-+static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
-+{
-+	struct goodix_ts_data *ts = dev_id;
-+	u8  end_cmd[1] = {0};
++	ret = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
++	if (ret)
++		return IRQ_HANDLED;
 +
-+	goodix_process_events(ts);
++	/* Clear all interrupts */
++	ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
++	if (ret)
++		return IRQ_HANDLED;
 +
-+	if (goodix_i2c_write(ts->client,
-+				GOODIX_READ_COOR_ADDR, end_cmd, 1) < 0)
-+		dev_err(&ts->client->dev, "I2C write end_cmd error");
++	addr_buf = POS_X1_H;
++	msg[0].addr = addr;
++	msg[0].flags = 0;
++	msg[0].len = 1;
++	msg[0].buf = &addr_buf;
++
++	msg[1].addr = addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].len = sizeof(buf);
++	msg[1].buf = buf;
++
++#define READ_POS_BUF(reg)	((u16)buf[((reg) - POS_X1_H)])
++
++	ret = rohm_i2c_burst_read(client->adapter, msg, 2);
++	if (ret < 0)
++		return IRQ_HANDLED;
++
++	touch_flags = READ_POS_BUF(TOUCH_GESTURE) & TOUCH_MASK;
++	if (touch_flags) {
++		/* generate coordinates */
++		pos[0].x = (READ_POS_BUF(POS_X1_H) << 2) |
++			   READ_POS_BUF(POS_X1_L);
++		pos[0].y = (READ_POS_BUF(POS_Y1_H) << 2) |
++			   READ_POS_BUF(POS_Y1_L);
++		pos[1].x = (READ_POS_BUF(POS_X2_H) << 2) |
++			   READ_POS_BUF(POS_X2_L);
++		pos[1].y = (READ_POS_BUF(POS_Y2_H) << 2) |
++			   READ_POS_BUF(POS_Y2_L);
++
++		switch (touch_flags) {
++		case SINGLE_TOUCH:
++			ts->untouch_count = 0;
++			ts->single_touch_count++;
++			ts->dual_touch_count = 0;
++
++			threshold = single_touch_threshold[prev_touch_report];
++			if (ts->single_touch_count > threshold)
++				touch_report = 1;
++
++			if (touch_report == 1) {
++				if (pos[1].x != 0 && pos[1].y != 0) {
++					pos[0].x = pos[1].x;
++					pos[0].y = pos[1].y;
++					pos[1].x = 0;
++					pos[1].y = 0;
++				}
++			}
++			break;
++		case DUAL_TOUCH:
++			ts->untouch_count = 0;
++			ts->single_touch_count = 0;
++			ts->dual_touch_count++;
++
++			threshold = dual_touch_threshold[prev_touch_report];
++			if (ts->dual_touch_count > threshold)
++				touch_report = 2;
++			break;
++		default:
++			dev_err(dev,
++				"Three or more touches are not supported\n");
++			return IRQ_HANDLED;
++			break;
++		}
++	} else {
++		ts->untouch_count++;
++
++		threshold = untouch_threshold[prev_touch_report];
++		if (ts->untouch_count > threshold) {
++			ts->untouch_count = 0;
++			ts->single_touch_count = 0;
++			ts->dual_touch_count = 0;
++
++			touch_report = 0;
++		}
++	}
++
++	input_mt_assign_slots(input_dev, slots, pos, touch_report);
++
++	for (i = 0; i < touch_report; i++) {
++		input_mt_slot(input_dev, slots[i]);
++		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, true);
++		input_report_abs(input_dev, ABS_MT_POSITION_X, pos[i].x);
++		input_report_abs(input_dev, ABS_MT_POSITION_Y, pos[i].y);
++	}
++
++	input_mt_sync_frame(input_dev);
++	input_mt_report_pointer_emulation(input_dev, true);
++	input_sync(input_dev);
++
++	i2c_smbus_write_byte_data(client, INT_MASK,
++				  CALIBRATION_DONE | SLEEP_OUT | SLEEP_IN |
++				  PROGRAM_LOAD_DONE);
 +
 +	return IRQ_HANDLED;
 +}
 +
-+/**
-+ * goodix_read_config - Read the embedded configuration of the panel
-+ *
-+ * @ts: our goodix_ts_data pointer
-+ *
-+ * Must be called during probe
-+ */
-+static void goodix_read_config(struct goodix_ts_data *ts)
++static irqreturn_t rohm_ts_hard_irq(int irq, void *dev_id)
 +{
-+	int ret;
-+	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-+
-+	ret = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA, config,
-+			   GOODIX_CONFIG_MAX_LENGTH);
-+	if (ret < 0) {
-+		dev_err(&ts->client->dev,
-+			"Error reading config, use default value!");
-+		ts->abs_x_max = GOODIX_MAX_WIDTH;
-+		ts->abs_y_max = GOODIX_MAX_HEIGHT;
-+		ts->int_trigger_type = GOODIX_INT_TRIGGER;
-+		return;
-+	}
-+
-+	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
-+	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
-+	ts->int_trigger_type = (config[TRIGGER_LOC]) & 0x03;
-+	if ((!ts->abs_x_max) || (!ts->abs_y_max)) {
-+		dev_err(&ts->client->dev,
-+			"Invalid config, use default value!");
-+		ts->abs_x_max = GOODIX_MAX_WIDTH;
-+		ts->abs_y_max = GOODIX_MAX_HEIGHT;
-+	}
++	return IRQ_WAKE_THREAD;
 +}
 +
-+
-+/**
-+ * goodix_read_version - Read goodix touchscreen version
-+ *
-+ * @client: the i2c client
-+ * @version: output buffer containing the version on success
-+ */
-+static int goodix_read_version(struct i2c_client *client, u16 *version)
++static int rohm_ts_load_firmware(struct i2c_client *client,
++				 const char *firmware_name)
 +{
-+	int ret;
-+	u8 buf[6];
++	struct device *dev = &client->dev;
++	const struct firmware *firmware = NULL;
++	s32 status;
++	int blocks, remainder, retry = 0, offset;
++	int err = 0, ret;
++	int i;
 +
-+	ret = goodix_i2c_read(client, GOODIX_REG_VERSION, buf, sizeof(buf));
-+	if (ret < 0) {
-+		dev_err(&client->dev, "read version failed");
-+		return ret;
-+	}
-+
-+	if (version)
-+		*version = get_unaligned_le16(&buf[4]);
-+
-+	dev_info(&client->dev, "IC VERSION: %6ph", buf);
-+
-+	return ret;
-+}
-+
-+/**
-+ * goodix_i2c_test - I2C test function to check if the device answers.
-+ *
-+ * @client: the i2c client
-+ */
-+static int goodix_i2c_test(struct i2c_client *client)
-+{
-+	u8 test;
-+	int ret;
-+	int retry = 0;
-+
-+	while (retry++ < 2) {
-+		ret = goodix_i2c_read(client, GOODIX_REG_CONFIG_DATA,
-+				      &test, 1);
-+		if (ret >= 0)
-+			return ret;
-+
-+		dev_err(&client->dev, "i2c test failed time %d.", retry);
-+		msleep(20);
-+	}
-+	return ret;
-+}
-+
-+/**
-+ * goodix_request_input_dev - Allocate, populate and register the input device
-+ *
-+ * @ts: our goodix_ts_data pointer
-+ *
-+ * Must be called during probe
-+ */
-+static int goodix_request_input_dev(struct goodix_ts_data *ts)
-+{
-+	int ret;
-+
-+	ts->input_dev = devm_input_allocate_device(&ts->client->dev);
-+	if (!ts->input_dev) {
-+		dev_err(&ts->client->dev, "Failed to allocate input device.");
-+		return -ENOMEM;
-+	}
-+
-+	ts->input_dev->evbit[0] = BIT_MASK(EV_SYN) |
-+				  BIT_MASK(EV_KEY) |
-+				  BIT_MASK(EV_ABS);
-+
-+	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
-+				ts->abs_x_max, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
-+				ts->abs_y_max, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-+
-+	input_mt_init_slots(ts->input_dev, GOODIX_MAX_TOUCH,
-+			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+
-+	ts->input_dev->name = goodix_ts_name;
-+	ts->input_dev->phys = "input/ts";
-+	ts->input_dev->id.bustype = BUS_I2C;
-+	ts->input_dev->id.vendor = 0x0416;
-+	ts->input_dev->id.product = 0x1001;
-+	ts->input_dev->id.version = 10427;
-+
-+	ret = input_register_device(ts->input_dev);
++	ret = request_firmware(&firmware, firmware_name, dev);
 +	if (ret) {
-+		dev_err(&ts->client->dev, "Failed to register %s input device",
-+			  ts->input_dev->name);
++		dev_err(dev, "Unable to open firmware %s\n", firmware_name);
 +		return ret;
++	}
++
++	blocks = firmware->size / FIRMWARE_BLOCK_SIZE;
++	remainder = firmware->size % FIRMWARE_BLOCK_SIZE;
++
++	ret = i2c_smbus_write_byte_data(client, INT_MASK,
++					COORD_UPDATE | CALIBRATION_DONE |
++					SLEEP_IN | SLEEP_OUT);
++	if (ret) {
++		err = ret;
++		goto err_int_mask_exit;
++	}
++
++	while (retry < FIRMWARE_RETRY_MAX) {
++		ret = i2c_smbus_write_byte_data(client, COMMON_SETUP1,
++						COMMON_SETUP1_DEFAULT);
++		if (ret) {
++			err = ret;
++			goto err_int_mask_exit;
++		}
++
++		ret = i2c_smbus_write_byte_data(client, EX_ADDR_H, 0);
++		if (ret) {
++			err = ret;
++			goto err_int_mask_exit;
++		}
++
++		ret = i2c_smbus_write_byte_data(client, EX_ADDR_L, 0);
++		if (ret) {
++			err = ret;
++			goto err_int_mask_exit;
++		}
++
++		offset = 0;
++
++		/* firmware load to the device */
++		for (i = 0; i < blocks; i++) {
++			ret = i2c_smbus_write_i2c_block_data(client, EX_WDAT,
++				FIRMWARE_BLOCK_SIZE, &firmware->data[offset]);
++			if (ret) {
++				err = ret;
++				goto err_int_mask_exit;
++			}
++
++			offset += FIRMWARE_BLOCK_SIZE;
++		}
++
++		if (remainder) {
++			ret = i2c_smbus_write_i2c_block_data(client, EX_WDAT,
++				remainder, &firmware->data[offset]);
++			if (ret) {
++				err = ret;
++				goto err_int_mask_exit;
++			}
++		}
++
++		/* check formware load result */
++		status = i2c_smbus_read_byte_data(client, INT_STATUS);
++		if (status < 0) {
++			err = status;
++			goto err_int_mask_exit;
++		}
++
++		/* clear all interrupts */
++		ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
++		if (ret) {
++			err = ret;
++			goto err_int_mask_exit;
++		}
++
++		if (status == PROGRAM_LOAD_DONE)
++			break;
++
++		/* settings for retry */
++		ret = i2c_smbus_write_byte_data(client, EX_WDAT, 0);
++		if (ret) {
++			err = ret;
++			goto err_int_mask_exit;
++		}
++
++		retry++;
++		dev_warn(dev, "Retry firmware load\n");
++	}
++
++err_int_mask_exit:
++	ret = i2c_smbus_write_byte_data(client, INT_MASK, INT_ALL);
++	if (ret)
++		err = ret;
++
++	release_firmware(firmware);
++
++	if (retry >= FIRMWARE_RETRY_MAX)
++		return -EBUSY;
++
++	return err;
++}
++
++static bool swap_xy;
++module_param(swap_xy, bool, S_IRUGO);
++MODULE_PARM_DESC(swap_xy, "Swap X-axis and Y-axis");
++
++static bool inv_x;
++module_param(inv_x, bool, S_IRUGO);
++MODULE_PARM_DESC(inv_x, "Invert X-axis");
++
++static bool inv_y;
++module_param(inv_y, bool, S_IRUGO);
++MODULE_PARM_DESC(inv_y, "Invert Y-axis");
++
++static int rohm_ts_device_init(struct rohm_ts_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	struct device *dev = &client->dev;
++	u8 val;
++	int ret;
++
++	/*
++	 * Wait 200usec for reset
++	 */
++	udelay(200);
++
++	/* Release analog reset */
++	ret = i2c_smbus_write_byte_data(client, SYSTEM, ANALOG_POWER_ON);
++	if (ret)
++		return ret;
++
++	/* Waiting for the analog warm-up, max. 200usec */
++	udelay(200);
++
++	/* clear all interrupts */
++	ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
++	if (ret)
++		return ret;
++
++	val = MAF_1SAMPLE;
++	if (swap_xy)
++		val |= SWAP_XY;
++	if (inv_x)
++		val |= INV_X;
++	if (inv_y)
++		val |= INV_Y;
++
++	ret = i2c_smbus_write_byte_data(client, EX_WDAT, 0);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, COMMON_SETUP1, 0);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, COMMON_SETUP2, val);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, COMMON_SETUP3,
++					SEL_TBL_DEFAULT | EN_MULTI);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, THRESHOLD_GESTURE,
++					THRESHOLD_GESTURE_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, INTERVAL_TIME,
++					INTERVAL_TIME_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, CPU_FREQ, CPU_FREQ_10MHZ);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, PRM_SWOFF_TIME,
++					PRM_SWOFF_TIME_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, ADC_CTRL, ADC_DIV_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, ADC_WAIT, ADC_WAIT_DEFAULT);
++	if (ret)
++		return ret;
++
++	/*
++	 * Panel setup, these values change with the panel.
++	 */
++	ret = i2c_smbus_write_byte_data(client, STEP_X, STEP_X_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, STEP_Y, STEP_Y_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, OFFSET_X, OFFSET_X_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, OFFSET_Y, OFFSET_Y_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, THRESHOLD_TOUCH,
++					THRESHOLD_TOUCH_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, EVR_XY, EVR_XY_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, EVR_X, EVR_X_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, EVR_Y, EVR_Y_DEFAULT);
++	if (ret)
++		return ret;
++
++	/* Fixed value settings */
++	ret = i2c_smbus_write_byte_data(client, CALIBRATION_ADJUST,
++					CALIBRATION_ADJUST_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, SWCONT, SWCONT_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, TEST1,
++					DUALTOUCH_STABILIZE_ON |
++					DUALTOUCH_REG_ON);
++	if (ret)
++		return ret;
++
++	ret = rohm_ts_load_firmware(client, BU21023_FIRMWARE_NAME);
++	if (ret) {
++		dev_err(dev, "Failed to firmware load\n");
++		return ret;
++	}
++
++	/*
++	 * Manual calibration results are not changed in same environment.
++	 * If the force calibration is performed,
++	 * the controller will not require calibration request interrupt
++	 * when the typical values are set to the calibration registers.
++	 */
++	ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG1,
++					CALIBRATION_REG1_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG2,
++					CALIBRATION_REG2_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, CALIBRATION_REG3,
++					CALIBRATION_REG3_DEFAULT);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
++					FORCE_CALIBRATION_OFF);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, FORCE_CALIBRATION,
++					FORCE_CALIBRATION_ON);
++	if (ret)
++		return ret;
++
++	/* Clear all interrupts */
++	ret = i2c_smbus_write_byte_data(client, INT_CLEAR, 0xff);
++	if (ret)
++		return ret;
++
++	ret = devm_request_threaded_irq(dev, client->irq, rohm_ts_hard_irq,
++					rohm_ts_soft_irq, IRQF_TRIGGER_FALLING,
++					client->name, ts);
++	if (ret) {
++		dev_err(dev, "Unable to request IRQ\n");
++		return ret;
++	}
++
++	/* Enable coordinates update interrupt */
++	ret = i2c_smbus_write_byte_data(client, INT_MASK,
++					CALIBRATION_DONE |
++					SLEEP_OUT | SLEEP_IN |
++					PROGRAM_LOAD_DONE);
++	if (ret)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, ERR_MASK,
++					PROGRAM_LOAD_ERR | CPU_TIMEOUT |
++					ADC_TIMEOUT);
++	if (ret)
++		return ret;
++
++	/* controller CPU power on */
++	ret = i2c_smbus_write_byte_data(client, SYSTEM,
++					CPU_POWER_ON | ANALOG_POWER_ON);
++
++	return ret;
++}
++
++static int rohm_ts_open(struct input_dev *input_dev)
++{
++	struct rohm_ts_data *ts = input_get_drvdata(input_dev);
++	struct i2c_client *client = ts->client;
++	int ret;
++
++	if (!ts->initialized) {
++		ret = rohm_ts_device_init(ts);
++		if (ret) {
++			dev_err(&client->dev,
++				"Failed to device initialization\n");
++			return ret;
++		}
++
++		ts->initialized = true;
 +	}
 +
 +	return 0;
 +}
 +
-+static int goodix_ts_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
++static int rohm_bu21023_i2c_probe(struct i2c_client *client,
++				  const struct i2c_device_id *id)
 +{
++	struct rohm_ts_data *ts;
++	struct device *dev = &client->dev;
++	struct input_dev *input_dev;
 +	int ret;
-+	struct goodix_ts_data *ts;
-+	u16 version_info;
 +
-+	dev_info(&client->dev, "I2C Address: 0x%02x", client->addr);
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(&client->dev, "I2C check functionality failed.");
-+		return -ENODEV;
++	if (!client->irq) {
++		dev_err(dev, "IRQ is not assigned\n");
++		return -EBUSY;
 +	}
-+	ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
-+	if (!ts) {
-+		dev_err(&client->dev, "Alloc GFP_KERNEL memory failed.");
++
++	ts = devm_kzalloc(dev, sizeof(struct rohm_ts_data), GFP_KERNEL);
++	if (!ts)
 +		return -ENOMEM;
-+	}
 +
 +	ts->client = client;
 +	i2c_set_clientdata(client, ts);
 +
-+	ret = goodix_i2c_test(client);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C communication ERROR!");
++	input_dev = devm_input_allocate_device(dev);
++	if (!input_dev)
++		return -ENOMEM;
++
++	input_dev->name = BU21023_NAME;
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->open = rohm_ts_open;
++
++	ts->input_dev = input_dev;
++	input_set_drvdata(input_dev, ts);
++
++	__set_bit(EV_SYN, input_dev->evbit);
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(EV_ABS, input_dev->evbit);
++
++	__set_bit(BTN_TOUCH, input_dev->keybit);
++
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
++			     ROHM_TS_ABS_X_MIN, ROHM_TS_ABS_X_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
++			     ROHM_TS_ABS_Y_MIN, ROHM_TS_ABS_Y_MAX, 0, 0);
++
++	input_set_abs_params(input_dev, ABS_X,
++			     ROHM_TS_ABS_X_MIN, ROHM_TS_ABS_X_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y,
++			     ROHM_TS_ABS_Y_MIN, ROHM_TS_ABS_Y_MAX, 0, 0);
++
++	ret = input_mt_init_slots(input_dev, BU21023_MAX_SLOTS,
++				  INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
++	if (ret) {
++		dev_err(dev, "Failed to multi touch slots initialization\n");
 +		return ret;
 +	}
 +
-+	goodix_read_config(ts);
++	ret = input_register_device(input_dev);
++	if (ret)
++		dev_err(dev, "Unable to register input device\n");
 +
-+	ret = goodix_request_input_dev(ts);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "request input dev failed");
-+		return ret;
-+	}
-+
-+	ret = devm_request_threaded_irq(&ts->client->dev,
-+					ts->client->irq, NULL,
-+					goodix_ts_irq_handler,
-+					goodix_irq_flags[ts->int_trigger_type]
-+						| IRQF_ONESHOT,
-+					ts->client->name,
-+					ts);
-+	if (ret < 0) {
-+		dev_err(&ts->client->dev,
-+			"Request IRQ failed! ERRNO: %d.", ret);
-+		return ret;
-+	}
-+
-+	ret = goodix_read_version(client, &version_info);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Read version failed.");
-+		return ret;
-+	}
-+
-+	return 0;
++	return ret;
 +}
 +
-+static const struct i2c_device_id goodix_ts_id[] = {
-+	{ "GDIX1001:00", 0 },
-+	{ }
++static int rohm_bu21023_i2c_remove(struct i2c_client *client)
++{
++	int ret;
++
++	ret = i2c_smbus_write_byte_data(client, SYSTEM,
++					ANALOG_POWER_ON | CPU_POWER_OFF);
++	if (ret)
++		return ret;
++
++	return i2c_smbus_write_byte_data(client, SYSTEM,
++					 ANALOG_POWER_OFF | CPU_POWER_OFF);
++}
++
++static const struct i2c_device_id rohm_bu21023_i2c_id[] = {
++	{BU21023_NAME, 0},
++	{},
 +};
 +
-+static const struct acpi_device_id goodix_acpi_match[] = {
-+	{ "GDIX1001", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
++MODULE_DEVICE_TABLE(i2c, rohm_bu21023_i2c_id);
 +
-+static struct i2c_driver goodix_ts_driver = {
-+	.probe = goodix_ts_probe,
-+	.id_table = goodix_ts_id,
++static struct i2c_driver rohm_bu21023_i2c_driver = {
 +	.driver = {
-+		.name = "Goodix-TS",
-+		.owner = THIS_MODULE,
-+		.acpi_match_table = goodix_acpi_match,
-+	},
++		   .name = BU21023_NAME,
++		   },
++	.probe = rohm_bu21023_i2c_probe,
++	.remove = rohm_bu21023_i2c_remove,
++	.id_table = rohm_bu21023_i2c_id,
 +};
 +
-+module_i2c_driver(goodix_ts_driver);
++module_i2c_driver(rohm_bu21023_i2c_driver);
 +
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
-+MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
-+MODULE_DESCRIPTION("Goodix touchscreen driver");
-+MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("ROHM BU21023/24 Touchscreen driver");
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("ROHM Co., Ltd.");
+diff --git a/drivers/input/touchscreen/rohm_bu21023.h b/drivers/input/touchscreen/rohm_bu21023.h
+new file mode 100644
+index 0000000..302581b
+--- /dev/null
++++ b/drivers/input/touchscreen/rohm_bu21023.h
+@@ -0,0 +1,258 @@
++/*
++ * ROHM BU21023/24 Dual touch support resistive touch screen driver
++ * Copyright (C) 2012 ROHM CO.,LTD.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++#ifndef _BU21023_TS_H
++#define _BU21023_TS_H
++
++#define BU21023_NAME		"bu21023_ts"
++#define BU21023_FIRMWARE_NAME	"bu21023.bin"
++
++#define BU21023_MAX_SLOTS	2
++
++#define AXIS_ADJUST		4
++#define AXIS_OFFSET		8
++
++#define FIRMWARE_BLOCK_SIZE	32
++#define FIRMWARE_RETRY_MAX	4
++
++#define SAMPLING_DELAY		12	/* msec */
++
++#define CALIBRATION_RETRY_MAX	6
++
++#define ROHM_TS_ABS_X_MIN	40
++#define ROHM_TS_ABS_X_MAX	990
++#define ROHM_TS_ABS_Y_MIN	160
++#define ROHM_TS_ABS_Y_MAX	920
++
++/*
++ * BU21023GUL/BU21023MUV/BU21024FV-M registers map
++ */
++#define VADOUT_YP_H		0x00
++#define VADOUT_YP_L		0x01
++#define VADOUT_XP_H		0x02
++#define VADOUT_XP_L		0x03
++#define VADOUT_YN_H		0x04
++#define VADOUT_YN_L		0x05
++#define VADOUT_XN_H		0x06
++#define VADOUT_XN_L		0x07
++
++#define PRM1_X_H		0x08
++#define PRM1_X_L		0x09
++#define PRM1_Y_H		0x0a
++#define PRM1_Y_L		0x0b
++#define PRM2_X_H		0x0c
++#define PRM2_X_L		0x0d
++#define PRM2_Y_H		0x0e
++#define PRM2_Y_L		0x0f
++
++#define MLT_PRM_MONI_X		0x10
++#define MLT_PRM_MONI_Y		0x11
++
++#define DEBUG_MONI_1		0x12
++#define DEBUG_MONI_2		0x13
++
++#define VADOUT_ZX_H		0x14
++#define VADOUT_ZX_L		0x15
++#define VADOUT_ZY_H		0x16
++#define VADOUT_ZY_L		0x17
++
++#define Z_PARAM_H		0x18
++#define Z_PARAM_L		0x19
++
++/*
++ * Value for VADOUT_*_L
++ */
++#define VADOUT_L_MASK		0x01
++
++/*
++ * Value for PRM*_*_L
++ */
++#define PRM_L_MASK		0x01
++
++#define POS_X1_H		0x20
++#define POS_X1_L		0x21
++#define POS_Y1_H		0x22
++#define POS_Y1_L		0x23
++#define POS_X2_H		0x24
++#define POS_X2_L		0x25
++#define POS_Y2_H		0x26
++#define POS_Y2_L		0x27
++
++/*
++ * Value for POS_*_L
++ */
++#define POS_L_MASK		0x01
++
++#define TOUCH			0x28
++#define TOUCH_DETECT		0x01
++
++#define TOUCH_GESTURE		0x29
++#define SINGLE_TOUCH		0x01
++#define DUAL_TOUCH		0x03
++#define TOUCH_MASK		0x03
++#define CALIBRATION_REQUEST	0x04
++#define CALIBRATION_STATUS	0x08
++#define CALIBRATION_MASK	0x0c
++#define GESTURE_SPREAD		0x10
++#define GESTURE_PINCH		0x20
++#define GESTURE_ROTATE_R	0x40
++#define GESTURE_ROTATE_L	0x80
++
++#define INT_STATUS		0x2a
++#define INT_MASK		0x3d
++#define INT_CLEAR		0x3e
++
++/*
++ * Values for INT_*
++ */
++#define COORD_UPDATE		0x01
++#define CALIBRATION_DONE	0x02
++#define SLEEP_IN		0x04
++#define SLEEP_OUT		0x08
++#define PROGRAM_LOAD_DONE	0x10
++#define ERROR			0x80
++#define INT_ALL			0x9f
++
++#define ERR_STATUS		0x2b
++#define ERR_MASK		0x3f
++
++/*
++ * Values for ERR_*
++ */
++#define ADC_TIMEOUT		0x01
++#define CPU_TIMEOUT		0x02
++#define CALIBRATION_ERR		0x04
++#define PROGRAM_LOAD_ERR	0x10
++
++#define COMMON_SETUP1			0x30
++#define PROGRAM_LOAD_HOST		0x02
++#define PROGRAM_LOAD_EEPROM		0x03
++#define CENSOR_4PORT			0x04
++#define CENSOR_8PORT			0x00	/* Not supported by BU21023 */
++#define CALIBRATION_TYPE_DEFAULT	0x08
++#define CALIBRATION_TYPE_SPECIAL	0x00
++#define INT_ACTIVE_HIGH			0x10
++#define INT_ACTIVE_LOW			0x00
++#define AUTO_CALIBRATION		0x40
++#define MANUAL_CALIBRATION		0x00
++#define COMMON_SETUP1_DEFAULT		0x4e
++
++#define COMMON_SETUP2		0x31
++#define MAF_NONE		0x00
++#define MAF_1SAMPLE		0x01
++#define MAF_3SAMPLES		0x02
++#define MAF_5SAMPLES		0x03
++#define INV_Y			0x04
++#define INV_X			0x08
++#define SWAP_XY			0x10
++
++#define COMMON_SETUP3		0x32
++#define EN_SLEEP		0x01
++#define EN_MULTI		0x02
++#define EN_GESTURE		0x04
++#define EN_INTVL		0x08
++#define SEL_STEP		0x10
++#define SEL_MULTI		0x20
++#define SEL_TBL_DEFAULT		0x40
++
++#define INTERVAL_TIME		0x33
++#define INTERVAL_TIME_DEFAULT	0x10
++
++#define STEP_X			0x34
++#define STEP_X_DEFAULT		0x41
++
++#define STEP_Y			0x35
++#define STEP_Y_DEFAULT		0x8d
++
++#define OFFSET_X		0x38
++#define OFFSET_X_DEFAULT	0x0c
++
++#define OFFSET_Y		0x39
++#define OFFSET_Y_DEFAULT	0x0c
++
++#define THRESHOLD_TOUCH		0x3a
++#define THRESHOLD_TOUCH_DEFAULT	0xa0
++
++#define THRESHOLD_GESTURE		0x3b
++#define THRESHOLD_GESTURE_DEFAULT	0x17
++
++#define SYSTEM			0x40
++#define ANALOG_POWER_ON		0x01
++#define ANALOG_POWER_OFF	0x00
++#define CPU_POWER_ON		0x02
++#define CPU_POWER_OFF		0x00
++
++#define FORCE_CALIBRATION	0x42
++#define FORCE_CALIBRATION_ON	0x01
++#define FORCE_CALIBRATION_OFF	0x00
++
++#define CPU_FREQ		0x50	/* 10 / (reg + 1) MHz */
++#define CPU_FREQ_10MHZ		0x00
++#define CPU_FREQ_5MHZ		0x01
++#define CPU_FREQ_1MHZ		0x09
++
++#define EEPROM_ADDR		0x51
++
++#define CALIBRATION_ADJUST		0x52
++#define CALIBRATION_ADJUST_DEFAULT	0x00
++
++#define THRESHOLD_SLEEP_IN	0x53
++
++#define EVR_XY			0x56
++#define EVR_XY_DEFAULT		0x10
++
++#define PRM_SWOFF_TIME		0x57
++#define PRM_SWOFF_TIME_DEFAULT	0x04
++
++#define PROGRAM_VERSION		0x5f
++
++#define ADC_CTRL		0x60
++#define ADC_DIV_MASK		0x1f	/* The minimum value is 4 */
++#define ADC_DIV_DEFAULT		0x08
++
++#define ADC_WAIT		0x61
++#define ADC_WAIT_DEFAULT	0x0a
++
++#define SWCONT			0x62
++#define SWCONT_DEFAULT		0x0f
++
++#define EVR_X			0x63
++#define EVR_X_DEFAULT		0x86
++
++#define EVR_Y			0x64
++#define EVR_Y_DEFAULT		0x64
++
++#define TEST1			0x65
++#define DUALTOUCH_STABILIZE_ON	0x01
++#define DUALTOUCH_STABILIZE_OFF	0x00
++#define DUALTOUCH_REG_ON	0x20
++#define DUALTOUCH_REG_OFF	0x00
++
++#define CALIBRATION_REG1		0x68
++#define CALIBRATION_REG1_DEFAULT	0xd9
++
++#define CALIBRATION_REG2		0x69
++#define CALIBRATION_REG2_DEFAULT	0x36
++
++#define CALIBRATION_REG3		0x6a
++#define CALIBRATION_REG3_DEFAULT	0x32
++
++#define EX_ADDR_H		0x70
++#define EX_ADDR_L		0x71
++#define EX_WDAT			0x72
++#define EX_RDAT			0x73
++#define EX_CHK_SUM1		0x74
++#define EX_CHK_SUM2		0x75
++#define EX_CHK_SUM3		0x76
++
++#endif /* _BU21023_TS_H */
 -- 
-2.1.0
-
+1.7.9.5
 

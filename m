@@ -1,144 +1,43 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] mfd: ti_am335x_tscadc: Update logic in CTRL register for
- 5-wire TS
-Date: Wed, 24 Sep 2014 12:26:00 +0100
-Message-ID: <20140924112600.GJ19999@lee--X1>
-References: <1409850117-5156-1-git-send-email-bigeasy@linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] hid: sony: Update the DualShock 4 touchpad resolution
+Date: Wed, 24 Sep 2014 09:38:19 -0400
+Message-ID: <1411565899-4358-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:37311 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750885AbaIXL0H (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.231]:44028 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750817AbaIXNiz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Sep 2014 07:26:07 -0400
-Received: by mail-ig0-f181.google.com with SMTP id h18so6274452igc.14
-        for <linux-input@vger.kernel.org>; Wed, 24 Sep 2014 04:26:05 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1409850117-5156-1-git-send-email-bigeasy@linutronix.de>
+	Wed, 24 Sep 2014 09:38:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>, linux-omap@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jeff Lance <j-lance1@ti.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Thu, 04 Sep 2014, Sebastian Andrzej Siewior wrote:
+The DualShock 4 touchpad has been measured to have a resolution of
+44.86 dots/mm which equates to 1920x942.
 
-> From: Jeff Lance <j-lance1@ti.com>
->=20
-> The logic in AFE_Pen_Ctrl bitmask in the CTRL register is different f=
-or five
-> wire versus four or eight wire touschscreens. This patch should fix t=
-his for
-> five-wire touch screens. There should be no change needed here for fo=
-ur and
-> eight wire tousch screens.
->=20
-> Signed-off-by: Jeff Lance <j-lance1@ti.com>
-> [bigeasy: keep the change mfd only]
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> ---
-> I've been looking at moving this piece and the idle mode setting into=
- the
-> TSC driver. Kinda odd that I have to patch within the MFD driver for =
-this
-> TSC related change.
-> Anyone disagrees?
->=20
->  drivers/mfd/ti_am335x_tscadc.c       | 30 +++++++++++++++++---------=
-----
->  include/linux/mfd/ti_am335x_tscadc.h |  1 +
->  2 files changed, 18 insertions(+), 13 deletions(-)
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+ drivers/hid/hid-sony.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I hope this has been fully tested.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 5baa311..bc4269e 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1107,10 +1107,10 @@ static void sony_input_configured(struct hid_device *hdev,
+ 
+ 	/*
+ 	 * The Dualshock 4 touchpad supports 2 touches and has a
+-	 * resolution of 1920x940.
++	 * resolution of 1920x942 (44.86 dots/mm).
+ 	 */
+ 	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+-		if (sony_register_touchpad(hidinput, 2, 1920, 940) != 0)
++		if (sony_register_touchpad(hidinput, 2, 1920, 942) != 0)
+ 			hid_err(sc->hdev,
+ 				"Unable to initialize multi-touch slots\n");
+ 	}
+-- 
+2.1.0
 
-Looks like it could work though, so applied, thanks.
-
-> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_t=
-scadc.c
-> index dd4bf5816221..6c9cfb8c1d01 100644
-> --- a/drivers/mfd/ti_am335x_tscadc.c
-> +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -241,18 +241,20 @@ static	int ti_tscadc_probe(struct platform_devi=
-ce *pdev)
->  	tscadc_writel(tscadc, REG_CLKDIV, tscadc->clk_div);
-> =20
->  	/* Set the control register bits */
-> -	ctrl =3D CNTRLREG_STEPCONFIGWRT |
-> -			CNTRLREG_STEPID;
-> -	if (tsc_wires > 0)
-> -		ctrl |=3D CNTRLREG_4WIRE | CNTRLREG_TSCENB;
-> +	ctrl =3D CNTRLREG_STEPCONFIGWRT |	CNTRLREG_STEPID;
->  	tscadc_writel(tscadc, REG_CTRL, ctrl);
-> =20
->  	/* Set register bits for Idle Config Mode */
-> -	if (tsc_wires > 0)
-> +	if (tsc_wires > 0) {
-> +		tscadc->tsc_wires =3D tsc_wires;
-> +		if (tsc_wires =3D=3D 5)
-> +			ctrl |=3D CNTRLREG_5WIRE | CNTRLREG_TSCENB;
-> +		else
-> +			ctrl |=3D CNTRLREG_4WIRE | CNTRLREG_TSCENB;
->  		tscadc_idle_config(tscadc);
-> +	}
-> =20
->  	/* Enable the TSC module enable bit */
-> -	ctrl =3D tscadc_readl(tscadc, REG_CTRL);
->  	ctrl |=3D CNTRLREG_TSCSSENB;
->  	tscadc_writel(tscadc, REG_CTRL, ctrl);
-> =20
-> @@ -324,21 +326,23 @@ static int tscadc_suspend(struct device *dev)
->  static int tscadc_resume(struct device *dev)
->  {
->  	struct ti_tscadc_dev	*tscadc_dev =3D dev_get_drvdata(dev);
-> -	unsigned int restore, ctrl;
-> +	u32 ctrl;
-> =20
->  	pm_runtime_get_sync(dev);
-> =20
->  	/* context restore */
->  	ctrl =3D CNTRLREG_STEPCONFIGWRT |	CNTRLREG_STEPID;
-> -	if (tscadc_dev->tsc_cell !=3D -1)
-> -		ctrl |=3D CNTRLREG_TSCENB | CNTRLREG_4WIRE;
->  	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
-> =20
-> -	if (tscadc_dev->tsc_cell !=3D -1)
-> +	if (tscadc_dev->tsc_cell !=3D -1) {
-> +		if (tscadc_dev->tsc_wires =3D=3D 5)
-> +			ctrl |=3D CNTRLREG_5WIRE | CNTRLREG_TSCENB;
-> +		else
-> +			ctrl |=3D CNTRLREG_4WIRE | CNTRLREG_TSCENB;
->  		tscadc_idle_config(tscadc_dev);
-> -	restore =3D tscadc_readl(tscadc_dev, REG_CTRL);
-> -	tscadc_writel(tscadc_dev, REG_CTRL,
-> -			(restore | CNTRLREG_TSCSSENB));
-> +	}
-> +	ctrl |=3D CNTRLREG_TSCSSENB;
-> +	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
-> =20
->  	tscadc_writel(tscadc_dev, REG_CLKDIV, tscadc_dev->clk_div);
-> =20
-> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd=
-/ti_am335x_tscadc.h
-> index fb96c84dada5..e2e70053470e 100644
-> --- a/include/linux/mfd/ti_am335x_tscadc.h
-> +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> @@ -155,6 +155,7 @@ struct ti_tscadc_dev {
->  	void __iomem *tscadc_base;
->  	int irq;
->  	int used_cells;	/* 1-2 */
-> +	int tsc_wires;
->  	int tsc_cell;	/* -1 if not used */
->  	int adc_cell;	/* -1 if not used */
->  	struct mfd_cell cells[TSCADC_CELLS];
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,45 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.17-rc6
-Date: Fri, 26 Sep 2014 11:01:11 -0700
-Message-ID: <20140926180111.GA3911@core.coreip.homeip.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [git pull] Input updates for 3.17-rc6
+Date: Fri, 26 Sep 2014 11:19:51 -0700
+Message-ID: <CA+55aFzD0Vo2c74_M-k-0Q6kGRd8btYDM34vnYA-UOP6Mko2QA@mail.gmail.com>
+References: <20140926180111.GA3911@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:45575 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755443AbaIZSBR (ORCPT
+Received: from mail-vc0-f182.google.com ([209.85.220.182]:65394 "EHLO
+	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755300AbaIZSTw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Sep 2014 14:01:17 -0400
-Content-Disposition: inline
+	Fri, 26 Sep 2014 14:19:52 -0400
+In-Reply-To: <20140926180111.GA3911@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Linus,
+On Fri, Sep 26, 2014 at 11:01 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> to receive updates for the input subsystem. You will get a small fixup to
+> i8042 adding Asus X450LCP to the nomux list.
 
-Please pull from:
+Side note: I'm wondering how painful it would be to just make nomux
+the default.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+I think it's getting to be a legacy issue, since the traditional
+reason for it (afaik) is just having both an external PS/2 port _and_
+a touchpad connnected to the same controller. And even when that
+happens, it seems that as often as not, the bug reports in this area
+have been about the touchpad _not_ working due to us incorrectly
+thinking it's muxed.
 
-to receive updates for the input subsystem. You will get a small fixup to
-i8042 adding Asus X450LCP to the nomux list.
+I dunno. Maybe mux mode is used more than I think it is, and it would
+cause tons of problems. But I do find myself wondering whether we'd be
+better off not doing mux by default, and making the DMI check instead
+check for systems that *do* want muxing.
 
-Changelog:
----------
+Hmm? Am I just being crazy?
 
-Marcos Paulo de Souza (1):
-      Input: i8042 - fix Asus X450LCP touchpad detection
-
-
-Diffstat:
---------
-
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-
--- 
-Dmitry
+               Linus

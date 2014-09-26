@@ -1,49 +1,31 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] HID: add new gamepad LED constants
-Date: Thu, 25 Sep 2014 12:26:06 +0200
-Message-ID: <CANq1E4TgMtOgDbnwn78NvPSCT38oCVPdV5e8BBT8pxZyuivY2A@mail.gmail.com>
-References: <1410750811-11156-1-git-send-email-michaelwr@google.com>
-	<CANq1E4RY8cF1de4_rdS3Whjrf0bboYMtii4_nYNM2mEJuAKMfQ@mail.gmail.com>
-	<CAON4U=OTzqOYDCeT-rFM8trvD80_kQxirZ+Yu5nOjc84v15XLA@mail.gmail.com>
-	<20140915215728.GB13468@core.coreip.homeip.net>
-	<CANq1E4TK1=mD0Xh5KuydoONqiex79HggvoM9XRhorogmxqBqhw@mail.gmail.com>
-	<20140915225809.GA31798@core.coreip.homeip.net>
-	<CANq1E4R80GwEL43ngV5-8cWXTQAchfCOwpYSxUZfL7Hxy5yVSw@mail.gmail.com>
-	<20140923163756.GC40700@core.coreip.homeip.net>
+From: =?UTF-8?B?Q2h1bmctWWloIFdhbmcgKOeOi+W0h+aHvyk=?=
+	<cywang@google.com>
+Subject: Re: How to indicate hover touch when exact distance unknown?
+Date: Fri, 26 Sep 2014 12:07:55 +0800
+Message-ID: <CAM2ehZYzaRw_kC9j=yu8u_8Zvk44CT28x=gp+Eku5UD3RR_LWg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:40134 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751391AbaIYK0H (ORCPT
+Received: from mail-ob0-f178.google.com ([209.85.214.178]:64384 "EHLO
+	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751584AbaIZEIQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Sep 2014 06:26:07 -0400
-Received: by mail-ig0-f170.google.com with SMTP id a13so8311937igq.5
-        for <linux-input@vger.kernel.org>; Thu, 25 Sep 2014 03:26:07 -0700 (PDT)
-In-Reply-To: <20140923163756.GC40700@core.coreip.homeip.net>
+	Fri, 26 Sep 2014 00:08:16 -0400
+Received: by mail-ob0-f178.google.com with SMTP id va2so9459857obc.9
+        for <linux-input@vger.kernel.org>; Thu, 25 Sep 2014 21:08:16 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Wright <michaelwr@android.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Michael Wright <michaelwr@google.com>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org
 
-Hi
-
-On Tue, Sep 23, 2014 at 6:37 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->> It's the same discussion we had with
->> backlights for years and we're trying eagerly to merge them into the
->> DRM char-devs.
+>>How about ABS_MT_PRESENT and/or ABS_PRESENT? It would complement TOUCH in the
+>>case of hovering, allow the state where the tool is there but not touching, and
+>>would unambiguously advertise the capability of detecting presence. It would
+>>also be forward compatible with additional capabilities, such as reporting the
+>>actual distance to the surface.
 >>
->
-> So keyboard backlight is going to be controlled by display chardev? Or
-> we are fragmenting backlights into different classes?
+>>Henrik
 
-The idea is to make DRM property changes propagate into a linked
-backlight. Applied to input-LEDs, it would mean setting LED_XYZ via
-input would cause an kernel-internal call into the linked led_class
-set_brightness(). This allows us to register an led-class per LED as
-you request, but at the same time allow easy access via input devices
-where it makes sense.
+Or how about ABS_MT_TYPE which indicates touch type of a slot (finger,
+hovering, stylus, ...)?
 
-Thanks
-David
+Chung-yih

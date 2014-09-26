@@ -1,64 +1,113 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 5/6] HID: hid-sensor-hub: use mfd_add_hotplug_devices
- helper
-Date: Fri, 26 Sep 2014 13:25:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1409261325100.22196@pobox.suse.cz>
-References: <1411728933-13351-1-git-send-email-johan@kernel.org> <1411728933-13351-6-git-send-email-johan@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: How to indicate hover touch when exact distance unknown?
+Date: Fri, 26 Sep 2014 09:50:32 -0400
+Message-ID: <CAN+gG=G4Kik_Gicdo6zqZbJMqp8-hYxw8yy0rEqN7-Dj5HfKeQ@mail.gmail.com>
+References: <CAG_cf+dJfiqW_V1k4MfGMBNUK9Kgc4=9BPAuum7dbs6rkmAgrQ@mail.gmail.com>
+	<20140923145916.GA3110@mail.corp.redhat.com>
+	<20140923162811.GB40700@core.coreip.homeip.net>
+	<20140924045213.GA4194@jelly.redhat.com>
+	<54225667.30801@euromail.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35517 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754489AbaIZLZt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Sep 2014 07:25:49 -0400
-In-Reply-To: <1411728933-13351-6-git-send-email-johan@kernel.org>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:33926 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753782AbaIZNud (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Sep 2014 09:50:33 -0400
+Received: by mail-wi0-f175.google.com with SMTP id r20so10996141wiv.2
+        for <linux-input@vger.kernel.org>; Fri, 26 Sep 2014 06:50:32 -0700 (PDT)
+In-Reply-To: <54225667.30801@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, Hans de Goede <hdegoede@redhat.com>, jikos@jikos.cz, David Herrmann <dh.herrmann@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-On Fri, 26 Sep 2014, Johan Hovold wrote:
+On Wed, Sep 24, 2014 at 1:28 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>>>> FWIW, hid-multitouch already support those devices.
+>>>> ABS_MT_DISTANCE is set with a min/max of 0/1 when we detect win8
+>>>> certified panels with hovering capability. By default the spec does not
+>>>> provide the distance IIRC, and you only have one byte: InRange.
+>>>
+>>> Hmm, I missed that and this is unfortunate. The ABS capabilities
+>>> advertised by the devices should match their real capabilities. If
+>>> device can't properly report distance it should not be using
+>>> ABS_MT_DISTANCE/ABS_DISTANCE...
+>>
+>> I think the hid-mt behaviour makes sense. Without explicit resolution (and
+>> no device sets that anyway, IIRC) any distance value > min tells us only that a
+>> tool is within detectable range, but not yet touching. Anything between
+>> min/max is only useful as a relative scale, but effectively that [min,max]
+>> range could be a metre or a millimeter, we can't know. So a device with a
+>> 0/1 range simply has low granularity and is only able to detect whether
+>> something is within range or touching the surface.
+>
+> I agree with this, but I also share Dmitry's concern.
+>
+> A device that can detect hovering, if only binary, does in fact coarsely
+> estimate the distance from the touching surface. A device allowing for a smooth
+> approach of objects would simply support a better resolution. From that
+> perspective, using the ABS_MT_DISTANCE capability makes sense. Pragmatically.
 
-> Use mfd_add_hotplug_devices helper to register the subdevices.
-> 
-> Compile-only tested.
-> 
-> Signed-off-by: Johan Hovold <johan@kernel.org>
+I agree.
 
-As I expect this to be going through MFD tree together with the rest of 
-the patchset
+>
+> However, at no point are we really changing the coordinate system, which remains
+> euclidian space. We are simply changing resolution and thresholds for what
+> constitues a touch. Forcing userland to step away from the simple interpretation
+> is what eventually makes the capability impossible to use as intended.
 
-	Acked-by: Jiri Kosina <jkosina@suse.cz>
-> ---
->  drivers/hid/hid-sensor-hub.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 2ac25760a9a9..fbe1a6d2aa53 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -641,9 +641,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
->  					goto err_stop_hw;
->  			}
->  			sd->hid_sensor_hub_client_devs[
-> -				sd->hid_sensor_client_cnt].id =
-> -							PLATFORM_DEVID_AUTO;
-> -			sd->hid_sensor_hub_client_devs[
->  				sd->hid_sensor_client_cnt].name = name;
->  			sd->hid_sensor_hub_client_devs[
->  				sd->hid_sensor_client_cnt].platform_data =
-> @@ -659,8 +656,9 @@ static int sensor_hub_probe(struct hid_device *hdev,
->  	if (last_hsdev)
->  		last_hsdev->end_collection_index = i;
->  
-> -	ret = mfd_add_devices(&hdev->dev, 0, sd->hid_sensor_hub_client_devs,
-> -		sd->hid_sensor_client_cnt, NULL, 0, NULL);
-> +	ret = mfd_add_hotplug_devices(&hdev->dev,
-> +			sd->hid_sensor_hub_client_devs,
-> +			sd->hid_sensor_client_cnt);
->  	if (ret < 0)
->  		goto err_stop_hw;
+I think you are missing a point here. My maths are a little bit rusty,
+but if euclidian space there is, the space is *not* normalized. Peter
+remembered me the other day that the touchpad found on the Lenovo x220
+has a x resolution of 75 and a y resolution of 129. So every sane
+library/driver/tool has to take the individual resolution into account
+if they want to provide accurate results.
+Given that libinput, xorg-evdev and xorg-synaptics all take this into
+account, then it is safe to say that they can simply consider that a
+resolution of 0 is simply absolute and a binary explanation fits well
+(was it 1 mm, 1 cm, 1 inch or 1 meter).
 
--- 
-Jiri Kosina
-SUSE Labs
+>
+> So, if we cannot express, using the abs_info data, something like "contains a
+> detector which can coarsely estimate the distance and then uses a detector
+> threshold to set that distance to zero or one", we had better express it in some
+> other way, which is less ambiguous.
+
+IMO, your sentence is already ambiguous enough :-)
+Seriously, I think that we should not worry too much about the binary
+ABS_MT_DISTANCE:
+Think about the wacom pens: they report hovering and distance, but I
+don't think any application uses the absolute distance to change the
+behavior. The user can not maintain a constant distance with the tip
+of the finger or the stylus from the surface, so most of the time the
+value is ignored while the hovering matters.
+A binary ABS_MT_DISTANCE is enough to send this info to the driver,
+and then, the driver can decide to transfer it or not to its clients.
+
+>
+> How about ABS_MT_PRESENT and/or ABS_PRESENT? It would complement TOUCH in the
+> case of hovering, allow the state where the tool is there but not touching, and
+> would unambiguously advertise the capability of detecting presence. It would
+> also be forward compatible with additional capabilities, such as reporting the
+> actual distance to the surface.
+
+I don't think adding such a new axis is a good idea. We do *not* have
+a per slot MT_TOUCH. We only have the tracking id which says that the
+slot is *valid*. Then, the spec already explains how can the device
+convey the hovering information:
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/input/multi-touch-protocol.txt#n259
+
+"ABS_MT_DISTANCE: The distance, in surface units, between the contact
+and the surface. Zero distance means the contact is touching the
+surface. A positive number means the contact is hovering above the
+surface."
+
+The problem here is the "surface units", but given that the units on
+each axes depends on the per axis resolution, a resolution of 0 says
+that the units are undefined, and that the client should use only the
+last part of the definition: zero = touch, >0 = hovering.
+
+my 2 cents.
+
+Benjamin

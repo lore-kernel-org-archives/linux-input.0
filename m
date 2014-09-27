@@ -1,30 +1,46 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: Elantech PS/2 touchpad stops responding after a suspend/resume in
- Asus X450LCP
-Date: Sat, 27 Sep 2014 11:41:27 -0300
-Message-ID: <5426CC97.3000100@gmail.com>
+From: Daniel Mack <daniel@zonque.org>
+Subject: Re: [PATCH v3 1/3] cap11xx: make driver generic for variant support
+Date: Sat, 27 Sep 2014 20:21:38 +0200
+Message-ID: <54270032.5010204@zonque.org>
+References: <1411622662-16581-1-git-send-email-mranostay@gmail.com> <1411622662-16581-2-git-send-email-mranostay@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f46.google.com ([209.85.192.46]:45964 "EHLO
-	mail-qg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752738AbaI0OmC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Sep 2014 10:42:02 -0400
-Received: by mail-qg0-f46.google.com with SMTP id q108so10020662qgd.19
-        for <linux-input@vger.kernel.org>; Sat, 27 Sep 2014 07:42:01 -0700 (PDT)
+Received: from svenfoo.org ([82.94.215.22]:44983 "EHLO mail.zonque.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750980AbaI0SVm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 27 Sep 2014 14:21:42 -0400
+In-Reply-To: <1411622662-16581-2-git-send-email-mranostay@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Matt Ranostay <mranostay@gmail.com>, galak@codeaurora.org, dmitry.torokhov@gmail.com, zonque@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org
+Cc: devicetree@vger.kernel.org
 
-Hi guys,
+On 09/25/2014 07:24 AM, Matt Ranostay wrote:
+> cap1106 driver can support much more one device make the driver
+> generic for support of similiar parts.
+> 
+> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
+> ---
+>  .../devicetree/bindings/input/cap1106.txt          |  53 ----
+>  .../devicetree/bindings/input/cap11xx.txt          |  54 ++++
+>  drivers/input/keyboard/Kconfig                     |   8 +-
+>  drivers/input/keyboard/Makefile                    |   2 +-
+>  drivers/input/keyboard/cap1106.c                   | 341 ---------------------
+>  drivers/input/keyboard/cap11xx.c                   | 340 ++++++++++++++++++++
+>  6 files changed, 399 insertions(+), 399 deletions(-)
 
-after putting my Asus in the nomux list, it stops to work after I close 
-and reopen my laptop(suspend/resume). Do you have any idea what's going on?
+As I've said, such a patch is really a whole lot more readable if you
+use the -M switch for git format-patch to detect renames.
 
-I tried to get some additional information in dmesg before and after it 
-stops working, but it seems that I don't give any useful information there.
+Other than that, the series now looks good to me. I can't test it,
+however, as I don't have access to the hardware anymore.
+
+  Reviewed-by: Daniel Mack <daniel@zonque.org>
+
+
 
 Thanks,
-     Marcos
+Daniel
+

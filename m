@@ -1,359 +1,345 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH RESEND RESEND] Input: evdev - add event-mask API
-Date: Sun, 28 Sep 2014 12:19:39 +0200
-Message-ID: <CANq1E4Q2S6vmpN=My8DXSPMti-pNQD24Hb0V9hqD=9TfND_mrg@mail.gmail.com>
-References: <1407914195-2797-1-git-send-email-dh.herrmann@gmail.com>
+From: "Matwey V. Kornilov" <matwey-TTlVxmypnbovJsYlp49lxw@public.gmane.org>
+Subject: Re: [PATCH RFC] drivers: parport: Ask user for irqreturn_t value
+Date: Sun, 28 Sep 2014 18:30:35 +0400
+Message-ID: <CAJs94EbA0DhqQXXfYLh_k1fqn0gzn6YoBKNN6a-w4vSfZfM9Ng@mail.gmail.com>
+References: <1411891335-3677-1-git-send-email-matwey@sai.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:54954 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751198AbaI1KTk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Sep 2014 06:19:40 -0400
-Received: by mail-ie0-f171.google.com with SMTP id rd18so13336510iec.16
-        for <linux-input@vger.kernel.org>; Sun, 28 Sep 2014 03:19:39 -0700 (PDT)
-In-Reply-To: <1407914195-2797-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1411891335-3677-1-git-send-email-matwey-TTlVxmypnbovJsYlp49lxw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: linux-parport <linux-parport-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, arnd <arnd-r2nGTMty4D4@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "dmitry.torokhov" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "t.sailer" <t.sailer-aAjG49QhEdKVRmA6MYkXiA@public.gmane.org>, linux-hams <linux-hams-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, netdev <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, linuxpps <linuxpps-fMOxgv769XvBG6Z5cez8fA@public.gmane.org>, "m.chehab" <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-media <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Matwey V. Kornilov" <matwey-TTlVxmypnbovJsYlp49lxw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Ping?
+Forget it, I invented something strange.
 
-On Wed, Aug 13, 2014 at 9:16 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hardware manufacturers group keys in the weirdest way possible. This may
-> cause a power-key to be grouped together with normal keyboard keys and
-> thus be reported on the same kernel interface.
+2014-09-28 12:02 GMT+04:00 Matwey V. Kornilov <matwey-TTlVxmypnbovJsYlp49lxw@public.gmane.org>:
+> Current parport_irq_handler behaviour is not correct when IRQ is shared.
+> LDDv3 on page 279 requires us:
 >
-> However, user-space is often only interested in specific sets of events.
-> For instance, daemons dealing with system-reboot (like systemd-logind)
-> listen for KEY_POWER, but are not interested in any main keyboard keys.
-> Usually, power keys are reported via separate interfaces, however,
-> some i8042 boards report it in the AT matrix. To avoid waking up those
-> system daemons on each key-press, we had two ideas:
->  - split off KEY_POWER into a separate interface unconditionally
->  - allow filtering a specific set of events on evdev FDs
+> "Be sure to return IRQ_NONE whenever your handler is called and finds
+> the device is not interrupting."
 >
-> Splitting of KEY_POWER is a rather weird way to deal with this and may
-> break backwards-compatibility. It is also specific to KEY_POWER and might
-> be required for other stuff, too. Moreover, we might end up with a huge
-> set of input-devices just to have them properly split.
+> This is not the case of parport_irq_handler.
+> Current implementation of IRQ handling use this to optimize shared IRQ processing.
+> When an action returns IRQ_HANDLED no other actions are processed.
 >
-> Hence, this patchset implements the second idea: An event-mask to specify
-> which events you're interested in. Two ioctls allow setting this mask for
-> each event-type. If not set, all events are reported. The type==0 entry is
-> used same as in EVIOCGBIT to set the actual EV_* mask of filtered events.
-> This way, you have a two-level filter.
+> Modify callback function void (*irq_func)(void *) to irqreturn_t (*irq_func)(void *) and return the value in parport_irq_handler
 >
-> We are heavily forward-compatible to new event-types and event-codes. So
-> new user-space will be able to run on an old kernel which doesn't know the
-> given event-codes or event-types.
+> This also fixes https://bugzilla.kernel.org/show_bug.cgi?id=85221
 >
-> Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> Signed-off-by: Matwey V. Kornilov <matwey-TTlVxmypnbovJsYlp49lxw@public.gmane.org>
 > ---
-> Hi Dmitry
+>  drivers/char/ppdev.c                       |  4 +++-
+>  drivers/i2c/busses/i2c-parport.c           |  5 ++++-
+>  drivers/input/joystick/walkera0701.c       |  6 ++++--
+>  drivers/net/hamradio/baycom_par.c          |  4 +++-
+>  drivers/net/plip/plip.c                    |  8 +++++---
+>  drivers/parport/share.c                    |  6 ++----
+>  drivers/pps/clients/pps_parport.c          |  6 +++---
+>  drivers/staging/media/lirc/lirc_parallel.c | 12 +++++++-----
+>  include/linux/parport.h                    | 12 ++++++++----
+>  9 files changed, 39 insertions(+), 24 deletions(-)
 >
-> We could really make use of this for SUSPEND/POWER key handling. We keep getting
-> reports from people where those keys are reported as part of the main keyboard.
-> It's really annoying if we have to wake up those processes for *every*
-> key-press.
+> diff --git a/drivers/char/ppdev.c b/drivers/char/ppdev.c
+> index ae0b42b..61fec51 100644
+> --- a/drivers/char/ppdev.c
+> +++ b/drivers/char/ppdev.c
+> @@ -264,7 +264,7 @@ static ssize_t pp_write (struct file * file, const char __user * buf,
+>         return bytes_written;
+>  }
 >
-> In case you just need time to review it, let me know. Otherwise, I will keep
-> resending it as people ask me for it all the time.
->
-> Thanks
-> David
->
->  drivers/input/evdev.c      | 156 ++++++++++++++++++++++++++++++++++++++++++++-
->  include/uapi/linux/input.h |  56 ++++++++++++++++
->  2 files changed, 210 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index fd325ec..6386882 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -51,10 +51,130 @@ struct evdev_client {
->         struct list_head node;
->         int clkid;
->         bool revoked;
-> +       unsigned long *evmasks[EV_CNT];
->         unsigned int bufsize;
->         struct input_event buffer[];
->  };
->
-> +static size_t evdev_get_mask_cnt(unsigned int type)
-> +{
-> +       static size_t counts[EV_CNT] = {
-> +               /* EV_SYN==0 is EV_CNT, _not_ SYN_CNT, see EVIOCGBIT */
-> +               [EV_SYN] = EV_CNT,
-> +               [EV_KEY] = KEY_CNT,
-> +               [EV_REL] = REL_CNT,
-> +               [EV_ABS] = ABS_CNT,
-> +               [EV_MSC] = MSC_CNT,
-> +               [EV_SW] = SW_CNT,
-> +               [EV_LED] = LED_CNT,
-> +               [EV_SND] = SND_CNT,
-> +               [EV_FF] = FF_CNT,
-> +       };
-> +
-> +       return (type < EV_CNT) ? counts[type] : 0;
-> +}
-> +
-> +/* must be called with evdev-mutex held */
-> +static int evdev_set_mask(struct evdev_client *client,
-> +                         unsigned int type,
-> +                         const void __user *codes,
-> +                         u32 codes_size)
-> +{
-> +       unsigned long flags, *mask, *oldmask;
-> +       size_t cnt, size;
-> +
-> +       /* unknown masks are simply ignored for forward-compat */
-> +       cnt = evdev_get_mask_cnt(type);
-> +       if (!cnt)
-> +               return 0;
-> +
-> +       /* we allow 'codes_size > size' for forward-compat */
-> +       size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
-> +
-> +       mask = kzalloc(size, GFP_KERNEL);
-> +       if (!mask)
-> +               return -ENOMEM;
-> +
-> +       if (copy_from_user(mask, codes, min_t(size_t, codes_size, size))) {
-> +               kfree(mask);
-> +               return -EFAULT;
-> +       }
-> +
-> +       spin_lock_irqsave(&client->buffer_lock, flags);
-> +       oldmask = client->evmasks[type];
-> +       client->evmasks[type] = mask;
-> +       spin_unlock_irqrestore(&client->buffer_lock, flags);
-> +
-> +       kfree(oldmask);
-> +
-> +       return 0;
-> +}
-> +
-> +/* must be called with evdev-mutex held */
-> +static int evdev_get_mask(struct evdev_client *client,
-> +                         unsigned int type,
-> +                         void __user *codes,
-> +                         u32 codes_size)
-> +{
-> +       unsigned long *mask;
-> +       size_t cnt, size, min, i;
-> +       u8 __user *out;
-> +
-> +       /* we allow unknown types and 'codes_size > size' for forward-compat */
-> +       cnt = evdev_get_mask_cnt(type);
-> +       size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
-> +       min = min_t(size_t, codes_size, size);
-> +
-> +       if (cnt > 0) {
-> +               mask = client->evmasks[type];
-> +               if (mask) {
-> +                       if (copy_to_user(codes, mask, min))
-> +                               return -EFAULT;
-> +               } else {
-> +                       /* fake mask with all bits set */
-> +                       out = (u8 __user*)codes;
-> +                       for (i = 0; i < min; ++i) {
-> +                               if (put_user((u8)0xff,  out + i))
-> +                                       return -EFAULT;
-> +                       }
-> +               }
-> +       }
-> +
-> +       codes = (u8*)codes + min;
-> +       codes_size -= min;
-> +
-> +       if (codes_size > 0 && clear_user(codes, codes_size))
-> +               return -EFAULT;
-> +
-> +       return 0;
-> +}
-> +
-> +/* requires the buffer lock to be held */
-> +static bool __evdev_is_filtered(struct evdev_client *client,
-> +                               unsigned int type,
-> +                               unsigned int code)
-> +{
-> +       unsigned long *mask;
-> +       size_t cnt;
-> +
-> +       /* EV_SYN and unknown codes are never filtered */
-> +       if (type == EV_SYN || type >= EV_CNT)
-> +               return false;
-> +
-> +       /* first test whether the type is filtered */
-> +       mask = client->evmasks[0];
-> +       if (mask && !test_bit(type, mask))
-> +               return true;
-> +
-> +       /* unknown values are never filtered */
-> +       cnt = evdev_get_mask_cnt(type);
-> +       if (!cnt || code >= cnt)
-> +               return false;
-> +
-> +       mask = client->evmasks[type];
-> +       return mask && !test_bit(code, mask);
-> +}
-> +
->  /* flush queued events of type @type, caller must hold client->buffer_lock */
->  static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+> -static void pp_irq (void *private)
+> +static irqreturn_t pp_irq (void *private)
 >  {
-> @@ -177,12 +297,21 @@ static void evdev_pass_values(struct evdev_client *client,
->         spin_lock(&client->buffer_lock);
+>         struct pp_struct *pp = private;
 >
->         for (v = vals; v != vals + count; v++) {
-> +               if (__evdev_is_filtered(client, v->type, v->code))
-> +                       continue;
+> @@ -275,6 +275,8 @@ static void pp_irq (void *private)
+>
+>         atomic_inc (&pp->irqc);
+>         wake_up_interruptible (&pp->irq_wait);
 > +
-> +               if (v->type == EV_SYN && v->code == SYN_REPORT) {
-> +                       /* drop empty SYN_REPORT */
-> +                       if (client->packet_head == client->head)
-> +                               continue;
+> +       return IRQ_HANDLED;
+>  }
+>
+>  static int register_device (int minor, struct pp_struct *pp)
+> diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+> index a27aae2..7549e10 100644
+> --- a/drivers/i2c/busses/i2c-parport.c
+> +++ b/drivers/i2c/busses/i2c-parport.c
+> @@ -151,7 +151,7 @@ static const struct i2c_algo_bit_data parport_algo_data = {
+>
+>  /* ----- I2c and parallel port call-back functions and structures --------- */
+>
+> -static void i2c_parport_irq(void *data)
+> +static irqreturn_t i2c_parport_irq(void *data)
+>  {
+>         struct i2c_par *adapter = data;
+>         struct i2c_client *ara = adapter->ara;
+> @@ -159,9 +159,12 @@ static void i2c_parport_irq(void *data)
+>         if (ara) {
+>                 dev_dbg(&ara->dev, "SMBus alert received\n");
+>                 i2c_handle_smbus_alert(ara);
+> +               return IRQ_HANDLED;
+>         } else
+>                 dev_dbg(&adapter->adapter.dev,
+>                         "SMBus alert received but no ARA client!\n");
 > +
-> +                       wakeup = true;
-> +               }
-> +
->                 event.type = v->type;
->                 event.code = v->code;
->                 event.value = v->value;
->                 __pass_event(client, &event);
-> -               if (v->type == EV_SYN && v->code == SYN_REPORT)
-> -                       wakeup = true;
+> +       return IRQ_NONE;
+>  }
+>
+>  static void i2c_parport_attach(struct parport *port)
+> diff --git a/drivers/input/joystick/walkera0701.c b/drivers/input/joystick/walkera0701.c
+> index b76ac58..f3903a6 100644
+> --- a/drivers/input/joystick/walkera0701.c
+> +++ b/drivers/input/joystick/walkera0701.c
+> @@ -124,7 +124,7 @@ static inline int read_ack(struct pardevice *p)
+>  }
+>
+>  /* falling edge, prepare to BIN value calculation */
+> -static void walkera0701_irq_handler(void *handler_data)
+> +static irqreturn_t walkera0701_irq_handler(void *handler_data)
+>  {
+>         u64 pulse_time;
+>         struct walkera_dev *w = handler_data;
+> @@ -136,7 +136,7 @@ static void walkera0701_irq_handler(void *handler_data)
+>         /* cancel timer, if in handler or active do resync */
+>         if (unlikely(0 != hrtimer_try_to_cancel(&w->timer))) {
+>                 w->counter = NO_SYNC;
+> -               return;
+> +               return IRQ_HANDLED;
 >         }
 >
->         spin_unlock(&client->buffer_lock);
-> @@ -365,6 +494,7 @@ static int evdev_release(struct inode *inode, struct file *file)
+>         if (w->counter < NO_SYNC) {
+> @@ -166,6 +166,8 @@ static void walkera0701_irq_handler(void *handler_data)
+>                 w->counter = 0;
+>
+>         hrtimer_start(&w->timer, ktime_set(0, BIN_SAMPLE), HRTIMER_MODE_REL);
+> +
+> +       return IRQ_HANDLED;
+>  }
+>
+>  static enum hrtimer_restart timer_handler(struct hrtimer
+> diff --git a/drivers/net/hamradio/baycom_par.c b/drivers/net/hamradio/baycom_par.c
+> index acb6369..1fd9a7b 100644
+> --- a/drivers/net/hamradio/baycom_par.c
+> +++ b/drivers/net/hamradio/baycom_par.c
+> @@ -269,7 +269,7 @@ static __inline__ void par96_rx(struct net_device *dev, struct baycom_state *bc)
+>
+>  /* --------------------------------------------------------------------- */
+>
+> -static void par96_interrupt(void *dev_id)
+> +static irqreturn_t par96_interrupt(void *dev_id)
 >  {
->         struct evdev_client *client = file->private_data;
->         struct evdev *evdev = client->evdev;
-> +       unsigned int i;
+>         struct net_device *dev = dev_id;
+>         struct baycom_state *bc = netdev_priv(dev);
+> @@ -292,6 +292,8 @@ static void par96_interrupt(void *dev_id)
+>         hdlcdrv_transmitter(dev, &bc->hdrv);
+>         hdlcdrv_receiver(dev, &bc->hdrv);
+>          local_irq_disable();
+> +
+> +       return IRQ_HANDLED;
+>  }
 >
->         mutex_lock(&evdev->mutex);
->         evdev_ungrab(evdev, client);
-> @@ -372,6 +502,9 @@ static int evdev_release(struct inode *inode, struct file *file)
+>  /* --------------------------------------------------------------------- */
+> diff --git a/drivers/net/plip/plip.c b/drivers/net/plip/plip.c
+> index 040b897..00a8b3a 100644
+> --- a/drivers/net/plip/plip.c
+> +++ b/drivers/net/plip/plip.c
+> @@ -143,7 +143,7 @@ static void plip_bh(struct work_struct *work);
+>  static void plip_timer_bh(struct work_struct *work);
 >
->         evdev_detach_client(evdev, client);
+>  /* Interrupt handler */
+> -static void plip_interrupt(void *dev_id);
+> +static irqreturn_t plip_interrupt(void *dev_id);
 >
-> +       for (i = 0; i < EV_CNT; ++i)
-> +               kfree(client->evmasks[i]);
-> +
->         if (is_vmalloc_addr(client))
->                 vfree(client);
->         else
-> @@ -811,6 +944,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->         struct evdev *evdev = client->evdev;
->         struct input_dev *dev = evdev->handle.dev;
->         struct input_absinfo abs;
-> +       struct input_mask mask;
->         struct ff_effect effect;
->         int __user *ip = (int __user *)p;
->         unsigned int i, t, u, v;
-> @@ -872,6 +1006,24 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->                 else
->                         return evdev_revoke(evdev, client, file);
+>  /* Functions for DEV methods */
+>  static int plip_tx_packet(struct sk_buff *skb, struct net_device *dev);
+> @@ -900,7 +900,7 @@ plip_error(struct net_device *dev, struct net_local *nl,
+>  }
 >
-> +       case EVIOCGMASK:
-> +               if (copy_from_user(&mask, p, sizeof(mask)))
-> +                       return -EFAULT;
-> +
-> +               return evdev_get_mask(client,
-> +                                     mask.type,
-> +                                     (void*)(long)mask.codes_ptr,
-> +                                     mask.codes_size);
-> +
-> +       case EVIOCSMASK:
-> +               if (copy_from_user(&mask, p, sizeof(mask)))
-> +                       return -EFAULT;
-> +
-> +               return evdev_set_mask(client,
-> +                                     mask.type,
-> +                                     (const void*)(long)mask.codes_ptr,
-> +                                     mask.codes_size);
-> +
->         case EVIOCSCLOCKID:
->                 if (copy_from_user(&i, p, sizeof(unsigned int)))
->                         return -EFAULT;
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index 19df18c..f6ace0e 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -97,6 +97,12 @@ struct input_keymap_entry {
->         __u8  scancode[32];
->  };
+>  /* Handle the parallel port interrupts. */
+> -static void
+> +static irqreturn_t
+>  plip_interrupt(void *dev_id)
+>  {
+>         struct net_device *dev = dev_id;
+> @@ -919,7 +919,7 @@ plip_interrupt(void *dev_id)
+>                 if ((dev->irq != -1) && (net_debug > 1))
+>                         printk(KERN_DEBUG "%s: spurious interrupt\n", dev->name);
+>                 spin_unlock_irqrestore (&nl->lock, flags);
+> -               return;
+> +               return IRQ_NONE;
+>         }
 >
-> +struct input_mask {
-> +       __u32 type;
-> +       __u32 codes_size;
-> +       __u64 codes_ptr;
-> +};
-> +
->  #define EVIOCGVERSION          _IOR('E', 0x01, int)                    /* get driver version */
->  #define EVIOCGID               _IOR('E', 0x02, struct input_id)        /* get device ID */
->  #define EVIOCGREP              _IOR('E', 0x03, unsigned int[2])        /* get repeat settings */
-> @@ -154,6 +160,56 @@ struct input_keymap_entry {
->  #define EVIOCGRAB              _IOW('E', 0x90, int)                    /* Grab/Release device */
->  #define EVIOCREVOKE            _IOW('E', 0x91, int)                    /* Revoke device access */
+>         if (net_debug > 3)
+> @@ -948,6 +948,8 @@ plip_interrupt(void *dev_id)
+>         }
 >
-> +/**
-> + * EVIOCGMASK - Retrieve current event-mask
-> + *
-> + * This retrieves the current event-mask for a specific event-type. The
-> + * argument must be of type "struct input_mask" and specifies the event-type to
-> + * query, the receive buffer and the size of the receive buffer.
-> + *
-> + * The event-mask is a per-client mask that specifies which events are forwarded
-> + * to the client. Each event-code is represented by a single bit in the
-> + * event-mask. If the bit is set, the event is passed to the client normally.
-> + * Otherwise, the event is filtered and and will never be queued on the
-> + * client's receive buffer.
-> + * Event-masks do not affect global state of an input-device. They only affect
-> + * the open-file they're applied on. Each open-file (i.e, file-description) can
-> + * have a different event-mask.
-> + *
-> + * The default event-mask for a client has all bits set, i.e. all events are
-> + * forwarded to the client. If a kernel is queried for an unknown event-type
-> + * or if the receive buffer is larger than the number of event-codes known to
-> + * the kernel, the kernel returns all zeroes for those codes.
-> + *
-> + * At maximum, codes_size bytes are copied.
-> + *
-> + * This ioctl may fail with ENODEV in case the file is revoked, EFAULT
-> + * if the receive-buffer points to invalid memory, or EINVAL if the kernel
-> + * does not implement the ioctl.
-> + */
-> +#define EVIOCGMASK             _IOR('E', 0x92, struct input_mask)      /* Get event-masks */
+>         spin_unlock_irqrestore(&nl->lock, flags);
 > +
-> +/**
-> + * EVIOCSMASK - Set event-mask
-> + *
-> + * This is the counterpart to EVIOCGMASK. Instead of receiving the current
-> + * event-mask, this changes the client's event-mask for a specific type. See
-> + * EVIOCGMASK for a description of event-masks and the argument-type.
-> + *
-> + * This ioctl provides full forward-compatibility. If the passed event-type is
-> + * unknown to the kernel, or if the number of codes is bigger than known to the
-> + * kernel, the ioctl is still accepted and applied. However, any unknown codes
-> + * are left untouched and stay cleared. That means, the kernel always filters
-> + * unknown codes regardless of what the client requests.
-> + * If the new mask doesn't cover all known event-codes, all remaining codes are
-> + * automatically cleared and thus filtered.
-> + *
-> + * This ioctl may fail with ENODEV in case the file is revoked. EFAULT is
-> + * returned if the receive-buffer points to invalid memory. EINVAL is returned
-> + * if the kernel does not implement the ioctl.
-> + */
-> +#define EVIOCSMASK             _IOW('E', 0x93, struct input_mask)      /* Set event-masks */
-> +
->  #define EVIOCSCLOCKID          _IOW('E', 0xa0, int)                    /* Set clockid to be used for timestamps */
+> +       return IRQ_HANDLED;
+>  }
 >
->  /*
+>  static int
+> diff --git a/drivers/parport/share.c b/drivers/parport/share.c
+> index 3fa6624..1fd8dc2 100644
+> --- a/drivers/parport/share.c
+> +++ b/drivers/parport/share.c
+> @@ -523,7 +523,7 @@ void parport_remove_port(struct parport *port)
+>  struct pardevice *
+>  parport_register_device(struct parport *port, const char *name,
+>                         int (*pf)(void *), void (*kf)(void *),
+> -                       void (*irq_func)(void *),
+> +                       irqreturn_t (*irq_func)(void *),
+>                         int flags, void *handle)
+>  {
+>         struct pardevice *tmp;
+> @@ -1006,9 +1006,7 @@ irqreturn_t parport_irq_handler(int irq, void *dev_id)
+>  {
+>         struct parport *port = dev_id;
+>
+> -       parport_generic_irq(port);
+> -
+> -       return IRQ_HANDLED;
+> +       return parport_generic_irq(port);
+>  }
+>
+>  /* Exported symbols for modules. */
+> diff --git a/drivers/pps/clients/pps_parport.c b/drivers/pps/clients/pps_parport.c
+> index 38a8bbe..9acf376 100644
+> --- a/drivers/pps/clients/pps_parport.c
+> +++ b/drivers/pps/clients/pps_parport.c
+> @@ -64,7 +64,7 @@ static inline int signal_is_set(struct parport *port)
+>  }
+>
+>  /* parport interrupt handler */
+> -static void parport_irq(void *handle)
+> +static irqreturn_t parport_irq(void *handle)
+>  {
+>         struct pps_event_time ts_assert, ts_clear;
+>         struct pps_client_pp *dev = handle;
+> @@ -122,7 +122,7 @@ out_assert:
+>         /* fire assert event */
+>         pps_event(dev->pps, &ts_assert,
+>                         PPS_CAPTUREASSERT, NULL);
+> -       return;
+> +       return IRQ_HANDLED;
+>
+>  out_both:
+>         /* fire assert event */
+> @@ -131,7 +131,7 @@ out_both:
+>         /* fire clear event */
+>         pps_event(dev->pps, &ts_clear,
+>                         PPS_CAPTURECLEAR, NULL);
+> -       return;
+> +       return IRQ_HANDLED;
+>  }
+>
+>  static void parport_attach(struct parport *port)
+> diff --git a/drivers/staging/media/lirc/lirc_parallel.c b/drivers/staging/media/lirc/lirc_parallel.c
+> index 672858a..63fdc27 100644
+> --- a/drivers/staging/media/lirc/lirc_parallel.c
+> +++ b/drivers/staging/media/lirc/lirc_parallel.c
+> @@ -219,7 +219,7 @@ static void rbuf_write(int signal)
+>         wptr = nwptr;
+>  }
+>
+> -static void lirc_lirc_irq_handler(void *blah)
+> +static irqreturn_t lirc_lirc_irq_handler(void *blah)
+>  {
+>         struct timeval tv;
+>         static struct timeval lasttv;
+> @@ -230,10 +230,10 @@ static void lirc_lirc_irq_handler(void *blah)
+>         unsigned int timeout;
+>
+>         if (!is_open)
+> -               return;
+> +               return IRQ_NONE;
+>
+>         if (!is_claimed)
+> -               return;
+> +               return IRQ_NONE;
+>
+>  #if 0
+>         /* disable interrupt */
+> @@ -241,7 +241,7 @@ static void lirc_lirc_irq_handler(void *blah)
+>           out(LIRC_PORT_IRQ, in(LIRC_PORT_IRQ) & (~LP_PINTEN));
+>  #endif
+>         if (check_pselecd && (in(1) & LP_PSELECD))
+> -               return;
+> +               return IRQ_NONE;
+>
+>  #ifdef LIRC_TIMER
+>         if (init) {
+> @@ -265,7 +265,7 @@ static void lirc_lirc_irq_handler(void *blah)
+>                          */
+>                         timer = init_lirc_timer();
+>                         /* enable_irq(irq); */
+> -                       return;
+> +                       return IRQ_HANDLED;
+>                 }
+>                 init = 1;
+>         }
+> @@ -314,6 +314,8 @@ static void lirc_lirc_irq_handler(void *blah)
+>           enable_irq(irq);
+>           out(LIRC_PORT_IRQ, in(LIRC_PORT_IRQ)|LP_PINTEN);
+>         */
+> +
+> +       return IRQ_HANDLED;
+>  }
+>
+>  /*** file operations ***/
+> diff --git a/include/linux/parport.h b/include/linux/parport.h
+> index c22f125..2ab774c 100644
+> --- a/include/linux/parport.h
+> +++ b/include/linux/parport.h
+> @@ -141,7 +141,7 @@ struct pardevice {
+>         int (*preempt)(void *);
+>         void (*wakeup)(void *);
+>         void *private;
+> -       void (*irq_func)(void *);
+> +       irqreturn_t (*irq_func)(void *);
+>         unsigned int flags;
+>         struct pardevice *next;
+>         struct pardevice *prev;
+> @@ -298,7 +298,7 @@ extern void parport_put_port (struct parport *);
+>  struct pardevice *parport_register_device(struct parport *port,
+>                           const char *name,
+>                           int (*pf)(void *), void (*kf)(void *),
+> -                         void (*irq_func)(void *),
+> +                         irqreturn_t (*irq_func)(void *),
+>                           int flags, void *handle);
+>
+>  /* parport_unregister unlinks a device from the chain. */
+> @@ -429,13 +429,17 @@ extern void parport_daisy_deselect_all (struct parport *port);
+>  extern int parport_daisy_select (struct parport *port, int daisy, int mode);
+>
+>  /* Lowlevel drivers _can_ call this support function to handle irqs.  */
+> -static inline void parport_generic_irq(struct parport *port)
+> +static inline irqreturn_t parport_generic_irq(struct parport *port)
+>  {
+> +       irqreturn_t ret = IRQ_NONE;
+> +
+>         parport_ieee1284_interrupt (port);
+>         read_lock(&port->cad_lock);
+>         if (port->cad && port->cad->irq_func)
+> -               port->cad->irq_func(port->cad->private);
+> +               ret = port->cad->irq_func(port->cad->private);
+>         read_unlock(&port->cad_lock);
+> +
+> +       return ret;
+>  }
+>
+>  /* Prototypes from parport_procfs */
 > --
-> 2.0.4
+> 2.1.0
 >
+
+
+
+-- 
+With best regards,
+Matwey V. Kornilov.
+Sternberg Astronomical Institute, Lomonosov Moscow State University, Russia

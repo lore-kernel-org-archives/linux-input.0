@@ -1,56 +1,82 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: Re: [PATCH v3 1/3] cap11xx: make driver generic for variant support
-Date: Sun, 28 Sep 2014 19:45:07 -0700
-Message-ID: <CAKzfze9NiOc8_RcOV7RwURKciVCUWY6XyhBk_CsPxTj4r7-q6Q@mail.gmail.com>
-References: <1411622662-16581-1-git-send-email-mranostay@gmail.com>
-	<1411622662-16581-2-git-send-email-mranostay@gmail.com>
-	<54270032.5010204@zonque.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 1/5] mfd: cros_ec: Delay for 50ms when we see
+ EC_CMD_REBOOT_EC
+Date: Mon, 29 Sep 2014 08:49:21 +0100
+Message-ID: <20140929074921.GA5985@lee--X1>
+References: <1411053538-17237-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1411053538-17237-2-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54270032.5010204@zonque.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Mack <daniel@zonque.org>
-Cc: Kumar Gala <galak@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <zonque@gmail.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1411053538-17237-2-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Gwendal Grignou <gwendal@google.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Sep 27, 2014 at 11:21 AM, Daniel Mack <daniel@zonque.org> wrote:
-> On 09/25/2014 07:24 AM, Matt Ranostay wrote:
->> cap1106 driver can support much more one device make the driver
->> generic for support of similiar parts.
->>
->> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
->> ---
->>  .../devicetree/bindings/input/cap1106.txt          |  53 ----
->>  .../devicetree/bindings/input/cap11xx.txt          |  54 ++++
->>  drivers/input/keyboard/Kconfig                     |   8 +-
->>  drivers/input/keyboard/Makefile                    |   2 +-
->>  drivers/input/keyboard/cap1106.c                   | 341 ---------------------
->>  drivers/input/keyboard/cap11xx.c                   | 340 ++++++++++++++++++++
->>  6 files changed, 399 insertions(+), 399 deletions(-)
->
-> As I've said, such a patch is really a whole lot more readable if you
-> use the -M switch for git format-patch to detect renames.
->
+On Thu, 18 Sep 2014, Javier Martinez Canillas wrote:
 
-TIL I learned of new git format-patch option. Will resubmit v4.
+> From: Doug Anderson <dianders@chromium.org>
+>=20
+> If someone sends a EC_CMD_REBOOT_EC to the EC, the EC will likely be
+> unresponsive for quite a while.  Add a delay to the end of the comman=
+d
+> to prevent random failures of future commands.
+>=20
+> NOTES:
+> * This could be optimized a bit by simply delaying the next command
+>   sent, but EC_CMD_REBOOT_EC is such a rare command that the extra
+>   complexity doesn't seem worth it.
+> * This is a bit of an "ugly hack" since the SPI driver is effectively
+>   snooping on the communication and making a lot of assumptions.  It
+>   would be nice to architect in some better solution long term.
+> * This same logic probably needs to be applied to the i2c driver.
+>=20
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> Reviewed-by: Randall Spangler <rspangler@chromium.org>
+> Reviewed-by: Vadim Bendebury <vbendeb@chromium.org>
+> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co=
+=2Euk>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/mfd/cros_ec_spi.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 
-> Other than that, the series now looks good to me. I can't test it,
-> however, as I don't have access to the hardware anymore.
->
+Applied, thanks.
 
-Yeah I can't confirm it works on cap1106 but there is no reason it
-wouldn't work.
-Cap1188 works as expected.
+> diff --git a/drivers/mfd/cros_ec_spi.c b/drivers/mfd/cros_ec_spi.c
+> index 588c700..b396705 100644
+> --- a/drivers/mfd/cros_ec_spi.c
+> +++ b/drivers/mfd/cros_ec_spi.c
+> @@ -65,6 +65,12 @@
+>    */
+>  #define EC_SPI_RECOVERY_TIME_NS	(200 * 1000)
+> =20
+> +/*
+> + * The EC is unresponsive for a time after a reboot command.  Add a
+> + * simple delay to make sure that the bus stays locked.
+> + */
+> +#define EC_REBOOT_DELAY_MS	50
+> +
+>  /**
+>   * struct cros_ec_spi - information about a SPI-connected EC
+>   *
+> @@ -318,6 +324,9 @@ static int cros_ec_cmd_xfer_spi(struct cros_ec_de=
+vice *ec_dev,
+> =20
+>  	ret =3D len;
+>  exit:
+> +	if (ec_msg->command =3D=3D EC_CMD_REBOOT_EC)
+> +		msleep(EC_REBOOT_DELAY_MS);
+> +
+>  	mutex_unlock(&ec_spi->lock);
+>  	return ret;
+>  }
 
-Thanks,
-
-Matt
-
->   Reviewed-by: Daniel Mack <daniel@zonque.org>
->
->
->
-> Thanks,
-> Daniel
->
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

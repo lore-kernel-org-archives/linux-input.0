@@ -1,11 +1,11 @@
 From: Pramod Gurav <pramod.gurav@smartplayin.com>
-Subject: [PATCH] HID: cp2112: remove use of gpiochip_remove() retval
-Date: Tue, 30 Sep 2014 19:54:09 +0530
-Message-ID: <1412087049-4368-1-git-send-email-pramod.gurav@smartplayin.com>
+Subject: [PATCH 1/2] input: remove use of gpiochip_remove() retval
+Date: Tue, 30 Sep 2014 20:04:53 +0530
+Message-ID: <1412087693-8277-1-git-send-email-pramod.gurav@smartplayin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 Get rid of using return value from gpiochip_remove() as it returns
@@ -13,38 +13,67 @@ void.
 
 Cc: Linus Walleij <linus.walleij@linaro.org>
 Cc: Alexandre Courbot <gnurou@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org 
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 Cc: linux-gpio@vger.kernel.org
 
 Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
 ---
- drivers/hid/hid-cp2112.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/adp5588-keys.c |    4 +---
+ drivers/input/keyboard/adp5589-keys.c |    4 +---
+ drivers/input/touchscreen/ad7879.c    |    9 ++-------
+ 3 files changed, 4 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index a822db5..3318de6 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1069,8 +1069,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	return ret;
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 5ef7fcf..b97ed44 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -251,9 +251,7 @@ static void adp5588_gpio_remove(struct adp5588_kpad *kpad)
+ 			dev_warn(dev, "teardown failed %d\n", error);
+ 	}
  
- err_gpiochip_remove:
--	if (gpiochip_remove(&dev->gc) < 0)
--		hid_err(hdev, "error removing gpio chip\n");
-+	gpiochip_remove(&dev->gc);
- err_free_i2c:
- 	i2c_del_adapter(&dev->adap);
- err_free_dev:
-@@ -1089,8 +1088,7 @@ static void cp2112_remove(struct hid_device *hdev)
- 	struct cp2112_device *dev = hid_get_drvdata(hdev);
+-	error = gpiochip_remove(&kpad->gc);
+-	if (error)
+-		dev_warn(dev, "gpiochip_remove failed %d\n", error);
++	gpiochip_remove(&kpad->gc);
+ }
+ #else
+ static inline int adp5588_gpio_add(struct adp5588_kpad *kpad)
+diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
+index 6329549..a452677 100644
+--- a/drivers/input/keyboard/adp5589-keys.c
++++ b/drivers/input/keyboard/adp5589-keys.c
+@@ -567,9 +567,7 @@ static void adp5589_gpio_remove(struct adp5589_kpad *kpad)
+ 			dev_warn(dev, "teardown failed %d\n", error);
+ 	}
  
- 	sysfs_remove_group(&hdev->dev.kobj, &cp2112_attr_group);
--	if (gpiochip_remove(&dev->gc))
--		hid_err(hdev, "unable to remove gpio chip\n");
-+	gpiochip_remove(&dev->gc);
- 	i2c_del_adapter(&dev->adap);
- 	/* i2c_del_adapter has finished removing all i2c devices from our
- 	 * adapter. Well behaved devices should no longer call our cp2112_xfer
+-	error = gpiochip_remove(&kpad->gc);
+-	if (error)
+-		dev_warn(dev, "gpiochip_remove failed %d\n", error);
++	gpiochip_remove(&kpad->gc);
+ }
+ #else
+ static inline int adp5589_gpio_add(struct adp5589_kpad *kpad)
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index fce5906..ee3bb4d 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -470,14 +470,9 @@ static int ad7879_gpio_add(struct ad7879 *ts,
+ static void ad7879_gpio_remove(struct ad7879 *ts)
+ {
+ 	const struct ad7879_platform_data *pdata = dev_get_platdata(ts->dev);
+-	int ret;
+ 
+-	if (pdata->gpio_export) {
+-		ret = gpiochip_remove(&ts->gc);
+-		if (ret)
+-			dev_err(ts->dev, "failed to remove gpio %d\n",
+-				ts->gc.base);
+-	}
++	if (pdata->gpio_export)
++		gpiochip_remove(&ts->gc);
+ }
+ #else
+ static inline int ad7879_gpio_add(struct ad7879 *ts,
 -- 
 1.7.9.5

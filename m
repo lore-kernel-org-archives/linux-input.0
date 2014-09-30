@@ -1,79 +1,87 @@
-From: Pramod Gurav <pramod.gurav@smartplayin.com>
-Subject: [PATCH 1/2] input: remove use of gpiochip_remove() retval
-Date: Tue, 30 Sep 2014 20:04:53 +0530
-Message-ID: <1412087693-8277-1-git-send-email-pramod.gurav@smartplayin.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+Subject: [RFC 1/1] Input: gpio_keys - add device tree support for interrupt only keys
+Date: Tue, 30 Sep 2014 17:40:47 +0200
+Message-ID: <1412091647-1562-1-git-send-email-alexander.stein@systec-electronic.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from webbox1416.server-home.net ([77.236.96.61]:54472 "EHLO
+	webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750818AbaI3PsI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Sep 2014 11:48:08 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alexander Stein <alexander.stein@systec-electronic.com>, linux-input@vger.kernel.org
 
-Get rid of using return value from gpiochip_remove() as it returns
-void.
+This features already exists for board config setups. Add support for
+device tree based systems.
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-gpio@vger.kernel.org
-
-Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
 ---
- drivers/input/keyboard/adp5588-keys.c |    4 +---
- drivers/input/keyboard/adp5589-keys.c |    4 +---
- drivers/input/touchscreen/ad7879.c    |    9 ++-------
- 3 files changed, 4 insertions(+), 13 deletions(-)
+I'm aware thatthe device tree binding description is missing yet. But for now
+I just want some feedback about that approach.
 
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 5ef7fcf..b97ed44 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -251,9 +251,7 @@ static void adp5588_gpio_remove(struct adp5588_kpad *kpad)
- 			dev_warn(dev, "teardown failed %d\n", error);
- 	}
+ drivers/input/keyboard/gpio_keys.c | 31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 8c98e97..7b90e1b 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -29,6 +29,7 @@
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_gpio.h>
++#include <linux/of_irq.h>
+ #include <linux/spinlock.h>
  
--	error = gpiochip_remove(&kpad->gc);
--	if (error)
--		dev_warn(dev, "gpiochip_remove failed %d\n", error);
-+	gpiochip_remove(&kpad->gc);
- }
- #else
- static inline int adp5588_gpio_add(struct adp5588_kpad *kpad)
-diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-index 6329549..a452677 100644
---- a/drivers/input/keyboard/adp5589-keys.c
-+++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -567,9 +567,7 @@ static void adp5589_gpio_remove(struct adp5589_kpad *kpad)
- 			dev_warn(dev, "teardown failed %d\n", error);
- 	}
+ struct gpio_button_data {
+@@ -617,28 +618,32 @@ gpio_keys_get_devtree_pdata(struct device *dev)
  
--	error = gpiochip_remove(&kpad->gc);
--	if (error)
--		dev_warn(dev, "gpiochip_remove failed %d\n", error);
-+	gpiochip_remove(&kpad->gc);
- }
- #else
- static inline int adp5589_gpio_add(struct adp5589_kpad *kpad)
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index fce5906..ee3bb4d 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -470,14 +470,9 @@ static int ad7879_gpio_add(struct ad7879 *ts,
- static void ad7879_gpio_remove(struct ad7879 *ts)
- {
- 	const struct ad7879_platform_data *pdata = dev_get_platdata(ts->dev);
--	int ret;
+ 	i = 0;
+ 	for_each_child_of_node(node, pp) {
+-		int gpio;
++		int gpio = -1;
++		int irq;
+ 		enum of_gpio_flags flags;
  
--	if (pdata->gpio_export) {
--		ret = gpiochip_remove(&ts->gc);
--		if (ret)
--			dev_err(ts->dev, "failed to remove gpio %d\n",
--				ts->gc.base);
--	}
-+	if (pdata->gpio_export)
-+		gpiochip_remove(&ts->gc);
- }
- #else
- static inline int ad7879_gpio_add(struct ad7879 *ts,
+-		if (!of_find_property(pp, "gpios", NULL)) {
++		irq = irq_of_parse_and_map(pp, 0);
++
++		if (of_find_property(pp, "gpios", NULL)) {
++			gpio = of_get_gpio_flags(pp, 0, &flags);
++			if (gpio < 0) {
++				error = gpio;
++				if (error != -EPROBE_DEFER)
++					dev_err(dev,
++						"Failed to get gpio flags, error: %d\n",
++						error);
++				return ERR_PTR(error);
++			}
++		} else if (irq == 0) {
+ 			pdata->nbuttons--;
+-			dev_warn(dev, "Found button without gpios\n");
++			dev_warn(dev, "Found button without gpios or irqs\n");
+ 			continue;
+ 		}
+ 
+-		gpio = of_get_gpio_flags(pp, 0, &flags);
+-		if (gpio < 0) {
+-			error = gpio;
+-			if (error != -EPROBE_DEFER)
+-				dev_err(dev,
+-					"Failed to get gpio flags, error: %d\n",
+-					error);
+-			return ERR_PTR(error);
+-		}
+-
+ 		button = &pdata->buttons[i++];
+ 
+ 		button->gpio = gpio;
++		button->irq = irq;
+ 		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+ 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
 -- 
-1.7.9.5
+1.8.5.5
+

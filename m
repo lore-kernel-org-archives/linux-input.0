@@ -1,212 +1,183 @@
-From: Marek Belisko <marek@goldelico.com>
-Subject: [PATCH 1/3] input: tsc2007: Add pre-calibration, flipping and rotation
-Date: Tue, 30 Sep 2014 22:17:32 +0200
-Message-ID: <1412108254-19234-2-git-send-email-marek@goldelico.com>
-References: <1412108254-19234-1-git-send-email-marek@goldelico.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 0/5] HID: wacom: introduce generic HID handling
+Date: Tue, 30 Sep 2014 16:46:01 -0700
+Message-ID: <CANRwn3Sf=288SNTTbJT11gJFUTZYGetHypaECKxy8gBzyVpaVg@mail.gmail.com>
+References: <1411488489-10625-1-git-send-email-benjamin.tissoires@redhat.com>
+	<alpine.LNX.2.00.1409261302520.22196@pobox.suse.cz>
+	<CANRwn3Sng5nxc7YZEUYQVgFhidSMQCBdDsiWebs_zFZ7s=gsiQ@mail.gmail.com>
+	<20140930172718.GA30615@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1412108254-19234-1-git-send-email-marek@goldelico.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, bcousson@baylibre.com, tony@atomide.com, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com
-Cc: devicetree@vger.kernel.org, hns@goldelico.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Marek Belisko <marek@goldelico.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140930172718.GA30615@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds new parameters that allow to address typical hardware
-design differences: touch screens may be wired or oriented differently
-(portrait or landscape). And usually the active area of the touch is a
-little larger than the active area of the LCD. This results in the touch
-coordinates that have some significant deviation from LCD coordinates.
-Usually this is addressed in user space by a calibration tool (e.g. tslib
-or xinput-calibrator) but some systems don't have these tools or require
-that the screen is already roughly calibrated (e.g. Replicant) to operate
-the device until a better calibration can be done. And, some systems
-react very strangely if the touch event stream reports coordinates
-outside of the active area.
+On Tue, Sep 30, 2014 at 10:27 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> On Sep 26 2014 or thereabouts, Jason Gerecke wrote:
+>> On Fri, Sep 26, 2014 at 4:03 AM, Jiri Kosina <jkosina@suse.cz> wrote=
+:
+>> > On Tue, 23 Sep 2014, Benjamin Tissoires wrote:
+>> >
+>> >> Hi guys,
+>> >>
+>> >> So, this patch series aims at supporting natively any future HID =
+compliant wacom
+>> >> tablet. Those found on the various laptops (ISDv4/5) already are =
+HID compliant
+>> >> and they should work in the future without any modification of th=
+e kernel.
+>> >>
+>> >> Few things to note here:
+>> >> - I used the PID 0x00E6 found on the Lenovo X230 for the tests
+>> >> - I did not removed its entry in the list because there is a slig=
+htly different
+>> >>   behavior while using this patch set: when more than two fingers=
+ are on the
+>> >>   screen, the tablet stops sending finger events, while with the =
+wacom
+>> >>   proprietary bits, it continues to send them. Besides that, the =
+events emitted
+>> >>   before and after the patch series are the same (at least on the=
+ E6)
+>> >> - I can not rely on hid-input directly because wacom wants to be =
+in control of
+>> >>   the input devices it creates. This might be solved in the futur=
+e, but for now
+>> >>   it is just easier to rewrite the few mapping/events handling th=
+an trying to
+>> >>   fit in the hid-input model.
+>> >> - there will still be more specific use cases to handle later (se=
+e the joke of
+>> >>   the MS surface 3 pen[1] for instance), but this should give a r=
+oughly working
+>> >>   pen/touch support for those future devices.
+>> >>
+>> >> Jason, I would be very glad if you could conduct a few tests for =
+this on the
+>> >> ISDv4/5 sensors you have.
+>> >
+>> > I am waiting with this one for testing results from Jason, but if =
+you guys
+>> > want this to go in the next merge window, I'd like to ask you not =
+to
+>> > postpone the testing too much.
+>> >
+>> > Thanks.
+>> >
+>>
+>> I'm in the process of capturing traces from hid-record for multiple
+>> tablet PCs both pre- and post-patch to locate any obvious issues. My
+>> initial results are promising on the pen side (the only things I've
+>> noticed so far is the 2nd barrel switch not being supported -- as
+>> might be suspected) but less so on the touch side (single-finger
+>> devices seem to work fine, but the new code doesn't seem to handle a=
+ny
+>> of the multitouch devices I've tried).
+>
+> Do you consider not having the second barrel switch a blocker or can =
+we
+> ship it this and send a fix later?
+>
+> As for the touch, I tested/developed it on the Lenovo X230. It presen=
+ts
+> a hid-multitouch compatible touch interface, when the feature input_m=
+ode
+> is sent with the value '2'. By re-reading it, it seems to me that you
+> are trying to replay the touch traces you got before the patch, but t=
+his
+> will not work because the touch protocol is not the same. ISDv4 used =
+to
+> rely on the proprietary touch protocol which is hard to describe in H=
+ID.
+>
+> I would say that as long as there is no regression (actually there ca=
+n
+> not be for old devices :-P), we should still carry this series for 3.=
+18.
+> We might need to adjust the bits here and there, but if we can have a
+> *basic* support of the tablet out of the box, this is still much bett=
+er
+> than silently ignoring it.
+>
+I'm in agreement. The lack of second-switch support was expected and
+somewhat trivial at this moment. We can work on finessing it as we go.
 
-This makes it necessry to be able to configure:
-1. swapping x and y wires (coordinate values)
-2. flipping of x (left - right) or y (top - bottom) or even both
-3. define an active area so that an uncalibrated screen already
-roughly matches the LCD to be useful.
-4. clip reported coordinates to the active area.
+Regarding the touch input, I haven't had enough time to dive in to
+figuring out what is wrong, but traces aren't the issue (I've not been
+able to use traces for multitouch testing because the driver can't
+query features->touch_max ;)). Working with actual hardware, I don't
+get _any_ events out of the driver when using the touchscreen. I
+checked that the device is sending the non-vendor-defined reports,
+which does seem to be the case. The descriptor for the reports also
+seem to be reasonable, appearing to follow Microsoft's
+recommendations...
 
-If none of the new parameters is defined (in DT) or set in a board file,
-the driver behaves the same as without this patch.
+>>
+>> Expect more news next week :)
+>
+> So?????
+>
+I'm not sure if you want to fix touch first or just get these upstream
+and fix during RC (as you said, it won't cause any regressions...) but
+I'll give the following:
 
-Author (1&2): H. Nikolaus Schaller <hns@goldelico.com>
-Author (3&4): Paul Kocialkowski <contact@paulk.fr>
+Acked-by: Jason Gerecke <killertofu@gmail.com>
 
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Jason
 ---
- drivers/input/touchscreen/tsc2007.c | 89 +++++++++++++++++++++++++++++++++++--
- include/linux/i2c/tsc2007.h         |  6 +++
- 2 files changed, 91 insertions(+), 4 deletions(-)
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 1bf9906..cc0cc3c 100644
---- a/drivers/input/touchscreen/tsc2007.c
-+++ b/drivers/input/touchscreen/tsc2007.c
-@@ -74,6 +74,12 @@ struct tsc2007 {
- 
- 	u16			model;
- 	u16			x_plate_ohms;
-+	bool			swap_xy;	/* swap x and y axis */
-+	u16			min_x;
-+	u16			min_y;
-+	u16			min_rt;
-+	u16			max_x;
-+	u16			max_y;
- 	u16			max_rt;
- 	unsigned long		poll_period;
- 	int			fuzzx;
-@@ -193,11 +199,50 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
- 			break;
- 		}
- 
--		if (rt <= ts->max_rt) {
-+		if (rt <= max(ts->min_rt, ts->max_rt)) {
- 			dev_dbg(&ts->client->dev,
- 				"DOWN point(%4d,%4d), pressure (%4u)\n",
- 				tc.x, tc.y, rt);
- 
-+			if (ts->swap_xy) {
-+				/* swap before applying the range limits */
-+				u16 h = tc.x;
-+
-+				tc.x = tc.y;
-+				tc.y = h;
-+			}
-+
-+			/* flip and/or clip X */
-+			if (ts->max_x < ts->min_x)
-+				tc.x = (ts->min_x - tc.x) + ts->max_x;
-+
-+			if (tc.x > max(ts->min_x, ts->max_x))
-+				tc.x = max(ts->min_x, ts->max_x);
-+			else if (tc.x < min(ts->min_x, ts->max_x))
-+				tc.x = min(ts->min_x, ts->max_x);
-+
-+			/* flip and/or clip Y */
-+			if (ts->max_y < ts->min_y)
-+				tc.y = (ts->min_y - tc.y) + ts->max_y;
-+
-+			if (tc.y > max(ts->min_y, ts->max_y))
-+				tc.y = max(ts->min_y, ts->max_y);
-+			else if (tc.y < min(ts->min_y, ts->max_y))
-+				tc.y = min(ts->min_y, ts->max_y);
-+
-+			/* clip Z */
-+			if (ts->max_rt < ts->min_rt)
-+				rt = (ts->min_rt - rt) + ts->max_rt;
-+
-+			if (rt > max(ts->min_rt, ts->max_rt))
-+				rt = max(ts->min_rt, ts->max_rt);
-+			else if (rt < min(ts->min_rt, ts->max_rt))
-+				rt = min(ts->min_rt, ts->max_rt);
-+
-+			dev_dbg(&ts->client->dev,
-+					"shaped point(%4d,%4d), pressure (%4u)\n",
-+					tc.x, tc.y, rt);
-+
- 			input_report_key(input, BTN_TOUCH, 1);
- 			input_report_abs(input, ABS_X, tc.x);
- 			input_report_abs(input, ABS_Y, tc.y);
-@@ -299,6 +344,24 @@ static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 *ts)
- 		return -EINVAL;
- 	}
- 
-+	ts->swap_xy = of_property_read_bool(np, "ti,swap-xy");
-+
-+	if (!of_property_read_u32(np, "ti,min-x", &val32))
-+		ts->min_x = val32;
-+	if (!of_property_read_u32(np, "ti,max-x", &val32))
-+		ts->max_x = val32;
-+	else
-+		ts->max_x = MAX_12BIT;
-+
-+	if (!of_property_read_u32(np, "ti,min-y", &val32))
-+		ts->min_y = val32;
-+	if (!of_property_read_u32(np, "ti,max-y", &val32))
-+		ts->max_y = val32;
-+	else
-+		ts->max_y = MAX_12BIT;
-+
-+	if (!of_property_read_u32(np, "ti,min-rt", &val32))
-+		ts->min_rt = val32;
- 	if (!of_property_read_u32(np, "ti,max-rt", &val32))
- 		ts->max_rt = val32;
- 	else
-@@ -325,6 +388,16 @@ static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 *ts)
- 		return -EINVAL;
- 	}
- 
-+	dev_dbg(&client->dev,
-+			"min/max_x (%4d,%4d)\n",
-+			ts->min_x, ts->max_x);
-+	dev_dbg(&client->dev,
-+			"min/max_y (%4d,%4d)\n",
-+			ts->min_y, ts->max_y);
-+	dev_dbg(&client->dev,
-+			"min/max_rt (%4d,%4d)\n",
-+			ts->min_rt, ts->max_rt);
-+
- 	ts->gpio = of_get_gpio(np, 0);
- 	if (gpio_is_valid(ts->gpio))
- 		ts->get_pendown_state = tsc2007_get_pendown_state_gpio;
-@@ -349,6 +422,12 @@ static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc2007 *ts,
- {
- 	ts->model             = pdata->model;
- 	ts->x_plate_ohms      = pdata->x_plate_ohms;
-+	ts->swap_xy           = pdata->swap_xy;
-+	ts->min_x             = pdata->min_x ? : 0;
-+	ts->min_y             = pdata->min_y ? : 0;
-+	ts->min_rt            = pdata->min_rt ? : 0;
-+	ts->max_x             = pdata->max_x ? : MAX_12BIT;
-+	ts->max_y             = pdata->max_y ? : MAX_12BIT;
- 	ts->max_rt            = pdata->max_rt ? : MAX_12BIT;
- 	ts->poll_period       = pdata->poll_period ? : 1;
- 	ts->get_pendown_state = pdata->get_pendown_state;
-@@ -422,9 +501,11 @@ static int tsc2007_probe(struct i2c_client *client,
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
--	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, ts->fuzzx, 0);
--	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, ts->fuzzy, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT,
-+	input_set_abs_params(input_dev, ABS_X, min(ts->min_x, ts->max_x),
-+			     max(ts->min_x, ts->max_x), ts->fuzzx, 0);
-+	input_set_abs_params(input_dev, ABS_Y, min(ts->min_y, ts->max_y),
-+			     max(ts->min_y, ts->max_y), ts->fuzzy, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, ts->min_rt, ts->max_rt,
- 			     ts->fuzzz, 0);
- 
- 	if (pdata) {
-diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
-index 4f35b6a..5ce7b79 100644
---- a/include/linux/i2c/tsc2007.h
-+++ b/include/linux/i2c/tsc2007.h
-@@ -6,6 +6,12 @@
- struct tsc2007_platform_data {
- 	u16	model;				/* 2007. */
- 	u16	x_plate_ohms;	/* must be non-zero value */
-+	bool	swap_xy;	/* swap x and y axis */
-+	u16	min_x;	/* min and max values to reported to user space */
-+	u16	min_y;
-+	u16	min_rt;
-+	u16	max_x;
-+	u16	max_y;
- 	u16	max_rt; /* max. resistance above which samples are ignored */
- 	unsigned long poll_period; /* time (in ms) between samples */
- 	int	fuzzx; /* fuzz factor for X, Y and pressure axes */
--- 
-1.9.3
+>>
+>>
+>> PS: I'm pretty sure ISDv5 shouldn't be relied on for HID data :| The
+>> descriptor for the Cintiq Companion Hybrid, at least, is like our
+>> branded sensors with useful data only in the touchscreen descriptor
+>> (the pen descriptor is a bunch of opaque vendor-defined reports). No=
+t
+>> sure if the Cintiq Companion is the same though since it runs
+>> Windows...
+>
+> Ouch. For those, we will need to either fix the report descriptors or
+> handle them in the same way you always used to do: manually.
+>
+> Cheers,
+> Benjamin
+>
+>> >>
+>> >> [1] http://who-t.blogspot.com/2014/09/stylus-behaviour-on-microso=
+ft-surface-3.html
+>> >>
+>> >> Benjamin Tissoires (5):
+>> >>   HID: wacom: rename failN with some meaningful information
+>> >>   HID: wacom: split out input allocation and registration
+>> >>   HID: wacom: move allocation of inputs earlier
+>> >>   HID: wacom: implement generic HID handling for pen generic devi=
+ces
+>> >>   HID: wacom: implement the finger part of the HID generic handli=
+ng
+>> >>
+>> >>  drivers/hid/hid-core.c  |   3 +
+>> >>  drivers/hid/wacom.h     |   6 +
+>> >>  drivers/hid/wacom_sys.c | 184 +++++++++++++++++++++--------
+>> >>  drivers/hid/wacom_wac.c | 299 ++++++++++++++++++++++++++++++++++=
+++++++++++++++
+>> >>  drivers/hid/wacom_wac.h |  17 +++
+>> >>  include/linux/hid.h     |   2 +
+>> >>  6 files changed, 462 insertions(+), 49 deletions(-)
+>> >>
+>> >> --
+>> >> 2.1.0
+>> >>
+>> >
+>> > --
+>> > Jiri Kosina
+>> > SUSE Labs

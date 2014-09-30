@@ -1,144 +1,201 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 03/13] HID: logitech-dj: rely on hid groups to separate receivers from dj devices
-Date: Tue, 30 Sep 2014 13:18:25 -0400
-Message-ID: <1412097515-17241-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 08/13] HID: logitech: allow the DJ device to request the unifying name
+Date: Tue, 30 Sep 2014 13:18:30 -0400
+Message-ID: <1412097515-17241-9-git-send-email-benjamin.tissoires@redhat.com>
 References: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:31214 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752345AbaI3RSq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Sep 2014 13:18:46 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <andrew-vger@gizmolabs.org>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Several benefits here:
-- we can drop the macro is_dj_device: I never been really conviced by
-  this macro as we could fall into a null pointer anytime. Anyway time
-  showed that this never happened.
-- we can simplify the hid driver logitech-djdevice, and make it aware
-  of any new receiver VID/PID.
-- we can use the Wireless PID of the DJ device as the product id of the
-  hid device, this way the sysfs will differentiate between different
-  DJ devices.
+The names of the DJ devices are stored in the receiver. These names
+can be retrieved through a HID++ command. However, the protocol says
+that you have to ask the receiver for that, not the device iteself.
 
-Signed-off-by: Benjamin Tisssoires <benjamin.tissoires@redhat.com>
+Introduce a special case in the DJ handling where a device can request
+its unifying name, and when such a name is given, forward it also to
+the corresponding device.
+
+On the HID++ side, the receiver talks only HID++ 1.0, so we need to
+implement this part of the protocol in the module.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-dj.c | 38 ++++++++++----------------------------
- drivers/hid/hid-logitech-dj.h | 10 ----------
- include/linux/hid.h           |  1 +
- 3 files changed, 11 insertions(+), 38 deletions(-)
+ drivers/hid/hid-logitech-dj.c    | 24 ++++++++++--
+ drivers/hid/hid-logitech-hidpp.c | 80 ++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 97 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 71f5692..42d38d5 100644
+index feddacd..9bc3942 100644
 --- a/drivers/hid/hid-logitech-dj.c
 +++ b/drivers/hid/hid-logitech-dj.c
-@@ -256,11 +256,15 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
- 	dj_hiddev->dev.parent = &djrcv_hdev->dev;
- 	dj_hiddev->bus = BUS_USB;
- 	dj_hiddev->vendor = le16_to_cpu(usbdev->descriptor.idVendor);
--	dj_hiddev->product = le16_to_cpu(usbdev->descriptor.idProduct);
-+	dj_hiddev->product =
-+		(dj_report->report_params[DEVICE_PAIRED_PARAM_EQUAD_ID_MSB]
-+									<< 8) |
-+		dj_report->report_params[DEVICE_PAIRED_PARAM_EQUAD_ID_LSB];
- 	snprintf(dj_hiddev->name, sizeof(dj_hiddev->name),
--		"Logitech Unifying Device. Wireless PID:%02x%02x",
--		dj_report->report_params[DEVICE_PAIRED_PARAM_EQUAD_ID_MSB],
--		dj_report->report_params[DEVICE_PAIRED_PARAM_EQUAD_ID_LSB]);
-+		"Logitech Unifying Device. Wireless PID:%04x",
-+		dj_hiddev->product);
-+
-+	dj_hiddev->group = HID_GROUP_LOGITECH_DJ_DEVICE;
- 
- 	usb_make_path(usbdev, dj_hiddev->phys, sizeof(dj_hiddev->phys));
- 	snprintf(tmpstr, sizeof(tmpstr), ":%d", dj_report->device_index);
-@@ -714,9 +718,6 @@ static int logi_dj_probe(struct hid_device *hdev,
- 	struct dj_receiver_dev *djrcv_dev;
- 	int retval;
- 
--	if (is_dj_device((struct dj_device *)hdev->driver_data))
--		return -ENODEV;
--
- 	dbg_hid("%s called for ifnum %d\n", __func__,
- 		intf->cur_altsetting->desc.bInterfaceNumber);
- 
-@@ -869,22 +870,6 @@ static void logi_dj_remove(struct hid_device *hdev)
- 	hid_set_drvdata(hdev, NULL);
+@@ -667,6 +667,9 @@ static void logi_dj_ll_close(struct hid_device *hid)
+ 	dbg_hid("%s:%s\n", __func__, hid->phys);
  }
  
--static int logi_djdevice_probe(struct hid_device *hdev,
--			 const struct hid_device_id *id)
--{
--	int ret;
--	struct dj_device *dj_dev = hdev->driver_data;
--
--	if (!is_dj_device(dj_dev))
--		return -ENODEV;
--
--	ret = hid_parse(hdev);
--	if (!ret)
--		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--
--	return ret;
--}
--
- static const struct hid_device_id logi_dj_receivers[] = {
- 	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER)},
-@@ -908,17 +893,14 @@ static struct hid_driver logi_djreceiver_driver = {
++static u8 unifying_name_query[]  = {0x10, 0xff, 0x83, 0xb5, 0x40, 0x00, 0x00};
++static u8 unifying_name_answer[] = {0x11, 0xff, 0x83, 0xb5};
++
+ static int logi_dj_ll_raw_request(struct hid_device *hid,
+ 				  unsigned char reportnum, __u8 *buf,
+ 				  size_t count, unsigned char report_type,
+@@ -682,7 +685,13 @@ static int logi_dj_ll_raw_request(struct hid_device *hid,
+ 		if (count < 2)
+ 			return -EINVAL;
  
+-		buf[1] = djdev->device_index;
++		/* special case where we should not overwrite
++		 * the device_index */
++		if (count == 7 && !memcmp(buf, unifying_name_query,
++					  sizeof(unifying_name_query)))
++			buf[4] |= djdev->device_index - 1;
++		else
++			buf[1] = djdev->device_index;
+ 		return hid_hw_raw_request(djrcv_dev->hdev, reportnum, buf,
+ 				count, report_type, reqtype);
+ 	}
+@@ -873,8 +882,17 @@ static int logi_dj_hidpp_event(struct hid_device *hdev,
+ 	unsigned long flags;
+ 	u8 device_index = dj_report->device_index;
  
- static const struct hid_device_id logi_dj_devices[] = {
--	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
--		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER)},
--	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
--		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2)},
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
-+		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
- 	{}
- };
+-	if (device_index == HIDPP_RECEIVER_INDEX)
+-		return false;
++	if (device_index == HIDPP_RECEIVER_INDEX) {
++		/* special case were the device wants to know its unifying
++		 * name */
++		if (size == HIDPP_REPORT_LONG_LENGTH &&
++		    !memcmp(data, unifying_name_answer,
++			    sizeof(unifying_name_answer)) &&
++		    ((data[4] & 0xF0) == 0x40))
++			device_index = (data[4] & 0x0F) + 1;
++		else
++			return false;
++	}
  
- static struct hid_driver logi_djdevice_driver = {
- 	.name = "logitech-djdevice",
- 	.id_table = logi_dj_devices,
--	.probe = logi_djdevice_probe,
- };
+ 	/*
+ 	 * Data is from the HID++ collection, in this case, we forward the
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 48dec39..e748e45 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -205,6 +205,31 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
+ 	return ret;
+ }
  
++static int hidpp_send_rap_command_sync(struct hidpp_device *hidpp_dev,
++	u8 report_id, u8 sub_id, u8 reg_address, u8 *params, int param_count,
++	struct hidpp_report *response)
++{
++	struct hidpp_report *message = kzalloc(sizeof(struct hidpp_report),
++			GFP_KERNEL);
++	int ret;
++
++	if ((report_id != REPORT_ID_HIDPP_SHORT) &&
++	    (report_id != REPORT_ID_HIDPP_LONG))
++		return -EINVAL;
++
++	if (param_count > sizeof(message->rap.params))
++		return -EINVAL;
++
++	message->report_id = report_id;
++	message->rap.sub_id = sub_id;
++	message->rap.reg_address = reg_address;
++	memcpy(&message->rap.params, params, param_count);
++
++	ret = hidpp_send_message_sync(hidpp_dev, message, response);
++	kfree(message);
++	return ret;
++}
++
+ static inline bool hidpp_match_answer(struct hidpp_report *question,
+ 		struct hidpp_report *answer)
+ {
+@@ -221,6 +246,45 @@ static inline bool hidpp_match_error(struct hidpp_report *question,
+ }
  
-diff --git a/drivers/hid/hid-logitech-dj.h b/drivers/hid/hid-logitech-dj.h
-index daeb0aa..b1208c9 100644
---- a/drivers/hid/hid-logitech-dj.h
-+++ b/drivers/hid/hid-logitech-dj.h
-@@ -112,14 +112,4 @@ struct dj_device {
- 	u8 device_index;
- };
+ /* -------------------------------------------------------------------------- */
++/* HIDP++ 1.0 commands                                                        */
++/* -------------------------------------------------------------------------- */
++
++#define HIDPP_SET_REGISTER				0x80
++#define HIDPP_GET_REGISTER				0x81
++#define HIDPP_SET_LONG_REGISTER				0x82
++#define HIDPP_GET_LONG_REGISTER				0x83
++
++#define HIDPP_REG_PAIRING_INFORMATION			0xB5
++#define DEVICE_NAME					0x40
++
++static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
++{
++	struct hidpp_report response;
++	int ret;
++	/* hid-logitech-dj is in charge of setting the right device index */
++	u8 params[1] = { DEVICE_NAME };
++	char *name;
++	int len;
++
++	ret = hidpp_send_rap_command_sync(hidpp_dev,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_LONG_REGISTER,
++					HIDPP_REG_PAIRING_INFORMATION,
++					params, 1, &response);
++	if (ret)
++		return NULL;
++
++	len = response.rap.params[1];
++
++	name = kzalloc(len + 1, GFP_KERNEL);
++	if (!name)
++		return NULL;
++
++	memcpy(name, &response.rap.params[2], len);
++	return name;
++}
++
++/* -------------------------------------------------------------------------- */
+ /* 0x0000: Root                                                               */
+ /* -------------------------------------------------------------------------- */
  
--/**
-- * is_dj_device - know if the given dj_device is not the receiver.
-- * @dj_dev: the dj device to test
-- *
-- * This macro tests if a struct dj_device pointer is a device created
-- * by the bus enumarator.
-- */
--#define is_dj_device(dj_dev) \
--	(&(dj_dev)->dj_receiver_dev->hdev->dev == (dj_dev)->hdev->dev.parent)
--
- #endif
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 0da2711..a50a6dd 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -312,6 +312,7 @@ struct hid_item {
-  */
- #define HID_GROUP_RMI				0x0100
- #define HID_GROUP_WACOM				0x0101
-+#define HID_GROUP_LOGITECH_DJ_DEVICE		0x0102
+@@ -726,13 +790,21 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	return 0;
+ }
  
- /*
-  * This is the global environment of the parser. This information is
+-static void hidpp_overwrite_name(struct hid_device *hdev)
++static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
+ {
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 	char *name;
+ 	u8 name_length;
+ 
+-	name = hidpp_get_device_name(hidpp, &name_length);
++	if (use_unifying)
++		/*
++		 * the device is connected through an Unifying receiver, and
++		 * might not be already connected.
++		 * Ask the receiver for its name.
++		 */
++		name = hidpp_get_unifying_name(hidpp);
++	else
++		name = hidpp_get_device_name(hidpp, &name_length);
+ 
+ 	if (!name)
+ 		hid_err(hdev, "unable to retrieve the name of the device");
+@@ -783,12 +855,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			goto hid_parse_fail;
+ 		}
+ 
+-		/* the device is connected, we can ask for its name */
+ 		hid_info(hdev, "HID++ %u.%u device connected.\n",
+ 			 hidpp->protocol_major, hidpp->protocol_minor);
+-		hidpp_overwrite_name(hdev);
+ 	}
+ 
++	hidpp_overwrite_name(hdev, id->group == HID_GROUP_LOGITECH_DJ_DEVICE);
++
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
+ 		ret = wtp_get_config(hidpp);
+ 		if (ret)
 -- 
 2.1.0
-

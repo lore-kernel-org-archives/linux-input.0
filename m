@@ -1,87 +1,99 @@
-From: Alexander Stein <alexander.stein@systec-electronic.com>
-Subject: [RFC 1/1] Input: gpio_keys - add device tree support for interrupt only keys
-Date: Tue, 30 Sep 2014 17:40:47 +0200
-Message-ID: <1412091647-1562-1-git-send-email-alexander.stein@systec-electronic.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 00/13] HID: add support of Logitech touchpads and special devices
+Date: Tue, 30 Sep 2014 13:18:22 -0400
+Message-ID: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webbox1416.server-home.net ([77.236.96.61]:54472 "EHLO
-	webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750818AbaI3PsI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Sep 2014 11:48:08 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40379 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752075AbaI3RSq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Sep 2014 13:18:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexander Stein <alexander.stein@systec-electronic.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This features already exists for board config setups. Add support for
-device tree based systems.
+Hi,
 
-Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
----
-I'm aware thatthe device tree binding description is missing yet. But for now
-I just want some feedback about that approach.
+Well this patch series is really an old guy:
+- I started on this back in 2011 during my short appearance at Logitech
+- it has been updated a few time since
+- part of it is already shipped in ChromeOS
+- now is the time to push it upstream (hopefully)
 
- drivers/input/keyboard/gpio_keys.c | 31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+So, basically, this patch series aims at supporting the touchpads made by
+Logitech (i.e. report the raw multi touch events), plus it also gives a driver
+to enable special "features" of other various Logitech devices as reported
+here[1].
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 8c98e97..7b90e1b 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -29,6 +29,7 @@
- #include <linux/of.h>
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
-+#include <linux/of_irq.h>
- #include <linux/spinlock.h>
- 
- struct gpio_button_data {
-@@ -617,28 +618,32 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 
- 	i = 0;
- 	for_each_child_of_node(node, pp) {
--		int gpio;
-+		int gpio = -1;
-+		int irq;
- 		enum of_gpio_flags flags;
- 
--		if (!of_find_property(pp, "gpios", NULL)) {
-+		irq = irq_of_parse_and_map(pp, 0);
-+
-+		if (of_find_property(pp, "gpios", NULL)) {
-+			gpio = of_get_gpio_flags(pp, 0, &flags);
-+			if (gpio < 0) {
-+				error = gpio;
-+				if (error != -EPROBE_DEFER)
-+					dev_err(dev,
-+						"Failed to get gpio flags, error: %d\n",
-+						error);
-+				return ERR_PTR(error);
-+			}
-+		} else if (irq == 0) {
- 			pdata->nbuttons--;
--			dev_warn(dev, "Found button without gpios\n");
-+			dev_warn(dev, "Found button without gpios or irqs\n");
- 			continue;
- 		}
- 
--		gpio = of_get_gpio_flags(pp, 0, &flags);
--		if (gpio < 0) {
--			error = gpio;
--			if (error != -EPROBE_DEFER)
--				dev_err(dev,
--					"Failed to get gpio flags, error: %d\n",
--					error);
--			return ERR_PTR(error);
--		}
--
- 		button = &pdata->buttons[i++];
- 
- 		button->gpio = gpio;
-+		button->irq = irq;
- 		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
- 
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+There are couple of changes I introduced in this submission compared to what
+Logitech and ChromeOS used to see:
+- there will be only one driver for HID++ devices: hid-logitech-hidpp (this way,
+  we are trying to stay in the line of the HID subsystem, one HID driver per
+  vendor)
+- hid-logitech-dj only deals with the transport layer, so it does not depend on
+  hid-logitech-hidpp
+- there is no more callbacks mechanism in hidpp and the specific drivers, all
+  is handled in one place
+- there is no need of a blacklist in hid-logitech-dj to decide if the device has
+  a subdriver or not.
+- there is no support of the mice with raw touch. This can be added in a future
+  patch series.
+
+I am finally finding this ready to be sent upstream, so I hope some of you would
+be kind enough to review the code.
+
+Regarding the features, here is what end user will expect/see:
+- all the DJ devices (connected through the unifying wirelees receiver) have a
+  proper name now (T400, M325, ...). This name is retrieved from the receiver
+  which has a short buffer for it, thus the short name.
+- the touchpads input devices will be created once the device is actually
+  connected. For bluetooth device, it's a normal HID process. For DJ devices,
+  the receiver is created, the hidraw device of the touchpad is created, but the
+  input device, with the full name (asked from the device) appears on the first
+  connection (or events).
+- The TK820 - keyboard/touchpad combo presents now 2 input devices. One for the
+  keyboard part, one for the touchpad. So X and libinput can deal with it
+  easily.
+
+Jiri, This patch series can be split in 2 if you would like:
+- patches 1 to 4 can be scheduled easily for 3.18 IMO
+- patches 5 to 13 might need some more reviews, so either 3.18 or 3.19
+
+Cheers,
+Benjamin
+
+[1] https://www.mail-archive.com/linux-input@vger.kernel.org/msg11831.html
+
+Benjamin Tissoires (13):
+  HID: fix merge from wacom into the HID tree
+  HID: core: do not scan reports if the group is already set
+  HID: logitech-dj: rely on hid groups to separate receivers from dj
+    devices
+  HID: logitech-dj: merge header file into the source
+  HID: Introduce hidpp, a module to handle Logitech hid++ devices
+  HID: logitech: move dj devices to the HID++ module
+  HID: logitech-dj: allow transfer of HID++ reports from/to the correct
+    dj device
+  HID: logitech: allow the DJ device to request the unifying name
+  HID: logitech-dj: enable notifications on connect/disconnect
+  HID: logitech-hidpp: late bind the input device on wireless connection
+  HID: logitech-hidpp: Add Wireless Touchpad T650 support
+  HID: logitech-hidpp: add support of the first Logitech Wireless
+    Touchpad
+  HID: logitech-hidpp: support combo keyboard touchpad TK820
+
+ drivers/hid/Kconfig              |   12 +
+ drivers/hid/Makefile             |    1 +
+ drivers/hid/hid-core.c           |   21 +-
+ drivers/hid/hid-ids.h            |    1 +
+ drivers/hid/hid-logitech-dj.c    |  397 ++++++++++---
+ drivers/hid/hid-logitech-dj.h    |  125 ----
+ drivers/hid/hid-logitech-hidpp.c | 1201 ++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h              |    5 +-
+ 8 files changed, 1526 insertions(+), 237 deletions(-)
+ delete mode 100644 drivers/hid/hid-logitech-dj.h
+ create mode 100644 drivers/hid/hid-logitech-hidpp.c
+
 -- 
-1.8.5.5
+2.1.0
 

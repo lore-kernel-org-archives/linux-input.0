@@ -1,57 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2 v2] i2c: cros-ec-tunnel: Add of match table
-Date: Tue, 30 Sep 2014 08:07:09 +0200
-Message-ID: <20140930060709.GB1325@katana>
-References: <1411114093-3505-1-git-send-email-sjoerd.simons@collabora.co.uk>
- <1411114093-3505-2-git-send-email-sjoerd.simons@collabora.co.uk>
- <20140929205922.GB2758@katana>
- <5429E982.4050509@collabora.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Yylu36WmvOXNoKYn"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5429E982.4050509@collabora.co.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
+From: Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH] usbhid: add another mouse that needs QUIRK_ALWAYS_POLL
+Date: Tue, 30 Sep 2014 12:54:56 +0200
+Message-ID: <1412074496-4539-1-git-send-email-oneukum@suse.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:56002 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751014AbaI3Kyr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Sep 2014 06:54:47 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.com, linux-input@vger.kernel.org, johan@kernel.org
+Cc: Oliver Neukum <oneukum@suse.de>
 
+There is a second mouse sharing the same vendor strings
+but different IDs.
 
---Yylu36WmvOXNoKYn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+---
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/usbhid/hid-quirks.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b303a62..5a7072d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -733,6 +733,7 @@
+ #define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL	0xff
+ 
+ #define USB_VENDOR_ID_PIXART				0x093a
++#define USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2	0x0137
+ #define USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE		0x2510
+ #define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN	0x8001
+ #define USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1	0x8002
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 79f94ae..ce27c62 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -80,6 +80,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1610, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1640, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
++	/* OEM version same strings but different IDs */
++	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN2, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+1.8.4.5
 
-> Doug posted a patch [0] to fix the issue you are reporting but it was not
-> picked. I tested that the patch applies on top of linux-next + the latest
-> cros_ec cleanups (that includes a patch for this i2c driver and was taken
-> by Lee. So I think is safe for you take Doug's patch through your tree
-> since it seems to not cause any conflict with the mfd tree.
-
-OK, thanks for the heads up. I picked it.
-
-
---Yylu36WmvOXNoKYn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUKkiNAAoJEBQN5MwUoCm2G9AP/ROUbQsRtiVEoyBLI3eLfGm7
-UbYf56CiqdtHG/pbINtV2Kg+apnre77fDKOXwJs2RDzl+qEWNmCv0tYJD2/kdmUf
-yOlD+Eb1SU/vBy7lGcgXzrCzfUnJdOPKXcMwIa1yxOyqq3PexxSUduAaPtYxkm7S
-0upJiBJy5Yo3AH3IMG75xHORNgNONIEOep61gbSOl4SDV1IzBr5nBZMoBJguB84u
-P9sLJBR0OEiYZzDkbPkTFirtdH7DbJO0/piY0M1X6NIgdoE4L1nxYiEBxgsfVoGB
-K3+0XnfsPLli7nsZUg29raWm3x2rJF5Sz36nLiZieAQG58OrsLDI5jTPnnE+mcQ6
-onBv+FGYWUNEd7vyzPHlU+wD8LVypce2jJl3p33yOwr+TZ4KGMmEKm3WQZvg1t8E
-rBAkb+LEQezNRWlbc2q1wO9Lhpo1vg1fxkTUyHKty3jWyLZUXAVLbUhC0Dvln3Mv
-2r+rmbXK3TCIftp611GRz/kh9aOW02cNxzUng3F19/ugnbv982/BHZEVHkYwTYv5
-volGEi4EPXRNX/e4EZcDwV0ziFicWXIKDkoc9C8j69u0AyPtQY7Dgcm3MkVutLeO
-6dzE1CyEEJWb6d2pnTU7nZszqu7cOLQD8R5JAFHnDvF31+iHwrLEd8cRhYUDBUMc
-Sqf0GMelve1ncCxXwg+3
-=dIiz
------END PGP SIGNATURE-----
-
---Yylu36WmvOXNoKYn--

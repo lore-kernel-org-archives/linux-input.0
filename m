@@ -1,121 +1,132 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/5] HID: wacom: introduce generic HID handling
-Date: Tue, 30 Sep 2014 13:27:18 -0400
-Message-ID: <20140930172718.GA30615@mail.corp.redhat.com>
-References: <1411488489-10625-1-git-send-email-benjamin.tissoires@redhat.com>
- <alpine.LNX.2.00.1409261302520.22196@pobox.suse.cz>
- <CANRwn3Sng5nxc7YZEUYQVgFhidSMQCBdDsiWebs_zFZ7s=gsiQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANRwn3Sng5nxc7YZEUYQVgFhidSMQCBdDsiWebs_zFZ7s=gsiQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: usbhid: prevent unwanted events to be sent when re-opening the device
+Date: Tue, 30 Sep 2014 14:28:22 -0400
+Message-ID: <1412101702-2752-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:48665 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751436AbaI3S2d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Sep 2014 14:28:33 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Hans de Goede <hdegoede@redhat.com>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sep 26 2014 or thereabouts, Jason Gerecke wrote:
-> On Fri, Sep 26, 2014 at 4:03 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> > On Tue, 23 Sep 2014, Benjamin Tissoires wrote:
-> >
-> >> Hi guys,
-> >>
-> >> So, this patch series aims at supporting natively any future HID compliant wacom
-> >> tablet. Those found on the various laptops (ISDv4/5) already are HID compliant
-> >> and they should work in the future without any modification of the kernel.
-> >>
-> >> Few things to note here:
-> >> - I used the PID 0x00E6 found on the Lenovo X230 for the tests
-> >> - I did not removed its entry in the list because there is a slightly different
-> >>   behavior while using this patch set: when more than two fingers are on the
-> >>   screen, the tablet stops sending finger events, while with the wacom
-> >>   proprietary bits, it continues to send them. Besides that, the events emitted
-> >>   before and after the patch series are the same (at least on the E6)
-> >> - I can not rely on hid-input directly because wacom wants to be in control of
-> >>   the input devices it creates. This might be solved in the future, but for now
-> >>   it is just easier to rewrite the few mapping/events handling than trying to
-> >>   fit in the hid-input model.
-> >> - there will still be more specific use cases to handle later (see the joke of
-> >>   the MS surface 3 pen[1] for instance), but this should give a roughly working
-> >>   pen/touch support for those future devices.
-> >>
-> >> Jason, I would be very glad if you could conduct a few tests for this on the
-> >> ISDv4/5 sensors you have.
-> >
-> > I am waiting with this one for testing results from Jason, but if you guys
-> > want this to go in the next merge window, I'd like to ask you not to
-> > postpone the testing too much.
-> >
-> > Thanks.
-> >
-> 
-> I'm in the process of capturing traces from hid-record for multiple
-> tablet PCs both pre- and post-patch to locate any obvious issues. My
-> initial results are promising on the pen side (the only things I've
-> noticed so far is the 2nd barrel switch not being supported -- as
-> might be suspected) but less so on the touch side (single-finger
-> devices seem to work fine, but the new code doesn't seem to handle any
-> of the multitouch devices I've tried).
+When events occurs while no one is listening to the node (hid->open == 0
+and usb_kill_urb() called) some events are still stacked somewhere in
+the USB (kernel or device?) stack. When the node gets reopened, these
+events are drained, and this results in spurious touch down/up, or mouse
+button clicks.
 
-Do you consider not having the second barrel switch a blocker or can we
-ship it this and send a fix later?
+The problem was spotted with touchscreens in fdo bug #81781 [1], but it
+actually occurs with any mouse using hid-generic or touchscreen.
 
-As for the touch, I tested/developed it on the Lenovo X230. It presents
-a hid-multitouch compatible touch interface, when the feature input_mode
-is sent with the value '2'. By re-reading it, it seems to me that you
-are trying to replay the touch traces you got before the patch, but this
-will not work because the touch protocol is not the same. ISDv4 used to
-rely on the proprietary touch protocol which is hard to describe in HID.
+A way to reproduce it is to call:
 
-I would say that as long as there is no regression (actually there can
-not be for old devices :-P), we should still carry this series for 3.18.
-We might need to adjust the bits here and there, but if we can have a
-*basic* support of the tablet out of the box, this is still much better
-than silently ignoring it.
+$ xinput disable 9 ; sleep 5 ; xinput enable 9
 
-> 
-> Expect more news next week :)
+With 9 being the device ID for the touchscreen/mouse. During the "sleep",
+produce some touch events or click events. When "xinput enable" is called,
+at least one click is generated.
 
-So?????
+This patch tries to fix this by draining the queue for 50 msec and
+during this time frame, not forwarding these old events to the hid layer.
 
-> 
-> 
-> PS: I'm pretty sure ISDv5 shouldn't be relied on for HID data :| The
-> descriptor for the Cintiq Companion Hybrid, at least, is like our
-> branded sensors with useful data only in the touchscreen descriptor
-> (the pen descriptor is a bunch of opaque vendor-defined reports). Not
-> sure if the Cintiq Companion is the same though since it runs
-> Windows...
+Hans completed the explanation:
+"""
+Devices like mice (basically any hid device) will have a fifo
+on the device side, when we stop submitting urbs to get hid reports from
+it, that fifo will fill up, and when we resume we will get whatever
+is there in that fifo.
+"""
 
-Ouch. For those, we will need to either fix the report descriptors or
-handle them in the same way you always used to do: manually.
+[1] https://bugs.freedesktop.org/show_bug.cgi?id=81781
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+
+OK, I know this is uggly, but I could not find a better way :(
 
 Cheers,
 Benjamin
 
-> >>
-> >> [1] http://who-t.blogspot.com/2014/09/stylus-behaviour-on-microsoft-surface-3.html
-> >>
-> >> Benjamin Tissoires (5):
-> >>   HID: wacom: rename failN with some meaningful information
-> >>   HID: wacom: split out input allocation and registration
-> >>   HID: wacom: move allocation of inputs earlier
-> >>   HID: wacom: implement generic HID handling for pen generic devices
-> >>   HID: wacom: implement the finger part of the HID generic handling
-> >>
-> >>  drivers/hid/hid-core.c  |   3 +
-> >>  drivers/hid/wacom.h     |   6 +
-> >>  drivers/hid/wacom_sys.c | 184 +++++++++++++++++++++--------
-> >>  drivers/hid/wacom_wac.c | 299 ++++++++++++++++++++++++++++++++++++++++++++++++
-> >>  drivers/hid/wacom_wac.h |  17 +++
-> >>  include/linux/hid.h     |   2 +
-> >>  6 files changed, 462 insertions(+), 49 deletions(-)
-> >>
-> >> --
-> >> 2.1.0
-> >>
-> >
-> > --
-> > Jiri Kosina
-> > SUSE Labs
+ drivers/hid/usbhid/hid-core.c | 36 ++++++++++++++++++++++++------------
+ drivers/hid/usbhid/usbhid.h   |  1 +
+ 2 files changed, 25 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index ca6849a..04e34b9 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -278,18 +278,20 @@ static void hid_irq_in(struct urb *urb)
+ 		usbhid->retry_delay = 0;
+ 		if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) && !hid->open)
+ 			break;
+-		hid_input_report(urb->context, HID_INPUT_REPORT,
+-				 urb->transfer_buffer,
+-				 urb->actual_length, 1);
+-		/*
+-		 * autosuspend refused while keys are pressed
+-		 * because most keyboards don't wake up when
+-		 * a key is released
+-		 */
+-		if (hid_check_keys_pressed(hid))
+-			set_bit(HID_KEYS_PRESSED, &usbhid->iofl);
+-		else
+-			clear_bit(HID_KEYS_PRESSED, &usbhid->iofl);
++		if (!test_bit(HID_RESUME_RUNNING, &usbhid->iofl)) {
++			hid_input_report(urb->context, HID_INPUT_REPORT,
++					 urb->transfer_buffer,
++					 urb->actual_length, 1);
++			/*
++			 * autosuspend refused while keys are pressed
++			 * because most keyboards don't wake up when
++			 * a key is released
++			 */
++			if (hid_check_keys_pressed(hid))
++				set_bit(HID_KEYS_PRESSED, &usbhid->iofl);
++			else
++				clear_bit(HID_KEYS_PRESSED, &usbhid->iofl);
++		}
+ 		break;
+ 	case -EPIPE:		/* stall */
+ 		usbhid_mark_busy(usbhid);
+@@ -688,6 +690,7 @@ int usbhid_open(struct hid_device *hid)
+ 			goto done;
+ 		}
+ 		usbhid->intf->needs_remote_wakeup = 1;
++		set_bit(HID_RESUME_RUNNING, &usbhid->iofl);
+ 		res = hid_start_in(hid);
+ 		if (res) {
+ 			if (res != -ENOSPC) {
+@@ -701,6 +704,15 @@ int usbhid_open(struct hid_device *hid)
+ 			}
+ 		}
+ 		usb_autopm_put_interface(usbhid->intf);
++
++		/*
++		 * In case events are generated while nobody was listening,
++		 * some are released when the device is re-opened.
++		 * Wait 50 msec for the queue to empty before allowing events
++		 * to go through hid.
++		 */
++		msleep(50);
++		clear_bit(HID_RESUME_RUNNING, &usbhid->iofl);
+ 	}
+ done:
+ 	mutex_unlock(&hid_open_mut);
+diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
+index f633c24..807922b 100644
+--- a/drivers/hid/usbhid/usbhid.h
++++ b/drivers/hid/usbhid/usbhid.h
+@@ -52,6 +52,7 @@ struct usb_interface *usbhid_find_interface(int minor);
+ #define HID_STARTED		8
+ #define HID_KEYS_PRESSED	10
+ #define HID_NO_BANDWIDTH	11
++#define HID_RESUME_RUNNING	12
+ 
+ /*
+  * USB-specific HID struct, to be pointed to
+-- 
+2.1.0
+

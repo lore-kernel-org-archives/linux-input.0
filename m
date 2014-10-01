@@ -1,43 +1,52 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 00/13] HID: add support of Logitech touchpads and special
- devices
-Date: Wed, 1 Oct 2014 09:10:08 -0400
-Message-ID: <20141001131008.GB18756@mail.corp.redhat.com>
-References: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
- <alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52532 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750861AbaJANKR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Oct 2014 09:10:17 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH] HID: uHID: fix excepted report type
+Date: Wed,  1 Oct 2014 11:59:47 -0400
+Message-ID: <1412179187-15107-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Oct 01 2014 or thereabouts, Jiri Kosina wrote:
-> On Tue, 30 Sep 2014, Benjamin Tissoires wrote:
-> 
-> > Jiri, This patch series can be split in 2 if you would like:
-> > - patches 1 to 4 can be scheduled easily for 3.18 IMO
-> > - patches 5 to 13 might need some more reviews, so either 3.18 or 3.19
-> 
-> Benjamin,
-> 
-> thanks for the summary. I'll try to review 1-4 in time for 3.18, but I 
-> can't guarantee that.
-> 
+When uhid_get_report() or uhid_set_report() are called, they emit on the
+char device a UHID_GET_REPORT or UHID_SET_REPORT message. Then, the
+protocol says that the user space asnwers with UHID_GET_REPORT_REPLY
+or UHID_SET_REPORT_REPLY.
 
-Thanks
+Unfortunatelly, the current code waits for an event of type UHID_GET_REPORT
+or UHID_SET_REPORT instead of the reply one.
+Add 1 to UHID_GET_REPORT or UHID_SET_REPORT to actually wait for the
+reply, and validate the reply.
 
-> Do you forsee any issues if the whole lot is queued for 3.19 only?
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-Nope. It waited since 2011, so it can wait 3 more months :)
+Hi David,
+
+while playing with a Bluetooth LE mouse, I noticed that uhid did not validate
+properly the get_report feature. With this patch and some work on bluez, this
+part now works almost (at least I manage to get reports from the device, there
+is still a 0x0b header I can not rely to anything, so there will be some work
+to do in Bordeaux :) )
 
 Cheers,
 Benjamin
 
+ drivers/hid/uhid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index f6ec5ea..e094c57 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -154,7 +154,7 @@ static int __uhid_report_queue_and_wait(struct uhid_device *uhid,
+ 
+ 	spin_lock_irqsave(&uhid->qlock, flags);
+ 	*report_id = ++uhid->report_id;
+-	uhid->report_type = ev->type;
++	uhid->report_type = ev->type + 1;
+ 	uhid->report_running = true;
+ 	uhid_queue(uhid, ev);
+ 	spin_unlock_irqrestore(&uhid->qlock, flags);
+-- 
+1.9.3

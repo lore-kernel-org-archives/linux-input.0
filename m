@@ -1,183 +1,24 @@
-From: Jason Gerecke <killertofu@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH 0/5] HID: wacom: introduce generic HID handling
-Date: Tue, 30 Sep 2014 16:46:01 -0700
-Message-ID: <CANRwn3Sf=288SNTTbJT11gJFUTZYGetHypaECKxy8gBzyVpaVg@mail.gmail.com>
-References: <1411488489-10625-1-git-send-email-benjamin.tissoires@redhat.com>
-	<alpine.LNX.2.00.1409261302520.22196@pobox.suse.cz>
-	<CANRwn3Sng5nxc7YZEUYQVgFhidSMQCBdDsiWebs_zFZ7s=gsiQ@mail.gmail.com>
-	<20140930172718.GA30615@mail.corp.redhat.com>
+Date: Wed, 1 Oct 2014 09:14:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1410010913360.26311@pobox.suse.cz>
+References: <1411488489-10625-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1409261302520.22196@pobox.suse.cz> <CANRwn3Sng5nxc7YZEUYQVgFhidSMQCBdDsiWebs_zFZ7s=gsiQ@mail.gmail.com> <20140930172718.GA30615@mail.corp.redhat.com>
+ <CANRwn3Sf=288SNTTbJT11gJFUTZYGetHypaECKxy8gBzyVpaVg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140930172718.GA30615@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:53279 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751330AbaJAHO5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Oct 2014 03:14:57 -0400
+In-Reply-To: <CANRwn3Sf=288SNTTbJT11gJFUTZYGetHypaECKxy8gBzyVpaVg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2014 at 10:27 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> On Sep 26 2014 or thereabouts, Jason Gerecke wrote:
->> On Fri, Sep 26, 2014 at 4:03 AM, Jiri Kosina <jkosina@suse.cz> wrote=
-:
->> > On Tue, 23 Sep 2014, Benjamin Tissoires wrote:
->> >
->> >> Hi guys,
->> >>
->> >> So, this patch series aims at supporting natively any future HID =
-compliant wacom
->> >> tablet. Those found on the various laptops (ISDv4/5) already are =
-HID compliant
->> >> and they should work in the future without any modification of th=
-e kernel.
->> >>
->> >> Few things to note here:
->> >> - I used the PID 0x00E6 found on the Lenovo X230 for the tests
->> >> - I did not removed its entry in the list because there is a slig=
-htly different
->> >>   behavior while using this patch set: when more than two fingers=
- are on the
->> >>   screen, the tablet stops sending finger events, while with the =
-wacom
->> >>   proprietary bits, it continues to send them. Besides that, the =
-events emitted
->> >>   before and after the patch series are the same (at least on the=
- E6)
->> >> - I can not rely on hid-input directly because wacom wants to be =
-in control of
->> >>   the input devices it creates. This might be solved in the futur=
-e, but for now
->> >>   it is just easier to rewrite the few mapping/events handling th=
-an trying to
->> >>   fit in the hid-input model.
->> >> - there will still be more specific use cases to handle later (se=
-e the joke of
->> >>   the MS surface 3 pen[1] for instance), but this should give a r=
-oughly working
->> >>   pen/touch support for those future devices.
->> >>
->> >> Jason, I would be very glad if you could conduct a few tests for =
-this on the
->> >> ISDv4/5 sensors you have.
->> >
->> > I am waiting with this one for testing results from Jason, but if =
-you guys
->> > want this to go in the next merge window, I'd like to ask you not =
-to
->> > postpone the testing too much.
->> >
->> > Thanks.
->> >
->>
->> I'm in the process of capturing traces from hid-record for multiple
->> tablet PCs both pre- and post-patch to locate any obvious issues. My
->> initial results are promising on the pen side (the only things I've
->> noticed so far is the 2nd barrel switch not being supported -- as
->> might be suspected) but less so on the touch side (single-finger
->> devices seem to work fine, but the new code doesn't seem to handle a=
-ny
->> of the multitouch devices I've tried).
->
-> Do you consider not having the second barrel switch a blocker or can =
-we
-> ship it this and send a fix later?
->
-> As for the touch, I tested/developed it on the Lenovo X230. It presen=
-ts
-> a hid-multitouch compatible touch interface, when the feature input_m=
-ode
-> is sent with the value '2'. By re-reading it, it seems to me that you
-> are trying to replay the touch traces you got before the patch, but t=
-his
-> will not work because the touch protocol is not the same. ISDv4 used =
-to
-> rely on the proprietary touch protocol which is hard to describe in H=
-ID.
->
-> I would say that as long as there is no regression (actually there ca=
-n
-> not be for old devices :-P), we should still carry this series for 3.=
-18.
-> We might need to adjust the bits here and there, but if we can have a
-> *basic* support of the tablet out of the box, this is still much bett=
-er
-> than silently ignoring it.
->
-I'm in agreement. The lack of second-switch support was expected and
-somewhat trivial at this moment. We can work on finessing it as we go.
+Applied the series to for-3.18/wacom. Thanks,
 
-Regarding the touch input, I haven't had enough time to dive in to
-figuring out what is wrong, but traces aren't the issue (I've not been
-able to use traces for multitouch testing because the driver can't
-query features->touch_max ;)). Working with actual hardware, I don't
-get _any_ events out of the driver when using the touchscreen. I
-checked that the device is sending the non-vendor-defined reports,
-which does seem to be the case. The descriptor for the reports also
-seem to be reasonable, appearing to follow Microsoft's
-recommendations...
-
->>
->> Expect more news next week :)
->
-> So?????
->
-I'm not sure if you want to fix touch first or just get these upstream
-and fix during RC (as you said, it won't cause any regressions...) but
-I'll give the following:
-
-Acked-by: Jason Gerecke <killertofu@gmail.com>
-
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
-
->>
->>
->> PS: I'm pretty sure ISDv5 shouldn't be relied on for HID data :| The
->> descriptor for the Cintiq Companion Hybrid, at least, is like our
->> branded sensors with useful data only in the touchscreen descriptor
->> (the pen descriptor is a bunch of opaque vendor-defined reports). No=
-t
->> sure if the Cintiq Companion is the same though since it runs
->> Windows...
->
-> Ouch. For those, we will need to either fix the report descriptors or
-> handle them in the same way you always used to do: manually.
->
-> Cheers,
-> Benjamin
->
->> >>
->> >> [1] http://who-t.blogspot.com/2014/09/stylus-behaviour-on-microso=
-ft-surface-3.html
->> >>
->> >> Benjamin Tissoires (5):
->> >>   HID: wacom: rename failN with some meaningful information
->> >>   HID: wacom: split out input allocation and registration
->> >>   HID: wacom: move allocation of inputs earlier
->> >>   HID: wacom: implement generic HID handling for pen generic devi=
-ces
->> >>   HID: wacom: implement the finger part of the HID generic handli=
-ng
->> >>
->> >>  drivers/hid/hid-core.c  |   3 +
->> >>  drivers/hid/wacom.h     |   6 +
->> >>  drivers/hid/wacom_sys.c | 184 +++++++++++++++++++++--------
->> >>  drivers/hid/wacom_wac.c | 299 ++++++++++++++++++++++++++++++++++=
-++++++++++++++
->> >>  drivers/hid/wacom_wac.h |  17 +++
->> >>  include/linux/hid.h     |   2 +
->> >>  6 files changed, 462 insertions(+), 49 deletions(-)
->> >>
->> >> --
->> >> 2.1.0
->> >>
->> >
->> > --
->> > Jiri Kosina
->> > SUSE Labs
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,50 +1,43 @@
-From: Jiri Kosina <jiri.kosina@suse.com>
-Subject: Re: [PATCH] usbhid: add another mouse that needs QUIRK_ALWAYS_POLL
-Date: Wed, 1 Oct 2014 14:32:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1410011431100.26311@pobox.suse.cz>
-References: <1412074496-4539-1-git-send-email-oneukum@suse.de>  <alpine.LNX.2.00.1410010921570.26311@pobox.suse.cz> <1412151243.4171.10.camel@linux-0dmf.site>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 00/13] HID: add support of Logitech touchpads and special
+ devices
+Date: Wed, 1 Oct 2014 09:10:08 -0400
+Message-ID: <20141001131008.GB18756@mail.corp.redhat.com>
+References: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
+ <alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.emea.novell.com ([130.57.118.101]:39540 "EHLO
-	mail.emea.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768AbaJAMcR (ORCPT
-	<rfc822;groupwise-linux-input@vger.kernel.org:0:0>);
-	Wed, 1 Oct 2014 08:32:17 -0400
-In-Reply-To: <1412151243.4171.10.camel@linux-0dmf.site>
+Received: from mx1.redhat.com ([209.132.183.28]:52532 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750861AbaJANKR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Oct 2014 09:10:17 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: linux-input@vger.kernel.org, johan@kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, 1 Oct 2014, Oliver Neukum wrote:
-
-> > > --- a/drivers/hid/usbhid/hid-quirks.c
-> > > +++ b/drivers/hid/usbhid/hid-quirks.c
-> > > @@ -80,6 +80,8 @@ static const struct hid_blacklist {
-> > >  	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1610, HID_QUIRK_NOGET },
-> > >  	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1640, HID_QUIRK_NOGET },
-> > >  	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
-> > > +	/* OEM version same strings but different IDs */
-> > > +	{ USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2, HID_QUIRK_ALWAYS_POLL },
-> > 
-> > I don't like the added comment, it makes the list look ugly (as no other 
-> > device has such a comment). The details are in the git changelog anyway.
-> > 
-> > Are you fine with me removing the comment before commiting the patch?
+On Oct 01 2014 or thereabouts, Jiri Kosina wrote:
+> On Tue, 30 Sep 2014, Benjamin Tissoires wrote:
 > 
-> If you wish to remove it, please do so. 
+> > Jiri, This patch series can be split in 2 if you would like:
+> > - patches 1 to 4 can be scheduled easily for 3.18 IMO
+> > - patches 5 to 13 might need some more reviews, so either 3.18 or 3.19
+> 
+> Benjamin,
+> 
+> thanks for the summary. I'll try to review 1-4 in time for 3.18, but I 
+> can't guarantee that.
+> 
 
-Thanks, I removed it and applied.
+Thanks
 
-> However, if people then complain that I mixed up vendor IDs, will you 
-> handle that? ;)
+> Do you forsee any issues if the whole lot is queued for 3.19 only?
 
-I am pretty good at running git blame and looking into changelogs, no 
-worries :)
+Nope. It waited since 2011, so it can wait 3 more months :)
 
-Thanks,
+Cheers,
+Benjamin
 
--- 
-Jiri Kosina
-SUSE Labs

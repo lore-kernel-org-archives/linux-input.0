@@ -1,78 +1,40 @@
-From: David Herrmann <dh.herrmann@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH] HID: uHID: fix excepted report type
-Date: Wed, 1 Oct 2014 18:36:54 +0200
-Message-ID: <CANq1E4QGPWNBSLzd3_5NJVNkCjBELREN=_twVdcdSe6efOOJ2Q@mail.gmail.com>
-References: <1412179187-15107-1-git-send-email-benjamin.tissoires@redhat.com>
+Date: Wed, 1 Oct 2014 21:01:52 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1410012101350.26311@pobox.suse.cz>
+References: <1412179187-15107-1-git-send-email-benjamin.tissoires@redhat.com> <CANq1E4QGPWNBSLzd3_5NJVNkCjBELREN=_twVdcdSe6efOOJ2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:54522 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751547AbaJAQgz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Oct 2014 12:36:55 -0400
-In-Reply-To: <1412179187-15107-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from cantor2.suse.de ([195.135.220.15]:44355 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753936AbaJATB4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Oct 2014 15:01:56 -0400
+In-Reply-To: <CANq1E4QGPWNBSLzd3_5NJVNkCjBELREN=_twVdcdSe6efOOJ2Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@googlemail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi
+On Wed, 1 Oct 2014, David Herrmann wrote:
 
-On Wed, Oct 1, 2014 at 5:59 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> When uhid_get_report() or uhid_set_report() are called, they emit on the
-> char device a UHID_GET_REPORT or UHID_SET_REPORT message. Then, the
-> protocol says that the user space asnwers with UHID_GET_REPORT_REPLY
-> or UHID_SET_REPORT_REPLY.
->
-> Unfortunatelly, the current code waits for an event of type UHID_GET_REPORT
-> or UHID_SET_REPORT instead of the reply one.
-> Add 1 to UHID_GET_REPORT or UHID_SET_REPORT to actually wait for the
-> reply, and validate the reply.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Hi David,
->
-> while playing with a Bluetooth LE mouse, I noticed that uhid did not validate
-> properly the get_report feature. With this patch and some work on bluez, this
-> part now works almost (at least I manage to get reports from the device, there
-> is still a 0x0b header I can not rely to anything, so there will be some work
-> to do in Bordeaux :) )
->
-> Cheers,
-> Benjamin
->
->  drivers/hid/uhid.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index f6ec5ea..e094c57 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -154,7 +154,7 @@ static int __uhid_report_queue_and_wait(struct uhid_device *uhid,
->
->         spin_lock_irqsave(&uhid->qlock, flags);
->         *report_id = ++uhid->report_id;
-> -       uhid->report_type = ev->type;
-> +       uhid->report_type = ev->type + 1;
+> > diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> > index f6ec5ea..e094c57 100644
+> > --- a/drivers/hid/uhid.c
+> > +++ b/drivers/hid/uhid.c
+> > @@ -154,7 +154,7 @@ static int __uhid_report_queue_and_wait(struct uhid_device *uhid,
+> >
+> >         spin_lock_irqsave(&uhid->qlock, flags);
+> >         *report_id = ++uhid->report_id;
+> > -       uhid->report_type = ev->type;
+> > +       uhid->report_type = ev->type + 1;
+> 
+> Nice catch. We always need the *_REPLY type as response:
+> 
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
-Nice catch. We always need the *_REPLY type as response:
+Applied, thanks.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-
-Thanks for trying to fix this! I will try to get my Arc-Surface
-working until Bordeaux. We should be able to get all that stuff
-figured out together then. And it will still be in time for 3.18-fixes
-then.
-
-Thanks
-David
-
->         uhid->report_running = true;
->         uhid_queue(uhid, ev);
->         spin_unlock_irqrestore(&uhid->qlock, flags);
-> --
-> 1.9.3
->
+-- 
+Jiri Kosina
+SUSE Labs

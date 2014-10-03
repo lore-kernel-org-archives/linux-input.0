@@ -1,127 +1,65 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: Scan the report descriptor to determine if the device is suitable for the hid-rmi driver
-Date: Thu, 2 Oct 2014 11:15:20 -0700
-Message-ID: <1412273720-4431-1-git-send-email-aduggan@synaptics.com>
+From: Yuasa Yoichi <yuasa@linux-mips.org>
+Subject: Re: [PATCH v3 0/2] Add ROHM BU21023/24 Dual touch support resistive touchscreens
+Date: Fri, 3 Oct 2014 14:16:53 +0900
+Message-ID: <CACBHAewRkZz35D1+s=S+JTsOqrDgwgzS_amB0MJtVQq8-aL4QA@mail.gmail.com>
+References: <20140925001647.dd48571a3c0ceda5c25ab669@linux-mips.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:38225 "EHLO
+	mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751919AbaJCFQx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Oct 2014 01:16:53 -0400
+Received: by mail-oi0-f47.google.com with SMTP id a141so300618oig.34
+        for <linux-input@vger.kernel.org>; Thu, 02 Oct 2014 22:16:53 -0700 (PDT)
+In-Reply-To: <20140925001647.dd48571a3c0ceda5c25ab669@linux-mips.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Yoichi Yuasa <yuasa@linux-mips.org>, linux-input@vger.kernel.org
 
-On composite HID devices there may be multiple HID devices on separate interfaces, but hid-rmi
-should only bind to the touchpad. Commit e19ff99f256aeeff6c07b373e01883b72e049552 simply checked
-that the interface protocol was set to mouse. Unfortuately, it is not always the case that the
-touchpad has the mouse interface protocol set. This patch takes a different approach and scans
-the report descriptor looking for the Vendor Specific Top Level Collection and the associated
-usages and report IDs needed by the hid-rmi driver to interface with the device.
+Hi Dmitry,
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-core.c | 42 +++++++++++++++++++++++++++++++++++++-----
- include/linux/hid.h    |  8 +++++++-
- 2 files changed, 44 insertions(+), 6 deletions(-)
+Do you have any comments?
+If you have a comment, I will fix it before next merge.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 12b6e67..498f674 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -686,6 +686,23 @@ static void hid_scan_input_usage(struct hid_parser *parser, u32 usage)
- 
- 	if (usage == HID_DG_CONTACTID)
- 		hid->group = HID_GROUP_MULTITOUCH;
-+
-+	if (usage == 0xff000004 && parser->global.report_id == 0xb)
-+		parser->scan_flags |= HID_SCAN_FLAG_RMI_INPUT_READ;
-+
-+	if (usage == 0xff000005 && parser->global.report_id == 0xc)
-+		parser->scan_flags |= HID_SCAN_FLAG_RMI_ATTN;
-+}
-+
-+static void hid_scan_output_usage(struct hid_parser *parser, u32 usage)
-+{
-+	struct hid_device *hid = parser->device;
-+
-+	if (usage == 0xff000002 && parser->global.report_id == 0x9)
-+		parser->scan_flags |= HID_SCAN_FLAG_RMI_WRITE;
-+
-+	if (usage == 0xff000003 && parser->global.report_id == 0xa)
-+		parser->scan_flags |= HID_SCAN_FLAG_RMI_OUTPUT_READ;
- }
- 
- static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
-@@ -693,6 +710,9 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
- 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
- 	    parser->global.report_size == 8)
- 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
-+
-+	if (usage == 0xff000006 && parser->global.report_id == 0xf)
-+		parser->scan_flags |= HID_SCAN_FLAG_RMI_MODE;
- }
- 
- static void hid_scan_collection(struct hid_parser *parser, unsigned type)
-@@ -702,6 +722,9 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
- 	if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
- 	    type == HID_COLLECTION_PHYSICAL)
- 		hid->group = HID_GROUP_SENSOR_HUB;
-+
-+	if ((parser->global.usage_page << 16) == HID_UP_MSVENDOR)
-+		parser->scan_flags |= HID_SCAN_FLAG_VENDOR_SPECIFIC;
- }
- 
- static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
-@@ -725,6 +748,10 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
- 			hid_scan_input_usage(parser, parser->local.usage[i]);
- 		break;
- 	case HID_MAIN_ITEM_TAG_OUTPUT:
-+		if (data & HID_MAIN_ITEM_CONSTANT)
-+			break;
-+		for (i = 0; i < parser->local.usage_index; i++)
-+			hid_scan_output_usage(parser, parser->local.usage[i]);
- 		break;
- 	case HID_MAIN_ITEM_TAG_FEATURE:
- 		for (i = 0; i < parser->local.usage_index; i++)
-@@ -783,11 +810,16 @@ static int hid_scan_report(struct hid_device *hid)
- 	* Vendor specific handlings
- 	*/
- 	if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
--	    (hid->group == HID_GROUP_GENERIC) &&
--	    /* only bind to the mouse interface of composite USB devices */
--	    (hid->bus != BUS_USB || hid->type == HID_TYPE_USBMOUSE))
--		/* hid-rmi should take care of them, not hid-generic */
--		hid->group = HID_GROUP_RMI;
-+	    (hid->group == HID_GROUP_GENERIC)) {
-+		if ((parser->scan_flags & HID_SCAN_FLAG_VENDOR_SPECIFIC)
-+			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_WRITE)
-+			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_INPUT_READ)
-+			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_OUTPUT_READ)
-+			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_ATTN)
-+			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_MODE))
-+			/* hid-rmi should take care of them, not hid-generic */
-+			hid->group = HID_GROUP_RMI;
-+	}
- 
- 	/*
- 	 * Vendor specific handlings
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index f53c4a9..82d1f82 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -547,7 +547,13 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
- #define HID_GLOBAL_STACK_SIZE 4
- #define HID_COLLECTION_STACK_SIZE 4
- 
--#define HID_SCAN_FLAG_MT_WIN_8			0x00000001
-+#define HID_SCAN_FLAG_MT_WIN_8			BIT(0)
-+#define HID_SCAN_FLAG_VENDOR_SPECIFIC		BIT(1)
-+#define HID_SCAN_FLAG_RMI_WRITE			BIT(2)
-+#define HID_SCAN_FLAG_RMI_INPUT_READ		BIT(3)
-+#define HID_SCAN_FLAG_RMI_OUTPUT_READ		BIT(3)
-+#define HID_SCAN_FLAG_RMI_ATTN			BIT(4)
-+#define HID_SCAN_FLAG_RMI_MODE			BIT(5)
- 
- struct hid_parser {
- 	struct hid_global     global;
--- 
-1.9.1
+Thanks,
+
+Yoichi
+
+2014-09-25 0:16 GMT+09:00 Yoichi Yuasa <yuasa@linux-mips.org>:
+> Hi Dmitry,
+>
+> I updated the driver according to your comments.
+> Do you have any comments?
+>
+> v3 Changes:
+> - fix multi touch slots initialization
+> - fix set_bit BTN_TOUCH
+> - remove input_unregister_device()
+> - switch to __set_bit()
+>
+> v2 Changes:
+> - remove polling mode
+> - switch to threaded interrupt
+> - switch to managed resources
+> - use MT-B protocol with input_mt_assign_slots
+> - provide ST emulation
+> - firmware load and device initialization are shifted at opening the device
+> - add error handling for IO operations
+>
+> Yoichi Yuasa (2):
+>   input: Add ROHM BU21023/24 Dual touch support resistive touchscreens
+>   input: bu21023_ts: Add calibration function
+>
+>  drivers/input/touchscreen/Kconfig        |   11 +
+>  drivers/input/touchscreen/Makefile       |    1 +
+>  drivers/input/touchscreen/rohm_bu21023.c |  930 ++++++++++++++++++++++++++++++
+>  drivers/input/touchscreen/rohm_bu21023.h |  258 +++++++++
+>  4 files changed, 1200 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/rohm_bu21023.c
+>  create mode 100644 drivers/input/touchscreen/rohm_bu21023.h
+>
+> --
+> 1.7.9.5
+>

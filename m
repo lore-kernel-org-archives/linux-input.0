@@ -1,46 +1,45 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 3/3] input: alps: Reset mouse and ALPS driver immediately
- after first invalid packet
-Date: Fri, 03 Oct 2014 13:03:38 +0200
-Message-ID: <542E828A.6010305@redhat.com>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com> <201410031205.42927@pali> <542E780B.7030103@redhat.com> <201410031223.10608@pali>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 00/13] HID: add support of Logitech touchpads and special
+ devices
+Date: Fri, 3 Oct 2014 13:09:09 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1410031308360.14259@pobox.suse.cz>
+References: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz> <20141001131008.GB18756@mail.corp.redhat.com> <CAG_cf+fYGATBL9Sgvvp7CaScP112fiqiyuR0gBdkS-424S3Kog@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:12617 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:54092 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750852AbaJCLDu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Oct 2014 07:03:50 -0400
-In-Reply-To: <201410031223.10608@pali>
+	id S1751885AbaJCLJM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Oct 2014 07:09:12 -0400
+In-Reply-To: <CAG_cf+fYGATBL9Sgvvp7CaScP112fiqiyuR0gBdkS-424S3Kog@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>
 
-Hi,
+On Thu, 2 Oct 2014, Andrew de los Reyes wrote:
 
-On 10/03/2014 12:23 PM, Pali Roh=C3=A1r wrote:
-> On Friday 03 October 2014 12:18:51 Hans de Goede wrote:
->>> On my E6440 machine it somehow working. When driver
->>> doing ps/2 reset keyboard, touchpad and trackstick not
->>> responding.
->>
->> Right, but I would expect that to be for only a short period
->> of time, or does the whole reset take a significant amount of
->> time ?
->>
->=20
-> It is one or two seconds which is OK for me.
+> I've tested these patches successfully on a Chromebook Pixel with the
+> following devices:
+> 
+> - T650 touchpad
+> - TK820 keyboard/touchpad
+> - Original WTP touchpad
+> 
+> I also tested a touch mouse and as expected it continued to function
+> as a plain USB mouse. The TK820 was indeed broken into two devices,
+> with autorepeat enabled for the keyboard only. The other two devices
+> behaved as expected with no perceived regressions.
+> 
+> In short, from a functionality perspective I'm happy with these
+> patches. I will let others discuss code structure.
 
-Hmm, 1-2 seconds is quite long, not good. Lets see if the solution
-we've been discussing by private mail yields better results.
+Thank you. Can I use
 
-Regards,
+	Tested-by: Andrew de los Reyes <andrew-vger@gizmolabs.org>
 
-Hans
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+once / if I am merging this patchset?
+
+-- 
+Jiri Kosina
+SUSE Labs

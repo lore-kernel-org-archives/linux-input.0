@@ -1,67 +1,76 @@
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH 2/3] input: alps: For protocol V3, do not process data when last packet's bit7 is set
-Date: Fri,  3 Oct 2014 11:43:11 +0200
-Message-ID: <1412329392-5580-3-git-send-email-pali.rohar@gmail.com>
+Subject: [PATCH 3/3] input: alps: Reset mouse and ALPS driver immediately after first invalid packet
+Date: Fri,  3 Oct 2014 11:43:12 +0200
+Message-ID: <1412329392-5580-4-git-send-email-pali.rohar@gmail.com>
 References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:44469 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752088AbaJCJnq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Oct 2014 05:43:46 -0400
 In-Reply-To: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-Sometimes laptops with closed lid receive invalid ALPS protocol V3 pack=
-ets with
-last bit7 set.
+=46or unknown reasons linux psmouse alps driver sometimes receive total=
+ly invalid
+packet sequences on Dell Latitude laptops. According to ALPS HW enginee=
+rs these
+invalid packets do not come from ALPS devices. So it looks like bug in =
+BIOS and
+EC incorrectly split keyboard and touchpad PS/2 data when laptops are u=
+nder
+heavy loads (big I/O together with powersave governor, running on batte=
+ry).
 
-This happens on Dell Latitude laptops and it looks like it is BIOS bug.=
- Probably
-EC does not correctly split keyboard and touchpad PS/2 data and when la=
-ptop lid
-is closed it adds 0xFF packet into touchpad PS/2 data.
+There are sequences of invalid packets (which are dropeed) and some seq=
+uences
+which look like valid. But these valid packets cause random trackstick =
+button
+pressing, random cursor moving/jumping and in these condition it is not=
+ possible
+to use ALPS device (trackstick+touchpad).
 
-When last packet's bit7 is set it is invalid ALPS packet. So Do not pro=
-cess it
-and drop it with PSMOUSE_FULL_PACKET.
-
-After testing it looks like this patch fixed problem with reseting mous=
-e (after
-series of invalid packets) when laptop lid is closed on Dell Latitude m=
-achines.
+To prevent random button press and random cursor jumps immediately rese=
+t ALPS
+device after first invalid packet. This will cause that touchpad and tr=
+ackstick
+will not respond for one or two seconds and it better then random curso=
+r jumps.
 
 Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 Tested-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 ---
- drivers/input/mouse/alps.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/input/mouse/alps.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 1bd5aa1..b1f44d4 100644
+index b1f44d4..d2b144f 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -1179,6 +1179,16 @@ static psmouse_ret_t alps_process_byte(struct ps=
-mouse *psmouse)
- 		return PSMOUSE_BAD_DATA;
- 	}
+@@ -2399,6 +2399,10 @@ int alps_init(struct psmouse *psmouse)
+ 	/* We are having trouble resyncing ALPS touchpads so disable it for n=
+ow */
+ 	psmouse->resync_time =3D 0;
 =20
-+	if (priv->proto_version =3D=3D ALPS_PROTO_V3 && psmouse->pktcnt =3D=3D=
- psmouse->pktsize) {
-+		// For protocol V3, do not process data when last packet's bit7 is s=
-et
-+		if (psmouse->packet[psmouse->pktcnt - 1] & 0x80) {
-+			psmouse_dbg(psmouse, "v3 discard packet[%i] =3D %x\n",
-+				    psmouse->pktcnt - 1,
-+				    psmouse->packet[psmouse->pktcnt - 1]);
-+			return PSMOUSE_FULL_PACKET;
-+		}
-+	}
++	/* Reset immediately after bad packet. When bad packet arrives then
++	   cursor pointer jumps and trackstick buttons are randomly pressed. =
+*/
++	psmouse->resetafter =3D 1;
 +
- 	/* Bytes 2 - pktsize should have 0 in the highest bit */
- 	if ((priv->proto_version < ALPS_PROTO_V5) &&
- 	    psmouse->pktcnt >=3D 2 && psmouse->pktcnt <=3D psmouse->pktsize &=
-&
+ 	return 0;
+=20
+ init_fail:
 --=20
 1.7.9.5
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

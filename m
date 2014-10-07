@@ -1,97 +1,78 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: Re: [PATCH] Input: opencores-kbd: Switch to using managed resources
-Date: Tue, 7 Oct 2014 15:33:22 +0200
-Message-ID: <20141007133322.GL3279@distanz.ch>
-References: <1412681501-28072-1-git-send-email-pramod.gurav@smartplayin.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [PATCH] Input: adp5588-keys: cancel workqueue in failure path
+Date: Tue, 7 Oct 2014 14:42:40 +0200
+Message-ID: <5433DFC0.705@analog.com>
+References: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sym2.noone.org ([178.63.92.236]:57080 "EHLO sym2.noone.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753894AbaJGNd0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Oct 2014 09:33:26 -0400
-Content-Disposition: inline
-In-Reply-To: <1412681501-28072-1-git-send-email-pramod.gurav@smartplayin.com>
+Received: from mail-bn1on0077.outbound.protection.outlook.com ([157.56.110.77]:62818
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752368AbaJGOaa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Oct 2014 10:30:30 -0400
+In-Reply-To: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pramod Gurav <pramod.gurav@smartplayin.com>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Pramod Gurav <pramod.gurav@smartplayin.com>, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 2014-10-07 at 13:31:41 +0200, Pramod Gurav <pramod.gurav@smartplayin.com> wrote:
-> This change switch to managed resources to simplifies error handling
-> and module unloading and does away with platform_driver remove function.
-> 
+On 10/07/2014 09:30 AM, Pramod Gurav wrote:
+> This change introduces a label to call cancel_delayed_work_sync in
+> failure path.
+>
+> Cc: Michael Hennerich <michael.hennerich@analog.com>
 > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > Cc: linux-input@vger.kernel.org
 > Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+
+The interrupt triggers the work queue. adp5588_setup() enable the HW 
+interrupt.
+Only if the device was configured before, without being resetb -
+The earliest point in time where a problem could happen - is after the 
+request_irq().
+
+Anyways patch below doesn't harm and fixes a potential problem.
+
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+
 > ---
->  drivers/input/keyboard/opencores-kbd.c |   54 ++++++++------------------------
->  1 file changed, 13 insertions(+), 41 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
-> index 7b9b441..ecacb87 100644
-> --- a/drivers/input/keyboard/opencores-kbd.c
-> +++ b/drivers/input/keyboard/opencores-kbd.c
-> @@ -56,27 +56,27 @@ static int opencores_kbd_probe(struct platform_device *pdev)
->  		return -EINVAL;
->  	}
->  
-> -	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
-> -	input = input_allocate_device();
-> +	opencores_kbd = devm_kzalloc(&pdev->dev, sizeof(*opencores_kbd),
-> +				     GFP_KERNEL);
-> +	input = devm_input_allocate_device(&pdev->dev);
->  	if (!opencores_kbd || !input) {
->  		dev_err(&pdev->dev, "failed to allocate device structures\n");
-> -		error = -ENOMEM;
+>   drivers/input/keyboard/adp5588-keys.c |    4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+> index 5ef7fcf..b494062 100644
+> --- a/drivers/input/keyboard/adp5588-keys.c
+> +++ b/drivers/input/keyboard/adp5588-keys.c
+> @@ -559,7 +559,7 @@ static int adp5588_probe(struct i2c_client *client,
+>   	error = input_register_device(input);
+>   	if (error) {
+>   		dev_err(&client->dev, "unable to register input device\n");
 > -		goto err_free_mem;
-> +		return -ENOMEM;
->  	}
->  
->  	opencores_kbd->addr_res = res;
-> -	res = request_mem_region(res->start, resource_size(res), pdev->name);
-> +	res = devm_request_mem_region(&pdev->dev, res->start,
-> +				      resource_size(res), pdev->name);
->  	if (!res) {
->  		dev_err(&pdev->dev, "failed to request I/O memory\n");
-> -		error = -EBUSY;
-> -		goto err_free_mem;
-> +		return -EBUSY;
->  	}
->  
-> -	opencores_kbd->addr = ioremap(res->start, resource_size(res));
-> +	opencores_kbd->addr = devm_ioremap(&pdev->dev, res->start,
-> +					   resource_size(res));
+> +		goto err_delayed_work;
+>   	}
+>   
+>   	error = request_irq(client->irq, adp5588_irq,
+> @@ -592,6 +592,8 @@ static int adp5588_probe(struct i2c_client *client,
+>    err_unreg_dev:
+>   	input_unregister_device(input);
+>   	input = NULL;
+> + err_delayed_work:
+> +	cancel_delayed_work_sync(&kpad->work);
+>    err_free_mem:
+>   	input_free_device(input);
+>   	kfree(kpad);
 
-You could use devm_ioremap_resource() here and get rid of the call to
-devm_request_mem_region() and the check for !res above, i.e. something
-like:
 
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	[...]
-	opencores_kbd->addr = devm_ioremap_resource(&pdev->dev, res);
-	if (!opencores_kbd->addr) {
-		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-		return -ENXIO;
-	}
+-- 
+Greetings,
+Michael
 
->  	if (!opencores_kbd->addr) {
->  		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> -		error = -ENXIO;
-> -		goto err_rel_mem;
-> +		return -ENXIO;
->  	}
->  
->  	opencores_kbd->input = input;
-> @@ -109,54 +109,26 @@ static int opencores_kbd_probe(struct platform_device *pdev)
->  	}
->  	__clear_bit(KEY_RESERVED, input->keybit);
->  
-> -	error = request_irq(irq, &opencores_kbd_isr,
-> +	error = devm_request_irq(&pdev->dev, irq, &opencores_kbd_isr,
->  			    IRQF_TRIGGER_RISING, pdev->name, opencores_kbd);
+--
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
+Margaret Seif
 
-The second line should be aligned to the opening parenthesis:
-
-	error = devm_request_irq(&pdev->dev, irq, &opencores_kbd_isr,
-				 IRQF_TRIGGER_RISING, pdev->name, opencores_kbd);

@@ -1,84 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for
- register access
-Date: Tue, 7 Oct 2014 10:26:06 -0700
-Message-ID: <20141007172606.GG16469@dtor-ws>
-References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>
- <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:56869 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753459AbaJGR0L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Oct 2014 13:26:11 -0400
-Content-Disposition: inline
-In-Reply-To: <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Prevent potential null dereference after disconnect
+Date: Tue,  7 Oct 2014 10:54:33 -0700
+Message-ID: <1412704473-6708-1-git-send-email-killertofu@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jkosina@suse.cz, benjamin.tissoires@gmail.com, pinglinux@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: Stephen Boyd <sboyd@codeaurora.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
 
-Hi Ivan,
+Repeated connect/disconnect cycles under GNOME can trigger an occasional
+OOPS from within e.g. wacom_led_select_store, presumably due to a timing
+issue where userspace begins setting a value immediately before the
+device disconnects and our shared data is whisked away.
 
-On Tue, Oct 07, 2014 at 12:50:46PM +0300, Ivan T. Ivanov wrote:
-> @@ -527,10 +538,55 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, kp);
->  
-> +	if (rows < info->min_rows)
-> +		rows = info->min_rows;
-> +
-> +	if (cols < info->min_cols)
-> +		cols = info->min_cols;
-> +
->  	kp->num_rows	= rows;
->  	kp->num_cols	= cols;
->  	kp->dev		= &pdev->dev;
->  
-> +	kp->events = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +					     info->events);
-> +	if (IS_ERR(kp->events))
-> +		return PTR_ERR(kp->events);
-> +
-> +	kp->scan_rows = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +						info->scan_rows);
-> +	if (IS_ERR(kp->scan_rows))
-> +		return PTR_ERR(kp->scan_rows);
-> +
-> +	kp->scan_cols = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +						info->scan_cols);
-> +	if (IS_ERR(kp->scan_cols))
-> +		return PTR_ERR(kp->scan_cols);
-> +
-> +	kp->enable = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +					     info->enable);
-> +	if (IS_ERR(kp->enable))
-> +		return PTR_ERR(kp->enable);
-> +
-> +	kp->read_state = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +						 info->read_state);
-> +	if (IS_ERR(kp->read_state))
-> +		return PTR_ERR(kp->read_state);
-> +
-> +	kp->dbonce = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +					     info->dbonce);
-> +	if (IS_ERR(kp->dbonce))
-> +		return PTR_ERR(kp->dbonce);
-> +
-> +	kp->pause = devm_regmap_field_alloc(kp->dev, kp->regmap, info->pause);
-> +	if (IS_ERR(kp->pause))
-> +		return PTR_ERR(kp->pause);
-> +
-> +	kp->row_hold = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> +					       info->row_hold);
-> +	if (IS_ERR(kp->row_hold))
-> +		return PTR_ERR(kp->row_hold);
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+ drivers/hid/wacom_sys.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-Why do we have to allocate all regmap fields separately instead of
-embedding them into keypad structure?
-
-Thanks.
-
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 8593047..d9ae467 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -641,6 +641,9 @@ static ssize_t wacom_led_select_store(struct device *dev, int set_id,
+ 	unsigned int id;
+ 	int err;
+ 
++	if (!wacom)
++		return -ENODEV;
++
+ 	err = kstrtouint(buf, 10, &id);
+ 	if (err)
+ 		return err;
+@@ -666,6 +669,8 @@ static ssize_t wacom_led##SET_ID##_select_show(struct device *dev,	\
+ {									\
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);\
+ 	struct wacom *wacom = hid_get_drvdata(hdev);			\
++	if (!wacom)							\
++		return -ENODEV;						\
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n",			\
+ 			 wacom->led.select[SET_ID]);			\
+ }									\
+@@ -702,7 +707,8 @@ static ssize_t wacom_##name##_luminance_store(struct device *dev,	\
+ {									\
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);\
+ 	struct wacom *wacom = hid_get_drvdata(hdev);			\
+-									\
++	if (!wacom)							\
++		return -ENODEV;						\
+ 	return wacom_luminance_store(wacom, &wacom->led.field,		\
+ 				     buf, count);			\
+ }									\
+@@ -710,6 +716,8 @@ static ssize_t wacom_##name##_luminance_show(struct device *dev,	\
+ 	struct device_attribute *attr, char *buf)			\
+ {									\
+ 	struct wacom *wacom = dev_get_drvdata(dev);			\
++	if (!wacom)							\
++		return -ENODEV;
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n", wacom->led.field);	\
+ }									\
+ static DEVICE_ATTR(name##_luminance, DEV_ATTR_RW_PERM,			\
+@@ -729,6 +737,9 @@ static ssize_t wacom_button_image_store(struct device *dev, int button_id,
+ 	unsigned len;
+ 	u8 xfer_id;
+ 
++	if (!wacom)
++		return -ENODEV;
++
+ 	if (hdev->bus == BUS_BLUETOOTH) {
+ 		len = 256;
+ 		xfer_id = WAC_CMD_ICON_BT_XFER;
 -- 
-Dmitry
+2.1.2

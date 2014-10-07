@@ -1,49 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: Add Qualcomm PM8941 power key driver
-Date: Mon, 6 Oct 2014 19:50:57 -0700
-Message-ID: <20141007025057.GA26419@dtor-glaptop>
-References: <1412644321-27683-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1412644321-27683-2-git-send-email-bjorn.andersson@sonymobile.com>
- <20141007013001.GD39707@dtor-ws>
- <20141007015141.GG28481@sonymobile.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Pramod Gurav <pramod.gurav@smartplayin.com>
+Subject: [PATCH] Input: adp5588-keys: cancel workqueue in failure path
+Date: Tue,  7 Oct 2014 13:00:49 +0530
+Message-ID: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:52102 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751213AbaJGCvA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Oct 2014 22:51:00 -0400
-Content-Disposition: inline
-In-Reply-To: <20141007015141.GG28481@sonymobile.com>
+Received: from smtp112.ord1c.emailsrvr.com ([108.166.43.112]:40488 "EHLO
+	smtp112.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751214AbaJGH1S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Oct 2014 03:27:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "Cavin, Courtney" <Courtney.Cavin@sonymobile.com>
+To: linux-kernel@vger.kernel.org
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Oct 06, 2014 at 06:52:51PM -0700, Bjorn Andersson wrote:
-> On Mon 06 Oct 18:30 PDT 2014, Dmitry Torokhov wrote:
-> 
-> > Hi Bjorn,
-> > 
-> 
-> Hi,
-> 
-> > On Mon, Oct 06, 2014 at 06:12:00PM -0700, Bjorn Andersson wrote:
-> > > +
-> > > +	rc = devm_request_threaded_irq(&pdev->dev, pwrkey->irq,
-> > > +				NULL, pm8941_pwrkey_irq,
-> > > +				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
-> > 
-> > Do we need to hard-code IRQ flags like this? I'd rather we respect DT
-> > data.
-> > 
-> 
-> We could "move" it to DT but I don't think there's any other combination of
-> these flags would make sense. If you insist I can remove it though.
+This change introduces a label to call cancel_delayed_work_sync in
+failure path.
 
-No, that's fine if you are certain we want to react on both edges always.
+Cc: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+---
+ drivers/input/keyboard/adp5588-keys.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thanks.
-
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 5ef7fcf..b494062 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -559,7 +559,7 @@ static int adp5588_probe(struct i2c_client *client,
+ 	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(&client->dev, "unable to register input device\n");
+-		goto err_free_mem;
++		goto err_delayed_work;
+ 	}
+ 
+ 	error = request_irq(client->irq, adp5588_irq,
+@@ -592,6 +592,8 @@ static int adp5588_probe(struct i2c_client *client,
+  err_unreg_dev:
+ 	input_unregister_device(input);
+ 	input = NULL;
++ err_delayed_work:
++	cancel_delayed_work_sync(&kpad->work);
+  err_free_mem:
+ 	input_free_device(input);
+ 	kfree(kpad);
 -- 
-Dmitry
+1.7.9.5
+

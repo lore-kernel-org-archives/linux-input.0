@@ -1,78 +1,57 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH] Input: adp5588-keys: cancel workqueue in failure path
-Date: Tue, 7 Oct 2014 14:42:40 +0200
-Message-ID: <5433DFC0.705@analog.com>
-References: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
-Reply-To: <michael.hennerich@analog.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Elan TS driver patch
+Date: Tue, 7 Oct 2014 09:03:58 -0700
+Message-ID: <20141007160358.GA16469@dtor-ws>
+References: <005301cfe221$abcd2460$03676d20$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1on0077.outbound.protection.outlook.com ([157.56.110.77]:62818
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752368AbaJGOaa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Oct 2014 10:30:30 -0400
-In-Reply-To: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:54280 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754078AbaJGQED (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Oct 2014 12:04:03 -0400
+Received: by mail-pa0-f50.google.com with SMTP id kx10so7504267pab.9
+        for <linux-input@vger.kernel.org>; Tue, 07 Oct 2014 09:04:02 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <005301cfe221$abcd2460$03676d20$@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pramod Gurav <pramod.gurav@smartplayin.com>, linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: ELAN =?utf-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Cc: linux-input@vger.kernel.org, bleung@chromium.org, Charles Mooney <charliemooney@google.com>, "Jeff.Chuang" <Jeff.chuang@emc.com.tw>, =?utf-8?B?J+aigeWNmue/lCc=?= <paul.liang@emc.com.tw>
 
-On 10/07/2014 09:30 AM, Pramod Gurav wrote:
-> This change introduces a label to call cancel_delayed_work_sync in
-> failure path.
->
-> Cc: Michael Hennerich <michael.hennerich@analog.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+Hi Scott,
 
-The interrupt triggers the work queue. adp5588_setup() enable the HW 
-interrupt.
-Only if the device was configured before, without being resetb -
-The earliest point in time where a problem could happen - is after the 
-request_irq().
+On Tue, Oct 07, 2014 at 07:27:25PM +0800, ELAN =E5=8A=89=E5=98=89=E9=A7=
+=BF wrote:
+> Hi Dmitry:
+> 	I submitted a patch to upstream for support Elan TS. Please refer to
+> below link:
+> 	https://lkml.org/lkml/2013/12/27/92
+>=20
+> 	This driver is for many chromebook and you have some contributions
+> on this:
+> 	https://chromium-review.googlesource.com/#/c/218723/
+> =E3=80=80=E3=80=80https://chromium-review.googlesource.com/#/c/218612=
+/
+> =E3=80=80=E3=80=80https://chromium-review.googlesource.com/#/c/218613=
+/
+> =E3=80=80=E3=80=80https://chromium-review.googlesource.com/#/c/218722=
+/
+> =E3=80=80=E3=80=80=E2=80=A6
+> =E3=80=80=E3=80=80
+> 	Do we need to re-submit this patch or you will apply it from your
+> modification?
 
-Anyways patch below doesn't harm and fixes a potential problem.
+I believe the driver needs a few more changes before I can merge it in
+mainline; I am looking at it.
 
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Thanks.
 
-> ---
->   drivers/input/keyboard/adp5588-keys.c |    4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-> index 5ef7fcf..b494062 100644
-> --- a/drivers/input/keyboard/adp5588-keys.c
-> +++ b/drivers/input/keyboard/adp5588-keys.c
-> @@ -559,7 +559,7 @@ static int adp5588_probe(struct i2c_client *client,
->   	error = input_register_device(input);
->   	if (error) {
->   		dev_err(&client->dev, "unable to register input device\n");
-> -		goto err_free_mem;
-> +		goto err_delayed_work;
->   	}
->   
->   	error = request_irq(client->irq, adp5588_irq,
-> @@ -592,6 +592,8 @@ static int adp5588_probe(struct i2c_client *client,
->    err_unreg_dev:
->   	input_unregister_device(input);
->   	input = NULL;
-> + err_delayed_work:
-> +	cancel_delayed_work_sync(&kpad->work);
->    err_free_mem:
->   	input_free_device(input);
->   	kfree(kpad);
-
-
--- 
-Greetings,
-Michael
-
+--=20
+Dmitry
 --
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
-Margaret Seif
-
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

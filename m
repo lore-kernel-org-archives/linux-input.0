@@ -1,74 +1,128 @@
-From: Kiran Padwal <kiran.padwal@smartplayin.com>
-Subject: Re: [PATCH 1/2] input: Add Qualcomm PM8941 power key driver
-Date: Tue, 07 Oct 2014 15:24:11 +0530
-Message-ID: <5433B843.5060200@smartplayin.com>
-References: <1412644321-27683-1-git-send-email-bjorn.andersson@sonymobile.com> <1412644321-27683-2-git-send-email-bjorn.andersson@sonymobile.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1412644321-27683-2-git-send-email-bjorn.andersson@sonymobile.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Courtney Cavin <courtney.cavin@sonymobile.com>
+From: Pramod Gurav <pramod.gurav@smartplayin.com>
+Subject: [PATCH] Input: opencores-kbd: Switch to using managed resources
+Date: Tue,  7 Oct 2014 17:01:41 +0530
+Message-ID: <1412681501-28072-1-git-send-email-pramod.gurav@smartplayin.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp96.ord1c.emailsrvr.com ([108.166.43.96]:50654 "EHLO
+	smtp96.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753400AbaJGL2N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Oct 2014 07:28:13 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tuesday 07 October 2014 06:42 AM, Bjorn Andersson wrote:
-> From: Courtney Cavin <courtney.cavin@sonymobile.com>
-> 
-> Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> ---
->  drivers/input/misc/Kconfig         |   12 +++
->  drivers/input/misc/Makefile        |    1 +
->  drivers/input/misc/pm8941-pwrkey.c |  196 ++++++++++++++++++++++++++++++++++++
+This change switch to managed resources to simplifies error handling
+and module unloading and does away with platform_driver remove function.
 
-<snip>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+---
+ drivers/input/keyboard/opencores-kbd.c |   54 ++++++++------------------------
+ 1 file changed, 13 insertions(+), 41 deletions(-)
 
-> +
-> +	platform_set_drvdata(pdev, pwrkey);
-> +	device_init_wakeup(&pdev->dev, 1);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pm8941_pwrkey_remove(struct platform_device *pdev)
-> +{
-> +	device_init_wakeup(&pdev->dev, 0);
+diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
+index 7b9b441..ecacb87 100644
+--- a/drivers/input/keyboard/opencores-kbd.c
++++ b/drivers/input/keyboard/opencores-kbd.c
+@@ -56,27 +56,27 @@ static int opencores_kbd_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
+-	input = input_allocate_device();
++	opencores_kbd = devm_kzalloc(&pdev->dev, sizeof(*opencores_kbd),
++				     GFP_KERNEL);
++	input = devm_input_allocate_device(&pdev->dev);
+ 	if (!opencores_kbd || !input) {
+ 		dev_err(&pdev->dev, "failed to allocate device structures\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	opencores_kbd->addr_res = res;
+-	res = request_mem_region(res->start, resource_size(res), pdev->name);
++	res = devm_request_mem_region(&pdev->dev, res->start,
++				      resource_size(res), pdev->name);
+ 	if (!res) {
+ 		dev_err(&pdev->dev, "failed to request I/O memory\n");
+-		error = -EBUSY;
+-		goto err_free_mem;
++		return -EBUSY;
+ 	}
+ 
+-	opencores_kbd->addr = ioremap(res->start, resource_size(res));
++	opencores_kbd->addr = devm_ioremap(&pdev->dev, res->start,
++					   resource_size(res));
+ 	if (!opencores_kbd->addr) {
+ 		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+-		error = -ENXIO;
+-		goto err_rel_mem;
++		return -ENXIO;
+ 	}
+ 
+ 	opencores_kbd->input = input;
+@@ -109,54 +109,26 @@ static int opencores_kbd_probe(struct platform_device *pdev)
+ 	}
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
+-	error = request_irq(irq, &opencores_kbd_isr,
++	error = devm_request_irq(&pdev->dev, irq, &opencores_kbd_isr,
+ 			    IRQF_TRIGGER_RISING, pdev->name, opencores_kbd);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "unable to claim irq %d\n", irq);
+-		goto err_unmap_mem;
++		return error;
+ 	}
+ 
+ 	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "unable to register input device\n");
+-		goto err_free_irq;
++		return error;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, opencores_kbd);
+ 
+ 	return 0;
+-
+- err_free_irq:
+-	free_irq(irq, opencores_kbd);
+- err_unmap_mem:
+-	iounmap(opencores_kbd->addr);
+- err_rel_mem:
+-	release_mem_region(res->start, resource_size(res));
+- err_free_mem:
+-	input_free_device(input);
+-	kfree(opencores_kbd);
+-
+-	return error;
+-}
+-
+-static int opencores_kbd_remove(struct platform_device *pdev)
+-{
+-	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
+-
+-	free_irq(opencores_kbd->irq, opencores_kbd);
+-
+-	iounmap(opencores_kbd->addr);
+-	release_mem_region(opencores_kbd->addr_res->start,
+-		resource_size(opencores_kbd->addr_res));
+-	input_unregister_device(opencores_kbd->input);
+-	kfree(opencores_kbd);
+-
+-	return 0;
+ }
+ 
+ static struct platform_driver opencores_kbd_device_driver = {
+ 	.probe    = opencores_kbd_probe,
+-	.remove   = opencores_kbd_remove,
+ 	.driver   = {
+ 		.name = "opencores-kbd",
+ 	},
+-- 
+1.7.9.5
 
-Shouldn't we unregister input device?
-
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id pm8941_pwr_key_id_table[] = {
-> +	{ .compatible = "qcom,pm8941-pwrkey" },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, pm8941_pwr_key_id_table);
-> +
-> +static struct platform_driver pm8941_pwrkey_driver = {
-> +	.probe		= pm8941_pwrkey_probe,
-> +	.remove		= pm8941_pwrkey_remove,
-> +	.driver		= {
-> +		.name	= "pm8941-pwrkey",
-> +		.owner	= THIS_MODULE,
-
-This field can be removed because this driver which use the
-module_platform_driver api as this is overridden in
-platform_driver_register.
-
-> +		.pm	= &pm8941_pwr_key_pm_ops,
-> +		.of_match_table = of_match_ptr(pm8941_pwr_key_id_table),
-> +	},
-> +};
-> +module_platform_driver(pm8941_pwrkey_driver);
-> +
-> +MODULE_DESCRIPTION("PM8941 Power Key driver");
-> +MODULE_LICENSE("GPL v2");
-
-May be you can add module author name.
-
-Thanks,
---Kiran

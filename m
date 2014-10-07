@@ -1,22 +1,21 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 5/6] HID: hid-sensor-hub: use mfd_add_hotplug_devices
- helper
-Date: Tue, 7 Oct 2014 10:24:52 +0100
-Message-ID: <20141007092452.GU25331@lee--X1>
+Subject: Re: [PATCH 6/6] mfd: core: fix platform-device id generation
+Date: Tue, 7 Oct 2014 10:25:12 +0100
+Message-ID: <20141007092512.GV25331@lee--X1>
 References: <1411728933-13351-1-git-send-email-johan@kernel.org>
- <1411728933-13351-6-git-send-email-johan@kernel.org>
+ <1411728933-13351-7-git-send-email-johan@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:35785 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753277AbaJGJY6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Oct 2014 05:24:58 -0400
-Received: by mail-ig0-f179.google.com with SMTP id h18so4345570igc.6
-        for <linux-input@vger.kernel.org>; Tue, 07 Oct 2014 02:24:57 -0700 (PDT)
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:49828 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753721AbaJGJZS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Oct 2014 05:25:18 -0400
+Received: by mail-ie0-f171.google.com with SMTP id tr6so4981321ieb.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Oct 2014 02:25:18 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1411728933-13351-6-git-send-email-johan@kernel.org>
+In-Reply-To: <1411728933-13351-7-git-send-email-johan@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Johan Hovold <johan@kernel.org>
@@ -24,46 +23,44 @@ Cc: Samuel Ortiz <sameo@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, linux-i
 
 On Fri, 26 Sep 2014, Johan Hovold wrote:
 
-> Use mfd_add_hotplug_devices helper to register the subdevices.
+> Make sure to always honour multi-function devices registered with
+> PLATFORM_DEVID_NONE (-1) or PLATFORM_DEVID_AUTO (-2) as id base. In t=
+his
+> case it does not make sense to append the cell id to the mfd-id base =
+and
+> potentially change the requested behaviour.
 >=20
-> Compile-only tested.
+> Specifically this will allow multi-function devices to be registered
+> with PLATFORM_DEVID_AUTO while still having non-zero cell ids.
 >=20
 > Signed-off-by: Johan Hovold <johan@kernel.org>
 > ---
->  drivers/hid/hid-sensor-hub.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
+>  drivers/mfd/mfd-core.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
 
-Applied for v3.19 with Jiri's Ack.
+Applied for v3.19.
 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hu=
-b.c
-> index 2ac25760a9a9..fbe1a6d2aa53 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -641,9 +641,6 @@ static int sensor_hub_probe(struct hid_device *hd=
-ev,
->  					goto err_stop_hw;
->  			}
->  			sd->hid_sensor_hub_client_devs[
-> -				sd->hid_sensor_client_cnt].id =3D
-> -							PLATFORM_DEVID_AUTO;
-> -			sd->hid_sensor_hub_client_devs[
->  				sd->hid_sensor_client_cnt].name =3D name;
->  			sd->hid_sensor_hub_client_devs[
->  				sd->hid_sensor_client_cnt].platform_data =3D
-> @@ -659,8 +656,9 @@ static int sensor_hub_probe(struct hid_device *hd=
-ev,
->  	if (last_hsdev)
->  		last_hsdev->end_collection_index =3D i;
+> diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+> index 892d343193ad..79f25633d7db 100644
+> --- a/drivers/mfd/mfd-core.c
+> +++ b/drivers/mfd/mfd-core.c
+> @@ -87,9 +87,15 @@ static int mfd_add_device(struct device *parent, i=
+nt id,
+>  	struct platform_device *pdev;
+>  	struct device_node *np =3D NULL;
+>  	int ret =3D -ENOMEM;
+> +	int platform_id;
+>  	int r;
 > =20
-> -	ret =3D mfd_add_devices(&hdev->dev, 0, sd->hid_sensor_hub_client_de=
-vs,
-> -		sd->hid_sensor_client_cnt, NULL, 0, NULL);
-> +	ret =3D mfd_add_hotplug_devices(&hdev->dev,
-> +			sd->hid_sensor_hub_client_devs,
-> +			sd->hid_sensor_client_cnt);
->  	if (ret < 0)
->  		goto err_stop_hw;
+> -	pdev =3D platform_device_alloc(cell->name, id + cell->id);
+> +	if (id < 0)
+> +		platform_id =3D id;
+> +	else
+> +		platform_id =3D id + cell->id;
+> +
+> +	pdev =3D platform_device_alloc(cell->name, platform_id);
+>  	if (!pdev)
+>  		goto fail_alloc;
 > =20
 
 --=20

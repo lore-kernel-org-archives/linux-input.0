@@ -1,57 +1,97 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/6] mfd: rtsx_usb: fix platform device-id collision
-Date: Tue, 7 Oct 2014 14:52:58 +0200
-Message-ID: <20141007125258.GE5362@localhost>
-References: <1411728933-13351-1-git-send-email-johan@kernel.org>
- <1411728933-13351-3-git-send-email-johan@kernel.org>
- <20141007092258.GR25331@lee--X1>
+From: Tobias Klauser <tklauser@distanz.ch>
+Subject: Re: [PATCH] Input: opencores-kbd: Switch to using managed resources
+Date: Tue, 7 Oct 2014 15:33:22 +0200
+Message-ID: <20141007133322.GL3279@distanz.ch>
+References: <1412681501-28072-1-git-send-email-pramod.gurav@smartplayin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sym2.noone.org ([178.63.92.236]:57080 "EHLO sym2.noone.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753894AbaJGNd0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Oct 2014 09:33:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20141007092258.GR25331@lee--X1>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Johan Hovold <johan@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+In-Reply-To: <1412681501-28072-1-git-send-email-pramod.gurav@smartplayin.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pramod Gurav <pramod.gurav@smartplayin.com>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Oct 07, 2014 at 10:22:58AM +0100, Lee Jones wrote:
-> On Fri, 26 Sep 2014, Johan Hovold wrote:
+On 2014-10-07 at 13:31:41 +0200, Pramod Gurav <pramod.gurav@smartplayin.com> wrote:
+> This change switch to managed resources to simplifies error handling
+> and module unloading and does away with platform_driver remove function.
 > 
-> > Hot-pluggable multi-function devices should use PLATFORM_DEVID_AUTO to
-> > avoid name collisions on the platform bus.
-> > 
-> > This driver currently uses the USB-device address as an id. This makes
-> > name collisions unlikely, but it could still happen if two devices are
-> > connected to separate buses and gets assigned the same address.
-> > 
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/mfd/rtsx_usb.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+> ---
+>  drivers/input/keyboard/opencores-kbd.c |   54 ++++++++------------------------
+>  1 file changed, 13 insertions(+), 41 deletions(-)
 > 
-> This patch is superfluous.
+> diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
+> index 7b9b441..ecacb87 100644
+> --- a/drivers/input/keyboard/opencores-kbd.c
+> +++ b/drivers/input/keyboard/opencores-kbd.c
+> @@ -56,27 +56,27 @@ static int opencores_kbd_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
+> -	input = input_allocate_device();
+> +	opencores_kbd = devm_kzalloc(&pdev->dev, sizeof(*opencores_kbd),
+> +				     GFP_KERNEL);
+> +	input = devm_input_allocate_device(&pdev->dev);
+>  	if (!opencores_kbd || !input) {
+>  		dev_err(&pdev->dev, "failed to allocate device structures\n");
+> -		error = -ENOMEM;
+> -		goto err_free_mem;
+> +		return -ENOMEM;
+>  	}
+>  
+>  	opencores_kbd->addr_res = res;
+> -	res = request_mem_region(res->start, resource_size(res), pdev->name);
+> +	res = devm_request_mem_region(&pdev->dev, res->start,
+> +				      resource_size(res), pdev->name);
+>  	if (!res) {
+>  		dev_err(&pdev->dev, "failed to request I/O memory\n");
+> -		error = -EBUSY;
+> -		goto err_free_mem;
+> +		return -EBUSY;
+>  	}
+>  
+> -	opencores_kbd->addr = ioremap(res->start, resource_size(res));
+> +	opencores_kbd->addr = devm_ioremap(&pdev->dev, res->start,
+> +					   resource_size(res));
 
-Well, it would have documented the fact that there could be probe
-failures due to id collisions with current and older kernels.
+You could use devm_ioremap_resource() here and get rid of the call to
+devm_request_mem_region() and the check for !res above, i.e. something
+like:
 
-> Just wait until the hotpluggable version is applied, then use it.
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	[...]
+	opencores_kbd->addr = devm_ioremap_resource(&pdev->dev, res);
+	if (!opencores_kbd->addr) {
+		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+		return -ENXIO;
+	}
 
-Fine with me. The collisions are quite unlikely anyway.
+>  	if (!opencores_kbd->addr) {
+>  		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> -		error = -ENXIO;
+> -		goto err_rel_mem;
+> +		return -ENXIO;
+>  	}
+>  
+>  	opencores_kbd->input = input;
+> @@ -109,54 +109,26 @@ static int opencores_kbd_probe(struct platform_device *pdev)
+>  	}
+>  	__clear_bit(KEY_RESERVED, input->keybit);
+>  
+> -	error = request_irq(irq, &opencores_kbd_isr,
+> +	error = devm_request_irq(&pdev->dev, irq, &opencores_kbd_isr,
+>  			    IRQF_TRIGGER_RISING, pdev->name, opencores_kbd);
 
-Thanks,
-Johan
+The second line should be aligned to the opening parenthesis:
 
-> > diff --git a/drivers/mfd/rtsx_usb.c b/drivers/mfd/rtsx_usb.c
-> > index 71f387ce8cbd..78073e4b87e4 100644
-> > --- a/drivers/mfd/rtsx_usb.c
-> > +++ b/drivers/mfd/rtsx_usb.c
-> > @@ -647,7 +647,7 @@ static int rtsx_usb_probe(struct usb_interface *intf,
-> >  	/* initialize USB SG transfer timer */
-> >  	setup_timer(&ucr->sg_timer, rtsx_usb_sg_timed_out, (unsigned long) ucr);
-> >  
-> > -	ret = mfd_add_devices(&intf->dev, usb_dev->devnum, rtsx_usb_cells,
-> > +	ret = mfd_add_devices(&intf->dev, PLATFORM_DEVID_AUTO, rtsx_usb_cells,
-> >  			ARRAY_SIZE(rtsx_usb_cells), NULL, 0, NULL);
-> >  	if (ret)
-> >  		goto out_init_fail;
+	error = devm_request_irq(&pdev->dev, irq, &opencores_kbd_isr,
+				 IRQF_TRIGGER_RISING, pdev->name, opencores_kbd);

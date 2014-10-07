@@ -1,51 +1,39 @@
-From: Pramod Gurav <pramod.gurav@smartplayin.com>
-Subject: [PATCH] Input: adp5588-keys: cancel workqueue in failure path
-Date: Tue,  7 Oct 2014 13:00:49 +0530
-Message-ID: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp112.ord1c.emailsrvr.com ([108.166.43.112]:40488 "EHLO
-	smtp112.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751214AbaJGH1S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Oct 2014 03:27:18 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Subject: Re: [PATCH 0/2] Qualcomm PM8941 power key driver
+Date: Tue, 07 Oct 2014 12:01:50 +0300
+Message-ID: <1412672510.1027.57.camel@iivanov-dev>
+References: <1412644321-27683-1-git-send-email-bjorn.andersson@sonymobile.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1412644321-27683-1-git-send-email-bjorn.andersson@sonymobile.com>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-This change introduces a label to call cancel_delayed_work_sync in
-failure path.
 
-Cc: Michael Hennerich <michael.hennerich@analog.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
----
- drivers/input/keyboard/adp5588-keys.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Hi Bjorn,
 
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 5ef7fcf..b494062 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -559,7 +559,7 @@ static int adp5588_probe(struct i2c_client *client,
- 	error = input_register_device(input);
- 	if (error) {
- 		dev_err(&client->dev, "unable to register input device\n");
--		goto err_free_mem;
-+		goto err_delayed_work;
- 	}
- 
- 	error = request_irq(client->irq, adp5588_irq,
-@@ -592,6 +592,8 @@ static int adp5588_probe(struct i2c_client *client,
-  err_unreg_dev:
- 	input_unregister_device(input);
- 	input = NULL;
-+ err_delayed_work:
-+	cancel_delayed_work_sync(&kpad->work);
-  err_free_mem:
- 	input_free_device(input);
- 	kfree(kpad);
--- 
-1.7.9.5
+On Mon, 2014-10-06 at 18:11 -0700, Bjorn Andersson wrote:
+> These patches add dt bindings and a device driver for the power key block in
+> the Qualcomm PM8941 pmic.
+> 
+> Courtney Cavin (2):
+>   input: Add Qualcomm PM8941 power key driver
+>   input: pm8941-pwrkey: Add DT binding documentation
+> 
+>  .../bindings/input/qcom,pm8941-pwrkey.txt          |   43 +++++
+>  drivers/input/misc/Kconfig                         |   12 ++
+>  drivers/input/misc/Makefile                        |    1 +
+>  drivers/input/misc/pm8941-pwrkey.c                 |  196 ++++++++++++++++++++
+>  4 files changed, 252 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+>  create mode 100644 drivers/input/misc/pm8941-pwrkey.c
 
+Any reason why we cannot reuse pm8xxx-pwrkey driver? It have been
+converted to regmap already. 
+
+Regards,
+Ivan 

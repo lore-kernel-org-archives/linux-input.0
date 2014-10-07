@@ -1,106 +1,84 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.18-rc0
-Date: Tue, 7 Oct 2014 09:59:41 -0700
-Message-ID: <20141007165941.GF16469@dtor-ws>
+Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for
+ register access
+Date: Tue, 7 Oct 2014 10:26:06 -0700
+Message-ID: <20141007172606.GG16469@dtor-ws>
+References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>
+ <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:56869 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753459AbaJGR0L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Oct 2014 13:26:11 -0400
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+In-Reply-To: <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Cc: Stephen Boyd <sboyd@codeaurora.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
 
-Hi Linus,
+Hi Ivan,
 
-Please pull from:
+On Tue, Oct 07, 2014 at 12:50:46PM +0300, Ivan T. Ivanov wrote:
+> @@ -527,10 +538,55 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
+>  
+>  	platform_set_drvdata(pdev, kp);
+>  
+> +	if (rows < info->min_rows)
+> +		rows = info->min_rows;
+> +
+> +	if (cols < info->min_cols)
+> +		cols = info->min_cols;
+> +
+>  	kp->num_rows	= rows;
+>  	kp->num_cols	= cols;
+>  	kp->dev		= &pdev->dev;
+>  
+> +	kp->events = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +					     info->events);
+> +	if (IS_ERR(kp->events))
+> +		return PTR_ERR(kp->events);
+> +
+> +	kp->scan_rows = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +						info->scan_rows);
+> +	if (IS_ERR(kp->scan_rows))
+> +		return PTR_ERR(kp->scan_rows);
+> +
+> +	kp->scan_cols = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +						info->scan_cols);
+> +	if (IS_ERR(kp->scan_cols))
+> +		return PTR_ERR(kp->scan_cols);
+> +
+> +	kp->enable = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +					     info->enable);
+> +	if (IS_ERR(kp->enable))
+> +		return PTR_ERR(kp->enable);
+> +
+> +	kp->read_state = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +						 info->read_state);
+> +	if (IS_ERR(kp->read_state))
+> +		return PTR_ERR(kp->read_state);
+> +
+> +	kp->dbonce = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +					     info->dbonce);
+> +	if (IS_ERR(kp->dbonce))
+> +		return PTR_ERR(kp->dbonce);
+> +
+> +	kp->pause = devm_regmap_field_alloc(kp->dev, kp->regmap, info->pause);
+> +	if (IS_ERR(kp->pause))
+> +		return PTR_ERR(kp->pause);
+> +
+> +	kp->row_hold = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> +					       info->row_hold);
+> +	if (IS_ERR(kp->row_hold))
+> +		return PTR_ERR(kp->row_hold);
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Why do we have to allocate all regmap fields separately instead of
+embedding them into keypad structure?
 
-to receive updates for the input subsystem. You will receive a few new
-haptic/button drivers, a rudimentary support for laptops using FocalTech
-touchpads; xpad driver will bind to more devices, and a few other driver
-fixes.
-
-Changelog:
----------
-
-Benjamin Valentin (1):
-      Input: xpad - sync device IDs with xboxdrv
-
-Dan Murphy (5):
-      Input: drv260x - add TI drv260x haptics driver
-      Input: drv260x - remove unused defines
-      Input: drv260x - add check for ERM mode and LRA Libraries
-      Input: drv260x - fix binding document
-      Input: add support for the DRV2667 haptic driver
-
-Frank Razenberg (1):
-      Input: xpad - add VID/PID for Razer Sabertooth
-
-Hans de Goede (2):
-      Input: psmouse - add psmouse_matches_pnp_id helper function
-      Input: psmouse - add support for detecting FocalTech PS/2 touchpads
-
-Jaewon Kim (1):
-      Input: add haptic driver on max77693
-
-Jin Yao (1):
-      Input: soc_button_array - convert to platform bus
-
-Nishanth Menon (3):
-      Input: introduce palmas-pwrbutton
-      Input: palmas-pwrbutton - use IRQF_ONESHOT
-      Input: palmas-pwrbutton - fix typo in the license string
-
-Takashi Iwai (1):
-      Input: joystick - use ktime for measuring timing
-
-Todd Broch (1):
-      Input: cros_ec_keyb - optimize ghosting algorithm
-
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/ti,drv260x.txt       |  50 ++
- .../devicetree/bindings/input/ti,drv2667.txt       |  17 +
- .../bindings/input/ti,palmas-pwrbutton.txt         |  36 +
- drivers/acpi/acpi_pnp.c                            |   2 -
- drivers/input/gameport/gameport.c                  |  41 +-
- drivers/input/joystick/analog.c                    |  71 +-
- drivers/input/joystick/xpad.c                      |  34 +
- drivers/input/keyboard/cros_ec_keyb.c              |  92 +--
- drivers/input/misc/Kconfig                         |  43 ++
- drivers/input/misc/Makefile                        |   4 +
- drivers/input/misc/drv260x.c                       | 741 +++++++++++++++++++++
- drivers/input/misc/drv2667.c                       | 500 ++++++++++++++
- drivers/input/misc/max77693-haptic.c               | 357 ++++++++++
- drivers/input/misc/palmas-pwrbutton.c              | 332 +++++++++
- drivers/input/misc/soc_button_array.c              |  60 +-
- drivers/input/mouse/Makefile                       |   2 +-
- drivers/input/mouse/focaltech.c                    |  52 ++
- drivers/input/mouse/focaltech.h                    |  22 +
- drivers/input/mouse/psmouse-base.c                 |  30 +
- drivers/input/mouse/psmouse.h                      |   1 +
- drivers/input/mouse/synaptics.c                    |  17 +-
- include/dt-bindings/input/ti-drv260x.h             |  36 +
- include/linux/mfd/max77693-private.h               |   9 +
- include/linux/platform_data/drv260x-pdata.h        |  28 +
- 24 files changed, 2468 insertions(+), 109 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/ti,drv260x.txt
- create mode 100644 Documentation/devicetree/bindings/input/ti,drv2667.txt
- create mode 100644 Documentation/devicetree/bindings/input/ti,palmas-pwrbutton.txt
- create mode 100644 drivers/input/misc/drv260x.c
- create mode 100644 drivers/input/misc/drv2667.c
- create mode 100644 drivers/input/misc/max77693-haptic.c
- create mode 100644 drivers/input/misc/palmas-pwrbutton.c
- create mode 100644 drivers/input/mouse/focaltech.c
- create mode 100644 drivers/input/mouse/focaltech.h
- create mode 100644 include/dt-bindings/input/ti-drv260x.h
- create mode 100644 include/linux/platform_data/drv260x-pdata.h
+Thanks.
 
 -- 
 Dmitry

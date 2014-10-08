@@ -1,54 +1,42 @@
-From: Zachary L <admin@computerquip.com>
-Subject: Xbox Controllers: Should hid be used?
-Date: Wed, 8 Oct 2014 07:09:40 +0000 (UTC)
-Message-ID: <loom.20141008T082724-46@post.gmane.org>
+From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for
+ register access
+Date: Wed, 08 Oct 2014 12:13:04 +0300
+Message-ID: <1412759584.13569.0.camel@iivanov-dev>
+References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>
+	 <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
+	 <20141007172606.GG16469@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:33063 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754492AbaJHHKB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Oct 2014 03:10:01 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1XblNm-0007cr-JI
-	for linux-input@vger.kernel.org; Wed, 08 Oct 2014 09:09:58 +0200
-Received: from 99-22-209-106.lightspeed.hstntx.sbcglobal.net ([99.22.209.106])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2014 09:09:58 +0200
-Received: from admin by 99-22-209-106.lightspeed.hstntx.sbcglobal.net with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2014 09:09:58 +0200
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20141007172606.GG16469@dtor-ws>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Boyd <sboyd@codeaurora.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Other 3rd party drivers (and seemingly Microsoft's driver as well) uses HID to 
-describe the [any Xbox] controller's features. We can see uses of this in other 
-drivers:
+On Tue, 2014-10-07 at 10:26 -0700, Dmitry Torokhov wrote:
+> Hi Ivan,
+> 
+> On Tue, Oct 07, 2014 at 12:50:46PM +0300, Ivan T. Ivanov wrote:
+> > @@ -527,10 +538,55 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
+> >  
 
-TattieBogle - 
-http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver
+> > +
+> > +	kp->row_hold = devm_regmap_field_alloc(kp->dev, kp->regmap,
+> > +					       info->row_hold);
+> > +	if (IS_ERR(kp->row_hold))
+> > +		return PTR_ERR(kp->row_hold);
+> 
+> Why do we have to allocate all regmap fields separately instead of
+> embedding them into keypad structure?
+> 
 
-XBCD - http://www.redcl0ud.com/xbcd.html
+No particular reason. Will rework it.
 
-Xpad has avoided the use of the hid subsystem for whatever reason, for over a 
-decade now. That said, I don't know of any compelling reason to not avoid it. 
-But I did it anyways... I made a small usb driver, implemented a stub 
-hid_ll_driver, copied the descriptor from TattieBogle... and it works... sort 
-of. 
+Thank you,
+Ivan
 
-The button layout is obviously different from what we have now and I cannot get 
-the D-pad working using a Hat Switch usage or the D-pad usages to save my life. 
-
-I realize that just because other drivers use HID, doesn't mean I should 
-although perhaps there's a compelling reason that I'm missing. Is there any 
-worth to this work?
-
-What I have is bare bones but works for (incorrectly mapped, using 
-TattieBogle's report descriptor) input: https://github.com/computerquip/xpad4
-
-Any feedback would be appreciated.
-
+> Thanks.
+> 

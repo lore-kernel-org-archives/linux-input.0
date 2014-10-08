@@ -1,42 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add Microchip AR1021 i2c touchscreen
-Date: Wed, 8 Oct 2014 10:56:49 -0700
-Message-ID: <20141008175649.GB14423@dtor-ws>
-References: <1412779518-16712-1-git-send-email-christian.gmeiner@gmail.com>
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for register
+ access
+Date: Wed, 08 Oct 2014 11:00:07 -0700
+Message-ID: <54357BA7.3010609@codeaurora.org>
+References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>  <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>  <20141007172606.GG16469@dtor-ws> <1412759584.13569.0.camel@iivanov-dev> <1412760633.13569.4.camel@iivanov-dev>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:43683 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750946AbaJHR44 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 13:56:56 -0400
-Received: by mail-pa0-f54.google.com with SMTP id ey11so9368422pad.41
-        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2014 10:56:55 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1412779518-16712-1-git-send-email-christian.gmeiner@gmail.com>
+Received: from smtp.codeaurora.org ([198.145.11.231]:59040 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752709AbaJHSAJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 14:00:09 -0400
+In-Reply-To: <1412760633.13569.4.camel@iivanov-dev>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
 
-Hi Christian,
+On 10/08/2014 02:30 AM, Ivan T. Ivanov wrote:
+> On Wed, 2014-10-08 at 12:13 +0300, Ivan T. Ivanov wrote:
+>> On Tue, 2014-10-07 at 10:26 -0700, Dmitry Torokhov wrote:
+>>> Hi Ivan,
+>>>
+>>> On Tue, Oct 07, 2014 at 12:50:46PM +0300, Ivan T. Ivanov wrote:
+>>>> @@ -527,10 +538,55 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
+>>>>   
+>>>> +
+>>>> +	kp->row_hold = devm_regmap_field_alloc(kp->dev, kp->regmap,
+>>>> +					       info->row_hold);
+>>>> +	if (IS_ERR(kp->row_hold))
+>>>> +		return PTR_ERR(kp->row_hold);
+>>> Why do we have to allocate all regmap fields separately instead of
+>>> embedding them into keypad structure?
+>>>
+>> No particular reason. Will rework it.
+>>
+> Oops. struct regmap_field is opaque. It seems that the allocation
+> is the only way that I could have instance of it.
+>
 
-On Wed, Oct 08, 2014 at 04:45:18PM +0200, Christian Gmeiner wrote:
-> +static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
-> +{
-> +	struct ar1021_i2c *ar1021 = dev_id;
-> +	struct input_dev *input = ar1021->input;
-> +	u8 *data = ar1021->data;
-> +	unsigned int x, y, button;
-> +	int error;
-> +
-> +	error = i2c_master_recv(ar1021->client,
-> +				ar1021->data, sizeof(ar1021->data));
-> +	if (error < 0)
-
-I think this check should be "if (retval != sizeof(ar1021->data))" to
-avoid using garbage data in case of short read. I'll change it locally
-and apply the patch.
+Maybe we can add an API to allocate an array of fields?
 
 -- 
-Dmitry
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
+

@@ -1,51 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: avoid negative input device numbers
-Date: Wed, 8 Oct 2014 14:25:38 -0700
-Message-ID: <20141008212538.GB15198@dtor-ws>
+Subject: Re: [RFC] avoid (theoretical) conflicts of input device file names
+Date: Wed, 8 Oct 2014 14:30:00 -0700
+Message-ID: <20141008213000.GC15198@dtor-ws>
 References: <20141008224245.601a1339@frodo>
+ <20141008224929.290e6403@frodo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:49265 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755435AbaJHVaQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 17:30:16 -0400
 Content-Disposition: inline
-In-Reply-To: <20141008224245.601a1339@frodo>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20141008224929.290e6403@frodo>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Richard Leitner <me@g0hl1n.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, richard.leitner@skidata.com
-List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 08, 2014 at 10:42:45PM +0200, Richard Leitner wrote:
-> From: Richard Leitner <richard.leitner@skidata.com>
+Hi Richard,
+
+On Wed, Oct 08, 2014 at 10:49:29PM +0200, Richard Leitner wrote:
+> Hi,
+> currently I discovered the possibility that device file numbers of the input
+> subsystem could go negative when the signed int "border" is passed. To fix
+> this behaviour I sent a patch a few minutes ago.
 > 
-> Fix the format string for input device name generation to avoid negative
-> device numbers when the id exceeds the maximum signed integer value.
-
-Well, it is going to take us a while to get there :)
-
-Applied, thank you.
-
-
+> But as the subject says there is currently the (theoretical) possibility that
+> the same input device file name is given out twice. This can happen if the
+> "input_no" variable had an overflow (due to the fact this is at least at 2^32
+> I call the issue theoretical). If such a case occurs a -EEXISTS is returned at
+> the creation of the file.
 > 
-> Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
-> ---
->  drivers/input/input.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> IMHO it would be a good idea to check if the chosen input device file name
+> is valid at the point it is created (which is currently input_allocate_device).
+> So you can just increment and check it again until there's a valid number/name
+> found for it.
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 236bc56..6be6982 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1791,7 +1791,7 @@ struct input_dev *input_allocate_device(void)
->  		INIT_LIST_HEAD(&dev->h_list);
->  		INIT_LIST_HEAD(&dev->node);
->  
-> -		dev_set_name(&dev->dev, "input%ld",
-> +		dev_set_name(&dev->dev, "input%lu",
->  			     (unsigned long) atomic_inc_return(&input_no) - 1);
->  
->  		__module_get(THIS_MODULE);
-> -- 
-> 2.1.1
-> 
+> I'm pretty new to the input subsystem, so what do you think about it?
+> Any comments/ideas? Would there be a better place to do such checking?
+
+I do not think it is worth checking. Yes, theoretically you can wrap
+around, but practically instantiating at least 2^32 devices will take
+too long. If ever it becomes a concern my very distant future relatives
+will move the counter to 64 or 128 bit and call it a day.
+
+Thanks.
 
 -- 
 Dmitry

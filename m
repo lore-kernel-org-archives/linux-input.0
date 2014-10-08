@@ -1,13 +1,13 @@
 From: Pramod Gurav <pramod.gurav@smartplayin.com>
-Subject: [PATCH] Input: lpc32xx-keys: Switch to using managed resources
-Date: Wed,  8 Oct 2014 12:04:41 +0530
-Message-ID: <1412750081-11205-1-git-send-email-pramod.gurav@smartplayin.com>
+Subject: [PATCH] Input: mpr121: Switch to using managed resources
+Date: Wed,  8 Oct 2014 12:18:31 +0530
+Message-ID: <1412750911-16759-1-git-send-email-pramod.gurav@smartplayin.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp64.ord1c.emailsrvr.com ([108.166.43.64]:35481 "EHLO
-	smtp64.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750948AbaJHGbL (ORCPT
+Received: from smtp96.ord1c.emailsrvr.com ([108.166.43.96]:48659 "EHLO
+	smtp96.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752640AbaJHGo6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Oct 2014 02:31:11 -0400
+	Wed, 8 Oct 2014 02:44:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
@@ -15,176 +15,93 @@ Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, Dmitry Torokhov <dmitry.torokho
 
 This change switches to using devm_* managed resources APIs to
 request the resources in probe to simplify probe error path and
-module unloading.
+module unloading and does away with remove function.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
 ---
- drivers/input/keyboard/lpc32xx-keys.c |   86 +++++++++------------------------
- 1 file changed, 23 insertions(+), 63 deletions(-)
+ drivers/input/keyboard/mpr121_touchkey.c |   35 +++++++-----------------------
+ 1 file changed, 8 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
-index 8b1b013..6e244df 100644
---- a/drivers/input/keyboard/lpc32xx-keys.c
-+++ b/drivers/input/keyboard/lpc32xx-keys.c
-@@ -188,32 +188,27 @@ static int lpc32xx_kscan_probe(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index 009c822..49c578e 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -214,12 +214,12 @@ static int mpr_touchkey_probe(struct i2c_client *client,
  		return -EINVAL;
  	}
  
--	kscandat = kzalloc(sizeof(struct lpc32xx_kscan_drv), GFP_KERNEL);
--	if (!kscandat) {
--		dev_err(&pdev->dev, "failed to allocate memory\n");
-+	kscandat = devm_kzalloc(&pdev->dev, sizeof(*kscandat),
-+				GFP_KERNEL);
-+	if (!kscandat)
- 		return -ENOMEM;
--	}
+-	mpr121 = kzalloc(sizeof(struct mpr121_touchkey), GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	mpr121 = devm_kzalloc(&client->dev, sizeof(*mpr121),
++			      GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!mpr121 || !input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
  
- 	error = lpc32xx_parse_dt(&pdev->dev, kscandat);
+ 	mpr121->client = client;
+@@ -243,44 +243,26 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 	error = mpr121_phys_init(pdata, mpr121, client);
  	if (error) {
- 		dev_err(&pdev->dev, "failed to parse device tree\n");
+ 		dev_err(&client->dev, "Failed to init register\n");
 -		goto err_free_mem;
 +		return error;
  	}
  
- 	keymap_size = sizeof(kscandat->keymap[0]) *
- 				(kscandat->matrix_sz << kscandat->row_shift);
--	kscandat->keymap = kzalloc(keymap_size, GFP_KERNEL);
--	if (!kscandat->keymap) {
--		dev_err(&pdev->dev, "could not allocate memory for keymap\n");
--		error = -ENOMEM;
--		goto err_free_mem;
--	}
-+	kscandat->keymap = devm_kzalloc(&pdev->dev, keymap_size, GFP_KERNEL);
-+	if (!kscandat->keymap)
-+		return -ENOMEM;
- 
--	kscandat->input = input = input_allocate_device();
-+	kscandat->input = input = devm_input_allocate_device(&pdev->dev);
- 	if (!input) {
- 		dev_err(&pdev->dev, "failed to allocate input device\n");
--		error = -ENOMEM;
--		goto err_free_keymap;
-+		return -ENOMEM;
- 	}
- 
- 	/* Setup key input */
-@@ -234,39 +229,37 @@ static int lpc32xx_kscan_probe(struct platform_device *pdev)
- 					   kscandat->keymap, kscandat->input);
+-	error = request_threaded_irq(client->irq, NULL,
++	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+ 				     mpr_touchkey_interrupt,
+ 				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 				     client->dev.driver->name, mpr121);
  	if (error) {
- 		dev_err(&pdev->dev, "failed to build keymap\n");
--		goto err_free_input;
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+-		goto err_free_mem;
 +		return error;
  	}
  
- 	input_set_drvdata(kscandat->input, kscandat);
- 
--	kscandat->iores = request_mem_region(res->start, resource_size(res),
--					     pdev->name);
-+	kscandat->iores = devm_request_mem_region(&pdev->dev, res->start,
-+						  resource_size(res),
-+						  pdev->name);
- 	if (!kscandat->iores) {
- 		dev_err(&pdev->dev, "failed to request I/O memory\n");
--		error = -EBUSY;
--		goto err_free_input;
-+		return -EBUSY;
- 	}
- 
--	kscandat->kscan_base = ioremap(kscandat->iores->start,
-+	kscandat->kscan_base = devm_ioremap(&pdev->dev, kscandat->iores->start,
- 				       resource_size(kscandat->iores));
- 	if (!kscandat->kscan_base) {
- 		dev_err(&pdev->dev, "failed to remap I/O memory\n");
--		error = -EBUSY;
--		goto err_release_memregion;
-+		return -EBUSY;
- 	}
- 
- 	/* Get the key scanner clock */
--	kscandat->clk = clk_get(&pdev->dev, NULL);
-+	kscandat->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(kscandat->clk)) {
- 		dev_err(&pdev->dev, "failed to get clock\n");
--		error = PTR_ERR(kscandat->clk);
--		goto err_unmap;
-+		return PTR_ERR(kscandat->clk);
- 	}
- 
- 	/* Configure the key scanner */
- 	error = clk_prepare_enable(kscandat->clk);
+ 	error = input_register_device(input_dev);
  	if (error)
--		goto err_clk_put;
-+		return error;
- 
- 	writel(kscandat->deb_clks, LPC32XX_KS_DEB(kscandat->kscan_base));
- 	writel(kscandat->scan_delay, LPC32XX_KS_SCAN_CTL(kscandat->kscan_base));
-@@ -277,52 +270,20 @@ static int lpc32xx_kscan_probe(struct platform_device *pdev)
- 	writel(1, LPC32XX_KS_IRQ(kscandat->kscan_base));
- 	clk_disable_unprepare(kscandat->clk);
- 
--	error = request_irq(irq, lpc32xx_kscan_irq, 0, pdev->name, kscandat);
-+	error = devm_request_irq(&pdev->dev, irq, lpc32xx_kscan_irq, 0,
-+				 pdev->name, kscandat);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to request irq\n");
--		goto err_clk_put;
-+		return error;
- 	}
- 
- 	error = input_register_device(kscandat->input);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to register input device\n");
 -		goto err_free_irq;
 +		return error;
- 	}
  
- 	platform_set_drvdata(pdev, kscandat);
--	return 0;
+ 	i2c_set_clientdata(client, mpr121);
+ 	device_init_wakeup(&client->dev, pdata->wakeup);
+ 
+ 	return 0;
 -
 -err_free_irq:
--	free_irq(irq, kscandat);
--err_clk_put:
--	clk_put(kscandat->clk);
--err_unmap:
--	iounmap(kscandat->kscan_base);
--err_release_memregion:
--	release_mem_region(kscandat->iores->start,
--			   resource_size(kscandat->iores));
--err_free_input:
--	input_free_device(kscandat->input);
--err_free_keymap:
--	kfree(kscandat->keymap);
+-	free_irq(client->irq, mpr121);
 -err_free_mem:
--	kfree(kscandat);
--
+-	input_free_device(input_dev);
+-	kfree(mpr121);
 -	return error;
 -}
 -
--static int lpc32xx_kscan_remove(struct platform_device *pdev)
+-static int mpr_touchkey_remove(struct i2c_client *client)
 -{
--	struct lpc32xx_kscan_drv *kscandat = platform_get_drvdata(pdev);
+-	struct mpr121_touchkey *mpr121 = i2c_get_clientdata(client);
 -
--	free_irq(platform_get_irq(pdev, 0), kscandat);
--	clk_put(kscandat->clk);
--	iounmap(kscandat->kscan_base);
--	release_mem_region(kscandat->iores->start,
--			   resource_size(kscandat->iores));
--	input_unregister_device(kscandat->input);
--	kfree(kscandat->keymap);
--	kfree(kscandat);
- 
- 	return 0;
+-	free_irq(client->irq, mpr121);
+-	input_unregister_device(mpr121->input_dev);
+-	kfree(mpr121);
+-
+-	return 0;
  }
-@@ -378,7 +339,6 @@ MODULE_DEVICE_TABLE(of, lpc32xx_kscan_match);
  
- static struct platform_driver lpc32xx_kscan_driver = {
- 	.probe		= lpc32xx_kscan_probe,
--	.remove		= lpc32xx_kscan_remove,
- 	.driver		= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
+ #ifdef CONFIG_PM_SLEEP
+@@ -327,7 +309,6 @@ static struct i2c_driver mpr_touchkey_driver = {
+ 	},
+ 	.id_table	= mpr121_id,
+ 	.probe		= mpr_touchkey_probe,
+-	.remove		= mpr_touchkey_remove,
+ };
+ 
+ module_i2c_driver(mpr_touchkey_driver);
 -- 
 1.7.9.5
 

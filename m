@@ -1,80 +1,75 @@
-From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH 0/2] Qualcomm PM8941 power key driver
-Date: Wed, 08 Oct 2014 12:50:07 +0300
-Message-ID: <1412761807.13569.12.camel@iivanov-dev>
-References: <1412644321-27683-1-git-send-email-bjorn.andersson@sonymobile.com>
-	 <1412672510.1027.57.camel@iivanov-dev>
-	 <20141007184640.GB31125@sonymobile.com>
+From: Pramod Gurav <pramod.gurav.etc@gmail.com>
+Subject: Re: [PATCH] Input: adp5588-keys: cancel workqueue in failure path
+Date: Wed, 8 Oct 2014 15:48:37 +0530
+Message-ID: <CAMf-jS=jvo2hzULv_MtvbeAq_A2z0aJS2F=1Zx5tPonKsJTrNg@mail.gmail.com>
+References: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
+	<20141007163856.GE16469@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.mm-sol.com ([37.157.136.199]:45046 "EHLO extserv.mm-sol.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754601AbaJHJuB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Oct 2014 05:50:01 -0400
-In-Reply-To: <20141007184640.GB31125@sonymobile.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141007163856.GE16469@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>
 
-On Tue, 2014-10-07 at 11:46 -0700, Bjorn Andersson wrote:
-> On Tue 07 Oct 02:01 PDT 2014, Ivan T. Ivanov wrote:
-> 
-> > 
-> > Hi Bjorn,
-> > 
-> > On Mon, 2014-10-06 at 18:11 -0700, Bjorn Andersson wrote:
-> > > These patches add dt bindings and a device driver for the power key block in
-> > > the Qualcomm PM8941 pmic.
-> > > 
-> > > Courtney Cavin (2):
-> > >   input: Add Qualcomm PM8941 power key driver
-> > >   input: pm8941-pwrkey: Add DT binding documentation
-> > > 
-> > >  .../bindings/input/qcom,pm8941-pwrkey.txt          |   43 +++++
-> > >  drivers/input/misc/Kconfig                         |   12 ++
-> > >  drivers/input/misc/Makefile                        |    1 +
-> > >  drivers/input/misc/pm8941-pwrkey.c                 |  196 ++++++++++++++++++++
-> > >  4 files changed, 252 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> > >  create mode 100644 drivers/input/misc/pm8941-pwrkey.c
-> > 
-> > Any reason why we cannot reuse pm8xxx-pwrkey driver? It have been
-> > converted to regmap already. 
-> > 
-> 
-> The boilerplate code is the same,
+Hi Dmitry,
 
-The boilerplate code is almost 100% :-)
+On Tue, Oct 7, 2014 at 10:08 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Oct 07, 2014 at 01:00:49PM +0530, Pramod Gurav wrote:
+>> This change introduces a label to call cancel_delayed_work_sync in
+>> failure path.
+>>
+>> Cc: Michael Hennerich <michael.hennerich@analog.com>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: linux-input@vger.kernel.org
+>> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+>> ---
+>>  drivers/input/keyboard/adp5588-keys.c |    4 +++-
+>>  1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+>> index 5ef7fcf..b494062 100644
+>> --- a/drivers/input/keyboard/adp5588-keys.c
+>> +++ b/drivers/input/keyboard/adp5588-keys.c
+>> @@ -559,7 +559,7 @@ static int adp5588_probe(struct i2c_client *client,
+>>       error = input_register_device(input);
+>>       if (error) {
+>>               dev_err(&client->dev, "unable to register input device\n");
+>> -             goto err_free_mem;
+>> +             goto err_delayed_work;
+>>       }
+>>
+>>       error = request_irq(client->irq, adp5588_irq,
+>> @@ -592,6 +592,8 @@ static int adp5588_probe(struct i2c_client *client,
+>>   err_unreg_dev:
+>>       input_unregister_device(input);
+>>       input = NULL;
+>> + err_delayed_work:
+>> +     cancel_delayed_work_sync(&kpad->work);
+>
+> We do not need to have a separate label, just need to cancel workqueue
+> after freeing interrupt. I adjusted the patch and applied.
+>
+Thanks. I saw the change in your tree. Shouldn't
+cancel_delayed_work_sync(&kpad->work) be called under label
+err_free_mem so that it will executed in case adp5588_read,
+input_register_device, request_irq etc.
+Or else we will still have workqueue instance hanging around.
 
->  but configuration registers have different
-> layout and values written in them are different. 
-
-We talk about 3 registers and 2 bit defines. struct regmap_field
-should be able to help here.
-
-> The pm8xxx block have separate
-> interrupts for press and release events while pm8941 have one interrupt for
-> both, so the pm8941 must read out the irq status bits to figure out which event
-> it was.
-
-Optional interrupt property? If both are defined hook old ISR, if its
-only one hook pm8941 ISR?
-
-> 
-> Maybe if we introduce some vagueness related to interrupts in the dt binding
-> documentation for pm8xxx we could simply reuse that binding.
-> 
-
-I would not say vagueness, we just can say that pm8941 did not have
-second interrupt?
-
-Regards,
-Ivan
-
-> Regards,
-> Bjorn
+> Thanks.
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
+
+-- 
+Thanks and Regards
+Pramod

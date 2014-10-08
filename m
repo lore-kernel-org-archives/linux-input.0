@@ -1,42 +1,38 @@
 From: Richard Leitner <me@g0hl1n.net>
-Subject: [RFC] avoid (theoretical) conflicts of input device file names
-Date: Wed, 8 Oct 2014 22:49:29 +0200
-Message-ID: <20141008224929.290e6403@frodo>
-References: <20141008224245.601a1339@frodo>
+Subject: [PATCH] input: avoid negative input device numbers
+Date: Wed, 8 Oct 2014 22:42:45 +0200
+Message-ID: <20141008224245.601a1339@frodo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay05.alfahosting-server.de ([109.237.142.241]:53412 "EHLO
-	relay05.alfahosting-server.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752172AbaJHUtf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Oct 2014 16:49:35 -0400
-In-Reply-To: <20141008224245.601a1339@frodo>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, richard.leitner@skidata.com
+List-Id: linux-input@vger.kernel.org
 
-Hi,
-currently I discovered the possibility that device file numbers of the input
-subsystem could go negative when the signed int "border" is passed. To fix
-this behaviour I sent a patch a few minutes ago.
+From: Richard Leitner <richard.leitner@skidata.com>
 
-But as the subject says there is currently the (theoretical) possibility that
-the same input device file name is given out twice. This can happen if the
-"input_no" variable had an overflow (due to the fact this is at least at 2^32
-I call the issue theoretical). If such a case occurs a -EEXISTS is returned at
-the creation of the file.
+Fix the format string for input device name generation to avoid negative
+device numbers when the id exceeds the maximum signed integer value.
 
-IMHO it would be a good idea to check if the chosen input device file name
-is valid at the point it is created (which is currently input_allocate_device).
-So you can just increment and check it again until there's a valid number/name
-found for it.
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+---
+ drivers/input/input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I'm pretty new to the input subsystem, so what do you think about it?
-Any comments/ideas? Would there be a better place to do such checking?
-
-regards,
-richard
-
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 236bc56..6be6982 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1791,7 +1791,7 @@ struct input_dev *input_allocate_device(void)
+ 		INIT_LIST_HEAD(&dev->h_list);
+ 		INIT_LIST_HEAD(&dev->node);
+ 
+-		dev_set_name(&dev->dev, "input%ld",
++		dev_set_name(&dev->dev, "input%lu",
+ 			     (unsigned long) atomic_inc_return(&input_no) - 1);
+ 
+ 		__module_get(THIS_MODULE);
+-- 
+2.1.1

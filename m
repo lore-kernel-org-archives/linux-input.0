@@ -1,58 +1,42 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: automatically set EV_ABS bit in input_set_abs_params
-Date: Wed, 8 Oct 2014 19:09:28 +0200
-Message-ID: <CANq1E4QDfrAJfosA8cDxO4wxJSbMbpfZpms44s6g_h9F2RANdw@mail.gmail.com>
-References: <20141008165425.GA23281@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Add Microchip AR1021 i2c touchscreen
+Date: Wed, 8 Oct 2014 10:56:49 -0700
+Message-ID: <20141008175649.GB14423@dtor-ws>
+References: <1412779518-16712-1-git-send-email-christian.gmeiner@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:53518 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754673AbaJHRJ3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 13:09:29 -0400
-In-Reply-To: <20141008165425.GA23281@dtor-ws>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:43683 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750946AbaJHR44 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 13:56:56 -0400
+Received: by mail-pa0-f54.google.com with SMTP id ey11so9368422pad.41
+        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2014 10:56:55 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1412779518-16712-1-git-send-email-christian.gmeiner@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, jikos@jikos.cz, linux-kernel <linux-kernel@vger.kernel.org>
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi
+Hi Christian,
 
-On Wed, Oct 8, 2014 at 6:54 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Let's automatically set EV_ABS bit in device's event type list when calling
-> input_set_abs_params() so that drivers do not have to do it explicitly.
->
-> These calls are never in a hot paths so we won't lose much time by setting
-> the same bit several times.
+On Wed, Oct 08, 2014 at 04:45:18PM +0200, Christian Gmeiner wrote:
+> +static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
+> +{
+> +	struct ar1021_i2c *ar1021 = dev_id;
+> +	struct input_dev *input = ar1021->input;
+> +	u8 *data = ar1021->data;
+> +	unsigned int x, y, button;
+> +	int error;
+> +
+> +	error = i2c_master_recv(ar1021->client,
+> +				ar1021->data, sizeof(ar1021->data));
+> +	if (error < 0)
 
-Looks good to me. I mean we already do the absbit-allocation here, so
-this looks sane to do.
+I think this check should be "if (retval != sizeof(ar1021->data))" to
+avoid using garbage data in case of short read. I'll change it locally
+and apply the patch.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-
-Thanks
-David
-
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/input.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 29ca0bb..d2e06cc 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -498,7 +498,8 @@ void input_set_abs_params(struct input_dev *dev, unsigned int axis,
->         absinfo->fuzz = fuzz;
->         absinfo->flat = flat;
->
-> -       dev->absbit[BIT_WORD(axis)] |= BIT_MASK(axis);
-> +       __set_bit(EV_ABS, dev->evbit);
-> +       __set_bit(axis, dev->absbit);
->  }
->  EXPORT_SYMBOL(input_set_abs_params);
->
->
-> --
-> Dmitry
+-- 
+Dmitry

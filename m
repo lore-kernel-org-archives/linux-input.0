@@ -1,44 +1,80 @@
 From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for
- register access
-Date: Wed, 08 Oct 2014 12:30:33 +0300
-Message-ID: <1412760633.13569.4.camel@iivanov-dev>
-References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>
-	 <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
-	 <20141007172606.GG16469@dtor-ws> <1412759584.13569.0.camel@iivanov-dev>
+Subject: Re: [PATCH 0/2] Qualcomm PM8941 power key driver
+Date: Wed, 08 Oct 2014 12:50:07 +0300
+Message-ID: <1412761807.13569.12.camel@iivanov-dev>
+References: <1412644321-27683-1-git-send-email-bjorn.andersson@sonymobile.com>
+	 <1412672510.1027.57.camel@iivanov-dev>
+	 <20141007184640.GB31125@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1412759584.13569.0.camel@iivanov-dev>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Boyd <sboyd@codeaurora.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ns.mm-sol.com ([37.157.136.199]:45046 "EHLO extserv.mm-sol.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754601AbaJHJuB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Oct 2014 05:50:01 -0400
+In-Reply-To: <20141007184640.GB31125@sonymobile.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>
 
-On Wed, 2014-10-08 at 12:13 +0300, Ivan T. Ivanov wrote:
-> On Tue, 2014-10-07 at 10:26 -0700, Dmitry Torokhov wrote:
-> > Hi Ivan,
-> > 
-> > On Tue, Oct 07, 2014 at 12:50:46PM +0300, Ivan T. Ivanov wrote:
-> > > @@ -527,10 +538,55 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
-> > >  
+On Tue, 2014-10-07 at 11:46 -0700, Bjorn Andersson wrote:
+> On Tue 07 Oct 02:01 PDT 2014, Ivan T. Ivanov wrote:
 > 
-> > > +
-> > > +	kp->row_hold = devm_regmap_field_alloc(kp->dev, kp->regmap,
-> > > +					       info->row_hold);
-> > > +	if (IS_ERR(kp->row_hold))
-> > > +		return PTR_ERR(kp->row_hold);
 > > 
-> > Why do we have to allocate all regmap fields separately instead of
-> > embedding them into keypad structure?
+> > Hi Bjorn,
+> > 
+> > On Mon, 2014-10-06 at 18:11 -0700, Bjorn Andersson wrote:
+> > > These patches add dt bindings and a device driver for the power key block in
+> > > the Qualcomm PM8941 pmic.
+> > > 
+> > > Courtney Cavin (2):
+> > >   input: Add Qualcomm PM8941 power key driver
+> > >   input: pm8941-pwrkey: Add DT binding documentation
+> > > 
+> > >  .../bindings/input/qcom,pm8941-pwrkey.txt          |   43 +++++
+> > >  drivers/input/misc/Kconfig                         |   12 ++
+> > >  drivers/input/misc/Makefile                        |    1 +
+> > >  drivers/input/misc/pm8941-pwrkey.c                 |  196 ++++++++++++++++++++
+> > >  4 files changed, 252 insertions(+)
+> > >  create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+> > >  create mode 100644 drivers/input/misc/pm8941-pwrkey.c
+> > 
+> > Any reason why we cannot reuse pm8xxx-pwrkey driver? It have been
+> > converted to regmap already. 
 > > 
 > 
-> No particular reason. Will rework it.
+> The boilerplate code is the same,
+
+The boilerplate code is almost 100% :-)
+
+>  but configuration registers have different
+> layout and values written in them are different. 
+
+We talk about 3 registers and 2 bit defines. struct regmap_field
+should be able to help here.
+
+> The pm8xxx block have separate
+> interrupts for press and release events while pm8941 have one interrupt for
+> both, so the pm8941 must read out the irq status bits to figure out which event
+> it was.
+
+Optional interrupt property? If both are defined hook old ISR, if its
+only one hook pm8941 ISR?
+
+> 
+> Maybe if we introduce some vagueness related to interrupts in the dt binding
+> documentation for pm8xxx we could simply reuse that binding.
 > 
 
-Oops. struct regmap_field is opaque. It seems that the allocation
-is the only way that I could have instance of it.
+I would not say vagueness, we just can say that pm8941 did not have
+second interrupt?
 
 Regards,
 Ivan
+
+> Regards,
+> Bjorn
+
+

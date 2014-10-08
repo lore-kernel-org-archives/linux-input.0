@@ -1,226 +1,187 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 2/3] cap11xx: Add support for various cap11xx devices
-Date: Tue, 7 Oct 2014 17:09:56 -0700
-Message-ID: <20141008000956.GN16469@dtor-ws>
-References: <1412051189-22643-1-git-send-email-mranostay@gmail.com>
- <1412051189-22643-3-git-send-email-mranostay@gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH] HID: rmi: Scan the report descriptor to determine if
+ the device is suitable for the hid-rmi driver
+Date: Tue, 7 Oct 2014 17:36:37 -0700
+Message-ID: <54348715.1040008@synaptics.com>
+References: <1412273720-4431-1-git-send-email-aduggan@synaptics.com> <20141003212533.GC23710@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:48053 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755463AbaJHAKA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Oct 2014 20:10:00 -0400
-Content-Disposition: inline
-In-Reply-To: <1412051189-22643-3-git-send-email-mranostay@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141003212533.GC23710@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Matt Ranostay <mranostay@gmail.com>
-Cc: galak@codeaurora.org, zonque@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, devicetree@vger.kernel.org
 
-Hi Matt,
+Hi Benjamin,
 
-On Mon, Sep 29, 2014 at 09:26:28PM -0700, Matt Ranostay wrote:
-> +	priv->num_channels = cap->num_channels;
-> +	priv->keycodes = devm_kcalloc(dev,
-> +		priv->num_channels, sizeof(u32), GFP_KERNEL);
-> +	if (!priv->keycodes)
-> +		return -ENOMEM;
+Thanks for reviewing.
 
-Instead of allocating keymap separately can we do something like below?
+On 10/03/2014 02:25 PM, Benjamin Tissoires wrote:
+> Hi Andrew,
+>
+> On Oct 02 2014 or thereabouts, Andrew Duggan wrote:
+>> On composite HID devices there may be multiple HID devices on separate interfaces, but hid-rmi
+>> should only bind to the touchpad. Commit e19ff99f256aeeff6c07b373e01883b72e049552 simply checked
+>> that the interface protocol was set to mouse. Unfortuately, it is not always the case that the
+>> touchpad has the mouse interface protocol set. This patch takes a different approach and scans
+>> the report descriptor looking for the Vendor Specific Top Level Collection and the associated
+>> usages and report IDs needed by the hid-rmi driver to interface with the device.
+> I am going to leave for XDC 2014 next week and then I'll have one week
+> off, so I prefer sending my impressions now (or it will have to wait 2
+> more weeks).
+>
+> I am not sure this solution is sustainable in the long term. If every
+> driver starts checking each vendor collection in core, there is no point
+> in having core and drivers separated.
+> Unfortunately, I can not think of an easier way of doing it. So I think
+> (but Jiri can choose to ignore me) that we should at least hold this
+> until 3.19 development starts.
+I agree checking for specific vendor's reports in core isn't ideal, but 
+I couldn't figure out a better way to uniquely identify our touchpad on 
+certain composite USB devices.
 
-Thanks.
+Specifically, I am looking at the Razer Blade 14" laptop which has a 
+composite USB device with 4 HID devices on separate interfaces. One is 
+the touchpad, two others report to be keyboards, and the forth device 
+shows up as a mouse. Since the VID and PID are identical, scanning the 
+report descriptor is the only way to determine which device. There are 
+slight differences in the report descriptors which we could use to make 
+a guess. For instance our touchpad uses Application 
+GenericDesktop.Pointer while the other device uses GenericDesktop.Mouse. 
+The fact that only one has a vendor specific collection is also an 
+indication. But, these indicators don't seem particularly conclusive. 
+Also, the mouse device has it's interface protocol set to mouse instead 
+of the touchpad, so the current code which checks that value would 
+attach to the wrong device (if you add the Razer VID and PID to the 
+Vendor specific handling check in hid_scan_report).
 
--- 
-Dmitry
-
-
-Input: cap11xx - add support for various cap11xx devices
-
-From: Matt Ranostay <mranostay@gmail.com>
-
-Several other variants of the cap11xx device exists with a varying
-number of capacitance detection channels. Add support for creating
-the channels dynamically.
-
-Signed-off-by: Matt Ranostay <mranostay@gmail.com>
-Reviewed-by: Daniel Mack <daniel@zonque.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- .../devicetree/bindings/input/cap11xx.txt          |    3 +
- drivers/input/keyboard/cap11xx.c                   |   62 +++++++++++++-------
- 2 files changed, 42 insertions(+), 23 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
-index 738f5f3..8031aa5 100644
---- a/Documentation/devicetree/bindings/input/cap11xx.txt
-+++ b/Documentation/devicetree/bindings/input/cap11xx.txt
-@@ -7,9 +7,10 @@ Required properties:
- 
- 	compatible:		Must be on the following, depending on the model:
- 					"microchip,cap1106"
-+					"microchip,cap1126"
-+					"microchip,cap1188"
- 
- 	reg:			The I2C slave address of the device.
--				Only 0x28 is valid.
- 
- 	interrupts:		Property describing the interrupt line the
- 				device's ALERT#/CM_IRQ# pin is connected to.
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 0da2e83..87fa209 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -1,7 +1,6 @@
- /*
-  * Input driver for Microchip CAP11xx based capacitive touch sensors
-  *
-- *
-  * (c) 2014 Daniel Mack <linux@zonque.org>
-  *
-  * This program is free software; you can redistribute it and/or modify
-@@ -54,8 +53,6 @@
- #define CAP11XX_REG_MANUFACTURER_ID	0xfe
- #define CAP11XX_REG_REVISION		0xff
- 
--#define CAP11XX_NUM_CHN 6
--#define CAP11XX_PRODUCT_ID	0x55
- #define CAP11XX_MANUFACTURER_ID	0x5d
- 
- struct cap11xx_priv {
-@@ -63,7 +60,24 @@ struct cap11xx_priv {
- 	struct input_dev *idev;
- 
- 	/* config */
--	unsigned short keycodes[CAP11XX_NUM_CHN];
-+	u32 keycodes[];
-+};
-+
-+struct cap11xx_hw_model {
-+	uint8_t product_id;
-+	unsigned int num_channels;
-+};
-+
-+enum {
-+	CAP1106,
-+	CAP1126,
-+	CAP1188,
-+};
-+
-+static const struct cap11xx_hw_model cap11xx_devices[] = {
-+	[CAP1106] = { .product_id = 0x55, .num_channels = 6 },
-+	[CAP1126] = { .product_id = 0x53, .num_channels = 6 },
-+	[CAP1188] = { .product_id = 0x50, .num_channels = 8 },
- };
- 
- static const struct reg_default cap11xx_reg_defaults[] = {
-@@ -150,7 +164,7 @@ static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
- 	if (ret < 0)
- 		goto out;
- 
--	for (i = 0; i < CAP11XX_NUM_CHN; i++)
-+	for (i = 0; i < priv->idev->keycodemax; i++)
- 		input_report_key(priv->idev, priv->keycodes[i],
- 				 status & (1 << i));
- 
-@@ -187,11 +201,16 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	struct device *dev = &i2c_client->dev;
- 	struct cap11xx_priv *priv;
- 	struct device_node *node;
-+	const struct cap11xx_hw_model *cap = &cap11xx_devices[id->driver_data];
- 	int i, error, irq, gain = 0;
- 	unsigned int val, rev;
--	u32 gain32, keycodes[CAP11XX_NUM_CHN];
-+	u32 gain32;
-+
-+	BUG_ON(!cap->num_channels);
- 
--	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	priv = devm_kzalloc(dev,
-+			    sizeof(*priv) + cap->num_channels * sizeof(u32),
-+			    GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
-@@ -203,9 +222,9 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	if (error)
- 		return error;
- 
--	if (val != CAP11XX_PRODUCT_ID) {
-+	if (val != cap->product_id) {
- 		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
--			val, CAP11XX_PRODUCT_ID);
-+			val, cap->product_id);
- 		return -ENODEV;
- 	}
- 
-@@ -225,8 +244,8 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 
- 	dev_info(dev, "CAP11XX detected, revision 0x%02x\n", rev);
- 	i2c_set_clientdata(i2c_client, priv);
--	node = dev->of_node;
- 
-+	node = dev->of_node;
- 	if (!of_property_read_u32(node, "microchip,sensor-gain", &gain32)) {
- 		if (is_power_of_2(gain32) && gain32 <= 8)
- 			gain = ilog2(gain32);
-@@ -234,17 +253,12 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
- 	}
- 
--	BUILD_BUG_ON(ARRAY_SIZE(keycodes) != ARRAY_SIZE(priv->keycodes));
--
- 	/* Provide some useful defaults */
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		keycodes[i] = KEY_A + i;
-+	for (i = 0; i < cap->num_channels; i++)
-+		priv->keycodes[i] = KEY_A + i;
- 
- 	of_property_read_u32_array(node, "linux,keycodes",
--				   keycodes, ARRAY_SIZE(keycodes));
--
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		priv->keycodes[i] = keycodes[i];
-+		priv->keycodes, cap->num_channels);
- 
- 	error = regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
- 				   CAP11XX_REG_MAIN_CONTROL_GAIN_MASK,
-@@ -268,17 +282,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	if (of_property_read_bool(node, "autorepeat"))
- 		__set_bit(EV_REP, priv->idev->evbit);
- 
--	for (i = 0; i < CAP11XX_NUM_CHN; i++)
-+	for (i = 0; i < cap->num_channels; i++)
- 		__set_bit(priv->keycodes[i], priv->idev->keybit);
- 
- 	__clear_bit(KEY_RESERVED, priv->idev->keybit);
- 
- 	priv->idev->keycode = priv->keycodes;
- 	priv->idev->keycodesize = sizeof(priv->keycodes[0]);
--	priv->idev->keycodemax = ARRAY_SIZE(priv->keycodes);
-+	priv->idev->keycodemax = cap->num_channels;
- 
- 	priv->idev->id.vendor = CAP11XX_MANUFACTURER_ID;
--	priv->idev->id.product = CAP11XX_PRODUCT_ID;
-+	priv->idev->id.product = cap->product_id;
- 	priv->idev->id.version = rev;
- 
- 	priv->idev->open = cap11xx_input_open;
-@@ -312,12 +326,16 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 
- static const struct of_device_id cap11xx_dt_ids[] = {
- 	{ .compatible = "microchip,cap1106", },
-+	{ .compatible = "microchip,cap1126", },
-+	{ .compatible = "microchip,cap1188", },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, cap11xx_dt_ids);
- 
- static const struct i2c_device_id cap11xx_i2c_ids[] = {
--	{ "cap1106", 0 },
-+	{ "cap1106", CAP1106 },
-+	{ "cap1126", CAP1126 },
-+	{ "cap1188", CAP1188 },
- 	{}
- };
- MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
+> One or two more comments inlined:
+>
+>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>> ---
+>>   drivers/hid/hid-core.c | 42 +++++++++++++++++++++++++++++++++++++-----
+>>   include/linux/hid.h    |  8 +++++++-
+>>   2 files changed, 44 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 12b6e67..498f674 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -686,6 +686,23 @@ static void hid_scan_input_usage(struct hid_parser *parser, u32 usage)
+>>   
+>>   	if (usage == HID_DG_CONTACTID)
+>>   		hid->group = HID_GROUP_MULTITOUCH;
+>> +
+>> +	if (usage == 0xff000004 && parser->global.report_id == 0xb)
+>> +		parser->scan_flags |= HID_SCAN_FLAG_RMI_INPUT_READ;
+>> +
+>> +	if (usage == 0xff000005 && parser->global.report_id == 0xc)
+>> +		parser->scan_flags |= HID_SCAN_FLAG_RMI_ATTN;
+>> +}
+>> +
+>> +static void hid_scan_output_usage(struct hid_parser *parser, u32 usage)
+>> +{
+>> +	struct hid_device *hid = parser->device;
+>> +
+>> +	if (usage == 0xff000002 && parser->global.report_id == 0x9)
+>> +		parser->scan_flags |= HID_SCAN_FLAG_RMI_WRITE;
+>> +
+>> +	if (usage == 0xff000003 && parser->global.report_id == 0xa)
+>> +		parser->scan_flags |= HID_SCAN_FLAG_RMI_OUTPUT_READ;
+>>   }
+>>   
+>>   static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
+>> @@ -693,6 +710,9 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
+>>   	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
+>>   	    parser->global.report_size == 8)
+>>   		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
+>> +
+>> +	if (usage == 0xff000006 && parser->global.report_id == 0xf)
+>> +		parser->scan_flags |= HID_SCAN_FLAG_RMI_MODE;
+>>   }
+>>   
+>>   static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+>> @@ -702,6 +722,9 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+>>   	if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
+>>   	    type == HID_COLLECTION_PHYSICAL)
+>>   		hid->group = HID_GROUP_SENSOR_HUB;
+>> +
+>> +	if ((parser->global.usage_page << 16) == HID_UP_MSVENDOR)
+>> +		parser->scan_flags |= HID_SCAN_FLAG_VENDOR_SPECIFIC;
+>>   }
+>>   
+>>   static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+>> @@ -725,6 +748,10 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+>>   			hid_scan_input_usage(parser, parser->local.usage[i]);
+>>   		break;
+>>   	case HID_MAIN_ITEM_TAG_OUTPUT:
+>> +		if (data & HID_MAIN_ITEM_CONSTANT)
+>> +			break;
+>> +		for (i = 0; i < parser->local.usage_index; i++)
+>> +			hid_scan_output_usage(parser, parser->local.usage[i]);
+>>   		break;
+>>   	case HID_MAIN_ITEM_TAG_FEATURE:
+>>   		for (i = 0; i < parser->local.usage_index; i++)
+>> @@ -783,11 +810,16 @@ static int hid_scan_report(struct hid_device *hid)
+>>   	* Vendor specific handlings
+>>   	*/
+>>   	if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
+>> -	    (hid->group == HID_GROUP_GENERIC) &&
+>> -	    /* only bind to the mouse interface of composite USB devices */
+>> -	    (hid->bus != BUS_USB || hid->type == HID_TYPE_USBMOUSE))
+>> -		/* hid-rmi should take care of them, not hid-generic */
+>> -		hid->group = HID_GROUP_RMI;
+>> +	    (hid->group == HID_GROUP_GENERIC)) {
+>> +		if ((parser->scan_flags & HID_SCAN_FLAG_VENDOR_SPECIFIC)
+>> +			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_WRITE)
+>> +			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_INPUT_READ)
+>> +			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_OUTPUT_READ)
+>> +			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_ATTN)
+>> +			&& (parser->scan_flags & HID_SCAN_FLAG_RMI_MODE))
+> Maybe you should consider defining:
+> #define HID_SCAN_FLAGS_RMI HID_SCAN_FLAG_VENDOR_SPECIFIC | \
+> 			   HID_SCAN_FLAG_RMI_WRITE | \
+> 			   HID_SCAN_FLAG_RMI_INPUT_READ | \
+> 			   HID_SCAN_FLAG_RMI_OUTPUT_READ | \
+> 			   HID_SCAN_FLAG_RMI_ATTN | \
+> 			   HID_SCAN_FLAG_RMI_MODE
+>
+> and then just test:
+> if ((parser->scan_flags & HID_SCAN_FLAGS_RMI) == HID_SCAN_FLAGS_RMI)
+>
+>> +			/* hid-rmi should take care of them, not hid-generic */
+>> +			hid->group = HID_GROUP_RMI;
+>> +	}
+>>   
+>>   	/*
+>>   	 * Vendor specific handlings
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index f53c4a9..82d1f82 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -547,7 +547,13 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
+>>   #define HID_GLOBAL_STACK_SIZE 4
+>>   #define HID_COLLECTION_STACK_SIZE 4
+>>   
+>> -#define HID_SCAN_FLAG_MT_WIN_8			0x00000001
+>> +#define HID_SCAN_FLAG_MT_WIN_8			BIT(0)
+>> +#define HID_SCAN_FLAG_VENDOR_SPECIFIC		BIT(1)
+>> +#define HID_SCAN_FLAG_RMI_WRITE			BIT(2)
+>> +#define HID_SCAN_FLAG_RMI_INPUT_READ		BIT(3)
+>> +#define HID_SCAN_FLAG_RMI_OUTPUT_READ		BIT(3)
+> I guess this one should be BIT(4) and the two after should be shifted by
+> one too.
+Yep, this is a copy and paste mistake. I'll fix it if I end up 
+submitting a v2.
+>> +#define HID_SCAN_FLAG_RMI_ATTN			BIT(4)
+>> +#define HID_SCAN_FLAG_RMI_MODE			BIT(5)
+>>   
+>>   struct hid_parser {
+>>   	struct hid_global     global;
+>> -- 
+>> 1.9.1
+>>
+> Cheers,
+> Benjamin

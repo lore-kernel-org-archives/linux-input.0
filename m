@@ -1,51 +1,34 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for register
- access
-Date: Wed, 08 Oct 2014 11:20:58 -0700
-Message-ID: <5435808A.7070203@codeaurora.org>
-References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com> <1412675448-11990-3-git-send-email-iivanov@mm-sol.com> <20141007172606.GG16469@dtor-ws> <1412759584.13569.0.camel@iivanov-dev> <1412760633.13569.4.camel@iivanov-dev> <54357BA7.3010609@codeaurora.org> <20141008181314.GC14423@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: pxa27x_keypad: Switch to using managed resources
+Date: Wed, 8 Oct 2014 11:25:38 -0700
+Message-ID: <20141008182538.GE14423@dtor-ws>
+References: <1412765411-6480-1-git-send-email-pramod.gurav@smartplayin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20141008181314.GC14423@dtor-ws>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: "Ivan T. Ivanov" <iivanov@mm-sol.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:56648 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750946AbaJHSZm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 14:25:42 -0400
+Content-Disposition: inline
+In-Reply-To: <1412765411-6480-1-git-send-email-pramod.gurav@smartplayin.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pramod Gurav <pramod.gurav@smartplayin.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Adding Mark and Srini
+On Wed, Oct 08, 2014 at 04:20:11PM +0530, Pramod Gurav wrote:
+> This change switches to using devm_* APIs to allocate  resources.
+> This helps to simplify failure path in probe function and module
+> unloading and does away with remove function.
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
 
-On 10/08/2014 11:13 AM, Dmitry Torokhov wrote:
-> On Wed, Oct 08, 2014 at 11:00:07AM -0700, Stephen Boyd wrote:
->> On 10/08/2014 02:30 AM, Ivan T. Ivanov wrote:
->>> On Wed, 2014-10-08 at 12:13 +0300, Ivan T. Ivanov wrote:
->>>> On Tue, 2014-10-07 at 10:26 -0700, Dmitry Torokhov wrote:
->>>>> Hi Ivan,
->>>>>
->>>>> On Tue, Oct 07, 2014 at 12:50:46PM +0300, Ivan T. Ivanov wrote:
->>>>>> @@ -527,10 +538,55 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
->>>>>> +
->>>>>> +	kp->row_hold = devm_regmap_field_alloc(kp->dev, kp->regmap,
->>>>>> +					       info->row_hold);
->>>>>> +	if (IS_ERR(kp->row_hold))
->>>>>> +		return PTR_ERR(kp->row_hold);
->>>>> Why do we have to allocate all regmap fields separately instead of
->>>>> embedding them into keypad structure?
->>>>>
->>>> No particular reason. Will rework it.
->>>>
->>> Oops. struct regmap_field is opaque. It seems that the allocation
->>> is the only way that I could have instance of it.
->>>
->> Maybe we can add an API to allocate an array of fields?
-> Maybe we could make the structure public instead? I do not see any
-> reason for allocating something separately that has exactly the same
-> lifetime as owning structure.
->
+I'll queue it for 3.19.
 
-Srini/Mark, any reason why the regmap_field structure is opaque?
+Thanks.
 
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+Dmitry

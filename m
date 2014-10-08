@@ -1,86 +1,54 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: Re: [PATCH] Input: opencores-kbd: Switch to using managed resources
-Date: Wed, 8 Oct 2014 09:09:07 +0200
-Message-ID: <20141008070907.GM3279@distanz.ch>
-References: <1412681501-28072-1-git-send-email-pramod.gurav@smartplayin.com>
- <20141007133322.GL3279@distanz.ch>
- <20141007161716.GB16469@dtor-ws>
+From: Zachary L <admin@computerquip.com>
+Subject: Xbox Controllers: Should hid be used?
+Date: Wed, 8 Oct 2014 07:09:40 +0000 (UTC)
+Message-ID: <loom.20141008T082724-46@post.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sym2.noone.org ([178.63.92.236]:36271 "EHLO sym2.noone.org"
+Received: from plane.gmane.org ([80.91.229.3]:33063 "EHLO plane.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754080AbaJHHJK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Oct 2014 03:09:10 -0400
-Content-Disposition: inline
-In-Reply-To: <20141007161716.GB16469@dtor-ws>
+	id S1754492AbaJHHKB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Oct 2014 03:10:01 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1XblNm-0007cr-JI
+	for linux-input@vger.kernel.org; Wed, 08 Oct 2014 09:09:58 +0200
+Received: from 99-22-209-106.lightspeed.hstntx.sbcglobal.net ([99.22.209.106])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2014 09:09:58 +0200
+Received: from admin by 99-22-209-106.lightspeed.hstntx.sbcglobal.net with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2014 09:09:58 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 2014-10-07 at 18:17:16 +0200, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Tue, Oct 07, 2014 at 03:33:22PM +0200, Tobias Klauser wrote:
-> > On 2014-10-07 at 13:31:41 +0200, Pramod Gurav <pramod.gurav@smartplayin.com> wrote:
-> > > This change switch to managed resources to simplifies error handling
-> > > and module unloading and does away with platform_driver remove function.
-> > > 
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Cc: linux-input@vger.kernel.org
-> > > Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
-> > > ---
-> > >  drivers/input/keyboard/opencores-kbd.c |   54 ++++++++------------------------
-> > >  1 file changed, 13 insertions(+), 41 deletions(-)
-> > > 
-> > > diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
-> > > index 7b9b441..ecacb87 100644
-> > > --- a/drivers/input/keyboard/opencores-kbd.c
-> > > +++ b/drivers/input/keyboard/opencores-kbd.c
-> > > @@ -56,27 +56,27 @@ static int opencores_kbd_probe(struct platform_device *pdev)
-> > >  		return -EINVAL;
-> > >  	}
-> > >  
-> > > -	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
-> > > -	input = input_allocate_device();
-> > > +	opencores_kbd = devm_kzalloc(&pdev->dev, sizeof(*opencores_kbd),
-> > > +				     GFP_KERNEL);
-> > > +	input = devm_input_allocate_device(&pdev->dev);
-> > >  	if (!opencores_kbd || !input) {
-> > >  		dev_err(&pdev->dev, "failed to allocate device structures\n");
-> > > -		error = -ENOMEM;
-> > > -		goto err_free_mem;
-> > > +		return -ENOMEM;
-> > >  	}
-> > >  
-> > >  	opencores_kbd->addr_res = res;
-> > > -	res = request_mem_region(res->start, resource_size(res), pdev->name);
-> > > +	res = devm_request_mem_region(&pdev->dev, res->start,
-> > > +				      resource_size(res), pdev->name);
-> > >  	if (!res) {
-> > >  		dev_err(&pdev->dev, "failed to request I/O memory\n");
-> > > -		error = -EBUSY;
-> > > -		goto err_free_mem;
-> > > +		return -EBUSY;
-> > >  	}
-> > >  
-> > > -	opencores_kbd->addr = ioremap(res->start, resource_size(res));
-> > > +	opencores_kbd->addr = devm_ioremap(&pdev->dev, res->start,
-> > > +					   resource_size(res));
-> > 
-> > You could use devm_ioremap_resource() here and get rid of the call to
-> > devm_request_mem_region() and the check for !res above, i.e. something
-> > like:
-> > 
-> > 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > 	[...]
-> > 	opencores_kbd->addr = devm_ioremap_resource(&pdev->dev, res);
-> > 	if (!opencores_kbd->addr) {
-> > 		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> > 		return -ENXIO;
-> > 	}
-> 
-> You need to be careful with devm_ioremap_resource() ocnversions as it
-> returns ERR_PTR-encoded pointer on failures, not NULL.
+Other 3rd party drivers (and seemingly Microsoft's driver as well) uses HID to 
+describe the [any Xbox] controller's features. We can see uses of this in other 
+drivers:
 
-Ah yes of course, I was a bit too quick with my top-of-the-head
-conversion. Thanks for fixing it up.
+TattieBogle - 
+http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver
+
+XBCD - http://www.redcl0ud.com/xbcd.html
+
+Xpad has avoided the use of the hid subsystem for whatever reason, for over a 
+decade now. That said, I don't know of any compelling reason to not avoid it. 
+But I did it anyways... I made a small usb driver, implemented a stub 
+hid_ll_driver, copied the descriptor from TattieBogle... and it works... sort 
+of. 
+
+The button layout is obviously different from what we have now and I cannot get 
+the D-pad working using a Hat Switch usage or the D-pad usages to save my life. 
+
+I realize that just because other drivers use HID, doesn't mean I should 
+although perhaps there's a compelling reason that I'm missing. Is there any 
+worth to this work?
+
+What I have is bare bones but works for (incorrectly mapped, using 
+TattieBogle's report descriptor) input: https://github.com/computerquip/xpad4
+
+Any feedback would be appreciated.
+

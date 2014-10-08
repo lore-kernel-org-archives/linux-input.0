@@ -1,73 +1,40 @@
 From: Pramod Gurav <pramod.gurav.etc@gmail.com>
 Subject: Re: [PATCH] Input: adp5588-keys: cancel workqueue in failure path
-Date: Wed, 8 Oct 2014 15:48:37 +0530
-Message-ID: <CAMf-jS=jvo2hzULv_MtvbeAq_A2z0aJS2F=1Zx5tPonKsJTrNg@mail.gmail.com>
+Date: Wed, 8 Oct 2014 15:55:45 +0530
+Message-ID: <CAMf-jSkLsSw6EZZCZ-AMqvaRZYhh8oJ6uwvEwZUJXG8SxicEuw@mail.gmail.com>
 References: <1412667049-6128-1-git-send-email-pramod.gurav@smartplayin.com>
 	<20141007163856.GE16469@dtor-ws>
+	<CAMf-jS=jvo2hzULv_MtvbeAq_A2z0aJS2F=1Zx5tPonKsJTrNg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141007163856.GE16469@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:38841 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755000AbaJHKZr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2014 06:25:47 -0400
+In-Reply-To: <CAMf-jS=jvo2hzULv_MtvbeAq_A2z0aJS2F=1Zx5tPonKsJTrNg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Pramod Gurav <pramod.gurav@smartplayin.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On Tue, Oct 7, 2014 at 10:08 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Oct 07, 2014 at 01:00:49PM +0530, Pramod Gurav wrote:
->> This change introduces a label to call cancel_delayed_work_sync in
->> failure path.
->>
->> Cc: Michael Hennerich <michael.hennerich@analog.com>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Cc: linux-input@vger.kernel.org
->> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
->> ---
->>  drivers/input/keyboard/adp5588-keys.c |    4 +++-
->>  1 file changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
->> index 5ef7fcf..b494062 100644
->> --- a/drivers/input/keyboard/adp5588-keys.c
->> +++ b/drivers/input/keyboard/adp5588-keys.c
->> @@ -559,7 +559,7 @@ static int adp5588_probe(struct i2c_client *client,
->>       error = input_register_device(input);
->>       if (error) {
->>               dev_err(&client->dev, "unable to register input device\n");
->> -             goto err_free_mem;
->> +             goto err_delayed_work;
->>       }
->>
->>       error = request_irq(client->irq, adp5588_irq,
->> @@ -592,6 +592,8 @@ static int adp5588_probe(struct i2c_client *client,
->>   err_unreg_dev:
->>       input_unregister_device(input);
->>       input = NULL;
->> + err_delayed_work:
->> +     cancel_delayed_work_sync(&kpad->work);
+On Wed, Oct 8, 2014 at 3:48 PM, Pramod Gurav <pramod.gurav.etc@gmail.com> wrote:
+> Hi Dmitry,
 >
-> We do not need to have a separate label, just need to cancel workqueue
-> after freeing interrupt. I adjusted the patch and applied.
+> On Tue, Oct 7, 2014 at 10:08 PM, Dmitry Torokhov
 >
-Thanks. I saw the change in your tree. Shouldn't
-cancel_delayed_work_sync(&kpad->work) be called under label
-err_free_mem so that it will executed in case adp5588_read,
-input_register_device, request_irq etc.
-Or else we will still have workqueue instance hanging around.
 
-> Thanks.
+..
+
+> Thanks. I saw the change in your tree. Shouldn't
+> cancel_delayed_work_sync(&kpad->work) be called under label
+> err_free_mem so that it will executed in case adp5588_read,
+> input_register_device, request_irq etc.
+> Or else we will still have workqueue instance hanging around.
 >
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+Sorry, Should have read Michael's reply more carefully. I get the
+reason behind cancelling workquequq after freeing irq.
 
 
 -- 

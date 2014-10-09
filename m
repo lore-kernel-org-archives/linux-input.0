@@ -1,92 +1,51 @@
-From: Chung-yih Wang <cywang@chromium.org>
-Subject: [PATCH] input: fix BTN_TOUCH reporting in input_mt_report_pointer_emulation for hovering finger
-Date: Thu,  9 Oct 2014 21:31:46 +0800
-Message-ID: <1412861506-21732-1-git-send-email-cywang@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Synaptics, CAP_FORCEPAD, bad behavior
+Date: Thu, 9 Oct 2014 09:52:46 -0700
+Message-ID: <20141009165246.GA18213@dtor-ws>
+References: <543656A2.4080009@kernelconcepts.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f201.google.com ([209.85.213.201]:49575 "EHLO
-	mail-ig0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751845AbaJINcj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Oct 2014 09:32:39 -0400
-Received: by mail-ig0-f201.google.com with SMTP id h15so584501igd.4
-        for <linux-input@vger.kernel.org>; Thu, 09 Oct 2014 06:32:39 -0700 (PDT)
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:48354 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751066AbaJIQwv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Oct 2014 12:52:51 -0400
+Received: by mail-pa0-f54.google.com with SMTP id ey11so86838pad.41
+        for <linux-input@vger.kernel.org>; Thu, 09 Oct 2014 09:52:50 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <543656A2.4080009@kernelconcepts.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, Chung-yih Wang <cywang@chromium.org>
+To: Nicole Faerber <nicole.faerber@kernelconcepts.de>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-  From the definition of BTN_TOUCH, BTN_TOOL_<name> and BTN_TOUCH codes are
-orthogonal. BTN_TOUCH should be zero if there is no physical contact, e.g.
-hovering finger, happened on device. The patch uses touch_count and finger_count
-to get the final reporting code for BTN_TOUCH and BTN_TOOL_<name>,
-respectively. In addition, as there are some hard-coded pressure thresholds
-defined in touch device's driver classes, 'touch_threshold' is introduced into
-struct input_dev in order to tell if a finger is considered as a touch one in
-input_mt_report_pointer_emulation().
+On Thu, Oct 09, 2014 at 11:34:26AM +0200, Nicole Faerber wrote:
+> Hi!
+> Just installed the just released 3.17 kernel and found a bad behavior of
+> the new Synaptics driver on my Thinkpad Yoga which has the new Synaptics
+> clickpad enabled touchpad:
+> 
+> psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1,
+> caps: 0xd002a3/0x940300/0x12f800, board id: 2911, fw id: 2560
+> 
+> The issue is that now a button release is only issued after the finger
+> has completely left the touchpad and not when releasing the physical
+> button. Is this physical button now called FORCEPAD? Anyway, this is
+> pretty annoying. Double clicking become a real pain.
+> I did comment out the new
+> 
+> 	if (SYN_CAP_FORCEPAD(priv->ext_cap_0c)) {
+> 	...
+> 
+> and everything is back to normal again, i.e. when I do release the pad
+> physical button but keep the finger on the pad, the button release event
+> is issued properly.
 
----
- drivers/input/input-mt.c | 15 ++++++++++-----
- include/linux/input.h    |  2 ++
- 2 files changed, 12 insertions(+), 5 deletions(-)
+Hmm, the forcepad code should only activate if the devoice do4es not
+have physical buttons at all. Let me see what's the diffference in
+capabilities between your and mine touchpads...
 
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index fbe29fc..47e41d6 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -192,18 +192,21 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
- {
- 	struct input_mt *mt = dev->mt;
- 	struct input_mt_slot *oldest;
--	int oldid, count, i;
-+	int oldid, i;
-+	int touch_count, finger_count;
- 
- 	if (!mt)
- 		return;
- 
- 	oldest = NULL;
- 	oldid = mt->trkid;
--	count = 0;
-+	touch_count = 0;
-+	finger_count = 0;
- 
- 	for (i = 0; i < mt->num_slots; ++i) {
- 		struct input_mt_slot *ps = &mt->slots[i];
- 		int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-+		int pressure = input_mt_get_value(ps, ABS_MT_PRESSURE);
- 
- 		if (id < 0)
- 			continue;
-@@ -211,12 +214,14 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
- 			oldest = ps;
- 			oldid = id;
- 		}
--		count++;
-+		finger_count++;
-+		if (pressure > dev->touch_threshold)
-+			touch_count++;
- 	}
- 
--	input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
-+	input_event(dev, EV_KEY, BTN_TOUCH, touch_count > 0);
- 	if (use_count)
--		input_mt_report_finger_count(dev, count);
-+		input_mt_report_finger_count(dev, finger_count);
- 
- 	if (oldest) {
- 		int x = input_mt_get_value(oldest, ABS_MT_POSITION_X);
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 82ce323..5b2739d 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -187,6 +187,8 @@ struct input_dev {
- 	struct input_value *vals;
- 
- 	bool devres_managed;
-+
-+	unsigned int touch_threshold;
- };
- #define to_input_dev(d) container_of(d, struct input_dev, dev)
- 
+Thanks.
+
 -- 
-2.0.0.526.g5318336
-
+Dmitry

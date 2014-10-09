@@ -1,46 +1,51 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH] Input: Add Microchip AR1021 i2c touchscreen
-Date: Thu, 9 Oct 2014 09:39:32 +0200
-Message-ID: <CAH9NwWd95RL996nWWYi-shX5uJFTWpFRt56ftQ6-fgLUShHo-g@mail.gmail.com>
-References: <1412779518-16712-1-git-send-email-christian.gmeiner@gmail.com> <20141008175649.GB14423@dtor-ws>
+From: Nicole Faerber <nicole.faerber@kernelconcepts.de>
+Subject: Synaptics, CAP_FORCEPAD, bad behavior
+Date: Thu, 09 Oct 2014 11:34:26 +0200
+Message-ID: <543656A2.4080009@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:48535 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750967AbaJIHjy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Oct 2014 03:39:54 -0400
-Received: by mail-wi0-f172.google.com with SMTP id n3so12269065wiv.17
-        for <linux-input@vger.kernel.org>; Thu, 09 Oct 2014 00:39:52 -0700 (PDT)
-In-Reply-To: <20141008175649.GB14423@dtor-ws>
+Received: from mail.kernelconcepts.de ([212.60.202.196]:56583 "EHLO
+	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754901AbaJIKBW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Oct 2014 06:01:22 -0400
+Received: from [80.150.9.66] (helo=[192.168.203.91])
+	by mail.kernelconcepts.de with esmtpsa (TLS1.0:DHE_RSA_AES_128_CBC_SHA1:16)
+	(Exim 4.72)
+	(envelope-from <nicole.faerber@kernelconcepts.de>)
+	id 1XcA5x-0007zU-BA
+	for linux-input@vger.kernel.org; Thu, 09 Oct 2014 11:33:13 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: linux-input <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+Hi!
+Just installed the just released 3.17 kernel and found a bad behavior of
+the new Synaptics driver on my Thinkpad Yoga which has the new Synaptics
+clickpad enabled touchpad:
 
-> On Wed, Oct 08, 2014 at 04:45:18PM +0200, Christian Gmeiner wrote:
->> +static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
->> +{
->> +     struct ar1021_i2c *ar1021 = dev_id;
->> +     struct input_dev *input = ar1021->input;
->> +     u8 *data = ar1021->data;
->> +     unsigned int x, y, button;
->> +     int error;
->> +
->> +     error = i2c_master_recv(ar1021->client,
->> +                             ar1021->data, sizeof(ar1021->data));
->> +     if (error < 0)
->
-> I think this check should be "if (retval != sizeof(ar1021->data))" to
-> avoid using garbage data in case of short read. I'll change it locally
-> and apply the patch.
+psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1,
+caps: 0xd002a3/0x940300/0x12f800, board id: 2911, fw id: 2560
 
-Sounds good to me.
+The issue is that now a button release is only issued after the finger
+has completely left the touchpad and not when releasing the physical
+button. Is this physical button now called FORCEPAD? Anyway, this is
+pretty annoying. Double clicking become a real pain.
+I did comment out the new
 
-thanks
---
-Christian Gmeiner, MSc
+	if (SYN_CAP_FORCEPAD(priv->ext_cap_0c)) {
+	...
 
-https://soundcloud.com/christian-gmeiner
+and everything is back to normal again, i.e. when I do release the pad
+physical button but keep the finger on the pad, the button release event
+is issued properly.
+
+Cheers
+  nicole
+
+-- 
+kernel concepts GmbH      Tel: +49-271-771091-12
+Sieghuetter Hauptweg 48
+D-57072 Siegen
+http://www.kernelconcepts.de

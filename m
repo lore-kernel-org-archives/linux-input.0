@@ -1,39 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - disable active multiplexing by default
-Date: Fri, 10 Oct 2014 14:22:45 -0700
-Message-ID: <20141010212245.GB38320@dtor-ws>
-References: <20141010205131.GA3271@dtor-ws>
- <20141010211827.GA26222@redhat.com>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: Elan TS driver patch
+Date: Fri, 10 Oct 2014 15:11:37 -0700
+Message-ID: <20141010221137.GD38320@dtor-ws>
+References: <005301cfe221$abcd2460$03676d20$@emc.com.tw>
+ <20141007160358.GA16469@dtor-ws>
+ <006001cfe294$13720370$3a560a50$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:53754 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751587AbaJJVWv (ORCPT
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:58975 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751337AbaJJWLl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Oct 2014 17:22:51 -0400
+	Fri, 10 Oct 2014 18:11:41 -0400
+Received: by mail-pa0-f52.google.com with SMTP id fb1so2535058pad.11
+        for <linux-input@vger.kernel.org>; Fri, 10 Oct 2014 15:11:41 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20141010211827.GA26222@redhat.com>
+In-Reply-To: <006001cfe294$13720370$3a560a50$@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dave Jones <davej@redhat.com>, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Vojtech Pavlik <vojtech@suse.cz>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
+To: ELAN =?utf-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Cc: linux-input@vger.kernel.org, bleung@chromium.org, 'Charles Mooney' <charliemooney@google.com>, "'Jeff.Chuang'" <Jeff.chuang@emc.com.tw>, =?utf-8?B?J+aigeWNmue/lCc=?= <paul.liang@emc.com.tw>
 
-On Fri, Oct 10, 2014 at 05:18:27PM -0400, Dave Jones wrote:
-> On Fri, Oct 10, 2014 at 01:51:31PM -0700, Dmitry Torokhov wrote:
-> 
->  >  /*
->  > - * Some Fujitsu notebooks are having trouble with touchpads if
->  > - * active multiplexing mode is activated. Luckily they don't have
->  > - * external PS/2 ports so we can safely disable it.
->  > - * ... apparently some Toshibas don't like MUX mode either and
->  > - * die horrible death on reboot.
->  > + * Some laptops do increment active multiplexing mode correctly;
->  > + * unfortunately they are in minority.
->  >   */
-> 
-> s/increment/implement/ ?
+Hi Scott,
 
-Thanks Dave, I'll fix it up.
+On Wed, Oct 08, 2014 at 09:06:20AM +0800, ELAN =E5=8A=89=E5=98=89=E9=A7=
+=BF wrote:
+> Hi Dmitry:
+> 	Thank for reply. Please let me know if anything needs we do.
 
--- 
+What is the part name/number of this touchscreen. As the example with
+touchpad shown us device tree folks are not happy with the generic
+"i2c_touchpad" or "elants_i2c" and would rather we used proper model
+number in bindings.
+
+Thanks.
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

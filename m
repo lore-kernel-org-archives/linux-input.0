@@ -1,786 +1,312 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: [PATCH v5 1/3] cap11xx: make driver generic for variant support
-Date: Thu,  9 Oct 2014 21:23:01 -0700
-Message-ID: <1412914983-3742-2-git-send-email-mranostay@gmail.com>
-References: <1412914983-3742-1-git-send-email-mranostay@gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH RESEND RESEND] Input: evdev - add event-mask API
+Date: Fri, 10 Oct 2014 10:28:53 +0200
+Message-ID: <CANq1E4QgrmN7QYUQLQxKX4_dfMi2AhXF08j5WnV2xt6Vy-QK+Q@mail.gmail.com>
+References: <1407914195-2797-1-git-send-email-dh.herrmann@gmail.com>
+	<CANq1E4Q2S6vmpN=My8DXSPMti-pNQD24Hb0V9hqD=9TfND_mrg@mail.gmail.com>
+	<20141009225256.GA8583@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:61315 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750982AbaJJEWs (ORCPT
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:44393 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751786AbaJJI25 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Oct 2014 00:22:48 -0400
-In-Reply-To: <1412914983-3742-1-git-send-email-mranostay@gmail.com>
+	Fri, 10 Oct 2014 04:28:57 -0400
+Received: by mail-ig0-f178.google.com with SMTP id h3so1763743igd.17
+        for <linux-input@vger.kernel.org>; Fri, 10 Oct 2014 01:28:53 -0700 (PDT)
+In-Reply-To: <20141009225256.GA8583@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, galak@codeaurora.org, zonque@gmail.com
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-cap1106 driver can support much more one device make the driver
-generic for support of similiar parts.
+Hi
 
-Signed-off-by: Matt Ranostay <mranostay@gmail.com>
----
- .../bindings/input/{cap1106.txt => cap11xx.txt}    |   5 +-
- drivers/input/keyboard/Kconfig                     |   8 +-
- drivers/input/keyboard/Makefile                    |   2 +-
- drivers/input/keyboard/cap1106.c                   | 341 ---------------------
- drivers/input/keyboard/cap11xx.c                   | 340 ++++++++++++++++++++
- 5 files changed, 348 insertions(+), 348 deletions(-)
- rename Documentation/devicetree/bindings/input/{cap1106.txt => cap11xx.txt} (89%)
- delete mode 100644 drivers/input/keyboard/cap1106.c
- create mode 100644 drivers/input/keyboard/cap11xx.c
+On Fri, Oct 10, 2014 at 12:52 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi David,
+>
+> On Sun, Sep 28, 2014 at 12:19:39PM +0200, David Herrmann wrote:
+>> Ping?
+>
+> Sorry for the delay.
+>
+>>
+>> On Wed, Aug 13, 2014 at 9:16 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+>> > Hardware manufacturers group keys in the weirdest way possible. This may
+>> > cause a power-key to be grouped together with normal keyboard keys and
+>> > thus be reported on the same kernel interface.
+>> >
+>> > However, user-space is often only interested in specific sets of events.
+>> > For instance, daemons dealing with system-reboot (like systemd-logind)
+>> > listen for KEY_POWER, but are not interested in any main keyboard keys.
+>> > Usually, power keys are reported via separate interfaces, however,
+>> > some i8042 boards report it in the AT matrix. To avoid waking up those
+>> > system daemons on each key-press, we had two ideas:
+>> >  - split off KEY_POWER into a separate interface unconditionally
+>> >  - allow filtering a specific set of events on evdev FDs
+>> >
+>> > Splitting of KEY_POWER is a rather weird way to deal with this and may
+>> > break backwards-compatibility. It is also specific to KEY_POWER and might
+>> > be required for other stuff, too. Moreover, we might end up with a huge
+>> > set of input-devices just to have them properly split.
+>> >
+>> > Hence, this patchset implements the second idea: An event-mask to specify
+>> > which events you're interested in. Two ioctls allow setting this mask for
+>> > each event-type. If not set, all events are reported. The type==0 entry is
+>> > used same as in EVIOCGBIT to set the actual EV_* mask of filtered events.
+>> > This way, you have a two-level filter.
+>> >
+>> > We are heavily forward-compatible to new event-types and event-codes. So
+>> > new user-space will be able to run on an old kernel which doesn't know the
+>> > given event-codes or event-types.
+>> >
+>> > Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+>> > Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+>> > ---
+>> > Hi Dmitry
+>> >
+>> > We could really make use of this for SUSPEND/POWER key handling. We keep getting
+>> > reports from people where those keys are reported as part of the main keyboard.
+>> > It's really annoying if we have to wake up those processes for *every*
+>> > key-press.
+>> >
+>> > In case you just need time to review it, let me know. Otherwise, I will keep
+>> > resending it as people ask me for it all the time.
+>> >
+>> > Thanks
+>> > David
+>> >
+>> >  drivers/input/evdev.c      | 156 ++++++++++++++++++++++++++++++++++++++++++++-
+>> >  include/uapi/linux/input.h |  56 ++++++++++++++++
+>> >  2 files changed, 210 insertions(+), 2 deletions(-)
+>> >
+>> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+>> > index fd325ec..6386882 100644
+>> > --- a/drivers/input/evdev.c
+>> > +++ b/drivers/input/evdev.c
+>> > @@ -51,10 +51,130 @@ struct evdev_client {
+>> >         struct list_head node;
+>> >         int clkid;
+>> >         bool revoked;
+>> > +       unsigned long *evmasks[EV_CNT];
+>> >         unsigned int bufsize;
+>> >         struct input_event buffer[];
+>> >  };
+>> >
+>> > +static size_t evdev_get_mask_cnt(unsigned int type)
+>> > +{
+>> > +       static size_t counts[EV_CNT] = {
+>> > +               /* EV_SYN==0 is EV_CNT, _not_ SYN_CNT, see EVIOCGBIT */
+>> > +               [EV_SYN] = EV_CNT,
+>> > +               [EV_KEY] = KEY_CNT,
+>> > +               [EV_REL] = REL_CNT,
+>> > +               [EV_ABS] = ABS_CNT,
+>> > +               [EV_MSC] = MSC_CNT,
+>> > +               [EV_SW] = SW_CNT,
+>> > +               [EV_LED] = LED_CNT,
+>> > +               [EV_SND] = SND_CNT,
+>> > +               [EV_FF] = FF_CNT,
+>> > +       };
+>> > +
+>> > +       return (type < EV_CNT) ? counts[type] : 0;
+>> > +}
+>> > +
+>> > +/* must be called with evdev-mutex held */
+>> > +static int evdev_set_mask(struct evdev_client *client,
+>> > +                         unsigned int type,
+>> > +                         const void __user *codes,
+>> > +                         u32 codes_size)
+>> > +{
+>> > +       unsigned long flags, *mask, *oldmask;
+>> > +       size_t cnt, size;
+>> > +
+>> > +       /* unknown masks are simply ignored for forward-compat */
+>> > +       cnt = evdev_get_mask_cnt(type);
+>> > +       if (!cnt)
+>> > +               return 0;
+>> > +
+>> > +       /* we allow 'codes_size > size' for forward-compat */
+>> > +       size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
+>> > +
+>> > +       mask = kzalloc(size, GFP_KERNEL);
+>> > +       if (!mask)
+>> > +               return -ENOMEM;
+>> > +
+>> > +       if (copy_from_user(mask, codes, min_t(size_t, codes_size, size))) {
+>> > +               kfree(mask);
+>> > +               return -EFAULT;
+>> > +       }
+>> > +
+>> > +       spin_lock_irqsave(&client->buffer_lock, flags);
+>> > +       oldmask = client->evmasks[type];
+>> > +       client->evmasks[type] = mask;
+>> > +       spin_unlock_irqrestore(&client->buffer_lock, flags);
+>> > +
+>> > +       kfree(oldmask);
+>> > +
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +/* must be called with evdev-mutex held */
+>> > +static int evdev_get_mask(struct evdev_client *client,
+>> > +                         unsigned int type,
+>> > +                         void __user *codes,
+>> > +                         u32 codes_size)
+>> > +{
+>> > +       unsigned long *mask;
+>> > +       size_t cnt, size, min, i;
+>> > +       u8 __user *out;
+>> > +
+>> > +       /* we allow unknown types and 'codes_size > size' for forward-compat */
+>> > +       cnt = evdev_get_mask_cnt(type);
+>> > +       size = sizeof(unsigned long) * BITS_TO_LONGS(cnt);
+>> > +       min = min_t(size_t, codes_size, size);
+>> > +
+>> > +       if (cnt > 0) {
+>> > +               mask = client->evmasks[type];
+>> > +               if (mask) {
+>> > +                       if (copy_to_user(codes, mask, min))
+>> > +                               return -EFAULT;
+>
+> I do not think this will work on big-endian setups with 64 bit kernel
+> and 32 bits userspace. We already have bits_to_user(), we shoudl use
+> them here. And I guess we need bits_from_user() to fetch bits from
+> userspace into kernel.
 
-diff --git a/Documentation/devicetree/bindings/input/cap1106.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
-similarity index 89%
-rename from Documentation/devicetree/bindings/input/cap1106.txt
-rename to Documentation/devicetree/bindings/input/cap11xx.txt
-index 4b46390..738f5f3 100644
---- a/Documentation/devicetree/bindings/input/cap1106.txt
-+++ b/Documentation/devicetree/bindings/input/cap11xx.txt
-@@ -1,11 +1,12 @@
--Device tree bindings for Microchip CAP1106, 6 channel capacitive touch sensor
-+Device tree bindings for Microchip CAP1106 based capacitive touch sensor
- 
- The node for this driver must be a child of a I2C controller node, as the
- device communication via I2C only.
- 
- Required properties:
- 
--	compatible:		Must be "microchip,cap1106"
-+	compatible:		Must be on the following, depending on the model:
-+					"microchip,cap1106"
- 
- 	reg:			The I2C slave address of the device.
- 				Only 0x28 is valid.
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index a3958c6..96ee26c 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -665,14 +665,14 @@ config KEYBOARD_CROS_EC
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called cros_ec_keyb.
- 
--config KEYBOARD_CAP1106
--	tristate "Microchip CAP1106 touch sensor"
-+config KEYBOARD_CAP11XX
-+	tristate "Microchip CAP11XX based touch sensors"
- 	depends on OF && I2C
- 	select REGMAP_I2C
- 	help
--	  Say Y here to enable the CAP1106 touch sensor driver.
-+	  Say Y here to enable the CAP11XX touch sensor driver.
- 
- 	  To compile this driver as a module, choose M here: the
--	  module will be called cap1106.
-+	  module will be called cap11xx.
- 
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 0a33456..febafa5 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -11,7 +11,7 @@ obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- obj-$(CONFIG_KEYBOARD_ATARI)		+= atakbd.o
- obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
--obj-$(CONFIG_KEYBOARD_CAP1106)		+= cap1106.o
-+obj-$(CONFIG_KEYBOARD_CAP11XX)		+= cap11xx.o
- obj-$(CONFIG_KEYBOARD_CLPS711X)		+= clps711x-keypad.o
- obj-$(CONFIG_KEYBOARD_CROS_EC)		+= cros_ec_keyb.o
- obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
-diff --git a/drivers/input/keyboard/cap1106.c b/drivers/input/keyboard/cap1106.c
-deleted file mode 100644
-index d70b65a..0000000
---- a/drivers/input/keyboard/cap1106.c
-+++ /dev/null
-@@ -1,341 +0,0 @@
--/*
-- * Input driver for Microchip CAP1106, 6 channel capacitive touch sensor
-- *
-- * http://www.microchip.com/wwwproducts/Devices.aspx?product=CAP1106
-- *
-- * (c) 2014 Daniel Mack <linux@zonque.org>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- */
--
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/interrupt.h>
--#include <linux/input.h>
--#include <linux/of_irq.h>
--#include <linux/regmap.h>
--#include <linux/i2c.h>
--#include <linux/gpio/consumer.h>
--
--#define CAP1106_REG_MAIN_CONTROL	0x00
--#define CAP1106_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
--#define CAP1106_REG_MAIN_CONTROL_GAIN_MASK	(0xc0)
--#define CAP1106_REG_MAIN_CONTROL_DLSEEP		BIT(4)
--#define CAP1106_REG_GENERAL_STATUS	0x02
--#define CAP1106_REG_SENSOR_INPUT	0x03
--#define CAP1106_REG_NOISE_FLAG_STATUS	0x0a
--#define CAP1106_REG_SENOR_DELTA(X)	(0x10 + (X))
--#define CAP1106_REG_SENSITIVITY_CONTROL	0x1f
--#define CAP1106_REG_CONFIG		0x20
--#define CAP1106_REG_SENSOR_ENABLE	0x21
--#define CAP1106_REG_SENSOR_CONFIG	0x22
--#define CAP1106_REG_SENSOR_CONFIG2	0x23
--#define CAP1106_REG_SAMPLING_CONFIG	0x24
--#define CAP1106_REG_CALIBRATION		0x26
--#define CAP1106_REG_INT_ENABLE		0x27
--#define CAP1106_REG_REPEAT_RATE		0x28
--#define CAP1106_REG_MT_CONFIG		0x2a
--#define CAP1106_REG_MT_PATTERN_CONFIG	0x2b
--#define CAP1106_REG_MT_PATTERN		0x2d
--#define CAP1106_REG_RECALIB_CONFIG	0x2f
--#define CAP1106_REG_SENSOR_THRESH(X)	(0x30 + (X))
--#define CAP1106_REG_SENSOR_NOISE_THRESH	0x38
--#define CAP1106_REG_STANDBY_CHANNEL	0x40
--#define CAP1106_REG_STANDBY_CONFIG	0x41
--#define CAP1106_REG_STANDBY_SENSITIVITY	0x42
--#define CAP1106_REG_STANDBY_THRESH	0x43
--#define CAP1106_REG_CONFIG2		0x44
--#define CAP1106_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
--#define CAP1106_REG_SENSOR_CALIB	(0xb1 + (X))
--#define CAP1106_REG_SENSOR_CALIB_LSB1	0xb9
--#define CAP1106_REG_SENSOR_CALIB_LSB2	0xba
--#define CAP1106_REG_PRODUCT_ID		0xfd
--#define CAP1106_REG_MANUFACTURER_ID	0xfe
--#define CAP1106_REG_REVISION		0xff
--
--#define CAP1106_NUM_CHN 6
--#define CAP1106_PRODUCT_ID	0x55
--#define CAP1106_MANUFACTURER_ID	0x5d
--
--struct cap1106_priv {
--	struct regmap *regmap;
--	struct input_dev *idev;
--
--	/* config */
--	unsigned short keycodes[CAP1106_NUM_CHN];
--};
--
--static const struct reg_default cap1106_reg_defaults[] = {
--	{ CAP1106_REG_MAIN_CONTROL,		0x00 },
--	{ CAP1106_REG_GENERAL_STATUS,		0x00 },
--	{ CAP1106_REG_SENSOR_INPUT,		0x00 },
--	{ CAP1106_REG_NOISE_FLAG_STATUS,	0x00 },
--	{ CAP1106_REG_SENSITIVITY_CONTROL,	0x2f },
--	{ CAP1106_REG_CONFIG,			0x20 },
--	{ CAP1106_REG_SENSOR_ENABLE,		0x3f },
--	{ CAP1106_REG_SENSOR_CONFIG,		0xa4 },
--	{ CAP1106_REG_SENSOR_CONFIG2,		0x07 },
--	{ CAP1106_REG_SAMPLING_CONFIG,		0x39 },
--	{ CAP1106_REG_CALIBRATION,		0x00 },
--	{ CAP1106_REG_INT_ENABLE,		0x3f },
--	{ CAP1106_REG_REPEAT_RATE,		0x3f },
--	{ CAP1106_REG_MT_CONFIG,		0x80 },
--	{ CAP1106_REG_MT_PATTERN_CONFIG,	0x00 },
--	{ CAP1106_REG_MT_PATTERN,		0x3f },
--	{ CAP1106_REG_RECALIB_CONFIG,		0x8a },
--	{ CAP1106_REG_SENSOR_THRESH(0),		0x40 },
--	{ CAP1106_REG_SENSOR_THRESH(1),		0x40 },
--	{ CAP1106_REG_SENSOR_THRESH(2),		0x40 },
--	{ CAP1106_REG_SENSOR_THRESH(3),		0x40 },
--	{ CAP1106_REG_SENSOR_THRESH(4),		0x40 },
--	{ CAP1106_REG_SENSOR_THRESH(5),		0x40 },
--	{ CAP1106_REG_SENSOR_NOISE_THRESH,	0x01 },
--	{ CAP1106_REG_STANDBY_CHANNEL,		0x00 },
--	{ CAP1106_REG_STANDBY_CONFIG,		0x39 },
--	{ CAP1106_REG_STANDBY_SENSITIVITY,	0x02 },
--	{ CAP1106_REG_STANDBY_THRESH,		0x40 },
--	{ CAP1106_REG_CONFIG2,			0x40 },
--	{ CAP1106_REG_SENSOR_CALIB_LSB1,	0x00 },
--	{ CAP1106_REG_SENSOR_CALIB_LSB2,	0x00 },
--};
--
--static bool cap1106_volatile_reg(struct device *dev, unsigned int reg)
--{
--	switch (reg) {
--	case CAP1106_REG_MAIN_CONTROL:
--	case CAP1106_REG_SENSOR_INPUT:
--	case CAP1106_REG_SENOR_DELTA(0):
--	case CAP1106_REG_SENOR_DELTA(1):
--	case CAP1106_REG_SENOR_DELTA(2):
--	case CAP1106_REG_SENOR_DELTA(3):
--	case CAP1106_REG_SENOR_DELTA(4):
--	case CAP1106_REG_SENOR_DELTA(5):
--	case CAP1106_REG_PRODUCT_ID:
--	case CAP1106_REG_MANUFACTURER_ID:
--	case CAP1106_REG_REVISION:
--		return true;
--	}
--
--	return false;
--}
--
--static const struct regmap_config cap1106_regmap_config = {
--	.reg_bits = 8,
--	.val_bits = 8,
--
--	.max_register = CAP1106_REG_REVISION,
--	.reg_defaults = cap1106_reg_defaults,
--
--	.num_reg_defaults = ARRAY_SIZE(cap1106_reg_defaults),
--	.cache_type = REGCACHE_RBTREE,
--	.volatile_reg = cap1106_volatile_reg,
--};
--
--static irqreturn_t cap1106_thread_func(int irq_num, void *data)
--{
--	struct cap1106_priv *priv = data;
--	unsigned int status;
--	int ret, i;
--
--	/*
--	 * Deassert interrupt. This needs to be done before reading the status
--	 * registers, which will not carry valid values otherwise.
--	 */
--	ret = regmap_update_bits(priv->regmap, CAP1106_REG_MAIN_CONTROL, 1, 0);
--	if (ret < 0)
--		goto out;
--
--	ret = regmap_read(priv->regmap, CAP1106_REG_SENSOR_INPUT, &status);
--	if (ret < 0)
--		goto out;
--
--	for (i = 0; i < CAP1106_NUM_CHN; i++)
--		input_report_key(priv->idev, priv->keycodes[i],
--				 status & (1 << i));
--
--	input_sync(priv->idev);
--
--out:
--	return IRQ_HANDLED;
--}
--
--static int cap1106_set_sleep(struct cap1106_priv *priv, bool sleep)
--{
--	return regmap_update_bits(priv->regmap, CAP1106_REG_MAIN_CONTROL,
--				  CAP1106_REG_MAIN_CONTROL_DLSEEP,
--				  sleep ? CAP1106_REG_MAIN_CONTROL_DLSEEP : 0);
--}
--
--static int cap1106_input_open(struct input_dev *idev)
--{
--	struct cap1106_priv *priv = input_get_drvdata(idev);
--
--	return cap1106_set_sleep(priv, false);
--}
--
--static void cap1106_input_close(struct input_dev *idev)
--{
--	struct cap1106_priv *priv = input_get_drvdata(idev);
--
--	cap1106_set_sleep(priv, true);
--}
--
--static int cap1106_i2c_probe(struct i2c_client *i2c_client,
--			     const struct i2c_device_id *id)
--{
--	struct device *dev = &i2c_client->dev;
--	struct cap1106_priv *priv;
--	struct device_node *node;
--	int i, error, irq, gain = 0;
--	unsigned int val, rev;
--	u32 gain32, keycodes[CAP1106_NUM_CHN];
--
--	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
--
--	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap1106_regmap_config);
--	if (IS_ERR(priv->regmap))
--		return PTR_ERR(priv->regmap);
--
--	error = regmap_read(priv->regmap, CAP1106_REG_PRODUCT_ID, &val);
--	if (error)
--		return error;
--
--	if (val != CAP1106_PRODUCT_ID) {
--		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
--			val, CAP1106_PRODUCT_ID);
--		return -ENODEV;
--	}
--
--	error = regmap_read(priv->regmap, CAP1106_REG_MANUFACTURER_ID, &val);
--	if (error)
--		return error;
--
--	if (val != CAP1106_MANUFACTURER_ID) {
--		dev_err(dev, "Manufacturer ID: Got 0x%02x, expected 0x%02x\n",
--			val, CAP1106_MANUFACTURER_ID);
--		return -ENODEV;
--	}
--
--	error = regmap_read(priv->regmap, CAP1106_REG_REVISION, &rev);
--	if (error < 0)
--		return error;
--
--	dev_info(dev, "CAP1106 detected, revision 0x%02x\n", rev);
--	i2c_set_clientdata(i2c_client, priv);
--	node = dev->of_node;
--
--	if (!of_property_read_u32(node, "microchip,sensor-gain", &gain32)) {
--		if (is_power_of_2(gain32) && gain32 <= 8)
--			gain = ilog2(gain32);
--		else
--			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
--	}
--
--	BUILD_BUG_ON(ARRAY_SIZE(keycodes) != ARRAY_SIZE(priv->keycodes));
--
--	/* Provide some useful defaults */
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		keycodes[i] = KEY_A + i;
--
--	of_property_read_u32_array(node, "linux,keycodes",
--				   keycodes, ARRAY_SIZE(keycodes));
--
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		priv->keycodes[i] = keycodes[i];
--
--	error = regmap_update_bits(priv->regmap, CAP1106_REG_MAIN_CONTROL,
--				   CAP1106_REG_MAIN_CONTROL_GAIN_MASK,
--				   gain << CAP1106_REG_MAIN_CONTROL_GAIN_SHIFT);
--	if (error)
--		return error;
--
--	/* Disable autorepeat. The Linux input system has its own handling. */
--	error = regmap_write(priv->regmap, CAP1106_REG_REPEAT_RATE, 0);
--	if (error)
--		return error;
--
--	priv->idev = devm_input_allocate_device(dev);
--	if (!priv->idev)
--		return -ENOMEM;
--
--	priv->idev->name = "CAP1106 capacitive touch sensor";
--	priv->idev->id.bustype = BUS_I2C;
--	priv->idev->evbit[0] = BIT_MASK(EV_KEY);
--
--	if (of_property_read_bool(node, "autorepeat"))
--		__set_bit(EV_REP, priv->idev->evbit);
--
--	for (i = 0; i < CAP1106_NUM_CHN; i++)
--		__set_bit(priv->keycodes[i], priv->idev->keybit);
--
--	__clear_bit(KEY_RESERVED, priv->idev->keybit);
--
--	priv->idev->keycode = priv->keycodes;
--	priv->idev->keycodesize = sizeof(priv->keycodes[0]);
--	priv->idev->keycodemax = ARRAY_SIZE(priv->keycodes);
--
--	priv->idev->id.vendor = CAP1106_MANUFACTURER_ID;
--	priv->idev->id.product = CAP1106_PRODUCT_ID;
--	priv->idev->id.version = rev;
--
--	priv->idev->open = cap1106_input_open;
--	priv->idev->close = cap1106_input_close;
--
--	input_set_drvdata(priv->idev, priv);
--
--	/*
--	 * Put the device in deep sleep mode for now.
--	 * ->open() will bring it back once the it is actually needed.
--	 */
--	cap1106_set_sleep(priv, true);
--
--	error = input_register_device(priv->idev);
--	if (error)
--		return error;
--
--	irq = irq_of_parse_and_map(node, 0);
--	if (!irq) {
--		dev_err(dev, "Unable to parse or map IRQ\n");
--		return -ENXIO;
--	}
--
--	error = devm_request_threaded_irq(dev, irq, NULL, cap1106_thread_func,
--					  IRQF_ONESHOT, dev_name(dev), priv);
--	if (error)
--		return error;
--
--	return 0;
--}
--
--static const struct of_device_id cap1106_dt_ids[] = {
--	{ .compatible = "microchip,cap1106", },
--	{}
--};
--MODULE_DEVICE_TABLE(of, cap1106_dt_ids);
--
--static const struct i2c_device_id cap1106_i2c_ids[] = {
--	{ "cap1106", 0 },
--	{}
--};
--MODULE_DEVICE_TABLE(i2c, cap1106_i2c_ids);
--
--static struct i2c_driver cap1106_i2c_driver = {
--	.driver = {
--		.name	= "cap1106",
--		.owner	= THIS_MODULE,
--		.of_match_table = cap1106_dt_ids,
--	},
--	.id_table	= cap1106_i2c_ids,
--	.probe		= cap1106_i2c_probe,
--};
--
--module_i2c_driver(cap1106_i2c_driver);
--
--MODULE_ALIAS("platform:cap1106");
--MODULE_DESCRIPTION("Microchip CAP1106 driver");
--MODULE_AUTHOR("Daniel Mack <linux@zonque.org>");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-new file mode 100644
-index 0000000..0da2e83
---- /dev/null
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -0,0 +1,340 @@
-+/*
-+ * Input driver for Microchip CAP11xx based capacitive touch sensors
-+ *
-+ *
-+ * (c) 2014 Daniel Mack <linux@zonque.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/of_irq.h>
-+#include <linux/regmap.h>
-+#include <linux/i2c.h>
-+#include <linux/gpio/consumer.h>
-+
-+#define CAP11XX_REG_MAIN_CONTROL	0x00
-+#define CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
-+#define CAP11XX_REG_MAIN_CONTROL_GAIN_MASK	(0xc0)
-+#define CAP11XX_REG_MAIN_CONTROL_DLSEEP		BIT(4)
-+#define CAP11XX_REG_GENERAL_STATUS	0x02
-+#define CAP11XX_REG_SENSOR_INPUT	0x03
-+#define CAP11XX_REG_NOISE_FLAG_STATUS	0x0a
-+#define CAP11XX_REG_SENOR_DELTA(X)	(0x10 + (X))
-+#define CAP11XX_REG_SENSITIVITY_CONTROL	0x1f
-+#define CAP11XX_REG_CONFIG		0x20
-+#define CAP11XX_REG_SENSOR_ENABLE	0x21
-+#define CAP11XX_REG_SENSOR_CONFIG	0x22
-+#define CAP11XX_REG_SENSOR_CONFIG2	0x23
-+#define CAP11XX_REG_SAMPLING_CONFIG	0x24
-+#define CAP11XX_REG_CALIBRATION		0x26
-+#define CAP11XX_REG_INT_ENABLE		0x27
-+#define CAP11XX_REG_REPEAT_RATE		0x28
-+#define CAP11XX_REG_MT_CONFIG		0x2a
-+#define CAP11XX_REG_MT_PATTERN_CONFIG	0x2b
-+#define CAP11XX_REG_MT_PATTERN		0x2d
-+#define CAP11XX_REG_RECALIB_CONFIG	0x2f
-+#define CAP11XX_REG_SENSOR_THRESH(X)	(0x30 + (X))
-+#define CAP11XX_REG_SENSOR_NOISE_THRESH	0x38
-+#define CAP11XX_REG_STANDBY_CHANNEL	0x40
-+#define CAP11XX_REG_STANDBY_CONFIG	0x41
-+#define CAP11XX_REG_STANDBY_SENSITIVITY	0x42
-+#define CAP11XX_REG_STANDBY_THRESH	0x43
-+#define CAP11XX_REG_CONFIG2		0x44
-+#define CAP11XX_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
-+#define CAP11XX_REG_SENSOR_CALIB	(0xb1 + (X))
-+#define CAP11XX_REG_SENSOR_CALIB_LSB1	0xb9
-+#define CAP11XX_REG_SENSOR_CALIB_LSB2	0xba
-+#define CAP11XX_REG_PRODUCT_ID		0xfd
-+#define CAP11XX_REG_MANUFACTURER_ID	0xfe
-+#define CAP11XX_REG_REVISION		0xff
-+
-+#define CAP11XX_NUM_CHN 6
-+#define CAP11XX_PRODUCT_ID	0x55
-+#define CAP11XX_MANUFACTURER_ID	0x5d
-+
-+struct cap11xx_priv {
-+	struct regmap *regmap;
-+	struct input_dev *idev;
-+
-+	/* config */
-+	unsigned short keycodes[CAP11XX_NUM_CHN];
-+};
-+
-+static const struct reg_default cap11xx_reg_defaults[] = {
-+	{ CAP11XX_REG_MAIN_CONTROL,		0x00 },
-+	{ CAP11XX_REG_GENERAL_STATUS,		0x00 },
-+	{ CAP11XX_REG_SENSOR_INPUT,		0x00 },
-+	{ CAP11XX_REG_NOISE_FLAG_STATUS,	0x00 },
-+	{ CAP11XX_REG_SENSITIVITY_CONTROL,	0x2f },
-+	{ CAP11XX_REG_CONFIG,			0x20 },
-+	{ CAP11XX_REG_SENSOR_ENABLE,		0x3f },
-+	{ CAP11XX_REG_SENSOR_CONFIG,		0xa4 },
-+	{ CAP11XX_REG_SENSOR_CONFIG2,		0x07 },
-+	{ CAP11XX_REG_SAMPLING_CONFIG,		0x39 },
-+	{ CAP11XX_REG_CALIBRATION,		0x00 },
-+	{ CAP11XX_REG_INT_ENABLE,		0x3f },
-+	{ CAP11XX_REG_REPEAT_RATE,		0x3f },
-+	{ CAP11XX_REG_MT_CONFIG,		0x80 },
-+	{ CAP11XX_REG_MT_PATTERN_CONFIG,	0x00 },
-+	{ CAP11XX_REG_MT_PATTERN,		0x3f },
-+	{ CAP11XX_REG_RECALIB_CONFIG,		0x8a },
-+	{ CAP11XX_REG_SENSOR_THRESH(0),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(1),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(2),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(3),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(4),		0x40 },
-+	{ CAP11XX_REG_SENSOR_THRESH(5),		0x40 },
-+	{ CAP11XX_REG_SENSOR_NOISE_THRESH,	0x01 },
-+	{ CAP11XX_REG_STANDBY_CHANNEL,		0x00 },
-+	{ CAP11XX_REG_STANDBY_CONFIG,		0x39 },
-+	{ CAP11XX_REG_STANDBY_SENSITIVITY,	0x02 },
-+	{ CAP11XX_REG_STANDBY_THRESH,		0x40 },
-+	{ CAP11XX_REG_CONFIG2,			0x40 },
-+	{ CAP11XX_REG_SENSOR_CALIB_LSB1,	0x00 },
-+	{ CAP11XX_REG_SENSOR_CALIB_LSB2,	0x00 },
-+};
-+
-+static bool cap11xx_volatile_reg(struct device *dev, unsigned int reg)
-+{
-+	switch (reg) {
-+	case CAP11XX_REG_MAIN_CONTROL:
-+	case CAP11XX_REG_SENSOR_INPUT:
-+	case CAP11XX_REG_SENOR_DELTA(0):
-+	case CAP11XX_REG_SENOR_DELTA(1):
-+	case CAP11XX_REG_SENOR_DELTA(2):
-+	case CAP11XX_REG_SENOR_DELTA(3):
-+	case CAP11XX_REG_SENOR_DELTA(4):
-+	case CAP11XX_REG_SENOR_DELTA(5):
-+	case CAP11XX_REG_PRODUCT_ID:
-+	case CAP11XX_REG_MANUFACTURER_ID:
-+	case CAP11XX_REG_REVISION:
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
-+static const struct regmap_config cap11xx_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+
-+	.max_register = CAP11XX_REG_REVISION,
-+	.reg_defaults = cap11xx_reg_defaults,
-+
-+	.num_reg_defaults = ARRAY_SIZE(cap11xx_reg_defaults),
-+	.cache_type = REGCACHE_RBTREE,
-+	.volatile_reg = cap11xx_volatile_reg,
-+};
-+
-+static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
-+{
-+	struct cap11xx_priv *priv = data;
-+	unsigned int status;
-+	int ret, i;
-+
-+	/*
-+	 * Deassert interrupt. This needs to be done before reading the status
-+	 * registers, which will not carry valid values otherwise.
-+	 */
-+	ret = regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL, 1, 0);
-+	if (ret < 0)
-+		goto out;
-+
-+	ret = regmap_read(priv->regmap, CAP11XX_REG_SENSOR_INPUT, &status);
-+	if (ret < 0)
-+		goto out;
-+
-+	for (i = 0; i < CAP11XX_NUM_CHN; i++)
-+		input_report_key(priv->idev, priv->keycodes[i],
-+				 status & (1 << i));
-+
-+	input_sync(priv->idev);
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+static int cap11xx_set_sleep(struct cap11xx_priv *priv, bool sleep)
-+{
-+	return regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
-+				  CAP11XX_REG_MAIN_CONTROL_DLSEEP,
-+				  sleep ? CAP11XX_REG_MAIN_CONTROL_DLSEEP : 0);
-+}
-+
-+static int cap11xx_input_open(struct input_dev *idev)
-+{
-+	struct cap11xx_priv *priv = input_get_drvdata(idev);
-+
-+	return cap11xx_set_sleep(priv, false);
-+}
-+
-+static void cap11xx_input_close(struct input_dev *idev)
-+{
-+	struct cap11xx_priv *priv = input_get_drvdata(idev);
-+
-+	cap11xx_set_sleep(priv, true);
-+}
-+
-+static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
-+			     const struct i2c_device_id *id)
-+{
-+	struct device *dev = &i2c_client->dev;
-+	struct cap11xx_priv *priv;
-+	struct device_node *node;
-+	int i, error, irq, gain = 0;
-+	unsigned int val, rev;
-+	u32 gain32, keycodes[CAP11XX_NUM_CHN];
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap11xx_regmap_config);
-+	if (IS_ERR(priv->regmap))
-+		return PTR_ERR(priv->regmap);
-+
-+	error = regmap_read(priv->regmap, CAP11XX_REG_PRODUCT_ID, &val);
-+	if (error)
-+		return error;
-+
-+	if (val != CAP11XX_PRODUCT_ID) {
-+		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
-+			val, CAP11XX_PRODUCT_ID);
-+		return -ENODEV;
-+	}
-+
-+	error = regmap_read(priv->regmap, CAP11XX_REG_MANUFACTURER_ID, &val);
-+	if (error)
-+		return error;
-+
-+	if (val != CAP11XX_MANUFACTURER_ID) {
-+		dev_err(dev, "Manufacturer ID: Got 0x%02x, expected 0x%02x\n",
-+			val, CAP11XX_MANUFACTURER_ID);
-+		return -ENODEV;
-+	}
-+
-+	error = regmap_read(priv->regmap, CAP11XX_REG_REVISION, &rev);
-+	if (error < 0)
-+		return error;
-+
-+	dev_info(dev, "CAP11XX detected, revision 0x%02x\n", rev);
-+	i2c_set_clientdata(i2c_client, priv);
-+	node = dev->of_node;
-+
-+	if (!of_property_read_u32(node, "microchip,sensor-gain", &gain32)) {
-+		if (is_power_of_2(gain32) && gain32 <= 8)
-+			gain = ilog2(gain32);
-+		else
-+			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
-+	}
-+
-+	BUILD_BUG_ON(ARRAY_SIZE(keycodes) != ARRAY_SIZE(priv->keycodes));
-+
-+	/* Provide some useful defaults */
-+	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
-+		keycodes[i] = KEY_A + i;
-+
-+	of_property_read_u32_array(node, "linux,keycodes",
-+				   keycodes, ARRAY_SIZE(keycodes));
-+
-+	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
-+		priv->keycodes[i] = keycodes[i];
-+
-+	error = regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
-+				   CAP11XX_REG_MAIN_CONTROL_GAIN_MASK,
-+				   gain << CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT);
-+	if (error)
-+		return error;
-+
-+	/* Disable autorepeat. The Linux input system has its own handling. */
-+	error = regmap_write(priv->regmap, CAP11XX_REG_REPEAT_RATE, 0);
-+	if (error)
-+		return error;
-+
-+	priv->idev = devm_input_allocate_device(dev);
-+	if (!priv->idev)
-+		return -ENOMEM;
-+
-+	priv->idev->name = "CAP11XX capacitive touch sensor";
-+	priv->idev->id.bustype = BUS_I2C;
-+	priv->idev->evbit[0] = BIT_MASK(EV_KEY);
-+
-+	if (of_property_read_bool(node, "autorepeat"))
-+		__set_bit(EV_REP, priv->idev->evbit);
-+
-+	for (i = 0; i < CAP11XX_NUM_CHN; i++)
-+		__set_bit(priv->keycodes[i], priv->idev->keybit);
-+
-+	__clear_bit(KEY_RESERVED, priv->idev->keybit);
-+
-+	priv->idev->keycode = priv->keycodes;
-+	priv->idev->keycodesize = sizeof(priv->keycodes[0]);
-+	priv->idev->keycodemax = ARRAY_SIZE(priv->keycodes);
-+
-+	priv->idev->id.vendor = CAP11XX_MANUFACTURER_ID;
-+	priv->idev->id.product = CAP11XX_PRODUCT_ID;
-+	priv->idev->id.version = rev;
-+
-+	priv->idev->open = cap11xx_input_open;
-+	priv->idev->close = cap11xx_input_close;
-+
-+	input_set_drvdata(priv->idev, priv);
-+
-+	/*
-+	 * Put the device in deep sleep mode for now.
-+	 * ->open() will bring it back once the it is actually needed.
-+	 */
-+	cap11xx_set_sleep(priv, true);
-+
-+	error = input_register_device(priv->idev);
-+	if (error)
-+		return error;
-+
-+	irq = irq_of_parse_and_map(node, 0);
-+	if (!irq) {
-+		dev_err(dev, "Unable to parse or map IRQ\n");
-+		return -ENXIO;
-+	}
-+
-+	error = devm_request_threaded_irq(dev, irq, NULL, cap11xx_thread_func,
-+					  IRQF_ONESHOT, dev_name(dev), priv);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id cap11xx_dt_ids[] = {
-+	{ .compatible = "microchip,cap1106", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, cap11xx_dt_ids);
-+
-+static const struct i2c_device_id cap11xx_i2c_ids[] = {
-+	{ "cap1106", 0 },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
-+
-+static struct i2c_driver cap11xx_i2c_driver = {
-+	.driver = {
-+		.name	= "cap11xx",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = cap11xx_dt_ids,
-+	},
-+	.id_table	= cap11xx_i2c_ids,
-+	.probe		= cap11xx_i2c_probe,
-+};
-+
-+module_i2c_driver(cap11xx_i2c_driver);
-+
-+MODULE_ALIAS("platform:cap11xx");
-+MODULE_DESCRIPTION("Microchip CAP11XX driver");
-+MODULE_AUTHOR("Daniel Mack <linux@zonque.org>");
-+MODULE_LICENSE("GPL v2");
--- 
-1.9.1
+Nice catch. You're right, I will switch to bits_to_user().
 
+I fixed some typos in your changes below and merged them. Will send v2
+after I booted it.
+
+Thanks!
+David
+
+> I also tried changing verbage on the ioctls, see if you agree with the
+> changes and if so please incorporate in your next version.
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
+> diff -u b/drivers/input/evdev.c b/drivers/input/evdev.c
+> --- b/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -71,7 +71,7 @@
+>                 [EV_FF] = FF_CNT,
+>         };
+>
+> -       return (type < EV_CNT) ? counts[type] : 0;
+> +       return type < EV_CNT ? counts[type] : 0;
+>  }
+>
+>  /* must be called with evdev-mutex held */
+> @@ -132,7 +132,7 @@
+>                                 return -EFAULT;
+>                 } else {
+>                         /* fake mask with all bits set */
+> -                       out = (u8 __user*)codes;
+> +                       out = (u8 __user *)codes;
+>                         for (i = 0; i < min; ++i) {
+>                                 if (put_user((u8)0xff,  out + i))
+>                                         return -EFAULT;
+> diff -u b/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> --- b/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -161,53 +161,59 @@
+>  #define EVIOCREVOKE            _IOW('E', 0x91, int)                    /* Revoke device access */
+>
+>  /**
+> - * EVIOCGMASK - Retrieve current event-mask
+> + * EVIOCGMASK - Retrieve current event mask
+>   *
+> - * This retrieves the current event-mask for a specific event-type. The
+> - * argument must be of type "struct input_mask" and specifies the event-type to
+> - * query, the receive buffer and the size of the receive buffer.
+> - *
+> - * The event-mask is a per-client mask that specifies which events are forwarded
+> - * to the client. Each event-code is represented by a single bit in the
+> - * event-mask. If the bit is set, the event is passed to the client normally.
+> - * Otherwise, the event is filtered and and will never be queued on the
+> - * client's receive buffer.
+> - * Event-masks do not affect global state of an input-device. They only affect
+> - * the open-file they're applied on. Each open-file (i.e, file-description) can
+> - * have a different event-mask.
+> - *
+> - * The default event-mask for a client has all bits set, i.e. all events are
+> - * forwarded to the client. If a kernel is queried for an unknown event-type
+> - * or if the receive buffer is larger than the number of event-codes known to
+> - * the kernel, the kernel returns all zeroes for those codes.
+> + * This ioctl allows user to retrieve the current event mask for specific
+> + * event type. The argument must be of type "struct input_mask" and
+> + * specifies the event type to query, the address of the receive buffer and
+> + * the size of the receive buffer.
+> + *
+> + * The event mask is a per-client mask that specifies which events are
+> + * forwarded to the client. Each event code is represented by a single bit
+> + * in the event mask. If the bit is set, the event is passed to the client
+> + * normally. Otherwise, the event is filtered and will never be queued on
+> + * the client's receive buffer.
+> + *
+> + * Event masks do not affect global state of the input device. They only
+> + * affect the file descriptor they are applied to.
+> + *
+> + * The default event mask for a client has all bits set, i.e. all events
+> + * are forwarded to the client. If kernel is queried for an unknown
+> + * event type or if the receive buffer is larger than the number of
+> + * event codes known to the kernel, the kernel returns all zeroes for those
+> + * codes.
+>   *
+>   * At maximum, codes_size bytes are copied.
+>   *
+> - * This ioctl may fail with ENODEV in case the file is revoked, EFAULT
+> - * if the receive-buffer points to invalid memory, or EINVAL if the kernel
+> - * does not implement the ioctl.
+> + * This ioctl may fail with ENODEV in case the descriptor is revoked,
+> + * EFAULT if the receive buffer points to invalid memory, or EINVAL if the
+> + * kernel does not implement the ioctl.
+>   */
+> +
+>  #define EVIOCGMASK             _IOR('E', 0x92, struct input_mask)      /* Get event-masks */
+>
+>  /**
+> - * EVIOCSMASK - Set event-mask
+> + * EVIOCSMASK - Set event mask
+>   *
+> - * This is the counterpart to EVIOCGMASK. Instead of receiving the current
+> - * event-mask, this changes the client's event-mask for a specific type. See
+> - * EVIOCGMASK for a description of event-masks and the argument-type.
+> - *
+> - * This ioctl provides full forward-compatibility. If the passed event-type is
+> - * unknown to the kernel, or if the number of codes is bigger than known to the
+> - * kernel, the ioctl is still accepted and applied. However, any unknown codes
+> - * are left untouched and stay cleared. That means, the kernel always filters
+> - * unknown codes regardless of what the client requests.
+> - * If the new mask doesn't cover all known event-codes, all remaining codes are
+> - * automatically cleared and thus filtered.
+> + * This ioctl is the counterpart to EVIOCGMASK. Instead of receiving the
+> + * current event mask, this changes the client's event mask for a specific
+> + * type.  See EVIOCGMASK for a description of event-masks and the
+> + * argument-type.
+> + *
+> + * This ioctl provides full forward compatibility. If the passed event type
+> + * is unknown to the kernel, or if the number of event codes specified in
+> + * the mask is bigger than what is known to the kernel, the ioctl is still
+> + * accepted and applied. However, any unknown codes are left untouched and
+> + * stay cleared. That means, the kernel always filters unknown codes
+> + * regardless of what the client requests.  If the new mask doesn't cover
+> + * all known event-codes, all remaining codes are automatically cleared and
+> + * thus filtered.
+>   *
+>   * This ioctl may fail with ENODEV in case the file is revoked. EFAULT is
+> - * returned if the receive-buffer points to invalid memory. EINVAL is returned
+> - * if the kernel does not implement the ioctl.
+> + * returned if the receive-buffer points to invalid memory. EINVAL is
+> + * returned if the kernel does not implement the ioctl.
+>   */
+> +
+>  #define EVIOCSMASK             _IOW('E', 0x93, struct input_mask)      /* Set event-masks */
+>
+>  #define EVIOCSCLOCKID          _IOW('E', 0xa0, int)                    /* Set clockid to be used for timestamps */

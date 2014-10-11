@@ -1,45 +1,44 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: i8042 - disable active multiplexing by default
-Date: Sat, 11 Oct 2014 11:12:03 +0200
-Message-ID: <5438F463.50003@redhat.com>
-References: <20141010205131.GA3271@dtor-ws> <20141010211827.GA26222@redhat.com> <20141010212245.GB38320@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] i8042: Add noloop quirk for Asus X750LN
+Date: Sat, 11 Oct 2014 15:09:06 +0200
+Message-ID: <1413032946-19748-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42457 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:17712 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751731AbaJKJMO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Oct 2014 05:12:14 -0400
-In-Reply-To: <20141010212245.GB38320@dtor-ws>
+	id S1751270AbaJKNJO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 11 Oct 2014 09:09:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dave Jones <davej@redhat.com>, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Vojtech Pavlik <vojtech@suse.cz>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi,
+Without this the aux port does not get detected, and consequently the touchpad
+will not work.
 
-On 10/10/2014 11:22 PM, Dmitry Torokhov wrote:
-> On Fri, Oct 10, 2014 at 05:18:27PM -0400, Dave Jones wrote:
->> On Fri, Oct 10, 2014 at 01:51:31PM -0700, Dmitry Torokhov wrote:
->>
->>  >  /*
->>  > - * Some Fujitsu notebooks are having trouble with touchpads if
->>  > - * active multiplexing mode is activated. Luckily they don't have
->>  > - * external PS/2 ports so we can safely disable it.
->>  > - * ... apparently some Toshibas don't like MUX mode either and
->>  > - * die horrible death on reboot.
->>  > + * Some laptops do increment active multiplexing mode correctly;
->>  > + * unfortunately they are in minority.
->>  >   */
->>
->> s/increment/implement/ ?
-> 
-> Thanks Dave, I'll fix it up.
+https://bugzilla.redhat.com/show_bug.cgi?id=1110011
 
-The patch looks good to me, and with the above fixup is:
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 40b7d6c..4a6d05d 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -101,6 +101,12 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 	},
+ 	{
+ 		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "X750LN"),
++		},
++	},
++	{
++		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Compaq"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME , "ProLiant"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "8500"),
+-- 
+2.1.0
 
-Regards,
-
-Hans

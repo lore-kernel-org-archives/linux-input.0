@@ -1,79 +1,59 @@
-From: hans.duedal@gmail.com
-Subject: hid: roccat: Fix code style issues
-Date: Sat, 11 Oct 2014 17:01:49 +0200
-Message-ID: <1413039709-37143-1-git-send-email-hans.duedal@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] i8042: Add noloop quirk for Asus X750LN
+Date: Sat, 11 Oct 2014 11:35:23 -0700
+Message-ID: <20141011183523.GA20881@dtor-ws>
+References: <1413032946-19748-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f48.google.com ([209.85.215.48]:44886 "EHLO
-	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752393AbaJKPCE (ORCPT
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:39113 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751147AbaJKSf2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Oct 2014 11:02:04 -0400
-Received: by mail-la0-f48.google.com with SMTP id gi9so4692380lab.21
-        for <linux-input@vger.kernel.org>; Sat, 11 Oct 2014 08:02:01 -0700 (PDT)
+	Sat, 11 Oct 2014 14:35:28 -0400
+Received: by mail-pd0-f181.google.com with SMTP id z10so3465284pdj.12
+        for <linux-input@vger.kernel.org>; Sat, 11 Oct 2014 11:35:28 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1413032946-19748-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: erazor_de@users.sourceforge.net
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, Hans Duedal <hans.duedal@gmail.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-From: Hans Duedal <hans.duedal@gmail.com>
+On Sat, Oct 11, 2014 at 03:09:06PM +0200, Hans de Goede wrote:
+> Without this the aux port does not get detected, and consequently the touchpad
+> will not work.
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=1110011
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Missing whitespace, semi-colon after macro, and a duplicated out of
-memory message.
+Applied, thank you.
 
-Signed-off-by: Hans Duedal <hans.duedal@gmail.com>
----
- drivers/hid/hid-roccat-kone.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+> ---
+>  drivers/input/serio/i8042-x86ia64io.h | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index 40b7d6c..4a6d05d 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -101,6 +101,12 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+>  	},
+>  	{
+>  		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "X750LN"),
+> +		},
+> +	},
+> +	{
+> +		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "Compaq"),
+>  			DMI_MATCH(DMI_PRODUCT_NAME , "ProLiant"),
+>  			DMI_MATCH(DMI_PRODUCT_VERSION, "8500"),
+> -- 
+> 2.1.0
+> 
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index 6101816..c292650 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -46,6 +46,7 @@ static void kone_profile_activated(struct kone_device *kone, uint new_profile)
- static void kone_profile_report(struct kone_device *kone, uint new_profile)
- {
- 	struct kone_roccat_report roccat_report;
-+
- 	roccat_report.event = kone_mouse_event_switch_profile;
- 	roccat_report.value = new_profile;
- 	roccat_report.key = 0;
-@@ -163,6 +164,7 @@ static int kone_set_settings(struct usb_device *usb_dev,
- 		struct kone_settings const *settings)
- {
- 	int retval;
-+
- 	retval = kone_send(usb_dev, kone_command_settings,
- 			settings, sizeof(struct kone_settings));
- 	if (retval)
-@@ -387,7 +389,7 @@ static struct bin_attribute bin_attr_profile##number = {	\
- 	.read = kone_sysfs_read_profilex,			\
- 	.write = kone_sysfs_write_profilex,			\
- 	.private = &profile_numbers[number-1],			\
--};
-+}
- PROFILE_ATTR(1);
- PROFILE_ATTR(2);
- PROFILE_ATTR(3);
-@@ -456,6 +458,7 @@ static ssize_t kone_sysfs_show_tcu(struct device *dev,
- static int kone_tcu_command(struct usb_device *usb_dev, int number)
- {
- 	unsigned char value;
-+
- 	value = number;
- 	return kone_send(usb_dev, kone_command_calibrate, &value, 1);
- }
-@@ -697,10 +700,8 @@ static int kone_init_specials(struct hid_device *hdev)
- 			== USB_INTERFACE_PROTOCOL_MOUSE) {
-
- 		kone = kzalloc(sizeof(*kone), GFP_KERNEL);
--		if (!kone) {
--			hid_err(hdev, "can't alloc device descriptor\n");
-+		if (!kone)
- 			return -ENOMEM;
--		}
- 		hid_set_drvdata(hdev, kone);
-
- 		retval = kone_init_kone_device_struct(usb_dev, kone);
---
-1.9.3 (Apple Git-50)
-
+-- 
+Dmitry

@@ -1,49 +1,64 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] Input: i8042 - disable active multiplexing by default
-Date: Sun, 12 Oct 2014 16:30:39 +0200
-Message-ID: <20141012143039.GC378@amd>
-References: <20141010205131.GA3271@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Scott <scott.liu@emc.com.tw>
+Subject: Re: Elan TS driver patch
+Date: Sun, 12 Oct 2014 23:22:37 +0800
+Message-ID: <24A1508F-93CB-4139-BF22-4BD7A118E005@emc.com.tw>
+References: <005301cfe221$abcd2460$03676d20$@emc.com.tw> <20141007160358.GA16469@dtor-ws> <006001cfe294$13720370$3a560a50$@emc.com.tw> <20141010221137.GD38320@dtor-ws>
+Mime-Version: 1.0 (Mac OS X Mail 7.2 \(1874\))
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:38326 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752494AbaJLOam (ORCPT
+Received: from elanic.emc.com.tw ([192.72.220.188]:54126 "EHLO
+	elanic.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751494AbaJLPWz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Oct 2014 10:30:42 -0400
-Content-Disposition: inline
-In-Reply-To: <20141010205131.GA3271@dtor-ws>
+	Sun, 12 Oct 2014 11:22:55 -0400
+In-Reply-To: <20141010221137.GD38320@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Vojtech Pavlik <vojtech@suse.cz>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, bleung@chromium.org, Charles Mooney <charliemooney@google.com>, "Jeff.Chuang" <Jeff.chuang@emc.com.tw>, =?big5?B?seez1bW+?= <paul.liang@emc.com.tw>
 
-On Fri 2014-10-10 13:51:31, Dmitry Torokhov wrote:
-> Active multiplexing is a nice feature as it allows several pointing devices
-> (such as touchpad and external mouse) use their native protocols at the
-> same time. Unfortunately many manufacturers do not implement the feature
-> properly even though they advertise it. The problematic implementations are
-> never fixed, since Windows by default does not use this mode, and move from
-> one BIOS/model of laptop to another. When active multiplexing is broken
-> turning it on usually results in touchpad, keyboard, or both unresponsive.
-> 
-> With PS/2 usage on decline (most of PS/2 devices in use nowadays are
-> internal laptop touchpads), I expect number of users who have laptops with
-> working MUX implementation, docking stations with external PS/2 ports, and
-> who are still using external PS/2 mice, to be rather small. Let's flip the
-> default to be OFF and allow activating it through i8042.nomux=0 kernel
-> option.  We'll also keep DMI table where we can record known good models.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Could we keep the old default / blacklist for the old laptops? We did
-something like that for ACPI, based on year of the bios.
+Hi Dmitry:
 
-Old laptops are not being made any more, so blacklist will not grow
-too fast...
+Dmitry Torokhov <dmitry.torokhov@gmail.com> =A9=F3 2014/10/11 =A4W=A4=C8=
+6:11 =BCg=B9D=A1G
 
-								Pavel
+> Hi Scott,
+>=20
+> On Wed, Oct 08, 2014 at 09:06:20AM +0800, ELAN =BCB=B9=C5=C2@ wrote:
+>> Hi Dmitry:
+>> 	Thank for reply. Please let me know if anything needs we do.
+>=20
+> What is the part name/number of this touchscreen. As the example with
+> touchpad shown us device tree folks are not happy with the generic
+> "i2c_touchpad" or "elants_i2c" and would rather we used proper model
+> number in bindings.
+>=20
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	I would call this driver name as =A1=A7Elan Large-Size Touchscreen=A1=A8=
+=2E
+	We (Elan) have two types of TS series internally, Large-size( > 10=A1=A8=
+ ~ 20") and small-size ( <=3D 10=A1=A8)
+	and this driver patch is for large size. thanks.
+
+BR
+Scott
+
+
+> Thanks.
+>=20
+> --=20
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

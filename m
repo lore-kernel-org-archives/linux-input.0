@@ -1,59 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] i8042: Add noloop quirk for Asus X750LN
-Date: Sat, 11 Oct 2014 11:35:23 -0700
-Message-ID: <20141011183523.GA20881@dtor-ws>
-References: <1413032946-19748-1-git-send-email-hdegoede@redhat.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Input: i8042 - disable active multiplexing by default
+Date: Sun, 12 Oct 2014 16:30:39 +0200
+Message-ID: <20141012143039.GC378@amd>
+References: <20141010205131.GA3271@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:39113 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751147AbaJKSf2 (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:38326 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752494AbaJLOam (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Oct 2014 14:35:28 -0400
-Received: by mail-pd0-f181.google.com with SMTP id z10so3465284pdj.12
-        for <linux-input@vger.kernel.org>; Sat, 11 Oct 2014 11:35:28 -0700 (PDT)
+	Sun, 12 Oct 2014 10:30:42 -0400
 Content-Disposition: inline
-In-Reply-To: <1413032946-19748-1-git-send-email-hdegoede@redhat.com>
+In-Reply-To: <20141010205131.GA3271@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Vojtech Pavlik <vojtech@suse.cz>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
 
-On Sat, Oct 11, 2014 at 03:09:06PM +0200, Hans de Goede wrote:
-> Without this the aux port does not get detected, and consequently the touchpad
-> will not work.
+On Fri 2014-10-10 13:51:31, Dmitry Torokhov wrote:
+> Active multiplexing is a nice feature as it allows several pointing devices
+> (such as touchpad and external mouse) use their native protocols at the
+> same time. Unfortunately many manufacturers do not implement the feature
+> properly even though they advertise it. The problematic implementations are
+> never fixed, since Windows by default does not use this mode, and move from
+> one BIOS/model of laptop to another. When active multiplexing is broken
+> turning it on usually results in touchpad, keyboard, or both unresponsive.
 > 
-> https://bugzilla.redhat.com/show_bug.cgi?id=1110011
+> With PS/2 usage on decline (most of PS/2 devices in use nowadays are
+> internal laptop touchpads), I expect number of users who have laptops with
+> working MUX implementation, docking stations with external PS/2 ports, and
+> who are still using external PS/2 mice, to be rather small. Let's flip the
+> default to be OFF and allow activating it through i8042.nomux=0 kernel
+> option.  We'll also keep DMI table where we can record known good models.
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Applied, thank you.
+Could we keep the old default / blacklist for the old laptops? We did
+something like that for ACPI, based on year of the bios.
 
-> ---
->  drivers/input/serio/i8042-x86ia64io.h | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 40b7d6c..4a6d05d 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -101,6 +101,12 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
->  	},
->  	{
->  		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "X750LN"),
-> +		},
-> +	},
-> +	{
-> +		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "Compaq"),
->  			DMI_MATCH(DMI_PRODUCT_NAME , "ProLiant"),
->  			DMI_MATCH(DMI_PRODUCT_VERSION, "8500"),
-> -- 
-> 2.1.0
-> 
+Old laptops are not being made any more, so blacklist will not grow
+too fast...
+
+								Pavel
 
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,113 +1,75 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v6 1/3] cap11xx: make driver generic for variant support
-Date: Mon, 13 Oct 2014 12:12:18 +0100
-Message-ID: <20141013111218.GB15326@leverpostej>
-References: <1413004014-23807-1-git-send-email-mranostay@gmail.com>
- <1413004014-23807-2-git-send-email-mranostay@gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for
+ register access
+Date: Mon, 13 Oct 2014 16:02:18 +0200
+Message-ID: <20141013140218.GG27755@sirena.org.uk>
+References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>
+ <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
+ <20141007172606.GG16469@dtor-ws>
+ <1412759584.13569.0.camel@iivanov-dev>
+ <1412760633.13569.4.camel@iivanov-dev>
+ <54357BA7.3010609@codeaurora.org>
+ <20141008181314.GC14423@dtor-ws>
+ <5435808A.7070203@codeaurora.org>
+ <20141008200426.GJ4609@sirena.org.uk>
+ <20141008203233.GA15198@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0W6CLHPDK0Qrxw1x"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:55458 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752204AbaJMLM2 (ORCPT
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:50950 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753874AbaJMOCf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Oct 2014 07:12:28 -0400
+	Mon, 13 Oct 2014 10:02:35 -0400
 Content-Disposition: inline
-In-Reply-To: <1413004014-23807-2-git-send-email-mranostay@gmail.com>
+In-Reply-To: <20141008203233.GA15198@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matt Ranostay <mranostay@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "galak@codeaurora.org" <galak@codeaurora.org>, "zonque@gmail.com" <zonque@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Boyd <sboyd@codeaurora.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
 
-On Sat, Oct 11, 2014 at 06:06:52AM +0100, Matt Ranostay wrote:
-> cap1106 driver can support much more one device make the driver
-> generic for support of similar parts.
-> 
-> Signed-off-by: Matt Ranostay <mranostay@gmail.com>
-> ---
->  .../devicetree/bindings/input/cap1106.txt          |  53 ----
->  .../devicetree/bindings/input/cap11xx.txt          |  54 ++++
->  drivers/input/keyboard/Kconfig                     |   8 +-
->  drivers/input/keyboard/Makefile                    |   2 +-
->  drivers/input/keyboard/cap1106.c                   | 341 ---------------------
->  drivers/input/keyboard/cap11xx.c                   | 340 ++++++++++++++++++++
->  6 files changed, 399 insertions(+), 399 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/cap1106.txt
->  create mode 100644 Documentation/devicetree/bindings/input/cap11xx.txt
->  delete mode 100644 drivers/input/keyboard/cap1106.c
->  create mode 100644 drivers/input/keyboard/cap11xx.c
 
-[...]
+--0W6CLHPDK0Qrxw1x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
-> new file mode 100644
-> index 0000000..738f5f3
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
-> @@ -0,0 +1,54 @@
-> +Device tree bindings for Microchip CAP1106 based capacitive touch sensor
-> +
-> +The node for this driver must be a child of a I2C controller node, as the
+On Wed, Oct 08, 2014 at 01:32:33PM -0700, Dmitry Torokhov wrote:
+> On Wed, Oct 08, 2014 at 09:04:26PM +0100, Mark Brown wrote:
+> > On Wed, Oct 08, 2014 at 11:20:58AM -0700, Stephen Boyd wrote:
 
-s/driver/device/
+> > > Srini/Mark, any reason why the regmap_field structure is opaque?
 
-> +device communication via I2C only.
-> +
-> +Required properties:
-> +
-> +       compatible:             Must be on the following, depending on the model:
+> > So you can't peer into it and rely on the contents.  I can see it being
+> > useful to add a bulk allocator.
 
-Please change this to say "Must contain one of:"
+> And then one have to define offsets in an array and use awkward syntax
+> to access individual fields. Can we just reply on reviews/documentation
+> for users to not do wrong thing?
 
-The rest is implied by the usual semantics of the compatible property.
+I have very little confidence in users not doing awful things to be
+honest, this is the sort of API where the users are just random things
+all over the kernel so this sort of thing tends to be found after the
+fact.  I get a lot of these in drivers that just got thrown over the
+wall so nobody really knows what things are doing when you do find them.
 
-> +                                       "microchip,cap1106"
-> +
-> +       reg:                    The I2C slave address of the device.
-> +                               Only 0x28 is valid.
-> +
-> +       interrupts:             Property describing the interrupt line the
-> +                               device's ALERT#/CM_IRQ# pin is connected to.
-> +                               The device only has one interrupt source.
-> +
-> +Optional properties:
-> +
-> +       autorepeat:             Enables the Linux input system's autorepeat
-> +                               feature on the input device.
-> +
-> +       microchip,sensor-gain:  Defines the gain of the sensor circuitry. This
-> +                               effectively controls the sensitivity, as a
-> +                               smaller delta capacitance is required to
-> +                               generate the same delta count values.
-> +                               Valid values are 1, 2, 4, and 8.
-> +                               By default, a gain of 1 is set.
-> +
-> +       linux,keycodes:         Specifies an array of numeric keycode values to
-> +                               be used for the channels. If this property is
-> +                               omitted, KEY_A, KEY_B, etc are used as
-> +                               defaults. The array must have exactly six
-> +                               entries.
-> +
-> +Example:
-> +
-> +i2c_controller {
-> +       cap1106@28 {
-> +               compatible = "microchip,cap1106";
-> +               interrupt-parent = <&gpio1>;
-> +               interrupts = <0 0>;
-> +               reg = <0x28>;
-> +               autorepeat;
-> +               microchip,sensor-gain = <2>;
-> +
-> +               linux,keycodes = <103           /* KEY_UP */
-> +                                 106           /* KEY_RIGHT */
-> +                                 108           /* KEY_DOWN */
-> +                                 105           /* KEY_LEFT */
-> +                                 109           /* KEY_PAGEDOWN */
-> +                                 104>;         /* KEY_PAGEUP */
+If the standard allocators aren't doing a good job (I've not checked)
+I'd much rather handle this inside the API if we can.
 
-As we're moving this around anyway, please bracket this list entries
-individually.
+--0W6CLHPDK0Qrxw1x
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Thanks,
-Mark.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBAgAGBQJUO9tkAAoJECTWi3JdVIfQXpkH/16JpLXmOuCHJvRAifJWLEgo
+DqH81xMCO4Pob8n5N3HoaHAKids9dNDLRVgepFZZ3pMvDpq7vBivo+kgiRWxt41p
+S4vN7CwIhAFvFdzF15tUtBAGAf+/ua9VVUv81MP+KN510PWnpja6jnR2ZhKbjKxg
+AK1dqbGdGkyGM/6Yb2RXayu3mF+MDbdduDdnwI5ANSdFGkv/E+hv3AAVqYlWqcUh
+HUXpo5jvMZ6ey1OYEdVvk8Z4dgmgjavqmkpkl3TVhwMeQtaeTXfcgdMWbBDZSE1K
+MeCytodGiojtO6METyWQYtxPubg/13kdw9RsPwE+rrtKOBfklPLK8YG7TU/36qg=
+=qqvh
+-----END PGP SIGNATURE-----
+
+--0W6CLHPDK0Qrxw1x--

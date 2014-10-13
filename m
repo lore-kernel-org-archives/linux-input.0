@@ -1,75 +1,84 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for
- register access
-Date: Mon, 13 Oct 2014 16:02:18 +0200
-Message-ID: <20141013140218.GG27755@sirena.org.uk>
-References: <1412675448-11990-1-git-send-email-iivanov@mm-sol.com>
- <1412675448-11990-3-git-send-email-iivanov@mm-sol.com>
- <20141007172606.GG16469@dtor-ws>
- <1412759584.13569.0.camel@iivanov-dev>
- <1412760633.13569.4.camel@iivanov-dev>
- <54357BA7.3010609@codeaurora.org>
- <20141008181314.GC14423@dtor-ws>
- <5435808A.7070203@codeaurora.org>
- <20141008200426.GJ4609@sirena.org.uk>
- <20141008203233.GA15198@dtor-ws>
+From: "Cole, JD" <JD.Cole@plantronics.com>
+Subject: USB HID Telephony page causes odd mouse behavior
+Date: Mon, 13 Oct 2014 15:43:26 +0000
+Message-ID: <2b737611d4ef4409993f72bb4dc921c9@usscmb04.plt.plantronics.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0W6CLHPDK0Qrxw1x"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:50950 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753874AbaJMOCf (ORCPT
+Received: from mail4.plantronics.com ([198.231.10.50]:56008 "EHLO
+	mail4.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753599AbaJMPn3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Oct 2014 10:02:35 -0400
-Content-Disposition: inline
-In-Reply-To: <20141008203233.GA15198@dtor-ws>
+	Mon, 13 Oct 2014 11:43:29 -0400
+Received: from USSCMB05.plt.plantronics.com (usscmb05.plt.plantronics.com [10.1.3.195])
+	by mail4.plantronics.com (8.13.8/8.13.8) with ESMTP id s9DFhSV0009842
+	for <linux-input@vger.kernel.org>; Mon, 13 Oct 2014 08:43:29 -0700
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Boyd <sboyd@codeaurora.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "Junge, Terry" <Terry.Junge@plantronics.com>
+
+Hi All,
+
+We have received multiple bug reports that Plantronics headsets are causing or interfering with mouse events. We've identified the root cause of this in hid-input.c, where un-handled usages (from any usage page) will be mapped to miscellaneous LEDs, buttons, or movements. In short, press a USB equipped volume, mute, or hang-up button and get a random mouse event.
+
+This intermittent behavior isn't consistent across all headsets since with similar capabilities as usages marked 'constant' are ignored early on in 'hidinput_configure_usage'. While interpretation of the correct use of 'constant usages' is left to the individual vendors, we still feel that the HID input driver should not be mapping otherwise unhandled usages to LED_/BIN_/REL_/ABS_MISC usages events.
+
+Solving this issue is a larger effort and it's hard for us to comment on the needs of other manufacturers. That said, we would like to propose the attached interim fix which assumes mouse events don't come from the Telephony page.
+
+jd
+
+------------------ snip --------------------
+>From 647545b985b75434609c58dda2ef6612e231a44e Mon Sep 17 00:00:00 2001
+From: JD Cole <jd.cole@plantronics.com>
+Date: Fri, 10 Oct 2014 17:41:27 -0400
+Subject: [PATCH] Prevent HID Telephony page events from being mapped to
+ miscellaneous buttons.
+
+The hid-input previously interpreted un-mapped telephony page usages, incorrectly,
+to misc mouse, button, or LED messages. Exhibited most commonly as an USB telephony
+headsets causing intermittent or "random" mouse behavior.
+
+Signed-off-by: JD Cole <jd.cole@plantronics.com>
+---
+ drivers/hid/hid-input.c | 3 +++
+ include/linux/hid.h     | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 012880a..1e9ef8e 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -895,6 +895,9 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+                }
+                break;
+
++       case HID_UP_TELEPHONY:
++               goto ignore;
++
+        default:
+        unknown:
+                if (field->report_size == 1) {
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 4f8aa47..6489a93 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -159,6 +159,7 @@ struct hid_item {
+ #define HID_UP_LED             0x00080000
+ #define HID_UP_BUTTON          0x00090000
+ #define HID_UP_ORDINAL         0x000a0000
++#define HID_UP_TELEPHONY               0x000b0000
+ #define HID_UP_CONSUMER                0x000c0000
+ #define HID_UP_DIGITIZER       0x000d0000
+ #define HID_UP_PID             0x000f0000
+--
+1.8.3.1
 
 
---0W6CLHPDK0Qrxw1x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+________________________________
 
-On Wed, Oct 08, 2014 at 01:32:33PM -0700, Dmitry Torokhov wrote:
-> On Wed, Oct 08, 2014 at 09:04:26PM +0100, Mark Brown wrote:
-> > On Wed, Oct 08, 2014 at 11:20:58AM -0700, Stephen Boyd wrote:
+CONFIDENTIALITY NOTICE: This e-mail transmission, and any documents, files or previous e-mail messages attached to it, may contain information that is confidential and/or legally privileged. If you are not the intended recipient, or a person responsible for delivering it to the intended recipient, please DO NOT disclose the contents to another person, store or copy the information in any medium, or use any of the information contained in or attached to this transmission for any purpose. If you have received this transmission in error, please immediately notify the sender by reply email or at privacy@plantronics.com, and destroy the original transmission and its attachments without reading or saving in any manner.
 
-> > > Srini/Mark, any reason why the regmap_field structure is opaque?
-
-> > So you can't peer into it and rely on the contents.  I can see it being
-> > useful to add a bulk allocator.
-
-> And then one have to define offsets in an array and use awkward syntax
-> to access individual fields. Can we just reply on reviews/documentation
-> for users to not do wrong thing?
-
-I have very little confidence in users not doing awful things to be
-honest, this is the sort of API where the users are just random things
-all over the kernel so this sort of thing tends to be found after the
-fact.  I get a lot of these in drivers that just got thrown over the
-wall so nobody really knows what things are doing when you do find them.
-
-If the standard allocators aren't doing a good job (I've not checked)
-I'd much rather handle this inside the API if we can.
-
---0W6CLHPDK0Qrxw1x
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBAgAGBQJUO9tkAAoJECTWi3JdVIfQXpkH/16JpLXmOuCHJvRAifJWLEgo
-DqH81xMCO4Pob8n5N3HoaHAKids9dNDLRVgepFZZ3pMvDpq7vBivo+kgiRWxt41p
-S4vN7CwIhAFvFdzF15tUtBAGAf+/ua9VVUv81MP+KN510PWnpja6jnR2ZhKbjKxg
-AK1dqbGdGkyGM/6Yb2RXayu3mF+MDbdduDdnwI5ANSdFGkv/E+hv3AAVqYlWqcUh
-HUXpo5jvMZ6ey1OYEdVvk8Z4dgmgjavqmkpkl3TVhwMeQtaeTXfcgdMWbBDZSE1K
-MeCytodGiojtO6METyWQYtxPubg/13kdw9RsPwE+rrtKOBfklPLK8YG7TU/36qg=
-=qqvh
------END PGP SIGNATURE-----
-
---0W6CLHPDK0Qrxw1x--
+For further information about Plantronics - the Company, its products, brands, partners, please visit our website www.plantronics.com.

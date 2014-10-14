@@ -1,51 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID: i2c-hid: Add hid-over-i2c name to i2c id table.
-Date: Tue, 14 Oct 2014 15:59:35 -0700
-Message-ID: <20141014225935.GA22177@dtor-ws>
-References: <1413323041-19468-1-git-send-email-bleung@chromium.org>
+From: Graber Christian <chr.graber@tsn.at>
+Subject: viimeinen varoitus!
+Date: Tue, 14 Oct 2014 23:28:03 +0000
+Message-ID: <B14478C5B90E644C90B3284F6C16821C1937A3D1__31405.0642810345$1413330004$gmane$org@tsnexch1.tsn.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:49422 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751303AbaJNW7j (ORCPT
+Received: from flaschenpost2.tsn.at ([193.170.198.126]:42620 "EHLO
+	flaschenpost2.tsn.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752936AbaJNXjp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Oct 2014 18:59:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1413323041-19468-1-git-send-email-bleung@chromium.org>
+	Tue, 14 Oct 2014 19:39:45 -0400
+Content-Language: de-DE
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: jkosina@suse.cz, benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, satoshi.noguchi@jp.synaptics.com
 
-On Tue, Oct 14, 2014 at 02:44:01PM -0700, Benson Leung wrote:
-> When using the device tree binding of compatible = "hid-over-i2c"
-> the i2c id table also needs to have that name in order to
-> auto load this driver.
-> 
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 747d544..1a7605f 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -1123,6 +1123,7 @@ static const struct dev_pm_ops i2c_hid_pm = {
->  
->  static const struct i2c_device_id i2c_hid_id_table[] = {
->  	{ "hid", 0 },
-> +	{ "hid-over-i2c", 0 },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
 
-So we already emit this string this as a module device table (OF one),
-why do we need to duplicate it in I2C? This seems like a generic problem
-and not an individual driver one.
 
-Thanks.
 
--- 
-Dmitry
+Huom meid=E4n s=E4hk=F6posti k=E4ytt=E4j=E4!=20
+
+olet ylitt=E4nyt kiinti=F6n postilaatikkoon. Olemme poistamalla ja lait=
+toi alas t=E4m=E4 postilaatikko 24 tunnin kuluessa, koska se on liian p=
+unnittu meid=E4n rele verkon virhekoodi: 556. P=E4ivitt=E4=E4 postilaat=
+ikon kiinti=F6 seuraavaa linkki=E4, jos haluat jatkaa nauttien postipal=
+velut http://www.webbber.site90.net=20
+Huom: t=E4m=E4 on huollon ja p=E4ivityksen tarkoitukseen.=20
+
+Klikkaa t=E4st=E4 http://www.webbber.site90.net=20
+Huom koet kyvytt=F6myys p=E4=E4st=E4 postilaatikkoon noudattamatta j=E4=
+tt=E4misest=E4 t=E4m=E4n varoituksen.=20
+
+Kiitos yhteisty=F6ss=E4 toimineiden!=20
+postipalvelu joukkue--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,58 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] input: alps: Reset mouse before identifying it
-Date: Mon, 13 Oct 2014 23:08:34 -0700
-Message-ID: <20141014060834.GA8084@dtor-glaptop>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
- <1412329392-5580-2-git-send-email-pali.rohar@gmail.com>
- <542E70CF.40205@redhat.com>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: Elan TS driver patch
+Date: Mon, 13 Oct 2014 23:16:51 -0700
+Message-ID: <20141014061651.GA9421@dtor-glaptop>
+References: <005301cfe221$abcd2460$03676d20$@emc.com.tw>
+ <20141007160358.GA16469@dtor-ws>
+ <006001cfe294$13720370$3a560a50$@emc.com.tw>
+ <20141010221137.GD38320@dtor-ws>
+ <24A1508F-93CB-4139-BF22-4BD7A118E005@emc.com.tw>
+ <CANLzEktRicHTvAbDWe6E73EUdknJQT8TmTeHtmK=kUz46HPFtA@mail.gmail.com>
+ <001801cfe756$c3e54520$4bafcf60$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:49159 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753373AbaJNGIi (ORCPT
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:56628 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754243AbaJNGQz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Oct 2014 02:08:38 -0400
+	Tue, 14 Oct 2014 02:16:55 -0400
+Received: by mail-pa0-f53.google.com with SMTP id kq14so7074189pab.26
+        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2014 23:16:55 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <542E70CF.40205@redhat.com>
+In-Reply-To: <001801cfe756$c3e54520$4bafcf60$@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: ELAN =?utf-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Cc: 'Benson Leung' <bleung@chromium.org>, linux-input@vger.kernel.org, 'Charles Mooney' <charliemooney@google.com>, "'Jeff.Chuang'" <Jeff.chuang@emc.com.tw>, =?utf-8?B?J+aigeWNmue/lCc=?= <paul.liang@emc.com.tw>, 'Duson Lin' <dusonlin@emc.com.tw>
 
-On Fri, Oct 03, 2014 at 11:47:59AM +0200, Hans de Goede wrote:
-> Hi,
->=20
-> Thanks for working on this!
->=20
-> On 10/03/2014 11:43 AM, Pali Roh=E1r wrote:
-> > On some systems after starting computer function alps_identify() do=
-es not detect
-> > dual ALPS touchpad+trackstick device correctly and detect only touc=
-hpad.
-> >=20
-> > Resetting ALPS device before identifiying it fixing this problem an=
-d both parts
-> > touchpad and trackstick are detected.
-> >=20
-> > Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> > Tested-by: Pali Roh=E1r <pali.rohar@gmail.com>
->=20
-> Looks good and seems sensible:
->=20
-> Acked-by: Hans de Goede <hdegoede@redhat.com>
+Hi Scott,
 
-*sigh* I am not really happy about this, as we making boot longer and l=
-onger
-for people without ALPS touchpads. It would be better if we only reset =
-the
-mouse when we knew we are dealing with ALPS, and even better if we only=
- reset
-it when we suspected that we missed trackstick. Any chance of doing thi=
-s?
+On Tue, Oct 14, 2014 at 10:30:05AM +0800, ELAN =E5=8A=89=E5=98=89=E9=A7=
+=BF wrote:
+> Hi Benson, Dmitry:
+> 	The device part name is "eKTH3500".
+> 	How do you feel?
 
-Thanks.
+Excellent, "elan,ekth3500" it is then.
 
 --=20
 Dmitry

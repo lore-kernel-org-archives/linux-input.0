@@ -1,197 +1,70 @@
 From: Matt Ranostay <mranostay@gmail.com>
-Subject: [PATCH v7 2/3] cap11xx: Add support for various cap11xx devices
-Date: Tue, 14 Oct 2014 22:38:26 -0700
-Message-ID: <1413351507-6611-3-git-send-email-mranostay@gmail.com>
+Subject: [PATCH v7 3/3] cap11xx: support for irq-active-high option
+Date: Tue, 14 Oct 2014 22:38:27 -0700
+Message-ID: <1413351507-6611-4-git-send-email-mranostay@gmail.com>
 References: <1413351507-6611-1-git-send-email-mranostay@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:55058 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751041AbaJOFhh (ORCPT
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:41866 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751069AbaJOFhi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2014 01:37:37 -0400
+	Wed, 15 Oct 2014 01:37:38 -0400
 In-Reply-To: <1413351507-6611-1-git-send-email-mranostay@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, galak@codeaurora.org, zonque@gmail.com
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Matt Ranostay <mranostay@gmail.com>
 
-Several other variants of the cap11xx device exists with a varying
-number of capacitance detection channels. Add support for creating
-the channels dynamically.
+Some applications need to use the irq-active-high push-pull option.
+This allows it be enabled in the device tree child node.
 
 Signed-off-by: Matt Ranostay <mranostay@gmail.com>
 ---
- .../devicetree/bindings/input/cap11xx.txt          |  3 +-
- drivers/input/keyboard/cap11xx.c                   | 62 ++++++++++++++--------
- 2 files changed, 42 insertions(+), 23 deletions(-)
+ Documentation/devicetree/bindings/input/cap11xx.txt | 4 ++++
+ drivers/input/keyboard/cap11xx.c                    | 8 ++++++++
+ 2 files changed, 12 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/input/cap11xx.txt b/Documentation/devicetree/bindings/input/cap11xx.txt
-index 5164920..61d20d8 100644
+index 61d20d8..7d0a300 100644
 --- a/Documentation/devicetree/bindings/input/cap11xx.txt
 +++ b/Documentation/devicetree/bindings/input/cap11xx.txt
-@@ -7,9 +7,10 @@ Required properties:
+@@ -28,6 +28,10 @@ Optional properties:
+ 				Valid values are 1, 2, 4, and 8.
+ 				By default, a gain of 1 is set.
  
- 	compatible:		Must contain one of:
- 					"microchip,cap1106"
-+					"microchip,cap1126"
-+					"microchip,cap1188"
- 
- 	reg:			The I2C slave address of the device.
--				Only 0x28 is valid.
- 
- 	interrupts:		Property describing the interrupt line the
- 				device's ALERT#/CM_IRQ# pin is connected to.
++	microchip,irq-active-high:	By default the interrupt pin is active low
++				open drain. This property allows using the active
++				high push-pull output.
++
+ 	linux,keycodes:		Specifies an array of numeric keycode values to
+ 				be used for the channels. If this property is
+ 				omitted, KEY_A, KEY_B, etc are used as
 diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 0da2e83..91effe5 100644
+index 91effe5..0ae7d2f 100644
 --- a/drivers/input/keyboard/cap11xx.c
 +++ b/drivers/input/keyboard/cap11xx.c
-@@ -1,7 +1,6 @@
- /*
-  * Input driver for Microchip CAP11xx based capacitive touch sensors
-  *
-- *
-  * (c) 2014 Daniel Mack <linux@zonque.org>
-  *
-  * This program is free software; you can redistribute it and/or modify
-@@ -54,8 +53,6 @@
- #define CAP11XX_REG_MANUFACTURER_ID	0xfe
- #define CAP11XX_REG_REVISION		0xff
- 
--#define CAP11XX_NUM_CHN 6
--#define CAP11XX_PRODUCT_ID	0x55
- #define CAP11XX_MANUFACTURER_ID	0x5d
- 
- struct cap11xx_priv {
-@@ -63,7 +60,24 @@ struct cap11xx_priv {
- 	struct input_dev *idev;
- 
- 	/* config */
--	unsigned short keycodes[CAP11XX_NUM_CHN];
-+	u32 keycodes[];
-+};
-+
-+struct cap11xx_hw_model {
-+	uint8_t product_id;
-+	unsigned int num_channels;
-+};
-+
-+enum {
-+	CAP1106,
-+	CAP1126,
-+	CAP1188,
-+};
-+
-+struct cap11xx_hw_model cap11xx_devices[] = {
-+	[CAP1106] = { .product_id = 0x55, .num_channels = 6 },
-+	[CAP1126] = { .product_id = 0x53, .num_channels = 6 },
-+	[CAP1188] = { .product_id = 0x50, .num_channels = 8 },
- };
- 
- static const struct reg_default cap11xx_reg_defaults[] = {
-@@ -150,7 +164,7 @@ static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
- 	if (ret < 0)
- 		goto out;
- 
--	for (i = 0; i < CAP11XX_NUM_CHN; i++)
-+	for (i = 0; i < priv->idev->keycodemax; i++)
- 		input_report_key(priv->idev, priv->keycodes[i],
- 				 status & (1 << i));
- 
-@@ -187,14 +201,19 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	struct device *dev = &i2c_client->dev;
- 	struct cap11xx_priv *priv;
- 	struct device_node *node;
-+	struct cap11xx_hw_model *cap = &cap11xx_devices[id->driver_data];
- 	int i, error, irq, gain = 0;
- 	unsigned int val, rev;
--	u32 gain32, keycodes[CAP11XX_NUM_CHN];
-+	u32 gain32;
- 
--	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	priv = devm_kzalloc(dev,
-+		sizeof(*priv) + cap->num_channels * sizeof(u32),
-+		GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
-+	BUG_ON(!cap->num_channels);
-+
- 	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap11xx_regmap_config);
- 	if (IS_ERR(priv->regmap))
- 		return PTR_ERR(priv->regmap);
-@@ -203,9 +222,9 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	if (error)
- 		return error;
- 
--	if (val != CAP11XX_PRODUCT_ID) {
-+	if (val != cap->product_id) {
- 		dev_err(dev, "Product ID: Got 0x%02x, expected 0x%02x\n",
--			val, CAP11XX_PRODUCT_ID);
-+			val, cap->product_id);
- 		return -ENODEV;
- 	}
- 
-@@ -234,17 +253,12 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
+@@ -45,6 +45,7 @@
+ #define CAP11XX_REG_STANDBY_SENSITIVITY	0x42
+ #define CAP11XX_REG_STANDBY_THRESH	0x43
+ #define CAP11XX_REG_CONFIG2		0x44
++#define CAP11XX_REG_CONFIG2_ALT_POL	BIT(6)
+ #define CAP11XX_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
+ #define CAP11XX_REG_SENSOR_CALIB	(0xb1 + (X))
+ #define CAP11XX_REG_SENSOR_CALIB_LSB1	0xb9
+@@ -253,6 +254,13 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
  			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
  	}
  
--	BUILD_BUG_ON(ARRAY_SIZE(keycodes) != ARRAY_SIZE(priv->keycodes));
--
++	if (of_property_read_bool(node, "microchip,irq-active-high")) {
++		error = regmap_update_bits(priv->regmap, CAP11XX_REG_CONFIG2,
++					   CAP11XX_REG_CONFIG2_ALT_POL, 0);
++		if (error)
++			return error;
++	}
++
  	/* Provide some useful defaults */
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		keycodes[i] = KEY_A + i;
-+	for (i = 0; i < cap->num_channels; i++)
-+		priv->keycodes[i] = KEY_A + i;
- 
- 	of_property_read_u32_array(node, "linux,keycodes",
--				   keycodes, ARRAY_SIZE(keycodes));
--
--	for (i = 0; i < ARRAY_SIZE(keycodes); i++)
--		priv->keycodes[i] = keycodes[i];
-+		priv->keycodes, cap->num_channels);
- 
- 	error = regmap_update_bits(priv->regmap, CAP11XX_REG_MAIN_CONTROL,
- 				   CAP11XX_REG_MAIN_CONTROL_GAIN_MASK,
-@@ -268,17 +282,17 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 	if (of_property_read_bool(node, "autorepeat"))
- 		__set_bit(EV_REP, priv->idev->evbit);
- 
--	for (i = 0; i < CAP11XX_NUM_CHN; i++)
-+	for (i = 0; i < cap->num_channels; i++)
- 		__set_bit(priv->keycodes[i], priv->idev->keybit);
- 
- 	__clear_bit(KEY_RESERVED, priv->idev->keybit);
- 
- 	priv->idev->keycode = priv->keycodes;
--	priv->idev->keycodesize = sizeof(priv->keycodes[0]);
--	priv->idev->keycodemax = ARRAY_SIZE(priv->keycodes);
-+	priv->idev->keycodesize = sizeof(u32);
-+	priv->idev->keycodemax = cap->num_channels;
- 
- 	priv->idev->id.vendor = CAP11XX_MANUFACTURER_ID;
--	priv->idev->id.product = CAP11XX_PRODUCT_ID;
-+	priv->idev->id.product = cap->product_id;
- 	priv->idev->id.version = rev;
- 
- 	priv->idev->open = cap11xx_input_open;
-@@ -312,12 +326,16 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client,
- 
- static const struct of_device_id cap11xx_dt_ids[] = {
- 	{ .compatible = "microchip,cap1106", },
-+	{ .compatible = "microchip,cap1126", },
-+	{ .compatible = "microchip,cap1188", },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, cap11xx_dt_ids);
- 
- static const struct i2c_device_id cap11xx_i2c_ids[] = {
--	{ "cap1106", 0 },
-+	{ "cap1106", CAP1106 },
-+	{ "cap1126", CAP1126 },
-+	{ "cap1188", CAP1188 },
- 	{}
- };
- MODULE_DEVICE_TABLE(i2c, cap11xx_i2c_ids);
+ 	for (i = 0; i < cap->num_channels; i++)
+ 		priv->keycodes[i] = KEY_A + i;
 -- 
 1.9.1
 

@@ -1,47 +1,99 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: xpad - add Thrustmaster as Xbox 360
- controller vendor
-Date: Thu, 16 Oct 2014 14:02:57 -0700
-Message-ID: <20141016210257.GE38361@dtor-ws>
-References: <1413371076-12390-1-git-send-email-tt.rantala@gmail.com>
- <1413371076-12390-2-git-send-email-tt.rantala@gmail.com>
+Subject: [git pull] Input updates for 3.18-rc0 (part 2)
+Date: Thu, 16 Oct 2014 16:00:30 -0700
+Message-ID: <20141016230030.GD30009@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:61828 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751106AbaJPXAf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Oct 2014 19:00:35 -0400
 Content-Disposition: inline
-In-Reply-To: <1413371076-12390-2-git-send-email-tt.rantala@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tommi Rantala <tt.rantala@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Oct 15, 2014 at 02:04:36PM +0300, Tommi Rantala wrote:
-> Add Thrustmaster as Xbox 360 controller vendor. This is required for
-> example to make the GP XID (044f:b326) gamepad work.
-> 
-> Signed-off-by: Tommi Rantala <tt.rantala@gmail.com>
+Hi Linus,
 
-Applied both, thank you.
+Please pull from:
 
-> ---
->  drivers/input/joystick/xpad.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index cee4fe3..2ed7905 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -293,6 +293,7 @@ static const signed short xpad_abs_triggers[] = {
->  
->  static struct usb_device_id xpad_table[] = {
->  	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
-> +	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
->  	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
->  	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
->  	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
-> -- 
-> 1.9.3
-> 
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2nd round of updates for the input subsystem. Mostly simple
+bug fixes, although we do have one brand new driver for Microchip AR1021
+i2c touchscreen. Also there is change to stop trying to use i8042 active
+multiplexing by default (it is still possible to activate it via
+i8042.nomux=0 on boxes that implement it).
+
+Changelog:
+---------
+
+Andreas Bosch (1):
+      Input: alps - fix v4 button press recognition
+
+Chang Huaixin (1):
+      Input: xen-kbdfront - free grant table entry in xenkbd_disconnect_backend
+
+Christian Gmeiner (1):
+      Input: Add Microchip AR1021 i2c touchscreen
+
+Dmitry Torokhov (4):
+      Input: evdev - fix EVIOCG{type} ioctl
+      Input: automatically set EV_ABS bit in input_set_abs_params
+      Input: synaptics - gate forcepad support by DMI check
+      Input: i8042 - disable active multiplexing by default
+
+Hans de Goede (1):
+      Input: i8042 - add noloop quirk for Asus X750LN
+
+Jaewon Kim (1):
+      Input: max77693-haptic - fix state check in imax77693_haptic_disable()
+
+Pramod Gurav (2):
+      Input: opencores-kbd - switch to using managed resources
+      Input: adp5588-keys - cancel workqueue in failure path
+
+Richard Leitner (2):
+      Input: avoid negative input device numbers
+      Input: serio - avoid negative serio device numbers
+
+Sjoerd Simons (1):
+      Input: cros_ec_keyb - add of match table
+
+Tommi Rantala (2):
+      Input: xpad - add USB ID for Thrustmaster Ferrari 458 Racing Wheel
+      Input: xpad - add Thrustmaster as Xbox 360 controller vendor
+
+
+Diffstat:
+--------
+
+ Documentation/kernel-parameters.txt    |   2 +-
+ drivers/input/evdev.c                  |  13 +-
+ drivers/input/input.c                  |   5 +-
+ drivers/input/joystick/xpad.c          |   2 +
+ drivers/input/keyboard/adp5588-keys.c  |   1 +
+ drivers/input/keyboard/cros_ec_keyb.c  |   9 ++
+ drivers/input/keyboard/opencores-kbd.c |  72 ++-------
+ drivers/input/misc/max77693-haptic.c   |   2 +-
+ drivers/input/misc/xen-kbdfront.c      |   4 +-
+ drivers/input/mouse/alps.c             |   4 +-
+ drivers/input/mouse/synaptics.c        |  22 ++-
+ drivers/input/mouse/synaptics.h        |   8 +-
+ drivers/input/serio/i8042-x86ia64io.h  | 287 ++-------------------------------
+ drivers/input/serio/i8042.c            |   2 +-
+ drivers/input/serio/serio.c            |   4 +-
+ drivers/input/touchscreen/Kconfig      |  12 ++
+ drivers/input/touchscreen/Makefile     |   1 +
+ drivers/input/touchscreen/ar1021_i2c.c | 181 +++++++++++++++++++++
+ 18 files changed, 280 insertions(+), 351 deletions(-)
+ create mode 100644 drivers/input/touchscreen/ar1021_i2c.c
 
 -- 
 Dmitry
+

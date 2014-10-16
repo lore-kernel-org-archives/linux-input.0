@@ -1,51 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: misc: max77693-haptic - fix active state check in
- disable()
-Date: Thu, 16 Oct 2014 14:00:18 -0700
-Message-ID: <20141016210018.GD38361@dtor-ws>
-References: <1413342978-30349-1-git-send-email-jaewon02.kim@samsung.com>
- <543DF56B.2080009@samsung.com>
- <543DF957.3040907@samsung.com>
+Subject: Re: [PATCH 2/2] Input: xpad - add Thrustmaster as Xbox 360
+ controller vendor
+Date: Thu, 16 Oct 2014 14:02:57 -0700
+Message-ID: <20141016210257.GE38361@dtor-ws>
+References: <1413371076-12390-1-git-send-email-tt.rantala@gmail.com>
+ <1413371076-12390-2-git-send-email-tt.rantala@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:47890 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753134AbaJPVAY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Oct 2014 17:00:24 -0400
-Received: by mail-pa0-f52.google.com with SMTP id fb1so4107009pad.25
-        for <linux-input@vger.kernel.org>; Thu, 16 Oct 2014 14:00:23 -0700 (PDT)
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <543DF957.3040907@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1413371076-12390-2-git-send-email-tt.rantala@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tommi Rantala <tt.rantala@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaewon Kim <jaewon02.kim@samsung.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>, linux-input@vger.kernel.org
 
-On Wed, Oct 15, 2014 at 01:34:31PM +0900, Jaewon Kim wrote:
-> Hi Chanwoo,
->=20
->=20
-> 2014=EB=85=84 10=EC=9B=94 15=EC=9D=BC 13:17=EC=97=90 Chanwoo Choi =EC=
-=9D=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
-> >Hi Jaewon,
-> >
-> >I think you better to use ':' instead of '-'.
-> >- before: Input: misc: max77693-haptic -
-> >- after : Input: misc: max77693-haptic:
-> I refer past log message.
-> I think '-' is input driver style.
+On Wed, Oct 15, 2014 at 02:04:36PM +0300, Tommi Rantala wrote:
+> Add Thrustmaster as Xbox 360 controller vendor. This is required for
+> example to make the GP XID (044f:b326) gamepad work.
+> 
+> Signed-off-by: Tommi Rantala <tt.rantala@gmail.com>
 
-Yes, the input style is "Input: <driver> - <short change title>"
+Applied both, thank you.
 
-Applied, thank you.
+> ---
+>  drivers/input/joystick/xpad.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index cee4fe3..2ed7905 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -293,6 +293,7 @@ static const signed short xpad_abs_triggers[] = {
+>  
+>  static struct usb_device_id xpad_table[] = {
+>  	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+> +	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+>  	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+>  	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+>  	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
+> -- 
+> 1.9.3
+> 
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

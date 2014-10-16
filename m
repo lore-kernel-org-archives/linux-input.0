@@ -1,122 +1,106 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] input: alps: Reset mouse before identifying it
-Date: Wed, 15 Oct 2014 11:22:56 -0700
-Message-ID: <20141015182256.GE8625@dtor-ws>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
- <201410151957.37855@pali>
- <20141015180011.GB8625@dtor-ws>
- <201410152010.39507@pali>
+From: Adam Goode <adam@spicenitz.org>
+Subject: Problem with Das Keyboard 4 in N-key rollover mode
+Date: Wed, 15 Oct 2014 23:15:56 -0400
+Message-ID: <CADN=WdrqExP36Drz-8ZLi=jU0Ga9Zdsw6LKqm3oJphD2-kM7=w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:38501 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750721AbaJOSXA (ORCPT
+Received: from mail-ob0-f178.google.com ([209.85.214.178]:62888 "EHLO
+	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751035AbaJPDQR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2014 14:23:00 -0400
-Content-Disposition: inline
-In-Reply-To: <201410152010.39507@pali>
+	Wed, 15 Oct 2014 23:16:17 -0400
+Received: by mail-ob0-f178.google.com with SMTP id wn1so2163770obc.37
+        for <linux-input@vger.kernel.org>; Wed, 15 Oct 2014 20:16:16 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Tommy Will <tommywill2011@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Wed, Oct 15, 2014 at 08:10:39PM +0200, Pali Roh=E1r wrote:
-> On Wednesday 15 October 2014 20:00:11 Dmitry Torokhov wrote:
-> > On Wed, Oct 15, 2014 at 07:57:37PM +0200, Pali Roh=E1r wrote:
-> > > On Wednesday 15 October 2014 19:43:15 Dmitry Torokhov wrote:
-> > > > On Wed, Oct 15, 2014 at 02:53:11PM +0200, Pali Roh=E1r wrote:
-> > > > > On Tuesday 14 October 2014 08:08:34 Dmitry Torokhov=20
-> wrote:
-> > > > > > On Fri, Oct 03, 2014 at 11:47:59AM +0200, Hans de
-> > > > > > Goede
-> > >=20
-> > > wrote:
-> > > > > > > Hi,
-> > > > > > >=20
-> > > > > > > Thanks for working on this!
-> > > > > > >=20
-> > > > > > > On 10/03/2014 11:43 AM, Pali Roh=E1r wrote:
-> > > > > > > > On some systems after starting computer function
-> > > > > > > > alps_identify() does not detect dual ALPS
-> > > > > > > > touchpad+trackstick device correctly and detect
-> > > > > > > > only touchpad.
-> > > > > > > >=20
-> > > > > > > > Resetting ALPS device before identifiying it
-> > > > > > > > fixing this problem and both parts touchpad and
-> > > > > > > > trackstick are detected.
-> > > > > > > >=20
-> > > > > > > > Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> > > > > > > > Tested-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> > > > > > >=20
-> > > > > > > Looks good and seems sensible:
-> > > > > > >=20
-> > > > > > > Acked-by: Hans de Goede <hdegoede@redhat.com>
-> > > > > >=20
-> > > > > > *sigh* I am not really happy about this, as we making
-> > > > > > boot longer and longer for people without ALPS
-> > > > > > touchpads. It would be better if we only reset the
-> > > > > > mouse when we knew we are dealing with ALPS, and even
-> > > > > > better if we only reset it when we suspected that we
-> > > > > > missed trackstick. Any chance of doing this?
-> > > > > >=20
-> > > > > > Thanks.
-> > > > >=20
-> > > > > Dmitry, problem is that function check which detecting
-> > > > > trackstick does not working when I start my laptop from
-> > > > > power-off state and do not reset PS/2 device. But
-> > > > > detecting ALPS touchpad looks like working. So if do
-> > > > > not like this idea, what about doing something like
-> > > > > this in alps_dectect function?
-> > > > >=20
-> > > > > int alps_detect(...)
-> > > > > {
-> > > > > ...
-> > > > > /* detect if device is ALPS */
-> > > > > if (alps_identify(...) < 0)
-> > > > > return -1;
-> > > > > /* now we know that device is ALPS */
-> > > > > if (!(flags & ALPS_DUALPOINT)) {
-> > > > > /* reset it and identify again, maybe there is
-> > > > > trackstick */ psmouse_reset(...);
-> > > > > alps_identify(...);
-> > > > > }
-> > > > > ...
-> > > > > }
-> > > > >=20
-> > > > > It will does not affect non ALPS devices (because first
-> > > > > identify call will fail), but will affect ALPS devices
-> > > > > without trackstick (because identify will be called
-> > > > > twice and reset too).
-> > > >=20
-> > > > I think this is a step in right direction. Do you know
-> > > > what exactly fails in alps_identify() on your box if you
-> > > > do not call psmouse_reset?
-> > > >=20
-> > > > Thanks.
-> > >=20
-> > > Yes, I know. It is failing in alps_probe_trackstick_v3(). It
-> > > calls alps_command_mode_read_reg(...) and it returns 0 which
-> > > means trackstick is not there.
-> >=20
-> > OK, so can we try sticking psmouse_reset() there? This will
-> > limit the exposure of the new delay.
-> >=20
-> > Thanks.
->=20
-> Sorry, but I think this is not safe. Function psmouse_reset will=20
-> reset device (set it to relative mode, etc...) and before and=20
-> after alps_probe_trackstick_v3() are called other functions. So=20
-> it could break something else.
+I have a Das Keyboard 4 and it has a USB N-key rollover mode. When I
+am holding backslash (but no other key that I have discovered!) then
+every press and release of the spacebar leads to another backslash
+keydown/keyup sequence. I also cannot repeat backslash by holding it
+down.
 
-We might need to repeat bits of alps_identify() after resetting the
-mouse, you are right. It should still be doable though.
+This is with Fedora 21, though I have observed the same issues with
+CentOS 7. Windows 8.1 does not have this problem. Standard 6-key
+rollover does not have this problem (it is switchable on the keyboard
+with a hotkey).
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Below are some dumps. Here is what I typed:
+
+backslash down
+space down
+space up
+backslash up
+
+
+
+Here is evtest, you can see the spurious BACKSLASH events:
+
+Event: time 1413429154.248555, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70031
+Event: time 1413429154.248555, type 1 (EV_KEY), code 43 (KEY_BACKSLASH), value 1
+Event: time 1413429154.248555, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70032
+Event: time 1413429154.248555, type 1 (EV_KEY), code 43 (KEY_BACKSLASH), value 0
+Event: time 1413429154.248555, -------------- SYN_REPORT ------------
+Event: time 1413429155.745546, type 4 (EV_MSC), code 4 (MSC_SCAN), value 7002c
+Event: time 1413429155.745546, type 1 (EV_KEY), code 57 (KEY_SPACE), value 1
+Event: time 1413429155.745546, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70031
+Event: time 1413429155.745546, type 1 (EV_KEY), code 43 (KEY_BACKSLASH), value 1
+Event: time 1413429155.745546, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70032
+Event: time 1413429155.745546, type 1 (EV_KEY), code 43 (KEY_BACKSLASH), value 0
+Event: time 1413429155.745546, -------------- SYN_REPORT ------------
+Event: time 1413429155.858578, type 4 (EV_MSC), code 4 (MSC_SCAN), value 7002c
+Event: time 1413429155.858578, type 1 (EV_KEY), code 57 (KEY_SPACE), value 0
+Event: time 1413429155.858578, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70031
+Event: time 1413429155.858578, type 1 (EV_KEY), code 43 (KEY_BACKSLASH), value 1
+Event: time 1413429155.858578, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70032
+Event: time 1413429155.858578, type 1 (EV_KEY), code 43 (KEY_BACKSLASH), value 0
+Event: time 1413429155.858578, -------------- SYN_REPORT ------------
+
+
+Here is hiddump:
+
+
+003:047:001:DESCRIPTOR         1413429180.935271
+ 05 01 09 80 A1 01 85 02 09 81 09 82 09 83 15 00
+ 25 01 75 01 95 03 81 06 75 05 95 01 81 01 06 00
+ FF 09 01 85 01 15 00 26 FF 00 75 08 95 07 B1 00
+ C0 05 0C 09 01 A1 01 85 03 15 00 25 01 09 B5 09
+ B6 09 B7 09 CD 09 E2 09 E5 09 E7 09 E9 09 EA 0A
+ 52 01 0A 53 01 0A 54 01 0A 55 01 0A 83 01 0A 8A
+ 01 0A 92 01 0A 94 01 0A 21 02 0A 23 02 0A 24 02
+ 0A 25 02 0A 26 02 0A 27 02 0A 2A 02 75 01 95 18
+ 81 02 C0
+
+003:047:000:DESCRIPTOR         1413429180.935654
+ 05 01 09 06 A1 01 05 07 19 E0 29 E7 15 00 25 01
+ 75 01 95 08 81 02 19 00 29 67 95 68 81 02 05 08
+ 19 01 29 05 15 00 25 01 75 01 95 05 91 02 75 03
+ 95 01 91 01 C0
+
+Starting dumping interrupt transfer stream
+with 1 minute timeout.
+
+003:047:000:STREAM             1413429182.598393
+ 00 00 00 00 00 00 00 02 00 00 00 00 00 00
+
+003:047:000:STREAM             1413429183.876383
+ 00 00 00 00 00 00 10 02 00 00 00 00 00 00
+
+003:047:000:STREAM             1413429183.995389
+ 00 00 00 00 00 00 00 02 00 00 00 00 00 00
+
+003:047:000:STREAM             1413429185.301376
+ 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+
+
+I am no HID expert, but I will try to figure this out. I would
+appreciate any help.
+
+
+
+Thanks,
+
+Adam

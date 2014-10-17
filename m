@@ -1,36 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] input: Expose states of gpio keypad
-Date: Fri, 17 Oct 2014 09:22:06 -0700
-Message-ID: <20141017162206.GA37325@dtor-ws>
-References: <1413540646-8455-1-git-send-email-clark.li86@gmail.com>
- <1413540646-8455-2-git-send-email-clark.li86@gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: Touch processing on host CPU
+Date: Fri, 17 Oct 2014 17:33:01 +0100
+Message-ID: <A82E1F59-BB34-40EA-A13F-456EBCC0519D@kernel.org>
+References: <5440F282.8040306@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:36775 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751289AbaJQQWK (ORCPT
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:45215 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752472AbaJQQdS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Oct 2014 12:22:10 -0400
-Received: by mail-pd0-f177.google.com with SMTP id v10so1040270pde.22
-        for <linux-input@vger.kernel.org>; Fri, 17 Oct 2014 09:22:10 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1413540646-8455-2-git-send-email-clark.li86@gmail.com>
+	Fri, 17 Oct 2014 12:33:18 -0400
+In-Reply-To: <5440F282.8040306@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Clark Li <clark.li86@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <greg@kroah.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Clark,
 
-On Fri, Oct 17, 2014 at 08:40:46PM +1030, Clark Li wrote:
-> Allow user to poll the gpio keypad states in sysfs
 
-The justification for the change is missing from the description.
-Anyway, all this data is accessible through /dev/input/eventX, so Id;
-rather not add new driver-specific interface for that.
+On October 17, 2014 11:42:10 AM GMT+01:00, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
+>Hi-
+>
+>I'm trying to find out which subsystem maintainer I should be talking
+>to -
+>apologies if I'm addressing the wrong people.
+>
+>There is a model for doing touch processing where the touch controller
+>becomes a much simpler device which sends out raw acquisitions (over
+>SPI 
+>at up to 1Mbps + protocol overheads). All touch processing is then done
+>in
+>user space by the host CPU. An example of this is NVIDIA DirectTouch -
+>see:
+>http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
+>
+>In the spirit of "upstream first", I'm trying to figure out how to get
+>a
+>driver accepted. Obviously it's not an input device in the normal
+>sense. Is
+>it acceptable just to send the raw touch data out via a char device? Is
+>there another subsystem which is a good match (eg IIO)?
 
-Thanks.
+Possibly... 
+> Does the
+>protocol
+>(there is ancillary/control data as well) need to be documented?
+
+Do you know of a suitable ADC frontend?  Preferably with docs. Interesting bit is the
+ data format and these ancillary parts.
+>
+>cheers
 
 -- 
-Dmitry
+Sent from my Android phone with K-9 Mail. Please excuse my brevity.

@@ -1,17 +1,15 @@
 From: Clark Li <clark.li86@gmail.com>
 Subject: [PATCH 1/1] input: Expose states of gpio keypad
-Date: Fri, 17 Oct 2014 20:40:46 +1030
-Message-ID: <1413540646-8455-2-git-send-email-clark.li86@gmail.com>
-References: <1413540646-8455-1-git-send-email-clark.li86@gmail.com>
+Date: Fri, 17 Oct 2014 20:40:45 +1030
+Message-ID: <1413540646-8455-1-git-send-email-clark.li86@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:44002 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751441AbaJQKL2 (ORCPT
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:33581 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751441AbaJQKLY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Oct 2014 06:11:28 -0400
-Received: by mail-pa0-f42.google.com with SMTP id bj1so582468pad.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Oct 2014 03:11:27 -0700 (PDT)
-In-Reply-To: <1413540646-8455-1-git-send-email-clark.li86@gmail.com>
+	Fri, 17 Oct 2014 06:11:24 -0400
+Received: by mail-pa0-f51.google.com with SMTP id lj1so578991pab.10
+        for <linux-input@vger.kernel.org>; Fri, 17 Oct 2014 03:11:24 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org

@@ -1,74 +1,41 @@
-From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Subject: Re: [PATCH] Input: atkbd - correct MSC_SCAN events for force_release keys
-Date: Sat, 18 Oct 2014 00:48:59 +0200
-Message-ID: <2149226.863NAkGi8a@pebbles.site>
-References: <2075303.cGkXBhvpNe@pebbles.site>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: add keyboard input assist hid usages
+Date: Fri, 17 Oct 2014 16:59:37 -0700
+Message-ID: <20141017235937.GB22238@dtor-ws>
+References: <1413590019-1829-1-git-send-email-ogay@logitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-out-2.rwth-aachen.de ([134.130.5.187]:15172 "EHLO
-	mx-out-2.rwth-aachen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751158AbaJQWtJ convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:59521 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751342AbaJQX7l (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Oct 2014 18:49:09 -0400
-In-Reply-To: <2075303.cGkXBhvpNe@pebbles.site>
+	Fri, 17 Oct 2014 19:59:41 -0400
+Received: by mail-pd0-f174.google.com with SMTP id y13so1607613pdi.33
+        for <linux-input@vger.kernel.org>; Fri, 17 Oct 2014 16:59:41 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1413590019-1829-1-git-send-email-ogay@logitech.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Olivier Gay <ogay@logitech.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mathieu Meisser <mmeisser@logitech.com>
 
-On Sunday, September 28, 2014 11:13:24 PM you wrote:
-> Without the change either no scancode would be reported on release
-> of force_release keys, or - if the key is marked as force_release
-> erroneously - the release event and the scancode would be reported
-> in separate reports to the input layer.
->=20
-> Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
+On Sat, Oct 18, 2014 at 01:53:39AM +0200, Olivier Gay wrote:
+> Add keyboard input assist controls usages from approved
+> hid usage table request HUTTR42:
+> http://www.usb.org/developers/hidpage/HUTRR42c.pdf
+> 
+> Signed-off-by: Olivier Gay <ogay@logitech.com>
 > ---
->  drivers/input/keyboard/atkbd.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/=
-atkbd.c
-> index 2dd1d0d..6375ae6 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -456,8 +456,9 @@ static irqreturn_t atkbd_interrupt(struct serio *=
-serio, unsigned char data,
-> =20
->  	keycode =3D atkbd->keycode[code];
-> =20
-> -	if (keycode !=3D ATKBD_KEY_NULL)
-> -		input_event(dev, EV_MSC, MSC_SCAN, code);
-> +	if (!(atkbd->release && test_bit(code, atkbd->force_release_mask)))
-> +		if (keycode !=3D ATKBD_KEY_NULL)
-> +			input_event(dev, EV_MSC, MSC_SCAN, code);
-> =20
->  	switch (keycode) {
->  	case ATKBD_KEY_NULL:
-> @@ -511,6 +512,7 @@ static irqreturn_t atkbd_interrupt(struct serio *=
-serio, unsigned char data,
->  		input_sync(dev);
-> =20
->  		if (value && test_bit(code, atkbd->force_release_mask)) {
-> +			input_event(dev, EV_MSC, MSC_SCAN, code);
->  			input_report_key(dev, keycode, 0);
->  			input_sync(dev);
->  		}
->=20
+> 
+> Hi all,
+> 
+> this patch adds some currently missing hid usages to the
+> hid system.
 
-Ping!
+Who is going to be using these codes? Do we have userspace consumers?
 
-Kind regards,
+Thanks.
 
-Stefan
-
---=20
-Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
-home: +49 241 53809034     mobile: +49 151 50412019
-work: +49 2405 49936-424
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

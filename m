@@ -1,58 +1,50 @@
-From: Jonathan Cameron <jic23@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: Touch processing on host CPU
-Date: Fri, 17 Oct 2014 17:33:01 +0100
-Message-ID: <A82E1F59-BB34-40EA-A13F-456EBCC0519D@kernel.org>
+Date: Fri, 17 Oct 2014 10:17:56 -0700
+Message-ID: <20141017171756.GA22238@dtor-ws>
 References: <5440F282.8040306@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:45215 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752472AbaJQQdS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Oct 2014 12:33:18 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <5440F282.8040306@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <greg@kroah.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+Hi Nick,
 
+On Fri, Oct 17, 2014 at 11:42:10AM +0100, Nick Dyer wrote:
+> Hi-
+> 
+> I'm trying to find out which subsystem maintainer I should be talking to -
+> apologies if I'm addressing the wrong people.
+> 
+> There is a model for doing touch processing where the touch controller
+> becomes a much simpler device which sends out raw acquisitions (over SPI 
+> at up to 1Mbps + protocol overheads). All touch processing is then done in
+> user space by the host CPU. An example of this is NVIDIA DirectTouch - see:
+> http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
+> 
+> In the spirit of "upstream first", I'm trying to figure out how to get a
+> driver accepted. Obviously it's not an input device in the normal sense. Is
+> it acceptable just to send the raw touch data out via a char device? Is
+> there another subsystem which is a good match (eg IIO)? Does the protocol
+> (there is ancillary/control data as well) need to be documented?
 
-On October 17, 2014 11:42:10 AM GMT+01:00, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
->Hi-
->
->I'm trying to find out which subsystem maintainer I should be talking
->to -
->apologies if I'm addressing the wrong people.
->
->There is a model for doing touch processing where the touch controller
->becomes a much simpler device which sends out raw acquisitions (over
->SPI 
->at up to 1Mbps + protocol overheads). All touch processing is then done
->in
->user space by the host CPU. An example of this is NVIDIA DirectTouch -
->see:
->http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
->
->In the spirit of "upstream first", I'm trying to figure out how to get
->a
->driver accepted. Obviously it's not an input device in the normal
->sense. Is
->it acceptable just to send the raw touch data out via a char device? Is
->there another subsystem which is a good match (eg IIO)?
+I'd really think *long* and *hard* about this. Even if you will have the
+touch process open source you have 2 options: route it back into the
+kernel through uinput, thus adding latency (which might be OK, need to
+measure and decide), or go back about 10 years where we had
+device-specific drivers in XFree86 and re-create them again, and also do
+the same for Wayland, Chrome, Android, etc.
 
-Possibly... 
-> Does the
->protocol
->(there is ancillary/control data as well) need to be documented?
+If you will have touch processing in a binary blob, you'll also be going
+to ages "Works with Ubuntu 12.04 on x86_32!" (and nothing else), or
+"Android 5.1.2 on Tegra Blah (build 78912KT)" (and nothing else).
 
-Do you know of a suitable ADC frontend?  Preferably with docs. Interesting bit is the
- data format and these ancillary parts.
->
->cheers
+Thanks.
 
 -- 
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+Dmitry

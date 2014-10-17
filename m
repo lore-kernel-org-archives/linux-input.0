@@ -1,50 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Touch processing on host CPU
-Date: Fri, 17 Oct 2014 10:17:56 -0700
-Message-ID: <20141017171756.GA22238@dtor-ws>
-References: <5440F282.8040306@itdev.co.uk>
+From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
+Subject: Re: [PATCH] Input: atkbd - correct MSC_SCAN events for force_release keys
+Date: Sat, 18 Oct 2014 00:48:59 +0200
+Message-ID: <2149226.863NAkGi8a@pebbles.site>
+References: <2075303.cGkXBhvpNe@pebbles.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5440F282.8040306@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx-out-2.rwth-aachen.de ([134.130.5.187]:15172 "EHLO
+	mx-out-2.rwth-aachen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751158AbaJQWtJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Oct 2014 18:49:09 -0400
+In-Reply-To: <2075303.cGkXBhvpNe@pebbles.site>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Nick,
+On Sunday, September 28, 2014 11:13:24 PM you wrote:
+> Without the change either no scancode would be reported on release
+> of force_release keys, or - if the key is marked as force_release
+> erroneously - the release event and the scancode would be reported
+> in separate reports to the input layer.
+>=20
+> Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
+> ---
+>  drivers/input/keyboard/atkbd.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/=
+atkbd.c
+> index 2dd1d0d..6375ae6 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -456,8 +456,9 @@ static irqreturn_t atkbd_interrupt(struct serio *=
+serio, unsigned char data,
+> =20
+>  	keycode =3D atkbd->keycode[code];
+> =20
+> -	if (keycode !=3D ATKBD_KEY_NULL)
+> -		input_event(dev, EV_MSC, MSC_SCAN, code);
+> +	if (!(atkbd->release && test_bit(code, atkbd->force_release_mask)))
+> +		if (keycode !=3D ATKBD_KEY_NULL)
+> +			input_event(dev, EV_MSC, MSC_SCAN, code);
+> =20
+>  	switch (keycode) {
+>  	case ATKBD_KEY_NULL:
+> @@ -511,6 +512,7 @@ static irqreturn_t atkbd_interrupt(struct serio *=
+serio, unsigned char data,
+>  		input_sync(dev);
+> =20
+>  		if (value && test_bit(code, atkbd->force_release_mask)) {
+> +			input_event(dev, EV_MSC, MSC_SCAN, code);
+>  			input_report_key(dev, keycode, 0);
+>  			input_sync(dev);
+>  		}
+>=20
 
-On Fri, Oct 17, 2014 at 11:42:10AM +0100, Nick Dyer wrote:
-> Hi-
-> 
-> I'm trying to find out which subsystem maintainer I should be talking to -
-> apologies if I'm addressing the wrong people.
-> 
-> There is a model for doing touch processing where the touch controller
-> becomes a much simpler device which sends out raw acquisitions (over SPI 
-> at up to 1Mbps + protocol overheads). All touch processing is then done in
-> user space by the host CPU. An example of this is NVIDIA DirectTouch - see:
-> http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
-> 
-> In the spirit of "upstream first", I'm trying to figure out how to get a
-> driver accepted. Obviously it's not an input device in the normal sense. Is
-> it acceptable just to send the raw touch data out via a char device? Is
-> there another subsystem which is a good match (eg IIO)? Does the protocol
-> (there is ancillary/control data as well) need to be documented?
+Ping!
 
-I'd really think *long* and *hard* about this. Even if you will have the
-touch process open source you have 2 options: route it back into the
-kernel through uinput, thus adding latency (which might be OK, need to
-measure and decide), or go back about 10 years where we had
-device-specific drivers in XFree86 and re-create them again, and also do
-the same for Wayland, Chrome, Android, etc.
+Kind regards,
 
-If you will have touch processing in a binary blob, you'll also be going
-to ages "Works with Ubuntu 12.04 on x86_32!" (and nothing else), or
-"Android 5.1.2 on Tegra Blah (build 78912KT)" (and nothing else).
+Stefan
 
-Thanks.
-
--- 
-Dmitry
+--=20
+Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
+home: +49 241 53809034     mobile: +49 151 50412019
+work: +49 2405 49936-424
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

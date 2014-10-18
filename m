@@ -1,93 +1,199 @@
-From: Olivier Gay <ogay@logitech.com>
-Subject: [PATCH] HID: add keyboard input assist hid usages
-Date: Sat, 18 Oct 2014 01:53:39 +0200
-Message-ID: <1413590019-1829-1-git-send-email-ogay@logitech.com>
+From: Denis Akiyakov <d.akiyakov@gmail.com>
+Subject: Problems with Wacom Intuos PT M (CTH680) on FreeBSD
+Date: Sat, 18 Oct 2014 17:56:48 +0700
+Message-ID: <54424770.9090600@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aob139.obsmtp.com ([74.125.149.251]:56612 "EHLO
-	psmtp.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751342AbaJRAAT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Oct 2014 20:00:19 -0400
-Received: by mail-lb0-f171.google.com with SMTP id z12so1485683lbi.16
-        for <linux-input@vger.kernel.org>; Fri, 17 Oct 2014 17:00:17 -0700 (PDT)
+Received: from mail-lb0-f172.google.com ([209.85.217.172]:50007 "EHLO
+	mail-lb0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751333AbaJRK5w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Oct 2014 06:57:52 -0400
+Received: by mail-lb0-f172.google.com with SMTP id b6so1839206lbj.17
+        for <linux-input@vger.kernel.org>; Sat, 18 Oct 2014 03:57:51 -0700 (PDT)
+Received: from sohaam.webstream ([212.164.231.32])
+        by mx.google.com with ESMTPSA id i6sm1230219laf.47.2014.10.18.03.57.49
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 18 Oct 2014 03:57:50 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mathieu Meisser <mmeisser@logitech.com>, Olivier Gay <ogay@logitech.com>
 
-Add keyboard input assist controls usages from approved
-hid usage table request HUTTR42:
-http://www.usb.org/developers/hidpage/HUTRR42c.pdf
+Hello,
 
-Signed-off-by: Olivier Gay <ogay@logitech.com>
----
+I'm using FreeBSD 10.1 and FreeBSD use webcamd witch contain linux waco=
+m=20
+driver to provide wacom tablets support. More info here:=20
+http://www.selasky.org/hans_petter/video4bsd/ or=20
+http://www.freshports.org/multimedia/webcamd/
 
-Hi all,
+I've got latest version of webcamd and Wacom device CTH680, but device=20
+isn't working correct.
 
-this patch adds some currently missing hid usages to the
-hid system.
+dmesg:
 
-Best regards,
+ugen2.3: <Wacom Co.,Ltd.> at usbus2
+ums0: <Wacom Co.,Ltd. Intuos PTM, class 0/0, rev 2.00/1.00, addr 3> on=20
+usbus2
+uhid2: <Wacom Co.,Ltd. Intuos PTM, class 0/0, rev 2.00/1.00, addr 3> on=
+=20
+usbus2
+uhid3: <Wacom Co.,Ltd. Intuos PTM, class 0/0, rev 2.00/1.00, addr 3> on=
+=20
+usbus2
 
-Olivier
 
- drivers/hid/hid-debug.c    | 6 ++++++
- drivers/hid/hid-input.c    | 7 +++++++
- include/uapi/linux/input.h | 7 +++++++
- 3 files changed, 20 insertions(+)
+here are two outputs from webcamd:
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 84c3cb1..8bf61d2 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -946,6 +946,12 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
- 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
- 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
-+	[KEY_KBDINPUTASSIST_PREV] = "KbdInputAssistPrev",
-+	[KEY_KBDINPUTASSIST_NEXT] = "KbdInputAssistNext",
-+	[KEY_KBDINPUTASSIST_PREVGROUP] = "KbdInputAssistPrevGroup",
-+	[KEY_KBDINPUTASSIST_NEXTGROUP] = "KbdInputAssistNextGroup",
-+	[KEY_KBDINPUTASSIST_ACCEPT] = "KbdInputAssistAccept",
-+	[KEY_KBDINPUTASSIST_CANCEL] = "KbdInputAssistCancel",
- };
- 
- static const char *relatives[REL_MAX + 1] = {
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 2df7fdd..56c6c30 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -862,6 +862,13 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x28b: map_key_clear(KEY_FORWARDMAIL);	break;
- 		case 0x28c: map_key_clear(KEY_SEND);		break;
- 
-+		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
-+		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
-+		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
-+		case 0x2ca: map_key_clear(KEY_KBDINPUTASSIST_NEXTGROUP);		break;
-+		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
-+		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
-+
- 		default:    goto ignore;
- 		}
- 		break;
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 19df18c..9be8c13 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -738,6 +738,13 @@ struct input_keymap_entry {
- #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
- #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
- 
-+#define KEY_KBDINPUTASSIST_PREV		0x260
-+#define KEY_KBDINPUTASSIST_NEXT		0x261
-+#define KEY_KBDINPUTASSIST_PREVGROUP		0x262
-+#define KEY_KBDINPUTASSIST_NEXTGROUP		0x263
-+#define KEY_KBDINPUTASSIST_ACCEPT		0x264
-+#define KEY_KBDINPUTASSIST_CANCEL		0x265
-+
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
- #define BTN_TRIGGER_HAPPY2		0x2c1
--- 
-1.9.0
+first (/usr/local/sbin/webcamd -i 0 -d ugen2.3 -U webcamd -G webcamd -H=
+):
 
+: USB HID core driver
+Linux video capture interface: v2.00
+lirc_dev: IR Remote Control driver registered, major 14
+IR NEC protocol handler initialized
+IR RC5(x/sz) protocol handler initialized
+IR RC6 protocol handler initialized
+IR JVC protocol handler initialized
+IR Sony protocol handler initialized
+IR SANYO protocol handler initialized
+IR LIRC bridge handler initialized
+IR XMP protocol handler initialized
+uvcvideo: Unable to create debugfs directory
+USB Video Class driver (1.1.1)
+cpia2: V4L-Driver for Vision CPiA2 based cameras v3.0.1
+au0828 driver loaded
+pvrusb2: V4L in-tree version:Hauppauge WinTV-PVR-USB2 MPEG2 Encoder/Tun=
+er
+pvrusb2: Debug mask is 31 (0x1f)
+USBVision USB Video Device Driver for Linux : 0.9.11
+em28xx: Registered (Em28xx v4l2 Extension) extension
+em28xx: Registered (Em28xx dvb Extension) extension
+Attached to ugen2.3[0]
+DBG: 0003:056A:0303.0001: Kicking head 1 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 2 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 3 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 4 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 5 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 6 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 7 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 8 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 9 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 10 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 11 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 12 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 13 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 14 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 15 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 16 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 17 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 18 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 19 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 20 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 21 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+INFO: 0003:056A:0303.0001: =D0=9F=E2=94=82F: USB HID v1.10 Device [Waco=
+m Co.,Ltd.=20
+Intuos PTM] on usb-/dev/usb-/dev/usb/input0
+
+Waiting for HAL USB device.
+Creating /dev/input/event0
+
+#------------------------------------------
+second (/usr/local/sbin/webcamd -i 1 -d ugen2.3 -U webcamd -G webcamd -=
+H):
+#------------------------------------------
+
+: USB HID core driver
+Linux video capture interface: v2.00
+lirc_dev: IR Remote Control driver registered, major 14
+IR NEC protocol handler initialized
+IR RC5(x/sz) protocol handler initialized
+IR RC6 protocol handler initialized
+IR JVC protocol handler initialized
+IR Sony protocol handler initialized
+IR SANYO protocol handler initialized
+IR LIRC bridge handler initialized
+IR XMP protocol handler initialized
+uvcvideo: Unable to create debugfs directory
+USB Video Class driver (1.1.1)
+cpia2: V4L-Driver for Vision CPiA2 based cameras v3.0.1
+au0828 driver loaded
+pvrusb2: V4L in-tree version:Hauppauge WinTV-PVR-USB2 MPEG2 Encoder/Tun=
+er
+pvrusb2: Debug mask is 31 (0x1f)
+USBVision USB Video Device Driver for Linux : 0.9.11
+em28xx: Registered (Em28xx v4l2 Extension) extension
+em28xx: Registered (Em28xx dvb Extension) extension
+Attached to ugen2.3[1]
+DBG: 0003:056A:0303.0001: Kicking head 1 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+DBG: 0003:056A:0303.0001: Kicking head 2 tail 0
+ERR: 0003:056A:0303.0001: usb_submit_urb(ctrl) failed: -32
+
+INFO: 0003:056A:0303.0001: =D0=9F=E2=94=82F: USB HID v1.10 Device [Waco=
+m Co.,Ltd.=20
+Intuos PTM] on usb-/dev/usb-/dev/usb/input1
+
+Waiting for HAL USB device.
+Creating /dev/input/event1
+Creating /dev/input/event2
+Creating /dev/input/js0
+
+
+At the end, sometimes after few manipulations the touch by fingers=20
+starts working. Pen never works.
+
+Can anyone help to resolve this problem? If you need other logs, please=
+ ask.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

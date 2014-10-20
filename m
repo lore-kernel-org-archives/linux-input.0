@@ -1,51 +1,55 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: ASUS N550JK Touchpad recognized wrongly as PS/2 mouse
-Date: Mon, 20 Oct 2014 19:56:39 +0200
-Message-ID: <54454CD7.80406@redhat.com>
-References: <CAJ_4JbZWLXVRGwwuYnzoVvTOM-fUE4vb9jeZLQJ2LUD+fOhs-Q@mail.gmail.com> <CAN+gG=E6c9eK51RxMQU_1tkxk08WtXfpSt7eyiz4fZqOd258OQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: add keyboard input assist hid usages
+Date: Mon, 20 Oct 2014 11:07:06 -0700
+Message-ID: <3689204.uK3UlfOp53@dtor-glaptop>
+References: <1413590019-1829-1-git-send-email-ogay@logitech.com> <20141017235937.GB22238@dtor-ws> <alpine.LNX.2.00.1410201123240.30423@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43462 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751102AbaJTR4n (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Oct 2014 13:56:43 -0400
-In-Reply-To: <CAN+gG=E6c9eK51RxMQU_1tkxk08WtXfpSt7eyiz4fZqOd258OQ@mail.gmail.com>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:56345 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752326AbaJTSHK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Oct 2014 14:07:10 -0400
+Received: by mail-pa0-f51.google.com with SMTP id lj1so5641973pab.24
+        for <linux-input@vger.kernel.org>; Mon, 20 Oct 2014 11:07:09 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1410201123240.30423@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Carla Rosenfield <c.rosenfield@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Olivier Gay <ogay@logitech.com>, linux-input@vger.kernel.org, Mathieu Meisser <mmeisser@logitech.com>
 
-Hi,
+Hi Jiri,
 
-On 10/20/2014 05:38 PM, Benjamin Tissoires wrote:
-> Hi Carla,
+On Monday, October 20, 2014 11:28:19 AM Jiri Kosina wrote:
+> On Fri, 17 Oct 2014, Dmitry Torokhov wrote:
+> > > Add keyboard input assist controls usages from approved
+> > > hid usage table request HUTTR42:
+> > > http://www.usb.org/developers/hidpage/HUTRR42c.pdf
+> > > 
+> > > Signed-off-by: Olivier Gay <ogay@logitech.com>
+> > > ---
+> > > 
+> > > Hi all,
+> > > 
+> > > this patch adds some currently missing hid usages to the
+> > > hid system.
+> > 
+> > Who is going to be using these codes? Do we have userspace consumers?
 > 
-> just FYI, I have the same laptop model than you, and can reproduce
-> your bug report in the same way. I'll work on that to make it working
-> properly.
+> As review request #42 has been approved, I don't really have strong
+> objections to adding this, as it means certain level of standardization by
+> he USB Device Working Group HID Committee.
 > 
-> Hans, (unfortunately,) this laptop has a ETD0105 touchpad from Elan.
-> That means that we do not have the X550 touchpad in house, but also
-> means that we should be able to get in working faster than the X550
-> one :)
+> Dmitry, given your question, I am not applying the patch yet and waiting
+> for your consideration/Ack.
 
-Ok, so 2 things:
+Please merge with my Ack for the new codes - I was not against adding them,
+just wanted to make sure they are going to be used instead of just adding them
+as placehoders.
 
-1) On the ETD0105 touchpad not working, does the kernel you're using
-already have this patch ? :
+Thanks.
 
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/mouse/elantech.c?id=271329b3c798b2102120f5df829071c211ef00ed
-
-If not, try that, if it does, it may need some tweaks to that patch,
-or something similar.
-
-2) On not having an X550 style touchpad, I got a report from a user
-in the bugzilla tracking that, telling us that he is busy reverse
-engineering the protocol, and is making good progress, so that one
-should hopefully get sorted out soon-ish too :)
-
-Regards,
-
-Hans
+-- 
+Dmitry

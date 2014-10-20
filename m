@@ -1,328 +1,124 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/3] input: stmpe: enforce device tree only mode
-Date: Mon, 20 Oct 2014 07:43:47 +0100
-Message-ID: <20141020064347.GA25349@x1>
-References: <1413636989-3286-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/3] mfd: stmpe: add pull up/down register offsets for
+ STMPE
+Date: Mon, 20 Oct 2014 07:46:05 +0100
+Message-ID: <20141020064605.GB25349@x1>
+References: <1413636974-3244-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:65018 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752322AbaJTGqL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Oct 2014 02:46:11 -0400
+Received: by mail-ob0-f180.google.com with SMTP id va2so3263653obc.25
+        for <linux-input@vger.kernel.org>; Sun, 19 Oct 2014 23:46:10 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1413636989-3286-1-git-send-email-linus.walleij@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1413636974-3244-1-git-send-email-linus.walleij@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
 Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 On Sat, 18 Oct 2014, Linus Walleij wrote:
 
-> The STMPE keypad controller is only used with device tree
-> configured systems, so force the configuration to come from
-> device tree only, and now actually get the rows and cols from
-> the device tree too.
+> This adds the register offsets for pull up/down for the STMPE
+> 1601, 1801 and 24xx expanders. This is used to bias GPIO lines
+> and keypad lines.
 >=20
 > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  .../devicetree/bindings/input/stmpe-keypad.txt     |   2 +
->  drivers/input/keyboard/Kconfig                     |   1 +
->  drivers/input/keyboard/stmpe-keypad.c              | 104 +++++++++--=
-----------
->  include/linux/mfd/stmpe.h                          |  20 ----
->  4 files changed, 48 insertions(+), 79 deletions(-)
+> Hi Sam, Lee: I think you should just ACK this so Dmitry can take the
+> patch series through the input tree, where the registers need to be
+> used to enable the keypad on the STMPE2401.
+> ---
+>  drivers/mfd/stmpe.c       | 4 ++++
+>  drivers/mfd/stmpe.h       | 3 +++
+>  include/linux/mfd/stmpe.h | 2 ++
+>  3 files changed, 9 insertions(+)
+
+Does this need to go in with the other patches in the set?
+
+I'm _guessing_ that, as you've sent them separately, they can be
+applied separately?
+
+This needs to go in via MFD, but for my own reference:
 
 Acked-by: Lee Jones <lee.jones@linaro.org>
 
-> diff --git a/Documentation/devicetree/bindings/input/stmpe-keypad.txt=
- b/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-> index 1b97222e8a0b..12bb771d66d4 100644
-> --- a/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-> +++ b/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-> @@ -8,6 +8,8 @@ Optional properties:
->   - debounce-interval        : Debouncing interval time in millisecon=
-ds
->   - st,scan-count            : Scanning cycles elapsed before key dat=
-a is updated
->   - st,no-autorepeat         : If specified device will not autorepea=
-t
-> + - keypad,num-rows          : See ./matrix-keymap.txt
-> + - keypad,num-columns       : See ./matrix-keymap.txt
-> =20
->  Example:
-> =20
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/=
-Kconfig
-> index a3958c63d7d5..753d61c0a3a9 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -559,6 +559,7 @@ config KEYBOARD_SH_KEYSC
->  config KEYBOARD_STMPE
->  	tristate "STMPE keypad support"
->  	depends on MFD_STMPE
-> +	depends on OF
->  	select INPUT_MATRIXKMAP
->  	help
->  	  Say Y here if you want to use the keypad controller on STMPE I/O
-> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/ke=
-yboard/stmpe-keypad.c
-> index ef5e67fb567e..d46391f48310 100644
-> --- a/drivers/input/keyboard/stmpe-keypad.c
-> +++ b/drivers/input/keyboard/stmpe-keypad.c
-> @@ -45,7 +45,7 @@
->  #define STMPE_KEYPAD_MAX_ROWS		8
->  #define STMPE_KEYPAD_MAX_COLS		8
->  #define STMPE_KEYPAD_ROW_SHIFT		3
-> -#define STMPE_KEYPAD_KEYMAP_SIZE	\
-> +#define STMPE_KEYPAD_KEYMAP_MAX_SIZE \
->  	(STMPE_KEYPAD_MAX_ROWS * STMPE_KEYPAD_MAX_COLS)
-> =20
->  /**
-> @@ -99,16 +99,30 @@ static const struct stmpe_keypad_variant stmpe_ke=
-ypad_variants[] =3D {
->  	},
+> diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+> index 3004d5ba0b82..497505bad4c4 100644
+> --- a/drivers/mfd/stmpe.c
+> +++ b/drivers/mfd/stmpe.c
+> @@ -547,6 +547,7 @@ static const u8 stmpe1601_regs[] =3D {
+>  	[STMPE_IDX_GPDR_LSB]	=3D STMPE1601_REG_GPIO_SET_DIR_LSB,
+>  	[STMPE_IDX_GPRER_LSB]	=3D STMPE1601_REG_GPIO_RE_LSB,
+>  	[STMPE_IDX_GPFER_LSB]	=3D STMPE1601_REG_GPIO_FE_LSB,
+> +	[STMPE_IDX_GPPUR_LSB]	=3D STMPE1601_REG_GPIO_PU_LSB,
+>  	[STMPE_IDX_GPAFR_U_MSB]	=3D STMPE1601_REG_GPIO_AF_U_MSB,
+>  	[STMPE_IDX_IEGPIOR_LSB]	=3D STMPE1601_REG_INT_EN_GPIO_MASK_LSB,
+>  	[STMPE_IDX_ISGPIOR_MSB]	=3D STMPE1601_REG_INT_STA_GPIO_MSB,
+> @@ -695,6 +696,7 @@ static const u8 stmpe1801_regs[] =3D {
+>  	[STMPE_IDX_GPDR_LSB]	=3D STMPE1801_REG_GPIO_SET_DIR_LOW,
+>  	[STMPE_IDX_GPRER_LSB]	=3D STMPE1801_REG_GPIO_RE_LOW,
+>  	[STMPE_IDX_GPFER_LSB]	=3D STMPE1801_REG_GPIO_FE_LOW,
+> +	[STMPE_IDX_GPPUR_LSB]	=3D STMPE1801_REG_GPIO_PULL_UP_LOW,
+>  	[STMPE_IDX_IEGPIOR_LSB]	=3D STMPE1801_REG_INT_EN_GPIO_MASK_LOW,
+>  	[STMPE_IDX_ISGPIOR_LSB]	=3D STMPE1801_REG_INT_STA_GPIO_LOW,
 >  };
+> @@ -778,6 +780,8 @@ static const u8 stmpe24xx_regs[] =3D {
+>  	[STMPE_IDX_GPDR_LSB]	=3D STMPE24XX_REG_GPDR_LSB,
+>  	[STMPE_IDX_GPRER_LSB]	=3D STMPE24XX_REG_GPRER_LSB,
+>  	[STMPE_IDX_GPFER_LSB]	=3D STMPE24XX_REG_GPFER_LSB,
+> +	[STMPE_IDX_GPPUR_LSB]	=3D STMPE24XX_REG_GPPUR_LSB,
+> +	[STMPE_IDX_GPPDR_LSB]	=3D STMPE24XX_REG_GPPDR_LSB,
+>  	[STMPE_IDX_GPAFR_U_MSB]	=3D STMPE24XX_REG_GPAFR_U_MSB,
+>  	[STMPE_IDX_IEGPIOR_LSB]	=3D STMPE24XX_REG_IEGPIOR_LSB,
+>  	[STMPE_IDX_ISGPIOR_MSB]	=3D STMPE24XX_REG_ISGPIOR_MSB,
+> diff --git a/drivers/mfd/stmpe.h b/drivers/mfd/stmpe.h
+> index bee0abf82040..84adb46b3e2f 100644
+> --- a/drivers/mfd/stmpe.h
+> +++ b/drivers/mfd/stmpe.h
+> @@ -188,6 +188,7 @@ int stmpe_remove(struct stmpe *stmpe);
+>  #define STMPE1601_REG_GPIO_ED_MSB		0x8A
+>  #define STMPE1601_REG_GPIO_RE_LSB		0x8D
+>  #define STMPE1601_REG_GPIO_FE_LSB		0x8F
+> +#define STMPE1601_REG_GPIO_PU_LSB		0x91
+>  #define STMPE1601_REG_GPIO_AF_U_MSB		0x92
 > =20
-> +/**
-> + * struct stmpe_keypad - STMPE keypad state container
-> + * @stmpe: pointer to parent STMPE device
-> + * @input: spawned input device
-> + * @variant: STMPE variant
-> + * @debounce_ms: debounce interval, in ms.  Maximum is
-> + *		 %STMPE_KEYPAD_MAX_DEBOUNCE.
-> + * @scan_count: number of key scanning cycles to confirm key data.
-> + *		Maximum is %STMPE_KEYPAD_MAX_SCAN_COUNT.
-> + * @no_autorepeat: disable key autorepeat
-> + * @rows: bitmask for the rows
-> + * @cols: bitmask for the columns
-> + * @keymap: the keymap
-> + */
->  struct stmpe_keypad {
->  	struct stmpe *stmpe;
->  	struct input_dev *input;
->  	const struct stmpe_keypad_variant *variant;
-> -	const struct stmpe_keypad_platform_data *plat;
-> -
-> +	unsigned int debounce_ms;
-> +	unsigned int scan_count;
-> +	bool no_autorepeat;
->  	unsigned int rows;
->  	unsigned int cols;
-> -
-> -	unsigned short keymap[STMPE_KEYPAD_KEYMAP_SIZE];
-> +	unsigned short keymap[STMPE_KEYPAD_KEYMAP_MAX_SIZE];
->  };
+>  #define STMPE1601_SYS_CTRL_ENABLE_GPIO		(1 << 3)
+> @@ -276,6 +277,8 @@ int stmpe_remove(struct stmpe *stmpe);
+>  #define STMPE24XX_REG_GPEDR_MSB		0x8C
+>  #define STMPE24XX_REG_GPRER_LSB		0x91
+>  #define STMPE24XX_REG_GPFER_LSB		0x94
+> +#define STMPE24XX_REG_GPPUR_LSB		0x97
+> +#define STMPE24XX_REG_GPPDR_LSB		0x9a
+>  #define STMPE24XX_REG_GPAFR_U_MSB	0x9B
 > =20
->  static int stmpe_keypad_read_data(struct stmpe_keypad *keypad, u8 *d=
-ata)
-> @@ -208,15 +222,14 @@ static int stmpe_keypad_altfunc_init(struct stm=
-pe_keypad *keypad)
-> =20
->  static int stmpe_keypad_chip_init(struct stmpe_keypad *keypad)
->  {
-> -	const struct stmpe_keypad_platform_data *plat =3D keypad->plat;
->  	const struct stmpe_keypad_variant *variant =3D keypad->variant;
->  	struct stmpe *stmpe =3D keypad->stmpe;
->  	int ret;
-> =20
-> -	if (plat->debounce_ms > STMPE_KEYPAD_MAX_DEBOUNCE)
-> +	if (keypad->debounce_ms > STMPE_KEYPAD_MAX_DEBOUNCE)
->  		return -EINVAL;
-> =20
-> -	if (plat->scan_count > STMPE_KEYPAD_MAX_SCAN_COUNT)
-> +	if (keypad->scan_count > STMPE_KEYPAD_MAX_SCAN_COUNT)
->  		return -EINVAL;
-> =20
->  	ret =3D stmpe_enable(stmpe, STMPE_BLOCK_KEYPAD);
-> @@ -245,7 +258,7 @@ static int stmpe_keypad_chip_init(struct stmpe_ke=
-ypad *keypad)
-> =20
->  	ret =3D stmpe_set_bits(stmpe, STMPE_KPC_CTRL_MSB,
->  			     STMPE_KPC_CTRL_MSB_SCAN_COUNT,
-> -			     plat->scan_count << 4);
-> +			     keypad->scan_count << 4);
->  	if (ret < 0)
->  		return ret;
-> =20
-> @@ -253,17 +266,18 @@ static int stmpe_keypad_chip_init(struct stmpe_=
-keypad *keypad)
->  			      STMPE_KPC_CTRL_LSB_SCAN |
->  			      STMPE_KPC_CTRL_LSB_DEBOUNCE,
->  			      STMPE_KPC_CTRL_LSB_SCAN |
-> -			      (plat->debounce_ms << 1));
-> +			      (keypad->debounce_ms << 1));
->  }
-> =20
-> -static void stmpe_keypad_fill_used_pins(struct stmpe_keypad *keypad)
-> +static void stmpe_keypad_fill_used_pins(struct stmpe_keypad *keypad,
-> +					u32 used_rows, u32 used_cols)
->  {
->  	int row, col;
-> =20
-> -	for (row =3D 0; row < STMPE_KEYPAD_MAX_ROWS; row++) {
-> -		for (col =3D 0; col < STMPE_KEYPAD_MAX_COLS; col++) {
-> +	for (row =3D 0; row < used_rows; row++) {
-> +		for (col =3D 0; col < used_cols; col++) {
->  			int code =3D MATRIX_SCAN_CODE(row, col,
-> -						STMPE_KEYPAD_ROW_SHIFT);
-> +						    STMPE_KEYPAD_ROW_SHIFT);
->  			if (keypad->keymap[code] !=3D KEY_RESERVED) {
->  				keypad->rows |=3D 1 << row;
->  				keypad->cols |=3D 1 << col;
-> @@ -272,51 +286,17 @@ static void stmpe_keypad_fill_used_pins(struct =
-stmpe_keypad *keypad)
->  	}
->  }
-> =20
-> -#ifdef CONFIG_OF
-> -static const struct stmpe_keypad_platform_data *
-> -stmpe_keypad_of_probe(struct device *dev)
-> -{
-> -	struct device_node *np =3D dev->of_node;
-> -	struct stmpe_keypad_platform_data *plat;
-> -
-> -	if (!np)
-> -		return ERR_PTR(-ENODEV);
-> -
-> -	plat =3D devm_kzalloc(dev, sizeof(*plat), GFP_KERNEL);
-> -	if (!plat)
-> -		return ERR_PTR(-ENOMEM);
-> -
-> -	of_property_read_u32(np, "debounce-interval", &plat->debounce_ms);
-> -	of_property_read_u32(np, "st,scan-count", &plat->scan_count);
-> -
-> -	plat->no_autorepeat =3D of_property_read_bool(np, "st,no-autorepeat=
-");
-> -
-> -	return plat;
-> -}
-> -#else
-> -static inline const struct stmpe_keypad_platform_data *
-> -stmpe_keypad_of_probe(struct device *dev)
-> -{
-> -	return ERR_PTR(-EINVAL);
-> -}
-> -#endif
-> -
->  static int stmpe_keypad_probe(struct platform_device *pdev)
->  {
->  	struct stmpe *stmpe =3D dev_get_drvdata(pdev->dev.parent);
-> -	const struct stmpe_keypad_platform_data *plat;
-> +	struct device_node *np =3D pdev->dev.of_node;
->  	struct stmpe_keypad *keypad;
->  	struct input_dev *input;
-> +	u32 rows;
-> +	u32 cols;
->  	int error;
->  	int irq;
-> =20
-> -	plat =3D stmpe->pdata->keypad;
-> -	if (!plat) {
-> -		plat =3D stmpe_keypad_of_probe(&pdev->dev);
-> -		if (IS_ERR(plat))
-> -			return PTR_ERR(plat);
-> -	}
-> -
->  	irq =3D platform_get_irq(pdev, 0);
->  	if (irq < 0)
->  		return irq;
-> @@ -326,6 +306,13 @@ static int stmpe_keypad_probe(struct platform_de=
-vice *pdev)
->  	if (!keypad)
->  		return -ENOMEM;
-> =20
-> +	keypad->stmpe =3D stmpe;
-> +	keypad->variant =3D &stmpe_keypad_variants[stmpe->partnum];
-> +
-> +	of_property_read_u32(np, "debounce-interval", &keypad->debounce_ms)=
-;
-> +	of_property_read_u32(np, "st,scan-count", &keypad->scan_count);
-> +	keypad->no_autorepeat =3D of_property_read_bool(np, "st,no-autorepe=
-at");
-> +
->  	input =3D devm_input_allocate_device(&pdev->dev);
->  	if (!input)
->  		return -ENOMEM;
-> @@ -334,23 +321,22 @@ static int stmpe_keypad_probe(struct platform_d=
-evice *pdev)
->  	input->id.bustype =3D BUS_I2C;
->  	input->dev.parent =3D &pdev->dev;
-> =20
-> -	error =3D matrix_keypad_build_keymap(plat->keymap_data, NULL,
-> -					   STMPE_KEYPAD_MAX_ROWS,
-> -					   STMPE_KEYPAD_MAX_COLS,
-> +	error =3D matrix_keypad_parse_of_params(&pdev->dev, &rows, &cols);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D matrix_keypad_build_keymap(NULL, NULL, rows, cols,
->  					   keypad->keymap, input);
->  	if (error)
->  		return error;
-> =20
->  	input_set_capability(input, EV_MSC, MSC_SCAN);
-> -	if (!plat->no_autorepeat)
-> +	if (!keypad->no_autorepeat)
->  		__set_bit(EV_REP, input->evbit);
-> =20
-> -	stmpe_keypad_fill_used_pins(keypad);
-> +	stmpe_keypad_fill_used_pins(keypad, rows, cols);
-> =20
-> -	keypad->stmpe =3D stmpe;
-> -	keypad->plat =3D plat;
->  	keypad->input =3D input;
-> -	keypad->variant =3D &stmpe_keypad_variants[stmpe->partnum];
-> =20
->  	error =3D stmpe_keypad_chip_init(keypad);
->  	if (error < 0)
+>  #define STMPE24XX_SYS_CTRL_ENABLE_GPIO		(1 << 3)
 > diff --git a/include/linux/mfd/stmpe.h b/include/linux/mfd/stmpe.h
-> index 976e1a390177..dd908fea8c5b 100644
+> index af9e1b07a630..976e1a390177 100644
 > --- a/include/linux/mfd/stmpe.h
 > +++ b/include/linux/mfd/stmpe.h
-> @@ -116,24 +116,6 @@ extern int stmpe_set_altfunc(struct stmpe *stmpe=
-, u32 pins,
->  extern int stmpe_enable(struct stmpe *stmpe, unsigned int blocks);
->  extern int stmpe_disable(struct stmpe *stmpe, unsigned int blocks);
-> =20
-> -struct matrix_keymap_data;
-> -
-> -/**
-> - * struct stmpe_keypad_platform_data - STMPE keypad platform data
-> - * @keymap_data: key map table and size
-> - * @debounce_ms: debounce interval, in ms.  Maximum is
-> - *		 %STMPE_KEYPAD_MAX_DEBOUNCE.
-> - * @scan_count: number of key scanning cycles to confirm key data.
-> - *		Maximum is %STMPE_KEYPAD_MAX_SCAN_COUNT.
-> - * @no_autorepeat: disable key autorepeat
-> - */
-> -struct stmpe_keypad_platform_data {
-> -	const struct matrix_keymap_data *keymap_data;
-> -	unsigned int debounce_ms;
-> -	unsigned int scan_count;
-> -	bool no_autorepeat;
-> -};
-> -
->  #define STMPE_GPIO_NOREQ_811_TOUCH	(0xf0)
-> =20
->  /**
-> @@ -202,7 +184,6 @@ struct stmpe_ts_platform_data {
->   * @irq_gpio: gpio number over which irq will be requested (signific=
-ant only if
->   *	      irq_over_gpio is true)
->   * @gpio: GPIO-specific platform data
-> - * @keypad: keypad-specific platform data
->   * @ts: touchscreen-specific platform data
->   */
->  struct stmpe_platform_data {
-> @@ -215,7 +196,6 @@ struct stmpe_platform_data {
->  	int autosleep_timeout;
-> =20
->  	struct stmpe_gpio_platform_data *gpio;
-> -	struct stmpe_keypad_platform_data *keypad;
->  	struct stmpe_ts_platform_data *ts;
->  };
-> =20
+> @@ -50,6 +50,8 @@ enum {
+>  	STMPE_IDX_GPEDR_MSB,
+>  	STMPE_IDX_GPRER_LSB,
+>  	STMPE_IDX_GPFER_LSB,
+> +	STMPE_IDX_GPPUR_LSB,
+> +	STMPE_IDX_GPPDR_LSB,
+>  	STMPE_IDX_GPAFR_U_MSB,
+>  	STMPE_IDX_IEGPIOR_LSB,
+>  	STMPE_IDX_ISGPIOR_LSB,
 
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

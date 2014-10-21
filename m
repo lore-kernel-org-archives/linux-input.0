@@ -1,175 +1,47 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 3/4] ARM: dts: sun5i: Add lradc node
-Date: Tue, 21 Oct 2014 10:24:49 +0200
-Message-ID: <1413879890-7254-4-git-send-email-hdegoede@redhat.com>
-References: <1413879890-7254-1-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Touch processing on host CPU
+Date: Tue, 21 Oct 2014 13:01:20 +0200
+Message-ID: <20141021110120.GD23161@amd>
+References: <5440F282.8040306@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBYFQTCRAKGQEVNLIQZA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1413879890-7254-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5440F282.8040306@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts | 36 ++++++++++++++++++++++++
- arch/arm/boot/dts/sun5i-a10s.dtsi                |  7 +++++
- arch/arm/boot/dts/sun5i-a13-olinuxino.dts        | 36 ++++++++++++++++++++++++
- arch/arm/boot/dts/sun5i-a13.dtsi                 |  7 +++++
- 4 files changed, 86 insertions(+)
+Hi!
 
-diff --git a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-index ea9519d..84df85e 100644
---- a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-+++ b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-@@ -14,6 +14,7 @@
- /dts-v1/;
- /include/ "sun5i-a10s.dtsi"
- /include/ "sunxi-common-regulators.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Olimex A10s-Olinuxino Micro";
-@@ -98,6 +99,41 @@
- 			};
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			vref-supply = <&reg_vcc3v0>;
-+			status = "okay";
-+			button@19 {
-+				label = "Volume Up";
-+				linux,code = <KEY_VOLUMEUP>;
-+				channel = <0>;
-+				voltage = <191274>;
-+			};
-+			button@39 {
-+				label = "Volume Down";
-+				linux,code = <KEY_VOLUMEDOWN>;
-+				channel = <0>;
-+				voltage = <392644>;
-+			};
-+			button@60 {
-+				label = "Menu";
-+				linux,code = <KEY_MENU>;
-+				channel = <0>;
-+				voltage = <601151>;
-+			};
-+			button@80 {
-+				label = "Enter";
-+				linux,code = <KEY_ENTER>;
-+				channel = <0>;
-+				voltage = <795090>;
-+			};
-+			button@98 {
-+				label = "Home";
-+				linux,code = <KEY_HOME>;
-+				channel = <0>;
-+				voltage = <987387>;
-+			};
-+		};
-+
- 		uart0: serial@01c28000 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&uart0_pins_a>;
-diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
-index 531272c..a73cec4 100644
---- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-@@ -520,6 +520,13 @@
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			compatible = "allwinner,sun4i-lradc-keys";
-+			reg = <0x01c22800 0x100>;
-+			interrupts = <31>;
-+			status = "disabled";
-+		};
-+
- 		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun4i-a10-sid";
- 			reg = <0x01c23800 0x10>;
-diff --git a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-index 429994e..11ecb36 100644
---- a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-+++ b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-@@ -14,6 +14,7 @@
- /dts-v1/;
- /include/ "sun5i-a13.dtsi"
- /include/ "sunxi-common-regulators.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Olimex A13-Olinuxino";
-@@ -66,6 +67,41 @@
- 			};
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			vref-supply = <&reg_vcc3v0>;
-+			status = "okay";
-+			button@19 {
-+				label = "Volume Up";
-+				linux,code = <KEY_VOLUMEUP>;
-+				channel = <0>;
-+				voltage = <191274>;
-+			};
-+			button@39 {
-+				label = "Volume Down";
-+				linux,code = <KEY_VOLUMEDOWN>;
-+				channel = <0>;
-+				voltage = <392644>;
-+			};
-+			button@60 {
-+				label = "Menu";
-+				linux,code = <KEY_MENU>;
-+				channel = <0>;
-+				voltage = <601151>;
-+			};
-+			button@80 {
-+				label = "Enter";
-+				linux,code = <KEY_ENTER>;
-+				channel = <0>;
-+				voltage = <795090>;
-+			};
-+			button@98 {
-+				label = "Home";
-+				linux,code = <KEY_HOME>;
-+				channel = <0>;
-+				voltage = <987387>;
-+			};
-+		};
-+
- 		uart1: serial@01c28400 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&uart1_pins_b>;
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index b131068..528d0d6 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -468,6 +468,13 @@
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			compatible = "allwinner,sun4i-lradc-keys";
-+			reg = <0x01c22800 0x100>;
-+			interrupts = <31>;
-+			status = "disabled";
-+		};
-+
- 		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun4i-a10-sid";
- 			reg = <0x01c23800 0x10>;
+
+> I'm trying to find out which subsystem maintainer I should be talking to -
+> apologies if I'm addressing the wrong people.
+> 
+> There is a model for doing touch processing where the touch controller
+> becomes a much simpler device which sends out raw acquisitions (over SPI 
+> at up to 1Mbps + protocol overheads). All touch processing is then done in
+> user space by the host CPU. An example of this is NVIDIA DirectTouch - see:
+> http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
+
+Would it be possible to do processing in kernel space?
+
+> In the spirit of "upstream first", I'm trying to figure out how to get a
+> driver accepted. Obviously it's not an input device in the normal sense. Is
+> it acceptable just to send the raw touch data out via a char device?
+> Is
+
+Char device would be best option if not.
+
+> there another subsystem which is a good match (eg IIO)? Does the protocol
+> (there is ancillary/control data as well) need to be documented?
+
+It really depends. If you have driver for serial port, you don't need
+to describe what goes over the serial port. But documentation would be
+nice.
+
+									Pavel
 -- 
-2.1.0
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

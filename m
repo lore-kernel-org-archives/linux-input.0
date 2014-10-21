@@ -1,42 +1,42 @@
-From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Subject: Re: Touch processing on host CPU
-Date: Tue, 21 Oct 2014 13:22:29 +0100
-Message-ID: <20141021132229.37a1197c@alan.etchedpixels.co.uk>
-References: <5440F282.8040306@itdev.co.uk>
-	<20141017171756.GA22238@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 3/4] ARM: dts: sun5i: Add lradc node
+Date: Tue, 21 Oct 2014 09:21:59 -0700
+Message-ID: <20141021162159.GC8609@dtor-ws>
+References: <1413879890-7254-1-git-send-email-hdegoede@redhat.com>
+ <1413879890-7254-4-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141017171756.GA22238@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRBK4QTKRAKGQEQRQVT4A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1413879890-7254-4-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+Content-Disposition: inline
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-> If you will have touch processing in a binary blob, you'll also be going
-> to ages "Works with Ubuntu 12.04 on x86_32!" (and nothing else), or
-> "Android 5.1.2 on Tegra Blah (build 78912KT)" (and nothing else).
+Hi Hans,
 
-As well as not going upstream because there is no way anyone else can
-test changes to the code, or support it. Plus of course there are those
-awkward questions around derivative work boundaries that it is best the
-base kernel keeps well clear of.
+On Tue, Oct 21, 2014 at 10:24:49AM +0200, Hans de Goede wrote:
+> +			button@98 {
+> +				label = "Home";
+> +				linux,code = <KEY_HOME>;
 
-If the data format is documented to the point someone can go write their
-own touch processor for the bitstream then that really deals with it
-anyway. Given the number of these things starting to pop up it would
-probably be good if someone did produce an open source processing engine
-for touch sensor streams as it shouldn't take long before its better than
-all the non-free ones 8).
+I do not think you really want KEY_HOME (go to the beginning of the
+line) here, KEY_HOMEPAGE or similar would suit better.
 
-Given how latency sensitive touch is and the continual data stream I
-would be inclined to think that the basic processing might be better in
-kernel and then as an input device - providing it can be simple enough to
-want to put kernel side.
+> +				channel = <0>;
+> +				voltage = <987387>;
+> +			};
+> +		};
 
-Otherwise I'd say your bitstream is probably something like ADC data and
-belongs in IIO (which should also help people to have one processing
-agent for multiple designs of touch, SPI controllers etc)
+Thanks.
 
-Alan
+-- 
+Dmitry

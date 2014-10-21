@@ -1,35 +1,62 @@
-From: Olivier Gay <ogay@logitech.com>
-Subject: Re: [PATCH] HID: add keyboard input assist hid usages
-Date: Mon, 20 Oct 2014 14:30:49 -0700
-Message-ID: <CAFLMSp-Jn1d0sdPcYBgPzJOP4coe=cyKPemQ0uy-8SfPf2P6yA@mail.gmail.com>
-References: <1413590019-1829-1-git-send-email-ogay@logitech.com>
- <20141017235937.GB22238@dtor-ws> <alpine.LNX.2.00.1410201123240.30423@pobox.suse.cz>
- <3689204.uK3UlfOp53@dtor-glaptop> <alpine.LNX.2.00.1410202104210.24255@pobox.suse.cz>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: ASUS N550JK Touchpad recognized wrongly as PS/2 mouse
+Date: Tue, 21 Oct 2014 08:26:53 +0200
+Message-ID: <5445FCAD.7020406@redhat.com>
+References: <CAJ_4JbZWLXVRGwwuYnzoVvTOM-fUE4vb9jeZLQJ2LUD+fOhs-Q@mail.gmail.com>	<CAN+gG=E6c9eK51RxMQU_1tkxk08WtXfpSt7eyiz4fZqOd258OQ@mail.gmail.com>	<54454CD7.80406@redhat.com> <CAN+gG=Eeqg-Htr8WmxiCrrwxOztdaqRCTS5f3tFncf+Z69dnRw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aob139.obsmtp.com ([74.125.149.251]:57042 "EHLO
-	psmtp.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753163AbaJTVbN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Oct 2014 17:31:13 -0400
-Received: by mail-wg0-f45.google.com with SMTP id m15so6354263wgh.4
-        for <linux-input@vger.kernel.org>; Mon, 20 Oct 2014 14:31:10 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1410202104210.24255@pobox.suse.cz>
+Received: from mx1.redhat.com ([209.132.183.28]:46408 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750750AbaJUG05 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Oct 2014 02:26:57 -0400
+In-Reply-To: <CAN+gG=Eeqg-Htr8WmxiCrrwxOztdaqRCTS5f3tFncf+Z69dnRw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mathieu Meisser <mmeisser@logitech.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Carla Rosenfield <c.rosenfield@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Mon, Oct 20, 2014 at 12:04 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Mon, 20 Oct 2014, Dmitry Torokhov wrote:
->> Please merge with my Ack for the new codes - I was not against adding them,
->> just wanted to make sure they are going to be used instead of just adding them
->> as placehoders.
->
-> That was my understanding, but I wanted to be sure.
->
-> Thanks everybody, now queued in hid.git#for-3.18/upstream-fixes
+Hi,
 
-OK, thank you Jiri and Dmitry!
+On 10/20/2014 09:48 PM, Benjamin Tissoires wrote:
+> On Mon, Oct 20, 2014 at 1:56 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>> Hi,
+>>
+>> On 10/20/2014 05:38 PM, Benjamin Tissoires wrote:
+>>> Hi Carla,
+>>>
+>>> just FYI, I have the same laptop model than you, and can reproduce
+>>> your bug report in the same way. I'll work on that to make it working
+>>> properly.
+>>>
+>>> Hans, (unfortunately,) this laptop has a ETD0105 touchpad from Elan.
+>>> That means that we do not have the X550 touchpad in house, but also
+>>> means that we should be able to get in working faster than the X550
+>>> one :)
+>>
+>> Ok, so 2 things:
+>>
+>> 1) On the ETD0105 touchpad not working, does the kernel you're using
+>> already have this patch ? :
+>>
+>> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/mouse/elantech.c?id=271329b3c798b2102120f5df829071c211ef00ed
+> 
+> I tried the RHEL 6.6 kernel (the only I had on a usb disk handy at that time).
+> The Fedora 21 snapshot (3.17.0) makes it detected properly :)
 
-Olivier
+Good.
+
+> However, landing 8 fingers on the touchpad makes it completely lost
+> (waiting few seconds without touching it is enough to get it back
+> alive).
+
+Hmm, might be a firmware bug, but this also might mean it can detect
+more fingers then previous versions, and sends a new packet type when
+more then X fingers are present, we should probably end a mail to
+our contacts at elantech about this. Since you've the hardware I
+assume you will be sending such a mail ?
+
+Regards,
+
+Hans

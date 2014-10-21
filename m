@@ -1,504 +1,276 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 1/4] input: Add new sun4i-lradc-keys driver
-Date: Tue, 21 Oct 2014 19:04:11 +0200
-Message-ID: <20141021170411.GB21108@lukather>
-References: <1413879890-7254-1-git-send-email-hdegoede@redhat.com>
- <1413879890-7254-2-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: "Cole, JD" <JD.Cole@plantronics.com>
+Subject: Plantronics Telephony Device HID Driver
+Date: Tue, 21 Oct 2014 18:40:26 +0000
+Message-ID: <05963dc6f4db439e88525351d4e9a0b8@usscmb04.plt.plantronics.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gatW/ieO32f1wygP"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBQNETKRAKGQEA2EI32Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1413879890-7254-2-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail3.plantronics.com ([198.231.10.49]:45115 "EHLO
+	mail3.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932300AbaJUSkb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Oct 2014 14:40:31 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "Wesselman, Tom" <Tom.Wesselman@plantronics.com>, "Dsouza, Sunil" <Sunil.Dsouza@plantronics.com>, "Junge, Terry" <Terry.Junge@plantronics.com>, "dtor@chromium.org" <dtor@chromium.org>, "bleung@chromium.org" <bleung@chromium.org>, "vpalatin@chromium.org" <vpalatin@chromium.org>, "adlr@chromium.org" <adlr@chromium.org>
+
+Plantronics telephony devices equipped with HID-enabled controls have been reported to cause odd mouse behaviors when buttons are clicked. This is due to how the hid-input driver handles "unmapped" usages and the fact that Plantronics devices send Vendor Unique usages in addition to standards, e.g. Consumer Page Mute. It is the vendor unique usages that are mis-interpreted by the hid-input driver and mapped as mouse events.
+
+This driver serves to prevent unhandled usages from reaching the hid-input driver. Two patches are included:
+
+(1) The minimal driver
+(2) The more complete additions to hid.h Consumer Page MACROS
+
+Cheers,
+
+jd
+
+>From ee603e2aa62906a65b08b440c4b440e324269295 Mon Sep 17 00:00:00 2001
+From: JD Cole <jd.cole@plantronics.com>
+Date: Fri, 17 Oct 2014 12:21:49 -0700
+Subject: [PATCH 1/2] Created base Plantronics HID driver.
+
+A fix for Plantronics telephony device controls interfering with
+the mouse.
+
+This version of the driver prevents Telephony pages which are not
+mapped as Consumer Control applications AND are not on the Consumer Page
+from being registered by the hid-input driver.
+
+BUG=chromium:417434
+TEST=Tested with multiple Plantronics devices on 'peppy' Acer C720p.
+
+Change-Id: I7a55880d6082467274b693c48415e9331d9bbd81
+Signed-off-by: JD Cole <jd.cole@plantronics.com>
+---
+ drivers/hid/Kconfig           |  7 ++++
+ drivers/hid/Makefile          |  1 +
+ drivers/hid/hid-ids.h         |  2 +
+ drivers/hid/hid-plantronics.c | 92 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h           |  3 ++
+ 5 files changed, 105 insertions(+)
+ create mode 100644 drivers/hid/hid-plantronics.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2f38a7b..b245c28 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -594,6 +594,13 @@ config HID_PICOLCD_CIR
+        ---help---
+          Provide access to PicoLCD's CIR interface via remote control (LIRC).
+
++config HID_PLANTRONICS
++       tristate "Plantronics USB HID Driver"
++       default !EXPERT
++       depends on HID
++       ---help---
++       Provides HID support for Plantronics telephony devices.
++
+ config HID_PRIMAX
+        tristate "Primax non-fully HID-compliant devices"
+        depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 6684b30..7080637 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -93,6 +93,7 @@ ifdef CONFIG_DEBUG_FS
+ hid-picolcd-y                  += hid-picolcd_debugfs.o
+ endif
+
++obj-$(CONFIG_HID_PLANTRONICS)  += hid-plantronics.o
+ obj-$(CONFIG_HID_PRIMAX)       += hid-primax.o
+ obj-$(CONFIG_HID_QUICKSTEP)    += hid-quickstep.o
+ obj-$(CONFIG_HID_ROCCAT)       += hid-roccat.o hid-roccat-common.o \
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7fd93c3..1c8ede1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -703,6 +703,8 @@
+ #define USB_DEVICE_ID_ORTEK_PKB1700    0x1700
+ #define USB_DEVICE_ID_ORTEK_WKB2000    0x2000
+
++#define USB_VENDOR_ID_PLANTRONICS      0x047f
++
+ #define USB_VENDOR_ID_PANASONIC                0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780 0x1044
+ #define USB_DEVICE_ID_PANABOARD_UBT880 0x104d
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+new file mode 100644
+index 0000000..c43440a
+--- /dev/null
++++ b/drivers/hid/hid-plantronics.c
+@@ -0,0 +1,92 @@
++/*
++ *  Plantronics USB HID Driver
++ *
++ *  Copyright (c) 2014 JD Cole <jd.cole@plantronics.com>
++ *  Copyright (c) 2014 Terry Junge <terry.junge@plantronics.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include "hid-ids.h"
++
++#include <linux/hid.h>
++#include <linux/module.h>
++
++static bool plt_debug;
++module_param_named(debug, plt_debug, bool, 0644);
++MODULE_PARM_DESC(debug, "enables extra debugging info");
++
++static bool plt_passall;
++module_param_named(passall, plt_passall, bool, 0644);
++MODULE_PARM_DESC(passall, "force all usages to be accepted (requires debug=1)");
++
++static int plantronics_input_mapping(struct hid_device *hdev,
++                                    struct hid_input *hi,
++                                    struct hid_field *field,
++                                    struct hid_usage *usage,
++                                    unsigned long **bit, int *max)
++{
++       if ((field->application == HID_CP_CONSUMERCONTROL
++           && ((usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER))
++           || (plt_debug && plt_passall)) {
++               if (plt_debug)
++                       hid_info(hdev, "usage: %08x (appl: %08x) - defaulted\n",
++                                usage->hid, field->application);
++               return 0;
++       }
++
++       if (plt_debug)
++               hid_info(hdev, "usage: %08x (appl: %08x) - ignored\n",
++                        usage->hid, field->application);
++
++       return -1;
++}
++
++static int plantronics_probe(struct hid_device *hdev,
++                            const struct hid_device_id *id)
++{
++       int ret;
++
++       if (plt_debug)
++               hid_info(hdev, "found plantronics device\n");
++
++       ret = hid_parse(hdev);
++       if (ret) {
++               hid_err(hdev, "parse failed\n");
++               goto err;
++       }
++
++       ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++       if (ret) {
++               hid_err(hdev, "hw start failed\n");
++               goto err;
++       }
++
++       return 0;
++ err:
++       return ret;
++}
++
++static const struct hid_device_id plantronics_devices[] = {
++       { HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
++       { }
++};
++MODULE_DEVICE_TABLE(hid, plantronics_devices);
++
++static struct hid_driver plantronics_driver = {
++       .name = "plantronics",
++       .id_table = plantronics_devices,
++       .input_mapping = plantronics_input_mapping,
++       .probe = plantronics_probe,
++};
++module_hid_driver(plantronics_driver);
++
++MODULE_AUTHOR("JD Cole <jd.cole@plantronics.com>");
++MODULE_AUTHOR("Terry Junge <terry.junge@plantronics.com>");
++MODULE_DESCRIPTION("Plantronics USB HID Driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 10c9be6..2806146 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -230,6 +230,9 @@ struct hid_item {
+ #define HID_DG_BARRELSWITCH    0x000d0044
+ #define HID_DG_ERASER          0x000d0045
+ #define HID_DG_TABLETPICK      0x000d0046
++
++#define HID_CP_CONSUMERCONTROL 0x000c0001
++
+ /*
+  * as of May 20, 2009 the usages below are not yet in the official USB spec
+  * but are being pushed by Microsft as described in their paper "Digitizer
+--
+1.8.3.2
+
+>From 6564f0972c5d4e9acba9ebbd8d83cd5a1e95f254 Mon Sep 17 00:00:00 2001
+From: JD Cole <jd.cole@plantronics.com>
+Date: Fri, 17 Oct 2014 15:52:40 -0700
+Subject: [PATCH 2/2] Added missing HID Consumer Page identifiers, for
+ completeness.
+
+Adds CA and NAry usage type identifiers.
+
+BUG=chromium:417434
+TEST=Tested with multiple Plantronics devices on 'peppy' Acer C720p.
+
+Change-Id: I7a55880d6082467274b693c48415e9331d9bbd81
+Signed-off-by: JD Cole <jd.cole@plantronics.com>
+---
+ include/linux/hid.h | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 2806146..e923f3d 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -232,6 +232,30 @@ struct hid_item {
+ #define HID_DG_TABLETPICK      0x000d0046
+
+ #define HID_CP_CONSUMERCONTROL 0x000c0001
++#define HID_CP_NUMERICKEYPAD   0x000c0002
++#define HID_CP_PROGRAMMABLEBUTTONS     0x000c0003
++#define HID_CP_MICROPHONE      0x000c0004
++#define HID_CP_HEADPHONE       0x000c0005
++#define HID_CP_GRAPHICEQUALIZER        0x000c0006
++#define HID_CP_FUNCTIONBUTTONS 0x000c0036
++#define HID_CP_SELECTION       0x000c0080
++#define HID_CP_MEDIASELECTION  0x000c0087
++#define HID_CP_SELECTDISC      0x000c00ba
++#define HID_CP_PLAYBACKSPEED   0x000c00f1
++#define HID_CP_PROXIMITY       0x000c0109
++#define HID_CP_SPEAKERSYSTEM   0x000c0160
++#define HID_CP_CHANNELLEFT     0x000c0161
++#define HID_CP_CHANNELRIGHT    0x000c0162
++#define HID_CP_CHANNELCENTER   0x000c0163
++#define HID_CP_CHANNELFRONT    0x000c0164
++#define HID_CP_CHANNELCENTERFRONT      0x000c0165
++#define HID_CP_CHANNELSIDE     0x000c0166
++#define HID_CP_CHANNELSURROUND 0x000c0167
++#define HID_CP_CHANNELLOWFREQUENCYENHANCEMENT  0x000c0168
++#define HID_CP_CHANNELTOP      0x000c0169
++#define HID_CP_CHANNELUNKNOWN  0x000c016a
++#define HID_CP_APPLICATIONLAUNCHBUTTONS        0x000c0180
++#define HID_CP_GENERICGUIAPPLICATIONCONTROLS   0x000c0200
+
+ /*
+  * as of May 20, 2009 the usages below are not yet in the official USB spec
+--
+1.8.3.2
 
 
---gatW/ieO32f1wygP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Hans,
+________________________________
 
-Thanks, a lot for respinning this.
+CONFIDENTIALITY NOTICE: This e-mail transmission, and any documents, files or previous e-mail messages attached to it, may contain information that is confidential and/or legally privileged. If you are not the intended recipient, or a person responsible for delivering it to the intended recipient, please DO NOT disclose the contents to another person, store or copy the information in any medium, or use any of the information contained in or attached to this transmission for any purpose. If you have received this transmission in error, please immediately notify the sender by reply email or at privacy@plantronics.com, and destroy the original transmission and its attachments without reading or saving in any manner.
 
-On Tue, Oct 21, 2014 at 10:24:47AM +0200, Hans de Goede wrote:
-> Allwinnner sunxi SoCs have a low resolution adc (called lradc) which is
-> specifically designed to have various (tablet) keys (ie home, back, searc=
-h,
-> etc). attached to it using a resistor network. This adds a driver for thi=
-s.
->=20
-> There are 2 channels, currently this driver only supports chan0 since the=
-re
-> are no boards known to use chan1.
->=20
-> This has been tested on an olimex a10s-olinuxino-micro, a13-olinuxino, and
-> a20-olinuxino-micro.
->=20
-> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> --
-> Changes in v2:
-> -Change devicetree bindings to use a per key subnode, like gpio-keys does
-> ---
->  .../devicetree/bindings/input/sun4i-lradc-keys.txt |  57 +++++
->  MAINTAINERS                                        |   7 +
->  drivers/input/keyboard/Kconfig                     |  10 +
->  drivers/input/keyboard/Makefile                    |   1 +
->  drivers/input/keyboard/sun4i-lradc-keys.c          | 259 +++++++++++++++=
-++++++
->  5 files changed, 334 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/sun4i-lradc-k=
-eys.txt
->  create mode 100644 drivers/input/keyboard/sun4i-lradc-keys.c
->=20
-> diff --git a/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt=
- b/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt
-> new file mode 100644
-> index 0000000..36a141b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt
-> @@ -0,0 +1,57 @@
-> +Allwinner sun4i low res adc attached tablet keys
-> +------------------------------------------------
-> +
-> +Required properties:
-> + - compatible: "allwinner,sun4i-lradc-keys"
-> + - reg: mmio address range of the chip
-> + - interrupts: interrupt to which the chip is connected
-> + - vref-supply: powersupply for the lradc reference voltage
-> +
-> +Each key is represented as a sub-node of "allwinner,sun4i-lradc-keys":
-> +
-> +Required subnode-properties:
-> +	- label: Descriptive name of the key.
-> +	- linux,code: Keycode to emit.
-> +	- channel: Channel this key is attached to, mut be 0 or 1.
-> +	- voltage: Voltage in =B5V at lradc input when this key is pressed.
-> +
-> +Example:
-> +
-> +#include <dt-bindings/input/input.h>
-> +
-> +	lradc: lradc@01c22800 {
-> +		compatible =3D "allwinner,sun4i-lradc-keys";
-
-You're still using the old pattern for the compatible here, it should
-be allwinner,sun4i-a10-lradc-keys.
-
-> +		reg =3D <0x01c22800 0x100>;
-> +		interrupts =3D <31>;
-> +		vref-supply =3D <&reg_vcc3v0>;
-> +		button@19 {
-
-I guess the node address in centivolts aren't really that common,
-maybe in mV instead?
-
-> +			label =3D "Volume Up";
-> +			linux,code =3D <KEY_VOLUMEUP>;
-> +			channel =3D <0>;
-> +			voltage =3D <191274>;
-> +		};
-
-And a newline between the nodes please.
-
-> +		button@39 {
-> +			label =3D "Volume Down";
-> +			linux,code =3D <KEY_VOLUMEDOWN>;
-> +			channel =3D <0>;
-> +			voltage =3D <392644>;
-> +		};
-> +		button@60 {
-> +			label =3D "Menu";
-> +			linux,code =3D <KEY_MENU>;
-> +			channel =3D <0>;
-> +			voltage =3D <601151>;
-> +		};
-> +		button@80 {
-> +			label =3D "Enter";
-> +			linux,code =3D <KEY_ENTER>;
-> +			channel =3D <0>;
-> +			voltage =3D <795090>;
-> +		};
-> +		button@98 {
-> +			label =3D "Home";
-> +			linux,code =3D <KEY_HOME>;
-> +			channel =3D <0>;
-> +			voltage =3D <987387>;
-> +		};
-> +	};
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index a20df9b..73d1aef 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -8932,6 +8932,13 @@ F:	arch/m68k/sun3*/
->  F:	arch/m68k/include/asm/sun3*
->  F:	drivers/net/ethernet/i825xx/sun3*
-> =20
-> +SUN4I LOW RES ADC ATTACHED TABLET KEYS DRIVER
-> +M:	Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> +L:	linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> +S:	Maintained
-> +F:	Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt
-> +F:	drivers/input/keyboard/sun4i-lradc-keys.c
-> +
->  SUNDANCE NETWORK DRIVER
->  M:	Denis Kirjanov <kda-u1c8ncikuMvVAZt0uhVF+Ni2O/JbrIOy@public.gmane.org>
->  L:	netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kcon=
-fig
-> index a3958c6..2d11b44 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -567,6 +567,16 @@ config KEYBOARD_STMPE
->  	  To compile this driver as a module, choose M here: the module will be
->  	  called stmpe-keypad.
-> =20
-> +config KEYBOARD_SUN4I_LRADC
-> +	tristate "Allwinner sun4i low res adc attached tablet keys support"
-> +	depends on ARCH_SUNXI
-> +	help
-> +	  This selects support for the Allwinner low res adc attached tablet
-> +	  keys found on Allwinner sunxi SoCs.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called sun4i-lradc-keys.
-> +
->  config KEYBOARD_DAVINCI
->  	tristate "TI DaVinci Key Scan"
->  	depends on ARCH_DAVINCI_DM365
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Mak=
-efile
-> index 0a33456..a35269a 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -53,6 +53,7 @@ obj-$(CONFIG_KEYBOARD_SPEAR)		+=3D spear-keyboard.o
->  obj-$(CONFIG_KEYBOARD_STMPE)		+=3D stmpe-keypad.o
->  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+=3D stowaway.o
->  obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+=3D st-keyscan.o
-> +obj-$(CONFIG_KEYBOARD_SUN4I_LRADC)	+=3D sun4i-lradc-keys.o
->  obj-$(CONFIG_KEYBOARD_SUNKBD)		+=3D sunkbd.o
->  obj-$(CONFIG_KEYBOARD_TC3589X)		+=3D tc3589x-keypad.o
->  obj-$(CONFIG_KEYBOARD_TEGRA)		+=3D tegra-kbc.o
-> diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/ke=
-yboard/sun4i-lradc-keys.c
-> new file mode 100644
-> index 0000000..63a1aff
-> --- /dev/null
-> +++ b/drivers/input/keyboard/sun4i-lradc-keys.c
-> @@ -0,0 +1,259 @@
-> +/*
-> + * Allwinner sun4i low res adc attached tablet keys driver
-> + *
-> + * Copyright (C) 2014 Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +/*
-> + * Allwinnner sunxi SoCs have a lradc which is specifically designed to =
-have
-> + * various (tablet) keys (ie home, back, search, etc). attached to it us=
-ing
-> + * a resistor network. This driver is for the keys on such boards.
-> + *
-> + * There are 2 channels, currently this driver only supports channel 0 s=
-ince
-> + * there are no boards known to use channel 1.
-> + */
-> +
-> +#include <linux/err.h>
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/io.h>
-> +#include <linux/module.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regulator/consumer.h>
-> +#include <linux/slab.h>
-> +
-> +#define LRADC_CTRL		0x00
-> +#define LRADC_INTC		0x04
-> +#define LRADC_INTS		0x08
-> +#define LRADC_DATA0		0x0c
-> +#define LRADC_DATA1		0x10
-> +
-> +/* LRADC_CTRL bits */
-> +#define FIRST_CONVERT_DLY(x)	((x) << 24) /* 8 bits */
-> +#define CHAN_SELECT(x)		((x) << 22) /* 2 bits */
-> +#define CONTINUE_TIME_SEL(x)	((x) << 16) /* 4 bits */
-> +#define KEY_MODE_SEL(x)		((x) << 12) /* 2 bits */
-> +#define LEVELA_B_CNT(x)		((x) << 8)  /* 4 bits */
-> +#define HOLD_EN(x)		((x) << 6)
-> +#define LEVELB_VOL(x)		((x) << 4)  /* 2 bits */
-> +#define SAMPLE_RATE(x)		((x) << 2)  /* 2 bits */
-> +#define ENABLE(x)		((x) << 0)
-> +
-> +/* LRADC_INTC and LRADC_INTS bits */
-> +#define CHAN1_KEYUP_IRQ		BIT(12)
-> +#define CHAN1_ALRDY_HOLD_IRQ	BIT(11)
-> +#define CHAN1_HOLD_IRQ		BIT(10)
-> +#define	CHAN1_KEYDOWN_IRQ	BIT(9)
-> +#define CHAN1_DATA_IRQ		BIT(8)
-> +#define CHAN0_KEYUP_IRQ		BIT(4)
-> +#define CHAN0_ALRDY_HOLD_IRQ	BIT(3)
-> +#define CHAN0_HOLD_IRQ		BIT(2)
-> +#define	CHAN0_KEYDOWN_IRQ	BIT(1)
-> +#define CHAN0_DATA_IRQ		BIT(0)
-> +
-> +struct sun4i_lradc_keymap {
-> +	u32 voltage;
-> +	u32 keycode;
-> +};
-> +
-> +struct sun4i_lradc_data {
-> +	struct device *dev;
-> +	struct input_dev *input;
-> +	void __iomem *base;
-> +	struct regulator *vref_supply;
-> +	struct sun4i_lradc_keymap *chan0_map;
-> +	u32 chan0_map_count;
-> +	u32 chan0_keycode;
-> +	u32 vref;
-> +};
-> +
-> +static irqreturn_t sun4i_lradc_irq(int irq, void *dev_id)
-> +{
-> +	struct sun4i_lradc_data *lradc =3D dev_id;
-> +	u32 i, ints, val, voltage, diff, keycode =3D 0, closest =3D 0xffffffff;
-> +
-> +	ints  =3D readl(lradc->base + LRADC_INTS);
-> +
-> +	/*
-> +	 * lradc supports only one keypress at a time, release does not give
-> +	 * any info as to which key was released, so we cache the keycode.
-> +	 */
-> +	if ((ints & CHAN0_KEYDOWN_IRQ) && lradc->chan0_keycode =3D=3D 0) {
-> +		val =3D readl(lradc->base + LRADC_DATA0) & 0x3f;
-> +		voltage =3D val * lradc->vref / 63;
-> +
-> +		for (i =3D 0; i < lradc->chan0_map_count; i++) {
-> +			diff =3D abs(lradc->chan0_map[i].voltage - voltage);
-> +			if (diff < closest) {
-> +				closest =3D diff;
-> +				keycode =3D lradc->chan0_map[i].keycode;
-> +			}
-> +		}
-> +
-> +		lradc->chan0_keycode =3D keycode;
-> +		input_report_key(lradc->input, lradc->chan0_keycode, 1);
-> +	}
-> +
-> +	if (ints & CHAN0_KEYUP_IRQ) {
-> +		input_report_key(lradc->input, lradc->chan0_keycode, 0);
-> +		lradc->chan0_keycode =3D 0;
-> +	}
-> +
-> +	input_sync(lradc->input);
-> +
-> +	writel(ints, lradc->base + LRADC_INTS);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int sun4i_lradc_open(struct input_dev *dev)
-> +{
-> +	struct sun4i_lradc_data *lradc =3D input_get_drvdata(dev);
-> +	int ret;
-> +
-> +	ret =3D regulator_enable(lradc->vref_supply);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* lradc Vref internally is divided by 2/3 */
-> +	lradc->vref =3D regulator_get_voltage(lradc->vref_supply) * 2 / 3;
-> +
-> +	/*
-> +	 * Set sample time to 4 ms / 250 Hz. Wait 2 * 4 ms for key to
-> +	 * stabilize on press, wait (1 + 1) * 4 ms for key release
-> +	 */
-> +	writel(FIRST_CONVERT_DLY(2) | LEVELA_B_CNT(1) | HOLD_EN(1) |
-> +		SAMPLE_RATE(0) | ENABLE(1), lradc->base + LRADC_CTRL);
-> +
-> +	writel(CHAN0_KEYUP_IRQ | CHAN0_KEYDOWN_IRQ, lradc->base + LRADC_INTC);
-> +
-> +	return 0;
-> +}
-> +
-> +static void sun4i_lradc_close(struct input_dev *dev)
-> +{
-> +	struct sun4i_lradc_data *lradc =3D input_get_drvdata(dev);
-> +
-> +	/* Disable lradc, leave other settings unchanged */
-> +	writel(FIRST_CONVERT_DLY(2) | LEVELA_B_CNT(1) | HOLD_EN(1) |
-> +		SAMPLE_RATE(2), lradc->base + LRADC_CTRL);
-> +	writel(0, lradc->base + LRADC_INTC);
-> +
-> +	regulator_disable(lradc->vref_supply);
-> +}
-> +
-> +static int sun4i_lradc_probe(struct platform_device *pdev)
-> +{
-> +	struct sun4i_lradc_data *lradc;
-> +	struct device *dev =3D &pdev->dev;
-> +	struct device_node *pp, *np =3D dev->of_node;
-> +	u32 channel;
-> +	int i, ret;
-> +
-> +	lradc =3D devm_kzalloc(dev, sizeof(struct sun4i_lradc_data), GFP_KERNEL=
-);
-> +	if (!lradc)
-> +		return -ENOMEM;
-> +
-> +	lradc->chan0_map_count =3D of_get_child_count(np);
-> +	lradc->chan0_map =3D devm_kmalloc(dev, lradc->chan0_map_count *
-> +				sizeof(struct sun4i_lradc_keymap), GFP_KERNEL);
-> +	if (!lradc->chan0_map)
-> +		return -ENOMEM;
-> +
-> +	i =3D 0;
-> +	for_each_child_of_node(np, pp) {
-> +		struct sun4i_lradc_keymap *map =3D &lradc->chan0_map[i];
-> +
-> +		ret =3D of_property_read_u32(pp, "channel", &channel);
-> +		if (ret || channel !=3D 0) {
-> +			dev_err(dev, "%s: Inval channel prop\n", pp->name);
-> +			return -EINVAL;
-> +		}
-> +
-> +		ret =3D of_property_read_u32(pp, "voltage", &map->voltage);
-> +		if (ret) {
-> +			dev_err(dev, "%s: Inval voltage prop\n", pp->name);
-> +			return -EINVAL;
-> +		}
-> +
-> +		ret =3D of_property_read_u32(pp, "linux,code", &map->keycode);
-> +		if (ret) {
-> +			dev_err(dev, "%s: Inval linux,code prop\n", pp->name);
-> +			return -EINVAL;
-> +		}
-> +
-> +		i++;
-> +	}
-> +
-> +	lradc->vref_supply =3D devm_regulator_get(dev, "vref");
-> +	if (IS_ERR(lradc->vref_supply))
-> +		return PTR_ERR(lradc->vref_supply);
-> +
-> +	lradc->dev =3D dev;
-> +	lradc->input =3D devm_input_allocate_device(dev);
-> +	if (!lradc->input)
-> +		return -ENOMEM;
-> +
-> +	lradc->input->name =3D pdev->name;
-> +	lradc->input->phys =3D "sun4i_lradc/input0";
-> +	lradc->input->open =3D sun4i_lradc_open;
-> +	lradc->input->close =3D sun4i_lradc_close;
-> +	lradc->input->id.bustype =3D BUS_HOST;
-> +	lradc->input->id.vendor =3D 0x0001;
-> +	lradc->input->id.product =3D 0x0001;
-> +	lradc->input->id.version =3D 0x0100;
-> +	lradc->input->evbit[0] =3D  BIT(EV_SYN) | BIT(EV_KEY);
-> +	for (i =3D 0; i < lradc->chan0_map_count; i++)
-> +		set_bit(lradc->chan0_map[i].keycode, lradc->input->keybit);
-> +	input_set_drvdata(lradc->input, lradc);
-> +
-> +	lradc->base =3D devm_ioremap_resource(dev,
-> +			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
-> +	if (IS_ERR(lradc->base))
-> +		return PTR_ERR(lradc->base);
-> +
-> +	ret =3D devm_request_irq(dev, platform_get_irq(pdev, 0), sun4i_lradc_ir=
-q,
-> +			       0, "sun4i-lradc-keys", lradc);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D input_register_device(lradc->input);
-> +	if (ret)
-> +		return ret;
-> +
-> +	platform_set_drvdata(pdev, lradc);
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id sun4i_lradc_of_match[] =3D {
-> +	{ .compatible =3D "allwinner,sun4i-lradc-keys", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, sun4i_lradc_of_match);
-> +
-> +static struct platform_driver sun4i_lradc_driver =3D {
-> +	.driver =3D {
-> +		.owner	=3D THIS_MODULE,
-
-You can drop the owner field, it's already filled by
-module_platform_driver.
-
-> +		.name	=3D "sun4i-lradc-keys",
-> +		.of_match_table =3D of_match_ptr(sun4i_lradc_of_match),
-> +	},
-> +	.probe	=3D sun4i_lradc_probe,
-> +};
-> +
-> +module_platform_driver(sun4i_lradc_driver);
-> +
-> +MODULE_DESCRIPTION("Allwinner sun4i low res adc attached tablet keys dri=
-ver");
-> +MODULE_AUTHOR("Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>");
-> +MODULE_LICENSE("GPL");
-> --=20
-> 2.1.0
->=20
-
-Looking good otherwise, thanks!
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---gatW/ieO32f1wygP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJURpILAAoJEBx+YmzsjxAg6sEQALlfsgy+umNhr+81DDutFHHQ
-eXudOk6YXgpewQWlzDQ0IQGNuVay27UBy58zJxavgVJOGzRrTIdY6Zxqh49HQ2B6
-3dTn60A91rwERYjDxEZM7ezKOkJ/gjDVv07Qq7dqfiIWfeJVhhwsaDVBFQJvkHsT
-4283gP7qbQrCXqvL8+57tFMozQXphxKoDvsXv7oYBD4mG2MfDtbiSfEeDeeBIRy4
-sLsqvbR0mBy9zbOJLcbjUddq6EXzlizTwAtAwuNnToNMqOWoiMeK2mWnFM4Eg5IP
-d/pDFsgin1qVJmgY7W+PKRram8avmn2SXW4Yva1fFqZrvKaG7v5BqOVVgLONQ0CQ
-ZpVJLQ14sGK6uh7ADcqaEV/XbUnsJV4l9lz2cv7LE5PxBJODxRRyxdTlBOH9tsto
-ckTCJPv/TfawVcHes54bc/yHqJTGpCATJjNmSGXrCxz364EeIWrwuHVK7P4cGtxp
-FPwRLGIQQwnRwOg5q5bt7D6r+0gqT3WFqdK/1FLI/ClXkYkss2tMN82HKqIPIy+Q
-S+UW2bhH8wfUfxEBL8VW9bg266KBeTpy2gRGIUfq9/dG0svra2/BBOlXgKpRXAj/
-C4kudU+8IqR/mUHtZt8wF/PjJGSOQtPWN8x6J2k4UUXRCyeBatwQfojQgBrnW/Jf
-RautfFwyzXU+pXMpCzLd
-=/eNt
------END PGP SIGNATURE-----
-
---gatW/ieO32f1wygP--
+For further information about Plantronics - the Company, its products, brands, partners, please visit our website www.plantronics.com.

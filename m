@@ -1,47 +1,42 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
 Subject: Re: Touch processing on host CPU
-Date: Tue, 21 Oct 2014 13:01:20 +0200
-Message-ID: <20141021110120.GD23161@amd>
+Date: Tue, 21 Oct 2014 13:22:29 +0100
+Message-ID: <20141021132229.37a1197c@alan.etchedpixels.co.uk>
 References: <5440F282.8040306@itdev.co.uk>
+	<20141017171756.GA22238@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5440F282.8040306@itdev.co.uk>
+In-Reply-To: <20141017171756.GA22238@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi!
+> If you will have touch processing in a binary blob, you'll also be going
+> to ages "Works with Ubuntu 12.04 on x86_32!" (and nothing else), or
+> "Android 5.1.2 on Tegra Blah (build 78912KT)" (and nothing else).
 
+As well as not going upstream because there is no way anyone else can
+test changes to the code, or support it. Plus of course there are those
+awkward questions around derivative work boundaries that it is best the
+base kernel keeps well clear of.
 
-> I'm trying to find out which subsystem maintainer I should be talking to -
-> apologies if I'm addressing the wrong people.
-> 
-> There is a model for doing touch processing where the touch controller
-> becomes a much simpler device which sends out raw acquisitions (over SPI 
-> at up to 1Mbps + protocol overheads). All touch processing is then done in
-> user space by the host CPU. An example of this is NVIDIA DirectTouch - see:
-> http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
+If the data format is documented to the point someone can go write their
+own touch processor for the bitstream then that really deals with it
+anyway. Given the number of these things starting to pop up it would
+probably be good if someone did produce an open source processing engine
+for touch sensor streams as it shouldn't take long before its better than
+all the non-free ones 8).
 
-Would it be possible to do processing in kernel space?
+Given how latency sensitive touch is and the continual data stream I
+would be inclined to think that the basic processing might be better in
+kernel and then as an input device - providing it can be simple enough to
+want to put kernel side.
 
-> In the spirit of "upstream first", I'm trying to figure out how to get a
-> driver accepted. Obviously it's not an input device in the normal sense. Is
-> it acceptable just to send the raw touch data out via a char device?
-> Is
+Otherwise I'd say your bitstream is probably something like ADC data and
+belongs in IIO (which should also help people to have one processing
+agent for multiple designs of touch, SPI controllers etc)
 
-Char device would be best option if not.
-
-> there another subsystem which is a good match (eg IIO)? Does the protocol
-> (there is ancillary/control data as well) need to be documented?
-
-It really depends. If you have driver for serial port, you don't need
-to describe what goes over the serial port. But documentation would be
-nice.
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Alan

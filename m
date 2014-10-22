@@ -1,81 +1,101 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] input: Add new sun4i-lradc-keys driver
-Date: Wed, 22 Oct 2014 18:01:19 +0200
-Message-ID: <20141022160119.GH7893@lukather>
-References: <1413976265-12805-1-git-send-email-hdegoede@redhat.com>
- <1413976265-12805-2-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Subject: Re: Touch processing on host CPU
+Date: Wed, 22 Oct 2014 14:15:10 -0700
+Message-ID: <CAG_cf+fop1bYe+82yDyDYX4sTkN4_gCBM=nvVyKwp6C8v6z4gQ@mail.gmail.com>
+References: <5440F282.8040306@itdev.co.uk> <20141017171756.GA22238@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HuscSE0D68UGttcd"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBL5LT6RAKGQEFHWCWQI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1413976265-12805-2-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yh0-f47.google.com ([209.85.213.47]:62245 "EHLO
+	mail-yh0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932210AbaJVVPc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Oct 2014 17:15:32 -0400
+In-Reply-To: <20141017171756.GA22238@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+On Fri, Oct 17, 2014 at 10:17 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Nick,
+>
+> On Fri, Oct 17, 2014 at 11:42:10AM +0100, Nick Dyer wrote:
+>> Hi-
+>>
+>> I'm trying to find out which subsystem maintainer I should be talking to -
+>> apologies if I'm addressing the wrong people.
+>>
+>> There is a model for doing touch processing where the touch controller
+>> becomes a much simpler device which sends out raw acquisitions (over SPI
+>> at up to 1Mbps + protocol overheads). All touch processing is then done in
+>> user space by the host CPU. An example of this is NVIDIA DirectTouch - see:
+>> http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
+>>
+>> In the spirit of "upstream first", I'm trying to figure out how to get a
+>> driver accepted. Obviously it's not an input device in the normal sense. Is
+>> it acceptable just to send the raw touch data out via a char device? Is
+>> there another subsystem which is a good match (eg IIO)? Does the protocol
+>> (there is ancillary/control data as well) need to be documented?
+>
+> I'd really think *long* and *hard* about this. Even if you will have the
+> touch process open source you have 2 options: route it back into the
+> kernel through uinput, thus adding latency (which might be OK, need to
+> measure and decide), or go back about 10 years where we had
+> device-specific drivers in XFree86 and re-create them again, and also do
+> the same for Wayland, Chrome, Android, etc.
+>
+> If you will have touch processing in a binary blob, you'll also be going
+> to ages "Works with Ubuntu 12.04 on x86_32!" (and nothing else), or
+> "Android 5.1.2 on Tegra Blah (build 78912KT)" (and nothing else).
 
---HuscSE0D68UGttcd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think we have some interest on the Chrome OS team. We've often had
+issues on touch devices with centroiding problems like split/merge,
+and have thought it might be nice to have lower level access to be
+able to actually solve these problems, rather than just complain to
+the touch vendor. Historically, however, raw touch heatmaps have not
+been available, making this idea unfeasible. Maybe this is starting to
+change with the push from Nvidia!
 
-Hi Hans,
+I would agree with Dmitry that we would want a consistent unified
+interface that could work with different touch vendors. I am assuming
+that Nick's model is roughly 60-120 frames/sec, where each frame is
+NxMx16bits. Pixels would generally be ~4mm on a side for touch sensors
+today, but they may get significantly smaller if stylus becomes
+popular. Nick, is that roughly what you have in mind? Also, touch
+sensors generally have a baseline image that is subtracted from each
+recorded raw image to form the delta image (ie, raw - baseline =
+delta). Nick, do you envision sending raw or delta up to userspace? I
+would assume delta, b/c I think the touch controller will need to
+compute delta internally to see if there's a touch. It would be quite
+wasteful to invoke the kernel/userspace on an image with no touches.
+That said, there may be some situations (ie, factory validation) where
+getting raw images is preferred.
 
-On Wed, Oct 22, 2014 at 01:11:02PM +0200, Hans de Goede wrote:
-> Allwinnner sunxi SoCs have a low resolution adc (called lradc) which is
-> specifically designed to have various (tablet) keys (ie home, back, searc=
-h,
-> etc). attached to it using a resistor network. This adds a driver for thi=
-s.
->=20
-> There are 2 channels, currently this driver only supports chan0 since the=
-re
-> are no boards known to use chan1.
->=20
-> This has been tested on an olimex a10s-olinuxino-micro, a13-olinuxino, and
-> a20-olinuxino-micro.
->=20
-> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Also, what about self-cap scan? I know some controllers will do
+self-cap when there's just one finger. I'm guessing the data for such
+a frame would be (N+M)x16bits.
 
-Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In order to support X, Wayland, Android, etc, I would assume that
+parsed frames would be injected back into the kernel in a format
+similar (identical?) to MT-B. As far as the availability of an
+open-source user-space driver to convert heat-map into MT-B, maybe I'm
+overly optimistic, but I would guess we could start with something
+simple like center-of-mass, and the community will help make it more
+robust.
 
-Thanks!
-Maxime
+Sorry I have more questions than suggestions. Hopefully Nick can shed
+more light on what type of interface he would like.
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+-andrew
 
---HuscSE0D68UGttcd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUR9TOAAoJEBx+YmzsjxAgObEP/AwfLBAd5NxY6IPKHBnPDoZJ
-LvKTcgYGtG7MVNuubru0uOiVtbhd1vN1FGbupEhpd6trulTnhZ2KIAQKu4LVar34
-cLtbEnsnuBZCf0D/6E+P7EmDy/F5GnHlodT/leLd1SFTzou7q9hKbM646N+GogGf
-DqCpDURyBxGC3u2EUBtWBAcWjwUfA/6Qx7QuNz5MLzQ58OA6iHMRS5aKrWgUXq2R
-b97rA5YcIgSwPX4o77IirqVHrEedLynQFtpxBnyhIoHJUc6fhl2XKndjBoqbX6N5
-wVXvVF6y+OIPsFyf1311zUWbJcO8+8nEBEDky0rlwORm29BI9YPEEPrgTAc+5CsD
-FOAhkYrC48SLgR9RGCbyVrg9lB3WyYLZEu2xPdoie3yxMV1mwKr/ru/EN5+L+Ndm
-SWyqLoAwjs+MZayurZGKdOHxMdgm76CfXzPMxjeKOzbCtkRx9oEvaWb8AqO9mVJo
-ONs+NgAjbf/4J7PrE++xC3RdWCcWgoV4YxMaxU7cbBfPIS+f0i4wb7yrRKuhCKhS
-rrdptXY1726FxAG/nppJxJrE7Xpv2v1TSbMg1RaJ8RRnWTkmrYnF2Zjjc3kaKu3d
-bYnYrE7Llc7EDEaDDc0zCHeUlIzbo4f4JxO9hZunlDi1lYLzff2aS3y7gwSWwYEB
-sedlJTO7ZaTkkKuvqrF4
-=AO07
------END PGP SIGNATURE-----
-
---HuscSE0D68UGttcd--
+>
+> Thanks.
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

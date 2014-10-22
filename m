@@ -1,52 +1,53 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: Re: [PATCH v2 4/4] ARM: dts: sun7i: Add lradc node
-Date: Wed, 22 Oct 2014 10:46:27 +0200
-Message-ID: <54476EE3.6060401@redhat.com>
-References: <1413879890-7254-1-git-send-email-hdegoede@redhat.com> <1413879890-7254-5-git-send-email-hdegoede@redhat.com> <20141022083802.GE7893@lukather>
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Subject: Re: Re: [PATCH v7 0/6] mfd: AXP20x: Add support for
+ AXP202 and AXP209
+Date: Wed, 22 Oct 2014 12:22:07 +0200
+Message-ID: <20141022102207.GB22342@carlo-MacBookPro>
+References: <1404066237-20234-1-git-send-email-carlo@caione.org>
+ <20141022082842.58578191@pluto.restena.lu>
+ <20141022075929.GD7893@lukather>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDRZXY4CYYORB265TWRAKGQEJUJWVZA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20141022083802.GE7893@lukather>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDWJTUUC5UCBBVEKT2RAKGQEL66AIUA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20141022075929.GD7893@lukather>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+To: Bruno =?utf-8?Q?Pr=C3=A9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Wed, Oct 22, 2014 at 09:59:29AM +0200, Maxime Ripard wrote:
+> On Wed, Oct 22, 2014 at 08:28:42AM +0200, Bruno Pr=C3=A9mont wrote:
+> > On Sun, 29 Jun 2014 20:23:51 +0200 Carlo Caione wrote:
+> > > During the merging of v6 several patches were left out. This v7 compr=
+ises
+> > > all the patches that are still pending.
+> >=20
+> > Any progress on this or reason why these are stuck?
+>=20
+> No one bothered resubmitting it.
+>=20
+> If you have some time to work on this, it would be great if you could
+> pick up the work, if not, I'll do it.
 
-On 10/22/2014 10:38 AM, Maxime Ripard wrote:
-> Hi Hans,
-> 
-> On Tue, Oct 21, 2014 at 10:24:50AM +0200, Hans de Goede wrote:
->> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
->> ---
->>  arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts | 48 +++++++++++++++++++++++++
->>  arch/arm/boot/dts/sun7i-a20.dtsi                |  7 ++++
->>  2 files changed, 55 insertions(+)
->>
->> diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
->> index 9d669cdf..85e7194 100644
->> --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
->> +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
->> @@ -14,6 +14,7 @@
->>  /dts-v1/;
->>  /include/ "sun7i-a20.dtsi"
->>  /include/ "sunxi-common-regulators.dtsi"
->> +#include <dt-bindings/input/input.h>
-> 
-> I'm just wondering... Weren't we supposed to switch all includes to
-> the preprocessor syntax in such a case?
+Wow, I totally forgot about those patches. Sorry for that.
+If you are willing to work on the patches go ahead, otherwise
+I'll find a bit of time myself.
 
-I've just checked other in tree users of dt-bindings/input/input.h and you
-seem to be right, I will fix this for the next version.
+--=20
+Carlo Caione
 
-Regards,
-
-Hans
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

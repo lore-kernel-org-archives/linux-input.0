@@ -1,12 +1,12 @@
 From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 4/4] ARM: dts: sun7i: Add lradc node
-Date: Wed, 22 Oct 2014 13:11:05 +0200
-Message-ID: <1413976265-12805-5-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH v3 3/4] ARM: dts: sun5i: Add lradc node
+Date: Wed, 22 Oct 2014 13:11:04 +0200
+Message-ID: <1413976265-12805-4-git-send-email-hdegoede@redhat.com>
 References: <1413976265-12805-1-git-send-email-hdegoede@redhat.com>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBWNBT2RAKGQEUH26CJY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBV5BT2RAKGQEJKHFFMQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1413976265-12805-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -21,27 +21,29 @@ List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts | 59 ++++++++++++++++++++++++-
- arch/arm/boot/dts/sun7i-a20.dtsi                |  7 +++
- 2 files changed, 64 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts | 45 ++++++++++++++++++++++--
+ arch/arm/boot/dts/sun5i-a10s.dtsi                |  7 ++++
+ arch/arm/boot/dts/sun5i-a13-olinuxino.dts        | 45 ++++++++++++++++++++++--
+ arch/arm/boot/dts/sun5i-a13.dtsi                 |  7 ++++
+ 4 files changed, 100 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
-index 9d669cdf..c00badd 100644
---- a/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
-+++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-micro.dts
+diff --git a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
+index ea9519d..0b82d20 100644
+--- a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
++++ b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
 @@ -12,8 +12,9 @@
   */
  
  /dts-v1/;
--/include/ "sun7i-a20.dtsi"
+-/include/ "sun5i-a10s.dtsi"
 -/include/ "sunxi-common-regulators.dtsi"
-+#include "sun7i-a20.dtsi"
++#include "sun5i-a10s.dtsi"
 +#include "sunxi-common-regulators.dtsi"
 +#include <dt-bindings/input/input.h>
  
  / {
- 	model = "Olimex A20-Olinuxino Micro";
-@@ -100,6 +101,60 @@
+ 	model = "Olimex A10s-Olinuxino Micro";
+@@ -98,6 +99,46 @@
  			};
  		};
  
@@ -71,8 +73,8 @@ index 9d669cdf..c00badd 100644
 +			};
 +
 +			button@795 {
-+				label = "Search";
-+				linux,code = <KEY_SEARCH>;
++				label = "Enter";
++				linux,code = <KEY_ENTER>;
 +				channel = <0>;
 +				voltage = <795090>;
 +			};
@@ -83,42 +85,109 @@ index 9d669cdf..c00badd 100644
 +				channel = <0>;
 +				voltage = <987387>;
 +			};
-+
-+			button@1184 {
-+				label = "Esc";
-+				linux,code = <KEY_ESC>;
-+				channel = <0>;
-+				voltage = <1184678>;
-+			};
-+
-+			button@1398 {
-+				label = "Enter";
-+				linux,code = <KEY_ENTER>;
-+				channel = <0>;
-+				voltage = <1398804>;
-+			};
 +		};
 +
  		uart0: serial@01c28000 {
  			pinctrl-names = "default";
  			pinctrl-0 = <&uart0_pins_a>;
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index f0a75c6..9174423 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -911,6 +911,13 @@
- 			status = "disabled";
+diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
+index 531272c..7c6c883 100644
+--- a/arch/arm/boot/dts/sun5i-a10s.dtsi
++++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
+@@ -520,6 +520,13 @@
+ 			reg = <0x01c20c90 0x10>;
  		};
  
 +		lradc: lradc@01c22800 {
 +			compatible = "allwinner,sun4i-a10-lradc-keys";
 +			reg = <0x01c22800 0x100>;
-+			interrupts = <0 31 4>;
++			interrupts = <31>;
 +			status = "disabled";
 +		};
 +
  		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun7i-a20-sid";
- 			reg = <0x01c23800 0x200>;
+ 			compatible = "allwinner,sun4i-a10-sid";
+ 			reg = <0x01c23800 0x10>;
+diff --git a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
+index 429994e..b4ec8eb 100644
+--- a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
++++ b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
+@@ -12,8 +12,9 @@
+  */
+ 
+ /dts-v1/;
+-/include/ "sun5i-a13.dtsi"
+-/include/ "sunxi-common-regulators.dtsi"
++#include "sun5i-a13.dtsi"
++#include "sunxi-common-regulators.dtsi"
++#include <dt-bindings/input/input.h>
+ 
+ / {
+ 	model = "Olimex A13-Olinuxino";
+@@ -66,6 +67,46 @@
+ 			};
+ 		};
+ 
++		lradc: lradc@01c22800 {
++			vref-supply = <&reg_vcc3v0>;
++			status = "okay";
++
++			button@191 {
++				label = "Volume Up";
++				linux,code = <KEY_VOLUMEUP>;
++				channel = <0>;
++				voltage = <191274>;
++			};
++
++			button@392 {
++				label = "Volume Down";
++				linux,code = <KEY_VOLUMEDOWN>;
++				channel = <0>;
++				voltage = <392644>;
++			};
++
++			button@601 {
++				label = "Menu";
++				linux,code = <KEY_MENU>;
++				channel = <0>;
++				voltage = <601151>;
++			};
++
++			button@795 {
++				label = "Enter";
++				linux,code = <KEY_ENTER>;
++				channel = <0>;
++				voltage = <795090>;
++			};
++
++			button@987 {
++				label = "Home";
++				linux,code = <KEY_HOMEPAGE>;
++				channel = <0>;
++				voltage = <987387>;
++			};
++		};
++
+ 		uart1: serial@01c28400 {
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&uart1_pins_b>;
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index b131068..aa0482c 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -468,6 +468,13 @@
+ 			reg = <0x01c20c90 0x10>;
+ 		};
+ 
++		lradc: lradc@01c22800 {
++			compatible = "allwinner,sun4i-a10-lradc-keys";
++			reg = <0x01c22800 0x100>;
++			interrupts = <31>;
++			status = "disabled";
++		};
++
+ 		sid: eeprom@01c23800 {
+ 			compatible = "allwinner,sun4i-a10-sid";
+ 			reg = <0x01c23800 0x10>;
 -- 
 2.1.0

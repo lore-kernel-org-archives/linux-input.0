@@ -1,193 +1,27 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 3/4] ARM: dts: sun5i: Add lradc node
-Date: Wed, 22 Oct 2014 13:11:04 +0200
-Message-ID: <1413976265-12805-4-git-send-email-hdegoede@redhat.com>
-References: <1413976265-12805-1-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: Touch processing on host CPU
+Date: Wed, 22 Oct 2014 14:20:16 +0100
+Message-ID: <20141022142016.42e8032c@alan.etchedpixels.co.uk>
+References: <5440F282.8040306@itdev.co.uk>
+	<20141017171756.GA22238@dtor-ws>
+	<20141021132229.37a1197c@alan.etchedpixels.co.uk>
+	<54468E0D.2010200@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDRZXY4CYYORBV5BT2RAKGQEJKHFFMQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1413976265-12805-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <54468E0D.2010200@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Greg KH <greg@kroah.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts | 45 ++++++++++++++++++++++--
- arch/arm/boot/dts/sun5i-a10s.dtsi                |  7 ++++
- arch/arm/boot/dts/sun5i-a13-olinuxino.dts        | 45 ++++++++++++++++++++++--
- arch/arm/boot/dts/sun5i-a13.dtsi                 |  7 ++++
- 4 files changed, 100 insertions(+), 4 deletions(-)
+> This sounds promising. The only sticking point I can see is that a touch
+> frontend has many more channels (possibly thousands), which would seem to
+> impose a lot of overhead when put into the IIO framework. I will certainly
+> take a closer look at it.
 
-diff --git a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-index ea9519d..0b82d20 100644
---- a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-+++ b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-@@ -12,8 +12,9 @@
-  */
- 
- /dts-v1/;
--/include/ "sun5i-a10s.dtsi"
--/include/ "sunxi-common-regulators.dtsi"
-+#include "sun5i-a10s.dtsi"
-+#include "sunxi-common-regulators.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Olimex A10s-Olinuxino Micro";
-@@ -98,6 +99,46 @@
- 			};
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			vref-supply = <&reg_vcc3v0>;
-+			status = "okay";
-+
-+			button@191 {
-+				label = "Volume Up";
-+				linux,code = <KEY_VOLUMEUP>;
-+				channel = <0>;
-+				voltage = <191274>;
-+			};
-+
-+			button@392 {
-+				label = "Volume Down";
-+				linux,code = <KEY_VOLUMEDOWN>;
-+				channel = <0>;
-+				voltage = <392644>;
-+			};
-+
-+			button@601 {
-+				label = "Menu";
-+				linux,code = <KEY_MENU>;
-+				channel = <0>;
-+				voltage = <601151>;
-+			};
-+
-+			button@795 {
-+				label = "Enter";
-+				linux,code = <KEY_ENTER>;
-+				channel = <0>;
-+				voltage = <795090>;
-+			};
-+
-+			button@987 {
-+				label = "Home";
-+				linux,code = <KEY_HOMEPAGE>;
-+				channel = <0>;
-+				voltage = <987387>;
-+			};
-+		};
-+
- 		uart0: serial@01c28000 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&uart0_pins_a>;
-diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
-index 531272c..7c6c883 100644
---- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-@@ -520,6 +520,13 @@
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			compatible = "allwinner,sun4i-a10-lradc-keys";
-+			reg = <0x01c22800 0x100>;
-+			interrupts = <31>;
-+			status = "disabled";
-+		};
-+
- 		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun4i-a10-sid";
- 			reg = <0x01c23800 0x10>;
-diff --git a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-index 429994e..b4ec8eb 100644
---- a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-+++ b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-@@ -12,8 +12,9 @@
-  */
- 
- /dts-v1/;
--/include/ "sun5i-a13.dtsi"
--/include/ "sunxi-common-regulators.dtsi"
-+#include "sun5i-a13.dtsi"
-+#include "sunxi-common-regulators.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Olimex A13-Olinuxino";
-@@ -66,6 +67,46 @@
- 			};
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			vref-supply = <&reg_vcc3v0>;
-+			status = "okay";
-+
-+			button@191 {
-+				label = "Volume Up";
-+				linux,code = <KEY_VOLUMEUP>;
-+				channel = <0>;
-+				voltage = <191274>;
-+			};
-+
-+			button@392 {
-+				label = "Volume Down";
-+				linux,code = <KEY_VOLUMEDOWN>;
-+				channel = <0>;
-+				voltage = <392644>;
-+			};
-+
-+			button@601 {
-+				label = "Menu";
-+				linux,code = <KEY_MENU>;
-+				channel = <0>;
-+				voltage = <601151>;
-+			};
-+
-+			button@795 {
-+				label = "Enter";
-+				linux,code = <KEY_ENTER>;
-+				channel = <0>;
-+				voltage = <795090>;
-+			};
-+
-+			button@987 {
-+				label = "Home";
-+				linux,code = <KEY_HOMEPAGE>;
-+				channel = <0>;
-+				voltage = <987387>;
-+			};
-+		};
-+
- 		uart1: serial@01c28400 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&uart1_pins_b>;
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index b131068..aa0482c 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -468,6 +468,13 @@
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			compatible = "allwinner,sun4i-a10-lradc-keys";
-+			reg = <0x01c22800 0x100>;
-+			interrupts = <31>;
-+			status = "disabled";
-+		};
-+
- 		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun4i-a10-sid";
- 			reg = <0x01c23800 0x10>;
--- 
-2.1.0
+If that is the case then it may not be the right match - but it might
+also be a good argument for fixing the IIO layer so it isn't ?
+
+Alan

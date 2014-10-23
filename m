@@ -1,41 +1,75 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: 3.18.rc1: compile failure in tsc2005.c
-Date: Thu, 23 Oct 2014 14:53:25 +0200
-Message-ID: <20141023125325.GB30572@amd>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: 3.18.rc1: compile failure in tsc2005.c
+Date: Thu, 23 Oct 2014 15:01:04 +0200
+Message-ID: <201410231501.04540@pali>
+References: <20141023125325.GB30572@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: dmitry.torokhov@gmail.com, sre@kernel.org, B38611@freescale.com, pali.rohar@gmail.com, aaro.koskinen@iki.fi, jg1.han@samsung.com, linux-input@vger.kernel.org
+Content-Type: multipart/signed;
+  boundary="nextPart5775186.5qjUkLqLxT";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:41305 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932157AbaJWNBH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Oct 2014 09:01:07 -0400
+In-Reply-To: <20141023125325.GB30572@amd>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com, sre@kernel.org, B38611@freescale.com, aaro.koskinen@iki.fi, jg1.han@samsung.com, linux-input@vger.kernel.org
 
-Hi!
+--nextPart5775186.5qjUkLqLxT
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-I get this. Before I start patching it, perhaps someone has fixed it
-already?
+On Thursday 23 October 2014 14:53:25 Pavel Machek wrote:
+> Hi!
+>=20
+> I get this. Before I start patching it, perhaps someone has
+> fixed it already?
+>=20
+> 								Pavel
+>=20
+>   CC      drivers/input/touchscreen/tsc2005.o
+> drivers/input/touchscreen/tsc2005.c: In function
+> 'tsc2005_disable_store':
+> drivers/input/touchscreen/tsc2005.c:406:2: error: implicit
+> declaration of function 'strict_strtoul'
+> [-Werror=3Dimplicit-function-declaration] cc1: some warnings
+> being treated as errors
+> scripts/Makefile.build:257: recipe for target
+> 'drivers/input/touchscreen/tsc2005.o' failed
+> make[3]: *** [drivers/input/touchscreen/tsc2005.o] Error 1
+> scripts/Makefile.build:402: recipe for target
+> 'drivers/input/touchscreen' failed
+> make[2]: *** [drivers/input/touchscreen] Error 2
+> scripts/Makefile.build:402: recipe for target 'drivers/input'
+> failed make[1]: *** [drivers/input] Error 2
+> make[1]: *** Waiting for unfinished jobs....
+>   CC      net/core/request_sock.o
 
-								Pavel
+Hi, I read somewhere that strict_strtoul function was replaced by=20
+some kstrtol function... So maybe somebody forgot to fix tsc2005=20
+driver?
 
-  CC      drivers/input/touchscreen/tsc2005.o
-drivers/input/touchscreen/tsc2005.c: In function
-'tsc2005_disable_store':
-drivers/input/touchscreen/tsc2005.c:406:2: error: implicit declaration
-of function 'strict_strtoul' [-Werror=implicit-function-declaration]
-cc1: some warnings being treated as errors
-scripts/Makefile.build:257: recipe for target
-'drivers/input/touchscreen/tsc2005.o' failed
-make[3]: *** [drivers/input/touchscreen/tsc2005.o] Error 1
-scripts/Makefile.build:402: recipe for target
-'drivers/input/touchscreen' failed
-make[2]: *** [drivers/input/touchscreen] Error 2
-scripts/Makefile.build:402: recipe for target 'drivers/input' failed
-make[1]: *** [drivers/input] Error 2
-make[1]: *** Waiting for unfinished jobs....
-  CC      net/core/request_sock.o
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
+--nextPart5775186.5qjUkLqLxT
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlRI/BAACgkQi/DJPQPkQ1KvdACfZFqrkHk907ubUeTMKSjjRmk6
+eZ4AoJhsLryyPIMndmRoVCUT7/LWnp2A
+=JfsC
+-----END PGP SIGNATURE-----
+
+--nextPart5775186.5qjUkLqLxT--

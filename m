@@ -1,101 +1,147 @@
-From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Subject: Re: Touch processing on host CPU
-Date: Wed, 22 Oct 2014 14:15:10 -0700
-Message-ID: <CAG_cf+fop1bYe+82yDyDYX4sTkN4_gCBM=nvVyKwp6C8v6z4gQ@mail.gmail.com>
-References: <5440F282.8040306@itdev.co.uk> <20141017171756.GA22238@dtor-ws>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v8 00/13] input: cyapa: intruction of cyapa patches
+Date: Thu, 23 Oct 2014 01:25:45 +0000
+Message-ID: <5a3eeff037d14e3ba96376a7459e4478@BN1PR06MB070.namprd06.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f47.google.com ([209.85.213.47]:62245 "EHLO
-	mail-yh0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932210AbaJVVPc (ORCPT
+Received: from mail-bl2on0135.outbound.protection.outlook.com ([65.55.169.135]:54000
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751202AbaJWBZu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Oct 2014 17:15:32 -0400
-In-Reply-To: <20141017171756.GA22238@dtor-ws>
+	Wed, 22 Oct 2014 21:25:50 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Greg KH <greg@kroah.com>, Jonathan Cameron <jic23@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: "'dmitry.torokhov@gmail.com'" <dmitry.torokhov@gmail.com>, "'rydberg@euromail.se'" <rydberg@euromail.se>
+Cc: "'bleung@google.com'" <bleung@google.com>, "'patrikf@google.com'" <patrikf@google.com>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, David Solda <dso@cypress.com>
 
-On Fri, Oct 17, 2014 at 10:17 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Nick,
+Hi Dmitry,
+
+It has been long time after the v8 patches submitted, with your busy time, could you help take a little time to update the status of the schedule or reviews?
+Any information will halp a lot.
+
+Thanks,
+Dudley
+
+> -----Original Message-----
+> From: Dudley Du
+> Sent: 2014?10?20? 9:16
+> To: 'Dudley Du'; dmitry.torokhov@gmail.com; rydberg@euromail.se
+> Cc: bleung@google.com; patrikf@google.com; linux-input@vger.kernel.org;
+> linux-kernel@vger.kernel.org
+> Subject: RE: [PATCH 00/13] input: cyapa: intruction of cyapa patches
 >
-> On Fri, Oct 17, 2014 at 11:42:10AM +0100, Nick Dyer wrote:
->> Hi-
->>
->> I'm trying to find out which subsystem maintainer I should be talking to -
->> apologies if I'm addressing the wrong people.
->>
->> There is a model for doing touch processing where the touch controller
->> becomes a much simpler device which sends out raw acquisitions (over SPI
->> at up to 1Mbps + protocol overheads). All touch processing is then done in
->> user space by the host CPU. An example of this is NVIDIA DirectTouch - see:
->> http://blogs.nvidia.com/blog/2012/02/24/industry-adopts-nvidia-directtouch/
->>
->> In the spirit of "upstream first", I'm trying to figure out how to get a
->> driver accepted. Obviously it's not an input device in the normal sense. Is
->> it acceptable just to send the raw touch data out via a char device? Is
->> there another subsystem which is a good match (eg IIO)? Does the protocol
->> (there is ancillary/control data as well) need to be documented?
+> Hi Dmitry,
 >
-> I'd really think *long* and *hard* about this. Even if you will have the
-> touch process open source you have 2 options: route it back into the
-> kernel through uinput, thus adding latency (which might be OK, need to
-> measure and decide), or go back about 10 years where we had
-> device-specific drivers in XFree86 and re-create them again, and also do
-> the same for Wayland, Chrome, Android, etc.
+> Is there any update on the v8 patchs for input cyapa trackpad drivers?
 >
-> If you will have touch processing in a binary blob, you'll also be going
-> to ages "Works with Ubuntu 12.04 on x86_32!" (and nothing else), or
-> "Android 5.1.2 on Tegra Blah (build 78912KT)" (and nothing else).
-
-I think we have some interest on the Chrome OS team. We've often had
-issues on touch devices with centroiding problems like split/merge,
-and have thought it might be nice to have lower level access to be
-able to actually solve these problems, rather than just complain to
-the touch vendor. Historically, however, raw touch heatmaps have not
-been available, making this idea unfeasible. Maybe this is starting to
-change with the push from Nvidia!
-
-I would agree with Dmitry that we would want a consistent unified
-interface that could work with different touch vendors. I am assuming
-that Nick's model is roughly 60-120 frames/sec, where each frame is
-NxMx16bits. Pixels would generally be ~4mm on a side for touch sensors
-today, but they may get significantly smaller if stylus becomes
-popular. Nick, is that roughly what you have in mind? Also, touch
-sensors generally have a baseline image that is subtracted from each
-recorded raw image to form the delta image (ie, raw - baseline =
-delta). Nick, do you envision sending raw or delta up to userspace? I
-would assume delta, b/c I think the touch controller will need to
-compute delta internally to see if there's a touch. It would be quite
-wasteful to invoke the kernel/userspace on an image with no touches.
-That said, there may be some situations (ie, factory validation) where
-getting raw images is preferred.
-
-Also, what about self-cap scan? I know some controllers will do
-self-cap when there's just one finger. I'm guessing the data for such
-a frame would be (N+M)x16bits.
-
-In order to support X, Wayland, Android, etc, I would assume that
-parsed frames would be injected back into the kernel in a format
-similar (identical?) to MT-B. As far as the availability of an
-open-source user-space driver to convert heat-map into MT-B, maybe I'm
-overly optimistic, but I would guess we could start with something
-simple like center-of-mass, and the community will help make it more
-robust.
-
-Sorry I have more questions than suggestions. Hopefully Nick can shed
-more light on what type of interface he would like.
-
--andrew
-
+> Thanks,
+> Dudley
 >
-> Thanks.
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > -----Original Message-----
+> > From: Dudley Du [mailto:dudley.dulixin@gmail.com]
+> > Sent: 2014?10?15? 15:19
+> > To: dmitry.torokhov@gmail.com; rydberg@euromail.se
+> > Cc: Dudley Du; bleung@google.com; patrikf@google.com;
+> > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: [PATCH 00/13] input: cyapa: intruction of cyapa patches
+> >
+> > Based on Dmitry's comments, I made v8 patches of cyapa trackpad device
+> > with below updates compared with v7 patches:
+> > 1) [PATCH v8 01/13] - Remove the async thread for device detect in
+> >    proble routine, now the device detect process is completly done within
+> >    the device proble routine.
+> > 2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
+> >    function cyapa_default_irq_cmd_handler() and set it to interface
+> >    cyapa_default_ops.irq_cmd_handler.
+> > 3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+> >    to avoid miss-enter when device protocol is still in detecting.
+> >
+> >
+> > V7 patches have below updates compared with v6 patches:
+> > 1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
+> >    function cyapa_default_irq_cmd_handler() and set it to interface
+> >    cyapa_default_ops.irq_cmd_handler.
+> > 2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+> >    to avoid miss-enter when device protocol is still in detecting.
+> >
+> >
+> > V6 patches have below updates compared with v5 patches:
+> > 1) Remove patch 14 of the lid filtering from the cyapa driver.
+> >
+> > V5 patches have below updates compared with v4 patches:
+> > 1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+> > 2) Fix memories freed before debugfs entries issue;
+> > 3) Make cyapa_debugs_root valid in driver module level
+> >    in module_init()/moudle_exit() ;
+> > 4) Fix i2c_transfer() may return partial transfer issues.
+> > 5) Add cyapa->removed flag to avoid detecting thread may still running
+> >    when driver module is removed.
+> > 6) Fix the meanings of some comments and return error code not clear issue.
+> >
+> > This patch set is aimed to re-architecture the cyapa driver to support
+> > old gen3 trackpad device and new gen5 trackpad device in one
+> > cyapa driver for easily productions support based on
+> > customers' requirements, and add sysfs functions and interfaces
+> > supported that required by users and customers.
+> > Because the earlier gen3 and the latest gen5 trackpad devies using
+> > two different chipsets, and have different protocol and interfaces.
+> > If supported these two trackpad devices in two different drivers, then
+> > it will be difficult to manage productions and later firmware updates.
+> > it will cause customer don't know which one to use and update
+> > because these two trackpad devices have been used and integrated
+> > in same one productions at a time, so must to support these two trackpad
+> > devices in same on driver.
+> >
+> > The new architecture is made of:
+> > cyapa.c - the core of the architecture, supply interfaces and
+> > functions to system and read trackpad devices.
+> > cyapa.h - header file including macros and data structure definitions.
+> > cyapa_gen3.c - functions support for gen3 trackpad devices,
+> > cyapa_gen5.c - functions support for gen5 trackpad devices.
+> >
+> > Beside this introduction patch, it has 14 patches listed as below.
+> > For these patches each one is patched based on previous one.
+> >
+> > patch 1/13: re-architecture cyapa driver with core functions,
+> > and applying the device detecting function in async thread to speed
+> > up system boot time.
+> >
+> > patch 2/13: add cyapa driver power management interfaces support.
+> >
+> > patch 3/13: add cyapa driver runtime power management interfaces support.
+> >
+> > patch 4/13: add cyapa key function interfaces in sysfs system.
+> > Including read firmware version, get production ID, read baseline,
+> > re-calibrate trackpad baselines and do trackpad firmware update.
+> >
+> > patch 5/13: add read firmware image and read raw trackpad device'
+> > sensors' raw data interface in debugfs system.
+> >
+> > patch 6/13: add gen3 trackpad device basic functions support.
+> >
+> > patch 7/13: add gen3 trackpad device firmware update function support.
+> >
+> > patch 8/13: add gen3 trackpad device report baseline and do force
+> > re-calibrate functions support.
+> >
+> > patch 9/13: add gen3 trackpad device read firmware image function support.
+> >
+> > patch 10/13: add gen5 trackpad device basic functions support.
+> >
+> > patch 11/13: add gen5 trackpad device firmware update function support.
+> >
+> > patch 12/13: add gen5 trackpad device report baseline and do force
+> > re-calibrate functions support.
+> >
+> > patch 13/13: add gen5 trackpad device read firmware image and report
+> > sensors' raw data values functions support.
+> >
+> > This message and any attachments may contain Cypress (or its subsidiaries)
+> > confidential information. If it has been received in error, please advise the sender
+> > and immediately delete this message.
+
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

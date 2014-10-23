@@ -1,79 +1,123 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: ASUS N550JK Touchpad recognized wrongly as PS/2 mouse
-Date: Thu, 23 Oct 2014 13:49:29 -0400
-Message-ID: <CAN+gG=Fcb1Fqhv6DOH4txsCvYoFf0pPbMguramdZLgCgy6ey_w@mail.gmail.com>
-References: <CAJ_4JbZWLXVRGwwuYnzoVvTOM-fUE4vb9jeZLQJ2LUD+fOhs-Q@mail.gmail.com>
-	<CAN+gG=E6c9eK51RxMQU_1tkxk08WtXfpSt7eyiz4fZqOd258OQ@mail.gmail.com>
-	<54454CD7.80406@redhat.com>
-	<CAN+gG=Eeqg-Htr8WmxiCrrwxOztdaqRCTS5f3tFncf+Z69dnRw@mail.gmail.com>
-	<5445FCAD.7020406@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/5] Input: elantech - support the Fujitsu H730 laptop
+Date: Thu, 23 Oct 2014 11:39:43 -0700
+Message-ID: <2794823.jCt3gL1uac@dtor-glaptop>
+References: <1409407846-15449-1-git-send-email-ulrik.debie-os@e2big.org> <542FBF9A.5040003@redhat.com> <20141023183618.GA7637@lantern>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f46.google.com ([209.85.213.46]:51278 "EHLO
-	mail-yh0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751912AbaJWRt3 (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:58558 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753533AbaJWSjr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Oct 2014 13:49:29 -0400
-Received: by mail-yh0-f46.google.com with SMTP id f10so1729312yha.33
-        for <linux-input@vger.kernel.org>; Thu, 23 Oct 2014 10:49:29 -0700 (PDT)
-In-Reply-To: <5445FCAD.7020406@redhat.com>
+	Thu, 23 Oct 2014 14:39:47 -0400
+Received: by mail-pa0-f46.google.com with SMTP id fa1so1560627pad.19
+        for <linux-input@vger.kernel.org>; Thu, 23 Oct 2014 11:39:46 -0700 (PDT)
+In-Reply-To: <20141023183618.GA7637@lantern>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Carla Rosenfield <c.rosenfield@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: ulrik.debie-os@e2big.org
+Cc: Jan Kiszka <jan.kiszka@web.de>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
 
-On Tue, Oct 21, 2014 at 2:26 AM, Hans de Goede <hdegoede@redhat.com> wrote:
-> Hi,
->
-> On 10/20/2014 09:48 PM, Benjamin Tissoires wrote:
->> On Mon, Oct 20, 2014 at 1:56 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->>> Hi,
->>>
->>> On 10/20/2014 05:38 PM, Benjamin Tissoires wrote:
->>>> Hi Carla,
->>>>
->>>> just FYI, I have the same laptop model than you, and can reproduce
->>>> your bug report in the same way. I'll work on that to make it working
->>>> properly.
->>>>
->>>> Hans, (unfortunately,) this laptop has a ETD0105 touchpad from Elan.
->>>> That means that we do not have the X550 touchpad in house, but also
->>>> means that we should be able to get in working faster than the X550
->>>> one :)
->>>
->>> Ok, so 2 things:
->>>
->>> 1) On the ETD0105 touchpad not working, does the kernel you're using
->>> already have this patch ? :
->>>
->>> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/mouse/elantech.c?id=271329b3c798b2102120f5df829071c211ef00ed
->>
->> I tried the RHEL 6.6 kernel (the only I had on a usb disk handy at that time).
->> The Fedora 21 snapshot (3.17.0) makes it detected properly :)
->
-> Good.
->
->> However, landing 8 fingers on the touchpad makes it completely lost
->> (waiting few seconds without touching it is enough to get it back
->> alive).
->
-> Hmm, might be a firmware bug, but this also might mean it can detect
-> more fingers then previous versions, and sends a new packet type when
-> more then X fingers are present, we should probably end a mail to
-> our contacts at elantech about this. Since you've the hardware I
-> assume you will be sending such a mail ?
->
+On Thursday, October 23, 2014 08:36:19 PM ulrik.debie-os@e2big.org wrote:
+> Hi Dmitry,
+> 
+> On Sat, Oct 04, 2014 at 11:36:26AM +0200, Hans de Goede wrote:
+> > Hi,
+> > 
+> > On 10/04/2014 11:33 AM, Jan Kiszka wrote:
+> > > On 2014-08-30 16:10, Ulrik De Bie wrote:
+> > >> This patch set makes the elantech driver work for the Fujitsu H730
+> > >> laptop. It also adds a sysfs knob to allow other laptops that are
+> > >> facing similar problems as the Fujitsu H730 to have working touchpad.
+> > >> 
+> > >> I'm considering adding a WARN_ONCE when the crc_enabled signature check
+> > >> fails. The message would then point the user to the crc_enabled sysfs
+> > >> knob,
+> > >> and kindly ask the user to report the laptop to linux-input mailinglist
+> > >> ?
+> > >> Any suggestions ?
+> > >> 
+> > >> Two users have tested the combination of this patchset and confirmed
+> > >> that
+> > >> it makes the H730 touchpad/trackpoint work.
+> > >> 
+> > >> Here an overview of the patchset:
+> > >> 
+> > >> Patch 1/ : Input: elantech - use elantech_report_trackpoint for
+> > >> hardware v4 too The Fujitsu H730 is the first v4 hardware identified
+> > >> that also sends the trackpoint packets. This patch enables the
+> > >> trackpoint on v4 hardware. With this patch the trackpoint will work.
+> > >> 
+> > >> Patch 2/ : Input: elantech - Fix crc_enabled for Fujitsu H730
+> > >> Uses DMI to detect the H730 and ,if detected, will set crc_enabled to
+> > >> 1.
+> > >> With this patch the touchpad and left/right button will start to work.
+> > >> 
+> > >> Patch 3/ : Input: elantech - report the middle button of the touchpad
+> > >> The Fujitsu H730 is the first laptop listed in the elantech.c file with
+> > >> 3 touchpad buttons. This patch enables the middle button for all
+> > >> elantech
+> > >> hardware and enables the reporting for v4 hardware.
+> > >> I want to hear feedback here on what preferences exist for the
+> > >> conditions
+> > >> to enable the middle button:
+> > >> - DMI
+> > >> - enable only for v4
+> > >> - enable for all/report for v3+v4
+> > >> ...
+> > >> 
+> > >> Patch 4/ : Input: Elantech - provide a sysfs knob for crc_enabled
+> > >> Probably H730 will not remain the only elantech laptop that has this
+> > >> failing detection for the crc_enabled. This provides users with a
+> > >> workaround when the crc_enabled detection fails.
+> > >> 
+> > >> Patch 5/ : Elantech - Update the documentation:
+> > >> trackpoint,v3/v4,crc_enabled This provides an update of the elantech
+> > >> documentation.
+> > >> 
+> > >> Patch 4 depends on patch 2, and for consistency, patch 5 depends on
+> > >> patch 1-2-4.> >> 
+> > >> Ulrik De Bie (5):
+> > >>   Input: elantech - use elantech_report_trackpoint for hardware v4 too
+> > >>   Input: elantech - Fix crc_enabled for Fujitsu H730
+> > >>   Input: elantech - report the middle button of the touchpad
+> > >>   Input: elantech - provide a sysfs knob for crc_enabled
+> > >>   
+> > >>   Input: elantech - Update the documentation:
+> > >>     trackpoint,v3/v4,crc_enabled
+> > >>  
+> > >>  Documentation/input/elantech.txt |  85 ++++++++++++++++++++++++++--
+> > >>  drivers/input/mouse/elantech.c   | 119
+> > >>  ++++++++++++++++++++++++++++++++-------
+> > >>  drivers/input/mouse/elantech.h   |   2 +-
+> > >>  3 files changed, 179 insertions(+), 27 deletions(-)
+> > >> 
+> > >> Best regards,
+> > >> Ulrik De Bie
+> > > 
+> > > What's the status of this series? Is it queued for 3.18 already?
+> > 
+> > I don't see them in next yet:
+> > 
+> > http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/log/driver
+> > s/input/mouse/elantech.c
+> > 
+> > I agree it would be nice to get these into 3.18.
+> > 
+> > Dmitry, what is the plan here ?
+> 
+> Ping Dmitry ?
+> 
+> Do you want me to resend the patch ?
 
-I tried to dump the PS2 events, and checked if a new packet was
-coming, and it appears that nothing indicates that the device is
-capable of tracking more than 5 fingers. Sometimes, the first time I
-land 8 fingers on the touchpad after a hard reboot, the device
-receives a lost sync events, and has to reconnect, but then, these
-lost sync events do not occurs anymore.
+Hi Ulrik,
 
-I would be tempted to say that this is a firmware bug and that we can
-not do much for it, but I'll ask Elantech about it.
+No, I have it, didn't have a chance to look at it though. Give me a day or so
+please.
 
-Cheers,
-Benjamin
+Thanks.
+
+-- 
+Dmitry

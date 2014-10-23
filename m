@@ -1,75 +1,56 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: 3.18.rc1: compile failure in tsc2005.c
-Date: Thu, 23 Oct 2014 15:01:04 +0200
-Message-ID: <201410231501.04540@pali>
-References: <20141023125325.GB30572@amd>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: Input: add driver for Elan I2C/SMbus touchpad
+Date: Thu, 23 Oct 2014 17:58:13 +0300
+Message-ID: <20141023145813.GA20197@mwanda>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5775186.5qjUkLqLxT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:41305 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932157AbaJWNBH (ORCPT
+Received: from aserp1040.oracle.com ([141.146.126.69]:24222 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751469AbaJWO6l (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Oct 2014 09:01:07 -0400
-In-Reply-To: <20141023125325.GB30572@amd>
+	Thu, 23 Oct 2014 10:58:41 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com, sre@kernel.org, B38611@freescale.com, aaro.koskinen@iki.fi, jg1.han@samsung.com, linux-input@vger.kernel.org
+To: dusonlin@emc.com.tw
+Cc: linux-input@vger.kernel.org
 
---nextPart5775186.5qjUkLqLxT
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hello Duson Lin,
 
-On Thursday 23 October 2014 14:53:25 Pavel Machek wrote:
-> Hi!
->=20
-> I get this. Before I start patching it, perhaps someone has
-> fixed it already?
->=20
-> 								Pavel
->=20
->   CC      drivers/input/touchscreen/tsc2005.o
-> drivers/input/touchscreen/tsc2005.c: In function
-> 'tsc2005_disable_store':
-> drivers/input/touchscreen/tsc2005.c:406:2: error: implicit
-> declaration of function 'strict_strtoul'
-> [-Werror=3Dimplicit-function-declaration] cc1: some warnings
-> being treated as errors
-> scripts/Makefile.build:257: recipe for target
-> 'drivers/input/touchscreen/tsc2005.o' failed
-> make[3]: *** [drivers/input/touchscreen/tsc2005.o] Error 1
-> scripts/Makefile.build:402: recipe for target
-> 'drivers/input/touchscreen' failed
-> make[2]: *** [drivers/input/touchscreen] Error 2
-> scripts/Makefile.build:402: recipe for target 'drivers/input'
-> failed make[1]: *** [drivers/input] Error 2
-> make[1]: *** Waiting for unfinished jobs....
->   CC      net/core/request_sock.o
+The patch 29fbd64b0fd2: "Input: add driver for Elan I2C/SMbus
+touchpad" from Oct 3, 2014, leads to the following static checker
+warning:
 
-Hi, I read somewhere that strict_strtoul function was replaced by=20
-some kstrtol function... So maybe somebody forgot to fix tsc2005=20
-driver?
+	drivers/input/mouse/elan_i2c_smbus.c:372 elan_smbus_prepare_fw_update()
+	warn: sizeof(NUMBER)?
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+drivers/input/mouse/elan_i2c_smbus.c
+   365                  /*
+   366                   * Read back password to make sure we enabled flash
+   367                   * successfully.
+   368                   */
+   369                  len = i2c_smbus_read_block_data(client,
+   370                                                  ETP_SMBUS_IAP_PASSWORD_READ,
+   371                                                  val);
+   372                  if (len != sizeof(ETP_SMBUS_IAP_PASSWORD)) {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sizeof(int) is 4.
+val is a 3 byte array.
+If we read 4 bytes then we are writing beyond the end of the val[]
+array.
 
---nextPart5775186.5qjUkLqLxT
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+   373                          error = len < 0 ? len : -EIO;
+   374                          dev_err(dev, "failed to read iap password: %d\n",
+   375                                  error);
+   376                          return error;
+   377                  }
+   378  
+   379                  password = be16_to_cpup((__be16 *)val);
+   380                  if (password != ETP_SMBUS_IAP_PASSWORD) {
+   381                          dev_err(dev, "wrong iap password = 0x%X\n", password);
+   382                          return -EIO;
+   383                  }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlRI/BAACgkQi/DJPQPkQ1KvdACfZFqrkHk907ubUeTMKSjjRmk6
-eZ4AoJhsLryyPIMndmRoVCUT7/LWnp2A
-=JfsC
------END PGP SIGNATURE-----
-
---nextPart5775186.5qjUkLqLxT--
+regards,
+dan carpenter

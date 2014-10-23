@@ -1,123 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/5] Input: elantech - support the Fujitsu H730 laptop
-Date: Thu, 23 Oct 2014 11:39:43 -0700
-Message-ID: <2794823.jCt3gL1uac@dtor-glaptop>
-References: <1409407846-15449-1-git-send-email-ulrik.debie-os@e2big.org> <542FBF9A.5040003@redhat.com> <20141023183618.GA7637@lantern>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: i2c-hid: Add hid-over-i2c name to i2c id table.
+Date: Thu, 23 Oct 2014 14:45:54 -0400
+Message-ID: <20141023184554.GB18048@mail.corp.redhat.com>
+References: <1413323041-19468-1-git-send-email-bleung@chromium.org>
+ <20141014225935.GA22177@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:58558 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753533AbaJWSjr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Oct 2014 14:39:47 -0400
-Received: by mail-pa0-f46.google.com with SMTP id fa1so1560627pad.19
-        for <linux-input@vger.kernel.org>; Thu, 23 Oct 2014 11:39:46 -0700 (PDT)
-In-Reply-To: <20141023183618.GA7637@lantern>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20141014225935.GA22177@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benson Leung <bleung@chromium.org>, jkosina@suse.cz, aduggan@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, satoshi.noguchi@jp.synaptics.com
 List-Id: linux-input@vger.kernel.org
-To: ulrik.debie-os@e2big.org
-Cc: Jan Kiszka <jan.kiszka@web.de>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
 
-On Thursday, October 23, 2014 08:36:19 PM ulrik.debie-os@e2big.org wrote:
-> Hi Dmitry,
+On Oct 14 2014 or thereabouts, Dmitry Torokhov wrote:
+> On Tue, Oct 14, 2014 at 02:44:01PM -0700, Benson Leung wrote:
+> > When using the device tree binding of compatible = "hid-over-i2c"
+> > the i2c id table also needs to have that name in order to
+> > auto load this driver.
+> > 
+> > Signed-off-by: Benson Leung <bleung@chromium.org>
+> > ---
+> >  drivers/hid/i2c-hid/i2c-hid.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> > index 747d544..1a7605f 100644
+> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > @@ -1123,6 +1123,7 @@ static const struct dev_pm_ops i2c_hid_pm = {
+> >  
+> >  static const struct i2c_device_id i2c_hid_id_table[] = {
+> >  	{ "hid", 0 },
+> > +	{ "hid-over-i2c", 0 },
+> >  	{ },
+> >  };
+> >  MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
 > 
-> On Sat, Oct 04, 2014 at 11:36:26AM +0200, Hans de Goede wrote:
-> > Hi,
-> > 
-> > On 10/04/2014 11:33 AM, Jan Kiszka wrote:
-> > > On 2014-08-30 16:10, Ulrik De Bie wrote:
-> > >> This patch set makes the elantech driver work for the Fujitsu H730
-> > >> laptop. It also adds a sysfs knob to allow other laptops that are
-> > >> facing similar problems as the Fujitsu H730 to have working touchpad.
-> > >> 
-> > >> I'm considering adding a WARN_ONCE when the crc_enabled signature check
-> > >> fails. The message would then point the user to the crc_enabled sysfs
-> > >> knob,
-> > >> and kindly ask the user to report the laptop to linux-input mailinglist
-> > >> ?
-> > >> Any suggestions ?
-> > >> 
-> > >> Two users have tested the combination of this patchset and confirmed
-> > >> that
-> > >> it makes the H730 touchpad/trackpoint work.
-> > >> 
-> > >> Here an overview of the patchset:
-> > >> 
-> > >> Patch 1/ : Input: elantech - use elantech_report_trackpoint for
-> > >> hardware v4 too The Fujitsu H730 is the first v4 hardware identified
-> > >> that also sends the trackpoint packets. This patch enables the
-> > >> trackpoint on v4 hardware. With this patch the trackpoint will work.
-> > >> 
-> > >> Patch 2/ : Input: elantech - Fix crc_enabled for Fujitsu H730
-> > >> Uses DMI to detect the H730 and ,if detected, will set crc_enabled to
-> > >> 1.
-> > >> With this patch the touchpad and left/right button will start to work.
-> > >> 
-> > >> Patch 3/ : Input: elantech - report the middle button of the touchpad
-> > >> The Fujitsu H730 is the first laptop listed in the elantech.c file with
-> > >> 3 touchpad buttons. This patch enables the middle button for all
-> > >> elantech
-> > >> hardware and enables the reporting for v4 hardware.
-> > >> I want to hear feedback here on what preferences exist for the
-> > >> conditions
-> > >> to enable the middle button:
-> > >> - DMI
-> > >> - enable only for v4
-> > >> - enable for all/report for v3+v4
-> > >> ...
-> > >> 
-> > >> Patch 4/ : Input: Elantech - provide a sysfs knob for crc_enabled
-> > >> Probably H730 will not remain the only elantech laptop that has this
-> > >> failing detection for the crc_enabled. This provides users with a
-> > >> workaround when the crc_enabled detection fails.
-> > >> 
-> > >> Patch 5/ : Elantech - Update the documentation:
-> > >> trackpoint,v3/v4,crc_enabled This provides an update of the elantech
-> > >> documentation.
-> > >> 
-> > >> Patch 4 depends on patch 2, and for consistency, patch 5 depends on
-> > >> patch 1-2-4.> >> 
-> > >> Ulrik De Bie (5):
-> > >>   Input: elantech - use elantech_report_trackpoint for hardware v4 too
-> > >>   Input: elantech - Fix crc_enabled for Fujitsu H730
-> > >>   Input: elantech - report the middle button of the touchpad
-> > >>   Input: elantech - provide a sysfs knob for crc_enabled
-> > >>   
-> > >>   Input: elantech - Update the documentation:
-> > >>     trackpoint,v3/v4,crc_enabled
-> > >>  
-> > >>  Documentation/input/elantech.txt |  85 ++++++++++++++++++++++++++--
-> > >>  drivers/input/mouse/elantech.c   | 119
-> > >>  ++++++++++++++++++++++++++++++++-------
-> > >>  drivers/input/mouse/elantech.h   |   2 +-
-> > >>  3 files changed, 179 insertions(+), 27 deletions(-)
-> > >> 
-> > >> Best regards,
-> > >> Ulrik De Bie
-> > > 
-> > > What's the status of this series? Is it queued for 3.18 already?
-> > 
-> > I don't see them in next yet:
-> > 
-> > http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/log/driver
-> > s/input/mouse/elantech.c
-> > 
-> > I agree it would be nice to get these into 3.18.
-> > 
-> > Dmitry, what is the plan here ?
+> So we already emit this string this as a module device table (OF one),
+> why do we need to duplicate it in I2C? This seems like a generic problem
+> and not an individual driver one.
 > 
-> Ping Dmitry ?
-> 
-> Do you want me to resend the patch ?
 
-Hi Ulrik,
+Correct me if I am wrong, but isn't it a chromium problem, rather than a
+generic OF one?
+IIRC, when I introduced the OF binding, the name did not need to be in
+the i2c id table because udev was taking that in charge. At least I do
+not remember having to manually modprobing the driver.
 
-No, I have it, didn't have a chance to look at it though. Give me a day or so
-please.
+A quick check in the drivers/input/touchscreen shows that many OF
+enumerated touchscreens do not have an exact duplicate of the of
+compatible name and the i2c device id one. Most of them have a vendor
+prefix in the of name.
 
-Thanks.
+I did not used this binding for a long time, so I can not guarantee I am
+right, but this change seems weird to me.
 
--- 
-Dmitry
+Cheers,
+Benjamin

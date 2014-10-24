@@ -1,40 +1,49 @@
-From: Yuasa Yoichi <yuasa@linux-mips.org>
-Subject: Re: [PATCH v2] input: Add ROHM BU21023/24 Dual touch support
- resistive touchscreens
-Date: Sat, 25 Oct 2014 01:06:58 +0900
-Message-ID: <CACBHAewDQN7jtpryKu_ro42+hYU-6qzTmQC=gsMd+7Ki01nh7Q@mail.gmail.com>
-References: <20140804205142.e8d23082fc1b732fbb396ea2@linux-mips.org>
-	<20140912072302.GE31165@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: [PATCH] input: wm97xx: adapt parameters to tosa touchscreen.
+Date: Fri, 24 Oct 2014 21:18:06 +0400
+Message-ID: <1414171086-18330-1-git-send-email-dbaryshkov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f43.google.com ([209.85.218.43]:65210 "EHLO
-	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752843AbaJXQG7 (ORCPT
+Received: from mail-wg0-f41.google.com ([74.125.82.41]:44527 "EHLO
+	mail-wg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756653AbaJXRSR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Oct 2014 12:06:59 -0400
-Received: by mail-oi0-f43.google.com with SMTP id u20so551844oif.2
-        for <linux-input@vger.kernel.org>; Fri, 24 Oct 2014 09:06:58 -0700 (PDT)
-In-Reply-To: <20140912072302.GE31165@core.coreip.homeip.net>
+	Fri, 24 Oct 2014 13:18:17 -0400
+Received: by mail-wg0-f41.google.com with SMTP id b13so1581315wgh.24
+        for <linux-input@vger.kernel.org>; Fri, 24 Oct 2014 10:18:16 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Yoichi Yuasa <yuasa@linux-mips.org>
+To: linux-input@vger.kernel.org
+Cc: patches@opensource.wolfsonmicro.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Dmitry Eremin-Solenikov <dmitry_eremin@mentor.com>
 
-Hi Dmitry,
+From: Dmitry Eremin-Solenikov <dmitry_eremin@mentor.com>
 
-I'm sorry that I didn't find your e-mail earlier.
+Sharp SL-6000 (tosa) touchscreen needs wider limits to properly map all
+points on the screen. Expand ranges in abs_x and abs_y arrays according
+to the touchscreen area.
 
-2014-09-12 16:23 GMT+09:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> Hi Yoichi,
->
-> Just finishing a review I started a while back. I see that you posted v3
-> in the meantime, but I think majority of the comments are still
-> applicable.
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+---
+ drivers/input/touchscreen/wm97xx-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thank you for your comments.
-I'll try to update them by v4.
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index d0ef91f..b1ae779 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -70,11 +70,11 @@
+  * Documentation/input/input-programming.txt for more details.
+  */
+ 
+-static int abs_x[3] = {350, 3900, 5};
++static int abs_x[3] = {150, 4000, 5};
+ module_param_array(abs_x, int, NULL, 0);
+ MODULE_PARM_DESC(abs_x, "Touchscreen absolute X min, max, fuzz");
+ 
+-static int abs_y[3] = {320, 3750, 40};
++static int abs_y[3] = {200, 4000, 40};
+ module_param_array(abs_y, int, NULL, 0);
+ MODULE_PARM_DESC(abs_y, "Touchscreen absolute Y min, max, fuzz");
+ 
+-- 
+2.1.1
 
-Thanks,
-
-Yoichi

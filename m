@@ -1,58 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] mfd: stmpe: add pull up/down register offsets for
- STMPE
-Date: Fri, 24 Oct 2014 14:42:06 -0700
-Message-ID: <20141024214206.GG19933@dtor-ws>
-References: <1413636974-3244-1-git-send-email-linus.walleij@linaro.org>
- <20141020064605.GB25349@x1>
+Subject: [PATCH] Input: ims-pcu - fix dead code in
+ ims_pcu_ofn_reg_addr_store()
+Date: Fri, 24 Oct 2014 15:28:43 -0700
+Message-ID: <20141024222843.GA36854@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:60782 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751573AbaJXVmL (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:37280 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754558AbaJXW2s (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Oct 2014 17:42:11 -0400
+	Fri, 24 Oct 2014 18:28:48 -0400
 Content-Disposition: inline
-In-Reply-To: <20141020064605.GB25349@x1>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2014 at 07:46:05AM +0100, Lee Jones wrote:
-> On Sat, 18 Oct 2014, Linus Walleij wrote:
-> 
-> > This adds the register offsets for pull up/down for the STMPE
-> > 1601, 1801 and 24xx expanders. This is used to bias GPIO lines
-> > and keypad lines.
-> > 
-> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> > ---
-> > Hi Sam, Lee: I think you should just ACK this so Dmitry can take the
-> > patch series through the input tree, where the registers need to be
-> > used to enable the keypad on the STMPE2401.
-> > ---
-> >  drivers/mfd/stmpe.c       | 4 ++++
-> >  drivers/mfd/stmpe.h       | 3 +++
-> >  include/linux/mfd/stmpe.h | 2 ++
-> >  3 files changed, 9 insertions(+)
-> 
-> Does this need to go in with the other patches in the set?
-> 
-> I'm _guessing_ that, as you've sent them separately, they can be
-> applied separately?
-> 
-> This needs to go in via MFD, but for my own reference:
-> 
-> Acked-by: Lee Jones <lee.jones@linaro.org>
+Coverity pointed out that at return point error is always 0 so the
+conditional is not needed.
 
-The new register definitions are needed for patch #3.  If you insist on
-this going through MFD then please take the other 2 patches with my Ack
-through MFD tree as well I do not think we need the whole song and dance
-trying to synchronize 2 trees.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/ims-pcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks.
+diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+index 719410f..afed8e2 100644
+--- a/drivers/input/misc/ims-pcu.c
++++ b/drivers/input/misc/ims-pcu.c
+@@ -1381,7 +1381,7 @@ static ssize_t ims_pcu_ofn_reg_addr_store(struct device *dev,
+ 	pcu->ofn_reg_addr = value;
+ 	mutex_unlock(&pcu->cmd_mutex);
+ 
+-	return error ?: count;
++	return count;
+ }
+ 
+ static DEVICE_ATTR(reg_addr, S_IRUGO | S_IWUSR,
+-- 
+2.1.0.rc2.206.gedb03e5
+
 
 -- 
 Dmitry

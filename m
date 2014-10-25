@@ -1,61 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: wm97xx: adapt parameters to tosa touchscreen.
-Date: Fri, 24 Oct 2014 17:28:15 -0700
-Message-ID: <20141025002815.GH19933@dtor-ws>
-References: <1414171086-18330-1-git-send-email-dbaryshkov@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: FocalTech touchpad issues on K750
+Date: Sat, 25 Oct 2014 19:56:05 +0200
+Message-ID: <544BE435.3070806@redhat.com>
+References: <544B93A6.6010801@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:48167 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932111AbaJYA2U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Oct 2014 20:28:20 -0400
-Received: by mail-pd0-f177.google.com with SMTP id v10so2294040pde.8
-        for <linux-input@vger.kernel.org>; Fri, 24 Oct 2014 17:28:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1414171086-18330-1-git-send-email-dbaryshkov@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:38597 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752118AbaJYS44 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 25 Oct 2014 14:56:56 -0400
+In-Reply-To: <544B93A6.6010801@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@kernel.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Dmitry Eremin-Solenikov <dmitry_eremin@mentor.com>
+To: Mathias Gottschlag <mgottschlag@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-usb <linux-input@vger.kernel.org>
 
-On Fri, Oct 24, 2014 at 09:18:06PM +0400, Dmitry Eremin-Solenikov wrote:
-> From: Dmitry Eremin-Solenikov <dmitry_eremin@mentor.com>
-> 
-> Sharp SL-6000 (tosa) touchscreen needs wider limits to properly map all
-> points on the screen. Expand ranges in abs_x and abs_y arrays according
-> to the touchscreen area.
-> 
-> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Hi,
 
-Applied, thank you.
-
-> ---
->  drivers/input/touchscreen/wm97xx-core.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 10/25/2014 02:12 PM, Mathias Gottschlag wrote:
+> Hi,
 > 
-> diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-> index d0ef91f..b1ae779 100644
-> --- a/drivers/input/touchscreen/wm97xx-core.c
-> +++ b/drivers/input/touchscreen/wm97xx-core.c
-> @@ -70,11 +70,11 @@
->   * Documentation/input/input-programming.txt for more details.
->   */
->  
-> -static int abs_x[3] = {350, 3900, 5};
-> +static int abs_x[3] = {150, 4000, 5};
->  module_param_array(abs_x, int, NULL, 0);
->  MODULE_PARM_DESC(abs_x, "Touchscreen absolute X min, max, fuzz");
->  
-> -static int abs_y[3] = {320, 3750, 40};
-> +static int abs_y[3] = {200, 4000, 40};
->  module_param_array(abs_y, int, NULL, 0);
->  MODULE_PARM_DESC(abs_y, "Touchscreen absolute Y min, max, fuzz");
->  
-> -- 
-> 2.1.1
+> I've had Nikola Nikolov test my touchpad code for me and got the report
+> that the driver worked, but only when he passed i8042.noloop=1 and
+> psmouse.proto=bare to the kernel. Now I have been pretty careful to keep
+> your previous patch in place when writing my code. So, I'd like to
+> further debug this issue, but I don't really understand the matter.
 > 
+> Especially, what is that AUX LOOP command that is disabled by noloop=1?
+> Your patch does not have anything to do with that option, does it?
 
--- 
-Dmitry
+WRT passing noloop that laptop has a weird i8042 implementation where the
+kernel does not detect the aux port at all unless noloop is passed, a
+patch to do this automatically is already upstream:
+
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/input/serio/i8042-x86ia64io.h?id=9ff84a17302aeb8913ff244ecc0d8f9d219fecb5
+
+WRT needing to pass psmouse.proto=bare, that should not be necessary
+with recent kernels, but the fix for this has only gone upstream very
+recently, so likely he is just using a somewhat older kernel.
+
+Regards,
+
+Hans

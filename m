@@ -1,41 +1,36 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 03/11] aiptek: Fix probable mask then right shift defects
-Date: Mon, 27 Oct 2014 11:03:51 -0700
-Message-ID: <1414433031.18896.2.camel@perches.com>
-References: <cover.1414387334.git.joe@perches.com>
-	 <20141027144411.GA7594@dtor-ws> <1414432614.18896.1.camel@perches.com>
-	 <3320721.qubDk7TkeJ@dtor-glaptop>
+From: "Griffis, Brad" <bgriffis@ti.com>
+Subject: RE: [PATCH 0/4] Touchscreen performance related fixes
+Date: Mon, 27 Oct 2014 19:02:47 +0000
+Message-ID: <912A29987EAE174BA6CF187D7CDFA9CE26F46B2B@DLEE08.ent.ti.com>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
+ <544E821D.5040004@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3320721.qubDk7TkeJ@dtor-glaptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <544E821D.5040004@linutronix.de>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, "R, Vignesh" <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit
+ Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry
+ Torokhov <dmitry.torokhov@gmail.com>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Jan Kardell <jan.kardell@telliq.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Balbi,
+ Felipe" <balbi@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2014-10-27 at 11:01 -0700, Dmitry Torokhov wrote:
-> On Monday, October 27, 2014 10:56:54 AM Joe Perches wrote:
-> > On Mon, 2014-10-27 at 07:44 -0700, Dmitry Torokhov wrote:
-> > > On Sun, Oct 26, 2014 at 10:24:59PM -0700, Joe Perches wrote:
-> > > > Precedence of & and >> is not the same and is not left to right.
-> > > > shift has higher precedence and should be done after the mask.
-> > > 
-> > > Looking at the protocol description the current code is exactly right.
-> > > We want to "move" button bits first as in packet type 1 they are in a
-> > > different place than in other packets.
-> > > 
-> > > I'll take a patch that adds parenthesis around shifts to make clear it
-> > > is intended.
-> > 
-> > I think it's more sensible to do the shift first to a
-> > temporary then direct comparisons.
-[]
-> Unless you have the device I'd rather kept the changes (which are mostly
-> cosmetic in nature and do not fix any bugs) to a minimum.
+On 10/27/2014 12:34 PM, Sebastian Andrzej Siewior wrote:
+> Do we really need #3 (and then #4)? Given the complexity we have already, is there any benefit by decreasing this value? 
 
-I don't have the device.
-I think you should do what you think appropriate.
+I specifically requested we add ti,charge-delay to the device tree because it is THE critical value to tune for a given design.  Although I think the current value of 0xB000 will be suitable for a great many designs, I expect that many users will need to adjust this value for their hardware.  Details such as which touchscreen vendor is being used and how the touchscreen is connected (header vs cable) have an effect on what's appropriate here.
 
-cheers, Joe
+> Would  someone want to increase it? Can we safely determine a value which works for everyone?
+
+This value represents a hardware delay before checking for the pen-up event.  So in the scenario where someone is seeing excessive false pen-up events they will want to increase this parameter.  The downsize of making this larger is that it decreases the overall sampling speed of both the touchscreen as well as the standalone ADC samples.  At one point I tried making it huge, but that made the touchscreen overly sluggish because the sampling became too slow.  So there is a definite trade-off that if you make it too large the touchscreen becomes sluggish, and if you make it too small then you may see false pen-up events.  The optimal value will need to be tuned for a given design.

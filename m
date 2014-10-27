@@ -1,36 +1,69 @@
-From: "Griffis, Brad" <bgriffis@ti.com>
-Subject: RE: [PATCH 0/4] Touchscreen performance related fixes
-Date: Mon, 27 Oct 2014 19:02:47 +0000
-Message-ID: <912A29987EAE174BA6CF187D7CDFA9CE26F46B2B@DLEE08.ent.ti.com>
-References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
- <544E821D.5040004@linutronix.de>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: spear-keyboard - Add CONFIG_PM_SLEEP to
+ suspend/resume functions
+Date: Mon, 27 Oct 2014 16:37:44 -0700
+Message-ID: <20141027233744.GC7594@dtor-ws>
+References: <000801cff1e2$2427ba40$6c772ec0$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <544E821D.5040004@linutronix.de>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, "R, Vignesh" <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit
- Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry
- Torokhov <dmitry.torokhov@gmail.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Jan Kardell <jan.kardell@telliq.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Balbi,
- Felipe" <balbi@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:44078 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752230AbaJ0Xht (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Oct 2014 19:37:49 -0400
+Received: by mail-pa0-f43.google.com with SMTP id eu11so6462681pac.16
+        for <linux-input@vger.kernel.org>; Mon, 27 Oct 2014 16:37:48 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <000801cff1e2$2427ba40$6c772ec0$%han@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: linux-input@vger.kernel.org, 'Viresh Kumar' <viresh.kumar@linaro.org>
 
-On 10/27/2014 12:34 PM, Sebastian Andrzej Siewior wrote:
-> Do we really need #3 (and then #4)? Given the complexity we have already, is there any benefit by decreasing this value? 
+Hi Jingoo,
 
-I specifically requested we add ti,charge-delay to the device tree because it is THE critical value to tune for a given design.  Although I think the current value of 0xB000 will be suitable for a great many designs, I expect that many users will need to adjust this value for their hardware.  Details such as which touchscreen vendor is being used and how the touchscreen is connected (header vs cable) have an effect on what's appropriate here.
+On Mon, Oct 27, 2014 at 09:32:58PM +0900, Jingoo Han wrote:
+> Add CONFIG_PM_SLEEP to suspend/resume functions
+> 
+> Add CONFIG_PM_SLEEP to suspend/resume functions instead of
+> CONFIG_PM to fix the following build warning when CONFIG_PM_SLEEP
+> is not selected and CONFIG_PM is selected. This is because sleep
+> PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when the
+> CONFIG_PM_SLEEP is enabled.
 
-> Would  someone want to increase it? Can we safely determine a value which works for everyone?
+Recently I've become a fan of __maybe_unused markings as they insulate
+us from various CONFIG changes in unrelated subsystems, I'll transform
+this patch to use them instead.
 
-This value represents a hardware delay before checking for the pen-up event.  So in the scenario where someone is seeing excessive false pen-up events they will want to increase this parameter.  The downsize of making this larger is that it decreases the overall sampling speed of both the touchscreen as well as the standalone ADC samples.  At one point I tried making it huge, but that made the touchscreen overly sluggish because the sampling became too slow.  So there is a definite trade-off that if you make it too large the touchscreen becomes sluggish, and if you make it too small then you may see false pen-up events.  The optimal value will need to be tuned for a given design.
+Thanks.
+
+> 
+> drivers/input/keyboard/spear-keyboard.c:292:12: warning: 'spear_kbd_suspend' defined but not used [-Wunused-function]
+> drivers/input/keyboard/spear-keyboard.c:345:12: warning: 'spear_kbd_resume' defined but not used [-Wunused-function]
+> 
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> ---
+>  drivers/input/keyboard/spear-keyboard.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+> index 258af10..fc93e79 100644
+> --- a/drivers/input/keyboard/spear-keyboard.c
+> +++ b/drivers/input/keyboard/spear-keyboard.c
+> @@ -288,7 +288,7 @@ static int spear_kbd_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -#ifdef CONFIG_PM
+> +#ifdef CONFIG_PM_SLEEP
+>  static int spear_kbd_suspend(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+> -- 
+> 1.7.9.5
+> 
+> 
+
+-- 
+Dmitry

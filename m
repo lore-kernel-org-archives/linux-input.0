@@ -1,62 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input: pmic8xxx-keypad - use regmap_field for register access
-Date: Mon, 27 Oct 2014 09:26:21 -0700
-Message-ID: <3130587.MP3Z1uHjdW@dtor-glaptop>
-References: <20141007172606.GG16469@dtor-ws> <20141027160641.GB7594@dtor-ws> <1414426831.20978.4.camel@mm-sol.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 0/4] Touchscreen performance related fixes
+Date: Mon, 27 Oct 2014 18:34:21 +0100
+Message-ID: <544E821D.5040004@linutronix.de>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1414426831.20978.4.camel@mm-sol.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: Mark Brown <broonie@kernel.org>, Stephen Boyd <sboyd@codeaurora.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.linutronix.de ([62.245.132.108]:60971 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750824AbaJ0Rec (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Oct 2014 13:34:32 -0400
+In-Reply-To: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Felipe Balbi <balbi@ti.com>, Jan Kardell <jan.kardell@telliq.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Brad Griffis <bgriffis@ti.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-On Monday, October 27, 2014 06:20:31 PM Ivan T. Ivanov wrote:
-> On Mon, 2014-10-27 at 09:06 -0700, Dmitry Torokhov wrote:
-> > On Mon, Oct 27, 2014 at 05:30:41PM +0200, Ivan T. Ivanov wrote:
-> > > Hi Dmitry,
-> > > 
-> > > On Mon, 2014-10-13 at 16:02 +0200, Mark Brown wrote:
-> > > > On Wed, Oct 08, 2014 at 01:32:33PM -0700, Dmitry Torokhov wrote:
-> > > > > On Wed, Oct 08, 2014 at 09:04:26PM +0100, Mark Brown wrote:
-> > > > > > On Wed, Oct 08, 2014 at 11:20:58AM -0700, Stephen Boyd wrote:
-> > > > > > > Srini/Mark, any reason why the regmap_field structure is opaque?
-> > > > > > 
-> > > > > > So you can't peer into it and rely on the contents.  I can see it
-> > > > > > being
-> > > > > > useful to add a bulk allocator.
-> > > > > 
-> > > > > And then one have to define offsets in an array and use awkward
-> > > > > syntax
-> > > > > to access individual fields. Can we just reply on
-> > > > > reviews/documentation
-> > > > > for users to not do wrong thing?
-> > > > 
-> > > > I have very little confidence in users not doing awful things to be
-> > > > honest, this is the sort of API where the users are just random things
-> > > > all over the kernel so this sort of thing tends to be found after the
-> > > > fact.  I get a lot of these in drivers that just got thrown over the
-> > > > wall so nobody really knows what things are doing when you do find
-> > > > them.
-> > > > 
-> > > > If the standard allocators aren't doing a good job (I've not checked)
-> > > > I'd much rather handle this inside the API if we can.
-> > > 
-> > > Is there something that I can help here or patches are good as they are?
-> > > :-)> 
-> > Well, as far as I can see Bjorn (in the other thread) has some
-> > objections on merging these devices together, so I ma just waiting for
-> > you settle this issue.
-> 
-> In the other thread we are discussing "pm8xxx-pwrkey" driver not this
-> "pm8xxx-keypad" driver. Unless I not missing something?
+On 10/27/2014 12:08 PM, Vignesh R wrote:
+> This series of patches fix TSC defects related to lag in touchscreen
 
-Ah, sorry, I guess my parsing stops right after pm8xxx... Let me take another
-look.
+I will try to look this in the next few days. Do we really need #3 (and
+then #4)? Given the complexity we have already, is there any benefit by
+decreasing this value? Would  someone want to increase it? Can we safely
+determine a value which works for everyone?
 
-Thanks.
+Sebastian
 
--- 
-Dmitry

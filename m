@@ -1,63 +1,71 @@
 From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH 06/15] video: lcd: add LoCoMo LCD driver
-Date: Tue, 28 Oct 2014 03:01:59 +0300
-Message-ID: <1414454528-24240-7-git-send-email-dbaryshkov@gmail.com>
+Subject: [PATCH 05/15] video: backlight: add new locomo backlight driver
+Date: Tue, 28 Oct 2014 03:01:58 +0300
+Message-ID: <1414454528-24240-6-git-send-email-dbaryshkov@gmail.com>
 References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:58429 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752945AbaJ1ACi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Oct 2014 20:02:38 -0400
 In-Reply-To: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 Cc: Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-LoCoMo has some special handling for TFT screens attached to Collie and
-Poodle. Implement that as a separate driver.
+Add new simple backlight driver - it cares only about PWM/frontlight
+part of LoCoMo, it does not touch TFT settings and does not export TFT
+power control.
 
 Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 ---
- drivers/video/backlight/Kconfig      |   8 ++
- drivers/video/backlight/Makefile     |   1 +
- drivers/video/backlight/locomo_lcd.c | 224 +++++++++++++++++++++++++++++++++++
- 3 files changed, 233 insertions(+)
- create mode 100644 drivers/video/backlight/locomo_lcd.c
+ drivers/video/backlight/Kconfig     |   6 +-
+ drivers/video/backlight/Makefile    |   2 +-
+ drivers/video/backlight/locomo_bl.c | 171 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 175 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/video/backlight/locomo_bl.c
 
 diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
-index 03b77b33..bc5c671 100644
+index 8d03924..03b77b33 100644
 --- a/drivers/video/backlight/Kconfig
 +++ b/drivers/video/backlight/Kconfig
-@@ -48,6 +48,14 @@ config LCD_LMS283GF05
- 	  SPI driver for Samsung LMS283GF05. This provides basic support
- 	  for powering the LCD up/down through a sysfs interface.
+@@ -218,12 +218,12 @@ config BACKLIGHT_LM3533
+ 	  levels.
  
-+config LCD_LOCOMO
-+	tristate "Sharp LOCOMO LCD Driver"
+ config BACKLIGHT_LOCOMO
+-	tristate "Sharp LOCOMO LCD/Backlight Driver"
+-	depends on SHARP_LOCOMO
++	tristate "Sharp LOCOMO Backlight Driver"
 +	depends on MFD_LOCOMO
-+	default y
-+	help
-+	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
-+	  enable the LCD driver.
-+
- config LCD_LTV350QV
- 	tristate "Samsung LTV350QV LCD Panel"
- 	depends on SPI_MASTER
+ 	default y
+ 	help
+ 	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
+-	  enable the LCD/backlight driver.
++	  enable the backlight driver.
+ 
+ config BACKLIGHT_OMAP1
+ 	tristate "OMAP1 PWL-based LCD Backlight"
 diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
-index 2a61b7e..b2580e7 100644
+index fcd50b73..2a61b7e 100644
 --- a/drivers/video/backlight/Makefile
 +++ b/drivers/video/backlight/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_LCD_ILI922X)		+= ili922x.o
- obj-$(CONFIG_LCD_ILI9320)		+= ili9320.o
- obj-$(CONFIG_LCD_L4F00242T03)		+= l4f00242t03.o
- obj-$(CONFIG_LCD_LD9040)		+= ld9040.o
-+obj-$(CONFIG_LCD_LOCOMO)		+= locomo_lcd.o
- obj-$(CONFIG_LCD_LMS283GF05)		+= lms283gf05.o
- obj-$(CONFIG_LCD_LMS501KF03)		+= lms501kf03.o
- obj-$(CONFIG_LCD_LTV350QV)		+= ltv350qv.o
-diff --git a/drivers/video/backlight/locomo_lcd.c b/drivers/video/backlight/locomo_lcd.c
+@@ -39,7 +39,7 @@ obj-$(CONFIG_BACKLIGHT_IPAQ_MICRO)	+= ipaq_micro_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3533)		+= lm3533_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3630A)		+= lm3630a_bl.o
+ obj-$(CONFIG_BACKLIGHT_LM3639)		+= lm3639_bl.o
+-obj-$(CONFIG_BACKLIGHT_LOCOMO)		+= locomolcd.o
++obj-$(CONFIG_BACKLIGHT_LOCOMO)		+= locomo_bl.o
+ obj-$(CONFIG_BACKLIGHT_LP855X)		+= lp855x_bl.o
+ obj-$(CONFIG_BACKLIGHT_LP8788)		+= lp8788_bl.o
+ obj-$(CONFIG_BACKLIGHT_LV5207LP)	+= lv5207lp.o
+diff --git a/drivers/video/backlight/locomo_bl.c b/drivers/video/backlight/locomo_bl.c
 new file mode 100644
-index 0000000..245efb8
+index 0000000..cec1b51
 --- /dev/null
-+++ b/drivers/video/backlight/locomo_lcd.c
-@@ -0,0 +1,224 @@
++++ b/drivers/video/backlight/locomo_bl.c
+@@ -0,0 +1,171 @@
 +/*
 + * Backlight control code for Sharp Zaurus SL-5500
 + *
@@ -70,7 +78,6 @@ index 0000000..245efb8
 + * old PDA.
 + */
 +
-+/* LCD power functions */
 +#include <linux/module.h>
 +#include <linux/init.h>
 +#include <linux/platform_device.h>
@@ -79,209 +86,157 @@ index 0000000..245efb8
 +#include <linux/err.h>
 +#include <linux/gpio.h>
 +#include <linux/delay.h>
-+#include <linux/lcd.h>
 +#include <linux/mfd/locomo.h>
 +
-+static struct platform_device *locomolcd_dev;
-+static struct locomo_lcd_platform_data lcd_data;
-+static bool locomolcd_is_on;
-+static bool locomolcd_is_suspended;
-+static void __iomem *locomolcd_regs;
-+static struct lcd_device *lcd_dev;
-+
-+static struct gpio locomo_gpios[] = {
-+	{ 0, GPIOF_OUT_INIT_LOW, "LCD VSHA on" },
-+	{ 0, GPIOF_OUT_INIT_LOW, "LCD VSHD on" },
-+	{ 0, GPIOF_OUT_INIT_LOW, "LCD Vee on" },
-+	{ 0, GPIOF_OUT_INIT_LOW, "LCD MOD" },
++struct locomo_bl {
++	void __iomem *regs;
++	int current_intensity;
++	int gpio_fl_vr;
 +};
 +
-+static void locomolcd_on(void)
-+{
-+	gpio_set_value(lcd_data.gpio_lcd_vsha_on, 1);
-+	mdelay(2);
-+
-+	gpio_set_value(lcd_data.gpio_lcd_vshd_on, 1);
-+	mdelay(2);
-+
-+	locomo_m62332_senddata(locomolcd_dev->dev.parent, lcd_data.comadj, 0);
-+	mdelay(5);
-+
-+	gpio_set_value(lcd_data.gpio_lcd_vee_on, 1);
-+	mdelay(10);
-+
-+	/* TFTCRST | CPSOUT=0 | CPSEN */
-+	writew(0x01, locomolcd_regs + LOCOMO_TC);
-+
-+	/* Set CPSD */
-+	writew(6, locomolcd_regs + LOCOMO_CPSD);
-+
-+	/* TFTCRST | CPSOUT=0 | CPSEN */
-+	writew((0x04 | 0x01), locomolcd_regs + LOCOMO_TC);
-+	mdelay(10);
-+
-+	gpio_set_value(lcd_data.gpio_lcd_mod, 1);
-+}
-+
-+static void locomolcd_off(void)
-+{
-+	/* TFTCRST=1 | CPSOUT=1 | CPSEN = 0 */
-+	writew(0x06, locomolcd_regs + LOCOMO_TC);
-+	mdelay(1);
-+
-+	gpio_set_value(lcd_data.gpio_lcd_vsha_on, 0);
-+	mdelay(110);
-+
-+	gpio_set_value(lcd_data.gpio_lcd_vee_on, 0);
-+	mdelay(700);
-+
-+	locomo_m62332_senddata(locomolcd_dev->dev.parent, 0, 0);
-+	mdelay(5);
-+
-+	/* TFTCRST=0 | CPSOUT=0 | CPSEN = 0 */
-+	writew(0, locomolcd_regs + LOCOMO_TC);
-+	gpio_set_value(lcd_data.gpio_lcd_mod, 0);
-+	gpio_set_value(lcd_data.gpio_lcd_vshd_on, 0);
-+}
-+
-+int locomo_lcd_set_power(struct lcd_device *lcd, int power)
-+{
-+	dev_dbg(&lcd->dev, "LCD power %d (is %d)\n", power, locomolcd_is_on);
-+	if (power == 0 && !locomolcd_is_on) {
-+		locomolcd_is_on = 1;
-+		locomolcd_on();
-+	}
-+	if (power != 0 && locomolcd_is_on) {
-+		locomolcd_is_on = 0;
-+		locomolcd_off();
-+	}
-+	return 0;
-+}
-+
-+static int locomo_lcd_get_power(struct lcd_device *lcd)
-+{
-+	return !locomolcd_is_on;
-+}
-+
-+static struct lcd_ops locomo_lcd_ops = {
-+	.set_power = locomo_lcd_set_power,
-+	.get_power = locomo_lcd_get_power,
++static const struct {
++	u16 duty, bpwf;
++	bool vr;
++} locomo_bl_pwm[] = {
++	{ 0, 161, false },
++	{ 117, 161, false },
++	{ 163, 148, false },
++	{ 194, 161, false },
++	{ 194, 161, true },
 +};
 +
-+#ifdef CONFIG_PM_SLEEP
-+static int locomolcd_suspend(struct device *dev)
++static int locomo_bl_set_intensity(struct backlight_device *bd)
 +{
-+	locomolcd_is_suspended = true;
-+	locomolcd_off();
++	int intensity = bd->props.brightness;
++	struct locomo_bl *bl = dev_get_drvdata(&bd->dev);
++
++	if (bd->props.power != FB_BLANK_UNBLANK)
++		intensity = 0;
++	if (bd->props.fb_blank != FB_BLANK_UNBLANK)
++		intensity = 0;
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		intensity = 0;
++
++	gpio_set_value(bl->gpio_fl_vr, locomo_bl_pwm[intensity].vr);
++
++	writew(locomo_bl_pwm[intensity].bpwf, bl->regs + LOCOMO_ALS);
++	udelay(100);
++	writew(locomo_bl_pwm[intensity].duty, bl->regs + LOCOMO_ALD);
++	udelay(100);
++	writew(locomo_bl_pwm[intensity].bpwf | LOCOMO_ALC_EN,
++			bl->regs + LOCOMO_ALS);
++
++	bl->current_intensity = intensity;
++	if (bd->props.state & BL_CORE_SUSPENDED)
++		writew(0x00, bl->regs + LOCOMO_ALS);
 +
 +	return 0;
 +}
 +
-+static int locomolcd_resume(struct device *dev)
++static int locomo_bl_get_intensity(struct backlight_device *bd)
 +{
-+	locomolcd_is_suspended = false;
++	struct locomo_bl *bl = dev_get_drvdata(&bd->dev);
 +
-+	if (locomolcd_is_on)
-+		locomolcd_on();
-+
-+	return 0;
++	return bl->current_intensity;
 +}
 +
-+static SIMPLE_DEV_PM_OPS(locomolcd_pm, locomolcd_suspend, locomolcd_resume);
-+#define LOCOMOLCD_PM	(&locomolcd_pm)
-+#else
-+#define LOCOMOLCD_PM	NULL
-+#endif
++static const struct backlight_ops locomo_bl_ops = {
++	.options	= BL_CORE_SUSPENDRESUME,
++	.get_brightness = locomo_bl_get_intensity,
++	.update_status  = locomo_bl_set_intensity,
++};
 +
-+static int locomolcd_probe(struct platform_device *dev)
++static int locomo_bl_probe(struct platform_device *dev)
 +{
-+	unsigned long flags;
++	struct backlight_properties props;
 +	struct resource *res;
-+	struct locomo_lcd_platform_data *pdata;
++	struct locomo_bl_platform_data *pdata;
++	struct locomo_bl *bl;
++	struct backlight_device *locomo_bl_device;
 +	int rc;
++
++	bl = devm_kmalloc(&dev->dev, sizeof(struct locomo_bl), GFP_KERNEL);
++	if (!bl)
++		return -ENOMEM;
 +
 +	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
 +	if (!res)
 +		return -EINVAL;
-+	locomolcd_regs = devm_ioremap_resource(&dev->dev, res);
-+	if (!locomolcd_regs)
++	bl->regs = devm_ioremap_resource(&dev->dev, res);
++	if (!bl->regs)
 +		return -EINVAL;
 +
 +	pdata = dev_get_platdata(&dev->dev);
 +	if (!pdata)
 +		return -EINVAL;
 +
-+	lcd_data = *pdata;
-+
-+	locomo_gpios[0].gpio = lcd_data.gpio_lcd_vsha_on;
-+	locomo_gpios[1].gpio = lcd_data.gpio_lcd_vshd_on;
-+	locomo_gpios[2].gpio = lcd_data.gpio_lcd_vee_on;
-+	locomo_gpios[3].gpio = lcd_data.gpio_lcd_mod;
-+	dev_info(&dev->dev, "GPIOs: %d %d %d %d\n",
-+			locomo_gpios[0].gpio,
-+			locomo_gpios[1].gpio,
-+			locomo_gpios[2].gpio,
-+			locomo_gpios[3].gpio);
-+
-+	rc = gpio_request_array(locomo_gpios, ARRAY_SIZE(locomo_gpios));
++	bl->gpio_fl_vr = pdata->gpio_fl_vr;
++	rc = devm_gpio_request_one(&dev->dev, bl->gpio_fl_vr,
++			GPIOF_OUT_INIT_LOW, "FL VR");
 +	if (rc)
 +		return rc;
 +
-+	local_irq_save(flags);
-+	locomolcd_dev = dev;
++	writew(0, bl->regs + LOCOMO_ALS);
++	writew(0, bl->regs + LOCOMO_ALD);
 +
-+	locomolcd_is_on = 1;
-+	if (locomolcd_is_on)
-+		locomolcd_on();
++	memset(&props, 0, sizeof(struct backlight_properties));
++	props.type = BACKLIGHT_RAW;
++	props.max_brightness = ARRAY_SIZE(locomo_bl_pwm) - 1;
++	props.brightness = props.max_brightness / 2;
++	locomo_bl_device = backlight_device_register("locomo-bl",
++						&dev->dev, bl,
++						&locomo_bl_ops, &props);
 +
-+	local_irq_restore(flags);
++	if (IS_ERR(locomo_bl_device))
++		return PTR_ERR(locomo_bl_device);
 +
-+	lcd_dev = lcd_device_register("locomo", &dev->dev, NULL,
-+			&locomo_lcd_ops);
++	platform_set_drvdata(dev, locomo_bl_device);
 +
-+	return 0;
-+}
-+
-+static int locomolcd_remove(struct platform_device *dev)
-+{
-+	unsigned long flags;
-+
-+	lcd_device_unregister(lcd_dev);
-+
-+	local_irq_save(flags);
-+
-+	locomolcd_off();
-+	locomolcd_dev = NULL;
-+
-+	local_irq_restore(flags);
-+
-+	gpio_free_array(locomo_gpios, ARRAY_SIZE(locomo_gpios));
++	/* Set up frontlight so that screen is readable */
++	backlight_update_status(locomo_bl_device);
 +
 +	return 0;
 +}
 +
-+static void locomolcd_shutdown(struct platform_device *dev)
++static int locomo_bl_remove(struct platform_device *dev)
 +{
-+	locomolcd_off();
++	struct backlight_device *locomo_bl_device = platform_get_drvdata(dev);
++
++	locomo_bl_device->props.brightness = 0;
++	locomo_bl_device->props.power = 0;
++	locomo_bl_set_intensity(locomo_bl_device);
++
++	backlight_device_unregister(locomo_bl_device);
++
++	return 0;
 +}
 +
-+static struct platform_driver locomolcd_driver = {
++static void locomo_bl_shutdown(struct platform_device *dev)
++{
++	struct backlight_device *locomo_bl_device = platform_get_drvdata(dev);
++
++	locomo_bl_device->props.brightness = 0;
++	locomo_bl_device->props.power = 0;
++	locomo_bl_set_intensity(locomo_bl_device);
++}
++
++static struct platform_driver locomo_bl_driver = {
 +	.driver = {
-+		.name	= "locomo-lcd",
++		.name	= "locomo-backlight",
 +		.owner	= THIS_MODULE,
-+		.pm	= LOCOMOLCD_PM,
 +	},
-+	.probe	= locomolcd_probe,
-+	.remove	= locomolcd_remove,
-+	.shutdown = locomolcd_shutdown,
++	.probe	= locomo_bl_probe,
++	.remove	= locomo_bl_remove,
++	/* Turn off bl on power off/reboot */
++	.shutdown = locomo_bl_shutdown,
 +};
 +
-+module_platform_driver(locomolcd_driver);
++module_platform_driver(locomo_bl_driver);
 +
 +MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@ucw.cz>");
-+MODULE_DESCRIPTION("Collie LCD driver");
++MODULE_DESCRIPTION("Collie Backlight driver");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:locomo-lcd");
++MODULE_ALIAS("platform:locomo-backlight");
 -- 
 2.1.1
 

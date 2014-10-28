@@ -1,66 +1,70 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v2] Input: driver for the Goodix touchpanel
-Date: Tue, 28 Oct 2014 19:59:05 +0100
-Message-ID: <1414522745.2406.14.camel@hadess.net>
-References: <1411569838.29315.22.camel@hadess.net>
-	 <20141007205803.GJ16469@dtor-ws> <1414518921.2406.11.camel@hadess.net>
-	 <20141028180538.GA22157@dtor-ws>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH 12/15] ARM: pxa: poodle: don't preallocate IRQ space for
+ locomo
+Date: Tue, 28 Oct 2014 20:13:17 +0100
+Message-ID: <87bnow80tu.fsf@free.fr>
+References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
+ <1414454528-24240-13-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:38036 "EHLO
-	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752373AbaJ1S7u (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Oct 2014 14:59:50 -0400
-In-Reply-To: <20141028180538.GA22157@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1414454528-24240-13-git-send-email-dbaryshkov@gmail.com> (Dmitry
+ Eremin-Solenikov's message of "Tue, 28 Oct 2014 03:02:05 +0300")
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, linux-fbdev@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Russell King <linux@arm.linux.org.uk>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, alsa-devel@alsa-project.org, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, Mark Brown <broonie@kernel.org>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Daniel Mack <daniel@zonque.org>, Lee Jones <lee.jones@linaro.org>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Tue, 2014-10-28 at 11:05 -0700, Dmitry Torokhov wrote:
-> On Tue, Oct 28, 2014 at 06:55:21PM +0100, Bastien Nocera wrote:
-> > On Tue, 2014-10-07 at 13:58 -0700, Dmitry Torokhov wrote:
-> > > On Wed, Sep 24, 2014 at 04:43:58PM +0200, Bastien Nocera wrote:
-> > > > +static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
-> > > > +{
-> > > > +	struct goodix_ts_data *ts = dev_id;
-> > > > +	u8  end_cmd[1] = {0};
-> > > > +
-> > > > +	goodix_process_events(ts);
-> > > > +
-> > > > +	if (goodix_i2c_write(ts->client,
-> > > > +				GOODIX_READ_COOR_ADDR, end_cmd, 1) < 0)
-> > > > +		dev_err(&ts->client->dev, "I2C write end_cmd error");
-> > > 
-> > > I am not happy that we need to allocate/deallocate memory for each
-> > > interrupt. We only write one command to the driver, we could simply use
-> > > i2c_master_send() with a constant buffer.
-> > 
-> > Sure. But I've split up the patch you sent us, and committed the
-> > different bits separately in:
-> > https://github.com/hadess/gt9xx/commits/master
-> > 
-> > And this one commit about removing goodix_i2c_write():
-> > https://github.com/hadess/gt9xx/commit/146b4cc2eed5c67bcf1cb91e845bf9f97da4be1e
-> > 
-> > Breaks the driver.
-> 
-> Ah, I see. In end_cmd I encoded the address as little endian, whereas it
-> needs to be beg endian. Just swap "GOODIX_READ_COOR_ADDR & 0xff" and
-> "GOODIX_READ_COOR_ADDR >> 8" around and I thin kit will work.
+Dmitry Eremin-Solenikov <dbaryshkov@gmail.com> writes:
 
-Indeed, fixed in:
-https://github.com/hadess/gt9xx/commit/18e507c5c455a3d3d745380c4d0d561ea470a091
+...zip...
 
-As for the various FIXMEs, could you (that includes Benjamin that
-probably knows the driver more than he would like to) check whether
-that's sensible?
-https://github.com/hadess/gt9xx/commit/35b94f327edc04d95a7208a667553566faa871e3
+> diff --git a/arch/arm/mach-pxa/poodle.c b/arch/arm/mach-pxa/poodle.c
+> index 3041d83..97eced9 100644
+> --- a/arch/arm/mach-pxa/poodle.c
+> +++ b/arch/arm/mach-pxa/poodle.c
+> @@ -181,14 +181,18 @@ static struct locomo_platform_data locomo_info = {
+>  	.gpio_data = {
+>  		.gpio_base = POODLE_LOCOMO_GPIO_BASE,
+>  	},
+> -	.bl_data = {
+> +	.lcd_data = {
+Is that part really belonging to that patch ? It seems to me that this changes
+the code included in patch 10/15 "ARM: pxa: poodle: use new LoCoMo
+driver".
 
-If it is, I'll respin the patch and send it for merging.
+Therefore I'm wondering if I take the serie, halt it at patch 10, and try to
+compile I would succeed ... I think I wouldn't.
 
-Cheers
+> +	},
+> +	.bl_data = {
+>  		.gpio_fl_vr       = POODLE_GPIO_FL_VR,
+>  	},
+Ditto.
 
+> +	.gpio_amp1_on	= -1,
+> +	.gpio_amp2_on	= -1,
+This won't prevent compilation, but is it the target of this patch which is IRQ
+space oriented ?
+
+> @@ -453,7 +457,7 @@ static void __init poodle_init(void)
+>  	platform_scoop_config = &poodle_pcmcia_config;
+>  
+>  	if (sharpsl_param.comadj != -1)
+> -		locomo_info.bl_data.comadj = sharpsl_param.comadj;
+> +		locomo_info.lcd_data.comadj = sharpsl_param.comadj;
+Ditto.
+
+Cheers.
+
+-- 
+Robert

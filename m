@@ -1,70 +1,86 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH 12/15] ARM: pxa: poodle: don't preallocate IRQ space for
- locomo
-Date: Tue, 28 Oct 2014 20:13:17 +0100
-Message-ID: <87bnow80tu.fsf@free.fr>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
- <1414454528-24240-13-git-send-email-dbaryshkov@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: driver for the Goodix touchpanel
+Date: Tue, 28 Oct 2014 12:14:46 -0700
+Message-ID: <20141028191446.GA7461@dtor-ws>
+References: <1411569838.29315.22.camel@hadess.net>
+ <20141007205803.GJ16469@dtor-ws>
+ <1414518921.2406.11.camel@hadess.net>
+ <20141028180538.GA22157@dtor-ws>
+ <1414522745.2406.14.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1414454528-24240-13-git-send-email-dbaryshkov@gmail.com> (Dmitry
- Eremin-Solenikov's message of "Tue, 28 Oct 2014 03:02:05 +0300")
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, linux-fbdev@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Russell King <linux@arm.linux.org.uk>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, alsa-devel@alsa-project.org, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, Mark Brown <broonie@kernel.org>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Daniel Mack <daniel@zonque.org>, Lee Jones <lee.jones@linaro.org>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:45779 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750727AbaJ1TOv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Oct 2014 15:14:51 -0400
+Received: by mail-pd0-f178.google.com with SMTP id fp1so1311975pdb.23
+        for <linux-input@vger.kernel.org>; Tue, 28 Oct 2014 12:14:50 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1414522745.2406.14.camel@hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Dmitry Eremin-Solenikov <dbaryshkov@gmail.com> writes:
+On Tue, Oct 28, 2014 at 07:59:05PM +0100, Bastien Nocera wrote:
+> On Tue, 2014-10-28 at 11:05 -0700, Dmitry Torokhov wrote:
+> > On Tue, Oct 28, 2014 at 06:55:21PM +0100, Bastien Nocera wrote:
+> > > On Tue, 2014-10-07 at 13:58 -0700, Dmitry Torokhov wrote:
+> > > > On Wed, Sep 24, 2014 at 04:43:58PM +0200, Bastien Nocera wrote:
+> > > > > +static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+> > > > > +{
+> > > > > +	struct goodix_ts_data *ts = dev_id;
+> > > > > +	u8  end_cmd[1] = {0};
+> > > > > +
+> > > > > +	goodix_process_events(ts);
+> > > > > +
+> > > > > +	if (goodix_i2c_write(ts->client,
+> > > > > +				GOODIX_READ_COOR_ADDR, end_cmd, 1) < 0)
+> > > > > +		dev_err(&ts->client->dev, "I2C write end_cmd error");
+> > > > 
+> > > > I am not happy that we need to allocate/deallocate memory for each
+> > > > interrupt. We only write one command to the driver, we could simply use
+> > > > i2c_master_send() with a constant buffer.
+> > > 
+> > > Sure. But I've split up the patch you sent us, and committed the
+> > > different bits separately in:
+> > > https://github.com/hadess/gt9xx/commits/master
+> > > 
+> > > And this one commit about removing goodix_i2c_write():
+> > > https://github.com/hadess/gt9xx/commit/146b4cc2eed5c67bcf1cb91e845bf9f97da4be1e
+> > > 
+> > > Breaks the driver.
+> > 
+> > Ah, I see. In end_cmd I encoded the address as little endian, whereas it
+> > needs to be beg endian. Just swap "GOODIX_READ_COOR_ADDR & 0xff" and
+> > "GOODIX_READ_COOR_ADDR >> 8" around and I thin kit will work.
+> 
+> Indeed, fixed in:
+> https://github.com/hadess/gt9xx/commit/18e507c5c455a3d3d745380c4d0d561ea470a091
+> 
+> As for the various FIXMEs, could you (that includes Benjamin that
+> probably knows the driver more than he would like to) check whether
+> that's sensible?
+> https://github.com/hadess/gt9xx/commit/35b94f327edc04d95a7208a667553566faa871e3
+> 
+> If it is, I'll respin the patch and send it for merging.
 
-...zip...
+No, the "header" is not 10 bytes as far as I can see. IIUIC the device
+sends packet with 1st byte containing number of contacts + (n_contacts *
+GOODIX_CONTACT_SIZE) worth of data. The driver tries to optimize for
+single-touch scenario and reads the counter and the very first contact
+data and if the counter indicates more than one contact it will issue
+second i2c transaction to read in the rest.
 
-> diff --git a/arch/arm/mach-pxa/poodle.c b/arch/arm/mach-pxa/poodle.c
-> index 3041d83..97eced9 100644
-> --- a/arch/arm/mach-pxa/poodle.c
-> +++ b/arch/arm/mach-pxa/poodle.c
-> @@ -181,14 +181,18 @@ static struct locomo_platform_data locomo_info = {
->  	.gpio_data = {
->  		.gpio_base = POODLE_LOCOMO_GPIO_BASE,
->  	},
-> -	.bl_data = {
-> +	.lcd_data = {
-Is that part really belonging to that patch ? It seems to me that this changes
-the code included in patch 10/15 "ARM: pxa: poodle: use new LoCoMo
-driver".
+Your change did not alter the actual code, it just converted constant 10
+into a define.
 
-Therefore I'm wondering if I take the serie, halt it at patch 10, and try to
-compile I would succeed ... I think I wouldn't.
+Please try changing FIXMEs exactly as they were and see if the driver
+still works properly.
 
-> +	},
-> +	.bl_data = {
->  		.gpio_fl_vr       = POODLE_GPIO_FL_VR,
->  	},
-Ditto.
-
-> +	.gpio_amp1_on	= -1,
-> +	.gpio_amp2_on	= -1,
-This won't prevent compilation, but is it the target of this patch which is IRQ
-space oriented ?
-
-> @@ -453,7 +457,7 @@ static void __init poodle_init(void)
->  	platform_scoop_config = &poodle_pcmcia_config;
->  
->  	if (sharpsl_param.comadj != -1)
-> -		locomo_info.bl_data.comadj = sharpsl_param.comadj;
-> +		locomo_info.lcd_data.comadj = sharpsl_param.comadj;
-Ditto.
-
-Cheers.
+Thanks.
 
 -- 
-Robert
+Dmitry

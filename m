@@ -1,33 +1,197 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH 06/15] video: lcd: add LoCoMo LCD driver
-Date: Tue, 28 Oct 2014 19:47:22 +0300
-Message-ID: <544FC89A.80503@gmail.com>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com> <1414454528-24240-7-git-send-email-dbaryshkov@gmail.com> <000101cff246$6d229850$4767c8f0$%han@samsung.com>
+From: Pramod Gurav <pramod.gurav.etc@gmail.com>
+Subject: Re: [PATCH] Input: nomadik-ske-keypad: Switch to using managed resources
+Date: Tue, 28 Oct 2014 23:21:37 +0530
+Message-ID: <CAMf-jSkJihvuznVe=Zhj_tBOt=SD1oau+ZAeJQXaH34xsrqvSQ@mail.gmail.com>
+References: <1412765428-6517-1-git-send-email-pramod.gurav@smartplayin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:34796 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752134AbaJ1Qr2 (ORCPT
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:52687 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751391AbaJ1Rvl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Oct 2014 12:47:28 -0400
-In-Reply-To: <000101cff246$6d229850$4767c8f0$%han@samsung.com>
+	Tue, 28 Oct 2014 13:51:41 -0400
+In-Reply-To: <1412765428-6517-1-git-send-email-pramod.gurav@smartplayin.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org, 'Andrea Adami' <andrea.adami@gmail.com>, 'Russell King' <linux@arm.linux.org.uk>, 'Daniel Mack' <daniel@zonque.org>, 'Haojian Zhuang' <haojian.zhuang@gmail.com>, 'Robert Jarzmik' <robert.jarzmik@free.fr>, 'Linus Walleij' <linus.walleij@linaro.org>, 'Alexandre Courbot' <gnurou@gmail.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Bryan Wu' <cooloney@gmail.com>, 'Richard Purdie' <rpurdie@rpsys.net>, 'Samuel Ortiz' <sameo@linux.intel.com>, 'Lee Jones' <lee.jones@linaro.org>, 'Mark Brown' <broonie@kernel.org>, 'Liam Girdwood' <lgirdwood@gmail.com>
+To: Pramod Gurav <pramod.gurav@smartplayin.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 10/28/2014 03:30 AM, Jingoo Han wrote:
-> On Tuesday, October 28, 2014 9:02 AM, Dmitry Eremin-Solenikov wrote:
->>
->> LoCoMo has some special handling for TFT screens attached to Collie and
->> Poodle. Implement that as a separate driver.
+Hi Dmitry,
+Is this change okey?
 
-Thanks for the review, changes for both LCD and Backlight will be 
-implemented in V2.
+On Wed, Oct 8, 2014 at 4:20 PM, Pramod Gurav
+<pramod.gurav@smartplayin.com> wrote:
+> This change switches to using devm_* APIs to allocate  resources.
+> This helps to simplify failure path in probe function as well as
+> remove function.
+>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+> ---
+>  drivers/input/keyboard/nomadik-ske-keypad.c |   63 +++++++++------------------
+>  1 file changed, 20 insertions(+), 43 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+> index 63332e2..95ac317 100644
+> --- a/drivers/input/keyboard/nomadik-ske-keypad.c
+> +++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+> @@ -247,12 +247,11 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>                 return -EINVAL;
+>         }
+>
+> -       keypad = kzalloc(sizeof(struct ske_keypad), GFP_KERNEL);
+> +       keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+>         input = input_allocate_device();
+>         if (!keypad || !input) {
+>                 dev_err(&pdev->dev, "failed to allocate keypad memory\n");
+> -               error = -ENOMEM;
+> -               goto err_free_mem;
+> +               return -ENOMEM;
+>         }
+>
+>         keypad->irq = irq;
+> @@ -260,31 +259,29 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>         keypad->input = input;
+>         spin_lock_init(&keypad->ske_keypad_lock);
+>
+> -       if (!request_mem_region(res->start, resource_size(res), pdev->name)) {
+> +       if (!devm_request_mem_region(&pdev->dev, res->start,
+> +                                    resource_size(res), pdev->name)) {
+>                 dev_err(&pdev->dev, "failed to request I/O memory\n");
+> -               error = -EBUSY;
+> -               goto err_free_mem;
+> +               return -EBUSY;
+>         }
+>
+> -       keypad->reg_base = ioremap(res->start, resource_size(res));
+> +       keypad->reg_base = devm_ioremap(&pdev->dev, res->start,
+> +                                       resource_size(res));
+>         if (!keypad->reg_base) {
+>                 dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> -               error = -ENXIO;
+> -               goto err_free_mem_region;
+> +               return -ENXIO;
+>         }
+>
+> -       keypad->pclk = clk_get(&pdev->dev, "apb_pclk");
+> +       keypad->pclk = devm_clk_get(&pdev->dev, "apb_pclk");
+>         if (IS_ERR(keypad->pclk)) {
+>                 dev_err(&pdev->dev, "failed to get pclk\n");
+> -               error = PTR_ERR(keypad->pclk);
+> -               goto err_iounmap;
+> +               return PTR_ERR(keypad->pclk);
+>         }
+>
+> -       keypad->clk = clk_get(&pdev->dev, NULL);
+> +       keypad->clk = devm_clk_get(&pdev->dev, NULL);
+>         if (IS_ERR(keypad->clk)) {
+>                 dev_err(&pdev->dev, "failed to get clk\n");
+> -               error = PTR_ERR(keypad->clk);
+> -               goto err_pclk;
+> +               return PTR_ERR(keypad->clk);
+>         }
+>
+>         input->id.bustype = BUS_HOST;
+> @@ -296,7 +293,7 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>                                            keypad->keymap, input);
+>         if (error) {
+>                 dev_err(&pdev->dev, "Failed to build keymap\n");
+> -               goto err_clk;
+> +               return error;
+>         }
+>
+>         input_set_capability(input, EV_MSC, MSC_SCAN);
+> @@ -306,7 +303,7 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>         error = clk_prepare_enable(keypad->pclk);
+>         if (error) {
+>                 dev_err(&pdev->dev, "Failed to prepare/enable pclk\n");
+> -               goto err_clk;
+> +               return error;
+>         }
+>
+>         error = clk_prepare_enable(keypad->clk);
+> @@ -326,8 +323,9 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>                 goto err_clk_disable;
+>         }
+>
+> -       error = request_threaded_irq(keypad->irq, NULL, ske_keypad_irq,
+> -                                    IRQF_ONESHOT, "ske-keypad", keypad);
+> +       error = devm_request_threaded_irq(&pdev->dev, keypad->irq, NULL,
+> +                                         ske_keypad_irq, IRQF_ONESHOT,
+> +                                         "ske-keypad", keypad);
+>         if (error) {
+>                 dev_err(&pdev->dev, "allocate irq %d failed\n", keypad->irq);
+>                 goto err_clk_disable;
+> @@ -337,7 +335,7 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>         if (error) {
+>                 dev_err(&pdev->dev,
+>                                 "unable to register input device: %d\n", error);
+> -               goto err_free_irq;
+> +               goto err_clk_disable;
+>         }
+>
+>         if (plat->wakeup_enable)
+> @@ -347,45 +345,24 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
+>
+>         return 0;
+>
+> -err_free_irq:
+> -       free_irq(keypad->irq, keypad);
+>  err_clk_disable:
+>         clk_disable_unprepare(keypad->clk);
+>  err_pclk_disable:
+>         clk_disable_unprepare(keypad->pclk);
+> -err_clk:
+> -       clk_put(keypad->clk);
+> -err_pclk:
+> -       clk_put(keypad->pclk);
+> -err_iounmap:
+> -       iounmap(keypad->reg_base);
+> -err_free_mem_region:
+> -       release_mem_region(res->start, resource_size(res));
+> -err_free_mem:
+> -       input_free_device(input);
+> -       kfree(keypad);
+> +
+>         return error;
+>  }
+>
+>  static int ske_keypad_remove(struct platform_device *pdev)
+>  {
+>         struct ske_keypad *keypad = platform_get_drvdata(pdev);
+> -       struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -
+> -       free_irq(keypad->irq, keypad);
+> -
+> -       input_unregister_device(keypad->input);
+>
+>         clk_disable_unprepare(keypad->clk);
+> -       clk_put(keypad->clk);
+> +       clk_disable_unprepare(keypad->pclk);
+>
+>         if (keypad->board->exit)
+>                 keypad->board->exit();
+>
+> -       iounmap(keypad->reg_base);
+> -       release_mem_region(res->start, resource_size(res));
+> -       kfree(keypad);
+> -
+>         return 0;
+>  }
+>
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 
 
 -- 
-With best wishes
-Dmitry
+Thanks and Regards
+Pramod

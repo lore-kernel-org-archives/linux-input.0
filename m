@@ -1,338 +1,287 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 04/15] input: convert LoCoMo keyboard driver to use new locomo core
-Date: Tue, 28 Oct 2014 03:01:57 +0300
-Message-ID: <1414454528-24240-5-git-send-email-dbaryshkov@gmail.com>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: [PATCH 06/15] video: lcd: add LoCoMo LCD driver
+Date: Tue, 28 Oct 2014 03:01:59 +0300
+Message-ID: <1414454528-24240-7-git-send-email-dbaryshkov@gmail.com>
 References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1414454528-24240-1-git-send-email-dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
-Cc: Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+Cc: Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-As LoCoMo is switching to new device model, adapt keyboard driver to
-support new locomo core driver.
+LoCoMo has some special handling for TFT screens attached to Collie and
+Poodle. Implement that as a separate driver.
 
-Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 ---
- drivers/input/keyboard/Kconfig     |   1 -
- drivers/input/keyboard/locomokbd.c | 165 ++++++++++++++++++++-----------------
- 2 files changed, 91 insertions(+), 75 deletions(-)
+ drivers/video/backlight/Kconfig      |   8 ++
+ drivers/video/backlight/Makefile     |   1 +
+ drivers/video/backlight/locomo_lcd.c | 224 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 233 insertions(+)
+ create mode 100644 drivers/video/backlight/locomo_lcd.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index a3958c6..b660516 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -337,7 +337,6 @@ config KEYBOARD_LM8333
+diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
+index 03b77b33..bc5c671 100644
+--- a/drivers/video/backlight/Kconfig
++++ b/drivers/video/backlight/Kconfig
+@@ -48,6 +48,14 @@ config LCD_LMS283GF05
+ 	  SPI driver for Samsung LMS283GF05. This provides basic support
+ 	  for powering the LCD up/down through a sysfs interface.
  
- config KEYBOARD_LOCOMO
- 	tristate "LoCoMo Keyboard Support"
--	depends on SHARP_LOCOMO
- 	help
- 	  Say Y here if you are running Linux on a Sharp Zaurus Collie or Poodle based PDA
- 
-diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
-index c94d610..c2fabf3 100644
---- a/drivers/input/keyboard/locomokbd.c
-+++ b/drivers/input/keyboard/locomokbd.c
-@@ -28,16 +28,10 @@
- #include <linux/init.h>
- #include <linux/input.h>
- #include <linux/delay.h>
--#include <linux/device.h>
++config LCD_LOCOMO
++	tristate "Sharp LOCOMO LCD Driver"
++	depends on MFD_LOCOMO
++	default y
++	help
++	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
++	  enable the LCD driver.
++
+ config LCD_LTV350QV
+ 	tristate "Samsung LTV350QV LCD Panel"
+ 	depends on SPI_MASTER
+diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
+index 2a61b7e..b2580e7 100644
+--- a/drivers/video/backlight/Makefile
++++ b/drivers/video/backlight/Makefile
+@@ -9,6 +9,7 @@ obj-$(CONFIG_LCD_ILI922X)		+= ili922x.o
+ obj-$(CONFIG_LCD_ILI9320)		+= ili9320.o
+ obj-$(CONFIG_LCD_L4F00242T03)		+= l4f00242t03.o
+ obj-$(CONFIG_LCD_LD9040)		+= ld9040.o
++obj-$(CONFIG_LCD_LOCOMO)		+= locomo_lcd.o
+ obj-$(CONFIG_LCD_LMS283GF05)		+= lms283gf05.o
+ obj-$(CONFIG_LCD_LMS501KF03)		+= lms501kf03.o
+ obj-$(CONFIG_LCD_LTV350QV)		+= ltv350qv.o
+diff --git a/drivers/video/backlight/locomo_lcd.c b/drivers/video/backlight/locomo_lcd.c
+new file mode 100644
+index 0000000..245efb8
+--- /dev/null
++++ b/drivers/video/backlight/locomo_lcd.c
+@@ -0,0 +1,224 @@
++/*
++ * Backlight control code for Sharp Zaurus SL-5500
++ *
++ * Copyright 2005 John Lenz <lenz@cs.wisc.edu>
++ * Maintainer: Pavel Machek <pavel@ucw.cz> (unless John wants to :-)
++ * GPL v2
++ *
++ * This driver assumes single CPU. That's okay, because collie is
++ * slightly old hardware, and no one is going to retrofit second CPU to
++ * old PDA.
++ */
++
++/* LCD power functions */
++#include <linux/module.h>
++#include <linux/init.h>
 +#include <linux/platform_device.h>
- #include <linux/interrupt.h>
--#include <linux/ioport.h>
--
--#include <asm/hardware/locomo.h>
--#include <asm/irq.h>
--
--MODULE_AUTHOR("John Lenz <lenz-hcNo3dDEHLuVc3sceRu5cw@public.gmane.org>");
--MODULE_DESCRIPTION("LoCoMo keyboard driver");
--MODULE_LICENSE("GPL");
-+#include <linux/io.h>
++#include <linux/fb.h>
++#include <linux/backlight.h>
++#include <linux/err.h>
++#include <linux/gpio.h>
++#include <linux/delay.h>
++#include <linux/lcd.h>
 +#include <linux/mfd/locomo.h>
- 
- #define LOCOMOKBD_NUMKEYS	128
- 
-@@ -75,7 +69,8 @@ struct locomokbd {
- 	struct input_dev *input;
- 	char phys[32];
- 
--	unsigned long base;
-+	void __iomem *base;
-+	int irq;
- 	spinlock_t lock;
- 
- 	struct timer_list timer;
-@@ -84,37 +79,37 @@ struct locomokbd {
- };
- 
- /* helper functions for reading the keyboard matrix */
--static inline void locomokbd_charge_all(unsigned long membase)
-+static inline void locomokbd_charge_all(void __iomem *membase)
- {
--	locomo_writel(0x00FF, membase + LOCOMO_KSC);
-+	writew(0x00FF, membase + LOCOMO_KSC);
- }
- 
--static inline void locomokbd_activate_all(unsigned long membase)
-+static inline void locomokbd_activate_all(void __iomem *membase)
- {
- 	unsigned long r;
- 
--	locomo_writel(0, membase + LOCOMO_KSC);
--	r = locomo_readl(membase + LOCOMO_KIC);
-+	writew(0, membase + LOCOMO_KSC);
-+	r = readw(membase + LOCOMO_KIC);
- 	r &= 0xFEFF;
--	locomo_writel(r, membase + LOCOMO_KIC);
-+	writew(r, membase + LOCOMO_KIC);
- }
- 
--static inline void locomokbd_activate_col(unsigned long membase, int col)
-+static inline void locomokbd_activate_col(void __iomem *membase, int col)
- {
- 	unsigned short nset;
- 	unsigned short nbset;
- 
- 	nset = 0xFF & ~(1 << col);
- 	nbset = (nset << 8) + nset;
--	locomo_writel(nbset, membase + LOCOMO_KSC);
-+	writew(nbset, membase + LOCOMO_KSC);
- }
- 
--static inline void locomokbd_reset_col(unsigned long membase, int col)
-+static inline void locomokbd_reset_col(void __iomem *membase, int col)
- {
- 	unsigned short nbset;
- 
- 	nbset = ((0xFF & ~(1 << col)) << 8) + 0xFF;
--	locomo_writel(nbset, membase + LOCOMO_KSC);
-+	writew(nbset, membase + LOCOMO_KSC);
- }
- 
- /*
-@@ -129,7 +124,7 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
- 	unsigned int row, col, rowd;
- 	unsigned long flags;
- 	unsigned int num_pressed;
--	unsigned long membase = locomokbd->base;
-+	void __iomem *membase = locomokbd->base;
- 
- 	spin_lock_irqsave(&locomokbd->lock, flags);
- 
-@@ -141,7 +136,7 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
- 		locomokbd_activate_col(membase, col);
- 		udelay(KB_DELAY);
- 
--		rowd = ~locomo_readl(membase + LOCOMO_KIB);
-+		rowd = ~readw(membase + LOCOMO_KIB);
- 		for (row = 0; row < KB_ROWS; row++) {
- 			unsigned int scancode, pressed, key;
- 
-@@ -194,11 +189,11 @@ static irqreturn_t locomokbd_interrupt(int irq, void *dev_id)
- 	struct locomokbd *locomokbd = dev_id;
- 	u16 r;
- 
--	r = locomo_readl(locomokbd->base + LOCOMO_KIC);
-+	r = readw(locomokbd->base + LOCOMO_KIC);
- 	if ((r & 0x0001) == 0)
- 		return IRQ_HANDLED;
- 
--	locomo_writel(r & ~0x0100, locomokbd->base + LOCOMO_KIC); /* Ack */
-+	writew(r & ~0x0100, locomokbd->base + LOCOMO_KIC); /* Ack */
- 
- 	/** wait chattering delay **/
- 	udelay(100);
-@@ -222,8 +217,8 @@ static int locomokbd_open(struct input_dev *dev)
- 	struct locomokbd *locomokbd = input_get_drvdata(dev);
- 	u16 r;
- 	
--	r = locomo_readl(locomokbd->base + LOCOMO_KIC) | 0x0010;
--	locomo_writel(r, locomokbd->base + LOCOMO_KIC);
-+	r = readw(locomokbd->base + LOCOMO_KIC) | 0x0010;
-+	writew(r, locomokbd->base + LOCOMO_KIC);
- 	return 0;
- }
- 
-@@ -232,35 +227,39 @@ static void locomokbd_close(struct input_dev *dev)
- 	struct locomokbd *locomokbd = input_get_drvdata(dev);
- 	u16 r;
- 	
--	r = locomo_readl(locomokbd->base + LOCOMO_KIC) & ~0x0010;
--	locomo_writel(r, locomokbd->base + LOCOMO_KIC);
-+	r = readw(locomokbd->base + LOCOMO_KIC) & ~0x0010;
-+	writew(r, locomokbd->base + LOCOMO_KIC);
- }
- 
--static int locomokbd_probe(struct locomo_dev *dev)
-+static int locomokbd_probe(struct platform_device *dev)
- {
- 	struct locomokbd *locomokbd;
- 	struct input_dev *input_dev;
- 	int i, err;
-+	struct resource *res;
 +
-+	locomokbd = devm_kzalloc(&dev->dev, sizeof(struct locomokbd),
-+			GFP_KERNEL);
-+	if (!locomokbd)
-+		return -ENOMEM;
- 
--	locomokbd = kzalloc(sizeof(struct locomokbd), GFP_KERNEL);
- 	input_dev = input_allocate_device();
--	if (!locomokbd || !input_dev) {
--		err = -ENOMEM;
--		goto err_free_mem;
--	}
-+	if (!input_dev)
-+		return -ENOMEM;
- 
--	/* try and claim memory region */
--	if (!request_mem_region((unsigned long) dev->mapbase,
--				dev->length,
--				LOCOMO_DRIVER_NAME(dev))) {
--		err = -EBUSY;
--		printk(KERN_ERR "locomokbd: Can't acquire access to io memory for keyboard\n");
--		goto err_free_mem;
--	}
-+	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -ENODEV;
- 
--	locomo_set_drvdata(dev, locomokbd);
-+	locomokbd->irq = platform_get_irq(dev, 0);
-+	if (locomokbd->irq < 0)
-+		return -ENXIO;
- 
--	locomokbd->base = (unsigned long) dev->mapbase;
-+	platform_set_drvdata(dev, locomokbd);
++static struct platform_device *locomolcd_dev;
++static struct locomo_lcd_platform_data lcd_data;
++static bool locomolcd_is_on;
++static bool locomolcd_is_suspended;
++static void __iomem *locomolcd_regs;
++static struct lcd_device *lcd_dev;
 +
-+	locomokbd->base = devm_ioremap_resource(&dev->dev, res);
-+	if (IS_ERR(locomokbd->base))
-+		return PTR_ERR(locomokbd->base);
- 
- 	spin_lock_init(&locomokbd->lock);
- 
-@@ -296,11 +295,15 @@ static int locomokbd_probe(struct locomo_dev *dev)
- 		set_bit(locomokbd->keycode[i], input_dev->keybit);
- 	clear_bit(0, input_dev->keybit);
- 
-+	writew(0, locomokbd->base + LOCOMO_KEYBOARD + LOCOMO_KIC);
-+	writew(0, locomokbd->base + LOCOMO_KEYBOARD + LOCOMO_KIC);
++static struct gpio locomo_gpios[] = {
++	{ 0, GPIOF_OUT_INIT_LOW, "LCD VSHA on" },
++	{ 0, GPIOF_OUT_INIT_LOW, "LCD VSHD on" },
++	{ 0, GPIOF_OUT_INIT_LOW, "LCD Vee on" },
++	{ 0, GPIOF_OUT_INIT_LOW, "LCD MOD" },
++};
 +
- 	/* attempt to get the interrupt */
--	err = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
-+	err = request_irq(locomokbd->irq, locomokbd_interrupt, 0,
-+			"locomokbd", locomokbd);
- 	if (err) {
- 		printk(KERN_ERR "locomokbd: Can't get irq for keyboard\n");
--		goto err_release_region;
-+		goto err_free_mem;
- 	}
- 
- 	err = input_register_device(locomokbd->input);
-@@ -309,54 +312,68 @@ static int locomokbd_probe(struct locomo_dev *dev)
- 
- 	return 0;
- 
-- err_free_irq:
--	free_irq(dev->irq[0], locomokbd);
-- err_release_region:
--	release_mem_region((unsigned long) dev->mapbase, dev->length);
--	locomo_set_drvdata(dev, NULL);
-- err_free_mem:
-+err_free_irq:
-+	free_irq(locomokbd->irq, locomokbd);
-+err_free_mem:
-+	platform_set_drvdata(dev, NULL);
- 	input_free_device(input_dev);
--	kfree(locomokbd);
- 
- 	return err;
- }
- 
--static int locomokbd_remove(struct locomo_dev *dev)
-+static int locomokbd_remove(struct platform_device *dev)
- {
--	struct locomokbd *locomokbd = locomo_get_drvdata(dev);
-+	struct locomokbd *locomokbd = platform_get_drvdata(dev);
- 
--	free_irq(dev->irq[0], locomokbd);
-+	free_irq(locomokbd->irq, locomokbd);
- 
- 	del_timer_sync(&locomokbd->timer);
- 
- 	input_unregister_device(locomokbd->input);
--	locomo_set_drvdata(dev, NULL);
-+	platform_set_drvdata(dev, NULL);
++static void locomolcd_on(void)
++{
++	gpio_set_value(lcd_data.gpio_lcd_vsha_on, 1);
++	mdelay(2);
++
++	gpio_set_value(lcd_data.gpio_lcd_vshd_on, 1);
++	mdelay(2);
++
++	locomo_m62332_senddata(locomolcd_dev->dev.parent, lcd_data.comadj, 0);
++	mdelay(5);
++
++	gpio_set_value(lcd_data.gpio_lcd_vee_on, 1);
++	mdelay(10);
++
++	/* TFTCRST | CPSOUT=0 | CPSEN */
++	writew(0x01, locomolcd_regs + LOCOMO_TC);
++
++	/* Set CPSD */
++	writew(6, locomolcd_regs + LOCOMO_CPSD);
++
++	/* TFTCRST | CPSOUT=0 | CPSEN */
++	writew((0x04 | 0x01), locomolcd_regs + LOCOMO_TC);
++	mdelay(10);
++
++	gpio_set_value(lcd_data.gpio_lcd_mod, 1);
++}
++
++static void locomolcd_off(void)
++{
++	/* TFTCRST=1 | CPSOUT=1 | CPSEN = 0 */
++	writew(0x06, locomolcd_regs + LOCOMO_TC);
++	mdelay(1);
++
++	gpio_set_value(lcd_data.gpio_lcd_vsha_on, 0);
++	mdelay(110);
++
++	gpio_set_value(lcd_data.gpio_lcd_vee_on, 0);
++	mdelay(700);
++
++	locomo_m62332_senddata(locomolcd_dev->dev.parent, 0, 0);
++	mdelay(5);
++
++	/* TFTCRST=0 | CPSOUT=0 | CPSEN = 0 */
++	writew(0, locomolcd_regs + LOCOMO_TC);
++	gpio_set_value(lcd_data.gpio_lcd_mod, 0);
++	gpio_set_value(lcd_data.gpio_lcd_vshd_on, 0);
++}
++
++int locomo_lcd_set_power(struct lcd_device *lcd, int power)
++{
++	dev_dbg(&lcd->dev, "LCD power %d (is %d)\n", power, locomolcd_is_on);
++	if (power == 0 && !locomolcd_is_on) {
++		locomolcd_is_on = 1;
++		locomolcd_on();
++	}
++	if (power != 0 && locomolcd_is_on) {
++		locomolcd_is_on = 0;
++		locomolcd_off();
++	}
++	return 0;
++}
++
++static int locomo_lcd_get_power(struct lcd_device *lcd)
++{
++	return !locomolcd_is_on;
++}
++
++static struct lcd_ops locomo_lcd_ops = {
++	.set_power = locomo_lcd_set_power,
++	.get_power = locomo_lcd_get_power,
++};
++
++#ifdef CONFIG_PM_SLEEP
++static int locomolcd_suspend(struct device *dev)
++{
++	locomolcd_is_suspended = true;
++	locomolcd_off();
 +
 +	return 0;
 +}
- 
--	release_mem_region((unsigned long) dev->mapbase, dev->length);
-+#ifdef CONFIG_PM_SLEEP
-+static int locomokbd_resume(struct device *dev)
++
++static int locomolcd_resume(struct device *dev)
 +{
-+	struct locomokbd *locomokbd = dev_get_drvdata(dev);
-+	unsigned long flags;
-+	u16 r;
++	locomolcd_is_suspended = false;
 +
-+	spin_lock_irqsave(&locomokbd->lock, flags);
++	if (locomolcd_is_on)
++		locomolcd_on();
 +
-+	writew(0, locomokbd->base + LOCOMO_KSC);
-+	r = readw(locomokbd->base + LOCOMO_KIC);
-+	r &= 0xFEFF;
-+	writew(r, locomokbd->base + LOCOMO_KIC);
-+	writew(0x1, locomokbd->base + LOCOMO_KCMD);
- 
--	kfree(locomokbd);
-+	spin_unlock_irqrestore(&locomokbd->lock, flags);
- 
- 	return 0;
- }
- 
--static struct locomo_driver keyboard_driver = {
--	.drv = {
--		.name = "locomokbd"
-+static SIMPLE_DEV_PM_OPS(locomo_kbd_pm, NULL, locomokbd_resume);
-+#define LOCOMO_KBD_PM	(&locomo_kbd_pm)
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(locomolcd_pm, locomolcd_suspend, locomolcd_resume);
++#define LOCOMOLCD_PM	(&locomolcd_pm)
 +#else
-+#define LOCOMO_KBD_PM	NULL
++#define LOCOMOLCD_PM	NULL
 +#endif
 +
-+static struct platform_driver locomokbd_driver = {
++static int locomolcd_probe(struct platform_device *dev)
++{
++	unsigned long flags;
++	struct resource *res;
++	struct locomo_lcd_platform_data *pdata;
++	int rc;
++
++	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -EINVAL;
++	locomolcd_regs = devm_ioremap_resource(&dev->dev, res);
++	if (!locomolcd_regs)
++		return -EINVAL;
++
++	pdata = dev_get_platdata(&dev->dev);
++	if (!pdata)
++		return -EINVAL;
++
++	lcd_data = *pdata;
++
++	locomo_gpios[0].gpio = lcd_data.gpio_lcd_vsha_on;
++	locomo_gpios[1].gpio = lcd_data.gpio_lcd_vshd_on;
++	locomo_gpios[2].gpio = lcd_data.gpio_lcd_vee_on;
++	locomo_gpios[3].gpio = lcd_data.gpio_lcd_mod;
++	dev_info(&dev->dev, "GPIOs: %d %d %d %d\n",
++			locomo_gpios[0].gpio,
++			locomo_gpios[1].gpio,
++			locomo_gpios[2].gpio,
++			locomo_gpios[3].gpio);
++
++	rc = gpio_request_array(locomo_gpios, ARRAY_SIZE(locomo_gpios));
++	if (rc)
++		return rc;
++
++	local_irq_save(flags);
++	locomolcd_dev = dev;
++
++	locomolcd_is_on = 1;
++	if (locomolcd_is_on)
++		locomolcd_on();
++
++	local_irq_restore(flags);
++
++	lcd_dev = lcd_device_register("locomo", &dev->dev, NULL,
++			&locomo_lcd_ops);
++
++	return 0;
++}
++
++static int locomolcd_remove(struct platform_device *dev)
++{
++	unsigned long flags;
++
++	lcd_device_unregister(lcd_dev);
++
++	local_irq_save(flags);
++
++	locomolcd_off();
++	locomolcd_dev = NULL;
++
++	local_irq_restore(flags);
++
++	gpio_free_array(locomo_gpios, ARRAY_SIZE(locomo_gpios));
++
++	return 0;
++}
++
++static void locomolcd_shutdown(struct platform_device *dev)
++{
++	locomolcd_off();
++}
++
++static struct platform_driver locomolcd_driver = {
 +	.driver = {
-+		.name	= "locomo-kbd",
++		.name	= "locomo-lcd",
 +		.owner	= THIS_MODULE,
-+		.pm	= LOCOMO_KBD_PM,
- 	},
--	.devid	= LOCOMO_DEVID_KEYBOARD,
- 	.probe	= locomokbd_probe,
- 	.remove	= locomokbd_remove,
- };
- 
--static int __init locomokbd_init(void)
--{
--	return locomo_driver_register(&keyboard_driver);
--}
--
--static void __exit locomokbd_exit(void)
--{
--	locomo_driver_unregister(&keyboard_driver);
--}
-+module_platform_driver(locomokbd_driver);
- 
--module_init(locomokbd_init);
--module_exit(locomokbd_exit);
-+MODULE_AUTHOR("John Lenz <lenz-hcNo3dDEHLuVc3sceRu5cw@public.gmane.org>");
-+MODULE_DESCRIPTION("LoCoMo keyboard driver");
++		.pm	= LOCOMOLCD_PM,
++	},
++	.probe	= locomolcd_probe,
++	.remove	= locomolcd_remove,
++	.shutdown = locomolcd_shutdown,
++};
++
++module_platform_driver(locomolcd_driver);
++
++MODULE_AUTHOR("John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@ucw.cz>");
++MODULE_DESCRIPTION("Collie LCD driver");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:locomo-kbd");
++MODULE_ALIAS("platform:locomo-lcd");
 -- 
 2.1.1
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

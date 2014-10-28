@@ -1,197 +1,107 @@
-From: Pramod Gurav <pramod.gurav.etc@gmail.com>
-Subject: Re: [PATCH] Input: nomadik-ske-keypad: Switch to using managed resources
-Date: Tue, 28 Oct 2014 23:21:37 +0530
-Message-ID: <CAMf-jSkJihvuznVe=Zhj_tBOt=SD1oau+ZAeJQXaH34xsrqvSQ@mail.gmail.com>
-References: <1412765428-6517-1-git-send-email-pramod.gurav@smartplayin.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v2] Input: driver for the Goodix touchpanel
+Date: Tue, 28 Oct 2014 18:55:21 +0100
+Message-ID: <1414518921.2406.11.camel@hadess.net>
+References: <1411569838.29315.22.camel@hadess.net>
+	 <20141007205803.GJ16469@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f181.google.com ([209.85.217.181]:52687 "EHLO
-	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751391AbaJ1Rvl (ORCPT
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:55752 "EHLO
+	relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750873AbaJ1R4H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Oct 2014 13:51:41 -0400
-In-Reply-To: <1412765428-6517-1-git-send-email-pramod.gurav@smartplayin.com>
+	Tue, 28 Oct 2014 13:56:07 -0400
+In-Reply-To: <20141007205803.GJ16469@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pramod Gurav <pramod.gurav@smartplayin.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Hi Dmitry,
-Is this change okey?
+On Tue, 2014-10-07 at 13:58 -0700, Dmitry Torokhov wrote:
+> Hi Bastien,
+> 
+> On Wed, Sep 24, 2014 at 04:43:58PM +0200, Bastien Nocera wrote:
+<snip>
+> > +	if (touch_num > 1) {
+> > +		ret = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR + 10,
+> > +				   &data[10], 8 * (touch_num - 1));
+> > +		if (ret < 0)
+> > +			return ret;
+> > +	}
+> 
+> I am a bit confused about this function. It looks like contact packet
+> size is 8 bytes, and they preceded by a byte with total number of
+> contacts reported, so why instead of 9 bytes we are reading 10?
 
-On Wed, Oct 8, 2014 at 4:20 PM, Pramod Gurav
-<pramod.gurav@smartplayin.com> wrote:
-> This change switches to using devm_* APIs to allocate  resources.
-> This helps to simplify failure path in probe function as well as
-> remove function.
->
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
-> ---
->  drivers/input/keyboard/nomadik-ske-keypad.c |   63 +++++++++------------------
->  1 file changed, 20 insertions(+), 43 deletions(-)
->
-> diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
-> index 63332e2..95ac317 100644
-> --- a/drivers/input/keyboard/nomadik-ske-keypad.c
-> +++ b/drivers/input/keyboard/nomadik-ske-keypad.c
-> @@ -247,12 +247,11 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->                 return -EINVAL;
->         }
->
-> -       keypad = kzalloc(sizeof(struct ske_keypad), GFP_KERNEL);
-> +       keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
->         input = input_allocate_device();
->         if (!keypad || !input) {
->                 dev_err(&pdev->dev, "failed to allocate keypad memory\n");
-> -               error = -ENOMEM;
-> -               goto err_free_mem;
-> +               return -ENOMEM;
->         }
->
->         keypad->irq = irq;
-> @@ -260,31 +259,29 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->         keypad->input = input;
->         spin_lock_init(&keypad->ske_keypad_lock);
->
-> -       if (!request_mem_region(res->start, resource_size(res), pdev->name)) {
-> +       if (!devm_request_mem_region(&pdev->dev, res->start,
-> +                                    resource_size(res), pdev->name)) {
->                 dev_err(&pdev->dev, "failed to request I/O memory\n");
-> -               error = -EBUSY;
-> -               goto err_free_mem;
-> +               return -EBUSY;
->         }
->
-> -       keypad->reg_base = ioremap(res->start, resource_size(res));
-> +       keypad->reg_base = devm_ioremap(&pdev->dev, res->start,
-> +                                       resource_size(res));
->         if (!keypad->reg_base) {
->                 dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> -               error = -ENXIO;
-> -               goto err_free_mem_region;
-> +               return -ENXIO;
->         }
->
-> -       keypad->pclk = clk_get(&pdev->dev, "apb_pclk");
-> +       keypad->pclk = devm_clk_get(&pdev->dev, "apb_pclk");
->         if (IS_ERR(keypad->pclk)) {
->                 dev_err(&pdev->dev, "failed to get pclk\n");
-> -               error = PTR_ERR(keypad->pclk);
-> -               goto err_iounmap;
-> +               return PTR_ERR(keypad->pclk);
->         }
->
-> -       keypad->clk = clk_get(&pdev->dev, NULL);
-> +       keypad->clk = devm_clk_get(&pdev->dev, NULL);
->         if (IS_ERR(keypad->clk)) {
->                 dev_err(&pdev->dev, "failed to get clk\n");
-> -               error = PTR_ERR(keypad->clk);
-> -               goto err_pclk;
-> +               return PTR_ERR(keypad->clk);
->         }
->
->         input->id.bustype = BUS_HOST;
-> @@ -296,7 +293,7 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->                                            keypad->keymap, input);
->         if (error) {
->                 dev_err(&pdev->dev, "Failed to build keymap\n");
-> -               goto err_clk;
-> +               return error;
->         }
->
->         input_set_capability(input, EV_MSC, MSC_SCAN);
-> @@ -306,7 +303,7 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->         error = clk_prepare_enable(keypad->pclk);
->         if (error) {
->                 dev_err(&pdev->dev, "Failed to prepare/enable pclk\n");
-> -               goto err_clk;
-> +               return error;
->         }
->
->         error = clk_prepare_enable(keypad->clk);
-> @@ -326,8 +323,9 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->                 goto err_clk_disable;
->         }
->
-> -       error = request_threaded_irq(keypad->irq, NULL, ske_keypad_irq,
-> -                                    IRQF_ONESHOT, "ske-keypad", keypad);
-> +       error = devm_request_threaded_irq(&pdev->dev, keypad->irq, NULL,
-> +                                         ske_keypad_irq, IRQF_ONESHOT,
-> +                                         "ske-keypad", keypad);
->         if (error) {
->                 dev_err(&pdev->dev, "allocate irq %d failed\n", keypad->irq);
->                 goto err_clk_disable;
-> @@ -337,7 +335,7 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->         if (error) {
->                 dev_err(&pdev->dev,
->                                 "unable to register input device: %d\n", error);
-> -               goto err_free_irq;
-> +               goto err_clk_disable;
->         }
->
->         if (plat->wakeup_enable)
-> @@ -347,45 +345,24 @@ static int __init ske_keypad_probe(struct platform_device *pdev)
->
->         return 0;
->
-> -err_free_irq:
-> -       free_irq(keypad->irq, keypad);
->  err_clk_disable:
->         clk_disable_unprepare(keypad->clk);
->  err_pclk_disable:
->         clk_disable_unprepare(keypad->pclk);
-> -err_clk:
-> -       clk_put(keypad->clk);
-> -err_pclk:
-> -       clk_put(keypad->pclk);
-> -err_iounmap:
-> -       iounmap(keypad->reg_base);
-> -err_free_mem_region:
-> -       release_mem_region(res->start, resource_size(res));
-> -err_free_mem:
-> -       input_free_device(input);
-> -       kfree(keypad);
-> +
->         return error;
->  }
->
->  static int ske_keypad_remove(struct platform_device *pdev)
->  {
->         struct ske_keypad *keypad = platform_get_drvdata(pdev);
-> -       struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -
-> -       free_irq(keypad->irq, keypad);
-> -
-> -       input_unregister_device(keypad->input);
->
->         clk_disable_unprepare(keypad->clk);
-> -       clk_put(keypad->clk);
-> +       clk_disable_unprepare(keypad->pclk);
->
->         if (keypad->board->exit)
->                 keypad->board->exit();
->
-> -       iounmap(keypad->reg_base);
-> -       release_mem_region(res->start, resource_size(res));
-> -       kfree(keypad);
-> -
->         return 0;
->  }
->
-> --
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I have no idea. We didn't change the original code here:
+https://github.com/hadess/gt9xx/commit/82b141220e8bce00060e0de697735d0a70af2678#diff-5d71019f9b92cc9d6e2e31ed2e6520b6R363
 
+<snip>
+> > +/**
+> > + * goodix_process_events - Process incoming events
+> > + *
+> > + * @ts: our goodix_ts_data pointer
+> > + *
+> > + * Called when the IRQ is triggered. Read the current device state, and push
+> > + * the input events to the user space.
+> > + */
+> > +static void goodix_process_events(struct goodix_ts_data *ts)
+> > +{
+> > +	u8  point_data[1 + 8 * GOODIX_MAX_TOUCH + 1];
+> 
+> Here again, why do we need extra byte?
 
+Same answer:
+https://github.com/hadess/gt9xx/commit/82b141220e8bce00060e0de697735d0a70af2678#diff-5d71019f9b92cc9d6e2e31ed2e6520b6R315
 
--- 
-Thanks and Regards
-Pramod
+<snip>
+> > +/**
+> > + * goodix_ts_irq_handler - The IRQ handler
+> > + *
+> > + * @irq: interrupt number.
+> > + * @dev_id: private data pointer.
+> > + */
+> > +static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+> > +{
+> > +	struct goodix_ts_data *ts = dev_id;
+> > +	u8  end_cmd[1] = {0};
+> > +
+> > +	goodix_process_events(ts);
+> > +
+> > +	if (goodix_i2c_write(ts->client,
+> > +				GOODIX_READ_COOR_ADDR, end_cmd, 1) < 0)
+> > +		dev_err(&ts->client->dev, "I2C write end_cmd error");
+> 
+> I am not happy that we need to allocate/deallocate memory for each
+> interrupt. We only write one command to the driver, we could simply use
+> i2c_master_send() with a constant buffer.
+
+Sure. But I've split up the patch you sent us, and committed the
+different bits separately in:
+https://github.com/hadess/gt9xx/commits/master
+
+And this one commit about removing goodix_i2c_write():
+https://github.com/hadess/gt9xx/commit/146b4cc2eed5c67bcf1cb91e845bf9f97da4be1e
+
+Breaks the driver.
+
+> BTW, you need terminate kernel messages with \n.
+
+All of them? If so, we have a few more that are still missing in the
+latest version of the driver, which I can take care of.
+
+> Also, below is a patch with a few assorted changes that I'd like you to
+> try if you have time.
+
+As mentioned, all the changes seem fine apart from the one removing
+goodix_i2c_write().
+
+I'll test to see if we can reduce the size of the point_data structure,
+and see what's breaking the goodix_i2c_write() patch.
+
+Thanks for the patch!
+
+Cheers
+

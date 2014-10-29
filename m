@@ -1,69 +1,504 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 00/13] HID: add support of Logitech touchpads and special devices
-Date: Wed, 29 Oct 2014 10:41:57 -0400
-Message-ID: <CAN+gG=GXHUFz7y1AFyPcV2YP6dYzd-CBStJf5UAENbrpnVuOJg@mail.gmail.com>
-References: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
-	<alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz>
-	<20141001131008.GB18756@mail.corp.redhat.com>
-	<CAG_cf+fYGATBL9Sgvvp7CaScP112fiqiyuR0gBdkS-424S3Kog@mail.gmail.com>
-	<alpine.LNX.2.00.1410031308360.14259@pobox.suse.cz>
-	<CAN+gG=GET=FLmte9kQOtS+x=HPaTdgEu4HxuydHXBx1GZksNRw@mail.gmail.com>
-	<alpine.LNX.2.00.1410291048320.20256@pobox.suse.cz>
+Subject: Re: [PATCH v3] Input: driver for the Goodix touchpanel
+Date: Wed, 29 Oct 2014 10:49:50 -0400
+Message-ID: <CAN+gG=EQDzkR3BjeJxx89ugoc2X4r0dMs4qQrmL6fjifT=zpgw@mail.gmail.com>
+References: <1414544056.2406.25.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f46.google.com ([209.85.192.46]:35021 "EHLO
-	mail-qg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932870AbaJ2Ol6 (ORCPT
+Received: from mail-qc0-f181.google.com ([209.85.216.181]:63975 "EHLO
+	mail-qc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932962AbaJ2Otv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Oct 2014 10:41:58 -0400
-In-Reply-To: <alpine.LNX.2.00.1410291048320.20256@pobox.suse.cz>
+	Wed, 29 Oct 2014 10:49:51 -0400
+Received: by mail-qc0-f181.google.com with SMTP id w7so2451284qcr.40
+        for <linux-input@vger.kernel.org>; Wed, 29 Oct 2014 07:49:50 -0700 (PDT)
+In-Reply-To: <1414544056.2406.25.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andrew de los Reyes <andrew-vger@gizmolabs.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, Oct 29, 2014 at 5:49 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 28 Oct 2014, Benjamin Tissoires wrote:
+On Tue, Oct 28, 2014 at 8:54 PM, Bastien Nocera <hadess@hadess.net> wrote:
+> Add a driver for the Goodix touchscreen panel found in Onda v975w
+> tablets. The driver is based off the Android driver gt9xx.c found
+> in some Android code dumps, but now bears no resemblance to the original
+> driver.
 >
->> >> I've tested these patches successfully on a Chromebook Pixel with the
->> >> following devices:
->> >>
->> >> - T650 touchpad
->> >> - TK820 keyboard/touchpad
->> >> - Original WTP touchpad
->> >>
->> >> I also tested a touch mouse and as expected it continued to function
->> >> as a plain USB mouse. The TK820 was indeed broken into two devices,
->> >> with autorepeat enabled for the keyboard only. The other two devices
->> >> behaved as expected with no perceived regressions.
->> >>
->> >> In short, from a functionality perspective I'm happy with these
->> >> patches. I will let others discuss code structure.
->> >
->> > Thank you. Can I use
->> >
->> >         Tested-by: Andrew de los Reyes <andrew-vger@gizmolabs.org>
->> >
->> > once / if I am merging this patchset?
->> >
->>
->> I am pretty sure this is not required too, but I am raising this one
->> again in Jiri's pile of things to review.
->> Sorry Jiri, I did not forget about it :)
+> The driver was tested on the aforementioned tablet.
 >
-> It absolutely hasn't been forgotten, I've been just a bit busy during past
-> weeks.
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Tested-by: Bastien Nocera <hadess@hadess.net>
+> ---
 
-No worries. I definitively understand. Being close to the merge window
-is never a good time to send you patches and I am sure SuSE asks you a
-lot also :)
-
->
-> I am almost done with the review, expect to hear from me in a 1-2 days
-> timeframe regarding this series.
-
-Cool, thanks. That is much appreciated.
+Seems good to me:
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
+
+>  MAINTAINERS                        |   6 +
+>  drivers/input/touchscreen/Kconfig  |  13 ++
+>  drivers/input/touchscreen/Makefile |   1 +
+>  drivers/input/touchscreen/goodix.c | 395 +++++++++++++++++++++++++++++++++++++
+>  4 files changed, 415 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/goodix.c
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index dab92a7..6886886 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -4138,6 +4138,12 @@ L:       linux-media@vger.kernel.org
+>  S:     Maintained
+>  F:     drivers/media/usb/go7007/
+>
+> +GOODIX TOUCHSCREEN
+> +M:     Bastien Nocera <hadess@hadess.net>
+> +L:     linux-input@vger.kernel.org
+> +S:     Maintained
+> +F:     drivers/input/touchscreen/goodix.c
+> +
+>  GPIO SUBSYSTEM
+>  M:     Linus Walleij <linus.walleij@linaro.org>
+>  M:     Alexandre Courbot <gnurou@gmail.com>
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index e1d8003..568a020 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -295,6 +295,19 @@ config TOUCHSCREEN_FUJITSU
+>           To compile this driver as a module, choose M here: the
+>           module will be called fujitsu-ts.
+>
+> +config TOUCHSCREEN_GOODIX
+> +       tristate "Goodix I2C touchscreen"
+> +       depends on I2C && ACPI
+> +       help
+> +         Say Y here if you have the Goodix touchscreen (such as one
+> +         installed in Onda v975w tablets) connected to your
+> +         system.
+> +
+> +         If unsure, say N.
+> +
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called goodix.
+> +
+>  config TOUCHSCREEN_ILI210X
+>         tristate "Ilitek ILI210X based touchscreen"
+>         depends on I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 090e61c..dab4a56 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -34,6 +34,7 @@ obj-$(CONFIG_TOUCHSCREEN_EETI)                += eeti_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_ELO)          += elo.o
+>  obj-$(CONFIG_TOUCHSCREEN_EGALAX)       += egalax_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)      += fujitsu_ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_GOODIX)       += goodix.o
+>  obj-$(CONFIG_TOUCHSCREEN_ILI210X)      += ili210x.o
+>  obj-$(CONFIG_TOUCHSCREEN_INEXIO)       += inexio.o
+>  obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)    += intel-mid-touch.o
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> new file mode 100644
+> index 0000000..5b10ced
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -0,0 +1,395 @@
+> +/*
+> + *  driver for Goodix Touchscreens
+> + *
+> + *  Copyright (c) 2014 Red Hat Inc.
+> + *
+> + *  This code is based on gt9xx.c authored by andrew@goodix.com:
+> + *
+> + *  2010 - 2012 Goodix Technology.
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; version 2 of the License.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/i2c.h>
+> +#include <linux/input.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/module.h>
+> +#include <linux/delay.h>
+> +#include <linux/irq.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/slab.h>
+> +#include <asm/unaligned.h>
+> +
+> +struct goodix_ts_data {
+> +       struct i2c_client *client;
+> +       struct input_dev *input_dev;
+> +       int abs_x_max;
+> +       int abs_y_max;
+> +       unsigned int max_touch_num;
+> +       unsigned int int_trigger_type;
+> +};
+> +
+> +#define GOODIX_MAX_HEIGHT              4096
+> +#define GOODIX_MAX_WIDTH               4096
+> +#define GOODIX_INT_TRIGGER             1
+> +#define GOODIX_CONTACT_SIZE            8
+> +#define GOODIX_MAX_CONTACTS            10
+> +
+> +#define GOODIX_CONFIG_MAX_LENGTH       240
+> +
+> +/* Register defines */
+> +#define GOODIX_READ_COOR_ADDR          0x814E
+> +#define GOODIX_REG_CONFIG_DATA         0x8047
+> +#define GOODIX_REG_VERSION             0x8140
+> +
+> +#define RESOLUTION_LOC         1
+> +#define TRIGGER_LOC            6
+> +
+> +static const unsigned long goodix_irq_flags[] = {
+> +       IRQ_TYPE_EDGE_RISING,
+> +       IRQ_TYPE_EDGE_FALLING,
+> +       IRQ_TYPE_LEVEL_LOW,
+> +       IRQ_TYPE_LEVEL_HIGH,
+> +};
+> +
+> +/**
+> + * goodix_i2c_read - read data from a register of the i2c slave device.
+> + *
+> + * @client: i2c device.
+> + * @reg: the register to read from.
+> + * @buf: raw write data buffer.
+> + * @len: length of the buffer to write
+> + */
+> +static int goodix_i2c_read(struct i2c_client *client,
+> +                               u16 reg, u8 *buf, int len)
+> +{
+> +       struct i2c_msg msgs[2];
+> +       u16 wbuf = cpu_to_be16(reg);
+> +       int ret;
+> +
+> +       msgs[0].flags = 0;
+> +       msgs[0].addr  = client->addr;
+> +       msgs[0].len   = 2;
+> +       msgs[0].buf   = (u8 *) &wbuf;
+> +
+> +       msgs[1].flags = I2C_M_RD;
+> +       msgs[1].addr  = client->addr;
+> +       msgs[1].len   = len;
+> +       msgs[1].buf   = buf;
+> +
+> +       ret = i2c_transfer(client->adapter, msgs, 2);
+> +       return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
+> +}
+> +
+> +static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+> +{
+> +       int touch_num;
+> +       int error;
+> +
+> +       error = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR, data,
+> +                               GOODIX_CONTACT_SIZE + 1);
+> +       if (error) {
+> +               dev_err(&ts->client->dev, "I2C transfer error: %d\n", error);
+> +               return error;
+> +       }
+> +
+> +       touch_num = data[0] & 0x0f;
+> +       if (touch_num > GOODIX_MAX_CONTACTS)
+> +               return -EPROTO;
+> +
+> +       if (touch_num > 1) {
+> +               data += 1 + GOODIX_CONTACT_SIZE;
+> +               error = goodix_i2c_read(ts->client,
+> +                                       GOODIX_READ_COOR_ADDR +
+> +                                               1 + GOODIX_CONTACT_SIZE,
+> +                                       data,
+> +                                       GOODIX_CONTACT_SIZE * (touch_num - 1));
+> +               if (error)
+> +                       return error;
+> +       }
+> +
+> +       return touch_num;
+> +}
+> +
+> +static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+> +{
+> +       int id = coor_data[0] & 0x0F;
+> +       int input_x = get_unaligned_le16(&coor_data[1]);
+> +       int input_y = get_unaligned_le16(&coor_data[3]);
+> +       int input_w = get_unaligned_le16(&coor_data[5]);
+> +
+> +       input_mt_slot(ts->input_dev, id);
+> +       input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
+> +       input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
+> +       input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
+> +       input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
+> +       input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
+> +}
+> +
+> +/**
+> + * goodix_process_events - Process incoming events
+> + *
+> + * @ts: our goodix_ts_data pointer
+> + *
+> + * Called when the IRQ is triggered. Read the current device state, and push
+> + * the input events to the user space.
+> + */
+> +static void goodix_process_events(struct goodix_ts_data *ts)
+> +{
+> +       u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
+> +       int touch_num;
+> +       int i;
+> +
+> +       touch_num = goodix_ts_read_input_report(ts, point_data);
+> +       if (touch_num < 0)
+> +               return;
+> +
+> +       for (i = 0; i < touch_num; i++)
+> +               goodix_ts_report_touch(ts,
+> +                               &point_data[1 + GOODIX_CONTACT_SIZE * i]);
+> +
+> +       input_mt_sync_frame(ts->input_dev);
+> +       input_sync(ts->input_dev);
+> +}
+> +
+> +/**
+> + * goodix_ts_irq_handler - The IRQ handler
+> + *
+> + * @irq: interrupt number.
+> + * @dev_id: private data pointer.
+> + */
+> +static irqreturn_t goodix_ts_irq_handler(int irq, void *dev_id)
+> +{
+> +       static const u8 end_cmd[] = {
+> +               GOODIX_READ_COOR_ADDR >> 8,
+> +               GOODIX_READ_COOR_ADDR & 0xff,
+> +               0
+> +       };
+> +       struct goodix_ts_data *ts = dev_id;
+> +
+> +       goodix_process_events(ts);
+> +
+> +       if (i2c_master_send(ts->client, end_cmd, sizeof(end_cmd)) < 0)
+> +               dev_err(&ts->client->dev, "I2C write end_cmd error\n");
+> +
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +/**
+> + * goodix_read_config - Read the embedded configuration of the panel
+> + *
+> + * @ts: our goodix_ts_data pointer
+> + *
+> + * Must be called during probe
+> + */
+> +static void goodix_read_config(struct goodix_ts_data *ts)
+> +{
+> +       u8 config[GOODIX_CONFIG_MAX_LENGTH];
+> +       int error;
+> +
+> +       error = goodix_i2c_read(ts->client, GOODIX_REG_CONFIG_DATA,
+> +                             config,
+> +                          GOODIX_CONFIG_MAX_LENGTH);
+> +       if (error) {
+> +               dev_warn(&ts->client->dev,
+> +                        "Error reading config (%d), using defaults\n",
+> +                        error);
+> +               ts->abs_x_max = GOODIX_MAX_WIDTH;
+> +               ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> +               ts->int_trigger_type = GOODIX_INT_TRIGGER;
+> +               return;
+> +       }
+> +
+> +       ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+> +       ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+> +       ts->int_trigger_type = (config[TRIGGER_LOC]) & 0x03;
+> +       if (!ts->abs_x_max || !ts->abs_y_max) {
+> +               dev_err(&ts->client->dev,
+> +                       "Invalid config, using defaults\n");
+> +               ts->abs_x_max = GOODIX_MAX_WIDTH;
+> +               ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> +       }
+> +}
+> +
+> +
+> +/**
+> + * goodix_read_version - Read goodix touchscreen version
+> + *
+> + * @client: the i2c client
+> + * @version: output buffer containing the version on success
+> + */
+> +static int goodix_read_version(struct i2c_client *client, u16 *version)
+> +{
+> +       int error;
+> +       u8 buf[6];
+> +
+> +       error = goodix_i2c_read(client, GOODIX_REG_VERSION, buf, sizeof(buf));
+> +       if (error) {
+> +               dev_err(&client->dev, "read version failed: %d\n", error);
+> +               return error;
+> +       }
+> +
+> +       if (version)
+> +               *version = get_unaligned_le16(&buf[4]);
+> +
+> +       dev_info(&client->dev, "IC VERSION: %6ph\n", buf);
+> +
+> +       return 0;
+> +}
+> +
+> +/**
+> + * goodix_i2c_test - I2C test function to check if the device answers.
+> + *
+> + * @client: the i2c client
+> + */
+> +static int goodix_i2c_test(struct i2c_client *client)
+> +{
+> +       int retry = 0;
+> +       int error;
+> +       u8 test;
+> +
+> +       while (retry++ < 2) {
+> +               error = goodix_i2c_read(client, GOODIX_REG_CONFIG_DATA,
+> +                                       &test, 1);
+> +               if (!error)
+> +                       return 0;
+> +
+> +               dev_err(&client->dev, "i2c test failed attempt %d: %d\n",
+> +                       retry, error);
+> +               msleep(20);
+> +       }
+> +
+> +       return error;
+> +}
+> +
+> +/**
+> + * goodix_request_input_dev - Allocate, populate and register the input device
+> + *
+> + * @ts: our goodix_ts_data pointer
+> + *
+> + * Must be called during probe
+> + */
+> +static int goodix_request_input_dev(struct goodix_ts_data *ts)
+> +{
+> +       int error;
+> +
+> +       ts->input_dev = devm_input_allocate_device(&ts->client->dev);
+> +       if (!ts->input_dev) {
+> +               dev_err(&ts->client->dev, "Failed to allocate input device.");
+> +               return -ENOMEM;
+> +       }
+> +
+> +       ts->input_dev->evbit[0] = BIT_MASK(EV_SYN) |
+> +                                 BIT_MASK(EV_KEY) |
+> +                                 BIT_MASK(EV_ABS);
+> +
+> +       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X, 0,
+> +                               ts->abs_x_max, 0, 0);
+> +       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y, 0,
+> +                               ts->abs_y_max, 0, 0);
+> +       input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
+> +       input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+> +
+> +       input_mt_init_slots(ts->input_dev, GOODIX_MAX_CONTACTS,
+> +                           INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+> +
+> +       ts->input_dev->name = "Goodix Capacitive TouchScreen";
+> +       ts->input_dev->phys = "input/ts";
+> +       ts->input_dev->id.bustype = BUS_I2C;
+> +       ts->input_dev->id.vendor = 0x0416;
+> +       ts->input_dev->id.product = 0x1001;
+> +       ts->input_dev->id.version = 10427;
+> +
+> +       error = input_register_device(ts->input_dev);
+> +       if (error) {
+> +               dev_err(&ts->client->dev,
+> +                       "Failed to register input device: %d", error);
+> +               return error;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static int goodix_ts_probe(struct i2c_client *client,
+> +                          const struct i2c_device_id *id)
+> +{
+> +       struct goodix_ts_data *ts;
+> +       unsigned long irq_flags;
+> +       int error;
+> +       u16 version_info;
+> +
+> +       dev_dbg(&client->dev, "I2C Address: 0x%02x\n", client->addr);
+> +
+> +       if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> +               dev_err(&client->dev, "I2C check functionality failed.\n");
+> +               return -ENXIO;
+> +       }
+> +
+> +       ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
+> +       if (!ts)
+> +               return -ENOMEM;
+> +
+> +       ts->client = client;
+> +       i2c_set_clientdata(client, ts);
+> +
+> +       error = goodix_i2c_test(client);
+> +       if (error) {
+> +               dev_err(&client->dev, "I2C communication failure: %d\n", error);
+> +               return error;
+> +       }
+> +
+> +       error = goodix_read_version(client, &version_info);
+> +       if (error) {
+> +               dev_err(&client->dev, "Read version failed.\n");
+> +               return error;
+> +       }
+> +
+> +       goodix_read_config(ts);
+> +
+> +       error = goodix_request_input_dev(ts);
+> +       if (error)
+> +               return error;
+> +
+> +       irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
+> +       error = devm_request_threaded_irq(&ts->client->dev, client->irq,
+> +                                         NULL, goodix_ts_irq_handler,
+> +                                         irq_flags, client->name, ts);
+> +       if (error) {
+> +               dev_err(&client->dev, "request IRQ failed: %d.\n", error);
+> +               return error;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct i2c_device_id goodix_ts_id[] = {
+> +       { "GDIX1001:00", 0 },
+> +       { }
+> +};
+> +
+> +static const struct acpi_device_id goodix_acpi_match[] = {
+> +       { "GDIX1001", 0 },
+> +       { }
+> +};
+> +MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+> +
+> +static struct i2c_driver goodix_ts_driver = {
+> +       .probe = goodix_ts_probe,
+> +       .id_table = goodix_ts_id,
+> +       .driver = {
+> +               .name = "Goodix-TS",
+> +               .owner = THIS_MODULE,
+> +               .acpi_match_table = goodix_acpi_match,
+> +       },
+> +};
+> +module_i2c_driver(goodix_ts_driver);
+> +
+> +MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
+> +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
+> +MODULE_DESCRIPTION("Goodix touchscreen driver");
+> +MODULE_LICENSE("GPL v2");
+> --
+> 2.1.0
+>
+>

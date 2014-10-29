@@ -1,89 +1,69 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: hid: roccat: Fix code style issues
-Date: Wed, 29 Oct 2014 14:57:26 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1410291457200.20256@pobox.suse.cz>
-References: <1413039709-37143-1-git-send-email-hans.duedal@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 00/13] HID: add support of Logitech touchpads and special devices
+Date: Wed, 29 Oct 2014 10:41:57 -0400
+Message-ID: <CAN+gG=GXHUFz7y1AFyPcV2YP6dYzd-CBStJf5UAENbrpnVuOJg@mail.gmail.com>
+References: <1412097515-17241-1-git-send-email-benjamin.tissoires@redhat.com>
+	<alpine.LNX.2.00.1410011016160.26311@pobox.suse.cz>
+	<20141001131008.GB18756@mail.corp.redhat.com>
+	<CAG_cf+fYGATBL9Sgvvp7CaScP112fiqiyuR0gBdkS-424S3Kog@mail.gmail.com>
+	<alpine.LNX.2.00.1410031308360.14259@pobox.suse.cz>
+	<CAN+gG=GET=FLmte9kQOtS+x=HPaTdgEu4HxuydHXBx1GZksNRw@mail.gmail.com>
+	<alpine.LNX.2.00.1410291048320.20256@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43199 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932901AbaJ2N52 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Oct 2014 09:57:28 -0400
-In-Reply-To: <1413039709-37143-1-git-send-email-hans.duedal@gmail.com>
+Received: from mail-qg0-f46.google.com ([209.85.192.46]:35021 "EHLO
+	mail-qg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932870AbaJ2Ol6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Oct 2014 10:41:58 -0400
+In-Reply-To: <alpine.LNX.2.00.1410291048320.20256@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Duedal <hans.duedal@gmail.com>
-Cc: erazor_de@users.sourceforge.net, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew de los Reyes <andrew-vger@gizmolabs.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Sat, 11 Oct 2014, hans.duedal@gmail.com wrote:
+On Wed, Oct 29, 2014 at 5:49 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 28 Oct 2014, Benjamin Tissoires wrote:
+>
+>> >> I've tested these patches successfully on a Chromebook Pixel with the
+>> >> following devices:
+>> >>
+>> >> - T650 touchpad
+>> >> - TK820 keyboard/touchpad
+>> >> - Original WTP touchpad
+>> >>
+>> >> I also tested a touch mouse and as expected it continued to function
+>> >> as a plain USB mouse. The TK820 was indeed broken into two devices,
+>> >> with autorepeat enabled for the keyboard only. The other two devices
+>> >> behaved as expected with no perceived regressions.
+>> >>
+>> >> In short, from a functionality perspective I'm happy with these
+>> >> patches. I will let others discuss code structure.
+>> >
+>> > Thank you. Can I use
+>> >
+>> >         Tested-by: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+>> >
+>> > once / if I am merging this patchset?
+>> >
+>>
+>> I am pretty sure this is not required too, but I am raising this one
+>> again in Jiri's pile of things to review.
+>> Sorry Jiri, I did not forget about it :)
+>
+> It absolutely hasn't been forgotten, I've been just a bit busy during past
+> weeks.
 
-> From: Hans Duedal <hans.duedal@gmail.com>
-> 
-> Missing whitespace, semi-colon after macro, and a duplicated out of
-> memory message.
-> 
-> Signed-off-by: Hans Duedal <hans.duedal@gmail.com>
+No worries. I definitively understand. Being close to the merge window
+is never a good time to send you patches and I am sure SuSE asks you a
+lot also :)
 
-Applied, thanks.
+>
+> I am almost done with the review, expect to hear from me in a 1-2 days
+> timeframe regarding this series.
 
-> ---
->  drivers/hid/hid-roccat-kone.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-> index 6101816..c292650 100644
-> --- a/drivers/hid/hid-roccat-kone.c
-> +++ b/drivers/hid/hid-roccat-kone.c
-> @@ -46,6 +46,7 @@ static void kone_profile_activated(struct kone_device *kone, uint new_profile)
->  static void kone_profile_report(struct kone_device *kone, uint new_profile)
->  {
->  	struct kone_roccat_report roccat_report;
-> +
->  	roccat_report.event = kone_mouse_event_switch_profile;
->  	roccat_report.value = new_profile;
->  	roccat_report.key = 0;
-> @@ -163,6 +164,7 @@ static int kone_set_settings(struct usb_device *usb_dev,
->  		struct kone_settings const *settings)
->  {
->  	int retval;
-> +
->  	retval = kone_send(usb_dev, kone_command_settings,
->  			settings, sizeof(struct kone_settings));
->  	if (retval)
-> @@ -387,7 +389,7 @@ static struct bin_attribute bin_attr_profile##number = {	\
->  	.read = kone_sysfs_read_profilex,			\
->  	.write = kone_sysfs_write_profilex,			\
->  	.private = &profile_numbers[number-1],			\
-> -};
-> +}
->  PROFILE_ATTR(1);
->  PROFILE_ATTR(2);
->  PROFILE_ATTR(3);
-> @@ -456,6 +458,7 @@ static ssize_t kone_sysfs_show_tcu(struct device *dev,
->  static int kone_tcu_command(struct usb_device *usb_dev, int number)
->  {
->  	unsigned char value;
-> +
->  	value = number;
->  	return kone_send(usb_dev, kone_command_calibrate, &value, 1);
->  }
-> @@ -697,10 +700,8 @@ static int kone_init_specials(struct hid_device *hdev)
->  			== USB_INTERFACE_PROTOCOL_MOUSE) {
-> 
->  		kone = kzalloc(sizeof(*kone), GFP_KERNEL);
-> -		if (!kone) {
-> -			hid_err(hdev, "can't alloc device descriptor\n");
-> +		if (!kone)
->  			return -ENOMEM;
-> -		}
->  		hid_set_drvdata(hdev, kone);
-> 
->  		retval = kone_init_kone_device_struct(usb_dev, kone);
-> --
-> 1.9.3 (Apple Git-50)
-> 
+Cool, thanks. That is much appreciated.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin

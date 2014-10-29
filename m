@@ -1,57 +1,53 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/3] mfd: stmpe: add pull up/down register offsets for STMPE
-Date: Wed, 29 Oct 2014 10:55:14 +0100
-Message-ID: <CACRpkdbsswGBy69+EGJTbTpxD7j2FnruyGdyUZRBVtt-JaScfg@mail.gmail.com>
-References: <1413636974-3244-1-git-send-email-linus.walleij@linaro.org>
-	<20141020064605.GB25349@x1>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: input: Fix TransducerSerialNumber implementation
+Date: Wed, 29 Oct 2014 11:00:42 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1410291100250.20256@pobox.suse.cz>
+References: <Message-ID: <6B3C86448604A642A31AAD3F8C07EA7724F0B8CD@Exchange1.wacom.com> <1411495768-5956-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:56325 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756264AbaJ2JzP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Oct 2014 05:55:15 -0400
-Received: by mail-ig0-f179.google.com with SMTP id r10so2780944igi.6
-        for <linux-input@vger.kernel.org>; Wed, 29 Oct 2014 02:55:14 -0700 (PDT)
-In-Reply-To: <20141020064605.GB25349@x1>
+Received: from cantor2.suse.de ([195.135.220.15]:35904 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932228AbaJ2KAo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Oct 2014 06:00:44 -0400
+In-Reply-To: <1411495768-5956-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "pinglinux@gmail.com" <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mon, Oct 20, 2014 at 8:46 AM, Lee Jones <lee.jones@linaro.org> wrote:
-> On Sat, 18 Oct 2014, Linus Walleij wrote:
->
->> This adds the register offsets for pull up/down for the STMPE
->> 1601, 1801 and 24xx expanders. This is used to bias GPIO lines
->> and keypad lines.
->>
->> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
->> ---
->> Hi Sam, Lee: I think you should just ACK this so Dmitry can take the
->> patch series through the input tree, where the registers need to be
->> used to enable the keypad on the STMPE2401.
->> ---
->>  drivers/mfd/stmpe.c       | 4 ++++
->>  drivers/mfd/stmpe.h       | 3 +++
->>  include/linux/mfd/stmpe.h | 2 ++
->>  3 files changed, 9 insertions(+)
->
-> Does this need to go in with the other patches in the set?
->
-> I'm _guessing_ that, as you've sent them separately, they can be
-> applied separately?
+On Tue, 23 Sep 2014, Jason Gerecke wrote:
 
-No sorry if it was unclear, the series need to go in toghether.
-So this patch adds some infrastructure to the MFD device which
-is then utilized by the input driver in a later patch.
+> The commit which introduced TransducerSerialNumber (368c966) is missing
+> two crucial implementation details. Firstly, the commit does not set the
+> type/code/bit/max fields as expected later down the code which can cause
+> the driver to crash when a tablet with this usage is connected. Secondly,
+> the call to 'set_bit' causes MSC_PULSELED to be sent instead of the
+> expected MSC_SERIAL. This commit addreses both issues.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> ---
+>  drivers/hid/hid-input.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 2619f7f..cb1b3fa 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -689,7 +689,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  			break;
+>  
+>  		case 0x5b: /* TransducerSerialNumber */
+> -			set_bit(MSC_SERIAL, input->mscbit);
+> +			usage->type = EV_MSC;
+> +			usage->code = MSC_SERIAL;
+> +			bit = input->mscbit;
+> +			max = MSC_MAX;
+>  			break;
+>  
 
-> This needs to go in via MFD, but for my own reference:
->
-> Acked-by: Lee Jones <lee.jones@linaro.org>
+Apologizes for the delay. I have now queued this for 3.18 still.
 
-Dmitry can you merge this & the rest with Lee's ACK?
-
-Yours,
-Linus Walleij
+-- 
+Jiri Kosina
+SUSE Labs

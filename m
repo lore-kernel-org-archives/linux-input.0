@@ -1,39 +1,67 @@
-From: Alexandre Courbot <gnurou@gmail.com>
-Subject: Re: [PATCH 11/15] sound: soc: poodle: make use of new locomo GPIO interface
-Date: Wed, 29 Oct 2014 12:03:34 +0900
-Message-ID: <CAAVeFuKgARoMFzf+663iP6cULs93d4WSQS8ESjUb9VcxguWurA@mail.gmail.com>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
- <1414454528-24240-12-git-send-email-dbaryshkov@gmail.com> <20141028145850.GU18557@sirena.org.uk>
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: Re: [PATCH] Input: max77693-haptic - fix potential overflow
+Date: Wed, 29 Oct 2014 12:22:37 +0900
+Message-ID: <54505D7D.4000704@samsung.com>
+References: <20141028164322.GA13234@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20141028145850.GU18557@sirena.org.uk>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Liam Girdwood <lgirdwood@gma>
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <20141028164322.GA13234@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Oct 28, 2014 at 11:58 PM, Mark Brown <broonie@kernel.org> wrote:
-> On Tue, Oct 28, 2014 at 03:02:04AM +0300, Dmitry Eremin-Solenikov wrote:
->> Since LoCoMo driver has been converted to provide proper gpiolib
->> interface, make poodle ASoC platform driver use gpiolib API.
->
-> Please use subject lines matching the style for the subsystem.
->
->> +     ret = gpio_request_array(poodle_gpios, ARRAY_SIZE(poodle_gpios));
->> +     if (ret) {
->> +             dev_err(&pdev->dev, "gpio_request_array() failed: %d\n",
->> +                             ret);
->> +             return ret;
->> +     }
->
-> I sense a need for devm_gpio_request_array() here.  Otherwise this looks
-> fine - ideally it'd move to gpiod but moving to gpiolib is a clear win
-> so no need to block on this.
+Hi Dmitry,
 
-I wish Dmitry took the opportunity to move this driver to the gpiod
-API, especially since doing so would be trivial for this driver. Not a
-critical requirement though, the present patch is already an
-improvement. But if you want to do that last step, please have a look
-at Documentation/gpio/consumer.txt and the "Platform Data" section of
-Documentation/gpio/board.txt.
+2014=EB=85=84 10=EC=9B=94 29=EC=9D=BC 01:43=EC=97=90 Dmitry Torokhov =EC=
+=9D=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
+> Expression haptic->pwm_dev->period * haptic->magnitude is of type 'un=
+signed
+> int' and may overflow. We need to convert one of the operands to u64 =
+before
+> multiplying, instead of casting result (potentially overflown) to u64=
+=2E
+>
+> Reported by Coverity: CID 1248753
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>   drivers/input/misc/max77693-haptic.c | 5 ++---
+>   1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/mis=
+c/max77693-haptic.c
+> index 7b1fde9..ef6a9d6 100644
+> --- a/drivers/input/misc/max77693-haptic.c
+> +++ b/drivers/input/misc/max77693-haptic.c
+> @@ -194,7 +194,7 @@ static int max77693_haptic_play_effect(struct inp=
+ut_dev *dev, void *data,
+>   				       struct ff_effect *effect)
+>   {
+>   	struct max77693_haptic *haptic =3D input_get_drvdata(dev);
+> -	uint64_t period_mag_multi;
+> +	u64 period_mag_multi;
+>  =20
+>   	haptic->magnitude =3D effect->u.rumble.strong_magnitude;
+>   	if (!haptic->magnitude)
+> @@ -205,8 +205,7 @@ static int max77693_haptic_play_effect(struct inp=
+ut_dev *dev, void *data,
+>   	 * The formula to convert magnitude to pwm_duty as follows:
+>   	 * - pwm_duty =3D (magnitude * pwm_period) / MAX_MAGNITUDE(0xFFFF)
+>   	 */
+> -	period_mag_multi =3D (int64_t)(haptic->pwm_dev->period *
+> -						haptic->magnitude);
+> +	period_mag_multi =3D (u64)haptic->pwm_dev->period * haptic->magnitu=
+de;
+>   	haptic->pwm_duty =3D (unsigned int)(period_mag_multi >>
+>   						MAX_MAGNITUDE_SHIFT);
+>  =20
+
+
+There was casting miss in multiplying.
+Thanks.
+
+Acked-by : Jaewon Kim <jaewon02.kim@samsung.com>

@@ -1,131 +1,249 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2] input: fix BTN_TOUCH reporting in
- input_mt_report_pointer_emulation
-Date: Wed, 29 Oct 2014 10:14:41 +1000
-Message-ID: <20141029001441.GA20811@jelly.redhat.com>
-References: <1412861506-21732-1-git-send-email-cywang@chromium.org>
- <1414404527-17526-1-git-send-email-cywang@chromium.org>
- <CAN+gG=G+YYntYg3rpGP+rUU8wT6Ejny8nrdG7K_cfyt7BwkWbA@mail.gmail.com>
- <20141028210706.GC7461@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: jagadish.krishnamoorthy@intel.com
+Subject: [PATCH] input: add gpio based irq support to Elan touchpad
+Date: Tue, 28 Oct 2014 17:27:24 -0700
+Message-ID: <1414542444-27184-1-git-send-email-jagadish.krishnamoorthy@intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:59000 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752626AbaJ2APR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Oct 2014 20:15:17 -0400
-Content-Disposition: inline
-In-Reply-To: <20141028210706.GC7461@dtor-ws>
+Received: from mga11.intel.com ([192.55.52.93]:53054 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754793AbaJ2AbA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Oct 2014 20:31:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Chung-yih Wang <cywang@chromium.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>
+To: dmitry.torokhov@gmail.com, bleung@chromium.org, dusonlin@emc.com.tw
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jagadish Krishnamoorthy <jagadish.krishnamoorthy@intel.com>
 
-On Tue, Oct 28, 2014 at 02:07:06PM -0700, Dmitry Torokhov wrote:
-> On Tue, Oct 28, 2014 at 04:47:56PM -0400, Benjamin Tissoires wrote:
-> > Hi Chung-yih,
-> > 
-> > On Mon, Oct 27, 2014 at 6:08 AM, Chung-yih Wang <cywang@chromium.org> wrote:
-> > >   From the definition of BTN_TOUCH, BTN_TOOL_<name> and BTN_TOUCH codes
-> > > are orthogonal. BTN_TOUCH should be zero if there is no physical contact
-> > > happened on device. With ABS_MT_DISTANCE information, the patch uses
-> > > touch_count and finger_count to get the final reporting code for
-> > > BTN_TOUCH and BTN_TOOL_<name>, respectively.
-> > >
-> > > Signed-off-by: Chung-yih Wang <cywang@chromium.org>
-> > > ---
-> > >  drivers/input/input-mt.c | 15 ++++++++++-----
-> > >  1 file changed, 10 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-> > > index fbe29fc..a2ab8e3 100644
-> > > --- a/drivers/input/input-mt.c
-> > > +++ b/drivers/input/input-mt.c
-> > > @@ -192,18 +192,21 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
-> > >  {
-> > >         struct input_mt *mt = dev->mt;
-> > >         struct input_mt_slot *oldest;
-> > > -       int oldid, count, i;
-> > > +       int oldid, i;
-> > > +       int touch_count, finger_count;
-> > >
-> > >         if (!mt)
-> > >                 return;
-> > >
-> > >         oldest = NULL;
-> > >         oldid = mt->trkid;
-> > > -       count = 0;
-> > > +       touch_count = 0;
-> > > +       finger_count = 0;
-> > >
-> > >         for (i = 0; i < mt->num_slots; ++i) {
-> > >                 struct input_mt_slot *ps = &mt->slots[i];
-> > >                 int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-> > > +               int distance = input_mt_get_value(ps, ABS_MT_DISTANCE);
-> > 
-> > I don't really like this statement, even if it works. Some devices do
-> > not report ABS_MT_DISTANCE, and the value for them should not be
-> > considered as '0' but 'undefined'.
-> 
-> I think it incidentally still 0 as we zero out memory we allocate.
-> 
-> > 
-> > >
-> > >                 if (id < 0)
-> > >                         continue;
-> > > @@ -211,12 +214,14 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
-> > >                         oldest = ps;
-> > >                         oldid = id;
-> > >                 }
-> > > -               count++;
-> > > +               finger_count++;
-> > > +               if (distance == 0)
-> > 
-> > I'd rather test here if ABS_MT_DISTANCE is used, and then if the value is 0.
+From: Jagadish Krishnamoorthy <jagadish.krishnamoorthy@intel.com>
 
-shouldn't you test for absinfo->minimum anyway? or does the kernel guarantee
-that 0 is the minimum for distance?
+Adding new member 'irq' in main device structure.
+On some of the platforms, gpio is passed in platform data
+instead of irq. Convert the gpio to irq and store it in the
+driver data.
 
-> > 
-> > > +                       touch_count++;
-> 
-> I do not think we should include hovering contacts into finger_count
-> either. I.e if I have one finger touching and one finger hovering we
-> should be emitting BTN_TOOL_FINGER and not BTN_TOOL_DOUBLETAP.
+Signed-off-by: Jagadish Krishnamoorthy <jagadish.krishnamoorthy@intel.com>
+---
+ drivers/input/mouse/elan_i2c.h       |    3 ++-
+ drivers/input/mouse/elan_i2c_core.c  |   44 ++++++++++++++++++++++++----------
+ drivers/input/mouse/elan_i2c_i2c.c   |    7 +++---
+ drivers/input/mouse/elan_i2c_smbus.c |    3 ++-
+ 4 files changed, 39 insertions(+), 18 deletions(-)
 
-yes, please. DOUBLETAP for hovering would trigger things like two-finger
-scrolling in some clients, not ideal.
-
-> > >         }
-> > >
-> > > -       input_event(dev, EV_KEY, BTN_TOUCH, count > 0);
-> > > +       input_event(dev, EV_KEY, BTN_TOUCH, touch_count > 0);
-> > 
-> > For the record, I *think* this will not break user space. This is used
-> > in the touchpad part of libinput, and does not seemed to be impacted
-> > by the change.
-> > Adding Peter and Hans in CC who can tell us if I am assuming right.
-
-should be fine, we've treated BTN_TOUCH as signal that at least one touch is
-down. in the wacom driver we use it for proximity info, the rest just never
-had to worry about proximity, so it's most likely just unhandled.
+diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
+index 2e83862..bb94a96 100644
+--- a/drivers/input/mouse/elan_i2c.h
++++ b/drivers/input/mouse/elan_i2c.h
+@@ -76,7 +76,8 @@ struct elan_transport_ops {
+ 	int (*write_fw_block)(struct i2c_client *client,
+ 			      const u8 *page, u16 checksum, int idx);
+ 	int (*finish_fw_update)(struct i2c_client *client,
+-				struct completion *reset_done);
++				struct completion *reset_done,
++				unsigned int irq);
  
-Cheers,
-   Peter
+ 	int (*get_report)(struct i2c_client *client, u8 *report);
+ };
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 0cb2be4..9c5c5d3 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -35,6 +35,7 @@
+ #include <linux/completion.h>
+ #include <linux/of.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/gpio.h>
+ #include <asm/unaligned.h>
+ 
+ #include "elan_i2c.h"
+@@ -75,6 +76,7 @@ struct elan_tp_data {
+ 	unsigned int		width_y;
+ 	unsigned int		x_res;
+ 	unsigned int		y_res;
++	unsigned int		irq;
+ 
+ 	u8			product_id;
+ 	u8			fw_version;
+@@ -331,7 +333,8 @@ static int __elan_update_firmware(struct elan_tp_data *data,
+ 	/* Wait WDT reset and power on reset */
+ 	msleep(600);
+ 
+-	error = data->ops->finish_fw_update(client, &data->fw_completion);
++	error = data->ops->finish_fw_update(client, &data->fw_completion,
++					    data->irq);
+ 	if (error)
+ 		return error;
+ 
+@@ -356,7 +359,7 @@ static int elan_update_firmware(struct elan_tp_data *data,
+ 
+ 	dev_dbg(&client->dev, "Starting firmware update....\n");
+ 
+-	disable_irq(client->irq);
++	disable_irq(data->irq);
+ 	data->in_fw_update = true;
+ 
+ 	retval = __elan_update_firmware(data, fw);
+@@ -370,7 +373,7 @@ static int elan_update_firmware(struct elan_tp_data *data,
+ 	}
+ 
+ 	data->in_fw_update = false;
+-	enable_irq(client->irq);
++	enable_irq(data->irq);
+ 
+ 	return retval;
+ }
+@@ -482,7 +485,7 @@ static ssize_t calibrate_store(struct device *dev,
+ 	if (retval)
+ 		return retval;
+ 
+-	disable_irq(client->irq);
++	disable_irq(data->irq);
+ 
+ 	data->mode |= ETP_ENABLE_CALIBRATE;
+ 	retval = data->ops->set_mode(client, data->mode);
+@@ -528,7 +531,7 @@ out_disable_calibrate:
+ 			retval = error;
+ 	}
+ out:
+-	enable_irq(client->irq);
++	enable_irq(data->irq);
+ 	mutex_unlock(&data->sysfs_mutex);
+ 	return retval ?: count;
+ }
+@@ -594,7 +597,7 @@ static ssize_t acquire_store(struct device *dev, struct device_attribute *attr,
+ 	if (retval)
+ 		return retval;
+ 
+-	disable_irq(client->irq);
++	disable_irq(data->irq);
+ 
+ 	data->baseline_ready = false;
+ 
+@@ -636,7 +639,7 @@ out_disable_calibrate:
+ 			retval = error;
+ 	}
+ out:
+-	enable_irq(client->irq);
++	enable_irq(data->irq);
+ 	mutex_unlock(&data->sysfs_mutex);
+ 	return retval ?: count;
+ }
+@@ -900,6 +903,7 @@ static int elan_probe(struct i2c_client *client,
+ 	const struct elan_transport_ops *transport_ops;
+ 	struct device *dev = &client->dev;
+ 	struct elan_tp_data *data;
++	struct gpio_desc *desc;
+ 	unsigned long irqflags;
+ 	int error;
+ 
+@@ -992,17 +996,31 @@ static int elan_probe(struct i2c_client *client,
+ 		return error;
+ 
+ 	/*
++	 * Check for the irq number in platform data.
++	 * If that fails check for gpio based irq.
++	 */
++	if (client->irq >= 0) {
++		data->irq = client->irq;
++	} else {
++		desc = devm_gpiod_get_index(&client->dev, "ELAN_GPIO_IRQ", 0);
++		if (IS_ERR(desc) || gpiod_direction_input(desc)) {
++			dev_err(&client->dev, "failed to initialize gpio\n");
++			return error;
++		}
++		data->irq = gpiod_to_irq(desc);
++	}
++	/*
+ 	 * Systems using device tree should set up interrupt via DTS,
+ 	 * the rest will use the default falling edge interrupts.
+ 	 */
+ 	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
+ 
+-	error = devm_request_threaded_irq(&client->dev, client->irq,
++	error = devm_request_threaded_irq(&client->dev, data->irq,
+ 					  NULL, elan_isr,
+ 					  irqflags | IRQF_ONESHOT,
+ 					  client->name, data);
+ 	if (error) {
+-		dev_err(&client->dev, "cannot register irq=%d\n", client->irq);
++		dev_err(&client->dev, "cannot register irq=%d\n", data->irq);
+ 		return error;
+ 	}
+ 
+@@ -1055,12 +1073,12 @@ static int __maybe_unused elan_suspend(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
+-	disable_irq(client->irq);
++	disable_irq(data->irq);
+ 
+ 	if (device_may_wakeup(dev)) {
+ 		ret = elan_sleep(data);
+ 		/* Enable wake from IRQ */
+-		data->irq_wake = (enable_irq_wake(client->irq) == 0);
++		data->irq_wake = (enable_irq_wake(data->irq) == 0);
+ 	} else {
+ 		ret = elan_disable_power(data);
+ 	}
+@@ -1076,7 +1094,7 @@ static int __maybe_unused elan_resume(struct device *dev)
+ 	int error;
+ 
+ 	if (device_may_wakeup(dev) && data->irq_wake) {
+-		disable_irq_wake(client->irq);
++		disable_irq_wake(data->irq);
+ 		data->irq_wake = false;
+ 	}
+ 
+@@ -1088,7 +1106,7 @@ static int __maybe_unused elan_resume(struct device *dev)
+ 	if (error)
+ 		dev_err(dev, "initialize when resuming failed: %d\n", error);
+ 
+-	enable_irq(data->client->irq);
++	enable_irq(data->irq);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
+index 97d4937..5e897cd 100644
+--- a/drivers/input/mouse/elan_i2c_i2c.c
++++ b/drivers/input/mouse/elan_i2c_i2c.c
+@@ -520,7 +520,8 @@ static int elan_i2c_write_fw_block(struct i2c_client *client,
+ }
+ 
+ static int elan_i2c_finish_fw_update(struct i2c_client *client,
+-				     struct completion *completion)
++				     struct completion *completion,
++				     unsigned int irq)
+ {
+ 	struct device *dev = &client->dev;
+ 	long ret;
+@@ -529,13 +530,13 @@ static int elan_i2c_finish_fw_update(struct i2c_client *client,
+ 	u8 buffer[ETP_I2C_INF_LENGTH];
+ 
+ 	reinit_completion(completion);
+-	enable_irq(client->irq);
++	enable_irq(irq);
+ 
+ 	error = elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD, ETP_I2C_RESET);
+ 	if (!error)
+ 		ret = wait_for_completion_interruptible_timeout(completion,
+ 							msecs_to_jiffies(300));
+-	disable_irq(client->irq);
++	disable_irq(irq);
+ 
+ 	if (error) {
+ 		dev_err(dev, "device reset failed: %d\n", error);
+diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+index 359bf85..a81b8fb 100644
+--- a/drivers/input/mouse/elan_i2c_smbus.c
++++ b/drivers/input/mouse/elan_i2c_smbus.c
+@@ -477,7 +477,8 @@ static int elan_smbus_get_report(struct i2c_client *client, u8 *report)
+ }
+ 
+ static int elan_smbus_finish_fw_update(struct i2c_client *client,
+-				       struct completion *fw_completion)
++				       struct completion *fw_completion,
++				       unsigned int irq)
+ {
+ 	/* No special handling unlike I2C transport */
+ 	return 0;
+-- 
+1.7.9.5
 
-> > 
-> > >         if (use_count)
-> > > -               input_mt_report_finger_count(dev, count);
-> > > +               input_mt_report_finger_count(dev, finger_count);
-> > >
-> > >         if (oldest) {
-> > >                 int x = input_mt_get_value(oldest, ABS_MT_POSITION_X);
-> > > --
-> > > 2.1.2
-> > >
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry

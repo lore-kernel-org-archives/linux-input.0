@@ -1,705 +1,328 @@
-From: Mathias Gottschlag <mgottschlag@gmail.com>
-Subject: Re: [PATCH] psmouse: Add some support for the FocalTech PS/2 protocol
- extensions.
-Date: Thu, 30 Oct 2014 13:48:19 +0100
-Message-ID: <54523393.7070506@gmail.com>
-References: <544B910A.6070304@gmail.com> <544E1304.2060006@redhat.com>
+From: Roel Aaij <roel.aaij@gmail.com>
+Subject: Problems with Elantech touchpad in 3.18-rc2
+Date: Thu, 30 Oct 2014 18:14:09 +0100
+Message-ID: <545271E1.30306@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="5AIjNWS1p9lAHhfAQbQCgspxeMVqIK6GG"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f175.google.com ([209.85.217.175]:41470 "EHLO
-	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759391AbaJ3MsX convert rfc822-to-8bit (ORCPT
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:59938 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758619AbaJ3RR5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Oct 2014 08:48:23 -0400
-Received: by mail-lb0-f175.google.com with SMTP id b6so4293101lbj.34
-        for <linux-input@vger.kernel.org>; Thu, 30 Oct 2014 05:48:21 -0700 (PDT)
-In-Reply-To: <544E1304.2060006@redhat.com>
+	Thu, 30 Oct 2014 13:17:57 -0400
+Received: by mail-wg0-f46.google.com with SMTP id x13so6176242wgg.5
+        for <linux-input@vger.kernel.org>; Thu, 30 Oct 2014 10:17:55 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Two small comments below.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--5AIjNWS1p9lAHhfAQbQCgspxeMVqIK6GG
+Content-Type: multipart/mixed;
+ boundary="------------090609000505040404050000"
 
-Am 27.10.2014 um 10:40 schrieb Hans de Goede:
-> Hi Matthias,
->
-> On 10/25/2014 02:01 PM, Mathias Gottschlag wrote:
->> Most of the protocol for these touchpads has been reverse engineered.
-This
->> commit adds a basic multitouch-capable driver.
->>
->> A lot of the protocol is still unknown. Especially, we don't know how to
->> identify the device yet apart from the PNP ID. The code currently
-compares
->> known good values with all data from the touchpad which could be
-usable for
->> identification, so by design even minor variations will cause the driver
->> to fail to detect the device and fall back to compatibility mode.
->>
->> The previous workaround for these devices has been left in place in case
->> the driver is not compiled into the kernel or in case some other device
->> with the same PNP ID is not recognized by the driver yet still has
-the same
->> problems with the device probing code.
->> ---
->>
->> Hi,
->>
->> this patch is related to the following bugs:
->> https://bugzilla.redhat.com/show_bug.cgi?id=1110011
->> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1372609
->>
->> It has been tested on the Asus UX303LN, UX303LA and K750L laptops. The
->> latter is affected by bug 1110011 above and used to require additional
->> flags before the touchpad would work. This behaviour should have been
->> fixed by the previous FocalTech patch, but is still present after this
->> patch. I have not yet gotten any feedback yet, but my theory is that the
->> original patch failed to fix the kernel on that device. I have to admit
->> though that I haven't 100% understood that patch.
->>
->> When reviewing, keep in mind that this is my first linux patch. I am
->> using the code for quite some time now without issues, but I might have
->> overlooked quite some problems.
->
-> First of all many thanks for working on this.
->
-> First one overall comment on the patch, I don't really like the new
-> detect function you are adding, and I don't see a need for it, pnp-id
-> detection is what windows uses, and it should be 100% reliable (famous
-last
-> words). So I would prefer to stick with with only the pnp-id detection.
->
-> I do agree that keeping the pnp-id detection (and falling back to
-bare) even
-> when focaltech support is not compiled in is something which we should do.
->
-> Note that likewise specifying psmouse.proto=bare should runtime disable
-> your new code if compiled in so the detection blurb in psmouse-base.c
-should
-> look something like this:
->
-> /* Always check for focaltech, this is safe as it uses pnp-id matching */
->         if (psmouse_do_detect(focaltech_detect, psmouse,
-set_properties) == 0) {
->         if (max_proto > PSMOUSE_IMEX) {
->                     if (!set_properties || focaltech_init(psmouse) == 0) {
->                 if (focaltech_supported())
->                     return PSMOUSE_FOCALTECH;
->                             /*
->                              * Note that we need to also restrict
->                              * psmouse_max_proto so that
-psmouse_initialize()
->                              * does not try to reset rate and resolution,
->                              * because even that upsets the device.
->                              */
->                             psmouse_max_proto = PSMOUSE_PS2;
->                             return PSMOUSE_PS2;
->             }
->                 }
->         }
->
-> Where focaltech_supported() is a simple:
->
-> #ifdef CONFIG_MOUSE_PS2_FOCALTECH
-> bool focaltech_supported(void) {
->     return true;
-> }
-> #else
-> bool focaltech_supported(void) {
->     return false;
-> }
-> #endif
->
-> in focaltech.c (see synaptics.c, which defines synaptics_supported()
-in the
-> same way.
->
->
->
->
->
->>
->> Regards,
->> Mathias
->>
->>  drivers/input/mouse/Kconfig        |  10 ++
->>  drivers/input/mouse/focaltech.c    | 326
->> ++++++++++++++++++++++++++++++++++++-
->>  drivers/input/mouse/focaltech.h    |  61 +++++++
->>  drivers/input/mouse/psmouse-base.c |  15 ++
->>  drivers/input/mouse/psmouse.h      |   1 +
->>  5 files changed, 406 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
->> index 366fc7a..db973e5 100644
->> --- a/drivers/input/mouse/Kconfig
->> +++ b/drivers/input/mouse/Kconfig
->> @@ -146,6 +146,16 @@ config MOUSE_PS2_OLPC
->>         If unsure, say N.
->>  +config MOUSE_PS2_FOCALTECH
->> +    bool "FocalTech PS/2 mouse protocol extension" if EXPERT
->> +    default y
->> +    depends on MOUSE_PS2
->> +    help
->> +      Say Y here if you have a FocalTech PS/2 TouchPad connected to
->> +      your system.
->> +
->> +      If unsure, say Y.
->> +
->>  config MOUSE_SERIAL
->>      tristate "Serial mouse"
->>      select SERIO
->> diff --git a/drivers/input/mouse/focaltech.c
->> b/drivers/input/mouse/focaltech.c
->> index f4d657e..ada97cc 100644
->> --- a/drivers/input/mouse/focaltech.c
->> +++ b/drivers/input/mouse/focaltech.c
->> @@ -2,6 +2,7 @@
->>   * Focaltech TouchPad PS/2 mouse driver
->>   *
->>   * Copyright (c) 2014 Red Hat Inc.
->> + * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
->>   *
->>   * This program is free software; you can redistribute it and/or modify
->>   * it under the terms of the GNU General Public License as published by
->> @@ -13,15 +14,14 @@
->>   * Hans de Goede <hdegoede@redhat.com>
->>   */
->>  -/*
->> - * The Focaltech PS/2 touchpad protocol is unknown. This drivers
-deals with
->> - * detection only, to avoid further detection attempts confusing the
->> touchpad
->> - * this way it at least works in PS/2 mouse compatibility mode.
->> - */
->>   #include <linux/device.h>
->>  #include <linux/libps2.h>
->> +#include <linux/input/mt.h>
->> +#include <linux/serio.h>
->> +#include <linux/slab.h>
->>  #include "psmouse.h"
->> +#include "focaltech.h"
->>   static const char * const focaltech_pnp_ids[] = {
->>      "FLT0101",
->> @@ -30,7 +30,14 @@ static const char * const focaltech_pnp_ids[] = {
->>      NULL
->>  };
->>  -int focaltech_detect(struct psmouse *psmouse, bool set_properties)
->> +/*
->> + * Even if the kernel is built without support for Focaltech PS/2
->> touchpads (or
->> + * when the real driver fails to recognize the device), we still have
->> to detect
->> + * them in order to avoid further detection attempts confusing the
->> touchpad.
->> + * This way it at least works in PS/2 mouse compatibility mode.
->> + */
->> +
->> +int focaltech_detect_fallback(struct psmouse *psmouse, bool
-set_properties)
->>  {
->>      if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
->>          return -ENODEV;
->> @@ -43,10 +50,315 @@ int focaltech_detect(struct psmouse *psmouse, bool
->> set_properties)
->>      return 0;
->>  }
->>  -int focaltech_init(struct psmouse *psmouse)
->> +int focaltech_init_fallback(struct psmouse *psmouse)
->> +{
->> +    ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
->> +    psmouse_reset(psmouse);
->> +
->> +    return 0;
->> +}
->> +
->
-> As discussed please keep this named focaltech_init, and make this version
-> #ifndef CONFIG_MOUSE_PS2_FOCALTECH (or put it in the #else block.
->
-> Also you may want to make this use the newly defined focaltech_reset()
-> function (which would then be outside of #ifdef
-CONFIG_MOUSE_PS2_FOCALTECH)
->
->> +#ifdef CONFIG_MOUSE_PS2_FOCALTECH
->> +
->> +static int focaltech_read_register(struct ps2dev *ps2dev, int reg,
->> +        unsigned char *param)
->> +{
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
->> +        return -1;
->> +    param[0] = 0;
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
->> +        return -1;
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
->> +        return -1;
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
->> +        return -1;
->> +    param[0] = reg;
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
->> +        return -1;
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
->> +        return -1;
->> +    return 0;
->> +}
->> +
->
-> If you drop the register contents check, you can drop this as well,
-> may be useful for future reference though, so may make it #if 0 ...
-#endif.
-> Dmitry ?
-I've left this one in, I think my comment about the touchpad size below
-was correct.
->
->
->
->> +int focaltech_detect(struct psmouse *psmouse, bool set_properties)
->> +{
->> +    struct ps2dev *ps2dev = &psmouse->ps2dev;
->> +    unsigned char param[3];
->> +
->> +    if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
->> +        return -ENODEV;
->> +
->> +    /*
->> +     * We don't know how to identify the device, so we just check the
->> +     * content of all registers.
->> +     */
->> +    if (focaltech_read_register(ps2dev, 0, param))
->> +        return -EIO;
->> +    if (param[0] != 0x69 || param[1] != 0x80 || param[2] != 0x80)
->> +        return -ENODEV;
->> +    if (focaltech_read_register(ps2dev, 1, param))
->> +        return -EIO;
->> +    if (param[0] != 0x36 || param[1] != 0x53 || param[2] != 0x03)
->> +        return -ENODEV;
->> +    if (focaltech_read_register(ps2dev, 2, param))
->> +        return -EIO;
->> +    /* 0x13 and 0x0d might be the touchpad size? */
->> +    if (param[0] != 0x00 || param[1] != 0x13 || param[2] != 0x0d)
->> +        return -ENODEV;
->> +    if (focaltech_read_register(ps2dev, 5, param))
->> +        return -EIO;
->> +    if (param[0] != 0x0b || param[1] != 0x03 || param[2] != 0x00)
->> +        return -ENODEV;
->> +    if (focaltech_read_register(ps2dev, 6, param))
->> +        return -EIO;
->> +    if (param[0] != 0x23 || param[1] != 0xbd || param[2] != 0xf8)
->> +        return -ENODEV;
->> +
->> +    if (set_properties) {
->> +        psmouse->vendor = "FocalTech";
->> +        psmouse->name = "FocalTech Touchpad";
->> +    }
->> +
->> +    return 0;
->> +}
->> +
->> +static void focaltech_report_state(struct psmouse *psmouse)
->> +{
->> +    int i;
->> +    struct focaltech_data *priv = psmouse->private;
->> +    struct focaltech_hw_state *state = &priv->state;
->> +    struct input_dev *dev = psmouse->dev;
->> +    int finger_count = 0;
->> +
->> +    for (i = 0; i < FOC_MAX_FINGERS; i++) {
->> +        struct focaltech_finger_state *finger = &state->fingers[i];
->> +        int active = finger->active && finger->valid;
->> +        input_mt_slot(dev, i);
->> +        input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
->> +        if (active) {
->> +            finger_count++;
->> +            input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
->> +            input_report_abs(dev, ABS_MT_POSITION_Y,
->> +                    focaltech_invert_y(finger->y));
->> +        }
->> +    }
->> +    input_mt_report_pointer_emulation(dev, false);
->> +    input_mt_report_finger_count(dev, finger_count);
->
-> These 2 lines should be replace with:
->     input_mt_report_pointer_emulation(dev, finger_count);
->
-> So that BTN_TOUCH properly gets set when at least one finger is down
-(this is
-> mandatory when not reporting pressure).
->
-> Also I see that you are not using input_mt_assign_slots, so I take it that
-> if put 2 fingers down and then lift the first finger down, the second
-finger
-> stays in slot->fingers[1] ? Because if it does not then you need to use
-> input_mt_assign_slots.
-Yes, the touchpad keeps track of which touch corresponds to which finger.
->
->
->> +
->> +    input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
->> +    input_sync(psmouse->dev);
->> +}
->> +
->> +static void process_touch_packet(struct focaltech_hw_state *state,
->> +        unsigned char *packet)
->> +{
->> +    int i;
->> +    unsigned char fingers = packet[1];
->> +
->> +    state->pressed = (packet[0] >> 4) & 1;
->> +    /* the second byte contains a bitmap of all fingers touching the
-pad */
->> +    for (i = 0; i < FOC_MAX_FINGERS; i++) {
->> +        if ((fingers & 0x1) && !state->fingers[i].active) {
->> +            /* we do not have a valid position for the finger yet */
->> +            state->fingers[i].valid = 0;
->> +        }
->> +        state->fingers[i].active = fingers & 0x1;
->> +        fingers >>= 1;
->> +    }
->> +}
->> +
->> +static void process_abs_packet(struct focaltech_hw_state *state,
->> +        unsigned char *packet)
->> +{
->> +    unsigned int finger = (packet[1] >> 4) - 1;
->> +
->> +    state->pressed = (packet[0] >> 4) & 1;
->> +    if (finger >= FOC_MAX_FINGERS)
->> +        return;
->> +    /*
->> +     * packet[5] contains some kind of tool size in the most significant
->> +     * nibble. 0xff is a special value (latching) that signals a large
->> +     * contact area.
->> +     */
->> +    if (packet[5] == 0xff)
->> +        return;
->
-> Maybe set state->fingers[finger].valid = 0 here ?
->
->> +    state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
->> +    state->fingers[finger].y = (packet[3] << 8) | packet[4];
->> +    state->fingers[finger].valid = 1;
->> +}
->> +static void process_rel_packet(struct focaltech_hw_state *state,
->> +        unsigned char *packet)
->> +{
->> +    int finger1 = ((packet[0] >> 4) & 0x7) - 1;
->> +    int finger2 = ((packet[3] >> 4) & 0x7) - 1;
->> +
->> +    state->pressed = packet[0] >> 7;
->> +    if (finger1 < FOC_MAX_FINGERS) {
->> +        state->fingers[finger1].x += (char)packet[1];
->> +        state->fingers[finger1].y += (char)packet[2];
->> +    }
->> +    /*
->> +     * If there is an odd number of fingers, the last relative
-packet only
->> +     * contains one finger. In this case, the second finger index in the
->> +     * packet is 0 (we subtract 1 in the lines above to create array
->> +     * indices).
->> +     */
->> +    if (finger2 != -1 && finger2 < FOC_MAX_FINGERS) {
->> +        state->fingers[finger2].x += (char)packet[4];
->> +        state->fingers[finger2].y += (char)packet[5];
->> +    }
->> +}
->> +
->> +static void focaltech_process_packet(struct psmouse *psmouse)
->> +{
->> +    struct focaltech_data *priv = psmouse->private;
->> +    unsigned char *packet = psmouse->packet;
->> +
->> +    switch (packet[0] & 0xf) {
->> +    case FOC_TOUCH:
->> +        process_touch_packet(&priv->state, packet);
->> +        break;
->> +    case FOC_ABS:
->> +        process_abs_packet(&priv->state, packet);
->> +        break;
->> +    case FOC_REL:
->> +        process_rel_packet(&priv->state, packet);
->> +        break;
->> +    default:
->> +        psmouse_err(psmouse, "Unknown packet type: %02x", packet[0]);
->> +        break;
->> +    }
->> +
->> +    focaltech_report_state(psmouse);
->> +}
->> +
->> +static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
->>  {
->> +    if (psmouse->pktcnt >= 6) { /* Full packet received */
->> +        focaltech_process_packet(psmouse);
->> +        return PSMOUSE_FULL_PACKET;
->> +    }
->> +    /*
->> +     * we might want to do some validation of the data here, but we
-do not
->> +     * know the protocoll well enough
->> +     */
->> +    return PSMOUSE_GOOD_DATA;
->> +}
->> +
->> +static void focaltech_reset(struct psmouse *psmouse)
->> +{
->> +    psmouse_info(psmouse, "focaltech_reset");
->>      ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
->>      psmouse_reset(psmouse);
->> +}
->> +
->> +static int focaltech_switch_protocol(struct psmouse *psmouse)
->> +{
->> +    struct ps2dev *ps2dev = &psmouse->ps2dev;
->> +    unsigned char param[3];
->> +
->> +    param[0] = 0;
->> +    if (ps2_command(ps2dev, param, 0x10f8))
->> +        return -EIO;
->> +    if (ps2_command(ps2dev, param, 0x10f8))
->> +        return -EIO;
->> +    if (ps2_command(ps2dev, param, 0x10f8))
->> +        return -EIO;
->> +    param[0] = 1;
->> +    if (ps2_command(ps2dev, param, 0x10f8))
->> +        return -EIO;
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
->> +        return -EIO;
->> +
->> +    if (ps2_command(ps2dev, param, PSMOUSE_CMD_ENABLE))
->> +        return -EIO;
->>       return 0;
->>  }
->> +
->> +static void focaltech_disconnect(struct psmouse *psmouse)
->> +{
->> +    focaltech_reset(psmouse);
->> +    kfree(psmouse->private);
->> +    psmouse->private = NULL;
->> +}
->> +
->> +static int focaltech_reconnect(struct psmouse *psmouse)
->> +{
->> +    focaltech_reset(psmouse);
->> +    if (focaltech_switch_protocol(psmouse)) {
->> +        psmouse_err(psmouse,
->> +                "Unable to initialize the device.");
->> +        return -1;
->> +    }
->> +    return 0;
->> +}
->> +
->> +static void set_input_params(struct psmouse *psmouse)
->> +{
->> +    struct input_dev *dev = psmouse->dev;
->> +
->> +    __set_bit(EV_KEY, dev->evbit);
->> +    __set_bit(EV_ABS, dev->evbit);
->> +    input_set_abs_params(dev, ABS_X, 0, FOC_MAX_X, 0, 0);
->> +    input_set_abs_params(dev, ABS_Y, 0, FOC_MAX_Y, 0, 0);
->> +    input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
->> +    input_set_abs_params(dev, ABS_MT_POSITION_X, 0, FOC_MAX_X, 0, 0);
->> +    input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, FOC_MAX_Y, 0, 0);
->> +    __set_bit(BTN_TOUCH, dev->keybit);
->> +    __set_bit(BTN_TOOL_FINGER, dev->keybit);
->> +    __set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
->> +    __set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
->> +    __set_bit(BTN_TOOL_QUADTAP, dev->keybit);
->> +    __set_bit(BTN_TOOL_QUINTTAP, dev->keybit);
->> +    __clear_bit(EV_REL, dev->evbit);
->> +    __clear_bit(REL_X, dev->relbit);
->> +    __clear_bit(REL_Y, dev->relbit);
->> +    __set_bit(BTN_LEFT, dev->keybit);
->> +    __clear_bit(BTN_RIGHT, dev->keybit);
->> +    __clear_bit(BTN_MIDDLE, dev->keybit);
->> +    __set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
->> +}
->> +
->> +int focaltech_init(struct psmouse *psmouse)
->> +{
->> +    struct focaltech_data *priv;
->> +
->> +    focaltech_reset(psmouse);
->> +    if (focaltech_switch_protocol(psmouse)) {
->> +        focaltech_reset(psmouse);
->> +        psmouse_info(psmouse,
->> +                 "Unable to initialize the device.");
->> +        return -ENOSYS;
->> +    }
->> +
->> +    psmouse->private = priv = kzalloc(sizeof(struct focaltech_data),
->> GFP_KERNEL);
->> +    if (!priv)
->> +        return -ENOMEM;
->> +
->> +    set_input_params(psmouse);
->> +
->> +    psmouse->protocol_handler = focaltech_process_byte;
->> +    psmouse->pktsize = 6;
->> +    psmouse->disconnect = focaltech_disconnect;
->> +    psmouse->reconnect = focaltech_reconnect;
->> +    psmouse->cleanup = focaltech_reset;
->> +    /* resync is not supported yet */
->> +    psmouse->resync_time = 0;
->> +
->> +    return 0;
->> +}
->> +
->> +#else /* CONFIG_MOUSE_PS2_FOCALTECH */
->> +
->> +int focaltech_detect(struct psmouse *psmouse, bool set_properties)
->> +{
->> +    return -ENOSYS;
->> +}
->> +
->> +int focaltech_init(struct psmouse *psmouse)
->> +{
->> +    return -ENOSYS;
->> +}
->> +
->> +#endif /* CONFIG_MOUSE_PS2_FOCALTECH */
->> diff --git a/drivers/input/mouse/focaltech.h
->> b/drivers/input/mouse/focaltech.h
->> index 498650c..3c553b2 100644
->> --- a/drivers/input/mouse/focaltech.h
->> +++ b/drivers/input/mouse/focaltech.h
->> @@ -2,6 +2,7 @@
->>   * Focaltech TouchPad PS/2 mouse driver
->>   *
->>   * Copyright (c) 2014 Red Hat Inc.
->> + * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
->>   *
->>   * This program is free software; you can redistribute it and/or modify
->>   * it under the terms of the GNU General Public License as published by
->> @@ -16,7 +17,67 @@
->>  #ifndef _FOCALTECH_H
->>  #define _FOCALTECH_H
->>  +/*
->> + * Packet types - the numbers are not consecutive, so we might be
-missing
->> + * something here.
->> + */
->> +#define FOC_TOUCH 0x3 /* bitmap of active fingers */
->> +#define FOC_ABS 0x6 /* absolute position of one finger */
->> +#define FOC_REL 0x9 /* relative position of 1-2 fingers */
->> +
->> +#define FOC_MAX_FINGERS 5
->> +
->> +#define FOC_MAX_X 2431
->> +#define FOC_MAX_Y 1663
->> +
->> +static inline int focaltech_invert_y(int y)
->> +{
->> +    return FOC_MAX_Y - y;
->> +}
->> +
->> +/*
->> + * Current state of a single finger on the touchpad.
->> + */
->> +struct focaltech_finger_state {
->> +    /* the touchpad has generated a touch event for the finger */
->> +    bool active;
->> +    /*
->> +     * The touchpad has sent position data for the finger. Touch event
->> +     * packages reset this flag for new fingers, and there is a time
->> +     * between the first touch event and the following absolute position
->> +     * packet for the finger where the touchpad has declared the
-finger to
->> +     * be valid, but we do not have any valid position yet.
->> +     */
->> +    bool valid;
->> +    /* absolute position (from the bottom left corner) of the finger */
->> +    unsigned int x;
->> +    unsigned int y;
->> +};
->> +
->> +/*
->> + * Description of the current state of the touchpad hardware.
->> + */
->> +struct focaltech_hw_state {
->> +    /*
->> +     * The touchpad tracks the positions of the fingers for us, the
-array
->> +     * indices correspond to the finger indices returned in the report
->> +     * packages.
->> +     */
->> +    struct focaltech_finger_state fingers[FOC_MAX_FINGERS];
->> +    /*
->> +     * True if the clickpad has been pressed.
->> +     */
->> +    bool pressed;
->> +};
->> +
->> +struct focaltech_data {
->> +    struct focaltech_hw_state state;
->> +};
->> +
->>  int focaltech_detect(struct psmouse *psmouse, bool set_properties);
->>  int focaltech_init(struct psmouse *psmouse);
->>  +int focaltech_detect_fallback(struct psmouse *psmouse, bool
->> set_properties);
->> +int focaltech_init_fallback(struct psmouse *psmouse);
->> +
->>  #endif
->> diff --git a/drivers/input/mouse/psmouse-base.c
->> b/drivers/input/mouse/psmouse-base.c
->> index 26994f6..2e2b98d 100644
->> --- a/drivers/input/mouse/psmouse-base.c
->> +++ b/drivers/input/mouse/psmouse-base.c
->> @@ -726,6 +726,12 @@ static int psmouse_extensions(struct psmouse
-*psmouse,
->>  /* Always check for focaltech, this is safe as it uses pnp-id
-matching */
->>      if (psmouse_do_detect(focaltech_detect, psmouse, set_properties)
-== 0) {
->>          if (!set_properties || focaltech_init(psmouse) == 0) {
->> +            return PSMOUSE_FOCALTECH;
->> +        }
->> +    }
->> +    if (psmouse_do_detect(focaltech_detect_fallback,
->> +                  psmouse, set_properties) == 0) {
->> +        if (!set_properties || focaltech_init_fallback(psmouse) == 0) {
->>              /*
->>               * Not supported yet, use bare protocol.
->>               * Note that we need to also restrict
->> @@ -1063,6 +1069,15 @@ static const struct psmouse_protocol
->> psmouse_protocols[] = {
->>          .alias        = "cortps",
->>          .detect        = cortron_detect,
->>      },
->> +#ifdef CONFIG_MOUSE_PS2_FOCALTECH
->> +    {
->> +        .type        = PSMOUSE_FOCALTECH,
->> +        .name        = "FocalTechPS/2",
->> +        .alias        = "focaltech",
->> +        .detect        = focaltech_detect,
->> +        .init        = focaltech_init,
->> +    },
->> +#endif
->>      {
->>          .type        = PSMOUSE_AUTO,
->>          .name        = "auto",
->> diff --git a/drivers/input/mouse/psmouse.h
-b/drivers/input/mouse/psmouse.h
->> index f4cf664..c2ff137 100644
->> --- a/drivers/input/mouse/psmouse.h
->> +++ b/drivers/input/mouse/psmouse.h
->> @@ -96,6 +96,7 @@ enum psmouse_type {
->>      PSMOUSE_FSP,
->>      PSMOUSE_SYNAPTICS_RELATIVE,
->>      PSMOUSE_CYPRESS,
->> +    PSMOUSE_FOCALTECH,
->>      PSMOUSE_AUTO        /* This one should always be last */
->>  };
->
-> Overall this looks very good, many thanks for your work on this!
->
-> Regards,
->
-> Hans
->
+This is a multi-part message in MIME format.
+--------------090609000505040404050000
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Dear kernel input developers,
+
+While trying out 3.18-rc2, I noticed that the Elantech touchpad on my
+laptop didn't work as intended anymore. Mouse movement and tapping one
+finger worked, but scrolling and two finger tapping did not. X.org also
+didn't recognise the touchpad as a synaptics touchpad anymore.
+
+After googling around I found that i8042.nomux=3D0 brought it back to nor=
+mal.
+
+My laptop is a Clevo model W650SH with a keyboard and a touchpad attached=
+,
+and no touchschreen. Some output of dmesg is listed at the bottom, and th=
+e
+result of dmidecode is attached.
+
+Best regards,
+
+Roel Aaij
+
+Some dmesg output without i8042.nomux=3D0 (not fully functional touchpad)=
 
 
+[    1.221297] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:ELNM] at=
+ 0x60,0x64 irq 1,12
+[    1.226412] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    1.226414] serio: i8042 AUX port at 0x60,0x64 irq 12
+[    1.229415] input: AT Translated Set 2 keyboard as /devices/platform/i=
+8042/serio0/input/input6
+[    5.017142] psmouse serio1: elantech: assuming hardware version 3 (wit=
+h firmware version 0x450f02)
+[    5.018055] psmouse serio1: elantech: elantech_send_cmd query 0x02 fai=
+led.
+[    5.018057] psmouse serio1: elantech: failed to query capabilities.
+[    5.930158] input: PS/2 Elantech Touchpad as /devices/platform/i8042/s=
+erio1/input/input8
 
+
+Some dmesg output with i8042.nomux=3D0 (fully functional touchpad)
+
+[    1.361320] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:ELNM] at=
+ 0x60,0x64 irq 1,12
+[    1.366134] i8042: Detected active multiplexing controller, rev 1.1
+[    1.367757] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    1.367759] serio: i8042 AUX0 port at 0x60,0x64 irq 12
+[    1.367764] serio: i8042 AUX1 port at 0x60,0x64 irq 12
+[    1.367765] serio: i8042 AUX2 port at 0x60,0x64 irq 12
+[    1.367766] serio: i8042 AUX3 port at 0x60,0x64 irq 12
+[    1.371243] input: AT Translated Set 2 keyboard as /devices/platform/i=
+8042/serio0/input/input6
+[   99.389964] psmouse serio2: elantech: assuming hardware version 3 (wit=
+h firmware version 0x450f02)
+[   99.489797] psmouse serio2: elantech: Synaptics capabilities query res=
+ult 0x79, 0x17, 0x0c.
+[   99.819119] input: ETPS/2 Elantech Touchpad as /devices/platform/i8042=
+/serio2/input/input22
+
+P.S. The late timestamps in the last few lines are due to a "modprobe -r =
+psmouse && modprobe psmouse"
+
+--------------090609000505040404050000
+Content-Type: text/plain; charset=UTF-8;
+ name="dmi"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="dmi"
+
+IyBkbWlkZWNvZGUgMi4xMgpTTUJJT1MgMi43IHByZXNlbnQuCjM0IHN0cnVjdHVyZXMgb2Nj
+dXB5aW5nIDE4NzQgYnl0ZXMuClRhYmxlIGF0IDB4MDAwRUI1MDAuCgpIYW5kbGUgMHgwMDAw
+LCBETUkgdHlwZSAwLCAyNCBieXRlcwpCSU9TIEluZm9ybWF0aW9uCglWZW5kb3I6IEFtZXJp
+Y2FuIE1lZ2F0cmVuZHMgSW5jLgoJVmVyc2lvbjogMS4wMC4wNQoJUmVsZWFzZSBEYXRlOiAw
+OC8wNy8yMDEzCglBZGRyZXNzOiAweEYwMDAwCglSdW50aW1lIFNpemU6IDY0IGtCCglST00g
+U2l6ZTogNDA5NiBrQgoJQ2hhcmFjdGVyaXN0aWNzOgoJCVBDSSBpcyBzdXBwb3J0ZWQKCQlC
+SU9TIGlzIHVwZ3JhZGVhYmxlCgkJQklPUyBzaGFkb3dpbmcgaXMgYWxsb3dlZAoJCUJvb3Qg
+ZnJvbSBDRCBpcyBzdXBwb3J0ZWQKCQlTZWxlY3RhYmxlIGJvb3QgaXMgc3VwcG9ydGVkCgkJ
+RUREIGlzIHN1cHBvcnRlZAoJCVByaW50IHNjcmVlbiBzZXJ2aWNlIGlzIHN1cHBvcnRlZCAo
+aW50IDVoKQoJCTgwNDIga2V5Ym9hcmQgc2VydmljZXMgYXJlIHN1cHBvcnRlZCAoaW50IDlo
+KQoJCVByaW50ZXIgc2VydmljZXMgYXJlIHN1cHBvcnRlZCAoaW50IDE3aCkKCQlBQ1BJIGlz
+IHN1cHBvcnRlZAoJCVVTQiBsZWdhY3kgaXMgc3VwcG9ydGVkCgkJQklPUyBib290IHNwZWNp
+ZmljYXRpb24gaXMgc3VwcG9ydGVkCgkJVGFyZ2V0ZWQgY29udGVudCBkaXN0cmlidXRpb24g
+aXMgc3VwcG9ydGVkCgkJVUVGSSBpcyBzdXBwb3J0ZWQKCUJJT1MgUmV2aXNpb246IDQuNgoK
+SGFuZGxlIDB4MDAwMSwgRE1JIHR5cGUgMSwgMjcgYnl0ZXMKU3lzdGVtIEluZm9ybWF0aW9u
+CglNYW51ZmFjdHVyZXI6IE5vdGVib29rICAgICAgICAgICAgICAgICAgICAgICAgCglQcm9k
+dWN0IE5hbWU6IFc2NV9XNjcwU0ggICAgICAgICAgICAgICAgICAgICAgCglWZXJzaW9uOiBO
+b3QgQXBwbGljYWJsZSAgICAgICAgICAgICAgICAgIAoJU2VyaWFsIE51bWJlcjogTm90IEFw
+cGxpY2FibGUgICAgICAgICAgICAgICAgICAKCVVVSUQ6IEVDRjU5MDAwLTQ3RUQtMDAwMC0w
+MDAwLTAwMDAwMDAwMDAwMAoJV2FrZS11cCBUeXBlOiBQb3dlciBTd2l0Y2gKCVNLVSBOdW1i
+ZXI6IE5vdCBBcHBsaWNhYmxlICAgICAgICAgICAgICAgICAgCglGYW1pbHk6IE5vdCBBcHBs
+aWNhYmxlICAgICAgICAgICAgICAgICAgCgpIYW5kbGUgMHgwMDAyLCBETUkgdHlwZSAyLCAx
+NSBieXRlcwpCYXNlIEJvYXJkIEluZm9ybWF0aW9uCglNYW51ZmFjdHVyZXI6IE5vdGVib29r
+ICAgICAgICAgICAgICAgICAgICAgICAgCglQcm9kdWN0IE5hbWU6IFc2NV9XNjcwU0ggICAg
+ICAgICAgICAgICAgICAgICAgCglWZXJzaW9uOiBOb3QgQXBwbGljYWJsZSAgICAgICAgICAg
+ICAgICAgIAoJU2VyaWFsIE51bWJlcjogTm90IEFwcGxpY2FibGUgICAgICAgICAgICAgICAg
+ICAKCUFzc2V0IFRhZzogVGFnIDEyMzQ1CglGZWF0dXJlczoKCQlCb2FyZCBpcyBhIGhvc3Rp
+bmcgYm9hcmQKCQlCb2FyZCBpcyByZXBsYWNlYWJsZQoJTG9jYXRpb24gSW4gQ2hhc3Npczog
+Tm90IEFwcGxpY2FibGUKCUNoYXNzaXMgSGFuZGxlOiAweDAwMDMKCVR5cGU6IE1vdGhlcmJv
+YXJkCglDb250YWluZWQgT2JqZWN0IEhhbmRsZXM6IDAKCkhhbmRsZSAweDAwMDMsIERNSSB0
+eXBlIDMsIDIyIGJ5dGVzCkNoYXNzaXMgSW5mb3JtYXRpb24KCU1hbnVmYWN0dXJlcjogTm90
+ZWJvb2sgICAgICAgICAgICAgICAgICAgICAgICAKCVR5cGU6IExhcHRvcAoJTG9jazogTm90
+IFByZXNlbnQKCVZlcnNpb246IE4vQSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCglT
+ZXJpYWwgTnVtYmVyOiBOb25lICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoJQXNzZXQg
+VGFnOiBObyBBc3NldCBUYWcKCUJvb3QtdXAgU3RhdGU6IFNhZmUKCVBvd2VyIFN1cHBseSBT
+dGF0ZTogU2FmZQoJVGhlcm1hbCBTdGF0ZTogU2FmZQoJU2VjdXJpdHkgU3RhdHVzOiBOb25l
+CglPRU0gSW5mb3JtYXRpb246IDB4MDAwMDAwMDAKCUhlaWdodDogVW5zcGVjaWZpZWQKCU51
+bWJlciBPZiBQb3dlciBDb3JkczogMQoJQ29udGFpbmVkIEVsZW1lbnRzOiAwCglTS1UgTnVt
+YmVyOiBUbyBiZSBmaWxsZWQgYnkgTy5FLk0uCgpIYW5kbGUgMHgwMDA0LCBETUkgdHlwZSA4
+LCA5IGJ5dGVzClBvcnQgQ29ubmVjdG9yIEluZm9ybWF0aW9uCglJbnRlcm5hbCBSZWZlcmVu
+Y2UgRGVzaWduYXRvcjogSjFBMQoJSW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IE5vbmUKCUV4
+dGVybmFsIFJlZmVyZW5jZSBEZXNpZ25hdG9yOiBQUzJNb3VzZQoJRXh0ZXJuYWwgQ29ubmVj
+dG9yIFR5cGU6IFBTLzIKCVBvcnQgVHlwZTogTW91c2UgUG9ydAoKSGFuZGxlIDB4MDAwNSwg
+RE1JIHR5cGUgOCwgOSBieXRlcwpQb3J0IENvbm5lY3RvciBJbmZvcm1hdGlvbgoJSW50ZXJu
+YWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6IEoxQTEKCUludGVybmFsIENvbm5lY3RvciBUeXBl
+OiBOb25lCglFeHRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjogS2V5Ym9hcmQKCUV4dGVy
+bmFsIENvbm5lY3RvciBUeXBlOiBQUy8yCglQb3J0IFR5cGU6IEtleWJvYXJkIFBvcnQKCkhh
+bmRsZSAweDAwMDYsIERNSSB0eXBlIDgsIDkgYnl0ZXMKUG9ydCBDb25uZWN0b3IgSW5mb3Jt
+YXRpb24KCUludGVybmFsIFJlZmVyZW5jZSBEZXNpZ25hdG9yOiBKMkExCglJbnRlcm5hbCBD
+b25uZWN0b3IgVHlwZTogTm9uZQoJRXh0ZXJuYWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6IFRW
+IE91dAoJRXh0ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IE1pbmkgQ2VudHJvbmljcyBUeXBlLTE0
+CglQb3J0IFR5cGU6IE90aGVyCgpIYW5kbGUgMHgwMDA3LCBETUkgdHlwZSA4LCA5IGJ5dGVz
+ClBvcnQgQ29ubmVjdG9yIEluZm9ybWF0aW9uCglJbnRlcm5hbCBSZWZlcmVuY2UgRGVzaWdu
+YXRvcjogSjJBMkEKCUludGVybmFsIENvbm5lY3RvciBUeXBlOiBOb25lCglFeHRlcm5hbCBS
+ZWZlcmVuY2UgRGVzaWduYXRvcjogQ09NIEEKCUV4dGVybmFsIENvbm5lY3RvciBUeXBlOiBE
+Qi05IG1hbGUKCVBvcnQgVHlwZTogU2VyaWFsIFBvcnQgMTY1NTBBIENvbXBhdGlibGUKCkhh
+bmRsZSAweDAwMDgsIERNSSB0eXBlIDgsIDkgYnl0ZXMKUG9ydCBDb25uZWN0b3IgSW5mb3Jt
+YXRpb24KCUludGVybmFsIFJlZmVyZW5jZSBEZXNpZ25hdG9yOiBKMkEyQgoJSW50ZXJuYWwg
+Q29ubmVjdG9yIFR5cGU6IE5vbmUKCUV4dGVybmFsIFJlZmVyZW5jZSBEZXNpZ25hdG9yOiBW
+aWRlbwoJRXh0ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IERCLTE1IGZlbWFsZQoJUG9ydCBUeXBl
+OiBWaWRlbyBQb3J0CgpIYW5kbGUgMHgwMDA5LCBETUkgdHlwZSA4LCA5IGJ5dGVzClBvcnQg
+Q29ubmVjdG9yIEluZm9ybWF0aW9uCglJbnRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjog
+SjNBMQoJSW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IE5vbmUKCUV4dGVybmFsIFJlZmVyZW5j
+ZSBEZXNpZ25hdG9yOiBVU0IxCglFeHRlcm5hbCBDb25uZWN0b3IgVHlwZTogQWNjZXNzIEJ1
+cyAoVVNCKQoJUG9ydCBUeXBlOiBVU0IKCkhhbmRsZSAweDAwMEEsIERNSSB0eXBlIDgsIDkg
+Ynl0ZXMKUG9ydCBDb25uZWN0b3IgSW5mb3JtYXRpb24KCUludGVybmFsIFJlZmVyZW5jZSBE
+ZXNpZ25hdG9yOiBKM0ExCglJbnRlcm5hbCBDb25uZWN0b3IgVHlwZTogTm9uZQoJRXh0ZXJu
+YWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6IFVTQjIKCUV4dGVybmFsIENvbm5lY3RvciBUeXBl
+OiBBY2Nlc3MgQnVzIChVU0IpCglQb3J0IFR5cGU6IFVTQgoKSGFuZGxlIDB4MDAwQiwgRE1J
+IHR5cGUgOCwgOSBieXRlcwpQb3J0IENvbm5lY3RvciBJbmZvcm1hdGlvbgoJSW50ZXJuYWwg
+UmVmZXJlbmNlIERlc2lnbmF0b3I6IEozQTEKCUludGVybmFsIENvbm5lY3RvciBUeXBlOiBO
+b25lCglFeHRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjogVVNCMwoJRXh0ZXJuYWwgQ29u
+bmVjdG9yIFR5cGU6IEFjY2VzcyBCdXMgKFVTQikKCVBvcnQgVHlwZTogVVNCCgpIYW5kbGUg
+MHgwMDBDLCBETUkgdHlwZSA4LCA5IGJ5dGVzClBvcnQgQ29ubmVjdG9yIEluZm9ybWF0aW9u
+CglJbnRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjogSjVBMQoJSW50ZXJuYWwgQ29ubmVj
+dG9yIFR5cGU6IE5vbmUKCUV4dGVybmFsIFJlZmVyZW5jZSBEZXNpZ25hdG9yOiBMQU4KCUV4
+dGVybmFsIENvbm5lY3RvciBUeXBlOiBSSi00NQoJUG9ydCBUeXBlOiBOZXR3b3JrIFBvcnQK
+CkhhbmRsZSAweDAwMEQsIERNSSB0eXBlIDgsIDkgYnl0ZXMKUG9ydCBDb25uZWN0b3IgSW5m
+b3JtYXRpb24KCUludGVybmFsIFJlZmVyZW5jZSBEZXNpZ25hdG9yOiBKNUExCglJbnRlcm5h
+bCBDb25uZWN0b3IgVHlwZTogTm9uZQoJRXh0ZXJuYWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6
+IFVTQjQKCUV4dGVybmFsIENvbm5lY3RvciBUeXBlOiBBY2Nlc3MgQnVzIChVU0IpCglQb3J0
+IFR5cGU6IFVTQgoKSGFuZGxlIDB4MDAwRSwgRE1JIHR5cGUgOSwgMTcgYnl0ZXMKU3lzdGVt
+IFNsb3QgSW5mb3JtYXRpb24KCURlc2lnbmF0aW9uOiBKNkIyCglUeXBlOiB4MTYgUENJIEV4
+cHJlc3MKCUN1cnJlbnQgVXNhZ2U6IEluIFVzZQoJTGVuZ3RoOiBMb25nCglJRDogMAoJQ2hh
+cmFjdGVyaXN0aWNzOgoJCTMuMyBWIGlzIHByb3ZpZGVkCgkJT3BlbmluZyBpcyBzaGFyZWQK
+CQlQTUUgc2lnbmFsIGlzIHN1cHBvcnRlZAoJQnVzIEFkZHJlc3M6IDAwMDA6MDA6MDEuMAoK
+SGFuZGxlIDB4MDAwRiwgRE1JIHR5cGUgMTAsIDggYnl0ZXMKT24gQm9hcmQgRGV2aWNlIDEg
+SW5mb3JtYXRpb24KCVR5cGU6IFZpZGVvCglTdGF0dXM6IEVuYWJsZWQKCURlc2NyaXB0aW9u
+OiAgICBUbyBCZSBGaWxsZWQgQnkgTy5FLk0uCk9uIEJvYXJkIERldmljZSAyIEluZm9ybWF0
+aW9uCglUeXBlOiBFdGhlcm5ldAoJU3RhdHVzOiBFbmFibGVkCglEZXNjcmlwdGlvbjogVG8g
+QmUgRmlsbGVkIEJ5IE8uRS5NLgoKSGFuZGxlIDB4MDAxMCwgRE1JIHR5cGUgMTEsIDUgYnl0
+ZXMKT0VNIFN0cmluZ3MKCVN0cmluZyAxOiAxNTU4CglTdHJpbmcgMjogT0VNIFN0cmluZwoJ
+U3RyaW5nIDM6IFRvIEJlIEZpbGxlZCBCeSBPLkUuTS4KCVN0cmluZyA0OiBUbyBCZSBGaWxs
+ZWQgQnkgTy5FLk0uCglTdHJpbmcgNTogQklPUzoxLjAwLjA1CgpIYW5kbGUgMHgwMDExLCBE
+TUkgdHlwZSAxMiwgNSBieXRlcwpTeXN0ZW0gQ29uZmlndXJhdGlvbiBPcHRpb25zCglPcHRp
+b24gMTogVG8gQmUgRmlsbGVkIEJ5IE8uRS5NLgoKSGFuZGxlIDB4MDAxMiwgRE1JIHR5cGUg
+MjQsIDUgYnl0ZXMKSGFyZHdhcmUgU2VjdXJpdHkKCVBvd2VyLU9uIFBhc3N3b3JkIFN0YXR1
+czogRGlzYWJsZWQKCUtleWJvYXJkIFBhc3N3b3JkIFN0YXR1czogRGlzYWJsZWQKCUFkbWlu
+aXN0cmF0b3IgUGFzc3dvcmQgU3RhdHVzOiBEaXNhYmxlZAoJRnJvbnQgUGFuZWwgUmVzZXQg
+U3RhdHVzOiBEaXNhYmxlZAoKSGFuZGxlIDB4MDAxMywgRE1JIHR5cGUgMzIsIDIwIGJ5dGVz
+ClN5c3RlbSBCb290IEluZm9ybWF0aW9uCglTdGF0dXM6IE5vIGVycm9ycyBkZXRlY3RlZAoK
+SGFuZGxlIDB4MDAxNCwgRE1JIHR5cGUgNCwgNDIgYnl0ZXMKUHJvY2Vzc29yIEluZm9ybWF0
+aW9uCglTb2NrZXQgRGVzaWduYXRpb246IFNPQ0tFVCAwCglUeXBlOiBDZW50cmFsIFByb2Nl
+c3NvcgoJRmFtaWx5OiBDb3JlIGk3CglNYW51ZmFjdHVyZXI6IEludGVsCglJRDogQzMgMDYg
+MDMgMDAgRkYgRkIgRUIgQkYKCVNpZ25hdHVyZTogVHlwZSAwLCBGYW1pbHkgNiwgTW9kZWwg
+NjAsIFN0ZXBwaW5nIDMKCUZsYWdzOgoJCUZQVSAoRmxvYXRpbmctcG9pbnQgdW5pdCBvbi1j
+aGlwKQoJCVZNRSAoVmlydHVhbCBtb2RlIGV4dGVuc2lvbikKCQlERSAoRGVidWdnaW5nIGV4
+dGVuc2lvbikKCQlQU0UgKFBhZ2Ugc2l6ZSBleHRlbnNpb24pCgkJVFNDIChUaW1lIHN0YW1w
+IGNvdW50ZXIpCgkJTVNSIChNb2RlbCBzcGVjaWZpYyByZWdpc3RlcnMpCgkJUEFFIChQaHlz
+aWNhbCBhZGRyZXNzIGV4dGVuc2lvbikKCQlNQ0UgKE1hY2hpbmUgY2hlY2sgZXhjZXB0aW9u
+KQoJCUNYOCAoQ01QWENIRzggaW5zdHJ1Y3Rpb24gc3VwcG9ydGVkKQoJCUFQSUMgKE9uLWNo
+aXAgQVBJQyBoYXJkd2FyZSBzdXBwb3J0ZWQpCgkJU0VQIChGYXN0IHN5c3RlbSBjYWxsKQoJ
+CU1UUlIgKE1lbW9yeSB0eXBlIHJhbmdlIHJlZ2lzdGVycykKCQlQR0UgKFBhZ2UgZ2xvYmFs
+IGVuYWJsZSkKCQlNQ0EgKE1hY2hpbmUgY2hlY2sgYXJjaGl0ZWN0dXJlKQoJCUNNT1YgKENv
+bmRpdGlvbmFsIG1vdmUgaW5zdHJ1Y3Rpb24gc3VwcG9ydGVkKQoJCVBBVCAoUGFnZSBhdHRy
+aWJ1dGUgdGFibGUpCgkJUFNFLTM2ICgzNi1iaXQgcGFnZSBzaXplIGV4dGVuc2lvbikKCQlD
+TEZTSCAoQ0xGTFVTSCBpbnN0cnVjdGlvbiBzdXBwb3J0ZWQpCgkJRFMgKERlYnVnIHN0b3Jl
+KQoJCUFDUEkgKEFDUEkgc3VwcG9ydGVkKQoJCU1NWCAoTU1YIHRlY2hub2xvZ3kgc3VwcG9y
+dGVkKQoJCUZYU1IgKEZYU0FWRSBhbmQgRlhTVE9SIGluc3RydWN0aW9ucyBzdXBwb3J0ZWQp
+CgkJU1NFIChTdHJlYW1pbmcgU0lNRCBleHRlbnNpb25zKQoJCVNTRTIgKFN0cmVhbWluZyBT
+SU1EIGV4dGVuc2lvbnMgMikKCQlTUyAoU2VsZi1zbm9vcCkKCQlIVFQgKE11bHRpLXRocmVh
+ZGluZykKCQlUTSAoVGhlcm1hbCBtb25pdG9yIHN1cHBvcnRlZCkKCQlQQkUgKFBlbmRpbmcg
+YnJlYWsgZW5hYmxlZCkKCVZlcnNpb246IEludGVsKFIpIENvcmUoVE0pIGk3LTQ3MDBNUSBD
+UFUgQCAyLjQwR0h6CglWb2x0YWdlOiAxLjIgVgoJRXh0ZXJuYWwgQ2xvY2s6IDEwMCBNSHoK
+CU1heCBTcGVlZDogMzgwMCBNSHoKCUN1cnJlbnQgU3BlZWQ6IDI0MDAgTUh6CglTdGF0dXM6
+IFBvcHVsYXRlZCwgRW5hYmxlZAoJVXBncmFkZTogU29ja2V0IHJQR0E5ODhCCglMMSBDYWNo
+ZSBIYW5kbGU6IDB4MDAxNgoJTDIgQ2FjaGUgSGFuZGxlOiAweDAwMTUKCUwzIENhY2hlIEhh
+bmRsZTogMHgwMDE3CglTZXJpYWwgTnVtYmVyOiBOb3QgU3BlY2lmaWVkCglBc3NldCBUYWc6
+IEZpbGwgQnkgT0VNCglQYXJ0IE51bWJlcjogRmlsbCBCeSBPRU0KCUNvcmUgQ291bnQ6IDQK
+CUNvcmUgRW5hYmxlZDogNAoJVGhyZWFkIENvdW50OiA4CglDaGFyYWN0ZXJpc3RpY3M6CgkJ
+NjQtYml0IGNhcGFibGUKCkhhbmRsZSAweDAwMTUsIERNSSB0eXBlIDcsIDE5IGJ5dGVzCkNh
+Y2hlIEluZm9ybWF0aW9uCglTb2NrZXQgRGVzaWduYXRpb246IENQVSBJbnRlcm5hbCBMMgoJ
+Q29uZmlndXJhdGlvbjogRW5hYmxlZCwgTm90IFNvY2tldGVkLCBMZXZlbCAyCglPcGVyYXRp
+b25hbCBNb2RlOiBXcml0ZSBCYWNrCglMb2NhdGlvbjogSW50ZXJuYWwKCUluc3RhbGxlZCBT
+aXplOiAxMDI0IGtCCglNYXhpbXVtIFNpemU6IDEwMjQga0IKCVN1cHBvcnRlZCBTUkFNIFR5
+cGVzOgoJCVVua25vd24KCUluc3RhbGxlZCBTUkFNIFR5cGU6IFVua25vd24KCVNwZWVkOiBV
+bmtub3duCglFcnJvciBDb3JyZWN0aW9uIFR5cGU6IFNpbmdsZS1iaXQgRUNDCglTeXN0ZW0g
+VHlwZTogVW5pZmllZAoJQXNzb2NpYXRpdml0eTogOC13YXkgU2V0LWFzc29jaWF0aXZlCgpI
+YW5kbGUgMHgwMDE2LCBETUkgdHlwZSA3LCAxOSBieXRlcwpDYWNoZSBJbmZvcm1hdGlvbgoJ
+U29ja2V0IERlc2lnbmF0aW9uOiBDUFUgSW50ZXJuYWwgTDEKCUNvbmZpZ3VyYXRpb246IEVu
+YWJsZWQsIE5vdCBTb2NrZXRlZCwgTGV2ZWwgMQoJT3BlcmF0aW9uYWwgTW9kZTogV3JpdGUg
+QmFjawoJTG9jYXRpb246IEludGVybmFsCglJbnN0YWxsZWQgU2l6ZTogMjU2IGtCCglNYXhp
+bXVtIFNpemU6IDI1NiBrQgoJU3VwcG9ydGVkIFNSQU0gVHlwZXM6CgkJVW5rbm93bgoJSW5z
+dGFsbGVkIFNSQU0gVHlwZTogVW5rbm93bgoJU3BlZWQ6IFVua25vd24KCUVycm9yIENvcnJl
+Y3Rpb24gVHlwZTogU2luZ2xlLWJpdCBFQ0MKCVN5c3RlbSBUeXBlOiBPdGhlcgoJQXNzb2Np
+YXRpdml0eTogOC13YXkgU2V0LWFzc29jaWF0aXZlCgpIYW5kbGUgMHgwMDE3LCBETUkgdHlw
+ZSA3LCAxOSBieXRlcwpDYWNoZSBJbmZvcm1hdGlvbgoJU29ja2V0IERlc2lnbmF0aW9uOiBD
+UFUgSW50ZXJuYWwgTDMKCUNvbmZpZ3VyYXRpb246IEVuYWJsZWQsIE5vdCBTb2NrZXRlZCwg
+TGV2ZWwgMwoJT3BlcmF0aW9uYWwgTW9kZTogV3JpdGUgQmFjawoJTG9jYXRpb246IEludGVy
+bmFsCglJbnN0YWxsZWQgU2l6ZTogNjE0NCBrQgoJTWF4aW11bSBTaXplOiA2MTQ0IGtCCglT
+dXBwb3J0ZWQgU1JBTSBUeXBlczoKCQlVbmtub3duCglJbnN0YWxsZWQgU1JBTSBUeXBlOiBV
+bmtub3duCglTcGVlZDogVW5rbm93bgoJRXJyb3IgQ29ycmVjdGlvbiBUeXBlOiBTaW5nbGUt
+Yml0IEVDQwoJU3lzdGVtIFR5cGU6IFVuaWZpZWQKCUFzc29jaWF0aXZpdHk6IDEyLXdheSBT
+ZXQtYXNzb2NpYXRpdmUKCkhhbmRsZSAweDAwMTgsIERNSSB0eXBlIDE2LCAyMyBieXRlcwpQ
+aHlzaWNhbCBNZW1vcnkgQXJyYXkKCUxvY2F0aW9uOiBTeXN0ZW0gQm9hcmQgT3IgTW90aGVy
+Ym9hcmQKCVVzZTogU3lzdGVtIE1lbW9yeQoJRXJyb3IgQ29ycmVjdGlvbiBUeXBlOiBOb25l
+CglNYXhpbXVtIENhcGFjaXR5OiAzMiBHQgoJRXJyb3IgSW5mb3JtYXRpb24gSGFuZGxlOiBO
+b3QgUHJvdmlkZWQKCU51bWJlciBPZiBEZXZpY2VzOiA0CgpIYW5kbGUgMHgwMDE5LCBETUkg
+dHlwZSAxNywgMzQgYnl0ZXMKTWVtb3J5IERldmljZQoJQXJyYXkgSGFuZGxlOiAweDAwMTgK
+CUVycm9yIEluZm9ybWF0aW9uIEhhbmRsZTogTm90IFByb3ZpZGVkCglUb3RhbCBXaWR0aDog
+NjQgYml0cwoJRGF0YSBXaWR0aDogNjQgYml0cwoJU2l6ZTogODE5MiBNQgoJRm9ybSBGYWN0
+b3I6IFNPRElNTQoJU2V0OiBOb25lCglMb2NhdG9yOiBDaGFubmVsQS1ESU1NMAoJQmFuayBM
+b2NhdG9yOiBCQU5LIDAKCVR5cGU6IEREUjMKCVR5cGUgRGV0YWlsOiBTeW5jaHJvbm91cwoJ
+U3BlZWQ6IDE2MDAgTUh6CglNYW51ZmFjdHVyZXI6IDEzMTUKCVNlcmlhbCBOdW1iZXI6IDEy
+MjMwMDAwCglBc3NldCBUYWc6IDk4NzY1NDMyMTAKCVBhcnQgTnVtYmVyOiBDVDEwMjQ2NEJG
+MTYwQi5DMTYKCVJhbms6IDIKCUNvbmZpZ3VyZWQgQ2xvY2sgU3BlZWQ6IDE2MDAgTUh6CgpI
+YW5kbGUgMHgwMDFBLCBETUkgdHlwZSAyMCwgMzUgYnl0ZXMKTWVtb3J5IERldmljZSBNYXBw
+ZWQgQWRkcmVzcwoJU3RhcnRpbmcgQWRkcmVzczogMHgwMDAwMDAwMDAwMAoJRW5kaW5nIEFk
+ZHJlc3M6IDB4MDAxRkZGRkZGRkYKCVJhbmdlIFNpemU6IDggR0IKCVBoeXNpY2FsIERldmlj
+ZSBIYW5kbGU6IDB4MDAxOQoJTWVtb3J5IEFycmF5IE1hcHBlZCBBZGRyZXNzIEhhbmRsZTog
+MHgwMDFFCglQYXJ0aXRpb24gUm93IFBvc2l0aW9uOiBVbmtub3duCglJbnRlcmxlYXZlIFBv
+c2l0aW9uOiBVbmtub3duCglJbnRlcmxlYXZlZCBEYXRhIERlcHRoOiBVbmtub3duCgpIYW5k
+bGUgMHgwMDFCLCBETUkgdHlwZSAxNywgMzQgYnl0ZXMKTWVtb3J5IERldmljZQoJQXJyYXkg
+SGFuZGxlOiAweDAwMTgKCUVycm9yIEluZm9ybWF0aW9uIEhhbmRsZTogTm90IFByb3ZpZGVk
+CglUb3RhbCBXaWR0aDogVW5rbm93bgoJRGF0YSBXaWR0aDogVW5rbm93bgoJU2l6ZTogTm8g
+TW9kdWxlIEluc3RhbGxlZAoJRm9ybSBGYWN0b3I6IERJTU0KCVNldDogTm9uZQoJTG9jYXRv
+cjogQ2hhbm5lbEEtRElNTTEKCUJhbmsgTG9jYXRvcjogQkFOSyAxCglUeXBlOiBVbmtub3du
+CglUeXBlIERldGFpbDogTm9uZQoJU3BlZWQ6IFVua25vd24KCU1hbnVmYWN0dXJlcjogW0Vt
+cHR5XQoJU2VyaWFsIE51bWJlcjogW0VtcHR5XQoJQXNzZXQgVGFnOiA5ODc2NTQzMjEwCglQ
+YXJ0IE51bWJlcjogW0VtcHR5XQoJUmFuazogVW5rbm93bgoJQ29uZmlndXJlZCBDbG9jayBT
+cGVlZDogVW5rbm93bgoKSGFuZGxlIDB4MDAxQywgRE1JIHR5cGUgMTcsIDM0IGJ5dGVzCk1l
+bW9yeSBEZXZpY2UKCUFycmF5IEhhbmRsZTogMHgwMDE4CglFcnJvciBJbmZvcm1hdGlvbiBI
+YW5kbGU6IE5vdCBQcm92aWRlZAoJVG90YWwgV2lkdGg6IFVua25vd24KCURhdGEgV2lkdGg6
+IFVua25vd24KCVNpemU6IE5vIE1vZHVsZSBJbnN0YWxsZWQKCUZvcm0gRmFjdG9yOiBESU1N
+CglTZXQ6IE5vbmUKCUxvY2F0b3I6IENoYW5uZWxCLURJTU0wCglCYW5rIExvY2F0b3I6IEJB
+TksgMgoJVHlwZTogVW5rbm93bgoJVHlwZSBEZXRhaWw6IE5vbmUKCVNwZWVkOiBVbmtub3du
+CglNYW51ZmFjdHVyZXI6IFtFbXB0eV0KCVNlcmlhbCBOdW1iZXI6IFtFbXB0eV0KCUFzc2V0
+IFRhZzogOTg3NjU0MzIxMAoJUGFydCBOdW1iZXI6IFtFbXB0eV0KCVJhbms6IFVua25vd24K
+CUNvbmZpZ3VyZWQgQ2xvY2sgU3BlZWQ6IFVua25vd24KCkhhbmRsZSAweDAwMUQsIERNSSB0
+eXBlIDE3LCAzNCBieXRlcwpNZW1vcnkgRGV2aWNlCglBcnJheSBIYW5kbGU6IDB4MDAxOAoJ
+RXJyb3IgSW5mb3JtYXRpb24gSGFuZGxlOiBOb3QgUHJvdmlkZWQKCVRvdGFsIFdpZHRoOiBV
+bmtub3duCglEYXRhIFdpZHRoOiBVbmtub3duCglTaXplOiBObyBNb2R1bGUgSW5zdGFsbGVk
+CglGb3JtIEZhY3RvcjogRElNTQoJU2V0OiBOb25lCglMb2NhdG9yOiBDaGFubmVsQi1ESU1N
+MQoJQmFuayBMb2NhdG9yOiBCQU5LIDMKCVR5cGU6IFVua25vd24KCVR5cGUgRGV0YWlsOiBO
+b25lCglTcGVlZDogVW5rbm93bgoJTWFudWZhY3R1cmVyOiBbRW1wdHldCglTZXJpYWwgTnVt
+YmVyOiBbRW1wdHldCglBc3NldCBUYWc6IDk4NzY1NDMyMTAKCVBhcnQgTnVtYmVyOiBbRW1w
+dHldCglSYW5rOiBVbmtub3duCglDb25maWd1cmVkIENsb2NrIFNwZWVkOiBVbmtub3duCgpI
+YW5kbGUgMHgwMDFFLCBETUkgdHlwZSAxOSwgMzEgYnl0ZXMKTWVtb3J5IEFycmF5IE1hcHBl
+ZCBBZGRyZXNzCglTdGFydGluZyBBZGRyZXNzOiAweDAwMDAwMDAwMDAwCglFbmRpbmcgQWRk
+cmVzczogMHgwMDFGRkZGRkZGRgoJUmFuZ2UgU2l6ZTogOCBHQgoJUGh5c2ljYWwgQXJyYXkg
+SGFuZGxlOiAweDAwMTgKCVBhcnRpdGlvbiBXaWR0aDogNAoKSGFuZGxlIDB4MDAyMiwgRE1J
+IHR5cGUgMTMxLCA2NCBieXRlcwpPRU0tc3BlY2lmaWMgVHlwZQoJSGVhZGVyIGFuZCBEYXRh
+OgoJCTgzIDQwIDIyIDAwIDMxIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCgkJ
+RjggMDAgNDkgOEMgMDAgMDAgMDAgMDAgMDEgMjAgMDAgMDAgMDAgMDAgMDkgMDAKCQk3QSAw
+NSAwRCAwMCAwMCAwMCAwMCAwMCBDOCAwMCBGRiBGRiAwMCAwMCAwMCAwMAoJCTAwIDAwIDAw
+IDAwIDY2IDAwIDAwIDAwIDc2IDUwIDcyIDZGIDAwIDAwIDAwIDAwCgpIYW5kbGUgMHgwMDIz
+LCBETUkgdHlwZSAxMywgMjIgYnl0ZXMKQklPUyBMYW5ndWFnZSBJbmZvcm1hdGlvbgoJTGFu
+Z3VhZ2UgRGVzY3JpcHRpb24gRm9ybWF0OiBMb25nCglJbnN0YWxsYWJsZSBMYW5ndWFnZXM6
+IDEKCQllbnxVU3xpc284ODU5LTEKCUN1cnJlbnRseSBJbnN0YWxsZWQgTGFuZ3VhZ2U6IGVu
+fFVTfGlzbzg4NTktMQoKSGFuZGxlIDB4MDAyNSwgRE1JIHR5cGUgMTI3LCA0IGJ5dGVzCkVu
+ZCBPZiBUYWJsZQoK
+--------------090609000505040404050000--
+
+--5AIjNWS1p9lAHhfAQbQCgspxeMVqIK6GG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBAgAGBQJUUnHlAAoJEJoGUs+0NxSGIMIIAJyvU6hxjj8Uz80A0c+iaP+l
+Two7bFGNUTzTG2N6OqcIVOYr/aNRRK6RfN9OBglT8jum2/jWb7p/4S9RoQTSiTXP
+X1lw/eO68kAMTfE8gIhQYpdvt2aX7sXjpQZobg1XolvV8Y2ab9riKMrca00YAhCU
+KNIwkOoRPw4PGKL+Ti8lhZLKoKegVlpqgGLBfhhB70KHeOkIzfaA4O5r+wGh7zX3
+feIErJEPMJtvoAULyJPvJFxZMvB1hcWddeEkNVbLgpbAS9kWuOYxLeVXYSs5tWHp
+lZ5pdmV/VfnjtaTSZteGhU+aeLkrleqB86LSz+lGVDE8x50bGwTaeyQ16Ueg8zw=
+=2dvl
+-----END PGP SIGNATURE-----
+
+--5AIjNWS1p9lAHhfAQbQCgspxeMVqIK6GG--

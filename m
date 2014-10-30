@@ -1,179 +1,287 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: synaptics - add support for ForcePads
-Date: Thu, 30 Oct 2014 10:38:55 +1000
-Message-ID: <20141030003855.GA15677@jelly.redhat.com>
-References: <20140908165520.GA35051@core.coreip.homeip.net>
- <540EAFD1.2040307@redhat.com>
- <20140909170636.GA28774@core.coreip.homeip.net>
- <540F7A19.3070704@synaptics.com>
- <20140909225725.GA18901@core.coreip.homeip.net>
+From: Luiz Carlos Ramos <lramos.prof@yahoo.com.br>
+Subject: Re: About Dell Inspiron 3442 touchpad
+Date: Thu, 30 Oct 2014 08:06:19 -0200
+Message-ID: <1414663579.647252.185040445.75974DFA@webmail.messagingengine.com>
+References: <1414544444.169720.184461733.4C6DF47C@webmail.messagingengine.com>
+ <207925.414b376d6a6b514141424539564642466841415469444f48593549@popretr.messagingengine.com>
+ <CAN+gG=Hke079n9KgiYQZVDfN9h=qqG7CEYkmXXpT8kw_AewTsQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:40323 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755630AbaJ3AjI (ORCPT
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49548 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758191AbaJ3KGU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Oct 2014 20:39:08 -0400
-Content-Disposition: inline
-In-Reply-To: <20140909225725.GA18901@core.coreip.homeip.net>
+	Thu, 30 Oct 2014 06:06:20 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+	by mailout.nyi.internal (Postfix) with ESMTP id B541B20BC5
+	for <linux-input@vger.kernel.org>; Thu, 30 Oct 2014 06:06:19 -0400 (EDT)
+In-Reply-To: <207925.414b376d6a6b514141424539564642466841415469444f48593549@popretr.messagingengine.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Tue, Sep 09, 2014 at 03:57:25PM -0700, Dmitry Torokhov wrote:
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi Benjamin,
+
+Thanks for the assistance and quick reply.
+
+On Tue, Oct 28, 2014, at 23:40, Benjamin Tissoires wrote:
+> Hi Luiz,
 > 
-> ForcePads are found on HP EliteBook 1040 laptops. They lack any kind of
-> physical buttons, instead they generate primary button click when user
-> presses somewhat hard on the surface of the touchpad. Unfortunately they
-> also report primary button click whenever there are 2 or more contacts
-> on the pad, messing up all multi-finger gestures (2-finger scrolling,
-> multi-finger tapping, etc). To cope with this behavior we introduce a
-> delay (currently 50 msecs) in reporting primary press in case more
-> contacts appear.
-
-can we assign INPUT_PROP_FORCEPAD to this? or PRESSUREPAD or something if
-we're worried about trademarks. This is something I'd like to know in
-userspace, we can then ignore clicks completely and do the rest ourselves. 
-
-Cheers,
-   Peter
-
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/mouse/synaptics.c |   68 ++++++++++++++++++++++++++++++---------
->  drivers/input/mouse/synaptics.h |   11 ++++++
->  2 files changed, 63 insertions(+), 16 deletions(-)
+> On Tue, Oct 28, 2014 at 9:00 PM, Luiz Carlos Ramos
+> <lramos.prof@yahoo.com.br> wrote:
+> > Hello,
+> >
+> > I'm trying to make a touchpad from a Dell Inspiron I14-3442 laptop work.
+> >
+> > Some details:
+> >
+> > - I'm using plain Slackware64 14.1, but raised the kernel to 3.16.3 for
+> > tests
+> >
+> > - xinput ignores the touchpad; it shows only a USB mouse/keyboard
+> > adapter and the laptop's keyboard:
+> >
+> > root@pace:/sys/bus/hid/devices# xinput
+> >  Virtual core pointer                            id=2    [master pointer
+> >   (3)]
+> >      Virtual core XTEST pointer                      id=4    [slave
+> >      pointer  (2)]
+> >      Generic USB K/B                                 id=12   [slave
+> >      pointer  (2)]
+> >   Virtual core keyboard                           id=3    [master
+> >   keyboard (2)]
+> >       Virtual core XTEST keyboard                     id=5    [slave
+> >       keyboard (3)]
+> >       Power Button                                    id=6    [slave
+> >       keyboard (3)]
+> >       Video Bus                                       id=7    [slave
+> >       keyboard (3)]
+> >       Power Button                                    id=9    [slave
+> >       keyboard (3)]
+> >       Sleep Button                                    id=10   [slave
+> >       keyboard (3)]
+> >       Integrated_Webcam_HD                            id=13   [slave
+> >       keyboard (3)]
+> >       AT Translated Set 2 keyboard                    id=14   [slave
+> >       keyboard (3)]
+> >       Dell WMI hotkeys                                id=15   [slave
+> >       keyboard (3)]
+> >       Video Bus                                       id=8    [slave
+> >       keyboard (3)]
+> >       Generic USB K/B                                 id=11   [slave
+> >       keyboard (3)]
+> >
+> > - it seems Ubuntu certified this machine (check
+> > http://www.ubuntu.com/certification/hardware/201402-14674/components/),
+> > but it assumes the touchpad is PS/2. I haven't found it as a PS/2 thing,
+> > even loading psmouse.ko, or doing other tricks
+> >
+> > - some articles lists some tips for making it work (like
+> > http://askubuntu.com/questions/134627/how-do-i-get-the-touchpad-settings-working-on-a-dell-xps-13-ultrabook,
+> > or https://bugzilla.redhat.com/show_bug.cgi?id=1048314#c2), but I read
+> > them carefully, made some tests, and they didn't work. One article says
+> > I could blacklist i2c_hid or like in order to make the bring up the
+> > touchpad in PS/2 mode, but I couldn't succeed doing so
+> >
+> > - at Dell's site, it is offered a driver for Ubuntu 12.04, but it's
+> > almost obsolete. It seems to be just merged into the kernel
+> >
+> > - from Windows 8.1, which runs in the same machine (dual boot), I
+> > concluded the proper way of making it work is to use HID over I2C. It
+> > seems that there are two components loaded; one I2CHID, and a Synaptics
+> > HID. This makes me hint it may be a Synaptics device
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index e8573c6..fd23181 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -629,10 +629,61 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->  			 ((buf[0] & 0x04) >> 1) |
->  			 ((buf[3] & 0x04) >> 2));
->  
-> +		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
-> +			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
-> +		    hw->w == 2) {
-> +			synaptics_parse_agm(buf, priv, hw);
-> +			return 1;
-> +		}
-> +
-> +		hw->x = (((buf[3] & 0x10) << 8) |
-> +			 ((buf[1] & 0x0f) << 8) |
-> +			 buf[4]);
-> +		hw->y = (((buf[3] & 0x20) << 7) |
-> +			 ((buf[1] & 0xf0) << 4) |
-> +			 buf[5]);
-> +		hw->z = buf[2];
-> +
->  		hw->left  = (buf[0] & 0x01) ? 1 : 0;
->  		hw->right = (buf[0] & 0x02) ? 1 : 0;
->  
-> -		if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
-> +		if (SYN_CAP_FORCEPAD(priv->ext_cap_0c)) {
-> +			/*
-> +			 * ForcePads, like Clickpads, use middle button
-> +			 * bits to report primary button clicks.
-> +			 * Unfortunately they report primary button not
-> +			 * only when user presses on the pad above certain
-> +			 * threshold, but also when there are more than one
-> +			 * finger on the touchpad, which interferes with
-> +			 * out multi-finger gestures.
-> +			 */
-> +			if (hw->z == 0) {
-> +				/* No contacts */
-> +				priv->press = priv->report_press = false;
-> +			} else if (hw->w >= 4 && ((buf[0] ^ buf[3]) & 0x01)) {
-> +				/*
-> +				 * Single-finger touch with pressure above
-> +				 * the threshold. If pressure stays long
-> +				 * enough, we'll start reporting primary
-> +				 * button. We rely on the device continuing
-> +				 * sending data even if finger does not
-> +				 * move.
-> +				 */
-> +				if  (!priv->press) {
-> +					priv->press_start = jiffies;
-> +					priv->press = true;
-> +				} else if (time_after(jiffies,
-> +						priv->press_start +
-> +							msecs_to_jiffies(50))) {
-> +					priv->report_press = true;
-> +				}
-> +			} else {
-> +				priv->press = false;
-> +			}
-> +
-> +			hw->left = priv->report_press;
-> +
-> +		} else if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
->  			/*
->  			 * Clickpad's button is transmitted as middle button,
->  			 * however, since it is primary button, we will report
-> @@ -651,21 +702,6 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->  			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
->  		}
->  
-> -		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
-> -			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
-> -		    hw->w == 2) {
-> -			synaptics_parse_agm(buf, priv, hw);
-> -			return 1;
-> -		}
-> -
-> -		hw->x = (((buf[3] & 0x10) << 8) |
-> -			 ((buf[1] & 0x0f) << 8) |
-> -			 buf[4]);
-> -		hw->y = (((buf[3] & 0x20) << 7) |
-> -			 ((buf[1] & 0xf0) << 4) |
-> -			 buf[5]);
-> -		hw->z = buf[2];
-> -
->  		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
->  		    ((buf[0] ^ buf[3]) & 0x02)) {
->  			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
-> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index e594af0..fb2e076 100644
-> --- a/drivers/input/mouse/synaptics.h
-> +++ b/drivers/input/mouse/synaptics.h
-> @@ -78,6 +78,11 @@
->   * 2	0x08	image sensor		image sensor tracks 5 fingers, but only
->   *					reports 2.
->   * 2	0x20	report min		query 0x0f gives min coord reported
-> + * 2	0x80	forcepad		forcepad is a variant of clickpad that
-> + *					does not have physical buttons but rather
-> + *					uses pressure above certain threshold to
-> + *					report primary clicks. Forcepads also have
-> + *					clickpad bit set.
->   */
->  #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
->  #define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
-> @@ -86,6 +91,7 @@
->  #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
->  #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
->  #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
-> +#define SYN_CAP_FORCEPAD(ex0c)		((ex0c) & 0x008000)
->  
->  /* synaptics modes query bits */
->  #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
-> @@ -177,6 +183,11 @@ struct synaptics_data {
->  	 */
->  	struct synaptics_hw_state agm;
->  	bool agm_pending;			/* new AGM packet received */
-> +
-> +	/* ForcePad handling */
-> +	unsigned long				press_start;
-> +	bool					press;
-> +	bool					report_press;
->  };
->  
->  void synaptics_module_init(void);
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Well, if this is a Synaptics HID over I2C device, it should be handled
+> by hid-rmi in recent kernels (or hid-multitouch but I would say
+> hid-rmi in your case).
+> Is the hid-rmi module loaded? Can we get a dmesg output so we can see
+> if there is any problem?
 > 
+> >
+> > - it seems there are two I2C busses in the machine. One is related to
+> > the Intel video graphics subsystem (i801). The other seems to be linked
+> > to the touchpad (i2c_designware_platform). I'm not sure that latest kmod
+> > (i2c_designware_platform) is the right one to be used in this case, but
+> > it appears to be working:
+> 
+> Yeah, i2c_designware_platform is pretty common for Haswell processors.
+> 
+> >
+> > root@pace:/sys/bus/i2c/devices# ls -l /sys/bus/i2c/devices
+> > total 0
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-0 ->
+> > ../../../devices/pci0000:00/INT33C2:00/i2c-0
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-1 ->
+> > ../../../devices/pci0000:00/INT33C3:00/i2c-1
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-2 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-2
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-3 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-3
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-4 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-4
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-5 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-5
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-6 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-6
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-7 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-7
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-8 ->
+> > ../../../devices/pci0000:00/0000:00:02.0/i2c-8
+> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-DLL0652:00 ->
+> > ../../../devices/pci0000:00/INT33C3:00/i2c-1/i2c-DLL0652:00
+> 
+> This one is the touchpad.
+> 
+> >
+> > root@pace:/sys/bus/i2c/devices# lsmod | grep i2c
+> > i2c_hid                10682  0
+> > hid                    94632  3 i2c_hid,hid_generic,usbhid
+> > i2c_dev                 5739  0
+> > i2c_designware_platform     3189  0
+> > i2c_i801               13732  0
+> > i2c_designware_core     6045  1 i2c_designware_platform
+> > i2c_algo_bit            5351  1 i915
+> > i2c_core               35216  11
+> > drm,i915,i2c_i801,i2c_dev,i2c_hid,i2c_designware_platform,drm_kms_helper,i2c_algo_bit,v4l2_common,synaptics_i2c,videodev
+> >
+> > - in the HID /sys directory, there are three devices. Two are related to
+> > a keyboard/mouse USB adapter. The third seems to be the linked to the
+> > touchpad:
+> >
+> > root@pace:/sys/bus/hid/devices# ls -l /sys/bus/hid/devices
+> > total 0
+> > lrwxrwxrwx 1 root root 0 Out 28 22:40 0003:13BA:0017.004F ->
+> > ../../../devices/pci0000:00/0000:00:1d.0/usb3/3-1/3-1.3/3-1.3:1.0/0003:13BA:0017.004F
+> > lrwxrwxrwx 1 root root 0 Out 28 22:40 0003:13BA:0017.0050 ->
+> > ../../../devices/pci0000:00/0000:00:1d.0/usb3/3-1/3-1.3/3-1.3:1.1/0003:13BA:0017.0050
+> > lrwxrwxrwx 1 root root 0 Out 28 22:40 0018:06CB:2985.0052 ->
+> > ../../../devices/pci0000:00/INT33C3:00/i2c-1/i2c-DLL0652:00/0018:06CB:2985.0052
+> 
+> This is the HID over I2C touchpad.
+> 
+> >
+> > - when I load the kernel module i2c-hid.ko (with debug=1), I read this
+> > in dmesg:
+> >
+> > [146172.568787] i2c_hid i2c-DLL0652:00: Fetching the HID descriptor
+> > [146172.568791] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=20 00
+> > [146172.574806] i2c_hid i2c-DLL0652:00: HID Descriptor: 1e 00 00 01 85
+> > 00 21 00 24 00 20 00 25 00 17 00 22 00 23 00 cb 06 85 29 00 00 00 00 00
+> > 00
+> > [146172.574845] i2c_hid i2c-DLL0652:00: entering i2c_hid_parse
+> > [146172.574847] i2c_hid i2c-DLL0652:00: i2c_hid_hwreset
+> > [146172.574849] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+> > [146172.574850] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+> > 08
+> > [146172.575436] i2c_hid i2c-DLL0652:00: resetting...
+> > [146172.575442] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+> > 01
+> > [146172.576113] i2c_hid i2c-DLL0652:00: __i2c_hid_command: waiting...
+> > [146172.577414] i2c_hid i2c-DLL0652:00: __i2c_hid_command: finished.
+> > [146172.577417] i2c_hid i2c-DLL0652:00: asking HID report descriptor
+> > [146172.577419] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=21 00
+> > [146172.581072] i2c_hid i2c-DLL0652:00: Report Descriptor: 05 01 09 02
+> > a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02
+> > 95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0 06 00
+> > ff 09 01 a1 01 85 09 09 02 15 00 26
+> > [146172.581126] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+> > [146172.581129] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 01
+> > 08
+> 
+> Everything is fine, this is the normal behavior while connecting a
+> i2c_hid device.
+> Normally, we should have then hid-rmi asking for more things and then
+> it will eventually set up the input device.
+> 
+> >
+> > I am aware this information probably is not sufficient to draw any
+> > conclusions, but I'd appreciate to hear from someone who knows i2c_hid
+> > in detail what steps I should take next. For me the last command timed
+> > out or got stuck, but I haven't checked the code to see if it's the
+> > case. Anyway, if it was a timeout case, it should have something logged
+> > after the time expired.
+> 
+> There is no answer from the device when a SET_POWER is emitted. So
+> this is not a timeout problem.
+> 
+> If hid-rmi is compiled and is not taking the device, we have a big
+> problem, but for now, the symptoms look like you do not have this
+> driver compiled and hid-generic does not bind the device because it
+> waits for hid-rmi to handle it.
+> 
+
+Well, I tried to insmod hid-rmi, and nothing special happened. Here is a
+dmesg output (relevant lines):
+
+[158885.774386] i2c_hid i2c-DLL0652:00: Fetching the HID descriptor
+[158885.774391] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=20 00
+[158885.785853] i2c_hid i2c-DLL0652:00: HID Descriptor: 1e 00 00 01 85
+00 21 00 24 00 20 00 25 00 17 00 22 00 23 00 cb 06 85 29 00 00 00 00 00
+00
+[158885.785924] i2c_hid i2c-DLL0652:00: entering i2c_hid_parse
+[158885.785926] i2c_hid i2c-DLL0652:00: i2c_hid_hwreset
+[158885.785927] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+[158885.785928] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+08
+[158885.786494] i2c_hid i2c-DLL0652:00: resetting...
+[158885.786497] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+01
+[158885.787285] i2c_hid i2c-DLL0652:00: __i2c_hid_command: waiting...
+[158885.788496] i2c_hid i2c-DLL0652:00: __i2c_hid_command: finished.
+[158885.788499] i2c_hid i2c-DLL0652:00: asking HID report descriptor
+[158885.788501] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=21 00
+[158885.792194] i2c_hid i2c-DLL0652:00: Report Descriptor: 05 01 09 02
+a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02
+95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0 06 00
+ff 09 01 a1 01 85 09 09 02 15 00 26
+[158885.792252] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+[158885.792254] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 01
+08
+
+I included lines like:
+
+printk(KERN_ERR "hid_rmi_probe(): called\n");
+printk(KERN_ERR "hid_rmi_probe(): ret=0\n");
+
+in the beginning and at the end of the routine rmi_probe(). These lines
+didn't 
+appear in dmesg (those pictured above). I don't know if "probe" is to be
+called 
+in this case, or not. Is there any other condition to make hid-rmi be
+"instantiated",
+I mean, other kmod to be loaded, or a special ioctl() coming to the hid
+from userland,
+or even echoing something to the "bind" file at /sys/...?
+
+Well, here's the "directory" /sys/bus/hid/drivers/hid-rmi:
+
+root@pace:/sys/bus/hid/drivers/hid-rmi# ls -l
+/sys/bus/hid/drivers/hid-rmi/
+total 0
+--w------- 1 root root 4096 Out 30 08:03 bind
+lrwxrwxrwx 1 root root    0 Out 30 08:03 module ->
+../../../../module/hid_rmi
+--w------- 1 root root 4096 Out 30 08:03 new_id
+--w------- 1 root root 4096 Out 30 07:48 uevent
+--w------- 1 root root 4096 Out 30 08:03 unbind
+
+One thing I didn't still did is to reboot the machine. I found it was
+not the case,
+but this type of action use to work a lot in IT/IS, right? :-) 
+
+> >
+> > I have some programming skills, and so if it's the case of applying any
+> > patches, or recompiling the kernel or any subsystem to make tests, I'm
+> > up to.
+> 
+> Cool, thanks.
+> 
+> Cheers,
+> Benjamin
+
+Many thanks, 
+
+Luiz

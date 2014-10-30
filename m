@@ -1,61 +1,179 @@
-From: bargains04894@gmail.com
-Subject: Fix Penguin Penalty 17th October2014 ( mail-archive.com )
-Date: Thu, 30 Oct 2014 01:56:15 +0530
-Message-ID: <54514d68.aa40460a.06c3.fffff131@mx.google.com>
-Reply-To: sexpert277@gmail.com
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: synaptics - add support for ForcePads
+Date: Thu, 30 Oct 2014 10:38:55 +1000
+Message-ID: <20141030003855.GA15677@jelly.redhat.com>
+References: <20140908165520.GA35051@core.coreip.homeip.net>
+ <540EAFD1.2040307@redhat.com>
+ <20140909170636.GA28774@core.coreip.homeip.net>
+ <540F7A19.3070704@synaptics.com>
+ <20140909225725.GA18901@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:56044 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756594AbaJ2U0R (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:40323 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755630AbaJ3AjI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Oct 2014 16:26:17 -0400
-Received: by mail-pa0-f67.google.com with SMTP id lj1so2450299pab.6
-        for <linux-input@vger.kernel.org>; Wed, 29 Oct 2014 13:26:17 -0700 (PDT)
-Received: from localhost.localdomain ([27.255.203.170])
-        by mx.google.com with ESMTPSA id p10sm5111641pds.37.2014.10.29.13.26.15
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Wed, 29 Oct 2014 13:26:16 -0700 (PDT)
+	Wed, 29 Oct 2014 20:39:08 -0400
+Content-Disposition: inline
+In-Reply-To: <20140909225725.GA18901@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
 
-Dear Sir
+On Tue, Sep 09, 2014 at 03:57:25PM -0700, Dmitry Torokhov wrote:
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> ForcePads are found on HP EliteBook 1040 laptops. They lack any kind of
+> physical buttons, instead they generate primary button click when user
+> presses somewhat hard on the surface of the touchpad. Unfortunately they
+> also report primary button click whenever there are 2 or more contacts
+> on the pad, messing up all multi-finger gestures (2-finger scrolling,
+> multi-finger tapping, etc). To cope with this behavior we introduce a
+> delay (currently 50 msecs) in reporting primary press in case more
+> contacts appear.
 
-Did your website get hit by Google Penguin update on October 17th 2014?=
- What basically is Google Penguin Update? It is actually a code name fo=
-r Google algorithm which aims at decreasing your websites search engine=
- rankings that violate Google=92s guidelines by using black hat SEO tec=
-hniques to rank your webpage by giving number of spammy links to the pa=
-ge.
-=20
-We are one of those few SEO companies that can help you avoid penalties=
- from Google Updates like Penguin and Panda. Our clients have survived =
-all the previous and present updates with ease. They have never been hi=
-t because we use 100% white hat SEO techniques to rank Webpages.  Simpl=
-e thing that we do to keep websites away from any Penguin or Panda pena=
-lties is follow Google guidelines and we give Google users the best ans=
-wers to their queries.
+can we assign INPUT_PROP_FORCEPAD to this? or PRESSUREPAD or something if
+we're worried about trademarks. This is something I'd like to know in
+userspace, we can then ignore clicks completely and do the rest ourselves. 
 
-If you are looking to increase the quality of your websites and to get =
-more targeted traffic or save your websites from these Google penalties=
- email us back with your interest.=20
+Cheers,
+   Peter
 
-We will be glad to serve you and help you grow your business.
-
-Regards
-
-Vince G
-
-SEO Manager ( TOB )
-B7 Green Avenue, Amritsar 143001 Punjab
-____________________________
-NO CLICK in the subject to STOP EMAILS
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/mouse/synaptics.c |   68 ++++++++++++++++++++++++++++++---------
+>  drivers/input/mouse/synaptics.h |   11 ++++++
+>  2 files changed, 63 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index e8573c6..fd23181 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -629,10 +629,61 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  			 ((buf[0] & 0x04) >> 1) |
+>  			 ((buf[3] & 0x04) >> 2));
+>  
+> +		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
+> +			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
+> +		    hw->w == 2) {
+> +			synaptics_parse_agm(buf, priv, hw);
+> +			return 1;
+> +		}
+> +
+> +		hw->x = (((buf[3] & 0x10) << 8) |
+> +			 ((buf[1] & 0x0f) << 8) |
+> +			 buf[4]);
+> +		hw->y = (((buf[3] & 0x20) << 7) |
+> +			 ((buf[1] & 0xf0) << 4) |
+> +			 buf[5]);
+> +		hw->z = buf[2];
+> +
+>  		hw->left  = (buf[0] & 0x01) ? 1 : 0;
+>  		hw->right = (buf[0] & 0x02) ? 1 : 0;
+>  
+> -		if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+> +		if (SYN_CAP_FORCEPAD(priv->ext_cap_0c)) {
+> +			/*
+> +			 * ForcePads, like Clickpads, use middle button
+> +			 * bits to report primary button clicks.
+> +			 * Unfortunately they report primary button not
+> +			 * only when user presses on the pad above certain
+> +			 * threshold, but also when there are more than one
+> +			 * finger on the touchpad, which interferes with
+> +			 * out multi-finger gestures.
+> +			 */
+> +			if (hw->z == 0) {
+> +				/* No contacts */
+> +				priv->press = priv->report_press = false;
+> +			} else if (hw->w >= 4 && ((buf[0] ^ buf[3]) & 0x01)) {
+> +				/*
+> +				 * Single-finger touch with pressure above
+> +				 * the threshold. If pressure stays long
+> +				 * enough, we'll start reporting primary
+> +				 * button. We rely on the device continuing
+> +				 * sending data even if finger does not
+> +				 * move.
+> +				 */
+> +				if  (!priv->press) {
+> +					priv->press_start = jiffies;
+> +					priv->press = true;
+> +				} else if (time_after(jiffies,
+> +						priv->press_start +
+> +							msecs_to_jiffies(50))) {
+> +					priv->report_press = true;
+> +				}
+> +			} else {
+> +				priv->press = false;
+> +			}
+> +
+> +			hw->left = priv->report_press;
+> +
+> +		} else if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
+>  			/*
+>  			 * Clickpad's button is transmitted as middle button,
+>  			 * however, since it is primary button, we will report
+> @@ -651,21 +702,6 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
+>  		}
+>  
+> -		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
+> -			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) &&
+> -		    hw->w == 2) {
+> -			synaptics_parse_agm(buf, priv, hw);
+> -			return 1;
+> -		}
+> -
+> -		hw->x = (((buf[3] & 0x10) << 8) |
+> -			 ((buf[1] & 0x0f) << 8) |
+> -			 buf[4]);
+> -		hw->y = (((buf[3] & 0x20) << 7) |
+> -			 ((buf[1] & 0xf0) << 4) |
+> -			 buf[5]);
+> -		hw->z = buf[2];
+> -
+>  		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
+>  		    ((buf[0] ^ buf[3]) & 0x02)) {
+>  			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+> index e594af0..fb2e076 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -78,6 +78,11 @@
+>   * 2	0x08	image sensor		image sensor tracks 5 fingers, but only
+>   *					reports 2.
+>   * 2	0x20	report min		query 0x0f gives min coord reported
+> + * 2	0x80	forcepad		forcepad is a variant of clickpad that
+> + *					does not have physical buttons but rather
+> + *					uses pressure above certain threshold to
+> + *					report primary clicks. Forcepads also have
+> + *					clickpad bit set.
+>   */
+>  #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
+>  #define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
+> @@ -86,6 +91,7 @@
+>  #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+>  #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+>  #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
+> +#define SYN_CAP_FORCEPAD(ex0c)		((ex0c) & 0x008000)
+>  
+>  /* synaptics modes query bits */
+>  #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
+> @@ -177,6 +183,11 @@ struct synaptics_data {
+>  	 */
+>  	struct synaptics_hw_state agm;
+>  	bool agm_pending;			/* new AGM packet received */
+> +
+> +	/* ForcePad handling */
+> +	unsigned long				press_start;
+> +	bool					press;
+> +	bool					report_press;
+>  };
+>  
+>  void synaptics_module_init(void);
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

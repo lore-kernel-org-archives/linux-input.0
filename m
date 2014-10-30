@@ -1,287 +1,550 @@
-From: Luiz Carlos Ramos <lramos.prof@yahoo.com.br>
-Subject: Re: About Dell Inspiron 3442 touchpad
-Date: Thu, 30 Oct 2014 08:06:19 -0200
-Message-ID: <1414663579.647252.185040445.75974DFA@webmail.messagingengine.com>
-References: <1414544444.169720.184461733.4C6DF47C@webmail.messagingengine.com>
- <207925.414b376d6a6b514141424539564642466841415469444f48593549@popretr.messagingengine.com>
- <CAN+gG=Hke079n9KgiYQZVDfN9h=qqG7CEYkmXXpT8kw_AewTsQ@mail.gmail.com>
+From: Mathias Gottschlag <mgottschlag@gmail.com>
+Subject: [PATCH v2] psmouse: Add some support for the FocalTech PS/2 protocol
+ extensions.
+Date: Thu, 30 Oct 2014 13:42:12 +0100
+Message-ID: <54523224.8090905@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49548 "EHLO
-	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758191AbaJ3KGU (ORCPT
+Received: from mail-lb0-f176.google.com ([209.85.217.176]:54750 "EHLO
+	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759471AbaJ3MmQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Oct 2014 06:06:20 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailout.nyi.internal (Postfix) with ESMTP id B541B20BC5
-	for <linux-input@vger.kernel.org>; Thu, 30 Oct 2014 06:06:19 -0400 (EDT)
-In-Reply-To: <207925.414b376d6a6b514141424539564642466841415469444f48593549@popretr.messagingengine.com>
+	Thu, 30 Oct 2014 08:42:16 -0400
+Received: by mail-lb0-f176.google.com with SMTP id z11so2284047lbi.35
+        for <linux-input@vger.kernel.org>; Thu, 30 Oct 2014 05:42:15 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Hi Benjamin,
+Most of the protocol for these touchpads has been reverse engineered. This
+commit adds a basic multitouch-capable driver.
 
-Thanks for the assistance and quick reply.
+A lot of the protocol is still unknown. Especially, we don't know how to
+identify the device yet apart from the PNP ID.
 
-On Tue, Oct 28, 2014, at 23:40, Benjamin Tissoires wrote:
-> Hi Luiz,
-> 
-> On Tue, Oct 28, 2014 at 9:00 PM, Luiz Carlos Ramos
-> <lramos.prof@yahoo.com.br> wrote:
-> > Hello,
-> >
-> > I'm trying to make a touchpad from a Dell Inspiron I14-3442 laptop work.
-> >
-> > Some details:
-> >
-> > - I'm using plain Slackware64 14.1, but raised the kernel to 3.16.3 for
-> > tests
-> >
-> > - xinput ignores the touchpad; it shows only a USB mouse/keyboard
-> > adapter and the laptop's keyboard:
-> >
-> > root@pace:/sys/bus/hid/devices# xinput
-> >  Virtual core pointer                            id=2    [master pointer
-> >   (3)]
-> >      Virtual core XTEST pointer                      id=4    [slave
-> >      pointer  (2)]
-> >      Generic USB K/B                                 id=12   [slave
-> >      pointer  (2)]
-> >   Virtual core keyboard                           id=3    [master
-> >   keyboard (2)]
-> >       Virtual core XTEST keyboard                     id=5    [slave
-> >       keyboard (3)]
-> >       Power Button                                    id=6    [slave
-> >       keyboard (3)]
-> >       Video Bus                                       id=7    [slave
-> >       keyboard (3)]
-> >       Power Button                                    id=9    [slave
-> >       keyboard (3)]
-> >       Sleep Button                                    id=10   [slave
-> >       keyboard (3)]
-> >       Integrated_Webcam_HD                            id=13   [slave
-> >       keyboard (3)]
-> >       AT Translated Set 2 keyboard                    id=14   [slave
-> >       keyboard (3)]
-> >       Dell WMI hotkeys                                id=15   [slave
-> >       keyboard (3)]
-> >       Video Bus                                       id=8    [slave
-> >       keyboard (3)]
-> >       Generic USB K/B                                 id=11   [slave
-> >       keyboard (3)]
-> >
-> > - it seems Ubuntu certified this machine (check
-> > http://www.ubuntu.com/certification/hardware/201402-14674/components/),
-> > but it assumes the touchpad is PS/2. I haven't found it as a PS/2 thing,
-> > even loading psmouse.ko, or doing other tricks
-> >
-> > - some articles lists some tips for making it work (like
-> > http://askubuntu.com/questions/134627/how-do-i-get-the-touchpad-settings-working-on-a-dell-xps-13-ultrabook,
-> > or https://bugzilla.redhat.com/show_bug.cgi?id=1048314#c2), but I read
-> > them carefully, made some tests, and they didn't work. One article says
-> > I could blacklist i2c_hid or like in order to make the bring up the
-> > touchpad in PS/2 mode, but I couldn't succeed doing so
-> >
-> > - at Dell's site, it is offered a driver for Ubuntu 12.04, but it's
-> > almost obsolete. It seems to be just merged into the kernel
-> >
-> > - from Windows 8.1, which runs in the same machine (dual boot), I
-> > concluded the proper way of making it work is to use HID over I2C. It
-> > seems that there are two components loaded; one I2CHID, and a Synaptics
-> > HID. This makes me hint it may be a Synaptics device
-> 
-> Well, if this is a Synaptics HID over I2C device, it should be handled
-> by hid-rmi in recent kernels (or hid-multitouch but I would say
-> hid-rmi in your case).
-> Is the hid-rmi module loaded? Can we get a dmesg output so we can see
-> if there is any problem?
-> 
-> >
-> > - it seems there are two I2C busses in the machine. One is related to
-> > the Intel video graphics subsystem (i801). The other seems to be linked
-> > to the touchpad (i2c_designware_platform). I'm not sure that latest kmod
-> > (i2c_designware_platform) is the right one to be used in this case, but
-> > it appears to be working:
-> 
-> Yeah, i2c_designware_platform is pretty common for Haswell processors.
-> 
-> >
-> > root@pace:/sys/bus/i2c/devices# ls -l /sys/bus/i2c/devices
-> > total 0
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-0 ->
-> > ../../../devices/pci0000:00/INT33C2:00/i2c-0
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-1 ->
-> > ../../../devices/pci0000:00/INT33C3:00/i2c-1
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-2 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-2
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-3 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-3
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-4 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-4
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-5 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-5
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-6 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-6
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-7 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-7
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-8 ->
-> > ../../../devices/pci0000:00/0000:00:02.0/i2c-8
-> > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-DLL0652:00 ->
-> > ../../../devices/pci0000:00/INT33C3:00/i2c-1/i2c-DLL0652:00
-> 
-> This one is the touchpad.
-> 
-> >
-> > root@pace:/sys/bus/i2c/devices# lsmod | grep i2c
-> > i2c_hid                10682  0
-> > hid                    94632  3 i2c_hid,hid_generic,usbhid
-> > i2c_dev                 5739  0
-> > i2c_designware_platform     3189  0
-> > i2c_i801               13732  0
-> > i2c_designware_core     6045  1 i2c_designware_platform
-> > i2c_algo_bit            5351  1 i915
-> > i2c_core               35216  11
-> > drm,i915,i2c_i801,i2c_dev,i2c_hid,i2c_designware_platform,drm_kms_helper,i2c_algo_bit,v4l2_common,synaptics_i2c,videodev
-> >
-> > - in the HID /sys directory, there are three devices. Two are related to
-> > a keyboard/mouse USB adapter. The third seems to be the linked to the
-> > touchpad:
-> >
-> > root@pace:/sys/bus/hid/devices# ls -l /sys/bus/hid/devices
-> > total 0
-> > lrwxrwxrwx 1 root root 0 Out 28 22:40 0003:13BA:0017.004F ->
-> > ../../../devices/pci0000:00/0000:00:1d.0/usb3/3-1/3-1.3/3-1.3:1.0/0003:13BA:0017.004F
-> > lrwxrwxrwx 1 root root 0 Out 28 22:40 0003:13BA:0017.0050 ->
-> > ../../../devices/pci0000:00/0000:00:1d.0/usb3/3-1/3-1.3/3-1.3:1.1/0003:13BA:0017.0050
-> > lrwxrwxrwx 1 root root 0 Out 28 22:40 0018:06CB:2985.0052 ->
-> > ../../../devices/pci0000:00/INT33C3:00/i2c-1/i2c-DLL0652:00/0018:06CB:2985.0052
-> 
-> This is the HID over I2C touchpad.
-> 
-> >
-> > - when I load the kernel module i2c-hid.ko (with debug=1), I read this
-> > in dmesg:
-> >
-> > [146172.568787] i2c_hid i2c-DLL0652:00: Fetching the HID descriptor
-> > [146172.568791] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=20 00
-> > [146172.574806] i2c_hid i2c-DLL0652:00: HID Descriptor: 1e 00 00 01 85
-> > 00 21 00 24 00 20 00 25 00 17 00 22 00 23 00 cb 06 85 29 00 00 00 00 00
-> > 00
-> > [146172.574845] i2c_hid i2c-DLL0652:00: entering i2c_hid_parse
-> > [146172.574847] i2c_hid i2c-DLL0652:00: i2c_hid_hwreset
-> > [146172.574849] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
-> > [146172.574850] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
-> > 08
-> > [146172.575436] i2c_hid i2c-DLL0652:00: resetting...
-> > [146172.575442] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
-> > 01
-> > [146172.576113] i2c_hid i2c-DLL0652:00: __i2c_hid_command: waiting...
-> > [146172.577414] i2c_hid i2c-DLL0652:00: __i2c_hid_command: finished.
-> > [146172.577417] i2c_hid i2c-DLL0652:00: asking HID report descriptor
-> > [146172.577419] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=21 00
-> > [146172.581072] i2c_hid i2c-DLL0652:00: Report Descriptor: 05 01 09 02
-> > a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02
-> > 95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0 06 00
-> > ff 09 01 a1 01 85 09 09 02 15 00 26
-> > [146172.581126] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
-> > [146172.581129] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 01
-> > 08
-> 
-> Everything is fine, this is the normal behavior while connecting a
-> i2c_hid device.
-> Normally, we should have then hid-rmi asking for more things and then
-> it will eventually set up the input device.
-> 
-> >
-> > I am aware this information probably is not sufficient to draw any
-> > conclusions, but I'd appreciate to hear from someone who knows i2c_hid
-> > in detail what steps I should take next. For me the last command timed
-> > out or got stuck, but I haven't checked the code to see if it's the
-> > case. Anyway, if it was a timeout case, it should have something logged
-> > after the time expired.
-> 
-> There is no answer from the device when a SET_POWER is emitted. So
-> this is not a timeout problem.
-> 
-> If hid-rmi is compiled and is not taking the device, we have a big
-> problem, but for now, the symptoms look like you do not have this
-> driver compiled and hid-generic does not bind the device because it
-> waits for hid-rmi to handle it.
-> 
+The previous workaround for these devices has been left in place in case
+the driver is not compiled into the kernel or in case some other device
+with the same PNP ID is not recognized by the driver yet still has the
+same
+problems with the device probing code.
+---
 
-Well, I tried to insmod hid-rmi, and nothing special happened. Here is a
-dmesg output (relevant lines):
+Thanks for the first round of review, I hope I addressed all comments.
+Changes compared to the last version:
+- The detection code does not compare all registers anymore.
+- The driver now reads the size of the touchpad during initialization.
+This should add support for Asus X450JN, where the touchpad is a bit
+wider.
+- set_input_params has been simplified.
+- fingers are now valid=0 when the touchpad reports a large object.
 
-[158885.774386] i2c_hid i2c-DLL0652:00: Fetching the HID descriptor
-[158885.774391] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=20 00
-[158885.785853] i2c_hid i2c-DLL0652:00: HID Descriptor: 1e 00 00 01 85
-00 21 00 24 00 20 00 25 00 17 00 22 00 23 00 cb 06 85 29 00 00 00 00 00
-00
-[158885.785924] i2c_hid i2c-DLL0652:00: entering i2c_hid_parse
-[158885.785926] i2c_hid i2c-DLL0652:00: i2c_hid_hwreset
-[158885.785927] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
-[158885.785928] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
-08
-[158885.786494] i2c_hid i2c-DLL0652:00: resetting...
-[158885.786497] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
-01
-[158885.787285] i2c_hid i2c-DLL0652:00: __i2c_hid_command: waiting...
-[158885.788496] i2c_hid i2c-DLL0652:00: __i2c_hid_command: finished.
-[158885.788499] i2c_hid i2c-DLL0652:00: asking HID report descriptor
-[158885.788501] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=21 00
-[158885.792194] i2c_hid i2c-DLL0652:00: Report Descriptor: 05 01 09 02
-a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02
-95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0 06 00
-ff 09 01 a1 01 85 09 09 02 15 00 26
-[158885.792252] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
-[158885.792254] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 01
-08
+ drivers/input/mouse/Kconfig        |  10 ++
+ drivers/input/mouse/focaltech.c    | 293
+++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/focaltech.h    |  60 ++++++++
+ drivers/input/mouse/psmouse-base.c |  32 ++--
+ drivers/input/mouse/psmouse.h      |   1 +
+ 5 files changed, 379 insertions(+), 17 deletions(-)
 
-I included lines like:
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 366fc7a..db973e5 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -146,6 +146,16 @@ config MOUSE_PS2_OLPC
+  	  If unsure, say N.
+ +config MOUSE_PS2_FOCALTECH
++	bool "FocalTech PS/2 mouse protocol extension" if EXPERT
++	default y
++	depends on MOUSE_PS2
++	help
++	  Say Y here if you have a FocalTech PS/2 TouchPad connected to
++	  your system.
++
++	  If unsure, say Y.
++
+ config MOUSE_SERIAL
+ 	tristate "Serial mouse"
+ 	select SERIO
+diff --git a/drivers/input/mouse/focaltech.c
+b/drivers/input/mouse/focaltech.c
+index f4d657e..974007e 100644
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -2,6 +2,7 @@
+  * Focaltech TouchPad PS/2 mouse driver
+  *
+  * Copyright (c) 2014 Red Hat Inc.
++ * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -13,15 +14,14 @@
+  * Hans de Goede <hdegoede@redhat.com>
+  */
+ -/*
+- * The Focaltech PS/2 touchpad protocol is unknown. This drivers
+deals with
+- * detection only, to avoid further detection attempts confusing the
+touchpad
+- * this way it at least works in PS/2 mouse compatibility mode.
+- */
+  #include <linux/device.h>
+ #include <linux/libps2.h>
++#include <linux/input/mt.h>
++#include <linux/serio.h>
++#include <linux/slab.h>
+ #include "psmouse.h"
++#include "focaltech.h"
+  static const char * const focaltech_pnp_ids[] = {
+ 	"FLT0101",
+@@ -30,6 +30,12 @@ static const char * const focaltech_pnp_ids[] = {
+ 	NULL
+ };
+ +/*
++ * Even if the kernel is built without support for Focaltech PS/2
+touchpads (or
++ * when the real driver fails to recognize the device), we still have
+to detect
++ * them in order to avoid further detection attempts confusing the
+touchpad.
++ * This way it at least works in PS/2 mouse compatibility mode.
++ */
+ int focaltech_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
+@@ -37,16 +43,289 @@ int focaltech_detect(struct psmouse *psmouse,
+bool set_properties)
+  	if (set_properties) {
+ 		psmouse->vendor = "FocalTech";
+-		psmouse->name = "FocalTech Touchpad in mouse emulation mode";
++		psmouse->name = "FocalTech Touchpad";
+ 	}
+  	return 0;
+ }
+ -int focaltech_init(struct psmouse *psmouse)
++static void focaltech_reset(struct psmouse *psmouse)
+ {
+ 	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+ 	psmouse_reset(psmouse);
++}
++
++#ifdef CONFIG_MOUSE_PS2_FOCALTECH
++
++static void focaltech_report_state(struct psmouse *psmouse)
++{
++	int i;
++	struct focaltech_data *priv = psmouse->private;
++	struct focaltech_hw_state *state = &priv->state;
++	struct input_dev *dev = psmouse->dev;
++	int finger_count = 0;
++
++	for (i = 0; i < FOC_MAX_FINGERS; i++) {
++		struct focaltech_finger_state *finger = &state->fingers[i];
++		int active = finger->active && finger->valid;
++		input_mt_slot(dev, i);
++		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
++		if (active) {
++			finger_count++;
++			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
++			input_report_abs(dev, ABS_MT_POSITION_Y,
++					focaltech_invert_y(finger->y));
++		}
++	}
++	input_mt_report_pointer_emulation(dev, finger_count);
++
++	input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
++	input_sync(psmouse->dev);
++}
++
++static void process_touch_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	int i;
++	unsigned char fingers = packet[1];
++
++	state->pressed = (packet[0] >> 4) & 1;
++	/* the second byte contains a bitmap of all fingers touching the pad */
++	for (i = 0; i < FOC_MAX_FINGERS; i++) {
++		if ((fingers & 0x1) && !state->fingers[i].active) {
++			/* we do not have a valid position for the finger yet */
++			state->fingers[i].valid = 0;
++		}
++		state->fingers[i].active = fingers & 0x1;
++		fingers >>= 1;
++	}
++}
++
++static void process_abs_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	unsigned int finger = (packet[1] >> 4) - 1;
++
++	state->pressed = (packet[0] >> 4) & 1;
++	if (finger >= FOC_MAX_FINGERS)
++		return;
++	/*
++	 * packet[5] contains some kind of tool size in the most significant
++	 * nibble. 0xff is a special value (latching) that signals a large
++	 * contact area.
++	 */
++	if (packet[5] == 0xff) {
++		state->fingers[finger].valid = 0;
++		return;
++	}
++	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
++	state->fingers[finger].y = (packet[3] << 8) | packet[4];
++	state->fingers[finger].valid = 1;
++}
++static void process_rel_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	int finger1 = ((packet[0] >> 4) & 0x7) - 1;
++	int finger2 = ((packet[3] >> 4) & 0x7) - 1;
++
++	state->pressed = packet[0] >> 7;
++	if (finger1 < FOC_MAX_FINGERS) {
++		state->fingers[finger1].x += (char)packet[1];
++		state->fingers[finger1].y += (char)packet[2];
++	}
++	/*
++	 * If there is an odd number of fingers, the last relative packet only
++	 * contains one finger. In this case, the second finger index in the
++	 * packet is 0 (we subtract 1 in the lines above to create array
++	 * indices).
++	 */
++	if (finger2 != -1 && finger2 < FOC_MAX_FINGERS) {
++		state->fingers[finger2].x += (char)packet[4];
++		state->fingers[finger2].y += (char)packet[5];
++	}
++}
++
++static void focaltech_process_packet(struct psmouse *psmouse)
++{
++	struct focaltech_data *priv = psmouse->private;
++	unsigned char *packet = psmouse->packet;
++
++	switch (packet[0] & 0xf) {
++	case FOC_TOUCH:
++		process_touch_packet(&priv->state, packet);
++		break;
++	case FOC_ABS:
++		process_abs_packet(&priv->state, packet);
++		break;
++	case FOC_REL:
++		process_rel_packet(&priv->state, packet);
++		break;
++	default:
++		psmouse_err(psmouse, "Unknown packet type: %02x", packet[0]);
++		break;
++	}
++
++	focaltech_report_state(psmouse);
++}
++
++static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
++{
++	if (psmouse->pktcnt >= 6) { /* Full packet received */
++		focaltech_process_packet(psmouse);
++		return PSMOUSE_FULL_PACKET;
++	}
++	/*
++	 * we might want to do some validation of the data here, but we do not
++	 * know the protocoll well enough
++	 */
++	return PSMOUSE_GOOD_DATA;
++}
++
++static int focaltech_switch_protocol(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	unsigned char param[3];
++
++	param[0] = 0;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	param[0] = 1;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
++		return -EIO;
++
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_ENABLE))
++		return -EIO;
+  	return 0;
+ }
++
++static void focaltech_disconnect(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++	kfree(psmouse->private);
++	psmouse->private = NULL;
++}
++
++static int focaltech_reconnect(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++	if (focaltech_switch_protocol(psmouse)) {
++		psmouse_err(psmouse,
++			    "Unable to initialize the device.");
++		return -1;
++	}
++	return 0;
++}
++
++static void set_input_params(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct focaltech_data *priv = psmouse->private;
++
++	__set_bit(EV_ABS, dev->evbit);
++	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
++	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
++	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
++	__clear_bit(EV_REL, dev->evbit);
++	__clear_bit(REL_X, dev->relbit);
++	__clear_bit(REL_Y, dev->relbit);
++	__clear_bit(BTN_RIGHT, dev->keybit);
++	__clear_bit(BTN_MIDDLE, dev->keybit);
++	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
++}
++
++static int focaltech_read_register(struct ps2dev *ps2dev, int reg,
++		unsigned char *param)
++{
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
++		return -1;
++	param[0] = 0;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	param[0] = reg;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -1;
++	return 0;
++}
++
++static int focaltech_read_size(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	struct focaltech_data *priv = psmouse->private;
++	char param[3];
++
++	if (focaltech_read_register(ps2dev, 2, param))
++		return -EIO;
++	/* not sure whether this is 100% correct */
++	priv->x_max = (unsigned char)param[1] * 128;
++	priv->y_max = (unsigned char)param[2] * 128;
++
++	return 0;
++}
++int focaltech_init(struct psmouse *psmouse)
++{
++	struct focaltech_data *priv;
++
++	focaltech_reset(psmouse);
++	if (focaltech_read_size(psmouse)) {
++		focaltech_reset(psmouse);
++		psmouse_err(psmouse,
++			    "Unable to read the size of the touchpad.");
++		return -ENOSYS;
++	}
++	if (focaltech_switch_protocol(psmouse)) {
++		focaltech_reset(psmouse);
++		psmouse_err(psmouse,
++			    "Unable to initialize the device.");
++		return -ENOSYS;
++	}
++
++	psmouse->private = priv = kzalloc(sizeof(struct focaltech_data),
+GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	set_input_params(psmouse);
++
++	psmouse->protocol_handler = focaltech_process_byte;
++	psmouse->pktsize = 6;
++	psmouse->disconnect = focaltech_disconnect;
++	psmouse->reconnect = focaltech_reconnect;
++	psmouse->cleanup = focaltech_reset;
++	/* resync is not supported yet */
++	psmouse->resync_time = 0;
++
++	return 0;
++}
++
++bool focaltech_supported(void)
++{
++	return true;
++}
++
++#else /* CONFIG_MOUSE_PS2_FOCALTECH */
++
++int focaltech_init(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++
++	return 0;
++}
++
++bool focaltech_supported(void)
++{
++	return false;
++}
++
++#endif /* CONFIG_MOUSE_PS2_FOCALTECH */
+diff --git a/drivers/input/mouse/focaltech.h
+b/drivers/input/mouse/focaltech.h
+index 498650c..68c5cfc 100644
+--- a/drivers/input/mouse/focaltech.h
++++ b/drivers/input/mouse/focaltech.h
+@@ -2,6 +2,7 @@
+  * Focaltech TouchPad PS/2 mouse driver
+  *
+  * Copyright (c) 2014 Red Hat Inc.
++ * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -16,7 +17,66 @@
+ #ifndef _FOCALTECH_H
+ #define _FOCALTECH_H
+ +/*
++ * Packet types - the numbers are not consecutive, so we might be missing
++ * something here.
++ */
++#define FOC_TOUCH 0x3 /* bitmap of active fingers */
++#define FOC_ABS 0x6 /* absolute position of one finger */
++#define FOC_REL 0x9 /* relative position of 1-2 fingers */
++
++#define FOC_MAX_FINGERS 5
++
++#define FOC_MAX_X 2431
++#define FOC_MAX_Y 1663
++
++static inline int focaltech_invert_y(int y)
++{
++	return FOC_MAX_Y - y;
++}
++
++/*
++ * Current state of a single finger on the touchpad.
++ */
++struct focaltech_finger_state {
++	/* the touchpad has generated a touch event for the finger */
++	bool active;
++	/*
++	 * The touchpad has sent position data for the finger. Touch event
++	 * packages reset this flag for new fingers, and there is a time
++	 * between the first touch event and the following absolute position
++	 * packet for the finger where the touchpad has declared the finger to
++	 * be valid, but we do not have any valid position yet.
++	 */
++	bool valid;
++	/* absolute position (from the bottom left corner) of the finger */
++	unsigned int x;
++	unsigned int y;
++};
++
++/*
++ * Description of the current state of the touchpad hardware.
++ */
++struct focaltech_hw_state {
++	/*
++	 * The touchpad tracks the positions of the fingers for us, the array
++	 * indices correspond to the finger indices returned in the report
++	 * packages.
++	 */
++	struct focaltech_finger_state fingers[FOC_MAX_FINGERS];
++	/*
++	 * True if the clickpad has been pressed.
++	 */
++	bool pressed;
++};
++
++struct focaltech_data {
++	unsigned int x_max, y_max;
++	struct focaltech_hw_state state;
++};
++
+ int focaltech_detect(struct psmouse *psmouse, bool set_properties);
+ int focaltech_init(struct psmouse *psmouse);
++bool focaltech_supported(void);
+  #endif
+diff --git a/drivers/input/mouse/psmouse-base.c
+b/drivers/input/mouse/psmouse-base.c
+index 26994f6..4a9de33 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -725,16 +725,19 @@ static int psmouse_extensions(struct psmouse
+*psmouse,
+  /* Always check for focaltech, this is safe as it uses pnp-id
+matching */
+ 	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
+-		if (!set_properties || focaltech_init(psmouse) == 0) {
+-			/*
+-			 * Not supported yet, use bare protocol.
+-			 * Note that we need to also restrict
+-			 * psmouse_max_proto so that psmouse_initialize()
+-			 * does not try to reset rate and resolution,
+-			 * because even that upsets the device.
+-			 */
+-			psmouse_max_proto = PSMOUSE_PS2;
+-			return PSMOUSE_PS2;
++		if (max_proto > PSMOUSE_IMEX) {
++			if (!set_properties || focaltech_init(psmouse) == 0) {
++				if (focaltech_supported())
++					return PSMOUSE_FOCALTECH;
++				/*
++				 * Note that we need to also restrict
++				 * psmouse_max_proto so that psmouse_initialize()
++				 * does not try to reset rate and resolution,
++				 * because even that upsets the device.
++				 */
++				psmouse_max_proto = PSMOUSE_PS2;
++				return PSMOUSE_PS2;
++			}
+ 		}
+ 	}
+ @@ -1063,6 +1066,15 @@ static const struct psmouse_protocol
+psmouse_protocols[] = {
+ 		.alias		= "cortps",
+ 		.detect		= cortron_detect,
+ 	},
++#ifdef CONFIG_MOUSE_PS2_FOCALTECH
++	{
++		.type		= PSMOUSE_FOCALTECH,
++		.name		= "FocalTechPS/2",
++		.alias		= "focaltech",
++		.detect		= focaltech_detect,
++		.init		= focaltech_init,
++	},
++#endif
+ 	{
+ 		.type		= PSMOUSE_AUTO,
+ 		.name		= "auto",
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index f4cf664..c2ff137 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -96,6 +96,7 @@ enum psmouse_type {
+ 	PSMOUSE_FSP,
+ 	PSMOUSE_SYNAPTICS_RELATIVE,
+ 	PSMOUSE_CYPRESS,
++	PSMOUSE_FOCALTECH,
+ 	PSMOUSE_AUTO		/* This one should always be last */
+ };
+ -- 1.9.1
 
-printk(KERN_ERR "hid_rmi_probe(): called\n");
-printk(KERN_ERR "hid_rmi_probe(): ret=0\n");
-
-in the beginning and at the end of the routine rmi_probe(). These lines
-didn't 
-appear in dmesg (those pictured above). I don't know if "probe" is to be
-called 
-in this case, or not. Is there any other condition to make hid-rmi be
-"instantiated",
-I mean, other kmod to be loaded, or a special ioctl() coming to the hid
-from userland,
-or even echoing something to the "bind" file at /sys/...?
-
-Well, here's the "directory" /sys/bus/hid/drivers/hid-rmi:
-
-root@pace:/sys/bus/hid/drivers/hid-rmi# ls -l
-/sys/bus/hid/drivers/hid-rmi/
-total 0
---w------- 1 root root 4096 Out 30 08:03 bind
-lrwxrwxrwx 1 root root    0 Out 30 08:03 module ->
-../../../../module/hid_rmi
---w------- 1 root root 4096 Out 30 08:03 new_id
---w------- 1 root root 4096 Out 30 07:48 uevent
---w------- 1 root root 4096 Out 30 08:03 unbind
-
-One thing I didn't still did is to reboot the machine. I found it was
-not the case,
-but this type of action use to work a lot in IT/IS, right? :-) 
-
-> >
-> > I have some programming skills, and so if it's the case of applying any
-> > patches, or recompiling the kernel or any subsystem to make tests, I'm
-> > up to.
-> 
-> Cool, thanks.
-> 
-> Cheers,
-> Benjamin
-
-Many thanks, 
-
-Luiz

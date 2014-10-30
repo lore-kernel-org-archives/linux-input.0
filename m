@@ -1,590 +1,564 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/2] Input: synaptics: Use in-kernel tracking for reporting mt data
-Date: Thu, 30 Oct 2014 14:33:06 -0400
-Message-ID: <1414693987-6059-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Mathias Gottschlag <mgottschlag@gmail.com>
+Subject: [PATCH v3] psmouse: Add some support for the FocalTech PS/2 protocol
+ extensions.
+Date: Thu, 30 Oct 2014 19:33:42 +0100
+Message-ID: <54528486.6060502@gmail.com>
+References: <54523224.8090905@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f51.google.com ([209.85.192.51]:44902 "EHLO
+	mail-qg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760725AbaJ3Sdr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Oct 2014 14:33:47 -0400
+Received: by mail-qg0-f51.google.com with SMTP id j5so4344835qga.38
+        for <linux-input@vger.kernel.org>; Thu, 30 Oct 2014 11:33:46 -0700 (PDT)
+In-Reply-To: <54523224.8090905@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-The current code tries to consider all states and transitions to properly
-detect which finger is attached to which slot. The code is quite huge
-and difficult to read.
-If the sensor manages to group the touch points but is not reliable in
-giving tracking ids, we can simply use the kernel tracking method. Note
-that it is already used by Cr-48 Chromebooks.
+Most of the protocol for these touchpads has been reverse engineered. This
+commit adds a basic multitouch-capable driver.
 
-Incidentaly, this fixes a bug reported by Peter Hutterer:
-"""
-on the Lenovo T440, run:
-evemu-record /dev/input/event4 | grep BTN_
+A lot of the protocol is still unknown. Especially, we don't know how to
+identify the device yet apart from the PNP ID.
 
-then put one, two, three, two fingers down
-when you go from 3 to 2 fingers the driver sends a spurious BTN_TOUCH 0
-event:
-
-E: 0.000000 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
-E: 0.000000 0001 0145 0001      # EV_KEY / BTN_TOOL_FINGER      1
-E: 0.770008 0001 0145 0000      # EV_KEY / BTN_TOOL_FINGER      0
-E: 0.770008 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
-E: 1.924716 0001 014d 0000      # EV_KEY / BTN_TOOL_DOUBLETAP   0
-E: 1.924716 0001 014e 0001      # EV_KEY / BTN_TOOL_TRIPLETAP   1
-
-.. changing from 3 to 2 fingers now
-
-E: 3.152641 0001 014a 0000      # EV_KEY / BTN_TOUCH            0
-E: 3.152641 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
-E: 3.152641 0001 014e 0000      # EV_KEY / BTN_TOOL_TRIPLETAP   0
-E: 3.176948 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
-
-quick look in the kernel shows it's caused by hw.z going to 0 for a packet,
-so probably a firmware bug. either way, it makes it hard to track BTN_TOUCH
-as signal that at least one finger is down.
-"""
-
-The in-kernel tracking is enough to remove this spurious BTN_TOUCH 0.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+The previous workaround for these devices has been left in place in case
+the driver is not compiled into the kernel or in case some other device
+with the same PNP ID is not recognized by the driver yet still has the
+same
+problems with the device probing code.
 ---
 
-Hi Dmitry,
+(Sorry, some serious incompetence caused me to always test an old
+version of the module, so I overlooked an embarrasing pagefault right
+during initialization, where memory allocation did not happen early
+enough)
 
-I started working on that for 2 other bug reports
-https://bugs.freedesktop.org/show_bug.cgi?id=81278
-and
-https://bugs.freedesktop.org/show_bug.cgi?id=76722
+Thanks for the first round of review, I hope I addressed all comments.
+Changes compared to the last version:
+- The detection code does not compare all registers anymore.
+- The driver now reads the size of the touchpad during initialization.
+This should add support for Asus X450JN, where the touchpad is a bit
+wider.
+- set_input_params has been simplified.
+- fingers are now valid=0 when the touchpad reports a large object.
 
-I thought the cursor jumps could be fixed by the in-kernel tracking, but the
-tracking needs a little bit more work to filter them out (patches to follow soon).
+ drivers/input/mouse/Kconfig        |  10 ++
+ drivers/input/mouse/focaltech.c    | 300
+++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/focaltech.h    |  60 ++++++++
+ drivers/input/mouse/psmouse-base.c |  32 ++--
+ drivers/input/mouse/psmouse.h      |   1 +
+ 5 files changed, 386 insertions(+), 17 deletions(-)
 
->From a user perspective, this patch does not change anything to what the user
-previously had. It also fixes Peter's bug that's why I decide to send this out
-by itself (removing ~350 lines of code and fixing bugs is always nice).
-
-I think the cursor jump fixes will need more bikeshedding in input-mt.c (I am
-*really* bad at designing APIs), so I'll send it later as an RFC.
-
-Cheers,
-Benjamin
-
- drivers/input/mouse/synaptics.c | 397 ++++------------------------------------
- drivers/input/mouse/synaptics.h |  18 +-
- 2 files changed, 34 insertions(+), 381 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 9031a0a..fd89249 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -569,14 +569,6 @@ static void synaptics_pt_create(struct psmouse *psmouse)
-  *	Functions to interpret the absolute mode packets
-  ****************************************************************************/
- 
--static void synaptics_mt_state_set(struct synaptics_mt_state *state, int count,
--				   int sgm, int agm)
--{
--	state->count = count;
--	state->sgm = sgm;
--	state->agm = agm;
--}
--
- static void synaptics_parse_agm(const unsigned char buf[],
- 				struct synaptics_data *priv,
- 				struct synaptics_hw_state *hw)
-@@ -595,16 +587,13 @@ static void synaptics_parse_agm(const unsigned char buf[],
- 		break;
- 
- 	case 2:
--		/* AGM-CONTACT packet: (count, sgm, agm) */
--		synaptics_mt_state_set(&agm->mt_state, buf[1], buf[2], buf[4]);
-+		/* AGM-CONTACT packet: we are only interested in the count */
-+		priv->agm_count = buf[1];
- 		break;
- 
- 	default:
- 		break;
- 	}
--
--	/* Record that at least one AGM has been received since last SGM */
--	priv->agm_pending = true;
- }
- 
- static bool is_forcepad;
-@@ -798,388 +787,68 @@ static void synaptics_report_buttons(struct psmouse *psmouse,
- 		input_report_key(dev, BTN_0 + i, hw->ext_buttons & (1 << i));
- }
- 
--static void synaptics_report_slot(struct input_dev *dev, int slot,
--				  const struct synaptics_hw_state *hw)
--{
--	input_mt_slot(dev, slot);
--	input_mt_report_slot_state(dev, MT_TOOL_FINGER, (hw != NULL));
--	if (!hw)
--		return;
--
--	input_report_abs(dev, ABS_MT_POSITION_X, hw->x);
--	input_report_abs(dev, ABS_MT_POSITION_Y, synaptics_invert_y(hw->y));
--	input_report_abs(dev, ABS_MT_PRESSURE, hw->z);
--}
--
- static void synaptics_report_mt_data(struct psmouse *psmouse,
--				     struct synaptics_mt_state *mt_state,
--				     const struct synaptics_hw_state *sgm)
-+				     const struct synaptics_hw_state *sgm,
-+				     int num_fingers)
- {
- 	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
--	struct synaptics_hw_state *agm = &priv->agm;
--	struct synaptics_mt_state *old = &priv->mt_state;
-+	const struct synaptics_hw_state *hw[2] = { sgm, &priv->agm };
-+	struct input_mt_pos pos[2];
-+	int slot[2], nsemi, i;
- 
--	switch (mt_state->count) {
--	case 0:
--		synaptics_report_slot(dev, 0, NULL);
--		synaptics_report_slot(dev, 1, NULL);
--		break;
--	case 1:
--		if (mt_state->sgm == -1) {
--			synaptics_report_slot(dev, 0, NULL);
--			synaptics_report_slot(dev, 1, NULL);
--		} else if (mt_state->sgm == 0) {
--			synaptics_report_slot(dev, 0, sgm);
--			synaptics_report_slot(dev, 1, NULL);
--		} else {
--			synaptics_report_slot(dev, 0, NULL);
--			synaptics_report_slot(dev, 1, sgm);
--		}
--		break;
--	default:
--		/*
--		 * If the finger slot contained in SGM is valid, and either
--		 * hasn't changed, or is new, or the old SGM has now moved to
--		 * AGM, then report SGM in MTB slot 0.
--		 * Otherwise, empty MTB slot 0.
--		 */
--		if (mt_state->sgm != -1 &&
--		    (mt_state->sgm == old->sgm ||
--		     old->sgm == -1 || mt_state->agm == old->sgm))
--			synaptics_report_slot(dev, 0, sgm);
--		else
--			synaptics_report_slot(dev, 0, NULL);
-+	nsemi = clamp_val(num_fingers, 0, 2);
- 
--		/*
--		 * If the finger slot contained in AGM is valid, and either
--		 * hasn't changed, or is new, then report AGM in MTB slot 1.
--		 * Otherwise, empty MTB slot 1.
--		 *
--		 * However, in the case where the AGM is new, make sure that
--		 * that it is either the same as the old SGM, or there was no
--		 * SGM.
--		 *
--		 * Otherwise, if the SGM was just 1, and the new AGM is 2, then
--		 * the new AGM will keep the old SGM's tracking ID, which can
--		 * cause apparent drumroll.  This happens if in the following
--		 * valid finger sequence:
--		 *
--		 *  Action                 SGM  AGM (MTB slot:Contact)
--		 *  1. Touch contact 0    (0:0)
--		 *  2. Touch contact 1    (0:0, 1:1)
--		 *  3. Lift  contact 0    (1:1)
--		 *  4. Touch contacts 2,3 (0:2, 1:3)
--		 *
--		 * In step 4, contact 3, in AGM must not be given the same
--		 * tracking ID as contact 1 had in step 3.  To avoid this,
--		 * the first agm with contact 3 is dropped and slot 1 is
--		 * invalidated (tracking ID = -1).
--		 */
--		if (mt_state->agm != -1 &&
--		    (mt_state->agm == old->agm ||
--		     (old->agm == -1 &&
--		      (old->sgm == -1 || mt_state->agm == old->sgm))))
--			synaptics_report_slot(dev, 1, agm);
--		else
--			synaptics_report_slot(dev, 1, NULL);
--		break;
-+	for (i = 0; i < nsemi; i++) {
-+		pos[i].x = hw[i]->x;
-+		pos[i].y = synaptics_invert_y(hw[i]->y);
- 	}
- 
-+	input_mt_assign_slots(dev, slot, pos, nsemi);
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 366fc7a..db973e5 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -146,6 +146,16 @@ config MOUSE_PS2_OLPC
+  	  If unsure, say N.
+ +config MOUSE_PS2_FOCALTECH
++	bool "FocalTech PS/2 mouse protocol extension" if EXPERT
++	default y
++	depends on MOUSE_PS2
++	help
++	  Say Y here if you have a FocalTech PS/2 TouchPad connected to
++	  your system.
 +
-+	for (i = 0; i < nsemi; i++) {
-+		input_mt_slot(dev, slot[i]);
-+		input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-+		input_report_abs(dev, ABS_MT_POSITION_X, pos[i].x);
-+		input_report_abs(dev, ABS_MT_POSITION_Y, pos[i].y);
-+		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
++	  If unsure, say Y.
++
+ config MOUSE_SERIAL
+ 	tristate "Serial mouse"
+ 	select SERIO
+diff --git a/drivers/input/mouse/focaltech.c
+b/drivers/input/mouse/focaltech.c
+index f4d657e..26bc5b7 100644
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -2,6 +2,7 @@
+  * Focaltech TouchPad PS/2 mouse driver
+  *
+  * Copyright (c) 2014 Red Hat Inc.
++ * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -13,15 +14,14 @@
+  * Hans de Goede <hdegoede@redhat.com>
+  */
+ -/*
+- * The Focaltech PS/2 touchpad protocol is unknown. This drivers
+deals with
+- * detection only, to avoid further detection attempts confusing the
+touchpad
+- * this way it at least works in PS/2 mouse compatibility mode.
+- */
+  #include <linux/device.h>
+ #include <linux/libps2.h>
++#include <linux/input/mt.h>
++#include <linux/serio.h>
++#include <linux/slab.h>
+ #include "psmouse.h"
++#include "focaltech.h"
+  static const char * const focaltech_pnp_ids[] = {
+ 	"FLT0101",
+@@ -30,6 +30,12 @@ static const char * const focaltech_pnp_ids[] = {
+ 	NULL
+ };
+ +/*
++ * Even if the kernel is built without support for Focaltech PS/2
+touchpads (or
++ * when the real driver fails to recognize the device), we still have
+to detect
++ * them in order to avoid further detection attempts confusing the
+touchpad.
++ * This way it at least works in PS/2 mouse compatibility mode.
++ */
+ int focaltech_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
+@@ -37,16 +43,296 @@ int focaltech_detect(struct psmouse *psmouse,
+bool set_properties)
+  	if (set_properties) {
+ 		psmouse->vendor = "FocalTech";
+-		psmouse->name = "FocalTech Touchpad in mouse emulation mode";
++		psmouse->name = "FocalTech Touchpad";
+ 	}
+  	return 0;
+ }
+ -int focaltech_init(struct psmouse *psmouse)
++static void focaltech_reset(struct psmouse *psmouse)
+ {
+ 	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+ 	psmouse_reset(psmouse);
++}
++
++#ifdef CONFIG_MOUSE_PS2_FOCALTECH
++
++static void focaltech_report_state(struct psmouse *psmouse)
++{
++	int i;
++	struct focaltech_data *priv = psmouse->private;
++	struct focaltech_hw_state *state = &priv->state;
++	struct input_dev *dev = psmouse->dev;
++	int finger_count = 0;
++
++	for (i = 0; i < FOC_MAX_FINGERS; i++) {
++		struct focaltech_finger_state *finger = &state->fingers[i];
++		int active = finger->active && finger->valid;
++		input_mt_slot(dev, i);
++		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
++		if (active) {
++			finger_count++;
++			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
++			input_report_abs(dev, ABS_MT_POSITION_Y,
++					focaltech_invert_y(finger->y));
++		}
++	}
++	input_mt_report_pointer_emulation(dev, finger_count);
++
++	input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
++	input_sync(psmouse->dev);
++}
++
++static void process_touch_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	int i;
++	unsigned char fingers = packet[1];
++
++	state->pressed = (packet[0] >> 4) & 1;
++	/* the second byte contains a bitmap of all fingers touching the pad */
++	for (i = 0; i < FOC_MAX_FINGERS; i++) {
++		if ((fingers & 0x1) && !state->fingers[i].active) {
++			/* we do not have a valid position for the finger yet */
++			state->fingers[i].valid = 0;
++		}
++		state->fingers[i].active = fingers & 0x1;
++		fingers >>= 1;
++	}
++}
++
++static void process_abs_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	unsigned int finger = (packet[1] >> 4) - 1;
++
++	state->pressed = (packet[0] >> 4) & 1;
++	if (finger >= FOC_MAX_FINGERS)
++		return;
++	/*
++	 * packet[5] contains some kind of tool size in the most significant
++	 * nibble. 0xff is a special value (latching) that signals a large
++	 * contact area.
++	 */
++	if (packet[5] == 0xff) {
++		state->fingers[finger].valid = 0;
++		return;
++	}
++	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
++	state->fingers[finger].y = (packet[3] << 8) | packet[4];
++	state->fingers[finger].valid = 1;
++}
++static void process_rel_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	int finger1 = ((packet[0] >> 4) & 0x7) - 1;
++	int finger2 = ((packet[3] >> 4) & 0x7) - 1;
++
++	state->pressed = packet[0] >> 7;
++	if (finger1 < FOC_MAX_FINGERS) {
++		state->fingers[finger1].x += (char)packet[1];
++		state->fingers[finger1].y += (char)packet[2];
++	}
++	/*
++	 * If there is an odd number of fingers, the last relative packet only
++	 * contains one finger. In this case, the second finger index in the
++	 * packet is 0 (we subtract 1 in the lines above to create array
++	 * indices).
++	 */
++	if (finger2 != -1 && finger2 < FOC_MAX_FINGERS) {
++		state->fingers[finger2].x += (char)packet[4];
++		state->fingers[finger2].y += (char)packet[5];
++	}
++}
++
++static void focaltech_process_packet(struct psmouse *psmouse)
++{
++	struct focaltech_data *priv = psmouse->private;
++	unsigned char *packet = psmouse->packet;
++
++	switch (packet[0] & 0xf) {
++	case FOC_TOUCH:
++		process_touch_packet(&priv->state, packet);
++		break;
++	case FOC_ABS:
++		process_abs_packet(&priv->state, packet);
++		break;
++	case FOC_REL:
++		process_rel_packet(&priv->state, packet);
++		break;
++	default:
++		psmouse_err(psmouse, "Unknown packet type: %02x", packet[0]);
++		break;
 +	}
 +
-+	input_mt_drop_unused(dev);
++	focaltech_report_state(psmouse);
++}
 +
- 	/* Don't use active slot count to generate BTN_TOOL events. */
- 	input_mt_report_pointer_emulation(dev, false);
- 
- 	/* Send the number of fingers reported by touchpad itself. */
--	input_mt_report_finger_count(dev, mt_state->count);
-+	input_mt_report_finger_count(dev, num_fingers);
- 
- 	synaptics_report_buttons(psmouse, sgm);
- 
- 	input_sync(dev);
++static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
++{
++	if (psmouse->pktcnt >= 6) { /* Full packet received */
++		focaltech_process_packet(psmouse);
++		return PSMOUSE_FULL_PACKET;
++	}
++	/*
++	 * we might want to do some validation of the data here, but we do not
++	 * know the protocoll well enough
++	 */
++	return PSMOUSE_GOOD_DATA;
++}
++
++static int focaltech_switch_protocol(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	unsigned char param[3];
++
++	param[0] = 0;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	param[0] = 1;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
++		return -EIO;
++
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_ENABLE))
++		return -EIO;
+  	return 0;
  }
- 
--/* Handle case where mt_state->count = 0 */
--static void synaptics_image_sensor_0f(struct synaptics_data *priv,
--				      struct synaptics_mt_state *mt_state)
--{
--	synaptics_mt_state_set(mt_state, 0, -1, -1);
--	priv->mt_state_lost = false;
--}
--
--/* Handle case where mt_state->count = 1 */
--static void synaptics_image_sensor_1f(struct synaptics_data *priv,
--				      struct synaptics_mt_state *mt_state)
--{
--	struct synaptics_hw_state *agm = &priv->agm;
--	struct synaptics_mt_state *old = &priv->mt_state;
--
--	/*
--	 * If the last AGM was (0,0,0), and there is only one finger left,
--	 * then we absolutely know that SGM contains slot 0, and all other
--	 * fingers have been removed.
--	 */
--	if (priv->agm_pending && agm->z == 0) {
--		synaptics_mt_state_set(mt_state, 1, 0, -1);
--		priv->mt_state_lost = false;
--		return;
--	}
--
--	switch (old->count) {
--	case 0:
--		synaptics_mt_state_set(mt_state, 1, 0, -1);
--		break;
--	case 1:
--		/*
--		 * If mt_state_lost, then the previous transition was 3->1,
--		 * and SGM now contains either slot 0 or 1, but we don't know
--		 * which.  So, we just assume that the SGM now contains slot 1.
--		 *
--		 * If pending AGM and either:
--		 *   (a) the previous SGM slot contains slot 0, or
--		 *   (b) there was no SGM slot
--		 * then, the SGM now contains slot 1
--		 *
--		 * Case (a) happens with very rapid "drum roll" gestures, where
--		 * slot 0 finger is lifted and a new slot 1 finger touches
--		 * within one reporting interval.
--		 *
--		 * Case (b) happens if initially two or more fingers tap
--		 * briefly, and all but one lift before the end of the first
--		 * reporting interval.
--		 *
--		 * (In both these cases, slot 0 will becomes empty, so SGM
--		 * contains slot 1 with the new finger)
--		 *
--		 * Else, if there was no previous SGM, it now contains slot 0.
--		 *
--		 * Otherwise, SGM still contains the same slot.
--		 */
--		if (priv->mt_state_lost ||
--		    (priv->agm_pending && old->sgm <= 0))
--			synaptics_mt_state_set(mt_state, 1, 1, -1);
--		else if (old->sgm == -1)
--			synaptics_mt_state_set(mt_state, 1, 0, -1);
--		break;
--	case 2:
--		/*
--		 * If mt_state_lost, we don't know which finger SGM contains.
--		 *
--		 * So, report 1 finger, but with both slots empty.
--		 * We will use slot 1 on subsequent 1->1
--		 */
--		if (priv->mt_state_lost) {
--			synaptics_mt_state_set(mt_state, 1, -1, -1);
--			break;
--		}
--		/*
--		 * Since the last AGM was NOT (0,0,0), it was the finger in
--		 * slot 0 that has been removed.
--		 * So, SGM now contains previous AGM's slot, and AGM is now
--		 * empty.
--		 */
--		synaptics_mt_state_set(mt_state, 1, old->agm, -1);
--		break;
--	case 3:
--		/*
--		 * Since last AGM was not (0,0,0), we don't know which finger
--		 * is left.
--		 *
--		 * So, report 1 finger, but with both slots empty.
--		 * We will use slot 1 on subsequent 1->1
--		 */
--		synaptics_mt_state_set(mt_state, 1, -1, -1);
--		priv->mt_state_lost = true;
--		break;
--	case 4:
--	case 5:
--		/* mt_state was updated by AGM-CONTACT packet */
--		break;
--	}
--}
--
--/* Handle case where mt_state->count = 2 */
--static void synaptics_image_sensor_2f(struct synaptics_data *priv,
--				      struct synaptics_mt_state *mt_state)
--{
--	struct synaptics_mt_state *old = &priv->mt_state;
--
--	switch (old->count) {
--	case 0:
--		synaptics_mt_state_set(mt_state, 2, 0, 1);
--		break;
--	case 1:
--		/*
--		 * If previous SGM contained slot 1 or higher, SGM now contains
--		 * slot 0 (the newly touching finger) and AGM contains SGM's
--		 * previous slot.
--		 *
--		 * Otherwise, SGM still contains slot 0 and AGM now contains
--		 * slot 1.
--		 */
--		if (old->sgm >= 1)
--			synaptics_mt_state_set(mt_state, 2, 0, old->sgm);
--		else
--			synaptics_mt_state_set(mt_state, 2, 0, 1);
--		break;
--	case 2:
--		/*
--		 * If mt_state_lost, SGM now contains either finger 1 or 2, but
--		 * we don't know which.
--		 * So, we just assume that the SGM contains slot 0 and AGM 1.
--		 */
--		if (priv->mt_state_lost)
--			synaptics_mt_state_set(mt_state, 2, 0, 1);
--		/*
--		 * Otherwise, use the same mt_state, since it either hasn't
--		 * changed, or was updated by a recently received AGM-CONTACT
--		 * packet.
--		 */
--		break;
--	case 3:
--		/*
--		 * 3->2 transitions have two unsolvable problems:
--		 *  1) no indication is given which finger was removed
--		 *  2) no way to tell if agm packet was for finger 3
--		 *     before 3->2, or finger 2 after 3->2.
--		 *
--		 * So, report 2 fingers, but empty all slots.
--		 * We will guess slots [0,1] on subsequent 2->2.
--		 */
--		synaptics_mt_state_set(mt_state, 2, -1, -1);
--		priv->mt_state_lost = true;
--		break;
--	case 4:
--	case 5:
--		/* mt_state was updated by AGM-CONTACT packet */
--		break;
--	}
--}
--
--/* Handle case where mt_state->count = 3 */
--static void synaptics_image_sensor_3f(struct synaptics_data *priv,
--				      struct synaptics_mt_state *mt_state)
--{
--	struct synaptics_mt_state *old = &priv->mt_state;
--
--	switch (old->count) {
--	case 0:
--		synaptics_mt_state_set(mt_state, 3, 0, 2);
--		break;
--	case 1:
--		/*
--		 * If previous SGM contained slot 2 or higher, SGM now contains
--		 * slot 0 (one of the newly touching fingers) and AGM contains
--		 * SGM's previous slot.
--		 *
--		 * Otherwise, SGM now contains slot 0 and AGM contains slot 2.
--		 */
--		if (old->sgm >= 2)
--			synaptics_mt_state_set(mt_state, 3, 0, old->sgm);
--		else
--			synaptics_mt_state_set(mt_state, 3, 0, 2);
--		break;
--	case 2:
--		/*
--		 * If the AGM previously contained slot 3 or higher, then the
--		 * newly touching finger is in the lowest available slot.
--		 *
--		 * If SGM was previously 1 or higher, then the new SGM is
--		 * now slot 0 (with a new finger), otherwise, the new finger
--		 * is now in a hidden slot between 0 and AGM's slot.
--		 *
--		 * In all such cases, the SGM now contains slot 0, and the AGM
--		 * continues to contain the same slot as before.
--		 */
--		if (old->agm >= 3) {
--			synaptics_mt_state_set(mt_state, 3, 0, old->agm);
--			break;
--		}
--
--		/*
--		 * After some 3->1 and all 3->2 transitions, we lose track
--		 * of which slot is reported by SGM and AGM.
--		 *
--		 * For 2->3 in this state, report 3 fingers, but empty all
--		 * slots, and we will guess (0,2) on a subsequent 0->3.
--		 *
--		 * To userspace, the resulting transition will look like:
--		 *    2:[0,1] -> 3:[-1,-1] -> 3:[0,2]
--		 */
--		if (priv->mt_state_lost) {
--			synaptics_mt_state_set(mt_state, 3, -1, -1);
--			break;
--		}
--
--		/*
--		 * If the (SGM,AGM) really previously contained slots (0, 1),
--		 * then we cannot know what slot was just reported by the AGM,
--		 * because the 2->3 transition can occur either before or after
--		 * the AGM packet. Thus, this most recent AGM could contain
--		 * either the same old slot 1 or the new slot 2.
--		 * Subsequent AGMs will be reporting slot 2.
--		 *
--		 * To userspace, the resulting transition will look like:
--		 *    2:[0,1] -> 3:[0,-1] -> 3:[0,2]
--		 */
--		synaptics_mt_state_set(mt_state, 3, 0, -1);
--		break;
--	case 3:
--		/*
--		 * If, for whatever reason, the previous agm was invalid,
--		 * Assume SGM now contains slot 0, AGM now contains slot 2.
--		 */
--		if (old->agm <= 2)
--			synaptics_mt_state_set(mt_state, 3, 0, 2);
--		/*
--		 * mt_state either hasn't changed, or was updated by a recently
--		 * received AGM-CONTACT packet.
--		 */
--		break;
--
--	case 4:
--	case 5:
--		/* mt_state was updated by AGM-CONTACT packet */
--		break;
--	}
--}
--
--/* Handle case where mt_state->count = 4, or = 5 */
--static void synaptics_image_sensor_45f(struct synaptics_data *priv,
--				       struct synaptics_mt_state *mt_state)
--{
--	/* mt_state was updated correctly by AGM-CONTACT packet */
--	priv->mt_state_lost = false;
--}
--
- static void synaptics_image_sensor_process(struct psmouse *psmouse,
- 					   struct synaptics_hw_state *sgm)
- {
- 	struct synaptics_data *priv = psmouse->private;
--	struct synaptics_hw_state *agm = &priv->agm;
--	struct synaptics_mt_state mt_state;
--
--	/* Initialize using current mt_state (as updated by last agm) */
--	mt_state = agm->mt_state;
-+	int num_fingers;
- 
- 	/*
- 	 * Update mt_state using the new finger count and current mt_state.
- 	 */
- 	if (sgm->z == 0)
--		synaptics_image_sensor_0f(priv, &mt_state);
-+		num_fingers = 0;
- 	else if (sgm->w >= 4)
--		synaptics_image_sensor_1f(priv, &mt_state);
-+		num_fingers = 1;
- 	else if (sgm->w == 0)
--		synaptics_image_sensor_2f(priv, &mt_state);
--	else if (sgm->w == 1 && mt_state.count <= 3)
--		synaptics_image_sensor_3f(priv, &mt_state);
-+		num_fingers = 2;
-+	else if (sgm->w == 1)
-+		num_fingers = priv->agm_count ? priv->agm_count : 3;
- 	else
--		synaptics_image_sensor_45f(priv, &mt_state);
-+		num_fingers = 4;
- 
- 	/* Send resulting input events to user space */
--	synaptics_report_mt_data(psmouse, &mt_state, sgm);
--
--	/* Store updated mt_state */
--	priv->mt_state = agm->mt_state = mt_state;
--	priv->agm_pending = false;
-+	synaptics_report_mt_data(psmouse, sgm, num_fingers);
- }
- 
- static void synaptics_profile_sensor_process(struct psmouse *psmouse,
-@@ -1439,7 +1108,7 @@ static void set_input_params(struct psmouse *psmouse,
- 					ABS_MT_POSITION_Y);
- 		/* Image sensors can report per-contact pressure */
- 		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
--		input_mt_init_slots(dev, 2, INPUT_MT_POINTER);
-+		input_mt_init_slots(dev, 2, INPUT_MT_POINTER | INPUT_MT_TRACK);
- 
- 		/* Image sensors can signal 4 and 5 finger clicks */
- 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 1bd01f2..6faf9bb 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -119,16 +119,6 @@
- #define SYN_REDUCED_FILTER_FUZZ		8
- 
- /*
-- * A structure to describe which internal touchpad finger slots are being
-- * reported in raw packets.
-- */
--struct synaptics_mt_state {
--	int count;			/* num fingers being tracked */
--	int sgm;			/* which slot is reported by sgm pkt */
--	int agm;			/* which slot is reported by agm pkt*/
--};
--
--/*
-  * A structure to describe the state of the touchpad hardware (buttons and pad)
-  */
- struct synaptics_hw_state {
-@@ -143,9 +133,6 @@ struct synaptics_hw_state {
- 	unsigned int down:1;
- 	unsigned char ext_buttons;
- 	signed char scroll;
--
--	/* As reported in last AGM-CONTACT packets */
--	struct synaptics_mt_state mt_state;
++
++static void focaltech_disconnect(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++	kfree(psmouse->private);
++	psmouse->private = NULL;
++}
++
++static int focaltech_reconnect(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++	if (focaltech_switch_protocol(psmouse)) {
++		psmouse_err(psmouse,
++			    "Unable to initialize the device.");
++		return -1;
++	}
++	return 0;
++}
++
++static void set_input_params(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct focaltech_data *priv = psmouse->private;
++
++	__set_bit(EV_ABS, dev->evbit);
++	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
++	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
++	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
++	__clear_bit(EV_REL, dev->evbit);
++	__clear_bit(REL_X, dev->relbit);
++	__clear_bit(REL_Y, dev->relbit);
++	__clear_bit(BTN_RIGHT, dev->keybit);
++	__clear_bit(BTN_MIDDLE, dev->keybit);
++	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
++}
++
++static int focaltech_read_register(struct ps2dev *ps2dev, int reg,
++		unsigned char *param)
++{
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
++		return -1;
++	param[0] = 0;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	param[0] = reg;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -1;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -1;
++	return 0;
++}
++
++static int focaltech_read_size(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	struct focaltech_data *priv = psmouse->private;
++	char param[3];
++
++	if (focaltech_read_register(ps2dev, 2, param))
++		return -EIO;
++	/* not sure whether this is 100% correct */
++	priv->x_max = (unsigned char)param[1] * 128;
++	priv->y_max = (unsigned char)param[2] * 128;
++
++	return 0;
++}
++int focaltech_init(struct psmouse *psmouse)
++{
++	struct focaltech_data *priv;
++	int err;
++
++	psmouse->private = priv = kzalloc(sizeof(struct focaltech_data),
+GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	focaltech_reset(psmouse);
++	if (focaltech_read_size(psmouse)) {
++		focaltech_reset(psmouse);
++		psmouse_err(psmouse,
++			    "Unable to read the size of the touchpad.");
++		err = -ENOSYS;
++		goto fail;
++	}
++	if (focaltech_switch_protocol(psmouse)) {
++		focaltech_reset(psmouse);
++		psmouse_err(psmouse,
++			    "Unable to initialize the device.");
++		err = -ENOSYS;
++		goto fail;
++	}
++
++	set_input_params(psmouse);
++
++	psmouse->protocol_handler = focaltech_process_byte;
++	psmouse->pktsize = 6;
++	psmouse->disconnect = focaltech_disconnect;
++	psmouse->reconnect = focaltech_reconnect;
++	psmouse->cleanup = focaltech_reset;
++	/* resync is not supported yet */
++	psmouse->resync_time = 0;
++
++	return 0;
++fail:
++	focaltech_reset(psmouse);
++	kfree(priv);
++	return err;
++}
++
++bool focaltech_supported(void)
++{
++	return true;
++}
++
++#else /* CONFIG_MOUSE_PS2_FOCALTECH */
++
++int focaltech_init(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++
++	return 0;
++}
++
++bool focaltech_supported(void)
++{
++	return false;
++}
++
++#endif /* CONFIG_MOUSE_PS2_FOCALTECH */
+diff --git a/drivers/input/mouse/focaltech.h
+b/drivers/input/mouse/focaltech.h
+index 498650c..68c5cfc 100644
+--- a/drivers/input/mouse/focaltech.h
++++ b/drivers/input/mouse/focaltech.h
+@@ -2,6 +2,7 @@
+  * Focaltech TouchPad PS/2 mouse driver
+  *
+  * Copyright (c) 2014 Red Hat Inc.
++ * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -16,7 +17,66 @@
+ #ifndef _FOCALTECH_H
+ #define _FOCALTECH_H
+ +/*
++ * Packet types - the numbers are not consecutive, so we might be missing
++ * something here.
++ */
++#define FOC_TOUCH 0x3 /* bitmap of active fingers */
++#define FOC_ABS 0x6 /* absolute position of one finger */
++#define FOC_REL 0x9 /* relative position of 1-2 fingers */
++
++#define FOC_MAX_FINGERS 5
++
++#define FOC_MAX_X 2431
++#define FOC_MAX_Y 1663
++
++static inline int focaltech_invert_y(int y)
++{
++	return FOC_MAX_Y - y;
++}
++
++/*
++ * Current state of a single finger on the touchpad.
++ */
++struct focaltech_finger_state {
++	/* the touchpad has generated a touch event for the finger */
++	bool active;
++	/*
++	 * The touchpad has sent position data for the finger. Touch event
++	 * packages reset this flag for new fingers, and there is a time
++	 * between the first touch event and the following absolute position
++	 * packet for the finger where the touchpad has declared the finger to
++	 * be valid, but we do not have any valid position yet.
++	 */
++	bool valid;
++	/* absolute position (from the bottom left corner) of the finger */
++	unsigned int x;
++	unsigned int y;
++};
++
++/*
++ * Description of the current state of the touchpad hardware.
++ */
++struct focaltech_hw_state {
++	/*
++	 * The touchpad tracks the positions of the fingers for us, the array
++	 * indices correspond to the finger indices returned in the report
++	 * packages.
++	 */
++	struct focaltech_finger_state fingers[FOC_MAX_FINGERS];
++	/*
++	 * True if the clickpad has been pressed.
++	 */
++	bool pressed;
++};
++
++struct focaltech_data {
++	unsigned int x_max, y_max;
++	struct focaltech_hw_state state;
++};
++
+ int focaltech_detect(struct psmouse *psmouse, bool set_properties);
+ int focaltech_init(struct psmouse *psmouse);
++bool focaltech_supported(void);
+  #endif
+diff --git a/drivers/input/mouse/psmouse-base.c
+b/drivers/input/mouse/psmouse-base.c
+index 26994f6..4a9de33 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -725,16 +725,19 @@ static int psmouse_extensions(struct psmouse
+*psmouse,
+  /* Always check for focaltech, this is safe as it uses pnp-id
+matching */
+ 	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
+-		if (!set_properties || focaltech_init(psmouse) == 0) {
+-			/*
+-			 * Not supported yet, use bare protocol.
+-			 * Note that we need to also restrict
+-			 * psmouse_max_proto so that psmouse_initialize()
+-			 * does not try to reset rate and resolution,
+-			 * because even that upsets the device.
+-			 */
+-			psmouse_max_proto = PSMOUSE_PS2;
+-			return PSMOUSE_PS2;
++		if (max_proto > PSMOUSE_IMEX) {
++			if (!set_properties || focaltech_init(psmouse) == 0) {
++				if (focaltech_supported())
++					return PSMOUSE_FOCALTECH;
++				/*
++				 * Note that we need to also restrict
++				 * psmouse_max_proto so that psmouse_initialize()
++				 * does not try to reset rate and resolution,
++				 * because even that upsets the device.
++				 */
++				psmouse_max_proto = PSMOUSE_PS2;
++				return PSMOUSE_PS2;
++			}
+ 		}
+ 	}
+ @@ -1063,6 +1066,15 @@ static const struct psmouse_protocol
+psmouse_protocols[] = {
+ 		.alias		= "cortps",
+ 		.detect		= cortron_detect,
+ 	},
++#ifdef CONFIG_MOUSE_PS2_FOCALTECH
++	{
++		.type		= PSMOUSE_FOCALTECH,
++		.name		= "FocalTechPS/2",
++		.alias		= "focaltech",
++		.detect		= focaltech_detect,
++		.init		= focaltech_init,
++	},
++#endif
+ 	{
+ 		.type		= PSMOUSE_AUTO,
+ 		.name		= "auto",
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index f4cf664..c2ff137 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -96,6 +96,7 @@ enum psmouse_type {
+ 	PSMOUSE_FSP,
+ 	PSMOUSE_SYNAPTICS_RELATIVE,
+ 	PSMOUSE_CYPRESS,
++	PSMOUSE_FOCALTECH,
+ 	PSMOUSE_AUTO		/* This one should always be last */
  };
- 
- struct synaptics_data {
-@@ -170,15 +157,12 @@ struct synaptics_data {
- 
- 	struct serio *pt_port;			/* Pass-through serio port */
- 
--	struct synaptics_mt_state mt_state;	/* Current mt finger state */
--	bool mt_state_lost;			/* mt_state may be incorrect */
--
- 	/*
- 	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
- 	 * contains position data for a second contact, at half resolution.
- 	 */
- 	struct synaptics_hw_state agm;
--	bool agm_pending;			/* new AGM packet received */
-+	unsigned int agm_count;			/* finger count reported by agm */
- 
- 	/* ForcePad handling */
- 	unsigned long				press_start;
--- 
-2.1.0
+ -- 1.9.1
+

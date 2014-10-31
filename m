@@ -1,58 +1,39 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH 11/15] sound: soc: poodle: make use of new locomo GPIO interface
-Date: Fri, 31 Oct 2014 13:58:47 +0400
-Message-ID: <CALT56yP6K-sXOGM4z-WRsvFVjOi-13wM+Ewqn6WpDmNB4xcOEg@mail.gmail.com>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
-	<1414454528-24240-12-git-send-email-dbaryshkov@gmail.com>
-	<20141028145850.GU18557@sirena.org.uk>
-	<CAAVeFuKgARoMFzf+663iP6cULs93d4WSQS8ESjUb9VcxguWurA@mail.gmail.com>
-	<CACRpkdY-RDuxGMWe_SD613ovsEoHhxjP1+3T-m_zKQSx=mkFjA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdY-RDuxGMWe_SD613ovsEoHhxjP1+3T-m_zKQSx=mkFjA@mail.gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Mark Brown <broonie@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jingoo
+From: Tobias Klauser <tklauser@distanz.ch>
+Subject: [PATCH 2/3] Input: altera_ps2 - use correct type for irq return value
+Date: Fri, 31 Oct 2014 13:41:30 +0100
+Message-ID: <1414759291-23164-2-git-send-email-tklauser@distanz.ch>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.zhinst.com ([212.126.164.98]:33023 "EHLO mail.zhinst.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758615AbaJaMlg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Oct 2014 08:41:36 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-2014-10-31 12:52 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
-> On Wed, Oct 29, 2014 at 4:03 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
->> On Tue, Oct 28, 2014 at 11:58 PM, Mark Brown <broonie@kernel.org> wrote:
->>> On Tue, Oct 28, 2014 at 03:02:04AM +0300, Dmitry Eremin-Solenikov wrote:
->>>> Since LoCoMo driver has been converted to provide proper gpiolib
->>>> interface, make poodle ASoC platform driver use gpiolib API.
->>>
->>> Please use subject lines matching the style for the subsystem.
->>>
->>>> +     ret = gpio_request_array(poodle_gpios, ARRAY_SIZE(poodle_gpios));
->>>> +     if (ret) {
->>>> +             dev_err(&pdev->dev, "gpio_request_array() failed: %d\n",
->>>> +                             ret);
->>>> +             return ret;
->>>> +     }
->>>
->>> I sense a need for devm_gpio_request_array() here.  Otherwise this looks
->>> fine - ideally it'd move to gpiod but moving to gpiolib is a clear win
->>> so no need to block on this.
->>
->> I wish Dmitry took the opportunity to move this driver to the gpiod
->> API, especially since doing so would be trivial for this driver.
->
-> +1 on this.
->
-> However this platform is not device tree, so this implies setting up
-> a descriptor table for the affected driver(s) to work properly.
-> See Documentation/gpio/board.txt
+The irq function altera_ps2_rxint returns an irqreturn_t, so use the
+same type for variable storing the return value.
 
-I checked the gpiod interfaces after original suggestion by Alexandre.
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+ drivers/input/serio/altera_ps2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Introducing those mapping tables (much like pinctrl tables) look like
-a duplicate effort if Russell will permit adding a DT support. So
-I thought that I will reconsider gpiod/pinctrl/etc after fixing
-LoCoMo, reiterating IRQ patches, possibly switching to COMMON_CLK
-and (finally) thinking about device tree support.
-
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+index e0371e1..58781c8 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -37,7 +37,7 @@ static irqreturn_t altera_ps2_rxint(int irq, void *dev_id)
+ {
+ 	struct ps2if *ps2if = dev_id;
+ 	unsigned int status;
+-	int handled = IRQ_NONE;
++	irqreturn_t handled = IRQ_NONE;
+ 
+ 	while ((status = readl(ps2if->base)) & 0xffff0000) {
+ 		serio_interrupt(ps2if->io, status & 0xff, 0);
 -- 
-With best wishes
-Dmitry
+2.0.1
+
+

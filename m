@@ -1,57 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: altera_ps2 - write to correct register when
- disabling interrupts
-Date: Fri, 31 Oct 2014 09:52:55 -0700
-Message-ID: <20141031165255.GD32331@dtor-ws>
-References: <1414759291-23164-1-git-send-email-tklauser@distanz.ch>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Problems with Elantech touchpad in 3.18-rc2
+Date: Fri, 31 Oct 2014 18:30:40 +0100
+Message-ID: <20141031173040.GA24184@amd>
+References: <545271E1.30306@gmail.com>
+ <20141030180331.GF36444@dtor-ws>
+ <CA+55aFzkh8NMSPSe7D=sYHPqU3_v3PBUEQrjH7PvFPwkp=ytuA@mail.gmail.com>
+ <20141030192506.GH36444@dtor-ws>
+ <20141031162436.GA36996@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:62106 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756650AbaJaQxA (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:34991 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753693AbaJaRan (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 12:53:00 -0400
-Received: by mail-ie0-f170.google.com with SMTP id tp5so1715698ieb.1
-        for <linux-input@vger.kernel.org>; Fri, 31 Oct 2014 09:52:59 -0700 (PDT)
+	Fri, 31 Oct 2014 13:30:43 -0400
 Content-Disposition: inline
-In-Reply-To: <1414759291-23164-1-git-send-email-tklauser@distanz.ch>
+In-Reply-To: <20141031162436.GA36996@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias Klauser <tklauser@distanz.ch>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Roel Aaij <roel.aaij@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Hans de Goede <hdegoede@redhat.com>
 
-On Fri, Oct 31, 2014 at 01:41:29PM +0100, Tobias Klauser wrote:
-> In altera_ps2_close, the data register (offset 0) is written instead of
-> the control register (offset 4), leading to the RX interrupt not being
-> disabled. Fix this by calling writel() with the offset for the proper
-> register.
+On Fri 2014-10-31 09:24:36, Dmitry Torokhov wrote:
+> On Thu, Oct 30, 2014 at 12:25:06PM -0700, Dmitry Torokhov wrote:
+> > On Thu, Oct 30, 2014 at 12:06:03PM -0700, Linus Torvalds wrote:
+> > > On Thu, Oct 30, 2014 at 11:03 AM, Dmitry Torokhov
+> > > <dmitry.torokhov@gmail.com> wrote:
+> > > >
+> > > > Linus, any guidance here? Can we live with such regression?
+> > > 
+> > > No. If people are already finding machines with problems, that means
+> > > that there will be a lot of them once distributions move to that
+> > > kernel.
+> > 
+> > My only argument here is that failure is much less severe than with MUX
+> > case: when in legacy mode the worst that is happening is that advanced
+> > features (multi-touch, two-finger scroilling, etc) do not work so the
+> > experience is similar to Windows box with no venrod drivers installed.
+> > Whereas when active MUX does not work but we are tying to use it your
+> > device is completely hosed.
 > 
-> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> So I slept on it and I decided that we should indeed revert the patch,
+> since it causes more grief to people with good hardware than I
+> expected. We should not punish owners of good hardware because some
+> vendors can't write their firmware.
 
-Applied the first 2 and queued 3rd for 3.19. Thanks Tobias.
-
-> ---
->  drivers/input/serio/altera_ps2.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
-> index cce69d6..e0371e1 100644
-> --- a/drivers/input/serio/altera_ps2.c
-> +++ b/drivers/input/serio/altera_ps2.c
-> @@ -74,7 +74,7 @@ static void altera_ps2_close(struct serio *io)
->  {
->  	struct ps2if *ps2if = io->port_data;
->  
-> -	writel(0, ps2if->base); /* disable rx irq */
-> +	writel(0, ps2if->base + 4); /* disable rx irq */
->  }
->  
->  /*
-> -- 
-> 2.0.1
-> 
-> 
-
+You can still add "for anything manufactured in 2015+, assume it does
+not need MUX" and add a whitelist entry for any machine with external
+ps/2 ports that still needs it... I guess there would be very little
+of them made in 2015+.
+									Pavel
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

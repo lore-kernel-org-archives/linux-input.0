@@ -1,43 +1,75 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: driver for the Goodix touchpanel
-Date: Fri, 31 Oct 2014 09:29:43 -0700
-Message-ID: <20141031162943.GB36996@dtor-ws>
-References: <1414544056.2406.25.camel@hadess.net>
- <CAN+gG=EQDzkR3BjeJxx89ugoc2X4r0dMs4qQrmL6fjifT=zpgw@mail.gmail.com>
+Subject: Re: [PATCH] i8042: Add noloop quirk for Asus X750LN
+Date: Fri, 31 Oct 2014 09:46:21 -0700
+Message-ID: <20141031164621.GA32331@dtor-ws>
+References: <1413032946-19748-1-git-send-email-hdegoede@redhat.com>
+ <20141011183523.GA20881@dtor-ws>
+ <20141030183410.GG36444@dtor-ws>
+ <545346A1.3070708@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:44551 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751032AbaJaQ3w (ORCPT
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:56633 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750771AbaJaQq0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 12:29:52 -0400
-Received: by mail-ie0-f170.google.com with SMTP id tp5so1644571ieb.15
-        for <linux-input@vger.kernel.org>; Fri, 31 Oct 2014 09:29:49 -0700 (PDT)
+	Fri, 31 Oct 2014 12:46:26 -0400
+Received: by mail-ie0-f180.google.com with SMTP id y20so1680547ier.11
+        for <linux-input@vger.kernel.org>; Fri, 31 Oct 2014 09:46:26 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=EQDzkR3BjeJxx89ugoc2X4r0dMs4qQrmL6fjifT=zpgw@mail.gmail.com>
+In-Reply-To: <545346A1.3070708@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Oct 29, 2014 at 10:49:50AM -0400, Benjamin Tissoires wrote:
-> On Tue, Oct 28, 2014 at 8:54 PM, Bastien Nocera <hadess@hadess.net> wrote:
-> > Add a driver for the Goodix touchscreen panel found in Onda v975w
-> > tablets. The driver is based off the Android driver gt9xx.c found
-> > in some Android code dumps, but now bears no resemblance to the original
-> > driver.
-> >
-> > The driver was tested on the aforementioned tablet.
-> >
-> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> > Tested-by: Bastien Nocera <hadess@hadess.net>
-> > ---
+On Fri, Oct 31, 2014 at 09:21:53AM +0100, Hans de Goede wrote:
+> Hi,
 > 
-> Seems good to me:
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> On 10/30/2014 07:34 PM, Dmitry Torokhov wrote:
+> > On Sat, Oct 11, 2014 at 11:35:23AM -0700, Dmitry Torokhov wrote:
+> >> On Sat, Oct 11, 2014 at 03:09:06PM +0200, Hans de Goede wrote:
+> >>> Without this the aux port does not get detected, and consequently the touchpad
+> >>> will not work.
+> >>>
+> >>> https://bugzilla.redhat.com/show_bug.cgi?id=1110011
+> >>>
+> >>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >>
+> >> Applied, thank you.
+> > 
+> > Hans,
+> > 
+> > Do you still have dmidecode for this laptop around?
+> 
+> No I took the necessary identification strings from the dmesg, which is here:
+> 
+> https://bugzilla.redhat.com/attachment.cgi?id=944389
+> 
+> I'll drop you a private mail with the users email address, then you
+> can get into contact with him directly, I expect him to be willing to
+> help debug this further.
 
-Applied, thank you.
+Thanks!
+
+> 
+> > Can I see it? I am
+> > just wondering what part of AUX_LOOP was causing issues. Was it aux
+> > delivery test or loop test itself?
+> 
+> I was wondering myself, which is why the above dmesg is with:
+> 
+> "dyndbg=file drivers/input/serio/* +p"
+> 
+> But that does not seem to print anything extra ..., is the i8042 code
+> properly using one of the foo_dbg macro's ?
+>
+
+The debug facilities in i8042 were done way before dynamic debug so if
+you want to see the data stream you need i8042.debug. That works on all
+kernels regardless of config.
+ 
+Thanks.
 
 -- 
 Dmitry

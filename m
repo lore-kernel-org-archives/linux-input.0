@@ -1,72 +1,191 @@
-From: "Cole, JD" <JD.Cole@plantronics.com>
-Subject: [PATCH 2/2] Added missing HID Consumer Page identifiers, for
- completeness.
-Date: Fri, 31 Oct 2014 19:23:13 +0000
-Message-ID: <899CD57B-10D4-4AB1-B006-50572BCD6871@plantronics.com>
+From: Hartmut Knaack <knaack.h@gmx.de>
+Subject: Re: [PATCH 1/4] input: touchscreen: ti_am335x_tsc Interchange
+ touchscreen and ADC steps
+Date: Fri, 31 Oct 2014 22:03:49 +0100
+Message-ID: <5453F935.10007@gmx.de>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com> <1414408111-2631-2-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3.plantronics.com ([198.231.10.49]:55914 "EHLO
-	mail3.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757301AbaJaTYe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 15:24:34 -0400
-Content-Language: en-US
-Content-ID: <59AEF81130E0BD408BDF06BBB97F6369@plantronics.com>
+Received: from mout.gmx.net ([212.227.17.22]:62771 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752060AbaJaVE2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Oct 2014 17:04:28 -0400
+In-Reply-To: <1414408111-2631-2-git-send-email-vigneshr@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "bleung@chromium.org" <bleung@chromium.org>, "Junge, Terry" <Terry.Junge@plantronics.com>, "Wesselman, Tom" <Tom.Wesselman@plantronics.com>, "Dsouza, Sunil" <Sunil.Dsouza@plantronics.com>
+To: Vignesh R <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Felipe Balbi <balbi@ti.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Jan Kardell <jan.kardell@telliq.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Brad Griffis <bgriffis@ti.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-Adds CA and NAry usage type identifiers.
+Vignesh R schrieb am 27.10.2014 12:08:
+> From: Brad Griffis <bgriffis@ti.com>
+>=20
+> This patch makes the initial changes required to workaround TSC-false
+> pen-up interrupts. It is required to implement these changes in order=
+ to
+> remove udelay in the TSC interrupt handler and false pen-up events.
+> The charge step is to be executed immediately after sampling X+. Henc=
+e
+> TSC is made to use higher numbered steps (steps 5 to 16 for 5 co-ordi=
+nate
+> readouts, 4 wire TSC configuration) and ADC to use lower ones. Furthe=
+r
+> X co-ordinate readouts must be the last to be sampled, thus co-ordina=
+tes
+> are sampled in the order Y-Z-X.
+>=20
+> Signed-off-by: Brad Griffis <bgriffis@ti.com>
+> [vigneshr@ti.com: Ported the patch from v3.12 to v3.18rc2]
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> ---
+>  drivers/iio/adc/ti_am335x_adc.c           |  2 +-
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 42 ++++++++++++++++++---=
+----------
+>  2 files changed, 25 insertions(+), 19 deletions(-)
+>=20
+> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am3=
+35x_adc.c
+> index b730864731e8..3f530ed6bd80 100644
+> --- a/drivers/iio/adc/ti_am335x_adc.c
+> +++ b/drivers/iio/adc/ti_am335x_adc.c
+> @@ -98,7 +98,7 @@ static void tiadc_step_config(struct iio_dev *indio=
+_dev)
+>  	 * needs to be given to ADC to digitalize data.
+>  	 */
+> =20
+> -	steps =3D TOTAL_STEPS - adc_dev->channels;
+> +	steps =3D 0;
+You could even initialize it with zero during variable definition. And =
+I think the above comment could need an update now.
+>  	if (iio_buffer_enabled(indio_dev))
+>  		stepconfig =3D STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1
+>  					| STEPCONFIG_MODE_SWCNT;
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/inpu=
+t/touchscreen/ti_am335x_tsc.c
+> index 2ce649520fe0..1aeac9675fe7 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -121,7 +121,7 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+>  {
+>  	unsigned int	config;
+>  	int i;
+> -	int end_step;
+> +	int end_step, first_step, tsc_steps;
+>  	u32 stepenable;
+> =20
+>  	config =3D STEPCONFIG_MODE_HWSYNC |
+> @@ -140,9 +140,11 @@ static void titsc_step_config(struct titsc *ts_d=
+ev)
+>  		break;
+>  	}
+> =20
+> -	/* 1 =E2=80=A6 coordinate_readouts is for X */
+> -	end_step =3D ts_dev->coordinate_readouts;
+> -	for (i =3D 0; i < end_step; i++) {
+> +	tsc_steps =3D ts_dev->coordinate_readouts * 2 + 2;
+> +	first_step =3D TOTAL_STEPS - tsc_steps;
+> +	/* Steps 16 to 16-coordinate_readouts is for X */
+> +	end_step =3D first_step + tsc_steps;
+> +	for (i =3D end_step - ts_dev->coordinate_readouts; i < end_step; i+=
++) {
+>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+>  		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+>  	}
+> @@ -164,9 +166,9 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+>  		break;
+>  	}
+> =20
+> -	/* coordinate_readouts =E2=80=A6 coordinate_readouts * 2 is for Y *=
+/
+> -	end_step =3D ts_dev->coordinate_readouts * 2;
+> -	for (i =3D ts_dev->coordinate_readouts; i < end_step; i++) {
+> +	/* 1 ... coordinate_readouts is for Y */
+> +	end_step =3D first_step + ts_dev->coordinate_readouts;
+> +	for (i =3D first_step; i < end_step; i++) {
+>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+>  		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+>  	}
+> @@ -179,7 +181,7 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+>  	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
+>  	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
+> =20
+> -	/* coordinate_readouts * 2 =E2=80=A6 coordinate_readouts * 2 + 2 is=
+ for Z */
+> +	/* coordinate_readouts + 1 ... coordinate_readouts + 2 is for Z */
+>  	config =3D STEPCONFIG_MODE_HWSYNC |
+>  			STEPCONFIG_AVG_16 | ts_dev->bit_yp |
+>  			ts_dev->bit_xn | STEPCONFIG_INM_ADCREFM |
+> @@ -194,8 +196,11 @@ static void titsc_step_config(struct titsc *ts_d=
+ev)
+>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+>  			STEPCONFIG_OPENDLY);
+> =20
+> -	/* The steps1 =E2=80=A6 end and bit 0 for TS_Charge */
+> -	stepenable =3D (1 << (end_step + 2)) - 1;
+> +	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge=
+ */
+> +	stepenable =3D 1;
+> +	for (i =3D 0; i < tsc_steps; i++)
+> +		stepenable |=3D 1 << (first_step + i + 1);
+> +
+>  	ts_dev->step_mask =3D stepenable;
+>  	am335x_tsc_se_set_cache(ts_dev->mfd_tscadc, ts_dev->step_mask);
+>  }
+> @@ -209,6 +214,7 @@ static void titsc_read_coordinates(struct titsc *=
+ts_dev,
+>  	unsigned int read, diff;
+>  	unsigned int i, channel;
+>  	unsigned int creads =3D ts_dev->coordinate_readouts;
+> +	unsigned int first_step =3D TOTAL_STEPS - (creads * 2 + 2);
+> =20
+>  	*z1 =3D *z2 =3D 0;
+>  	if (fifocount % (creads * 2 + 2))
+> @@ -226,7 +232,7 @@ static void titsc_read_coordinates(struct titsc *=
+ts_dev,
+> =20
+>  		channel =3D (read & 0xf0000) >> 16;
+>  		read &=3D 0xfff;
+> -		if (channel < creads) {
+> +		if (channel > first_step + creads + 2) {
+>  			diff =3D abs(read - prev_val_x);
+>  			if (diff < prev_diff_x) {
+>  				prev_diff_x =3D diff;
+> @@ -234,19 +240,19 @@ static void titsc_read_coordinates(struct titsc=
+ *ts_dev,
+>  			}
+>  			prev_val_x =3D read;
+> =20
+> -		} else if (channel < creads * 2) {
+> +		} else if (channel =3D=3D first_step + creads + 1) {
+> +			*z1 =3D read;
+> +
+> +		} else if (channel =3D=3D first_step + creads + 2) {
+> +			*z2 =3D read;
+> +
+> +		} else if (channel > first_step) {
+>  			diff =3D abs(read - prev_val_y);
+>  			if (diff < prev_diff_y) {
+>  				prev_diff_y =3D diff;
+>  				*y =3D read;
+>  			}
+>  			prev_val_y =3D read;
+> -
+> -		} else if (channel < creads * 2 + 1) {
+> -			*z1 =3D read;
+> -
+> -		} else if (channel < creads * 2 + 2) {
+> -			*z2 =3D read;
+>  		}
+>  	}
+>  }
+>=20
 
-Signed-off-by: JD Cole <jd.cole@plantronics.com>
----
-include/linux/hid.h |   24 ++++++++++++++++++++++++
-1 file changed, 24 insertions(+)
-
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index a63f2aa..58a89ed 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -236,6 +236,30 @@ struct hid_item {
-#define HID_DG_TABLETPICK       0x000d0046
-
-#define HID_CP_CONSUMERCONTROL  0x000c0001
-+#define HID_CP_NUMERICKEYPAD   0x000c0002
-+#define HID_CP_PROGRAMMABLEBUTTONS     0x000c0003
-+#define HID_CP_MICROPHONE      0x000c0004
-+#define HID_CP_HEADPHONE       0x000c0005
-+#define HID_CP_GRAPHICEQUALIZER        0x000c0006
-+#define HID_CP_FUNCTIONBUTTONS 0x000c0036
-+#define HID_CP_SELECTION       0x000c0080
-+#define HID_CP_MEDIASELECTION  0x000c0087
-+#define HID_CP_SELECTDISC      0x000c00ba
-+#define HID_CP_PLAYBACKSPEED   0x000c00f1
-+#define HID_CP_PROXIMITY       0x000c0109
-+#define HID_CP_SPEAKERSYSTEM   0x000c0160
-+#define HID_CP_CHANNELLEFT     0x000c0161
-+#define HID_CP_CHANNELRIGHT    0x000c0162
-+#define HID_CP_CHANNELCENTER   0x000c0163
-+#define HID_CP_CHANNELFRONT    0x000c0164
-+#define HID_CP_CHANNELCENTERFRONT      0x000c0165
-+#define HID_CP_CHANNELSIDE     0x000c0166
-+#define HID_CP_CHANNELSURROUND 0x000c0167
-+#define HID_CP_CHANNELLOWFREQUENCYENHANCEMENT  0x000c0168
-+#define HID_CP_CHANNELTOP      0x000c0169
-+#define HID_CP_CHANNELUNKNOWN  0x000c016a
-+#define HID_CP_APPLICATIONLAUNCHBUTTONS        0x000c0180
-+#define HID_CP_GENERICGUIAPPLICATIONCONTROLS   0x000c0200
-
-#define HID_DG_CONFIDENCE       0x000d0047
-#define HID_DG_WIDTH            0x000d0048
 --
-1.7.9.5
-
-
-________________________________
-
-CONFIDENTIALITY NOTICE: This e-mail transmission, and any documents, files or previous e-mail messages attached to it, may contain information that is confidential and/or legally privileged. If you are not the intended recipient, or a person responsible for delivering it to the intended recipient, please DO NOT disclose the contents to another person, store or copy the information in any medium, or use any of the information contained in or attached to this transmission for any purpose. If you have received this transmission in error, please immediately notify the sender by reply email or at privacy@plantronics.com, and destroy the original transmission and its attachments without reading or saving in any manner.
-
-For further information about Plantronics - the Company, its products, brands, partners, please visit our website www.plantronics.com.
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

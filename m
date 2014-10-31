@@ -1,89 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: synaptics: remove duplicated code
-Date: Fri, 31 Oct 2014 09:52:26 -0700
-Message-ID: <20141031165226.GC32331@dtor-ws>
-References: <1414693987-6059-1-git-send-email-benjamin.tissoires@redhat.com>
- <1414693987-6059-2-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/3] Input: altera_ps2 - write to correct register when
+ disabling interrupts
+Date: Fri, 31 Oct 2014 09:52:55 -0700
+Message-ID: <20141031165255.GD32331@dtor-ws>
+References: <1414759291-23164-1-git-send-email-tklauser@distanz.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:62106 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756650AbaJaQxA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Oct 2014 12:53:00 -0400
+Received: by mail-ie0-f170.google.com with SMTP id tp5so1715698ieb.1
+        for <linux-input@vger.kernel.org>; Fri, 31 Oct 2014 09:52:59 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1414693987-6059-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, Chung-yih Wang <cywang@chromium.org>
+In-Reply-To: <1414759291-23164-1-git-send-email-tklauser@distanz.ch>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tobias Klauser <tklauser@distanz.ch>
+Cc: linux-input@vger.kernel.org
 
-+ Daniel & Chung-yih
-
-On Thu, Oct 30, 2014 at 02:33:07PM -0400, Benjamin Tissoires wrote:
-> synaptics_profile_sensor_process() and synaptics_report_mt_data() now
-> share the exact same code. Remove one implementation and rely on the
-> other where it was used.
+On Fri, Oct 31, 2014 at 01:41:29PM +0100, Tobias Klauser wrote:
+> In altera_ps2_close, the data register (offset 0) is written instead of
+> the control register (offset 4), leading to the RX interrupt not being
+> disabled. Fix this by calling writel() with the offset for the proper
+> register.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+
+Applied the first 2 and queued 3rd for 3.19. Thanks Tobias.
+
 > ---
->  drivers/input/mouse/synaptics.c | 38 +-------------------------------------
->  1 file changed, 1 insertion(+), 37 deletions(-)
+>  drivers/input/serio/altera_ps2.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index fd89249..8ae1841 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -851,42 +851,6 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
->  	synaptics_report_mt_data(psmouse, sgm, num_fingers);
+> diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+> index cce69d6..e0371e1 100644
+> --- a/drivers/input/serio/altera_ps2.c
+> +++ b/drivers/input/serio/altera_ps2.c
+> @@ -74,7 +74,7 @@ static void altera_ps2_close(struct serio *io)
+>  {
+>  	struct ps2if *ps2if = io->port_data;
+>  
+> -	writel(0, ps2if->base); /* disable rx irq */
+> +	writel(0, ps2if->base + 4); /* disable rx irq */
 >  }
 >  
-> -static void synaptics_profile_sensor_process(struct psmouse *psmouse,
-> -					     struct synaptics_hw_state *sgm,
-> -					     int num_fingers)
-> -{
-> -	struct input_dev *dev = psmouse->dev;
-> -	struct synaptics_data *priv = psmouse->private;
-> -	struct synaptics_hw_state *hw[2] = { sgm, &priv->agm };
-> -	struct input_mt_pos pos[2];
-> -	int slot[2], nsemi, i;
-> -
-> -	nsemi = clamp_val(num_fingers, 0, 2);
-> -
-> -	for (i = 0; i < nsemi; i++) {
-> -		pos[i].x = hw[i]->x;
-> -		pos[i].y = synaptics_invert_y(hw[i]->y);
-> -	}
-> -
-> -	input_mt_assign_slots(dev, slot, pos, nsemi);
-> -
-> -	for (i = 0; i < nsemi; i++) {
-> -		input_mt_slot(dev, slot[i]);
-> -		input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-> -		input_report_abs(dev, ABS_MT_POSITION_X, pos[i].x);
-> -		input_report_abs(dev, ABS_MT_POSITION_Y, pos[i].y);
-> -		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
-> -	}
-> -
-> -	input_mt_drop_unused(dev);
-> -	input_mt_report_pointer_emulation(dev, false);
-> -	input_mt_report_finger_count(dev, num_fingers);
-> -
-> -	synaptics_report_buttons(psmouse, sgm);
-> -
-> -	input_sync(dev);
-> -}
-> -
 >  /*
->   *  called for each full received packet from the touchpad
->   */
-> @@ -951,7 +915,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
->  	}
->  
->  	if (cr48_profile_sensor) {
-> -		synaptics_profile_sensor_process(psmouse, &hw, num_fingers);
-> +		synaptics_report_mt_data(psmouse, &hw, num_fingers);
->  		return;
->  	}
->  
 > -- 
-> 2.1.0
+> 2.0.1
+> 
 > 
 
 -- 

@@ -1,69 +1,38 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: HID: Introduce hidpp, a module to handle Logitech hid++ devices
-Date: Fri, 31 Oct 2014 12:15:09 +0300
-Message-ID: <20141031091509.GB11252@mwanda>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH 09/15] ARM: sa1100: don't preallocate IRQ space for locomo
+Date: Fri, 31 Oct 2014 13:33:37 +0400
+Message-ID: <CALT56yNE4FDLoriixXqbLTtOZdSZe5DHKxWO2yjj5-1mmLzGfw@mail.gmail.com>
+References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
+	<1414454528-24240-10-git-send-email-dbaryshkov@gmail.com>
+	<CACRpkdZnAtXtdtKbuqj8a_6a=2jS_Jf6yrq=iz-GJV+4RifRhw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:40348 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752765AbaJaJPW (ORCPT
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:60062 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932562AbaJaJdi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 05:15:22 -0400
-Content-Disposition: inline
+	Fri, 31 Oct 2014 05:33:38 -0400
+In-Reply-To: <CACRpkdZnAtXtdtKbuqj8a_6a=2jS_Jf6yrq=iz-GJV+4RifRhw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo
 
-Hello Benjamin Tissoires,
+2014-10-31 10:50 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+> On Tue, Oct 28, 2014 at 1:02 AM, Dmitry Eremin-Solenikov
+> <dbaryshkov@gmail.com> wrote:
+>
+>> As new locomo driver properly supports SPARSE_IRQ, stop playing with
+>> NR_IRQS on sa1100 (locomo was the last chip requiring NR_IRQ tricks).
+>>
+>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+>
+> That's right! By moving to irqdomain things get even better :)
 
-The patch 2f31c5252910: "HID: Introduce hidpp, a module to handle
-Logitech hid++ devices" from Sep 30, 2014, leads to the following
-static checker warning:
+That is a separate topic in my repo. I'll push that after finishing with LoCoMo.
 
-	drivers/hid/hid-logitech-hidpp.c:359 hidpp_root_get_protocol_version()
-	warn: should this return really be negated?
 
-drivers/hid/hid-logitech-hidpp.c
-   342  static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
-   343  {
-   344          struct hidpp_report response;
-   345          int ret;
-   346  
-   347          ret = hidpp_send_fap_command_sync(hidpp,
-   348                          HIDPP_PAGE_ROOT_IDX,
-   349                          CMD_ROOT_GET_PROTOCOL_VERSION,
-   350                          NULL, 0, &response);
-   351  
-   352          if (ret == 1) {
-                    ^^^^^^^^
-What does the "1" mean?  Magic numbers are bad, yada yada yada.
-
-   353                  hidpp->protocol_major = 1;
-   354                  hidpp->protocol_minor = 0;
-   355                  return 0;
-   356          }
-   357  
-   358          if (ret)
-   359                  return -ret;
-                        ^^^^^^^^^^^
-This is wrong.  The real problem is that hidpp_send_fap_command_sync()
-mixes normal and custom error codes.  The callers are inconsistent in
-how they deal with it.
-
-   360  
-   361          hidpp->protocol_major = response.fap.params[0];
-   362          hidpp->protocol_minor = response.fap.params[1];
-   363  
-   364          return ret;
-   365  }
-
-See also:
-
-drivers/hid/hid-logitech-hidpp.c:398 hidpp_devicenametype_get_count() warn: should this return really be negated?
-drivers/hid/hid-logitech-hidpp.c:417 hidpp_devicenametype_get_device_name() warn: should this return really be negated?
-drivers/hid/hid-logitech-hidpp.c:524 hidpp_touchpad_get_raw_info() warn: should this return really be negated?
-
-regards,
-dan carpenter
+-- 
+With best wishes
+Dmitry

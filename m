@@ -1,93 +1,57 @@
 From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH 01/15] mfd: add new driver for Sharp LoCoMo
-Date: Fri, 31 Oct 2014 13:54:08 +0400
-Message-ID: <CALT56yNX8v4mZn=o1ZoVLHPmg6wq0dgFNowpqNuFtU=eCc+d8w@mail.gmail.com>
+Subject: Re: [PATCH 11/15] sound: soc: poodle: make use of new locomo GPIO interface
+Date: Fri, 31 Oct 2014 13:58:47 +0400
+Message-ID: <CALT56yP6K-sXOGM4z-WRsvFVjOi-13wM+Ewqn6WpDmNB4xcOEg@mail.gmail.com>
 References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
-	<1414454528-24240-2-git-send-email-dbaryshkov@gmail.com>
-	<CACRpkdbW3NA00zMZr216ZeZpgVkXwKUo30biTVd5kcHKGGtkHg@mail.gmail.com>
+	<1414454528-24240-12-git-send-email-dbaryshkov@gmail.com>
+	<20141028145850.GU18557@sirena.org.uk>
+	<CAAVeFuKgARoMFzf+663iP6cULs93d4WSQS8ESjUb9VcxguWurA@mail.gmail.com>
+	<CACRpkdY-RDuxGMWe_SD613ovsEoHhxjP1+3T-m_zKQSx=mkFjA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbW3NA00zMZr216ZeZpgVkXwKUo30biTVd5kcHKGGtkHg@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdY-RDuxGMWe_SD613ovsEoHhxjP1+3T-m_zKQSx=mkFjA@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo
+Cc: Alexandre Courbot <gnurou@gmail.com>, Mark Brown <broonie@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jingoo
 List-Id: linux-input@vger.kernel.org
 
-Hello,
-
-Thank you for the review of patches.
-
-2014-10-31 10:42 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
-> On Tue, Oct 28, 2014 at 1:01 AM, Dmitry Eremin-Solenikov
-> <dbaryshkov@gmail.com> wrote:
->
->> LoCoMo is a GA used on Sharp Zaurus SL-5x00. Current driver does has
->> several design issues (special bus instead of platform bus, doesn't use
->> mfd-core, etc).
+2014-10-31 12:52 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+> On Wed, Oct 29, 2014 at 4:03 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
+>> On Tue, Oct 28, 2014 at 11:58 PM, Mark Brown <broonie@kernel.org> wrote:
+>>> On Tue, Oct 28, 2014 at 03:02:04AM +0300, Dmitry Eremin-Solenikov wrote:
+>>>> Since LoCoMo driver has been converted to provide proper gpiolib
+>>>> interface, make poodle ASoC platform driver use gpiolib API.
+>>>
+>>> Please use subject lines matching the style for the subsystem.
+>>>
+>>>> +     ret = gpio_request_array(poodle_gpios, ARRAY_SIZE(poodle_gpios));
+>>>> +     if (ret) {
+>>>> +             dev_err(&pdev->dev, "gpio_request_array() failed: %d\n",
+>>>> +                             ret);
+>>>> +             return ret;
+>>>> +     }
+>>>
+>>> I sense a need for devm_gpio_request_array() here.  Otherwise this looks
+>>> fine - ideally it'd move to gpiod but moving to gpiolib is a clear win
+>>> so no need to block on this.
 >>
->> Implement 'core' parts of locomo support as an mfd driver.
->>
->> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> (...)
+>> I wish Dmitry took the opportunity to move this driver to the gpiod
+>> API, especially since doing so would be trivial for this driver.
 >
->> +/* DAC send data */
->> +#define        M62332_SLAVE_ADDR       0x4e    /* Slave address  */
->> +#define        M62332_W_BIT            0x00    /* W bit (0 only) */
->> +#define        M62332_SUB_ADDR         0x00    /* Sub address    */
->> +#define        M62332_A_BIT            0x00    /* A bit (0 only) */
->> +
->> +/* DAC setup and hold times (expressed in us) */
->> +#define DAC_BUS_FREE_TIME      5       /*   4.7 us */
->> +#define DAC_START_SETUP_TIME   5       /*   4.7 us */
->> +#define DAC_STOP_SETUP_TIME    4       /*   4.0 us */
->> +#define DAC_START_HOLD_TIME    5       /*   4.7 us */
->> +#define DAC_SCL_LOW_HOLD_TIME  5       /*   4.7 us */
->> +#define DAC_SCL_HIGH_HOLD_TIME 4       /*   4.0 us */
->> +#define DAC_DATA_SETUP_TIME    1       /*   250 ns */
->> +#define DAC_DATA_HOLD_TIME     1       /*   300 ns */
->> +#define DAC_LOW_SETUP_TIME     1       /*   300 ns */
->> +#define DAC_HIGH_SETUP_TIME    1       /*  1000 ns */
-> (...)
+> +1 on this.
 >
-> It seems some DAC handling is part of the MFD driver, and we recently
-> discussed that MFD should not be doing misc stuff but mainly act as
-> arbiter and switching station.
->
-> Can you please move the DAC parts of the driver to
-> drivers/iio/dac?
->
-> The IIO DAC subsystem will likely add other goodies to
-> the driver for free and give a nice API to consumers.
+> However this platform is not device tree, so this implies setting up
+> a descriptor table for the affected driver(s) to work properly.
+> See Documentation/gpio/board.txt
 
-I wanted this part to be as simple as possible. I will look into IIO
-DAC subsystem.
-The DAC is as simple 2 channel 8-bit i2c device connected to a separate i2c bus
-controlled through a register in LoCoMo device. One channel is used
-for backlight,
-other will be used for volume control. So (in theory) I can add the
-following device
-chain:  locomo -> i2c-locomo -> m62332 -> IIO DAC client.  However isn't that
-quite an overkill for just backlight & volume control? Please advice me on this.
+I checked the gpiod interfaces after original suggestion by Alexandre.
 
-
-[skipped the irqdomain part - I will use them, thanks for the suggestion.]
-
->> +       /* Longtime timer */
->> +       writew(0, lchip->base + LOCOMO_LTINT);
->> +       /* SPI */
->> +       writew(0, lchip->base + LOCOMO_SPI + LOCOMO_SPIIE);
->> +
->> +       writew(6 + 8 + 320 + 30 - 10, lchip->base + LOCOMO_ASD);
->
-> That's a few magic numbers and calculation don't you think?
->
-> A comment stating what's going on would be helpful.
-
-Unfortunately little is known here - these values are c&p from old 2.4
-Lineo code.
-This part is related to generating synchronization pulses for accessing
-touchscreen.
+Introducing those mapping tables (much like pinctrl tables) look like
+a duplicate effort if Russell will permit adding a DT support. So
+I thought that I will reconsider gpiod/pinctrl/etc after fixing
+LoCoMo, reiterating IRQ patches, possibly switching to COMMON_CLK
+and (finally) thinking about device tree support.
 
 -- 
 With best wishes

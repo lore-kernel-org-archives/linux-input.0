@@ -1,66 +1,66 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] i8042: Add noloop quirk for Asus X750LN
-Date: Fri, 31 Oct 2014 09:23:14 +0100
-Message-ID: <545346F2.5040002@redhat.com>
-References: <1413032946-19748-1-git-send-email-hdegoede@redhat.com> <20141011183523.GA20881@dtor-ws> <20141030183410.GG36444@dtor-ws> <545346A1.3070708@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] HID: logitech-hidpp: leaks and NULL dereferences
+Date: Fri, 31 Oct 2014 12:14:39 +0300
+Message-ID: <20141031091439.GA11252@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43182 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751244AbaJaIXS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 04:23:18 -0400
-In-Reply-To: <545346A1.3070708@redhat.com>
+Received: from userp1040.oracle.com ([156.151.31.81]:50837 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756972AbaJaJPc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Oct 2014 05:15:32 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi,
+Shift the allocation down a few lines to avoid a memory leak and also
+add a check for allocation failure.
 
-On 10/31/2014 09:21 AM, Hans de Goede wrote:
-> Hi,
-> 
-> On 10/30/2014 07:34 PM, Dmitry Torokhov wrote:
->> On Sat, Oct 11, 2014 at 11:35:23AM -0700, Dmitry Torokhov wrote:
->>> On Sat, Oct 11, 2014 at 03:09:06PM +0200, Hans de Goede wrote:
->>>> Without this the aux port does not get detected, and consequently the touchpad
->>>> will not work.
->>>>
->>>> https://bugzilla.redhat.com/show_bug.cgi?id=1110011
->>>>
->>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>>
->>> Applied, thank you.
->>
->> Hans,
->>
->> Do you still have dmidecode for this laptop around?
-> 
-> No I took the necessary identification strings from the dmesg, which is here:
-> 
-> https://bugzilla.redhat.com/attachment.cgi?id=944389
-> 
-> I'll drop you a private mail with the users email address, then you
-> can get into contact with him directly, I expect him to be willing to
-> help debug this further.
-> 
->> Can I see it? I am
->> just wondering what part of AUX_LOOP was causing issues. Was it aux
->> delivery test or loop test itself?
-> 
-> I was wondering myself, which is why the above dmesg is with:
-> 
-> "dyndbg=file drivers/input/serio/* +p"
-> 
-> But that does not seem to print anything extra ..., is the i8042 code
-> properly using one of the foo_dbg macro's ?
+Fixes: 2f31c5252910 ('HID: Introduce hidpp, a module to handle Logitech hid++ devices')
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Ah, wait I just realized that even though the user was asking for help
-in Red Hat bugzilla he is actually a ubuntu user, I guess their kernels
-just don't have dyndbg turned on.
-
-Regards,
-
-Hans
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 361e97d..3cce995 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -200,13 +200,15 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
+ 	u8 feat_index, u8 funcindex_clientid, u8 *params, int param_count,
+ 	struct hidpp_report *response)
+ {
+-	struct hidpp_report *message = kzalloc(sizeof(struct hidpp_report),
+-			GFP_KERNEL);
++	struct hidpp_report *message;
+ 	int ret;
+ 
+ 	if (param_count > sizeof(message->fap.params))
+ 		return -EINVAL;
+ 
++	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
++	if (!message)
++		return -ENOMEM;
+ 	message->report_id = REPORT_ID_HIDPP_LONG;
+ 	message->fap.feature_index = feat_index;
+ 	message->fap.funcindex_clientid = funcindex_clientid;
+@@ -221,8 +223,7 @@ static int hidpp_send_rap_command_sync(struct hidpp_device *hidpp_dev,
+ 	u8 report_id, u8 sub_id, u8 reg_address, u8 *params, int param_count,
+ 	struct hidpp_report *response)
+ {
+-	struct hidpp_report *message = kzalloc(sizeof(struct hidpp_report),
+-			GFP_KERNEL);
++	struct hidpp_report *message;
+ 	int ret;
+ 
+ 	if ((report_id != REPORT_ID_HIDPP_SHORT) &&
+@@ -232,6 +233,9 @@ static int hidpp_send_rap_command_sync(struct hidpp_device *hidpp_dev,
+ 	if (param_count > sizeof(message->rap.params))
+ 		return -EINVAL;
+ 
++	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
++	if (!message)
++		return -ENOMEM;
+ 	message->report_id = report_id;
+ 	message->rap.sub_id = sub_id;
+ 	message->rap.reg_address = reg_address;

@@ -1,87 +1,79 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: Problems with Wacom Intuos PT M (CTH680) on FreeBSD
-Date: Fri, 31 Oct 2014 16:27:33 -0700
-Message-ID: <CAF8JNhJ8ZR5vvtcrOvv9-ySzN4aytBziEO90_Kif=Q4q7WgwmA@mail.gmail.com>
-References: <54424770.9090600@gmail.com>
-	<20141021223311.GG8609@dtor-ws>
-	<544889FD.5030004@gmail.com>
-	<54489803.9030803@selasky.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.18-rc0
+Date: Fri, 31 Oct 2014 16:48:39 -0700
+Message-ID: <20141031234839.GG32331@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f51.google.com ([209.85.215.51]:62583 "EHLO
-	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752564AbaJaX1f (ORCPT
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:60294 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756721AbaJaXso (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 19:27:35 -0400
-Received: by mail-la0-f51.google.com with SMTP id q1so7041059lam.38
-        for <linux-input@vger.kernel.org>; Fri, 31 Oct 2014 16:27:34 -0700 (PDT)
-In-Reply-To: <54489803.9030803@selasky.org>
+	Fri, 31 Oct 2014 19:48:44 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Petter Selasky <hps@selasky.org>
-Cc: Denis Akiyakov <d.akiyakov@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, "nox@jelal.kn-bremen.de >> Juergen Lock" <nox@jelal.kn-bremen.de>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Hans,
+Hi Linus,
 
-On Wed, Oct 22, 2014 at 10:54 PM, Hans Petter Selasky <hps@selasky.org> wrote:
->
-> On 10/23/14 06:54, Denis Akiyakov wrote:
->>
->> On 22.10.2014 05:33, Dmitry Torokhov wrote:
->>>
->>> Hi Denis,
->>>
->>> On Sat, Oct 18, 2014 at 05:56:48PM +0700, Denis Akiyakov wrote:
->>>>
->>>> Hello,
->>>>
->>>> I'm using FreeBSD 10.1 and FreeBSD use webcamd witch contain linux
->>>> wacom driver to provide wacom tablets support. More info here:
->>>> http://www.selasky.org/hans_petter/video4bsd/ or
->>>> http://www.freshports.org/multimedia/webcamd/
->>>>
->>>> I've got latest version of webcamd and Wacom device CTH680, but
->>>> device isn't working correct.
->>>
->>> Have you tried the device with Linux instead of FreeBSD? If it works in
->>> Linux that means that the port of linux drivers to BSD is to blame and
->>> you need to contact its authors, otherwise we need to adjust wacom
->>> driver in kernel for this device.
->>>
->>> Thanks.
->>>
->> Hello, Dmitry.
->>
->> I've tried tablet in Ubuntu 14.04.1. All functions that work in Windows
->> 7 (in Krita) work under Ubuntu's Krita.
->>
->> Thank you for your attention.
->>
->
-> Hi,
->
-> The problem appears to be that webcamd launches two instances for each interface, so the shared data is not the same like with Linux. Actually the shared data is NULL.
+Please pull from:
 
-If shared is NULL on FreeBSD, you need to make sure that part of code
-is portable on FreeBSD. On Linux, the driver would fail to load if
-shared is NULL since at least the current data can be assigned to
-wacom_shared (please refer to wacom_add_shared_data() in wacom_sys.c
-for detail).
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> I think however it would be clever that the Linux Wacom code would check "wacom->shared->touch_input" for NULL before using it, because it is not always set. This can be an easy way to crash the kernel when plugging a USB devices.
->
-> drivers/hid/wacom_wac.c:1395
+to receive updates for the input subsystem. You will get a bunch of
+fixes for minor defects reported by Coverity, a few driver fixups and
+revert of i8042.nomux change so that we are once again enable active MUX
+mode if box claims to support it.
 
-touch_input is used in 6 places (4 times in wacom_wac.c and 2 times in
-wacom_sys.c). They are called only when touch_max is not zero, that
-is, only when touch input is defined.
+Changelog:
+---------
 
-If touch_input is NULL on FreeBSD, you need to figure out the root
-cause. Checking on touch_input itself would not fix the root cause...
+Alexandre Courbot (1):
+      Input: soc_button_array - update calls to gpiod_get*()
 
-We are here to help if there is anything unclear to you in the code.
+Dmitry Eremin-Solenikov (1):
+      Input: wm97xx - adapt parameters to tosa touchscreen.
 
-Cheers,
+Dmitry Torokhov (6):
+      Input: opencores-kbd - fix error handling
+      Input: ims-pcu - fix dead code in ims_pcu_ofn_reg_addr_store()
+      Input: vsxxxaa - fix code dropping bytes from queue
+      Input: psmouse - remove unneeded check in psmouse_reconnect()
+      Input: max77693-haptic - fix potential overflow
+      Revert "Input: i8042 - disable active multiplexing by default"
 
-Ping
+Hans de Goede (1):
+      Input: i8042 - quirks for Fujitsu Lifebook A544 and Lifebook AH544
+
+Linus Walleij (1):
+      Input: stmpe-keypad - fix valid key line bitmask
+
+Tobias Klauser (2):
+      Input: altera_ps2 - write to correct register when disabling interrupts
+      Input: altera_ps2 - use correct type for irq return value
+
+
+Diffstat:
+--------
+
+ Documentation/kernel-parameters.txt     |   2 +-
+ drivers/input/keyboard/opencores-kbd.c  |   2 +-
+ drivers/input/keyboard/stmpe-keypad.c   |   2 +-
+ drivers/input/misc/ims-pcu.c            |   2 +-
+ drivers/input/misc/max77693-haptic.c    |   5 +-
+ drivers/input/misc/soc_button_array.c   |   2 +-
+ drivers/input/mouse/psmouse-base.c      |   7 -
+ drivers/input/mouse/vsxxxaa.c           |   2 +-
+ drivers/input/serio/altera_ps2.c        |   4 +-
+ drivers/input/serio/i8042-x86ia64io.h   | 297 +++++++++++++++++++++++++++++++-
+ drivers/input/serio/i8042.c             |   2 +-
+ drivers/input/touchscreen/wm97xx-core.c |   4 +-
+ 12 files changed, 302 insertions(+), 29 deletions(-)
+
+-- 
+Dmitry
+

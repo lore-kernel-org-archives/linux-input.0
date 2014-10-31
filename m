@@ -1,79 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.18-rc0
-Date: Fri, 31 Oct 2014 16:48:39 -0700
-Message-ID: <20141031234839.GG32331@dtor-ws>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Introduces Plantronics driver to fix errant mouse
+ events.
+Date: Fri, 31 Oct 2014 16:53:42 -0700
+Message-ID: <20141031235342.GA11631@dtor-ws>
+References: <512A3191-0BAA-4E92-A863-66AFD2A16422@plantronics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:60294 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756721AbaJaXso (ORCPT
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:39243 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753399AbaJaXxr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 19:48:44 -0400
+	Fri, 31 Oct 2014 19:53:47 -0400
+Received: by mail-ig0-f177.google.com with SMTP id hl2so1869663igb.4
+        for <linux-input@vger.kernel.org>; Fri, 31 Oct 2014 16:53:47 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <512A3191-0BAA-4E92-A863-66AFD2A16422@plantronics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: "Cole, JD" <JD.Cole@plantronics.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jkosina@suse.cz" <jkosina@suse.cz>, "bleung@chromium.org" <bleung@chromium.org>, "Junge, Terry" <Terry.Junge@plantronics.com>, "Dsouza, Sunil" <Sunil.Dsouza@plantronics.com>, "Wesselman, Tom" <Tom.Wesselman@plantronics.com>
 
-Hi Linus,
+Hi JD,
 
-Please pull from:
+On Fri, Oct 31, 2014 at 07:20:13PM +0000, Cole, JD wrote:
+> This version of the driver prevents Telephony pages which are not
+> mapped as Consumer Control applications AND are not on the Consumer Page
+> from being registered by the hid-input driver.
+> 
+> Signed-off-by: JD Cole <jd.cole@plantronics.com>
+> ---
+> drivers/hid/Kconfig           |    7 ++++
+> drivers/hid/Makefile          |    1 +
+> drivers/hid/hid-core.c        |    1 +
+> drivers/hid/hid-ids.h         |    2 ++
+> drivers/hid/hid-plantronics.c |   78 +++++++++++++++++++++++++++++++++++++++++
+> include/linux/hid.h           |    3 ++
+> 6 files changed, 92 insertions(+)
+> create mode 100644 drivers/hid/hid-plantronics.c
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index f42df4d..bf1c74e 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -613,6 +613,13 @@ config HID_PICOLCD_CIR
+>         ---help---
+>           Provide access to PicoLCD's CIR interface via remote control (LIRC).
+> 
+> +config HID_PLANTRONICS
+> +       tristate "Plantronics USB HID Driver"
+> +       default !EXPERT
+> +       depends on HID
+> +       ---help---
+> +       Provides HID support for Plantronics telephony devices.
+> +
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+It looks like your MUA or MTA converted all TABs into spaces. Could you
+please try resending?
 
-to receive updates for the input subsystem. You will get a bunch of
-fixes for minor defects reported by Coverity, a few driver fixups and
-revert of i8042.nomux change so that we are once again enable active MUX
-mode if box claims to support it.
-
-Changelog:
----------
-
-Alexandre Courbot (1):
-      Input: soc_button_array - update calls to gpiod_get*()
-
-Dmitry Eremin-Solenikov (1):
-      Input: wm97xx - adapt parameters to tosa touchscreen.
-
-Dmitry Torokhov (6):
-      Input: opencores-kbd - fix error handling
-      Input: ims-pcu - fix dead code in ims_pcu_ofn_reg_addr_store()
-      Input: vsxxxaa - fix code dropping bytes from queue
-      Input: psmouse - remove unneeded check in psmouse_reconnect()
-      Input: max77693-haptic - fix potential overflow
-      Revert "Input: i8042 - disable active multiplexing by default"
-
-Hans de Goede (1):
-      Input: i8042 - quirks for Fujitsu Lifebook A544 and Lifebook AH544
-
-Linus Walleij (1):
-      Input: stmpe-keypad - fix valid key line bitmask
-
-Tobias Klauser (2):
-      Input: altera_ps2 - write to correct register when disabling interrupts
-      Input: altera_ps2 - use correct type for irq return value
-
-
-Diffstat:
---------
-
- Documentation/kernel-parameters.txt     |   2 +-
- drivers/input/keyboard/opencores-kbd.c  |   2 +-
- drivers/input/keyboard/stmpe-keypad.c   |   2 +-
- drivers/input/misc/ims-pcu.c            |   2 +-
- drivers/input/misc/max77693-haptic.c    |   5 +-
- drivers/input/misc/soc_button_array.c   |   2 +-
- drivers/input/mouse/psmouse-base.c      |   7 -
- drivers/input/mouse/vsxxxaa.c           |   2 +-
- drivers/input/serio/altera_ps2.c        |   4 +-
- drivers/input/serio/i8042-x86ia64io.h   | 297 +++++++++++++++++++++++++++++++-
- drivers/input/serio/i8042.c             |   2 +-
- drivers/input/touchscreen/wm97xx-core.c |   4 +-
- 12 files changed, 302 insertions(+), 29 deletions(-)
+Thanks!
 
 -- 
 Dmitry
-

@@ -1,195 +1,68 @@
 From: "Cole, JD" <JD.Cole@plantronics.com>
-Subject: [PATCH 1/2] Introduces Plantronics driver to fix errant mouse
- events.
-Date: Fri, 31 Oct 2014 19:20:13 +0000
-Message-ID: <512A3191-0BAA-4E92-A863-66AFD2A16422@plantronics.com>
+Subject: [PATCH 2/2] Added missing HID Consumer Page identifiers, for
+ completeness.
+Date: Fri, 31 Oct 2014 19:23:13 +0000
+Message-ID: <899CD57B-10D4-4AB1-B006-50572BCD6871@plantronics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3.plantronics.com ([198.231.10.49]:55834 "EHLO
+Received: from mail3.plantronics.com ([198.231.10.49]:55914 "EHLO
 	mail3.plantronics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751958AbaJaTWt convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1757301AbaJaTYe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2014 15:22:49 -0400
+	Fri, 31 Oct 2014 15:24:34 -0400
 Content-Language: en-US
-Content-ID: <986A0C91856E784E9D28B666857FB0C9@plantronics.com>
+Content-ID: <59AEF81130E0BD408BDF06BBB97F6369@plantronics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "bleung@chromium.org" <bleung@chromium.org>, "Junge, Terry" <Terry.Junge@plantronics.com>, "Dsouza, Sunil" <Sunil.Dsouza@plantronics.com>, "Wesselman, Tom" <Tom.Wesselman@plantronics.com>
+Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "bleung@chromium.org" <bleung@chromium.org>, "Junge, Terry" <Terry.Junge@plantronics.com>, "Wesselman, Tom" <Tom.Wesselman@plantronics.com>, "Dsouza, Sunil" <Sunil.Dsouza@plantronics.com>
 
-This version of the driver prevents Telephony pages which are not
-mapped as Consumer Control applications AND are not on the Consumer Page
-from being registered by the hid-input driver.
+Adds CA and NAry usage type identifiers.
 
 Signed-off-by: JD Cole <jd.cole@plantronics.com>
 ---
-drivers/hid/Kconfig           |    7 ++++
-drivers/hid/Makefile          |    1 +
-drivers/hid/hid-core.c        |    1 +
-drivers/hid/hid-ids.h         |    2 ++
-drivers/hid/hid-plantronics.c |   78 +++++++++++++++++++++++++++++++++++++++++
-include/linux/hid.h           |    3 ++
-6 files changed, 92 insertions(+)
-create mode 100644 drivers/hid/hid-plantronics.c
+include/linux/hid.h |   24 ++++++++++++++++++++++++
+1 file changed, 24 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index f42df4d..bf1c74e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -613,6 +613,13 @@ config HID_PICOLCD_CIR
-        ---help---
-          Provide access to PicoLCD's CIR interface via remote control (LIRC).
-
-+config HID_PLANTRONICS
-+       tristate "Plantronics USB HID Driver"
-+       default !EXPERT
-+       depends on HID
-+       ---help---
-+       Provides HID support for Plantronics telephony devices.
-+
-config HID_PRIMAX
-        tristate "Primax non-fully HID-compliant devices"
-        depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index e2850d8..5e7ac59 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -94,6 +94,7 @@ ifdef CONFIG_DEBUG_FS
-hid-picolcd-y                   += hid-picolcd_debugfs.o
-endif
-
-+obj-$(CONFIG_HID_PLANTRONICS)  += hid-plantronics.o
-obj-$(CONFIG_HID_PRIMAX)        += hid-primax.o
-obj-$(CONFIG_HID_ROCCAT)        += hid-roccat.o hid-roccat-common.o \
-        hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 73bd9e2..d50313c 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1886,6 +1886,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
-        { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
-#if IS_ENABLED(CONFIG_HID_ROCCAT)
-        { HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e23ab8b..f9f476d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -715,6 +715,8 @@
-#define USB_DEVICE_ID_ORTEK_PKB1700     0x1700
-#define USB_DEVICE_ID_ORTEK_WKB2000     0x2000
-
-+#define USB_VENDOR_ID_PLANTRONICS      0x047f
-+
-#define USB_VENDOR_ID_PANASONIC         0x04da
-#define USB_DEVICE_ID_PANABOARD_UBT780  0x1044
-#define USB_DEVICE_ID_PANABOARD_UBT880  0x104d
-diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
-new file mode 100644
-index 0000000..215cdbd
---- /dev/null
-+++ b/drivers/hid/hid-plantronics.c
-@@ -0,0 +1,78 @@
-+/*
-+ *  Plantronics USB HID Driver
-+ *
-+ *  Copyright (c) 2014 JD Cole <jd.cole@plantronics.com>
-+ *  Copyright (c) 2014 Terry Junge <terry.junge@plantronics.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include "hid-ids.h"
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+static int plantronics_input_mapping(struct hid_device *hdev,
-+                                    struct hid_input *hi,
-+                                    struct hid_field *field,
-+                                    struct hid_usage *usage,
-+                                    unsigned long **bit, int *max)
-+{
-+       if (field->application == HID_CP_CONSUMERCONTROL
-+           && (usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER) {
-+               hid_dbg(hdev, "usage: %08x (appl: %08x) - defaulted\n",
-+                        usage->hid, field->application);
-+               return 0;
-+       }
-+
-+       hid_dbg(hdev, "usage: %08x (appl: %08x) - ignored\n",
-+               usage->hid, field->application);
-+
-+       return -1;
-+}
-+
-+static int plantronics_probe(struct hid_device *hdev,
-+                            const struct hid_device_id *id)
-+{
-+       int ret;
-+
-+       ret = hid_parse(hdev);
-+       if (ret) {
-+               hid_err(hdev, "parse failed\n");
-+               goto err;
-+       }
-+
-+       ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+       if (ret) {
-+               hid_err(hdev, "hw start failed\n");
-+               goto err;
-+       }
-+
-+       return 0;
-+ err:
-+       return ret;
-+}
-+
-+static const struct hid_device_id plantronics_devices[] = {
-+       { HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
-+       { }
-+};
-+MODULE_DEVICE_TABLE(hid, plantronics_devices);
-+
-+static struct hid_driver plantronics_driver = {
-+       .name = "plantronics",
-+       .id_table = plantronics_devices,
-+       .input_mapping = plantronics_input_mapping,
-+       .probe = plantronics_probe,
-+};
-+module_hid_driver(plantronics_driver);
-+
-+MODULE_AUTHOR("JD Cole <jd.cole@plantronics.com>");
-+MODULE_AUTHOR("Terry Junge <terry.junge@plantronics.com>");
-+MODULE_DESCRIPTION("Plantronics USB HID Driver");
-+MODULE_LICENSE("GPL");
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 78ea9bf..a63f2aa 100644
+index a63f2aa..58a89ed 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -234,6 +234,9 @@ struct hid_item {
-#define HID_DG_BARRELSWITCH     0x000d0044
-#define HID_DG_ERASER           0x000d0045
+@@ -236,6 +236,30 @@ struct hid_item {
 #define HID_DG_TABLETPICK       0x000d0046
-+
-+#define HID_CP_CONSUMERCONTROL 0x000c0001
-+
+
+#define HID_CP_CONSUMERCONTROL  0x000c0001
++#define HID_CP_NUMERICKEYPAD   0x000c0002
++#define HID_CP_PROGRAMMABLEBUTTONS     0x000c0003
++#define HID_CP_MICROPHONE      0x000c0004
++#define HID_CP_HEADPHONE       0x000c0005
++#define HID_CP_GRAPHICEQUALIZER        0x000c0006
++#define HID_CP_FUNCTIONBUTTONS 0x000c0036
++#define HID_CP_SELECTION       0x000c0080
++#define HID_CP_MEDIASELECTION  0x000c0087
++#define HID_CP_SELECTDISC      0x000c00ba
++#define HID_CP_PLAYBACKSPEED   0x000c00f1
++#define HID_CP_PROXIMITY       0x000c0109
++#define HID_CP_SPEAKERSYSTEM   0x000c0160
++#define HID_CP_CHANNELLEFT     0x000c0161
++#define HID_CP_CHANNELRIGHT    0x000c0162
++#define HID_CP_CHANNELCENTER   0x000c0163
++#define HID_CP_CHANNELFRONT    0x000c0164
++#define HID_CP_CHANNELCENTERFRONT      0x000c0165
++#define HID_CP_CHANNELSIDE     0x000c0166
++#define HID_CP_CHANNELSURROUND 0x000c0167
++#define HID_CP_CHANNELLOWFREQUENCYENHANCEMENT  0x000c0168
++#define HID_CP_CHANNELTOP      0x000c0169
++#define HID_CP_CHANNELUNKNOWN  0x000c016a
++#define HID_CP_APPLICATIONLAUNCHBUTTONS        0x000c0180
++#define HID_CP_GENERICGUIAPPLICATIONCONTROLS   0x000c0200
+
 #define HID_DG_CONFIDENCE       0x000d0047
 #define HID_DG_WIDTH            0x000d0048
-#define HID_DG_HEIGHT           0x000d0049
 --
 1.7.9.5
-
 
 
 ________________________________

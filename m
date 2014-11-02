@@ -1,65 +1,55 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
-Date: Sun, 2 Nov 2014 22:59:07 +0100
-Message-ID: <CAG-2HqVW0N8tFgkqjNHSrMgXwaN-oWCjTO4V1kyu1znnSDvu=A@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Supporting U2F over HID on Linux?
+Date: Sun, 2 Nov 2014 17:45:30 -0500
+Message-ID: <CAN+gG=HZ+CA3tWbHjG=ULUfztj87mLCoGQXT-5XLd-+vZ1K6VA@mail.gmail.com>
 References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CAG-2HqVug0hixSm5Lad7pVSZgJOm4smbL=2jzmREz4Zwk2zghw@mail.gmail.com> <CALCETrUCiK7t0vT=N9Od3itKuQBYQUescMfmdXfD_fWCZdw3hw@mail.gmail.com>
+	<alpine.LNX.2.00.1411022134120.19451@pobox.suse.cz>
+	<CALCETrVtA9rCDqAetaFj=tCo=ebWW43mA4f8n6fMZdCnE9TvgA@mail.gmail.com>
+	<alpine.LNX.2.00.1411022229060.19451@pobox.suse.cz>
+	<alpine.LNX.2.00.1411022239330.19451@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f52.google.com ([209.85.213.52]:37012 "EHLO
-	mail-yh0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751362AbaKBV72 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2014 16:59:28 -0500
-Received: by mail-yh0-f52.google.com with SMTP id a41so4277377yho.11
-        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2014 13:59:27 -0800 (PST)
-In-Reply-To: <CALCETrUCiK7t0vT=N9Od3itKuQBYQUescMfmdXfD_fWCZdw3hw@mail.gmail.com>
+Received: from mail-qa0-f44.google.com ([209.85.216.44]:56395 "EHLO
+	mail-qa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751463AbaKBWpb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2014 17:45:31 -0500
+Received: by mail-qa0-f44.google.com with SMTP id w8so7585769qac.31
+        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2014 14:45:30 -0800 (PST)
+In-Reply-To: <alpine.LNX.2.00.1411022239330.19451@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Kay Sievers <kay@vrfy.org>, Greg KH <gregkh@linuxfoundation.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andy Lutomirski <luto@amacapital.net>, Kay Sievers <kay@vrfy.org>, Greg KH <gregkh@linuxfoundation.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, linux-input <linux-input@vger.kernel.org>
 
-On Sun, Nov 2, 2014 at 10:13 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-> On Sun, Nov 2, 2014 at 12:47 PM, Tom Gundersen <teg@jklm.no> wrote:
->> Hi Andy,
->>
->> On Sun, Nov 2, 2014 at 7:57 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>> I want to get U2F (universal second factor, sometimes called "security
->>> key" or even "gnubby") working on Linux.  U2F tokens are HID devices
->>> that speak a custom protocol.  The intent is that user code will speak
->>> to then using something like HIDAPI.
->>>
->>> The trick is that, for HIDAPI to work, something needs to recognize
->>> these devices and get udev to set appropriate device permissions.
->>>
->>> My question is: how should this be done?  The official way to
->>> enumerate U2F devices is to look for a HID usage page 0xf1d0
->>> containing usage 0x1.
->>>
->>> Options include:
->>>
->>>  - A builtin udev helper that reads the sysfs report_descriptor for
->>> hid or hidraw devices and sets attributes accordingly (either
->>> ID_SECURITY_TOKEN or something more general).
->>
->> I don't think we should have such special-purpose logic in the udev core.
->>
->> [...]
->>
->>> - HID core code in the kernel to add
->>> HID_USAGES=f1d00001:lots:of:other:things to the uevent (or udev code
->>> to do the same).  This might end up producing a rather long string or
->>> some devices.
->>
->> This makes the most sense to me. We could put this logic (adapting the
->> patch you posted) in src/udev/udev-builtin-usb_id.c.
+On Sun, Nov 2, 2014 at 4:40 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Sun, 2 Nov 2014, Jiri Kosina wrote:
 >
-> How would that work?  Can't a USB device have more than one HID class
-> device under it?  I could imagine a future U2F keyboard that has a HID
-> class device for the keyboard part and another one for U2F.
+>> Alternatively, you can just write udev rule which triggers on HID devices,
+>> issues HIDIOCGRDESC ioctl() on the just-created hidraw node, and decides
+>> afterwards whether node permissions need to be altered ... right?
+>
+> Just to make myself clear here -- this is basically alternative to your
+> 1st option, but for cases where you want to make yourself independent on
+> sysfs existence (I don't what is the craziness level of setups you are
+> considering).
+>
 
-Right, a separate built-in makes more sense then.
+I am a little bit concerned with the user space retrieving the
+descriptor, parsing it and then deciding how to set the permissions.
+It's not that it is super complex, but it will duplicate the parsing
+we already do in the kernel. Wacom tried to do that in their usb
+driver, and they never managed to fully implement one.
+
+I think the HID_GROUP solution is super trivial:
+- add a match on the U2F input report and set the group to
+HID_GROUP_U2F (2 lines in hid_scan_input_usage() in hid-core.c)
+- allow hid-generic to also match HID_GROUP_U2F (1 line in hid-generic.c).
+
+Then, the udev rule would be super trivial.
+
+Also, if we want to further extend the kernel API for U2F, the group
+will already be in place.
 
 Cheers,
-
-Tom
+Benjamin

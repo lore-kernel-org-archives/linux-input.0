@@ -1,99 +1,379 @@
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH v3 1/4] input: alps: Do not try to parse data as 3 bytes packet when driver is out of sync
-Date: Sun,  2 Nov 2014 00:25:07 +0100
-Message-ID: <1414884310-19842-2-git-send-email-pali.rohar@gmail.com>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
- <1414884310-19842-1-git-send-email-pali.rohar@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v3] psmouse: Add some support for the FocalTech PS/2 protocol
+ extensions.
+Date: Sun, 02 Nov 2014 15:07:01 +0100
+Message-ID: <54563A85.1080603@redhat.com>
+References: <54528486.6060502@gmail.com> <54538ED3.3040707@redhat.com> <545413F5.3030001@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f171.google.com ([209.85.212.171]:46316 "EHLO
-	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750864AbaKAXdm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Nov 2014 19:33:42 -0400
-In-Reply-To: <1414884310-19842-1-git-send-email-pali.rohar@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51427 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751074AbaKBOHH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 2 Nov 2014 09:07:07 -0500
+In-Reply-To: <545413F5.3030001@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Mathias Gottschlag <mgottschlag@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-5th and 6th byte of ALPS trackstick V3 protocol match condition for fir=
-st byte
-of PS/2 3 bytes packet. When driver enters out of sync state and ALPS t=
-rackstick
-is sending data then driver match 5th, 6th and next 1st bytes as PS/2.
+Hi,
 
-It basically means if user is using trackstick when driver is in out of=
- sync
-state driver will never resync. Processing these bytes as 3 bytes PS/2 =
-data
-cause total mess (random cursor movements, random clicks) and make trac=
-kstick
-unusable until psmouse driver decide to do full device reset.
+On 10/31/2014 11:57 PM, Mathias Gottschlag wrote:
+> Am 31.10.2014 um 14:29 schrieb Hans de Goede:
+>> Hi Mathias,
+>>
+>> Thanks for your continued work on this. 3 remarks online + 1 at the bottom.
+>>
+>> On 10/30/2014 07:33 PM, Mathias Gottschlag wrote:
+>>> Most of the protocol for these touchpads has been reverse engineered. This
+>>> commit adds a basic multitouch-capable driver.
+>>>
+>>> A lot of the protocol is still unknown. Especially, we don't know how to
+>>> identify the device yet apart from the PNP ID.
+>>>
+>>> The previous workaround for these devices has been left in place in case
+>>> the driver is not compiled into the kernel or in case some other device
+>>> with the same PNP ID is not recognized by the driver yet still has the
+>>> same
+>>> problems with the device probing code.
+>> Missing "Signed-off-by: Mathias Gottschlag <mgottschlag@gmail.com>", we need
+>> this before this patch can be merged (just put it at the end of the commit
+>> message (official end, before the changelog) when you send the next version).
+>>
+>>
+>>> ---
+>>>
+>>> (Sorry, some serious incompetence caused me to always test an old
+>>> version of the module, so I overlooked an embarrasing pagefault right
+>>> during initialization, where memory allocation did not happen early
+>>> enough)
+>>>
+>>> Thanks for the first round of review, I hope I addressed all comments.
+>>> Changes compared to the last version:
+>>> - The detection code does not compare all registers anymore.
+>>> - The driver now reads the size of the touchpad during initialization.
+>>> This should add support for Asus X450JN, where the touchpad is a bit
+>>> wider.
+>>> - set_input_params has been simplified.
+>>> - fingers are now valid=0 when the touchpad reports a large object.
+>>>
+>>>  drivers/input/mouse/Kconfig        |  10 ++
+>>>  drivers/input/mouse/focaltech.c    | 300
+>>> ++++++++++++++++++++++++++++++++++++-
+>> Your mail client has line-wrapped this line, and many others further below,
+>> making it impossible to apply this, please resend using "git send-email" .
+>>
+>>>  drivers/input/mouse/focaltech.h    |  60 ++++++++
+>>>  drivers/input/mouse/psmouse-base.c |  32 ++--
+>>>  drivers/input/mouse/psmouse.h      |   1 +
+>>>  5 files changed, 386 insertions(+), 17 deletions(-)
+>>>
+>>> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+>>> index 366fc7a..db973e5 100644
+>>> --- a/drivers/input/mouse/Kconfig
+>>> +++ b/drivers/input/mouse/Kconfig
+>>> @@ -146,6 +146,16 @@ config MOUSE_PS2_OLPC
+>>>   	  If unsure, say N.
+>>>  +config MOUSE_PS2_FOCALTECH
+>>> +	bool "FocalTech PS/2 mouse protocol extension" if EXPERT
+>>> +	default y
+>>> +	depends on MOUSE_PS2
+>>> +	help
+>>> +	  Say Y here if you have a FocalTech PS/2 TouchPad connected to
+>>> +	  your system.
+>>> +
+>>> +	  If unsure, say Y.
+>>> +
+>>>  config MOUSE_SERIAL
+>>>  	tristate "Serial mouse"
+>>>  	select SERIO
+>>> diff --git a/drivers/input/mouse/focaltech.c
+>>> b/drivers/input/mouse/focaltech.c
+>>> index f4d657e..26bc5b7 100644
+>>> --- a/drivers/input/mouse/focaltech.c
+>>> +++ b/drivers/input/mouse/focaltech.c
+>>> @@ -2,6 +2,7 @@
+>>>   * Focaltech TouchPad PS/2 mouse driver
+>>>   *
+>>>   * Copyright (c) 2014 Red Hat Inc.
+>>> + * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+>>>   *
+>>>   * This program is free software; you can redistribute it and/or modify
+>>>   * it under the terms of the GNU General Public License as published by
+>>> @@ -13,15 +14,14 @@
+>>>   * Hans de Goede <hdegoede@redhat.com>
+>>>   */
+>>>  -/*
+>>> - * The Focaltech PS/2 touchpad protocol is unknown. This drivers
+>>> deals with
+>>> - * detection only, to avoid further detection attempts confusing the
+>>> touchpad
+>>> - * this way it at least works in PS/2 mouse compatibility mode.
+>>> - */
+>>>   #include <linux/device.h>
+>>>  #include <linux/libps2.h>
+>>> +#include <linux/input/mt.h>
+>>> +#include <linux/serio.h>
+>>> +#include <linux/slab.h>
+>>>  #include "psmouse.h"
+>>> +#include "focaltech.h"
+>>>   static const char * const focaltech_pnp_ids[] = {
+>>>  	"FLT0101",
+>>> @@ -30,6 +30,12 @@ static const char * const focaltech_pnp_ids[] = {
+>>>  	NULL
+>>>  };
+>>>  +/*
+>>> + * Even if the kernel is built without support for Focaltech PS/2
+>>> touchpads (or
+>>> + * when the real driver fails to recognize the device), we still have
+>>> to detect
+>>> + * them in order to avoid further detection attempts confusing the
+>>> touchpad.
+>>> + * This way it at least works in PS/2 mouse compatibility mode.
+>>> + */
+>>>  int focaltech_detect(struct psmouse *psmouse, bool set_properties)
+>>>  {
+>>>  	if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
+>>> @@ -37,16 +43,296 @@ int focaltech_detect(struct psmouse *psmouse,
+>>> bool set_properties)
+>>>   	if (set_properties) {
+>>>  		psmouse->vendor = "FocalTech";
+>>> -		psmouse->name = "FocalTech Touchpad in mouse emulation mode";
+>>> +		psmouse->name = "FocalTech Touchpad";
+>>>  	}
+>>>   	return 0;
+>>>  }
+>>>  -int focaltech_init(struct psmouse *psmouse)
+>>> +static void focaltech_reset(struct psmouse *psmouse)
+>>>  {
+>>>  	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+>>>  	psmouse_reset(psmouse);
+>>> +}
+>>> +
+>>> +#ifdef CONFIG_MOUSE_PS2_FOCALTECH
+>>> +
+>>> +static void focaltech_report_state(struct psmouse *psmouse)
+>>> +{
+>>> +	int i;
+>>> +	struct focaltech_data *priv = psmouse->private;
+>>> +	struct focaltech_hw_state *state = &priv->state;
+>>> +	struct input_dev *dev = psmouse->dev;
+>>> +	int finger_count = 0;
+>>> +
+>>> +	for (i = 0; i < FOC_MAX_FINGERS; i++) {
+>>> +		struct focaltech_finger_state *finger = &state->fingers[i];
+>>> +		int active = finger->active && finger->valid;
+>>> +		input_mt_slot(dev, i);
+>>> +		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+>>> +		if (active) {
+>>> +			finger_count++;
+>>> +			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
+>>> +			input_report_abs(dev, ABS_MT_POSITION_Y,
+>>> +					focaltech_invert_y(finger->y));
+>>> +		}
+>>> +	}
+>>> +	input_mt_report_pointer_emulation(dev, finger_count);
+>>> +
+>>> +	input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
+>>> +	input_sync(psmouse->dev);
+>>> +}
+>>> +
+>>> +static void process_touch_packet(struct focaltech_hw_state *state,
+>>> +		unsigned char *packet)
+>>> +{
+>>> +	int i;
+>>> +	unsigned char fingers = packet[1];
+>>> +
+>>> +	state->pressed = (packet[0] >> 4) & 1;
+>>> +	/* the second byte contains a bitmap of all fingers touching the pad */
+>>> +	for (i = 0; i < FOC_MAX_FINGERS; i++) {
+>>> +		if ((fingers & 0x1) && !state->fingers[i].active) {
+>>> +			/* we do not have a valid position for the finger yet */
+>>> +			state->fingers[i].valid = 0;
+>>> +		}
+>>> +		state->fingers[i].active = fingers & 0x1;
+>>> +		fingers >>= 1;
+>>> +	}
+>>> +}
+>>> +
+>>> +static void process_abs_packet(struct focaltech_hw_state *state,
+>>> +		unsigned char *packet)
+>>> +{
+>>> +	unsigned int finger = (packet[1] >> 4) - 1;
+>>> +
+>>> +	state->pressed = (packet[0] >> 4) & 1;
+>>> +	if (finger >= FOC_MAX_FINGERS)
+>>> +		return;
+>>> +	/*
+>>> +	 * packet[5] contains some kind of tool size in the most significant
+>>> +	 * nibble. 0xff is a special value (latching) that signals a large
+>>> +	 * contact area.
+>>> +	 */
+>>> +	if (packet[5] == 0xff) {
+>>> +		state->fingers[finger].valid = 0;
+>>> +		return;
+>>> +	}
+>>> +	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
+>>> +	state->fingers[finger].y = (packet[3] << 8) | packet[4];
+>>> +	state->fingers[finger].valid = 1;
+>>> +}
+>>> +static void process_rel_packet(struct focaltech_hw_state *state,
+>>> +		unsigned char *packet)
+>>> +{
+>>> +	int finger1 = ((packet[0] >> 4) & 0x7) - 1;
+>>> +	int finger2 = ((packet[3] >> 4) & 0x7) - 1;
+>>> +
+>>> +	state->pressed = packet[0] >> 7;
+>>> +	if (finger1 < FOC_MAX_FINGERS) {
+>>> +		state->fingers[finger1].x += (char)packet[1];
+>>> +		state->fingers[finger1].y += (char)packet[2];
+>>> +	}
+>>> +	/*
+>>> +	 * If there is an odd number of fingers, the last relative packet only
+>>> +	 * contains one finger. In this case, the second finger index in the
+>>> +	 * packet is 0 (we subtract 1 in the lines above to create array
+>>> +	 * indices).
+>>> +	 */
+>>> +	if (finger2 != -1 && finger2 < FOC_MAX_FINGERS) {
+>>> +		state->fingers[finger2].x += (char)packet[4];
+>>> +		state->fingers[finger2].y += (char)packet[5];
+>>> +	}
+>>> +}
+>>> +
+>>> +static void focaltech_process_packet(struct psmouse *psmouse)
+>>> +{
+>>> +	struct focaltech_data *priv = psmouse->private;
+>>> +	unsigned char *packet = psmouse->packet;
+>>> +
+>>> +	switch (packet[0] & 0xf) {
+>>> +	case FOC_TOUCH:
+>>> +		process_touch_packet(&priv->state, packet);
+>>> +		break;
+>>> +	case FOC_ABS:
+>>> +		process_abs_packet(&priv->state, packet);
+>>> +		break;
+>>> +	case FOC_REL:
+>>> +		process_rel_packet(&priv->state, packet);
+>>> +		break;
+>>> +	default:
+>>> +		psmouse_err(psmouse, "Unknown packet type: %02x", packet[0]);
+>>> +		break;
+>>> +	}
+>>> +
+>>> +	focaltech_report_state(psmouse);
+>>> +}
+>>> +
+>>> +static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
+>>> +{
+>>> +	if (psmouse->pktcnt >= 6) { /* Full packet received */
+>>> +		focaltech_process_packet(psmouse);
+>>> +		return PSMOUSE_FULL_PACKET;
+>>> +	}
+>>> +	/*
+>>> +	 * we might want to do some validation of the data here, but we do not
+>>> +	 * know the protocoll well enough
+>>> +	 */
+>>> +	return PSMOUSE_GOOD_DATA;
+>>> +}
+>>> +
+>>> +static int focaltech_switch_protocol(struct psmouse *psmouse)
+>>> +{
+>>> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+>>> +	unsigned char param[3];
+>>> +
+>>> +	param[0] = 0;
+>>> +	if (ps2_command(ps2dev, param, 0x10f8))
+>>> +		return -EIO;
+>>> +	if (ps2_command(ps2dev, param, 0x10f8))
+>>> +		return -EIO;
+>>> +	if (ps2_command(ps2dev, param, 0x10f8))
+>>> +		return -EIO;
+>>> +	param[0] = 1;
+>>> +	if (ps2_command(ps2dev, param, 0x10f8))
+>>> +		return -EIO;
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
+>>> +		return -EIO;
+>>> +
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_ENABLE))
+>>> +		return -EIO;
+>>>   	return 0;
+>>>  }
+>>> +
+>>> +static void focaltech_disconnect(struct psmouse *psmouse)
+>>> +{
+>>> +	focaltech_reset(psmouse);
+>>> +	kfree(psmouse->private);
+>>> +	psmouse->private = NULL;
+>>> +}
+>>> +
+>>> +static int focaltech_reconnect(struct psmouse *psmouse)
+>>> +{
+>>> +	focaltech_reset(psmouse);
+>>> +	if (focaltech_switch_protocol(psmouse)) {
+>>> +		psmouse_err(psmouse,
+>>> +			    "Unable to initialize the device.");
+>>> +		return -1;
+>>> +	}
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static void set_input_params(struct psmouse *psmouse)
+>>> +{
+>>> +	struct input_dev *dev = psmouse->dev;
+>>> +	struct focaltech_data *priv = psmouse->private;
+>>> +
+>>> +	__set_bit(EV_ABS, dev->evbit);
+>>> +	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
+>>> +	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
+>>> +	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
+>>> +	__clear_bit(EV_REL, dev->evbit);
+>>> +	__clear_bit(REL_X, dev->relbit);
+>>> +	__clear_bit(REL_Y, dev->relbit);
+>>> +	__clear_bit(BTN_RIGHT, dev->keybit);
+>>> +	__clear_bit(BTN_MIDDLE, dev->keybit);
+>>> +	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
+>>> +}
+>>> +
+>>> +static int focaltech_read_register(struct ps2dev *ps2dev, int reg,
+>>> +		unsigned char *param)
+>>> +{
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
+>>> +		return -1;
+>>> +	param[0] = 0;
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+>>> +		return -1;
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+>>> +		return -1;
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+>>> +		return -1;
+>>> +	param[0] = reg;
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
+>>> +		return -1;
+>>> +	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
+>>> +		return -1;
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int focaltech_read_size(struct psmouse *psmouse)
+>>> +{
+>>> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+>>> +	struct focaltech_data *priv = psmouse->private;
+>>> +	char param[3];
+>>> +
+>>> +	if (focaltech_read_register(ps2dev, 2, param))
+>>> +		return -EIO;
+>>> +	/* not sure whether this is 100% correct */
+>>> +	priv->x_max = (unsigned char)param[1] * 128;
+>>> +	priv->y_max = (unsigned char)param[2] * 128;
+>> Hmm, I assume it is 99% correct for the X450 and X550 ?  In that case this is
+>> good enough for now.
+> It seems to be correct for Asus R405LD, X450, K750 (=X750?), UX303. Good
+> enough, or should I wait for more feedback?
 
-Lot of users reported problems with ALPS devices on Dell Latitude E6440=
-, E6540
-and E7440 laptops. ALPS device or Dell EC for unknown reason send some =
-invalid
-ALPS PS/2 bytes which cause driver out of sync. It looks like that i804=
-2 and
-psmouse/alps driver always receive group of 6 bytes packets so there ar=
-e no
-missing bytes and no bytes were inserted between valid once.
+Sounds good enough to me.
 
-This patch does not fix root of problem with ALPS devices found in Dell=
- Latitude
-laptops but it does not allow to process some (invalid) subsequence of =
-6 bytes
-ALPS packets as 3 bytes PS/2 when driver is out of sync.
+Regards,
 
-So with this patch trackstick input device does not report bogus data w=
-hen
-also driver is out of sync, so trackstick should be usable on those mac=
-hines.
-
-Unknown is also information which ALPS devices send 3 bytes packets and=
- why
-ALPS driver needs to handle also bare PS/2 packets. According to git (a=
-nd plus
-historic tree from bitkeeper) code for processing 3 bytes bare PS/2 pac=
-kets
-is there since first version of alps.c existence (since 2.6.9-rc2).
-
-We do not want to break some older ALPS devices. And disabling processi=
-ng bare
-PS/2 packets when driver is out of sync should not break it.
-
-Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-Tested-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-Cc: stable@vger.kernel.org
----
- drivers/input/mouse/alps.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 2b0ae8c..a772745 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1156,7 +1156,9 @@ static psmouse_ret_t alps_process_byte(struct psm=
-ouse *psmouse)
- {
- 	struct alps_data *priv =3D psmouse->private;
-=20
--	if ((psmouse->packet[0] & 0xc8) =3D=3D 0x08) { /* PS/2 packet */
-+	/* FIXME: Could we receive bare PS/2 packets from DualPoint devices??=
- */
-+	if (!psmouse->out_of_sync_cnt &&
-+	    (psmouse->packet[0] & 0xc8) =3D=3D 0x08) { /* PS/2 packet */
- 		if (psmouse->pktcnt =3D=3D 3) {
- 			alps_report_bare_ps2_packet(psmouse, psmouse->packet,
- 						    true);
---=20
-1.7.9.5
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hans

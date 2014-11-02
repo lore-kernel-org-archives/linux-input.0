@@ -1,96 +1,55 @@
 From: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: Supporting U2F over HID on Linux?
-Date: Sun, 2 Nov 2014 13:11:30 -0800
-Message-ID: <CALCETrVtA9rCDqAetaFj=tCo=ebWW43mA4f8n6fMZdCnE9TvgA@mail.gmail.com>
+Date: Sun, 2 Nov 2014 13:13:18 -0800
+Message-ID: <CALCETrUCiK7t0vT=N9Od3itKuQBYQUescMfmdXfD_fWCZdw3hw@mail.gmail.com>
 References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <alpine.LNX.2.00.1411022134120.19451@pobox.suse.cz>
+ <CAG-2HqVug0hixSm5Lad7pVSZgJOm4smbL=2jzmREz4Zwk2zghw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f54.google.com ([209.85.215.54]:61962 "EHLO
-	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751244AbaKBVLw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2014 16:11:52 -0500
-Received: by mail-la0-f54.google.com with SMTP id s18so3212537lam.27
-        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2014 13:11:50 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1411022134120.19451@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CAG-2HqVug0hixSm5Lad7pVSZgJOm4smbL=2jzmREz4Zwk2zghw@mail.gmail.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: Tom Gundersen <teg@jklm.no>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Kay Sievers <kay@vrfy.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Kay Sievers <kay@vrfy.org>, Greg KH <gregkh@linuxfoundation.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, linux-input@vger.kernel.org
 
-On Sun, Nov 2, 2014 at 12:42 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sun, 2 Nov 2014, Andy Lutomirski wrote:
->
->> I want to get U2F (universal second factor, sometimes called "security
->> key" or even "gnubby") working on Linux.  U2F tokens are HID devices
->> that speak a custom protocol.  The intent is that user code will speak
->> to then using something like HIDAPI.
->>
->> The trick is that, for HIDAPI to work, something needs to recognize
->> these devices and get udev to set appropriate device permissions.
->
-> Just to make sure we are on the same page -- this is really only about
-> setting proper device node permissions and nothing else, right?
-
-Yes.
-
->
->> My question is: how should this be done?  The official way to
->> enumerate U2F devices is to look for a HID usage page 0xf1d0
->> containing usage 0x1.
->>
->> Options include:
->>
->>  - A builtin udev helper that reads the sysfs report_descriptor for
->> hid or hidraw devices and sets attributes accordingly (either
->> ID_SECURITY_TOKEN or something more general).
->
-> Hmmm ... please keep in mind that report_descriptor is actually in
-> debugfs, so it's a bit questionable whether you can rely on it being
-> present on well-defined location on all systems.
->
-
-Huh?  I have /sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.2/1-1.2:1.0/0003:1050:0120.0013/report_descriptor
-on my system.
-
-> You can get it from different other places though, such as libusb (but
-> then you are limited only to USB HID devices ... which might be enough
-> in your particular case).
-
-I have no idea whether there will ever be a bluetooth U2F device.
-
->
->> - A udev helper that does this and doesn't live in the systemd tree.
->> I don't love this option -- I'd prefer for this to be as plug-and-play
->> as possible.
->
-> Agreed.
->
->> - HID core code in the kernel to add
->> HID_USAGES=f1d00001:lots:of:other:things to the uevent (or udev code
->> to do the same).  This might end up producing a rather long string or
->> some devices.
->
-> We have been thinking about this quite a lot in the past, and decided to
-> postpone this until there is a very good reason for it to happen.
-
-I'm not sure that U2F counts as a very good reason.
-
->
->>  - An actual kernel driver for U2F devices using the hid group
->> mechanism for enumeration.  This seems overcomplicated.
->
-> Hmmm ... why do you think so? I believe it actually should be really
-> super-trivial.
-
-The HID group part is trivial, but what interface would the driver
-expose?  I don't think that a udev rule for hidraw matching the
-modalias makes any sense, and, if it were a real driver, what
-interface would it expose?  Most cross-platform userspace code for U2F
-is likely to use HIDAPI.
-
-Admittedly, a U2F driver in the kernel would be slightly nicer from a
-multiplexing standpoint than hidraw.
-
---Andy
+T24gU3VuLCBOb3YgMiwgMjAxNCBhdCAxMjo0NyBQTSwgVG9tIEd1bmRlcnNlbiA8dGVnQGprbG0u
+bm8+IHdyb3RlOgo+IEhpIEFuZHksCj4KPiBPbiBTdW4sIE5vdiAyLCAyMDE0IGF0IDc6NTcgUE0s
+IEFuZHkgTHV0b21pcnNraSA8bHV0b0BhbWFjYXBpdGFsLm5ldD4gd3JvdGU6Cj4+IEkgd2FudCB0
+byBnZXQgVTJGICh1bml2ZXJzYWwgc2Vjb25kIGZhY3Rvciwgc29tZXRpbWVzIGNhbGxlZCAic2Vj
+dXJpdHkKPj4ga2V5IiBvciBldmVuICJnbnViYnkiKSB3b3JraW5nIG9uIExpbnV4LiAgVTJGIHRv
+a2VucyBhcmUgSElEIGRldmljZXMKPj4gdGhhdCBzcGVhayBhIGN1c3RvbSBwcm90b2NvbC4gIFRo
+ZSBpbnRlbnQgaXMgdGhhdCB1c2VyIGNvZGUgd2lsbCBzcGVhawo+PiB0byB0aGVuIHVzaW5nIHNv
+bWV0aGluZyBsaWtlIEhJREFQSS4KPj4KPj4gVGhlIHRyaWNrIGlzIHRoYXQsIGZvciBISURBUEkg
+dG8gd29yaywgc29tZXRoaW5nIG5lZWRzIHRvIHJlY29nbml6ZQo+PiB0aGVzZSBkZXZpY2VzIGFu
+ZCBnZXQgdWRldiB0byBzZXQgYXBwcm9wcmlhdGUgZGV2aWNlIHBlcm1pc3Npb25zLgo+Pgo+PiBN
+eSBxdWVzdGlvbiBpczogaG93IHNob3VsZCB0aGlzIGJlIGRvbmU/ICBUaGUgb2ZmaWNpYWwgd2F5
+IHRvCj4+IGVudW1lcmF0ZSBVMkYgZGV2aWNlcyBpcyB0byBsb29rIGZvciBhIEhJRCB1c2FnZSBw
+YWdlIDB4ZjFkMAo+PiBjb250YWluaW5nIHVzYWdlIDB4MS4KPj4KPj4gT3B0aW9ucyBpbmNsdWRl
+Ogo+Pgo+PiAgLSBBIGJ1aWx0aW4gdWRldiBoZWxwZXIgdGhhdCByZWFkcyB0aGUgc3lzZnMgcmVw
+b3J0X2Rlc2NyaXB0b3IgZm9yCj4+IGhpZCBvciBoaWRyYXcgZGV2aWNlcyBhbmQgc2V0cyBhdHRy
+aWJ1dGVzIGFjY29yZGluZ2x5IChlaXRoZXIKPj4gSURfU0VDVVJJVFlfVE9LRU4gb3Igc29tZXRo
+aW5nIG1vcmUgZ2VuZXJhbCkuCj4KPiBJIGRvbid0IHRoaW5rIHdlIHNob3VsZCBoYXZlIHN1Y2gg
+c3BlY2lhbC1wdXJwb3NlIGxvZ2ljIGluIHRoZSB1ZGV2IGNvcmUuCj4KPiBbLi4uXQo+Cj4+IC0g
+SElEIGNvcmUgY29kZSBpbiB0aGUga2VybmVsIHRvIGFkZAo+PiBISURfVVNBR0VTPWYxZDAwMDAx
+OmxvdHM6b2Y6b3RoZXI6dGhpbmdzIHRvIHRoZSB1ZXZlbnQgKG9yIHVkZXYgY29kZQo+PiB0byBk
+byB0aGUgc2FtZSkuICBUaGlzIG1pZ2h0IGVuZCB1cCBwcm9kdWNpbmcgYSByYXRoZXIgbG9uZyBz
+dHJpbmcgb3IKPj4gc29tZSBkZXZpY2VzLgo+Cj4gVGhpcyBtYWtlcyB0aGUgbW9zdCBzZW5zZSB0
+byBtZS4gV2UgY291bGQgcHV0IHRoaXMgbG9naWMgKGFkYXB0aW5nIHRoZQo+IHBhdGNoIHlvdSBw
+b3N0ZWQpIGluIHNyYy91ZGV2L3VkZXYtYnVpbHRpbi11c2JfaWQuYy4KCkhvdyB3b3VsZCB0aGF0
+IHdvcms/ICBDYW4ndCBhIFVTQiBkZXZpY2UgaGF2ZSBtb3JlIHRoYW4gb25lIEhJRCBjbGFzcwpk
+ZXZpY2UgdW5kZXIgaXQ/ICBJIGNvdWxkIGltYWdpbmUgYSBmdXR1cmUgVTJGIGtleWJvYXJkIHRo
+YXQgaGFzIGEgSElECmNsYXNzIGRldmljZSBmb3IgdGhlIGtleWJvYXJkIHBhcnQgYW5kIGFub3Ro
+ZXIgb25lIGZvciBVMkYuCgotLUFuZHkKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18Kc3lzdGVtZC1kZXZlbCBtYWlsaW5nIGxpc3QKc3lzdGVtZC1kZXZlbEBs
+aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3N5c3RlbWQtZGV2ZWwK

@@ -1,69 +1,77 @@
-From: Andy Lutomirski <luto@amacapital.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: Supporting U2F over HID on Linux?
-Date: Sun, 2 Nov 2014 14:49:37 -0800
-Message-ID: <CALCETrVdaYnTU--9nmWUhcNeTO9eqheP_OsujVEB8yUM4AgzSg@mail.gmail.com>
+Date: Sun, 2 Nov 2014 18:01:31 -0500
+Message-ID: <CAN+gG=FtZqx3WqTEKpjM6CKQ9EBuZqVUNs=TgswtnTtMNrGhcA@mail.gmail.com>
 References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <alpine.LNX.2.00.1411022134120.19451@pobox.suse.cz> <CALCETrVtA9rCDqAetaFj=tCo=ebWW43mA4f8n6fMZdCnE9TvgA@mail.gmail.com>
- <alpine.LNX.2.00.1411022229060.19451@pobox.suse.cz> <alpine.LNX.2.00.1411022239330.19451@pobox.suse.cz>
+ <alpine.LNX.2.00.1411022134120.19451@pobox.suse.cz>
+ <CALCETrVtA9rCDqAetaFj=tCo=ebWW43mA4f8n6fMZdCnE9TvgA@mail.gmail.com>
+ <alpine.LNX.2.00.1411022229060.19451@pobox.suse.cz>
+ <alpine.LNX.2.00.1411022239330.19451@pobox.suse.cz>
  <CAN+gG=HZ+CA3tWbHjG=ULUfztj87mLCoGQXT-5XLd-+vZ1K6VA@mail.gmail.com>
+ <CALCETrVdaYnTU--9nmWUhcNeTO9eqheP_OsujVEB8yUM4AgzSg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:36919 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752627AbaKBWt7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2014 17:49:59 -0500
-Received: by mail-la0-f44.google.com with SMTP id gf13so8647544lab.31
-        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2014 14:49:57 -0800 (PST)
-In-Reply-To: <CAN+gG=HZ+CA3tWbHjG=ULUfztj87mLCoGQXT-5XLd-+vZ1K6VA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CALCETrVdaYnTU--9nmWUhcNeTO9eqheP_OsujVEB8yUM4AgzSg@mail.gmail.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Kay Sievers <kay@vrfy.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Kay Sievers <kay@vrfy.org>, Greg KH <gregkh@linuxfoundation.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, linux-input <linux-input@vger.kernel.org>
 
-On Sun, Nov 2, 2014 at 2:45 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Sun, Nov 2, 2014 at 4:40 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->> On Sun, 2 Nov 2014, Jiri Kosina wrote:
->>
->>> Alternatively, you can just write udev rule which triggers on HID devices,
->>> issues HIDIOCGRDESC ioctl() on the just-created hidraw node, and decides
->>> afterwards whether node permissions need to be altered ... right?
->>
->> Just to make myself clear here -- this is basically alternative to your
->> 1st option, but for cases where you want to make yourself independent on
->> sysfs existence (I don't what is the craziness level of setups you are
->> considering).
->>
->
-> I am a little bit concerned with the user space retrieving the
-> descriptor, parsing it and then deciding how to set the permissions.
-> It's not that it is super complex, but it will duplicate the parsing
-> we already do in the kernel. Wacom tried to do that in their usb
-> driver, and they never managed to fully implement one.
->
-> I think the HID_GROUP solution is super trivial:
-> - add a match on the U2F input report and set the group to
-> HID_GROUP_U2F (2 lines in hid_scan_input_usage() in hid-core.c)
-> - allow hid-generic to also match HID_GROUP_U2F (1 line in hid-generic.c).
->
-> Then, the udev rule would be super trivial.
-
-I'm confused.  What would the user-visible effect of this be?  Would
-the hidraw node still show up?  What is user code supposed to match to
-detect a U2F device or to otherwise set permissions?
-
---Andy
-
->
-> Also, if we want to further extend the kernel API for U2F, the group
-> will already be in place.
->
-> Cheers,
-> Benjamin
-
-
-
--- 
-Andy Lutomirski
-AMA Capital Management, LLC
+T24gU3VuLCBOb3YgMiwgMjAxNCBhdCA1OjQ5IFBNLCBBbmR5IEx1dG9taXJza2kgPGx1dG9AYW1h
+Y2FwaXRhbC5uZXQ+IHdyb3RlOgo+IE9uIFN1biwgTm92IDIsIDIwMTQgYXQgMjo0NSBQTSwgQmVu
+amFtaW4gVGlzc29pcmVzCj4gPGJlbmphbWluLnRpc3NvaXJlc0BnbWFpbC5jb20+IHdyb3RlOgo+
+PiBPbiBTdW4sIE5vdiAyLCAyMDE0IGF0IDQ6NDAgUE0sIEppcmkgS29zaW5hIDxqa29zaW5hQHN1
+c2UuY3o+IHdyb3RlOgo+Pj4gT24gU3VuLCAyIE5vdiAyMDE0LCBKaXJpIEtvc2luYSB3cm90ZToK
+Pj4+Cj4+Pj4gQWx0ZXJuYXRpdmVseSwgeW91IGNhbiBqdXN0IHdyaXRlIHVkZXYgcnVsZSB3aGlj
+aCB0cmlnZ2VycyBvbiBISUQgZGV2aWNlcywKPj4+PiBpc3N1ZXMgSElESU9DR1JERVNDIGlvY3Rs
+KCkgb24gdGhlIGp1c3QtY3JlYXRlZCBoaWRyYXcgbm9kZSwgYW5kIGRlY2lkZXMKPj4+PiBhZnRl
+cndhcmRzIHdoZXRoZXIgbm9kZSBwZXJtaXNzaW9ucyBuZWVkIHRvIGJlIGFsdGVyZWQgLi4uIHJp
+Z2h0Pwo+Pj4KPj4+IEp1c3QgdG8gbWFrZSBteXNlbGYgY2xlYXIgaGVyZSAtLSB0aGlzIGlzIGJh
+c2ljYWxseSBhbHRlcm5hdGl2ZSB0byB5b3VyCj4+PiAxc3Qgb3B0aW9uLCBidXQgZm9yIGNhc2Vz
+IHdoZXJlIHlvdSB3YW50IHRvIG1ha2UgeW91cnNlbGYgaW5kZXBlbmRlbnQgb24KPj4+IHN5c2Zz
+IGV4aXN0ZW5jZSAoSSBkb24ndCB3aGF0IGlzIHRoZSBjcmF6aW5lc3MgbGV2ZWwgb2Ygc2V0dXBz
+IHlvdSBhcmUKPj4+IGNvbnNpZGVyaW5nKS4KPj4+Cj4+Cj4+IEkgYW0gYSBsaXR0bGUgYml0IGNv
+bmNlcm5lZCB3aXRoIHRoZSB1c2VyIHNwYWNlIHJldHJpZXZpbmcgdGhlCj4+IGRlc2NyaXB0b3Is
+IHBhcnNpbmcgaXQgYW5kIHRoZW4gZGVjaWRpbmcgaG93IHRvIHNldCB0aGUgcGVybWlzc2lvbnMu
+Cj4+IEl0J3Mgbm90IHRoYXQgaXQgaXMgc3VwZXIgY29tcGxleCwgYnV0IGl0IHdpbGwgZHVwbGlj
+YXRlIHRoZSBwYXJzaW5nCj4+IHdlIGFscmVhZHkgZG8gaW4gdGhlIGtlcm5lbC4gV2Fjb20gdHJp
+ZWQgdG8gZG8gdGhhdCBpbiB0aGVpciB1c2IKPj4gZHJpdmVyLCBhbmQgdGhleSBuZXZlciBtYW5h
+Z2VkIHRvIGZ1bGx5IGltcGxlbWVudCBvbmUuCj4+Cj4+IEkgdGhpbmsgdGhlIEhJRF9HUk9VUCBz
+b2x1dGlvbiBpcyBzdXBlciB0cml2aWFsOgo+PiAtIGFkZCBhIG1hdGNoIG9uIHRoZSBVMkYgaW5w
+dXQgcmVwb3J0IGFuZCBzZXQgdGhlIGdyb3VwIHRvCj4+IEhJRF9HUk9VUF9VMkYgKDIgbGluZXMg
+aW4gaGlkX3NjYW5faW5wdXRfdXNhZ2UoKSBpbiBoaWQtY29yZS5jKQo+PiAtIGFsbG93IGhpZC1n
+ZW5lcmljIHRvIGFsc28gbWF0Y2ggSElEX0dST1VQX1UyRiAoMSBsaW5lIGluIGhpZC1nZW5lcmlj
+LmMpLgo+Pgo+PiBUaGVuLCB0aGUgdWRldiBydWxlIHdvdWxkIGJlIHN1cGVyIHRyaXZpYWwuCj4K
+PiBJJ20gY29uZnVzZWQuICBXaGF0IHdvdWxkIHRoZSB1c2VyLXZpc2libGUgZWZmZWN0IG9mIHRo
+aXMgYmU/ICBXb3VsZAo+IHRoZSBoaWRyYXcgbm9kZSBzdGlsbCBzaG93IHVwPyAgV2hhdCBpcyB1
+c2VyIGNvZGUgc3VwcG9zZWQgdG8gbWF0Y2ggdG8KPiBkZXRlY3QgYSBVMkYgZGV2aWNlIG9yIHRv
+IG90aGVyd2lzZSBzZXQgcGVybWlzc2lvbnM/Cj4KClRoZSBvbmx5IGNoYW5nZSB3aXRoIHdoYXQg
+d2UgY3VycmVudGx5IGhhdmUgaXMgdGhhdCB0aGUgbW9kYWxpYXMgb2YKdGhlIGRldmljZSB3aWxs
+IGJlIHNvbWV0aGluZyBsaWtlCk1PREFMSUFTPWhpZDpiMDAwM2dISURfR1JPVVBfVTJGdjAwMDBY
+WFhYcDAwMDBYWFhYLiAocmVwbGFjZQpISURfR1JPVVBfVTJGIHdpdGggdGhlIHByb3BlciBoZXgg
+dmFsdWUpLiBTbyBtYXRjaGluZyBhZ2FpbnN0IHRoaXMKbW9kYWxpYXMgaXMgdHJpdmlhbCwgYW5k
+IHlvdSBjYW4ganVzdCBwdXQgdGhlIGhpZHJhdyBub2RlIHJ3IGZvcgp1c2Vycy4KClRoZSBkZXZp
+Y2Ugd2lsbCBzdGlsbCBiZSBoYW5kbGVkIGJ5IGhpZC1nZW5lcmljLCBzbyB0aGVyZSB3aWxsIGJl
+IG5vCmNoYW5nZXMgYmVzaWRlcyB0aGUgbW9kYWxpYXMuCgpTbyB5ZXMsIHlvdSBzdGlsbCBuZWVk
+IGEgdWRldiBydWxlIHRvIHNldCB0aGUgcHJvcGVyIHBlcm1pc3Npb24sIGJ1dAp5b3Ugd2lsbCBu
+b3QgaGF2ZSB0byBwYXJzZSB0aGUgcmVwb3J0IGRlc2NyaXB0b3JzLgoKQ2hlZXJzLApCZW5qYW1p
+bgoKUFM6IHNvbWUgdGltZSBzcGVudCBhbmQgSSByZWFsaXplZCB0aGF0IHRoZSBtb2RhbGlhcyB3
+b3VsZCBiZSB0aGUgb25lCm9mIHRoZSBISUQgbm9kZSwgd2hpY2ggdGhlIGhpZHJhdyBpcyBhIHNv
+bi4gTm90IHRoZSBoaWRyYXcgbm9kZQpkaXJlY3RseSA6LwoKPiAtLUFuZHkKPgo+Pgo+PiBBbHNv
+LCBpZiB3ZSB3YW50IHRvIGZ1cnRoZXIgZXh0ZW5kIHRoZSBrZXJuZWwgQVBJIGZvciBVMkYsIHRo
+ZSBncm91cAo+PiB3aWxsIGFscmVhZHkgYmUgaW4gcGxhY2UuCj4+Cj4+IENoZWVycywKPj4gQmVu
+amFtaW4KPgo+Cj4KPiAtLQo+IEFuZHkgTHV0b21pcnNraQo+IEFNQSBDYXBpdGFsIE1hbmFnZW1l
+bnQsIExMQwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpz
+eXN0ZW1kLWRldmVsIG1haWxpbmcgbGlzdApzeXN0ZW1kLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9w
+Lm9yZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vc3lzdGVt
+ZC1kZXZlbAo=

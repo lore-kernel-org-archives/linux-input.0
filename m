@@ -1,45 +1,49 @@
-From: Luis Henriques <luis.henriques@canonical.com>
-Subject: Re: [PATCH v2] Input: i8042 - add mux quirk for HP EliteBook
-Date: Sun, 2 Nov 2014 15:42:41 +0000
-Message-ID: <20141102154241.GA5273@hercules>
-References: <1414535232-4780-1-git-send-email-luis.henriques@canonical.com>
- <20141028230841.GB19675@dtor-ws>
- <20141101025737.GA20884@dtor-ws>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Supporting U2F over HID on Linux?
+Date: Sun, 2 Nov 2014 10:57:14 -0800
+Message-ID: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:59709 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751497AbaKBPmo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2014 10:42:44 -0500
-Content-Disposition: inline
-In-Reply-To: <20141101025737.GA20884@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: Kay Sievers <kay@vrfy.org>, Greg KH <gregkh@linuxfoundation.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Oct 31, 2014 at 07:57:37PM -0700, Dmitry Torokhov wrote:
-> On Tue, Oct 28, 2014 at 04:08:41PM -0700, Dmitry Torokhov wrote:
-> > On Tue, Oct 28, 2014 at 10:27:12PM +0000, Luis Henriques wrote:
-> > > This laptop requires active multiplexing to be enabled in order t=
-o be able
-> > > to separate the PS/2 mouse and the touchpad.
-> > >=20
-> > > Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
-> >=20
-> > Applied, thank you.
->=20
-> Actually I am reverting the nomux patch, so unapplied ;)
-
-That works for me as well :-)  Thanks!
-
-Cheers,
---
-Lu=EDs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SSB3YW50IHRvIGdldCBVMkYgKHVuaXZlcnNhbCBzZWNvbmQgZmFjdG9yLCBzb21ldGltZXMgY2Fs
+bGVkICJzZWN1cml0eQprZXkiIG9yIGV2ZW4gImdudWJieSIpIHdvcmtpbmcgb24gTGludXguICBV
+MkYgdG9rZW5zIGFyZSBISUQgZGV2aWNlcwp0aGF0IHNwZWFrIGEgY3VzdG9tIHByb3RvY29sLiAg
+VGhlIGludGVudCBpcyB0aGF0IHVzZXIgY29kZSB3aWxsIHNwZWFrCnRvIHRoZW4gdXNpbmcgc29t
+ZXRoaW5nIGxpa2UgSElEQVBJLgoKVGhlIHRyaWNrIGlzIHRoYXQsIGZvciBISURBUEkgdG8gd29y
+aywgc29tZXRoaW5nIG5lZWRzIHRvIHJlY29nbml6ZQp0aGVzZSBkZXZpY2VzIGFuZCBnZXQgdWRl
+diB0byBzZXQgYXBwcm9wcmlhdGUgZGV2aWNlIHBlcm1pc3Npb25zLgoKTXkgcXVlc3Rpb24gaXM6
+IGhvdyBzaG91bGQgdGhpcyBiZSBkb25lPyAgVGhlIG9mZmljaWFsIHdheSB0bwplbnVtZXJhdGUg
+VTJGIGRldmljZXMgaXMgdG8gbG9vayBmb3IgYSBISUQgdXNhZ2UgcGFnZSAweGYxZDAKY29udGFp
+bmluZyB1c2FnZSAweDEuCgpPcHRpb25zIGluY2x1ZGU6CgogLSBBIGJ1aWx0aW4gdWRldiBoZWxw
+ZXIgdGhhdCByZWFkcyB0aGUgc3lzZnMgcmVwb3J0X2Rlc2NyaXB0b3IgZm9yCmhpZCBvciBoaWRy
+YXcgZGV2aWNlcyBhbmQgc2V0cyBhdHRyaWJ1dGVzIGFjY29yZGluZ2x5IChlaXRoZXIKSURfU0VD
+VVJJVFlfVE9LRU4gb3Igc29tZXRoaW5nIG1vcmUgZ2VuZXJhbCkuCgotIEEgdWRldiBoZWxwZXIg
+dGhhdCBkb2VzIHRoaXMgYW5kIGRvZXNuJ3QgbGl2ZSBpbiB0aGUgc3lzdGVtZCB0cmVlLgpJIGRv
+bid0IGxvdmUgdGhpcyBvcHRpb24gLS0gSSdkIHByZWZlciBmb3IgdGhpcyB0byBiZSBhcyBwbHVn
+LWFuZC1wbGF5CmFzIHBvc3NpYmxlLgoKLSBISUQgY29yZSBjb2RlIGluIHRoZSBrZXJuZWwgdG8g
+YWRkCkhJRF9VU0FHRVM9ZjFkMDAwMDE6bG90czpvZjpvdGhlcjp0aGluZ3MgdG8gdGhlIHVldmVu
+dCAob3IgdWRldiBjb2RlCnRvIGRvIHRoZSBzYW1lKS4gIFRoaXMgbWlnaHQgZW5kIHVwIHByb2R1
+Y2luZyBhIHJhdGhlciBsb25nIHN0cmluZyBvcgpzb21lIGRldmljZXMuCgogLSBBbiBhY3R1YWwg
+a2VybmVsIGRyaXZlciBmb3IgVTJGIGRldmljZXMgdXNpbmcgdGhlIGhpZCBncm91cAptZWNoYW5p
+c20gZm9yIGVudW1lcmF0aW9uLiAgVGhpcyBzZWVtcyBvdmVyY29tcGxpY2F0ZWQuCgpDb25jcmV0
+ZWx5LCBteSBVMkYgZGV2aWNlIGlzOgoKL2RldmljZXMvcGNpMDAwMDowMC8wMDAwOjAwOjFhLjAv
+dXNiMS8xLTEvMS0xLjIvMS0xLjI6MS4wLzAwMDM6MTA1MDowMTIwLjAwMTEvaGlkcmF3L2hpZHJh
+dzAKClRoZSAweGYxZDAgdGhpbmcgaXMgZW51bWVyYWJsZSBvbgovZGV2aWNlcy9wY2kwMDAwOjAw
+LzAwMDA6MDA6MWEuMC91c2IxLzEtMS8xLTEuMi8xLTEuMjoxLjAvMDAwMzoxMDUwOjAxMjAuMDAx
+MS4KClRob3VnaHRzPwoKLS1BbmR5Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fCnN5c3RlbWQtZGV2ZWwgbWFpbGluZyBsaXN0CnN5c3RlbWQtZGV2ZWxAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9zeXN0ZW1kLWRldmVsCg==

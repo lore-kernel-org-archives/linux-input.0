@@ -1,74 +1,112 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
-Date: Mon, 3 Nov 2014 20:31:45 +0100
-Message-ID: <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
-	<CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
-	<CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/2] HID: logitech-hidpp: fix negated returns
+Date: Mon,  3 Nov 2014 14:50:52 -0500
+Message-ID: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:36544 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752340AbaKCTbp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Nov 2014 14:31:45 -0500
-Received: by mail-ie0-f181.google.com with SMTP id rp18so5946934iec.40
-        for <linux-input@vger.kernel.org>; Mon, 03 Nov 2014 11:31:45 -0800 (PST)
-In-Reply-To: <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:58957 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753155AbaKCTvD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Nov 2014 14:51:03 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Kay Sievers <kay@vrfy.org>, Greg KH <gregkh@linuxfoundation.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi
+Reported by Dan Carpenter:
 
-On Mon, Nov 3, 2014 at 8:19 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-> On Mon, Nov 3, 2014 at 11:03 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
->> Hi
->>
->> On Sun, Nov 2, 2014 at 7:57 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>> I want to get U2F (universal second factor, sometimes called "security
->>> key" or even "gnubby") working on Linux.  U2F tokens are HID devices
->>> that speak a custom protocol.  The intent is that user code will speak
->>> to then using something like HIDAPI.
->>>
->>> The trick is that, for HIDAPI to work, something needs to recognize
->>> these devices and get udev to set appropriate device permissions.
->>
->> [snip]
->>
->>>  - An actual kernel driver for U2F devices using the hid group
->>> mechanism for enumeration.  This seems overcomplicated.
->>
->> Imho, this is the way to go. Create a proper char-dev for U2F, create
->> an API and make it work.
->>
->> We had this discussion earlier about vendor-extensions that should be
->> writable via hidraw from user-space. This turned out to be really
->> messy.. and was discussed for several weeks straight. hidraw just
->> wasn't designed as unprivileged user-space API. For instance, what
->> happens if a device provides U2F plus something else? Both will be on
->> the same hidraw device.
->> We could split hidraw per usage, but I don't see how that is superior
->> to a proper U2F API. And once one usage can affect a device as a whole
->> (like power-off), you're screwed.
->
-> Agreed, mostly.  My only real concern is that this could be annoying
-> for the userspace developers who will need to target Linux and HIDAPI
-> separately.  Admittedly the Linux support will be trivial.
+drivers/hid/hid-logitech-hidpp.c:359 hidpp_root_get_protocol_version() warn: should this return really be negated?
+drivers/hid/hid-logitech-hidpp.c:398 hidpp_devicenametype_get_count() warn: should this return really be negated?
+drivers/hid/hid-logitech-hidpp.c:417 hidpp_devicenametype_get_device_name() warn: should this return really be negated?
+drivers/hid/hid-logitech-hidpp.c:524 hidpp_touchpad_get_raw_info() warn: should this return really be negated?
 
-I see. I'll not stop you from using hidraw, I'd just not recommend it.
-Especially for security stuff I dislike exposing the whole HID device
-writable. But yeah, I guess you got my point.
+The problem lies in hidpp_send_message_sync() which can return 2 types of
+errors depending of their sign. Adding a comment there to clarify what is
+happening.
 
-> I can give the driver a try.  It'll actually be simpler than the spec
-> makes it out, since a real kernel driver will have no need to
-> arbitrate with itself.
+To solve that, print an error in case of a protocol problem, and raise
+-EPROTO instead.
 
-I'll gladly review any custom HID drivers. Feel free to put me on CC
-when sending to linux-input. There's also a lot of examples in
-drivers/hid/ in case you need a head-start (especially if you need the
-raw_event callback).
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-Thanks
-David
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 8d2d54b..4793d4b 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -151,6 +151,14 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 	return ret == fields_count ? 0 : -1;
+ }
+ 
++/**
++ * hidpp_send_message_sync() returns 0 in case of success, and something else
++ * in case of a failure.
++ * - If ' something else' is positive, that means that an error has been raised
++ *   by the protocol itself.
++ * - If ' something else' is negative, that means that we had a classic error
++ *   (-ENOMEM, -EPIPE, etc...)
++ */
+ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 	struct hidpp_report *message,
+ 	struct hidpp_report *response)
+@@ -359,8 +367,11 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+ 		return 0;
+ 	}
+ 
+-	if (ret)
+-		return -ret;
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 
+ 	hidpp->protocol_major = response.fap.params[0];
+ 	hidpp->protocol_minor = response.fap.params[1];
+@@ -398,8 +409,11 @@ static int hidpp_devicenametype_get_count(struct hidpp_device *hidpp,
+ 	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+ 		CMD_GET_DEVICE_NAME_TYPE_GET_COUNT, NULL, 0, &response);
+ 
+-	if (ret)
+-		return -ret;
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 
+ 	*nameLength = response.fap.params[0];
+ 
+@@ -417,8 +431,11 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
+ 		CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME, &char_index, 1,
+ 		&response);
+ 
+-	if (ret)
+-		return -ret;
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 
+ 	if (response.report_id == REPORT_ID_HIDPP_LONG)
+ 		count = HIDPP_REPORT_LONG_LENGTH - 4;
+@@ -524,8 +541,11 @@ static int hidpp_touchpad_get_raw_info(struct hidpp_device *hidpp,
+ 	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+ 		CMD_TOUCHPAD_GET_RAW_INFO, NULL, 0, &response);
+ 
+-	if (ret)
+-		return -ret;
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 
+ 	raw_info->x_size = get_unaligned_be16(&params[0]);
+ 	raw_info->y_size = get_unaligned_be16(&params[2]);
+-- 
+2.1.0
+

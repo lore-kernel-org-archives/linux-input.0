@@ -1,72 +1,52 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] x86: Surface Pro 3 Type Cover 3
-Date: Mon, 3 Nov 2014 14:30:39 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411031429500.19451@pobox.suse.cz>
-References: <1414770520-4125-1-git-send-email-alan.c.wu@gmail.com>
+Subject: Re: Microsoft Surface Pro 3 Type Cover keyboard
+Date: Mon, 3 Nov 2014 14:33:06 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411031431150.19451@pobox.suse.cz>
+References: <54492559.8000205@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50870 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:50954 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751256AbaKCNak (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Nov 2014 08:30:40 -0500
-In-Reply-To: <1414770520-4125-1-git-send-email-alan.c.wu@gmail.com>
+	id S1750869AbaKCNdI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Nov 2014 08:33:08 -0500
+In-Reply-To: <54492559.8000205@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Wu <alan.c.wu@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jarrad Whitaker <jarrad.whitaker@gmail.com>
+Cc: linux-input@vger.kernel.org, Alan Wu <alan.c.wu@gmail.com>
 
-On Fri, 31 Oct 2014, Alan Wu wrote:
+On Fri, 24 Oct 2014, Jarrad Whitaker wrote:
 
-> From: alanwu <alan.c.wu@gmail.com>
+> The keyboard on the Surface Pro 3 type cover does not function without
+> some patching, similar to what was apparently required for the SP2
+> type/touch covers.
 > 
-> Surface Pro 3 Type Cover that works with Ubuntu (and possibly Arch) from this thread. Both trackpad and keyboard work after compiling my own kernel.
-> http://ubuntuforums.org/showthread.php?t=2231207&page=2&s=44910e0c56047e4f93dfd9fea58121ef
+> A working patch against 3.16 attached, it's an amalgamation of "some
+> dude posted this on the ubuntu/arch forums and it seems to work" so
+> I'm making no claims that it's kernel-quality! Just trying to give a
+> better indication of what needs to be added. My C is rudimentary and
+> my knowledge of the kernel limited to 'fakeroot debian/rules
+> updateconfigs', sorry. :)
+> Happy to test any improved version, but note I only have a type, not a
+> touch cover.
 > 
-> Signed-off-by: alanwu <alan.c.wu@gmail.com>
+> Patch source is
+> http://winaero.com/blog/how-to-install-linux-on-surface-pro-3/, which
+> in turn sources a Russian site.
 
-Hi Alan,
+Hi,
 
-thanks for the patch.
+thanks. Adding Alan Wu to CC, who sent me a slightly different patch for 
+this issue -- see the archives of linux-input list from a few days back.
 
-For driver binding to work reliably and correctly, you also need to add 
-the device to hid_have_special_driver[] array in drivers/hid/hid-core.c.
+Your patch is missing at least Signed-off-by: line, and also seems to lack 
+the update to hid_have_special_driver[].
 
-Could you please fix that up and resend the patch?
+Could you two guys please cooperate and send me a patch that should be 
+applied? I don't have the device so can't really test properly myself.
 
-> ---
->  drivers/hid/hid-ids.h       | 1 +
->  drivers/hid/hid-microsoft.c | 2 ++
->  2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index e23ab8b..15f32c2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -648,6 +648,7 @@
->  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
->  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
->  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
-> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
-> 
->  #define USB_VENDOR_ID_MOJO		0x8282
->  #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index 8ba17a9..cacda43 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -274,6 +274,8 @@ static const struct hid_device_id ms_devices[] = {
-> 		.driver_data = MS_NOGET },
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
-> 		.driver_data = MS_DUPLICATE_USAGES },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
-> +		.driver_data = MS_HIDINPUT },
-> 
-> 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
-> 		.driver_data = MS_PRESENTER },
-> --
-> 2.1.0
-> 
+Thanks,
 
 -- 
 Jiri Kosina

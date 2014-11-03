@@ -1,58 +1,44 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Supporting U2F over HID on Linux?
-Date: Mon, 3 Nov 2014 21:21:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
- <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
- <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: fix negated returns
+Date: Mon, 3 Nov 2014 23:32:30 +0300
+Message-ID: <20141103203230.GV6890@mwanda>
+References: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Kay Sievers <kay@vrfy.org>, Andy Lutomirski <luto@amacapital.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:37236 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753355AbaKCUcc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Nov 2014 15:32:32 -0500
+Content-Disposition: inline
+In-Reply-To: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gTW9uLCAzIE5vdiAyMDE0LCBEYXZpZCBIZXJybWFubiB3cm90ZToKCj4gPiBBZ3JlZWQsIG1v
-c3RseS4gIE15IG9ubHkgcmVhbCBjb25jZXJuIGlzIHRoYXQgdGhpcyBjb3VsZCBiZSBhbm5veWlu
-Zwo+ID4gZm9yIHRoZSB1c2Vyc3BhY2UgZGV2ZWxvcGVycyB3aG8gd2lsbCBuZWVkIHRvIHRhcmdl
-dCBMaW51eCBhbmQgSElEQVBJCj4gPiBzZXBhcmF0ZWx5LiAgQWRtaXR0ZWRseSB0aGUgTGludXgg
-c3VwcG9ydCB3aWxsIGJlIHRyaXZpYWwuCj4gCj4gSSBzZWUuIEknbGwgbm90IHN0b3AgeW91IGZy
-b20gdXNpbmcgaGlkcmF3LCBJJ2QganVzdCBub3QgcmVjb21tZW5kIGl0Lgo+IEVzcGVjaWFsbHkg
-Zm9yIHNlY3VyaXR5IHN0dWZmIEkgZGlzbGlrZSBleHBvc2luZyB0aGUgd2hvbGUgSElEIGRldmlj
-ZQo+IHdyaXRhYmxlLiBCdXQgeWVhaCwgSSBndWVzcyB5b3UgZ290IG15IHBvaW50LgoKQWxyaWdo
-dCwgSSBhbSBiYXNpY2FsbHkgdGhpbmtpbmcgbG91ZGx5IG5vdywgYnV0IGhvdyBhYm91dCB3ZSBh
-bGxvdyBISUQgCmRyaXZlcnMgdGhhdCB3b3VsZCBvdmVycmlkZSBkZWZhdWx0IGhpZHJhdyBpbnRl
-cmZhY2U/CgpJIGFtIHZlcnkgd2VsbCBhd2FyZSBvZiB0aGUgZmFjdCB0aGF0IHRoaXMgY291bGQg
-YmUgb3BlbmluZyBhIGNhbiBvZiAKd29ybXMsIHNvIHdlJ2xsIGhhdmUgdG8gbWFrZSBpdCB2ZXJ5
-IHJlc3RyaWN0aXZlLiBIb3cgYWJvdXQsIGxldCdzIHNheSwgd2UgCmFsbG93IEhJRCBkcml2ZXJz
-IHRvIHByb3ZpZGUgY3VzdG9tIGhpZHJhdyBpbnRlcmZhY2UgKGNvbXBsZXRlbHkgCm92ZXJyaWRp
-bmcgdGhlIG9uZSB0aGF0IEhJRCBjb3JlIHdvdWxkIG5vcm1hbGx5IGNyZWF0ZSkgb25seSBmb3Ig
-Y2FzZXMgCnN1Y2ggYXM6CgotIHRoZSBpbnRlbnQgaXMgdG8gZXhwb3NlIG9ubHkgY2VydGFpbiBw
-YXJ0cyBvZiBhIGNvbWJpbmVkIGRldmljZQotIHRoZSBpbnRlbnQgaXMgdG8gaW50cm9kdWNlIHNv
-bWUgbGV2ZWwgb2YgYWNjZXNzIGNvbnRyb2wKCkkuZS4gc3RpbGwgbm8gaW50ZXJmZXJlbmNlIG9m
-IGtlcm5lbCB3aXRoIGRhdGEgcGFyc2luZyBhbGxvd2VkLgoKPiA+IEkgY2FuIGdpdmUgdGhlIGRy
-aXZlciBhIHRyeS4gIEl0J2xsIGFjdHVhbGx5IGJlIHNpbXBsZXIgdGhhbiB0aGUgc3BlYwo+ID4g
-bWFrZXMgaXQgb3V0LCBzaW5jZSBhIHJlYWwga2VybmVsIGRyaXZlciB3aWxsIGhhdmUgbm8gbmVl
-ZCB0bwo+ID4gYXJiaXRyYXRlIHdpdGggaXRzZWxmLgo+IAo+IEknbGwgZ2xhZGx5IHJldmlldyBh
-bnkgY3VzdG9tIEhJRCBkcml2ZXJzLiBGZWVsIGZyZWUgdG8gcHV0IG1lIG9uIENDCj4gd2hlbiBz
-ZW5kaW5nIHRvIGxpbnV4LWlucHV0LiBUaGVyZSdzIGFsc28gYSBsb3Qgb2YgZXhhbXBsZXMgaW4K
-PiBkcml2ZXJzL2hpZC8gaW4gY2FzZSB5b3UgbmVlZCBhIGhlYWQtc3RhcnQgKGVzcGVjaWFsbHkg
-aWYgeW91IG5lZWQgdGhlCj4gcmF3X2V2ZW50IGNhbGxiYWNrKS4KClNhbWUgaGVyZSwgb2YgY291
-cnNlLgoKUGxlYXNlIGFsd2F5cyBDQyBtZSBpbiBwYXJhbGxlbCB0byBzZW5kaW5nIHRvIGxpbnV4
-LWlucHV0QCB0byBtYWtlIHN1cmUgCnRoYXQgdGhlIHBhdGNoIGRvZXNuJ3QgZmFsbCBpbiBiZXR3
-ZWVuIGNyYWNrcy4KClRoYW5rcywKCi0tIApKaXJpIEtvc2luYQpTVVNFIExhYnMKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18Kc3lzdGVtZC1kZXZlbCBtYWls
-aW5nIGxpc3QKc3lzdGVtZC1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3Rz
-LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3N5c3RlbWQtZGV2ZWwK
+On Mon, Nov 03, 2014 at 02:50:52PM -0500, Benjamin Tissoires wrote:
+> @@ -524,8 +541,11 @@ static int hidpp_touchpad_get_raw_info(struct hidpp_device *hidpp,
+>  	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+>  		CMD_TOUCHPAD_GET_RAW_INFO, NULL, 0, &response);
+>  
+> -	if (ret)
+> -		return -ret;
+> +	if (ret > 0) {
+> +		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
+> +			__func__, ret);
+> +		return -EPROTO;
+> +	}
+
+We should handle -ENOMEM and -EINVAL here as well.  Something like:
+
+	if (ret > 0) {
+		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
+		        __func__, ret);
+		ret = -EPROTO;
+	}
+	if (ret)
+		return ret;
+
+regards,
+dan carpenter

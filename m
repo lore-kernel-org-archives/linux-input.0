@@ -1,44 +1,52 @@
-From: Richard Cochran <richardcochran@gmail.com>
-Subject: Re: [PATCH 0/4] Touchscreen performance related fixes
-Date: Mon, 3 Nov 2014 19:09:21 +0100
-Message-ID: <20141103180920.GA20779@localhost.localdomain>
-References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: Supporting U2F over HID on Linux?
+Date: Mon, 3 Nov 2014 20:03:05 +0100
+Message-ID: <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
+References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Jan Kardell <jan.kardell@telliq.com>, linux-iio@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-omap@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Jiri Kosina <jkosina@suse.cz>, Kay Sievers <kay@vrfy.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 27, 2014 at 04:38:27PM +0530, Vignesh R wrote:
-> This series of patches fix TSC defects related to lag in touchscreen
-> performance and cursor jump at touch release. The lag was result of
-> udelay in TSC interrupt handler. Cursor jump due to false pen-up event.
-> The patches implement Advisory 1.0.31 in silicon errata of am335x-evm
-> to avoid false pen-up events and remove udelay.
-
-That advisory has two workarounds. You have chosen the second one?
-
-The text of the second workaround says it only works on 4 wire setups,
-so I wonder how 5 wire designs will be affected.
-
-> The advisory says to use
-> steps 1 to 4 for ADC and 5 to 16 for TSC (assuming 4 wire TSC and 4 channel
-> ADC).
-
-No, it doesn't say that. (sprz360f.pdf)
-
-> Further the X co-ordinate must be the last one to be sampled just
-> before charge step. The first two patches implement the required changes. 
-
-FWIW, I implemented the first workaround and removed the udelay not
-too long ago. Like Sebastian, I saw the TSC unit hang after about
-50000 interrupts when running with the workaround.
-
-Did you test you patch for very long?
-
-Thanks,
-Richard
+SGkKCk9uIFN1biwgTm92IDIsIDIwMTQgYXQgNzo1NyBQTSwgQW5keSBMdXRvbWlyc2tpIDxsdXRv
+QGFtYWNhcGl0YWwubmV0PiB3cm90ZToKPiBJIHdhbnQgdG8gZ2V0IFUyRiAodW5pdmVyc2FsIHNl
+Y29uZCBmYWN0b3IsIHNvbWV0aW1lcyBjYWxsZWQgInNlY3VyaXR5Cj4ga2V5IiBvciBldmVuICJn
+bnViYnkiKSB3b3JraW5nIG9uIExpbnV4LiAgVTJGIHRva2VucyBhcmUgSElEIGRldmljZXMKPiB0
+aGF0IHNwZWFrIGEgY3VzdG9tIHByb3RvY29sLiAgVGhlIGludGVudCBpcyB0aGF0IHVzZXIgY29k
+ZSB3aWxsIHNwZWFrCj4gdG8gdGhlbiB1c2luZyBzb21ldGhpbmcgbGlrZSBISURBUEkuCj4KPiBU
+aGUgdHJpY2sgaXMgdGhhdCwgZm9yIEhJREFQSSB0byB3b3JrLCBzb21ldGhpbmcgbmVlZHMgdG8g
+cmVjb2duaXplCj4gdGhlc2UgZGV2aWNlcyBhbmQgZ2V0IHVkZXYgdG8gc2V0IGFwcHJvcHJpYXRl
+IGRldmljZSBwZXJtaXNzaW9ucy4KCltzbmlwXQoKPiAgLSBBbiBhY3R1YWwga2VybmVsIGRyaXZl
+ciBmb3IgVTJGIGRldmljZXMgdXNpbmcgdGhlIGhpZCBncm91cAo+IG1lY2hhbmlzbSBmb3IgZW51
+bWVyYXRpb24uICBUaGlzIHNlZW1zIG92ZXJjb21wbGljYXRlZC4KCkltaG8sIHRoaXMgaXMgdGhl
+IHdheSB0byBnby4gQ3JlYXRlIGEgcHJvcGVyIGNoYXItZGV2IGZvciBVMkYsIGNyZWF0ZQphbiBB
+UEkgYW5kIG1ha2UgaXQgd29yay4KCldlIGhhZCB0aGlzIGRpc2N1c3Npb24gZWFybGllciBhYm91
+dCB2ZW5kb3ItZXh0ZW5zaW9ucyB0aGF0IHNob3VsZCBiZQp3cml0YWJsZSB2aWEgaGlkcmF3IGZy
+b20gdXNlci1zcGFjZS4gVGhpcyB0dXJuZWQgb3V0IHRvIGJlIHJlYWxseQptZXNzeS4uIGFuZCB3
+YXMgZGlzY3Vzc2VkIGZvciBzZXZlcmFsIHdlZWtzIHN0cmFpZ2h0LiBoaWRyYXcganVzdAp3YXNu
+J3QgZGVzaWduZWQgYXMgdW5wcml2aWxlZ2VkIHVzZXItc3BhY2UgQVBJLiBGb3IgaW5zdGFuY2Us
+IHdoYXQKaGFwcGVucyBpZiBhIGRldmljZSBwcm92aWRlcyBVMkYgcGx1cyBzb21ldGhpbmcgZWxz
+ZT8gQm90aCB3aWxsIGJlIG9uCnRoZSBzYW1lIGhpZHJhdyBkZXZpY2UuCldlIGNvdWxkIHNwbGl0
+IGhpZHJhdyBwZXIgdXNhZ2UsIGJ1dCBJIGRvbid0IHNlZSBob3cgdGhhdCBpcyBzdXBlcmlvcgp0
+byBhIHByb3BlciBVMkYgQVBJLiBBbmQgb25jZSBvbmUgdXNhZ2UgY2FuIGFmZmVjdCBhIGRldmlj
+ZSBhcyBhIHdob2xlCihsaWtlIHBvd2VyLW9mZiksIHlvdSdyZSBzY3Jld2VkLgoKSnVzdCBsb29r
+IGF0IHRoZSBsaWJ1c2IgbWVzcyB3aGVyZSBzb21lIGRldmljZXMgYXJlIGhhbmRsZWQgaW4gdGhl
+Cmtlcm5lbCBhbmQgc29tZSBpbiB1c2VyLXNwYWNlIChlZy4sIHNlZSBHbm9tZSBjaGVlc2UsIG1l
+ZGlhIGRldmljZXMsCi4uLikuIEkgZG9uJ3QgdGhpbmsgd2Ugc2hvdWxkIHJlcGVhdCB0aGF0IHdp
+dGggSElELgoKVGhhbmtzCkRhdmlkCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fCnN5c3RlbWQtZGV2ZWwgbWFpbGluZyBsaXN0CnN5c3RlbWQtZGV2ZWxAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9zeXN0ZW1kLWRldmVsCg==

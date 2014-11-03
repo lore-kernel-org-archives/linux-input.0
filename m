@@ -1,50 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Microsoft Surface Pro 3 Type Cover keyboard
-Date: Mon, 3 Nov 2014 14:33:06 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411031431150.19451@pobox.suse.cz>
-References: <54492559.8000205@gmail.com>
+Subject: Re: PATCH: Quirk (hid-saitek.c) for Saitek R.A.T.7 works with R.A.T.9
+ too
+Date: Mon, 3 Nov 2014 14:34:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411031434070.19451@pobox.suse.cz>
+References: <CAEP-KKshiXPfDhHPE7uatU70wfiOM-xMbFS2+6VxBbFM-LMfjw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50954 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:51024 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750869AbaKCNdI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Nov 2014 08:33:08 -0500
-In-Reply-To: <54492559.8000205@gmail.com>
+	id S1751390AbaKCNet (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Nov 2014 08:34:49 -0500
+In-Reply-To: <CAEP-KKshiXPfDhHPE7uatU70wfiOM-xMbFS2+6VxBbFM-LMfjw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarrad Whitaker <jarrad.whitaker@gmail.com>
-Cc: linux-input@vger.kernel.org, Alan Wu <alan.c.wu@gmail.com>
+To: Ville Aakko <ville.aakko@gmail.com>
+Cc: linux-input@vger.kernel.org, hbrinkmann@braincalibration.de
 
-On Fri, 24 Oct 2014, Jarrad Whitaker wrote:
+On Sun, 2 Nov 2014, Ville Aakko wrote:
 
-> The keyboard on the Surface Pro 3 type cover does not function without
-> some patching, similar to what was apparently required for the SP2
-> type/touch covers.
+> Hi,
 > 
-> A working patch against 3.16 attached, it's an amalgamation of "some
-> dude posted this on the ubuntu/arch forums and it seems to work" so
-> I'm making no claims that it's kernel-quality! Just trying to give a
-> better indication of what needs to be added. My C is rudimentary and
-> my knowledge of the kernel limited to 'fakeroot debian/rules
-> updateconfigs', sorry. :)
-> Happy to test any improved version, but note I only have a type, not a
-> touch cover.
+> I have tested HID quirk for Saitek R.A.T.7 with my R.A.T. 9.
 > 
-> Patch source is
-> http://winaero.com/blog/how-to-install-linux-on-surface-pro-3/, which
-> in turn sources a Russian site.
+> (original commit 37c492c8f6a99870551fe2964b2dfce5d9e87375; " HID: quirk for
+> Saitek RAT7 and MMO7 mices' mode button ").
+> 
+> It works fine for me. Attached patch makes the nesessary changes to use the
+> quirk on the R.A.T.9 too. No one else has tested this, but it seems quite
+> trivial to me.
+> 
+> Cheers!
+> 
+> p.s. I have never submitted patches, I apologize if I have done something
+> in a wrong way! Should I have added / updated the description in the
+> comments?
 
-Hi,
+Hi Ville,
 
-thanks. Adding Alan Wu to CC, who sent me a slightly different patch for 
-this issue -- see the archives of linux-input list from a few days back.
+patch looks good, the only thing it is missing is your Signed-off-by: line 
+(please see Documentation/SubmittingPatches for explanation of what that 
+means).
 
-Your patch is missing at least Signed-off-by: line, and also seems to lack 
-the update to hid_have_special_driver[].
-
-Could you two guys please cooperate and send me a patch that should be 
-applied? I don't have the device so can't really test properly myself.
+Please resend the patch with it included so that I could apply it.
 
 Thanks,
 

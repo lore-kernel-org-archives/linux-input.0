@@ -1,249 +1,255 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v9 00/18] input: cyapa: instruction of cyapa patches
-Date: Mon, 3 Nov 2014 08:46:56 +0000
-Message-ID: <75e8607e8bc442bf820dd7161f61049a@CO1PR06MB078.namprd06.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_000_75e8607e8bc442bf820dd7161f61049aCO1PR06MB078namprd06pro_"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>
-Cc: "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Daniel Dressler <danieru.dressler@gmail.com>
+Subject: [PATCH 1/1] Input: xpad - update docs to reflect current state
+Date: Mon,  3 Nov 2014 17:53:06 +0900
+Message-ID: <1415004836-22871-1-git-send-email-danieru.dressler@gmail.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Daniel <danieru.dressler@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tommi Rantala <tt.rantala@gmail.com>, Ted Mielczarek <ted@mielczarek.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Frank Razenberg <frank@zzattack.org>, Benjamin Valentin <benpicco@zedat.fu-berlin.de>, Petr Sebor <petr@scssoft.com>, Thomaz de Oliveira dos Reis <thor27@gmail.com>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---_000_75e8607e8bc442bf820dd7161f61049aCO1PR06MB078namprd06pro_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+The last time this documentation was accurate was
+just over 8 years ago. In this time we've added
+support for two new generations of Xbox console
+controllers and dozens of third-party controllers.
 
-VjkgcGF0Y2hlcyBoYXZlIGJlbG93IHVwZGF0ZXMgY29tcGFyZWQgd2l0aCB2OCBwYXRjaGVzOg0K
-MSkgUmVtb3ZlZCBhbGwgYXN5bmMgdGhyZWFkIHN0dWZmIGZyb20gdGhlIGRyaXZlci4NCjIpIFNw
-bGl0IGRyaXZlciBpbnRvIDE4IHBhdGNoZXMgZm9yIGVhY2ggZnVuY3Rpb24gY2hhbmdlIG9uZSBw
-YXRjaC4NCg0KVjggcGF0Y2hlcyBoYXZlIGJlbG93IHVwZGF0ZXMgY29tcGFyZWQgd2l0aCB2NyBw
-YXRjaGVzOg0KMSkgW1BBVENIIHY4IDAxLzEzXSAtIFJlbW92ZSB0aGUgYXN5bmMgdGhyZWFkIGZv
-ciBkZXZpY2UgZGV0ZWN0IGluDQogICBwcm9iZSByb3V0aW5lLCBub3cgdGhlIGRldmljZSBkZXRl
-Y3QgcHJvY2VzcyBpcyBjb21wbGV0ZWx5IGRvbmUgd2l0aGluDQogICB0aGUgZGV2aWNlIHByb2Jl
-IHJvdXRpbmUuDQoyKSBbUEFUQ0ggdjggMDEvMTNdIC0gU3BsaXQgdGhlIGlycSBjbWQgaGFuZGVy
-IGZ1bmN0aW9uIHRvIHNlcGFyYXRlZA0KICAgZnVuY3Rpb24gY3lhcGFfZGVmYXVsdF9pcnFfY21k
-X2hhbmRsZXIoKSBhbmQgc2V0IGl0IHRvIGludGVyZmFjZQ0KICAgY3lhcGFfZGVmYXVsdF9vcHMu
-aXJxX2NtZF9oYW5kbGVyLg0KMykgW1BBVENIIHY4IDA2LzEzXSAtIEFkZCBjeWFwYS0+Z2VuIGNo
-ZWNrIGluIGN5YXBhX2dlbjNfaXJxX2NtZF9oYW5kbGVyKCkNCiAgIHRvIGF2b2lkIG1pc3MtZW50
-ZXIgd2hlbiBkZXZpY2UgcHJvdG9jb2wgaXMgc3RpbGwgaW4gZGV0ZWN0aW5nLg0KDQpWNyBwYXRj
-aGVzIGhhdmUgYmVsb3cgdXBkYXRlcyBjb21wYXJlZCB3aXRoIHY2IHBhdGNoZXM6DQoxKSBbUEFU
-Q0ggdjcgMDEvMTNdIC0gU3BsaXQgdGhlIGlycSBjbWQgaGFuZGVyIGZ1bmN0aW9uIHRvIHNlcGFy
-YXRlZA0KICAgZnVuY3Rpb24gY3lhcGFfZGVmYXVsdF9pcnFfY21kX2hhbmRsZXIoKSBhbmQgc2V0
-IGl0IHRvIGludGVyZmFjZQ0KICAgY3lhcGFfZGVmYXVsdF9vcHMuaXJxX2NtZF9oYW5kbGVyLg0K
-MikgW1BBVENIIHY3IDA2LzEzXSAtIEFkZCBjeWFwYS0+Z2VuIGNoZWNrIGluIGN5YXBhX2dlbjNf
-aXJxX2NtZF9oYW5kbGVyKCkNCiAgIHRvIGF2b2lkIG1pc3MtZW50ZXIgd2hlbiBkZXZpY2UgcHJv
-dG9jb2wgaXMgc3RpbGwgaW4gZGV0ZWN0aW5nLg0KDQoNClY2IHBhdGNoZXMgaGF2ZSBiZWxvdyB1
-cGRhdGVzIGNvbXBhcmVkIHdpdGggdjUgcGF0Y2hlczoNCjEpIFJlbW92ZSBwYXRjaCAxNCBvZiB0
-aGUgbGlkIGZpbHRlcmluZyBmcm9tIHRoZSBjeWFwYSBkcml2ZXIuDQoNClY1IHBhdGNoZXMgaGF2
-ZSBiZWxvdyB1cGRhdGVzIGNvbXBhcmVkIHdpdGggdjQgcGF0Y2hlczoNCjEpIFVzZXMgZ2V0X2Rl
-dmljZSgpL3B1dF9kZXZpY2UoKSBpbnN0ZWFkIG9mIGtvYmplY3RfZ2V0KCkva29iamVjdF9wdXQo
-KTsNCjIpIEZpeCBtZW1vcmllcyBmcmVlZCBiZWZvcmUgZGVidWdmcyBlbnRyaWVzIGlzc3VlOw0K
-MykgTWFrZSBjeWFwYV9kZWJ1Z3Nfcm9vdCB2YWxpZCBpbiBkcml2ZXIgbW9kdWxlIGxldmVsDQog
-ICBpbiBtb2R1bGVfaW5pdCgpL21vdWRsZV9leGl0KCkgOw0KNCkgRml4IGkyY190cmFuc2Zlcigp
-IG1heSByZXR1cm4gcGFydGlhbCB0cmFuc2ZlciBpc3N1ZXMuDQo1KSBBZGQgY3lhcGEtPnJlbW92
-ZWQgZmxhZyB0byBhdm9pZCBkZXRlY3RpbmcgdGhyZWFkIG1heSBzdGlsbCBydW5uaW5nDQogICB3
-aGVuIGRyaXZlciBtb2R1bGUgaXMgcmVtb3ZlZC4NCjYpIEZpeCB0aGUgbWVhbmluZ3Mgb2Ygc29t
-ZSBjb21tZW50cyBhbmQgcmV0dXJuIGVycm9yIGNvZGUgbm90IGNsZWFyIGlzc3VlLg0KDQpUaGlz
-IHBhdGNoIHNldCBpcyBhaW1lZCB0byByZS1kZXNpZ24gdGhlIGN5YXBhIGRyaXZlciB0byBzdXBw
-b3J0DQpvbGQgZ2VuMyB0cmFja3BhZCBkZXZpY2VzIGFuZCBuZXcgZ2VuNSB0cmFja3BhZCBkZXZp
-Y2VzIGluIG9uZQ0KY3lhcGEgZHJpdmVyLCBpdCdzIGZvciBlYXNpbHkgcHJvZHVjdGlvbnMgc3Vw
-cG9ydCBiYXNlZCBvbg0KY3VzdG9tZXJzJyByZXF1aXJlbWVudHMuIEFuZCBhZGQgc3lzZnMgZnVu
-Y3Rpb25zIGFuZCBpbnRlcmZhY2VzDQpzdXBwb3J0ZWQgdGhhdCByZXF1aXJlZCBieSB1c2VycyBh
-bmQgY3VzdG9tZXJzLg0KDQpTaW5jZSB0aGUgZWFybGllciBnZW4zIGFuZCB0aGUgbGF0ZXN0IGdl
-bjUgdHJhY2twYWQgZGV2aWNlcyB1c2luZw0KdHdvIGRpZmZlcmVudCBjaGlwc2V0cywgYW5kIGhh
-dmUgZGlmZmVyZW50IHByb3RvY29scyBhbmQgaW50ZXJmYWNlcywNCnNvIGlmIHN1cHBvcnRlZCB0
-aGVzZSB0d28gdHlwZSB0cmFja3BhZCBkZXZpY2VzIGluIHR3byBkaWZmZXJlbnQgZHJpdmVycywN
-CnRoZW4gaXQgd2lsbCBiZSBkaWZmaWN1bHQgdG8gbWFuYWdlIHByb2R1Y3Rpb25zIGFuZCBsYXRl
-ciBmaXJtd2FyZSB1cGRhdGVzLg0KZS5nLjogSXQgd2lsbCBjYXVzZSBjdXN0b21lciBkb24ndCBr
-bm93IHdoaWNoIG9uZSB0cmFja3BhZCBkZXZpY2UgZmlybXdhcmUNCmltYWdlIHRvIHVzZSBhbmQg
-dXBkYXRlIHdoZW4gaXQgaGFzIGJlZW4gdXNlZCBhbmQgaW50ZWdyYXRlZA0KaW4gc2FtZSBvbmUg
-cHJvZHVjdGlvbnMsIHNvIGhlcmUgd2Ugc3VwcG9ydCB0aGVzZSB0d28gdHJhY2twYWQNCmRldmlj
-ZXMgaW4gc2FtZSBvbiBkcml2ZXIuDQoNClRoZSBuZXcgZGVzaWduIGN5YXBhIGRyaXZlciBjb250
-YWluczoNCmN5YXBhLmMgLSB0aGUgY29yZSBvZiB0aGUgcmUtZGVzaWduLCBzdXBwbHkgaW50ZXJm
-YWNlcyBhbmQNCmZ1bmN0aW9ucyB0byBzeXN0ZW0gYW5kIHJlYWQgdHJhY2twYWQgZGV2aWNlcy4N
-CmN5YXBhLmggLSBoZWFkZXIgZmlsZSBpbmNsdWRpbmcgbWFjcm9zIGFuZCBkYXRhIHN0cnVjdHVy
-ZSBkZWZpbml0aW9ucy4NCmN5YXBhX2dlbjMuYyAtIGZ1bmN0aW9ucyBzdXBwb3J0IGZvciBnZW4z
-IHRyYWNrcGFkIGRldmljZXMsDQpjeWFwYV9nZW41LmMgLSBmdW5jdGlvbnMgc3VwcG9ydCBmb3Ig
-Z2VuNSB0cmFja3BhZCBkZXZpY2VzLg0KDQpCZXNpZGUgdGhpcyBpbnRyb2R1Y3Rpb24gcGF0Y2gs
-IGl0IGhhcyAxOCBwYXRjaGVzIGxpc3RlZCBhcyBiZWxvdy4NCkZvciB0aGVzZSBwYXRjaGVzIGVh
-Y2ggb25lIGlzIHBhdGNoZWQgYmFzZWQgb24gcHJldmlvdXMgb25lLg0KDQpwYXRjaCAxLzE4OiBh
-ZGQgZGV2aWNlIHJlc291cmNlIG1hbmFnZW1lbnQgaW5mcmFzdHJ1Y3R1cmUgc3VwcG9ydGVkLg0K
-DQpwYXRjaCAyLzE4OiByZS1kZXNpZ24gY3lhcGEgZHJpdmVyIHdpdGggY29yZSBmdW5jdGlvbnMg
-YW5kIGludGVyZmFjZQ0KdG8gc3VwcG9ydCBtdWx0aS10eXBlIHRyYWNrcGFkIGRldmljZXMuDQoN
-CnBhdGNoIDMvMTg6IGFkZCBnZW4zIHRyYWNrcGFkIGRldmljZSBiYXNpYyBmdW5jdGlvbnMgc3Vw
-cG9ydGVkIGludG8gdGhlDQpyZS1kZXNpZ24gY3lhcGEgZHJpdmVyLg0KDQpwYXRjaCA0LzE4OiBh
-ZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UgYmFzaWMgZnVuY3Rpb25zIHN1cHBvcnRlZCBpbnRvIHRo
-ZQ0KcmUtZGVzaWduIGN5YXBhIGRyaXZlci4NCg0KcGF0Y2ggNS8xODogYWRkIHBvd2VyIG1hbmFn
-ZW1lbnQgaW50ZXJmYWNlcyBzdXBwb3J0ZWQgZm9yIHRoZSBkZWl2Y2UuDQoNCnBhdGNoIDYvMTg6
-IGFkZCBydW50aW1lIHBvd2VyIG1hbmFnZW1lbnQgaW50ZXJmYWNlcyBzdXBwb3J0ZWQgZm9yIHRo
-ZSBkZXZpY2UuDQoNCnBhdGNoIDcvMTg6IGFkZCBzeXNmcyBpbnRlcmZhY2VzIHN1cHBvcnRlZCBp
-biB0aGUgY3lhcGEgZHJpdmVyLg0KSW5jbHVkaW5nIHJlYWQgZmlybXdhcmUgdmVyc2lvbiwgZ2V0
-IHByb2R1Y3Rpb24gSUQsIHJlYWQgYmFzZWxpbmUsDQpyZS1jYWxpYnJhdGUgdHJhY2twYWQgYmFz
-ZWxpbmVzIGFuZCBkbyB0cmFja3BhZCBmaXJtd2FyZSB1cGRhdGUuDQoNCnBhdGNoIDgvMTg6IGFk
-ZCBnZW4zIHRyYWNrcGFkIGRldmljZSdzIGZpcm13YXJlIHVwZGF0ZSBmdW5jdGlvbiBzdXBwb3J0
-ZWQuDQoNCnBhdGNoIDkvMTg6IGFkZCBnZW4zIHRyYWNrcGFkIGRldmljZSdzIHJlYWQgYmFzZWxp
-bmUgZnVuY3Rpb24gc3VwcG9ydGVkLg0KDQpwYXRjaCAxMC8xODogYWRkIGdlbjMgdHJhY2twYWQg
-ZGV2aWNlJ3MgZm9yY2UgcmUtY2FsaWJyYXRlIGZ1bmN0aW9uIHN1cHBvcnRlZC4NCg0KcGF0Y2gg
-MTEvMTg6IGFkZCBnZW41IHRyYWNrcGFkIGRldmljZSdzIGZpcm13YXJlIHVwZGF0ZSBmdW5jdGlv
-biBzdXBwb3J0ZWQuDQoNCnBhdGNoIDEyLzE4OiBhZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UncyBy
-ZWFkIGJhc2VsaW5lIGZ1bmN0aW9uIHN1cHBvcnRlZC4NCg0KcGF0Y2ggMTMvMTg6IGFkZCBnZW41
-IHRyYWNrcGFkIGRldmljZSdzIGZvcmNlIHJlLWNhbGlicmF0ZSBmdW5jdGlvbi4NCg0KcGF0Y2gg
-MTQvMTg6IGFkZCByZWFkIGZpcm13YXJlIGltYWdlIGRlYnVnZnMgaW50ZXJmYWNlIHN1cHBvcnRl
-ZA0KaW4gdGhlIGN5YXBhIGRyaXZlci4NCg0KcGF0Y2ggMTUvMTg6IGFkZCBnZW4zIHRyYWNrcGFk
-IGRldmljZSdzIHJlYWQgZmlybXdhcmUgaW1hZ2UgZnVuY3Rpb24gc3VwcG9ydGVkLg0KDQpwYXRj
-aCAxNi8xODogYWRkIGdlbjUgdHJhY2twYWQgZGV2aWNlJ3MgcmVhZCBmaXJtd2FyZSBpbWFnZSBm
-dW5jdGlvbiBzdXBwb3J0ZWQuDQoNCnBhdGNoIDE3LzE4OiBhZGQgcmVhZCB0cmFja3BhZCBkZXZp
-Y2UncyBzZW5zb3JzJyByYXcgZGF0YSBkZWJ1Z2ZzIGludGVyZmFjZQ0Kc3VwcG9ydGVkIGluIHRo
-ZSBjeWFwYSBkcml2ZXIuDQoNCnBhdGNoIDE4LzE4OiBhZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2Un
-cyByZWFkIHJlYWQgcmF3IGZ1bmN0aW9uIHN1cHBvcnRlZC4NCg0KVGhpcyBtZXNzYWdlIGFuZCBh
-bnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1YnNpZGlhcmllcykg
-Y29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNlaXZlZCBpbiBlcnJv
-ciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBkZWxldGUgdGhpcyBt
-ZXNzYWdlLg0K
+This patch unifies terminology and makes it explicit
+which model of controller a sentence refers to.
 
---_000_75e8607e8bc442bf820dd7161f61049aCO1PR06MB078namprd06pro_
-Content-Disposition: attachment; filename="winmail.dat"
-Content-Transfer-Encoding: base64
-Content-Type: application/ms-tnef; name="winmail.dat"
+It also expands certain sections to address the latest
+versions of Xbox controllers.
 
-eJ8+IhhkAQaQCAAEAAAAAAABAAEAAQeQBgAIAAAAqAMAAAAAAACrAAEJgAEAIQAAAEUzRjA0OTZF
-MjcxMDBBNDQ4RTBCMzQyQzQ5NzRCNzFCAAgHAQ2ABAACAAAAAgACAAEFgAMADgAAAN4HCwADAAgA
-LgA4AAEAYgEBIIADAA4AAADeBwsAAwAIAC4AOAABAGIBAQiABwAYAAAASVBNLk1pY3Jvc29mdCBN
-YWlsLk5vdGUAMQgBBIABADwAAABbUEFUQ0ggdjkgMDAvMThdIGlucHV0OiBjeWFwYTogaW5zdHJ1
-Y3Rpb24gb2YgY3lhcGEgcGF0Y2hlcwAOFAEDkAYAFB0AAEoAAAACAX8AAQAAAEoAAAA8NzVlODYw
-N2U4YmM0NDJiZjgyMGRkNzE2MWY2MTA0OWFAQ08xUFIwNk1CMDc4Lm5hbXByZDA2LnByb2Qub3V0
-bG9vay5jb20+AAAACwAfDgAAAAACAQkQAQAAAAsJAAAHCQAAhhYAAExaRnVfv1jZYQAKZmJpZAQA
-AGNjwHBnMTI1MgD+A0PwdGV4dAH3AqQD4wIABGNoCsBzZXQwIO8HbQKDAFARTTIKgAa0AoCWfQqA
-CMg7CWIxOQ7AvwnDFnIKMhZxAoAVYioJsHMJ8ASQYXQFsg5QA2Bzom8BgCBFeBHBbhgwXQZSdgSQ
-F7YCEHIAwHR9CFBuGjEQIAXABaAbZGSaIANSIBAiF7JcdgiQ5HdrC4BkNR1TBPAHQA0XcDAKcRfy
-YmttawZzAZAAICBCTV9C4EVHSU59CvwB8Qvx0CBWOSAKsHQRwAeRYxHQGjAgYmUJAAfgddxwZBiA
-B5EFoG0KsRxRQQPwdGggdjghxjqUXGwLgGUKgDEpB/A+ZQRgGjAcYAdAAyBhc6h5bmMcwGgJcGEc
-YJ0fYHUBIBx1IhAgZAUQ1RoxLiUVMiWQUwtQJCDNKCUgC4AYkCAxJHcccC8FsScAEcAccHUmoHRp
-/wIgG9AZpAIgGeAh0yiWJRVuVip4Il8jbzckjyWQWyBQQVRDSCRSMDHALzEzXSAtJaUn4+8meysS
-AQAdYGMoERIQBZDXBUALgSUkIDaQcANgLyAaIANgdSvgGFAsIG7/L1En8zU7NsE1YAQRBAAjc/Me
-cBAgbHkoICyiJBI2Cn83+TbLKJkyPzNAKUQn8mn0cnEb0G0cYBmhBIErmH8qMRIACrEvsQswNjcr
-qHkKYQqwXwEBYXVsdGpfP8FfQAFfQEIecHL+KCWQQFFBYTXhP2EqQCoRHwSQQ7A1YDYoQzxvcHNW
-LkQdKJYzPds2MvVB5mQcYEMzLT4YMSwhBZCuayoBQyUYMTNEDyk7KUsqQC7gbw3QIG0EAS37CfAb
-oncukAOgPAgYkAjhfzmCH2ADEFGBUII1sguAZ88tPjD3Ls8v33Y2MQ892P8w8D6fP69Av0HPQt9D
-70T//0YPRx9ILyh7V/lKv0vPTN//Te9O/1APUR9SLy15LbZWt/NUj1WfdjVWzyWWbnQqUP40LJAn
-gCfyJSAcYQMQG6H/bMEnmF0zKC0ttnEnbv9wD+Z2c0BxTyBVEgAEIBgw513wNSRfAC9wN0B7hyoB
-1x9gJwJzYWs24Go1wWcBfnR78X2mfCFfABYgKLdG/Gl4aZAlwQiBKvEJ0Rxgx3fwGuE1cmJ1ZwPQ
-K0A/AjCAgwQBClB/VknRTWHOa3UlXYGBwXNfA2BrMP8kUAdAaXFsMim0BGFd0HOx/zUweAA2KGaB
-hhRnUAMAfkK1BGB1XsFfEDCIMiB/VsI0f+RpMmNfgkAAcf5mXuMAwDpQCXAnUAShCrF/K+AHQBzA
-iqWClGJAJRU17yWQZTkJcCXUZgtgdJBpF+9sZybGi0Jr1HIrsAMAGcC/NihqVIW7OZGOxSiWNn/k
-/yfyB4AAcGzBBCBzYRkgB4D/I3IHgAIwBCBfMouFBJADYO8bwgEAN6EFQGMecArBgqP9LT1UOvAE
-IHLUX3OXYQdxtxxgKjEJcC0BAACQZ1sh93UdWzN4UHAJESUVBvAcYP9nEoxiZlAKsJACNUKXZBhQ
-/wfgGDFxIJ/PZoEsoSUVdUr7N5AkICcq9gCQOkE2wYYw/yvTa7GeZHfgJnAcUQIgoxYudR9glrER
-8CeLcXF191nAJcCXMi5lIF9BJxAnIf55itAq8Su1l2RgFw4AJST/nlWcEhHQBUCoRYEROlCnoO+n
-8V8jp5ctPVMLgDVhJ/L/mUElIBuxn3NfMnOTeIIFQM+hX6CDp6CSGHR3KkAN4L8BIASQafEsIQUg
-EgFzN5DfXzJ3o7SIaxaqjiyrhl/xH5aBrAkHkDOxtFF0eXD/M7Ghv1shtFsoNLhnJ/EDoP8pcQPw
-JkE28bSCDlBd0Vsy/wOBj2A8U6WXXzKxslqRWcB8bXcjwXhGKJY9MFLgOnwgSb5VHlCtoa43OmIn
-/QVAazeyalAOUCRALKK67f/BhyUVB3C/8ioxxBJfMnhU/2pEKXER0AQgd/Bl8a2hJhHPqrUJwFvJ
-ZoFzYZbBLKPfpXg3kLjxd2CBcXcZ4KYm/7n5n9UlFaI5zIV1n5p1mMH/B9GcpZ1bG+EBkHzxcbZd
-M/4uJrAzQHUDgWJzZZx3zcH/nmE6QaroXyIlFaoIW0KpsP8QIBywl4QnEbruKJbV5CRA/zNAd2An
-EMFjk+ImoApADeD/dIEAwRkBXyN4cXWAH2CR0P8r0AhwNXJ0EIghpdLcy2cD/9YzqgimJisSn3+g
-grh2ZrfeNeK/48uyX67OQpyxmLH/OuGikoJApYZ3FKRCyhMqab8lIH0RJhHKQngRKJZGBbH/ufR3
-JitTLKKa5oECprU2sX81MQhgllE9KCUVctUy8Dj/w1CpYjUlCXAZIAhwNWG/xP+XIioBA1AmcOBX
-q/fzD3Ly/jL0Y5x4nVskE9bDqg9gS+eeKGmQXdFpLbqf6Z/z1v4z9GfkbzVSpqEOUOcfHEK/KhMn
-8SUV+d/R7/PHNAGKv+i/A18EbwV/Bo8HnzX0Z/+egM5ghfH2CtjHq/g04jf0/yhQNWAOj/QSZLH0
-hZHRK+B/lsEQfxGPEpw1QhO/9BI3v/RnqaQXPwv0nQ8olknet/80lMGmvTIr8bWgfiGlWcNg/kS1
-oCbz8bIlIrh2nHHD8P0lIGJbsv8YIkbflc+YwY77GW/0EjgBj5/6pILBrFqo+/ef84s5KJ8prSH7
-K48sn/1y1TAuHymumGD1MyNpMP//Mg9y5PRYCU8qPytPN3/zuf/5dDmfL38wjzzv85sBez+f/zVf
-NmtC33L0FRgfa8gkgab/YBe5SMvoHT9ID/QiD9g0H/9AeUpNQb9Cz3LkFQhE31Gf/1KvU7/zfRq4
-23865MjAfQD7mGCoEmHTgeACSz+rj01f/05vctUoi1aPQKZldF4xWQ//Wh6aw5bAmZC/8rEyv9DY
-gD/gANUQ8WCXJItC1OUgQ3f+4PVhm8AomGHhMKYCYv/q4YwwgIJ64NThdBDg4BXB/4xB9qGYYN9A
-R7PDYH2Ayfr/gODHAB3xhVOYM7Wg2GCk8f3I0WQKQLoisDFdkd4SqqP/lxFsgcFQ2HHg4IjAI+Jo
-eRmNZn19p3B1UAAfAEIAAQAAABQAAABEAHUAZABsAGUAeQAgAEQAdQAAAB8AZQABAAAAIgAAAGQA
-dQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAAAB8AZAABAAAACgAAAFMATQBUAFAAAAAA
-AAIBQQABAAAAWAAAAAAAAACBKx+kvqMQGZ1uAN0BD1QCAAAAgEQAdQBkAGwAZQB5ACAARAB1AAAA
-UwBNAFQAUAAAAGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAfAAJdAQAAACIAAABk
-AHUAZABsAEAAYwB5AHAAcgBlAHMAcwAuAGMAbwBtAAAAAAAfAOVfAQAAACoAAABzAGkAcAA6AGQA
-dQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAAAAIBTg4BAAAAHAAAAAEFAAAAAAAFFQAA
-AHWQ7CC0c/hKIBG7kWzXqwAfABoMAQAAABQAAABEAHUAZABsAGUAeQAgAEQAdQAAAB8AHwwBAAAA
-IgAAAGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAAAB8AHgwBAAAACgAAAFMATQBU
-AFAAAAAAAAIBGQwBAAAAWAAAAAAAAACBKx+kvqMQGZ1uAN0BD1QCAAAAgEQAdQBkAGwAZQB5ACAA
-RAB1AAAAUwBNAFQAUAAAAGQAdQBkAGwAQABjAHkAcAByAGUAcwBzAC4AYwBvAG0AAAAfAAFdAQAA
-ACIAAABkAHUAZABsAEAAYwB5AHAAcgBlAHMAcwAuAGMAbwBtAAAAAAACAU0OAQAAABwAAAABBQAA
-AAAABRUAAAB1kOwgtHP4SiARu5Fs16sACwBAOgEAAAAfABoAAQAAABIAAABJAFAATQAuAE4AbwB0
-AGUAAAAAAAMA8T8JBAAACwBAOgEAAAADAP0/5AQAAAIBCzABAAAAEAAAAOPwSW4nEApEjgs0LEl0
-txsDABcAAQAAAEAAOQAAAPW4QvfPAUAACDAGJSe5QvfPAQsAKQAAAAAACwAAgAggBgAAAAAAwAAA
-AAAAAEYAAAAAFIUAAAEAAAALACMAAAAAAB8AAICGAwIAAAAAAMAAAAAAAABGAQAAAB4AAABhAGMA
-YwBlAHAAdABsAGEAbgBnAHUAYQBnAGUAAAAAAAEAAAAaAAAAegBoAC0AQwBOACwAIABlAG4ALQBV
-AFMAAAAAAB8A+j8BAAAAFAAAAEQAdQBkAGwAZQB5ACAARAB1AAAACwAAgAggBgAAAAAAwAAAAAAA
-AEYAAAAABoUAAAAAAAAfADcAAQAAAHgAAABbAFAAQQBUAEMASAAgAHYAOQAgADAAMAAvADEAOABd
-ACAAaQBuAHAAdQB0ADoAIABjAHkAYQBwAGEAOgAgAGkAbgBzAHQAcgB1AGMAdABpAG8AbgAgAG8A
-ZgAgAGMAeQBhAHAAYQAgAHAAYQB0AGMAaABlAHMAAAAfAD0AAQAAAAIAAAAAAAAAAwA2AAAAAAAf
-ANk/AQAAAAACAABWADkAIABwAGEAdABjAGgAZQBzACAAaABhAHYAZQAgAGIAZQBsAG8AdwAgAHUA
-cABkAGEAdABlAHMAIABjAG8AbQBwAGEAcgBlAGQAIAB3AGkAdABoACAAdgA4ACAAcABhAHQAYwBo
-AGUAcwA6AA0ACgAxACkAIABSAGUAbQBvAHYAZQBkACAAYQBsAGwAIABhAHMAeQBuAGMAIAB0AGgA
-cgBlAGEAZAAgAHMAdAB1AGYAZgAgAGYAcgBvAG0AIAB0AGgAZQAgAGQAcgBpAHYAZQByAC4ADQAK
-ADIAKQAgAFMAcABsAGkAdAAgAGQAcgBpAHYAZQByACAAaQBuAHQAbwAgADEAOAAgAHAAYQB0AGMA
-aABlAHMAIABmAG8AcgAgAGUAYQBjAGgAIABmAHUAbgBjAHQAaQBvAG4AIABjAGgAYQBuAGcAZQAg
-AG8AbgBlACAAcABhAHQAYwBoAC4ADQAKAA0ACgBWADgAIABwAGEAdABjAGgAZQBzACAAaABhAHYA
-ZQAgAGIAZQBsAG8AdwAgAHUAcABkAGEAdABlAHMAIABjAG8AbQBwAGEAcgBlAGQAIAB3AGkAdABo
-ACAAdgA3ACAAcABhAHQAYwBoAGUAcwA6AA0ACgAxACkAIABbAFAAQQBUAEMASAAgAHYAOAAgADAA
-MQAvADEAMwAAAAIBcQABAAAAFgAAAAHP90KGkJle+awib0iPsoheQmlLvhUAAB8AcAABAAAAeAAA
-AFsAUABBAFQAQwBIACAAdgA5ACAAMAAwAC8AMQA4AF0AIABpAG4AcAB1AHQAOgAgAGMAeQBhAHAA
-YQA6ACAAaQBuAHMAdAByAHUAYwB0AGkAbwBuACAAbwBmACAAYwB5AGEAcABhACAAcABhAHQAYwBo
-AGUAcwAAAB8ANRABAAAAlAAAADwANwA1AGUAOAA2ADAANwBlADgAYgBjADQANAAyAGIAZgA4ADIA
-MABkAGQANwAxADYAMQBmADYAMQAwADQAOQBhAEAAQwBPADEAUABSADAANgBNAEIAMAA3ADgALgBu
-AGEAbQBwAHIAZAAwADYALgBwAHIAbwBkAC4AbwB1AHQAbABvAG8AawAuAGMAbwBtAD4AAAADAN4/
-qAMAAAsAAIAIIAYAAAAAAMAAAAAAAABGAAAAAAOFAAAAAAAAAwAAgAggBgAAAAAAwAAAAAAAAEYA
-AAAAAYUAAAAAAAADAIAQ/////0AABzASCby4QvfPAQsAAgABAAAAAwAmAAAAAAALAAYMAAAAAAIB
-EDABAAAARgAAAAAAAAAoKcSY81DyQqXllDkDGZnUBwBOAeE6JtzdQZE82Y8hErvaAAAAAAELAABO
-AeE6JtzdQZE82Y8hErvaAAAAAItLAAAAAAIBEzABAAAAEAAAAJle+awib0iPsoheQmlLvhUfAPg/
-AQAAABQAAABEAHUAZABsAGUAeQAgAEQAdQAAAB8AIkABAAAABgAAAEUAWAAAAAAAHwAjQAEAAAD+
-AAAALwBPAD0ARQBYAEMASABBAE4ARwBFAEwAQQBCAFMALwBPAFUAPQBFAFgAQwBIAEEATgBHAEUA
-IABBAEQATQBJAE4ASQBTAFQAUgBBAFQASQBWAEUAIABHAFIATwBVAFAAIAAoAEYAWQBEAEkAQgBP
-AEgARgAyADMAUwBQAEQATABUACkALwBDAE4APQBSAEUAQwBJAFAASQBFAE4AVABTAC8AQwBOAD0A
-NwAyADEANAA0AEQANgA0ADUAQgBCADQANAA4AEMAOQBCADMAOAAzADcARQA0ADIANAAzADQAMgBC
-ADgAQwBBAC0ARABVAEQATABFAFkAIABEAFUAAAAAAB8AJEABAAAABgAAAEUAWAAAAAAAHwAlQAEA
-AAD+AAAALwBPAD0ARQBYAEMASABBAE4ARwBFAEwAQQBCAFMALwBPAFUAPQBFAFgAQwBIAEEATgBH
-AEUAIABBAEQATQBJAE4ASQBTAFQAUgBBAFQASQBWAEUAIABHAFIATwBVAFAAIAAoAEYAWQBEAEkA
-QgBPAEgARgAyADMAUwBQAEQATABUACkALwBDAE4APQBSAEUAQwBJAFAASQBFAE4AVABTAC8AQwBO
-AD0ANwAyADEANAA0AEQANgA0ADUAQgBCADQANAA4AEMAOQBCADMAOAAzADcARQA0ADIANAAzADQA
-MgBCADgAQwBBAC0ARABVAEQATABFAFkAIABEAFUAAAAAAB8AMEABAAAAFAAAAEQAdQBkAGwAZQB5
-ACAARAB1AAAAHwAxQAEAAAAUAAAARAB1AGQAbABlAHkAIABEAHUAAAAfADhAAQAAABQAAABEAHUA
-ZABsAGUAeQAgAEQAdQAAAB8AOUABAAAAFAAAAEQAdQBkAGwAZQB5ACAARAB1AAAAAwBZQAAAAAAD
-AFpAAAAAAAMACVkBAAAAAwAAgAggBgAAAAAAwAAAAAAAAEYAAAAAEIUAAAAAAAALAACACCAGAAAA
-AADAAAAAAAAARgAAAAAOhQAAAAAAAAMAAIAIIAYAAAAAAMAAAAAAAABGAAAAABiFAAAAAAAACwAA
-gAggBgAAAAAAwAAAAAAAAEYAAAAAgoUAAAAAAABAAACACCAGAAAAAADAAAAAAAAARgAAAAC/hQAA
-ALOhhkL3zwEDAACACCAGAAAAAADAAAAAAAAARgAAAADrhQAABAgAAAMADTT9PwAAHwAAgIYDAgAA
-AAAAwAAAAAAAAEYBAAAAIAAAAHgALQBtAHMALQBoAGEAcwAtAGEAdAB0AGEAYwBoAAAAAQAAAAIA
-AAAAAAAAHwAAgIYDAgAAAAAAwAAAAAAAAEYBAAAAUgAAAHgALQBtAHMALQBlAHgAYwBoAGEAbgBn
-AGUALQB0AHIAYQBuAHMAcABvAHIAdAAtAGYAcgBvAG0AZQBuAHQAaQB0AHkAaABlAGEAZABlAHIA
-AAAAAAEAAAAOAAAASABvAHMAdABlAGQAAAAAAB8AAICGAwIAAAAAAMAAAAAAAABGAQAAACIAAAB4
-AC0AbwByAGkAZwBpAG4AYQB0AGkAbgBnAC0AaQBwAAAAAAABAAAAIgAAAFsAMQA1ADcALgA5ADUA
-LgAyADEAMQAuADEAOAA3AF0AAAAAAB8AAICGAwIAAAAAAMAAAAAAAABGAQAAACoAAAB4AC0AbQBp
-AGMAcgBvAHMAbwBmAHQALQBhAG4AdABpAHMAcABhAG0AAAAAAAEAAABUAAAAQgBDAEwAOgAwADsA
-UABDAEwAOgAwADsAUgBVAEwARQBJAEQAOgA7AFMAUgBWAFIAOgBCAFkAMQBQAFIAMAA2ADAAMQBN
-AEIAMQAwADgAMAA7AAAAHwAAgIYDAgAAAAAAwAAAAAAAAEYBAAAAQAAAAHgALQBlAHgAYwBoAGEA
-bgBnAGUALQBhAG4AdABpAHMAcABhAG0ALQByAGUAcABvAHIAdAAtAHQAZQBzAHQAAAABAAAAFAAA
-AFUAcgBpAFMAYwBhAG4AOgA7AAAAHwAAgIYDAgAAAAAAwAAAAAAAAEYBAAAAIgAAAHgALQBmAG8A
-cgBlAGYAcgBvAG4AdAAtAHAAcgB2AHMAAAAAAAEAAAAWAAAAMAAzADgANAAyADcANQA5ADMANQAA
-AAAAHwAAgIYDAgAAAAAAwAAAAAAAAEYBAAAAOAAAAHgALQBmAG8AcgBlAGYAcgBvAG4AdAAtAGEA
-bgB0AGkAcwBwAGEAbQAtAHIAZQBwAG8AcgB0AAAAAQAAACAEAABTAEYAVgA6AE4AUwBQAE0AOwBT
-AEYAUwA6ACgAMQAwADAAMQA5ADAAMgAwACkAKAA2ADAAMAA5ADAAMAAxACkAKAA1ADEAMQA2ADQA
-MAAwADMAKQAoADEAOAA5ADAAMAAyACkAKAAxADkAOQAwADAAMwApACgAOQA3ADcAMwA2ADAAMAAz
-ACkAKAA5ADkAMgA4ADYAMAAwADIAKQAoADkANQA2ADYANgAwADAANAApACgAMQAwADYAMwA1ADYA
-MAAwADEAKQAoADgANgAzADYAMgAwADAAMQApACgAMgA1ADAAMQAwADAAMgApACgAMwAzADYANAA2
-ADAAMAAyACkAKAA4ADcAOQAzADYAMAAwADEAKQAoADIANgA1ADYAMAAwADIAKQAoADEAMAAxADQA
-MQA2ADAAMAAxACkAKAA5ADIANQA2ADYAMAAwADEAKQAoADUAMAA5ADgANgA5ADkAOQApACgAMgAx
-ADAANQA2ADAAMAAxACkAKAAxADAANwAwADQANgAwADAAMgApACgAOQA5ADMAOQA2ADAAMAAzACkA
-KAAxADIAMAA5ADEANgAwADAAMQApACgANQA0ADMANQA2ADkAOQA5ACkAKAAxADAANQA1ADgANgAw
-ADAAMgApACgANwA3ADAAOQA2ADAAMAAzACkAKAA3ADcAMQA1ADYAMAAwADIAKQAoADIAMgA5ADgA
-NQAzADAAMAAxACkAKAA2ADYAMAA2ADYAMAAwADEAKQAoADMAMQA5ADYANgAwADAAOAApACgANgAy
-ADkANgA2ADAAMAAzACkAKAA2ADQANwAwADYAMAAwADEAKQAoADEAMAA4ADYAMQA2ADAAMAA0ACkA
-KAAyADAANwA3ADYAMAAwADMAKQAoADEAMgAyADUANQA2ADAAMAAyACkAKAA3ADYANQA3ADYAMAAw
-ADEAKQAoADQAMwA5ADYAMAAwADEAKQAoADQANgAxADAAMgAwADAAMwApACgANAAwADEAMAAwADAA
-MAAzACkAKAAyADQANwAzADYAMAAwADIAKQA7AEQASQBSADoATwBVAFQAOwBTAEYAUAA6ADEAMQAw
-ADIAOwBTAEMATAA6ADEAOwBTAFIAVgBSADoAQgBZADEAUABSADAANgAwADEATQBCADEAMAA4ADAA
-OwBIADoAQwBPADEAUABSADAANgBNAEIAMAA3ADgALgBuAGEAbQBwAHIAZAAwADYALgBwAHIAbwBk
-AC4AbwB1AHQAbABvAG8AawAuAGMAbwBtADsARgBQAFIAOgA7AE0ATABWADoAcwBmAHYAOwBQAFQA
-UgA6AEkAbgBmAG8ATgBvAFIAZQBjAG8AcgBkAHMAOwBNAFgAOgAxADsAQQA6ADEAOwBMAEEATgBH
-ADoAZQBuADsAAAAZeQ==
+Thus this documentation should now be useful to
+end users and not contain out-right untruths.
 
---_000_75e8607e8bc442bf820dd7161f61049aCO1PR06MB078namprd06pro_--
+Signed-off-by: Daniel Dressler <danieru.dressler@gmail.com>
+---
+ Documentation/input/xpad.txt  | 123 ++++++++++++++++++++++++++++--------------
+ drivers/input/joystick/xpad.c |   4 +-
+ 2 files changed, 85 insertions(+), 42 deletions(-)
+
+diff --git a/Documentation/input/xpad.txt b/Documentation/input/xpad.txt
+index 7cc9a43..d1b23f2 100644
+--- a/Documentation/input/xpad.txt
++++ b/Documentation/input/xpad.txt
+@@ -1,18 +1,22 @@
+-xpad - Linux USB driver for X-Box gamepads
++xpad - Linux USB driver for Xbox compatible controllers
+ 
+-This is the very first release of a driver for X-Box gamepads.
+-Basically, this was hacked away in just a few hours, so don't expect
+-miracles.
++This driver exposes all first-party and third-party Xbox compatible
++controllers. It has a long history and has enjoyed considerable usage
++as Window's xinput library caused most PC games to focus on Xbox
++controller compatibility.
+ 
+-In particular, there is currently NO support for the rumble pack.
+-You won't find many ff-aware linux applications anyway.
++Due to backwards compatibility all buttons are reported as digital.
++This only effects Original Xbox controllers. All later controller models
++have only digital face buttons.
++
++Rumble is supported on some models of Xbox 360 controllers but not of
++Original Xbox controllers nor on Xbox One controllers. As of writing
++the Xbox One's rumble protocol has not been reverse engineered but in
++the future could be supported.
+ 
+ 
+ 0. Notes
+ --------
+-
+-Driver updated for kernel 2.6.17.11. (Based on a patch for 2.6.11.4.)
+-
+ The number of buttons/axes reported varies based on 3 things:
+ - if you are using a known controller
+ - if you are using a known dance pad
+@@ -20,12 +24,16 @@ The number of buttons/axes reported varies based on 3 things:
+   module configuration for "Map D-PAD to buttons rather than axes for unknown
+   pads" (module option dpad_to_buttons)
+ 
+-If you set dpad_to_buttons to 0 and you are using an unknown device (one
+-not listed below), the driver will map the directional pad to axes (X/Y),
+-if you said N it will map the d-pad to buttons, which is needed for dance
+-style games to function correctly.  The default is Y.
++If you set dpad_to_buttons to N and you are using an unknown device
++the driver will map the directional pad to axes (X/Y).
++If you said Y it will map the d-pad to buttons, which is needed for dance
++style games to function correctly. The default is Y.
++
++dpad_to_buttons has no effect for known pads. A erroneous commit message
++claimed dpad_to_buttons could be used to force behavior on known devices.
++This is not true. Both dpad_to_buttons and triggers_to_buttons only affect
++unknown controllers.
+ 
+-dpad_to_buttons has no effect for known pads.
+ 
+ 0.1 Normal Controllers
+ ----------------------
+@@ -80,17 +88,29 @@ to the list of supported devices, ensuring that it will work out of the
+ box in the future.
+ 
+ 
+-1. USB adapter
++1. USB adapters
+ --------------
++All generations of Xbox controllers speak USB over the wire.
++- Original Xbox controllers use a proprietary connector and require adapters.
++- Wireless Xbox 360 controllers require a 'Xbox 360 Wireless Gaming Receiver
++  for Windows'
++- Wired Xbox 360 controllers use standard USB connectors.
++- Xbox One controllers can be wireless but speak Wi-Fi Direct and are not
++  yet supported.
++- Xbox One controllers can be wired and use standard Micro-USB connectors.
++
+ 
+-Before you can actually use the driver, you need to get yourself an
+-adapter cable to connect the X-Box controller to your Linux-Box. You
+-can buy these online fairly cheap, or build your own.
++
++1.1 Original Xbox USB adapters
++--------------
++Using this driver with an Original Xbox controller requires an
++adapter cable to break out the proprietary connector's pins to USB.
++You can buy these online fairly cheap, or build your own.
+ 
+ Such a cable is pretty easy to build. The Controller itself is a USB
+ compound device (a hub with three ports for two expansion slots and
+ the controller device) with the only difference in a nonstandard connector
+-(5 pins vs. 4 on standard USB connector).
++(5 pins vs. 4 on standard USB 1.0 connectors).
+ 
+ You just need to solder a USB connector onto the cable and keep the
+ yellow wire unconnected. The other pins have the same order on both
+@@ -102,26 +122,41 @@ original one. You can buy an extension cable and cut that instead. That way,
+ you can still use the controller with your X-Box, if you have one ;)
+ 
+ 
++
+ 2. Driver Installation
+ ----------------------
+ 
+-Once you have the adapter cable and the controller is connected, you need
+-to load your USB subsystem and should cat /proc/bus/usb/devices.
+-There should be an entry like the one at the end [4].
++Once you have the adapter cable, if needed, and the controller connected
++the xpad module should be auto loaded. To confirm you can cat
++/proc/bus/usb/devices. There should be an entry like the one at the end [4].
++
++
+ 
+-Currently (as of version 0.0.6), the following devices are included:
+- original Microsoft XBOX controller (US), vendor=0x045e, product=0x0202
+- smaller  Microsoft XBOX controller (US), vendor=0x045e, product=0x0289
++3. Supported Controllers
++------------------------
++For a full list of supported controllers and associated vendor and product
++IDs see the xpad_device[] array[6].
++
++As of the historic version 0.0.6 (2006-10-10) the following devices
++were supported:
++ original Microsoft XBOX controller (US),    vendor=0x045e, product=0x0202
++ smaller  Microsoft XBOX controller (US),    vendor=0x045e, product=0x0289
+  original Microsoft XBOX controller (Japan), vendor=0x045e, product=0x0285
+- InterAct PowerPad Pro (Germany), vendor=0x05fd, product=0x107a
+- RedOctane Xbox Dance Pad (US), vendor=0x0c12, product=0x8809
++ InterAct PowerPad Pro (Germany),            vendor=0x05fd, product=0x107a
++ RedOctane Xbox Dance Pad (US),              vendor=0x0c12, product=0x8809
++
++Unrecognized models of Xbox controllers should function as Generic
++Xbox controllers. Unrecognized Dance Pad controllers require setting
++the module option 'dpad_to_buttons'.
++
++If you have an unrecognized controller please see 0.3 - Unknown Controllers
+ 
+-The driver should work with xbox pads not listed above as well, however
+-you will need to do something extra for dance pads to work.
+ 
+-If you have a controller not listed above, see 0.3 - Unknown Controllers
++4. Manual Testing
++-----------------
++To test this driver's functionality you may use 'jstest'.
+ 
+-If you compiled and installed the driver, test the functionality:
++For example:
+ > modprobe xpad
+ > modprobe joydev
+ > jstest /dev/js0
+@@ -134,7 +169,8 @@ show 20 inputs (6 axes, 14 buttons).
+ It works? Voila, you're done ;)
+ 
+ 
+-3. Thanks
++
++5. Thanks
+ ---------
+ 
+ I have to thank ITO Takayuki for the detailed info on his site
+@@ -145,14 +181,14 @@ His useful info and both the usb-skeleton as well as the iforce input driver
+ the basic functionality.
+ 
+ 
+-4. References
+--------------
+ 
+-1. http://euc.jp/periphs/xbox-controller.ja.html (ITO Takayuki)
+-2. http://xpad.xbox-scene.com/
+-3. http://www.markosweb.com/www/xboxhackz.com/ 
++6. References
++-------------
+ 
+-4. /proc/bus/usb/devices - dump from InterAct PowerPad Pro (Germany):
++[1]: http://euc.jp/periphs/xbox-controller.ja.html (ITO Takayuki)
++[2]: http://xpad.xbox-scene.com/
++[3]: http://www.markosweb.com/www/xboxhackz.com/
++[4]: /proc/bus/usb/devices - dump from InterAct PowerPad Pro (Germany):
+ 
+ T:  Bus=01 Lev=03 Prnt=04 Port=00 Cnt=01 Dev#=  5 Spd=12  MxCh= 0
+ D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=32 #Cfgs=  1
+@@ -162,7 +198,7 @@ I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) Sub=42 Prot=00 Driver=(none)
+ E:  Ad=81(I) Atr=03(Int.) MxPS=  32 Ivl= 10ms
+ E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl= 10ms
+ 
+-5. /proc/bus/usb/devices - dump from Redoctane Xbox Dance Pad (US):
++[5]: /proc/bus/usb/devices - dump from Redoctane Xbox Dance Pad (US):
+ 
+ T:  Bus=01 Lev=02 Prnt=09 Port=00 Cnt=01 Dev#= 10 Spd=12  MxCh= 0
+ D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+@@ -173,7 +209,12 @@ I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) Sub=42 Prot=00 Driver=xpad
+ E:  Ad=82(I) Atr=03(Int.) MxPS=  32 Ivl=4ms
+ E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl=4ms
+ 
+--- 
++[6]: http://lxr.free-electrons.com/ident?i=xpad_device
++
++
++
++7. Historic Edits
++-----------------
+ Marko Friedemann <mfr@bmx-chemnitz.de>
+ 2002-07-16
+  - original doc
+@@ -181,3 +222,5 @@ Marko Friedemann <mfr@bmx-chemnitz.de>
+ Dominic Cerquetti <binary1230@yahoo.com>
+ 2005-03-19
+  - added stuff for dance pads, new d-pad->axes mappings
++
++Later changes may be viewed with 'git log Documentation/input/xpad.txt'
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 2ed7905..7e2e047 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -40,8 +40,8 @@
+  *
+  * TODO:
+  *  - fine tune axes (especially trigger axes)
+- *  - fix "analog" buttons (reported as digital now)
+- *  - get rumble working
++ *  - add original xbox rumble pack support
++ *  - add xbox one rumble support
+  *  - need USB IDs for other dance pads
+  *
+  * History:
+-- 
+2.1.0
+

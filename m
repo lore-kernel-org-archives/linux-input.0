@@ -1,47 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] HID: logitech-hidpp: 2 fixes in hidpp_root_get_protocol_version()
-Date: Mon,  3 Nov 2014 14:50:53 -0500
-Message-ID: <1415044253-18734-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Supporting U2F over HID on Linux?
+Date: Mon, 3 Nov 2014 21:21:05 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
+References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
+ <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
+ <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
+ <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Kay Sievers <kay@vrfy.org>, Andy Lutomirski <luto@amacapital.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-- remove the constant '1'
-- when the device is not connected, the protocol error
-  HIDPP_ERROR_RESOURCE_ERROR is raised. We should not warn the user about
-  it because it is somewhat expected as an answer when we check if the
-  device is connected.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-logitech-hidpp.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 4793d4b..2683564 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -361,12 +361,16 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 			CMD_ROOT_GET_PROTOCOL_VERSION,
- 			NULL, 0, &response);
- 
--	if (ret == 1) {
-+	if (ret == HIDPP_ERROR_INVALID_SUBID) {
- 		hidpp->protocol_major = 1;
- 		hidpp->protocol_minor = 0;
- 		return 0;
- 	}
- 
-+	/* the device might not be connected */
-+	if (ret == HIDPP_ERROR_RESOURCE_ERROR)
-+		return -EIO;
-+
- 	if (ret > 0) {
- 		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
- 			__func__, ret);
--- 
-2.1.0
+T24gTW9uLCAzIE5vdiAyMDE0LCBEYXZpZCBIZXJybWFubiB3cm90ZToKCj4gPiBBZ3JlZWQsIG1v
+c3RseS4gIE15IG9ubHkgcmVhbCBjb25jZXJuIGlzIHRoYXQgdGhpcyBjb3VsZCBiZSBhbm5veWlu
+Zwo+ID4gZm9yIHRoZSB1c2Vyc3BhY2UgZGV2ZWxvcGVycyB3aG8gd2lsbCBuZWVkIHRvIHRhcmdl
+dCBMaW51eCBhbmQgSElEQVBJCj4gPiBzZXBhcmF0ZWx5LiAgQWRtaXR0ZWRseSB0aGUgTGludXgg
+c3VwcG9ydCB3aWxsIGJlIHRyaXZpYWwuCj4gCj4gSSBzZWUuIEknbGwgbm90IHN0b3AgeW91IGZy
+b20gdXNpbmcgaGlkcmF3LCBJJ2QganVzdCBub3QgcmVjb21tZW5kIGl0Lgo+IEVzcGVjaWFsbHkg
+Zm9yIHNlY3VyaXR5IHN0dWZmIEkgZGlzbGlrZSBleHBvc2luZyB0aGUgd2hvbGUgSElEIGRldmlj
+ZQo+IHdyaXRhYmxlLiBCdXQgeWVhaCwgSSBndWVzcyB5b3UgZ290IG15IHBvaW50LgoKQWxyaWdo
+dCwgSSBhbSBiYXNpY2FsbHkgdGhpbmtpbmcgbG91ZGx5IG5vdywgYnV0IGhvdyBhYm91dCB3ZSBh
+bGxvdyBISUQgCmRyaXZlcnMgdGhhdCB3b3VsZCBvdmVycmlkZSBkZWZhdWx0IGhpZHJhdyBpbnRl
+cmZhY2U/CgpJIGFtIHZlcnkgd2VsbCBhd2FyZSBvZiB0aGUgZmFjdCB0aGF0IHRoaXMgY291bGQg
+YmUgb3BlbmluZyBhIGNhbiBvZiAKd29ybXMsIHNvIHdlJ2xsIGhhdmUgdG8gbWFrZSBpdCB2ZXJ5
+IHJlc3RyaWN0aXZlLiBIb3cgYWJvdXQsIGxldCdzIHNheSwgd2UgCmFsbG93IEhJRCBkcml2ZXJz
+IHRvIHByb3ZpZGUgY3VzdG9tIGhpZHJhdyBpbnRlcmZhY2UgKGNvbXBsZXRlbHkgCm92ZXJyaWRp
+bmcgdGhlIG9uZSB0aGF0IEhJRCBjb3JlIHdvdWxkIG5vcm1hbGx5IGNyZWF0ZSkgb25seSBmb3Ig
+Y2FzZXMgCnN1Y2ggYXM6CgotIHRoZSBpbnRlbnQgaXMgdG8gZXhwb3NlIG9ubHkgY2VydGFpbiBw
+YXJ0cyBvZiBhIGNvbWJpbmVkIGRldmljZQotIHRoZSBpbnRlbnQgaXMgdG8gaW50cm9kdWNlIHNv
+bWUgbGV2ZWwgb2YgYWNjZXNzIGNvbnRyb2wKCkkuZS4gc3RpbGwgbm8gaW50ZXJmZXJlbmNlIG9m
+IGtlcm5lbCB3aXRoIGRhdGEgcGFyc2luZyBhbGxvd2VkLgoKPiA+IEkgY2FuIGdpdmUgdGhlIGRy
+aXZlciBhIHRyeS4gIEl0J2xsIGFjdHVhbGx5IGJlIHNpbXBsZXIgdGhhbiB0aGUgc3BlYwo+ID4g
+bWFrZXMgaXQgb3V0LCBzaW5jZSBhIHJlYWwga2VybmVsIGRyaXZlciB3aWxsIGhhdmUgbm8gbmVl
+ZCB0bwo+ID4gYXJiaXRyYXRlIHdpdGggaXRzZWxmLgo+IAo+IEknbGwgZ2xhZGx5IHJldmlldyBh
+bnkgY3VzdG9tIEhJRCBkcml2ZXJzLiBGZWVsIGZyZWUgdG8gcHV0IG1lIG9uIENDCj4gd2hlbiBz
+ZW5kaW5nIHRvIGxpbnV4LWlucHV0LiBUaGVyZSdzIGFsc28gYSBsb3Qgb2YgZXhhbXBsZXMgaW4K
+PiBkcml2ZXJzL2hpZC8gaW4gY2FzZSB5b3UgbmVlZCBhIGhlYWQtc3RhcnQgKGVzcGVjaWFsbHkg
+aWYgeW91IG5lZWQgdGhlCj4gcmF3X2V2ZW50IGNhbGxiYWNrKS4KClNhbWUgaGVyZSwgb2YgY291
+cnNlLgoKUGxlYXNlIGFsd2F5cyBDQyBtZSBpbiBwYXJhbGxlbCB0byBzZW5kaW5nIHRvIGxpbnV4
+LWlucHV0QCB0byBtYWtlIHN1cmUgCnRoYXQgdGhlIHBhdGNoIGRvZXNuJ3QgZmFsbCBpbiBiZXR3
+ZWVuIGNyYWNrcy4KClRoYW5rcywKCi0tIApKaXJpIEtvc2luYQpTVVNFIExhYnMKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18Kc3lzdGVtZC1kZXZlbCBtYWls
+aW5nIGxpc3QKc3lzdGVtZC1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3Rz
+LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3N5c3RlbWQtZGV2ZWwK

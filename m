@@ -1,69 +1,46 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: Supporting U2F over HID on Linux?
-Date: Mon, 3 Nov 2014 12:41:27 -0800
-Message-ID: <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
- <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
- <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
- <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: fix negated returns
+Date: Mon, 3 Nov 2014 15:41:40 -0500
+Message-ID: <CAN+gG=EUPxERcaPjqnDYNJUeQeWxHtJdRiAmyeb4b2g0W_yHqg@mail.gmail.com>
+References: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20141103203230.GV6890@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Kay Sievers <kay@vrfy.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141103203230.GV6890@mwanda>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gTW9uLCBOb3YgMywgMjAxNCBhdCAxMjoyMSBQTSwgSmlyaSBLb3NpbmEgPGprb3NpbmFAc3Vz
-ZS5jej4gd3JvdGU6Cj4gT24gTW9uLCAzIE5vdiAyMDE0LCBEYXZpZCBIZXJybWFubiB3cm90ZToK
-Pgo+PiA+IEFncmVlZCwgbW9zdGx5LiAgTXkgb25seSByZWFsIGNvbmNlcm4gaXMgdGhhdCB0aGlz
-IGNvdWxkIGJlIGFubm95aW5nCj4+ID4gZm9yIHRoZSB1c2Vyc3BhY2UgZGV2ZWxvcGVycyB3aG8g
-d2lsbCBuZWVkIHRvIHRhcmdldCBMaW51eCBhbmQgSElEQVBJCj4+ID4gc2VwYXJhdGVseS4gIEFk
-bWl0dGVkbHkgdGhlIExpbnV4IHN1cHBvcnQgd2lsbCBiZSB0cml2aWFsLgo+Pgo+PiBJIHNlZS4g
-SSdsbCBub3Qgc3RvcCB5b3UgZnJvbSB1c2luZyBoaWRyYXcsIEknZCBqdXN0IG5vdCByZWNvbW1l
-bmQgaXQuCj4+IEVzcGVjaWFsbHkgZm9yIHNlY3VyaXR5IHN0dWZmIEkgZGlzbGlrZSBleHBvc2lu
-ZyB0aGUgd2hvbGUgSElEIGRldmljZQo+PiB3cml0YWJsZS4gQnV0IHllYWgsIEkgZ3Vlc3MgeW91
-IGdvdCBteSBwb2ludC4KPgo+IEFscmlnaHQsIEkgYW0gYmFzaWNhbGx5IHRoaW5raW5nIGxvdWRs
-eSBub3csIGJ1dCBob3cgYWJvdXQgd2UgYWxsb3cgSElECj4gZHJpdmVycyB0aGF0IHdvdWxkIG92
-ZXJyaWRlIGRlZmF1bHQgaGlkcmF3IGludGVyZmFjZT8KPgo+IEkgYW0gdmVyeSB3ZWxsIGF3YXJl
-IG9mIHRoZSBmYWN0IHRoYXQgdGhpcyBjb3VsZCBiZSBvcGVuaW5nIGEgY2FuIG9mCj4gd29ybXMs
-IHNvIHdlJ2xsIGhhdmUgdG8gbWFrZSBpdCB2ZXJ5IHJlc3RyaWN0aXZlLiBIb3cgYWJvdXQsIGxl
-dCdzIHNheSwgd2UKPiBhbGxvdyBISUQgZHJpdmVycyB0byBwcm92aWRlIGN1c3RvbSBoaWRyYXcg
-aW50ZXJmYWNlIChjb21wbGV0ZWx5Cj4gb3ZlcnJpZGluZyB0aGUgb25lIHRoYXQgSElEIGNvcmUg
-d291bGQgbm9ybWFsbHkgY3JlYXRlKSBvbmx5IGZvciBjYXNlcwo+IHN1Y2ggYXM6Cj4KPiAtIHRo
-ZSBpbnRlbnQgaXMgdG8gZXhwb3NlIG9ubHkgY2VydGFpbiBwYXJ0cyBvZiBhIGNvbWJpbmVkIGRl
-dmljZQo+IC0gdGhlIGludGVudCBpcyB0byBpbnRyb2R1Y2Ugc29tZSBsZXZlbCBvZiBhY2Nlc3Mg
-Y29udHJvbAo+Cj4gSS5lLiBzdGlsbCBubyBpbnRlcmZlcmVuY2Ugb2Yga2VybmVsIHdpdGggZGF0
-YSBwYXJzaW5nIGFsbG93ZWQuCgpIbW0uICBXb3VsZCB0aGlzIGJlIGxpa2UgYSBmaWx0ZXIgb24g
-aGlkcmF3IGFjdGlvbnM/CgpIb3cgd291bGQgdWRldiBkaXN0aW5ndWlzaCB0aGVzZSBzcGVjaWFs
-IGhpZHJhdyBkZXZpY2VzIGZyb20gbm9ybWFsCmhpZHJhdyBkZXZpY2VzPwoKQWxzbywgZm9yIFUy
-RiwgdGhpcyBjb3VsZCBiZSBhIGxpdHRsZSBhd2t3YXJkLiAgVGhlcmUncyBzb21lIGNyYXp5CmZy
-YWdtZW50YXRpb24gc3R1ZmYgdG8gYWxsb3cgYSBVMkYgcmVxdWVzdCB0byBiZSBzcGxpdCBhY3Jv
-c3MgSElECnJlcXVlc3RzLCBhbmQgSSB0aGluayBhIGtlcm5lbCBkcml2ZXIgd291bGQgbXVjaCBy
-YXRoZXIgZ2V0IHRoZQpvcmlnaW5hbCB1bmZyYWdtZW50ZWQgYXBwbGljYXRpb24gcmVxdWVzdC4K
-Ci0tQW5keQoKPgo+PiA+IEkgY2FuIGdpdmUgdGhlIGRyaXZlciBhIHRyeS4gIEl0J2xsIGFjdHVh
-bGx5IGJlIHNpbXBsZXIgdGhhbiB0aGUgc3BlYwo+PiA+IG1ha2VzIGl0IG91dCwgc2luY2UgYSBy
-ZWFsIGtlcm5lbCBkcml2ZXIgd2lsbCBoYXZlIG5vIG5lZWQgdG8KPj4gPiBhcmJpdHJhdGUgd2l0
-aCBpdHNlbGYuCj4+Cj4+IEknbGwgZ2xhZGx5IHJldmlldyBhbnkgY3VzdG9tIEhJRCBkcml2ZXJz
-LiBGZWVsIGZyZWUgdG8gcHV0IG1lIG9uIENDCj4+IHdoZW4gc2VuZGluZyB0byBsaW51eC1pbnB1
-dC4gVGhlcmUncyBhbHNvIGEgbG90IG9mIGV4YW1wbGVzIGluCj4+IGRyaXZlcnMvaGlkLyBpbiBj
-YXNlIHlvdSBuZWVkIGEgaGVhZC1zdGFydCAoZXNwZWNpYWxseSBpZiB5b3UgbmVlZCB0aGUKPj4g
-cmF3X2V2ZW50IGNhbGxiYWNrKS4KPgo+IFNhbWUgaGVyZSwgb2YgY291cnNlLgo+Cj4gUGxlYXNl
-IGFsd2F5cyBDQyBtZSBpbiBwYXJhbGxlbCB0byBzZW5kaW5nIHRvIGxpbnV4LWlucHV0QCB0byBt
-YWtlIHN1cmUKPiB0aGF0IHRoZSBwYXRjaCBkb2Vzbid0IGZhbGwgaW4gYmV0d2VlbiBjcmFja3Mu
-Cj4KPiBUaGFua3MsCj4KPiAtLQo+IEppcmkgS29zaW5hCj4gU1VTRSBMYWJzCgoKCi0tIApBbmR5
-IEx1dG9taXJza2kKQU1BIENhcGl0YWwgTWFuYWdlbWVudCwgTExDCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCnN5c3RlbWQtZGV2ZWwgbWFpbGluZyBsaXN0
-CnN5c3RlbWQtZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVz
-a3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9zeXN0ZW1kLWRldmVsCg==
+On Mon, Nov 3, 2014 at 3:32 PM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> On Mon, Nov 03, 2014 at 02:50:52PM -0500, Benjamin Tissoires wrote:
+>> @@ -524,8 +541,11 @@ static int hidpp_touchpad_get_raw_info(struct hidpp_device *hidpp,
+>>       ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+>>               CMD_TOUCHPAD_GET_RAW_INFO, NULL, 0, &response);
+>>
+>> -     if (ret)
+>> -             return -ret;
+>> +     if (ret > 0) {
+>> +             hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
+>> +                     __func__, ret);
+>> +             return -EPROTO;
+>> +     }
+>
+> We should handle -ENOMEM and -EINVAL here as well.  Something like:
+>
+>         if (ret > 0) {
+>                 hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
+>                         __func__, ret);
+>                 ret = -EPROTO;
+>         }
+>         if (ret)
+>                 return ret;
+
+Ouch. my bad...
+No, I don't have any excuses for that.
+
+Thanks for the review.
+
+Cheers,
+Benjamin

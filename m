@@ -1,130 +1,69 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Microsoft Surface Pro 3 Type Cover keyboard
-Date: Mon, 3 Nov 2014 15:39:39 -0500
-Message-ID: <CAN+gG=HBCSE7gGaiSAGa7nzrJqn42qdKvGrbOc=KGZ-BaONyGA@mail.gmail.com>
-References: <54492559.8000205@gmail.com>
-	<alpine.LNX.2.00.1411031431150.19451@pobox.suse.cz>
-	<CAN+gG=HaNviwiTRMxVH+A9mogthwAy=JE1ZJ8+f-d=v7PMf8QA@mail.gmail.com>
-	<CAE7eX3JsnY_xAookiT_ycdES5dRP6GkAa+bcRyQ5HaU9iMtGQw@mail.gmail.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: Supporting U2F over HID on Linux?
+Date: Mon, 3 Nov 2014 12:41:27 -0800
+Message-ID: <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
+References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
+ <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
+ <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
+ <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
+ <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f43.google.com ([209.85.192.43]:61139 "EHLO
-	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752335AbaKCUjk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Nov 2014 15:39:40 -0500
-Received: by mail-qg0-f43.google.com with SMTP id f51so9402087qge.16
-        for <linux-input@vger.kernel.org>; Mon, 03 Nov 2014 12:39:39 -0800 (PST)
-In-Reply-To: <CAE7eX3JsnY_xAookiT_ycdES5dRP6GkAa+bcRyQ5HaU9iMtGQw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Kay Sievers <kay@vrfy.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <andrew.duggan@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jarrad Whitaker <jarrad.whitaker@gmail.com>, linux-input <linux-input@vger.kernel.org>, Alan Wu <alan.c.wu@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
 
-On Mon, Nov 3, 2014 at 3:33 PM, Andrew Duggan <andrew.duggan@gmail.com> wrote:
->
->
-> On Mon, Nov 3, 2014 at 7:28 AM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->>
->> On Mon, Nov 3, 2014 at 8:33 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->> > On Fri, 24 Oct 2014, Jarrad Whitaker wrote:
->> >
->> >> The keyboard on the Surface Pro 3 type cover does not function without
->> >> some patching, similar to what was apparently required for the SP2
->> >> type/touch covers.
->> >>
->> >> A working patch against 3.16 attached, it's an amalgamation of "some
->> >> dude posted this on the ubuntu/arch forums and it seems to work" so
->> >> I'm making no claims that it's kernel-quality! Just trying to give a
->> >> better indication of what needs to be added. My C is rudimentary and
->> >> my knowledge of the kernel limited to 'fakeroot debian/rules
->> >> updateconfigs', sorry. :)
->> >> Happy to test any improved version, but note I only have a type, not a
->> >> touch cover.
->> >>
->> >> Patch source is
->> >> http://winaero.com/blog/how-to-install-linux-on-surface-pro-3/, which
->> >> in turn sources a Russian site.
->> >
->> > Hi,
->> >
->> > thanks. Adding Alan Wu to CC, who sent me a slightly different patch for
->> > this issue -- see the archives of linux-input list from a few days back.
->> >
->> > Your patch is missing at least Signed-off-by: line, and also seems to
->> > lack
->> > the update to hid_have_special_driver[].
->>
->> Jiri, actually, the hid_have_special_driver entry is not 100% required
->> to make it work (though it would be cleaner, I agree).
->> Actually, the TypeCover presents a Precision TouchPad, so hid-core
->> considers it should have the hid-multitouch driver driving it (see
->> https://bugzilla.redhat.com/show_bug.cgi?id=1135338 )
->>
->> I am not sure we should use hid-multitouch or hid-microsoft. My guess
->> is that both will work, but hid-multitouch might provide true raw
->> reporting for the touchpad. On the other hand, maybe hid-microsoft
->> will bind special keys that hid-multitouch will not...
->>
-> I would think that being able to do multifinger gestures would make using
-> hid-multitouch preferable. Using hid-microsoft will keep the touchpad in
-> mouse mode since the host needs to send the feature report to switch the
-> touchpad into PTP mode. In PTP mode, this touchpad will report absolute data
-> for three fingers.
->
-> I think the main issue is how do you get  the keyboard working when the
-> device is using the hid-multitouch driver. After looking at the bug above
-> and Benjamin's changes on Github it looks like adding an entry in mt_devices
-> and setting MT_CLS_EXPORT_ALL_INPUTS would also export the keyboard. Is that
-> correct? I haven't been able to try it out.
-
-Correct. See https://github.com/bentiss/hid-multitouch/commit/999eb73d37bab0b72f775f2150b1c27488610414
-The reporter seems to claim that it works for him, but I need to check
-if the touchpad is correctly presented (properties, etc), if the
-touchpad data come from the raw node, and not the mouse node, and if
-there is no problems with respect to the keyboard. I'd prefer the
-owners of the device to double check all of this.
-
->
-> If hid-microsoft has functionality which hid-multitouch doesn't provide is
-> there a way to combine the two without reimplementing the functionality of
-> one driver into the other?
-
-The problem with this device is that the keyboard and touchpad are on
-the same hid device, on different collections. So if hid-microsoft
-does fancy stuff on the keyboard level, the only option will be to
-merge hid-multitouch in hid-input (this might be needed at some
-point).
-
-Cheers,
-Benjamin
-
->
->>
->> If the path is to go through hid-microsoft, then Jarrad, Alan, yes,
->> please, add your device to hid_have_special_driver.
->>
->> Cheers,
->> Benjamin
->>
->> >
->> > Could you two guys please cooperate and send me a patch that should be
->> > applied? I don't have the device so can't really test properly myself.
->> >
->> > Thanks,
->> >
->> > --
->> > Jiri Kosina
->> > SUSE Labs
->> > --
->> > To unsubscribe from this list: send the line "unsubscribe linux-input"
->> > in
->> > the body of a message to majordomo@vger.kernel.org
->> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+T24gTW9uLCBOb3YgMywgMjAxNCBhdCAxMjoyMSBQTSwgSmlyaSBLb3NpbmEgPGprb3NpbmFAc3Vz
+ZS5jej4gd3JvdGU6Cj4gT24gTW9uLCAzIE5vdiAyMDE0LCBEYXZpZCBIZXJybWFubiB3cm90ZToK
+Pgo+PiA+IEFncmVlZCwgbW9zdGx5LiAgTXkgb25seSByZWFsIGNvbmNlcm4gaXMgdGhhdCB0aGlz
+IGNvdWxkIGJlIGFubm95aW5nCj4+ID4gZm9yIHRoZSB1c2Vyc3BhY2UgZGV2ZWxvcGVycyB3aG8g
+d2lsbCBuZWVkIHRvIHRhcmdldCBMaW51eCBhbmQgSElEQVBJCj4+ID4gc2VwYXJhdGVseS4gIEFk
+bWl0dGVkbHkgdGhlIExpbnV4IHN1cHBvcnQgd2lsbCBiZSB0cml2aWFsLgo+Pgo+PiBJIHNlZS4g
+SSdsbCBub3Qgc3RvcCB5b3UgZnJvbSB1c2luZyBoaWRyYXcsIEknZCBqdXN0IG5vdCByZWNvbW1l
+bmQgaXQuCj4+IEVzcGVjaWFsbHkgZm9yIHNlY3VyaXR5IHN0dWZmIEkgZGlzbGlrZSBleHBvc2lu
+ZyB0aGUgd2hvbGUgSElEIGRldmljZQo+PiB3cml0YWJsZS4gQnV0IHllYWgsIEkgZ3Vlc3MgeW91
+IGdvdCBteSBwb2ludC4KPgo+IEFscmlnaHQsIEkgYW0gYmFzaWNhbGx5IHRoaW5raW5nIGxvdWRs
+eSBub3csIGJ1dCBob3cgYWJvdXQgd2UgYWxsb3cgSElECj4gZHJpdmVycyB0aGF0IHdvdWxkIG92
+ZXJyaWRlIGRlZmF1bHQgaGlkcmF3IGludGVyZmFjZT8KPgo+IEkgYW0gdmVyeSB3ZWxsIGF3YXJl
+IG9mIHRoZSBmYWN0IHRoYXQgdGhpcyBjb3VsZCBiZSBvcGVuaW5nIGEgY2FuIG9mCj4gd29ybXMs
+IHNvIHdlJ2xsIGhhdmUgdG8gbWFrZSBpdCB2ZXJ5IHJlc3RyaWN0aXZlLiBIb3cgYWJvdXQsIGxl
+dCdzIHNheSwgd2UKPiBhbGxvdyBISUQgZHJpdmVycyB0byBwcm92aWRlIGN1c3RvbSBoaWRyYXcg
+aW50ZXJmYWNlIChjb21wbGV0ZWx5Cj4gb3ZlcnJpZGluZyB0aGUgb25lIHRoYXQgSElEIGNvcmUg
+d291bGQgbm9ybWFsbHkgY3JlYXRlKSBvbmx5IGZvciBjYXNlcwo+IHN1Y2ggYXM6Cj4KPiAtIHRo
+ZSBpbnRlbnQgaXMgdG8gZXhwb3NlIG9ubHkgY2VydGFpbiBwYXJ0cyBvZiBhIGNvbWJpbmVkIGRl
+dmljZQo+IC0gdGhlIGludGVudCBpcyB0byBpbnRyb2R1Y2Ugc29tZSBsZXZlbCBvZiBhY2Nlc3Mg
+Y29udHJvbAo+Cj4gSS5lLiBzdGlsbCBubyBpbnRlcmZlcmVuY2Ugb2Yga2VybmVsIHdpdGggZGF0
+YSBwYXJzaW5nIGFsbG93ZWQuCgpIbW0uICBXb3VsZCB0aGlzIGJlIGxpa2UgYSBmaWx0ZXIgb24g
+aGlkcmF3IGFjdGlvbnM/CgpIb3cgd291bGQgdWRldiBkaXN0aW5ndWlzaCB0aGVzZSBzcGVjaWFs
+IGhpZHJhdyBkZXZpY2VzIGZyb20gbm9ybWFsCmhpZHJhdyBkZXZpY2VzPwoKQWxzbywgZm9yIFUy
+RiwgdGhpcyBjb3VsZCBiZSBhIGxpdHRsZSBhd2t3YXJkLiAgVGhlcmUncyBzb21lIGNyYXp5CmZy
+YWdtZW50YXRpb24gc3R1ZmYgdG8gYWxsb3cgYSBVMkYgcmVxdWVzdCB0byBiZSBzcGxpdCBhY3Jv
+c3MgSElECnJlcXVlc3RzLCBhbmQgSSB0aGluayBhIGtlcm5lbCBkcml2ZXIgd291bGQgbXVjaCBy
+YXRoZXIgZ2V0IHRoZQpvcmlnaW5hbCB1bmZyYWdtZW50ZWQgYXBwbGljYXRpb24gcmVxdWVzdC4K
+Ci0tQW5keQoKPgo+PiA+IEkgY2FuIGdpdmUgdGhlIGRyaXZlciBhIHRyeS4gIEl0J2xsIGFjdHVh
+bGx5IGJlIHNpbXBsZXIgdGhhbiB0aGUgc3BlYwo+PiA+IG1ha2VzIGl0IG91dCwgc2luY2UgYSBy
+ZWFsIGtlcm5lbCBkcml2ZXIgd2lsbCBoYXZlIG5vIG5lZWQgdG8KPj4gPiBhcmJpdHJhdGUgd2l0
+aCBpdHNlbGYuCj4+Cj4+IEknbGwgZ2xhZGx5IHJldmlldyBhbnkgY3VzdG9tIEhJRCBkcml2ZXJz
+LiBGZWVsIGZyZWUgdG8gcHV0IG1lIG9uIENDCj4+IHdoZW4gc2VuZGluZyB0byBsaW51eC1pbnB1
+dC4gVGhlcmUncyBhbHNvIGEgbG90IG9mIGV4YW1wbGVzIGluCj4+IGRyaXZlcnMvaGlkLyBpbiBj
+YXNlIHlvdSBuZWVkIGEgaGVhZC1zdGFydCAoZXNwZWNpYWxseSBpZiB5b3UgbmVlZCB0aGUKPj4g
+cmF3X2V2ZW50IGNhbGxiYWNrKS4KPgo+IFNhbWUgaGVyZSwgb2YgY291cnNlLgo+Cj4gUGxlYXNl
+IGFsd2F5cyBDQyBtZSBpbiBwYXJhbGxlbCB0byBzZW5kaW5nIHRvIGxpbnV4LWlucHV0QCB0byBt
+YWtlIHN1cmUKPiB0aGF0IHRoZSBwYXRjaCBkb2Vzbid0IGZhbGwgaW4gYmV0d2VlbiBjcmFja3Mu
+Cj4KPiBUaGFua3MsCj4KPiAtLQo+IEppcmkgS29zaW5hCj4gU1VTRSBMYWJzCgoKCi0tIApBbmR5
+IEx1dG9taXJza2kKQU1BIENhcGl0YWwgTWFuYWdlbWVudCwgTExDCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCnN5c3RlbWQtZGV2ZWwgbWFpbGluZyBsaXN0
+CnN5c3RlbWQtZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVz
+a3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9zeXN0ZW1kLWRldmVsCg==

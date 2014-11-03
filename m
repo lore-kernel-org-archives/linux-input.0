@@ -1,46 +1,115 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: fix negated returns
-Date: Mon, 3 Nov 2014 15:41:40 -0500
-Message-ID: <CAN+gG=EUPxERcaPjqnDYNJUeQeWxHtJdRiAmyeb4b2g0W_yHqg@mail.gmail.com>
-References: <1415044253-18734-1-git-send-email-benjamin.tissoires@redhat.com>
-	<20141103203230.GV6890@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 1/2] HID: logitech-hidpp: fix negated returns
+Date: Mon,  3 Nov 2014 16:09:58 -0500
+Message-ID: <1415048999-4490-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141103203230.GV6890@mwanda>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Nov 3, 2014 at 3:32 PM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> On Mon, Nov 03, 2014 at 02:50:52PM -0500, Benjamin Tissoires wrote:
->> @@ -524,8 +541,11 @@ static int hidpp_touchpad_get_raw_info(struct hidpp_device *hidpp,
->>       ret = hidpp_send_fap_command_sync(hidpp, feature_index,
->>               CMD_TOUCHPAD_GET_RAW_INFO, NULL, 0, &response);
->>
->> -     if (ret)
->> -             return -ret;
->> +     if (ret > 0) {
->> +             hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
->> +                     __func__, ret);
->> +             return -EPROTO;
->> +     }
->
-> We should handle -ENOMEM and -EINVAL here as well.  Something like:
->
->         if (ret > 0) {
->                 hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
->                         __func__, ret);
->                 ret = -EPROTO;
->         }
->         if (ret)
->                 return ret;
+Reported by Dan Carpenter:
 
-Ouch. my bad...
-No, I don't have any excuses for that.
+drivers/hid/hid-logitech-hidpp.c:359 hidpp_root_get_protocol_version() warn: should this return really be negated?
+drivers/hid/hid-logitech-hidpp.c:398 hidpp_devicenametype_get_count() warn: should this return really be negated?
+drivers/hid/hid-logitech-hidpp.c:417 hidpp_devicenametype_get_device_name() warn: should this return really be negated?
+drivers/hid/hid-logitech-hidpp.c:524 hidpp_touchpad_get_raw_info() warn: should this return really be negated?
 
-Thanks for the review.
+The problem lies in hidpp_send_message_sync() which can return 2 types of
+errors depending of their sign. Adding a comment there to clarify what is
+happening.
 
-Cheers,
-Benjamin
+To solve that, print an error in case of a protocol problem, and raise
+-EPROTO instead.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+
+Changes in v2:
+- also return if the ret code is negative
+
+ drivers/hid/hid-logitech-hidpp.c | 36 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 8d2d54b..61f9e75 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -151,6 +151,14 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 	return ret == fields_count ? 0 : -1;
+ }
+ 
++/**
++ * hidpp_send_message_sync() returns 0 in case of success, and something else
++ * in case of a failure.
++ * - If ' something else' is positive, that means that an error has been raised
++ *   by the protocol itself.
++ * - If ' something else' is negative, that means that we had a classic error
++ *   (-ENOMEM, -EPIPE, etc...)
++ */
+ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 	struct hidpp_report *message,
+ 	struct hidpp_report *response)
+@@ -359,8 +367,13 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+ 		return 0;
+ 	}
+ 
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 	if (ret)
+-		return -ret;
++		return ret;
+ 
+ 	hidpp->protocol_major = response.fap.params[0];
+ 	hidpp->protocol_minor = response.fap.params[1];
+@@ -398,8 +411,13 @@ static int hidpp_devicenametype_get_count(struct hidpp_device *hidpp,
+ 	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+ 		CMD_GET_DEVICE_NAME_TYPE_GET_COUNT, NULL, 0, &response);
+ 
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 	if (ret)
+-		return -ret;
++		return ret;
+ 
+ 	*nameLength = response.fap.params[0];
+ 
+@@ -417,8 +435,13 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
+ 		CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME, &char_index, 1,
+ 		&response);
+ 
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 	if (ret)
+-		return -ret;
++		return ret;
+ 
+ 	if (response.report_id == REPORT_ID_HIDPP_LONG)
+ 		count = HIDPP_REPORT_LONG_LENGTH - 4;
+@@ -524,8 +547,13 @@ static int hidpp_touchpad_get_raw_info(struct hidpp_device *hidpp,
+ 	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+ 		CMD_TOUCHPAD_GET_RAW_INFO, NULL, 0, &response);
+ 
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
+ 	if (ret)
+-		return -ret;
++		return ret;
+ 
+ 	raw_info->x_size = get_unaligned_be16(&params[0]);
+ 	raw_info->y_size = get_unaligned_be16(&params[2]);
+-- 
+2.1.0

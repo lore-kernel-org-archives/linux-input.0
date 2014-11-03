@@ -1,47 +1,78 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 0/4] Touchscreen performance related fixes
-Date: Mon, 03 Nov 2014 13:17:28 +0100
-Message-ID: <54577258.9080508@linutronix.de>
-References: <1414408111-2631-1-git-send-email-vigneshr@ti.com> <544E821D.5040004@linutronix.de> <912A29987EAE174BA6CF187D7CDFA9CE26F46B2B@DLEE08.ent.ti.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/3] mfd: stmpe: add pull up/down register offsets for
+ STMPE
+Date: Mon, 3 Nov 2014 12:25:59 +0000
+Message-ID: <20141103122559.GB4538@x1>
+References: <1413636974-3244-1-git-send-email-linus.walleij@linaro.org>
+ <20141020064605.GB25349@x1>
+ <20141024214206.GG19933@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:51549 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751166AbaKCMRg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Nov 2014 07:17:36 -0500
-In-Reply-To: <912A29987EAE174BA6CF187D7CDFA9CE26F46B2B@DLEE08.ent.ti.com>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:35736 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751114AbaKCM0H (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Nov 2014 07:26:07 -0500
+Received: by mail-ie0-f174.google.com with SMTP id x19so4978748ier.5
+        for <linux-input@vger.kernel.org>; Mon, 03 Nov 2014 04:26:05 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20141024214206.GG19933@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Griffis, Brad" <bgriffis@ti.com>, "R, Vignesh" <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, "Balbi, Felipe" <balbi@ti.com>, Jan Kardell <jan.kardell@telliq.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 10/27/2014 08:02 PM, Griffis, Brad wrote:
-> On 10/27/2014 12:34 PM, Sebastian Andrzej Siewior wrote:
->> Do we really need #3 (and then #4)? Given the complexity we have already, is there any benefit by decreasing this value? 
-> 
-> I specifically requested we add ti,charge-delay to the device tree because it is THE critical value to tune for a given design.  Although I think the current value of 0xB000 will be suitable for a great many designs, I expect that many users will need to adjust this value for their hardware.  Details such as which touchscreen vendor is being used and how the touchscreen is connected (header vs cable) have an effect on what's appropriate here.
+On Fri, 24 Oct 2014, Dmitry Torokhov wrote:
 
-Oh. That is one knob I hoped we could avoid since I haven't seen it
-before on other TSCs. But okay. Please make sure that there is a
-message printed if the default value is used. And lets hope the user
-will do something about his.
+> On Mon, Oct 20, 2014 at 07:46:05AM +0100, Lee Jones wrote:
+> > On Sat, 18 Oct 2014, Linus Walleij wrote:
+> >=20
+> > > This adds the register offsets for pull up/down for the STMPE
+> > > 1601, 1801 and 24xx expanders. This is used to bias GPIO lines
+> > > and keypad lines.
+> > >=20
+> > > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> > > ---
+> > > Hi Sam, Lee: I think you should just ACK this so Dmitry can take =
+the
+> > > patch series through the input tree, where the registers need to =
+be
+> > > used to enable the keypad on the STMPE2401.
+> > > ---
+> > >  drivers/mfd/stmpe.c       | 4 ++++
+> > >  drivers/mfd/stmpe.h       | 3 +++
+> > >  include/linux/mfd/stmpe.h | 2 ++
+> > >  3 files changed, 9 insertions(+)
+> >=20
+> > Does this need to go in with the other patches in the set?
+> >=20
+> > I'm _guessing_ that, as you've sent them separately, they can be
+> > applied separately?
+> >=20
+> > This needs to go in via MFD, but for my own reference:
+> >=20
+> > Acked-by: Lee Jones <lee.jones@linaro.org>
+>=20
+> The new register definitions are needed for patch #3.  If you insist =
+on
+> this going through MFD then please take the other 2 patches with my A=
+ck
+> through MFD tree as well I do not think we need the whole song and da=
+nce
+> trying to synchronize 2 trees.
 
->> Would  someone want to increase it? Can we safely determine a value which works for everyone?
-> 
-> This value represents a hardware delay before checking for the pen-up event.  So in the scenario where someone is seeing excessive false pen-up events they will want to increase this parameter.  The downsize of making this larger is that it decreases the overall sampling speed of both the touchscreen as well as the standalone ADC samples.  At one point I tried making it huge, but that made the touchscreen overly sluggish because the sampling became too slow.  So there is a definite trade-off that if you make it too large the touchscreen becomes sluggish, and if you make it too small then you may see false pen-up events.  The optimal value will need to be tuned for a given design.
+Actually, I can't see the other patches as they weren't sent to me.
 
-I applied the patches from this series and did the following test on my
-am335x-evm: A mug on the touchscreen (to make sure the events are
-coming), evtest on the event node to see that the events and loop of
+Please apply them all to your tree with my Ack.
 
-	cat /sys/bus/iio/devices/iio\:device0/in_voltage4_raw
-
-In the past I was able lock up the TSC/ADC HW that way (see commit
-7ca6740cd1 ("mfd: input: iio: ti_amm335x: Rework TSC/ADC
-synchronization")) for details.
-With this patches applied I don't seen any TSC events once the IIO
-interface is (heavily) used. Can this be fixed?
-
-Sebastian
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

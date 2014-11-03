@@ -1,150 +1,135 @@
-From: Dudley Du <dudley.dulixin@gmail.com>
-Subject: [PATCH v9 18/18] input: cyapa: add gen5 trackpad device read raw data function support
-Date: Mon,  3 Nov 2014 16:33:10 +0800
-Message-ID: <1415003590-30485-19-git-send-email-dudl@cypress.com>
-References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: Re: [PATCH] next: input: Fix build error seen if input-core is built
+ as module
+Date: Mon, 3 Nov 2014 09:30:47 +0100
+Message-ID: <20141103083046.GA10653@type.youpi.perso.aquilenet.fr>
+References: <1414993997-19179-1-git-send-email-linux@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415003590-30485-1-git-send-email-dudl@cypress.com>
+Content-Disposition: inline
+In-Reply-To: <1414993997-19179-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se
-Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, John Crispin <blogic@openwrt.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-Add read raw data function supported for gen5 trackpad device,
-it can be used through debugfs raw_data interface.
-TEST=test on Chromebooks.
+Hello,
 
-Signed-off-by: Dudley Du <dudl@cypress.com>
+Guenter Roeck, le Sun 02 Nov 2014 21:53:17 -0800, a =E9crit :
+> The following build error may be seen if input-core is built as modul=
+e:
+>=20
+> drivers/input/leds.o: In function `init_module':
+> leds.c:(.init.text+0x0): multiple definition of `init_module'
+> drivers/input/input.o:input.c:(.init.text+0x0): first defined here
+> drivers/input/leds.o: In function `cleanup_module':
+> leds.c:(.exit.text+0x0): multiple definition of `cleanup_module'
+> drivers/input/input.o:input.c:(.exit.text+0x0): first defined here
+> make[2]: *** [drivers/input/input-core.o] Error 1
+
+I have already submitted a patch to fix it, here it is again:
+
+
+
+Now that input/leds.c is compiled into the input.ko module in the mm
+tree, its init and exit function must be called by input.ko's init and
+exit functions, instead of duplicating the module init/exit hooks, whic=
+h
+leads to the following build error when input is built as a module:
+
+leds.c:(.init.text+0x0): multiple definition of `init_module'
+leds.c:(.exit.text+0x0): multiple definition of `cleanup_module'
+
+This also adds a proper clean of the vt_led_work queues in the exit
+function.
+
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
 ---
- drivers/input/mouse/cyapa_gen5.c | 109 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 109 insertions(+)
 
-diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
-index 35334dc..bbc2e20 100644
---- a/drivers/input/mouse/cyapa_gen5.c
-+++ b/drivers/input/mouse/cyapa_gen5.c
-@@ -2350,6 +2350,114 @@ resume_scanning:
- 	return ret + err;
- }
- 
-+static int cyapa_gen5_read_raw_data(struct cyapa *cyapa)
-+{
-+	int ret, err;
-+	int raw_cap_mutual_max, raw_cap_mutual_min, raw_cap_mutual_ave;
-+	int raw_cap_self_max, raw_cap_self_min, raw_cap_self_ave;
-+	int offset;
-+	int data_size, max, min, ave;
-+	ktime_t time_mono;
+This is a follow-up to the following reports:
+
+Re: [next:master 9776/10302] leds.c:(.init.text+0x0): multiple definiti=
+on of `init_module'
+Re: [next:master 9391/10970] leds.c:(.exit.text+0x0): multiple definiti=
+on of `cleanup_module'
+
+and to be applied over the existing
+input-route-kbd-leds-through-the-generic-leds-layer-fix-2
+please.
+
+Thanks!
+Samuel
+
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2427,6 +2427,8 @@ static int __init input_init(void)
+ 		goto fail2;
+ 	}
+=20
++	input_led_init();
 +
-+	offset = 0;
-+	if (!cyapa->tp_raw_data) {
-+		if (cyapa->state != CYAPA_STATE_GEN5_APP ||
-+			!cyapa->electrodes_x || !cyapa->electrodes_y)
-+			return  -EINVAL;
-+
-+		cyapa->tp_raw_data_size = sizeof(s32) * (cyapa->electrodes_x *
-+			cyapa->electrodes_y + cyapa->electrodes_x +
-+			cyapa->electrodes_y) + GEN5_RAW_DATA_HEAD_SIZE;
-+		/*
-+		 * This buffer will be hold after used until the driver is
-+		 * unloaded, the purpose of it is to improve the performace
-+		 * to avoid frequently allocate and release the buffer.
-+		 */
-+		cyapa->tp_raw_data = devm_kzalloc(&cyapa->client->dev,
-+					cyapa->tp_raw_data_size, GFP_KERNEL);
-+		if (!cyapa->tp_raw_data)
-+			return -ENOMEM;
-+	}
-+
-+	/*
-+	 * 1. Suspend Scanning.
-+	 *
-+	 * After suspend scanning, the raw data will not be updated,
-+	 * so the time of the raw data is before scanning suspended.
-+	 */
-+	time_mono = ktime_get();
-+	ret = cyapa_gen5_suspend_scanning(cyapa);
-+	if (ret)
-+		return ret;
-+
-+	/* 2. Get the correct electrodes_rx number. */
-+	if (cyapa->electrodes_rx == 0) {
-+		/*
-+		 * Through the read global idac interface to get the Rx number.
-+		 * this value is useful to the raw data map.
-+		 */
-+		data_size = 0;
-+		err = cyapa_gen5_read_idac_data(cyapa,
-+				GEN5_CMD_RETRIEVE_DATA_STRUCTURE,
-+				GEN5_RETRIEVE_MUTUAL_PWC_DATA,
-+				&data_size, &max, &min, &ave);
-+		if (err || cyapa->electrodes_rx == 0)
-+			goto resume_scanning;
-+	}
-+
-+	/* 3. Execuate panel scan. It must be executed before read data. */
-+	err = cyapa_gen5_execute_panel_scan(cyapa);
-+	if (err)
-+		goto resume_scanning;
-+
-+	/* 4. Retrieve panel scan, mutual cap raw data. */
-+	offset = GEN5_RAW_DATA_HEAD_SIZE;
-+	err = cyapa_gen5_read_panel_scan_raw_data(cyapa,
-+				GEN5_CMD_RETRIEVE_PANEL_SCAN,
-+				GEN5_PANEL_SCAN_MUTUAL_DIFFCOUNT,
-+				cyapa->electrodes_x * cyapa->electrodes_y,
-+				&raw_cap_mutual_max, &raw_cap_mutual_min,
-+				&raw_cap_mutual_ave,
-+				cyapa->tp_raw_data + offset);
-+	if (err)
-+		goto resume_scanning;
-+
-+	offset += sizeof(s32) * cyapa->electrodes_x * cyapa->electrodes_y;
-+
-+	/* 5. Retrieve panel scan, self cap raw data. */
-+	err = cyapa_gen5_read_panel_scan_raw_data(cyapa,
-+				GEN5_CMD_RETRIEVE_PANEL_SCAN,
-+				GEN5_PANEL_SCAN_SELF_DIFFCOUNT,
-+				cyapa->electrodes_x + cyapa->electrodes_y,
-+				&raw_cap_self_max, &raw_cap_self_min,
-+				&raw_cap_self_ave,
-+				cyapa->tp_raw_data + offset);
-+	if (err)
-+		goto resume_scanning;
-+
-+	offset += sizeof(s32) * (cyapa->electrodes_x + cyapa->electrodes_y);
-+
-+resume_scanning:
-+	/* 6. Resume Scanning*/
-+	ret = cyapa_gen5_resume_scanning(cyapa);
-+	if (ret || err)
-+		return ret ? ret : err;
-+
-+	*((struct timeval *)&cyapa->tp_raw_data[0]) =
-+						ktime_to_timeval(time_mono);
-+	cyapa->tp_raw_data[16] = (u8)cyapa->electrodes_x;
-+	cyapa->tp_raw_data[17] = (u8)cyapa->electrodes_y;
-+	cyapa->tp_raw_data[18] = (u8)cyapa->x_origin;
-+	cyapa->tp_raw_data[19] = (u8)cyapa->y_origin;
-+	cyapa->tp_raw_data[20] = (u8)sizeof(s32);
-+	cyapa->tp_raw_data[21] = (u8)sizeof(s32);
-+	cyapa->tp_raw_data[22] = (u8)cyapa->electrodes_rx;
-+	cyapa->tp_raw_data[23] = 0;  /* Reserved. */
-+
-+	cyapa->tp_raw_data_size = offset;
-+	return 0;
-+}
-+
- static bool cyapa_gen5_sort_system_info_data(struct cyapa *cyapa,
- 		u8 *buf, int len)
+ 	return 0;
+=20
+  fail2:	input_proc_exit();
+@@ -2436,6 +2438,7 @@ static int __init input_init(void)
+=20
+ static void __exit input_exit(void)
  {
-@@ -2762,6 +2870,7 @@ const struct cyapa_dev_ops cyapa_gen5_ops = {
- 	.calibrate_store = cyapa_gen5_do_calibrate,
- 
- 	.read_fw = cyapa_gen5_read_fw,
-+	.read_raw_data = cyapa_gen5_read_raw_data,
- 
- 	.initialize = cyapa_gen5_initialize,
- 
--- 
-1.9.1
++	input_led_exit();
+ 	input_proc_exit();
+ 	unregister_chrdev_region(MKDEV(INPUT_MAJOR, 0),
+ 				 INPUT_MAX_CHAR_DEVICES);
+--- a/drivers/input/leds.c
++++ b/drivers/input/leds.c
+@@ -255,22 +255,18 @@ void input_led_disconnect(struct input_d
+ 	mutex_unlock(&vt_led_registered_lock);
+ }
+=20
+-static int __init input_led_init(void)
++void __init input_led_init(void)
+ {
+ 	unsigned i;
+=20
+ 	for (i =3D 0; i < LED_CNT; i++)
+ 		INIT_WORK(&vt_led_work[i], vt_led_cb);
+-
+-	return 0;
+ }
+=20
+-static void __exit input_led_exit(void)
++void __exit input_led_exit(void)
+ {
+-}
++	unsigned i;
+=20
+-MODULE_LICENSE("GPL");
+-MODULE_DESCRIPTION("User LED support for input layer");
+-MODULE_AUTHOR("Samuel Thibault <samuel.thibault@ens-lyon.org>");
+-module_init(input_led_init);
+-module_exit(input_led_exit);
++	for (i =3D 0; i < LED_CNT; i++)
++		cancel_work_sync(&vt_led_work[i]);
++}
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -536,11 +536,18 @@ int input_ff_create_memless(struct input
+=20
+ #ifdef CONFIG_INPUT_LEDS
+=20
++void input_led_init(void);
++void input_led_exit(void);
++
+ int input_led_connect(struct input_dev *dev);
+ void input_led_disconnect(struct input_dev *dev);
+=20
+ #else
+=20
++static inline void input_led_init(void) { }
++
++static inline void input_led_exit(void) { }
++
+ static inline int input_led_connect(struct input_dev *dev)
+ {
+ 	return 0;

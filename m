@@ -1,122 +1,116 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] next: input: Fix build error seen if input-core is built as module
-Date: Sun,  2 Nov 2014 21:53:17 -0800
-Message-ID: <1414993997-19179-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Samuel Thibault <samuel.thibault@ens-lyon.org>, John Crispin <blogic@openwrt.org>, Andrew Morton <akpm@linux-foundation.org>
+From: Dudley Du <dudley.dulixin@gmail.com>
+Subject: [PATCH v9 01/18] input: cyapa: instruction of cyapa patches
+Date: Mon,  3 Nov 2014 16:32:52 +0800
+Message-ID: <1415003590-30485-1-git-send-email-dudl@cypress.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:58367 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751162AbaKCIed (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Nov 2014 03:34:33 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The following build error may be seen if input-core is built as module:
+V9 patches have below updates compared with v8 patches:
+1) Removed all async thread stuff from the driver.
+2) Split driver into 18 patches for each function change one patch.
 
-drivers/input/leds.o: In function `init_module':
-leds.c:(.init.text+0x0): multiple definition of `init_module'
-drivers/input/input.o:input.c:(.init.text+0x0): first defined here
-drivers/input/leds.o: In function `cleanup_module':
-leds.c:(.exit.text+0x0): multiple definition of `cleanup_module'
-drivers/input/input.o:input.c:(.exit.text+0x0): first defined here
-make[2]: *** [drivers/input/input-core.o] Error 1
+V8 patches have below updates compared with v7 patches:
+1) [PATCH v8 01/13] - Remove the async thread for device detect in
+   probe routine, now the device detect process is completely done within
+   the device probe routine.
+2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
 
-leds.c is now part of input-core and can therefore not have its own
-module initialization code. Initialize it from input.c instead.
+V7 patches have below updates compared with v6 patches:
+1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
 
-Fixes: 6766fb48654c ("input: route kbd LEDs through the generic LEDs layer")
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: John Crispin <blogic@openwrt.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-Problem is seen in linux-next and mmotm.
 
-I am perfectly fine if the patch is merged into the original patch,
-or if a different fix for the problem is implemented, as long as it
-gets fixed.
+V6 patches have below updates compared with v5 patches:
+1) Remove patch 14 of the lid filtering from the cyapa driver.
 
- drivers/input/input.c | 4 ++++
- drivers/input/leds.c  | 9 +++------
- drivers/input/leds.h  | 7 +++++++
- 3 files changed, 14 insertions(+), 6 deletions(-)
- create mode 100644 drivers/input/leds.h
+V5 patches have below updates compared with v4 patches:
+1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+2) Fix memories freed before debugfs entries issue;
+3) Make cyapa_debugs_root valid in driver module level
+   in module_init()/moudle_exit() ;
+4) Fix i2c_transfer() may return partial transfer issues.
+5) Add cyapa->removed flag to avoid detecting thread may still running
+   when driver module is removed.
+6) Fix the meanings of some comments and return error code not clear issue.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 0ffaa87..20e3793 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -28,6 +28,7 @@
- #include <linux/mutex.h>
- #include <linux/rcupdate.h>
- #include "input-compat.h"
-+#include "leds.h"
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("Input core");
-@@ -2428,6 +2429,8 @@ static int __init input_init(void)
- 		goto fail2;
- 	}
- 
-+	input_led_init();
-+
- 	return 0;
- 
-  fail2:	input_proc_exit();
-@@ -2437,6 +2440,7 @@ static int __init input_init(void)
- 
- static void __exit input_exit(void)
- {
-+	input_led_exit();
- 	input_proc_exit();
- 	unregister_chrdev_region(MKDEV(INPUT_MAJOR, 0),
- 				 INPUT_MAX_CHAR_DEVICES);
-diff --git a/drivers/input/leds.c b/drivers/input/leds.c
-index dca4a50..726570a 100644
---- a/drivers/input/leds.c
-+++ b/drivers/input/leds.c
-@@ -14,6 +14,7 @@
- #include <linux/init.h>
- #include <linux/leds.h>
- #include <linux/input.h>
-+#include "leds.h"
- 
- /*
-  * Keyboard LEDs are propagated by default like the following example:
-@@ -255,22 +256,18 @@ void input_led_disconnect(struct input_dev *dev)
- 	mutex_unlock(&vt_led_registered_lock);
- }
- 
--static int __init input_led_init(void)
-+void __init input_led_init(void)
- {
- 	unsigned i;
- 
- 	for (i = 0; i < LED_CNT; i++)
- 		INIT_WORK(&vt_led_work[i], vt_led_cb);
--
--	return 0;
- }
- 
--static void __exit input_led_exit(void)
-+void __exit input_led_exit(void)
- {
- }
- 
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("User LED support for input layer");
- MODULE_AUTHOR("Samuel Thibault <samuel.thibault@ens-lyon.org>");
--module_init(input_led_init);
--module_exit(input_led_exit);
-diff --git a/drivers/input/leds.h b/drivers/input/leds.h
-new file mode 100644
-index 0000000..d341b6b
---- /dev/null
-+++ b/drivers/input/leds.h
-@@ -0,0 +1,7 @@
-+#ifndef INPUT_LEDS_H
-+#define INPUT_LEDS_H
-+
-+void input_led_init(void);
-+void input_led_exit(void);
-+
-+#endif /* INPUT_LEDS_H */
--- 
-1.9.1
+This patch set is aimed to re-design the cyapa driver to support
+old gen3 trackpad devices and new gen5 trackpad devices in one
+cyapa driver, it's for easily productions support based on
+customers' requirements. And add sysfs functions and interfaces
+supported that required by users and customers.
+
+Since the earlier gen3 and the latest gen5 trackpad devices using
+two different chipsets, and have different protocols and interfaces,
+so if supported these two type trackpad devices in two different drivers,
+then it will be difficult to manage productions and later firmware updates.
+e.g.: It will cause customer don't know which one trackpad device firmware
+image to use and update when it has been used and integrated
+in same one productions, so here we support these two trackpad
+devices in same on driver.
+
+The new design cyapa driver contains:
+cyapa.c - the core of the re-design, supply interfaces and
+functions to system and read trackpad devices.
+cyapa.h - header file including macros and data structure definitions.
+cyapa_gen3.c - functions support for gen3 trackpad devices,
+cyapa_gen5.c - functions support for gen5 trackpad devices.
+
+Beside this introduction patch, it has 18 patches listed as below.
+For these patches each one is patched based on previous one.
+
+patch 1/18: add device resource management infrastructure supported.
+
+patch 2/18: re-design cyapa driver with core functions and interface
+to support multi-type trackpad devices.
+
+patch 3/18: add gen3 trackpad device basic functions supported into the
+re-design cyapa driver.
+
+patch 4/18: add gen5 trackpad device basic functions supported into the
+re-design cyapa driver.
+
+patch 5/18: add power management interfaces supported for the deivce.
+
+patch 6/18: add runtime power management interfaces supported for the device.
+
+patch 7/18: add sysfs interfaces supported in the cyapa driver.
+Including read firmware version, get production ID, read baseline,
+re-calibrate trackpad baselines and do trackpad firmware update.
+
+patch 8/18: add gen3 trackpad device's firmware update function supported.
+
+patch 9/18: add gen3 trackpad device's read baseline function supported.
+
+patch 10/18: add gen3 trackpad device's force re-calibrate function supported.
+
+patch 11/18: add gen5 trackpad device's firmware update function supported.
+
+patch 12/18: add gen5 trackpad device's read baseline function supported.
+
+patch 13/18: add gen5 trackpad device's force re-calibrate function.
+
+patch 14/18: add read firmware image debugfs interface supported
+in the cyapa driver.
+
+patch 15/18: add gen3 trackpad device's read firmware image function supported.
+
+patch 16/18: add gen5 trackpad device's read firmware image function supported.
+
+patch 17/18: add read trackpad device's sensors' raw data debugfs interface
+supported in the cyapa driver.
+
+patch 18/18: add gen5 trackpad device's read read raw function supported.

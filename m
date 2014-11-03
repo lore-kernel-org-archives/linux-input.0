@@ -1,104 +1,122 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: Supporting U2F over HID on Linux?
-Date: Sun, 2 Nov 2014 17:03:10 -0800
-Message-ID: <CALCETrWjQTqMA6hO8DvZnxS5Qh4xvj7JtzzwzX4rtxEgbfipoQ@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <alpine.LNX.2.00.1411022134120.19451@pobox.suse.cz>
- <CALCETrVtA9rCDqAetaFj=tCo=ebWW43mA4f8n6fMZdCnE9TvgA@mail.gmail.com>
- <alpine.LNX.2.00.1411022229060.19451@pobox.suse.cz>
- <alpine.LNX.2.00.1411022239330.19451@pobox.suse.cz>
- <CAN+gG=HZ+CA3tWbHjG=ULUfztj87mLCoGQXT-5XLd-+vZ1K6VA@mail.gmail.com>
- <CALCETrVdaYnTU--9nmWUhcNeTO9eqheP_OsujVEB8yUM4AgzSg@mail.gmail.com>
- <CAN+gG=FtZqx3WqTEKpjM6CKQ9EBuZqVUNs=TgswtnTtMNrGhcA@mail.gmail.com>
- <CALCETrVrubF0bamF12taJcmkUrp4v2JazEkOxxtXdo0Xc=jimg@mail.gmail.com>
- <CAN+gG=H1rdZ=NeQttgmRwHfx4eQdvf2fcoMgqijWX87HW_vO8A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <CAN+gG=H1rdZ=NeQttgmRwHfx4eQdvf2fcoMgqijWX87HW_vO8A@mail.gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Kay Sievers <kay@vrfy.org>, systemd Mailing List <systemd-devel@lists.freedesktop.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] next: input: Fix build error seen if input-core is built as module
+Date: Sun,  2 Nov 2014 21:53:17 -0800
+Message-ID: <1414993997-19179-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Samuel Thibault <samuel.thibault@ens-lyon.org>, John Crispin <blogic@openwrt.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gU3VuLCBOb3YgMiwgMjAxNCBhdCA0OjQwIFBNLCBCZW5qYW1pbiBUaXNzb2lyZXMKPGJlbmph
-bWluLnRpc3NvaXJlc0BnbWFpbC5jb20+IHdyb3RlOgo+IE9uIFN1biwgTm92IDIsIDIwMTQgYXQg
-NjozNCBQTSwgQW5keSBMdXRvbWlyc2tpIDxsdXRvQGFtYWNhcGl0YWwubmV0PiB3cm90ZToKPj4g
-T24gU3VuLCBOb3YgMiwgMjAxNCBhdCAzOjAxIFBNLCBCZW5qYW1pbiBUaXNzb2lyZXMKPj4gPGJl
-bmphbWluLnRpc3NvaXJlc0BnbWFpbC5jb20+IHdyb3RlOgo+Pj4gT24gU3VuLCBOb3YgMiwgMjAx
-NCBhdCA1OjQ5IFBNLCBBbmR5IEx1dG9taXJza2kgPGx1dG9AYW1hY2FwaXRhbC5uZXQ+IHdyb3Rl
-Ogo+Pj4+IE9uIFN1biwgTm92IDIsIDIwMTQgYXQgMjo0NSBQTSwgQmVuamFtaW4gVGlzc29pcmVz
-Cj4+Pj4gPGJlbmphbWluLnRpc3NvaXJlc0BnbWFpbC5jb20+IHdyb3RlOgo+Pj4+PiBPbiBTdW4s
-IE5vdiAyLCAyMDE0IGF0IDQ6NDAgUE0sIEppcmkgS29zaW5hIDxqa29zaW5hQHN1c2UuY3o+IHdy
-b3RlOgo+Pj4+Pj4gT24gU3VuLCAyIE5vdiAyMDE0LCBKaXJpIEtvc2luYSB3cm90ZToKPj4+Pj4+
-Cj4+Pj4+Pj4gQWx0ZXJuYXRpdmVseSwgeW91IGNhbiBqdXN0IHdyaXRlIHVkZXYgcnVsZSB3aGlj
-aCB0cmlnZ2VycyBvbiBISUQgZGV2aWNlcywKPj4+Pj4+PiBpc3N1ZXMgSElESU9DR1JERVNDIGlv
-Y3RsKCkgb24gdGhlIGp1c3QtY3JlYXRlZCBoaWRyYXcgbm9kZSwgYW5kIGRlY2lkZXMKPj4+Pj4+
-PiBhZnRlcndhcmRzIHdoZXRoZXIgbm9kZSBwZXJtaXNzaW9ucyBuZWVkIHRvIGJlIGFsdGVyZWQg
-Li4uIHJpZ2h0Pwo+Pj4+Pj4KPj4+Pj4+IEp1c3QgdG8gbWFrZSBteXNlbGYgY2xlYXIgaGVyZSAt
-LSB0aGlzIGlzIGJhc2ljYWxseSBhbHRlcm5hdGl2ZSB0byB5b3VyCj4+Pj4+PiAxc3Qgb3B0aW9u
-LCBidXQgZm9yIGNhc2VzIHdoZXJlIHlvdSB3YW50IHRvIG1ha2UgeW91cnNlbGYgaW5kZXBlbmRl
-bnQgb24KPj4+Pj4+IHN5c2ZzIGV4aXN0ZW5jZSAoSSBkb24ndCB3aGF0IGlzIHRoZSBjcmF6aW5l
-c3MgbGV2ZWwgb2Ygc2V0dXBzIHlvdSBhcmUKPj4+Pj4+IGNvbnNpZGVyaW5nKS4KPj4+Pj4+Cj4+
-Pj4+Cj4+Pj4+IEkgYW0gYSBsaXR0bGUgYml0IGNvbmNlcm5lZCB3aXRoIHRoZSB1c2VyIHNwYWNl
-IHJldHJpZXZpbmcgdGhlCj4+Pj4+IGRlc2NyaXB0b3IsIHBhcnNpbmcgaXQgYW5kIHRoZW4gZGVj
-aWRpbmcgaG93IHRvIHNldCB0aGUgcGVybWlzc2lvbnMuCj4+Pj4+IEl0J3Mgbm90IHRoYXQgaXQg
-aXMgc3VwZXIgY29tcGxleCwgYnV0IGl0IHdpbGwgZHVwbGljYXRlIHRoZSBwYXJzaW5nCj4+Pj4+
-IHdlIGFscmVhZHkgZG8gaW4gdGhlIGtlcm5lbC4gV2Fjb20gdHJpZWQgdG8gZG8gdGhhdCBpbiB0
-aGVpciB1c2IKPj4+Pj4gZHJpdmVyLCBhbmQgdGhleSBuZXZlciBtYW5hZ2VkIHRvIGZ1bGx5IGlt
-cGxlbWVudCBvbmUuCj4+Pj4+Cj4+Pj4+IEkgdGhpbmsgdGhlIEhJRF9HUk9VUCBzb2x1dGlvbiBp
-cyBzdXBlciB0cml2aWFsOgo+Pj4+PiAtIGFkZCBhIG1hdGNoIG9uIHRoZSBVMkYgaW5wdXQgcmVw
-b3J0IGFuZCBzZXQgdGhlIGdyb3VwIHRvCj4+Pj4+IEhJRF9HUk9VUF9VMkYgKDIgbGluZXMgaW4g
-aGlkX3NjYW5faW5wdXRfdXNhZ2UoKSBpbiBoaWQtY29yZS5jKQo+Pj4+PiAtIGFsbG93IGhpZC1n
-ZW5lcmljIHRvIGFsc28gbWF0Y2ggSElEX0dST1VQX1UyRiAoMSBsaW5lIGluIGhpZC1nZW5lcmlj
-LmMpLgo+Pj4+Pgo+Pj4+PiBUaGVuLCB0aGUgdWRldiBydWxlIHdvdWxkIGJlIHN1cGVyIHRyaXZp
-YWwuCj4+Pj4KPj4+PiBJJ20gY29uZnVzZWQuICBXaGF0IHdvdWxkIHRoZSB1c2VyLXZpc2libGUg
-ZWZmZWN0IG9mIHRoaXMgYmU/ICBXb3VsZAo+Pj4+IHRoZSBoaWRyYXcgbm9kZSBzdGlsbCBzaG93
-IHVwPyAgV2hhdCBpcyB1c2VyIGNvZGUgc3VwcG9zZWQgdG8gbWF0Y2ggdG8KPj4+PiBkZXRlY3Qg
-YSBVMkYgZGV2aWNlIG9yIHRvIG90aGVyd2lzZSBzZXQgcGVybWlzc2lvbnM/Cj4+Pj4KPj4+Cj4+
-PiBUaGUgb25seSBjaGFuZ2Ugd2l0aCB3aGF0IHdlIGN1cnJlbnRseSBoYXZlIGlzIHRoYXQgdGhl
-IG1vZGFsaWFzIG9mCj4+PiB0aGUgZGV2aWNlIHdpbGwgYmUgc29tZXRoaW5nIGxpa2UKPj4+IE1P
-REFMSUFTPWhpZDpiMDAwM2dISURfR1JPVVBfVTJGdjAwMDBYWFhYcDAwMDBYWFhYLiAocmVwbGFj
-ZQo+Pj4gSElEX0dST1VQX1UyRiB3aXRoIHRoZSBwcm9wZXIgaGV4IHZhbHVlKS4gU28gbWF0Y2hp
-bmcgYWdhaW5zdCB0aGlzCj4+PiBtb2RhbGlhcyBpcyB0cml2aWFsLCBhbmQgeW91IGNhbiBqdXN0
-IHB1dCB0aGUgaGlkcmF3IG5vZGUgcncgZm9yCj4+PiB1c2Vycy4KPj4KPj4gRG8gd2UgcmVhbGx5
-IHdhbnQgdWRldiBtYXRjaGluZyBhZ2FpbnN0IE1PREFMSUFTLCBhbmQgZG8gd2UgcmVhbGx5Cj4+
-IHdhbnQgdWRldiBydWxlcyB0byBoYXJkY29kZSBoaWQgZ3JvdXAgY29uc3RhbnRzPwo+Cj4gVGhh
-dCdzIGEgZ29vZCBxdWVzdGlvbi4gSSBkb24ndCB0aGluayB0aGUgaGlkIGdyb3VwIHdpbGwgY2hh
-bmdlIGluIHRoZQo+IGZ1dHVyZSBhbmQgd2UgY2FuIGd1YXJhbnRlZSB0aGF0IGluIHRoZSBrZXJu
-ZWwgSSB0aGluay4KPgo+Pgo+PiBJJ2QgbGlrZSB0aGlzIGlkZWEgYmV0dGVyIGlmIHdlIGFkZGVk
-IGEgSElEX0dST1VQIHVldmVudCBwcm9wZXJ0eSB3aXRoCj4+IGEgdGV4dHVhbCBkZXNjcmlwdGlv
-biwgb3IgcGVyaGFwcyBzb21ldGhpbmcgYSBsaXR0bGUgbW9yZSBzcGVjaWZpYy4KPgo+IFRoaXMg
-cmVmZXJzIGJhY2sgdG8gSmlyaSdzIGZpcnN0IHJlbWFyay4gQWRkaW5nIHN1Y2ggYSB0aGluZyBp
-cwo+IGRvYWJsZSwgYnV0IGRvIHdlIHJlYWxseSB3YW50L25lZWQgaXQgOi8KCkkgd291bGQgdGVu
-ZCB0byB0aGluayB0aGF0IGRlc2lnbmluZyBhIEhJRCBpbnRlcmZhY2UgZm9yIHVzZXJzcGFjZQpj
-b25zdW1wdGlvbiBtaWdodCBiZSBhIGhpbnQgdGhhdCBpdCdzIHRoZSByaWdodCB0aW1lIHRvIGdp
-dmUgaXQgYQpiZXR0ZXIgbmFtZSB0aGFuICJNT0RBTElBUyIgOikKCi0tQW5keQoKPgo+PiBUaGUg
-aGlkIGdyb3VwIGZpZWxkIHNlZW1zIHRvIGJlIHVzZWQgZm9yIGRpZmZlcmVudCB0eXBlcyBvZiB0
-aGluZ3MuCj4KPiB5ZXMsIG15IHByb3Bvc2FsIGlzIGRlZmluaXRpdmVseSBhICh1Z2x5KSBoYWNr
-IGFyb3VuZCB0aGUgZ3JvdXBzIHdoaWNoCj4gYXJlIHVzZWQgdG8gc2VsZWN0IHdoaWNoIGhpZCBz
-dWJkcml2ZXIgd2UgdXNlLgo+Cj4KPiBBbiBvdGhlciBxdWVzdGlvbiB3aGljaCBjb21lcyB0byBt
-eSBtaW5kIGlzIGRvbid0IHdlIHdhbnQgbG9naW5kIHRvCj4gYXNzaWduIHRoZSBoaWRyYXcgbm9k
-ZSB0byB0aGUgcHJvcGVyIGNsaWVudD8gV2UgbWF5IHN0aWxsIG5lZWQgdG8gdGFnCj4gdGhlIGRl
-dmljZSBzb21laG93LCBidXQgaWYgbG9naW5kIHByZXZlbnRzIHVudHJ1c3RlZCBhcHBsaWNhdGlv
-biB0bwo+IHJ1biBhcmJpdHJhcnkgY29kZSBvbiB0aGUgdTJmIHRva2VuLCB0aGF0IG1pZ2h0IGJl
-IGEgbGl0dGxlIGJpdCBzYWZlcgo+IHRoYW4gYWxsb3dpbmcgYW55Ym9keSB0byByZWFkL3dyaXRl
-LgoKV2UgZG8gd2FudCBpdCB0byBiZSBhc3NpZ25lZCB0byB0aGUgcHJvcGVyIGNsaWVudC4gIE15
-IHVkZXYgcGF0Y2gKKHdoaWNoIHdpbGwgYWxtb3N0IGNlcnRhaW5seSBub3QgYmUgYWNjZXB0ZWQg
-YXMtaXMsIGJ1dCBpdCBjb3VsZCBiZQpmaXhlZCB1cCkgdXNlcyB0aGUgcmVwb3J0X2Rlc2NyaXB0
-b3IgdG8gc2V0IElEX1NFQ1VSSVRZX1RPS0VOPTEsIHdoaWNoCmluIHR1cm4gY2F1c2VzIGFuIGV4
-aXN0aW5nIHJ1bGUgdG8gc2V0IFRBRys9InVhY2Nlc3MiLCB3aGljaCBjYXVzZXMKbG9naW5kIHRv
-IGRvIGl0cyB0aGluZy4KCj4KPiBTb3JyeSB0byByYWlzZSBtb3JlIHF1ZXN0aW9ucyB0aGFuIHBy
-b3ZpZGluZyBhbnN3ZXJzLgoKTm8gcHJvYmxlbS4KCi0tQW5keQpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpzeXN0ZW1kLWRldmVsIG1haWxpbmcgbGlzdApz
-eXN0ZW1kLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0
-b3Aub3JnL21haWxtYW4vbGlzdGluZm8vc3lzdGVtZC1kZXZlbAo=
+The following build error may be seen if input-core is built as module:
+
+drivers/input/leds.o: In function `init_module':
+leds.c:(.init.text+0x0): multiple definition of `init_module'
+drivers/input/input.o:input.c:(.init.text+0x0): first defined here
+drivers/input/leds.o: In function `cleanup_module':
+leds.c:(.exit.text+0x0): multiple definition of `cleanup_module'
+drivers/input/input.o:input.c:(.exit.text+0x0): first defined here
+make[2]: *** [drivers/input/input-core.o] Error 1
+
+leds.c is now part of input-core and can therefore not have its own
+module initialization code. Initialize it from input.c instead.
+
+Fixes: 6766fb48654c ("input: route kbd LEDs through the generic LEDs layer")
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: John Crispin <blogic@openwrt.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+Problem is seen in linux-next and mmotm.
+
+I am perfectly fine if the patch is merged into the original patch,
+or if a different fix for the problem is implemented, as long as it
+gets fixed.
+
+ drivers/input/input.c | 4 ++++
+ drivers/input/leds.c  | 9 +++------
+ drivers/input/leds.h  | 7 +++++++
+ 3 files changed, 14 insertions(+), 6 deletions(-)
+ create mode 100644 drivers/input/leds.h
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 0ffaa87..20e3793 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -28,6 +28,7 @@
+ #include <linux/mutex.h>
+ #include <linux/rcupdate.h>
+ #include "input-compat.h"
++#include "leds.h"
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("Input core");
+@@ -2428,6 +2429,8 @@ static int __init input_init(void)
+ 		goto fail2;
+ 	}
+ 
++	input_led_init();
++
+ 	return 0;
+ 
+  fail2:	input_proc_exit();
+@@ -2437,6 +2440,7 @@ static int __init input_init(void)
+ 
+ static void __exit input_exit(void)
+ {
++	input_led_exit();
+ 	input_proc_exit();
+ 	unregister_chrdev_region(MKDEV(INPUT_MAJOR, 0),
+ 				 INPUT_MAX_CHAR_DEVICES);
+diff --git a/drivers/input/leds.c b/drivers/input/leds.c
+index dca4a50..726570a 100644
+--- a/drivers/input/leds.c
++++ b/drivers/input/leds.c
+@@ -14,6 +14,7 @@
+ #include <linux/init.h>
+ #include <linux/leds.h>
+ #include <linux/input.h>
++#include "leds.h"
+ 
+ /*
+  * Keyboard LEDs are propagated by default like the following example:
+@@ -255,22 +256,18 @@ void input_led_disconnect(struct input_dev *dev)
+ 	mutex_unlock(&vt_led_registered_lock);
+ }
+ 
+-static int __init input_led_init(void)
++void __init input_led_init(void)
+ {
+ 	unsigned i;
+ 
+ 	for (i = 0; i < LED_CNT; i++)
+ 		INIT_WORK(&vt_led_work[i], vt_led_cb);
+-
+-	return 0;
+ }
+ 
+-static void __exit input_led_exit(void)
++void __exit input_led_exit(void)
+ {
+ }
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("User LED support for input layer");
+ MODULE_AUTHOR("Samuel Thibault <samuel.thibault@ens-lyon.org>");
+-module_init(input_led_init);
+-module_exit(input_led_exit);
+diff --git a/drivers/input/leds.h b/drivers/input/leds.h
+new file mode 100644
+index 0000000..d341b6b
+--- /dev/null
++++ b/drivers/input/leds.h
+@@ -0,0 +1,7 @@
++#ifndef INPUT_LEDS_H
++#define INPUT_LEDS_H
++
++void input_led_init(void);
++void input_led_exit(void);
++
++#endif /* INPUT_LEDS_H */
+-- 
+1.9.1

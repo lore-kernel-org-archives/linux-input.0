@@ -1,76 +1,98 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Problems with Wacom Intuos PT M (CTH680) on FreeBSD
-Date: Tue, 4 Nov 2014 10:06:48 -0800
-Message-ID: <20141104180648.GA440@dtor-ws>
-References: <54424770.9090600@gmail.com>
- <20141021223311.GG8609@dtor-ws>
- <544889FD.5030004@gmail.com>
- <54489803.9030803@selasky.org>
- <CAF8JNhJ8ZR5vvtcrOvv9-ySzN4aytBziEO90_Kif=Q4q7WgwmA@mail.gmail.com>
- <54548E63.6060306@selasky.org>
- <20141104080816.GB13100@dtor-ws>
- <CAF8JNhLPgG-dROf2f0Z6_8UBN7e_o_uicUDrO2sn+2yPgqdCmQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND RESEND] Input: evdev - add event-mask API
+Date: Tue, 4 Nov 2014 10:36:19 -0800
+Message-ID: <20141104183619.GC440@dtor-ws>
+References: <1407914195-2797-1-git-send-email-dh.herrmann@gmail.com>
+ <CANq1E4Q2S6vmpN=My8DXSPMti-pNQD24Hb0V9hqD=9TfND_mrg@mail.gmail.com>
+ <20141009225256.GA8583@dtor-ws>
+ <CANq1E4T-mXU0mXzgCPQi=oDg01DkSEzJN3JEwD1EGDCxWVryrQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:57942 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751581AbaKDSGx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Nov 2014 13:06:53 -0500
-Received: by mail-ie0-f171.google.com with SMTP id x19so8060149ier.16
-        for <linux-input@vger.kernel.org>; Tue, 04 Nov 2014 10:06:52 -0800 (PST)
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:57219 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751430AbaKDSgY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Nov 2014 13:36:24 -0500
+Received: by mail-ig0-f176.google.com with SMTP id l13so7850856iga.9
+        for <linux-input@vger.kernel.org>; Tue, 04 Nov 2014 10:36:24 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CAF8JNhLPgG-dROf2f0Z6_8UBN7e_o_uicUDrO2sn+2yPgqdCmQ@mail.gmail.com>
+In-Reply-To: <CANq1E4T-mXU0mXzgCPQi=oDg01DkSEzJN3JEwD1EGDCxWVryrQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Hans Petter Selasky <hps@selasky.org>, Denis Akiyakov <d.akiyakov@gmail.com>, linux-input <linux-input@vger.kernel.org>, "nox@jelal.kn-bremen.de >> Juergen Lock" <nox@jelal.kn-bremen.de>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Tue, Nov 04, 2014 at 09:38:38AM -0800, Ping Cheng wrote:
-> Hi Dmitry,
+On Tue, Nov 04, 2014 at 11:51:34AM +0100, David Herrmann wrote:
+> Hi Dmitry
 > 
-> On Tue, Nov 4, 2014 at 12:08 AM, Dmitry Torokhov
+> Sorry for the delay, back from holiday now.
+> 
+> On Fri, Oct 10, 2014 at 12:52 AM, Dmitry Torokhov
 > <dmitry.torokhov@gmail.com> wrote:
-> > On Sat, Nov 01, 2014 at 08:40:19AM +0100, Hans Petter Selasky wrote:
-> >> On 11/01/14 00:27, Ping Cheng wrote:
-> >> >If touch_input is NULL on FreeBSD, you need to figure out the root
-> >> >cause. Checking on touch_input itself would not fix the root cause...
-> >>
-> >> Right.
-> >>
-> >> The root cause is that FreeBSD launches two instances of the driver,
-> >> running in two different userland processes, for the two different
-> >> Wacom interfaces on a common USB device. In Linux the wacom
-> >> interface drivers are running from the same kernel, and can share
-> >> the data in question, but in FreeBSD's webcamd emulation, this
-> >> doesn't work. Then the first wacom probe call would have to grab the
-> >> second interface.
-> >>
-> >> Technically speaking this is a FreeBSD only problem and I plan to
-> >> deliver a patch with the webcamd software to fix this, like already
-> >> suggested to you guys. This situation can also happen on Linux in
-> >> case of a "BadUSB" device. That's why I think that the NULL check
-> >> should be upstreamed.
+> > diff -u b/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> > --- b/include/uapi/linux/input.h
+> > +++ b/include/uapi/linux/input.h
+> > @@ -161,53 +161,59 @@
+> >  #define EVIOCREVOKE            _IOW('E', 0x91, int)                    /* Revoke device access */
 > >
-> > Hmm, looking at this again it seems that we just cross our fingers and
-> > hope that both interfaces are enumerated by the time we get event data
-> > from the device. I do not think this is quite safe. We probably should
-> > be checking the overall state of probing (i.e. whether we are done
-> > probing both interfaces) before processing data for the device.
+> >  /**
+> > - * EVIOCGMASK - Retrieve current event-mask
+> > + * EVIOCGMASK - Retrieve current event mask
+> >   *
+> > - * This retrieves the current event-mask for a specific event-type. The
+> > - * argument must be of type "struct input_mask" and specifies the event-type to
+> > - * query, the receive buffer and the size of the receive buffer.
+> > - *
+> > - * The event-mask is a per-client mask that specifies which events are forwarded
+> > - * to the client. Each event-code is represented by a single bit in the
+> > - * event-mask. If the bit is set, the event is passed to the client normally.
+> > - * Otherwise, the event is filtered and and will never be queued on the
+> > - * client's receive buffer.
+> > - * Event-masks do not affect global state of an input-device. They only affect
+> > - * the open-file they're applied on. Each open-file (i.e, file-description) can
+> > - * have a different event-mask.
+> > - *
+> > - * The default event-mask for a client has all bits set, i.e. all events are
+> > - * forwarded to the client. If a kernel is queried for an unknown event-type
+> > - * or if the receive buffer is larger than the number of event-codes known to
+> > - * the kernel, the kernel returns all zeroes for those codes.
+> > + * This ioctl allows user to retrieve the current event mask for specific
+> > + * event type. The argument must be of type "struct input_mask" and
+> > + * specifies the event type to query, the address of the receive buffer and
+> > + * the size of the receive buffer.
+> > + *
+> > + * The event mask is a per-client mask that specifies which events are
+> > + * forwarded to the client. Each event code is represented by a single bit
+> > + * in the event mask. If the bit is set, the event is passed to the client
+> > + * normally. Otherwise, the event is filtered and will never be queued on
+> > + * the client's receive buffer.
+> > + *
+> > + * Event masks do not affect global state of the input device. They only
+> > + * affect the file descriptor they are applied to.
+> > + *
+> > + * The default event mask for a client has all bits set, i.e. all events
+> > + * are forwarded to the client. If kernel is queried for an unknown
+> > + * event type or if the receive buffer is larger than the number of
+> > + * event codes known to the kernel, the kernel returns all zeroes for those
+> > + * codes.
+> >   *
+> >   * At maximum, codes_size bytes are copied.
+> >   *
+> > - * This ioctl may fail with ENODEV in case the file is revoked, EFAULT
+> > - * if the receive-buffer points to invalid memory, or EINVAL if the kernel
+> > - * does not implement the ioctl.
+> > + * This ioctl may fail with ENODEV in case the descriptor is revoked,
+> > + * EFAULT if the receive buffer points to invalid memory, or EINVAL if the
+> > + * kernel does not implement the ioctl.
 > 
-> Are you going to make a patch to address the issue?
+> I fixed everything up, except for this hunk. A "descriptor" cannot be
+> revoked, it's always the "description" that is revoked
+> (file-descriptor vs. file-description). I'm not sure what name to use
+> here. "file-description" would serve best, I guess, but it's not that
+> commonly used (nor understood). It's defined properly by POSIX,
+> though.
 
-Not in the nearest future, sorry.
-
-> 
-> > Or maybe we should just forcibly try claiming secondary interface
-> > while probing primary instead of messing with shared data item.
-> 
-> If we incorporate the above idea into a patch, we need to keep in mind
-> that not all tablets support touch data. So, not all tablets have two
-> interfaces.
-
-Right, but we do know the models that use multiple interfaces, right?
+OK, let's leave it as is then.
 
 -- 
 Dmitry

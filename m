@@ -1,88 +1,51 @@
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 1/3] input: touchscreen: of: Use input_set_abs_params
-Date: Wed,  5 Nov 2014 16:07:48 +0100
-Message-ID: <1415200070-19346-2-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH 3/3] input: ft5x06: Allow to set the maximum axes value through the DT
+Date: Wed,  5 Nov 2014 16:07:50 +0100
+Message-ID: <1415200070-19346-4-git-send-email-maxime.ripard@free-electrons.com>
 References: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:42425 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755134AbaKEPKD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Nov 2014 10:10:03 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
+List-Id: linux-input@vger.kernel.org
 
-Drivers are still required to call input_set_abs_params for their axes, as if
-they only use the touchscreen_parse_of_params function, the axis bit in absbit
-won't be set.
+Currently the driver relies on some obscure and undocumented register to set
+the maximum axis value.
 
-Switch to using input_set_abs_params to fully setup each and every available
-axis so that drivers will be able to solely use this function.
+The reported value is way too high to be meaningful, which confuses some
+userspace tools like QT's evdevtouch plugin which try to scale the reported
+events to the maximum values.
+
+Use the values from the DT to set meaningful values.
 
 Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- drivers/input/touchscreen/of_touchscreen.c | 33 +++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
-index f8f9b84230b1..74d6b0eb50ac 100644
---- a/drivers/input/touchscreen/of_touchscreen.c
-+++ b/drivers/input/touchscreen/of_touchscreen.c
-@@ -13,6 +13,16 @@
- #include <linux/input.h>
- #include <linux/input/touchscreen.h>
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index ee3434f1e949..3ebc1a7e46c5 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -37,6 +37,7 @@
+ #include <linux/gpio.h>
+ #include <linux/of_gpio.h>
+ #include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
+ #include <linux/input/edt-ft5x06.h>
  
-+static u32 of_get_optional_u32(struct device_node *np,
-+			       const char *property)
-+{
-+	u32 val = 0;
+ #define MAX_SUPPORT_POINTS		5
+@@ -1042,6 +1043,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 			     0, tsdata->num_x * 64 - 1, 0, 0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y,
+ 			     0, tsdata->num_y * 64 - 1, 0, 0);
 +
-+	of_property_read_u32(np, property, &val);
++	if (!pdata)
++		touchscreen_parse_of_params(input);
 +
-+	return val;
-+}
-+
- /**
-  * touchscreen_parse_of_params - parse common touchscreen DT properties
-  * @dev: device that should be parsed
-@@ -24,22 +34,25 @@
- void touchscreen_parse_of_params(struct input_dev *dev)
- {
- 	struct device_node *np = dev->dev.parent->of_node;
--	struct input_absinfo *absinfo;
-+	u32 maximum, fuzz;
- 
- 	input_alloc_absinfo(dev);
- 	if (!dev->absinfo)
- 		return;
- 
--	absinfo = &dev->absinfo[ABS_X];
--	of_property_read_u32(np, "touchscreen-size-x", &absinfo->maximum);
--	of_property_read_u32(np, "touchscreen-fuzz-x", &absinfo->fuzz);
-+	maximum = of_get_optional_u32(np, "touchscreen-size-x");
-+	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
-+	if (maximum || fuzz)
-+		input_set_abs_params(dev, ABS_X, 0, maximum, fuzz, 0);
- 
--	absinfo = &dev->absinfo[ABS_Y];
--	of_property_read_u32(np, "touchscreen-size-y", &absinfo->maximum);
--	of_property_read_u32(np, "touchscreen-fuzz-y", &absinfo->fuzz);
-+	maximum = of_get_optional_u32(np, "touchscreen-size-y");
-+	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
-+	if (maximum || fuzz)
-+		input_set_abs_params(dev, ABS_Y, 0, maximum, fuzz, 0);
- 
--	absinfo = &dev->absinfo[ABS_PRESSURE];
--	of_property_read_u32(np, "touchscreen-max-pressure", &absinfo->maximum);
--	of_property_read_u32(np, "touchscreen-fuzz-pressure", &absinfo->fuzz);
-+	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
-+	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
-+	if (maximum || fuzz)
-+		input_set_abs_params(dev, ABS_PRESSURE, 0, maximum, fuzz, 0);
- }
- EXPORT_SYMBOL(touchscreen_parse_of_params);
+ 	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to init MT slots.\n");
 -- 
 2.1.1
-

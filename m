@@ -1,7 +1,7 @@
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 3/3] input: ft5x06: Allow to set the maximum axes value through the DT
-Date: Wed,  5 Nov 2014 16:07:50 +0100
-Message-ID: <1415200070-19346-4-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH 2/3] input: touchscreen: of: Register multitouch axes
+Date: Wed,  5 Nov 2014 16:07:49 +0100
+Message-ID: <1415200070-19346-3-git-send-email-maxime.ripard@free-electrons.com>
 References: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
@@ -10,42 +10,46 @@ To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov 
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
 
-Currently the driver relies on some obscure and undocumented register to set
-the maximum axis value.
+So far, the DT parsing code was only setting up the regular input axes,
+completely ignoring their multitouch counter parts.
 
-The reported value is way too high to be meaningful, which confuses some
-userspace tools like QT's evdevtouch plugin which try to scale the reported
-events to the maximum values.
-
-Use the values from the DT to set meaningful values.
+Fill them with the same parameters than the regular axes.
 
 Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/touchscreen/of_touchscreen.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index ee3434f1e949..3ebc1a7e46c5 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -37,6 +37,7 @@
- #include <linux/gpio.h>
- #include <linux/of_gpio.h>
- #include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/input/edt-ft5x06.h>
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index 74d6b0eb50ac..cf2a753edd96 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -42,17 +42,23 @@ void touchscreen_parse_of_params(struct input_dev *dev)
  
- #define MAX_SUPPORT_POINTS		5
-@@ -1042,6 +1043,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 			     0, tsdata->num_x * 64 - 1, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y,
- 			     0, tsdata->num_y * 64 - 1, 0, 0);
-+
-+	if (!pdata)
-+		touchscreen_parse_of_params(input);
-+
- 	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to init MT slots.\n");
+ 	maximum = of_get_optional_u32(np, "touchscreen-size-x");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
+-	if (maximum || fuzz)
++	if (maximum || fuzz) {
+ 		input_set_abs_params(dev, ABS_X, 0, maximum, fuzz, 0);
++		input_set_abs_params(dev, ABS_MT_POSITION_X, 0, maximum, fuzz, 0);
++	}
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-size-y");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
+-	if (maximum || fuzz)
++	if (maximum || fuzz) {
+ 		input_set_abs_params(dev, ABS_Y, 0, maximum, fuzz, 0);
++		input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, maximum, fuzz, 0);
++	}
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
+-	if (maximum || fuzz)
++	if (maximum || fuzz) {
+ 		input_set_abs_params(dev, ABS_PRESSURE, 0, maximum, fuzz, 0);
++		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, maximum, fuzz, 0);
++	}
+ }
+ EXPORT_SYMBOL(touchscreen_parse_of_params);
 -- 
 2.1.1

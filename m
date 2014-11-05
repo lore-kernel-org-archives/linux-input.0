@@ -1,115 +1,24 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] x86: Surface Pro 3 Type Cover 3
-Date: Wed, 5 Nov 2014 21:39:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411052137430.29198@pobox.suse.cz>
-References: <1415067972-3239-1-git-send-email-alan.c.wu@gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH 01/15] mfd: add new driver for Sharp LoCoMo
+Date: Wed, 05 Nov 2014 21:42:07 +0100
+Message-ID: <545A8B9F.1090204@metafoo.de>
+References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>	<1414454528-24240-2-git-send-email-dbaryshkov@gmail.com>	<CACRpkdbW3NA00zMZr216ZeZpgVkXwKUo30biTVd5kcHKGGtkHg@mail.gmail.com>	<CALT56yNX8v4mZn=o1ZoVLHPmg6wq0dgFNowpqNuFtU=eCc+d8w@mail.gmail.com>	<CACRpkdaKUZjbSEH75M9xudTF9HefwOCVEe5otv9-9f2UG8=hVg@mail.gmail.com> <CALT56yM8B3ffYb0=EZVbRRGDZSxMci2sRp9XVtjQuLa5abN+cg@mail.gmail.com> <545A8965.2010406@metafoo.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34219 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750702AbaKEUjF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Nov 2014 15:39:05 -0500
-In-Reply-To: <1415067972-3239-1-git-send-email-alan.c.wu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <545A8965.2010406@metafoo.de>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo
 List-Id: linux-input@vger.kernel.org
-To: Alan Wu <alan.c.wu@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Jarrad Whitaker <jarrad.whitaker@gmail.com>
 
-On Mon, 3 Nov 2014, Alan Wu wrote:
+On 11/05/2014 09:32 PM, Lars-Peter Clausen wrote:
+> If it is a generic DAC it should go into drivers/iio/, this will allow code
+> sharing and code re-usability. Given the simplicity of the DAC there might
+> even be other existing drivers that can be used to control it.
 
-> Surface Pro 3 Type Cover that works with Ubuntu (and possibly Arch) from this thread. Both trackpad and keyboard work after compiling my own kernel.
-> http://ubuntuforums.org/showthread.php?t=2231207&page=2&s=44910e0c56047e4f93dfd9fea58121ef
-> 
-> Also includes Jarrad Whitaker's message which sources
-> http://winaero.com/blog/how-to-install-linux-on-surface-pro-3/
-> which he says is sourced from a Russian site
-> 
-> Signed-off-by: Alan Wu <alan.c.wu@gmail.com>
+I just had a quick look and I think the M62332 will work out of the box with 
+the max517 driver.
 
-Adding Jarrad to CC so that he can test your patch as well.
-
-Jarrad, if you could provide your Tested-by: to Alan's patch, I'd 
-appreciate it (that would mean that we've reached the right super-position 
-of both the patches you guys submitted).
-
-I don't own the device, so I fully depend on what you guys submit and 
-test.
-
-Thanks.
-
-> ---
->  drivers/hid/hid-core.c          | 6 ++++++
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/hid-microsoft.c     | 2 ++
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  4 files changed, 10 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 73bd9e2..e94afcc 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -702,6 +702,11 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
->  	if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
->  	    type == HID_COLLECTION_PHYSICAL)
->  		hid->group = HID_GROUP_SENSOR_HUB;
-> +
-> +	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
-> +	    hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 &&
-> +	    hid->group == HID_GROUP_MULTITOUCH)
-> +		hid->group = HID_GROUP_GENERIC;
->  }
->  
->  static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
-> @@ -1861,6 +1866,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index e23ab8b..15f32c2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -648,6 +648,7 @@
->  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
->  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
->  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
-> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
->  
->  #define USB_VENDOR_ID_MOJO		0x8282
->  #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index 8ba17a9..cacda43 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -274,6 +274,8 @@ static const struct hid_device_id ms_devices[] = {
->  		.driver_data = MS_NOGET },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
->  		.driver_data = MS_DUPLICATE_USAGES },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
-> +		.driver_data = MS_HIDINPUT },
->  
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
->  		.driver_data = MS_PRESENTER },
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 5014bb5..cebfaf2 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -77,6 +77,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
->  	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
-> +	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
-> -- 
-> 2.1.0
-> 
-
--- 
-Jiri Kosina
-SUSE Labs
+- Lars

@@ -1,55 +1,42 @@
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 2/3] input: touchscreen: of: Register multitouch axes
-Date: Wed,  5 Nov 2014 16:07:49 +0100
-Message-ID: <1415200070-19346-3-git-send-email-maxime.ripard@free-electrons.com>
-References: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 0/3] input: ft5x06: Fix userspace reported maximum value
+Date: Wed,  5 Nov 2014 16:07:47 +0100
+Message-ID: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from down.free-electrons.com ([37.187.137.238]:42434 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754811AbaKEPKE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Nov 2014 10:10:04 -0500
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
-List-Id: linux-input@vger.kernel.org
 
-So far, the DT parsing code was only setting up the regular input axes,
-completely ignoring their multitouch counter parts.
+Hi,
 
-Fill them with the same parameters than the regular axes.
+The current ft5x06 reports to the user-space that its maximum
+coordinates are, on both X and Y, way higher than what could be
+actually usable on the screen (in my case, 5759x1151 instead of
+480x800).
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
- drivers/input/touchscreen/of_touchscreen.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+This causes trouble on some userspace stacks that then try to re-scale
+these coordinates back to the framebuffer resolution, like QT does.
 
-diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
-index 74d6b0eb50ac..cf2a753edd96 100644
---- a/drivers/input/touchscreen/of_touchscreen.c
-+++ b/drivers/input/touchscreen/of_touchscreen.c
-@@ -42,17 +42,23 @@ void touchscreen_parse_of_params(struct input_dev *dev)
- 
- 	maximum = of_get_optional_u32(np, "touchscreen-size-x");
- 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
--	if (maximum || fuzz)
-+	if (maximum || fuzz) {
- 		input_set_abs_params(dev, ABS_X, 0, maximum, fuzz, 0);
-+		input_set_abs_params(dev, ABS_MT_POSITION_X, 0, maximum, fuzz, 0);
-+	}
- 
- 	maximum = of_get_optional_u32(np, "touchscreen-size-y");
- 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
--	if (maximum || fuzz)
-+	if (maximum || fuzz) {
- 		input_set_abs_params(dev, ABS_Y, 0, maximum, fuzz, 0);
-+		input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, maximum, fuzz, 0);
-+	}
- 
- 	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
- 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
--	if (maximum || fuzz)
-+	if (maximum || fuzz) {
- 		input_set_abs_params(dev, ABS_PRESSURE, 0, maximum, fuzz, 0);
-+		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, maximum, fuzz, 0);
-+	}
- }
- EXPORT_SYMBOL(touchscreen_parse_of_params);
+Use the of_touchscreen code to find the real touchscreen limits in the
+DT case, and report that to the userspace.
+
+Thanks,
+Maxime
+
+Maxime Ripard (3):
+  input: touchscreen: of: Use input_set_abs_params
+  input: touchscreen: of: Register multitouch axes
+  input: ft5x06: Allow to set the maximum axes value through the DT
+
+ drivers/input/touchscreen/edt-ft5x06.c     |  5 ++++
+ drivers/input/touchscreen/of_touchscreen.c | 39 ++++++++++++++++++++++--------
+ 2 files changed, 34 insertions(+), 10 deletions(-)
+
 -- 
 2.1.1
+

@@ -1,72 +1,115 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH 01/15] mfd: add new driver for Sharp LoCoMo
-Date: Wed, 05 Nov 2014 21:32:37 +0100
-Message-ID: <545A8965.2010406@metafoo.de>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>	<1414454528-24240-2-git-send-email-dbaryshkov@gmail.com>	<CACRpkdbW3NA00zMZr216ZeZpgVkXwKUo30biTVd5kcHKGGtkHg@mail.gmail.com>	<CALT56yNX8v4mZn=o1ZoVLHPmg6wq0dgFNowpqNuFtU=eCc+d8w@mail.gmail.com>	<CACRpkdaKUZjbSEH75M9xudTF9HefwOCVEe5otv9-9f2UG8=hVg@mail.gmail.com>
- <CALT56yM8B3ffYb0=EZVbRRGDZSxMci2sRp9XVtjQuLa5abN+cg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] x86: Surface Pro 3 Type Cover 3
+Date: Wed, 5 Nov 2014 21:39:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411052137430.29198@pobox.suse.cz>
+References: <1415067972-3239-1-git-send-email-alan.c.wu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <CALT56yM8B3ffYb0=EZVbRRGDZSxMci2sRp9XVtjQuLa5abN+cg@mail.gmail.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Bryan Wu <cooloney@gmail.com>, Russell King <linux@arm.linux.org.uk>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Input <linux-input@vger.kernel.org>, Jingoo Han <jg1.han@samsung.com>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Richard Purdie <rpurdie@rpsys.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:34219 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750702AbaKEUjF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Nov 2014 15:39:05 -0500
+In-Reply-To: <1415067972-3239-1-git-send-email-alan.c.wu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Wu <alan.c.wu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Jarrad Whitaker <jarrad.whitaker@gmail.com>
 
-On 11/05/2014 09:02 PM, Dmitry Eremin-Solenikov wrote:
-> 2014-11-03 16:41 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
->> On Fri, Oct 31, 2014 at 10:54 AM, Dmitry Eremin-Solenikov
->> <dbaryshkov@gmail.com> wrote:
->>> 2014-10-31 10:42 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
->>
->>>> It seems some DAC handling is part of the MFD driver, and we recently
->>>> discussed that MFD should not be doing misc stuff but mainly act as
->>>> arbiter and switching station.
->>>>
->>>> Can you please move the DAC parts of the driver to
->>>> drivers/iio/dac?
->>>>
->>>> The IIO DAC subsystem will likely add other goodies to
->>>> the driver for free and give a nice API to consumers.
->>>
->>> I wanted this part to be as simple as possible. I will look into IIO
->>> DAC subsystem.
->>> The DAC is as simple 2 channel 8-bit i2c device connected to a separate i2c bus
->>> controlled through a register in LoCoMo device. One channel is used
->>> for backlight,
->>> other will be used for volume control. So (in theory) I can add the
->>> following device
->>> chain:  locomo -> i2c-locomo -> m62332 -> IIO DAC client.  However isn't that
->>> quite an overkill for just backlight & volume control? Please advice me on this.
->>
->> The point is still the same: no unrelated code in drivers/mfd,
->> then either use IIO DAC as a middle layer or sink the DAC handling
->> into respective subdriver, i.e. push it into the backlight or
->> volume directly then.
->
-> The problem is that the DAC is equally used by backlight and by sound
-> device (WIP).
+On Mon, 3 Nov 2014, Alan Wu wrote:
 
-That shouldn't be a problem. The IIO API allows different consumers to 
-request different channels of a converter. You can write a generic IIO based 
-backlight driver and a generic IIO based volume control driver. This makes 
-it possible to re-use them in other circuits with other DACs but the same 
-application.
+> Surface Pro 3 Type Cover that works with Ubuntu (and possibly Arch) from this thread. Both trackpad and keyboard work after compiling my own kernel.
+> http://ubuntuforums.org/showthread.php?t=2231207&page=2&s=44910e0c56047e4f93dfd9fea58121ef
+> 
+> Also includes Jarrad Whitaker's message which sources
+> http://winaero.com/blog/how-to-install-linux-on-surface-pro-3/
+> which he says is sourced from a Russian site
+> 
+> Signed-off-by: Alan Wu <alan.c.wu@gmail.com>
 
-> What about true i2c device driver sitting in drivers/misc and exporting a regmap
-> of 2 8-bit registers?
+Adding Jarrad to CC so that he can test your patch as well.
 
-If it is a generic DAC it should go into drivers/iio/, this will allow code 
-sharing and code re-usability. Given the simplicity of the DAC there might 
-even be other existing drivers that can be used to control it.
+Jarrad, if you could provide your Tested-by: to Alan's patch, I'd 
+appreciate it (that would mean that we've reached the right super-position 
+of both the patches you guys submitted).
 
-- Lars
+I don't own the device, so I fully depend on what you guys submit and 
+test.
+
+Thanks.
+
+> ---
+>  drivers/hid/hid-core.c          | 6 ++++++
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/hid-microsoft.c     | 2 ++
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  4 files changed, 10 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 73bd9e2..e94afcc 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -702,6 +702,11 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+>  	if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
+>  	    type == HID_COLLECTION_PHYSICAL)
+>  		hid->group = HID_GROUP_SENSOR_HUB;
+> +
+> +	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
+> +	    hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 &&
+> +	    hid->group == HID_GROUP_MULTITOUCH)
+> +		hid->group = HID_GROUP_GENERIC;
+>  }
+>  
+>  static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+> @@ -1861,6 +1866,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index e23ab8b..15f32c2 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -648,6 +648,7 @@
+>  #define USB_DEVICE_ID_MS_SURFACE_PRO_2   0x0799
+>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+> +#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
+>  
+>  #define USB_VENDOR_ID_MOJO		0x8282
+>  #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
+> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> index 8ba17a9..cacda43 100644
+> --- a/drivers/hid/hid-microsoft.c
+> +++ b/drivers/hid/hid-microsoft.c
+> @@ -274,6 +274,8 @@ static const struct hid_device_id ms_devices[] = {
+>  		.driver_data = MS_NOGET },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
+>  		.driver_data = MS_DUPLICATE_USAGES },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+> +		.driver_data = MS_HIDINPUT },
+>  
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
+>  		.driver_data = MS_PRESENTER },
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 5014bb5..cebfaf2 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -77,6 +77,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
+> +	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+> -- 
+> 2.1.0
+> 
+
+-- 
+Jiri Kosina
+SUSE Labs

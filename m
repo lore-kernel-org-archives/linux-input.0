@@ -1,255 +1,313 @@
-From: Ville Aakko <ville.aakko@gmail.com>
-Subject: Re: [PATCH 1/1] hid-saitek: Quirk for Saitek R.A.T.7 works with R.A.T.9 too
-Date: Tue, 4 Nov 2014 21:20:52 +0200
-Message-ID: <40478FF3-907F-4894-95AA-E09CB4BAA087@gmail.com>
-References: <CAEP-KKshiXPfDhHPE7uatU70wfiOM-xMbFS2+6VxBbFM-LMfjw@mail.gmail.com> <5458256A.5030404@braincalibration.de> <47D536B5-26CC-4088-B321-30DABDD06A02@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Luiz Carlos Ramos <lramos.prof@yahoo.com.br>
+Subject: Re: About Dell Inspiron 3442 touchpad
+Date: Tue, 04 Nov 2014 23:11:08 -0200
+Message-ID: <1415149868.3091658.187158185.5DD776E6@webmail.messagingengine.com>
+References: <1414544444.169720.184461733.4C6DF47C@webmail.messagingengine.com>
+ <207925.414b376d6a6b514141424539564642466841415469444f48593549@popretr.messagingengine.com>
+ <CAN+gG=Hke079n9KgiYQZVDfN9h=qqG7CEYkmXXpT8kw_AewTsQ@mail.gmail.com>
+ <1414663579.647252.185040445.75974DFA@webmail.messagingengine.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:38921 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751261AbaKDTU6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Nov 2014 14:20:58 -0500
-Received: by mail-lb0-f174.google.com with SMTP id p9so788495lbv.5
-        for <linux-input@vger.kernel.org>; Tue, 04 Nov 2014 11:20:57 -0800 (PST)
-In-Reply-To: <47D536B5-26CC-4088-B321-30DABDD06A02@gmail.com>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46693 "EHLO
+	out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751502AbaKEBLJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Nov 2014 20:11:09 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+	by mailout.nyi.internal (Postfix) with ESMTP id 70D5420958
+	for <linux-input@vger.kernel.org>; Tue,  4 Nov 2014 20:11:08 -0500 (EST)
+In-Reply-To: <1414663579.647252.185040445.75974DFA@webmail.messagingengine.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Harald Brinkmann <hbrinkmann@braincalibration.de>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, trivial@kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-=46rom: Ville Aakko <ville.aakko@gmail.com>
+Hi, Benjamin,
 
-I have tested HID quirk for Saitek R.A.T.7 with my R.A.T. 9. It works f=
-ine for me. Attached patch makes the necessary changes to use the quirk=
- on the R.A.T.9 too, and necessary Kconfig changes too.
+I think I just wrote the email below in a way it suggests everything had
+gone well and the issue was resolved... but unfortunately it's not the
+case. In my reply, I wrote some remarks in the text body in that email,
+but I think they weren't noticed at all given the first paragraph.
 
-I have stylized the Kconfig option name to include Mad Catz in the opti=
-on name, as (at least some of) the devices are marketed under Mad Catz =
-brand.
+Only to recall, the problem is with a Dell Inspiron 3442, that has a
+touchpad which doesn't show up. It seems like it is a Synaptics I2C
+device. Your last advice was to insmod hid-rmi, which would hopefully
+make things go on after I2C basic device handshake. However, it didn't
+happen.
 
-Signed-off-by: Ville Aakko <ville.aakko@gmail.com>
----
-Sorry, the previous patch was malformed (sorry about the noise). This o=
-ne should apply cleanly.
+I managed also to put some "printk" at the beginning and at the end of
+the "probe" function of hid-rmi, and it seems both were not called. I
+don't know if some kind of ioctl() should be issued, or if udevd should
+be configured some special way, but my feeling is that I am missing
+something really really important and obvious.
 
-Cheers!
+Thanks,
 
-diff -uprN linux-3.17.2/drivers/hid/Kconfig linux-3.17.2-rat9/drivers/h=
-id/Kconfig
---- linux-3.17.2/drivers/hid/Kconfig	2014-10-30 18:43:25.000000000 +020=
-0
-+++ linux-3.17.2-rat9/drivers/hid/Kconfig	2014-11-04 20:23:58.165740493=
- +0200
-@@ -618,7 +618,7 @@ config HID_ROCCAT
- 	support for its special functionalities.
+Luiz  
 
- config HID_SAITEK
--	tristate "Saitek non-fully HID-compliant devices"
-+	tristate "Saitek (Mad Catz) non-fully HID-compliant devices"
- 	depends on HID
- 	---help---
- 	Support for Saitek devices that are not fully compliant with the
-@@ -626,6 +626,7 @@ config HID_SAITEK
 
- 	Supported devices:
- 	- PS1000 Dual Analog Pad
-+	- R.A.T.9 Gaming Mouse
- 	- R.A.T.7 Gaming Mouse
- 	- M.M.O.7 Gaming Mouse
-
-diff -uprN linux-3.17.2/drivers/hid/hid-core.c linux-3.17.2-rat9/driver=
-s/hid/hid-core.c
---- linux-3.17.2/drivers/hid/hid-core.c	2014-10-30 18:43:25.000000000 +=
-0200
-+++ linux-3.17.2-rat9/drivers/hid/hid-core.c	2014-11-04 20:20:21.765611=
-510 +0200
-@@ -1904,6 +1904,7 @@ static const struct hid_device_id hid_ha
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) }=
-,
- #endif
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMO=
-TE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELES=
-S_KBD_MOUSE) },
-diff -uprN linux-3.17.2/drivers/hid/hid-ids.h linux-3.17.2-rat9/drivers=
-/hid/hid-ids.h
---- linux-3.17.2/drivers/hid/hid-ids.h	2014-10-30 18:43:25.000000000 +0=
-200
-+++ linux-3.17.2-rat9/drivers/hid/hid-ids.h	2014-11-04 20:20:21.7656115=
-10 +0200
-@@ -613,6 +613,7 @@
-
- #define USB_VENDOR_ID_MADCATZ		0x0738
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
-+#define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
-
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
-diff -uprN linux-3.17.2/drivers/hid/hid-saitek.c linux-3.17.2-rat9/driv=
-ers/hid/hid-saitek.c
---- linux-3.17.2/drivers/hid/hid-saitek.c	2014-10-30 18:43:25.000000000=
- +0200
-+++ linux-3.17.2-rat9/drivers/hid/hid-saitek.c	2014-11-04 20:27:10.9661=
-64105 +0200
-@@ -7,7 +7,7 @@
-  *  (This module is based on "hid-ortek".)
-  *  Copyright (c) 2012 Andreas H=FCbner
-  *
-- *  R.A.T.7, M.M.O.7 (USB gaming mice):
-+ *  R.A.T.7, R.A.T.9, M.M.O.7 (USB gaming mice):
-  *  Fixes the mode button which cycles through three constantly presse=
-d
-  *  buttons. All three press events are mapped to one button and the
-  *  missing release event is generated immediately.
-@@ -179,6 +179,8 @@ static const struct hid_device_id saitek
- 		.driver_data =3D SAITEK_FIX_PS1000 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7),
- 		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9),
-+		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
- 		.driver_data =3D SAITEK_RELEASE_MODE_MMO7 },
- 	{ }
---
-
-Ville Aakko <ville.aakko@gmail.com> kirjoitti 4.11.2014 kello 20.49:
-
-> From: Ville Aakko <ville.aakko@gmail.com>
->=20
-> I have tested HID quirk for Saitek R.A.T.7 with my R.A.T. 9. It works=
- fine for me. Attached patch makes the necessary changes to use the qui=
-rk on the R.A.T.9 too, and necessary Kconfig changes too.
->=20
-> I have stylized the Kconfig option name to include Mad Catz in the op=
-tion name, as (at least some of) the devices are marketed under Mad Cat=
-z brand.
->=20
-> Signed-off-by: Ville Aakko <ville.aakko@gmail.com>
-> ---
-> Hi, another try on sending the patch! (the patch follows in body, wit=
-h intact whitespace I hope:)=20
->=20
-> No one else has tested this, but it seems quite trivial to me. (origi=
-nal commit 37c492c8f6a99870551fe2964b2dfce5d9e87375; " HID: quirk for S=
-aitek RAT7 and MMO7 mices' mode button =94).
->=20
-> As for the company name, Saitek is a subsidiary of Mad Catz (see http=
-://en.wikipedia.org/wiki/Saitek). The mice are marketed under Mad Catz =
-brand, but there may be historical reasons (unclear to me) why the modu=
-le is called hid-saitek, however.
->=20
-> Cheers!
->=20
-> diff -uprN linux-3.17.2/drivers/hid/Kconfig linux-3.17.2-rat9/drivers=
-/hid/Kconfig
-> --- linux-3.17.2/drivers/hid/Kconfig	2014-10-30 18:43:25.000000000 +0=
-200
-> +++ linux-3.17.2-rat9/drivers/hid/Kconfig	2014-11-04 20:23:58.1657404=
-93 +0200
-> @@ -618,7 +618,7 @@ config HID_ROCCAT
-> 	support for its special functionalities.
->=20
-> config HID_SAITEK
-> -	tristate "Saitek non-fully HID-compliant devices"
-> +	tristate "Saitek (Mad Catz) non-fully HID-compliant devices"
-> 	depends on HID
-> 	---help---
-> 	Support for Saitek devices that are not fully compliant with the
-> @@ -626,6 +626,7 @@ config HID_SAITEK
->=20
-> 	Supported devices:
-> 	- PS1000 Dual Analog Pad
-> +	- R.A.T.9 Gaming Mouse
-> 	- R.A.T.7 Gaming Mouse
-> 	- M.M.O.7 Gaming Mouse
->=20
-> diff -uprN linux-3.17.2/drivers/hid/hid-core.c linux-3.17.2-rat9/driv=
-ers/hid/hid-core.c
-> --- linux-3.17.2/drivers/hid/hid-core.c	2014-10-30 18:43:25.000000000=
- +0200
-> +++ linux-3.17.2-rat9/drivers/hid/hid-core.c	2014-11-04 20:20:21.7656=
-11510 +0200
-> @@ -1904,6 +1904,7 @@ static const struct hid_device_id hid_ha
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) =
-},
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7) },
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9)=
- },
-> #endif
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REM=
-OTE) },
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELE=
-SS_KBD_MOUSE) },
-> diff -uprN linux-3.17.2/drivers/hid/hid-ids.h linux-3.17.2-rat9/drive=
-rs/hid/hid-ids.h
-> --- linux-3.17.2/drivers/hid/hid-ids.h	2014-10-30 18:43:25.000000000 =
-+0200
-> +++ linux-3.17.2-rat9/drivers/hid/hid-ids.h	2014-11-04 20:20:21.76561=
-1510 +0200
-> @@ -613,6 +613,7 @@
->=20
-> #define USB_VENDOR_ID_MADCATZ		0x0738
-> #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
-> +#define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
->=20
-> #define USB_VENDOR_ID_MCC		0x09db
-> #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
-> diff -uprN linux-3.17.2/drivers/hid/hid-saitek.c linux-3.17.2-rat9/dr=
-ivers/hid/hid-saitek.c
-> --- linux-3.17.2/drivers/hid/hid-saitek.c	2014-10-30 18:43:25.0000000=
-00 +0200
-> +++ linux-3.17.2-rat9/drivers/hid/hid-saitek.c	2014-11-04 20:27:10.96=
-6164105 +0200
-> @@ -7,7 +7,7 @@
->  *  (This module is based on "hid-ortek".)
->  *  Copyright (c) 2012 Andreas H=FCbner
->  *
-> - *  R.A.T.7, M.M.O.7 (USB gaming mice):
-> + *  R.A.T.7, R.A.T.9, M.M.O.7 (USB gaming mice):
->  *  Fixes the mode button which cycles through three constantly press=
-ed
->  *  buttons. All three press events are mapped to one button and the
->  *  missing release event is generated immediately.
-> @@ -179,6 +179,8 @@ static const struct hid_device_id saitek
-> 		.driver_data =3D SAITEK_FIX_PS1000 },
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7),
-> 		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9)=
-,
-> +		.driver_data =3D SAITEK_RELEASE_MODE_RAT7 },
-> 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
-> 		.driver_data =3D SAITEK_RELEASE_MODE_MMO7 },
-> 	{ }
-> ---
->=20
->=20
-> Harald Brinkmann <hbrinkmann@braincalibration.de> kirjoitti 4.11.2014=
- kello 3.01:
->=20
->> On 11/02/2014 03:37 PM, Ville Aakko wrote:
->>> p.s. I have never submitted patches, I apologize if I have done som=
-ething in a=20
->>> wrong way! Should I have added / updated the description in the com=
-ments?
->>=20
->> I think you should update linux/drivers/hid/Kconfig and add the R.A.=
-T.9
->> to the list of supported devices in the HID_SAITEK section.
->>=20
->> --=20
->> Cheers,
->> Harald
->=20
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, Oct 30, 2014, at 08:06, Luiz Carlos Ramos wrote:
+> Hi Benjamin,
+> 
+> Thanks for the assistance and quick reply.
+> 
+> On Tue, Oct 28, 2014, at 23:40, Benjamin Tissoires wrote:
+> > Hi Luiz,
+> > 
+> > On Tue, Oct 28, 2014 at 9:00 PM, Luiz Carlos Ramos
+> > <lramos.prof@yahoo.com.br> wrote:
+> > > Hello,
+> > >
+> > > I'm trying to make a touchpad from a Dell Inspiron I14-3442 laptop work.
+> > >
+> > > Some details:
+> > >
+> > > - I'm using plain Slackware64 14.1, but raised the kernel to 3.16.3 for
+> > > tests
+> > >
+> > > - xinput ignores the touchpad; it shows only a USB mouse/keyboard
+> > > adapter and the laptop's keyboard:
+> > >
+> > > root@pace:/sys/bus/hid/devices# xinput
+> > >  Virtual core pointer                            id=2    [master pointer
+> > >   (3)]
+> > >      Virtual core XTEST pointer                      id=4    [slave
+> > >      pointer  (2)]
+> > >      Generic USB K/B                                 id=12   [slave
+> > >      pointer  (2)]
+> > >   Virtual core keyboard                           id=3    [master
+> > >   keyboard (2)]
+> > >       Virtual core XTEST keyboard                     id=5    [slave
+> > >       keyboard (3)]
+> > >       Power Button                                    id=6    [slave
+> > >       keyboard (3)]
+> > >       Video Bus                                       id=7    [slave
+> > >       keyboard (3)]
+> > >       Power Button                                    id=9    [slave
+> > >       keyboard (3)]
+> > >       Sleep Button                                    id=10   [slave
+> > >       keyboard (3)]
+> > >       Integrated_Webcam_HD                            id=13   [slave
+> > >       keyboard (3)]
+> > >       AT Translated Set 2 keyboard                    id=14   [slave
+> > >       keyboard (3)]
+> > >       Dell WMI hotkeys                                id=15   [slave
+> > >       keyboard (3)]
+> > >       Video Bus                                       id=8    [slave
+> > >       keyboard (3)]
+> > >       Generic USB K/B                                 id=11   [slave
+> > >       keyboard (3)]
+> > >
+> > > - it seems Ubuntu certified this machine (check
+> > > http://www.ubuntu.com/certification/hardware/201402-14674/components/),
+> > > but it assumes the touchpad is PS/2. I haven't found it as a PS/2 thing,
+> > > even loading psmouse.ko, or doing other tricks
+> > >
+> > > - some articles lists some tips for making it work (like
+> > > http://askubuntu.com/questions/134627/how-do-i-get-the-touchpad-settings-working-on-a-dell-xps-13-ultrabook,
+> > > or https://bugzilla.redhat.com/show_bug.cgi?id=1048314#c2), but I read
+> > > them carefully, made some tests, and they didn't work. One article says
+> > > I could blacklist i2c_hid or like in order to make the bring up the
+> > > touchpad in PS/2 mode, but I couldn't succeed doing so
+> > >
+> > > - at Dell's site, it is offered a driver for Ubuntu 12.04, but it's
+> > > almost obsolete. It seems to be just merged into the kernel
+> > >
+> > > - from Windows 8.1, which runs in the same machine (dual boot), I
+> > > concluded the proper way of making it work is to use HID over I2C. It
+> > > seems that there are two components loaded; one I2CHID, and a Synaptics
+> > > HID. This makes me hint it may be a Synaptics device
+> > 
+> > Well, if this is a Synaptics HID over I2C device, it should be handled
+> > by hid-rmi in recent kernels (or hid-multitouch but I would say
+> > hid-rmi in your case).
+> > Is the hid-rmi module loaded? Can we get a dmesg output so we can see
+> > if there is any problem?
+> > 
+> > >
+> > > - it seems there are two I2C busses in the machine. One is related to
+> > > the Intel video graphics subsystem (i801). The other seems to be linked
+> > > to the touchpad (i2c_designware_platform). I'm not sure that latest kmod
+> > > (i2c_designware_platform) is the right one to be used in this case, but
+> > > it appears to be working:
+> > 
+> > Yeah, i2c_designware_platform is pretty common for Haswell processors.
+> > 
+> > >
+> > > root@pace:/sys/bus/i2c/devices# ls -l /sys/bus/i2c/devices
+> > > total 0
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-0 ->
+> > > ../../../devices/pci0000:00/INT33C2:00/i2c-0
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-1 ->
+> > > ../../../devices/pci0000:00/INT33C3:00/i2c-1
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-2 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-2
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-3 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-3
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-4 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-4
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-5 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-5
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-6 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-6
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-7 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-7
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-8 ->
+> > > ../../../devices/pci0000:00/0000:00:02.0/i2c-8
+> > > lrwxrwxrwx 1 root root 0 Out 18 17:26 i2c-DLL0652:00 ->
+> > > ../../../devices/pci0000:00/INT33C3:00/i2c-1/i2c-DLL0652:00
+> > 
+> > This one is the touchpad.
+> > 
+> > >
+> > > root@pace:/sys/bus/i2c/devices# lsmod | grep i2c
+> > > i2c_hid                10682  0
+> > > hid                    94632  3 i2c_hid,hid_generic,usbhid
+> > > i2c_dev                 5739  0
+> > > i2c_designware_platform     3189  0
+> > > i2c_i801               13732  0
+> > > i2c_designware_core     6045  1 i2c_designware_platform
+> > > i2c_algo_bit            5351  1 i915
+> > > i2c_core               35216  11
+> > > drm,i915,i2c_i801,i2c_dev,i2c_hid,i2c_designware_platform,drm_kms_helper,i2c_algo_bit,v4l2_common,synaptics_i2c,videodev
+> > >
+> > > - in the HID /sys directory, there are three devices. Two are related to
+> > > a keyboard/mouse USB adapter. The third seems to be the linked to the
+> > > touchpad:
+> > >
+> > > root@pace:/sys/bus/hid/devices# ls -l /sys/bus/hid/devices
+> > > total 0
+> > > lrwxrwxrwx 1 root root 0 Out 28 22:40 0003:13BA:0017.004F ->
+> > > ../../../devices/pci0000:00/0000:00:1d.0/usb3/3-1/3-1.3/3-1.3:1.0/0003:13BA:0017.004F
+> > > lrwxrwxrwx 1 root root 0 Out 28 22:40 0003:13BA:0017.0050 ->
+> > > ../../../devices/pci0000:00/0000:00:1d.0/usb3/3-1/3-1.3/3-1.3:1.1/0003:13BA:0017.0050
+> > > lrwxrwxrwx 1 root root 0 Out 28 22:40 0018:06CB:2985.0052 ->
+> > > ../../../devices/pci0000:00/INT33C3:00/i2c-1/i2c-DLL0652:00/0018:06CB:2985.0052
+> > 
+> > This is the HID over I2C touchpad.
+> > 
+> > >
+> > > - when I load the kernel module i2c-hid.ko (with debug=1), I read this
+> > > in dmesg:
+> > >
+> > > [146172.568787] i2c_hid i2c-DLL0652:00: Fetching the HID descriptor
+> > > [146172.568791] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=20 00
+> > > [146172.574806] i2c_hid i2c-DLL0652:00: HID Descriptor: 1e 00 00 01 85
+> > > 00 21 00 24 00 20 00 25 00 17 00 22 00 23 00 cb 06 85 29 00 00 00 00 00
+> > > 00
+> > > [146172.574845] i2c_hid i2c-DLL0652:00: entering i2c_hid_parse
+> > > [146172.574847] i2c_hid i2c-DLL0652:00: i2c_hid_hwreset
+> > > [146172.574849] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+> > > [146172.574850] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+> > > 08
+> > > [146172.575436] i2c_hid i2c-DLL0652:00: resetting...
+> > > [146172.575442] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+> > > 01
+> > > [146172.576113] i2c_hid i2c-DLL0652:00: __i2c_hid_command: waiting...
+> > > [146172.577414] i2c_hid i2c-DLL0652:00: __i2c_hid_command: finished.
+> > > [146172.577417] i2c_hid i2c-DLL0652:00: asking HID report descriptor
+> > > [146172.577419] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=21 00
+> > > [146172.581072] i2c_hid i2c-DLL0652:00: Report Descriptor: 05 01 09 02
+> > > a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02
+> > > 95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0 06 00
+> > > ff 09 01 a1 01 85 09 09 02 15 00 26
+> > > [146172.581126] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+> > > [146172.581129] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 01
+> > > 08
+> > 
+> > Everything is fine, this is the normal behavior while connecting a
+> > i2c_hid device.
+> > Normally, we should have then hid-rmi asking for more things and then
+> > it will eventually set up the input device.
+> > 
+> > >
+> > > I am aware this information probably is not sufficient to draw any
+> > > conclusions, but I'd appreciate to hear from someone who knows i2c_hid
+> > > in detail what steps I should take next. For me the last command timed
+> > > out or got stuck, but I haven't checked the code to see if it's the
+> > > case. Anyway, if it was a timeout case, it should have something logged
+> > > after the time expired.
+> > 
+> > There is no answer from the device when a SET_POWER is emitted. So
+> > this is not a timeout problem.
+> > 
+> > If hid-rmi is compiled and is not taking the device, we have a big
+> > problem, but for now, the symptoms look like you do not have this
+> > driver compiled and hid-generic does not bind the device because it
+> > waits for hid-rmi to handle it.
+> > 
+> 
+> Well, I tried to insmod hid-rmi, and nothing special happened. Here is a
+> dmesg output (relevant lines):
+> 
+> [158885.774386] i2c_hid i2c-DLL0652:00: Fetching the HID descriptor
+> [158885.774391] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=20 00
+> [158885.785853] i2c_hid i2c-DLL0652:00: HID Descriptor: 1e 00 00 01 85
+> 00 21 00 24 00 20 00 25 00 17 00 22 00 23 00 cb 06 85 29 00 00 00 00 00
+> 00
+> [158885.785924] i2c_hid i2c-DLL0652:00: entering i2c_hid_parse
+> [158885.785926] i2c_hid i2c-DLL0652:00: i2c_hid_hwreset
+> [158885.785927] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+> [158885.785928] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+> 08
+> [158885.786494] i2c_hid i2c-DLL0652:00: resetting...
+> [158885.786497] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 00
+> 01
+> [158885.787285] i2c_hid i2c-DLL0652:00: __i2c_hid_command: waiting...
+> [158885.788496] i2c_hid i2c-DLL0652:00: __i2c_hid_command: finished.
+> [158885.788499] i2c_hid i2c-DLL0652:00: asking HID report descriptor
+> [158885.788501] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=21 00
+> [158885.792194] i2c_hid i2c-DLL0652:00: Report Descriptor: 05 01 09 02
+> a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02
+> 95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0 06 00
+> ff 09 01 a1 01 85 09 09 02 15 00 26
+> [158885.792252] i2c_hid i2c-DLL0652:00: i2c_hid_set_power
+> [158885.792254] i2c_hid i2c-DLL0652:00: __i2c_hid_command: cmd=22 00 01
+> 08
+> 
+> I included lines like:
+> 
+> printk(KERN_ERR "hid_rmi_probe(): called\n");
+> printk(KERN_ERR "hid_rmi_probe(): ret=0\n");
+> 
+> in the beginning and at the end of the routine rmi_probe(). These lines
+> didn't 
+> appear in dmesg (those pictured above). I don't know if "probe" is to be
+> called 
+> in this case, or not. Is there any other condition to make hid-rmi be
+> "instantiated",
+> I mean, other kmod to be loaded, or a special ioctl() coming to the hid
+> from userland,
+> or even echoing something to the "bind" file at /sys/...?
+> 
+> Well, here's the "directory" /sys/bus/hid/drivers/hid-rmi:
+> 
+> root@pace:/sys/bus/hid/drivers/hid-rmi# ls -l
+> /sys/bus/hid/drivers/hid-rmi/
+> total 0
+> --w------- 1 root root 4096 Out 30 08:03 bind
+> lrwxrwxrwx 1 root root    0 Out 30 08:03 module ->
+> ../../../../module/hid_rmi
+> --w------- 1 root root 4096 Out 30 08:03 new_id
+> --w------- 1 root root 4096 Out 30 07:48 uevent
+> --w------- 1 root root 4096 Out 30 08:03 unbind
+> 
+> One thing I didn't still did is to reboot the machine. I found it was
+> not the case,
+> but this type of action use to work a lot in IT/IS, right? :-) 
+> 
+> > >
+> > > I have some programming skills, and so if it's the case of applying any
+> > > patches, or recompiling the kernel or any subsystem to make tests, I'm
+> > > up to.
+> > 
+> > Cool, thanks.
+> > 
+> > Cheers,
+> > Benjamin
+> 
+> Many thanks, 
+> 
+> Luiz

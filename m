@@ -1,51 +1,110 @@
-From: Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH] Input: synaptics - add min/max quirk for Lenovo T440s
-Date: Thu,  6 Nov 2014 16:48:22 +0100
-Message-ID: <1415288902-11140-1-git-send-email-tiwai@suse.de>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH 2/3] input: touchscreen: of: Register multitouch axes
+Date: Thu, 6 Nov 2014 17:06:21 +0100
+Message-ID: <20141106160621.GM2989@lukather>
+References: <1415200070-19346-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1415200070-19346-3-git-send-email-maxime.ripard@free-electrons.com>
+ <20141105175635.GA22754@dtor-ws>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="p/1JFEOz/hVXxMAZ"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55233 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751122AbaKFPso (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Nov 2014 10:48:44 -0500
+Received: from down.free-electrons.com ([37.187.137.238]:51781 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751122AbaKFQKF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 11:10:05 -0500
+Content-Disposition: inline
+In-Reply-To: <20141105175635.GA22754@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The new Lenovo T440s laptop has a different PnP ID "LEN0039", and it
-needs the similar min/max quirk to make its clickpad working.
 
-BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=903748
-Reported-and-tested-by: Joschi Brauchle <joschibrauchle@gmx.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
----
- drivers/input/mouse/synaptics.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+--p/1JFEOz/hVXxMAZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 9031a0a28ea4..2a7a9174c702 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -135,8 +135,8 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
- 		1232, 5710, 1156, 4696
- 	},
- 	{
--		(const char * const []){"LEN0034", "LEN0036", "LEN2002",
--					"LEN2004", NULL},
-+		(const char * const []){"LEN0034", "LEN0036", "LEN0039",
-+					"LEN2002", "LEN2004", NULL},
- 		1024, 5112, 2024, 4832
- 	},
- 	{
-@@ -163,6 +163,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
- 	"LEN0036", /* T440 */
- 	"LEN0037",
- 	"LEN0038",
-+	"LEN0039", /* T440s */
- 	"LEN0041",
- 	"LEN0042", /* Yoga */
- 	"LEN0045",
--- 
-2.1.3
+Hi,
 
+On Wed, Nov 05, 2014 at 09:56:35AM -0800, Dmitry Torokhov wrote:
+> On Wed, Nov 05, 2014 at 04:07:49PM +0100, Maxime Ripard wrote:
+> > So far, the DT parsing code was only setting up the regular input axes,
+> > completely ignoring their multitouch counter parts.
+> >=20
+> > Fill them with the same parameters than the regular axes.
+> >=20
+> > Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> > ---
+> >  drivers/input/touchscreen/of_touchscreen.c | 12 +++++++++---
+> >  1 file changed, 9 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input=
+/touchscreen/of_touchscreen.c
+> > index 74d6b0eb50ac..cf2a753edd96 100644
+> > --- a/drivers/input/touchscreen/of_touchscreen.c
+> > +++ b/drivers/input/touchscreen/of_touchscreen.c
+> > @@ -42,17 +42,23 @@ void touchscreen_parse_of_params(struct input_dev *=
+dev)
+> > =20
+> >  	maximum =3D of_get_optional_u32(np, "touchscreen-size-x");
+> >  	fuzz =3D of_get_optional_u32(np, "touchscreen-fuzz-x");
+> > -	if (maximum || fuzz)
+> > +	if (maximum || fuzz) {
+> >  		input_set_abs_params(dev, ABS_X, 0, maximum, fuzz, 0);
+> > +		input_set_abs_params(dev, ABS_MT_POSITION_X, 0, maximum, fuzz, 0);
+>=20
+> Not all devices are multitouch so you shoudl not be setting multitouch
+> bits unconditionally.
+
+Hmmm, right.
+
+> In I think we should rely on driver to set capability bits properly and
+> then here test them and apply the readings. Probably also issue a
+> warning if we see max/fuzz setting but neither ABS_<N>/ABS_MT_<N>
+> capabilities.
+
+What I was aiming at was to avoid DT parsing duplication for the
+!multitouch and multitouch axis. I don't think there's a way to copy
+the parameters.
+
+The mt_init_slots might be a solution, but it does the copy the other
+way around: from the multitouch to the !multitouch axis, and without
+enabling it, which renders using both input_mt_init_slots and the
+of_touchscreen code together impossible.
+
+Is there a way to just enable an axis without calling
+input_set_abs_params? Is __set_bit enough?
+
+Thanks,
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--p/1JFEOz/hVXxMAZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUW5x8AAoJEBx+YmzsjxAgdr4P/RAjlgX4Ye264WFKTYZCfMgl
+Xf6PQD5K8yfeuczohFSwT1AuEqXlNYsCb5SUg+f6omLsepCK/DsapIm31SMYjC9a
+0X0ifYCPFDe+szYEVPXhqVTSJyQcd8wXmA+b19gVtcBqjCtGwNFMRtkX8ABb3Xqy
+VFx4+Yjt5Kf0G29q7BR5+RGej+Skv0YeUjF9nVi+p4cYHKo4dxQ51lJlFgwC+7lO
+YGv7qg6OHEzWPw8ibcWtxmPCsKTwJXP+swviqrtGwwA0ElmqDPdSPtMZYqaBX4wp
+aClQwpzn9fXk2GLZ8xmrgmnwKuEOyI/XhnCTfcZ8zrEzvqMGgilsWkE7YUZ82NEA
+unTwUluJIPRw6DaFiNw6g3w3M/GFyGMYw+iwnl4NTqdU1lF4GtaxJNJJfZW7CYEj
+7Wb7UjjEAjjzxFJmLWNuI9rRmQjIuGdJHcfop5WWfEzQefLGa4UQLyOqprOKpWLw
+8G3GU/fVA7f1AU1J7auOJvaDpMxDA5tO369eC40okyym9GFJ7A5R3WQ2YQJyQpSe
+I4Tk2lK/XkimdA2u3xWislwPxCbToobBUQ+PsHz7ccAcOc+RE0Y4/PZJYIbetakT
+Cu1kGi4JClf/STZ2qqxzSs7d9Y80voL5RNEZAaWsQpgo+E51fTdThXNdgUXHw1eq
+Sn5oMmnKBVN1hqCWlaPs
+=vUAa
+-----END PGP SIGNATURE-----
+
+--p/1JFEOz/hVXxMAZ--

@@ -1,65 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - add min/max quirk for Lenovo T440s
-Date: Thu, 6 Nov 2014 09:27:35 -0800
-Message-ID: <20141106172735.GB34214@dtor-ws>
-References: <1415288902-11140-1-git-send-email-tiwai@suse.de>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v3 0/4] Fixes for ALPS driver
+Date: Thu, 6 Nov 2014 18:46:46 +0100
+Message-ID: <201411061846.48626@pali>
+References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com> <1414884310-19842-1-git-send-email-pali.rohar@gmail.com> <54563C5F.10702@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart2402195.MMvO1HV68e";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:45268 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751702AbaKFR1j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 12:27:39 -0500
-Received: by mail-ig0-f171.google.com with SMTP id hl2so11098217igb.10
-        for <linux-input@vger.kernel.org>; Thu, 06 Nov 2014 09:27:39 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1415288902-11140-1-git-send-email-tiwai@suse.de>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:35002 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751278AbaKFRqw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 12:46:52 -0500
+In-Reply-To: <54563C5F.10702@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Nov 06, 2014 at 04:48:22PM +0100, Takashi Iwai wrote:
-> The new Lenovo T440s laptop has a different PnP ID "LEN0039", and it
-> needs the similar min/max quirk to make its clickpad working.
-> 
-> BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=903748
-> Reported-and-tested-by: Joschi Brauchle <joschibrauchle@gmx.de>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+--nextPart2402195.MMvO1HV68e
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thank you.
+On Sunday 02 November 2014 15:14:55 Hans de Goede wrote:
+> Hi,
+>=20
+> On 11/02/2014 12:25 AM, Pali Roh=C3=A1r wrote:
+> > This patch series tries to fix problems with ALPS dualpoint
+> > devices on Dell Latitude laptops which are probably caused
+> > by bugs in Dell BIOS, Dell EC or in ALPS touchpad firmware
+> > itself.
+> >=20
+> > Root of problems is yet unknown but at least this patch
+> > series could eliminate reporting bogus data to userspace.
+> >=20
+> > Reported bugs:
+> > https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1258837
+> > https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1320022
+> > https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1272624
+> > https://bugzilla.redhat.com/show_bug.cgi?id=3D1145954
+> >=20
+> > Pali Roh=C3=A1r (4):
+> >   input: alps: Do not try to parse data as 3 bytes packet
+> >   when driver
+> >  =20
+> >     is out of sync
+> >  =20
+> >   input: alps: Allow 2 invalid packets without resetting
+> >   device input: alps: For protocol V3, do not process data
+> >   when last packet's
+> >  =20
+> >     bit7 is set
+> >  =20
+> >   input: alps: Fix trackstick detection
+> > =20
+> >  drivers/input/mouse/alps.c |  113
+> >  +++++++++++++++++++++++++++++++------------- 1 file
+> >  changed, 80 insertions(+), 33 deletions(-)
+>=20
+> Thanks for working on this, patches 1-3 are:
+>=20
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+>=20
+> Patch 4 is too much work to review on a Sunday :), so I'll
+> leave reviewing it to Dmitry.
+>=20
+> Regards,
+>=20
+> Hans
 
-> ---
->  drivers/input/mouse/synaptics.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 9031a0a28ea4..2a7a9174c702 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -135,8 +135,8 @@ static const struct min_max_quirk min_max_pnpid_table[] = {
->  		1232, 5710, 1156, 4696
->  	},
->  	{
-> -		(const char * const []){"LEN0034", "LEN0036", "LEN2002",
-> -					"LEN2004", NULL},
-> +		(const char * const []){"LEN0034", "LEN0036", "LEN0039",
-> +					"LEN2002", "LEN2004", NULL},
->  		1024, 5112, 2024, 4832
->  	},
->  	{
-> @@ -163,6 +163,7 @@ static const char * const topbuttonpad_pnp_ids[] = {
->  	"LEN0036", /* T440 */
->  	"LEN0037",
->  	"LEN0038",
-> +	"LEN0039", /* T440s */
->  	"LEN0041",
->  	"LEN0042", /* Yoga */
->  	"LEN0045",
-> -- 
-> 2.1.3
-> 
+Dmitry, can you review v3 patches?
 
--- 
-Dmitry
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart2402195.MMvO1HV68e
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlRbtAgACgkQi/DJPQPkQ1LWmACgiwlVUjp/Ppgk6TT6KH5nVX9W
+H24An0HjaXDcWT/sGPPwZOPKdAv+mBzk
+=b4DD
+-----END PGP SIGNATURE-----
+
+--nextPart2402195.MMvO1HV68e--

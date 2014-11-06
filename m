@@ -1,135 +1,59 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: [PATCH 0/5] Input: elantech - support the Fujitsu H730 laptop
-Date: Thu, 6 Nov 2014 20:20:45 +0100
-Message-ID: <20141106192044.GA1866@lantern>
-References: <1409407846-15449-1-git-send-email-ulrik.debie-os@e2big.org>
- <542FBF9A.5040003@redhat.com>
- <20141023183618.GA7637@lantern>
- <2794823.jCt3gL1uac@dtor-glaptop>
+From: Jose Diez <jose@mediacru.sh>
+Subject: Re: Help writing a custom HID driver
+Date: Thu, 06 Nov 2014 19:28:41 +0000
+Message-ID: <545BCBE9.6040309@mediacru.sh>
+References: <545BBF05.9030203@mediacru.sh> <CAN+gG=HmEvPz0R5+tXJdVaUWyms1pd=LgnO+L+0owYRo2Jx4Uw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:49835 "EHLO e2big.org"
+Received: from mediacru.sh ([5.254.104.62]:55294 "EHLO mediacru.sh"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751259AbaKFTU7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Nov 2014 14:20:59 -0500
-Content-Disposition: inline
-In-Reply-To: <2794823.jCt3gL1uac@dtor-glaptop>
+	id S1750877AbaKFT2r (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Nov 2014 14:28:47 -0500
+In-Reply-To: <CAN+gG=HmEvPz0R5+tXJdVaUWyms1pd=LgnO+L+0owYRo2Jx4Uw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jan Kiszka <jan.kiszka@web.de>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Ping.
+Thanks Benjamin. That fixed the issue. Have a great day.
 
-I hope the mux regression problem has settled down a bit in the mean time.
+On 06/11/14 18:57, Benjamin Tissoires wrote:
+> Hi Jose,
+>
+> On Thu, Nov 6, 2014 at 1:33 PM, Jose Diez <jose@mediacru.sh> wrote:
+>> Hello linux-input,
+>>
+>> I'm trying to write a custom HID driver. It works fine, and I can send
+>> reports just fine, but one of the requirements of this device is that I have
+>> to reply to reports with code 62 with another report with code 62, which
+>> resets a watchdog in the device.
+>>
+>> This is my code so far: http://codepad.org/m4QiWhDt
+>>
+>> The problem is in line 40. It seems like I'm not allowed to call
+>> hid_hw_output_report from the raw_event callback handler. I've tried
+>> surrounding the call with spin_locks, but I still get the "scheduling while
+>> atomic" error.
+> Yeah, when you are in the .event callback, you are basically called by
+> an IRQ, so you can not schedule a potentially blocking operation.
+>
+>> I'm not sure how to approach this - can someone help? It would be much
+>> appreciated. Thanks.
+> I would use a worker to do what you are trying to do. You can have a
+> look at the reset_worker we have in drivers/hid/hid-rmi.c.
+> When the event is not one we expected, we schedule a worker thread
+> which then sends an output report to the device. This way, the
+> blocking operation is sent from a different thread than the IRQ one.
+> It is kind of what you are willing to do.
+> There are many other examples of workers in the hid subtree, or you
+> can refer to the doc to find out more.
+>
+> Cheers,
+> Benjamin
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-On Thu, Oct 23, 2014 at 11:39:43AM -0700, Dmitry Torokhov wrote:
-> Date: Thu, 23 Oct 2014 11:39:43 -0700
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> To: ulrik.debie-os@e2big.org
-> Cc: Jan Kiszka <jan.kiszka@web.de>, Hans de Goede <hdegoede@redhat.com>,
->  linux-input@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
-> Subject: Re: [PATCH 0/5] Input: elantech - support the Fujitsu H730 laptop
-> 
-> On Thursday, October 23, 2014 08:36:19 PM ulrik.debie-os@e2big.org wrote:
-> > Hi Dmitry,
-> > 
-> > On Sat, Oct 04, 2014 at 11:36:26AM +0200, Hans de Goede wrote:
-> > > Hi,
-> > > 
-> > > On 10/04/2014 11:33 AM, Jan Kiszka wrote:
-> > > > On 2014-08-30 16:10, Ulrik De Bie wrote:
-> > > >> This patch set makes the elantech driver work for the Fujitsu H730
-> > > >> laptop. It also adds a sysfs knob to allow other laptops that are
-> > > >> facing similar problems as the Fujitsu H730 to have working touchpad.
-> > > >> 
-> > > >> I'm considering adding a WARN_ONCE when the crc_enabled signature check
-> > > >> fails. The message would then point the user to the crc_enabled sysfs
-> > > >> knob,
-> > > >> and kindly ask the user to report the laptop to linux-input mailinglist
-> > > >> ?
-> > > >> Any suggestions ?
-> > > >> 
-> > > >> Two users have tested the combination of this patchset and confirmed
-> > > >> that
-> > > >> it makes the H730 touchpad/trackpoint work.
-> > > >> 
-> > > >> Here an overview of the patchset:
-> > > >> 
-> > > >> Patch 1/ : Input: elantech - use elantech_report_trackpoint for
-> > > >> hardware v4 too The Fujitsu H730 is the first v4 hardware identified
-> > > >> that also sends the trackpoint packets. This patch enables the
-> > > >> trackpoint on v4 hardware. With this patch the trackpoint will work.
-> > > >> 
-> > > >> Patch 2/ : Input: elantech - Fix crc_enabled for Fujitsu H730
-> > > >> Uses DMI to detect the H730 and ,if detected, will set crc_enabled to
-> > > >> 1.
-> > > >> With this patch the touchpad and left/right button will start to work.
-> > > >> 
-> > > >> Patch 3/ : Input: elantech - report the middle button of the touchpad
-> > > >> The Fujitsu H730 is the first laptop listed in the elantech.c file with
-> > > >> 3 touchpad buttons. This patch enables the middle button for all
-> > > >> elantech
-> > > >> hardware and enables the reporting for v4 hardware.
-> > > >> I want to hear feedback here on what preferences exist for the
-> > > >> conditions
-> > > >> to enable the middle button:
-> > > >> - DMI
-> > > >> - enable only for v4
-> > > >> - enable for all/report for v3+v4
-> > > >> ...
-> > > >> 
-> > > >> Patch 4/ : Input: Elantech - provide a sysfs knob for crc_enabled
-> > > >> Probably H730 will not remain the only elantech laptop that has this
-> > > >> failing detection for the crc_enabled. This provides users with a
-> > > >> workaround when the crc_enabled detection fails.
-> > > >> 
-> > > >> Patch 5/ : Elantech - Update the documentation:
-> > > >> trackpoint,v3/v4,crc_enabled This provides an update of the elantech
-> > > >> documentation.
-> > > >> 
-> > > >> Patch 4 depends on patch 2, and for consistency, patch 5 depends on
-> > > >> patch 1-2-4.> >> 
-> > > >> Ulrik De Bie (5):
-> > > >>   Input: elantech - use elantech_report_trackpoint for hardware v4 too
-> > > >>   Input: elantech - Fix crc_enabled for Fujitsu H730
-> > > >>   Input: elantech - report the middle button of the touchpad
-> > > >>   Input: elantech - provide a sysfs knob for crc_enabled
-> > > >>   
-> > > >>   Input: elantech - Update the documentation:
-> > > >>     trackpoint,v3/v4,crc_enabled
-> > > >>  
-> > > >>  Documentation/input/elantech.txt |  85 ++++++++++++++++++++++++++--
-> > > >>  drivers/input/mouse/elantech.c   | 119
-> > > >>  ++++++++++++++++++++++++++++++++-------
-> > > >>  drivers/input/mouse/elantech.h   |   2 +-
-> > > >>  3 files changed, 179 insertions(+), 27 deletions(-)
-> > > >> 
-> > > >> Best regards,
-> > > >> Ulrik De Bie
-> > > > 
-> > > > What's the status of this series? Is it queued for 3.18 already?
-> > > 
-> > > I don't see them in next yet:
-> > > 
-> > > http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/log/driver
-> > > s/input/mouse/elantech.c
-> > > 
-> > > I agree it would be nice to get these into 3.18.
-> > > 
-> > > Dmitry, what is the plan here ?
-> > 
-> > Ping Dmitry ?
-> > 
-> > Do you want me to resend the patch ?
-> 
-> Hi Ulrik,
-> 
-> No, I have it, didn't have a chance to look at it though. Give me a day or so
-> please.
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry

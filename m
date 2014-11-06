@@ -1,43 +1,68 @@
-From: Alexander Waldemar Ahjolinna <ahjolinna@ovi.com>
-Subject: Problems with Roccat Ryos in 3.16 & 3.17
-Date: Wed, 5 Nov 2014 18:51:17 -0800
-Message-ID: <1415242277.26187.YahooMailNeo@web141505.mail.bf1.yahoo.com>
-References: <1415234084.964.YahooMailNeo@web141501.mail.bf1.yahoo.com>
-Reply-To: Alexander Waldemar Ahjolinna <ahjolinna@ovi.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 02/15] GPIO: port LoCoMo gpio support from old driver
+Date: Thu, 6 Nov 2014 06:03:35 +0000
+Message-ID: <20141106060335.GR8509@sirena.org.uk>
+References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
+ <1414454528-24240-3-git-send-email-dbaryshkov@gmail.com>
+ <CACRpkdY7tRadod2vQfEytmw-ubaMAvr_=XTczD5bUMkqie0xkg@mail.gmail.com>
+ <CALT56yOgMUA7o2dzfHph=S2zkDV4zERzMh4ishpPwpAx7Cqj6Q@mail.gmail.com>
+ <CACRpkdb7v3LmOhbhQ9TPk1_bnLnpwizawW6RQvhQRLSjRewAaQ@mail.gmail.com>
+ <CALT56yO9f8wzaArnmfQSDzCM3S+2oT+62anH5kbFY3WdEt_HZg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YttKMwf6abDJOSyE"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm38-vm1.bullet.mail.bf1.yahoo.com ([72.30.239.17]:42986 "EHLO
-	nm38-vm1.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751281AbaKFC5r convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Nov 2014 21:57:47 -0500
-In-Reply-To: <1415234084.964.YahooMailNeo@web141501.mail.bf1.yahoo.com>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:44395 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750768AbaKFGEB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 01:04:01 -0500
+Content-Disposition: inline
+In-Reply-To: <CALT56yO9f8wzaArnmfQSDzCM3S+2oT+62anH5kbFY3WdEt_HZg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 
 
-Dear kernel input developers,
+--YttKMwf6abDJOSyE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Thu, Nov 06, 2014 at 01:33:24AM +0400, Dmitry Eremin-Solenikov wrote:
+> 2014-11-03 16:43 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
 
+> > Yes that's the point: if you use regmap mmio you get the RMW-locking
+> > for free, with the regmap implementation.
 
+> Just to be more concrete. Currently locomo_gpio_ack_irq() function uses
+> one lock and one unlock for doing 3 consecutive RMW I I convert locomo
+> to regmap, will that be 3 lock/unlock calls or still one? (Or maybe I'm
+> trying to be over-protective here and adding more lock/unlock cycles
+> won't matter that much?)
 
-I noticed suddenly that I can't use my Roccat Ryos PRO MK on my
-desktop, I mean nothing works. I notice that the problem is with USB3, there is no problem with USB2.
-Ryos uses 2x usb2 not usb3. 
+You'll get three lock/unlocks, we could add an interface for bulk
+updates under one lock if it's important though.
 
-I have been using 3.16.4 and I tired out 3.17.2.. on chakraOS but I still have the same problem.
-I even tried out opensuse 13.2, same thing.
+> Next question: if I have to export regmap to several subdrivers, is it better
+> to have one big regmap or to have one-map-per-driver approach?
 
-Motherboard is AsRock Z68 Extreme4 Gen3, with BIOS P1.20 12/06/2011
+One regmap for the physical register map which is shared between all the
+users.
 
+--YttKMwf6abDJOSyE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-Best regards,
+iQEcBAEBAgAGBQJUWw82AAoJECTWi3JdVIfQzMAH/27/lKZbrTrd1rIoHTVxu3Pz
+qQzFDvoBmssvSLHk0fMkvcx7cJ9IahKBs9EtmyM5dR3lhDIfZZi5OYTw+dmyiyVu
+07BxmlnkvP7mv5HuI1VrUyfz0SeBxfAIQDsLgiwwikXZD+3eUZgjlZVuWHt3WlAM
+ITH5dFFv3enp692X0hMRz9XWiFwqlW3w5SXhpqlP5h3PgWPEjIei1QNqe3H9ELBr
+5Or31N42bBWSzA1FA5HzBoEbOx8D11E8RUtnhWgixmzFcKoYQmXHDPe+DJ11XCPe
+9hhOpeDthhrSKUFi4M6kQxJ218uHjoWNjYsgRAIYgL2bG8dFLKSjSsAUgSXZY94=
+=saoU
+-----END PGP SIGNATURE-----
 
-Alexander W. Ahjolinna
-
-
-Some dmesg output : http://pastebin.com/HiVUgWfR (I switched from USB3 to USB2)
+--YttKMwf6abDJOSyE--

@@ -1,35 +1,55 @@
-From: Jose Diez <jose@mediacru.sh>
-Subject: Help writing a custom HID driver
-Date: Thu, 06 Nov 2014 18:33:41 +0000
-Message-ID: <545BBF05.9030203@mediacru.sh>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Help writing a custom HID driver
+Date: Thu, 6 Nov 2014 13:57:22 -0500
+Message-ID: <CAN+gG=HmEvPz0R5+tXJdVaUWyms1pd=LgnO+L+0owYRo2Jx4Uw@mail.gmail.com>
+References: <545BBF05.9030203@mediacru.sh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mediacru.sh ([5.254.104.62]:51914 "EHLO mediacru.sh"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751448AbaKFSj4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Nov 2014 13:39:56 -0500
-Received: from [192.168.0.4] (cpc8-cove11-2-0-cust751.3-1.cable.virginm.net [82.16.198.240])
-	by mediacru.sh (Postfix) with ESMTPSA id 255BC40122
-	for <linux-input@vger.kernel.org>; Thu,  6 Nov 2014 19:33:43 +0100 (CET)
+Received: from mail-qg0-f49.google.com ([209.85.192.49]:34527 "EHLO
+	mail-qg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751564AbaKFS5X (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 13:57:23 -0500
+Received: by mail-qg0-f49.google.com with SMTP id z60so1230754qgd.22
+        for <linux-input@vger.kernel.org>; Thu, 06 Nov 2014 10:57:22 -0800 (PST)
+In-Reply-To: <545BBF05.9030203@mediacru.sh>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jose Diez <jose@mediacru.sh>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Hello linux-input,
+Hi Jose,
 
-I'm trying to write a custom HID driver. It works fine, and I can send 
-reports just fine, but one of the requirements of this device is that I 
-have to reply to reports with code 62 with another report with code 62, 
-which resets a watchdog in the device.
+On Thu, Nov 6, 2014 at 1:33 PM, Jose Diez <jose@mediacru.sh> wrote:
+> Hello linux-input,
+>
+> I'm trying to write a custom HID driver. It works fine, and I can send
+> reports just fine, but one of the requirements of this device is that I have
+> to reply to reports with code 62 with another report with code 62, which
+> resets a watchdog in the device.
+>
+> This is my code so far: http://codepad.org/m4QiWhDt
+>
+> The problem is in line 40. It seems like I'm not allowed to call
+> hid_hw_output_report from the raw_event callback handler. I've tried
+> surrounding the call with spin_locks, but I still get the "scheduling while
+> atomic" error.
 
-This is my code so far: http://codepad.org/m4QiWhDt
+Yeah, when you are in the .event callback, you are basically called by
+an IRQ, so you can not schedule a potentially blocking operation.
 
-The problem is in line 40. It seems like I'm not allowed to call 
-hid_hw_output_report from the raw_event callback handler. I've tried 
-surrounding the call with spin_locks, but I still get the "scheduling 
-while atomic" error.
+>
+> I'm not sure how to approach this - can someone help? It would be much
+> appreciated. Thanks.
 
-I'm not sure how to approach this - can someone help? It would be much 
-appreciated. Thanks.
+I would use a worker to do what you are trying to do. You can have a
+look at the reset_worker we have in drivers/hid/hid-rmi.c.
+When the event is not one we expected, we schedule a worker thread
+which then sends an output report to the device. This way, the
+blocking operation is sent from a different thread than the IRQ one.
+It is kind of what you are willing to do.
+There are many other examples of workers in the hid subtree, or you
+can refer to the doc to find out more.
+
+Cheers,
+Benjamin

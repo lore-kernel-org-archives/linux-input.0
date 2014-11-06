@@ -1,68 +1,69 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 02/15] GPIO: port LoCoMo gpio support from old driver
-Date: Thu, 6 Nov 2014 06:03:35 +0000
-Message-ID: <20141106060335.GR8509@sirena.org.uk>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
- <1414454528-24240-3-git-send-email-dbaryshkov@gmail.com>
- <CACRpkdY7tRadod2vQfEytmw-ubaMAvr_=XTczD5bUMkqie0xkg@mail.gmail.com>
- <CALT56yOgMUA7o2dzfHph=S2zkDV4zERzMh4ishpPwpAx7Cqj6Q@mail.gmail.com>
- <CACRpkdb7v3LmOhbhQ9TPk1_bnLnpwizawW6RQvhQRLSjRewAaQ@mail.gmail.com>
- <CALT56yO9f8wzaArnmfQSDzCM3S+2oT+62anH5kbFY3WdEt_HZg@mail.gmail.com>
+From: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 0/4] Touchscreen performance related fixes
+Date: Thu, 6 Nov 2014 13:12:09 +0530
+Message-ID: <545B2651.4090905@ti.com>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com> <20141103180920.GA20779@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YttKMwf6abDJOSyE"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:44395 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768AbaKFGEB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 01:04:01 -0500
-Content-Disposition: inline
-In-Reply-To: <CALT56yO9f8wzaArnmfQSDzCM3S+2oT+62anH5kbFY3WdEt_HZg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141103180920.GA20779-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Richard Cochran <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 
 
---YttKMwf6abDJOSyE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Thu, Nov 06, 2014 at 01:33:24AM +0400, Dmitry Eremin-Solenikov wrote:
-> 2014-11-03 16:43 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+On Monday 03 November 2014 11:39 PM, Richard Cochran wrote:
+> On Mon, Oct 27, 2014 at 04:38:27PM +0530, Vignesh R wrote:
+>> This series of patches fix TSC defects related to lag in touchscreen
+>> performance and cursor jump at touch release. The lag was result of
+>> udelay in TSC interrupt handler. Cursor jump due to false pen-up event.
+>> The patches implement Advisory 1.0.31 in silicon errata of am335x-evm
+>> to avoid false pen-up events and remove udelay.
+> 
+> That advisory has two workarounds. You have chosen the second one?
 
-> > Yes that's the point: if you use regmap mmio you get the RMW-locking
-> > for free, with the regmap implementation.
+Work around one. Hence 5 wire design is not broken.
 
-> Just to be more concrete. Currently locomo_gpio_ack_irq() function uses
-> one lock and one unlock for doing 3 consecutive RMW I I convert locomo
-> to regmap, will that be 3 lock/unlock calls or still one? (Or maybe I'm
-> trying to be over-protective here and adding more lock/unlock cycles
-> won't matter that much?)
+> 
+> The text of the second workaround says it only works on 4 wire setups,
+> so I wonder how 5 wire designs will be affected.
+> 
+>> The advisory says to use
+>> steps 1 to 4 for ADC and 5 to 16 for TSC (assuming 4 wire TSC and 4 channel
+>> ADC).
+> 
+> No, it doesn't say that. (sprz360f.pdf)
 
-You'll get three lock/unlocks, we could add an interface for bulk
-updates under one lock if it's important though.
+The pen up event detection happens immediately after charge step. Hence,
+interchanging ADC and TSC steps makes sure that sampling of touch
+co-ordinates and pen events are done one after the other. This
+workaround was suggested by internal hardware folks. Earlier ADC steps
+intervened between sampling of co-ordinates and pen event detection
+which is not desirable.
 
-> Next question: if I have to export regmap to several subdrivers, is it better
-> to have one big regmap or to have one-map-per-driver approach?
+> 
+>> Further the X co-ordinate must be the last one to be sampled just
+>> before charge step. The first two patches implement the required changes. 
+> 
+> FWIW, I implemented the first workaround and removed the udelay not
+> too long ago. Like Sebastian, I saw the TSC unit hang after about
+> 50000 interrupts when running with the workaround.
+> 
+> Did you test you patch for very long?
 
-One regmap for the physical register map which is shared between all the
-users.
+Yes, I tested for about 200000 interrupts and I didn't see any hang.
+This patch series does not just implement workaround but also does some
+minor changes, such as interchanging ADC and TSC steps etc, which makes
+TSC driver more robust. Let me know if you encounter any issues with my
+patch series.
 
---YttKMwf6abDJOSyE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Regards
+Vignesh
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBAgAGBQJUWw82AAoJECTWi3JdVIfQzMAH/27/lKZbrTrd1rIoHTVxu3Pz
-qQzFDvoBmssvSLHk0fMkvcx7cJ9IahKBs9EtmyM5dR3lhDIfZZi5OYTw+dmyiyVu
-07BxmlnkvP7mv5HuI1VrUyfz0SeBxfAIQDsLgiwwikXZD+3eUZgjlZVuWHt3WlAM
-ITH5dFFv3enp692X0hMRz9XWiFwqlW3w5SXhpqlP5h3PgWPEjIei1QNqe3H9ELBr
-5Or31N42bBWSzA1FA5HzBoEbOx8D11E8RUtnhWgixmzFcKoYQmXHDPe+DJ11XCPe
-9hhOpeDthhrSKUFi4M6kQxJ218uHjoWNjYsgRAIYgL2bG8dFLKSjSsAUgSXZY94=
-=saoU
------END PGP SIGNATURE-----
-
---YttKMwf6abDJOSyE--
+> 
+> Thanks,
+> Richard
+> 

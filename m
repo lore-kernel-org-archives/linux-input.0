@@ -1,50 +1,89 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: Aorus X3+ touchpad not working
-Date: Thu, 06 Nov 2014 14:47:57 +0100
-Message-ID: <545B7C0D.8020401@redhat.com>
-References: <CAJdy7pJpbyYHuOg3AWnDJap=T9z0bUCZkM+DRuuTLUFj129H_w@mail.gmail.com> <CAN+gG=F7d+37kKF=s-_jLVd+=oqCjaNNQW084eKnYBREEZF14w@mail.gmail.com>
+From: Richard Cochran <richardcochran@gmail.com>
+Subject: Re: [PATCH 1/4] input: touchscreen: ti_am335x_tsc Interchange
+ touchscreen and ADC steps
+Date: Thu, 6 Nov 2014 15:19:17 +0100
+Message-ID: <20141106141916.GA17151@netboy>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
+ <1414408111-2631-2-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51405 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751229AbaKFNsD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Nov 2014 08:48:03 -0500
-In-Reply-To: <CAN+gG=F7d+37kKF=s-_jLVd+=oqCjaNNQW084eKnYBREEZF14w@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1414408111-2631-2-git-send-email-vigneshr@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Vignesh R <vigneshr@ti.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Tony Lindgren <tony@atomide.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Lee Jones <lee.jones@linaro.org>, Lars-Peter Clausen <lars@metafoo.de>, Russell King <linux@arm.linux.org.uk>, Samuel Ortiz <sameo@linux.intel.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Brad Griffis <bgriffis@ti.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jan Kardell <jan.kardell@telliq.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Benoit Cousson <bcousson@baylibre.com>, Kumar Gala <galak@>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Maximilien Levesque <maximilien.levesque@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-Hi,
+On Mon, Oct 27, 2014 at 04:38:28PM +0530, Vignesh R wrote:
 
-On 11/05/2014 04:47 PM, Benjamin Tissoires wrote:
-> Hi Maximilien,
+...
+
+> @@ -209,6 +214,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+>  	unsigned int read, diff;
+>  	unsigned int i, channel;
+>  	unsigned int creads = ts_dev->coordinate_readouts;
+> +	unsigned int first_step = TOTAL_STEPS - (creads * 2 + 2);
+>  
+>  	*z1 = *z2 = 0;
+>  	if (fifocount % (creads * 2 + 2))
+> @@ -226,7 +232,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+>  
+>  		channel = (read & 0xf0000) >> 16;
+>  		read &= 0xfff;
+> -		if (channel < creads) {
+> +		if (channel > first_step + creads + 2) {
+>  			diff = abs(read - prev_val_x);
+>  			if (diff < prev_diff_x) {
+>  				prev_diff_x = diff;
+> @@ -234,19 +240,19 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+>  			}
+>  			prev_val_x = read;
+>  
+> -		} else if (channel < creads * 2) {
+> +		} else if (channel == first_step + creads + 1) {
+> +			*z1 = read;
+> +
+> +		} else if (channel == first_step + creads + 2) {
+> +			*z2 = read;
+> +
+> +		} else if (channel > first_step) {
+>  			diff = abs(read - prev_val_y);
+>  			if (diff < prev_diff_y) {
+>  				prev_diff_y = diff;
+>  				*y = read;
+
+While you are at it, please get rid of the this "delta filter"
+nonsense.
+
+Thanks,
+Richard
+
+>  			}
+>  			prev_val_y = read;
+> -
+> -		} else if (channel < creads * 2 + 1) {
+> -			*z1 = read;
+> -
+> -		} else if (channel < creads * 2 + 2) {
+> -			*z2 = read;
+>  		}
+>  	}
+>  }
+> -- 
+> 1.9.1
 > 
-> [Adding Hans in CC, I am pretty sure he might be helpful]
-
-I can certainly try (to be helpful) looking at the dmesg, and the ubuntu
-bug I see:
-
-1) ps2 aux port getting properly detected, so this is not a case i8042.noloop
-may fix
-
-2) not working with older kernels either so likely not a problem with the
-recent nomux dance
-
-3) [    0.834549] pnp 00:06: Plug and Play ACPI device, IDs ETD0a00 ETD0000 PNP0f13 (active)
-
-Looks like you've a ps/2 attached elantech touchpad.
-
-But I don't see any ps/2 mouse / touchpad probing messages in your dmesg
-despite the kernel seeing the aux port:
-
-[    1.865847] serio: i8042 AUX port at 0x60,0x64 irq 12
-
-Which is weird, can you try booting with i8042.debug=1 on the kernel commandline,
-and then collect a new dmesg ?
-
-Thanks & Regards,
-
-Hans
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel

@@ -1,67 +1,66 @@
 From: NeilBrown <neilb@suse.de>
-Subject: [PATCH] Input: gpio_keys: Make sure wake-up buttons work.
-Date: Sat, 8 Nov 2014 10:37:07 +1100
-Message-ID: <20141108103707.45bcc7e3@notabene.brown>
+Subject: [PATCH] Input: twl4030-pwrbutton: ensure a wakeup event is
+ recorded.
+Date: Sat, 8 Nov 2014 10:40:15 +1100
+Message-ID: <20141108104015.635a7388@notabene.brown>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
- boundary="Sig_/FGlCOKzFrFN6+74b4H00Z3S"; protocol="application/pgp-signature"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59443 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752773AbaKGXhQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Nov 2014 18:37:16 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+ boundary="Sig_/+tz=3THW/tmZZrmiOxZNXSe"; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, GTA04 owners <gta04-owner@goldelico.com>
+List-Id: linux-input@vger.kernel.org
 
---Sig_/FGlCOKzFrFN6+74b4H00Z3S
+--Sig_/+tz=3THW/tmZZrmiOxZNXSe
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
 
 
-If a key is to be used for wake-up, we must not disable
-the interrupt during suspend.
+This button is treated as a wakeup source, so we need to initialise it
+correctly.
+
+Without the device_init_wakeup() call, dev->power.wakeup will
+be NULL, and pm_wakeup_event() will do nothing.
 
 Signed-off-by: NeilBrown <neilb@suse.de>
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gp=
-io_keys.c
-index 8c98e97f8e41..0b5e54ae343e 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -526,6 +526,8 @@ static int gpio_keys_setup_key(struct platform_device *=
-pdev,
- 	 */
- 	if (!button->can_disable)
- 		irqflags |=3D IRQF_SHARED;
-+	if (button->wakeup)
-+		irqflags |=3D IRQF_NO_SUSPEND;
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/tw=
+l4030-pwrbutton.c
+index fb3b63b2f85c..8400a1a34d87 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -85,6 +85,7 @@ static int twl4030_pwrbutton_probe(struct platform_device=
+ *pdev)
+ 	}
 =20
- 	error =3D devm_request_any_context_irq(&pdev->dev, bdata->irq,
- 					     isr, irqflags, desc, bdata);
+ 	platform_set_drvdata(pdev, pwr);
++	device_init_wakeup(&pdev->dev, true);
+=20
+ 	return 0;
+ }
 
---Sig_/FGlCOKzFrFN6+74b4H00Z3S
+--Sig_/+tz=3THW/tmZZrmiOxZNXSe
 Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIVAwUBVF1XpDnsnt1WYoG5AQKQ0w/+J+ODAuwM5fY6vUE3rywVFgZsvDAnL3aq
-bcZWTY/h4n8D9QOl8uGRI5Wu1VjSayiyKti5UG9briX/CxkuGi3Pmphf8rb824+Y
-sWtaXiRm0WRUR+7d/CFwk7bc98CPAibHyzOS2bU9fT3AyqdV4btqfUbp30ZzYaYZ
-fNEH+QORGleK79nfJTc9LORlpNEOYw862Sr2fBJ1a2nlgyroIvKbJoPYtB2Fi7X3
-bQg2IJ+yeTIcusv2GRulZ9SfYPOQHTQOj0KOl28ScvcpXxGJSZjmK75dpbYim3g6
-S7hNn5u20vmGXCSIVrxhhqWUXrD3KArX5ETTKIWG98aunkjWjqjfmiJnY5WmljS/
-WRAHnqPL8fPXwsz+IwiD4jQb4o53DnQLCq0x9pQdAOzNP2eA9BNCJ9xZ0e2PrYpX
-GJeVxV1q8jTt/jPmEl2tSdJW/uIS14O8Y+JoZsf0Xoc+jJkRMvsmUV3lRmCtPWDn
-Z99FI6whPRENOUvdow3JoVNIxFfB7vKsGD3iv9JeimgUpOe+w52yf470Lq+sGXS+
-tJrZrnqLOstZmroCkPwJBnonWHFTk7BSel2SNMkO89XVS6c1gT593Gpfyjk7xdvX
-XLvu7D7tHQ8/ftrM4cf/5XCN9bffGEtMgK6ObgypGRq+DHlzlOpKskppccDQhWKA
-jYLV9SMxzL8=
-=bVxd
+iQIVAwUBVF1YXznsnt1WYoG5AQKtnw/+PR6ghZbzFGZ57RvvlDXmg9R9tN3IIP+g
++ofG/LmXONhdI4r7PejG53+rpRm8lSays2UGgloGo7OR/cdJne4Rxoylf/WbqunR
+vUHSwaucSWfHCMpQm7K8qpquSAg2xuzUNcFJyEYx6LCrQfOkJQgSRCs8IwwxOF8Z
+Dva9fAF4h0TGJLWvX5K3eySBu7tJfMVim6+VtYahRk8mPn7eqv14Nid3CWzJwjVW
+ZnuQiX/BkFKYEZQGFjaRra9Fwdxqmrfdq4UoQA5c6/CEc+1NdtH42MEbnXpvC0Ab
+Tu6OTBvNu1gbr9SbTOzDSzUfmFiuOZVkyv25yFZP9wjXkWd7aPkRfNl8OddArs4I
+DD8Fz1uIWbS5fq02soREiidm3L9FLcAJgC8hxeQ/CeW8tCTba2aU/oJRXzkTqGK7
+NLlPZRxzK8aT8LoEggr3BiAE+COLqk+S6LHF31xR8HOJvic3esOB2+fwu3xwctka
+BeGF0AEUIu77U9M2C0vGJ6XgZaQDSc1zdGiJRMS8/YCijuwIr0dBPVfvM/KEKmdx
+nChTRqN73f1N5V+TLaZwz7AYeDQ09Cwlf+7GcrsJcwJaRTJ9vOQIN7l4vQBSyrpt
+hUDQ+IBfQJT41m6hqPL2nx4s8IPxsEvNVlhYB2iEkbiSbX0aQqscFmi5a354OiMs
+/8ErbJkfR8A=
+=URX5
 -----END PGP SIGNATURE-----
 
---Sig_/FGlCOKzFrFN6+74b4H00Z3S--
+--Sig_/+tz=3THW/tmZZrmiOxZNXSe--

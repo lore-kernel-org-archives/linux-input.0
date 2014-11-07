@@ -1,66 +1,51 @@
-From: NeilBrown <neilb@suse.de>
-Subject: [PATCH] Input: twl4030-pwrbutton: ensure a wakeup event is
- recorded.
-Date: Sat, 8 Nov 2014 10:40:15 +1100
-Message-ID: <20141108104015.635a7388@notabene.brown>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: gpio_keys: Make sure wake-up buttons work.
+Date: Fri, 7 Nov 2014 15:45:07 -0800
+Message-ID: <20141107234507.GB4439@dtor-ws>
+References: <20141108103707.45bcc7e3@notabene.brown>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- boundary="Sig_/+tz=3THW/tmZZrmiOxZNXSe"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, GTA04 owners <gta04-owner@goldelico.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f175.google.com ([209.85.223.175]:57019 "EHLO
+	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751810AbaKGXpO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Nov 2014 18:45:14 -0500
+Content-Disposition: inline
+In-Reply-To: <20141108103707.45bcc7e3@notabene.brown>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: NeilBrown <neilb@suse.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, GTA04 owners <gta04-owner@goldelico.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
 
---Sig_/+tz=3THW/tmZZrmiOxZNXSe
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi Neil,
 
+On Sat, Nov 08, 2014 at 10:37:07AM +1100, NeilBrown wrote:
+> 
+> 
+> If a key is to be used for wake-up, we must not disable
+> the interrupt during suspend.
+> 
+> Signed-off-by: NeilBrown <neilb@suse.de>
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 8c98e97f8e41..0b5e54ae343e 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -526,6 +526,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  	 */
+>  	if (!button->can_disable)
+>  		irqflags |= IRQF_SHARED;
+> +	if (button->wakeup)
+> +		irqflags |= IRQF_NO_SUSPEND;
 
+No, enable_irq_wake() should be enough. I believe Rafael has fixed that
+in the core, right?
 
-This button is treated as a wakeup source, so we need to initialise it
-correctly.
+>  
+>  	error = devm_request_any_context_irq(&pdev->dev, bdata->irq,
+>  					     isr, irqflags, desc, bdata);
 
-Without the device_init_wakeup() call, dev->power.wakeup will
-be NULL, and pm_wakeup_event() will do nothing.
+Thanks.
 
-Signed-off-by: NeilBrown <neilb@suse.de>
-
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/tw=
-l4030-pwrbutton.c
-index fb3b63b2f85c..8400a1a34d87 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -85,6 +85,7 @@ static int twl4030_pwrbutton_probe(struct platform_device=
- *pdev)
- 	}
-=20
- 	platform_set_drvdata(pdev, pwr);
-+	device_init_wakeup(&pdev->dev, true);
-=20
- 	return 0;
- }
-
---Sig_/+tz=3THW/tmZZrmiOxZNXSe
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIVAwUBVF1YXznsnt1WYoG5AQKtnw/+PR6ghZbzFGZ57RvvlDXmg9R9tN3IIP+g
-+ofG/LmXONhdI4r7PejG53+rpRm8lSays2UGgloGo7OR/cdJne4Rxoylf/WbqunR
-vUHSwaucSWfHCMpQm7K8qpquSAg2xuzUNcFJyEYx6LCrQfOkJQgSRCs8IwwxOF8Z
-Dva9fAF4h0TGJLWvX5K3eySBu7tJfMVim6+VtYahRk8mPn7eqv14Nid3CWzJwjVW
-ZnuQiX/BkFKYEZQGFjaRra9Fwdxqmrfdq4UoQA5c6/CEc+1NdtH42MEbnXpvC0Ab
-Tu6OTBvNu1gbr9SbTOzDSzUfmFiuOZVkyv25yFZP9wjXkWd7aPkRfNl8OddArs4I
-DD8Fz1uIWbS5fq02soREiidm3L9FLcAJgC8hxeQ/CeW8tCTba2aU/oJRXzkTqGK7
-NLlPZRxzK8aT8LoEggr3BiAE+COLqk+S6LHF31xR8HOJvic3esOB2+fwu3xwctka
-BeGF0AEUIu77U9M2C0vGJ6XgZaQDSc1zdGiJRMS8/YCijuwIr0dBPVfvM/KEKmdx
-nChTRqN73f1N5V+TLaZwz7AYeDQ09Cwlf+7GcrsJcwJaRTJ9vOQIN7l4vQBSyrpt
-hUDQ+IBfQJT41m6hqPL2nx4s8IPxsEvNVlhYB2iEkbiSbX0aQqscFmi5a354OiMs
-/8ErbJkfR8A=
-=URX5
------END PGP SIGNATURE-----
-
---Sig_/+tz=3THW/tmZZrmiOxZNXSe--
+-- 
+Dmitry

@@ -1,52 +1,67 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 1/1] Input: xpad - update docs to reflect current state
-Date: Fri, 7 Nov 2014 13:48:54 -0500
-Message-ID: <20141107134854.56305dbb@lwn.net>
-References: <1415004836-22871-1-git-send-email-danieru.dressler@gmail.com>
+From: NeilBrown <neilb@suse.de>
+Subject: [PATCH] Input: gpio_keys: Make sure wake-up buttons work.
+Date: Sat, 8 Nov 2014 10:37:07 +1100
+Message-ID: <20141108103707.45bcc7e3@notabene.brown>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1415004836-22871-1-git-send-email-danieru.dressler@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Daniel Dressler <danieru.dressler@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tommi Rantala <tt.rantala@gmail.com>, Ted Mielczarek <ted@mielczarek.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Frank Razenberg <frank@zzattack.org>, Benjamin Valentin <benpicco@zedat.fu-berlin.de>, Petr Sebor <petr@scssoft.com>, Thomaz de Oliveira dos Reis <thor27@gmail.com>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ boundary="Sig_/FGlCOKzFrFN6+74b4H00Z3S"; protocol="application/pgp-signature"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:59443 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752773AbaKGXhQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Nov 2014 18:37:16 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, GTA04 owners <gta04-owner@goldelico.com>
 
-On Mon,  3 Nov 2014 17:53:06 +0900
-Daniel Dressler <danieru.dressler@gmail.com> wrote:
+--Sig_/FGlCOKzFrFN6+74b4H00Z3S
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-> The last time this documentation was accurate was
-> just over 8 years ago. In this time we've added
-> support for two new generations of Xbox console
-> controllers and dozens of third-party controllers.
-> 
-> This patch unifies terminology and makes it explicit
-> which model of controller a sentence refers to.
 
-So this seems like a useful update, and I was looking at pulling it into
-the docs tree.  But this hunk:
 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 2ed7905..7e2e047 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -40,8 +40,8 @@
->   *
->   * TODO:
->   *  - fine tune axes (especially trigger axes)
-> - *  - fix "analog" buttons (reported as digital now)
-> - *  - get rumble working
-> + *  - add original xbox rumble pack support
-> + *  - add xbox one rumble support
->   *  - need USB IDs for other dance pads
->   *
->   * History:
+If a key is to be used for wake-up, we must not disable
+the interrupt during suspend.
 
-Seems like a different change that shouldn't be mixed up with the doc
-update.  Send me a version without that change and, in the absence
-of complaints, I'll apply it.
+Signed-off-by: NeilBrown <neilb@suse.de>
 
-Thanks,
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gp=
+io_keys.c
+index 8c98e97f8e41..0b5e54ae343e 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -526,6 +526,8 @@ static int gpio_keys_setup_key(struct platform_device *=
+pdev,
+ 	 */
+ 	if (!button->can_disable)
+ 		irqflags |=3D IRQF_SHARED;
++	if (button->wakeup)
++		irqflags |=3D IRQF_NO_SUSPEND;
+=20
+ 	error =3D devm_request_any_context_irq(&pdev->dev, bdata->irq,
+ 					     isr, irqflags, desc, bdata);
 
-jon
+--Sig_/FGlCOKzFrFN6+74b4H00Z3S
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIVAwUBVF1XpDnsnt1WYoG5AQKQ0w/+J+ODAuwM5fY6vUE3rywVFgZsvDAnL3aq
+bcZWTY/h4n8D9QOl8uGRI5Wu1VjSayiyKti5UG9briX/CxkuGi3Pmphf8rb824+Y
+sWtaXiRm0WRUR+7d/CFwk7bc98CPAibHyzOS2bU9fT3AyqdV4btqfUbp30ZzYaYZ
+fNEH+QORGleK79nfJTc9LORlpNEOYw862Sr2fBJ1a2nlgyroIvKbJoPYtB2Fi7X3
+bQg2IJ+yeTIcusv2GRulZ9SfYPOQHTQOj0KOl28ScvcpXxGJSZjmK75dpbYim3g6
+S7hNn5u20vmGXCSIVrxhhqWUXrD3KArX5ETTKIWG98aunkjWjqjfmiJnY5WmljS/
+WRAHnqPL8fPXwsz+IwiD4jQb4o53DnQLCq0x9pQdAOzNP2eA9BNCJ9xZ0e2PrYpX
+GJeVxV1q8jTt/jPmEl2tSdJW/uIS14O8Y+JoZsf0Xoc+jJkRMvsmUV3lRmCtPWDn
+Z99FI6whPRENOUvdow3JoVNIxFfB7vKsGD3iv9JeimgUpOe+w52yf470Lq+sGXS+
+tJrZrnqLOstZmroCkPwJBnonWHFTk7BSel2SNMkO89XVS6c1gT593Gpfyjk7xdvX
+XLvu7D7tHQ8/ftrM4cf/5XCN9bffGEtMgK6ObgypGRq+DHlzlOpKskppccDQhWKA
+jYLV9SMxzL8=
+=bVxd
+-----END PGP SIGNATURE-----
+
+--Sig_/FGlCOKzFrFN6+74b4H00Z3S--

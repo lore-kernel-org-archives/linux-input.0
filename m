@@ -1,58 +1,46 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH 5/5] input: touchscreen: ti_am335x_tsc: Use charge delay DT parameter
-Date: Fri, 7 Nov 2014 11:19:10 +0530
-Message-ID: <1415339350-17679-6-git-send-email-vigneshr@ti.com>
-References: <1415339350-17679-1-git-send-email-vigneshr@ti.com>
+From: Richard Cochran <richardcochran@gmail.com>
+Subject: Re: [PATCH 1/4] input: touchscreen: ti_am335x_tsc Interchange
+ touchscreen and ADC steps
+Date: Fri, 7 Nov 2014 09:00:34 +0100
+Message-ID: <20141107080033.GA6455@netboy>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>
+ <1414408111-2631-2-git-send-email-vigneshr@ti.com>
+ <20141106141916.GA17151@netboy>
+ <545C59CD.3070707@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415339350-17679-1-git-send-email-vigneshr@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Vignesh R <vigneshr@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:47833 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751164AbaKGIAp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Nov 2014 03:00:45 -0500
+Content-Disposition: inline
+In-Reply-To: <545C59CD.3070707@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Jan Kardell <jan.kardell@telliq.com>, linux-iio@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-omap@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm
 
-This patch reads charge delay from tsc DT node and writes to
-REG_CHARGEDELAY register. If the charge delay is not specified in DT
-then default value of 0xB000(CHARGEDLY_OPENDLY) is used.
+On Fri, Nov 07, 2014 at 11:04:05AM +0530, Vignesh R wrote:
+> 
+> Currently, there is too much noise in the TSC hardware that is being
+> removed by delta filtering.
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
- drivers/input/touchscreen/ti_am335x_tsc.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+The so called "filter" was only programmed because the fifo entries
+were being mixed up. Sebastian fixed that.
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 483fd97c0e0c..20ce76b1b6e7 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -52,6 +52,7 @@ struct titsc {
- 	u32			bit_xp, bit_xn, bit_yp, bit_yn;
- 	u32			inp_xp, inp_xn, inp_yp, inp_yn;
- 	u32			step_mask;
-+	u32			charge_delay;
- };
- 
- static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
-@@ -177,7 +178,7 @@ static void titsc_step_config(struct titsc *ts_dev)
- 
- 	config = titsc_readl(ts_dev, REG_IDLECONFIG);
- 	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
--	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
-+	titsc_writel(ts_dev, REG_CHARGEDELAY, ts_dev->charge_delay);
- 
- 	/* coordinate_readouts + 1 ... coordinate_readouts + 2 is for Z */
- 	config = STEPCONFIG_MODE_HWSYNC |
-@@ -361,6 +362,11 @@ static int titsc_parse_dt(struct platform_device *pdev,
- 	if (err < 0)
- 		return err;
- 
-+	err = of_property_read_u32(node, "ti,charge-delay",
-+				   &ts_dev->charge_delay);
-+	if (err < 0)
-+		ts_dev->charge_delay = CHARGEDLY_OPENDLY;
-+
- 	return of_property_read_u32_array(node, "ti,wire-config",
- 			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
- }
--- 
-1.9.1
+> I tested TSC unit by removing filtering
+> logic, the performance was not at all satisfactory. The cursor jumps
+> wayward and smooth circles cannot be drawn. Looks like delta filtering
+> cannot be removed as of now. May be I will try and address it in future.
+
+The "filter" code is nonsensical. It picks the two values in seqeunce
+that are closest to one and another. How is that supposed to work?
+
+Did you look at the "noise"? What kind of properties did you see?
+
+A median filter makes more sense. Or sort, remove outliers, and
+average. But choosing the two closest in series is silly.
+
+Thanks,
+Richard

@@ -1,59 +1,92 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom - make sure touch_input is valid before using it
-Date: Thu,  6 Nov 2014 17:30:51 -0800
-Message-ID: <1415323851-16453-1-git-send-email-pingc@wacom.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:49234 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750926AbaKGBbM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2014 20:31:12 -0500
-Received: by mail-pa0-f52.google.com with SMTP id fa1so2438056pad.39
-        for <linux-input@vger.kernel.org>; Thu, 06 Nov 2014 17:31:12 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH 1/4] input: touchscreen: ti_am335x_tsc Interchange touchscreen
+ and ADC steps
+Date: Fri, 7 Nov 2014 11:04:05 +0530
+Message-ID: <545C59CD.3070707@ti.com>
+References: <1414408111-2631-1-git-send-email-vigneshr@ti.com> <1414408111-2631-2-git-send-email-vigneshr@ti.com> <20141106141916.GA17151@netboy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141106141916.GA17151@netboy>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Richard Cochran <richardcochran@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Jan Kardell <jan.kardell@telliq.com>, linux-iio@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-omap@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-touch_input is stored in wacom_shared for pen data to report touch
-switch status. It is possible, although we didn't see it happen on
-Linux yet, that pen data is procesed before touch interface is
-fully probed.
 
-As a by-product of this patch, it fixes the FreeBSD issue reported
-by Denis Akiyakov http://www.spinics.net/lists/linux-input/msg33971.html
 
-Reviewed-by: Hans Petter Selasky <hps@selasky.org>
-Tested-by: Denis Akiyakov <d.akiyakov@gmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/hid/wacom_wac.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+On Thursday 06 November 2014 07:49 PM, Richard Cochran wrote:
+> On Mon, Oct 27, 2014 at 04:38:28PM +0530, Vignesh R wrote:
+> 
+> ...
+> 
+>> @@ -209,6 +214,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+>>  	unsigned int read, diff;
+>>  	unsigned int i, channel;
+>>  	unsigned int creads = ts_dev->coordinate_readouts;
+>> +	unsigned int first_step = TOTAL_STEPS - (creads * 2 + 2);
+>>  
+>>  	*z1 = *z2 = 0;
+>>  	if (fifocount % (creads * 2 + 2))
+>> @@ -226,7 +232,7 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+>>  
+>>  		channel = (read & 0xf0000) >> 16;
+>>  		read &= 0xfff;
+>> -		if (channel < creads) {
+>> +		if (channel > first_step + creads + 2) {
+>>  			diff = abs(read - prev_val_x);
+>>  			if (diff < prev_diff_x) {
+>>  				prev_diff_x = diff;
+>> @@ -234,19 +240,19 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
+>>  			}
+>>  			prev_val_x = read;
+>>  
+>> -		} else if (channel < creads * 2) {
+>> +		} else if (channel == first_step + creads + 1) {
+>> +			*z1 = read;
+>> +
+>> +		} else if (channel == first_step + creads + 2) {
+>> +			*z2 = read;
+>> +
+>> +		} else if (channel > first_step) {
+>>  			diff = abs(read - prev_val_y);
+>>  			if (diff < prev_diff_y) {
+>>  				prev_diff_y = diff;
+>>  				*y = read;
+> 
+> While you are at it, please get rid of the this "delta filter"
+> nonsense.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 8ce7fab..1048295 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1681,7 +1681,9 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
- 	    return 0;
- 
- 	if (data[0] == WACOM_REPORT_USB) {
--		if (features->type == INTUOSHT && features->touch_max) {
-+		if (features->type == INTUOSHT &&
-+		    wacom->shared->touch_input &&
-+		    features->touch_max) {
- 			input_report_switch(wacom->shared->touch_input,
- 					    SW_MUTE_DEVICE, data[8] & 0x40);
- 			input_sync(wacom->shared->touch_input);
-@@ -1774,7 +1776,8 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 		int pid, battery, ps_connected;
- 
- 		if ((wacom->shared->type == INTUOSHT) &&
--				wacom->shared->touch_max) {
-+		    wacom->shared->touch_input &&
-+		    wacom->shared->touch_max) {
- 			input_report_switch(wacom->shared->touch_input,
- 					SW_MUTE_DEVICE, data[5] & 0x40);
- 			input_sync(wacom->shared->touch_input);
--- 
-1.9.1
+Currently, there is too much noise in the TSC hardware that is being
+removed by delta filtering. I tested TSC unit by removing filtering
+logic, the performance was not at all satisfactory. The cursor jumps
+wayward and smooth circles cannot be drawn. Looks like delta filtering
+cannot be removed as of now. May be I will try and address it in future.
 
+Regards
+Vignesh
+
+> 
+> Thanks,
+> Richard
+> 
+>>  			}
+>>  			prev_val_y = read;
+>> -
+>> -		} else if (channel < creads * 2 + 1) {
+>> -			*z1 = read;
+>> -
+>> -		} else if (channel < creads * 2 + 2) {
+>> -			*z2 = read;
+>>  		}
+>>  	}
+>>  }
+>> -- 
+>> 1.9.1
+>>
+>>
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel

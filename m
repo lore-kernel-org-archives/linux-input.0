@@ -1,105 +1,80 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] Input: gpio_keys: Make sure wake-up buttons work.
-Date: Sat, 08 Nov 2014 01:49:06 +0100
-Message-ID: <23209922.Rp3elUvURv@vostro.rjw.lan>
-References: <20141108103707.45bcc7e3@notabene.brown> <20141107234507.GB4439@dtor-ws> <20141108110058.6c5217e3@notabene.brown>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/5] Input: elantech - use elantech_report_trackpoint for
+ hardware v4 too
+Date: Sat, 8 Nov 2014 00:21:36 -0800
+Message-ID: <20141108082136.GA21475@dtor-ws>
+References: <1409407846-15449-1-git-send-email-ulrik.debie-os@e2big.org>
+ <1409407846-15449-2-git-send-email-ulrik.debie-os@e2big.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart4157272.3qoB0WeDaZ"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:56666 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752315AbaKHA2Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Nov 2014 19:28:24 -0500
-In-Reply-To: <20141108110058.6c5217e3@notabene.brown>
+Received: from mail-ig0-f179.google.com ([209.85.213.179]:33122 "EHLO
+	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753359AbaKHIVl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Nov 2014 03:21:41 -0500
+Received: by mail-ig0-f179.google.com with SMTP id r10so6675272igi.12
+        for <linux-input@vger.kernel.org>; Sat, 08 Nov 2014 00:21:41 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1409407846-15449-2-git-send-email-ulrik.debie-os@e2big.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: NeilBrown <neilb@suse.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, GTA04 owners <gta04-owner@goldelico.com>
+To: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, David Herrmann <dh.herrmann@gmail.com>
 
-
---nextPart4157272.3qoB0WeDaZ
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-
-On Saturday, November 08, 2014 11:00:58 AM NeilBrown wrote:
-> On Fri, 7 Nov 2014 15:45:07 -0800 Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> wrote:
+On Sat, Aug 30, 2014 at 04:10:42PM +0200, Ulrik De Bie wrote:
+> The Fujitsu H730 has hardware v4 with a trackpoint. This enables
+> the elantech_report_trackpoint for v4.
 > 
-> > Hi Neil,
-> > 
-> > On Sat, Nov 08, 2014 at 10:37:07AM +1100, NeilBrown wrote:
-> > > 
-> > > 
-> > > If a key is to be used for wake-up, we must not disable
-> > > the interrupt during suspend.
-> > > 
-> > > Signed-off-by: NeilBrown <neilb@suse.de>
-> > > 
-> > > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> > > index 8c98e97f8e41..0b5e54ae343e 100644
-> > > --- a/drivers/input/keyboard/gpio_keys.c
-> > > +++ b/drivers/input/keyboard/gpio_keys.c
-> > > @@ -526,6 +526,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
-> > >  	 */
-> > >  	if (!button->can_disable)
-> > >  		irqflags |= IRQF_SHARED;
-> > > +	if (button->wakeup)
-> > > +		irqflags |= IRQF_NO_SUSPEND;
-> > 
-> > No, enable_irq_wake() should be enough. I believe Rafael has fixed that
-> > in the core, right?
-> > 
+> Reported-by: Stefan Valouch <stefan@valouch.com>
+> Tested-by: Stefan Valouch <stefan@valouch.com>
+> Tested-by: Alfredo Gemma <alfredo.gemma@gmail.com>
+> Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/mouse/elantech.c | 16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
 > 
-> Interesting...  you seem to be right, but I was having wakeup problems until
-> I added that patch.
-
-This was a fairly recent change made in 3.18-rc1.
-
-> I didn't test exhaustively, but the first time my device entered suspend, the
-> gpio-key didn't wake it up.  Subsequent suspends did...
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index da51738..f0a55b4d 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -792,6 +792,9 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
+>  	unsigned char packet_type = packet[3] & 0x03;
+>  	bool sanity_check;
+>  
+> +	if ((packet[3]&0x0f) == 0x06)
+> +		return PACKET_TRACKPOINT;
+> +
+>  	/*
+>  	 * Sanity check based on the constant bits of a packet.
+>  	 * The constant bits change depending on the value of
+> @@ -877,10 +880,19 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+>  
+>  	case 4:
+>  		packet_type = elantech_packet_check_v4(psmouse);
+> -		if (packet_type == PACKET_UNKNOWN)
+> +		switch (packet_type) {
+> +		case PACKET_UNKNOWN:
+>  			return PSMOUSE_BAD_DATA;
+>  
+> -		elantech_report_absolute_v4(psmouse, packet_type);
+> +		case PACKET_TRACKPOINT:
+> +			elantech_report_trackpoint(psmouse, packet_type);
+> +			break;
+> +
+> +		default:
+> +			elantech_report_absolute_v4(psmouse, packet_type);
+> +			break;
+> +		}
+> +
+>  		break;
+>  	}
+>  
+> -- 
+> 2.1.0
 > 
-> After I applied this patch, it would reliably wake up even on the first
-> suspend.
-> 
-> So there seems to be something wrong, but maybe it is more subtle.
-> 
-> Is there a good reason why enable_irq_wake() is only called just as the
-> device is being suspended, and why disable_irq_wake() is called on resume?
-> To me it would make more sense to just enable it once (if required) and leave
-> it enabled....
 
-On some platforms it actually changes the configuration of interrupt
-controllers in to a "suspend mode" which is not appropriate for run time
-AFAICS.
-
-> I'll see what I can find.
-
-Yes, please.
-
-Rafael
-
---nextPart4157272.3qoB0WeDaZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAABCAAGBQJUXWiIAAoJEILEb/54YlRxv5oP/2GEP9UtPaA/4esq9m0SiVo6
-WlEJCR9ZQDZW4nY5YJjqm0G2mXIKXaSlpdZ8Cu7FsUTBQrNMaeVD1KtD72EiU00u
-C5yo18Bj9Lpb8+ajtKy4MaFGXwRsE+Qe1zr2JEAEPelMunHdqv5WDl380Qs0VnEh
-JgxIuvCwiGvFrxUUZNWOy3+4SBw0CgrPrURIrYst+GTgrn0M1t6FaBR0kksBvHlw
-8xPy5kputzLgkImvN1IxlCFGipTlkCpUxUzz5IpkGbt5znETgf0z11+E/NkjJ2di
-CIcHSWciB0LGS9ogTqNJV29m3cp682K9LAQQA18PgGpezbYlgwR336RuUDVm3B7s
-ACyn6Mg/v190zCobSosX2vUM5cGczpsfGogQGdxA/RDqVIK9Wbf9kvM9rymNy9Ts
-LeOSaNe3V+cC3zNday30/XeQyYoyHwUBMVoomjm7Q+aRVbct+WLaaN5J+e3sCOsg
-H4VHWVs7swLi5RbrTHp+V/GSFYxFvzvTdZxUI/lCT6DwNYsO10TnOFPOa90tpqAY
-jiL8KlPD3O4ElpM0hPjFZZaVv0nNewVis2CsjMEsZdgBisCQwAp5hJbLC4be5+//
-IWcahIkgBYUPVC0mljqZWs+bn8uh0F8CZoygpuksT0xZ9fB1AhOVO7XYBcVrwC4H
-cFhEZoJIVXMk2x765o+P
-=wYwx
------END PGP SIGNATURE-----
-
---nextPart4157272.3qoB0WeDaZ--
-
+-- 
+Dmitry

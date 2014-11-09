@@ -1,56 +1,69 @@
 From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: [PATCH] drivers: input: mouse: Use "static inline" instead of "inline"
- in "lifebook.h"
-Date: Sun, 09 Nov 2014 18:46:26 +0800
-Message-ID: <545F4602.10101@gmail.com>
+Subject: Re: [PATCH] drivers: input: mouse: Use "static inline" instead of
+ "inline" in "lifebook.h"
+Date: Sun, 09 Nov 2014 18:49:44 +0800
+Message-ID: <545F46C8.2090502@gmail.com>
+References: <545F4602.10101@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:35605 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751431AbaKIKqa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 05:46:30 -0500
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:53475 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751468AbaKIKts (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 05:49:48 -0500
+In-Reply-To: <545F4602.10101@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "cmetcalf@tilera.com" <cmetcalf@tilera.com>
 
-For inline function in header file, better to be "static inline", or may
-cause building break under the latest upstream gcc (although, probably,
-it should be the gcc's issue).
 
-The related error (with allmodconfig under tile):
+After this patch, our tile can pass allmodconfig building. :-)
 
-    MODPOST 4002 modules
-  ERROR: "lifebook_detect" [drivers/input/mouse/psmouse.ko] undefined!
+Thanks.
 
-Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
----
- drivers/input/mouse/lifebook.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On 11/09/2014 06:46 PM, Chen Gang wrote:
+> For inline function in header file, better to be "static inline", or may
+> cause building break under the latest upstream gcc (although, probably,
+> it should be the gcc's issue).
+> 
+> The related error (with allmodconfig under tile):
+> 
+>     MODPOST 4002 modules
+>   ERROR: "lifebook_detect" [drivers/input/mouse/psmouse.ko] undefined!
+> 
+> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+> ---
+>  drivers/input/mouse/lifebook.h | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/lifebook.h b/drivers/input/mouse/lifebook.h
+> index 4c4326c..0baf02a 100644
+> --- a/drivers/input/mouse/lifebook.h
+> +++ b/drivers/input/mouse/lifebook.h
+> @@ -16,14 +16,14 @@ void lifebook_module_init(void);
+>  int lifebook_detect(struct psmouse *psmouse, bool set_properties);
+>  int lifebook_init(struct psmouse *psmouse);
+>  #else
+> -inline void lifebook_module_init(void)
+> +static inline void lifebook_module_init(void)
+>  {
+>  }
+> -inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
+> +static inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
+>  {
+>  	return -ENOSYS;
+>  }
+> -inline int lifebook_init(struct psmouse *psmouse)
+> +static inline int lifebook_init(struct psmouse *psmouse)
+>  {
+>  	return -ENOSYS;
+>  }
+> 
 
-diff --git a/drivers/input/mouse/lifebook.h b/drivers/input/mouse/lifebook.h
-index 4c4326c..0baf02a 100644
---- a/drivers/input/mouse/lifebook.h
-+++ b/drivers/input/mouse/lifebook.h
-@@ -16,14 +16,14 @@ void lifebook_module_init(void);
- int lifebook_detect(struct psmouse *psmouse, bool set_properties);
- int lifebook_init(struct psmouse *psmouse);
- #else
--inline void lifebook_module_init(void)
-+static inline void lifebook_module_init(void)
- {
- }
--inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
-+static inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
- {
- 	return -ENOSYS;
- }
--inline int lifebook_init(struct psmouse *psmouse)
-+static inline int lifebook_init(struct psmouse *psmouse)
- {
- 	return -ENOSYS;
- }
+
 -- 
-1.9.3
+Chen Gang
+
+Open share and attitude like air water and life which God blessed

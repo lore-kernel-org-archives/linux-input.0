@@ -1,67 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 4/4] input: alps: Fix trackstick detection
-Date: Sun, 9 Nov 2014 00:05:04 -0800
-Message-ID: <20141109080504.GB34700@dtor-ws>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
- <1414884310-19842-1-git-send-email-pali.rohar@gmail.com>
- <1414884310-19842-5-git-send-email-pali.rohar@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1414884310-19842-5-git-send-email-pali.rohar@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jamie Lentin <jm@lentin.co.uk>
+Subject: [PATCH 1/2] HID: lenovo: Move USB KEY_FILE to 0x00f9 to prevent scancode clash
+Date: Sun,  9 Nov 2014 07:54:29 +0000
+Message-ID: <1415519670-24449-2-git-send-email-jm@lentin.co.uk>
+References: <1415519670-24449-1-git-send-email-jm@lentin.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from marmot.wormnet.eu ([188.246.204.87]:57752 "EHLO
+	marmot.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751490AbaKIIg0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 03:36:26 -0500
+In-Reply-To: <1415519670-24449-1-git-send-email-jm@lentin.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
 
-Hi Pali,
+The bluetooth keyboard also generates 0x00fa when the middle button is
+pressed. Move the made-up report out of the way so we don't trigger
+KEY_FILE when middle button is pressed
 
-On Sun, Nov 02, 2014 at 12:25:10AM +0100, Pali Roh=E1r wrote:
->  int alps_detect(struct psmouse *psmouse, bool set_properties)
->  {
-> -	struct alps_data dummy;
-> +	unsigned char e6[4];
-> =20
-> -	if (alps_identify(psmouse, &dummy) < 0)
-> -		return -1;
-> +	/*
-> +	 * Try "E6 report".
-> +	 * ALPS should return 0,0,10 or 0,0,100 if no buttons are pressed.
-> +	 * The bits 0-2 of the first byte will be 1s if some buttons are
-> +	 * pressed.
-> +	 */
-> +	if (alps_rpt_cmd(psmouse, PSMOUSE_CMD_SETRES,
-> +			 PSMOUSE_CMD_SETSCALE11, e6))
-> +		return -EIO;
-> +
-> +	if ((e6[0] & 0xf8) !=3D 0 || e6[1] !=3D 0 || (e6[2] !=3D 10 && e6[2=
-] !=3D 100))
-> +		return -EINVAL;
-> =20
->  	if (set_properties) {
-> +		/*
-> +		 * NOTE: To detect model and trackstick presence we need to do
-> +		 *       full device reset. To speed up detection and prevent
-> +		 *       calling duplicate initialization sequence (both in
-> +		 *       alps_detect() and alps_init()) we set model/protocol
-> +		 *       version and correct name in alps_init() (which will
-> +		 *       do full device reset). For now set name to DualPoint.
-> +		 */
->  		psmouse->vendor =3D "ALPS";
-> -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
-> -				"DualPoint TouchPad" : "GlidePoint";
-> -		psmouse->model =3D dummy.proto_version << 8;
-> +		psmouse->name =3D "DualPoint TouchPad";
->  	}
-> +
->  	return 0;
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+---
+ drivers/hid/hid-lenovo.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-We can't do this; going by e6 only will give us false positives and
-alps_detect is supposed to be authoritative.
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index bf227f7..4716f1e 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -85,13 +85,13 @@ static int lenovo_input_mapping_cptkbd(struct hid_device *hdev,
+ 		case 0x00f8: /* Fn-F11: View open applications (3 boxes) */
+ 			map_key_clear(KEY_SCALE);
+ 			return 1;
+-		case 0x00fa: /* Fn-Esc: Fn-lock toggle */
+-			map_key_clear(KEY_FN_ESC);
+-			return 1;
+-		case 0x00fb: /* Fn-F12: Open My computer (6 boxes) USB-only */
++		case 0x00f9: /* Fn-F12: Open My computer (6 boxes) USB-only */
+ 			/* NB: This mapping is invented in raw_event below */
+ 			map_key_clear(KEY_FILE);
+ 			return 1;
++		case 0x00fa: /* Fn-Esc: Fn-lock toggle */
++			map_key_clear(KEY_FN_ESC);
++			return 1;
+ 		}
+ 	}
+ 
+@@ -207,8 +207,8 @@ static int lenovo_raw_event(struct hid_device *hdev,
+ 			&& data[0] == 0x15
+ 			&& data[1] == 0x94
+ 			&& data[2] == 0x01)) {
+-		data[1] = 0x0;
+-		data[2] = 0x4;
++		data[1] = 0x00;
++		data[2] = 0x01;
+ 	}
+ 
+ 	return 0;
+-- 
+2.1.0
 
-Thanks.
-
---=20
-Dmitry

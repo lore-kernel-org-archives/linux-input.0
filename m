@@ -1,37 +1,56 @@
-From: Jamie Lentin <jm@lentin.co.uk>
-Subject: [PATCH 2/2] HID: lenovo: Don't set EV_REP to avoid repeating mice buttons
-Date: Sun,  9 Nov 2014 07:54:30 +0000
-Message-ID: <1415519670-24449-3-git-send-email-jm@lentin.co.uk>
-References: <1415519670-24449-1-git-send-email-jm@lentin.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415519670-24449-1-git-send-email-jm@lentin.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ao2@ao2.it>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jamie Lentin <jm@lentin.co.uk>
+From: Chen Gang <gang.chen.5i5j@gmail.com>
+Subject: [PATCH] drivers: input: mouse: Use "static inline" instead of "inline"
+ in "lifebook.h"
+Date: Sun, 09 Nov 2014 18:46:26 +0800
+Message-ID: <545F4602.10101@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:35605 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751431AbaKIKqa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 05:46:30 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On the USB keyboard, the VENDOR hotkeys share the same device as the
-mouse. Setting EV_REP also affects mouse buttons, so leave it off.
+For inline function in header file, better to be "static inline", or may
+cause building break under the latest upstream gcc (although, probably,
+it should be the gcc's issue).
 
-The bluetooth keyboard still has autorepeating mouse buttons, as it
-only has one device and is set by the KEYBOARD pages.
+The related error (with allmodconfig under tile):
 
-Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+    MODPOST 4002 modules
+  ERROR: "lifebook_detect" [drivers/input/mouse/psmouse.ko] undefined!
+
+Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
 ---
- drivers/hid/hid-lenovo.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/mouse/lifebook.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 4716f1e..4c55f4d 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -62,7 +62,6 @@ static int lenovo_input_mapping_cptkbd(struct hid_device *hdev,
- 	/* HID_UP_LNVENDOR = USB, HID_UP_MSVENDOR = BT */
- 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR ||
- 	    (usage->hid & HID_USAGE_PAGE) == HID_UP_LNVENDOR) {
--		set_bit(EV_REP, hi->input->evbit);
- 		switch (usage->hid & HID_USAGE) {
- 		case 0x00f1: /* Fn-F4: Mic mute */
- 			map_key_clear(KEY_MICMUTE);
+diff --git a/drivers/input/mouse/lifebook.h b/drivers/input/mouse/lifebook.h
+index 4c4326c..0baf02a 100644
+--- a/drivers/input/mouse/lifebook.h
++++ b/drivers/input/mouse/lifebook.h
+@@ -16,14 +16,14 @@ void lifebook_module_init(void);
+ int lifebook_detect(struct psmouse *psmouse, bool set_properties);
+ int lifebook_init(struct psmouse *psmouse);
+ #else
+-inline void lifebook_module_init(void)
++static inline void lifebook_module_init(void)
+ {
+ }
+-inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
++static inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	return -ENOSYS;
+ }
+-inline int lifebook_init(struct psmouse *psmouse)
++static inline int lifebook_init(struct psmouse *psmouse)
+ {
+ 	return -ENOSYS;
+ }
 -- 
-2.1.0
+1.9.3

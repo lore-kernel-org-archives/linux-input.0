@@ -1,57 +1,100 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: tsc2005 touchscreen: implement disable attribute
-Date: Sun, 9 Nov 2014 12:01:42 -0800
-Message-ID: <20141109200142.GA37384@dtor-ws>
-References: <20141109115636.GA3106@amd>
- <20141109124025.GA21763@earth.universe>
- <201411091349.20116@pali>
+Subject: Re: [PATCH v3 3/4] input: alps: For protocol V3, do not process data
+ when last packet's bit7 is set
+Date: Sun, 9 Nov 2014 12:34:59 -0800
+Message-ID: <20141109203459.GB37384@dtor-ws>
+References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com>
+ <1414884310-19842-4-git-send-email-pali.rohar@gmail.com>
+ <20141109075039.GA34700@dtor-ws>
+ <201411091222.59595@pali>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:43476 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751095AbaKIUBs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 15:01:48 -0500
+Received: from mail-ig0-f180.google.com ([209.85.213.180]:49881 "EHLO
+	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751095AbaKIUfF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 15:35:05 -0500
 Content-Disposition: inline
-In-Reply-To: <201411091349.20116@pali>
+In-Reply-To: <201411091222.59595@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-omap@vger.kernel.org, tony@atomide.com, khilman@kernel.org, aaro.koskinen@iki.fi, freemangordon@abv.bg, B38611@freescale.com, jg1.han@samsung.com, linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Nov 09, 2014 at 01:49:19PM +0100, Pali Roh=E1r wrote:
-> On Sunday 09 November 2014 13:40:25 Sebastian Reichel wrote:
-> > Hi,
+On Sun, Nov 09, 2014 at 12:22:51PM +0100, Pali Roh=E1r wrote:
+> On Sunday 09 November 2014 08:50:39 Dmitry Torokhov wrote:
+> > Hi Pali,
 > >=20
-> > On Sun, Nov 09, 2014 at 12:56:37PM +0100, Pavel Machek wrote:
-> > > Implement disable attribute for tsc2005 touchscreen. It is
-> > > useful to avoid wakeups when phone is in the pocket.
+> > On Sun, Nov 02, 2014 at 12:25:09AM +0100, Pali Roh=E1r wrote:
+> > > Sometimes on Dell Latitude laptops psmouse/alps driver
+> > > receive invalid ALPS protocol V3 packets with bit7 set in
+> > > last byte. More often it can be reproduced on Dell Latitude
+> > > E6440 or E7440 with closed lid and pushing cover above
+> > > touchpad.
+> > >=20
+> > > If bit7 in last packet byte is set then it is not valid ALPS
+> > > packet. I was told that ALPS devices never send these
+> > > packets. It is not know yet who send those packets, it
+> > > could be Dell EC, bug in BIOS and also bug in touchpad
+> > > firmware...
+> > >=20
+> > > With this patch alps driver does not process those invalid
+> > > packets and drops it with PSMOUSE_FULL_PACKET so psmouse
+> > > driver does not enter to out of sync state.
+> > >=20
+> > > This patch fix problem when psmouse driver still resetting
+> > > ALPS device when laptop lid is closed because of receiving
+> > > invalid packets in out of sync state.
+> > >=20
+> > > Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
+> > > Tested-by: Pali Roh=E1r <pali.rohar@gmail.com>
+> > > Cc: stable@vger.kernel.org
+> > > ---
+> > >=20
+> > >  drivers/input/mouse/alps.c |   10 ++++++++++
+> > >  1 file changed, 10 insertions(+)
+> > >=20
+> > > diff --git a/drivers/input/mouse/alps.c
+> > > b/drivers/input/mouse/alps.c index 7c47e97..e802d28 100644
+> > > --- a/drivers/input/mouse/alps.c
+> > > +++ b/drivers/input/mouse/alps.c
+> > > @@ -1181,6 +1181,16 @@ static psmouse_ret_t
+> > > alps_process_byte(struct psmouse *psmouse)
+> > >=20
+> > >  		return PSMOUSE_BAD_DATA;
+> > >  =09
+> > >  	}
+> > >=20
+> > > +	if (priv->proto_version =3D=3D ALPS_PROTO_V3 &&
+> > > psmouse->pktcnt =3D=3D psmouse->pktsize) { +		// For protocol
+> > > V3, do not process data when last packet's bit7 is set
+> > > +		if (psmouse->packet[psmouse->pktcnt - 1] & 0x80) {
+> > > +			psmouse_dbg(psmouse, "v3 discard packet[%i] =3D=20
+> %x\n",
+> > > +				    psmouse->pktcnt - 1,
+> > > +				    psmouse->packet[psmouse->pktcnt - 1]);
+> > > +			return PSMOUSE_FULL_PACKET;
+> > > +		}
+> > > +	}
 > >=20
-> > I don't think this should be some driver specific sysfs node.
-> > Instead a generic method from the input subsystem should be
-> > used.
+> > I wanted to apply it, but I would like some more data. Could
+> > you please send me the dmesg with i8042.debug wit this patch
+> > in place?
 > >=20
-> > -- Sebastian
+> > Thanks!
 >=20
-> Yes. I would like to see generic method to turn off input device=20
-> (or just "mute" it if device does not support turn off). Similar=20
-> problem is also on laptops or other portable devices. E.g when I=20
-> close LID of my laptop I want to turn off internal input devices=20
-> (keyboard, touchpad, trackstick) without need to unload evdev=20
-> Xserver drivers (or killing Xserver). Another use case is to turn=20
-> off keyboard (also from kernel tty on Ctrl+Alt+Fx) which cannot=20
-> be unplugged (internal laptop keyboard).
->=20
-> CCed Dmitry, what do you think about it?
+> See attachment. It contains debug log from both i8042.debug=3D1 and=20
+> psmouse.ko with applied all 4 patches.
 
-Actually I'd like it to be not limited to input devices but rater try
-doing it at the device core level, if possible. I am sure there are IIO
-and other devices that could be forcibly turned off/put into low power
-mode under certain circumstances.
+Thank you Pali.
 
-There were some talks about it with Rafael, but we never come with
-anything concrete.
+OK, so it looks like the problematic byte is the last one and we should
+be resynching right away. With your other patch increasing number of ba=
+d
+packets before issuing resync this special handling is no longer needed=
+,
+right?
 
 Thanks.
 

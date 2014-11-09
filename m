@@ -1,69 +1,50 @@
-From: Chen Gang <gang.chen.5i5j@gmail.com>
-Subject: Re: [PATCH] drivers: input: mouse: Use "static inline" instead of
- "inline" in "lifebook.h"
-Date: Sun, 09 Nov 2014 18:49:44 +0800
-Message-ID: <545F46C8.2090502@gmail.com>
-References: <545F4602.10101@gmail.com>
+From: Jose Diez <jose@mediacru.sh>
+Subject: Help with input_report_key not reporting key
+Date: Sun, 09 Nov 2014 10:57:51 +0000
+Message-ID: <545F48AF.7040206@mediacru.sh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:53475 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751468AbaKIKts (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 05:49:48 -0500
-In-Reply-To: <545F4602.10101@gmail.com>
+Received: from mediacru.sh ([5.254.104.62]:57844 "EHLO mediacru.sh"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751293AbaKIK6B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 9 Nov 2014 05:58:01 -0500
+Received: from [192.168.0.4] (cpc8-cove11-2-0-cust751.3-1.cable.virginm.net [82.16.198.240])
+	by mediacru.sh (Postfix) with ESMTPSA id 933E6409C2
+	for <linux-input@vger.kernel.org>; Sun,  9 Nov 2014 11:57:53 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "cmetcalf@tilera.com" <cmetcalf@tilera.com>
+To: linux-input <linux-input@vger.kernel.org>
 
+Hello linux-input,
 
-After this patch, our tile can pass allmodconfig building. :-)
+Sorry to post about a similar question again, but I'm still stuck. So a 
+bit of back story: I'm writing a custom HID driver which, among other 
+things, will register several input devices.
 
-Thanks.
+I'm able to read HID reports from the device using the raw_event 
+callback, and I'm able to communicate with the device, but I seem to 
+have hit an obstacle I can't get over. I've tried to add a proper input 
+device to the driver, and while it registers it properly and shows up in 
+/dev/input/*, the events seem to not go through.
 
-On 11/09/2014 06:46 PM, Chen Gang wrote:
-> For inline function in header file, better to be "static inline", or may
-> cause building break under the latest upstream gcc (although, probably,
-> it should be the gcc's issue).
-> 
-> The related error (with allmodconfig under tile):
-> 
->     MODPOST 4002 modules
->   ERROR: "lifebook_detect" [drivers/input/mouse/psmouse.ko] undefined!
-> 
-> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
-> ---
->  drivers/input/mouse/lifebook.h | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/lifebook.h b/drivers/input/mouse/lifebook.h
-> index 4c4326c..0baf02a 100644
-> --- a/drivers/input/mouse/lifebook.h
-> +++ b/drivers/input/mouse/lifebook.h
-> @@ -16,14 +16,14 @@ void lifebook_module_init(void);
->  int lifebook_detect(struct psmouse *psmouse, bool set_properties);
->  int lifebook_init(struct psmouse *psmouse);
->  #else
-> -inline void lifebook_module_init(void)
-> +static inline void lifebook_module_init(void)
->  {
->  }
-> -inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
-> +static inline int lifebook_detect(struct psmouse *psmouse, bool set_properties)
->  {
->  	return -ENOSYS;
->  }
-> -inline int lifebook_init(struct psmouse *psmouse)
-> +static inline int lifebook_init(struct psmouse *psmouse)
->  {
->  	return -ENOSYS;
->  }
-> 
+I found this simple kernel module, which indeed works properly and 
+reports key events: http://sprunge.us/NLcD
 
+I then adapted it to work with my kernel module, shown here: 
+http://sprunge.us/egIi
 
--- 
-Chen Gang
+It allocates the input device in fblng_probe(), sets the KEY_A bit in 
+the keybit field, and registers it. Then, when a request comes to the 
+device, in fblng_event(), I (try to) send a key with input_report_key. 
+This doesn't seem to trigger a keypress.
 
-Open share and attitude like air water and life which God blessed
+I'm looking at the relevant /dev/input/eventX with `evtest`. I know I'm 
+getting events through, because I can see it in `dmesg`. However, it 
+doesn't actually go through to the input handler.
+
+Any help, please?
+
+Thanks a lot,
+Jose

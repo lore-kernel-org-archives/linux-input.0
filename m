@@ -1,105 +1,128 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/5] mfd: ti_am335x_tscadc: Remove unwanted reg_se_cache
- save
-Date: Mon, 10 Nov 2014 09:15:27 +0000
-Message-ID: <20141110091527.GD21424@x1>
-References: <1415339350-17679-1-git-send-email-vigneshr@ti.com>
- <1415339350-17679-4-git-send-email-vigneshr@ti.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v3 3/4] input: alps: For protocol V3, do not process data when last packet's bit7 is set
+Date: Mon, 10 Nov 2014 10:18:36 +0100
+Message-ID: <201411101018.40451@pali>
+References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com> <201411091222.59595@pali> <20141109203459.GB37384@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed;
+  boundary="nextPart1491676.ncpUQqPPFe";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f177.google.com ([209.85.213.177]:57473 "EHLO
-	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751423AbaKJJPh (ORCPT
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:65112 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751986AbaKJJSn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Nov 2014 04:15:37 -0500
-Received: by mail-ig0-f177.google.com with SMTP id hl2so8727107igb.16
-        for <linux-input@vger.kernel.org>; Mon, 10 Nov 2014 01:15:37 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1415339350-17679-4-git-send-email-vigneshr@ti.com>
+	Mon, 10 Nov 2014 04:18:43 -0500
+In-Reply-To: <20141109203459.GB37384@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.i
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 07 Nov 2014, Vignesh R wrote:
+--nextPart1491676.ncpUQqPPFe
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-> In one shot mode, sequencer automatically disables all enabled steps =
-at
-> the end of each cycle. (both ADC steps and TSC steps) Hence these ste=
-ps
-> need not be saved in reg_se_cache for clearing these steps at a later
-> stage.
-> Also, when ADC wakes up Sequencer should not be busy executing any of=
- the
-> config steps except for the charge step. Previously charge step was 1=
- ADC
-> clock cycle and hence it was ignored.
+On Sunday 09 November 2014 21:34:59 Dmitry Torokhov wrote:
+> On Sun, Nov 09, 2014 at 12:22:51PM +0100, Pali Roh=C3=A1r wrote:
+> > On Sunday 09 November 2014 08:50:39 Dmitry Torokhov wrote:
+> > > Hi Pali,
+> > >=20
+> > > On Sun, Nov 02, 2014 at 12:25:09AM +0100, Pali Roh=C3=A1r wrote:
+> > > > Sometimes on Dell Latitude laptops psmouse/alps driver
+> > > > receive invalid ALPS protocol V3 packets with bit7 set
+> > > > in last byte. More often it can be reproduced on Dell
+> > > > Latitude E6440 or E7440 with closed lid and pushing
+> > > > cover above touchpad.
+> > > >=20
+> > > > If bit7 in last packet byte is set then it is not valid
+> > > > ALPS packet. I was told that ALPS devices never send
+> > > > these packets. It is not know yet who send those
+> > > > packets, it could be Dell EC, bug in BIOS and also bug
+> > > > in touchpad firmware...
+> > > >=20
+> > > > With this patch alps driver does not process those
+> > > > invalid packets and drops it with PSMOUSE_FULL_PACKET
+> > > > so psmouse driver does not enter to out of sync state.
+> > > >=20
+> > > > This patch fix problem when psmouse driver still
+> > > > resetting ALPS device when laptop lid is closed because
+> > > > of receiving invalid packets in out of sync state.
+> > > >=20
+> > > > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> > > > Tested-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> > > > Cc: stable@vger.kernel.org
+> > > > ---
+> > > >=20
+> > > >  drivers/input/mouse/alps.c |   10 ++++++++++
+> > > >  1 file changed, 10 insertions(+)
+> > > >=20
+> > > > diff --git a/drivers/input/mouse/alps.c
+> > > > b/drivers/input/mouse/alps.c index 7c47e97..e802d28
+> > > > 100644 --- a/drivers/input/mouse/alps.c
+> > > > +++ b/drivers/input/mouse/alps.c
+> > > > @@ -1181,6 +1181,16 @@ static psmouse_ret_t
+> > > > alps_process_byte(struct psmouse *psmouse)
+> > > >=20
+> > > >  		return PSMOUSE_BAD_DATA;
+> > > >  =09
+> > > >  	}
+> > > >=20
+> > > > +	if (priv->proto_version =3D=3D ALPS_PROTO_V3 &&
+> > > > psmouse->pktcnt =3D=3D psmouse->pktsize) { +		// For
+> > > > protocol V3, do not process data when last packet's
+> > > > bit7 is set +		if (psmouse->packet[psmouse->pktcnt -=20
+1]
+> > > > & 0x80) { +			psmouse_dbg(psmouse, "v3 discard
+> > > > packet[%i] =3D
+> >=20
+> > %x\n",
+> >=20
+> > > > +				    psmouse->pktcnt - 1,
+> > > > +				    psmouse->packet[psmouse->pktcnt - 1]);
+> > > > +			return PSMOUSE_FULL_PACKET;
+> > > > +		}
+> > > > +	}
+> > >=20
+> > > I wanted to apply it, but I would like some more data.
+> > > Could you please send me the dmesg with i8042.debug wit
+> > > this patch in place?
+> > >=20
+> > > Thanks!
+> >=20
+> > See attachment. It contains debug log from both
+> > i8042.debug=3D1 and psmouse.ko with applied all 4 patches.
 >=20
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
-> ---
->  drivers/mfd/ti_am335x_tscadc.c       | 7 +++++--
->  include/linux/mfd/ti_am335x_tscadc.h | 1 +
->  2 files changed, 6 insertions(+), 2 deletions(-)
+> Thank you Pali.
 >=20
-> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_t=
-scadc.c
-> index d877e777cce6..94ef8992f46b 100644
-> --- a/drivers/mfd/ti_am335x_tscadc.c
-> +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -86,8 +86,12 @@ static void am335x_tscadc_need_adc(struct ti_tscad=
-c_dev *tsadc)
->  		spin_lock_irq(&tsadc->reg_lock);
->  		finish_wait(&tsadc->reg_se_wait, &wait);
-> =20
-> +		/*
-> +		 * Sequencer should either be idle or
-> +		 * busy applying the charge step.
-> +		 */
->  		reg =3D tscadc_readl(tsadc, REG_ADCFSM);
-> -		WARN_ON(reg & SEQ_STATUS);
-> +		WARN_ON(reg & SEQ_STATUS & (!CHARGE_STEP));
+> OK, so it looks like the problematic byte is the last one and
+> we should be resynching right away. With your other patch
+> increasing number of bad packets before issuing resync this
+> special handling is no longer needed, right?
+>=20
+> Thanks.
 
-This is almost certainly not correct.
+Problem is that in this special case driver is still out-of-sync=20
+and cause problems. E.g there is big dmesg flood and it is not=20
+good to have that when LID is closed for a long time.
 
-Please take another look at the logic.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-I'm _assuming_ you mean (reg & SEQ_STATUS && !CHARGE_STEP).
+--nextPart1491676.ncpUQqPPFe
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
->  		tsadc->adc_waiting =3D false;
->  	}
->  	tsadc->adc_in_use =3D true;
-> @@ -96,7 +100,6 @@ static void am335x_tscadc_need_adc(struct ti_tscad=
-c_dev *tsadc)
->  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
->  {
->  	spin_lock_irq(&tsadc->reg_lock);
-> -	tsadc->reg_se_cache |=3D val;
->  	am335x_tscadc_need_adc(tsadc);
-> =20
->  	tscadc_writel(tsadc, REG_SE, val);
-> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd=
-/ti_am335x_tscadc.h
-> index c99be5dc0f5c..fcce182e4a35 100644
-> --- a/include/linux/mfd/ti_am335x_tscadc.h
-> +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> @@ -128,6 +128,7 @@
-> =20
->  /* Sequencer Status */
->  #define SEQ_STATUS BIT(5)
-> +#define CHARGE_STEP		0x11
-> =20
->  #define ADC_CLK			3000000
->  #define TOTAL_STEPS		16
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iEYEABECAAYFAlRggvAACgkQi/DJPQPkQ1KZVwCcDRUzeln/p9eTCSwbtfDN0kVj
+M0YAn2BbDw7n1WMkmJt7vjX0nteiDd9J
+=xHri
+-----END PGP SIGNATURE-----
+
+--nextPart1491676.ncpUQqPPFe--

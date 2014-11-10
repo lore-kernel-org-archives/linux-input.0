@@ -1,128 +1,77 @@
-From: Thomaz de Oliveira dos Reis <thor27@gmail.com>
-Subject: Re: [PATCH 1/1] Input: xpad - update docs to reflect current state
-Date: Mon, 10 Nov 2014 10:27:15 -0200
-Message-ID: <CAAXmX-n4rvseguwsDDf+=HJWkxWJ=FzSzCC7eR1ve8FqB3AQ2Q@mail.gmail.com>
-References: <1415004836-22871-1-git-send-email-danieru.dressler@gmail.com>
-	<20141107134854.56305dbb@lwn.net>
-	<CAGC3nLBsX9fEjjmX2OGKnyTxuxbV_FNfndsoPbjob4UQqpuPpg@mail.gmail.com>
-	<CAAXmX-kid7K8kWGnhe-AahrqHPiwpnggfQbVBD+A3cVK6rmAuQ@mail.gmail.com>
-	<CAGC3nLCaX06n5Nw5ND-wg0_dtD-fD8Pn+CjP-BW8OJK5hz58Kg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Fwd: [Bug 87991] New: hid-sony uses non-DMA-capable transfer buffer, fails
+Date: Mon, 10 Nov 2014 10:37:38 -0800
+Message-ID: <CAKdAkRQrxKxYTf7eqZWCxrxR9spk6x_zUCF6ZegG51vwt940eg@mail.gmail.com>
+References: <bug-87991-3268@https.bugzilla.kernel.org/>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CAGC3nLCaX06n5Nw5ND-wg0_dtD-fD8Pn+CjP-BW8OJK5hz58Kg@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Daniel Dressler <danieru.dressler@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tommi Rantala <tt.rantala@gmail.com>, Ted Mielczarek <ted@mielczarek.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Frank Razenberg <frank@zzattack.org>, Benjamin Valentin <benpicco@zedat.fu-berlin.de>, Petr Sebor <petr@scssoft.com>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f47.google.com ([209.85.215.47]:55408 "EHLO
+	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751930AbaKJShl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Nov 2014 13:37:41 -0500
+Received: by mail-la0-f47.google.com with SMTP id gd6so8285369lab.34
+        for <linux-input@vger.kernel.org>; Mon, 10 Nov 2014 10:37:39 -0800 (PST)
+In-Reply-To: <bug-87991-3268@https.bugzilla.kernel.org/>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Ok, I got your point... So having both looks like the best option to me.
+FYI
 
-2014-11-10 10:15 GMT-02:00 Daniel Dressler <danieru.dressler@gmail.com>:
-> I'd love to make all controllers report as axises but doing so _will_
-> break stuff downstream. Not least of which being every game which uses
-> SDL2's controller configs:
-> https://github.com/gabomdq/SDL_GameControllerDB/blob/master/gamecontrollerdb.txt
->
-> Which is just about every-single major commercial proprietary game
-> which has been ported to linux in the past 2 years.
->
-> Now it should also be clear that adding extra axises will not break
-> those games. The SDL2 library should just ignore those axises.
->
-> Also, the module option "dpad_to_buttons" will only operate on unknown
-> devices. Users cannot use it to return to old behavior so we have to
-> get this right.
->
-> Daniel
->
-> 2014-11-10 20:47 GMT+09:00 Thomaz de Oliveira dos Reis <thor27@gmail.com>:
->> I totally agree that the behavior should be exactly the same in all
->> XBOX gamepads. But In my opinion this should be mapped as axis only,
->> since mapping for both could make a confusion in some games.
->>
->> If you need the axis to be buttons, you can set as a option while
->> loading the module.
->>
->>
->>
->>
->> 2014-11-10 6:06 GMT-02:00 Daniel Dressler <danieru.dressler@gmail.com>:
->>> Thanks Jon
->>>
->>> I've sent a second version of the patch without the TODO list edits.
->>>
->>>
->>> Now I would like to ask about a backwards compact issue related to this driver.
->>>
->>> Eons ago in patch 99de0912b [0] when support for the wireless 360
->>> controllers were added the decision was made to map their Dpad to the
->>> discrete buttons.
->>>
->>> There is reasonable justification for this behavior since the Dpad has
->>> never functioned like an analog stick on Xbox hardware.
->>>
->>> Except support for wired 360 controllers had been added a year earlier
->>> and used the opposite behavior. In fact the wireless 360 controllers
->>> are the only controllers which use the dpad_to_button behavior.
->>>
->>> Original Xbox, wired Xbox 360, and all Xbox One controllers all expose
->>> the dpad as a set of axises.
->>>
->>> This has caused pain for downstream developers. It means two
->>> controllers  have wildly different behavior. Many developers have just
->>> ignored the issue or suggested users unload xpand and use the userland
->>> replacement. Even Arch's wiki suggests such [1]. Which to be honest is
->>> all one can do. The xpad driver does not expose the information
->>> developers need to even incorporate a workaround without nasty hacks.
->>>
->>> As a downstream developer I've been bitten by this twice. The first
->>> time I didn't even know that wired vs wireless made a difference and I
->>> was disturbed to learn the truth.
->>>
->>> So here is what I want to hear opinions on: should the wireless 360's
->>> dpad be exposed as both axises _and_ buttons?
->>>
->>> [0]: https://github.com/torvalds/linux/commit/99de0912b when t
->>> [1]: https://wiki.archlinux.org/index.php/joystick#Xbox_360_controllers
->>>
->>> Daniel
->>>
->>> 2014-11-08 3:48 GMT+09:00 Jonathan Corbet <corbet@lwn.net>:
->>>> On Mon,  3 Nov 2014 17:53:06 +0900
->>>> Daniel Dressler <danieru.dressler@gmail.com> wrote:
->>>>
->>>>> The last time this documentation was accurate was
->>>>> just over 8 years ago. In this time we've added
->>>>> support for two new generations of Xbox console
->>>>> controllers and dozens of third-party controllers.
->>>>>
->>>>> This patch unifies terminology and makes it explicit
->>>>> which model of controller a sentence refers to.
->>>>
->>>> So this seems like a useful update, and I was looking at pulling it into
->>>> the docs tree.  But this hunk:
->>>>
->>>>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
->>>>> index 2ed7905..7e2e047 100644
->>>>> --- a/drivers/input/joystick/xpad.c
->>>>> +++ b/drivers/input/joystick/xpad.c
->>>>> @@ -40,8 +40,8 @@
->>>>>   *
->>>>>   * TODO:
->>>>>   *  - fine tune axes (especially trigger axes)
->>>>> - *  - fix "analog" buttons (reported as digital now)
->>>>> - *  - get rumble working
->>>>> + *  - add original xbox rumble pack support
->>>>> + *  - add xbox one rumble support
->>>>>   *  - need USB IDs for other dance pads
->>>>>   *
->>>>>   * History:
->>>>
->>>> Seems like a different change that shouldn't be mixed up with the doc
->>>> update.  Send me a version without that change and, in the absence
->>>> of complaints, I'll apply it.
->>>>
->>>> Thanks,
->>>>
->>>> jon
+---------- Forwarded message ----------
+From:  <bugzilla-daemon@bugzilla.kernel.org>
+Date: Mon, Nov 10, 2014 at 5:43 AM
+Subject: [Bug 87991] New: hid-sony uses non-DMA-capable transfer buffer, fails
+To: dmitry.torokhov@gmail.com
+
+
+https://bugzilla.kernel.org/show_bug.cgi?id=87991
+
+            Bug ID: 87991
+           Summary: hid-sony uses non-DMA-capable transfer buffer, fails
+           Product: Drivers
+           Version: 2.5
+    Kernel Version: 3.17.1
+          Hardware: All
+                OS: Linux
+              Tree: Mainline
+            Status: NEW
+          Severity: normal
+          Priority: P1
+         Component: Input Devices
+          Assignee: drivers_input-devices@kernel-bugs.osdl.org
+          Reporter: hector@marcansoft.com
+        Regression: No
+
+The kernel itself complains:
+
+input: Sony PLAYSTATION(R)3 Controller as
+/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.2/1-1.2.2/1-1.2.2.4/1-1.2.2.4:1.0/0003:054C:0268.000A/input/input51
+sony 0003:054C:0268.000A: input,hiddev0,hidraw3: USB HID v1.11 Joystick [Sony
+PLAYSTATION(R)3 Controller] on usb-0000:00:1a.0-1.2.2.4/input0
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 27497 at drivers/usb/core/hcd.c:1503
+usb_hcd_map_urb_for_dma+0x588/0x5a0 [usbcore]()
+transfer buffer not dma capable
+<snip>
+sony 0003:054C:0268.000A: failed to retrieve feature report 0xf2 with the
+Sixaxis MAC address
+sony: probe of 0003:054C:0268.000A failed with error -11
+
+Looks like the code just uses a stack-allocated buffer (from
+drivers/hid/hid-sony.c):
+        __u8 buf[18];
+<snip comment>
+        ret = hid_hw_raw_request(sc->hdev, 0xf2, buf, sizeof(buf),
+                HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+
+--
+You are receiving this mail because:
+You are watching the assignee of the bug.
+
+
+-- 
+Dmitry

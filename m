@@ -1,124 +1,500 @@
-From: NeilBrown <neilb@suse.de>
-Subject: Re: [PATCH] Input: gpio_keys: Make sure wake-up buttons work.
-Date: Sat, 8 Nov 2014 16:17:08 +1100
-Message-ID: <20141108161708.0ee85c67@notabene.brown>
-References: <20141108103707.45bcc7e3@notabene.brown>
-	<20141107234507.GB4439@dtor-ws>
-	<20141108110058.6c5217e3@notabene.brown>
-	<23209922.Rp3elUvURv@vostro.rjw.lan>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v9 01/18] input: cyapa: add device resource management
+ infrastructure support
+Date: Mon, 10 Nov 2014 02:48:08 +0000
+Message-ID: <a3a1f76316f24d42b0f95fbda9565d9f@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
+ <1415003590-30485-2-git-send-email-dudl@cypress.com>
+ <20141109212541.GC37384@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- boundary="Sig_/+2OfsJ3QLSZRD6P2r04/WWv"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53925 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751459AbaKIV4N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 9 Nov 2014 16:56:13 -0500
-In-Reply-To: <23209922.Rp3elUvURv@vostro.rjw.lan>
+Received: from mail-bn1on0114.outbound.protection.outlook.com ([157.56.110.114]:14784
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751928AbaKJDWT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Nov 2014 22:22:19 -0500
+In-Reply-To: <20141109212541.GC37384@dtor-ws>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, GTA04 owners <gta04-owner@goldelico.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>
+Cc: "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
---Sig_/+2OfsJ3QLSZRD6P2r04/WWv
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Thanks, Dmitry.
+I will fix this patch as shown below.
+Should I need to fix and resubmit the patches immedaitely or wait for other pathces' comments and submit together?
 
-On Sat, 08 Nov 2014 01:49:06 +0100 "Rafael J. Wysocki" <rjw@rjwysocki.net>
-wrote:
+Thanks,
+Dudley
 
-> On Saturday, November 08, 2014 11:00:58 AM NeilBrown wrote:
-> > On Fri, 7 Nov 2014 15:45:07 -0800 Dmitry Torokhov <dmitry.torokhov@gmai=
-l.com>
-> > wrote:
-> >=20
-> > > Hi Neil,
-> > >=20
-> > > On Sat, Nov 08, 2014 at 10:37:07AM +1100, NeilBrown wrote:
-> > > >=20
-> > > >=20
-> > > > If a key is to be used for wake-up, we must not disable
-> > > > the interrupt during suspend.
-> > > >=20
-> > > > Signed-off-by: NeilBrown <neilb@suse.de>
-> > > >=20
-> > > > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/key=
-board/gpio_keys.c
-> > > > index 8c98e97f8e41..0b5e54ae343e 100644
-> > > > --- a/drivers/input/keyboard/gpio_keys.c
-> > > > +++ b/drivers/input/keyboard/gpio_keys.c
-> > > > @@ -526,6 +526,8 @@ static int gpio_keys_setup_key(struct platform_=
-device *pdev,
-> > > >  	 */
-> > > >  	if (!button->can_disable)
-> > > >  		irqflags |=3D IRQF_SHARED;
-> > > > +	if (button->wakeup)
-> > > > +		irqflags |=3D IRQF_NO_SUSPEND;
-> > >=20
-> > > No, enable_irq_wake() should be enough. I believe Rafael has fixed th=
-at
-> > > in the core, right?
-> > >=20
-> >=20
-> > Interesting...  you seem to be right, but I was having wakeup problems =
-until
-> > I added that patch.
->=20
-> This was a fairly recent change made in 3.18-rc1.
->=20
-> > I didn't test exhaustively, but the first time my device entered suspen=
-d, the
-> > gpio-key didn't wake it up.  Subsequent suspends did...
-> >=20
-> > After I applied this patch, it would reliably wake up even on the first
-> > suspend.
-> >=20
-> > So there seems to be something wrong, but maybe it is more subtle.
-> >=20
-> > Is there a good reason why enable_irq_wake() is only called just as the
-> > device is being suspended, and why disable_irq_wake() is called on resu=
-me?
-> > To me it would make more sense to just enable it once (if required) and=
- leave
-> > it enabled....
->=20
-> On some platforms it actually changes the configuration of interrupt
-> controllers in to a "suspend mode" which is not appropriate for run time
-> AFAICS.
->=20
-> > I'll see what I can find.
->=20
-> Yes, please.
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 2014?11?10? 5:26
+> To: Dudley Du
+> Cc: rydberg@euromail.se; Dudley Du; bleung@google.com;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH v9 01/18] input: cyapa: add device resource management
+> infrastructure support
+>
+> Hi Dudley,
+>
+> On Mon, Nov 03, 2014 at 04:32:53PM +0800, Dudley Du wrote:
+> > Modify cyapa driver to support device resource management infrastructure
+> > to reduce the mistakes of resource management.
+> > TEST=test on Chromebooks.
+> >
+> > Signed-off-by: Dudley Du <dudl@cypress.com>
+> > ---
+> >  drivers/input/mouse/cyapa.c | 48 ++++++++++++++++++---------------------------
+> >  1 file changed, 19 insertions(+), 29 deletions(-)
+> >
+> > diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> > index b409c3d..b3d7a2a 100644
+> > --- a/drivers/input/mouse/cyapa.c
+> > +++ b/drivers/input/mouse/cyapa.c
+> > @@ -409,11 +409,11 @@ static ssize_t cyapa_read_block(struct cyapa *cyapa,
+> u8 cmd_idx, u8 *values)
+> >  cmd = cyapa_smbus_cmds[cmd_idx].cmd;
+> >  len = cyapa_smbus_cmds[cmd_idx].len;
+> >  return cyapa_smbus_read_block(cyapa, cmd, len, values);
+> > -} else {
+> > -cmd = cyapa_i2c_cmds[cmd_idx].cmd;
+> > -len = cyapa_i2c_cmds[cmd_idx].len;
+> > -return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
+> >  }
+> > +
+> > +cmd = cyapa_i2c_cmds[cmd_idx].cmd;
+> > +len = cyapa_i2c_cmds[cmd_idx].len;
+> > +return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
+>
+> I am not sure why you are changing this code, it has nothing to do with
+> managed resources and the original was just fine.
 
-Hmmm.. that's frustrating.  I cannot reproduce the problem at all now.  I
-wonder what changed..
-And I see there are lots of changes in 3.18.
+It's changed just to fix the warning when running the patch checking script.
 
-I'll discard my patch and wait to see if the problem recurs.
+>
+> >  }
+> >
+> >  /*
+> > @@ -762,7 +762,7 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+> >  if (!cyapa->physical_size_x || !cyapa->physical_size_y)
+> >  return -EINVAL;
+> >
+> > -input = cyapa->input = input_allocate_device();
+> > +input = cyapa->input = devm_input_allocate_device(dev);
+>
+> If you are using devm_* then you do not need to manually cal
+> input_free_device() (further down in this fucntion).
 
-Thanks for your time,
-NeilBrown
+Yes, it's correct. It's my mistake to lot the code here.
 
---Sig_/+2OfsJ3QLSZRD6P2r04/WWv
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+>
+> >  if (!input) {
+> >  dev_err(dev, "allocate memory for input device failed\n");
+> >  return -ENOMEM;
+> > @@ -837,11 +837,9 @@ static int cyapa_probe(struct i2c_client *client,
+> >  return -EIO;
+> >  }
+> >
+> > -cyapa = kzalloc(sizeof(struct cyapa), GFP_KERNEL);
+> > -if (!cyapa) {
+> > -dev_err(dev, "allocate memory for cyapa failed\n");
+> > +cyapa = devm_kzalloc(dev, sizeof(struct cyapa), GFP_KERNEL);
+> > +if (!cyapa)
+> >  return -ENOMEM;
+> > -}
+> >
+> >  cyapa->gen = CYAPA_GEN3;
+> >  cyapa->client = client;
+> > @@ -856,51 +854,43 @@ static int cyapa_probe(struct i2c_client *client,
+> >  ret = cyapa_check_is_operational(cyapa);
+> >  if (ret) {
+> >  dev_err(dev, "device not operational, %d\n", ret);
+> > -goto err_mem_free;
+> > +return ret;
+> >  }
+> >
+> >  ret = cyapa_create_input_dev(cyapa);
+> >  if (ret) {
+> >  dev_err(dev, "create input_dev instance failed, %d\n", ret);
+> > -goto err_mem_free;
+> > +return ret;
+> >  }
+> >
+> >  ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
+> >  if (ret) {
+> >  dev_err(dev, "set active power failed, %d\n", ret);
+> > -goto err_unregister_device;
+> > +return ret;
+> >  }
+> >
+> >  cyapa->irq = client->irq;
+> > -ret = request_threaded_irq(cyapa->irq,
+> > -   NULL,
+> > -   cyapa_irq,
+> > -   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> > -   "cyapa",
+> > -   cyapa);
+> > +ret = devm_request_threaded_irq(dev,
+> > +cyapa->irq,
+> > +NULL,
+> > +cyapa_irq,
+> > +IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> > +"cyapa",
+> > +cyapa);
+> >  if (ret) {
+> >  dev_err(dev, "IRQ request failed: %d\n, ", ret);
+> > -goto err_unregister_device;
+> > +return ret;
+> >  }
+> >
+> >  return 0;
+> > -
+> > -err_unregister_device:
+> > -input_unregister_device(cyapa->input);
+> > -err_mem_free:
+> > -kfree(cyapa);
+> > -
+> > -return ret;
+> >  }
+> >
+> >  static int cyapa_remove(struct i2c_client *client)
+> >  {
+> >  struct cyapa *cyapa = i2c_get_clientdata(client);
+> >
+> > -free_irq(cyapa->irq, cyapa);
+> > -input_unregister_device(cyapa->input);
+> > +disable_irq(cyapa->irq);
+> >  cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
+> > -kfree(cyapa);
+>
+> I refer devm* conversions to completely eradicate ->remove() methods.
+> I took the liberty to edit the patch a bit, does the version below work
+> for you?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Yes, it's working in the below version.
+The code in ->remove() method is just to turn the device off, and it can be controlled through open()/close().
+Thanks.
 
-iQIVAwUBVF2nVDnsnt1WYoG5AQKVQg//SAo/vc2mS7aTnhoq4ZOHk5UHxPM7vOyi
-CukiTdrUUyRTztCOyFppUbqsqCQPvDzb/VUCv/0sm1onvkz25AJw3t0KHY8YqZmn
-SZslVQcBLlJLI4cJiuf6m08VZOYkFD61tQ1FD4JgbJmMEqkjdB6mTUKDXS51i5kw
-+uBzjD7KWvjr/hJS5ZV/3hU9xray+ldU/dCyyUf+PhDt7Zg4AGqUB58TwYth8SZ1
-tN8pOUCgT9/08u+ArJBKv3ZkTj1/lxHYi5G8llK4eI9M95wUPNNY4GiGmP1pRl6z
-/+ZKD7MR2YH1WBylvFec60x/GbAlnIyYt71LyDMI4S1JxG7VkauzPvP/lC0cfWQd
-SO1ok9SZNPAE78xEMA/7/avsq5Wfn1qqtdKcN1j4OMyPhvK1MiWM3IuEyh8IHdOM
-gkZFAprNzFL1Dor5OhnQaCXiQTJaqvxMpXo91OwJSpjaARSGSnVevc8vhchNLkx1
-ABtsn6cghwRlgzzpYpHUEG86FH/vRaiUGrvY8UXjJkeVzqWxAU5PhuKgbACM5BUF
-V6V7owNqtX02u4WQ9/9fZB3Ert2IBVQPeWl6qDp9sWlnjACXydTi+FfJi6R2PEwR
-Di+wNlysFW1TuGarb/1d8TIOIlwvGWpnS4PopTvivYDokX9Oo9VY+dLUCYwh0+5L
-HrFfwZMm8ew=
-=OuhB
------END PGP SIGNATURE-----
+>
+> Thanks!
+>
+> --
+> Dmitry
+>
+>
+> Input: cyapa - switch to using managed resources
+>
+> From: Dudley Du <dudley.dulixin@gmail.com>
+>
+> Use of managed resources simplifies error handling and device removal code.
+>
+> Signed-off-by: Dudley Du <dudl@cypress.com>
+> [Dmitry: added open/close methods so cyapa_remove is no longer needed.]
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/mouse/cyapa.c |  184 +++++++++++++++++++++++++------------------
+>  1 file changed, 105 insertions(+), 79 deletions(-)
+>
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index 1d978c7..c84a9eb 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -577,10 +577,13 @@ static int cyapa_set_power_mode(struct cyapa *cyapa,
+> u8 power_mode)
+>  power = ret & ~PWR_MODE_MASK;
+>  power |= power_mode & PWR_MODE_MASK;
+>  ret = cyapa_write_byte(cyapa, CYAPA_CMD_POWER_MODE, power);
+> -if (ret < 0)
+> +if (ret < 0) {
+>  dev_err(dev, "failed to set power_mode 0x%02x err = %d\n",
+>  power_mode, ret);
+> -return ret;
+> +return ret;
+> +}
+> +
+> +return 0;
+>  }
+>
+>  static int cyapa_get_query_data(struct cyapa *cyapa)
+> @@ -753,16 +756,40 @@ static u8 cyapa_check_adapter_functionality(struct
+> i2c_client *client)
+>  return ret;
+>  }
+>
+> +static int cyapa_open(struct input_dev *input)
+> +{
+> +struct cyapa *cyapa = input_get_drvdata(input);
+> +struct i2c_client *client = cyapa->client;
+> +int error;
+> +
+> +error = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
+> +if (error) {
+> +dev_err(&client->dev, "set active power failed: %d\n", error);
+> +return error;
+> +}
+> +
+> +enable_irq(client->irq);
+> +return 0;
+> +}
+> +
+> +static void cyapa_close(struct input_dev *input)
+> +{
+> +struct cyapa *cyapa = input_get_drvdata(input);
+> +
+> +disable_irq(cyapa->client->irq);
+> +cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
+> +}
+> +
+>  static int cyapa_create_input_dev(struct cyapa *cyapa)
+>  {
+>  struct device *dev = &cyapa->client->dev;
+> -int ret;
+>  struct input_dev *input;
+> +int error;
+>
+>  if (!cyapa->physical_size_x || !cyapa->physical_size_y)
+>  return -EINVAL;
+>
+> -input = cyapa->input = input_allocate_device();
+> +input = devm_input_allocate_device(dev);
+>  if (!input) {
+>  dev_err(dev, "allocate memory for input device failed\n");
+>  return -ENOMEM;
+> @@ -775,6 +802,9 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+>  input->id.product = 0;  /* means any product in eventcomm. */
+>  input->dev.parent = &cyapa->client->dev;
+>
+> +input->open = cyapa_open;
+> +input->close = cyapa_close;
+> +
+>  input_set_drvdata(input, cyapa);
+>
+>  __set_bit(EV_ABS, input->evbit);
+> @@ -802,34 +832,24 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+>  __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>
+>  /* handle pointer emulation and unused slots in core */
+> -ret = input_mt_init_slots(input, CYAPA_MAX_MT_SLOTS,
+> -  INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
+> -if (ret) {
+> -dev_err(dev, "allocate memory for MT slots failed, %d\n", ret);
+> -goto err_free_device;
+> +error = input_mt_init_slots(input, CYAPA_MAX_MT_SLOTS,
+> +    INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
+> +if (error) {
+> +dev_err(dev, "failed to initialize MT slots: %d\n", error);
+> +return error;
+>  }
+>
+> -/* Register the device in input subsystem */
+> -ret = input_register_device(input);
+> -if (ret) {
+> -dev_err(dev, "input device register failed, %d\n", ret);
+> -goto err_free_device;
+> -}
+> +cyapa->input = input;
+>  return 0;
+> -
+> -err_free_device:
+> -input_free_device(input);
+> -cyapa->input = NULL;
+> -return ret;
+>  }
+>
+>  static int cyapa_probe(struct i2c_client *client,
+>         const struct i2c_device_id *dev_id)
+>  {
+> -int ret;
+> -u8 adapter_func;
+> -struct cyapa *cyapa;
+>  struct device *dev = &client->dev;
+> +struct cyapa *cyapa;
+> +u8 adapter_func;
+> +int error;
+>
+>  adapter_func = cyapa_check_adapter_functionality(client);
+>  if (adapter_func == CYAPA_ADAPTER_FUNC_NONE) {
+> @@ -837,11 +857,9 @@ static int cyapa_probe(struct i2c_client *client,
+>  return -EIO;
+>  }
+>
+> -cyapa = kzalloc(sizeof(struct cyapa), GFP_KERNEL);
+> -if (!cyapa) {
+> -dev_err(dev, "allocate memory for cyapa failed\n");
+> +cyapa = devm_kzalloc(dev, sizeof(struct cyapa), GFP_KERNEL);
+> +if (!cyapa)
+>  return -ENOMEM;
+> -}
+>
+>  cyapa->gen = CYAPA_GEN3;
+>  cyapa->client = client;
+> @@ -852,66 +870,61 @@ static int cyapa_probe(struct i2c_client *client,
+>  /* i2c isn't supported, use smbus */
+>  if (adapter_func == CYAPA_ADAPTER_FUNC_SMBUS)
+>  cyapa->smbus = true;
+> +
+>  cyapa->state = CYAPA_STATE_NO_DEVICE;
+> -ret = cyapa_check_is_operational(cyapa);
+> -if (ret) {
+> -dev_err(dev, "device not operational, %d\n", ret);
+> -goto err_mem_free;
+> -}
+>
+> -ret = cyapa_create_input_dev(cyapa);
+> -if (ret) {
+> -dev_err(dev, "create input_dev instance failed, %d\n", ret);
+> -goto err_mem_free;
+> +error = cyapa_check_is_operational(cyapa);
+> +if (error) {
+> +dev_err(dev, "device not operational, %d\n", error);
+> +return error;
+>  }
+>
+> -ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
+> -if (ret) {
+> -dev_err(dev, "set active power failed, %d\n", ret);
+> -goto err_unregister_device;
+> +/* Power down the device until we need it */
+> +error = cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
+> +if (error) {
+> +dev_err(dev, "failed to quiesce the device: %d\n", error);
+> +return error;
+>  }
+>
+> -cyapa->irq = client->irq;
+> -ret = request_threaded_irq(cyapa->irq,
+> -   NULL,
+> -   cyapa_irq,
+> -   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> -   "cyapa",
+> -   cyapa);
+> -if (ret) {
+> -dev_err(dev, "IRQ request failed: %d\n, ", ret);
+> -goto err_unregister_device;
+> +error = cyapa_create_input_dev(cyapa);
+> +if (error)
+> +return error;
+> +
+> +error = devm_request_threaded_irq(dev, client->irq,
+> +  NULL, cyapa_irq,
+> +  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +  "cyapa", cyapa);
+> +if (error) {
+> +dev_err(dev, "IRQ request failed: %d\n, ", error);
+> +return error;
+>  }
+>
+> -return 0;
+> -
+> -err_unregister_device:
+> -input_unregister_device(cyapa->input);
+> -err_mem_free:
+> -kfree(cyapa);
+> +/* Disable IRQ until the device is opened */
+> +disable_irq(client->irq);
+>
+> -return ret;
+> -}
+> -
+> -static int cyapa_remove(struct i2c_client *client)
+> -{
+> -struct cyapa *cyapa = i2c_get_clientdata(client);
+> -
+> -free_irq(cyapa->irq, cyapa);
+> -input_unregister_device(cyapa->input);
+> -cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
+> -kfree(cyapa);
+> +/* Register the device in input subsystem */
+> +error = input_register_device(cyapa->input);
+> +if (error) {
+> +dev_err(dev, "failed to register input device: %d\n", error);
+> +return error;
+> +}
+>
+>  return 0;
+>  }
+>
+>  static int __maybe_unused cyapa_suspend(struct device *dev)
+>  {
+> -int ret;
+> +struct i2c_client *client = to_i2c_client(dev);
+> +struct cyapa *cyapa = i2c_get_clientdata(client);
+> +struct input_dev *input = cyapa->input;
+>  u8 power_mode;
+> -struct cyapa *cyapa = dev_get_drvdata(dev);
+> +int error;
+> +
+> +error = mutex_lock_interruptible(&input->mutex);
+> +if (error)
+> +return error;
+>
+> -disable_irq(cyapa->irq);
+> +disable_irq(client->irq);
+>
+>  /*
+>   * Set trackpad device to idle mode if wakeup is allowed,
+> @@ -919,28 +932,42 @@ static int __maybe_unused cyapa_suspend(struct device
+> *dev)
+>   */
+>  power_mode = device_may_wakeup(dev) ? PWR_MODE_IDLE
+>      : PWR_MODE_OFF;
+> -ret = cyapa_set_power_mode(cyapa, power_mode);
+> -if (ret < 0)
+> -dev_err(dev, "set power mode failed, %d\n", ret);
+> +error = cyapa_set_power_mode(cyapa, power_mode);
+> +if (error)
+> +dev_err(dev, "resume: set power mode to %d failed: %d\n",
+> + power_mode, error);
+>
+>  if (device_may_wakeup(dev))
+>  cyapa->irq_wake = (enable_irq_wake(cyapa->irq) == 0);
+> +
+> +mutex_unlock(&input->mutex);
+> +
+>  return 0;
+>  }
+>
+>  static int __maybe_unused cyapa_resume(struct device *dev)
+>  {
+> -int ret;
+> -struct cyapa *cyapa = dev_get_drvdata(dev);
+> +struct i2c_client *client = to_i2c_client(dev);
+> +struct cyapa *cyapa = i2c_get_clientdata(client);
+> +struct input_dev *input = cyapa->input;
+> +u8 power_mode;
+> +int error;
+> +
+> +mutex_lock(&input->mutex);
+>
+>  if (device_may_wakeup(dev) && cyapa->irq_wake)
+>  disable_irq_wake(cyapa->irq);
+>
+> -ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
+> -if (ret)
+> -dev_warn(dev, "resume active power failed, %d\n", ret);
+> +power_mode = input->users ? PWR_MODE_FULL_ACTIVE : PWR_MODE_OFF;
+> +error = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
+> +if (error)
+> +dev_warn(dev, "resume: set power mode to %d failed: %d\n",
+> + power_mode, error);
+>
+>  enable_irq(cyapa->irq);
+> +
+> +mutex_unlock(&input->mutex);
+> +
+>  return 0;
+>  }
+>
+> @@ -960,7 +987,6 @@ static struct i2c_driver cyapa_driver = {
+>  },
+>
+>  .probe = cyapa_probe,
+> -.remove = cyapa_remove,
+>  .id_table = cyapa_id_table,
+>  };
+>
 
---Sig_/+2OfsJ3QLSZRD6P2r04/WWv--
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

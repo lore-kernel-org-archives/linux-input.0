@@ -1,197 +1,65 @@
 From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v9 05/18] input: cyapa: add power management interfaces
- supported for the device
-Date: Mon, 10 Nov 2014 11:05:32 +0000
-Message-ID: <aa6f4152f56041d0b3f010fb0cf21aa7@BN1PR06MB070.namprd06.prod.outlook.com>
+Subject: RE: [PATCH v9 15/18] input: cyapa: add gen3 trackpad device read
+ firmware image function support
+Date: Mon, 10 Nov 2014 11:05:39 +0000
+Message-ID: <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
 References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
- <1415003590-30485-6-git-send-email-dudl@cypress.com>
- <20141110083806.GC39688@dtor-ws>
+ <1415003590-30485-16-git-send-email-dudl@cypress.com>
+ <20141110083955.GD39688@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141110083806.GC39688@dtor-ws>
+In-Reply-To: <20141110083955.GD39688@dtor-ws>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>
 Cc: "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Thanks, Dmity
+Thanks, Dmitry
 
 > -----Original Message-----
 > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: 2014?11?10? 16:38
+> Sent: 2014?11?10? 16:40
 > To: Dudley Du
 > Cc: rydberg@euromail.se; Dudley Du; bleung@google.com;
 > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH v9 05/18] input: cyapa: add power management interfaces
-> supported for the device
+> Subject: Re: [PATCH v9 15/18] input: cyapa: add gen3 trackpad device =
+read
+> firmware image function support
 >
-> On Mon, Nov 03, 2014 at 04:32:57PM +0800, Dudley Du wrote:
-> > Add suspend_scanrate_ms power management interfaces in device's
-> > power group, so users or applications can control the power management
-> > strategy of trackpad device as their requirements.
-> > TEST=test on Chromebooks.
-> >
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
-> > ---
-> >  drivers/input/mouse/cyapa.c | 112
-> ++++++++++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 112 insertions(+)
-> >
-> > diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-> > index fac361a..420696d 100644
-> > --- a/drivers/input/mouse/cyapa.c
-> > +++ b/drivers/input/mouse/cyapa.c
-> > @@ -505,6 +505,96 @@ u16 cyapa_pwr_cmd_to_sleep_time(u8 pwr_mode)
-> >     : (encoded_time - 5) * 20;
-> >  }
-> >
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static ssize_t cyapa_show_suspend_scanrate(struct device *dev,
-> > +   struct device_attribute *attr,
-> > +   char *buf)
-> > +{
-> > +struct cyapa *cyapa = dev_get_drvdata(dev);
-> > +u8 pwr_cmd = cyapa->suspend_power_mode;
-> > +u16 sleep_time;
-> > +int len;
-> > +int ret;
-> > +
-> > +ret = mutex_lock_interruptible(&cyapa->state_sync_lock);
-> > +if (ret)
-> > +return ret;
-> > +pwr_cmd = cyapa->suspend_power_mode;
-> > +sleep_time = cyapa->suspend_sleep_time;
-> > +mutex_unlock(&cyapa->state_sync_lock);
-> > +
-> > +if (pwr_cmd == PWR_MODE_BTN_ONLY)
-> > +len = scnprintf(buf, PAGE_SIZE, "%s\n", BTN_ONLY_MODE_NAME);
-> > +else if (pwr_cmd == PWR_MODE_OFF)
-> > +len = scnprintf(buf, PAGE_SIZE, "%s\n", OFF_MODE_NAME);
-> > +else {
-> > +if (cyapa->gen == CYAPA_GEN3)
-> > +sleep_time = cyapa_pwr_cmd_to_sleep_time(pwr_cmd);
-> > +len = scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
-> > +}
-> > +
-> > +return len;
-> > +}
-> > +
-> > +static u16 cyapa_clamp_sleep_time(u16 sleep_time)
-> > +{
-> > +if (sleep_time > 1000)
-> > +sleep_time = 1000;
-> > +return sleep_time;
-> > +}
-> > +
-> > +static ssize_t cyapa_update_suspend_scanrate(struct device *dev,
-> > +     struct device_attribute *attr,
-> > +     const char *buf, size_t count)
-> > +{
-> > +struct cyapa *cyapa = dev_get_drvdata(dev);
-> > +u16 sleep_time;
-> > +int ret;
-> > +
-> > +ret = mutex_lock_interruptible(&cyapa->state_sync_lock);
-> > +if (ret)
-> > +return ret;
-> > +
-> > +if (sysfs_streq(buf, BTN_ONLY_MODE_NAME))
-> > +cyapa->suspend_power_mode = PWR_MODE_BTN_ONLY;
-> > +else if (sysfs_streq(buf, OFF_MODE_NAME))
-> > +cyapa->suspend_power_mode = PWR_MODE_OFF;
-> > +else if (!kstrtou16(buf, 10, &sleep_time)) {
-> > +cyapa->suspend_sleep_time = cyapa_clamp_sleep_time(sleep_time);
+> On Mon, Nov 03, 2014 at 04:33:07PM +0800, Dudley Du wrote:
+> > Add read firmware image function supported for gen3 trackpad device=
+,
+> > it can be used through debugfs read_fw interface.
 >
-> I'd simply do
->
-> cyapa->suspend_sleep_time = max_t(u16, sleep_time, 1000);
->
-> here.
+> Why do we need this? Can we do the same via usespace program accessin=
+g
+> the i2c device through /dev/i2c-N?
 
-Thanks, applied.
+This interface is used to test and debug only. It's defined and require=
+d by the chromium projects.
+
+And in the driver side, becase the firmware image read process is done =
+based on interrupt signal,
+if do this in userspace through /dev/i2c-N, there will be two issues:
+1) for gen5, after each command, an interrupt will be asserted, so if t=
+hroug /dev/i2c-N,
+userspace program cannot get the interrupt signal.
+2) and when the interrupt signal assert, driver won't know it=92s a com=
+mand signal for image read,
+so it will try to process it as data report.
+To avoid this, additional interface must be added to mark the image rea=
+d status and
+block interrupt signal to be process as data report.
 
 >
-> > +cyapa->suspend_power_mode =
-> > +cyapa_sleep_time_to_pwr_cmd(cyapa->suspend_sleep_time);
-> > +} else
-> > +count = 0;
-> > +
->
-> If one branch uses curly braces then all branches shoudl use them, even
-> if they contain only one statement.
-
-Thanks, I will go through all code to follow this rule.
-
->
-> > +mutex_unlock(&cyapa->state_sync_lock);
-> > +if (!count)
-> > +dev_err(dev, "invalid suspend scanrate ms parameters\n");
-> > +return count ? count : -EINVAL;
-> > +}
-> > +
-> > +static DEVICE_ATTR(suspend_scanrate_ms, S_IRUGO|S_IWUSR,
-> > +   cyapa_show_suspend_scanrate,
-> > +   cyapa_update_suspend_scanrate);
-> > +
-> > +static struct attribute *cyapa_power_wakeup_entries[] = {
-> > +&dev_attr_suspend_scanrate_ms.attr,
-> > +NULL,
-> > +};
-> > +
-> > +static const struct attribute_group cyapa_power_wakeup_group = {
-> > +.name = power_group_name,
-> > +.attrs = cyapa_power_wakeup_entries,
-> > +};
-> > +
-> > +static void cyapa_remove_power_wakeup_group(void *data)
-> > +{
-> > +struct cyapa *cyapa = data;
-> > +
-> > +sysfs_unmerge_group(&cyapa->client->dev.kobj,
-> > +&cyapa_power_wakeup_group);
-> > +}
-> > +#endif /* CONFIG_PM_SLEEP */
-> > +
-> >  /*
-> >   * Returns:
-> >   *   0    Driver and device initialization successfully done.
-> > @@ -588,6 +678,28 @@ static int cyapa_probe(struct i2c_client *client,
-> >  return ret;
-> >  }
-> >
-> > +#ifdef CONFIG_PM_SLEEP
-> > +if (device_can_wakeup(dev)) {
-> > +ret = sysfs_merge_group(&client->dev.kobj,
-> > +&cyapa_power_wakeup_group);
-> > +if (ret) {
-> > +dev_err(dev, "failed to add power wakeup group, (%d)\n",
-> > +ret);
-> > +return ret;
-> > +}
-> > +
-> > +ret = devm_add_action(dev,
-> > +cyapa_remove_power_wakeup_group, cyapa);
-> > +if (ret) {
-> > +cyapa_remove_power_wakeup_group(cyapa);
-> > +dev_err(dev,
-> > +"failed to add power cleanup action, (%d)\n",
-> > +ret);
-> > +return ret;
-> > +}
-> > +}
-> > +#endif /* CONFIG_PM_SLEEP */
-> > +
-> >  return 0;
-> >  }
-> >
-> > --
-> > 1.9.1
-> >
+> Thanks.
 >
 > --
 > Dmitry
 
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+This message and any attachments may contain Cypress (or its subsidiari=
+es) confidential information. If it has been received in error, please =
+advise the sender and immediately delete this message.

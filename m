@@ -1,46 +1,91 @@
-From: Hector Martin <hector@marcansoft.com>
-Subject: Re: [PATCH] hid: sony: Use kernel allocated buffers for HID reports
-Date: Wed, 12 Nov 2014 03:20:57 +0900
-Message-ID: <54625389.4040900@marcansoft.com>
-References: <1415728913-2679-1-git-send-email-frank.praznik@oh.rr.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] psmouse: Add some support for the FocalTech PS/2 protocol
+ extensions.
+Date: Tue, 11 Nov 2014 19:58:22 +0100
+Message-ID: <54625C4E.6010407@redhat.com>
+References: <544B910A.6070304@gmail.com> <544E1304.2060006@redhat.com> <20141111165553.GA27720@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marcansoft.com ([213.138.101.166]:47105 "EHLO
-	mail.marcansoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751089AbaKKS1T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Nov 2014 13:27:19 -0500
-In-Reply-To: <1415728913-2679-1-git-send-email-frank.praznik@oh.rr.com>
+Received: from mx1.redhat.com ([209.132.183.28]:48249 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750859AbaKKS60 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Nov 2014 13:58:26 -0500
+In-Reply-To: <20141111165553.GA27720@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mathias Gottschlag <mgottschlag@gmail.com>, linux-input@vger.kernel.org
 
-On 12/11/14 03:01, Frank Praznik wrote:
-> Replace stack buffers with kernel allocated buffers when sending
-> and receiving HID reports to prevent issues with DMA transfers
-> on certain hardware.
+Hi,
+
+On 11/11/2014 05:55 PM, Dmitry Torokhov wrote:
+> Hi Hans,
 > 
-> Output report buffers are allocated at initialization time to avoid
-> excessive kmalloc and kfree calls.
+> On Mon, Oct 27, 2014 at 10:40:20AM +0100, Hans de Goede wrote:
+>> Hi Matthias,
+>>
+>> On 10/25/2014 02:01 PM, Mathias Gottschlag wrote:
+>>> +static void focaltech_report_state(struct psmouse *psmouse)
+>>> +{
+>>> +	int i;
+>>> +	struct focaltech_data *priv = psmouse->private;
+>>> +	struct focaltech_hw_state *state = &priv->state;
+>>> +	struct input_dev *dev = psmouse->dev;
+>>> +	int finger_count = 0;
+>>> +
+>>> +	for (i = 0; i < FOC_MAX_FINGERS; i++) {
+>>> +		struct focaltech_finger_state *finger = &state->fingers[i];
+>>> +		int active = finger->active && finger->valid;
+>>> +		input_mt_slot(dev, i);
+>>> +		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+>>> +		if (active) {
+>>> +			finger_count++;
+>>> +			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
+>>> +			input_report_abs(dev, ABS_MT_POSITION_Y,
+>>> +					focaltech_invert_y(finger->y));
+>>> +		}
+>>> +	}
+>>> +	input_mt_report_pointer_emulation(dev, false);
+>>> +	input_mt_report_finger_count(dev, finger_count);
+>>
+>> These 2 lines should be replace with:
+>> 	input_mt_report_pointer_emulation(dev, finger_count);
+>>
+>> So that BTN_TOUCH properly gets set when at least one finger is down (this is
+>> mandatory when not reporting pressure).
 > 
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
-> ---
+> I am baffled by this suggestion. input_mt_report_pointer_emulation()
+> always report BTN_TOUCH, regardless of the value of the 2nd argument.
+
+My bad, I misread the code (I think I mixed up the use_count and count vars).
+
+> Also, the name of the 2nd argument is "use_count" and it is boolean, so
+> I am not sure why you are suggesting that we basically do:
 > 
->  I'm CC-ing the original bug reporter to see if he can test this patch
->  on whatever platform was giving him trouble as I can't replicate the
->  reported error on my end.
+> 	if (finger_count)
+> 		input_mt_report_pointer_emulation(dev, true /*count them again */);
+> 	else
+> 		input_mt_report_pointer_emulation(dve, false);
+> 
+> Did you mean to tell Mathias to call
+> input_mt_report_pointer_emulation(dev, *true*); to instruct MT core to
+> count contacts and emit appropriate BTN_TOOL_* based on number of
+> contacts (if any)?
 
-Seems to work fine with the patch. Thanks!
+Right, rereading things, their is no need for the focaltech code to do
+its own finger counting, and these 2 calls:
 
-FWIW, this is 3.17.1-hardened (I wonder if the grsecurity patches have
-anything to do with it... maybe they do something to the stack) on an
-Intel 7 Series (Panther Point) PCH's EHCI controller (with a couple of
-hubs along the way).
+	input_mt_report_pointer_emulation(dev, false);
+	input_mt_report_finger_count(dev, finger_count);
 
--- 
-Hector Martin (hector@marcansoft.com)
-Public Key: http://www.marcansoft.com/marcan.asc
+Should be replaced with:
 
+	input_mt_report_pointer_emulation(dev, true);
+
+Sorry for the confusion.
+
+Regards,
+
+Hans

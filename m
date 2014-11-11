@@ -1,104 +1,59 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 3/6] mfd: ti_am335x_tscadc: Remove unwanted
- reg_se_cache save
-Date: Tue, 11 Nov 2014 12:26:24 +0000
-Message-ID: <20141111122623.GA24004@x1>
-References: <1415694844-11230-1-git-send-email-vigneshr@ti.com>
- <1415694844-11230-4-git-send-email-vigneshr@ti.com>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH 02/15] GPIO: port LoCoMo gpio support from old driver
+Date: Tue, 11 Nov 2014 17:16:38 +0400
+Message-ID: <CALT56yPr42FV66USngocw=eWPt81d5R2MJxmzBnv02HOMmXAkA@mail.gmail.com>
+References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
+	<1414454528-24240-3-git-send-email-dbaryshkov@gmail.com>
+	<CACRpkdY7tRadod2vQfEytmw-ubaMAvr_=XTczD5bUMkqie0xkg@mail.gmail.com>
+	<CALT56yOgMUA7o2dzfHph=S2zkDV4zERzMh4ishpPwpAx7Cqj6Q@mail.gmail.com>
+	<CACRpkdb7v3LmOhbhQ9TPk1_bnLnpwizawW6RQvhQRLSjRewAaQ@mail.gmail.com>
+	<CALT56yO9f8wzaArnmfQSDzCM3S+2oT+62anH5kbFY3WdEt_HZg@mail.gmail.com>
+	<20141106060335.GR8509@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:55370 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751618AbaKKM0d (ORCPT
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:47629 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751344AbaKKNQj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Nov 2014 07:26:33 -0500
-Received: by mail-ig0-f179.google.com with SMTP id r10so857310igi.12
-        for <linux-input@vger.kernel.org>; Tue, 11 Nov 2014 04:26:32 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1415694844-11230-4-git-send-email-vigneshr@ti.com>
+	Tue, 11 Nov 2014 08:16:39 -0500
+In-Reply-To: <20141106060335.GR8509@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, richardcochran@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 
-On Tue, 11 Nov 2014, Vignesh R wrote:
+2014-11-06 9:03 GMT+03:00 Mark Brown <broonie@kernel.org>:
+> On Thu, Nov 06, 2014 at 01:33:24AM +0400, Dmitry Eremin-Solenikov wrote:
+>> 2014-11-03 16:43 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+>
+>> > Yes that's the point: if you use regmap mmio you get the RMW-locking
+>> > for free, with the regmap implementation.
+>
+>> Just to be more concrete. Currently locomo_gpio_ack_irq() function uses
+>> one lock and one unlock for doing 3 consecutive RMW I I convert locomo
+>> to regmap, will that be 3 lock/unlock calls or still one? (Or maybe I'm
+>> trying to be over-protective here and adding more lock/unlock cycles
+>> won't matter that much?)
+>
+> You'll get three lock/unlocks, we could add an interface for bulk
+> updates under one lock if it's important though.
+>
+>> Next question: if I have to export regmap to several subdrivers, is it better
+>> to have one big regmap or to have one-map-per-driver approach?
+>
+> One regmap for the physical register map which is shared between all the
+> users.
 
-> In one shot mode, sequencer automatically disables all enabled steps =
-at
-> the end of each cycle. (both ADC steps and TSC steps) Hence these ste=
-ps
-> need not be saved in reg_se_cache for clearing these steps at a later
-> stage.
-> Also, when ADC wakes up Sequencer should not be busy executing any of=
- the
-> config steps except for the charge step. Previously charge step was 1=
- ADC
-> clock cycle and hence it was ignored.
->=20
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
-> ---
+Mark, Linus,
 
-You need to provide a changelog here when submitting new versions.
+Just to better understand your suggestions: do you want me to convert
+to regmap only gpio driver or do you suggest to convert all LoCoMo drivers?
+That is doable, of course, but the amount of changes is overwhelming.
+Also I'm concerned about the performance impact from going through
+regmap layers.
 
->  drivers/mfd/ti_am335x_tscadc.c       | 7 +++++--
->  include/linux/mfd/ti_am335x_tscadc.h | 1 +
->  2 files changed, 6 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_t=
-scadc.c
-> index d877e777cce6..110038859a8d 100644
-> --- a/drivers/mfd/ti_am335x_tscadc.c
-> +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -86,8 +86,12 @@ static void am335x_tscadc_need_adc(struct ti_tscad=
-c_dev *tsadc)
->  		spin_lock_irq(&tsadc->reg_lock);
->  		finish_wait(&tsadc->reg_se_wait, &wait);
-> =20
-> +		/*
-> +		 * Sequencer should either be idle or
-> +		 * busy applying the charge step.
-> +		 */
->  		reg =3D tscadc_readl(tsadc, REG_ADCFSM);
-> -		WARN_ON(reg & SEQ_STATUS);
-> +		WARN_ON((reg & SEQ_STATUS) && !(reg & CHARGE_STEP));
->  		tsadc->adc_waiting =3D false;
->  	}
->  	tsadc->adc_in_use =3D true;
-> @@ -96,7 +100,6 @@ static void am335x_tscadc_need_adc(struct ti_tscad=
-c_dev *tsadc)
->  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
->  {
->  	spin_lock_irq(&tsadc->reg_lock);
-> -	tsadc->reg_se_cache |=3D val;
 
-You didn't answer my question about this?
-
->  	am335x_tscadc_need_adc(tsadc);
-> =20
->  	tscadc_writel(tsadc, REG_SE, val);
-> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd=
-/ti_am335x_tscadc.h
-> index c99be5dc0f5c..fcce182e4a35 100644
-> --- a/include/linux/mfd/ti_am335x_tscadc.h
-> +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> @@ -128,6 +128,7 @@
-> =20
->  /* Sequencer Status */
->  #define SEQ_STATUS BIT(5)
-> +#define CHARGE_STEP		0x11
-> =20
->  #define ADC_CLK			3000000
->  #define TOTAL_STEPS		16
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+With best wishes
+Dmitry

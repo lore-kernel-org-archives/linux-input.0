@@ -1,68 +1,564 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH] hid: sony: Add support for the third-party SMK PS3 Bluetooth Remote
-Date: Wed, 12 Nov 2014 14:52:28 -0500
-Message-ID: <1415821948-8468-1-git-send-email-frank.praznik@oh.rr.com>
+From: Mathias Gottschlag <mgottschlag@gmail.com>
+Subject: [PATCH] psmouse: Add some support for the FocalTech PS/2 protocol extensions.
+Date: Wed, 12 Nov 2014 23:56:16 +0100
+Message-ID: <1415832976-1680-1-git-send-email-mgottschlag@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:13100 "EHLO
-	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753331AbaKLTwc (ORCPT
+Received: from mail-qa0-f50.google.com ([209.85.216.50]:51655 "EHLO
+	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752352AbaKLW43 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2014 14:52:32 -0500
+	Wed, 12 Nov 2014 17:56:29 -0500
+Received: by mail-qa0-f50.google.com with SMTP id bm13so9431389qab.9
+        for <linux-input@vger.kernel.org>; Wed, 12 Nov 2014 14:56:29 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, Mathias Gottschlag <mgottschlag@gmail.com>
 
-Add vid/pid for the SMK branded third-party PS3 Bluetooth remote and enable
-support in the hid-sony driver.
+Most of the protocol for these touchpads has been reverse engineered. This
+commit adds a basic multitouch-capable driver.
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+A lot of the protocol is still unknown. Especially, we don't know how to
+identify the device yet apart from the PNP ID.
+
+The previous workaround for these devices has been left in place in case
+the driver is not compiled into the kernel or in case some other device
+with the same PNP ID is not recognized by the driver yet still has the same
+problems with the device probing code.
+
+Signed-off-by: Mathias Gottschlag <mgottschlag@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-core.c | 1 +
- drivers/hid/hid-ids.h  | 3 +++
- drivers/hid/hid-sony.c | 3 +++
- 3 files changed, 7 insertions(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 73bd9e2..c8b8691 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1913,6 +1913,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SKYCABLE, USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e23ab8b..b2c8a6a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -812,6 +812,9 @@
- #define USB_VENDOR_ID_SKYCABLE			0x1223
- #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+Various smaller changes as requested. Also, accidentally pressing the touchpad
+disable button can cause really frustrating debugging sessions.
+
+ drivers/input/mouse/Kconfig        |  10 ++
+ drivers/input/mouse/focaltech.c    | 313 ++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/focaltech.h    |  60 +++++++
+ drivers/input/mouse/psmouse-base.c |  32 ++--
+ drivers/input/mouse/psmouse.h      |   1 +
+ 5 files changed, 399 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 366fc7a..db973e5 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -146,6 +146,16 @@ config MOUSE_PS2_OLPC
  
-+#define USB_VENDOR_ID_SMK		0x0609
-+#define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
+ 	  If unsure, say N.
+ 
++config MOUSE_PS2_FOCALTECH
++	bool "FocalTech PS/2 mouse protocol extension" if EXPERT
++	default y
++	depends on MOUSE_PS2
++	help
++	  Say Y here if you have a FocalTech PS/2 TouchPad connected to
++	  your system.
 +
- #define USB_VENDOR_ID_SONY			0x054c
- #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
- #define USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE	0x0374
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index b6e6102..31e9d25 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -2113,6 +2113,9 @@ static const struct hid_device_id sony_devices[] = {
- 	/* Logitech Harmony Adapter for PS3 */
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
- 		.driver_data = PS3REMOTE },
-+	/* SMK-Link PS3 BD Remote Control */
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE),
-+		.driver_data = PS3REMOTE },
- 	/* Sony Dualshock 4 controllers for PS4 */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
- 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
++	  If unsure, say Y.
++
+ config MOUSE_SERIAL
+ 	tristate "Serial mouse"
+ 	select SERIO
+diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+index f4d657e..f838cab4 100644
+--- a/drivers/input/mouse/focaltech.c
++++ b/drivers/input/mouse/focaltech.c
+@@ -2,6 +2,7 @@
+  * Focaltech TouchPad PS/2 mouse driver
+  *
+  * Copyright (c) 2014 Red Hat Inc.
++ * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -13,15 +14,14 @@
+  * Hans de Goede <hdegoede@redhat.com>
+  */
+ 
+-/*
+- * The Focaltech PS/2 touchpad protocol is unknown. This drivers deals with
+- * detection only, to avoid further detection attempts confusing the touchpad
+- * this way it at least works in PS/2 mouse compatibility mode.
+- */
+ 
+ #include <linux/device.h>
+ #include <linux/libps2.h>
++#include <linux/input/mt.h>
++#include <linux/serio.h>
++#include <linux/slab.h>
+ #include "psmouse.h"
++#include "focaltech.h"
+ 
+ static const char * const focaltech_pnp_ids[] = {
+ 	"FLT0101",
+@@ -30,6 +30,12 @@ static const char * const focaltech_pnp_ids[] = {
+ 	NULL
+ };
+ 
++/*
++ * Even if the kernel is built without support for Focaltech PS/2 touchpads (or
++ * when the real driver fails to recognize the device), we still have to detect
++ * them in order to avoid further detection attempts confusing the touchpad.
++ * This way it at least works in PS/2 mouse compatibility mode.
++ */
+ int focaltech_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	if (!psmouse_matches_pnp_id(psmouse, focaltech_pnp_ids))
+@@ -37,16 +43,309 @@ int focaltech_detect(struct psmouse *psmouse, bool set_properties)
+ 
+ 	if (set_properties) {
+ 		psmouse->vendor = "FocalTech";
+-		psmouse->name = "FocalTech Touchpad in mouse emulation mode";
++		psmouse->name = "FocalTech Touchpad";
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-int focaltech_init(struct psmouse *psmouse)
++static void focaltech_reset(struct psmouse *psmouse)
+ {
+ 	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+ 	psmouse_reset(psmouse);
++}
++
++#ifdef CONFIG_MOUSE_PS2_FOCALTECH
++
++static void focaltech_report_state(struct psmouse *psmouse)
++{
++	int i;
++	struct focaltech_data *priv = psmouse->private;
++	struct focaltech_hw_state *state = &priv->state;
++	struct input_dev *dev = psmouse->dev;
++
++	for (i = 0; i < FOC_MAX_FINGERS; i++) {
++		struct focaltech_finger_state *finger = &state->fingers[i];
++		bool active = finger->active && finger->valid;
++		input_mt_slot(dev, i);
++		input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
++		if (active) {
++			input_report_abs(dev, ABS_MT_POSITION_X, finger->x);
++			input_report_abs(dev, ABS_MT_POSITION_Y,
++					focaltech_invert_y(finger->y));
++		}
++	}
++	input_mt_report_pointer_emulation(dev, true);
++
++	input_report_key(psmouse->dev, BTN_LEFT, state->pressed);
++	input_sync(psmouse->dev);
++}
++
++static void process_touch_packet(struct focaltech_hw_state *state,
++		unsigned char *packet)
++{
++	int i;
++	unsigned char fingers = packet[1];
++
++	state->pressed = (packet[0] >> 4) & 1;
++	/* the second byte contains a bitmap of all fingers touching the pad */
++	for (i = 0; i < FOC_MAX_FINGERS; i++) {
++		state->fingers[i].active = fingers & 0x1;
++		if (!state->fingers[i].active) {
++			/* even when the finger becomes active again, we still
++			 * will have to wait for the first valid position */
++			state->fingers[i].valid = false;
++		}
++		fingers >>= 1;
++	}
++}
++
++static void process_abs_packet(struct psmouse *psmouse,
++		unsigned char *packet)
++{
++	struct focaltech_data *priv = psmouse->private;
++	struct focaltech_hw_state *state = &priv->state;
++	unsigned int finger;
++
++	finger = (packet[1] >> 4) - 1;
++	if (finger >= FOC_MAX_FINGERS) {
++		psmouse_err(psmouse, "Invalid finger in abs packet: %d",
++				finger);
++		return;
++	}
++
++	state->pressed = (packet[0] >> 4) & 1;
++	/*
++	 * packet[5] contains some kind of tool size in the most significant
++	 * nibble. 0xff is a special value (latching) that signals a large
++	 * contact area.
++	 */
++	if (packet[5] == 0xff) {
++		state->fingers[finger].valid = false;
++		return;
++	}
++	state->fingers[finger].x = ((packet[1] & 0xf) << 8) | packet[2];
++	state->fingers[finger].y = (packet[3] << 8) | packet[4];
++	state->fingers[finger].valid = true;
++}
++
++static void process_rel_packet(struct psmouse *psmouse,
++		unsigned char *packet)
++{
++	struct focaltech_data *priv = psmouse->private;
++	struct focaltech_hw_state *state = &priv->state;
++	int finger1, finger2;
++
++	state->pressed = packet[0] >> 7;
++	finger1 = ((packet[0] >> 4) & 0x7) - 1;
++	if (finger1 < FOC_MAX_FINGERS) {
++		state->fingers[finger1].x += (char)packet[1];
++		state->fingers[finger1].y += (char)packet[2];
++	} else {
++		psmouse_err(psmouse, "First finger in rel packet invalid: %d",
++				finger1);
++	}
++	/*
++	 * If there is an odd number of fingers, the last relative packet only
++	 * contains one finger. In this case, the second finger index in the
++	 * packet is 0 (we subtract 1 in the lines above to create array
++	 * indices, so the finger will overflow and be above FOC_MAX_FINGERS).
++	 */
++	finger2 = ((packet[3] >> 4) & 0x7) - 1;
++	if (finger2 < FOC_MAX_FINGERS) {
++		state->fingers[finger2].x += (char)packet[4];
++		state->fingers[finger2].y += (char)packet[5];
++	}
++}
++
++static void focaltech_process_packet(struct psmouse *psmouse)
++{
++	struct focaltech_data *priv = psmouse->private;
++	unsigned char *packet = psmouse->packet;
++
++	switch (packet[0] & 0xf) {
++	case FOC_TOUCH:
++		process_touch_packet(&priv->state, packet);
++		break;
++	case FOC_ABS:
++		process_abs_packet(psmouse, packet);
++		break;
++	case FOC_REL:
++		process_rel_packet(psmouse, packet);
++		break;
++	default:
++		psmouse_err(psmouse, "Unknown packet type: %02x", packet[0]);
++		break;
++	}
++
++	focaltech_report_state(psmouse);
++}
++
++static psmouse_ret_t focaltech_process_byte(struct psmouse *psmouse)
++{
++	if (psmouse->pktcnt >= 6) { /* Full packet received */
++		focaltech_process_packet(psmouse);
++		return PSMOUSE_FULL_PACKET;
++	}
++	/*
++	 * we might want to do some validation of the data here, but we do not
++	 * know the protocoll well enough
++	 */
++	return PSMOUSE_GOOD_DATA;
++}
++
++static int focaltech_switch_protocol(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	unsigned char param[3];
++
++	param[0] = 0;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	param[0] = 1;
++	if (ps2_command(ps2dev, param, 0x10f8))
++		return -EIO;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
++		return -EIO;
++
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_ENABLE))
++		return -EIO;
++
++	return 0;
++}
++
++static void focaltech_disconnect(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++	kfree(psmouse->private);
++	psmouse->private = NULL;
++}
++
++static int focaltech_reconnect(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++	if (focaltech_switch_protocol(psmouse)) {
++		psmouse_err(psmouse,
++			    "Unable to initialize the device.");
++		return -1;
++	}
++	return 0;
++}
++
++static void set_input_params(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct focaltech_data *priv = psmouse->private;
++
++	__set_bit(EV_ABS, dev->evbit);
++	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, priv->x_max, 0, 0);
++	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, priv->y_max, 0, 0);
++	input_mt_init_slots(dev, 5, INPUT_MT_POINTER);
++	__clear_bit(EV_REL, dev->evbit);
++	__clear_bit(REL_X, dev->relbit);
++	__clear_bit(REL_Y, dev->relbit);
++	__clear_bit(BTN_RIGHT, dev->keybit);
++	__clear_bit(BTN_MIDDLE, dev->keybit);
++	__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
++}
++
++static int focaltech_read_register(struct ps2dev *ps2dev, int reg,
++		unsigned char *param)
++{
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETSCALE11))
++		return -EIO;
++	param[0] = 0;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -EIO;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -EIO;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -EIO;
++	param[0] = reg;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES))
++		return -EIO;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -EIO;
++	return 0;
++}
++
++static int focaltech_read_size(struct psmouse *psmouse)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	struct focaltech_data *priv = psmouse->private;
++	char param[3];
++
++	if (focaltech_read_register(ps2dev, 2, param))
++		return -EIO;
++	/* not sure whether this is 100% correct */
++	priv->x_max = (unsigned char)param[1] * 128;
++	priv->y_max = (unsigned char)param[2] * 128;
++
++	return 0;
++}
++int focaltech_init(struct psmouse *psmouse)
++{
++	struct focaltech_data *priv;
++	int err;
++
++	psmouse->private = priv = kzalloc(sizeof(struct focaltech_data), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	focaltech_reset(psmouse);
++	err = focaltech_read_size(psmouse);
++	if (err) {
++		focaltech_reset(psmouse);
++		psmouse_err(psmouse,
++			    "Unable to read the size of the touchpad.");
++		goto fail;
++	}
++	if (focaltech_switch_protocol(psmouse)) {
++		focaltech_reset(psmouse);
++		psmouse_err(psmouse,
++			    "Unable to initialize the device.");
++		err = -ENOSYS;
++		goto fail;
++	}
++
++	set_input_params(psmouse);
++
++	psmouse->protocol_handler = focaltech_process_byte;
++	psmouse->pktsize = 6;
++	psmouse->disconnect = focaltech_disconnect;
++	psmouse->reconnect = focaltech_reconnect;
++	psmouse->cleanup = focaltech_reset;
++	/* resync is not supported yet */
++	psmouse->resync_time = 0;
+ 
+ 	return 0;
++fail:
++	focaltech_reset(psmouse);
++	kfree(priv);
++	return err;
++}
++
++bool focaltech_supported(void)
++{
++	return true;
+ }
++
++#else /* CONFIG_MOUSE_PS2_FOCALTECH */
++
++int focaltech_init(struct psmouse *psmouse)
++{
++	focaltech_reset(psmouse);
++
++	return 0;
++}
++
++bool focaltech_supported(void)
++{
++	return false;
++}
++
++#endif /* CONFIG_MOUSE_PS2_FOCALTECH */
+diff --git a/drivers/input/mouse/focaltech.h b/drivers/input/mouse/focaltech.h
+index 498650c..bda3241 100644
+--- a/drivers/input/mouse/focaltech.h
++++ b/drivers/input/mouse/focaltech.h
+@@ -2,6 +2,7 @@
+  * Focaltech TouchPad PS/2 mouse driver
+  *
+  * Copyright (c) 2014 Red Hat Inc.
++ * Copyright (c) 2014 Mathias Gottschlag <mgottschlag@gmail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -16,7 +17,66 @@
+ #ifndef _FOCALTECH_H
+ #define _FOCALTECH_H
+ 
++/*
++ * Packet types - the numbers are not consecutive, so we might be missing
++ * something here.
++ */
++#define FOC_TOUCH 0x3 /* bitmap of active fingers */
++#define FOC_ABS 0x6 /* absolute position of one finger */
++#define FOC_REL 0x9 /* relative position of 1-2 fingers */
++
++#define FOC_MAX_FINGERS 5
++
++#define FOC_MAX_X 2431
++#define FOC_MAX_Y 1663
++
++static inline int focaltech_invert_y(int y)
++{
++	return FOC_MAX_Y - y;
++}
++
++/*
++ * Current state of a single finger on the touchpad.
++ */
++struct focaltech_finger_state {
++	/* the touchpad has generated a touch event for the finger */
++	bool active;
++	/*
++	 * The touchpad has sent position data for the finger. The flag is 0
++	 * when the finger is not active, and there is a time between the first
++	 * touch event for the finger and the following absolute position
++	 * packet for the finger where the touchpad has declared the finger to
++	 * be valid, but we do not have any valid position yet.
++	 */
++	bool valid;
++	/* absolute position (from the bottom left corner) of the finger */
++	unsigned int x;
++	unsigned int y;
++};
++
++/*
++ * Description of the current state of the touchpad hardware.
++ */
++struct focaltech_hw_state {
++	/*
++	 * The touchpad tracks the positions of the fingers for us, the array
++	 * indices correspond to the finger indices returned in the report
++	 * packages.
++	 */
++	struct focaltech_finger_state fingers[FOC_MAX_FINGERS];
++	/*
++	 * True if the clickpad has been pressed.
++	 */
++	bool pressed;
++};
++
++struct focaltech_data {
++	unsigned int x_max, y_max;
++	struct focaltech_hw_state state;
++};
++
+ int focaltech_detect(struct psmouse *psmouse, bool set_properties);
+ int focaltech_init(struct psmouse *psmouse);
++bool focaltech_supported(void);
+ 
+ #endif
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 95a3a6e..68469fe 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -725,16 +725,19 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 
+ /* Always check for focaltech, this is safe as it uses pnp-id matching */
+ 	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
+-		if (!set_properties || focaltech_init(psmouse) == 0) {
+-			/*
+-			 * Not supported yet, use bare protocol.
+-			 * Note that we need to also restrict
+-			 * psmouse_max_proto so that psmouse_initialize()
+-			 * does not try to reset rate and resolution,
+-			 * because even that upsets the device.
+-			 */
+-			psmouse_max_proto = PSMOUSE_PS2;
+-			return PSMOUSE_PS2;
++		if (max_proto > PSMOUSE_IMEX) {
++			if (!set_properties || focaltech_init(psmouse) == 0) {
++				if (focaltech_supported())
++					return PSMOUSE_FOCALTECH;
++				/*
++				 * Note that we need to also restrict
++				 * psmouse_max_proto so that psmouse_initialize()
++				 * does not try to reset rate and resolution,
++				 * because even that upsets the device.
++				 */
++				psmouse_max_proto = PSMOUSE_PS2;
++				return PSMOUSE_PS2;
++			}
+ 		}
+ 	}
+ 
+@@ -1063,6 +1066,15 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+ 		.alias		= "cortps",
+ 		.detect		= cortron_detect,
+ 	},
++#ifdef CONFIG_MOUSE_PS2_FOCALTECH
++	{
++		.type		= PSMOUSE_FOCALTECH,
++		.name		= "FocalTechPS/2",
++		.alias		= "focaltech",
++		.detect		= focaltech_detect,
++		.init		= focaltech_init,
++	},
++#endif
+ 	{
+ 		.type		= PSMOUSE_AUTO,
+ 		.name		= "auto",
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index f4cf664..c2ff137 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -96,6 +96,7 @@ enum psmouse_type {
+ 	PSMOUSE_FSP,
+ 	PSMOUSE_SYNAPTICS_RELATIVE,
+ 	PSMOUSE_CYPRESS,
++	PSMOUSE_FOCALTECH,
+ 	PSMOUSE_AUTO		/* This one should always be last */
+ };
+ 
 -- 
-2.1.0
+1.9.1
 

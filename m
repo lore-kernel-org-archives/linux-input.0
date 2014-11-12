@@ -1,15 +1,17 @@
 From: Mathias Gottschlag <mgottschlag@gmail.com>
-Subject: [PATCH] psmouse: Add some support for the FocalTech PS/2 protocol extensions.
-Date: Wed, 12 Nov 2014 23:56:16 +0100
-Message-ID: <1415832976-1680-1-git-send-email-mgottschlag@gmail.com>
+Subject: [PATCH v5] psmouse: Add some support for the FocalTech PS/2 protocol extensions.
+Date: Thu, 13 Nov 2014 00:00:33 +0100
+Message-ID: <1415833233-1863-1-git-send-email-mgottschlag@gmail.com>
+References: <1415832976-1680-1-git-send-email-mgottschlag@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f50.google.com ([209.85.216.50]:51655 "EHLO
-	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752352AbaKLW43 (ORCPT
+Received: from mail-qg0-f47.google.com ([209.85.192.47]:49812 "EHLO
+	mail-qg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752195AbaKLXAn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2014 17:56:29 -0500
-Received: by mail-qa0-f50.google.com with SMTP id bm13so9431389qab.9
-        for <linux-input@vger.kernel.org>; Wed, 12 Nov 2014 14:56:29 -0800 (PST)
+	Wed, 12 Nov 2014 18:00:43 -0500
+Received: by mail-qg0-f47.google.com with SMTP id j107so9727213qga.34
+        for <linux-input@vger.kernel.org>; Wed, 12 Nov 2014 15:00:39 -0800 (PST)
+In-Reply-To: <1415832976-1680-1-git-send-email-mgottschlag@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
@@ -30,6 +32,7 @@ Signed-off-by: Mathias Gottschlag <mgottschlag@gmail.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
 
+(Resent with the correct subject to prevent confusion, sorry, this is v5)
 Various smaller changes as requested. Also, accidentally pressing the touchpad
 disable button can cause really frustrating debugging sessions.
 

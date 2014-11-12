@@ -1,46 +1,74 @@
-From: Alexander Stein <alexander.stein@systec-electronic.com>
-Subject: Re: [PATCH v2 1/1] Input: gpio_keys - add device tree support for interrupt only keys
-Date: Wed, 12 Nov 2014 17:38:31 +0100
-Message-ID: <8280855.M123yTnXfy@ws-stein>
-References: <1415808176-13282-1-git-send-email-alexander.stein@systec-electronic.com> <3325183.d9PtLzFMKy@wuerfel>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH v5 1/3] mfd: max8997: use regmap to access registers
+Date: Wed, 12 Nov 2014 18:01:44 +0100
+Message-ID: <20141112170144.GB27681@earth.universe>
+References: <1415776996-11569-1-git-send-email-r.baldyga@samsung.com>
+ <1415776996-11569-2-git-send-email-r.baldyga@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webbox1416.server-home.net ([77.236.96.61]:44293 "EHLO
-	webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753269AbaKLQgp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2014 11:36:45 -0500
-In-Reply-To: <3325183.d9PtLzFMKy@wuerfel>
+Received: from mail.kernel.org ([198.145.19.201]:39114 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752707AbaKLRBt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Nov 2014 12:01:49 -0500
+Content-Disposition: inline
+In-Reply-To: <1415776996-11569-2-git-send-email-r.baldyga@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Robert Baldyga <r.baldyga@samsung.com>
+Cc: lee.jones@linaro.org, sameo@linux.intel.com, myungjoo.ham@samsung.com, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, cooloney@gmail.com, rpurdie@rpsys.net, dbaryshkov@gmail.com, dwmw2@infradead.org, lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it, paul.gortmaker@windriver.com, sachin.kamat@linaro.org, k.kozlowski@samsung.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, rtc-linux@googlegroups.com
 
-On Wednesday 12 November 2014 17:04:57, Arnd Bergmann wrote:
-> On Wednesday 12 November 2014 17:02:56 Alexander Stein wrote:
-> > This features already exists for board config setups. Add support for
-> > device tree based systems.
-> > 
-> > Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> > ---
-> > Please note: Due to current lack of hardware I could not test it yet. V2
-> > includes the changes proposed by Dmitry.
-> > 
-> > Changes in v2:
-> > * Added device tree bindings
-> > * IRQ is only parsed and mapped when there is no "gpios" property
-> > 
-> 
-> Can you list one or more examples in the patch description?
-> Are these systems that don't expose the GPIO controller with a
-> standalone driver, or systems that really actually connect the
-> buttons to an interrupt pin?
 
-You mean a use case? I came to this situation to test interrupt polarity on a microcontroller, thus a simple /IRQ pin, no GPIO at all. So in the end I have an input just connected to an interrupt line.
-I noticed gpio_keys using platform data only can be used for this setup. So I added this support for device tree.
+--qcHopEYAB45HaUaB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Alexander
+Hi,
 
+On Wed, Nov 12, 2014 at 08:23:14AM +0100, Robert Baldyga wrote:
+> This patch modifies max8997 driver and each associated function driver,
+> to use regmap instead of operating directly on i2c bus. It will allow to
+> simplify IRQ handling using regmap-irq.
+>=20
+> Signed-off-by: Robert Baldyga <r.baldyga@samsung.com>
+> Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>=20
+> [For extcon part]
+> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+>=20
+> [For leds part]
+> Acked-by: Bryan Wu <cooloney@gmail.com>
+>=20
+> [For the mfd part]
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+
+[For the power supply part]
+Acked-By: Sebastian Reichel <sre@kernel.org>
+
+-- Sebastian
+
+--qcHopEYAB45HaUaB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJUY5J4AAoJENju1/PIO/qa1/UQAJcZ1SQq0B1MUjO/YKl3l+qz
+NjW8NVf6aZZP1jcHILJZCdb7vafFKVbin4LJgx4B60vVejyy7VEqFtxtl2TgRmlG
+YpnIGVjIDteIVQGO2sOPNJZQCkmwXcojnLUpmDusQ1mf1BOf8RonCy5IHfGnp3EE
+2vZ+8EOJ47mGqK0cuD08W7kvGqwQtcBq/M4pvTmzmPcBSUnaZjv2Wp7e6+MUmp6k
++LBjgiOerlkAnKWZmuDRl+a7D6MhPW8lI5u/Kk9Qzw+WFtiO0HllkXy26+VSB5uI
+3TpeOUQuk5mRilqtiQdNIqrVJLUH2BVEDil6JxGGa3TU7eOQrkg8hZCEW+/FDWW9
+hOCZG3VxsWHNPfOhpdlhGZ7SXTh9Z2oxjftxZYer7CwC9XS7PHUeLCczqIyFchY/
+j86cBXreb6uUOE4icedZDBePNkSvT3oY63Q13VmauXfL5X5LVpp3jANFPszI4QSl
+LxrllmqpSCqCJegctxq+v95g/4YC/+ZpM/m4eWbNrzyvKgJZQ/iVNH3xNUKdoaWr
+cQTfjdZ+7ma298uIS0IIdo/12QVYaQ9hFqKU/Oy+VNfQxmEHVjcWYIZcO6eIcUFf
+1L91G7lLpXz2H9L8u/zAY0LL+RKY8f3aH20VKI3jbXDG/tW7sai5p0C2WnWIlWDA
+gx/ysKjHSMuUhi2tHf40
+=r5Wi
+-----END PGP SIGNATURE-----
+
+--qcHopEYAB45HaUaB--

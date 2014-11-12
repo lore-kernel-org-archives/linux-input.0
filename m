@@ -1,49 +1,68 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 1/1] Input: gpio_keys - add device tree support for interrupt only keys
-Date: Wed, 12 Nov 2014 20:16:06 +0100
-Message-ID: <2197757.1V0yxO5sLr@wuerfel>
-References: <1415808176-13282-1-git-send-email-alexander.stein@systec-electronic.com> <3325183.d9PtLzFMKy@wuerfel> <8280855.M123yTnXfy@ws-stein>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] hid: sony: Add support for the third-party SMK PS3 Bluetooth Remote
+Date: Wed, 12 Nov 2014 14:52:28 -0500
+Message-ID: <1415821948-8468-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.13]:65006 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753151AbaKLTQO (ORCPT
+Received: from cdptpa-outbound-snat.email.rr.com ([107.14.166.232]:13100 "EHLO
+	cdptpa-oedge-vip.email.rr.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753331AbaKLTwc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2014 14:16:14 -0500
-In-Reply-To: <8280855.M123yTnXfy@ws-stein>
+	Wed, 12 Nov 2014 14:52:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Wednesday 12 November 2014 17:38:31 Alexander Stein wrote:
-> On Wednesday 12 November 2014 17:04:57, Arnd Bergmann wrote:
-> > On Wednesday 12 November 2014 17:02:56 Alexander Stein wrote:
-> > > This features already exists for board config setups. Add support for
-> > > device tree based systems.
-> > > 
-> > > Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> > > ---
-> > > Please note: Due to current lack of hardware I could not test it yet. V2
-> > > includes the changes proposed by Dmitry.
-> > > 
-> > > Changes in v2:
-> > > * Added device tree bindings
-> > > * IRQ is only parsed and mapped when there is no "gpios" property
-> > > 
-> > 
-> > Can you list one or more examples in the patch description?
-> > Are these systems that don't expose the GPIO controller with a
-> > standalone driver, or systems that really actually connect the
-> > buttons to an interrupt pin?
-> 
-> You mean a use case? I came to this situation to test interrupt polarity on a microcontroller, thus a simple /IRQ pin, no GPIO at all. So in the end I have an input just connected to an interrupt line.
-> I noticed gpio_keys using platform data only can be used for this setup. So I added this support for device tree.
-> 
+Add vid/pid for the SMK branded third-party PS3 Bluetooth remote and enable
+support in the hid-sony driver.
 
-I meant a specific board file that uses this, which can't be converted
-to DT without your change.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+ drivers/hid/hid-core.c | 1 +
+ drivers/hid/hid-ids.h  | 3 +++
+ drivers/hid/hid-sony.c | 3 +++
+ 3 files changed, 7 insertions(+)
 
-	Arnd
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 73bd9e2..c8b8691 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1913,6 +1913,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SKYCABLE, USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e23ab8b..b2c8a6a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -812,6 +812,9 @@
+ #define USB_VENDOR_ID_SKYCABLE			0x1223
+ #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+ 
++#define USB_VENDOR_ID_SMK		0x0609
++#define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
++
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+ #define USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE	0x0374
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index b6e6102..31e9d25 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2113,6 +2113,9 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Logitech Harmony Adapter for PS3 */
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
+ 		.driver_data = PS3REMOTE },
++	/* SMK-Link PS3 BD Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE),
++		.driver_data = PS3REMOTE },
+ 	/* Sony Dualshock 4 controllers for PS4 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
+ 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
+-- 
+2.1.0
+

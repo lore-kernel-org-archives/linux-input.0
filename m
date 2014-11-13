@@ -1,106 +1,85 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v3] Input: evdev - add event-mask API
-Date: Thu, 13 Nov 2014 13:38:46 +0100
-Message-ID: <CANq1E4TUrRS-gGkK+h5-uNFwvL-3tngQ9XRtfMp=FcMdjyEFBg@mail.gmail.com>
-References: <1415121143-1675-1-git-send-email-dh.herrmann@gmail.com>
-	<20141112074020.GA4325@dtor-ws>
-	<CANq1E4SGnOcPbKaUKzg4zVYSCE+TMJmrvDXPgAm2Gj=4Zu-PTA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH v2 2/4] input: touchscreen: of: Register multitouch axes
+Date: Thu, 13 Nov 2014 15:06:56 +0100
+Message-ID: <1415887618-29844-3-git-send-email-maxime.ripard@free-electrons.com>
+References: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:63349 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932562AbaKMMir (ORCPT
+Received: from down.free-electrons.com ([37.187.137.238]:40471 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S933032AbaKMOKE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2014 07:38:47 -0500
-Received: by mail-ie0-f169.google.com with SMTP id tr6so15872029ieb.28
-        for <linux-input@vger.kernel.org>; Thu, 13 Nov 2014 04:38:46 -0800 (PST)
-In-Reply-To: <CANq1E4SGnOcPbKaUKzg4zVYSCE+TMJmrvDXPgAm2Gj=4Zu-PTA@mail.gmail.com>
+	Thu, 13 Nov 2014 09:10:04 -0500
+In-Reply-To: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-Hi
+So far, the DT parsing code was only setting up the regular input axes,
+completely ignoring their multitouch counter parts.
 
-On Wed, Nov 12, 2014 at 1:41 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
->
-> On Wed, Nov 12, 2014 at 8:40 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> Hi David,
->>
->> On Tue, Nov 04, 2014 at 06:12:23PM +0100, David Herrmann wrote:
->>> +static int bits_from_user(unsigned long *bits, unsigned int maxbit,
->>> +                       unsigned int maxlen, const void __user *p, int compat)
->>> +{
->>> +     int len;
->>> +
->>> +#if IS_ENABLED(CONFIG_COMPAT)
->>> +     if (compat)
->>
->> I think this can be written as:
->>         if (IS_ENABLED(CONFIG_COMPAT) && compat)
->
-> BITS_TO_LONGS_COMPAT is only defined if CONFIG_COMPAT is. We'd rely on
-> compiler-optimizations (dead code elimination) if we'd do that change.
-> I'm not really fond of making -O0 compiles fail, but there're several
-> places in the kernel that do. Your call ;)
->
->>> +             len = BITS_TO_LONGS_COMPAT(maxbit) * sizeof(compat_long_t);
->>> +     else
->>> +#endif
->>> +             len = BITS_TO_LONGS(maxbit) * sizeof(long);
->>> +
->>> +     if (len > maxlen)
->>> +             len = maxlen;
->>> +
->>> +#if IS_ENABLED(CONFIG_COMPAT) && defined(__BIG_ENDIAN)
->>> +     if (compat) {
->>> +             int i;
->>> +
->>> +             for (i = 0; i < len / sizeof(compat_long_t); i++)
->>> +                     if (copy_from_user((compat_long_t *) bits +
->>> +                                             i + 1 - ((i % 2) << 1),
->>> +                                        (compat_long_t __user *) p + i,
->>> +                                        sizeof(compat_long_t)))
->>
->> Unfortunately this is not quite enough, you need to also zero out the
->> upper bits of the last partial if userspace did not supply multiple of
->> 64 bits.
->>
->> Frankly, bitmask APIs that we have in input are god-awful on big endian:
->> they do not work if usespace uses quantities less than long (or compat
->> long). I think we'll have to enforce it in the code.
->
-> Right, I relied on the caller of bits_from_user() to initialize it to
-> zero and make it long-aligned. I can move it into that helper.
+Fill them with the same parameters than the regular axes.
 
-I now added a memset(bits, 0, len); before "if (len > maxlen)". This
-just clears the buffer before copying data. Due to the cross-over in
-the for()-loop, I'm not entirely sure how to only clear the unused
-parts, as the tail "long"s might be only set partially. Quite
-confusing..
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ drivers/input/touchscreen/of_touchscreen.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-I didn't change anything else. Lemme know if that's fine and I will
-resend the patch.
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index fe80d8ba7efa..b82b5207c78b 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/of.h>
+ #include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+ 
+ static u32 of_get_optional_u32(struct device_node *np,
+@@ -30,8 +31,13 @@ static void touchscreen_set_params(struct input_dev *dev,
+ 	struct input_absinfo *absinfo;
+ 
+ 	if (!test_bit(axis, dev->absbit)) {
+-		dev_warn(&dev->dev,
+-			 "DT specifies parameters but the axis is not set up\n");
++		/*
++		 * Emit a warning only if the axis is not a multitouch
++		 * axis, which might not be set by the driver.
++		 */
++		if (!input_is_mt_axis(axis))
++			dev_warn(&dev->dev,
++				 "DT specifies parameters but the axis is not set up\n");
+ 		return;
+ 	}
+ 
+@@ -59,17 +65,23 @@ void touchscreen_parse_of_params(struct input_dev *dev)
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-size-x");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
+-	if (maximum || fuzz)
++	if (maximum || fuzz) {
+ 		touchscreen_set_params(dev, ABS_X, maximum, fuzz);
++		touchscreen_set_params(dev, ABS_MT_POSITION_X, maximum, fuzz);
++	}
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-size-y");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
+-	if (maximum || fuzz)
++	if (maximum || fuzz) {
+ 		touchscreen_set_params(dev, ABS_Y, maximum, fuzz);
++		touchscreen_set_params(dev, ABS_MT_POSITION_Y, maximum, fuzz);
++	}
+ 
+ 	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
+ 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
+-	if (maximum || fuzz)
++	if (maximum || fuzz) {
+ 		touchscreen_set_params(dev, ABS_PRESSURE, maximum, fuzz);
++		touchscreen_set_params(dev, ABS_MT_PRESSURE, maximum, fuzz);
++	}
+ }
+ EXPORT_SYMBOL(touchscreen_parse_of_params);
+-- 
+2.1.1
 
-Thanks
-David
-
->>> +             } else {
->>> +                     /* fake mask with all bits set */
->>> +                     out = (u8 __user*)codes;
->>> +                     for (i = 0; i < min; ++i) {
->>> +                             if (put_user((u8)0xff,  out + i))
->>> +                                     return -EFAULT;
->>
->> I wonder if we should not replace this with access_ok() + straight
->> memset instead of doing byte-by-byte copy.
->
-> I'm actually not very familiar with the details of copy_to_user().
-> That's why I went with put_user(). I can look into it, but if you know
-> it well, I am open for suggestions.
->
-> Thanks
-> David

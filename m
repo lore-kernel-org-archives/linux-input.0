@@ -1,102 +1,106 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [PATCH 0/4] Touchscreen performance related fixes
-Date: Thu, 13 Nov 2014 17:53:17 +0530
-Message-ID: <5464A2B5.3020207@ti.com>
-References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>	<20141103180920.GA20779@localhost.localdomain>	<545B2651.4090905@ti.com> <CAJKbBDDyShaJkzzfdFs07EK5gDUfwqWiv39Qi4FVSvRrfc6_fA@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v3] Input: evdev - add event-mask API
+Date: Thu, 13 Nov 2014 13:38:46 +0100
+Message-ID: <CANq1E4TUrRS-gGkK+h5-uNFwvL-3tngQ9XRtfMp=FcMdjyEFBg@mail.gmail.com>
+References: <1415121143-1675-1-git-send-email-dh.herrmann@gmail.com>
+	<20141112074020.GA4325@dtor-ws>
+	<CANq1E4SGnOcPbKaUKzg4zVYSCE+TMJmrvDXPgAm2Gj=4Zu-PTA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJKbBDDyShaJkzzfdFs07EK5gDUfwqWiv39Qi4FVSvRrfc6_fA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Johannes Pointner <johannes.pointner@gmail.com>
-Cc: Richard Cochran <richardcochran@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Samuel Ortiz <sameo@linux.intel.com>, Jan Kardell <jan.kardell@telliq.com>, linux-iio <linux-iio@vger.kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-om
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:63349 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932562AbaKMMir (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Nov 2014 07:38:47 -0500
+Received: by mail-ie0-f169.google.com with SMTP id tr6so15872029ieb.28
+        for <linux-input@vger.kernel.org>; Thu, 13 Nov 2014 04:38:46 -0800 (PST)
+In-Reply-To: <CANq1E4SGnOcPbKaUKzg4zVYSCE+TMJmrvDXPgAm2Gj=4Zu-PTA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Hi,
+Hi
 
-On Wednesday 12 November 2014 06:30 PM, Johannes Pointner wrote:
-> Hello Vignesh,
-> 
-> I tried your patch version 3 on a customized board and had some
-> behavior I couldn't explain.
-> If I only use the touchscreen it works fine but if I also read values
-> from the ADCs then I get a lot of pen_up events even if I am still
-> touching the screen.
-> For the test I read via
-> # cat /sys/bus/iio/devices/iio\:device0/in_voltage5_raw
-> values from the ADC in an busy loop as you explained in an email
-> before. Did you also experience such behavior or do you know what
-> causes it?
+On Wed, Nov 12, 2014 at 1:41 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Wed, Nov 12, 2014 at 8:40 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi David,
+>>
+>> On Tue, Nov 04, 2014 at 06:12:23PM +0100, David Herrmann wrote:
+>>> +static int bits_from_user(unsigned long *bits, unsigned int maxbit,
+>>> +                       unsigned int maxlen, const void __user *p, int compat)
+>>> +{
+>>> +     int len;
+>>> +
+>>> +#if IS_ENABLED(CONFIG_COMPAT)
+>>> +     if (compat)
+>>
+>> I think this can be written as:
+>>         if (IS_ENABLED(CONFIG_COMPAT) && compat)
+>
+> BITS_TO_LONGS_COMPAT is only defined if CONFIG_COMPAT is. We'd rely on
+> compiler-optimizations (dead code elimination) if we'd do that change.
+> I'm not really fond of making -O0 compiles fail, but there're several
+> places in the kernel that do. Your call ;)
+>
+>>> +             len = BITS_TO_LONGS_COMPAT(maxbit) * sizeof(compat_long_t);
+>>> +     else
+>>> +#endif
+>>> +             len = BITS_TO_LONGS(maxbit) * sizeof(long);
+>>> +
+>>> +     if (len > maxlen)
+>>> +             len = maxlen;
+>>> +
+>>> +#if IS_ENABLED(CONFIG_COMPAT) && defined(__BIG_ENDIAN)
+>>> +     if (compat) {
+>>> +             int i;
+>>> +
+>>> +             for (i = 0; i < len / sizeof(compat_long_t); i++)
+>>> +                     if (copy_from_user((compat_long_t *) bits +
+>>> +                                             i + 1 - ((i % 2) << 1),
+>>> +                                        (compat_long_t __user *) p + i,
+>>> +                                        sizeof(compat_long_t)))
+>>
+>> Unfortunately this is not quite enough, you need to also zero out the
+>> upper bits of the last partial if userspace did not supply multiple of
+>> 64 bits.
+>>
+>> Frankly, bitmask APIs that we have in input are god-awful on big endian:
+>> they do not work if usespace uses quantities less than long (or compat
+>> long). I think we'll have to enforce it in the code.
+>
+> Right, I relied on the caller of bits_from_user() to initialize it to
+> zero and make it long-aligned. I can move it into that helper.
 
-Thanks for testing. I was able to fix this issue. Will post version 4
-shortly.
+I now added a memset(bits, 0, len); before "if (len > maxlen)". This
+just clears the buffer before copying data. Due to the cross-over in
+the for()-loop, I'm not entirely sure how to only clear the unused
+parts, as the tail "long"s might be only set partially. Quite
+confusing..
 
-Regards
-Vignesh
+I didn't change anything else. Lemme know if that's fine and I will
+resend the patch.
 
-> 
-> Without the patches the touchscreen works fine during the iio test.
-> 
-> Thanks,
-> Hannes
-> 
-> 2014-11-06 8:42 GMT+01:00 Vignesh R <vigneshr@ti.com>:
+Thanks
+David
+
+>>> +             } else {
+>>> +                     /* fake mask with all bits set */
+>>> +                     out = (u8 __user*)codes;
+>>> +                     for (i = 0; i < min; ++i) {
+>>> +                             if (put_user((u8)0xff,  out + i))
+>>> +                                     return -EFAULT;
 >>
->>
->> On Monday 03 November 2014 11:39 PM, Richard Cochran wrote:
->>> On Mon, Oct 27, 2014 at 04:38:27PM +0530, Vignesh R wrote:
->>>> This series of patches fix TSC defects related to lag in touchscreen
->>>> performance and cursor jump at touch release. The lag was result of
->>>> udelay in TSC interrupt handler. Cursor jump due to false pen-up event.
->>>> The patches implement Advisory 1.0.31 in silicon errata of am335x-evm
->>>> to avoid false pen-up events and remove udelay.
->>>
->>> That advisory has two workarounds. You have chosen the second one?
->>
->> Work around one. Hence 5 wire design is not broken.
->>
->>>
->>> The text of the second workaround says it only works on 4 wire setups,
->>> so I wonder how 5 wire designs will be affected.
->>>
->>>> The advisory says to use
->>>> steps 1 to 4 for ADC and 5 to 16 for TSC (assuming 4 wire TSC and 4 channel
->>>> ADC).
->>>
->>> No, it doesn't say that. (sprz360f.pdf)
->>
->> The pen up event detection happens immediately after charge step. Hence,
->> interchanging ADC and TSC steps makes sure that sampling of touch
->> co-ordinates and pen events are done one after the other. This
->> workaround was suggested by internal hardware folks. Earlier ADC steps
->> intervened between sampling of co-ordinates and pen event detection
->> which is not desirable.
->>
->>>
->>>> Further the X co-ordinate must be the last one to be sampled just
->>>> before charge step. The first two patches implement the required changes.
->>>
->>> FWIW, I implemented the first workaround and removed the udelay not
->>> too long ago. Like Sebastian, I saw the TSC unit hang after about
->>> 50000 interrupts when running with the workaround.
->>>
->>> Did you test you patch for very long?
->>
->> Yes, I tested for about 200000 interrupts and I didn't see any hang.
->> This patch series does not just implement workaround but also does some
->> minor changes, such as interchanging ADC and TSC steps etc, which makes
->> TSC driver more robust. Let me know if you encounter any issues with my
->> patch series.
->>
->> Regards
->> Vignesh
->>
->>>
->>> Thanks,
->>> Richard
->>>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> I wonder if we should not replace this with access_ok() + straight
+>> memset instead of doing byte-by-byte copy.
+>
+> I'm actually not very familiar with the details of copy_to_user().
+> That's why I went with put_user(). I can look into it, but if you know
+> it well, I am open for suggestions.
+>
+> Thanks
+> David

@@ -1,85 +1,100 @@
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH v2 2/4] input: touchscreen: of: Register multitouch axes
-Date: Thu, 13 Nov 2014 15:06:56 +0100
-Message-ID: <1415887618-29844-3-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH v2 1/4] input: touchscreen: of: Use input_set_abs_params
+Date: Thu, 13 Nov 2014 15:06:55 +0100
+Message-ID: <1415887618-29844-2-git-send-email-maxime.ripard@free-electrons.com>
 References: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:40471 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S933032AbaKMOKE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2014 09:10:04 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, Maxime Ripard <maxime.ripard@free-electrons.com>
+List-Id: linux-input@vger.kernel.org
 
-So far, the DT parsing code was only setting up the regular input axes,
-completely ignoring their multitouch counter parts.
+Drivers are still required to call input_set_abs_params for their axes, as if
+they only use the touchscreen_parse_of_params function, the axis bit in absbit
+won't be set.
 
-Fill them with the same parameters than the regular axes.
+Switch to using input_set_abs_params to fully setup each and every available
+axis so that drivers will be able to solely use this function.
 
 Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 ---
- drivers/input/touchscreen/of_touchscreen.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/of_touchscreen.c | 50 ++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
-index fe80d8ba7efa..b82b5207c78b 100644
+index f8f9b84230b1..fe80d8ba7efa 100644
 --- a/drivers/input/touchscreen/of_touchscreen.c
 +++ b/drivers/input/touchscreen/of_touchscreen.c
-@@ -11,6 +11,7 @@
- 
- #include <linux/of.h>
+@@ -13,6 +13,33 @@
  #include <linux/input.h>
-+#include <linux/input/mt.h>
  #include <linux/input/touchscreen.h>
  
- static u32 of_get_optional_u32(struct device_node *np,
-@@ -30,8 +31,13 @@ static void touchscreen_set_params(struct input_dev *dev,
- 	struct input_absinfo *absinfo;
++static u32 of_get_optional_u32(struct device_node *np,
++			       const char *property)
++{
++	u32 val = 0;
++
++	of_property_read_u32(np, property, &val);
++
++	return val;
++}
++
++static void touchscreen_set_params(struct input_dev *dev,
++				   unsigned long axis,
++				   int max, int fuzz)
++{
++	struct input_absinfo *absinfo;
++
++	if (!test_bit(axis, dev->absbit)) {
++		dev_warn(&dev->dev,
++			 "DT specifies parameters but the axis is not set up\n");
++		return;
++	}
++
++	absinfo = &dev->absinfo[axis];
++	absinfo->maximum = max;
++	absinfo->fuzz = fuzz;
++}
++
+ /**
+  * touchscreen_parse_of_params - parse common touchscreen DT properties
+  * @dev: device that should be parsed
+@@ -24,22 +51,25 @@
+ void touchscreen_parse_of_params(struct input_dev *dev)
+ {
+ 	struct device_node *np = dev->dev.parent->of_node;
+-	struct input_absinfo *absinfo;
++	u32 maximum, fuzz;
  
- 	if (!test_bit(axis, dev->absbit)) {
--		dev_warn(&dev->dev,
--			 "DT specifies parameters but the axis is not set up\n");
-+		/*
-+		 * Emit a warning only if the axis is not a multitouch
-+		 * axis, which might not be set by the driver.
-+		 */
-+		if (!input_is_mt_axis(axis))
-+			dev_warn(&dev->dev,
-+				 "DT specifies parameters but the axis is not set up\n");
+ 	input_alloc_absinfo(dev);
+ 	if (!dev->absinfo)
  		return;
- 	}
  
-@@ -59,17 +65,23 @@ void touchscreen_parse_of_params(struct input_dev *dev)
+-	absinfo = &dev->absinfo[ABS_X];
+-	of_property_read_u32(np, "touchscreen-size-x", &absinfo->maximum);
+-	of_property_read_u32(np, "touchscreen-fuzz-x", &absinfo->fuzz);
++	maximum = of_get_optional_u32(np, "touchscreen-size-x");
++	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
++	if (maximum || fuzz)
++		touchscreen_set_params(dev, ABS_X, maximum, fuzz);
  
- 	maximum = of_get_optional_u32(np, "touchscreen-size-x");
- 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-x");
--	if (maximum || fuzz)
-+	if (maximum || fuzz) {
- 		touchscreen_set_params(dev, ABS_X, maximum, fuzz);
-+		touchscreen_set_params(dev, ABS_MT_POSITION_X, maximum, fuzz);
-+	}
+-	absinfo = &dev->absinfo[ABS_Y];
+-	of_property_read_u32(np, "touchscreen-size-y", &absinfo->maximum);
+-	of_property_read_u32(np, "touchscreen-fuzz-y", &absinfo->fuzz);
++	maximum = of_get_optional_u32(np, "touchscreen-size-y");
++	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
++	if (maximum || fuzz)
++		touchscreen_set_params(dev, ABS_Y, maximum, fuzz);
  
- 	maximum = of_get_optional_u32(np, "touchscreen-size-y");
- 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-y");
--	if (maximum || fuzz)
-+	if (maximum || fuzz) {
- 		touchscreen_set_params(dev, ABS_Y, maximum, fuzz);
-+		touchscreen_set_params(dev, ABS_MT_POSITION_Y, maximum, fuzz);
-+	}
- 
- 	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
- 	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
--	if (maximum || fuzz)
-+	if (maximum || fuzz) {
- 		touchscreen_set_params(dev, ABS_PRESSURE, maximum, fuzz);
-+		touchscreen_set_params(dev, ABS_MT_PRESSURE, maximum, fuzz);
-+	}
+-	absinfo = &dev->absinfo[ABS_PRESSURE];
+-	of_property_read_u32(np, "touchscreen-max-pressure", &absinfo->maximum);
+-	of_property_read_u32(np, "touchscreen-fuzz-pressure", &absinfo->fuzz);
++	maximum = of_get_optional_u32(np, "touchscreen-max-pressure");
++	fuzz = of_get_optional_u32(np, "touchscreen-fuzz-pressure");
++	if (maximum || fuzz)
++		touchscreen_set_params(dev, ABS_PRESSURE, maximum, fuzz);
  }
  EXPORT_SYMBOL(touchscreen_parse_of_params);
 -- 
 2.1.1
-

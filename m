@@ -1,45 +1,36 @@
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH v2 0/4] input: ft5x06: Fix userspace reported maximum value
-Date: Thu, 13 Nov 2014 15:06:54 +0100
-Message-ID: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH v2 4/4] input: edt-ft5x06: Remove EV_SYN event report
+Date: Thu, 13 Nov 2014 15:06:58 +0100
+Message-ID: <1415887618-29844-5-git-send-email-maxime.ripard@free-electrons.com>
+References: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, Maxime Ripard <maxime.ripard@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+input_register_device already sets the EV_SYN event since all devices can
+generate them.
 
-The current ft5x06 reports to the user-space that its maximum
-coordinates are, on both X and Y, way higher than what could be
-actually usable on the screen (in my case, 5759x1151 instead of
-480x800).
+Remove the redundant affectation.
 
-This causes trouble on some userspace stacks that then try to re-scale
-these coordinates back to the framebuffer resolution, like QT does.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Use the of_touchscreen code to find the real touchscreen limits in the
-DT case, and report that to the userspace.
-
-Thanks,
-Maxime
-
-Changes from v1:
-  - Do not use input_set_abs_params anymore to avoid enabling an axis
-    that was not enabled by the driver itself in of_touchscreen
-  - Emit a warning when an axis is set in the DT but not enabled in
-    the driver
-  - Remove EV_SYN from the edt-ft5x06 driver
-
-Maxime Ripard (4):
-  input: touchscreen: of: Use input_set_abs_params
-  input: touchscreen: of: Register multitouch axes
-  input: ft5x06: Allow to set the maximum axes value through the DT
-  input: edt-ft5x06: Remove EV_SYN event report
-
- drivers/input/touchscreen/edt-ft5x06.c     |  6 ++-
- drivers/input/touchscreen/of_touchscreen.c | 62 +++++++++++++++++++++++++-----
- 2 files changed, 57 insertions(+), 11 deletions(-)
-
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 3ebc1a7e46c5..a87f0d50f45c 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -1033,7 +1033,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	input->id.bustype = BUS_I2C;
+ 	input->dev.parent = &client->dev;
+ 
+-	__set_bit(EV_SYN, input->evbit);
+ 	__set_bit(EV_KEY, input->evbit);
+ 	__set_bit(EV_ABS, input->evbit);
+ 	__set_bit(BTN_TOUCH, input->keybit);
 -- 
 2.1.1

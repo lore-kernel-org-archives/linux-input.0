@@ -1,57 +1,83 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH v2 3/4] input: ft5x06: Allow to set the maximum axes value through the DT
-Date: Thu, 13 Nov 2014 15:06:57 +0100
-Message-ID: <1415887618-29844-4-git-send-email-maxime.ripard@free-electrons.com>
-References: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
+From: Benson Leung <bleung@chromium.org>
+Subject: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
+Date: Thu, 13 Nov 2014 12:16:46 -0800
+Message-ID: <1415909806-23848-1-git-send-email-bleung@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:40479 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S933123AbaKMOKF (ORCPT
+Received: from mail-ie0-f181.google.com ([209.85.223.181]:62892 "EHLO
+	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933146AbaKMURF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2014 09:10:05 -0500
-In-Reply-To: <1415887618-29844-1-git-send-email-maxime.ripard@free-electrons.com>
+	Thu, 13 Nov 2014 15:17:05 -0500
+Received: by mail-ie0-f181.google.com with SMTP id rp18so16500659iec.12
+        for <linux-input@vger.kernel.org>; Thu, 13 Nov 2014 12:17:04 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Markus Pargmann <mpa@pengutronix.de>, Maxime Ripard <maxime.ripard@free-electrons.com>
+To: johan@kernel.org, jkosina@suse.cz, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: snanda@chromium.org, Benson Leung <bleung@chromium.org>
 
-Currently the driver relies on some obscure and undocumented register to set
-the maximum axis value.
+usbhid->intf->needs_remote_wakeup is set when a device is
+opened, and is cleared when a device is closed.
 
-The reported value is way too high to be meaningful, which confuses some
-userspace tools like QT's evdevtouch plugin which try to scale the reported
-events to the maximum values.
+When a usbhid device that does not support remote wake
+( i.e. !device_can_wakeup() ) is closed, we fail out of
+autosuspend_check() because the autosuspend check is called
+before the flag is cleared as a result of usb_kill_urb(usbhid->urbin);
 
-Use the values from the DT to set meaningful values.
+The result is that a device that may otherwise autosuspend will
+fail to enter suspend again after all handles to it are closed.
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+In usbhid_open, usb_autopm_get_interface is called
+before setting the needs_remote_wakeup flag, and
+usb_autopm_put_interface is called after hid_start_in.
+
+However, when the device is closed in usbhid_close, the same
+protection isn't there when clearing needs_remote_wakeup. This will
+add that to usbhid_close as well as usbhid_stop.
+
+Signed-off-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/usbhid/hid-core.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index ee3434f1e949..3ebc1a7e46c5 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -37,6 +37,7 @@
- #include <linux/gpio.h>
- #include <linux/of_gpio.h>
- #include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/input/edt-ft5x06.h>
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 04e34b9..2a0b91d 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -734,8 +734,15 @@ void usbhid_close(struct hid_device *hid)
+ 		spin_unlock_irq(&usbhid->lock);
+ 		hid_cancel_delayed_stuff(usbhid);
+ 		if (!(hid->quirks & HID_QUIRK_ALWAYS_POLL)) {
++			int autopm_error;
++
++			autopm_error = usb_autopm_get_interface(usbhid->intf);
++
+ 			usb_kill_urb(usbhid->urbin);
+ 			usbhid->intf->needs_remote_wakeup = 0;
++
++			if (!autopm_error)
++				usb_autopm_put_interface(usbhid->intf);
+ 		}
+ 	} else {
+ 		spin_unlock_irq(&usbhid->lock);
+@@ -1179,9 +1186,17 @@ static void usbhid_stop(struct hid_device *hid)
+ 	if (WARN_ON(!usbhid))
+ 		return;
  
- #define MAX_SUPPORT_POINTS		5
-@@ -1042,6 +1043,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 			     0, tsdata->num_x * 64 - 1, 0, 0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y,
- 			     0, tsdata->num_y * 64 - 1, 0, 0);
+-	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
++	if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
++		int autopm_error;
 +
-+	if (!pdata)
-+		touchscreen_parse_of_params(input);
++		autopm_error = usb_autopm_get_interface(usbhid->intf);
 +
- 	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to init MT slots.\n");
+ 		usbhid->intf->needs_remote_wakeup = 0;
+ 
++		if (!autopm_error)
++			usb_autopm_put_interface(usbhid->intf);
++	}
++
+ 	clear_bit(HID_STARTED, &usbhid->iofl);
+ 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+ 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
 -- 
-2.1.1
+2.1.0.rc2.206.gedb03e5
 

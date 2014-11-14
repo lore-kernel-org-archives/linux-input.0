@@ -1,41 +1,78 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 2/2] DT: i2c: Add more devices handled by the adxl34x-i2c driver
-Date: Fri, 14 Nov 2014 17:03:31 +0100
-Message-ID: <1415981011-13423-2-git-send-email-geert+renesas@glider.be>
-References: <1415981011-13423-1-git-send-email-geert+renesas@glider.be>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Fri, 14 Nov 2014 09:43:59 -0800
+Message-ID: <CANLzEkt+CWDWJ8F47uQxum2DzV5hOSa5PHa0WcdwG2KBoHN4RQ@mail.gmail.com>
+References: <1415949562-14957-1-git-send-email-jeffrey.lin@rad-ic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from baptiste.telenet-ops.be ([195.130.132.51]:36725 "EHLO
-	baptiste.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965587AbaKNQDf (ORCPT
+Received: from mail-la0-f49.google.com ([209.85.215.49]:53669 "EHLO
+	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161425AbaKNRoB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Nov 2014 11:03:35 -0500
-In-Reply-To: <1415981011-13423-1-git-send-email-geert+renesas@glider.be>
+	Fri, 14 Nov 2014 12:44:01 -0500
+Received: by mail-la0-f49.google.com with SMTP id ge10so15270546lab.22
+        for <linux-input@vger.kernel.org>; Fri, 14 Nov 2014 09:43:59 -0800 (PST)
+In-Reply-To: <1415949562-14957-1-git-send-email-jeffrey.lin@rad-ic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+To: "jeffrey.lin" <yajohn@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Olof Johansson <olof@lixom.net>, Douglas Anderson <dianders@chromium.org>, benzh@chromium.org, davidriley@chromium.org, Joe Konno <joe.konno@intel.com>, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-This allows checkpatch to validate more DTSes.
+Hi Jeffrey,
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- Documentation/devicetree/bindings/i2c/trivial-devices.txt | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-index 7a2bbea61b70b942..e0beef4f8cff5cdf 100644
---- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-@@ -17,6 +17,9 @@ adi,adt7473		+/-1C TDM Extended Temp Range I.C
- adi,adt7475		+/-1C TDM Extended Temp Range I.C
- adi,adt7476		+/-1C TDM Extended Temp Range I.C
- adi,adt7490		+/-1C TDM Extended Temp Range I.C
-+adi,adxl345		Three-Axis Digital Accelerometer
-+adi,adxl346		Three-Axis Digital Accelerometer
-+adi,adxl34x		Three-Axis Digital Accelerometer
- at,24c08		i2c serial eeprom  (24cxx)
- atmel,24c00		i2c serial eeprom  (24cxx)
- atmel,24c01		i2c serial eeprom  (24cxx)
+On Thu, Nov 13, 2014 at 11:19 PM, jeffrey.lin <yajohn@gmail.com> wrote:
+> this patch is porting Raydium I2C touch driver. Developer can enable
+>  Raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM31100"
+>  in config/base.config
+>
+> Change-Id: Idae54cc4bca17f321a1d0895a8b59680bf9af859
+
+This looks like it came from the chromiumos kernel. When you send a
+patch to the linux-input list, make sure to strip out this stuff in
+the commit message.
+
+>
+> Signed-off-by: jeffrey.lin@rad-ic.com
+>
+> chromeos: config: add Raydium touch default config
+>
+> Add to default table and set as not to use
+>
+> Signed-off-by: jeffrey.lin@rad-ic.com
+> ---
+>  chromeos/config/base.config         |    1 +
+
+This file doesn't exist in upstream linux (only exists in
+chromeos-kernels) so don't include this in the patch.
+
+Basically, make sure whatever you send to the list actually applies to
+mainline linux or linux-next.
+
+>  drivers/input/touchscreen/RM31100.c | 1037 +++++++++++++++++++++++++++++++++++
+>  include/linux/input/RM31100.h       |   60 ++
+>  3 files changed, 1098 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/RM31100.c
+>  create mode 100644 include/linux/input/RM31100.h
+>
+> diff --git a/chromeos/config/base.config b/chromeos/config/base.config
+> index 59fa689..45b1023 100644
+> --- a/chromeos/config/base.config
+> +++ b/chromeos/config/base.config
+> @@ -1727,6 +1727,7 @@ CONFIG_TOUCHSCREEN_ATMEL_MXT=y
+>  # CONFIG_TOUCHSCREEN_TSC2007 is not set
+>  # CONFIG_TOUCHSCREEN_TSC_SERIO is not set
+>  CONFIG_TOUCHSCREEN_USB_COMPOSITE=m
+> +# CONFIG_TOUCHSCREEN_RM_TS is not set
+>  # CONFIG_TOUCHSCREEN_WACOM_I2C is not set
+>  # CONFIG_TOUCHSCREEN_WACOM_W8001 is not set
+>  # CONFIG_TPS6105X is not set
+
+
+Thanks
+
 -- 
-1.9.1
-
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

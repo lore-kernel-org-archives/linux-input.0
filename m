@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH 2/7] input: alps: Move trackstick detection to alps_hw_init_*
-Date: Fri, 14 Nov 2014 20:38:21 +0100
-Message-ID: <1415993906-13307-3-git-send-email-pali.rohar@gmail.com>
+Subject: [PATCH 5/7] input: alps: Fix name, product and version of dev2 input device
+Date: Fri, 14 Nov 2014 20:38:24 +0100
+Message-ID: <1415993906-13307-6-git-send-email-pali.rohar@gmail.com>
 References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,91 +13,48 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.
 Cc: Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Now when alps_identify() does not need do trackstick detection it is sa=
-fe to
-move code init hw_init functions.
-
-This patch also fix trackstick detection in function alps_hw_init_v3() =
-which
-remove ALPS_DUALPOINT flag when trackstick is not detected.
+This patch fix name, product and version of dev2 input device based on =
+format
+used in function psmouse_switch_protocol() in file psmouse-base.c.
 
 Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
 ---
- drivers/input/mouse/alps.c |   30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/input/mouse/alps.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 9ffa98d..cbfdcfc 100644
+index 0176425..2b7b74d 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -1732,6 +1732,7 @@ error:
-=20
- static int alps_hw_init_v3(struct psmouse *psmouse)
- {
-+	struct alps_data *priv =3D psmouse->private;
- 	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
- 	int reg_val;
- 	unsigned char param[4];
-@@ -1740,9 +1741,15 @@ static int alps_hw_init_v3(struct psmouse *psmou=
-se)
- 	if (reg_val =3D=3D -EIO)
- 		goto error;
-=20
--	if (reg_val =3D=3D 0 &&
--	    alps_setup_trackstick_v3(psmouse, ALPS_REG_BASE_PINNACLE) =3D=3D =
--EIO)
--		goto error;
-+	if (reg_val =3D=3D 0) {
-+		reg_val =3D alps_setup_trackstick_v3(psmouse,
-+						   ALPS_REG_BASE_PINNACLE);
-+		if (reg_val =3D=3D -EIO)
-+			goto error;
-+	}
-+
-+	if (reg_val =3D=3D -ENODEV)
-+		priv->flags &=3D ~ALPS_DUALPOINT;
-=20
- 	if (alps_enter_command_mode(psmouse) ||
- 	    alps_absolute_mode_v3(psmouse)) {
-@@ -1849,15 +1856,20 @@ static int alps_hw_init_rushmore_v3(struct psmo=
-use *psmouse)
- 	struct ps2dev *ps2dev =3D &psmouse->ps2dev;
- 	int reg_val, ret =3D -1;
-=20
--	if (priv->flags & ALPS_DUALPOINT) {
-+	reg_val =3D alps_probe_trackstick_v3(psmouse, ALPS_REG_BASE_RUSHMORE)=
-;
-+	if (reg_val =3D=3D -EIO)
-+		goto error;
-+
-+	if (reg_val =3D=3D 0) {
- 		reg_val =3D alps_setup_trackstick_v3(psmouse,
- 						   ALPS_REG_BASE_RUSHMORE);
- 		if (reg_val =3D=3D -EIO)
- 			goto error;
--		if (reg_val =3D=3D -ENODEV)
--			priv->flags &=3D ~ALPS_DUALPOINT;
+@@ -2407,14 +2407,24 @@ int alps_init(struct psmouse *psmouse)
+ 		dev1->keybit[BIT_WORD(BTN_MIDDLE)] |=3D BIT_MASK(BTN_MIDDLE);
  	}
 =20
-+	if (reg_val =3D=3D -ENODEV)
-+		priv->flags &=3D ~ALPS_DUALPOINT;
++	if (priv->flags & ALPS_DUALPOINT) {
++		/*
++		 * format of input device name is: "protocol vendor name"
++		 * see function psmouse_switch_protocol() in psmouse-base.c
++		 */
++		dev2->name =3D "AlpsPS/2 ALPS DualPoint Stick";
++		dev2->id.product =3D PSMOUSE_ALPS;
++		dev2->id.version =3D priv->proto_version;
++	} else {
++		dev2->name =3D "PS/2 ALPS Mouse";
++		dev2->id.product =3D PSMOUSE_PS2;
++		dev2->id.version =3D 0x0000;
++	}
 +
- 	if (alps_enter_command_mode(psmouse) ||
- 	    alps_command_mode_read_reg(psmouse, 0xc2d9) =3D=3D -1 ||
- 	    alps_command_mode_write_reg(psmouse, 0xc2cb, 0x00))
-@@ -2231,12 +2243,6 @@ static int alps_identify(struct psmouse *psmouse=
-, struct alps_data *priv)
- 		priv->y_bits =3D 12;
- 		priv->flags |=3D ALPS_IS_RUSHMORE;
+ 	snprintf(priv->phys, sizeof(priv->phys), "%s/input1", psmouse->ps2dev=
+=2Eserio->phys);
+ 	dev2->phys =3D priv->phys;
+-	dev2->name =3D (priv->flags & ALPS_DUALPOINT) ?
+-		     "DualPoint Stick" : "ALPS PS/2 Device";
+ 	dev2->id.bustype =3D BUS_I8042;
+ 	dev2->id.vendor  =3D 0x0002;
+-	dev2->id.product =3D PSMOUSE_ALPS;
+-	dev2->id.version =3D 0x0000;
+ 	dev2->dev.parent =3D &psmouse->ps2dev.serio->dev;
 =20
--		/* hack to make addr_command, nibble_command available */
--		psmouse->private =3D priv;
--
--		if (alps_probe_trackstick_v3(psmouse, ALPS_REG_BASE_RUSHMORE))
--			priv->flags &=3D ~ALPS_DUALPOINT;
--
- 		return 0;
- 	} else if (ec[0] =3D=3D 0x88 && ec[1] =3D=3D 0x07 &&
- 		   ec[2] >=3D 0x90 && ec[2] <=3D 0x9d) {
+ 	dev2->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
 --=20
 1.7.9.5

@@ -1,136 +1,46 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v3 4/4] input: alps: Fix trackstick detection
-Date: Fri, 14 Nov 2014 20:41:32 +0100
-Message-ID: <201411142041.34925@pali>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com> <201411091230.05337@pali> <201411141222.35319@pali>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
+Date: Fri, 14 Nov 2014 12:59:31 -0800
+Message-ID: <1541270.g199T8YFIC@dtor-glaptop>
+References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart12424953.VIL5QLEk8y";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:52408 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161455AbaKNTli (ORCPT
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:60914 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161200AbaKNU7f convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Nov 2014 14:41:38 -0500
-In-Reply-To: <201411141222.35319@pali>
+	Fri, 14 Nov 2014 15:59:35 -0500
+In-Reply-To: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart12424953.VIL5QLEk8y
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hi Pali,
 
-On Friday 14 November 2014 12:22:33 Pali Roh=C3=A1r wrote:
-> On Sunday 09 November 2014 12:30:03 Pali Roh=C3=A1r wrote:
-> > On Sunday 09 November 2014 09:05:04 Dmitry Torokhov wrote:
-> > > Hi Pali,
-> > >=20
-> > > On Sun, Nov 02, 2014 at 12:25:10AM +0100, Pali Roh=C3=A1r wrote:
-> > > >  int alps_detect(struct psmouse *psmouse, bool
-> > > >  set_properties) {
-> > > >=20
-> > > > -	struct alps_data dummy;
-> > > > +	unsigned char e6[4];
-> > > >=20
-> > > > -	if (alps_identify(psmouse, &dummy) < 0)
-> > > > -		return -1;
-> > > > +	/*
-> > > > +	 * Try "E6 report".
-> > > > +	 * ALPS should return 0,0,10 or 0,0,100 if no buttons
-> > > > are pressed. +	 * The bits 0-2 of the first byte will be
-> > > > 1s if some buttons are +	 * pressed.
-> > > > +	 */
-> > > > +	if (alps_rpt_cmd(psmouse, PSMOUSE_CMD_SETRES,
-> > > > +			 PSMOUSE_CMD_SETSCALE11, e6))
-> > > > +		return -EIO;
-> > > > +
-> > > > +	if ((e6[0] & 0xf8) !=3D 0 || e6[1] !=3D 0 || (e6[2] !=3D 10
+On Friday, November 14, 2014 08:38:19 PM Pali Roh=E1r wrote:
+> This patch series fix detection and identifying trackstick on machine=
+s with
+> ALPS devices. Last patch split trackstick and bare PS/2 mouse packets
+> between dev2 and dev3 input devices which make sure that driver will =
+send
+> only trackstick data to trackstick input device.
 >=20
-> &&
->=20
-> > > > e6[2] !=3D 100)) +		return -EINVAL;
-> > > >=20
-> > > >  	if (set_properties) {
-> > > >=20
-> > > > +		/*
-> > > > +		 * NOTE: To detect model and trackstick presence we
-> >=20
-> > need
-> >=20
-> > > > to do +		 *       full device reset. To speed up
-> >=20
-> > detection
-> >=20
-> > > > and prevent +		 *       calling duplicate
->=20
-> initialization
->=20
-> > > > sequence (both in +		 *       alps_detect() and
-> > > > alps_init()) we set model/protocol +		 *       version
->=20
-> and
->=20
-> > > > correct name in alps_init() (which will +		 *      =20
-do
-> >=20
-> > full
-> >=20
-> > > > device reset). For now set name to DualPoint. +		 */
-> > > >=20
-> > > >  		psmouse->vendor =3D "ALPS";
-> > > >=20
-> > > > -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
-> > > > -				"DualPoint TouchPad" : "GlidePoint";
-> > > > -		psmouse->model =3D dummy.proto_version << 8;
-> > > > +		psmouse->name =3D "DualPoint TouchPad";
-> > > >=20
-> > > >  	}
-> > > >=20
-> > > > +
-> > > >=20
-> > > >  	return 0;
-> > >=20
-> > > We can't do this; going by e6 only will give us false
-> > > positives and alps_detect is supposed to be authoritative.
-> > >=20
-> > > Thanks.
-> >=20
-> > psmouse-base.c is calling alps_detect() and alps_init()
-> > consecutively so it does not matter if code is in _detect or
-> > _init function. Just need to make sure that correct order
-> > will be used. So this patch could not bring any problems.
-> >=20
-> > If psmouse-base.c detect device false-positive as ALPS (with
-> > alps_detect()) then it immediately calls alps_init() which
-> > fails and psmouse-base.c will try to use another protocol.
->=20
-> Dmitry: PING
-> Also see my comment for PATCH v3 3/4.
 
-Dmitry, finally I split this big patch into more smaller and=20
-tried to fix what you did not like. I sent new series of patches,=20
-so drop this one 4/4.
+Thank you for splitting the change, unfortunately it is now quite big
+to apply to 3.18. Any chance you could try implementing what I suggeste=
+d
+in http://www.spinics.net/lists/linux-input/msg34029.html
+and then we can do the more comprehensive solution in 3.19.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+Thanks.
 
---nextPart12424953.VIL5QLEk8y
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlRmWu4ACgkQi/DJPQPkQ1IFxgCgmlhZTizCz6H5cUoCViVCQ/g7
-vU4AoLwOIV2z+NFzdS3vuquHoz4YrdtD
-=GfZb
------END PGP SIGNATURE-----
-
---nextPart12424953.VIL5QLEk8y--
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

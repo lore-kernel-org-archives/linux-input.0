@@ -1,44 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
-Date: Fri, 14 Nov 2014 12:59:31 -0800
-Message-ID: <1541270.g199T8YFIC@dtor-glaptop>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
+Subject: [git pull] Input updates for 3.18-rc4
+Date: Fri, 14 Nov 2014 14:26:40 -0800
+Message-ID: <20141114222640.GA39748@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:60914 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161200AbaKNU7f convert rfc822-to-8bit (ORCPT
+Received: from mail-ig0-f175.google.com ([209.85.213.175]:63148 "EHLO
+	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161920AbaKNW0p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Nov 2014 15:59:35 -0500
-In-Reply-To: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
+	Fri, 14 Nov 2014 17:26:45 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Pali,
+Hi Linus,
 
-On Friday, November 14, 2014 08:38:19 PM Pali Roh=E1r wrote:
-> This patch series fix detection and identifying trackstick on machine=
-s with
-> ALPS devices. Last patch split trackstick and bare PS/2 mouse packets
-> between dev2 and dev3 input devices which make sure that driver will =
-send
-> only trackstick data to trackstick input device.
->=20
+Please pull from:
 
-Thank you for splitting the change, unfortunately it is now quite big
-to apply to 3.18. Any chance you could try implementing what I suggeste=
-d
-in http://www.spinics.net/lists/linux-input/msg34029.html
-and then we can do the more comprehensive solution in 3.19.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Thanks.
+to receive updates for the input subsystem. Mostly small fixups to PS/2
+tochpad drivers (ALPS, Elantech, Synaptics) to better deal with specifi=
+c
+hardware.
+
+Changelog:
+---------
+
+NeilBrown (1):
+      Input: twl4030-pwrbutton - ensure a wakeup event is recorded.
+
+Pali Roh=E1r (3):
+      Input: alps - ignore potential bare packets when device is out of=
+ sync
+      Input: alps - allow up to 2 invalid packets without resetting dev=
+ice
+      Input: alps - ignore bad data on Dell Latitudes E6440 and E7440
+
+Takashi Iwai (1):
+      Input: synaptics - add min/max quirk for Lenovo T440s
+
+Ulrik De Bie (5):
+      Input: elantech - use elantech_report_trackpoint for hardware v4 =
+too
+      Input: elantech - fix crc_enabled for Fujitsu H730
+      Input: elantech - report the middle button of the touchpad
+      Input: elantech - provide a sysfs knob for crc_enabled
+      Input: elantech - update the documentation
+
+
+Diffstat:
+--------
+
+ Documentation/input/elantech.txt       | 81 ++++++++++++++++++++++++++=
++++++---
+ drivers/input/misc/twl4030-pwrbutton.c |  1 +
+ drivers/input/mouse/alps.c             | 28 +++++++++++-
+ drivers/input/mouse/elantech.c         | 56 +++++++++++++++++++++--
+ drivers/input/mouse/synaptics.c        |  5 ++-
+ 5 files changed, 158 insertions(+), 13 deletions(-)
 
 --=20
 Dmitry
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

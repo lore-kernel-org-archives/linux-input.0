@@ -1,57 +1,42 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 01/15] mfd: add new driver for Sharp LoCoMo
-Date: Fri, 14 Nov 2014 15:10:00 +0000
-Message-ID: <20141114151000.GC3815@sirena.org.uk>
-References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
- <1414454528-24240-2-git-send-email-dbaryshkov@gmail.com>
- <CACRpkdbW3NA00zMZr216ZeZpgVkXwKUo30biTVd5kcHKGGtkHg@mail.gmail.com>
- <CALT56yNX8v4mZn=o1ZoVLHPmg6wq0dgFNowpqNuFtU=eCc+d8w@mail.gmail.com>
- <CACRpkdaKUZjbSEH75M9xudTF9HefwOCVEe5otv9-9f2UG8=hVg@mail.gmail.com>
- <CALT56yM8B3ffYb0=EZVbRRGDZSxMci2sRp9XVtjQuLa5abN+cg@mail.gmail.com>
- <20141105202405.GJ8509@sirena.org.uk>
- <CALT56yOtjNbYOWM4ba5yP8pz7bNLY5BWpkkpfmv5QZU-7Y5u_g@mail.gmail.com>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
+Date: Fri, 14 Nov 2014 10:17:16 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1411141008020.1043-100000@iolanthe.rowland.org>
+References: <CANLzEksHgo_tQiwJoUtXd0iV7tDXq0ieNrAXgtXwPtxxPBWrgw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0hFlL8mdTQLjOaTk"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CALT56yOtjNbYOWM4ba5yP8pz7bNLY5BWpkkpfmv5QZU-7Y5u_g@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANLzEksHgo_tQiwJoUtXd0iV7tDXq0ieNrAXgtXwPtxxPBWrgw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sameer Nanda <snanda-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
+On Thu, 13 Nov 2014, Benson Leung wrote:
 
---0hFlL8mdTQLjOaTk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi Alan,
+> 
+> On Thu, Nov 13, 2014 at 2:11 PM, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org> wrote:
+> > Wait a minute -- in your previous email you said this approach didn't
+> > work.  So does it work or doesn't it?
+> 
+> Sorry for the confusion. The approach *does* work.
+> 
+> That was actually my original idea to fix the problem, but I saw other
+> places in the kernel where it was done with a get/put.
 
-On Fri, Nov 14, 2014 at 04:47:00PM +0400, Dmitry Eremin-Solenikov wrote:
+The reason for the get/put is to force a call to autosuspend_check().  
+But in this case, if killing the interrupt URB causes 
+autosuspend_check() to run then the get/put isn't needed.
 
-> I'm actually looking at the regulator interface. Since this DAC serves mostly
-> like a (semi-)constant voltage interface, would it be rather logical to use
-> regulator subsystem to drive it?
+On the other hand, I don't see why killing the interrupt URB would 
+cause autosuspend_check() to run.  Can you explain that?
 
-Possibly...  it's mostly a function of what the consumers of the
-functionality look like - if that code looks weird calling into the
-regulator API then it's bad, if that code looks OK it's fine.  I haven't
-looked at the hardware at all so don't have strong feelings either way
-so long as the result looks tasteful.
+Alan Stern
 
---0hFlL8mdTQLjOaTk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
 
-iQEcBAEBAgAGBQJUZhtHAAoJECTWi3JdVIfQ9u0H/0MiTrLksAi3U2z6tRBVRifd
-8X7vBDcAuPO8IdYuNRiUzB8b6jaDmnAmUc5lrJ4rrAwhrhMKk6I+wNNTAvXXWSRz
-FVjX3yHZomhQ1+Jlz98zcFSnEVxxHpJpN3pRXKL7BN5NTd7fedq5mvdN6899KRIa
-VQ8ByRl5sA8PkMvHN85dT+ECCQbTNQ8Szw96k5/LIRLAR+53rb8oB4y6d23Sqbvh
-mbXzzzjj0ap0LypK8XP7pNrXage5XVY/Y7bLusETEgdhR2Bxkc3YzlhgKY8/gHo4
-x3xdPJAUB/KUQxxEchL/wysUIlC1P8K5Tj29lyuhfztFM9RFxkpnyp8CoCusZtw=
-=Pl/n
------END PGP SIGNATURE-----
-
---0hFlL8mdTQLjOaTk--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

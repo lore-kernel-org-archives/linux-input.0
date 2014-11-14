@@ -1,155 +1,128 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH v4 6/6] input: touchscreen: ti_am335x_tsc: Replace delta filtering with median filtering
-Date: Fri, 14 Nov 2014 10:37:31 +0530
-Message-ID: <1415941651-28962-7-git-send-email-vigneshr@ti.com>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, richardcochran@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Vignesh R <vigneshr@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+From: Dudley Du <dudley.dulixin@gmail.com>
+Subject: [PATCH v10 00/18] input: cyapa: instruction of cyapa patches
+Date: Fri, 14 Nov 2014 14:03:06 +0800
+Message-ID: <1415945004-19868-1-git-send-email-dudl@cypress.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:41268 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751112AbaKNGEL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Nov 2014 01:04:11 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Previously, delta filtering was applied TSC co-ordinate readouts before
-reporting a single value to user space. This patch replaces delta filtering
-with median filtering. Median filtering sorts co-ordinate readouts, drops min
-and max values, and reports the average of remaining values. This method is
-more sensible than delta filering. Median filtering is applied only if number
-of readouts is greater than 3 else just average of co-ordinate readouts is
-reported.
+V10 patches have below main updates compared with v9 patches:
+1) Modify code to following kernel code style.
+   e.g.: correct to use error as return name when there is only error path,
+   and fix the checkpatch.sh wanting in the driver.
+2) Remove cyapa_remove method and use input open and close interface to
+   following device resouse management infrastructure.
+3) Modify cyapa_detect method to return tristate issue to make the return value
+   much more consistent and clear.
+4) Use platform supplied functions as possible instead of driver
+   specific rewritten version.
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
- drivers/input/touchscreen/ti_am335x_tsc.c | 91 +++++++++++++++++--------------
- 1 file changed, 51 insertions(+), 40 deletions(-)
+V9 patches have below updates compared with v8 patches:
+1) Removed all async thread stuff from the driver.
+2) Split driver into 18 patches for each function change one patch.
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index e64055a8cd48..b84493fc8a78 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -26,6 +26,7 @@
- #include <linux/delay.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/sort.h>
- 
- #include <linux/mfd/ti_am335x_tscadc.h>
- 
-@@ -204,56 +205,61 @@ static void titsc_step_config(struct titsc *ts_dev)
- 	am335x_tsc_se_set_cache(ts_dev->mfd_tscadc, ts_dev->step_mask);
- }
- 
-+static int titsc_cmp_coord(const void *a, const void *b)
-+{
-+	return *(int *)a - *(int *)b;
-+}
-+
- static void titsc_read_coordinates(struct titsc *ts_dev,
- 		u32 *x, u32 *y, u32 *z1, u32 *z2)
- {
--	unsigned int fifocount = titsc_readl(ts_dev, REG_FIFO0CNT);
--	unsigned int prev_val_x = ~0, prev_val_y = ~0;
--	unsigned int prev_diff_x = ~0, prev_diff_y = ~0;
--	unsigned int read, diff;
--	unsigned int i, channel;
-+	unsigned int yvals[7], xvals[7];
-+	unsigned int i, xsum = 0, ysum = 0;
- 	unsigned int creads = ts_dev->coordinate_readouts;
--	unsigned int first_step = TOTAL_STEPS - (creads * 2 + 2);
- 
--	*z1 = *z2 = 0;
--	if (fifocount % (creads * 2 + 2))
--		fifocount -= fifocount % (creads * 2 + 2);
--	/*
--	 * Delta filter is used to remove large variations in sampled
--	 * values from ADC. The filter tries to predict where the next
--	 * coordinate could be. This is done by taking a previous
--	 * coordinate and subtracting it form current one. Further the
--	 * algorithm compares the difference with that of a present value,
--	 * if true the value is reported to the sub system.
--	 */
--	for (i = 0; i < fifocount; i++) {
--		read = titsc_readl(ts_dev, REG_FIFO0);
--
--		channel = (read & 0xf0000) >> 16;
--		read &= 0xfff;
--		if (channel > first_step + creads + 2) {
--			diff = abs(read - prev_val_x);
--			if (diff < prev_diff_x) {
--				prev_diff_x = diff;
--				*x = read;
--			}
--			prev_val_x = read;
-+	for (i = 0; i < creads; i++) {
-+		yvals[i] = titsc_readl(ts_dev, REG_FIFO0);
-+		yvals[i] &= 0xfff;
-+	}
- 
--		} else if (channel == first_step + creads + 1) {
--			*z1 = read;
-+	*z1 = titsc_readl(ts_dev, REG_FIFO0);
-+	*z1 &= 0xfff;
-+	*z2 = titsc_readl(ts_dev, REG_FIFO0);
-+	*z2 &= 0xfff;
- 
--		} else if (channel == first_step + creads + 2) {
--			*z2 = read;
-+	for (i = 0; i < creads; i++) {
-+		xvals[i] = titsc_readl(ts_dev, REG_FIFO0);
-+		xvals[i] &= 0xfff;
-+	}
- 
--		} else if (channel > first_step) {
--			diff = abs(read - prev_val_y);
--			if (diff < prev_diff_y) {
--				prev_diff_y = diff;
--				*y = read;
--			}
--			prev_val_y = read;
-+	/*
-+	 * If co-ordinates readouts is less than 4 then
-+	 * report the average. In case of 4 or more
-+	 * readouts, sort the co-ordinate samples, drop
-+	 * min and max values and report the average of
-+	 * remaining values.
-+	 */
-+	if (creads <=  3) {
-+		for (i = 0; i < creads; i++) {
-+			ysum += yvals[i];
-+			xsum += xvals[i];
- 		}
-+		ysum /= creads;
-+		xsum /= creads;
-+	} else {
-+		sort(yvals, creads, sizeof(unsigned int),
-+		     titsc_cmp_coord, NULL);
-+		sort(xvals, creads, sizeof(unsigned int),
-+		     titsc_cmp_coord, NULL);
-+		for (i = 1; i < creads - 1; i++) {
-+			ysum += yvals[i];
-+			xsum += xvals[i];
-+		}
-+		ysum /= creads - 2;
-+		xsum /= creads - 2;
- 	}
-+	*y = ysum;
-+	*x = xsum;
- }
- 
- static irqreturn_t titsc_irq(int irq, void *dev)
-@@ -367,6 +373,11 @@ static int titsc_parse_dt(struct platform_device *pdev,
- 	if (err < 0)
- 		return err;
- 
-+	if (ts_dev->coordinate_readouts <= 0) {
-+		dev_warn(&pdev->dev, "invalid co-ordinate readouts, resetting it to 5\n");
-+		ts_dev->coordinate_readouts = 5;
-+	}
-+
- 	err = of_property_read_u32(node, "ti,charge-delay",
- 				   &ts_dev->charge_delay);
- 	if (err < 0)
--- 
-1.9.1
+V8 patches have below updates compared with v7 patches:
+1) [PATCH v8 01/13] - Remove the async thread for device detect in
+   probe routine, now the device detect process is completely done within
+   the device probe routine.
+2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
+
+V7 patches have below updates compared with v6 patches:
+1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
+
+
+V6 patches have below updates compared with v5 patches:
+1) Remove patch 14 of the lid filtering from the cyapa driver.
+
+V5 patches have below updates compared with v4 patches:
+1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+2) Fix memories freed before debugfs entries issue;
+3) Make cyapa_debugs_root valid in driver module level
+   in module_init()/moudle_exit() ;
+4) Fix i2c_transfer() may return partial transfer issues.
+5) Add cyapa->removed flag to avoid detecting thread may still running
+   when driver module is removed.
+6) Fix the meanings of some comments and return error code not clear issue.
+
+This patch set is aimed to re-design the cyapa driver to support
+old gen3 trackpad devices and new gen5 trackpad devices in one
+cyapa driver, it's for easily productions support based on
+customers' requirements. And add sysfs functions and interfaces
+supported that required by users and customers.
+
+Since the earlier gen3 and the latest gen5 trackpad devices using
+two different chipsets, and have different protocols and interfaces,
+so if supported these two type trackpad devices in two different drivers,
+then it will be difficult to manage productions and later firmware updates.
+e.g.: It will cause customer don't know which one trackpad device firmware
+image to use and update when it has been used and integrated
+in same one productions, so here we support these two trackpad
+devices in same on driver.
+
+The new design cyapa driver contains:
+cyapa.c - the core of the re-design, supply interfaces and
+functions to system and read trackpad devices.
+cyapa.h - header file including macros and data structure definitions.
+cyapa_gen3.c - functions support for gen3 trackpad devices,
+cyapa_gen5.c - functions support for gen5 trackpad devices.
+
+Beside this introduction patch, it has 18 patches listed as below.
+For these patches each one is patched based on previous one.
+
+patch 1/18: add device resource management infrastructure supported.
+
+patch 2/18: re-design cyapa driver with core functions and interface
+to support multi-type trackpad devices.
+
+patch 3/18: add gen3 trackpad device basic functions supported into the
+re-design cyapa driver.
+
+patch 4/18: add gen5 trackpad device basic functions supported into the
+re-design cyapa driver.
+
+patch 5/18: add power management interfaces supported for the deivce.
+
+patch 6/18: add runtime power management interfaces supported for the device.
+
+patch 7/18: add sysfs interfaces supported in the cyapa driver.
+Including read firmware version, get production ID, read baseline,
+re-calibrate trackpad baselines and do trackpad firmware update.
+
+patch 8/18: add gen3 trackpad device's firmware update function supported.
+
+patch 9/18: add gen3 trackpad device's read baseline function supported.
+
+patch 10/18: add gen3 trackpad device's force re-calibrate function supported.
+
+patch 11/18: add gen5 trackpad device's firmware update function supported.
+
+patch 12/18: add gen5 trackpad device's read baseline function supported.
+
+patch 13/18: add gen5 trackpad device's force re-calibrate function.
+
+patch 14/18: add read firmware image debugfs interface supported
+in the cyapa driver.
+
+patch 15/18: add gen3 trackpad device's read firmware image function supported.
+
+patch 16/18: add gen5 trackpad device's read firmware image function supported.
+
+patch 17/18: add read trackpad device's sensors' raw data debugfs interface
+supported in the cyapa driver.
+
+patch 18/18: add gen5 trackpad device's read read raw function supported.

@@ -1,124 +1,52 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v3 4/4] input: alps: Fix trackstick detection
-Date: Fri, 14 Nov 2014 12:22:33 +0100
-Message-ID: <201411141222.35319@pali>
-References: <1412329392-5580-1-git-send-email-pali.rohar@gmail.com> <20141109080504.GB34700@dtor-ws> <201411091230.05337@pali>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH 01/15] mfd: add new driver for Sharp LoCoMo
+Date: Fri, 14 Nov 2014 16:47:00 +0400
+Message-ID: <CALT56yOtjNbYOWM4ba5yP8pz7bNLY5BWpkkpfmv5QZU-7Y5u_g@mail.gmail.com>
+References: <1414454528-24240-1-git-send-email-dbaryshkov@gmail.com>
+	<1414454528-24240-2-git-send-email-dbaryshkov@gmail.com>
+	<CACRpkdbW3NA00zMZr216ZeZpgVkXwKUo30biTVd5kcHKGGtkHg@mail.gmail.com>
+	<CALT56yNX8v4mZn=o1ZoVLHPmg6wq0dgFNowpqNuFtU=eCc+d8w@mail.gmail.com>
+	<CACRpkdaKUZjbSEH75M9xudTF9HefwOCVEe5otv9-9f2UG8=hVg@mail.gmail.com>
+	<CALT56yM8B3ffYb0=EZVbRRGDZSxMci2sRp9XVtjQuLa5abN+cg@mail.gmail.com>
+	<20141105202405.GJ8509@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2655571.58VtXZxoDn";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:37696 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965242AbaKNLWi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Nov 2014 06:22:38 -0500
-In-Reply-To: <201411091230.05337@pali>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <20141105202405.GJ8509@sirena.org.uk>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Andrea Adami <andrea.adami@gmail.com>, Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Tommy Will <tommywill2011@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart2655571.58VtXZxoDn
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hello,
 
-On Sunday 09 November 2014 12:30:03 Pali Roh=C3=A1r wrote:
-> On Sunday 09 November 2014 09:05:04 Dmitry Torokhov wrote:
-> > Hi Pali,
-> >=20
-> > On Sun, Nov 02, 2014 at 12:25:10AM +0100, Pali Roh=C3=A1r wrote:
-> > >  int alps_detect(struct psmouse *psmouse, bool
-> > >  set_properties) {
-> > >=20
-> > > -	struct alps_data dummy;
-> > > +	unsigned char e6[4];
-> > >=20
-> > > -	if (alps_identify(psmouse, &dummy) < 0)
-> > > -		return -1;
-> > > +	/*
-> > > +	 * Try "E6 report".
-> > > +	 * ALPS should return 0,0,10 or 0,0,100 if no buttons
-> > > are pressed. +	 * The bits 0-2 of the first byte will be
-> > > 1s if some buttons are +	 * pressed.
-> > > +	 */
-> > > +	if (alps_rpt_cmd(psmouse, PSMOUSE_CMD_SETRES,
-> > > +			 PSMOUSE_CMD_SETSCALE11, e6))
-> > > +		return -EIO;
-> > > +
-> > > +	if ((e6[0] & 0xf8) !=3D 0 || e6[1] !=3D 0 || (e6[2] !=3D 10=20
-&&
-> > > e6[2] !=3D 100)) +		return -EINVAL;
-> > >=20
-> > >  	if (set_properties) {
-> > >=20
-> > > +		/*
-> > > +		 * NOTE: To detect model and trackstick presence we
->=20
-> need
->=20
-> > > to do +		 *       full device reset. To speed up
->=20
-> detection
->=20
-> > > and prevent +		 *       calling duplicate=20
-initialization
-> > > sequence (both in +		 *       alps_detect() and
-> > > alps_init()) we set model/protocol +		 *       version=20
-and
-> > > correct name in alps_init() (which will +		 *       do
->=20
-> full
->=20
-> > > device reset). For now set name to DualPoint. +		 */
-> > >=20
-> > >  		psmouse->vendor =3D "ALPS";
-> > >=20
-> > > -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
-> > > -				"DualPoint TouchPad" : "GlidePoint";
-> > > -		psmouse->model =3D dummy.proto_version << 8;
-> > > +		psmouse->name =3D "DualPoint TouchPad";
-> > >=20
-> > >  	}
-> > >=20
-> > > +
-> > >=20
-> > >  	return 0;
-> >=20
-> > We can't do this; going by e6 only will give us false
-> > positives and alps_detect is supposed to be authoritative.
-> >=20
-> > Thanks.
->=20
-> psmouse-base.c is calling alps_detect() and alps_init()
-> consecutively so it does not matter if code is in _detect or
-> _init function. Just need to make sure that correct order will
-> be used. So this patch could not bring any problems.
->=20
-> If psmouse-base.c detect device false-positive as ALPS (with
-> alps_detect()) then it immediately calls alps_init() which
-> fails and psmouse-base.c will try to use another protocol.
+2014-11-05 23:24 GMT+03:00 Mark Brown <broonie@kernel.org>:
+> On Thu, Nov 06, 2014 at 12:02:49AM +0400, Dmitry Eremin-Solenikov wrote:
+>> 2014-11-03 16:41 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+>
+>> > The point is still the same: no unrelated code in drivers/mfd,
+>> > then either use IIO DAC as a middle layer or sink the DAC handling
+>> > into respective subdriver, i.e. push it into the backlight or
+>> > volume directly then.
+>
+>> The problem is that the DAC is equally used by backlight and by sound
+>> device (WIP).
+>> What about true i2c device driver sitting in drivers/misc and exporting a regmap
+>> of 2 8-bit registers?
+>
+> If it can just export registers that sounds like a MFD.  If it needs to
+> export functionality then like Linus says the IIO subsystem abstracts
+> DACs.
 
-Dmitry: PING
-Also see my comment for PATCH v3 3/4.
+I took a look at IIO subsystem. Thanks for the pointer. Indeed max517 driver
+can drive m62332 DAC with minimal modifications. However write support
+of the consumer interface is non-existing yet (which would be required
+to support DACs in unified manner).
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+I'm actually looking at the regulator interface. Since this DAC serves mostly
+like a (semi-)constant voltage interface, would it be rather logical to use
+regulator subsystem to drive it?
 
---nextPart2655571.58VtXZxoDn
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlRl5fsACgkQi/DJPQPkQ1LmkACgp1IYDRds2bA8uKBGbAlvgn4v
-J/EAoMIXesIU7rfsXUIH37gltiybr9GV
-=hVpW
------END PGP SIGNATURE-----
-
---nextPart2655571.58VtXZxoDn--
+-- 
+With best wishes
+Dmitry

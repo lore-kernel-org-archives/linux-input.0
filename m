@@ -1,354 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] hid: sony: Use kernel allocated buffers for HID
- reports
-Date: Thu, 13 Nov 2014 15:58:30 -0800
-Message-ID: <20141113235830.GB40569@dtor-ws>
-References: <1415819409-4408-1-git-send-email-frank.praznik@oh.rr.com>
+From: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v4 0/6] Touchscreen performance related fixes
+Date: Fri, 14 Nov 2014 10:37:25 +0530
+Message-ID: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:40222 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934386AbaKMX6e (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2014 18:58:34 -0500
-Received: by mail-ig0-f179.google.com with SMTP id r10so588796igi.12
-        for <linux-input@vger.kernel.org>; Thu, 13 Nov 2014 15:58:34 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1415819409-4408-1-git-send-email-frank.praznik@oh.rr.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, ao2@ao2.it
 
-On Wed, Nov 12, 2014 at 02:10:09PM -0500, Frank Praznik wrote:
-> Replace stack buffers with kernel allocated buffers for sending
-> and receiving HID reports to prevent issues with DMA transfers
-> on certain hardware.
-> 
-> Output report buffers are allocated at initialization time to avoid
-> excessive calls to kmalloc and kfree.
-> 
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+This series of patches fix TSC defects related to lag in touchscreen
+performance and cursor jump at touch release. The lag was result of
+udelay in TSC interrupt handler. Cursor jump due to false pen-up event.
+The patches implement Advisory 1.0.31 in silicon errata of am335x-evm
+to avoid false pen-up events and remove udelay. The advisory says to use
+steps 1 to 4 for ADC and 5 to 16 for TSC (assuming 4 wire TSC and 4 channel
+ADC). Further the X co-ordinate must be the last one to be sampled just
+before charge step. The first two patches implement the required changes.
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+A DT parameter to configure the duration of tsc charge step. It represents
+number of ADC clock cycles to wait between applying the step configuration
+registers and going back to the IDLE state. The charge delay value can vary
+across boards. Configuring correct value of charge delay is important to avoid
+false pen-up events. Hence it is necessary to expose charge-delay value as
+DT parameter. The pen-up detection happens immediately after the charge step
+so this does in fact function as a hardware knob for adjusting the amount of
+settling time.
 
-> ---
-> 
->  The original reporter confirms that this fixes the bug reported in
->  https://bugzilla.kernel.org/show_bug.cgi?id=87991
-> 
->  v2 fixes a sizeof(pointer) mistake and corrects some cosmetic issues
->  (spacing and #defines instead of magic constants).
-> 
->  v3 uses hex notation for the report size definitions instead of decimal for
->  consistency since hex notation is used for the report numbers in the rest of
->  the driver.
-> 
->  drivers/hid/hid-sony.c | 147 +++++++++++++++++++++++++++++++++++++------------
->  1 file changed, 113 insertions(+), 34 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index bc4269e..b6e6102 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -798,6 +798,12 @@ union sixaxis_output_report_01 {
->  	__u8 buf[36];
->  };
->  
-> +#define DS4_REPORT_0x02_SIZE 37
-> +#define DS4_REPORT_0x05_SIZE 32
-> +#define DS4_REPORT_0x11_SIZE 78
-> +#define DS4_REPORT_0x81_SIZE 7
-> +#define SIXAXIS_REPORT_0xF2_SIZE 18
-> +
->  static spinlock_t sony_dev_list_lock;
->  static LIST_HEAD(sony_device_list);
->  static DEFINE_IDA(sony_device_id_allocator);
-> @@ -811,6 +817,7 @@ struct sony_sc {
->  	struct work_struct state_worker;
->  	struct power_supply battery;
->  	int device_id;
-> +	__u8 *output_report_dmabuf;
->  
->  #ifdef CONFIG_SONY_FF
->  	__u8 left;
-> @@ -1142,9 +1149,20 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
->  
->  static int sixaxis_set_operational_bt(struct hid_device *hdev)
->  {
-> -	unsigned char buf[] = { 0xf4,  0x42, 0x03, 0x00, 0x00 };
-> -	return hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
-> +	static const __u8 report[] = { 0xf4, 0x42, 0x03, 0x00, 0x00 };
-> +	__u8 *buf;
-> +	int ret;
-> +
-> +	buf = kmemdup(report, sizeof(report), GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(report),
->  				  HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> +
-> +	kfree(buf);
-> +
-> +	return ret;
->  }
->  
->  /*
-> @@ -1153,10 +1171,19 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
->   */
->  static int dualshock4_set_operational_bt(struct hid_device *hdev)
->  {
-> -	__u8 buf[37] = { 0 };
-> +	__u8 *buf;
-> +	int ret;
->  
-> -	return hid_hw_raw_request(hdev, 0x02, buf, sizeof(buf),
-> +	buf = kmalloc(DS4_REPORT_0x02_SIZE, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	ret = hid_hw_raw_request(hdev, 0x02, buf, DS4_REPORT_0x02_SIZE,
->  				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> +
-> +	kfree(buf);
-> +
-> +	return ret;
->  }
->  
->  static void sixaxis_set_leds_from_id(int id, __u8 values[MAX_LEDS])
-> @@ -1471,9 +1498,7 @@ error_leds:
->  
->  static void sixaxis_state_worker(struct work_struct *work)
->  {
-> -	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
-> -	int n;
-> -	union sixaxis_output_report_01 report = {
-> +	static const union sixaxis_output_report_01 default_report = {
->  		.buf = {
->  			0x01,
->  			0x00, 0xff, 0x00, 0xff, 0x00,
-> @@ -1485,20 +1510,27 @@ static void sixaxis_state_worker(struct work_struct *work)
->  			0x00, 0x00, 0x00, 0x00, 0x00
->  		}
->  	};
-> +	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
-> +	struct sixaxis_output_report *report =
-> +		(struct sixaxis_output_report *)sc->output_report_dmabuf;
-> +	int n;
-> +
-> +	/* Initialize the report with default values */
-> +	memcpy(report, &default_report, sizeof(struct sixaxis_output_report));
->  
->  #ifdef CONFIG_SONY_FF
-> -	report.data.rumble.right_motor_on = sc->right ? 1 : 0;
-> -	report.data.rumble.left_motor_force = sc->left;
-> +	report->rumble.right_motor_on = sc->right ? 1 : 0;
-> +	report->rumble.left_motor_force = sc->left;
->  #endif
->  
-> -	report.data.leds_bitmap |= sc->led_state[0] << 1;
-> -	report.data.leds_bitmap |= sc->led_state[1] << 2;
-> -	report.data.leds_bitmap |= sc->led_state[2] << 3;
-> -	report.data.leds_bitmap |= sc->led_state[3] << 4;
-> +	report->leds_bitmap |= sc->led_state[0] << 1;
-> +	report->leds_bitmap |= sc->led_state[1] << 2;
-> +	report->leds_bitmap |= sc->led_state[2] << 3;
-> +	report->leds_bitmap |= sc->led_state[3] << 4;
->  
->  	/* Set flag for all leds off, required for 3rd party INTEC controller */
-> -	if ((report.data.leds_bitmap & 0x1E) == 0)
-> -		report.data.leds_bitmap |= 0x20;
-> +	if ((report->leds_bitmap & 0x1E) == 0)
-> +		report->leds_bitmap |= 0x20;
->  
->  	/*
->  	 * The LEDs in the report are indexed in reverse order to their
-> @@ -1511,28 +1543,30 @@ static void sixaxis_state_worker(struct work_struct *work)
->  	 */
->  	for (n = 0; n < 4; n++) {
->  		if (sc->led_delay_on[n] || sc->led_delay_off[n]) {
-> -			report.data.led[3 - n].duty_off = sc->led_delay_off[n];
-> -			report.data.led[3 - n].duty_on = sc->led_delay_on[n];
-> +			report->led[3 - n].duty_off = sc->led_delay_off[n];
-> +			report->led[3 - n].duty_on = sc->led_delay_on[n];
->  		}
->  	}
->  
-> -	hid_hw_raw_request(sc->hdev, report.data.report_id, report.buf,
-> -			sizeof(report), HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
-> +	hid_hw_raw_request(sc->hdev, report->report_id, (__u8 *)report,
-> +			sizeof(struct sixaxis_output_report),
-> +			HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
->  }
->  
->  static void dualshock4_state_worker(struct work_struct *work)
->  {
->  	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
->  	struct hid_device *hdev = sc->hdev;
-> +	__u8 *buf = sc->output_report_dmabuf;
->  	int offset;
->  
-> -	__u8 buf[78] = { 0 };
-> -
->  	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-> +		memset(buf, 0, DS4_REPORT_0x05_SIZE);
->  		buf[0] = 0x05;
->  		buf[1] = 0xFF;
->  		offset = 4;
->  	} else {
-> +		memset(buf, 0, DS4_REPORT_0x11_SIZE);
->  		buf[0] = 0x11;
->  		buf[1] = 0xB0;
->  		buf[3] = 0x0F;
-> @@ -1560,12 +1594,33 @@ static void dualshock4_state_worker(struct work_struct *work)
->  	buf[offset++] = sc->led_delay_off[3];
->  
->  	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
-> -		hid_hw_output_report(hdev, buf, 32);
-> +		hid_hw_output_report(hdev, buf, DS4_REPORT_0x05_SIZE);
->  	else
-> -		hid_hw_raw_request(hdev, 0x11, buf, 78,
-> +		hid_hw_raw_request(hdev, 0x11, buf, DS4_REPORT_0x11_SIZE,
->  				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
->  }
->  
-> +static int sony_allocate_output_report(struct sony_sc *sc)
-> +{
-> +	if (sc->quirks & SIXAXIS_CONTROLLER)
-> +		sc->output_report_dmabuf =
-> +			kmalloc(sizeof(union sixaxis_output_report_01),
-> +				GFP_KERNEL);
-> +	else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
-> +		sc->output_report_dmabuf = kmalloc(DS4_REPORT_0x11_SIZE,
-> +						GFP_KERNEL);
-> +	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
-> +		sc->output_report_dmabuf = kmalloc(DS4_REPORT_0x05_SIZE,
-> +						GFP_KERNEL);
-> +	else
-> +		return 0;
-> +
-> +	if (!sc->output_report_dmabuf)
-> +		return -ENOMEM;
-> +
-> +	return 0;
-> +}
-> +
->  #ifdef CONFIG_SONY_FF
->  static int sony_play_effect(struct input_dev *dev, void *data,
->  			    struct ff_effect *effect)
-> @@ -1754,6 +1809,7 @@ static int sony_get_bt_devaddr(struct sony_sc *sc)
->  
->  static int sony_check_add(struct sony_sc *sc)
->  {
-> +	__u8 *buf = NULL;
->  	int n, ret;
->  
->  	if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) ||
-> @@ -1769,36 +1825,44 @@ static int sony_check_add(struct sony_sc *sc)
->  			return 0;
->  		}
->  	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-> -		__u8 buf[7];
-> +		buf = kmalloc(DS4_REPORT_0x81_SIZE, GFP_KERNEL);
-> +		if (!buf)
-> +			return -ENOMEM;
->  
->  		/*
->  		 * The MAC address of a DS4 controller connected via USB can be
->  		 * retrieved with feature report 0x81. The address begins at
->  		 * offset 1.
->  		 */
-> -		ret = hid_hw_raw_request(sc->hdev, 0x81, buf, sizeof(buf),
-> -				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> +		ret = hid_hw_raw_request(sc->hdev, 0x81, buf,
-> +				DS4_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
-> +				HID_REQ_GET_REPORT);
->  
-> -		if (ret != 7) {
-> +		if (ret != DS4_REPORT_0x81_SIZE) {
->  			hid_err(sc->hdev, "failed to retrieve feature report 0x81 with the DualShock 4 MAC address\n");
-> -			return ret < 0 ? ret : -EINVAL;
-> +			ret = ret < 0 ? ret : -EINVAL;
-> +			goto out_free;
->  		}
->  
->  		memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
->  	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
-> -		__u8 buf[18];
-> +		buf = kmalloc(SIXAXIS_REPORT_0xF2_SIZE, GFP_KERNEL);
-> +		if (!buf)
-> +			return -ENOMEM;
->  
->  		/*
->  		 * The MAC address of a Sixaxis controller connected via USB can
->  		 * be retrieved with feature report 0xf2. The address begins at
->  		 * offset 4.
->  		 */
-> -		ret = hid_hw_raw_request(sc->hdev, 0xf2, buf, sizeof(buf),
-> -				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> +		ret = hid_hw_raw_request(sc->hdev, 0xf2, buf,
-> +				SIXAXIS_REPORT_0xF2_SIZE, HID_FEATURE_REPORT,
-> +				HID_REQ_GET_REPORT);
->  
-> -		if (ret != 18) {
-> +		if (ret != SIXAXIS_REPORT_0xF2_SIZE) {
->  			hid_err(sc->hdev, "failed to retrieve feature report 0xf2 with the Sixaxis MAC address\n");
-> -			return ret < 0 ? ret : -EINVAL;
-> +			ret = ret < 0 ? ret : -EINVAL;
-> +			goto out_free;
->  		}
->  
->  		/*
-> @@ -1811,7 +1875,13 @@ static int sony_check_add(struct sony_sc *sc)
->  		return 0;
->  	}
->  
-> -	return sony_check_add_dev_list(sc);
-> +	ret = sony_check_add_dev_list(sc);
-> +
-> +out_free:
-> +
-> +	kfree(buf);
-> +
-> +	return ret;
->  }
->  
->  static int sony_set_device_id(struct sony_sc *sc)
-> @@ -1895,6 +1965,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		return ret;
->  	}
->  
-> +	ret = sony_allocate_output_report(sc);
-> +	if (ret < 0) {
-> +		hid_err(hdev, "failed to allocate the output report buffer\n");
-> +		goto err_stop;
-> +	}
-> +
->  	ret = sony_set_device_id(sc);
->  	if (ret < 0) {
->  		hid_err(hdev, "failed to allocate the device id\n");
-> @@ -1984,6 +2060,7 @@ err_stop:
->  	if (sc->quirks & SONY_BATTERY_SUPPORT)
->  		sony_battery_remove(sc);
->  	sony_cancel_work_sync(sc);
-> +	kfree(sc->output_report_dmabuf);
->  	sony_remove_dev_list(sc);
->  	sony_release_device_id(sc);
->  	hid_hw_stop(hdev);
-> @@ -2004,6 +2081,8 @@ static void sony_remove(struct hid_device *hdev)
->  
->  	sony_cancel_work_sync(sc);
->  
-> +	kfree(sc->output_report_dmabuf);
-> +
->  	sony_remove_dev_list(sc);
->  
->  	sony_release_device_id(sc);
-> -- 
-> 2.1.0
-> 
+After applying these changes false pen-up events have not be observed and
+smooth circles can be drawn on touch screen. The performance is much better
+in recognizing quick movement across the screen. No lag or cursor jump is
+observed.
+
+Change log:
+
+v3:
+ - Replace delta filtering logic in TSC driver with median filtering
+   as suggested by Richard.
+ - Addressed Lee Jones comments.
+
+v2:
+ - Addressed comments by Hartmut Knaack
+ - patch 2 was split into two as per Lee Jones comment
+
+Brad Griffis (2):
+  input: touchscreen: ti_am335x_tsc Interchange touchscreen and ADC
+    steps
+  input: touchscreen: ti_am335x_tsc: Remove udelay in interrupt handler
+
+Vignesh R (4):
+  mfd: ti_am335x_tscadc: Remove unwanted reg_se_cache save
+  ARM: dts: AM335x: Make charge delay a DT parameter for TSC
+  input: touchscreen: ti_am335x_tsc: Use charge delay DT parameter
+  input: touchscreen: ti_am335x_tsc: Replace delta filtering with median
+    filtering
+
+ .../bindings/input/touchscreen/ti-tsc-adc.txt      |  15 ++
+ arch/arm/boot/dts/am335x-evm.dts                   |   1 +
+ drivers/iio/adc/ti_am335x_adc.c                    |   5 +-
+ drivers/input/touchscreen/ti_am335x_tsc.c          | 186 +++++++++++----------
+ drivers/mfd/ti_am335x_tscadc.c                     |   7 +-
+ include/linux/mfd/ti_am335x_tscadc.h               |   4 +-
+ 6 files changed, 127 insertions(+), 91 deletions(-)
 
 -- 
-Dmitry
+1.9.1

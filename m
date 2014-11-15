@@ -1,38 +1,50 @@
-From: Richard Cochran <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 2/6] input: touchscreen: ti_am335x_tsc: Remove udelay
- in interrupt handler
-Date: Sat, 15 Nov 2014 20:27:39 +0100
-Message-ID: <20141115192739.GA18766@localhost.localdomain>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
- <1415941651-28962-3-git-send-email-vigneshr@ti.com>
+From: Ben Sagal <bensagal@gmail.com>
+Subject: LEN2006 Synaptics touchpad min max fix
+Date: Sat, 15 Nov 2014 23:09:22 +0200
+Message-ID: <CAK4AR+_pycN0MCqcjM_svpd5UjMWacXVr5QTWJeU-Ean4sD-Kg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1415941651-28962-3-git-send-email-vigneshr-l0cyMroinI0@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap@vger.k
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:58955 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754612AbaKOVJo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 Nov 2014 16:09:44 -0500
+Received: by mail-wg0-f48.google.com with SMTP id a1so3807554wgh.7
+        for <linux-input@vger.kernel.org>; Sat, 15 Nov 2014 13:09:43 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-On Fri, Nov 14, 2014 at 10:37:27AM +0530, Vignesh R wrote:
-> From: Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>
-> 
-> TSC interrupt handler had udelay to avoid reporting of false pen-up
-> interrupt to user space. This patch implements workaround suggesting in
-> Advisory 1.0.31 of silicon errata for am335x, thus eliminating udelay
-> and touchscreen lag. This also improves performance of touchscreen and
-> eliminates sudden jump of cursor at touch release.
+RE bug: https://bugzilla.kernel.org/show_bug.cgi?id=88211
 
-I back ported this series onto v3.15.1 in order to try this out on a
-custom, beaglebone-like board. With this series, the touch is really
-broken. (I had fixed the pen up problem in a totally different way for
-a customer, and so I wanted to try out your solution.)
+The LEN2006 Synaptics touchpad (as found in my thinkpad E540) returns
+wrong min max values.
 
-I will try to port the board code to a more recent kernel to try your
-series again. With which kernel version did you test your patches?
+touchpad-edge-detector output:
+>  Touchpad SynPS/2 Synaptics TouchPad on /dev/input/event6
+>  Move one finger around the touchpad to detect the actual edges
+>  Kernel says:    x [1472..5674], y [1408..4684]
+>  Touchpad sends: x [1264..5675], y [1171..4688]
 
-And which board?
+the patch is against 3.17.2
 
-Thanks,
-Richard
+Signed-off-by: Binyamin Sagal <bensagal@gmail.com>
+---
+
+diff -uNr linux.org/drivers/input/mouse/synaptics.c
+linux/drivers/input/mouse/synaptics.c
+--- linux.org/drivers/input/mouse/synaptics.c 2014-11-14
+12:18:39.000000000 +0200
++++ linux/drivers/input/mouse/synaptics.c 2014-11-14 08:25:05.963395004 +0200
+@@ -143,6 +143,10 @@
+  (const char * const []){"LEN2001", NULL},
+  1024, 5022, 2508, 4832
+  },
++ {
++ (const char * const []){"LEN2006", NULL},
++ 1264, 5675, 1171, 4688
++ },
+  { }
+ };

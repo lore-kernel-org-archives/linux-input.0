@@ -1,45 +1,74 @@
-From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: [PATCH] HID: i2c-hid: print the correct data in dbg msg
-Date: Sun, 16 Nov 2014 22:45:43 +0800
-Message-ID: <1416149143-25703-1-git-send-email-borneo.antonio@gmail.com>
+From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
+Subject: [PATCH] Input: atkbd - correct MSC_SCAN events for force_release keys
+Date: Sun, 16 Nov 2014 23:18:31 +0100
+Message-ID: <45706882.ZrxtpIdaNX@pebbles.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:53212 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753183AbaKPOpq (ORCPT
+Received: from mx-out-2.rwth-aachen.de ([134.130.5.187]:25007 "EHLO
+	mx-out-2.rwth-aachen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751416AbaKPWSd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Nov 2014 09:45:46 -0500
+	Sun, 16 Nov 2014 17:18:33 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>, Antonio Borneo <borneo.antonio@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+Without the change either no scancode would be reported on release
+of force_release keys, or - if the key is marked as force_release
+erroneously - the release event and the scancode would be reported
+in separate reports to the input layer.
 
-From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-
-Report is received in "buffer"; fix the following i2c_hid_dbg()
-to dump data from the correct pointer.
-
-Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-[Antonio Borneo: cleanup and rebase to v3.17]
-Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 747d544..933bf10 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -437,7 +437,7 @@ static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
- 			report->id, buffer, size))
- 		return;
- 
--	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
-+	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, buffer);
- 
- 	ret_size = buffer[0] | (buffer[1] << 8);
- 
--- 
-2.1.3
+Originally sent on 28.9.2014, but somehow got lost.
+Resending as per Dmitrys request from 24.10.2014=20
 
+ drivers/input/keyboard/atkbd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/at=
+kbd.c
+index 2dd1d0d..6375ae6 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -456,8 +456,9 @@ static irqreturn_t atkbd_interrupt(struct serio *se=
+rio,=20
+unsigned char data,
+=20
+ 	keycode =3D atkbd->keycode[code];
+=20
+-	if (keycode !=3D ATKBD_KEY_NULL)
+-		input_event(dev, EV_MSC, MSC_SCAN, code);
++	if (!(atkbd->release && test_bit(code, atkbd->force_release_mask)))
++		if (keycode !=3D ATKBD_KEY_NULL)
++			input_event(dev, EV_MSC, MSC_SCAN, code);
+=20
+ 	switch (keycode) {
+ 	case ATKBD_KEY_NULL:
+@@ -511,6 +512,7 @@ static irqreturn_t atkbd_interrupt(struct serio *se=
+rio,=20
+unsigned char data,
+ 		input_sync(dev);
+=20
+ 		if (value && test_bit(code, atkbd->force_release_mask)) {
++			input_event(dev, EV_MSC, MSC_SCAN, code);
+ 			input_report_key(dev, keycode, 0);
+ 			input_sync(dev);
+ 		}
+--=20
+1.8.4.5
+
+
+--=20
+Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
+home: +49 241 53809034     mobile: +49 151 50412019
+work: +49 2405 49936-424
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

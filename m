@@ -1,113 +1,116 @@
 From: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 0/4] Touchscreen performance related fixes
-Date: Mon, 17 Nov 2014 17:09:45 +0530
-Message-ID: <5469DE81.9030009@ti.com>
-References: <1414408111-2631-1-git-send-email-vigneshr@ti.com>	<20141103180920.GA20779@localhost.localdomain>	<545B2651.4090905@ti.com> <CAJKbBDDyShaJkzzfdFs07EK5gDUfwqWiv39Qi4FVSvRrfc6_fA@mail.gmail.com> <5464A2B5.3020207@ti.com>
+Subject: Re: [PATCH v4 2/6] input: touchscreen: ti_am335x_tsc: Remove udelay
+ in interrupt handler
+Date: Mon, 17 Nov 2014 17:48:27 +0530
+Message-ID: <5469E793.80909@ti.com>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com> <1415941651-28962-3-git-send-email-vigneshr@ti.com> <20141115192739.GA18766@localhost.localdomain> <54697919.5030302@ti.com> <20141117082337.GA3946@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5464A2B5.3020207-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20141117082337.GA3946-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Johannes Pointner <johannes.pointner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Richard Cochran <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, linux-iio <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, linux-om
+To: Richard Cochran <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap@v
 List-Id: linux-input@vger.kernel.org
 
-Hi,
 
-On Thursday 13 November 2014 05:53 PM, Vignesh R wrote:
-> Hi,
+
+On Monday 17 November 2014 01:53 PM, Richard Cochran wrote:
+> On Mon, Nov 17, 2014 at 09:57:05AM +0530, Vignesh R wrote:
+>> My patches are based on v3.18rc2. I tested my patches on am335x-evm
+>> using tslib.
 > 
-> On Wednesday 12 November 2014 06:30 PM, Johannes Pointner wrote:
->> Hello Vignesh,
->>
->> I tried your patch version 3 on a customized board and had some
->> behavior I couldn't explain.
->> If I only use the touchscreen it works fine but if I also read values
->> from the ADCs then I get a lot of pen_up events even if I am still
->> touching the screen.
->> For the test I read via
->> # cat /sys/bus/iio/devices/iio\:device0/in_voltage5_raw
->> values from the ADC in an busy loop as you explained in an email
->> before. Did you also experience such behavior or do you know what
->> causes it?
+> No beaglebone + cape testing?
 > 
-> Thanks for testing. I was able to fix this issue. Will post version 4
-> shortly.
+>> Please explain "touch is broken"? What is the behaviour of TSC?
+> 
+> With plain v3.17 plus your series, the cursor is almost never near the
+> pen. Mostly it jitters around the right hand edge.
+> 
+> My customer had already changed the step delay (I think by trial and
+> error, not sure) in order to get the cursor near the pen. I ported
+> this change onto your series (see patch, below), but still the pen up
+> event causes a huge cursor jump.
+> 
+> (Again, I did solve the pen up issue, but in a totally different
+> way. I never posted the fix, because I could not be sure that it would
+> work on a wide variety of boards.)
+> 
+>> Which ADC channels are being used for TSC?
+> 
+> &tscadc {
+> 	status = "okay";
+> 	tsc {
+> 		ti,wires = <4>;
+> 		ti,x-plate-resistance = <300>;
+> 		ti,coordinate-readouts = <5>;
+> 		ti,wire-config = <0x00 0x11 0x23 0x32>;
+> 	};
+
+What is the ti,charge-delay value you have tried?
+Try setting it to 0xB000 and experiment.
+
+> 
+> 	adc {
+> 		ti,adc-channels = <5 6 7>;
+> 	};
+> };
+> 
+> So for this particular design, your series really does not help, not
+> even a little. You did not test the series on many boards. I am
+> concerned that this series only works on the one board you did test,
+> and that it may break functionality on other people's boards.
 > 
 
-Were you able to test the v4 patch series on your board? Is the issue fixed?
+I just have one am335x-evm available. I will search for a beaglebone
+cape and test the patches. Let Sebastian, Johannes come back with their
+results. If the series works on multiple boards then, I believe, this
+series can go in.
 
-> Regards
-> Vignesh
+Regards
+Vignesh
+
+> Thanks,
+> Richard
 > 
->>
->> Without the patches the touchscreen works fine during the iio test.
->>
->> Thanks,
->> Hannes
->>
->> 2014-11-06 8:42 GMT+01:00 Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>:
->>>
->>>
->>> On Monday 03 November 2014 11:39 PM, Richard Cochran wrote:
->>>> On Mon, Oct 27, 2014 at 04:38:27PM +0530, Vignesh R wrote:
->>>>> This series of patches fix TSC defects related to lag in touchscreen
->>>>> performance and cursor jump at touch release. The lag was result of
->>>>> udelay in TSC interrupt handler. Cursor jump due to false pen-up event.
->>>>> The patches implement Advisory 1.0.31 in silicon errata of am335x-evm
->>>>> to avoid false pen-up events and remove udelay.
->>>>
->>>> That advisory has two workarounds. You have chosen the second one?
->>>
->>> Work around one. Hence 5 wire design is not broken.
->>>
->>>>
->>>> The text of the second workaround says it only works on 4 wire setups,
->>>> so I wonder how 5 wire designs will be affected.
->>>>
->>>>> The advisory says to use
->>>>> steps 1 to 4 for ADC and 5 to 16 for TSC (assuming 4 wire TSC and 4 channel
->>>>> ADC).
->>>>
->>>> No, it doesn't say that. (sprz360f.pdf)
->>>
->>> The pen up event detection happens immediately after charge step. Hence,
->>> interchanging ADC and TSC steps makes sure that sampling of touch
->>> co-ordinates and pen events are done one after the other. This
->>> workaround was suggested by internal hardware folks. Earlier ADC steps
->>> intervened between sampling of co-ordinates and pen event detection
->>> which is not desirable.
->>>
->>>>
->>>>> Further the X co-ordinate must be the last one to be sampled just
->>>>> before charge step. The first two patches implement the required changes.
->>>>
->>>> FWIW, I implemented the first workaround and removed the udelay not
->>>> too long ago. Like Sebastian, I saw the TSC unit hang after about
->>>> 50000 interrupts when running with the workaround.
->>>>
->>>> Did you test you patch for very long?
->>>
->>> Yes, I tested for about 200000 interrupts and I didn't see any hang.
->>> This patch series does not just implement workaround but also does some
->>> minor changes, such as interchanging ADC and TSC steps etc, which makes
->>> TSC driver more robust. Let me know if you encounter any issues with my
->>> patch series.
->>>
->>> Regards
->>> Vignesh
->>>
->>>>
->>>> Thanks,
->>>> Richard
->>>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index b84493f..77a4883 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -148,7 +148,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+>  	end_step = first_step + tsc_steps;
+>  	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
+>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> +		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+>  	}
+>  
+>  	config = 0;
+> @@ -172,7 +172,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+>  	end_step = first_step + ts_dev->coordinate_readouts;
+>  	for (i = first_step; i < end_step; i++) {
+>  		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+> -		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+> +		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+>  	}
+>  
+>  	/* Make CHARGECONFIG same as IDLECONFIG */
+> @@ -188,13 +188,13 @@ static void titsc_step_config(struct titsc *ts_dev)
+>  			STEPCONFIG_INP(ts_dev->inp_xp);
+>  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> -			STEPCONFIG_OPENDLY);
+> +			STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+>  
+>  	end_step++;
+>  	config |= STEPCONFIG_INP(ts_dev->inp_yn);
+>  	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+>  	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+> -			STEPCONFIG_OPENDLY);
+> +			STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+>  
+>  	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
+>  	stepenable = 1;
 > 

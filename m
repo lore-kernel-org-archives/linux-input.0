@@ -1,102 +1,53 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom - Bamboo pen only tablet does not support PAD
-Date: Mon, 17 Nov 2014 13:45:55 -0800
-Message-ID: <1416260755-13635-1-git-send-email-pingc@wacom.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:59947 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751464AbaKQVqI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Nov 2014 16:46:08 -0500
-Received: by mail-pa0-f44.google.com with SMTP id et14so8274194pad.17
-        for <linux-input@vger.kernel.org>; Mon, 17 Nov 2014 13:46:06 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] HID: i2c-hid: fix race condition reading reports
+Date: Mon, 17 Nov 2014 13:51:11 -0800
+Message-ID: <20141117215111.GA19828@kroah.com>
+References: <1416149064-25655-1-git-send-email-borneo.antonio@gmail.com>
+ <20141117214305.GC30324@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20141117214305.GC30324@mail.corp.redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-Bamboo models do not support HID_DG_CONTACTMAX. We should not rely
-on that description to decide touch_max for them. Plus, no Bamboo
-device supports single touch.
+On Mon, Nov 17, 2014 at 04:43:05PM -0500, Benjamin Tissoires wrote:
+> Hey Antonio,
+> 
+> On Nov 16 2014 or thereabouts, Antonio Borneo wrote:
+> > From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> > 
+> > From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> > 
+> > Current driver uses a common buffer for reading reports either
+> > synchronously in i2c_hid_get_raw_report() and asynchronously in
+> > the interrupt handler.
+> > There is race condition if an interrupt arrives immediately after
+> > the report is received in i2c_hid_get_raw_report(); the common
+> > buffer is modified by the interrupt handler with the new report
+> > and then i2c_hid_get_raw_report() proceed using wrong data.
+> > 
+> > Fix it by using a separate buffers for asynchronous reports.
+> > 
+> > Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> > [Antonio Borneo: cleanup and rebase to v3.17]
+> > Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+> > Cc: stable@vger.kernel.org
+> 
+> For your next submission, when you want a patch to go in stable, put CC
+> here, but please do not CC the actual mail to stable@. Stable should receive
+> either mails which are already in Linus' tree, or which refer a commit
+> in Linus' tree in case it does not applies smoothly.
+> 
+> [keeping stable@ here to show them that this one should not get picked
+> right now]
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/hid/wacom_sys.c |  4 ++--
- drivers/hid/wacom_wac.c | 30 ++++++++++++++++++++++--------
- 2 files changed, 24 insertions(+), 10 deletions(-)
+stable@ is smarter than that, I don't mind seeing patches that are
+coming in the future like this at all, it's not a problem.
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 8593047..46147b4 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -192,8 +192,8 @@ static void wacom_usage_mapping(struct hid_device *hdev,
- 	if (!pen && !finger)
- 		return;
- 
--	if (finger && !features->touch_max)
--		/* touch device at least supports one touch point */
-+	if (finger && !features->touch_max && (features->type != BAMBOO_PT))
-+		/* ISDv4 touch devices at least supports one touch point */
- 		features->touch_max = 1;
- 
- 	switch (usage->hid) {
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 586b240..fc9b492 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2402,7 +2402,7 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 	case INTUOSPS:
- 		/* touch interface does not have the pad device */
- 		if (features->device_type != BTN_TOOL_PEN)
--			return 1;
-+			goto no_pad;
- 
- 		for (i = 0; i < 7; i++)
- 			__set_bit(BTN_0 + i, input_dev->keybit);
-@@ -2447,22 +2447,36 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 	case BAMBOO_PT:
- 		/* pad device is on the touch interface */
- 		if (features->device_type != BTN_TOOL_FINGER)
--			return 1;
-+			goto no_pad;
- 
- 		__clear_bit(ABS_MISC, input_dev->absbit);
- 
--		__set_bit(BTN_LEFT, input_dev->keybit);
--		__set_bit(BTN_FORWARD, input_dev->keybit);
--		__set_bit(BTN_BACK, input_dev->keybit);
--		__set_bit(BTN_RIGHT, input_dev->keybit);
-+		/* Bamboo Pen only tablet does not have pad */
-+		if ((features->type != BAMBOO_PT) || 
-+		    ((features->type == BAMBOO_PT) && features->touch_max)) {
-+			__set_bit(BTN_LEFT, input_dev->keybit);
-+			__set_bit(BTN_FORWARD, input_dev->keybit);
-+			__set_bit(BTN_BACK, input_dev->keybit);
-+			__set_bit(BTN_RIGHT, input_dev->keybit);
-+		} else
-+			goto no_pad;
- 
- 		break;
- 
- 	default:
--		/* no pad supported */
--		return 1;
-+		goto no_pad;
- 	}
- 	return 0;
-+
-+no_pad:
-+	input_dev->evbit[0] &= ~BIT_MASK(EV_KEY) & ~BIT_MASK(EV_ABS);
-+	__clear_bit(ABS_MISC, input_dev->absbit);
-+	__clear_bit(ABS_X, input_dev->absbit);
-+	__clear_bit(ABS_Y, input_dev->absbit);
-+	__clear_bit(BTN_STYLUS, input_dev->keybit);
-+	
-+	return 1;
-+
- }
- 
- static const struct wacom_features wacom_features_0x00 =
--- 
-1.9.1
+thanks,
 
+greg k-h

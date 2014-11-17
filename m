@@ -1,67 +1,102 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
-Date: Mon, 17 Nov 2014 08:39:14 +0100
-Message-ID: <201411170839.17504@pali>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <1541270.g199T8YFIC@dtor-glaptop>
+From: Richard Cochran <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 2/6] input: touchscreen: ti_am335x_tsc: Remove udelay
+ in interrupt handler
+Date: Mon, 17 Nov 2014 09:23:37 +0100
+Message-ID: <20141117082337.GA3946@localhost.localdomain>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
+ <1415941651-28962-3-git-send-email-vigneshr@ti.com>
+ <20141115192739.GA18766@localhost.localdomain>
+ <54697919.5030302@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1505690.ZvFtjOko4a";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:36272 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750723AbaKQHjU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Nov 2014 02:39:20 -0500
-In-Reply-To: <1541270.g199T8YFIC@dtor-glaptop>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <54697919.5030302-l0cyMroinI0@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap@vger.k
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart1505690.ZvFtjOko4a
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Mon, Nov 17, 2014 at 09:57:05AM +0530, Vignesh R wrote:
+> My patches are based on v3.18rc2. I tested my patches on am335x-evm
+> using tslib.
 
-On Friday 14 November 2014 21:59:31 Dmitry Torokhov wrote:
-> Hi Pali,
->=20
-> On Friday, November 14, 2014 08:38:19 PM Pali Roh=C3=A1r wrote:
-> > This patch series fix detection and identifying trackstick
-> > on machines with ALPS devices. Last patch split trackstick
-> > and bare PS/2 mouse packets between dev2 and dev3 input
-> > devices which make sure that driver will send only
-> > trackstick data to trackstick input device.
->=20
-> Thank you for splitting the change, unfortunately it is now
-> quite big to apply to 3.18. Any chance you could try
-> implementing what I suggested in
-> http://www.spinics.net/lists/linux-input/msg34029.html and
-> then we can do the more comprehensive solution in 3.19.
->=20
-> Thanks.
+No beaglebone + cape testing?
 
-Hello, I think that patches 1/7 and 5/7 could do that job. I did=20
-not tested them alone (without other patches), but if you think=20
-that two patches are ok for 3.18 & stable I can test them...
+> Please explain "touch is broken"? What is the behaviour of TSC?
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+With plain v3.17 plus your series, the cursor is almost never near the
+pen. Mostly it jitters around the right hand edge.
 
---nextPart1505690.ZvFtjOko4a
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+My customer had already changed the step delay (I think by trial and
+error, not sure) in order to get the cursor near the pen. I ported
+this change onto your series (see patch, below), but still the pen up
+event causes a huge cursor jump.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+(Again, I did solve the pen up issue, but in a totally different
+way. I never posted the fix, because I could not be sure that it would
+work on a wide variety of boards.)
 
-iEYEABECAAYFAlRppiUACgkQi/DJPQPkQ1LrcACgzG3l/IjhtScIuy42TJT/EOZp
-ztMAoK75GuPVibPe4pR1ZucuzwNQs6pb
-=7A4N
------END PGP SIGNATURE-----
+> Which ADC channels are being used for TSC?
 
---nextPart1505690.ZvFtjOko4a--
+&tscadc {
+	status = "okay";
+	tsc {
+		ti,wires = <4>;
+		ti,x-plate-resistance = <300>;
+		ti,coordinate-readouts = <5>;
+		ti,wire-config = <0x00 0x11 0x23 0x32>;
+	};
+
+	adc {
+		ti,adc-channels = <5 6 7>;
+	};
+};
+
+So for this particular design, your series really does not help, not
+even a little. You did not test the series on many boards. I am
+concerned that this series only works on the one board you did test,
+and that it may break functionality on other people's boards.
+
+Thanks,
+Richard
+
+---
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index b84493f..77a4883 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -148,7 +148,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 	end_step = first_step + tsc_steps;
+ 	for (i = end_step - ts_dev->coordinate_readouts; i < end_step; i++) {
+ 		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+-		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
++		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+ 	}
+ 
+ 	config = 0;
+@@ -172,7 +172,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 	end_step = first_step + ts_dev->coordinate_readouts;
+ 	for (i = first_step; i < end_step; i++) {
+ 		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+-		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
++		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+ 	}
+ 
+ 	/* Make CHARGECONFIG same as IDLECONFIG */
+@@ -188,13 +188,13 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 			STEPCONFIG_INP(ts_dev->inp_xp);
+ 	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+ 	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+-			STEPCONFIG_OPENDLY);
++			STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+ 
+ 	end_step++;
+ 	config |= STEPCONFIG_INP(ts_dev->inp_yn);
+ 	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
+ 	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+-			STEPCONFIG_OPENDLY);
++			STEPCONFIG_OPENDLY | STEPDELAY_SAMPLE(20));
+ 
+ 	/* The steps end ... end - readouts * 2 + 2 and bit 0 for TS_Charge */
+ 	stepenable = 1;

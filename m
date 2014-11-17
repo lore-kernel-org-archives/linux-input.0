@@ -1,61 +1,58 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: [PATCH] HID: yet another buggy ELAN touchscreen
-Date: Mon, 17 Nov 2014 17:11:42 +0100
-Message-ID: <1416240702-28988-1-git-send-email-oneukum@suse.de>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: Oliver Neukum <oneukum@suse.de>, stable@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: i2c-hid: print the correct data in dbg msg
+Date: Mon, 17 Nov 2014 16:32:23 -0500
+Message-ID: <20141117213223.GB30324@mail.corp.redhat.com>
+References: <1416149143-25703-1-git-send-email-borneo.antonio@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:45412 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752484AbaKQVce (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Nov 2014 16:32:34 -0500
+Content-Disposition: inline
+In-Reply-To: <1416149143-25703-1-git-send-email-borneo.antonio@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Borneo <borneo.antonio@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
 
-The touchscreen needs the same quirk as the other models.
+On Nov 16 2014 or thereabouts, Antonio Borneo wrote:
+> From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> 
+> From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> 
+> Report is received in "buffer"; fix the following i2c_hid_dbg()
+> to dump data from the correct pointer.
+> 
+> Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> [Antonio Borneo: cleanup and rebase to v3.17]
+> Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+> ---
 
-Signed-off-by: Oliver Neukum <oneukum@suse.de>
-Reported-by: Bryan Poling <poli0048@umn.edu>
-CC: stable@vger.kernel.org
----
- drivers/hid/hid-ids.h           | 1 +
- drivers/hid/usbhid/hid-quirks.c | 1 +
- drivers/usb/core/quirks.c       | 3 +++
- 3 files changed, 5 insertions(+)
+Good catch.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e23ab8b..282ffbe 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -299,6 +299,7 @@
- #define USB_VENDOR_ID_ELAN		0x04f3
- #define USB_DEVICE_ID_ELAN_TOUCHSCREEN	0x0089
- #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B	0x009b
-+#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c	0x010c
- #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F	0x016f
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 5014bb5..08b9626 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -72,6 +72,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B, HID_QUIRK_ALWAYS_POLL },
-+	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 39b4081..8e8bc4f 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -100,6 +100,9 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x04f3, 0x009b), .driver_info =
- 			USB_QUIRK_DEVICE_QUALIFIER },
- 
-+	{ USB_DEVICE(0x04f3, 0x010c), .driver_info =
-+			USB_QUIRK_DEVICE_QUALIFIER },
-+
- 	{ USB_DEVICE(0x04f3, 0x016f), .driver_info =
- 			USB_QUIRK_DEVICE_QUALIFIER },
- 
--- 
-1.8.4.5
+This one is Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 747d544..933bf10 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -437,7 +437,7 @@ static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
+>  			report->id, buffer, size))
+>  		return;
+>  
+> -	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
+> +	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, buffer);
+>  
+>  	ret_size = buffer[0] | (buffer[1] << 8);
+>  
+> -- 
+> 2.1.3
+> 

@@ -1,57 +1,92 @@
-From: bri <bri@abrij.org>
-Subject: Re: [PATCH 001/001] hid-sony.c: add sysfs provisioning
-Date: Tue, 18 Nov 2014 09:26:29 -0500
-Message-ID: <20141118142629.GA343@abrij.org>
-References: <20141116181846.GA31516@abrij.org>
- <20141117133518.ee306b3b35a0e0566a255b14@ao2.it>
- <546A4EF7.903@gmail.com>
- <20141118000005.GA32256@abrij.org>
- <546ABB51.4010905@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
+ reg_se_cache save
+Date: Tue, 18 Nov 2014 14:30:05 +0000
+Message-ID: <20141118143005.GF24004@x1>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
+ <1415941651-28962-4-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <546ABB51.4010905@gmail.com>
+In-Reply-To: <1415941651-28962-4-git-send-email-vigneshr@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: Antonio Ospite <ao2@ao2.it>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, open@abrij.org, HID CORE LAYER <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Michael Kerrisk <mtk.manpages@gmail.com>
+To: Vignesh R <vigneshr@ti.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, richardcochran@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Nov 17, 2014 at 10:21:53PM -0500, Frank Praznik wrote:
-> Hi Brian,
-> 
-> On 11/17/2014 19:00, bri wrote:
-> >
-> >>Yeah, the device ID in the driver is only for tracking devices internally
-> >>and setting sane default LED values.  It has no meaning outside of the
-> >>module.  Like Antonio said, if you want the system number for a controller
-> >>you are better off just getting it from the joystick device.
-> >Would you be amenable to a patch that removes the IDA entirely and just sets
-> >the LEDs to all solid-on?  Since the LEDs are available through sysfs,
-> >udev rule could probably be made to set the LEDs in the absence of bluez
-> >or a higher level controller manager, and then it becomes the distro's
-> >responsibility.
-> >
-> 
-> What would be the benefit of doing this?  Nothing is stopping higher level
-> services from setting the LEDs right now.  The driver just sets sane
-> defaults for systems that don't have anything else to set the 'real' values.
-> Other controllers like Wiimotes and Xbox gamepads do the same thing.  It
-> doesn't get in the way of services like BlueZ setting them once
-> initialization is complete.
-> 
-> Leaving it completely up to the distro just means that there will be
-> situations where there is nothing to set the default values which makes for
-> a bad user experience.
+On Fri, 14 Nov 2014, Vignesh R wrote:
 
-It would eliminate 50 to 100 lines of code just for that tiny purpose,
-which userspace can and probably should take care of, given the disparity
-with the eventual values.  I'm honestly a bit confused of the criteria in use
-here, as I thought it was mostly deciding between the usefulness of features
-versus maintainability.  In my mind if I weight a master_bdaddr sysfs file
-and the code to support it versus this feature, I don't see where this one
-wins out.
+> In one shot mode, sequencer automatically disables all enabled steps =
+at
+> the end of each cycle. (both ADC steps and TSC steps) Hence these ste=
+ps
+> need not be saved in reg_se_cache for clearing these steps at a later
+> stage.
+> Also, when ADC wakes up Sequencer should not be busy executing any of=
+ the
+> config steps except for the charge step. Previously charge step was 1=
+ ADC
+> clock cycle and hence it was ignored.
+>=20
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> ---
+>  drivers/mfd/ti_am335x_tscadc.c       | 7 +++++--
+>  include/linux/mfd/ti_am335x_tscadc.h | 1 +
+>  2 files changed, 6 insertions(+), 2 deletions(-)
 
-But whatever.  I made this for my own use, and offered it up, and if the
-community does not want it I am free to keep using what I made, so I'm happy
-either way.
+Code looks better now.
+
+Acked-by: Lee Jones <lee.jones@linaro.org>
+
+What's the plan for this series?
+
+> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_t=
+scadc.c
+> index d877e777cce6..110038859a8d 100644
+> --- a/drivers/mfd/ti_am335x_tscadc.c
+> +++ b/drivers/mfd/ti_am335x_tscadc.c
+> @@ -86,8 +86,12 @@ static void am335x_tscadc_need_adc(struct ti_tscad=
+c_dev *tsadc)
+>  		spin_lock_irq(&tsadc->reg_lock);
+>  		finish_wait(&tsadc->reg_se_wait, &wait);
+> =20
+> +		/*
+> +		 * Sequencer should either be idle or
+> +		 * busy applying the charge step.
+> +		 */
+>  		reg =3D tscadc_readl(tsadc, REG_ADCFSM);
+> -		WARN_ON(reg & SEQ_STATUS);
+> +		WARN_ON((reg & SEQ_STATUS) && !(reg & CHARGE_STEP));
+>  		tsadc->adc_waiting =3D false;
+>  	}
+>  	tsadc->adc_in_use =3D true;
+> @@ -96,7 +100,6 @@ static void am335x_tscadc_need_adc(struct ti_tscad=
+c_dev *tsadc)
+>  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
+>  {
+>  	spin_lock_irq(&tsadc->reg_lock);
+> -	tsadc->reg_se_cache |=3D val;
+>  	am335x_tscadc_need_adc(tsadc);
+> =20
+>  	tscadc_writel(tsadc, REG_SE, val);
+> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd=
+/ti_am335x_tscadc.h
+> index 3f4e994ace2b..1fd50dcfe47c 100644
+> --- a/include/linux/mfd/ti_am335x_tscadc.h
+> +++ b/include/linux/mfd/ti_am335x_tscadc.h
+> @@ -128,6 +128,7 @@
+> =20
+>  /* Sequencer Status */
+>  #define SEQ_STATUS BIT(5)
+> +#define CHARGE_STEP		0x11
+> =20
+>  #define ADC_CLK			3000000
+>  #define TOTAL_STEPS		16
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

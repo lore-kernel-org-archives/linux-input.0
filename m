@@ -1,66 +1,38 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
-Date: Thu, 20 Nov 2014 00:29:49 +0100
-Message-ID: <201411200029.49547@pali>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <1541270.g199T8YFIC@dtor-glaptop> <201411170839.17504@pali>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: bisected: IR press/release behavior changed in 3.17, repeat
+ events
+Date: Thu, 20 Nov 2014 00:45:39 +0100
+Message-ID: <20141119234539.GB16939@hardeman.nu>
+References: <54679469.1010500@openelec.tv>
+ <20141119195019.GA20784@hardeman.nu>
+ <546D25D7.9050703@openelec.tv>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1468653.bjLaFNRBS1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201411170839.17504@pali>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vader.hardeman.nu ([95.142.160.32]:45515 "EHLO hardeman.nu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756318AbaKSXph (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Nov 2014 18:45:37 -0500
+Content-Disposition: inline
+In-Reply-To: <546D25D7.9050703@openelec.tv>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stephan Raue <mailinglists@openelec.tv>
+Cc: linux-input@vger.kernel.org, m.chehab@samsung.com, linux-media@vger.kernel.org
 
---nextPart1468653.bjLaFNRBS1
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Thu, Nov 20, 2014 at 12:20:55AM +0100, Stephan Raue wrote:
+>with kernel 3.17: (you dont see the messages with "toggle 1" here)
+>if i press once and wait:
 
-On Monday 17 November 2014 08:39:14 Pali Roh=C3=A1r wrote:
-> On Friday 14 November 2014 21:59:31 Dmitry Torokhov wrote:
-> > Hi Pali,
-> >=20
-> > On Friday, November 14, 2014 08:38:19 PM Pali Roh=C3=A1r wrote:
-> > > This patch series fix detection and identifying trackstick
-> > > on machines with ALPS devices. Last patch split trackstick
-> > > and bare PS/2 mouse packets between dev2 and dev3 input
-> > > devices which make sure that driver will send only
-> > > trackstick data to trackstick input device.
-> >=20
-> > Thank you for splitting the change, unfortunately it is now
-> > quite big to apply to 3.18. Any chance you could try
-> > implementing what I suggested in
-> > http://www.spinics.net/lists/linux-input/msg34029.html and
-> > then we can do the more comprehensive solution in 3.19.
-> >=20
-> > Thanks.
->=20
-> Hello, I think that patches 1/7 and 5/7 could do that job. I
-> did not tested them alone (without other patches), but if you
-> think that two patches are ok for 3.18 & stable I can test
-> them...
+Ummm...kinda embarassing...try swapping the order of the scancode and
+toggle lines in the rc6 decoder (drivers/media/rc/ir-rc6-decoder.c).
 
-Dmitry, ping.
+They're somewhere around line 259, right after the case 32 statement.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+case 32:
+	if ((scancode & RC6_6A_LCC_MASK) == RC6_6A_MCE_CC) {
+		protocol = RC_TYPE_RC6_MCE;
+                scancode &= ~RC6_6A_MCE_TOGGLE_MASK;
+		toggle = !!(scancode & RC6_6A_MCE_TOGGLE_MASK);
 
---nextPart1468653.bjLaFNRBS1
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlRtJ+0ACgkQi/DJPQPkQ1IB8QCfaIZtGjyfWSYGCYe1NR6UMTvd
-LR0An3kFbFR+MffcNTFxWgVuzOtUVr8M
-=BwJL
------END PGP SIGNATURE-----
-
---nextPart1468653.bjLaFNRBS1--

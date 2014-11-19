@@ -1,34 +1,46 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: bisected: IR press/release behavior changed in 3.17, repeat
- events
-Date: Wed, 19 Nov 2014 20:50:19 +0100
-Message-ID: <20141119195019.GA20784@hardeman.nu>
-References: <54679469.1010500@openelec.tv>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: [Question: drivers/input/input.c] Why input_no is initialized to 0 ?
+Date: Thu, 20 Nov 2014 01:31:44 +0530
+Message-ID: <CADYu3087SYHPSzzEP+92Kh69fUN7gXS1otAsmT8SfuPLQB3h_A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <54679469.1010500@openelec.tv>
-Sender: linux-media-owner@vger.kernel.org
-To: Stephan Raue <mailinglists@openelec.tv>
-Cc: linux-input@vger.kernel.org, m.chehab@samsung.com, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f42.google.com ([209.85.215.42]:44796 "EHLO
+	mail-la0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754598AbaKSUBq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Nov 2014 15:01:46 -0500
+Received: by mail-la0-f42.google.com with SMTP id s18so1178393lam.29
+        for <linux-input@vger.kernel.org>; Wed, 19 Nov 2014 12:01:44 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sat, Nov 15, 2014 at 06:59:05PM +0100, Stephan Raue wrote:
->Hi
->
->with kernel 3.17 using a RC6 remote with a buildin nuvoton IR receiver (not
->tested others, but i think its a common problem) when pressing/releasing the
->same button often within 1 second there will no release event sent. Instead
->we get repeat events. To get the release event i must press the same button
->with a delay of ~ 1sec.
->
->the evtest output for kernel with the difference 3.16 and 3.17 looks like
+Dear Mr. Torokhov,
+Greetings of the day ! :)
 
-Hi,
+Recently, I saw input_allocate_device() funtion in input.c file and
+faced one small doubt about it.
+Unfortunately, I could not find the decent answer on internet. Can you
+help to answer the query as follows:
 
-could you try the working and non-working versions with debugging output
-enabled from the in-kernel rc6 decoder (i.e. set debug for the rc-core
-module) and post the two different outputs?
+In this function, input_no is initialized to 0.
+static atomic_t input_no = ATOMIC_INIT(0);
+and then it is used to set input device name like below:
+dev_set_name(&dev->dev, "input%ld", (unsigned long)
+atomic_inc_return(&input_no) - 1);
 
-//David
+Here, we are increamenting input no by 1 and then again decreamenting by 1.
+I think, it is because we have initialized input_no to 0 and we want
+name of input devices to start from input0.
+
+Is it not a good idea to initialize input_no to -1 and then only
+increamenting input_no without subtracting when setting input device
+name ?
+With this, we will be able to save one extra subtraction instruction
+every time input device is allocated.
+
+Thanks in advance ! :)
+
+Regards,
+Aniroop Mathur

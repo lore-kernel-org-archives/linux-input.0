@@ -1,38 +1,58 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] hid: sony: Use kernel allocated buffers for HID
- reports
-Date: Wed, 19 Nov 2014 10:24:58 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411191024480.4454@pobox.suse.cz>
-References: <1415819409-4408-1-git-send-email-frank.praznik@oh.rr.com> <20141113235830.GB40569@dtor-ws>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] DT: i2c: Add more devices handled by the rtc-rs5c372
+ driver
+Date: Wed, 19 Nov 2014 15:21:45 +0100
+Message-ID: <20141119142144.GA1384@katana>
+References: <1415981011-13423-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50065 "EHLO mx2.suse.de"
+Received: from sauhun.de ([89.238.76.85]:54712 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750757AbaKSJYx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 04:24:53 -0500
-In-Reply-To: <20141113235830.GB40569@dtor-ws>
+	id S1751747AbaKSOUY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Nov 2014 09:20:24 -0500
+Content-Disposition: inline
+In-Reply-To: <1415981011-13423-1-git-send-email-geert+renesas@glider.be>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org, ao2@ao2.it
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Thu, 13 Nov 2014, Dmitry Torokhov wrote:
 
-> On Wed, Nov 12, 2014 at 02:10:09PM -0500, Frank Praznik wrote:
-> > Replace stack buffers with kernel allocated buffers for sending
-> > and receiving HID reports to prevent issues with DMA transfers
-> > on certain hardware.
-> > 
-> > Output report buffers are allocated at initialization time to avoid
-> > excessive calls to kmalloc and kfree.
-> > 
-> > Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
-> 
-> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Now applied, thanks guys.
+On Fri, Nov 14, 2014 at 05:03:30PM +0100, Geert Uytterhoeven wrote:
+> This allows checkpatch to validate more DTSes.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
--- 
-Jiri Kosina
-SUSE Labs
+Applied to for-next, thanks!
+
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUbKd4AAoJEBQN5MwUoCm2838QAJffzxDbam2ZA2yzs4DdKJ5P
+R5UJzwDIbHrPz6OXbqPQg6F/H7277SR6sQn7lXH33N6eQRFUobcFwyGnUZWzPSuO
+OanU/19ytO4xCACarJRJ1ySBLIvLRW5sY0vJpX1ERFBpFr8fP9G/+n31JcUPF8Zd
+8ZF2EAGnxWKlH5Unc32e2WMsBADYPPez3ZsWsiYWUXuGi6oUtEJP6lhGsJz/x2Ej
+0np6x3wtnUIkgerZD19qy0VFTjA09Brn5VAn8peFprfy12nQF6eVAmTKSRIptuIV
+yEiTGrdYI1WtWbvZs5o4vZKIPadPniP4ObCsDFIAE9ak/4sWIpiZpnx1b8wJFLm3
+MWLgKaBfPOnQYbF5LqrY3DeMut8aTutKTxArKHLCz/ItZ+GWCXgLG0x6Wy7rYtHW
+DF/hXGQ6BUCgbVYbAT+46HUxifQ5pQW3F5vwGFkNYs/tQ3syz7zzNRfbAw8hgnHi
+ne7HBVLrUd8k+7LLmafHBfc2sXsvmozsDFz0rXjugscJdIlXjtmPotBipTmr6yb0
+KpmC0YvWOuGxti/PKC31PbCMpcZGuFENHU6Ydp1USe5nprGiiqYx55I9lM45v0k4
+2fw5sRubNXjHXTi7N5iuouD9zivjTpde0e5dHsQJvBZJRkdLL2TPN6BjcaaRyj+G
+EJo8C2sPnodqqM9OmOKv
+=F2oV
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--

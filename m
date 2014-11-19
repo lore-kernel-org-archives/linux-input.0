@@ -1,44 +1,50 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: [PATCH] driver: input: touchscreen: add Raydium i2c touchscreen driver
-Date: Wed, 19 Nov 2014 10:08:59 -0800
-Message-ID: <CANLzEkspVpARReWsO8K7cizQ-Ekh0=ntJt0D3JS=GXYDox85Ug@mail.gmail.com>
-References: <1416411048-23526-1-git-send-email-jeffrey.lin@rad-ic.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [git pull] Input updates for 3.18-rc4
+Date: Wed, 19 Nov 2014 10:12:47 -0800
+Message-ID: <20141119181247.GE37989@dtor-ws>
+References: <20141114222640.GA39748@dtor-ws>
+ <CAN+gG=FaovQETa3+qQsLoBBQnbZ8Q2uoQJD6_XvAmCCvGTHT1g@mail.gmail.com>
+ <CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f52.google.com ([209.85.218.52]:58479 "EHLO
-	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755770AbaKSSJA (ORCPT
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:40132 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754814AbaKSSMw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 13:09:00 -0500
-Received: by mail-oi0-f52.google.com with SMTP id h136so813501oig.11
-        for <linux-input@vger.kernel.org>; Wed, 19 Nov 2014 10:08:59 -0800 (PST)
-In-Reply-To: <1416411048-23526-1-git-send-email-jeffrey.lin@rad-ic.com>
+	Wed, 19 Nov 2014 13:12:52 -0500
+Content-Disposition: inline
+In-Reply-To: <CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "jeffrey.lin" <yajohn@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, dh.herrmann@gmail.com, charliemooney@chromium.org, floe@butterbrot.org, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Marcus Overhagen <marcus.overhagen@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ulrik De Bie <ulrik.debie-os@e2big.org>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Nov 19, 2014 at 7:30 AM, jeffrey.lin <yajohn@gmail.com> wrote:
-> From: "jeffrey.lin" <jeffrey.lin@gmail.com>
-Also, this email address appears to not be active. Please do not list
-dead email addresses as the author.
+Hi Marcus,
 
->
-> this patch is porting Raydium I2C touch driver. Developer can enable
-> raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
->
-> BUG: None
-> TEST: built and test with peppy
->
-> Signed-off-by: jeffrey.lin@rad-ic.com
-> Change-Id: I05d54e5ef29249d2a6eae97222c90bed11e839f9
-> ---
+On Wed, Nov 19, 2014 at 07:00:16PM +0100, Marcus Overhagen wrote:
+> I'm not sure if my problems are related, but anyway:
+> 
+> I'm using a Samsung NP730U3E notebook that also has an elantech touchpad.
+> 
+> With 3.18.0-rc3 two finger scrolling in Firefox is smoth, but with
+> 3.18.0-rc5 I have to press a
+> lot harder and usually scrolling only startes after stopping the
+> movement shortly and retrying once
+> 
+> I skipped rc4.
+> 
+> from RC3 dmesg:
+> [   20.507633] psmouse serio1: elantech: assuming hardware version 4
+> (with firmware version 0x675f04)
+> [   20.520740] psmouse serio1: elantech: Synaptics capabilities query
+> result 0x10, 0x15, 0x0e.
+> 
 
+Can you try reverting caeb0d37fa3e387eb0dd22e5d497523c002033d1 please?
+The rest should have no effect on you.
 
-
+Thanks.
 
 -- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung@chromium.org
+Dmitry

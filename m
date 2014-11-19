@@ -1,105 +1,76 @@
-From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: [PATCH V2] HID: i2c-hid: fix race condition reading reports
-Date: Thu, 20 Nov 2014 00:46:37 +0800
-Message-ID: <1416415597-21235-1-git-send-email-borneo.antonio@gmail.com>
-References: <1416149064-25655-1-git-send-email-borneo.antonio@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:61648 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754153AbaKSQqi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 11:46:38 -0500
-In-Reply-To: <1416149064-25655-1-git-send-email-borneo.antonio@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 1/1] HID-picoLCD: Deletion of unnecessary checks before three
+ function calls
+Date: Wed, 19 Nov 2014 18:38:29 +0100
+Message-ID: <546CD595.3090508@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.so
+ urceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?UTF-8?B?QnJ1bm8gUHLDqW1vbnQ=?= <bonbons@linux-vserver.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
 
-From: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 19 Nov 2014 18:30:22 +0100
 
-Current driver uses a common buffer for reading reports either
-synchronously in i2c_hid_get_raw_report() and asynchronously in
-the interrupt handler.
-There is race condition if an interrupt arrives immediately after
-the report is received in i2c_hid_get_raw_report(); the common
-buffer is modified by the interrupt handler with the new report
-and then i2c_hid_get_raw_report() proceed using wrong data.
+The functions backlight_device_unregister(), lcd_device_unregister() and
+rc_unregister_device() test whether their argument is NULL and then
+return immediately. Thus the test around the call is not needed.
 
-Fix it by using a separate buffers for synchronous reports.
+This issue was detected by using the Coccinelle software.
 
-Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-[Antonio Borneo: cleanup, rebase to v3.17, submit mainline]
-Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
-V1 -> V2
-	rename the synchronous buffer as rawbuf (instead of the
-	asynchronous one)
+ drivers/hid/hid-picolcd_backlight.c | 3 +--
+ drivers/hid/hid-picolcd_cir.c       | 3 +--
+ drivers/hid/hid-picolcd_lcd.c       | 3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
 
- drivers/hid/i2c-hid/i2c-hid.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 933bf10..c66e6ac 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -137,6 +137,7 @@ struct i2c_hid {
- 						   * descriptor. */
- 	unsigned int		bufsize;	/* i2c buffer size */
- 	char			*inbuf;		/* Input buffer */
-+	char			*rawbuf;	/* Raw Input buffer */
- 	char			*cmdbuf;	/* Command buffer */
- 	char			*argsbuf;	/* Command arguments buffer */
+diff --git a/drivers/hid/hid-picolcd_backlight.c b/drivers/hid/hid-picolcd_backlight.c
+index a32c5f8..808807a 100644
+--- a/drivers/hid/hid-picolcd_backlight.c
++++ b/drivers/hid/hid-picolcd_backlight.c
+@@ -94,8 +94,7 @@ void picolcd_exit_backlight(struct picolcd_data *data)
+ 	struct backlight_device *bdev = data->backlight;
  
-@@ -504,9 +505,11 @@ static void i2c_hid_find_max_report(struct hid_device *hid, unsigned int type,
- static void i2c_hid_free_buffers(struct i2c_hid *ihid)
- {
- 	kfree(ihid->inbuf);
-+	kfree(ihid->rawbuf);
- 	kfree(ihid->argsbuf);
- 	kfree(ihid->cmdbuf);
- 	ihid->inbuf = NULL;
-+	ihid->rawbuf = NULL;
- 	ihid->cmdbuf = NULL;
- 	ihid->argsbuf = NULL;
- 	ihid->bufsize = 0;
-@@ -522,10 +525,11 @@ static int i2c_hid_alloc_buffers(struct i2c_hid *ihid, size_t report_size)
- 		       report_size; /* report */
- 
- 	ihid->inbuf = kzalloc(report_size, GFP_KERNEL);
-+	ihid->rawbuf = kzalloc(report_size, GFP_KERNEL);
- 	ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
- 	ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
- 
--	if (!ihid->inbuf || !ihid->argsbuf || !ihid->cmdbuf) {
-+	if (!ihid->inbuf || !ihid->rawbuf || !ihid->argsbuf || !ihid->cmdbuf) {
- 		i2c_hid_free_buffers(ihid);
- 		return -ENOMEM;
- 	}
-@@ -552,12 +556,12 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
- 
- 	ret = i2c_hid_get_report(client,
- 			report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
--			report_number, ihid->inbuf, ask_count);
-+			report_number, ihid->rawbuf, ask_count);
- 
- 	if (ret < 0)
- 		return ret;
- 
--	ret_count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
-+	ret_count = ihid->rawbuf[0] | (ihid->rawbuf[1] << 8);
- 
- 	if (ret_count <= 2)
- 		return 0;
-@@ -566,7 +570,7 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
- 
- 	/* The query buffer contains the size, dropping it in the reply */
- 	count = min(count, ret_count - 2);
--	memcpy(buf, ihid->inbuf + 2, count);
-+	memcpy(buf, ihid->rawbuf + 2, count);
- 
- 	return count;
+ 	data->backlight = NULL;
+-	if (bdev)
+-		backlight_device_unregister(bdev);
++	backlight_device_unregister(bdev);
  }
+ 
+ int picolcd_resume_backlight(struct picolcd_data *data)
+diff --git a/drivers/hid/hid-picolcd_cir.c b/drivers/hid/hid-picolcd_cir.c
+index 045f8eb..9628651 100644
+--- a/drivers/hid/hid-picolcd_cir.c
++++ b/drivers/hid/hid-picolcd_cir.c
+@@ -145,7 +145,6 @@ void picolcd_exit_cir(struct picolcd_data *data)
+ 	struct rc_dev *rdev = data->rc_dev;
+ 
+ 	data->rc_dev = NULL;
+-	if (rdev)
+-		rc_unregister_device(rdev);
++	rc_unregister_device(rdev);
+ }
+ 
+diff --git a/drivers/hid/hid-picolcd_lcd.c b/drivers/hid/hid-picolcd_lcd.c
+index 89821c2..22dcbe1 100644
+--- a/drivers/hid/hid-picolcd_lcd.c
++++ b/drivers/hid/hid-picolcd_lcd.c
+@@ -92,8 +92,7 @@ void picolcd_exit_lcd(struct picolcd_data *data)
+ 	struct lcd_device *ldev = data->lcd;
+ 
+ 	data->lcd = NULL;
+-	if (ldev)
+-		lcd_device_unregister(ldev);
++	lcd_device_unregister(ldev);
+ }
+ 
+ int picolcd_resume_lcd(struct picolcd_data *data)
 -- 
 2.1.3
-

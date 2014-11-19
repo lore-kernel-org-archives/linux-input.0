@@ -1,67 +1,34 @@
-From: Marcus Overhagen <marcus.overhagen@gmail.com>
-Subject: Re: [git pull] Input updates for 3.18-rc4
-Date: Wed, 19 Nov 2014 20:23:32 +0100
-Message-ID: <CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
-References: <20141114222640.GA39748@dtor-ws>
-	<CAN+gG=FaovQETa3+qQsLoBBQnbZ8Q2uoQJD6_XvAmCCvGTHT1g@mail.gmail.com>
-	<CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
-	<20141119181247.GE37989@dtor-ws>
-	<CAJBHPohu71BXqyZ4u74tAiP84UcQhXgto34k8NtNHPgw61WvLQ@mail.gmail.com>
-	<20141119183921.GF37989@dtor-ws>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: bisected: IR press/release behavior changed in 3.17, repeat
+ events
+Date: Wed, 19 Nov 2014 20:50:19 +0100
+Message-ID: <20141119195019.GA20784@hardeman.nu>
+References: <54679469.1010500@openelec.tv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f50.google.com ([209.85.215.50]:47683 "EHLO
-	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755995AbaKSTXe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 14:23:34 -0500
-In-Reply-To: <20141119183921.GF37989@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <54679469.1010500@openelec.tv>
+Sender: linux-media-owner@vger.kernel.org
+To: Stephan Raue <mailinglists@openelec.tv>
+Cc: linux-input@vger.kernel.org, m.chehab@samsung.com, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ulrik De Bie <ulrik.debie-os@e2big.org>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Dmitry,
+On Sat, Nov 15, 2014 at 06:59:05PM +0100, Stephan Raue wrote:
+>Hi
+>
+>with kernel 3.17 using a RC6 remote with a buildin nuvoton IR receiver (not
+>tested others, but i think its a common problem) when pressing/releasing the
+>same button often within 1 second there will no release event sent. Instead
+>we get repeat events. To get the release event i must press the same button
+>with a delay of ~ 1sec.
+>
+>the evtest output for kernel with the difference 3.16 and 3.17 looks like
 
-luckily I found some time right now. I haven't reverted the original large
-patch, but I tested your short patch and it fixes the problem for me.
+Hi,
 
-regards
-Marcus
+could you try the working and non-working versions with debugging output
+enabled from the in-kernel rc6 decoder (i.e. set debug for the rc-core
+module) and post the two different outputs?
 
-On Wed, Nov 19, 2014 at 7:39 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Nov 19, 2014 at 07:20:21PM +0100, Marcus Overhagen wrote:
->> Hi,
->>
->> I will try reverting that, but may need until tomorrow or Friday.
->>
->> Just now I made a warm reboot from rc3 to rc5 and initially scrolling
->> behaviour was ok,  but after about a minute it went wrong and I got
->> this:
->>
->> [  179.705362] ------------[ cut here ]------------
->> [  179.705382] WARNING: CPU: 3 PID: 0 at
->> drivers/input/mouse/elantech.c:433
->> elantech_report_trackpoint.isra.5+0x199/0x1b0 [psmouse]()
->> [  179.705385] psmouse serio1: elantech: Unexpected trackpoint message
->
-> Or just this for now:
->
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 3fcb6b3..294f613 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -793,7 +793,7 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
->         unsigned char packet_type = packet[3] & 0x03;
->         bool sanity_check;
->
-> -       if ((packet[3] & 0x0f) == 0x06)
-> +       if ((packet[3] & 0x0f) == 0x06 && etd->tp_dev)
->                 return PACKET_TRACKPOINT;
->
->         /*
->
-> --
-> Dmitry
+//David

@@ -1,55 +1,87 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] DT: i2c: Add more devices handled by the adxl34x-i2c
- driver
-Date: Wed, 19 Nov 2014 15:21:51 +0100
-Message-ID: <20141119142151.GB1384@katana>
-References: <1415981011-13423-1-git-send-email-geert+renesas@glider.be>
- <1415981011-13423-2-git-send-email-geert+renesas@glider.be>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] HID: yet another buggy ELAN touchscreen
+Date: Wed, 19 Nov 2014 15:52:29 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411191551160.4454@pobox.suse.cz>
+References: <1416240702-28988-1-git-send-email-oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vGgW1X5XWziG23Ko"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1415981011-13423-2-git-send-email-geert+renesas@glider.be>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1416240702-28988-1-git-send-email-oneukum-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
 
---vGgW1X5XWziG23Ko
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ Greg and linux-usb@ added to CC ]
 
-On Fri, Nov 14, 2014 at 05:03:31PM +0100, Geert Uytterhoeven wrote:
-> This allows checkpatch to validate more DTSes.
->=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+On Mon, 17 Nov 2014, Oliver Neukum wrote:
 
-Applied to for-next, thanks!
+> The touchscreen needs the same quirk as the other models.
+> 
+> Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+> Reported-by: Bryan Poling <poli0048-OJFnDUYgAso@public.gmane.org>
+> CC: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> ---
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  drivers/usb/core/quirks.c       | 3 +++
 
+Greg, are you OK with me taking the whole lot through hid.git in one 
+commit? (USB quirks and HID quirks for Elan devices have been merged 
+independently for previous 3 devices, but I don't think it's worth the 
+hassle splitting it).
 
---vGgW1X5XWziG23Ko
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+>  3 files changed, 5 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index e23ab8b..282ffbe 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -299,6 +299,7 @@
+>  #define USB_VENDOR_ID_ELAN		0x04f3
+>  #define USB_DEVICE_ID_ELAN_TOUCHSCREEN	0x0089
+>  #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B	0x009b
+> +#define USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c	0x010c
+>  #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F	0x016f
+>  
+>  #define USB_VENDOR_ID_ELECOM		0x056e
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 5014bb5..08b9626 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -72,6 +72,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN, HID_QUIRK_ALWAYS_POLL },
+>  	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B, HID_QUIRK_ALWAYS_POLL },
+> +	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c, HID_QUIRK_ALWAYS_POLL },
+>  	{ USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F, HID_QUIRK_ALWAYS_POLL },
+>  	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+>  	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
+> diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+> index 39b4081..8e8bc4f 100644
+> --- a/drivers/usb/core/quirks.c
+> +++ b/drivers/usb/core/quirks.c
+> @@ -100,6 +100,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+>  	{ USB_DEVICE(0x04f3, 0x009b), .driver_info =
+>  			USB_QUIRK_DEVICE_QUALIFIER },
+>  
+> +	{ USB_DEVICE(0x04f3, 0x010c), .driver_info =
+> +			USB_QUIRK_DEVICE_QUALIFIER },
+> +
+>  	{ USB_DEVICE(0x04f3, 0x016f), .driver_info =
+>  			USB_QUIRK_DEVICE_QUALIFIER },
+>  
+> -- 
+> 1.8.4.5
+> 
 
-iQIcBAEBAgAGBQJUbKd/AAoJEBQN5MwUoCm2ePoQALUE+CqIyBXMivHdWi0gbxLl
-mZCXb/2z1IgUq6nbzWWBNE1uIIjRoCf9zASmpXPvArDwouaaFeZjyNzZ8SKx0UjE
-UnWv1cELwq6xVbIp9LEOrfnkI4w1yduOJGlDcKGF/kOb6QvkSswN/dFrXRKa9nwO
-jwQ7GePWDwawyr3NEvtIItU2XcJE9X7+p+aHn2TjhmKaY4k+f133g4RitPFoJ7/X
-cwavZEQnd7NJvMLxvgJ9VSD2PrQMCUSnwTugZYChvg4lchyIaNy4lf6Fr4y3TQ7d
-sPLz7ueGi265Eq+KiGVG7e63ItPZ2PeZdHhcmc9CcuZryUkFSM1E8ta+i35x8BpX
-UdXCKQ0I6mZ68Zrh3xUl8EijvyytOnhS6VSDUwyGUkv6QZ0RCZKB/97HYPYp4Ubc
-jgHYXp+r0RlzDuSGg0WUyHOWDOWD1S7h8wr8UD/6+MingtTis9OrZqBIcOZDjAPD
-QdWf6pLcxTprxYWM9jL2IODOA4llpbd1FX3jmQEySkiA9gTYQlianI5iZozdiCpS
-fA+MmSC3uK6sd+xTc5Q5dVc26T+6RA5I0EX3mV9YavRR7a908J+b1Z0UEXNxp7Rx
-iIogI4RzxRxMjA3Y6vRs5CLMxLv3daPqeqFDvOKrY9LjSRuJEyPEyF9GpawG4tG6
-FaghElSV9pYozB+lsoZ+
-=rfAy
------END PGP SIGNATURE-----
-
---vGgW1X5XWziG23Ko--
+-- 
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

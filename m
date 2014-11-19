@@ -1,118 +1,73 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: [git pull] Input updates for 3.18-rc4
-Date: Wed, 19 Nov 2014 22:05:52 +0100
-Message-ID: <20141119210552.GA5464@lantern>
-References: <20141114222640.GA39748@dtor-ws>
- <CAN+gG=FaovQETa3+qQsLoBBQnbZ8Q2uoQJD6_XvAmCCvGTHT1g@mail.gmail.com>
- <CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
- <20141119181247.GE37989@dtor-ws>
- <CAJBHPohu71BXqyZ4u74tAiP84UcQhXgto34k8NtNHPgw61WvLQ@mail.gmail.com>
- <20141119183921.GF37989@dtor-ws>
- <CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [Question: drivers/input/input.c] Why input_no is initialized to
+ 0 ?
+Date: Thu, 20 Nov 2014 02:49:24 +0530
+Message-ID: <CADYu30_O1CPKyAkQb+dQfQViDurej5Y37AbR-bbWd3TpBg=HKw@mail.gmail.com>
+References: <CADYu3087SYHPSzzEP+92Kh69fUN7gXS1otAsmT8SfuPLQB3h_A@mail.gmail.com>
+	<20141119205713.GG37989@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:51405 "EHLO e2big.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932763AbaKSVGC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 16:06:02 -0500
-Content-Disposition: inline
-In-Reply-To: <CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:49997 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756496AbaKSVT0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Nov 2014 16:19:26 -0500
+Received: by mail-lb0-f180.google.com with SMTP id z11so1217934lbi.25
+        for <linux-input@vger.kernel.org>; Wed, 19 Nov 2014 13:19:24 -0800 (PST)
+In-Reply-To: <20141119205713.GG37989@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcus Overhagen <marcus.overhagen@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi,
+Hello Mr. Torokhov,
 
-Thanks Dmitry, the fix you provided will mitigate the regression. But
-there might be more that is going on for v4 hardware. The detection
-of PACKET_TRACKPOINT can be made more strict.
-Thank you Marcus and Benjamin for the reports.
+Thank you for your answer.
 
-Sorry for the regression, it was not expected that lowest nibble of packet[3]
-is 0x6 for non-trackpoint packets.
+As it is not a problem now, How about changing it to -1 ?
+Although extra subtraction is not expensive but still we could optimize it
+as we want kernel to optimized as much as possible.
 
-So we have two laptops where 
-1) according to the msb of the capabilities has no trackpoint
-Benjamin, can you give feedback if the laptop has actually a trackpoint/stick/
-how else one calls that strange but convenient thing in the middle of the 
-keyboard ?
-Marcus, do you even have a trackpoint ?
+Regards,
+Aniroop Mathur
 
 
-2) mouse packets are received on serio that smell like a trackpoint packet.
-When I look at the packet dump from marcus,
-It would also fail the sanity check when crc_enabled is off, but probably
-succeeds on marcus laptop ? 
-
-Marcus, can you send the firmware and capabilities information for your laptop
-(it is available in the kernel messages). Could you send me a kernel message log for a period of 1 minute when using the touchpad with the debug set to 2 ?
-
-I wonder packet[3]==0x46, why the 0x40 and 0x04 bits are set and the current
-elantech driver does not do anything with that part of the information. The
-packets from Marcus are probably v4 'MOTION' packets, and since the odd 
-behaviour when they are ignored, they at least are containing the motion
-information, but maybe some extra information is hidden. There are multiple
-of those packets in a very short timeframe (milliseconds), I wonder if all
-of the MOTION packets have this signature. 
-
-At least now I'm happy that the warning is there, because otherwise it 
-might be more difficult to pinpoint the cause.
-
-Thanks,
-Ulrik
-
-On Wed, Nov 19, 2014 at 08:23:32PM +0100, Marcus Overhagen wrote:
-> Date: Wed, 19 Nov 2014 20:23:32 +0100
-> From: Marcus Overhagen <marcus.overhagen@gmail.com>
-> To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Ulrik De Bie
->  <ulrik.debie-os@e2big.org>, Hans de Goede <hdegoede@redhat.com>,
->  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input
->  <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
-> Subject: Re: [git pull] Input updates for 3.18-rc4
-> 
-> Hi Dmitry,
-> 
-> luckily I found some time right now. I haven't reverted the original large
-> patch, but I tested your short patch and it fixes the problem for me.
-> 
-> regards
-> Marcus
-> 
-> On Wed, Nov 19, 2014 at 7:39 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Nov 19, 2014 at 07:20:21PM +0100, Marcus Overhagen wrote:
-> >> Hi,
-> >>
-> >> I will try reverting that, but may need until tomorrow or Friday.
-> >>
-> >> Just now I made a warm reboot from rc3 to rc5 and initially scrolling
-> >> behaviour was ok,  but after about a minute it went wrong and I got
-> >> this:
-> >>
-> >> [  179.705362] ------------[ cut here ]------------
-> >> [  179.705382] WARNING: CPU: 3 PID: 0 at
-> >> drivers/input/mouse/elantech.c:433
-> >> elantech_report_trackpoint.isra.5+0x199/0x1b0 [psmouse]()
-> >> [  179.705385] psmouse serio1: elantech: Unexpected trackpoint message
-> >
-> > Or just this for now:
-> >
-> > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> > index 3fcb6b3..294f613 100644
-> > --- a/drivers/input/mouse/elantech.c
-> > +++ b/drivers/input/mouse/elantech.c
-> > @@ -793,7 +793,7 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
-> >         unsigned char packet_type = packet[3] & 0x03;
-> >         bool sanity_check;
-> >
-> > -       if ((packet[3] & 0x0f) == 0x06)
-> > +       if ((packet[3] & 0x0f) == 0x06 && etd->tp_dev)
-> >                 return PACKET_TRACKPOINT;
-> >
-> >         /*
-> >
-> > --
-> > Dmitry
+On Thu, Nov 20, 2014 at 2:27 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Aniroop,
+>
+> On Thu, Nov 20, 2014 at 01:31:44AM +0530, Aniroop Mathur wrote:
+>> Dear Mr. Torokhov,
+>> Greetings of the day ! :)
+>>
+>> Recently, I saw input_allocate_device() funtion in input.c file and
+>> faced one small doubt about it.
+>> Unfortunately, I could not find the decent answer on internet. Can you
+>> help to answer the query as follows:
+>>
+>> In this function, input_no is initialized to 0.
+>> static atomic_t input_no = ATOMIC_INIT(0);
+>> and then it is used to set input device name like below:
+>> dev_set_name(&dev->dev, "input%ld", (unsigned long)
+>> atomic_inc_return(&input_no) - 1);
+>>
+>> Here, we are increamenting input no by 1 and then again decreamenting by 1.
+>> I think, it is because we have initialized input_no to 0 and we want
+>> name of input devices to start from input0.
+>>
+>> Is it not a good idea to initialize input_no to -1 and then only
+>> increamenting input_no without subtracting when setting input device
+>> name ?
+>> With this, we will be able to save one extra subtraction instruction
+>> every time input device is allocated.
+>
+> Historically atomic_t on sparc32 had only 24 usable bits so I think
+> setting it to -1 would not have worked. Now it is no longer a concern,
+> but neither that extra subtraction is expensive so nobody bothered to
+> change it.
+>
+> Thanks.
+>
+> --
+> Dmitry

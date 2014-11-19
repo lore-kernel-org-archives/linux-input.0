@@ -1,73 +1,33 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [Question: drivers/input/input.c] Why input_no is initialized to
- 0 ?
-Date: Thu, 20 Nov 2014 02:49:24 +0530
-Message-ID: <CADYu30_O1CPKyAkQb+dQfQViDurej5Y37AbR-bbWd3TpBg=HKw@mail.gmail.com>
-References: <CADYu3087SYHPSzzEP+92Kh69fUN7gXS1otAsmT8SfuPLQB3h_A@mail.gmail.com>
-	<20141119205713.GG37989@dtor-ws>
+From: Marcus Overhagen <marcus.overhagen@gmail.com>
+Subject: Re: [git pull] Input updates for 3.18-rc4
+Date: Wed, 19 Nov 2014 22:49:05 +0100
+Message-ID: <CAJBHPoiQ0ZuW2TjDu68SQrgOS=+OMTt0hptBmVedMLS55td1Rg@mail.gmail.com>
+References: <20141114222640.GA39748@dtor-ws>
+	<CAN+gG=FaovQETa3+qQsLoBBQnbZ8Q2uoQJD6_XvAmCCvGTHT1g@mail.gmail.com>
+	<CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
+	<20141119181247.GE37989@dtor-ws>
+	<CAJBHPohu71BXqyZ4u74tAiP84UcQhXgto34k8NtNHPgw61WvLQ@mail.gmail.com>
+	<20141119183921.GF37989@dtor-ws>
+	<CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
+	<20141119210552.GA5464@lantern>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:49997 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756496AbaKSVT0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 16:19:26 -0500
-Received: by mail-lb0-f180.google.com with SMTP id z11so1217934lbi.25
-        for <linux-input@vger.kernel.org>; Wed, 19 Nov 2014 13:19:24 -0800 (PST)
-In-Reply-To: <20141119205713.GG37989@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141119210552.GA5464@lantern>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello Mr. Torokhov,
+On Wed, Nov 19, 2014 at 10:05 PM,  <ulrik.debie-os@e2big.org> wrote:
 
-Thank you for your answer.
+> Marcus, do you even have a trackpoint ?
+This is a clickpad without buttons and without trackpoint.
+Looks similar to this image: http://i.imgur.com/5pcCxqa.jpg
 
-As it is not a problem now, How about changing it to -1 ?
-Although extra subtraction is not expensive but still we could optimize it
-as we want kernel to optimized as much as possible.
+> Marcus, can you send the firmware and capabilities information for your laptop
+> (it is available in the kernel messages). Could you send me a kernel message log for a period of 1 minute when using the touchpad with the debug set to 2 ?
+I sent you an email. hope that helps.
 
-Regards,
-Aniroop Mathur
-
-
-On Thu, Nov 20, 2014 at 2:27 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Aniroop,
->
-> On Thu, Nov 20, 2014 at 01:31:44AM +0530, Aniroop Mathur wrote:
->> Dear Mr. Torokhov,
->> Greetings of the day ! :)
->>
->> Recently, I saw input_allocate_device() funtion in input.c file and
->> faced one small doubt about it.
->> Unfortunately, I could not find the decent answer on internet. Can you
->> help to answer the query as follows:
->>
->> In this function, input_no is initialized to 0.
->> static atomic_t input_no = ATOMIC_INIT(0);
->> and then it is used to set input device name like below:
->> dev_set_name(&dev->dev, "input%ld", (unsigned long)
->> atomic_inc_return(&input_no) - 1);
->>
->> Here, we are increamenting input no by 1 and then again decreamenting by 1.
->> I think, it is because we have initialized input_no to 0 and we want
->> name of input devices to start from input0.
->>
->> Is it not a good idea to initialize input_no to -1 and then only
->> increamenting input_no without subtracting when setting input device
->> name ?
->> With this, we will be able to save one extra subtraction instruction
->> every time input device is allocated.
->
-> Historically atomic_t on sparc32 had only 24 usable bits so I think
-> setting it to -1 would not have worked. Now it is no longer a concern,
-> but neither that extra subtraction is expensive so nobody bothered to
-> change it.
->
-> Thanks.
->
-> --
-> Dmitry
+regards
+Marcus

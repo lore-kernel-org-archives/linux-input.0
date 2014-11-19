@@ -1,47 +1,79 @@
-From: bri <bri@abrij.org>
-Subject: Re: [PATCH 001/001] hid-sony.c: add sysfs provisioning
-Date: Tue, 18 Nov 2014 19:13:53 -0500
-Message-ID: <20141119001353.GA635@abrij.org>
-References: <20141116181846.GA31516@abrij.org>
- <20141117133518.ee306b3b35a0e0566a255b14@ao2.it>
- <20141118020144.GB32256@abrij.org>
- <20141118234349.7b44949197898390d496f1cd@ao2.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/2] HID: wacom: Report ABS_TILT_{X,Y} as signed values
+Date: Tue, 18 Nov 2014 16:50:08 -0800
+Message-ID: <1416358209-3937-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [140.232.255.14] ([140.232.255.14]:58848 "EHLO mail.abrij.org"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S932108AbaKSANz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Nov 2014 19:13:55 -0500
-Content-Disposition: inline
-In-Reply-To: <20141118234349.7b44949197898390d496f1cd@ao2.it>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:38651 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754456AbaKSAu1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Nov 2014 19:50:27 -0500
+Received: by mail-pa0-f47.google.com with SMTP id kq14so6697299pab.6
+        for <linux-input@vger.kernel.org>; Tue, 18 Nov 2014 16:50:27 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: Frank Praznik <frank.praznik@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Michael Kerrisk <mtk.manpages@gmail.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, benjamin.tissores@gmail.com, Jason Gerecke <killertofu@gmail.com>
 
-On Tue, Nov 18, 2014 at 11:43:49PM +0100, Antonio Ospite wrote:
-> On Mon, 17 Nov 2014 21:01:44 -0500
-> bri <bri@abrij.org> wrote:
-> If you can upload a shell script to the target system you may as well
-> upload a static binary; and if you can use a modified kernel you can
-> compile _for_ the target even if not _on_ the target.
->
-> And if you need help to write the program which uses the HID ioctls
-> just ask :)
+Centers the ABS_TILT_{X,Y} axes so that a value of zero is reported when
+the pen is vertical. Combined with resolution information in the next
+patch, this makes it possible for userspace to calculate the pen angle
+without needing hardware-specific knowledge. The xf86-input-wacom driver
+was updated to support signed tilt values in late-2012 (2f2acec).
 
-What, no, that's really super easy for me.  I don't prefer to do it that
-way, personally so I won't -- I'm going to have to heavily mod things
-down through hid-core and up through js to get other behaviors I want,
-anyway.
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+ drivers/hid/wacom_wac.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-The point of pushing the patch up here, of course, was so that people
-who could not do many of the above listed things would have an easy
-interface.
-
-Thanks, though.
-
-If I actually end up having the time to get anything working I'll post
-a link to a repo so that if anything looks in there looks interesting
-someone can ask me for a patch submittal.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 8a83da9..525b648 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -600,8 +600,8 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+ 		}
+ 		input_report_abs(input, ABS_PRESSURE, t);
+ 		input_report_abs(input, ABS_TILT_X,
+-				((data[7] << 1) & 0x7e) | (data[8] >> 7));
+-		input_report_abs(input, ABS_TILT_Y, data[8] & 0x7f);
++				 (((data[7] << 1) & 0x7e) | (data[8] >> 7)) - 64);
++		input_report_abs(input, ABS_TILT_Y, (data[8] & 0x7f) - 64);
+ 		input_report_key(input, BTN_STYLUS, data[1] & 2);
+ 		input_report_key(input, BTN_STYLUS2, data[1] & 4);
+ 		input_report_key(input, BTN_TOUCH, t > 10);
+@@ -612,8 +612,8 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+ 		input_report_abs(input, ABS_WHEEL,
+ 				(data[6] << 2) | ((data[7] >> 6) & 3));
+ 		input_report_abs(input, ABS_TILT_X,
+-				((data[7] << 1) & 0x7e) | (data[8] >> 7));
+-		input_report_abs(input, ABS_TILT_Y, data[8] & 0x7f);
++				 (((data[7] << 1) & 0x7e) | (data[8] >> 7)) - 64);
++		input_report_abs(input, ABS_TILT_Y, (data[8] & 0x7f) - 64);
+ 	}
+ }
+ 
+@@ -915,8 +915,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 				input_report_key(input, BTN_EXTRA,  data[6] & 0x10);
+ 
+ 				input_report_abs(input, ABS_TILT_X,
+-					((data[7] << 1) & 0x7e) | (data[8] >> 7));
+-				input_report_abs(input, ABS_TILT_Y, data[8] & 0x7f);
++					(((data[7] << 1) & 0x7e) | (data[8] >> 7)) - 64);
++				input_report_abs(input, ABS_TILT_Y, (data[8] & 0x7f) - 64);
+ 			} else {
+ 				/* 2D mouse packet */
+ 				input_report_key(input, BTN_LEFT,   data[8] & 0x04);
+@@ -1926,8 +1926,8 @@ static void wacom_setup_cintiq(struct wacom_wac *wacom_wac)
+ 	input_set_abs_params(input_dev, ABS_DISTANCE,
+ 			     0, wacom_wac->features.distance_max, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_WHEEL, 0, 1023, 0, 0);
+-	input_set_abs_params(input_dev, ABS_TILT_X, 0, 127, 0, 0);
+-	input_set_abs_params(input_dev, ABS_TILT_Y, 0, 127, 0, 0);
++	input_set_abs_params(input_dev, ABS_TILT_X, -64, 63, 0, 0);
++	input_set_abs_params(input_dev, ABS_TILT_Y, -64, 63, 0, 0);
+ }
+ 
+ static void wacom_setup_intuos(struct wacom_wac *wacom_wac)
+-- 
+2.1.3
 

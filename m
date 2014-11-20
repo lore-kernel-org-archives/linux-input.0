@@ -1,77 +1,38 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: sony: Add support for the third-party SMK PS3
- Bluetooth Remote
-Date: Thu, 20 Nov 2014 15:05:38 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411201505320.4454@pobox.suse.cz>
-References: <1415821948-8468-1-git-send-email-frank.praznik@oh.rr.com>
+From: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
+ reg_se_cache save
+Date: Thu, 20 Nov 2014 14:23:30 +0000
+Message-ID: <912A29987EAE174BA6CF187D7CDFA9CE26F69163@DLEE08.ent.ti.com>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
+ <1415941651-28962-4-git-send-email-vigneshr@ti.com>
+ <20141118143005.GF24004@x1> <20141118171240.GB3003@dtor-ws>
+ <546DF2F0.9080405@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57558 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751139AbaKTOFc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Nov 2014 09:05:32 -0500
-In-Reply-To: <1415821948-8468-1-git-send-email-frank.praznik@oh.rr.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <546DF2F0.9080405-l0cyMroinI0@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org
 
-On Wed, 12 Nov 2014, Frank Praznik wrote:
+> -----Original Message-----
+> From: Nori, Sekhar
+> Sent: Thursday, November 20, 2014 7:56 AM
+>
+> I also tested this series on AM335x EVM using the v3.18-rc5 kernel.
+> Again, no breakage but no improvement as well.
 
-> Add vid/pid for the SMK branded third-party PS3 Bluetooth remote and enable
-> support in the hid-sony driver.
-> 
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
-> ---
->  drivers/hid/hid-core.c | 1 +
->  drivers/hid/hid-ids.h  | 3 +++
->  drivers/hid/hid-sony.c | 3 +++
->  3 files changed, 7 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 73bd9e2..c8b8691 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1913,6 +1913,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SKYCABLE, USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER) },
-> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_BDREMOTE) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index e23ab8b..b2c8a6a 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -812,6 +812,9 @@
->  #define USB_VENDOR_ID_SKYCABLE			0x1223
->  #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
->  
-> +#define USB_VENDOR_ID_SMK		0x0609
-> +#define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
-> +
->  #define USB_VENDOR_ID_SONY			0x054c
->  #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
->  #define USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE	0x0374
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index b6e6102..31e9d25 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -2113,6 +2113,9 @@ static const struct hid_device_id sony_devices[] = {
->  	/* Logitech Harmony Adapter for PS3 */
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
->  		.driver_data = PS3REMOTE },
-> +	/* SMK-Link PS3 BD Remote Control */
-> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE),
-> +		.driver_data = PS3REMOTE },
->  	/* Sony Dualshock 4 controllers for PS4 */
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
->  		.driver_data = DUALSHOCK4_CONTROLLER_USB },
+The primary goal was not necessarily to improve performance of the touchscreen itself.  It was to reduce unnecessary CPU overhead introduced by the 275us udelay in the ISR.  On a related note, that 275us udelay is not something that worked for all boards.  For example, see the following forum thread:
 
-Applied, thanks.
+http://e2e.ti.com/support/arm/sitara_arm/f/791/p/217587/775152.aspx#775152
 
--- 
-Jiri Kosina
-SUSE Labs
+In that thread the user was registering multiple press events for a single press.  By increasing the udelay to 1.5ms they were able to solve the problem.  Of course, having a 1.5ms delay in your ISR is a really bad thing to do...
+
+I have another customer that was experiencing the same issue of registering multiple press events, and sure enough the 1.5ms delay "fixed" their problem too.  The patches allowed them to remove that gigantic delay from the ISR because that software delay has now become a hardware delay via CHARGECONFIG.  That customer is the one that needed 0xB000 which is MUCH larger than the value of 0x400 that was working fine for me on the EVM.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

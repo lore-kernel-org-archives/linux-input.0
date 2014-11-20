@@ -1,89 +1,31 @@
-From: =?UTF-8?B?RUxBTiDlionlmInpp78=?= <scott.liu@emc.com.tw>
-Subject: RE: [PATCH v1] Input: elants_i2c: Add Elan touchscreen support
-Date: Thu, 20 Nov 2014 20:25:15 +0800
-Message-ID: <000001d004bd$0ad90830$208b1890$@emc.com.tw>
-References: <1388146515-19481-1-git-send-email-scott.liu@emc.com.tw>	 <20141120081113.GA37534@dtor-ws> <1416479490.28599.13.camel@linux-0dmf.site>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid-multitouch: Add quirk for VTL touch panels
+Date: Thu, 20 Nov 2014 14:21:36 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411201421100.4454@pobox.suse.cz>
+References: <1416422480-3241-1-git-send-email-mathieu.magnaudet@enac.fr> <CAN+gG=GN4dwXr_qEHMfMddGHkMKECZMUwTM+xbNmY_gibthLmA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:36600 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750953AbaKTMZW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Nov 2014 07:25:22 -0500
-In-Reply-To: <1416479490.28599.13.camel@linux-0dmf.site>
-Content-Language: zh-tw
+Received: from cantor2.suse.de ([195.135.220.15]:56077 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751103AbaKTNV3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Nov 2014 08:21:29 -0500
+In-Reply-To: <CAN+gG=GN4dwXr_qEHMfMddGHkMKECZMUwTM+xbNmY_gibthLmA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Oliver Neukum' <oneukum@suse.de>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 'Vincent Wang' <vincent.wang@emc.com.tw>, 'Jeff Chuang' <jeff.chuang@emc.com.tw>, 'Benson Leung' <bleung@chromium.org>, 'Benjamin Tissoires' <benjamin.tissoires@gmail.com>, 'Henrik Rydberg' <rydberg@euromail.se>, 'David Herrmann' <dh.herrmann@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+On Wed, 19 Nov 2014, Benjamin Tissoires wrote:
 
-Hi Oliver:
+> though this patch works for this particular device, I just thought at
+> something which may solve the problem in a different way. I asked
+> Mathieu to test the different solution, so I'd rather you to wait for
+> final confirmation before merging this patch.
 
------Original Message-----
-From: Oliver Neukum [mailto:oneukum@suse.de] 
-Sent: Thursday, November 20, 2014 6:32 PM
-To: Dmitry Torokhov
-Cc: scott; linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; Vincent Wang; Jeff Chuang; Benson Leung; Benjamin Tissoires; Henrik Rydberg; David Herrmann
-Subject: Re: [PATCH v1] Input: elants_i2c: Add Elan touchscreen support
+Thanks for the heads up, I am putting this patch on hold until further 
+notice from you or Mathieu.
 
-
-
-> +static int elants_i2c_sw_reset(struct i2c_client *client) {
-> +       const u8 soft_rst_cmd[] = { 0x77, 0x77, 0x77, 0x77 };
-> +       int error;
-> +
-> +       error = elants_i2c_send(client, soft_rst_cmd,
-> +                               sizeof(soft_rst_cmd));
-> +       if (error) {
-> +               dev_err(&client->dev, "software reset failed: %d\n",
-> error);
-> +               return error;
-> +       }
-> +
-> +       /*
-> +        * We should wait at least 10 msec (but no more than 40)
-> before
-> +        * sending fastboot or IAP command to the device.
-> +        */
-> +       msleep(30);
-
-If timing is critical in both ways, you should take our guarantee if sufficient sleep. I suggest you sleep 11msecs.
-
-Sorry, this is our firmware tricky but it should be sleep longer than 30ms. Actually 70ms.
-(Dmitry, I need to modify this delay time to 70ms. Sorry for the changed over and over again; 
-	because we consider big sensor solution which need to use more ICs and need more longer delay)
-
-thanks,
-Scott
-
-> +static int elants_i2c_initialize(struct elants_data *ts) {
-> +       struct i2c_client *client = ts->client;
-> +       int error, retry_cnt;
-> +       const u8 hello_packet[] = { 0x55, 0x55, 0x55, 0x55 };
-> +       const u8 recov_packet[] = { 0x55, 0x55, 0x80, 0x80 };
-> +       u8 buf[HEADER_SIZE];
-> +
-
-Strictly speaking you should disable preemption here.
-
-
-> +       for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
-> +               error = elants_i2c_sw_reset(client);
-> +               if (error) {
-> +                       /* Continue initializing if it's the last try
-> */
-> +                       if (retry_cnt < MAX_RETRIES - 1)
-> +                               continue;
-> +               }
-
-	Regards
-		Oliver
-
---
-Oliver Neukum <oneukum@suse.de>
-
-
+-- 
+Jiri Kosina
+SUSE Labs

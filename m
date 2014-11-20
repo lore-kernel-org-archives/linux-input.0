@@ -1,40 +1,32 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] hid-multitouch: Add quirk for VTL touch panels
-Date: Thu, 20 Nov 2014 10:27:14 -0500
-Message-ID: <CAN+gG=F5AENtv0a-sK3WmvYLdVUWEyteXce1avX7+eRSeOAswQ@mail.gmail.com>
-References: <1416422480-3241-1-git-send-email-mathieu.magnaudet@enac.fr>
-	<CAN+gG=GN4dwXr_qEHMfMddGHkMKECZMUwTM+xbNmY_gibthLmA@mail.gmail.com>
-	<alpine.LNX.2.00.1411201421100.4454@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/3] HID: wacom - return ENODEV for failed
+ wacom_setup_pad_input_capabilities
+Date: Thu, 20 Nov 2014 17:30:19 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411201729360.4454@pobox.suse.cz>
+References: <1416346068-11266-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1411201421100.4454@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:34119 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751911AbaKTQaM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Nov 2014 11:30:12 -0500
+In-Reply-To: <1416346068-11266-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Thu, Nov 20, 2014 at 8:21 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 19 Nov 2014, Benjamin Tissoires wrote:
->
->> though this patch works for this particular device, I just thought at
->> something which may solve the problem in a different way. I asked
->> Mathieu to test the different solution, so I'd rather you to wait for
->> final confirmation before merging this patch.
->
-> Thanks for the heads up, I am putting this patch on hold until further
-> notice from you or Mathieu.
->
+On Tue, 18 Nov 2014, Ping Cheng wrote:
 
-Mathieu confirmed this morning that using hid_hw_raw_request instead
-of hid_hw_request while _setting_ the input_mode works for this
-particular touchscreen. So I think we will simply switch to use this
-sync operation instead of relying on the async one. We will need to
-test this change a little bit, but it should be safe for BT and I2C at
-least.
+> ENODEV indicates no device is added. Hence, the associated pad input device
+> is simply freed.
+> 
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> Reviewed-by:  Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-So, yes, we will drop this patch and have a better one in the next few
-days. Thanks for holding this one :)
+I have now queued the series for 3.19. Thanks,
 
-Cheers,
-Benjamin
+-- 
+Jiri Kosina
+SUSE Labs

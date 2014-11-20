@@ -1,43 +1,49 @@
-From: Richard Cochran <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
- reg_se_cache save
-Date: Thu, 20 Nov 2014 15:40:28 +0100
-Message-ID: <20141120144028.GB5809@localhost.localdomain>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
- <1415941651-28962-4-git-send-email-vigneshr@ti.com>
- <20141118143005.GF24004@x1>
- <20141118171240.GB3003@dtor-ws>
- <546DF2F0.9080405@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [git pull] Input updates for 3.18-rc4
+Date: Thu, 20 Nov 2014 09:44:07 -0500
+Message-ID: <CAN+gG=G6_ZXJQ5+3Oyf5pbVGOgyoqk_cOb_+EAADo4GecJ0yww@mail.gmail.com>
+References: <20141114222640.GA39748@dtor-ws>
+	<CAN+gG=FaovQETa3+qQsLoBBQnbZ8Q2uoQJD6_XvAmCCvGTHT1g@mail.gmail.com>
+	<CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
+	<20141119181247.GE37989@dtor-ws>
+	<CAJBHPohu71BXqyZ4u74tAiP84UcQhXgto34k8NtNHPgw61WvLQ@mail.gmail.com>
+	<20141119183921.GF37989@dtor-ws>
+	<CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
+	<20141119210552.GA5464@lantern>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <546DF2F0.9080405-l0cyMroinI0@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel@vger.
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qa0-f43.google.com ([209.85.216.43]:39126 "EHLO
+	mail-qa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751103AbaKTOoI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Nov 2014 09:44:08 -0500
+In-Reply-To: <20141119210552.GA5464@lantern>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Cc: Marcus Overhagen <marcus.overhagen@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, Nov 20, 2014 at 07:26:00PM +0530, Sekhar Nori wrote:
-> I tested this using lcd7 cape connected to beaglebone black. The latest
-> kernel I could find on this board was a TI BSP based v3.14 kernel. So I
-> had to port these patches to that kernel. Cc Robert Nelson to see if he
-> knows about a more recent kernel supporting that cape.
+On Wed, Nov 19, 2014 at 4:05 PM,  <ulrik.debie-os@e2big.org> wrote:
+> Hi,
+>
+> Thanks Dmitry, the fix you provided will mitigate the regression. But
+> there might be more that is going on for v4 hardware. The detection
+> of PACKET_TRACKPOINT can be made more strict.
+> Thank you Marcus and Benjamin for the reports.
+>
+> Sorry for the regression, it was not expected that lowest nibble of packet[3]
+> is 0x6 for non-trackpoint packets.
+>
+> So we have two laptops where
+> 1) according to the msb of the capabilities has no trackpoint
+> Benjamin, can you give feedback if the laptop has actually a trackpoint/stick/
+> how else one calls that strange but convenient thing in the middle of the
+> keyboard ?
 
-What is missing from mainline for the black?
 
-(I thought it was fully supported by now.)
- 
-> I did not see any breakage with these patches applied although I did not
-> see any noticeable performance improvement as well.
+Ulrik, the reporter said that there is no trackstick on his device.
+The exact reference is Samsung Notebook NP900X3E-A01SE.
 
-So, the jumping on pen-up persists, right?  That means the patch
-series does not provide a general fix for that issue.
- 
-> I also tested this series on AM335x EVM using the v3.18-rc5 kernel.
-> Again, no breakage but no improvement as well.
-
-You still have jumps on a pen up event?
-
-Thanks,
-Richard
+Cheers,
+Benjamin

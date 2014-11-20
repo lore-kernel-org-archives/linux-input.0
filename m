@@ -1,42 +1,140 @@
-From: Stephan Raue <mailinglists@openelec.tv>
-Subject: Re: bisected: IR press/release behavior changed in 3.17, repeat events
-Date: Thu, 20 Nov 2014 01:30:47 +0100
-Message-ID: <546D3637.3010003@openelec.tv>
-References: <54679469.1010500@openelec.tv> <20141119195019.GA20784@hardeman.nu> <546D25D7.9050703@openelec.tv> <20141119234539.GB16939@hardeman.nu>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] hid-multitouch: Add quirk for VTL touch panels
+Date: Wed, 19 Nov 2014 22:30:31 -0500
+Message-ID: <CAN+gG=GN4dwXr_qEHMfMddGHkMKECZMUwTM+xbNmY_gibthLmA@mail.gmail.com>
+References: <1416422480-3241-1-git-send-email-mathieu.magnaudet@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail03.solnet.ch ([212.101.4.137]:10267 "EHLO mail03.solnet.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754910AbaKTAax (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2014 19:30:53 -0500
-In-Reply-To: <20141119234539.GB16939@hardeman.nu>
+Received: from mail-qg0-f47.google.com ([209.85.192.47]:43159 "EHLO
+	mail-qg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754238AbaKTDac (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Nov 2014 22:30:32 -0500
+In-Reply-To: <1416422480-3241-1-git-send-email-mathieu.magnaudet@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?windows-1252?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: linux-input@vger.kernel.org, m.chehab@samsung.com, linux-media@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Am 20.11.2014 um 00:45 schrieb David H=E4rdeman:
-> On Thu, Nov 20, 2014 at 12:20:55AM +0100, Stephan Raue wrote:
->> with kernel 3.17: (you dont see the messages with "toggle 1" here)
->> if i press once and wait:
-> Ummm...kinda embarassing...try swapping the order of the scancode and
-> toggle lines in the rc6 decoder (drivers/media/rc/ir-rc6-decoder.c).
+On Wed, Nov 19, 2014 at 1:41 PM, Mathieu Magnaudet
+<mathieu.magnaudet@gmail.com> wrote:
+> VTL panels do not switch to the multitouch mode until the input mode
+> feature is read by the host. This should normally be done by
+> usbhid, but it looks like an other bug prevents usbhid to properly
+> retrieve the feature state. As a workaround, we force the reading of
+> the feature in mt_set_input_mode for such devices.
 >
-> They're somewhere around line 259, right after the case 32 statement.
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
+> ---
+
+Jiri,
+
+though this patch works for this particular device, I just thought at
+something which may solve the problem in a different way. I asked
+Mathieu to test the different solution, so I'd rather you to wait for
+final confirmation before merging this patch.
+
+Thanks,
+Benjamin
+
+>  drivers/hid/hid-ids.h        |  3 +++
+>  drivers/hid/hid-multitouch.c | 27 +++++++++++++++++++++++++++
+>  2 files changed, 30 insertions(+)
 >
-> case 32:
-> 	if ((scancode & RC6_6A_LCC_MASK) =3D=3D RC6_6A_MCE_CC) {
-> 		protocol =3D RC_TYPE_RC6_MCE;
->                  scancode &=3D ~RC6_6A_MCE_TOGGLE_MASK;
-> 		toggle =3D !!(scancode & RC6_6A_MCE_TOGGLE_MASK);
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 7c86373..d6cc6a9 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -931,6 +931,9 @@
+>  #define USB_DEVICE_ID_VERNIER_CYCLOPS  0x0004
+>  #define USB_DEVICE_ID_VERNIER_LCSPEC   0x0006
 >
+> +#define USB_VENDOR_ID_VTL              0x0306
+> +#define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F      0xff3f
+> +
+>  #define USB_VENDOR_ID_WACOM            0x056a
+>  #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH 0x81
+>  #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 51e25b9..a4bc111 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -67,6 +67,7 @@ MODULE_LICENSE("GPL");
+>  #define MT_QUIRK_IGNORE_DUPLICATES     (1 << 10)
+>  #define MT_QUIRK_HOVERING              (1 << 11)
+>  #define MT_QUIRK_CONTACT_CNT_ACCURATE  (1 << 12)
+> +#define MT_QUIRK_FORCE_GET_FEATURE     (1 << 13)
 >
-many thanks!!! this works :-)
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  #define MT_INPUTMODE_TOUCHSCREEN       0x02
+>  #define MT_INPUTMODE_TOUCHPAD          0x03
+> @@ -150,6 +151,7 @@ static void mt_post_parse(struct mt_device *td);
+>  #define MT_CLS_FLATFROG                                0x0107
+>  #define MT_CLS_GENERALTOUCH_TWOFINGERS         0x0108
+>  #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS     0x0109
+> +#define MT_CLS_VTL                             0x0110
+>
+>  #define MT_DEFAULT_MAXCONTACT  10
+>  #define MT_MAX_MAXCONTACT      250
+> @@ -255,6 +257,11 @@ static struct mt_class mt_classes[] = {
+>                 .sn_move = 2048,
+>                 .maxcontacts = 40,
+>         },
+> +       { .name = MT_CLS_VTL,
+> +               .quirks = MT_QUIRK_ALWAYS_VALID |
+> +                       MT_QUIRK_CONTACT_CNT_ACCURATE |
+> +                       MT_QUIRK_FORCE_GET_FEATURE,
+> +       },
+>         { }
+>  };
+>
+> @@ -809,6 +816,9 @@ static void mt_set_input_mode(struct hid_device *hdev)
+>         struct mt_device *td = hid_get_drvdata(hdev);
+>         struct hid_report *r;
+>         struct hid_report_enum *re;
+> +       struct mt_class *cls = &td->mtclass;
+> +       char *buf;
+> +       int report_len;
+>
+>         if (td->inputmode < 0)
+>                 return;
+> @@ -816,6 +826,18 @@ static void mt_set_input_mode(struct hid_device *hdev)
+>         re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+>         r = re->report_id_hash[td->inputmode];
+>         if (r) {
+> +               if (cls->quirks & MT_QUIRK_FORCE_GET_FEATURE) {
+> +                       report_len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
+> +                       buf = kzalloc(report_len, GFP_KERNEL);
+> +                       if (!buf) {
+> +                               hid_err(hdev, "failed to allocate buffer for report\n");
+> +                               return;
+> +                       }
+> +                       hid_hw_raw_request(hdev, r->id, buf, report_len,
+> +                                          HID_FEATURE_REPORT,
+> +                                          HID_REQ_GET_REPORT);
+> +                       kfree(buf);
+> +               }
+>                 r->field[0]->value[td->inputmode_index] = td->inputmode_value;
+>                 hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
+>         }
+> @@ -1281,6 +1303,11 @@ static const struct hid_device_id mt_devices[] = {
+>                 MT_USB_DEVICE(USB_VENDOR_ID_UNITEC,
+>                         USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
+>
+> +       /* VTL panels */
+> +       { .driver_data = MT_CLS_VTL,
+> +               MT_USB_DEVICE(USB_VENDOR_ID_VTL,
+> +                       USB_DEVICE_ID_VTL_MULTITOUCH_FF3F) },
+> +
+>         /* Wistron panels */
+>         { .driver_data = MT_CLS_NSMU,
+>                 MT_USB_DEVICE(USB_VENDOR_ID_WISTRON,
+> --
+> 1.9.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

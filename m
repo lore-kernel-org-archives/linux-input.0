@@ -1,90 +1,121 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom - PAD is independent with pen/touch
-Date: Thu, 20 Nov 2014 16:31:12 -0800
-Message-ID: <1416529872-3128-1-git-send-email-pingc@wacom.com>
+From: =?UTF-8?B?RUxBTiDlionlmInpp78=?= <scott.liu@emc.com.tw>
+Subject: RE: [PATCH v1] Input: elants_i2c: Add Elan touchscreen support
+Date: Fri, 21 Nov 2014 09:16:37 +0800
+Message-ID: <001101d00528$ce525f80$6af71e80$@emc.com.tw>
+References: <1388146515-19481-1-git-send-email-scott.liu@emc.com.tw> <20141120081113.GA37534@dtor-ws> <1416479490.28599.13.camel@linux-0dmf.site> <000001d004bd$0ad90830$208b1890$@emc.com.tw> <20141120175158.GB14798@dtor-glaptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:56234 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756223AbaKUAbW (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:63113 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756640AbaKUBQz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Nov 2014 19:31:22 -0500
-Received: by mail-pa0-f46.google.com with SMTP id lj1so3615494pab.19
-        for <linux-input@vger.kernel.org>; Thu, 20 Nov 2014 16:31:22 -0800 (PST)
+	Thu, 20 Nov 2014 20:16:55 -0500
+In-Reply-To: <20141120175158.GB14798@dtor-glaptop>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Oliver Neukum' <oneukum@suse.de>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 'Vincent Wang' <vincent.wang@emc.com.tw>, 'Jeff Chuang' <jeff.chuang@emc.com.tw>, 'Benson Leung' <bleung@chromium.org>, 'Benjamin Tissoires' <benjamin.tissoires@gmail.com>, 'Henrik Rydberg' <rydberg@euromail.se>, 'David Herrmann' <dh.herrmann@gmail.com>, james.chen@emc.com.tw, =?UTF-8?B?J+iUoeS7geixqic=?= <jh.tsai@emc.com.tw>
 
-PAD can be on pen interface (Intuos Pro and Cintiq series) or touch
-interface (Bamboo PT and Intuos PT series) or its own interface
-(Bamboo pen-only and Intuos Pen M/S). We need to mark it independently.
+Hi Dmitry:
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
-Reviewed-by:  Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/wacom_sys.c | 8 +++++---
- drivers/hid/wacom_wac.h | 1 +
- 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 68b6cd6..eb55316 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1135,7 +1135,7 @@ static void wacom_clean_inputs(struct wacom *wacom)
- 			input_free_device(wacom->wacom_wac.input);
- 	}
- 	if (wacom->wacom_wac.pad_input) {
--		if (wacom->wacom_wac.input_registered)
-+		if (wacom->wacom_wac.pad_registered)
- 			input_unregister_device(wacom->wacom_wac.pad_input);
- 		else
- 			input_free_device(wacom->wacom_wac.pad_input);
-@@ -1162,6 +1162,7 @@ static int wacom_register_inputs(struct wacom *wacom)
- 		error = input_register_device(input_dev);
- 		if (error)
- 			return error;
-+		wacom_wac->input_registered = true;
- 	}
- 
- 	error = wacom_setup_pad_input_capabilities(pad_input_dev, wacom_wac);
-@@ -1174,22 +1175,23 @@ static int wacom_register_inputs(struct wacom *wacom)
- 		error = input_register_device(pad_input_dev);
- 		if (error)
- 			goto fail_register_pad_input;
-+		wacom_wac->pad_registered = true;
- 
- 		error = wacom_initialize_leds(wacom);
- 		if (error)
- 			goto fail_leds;
- 	}
- 
--	wacom_wac->input_registered = true;
--
- 	return 0;
- 
- fail_leds:
- 	input_unregister_device(pad_input_dev);
- 	pad_input_dev = NULL;
-+	wacom_wac->pad_registered = false;
- fail_register_pad_input:
- 	input_unregister_device(input_dev);
- 	wacom_wac->input = NULL;
-+	wacom_wac->input_registered = false;
- 	return error;
- }
- 
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 0f0b85e..128cbb3 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -183,6 +183,7 @@ struct wacom_wac {
- 	struct input_dev *input;
- 	struct input_dev *pad_input;
- 	bool input_registered;
-+	bool pad_registered;
- 	int pid;
- 	int battery_capacity;
- 	int num_contacts_left;
--- 
-1.9.1
+> -----Original Message-----
+> From: 'Dmitry Torokhov' [mailto:dmitry.torokhov@gmail.com]
+> Sent: Friday, November 21, 2014 1:52 AM
+> To: ELAN =E5=8A=89=E5=98=89=E9=A7=BF
+> Cc: 'Oliver Neukum'; linux-kernel@vger.kernel.org; linux-input@vger.k=
+ernel.org;
+> 'Vincent Wang'; 'Jeff Chuang'; 'Benson Leung'; 'Benjamin Tissoires'; =
+'Henrik
+> Rydberg'; 'David Herrmann'
+> Subject: Re: [PATCH v1] Input: elants_i2c: Add Elan touchscreen suppo=
+rt
+>=20
+> On Thu, Nov 20, 2014 at 08:25:15PM +0800, ELAN =E5=8A=89=E5=98=89=E9=A7=
+=BF wrote:
+> >
+> > Hi Oliver:
+> >
+> > -----Original Message-----
+> > From: Oliver Neukum [mailto:oneukum@suse.de]
+> > Sent: Thursday, November 20, 2014 6:32 PM
+> > To: Dmitry Torokhov
+> > Cc: scott; linux-kernel@vger.kernel.org; linux-input@vger.kernel.or=
+g;
+> > Vincent Wang; Jeff Chuang; Benson Leung; Benjamin Tissoires; Henrik
+> > Rydberg; David Herrmann
+> > Subject: Re: [PATCH v1] Input: elants_i2c: Add Elan touchscreen
+> > support
+> >
+> >
+> >
+> > > +static int elants_i2c_sw_reset(struct i2c_client *client) {
+> > > +       const u8 soft_rst_cmd[] =3D { 0x77, 0x77, 0x77, 0x77 };
+> > > +       int error;
+> > > +
+> > > +       error =3D elants_i2c_send(client, soft_rst_cmd,
+> > > +                               sizeof(soft_rst_cmd));
+> > > +       if (error) {
+> > > +               dev_err(&client->dev, "software reset failed: %d\=
+n",
+> > > error);
+> > > +               return error;
+> > > +       }
+> > > +
+> > > +       /*
+> > > +        * We should wait at least 10 msec (but no more than 40)
+> > > before
+> > > +        * sending fastboot or IAP command to the device.
+> > > +        */
+> > > +       msleep(30);
+> >
+> > If timing is critical in both ways, you should take our guarantee i=
+f sufficient
+> sleep. I suggest you sleep 11msecs.
+> >
+> > Sorry, this is our firmware tricky but it should be sleep longer th=
+an 30ms.
+> Actually 70ms.
+> > (Dmitry, I need to modify this delay time to 70ms. Sorry for the ch=
+anged over
+> and over again;
+> > 	because we consider big sensor solution which need to use more ICs
+> > and need more longer delay)
+> >
+>=20
+> Wait, before you said that upper bound is critical, otherwise the dev=
+ice will
+> ignore the next command and will not enter IAP mode. So what will hap=
+pen if
+> we increase the wait to 70 msecs and use the driver with smaller sens=
+ors?
+>=20
 
+I think the timeout(40ms) was wrong information. (We do have that, but =
+we will no longer use it on Chrome projects)
+As we encountered some problem on Chrome project of big sensor solution=
+, and we already have resolved by modify bootcode timeout value.
+
+Precisely speaking, the 40ms bootcode is special solution for specific =
+project, and general solution is the 100ms bootcode.
+So we have replaced 40ms bootcode with 100ms bootcode. That=E2=80=99s w=
+hat our firmware engineer told me.
+
+
+Thanks.
+--
+Scott
+
+> Thanks.
+>=20
+> --
+> Dmitry
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

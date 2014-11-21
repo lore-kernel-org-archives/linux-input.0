@@ -1,49 +1,50 @@
-From: Johannes Pointner <johannes.pointner@gmail.com>
-Subject: Re: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
- reg_se_cache save
-Date: Fri, 21 Nov 2014 19:17:18 +0100
-Message-ID: <CAJKbBDD=eYmU=LuViwLPNV=kYCziDQgKjL07bT7og4vsj0Ee7A@mail.gmail.com>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
-	<1415941651-28962-4-git-send-email-vigneshr@ti.com>
-	<20141118143005.GF24004@x1>
-	<20141118171240.GB3003@dtor-ws>
-	<546DF2F0.9080405@ti.com>
-	<20141120144028.GB5809@localhost.localdomain>
-	<546F2BA4.4000808@ti.com>
-	<20141121131036.GA18931@localhost.localdomain>
-	<CAJKbBDDVTA+=priRu7sCD=vHrC8AUg4DM3kycuGrqbpF-5FGAA@mail.gmail.com>
-	<546F5C27.7040004@ti.com>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: [PATCH] Input: Initialize input_no by -1
+Date: Sat, 22 Nov 2014 00:18:39 +0530
+Message-ID: <CADYu30-dyHvidn6z6NW0w8hEwFd6Nctf8_5Yb5LKU4MFKvwLHw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f48.google.com ([209.85.216.48]:60607 "EHLO
-	mail-qa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750785AbaKUSRT (ORCPT
+Received: from mail-la0-f46.google.com ([209.85.215.46]:58681 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750807AbaKUSsl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Nov 2014 13:17:19 -0500
-In-Reply-To: <546F5C27.7040004@ti.com>
+	Fri, 21 Nov 2014 13:48:41 -0500
+Received: by mail-la0-f46.google.com with SMTP id gd6so4836657lab.33
+        for <linux-input@vger.kernel.org>; Fri, 21 Nov 2014 10:48:39 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sekhar Nori <nsekhar@ti.com>
-Cc: Vignesh R <vigneshr@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Before the patches were also jumps but I thought it is something
-Vignesh should know. Maybe there is some fix for that too?
-As Richard also noted, it would be nice if ti could let us know how to
-get the delay values right. By trial and error is IMHO not the best
-way.
-For the testing I used 3.16.7.
+This patch initializes input_no by -1 in order to avoid extra subtraction
+operation performed everytime for allocation of an input device.
 
+Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
+---
+ drivers/input/input.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-2014-11-21 16:37 GMT+01:00 Sekhar Nori <nsekhar@ti.com>:
-> On Friday 21 November 2014 08:41 PM, Johannes Pointner wrote:
->> I tested version 4 of the patch series on a custom design and I saw
->> also the jumps as described by Richard. I played a little with the
->> sample delay and it got better but I couldn't completely remove the
->> jumps.
->
-> And before the patches were applied, there were no jumps at all? Which
-> kernel are you using for testing?
->
-> Thanks,
-> Sekhar
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 29ca0bb..01fe49e 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1774,7 +1774,7 @@ EXPORT_SYMBOL_GPL(input_class);
+  */
+ struct input_dev *input_allocate_device(void)
+ {
+-       static atomic_t input_no = ATOMIC_INIT(0);
++       static atomic_t input_no = ATOMIC_INIT(-1);
+        struct input_dev *dev;
+
+        dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
+@@ -1789,7 +1789,7 @@ struct input_dev *input_allocate_device(void)
+                INIT_LIST_HEAD(&dev->node);
+
+                dev_set_name(&dev->dev, "input%ld",
+-                            (unsigned long) atomic_inc_return(&input_no) - 1);
++                            (unsigned long) atomic_inc_return(&input_no));
+
+                __module_get(THIS_MODULE);
+        }
+-- 
+1.9.1

@@ -1,52 +1,36 @@
-From: Richard Cochran <richardcochran@gmail.com>
-Subject: Re: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
- reg_se_cache save
-Date: Fri, 21 Nov 2014 22:40:05 +0100
-Message-ID: <20141121214005.GA4020@localhost.localdomain>
-References: <1415941651-28962-4-git-send-email-vigneshr@ti.com>
- <20141118143005.GF24004@x1>
- <20141118171240.GB3003@dtor-ws>
- <546DF2F0.9080405@ti.com>
- <20141120144028.GB5809@localhost.localdomain>
- <546F2BA4.4000808@ti.com>
- <20141121131036.GA18931@localhost.localdomain>
- <CAJKbBDDVTA+=priRu7sCD=vHrC8AUg4DM3kycuGrqbpF-5FGAA@mail.gmail.com>
- <546F5C27.7040004@ti.com>
- <CAJKbBDD=eYmU=LuViwLPNV=kYCziDQgKjL07bT7og4vsj0Ee7A@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: wacom: Report ABS_TILT_{X,Y} as signed values
+Date: Fri, 21 Nov 2014 22:41:28 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411212241100.23174@pobox.suse.cz>
+References: <1416358209-3937-1-git-send-email-killertofu@gmail.com> <CAF8JNhJMcD2QcC-Gp9+avxdQUpEjyTJ=R3-XKv+1Sm-uYhxNXg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJKbBDD=eYmU=LuViwLPNV=kYCziDQgKjL07bT7og4vsj0Ee7A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Johannes Pointner <johannes.pointner@gmail.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, Vignesh R <vigneshr@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:34581 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751738AbaKUVlV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Nov 2014 16:41:21 -0500
+In-Reply-To: <CAF8JNhJMcD2QcC-Gp9+avxdQUpEjyTJ=R3-XKv+1Sm-uYhxNXg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, benjamin.tissores@gmail.com
 
-On Fri, Nov 21, 2014 at 07:17:18PM +0100, Johannes Pointner wrote:
-> Before the patches were also jumps but I thought it is something
-> Vignesh should know. Maybe there is some fix for that too?
-> As Richard also noted, it would be nice if ti could let us know how to
-> get the delay values right. By trial and error is IMHO not the best
-> way.
+On Fri, 21 Nov 2014, Ping Cheng wrote:
 
-That is not only an opinion, it is a matter of fact. TI really dropped
-the ball on this one. I thought the patch series was a sign they
-finally were going to properly address this issue. Wrong again.
+> On Tue, Nov 18, 2014 at 4:50 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> > Centers the ABS_TILT_{X,Y} axes so that a value of zero is reported when
+> > the pen is vertical. Combined with resolution information in the next
+> > patch, this makes it possible for userspace to calculate the pen angle
+> > without needing hardware-specific knowledge. The xf86-input-wacom driver
+> > was updated to support signed tilt values in late-2012 (2f2acec).
+> >
+> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> 
+> Reviewed-by: Ping Cheng <pingc@wacom.com> for the series.
 
-The data sheet for the TI part used to have a reference to an app-note
-for the touch controller.
+Series now queued in for-3.19/wacom. Thanks,
 
-      spruh73f page 1154
-
-      The Pen IRQ can only occur if the correct Pen Ctrl bits are high
-      (AFE Pen Ctrl bits 6:5 in the TSC_ADC control register) and if
-      the correct ground transistor biasing is set in the StepConfig
-      [N] Register. Refer to the application notes for the correct
-      settings.
-
-I searched high and low for this application note. Then, the data
-sheet got revised.
-
-Thanks,
-Richard
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,50 +1,53 @@
-From: Johannes Pointner <johannes.pointner@gmail.com>
-Subject: Re: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
- reg_se_cache save
-Date: Fri, 21 Nov 2014 16:11:02 +0100
-Message-ID: <CAJKbBDDVTA+=priRu7sCD=vHrC8AUg4DM3kycuGrqbpF-5FGAA@mail.gmail.com>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
-	<1415941651-28962-4-git-send-email-vigneshr@ti.com>
-	<20141118143005.GF24004@x1>
-	<20141118171240.GB3003@dtor-ws>
-	<546DF2F0.9080405@ti.com>
-	<20141120144028.GB5809@localhost.localdomain>
-	<546F2BA4.4000808@ti.com>
-	<20141121131036.GA18931@localhost.localdomain>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] hid-multitouch: Add quirk for VTL touch panels
+Date: Fri, 21 Nov 2014 10:35:58 -0500
+Message-ID: <CAN+gG=FNK2ormxrFSw=k13iJvkacbzgkfuLbNHBp4cf2KFVK5A@mail.gmail.com>
+References: <1416422480-3241-1-git-send-email-mathieu.magnaudet@enac.fr>
+	<CAN+gG=GN4dwXr_qEHMfMddGHkMKECZMUwTM+xbNmY_gibthLmA@mail.gmail.com>
+	<alpine.LNX.2.00.1411201421100.4454@pobox.suse.cz>
+	<CAN+gG=F5AENtv0a-sK3WmvYLdVUWEyteXce1avX7+eRSeOAswQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141121131036.GA18931@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vge
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qg0-f53.google.com ([209.85.192.53]:39389 "EHLO
+	mail-qg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755434AbaKUPf7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Nov 2014 10:35:59 -0500
+In-Reply-To: <CAN+gG=F5AENtv0a-sK3WmvYLdVUWEyteXce1avX7+eRSeOAswQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-I tested version 4 of the patch series on a custom design and I saw
-also the jumps as described by Richard. I played a little with the
-sample delay and it got better but I couldn't completely remove the
-jumps.
-The other issue I had with version 3, the pen_ups during the busy
-loop, is solved. I experienced some pen_up misses during the busy loop
-if I used a too high sample delay, without the sample delay it was ok.
+On Thu, Nov 20, 2014 at 10:27 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Thu, Nov 20, 2014 at 8:21 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Wed, 19 Nov 2014, Benjamin Tissoires wrote:
+>>
+>>> though this patch works for this particular device, I just thought at
+>>> something which may solve the problem in a different way. I asked
+>>> Mathieu to test the different solution, so I'd rather you to wait for
+>>> final confirmation before merging this patch.
+>>
+>> Thanks for the heads up, I am putting this patch on hold until further
+>> notice from you or Mathieu.
+>>
+>
+> Mathieu confirmed this morning that using hid_hw_raw_request instead
+> of hid_hw_request while _setting_ the input_mode works for this
+> particular touchscreen. So I think we will simply switch to use this
+> sync operation instead of relying on the async one. We will need to
+> test this change a little bit, but it should be safe for BT and I2C at
+> least.
+>
+> So, yes, we will drop this patch and have a better one in the next few
+> days. Thanks for holding this one :)
+>
 
-Thanks,
-Hannes
+Actually, later tests showed that this was still required. I have a
+comment on the patch (see the other mail), so, please, Jiri, wait for
+the v2 :)
 
-2014-11-21 14:10 GMT+01:00 Richard Cochran <richardcochran@gmail.com>:
-> On Fri, Nov 21, 2014 at 05:40:12PM +0530, Sekhar Nori wrote:
->> Not sure how to reproduce the jumping on pen-up.
->
-> Does the cursor stay in exactly the same spot when you lift up the
-> stylus? Then you don't have the issue.
->
-> On the BB white using the LCD4 cape and the shipped debian kernel, the
-> cursor *does* jump away, but not as often or as far as on the custom
-> design I was working with.
->
-> Thanks,
-> Richard
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Benjamin

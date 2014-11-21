@@ -1,36 +1,68 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] HID: wacom: Report ABS_TILT_{X,Y} as signed values
-Date: Fri, 21 Nov 2014 22:41:28 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411212241100.23174@pobox.suse.cz>
-References: <1416358209-3937-1-git-send-email-killertofu@gmail.com> <CAF8JNhJMcD2QcC-Gp9+avxdQUpEjyTJ=R3-XKv+1Sm-uYhxNXg@mail.gmail.com>
+From: "Griffis, Brad" <bgriffis@ti.com>
+Subject: RE: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
+ reg_se_cache save
+Date: Fri, 21 Nov 2014 22:25:50 +0000
+Message-ID: <912A29987EAE174BA6CF187D7CDFA9CE26F6D664@DLEE08.ent.ti.com>
+References: <1415941651-28962-4-git-send-email-vigneshr@ti.com>
+ <20141118143005.GF24004@x1> <20141118171240.GB3003@dtor-ws>
+ <546DF2F0.9080405@ti.com> <20141120144028.GB5809@localhost.localdomain>
+ <546F2BA4.4000808@ti.com> <20141121131036.GA18931@localhost.localdomain>
+ <CAJKbBDDVTA+=priRu7sCD=vHrC8AUg4DM3kycuGrqbpF-5FGAA@mail.gmail.com>
+ <546F5C27.7040004@ti.com>
+ <CAJKbBDD=eYmU=LuViwLPNV=kYCziDQgKjL07bT7og4vsj0Ee7A@mail.gmail.com>
+ <20141121214005.GA4020@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34581 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751738AbaKUVlV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Nov 2014 16:41:21 -0500
-In-Reply-To: <CAF8JNhJMcD2QcC-Gp9+avxdQUpEjyTJ=R3-XKv+1Sm-uYhxNXg@mail.gmail.com>
+Received: from devils.ext.ti.com ([198.47.26.153]:38150 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751545AbaKUW1B convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Nov 2014 17:27:01 -0500
+In-Reply-To: <20141121214005.GA4020@localhost.localdomain>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, benjamin.tissores@gmail.com
+To: Richard Cochran <richardcochran@gmail.com>, Johannes Pointner <johannes.pointner@gmail.com>
+Cc: "Nori, Sekhar" <nsekhar@ti.com>, "R, Vignesh" <vigneshr@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, "Balbi, Felipe" <balbi@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.or
 
-On Fri, 21 Nov 2014, Ping Cheng wrote:
 
-> On Tue, Nov 18, 2014 at 4:50 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> > Centers the ABS_TILT_{X,Y} axes so that a value of zero is reported when
-> > the pen is vertical. Combined with resolution information in the next
-> > patch, this makes it possible for userspace to calculate the pen angle
-> > without needing hardware-specific knowledge. The xf86-input-wacom driver
-> > was updated to support signed tilt values in late-2012 (2f2acec).
-> >
-> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> -----Original Message-----
+> From: Richard Cochran [mailto:richardcochran@gmail.com]
 > 
-> Reviewed-by: Ping Cheng <pingc@wacom.com> for the series.
+> On Fri, Nov 21, 2014 at 07:17:18PM +0100, Johannes Pointner wrote:
+> > Before the patches were also jumps but I thought it is something
+> > Vignesh should know. Maybe there is some fix for that too?
 
-Series now queued in for-3.19/wacom. Thanks,
+I believe I've seen the "jumping" behavior pop up at a couple random times in my testing.  I think it relates to the hardware not properly registering a pen-up interrupt.  When that's happening can you try running ts_calibrate?  If you're not registering a pen-up event then you won't be able to advance through those touch points.  Is this behavior related to capturing ADC samples, or do you see this behavior even without capturing ADC samples?
 
--- 
-Jiri Kosina
-SUSE Labs
+> > As Richard also noted, it would be nice if ti could let us know how to
+> > get the delay values right. By trial and error is IMHO not the best
+> > way.
+> 
+> That is not only an opinion, it is a matter of fact. TI really dropped the ball on
+> this one. I thought the patch series was a sign they finally were going to
+> properly address this issue. Wrong again.
+
+These patches originate from work I did on TI's SDK 7.00 (3.12 kernel).  The touchscreen is working beautifully in that environment and we are putting forth significant effort to bring those improvements to the community. 
+
+Things do not seem to be working as well with the current mainline kernel.  I've been reviewing various patches between 3.12 and the mainline to understand why it's different.  I believe I have figured this out, and I have discussions going separately with individuals that contributed those patches in order to come up with the best possible solution, i.e. we likely need a few additional changes to this patch set.
+
+The CHARGECONFIG delay serves precisely the same purpose as the udelay in the original code base.  How did you determine the udelay value in the first place?  I went through the effort of figuring out a way to make the delay into a HARDWARE delay instead of a software delay so that it could be removed from the ISR.  That delay time relates to "settling time" and so it's going to be dependent on your PCB.  You could hook up an oscilloscope and attempt to capture this parameter from the signals themselves.  Personally I think that's a lot more difficult than just doing a few iterations of testing.
+
+> The data sheet for the TI part used to have a reference to an app-note for
+> the touch controller.
+> 
+>       spruh73f page 1154
+> 
+>       The Pen IRQ can only occur if the correct Pen Ctrl bits are high
+>       (AFE Pen Ctrl bits 6:5 in the TSC_ADC control register) and if
+>       the correct ground transistor biasing is set in the StepConfig
+>       [N] Register. Refer to the application notes for the correct
+>       settings.
+> 
+> I searched high and low for this application note. Then, the data sheet got
+> revised.
+
+Such an application note does not exist, which explains why you didn't find it and why we have removed that reference from the TRM.  Sorry for your trouble.  We always strive for accurate documentation.

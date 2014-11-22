@@ -1,115 +1,70 @@
-From: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>
-Subject: [PATCH v2] hid-multitouch: Add quirk for VTL touch panels
-Date: Sat, 22 Nov 2014 12:02:07 +0100
-Message-ID: <1416654127-2433-1-git-send-email-mathieu.magnaudet@enac.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
+Date: Sat, 22 Nov 2014 10:55:21 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1411221043060.23393-100000@netrider.rowland.org>
+References: <CANLzEkuPr0hhjecVHaMkGfX7_DZr4wUV=-yP2+V6uBaYdAkhXw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from netrider.rowland.org ([192.131.102.5]:52754 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752045AbaKVPzW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Nov 2014 10:55:22 -0500
+In-Reply-To: <CANLzEkuPr0hhjecVHaMkGfX7_DZr4wUV=-yP2+V6uBaYdAkhXw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benson Leung <bleung@chromium.org>
+Cc: johan@kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>
 
-VTL panels do not switch to the multitouch mode until the input mode
-feature is read by the host. This should normally be done by
-usbhid, but it looks like an other bug prevents usbhid to properly
-retrieve the feature state. As a workaround, we force the reading of
-the feature in mt_set_input_mode for such devices.
+On Fri, 21 Nov 2014, Benson Leung wrote:
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
----
-v1 -> v2
-	use hid_alloc_report_buf instead of kzalloc
+> Sorry for the delay in my response. I did some more checking of my
+> particular failure, and my commit message is incorrect. The
+> usb_kill_urb is actually not the cause of this problem. It does not
+> result in autosuspend_check() itself, and is only serving to add some
+> delay.
+> 
+> hidraw_release() in hidraw.c calls drop_ref(), which calls the
+> following in sequence upon clearing the last reader :
+> /* close device for last reader */
+> hid_hw_power(hidraw->hid, PM_HINT_NORMAL);
+> hid_hw_close(hidraw->hid);
+> 
+> hid_hw_power results in a usb_autopm_put_interface. In this case, the
+> reference count is decremented to 0, and a delayed autosuspend request
+> is attempted.
+> hid_hw_close leads to usbhid_close, which clears needs_remote_wakeup.
+> 
+> However, there's no guarantee that the clear of needs_remote_wakeup
+> will occur before the delayed work ( runtime_idle() ->
+> autosuspend_check() )  runs. Moving usbhid->intf->needs_remote_wakeup
+> = 0 to before the usb_kill_urb(usbhid->urbin) only serves to reduce
+> the amount of time between these events and makes this particular
+> failure less likely.
+> 
+> The correct solution is to put get/put around each change of
+> needs_remote_wakeup, as that will correctly trigger another delayed
+> autosuspend_check(), whose result is affected by the state of
+> needs_remote_wakeup.
+> 
+> Since autosuspend_check() occurs as delayed work, I think it is
+> appropriate to add get/put around the clear in usbhid_stop as well.
 
- drivers/hid/hid-ids.h        |  3 +++
- drivers/hid/hid-multitouch.c | 27 +++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+)
+As Oliver pointed out, there's no real need to resume a device which is
+already suspended (the only effect would be to allow it to suspend
+again but with wakeup disabled -- and this would happen anyway if a
+wakeup occurred).  Instead of using get and put, we should have an idle
+call.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7c86373..d6cc6a9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -931,6 +931,9 @@
- #define USB_DEVICE_ID_VERNIER_CYCLOPS	0x0004
- #define USB_DEVICE_ID_VERNIER_LCSPEC	0x0006
- 
-+#define USB_VENDOR_ID_VTL		0x0306
-+#define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F	0xff3f
-+
- #define USB_VENDOR_ID_WACOM		0x056a
- #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
- #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 51e25b9..683cda6 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -67,6 +67,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
- #define MT_QUIRK_HOVERING		(1 << 11)
- #define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
-+#define MT_QUIRK_FORCE_GET_FEATURE	(1 << 13)
- 
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -150,6 +151,7 @@ static void mt_post_parse(struct mt_device *td);
- #define MT_CLS_FLATFROG				0x0107
- #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
- #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
-+#define MT_CLS_VTL				0x0110
- 
- #define MT_DEFAULT_MAXCONTACT	10
- #define MT_MAX_MAXCONTACT	250
-@@ -255,6 +257,11 @@ static struct mt_class mt_classes[] = {
- 		.sn_move = 2048,
- 		.maxcontacts = 40,
- 	},
-+	{ .name = MT_CLS_VTL,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_FORCE_GET_FEATURE,
-+	},
- 	{ }
- };
- 
-@@ -809,6 +816,9 @@ static void mt_set_input_mode(struct hid_device *hdev)
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	struct hid_report *r;
- 	struct hid_report_enum *re;
-+	struct mt_class *cls = &td->mtclass;
-+	char *buf;
-+	int report_len;
- 
- 	if (td->inputmode < 0)
- 		return;
-@@ -816,6 +826,18 @@ static void mt_set_input_mode(struct hid_device *hdev)
- 	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
- 	r = re->report_id_hash[td->inputmode];
- 	if (r) {
-+		if (cls->quirks & MT_QUIRK_FORCE_GET_FEATURE) {
-+			report_len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
-+			buf = hid_alloc_report_buf(r, GFP_KERNEL);
-+			if (!buf) {
-+				hid_err(hdev, "failed to allocate buffer for report\n");
-+				return;
-+			}
-+			hid_hw_raw_request(hdev, r->id, buf, report_len,
-+					   HID_FEATURE_REPORT,
-+					   HID_REQ_GET_REPORT);
-+			kfree(buf);
-+		}
- 		r->field[0]->value[td->inputmode_index] = td->inputmode_value;
- 		hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
- 	}
-@@ -1281,6 +1303,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_UNITEC,
- 			USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
- 
-+	/* VTL panels */
-+	{ .driver_data = MT_CLS_VTL,
-+		MT_USB_DEVICE(USB_VENDOR_ID_VTL,
-+			USB_DEVICE_ID_VTL_MULTITOUCH_FF3F) },
-+
- 	/* Wistron panels */
- 	{ .driver_data = MT_CLS_NSMU,
- 		MT_USB_DEVICE(USB_VENDOR_ID_WISTRON,
--- 
-1.9.3
+There is no USB wrapper for pm_runtime_idle calls, but one could be
+added.  Still, in the meantime can you check to see what happens if you
+add
+
+	pm_runtime_idle(&usbhid->intf->dev);
+
+in usbhid_close() just after needs_remote_wakeup is set to 0?  You can 
+do the same thing in usbhid_stop() if you want.
+
+Alan Stern
+

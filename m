@@ -1,65 +1,115 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] input: touchscreen: edt-ft5x06: fix driver autoprobing
-Date: Sat, 22 Nov 2014 10:06:14 +0100
-Message-ID: <20141122090614.GA1285@katana>
-References: <20141118192112.GM6179@saruman>
- <1416338862-8240-1-git-send-email-balbi@ti.com>
- <20141118195902.GF3003@dtor-ws>
- <20141118200340.GP6179@saruman>
- <20141118201421.GH3003@dtor-ws>
- <20141118201907.GQ6179@saruman>
- <20141122010524.GA26751@saruman>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59273 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750753AbaKVJEw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Nov 2014 04:04:52 -0500
-Content-Disposition: inline
-In-Reply-To: <20141122010524.GA26751@saruman>
-Sender: linux-input-owner@vger.kernel.org
+From: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>
+Subject: [PATCH v2] hid-multitouch: Add quirk for VTL touch panels
+Date: Sat, 22 Nov 2014 12:02:07 +0100
+Message-ID: <1416654127-2433-1-git-send-email-mathieu.magnaudet@enac.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, stable@vger.kernel.org
 
+VTL panels do not switch to the multitouch mode until the input mode
+feature is read by the host. This should normally be done by
+usbhid, but it looks like an other bug prevents usbhid to properly
+retrieve the feature state. As a workaround, we force the reading of
+the feature in mt_set_input_mode for such devices.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
+---
+v1 -> v2
+	use hid_alloc_report_buf instead of kzalloc
 
+ drivers/hid/hid-ids.h        |  3 +++
+ drivers/hid/hid-multitouch.c | 27 +++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
-> Can you comment on this ? As of today i2c-based drivers will probe with
-> DT-based boot if DT's compatible is set to the same id as in struct
-> i2c_device_id. No i2c driver with of_device_id can autoprobe using OF
-> ids.
-
-Long standing problem. Last one to tackle this was Lee Jones:
-
-https://lkml.org/lkml/2014/8/28/283
-
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUcFIGAAoJEBQN5MwUoCm2KYEP/RvtV+VqPLd5fSrrvxn9pM2q
-kwaZi0smXvAj6Xxrqn5kL4IVxU8zuZKfTEU2r3arNCVyaJRcJzd0mlV/8VWw6pRa
-ZuJeSKoEYGw4z9dfGPTwtD1tmpCUV748RmbKpzvIV1X1jgTSKTILO9bSCefkac9c
-r3Dh2IWXyfeZcQueyias6p0Ob1xxR9M/LgND/hY/XxgU7424UUnUwjXO2M8sTVCy
-+UW6c24c83U1Hyl51JojF+LqGhmUKLUcUilVWEHN74M37wEZJ8hDFez+ZwXu5Tnn
-ejDb1OvXqRUGcHpIG3oylshv0YUwodafb9MCeQNqNz6BoMpm/zuP2eO4Z3FNVuTP
-BGf+zMCwF6PChRuDRbXBGpkkdJctp0HvOt5wLnRXLh8IC//dsYeDRsQYmnjzdEGg
-7ZVXNrrhJ47XWB/MUyJ56Dirv7geac2cic47jfP/fchgGJMXL56RHUMOAz1PkDeW
-935lcv1arfGCEyO+1PSfTcoMfh+yMrn3gKuNvgtTTe94hZ6eZ1RGI7sDqzSrtSmR
-j/ZnqIJcCyMVRytTmYdPdKeri1B/+flpNwzfsCqQbjn+jn97yYJtHBo+oc1RbfNo
-nNHZsXDy5JKNcxIDxb8j1GyhaBnrq9k3scUwo/bFnHHj7Ylfqy2J3/BFM2HM5GjI
-rgHWMWN1iyaswOuP5W1G
-=R7fZ
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7c86373..d6cc6a9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -931,6 +931,9 @@
+ #define USB_DEVICE_ID_VERNIER_CYCLOPS	0x0004
+ #define USB_DEVICE_ID_VERNIER_LCSPEC	0x0006
+ 
++#define USB_VENDOR_ID_VTL		0x0306
++#define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F	0xff3f
++
+ #define USB_VENDOR_ID_WACOM		0x056a
+ #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
+ #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 51e25b9..683cda6 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -67,6 +67,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
+ #define MT_QUIRK_HOVERING		(1 << 11)
+ #define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
++#define MT_QUIRK_FORCE_GET_FEATURE	(1 << 13)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -150,6 +151,7 @@ static void mt_post_parse(struct mt_device *td);
+ #define MT_CLS_FLATFROG				0x0107
+ #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
+ #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
++#define MT_CLS_VTL				0x0110
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
+@@ -255,6 +257,11 @@ static struct mt_class mt_classes[] = {
+ 		.sn_move = 2048,
+ 		.maxcontacts = 40,
+ 	},
++	{ .name = MT_CLS_VTL,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_FORCE_GET_FEATURE,
++	},
+ 	{ }
+ };
+ 
+@@ -809,6 +816,9 @@ static void mt_set_input_mode(struct hid_device *hdev)
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	struct hid_report *r;
+ 	struct hid_report_enum *re;
++	struct mt_class *cls = &td->mtclass;
++	char *buf;
++	int report_len;
+ 
+ 	if (td->inputmode < 0)
+ 		return;
+@@ -816,6 +826,18 @@ static void mt_set_input_mode(struct hid_device *hdev)
+ 	re = &(hdev->report_enum[HID_FEATURE_REPORT]);
+ 	r = re->report_id_hash[td->inputmode];
+ 	if (r) {
++		if (cls->quirks & MT_QUIRK_FORCE_GET_FEATURE) {
++			report_len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
++			buf = hid_alloc_report_buf(r, GFP_KERNEL);
++			if (!buf) {
++				hid_err(hdev, "failed to allocate buffer for report\n");
++				return;
++			}
++			hid_hw_raw_request(hdev, r->id, buf, report_len,
++					   HID_FEATURE_REPORT,
++					   HID_REQ_GET_REPORT);
++			kfree(buf);
++		}
+ 		r->field[0]->value[td->inputmode_index] = td->inputmode_value;
+ 		hid_hw_request(hdev, r, HID_REQ_SET_REPORT);
+ 	}
+@@ -1281,6 +1303,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_UNITEC,
+ 			USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
+ 
++	/* VTL panels */
++	{ .driver_data = MT_CLS_VTL,
++		MT_USB_DEVICE(USB_VENDOR_ID_VTL,
++			USB_DEVICE_ID_VTL_MULTITOUCH_FF3F) },
++
+ 	/* Wistron panels */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_WISTRON,
+-- 
+1.9.3

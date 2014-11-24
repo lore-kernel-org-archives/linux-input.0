@@ -1,59 +1,38 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: Reported key not released
-Date: Mon, 24 Nov 2014 23:04:48 +0100
-Message-ID: <201411242304.49047@pali>
-References: <201411231413.30076@pali> <201411242158.33119@pali> <20141124215147.GB14361@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6110518.8nCAdYk1rl";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20141124215147.GB14361@srcf.ucam.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Alex Hung <alex.hung@canonical.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 0/3] HID: wacom: Fix generic multitouch device handling
+Date: Mon, 24 Nov 2014 15:32:11 -0800
+Message-ID: <1416871934-14133-1-git-send-email-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:33328 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751139AbaKXXcY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Nov 2014 18:32:24 -0500
+Received: by mail-pd0-f177.google.com with SMTP id ft15so10677280pdb.36
+        for <linux-input@vger.kernel.org>; Mon, 24 Nov 2014 15:32:24 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, pinglinux@gmail.com
 
---nextPart6110518.8nCAdYk1rl
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+This set of patches addresses the problems that I had getting Benjamin's
+"HID generic handling" patches. Each of the patches addresses a seprate
+issue I encountered:
 
-On Monday 24 November 2014 22:51:47 Matthew Garrett wrote:
-> On Mon, Nov 24, 2014 at 09:58:32PM +0100, Pali Roh=C3=A1r wrote:
-> > So kernel should filter i8042 atk key press events which
-> > represent HW switch?
->=20
-> Yeah - the firmware is sending an "Update rfkill state"
-> message, not a real keypress. If you're already listening for
-> those events through a filter then you should just drop them
-> once you've done the state update.
+ * Patch 1/3: The devices that I'm using have some usages outside of
+   a logical or physical collection container which prevents the
+   reports from being sent. I'm not sure if keying on the application
+   collection is ideal, but it does do the job.
 
-Now I wanted to do not use i8042 hook function in dell-laptop.c=20
-which was used only for receiving key event (hw switch) and=20
-propagating it to dell-laptop rfkill device. See my patch:
+ * Patch 2/3: The devices that I'm using put their X and Y usages after
+   the finger count, which prevents the (compatibility) ABS_X and
+   ABS_Y axes from being initialized. This patch just guarantees that
+   they'll be initialized.
 
-dell-laptop: Use dell-rbtn instead i8042 filter when possible
+ * Patch 3/3: Benjamin's original code seemed to only report data about
+   the last finger in a multitouch report since information about "earlier"
+   fingers would be overwritten. This patch changes the logic so that
+   we immediately report field values whenever we can (there are some
+   cases that we can't -- the tip/range bits appear before the contact
+   identifier, so we have to store their state for a short time).
 
-But if we really should drop these atk key press, then another=20
-patch for it will be needed.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart6110518.8nCAdYk1rl
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlRzq4EACgkQi/DJPQPkQ1J38gCcDStNe3BJsFgtIsS8qdgfujRE
-pXQAn0Eve+ho2ZpVlMW9J+GCAEPvZLYu
-=WwoN
------END PGP SIGNATURE-----
-
---nextPart6110518.8nCAdYk1rl--

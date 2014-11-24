@@ -1,75 +1,62 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Side effect of pressing special keys
-Date: Sun, 23 Nov 2014 14:41:17 +0100
-Message-ID: <201411231441.17592@pali>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] Input: xpad: use proper endpoint type
+Date: Sun, 23 Nov 2014 18:03:23 -0800
+Message-ID: <20141124020323.GA5651@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2329723.YIZi5ZuPmt";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:42680 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750859AbaKXCDY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Nov 2014 21:03:24 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.or, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 
---nextPart2329723.YIZi5ZuPmt
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+The xpad wireless endpoint is not a bulk endpoint on my devices, but
+rather an interrupt one, so the USB core complains when it is submitted.
+I'm guessing that the author really did mean that this should be an
+interrupt urb, but as there are a zillion different xpad devices out
+there, let's cover out bases and handle both bulk and interrupt
+endpoints just as easily.
 
-Hello,
+Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+---
 
-pressing some keys on laptops could cause some side effects.
+This has been in my local tree since January, don't know why it never
+got pushed out, sorry for the delay.  Valve has been using a version of
+this patch for a year now.
 
-Example scenario 1:
+ drivers/input/joystick/xpad.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-Laptop has Fn key for enabling/disabling WIFI and when that key=20
-is pressed BIOS is doing two things:
-
-1) Switch hard rfkill state of WIFI
-2) Report that Fn key was pressed to kernel
-   (either via i8042 bus or via ACPI/WMI)
-
-Example scenario 2:
-
-Another laptop has Fn key too, but BIOS does not change state of=20
-hard rfkill. So system (kernel or userspace) is responsible for=20
-interpreting what that Fn key means and call correct action (find=20
-rfkill device for WIFI and soft block it).
-
-And my questions are:
-
-1) What should userspace do if some input device report that=20
-KEY_WLAN or KEY_RFKILL was pressed?
-
-2) Should kernel report to userspace that (on specific laptop)=20
-has pressed key some side effect?
-
-3) How to deal with existing userspace application which=20
-interpret all pressed keys as described in example scenario 2=20
-also on laptops from scenario 1? KDE4, NetworkManager, ... are=20
-know to do that!
-
-Note that this problem is not only about rfkill/wifi keys. Same=20
-apply for keyboard brightness Fn keys and also for key=20
-KEY_KBDILLUMTOGGLE (which toggle keyboard illumination level).
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart2329723.YIZi5ZuPmt
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlRx4/0ACgkQi/DJPQPkQ1InpgCePJDnhH0PMZAvoRCbrRGJFuW2
-zCcAoIws4Ph2ObF8GwfGSJCEQsRBGCS4
-=x+rJ
------END PGP SIGNATURE-----
-
---nextPart2329723.YIZi5ZuPmt--
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1179,9 +1179,19 @@ static int xpad_probe(struct usb_interfa
+ 		}
+ 
+ 		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
+-		usb_fill_bulk_urb(xpad->bulk_out, udev,
+-				usb_sndbulkpipe(udev, ep_irq_in->bEndpointAddress),
+-				xpad->bdata, XPAD_PKT_LEN, xpad_bulk_out, xpad);
++		if (usb_endpoint_is_bulk_out(ep_irq_in)) {
++			usb_fill_bulk_urb(xpad->bulk_out, udev,
++					  usb_sndbulkpipe(udev,
++							  ep_irq_in->bEndpointAddress),
++					  xpad->bdata, XPAD_PKT_LEN,
++					  xpad_bulk_out, xpad);
++		} else {
++			usb_fill_int_urb(xpad->bulk_out, udev,
++					 usb_sndintpipe(udev,
++							ep_irq_in->bEndpointAddress),
++					 xpad->bdata, XPAD_PKT_LEN,
++					 xpad_bulk_out, xpad, 0);
++		}
+ 
+ 		/*
+ 		 * Submit the int URB immediately rather than waiting for open

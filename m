@@ -1,50 +1,37 @@
-From: Alexander Varnin <fenixk19@mail.ru>
-Subject: qt2160: applying settings
-Date: Mon, 24 Nov 2014 20:17:35 +0300
-Message-ID: <5473682F.3060101@mail.ru>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: Reported key not released
+Date: Mon, 24 Nov 2014 20:04:33 +0000
+Message-ID: <20141124200433.GA3459@srcf.ucam.org>
+References: <201411231413.30076@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback7.mail.ru ([94.100.181.128]:55654 "EHLO
-	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753573AbaKXRUI convert rfc822-to-8bit (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:35855 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753313AbaKXUEj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Nov 2014 12:20:08 -0500
-Received: from smtp36.i.mail.ru (smtp36.i.mail.ru [94.100.177.96])
-	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id 53F7711FA7E4E
-	for <linux-input@vger.kernel.org>; Mon, 24 Nov 2014 20:17:44 +0300 (MSK)
-Received: from [77.247.181.163] (port=17808 helo=[0.0.0.0])
-	by smtp36.i.mail.ru with esmtpa (envelope-from <fenixk19@mail.ru>)
-	id 1XsxGe-0004m6-Vm
-	for linux-input@vger.kernel.org; Mon, 24 Nov 2014 20:17:42 +0300
+	Mon, 24 Nov 2014 15:04:39 -0500
+Content-Disposition: inline
+In-Reply-To: <201411231413.30076@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Darren Hart <dvhart@infradead.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Alex Hung <alex.hung@canonical.com>
 
-Hello!
-My work task now is related with AT42QT2160 [1] chip, that has qt2160
-driver in linux kernel.
+On Sun, Nov 23, 2014 at 02:13:30PM +0100, Pali Roh=E1r wrote:
 
-There is some settings of this chip, that is required to be set to
-registers during initialization or at runtime.
+> When I enable or disable this switch it correctly enable or=20
+> disable devices (and also hard rfkill status is set correctly).
 
-These settings are totally unimplemented in current driver. For example
-this are registers 12, 13, 20, 38-53, 54-69.
+If the switch changes the rfkill state, you shouldn't be emitting any=20
+presses - the rfkill state change will notify userspace. Consume the=20
+event in the filter and don't pass it through.
 
-Registers 38-69 are related to calibration, that is required to be
-passed on initialization, and 12 is related to power saving, and need to
-be changed at runtime.
-
-Of course, I can just write a hack for my purposes, but I want to solve
-it in a rightful (and upstream applicable) way.
-
-I suppose that initialization parameters should be passed in a kinda
-platform data and that what is need to be set at runtime should go as a
-sysfs node.
-
-Could you please hint me the right way?
-
-[1]
-http://www.atmel.com/Images/Atmel-9502-AT42-QTouch-BSW-AT42QT2160_Datasheet.pdf
-
+--=20
+Matthew Garrett | mjg59@srcf.ucam.org
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

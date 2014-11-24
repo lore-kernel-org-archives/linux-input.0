@@ -1,35 +1,40 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
-Date: Mon, 24 Nov 2014 10:13:15 +0100
-Message-ID: <1416820395.19925.4.camel@linux-0dmf.site>
-References: <1415909806-23848-1-git-send-email-bleung@chromium.org>
-	 <1415956110.2640.5.camel@linux-0dmf.site>
-	 <CANLzEkvcm5g_T+FsEQF2UFzS5A2u7CWgdTiEJAxidfxgAE5bHw@mail.gmail.com>
+From: Richard Cochran <richardcochran@gmail.com>
+Subject: Re: [PATCH v4 3/6] mfd: ti_am335x_tscadc: Remove unwanted
+ reg_se_cache save
+Date: Mon, 24 Nov 2014 11:01:49 +0100
+Message-ID: <20141124100149.GA5124@localhost.localdomain>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
+ <1415941651-28962-4-git-send-email-vigneshr@ti.com>
+ <20141118143005.GF24004@x1>
+ <20141118171240.GB3003@dtor-ws>
+ <546DF2F0.9080405@ti.com>
+ <20141120144028.GB5809@localhost.localdomain>
+ <546F2BA4.4000808@ti.com>
+ <20141121131036.GA18931@localhost.localdomain>
+ <5472F30A.1000608@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANLzEkvcm5g_T+FsEQF2UFzS5A2u7CWgdTiEJAxidfxgAE5bHw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <5472F30A.1000608@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: johan@kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Sekhar Nori <nsekhar@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Vignesh R <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-om
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2014-11-21 at 17:00 -0800, Benson Leung wrote:
+On Mon, Nov 24, 2014 at 09:57:46AM +0100, Sebastian Andrzej Siewior wrote:
+> On 11/21/2014 02:10 PM, Richard Cochran wrote:
+> 
+> > On the BB white using the LCD4 cape and the shipped debian kernel, the
+> > cursor *does* jump away, but not as often or as far as on the custom
+> > design I was working with.
+> 
+> This sounds like the ADC is still sampling while the input data becomes
+> invalid. Usually there is a resistor on the wiper line and the
+> touchscreen manual says how much it should be at least. Could you
+> please check if this is properly installed?
 
-> If devices are already asleep with this flag enabled, that means that
-> they are presently configured for remote wake.
+Wiper line? This is a four wire device.
 
-Yes, but that doesn't matter. The drivers must be ready for a device
-being resumed at any time. Remote wakeup just adds one more reason.
-
-> Waking the device in the case of a close() is appropriate because it
-> also has the effect of re-suspending the device with the capability
-> disabled, as it is no longer necessary.
-
-But there is very little to be gained by switching off remote wakeup.
-The additional energy consumption devices with remote wakeup enabled
-will be dwarfed by the energy needed for an additional wakeup.
-
-	Regards
-		Oliver
+Thanks,
+Richard

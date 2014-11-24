@@ -1,158 +1,90 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 3/3] HID: wacom: Report input events immediately upon receipt
-Date: Mon, 24 Nov 2014 15:32:14 -0800
-Message-ID: <1416871934-14133-4-git-send-email-killertofu@gmail.com>
-References: <1416871934-14133-1-git-send-email-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:47776 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751139AbaKXXca (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Nov 2014 18:32:30 -0500
-Received: by mail-pd0-f172.google.com with SMTP id y13so2665339pdi.3
-        for <linux-input@vger.kernel.org>; Mon, 24 Nov 2014 15:32:30 -0800 (PST)
-In-Reply-To: <1416871934-14133-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH v2] HID: rmi: Scan the report descriptor to determine if the device is suitable for the hid-rmi driver
+Date: Mon, 24 Nov 2014 15:37:26 -0800
+Message-ID: <1416872246-9632-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, pinglinux@gmail.com, Jason Gerecke <killertofu@gmail.com>
 
-Multitouch tablets cannot work properly if wacom_wac_finger_event simply
-stores the event details, since details about former fingers will be
-overwritten by later ones (causing wacom_wac_finger_report to effectively
-only report the state of the *last* finger in the packet).
+On composite HID devices there may be multiple HID devices on separate interfaces, but hid-rmi
+should only bind to the touchpad. The previous version simply checked that the interface protocol
+was set to mouse. Unfortuately, it is not always the case that the touchpad has the mouse interface
+protocol set. This patch takes a different approach and scans the report descriptor looking for
+the Generic Desktop Pointer usage and the Vendor Specific Top Level Collection needed by the
+hid-rmi driver to interface with the device.
 
-This patch modifies the logic so that events are generated as soon as
-possible in response to events. We do temporarily store HID_DG_TIPSWITCH
-value since the value of HID_DG_CONTACTID is (at least in for the tablets
-I've tested) not known until shortly afterwards.
-
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
- drivers/hid/wacom_wac.c | 77 ++++++++++++++++++++++++++++---------------------
- 1 file changed, 44 insertions(+), 33 deletions(-)
+This is a second attempt at the patch I submitted back in October. Instead of looking for specific
+HID reports this patch looks for the Generic Desktop Pointer usage. Having that usage along with
+the vendor specific collection seems to be a distinctive enough to id the Synaptics touchpad in
+the composite USB device.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index a55e0ed..3eaa98a 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1412,19 +1412,40 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
+ drivers/hid/hid-core.c | 21 ++++++++++++++++-----
+ include/linux/hid.h    |  4 +++-
+ 2 files changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 12b6e67..ba9dc59 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -698,10 +698,20 @@ static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
+ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
  {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct hid_data *data = &wacom_wac->hid_data;
-+	unsigned mt = wacom_wac->features.touch_max > 1;
-+	struct input_dev *input = wacom_wac->input;
-+	bool prox = data->tipswitch && !wacom_wac->shared->stylus_in_proximity;
-+	int slot;
- 
- 	switch (usage->hid) {
- 	case HID_GD_X:
--		wacom_wac->hid_data.x = value;
-+		if (prox) {
-+			input_report_abs(input,
-+					 mt ? ABS_MT_POSITION_X : ABS_X,
-+					 value);
-+		}
- 		break;
- 	case HID_GD_Y:
--		wacom_wac->hid_data.y = value;
-+		if (prox) {
-+			input_report_abs(input,
-+					 mt ? ABS_MT_POSITION_Y : ABS_Y,
-+					 value);
-+		}
- 		break;
- 	case HID_DG_CONTACTID:
--		wacom_wac->hid_data.id = value;
-+		slot = input_mt_get_slot_by_key(input, value);
-+
-+		input_mt_slot(input, slot);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
- 		break;
- 	case HID_DG_TIPSWITCH:
--		wacom_wac->hid_data.tipswitch = value;
-+		data->tipswitch = value;
-+		if (!mt) {
-+			prox = data->tipswitch &&
-+			      !wacom_wac->shared->stylus_in_proximity;
-+			input_report_key(input, BTN_TOUCH, prox);
-+		}
- 		break;
- 	}
- 
-@@ -1432,33 +1453,26 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
- 	return 0;
- }
- 
--static void wacom_wac_finger_mt_report(struct wacom_wac *wacom_wac,
--		struct input_dev *input, bool touch)
-+static int wacom_wac_finger_touches(struct hid_device *hdev)
- {
--	int slot;
--	struct hid_data *hid_data = &wacom_wac->hid_data;
--
--	slot = input_mt_get_slot_by_key(input, hid_data->id);
--
--	input_mt_slot(input, slot);
--	input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
--	if (touch) {
--		input_report_abs(input, ABS_MT_POSITION_X, hid_data->x);
--		input_report_abs(input, ABS_MT_POSITION_Y, hid_data->y);
--	}
--	input_mt_sync_frame(input);
--}
-+	struct wacom *wacom = hid_get_drvdata(hdev);
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct input_dev *input = wacom_wac->input;
-+	unsigned touch_max = wacom_wac->features.touch_max;
-+	int count = 0;
+ 	struct hid_device *hid = parser->device;
 +	int i;
  
--static void wacom_wac_finger_single_touch_report(struct wacom_wac *wacom_wac,
--		struct input_dev *input, bool touch)
--{
--	struct hid_data *hid_data = &wacom_wac->hid_data;
-+	if (touch_max == 1)
-+		return (wacom_wac->hid_data.tipswitch &&
-+		       !wacom_wac->shared->stylus_in_proximity);
- 
--	if (touch) {
--		input_report_abs(input, ABS_X, hid_data->x);
--		input_report_abs(input, ABS_Y, hid_data->y);
-+	for (i = 0; i < input->mt->num_slots; i++) {
-+		struct input_mt_slot *ps = &input->mt->slots[i];
-+		int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-+		if (id >= 0)
-+			count++;
- 	}
--	input_report_key(input, BTN_TOUCH, touch);
-+	return count;
- }
- 
- static void wacom_wac_finger_report(struct hid_device *hdev,
-@@ -1467,18 +1481,15 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->input;
--	bool touch = wacom_wac->hid_data.tipswitch &&
--		     !wacom_wac->shared->stylus_in_proximity;
- 	unsigned touch_max = wacom_wac->features.touch_max;
- 
- 	if (touch_max > 1)
--		wacom_wac_finger_mt_report(wacom_wac, input, touch);
--	else
--		wacom_wac_finger_single_touch_report(wacom_wac, input, touch);
-+		input_mt_sync_frame(input);
+ 	if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
+ 	    type == HID_COLLECTION_PHYSICAL)
+ 		hid->group = HID_GROUP_SENSOR_HUB;
 +
- 	input_sync(input);
- 
- 	/* keep touch state for pen event */
--	wacom_wac->shared->touch_down = touch;
-+	wacom_wac->shared->touch_down = wacom_wac_finger_touches(hdev);
++	if ((parser->global.usage_page << 16) == HID_UP_GENDESK)
++		for (i = 0; i < parser->local.usage_index; i++)
++			if (parser->local.usage[i] == HID_GD_POINTER)
++				parser->scan_flags
++					|= HID_SCAN_FLAG_GENDESK_POINTER;
++
++	if ((parser->global.usage_page << 16) == HID_UP_MSVENDOR)
++		parser->scan_flags |= HID_SCAN_FLAG_VENDOR_SPECIFIC;
  }
  
- #define WACOM_PEN_FIELD(f)	(((f)->logical == HID_DG_STYLUS) || \
+ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+@@ -783,11 +793,12 @@ static int hid_scan_report(struct hid_device *hid)
+ 	* Vendor specific handlings
+ 	*/
+ 	if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
+-	    (hid->group == HID_GROUP_GENERIC) &&
+-	    /* only bind to the mouse interface of composite USB devices */
+-	    (hid->bus != BUS_USB || hid->type == HID_TYPE_USBMOUSE))
+-		/* hid-rmi should take care of them, not hid-generic */
+-		hid->group = HID_GROUP_RMI;
++	    (hid->group == HID_GROUP_GENERIC)) {
++		if ((parser->scan_flags & HID_SCAN_FLAG_VENDOR_SPECIFIC)
++		    && (parser->scan_flags & HID_SCAN_FLAG_GENDESK_POINTER))
++			/* hid-rmi should take care of them, not hid-generic */
++			hid->group = HID_GROUP_RMI;
++	}
+ 
+ 	/*
+ 	 * Vendor specific handlings
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index f53c4a9..b019f15 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -547,7 +547,9 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
+ #define HID_GLOBAL_STACK_SIZE 4
+ #define HID_COLLECTION_STACK_SIZE 4
+ 
+-#define HID_SCAN_FLAG_MT_WIN_8			0x00000001
++#define HID_SCAN_FLAG_MT_WIN_8			BIT(0)
++#define HID_SCAN_FLAG_VENDOR_SPECIFIC		BIT(1)
++#define HID_SCAN_FLAG_GENDESK_POINTER		BIT(2)
+ 
+ struct hid_parser {
+ 	struct hid_global     global;
 -- 
-2.1.3
-
+2.1.0

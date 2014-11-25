@@ -1,70 +1,80 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
-Date: Tue, 25 Nov 2014 07:29:16 -0800
-Message-ID: <CANLzEksV2kO6vXZJPbbs+oypb0LAetHZQAuB5RUjWVtsvMOrgw@mail.gmail.com>
-References: <CANLzEkuZYrF_tLq5k3xBBkSmtszL851ZK7VW8Jav3vKdw9JLMA@mail.gmail.com>
-	<Pine.LNX.4.44L0.1411251022141.976-100000@iolanthe.rowland.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/3] HID: wacom: Manually declare ABS_{X,Y} for pointer emulation
+Date: Tue, 25 Nov 2014 10:34:49 -0500
+Message-ID: <CAN+gG=GvZrFiD47hZHfs9v2iso1Vj416K=Ja9F8Z5fy9pzyD6w@mail.gmail.com>
+References: <1416871934-14133-1-git-send-email-killertofu@gmail.com>
+	<1416871934-14133-3-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f178.google.com ([209.85.214.178]:62267 "EHLO
-	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750882AbaKYP3R (ORCPT
+Received: from mail-qc0-f170.google.com ([209.85.216.170]:38429 "EHLO
+	mail-qc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750782AbaKYPeu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Nov 2014 10:29:17 -0500
-Received: by mail-ob0-f178.google.com with SMTP id gq1so606644obb.9
-        for <linux-input@vger.kernel.org>; Tue, 25 Nov 2014 07:29:16 -0800 (PST)
-In-Reply-To: <Pine.LNX.4.44L0.1411251022141.976-100000@iolanthe.rowland.org>
+	Tue, 25 Nov 2014 10:34:50 -0500
+Received: by mail-qc0-f170.google.com with SMTP id x3so591786qcv.15
+        for <linux-input@vger.kernel.org>; Tue, 25 Nov 2014 07:34:49 -0800 (PST)
+In-Reply-To: <1416871934-14133-3-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: johan@kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
 
-On Tue, Nov 25, 2014 at 7:24 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Mon, 24 Nov 2014, Benson Leung wrote:
->
->> Hi Alan,
->>
->>
->> On Sat, Nov 22, 2014 at 7:55 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
->> > There is no USB wrapper for pm_runtime_idle calls, but one could be
->> > added.  Still, in the meantime can you check to see what happens if you
->> > add
->> >
->> >         pm_runtime_idle(&usbhid->intf->dev);
->> >
->> > in usbhid_close() just after needs_remote_wakeup is set to 0?  You can
->> > do the same thing in usbhid_stop() if you want.
->>
->> I tried using this in lieu of usb_autopm_get/put_interface:
->>
->>     usbhid->intf->needs_remote_wakeup = 0;
->>     pm_runtime_idle(&usbhid->intf->dev);
->>     pm_runtime_idle(usbhid->intf->dev.parent);
->>
->> It did not work. I see the autosuspend_check() that was kicked off as
->> a result of hid_hw_power, which falls into the "remote wakeup needed
->> for autosuspend" branch, but I don't see another autosuspend_check()
->> that picks up the updated value of  needs_remote_wakeup.
->
-> Well, why not?
->
-> In order to work on the kernel effectively, you need the right
-> mind-set.  Don't just tell people when something goes wrong -- figure
-> out why the problem occurred and propose a way to fix it.
+On Mon, Nov 24, 2014 at 6:32 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> If a HID descriptor places HID_DG_CONTACTID before HID_DG_X and HID_DG_Y then
+> the ABS_X and ABS_Y will not be automatically initialized by the call to
+> input_mt_init_slots. Here we move the setup of those axes outside of the
+> 'if' statement so that they're always present if the associated HID field
+> is.
 
-Sure. I'll dig into this deeper today. I got to this late yesterday
-and I ran out of time before I could find out what was not behaving
-correctly.
+No, I am afraid, that this does not work. The solution is to call
+input_mt_init_slot once the mapping has been done.
+I am complaining here because input_mt_init_slot will set the fuzz to
+0 for ABS_X and 4 for ABS_MT_POSITION_X. If both have a fuzz of 4,
+there will be a double de-fuzzing while sending out the single touch
+emulation.
+Likewise, the pressure should be initialized with ABS_MT_PRESSURE only
+(not implemented right now, I know).
 
+At the end of wacom_parse_hid in wacom_sys, there should be a call to
+a function which would finalize the initialization. And then,
+input_mt_init_slot will be called after ABS_MT_*, no matter what the
+order of the fields is.
+
+Cheers,
+Benjamin
 
 >
-> Alan Stern
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> ---
+>  drivers/hid/wacom_wac.c | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
 >
-
-
-
--- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung@chromium.org
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 1468f00..a55e0ed 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1382,16 +1382,14 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+>
+>         switch (usage->hid) {
+>         case HID_GD_X:
+> -               if (touch_max == 1)
+> -                       wacom_map_usage(wacom, usage, field, EV_ABS, ABS_X, 4);
+> -               else
+> +               wacom_map_usage(wacom, usage, field, EV_ABS, ABS_X, 4);
+> +               if (touch_max > 1)
+>                         wacom_map_usage(wacom, usage, field, EV_ABS,
+>                                         ABS_MT_POSITION_X, 4);
+>                 break;
+>         case HID_GD_Y:
+> -               if (touch_max == 1)
+> -                       wacom_map_usage(wacom, usage, field, EV_ABS, ABS_Y, 4);
+> -               else
+> +               wacom_map_usage(wacom, usage, field, EV_ABS, ABS_Y, 4);
+> +               if (touch_max > 1)
+>                         wacom_map_usage(wacom, usage, field, EV_ABS,
+>                                         ABS_MT_POSITION_Y, 4);
+>                 break;
+> --
+> 2.1.3
+>

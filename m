@@ -1,106 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: add BETOP game controller force feedback
- support
-Date: Tue, 25 Nov 2014 15:38:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411251534010.23174@pobox.suse.cz>
-References: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
+Date: Tue, 25 Nov 2014 10:24:25 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1411251022141.976-100000@iolanthe.rowland.org>
+References: <CANLzEkuZYrF_tLq5k3xBBkSmtszL851ZK7VW8Jav3vKdw9JLMA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-2022-JP
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-2022-JP?Q?=1B$B2+GH=1B=28J?= <huangbobupt@163.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:45175 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750856AbaKYPY0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Nov 2014 10:24:26 -0500
+In-Reply-To: <CANLzEkuZYrF_tLq5k3xBBkSmtszL851ZK7VW8Jav3vKdw9JLMA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benson Leung <bleung@chromium.org>
+Cc: johan@kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sameer Nanda <snanda@chromium.org>
 
-On Mon, 24 Nov 2014, 黄波 wrote:
+On Mon, 24 Nov 2014, Benson Leung wrote:
 
-> From: Huang Bo <huangbobupt@163.com>
+> Hi Alan,
 > 
-> Adds force feedback support for BETOP USB game controllers.
-> These devices are mass produced in China.
+> 
+> On Sat, Nov 22, 2014 at 7:55 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > There is no USB wrapper for pm_runtime_idle calls, but one could be
+> > added.  Still, in the meantime can you check to see what happens if you
+> > add
+> >
+> >         pm_runtime_idle(&usbhid->intf->dev);
+> >
+> > in usbhid_close() just after needs_remote_wakeup is set to 0?  You can
+> > do the same thing in usbhid_stop() if you want.
+> 
+> I tried using this in lieu of usb_autopm_get/put_interface:
+> 
+>     usbhid->intf->needs_remote_wakeup = 0;
+>     pm_runtime_idle(&usbhid->intf->dev);
+>     pm_runtime_idle(usbhid->intf->dev.parent);
+> 
+> It did not work. I see the autosuspend_check() that was kicked off as
+> a result of hid_hw_power, which falls into the "remote wakeup needed
+> for autosuspend" branch, but I don't see another autosuspend_check()
+> that picks up the updated value of  needs_remote_wakeup.
 
-Thanks a lot for the patch. A few minor things below.
+Well, why not?
 
-First, the whole driver formatting doesn't comply with our coding style 
-(it has 4 spaces instead of tab). Please reformat that for v2.
+In order to work on the kernel effectively, you need the right 
+mind-set.  Don't just tell people when something goes wrong -- figure 
+out why the problem occurred and propose a way to fix it.
 
-[ ... snip ... ]
-> diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
-> new file mode 100644
-> index 0000000..d97301a
-> --- /dev/null
-> +++ b/drivers/hid/hid-betopff.c
-> @@ -0,0 +1,170 @@
-> +/*
-> + *  Force feedback support for Betop based devices
-> + *
-> + *  The devices are distributed under various names and the same USB device ID
-> + *  can be used in both adapters and actual game controllers.
-> + *
-> + *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
-> + *   - tested with BTP2185 V2 PC Mode.
-> + *
-> + *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
-> + *   - tested with BTP2185 PC Mode with another version.
-> + *
-> + *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
-> + *   - tested with BTP2185 BFM Mode.
-> + *   - tested with BTP2171s.
-> + *
-> + *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +/* #define DEBUG */
-> +
-> +#define debug(format, arg...) pr_debug("hid-betopff: " format "\n" , ## arg)
-> +
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/hid.h>
-> +
-> +#include "hid-ids.h"
-> +
-> +struct betopff_device {
-> +    struct hid_report *report;
-> +};
-> +
-> +static int hid_betopff_play(struct input_dev *dev, void *data,
-> +             struct ff_effect *effect)
-> +{
-> +    struct hid_device *hid = input_get_drvdata(dev);
-> +    struct betopff_device *betopff = data;
-> +    __u16 left, right;
-> +
-> +    left = effect->u.rumble.strong_magnitude;
-> +    right = effect->u.rumble.weak_magnitude;
-> +
-> +    betopff->report->field[2]->value[0] = left / 256;
-> +    betopff->report->field[3]->value[0] = right / 256;
-> +    debug("running with 0x%02x 0x%02x", left, right);
+Alan Stern
 
-Is there really a need for keeping this debug() in the "production" 
-version?
-
-[ ... snip ... ]
-> +static const struct hid_device_id betop_devices[] = {
-> +    { HID_USB_DEVICE(0x11C0, 0x5506), }, /* BTP2185 PC mode */
-> +    { HID_USB_DEVICE(0x8380, 0x1850), }, /* BTP2185 V2 PC mode */
-> +    { HID_USB_DEVICE(0x20bc, 0x5500), }, /* BTP2185 V2 BFM mode */
-> +    { }
-
-You also need an entry for these devices in hid_have_special_driver[] 
-array in drivers/hid/hid-core.c, otherwise correct device <-> driver 
-binding can't be guaranteed.
-
--- 
-Jiri Kosina
-SUSE Labs

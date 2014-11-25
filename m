@@ -1,44 +1,56 @@
-From: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
-Date: Mon, 24 Nov 2014 16:56:56 -0800
-Message-ID: <CANLzEkv5MM8sT3WsPyqYvn=H_MHkuuELsfZQfJtJA0dwzdruKg@mail.gmail.com>
-References: <1415909806-23848-1-git-send-email-bleung@chromium.org>
-	<1415956110.2640.5.camel@linux-0dmf.site>
-	<CANLzEkvcm5g_T+FsEQF2UFzS5A2u7CWgdTiEJAxidfxgAE5bHw@mail.gmail.com>
-	<1416820395.19925.4.camel@linux-0dmf.site>
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Subject: Re: [PATCH v2 2/2] ARM: dts: Add regulator-haptic device node for
+ exynos3250-rinato
+Date: Tue, 25 Nov 2014 10:02:42 +0900
+Message-ID: <5473D532.10206@samsung.com>
+References: <1416840651-17141-1-git-send-email-jaewon02.kim@samsung.com>
+ <1416840651-17141-3-git-send-email-jaewon02.kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416820395.19925.4.camel-AfvqVibwNMkMNNZnWhT/Jw@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Cc: johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sameer Nanda <snanda-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:45190 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750772AbaKYBCp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Nov 2014 20:02:45 -0500
+In-reply-to: <1416840651-17141-3-git-send-email-jaewon02.kim@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jaewon Kim <jaewon02.kim@samsung.com>
+Cc: Kukjin Kim <kgene.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pankaj Dubey <pankaj.dubey@samsung.com>, Dan Murphy <dmurphy@ti.com>, Hyunhee Kim <hyunhee.kim@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>
 
-Hi Oliver,
+On 11/24/2014 11:50 PM, Jaewon Kim wrote:
+> This patch adds regulator-haptic device node controlled by regulator.
+> 
+> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+> ---
+>  arch/arm/boot/dts/exynos3250-rinato.dts |    7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/exynos3250-rinato.dts b/arch/arm/boot/dts/exynos3250-rinato.dts
+> index 84380fa..da03005 100644
+> --- a/arch/arm/boot/dts/exynos3250-rinato.dts
+> +++ b/arch/arm/boot/dts/exynos3250-rinato.dts
+> @@ -104,6 +104,13 @@
+>  			};
+>  		};
+>  	};
+> +
+> +	haptics {
+> +		compatible = "regulator-haptic";
+> +		haptic-supply = <&motor_reg>;
+> +		min-microvolt = <1100000>;
+> +		max-microvolt = <2700000>;
+> +	};
+>  };
+>  
+>  &adc {
+> 
 
-On Mon, Nov 24, 2014 at 1:13 AM, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
->
-> But there is very little to be gained by switching off remote wakeup.
-> The additional energy consumption devices with remote wakeup enabled
-> will be dwarfed by the energy needed for an additional wakeup.
->
+Looks good to me.
 
-That makes sense to me. Does this mean we should be moving toward a
-solution that doesn't wake suspended devices on close for other usb
-devices, not just hid?
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
 
-This particular pattern of get()/needs_remote_wakeup=0/put() on
-close() appears in several other drivers, for example :
-62ecae0 Input: wacom - properly enable runtime PM
-5d9efc5 Input: usbtouchscreen - implement runtime power management
-
-
--- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Chanwoo Choi

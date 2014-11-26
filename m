@@ -1,108 +1,58 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCHv2 1/1] HID: add BETOP game controller force feedback
- support
-Date: Wed, 26 Nov 2014 17:22:49 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411261721010.23174@pobox.suse.cz>
-References: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411251534010.23174@pobox.suse.cz> <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411261414160.23174@pobox.suse.cz> <5475D7CC.1080606@163.com>
- <alpine.LNX.2.00.1411261449140.23174@pobox.suse.cz> <5475E0C7.9020500@163.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.18-rc6
+Date: Wed, 26 Nov 2014 08:45:06 -0800
+Message-ID: <20141126164506.GA28274@dtor-glaptop>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45677 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750828AbaKZQWk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Nov 2014 11:22:40 -0500
-In-Reply-To: <5475E0C7.9020500@163.com>
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:40952 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750884AbaKZQzI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Nov 2014 11:55:08 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Huang Bo <huangbobupt@163.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ulrik De Bie <ulrik.debie-os@e2big.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Wed, 26 Nov 2014, Huang Bo wrote:
+Hi Linus,
 
-> On 11/26/2014 09:49 PM, Jiri Kosina wrote:
-> > On Wed, 26 Nov 2014, Huang Bo wrote:
-> >
-> >>> It's unfortunately whitespace damaged again. If it's not possible to set 
-> >>> up your e-mail client not to cause whitespace damage to patches (please 
-> >>> see Documentation/email-clients.txt for some hints), attach the patch as 
-> >>> an e-mail attachment.
-> >>>
-> >> From: Huang Bo <huangbobupt@163.com>
-> >>
-> >> Adds force feedback support for BETOP USB game controllers.
-> >> These devices are mass produced in China.
-> > Alright, so you apparently wrote the code with incorrect formatting, as 
-> > even the version you attached doesn't have the formatting right.
-> >
-> > Please reformat the code according to Documentation/CodingStyle and 
-> > resubmit.
-> >
-> > Thanks,
-> >
-> From: Huang Bo <huangbobupt@163.com>
-> 
-> Adds force feedback support for BETOP USB game controllers.
-> These devices are mass produced in China.
+Please pull from:
 
-The inline version is still whitespace-damaged, but the version you 
-attached looks good.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-[ ... snip ... ]
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 4113999..a0546ca 100755
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -46,6 +46,7 @@ obj-$(CONFIG_HID_CHERRY)    += hid-cherry.o
->  obj-$(CONFIG_HID_CHICONY)    += hid-chicony.o
->  obj-$(CONFIG_HID_CYPRESS)    += hid-cypress.o
->  obj-$(CONFIG_HID_DRAGONRISE)    += hid-dr.o
-> +obj-$(CONFIG_HID_BETOP_FF)    += hid-betopff.o
+to receive updates for the input subsystem. The main change is to fix breakage
+in Elantech driver introduced by the recent commit adding trackpoint reporting
+to protocol v4. Now we are trusting the hardware to advertise the trackpoint
+properly and do not try to decode the data as trackpoint if firmware told us
+it is not present.
 
-Please try to keep the list ordered.
+Changelog:
+---------
 
-[ ... snip ... ]
-> +static int betopff_init(struct hid_device *hid)
-> +{
-> +    struct betopff_device *betopff;
-> +    struct hid_report *report;
-> +    struct hid_input *hidinput;
-> +    struct list_head *report_list =
-> +            &hid->report_enum[HID_OUTPUT_REPORT].report_list;
-> +    struct list_head *report_ptr = report_list;
-> +    struct input_dev *dev;
-> +    int error;
-> +    int i, j;
-> +    int field_count = 0;
-> +
-> +    if (list_empty(report_list)) {
-> +        hid_err(hid, "no output reports found\n");
-> +        return -ENODEV;
-> +    }
-> +
-> +    list_for_each_entry(hidinput, &hid->inputs, list) {
-> +
-> +        report_ptr = report_ptr->next;
-> +
-> +        if (report_ptr == report_list) {
-> +            hid_err(hid, "required output report is missing\n");
-> +            return -ENODEV;
-> +        }
-> +
-> +        report = list_entry(report_ptr, struct hid_report, list);
-> +        if (report->maxfield < 1) {
-> +            hid_err(hid, "no fields in the report\n");
-> +            return -ENODEV;
-> +        }
-> +
-> +        for (i = 0; i < report->maxfield; i++) {
-> +            for (j = 0; j < report->field[i]->report_count; j++) {
-> +                report->field[i]->value[j] = 0x00;
-> +                field_count++;
+Ben Sagal (1):
+      Input: synaptics - adjust min/max on Thinkpad E540
 
-It's not obvious why this is needed, so a comment before the loop would be 
-nice.
+Dmitry Torokhov (1):
+      Input: elantech - trust firmware about trackpoint presence
+
+Greg Kroah-Hartman (1):
+      Input: xpad - use proper endpoint type
+
+
+Diffstat:
+--------
+
+ drivers/input/joystick/xpad.c   | 16 +++++++++++++---
+ drivers/input/mouse/elantech.c  | 10 +---------
+ drivers/input/mouse/synaptics.c |  4 ++++
+ 3 files changed, 18 insertions(+), 12 deletions(-)
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry
+

@@ -1,386 +1,572 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: [PATCH v3 1/2] Input: add regulator haptic driver
-Date: Wed, 26 Nov 2014 22:30:01 +0900
-Message-ID: <1417008602-22841-2-git-send-email-jaewon02.kim@samsung.com>
-References: <1417008602-22841-1-git-send-email-jaewon02.kim@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1417008602-22841-1-git-send-email-jaewon02.kim@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Pankaj Dubey <pankaj.dubey@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>, Hyunhee Kim <hyunhee.kim@samsung.com>
+From: Huang Bo <huangbobupt@163.com>
+Subject: Re: [PATCHv2 1/1] HID: add BETOP game controller force feedback support
+Date: Wed, 26 Nov 2014 21:38:20 +0800
+Message-ID: <5475D7CC.1080606@163.com>
+References: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411251534010.23174@pobox.suse.cz> <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411261414160.23174@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------040203000002090507040207"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from m50-134.163.com ([123.125.50.134]:39906 "EHLO m50-134.163.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750947AbaKZNjf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Nov 2014 08:39:35 -0500
+In-Reply-To: <alpine.LNX.2.00.1411261414160.23174@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch adds support for haptic driver controlled by
-voltage of regulator. And this driver support for
-Force Feedback interface from input framework
+This is a multi-part message in MIME format.
+--------------040203000002090507040207
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
-Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
-Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
-Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+On 11/26/2014 09:15 PM, Jiri Kosina wrote:
+> On Wed, 26 Nov 2014, 黄波 wrote:
+>
+>> From: Huang Bo <huangbobupt@163.com>Adds force feedback support for BETOP USB game controllers.
+>>
+>> These devices are mass produced in China.
+>>
+>> Signed-off-by: Huang Bo <huangbobupt@163.com>
+> It's unfortunately whitespace damaged again. If it's not possible to set 
+> up your e-mail client not to cause whitespace damage to patches (please 
+> see Documentation/email-clients.txt for some hints), attach the patch as 
+> an e-mail attachment.
+>
+From: Huang Bo <huangbobupt@163.com>
+
+Adds force feedback support for BETOP USB game controllers.
+These devices are mass produced in China.
+
+Signed-off-by: Huang Bo <huangbobupt@163.com>
 ---
- .../devicetree/bindings/input/regulator-haptic.txt |   21 ++
- drivers/input/misc/Kconfig                         |   11 +
- drivers/input/misc/Makefile                        |    1 +
- drivers/input/misc/regulator-haptic.c              |  247 ++++++++++++++++++++
- include/linux/input/regulator-haptic.h             |   31 +++
- 5 files changed, 311 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/regulator-haptic.txt
- create mode 100644 drivers/input/misc/regulator-haptic.c
- create mode 100644 include/linux/input/regulator-haptic.h
+ drivers/hid/Kconfig       |   10 +++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-betopff.c |  168 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c    |    4 ++
+ drivers/hid/hid-ids.h     |    9 +++
+ 5 files changed, 192 insertions(+)
+ create mode 100644 drivers/hid/hid-betopff.c
 
-diff --git a/Documentation/devicetree/bindings/input/regulator-haptic.txt b/Documentation/devicetree/bindings/input/regulator-haptic.txt
-new file mode 100644
-index 0000000..3ed1c7e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/regulator-haptic.txt
-@@ -0,0 +1,21 @@
-+* Regulator Haptic Device Tree Bindings
-+
-+Required Properties:
-+ - compatible : Should be "regulator-haptic"
-+ - haptic-supply : Power supply to the haptic motor.
-+	[*] refer Documentation/devicetree/bindings/regulator/regulator.txt
-+
-+ - max-microvolt : The maximum voltage value supplied to the haptic motor.
-+		[The unit of the voltage is a micro]
-+
-+ - min-microvolt : The minimum voltage value supplied to the haptic motor.
-+		[The unit of the voltage is a micro]
-+
-+Example:
-+
-+	haptics {
-+		compatible = "regulator-haptic";
-+		haptic-supply = <&motor_regulator>;
-+		max-microvolt = <2700000>;
-+		min-microvolt = <1100000>;
-+	};
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 23297ab..e5e556d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -394,6 +394,17 @@ config INPUT_CM109
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called cm109.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4938bd3..0a8fdc5 100755
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -201,6 +201,16 @@ config DRAGONRISE_FF
+     Say Y here if you want to enable force feedback support for DragonRise Inc.
+     game controllers.
  
-+config INPUT_REGULATOR_HAPTIC
-+	tristate "regulator haptics support"
-+	select INPUT_FF_MEMLESS
-+	help
-+	  This option enables device driver support for the haptic controlled
-+	  by regulator. This driver supports ff-memless interface
-+	  from input framework.
++config HID_BETOP_FF
++    tristate "Betop Production Inc. force feedback support"
++    depends on USB_HID
++    select INPUT_FF_MEMLESS
++    ---help---
++    Say Y here if you want to enable force feedback support for devices by
++    BETOP Production Ltd.
++    Currently the following devices are known to be supported:
++     - BETOP 2185 PC & BFM MODE
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called regulator-haptic.
-+
- config INPUT_RETU_PWRBUTTON
- 	tristate "Retu Power button Driver"
- 	depends on MFD_RETU
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 19c7603..1f135af 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -53,6 +53,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
-+obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
- obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
-diff --git a/drivers/input/misc/regulator-haptic.c b/drivers/input/misc/regulator-haptic.c
+ config HID_EMS_FF
+     tristate "EMS Production Inc. force feedback support"
+     depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4113999..a0546ca 100755
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_HID_CHERRY)    += hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)    += hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)    += hid-cypress.o
+ obj-$(CONFIG_HID_DRAGONRISE)    += hid-dr.o
++obj-$(CONFIG_HID_BETOP_FF)    += hid-betopff.o
+ obj-$(CONFIG_HID_EMS_FF)    += hid-emsff.o
+ obj-$(CONFIG_HID_ELECOM)    += hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)        += hid-ezkey.o
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
 new file mode 100644
-index 0000000..c61dd99
+index 0000000..b94acb2
 --- /dev/null
-+++ b/drivers/input/misc/regulator-haptic.c
-@@ -0,0 +1,247 @@
++++ b/drivers/hid/hid-betopff.c
+@@ -0,0 +1,168 @@
 +/*
-+ * Regulator haptic driver
++ *  Force feedback support for Betop based devices
 + *
-+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
-+ * Author: Jaewon Kim <jaewon02.kim@samsung.com>
-+ * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
++ *  The devices are distributed under various names and the same USB device ID
++ *  can be used in both adapters and actual game controllers.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
++ *   - tested with BTP2185 PC Mode.
++ *
++ *  0x11c2:0x2208 "BTP2185 BFM mode Joystick"
++ *   - tested with BTP2185 BFM Mode.
++ *
++ *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
++ *   - tested with BTP2185 PC Mode with another version.
++ *
++ *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
++ *   - tested with BTP2171s.
++ *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
 + */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
 +
 +#include <linux/input.h>
-+#include <linux/input/regulator-haptic.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regulator/consumer.h>
 +#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/hid.h>
 +
-+#define MAX_MAGNITUDE_SHIFT	16
++#include "hid-ids.h"
 +
-+struct regulator_haptic {
-+	struct device *dev;
-+	struct input_dev *input_dev;
-+	struct regulator *regulator;
-+	struct work_struct work;
-+
-+	bool enabled;
-+	bool suspend_state;
-+	unsigned int max_volt;
-+	unsigned int min_volt;
-+	unsigned int intensity;
-+	unsigned int magnitude;
++struct betopff_device {
++    struct hid_report *report;
 +};
 +
-+static void regulator_haptic_enable(struct regulator_haptic *haptic, bool state)
++static int hid_betopff_play(struct input_dev *dev, void *data,
++             struct ff_effect *effect)
 +{
-+	int error;
++    struct hid_device *hid = input_get_drvdata(dev);
++    struct betopff_device *betopff = data;
++    __u16 left, right;
 +
-+	if (haptic->enabled == state)
-+		return;
++    left = effect->u.rumble.strong_magnitude;
++    right = effect->u.rumble.weak_magnitude;
 +
-+	if (state)
-+		error = regulator_enable(haptic->regulator);
-+	else
-+		error = regulator_disable(haptic->regulator);
-+	if (error) {
-+		dev_err(haptic->dev, "cannot enable regulator\n");
-+		return;
-+	}
++    betopff->report->field[2]->value[0] = left / 256;
++    betopff->report->field[3]->value[0] = right / 256;
 +
-+	haptic->enabled = state;
++    hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++    return 0;
 +}
 +
-+static void regulator_haptic_work(struct work_struct *work)
++static int betopff_init(struct hid_device *hid)
 +{
-+	struct regulator_haptic *haptic = container_of(work,
-+					struct regulator_haptic, work);
-+	int error;
++    struct betopff_device *betopff;
++    struct hid_report *report;
++    struct hid_input *hidinput;
++    struct list_head *report_list =
++            &hid->report_enum[HID_OUTPUT_REPORT].report_list;
++    struct list_head *report_ptr = report_list;
++    struct input_dev *dev;
++    int error;
++    int i, j;
++    int field_count = 0;
 +
-+	error = regulator_set_voltage(haptic->regulator,
-+			haptic->intensity + haptic->min_volt, haptic->max_volt);
-+	if (error) {
-+		dev_err(haptic->dev, "cannot set regulator voltage\n");
-+		return;
-+	}
++    if (list_empty(report_list)) {
++        hid_err(hid, "no output reports found\n");
++        return -ENODEV;
++    }
 +
-+	if (haptic->magnitude)
-+		regulator_haptic_enable(haptic, true);
-+	else
-+		regulator_haptic_enable(haptic, false);
++    list_for_each_entry(hidinput, &hid->inputs, list) {
++
++        report_ptr = report_ptr->next;
++
++        if (report_ptr == report_list) {
++            hid_err(hid, "required output report is missing\n");
++            return -ENODEV;
++        }
++
++        report = list_entry(report_ptr, struct hid_report, list);
++        if (report->maxfield < 1) {
++            hid_err(hid, "no fields in the report\n");
++            return -ENODEV;
++        }
++
++        for (i = 0; i < report->maxfield; i++) {
++            for (j = 0; j < report->field[i]->report_count; j++) {
++                report->field[i]->value[j] = 0x00;
++                field_count++;
++            }
++        }
++
++        if (field_count < 4) {
++            hid_err(hid, "not enough fields in the report: %d\n",
++                    field_count);
++            return -ENODEV;
++        }
++
++        betopff = kzalloc(sizeof(struct betopff_device), GFP_KERNEL);
++        if (!betopff)
++            return -ENOMEM;
++
++        dev = hidinput->input;
++        set_bit(FF_RUMBLE, dev->ffbit);
++
++        error = input_ff_create_memless(dev, betopff, hid_betopff_play);
++        if (error) {
++            kfree(betopff);
++            return error;
++        }
++
++        betopff->report = report;
++        hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++    }
++
++    hid_info(hid, "Force feedback for betop devices by huangbo <huangbobupt@163.com>\n");
++
++    return 0;
 +}
 +
-+static int regulator_haptic_play_effect(struct input_dev *input, void *data,
-+					struct ff_effect *effect)
++static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
 +{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+	u64 volt_mag_multi;
++    int ret;
 +
-+	haptic->magnitude = effect->u.rumble.strong_magnitude;
-+	if (!haptic->magnitude)
-+		haptic->magnitude = effect->u.rumble.weak_magnitude;
++    if (id->driver_data)
++        hdev->quirks |= HID_QUIRK_MULTI_INPUT;
 +
++    ret = hid_parse(hdev);
++    if (ret) {
++        hid_err(hdev, "parse failed\n");
++        goto err;
++    }
 +
-+	volt_mag_multi = (u64)(haptic->max_volt - haptic->min_volt) *
-+					haptic->magnitude;
-+	haptic->intensity = (unsigned int)(volt_mag_multi >>
-+					MAX_MAGNITUDE_SHIFT);
++    ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++    if (ret) {
++        hid_err(hdev, "hw start failed\n");
++        goto err;
++    }
 +
-+	schedule_work(&haptic->work);
++    betopff_init(hdev);
 +
-+	return 0;
++    return 0;
++err:
++    return ret;
 +}
 +
-+static void regulator_haptic_close(struct input_dev *input)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	cancel_work_sync(&haptic->work);
-+	regulator_haptic_enable(haptic, false);
-+}
-+
-+#ifdef CONFIG_OF
-+static int regulator_haptic_parse_dt(struct regulator_haptic *haptic)
-+{
-+	struct device_node *node = haptic->dev->of_node;
-+	int error;
-+
-+	error = of_property_read_u32(node, "max-microvolt", &haptic->max_volt);
-+	if (error) {
-+		dev_err(haptic->dev, "cannot parse max-microvolt\n");
-+		return error;
-+	}
-+
-+	error = of_property_read_u32(node, "min-microvolt", &haptic->min_volt);
-+	if (error) {
-+		dev_err(haptic->dev, "cannot parse min-microvolt\n");
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+#else
-+static int regulator_haptic_parse_dt(struct regulator_haptic *haptic)
-+{
-+	return 0;
-+}
-+#endif /* CONFIG_OF */
-+
-+static int regulator_haptic_probe(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic;
-+	struct regulator_haptic_data *data;
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	haptic = devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
-+	if (!haptic)
-+		return -ENOMEM;
-+
-+	haptic->dev = &pdev->dev;
-+	haptic->enabled = false;
-+	haptic->suspend_state = false;
-+	INIT_WORK(&haptic->work, regulator_haptic_work);
-+
-+	if (pdev->dev.of_node) {
-+		error = regulator_haptic_parse_dt(haptic);
-+		if (error) {
-+			dev_err(&pdev->dev, "failed to parse device tree\n");
-+			return error;
-+		}
-+	} else {
-+		data = dev_get_platdata(&pdev->dev);
-+		if (data) {
-+			dev_err(&pdev->dev, "failed to get platdata\n");
-+			return -EINVAL;
-+		}
-+
-+		haptic->regulator = data->regulator;
-+		haptic->max_volt = data->max_volt;
-+		haptic->min_volt = data->min_volt;
-+	}
-+
-+	haptic->regulator = devm_regulator_get(&pdev->dev, "haptic");
-+	if (IS_ERR(haptic->regulator)) {
-+		dev_err(&pdev->dev, "failed to get regulator\n");
-+		return PTR_ERR(haptic->regulator);
-+	}
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev)
-+		return  -ENOMEM;
-+
-+	haptic->input_dev = input_dev;
-+	haptic->input_dev->name = "regulator-haptic";
-+	haptic->input_dev->dev.parent = &pdev->dev;
-+	haptic->input_dev->close = regulator_haptic_close;
-+	input_set_drvdata(haptic->input_dev, haptic);
-+	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(input_dev, NULL,
-+			      regulator_haptic_play_effect);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to create force-feedback\n");
-+		return error;
-+	}
-+
-+	error = input_register_device(haptic->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		return error;
-+	}
-+
-+	platform_set_drvdata(pdev, haptic);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused regulator_haptic_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
-+
-+	if (haptic->enabled) {
-+		regulator_haptic_enable(haptic, false);
-+		haptic->suspend_state = true;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused regulator_haptic_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
-+
-+	if (haptic->suspend_state) {
-+		regulator_haptic_enable(haptic, true);
-+		haptic->suspend_state = false;
-+	}
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(regulator_haptic_pm_ops,
-+		regulator_haptic_suspend, regulator_haptic_resume);
-+
-+static struct of_device_id regulator_haptic_dt_match[] = {
-+	{ .compatible = "regulator-haptic" },
-+	{},
++static const struct hid_device_id betop_devices[] = {
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, USB_DEVICE_ID_BETOP_2185PC) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, USB_DEVICE_ID_BETOP_2185BFM) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, USB_DEVICE_ID_BETOP_2185V2PC) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, USB_DEVICE_ID_BETOP_2185V2BFM) },
++    { }
 +};
++MODULE_DEVICE_TABLE(hid, betop_devices);
 +
-+static struct platform_driver regulator_haptic_driver = {
-+	.probe		= regulator_haptic_probe,
-+	.driver		= {
-+		.name		= "regulator-haptic",
-+		.of_match_table = regulator_haptic_dt_match,
-+		.pm		= &regulator_haptic_pm_ops,
-+	},
++static struct hid_driver betop_driver = {
++    .name = "betop",
++    .id_table = betop_devices,
++    .probe = betop_probe,
 +};
-+module_platform_driver(regulator_haptic_driver);
++module_hid_driver(betop_driver);
 +
-+MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
-+MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
-+MODULE_DESCRIPTION("Regulator haptic driver");
 +MODULE_LICENSE("GPL");
-diff --git a/include/linux/input/regulator-haptic.h b/include/linux/input/regulator-haptic.h
-new file mode 100644
-index 0000000..05ae038
---- /dev/null
-+++ b/include/linux/input/regulator-haptic.h
-@@ -0,0 +1,31 @@
-+/*
-+ * Regulator Haptic Platform Data
-+ *
-+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
-+ * Author: Jaewon Kim <jaewon02.kim@samsung.com>
-+ * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a622590..90f608f 100755
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1820,6 +1820,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+     { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, USB_DEVICE_ID_BETOP_2185PC) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, USB_DEVICE_ID_BETOP_2185BFM) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, USB_DEVICE_ID_BETOP_2185V2PC) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, USB_DEVICE_ID_BETOP_2185V2BFM) },
+ 
+     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 161ee89..d3f7537 100755
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -907,6 +907,15 @@
+ #define USB_VENDOR_ID_ZYDACRON    0x13EC
+ #define USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL    0x0006
+ 
++#define USB_VENDOR_ID_BETOP_2185PC    0x11c0
++#define USB_VENDOR_ID_BETOP_2185BFM    0x11c2
++#define USB_VENDOR_ID_BETOP_2185V2PC    0x8380
++#define USB_VENDOR_ID_BETOP_2185V2BFM    0x20bc
++#define USB_DEVICE_ID_BETOP_2185PC    0x5506
++#define USB_DEVICE_ID_BETOP_2185BFM    0x2208
++#define USB_DEVICE_ID_BETOP_2185V2PC    0x1850
++#define USB_DEVICE_ID_BETOP_2185V2BFM    0x5500
 +
-+#ifndef _REGULATOR_HAPTIC_H
-+#define _REGULATOR_HAPTIC_H
-+
-+/*
-+ * struct regulator_haptic_data - Platform device data
-+ *
-+ * @regulator: Power supply to the haptic motor
-+ * @max_volt: maximum voltage value supplied to the haptic motor.
-+ * 		<The unit of the voltage is a micro>
-+ * @min_volt: minimum voltage value supplied to the haptic motor.
-+ * 		<The unit of the voltage is a micro>
-+ */
-+struct regulator_haptic_data {
-+	struct regulator *regulator;
-+	unsigned int max_volt;
-+	unsigned int min_volt;
-+};
-+
-+#endif /* _REGULATOR_HAPTIC_H */
+ #define USB_VENDOR_ID_ZYTRONIC        0x14c8
+ #define USB_DEVICE_ID_ZYTRONIC_ZXY100    0x0005
+ 
 -- 
 1.7.9.5
+
+
+--------------040203000002090507040207
+Content-Type: text/x-patch;
+ name="0001-HID-add-BETOP-game-controller-force-feedback-support.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-HID-add-BETOP-game-controller-force-feedback-support.pa";
+ filename*1="tch"
+
+>From a9282c8ebb866b26b8cb7dd7ae54628301d704d6 Mon Sep 17 00:00:00 2001
+From: Huang Bo <huangbobupt@163.com>
+Date: Wed, 26 Nov 2014 18:21:03 +0800
+Subject: [PATCH] HID: add BETOP game controller force feedback support
+
+Adds force feedback support for BETOP USB game controllers.
+These devices are mass produced in China.
+
+Signed-off-by: Huang Bo <huangbobupt@163.com>
+---
+ drivers/hid/Kconfig       |   10 +++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-betopff.c |  168 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c    |    4 ++
+ drivers/hid/hid-ids.h     |    9 +++
+ 5 files changed, 192 insertions(+)
+ create mode 100644 drivers/hid/hid-betopff.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4938bd3..0a8fdc5 100755
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -201,6 +201,16 @@ config DRAGONRISE_FF
+ 	Say Y here if you want to enable force feedback support for DragonRise Inc.
+ 	game controllers.
+ 
++config HID_BETOP_FF
++	tristate "Betop Production Inc. force feedback support"
++	depends on USB_HID
++	select INPUT_FF_MEMLESS
++	---help---
++	Say Y here if you want to enable force feedback support for devices by
++	BETOP Production Ltd.
++	Currently the following devices are known to be supported:
++	 - BETOP 2185 PC & BFM MODE
++
+ config HID_EMS_FF
+ 	tristate "EMS Production Inc. force feedback support"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4113999..a0546ca 100755
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+ obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dr.o
++obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+ obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
+ obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+new file mode 100644
+index 0000000..b94acb2
+--- /dev/null
++++ b/drivers/hid/hid-betopff.c
+@@ -0,0 +1,168 @@
++/*
++ *  Force feedback support for Betop based devices
++ *
++ *  The devices are distributed under various names and the same USB device ID
++ *  can be used in both adapters and actual game controllers.
++ *
++ *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
++ *   - tested with BTP2185 PC Mode.
++ *
++ *  0x11c2:0x2208 "BTP2185 BFM mode Joystick"
++ *   - tested with BTP2185 BFM Mode.
++ *
++ *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
++ *   - tested with BTP2185 PC Mode with another version.
++ *
++ *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
++ *   - tested with BTP2171s.
++ *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++
++#include "hid-ids.h"
++
++struct betopff_device {
++    struct hid_report *report;
++};
++
++static int hid_betopff_play(struct input_dev *dev, void *data,
++             struct ff_effect *effect)
++{
++    struct hid_device *hid = input_get_drvdata(dev);
++    struct betopff_device *betopff = data;
++    __u16 left, right;
++
++    left = effect->u.rumble.strong_magnitude;
++    right = effect->u.rumble.weak_magnitude;
++
++    betopff->report->field[2]->value[0] = left / 256;
++    betopff->report->field[3]->value[0] = right / 256;
++
++    hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++    return 0;
++}
++
++static int betopff_init(struct hid_device *hid)
++{
++    struct betopff_device *betopff;
++    struct hid_report *report;
++    struct hid_input *hidinput;
++    struct list_head *report_list =
++            &hid->report_enum[HID_OUTPUT_REPORT].report_list;
++    struct list_head *report_ptr = report_list;
++    struct input_dev *dev;
++    int error;
++    int i, j;
++    int field_count = 0;
++
++    if (list_empty(report_list)) {
++        hid_err(hid, "no output reports found\n");
++        return -ENODEV;
++    }
++
++    list_for_each_entry(hidinput, &hid->inputs, list) {
++
++        report_ptr = report_ptr->next;
++
++        if (report_ptr == report_list) {
++            hid_err(hid, "required output report is missing\n");
++            return -ENODEV;
++        }
++
++        report = list_entry(report_ptr, struct hid_report, list);
++        if (report->maxfield < 1) {
++            hid_err(hid, "no fields in the report\n");
++            return -ENODEV;
++        }
++
++        for (i = 0; i < report->maxfield; i++) {
++            for (j = 0; j < report->field[i]->report_count; j++) {
++                report->field[i]->value[j] = 0x00;
++                field_count++;
++            }
++        }
++
++        if (field_count < 4) {
++            hid_err(hid, "not enough fields in the report: %d\n",
++                    field_count);
++            return -ENODEV;
++        }
++
++        betopff = kzalloc(sizeof(struct betopff_device), GFP_KERNEL);
++        if (!betopff)
++            return -ENOMEM;
++
++        dev = hidinput->input;
++        set_bit(FF_RUMBLE, dev->ffbit);
++
++        error = input_ff_create_memless(dev, betopff, hid_betopff_play);
++        if (error) {
++            kfree(betopff);
++            return error;
++        }
++
++        betopff->report = report;
++        hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++    }
++
++    hid_info(hid, "Force feedback for betop devices by huangbo <huangbobupt@163.com>\n");
++
++    return 0;
++}
++
++static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++    int ret;
++
++    if (id->driver_data)
++        hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++
++    ret = hid_parse(hdev);
++    if (ret) {
++        hid_err(hdev, "parse failed\n");
++        goto err;
++    }
++
++    ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++    if (ret) {
++        hid_err(hdev, "hw start failed\n");
++        goto err;
++    }
++
++    betopff_init(hdev);
++
++    return 0;
++err:
++    return ret;
++}
++
++static const struct hid_device_id betop_devices[] = {
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, USB_DEVICE_ID_BETOP_2185PC) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, USB_DEVICE_ID_BETOP_2185BFM) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, USB_DEVICE_ID_BETOP_2185V2PC) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, USB_DEVICE_ID_BETOP_2185V2BFM) },
++    { }
++};
++MODULE_DEVICE_TABLE(hid, betop_devices);
++
++static struct hid_driver betop_driver = {
++    .name = "betop",
++    .id_table = betop_devices,
++    .probe = betop_probe,
++};
++module_hid_driver(betop_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a622590..90f608f 100755
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1820,6 +1820,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, USB_DEVICE_ID_BETOP_2185PC) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, USB_DEVICE_ID_BETOP_2185BFM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, USB_DEVICE_ID_BETOP_2185V2PC) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, USB_DEVICE_ID_BETOP_2185V2BFM) },
+ 
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 161ee89..d3f7537 100755
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -907,6 +907,15 @@
+ #define USB_VENDOR_ID_ZYDACRON	0x13EC
+ #define USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL	0x0006
+ 
++#define USB_VENDOR_ID_BETOP_2185PC	0x11c0
++#define USB_VENDOR_ID_BETOP_2185BFM	0x11c2
++#define USB_VENDOR_ID_BETOP_2185V2PC	0x8380
++#define USB_VENDOR_ID_BETOP_2185V2BFM	0x20bc
++#define USB_DEVICE_ID_BETOP_2185PC	0x5506
++#define USB_DEVICE_ID_BETOP_2185BFM	0x2208
++#define USB_DEVICE_ID_BETOP_2185V2PC	0x1850
++#define USB_DEVICE_ID_BETOP_2185V2BFM	0x5500
++
+ #define USB_VENDOR_ID_ZYTRONIC		0x14c8
+ #define USB_DEVICE_ID_ZYTRONIC_ZXY100	0x0005
+ 
+-- 
+1.7.9.5
+
+
+--------------040203000002090507040207--
+

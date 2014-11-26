@@ -1,45 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re:Re: [PATCHv2 1/1] HID: add BETOP game controller force feedback
- support
-Date: Wed, 26 Nov 2014 14:15:09 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411261414160.23174@pobox.suse.cz>
-References: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411251534010.23174@pobox.suse.cz> <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40723 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750836AbaKZNPA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Nov 2014 08:15:00 -0500
-In-Reply-To: <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: [PATCH v3 0/2] Add regulator-haptic driver
+Date: Wed, 26 Nov 2014 22:30:00 +0900
+Message-ID: <1417008602-22841-1-git-send-email-jaewon02.kim@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Pankaj Dubey <pankaj.dubey@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-2022-JP?Q?=1B$B2+GH=1B=28J?= <huangbobupt@163.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2014, =E9=BB=84=E6=B3=A2 wrote:
+This patch series adds regulator-haptic driver.
+The regulator-haptic has haptic motor and it is controlled by
+voltage of regulator via force feedback framework.
 
-> From: Huang Bo <huangbobupt@163.com>Adds force feedback support for B=
-ETOP USB game controllers.
->=20
-> These devices are mass produced in China.
->=20
-> Signed-off-by: Huang Bo <huangbobupt@163.com>
+Changes in v3:
+  - fix typo in Documentation
+  - add define in header file
 
-It's unfortunately whitespace damaged again. If it's not possible to se=
-t=20
-up your e-mail client not to cause whitespace damage to patches (please=
-=20
-see Documentation/email-clients.txt for some hints), attach the patch a=
-s=20
-an e-mail attachment.
+Changes in v2:
+  - remove driver owner
+  - merge enable/disable function
+  - support platform data
+ - fix wrong suspends_state check in regulator_haptic_resume()
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jaewon Kim (2):
+  Input: add regulator haptic driver
+  ARM: dts: Add regulator-haptic device node for exynos3250-rinato
+
+ .../devicetree/bindings/input/regulator-haptic.txt |   21 ++
+ arch/arm/boot/dts/exynos3250-rinato.dts            |    7 +
+ drivers/input/misc/Kconfig                         |   11 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/regulator-haptic.c              |  247 ++++++++++++++++++++
+ include/linux/input/regulator-haptic.h             |   31 +++
+ 6 files changed, 318 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/regulator-haptic.txt
+ create mode 100644 drivers/input/misc/regulator-haptic.c
+ create mode 100644 include/linux/input/regulator-haptic.h
+
+-- 
+1.7.9.5

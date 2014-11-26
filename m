@@ -1,32 +1,45 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: wacom - PAD is independent with pen/touch
-Date: Wed, 26 Nov 2014 10:44:15 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1411261044000.23174@pobox.suse.cz>
-References: <1416529872-3128-1-git-send-email-pingc@wacom.com>
+Subject: Re:Re: [PATCHv2 1/1] HID: add BETOP game controller force feedback
+ support
+Date: Wed, 26 Nov 2014 14:15:09 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411261414160.23174@pobox.suse.cz>
+References: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411251534010.23174@pobox.suse.cz> <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35063 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:40723 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751402AbaKZJoE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Nov 2014 04:44:04 -0500
-In-Reply-To: <1416529872-3128-1-git-send-email-pingc@wacom.com>
+	id S1750836AbaKZNPA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Nov 2014 08:15:00 -0500
+In-Reply-To: <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>
+To: =?ISO-2022-JP?Q?=1B$B2+GH=1B=28J?= <huangbobupt@163.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 20 Nov 2014, Ping Cheng wrote:
+On Wed, 26 Nov 2014, =E9=BB=84=E6=B3=A2 wrote:
 
-> PAD can be on pen interface (Intuos Pro and Cintiq series) or touch
-> interface (Bamboo PT and Intuos PT series) or its own interface
-> (Bamboo pen-only and Intuos Pen M/S). We need to mark it independently.
-> 
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> Reviewed-by:  Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> From: Huang Bo <huangbobupt@163.com>Adds force feedback support for B=
+ETOP USB game controllers.
+>=20
+> These devices are mass produced in China.
+>=20
+> Signed-off-by: Huang Bo <huangbobupt@163.com>
 
-Applied to for-3.19/wacom.
+It's unfortunately whitespace damaged again. If it's not possible to se=
+t=20
+up your e-mail client not to cause whitespace damage to patches (please=
+=20
+see Documentation/email-clients.txt for some hints), attach the patch a=
+s=20
+an e-mail attachment.
 
--- 
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

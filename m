@@ -1,97 +1,571 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [git pull] Input updates for 3.18-rc4
-Date: Wed, 26 Nov 2014 09:33:26 -0500
-Message-ID: <CAN+gG=FkhofpNmpP6=3uBeywYRVceYViGoAG1Z5W6u1Bofm9tA@mail.gmail.com>
-References: <CAN+gG=FaovQETa3+qQsLoBBQnbZ8Q2uoQJD6_XvAmCCvGTHT1g@mail.gmail.com>
-	<CAJBHPojp7JVG6KKgrNfbC-V5ibPs-j6+BnqrSDkxvak0vNGM8w@mail.gmail.com>
-	<20141119181247.GE37989@dtor-ws>
-	<CAJBHPohu71BXqyZ4u74tAiP84UcQhXgto34k8NtNHPgw61WvLQ@mail.gmail.com>
-	<20141119183921.GF37989@dtor-ws>
-	<CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
-	<20141119210552.GA5464@lantern>
-	<CAJBHPoiQ0ZuW2TjDu68SQrgOS=+OMTt0hptBmVedMLS55td1Rg@mail.gmail.com>
-	<20141119215417.GC5464@lantern>
-	<CAJBHPojucTj27EVLQRjDHZJe6bwZW3i-brwQ9N8mVY3rTp8koA@mail.gmail.com>
-	<20141125212321.GA12591@lantern>
+From: Huang Bo <huangbobupt@163.com>
+Subject: Re: [PATCHv2 1/1] HID: add BETOP game controller force feedback support
+Date: Wed, 26 Nov 2014 22:16:39 +0800
+Message-ID: <5475E0C7.9020500@163.com>
+References: <3e9f782f.a7fa.149df95fef7.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411251534010.23174@pobox.suse.cz> <3497222f.2152a.149ec27f2c1.Coremail.huangbobupt@163.com> <alpine.LNX.2.00.1411261414160.23174@pobox.suse.cz> <5475D7CC.1080606@163.com> <alpine.LNX.2.00.1411261449140.23174@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/mixed;
+ boundary="------------000809000808060402020709"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:33070 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750870AbaKZOd1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Nov 2014 09:33:27 -0500
-In-Reply-To: <20141125212321.GA12591@lantern>
+Received: from m50-132.163.com ([123.125.50.132]:37056 "EHLO m50-132.163.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751311AbaKZOny (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Nov 2014 09:43:54 -0500
+In-Reply-To: <alpine.LNX.2.00.1411261449140.23174@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Cc: Marcus Overhagen <marcus.overhagen@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Ulrik,
+This is a multi-part message in MIME format.
+--------------000809000808060402020709
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Tue, Nov 25, 2014 at 4:23 PM,  <ulrik.debie-os@e2big.org> wrote:
-> Hi,
+On 11/26/2014 09:49 PM, Jiri Kosina wrote:
+> On Wed, 26 Nov 2014, Huang Bo wrote:
 >
-> On Wed, Nov 19, 2014 at 11:21:31PM +0100, Marcus Overhagen wrote:
->> Hi,
+>>> It's unfortunately whitespace damaged again. If it's not possible to set 
+>>> up your e-mail client not to cause whitespace damage to patches (please 
+>>> see Documentation/email-clients.txt for some hints), attach the patch as 
+>>> an e-mail attachment.
+>>>
+>> From: Huang Bo <huangbobupt@163.com>
 >>
->> when moving a single finger [3] seems to be one of 0x21, 0x25, 0x31, 0x35
->> moving two fingers [3] seems to be mostly 0x22, 0x26, 0x32, 0x36  but
->> also sometimes it's 0x42, 0x46, 0x52, 0x56.
->> It seems to occationally seems to switch between these two groups
->> after touching the pad with three or more fingers, but not every time.
->>
->> Moving three fingers I see[3] beeing  0x26, 0x36, 0x76, 0x66 (probably more)
->>
->> regards
->> Marcus
+>> Adds force feedback support for BETOP USB game controllers.
+>> These devices are mass produced in China.
+> Alright, so you apparently wrote the code with incorrect formatting, as 
+> even the version you attached doesn't have the formatting right.
 >
+> Please reformat the code according to Documentation/CodingStyle and 
+> resubmit.
 >
-> Ok, after some digging through the packet dump kindly provided by Marcus,
-> it is clear that Documentation/input/elantech.txt is not correctly
-> representing anymore the packets of the v4 hardware. There should be some
-> 0 and 1's replaced by x because they are currently "don't know" and definitely
-> not always 0 or 1.
+> Thanks,
 >
-> Example:
-> He has 0x26,0x36,0x46,0x56,0x66,0x76 in packet[3], and the documentation had
-> the bits as:
-> id2 id1 id0   1   0   0   1   0
->               X       X
-> The bits marked with X can thus be different. But when those are changed to
-> X==don't care then it is not trivial to differentiate them from the trackpoint
-> that has the following signature for that byte:
-> 0   0   ~sy  ~sx  0   1   1   0
->
->
->
-> I'm considering the following change:
-> The test
->
->         t = get_unaligned_le32(&packet[0]);
->
->         switch (t & ~7U) {
->         case 0x06000030U:
->         case 0x16008020U:
->         case 0x26800010U:
->         case 0x36808000U:
->
-> could be moved to elantech_packet_check_v3/4() instead of the
-> simpler test on the lowest nibble of packet[3] (and keep the etd->tp_dev check):
->        if ((packet[3] & 0x0f) == 0x06 && etd->tp_dev)
->                 return PACKET_TRACKPOINT;
->
-> I'll think a little bit more on it. Based on the packet dump I have this
-> seems to allow a perfect discrimation between trackpoint and touchpad packets.
->
+From: Huang Bo <huangbobupt@163.com>
 
-Thanks for the progress on these. Do you think you will be able to get
-something in shape before the final 3.18?
+Adds force feedback support for BETOP USB game controllers.
+These devices are mass produced in China.
 
-Dmitry, can we either revert the current patches and reschedule them
-for 3.19 or at least apply one quick fix? I am starting to see a lot
-of people complaining about it, and I am wondering if adding this
-functionality in a -rc5 release was not a good idea :-/.
+Signed-off-by: Huang Bo <huangbobupt@163.com>
+---
+ drivers/hid/Kconfig       |   10 +++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-betopff.c |  168 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c    |    4 ++
+ drivers/hid/hid-ids.h     |    5 ++
+ 5 files changed, 188 insertions(+)
+ create mode 100644 drivers/hid/hid-betopff.c
 
-Cheers,
-Benjamin
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4938bd3..0a8fdc5 100755
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -201,6 +201,16 @@ config DRAGONRISE_FF
+     Say Y here if you want to enable force feedback support for DragonRise Inc.
+     game controllers.
+ 
++config HID_BETOP_FF
++    tristate "Betop Production Inc. force feedback support"
++    depends on USB_HID
++    select INPUT_FF_MEMLESS
++    ---help---
++    Say Y here if you want to enable force feedback support for devices by
++    BETOP Production Ltd.
++    Currently the following devices are known to be supported:
++     - BETOP 2185 PC & BFM MODE
++
+ config HID_EMS_FF
+     tristate "EMS Production Inc. force feedback support"
+     depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4113999..a0546ca 100755
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_HID_CHERRY)    += hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)    += hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)    += hid-cypress.o
+ obj-$(CONFIG_HID_DRAGONRISE)    += hid-dr.o
++obj-$(CONFIG_HID_BETOP_FF)    += hid-betopff.o
+ obj-$(CONFIG_HID_EMS_FF)    += hid-emsff.o
+ obj-$(CONFIG_HID_ELECOM)    += hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)        += hid-ezkey.o
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+new file mode 100644
+index 0000000..447d6ba
+--- /dev/null
++++ b/drivers/hid/hid-betopff.c
+@@ -0,0 +1,168 @@
++/*
++ *  Force feedback support for Betop based devices
++ *
++ *  The devices are distributed under various names and the same USB device ID
++ *  can be used in both adapters and actual game controllers.
++ *
++ *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
++ *   - tested with BTP2185 PC Mode.
++ *
++ *  0x11c2:0x2208 "BTP2185 BFM mode Joystick"
++ *   - tested with BTP2185 BFM Mode.
++ *
++ *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
++ *   - tested with BTP2185 PC Mode with another version.
++ *
++ *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
++ *   - tested with BTP2171s.
++ *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++
++#include "hid-ids.h"
++
++struct betopff_device {
++    struct hid_report *report;
++};
++
++static int hid_betopff_play(struct input_dev *dev, void *data,
++             struct ff_effect *effect)
++{
++    struct hid_device *hid = input_get_drvdata(dev);
++    struct betopff_device *betopff = data;
++    __u16 left, right;
++
++    left = effect->u.rumble.strong_magnitude;
++    right = effect->u.rumble.weak_magnitude;
++
++    betopff->report->field[2]->value[0] = left / 256;
++    betopff->report->field[3]->value[0] = right / 256;
++
++    hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++    return 0;
++}
++
++static int betopff_init(struct hid_device *hid)
++{
++    struct betopff_device *betopff;
++    struct hid_report *report;
++    struct hid_input *hidinput;
++    struct list_head *report_list =
++            &hid->report_enum[HID_OUTPUT_REPORT].report_list;
++    struct list_head *report_ptr = report_list;
++    struct input_dev *dev;
++    int error;
++    int i, j;
++    int field_count = 0;
++
++    if (list_empty(report_list)) {
++        hid_err(hid, "no output reports found\n");
++        return -ENODEV;
++    }
++
++    list_for_each_entry(hidinput, &hid->inputs, list) {
++
++        report_ptr = report_ptr->next;
++
++        if (report_ptr == report_list) {
++            hid_err(hid, "required output report is missing\n");
++            return -ENODEV;
++        }
++
++        report = list_entry(report_ptr, struct hid_report, list);
++        if (report->maxfield < 1) {
++            hid_err(hid, "no fields in the report\n");
++            return -ENODEV;
++        }
++
++        for (i = 0; i < report->maxfield; i++) {
++            for (j = 0; j < report->field[i]->report_count; j++) {
++                report->field[i]->value[j] = 0x00;
++                field_count++;
++            }
++        }
++
++        if (field_count < 4) {
++            hid_err(hid, "not enough fields in the report: %d\n",
++                    field_count);
++            return -ENODEV;
++        }
++
++        betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
++        if (!betopff)
++            return -ENOMEM;
++
++        dev = hidinput->input;
++        set_bit(FF_RUMBLE, dev->ffbit);
++
++        error = input_ff_create_memless(dev, betopff, hid_betopff_play);
++        if (error) {
++            kfree(betopff);
++            return error;
++        }
++
++        betopff->report = report;
++        hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++    }
++
++    hid_info(hid, "Force feedback for betop devices by huangbo <huangbobupt@163.com>\n");
++
++    return 0;
++}
++
++static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++    int ret;
++
++    if (id->driver_data)
++        hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++
++    ret = hid_parse(hdev);
++    if (ret) {
++        hid_err(hdev, "parse failed\n");
++        goto err;
++    }
++
++    ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++    if (ret) {
++        hid_err(hdev, "hw start failed\n");
++        goto err;
++    }
++
++    betopff_init(hdev);
++
++    return 0;
++err:
++    return ret;
++}
++
++static const struct hid_device_id betop_devices[] = {
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
++    { }
++};
++MODULE_DEVICE_TABLE(hid, betop_devices);
++
++static struct hid_driver betop_driver = {
++    .name = "betop",
++    .id_table = betop_devices,
++    .probe = betop_probe,
++};
++module_hid_driver(betop_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a622590..5ae554e 100755
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1820,6 +1820,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+     { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
+ 
+     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 161ee89..dce26bb 100755
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -907,6 +907,11 @@
+ #define USB_VENDOR_ID_ZYDACRON    0x13EC
+ #define USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL    0x0006
+ 
++#define USB_VENDOR_ID_BETOP_2185PC    0x11c0
++#define USB_VENDOR_ID_BETOP_2185BFM    0x11c2
++#define USB_VENDOR_ID_BETOP_2185V2PC    0x8380
++#define USB_VENDOR_ID_BETOP_2185V2BFM    0x20bc
++
+ #define USB_VENDOR_ID_ZYTRONIC        0x14c8
+ #define USB_DEVICE_ID_ZYTRONIC_ZXY100    0x0005
+ 
+-- 
+1.7.9.5
+
+
+--------------000809000808060402020709
+Content-Type: text/x-patch;
+ name="0001-HID-add-BETOP-game-controller-force-feedback-support.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-HID-add-BETOP-game-controller-force-feedback-support.pa";
+ filename*1="tch"
+
+>From ce4bd236f4fc23c7c8540d122c8ffc4327dab893 Mon Sep 17 00:00:00 2001
+From: Huang Bo <huangbobupt@163.com>
+Date: Wed, 26 Nov 2014 18:21:03 +0800
+Subject: [PATCH] HID: add BETOP game controller force feedback support
+
+Adds force feedback support for BETOP USB game controllers.
+These devices are mass produced in China.
+
+Signed-off-by: Huang Bo <huangbobupt@163.com>
+---
+ drivers/hid/Kconfig       |   10 +++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-betopff.c |  168 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c    |    4 ++
+ drivers/hid/hid-ids.h     |    5 ++
+ 5 files changed, 188 insertions(+)
+ create mode 100644 drivers/hid/hid-betopff.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4938bd3..0a8fdc5 100755
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -201,6 +201,16 @@ config DRAGONRISE_FF
+ 	Say Y here if you want to enable force feedback support for DragonRise Inc.
+ 	game controllers.
+ 
++config HID_BETOP_FF
++	tristate "Betop Production Inc. force feedback support"
++	depends on USB_HID
++	select INPUT_FF_MEMLESS
++	---help---
++	Say Y here if you want to enable force feedback support for devices by
++	BETOP Production Ltd.
++	Currently the following devices are known to be supported:
++	 - BETOP 2185 PC & BFM MODE
++
+ config HID_EMS_FF
+ 	tristate "EMS Production Inc. force feedback support"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4113999..a0546ca 100755
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -46,6 +46,7 @@ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+ obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dr.o
++obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+ obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
+ obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+new file mode 100644
+index 0000000..447d6ba
+--- /dev/null
++++ b/drivers/hid/hid-betopff.c
+@@ -0,0 +1,168 @@
++/*
++ *  Force feedback support for Betop based devices
++ *
++ *  The devices are distributed under various names and the same USB device ID
++ *  can be used in both adapters and actual game controllers.
++ *
++ *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
++ *   - tested with BTP2185 PC Mode.
++ *
++ *  0x11c2:0x2208 "BTP2185 BFM mode Joystick"
++ *   - tested with BTP2185 BFM Mode.
++ *
++ *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
++ *   - tested with BTP2185 PC Mode with another version.
++ *
++ *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
++ *   - tested with BTP2171s.
++ *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++
++#include "hid-ids.h"
++
++struct betopff_device {
++	struct hid_report *report;
++};
++
++static int hid_betopff_play(struct input_dev *dev, void *data,
++			 struct ff_effect *effect)
++{
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct betopff_device *betopff = data;
++	__u16 left, right;
++
++	left = effect->u.rumble.strong_magnitude;
++	right = effect->u.rumble.weak_magnitude;
++
++	betopff->report->field[2]->value[0] = left / 256;
++	betopff->report->field[3]->value[0] = right / 256;
++
++	hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++	return 0;
++}
++
++static int betopff_init(struct hid_device *hid)
++{
++	struct betopff_device *betopff;
++	struct hid_report *report;
++	struct hid_input *hidinput;
++	struct list_head *report_list =
++			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
++	struct list_head *report_ptr = report_list;
++	struct input_dev *dev;
++	int error;
++	int i, j;
++	int field_count = 0;
++
++	if (list_empty(report_list)) {
++		hid_err(hid, "no output reports found\n");
++		return -ENODEV;
++	}
++
++	list_for_each_entry(hidinput, &hid->inputs, list) {
++
++		report_ptr = report_ptr->next;
++
++		if (report_ptr == report_list) {
++			hid_err(hid, "required output report is missing\n");
++			return -ENODEV;
++		}
++
++		report = list_entry(report_ptr, struct hid_report, list);
++		if (report->maxfield < 1) {
++			hid_err(hid, "no fields in the report\n");
++			return -ENODEV;
++		}
++
++		for (i = 0; i < report->maxfield; i++) {
++			for (j = 0; j < report->field[i]->report_count; j++) {
++				report->field[i]->value[j] = 0x00;
++				field_count++;
++			}
++		}
++
++		if (field_count < 4) {
++			hid_err(hid, "not enough fields in the report: %d\n",
++					field_count);
++			return -ENODEV;
++		}
++
++		betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
++		if (!betopff)
++			return -ENOMEM;
++
++		dev = hidinput->input;
++		set_bit(FF_RUMBLE, dev->ffbit);
++
++		error = input_ff_create_memless(dev, betopff, hid_betopff_play);
++		if (error) {
++			kfree(betopff);
++			return error;
++		}
++
++		betopff->report = report;
++		hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++	}
++
++	hid_info(hid, "Force feedback for betop devices by huangbo <huangbobupt@163.com>\n");
++
++	return 0;
++}
++
++static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++
++	if (id->driver_data)
++		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		goto err;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		goto err;
++	}
++
++	betopff_init(hdev);
++
++	return 0;
++err:
++	return ret;
++}
++
++static const struct hid_device_id betop_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, betop_devices);
++
++static struct hid_driver betop_driver = {
++	.name = "betop",
++	.id_table = betop_devices,
++	.probe = betop_probe,
++};
++module_hid_driver(betop_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a622590..5ae554e 100755
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1820,6 +1820,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
+ 
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 161ee89..dce26bb 100755
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -907,6 +907,11 @@
+ #define USB_VENDOR_ID_ZYDACRON	0x13EC
+ #define USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL	0x0006
+ 
++#define USB_VENDOR_ID_BETOP_2185PC	0x11c0
++#define USB_VENDOR_ID_BETOP_2185BFM	0x11c2
++#define USB_VENDOR_ID_BETOP_2185V2PC	0x8380
++#define USB_VENDOR_ID_BETOP_2185V2BFM	0x20bc
++
+ #define USB_VENDOR_ID_ZYTRONIC		0x14c8
+ #define USB_DEVICE_ID_ZYTRONIC_ZXY100	0x0005
+ 
+-- 
+1.7.9.5
+
+
+--------------000809000808060402020709--
+

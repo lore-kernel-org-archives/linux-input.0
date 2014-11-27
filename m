@@ -1,67 +1,120 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
-Date: Thu, 27 Nov 2014 10:08:04 -0800
-Message-ID: <DD50BA4C-4E7C-4E69-9A79-52C2B577F580@gmail.com>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <201411170839.17504@pali> <201411200029.49547@pali> <201411251208.31658@pali>
+From: ulrik.debie-os@e2big.org
+Subject: Re: [git pull] Input updates for 3.18-rc4
+Date: Thu, 27 Nov 2014 21:41:39 +0100
+Message-ID: <20141127204139.GA18953@lantern>
+References: <20141119181247.GE37989@dtor-ws>
+ <CAJBHPohu71BXqyZ4u74tAiP84UcQhXgto34k8NtNHPgw61WvLQ@mail.gmail.com>
+ <20141119183921.GF37989@dtor-ws>
+ <CAJBHPog3qRMQgNnso_csUOgR30A6eFPx4PkTzfCzkB3Gd5oVfQ@mail.gmail.com>
+ <20141119210552.GA5464@lantern>
+ <CAJBHPoiQ0ZuW2TjDu68SQrgOS=+OMTt0hptBmVedMLS55td1Rg@mail.gmail.com>
+ <20141119215417.GC5464@lantern>
+ <CAJBHPojucTj27EVLQRjDHZJe6bwZW3i-brwQ9N8mVY3rTp8koA@mail.gmail.com>
+ <20141125212321.GA12591@lantern>
+ <CAN+gG=FkhofpNmpP6=3uBeywYRVceYViGoAG1Z5W6u1Bofm9tA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f43.google.com ([209.85.218.43]:42473 "EHLO
-	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750975AbaK0SIW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Nov 2014 13:08:22 -0500
-In-Reply-To: <201411251208.31658@pali>
+Received: from e2big.org ([198.61.226.133]:48739 "EHLO e2big.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750729AbaK0Uls (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Nov 2014 15:41:48 -0500
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=FkhofpNmpP6=3uBeywYRVceYViGoAG1Z5W6u1Bofm9tA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Marcus Overhagen <marcus.overhagen@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On November 25, 2014 3:08:31 AM PST, "Pali Roh=C3=A1r" <pali.rohar@gmai=
-l.com> wrote:
->On Thursday 20 November 2014 00:29:49 Pali Roh=C3=A1r wrote:
->> On Monday 17 November 2014 08:39:14 Pali Roh=C3=A1r wrote:
->> > On Friday 14 November 2014 21:59:31 Dmitry Torokhov wrote:
->> > > Hi Pali,
->> > >=20
->> > > On Friday, November 14, 2014 08:38:19 PM Pali Roh=C3=A1r wrote:
->> > > > This patch series fix detection and identifying
->> > > > trackstick on machines with ALPS devices. Last patch
->> > > > split trackstick and bare PS/2 mouse packets between
->> > > > dev2 and dev3 input devices which make sure that driver
->> > > > will send only trackstick data to trackstick input
->> > > > device.
->> > >=20
->> > > Thank you for splitting the change, unfortunately it is
->> > > now quite big to apply to 3.18. Any chance you could try
->> > > implementing what I suggested in
->> > > http://www.spinics.net/lists/linux-input/msg34029.html and
->> > > then we can do the more comprehensive solution in 3.19.
->> > >=20
->> > > Thanks.
->> >=20
->> > Hello, I think that patches 1/7 and 5/7 could do that job. I
->> > did not tested them alone (without other patches), but if
->> > you think that two patches are ok for 3.18 & stable I can
->> > test them...
->>=20
->> Dmitry, ping.
->
->Dmitry: ping again.
+Hi Benjamin,
 
-Hi Pali,
+On Wed, Nov 26, 2014 at 09:33:26AM -0500, Benjamin Tissoires wrote:
+> 
+> Hi Ulrik,
+> 
+> On Tue, Nov 25, 2014 at 4:23 PM,  <ulrik.debie-os@e2big.org> wrote:
+> > Hi,
+> >
+> > On Wed, Nov 19, 2014 at 11:21:31PM +0100, Marcus Overhagen wrote:
+> >> Hi,
+> >>
+> >> when moving a single finger [3] seems to be one of 0x21, 0x25, 0x31, 0x35
+> >> moving two fingers [3] seems to be mostly 0x22, 0x26, 0x32, 0x36  but
+> >> also sometimes it's 0x42, 0x46, 0x52, 0x56.
+> >> It seems to occationally seems to switch between these two groups
+> >> after touching the pad with three or more fingers, but not every time.
+> >>
+> >> Moving three fingers I see[3] beeing  0x26, 0x36, 0x76, 0x66 (probably more)
+> >>
+> >> regards
+> >> Marcus
+> >
+> >
+> > Ok, after some digging through the packet dump kindly provided by Marcus,
+> > it is clear that Documentation/input/elantech.txt is not correctly
+> > representing anymore the packets of the v4 hardware. There should be some
+> > 0 and 1's replaced by x because they are currently "don't know" and definitely
+> > not always 0 or 1.
+> >
+> > Example:
+> > He has 0x26,0x36,0x46,0x56,0x66,0x76 in packet[3], and the documentation had
+> > the bits as:
+> > id2 id1 id0   1   0   0   1   0
+> >               X       X
+> > The bits marked with X can thus be different. But when those are changed to
+> > X==don't care then it is not trivial to differentiate them from the trackpoint
+> > that has the following signature for that byte:
+> > 0   0   ~sy  ~sx  0   1   1   0
+> >
+> >
+> >
+> > I'm considering the following change:
+> > The test
+> >
+> >         t = get_unaligned_le32(&packet[0]);
+> >
+> >         switch (t & ~7U) {
+> >         case 0x06000030U:
+> >         case 0x16008020U:
+> >         case 0x26800010U:
+> >         case 0x36808000U:
+> >
+> > could be moved to elantech_packet_check_v3/4() instead of the
+> > simpler test on the lowest nibble of packet[3] (and keep the etd->tp_dev check):
+> >        if ((packet[3] & 0x0f) == 0x06 && etd->tp_dev)
+> >                 return PACKET_TRACKPOINT;
+> >
+> > I'll think a little bit more on it. Based on the packet dump I have this
+> > seems to allow a perfect discrimation between trackpoint and touchpad packets.
+> >
+> 
+> Thanks for the progress on these. Do you think you will be able to get
+> something in shape before the final 3.18?
+> 
+> Dmitry, can we either revert the current patches and reschedule them
+> for 3.19 or at least apply one quick fix? I am starting to see a lot
+> of people complaining about it, and I am wondering if adding this
+> functionality in a -rc5 release was not a good idea :-/.
 
-I'm on vacation and unfortunately connection here is horrendous so I li=
-kely won't be able to do anything until after 12/03.
+Dmitry has already requested Linus to pull the quick fix 
+b54783f2de0c216115333eca1a8d3d5c3e75b 
 
-Sorry about that.
+I expect this fix from Dmitry to also help the person that you reported,
+could you confirm that ? Basically when the hardware reports no trackpoint
+present, it will then behave like before the trackpoint as enabled on v4.
+
+I expect some responses from people soon in order to find out if there
+is even a better way to fix it.
+
+Thanks,
+Kind regards,
+Ulrik
 
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> Cheers,
+> Benjamin
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

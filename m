@@ -1,49 +1,34 @@
-From: Andreas Schwab <schwab@linux-m68k.org>
-Subject: Re: [PATCH 2/2] Input: amikbd - Allocate temporary keymap buffer dynamically
-Date: Thu, 27 Nov 2014 12:17:12 +0100
-Message-ID: <87wq6gvqo7.fsf@igel.home>
-References: <1417081340-2989-1-git-send-email-geert@linux-m68k.org>
-	<1417081340-2989-2-git-send-email-geert@linux-m68k.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/3] HID: wacom: Consult the application usage when
+ determining field type
+Date: Thu, 27 Nov 2014 14:45:48 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1411271445410.23174@pobox.suse.cz>
+References: <1416871934-14133-1-git-send-email-killertofu@gmail.com> <1416871934-14133-2-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <1417081340-2989-2-git-send-email-geert@linux-m68k.org> (Geert
-	Uytterhoeven's message of "Thu, 27 Nov 2014 10:42:20 +0100")
-Sender: linux-m68k-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-m68k@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:37324 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751537AbaK0Nph (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Nov 2014 08:45:37 -0500
+In-Reply-To: <1416871934-14133-2-git-send-email-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, pinglinux@gmail.com
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
+On Mon, 24 Nov 2014, Jason Gerecke wrote:
 
-> @@ -147,13 +148,18 @@ static unsigned char amikbd_keycode[0x78] __initdata = {
->  
->  static void __init amikbd_init_console_keymaps(void)
->  {
-> +	unsigned short *temp_map;
-> +	size_t temp_map_size = NR_KEYS * sizeof(*temp_map);
->  	int i, j;
->  
-> +	temp_map = kmalloc(temp_map_size, GFP_KERNEL);
-> +	if (!temp_map)
-> +		return;
-> +
->  	for (i = 0; i < MAX_NR_KEYMAPS; i++) {
-> -		static u_short temp_map[NR_KEYS] __initdata;
->  		if (!key_maps[i])
->  			continue;
-> -		memset(temp_map, 0, sizeof(temp_map));
-> +		memset(temp_map, 0, temp_map_size);
->  		for (j = 0; j < 0x78; j++) {
->  			if (!amikbd_keycode[j])
->  				continue;
+> It is not necessarily sufficient to look only at the physical and logical
+> usages when determining if a field is for the pen or touch. Some fields
+> are not contained in a sub-collection and thus only have an application
+> usage. Not checking the application usage in such cases causes us to
+> ignore the field entirely, which may lead to incorrect behavior.
+> 
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 
-How about allocating it on the stack?  With NR_KEYS == 256 that means
-512 bytes, which should be ok, doesn't it?
-
-Andreas.
+Applied.
 
 -- 
-Andreas Schwab, schwab@linux-m68k.org
-GPG Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Jiri Kosina
+SUSE Labs

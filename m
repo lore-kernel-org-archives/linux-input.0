@@ -1,137 +1,67 @@
-From: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>
-Subject: [PATCH] hid: export hid_report_len as an inline function in hid.h
-Date: Thu, 27 Nov 2014 16:02:36 +0100
-Message-ID: <1417100556-7096-1-git-send-email-mathieu.magnaudet@enac.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
+Date: Thu, 27 Nov 2014 10:08:04 -0800
+Message-ID: <DD50BA4C-4E7C-4E69-9A79-52C2B577F580@gmail.com>
+References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <201411170839.17504@pali> <201411200029.49547@pali> <201411251208.31658@pali>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:57458 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750780AbaK0PDA (ORCPT
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:42473 "EHLO
+	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750975AbaK0SIW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Nov 2014 10:03:00 -0500
+	Thu, 27 Nov 2014 13:08:22 -0500
+In-Reply-To: <201411251208.31658@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?ISO-8859-1?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-in several hid drivers it is necessary to calculate the length
-of an hid_report. This patch exports the existing static function
-hid_report_len of hid-core.c as an inline function in hid.h
+On November 25, 2014 3:08:31 AM PST, "Pali Roh=C3=A1r" <pali.rohar@gmai=
+l.com> wrote:
+>On Thursday 20 November 2014 00:29:49 Pali Roh=C3=A1r wrote:
+>> On Monday 17 November 2014 08:39:14 Pali Roh=C3=A1r wrote:
+>> > On Friday 14 November 2014 21:59:31 Dmitry Torokhov wrote:
+>> > > Hi Pali,
+>> > >=20
+>> > > On Friday, November 14, 2014 08:38:19 PM Pali Roh=C3=A1r wrote:
+>> > > > This patch series fix detection and identifying
+>> > > > trackstick on machines with ALPS devices. Last patch
+>> > > > split trackstick and bare PS/2 mouse packets between
+>> > > > dev2 and dev3 input devices which make sure that driver
+>> > > > will send only trackstick data to trackstick input
+>> > > > device.
+>> > >=20
+>> > > Thank you for splitting the change, unfortunately it is
+>> > > now quite big to apply to 3.18. Any chance you could try
+>> > > implementing what I suggested in
+>> > > http://www.spinics.net/lists/linux-input/msg34029.html and
+>> > > then we can do the more comprehensive solution in 3.19.
+>> > >=20
+>> > > Thanks.
+>> >=20
+>> > Hello, I think that patches 1/7 and 5/7 could do that job. I
+>> > did not tested them alone (without other patches), but if
+>> > you think that two patches are ok for 3.18 & stable I can
+>> > test them...
+>>=20
+>> Dmitry, ping.
+>
+>Dmitry: ping again.
 
-Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
----
- drivers/hid/hid-core.c        |  6 ------
- drivers/hid/hid-input.c       |  2 +-
- drivers/hid/hid-multitouch.c  |  2 +-
- drivers/hid/usbhid/hid-core.c |  3 +--
- drivers/hid/wacom_sys.c       |  8 +-------
- include/linux/hid.h           | 11 +++++++++++
- 6 files changed, 15 insertions(+), 17 deletions(-)
+Hi Pali,
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 0ad2ac0..c3d0ac1 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1282,12 +1282,6 @@ void hid_output_report(struct hid_report *report, __u8 *data)
- }
- EXPORT_SYMBOL_GPL(hid_output_report);
- 
--static int hid_report_len(struct hid_report *report)
--{
--	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
--	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
--}
--
- /*
-  * Allocator for buffer that is going to be passed to hid_output_report()
-  */
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index be3eba8..e0a0f06 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1215,7 +1215,7 @@ static void hidinput_led_worker(struct work_struct *work)
- 		return hid->ll_driver->request(hid, report, HID_REQ_SET_REPORT);
- 
- 	/* fall back to generic raw-output-report */
--	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
-+	len = hid_report_len(report);
- 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
- 	if (!buf)
- 		return;
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 683cda6..f65e78b 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -827,7 +827,7 @@ static void mt_set_input_mode(struct hid_device *hdev)
- 	r = re->report_id_hash[td->inputmode];
- 	if (r) {
- 		if (cls->quirks & MT_QUIRK_FORCE_GET_FEATURE) {
--			report_len = ((r->size - 1) >> 3) + 1 + (r->id > 0);
-+			report_len = hid_report_len(r);
- 			buf = hid_alloc_report_buf(r, GFP_KERNEL);
- 			if (!buf) {
- 				hid_err(hdev, "failed to allocate buffer for report\n");
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 04e34b9..bfbe1be 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -340,8 +340,7 @@ static int hid_submit_out(struct hid_device *hid)
- 	report = usbhid->out[usbhid->outtail].report;
- 	raw_report = usbhid->out[usbhid->outtail].raw_report;
- 
--	usbhid->urbout->transfer_buffer_length = ((report->size - 1) >> 3) +
--						 1 + (report->id > 0);
-+	usbhid->urbout->transfer_buffer_length = hid_report_len(report);
- 	usbhid->urbout->dev = hid_to_usb_dev(hid);
- 	if (raw_report) {
- 		memcpy(usbhid->outbuf, raw_report,
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index eb55316..358880b 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1328,12 +1328,6 @@ static void wacom_calculate_res(struct wacom_features *features)
- 						    features->unitExpo);
- }
- 
--static int wacom_hid_report_len(struct hid_report *report)
--{
--	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
--	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
--}
--
- static size_t wacom_compute_pktlen(struct hid_device *hdev)
- {
- 	struct hid_report_enum *report_enum;
-@@ -1343,7 +1337,7 @@ static size_t wacom_compute_pktlen(struct hid_device *hdev)
- 	report_enum = hdev->report_enum + HID_INPUT_REPORT;
- 
- 	list_for_each_entry(report, &report_enum->report_list, list) {
--		size_t report_size = wacom_hid_report_len(report);
-+		size_t report_size = hid_report_len(report);
- 		if (report_size > size)
- 			size = report_size;
- 	}
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d585d02..06c4607 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -1087,6 +1087,17 @@ static inline void hid_hw_wait(struct hid_device *hdev)
- 		hdev->ll_driver->wait(hdev);
- }
- 
-+/**
-+ * hid_report_len - calculate the report length
-+ *
-+ * @report: the report we want to know the length
-+ */
-+static inline int hid_report_len(struct hid_report *report)
-+{
-+	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
-+	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
-+}
-+
- int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
- 		int interrupt);
- 
--- 
-1.9.3
+I'm on vacation and unfortunately connection here is horrendous so I li=
+kely won't be able to do anything until after 12/03.
 
+Sorry about that.
+
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

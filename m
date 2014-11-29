@@ -1,65 +1,54 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] Input: Initialize input_no by -1
-Date: Fri, 28 Nov 2014 21:40:49 +0530
-Message-ID: <CADYu30-cJzdk4-xdc3rTaQh0SdDpMsmp2qFi_GYz5ma++FsMpA@mail.gmail.com>
-References: <1416931715-2902-1-git-send-email-aniroop.mathur@gmail.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 1/1] HID: Wacom: Deletion of unnecessary checks before the
+ function call "input_free_device"
+Date: Sat, 29 Nov 2014 15:33:34 +0100
+Message-ID: <5479D93E.3040407@users.sourceforge.net>
+References: <5307CAA2.8060406@users.sourceforge.net> <alpine.DEB.2.02.1402212321410.2043@localhost6.localdomain6> <530A086E.8010901@users.sourceforge.net> <alpine.DEB.2.02.1402231635510.1985@localhost6.localdomain6> <530A72AA.3000601@users.sourceforge.net> <alpine.DEB.2.02.1402240658210.2090@localhost6.localdomain6> <530B5FB6.6010207@users.sourceforge.net> <alpine.DEB.2.10.1402241710370.2074@hadrien> <530C5E18.1020800@users.sourceforge.net> <alpine.DEB.2.10.1402251014170.2080@hadrien> <530CD2C4.4050903@users.sourceforge.net> <alpine.DEB.2.10.1402251840450.7035@hadrien> <530CF8FF.8080600@users.sourceforge.net> <alpine.DEB.2.02.1402252117150.2047@localhost6.localdomain6> <530DD06F.4090703@users.sourceforge.net> <alpine.DEB.2.02.1402262129250.2221@localhost6.localdomain6> <5317A59D.4@users.so
+ urceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:59219 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751156AbaK1QKu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Nov 2014 11:10:50 -0500
-Received: by mail-la0-f46.google.com with SMTP id q1so1009426lam.33
-        for <linux-input@vger.kernel.org>; Fri, 28 Nov 2014 08:10:49 -0800 (PST)
-In-Reply-To: <1416931715-2902-1-git-send-email-aniroop.mathur@gmail.com>
+Received: from mout.web.de ([212.227.17.12]:52450 "EHLO mout.web.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750833AbaK2Odn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 29 Nov 2014 09:33:43 -0500
+In-Reply-To: <5317A59D.4@users.sourceforge.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, dtor@mail.ru
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Coccinelle <cocci@systeme.lip6.fr>
 
-Dear Mr. Torokhov and Linux Input Community,
-Greetings of the day !!
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sat, 29 Nov 2014 15:16:01 +0100
 
-Kindly update about below patch.
-I have corrected the spaces and sent it on Tue, Nov 25, 2014.
+The input_free_device() function tests whether its argument is NULL and then
+returns immediately. Thus the test around the call is not needed.
 
-Thanks,
-Aniroop Mathur
+This issue was detected by using the Coccinelle software.
 
-On Tue, Nov 25, 2014 at 9:38 PM, Aniroop Mathur
-<aniroop.mathur@gmail.com> wrote:
->
-> This patch initializes input_no by -1 in order to avoid extra subtraction
-> operation performed everytime for allocation of an input device.
->
-> Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
-> ---
->  drivers/input/input.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 29ca0bb..01fe49e 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1774,7 +1774,7 @@ EXPORT_SYMBOL_GPL(input_class);
->   */
->  struct input_dev *input_allocate_device(void)
->  {
-> -       static atomic_t input_no = ATOMIC_INIT(0);
-> +       static atomic_t input_no = ATOMIC_INIT(-1);
->         struct input_dev *dev;
->
->         dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
-> @@ -1789,7 +1789,7 @@ struct input_dev *input_allocate_device(void)
->                 INIT_LIST_HEAD(&dev->node);
->
->                 dev_set_name(&dev->dev, "input%ld",
-> -                            (unsigned long) atomic_inc_return(&input_no) - 1);
-> +                            (unsigned long) atomic_inc_return(&input_no));
->
->                 __module_get(THIS_MODULE);
->         }
-> --
-> 1.9.1
->
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/hid/wacom_sys.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index eb55316..21ced00 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1099,10 +1099,8 @@ static void wacom_free_inputs(struct wacom *wacom)
+ {
+ 	struct wacom_wac *wacom_wac = &(wacom->wacom_wac);
+ 
+-	if (wacom_wac->input)
+-		input_free_device(wacom_wac->input);
+-	if (wacom_wac->pad_input)
+-		input_free_device(wacom_wac->pad_input);
++	input_free_device(wacom_wac->input);
++	input_free_device(wacom_wac->pad_input);
+ 	wacom_wac->input = NULL;
+ 	wacom_wac->pad_input = NULL;
+ }
+-- 
+2.1.3
+

@@ -1,44 +1,41 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] hid: export hid_report_len as an inline function in hid.h
-Date: Mon, 1 Dec 2014 20:04:01 +0100
-Message-ID: <CANq1E4TJGJ0rx1L3iXiNRPbcy3NZ=ZOiGXzHRjKUfgsiTk+S1g@mail.gmail.com>
-References: <1417100556-7096-1-git-send-email-mathieu.magnaudet@enac.fr>
-	<CAN+gG=GZXNABPzFA=ivfoJDzd-=2X7t7FoQDGfo6g1b4bfwihA@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCHv3 1/1] HID: add BETOP game controller force feedback
+ support
+Date: Mon, 1 Dec 2014 21:11:51 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412012111020.2524@pobox.suse.cz>
+References: <54768284.4060201@163.com> <alpine.LNX.2.00.1411271004260.23174@pobox.suse.cz> <5477CDD4.8000908@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f173.google.com ([209.85.213.173]:61076 "EHLO
-	mail-ig0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752771AbaLATEC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Dec 2014 14:04:02 -0500
-In-Reply-To: <CAN+gG=GZXNABPzFA=ivfoJDzd-=2X7t7FoQDGfo6g1b4bfwihA@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:49720 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932101AbaLAULh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Dec 2014 15:11:37 -0500
+In-Reply-To: <5477CDD4.8000908@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Huang Bo <huangbobupt@163.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi
+On Fri, 28 Nov 2014, Huang Bo wrote:
 
-On Mon, Dec 1, 2014 at 7:22 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Thu, Nov 27, 2014 at 10:02 AM, Mathieu Magnaudet
-> <mathieu.magnaudet@gmail.com> wrote:
->> in several hid drivers it is necessary to calculate the length
->> of an hid_report. This patch exports the existing static function
->> hid_report_len of hid-core.c as an inline function in hid.h
->>
->> Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
->> ---
->
-> IIRC, there are a few more custom report length computations
-> throughout the HID tree. They are not straightforward to convert, so I
-> think we have a pretty good start here.
->
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> On 11/27/2014 05:05 PM, Jiri Kosina wrote:
+> > except ...
+> thanks firstly.
+> 1. tested the BETOP2185 gamecontroller, it really not need it.
+> 2. check with engineers of Betop, they design only one report descriptor.
+> 
+> so I modify it.
 
-I fully agree!
+Thanks, but please put the comment into the code (jus before you are 
+zeroing the fields), so that it's immediately obvious to everybody who is 
+reading the code.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+Other than that, I am OK with the patch and will be applying it once you 
+resend it with the comments added.
 
-Thanks
-David
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

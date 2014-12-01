@@ -1,46 +1,45 @@
 From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: Re: [PATCH 1/2] Input: add regulator haptic driver
-Date: Mon, 01 Dec 2014 10:30:07 +0900
-Message-ID: <547BC49F.8040402@samsung.com>
-References: <1416490300-28865-1-git-send-email-jaewon02.kim@samsung.com>
- <1416490300-28865-2-git-send-email-jaewon02.kim@samsung.com>
- <20141128125051.GA3643@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: [PATCH v4 0/2] Add regulator-haptic driver
+Date: Mon, 01 Dec 2014 11:11:11 +0900
+Message-ID: <1417399873-19575-1-git-send-email-jaewon02.kim@samsung.com>
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20141128125051.GA3643@sirena.org.uk>
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Kukjin Kim <kgene.kim@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Hyunhee Kim <hyunhee.kim@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Jaewon Kim <jaewon02.kim@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Mark,
+This patch series adds regulator-haptic driver.
+The regulator-haptic has haptic motor and it is controlled by
+voltage of regulator via force feedback framework.
 
-2014=EB=85=84 11=EC=9B=94 28=EC=9D=BC 21:50=EC=97=90 Mark Brown =EC=9D=B4=
-(=EA=B0=80) =EC=93=B4 =EA=B8=80:
-> On Thu, Nov 20, 2014 at 10:31:39PM +0900, Jaewon Kim wrote:
->
->> +	haptic->regulator =3D devm_regulator_get(&pdev->dev, "haptic");
->> +	if (IS_ERR(haptic->regulator)) {
->> +		dev_err(&pdev->dev, "failed to get regulator\n");
->> +		return PTR_ERR(haptic->regulator);
->> +	}
-> This needs to be _get_exclusive() - the driver will be broken if
-> something else shares the regualtor since it relies on both enabling =
-and
-> disabling the regulator and on setting the voltage for effects.  It's
-> not like a power supply where leaving the device powered when it coul=
-d
-> be off is going to have no effect, if the power is left on then the
-> haptic motor will continue to operate.
+Changes in v4:
+ - _regulator_get() -> _regulator_get_exclusive()
 
-Thanks to review my patch.
+Changes in v3:
+ - fix typo in Documentation
+ - add define in header file
 
-Haptic regulator has to only be used in this driver.
-So, it is right to change like your advice.
-I will fix next version.
+Changes in v2:
+ - remove driver owner
+ - merge enable/disable function
+ - support platform data
+ - fix wrong suspends_state check in regulator_haptic_resume()
 
-Thanks
-Jaewon Kim.
+
+Jaewon Kim (2):
+  Input: add regulator haptic driver
+  ARM: dts: Add regulator-haptic device node for exynos3250-rinato
+
+ .../devicetree/bindings/input/regulator-haptic.txt |   21 ++
+ arch/arm/boot/dts/exynos3250-rinato.dts            |    7 +
+ drivers/input/misc/Kconfig                         |   11 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/regulator-haptic.c              |  247 ++++++++++++++++++++
+ include/linux/input/regulator-haptic.h             |   31 +++
+ 6 files changed, 318 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/regulator-haptic.txt
+ create mode 100644 drivers/input/misc/regulator-haptic.c
+ create mode 100644 include/linux/input/regulator-haptic.h
+
+-- 
+1.7.9.5

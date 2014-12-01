@@ -1,47 +1,57 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [PATCH v4 0/6] Touchscreen performance related fixes
-Date: Mon, 1 Dec 2014 15:59:19 +0530
-Message-ID: <547C42FF.5010700@ti.com>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com> <20141124115116.GA14997@linutronix.de> <547C3A95.30605@ti.com> <547C3C19.5090501@linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <547C3C19.5090501@linutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, richardcochran@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Brad Griffis <bgriffis@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jan Kardell <jan.kardell@telliq.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.orglinux
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [RFC] Input: Remove unused BUS IDs
+Date: Mon,  1 Dec 2014 12:51:27 +0200
+Message-ID: <1417431087-30330-1-git-send-email-jarkko.nikula@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:44808 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752809AbaLAKwE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Dec 2014 05:52:04 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
+There are a few BUS IDs that are not used anywhere in kernel tree:
 
-Hi,
+- BUS_ISAPNP
+  Has no changes or use in kernel git history
+- BUS_GSC
+  Was added by commit 6ab0f5cd3644 ("[PARISC] Update parisc specific input
+  code from parisc tree") but never used
+- BUS_ATARI
+  Became unused after commit 6615c5b25e0b ("m68k: Atari input drivers
+  cleanup")
 
-On Monday 01 December 2014 03:29 PM, Sebastian Andrzej Siewior wrote:
-> On 12/01/2014 10:53 AM, Vignesh R wrote:
->> Hi Sebastian,
-> 
-> Hi Vignesh,
-> 
->> I fixed the issue that was triggering the WARN_ON(). I think it would be
->> better if you tested these patches, before I posted them on the
->> mainline. I don't want to clutter the list with too main versions. Here
->> is the link to the tree with latest changes:
-> 
-> awesome, thank you.
-> 
->>
->> git clone -b tsc-devel git://git.ti.com/kernel/tsc-adc.git
->> (tsc-devel branch)
-> 
-> I will and let you know.
-> 
->> Please test the above tree and let me know the results.
->> I will post new version(v5) if there are no issues wrt IIO and TSC
->> working at the same time.
-> 
-> Cool. Were you able to get in touch with someone who has a 5-wire touch?
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+I'm not familiar with the input and don't know is there use for these in
+userspace. Therefore I didn't sort these IDs after removal.
+---
+ include/uapi/linux/input.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
-I have asked Jeff Lance to verify 5-wire touch.
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 1874ebe9ac1e..39d535034169 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -940,7 +940,6 @@ struct input_keymap_entry {
+ #define ID_VERSION		3
+ 
+ #define BUS_PCI			0x01
+-#define BUS_ISAPNP		0x02
+ #define BUS_USB			0x03
+ #define BUS_HIL			0x04
+ #define BUS_BLUETOOTH		0x05
+@@ -956,8 +955,6 @@ struct input_keymap_entry {
+ #define BUS_ADB			0x17
+ #define BUS_I2C			0x18
+ #define BUS_HOST		0x19
+-#define BUS_GSC			0x1A
+-#define BUS_ATARI		0x1B
+ #define BUS_SPI			0x1C
+ 
+ /*
+-- 
+2.1.3
 
-Regards
-Vignesh

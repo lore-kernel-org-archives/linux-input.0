@@ -1,40 +1,54 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCHv3 1/1] HID: add BETOP game controller force feedback
- support
-Date: Mon, 1 Dec 2014 21:11:51 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412012111020.2524@pobox.suse.cz>
-References: <54768284.4060201@163.com> <alpine.LNX.2.00.1411271004260.23174@pobox.suse.cz> <5477CDD4.8000908@163.com>
+Subject: Re: [PATCH] hid: export hid_report_len as an inline function in
+ hid.h
+Date: Mon, 1 Dec 2014 21:36:05 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412012134240.2524@pobox.suse.cz>
+References: <1417100556-7096-1-git-send-email-mathieu.magnaudet@enac.fr>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49720 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:50249 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932101AbaLAULh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Dec 2014 15:11:37 -0500
-In-Reply-To: <5477CDD4.8000908@163.com>
+	id S932373AbaLAUfv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Dec 2014 15:35:51 -0500
+In-Reply-To: <1417100556-7096-1-git-send-email-mathieu.magnaudet@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Huang Bo <huangbobupt@163.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 28 Nov 2014, Huang Bo wrote:
+On Thu, 27 Nov 2014, Mathieu Magnaudet wrote:
 
-> On 11/27/2014 05:05 PM, Jiri Kosina wrote:
-> > except ...
-> thanks firstly.
-> 1. tested the BETOP2185 gamecontroller, it really not need it.
-> 2. check with engineers of Betop, they design only one report descriptor.
+> in several hid drivers it is necessary to calculate the length
+> of an hid_report. This patch exports the existing static function
+> hid_report_len of hid-core.c as an inline function in hid.h
 > 
-> so I modify it.
+> Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
 
-Thanks, but please put the comment into the code (jus before you are 
-zeroing the fields), so that it's immediately obvious to everybody who is 
-reading the code.
+Applied, thanks.
 
-Other than that, I am OK with the patch and will be applying it once you 
-resend it with the comments added.
+[ ... snip ... ]
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index d585d02..06c4607 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -1087,6 +1087,17 @@ static inline void hid_hw_wait(struct hid_device *hdev)
+>  		hdev->ll_driver->wait(hdev);
+>  }
+>  
+> +/**
+> + * hid_report_len - calculate the report length
+> + *
+> + * @report: the report we want to know the length
+> + */
+> +static inline int hid_report_len(struct hid_report *report)
+> +{
+> +	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
+> +	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
 
-Thanks,
+BTW this makes me -- being the person resposible for that ugly calculation 
+-- wonder whether we shouldn't, in the name of readability, just drop the 
+comment and make the code look that way instead.
 
 -- 
 Jiri Kosina

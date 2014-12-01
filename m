@@ -1,55 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: export hid_report_len as an inline function in
- hid.h
-Date: Mon, 1 Dec 2014 21:36:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412012134240.2524@pobox.suse.cz>
-References: <1417100556-7096-1-git-send-email-mathieu.magnaudet@enac.fr>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH] driver: input: touchscreen: add Raydium i2c touchscreen driver
+Date: Mon, 1 Dec 2014 13:03:53 -0800
+Message-ID: <CANLzEkshTf0ef-WWN64L55md4L+qsu0LTSR_KV1Ab8CVvgG9oA@mail.gmail.com>
+References: <1417429031-4576-1-git-send-email-jeffrey.lin@rad-ic.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50249 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932373AbaLAUfv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Dec 2014 15:35:51 -0500
-In-Reply-To: <1417100556-7096-1-git-send-email-mathieu.magnaudet@enac.fr>
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:38718 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932158AbaLAVDx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Dec 2014 16:03:53 -0500
+Received: by mail-ob0-f182.google.com with SMTP id wo20so1466704obc.27
+        for <linux-input@vger.kernel.org>; Mon, 01 Dec 2014 13:03:53 -0800 (PST)
+In-Reply-To: <1417429031-4576-1-git-send-email-jeffrey.lin@rad-ic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mathieu Magnaudet <mathieu.magnaudet@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "jeffrey.lin" <yajohn@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, shc_work@mail.ru, lee.jones@linaro.org, charliemooney@chromium.org, KP.li@rad-ic.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeffrey.lin" <jeffrey.lin@rad-ic.com>
 
-On Thu, 27 Nov 2014, Mathieu Magnaudet wrote:
+On Mon, Dec 1, 2014 at 2:17 AM, jeffrey.lin <yajohn@gmail.com> wrote:
+> From: "jeffrey.lin" <jeffrey.lin@rad-ic.com>
+>
+> This patch is porting Raydium I2C touch driver. Developer can enable
+> raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
+>
+> Change-Id: I5f33cfdf0e895de6e7d535c11dd4b3ce8b49fa48
 
-> in several hid drivers it is necessary to calculate the length
-> of an hid_report. This patch exports the existing static function
-> hid_report_len of hid-core.c as an inline function in hid.h
-> 
-> Signed-off-by: Mathieu Magnaudet <mathieu.magnaudet@enac.fr>
+Once again, please remove this bit of Gerrit change-id from your patch
+submissions in the future.
 
-Applied, thanks.
+> Signed-off-by: jeffrey.lin@rad-ic.com
 
-[ ... snip ... ]
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index d585d02..06c4607 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -1087,6 +1087,17 @@ static inline void hid_hw_wait(struct hid_device *hdev)
->  		hdev->ll_driver->wait(hdev);
->  }
->  
-> +/**
-> + * hid_report_len - calculate the report length
-> + *
-> + * @report: the report we want to know the length
-> + */
-> +static inline int hid_report_len(struct hid_report *report)
-> +{
-> +	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
-> +	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
 
-BTW this makes me -- being the person resposible for that ugly calculation 
--- wonder whether we shouldn't, in the name of readability, just drop the 
-comment and make the code look that way instead.
+
 
 -- 
-Jiri Kosina
-SUSE Labs
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

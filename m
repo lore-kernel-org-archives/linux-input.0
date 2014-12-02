@@ -1,43 +1,27 @@
-From: Todor Minchev <todor.minchev@intel.com>
-Subject: [PATCH] i8042: prevent the loading of the i8042 driver on Intel NUC D54250WYK
-Date: Tue,  2 Dec 2014 08:27:02 +0000
-Message-ID: <1417508822-8243-1-git-send-email-todor.minchev@intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: wacom: re-add accidentally dropped Lenovo PID
+Date: Tue, 2 Dec 2014 11:40:09 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412021138470.2524@pobox.suse.cz>
+References: <1417452760-2763-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:52142 "EHLO mga01.intel.com"
+Received: from cantor2.suse.de ([195.135.220.15]:60373 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750963AbaLBI1J (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Dec 2014 03:27:09 -0500
+	id S1752152AbaLBKj5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Dec 2014 05:39:57 -0500
+In-Reply-To: <1417452760-2763-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Todor Minchev <todor.minchev@intel.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Hans Spath <inbox-546@hans-spath.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The Intel NUC D54250WYK has no PS/2 controller, however the DSDT declares
-PS/2 devices which trigger the loading of the i8042 driver.
+I have now applied both to for-3.18/upstream-fixes, but I am not sure 
+whether there will be any pull request before 3.18 release. But -stable 
+markers are there, so it will then eventually be fixed in first -stable.
 
-Signed-off-by: Todor Minchev <todor.minchev@intel.com>
----
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+Thanks,
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index faeeb13..5182008 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -579,6 +579,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nopnp_table[] = {
- 		},
- 	},
- 	{
-+		/* Intel NUC D54250WYK */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "D54250WYK"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
-+		},
-+	},
-+	{
- 		/* MSI Wind U-100 */
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
 -- 
-2.1.3
-
+Jiri Kosina
+SUSE Labs

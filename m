@@ -1,77 +1,52 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH] input / PM: Replace CONFIG_PM_RUNTIME with CONFIG_PM
-Date: Wed, 03 Dec 2014 11:02:21 +0900
-Message-ID: <001001d00e9d$2cbfdc50$863f94f0$%han@samsung.com>
-References: <8119438.MdkFLx3Wvh@vostro.rjw.lan>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Drivers: input: mousedev.c: Fixed trailing statement
+ on the next line
+Date: Tue, 2 Dec 2014 15:04:27 -0800
+Message-ID: <20141202230427.GA6207@localhost>
+References: <1417437402-3365-1-git-send-email-athirasnamby@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-reply-to: <8119438.MdkFLx3Wvh@vostro.rjw.lan>
-Content-language: ko
-Sender: linux-pm-owner@vger.kernel.org
-To: "'Rafael J. Wysocki'" <rjw@rjwysocki.net>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, 'Paul Gortmaker' <paul.gortmaker@windriver.com>, 'Ferruh Yigit' <fery@cypress.com>, 'Linux Kernel Mailing List' <linux-kernel@vger.kernel.org>, 'Linux PM list' <linux-pm@vger.kernel.org>, 'Jingoo Han' <jg1.han@samsung.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:45185 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750907AbaLCFZ5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 00:25:57 -0500
+Content-Disposition: inline
+In-Reply-To: <1417437402-3365-1-git-send-email-athirasnamby@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Athira Sharikkal <athirasnamby@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wednesday, December 03, 2014 11:09 AM, Rafael J. Wysocki wrote:
-> 
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> 
-> After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
-> selected) PM_RUNTIME is always set if PM is set, so #ifdef blocks
-> depending on CONFIG_PM_RUNTIME may now be changed to depend on
-> CONFIG_PM.
-> 
-> The alternative of CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME may be
-> replaced with CONFIG_PM too.
-> 
-> Make these changes in 2 files under drivers/input/.
-> 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Hi Athira,
 
-Reviewed-by: Jingoo Han <jg1.han@samsung.com>
-
-Best regards,
-Jingoo Han
-
+On Mon, Dec 01, 2014 at 06:06:42PM +0530, Athira Sharikkal wrote:
+> Fixed checkpatch error:
+> trailing statements should be on next line
+> 
+> Signed-off-by: Athira Sharikkal <athirasnamby@gmail.com>
 > ---
+> v2: corrected indentation
+>  drivers/input/mousedev.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
-> PM_SLEEP is selected) which is only in linux-next at the moment (via the
-> linux-pm tree).
-> 
-> Please let me know if it is OK to take this one into linux-pm.
-> 
-> ---
->  drivers/input/keyboard/samsung-keypad.c  |    2 +-
->  drivers/input/touchscreen/cyttsp4_core.c |    2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> Index: linux-pm/drivers/input/keyboard/samsung-keypad.c
-> ===================================================================
-> --- linux-pm.orig/drivers/input/keyboard/samsung-keypad.c
-> +++ linux-pm/drivers/input/keyboard/samsung-keypad.c
-> @@ -463,7 +463,7 @@ static int samsung_keypad_remove(struct
->  	return 0;
->  }
-> 
-> -#ifdef CONFIG_PM_RUNTIME
-> +#ifdef CONFIG_PM
->  static int samsung_keypad_runtime_suspend(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
-> Index: linux-pm/drivers/input/touchscreen/cyttsp4_core.c
-> ===================================================================
-> --- linux-pm.orig/drivers/input/touchscreen/cyttsp4_core.c
-> +++ linux-pm/drivers/input/touchscreen/cyttsp4_core.c
-> @@ -1716,7 +1716,7 @@ static void cyttsp4_free_si_ptrs(struct
->  	kfree(si->btn_rec_data);
->  }
-> 
-> -#if defined(CONFIG_PM_SLEEP) || defined(CONFIG_PM_RUNTIME)
-> +#ifdef CONFIG_PM
->  static int cyttsp4_core_sleep(struct cyttsp4 *cd)
->  {
->  	int rc;
+> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> index b604564..28988f5 100644
+> --- a/drivers/input/mousedev.c
+> +++ b/drivers/input/mousedev.c
+> @@ -248,7 +248,8 @@ static void mousedev_key_event(struct mousedev *mousedev,
+>  	case BTN_4:
+>  	case BTN_EXTRA:		index = 4; break;
+>  
+> -	default:		return;
+> +	default:	
+> +				return;
 
+Changing one bit in a file while leaving the rest of it unchanged does not
+make much sense. That said, I believe that in this particular case the
+original style is fine and does not need changing.
+
+Thanks.
+
+-- 
+Dmitry

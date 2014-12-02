@@ -1,406 +1,554 @@
-From: Karl Dahlke <eklhad@comcast.net>
-Subject: [PATCH] input/speaker: additional clicks and tones for future accessibility
-Date: Tue, 02 Dec 2014 00:17:40 -0500
-Message-ID: <20141102001740.eklhad@comcast.net>
-Reply-To: Karl Dahlke <eklhad@comcast.net>
+From: Huang Bo <huangbobupt@163.com>
+Subject: Re: [PATCHv4 1/1] HID: add BETOP game controller force feedback support
+Date: Tue, 02 Dec 2014 13:58:20 +0800
+Message-ID: <547D54FC.3080202@163.com>
+References: <54768284.4060201@163.com> <alpine.LNX.2.00.1411271004260.23174@pobox.suse.cz> <5477CDD4.8000908@163.com> <alpine.LNX.2.00.1412012111020.2524@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="------------040801050903080606070907"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from resqmta-ch2-07v.sys.comcast.net ([69.252.207.39]:55370 "EHLO
-	resqmta-ch2-07v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751060AbaLBFZw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Dec 2014 00:25:52 -0500
+Received: from m50-135.163.com ([123.125.50.135]:39283 "EHLO m50-135.163.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932083AbaLBGNt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Dec 2014 01:13:49 -0500
+In-Reply-To: <alpine.LNX.2.00.1412012111020.2524@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, vojtech@ucw.cz
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Karl Dahlke <eklhad@gmail.com>
+This is a multi-part message in MIME format.
+--------------040801050903080606070907
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Add clicks, tones, and tone sequences to the pc speaker.
+On 12/02/2014 04:11 AM, Jiri Kosina wrote:
+> On Fri, 28 Nov 2014, Huang Bo wrote:
+>
+>> On 11/27/2014 05:05 PM, Jiri Kosina wrote:
+>>> except ...
+>> thanks firstly.
+>> 1. tested the BETOP2185 gamecontroller, it really not need it.
+>> 2. check with engineers of Betop, they design only one report descriptor.
+>>
+>> so I modify it.
+> Thanks, but please put the comment into the code (jus before you are 
+> zeroing the fields), so that it's immediately obvious to everybody who is 
+> reading the code.
+>
+> Other than that, I am OK with the patch and will be applying it once you 
+> resend it with the comments added.
+>
+> Thanks,
+>
+From: Huang Bo <huangbobupt@163.com>
 
-The speaker driver can play a tone at a specified frequency,
-or the standard control G bell,
-which is a special case of TONE at 1000 hz 0.1 seconds.
-Add kd_mkpulse() to generate a soft click.
-This is introduced to support accessibility modules and adapters in the future.
-It is a means to an end.
-With this function in place, a module can easily provide soft clicks,
-i.e. audible feedback, whenever a key is depressed,
-or when that keystroke is echoed on screen.
-This allows a blind user, for example, to have rapid feedback while typing,
-even if he is, at the same time, listening to text that is already on screen.
-It is faster and more convenient than having characters echoed verbally.
-And it works all the time, even if speech or braille is not working
-for whatever reason.
+Adds force feedback support for BETOP USB game controllers.
+These devices are mass produced in China.
 
-Also add the function kd_mknotes,
-which plays a series of tones in the background.
-Of course this can already be done with kd_mksound and timers,
-but why should everyone reinvent the wheel?
-It is better to write the function once, properly, in the kernel,
-and let modules use it thereafter.
-Again, this is a means to an end.
-Accessibility modules can generate rapid sequences of notes
-to indicate various conditions, sometimes error conditions,
-especially if speech or braille is not working.
-These notes may be the only feedback the user has to diagnose the problem.
-This may be useful to other developers in other situations as well.
-
-Finally add kd_mksteps to run something like a chromatic scale,
-from one frequency to another in specified steps.
-The half-tone scale, with a step of 6%, starting at middle C, is approximately
-kd_mksteps(260, 530, 6, 150);
-
-Signed-off-by: Karl Dahlke <eklhad@gmail.com>
-
+Signed-off-by: Huang Bo <huangbobupt@163.com>
 ---
-Built and tested on 3.17.4, the latest stable kernel.
+ drivers/hid/Kconfig       |   10 +++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-betopff.c |  160 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c    |    4 ++
+ drivers/hid/hid-ids.h     |    5 ++
+ 5 files changed, 180 insertions(+)
+ create mode 100644 drivers/hid/hid-betopff.c
 
---- a/drivers/input/misc/pcspkr.c	2014-12-02 00:10:43.970435660 -0500
-+++ b/drivers/input/misc/pcspkr.c	2014-12-02 00:10:43.974436209 -0500
-@@ -18,6 +18,8 @@
- #include <linux/input.h>
- #include <linux/platform_device.h>
- #include <linux/timex.h>
-+#include <linux/delay.h>
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4938bd3..3b4c47d 100755
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -146,6 +146,16 @@ config HID_BELKIN
+     ---help---
+     Support for Belkin Flip KVM and Wireless keyboard.
+ 
++config HID_BETOP_FF
++    tristate "Betop Production Inc. force feedback support"
++    depends on USB_HID
++    select INPUT_FF_MEMLESS
++    ---help---
++    Say Y here if you want to enable force feedback support for devices by
++    BETOP Production Ltd.
++    Currently the following devices are known to be supported:
++     - BETOP 2185 PC & BFM MODE
 +
- #include <asm/io.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
-@@ -25,25 +27,26 @@ MODULE_DESCRIPTION("PC Speaker beeper dr
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:pcspkr");
- 
--static int pcspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-+/* Toggle the speaker, but not if a tone is sounding */
-+static void speaker_toggle(void)
- {
--	unsigned int count = 0;
-+	char c;
- 	unsigned long flags;
- 
--	if (type != EV_SND)
--		return -1;
--
--	switch (code) {
--		case SND_BELL: if (value) value = 1000;
--		case SND_TONE: break;
--		default: return -1;
-+	raw_spin_lock_irqsave(&i8253_lock, flags);
-+	c = inb_p(0x61);
-+	if ((c&3) != 3) {
-+		c &= 0xfe;
-+		c ^= 2; /* toggle */
-+		outb(c, 0x61);
- 	}
-+	raw_spin_unlock_irqrestore(&i8253_lock, flags);
+ config HID_CHERRY
+     tristate "Cherry Cymotion keyboard" if EXPERT
+     depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4113999..edd4825 100755
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -42,6 +42,7 @@ obj-$(CONFIG_HID_APPLE)        += hid-apple.o
+ obj-$(CONFIG_HID_APPLEIR)    += hid-appleir.o
+ obj-$(CONFIG_HID_AUREAL)        += hid-aureal.o
+ obj-$(CONFIG_HID_BELKIN)    += hid-belkin.o
++obj-$(CONFIG_HID_BETOP_FF)    += hid-betopff.o
+ obj-$(CONFIG_HID_CHERRY)    += hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)    += hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)    += hid-cypress.o
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+new file mode 100644
+index 0000000..69cfc8d
+--- /dev/null
++++ b/drivers/hid/hid-betopff.c
+@@ -0,0 +1,160 @@
++/*
++ *  Force feedback support for Betop based devices
++ *
++ *  The devices are distributed under various names and the same USB device ID
++ *  can be used in both adapters and actual game controllers.
++ *
++ *  0x11c2:0x2208 "BTP2185 BFM mode Joystick"
++ *   - tested with BTP2185 BFM Mode.
++ *
++ *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
++ *   - tested with BTP2185 PC Mode.
++ *
++ *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
++ *   - tested with BTP2185 PC Mode with another version.
++ *
++ *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
++ *   - tested with BTP2171s.
++ *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++
++#include "hid-ids.h"
++
++struct betopff_device {
++    struct hid_report *report;
++};
++
++static int hid_betopff_play(struct input_dev *dev, void *data,
++             struct ff_effect *effect)
++{
++    struct hid_device *hid = input_get_drvdata(dev);
++    struct betopff_device *betopff = data;
++    __u16 left, right;
++
++    left = effect->u.rumble.strong_magnitude;
++    right = effect->u.rumble.weak_magnitude;
++
++    betopff->report->field[2]->value[0] = left / 256;
++    betopff->report->field[3]->value[0] = right / 256;
++
++    hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++    return 0;
 +}
- 
--	if (value > 20 && value < 32767)
--		count = PIT_TICK_RATE / value;
--
-+static void speaker_sing(unsigned int count)
++
++static int betopff_init(struct hid_device *hid)
 +{
-+	unsigned long flags;
- 	raw_spin_lock_irqsave(&i8253_lock, flags);
--
- 	if (count) {
- 		/* set command for counter 2, 2 byte write */
- 		outb_p(0xB6, 0x43);
-@@ -56,8 +59,44 @@ static int pcspkr_event(struct input_dev
- 		/* disable counter 2 */
- 		outb(inb_p(0x61) & 0xFC, 0x61);
- 	}
--
- 	raw_spin_unlock_irqrestore(&i8253_lock, flags);
++    struct betopff_device *betopff;
++    struct hid_report *report;
++    struct hid_input *hidinput =
++            list_first_entry(&hid->inputs, struct hid_input, list);
++    struct list_head *report_list =
++            &hid->report_enum[HID_OUTPUT_REPORT].report_list;
++    struct input_dev *dev = hidinput->input;
++    int field_count = 0;
++    int error;
++    int i, j;
++
++    if (list_empty(report_list)) {
++        hid_err(hid, "no output reports found\n");
++        return -ENODEV;
++    }
++
++    report = list_first_entry(report_list, struct hid_report, list);
++    /*
++     * Actually there are 4 fields for 4 Bytes as below:
++     * -----------------------------------------
++     * Byte0  Byte1  Byte2      Byte3
++     * 0x00   0x00   left_motor right_motor
++     * -----------------------------------------
++     * Do init them with default value.
++     */
++    for (i = 0; i < report->maxfield; i++) {
++        for (j = 0; j < report->field[i]->report_count; j++) {
++            report->field[i]->value[j] = 0x00;
++            field_count++;
++        }
++    }
++
++    if (field_count < 4) {
++        hid_err(hid, "not enough fields in the report: %d\n",
++                field_count);
++        return -ENODEV;
++    }
++
++    betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
++    if (!betopff)
++        return -ENOMEM;
++
++    set_bit(FF_RUMBLE, dev->ffbit);
++
++    error = input_ff_create_memless(dev, betopff, hid_betopff_play);
++    if (error) {
++        kfree(betopff);
++        return error;
++    }
++
++    betopff->report = report;
++    hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++    hid_info(hid, "Force feedback for betop devices by huangbo <huangbobupt@163.com>\n");
++
++    return 0;
 +}
 +
-+static int pcspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
++static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
 +{
-+	unsigned int count;
++    int ret;
 +
-+	if (type != EV_SND)
-+		return -1;
++    if (id->driver_data)
++        hdev->quirks |= HID_QUIRK_MULTI_INPUT;
 +
-+	switch (code) {
-+	case SND_BELL:
-+		if (value)
-+			value = 1000;
-+		/* fall through */
++    ret = hid_parse(hdev);
++    if (ret) {
++        hid_err(hdev, "parse failed\n");
++        goto err;
++    }
 +
-+	case SND_TONE:
-+		count = 0;
-+		if (value > 20 && value < 32767)
-+			count = PIT_TICK_RATE / value;
-+		speaker_sing(count);
-+		break;
++    ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++    if (ret) {
++        hid_err(hdev, "hw start failed\n");
++        goto err;
++    }
 +
-+	case SND_PULSE:
-+		/* Don't hold the cpu for more than 1ms */
-+		/* no reason for a pulse to ever be longer than that. */
-+		if (value > 1000)
-+			value = 1000;
-+		/* if a pulse is too short it can't be heard anyways. */
-+		if (value < 20)
-+			break;
-+		speaker_toggle();
-+		udelay(value);
-+		speaker_toggle();
-+		break;
++    betopff_init(hdev);
 +
-+	default: return -1;
-+	}
++    return 0;
++err:
++    return ret;
++}
++
++static const struct hid_device_id betop_devices[] = {
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
++    { }
++};
++MODULE_DEVICE_TABLE(hid, betop_devices);
++
++static struct hid_driver betop_driver = {
++    .name = "betop",
++    .id_table = betop_devices,
++    .probe = betop_probe,
++};
++module_hid_driver(betop_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a622590..e64ccfc 100755
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1642,6 +1642,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+     { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++    { HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE_2) },
+     { HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 161ee89..c432be9 100755
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -185,6 +185,11 @@
+ #define USB_VENDOR_ID_BERKSHIRE        0x0c98
+ #define USB_DEVICE_ID_BERKSHIRE_PCWD    0x1140
  
- 	return 0;
- }
-@@ -80,7 +119,8 @@ static int pcspkr_probe(struct platform_
- 	pcspkr_dev->dev.parent = &dev->dev;
++#define USB_VENDOR_ID_BETOP_2185BFM    0x11c2
++#define USB_VENDOR_ID_BETOP_2185PC    0x11c0
++#define USB_VENDOR_ID_BETOP_2185V2PC    0x8380
++#define USB_VENDOR_ID_BETOP_2185V2BFM    0x20bc
++
+ #define USB_VENDOR_ID_BTC        0x046e
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE    0x5578
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE_2    0x5577
+-- 
+1.7.9.5
+
+
+--------------040801050903080606070907
+Content-Type: text/x-patch;
+ name="0001-HID-add-BETOP-game-controller-force-feedback-support.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-HID-add-BETOP-game-controller-force-feedback-support.pa";
+ filename*1="tch"
+
+>From b362f0b16c2376103237931307f927eca32219b3 Mon Sep 17 00:00:00 2001
+From: Huang Bo <huangbobupt@163.com>
+Date: Wed, 26 Nov 2014 18:21:03 +0800
+Subject: [PATCH] HID: add BETOP game controller force feedback support
+
+Adds force feedback support for BETOP USB game controllers.
+These devices are mass produced in China.
+
+Signed-off-by: Huang Bo <huangbobupt@163.com>
+---
+ drivers/hid/Kconfig       |   10 +++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-betopff.c |  160 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c    |    4 ++
+ drivers/hid/hid-ids.h     |    5 ++
+ 5 files changed, 180 insertions(+)
+ create mode 100644 drivers/hid/hid-betopff.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4938bd3..3b4c47d 100755
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -146,6 +146,16 @@ config HID_BELKIN
+ 	---help---
+ 	Support for Belkin Flip KVM and Wireless keyboard.
  
- 	pcspkr_dev->evbit[0] = BIT_MASK(EV_SND);
--	pcspkr_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
-+	pcspkr_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE) |
-+		BIT_MASK(SND_PULSE);
- 	pcspkr_dev->event = pcspkr_event;
- 
- 	err = input_register_device(pcspkr_dev);
---- a/drivers/tty/vt/keyboard.c	2014-12-02 00:10:43.978436759 -0500
-+++ b/drivers/tty/vt/keyboard.c	2014-12-02 00:10:43.982437308 -0500
-@@ -261,6 +261,213 @@ void kd_mksound(unsigned int hz, unsigne
- }
- EXPORT_SYMBOL(kd_mksound);
- 
-+static int kd_pulse_helper(struct input_handle *handle, void *data)
++config HID_BETOP_FF
++	tristate "Betop Production Inc. force feedback support"
++	depends on USB_HID
++	select INPUT_FF_MEMLESS
++	---help---
++	Say Y here if you want to enable force feedback support for devices by
++	BETOP Production Ltd.
++	Currently the following devices are known to be supported:
++	 - BETOP 2185 PC & BFM MODE
++
+ config HID_CHERRY
+ 	tristate "Cherry Cymotion keyboard" if EXPERT
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4113999..edd4825 100755
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -42,6 +42,7 @@ obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+ obj-$(CONFIG_HID_APPLEIR)	+= hid-appleir.o
+ obj-$(CONFIG_HID_AUREAL)        += hid-aureal.o
+ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
++obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
+ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+new file mode 100644
+index 0000000..69cfc8d
+--- /dev/null
++++ b/drivers/hid/hid-betopff.c
+@@ -0,0 +1,160 @@
++/*
++ *  Force feedback support for Betop based devices
++ *
++ *  The devices are distributed under various names and the same USB device ID
++ *  can be used in both adapters and actual game controllers.
++ *
++ *  0x11c2:0x2208 "BTP2185 BFM mode Joystick"
++ *   - tested with BTP2185 BFM Mode.
++ *
++ *  0x11C0:0x5506 "BTP2185 PC mode Joystick"
++ *   - tested with BTP2185 PC Mode.
++ *
++ *  0x8380:0x1850 "BTP2185 V2 PC mode USB Gamepad"
++ *   - tested with BTP2185 PC Mode with another version.
++ *
++ *  0x20bc:0x5500 "BTP2185 V2 BFM mode Joystick"
++ *   - tested with BTP2171s.
++ *  Copyright (c) 2014 Huang Bo <huangbobupt@163.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/hid.h>
++
++#include "hid-ids.h"
++
++struct betopff_device {
++	struct hid_report *report;
++};
++
++static int hid_betopff_play(struct input_dev *dev, void *data,
++			 struct ff_effect *effect)
 +{
-+	unsigned int *width = data;
-+	struct input_dev *dev = handle->dev;
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct betopff_device *betopff = data;
++	__u16 left, right;
 +
-+	if (*width == 0)
-+		return 0;
++	left = effect->u.rumble.strong_magnitude;
++	right = effect->u.rumble.weak_magnitude;
 +
-+	if (test_bit(EV_SND, dev->evbit)) {
-+		if (test_bit(SND_PULSE, dev->sndbit)) {
-+			input_inject_event(handle, EV_SND, SND_PULSE, *width);
-+			return 0;
-+		}
-+	}
++	betopff->report->field[2]->value[0] = left / 256;
++	betopff->report->field[3]->value[0] = right / 256;
++
++	hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
 +
 +	return 0;
 +}
 +
-+/* the width of the pulse is in microseconds, must be between 20 and 1000 */
-+void kd_mkpulse(unsigned int width)
++static int betopff_init(struct hid_device *hid)
 +{
-+	input_handler_for_each_handle(&kbd_handler, &width, kd_pulse_helper);
-+}
-+EXPORT_SYMBOL(kd_mkpulse);
++	struct betopff_device *betopff;
++	struct hid_report *report;
++	struct hid_input *hidinput =
++			list_first_entry(&hid->inputs, struct hid_input, list);
++	struct list_head *report_list =
++			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
++	struct input_dev *dev = hidinput->input;
++	int field_count = 0;
++	int error;
++	int i, j;
 +
-+/*
-+ * Push notes onto a sound fifo and play them via an asynchronous thread.
-+ * kd_mksound is a single tone, but kd_mknotes is a series of notes.
-+ * this is used primarily by the accessibility modules, to sound
-+ * various alerts and conditions for blind users.
-+ * This is particularly helpful when the adapter is not working,
-+ * for whatever reason.  These functions are central to the kernel,
-+ * and do not depend on sound cards, loadable modules, etc.
-+ * These notes can also alert a system administrator to conditions
-+ * that warrant immediate attention.
-+ * Each note is specified by 2 shorts.  The first is the frequency in hurtz,
-+ * and the second is the duration in hundredths of a second.
-+ * A frequency of -1 is a rest.
-+ * A frequency of 0 ends the list of notes.
-+ */
-+
-+#define SF_LEN 64		/* length of sound fifo */
-+static short sf_fifo[SF_LEN];
-+static int sf_head, sf_tail;
-+static DEFINE_RAW_SPINLOCK(soundfifo_lock);
-+
-+/* Pop the next sound out of the sound fifo. */
-+static void pop_soundfifo(unsigned long);
-+static DEFINE_TIMER(kd_mknotes_timer, pop_soundfifo, 0, 0);
-+static void pop_soundfifo(unsigned long notUsed)
-+{
-+	unsigned long flags;
-+	int freq, duration;
-+	int i;
-+	long jifpause;
-+
-+	raw_spin_lock_irqsave(&soundfifo_lock, flags);
-+
-+	i = sf_tail;
-+	if (i == sf_head) {
-+		freq = 0;
-+		duration = 0;
-+	} else {
-+		freq = sf_fifo[i];
-+		duration = sf_fifo[i + 1];
-+		i += 2;
-+		if (i == SF_LEN)
-+			i = 0;
-+		sf_tail = i;
++	if (list_empty(report_list)) {
++		hid_err(hid, "no output reports found\n");
++		return -ENODEV;
 +	}
 +
-+	raw_spin_unlock_irqrestore(&soundfifo_lock, flags);
-+
-+	if (freq == 0) {
-+		/* turn off singing speaker */
-+		kd_nosound(0);
-+		return;
-+	}
-+
-+	jifpause = msecs_to_jiffies(duration);
-+	/* not sure of the rounding, if duration < HZ */
-+	if (jifpause == 0)
-+		jifpause = 1;
-+	mod_timer(&kd_mknotes_timer, jiffies + jifpause);
-+
-+	if (freq < 0) {
-+		/* This is a rest between notes */
-+		kd_nosound(0);
-+	} else {
-+		input_handler_for_each_handle(&kbd_handler, &freq,
-+		kd_sound_helper);
-+	}
-+}
-+
-+/* Push a string of notes into the sound fifo. */
-+void kd_mknotes(const short *p)
-+{
-+	int i;
-+	bool wake = false;
-+	unsigned long flags;
-+
-+	if (*p == 0)
-+		return; /* empty list */
-+
-+	raw_spin_lock_irqsave(&soundfifo_lock, flags);
-+
-+	i = sf_head;
-+	if (i == sf_tail)
-+		wake = true;
-+
-+	/* Copy shorts into the fifo, until the terminating zero. */
-+	while (*p) {
-+		sf_fifo[i++] = *p++;
-+		sf_fifo[i++] = (*p++) * 10;
-+		if (i == SF_LEN)
-+			i = 0;	/* wrap around */
-+		if (i == sf_tail) {
-+			/* fifo is full */
-+			goto done;
++	report = list_first_entry(report_list, struct hid_report, list);
++	/*
++	 * Actually there are 4 fields for 4 Bytes as below:
++	 * -----------------------------------------
++	 * Byte0  Byte1  Byte2	  Byte3
++	 * 0x00   0x00   left_motor right_motor
++	 * -----------------------------------------
++	 * Do init them with default value.
++	 */
++	for (i = 0; i < report->maxfield; i++) {
++		for (j = 0; j < report->field[i]->report_count; j++) {
++			report->field[i]->value[j] = 0x00;
++			field_count++;
 +		}
-+		sf_head = i;
 +	}
 +
-+	/* try to add on a rest, to carry the last note through */
-+	sf_fifo[i++] = -1;
-+	sf_fifo[i++] = 10;
-+	if (i == SF_LEN)
-+		i = 0;	/* wrap around */
-+	if (i != sf_tail)
-+		sf_head = i;
++	if (field_count < 4) {
++		hid_err(hid, "not enough fields in the report: %d\n",
++				field_count);
++		return -ENODEV;
++	}
 +
-+done:
-+	raw_spin_unlock_irqrestore(&soundfifo_lock, flags);
++	betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
++	if (!betopff)
++		return -ENOMEM;
 +
-+	/* first sound,  get things started. */
-+	if (wake)
-+		pop_soundfifo(0);
++	set_bit(FF_RUMBLE, dev->ffbit);
++
++	error = input_ff_create_memless(dev, betopff, hid_betopff_play);
++	if (error) {
++		kfree(betopff);
++		return error;
++	}
++
++	betopff->report = report;
++	hid_hw_request(hid, betopff->report, HID_REQ_SET_REPORT);
++
++	hid_info(hid, "Force feedback for betop devices by huangbo <huangbobupt@163.com>\n");
++
++	return 0;
 +}
-+EXPORT_SYMBOL(kd_mknotes);
 +
-+/* Push an ascending or descending sequence of notes into the sound fifo.
-+ * Step is a geometric factor on frequency, increase by x percent.
-+ * 100% goes up by octaves, -50% goes down by octaves.
-+ * 12% is a wholetone scale, while 6% is a chromatic scale.
-+ * Duration is in milliseconds, for very fast frequency sweeps.  But this
-+ * is based on jiffies timing, so is subject to the resolution of HZ. */
-+void kd_mksteps(int f1, int f2, int step, int duration)
++static int betop_probe(struct hid_device *hdev, const struct hid_device_id *id)
 +{
-+	int i;
-+	bool wake = false;
-+	unsigned long flags;
++	int ret;
 +
-+	/* are the parameters in range? */
-+	if (step != (char)step)
-+		return;
-+	if (duration <= 0 || duration > 2000)
-+		return;
-+	if (f1 < 50 || f1 > 8000)
-+		return;
-+	if (f2 < 50 || f2 > 8000)
-+		return;
++	if (id->driver_data)
++		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
 +
-+	/* avoid infinite loops */
-+	if (step == 0 ||
-+	(f1 < f2 && step < 0) ||
-+	(f1 > f2 && step > 0))
-+		return;
-+
-+	raw_spin_lock_irqsave(&soundfifo_lock, flags);
-+
-+	i = sf_head;
-+	if (i == sf_tail)
-+		wake = true;
-+
-+	/* Copy shorts into the fifo, until start reaches end */
-+	while ((step > 0 && f1 < f2) || (step < 0 && f1 > f2)) {
-+		sf_fifo[i++] = f1;
-+		sf_fifo[i++] = duration;
-+		if (i == SF_LEN)
-+			i = 0;	/* wrap around */
-+		if (i == sf_tail) {
-+			/* fifo is full */
-+			goto done;
-+		}
-+		sf_head = i;
-+		f1 = f1 * (100+step) / 100;
-+		if (f1 < 50 || f1 > 8000)
-+			break;
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		goto err;
 +	}
 +
-+	/* try to add on a rest, to carry the last note through */
-+	sf_fifo[i++] = -1;
-+	sf_fifo[i++] = 10;
-+	if (i == SF_LEN)
-+		i = 0;	/* wrap around */
-+	if (i != sf_tail)
-+		sf_head = i;
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		goto err;
++	}
 +
-+done:
-+	raw_spin_unlock_irqrestore(&soundfifo_lock, flags);
++	betopff_init(hdev);
 +
-+	/* first sound,  get things started. */
-+	if (wake)
-+		pop_soundfifo(0);
++	return 0;
++err:
++	return ret;
 +}
-+EXPORT_SYMBOL(kd_mksteps);
 +
- /*
-  * Setting the keyboard rate.
-  */
---- a/include/linux/vt_kern.h	2014-12-02 00:10:43.987437995 -0500
-+++ b/include/linux/vt_kern.h	2014-12-02 00:10:43.990438407 -0500
-@@ -28,6 +28,9 @@
- #endif
++static const struct hid_device_id betop_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, betop_devices);
++
++static struct hid_driver betop_driver = {
++	.name = "betop",
++	.id_table = betop_devices,
++	.probe = betop_probe,
++};
++module_hid_driver(betop_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a622590..e64ccfc 100755
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1642,6 +1642,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 161ee89..c432be9 100755
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -185,6 +185,11 @@
+ #define USB_VENDOR_ID_BERKSHIRE		0x0c98
+ #define USB_DEVICE_ID_BERKSHIRE_PCWD	0x1140
  
- extern void kd_mksound(unsigned int hz, unsigned int ticks);
-+extern void kd_mkpulse(unsigned int width);
-+extern void kd_mknotes(const short *p);
-+extern void kd_mksteps(int freq1, int freq2, int step, int duration);
- extern int kbd_rate(struct kbd_repeat *rep);
- extern int fg_console, last_console, want_console;
- 
---- a/include/uapi/linux/input.h	2014-12-02 00:10:43.994438956 -0500
-+++ b/include/uapi/linux/input.h	2014-12-02 00:10:43.998439505 -0500
-@@ -934,6 +934,7 @@ struct input_keymap_entry {
- #define SND_CLICK		0x00
- #define SND_BELL		0x01
- #define SND_TONE		0x02
-+#define SND_PULSE		0x03
- #define SND_MAX			0x07
- #define SND_CNT			(SND_MAX+1)
- 
++#define USB_VENDOR_ID_BETOP_2185BFM	0x11c2
++#define USB_VENDOR_ID_BETOP_2185PC	0x11c0
++#define USB_VENDOR_ID_BETOP_2185V2PC	0x8380
++#define USB_VENDOR_ID_BETOP_2185V2BFM	0x20bc
++
+ #define USB_VENDOR_ID_BTC		0x046e
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE	0x5578
+ #define USB_DEVICE_ID_BTC_EMPREX_REMOTE_2	0x5577
+-- 
+1.7.9.5
+
+
+--------------040801050903080606070907--
+

@@ -1,85 +1,141 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/speaker: additional clicks and tones for future
- accessibility
-Date: Wed, 3 Dec 2014 11:58:11 -0800
-Message-ID: <20141203195811.GB16951@dtor-ws>
-References: <20141102001740.eklhad@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: [PATCH] Input: Initialize atomic_t variables by -1
+Date: Thu,  4 Dec 2014 01:46:39 +0530
+Message-ID: <1417637799-3278-1-git-send-email-aniroop.mathur@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:50189 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751046AbaLCT6Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 14:58:16 -0500
-Received: by mail-ie0-f175.google.com with SMTP id x19so9092276ier.6
-        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 11:58:15 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20141102001740.eklhad@comcast.net>
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:61624 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752096AbaLCUQv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 15:16:51 -0500
+Received: by mail-pd0-f180.google.com with SMTP id p10so16143267pdj.11
+        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 12:16:50 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Karl Dahlke <eklhad@comcast.net>
-Cc: vojtech@ucw.cz, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aniroop.mathur@gmail.com, a.mathur@samsung.com
 
-Hi Karl,
+This patch initializes atomic_t variables by -1 in order to avoid
+extra subtraction operation performed everytime for allocation of
+an input device.
 
-On Tue, Dec 02, 2014 at 12:17:40AM -0500, Karl Dahlke wrote:
-> From: Karl Dahlke <eklhad@gmail.com>
-> 
-> Add clicks, tones, and tone sequences to the pc speaker.
-> 
-> The speaker driver can play a tone at a specified frequency,
-> or the standard control G bell,
-> which is a special case of TONE at 1000 hz 0.1 seconds.
-> Add kd_mkpulse() to generate a soft click.
-> This is introduced to support accessibility modules and adapters in the future.
-> It is a means to an end.
-> With this function in place, a module can easily provide soft clicks,
-> i.e. audible feedback, whenever a key is depressed,
-> or when that keystroke is echoed on screen.
-> This allows a blind user, for example, to have rapid feedback while typing,
-> even if he is, at the same time, listening to text that is already on screen.
-> It is faster and more convenient than having characters echoed verbally.
-> And it works all the time, even if speech or braille is not working
-> for whatever reason.
-> 
-> Also add the function kd_mknotes,
-> which plays a series of tones in the background.
-> Of course this can already be done with kd_mksound and timers,
-> but why should everyone reinvent the wheel?
-> It is better to write the function once, properly, in the kernel,
-> and let modules use it thereafter.
-> Again, this is a means to an end.
-> Accessibility modules can generate rapid sequences of notes
-> to indicate various conditions, sometimes error conditions,
-> especially if speech or braille is not working.
-> These notes may be the only feedback the user has to diagnose the problem.
-> This may be useful to other developers in other situations as well.
-> 
-> Finally add kd_mksteps to run something like a chromatic scale,
-> from one frequency to another in specified steps.
-> The half-tone scale, with a step of 6%, starting at middle C, is approximately
-> kd_mksteps(260, 530, 6, 150);
+Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
+---
+ drivers/input/gameport/gameport.c | 4 ++--
+ drivers/input/joystick/xpad.c     | 4 ++--
+ drivers/input/misc/ims-pcu.c      | 4 ++--
+ drivers/input/serio/serio.c       | 4 ++--
+ drivers/input/serio/serio_raw.c   | 4 ++--
+ 5 files changed, 10 insertions(+), 10 deletions(-)
 
-I have exactly the same response as a year earlier:
-
-"I do not think it is a good idea to add SND_PULSE as it can be easily
-implemented by SND_TONE with the additional benefit that parameters of
-the click can be adjusted. Also, if clicking is done elsewhere, it would
-work with other speaker drivers besides pcspkr.
-
-...
-
-[re kd_mknotes] Can it be put into a library instead? Especially given
-David's work on trying to push the VT code out of the kernel. Also, what
-if you want clicks to go through sound card and not the speaker
-interface?"
-
-In other words, I'd rather have it all be done in userpsace by a daemon
-that listens to all keystrokes and emits notes or clicks or something
-else via whatever sound device is present on the system, be it a PC
-speaker, SPARC speaker, a sound card, or maybe something else.
-
-Thanks.
-
+diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
+index 24c41ba..d8371e8 100644
+--- a/drivers/input/gameport/gameport.c
++++ b/drivers/input/gameport/gameport.c
+@@ -490,14 +490,14 @@ EXPORT_SYMBOL(gameport_set_phys);
+  */
+ static void gameport_init_port(struct gameport *gameport)
+ {
+-	static atomic_t gameport_no = ATOMIC_INIT(0);
++	static atomic_t gameport_no = ATOMIC_INIT(-1);
+ 
+ 	__module_get(THIS_MODULE);
+ 
+ 	mutex_init(&gameport->drv_mutex);
+ 	device_initialize(&gameport->dev);
+ 	dev_set_name(&gameport->dev, "gameport%lu",
+-			(unsigned long)atomic_inc_return(&gameport_no) - 1);
++			(unsigned long)atomic_inc_return(&gameport_no));
+ 	gameport->dev.bus = &gameport_bus;
+ 	gameport->dev.release = gameport_release_port;
+ 	if (gameport->parent)
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 177602c..64dc7cb 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -850,7 +850,7 @@ static void xpad_led_set(struct led_classdev *led_cdev,
+ 
+ static int xpad_led_probe(struct usb_xpad *xpad)
+ {
+-	static atomic_t led_seq	= ATOMIC_INIT(0);
++	static atomic_t led_seq	= ATOMIC_INIT(-1);
+ 	long led_no;
+ 	struct xpad_led *led;
+ 	struct led_classdev *led_cdev;
+@@ -863,7 +863,7 @@ static int xpad_led_probe(struct usb_xpad *xpad)
+ 	if (!led)
+ 		return -ENOMEM;
+ 
+-	led_no = (long)atomic_inc_return(&led_seq) - 1;
++	led_no = (long)atomic_inc_return(&led_seq);
+ 
+ 	snprintf(led->name, sizeof(led->name), "xpad%ld", led_no);
+ 	led->xpad = xpad;
+diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+index 719410f..69caee9 100644
+--- a/drivers/input/misc/ims-pcu.c
++++ b/drivers/input/misc/ims-pcu.c
+@@ -1851,7 +1851,7 @@ static int ims_pcu_identify_type(struct ims_pcu *pcu, u8 *device_id)
+ 
+ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+ {
+-	static atomic_t device_no = ATOMIC_INIT(0);
++	static atomic_t device_no = ATOMIC_INIT(-1);
+ 
+ 	const struct ims_pcu_device_info *info;
+ 	int error;
+@@ -1882,7 +1882,7 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+ 	}
+ 
+ 	/* Device appears to be operable, complete initialization */
+-	pcu->device_no = atomic_inc_return(&device_no) - 1;
++	pcu->device_no = atomic_inc_return(&device_no);
+ 
+ 	/*
+ 	 * PCU-B devices, both GEN_1 and GEN_2 do not have OFN sensor
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index b29134d..21698cc 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -514,7 +514,7 @@ static void serio_release_port(struct device *dev)
+  */
+ static void serio_init_port(struct serio *serio)
+ {
+-	static atomic_t serio_no = ATOMIC_INIT(0);
++	static atomic_t serio_no = ATOMIC_INIT(-1);
+ 
+ 	__module_get(THIS_MODULE);
+ 
+@@ -525,7 +525,7 @@ static void serio_init_port(struct serio *serio)
+ 	mutex_init(&serio->drv_mutex);
+ 	device_initialize(&serio->dev);
+ 	dev_set_name(&serio->dev, "serio%ld",
+-			(long)atomic_inc_return(&serio_no) - 1);
++			(long)atomic_inc_return(&serio_no));
+ 	serio->dev.bus = &serio_bus;
+ 	serio->dev.release = serio_release_port;
+ 	serio->dev.groups = serio_device_attr_groups;
+diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
+index c9a02fe..71ef5d6 100644
+--- a/drivers/input/serio/serio_raw.c
++++ b/drivers/input/serio/serio_raw.c
+@@ -292,7 +292,7 @@ static irqreturn_t serio_raw_interrupt(struct serio *serio, unsigned char data,
+ 
+ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
+ {
+-	static atomic_t serio_raw_no = ATOMIC_INIT(0);
++	static atomic_t serio_raw_no = ATOMIC_INIT(-1);
+ 	struct serio_raw *serio_raw;
+ 	int err;
+ 
+@@ -303,7 +303,7 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
+ 	}
+ 
+ 	snprintf(serio_raw->name, sizeof(serio_raw->name),
+-		 "serio_raw%ld", (long)atomic_inc_return(&serio_raw_no) - 1);
++		 "serio_raw%ld", (long)atomic_inc_return(&serio_raw_no));
+ 	kref_init(&serio_raw->kref);
+ 	INIT_LIST_HEAD(&serio_raw->client_list);
+ 	init_waitqueue_head(&serio_raw->wait);
 -- 
-Dmitry
+1.9.1
+

@@ -1,67 +1,47 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 Subject: Re: Side effect of pressing special keys
-Date: Wed, 3 Dec 2014 13:46:13 +0100
-Message-ID: <201412031346.13297@pali>
-References: <201411231441.17592@pali> <20141203124042.GA504@amd>
+Date: Wed, 3 Dec 2014 11:12:54 -0200
+Message-ID: <20141203131254.GB20212@khazad-dum.debian.net>
+References: <201411231441.17592@pali>
+ <20141203124042.GA504@amd>
+ <201412031346.13297@pali>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4977575.d8P1Ez9mSK";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:57627 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751930AbaLCMqR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 07:46:17 -0500
-In-Reply-To: <20141203124042.GA504@amd>
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:45427 "EHLO
+	out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751061AbaLCNNL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Dec 2014 08:13:11 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailout.nyi.internal (Postfix) with ESMTP id 3389820D38
+	for <linux-input@vger.kernel.org>; Wed,  3 Dec 2014 08:13:07 -0500 (EST)
+Content-Disposition: inline
+In-Reply-To: <201412031346.13297@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Gabriele Mazzotta <gabriele.mzt@gmail.com>, linux-kernel@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Gabriele Mazzotta <gabriele.mzt@gmail.com>, linux-kernel@vger.kernel.org
 
---nextPart4977575.d8P1Ez9mSK
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 03 Dec 2014, Pali Roh=E1r wrote:
+> Ok, and what about KEY_KBDILLUMTOGGLE when bios also handle=20
+> keyboard backlight level? Should be this key filtered too?
 
-On Wednesday 03 December 2014 13:40:42 Pavel Machek wrote:
-> On Sun 2014-11-23 14:41:17, Pali Roh=C3=A1r wrote:
-> > Hello,
-> >=20
-> > pressing some keys on laptops could cause some side effects.
-> >=20
-> > Example scenario 1:
-> >=20
-> > Laptop has Fn key for enabling/disabling WIFI and when that
-> > key is pressed BIOS is doing two things:
-> >=20
-> > 1) Switch hard rfkill state of WIFI
-> > 2) Report that Fn key was pressed to kernel
-> >=20
-> >    (either via i8042 bus or via ACPI/WMI)
->=20
-> We should not really report that as a "key" to userspace. We
-> might want to report that rfkill state changed....
-> 							Pavel
+IME, heck yes.
 
-Ok, and what about KEY_KBDILLUMTOGGLE when bios also handle=20
-keyboard backlight level? Should be this key filtered too?
+If you ever make the mistake of sending to userspace something the
+BIOS/kernel already reacted to, they will find a way to loop it back to=
+ you
+and cause all sort of issues.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart4977575.d8P1Ez9mSK
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlR/BhUACgkQi/DJPQPkQ1I3ZwCgzkushW86QTVF6VNvwjt1Q9Ah
-aoAAoKZ8a504jsdosY/cV4dDD4Fign8Z
-=2cRj
------END PGP SIGNATURE-----
-
---nextPart4977575.d8P1Ez9mSK--
+--=20
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,153 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Initialize device count variables by -1
-Date: Wed, 3 Dec 2014 14:35:21 -0800
-Message-ID: <20141203223521.GD16951@dtor-ws>
-References: <1417639146-3494-1-git-send-email-aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] input/speaker: additional clicks and tones for future...
+Date: Wed, 3 Dec 2014 14:52:29 -0800
+Message-ID: <20141203225229.GE16951@dtor-ws>
+References: <20141102001740.eklhad@comcast.net>
+ <20141203195811.GB16951@dtor-ws>
+ <20141103160258.eklhad@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:48710 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752215AbaLCWfZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 17:35:25 -0500
-Received: by mail-ie0-f176.google.com with SMTP id tr6so14169711ieb.7
-        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 14:35:24 -0800 (PST)
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:53013 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751088AbaLCWwd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 17:52:33 -0500
+Received: by mail-ig0-f171.google.com with SMTP id z20so13681490igj.10
+        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 14:52:33 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1417639146-3494-1-git-send-email-aniroop.mathur@gmail.com>
+In-Reply-To: <20141103160258.eklhad@comcast.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: linux-input@vger.kernel.org, a.mathur@samsung.com
+To: Karl Dahlke <eklhad@comcast.net>
+Cc: vojtech@ucw.cz, linux-input@vger.kernel.org
 
-On Thu, Dec 04, 2014 at 02:09:06AM +0530, Aniroop Mathur wrote:
-> This patch initializes input device count variables by -1 in order
-> to avoid extra subtraction operation performed everytime for
-> allocation of an input device.
+On Wed, Dec 03, 2014 at 04:02:58PM -0500, Karl Dahlke wrote:
+> Thank you for your thoughtful reply.
 > 
-> Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
+> > I do not think it is a good idea to add SND_PULSE as it can be easily
+> > implemented by SND_TONE.
+> 
+> It isn't that simple.
+> Example: if a tone is playing for any reason the clicks do not interrupt
+> the tone. (It would sound terrible, I've tried it).
+> Clicks and tones are different in spirit and in implementation,
+> almost orthogonal, and my code manages all this.
 
-Applied, thank you.
+Even if it sounds horrible why would not you want feedback for key press
+if there is tone? Would you not rather want to know that key press has
+been registered?
 
-> ---
->  drivers/input/gameport/gameport.c | 4 ++--
->  drivers/input/joystick/xpad.c     | 4 ++--
->  drivers/input/misc/ims-pcu.c      | 4 ++--
->  drivers/input/serio/serio.c       | 4 ++--
->  drivers/input/serio/serio_raw.c   | 4 ++--
->  5 files changed, 10 insertions(+), 10 deletions(-)
 > 
-> diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-> index 24c41ba..d8371e8 100644
-> --- a/drivers/input/gameport/gameport.c
-> +++ b/drivers/input/gameport/gameport.c
-> @@ -490,14 +490,14 @@ EXPORT_SYMBOL(gameport_set_phys);
->   */
->  static void gameport_init_port(struct gameport *gameport)
->  {
-> -	static atomic_t gameport_no = ATOMIC_INIT(0);
-> +	static atomic_t gameport_no = ATOMIC_INIT(-1);
->  
->  	__module_get(THIS_MODULE);
->  
->  	mutex_init(&gameport->drv_mutex);
->  	device_initialize(&gameport->dev);
->  	dev_set_name(&gameport->dev, "gameport%lu",
-> -			(unsigned long)atomic_inc_return(&gameport_no) - 1);
-> +			(unsigned long)atomic_inc_return(&gameport_no));
->  	gameport->dev.bus = &gameport_bus;
->  	gameport->dev.release = gameport_release_port;
->  	if (gameport->parent)
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 177602c..64dc7cb 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -850,7 +850,7 @@ static void xpad_led_set(struct led_classdev *led_cdev,
->  
->  static int xpad_led_probe(struct usb_xpad *xpad)
->  {
-> -	static atomic_t led_seq	= ATOMIC_INIT(0);
-> +	static atomic_t led_seq	= ATOMIC_INIT(-1);
->  	long led_no;
->  	struct xpad_led *led;
->  	struct led_classdev *led_cdev;
-> @@ -863,7 +863,7 @@ static int xpad_led_probe(struct usb_xpad *xpad)
->  	if (!led)
->  		return -ENOMEM;
->  
-> -	led_no = (long)atomic_inc_return(&led_seq) - 1;
-> +	led_no = (long)atomic_inc_return(&led_seq);
->  
->  	snprintf(led->name, sizeof(led->name), "xpad%ld", led_no);
->  	led->xpad = xpad;
-> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-> index 719410f..69caee9 100644
-> --- a/drivers/input/misc/ims-pcu.c
-> +++ b/drivers/input/misc/ims-pcu.c
-> @@ -1851,7 +1851,7 @@ static int ims_pcu_identify_type(struct ims_pcu *pcu, u8 *device_id)
->  
->  static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
->  {
-> -	static atomic_t device_no = ATOMIC_INIT(0);
-> +	static atomic_t device_no = ATOMIC_INIT(-1);
->  
->  	const struct ims_pcu_device_info *info;
->  	int error;
-> @@ -1882,7 +1882,7 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
->  	}
->  
->  	/* Device appears to be operable, complete initialization */
-> -	pcu->device_no = atomic_inc_return(&device_no) - 1;
-> +	pcu->device_no = atomic_inc_return(&device_no);
->  
->  	/*
->  	 * PCU-B devices, both GEN_1 and GEN_2 do not have OFN sensor
-> diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-> index b29134d..21698cc 100644
-> --- a/drivers/input/serio/serio.c
-> +++ b/drivers/input/serio/serio.c
-> @@ -514,7 +514,7 @@ static void serio_release_port(struct device *dev)
->   */
->  static void serio_init_port(struct serio *serio)
->  {
-> -	static atomic_t serio_no = ATOMIC_INIT(0);
-> +	static atomic_t serio_no = ATOMIC_INIT(-1);
->  
->  	__module_get(THIS_MODULE);
->  
-> @@ -525,7 +525,7 @@ static void serio_init_port(struct serio *serio)
->  	mutex_init(&serio->drv_mutex);
->  	device_initialize(&serio->dev);
->  	dev_set_name(&serio->dev, "serio%ld",
-> -			(long)atomic_inc_return(&serio_no) - 1);
-> +			(long)atomic_inc_return(&serio_no));
->  	serio->dev.bus = &serio_bus;
->  	serio->dev.release = serio_release_port;
->  	serio->dev.groups = serio_device_attr_groups;
-> diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-> index c9a02fe..71ef5d6 100644
-> --- a/drivers/input/serio/serio_raw.c
-> +++ b/drivers/input/serio/serio_raw.c
-> @@ -292,7 +292,7 @@ static irqreturn_t serio_raw_interrupt(struct serio *serio, unsigned char data,
->  
->  static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
->  {
-> -	static atomic_t serio_raw_no = ATOMIC_INIT(0);
-> +	static atomic_t serio_raw_no = ATOMIC_INIT(-1);
->  	struct serio_raw *serio_raw;
->  	int err;
->  
-> @@ -303,7 +303,7 @@ static int serio_raw_connect(struct serio *serio, struct serio_driver *drv)
->  	}
->  
->  	snprintf(serio_raw->name, sizeof(serio_raw->name),
-> -		 "serio_raw%ld", (long)atomic_inc_return(&serio_raw_no) - 1);
-> +		 "serio_raw%ld", (long)atomic_inc_return(&serio_raw_no));
->  	kref_init(&serio_raw->kref);
->  	INIT_LIST_HEAD(&serio_raw->client_list);
->  	init_waitqueue_head(&serio_raw->wait);
-> -- 
-> 1.9.1
+> > Also, what if you want clicks to go through sound card and not the speaker
 > 
+> But you see, in my world, I precisely don't want that to happen,
+> because sometimes the sound card isn't working.
+
+I understand that you might not want to use sound card, that does not
+mean that nobody else would now want it. There are boxes without pcspkr
+or where speaker is provided by different module.
+
+> There are lots of reasons a sound card might not work,
+> alsa and modules and pulseaudio are more finicky than you might think,
+> not to mention the speech adapters that sit on top of them.
+> If any link in this chain is broken, I get no speech, period.
+> If I then don't get the clicks or tones either, I'm really lost at sea.
+
+You should be able to work directly with ALSA though, right? That would
+cut some of the stack away.
+
+> Thus the modules that I write,
+> and that other people write as well,
+> specifically send small diagnostics through the pc speaker,
+> because that just might be all the feedback we have.
+> Here is a good example, grub, or maybe it's grub2,
+> can't reasonably be expected to work through a sound card,
+> so it can actually generate morse code at the pc speaker to help us load
+> the desired OS.
+
+But grub is not an OS, so naturally it does not have sound card
+support. It also does not support any of the haptic devices that might
+be connected to the box but that does not mean that haptic devices are
+not suitable as feedback devices.
+
+> It's just a different philosophy that we have I guess.
+> So instead of reinventing these routines over and over I thought it might be
+> useful to have some of this common functionality in the pcspkr driver
+> in the kernel.
+> I mean it's already halfway there, this is just the other half.
+> All managed just like tones are managed today.
+> It's just the icing on the cake.
+> 
+
+I am sorry, but I still believe that doing this in pcspkr/tty would be
+doing this at the wrong level and userspace solution would be the right
+one.  It does not need to use real sound card if you prefer not to, but
+I do not think it should prohibit using it or any other device that can
+provide adequate feedback.
+
+Thanks.
 
 -- 
 Dmitry

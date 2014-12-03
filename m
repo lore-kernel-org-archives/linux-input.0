@@ -1,78 +1,45 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input / PM: Replace CONFIG_PM_RUNTIME with CONFIG_PM
-Date: Tue, 2 Dec 2014 21:54:44 -0800
-Message-ID: <20141203055444.GA7411@dtor-glaptop>
-References: <8119438.MdkFLx3Wvh@vostro.rjw.lan>
+Subject: Re: [patch] Input: lm8323 - missing error check in
+ lm8323_set_disable()
+Date: Tue, 2 Dec 2014 21:56:15 -0800
+Message-ID: <20141203055615.GC7411@dtor-glaptop>
+References: <20141202211710.GA19955@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:58455 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750982AbaLCF4h (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 00:56:37 -0500
 Content-Disposition: inline
-In-Reply-To: <8119438.MdkFLx3Wvh@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: linux-input@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Ferruh Yigit <fery@cypress.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
+In-Reply-To: <20141202211710.GA19955@mwanda>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, Johan Hovold <johan@kernel.org>, Bryan Wu <cooloney@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Wed, Dec 03, 2014 at 03:09:10AM +0100, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+On Wed, Dec 03, 2014 at 12:17:10AM +0300, Dan Carpenter wrote:
+> The missing error handling here is not especially harmful but static
+> checkers complain that "i" can be used uninitialized.
 > 
-> After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
-> selected) PM_RUNTIME is always set if PM is set, so #ifdef blocks
-> depending on CONFIG_PM_RUNTIME may now be changed to depend on
-> CONFIG_PM.
-> 
-> The alternative of CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME may be
-> replaced with CONFIG_PM too.
-> 
-> Make these changes in 2 files under drivers/input/.
-> 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-> ---
-> 
-> Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
-> PM_SLEEP is selected) which is only in linux-next at the moment (via the
-> linux-pm tree).
-> 
-> Please let me know if it is OK to take this one into linux-pm.
-
-Yeah, it should be fine.
+Applied, thank you.
 
 > 
-> ---
->  drivers/input/keyboard/samsung-keypad.c  |    2 +-
->  drivers/input/touchscreen/cyttsp4_core.c |    2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> Index: linux-pm/drivers/input/keyboard/samsung-keypad.c
-> ===================================================================
-> --- linux-pm.orig/drivers/input/keyboard/samsung-keypad.c
-> +++ linux-pm/drivers/input/keyboard/samsung-keypad.c
-> @@ -463,7 +463,7 @@ static int samsung_keypad_remove(struct
->  	return 0;
->  }
+> diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
+> index cb32e2b..21bea52 100644
+> --- a/drivers/input/keyboard/lm8323.c
+> +++ b/drivers/input/keyboard/lm8323.c
+> @@ -616,6 +616,8 @@ static ssize_t lm8323_set_disable(struct device *dev,
+>  	unsigned int i;
 >  
-> -#ifdef CONFIG_PM_RUNTIME
-> +#ifdef CONFIG_PM
->  static int samsung_keypad_runtime_suspend(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
-> Index: linux-pm/drivers/input/touchscreen/cyttsp4_core.c
-> ===================================================================
-> --- linux-pm.orig/drivers/input/touchscreen/cyttsp4_core.c
-> +++ linux-pm/drivers/input/touchscreen/cyttsp4_core.c
-> @@ -1716,7 +1716,7 @@ static void cyttsp4_free_si_ptrs(struct
->  	kfree(si->btn_rec_data);
->  }
+>  	ret = kstrtouint(buf, 10, &i);
+> +	if (ret)
+> +		return ret;
 >  
-> -#if defined(CONFIG_PM_SLEEP) || defined(CONFIG_PM_RUNTIME)
-> +#ifdef CONFIG_PM
->  static int cyttsp4_core_sleep(struct cyttsp4 *cd)
->  {
->  	int rc;
-> 
+>  	mutex_lock(&lm->lock);
+>  	lm->kp_enabled = !i;
 
 -- 
 Dmitry

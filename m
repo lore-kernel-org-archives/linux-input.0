@@ -1,100 +1,191 @@
-From: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] input/speaker: additional clicks and tones for future
- accessibility
-Date: Wed, 3 Dec 2014 23:57:14 +0100
-Message-ID: <20141203225714.GA19950@suse.cz>
-References: <20141102001740.eklhad@comcast.net>
- <20141203195811.GB16951@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [BUG] [PATCH] next: cyapa: fix inop touchpad after resume on
+ Acer C720
+Date: Wed, 3 Dec 2014 15:42:46 -0800
+Message-ID: <20141203234246.GA10327@dtor-ws>
+References: <20141124085059.GA15770@hudson.localdomain>
+ <20141125100703.GA9287@hudson.localdomain>
+ <af603da34acc4caca630ca58eda7eb1e@BN1PR06MB070.namprd06.prod.outlook.com>
+ <20141126200238.GB27014@hudson.localdomain>
+ <000d01d00a05$7ffe4970$7ffadc50$@gmail.com>
+ <189CB621-DEBE-4C54-AE62-9441D50C7C55@gmail.com>
+ <9d446cdf85214727b1cd02d7e1537e2b@BN1PR06MB070.namprd06.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jablonecka.jablonka.cz ([91.219.244.36]:34485 "EHLO
-	jablonecka.jablonka.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751110AbaLCX2c (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 18:28:32 -0500
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:52079 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751391AbaLCXmv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 18:42:51 -0500
+Received: by mail-ie0-f171.google.com with SMTP id rl12so14726559iec.16
+        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 15:42:50 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20141203195811.GB16951@dtor-ws>
+In-Reply-To: <9d446cdf85214727b1cd02d7e1537e2b@BN1PR06MB070.namprd06.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Karl Dahlke <eklhad@comcast.net>, linux-input@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: 'Jeremiah Mahler' <jmmahler@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Dec 03, 2014 at 11:58:11AM -0800, Dmitry Torokhov wrote:
-> Hi Karl,
-> 
-> On Tue, Dec 02, 2014 at 12:17:40AM -0500, Karl Dahlke wrote:
-> > From: Karl Dahlke <eklhad@gmail.com>
-> > 
-> > Add clicks, tones, and tone sequences to the pc speaker.
-> > 
-> > The speaker driver can play a tone at a specified frequency,
-> > or the standard control G bell,
-> > which is a special case of TONE at 1000 hz 0.1 seconds.
-> > Add kd_mkpulse() to generate a soft click.
-> > This is introduced to support accessibility modules and adapters in the future.
-> > It is a means to an end.
-> > With this function in place, a module can easily provide soft clicks,
-> > i.e. audible feedback, whenever a key is depressed,
-> > or when that keystroke is echoed on screen.
-> > This allows a blind user, for example, to have rapid feedback while typing,
-> > even if he is, at the same time, listening to text that is already on screen.
-> > It is faster and more convenient than having characters echoed verbally.
-> > And it works all the time, even if speech or braille is not working
-> > for whatever reason.
-> > 
-> > Also add the function kd_mknotes,
-> > which plays a series of tones in the background.
-> > Of course this can already be done with kd_mksound and timers,
-> > but why should everyone reinvent the wheel?
-> > It is better to write the function once, properly, in the kernel,
-> > and let modules use it thereafter.
-> > Again, this is a means to an end.
-> > Accessibility modules can generate rapid sequences of notes
-> > to indicate various conditions, sometimes error conditions,
-> > especially if speech or braille is not working.
-> > These notes may be the only feedback the user has to diagnose the problem.
-> > This may be useful to other developers in other situations as well.
-> > 
-> > Finally add kd_mksteps to run something like a chromatic scale,
-> > from one frequency to another in specified steps.
-> > The half-tone scale, with a step of 6%, starting at middle C, is approximately
-> > kd_mksteps(260, 530, 6, 150);
-> 
-> I have exactly the same response as a year earlier:
-> 
-> "I do not think it is a good idea to add SND_PULSE as it can be easily
-> implemented by SND_TONE with the additional benefit that parameters of
-> the click can be adjusted. Also, if clicking is done elsewhere, it would
-> work with other speaker drivers besides pcspkr.
+Dudley,
 
-SND_PULSE would make sense in case (and only in case) there are devices
-that can emit that kind of sound without being able to implement
-SND_TONE.
+On Fri, Nov 28, 2014 at 01:49:15AM +0000, Dudley Du wrote:
+> Dmitry,
+>=20
+> Yes, I remebered the discussion, and I said it was working.
+> At that time, I though it was the suggestion to my patches, so I merg=
+ed the solution to my pathces,
+> and verified on my pathces. But did not run test on the patch you att=
+ached.
+> Sorry for the misunderstood and the troubles to you. :)
 
-This is the reason why SND_CLICK and SND_BELL exist.
+Sorry I was not clear in my request. Anyway, I just applied the patch
+(with a minor edit) and pushed it out. It shoudl make it's way into nex=
+t
+today or tomorrow.
 
-And, by the way, the implementation of SND_PULSE in the patch is quite
-horrible. If a variable-width pulse makes sense at all (based on the
-speaker dynamics, a long enough pause will be two clicks and high power
-consumption inbetween), it should be done by programming the i8253 to do
-a one-shot timer rather than bitbanging it.
+Thanks.
 
-> [re kd_mknotes] Can it be put into a library instead? Especially given
-> David's work on trying to push the VT code out of the kernel. Also, what
-> if you want clicks to go through sound card and not the speaker
-> interface?"
-> 
-> In other words, I'd rather have it all be done in userpsace by a daemon
-> that listens to all keystrokes and emits notes or clicks or something
-> else via whatever sound device is present on the system, be it a PC
-> speaker, SPARC speaker, a sound card, or maybe something else.
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
+>=20
+> Regards,
+> Dudley
+>=20
+> > -----Original Message-----
+> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> > Sent: 2014=E5=B9=B411=E6=9C=8828=E6=97=A5 2:16
+> > To: Dudley Du; 'Jeremiah Mahler'
+> > Cc: linux-kernel@vger.kernel.org; Dudley Du
+> > Subject: RE: [BUG] [PATCH] next: cyapa: fix inop touchpad after res=
+ume on Acer
+> > C720
+> >
+> > On November 26, 2014 9:45:49 PM PST, Dudley Du <dudley.dulixin@gmai=
+l.com>
+> > wrote:
+> > >Jeremiah,
+> > >
+> > >I didn't make the special patch for the linux-next before, so I do=
+n't
+> > >know why
+> > >this patch is there and have issue.
+> >
+> > That was the patch we've discussed some times back and you mentione=
+d it was
+> > working for you so I applied it to next.
+> >
+> > I'll make sure to apply the fixup promptly.
+> >
+> > >Based on current code in the linux-next, I made below patch to fix=
+ this
+> > >issue.
+> > >Could you please try again with attached patch fix.
+> > >
+> > >Thanks,
+> > >Dudley
+> > >
+> > >> -----Original Message-----
+> > >> From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
+> > >> Sent: 2014?11?27? 4:03
+> > >> To: Dudley Du
+> > >> Cc: linux-kernel@vger.kernel.org
+> > >> Subject: Re: [BUG] [PATCH] next: cyapa: fix inop touchpad after
+> > >resume on Acer
+> > >> C720
+> > >>
+> > >> Dudley,
+> > >>
+> > >> On Wed, Nov 26, 2014 at 06:16:00AM +0000, Dudley Du wrote:
+> > >> > More info: I did all testings based on kernel 3.14.0 on Acer C=
+70.
+> > >> >
+> > >>
+> > >> I am testing with linux-next 3.18-rc6 on an Acer C720.
+> > >>
+> > >> http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/
+> > >>
+> > >> > Thanks,
+> > >> > Dudley
+> > >> >
+> > >> []
+> > >>
+> > >> --
+> > >> - Jeremiah Mahler
+> > >
+> > >From bb717b1c1525ef6b889f0ef735d920eed9e76e72 Mon Sep 17 00:00:00 =
+2001
+> > >From: Dudley Du <dudley.dulixin@gmail.com>
+> > >Date: Thu, 27 Nov 2014 13:35:09 +0800
+> > >Subject: [PATCH] input: cyapa: fix irq error issue in cyapa_resume
+> > >To: dmitry.torokhov@gmail.com,
+> > >    jmmahler@gmail.com
+> > >Cc: bleung@google.com,
+> > >    linux-input@vger.kernel.org
+> > >
+> > >This patch is aimed to fix the irq error happened on cyapa_resume =
+when
+> > >doing suspend/resume testing.
+> > >The root cause of this issue is that the cyapa->irq has been remov=
+ed
+> > >but
+> > >still used in the driver.
+> > >
+> > >Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
+> > >---
+> > > drivers/input/mouse/cyapa.c | 6 +++---
+> > > 1 file changed, 3 insertions(+), 3 deletions(-)
+> > >
+> > >diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cya=
+pa.c
+> > >index c84a9eb..caaba7b 100644
+> > >--- a/drivers/input/mouse/cyapa.c
+> > >+++ b/drivers/input/mouse/cyapa.c
+> > >@@ -938,7 +938,7 @@ static int __maybe_unused cyapa_suspend(struct
+> > >device *dev)
+> > >  power_mode, error);
+> > >
+> > > if (device_may_wakeup(dev))
+> > >-cyapa->irq_wake =3D (enable_irq_wake(cyapa->irq) =3D=3D 0);
+> > >+cyapa->irq_wake =3D (enable_irq_wake(cyapa->client->irq) =3D=3D 0=
+);
+> > >
+> > > mutex_unlock(&input->mutex);
+> > >
+> > >@@ -956,7 +956,7 @@ static int __maybe_unused cyapa_resume(struct
+> > >device *dev)
+> > > mutex_lock(&input->mutex);
+> > >
+> > > if (device_may_wakeup(dev) && cyapa->irq_wake)
+> > >-disable_irq_wake(cyapa->irq);
+> > >+disable_irq_wake(cyapa->client->irq);
+> > >
+> > > power_mode =3D input->users ? PWR_MODE_FULL_ACTIVE : PWR_MODE_OFF=
+;
+> > > error =3D cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
+> > >@@ -964,7 +964,7 @@ static int __maybe_unused cyapa_resume(struct
+> > >device *dev)
+> > > dev_warn(dev, "resume: set power mode to %d failed: %d\n",
+> > >  power_mode, error);
+> > >
+> > >-enable_irq(cyapa->irq);
+> > >+enable_irq(cyapa->client->irq);
+> > >
+> > > mutex_unlock(&input->mutex);
+> > >
+> >
+> > Hi Dudley,
+> > Thanks.
+> >
+> > --
+> > Dmitry
+>=20
+> This message and any attachments may contain Cypress (or its subsidia=
+ries) confidential information. If it has been received in error, pleas=
+e advise the sender and immediately delete this message.
 
--- 
-Vojtech Pavlik
-Director SUSE Labs
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

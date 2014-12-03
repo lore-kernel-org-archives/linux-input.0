@@ -1,7 +1,7 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/4] alps: v7: Sometimes a single touch is reported in mt[1] rather then mt[0]
-Date: Wed,  3 Dec 2014 14:27:47 +0100
-Message-ID: <1417613268-13674-3-git-send-email-hdegoede@redhat.com>
+Subject: [PATCH 4/4] alps: v7: Fix finger counting for > 2 fingers on clickpads
+Date: Wed,  3 Dec 2014 14:27:48 +0100
+Message-ID: <1417613268-13674-4-git-send-email-hdegoede@redhat.com>
 References: <1417613268-13674-1-git-send-email-hdegoede@redhat.com>
 Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1417613268-13674-1-git-send-email-hdegoede@redhat.com>
@@ -10,59 +10,63 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org.#.3.17
 List-Id: linux-input@vger.kernel.org
 
-The v7 proto differentiates between a primary touch (with high precision)
-and a secondary touch (with lower precision). Normally when 2 fingers are
-down and one is lifted the still present touch becomes the primary touch,
-but some traces have shown that this does not happen always.
+Protocol v7 uses the middle / right button bits on clickpads to communicate
+"location" information of a 3th touch (and possible 4th) touch on clickpads.
 
-This commit deals with this by making alps_get_mt_count() not stop at the
-first empty mt slot, and if a touch is present in mt[1] and not mt[0] moving
-the data to mt[0] (for input_mt_assign_slots).
+Specifically when 3 touches are down, if one of the 3 touches is in the
+left / right button area, this will get reported in the middle / right button
+bits and the touchpad will still send a TWO type packet rather then a MULTI
+type packet, so when this happens we must add the finger reported in the
+button area to the finger count.
+
+Likewise we must also add fingers reported this way to the finger count
+when we get MULTI packets.
 
 BugLink: https://bugs.freedesktop.org/show_bug.cgi?id=86338
 Cc: stable@vger.kernel.org # 3.17
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/alps.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/input/mouse/alps.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 6b11629..77c7afe 100644
+index 77c7afe..d88d73d 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -947,12 +947,14 @@ static void alps_get_finger_coordinate_v7(struct input_mt_pos *mt,
- 
- static int alps_get_mt_count(struct input_mt_pos *mt)
+@@ -961,6 +961,7 @@ static int alps_decode_packet_v7(struct alps_fields *f,
+ 				  unsigned char *p,
+ 				  struct psmouse *psmouse)
  {
--	int i;
-+	int i, fingers = 0;
++	struct alps_data *priv = psmouse->private;
+ 	unsigned char pkt_id;
  
--	for (i = 0; i < MAX_TOUCHES && mt[i].x != 0 && mt[i].y != 0; i++)
--		/* empty */;
-+	for (i = 0; i < MAX_TOUCHES; i++) {
-+		if (mt[i].x != 0 || mt[i].y != 0)
-+			fingers++;
-+	}
+ 	pkt_id = alps_get_packet_id_v7(p);
+@@ -991,15 +992,22 @@ static int alps_decode_packet_v7(struct alps_fields *f,
  
--	return i;
-+	return fingers;
- }
+ 	alps_get_finger_coordinate_v7(f->mt, p, pkt_id);
  
- static int alps_decode_packet_v7(struct alps_fields *f,
-@@ -998,6 +1000,14 @@ static int alps_decode_packet_v7(struct alps_fields *f,
+-	f->left = (p[0] & 0x80) >> 7;
+-	f->right = (p[0] & 0x20) >> 5;
+-	f->middle = (p[0] & 0x10) >> 4;
+-
+ 	if (pkt_id == V7_PACKET_ID_TWO)
+ 		f->fingers = alps_get_mt_count(f->mt);
  	else /* pkt_id == V7_PACKET_ID_MULTI */
  		f->fingers = 3 + (p[5] & 0x03);
  
-+	/* Sometimes a single touch is reported in mt[1] rather then mt[0] */
-+	if (f->fingers == 1 && f->mt[0].x == 0 && f->mt[0].y == 0) {
-+		f->mt[0].x = f->mt[1].x;
-+		f->mt[0].y = f->mt[1].y;
-+		f->mt[1].x = 0;
-+		f->mt[1].y = 0;
++	f->left = (p[0] & 0x80) >> 7;
++	if (priv->flags & ALPS_BUTTONPAD) {
++		if (p[0] & 0x20)
++			f->fingers++;
++		if (p[0] & 0x10)
++			f->fingers++;
++	} else {
++		f->right = (p[0] & 0x20) >> 5;
++		f->middle = (p[0] & 0x10) >> 4;
 +	}
 +
- 	return 0;
- }
- 
+ 	/* Sometimes a single touch is reported in mt[1] rather then mt[0] */
+ 	if (f->fingers == 1 && f->mt[0].x == 0 && f->mt[0].y == 0) {
+ 		f->mt[0].x = f->mt[1].x;
 -- 
 2.1.0

@@ -1,47 +1,67 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
 Subject: Re: Side effect of pressing special keys
-Date: Wed, 3 Dec 2014 13:40:42 +0100
-Message-ID: <20141203124042.GA504@amd>
-References: <201411231441.17592@pali>
+Date: Wed, 3 Dec 2014 13:46:13 +0100
+Message-ID: <201412031346.13297@pali>
+References: <201411231441.17592@pali> <20141203124042.GA504@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed;
+  boundary="nextPart4977575.d8P1Ez9mSK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:43579 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751013AbaLCMko (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 07:40:44 -0500
-Content-Disposition: inline
-In-Reply-To: <201411231441.17592@pali>
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:57627 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751930AbaLCMqR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 07:46:17 -0500
+In-Reply-To: <20141203124042.GA504@amd>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
 Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Gabriele Mazzotta <gabriele.mzt@gmail.com>, linux-kernel@vger.kernel.org
 
-On Sun 2014-11-23 14:41:17, Pali Roh=E1r wrote:
-> Hello,
->=20
-> pressing some keys on laptops could cause some side effects.
->=20
-> Example scenario 1:
->=20
-> Laptop has Fn key for enabling/disabling WIFI and when that key=20
-> is pressed BIOS is doing two things:
->=20
-> 1) Switch hard rfkill state of WIFI
-> 2) Report that Fn key was pressed to kernel
->    (either via i8042 bus or via ACPI/WMI)
+--nextPart4977575.d8P1Ez9mSK
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-We should not really report that as a "key" to userspace. We might
-want to report that rfkill state changed....
-							Pavel
+On Wednesday 03 December 2014 13:40:42 Pavel Machek wrote:
+> On Sun 2014-11-23 14:41:17, Pali Roh=C3=A1r wrote:
+> > Hello,
+> >=20
+> > pressing some keys on laptops could cause some side effects.
+> >=20
+> > Example scenario 1:
+> >=20
+> > Laptop has Fn key for enabling/disabling WIFI and when that
+> > key is pressed BIOS is doing two things:
+> >=20
+> > 1) Switch hard rfkill state of WIFI
+> > 2) Report that Fn key was pressed to kernel
+> >=20
+> >    (either via i8042 bus or via ACPI/WMI)
+>=20
+> We should not really report that as a "key" to userspace. We
+> might want to report that rfkill state changed....
+> 							Pavel
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
-/blog.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ok, and what about KEY_KBDILLUMTOGGLE when bios also handle=20
+keyboard backlight level? Should be this key filtered too?
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart4977575.d8P1Ez9mSK
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlR/BhUACgkQi/DJPQPkQ1I3ZwCgzkushW86QTVF6VNvwjt1Q9Ah
+aoAAoKZ8a504jsdosY/cV4dDD4Fign8Z
+=2cRj
+-----END PGP SIGNATURE-----
+
+--nextPart4977575.d8P1Ez9mSK--

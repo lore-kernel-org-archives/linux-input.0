@@ -1,59 +1,47 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: Re: Re: [PATCH] Input : Initialize input_no by -1
-Date: Wed, 03 Dec 2014 06:41:55 +0000 (GMT)
-Message-ID: <1846753352.512271417588914046.JavaMail.weblogic@epmlwas04b>
-Reply-To: a.mathur@samsung.com
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] i2c-hid / PM: Replace CONFIG_PM_RUNTIME with CONFIG_PM
+Date: Wed, 3 Dec 2014 08:31:15 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412030830530.2524@pobox.suse.cz>
+References: <3331107.SjqxFqQlza@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:20733 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750707AbaLCGl4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 01:41:56 -0500
-Received: from epcpsbgx4.samsung.com
- (u164.gpu120.samsung.co.kr [203.254.230.164])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0NFZ00BGIULV0YE0@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Wed, 03 Dec 2014 15:41:55 +0900 (KST)
-MIME-version: 1.0
+Received: from cantor2.suse.de ([195.135.220.15]:50248 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751099AbaLCHbA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Dec 2014 02:31:00 -0500
+In-Reply-To: <3331107.SjqxFqQlza@vostro.rjw.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
 
-VGhhbmsgeW91IE1yLiBUb3Jva2hvdiBmb3IgYXBwbHlpbmcgcGF0Y2ggISEgOikNCkFzIHN1Z2dl
-c3RlZCwgSSB3aWxsIGNoZWNrIGZvciBtb3JlIHBsYWNlcyB3aGljaCBjb3VudCBmcm9tIDAgYW5k
-IHNlbmQgYSBwYXRjaCBzb29uLg0KSSBhcG9sb2dpemUgZm9yIHBpbmdpbmcgbGl0dGxlIG9mdGVu
-IGFuZCB3aWxsIG5vdCBmb2xsb3cgdGhlIHNhbWUgbmV4dCB0aW1lLg0KDQpSZWdhcmRzLA0KQW5p
-cm9vcCBNYXRodXINCg0KT24gVHVlLCBEZWMgMDIsIDIwMTQgYXQgMDM6Mjk6MjNQTSAtMDgwMCwg
-RG1pdHJ5IFRvcm9raG92IHdyb3RlOg0KPiBPbiBUdWUsIERlYyAwMiwgMjAxNCBhdCAxMDoxNToy
-OVBNICswNTMwLCBBbmlyb29wIE1hdGh1ciB3cm90ZToNCj4gPiBUaGlzIHBhdGNoIGluaXRpYWxp
-emVzIGlucHV0X25vIGJ5IC0xIGluIG9yZGVyIHRvIGF2b2lkIGV4dHJhIHN1YnRyYWN0aW9uDQo+
-ID4gb3BlcmF0aW9uIHBlcmZvcm1lZCBldmVyeXRpbWUgZm9yIGFsbG9jYXRpb24gb2YgYW4gaW5w
-dXQgZGV2aWNlLg0KPiA+IA0KPiA+IFNpZ25lZC1vZmYtYnk6IEFuaXJvb3AgTWF0aHVyIA0KPiAN
-Cj4gQXBwbGllZCwgdGhhbmsgeW91Lg0KPiANCj4gQnkgdGhlIHdheSwgd2UgaGF2ZSBhIGZldyBt
-b3JlIHBsYWNlcyBpbiBkcml2ZXJzL2lucHV0IHRoYXQgY291bnQgZnJvbSAwLCB3ZQ0KPiBtYXkg
-d2FudCB0byBjaGFuZ2UgdGhlbSBhcyB3ZWxsLg0KDQpBbHNvLCBmb3IgcGF0Y2hlcyBvZiBzdWNo
-IG5hdHVyZSAobm9uIHVyZ2VudCkgdGhlcmUgaXMgbm8gbmVlZCB0byBwaW5nIG1lIHNvDQpvZnRl
-bi4NCg0KVGhhbmtzLg0KDQo+IA0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL2lucHV0L2lucHV0LmMg
-fCA0ICsrLS0NCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
-bnMoLSkNCj4gPiANCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9pbnB1dC5jIGIvZHJp
-dmVycy9pbnB1dC9pbnB1dC5jDQo+ID4gaW5kZXggMjljYTBiYi4uMDFmZTQ5ZSAxMDA2NDQNCj4g
-PiAtLS0gYS9kcml2ZXJzL2lucHV0L2lucHV0LmMNCj4gPiArKysgYi9kcml2ZXJzL2lucHV0L2lu
-cHV0LmMNCj4gPiBAQCAtMTc3NCw3ICsxNzc0LDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoaW5wdXRf
-Y2xhc3MpOw0KPiA+ICAgKi8NCj4gPiAgc3RydWN0IGlucHV0X2RldiAqaW5wdXRfYWxsb2NhdGVf
-ZGV2aWNlKHZvaWQpDQo+ID4gIHsNCj4gPiAtIHN0YXRpYyBhdG9taWNfdCBpbnB1dF9ubyA9IEFU
-T01JQ19JTklUKDApOw0KPiA+ICsgc3RhdGljIGF0b21pY190IGlucHV0X25vID0gQVRPTUlDX0lO
-SVQoLTEpOw0KPiA+ICAgc3RydWN0IGlucHV0X2RldiAqZGV2Ow0KPiA+ICANCj4gPiAgIGRldiA9
-IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCBpbnB1dF9kZXYpLCBHRlBfS0VSTkVMKTsNCj4gPiBAQCAt
-MTc4OSw3ICsxNzg5LDcgQEAgc3RydWN0IGlucHV0X2RldiAqaW5wdXRfYWxsb2NhdGVfZGV2aWNl
-KHZvaWQpDQo+ID4gICBJTklUX0xJU1RfSEVBRCgmZGV2LT5ub2RlKTsNCj4gPiAgDQo+ID4gICBk
-ZXZfc2V0X25hbWUoJmRldi0+ZGV2LCAiaW5wdXQlbGQiLA0KPiA+IC0gICAgICAodW5zaWduZWQg
-bG9uZykgYXRvbWljX2luY19yZXR1cm4oJmlucHV0X25vKSAtIDEpOw0KPiA+ICsgICAgICAodW5z
-aWduZWQgbG9uZykgYXRvbWljX2luY19yZXR1cm4oJmlucHV0X25vKSk7DQo+ID4gIA0KPiA+ICAg
-X19tb2R1bGVfZ2V0KFRISVNfTU9EVUxFKTsNCj4gPiAgIH0NCj4gPiAtLSANCj4gPiAxLjkuMQ0K
-PiA+IA0KPiANCj4gVGhhbmtzLg0KPiANCj4gLS0gDQo+IERtaXRyeQ0KDQotLSANCkRtaXRyeQ==
+On Wed, 3 Dec 2014, Rafael J. Wysocki wrote:
 
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
+> selected) PM_RUNTIME is always set if PM is set, so #ifdef blocks
+> depending on CONFIG_PM_RUNTIME may now be changed to depend on
+> CONFIG_PM.
+> 
+> Replace CONFIG_PM_RUNTIME with CONFIG_PM in drivers/hid/i2c-hid/i2c-hid.c.
+> 
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> ---
+> 
+> Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
+> PM_SLEEP is selected) which is only in linux-next at the moment (via the
+> linux-pm tree).
+> 
+> Please let me know if it is OK to take this one into linux-pm.
 
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+
+Please take it through linux-pm.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

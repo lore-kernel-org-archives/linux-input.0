@@ -1,109 +1,94 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: Re: [PATCH v7 1/6] mfd: AXP20x: Add bindings documentation
-Date: Wed, 3 Dec 2014 18:05:56 +0800
-Message-ID: <CAGb2v67dMVFgNjU95vaQ842BuNSK2AzhTiYTn_EoKjFEn5g1kA@mail.gmail.com>
-References: <1404066237-20234-1-git-send-email-carlo@caione.org>
- <1404066237-20234-2-git-send-email-carlo@caione.org> <20140630094854.GY7262@leverpostej>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 0/7] Fixes for ALPS trackstick
+Date: Wed, 3 Dec 2014 11:59:11 +0100
+Message-ID: <201412031159.12055@pali>
+References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <201411251208.31658@pali> <DD50BA4C-4E7C-4E69-9A79-52C2B577F580@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBGOB7ORQKGQEQGDJ3YI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20140630094854.GY7262@leverpostej>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, "lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: multipart/signed;
+  boundary="nextPart10742929.JHqQP31OPD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:50264 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751149AbaLCK7P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 05:59:15 -0500
+In-Reply-To: <DD50BA4C-4E7C-4E69-9A79-52C2B577F580@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Mark,
+--nextPart10742929.JHqQP31OPD
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-I'm (hopefully) picking up the work for this series.
+On Thursday 27 November 2014 19:08:04 Dmitry Torokhov wrote:
+> On November 25, 2014 3:08:31 AM PST, "Pali Roh=C3=A1r"=20
+<pali.rohar@gmail.com> wrote:
+> >On Thursday 20 November 2014 00:29:49 Pali Roh=C3=A1r wrote:
+> >> On Monday 17 November 2014 08:39:14 Pali Roh=C3=A1r wrote:
+> >> > On Friday 14 November 2014 21:59:31 Dmitry Torokhov wrote:
+> >> > > Hi Pali,
+> >> > >=20
+> >> > > On Friday, November 14, 2014 08:38:19 PM Pali Roh=C3=A1r=20
+wrote:
+> >> > > > This patch series fix detection and identifying
+> >> > > > trackstick on machines with ALPS devices. Last patch
+> >> > > > split trackstick and bare PS/2 mouse packets between
+> >> > > > dev2 and dev3 input devices which make sure that
+> >> > > > driver will send only trackstick data to trackstick
+> >> > > > input device.
+> >> > >=20
+> >> > > Thank you for splitting the change, unfortunately it is
+> >> > > now quite big to apply to 3.18. Any chance you could
+> >> > > try implementing what I suggested in
+> >> > > http://www.spinics.net/lists/linux-input/msg34029.html
+> >> > > and then we can do the more comprehensive solution in
+> >> > > 3.19.
+> >> > >=20
+> >> > > Thanks.
+> >> >=20
+> >> > Hello, I think that patches 1/7 and 5/7 could do that
+> >> > job. I did not tested them alone (without other
+> >> > patches), but if you think that two patches are ok for
+> >> > 3.18 & stable I can test them...
+> >>=20
+> >> Dmitry, ping.
+> >
+> >Dmitry: ping again.
+>=20
+> Hi Pali,
+>=20
+> I'm on vacation and unfortunately connection here is
+> horrendous so I likely won't be able to do anything until
+> after 12/03.
+>=20
+> Sorry about that.
 
-On Mon, Jun 30, 2014 at 5:48 PM, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org> wrote:
-> On Sun, Jun 29, 2014 at 07:23:52PM +0100, Carlo Caione wrote:
->> Bindings documentation for the AXP20x driver. In this file also
->> sub-nodes are documented.
->>
->> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
->> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
->> ---
->>  Documentation/devicetree/bindings/mfd/axp20x.txt | 93 ++++++++++++++++++++++++
->>  1 file changed, 93 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
->>
->> diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
->> new file mode 100644
->> index 0000000..cc9e01b
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
->> @@ -0,0 +1,93 @@
->> +AXP202/AXP209 device tree bindings
->> +
->> +The axp20x family current members :-
->> +axp202 (X-Powers)
->> +axp209 (X-Powers)
->> +
->> +Required properties:
->> +- compatible: "x-powers,axp202" or "x-powers,axp209"
->> +- reg: The I2C slave address for the AXP chip
->> +- interrupt-parent: The parent interrupt controller
->> +- interrupts: Interrupt specifiers for interrupt sources
->
-> How many, what are they?
+Hi Dmitry,
 
-Now reads: SoC external interrupt / NMI connected to the PMIC's IRQ pin
+I tested that two patches 1/7 and 5/7 on top of 3.18 and it fixed=20
+name of ALPS devices. Can you send those two patches to 3.18 =20
+queue (just remove comment about speed as without other patches=20
+duplicate detection is still called)?
 
->> +- interrupt-controller: axp20x has its own internal IRQs
->> +- #interrupt-cells: Should be set to 1
->> +- acin-supply: The input supply for LDO1
->> +- vin2-supply: The input supply for DCDC2
->> +- vin3-supply: The input supply for DCDC3
->> +- ldo24in-supply: The input supply for LDO2, LDO4
->> +- ldo3in-supply: The input supply for LDO3
->> +- ldo5in-supply: The input supply for LDO5
->> +
->> +- regulators: A node that houses a sub-node for each regulator. The regulators are
->> +           bound using their name as listed here: dcdc2, dcdc3, ldo1, ldo2,
->> +           ldo3, ldo4, ldo5.  The bindings details of individual regulator
->> +           device can be found in:
->> +           Documentation/devicetree/bindings/regulator/regulator.txt with
->> +           the exception of x-powers,dcdc-freq
->> +- x-powers,dcdc-freq: defines the work frequency of DC-DC in KHz
->> +                   (range: 750-1875). Default: 1.5MHz
->> +
->> +Optional properties for DCDCs:
->> +- x-powers,dcdc-workmode: 1 for PWM mode, 0 for AUTO mode
->> +                       Default: AUTO mode
->
-> When would I want to select PWM mode, and why should this be in the DT?
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-Expanded description:
+--nextPart10742929.JHqQP31OPD
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-"""
-The DCDC regulators work in a mixed PWM/PFM mode,
-using PFM under light loads and switching to PWM
-for heavier loads. Forcing PWM mode trades efficiency
-under light loads for lower output noise. This
-probably makes sense for HiFi audio related
-applications that aren't battery constrained.
-"""
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-As I'm not an electronics person, I really can't say under
-what circumstances one would force the PMIC into PWM mode.
-The expanded description is an educated guess based on
-research on the internet about PWM and PFM.
+iEYEABECAAYFAlR+7QAACgkQi/DJPQPkQ1JdawCcC4z/iwZgkTDl+HBvDE4Cm5Hc
+JSAAoIquPaD3rcLtF2YI9KqqS5whIzmQ
+=18Vs
+-----END PGP SIGNATURE-----
 
-I think it makes sense to put this in the DT. The vendor
-building the board/DT is in the best position to know the
-constraints and requirements of the board, and can decide
-whether the trade off makes sense. As for the boards/DTs
-already out there, we can just leave it in auto mode.
-
-
-Regards
-ChenYu
+--nextPart10742929.JHqQP31OPD--

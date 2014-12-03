@@ -1,22 +1,22 @@
 From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: [PATCH] Input: Initialize atomic_t variables by -1
-Date: Thu,  4 Dec 2014 01:46:39 +0530
-Message-ID: <1417637799-3278-1-git-send-email-aniroop.mathur@gmail.com>
+Subject: [PATCH] Input: Initialize device count variables by -1
+Date: Thu,  4 Dec 2014 02:09:06 +0530
+Message-ID: <1417639146-3494-1-git-send-email-aniroop.mathur@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f180.google.com ([209.85.192.180]:61624 "EHLO
-	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752096AbaLCUQv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 15:16:51 -0500
-Received: by mail-pd0-f180.google.com with SMTP id p10so16143267pdj.11
-        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 12:16:50 -0800 (PST)
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:51683 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752102AbaLCUjR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 15:39:17 -0500
+Received: by mail-pd0-f169.google.com with SMTP id z10so1016269pdj.28
+        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 12:39:16 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
 Cc: aniroop.mathur@gmail.com, a.mathur@samsung.com
 
-This patch initializes atomic_t variables by -1 in order to avoid
-extra subtraction operation performed everytime for allocation of
-an input device.
+This patch initializes input device count variables by -1 in order
+to avoid extra subtraction operation performed everytime for
+allocation of an input device.
 
 Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
 ---

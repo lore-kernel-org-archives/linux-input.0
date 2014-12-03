@@ -1,36 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Incorrect Key Values in the array atakbd_keycode in atakdb.c
-Date: Tue, 2 Dec 2014 21:52:26 -0800
-Message-ID: <20141203055226.GA4935@dtor-glaptop>
-References: <54753BC4.2080503@gmail.com>
+Subject: Re: [PATCH] input / PM: Replace CONFIG_PM_RUNTIME with CONFIG_PM
+Date: Tue, 2 Dec 2014 21:54:44 -0800
+Message-ID: <20141203055444.GA7411@dtor-glaptop>
+References: <8119438.MdkFLx3Wvh@vostro.rjw.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:47050 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750815AbaLCFwt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 00:52:49 -0500
+Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <54753BC4.2080503@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <8119438.MdkFLx3Wvh@vostro.rjw.lan>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: linux-input@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Ferruh Yigit <fery@cypress.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: nick <xerofoify@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Nick,
+On Wed, Dec 03, 2014 at 03:09:10AM +0100, Rafael J. Wysocki wrote:
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
+> selected) PM_RUNTIME is always set if PM is set, so #ifdef blocks
+> depending on CONFIG_PM_RUNTIME may now be changed to depend on
+> CONFIG_PM.
+> 
+> The alternative of CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME may be
+> replaced with CONFIG_PM too.
+> 
+> Make these changes in 2 files under drivers/input/.
+> 
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-On Tue, Nov 25, 2014 at 09:32:36PM -0500, nick wrote:
-> Greetings Dmitry,
-> I don't known the key codes for this array but when you need around to it
-> would be very helpful, if you can send me what keys are wrong according to
-> the FIX ME messages or are they all correct.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Unfortunately I do not have/use Atari so I do not know if why current mappings
-are marked with FIXMEs.
+> ---
+> 
+> Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
+> PM_SLEEP is selected) which is only in linux-next at the moment (via the
+> linux-pm tree).
+> 
+> Please let me know if it is OK to take this one into linux-pm.
 
-Do you have an Atari and something is not quite working for you?
+Yeah, it should be fine.
 
-Thanks.
+> 
+> ---
+>  drivers/input/keyboard/samsung-keypad.c  |    2 +-
+>  drivers/input/touchscreen/cyttsp4_core.c |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Index: linux-pm/drivers/input/keyboard/samsung-keypad.c
+> ===================================================================
+> --- linux-pm.orig/drivers/input/keyboard/samsung-keypad.c
+> +++ linux-pm/drivers/input/keyboard/samsung-keypad.c
+> @@ -463,7 +463,7 @@ static int samsung_keypad_remove(struct
+>  	return 0;
+>  }
+>  
+> -#ifdef CONFIG_PM_RUNTIME
+> +#ifdef CONFIG_PM
+>  static int samsung_keypad_runtime_suspend(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+> Index: linux-pm/drivers/input/touchscreen/cyttsp4_core.c
+> ===================================================================
+> --- linux-pm.orig/drivers/input/touchscreen/cyttsp4_core.c
+> +++ linux-pm/drivers/input/touchscreen/cyttsp4_core.c
+> @@ -1716,7 +1716,7 @@ static void cyttsp4_free_si_ptrs(struct
+>  	kfree(si->btn_rec_data);
+>  }
+>  
+> -#if defined(CONFIG_PM_SLEEP) || defined(CONFIG_PM_RUNTIME)
+> +#ifdef CONFIG_PM
+>  static int cyttsp4_core_sleep(struct cyttsp4 *cd)
+>  {
+>  	int rc;
+> 
 
 -- 
 Dmitry

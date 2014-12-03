@@ -1,82 +1,46 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: Side effect of pressing special keys
-Date: Wed, 3 Dec 2014 14:40:50 +0100
-Message-ID: <201412031440.50755@pali>
-References: <201411231441.17592@pali> <201412031424.12142@pali> <2102451.ffMsF9xTEG@xps13>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Incorrect Key Values in the array atakbd_keycode in atakdb.c
+Date: Wed, 3 Dec 2014 11:45:24 -0800
+Message-ID: <20141203194524.GA16951@dtor-ws>
+References: <54753BC4.2080503@gmail.com>
+ <20141203055226.GA4935@dtor-glaptop>
+ <547F0C47.4070104@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1825629.9G8UqXzRcs";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:54989 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752614AbaLCNky (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 08:40:54 -0500
-In-Reply-To: <2102451.ffMsF9xTEG@xps13>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <547F0C47.4070104@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: nick <xerofoify@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart1825629.9G8UqXzRcs
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Wed, Dec 03, 2014 at 08:12:39AM -0500, nick wrote:
+> No I don't. I am was wondering why they are there still if there is no reason for them.
+> Cheers Nick 
 
-On Wednesday 03 December 2014 14:38:15 Gabriele Mazzotta wrote:
-> On Wednesday 03 December 2014 14:24:11 Pali Roh=C3=A1r wrote:
-> > On Wednesday 03 December 2014 14:12:54 Henrique de Moraes
-> >=20
-> > Holschuh wrote:
-> > > On Wed, 03 Dec 2014, Pali Roh=C3=A1r wrote:
-> > > > Ok, and what about KEY_KBDILLUMTOGGLE when bios also
-> > > > handle keyboard backlight level? Should be this key
-> > > > filtered too?
-> > >=20
-> > > IME, heck yes.
-> > >=20
-> > > If you ever make the mistake of sending to userspace
-> > > something the BIOS/kernel already reacted to, they will
-> > > find a way to loop it back to you and cause all sort of
-> > > issues.
-> >=20
-> > Ok, I think same. In KDE4 I see some loop/noop operation
-> > when new dell keyboard backlight driver is used. Key
-> > KEY_KBDILLUMTOGGLE cause that BIOS change brightness and
-> > also KDE4 see it and change it too...
-> >=20
-> > Similar problem there is with KEY_WLAN and NetworkManager.
-> >=20
-> > Gabriele, can you create patch which disable both KEY_WLAN
-> > and KEY_KBDILLUMTOGGLE in dell-wmi.c driver?
->=20
-> KEY_KBDILLUMTOGGLE is actually disabled already, but KEY_WLAN
-> (which I guess it should changed to KEY_RFKILL now that it
-> exists) isn't, so I will submit a patch. The comment above it
-> in dell-wmi.c makes me think that for all the systems the
-> BIOS does everything and not only mine.
->=20
-> Gabriele
+I'd rather hear this statement from a person with the hardware (such as
+Geert for example).
 
-KEY_KBDILLUMTOGGLE is not disabled for sure. I see it in log from=20
-input-events program.
+Thanks.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+> 
+> On 2014-12-03 12:52 AM, Dmitry Torokhov wrote:
+> > Hi Nick,
+> > 
+> > On Tue, Nov 25, 2014 at 09:32:36PM -0500, nick wrote:
+> >> Greetings Dmitry,
+> >> I don't known the key codes for this array but when you need around to it
+> >> would be very helpful, if you can send me what keys are wrong according to
+> >> the FIX ME messages or are they all correct.
+> > 
+> > Unfortunately I do not have/use Atari so I do not know if why current mappings
+> > are marked with FIXMEs.
+> > 
+> > Do you have an Atari and something is not quite working for you?
+> > 
+> > Thanks.
+> > 
 
---nextPart1825629.9G8UqXzRcs
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlR/EuIACgkQi/DJPQPkQ1JlDgCfW7liiziat19KiiUT63xBOmvC
-lIQAoMeCTh/uNRuPIS9bFmM7aSFm3UKH
-=KKET
------END PGP SIGNATURE-----
-
---nextPart1825629.9G8UqXzRcs--
+-- 
+Dmitry

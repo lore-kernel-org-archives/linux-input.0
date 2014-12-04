@@ -1,37 +1,80 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v12 02/19] input: cyapa: add device resource management
- infrastructure support
-Date: Thu, 4 Dec 2014 09:43:11 -0800
-Message-ID: <20141204174311.GA4806@dtor-ws>
-References: <1417599025-21681-1-git-send-email-dudley.dulixin@gmail.com>
- <1417599025-21681-3-git-send-email-dudley.dulixin@gmail.com>
+Subject: Re: [PATCH v9 15/18] input: cyapa: add gen3 trackpad device read
+ firmware image function support
+Date: Thu, 4 Dec 2014 09:46:41 -0800
+Message-ID: <20141204174641.GB4806@dtor-ws>
+References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
+ <1415003590-30485-16-git-send-email-dudl@cypress.com>
+ <20141110083955.GD39688@dtor-ws>
+ <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:63277 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932344AbaLDRnQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2014 12:43:16 -0500
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:43992 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753768AbaLDRqq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2014 12:46:46 -0500
 Content-Disposition: inline
-In-Reply-To: <1417599025-21681-3-git-send-email-dudley.dulixin@gmail.com>
+In-Reply-To: <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudley.dulixin@gmail.com>
-Cc: rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: Dudley Du <dudley.dulixin@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Dec 03, 2014 at 05:30:08PM +0800, Dudley Du wrote:
-> Remove cyapa_remove() method, add cyapa_open() and cyapa_close() methods for
-> input interface, also modified together with driver's memory and IRQ resource
-> allocations to support device resource management infrastructure to reduce
-> the mistakes of resource management.
-> TEST=test on Chromebooks.
-> 
-> Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
+On Mon, Nov 10, 2014 at 11:05:39AM +0000, Dudley Du wrote:
+> Thanks, Dmitry
+>=20
+> > -----Original Message-----
+> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> > Sent: 2014?11?10? 16:40
+> > To: Dudley Du
+> > Cc: rydberg@euromail.se; Dudley Du; bleung@google.com;
+> > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH v9 15/18] input: cyapa: add gen3 trackpad devic=
+e read
+> > firmware image function support
+> >
+> > On Mon, Nov 03, 2014 at 04:33:07PM +0800, Dudley Du wrote:
+> > > Add read firmware image function supported for gen3 trackpad devi=
+ce,
+> > > it can be used through debugfs read_fw interface.
+> >
+> > Why do we need this? Can we do the same via usespace program access=
+ing
+> > the i2c device through /dev/i2c-N?
+>=20
+> This interface is used to test and debug only. It's defined and requi=
+red by the chromium projects.
+>=20
+> And in the driver side, becase the firmware image read process is don=
+e based on interrupt signal,
+> if do this in userspace through /dev/i2c-N, there will be two issues:
+> 1) for gen5, after each command, an interrupt will be asserted, so if=
+ throug /dev/i2c-N,
+> userspace program cannot get the interrupt signal.
+> 2) and when the interrupt signal assert, driver won't know it=E2=80=99=
+s a command signal for image read,
+> so it will try to process it as data report.
+> To avoid this, additional interface must be added to mark the image r=
+ead status and
+> block interrupt signal to be process as data report.
 
-OK, so this patch (in slightly modified form) has already been applied,
-so you can drop it from the next respin.
+I believe that while userspace acc4esses the device through /dev/i2c-N
+you should unbind the cyapa driver from the device (via sysfs driver
+core bind/unbind attribute) so that it doe snot get in the way. Once
+diagnostics is done you can bind the driver back to device, restoring
+normal operation.
+
+That is how we are planning to handle other devices at factory as
+well.
 
 Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

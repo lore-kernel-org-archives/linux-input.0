@@ -1,191 +1,456 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BUG] [PATCH] next: cyapa: fix inop touchpad after resume on
- Acer C720
-Date: Wed, 3 Dec 2014 15:42:46 -0800
-Message-ID: <20141203234246.GA10327@dtor-ws>
-References: <20141124085059.GA15770@hudson.localdomain>
- <20141125100703.GA9287@hudson.localdomain>
- <af603da34acc4caca630ca58eda7eb1e@BN1PR06MB070.namprd06.prod.outlook.com>
- <20141126200238.GB27014@hudson.localdomain>
- <000d01d00a05$7ffe4970$7ffadc50$@gmail.com>
- <189CB621-DEBE-4C54-AE62-9441D50C7C55@gmail.com>
- <9d446cdf85214727b1cd02d7e1537e2b@BN1PR06MB070.namprd06.prod.outlook.com>
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: Re: [PATCH v4 1/2] Input: add regulator haptic driver
+Date: Thu, 04 Dec 2014 10:43:14 +0900
+Message-ID: <547FBC32.9050202@samsung.com>
+References: <1417399873-19575-1-git-send-email-jaewon02.kim@samsung.com>
+ <1417399873-19575-2-git-send-email-jaewon02.kim@samsung.com>
+ <20141203060247.GE7411@dtor-glaptop> <547EADAD.9060100@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:52079 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751391AbaLCXmv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2014 18:42:51 -0500
-Received: by mail-ie0-f171.google.com with SMTP id rl12so14726559iec.16
-        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2014 15:42:50 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <9d446cdf85214727b1cd02d7e1537e2b@BN1PR06MB070.namprd06.prod.outlook.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <547EADAD.9060100@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kukjin Kim <kgene.kim@samsung.com>, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Hyunhee Kim <hyunhee.kim@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: 'Jeremiah Mahler' <jmmahler@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Dudley,
+Hi Dmity,
 
-On Fri, Nov 28, 2014 at 01:49:15AM +0000, Dudley Du wrote:
-> Dmitry,
->=20
-> Yes, I remebered the discussion, and I said it was working.
-> At that time, I though it was the suggestion to my patches, so I merg=
-ed the solution to my pathces,
-> and verified on my pathces. But did not run test on the patch you att=
-ached.
-> Sorry for the misunderstood and the troubles to you. :)
-
-Sorry I was not clear in my request. Anyway, I just applied the patch
-(with a minor edit) and pushed it out. It shoudl make it's way into nex=
-t
-today or tomorrow.
-
-Thanks.
-
->=20
-> Regards,
-> Dudley
->=20
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: 2014=E5=B9=B411=E6=9C=8828=E6=97=A5 2:16
-> > To: Dudley Du; 'Jeremiah Mahler'
-> > Cc: linux-kernel@vger.kernel.org; Dudley Du
-> > Subject: RE: [BUG] [PATCH] next: cyapa: fix inop touchpad after res=
-ume on Acer
-> > C720
-> >
-> > On November 26, 2014 9:45:49 PM PST, Dudley Du <dudley.dulixin@gmai=
-l.com>
-> > wrote:
-> > >Jeremiah,
-> > >
-> > >I didn't make the special patch for the linux-next before, so I do=
-n't
-> > >know why
-> > >this patch is there and have issue.
-> >
-> > That was the patch we've discussed some times back and you mentione=
-d it was
-> > working for you so I applied it to next.
-> >
-> > I'll make sure to apply the fixup promptly.
-> >
-> > >Based on current code in the linux-next, I made below patch to fix=
- this
-> > >issue.
-> > >Could you please try again with attached patch fix.
-> > >
-> > >Thanks,
-> > >Dudley
-> > >
-> > >> -----Original Message-----
-> > >> From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
-> > >> Sent: 2014?11?27? 4:03
-> > >> To: Dudley Du
-> > >> Cc: linux-kernel@vger.kernel.org
-> > >> Subject: Re: [BUG] [PATCH] next: cyapa: fix inop touchpad after
-> > >resume on Acer
-> > >> C720
-> > >>
-> > >> Dudley,
-> > >>
-> > >> On Wed, Nov 26, 2014 at 06:16:00AM +0000, Dudley Du wrote:
-> > >> > More info: I did all testings based on kernel 3.14.0 on Acer C=
-70.
-> > >> >
-> > >>
-> > >> I am testing with linux-next 3.18-rc6 on an Acer C720.
-> > >>
-> > >> http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/
-> > >>
-> > >> > Thanks,
-> > >> > Dudley
-> > >> >
-> > >> []
-> > >>
-> > >> --
-> > >> - Jeremiah Mahler
-> > >
-> > >From bb717b1c1525ef6b889f0ef735d920eed9e76e72 Mon Sep 17 00:00:00 =
-2001
-> > >From: Dudley Du <dudley.dulixin@gmail.com>
-> > >Date: Thu, 27 Nov 2014 13:35:09 +0800
-> > >Subject: [PATCH] input: cyapa: fix irq error issue in cyapa_resume
-> > >To: dmitry.torokhov@gmail.com,
-> > >    jmmahler@gmail.com
-> > >Cc: bleung@google.com,
-> > >    linux-input@vger.kernel.org
-> > >
-> > >This patch is aimed to fix the irq error happened on cyapa_resume =
-when
-> > >doing suspend/resume testing.
-> > >The root cause of this issue is that the cyapa->irq has been remov=
-ed
-> > >but
-> > >still used in the driver.
-> > >
-> > >Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
-> > >---
-> > > drivers/input/mouse/cyapa.c | 6 +++---
-> > > 1 file changed, 3 insertions(+), 3 deletions(-)
-> > >
-> > >diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cya=
-pa.c
-> > >index c84a9eb..caaba7b 100644
-> > >--- a/drivers/input/mouse/cyapa.c
-> > >+++ b/drivers/input/mouse/cyapa.c
-> > >@@ -938,7 +938,7 @@ static int __maybe_unused cyapa_suspend(struct
-> > >device *dev)
-> > >  power_mode, error);
-> > >
-> > > if (device_may_wakeup(dev))
-> > >-cyapa->irq_wake =3D (enable_irq_wake(cyapa->irq) =3D=3D 0);
-> > >+cyapa->irq_wake =3D (enable_irq_wake(cyapa->client->irq) =3D=3D 0=
+2014=EB=85=84 12=EC=9B=94 03=EC=9D=BC 15:29=EC=97=90 Jaewon Kim =EC=9D=B4=
+(=EA=B0=80) =EC=93=B4 =EA=B8=80:
+> Hi Dmitry,
+>
+> 2014=EB=85=84 12=EC=9B=94 03=EC=9D=BC 15:02=EC=97=90 Dmitry Torokhov =
+=EC=9D=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
+>> Hi Jaewon,
+>>
+>> On Mon, Dec 01, 2014 at 11:11:12AM +0900, Jaewon Kim wrote:
+>>> This patch adds support for haptic driver controlled by
+>>> voltage of regulator. And this driver support for
+>>> Force Feedback interface from input framework
+>>>
+>>> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+>>> Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
+>>> Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
+>>> Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
+>>> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+>>> Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+>>> ---
+>>>   .../devicetree/bindings/input/regulator-haptic.txt |   21 ++
+>>>   drivers/input/misc/Kconfig                         |   11 +
+>>>   drivers/input/misc/Makefile                        |    1 +
+>>>   drivers/input/misc/regulator-haptic.c              |  247=20
+>>> ++++++++++++++++++++
+>>>   include/linux/input/regulator-haptic.h             |   31 +++
+>>>   5 files changed, 311 insertions(+)
+>>>   create mode 100644=20
+>>> Documentation/devicetree/bindings/input/regulator-haptic.txt
+>>>   create mode 100644 drivers/input/misc/regulator-haptic.c
+>>>   create mode 100644 include/linux/input/regulator-haptic.h
+>>>
+>>> diff --git=20
+>>> a/Documentation/devicetree/bindings/input/regulator-haptic.txt=20
+>>> b/Documentation/devicetree/bindings/input/regulator-haptic.txt
+>>> new file mode 100644
+>>> index 0000000..3ed1c7e
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/input/regulator-haptic.txt
+>>> @@ -0,0 +1,21 @@
+>>> +* Regulator Haptic Device Tree Bindings
+>>> +
+>>> +Required Properties:
+>>> + - compatible : Should be "regulator-haptic"
+>>> + - haptic-supply : Power supply to the haptic motor.
+>>> +    [*] refer=20
+>>> Documentation/devicetree/bindings/regulator/regulator.txt
+>>> +
+>>> + - max-microvolt : The maximum voltage value supplied to the hapti=
+c=20
+>>> motor.
+>>> +        [The unit of the voltage is a micro]
+>>> +
+>>> + - min-microvolt : The minimum voltage value supplied to the hapti=
+c=20
+>>> motor.
+>>> +        [The unit of the voltage is a micro]
+>>> +
+>>> +Example:
+>>> +
+>>> +    haptics {
+>>> +        compatible =3D "regulator-haptic";
+>>> +        haptic-supply =3D <&motor_regulator>;
+>>> +        max-microvolt =3D <2700000>;
+>>> +        min-microvolt =3D <1100000>;
+>>> +    };
+>>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfi=
+g
+>>> index 23297ab..e5e556d 100644
+>>> --- a/drivers/input/misc/Kconfig
+>>> +++ b/drivers/input/misc/Kconfig
+>>> @@ -394,6 +394,17 @@ config INPUT_CM109
+>>>         To compile this driver as a module, choose M here: the=20
+>>> module will be
+>>>         called cm109.
+>>>   +config INPUT_REGULATOR_HAPTIC
+>>> +    tristate "regulator haptics support"
+>>> +    select INPUT_FF_MEMLESS
+>>> +    help
+>>> +      This option enables device driver support for the haptic=20
+>>> controlled
+>>> +      by regulator. This driver supports ff-memless interface
+>>> +      from input framework.
+>>> +
+>>> +      To compile this driver as a module, choose M here: the
+>>> +      module will be called regulator-haptic.
+>>> +
+>>>   config INPUT_RETU_PWRBUTTON
+>>>       tristate "Retu Power button Driver"
+>>>       depends on MFD_RETU
+>>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makef=
+ile
+>>> index 19c7603..1f135af 100644
+>>> --- a/drivers/input/misc/Makefile
+>>> +++ b/drivers/input/misc/Makefile
+>>> @@ -53,6 +53,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)    +=3D=20
+>>> pmic8xxx-pwrkey.o
+>>>   obj-$(CONFIG_INPUT_POWERMATE)        +=3D powermate.o
+>>>   obj-$(CONFIG_INPUT_PWM_BEEPER)        +=3D pwm-beeper.o
+>>>   obj-$(CONFIG_INPUT_RB532_BUTTON)    +=3D rb532_button.o
+>>> +obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)    +=3D regulator-haptic.o
+>>>   obj-$(CONFIG_INPUT_RETU_PWRBUTTON)    +=3D retu-pwrbutton.o
+>>>   obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)    +=3D rotary_encoder.o
+>>>   obj-$(CONFIG_INPUT_SGI_BTNS)        +=3D sgi_btns.o
+>>> diff --git a/drivers/input/misc/regulator-haptic.c=20
+>>> b/drivers/input/misc/regulator-haptic.c
+>>> new file mode 100644
+>>> index 0000000..6bc8e45
+>>> --- /dev/null
+>>> +++ b/drivers/input/misc/regulator-haptic.c
+>>> @@ -0,0 +1,247 @@
+>>> +/*
+>>> + * Regulator haptic driver
+>>> + *
+>>> + * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+>>> + * Author: Jaewon Kim <jaewon02.kim@samsung.com>
+>>> + * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or=20
+>>> modify
+>>> + * it under the terms of the GNU General Public License version 2 =
+as
+>>> + * published by the Free Software Foundation.
+>>> + */
+>>> +
+>>> +#include <linux/input.h>
+>>> +#include <linux/input/regulator-haptic.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/of.h>
+>>> +#include <linux/platform_device.h>
+>>> +#include <linux/regulator/consumer.h>
+>>> +#include <linux/slab.h>
+>>> +
+>>> +#define MAX_MAGNITUDE_SHIFT    16
+>>> +
+>>> +struct regulator_haptic {
+>>> +    struct device *dev;
+>>> +    struct input_dev *input_dev;
+>>> +    struct regulator *regulator;
+>>> +    struct work_struct work;
+>>> +
+>>> +    bool enabled;
+>>> +    bool suspend_state;
+>>> +    unsigned int max_volt;
+>>> +    unsigned int min_volt;
+>>> +    unsigned int intensity;
+>>> +    unsigned int magnitude;
+>>> +};
+>>> +
+>>> +static void regulator_haptic_enable(struct regulator_haptic=20
+>>> *haptic, bool state)
+>>> +{
+>>> +    int error;
+>>> +
+>>> +    if (haptic->enabled =3D=3D state)
+>>> +        return;
+>>> +
+>>> +    if (state)
+>>> +        error =3D regulator_enable(haptic->regulator);
+>>> +    else
+>>> +        error =3D regulator_disable(haptic->regulator);
+>>> +    if (error) {
+>>> +        dev_err(haptic->dev, "cannot enable regulator\n");
+>>> +        return;
+>>> +    }
+>>> +
+>>> +    haptic->enabled =3D state;
+>>> +}
+>>> +
+>>> +static void regulator_haptic_work(struct work_struct *work)
+>>> +{
+>>> +    struct regulator_haptic *haptic =3D container_of(work,
+>>> +                    struct regulator_haptic, work);
+>>> +    int error;
+>>> +
+>>> +    error =3D regulator_set_voltage(haptic->regulator,
+>>> +            haptic->intensity + haptic->min_volt, haptic->max_volt=
 );
-> > >
-> > > mutex_unlock(&input->mutex);
-> > >
-> > >@@ -956,7 +956,7 @@ static int __maybe_unused cyapa_resume(struct
-> > >device *dev)
-> > > mutex_lock(&input->mutex);
-> > >
-> > > if (device_may_wakeup(dev) && cyapa->irq_wake)
-> > >-disable_irq_wake(cyapa->irq);
-> > >+disable_irq_wake(cyapa->client->irq);
-> > >
-> > > power_mode =3D input->users ? PWR_MODE_FULL_ACTIVE : PWR_MODE_OFF=
+>>> +    if (error) {
+>>> +        dev_err(haptic->dev, "cannot set regulator voltage\n");
+>>> +        return;
+>>> +    }
+>>> +
+>>> +    if (haptic->magnitude)
+>>> +        regulator_haptic_enable(haptic, true);
+>>> +    else
+>>> +        regulator_haptic_enable(haptic, false);
+>>> +}
+>>> +
+>>> +static int regulator_haptic_play_effect(struct input_dev *input,=20
+>>> void *data,
+>>> +                    struct ff_effect *effect)
+>>> +{
+>>> +    struct regulator_haptic *haptic =3D input_get_drvdata(input);
+>>> +    u64 volt_mag_multi;
+>>> +
+>>> +    haptic->magnitude =3D effect->u.rumble.strong_magnitude;
+>>> +    if (!haptic->magnitude)
+>>> +        haptic->magnitude =3D effect->u.rumble.weak_magnitude;
+>>> +
+>>> +
+>>> +    volt_mag_multi =3D (u64)(haptic->max_volt - haptic->min_volt) =
+*
+>>> +                    haptic->magnitude;
+>>> +    haptic->intensity =3D (unsigned int)(volt_mag_multi >>
+>>> +                    MAX_MAGNITUDE_SHIFT);
+>>> +
+>>> +    schedule_work(&haptic->work);
+>>> +
+>>> +    return 0;
+>>> +}
+>>> +
+>>> +static void regulator_haptic_close(struct input_dev *input)
+>>> +{
+>>> +    struct regulator_haptic *haptic =3D input_get_drvdata(input);
+>>> +
+>>> +    cancel_work_sync(&haptic->work);
+>>> +    regulator_haptic_enable(haptic, false);
+>>> +}
+>>> +
+>>> +#ifdef CONFIG_OF
+>>> +static int regulator_haptic_parse_dt(struct regulator_haptic *hapt=
+ic)
+>>> +{
+>>> +    struct device_node *node =3D haptic->dev->of_node;
+>>> +    int error;
+>>> +
+>>> +    error =3D of_property_read_u32(node, "max-microvolt",=20
+>>> &haptic->max_volt);
+>>> +    if (error) {
+>>> +        dev_err(haptic->dev, "cannot parse max-microvolt\n");
+>>> +        return error;
+>>> +    }
+>>> +
+>>> +    error =3D of_property_read_u32(node, "min-microvolt",=20
+>>> &haptic->min_volt);
+>>> +    if (error) {
+>>> +        dev_err(haptic->dev, "cannot parse min-microvolt\n");
+>>> +        return error;
+>>> +    }
+>>> +
+>>> +    return 0;
+>>> +}
+>>> +#else
+>>> +static int regulator_haptic_parse_dt(struct regulator_haptic *hapt=
+ic)
+>>> +{
+>>> +    return 0;
+>>> +}
+>>> +#endif /* CONFIG_OF */
+>>> +
+>>> +static int regulator_haptic_probe(struct platform_device *pdev)
+>>> +{
+>>> +    struct regulator_haptic *haptic;
+>>> +    struct regulator_haptic_data *data;
+>>> +    struct input_dev *input_dev;
+>>> +    int error;
+>>> +
+>>> +    haptic =3D devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNE=
+L);
+>>> +    if (!haptic)
+>>> +        return -ENOMEM;
+>>> +
+>>> +    haptic->dev =3D &pdev->dev;
+>>> +    haptic->enabled =3D false;
+>>> +    haptic->suspend_state =3D false;
+>>> +    INIT_WORK(&haptic->work, regulator_haptic_work);
+>>> +
+>>> +    if (pdev->dev.of_node) {
+>>> +        error =3D regulator_haptic_parse_dt(haptic);
+>>> +        if (error) {
+>>> +            dev_err(&pdev->dev, "failed to parse device tree\n");
+>>> +            return error;
+>>> +        }
+>>> +    } else {
+>>> +        data =3D dev_get_platdata(&pdev->dev);
+>>> +        if (data) {
+>>> +            dev_err(&pdev->dev, "failed to get platdata\n");
+>>> +            return -EINVAL;
+>>> +        }
+>>> +
+>>> +        haptic->regulator =3D data->regulator;
+>>> +        haptic->max_volt =3D data->max_volt;
+>>> +        haptic->min_volt =3D data->min_volt;
+>> Please give preference to platform data if supplied, and if not then=
+ try
+>> fetching settings from device tree.
+>
+> Ok. i will give prefrence to platform data in next version.
+>
+>>
+>>> +    }
+>>> +
+>>> +    haptic->regulator =3D devm_regulator_get_exclusive(&pdev->dev,=
+=20
+>>> "haptic");
+>>> +    if (IS_ERR(haptic->regulator)) {
+>>> +        dev_err(&pdev->dev, "failed to get regulator\n");
+>>> +        return PTR_ERR(haptic->regulator);
+>>> +    }
+>>> +
+>>> +    input_dev =3D devm_input_allocate_device(&pdev->dev);
+>>> +    if (!input_dev)
+>>> +        return  -ENOMEM;
+>>> +
+>>> +    haptic->input_dev =3D input_dev;
+>>> +    haptic->input_dev->name =3D "regulator-haptic";
+>>> +    haptic->input_dev->dev.parent =3D &pdev->dev;
+>>> +    haptic->input_dev->close =3D regulator_haptic_close;
+>>> +    input_set_drvdata(haptic->input_dev, haptic);
+>>> +    input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
+>>> +
+>>> +    error =3D input_ff_create_memless(input_dev, NULL,
+>>> +                  regulator_haptic_play_effect);
+>>> +    if (error) {
+>>> +        dev_err(&pdev->dev, "failed to create force-feedback\n");
+>>> +        return error;
+>>> +    }
+>>> +
+>>> +    error =3D input_register_device(haptic->input_dev);
+>>> +    if (error) {
+>>> +        dev_err(&pdev->dev, "failed to register input device\n");
+>>> +        return error;
+>>> +    }
+>>> +
+>>> +    platform_set_drvdata(pdev, haptic);
+>>> +
+>>> +    return 0;
+>>> +}
+>>> +
+>>> +static int __maybe_unused regulator_haptic_suspend(struct device *=
+dev)
+>>> +{
+>>> +    struct platform_device *pdev =3D to_platform_device(dev);
+>>> +    struct regulator_haptic *haptic =3D platform_get_drvdata(pdev)=
 ;
-> > > error =3D cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
-> > >@@ -964,7 +964,7 @@ static int __maybe_unused cyapa_resume(struct
-> > >device *dev)
-> > > dev_warn(dev, "resume: set power mode to %d failed: %d\n",
-> > >  power_mode, error);
-> > >
-> > >-enable_irq(cyapa->irq);
-> > >+enable_irq(cyapa->client->irq);
-> > >
-> > > mutex_unlock(&input->mutex);
-> > >
-> >
-> > Hi Dudley,
-> > Thanks.
-> >
-> > --
-> > Dmitry
->=20
-> This message and any attachments may contain Cypress (or its subsidia=
-ries) confidential information. If it has been received in error, pleas=
-e advise the sender and immediately delete this message.
+>>> +
+>>> +    if (haptic->enabled) {
+>> You need to protect this code from racing with the work item.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I saw this review now but i sent v5. It did not reflect in v5.
+I will send soon and modifies in v6.
+
+>>
+>>> +        regulator_haptic_enable(haptic, false);
+>>> +        haptic->suspend_state =3D true;
+>>> +    }
+>>> +
+>>> +    return 0;
+>>> +}
+>>> +
+>>> +static int __maybe_unused regulator_haptic_resume(struct device *d=
+ev)
+>>> +{
+>>> +    struct platform_device *pdev =3D to_platform_device(dev);
+>>> +    struct regulator_haptic *haptic =3D platform_get_drvdata(pdev)=
+;
+>>> +
+>>> +    if (haptic->suspend_state) {
+>>> +        regulator_haptic_enable(haptic, true);
+>>> +        haptic->suspend_state =3D false;
+>>> +    }
+>>> +
+>>> +    return 0;
+>>> +}
+>>> +
+>>> +static SIMPLE_DEV_PM_OPS(regulator_haptic_pm_ops,
+>>> +        regulator_haptic_suspend, regulator_haptic_resume);
+>>> +
+>>> +static struct of_device_id regulator_haptic_dt_match[] =3D {
+>>> +    { .compatible =3D "regulator-haptic" },
+>>> +    { /* sentinel */ },
+>>> +};
+>>> +
+>>> +static struct platform_driver regulator_haptic_driver =3D {
+>>> +    .probe        =3D regulator_haptic_probe,
+>>> +    .driver        =3D {
+>>> +        .name        =3D "regulator-haptic",
+>>> +        .of_match_table =3D regulator_haptic_dt_match,
+>>> +        .pm        =3D &regulator_haptic_pm_ops,
+>>> +    },
+>>> +};
+>>> +module_platform_driver(regulator_haptic_driver);
+>>> +
+>>> +MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
+>>> +MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
+>>> +MODULE_DESCRIPTION("Regulator haptic driver");
+>>> +MODULE_LICENSE("GPL");
+>>> diff --git a/include/linux/input/regulator-haptic.h=20
+>>> b/include/linux/input/regulator-haptic.h
+>>> new file mode 100644
+>>> index 0000000..05ae038
+>>> --- /dev/null
+>>> +++ b/include/linux/input/regulator-haptic.h
+>>> @@ -0,0 +1,31 @@
+>>> +/*
+>>> + * Regulator Haptic Platform Data
+>>> + *
+>>> + * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+>>> + * Author: Jaewon Kim <jaewon02.kim@samsung.com>
+>>> + * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
+>>> + *
+>>> + * This program is free software; you can redistribute it and/or=20
+>>> modify
+>>> + * it under the terms of the GNU General Public License version 2 =
+as
+>>> + * published by the Free Software Foundation.
+>>> + */
+>>> +
+>>> +#ifndef _REGULATOR_HAPTIC_H
+>>> +#define _REGULATOR_HAPTIC_H
+>>> +
+>>> +/*
+>>> + * struct regulator_haptic_data - Platform device data
+>>> + *
+>>> + * @regulator: Power supply to the haptic motor
+>>> + * @max_volt: maximum voltage value supplied to the haptic motor.
+>>> + *         <The unit of the voltage is a micro>
+>>> + * @min_volt: minimum voltage value supplied to the haptic motor.
+>>> + *         <The unit of the voltage is a micro>
+>>> + */
+>>> +struct regulator_haptic_data {
+>>> +    struct regulator *regulator;
+>>> +    unsigned int max_volt;
+>>> +    unsigned int min_volt;
+>>> +};
+>>> +
+>>> +#endif /* _REGULATOR_HAPTIC_H */
+>>> --=20
+>>> 1.7.9.5
+>>>
+>> Thanks.
+>>
+>
+> Thanks.
+> Jaewon Kim.

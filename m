@@ -1,456 +1,166 @@
-From: Jaewon Kim <jaewon02.kim@samsung.com>
-Subject: Re: [PATCH v4 1/2] Input: add regulator haptic driver
-Date: Thu, 04 Dec 2014 10:43:14 +0900
-Message-ID: <547FBC32.9050202@samsung.com>
-References: <1417399873-19575-1-git-send-email-jaewon02.kim@samsung.com>
- <1417399873-19575-2-git-send-email-jaewon02.kim@samsung.com>
- <20141203060247.GE7411@dtor-glaptop> <547EADAD.9060100@samsung.com>
+From: Karl Dahlke <eklhad@comcast.net>
+Subject: [PATCH] input/speaker: additional clicks and tones for future...
+Date: Wed, 03 Dec 2014 21:00:46 -0500
+Message-ID: <20141103210046.eklhad@comcast.net>
+References: <20141102001740.eklhad@comcast.net> <20141203225229.GE16951@dtor-ws>
+Reply-To: Karl Dahlke <eklhad@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <547EADAD.9060100@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kukjin Kim <kgene.kim@samsung.com>, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Hyunhee Kim <hyunhee.kim@samsung.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from resqmta-po-02v.sys.comcast.net ([96.114.154.161]:47203 "EHLO
+	resqmta-po-02v.sys.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750840AbaLDCAr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Dec 2014 21:00:47 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: vojtech@ucw.cz, linux-input@vger.kernel.org
 
-Hi Dmity,
+It seems to be the general consensus that these sound functions
+should not be integrated into the kernel - and that's ok.
+Allow me then to ask one more question if I may.
+I have a module, ttyclicks.ko, that makes sounds and clicks and such,
+and is used primarily by adapters.
+By design, it operates the pc speaker, and is never intended
+to vector through a sound card or other such.
+In fact it provides feedback when the sound card is not working.
+That might eliminate some of your concerns.
+My question is, would it be possible to add this module to the kernel tree?
+If you wanted to add it under staging, that would be fine.
+After all, the Speakup modules are all under staging,
+and since so few people use them, that's not a problem.
+My modules would also be used by a slim minority,
+but that minority would sure find it convenient to have the modules
+distributed with the kernel.
+If you think this is at least a possibility, I will put a patch together.
+If not, I will maintain them privately, as I already do.
+To clarify how the module works,
+here is the file that would be added as
+Documentation/accessibility/ttyclicks.txt
 
-2014=EB=85=84 12=EC=9B=94 03=EC=9D=BC 15:29=EC=97=90 Jaewon Kim =EC=9D=B4=
-(=EA=B0=80) =EC=93=B4 =EA=B8=80:
-> Hi Dmitry,
->
-> 2014=EB=85=84 12=EC=9B=94 03=EC=9D=BC 15:02=EC=97=90 Dmitry Torokhov =
-=EC=9D=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
->> Hi Jaewon,
->>
->> On Mon, Dec 01, 2014 at 11:11:12AM +0900, Jaewon Kim wrote:
->>> This patch adds support for haptic driver controlled by
->>> voltage of regulator. And this driver support for
->>> Force Feedback interface from input framework
->>>
->>> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
->>> Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
->>> Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
->>> Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
->>> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
->>> Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
->>> ---
->>>   .../devicetree/bindings/input/regulator-haptic.txt |   21 ++
->>>   drivers/input/misc/Kconfig                         |   11 +
->>>   drivers/input/misc/Makefile                        |    1 +
->>>   drivers/input/misc/regulator-haptic.c              |  247=20
->>> ++++++++++++++++++++
->>>   include/linux/input/regulator-haptic.h             |   31 +++
->>>   5 files changed, 311 insertions(+)
->>>   create mode 100644=20
->>> Documentation/devicetree/bindings/input/regulator-haptic.txt
->>>   create mode 100644 drivers/input/misc/regulator-haptic.c
->>>   create mode 100644 include/linux/input/regulator-haptic.h
->>>
->>> diff --git=20
->>> a/Documentation/devicetree/bindings/input/regulator-haptic.txt=20
->>> b/Documentation/devicetree/bindings/input/regulator-haptic.txt
->>> new file mode 100644
->>> index 0000000..3ed1c7e
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/input/regulator-haptic.txt
->>> @@ -0,0 +1,21 @@
->>> +* Regulator Haptic Device Tree Bindings
->>> +
->>> +Required Properties:
->>> + - compatible : Should be "regulator-haptic"
->>> + - haptic-supply : Power supply to the haptic motor.
->>> +    [*] refer=20
->>> Documentation/devicetree/bindings/regulator/regulator.txt
->>> +
->>> + - max-microvolt : The maximum voltage value supplied to the hapti=
-c=20
->>> motor.
->>> +        [The unit of the voltage is a micro]
->>> +
->>> + - min-microvolt : The minimum voltage value supplied to the hapti=
-c=20
->>> motor.
->>> +        [The unit of the voltage is a micro]
->>> +
->>> +Example:
->>> +
->>> +    haptics {
->>> +        compatible =3D "regulator-haptic";
->>> +        haptic-supply =3D <&motor_regulator>;
->>> +        max-microvolt =3D <2700000>;
->>> +        min-microvolt =3D <1100000>;
->>> +    };
->>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfi=
-g
->>> index 23297ab..e5e556d 100644
->>> --- a/drivers/input/misc/Kconfig
->>> +++ b/drivers/input/misc/Kconfig
->>> @@ -394,6 +394,17 @@ config INPUT_CM109
->>>         To compile this driver as a module, choose M here: the=20
->>> module will be
->>>         called cm109.
->>>   +config INPUT_REGULATOR_HAPTIC
->>> +    tristate "regulator haptics support"
->>> +    select INPUT_FF_MEMLESS
->>> +    help
->>> +      This option enables device driver support for the haptic=20
->>> controlled
->>> +      by regulator. This driver supports ff-memless interface
->>> +      from input framework.
->>> +
->>> +      To compile this driver as a module, choose M here: the
->>> +      module will be called regulator-haptic.
->>> +
->>>   config INPUT_RETU_PWRBUTTON
->>>       tristate "Retu Power button Driver"
->>>       depends on MFD_RETU
->>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makef=
-ile
->>> index 19c7603..1f135af 100644
->>> --- a/drivers/input/misc/Makefile
->>> +++ b/drivers/input/misc/Makefile
->>> @@ -53,6 +53,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)    +=3D=20
->>> pmic8xxx-pwrkey.o
->>>   obj-$(CONFIG_INPUT_POWERMATE)        +=3D powermate.o
->>>   obj-$(CONFIG_INPUT_PWM_BEEPER)        +=3D pwm-beeper.o
->>>   obj-$(CONFIG_INPUT_RB532_BUTTON)    +=3D rb532_button.o
->>> +obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)    +=3D regulator-haptic.o
->>>   obj-$(CONFIG_INPUT_RETU_PWRBUTTON)    +=3D retu-pwrbutton.o
->>>   obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)    +=3D rotary_encoder.o
->>>   obj-$(CONFIG_INPUT_SGI_BTNS)        +=3D sgi_btns.o
->>> diff --git a/drivers/input/misc/regulator-haptic.c=20
->>> b/drivers/input/misc/regulator-haptic.c
->>> new file mode 100644
->>> index 0000000..6bc8e45
->>> --- /dev/null
->>> +++ b/drivers/input/misc/regulator-haptic.c
->>> @@ -0,0 +1,247 @@
->>> +/*
->>> + * Regulator haptic driver
->>> + *
->>> + * Copyright (c) 2014 Samsung Electronics Co., Ltd.
->>> + * Author: Jaewon Kim <jaewon02.kim@samsung.com>
->>> + * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
->>> + *
->>> + * This program is free software; you can redistribute it and/or=20
->>> modify
->>> + * it under the terms of the GNU General Public License version 2 =
-as
->>> + * published by the Free Software Foundation.
->>> + */
->>> +
->>> +#include <linux/input.h>
->>> +#include <linux/input/regulator-haptic.h>
->>> +#include <linux/module.h>
->>> +#include <linux/of.h>
->>> +#include <linux/platform_device.h>
->>> +#include <linux/regulator/consumer.h>
->>> +#include <linux/slab.h>
->>> +
->>> +#define MAX_MAGNITUDE_SHIFT    16
->>> +
->>> +struct regulator_haptic {
->>> +    struct device *dev;
->>> +    struct input_dev *input_dev;
->>> +    struct regulator *regulator;
->>> +    struct work_struct work;
->>> +
->>> +    bool enabled;
->>> +    bool suspend_state;
->>> +    unsigned int max_volt;
->>> +    unsigned int min_volt;
->>> +    unsigned int intensity;
->>> +    unsigned int magnitude;
->>> +};
->>> +
->>> +static void regulator_haptic_enable(struct regulator_haptic=20
->>> *haptic, bool state)
->>> +{
->>> +    int error;
->>> +
->>> +    if (haptic->enabled =3D=3D state)
->>> +        return;
->>> +
->>> +    if (state)
->>> +        error =3D regulator_enable(haptic->regulator);
->>> +    else
->>> +        error =3D regulator_disable(haptic->regulator);
->>> +    if (error) {
->>> +        dev_err(haptic->dev, "cannot enable regulator\n");
->>> +        return;
->>> +    }
->>> +
->>> +    haptic->enabled =3D state;
->>> +}
->>> +
->>> +static void regulator_haptic_work(struct work_struct *work)
->>> +{
->>> +    struct regulator_haptic *haptic =3D container_of(work,
->>> +                    struct regulator_haptic, work);
->>> +    int error;
->>> +
->>> +    error =3D regulator_set_voltage(haptic->regulator,
->>> +            haptic->intensity + haptic->min_volt, haptic->max_volt=
-);
->>> +    if (error) {
->>> +        dev_err(haptic->dev, "cannot set regulator voltage\n");
->>> +        return;
->>> +    }
->>> +
->>> +    if (haptic->magnitude)
->>> +        regulator_haptic_enable(haptic, true);
->>> +    else
->>> +        regulator_haptic_enable(haptic, false);
->>> +}
->>> +
->>> +static int regulator_haptic_play_effect(struct input_dev *input,=20
->>> void *data,
->>> +                    struct ff_effect *effect)
->>> +{
->>> +    struct regulator_haptic *haptic =3D input_get_drvdata(input);
->>> +    u64 volt_mag_multi;
->>> +
->>> +    haptic->magnitude =3D effect->u.rumble.strong_magnitude;
->>> +    if (!haptic->magnitude)
->>> +        haptic->magnitude =3D effect->u.rumble.weak_magnitude;
->>> +
->>> +
->>> +    volt_mag_multi =3D (u64)(haptic->max_volt - haptic->min_volt) =
-*
->>> +                    haptic->magnitude;
->>> +    haptic->intensity =3D (unsigned int)(volt_mag_multi >>
->>> +                    MAX_MAGNITUDE_SHIFT);
->>> +
->>> +    schedule_work(&haptic->work);
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static void regulator_haptic_close(struct input_dev *input)
->>> +{
->>> +    struct regulator_haptic *haptic =3D input_get_drvdata(input);
->>> +
->>> +    cancel_work_sync(&haptic->work);
->>> +    regulator_haptic_enable(haptic, false);
->>> +}
->>> +
->>> +#ifdef CONFIG_OF
->>> +static int regulator_haptic_parse_dt(struct regulator_haptic *hapt=
-ic)
->>> +{
->>> +    struct device_node *node =3D haptic->dev->of_node;
->>> +    int error;
->>> +
->>> +    error =3D of_property_read_u32(node, "max-microvolt",=20
->>> &haptic->max_volt);
->>> +    if (error) {
->>> +        dev_err(haptic->dev, "cannot parse max-microvolt\n");
->>> +        return error;
->>> +    }
->>> +
->>> +    error =3D of_property_read_u32(node, "min-microvolt",=20
->>> &haptic->min_volt);
->>> +    if (error) {
->>> +        dev_err(haptic->dev, "cannot parse min-microvolt\n");
->>> +        return error;
->>> +    }
->>> +
->>> +    return 0;
->>> +}
->>> +#else
->>> +static int regulator_haptic_parse_dt(struct regulator_haptic *hapt=
-ic)
->>> +{
->>> +    return 0;
->>> +}
->>> +#endif /* CONFIG_OF */
->>> +
->>> +static int regulator_haptic_probe(struct platform_device *pdev)
->>> +{
->>> +    struct regulator_haptic *haptic;
->>> +    struct regulator_haptic_data *data;
->>> +    struct input_dev *input_dev;
->>> +    int error;
->>> +
->>> +    haptic =3D devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNE=
-L);
->>> +    if (!haptic)
->>> +        return -ENOMEM;
->>> +
->>> +    haptic->dev =3D &pdev->dev;
->>> +    haptic->enabled =3D false;
->>> +    haptic->suspend_state =3D false;
->>> +    INIT_WORK(&haptic->work, regulator_haptic_work);
->>> +
->>> +    if (pdev->dev.of_node) {
->>> +        error =3D regulator_haptic_parse_dt(haptic);
->>> +        if (error) {
->>> +            dev_err(&pdev->dev, "failed to parse device tree\n");
->>> +            return error;
->>> +        }
->>> +    } else {
->>> +        data =3D dev_get_platdata(&pdev->dev);
->>> +        if (data) {
->>> +            dev_err(&pdev->dev, "failed to get platdata\n");
->>> +            return -EINVAL;
->>> +        }
->>> +
->>> +        haptic->regulator =3D data->regulator;
->>> +        haptic->max_volt =3D data->max_volt;
->>> +        haptic->min_volt =3D data->min_volt;
->> Please give preference to platform data if supplied, and if not then=
- try
->> fetching settings from device tree.
->
-> Ok. i will give prefrence to platform data in next version.
->
->>
->>> +    }
->>> +
->>> +    haptic->regulator =3D devm_regulator_get_exclusive(&pdev->dev,=
-=20
->>> "haptic");
->>> +    if (IS_ERR(haptic->regulator)) {
->>> +        dev_err(&pdev->dev, "failed to get regulator\n");
->>> +        return PTR_ERR(haptic->regulator);
->>> +    }
->>> +
->>> +    input_dev =3D devm_input_allocate_device(&pdev->dev);
->>> +    if (!input_dev)
->>> +        return  -ENOMEM;
->>> +
->>> +    haptic->input_dev =3D input_dev;
->>> +    haptic->input_dev->name =3D "regulator-haptic";
->>> +    haptic->input_dev->dev.parent =3D &pdev->dev;
->>> +    haptic->input_dev->close =3D regulator_haptic_close;
->>> +    input_set_drvdata(haptic->input_dev, haptic);
->>> +    input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
->>> +
->>> +    error =3D input_ff_create_memless(input_dev, NULL,
->>> +                  regulator_haptic_play_effect);
->>> +    if (error) {
->>> +        dev_err(&pdev->dev, "failed to create force-feedback\n");
->>> +        return error;
->>> +    }
->>> +
->>> +    error =3D input_register_device(haptic->input_dev);
->>> +    if (error) {
->>> +        dev_err(&pdev->dev, "failed to register input device\n");
->>> +        return error;
->>> +    }
->>> +
->>> +    platform_set_drvdata(pdev, haptic);
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int __maybe_unused regulator_haptic_suspend(struct device *=
-dev)
->>> +{
->>> +    struct platform_device *pdev =3D to_platform_device(dev);
->>> +    struct regulator_haptic *haptic =3D platform_get_drvdata(pdev)=
-;
->>> +
->>> +    if (haptic->enabled) {
->> You need to protect this code from racing with the work item.
+Thank you for your consideration.
 
-I saw this review now but i sent v5. It did not reflect in v5.
-I will send soon and modifies in v6.
+======================================================================
 
->>
->>> +        regulator_haptic_enable(haptic, false);
->>> +        haptic->suspend_state =3D true;
->>> +    }
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int __maybe_unused regulator_haptic_resume(struct device *d=
-ev)
->>> +{
->>> +    struct platform_device *pdev =3D to_platform_device(dev);
->>> +    struct regulator_haptic *haptic =3D platform_get_drvdata(pdev)=
-;
->>> +
->>> +    if (haptic->suspend_state) {
->>> +        regulator_haptic_enable(haptic, true);
->>> +        haptic->suspend_state =3D false;
->>> +    }
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static SIMPLE_DEV_PM_OPS(regulator_haptic_pm_ops,
->>> +        regulator_haptic_suspend, regulator_haptic_resume);
->>> +
->>> +static struct of_device_id regulator_haptic_dt_match[] =3D {
->>> +    { .compatible =3D "regulator-haptic" },
->>> +    { /* sentinel */ },
->>> +};
->>> +
->>> +static struct platform_driver regulator_haptic_driver =3D {
->>> +    .probe        =3D regulator_haptic_probe,
->>> +    .driver        =3D {
->>> +        .name        =3D "regulator-haptic",
->>> +        .of_match_table =3D regulator_haptic_dt_match,
->>> +        .pm        =3D &regulator_haptic_pm_ops,
->>> +    },
->>> +};
->>> +module_platform_driver(regulator_haptic_driver);
->>> +
->>> +MODULE_AUTHOR("Jaewon Kim <jaewon02.kim@samsung.com>");
->>> +MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
->>> +MODULE_DESCRIPTION("Regulator haptic driver");
->>> +MODULE_LICENSE("GPL");
->>> diff --git a/include/linux/input/regulator-haptic.h=20
->>> b/include/linux/input/regulator-haptic.h
->>> new file mode 100644
->>> index 0000000..05ae038
->>> --- /dev/null
->>> +++ b/include/linux/input/regulator-haptic.h
->>> @@ -0,0 +1,31 @@
->>> +/*
->>> + * Regulator Haptic Platform Data
->>> + *
->>> + * Copyright (c) 2014 Samsung Electronics Co., Ltd.
->>> + * Author: Jaewon Kim <jaewon02.kim@samsung.com>
->>> + * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
->>> + *
->>> + * This program is free software; you can redistribute it and/or=20
->>> modify
->>> + * it under the terms of the GNU General Public License version 2 =
-as
->>> + * published by the Free Software Foundation.
->>> + */
->>> +
->>> +#ifndef _REGULATOR_HAPTIC_H
->>> +#define _REGULATOR_HAPTIC_H
->>> +
->>> +/*
->>> + * struct regulator_haptic_data - Platform device data
->>> + *
->>> + * @regulator: Power supply to the haptic motor
->>> + * @max_volt: maximum voltage value supplied to the haptic motor.
->>> + *         <The unit of the voltage is a micro>
->>> + * @min_volt: minimum voltage value supplied to the haptic motor.
->>> + *         <The unit of the voltage is a micro>
->>> + */
->>> +struct regulator_haptic_data {
->>> +    struct regulator *regulator;
->>> +    unsigned int max_volt;
->>> +    unsigned int min_volt;
->>> +};
->>> +
->>> +#endif /* _REGULATOR_HAPTIC_H */
->>> --=20
->>> 1.7.9.5
->>>
->> Thanks.
->>
->
-> Thanks.
-> Jaewon Kim.
+
+The tty clicks module
+			---------------------
+			Karl Dahlke
+			eklhad@gmail.com
+
+When this module is installed, soft clicks accompany
+the nonspace characters that are sent to the console,
+while a longer swoop indicates a newline character.
+These sounds simulate an old fashion teletype running at 2400 baud.
+Why would you want such a thing?
+You probably wouldn't, but a blind person might.
+He can tell, by clicks alone, when the computer responds to a command,
+and he can discern the quantity and format of that response,
+without any speech or braille.
+In addition, the output is throttled, and does not fly by the screen
+in a flash, faster than one could possibly hit control S.
+
+This module is separate from any sound cards, thus providing valuable audio
+feedback if the sound card is not working.
+It can be loaded very early in the boot sequence,
+since it does not depend on anything else.
+
+This module uses the in-built toggle speaker at port 0x61.
+Not all machines have this speaker, but most do.
+If the speaker is lacking, the module is a no-op.
+
+This module will not click and chirp if you are in X.
+It responds to text characters that pass through the standard tty,
+and will not do anything in graphics mode.
+Even the terminal emulator, running under a desktop, still runs through X,
+and won't work with ttyclicks.
+Switch to a text console to hear the clicks.
+
+Module parameters:
+
+As always, you can run modinfo ttyclicks.ko to review these parameters.
+
+enabled = 1 or 0
+
+If 1, then sounds are enabled as soon as the module is loaded.
+If 0, then sounds are not enabled.
+These sounds can be turned on or off at run time by the exported symbol
+	bool ttyclicks_on;
+Thus other modules can turn sounds on or off.
+In particular, any adapter that includes a lodable module
+has access to this master switch.
+
+fgtty = 1 or 0
+
+This parameter enables the clicks that accompany the display of characters
+from  the foreground tty.
+The corresponding exported symbol is
+	bool ttyclicks_tty;
+
+kmsg = 1 or 0
+
+Printk messages do not pass through the tty,
+and do not generate the aforementioned clicks.
+However, if this switch is enabled,
+each printk message generates a distinctive sequence of tones.
+This is like an alarm,
+telling the user that he needs to read the message on the screen.
+The corresponding exported symbol is
+	bool ttyclicks_kmsg;
+
+cursormotion = 0 or 1
+
+Many screen programs generate ansi escape sequences that position the cursor
+and set character attributes such as underline etc.
+This is not true output, and does not generate clicks by default.
+However, you can set this parameter to 1 if you want these characters
+to generate clicks.
+
+Exported functions.
+These are all subject to the master switch ttyclicks_on.
+
+void ttyclicks_click(void);
+
+Generate a 0.6 millisecond pulse.
+
+void ttyclicks_cr(void);
+
+Generate a quick frequency swoop from 2900 to 3600 hz.
+This sound is associated with the newline character at the console,
+but you can use this function to generate the same sound whenever you wish.
+
+void ttyclicks_notes(const short *notelist);
+
+Play a series of notes in the background.
+Each note is defined by two shorts, a frequency and a duration.
+The frequency is in hurtz, and the duration is in hundredths of a second.
+A frequency of -1 is a rest.
+A frequency of 0 terminates the array.
+The queue can only hold 64 notes, so don't try to play an entire sonata.
+
+void ttyclicks_steps(int freq1, int freq2, int step, int duration)
+
+Play a series of notes, of the specified duration, moving from
+frequency freq1 to frequency freq2 in a geometric progression of step%.
+This is a customizable chromatic scale.
+The traditional scale, based on half tones, and starting at middle C,
+has an approximate step of 6%, and looks like this.
+ttyclicks_mksteps(260, 530, 6, 150);
+Use a negative step for a descending scale.
+
+void ttyclicks_bell(void);
+
+This function generates an 1800 hz tone for a tenth of a second.
+this is associated with the control G bell.
+The traditional bell is 1000 hz, but I wanted a slightly higher tone.
+As long as this module is loaded, it swallows control G, and sounds the bell,
+rather then passing it through to the console and letting the console
+ring the bell.  This allows the master switch, ttyclicks_on,
+to enable or disable the control G bell along with all the other sounds.
+You can turn off all the sounds in one go, if they are bothering your roommate.
+
+This module is integral to many command line adapters,
+as a complement to speech or braille.  Beyond this,
+it can prove invaluable if the adapter is not working for any reason.

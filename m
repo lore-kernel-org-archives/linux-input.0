@@ -1,52 +1,37 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v2 2/2] Input: amikbd - Allocate temporary keymap buffer
- on the stack
-Date: Thu, 4 Dec 2014 10:00:12 +0100
-Message-ID: <CAMuHMdUXz3cE+SpVEKVbr6OeJpyssCesF3=s1jKK8ZrA=hPNJw@mail.gmail.com>
-References: <1417339820-5285-1-git-send-email-geert@linux-m68k.org>
-	<1417339820-5285-2-git-send-email-geert@linux-m68k.org>
-	<20141203225934.GF16951@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v12 02/19] input: cyapa: add device resource management
+ infrastructure support
+Date: Thu, 4 Dec 2014 09:43:11 -0800
+Message-ID: <20141204174311.GA4806@dtor-ws>
+References: <1417599025-21681-1-git-send-email-dudley.dulixin@gmail.com>
+ <1417599025-21681-3-git-send-email-dudley.dulixin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <20141203225934.GF16951@dtor-ws>
-Sender: linux-m68k-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:63277 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932344AbaLDRnQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2014 12:43:16 -0500
+Content-Disposition: inline
+In-Reply-To: <1417599025-21681-3-git-send-email-dudley.dulixin@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dudley Du <dudley.dulixin@gmail.com>
+Cc: rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+On Wed, Dec 03, 2014 at 05:30:08PM +0800, Dudley Du wrote:
+> Remove cyapa_remove() method, add cyapa_open() and cyapa_close() methods for
+> input interface, also modified together with driver's memory and IRQ resource
+> allocations to support device resource management infrastructure to reduce
+> the mistakes of resource management.
+> TEST=test on Chromebooks.
+> 
+> Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
 
-On Wed, Dec 3, 2014 at 11:59 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sun, Nov 30, 2014 at 10:30:20AM +0100, Geert Uytterhoeven wrote:
->> Allocate the temporary buffer needed for initialization of the console
->> keyboard maps (512 bytes, as NR_KEYS = 256) on the stack instead of
->> statically, to reduce kernel size.
->>
->> add/remove: 0/1 grow/shrink: 0/0 up/down: 0/-512 (-512)
->> function                                     old     new   delta
->> temp_map                                     512       -    -512
->
-> So because it is marked __initdata and is placed into a separate
-> section we have to allocate the space in the image?
+OK, so this patch (in slightly modified form) has already been applied,
+so you can drop it from the next respin.
 
-Indeed. __initdata consumes space in both the vmlinux image and in
-memory.
-Note that we don't have __initbss for uninitialized data, which would
-obviously still consume space in memory.
+Thanks.
 
-> Anyway, applied both, thank you.
-
-Thanks!
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Dmitry

@@ -1,80 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v9 15/18] input: cyapa: add gen3 trackpad device read
- firmware image function support
-Date: Thu, 4 Dec 2014 09:46:41 -0800
-Message-ID: <20141204174641.GB4806@dtor-ws>
-References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
- <1415003590-30485-16-git-send-email-dudl@cypress.com>
- <20141110083955.GD39688@dtor-ws>
- <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/3] mfd: stmpe: add pull up/down register offsets for STMPE
+Date: Thu, 4 Dec 2014 19:10:30 +0100
+Message-ID: <CACRpkdb45QGkC7aOCMRZ3SH9+effNz1FAGxto6bDR_i7sfZuzw@mail.gmail.com>
+References: <1413636974-3244-1-git-send-email-linus.walleij@linaro.org>
+	<20141020064605.GB25349@x1>
+	<20141024214206.GG19933@dtor-ws>
+	<20141103122559.GB4538@x1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:43992 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753768AbaLDRqq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2014 12:46:46 -0500
-Content-Disposition: inline
-In-Reply-To: <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141103122559.GB4538@x1>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: Dudley Du <dudley.dulixin@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Nov 10, 2014 at 11:05:39AM +0000, Dudley Du wrote:
-> Thanks, Dmitry
->=20
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: 2014?11?10? 16:40
-> > To: Dudley Du
-> > Cc: rydberg@euromail.se; Dudley Du; bleung@google.com;
-> > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH v9 15/18] input: cyapa: add gen3 trackpad devic=
-e read
-> > firmware image function support
-> >
-> > On Mon, Nov 03, 2014 at 04:33:07PM +0800, Dudley Du wrote:
-> > > Add read firmware image function supported for gen3 trackpad devi=
-ce,
-> > > it can be used through debugfs read_fw interface.
-> >
-> > Why do we need this? Can we do the same via usespace program access=
-ing
-> > the i2c device through /dev/i2c-N?
->=20
-> This interface is used to test and debug only. It's defined and requi=
-red by the chromium projects.
->=20
-> And in the driver side, becase the firmware image read process is don=
-e based on interrupt signal,
-> if do this in userspace through /dev/i2c-N, there will be two issues:
-> 1) for gen5, after each command, an interrupt will be asserted, so if=
- throug /dev/i2c-N,
-> userspace program cannot get the interrupt signal.
-> 2) and when the interrupt signal assert, driver won't know it=E2=80=99=
-s a command signal for image read,
-> so it will try to process it as data report.
-> To avoid this, additional interface must be added to mark the image r=
-ead status and
-> block interrupt signal to be process as data report.
+On Mon, Nov 3, 2014 at 1:25 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Fri, 24 Oct 2014, Dmitry Torokhov wrote:
+>
+>> On Mon, Oct 20, 2014 at 07:46:05AM +0100, Lee Jones wrote:
+>> > On Sat, 18 Oct 2014, Linus Walleij wrote:
+>> >
+>> > > This adds the register offsets for pull up/down for the STMPE
+>> > > 1601, 1801 and 24xx expanders. This is used to bias GPIO lines
+>> > > and keypad lines.
+>> > >
+>> > > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>> > > ---
+>> > > Hi Sam, Lee: I think you should just ACK this so Dmitry can take the
+>> > > patch series through the input tree, where the registers need to be
+>> > > used to enable the keypad on the STMPE2401.
+>> > > ---
+>> > >  drivers/mfd/stmpe.c       | 4 ++++
+>> > >  drivers/mfd/stmpe.h       | 3 +++
+>> > >  include/linux/mfd/stmpe.h | 2 ++
+>> > >  3 files changed, 9 insertions(+)
+>> >
+>> > Does this need to go in with the other patches in the set?
+>> >
+>> > I'm _guessing_ that, as you've sent them separately, they can be
+>> > applied separately?
+>> >
+>> > This needs to go in via MFD, but for my own reference:
+>> >
+>> > Acked-by: Lee Jones <lee.jones@linaro.org>
+>>
+>> The new register definitions are needed for patch #3.  If you insist on
+>> this going through MFD then please take the other 2 patches with my Ack
+>> through MFD tree as well I do not think we need the whole song and dance
+>> trying to synchronize 2 trees.
+>
+> Actually, I can't see the other patches as they weren't sent to me.
+>
+> Please apply them all to your tree with my Ack.
 
-I believe that while userspace acc4esses the device through /dev/i2c-N
-you should unbind the cyapa driver from the device (via sysfs driver
-core bind/unbind attribute) so that it doe snot get in the way. Once
-diagnostics is done you can bind the driver back to device, restoring
-normal operation.
+Dmitry can you please apply them so we don't miss this merge window...
 
-That is how we are planning to handle other devices at factory as
-well.
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yours,
+Linus Walleij

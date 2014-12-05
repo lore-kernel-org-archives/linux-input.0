@@ -1,47 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Initialize device count variables by -1
-Date: Thu, 4 Dec 2014 10:27:14 -0800
-Message-ID: <20141204182714.GB8275@dtor-ws>
-References: <1417639146-3494-1-git-send-email-aniroop.mathur@gmail.com>
- <20141203223521.GD16951@dtor-ws>
- <CADYu30_FS0A0=fh-uyQ84m8uNkgfs7Ns2OCnigXAM=i5KrPETA@mail.gmail.com>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v9 15/18] input: cyapa: add gen3 trackpad device read
+ firmware image function support
+Date: Fri, 5 Dec 2014 01:43:18 +0000
+Message-ID: <BN1PR06MB070398D7C243AB4221A8AC8D1790@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
+ <1415003590-30485-16-git-send-email-dudl@cypress.com>
+ <20141110083955.GD39688@dtor-ws>
+ <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
+ <20141204174641.GB4806@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:52904 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932464AbaLDS1T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2014 13:27:19 -0500
-Received: by mail-ig0-f181.google.com with SMTP id l13so16182748iga.2
-        for <linux-input@vger.kernel.org>; Thu, 04 Dec 2014 10:27:18 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CADYu30_FS0A0=fh-uyQ84m8uNkgfs7Ns2OCnigXAM=i5KrPETA@mail.gmail.com>
+Received: from mail-by2on0145.outbound.protection.outlook.com ([207.46.100.145]:40449
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932975AbaLEBnW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Dec 2014 20:43:22 -0500
+In-Reply-To: <20141204174641.GB4806@dtor-ws>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, a.mathur@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Solda <dso@cypress.com>
 
-On Thu, Dec 04, 2014 at 09:52:26AM +0530, Aniroop Mathur wrote:
-> On Thu, Dec 4, 2014 at 4:05 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Thu, Dec 04, 2014 at 02:09:06AM +0530, Aniroop Mathur wrote:
-> >> This patch initializes input device count variables by -1 in order
-> >> to avoid extra subtraction operation performed everytime for
-> >> allocation of an input device.
-> >>
-> >> Signed-off-by: Aniroop Mathur <aniroop.mathur@gmail.com>
-> >
-> > Applied, thank you.
-> >
-> 
-> Thank you Mr. Torokhov for applying the patch !!
-> 
-> And umm... Could you please provide a link where I can see it ?
-> Actually I tried to search on kernel.org but could not find it.
-
-It's in the 'next' branch of my tree on git.kernel.org.
-
-Thanks.
-
--- 
-Dmitry
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRG1pdHJ5IFRvcm9raG92
+IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0NCj4gU2VudDogMjAxNOW5tDEy5pyI
+NeaXpSAxOjQ3DQo+IFRvOiBEdWRsZXkgRHUNCj4gQ2M6IER1ZGxleSBEdTsgcnlkYmVyZ0BldXJv
+bWFpbC5zZTsgYmxldW5nQGdvb2dsZS5jb207DQo+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9y
+ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHY5
+IDE1LzE4XSBpbnB1dDogY3lhcGE6IGFkZCBnZW4zIHRyYWNrcGFkIGRldmljZSByZWFkDQo+IGZp
+cm13YXJlIGltYWdlIGZ1bmN0aW9uIHN1cHBvcnQNCj4NCj4gT24gTW9uLCBOb3YgMTAsIDIwMTQg
+YXQgMTE6MDU6MzlBTSArMDAwMCwgRHVkbGV5IER1IHdyb3RlOg0KPiA+IFRoYW5rcywgRG1pdHJ5
+DQo+ID4NCj4gPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gPiBGcm9tOiBEbWl0
+cnkgVG9yb2tob3YgW21haWx0bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiA+ID4gU2Vu
+dDogMjAxND8xMT8xMD8gMTY6NDANCj4gPiA+IFRvOiBEdWRsZXkgRHUNCj4gPiA+IENjOiByeWRi
+ZXJnQGV1cm9tYWlsLnNlOyBEdWRsZXkgRHU7IGJsZXVuZ0Bnb29nbGUuY29tOw0KPiA+ID4gbGlu
+dXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+
+ID4gPiBTdWJqZWN0OiBSZTogW1BBVENIIHY5IDE1LzE4XSBpbnB1dDogY3lhcGE6IGFkZCBnZW4z
+IHRyYWNrcGFkIGRldmljZSByZWFkDQo+ID4gPiBmaXJtd2FyZSBpbWFnZSBmdW5jdGlvbiBzdXBw
+b3J0DQo+ID4gPg0KPiA+ID4gT24gTW9uLCBOb3YgMDMsIDIwMTQgYXQgMDQ6MzM6MDdQTSArMDgw
+MCwgRHVkbGV5IER1IHdyb3RlOg0KPiA+ID4gPiBBZGQgcmVhZCBmaXJtd2FyZSBpbWFnZSBmdW5j
+dGlvbiBzdXBwb3J0ZWQgZm9yIGdlbjMgdHJhY2twYWQgZGV2aWNlLA0KPiA+ID4gPiBpdCBjYW4g
+YmUgdXNlZCB0aHJvdWdoIGRlYnVnZnMgcmVhZF9mdyBpbnRlcmZhY2UuDQo+ID4gPg0KPiA+ID4g
+V2h5IGRvIHdlIG5lZWQgdGhpcz8gQ2FuIHdlIGRvIHRoZSBzYW1lIHZpYSB1c2VzcGFjZSBwcm9n
+cmFtIGFjY2Vzc2luZw0KPiA+ID4gdGhlIGkyYyBkZXZpY2UgdGhyb3VnaCAvZGV2L2kyYy1OPw0K
+PiA+DQo+ID4gVGhpcyBpbnRlcmZhY2UgaXMgdXNlZCB0byB0ZXN0IGFuZCBkZWJ1ZyBvbmx5LiBJ
+dCdzIGRlZmluZWQgYW5kIHJlcXVpcmVkIGJ5IHRoZQ0KPiBjaHJvbWl1bSBwcm9qZWN0cy4NCj4g
+Pg0KPiA+IEFuZCBpbiB0aGUgZHJpdmVyIHNpZGUsIGJlY2FzZSB0aGUgZmlybXdhcmUgaW1hZ2Ug
+cmVhZCBwcm9jZXNzIGlzIGRvbmUgYmFzZWQgb24NCj4gaW50ZXJydXB0IHNpZ25hbCwNCj4gPiBp
+ZiBkbyB0aGlzIGluIHVzZXJzcGFjZSB0aHJvdWdoIC9kZXYvaTJjLU4sIHRoZXJlIHdpbGwgYmUg
+dHdvIGlzc3VlczoNCj4gPiAxKSBmb3IgZ2VuNSwgYWZ0ZXIgZWFjaCBjb21tYW5kLCBhbiBpbnRl
+cnJ1cHQgd2lsbCBiZSBhc3NlcnRlZCwgc28gaWYgdGhyb3VnDQo+IC9kZXYvaTJjLU4sDQo+ID4g
+dXNlcnNwYWNlIHByb2dyYW0gY2Fubm90IGdldCB0aGUgaW50ZXJydXB0IHNpZ25hbC4NCj4gPiAy
+KSBhbmQgd2hlbiB0aGUgaW50ZXJydXB0IHNpZ25hbCBhc3NlcnQsIGRyaXZlciB3b24ndCBrbm93
+IGl04oCZcyBhIGNvbW1hbmQgc2lnbmFsDQo+IGZvciBpbWFnZSByZWFkLA0KPiA+IHNvIGl0IHdp
+bGwgdHJ5IHRvIHByb2Nlc3MgaXQgYXMgZGF0YSByZXBvcnQuDQo+ID4gVG8gYXZvaWQgdGhpcywg
+YWRkaXRpb25hbCBpbnRlcmZhY2UgbXVzdCBiZSBhZGRlZCB0byBtYXJrIHRoZSBpbWFnZSByZWFk
+IHN0YXR1cw0KPiBhbmQNCj4gPiBibG9jayBpbnRlcnJ1cHQgc2lnbmFsIHRvIGJlIHByb2Nlc3Mg
+YXMgZGF0YSByZXBvcnQuDQo+DQo+IEkgYmVsaWV2ZSB0aGF0IHdoaWxlIHVzZXJzcGFjZSBhY2M0
+ZXNzZXMgdGhlIGRldmljZSB0aHJvdWdoIC9kZXYvaTJjLU4NCj4geW91IHNob3VsZCB1bmJpbmQg
+dGhlIGN5YXBhIGRyaXZlciBmcm9tIHRoZSBkZXZpY2UgKHZpYSBzeXNmcyBkcml2ZXINCj4gY29y
+ZSBiaW5kL3VuYmluZCBhdHRyaWJ1dGUpIHNvIHRoYXQgaXQgZG9lIHNub3QgZ2V0IGluIHRoZSB3
+YXkuIE9uY2UNCj4gZGlhZ25vc3RpY3MgaXMgZG9uZSB5b3UgY2FuIGJpbmQgdGhlIGRyaXZlciBi
+YWNrIHRvIGRldmljZSwgcmVzdG9yaW5nDQo+IG5vcm1hbCBvcGVyYXRpb24uDQo+DQo+IFRoYXQg
+aXMgaG93IHdlIGFyZSBwbGFubmluZyB0byBoYW5kbGUgb3RoZXIgZGV2aWNlcyBhdCBmYWN0b3J5
+IGFzDQo+IHdlbGwuDQoNClRoYW5rcywgSSB3aWxsIHJlbW92ZSB0aGUgZGVidWdmcyBpbnRlcmZh
+Y2VzIGZyb20gdGhlIHBhdGFjaCBzZXJpZXMuDQoNCj4NCj4gVGhhbmtzLg0KPg0KPiAtLQ0KPiBE
+bWl0cnkNCg0KVGhpcyBtZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lw
+cmVzcyAob3IgaXRzIHN1YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBp
+dCBoYXMgYmVlbiByZWNlaXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFu
+ZCBpbW1lZGlhdGVseSBkZWxldGUgdGhpcyBtZXNzYWdlLg0K

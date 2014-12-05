@@ -1,73 +1,76 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v9 15/18] input: cyapa: add gen3 trackpad device read
- firmware image function support
-Date: Fri, 5 Dec 2014 01:43:18 +0000
-Message-ID: <BN1PR06MB070398D7C243AB4221A8AC8D1790@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1415003590-30485-1-git-send-email-dudl@cypress.com>
- <1415003590-30485-16-git-send-email-dudl@cypress.com>
- <20141110083955.GD39688@dtor-ws>
- <ad3bf85500174b25a4dc8f796d10d0a3@BN1PR06MB070.namprd06.prod.outlook.com>
- <20141204174641.GB4806@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/2] HID: wacom - Add support for DTU-1031X
+Date: Thu,  4 Dec 2014 18:23:04 -0800
+Message-ID: <1417746184-12192-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0145.outbound.protection.outlook.com ([207.46.100.145]:40449
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932975AbaLEBnW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Dec 2014 20:43:22 -0500
-In-Reply-To: <20141204174641.GB4806@dtor-ws>
-Content-Language: en-US
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:50610 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751838AbaLECXJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2014 21:23:09 -0500
+Received: by mail-pd0-f174.google.com with SMTP id w10so18939016pde.33
+        for <linux-input@vger.kernel.org>; Thu, 04 Dec 2014 18:23:08 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Solda <dso@cypress.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRG1pdHJ5IFRvcm9raG92
-IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0NCj4gU2VudDogMjAxNOW5tDEy5pyI
-NeaXpSAxOjQ3DQo+IFRvOiBEdWRsZXkgRHUNCj4gQ2M6IER1ZGxleSBEdTsgcnlkYmVyZ0BldXJv
-bWFpbC5zZTsgYmxldW5nQGdvb2dsZS5jb207DQo+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9y
-ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHY5
-IDE1LzE4XSBpbnB1dDogY3lhcGE6IGFkZCBnZW4zIHRyYWNrcGFkIGRldmljZSByZWFkDQo+IGZp
-cm13YXJlIGltYWdlIGZ1bmN0aW9uIHN1cHBvcnQNCj4NCj4gT24gTW9uLCBOb3YgMTAsIDIwMTQg
-YXQgMTE6MDU6MzlBTSArMDAwMCwgRHVkbGV5IER1IHdyb3RlOg0KPiA+IFRoYW5rcywgRG1pdHJ5
-DQo+ID4NCj4gPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gPiBGcm9tOiBEbWl0
-cnkgVG9yb2tob3YgW21haWx0bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiA+ID4gU2Vu
-dDogMjAxND8xMT8xMD8gMTY6NDANCj4gPiA+IFRvOiBEdWRsZXkgRHUNCj4gPiA+IENjOiByeWRi
-ZXJnQGV1cm9tYWlsLnNlOyBEdWRsZXkgRHU7IGJsZXVuZ0Bnb29nbGUuY29tOw0KPiA+ID4gbGlu
-dXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+
-ID4gPiBTdWJqZWN0OiBSZTogW1BBVENIIHY5IDE1LzE4XSBpbnB1dDogY3lhcGE6IGFkZCBnZW4z
-IHRyYWNrcGFkIGRldmljZSByZWFkDQo+ID4gPiBmaXJtd2FyZSBpbWFnZSBmdW5jdGlvbiBzdXBw
-b3J0DQo+ID4gPg0KPiA+ID4gT24gTW9uLCBOb3YgMDMsIDIwMTQgYXQgMDQ6MzM6MDdQTSArMDgw
-MCwgRHVkbGV5IER1IHdyb3RlOg0KPiA+ID4gPiBBZGQgcmVhZCBmaXJtd2FyZSBpbWFnZSBmdW5j
-dGlvbiBzdXBwb3J0ZWQgZm9yIGdlbjMgdHJhY2twYWQgZGV2aWNlLA0KPiA+ID4gPiBpdCBjYW4g
-YmUgdXNlZCB0aHJvdWdoIGRlYnVnZnMgcmVhZF9mdyBpbnRlcmZhY2UuDQo+ID4gPg0KPiA+ID4g
-V2h5IGRvIHdlIG5lZWQgdGhpcz8gQ2FuIHdlIGRvIHRoZSBzYW1lIHZpYSB1c2VzcGFjZSBwcm9n
-cmFtIGFjY2Vzc2luZw0KPiA+ID4gdGhlIGkyYyBkZXZpY2UgdGhyb3VnaCAvZGV2L2kyYy1OPw0K
-PiA+DQo+ID4gVGhpcyBpbnRlcmZhY2UgaXMgdXNlZCB0byB0ZXN0IGFuZCBkZWJ1ZyBvbmx5LiBJ
-dCdzIGRlZmluZWQgYW5kIHJlcXVpcmVkIGJ5IHRoZQ0KPiBjaHJvbWl1bSBwcm9qZWN0cy4NCj4g
-Pg0KPiA+IEFuZCBpbiB0aGUgZHJpdmVyIHNpZGUsIGJlY2FzZSB0aGUgZmlybXdhcmUgaW1hZ2Ug
-cmVhZCBwcm9jZXNzIGlzIGRvbmUgYmFzZWQgb24NCj4gaW50ZXJydXB0IHNpZ25hbCwNCj4gPiBp
-ZiBkbyB0aGlzIGluIHVzZXJzcGFjZSB0aHJvdWdoIC9kZXYvaTJjLU4sIHRoZXJlIHdpbGwgYmUg
-dHdvIGlzc3VlczoNCj4gPiAxKSBmb3IgZ2VuNSwgYWZ0ZXIgZWFjaCBjb21tYW5kLCBhbiBpbnRl
-cnJ1cHQgd2lsbCBiZSBhc3NlcnRlZCwgc28gaWYgdGhyb3VnDQo+IC9kZXYvaTJjLU4sDQo+ID4g
-dXNlcnNwYWNlIHByb2dyYW0gY2Fubm90IGdldCB0aGUgaW50ZXJydXB0IHNpZ25hbC4NCj4gPiAy
-KSBhbmQgd2hlbiB0aGUgaW50ZXJydXB0IHNpZ25hbCBhc3NlcnQsIGRyaXZlciB3b24ndCBrbm93
-IGl04oCZcyBhIGNvbW1hbmQgc2lnbmFsDQo+IGZvciBpbWFnZSByZWFkLA0KPiA+IHNvIGl0IHdp
-bGwgdHJ5IHRvIHByb2Nlc3MgaXQgYXMgZGF0YSByZXBvcnQuDQo+ID4gVG8gYXZvaWQgdGhpcywg
-YWRkaXRpb25hbCBpbnRlcmZhY2UgbXVzdCBiZSBhZGRlZCB0byBtYXJrIHRoZSBpbWFnZSByZWFk
-IHN0YXR1cw0KPiBhbmQNCj4gPiBibG9jayBpbnRlcnJ1cHQgc2lnbmFsIHRvIGJlIHByb2Nlc3Mg
-YXMgZGF0YSByZXBvcnQuDQo+DQo+IEkgYmVsaWV2ZSB0aGF0IHdoaWxlIHVzZXJzcGFjZSBhY2M0
-ZXNzZXMgdGhlIGRldmljZSB0aHJvdWdoIC9kZXYvaTJjLU4NCj4geW91IHNob3VsZCB1bmJpbmQg
-dGhlIGN5YXBhIGRyaXZlciBmcm9tIHRoZSBkZXZpY2UgKHZpYSBzeXNmcyBkcml2ZXINCj4gY29y
-ZSBiaW5kL3VuYmluZCBhdHRyaWJ1dGUpIHNvIHRoYXQgaXQgZG9lIHNub3QgZ2V0IGluIHRoZSB3
-YXkuIE9uY2UNCj4gZGlhZ25vc3RpY3MgaXMgZG9uZSB5b3UgY2FuIGJpbmQgdGhlIGRyaXZlciBi
-YWNrIHRvIGRldmljZSwgcmVzdG9yaW5nDQo+IG5vcm1hbCBvcGVyYXRpb24uDQo+DQo+IFRoYXQg
-aXMgaG93IHdlIGFyZSBwbGFubmluZyB0byBoYW5kbGUgb3RoZXIgZGV2aWNlcyBhdCBmYWN0b3J5
-IGFzDQo+IHdlbGwuDQoNClRoYW5rcywgSSB3aWxsIHJlbW92ZSB0aGUgZGVidWdmcyBpbnRlcmZh
-Y2VzIGZyb20gdGhlIHBhdGFjaCBzZXJpZXMuDQoNCj4NCj4gVGhhbmtzLg0KPg0KPiAtLQ0KPiBE
-bWl0cnkNCg0KVGhpcyBtZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lw
-cmVzcyAob3IgaXRzIHN1YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBp
-dCBoYXMgYmVlbiByZWNlaXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFu
-ZCBpbW1lZGlhdGVseSBkZWxldGUgdGhpcyBtZXNzYWdlLg0K
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 7 +++++++
+ drivers/hid/wacom_wac.h | 1 +
+ 2 files changed, 8 insertions(+)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index a8a19a5..b65e0d7 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1847,6 +1847,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 		break;
+ 
+ 	case DTUS:
++	case DTUSX:
+ 		sync = wacom_dtus_irq(wacom_wac);
+ 		break;
+ 
+@@ -2211,6 +2212,7 @@ int wacom_setup_pentouch_input_capabilities(struct input_dev *input_dev,
+ 		/* fall through */
+ 
+ 	case DTUS:
++	case DTUSX:
+ 	case PL:
+ 	case DTU:
+ 		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+@@ -2722,6 +2724,10 @@ static const struct wacom_features wacom_features_0xFB =
+ 	{ "Wacom DTU1031", 22096, 13960, 511, 0,
+ 	  DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
+ 	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
++static const struct wacom_features wacom_features_0x32F =
++	{ "Wacom DTU1031X", 22472, 12728, 511, 0,
++	  DTUSX, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
++	  WACOM_DTU_OFFSET, WACOM_DTU_OFFSET };
+ static const struct wacom_features wacom_features_0x57 =
+ 	{ "Wacom DTK2241", 95640, 54060, 2047, 63,
+ 	  DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
+@@ -3057,6 +3063,7 @@ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x315) },
+ 	{ USB_DEVICE_WACOM(0x317) },
+ 	{ USB_DEVICE_WACOM(0x323) },
++	{ USB_DEVICE_WACOM(0x32F) },
+ 	{ USB_DEVICE_WACOM(0x4001) },
+ 	{ USB_DEVICE_WACOM(0x4004) },
+ 	{ USB_DEVICE_WACOM(0x5000) },
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 128cbb3..5384043 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -80,6 +80,7 @@ enum {
+ 	PL,
+ 	DTU,
+ 	DTUS,
++	DTUSX,
+ 	INTUOS,
+ 	INTUOS3S,
+ 	INTUOS3,
+-- 
+1.9.1
+

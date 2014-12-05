@@ -1,56 +1,99 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/3] drivers:input:ps2 Added sunxi A20 ps2
- driver, changed makefile and Kconfig
-Date: Fri, 05 Dec 2014 07:53:46 -0800
-Message-ID: <59842F96-3A97-4DBE-9A92-10BFA9179E48@gmail.com>
-References: <1417647224-27950-1-git-send-email-VishnuPatekar0510@gmail.com> <12237550.afophX20rO@wuerfel> <63D786FF-B293-4FC1-AD71-D99515DE8E3D@gmail.com> <2906898.Fr1ixVkiAI@wuerfel>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBE5KQ6SAKGQE5DB2NKA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <2906898.Fr1ixVkiAI@wuerfel>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, vishnupatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, vishnupatekar <VishnuPatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, jdelvare-l3A5Bk7waGM@public.gmane.org
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH v2 2/3] HID: wacom: Initialize MT slots for generic devices at post_parse_hid
+Date: Fri,  5 Dec 2014 13:37:32 -0800
+Message-ID: <1417815453-10618-1-git-send-email-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:49952 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751535AbaLEVhj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Dec 2014 16:37:39 -0500
+Received: by mail-pd0-f176.google.com with SMTP id y10so1424028pdj.35
+        for <linux-input@vger.kernel.org>; Fri, 05 Dec 2014 13:37:38 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, pinglinux@gmail.com, Jason Gerecke <killertofu@gmail.com>
 
-On December 5, 2014 7:50:18 AM PST, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
->On Friday 05 December 2014 07:01:17 Dmitry Torokhov wrote:
->> 
->> On December 5, 2014 2:33:11 AM PST, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
->wrote:
->> >On Thursday 04 December 2014 04:23:44 vishnupatekar wrote:
->> >> +
->> >> +struct sunxips2data {
->> >> +    int irq;
->> >> +    spinlock_t ps2_lock;
->> >> +    void __iomem *base_address;     /* virt address of control
->registers*/
->> >> +    struct serio *serio;            /* serio*/
->> >> +    struct device *dev;
->> >> +    struct  clk     *pclk;
->> >> +};
->> >
->> >As this is dynamically allocated, better embed the serio member
->> >directly to avoid allocating both separately.
->> 
->> That would be wrong - serio is refcounted and it may outlive instance
->of sunxips2data you embedded it into.
->
->Ok, I see. I guess in this case the use of devm_kzalloc for serio is a
->bug,
->because that would lead to a double free upon module unload, right?
->
+If a HID descriptor places HID_DG_CONTACTID before HID_DG_X and HID_DG_Y then
+the ABS_X and ABS_Y will not be automatically initialized by the call to
+input_mt_init_slots. To ensure that this is not a problem, we relocate that
+call to occur after HID parsing has been completed and we've initalized all
+the multitouch axes.
 
-Exactly. I already mentioned that in my review.
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+Changes from v1:
+ * Patch renamed from "HID: wacom: Manually declare ABS_{X,Y} for pointer emulation"
+ * Patch moves call to input_mt_init_slots rather than manually declare ABS_{X,Y}
 
-Thanks.
+ drivers/hid/wacom_sys.c | 18 ++++++++++++++++++
+ drivers/hid/wacom_wac.c |  3 ---
+ 2 files changed, 18 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index eb55316..872aa0b 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -13,6 +13,7 @@
+ 
+ #include "wacom_wac.h"
+ #include "wacom.h"
++#include <linux/input/mt.h>
+ 
+ #define WAC_MSG_RETRIES		5
+ 
+@@ -236,6 +237,21 @@ static void wacom_usage_mapping(struct hid_device *hdev,
+ 		wacom_wac_usage_mapping(hdev, field, usage);
+ }
+ 
++static void wacom_post_parse_hid(struct hid_device *hdev,
++				 struct wacom_features *features)
++{
++	struct wacom *wacom = hid_get_drvdata(hdev);
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++
++	if (features->type == HID_GENERIC) {
++		/* Any last-minute generic device setup */
++		if (features->touch_max > 1) {
++			input_mt_init_slots(wacom_wac->input, wacom_wac->features.touch_max,
++				    INPUT_MT_DIRECT);
++		}
++	}
++}
++
+ static void wacom_parse_hid(struct hid_device *hdev,
+ 			   struct wacom_features *features)
+ {
+@@ -270,6 +286,8 @@ static void wacom_parse_hid(struct hid_device *hdev,
+ 				wacom_usage_mapping(hdev, hreport->field[i],
+ 						hreport->field[i]->usage + j);
+ 	}
++
++	wacom_post_parse_hid(hdev, features);
+ }
+ 
+ static int wacom_hid_set_device_mode(struct hid_device *hdev)
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index a8a19a5..c33f889 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1381,7 +1381,6 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+-	struct input_dev *input = wacom_wac->input;
+ 	unsigned touch_max = wacom_wac->features.touch_max;
+ 
+ 	switch (usage->hid) {
+@@ -1400,8 +1399,6 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 					ABS_MT_POSITION_Y, 4);
+ 		break;
+ 	case HID_DG_CONTACTID:
+-		input_mt_init_slots(input, wacom_wac->features.touch_max,
+-			INPUT_MT_DIRECT);
+ 		break;
+ 	case HID_DG_INRANGE:
+ 		break;
 -- 
-Dmitry
+2.1.3
+

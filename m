@@ -1,209 +1,92 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH v2 3/3] HID: wacom: Report input events for each finger on generic devices
-Date: Fri,  5 Dec 2014 13:37:33 -0800
-Message-ID: <1417815453-10618-2-git-send-email-killertofu@gmail.com>
-References: <1417815453-10618-1-git-send-email-killertofu@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/4] alps: v7: Document the v7 touchpad packet protocol
+Date: Fri, 5 Dec 2014 16:58:00 -0500
+Message-ID: <CAN+gG=FMY8Mna0vAx16_6qiK9jXOhGGPaCLrAvM4z1-CUOFzUQ@mail.gmail.com>
+References: <1417613268-13674-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:39626 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751535AbaLEVhl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Dec 2014 16:37:41 -0500
-Received: by mail-pd0-f176.google.com with SMTP id y10so1435072pdj.21
-        for <linux-input@vger.kernel.org>; Fri, 05 Dec 2014 13:37:40 -0800 (PST)
-In-Reply-To: <1417815453-10618-1-git-send-email-killertofu@gmail.com>
+Received: from mail-qc0-f171.google.com ([209.85.216.171]:53590 "EHLO
+	mail-qc0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751239AbaLEV6B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Dec 2014 16:58:01 -0500
+Received: by mail-qc0-f171.google.com with SMTP id r5so1176779qcx.2
+        for <linux-input@vger.kernel.org>; Fri, 05 Dec 2014 13:58:00 -0800 (PST)
+In-Reply-To: <1417613268-13674-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, pinglinux@gmail.com, Jason Gerecke <killertofu@gmail.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-The existing generic touch code only reports events after reading an
-entire HID report, which practically means that only data about the last
-contact in a report will ever be provided to userspace. This patch uses
-a trick from hid-multitouch.c to discover what type of field is at the
-end of each contact; when such a field is encountered all the stored
-contact data will be reported.
+On Wed, Dec 3, 2014 at 8:27 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Add a table documenting where all the bits are in the v7 touchpad packets.
+>
+> Cc: stable@vger.kernel.org # 3.17
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
----
-Changes from v1:
- * Patch renamed from "HID: wacom: Report input events immediately upon receipt"
- * Instead of reporting on-reciept, events are bundled and sent at the end of each contact
- * Adds code to discover 'last_slot_field' based on hid-multitouch.c implementation
+Hi Hans,
 
- drivers/hid/wacom_wac.c | 94 ++++++++++++++++++++++++++++++++-----------------
- drivers/hid/wacom_wac.h |  1 +
- 2 files changed, 63 insertions(+), 32 deletions(-)
+I tested yesterday the series on a Toshiba W50-A and a Z30-A if my
+memory is accurate. Internal QA tested these on a Dell M4700 (don't
+know if it has a v7 touchpad though).
+Both tests were conclusive, i.e. they fixes the spurious release when
+right-clicking.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index c33f889..75fc16e 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1381,35 +1381,68 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
--	unsigned touch_max = wacom_wac->features.touch_max;
-+	struct wacom_features *features = &wacom_wac->features;
- 
- 	switch (usage->hid) {
- 	case HID_GD_X:
--		if (touch_max == 1)
-+		features->last_slot_field = usage->hid;
-+		if (features->touch_max == 1)
- 			wacom_map_usage(wacom, usage, field, EV_ABS, ABS_X, 4);
- 		else
- 			wacom_map_usage(wacom, usage, field, EV_ABS,
- 					ABS_MT_POSITION_X, 4);
- 		break;
- 	case HID_GD_Y:
--		if (touch_max == 1)
-+		features->last_slot_field = usage->hid;
-+		if (features->touch_max == 1)
- 			wacom_map_usage(wacom, usage, field, EV_ABS, ABS_Y, 4);
- 		else
- 			wacom_map_usage(wacom, usage, field, EV_ABS,
- 					ABS_MT_POSITION_Y, 4);
- 		break;
- 	case HID_DG_CONTACTID:
-+		features->last_slot_field = usage->hid;
- 		break;
- 	case HID_DG_INRANGE:
-+		features->last_slot_field = usage->hid;
- 		break;
- 	case HID_DG_INVERT:
-+		features->last_slot_field = usage->hid;
- 		break;
- 	case HID_DG_TIPSWITCH:
-+		features->last_slot_field = usage->hid;
- 		wacom_map_usage(wacom, usage, field, EV_KEY, BTN_TOUCH, 0);
- 		break;
- 	}
- }
- 
-+static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
-+		struct input_dev *input)
-+{
-+	struct hid_data *hid_data = &wacom_wac->hid_data;
-+	bool mt = wacom_wac->features.touch_max > 1;
-+	bool prox = hid_data->tipswitch &&
-+		    !wacom_wac->shared->stylus_in_proximity;
-+
-+	if (mt) {
-+		int slot;
-+
-+		slot = input_mt_get_slot_by_key(input, hid_data->id);
-+		input_mt_slot(input, slot);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
-+	}
-+	else {
-+		input_report_key(input, BTN_TOUCH, prox);
-+	}
-+
-+	if (prox) {
-+		input_report_abs(input, mt ? ABS_MT_POSITION_X : ABS_X,
-+				 hid_data->x);
-+		input_report_abs(input, mt ? ABS_MT_POSITION_Y : ABS_Y,
-+				 hid_data->y);
-+	}
-+}
-+
- static int wacom_wac_finger_event(struct hid_device *hdev,
- 		struct hid_field *field, struct hid_usage *usage, __s32 value)
- {
-@@ -1432,36 +1465,35 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
- 	}
- 
- 
-+	if (usage->usage_index + 1 == field->report_count) {
-+		if (usage->hid == wacom_wac->features.last_slot_field)
-+			wacom_wac_finger_slot(wacom_wac, wacom_wac->input);
-+	}
-+
- 	return 0;
- }
- 
--static void wacom_wac_finger_mt_report(struct wacom_wac *wacom_wac,
--		struct input_dev *input, bool touch)
-+static int wacom_wac_finger_touches(struct hid_device *hdev)
- {
--	int slot;
--	struct hid_data *hid_data = &wacom_wac->hid_data;
-+	struct wacom *wacom = hid_get_drvdata(hdev);
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct input_dev *input = wacom_wac->input;
-+	unsigned touch_max = wacom_wac->features.touch_max;
-+	int count = 0;
-+	int i;
- 
--	slot = input_mt_get_slot_by_key(input, hid_data->id);
-+	if (touch_max == 1)
-+		return wacom_wac->hid_data.tipswitch &&
-+		       !wacom_wac->shared->stylus_in_proximity;
- 
--	input_mt_slot(input, slot);
--	input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
--	if (touch) {
--		input_report_abs(input, ABS_MT_POSITION_X, hid_data->x);
--		input_report_abs(input, ABS_MT_POSITION_Y, hid_data->y);
-+	for (i = 0; i < input->mt->num_slots; i++) {
-+		struct input_mt_slot *ps = &input->mt->slots[i];
-+		int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-+		if (id >= 0)
-+			count++;
- 	}
--	input_mt_sync_frame(input);
--}
--
--static void wacom_wac_finger_single_touch_report(struct wacom_wac *wacom_wac,
--		struct input_dev *input, bool touch)
--{
--	struct hid_data *hid_data = &wacom_wac->hid_data;
- 
--	if (touch) {
--		input_report_abs(input, ABS_X, hid_data->x);
--		input_report_abs(input, ABS_Y, hid_data->y);
--	}
--	input_report_key(input, BTN_TOUCH, touch);
-+	return count;
- }
- 
- static void wacom_wac_finger_report(struct hid_device *hdev,
-@@ -1470,18 +1502,16 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->input;
--	bool touch = wacom_wac->hid_data.tipswitch &&
--		     !wacom_wac->shared->stylus_in_proximity;
--	unsigned touch_max = wacom_wac->features.touch_max;
- 
--	if (touch_max > 1)
--		wacom_wac_finger_mt_report(wacom_wac, input, touch);
-+	if (wacom_wac->features.touch_max > 1)
-+		input_mt_sync_frame(input);
- 	else
--		wacom_wac_finger_single_touch_report(wacom_wac, input, touch);
-+		wacom_wac_finger_slot(wacom_wac, input);
-+
- 	input_sync(input);
- 
- 	/* keep touch state for pen event */
--	wacom_wac->shared->touch_down = touch;
-+	wacom_wac->shared->touch_down = wacom_wac_finger_touches(hdev);
- }
- 
- #define WACOM_PEN_FIELD(f)	(((f)->logical == HID_DG_STYLUS) || \
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 128cbb3..6e256206 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -144,6 +144,7 @@ struct wacom_features {
- 	int pktlen;
- 	bool check_for_hid_type;
- 	int hid_type;
-+	int last_slot_field;
- };
- 
- struct wacom_shared {
--- 
-2.1.3
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
+I am not confident enough with the code to review 3/4 and 4/4, but
+they look sane to me.
+
+Cheers,
+Benjamin
+
+>  drivers/input/mouse/alps.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index d125a01..aceaade 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -881,6 +881,34 @@ static void alps_get_finger_coordinate_v7(struct input_mt_pos *mt,
+>                                           unsigned char *pkt,
+>                                           unsigned char pkt_id)
+>  {
+> +       /*
+> +        *       packet-fmt    b7   b6    b5   b4   b3   b2   b1   b0
+> +        * Byte0 TWO & MULTI    L    1     R    M    1 Y0-2 Y0-1 Y0-0
+> +        * Byte0 NEW            L    1  X1-5    1    1 Y0-2 Y0-1 Y0-0
+> +        * Byte1            Y0-10 Y0-9  Y0-8 Y0-7 Y0-6 Y0-5 Y0-4 Y0-3
+> +        * Byte2            X0-11    1 X0-10 X0-9 X0-8 X0-7 X0-6 X0-5
+> +        * Byte3            X1-11    1  X0-4 X0-3    1 X0-2 X0-1 X0-0
+> +        * Byte4 TWO        X1-10  TWO  X1-9 X1-8 X1-7 X1-6 X1-5 X1-4
+> +        * Byte4 MULTI      X1-10  TWO  X1-9 X1-8 X1-7 X1-6 Y1-5    1
+> +        * Byte4 NEW        X1-10  TWO  X1-9 X1-8 X1-7 X1-6    0    0
+> +        * Byte5 TWO & NEW  Y1-10    0  Y1-9 Y1-8 Y1-7 Y1-6 Y1-5 Y1-4
+> +        * Byte5 MULTI      Y1-10    0  Y1-9 Y1-8 Y1-7 Y1-6  F-1  F-0
+> +        * L:         Left button
+> +        * R / M:     Non-clickpads: Right / Middle button
+> +        *            Clickpads: When > 2 fingers are down, and some fingers
+> +        *            are in the button area, then the 2 coordinates reported
+> +        *            are for fingers outside the button area and these report
+> +        *            extra fingers being present in the right / left button
+> +        *            area. Note these fingers are not added to the F field!
+> +        *            so if a TWO packet is received and R = 1 then there are
+> +        *            3 fingers down, etc.
+> +        * TWO:       1: Two touches present, byte 0/4/5 are in TWO fmt
+> +        *            0: If byte 4 bit 0 is 1, then byte 0/4/5 are in MULTI fmt
+> +        *               otherwise byte 0 bit 4 must be set and byte 0/4/5 are
+> +        *               in NEW fmt
+> +        * F:         Number of fingers - 3, 0 means 3 fingers, 1 means 4 ...
+> +        */
+> +
+>         mt[0].x = ((pkt[2] & 0x80) << 4);
+>         mt[0].x |= ((pkt[2] & 0x3F) << 5);
+>         mt[0].x |= ((pkt[3] & 0x30) >> 1);
+> --
+> 2.1.0
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,63 +1,111 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: hid-replay captured data
-Date: Mon, 8 Dec 2014 17:04:35 -0500
-Message-ID: <CAN+gG=H5Zxfn1mRRYoypnMetfWzzOtc6XuvoJmKmJC8AW+9Wwg@mail.gmail.com>
-References: <20141208215218.w5d4pi1sg8s0s4wo@webmail.fib.upc.es>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCHv2 1/3] sunxi:dts-bindings:input:ps2 bindings for A10/A20
+ ps2.
+Date: Mon, 8 Dec 2014 23:15:09 +0100
+Message-ID: <20141208221509.GM8739@lukather>
+References: <1417907719-26775-1-git-send-email-VishnuPatekar0510@gmail.com>
+ <1417907719-26775-2-git-send-email-VishnuPatekar0510@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BHMq0+oGliEfCAkH"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f178.google.com ([209.85.216.178]:39284 "EHLO
-	mail-qc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755260AbaLHWEg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 17:04:36 -0500
-Received: by mail-qc0-f178.google.com with SMTP id b13so4793145qcw.9
-        for <linux-input@vger.kernel.org>; Mon, 08 Dec 2014 14:04:35 -0800 (PST)
-In-Reply-To: <20141208215218.w5d4pi1sg8s0s4wo@webmail.fib.upc.es>
+Received: from down.free-electrons.com ([37.187.137.238]:40201 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752540AbaLHWUE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 17:20:04 -0500
+Content-Disposition: inline
+In-Reply-To: <1417907719-26775-2-git-send-email-VishnuPatekar0510@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: josep.sanchez.ferreres@est.fib.upc.edu
-Cc: linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>
+To: vishnupatekar <vishnupatekar0510@gmail.com>
+Cc: linux-sunxi@googlegroups.com, dmitry.torokhov@gmail.com, linux@arm.linux.org.uk, leafy.myeh@newbietech.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Thanks for the logs (both way arrived in my mailbox, attached file or pastebin).
 
-I'll try to have a look at them on Wednesday.
+--BHMq0+oGliEfCAkH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 8, 2014 at 3:52 PM,  <josep.sanchez.ferreres@est.fib.upc.edu> wrote:
-> I attach a .tar.gz with all the captures I took, the filenames should be
-> self explanatory. If you prefer me to dump all that into the e-mail text
-> field just ask, but it's quite a big amount of data.
->
-> Both 3.16 and 3.18 kernels seemed to respond to the same events. Oddly
-> enough I've noticed that although 3 devices for rawhid were listed, only two
-> captured events. Here's the output from hid-replay that shows my devices:
->
-> Available devices:
-> /dev/hidraw0:   USB Keyboard
-> /dev/hidraw1:   USB Keyboard
-> /dev/hidraw2:   USB OPTICAL MOUSE
-> /dev/hidraw3:   Wacom Co.,Ltd. Bamboo Pad, USB
-> /dev/hidraw4:   Wacom Co.,Ltd. Bamboo Pad, USB
-> /dev/hidraw5:   Wacom Co.,Ltd. Bamboo Pad, USB
->
-> Only hidraw4 and 5 reported events to hid-replay. Also note that hidraw5
-> corresponds to the touchpad while hidraw5 corresponds to the stylus.
->
-> I also just found out that the stylus hardware button is captured by the
-> touchpad device and not by the stylus one (that actually makes more sense as
-> it acts like a mouse button), so all the data I put about the stylus key
-> should just contain stylus movement data. I added a file stylus-key.hid
-> which is actually capturing the clicks for that button.
->
-> I should also say that some events, like clicking the screen with the stylus
-> will be mixed with the mouse movement (I tried to avoid that by clicking
-> fast enough but I guess it's impossible to completely avoid it).
->
-> PD: I see you're using a gmail address to reply, should I reply to that
-> address better?
+Hi,
 
-I think that's better to keep all the people in CC of the thread. we
-generally have rules to filter linux-input/lkml mails, so it avoids
-losing traces of a thread.
+On Sun, Dec 07, 2014 at 04:45:17AM +0530, vishnupatekar wrote:
+> A10 and A20 have same PS2 addresses, clocks, interrupts.
+> added compatible as allwinner,sun4i-a10-ps2.
+>=20
+> Signed-off-by: vishnupatekar <VishnuPatekar0510@gmail.com>
 
-Cheers,
-Benjamin
+You should have your real name here.
+
+> ---
+>  .../bindings/input/allwinner,sunxi-ps2.txt         |   23 ++++++++++++++=
+++++++
+>  1 file changed, 23 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/allwinner,sun=
+xi-ps2.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.=
+txt b/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt
+> new file mode 100644
+> index 0000000..3a8919a
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt
+> @@ -0,0 +1,23 @@
+> +* Device tree bindings for Allwinner A10, A20 PS2 host controller
+
+> +A20 PS2 is dual role controller(PS2 host and PS2 device). These
+> +bindings are for PS2 host controller. IBM compliant IBM PS2 and
+> AT-compatible keyboard and mouse can be connected.
+
+This should be wrapped to 80 chars.
+
+> +Required properties:
+> +
+> + - reg             : Offset and length of the register set for the devic=
+e.
+> + - compatible      : Should one of the following:
+> +                     - "allwinner,sun7i-a20-ps2"
+> +                     - "allwinner,sun4i-a10-ps2"
+> + - interrupts      : The interrupt line connected to the PS2.
+> + - clocks          : The gate clk connected to the PS2.
+> +
+> +
+> +Example:
+> +	ps20: ps2@0x01c2a000 {
+> +		compatible =3D "allwinner,sun7i-a20-ps2";
+> +		reg =3D <0x01c2a000 0x400>;
+> +		interrupts =3D <0 62 4>;
+> +		clocks =3D <&apb1_gates 6>;
+> +		status =3D "disabled";
+> +	};
+> --=20
+> 1.7.9.5
+>=20
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--BHMq0+oGliEfCAkH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUhiLtAAoJEBx+YmzsjxAgRlMP/09cg3KTM/GxiCueSGkULDVQ
+YoUhLDJ4REyIZ+Wl0PIc3kE7oL5gdUhIVVk7pFyylTOxkHwF3tqxNBLJ6gfoFFdM
+e+RcNiFzOrzrBtVJwbH702UcmgGIh/fVd6whH/WqDhofoEMTVHf7XhiojyZfLS3I
+JN3w3B1/b4F3xHesaYiY6i8wtG1vOePSbJsypiFQsyb9BFFI6zRt8nXcSc7BzjLL
+IWwkrycorVYSJWZbX2Z3qVMu/8Bwo3/kLtCjfcB7RBZxVzE0aNR/t++6N8+Au5G4
+gwiq87qtN83e6Nm9E76iJ07E+UxiJ1QXj2NT1Vr2FF9NBtxK5GL1eu/PnMx59KoU
++zQeJXuQO0ETnwNYUZcSYuPqcwWruOABq3H1nnIBQdN0o74FsAufKpdJnxCb3HY6
+Qz+IY32yw7P3LTV1Z35UQ6uSsVoUcvJ1ewkb+u/BrnFhweKgwCn93ByWajybKuK1
+IM5ab0nihSpZSZUmbmeMknpUgYEClCHnXMa1Q/ELa20DR5OjHk4IbNC3GtD3tlhj
+tRS3ER5EUDWZvy3B2VHluIPFbYiOgNRVyUlXcs/RhYmEhIPjo6DrC5D2+1U6w03i
+Jt/HibnDn2bnwbpXwBjPZvWUHW7zrEVh3bw3f8WJzGEqWX45MqMtuoI2wEbimh3Z
+A2X3WPrReI2MCi32bZXN
+=OWGM
+-----END PGP SIGNATURE-----
+
+--BHMq0+oGliEfCAkH--

@@ -1,111 +1,154 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCHv2 1/3] sunxi:dts-bindings:input:ps2 bindings for A10/A20
- ps2.
-Date: Mon, 8 Dec 2014 23:15:09 +0100
-Message-ID: <20141208221509.GM8739@lukather>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCHv2 3/3]  ARM:dts:sunxi:ps2 dt nodes for
+ A10/A20 PS2 controller.
+Date: Mon, 8 Dec 2014 23:22:59 +0100
+Message-ID: <20141208222259.GN8739@lukather>
 References: <1417907719-26775-1-git-send-email-VishnuPatekar0510@gmail.com>
- <1417907719-26775-2-git-send-email-VishnuPatekar0510@gmail.com>
+ <1417907719-26775-4-git-send-email-VishnuPatekar0510@gmail.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BHMq0+oGliEfCAkH"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:40201 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752540AbaLHWUE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 17:20:04 -0500
+	protocol="application/pgp-signature"; boundary="5FetH82qe0Z6y/zI"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBPWKTCSAKGQEZGIJJCY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1417907719-26775-2-git-send-email-VishnuPatekar0510@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1417907719-26775-4-git-send-email-VishnuPatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: vishnupatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, leafy.myeh-Q9AEpCAkrSgqDJ6do+/SaQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: vishnupatekar <vishnupatekar0510@gmail.com>
-Cc: linux-sunxi@googlegroups.com, dmitry.torokhov@gmail.com, linux@arm.linux.org.uk, leafy.myeh@newbietech.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-
---BHMq0+oGliEfCAkH
-Content-Type: text/plain; charset=us-ascii
+--5FetH82qe0Z6y/zI
+Content-Type: text/plain; charset=UTF-8
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Sun, Dec 07, 2014 at 04:45:17AM +0530, vishnupatekar wrote:
-> A10 and A20 have same PS2 addresses, clocks, interrupts.
-> added compatible as allwinner,sun4i-a10-ps2.
->=20
-> Signed-off-by: vishnupatekar <VishnuPatekar0510@gmail.com>
+Your commit title should be less that 80 chars.
 
-You should have your real name here.
+It should also be formatted using "ARM: sunxi: dts:" as a prefix (More
+specific to less specific).
 
+On Sun, Dec 07, 2014 at 04:45:19AM +0530, vishnupatekar wrote:
+>  Added ps2 nodes in lime2 board dts. By default ps20 and ps21 nodes are
+>  commented as ps20 pins conflict with HDMI connector
+>  on Lime2 Board.
+> 
+> Signed-off-by: vishnupatekar <VishnuPatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  .../bindings/input/allwinner,sunxi-ps2.txt         |   23 ++++++++++++++=
-++++++
->  1 file changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/allwinner,sun=
-xi-ps2.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.=
-txt b/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt
-> new file mode 100644
-> index 0000000..3a8919a
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt
-> @@ -0,0 +1,23 @@
-> +* Device tree bindings for Allwinner A10, A20 PS2 host controller
+>  arch/arm/boot/dts/sun4i-a10.dtsi                |   27 +++++++++++++++++++++
+>  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |   13 ++++++++++
+>  arch/arm/boot/dts/sun7i-a20.dtsi                |   29 +++++++++++++++++++++++
+>  3 files changed, 69 insertions(+)
 
-> +A20 PS2 is dual role controller(PS2 host and PS2 device). These
-> +bindings are for PS2 host controller. IBM compliant IBM PS2 and
-> AT-compatible keyboard and mouse can be connected.
+This patch should also be split into three different patches:
+  - The one adding the nodes for the controller to the DTSI
+  - The one adding the pinctrl nodes
+  - The one enabling the controller on the board.
 
-This should be wrapped to 80 chars.
+> 
+> diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+> index 5e2ec2d..4726e8d 100644
+> --- a/arch/arm/boot/dts/sun4i-a10.dtsi
+> +++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+> @@ -615,6 +615,19 @@
+>  				allwinner,drive = <0>;
+>  				allwinner,pull = <0>;
+>  			};
 
-> +Required properties:
+A newline here please.
+
+> +			ps2_0_pins: ps2_0@0 {
+
+You called the node ps20, you probably want to call it the same way
+here. And we usually have a suffix like pins_a whenever we have
+several muxing options (as it's probably the case).
+
+> +				    allwinner,pins = "PI20","PI21";
+
+A whitespace after the comma please.
+
+> +				    allwinner,function = "ps2";
+> +				    allwinner,drive = <0>;
+> +				    allwinner,pull = <0>;
+> +			};
+
+Newline.
+
+> +			ps2_1_pins: ps2_1@0 {
+> +				    allwinner,pins = "PH12","PH13";
+> +				    allwinner,function = "ps2";
+> +				    allwinner,drive = <0>;
+> +				    allwinner,pull = <0>;
+> +			};
 > +
-> + - reg             : Offset and length of the register set for the devic=
-e.
-> + - compatible      : Should one of the following:
-> +                     - "allwinner,sun7i-a20-ps2"
-> +                     - "allwinner,sun4i-a10-ps2"
-> + - interrupts      : The interrupt line connected to the PS2.
-> + - clocks          : The gate clk connected to the PS2.
-> +
-> +
-> +Example:
-> +	ps20: ps2@0x01c2a000 {
-> +		compatible =3D "allwinner,sun7i-a20-ps2";
-> +		reg =3D <0x01c2a000 0x400>;
-> +		interrupts =3D <0 62 4>;
-> +		clocks =3D <&apb1_gates 6>;
-> +		status =3D "disabled";
-> +	};
-> --=20
-> 1.7.9.5
->=20
+>  		};
+>  
+>  		timer@01c20c00 {
+> @@ -781,5 +794,19 @@
+>  			#address-cells = <1>;
+>  			#size-cells = <0>;
+>  		};
 
---=20
+Newline.
+
+> +		ps20: ps2@0x01c2a000 {
+
+Drop the 0x
+
+> +			compatible = "allwinner,sun4i-a10-ps2";
+> +			reg = <0x01c2a000 0x400>;
+> +			interrupts = <0 62 4>;
+> +			clocks = <&apb1_gates 6>;
+> +			status = "disabled";
+> +		};
+
+Newline
+
+> +		ps21: ps2@0x01c2a400 {
+> +			compatible = "allwinner,sun4i-a10-ps2";
+> +			reg = <0x01c2a400 0x400>;
+> +			interrupts = <0 63 4>;
+> +			clocks = <&apb1_gates 7>;
+> +			status = "disabled";
+> +		};
+>  	};
+>  };
+> diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> index ed364d5..5624e63 100644
+> --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+> @@ -112,6 +112,19 @@
+>  			pinctrl-0 = <&uart0_pins_a>;
+>  			status = "okay";
+>  		};
+> +		/* PS2 0 and PS2 1 are disabled by default
+> +		To enable PS2 0 and PS2 1 uncomment below ps20 and ps21 nodes
+> +		Please note that ps20 pins conflict with HDMI on Lime2 Board*/
+> +		/*ps20: ps2@0x01c2a000 {
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&ps2_0_pins>;
+> +			status = "okay";
+> +		};
+> +		ps21: ps2@0x01c2a400 {
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&ps2_1_pins>;
+> +			status = "okay";
+> +		};*/
+
+Hmmm, no, no comments in the DTS.
+
+Especially when it's that trivial to enable.
+
+Maxime
+
+-- 
 Maxime Ripard, Free Electrons
 Embedded Linux, Kernel and Android engineering
 http://free-electrons.com
-
---BHMq0+oGliEfCAkH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUhiLtAAoJEBx+YmzsjxAgRlMP/09cg3KTM/GxiCueSGkULDVQ
-YoUhLDJ4REyIZ+Wl0PIc3kE7oL5gdUhIVVk7pFyylTOxkHwF3tqxNBLJ6gfoFFdM
-e+RcNiFzOrzrBtVJwbH702UcmgGIh/fVd6whH/WqDhofoEMTVHf7XhiojyZfLS3I
-JN3w3B1/b4F3xHesaYiY6i8wtG1vOePSbJsypiFQsyb9BFFI6zRt8nXcSc7BzjLL
-IWwkrycorVYSJWZbX2Z3qVMu/8Bwo3/kLtCjfcB7RBZxVzE0aNR/t++6N8+Au5G4
-gwiq87qtN83e6Nm9E76iJ07E+UxiJ1QXj2NT1Vr2FF9NBtxK5GL1eu/PnMx59KoU
-+zQeJXuQO0ETnwNYUZcSYuPqcwWruOABq3H1nnIBQdN0o74FsAufKpdJnxCb3HY6
-Qz+IY32yw7P3LTV1Z35UQ6uSsVoUcvJ1ewkb+u/BrnFhweKgwCn93ByWajybKuK1
-IM5ab0nihSpZSZUmbmeMknpUgYEClCHnXMa1Q/ELa20DR5OjHk4IbNC3GtD3tlhj
-tRS3ER5EUDWZvy3B2VHluIPFbYiOgNRVyUlXcs/RhYmEhIPjo6DrC5D2+1U6w03i
-Jt/HibnDn2bnwbpXwBjPZvWUHW7zrEVh3bw3f8WJzGEqWX45MqMtuoI2wEbimh3Z
-A2X3WPrReI2MCi32bZXN
-=OWGM
------END PGP SIGNATURE-----
-
---BHMq0+oGliEfCAkH--
+--5FetH82qe0Z6y/zI--

@@ -1,633 +1,912 @@
-From: Amordea Whiteoak <amordea@gmail.com>
-Subject: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions after
- performing a hardware click
-Date: Sun, 7 Dec 2014 17:50:34 -0500
-Message-ID: <CALmnu0aD9ys4+QZ+gtdNe61q23A3e6MPq+DSD-Q+NcJoWksWkQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: "jeffrey.lin" <yajohn@gmail.com>
+Subject: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Mon,  8 Dec 2014 11:42:59 +0800
+Message-ID: <1418010179-22814-1-git-send-email-jeffrey.lin@rad-ic.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:57343 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753457AbaLGWue (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Dec 2014 17:50:34 -0500
-Received: by mail-pd0-f169.google.com with SMTP id z10so3977972pdj.28
-        for <linux-input@vger.kernel.org>; Sun, 07 Dec 2014 14:50:34 -0800 (PST)
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:63218 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753998AbaLHDnV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Dec 2014 22:43:21 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, shc_work@mail.ru, bleung@chromium.org, lee.jones@linaro.org, charliemooney@chromium.org
+Cc: jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Original Bug Report:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1398533
+From: "jeffrey.lin" <jeffrey.lin@rad-ic.com>
 
-Bug Description: After clicking once at the bottom of my clickpad on
-either button, if I move my cursor elsewhere on the screen, and then
-subsequently click again (with either clickpad or external mouse this
-time) it registers a click at the location where my cursor icon was
-originally. I can continue to move my cursor anywhere on the screen,
-and it still registers the click in the original location.
+This patch is porting Raydium I2C touch driver. Developer can enable
+ raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
 
+Signed-off-by: jeffrey.lin@rad-ic.com
+---
+ drivers/input/touchscreen/Kconfig      |  12 +
+ drivers/input/touchscreen/Makefile     |   1 +
+ drivers/input/touchscreen/rm31100_ts.c | 846 +++++++++++++++++++++++++++++++++
+ 3 files changed, 859 insertions(+)
+ create mode 100644 drivers/input/touchscreen/rm31100_ts.c
 
-cat /proc/version
-Linux version 3.18.0-031800rc7-generic (apw@gomeisa) (gcc version
-4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5) ) #201411302035 SMP Mon Dec 1
-01:36:38 UTC 2014
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 3ce9181..d0324d2 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -955,4 +955,16 @@ config TOUCHSCREEN_ZFORCE
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called zforce_ts.
+ 
++config TOUCHSCREEN_RM_TS
++	tristate "Raydium I2C Touchscreen"
++	depends on I2C
++	help
++	  Say Y here if you have Raydium series I2C touchscreen,
++	  such as RM31100 , connected to your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called rm31100_ts.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 687d5a7..3220f66 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -78,3 +78,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
++obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= rm31100_ts.o
+diff --git a/drivers/input/touchscreen/rm31100_ts.c b/drivers/input/touchscreen/rm31100_ts.c
+new file mode 100644
+index 0000000..997dc0c
+--- /dev/null
++++ b/drivers/input/touchscreen/rm31100_ts.c
+@@ -0,0 +1,846 @@
++/*
++ * Raydium RM31100_ts touchscreen driver.
++ *
++ * Copyright (C) 2012-2014, Raydium Semiconductor Corporation.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * Raydium reserves the right to make changes without further notice
++ * to the materials described herein. Raydium does not assume any
++ * liability arising out of the application described herein.
++ *
++ * Contact Raydium Semiconductor Corporation at www.rad-ic.com
++ *
++ * History:
++ *			(C) 2012 Raydium - Update for GPL distribution
++ *			(C) 2009 Enea - Original prototype
++ *
++ */
++#include <linux/async.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/gpio.h>
++#include <linux/mutex.h>
++#include <linux/delay.h>
++#include <linux/pm.h>
++#include <linux/pm_runtime.h>
++#ifdef CONFIG_MISC_DEV
++#include <linux/miscdevice.h>
++#endif
++#include <linux/uaccess.h>
++#include <asm/unaligned.h>
++#include <linux/input/mt.h>
++
++#define rm31100	0x0
++#define rm3110x	0x1
++
++#define INVALID_DATA	0xff
++#define MAX_REPORT_TOUCHED_POINTS	10
++
++#define I2C_CLIENT_ADDR         0x39
++#define I2C_DMA_CLIENT_ADDR     0x5A
++
++struct rm31100_ts_data {
++	u8 x_index;
++	u8 y_index;
++	u8 z_index;
++	u8 id_index;
++	u8 touch_index;
++	u8 data_reg;
++	u8 status_reg;
++	u8 data_size;
++	u8 touch_bytes;
++	u8 update_data;
++	u8 touch_meta_data;
++	u8 finger_size;
++};
++
++struct rm3110x_ts_platform_data {
++	int (*power_on)(int on);
++	int (*dev_setup)(bool on);
++	const char *ts_name;
++	u32 dis_min_x; /* display resoltion ABS min*/
++	u32 dis_max_x;/* display resoltion ABS max*/
++	u32 dis_min_y;
++	u32 dis_max_y;
++	u32 min_touch; /* no.of touches supported */
++	u32 max_touch;
++	u32 min_tid; /* track id */
++	u32 max_tid;
++	u32 min_width;/* size of the finger */
++	u32 max_width;
++	u32 res_x; /* TS resolution unit*/
++	u32 res_y;
++	u32 swap_xy;
++	u8 nfingers;
++	u32 irq_gpio;
++	int resout_gpio;
++	bool wakeup;
++	u32 irq_cfg;
++};
++
++static struct rm31100_ts_data devices[] = {
++	[0] = {
++		.x_index = 2,
++		.y_index = 4,
++		.z_index = 6,
++		.id_index = 1,
++		.data_reg = 0x1,
++		.status_reg = 0,
++		.update_data = 0x0,
++		.touch_bytes = 6,
++		.touch_meta_data = 1,
++		.finger_size = 70,
++	},
++};
++
++struct rm31100_ts {
++	struct i2c_client *client;
++	struct input_dev *input;
++	struct rm3110x_ts_platform_data *pdata;
++	struct rm31100_ts_data *dd;
++	u8 *touch_data;
++	u8 device_id;
++	u8 prev_touches;
++	bool is_suspended;
++	bool int_pending;
++	struct mutex access_lock;
++	u32 pen_irq;
++};
++
++struct rm31100_ts *pts;
++/*
++static inline u16 join_bytes(u8 a, u8 b)
++{
++	u16 ab = 0;
++	ab = ab | a;
++	ab = ab << 8 | b;
++	return ab;
++}
++*/
++static s32 rm31100_ts_write_reg_u8(struct i2c_client *client, u8 reg, u8 val)
++{
++	s32 data;
++
++	data = i2c_smbus_write_byte_data(client, reg, val);
++	if (data < 0)
++		dev_err(&client->dev, "error %d in writing reg 0x%x\n",
++						 data, reg);
++
++	return data;
++}
++
++static s32 rm31100_ts_read_reg_u8(struct i2c_client *client, u8 reg)
++{
++	s32 data;
++
++	data = i2c_smbus_read_byte_data(client, reg);
++	if (data < 0)
++		dev_err(&client->dev, "error %d in reading reg 0x%x\n",
++						 data, reg);
++
++	return data;
++}
++
++static int rm31100_ts_read(struct i2c_client *client, u8 reg, u8 *buf, int num)
++{
++	struct i2c_msg xfer_msg[2];
++
++	xfer_msg[0].addr = client->addr;
++	xfer_msg[0].len = 1;
++	xfer_msg[0].flags = 0;
++	xfer_msg[0].buf = &reg;
++
++	xfer_msg[1].addr = client->addr;
++	xfer_msg[1].len = num;
++	xfer_msg[1].flags = I2C_M_RD;
++	xfer_msg[1].buf = buf;
++
++	return i2c_transfer(client->adapter, xfer_msg, 2);
++}
++
++static int rm31100_ts_write_client_dma(struct i2c_client *client, u8 *buf, int num)
++{
++	struct i2c_msg xfer_msg[1];
++
++	xfer_msg[0].addr = I2C_DMA_CLIENT_ADDR;
++	xfer_msg[0].len = num;
++	xfer_msg[0].flags = 0;
++	xfer_msg[0].buf = buf;
++
++	return i2c_transfer(client->adapter, xfer_msg, 1);
++}
++
++static int rm31100_ts_write(struct i2c_client *client, u8 *buf, int num)
++{
++	struct i2c_msg xfer_msg[1];
++
++	xfer_msg[0].addr = client->addr;
++	xfer_msg[0].len = num;
++	xfer_msg[0].flags = 0;
++	xfer_msg[0].buf = buf;
++
++	return i2c_transfer(client->adapter, xfer_msg, 1);
++}
++#ifdef CONFIG_MISC_DEV
++static int dev_open(struct inode *inode, struct file *filp)
++{
++	mutex_lock(&pts->access_lock);
++	return 0;
++}
++
++static int dev_release(struct inode *inode, struct file *filp)
++{
++	mutex_unlock(&pts->access_lock);
++	return 0;
++}
++static ssize_t
++dev_read(struct file *filp, char __user *buf, size_t count, loff_t *pos)
++{
++	u8 *kbuf;
++	struct i2c_msg xfer_msg;
++	/*static char out[] = "1234567890";*/
++	/*static int idx;*//*= 0; remove by checkpatch*/
++	int i;
++
++	kbuf = kmalloc(count, GFP_KERNEL);
++	if (kbuf == NULL)
++		return -ENOMEM;
++
++	/*xfer_msg.addr = pts->client->addr;*/
++	xfer_msg.addr = I2C_CLIENT_ADDR;
++	xfer_msg.len = count;
++	xfer_msg.flags = I2C_M_RD;
++	xfer_msg.buf = kbuf;
++
++	i2c_transfer(pts->client->adapter, &xfer_msg, 1);
++
++	if (copy_to_user(buf, kbuf, count) == 0)
++		return count;
++	else
++		return -EFAULT;
++}
++
++static ssize_t
++dev_write(struct file *filp, const char __user *buf, size_t count, loff_t *pos)
++{
++	u8 *kbuf;
++	ssize_t status = 0;
++	int i;
++
++	kbuf = kmalloc(count, GFP_KERNEL);
++	if (kbuf == NULL) {
++		dev_err("kmalloc() fail\n");
++		return -ENOMEM;
++	}
++
++	if (copy_from_user(kbuf, buf, count) == 0) {
++		pts->client->addr = I2C_CLIENT_ADDR;
++		if (rm31100_ts_write(pts->client, kbuf, count) < 0)
++			status = -EFAULT;
++		else
++			status = count;
++	} else {
++		dev_err("copy_from_user() fail\n");
++		status = -EFAULT;
++	}
++
++	kfree(kbuf);
++	return status;
++}
++
++static struct file_operations dev_fops = {
++	.owner = THIS_MODULE,
++	.open = dev_open,
++	.release = dev_release,
++	.read = dev_read,
++	.write = dev_write,
++	/*.unlocked_ioctl = dev_ioctl,*/
++};
++
++static struct miscdevice raydium_ts_miscdev = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "raydium_ts",
++	.fops = &dev_fops,
++};
++#endif
++
++
++ssize_t show(struct device_driver *drv, char *buff)
++{
++	struct i2c_msg xfer_msg;
++	int num = 10;
++	char buf[100];
++	/*int i;*/
++
++	xfer_msg.addr = pts->client->addr;
++	xfer_msg.len = num;
++	xfer_msg.flags = I2C_M_RD;
++	xfer_msg.buf = buf;
++	pts->client->addr = I2C_CLIENT_ADDR;
++	i2c_transfer(pts->client->adapter, &xfer_msg, 1);
++
++	return 0;
++}
++
++ssize_t store(struct device_driver *drv, const char *buf, size_t count)
++{
++	/*unsigned char pkt[] = { 0xF2, 5, 1, 1 };*/
++	unsigned char pkt[] = { 0xF1, 5, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
++
++	pts->client->addr = I2C_CLIENT_ADDR;
++	rm31100_ts_write(pts->client, pkt, sizeof(pkt));
++
++	return sizeof(pkt);
++}
++
++DRIVER_ATTR(myAttr, 0x777, show, store);
++
++static void report_data(struct rm31100_ts *dev, u16 x, u16 y,
++	u8 pressure, u8 id)
++{
++	struct input_dev *input_dev = dev->input;
++	if (dev->pdata->swap_xy)
++		swap(x, y);
++
++	input_mt_slot(input_dev, id);
++	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, true);
++	input_report_abs(input_dev, ABS_MT_POSITION_X, x);
++	input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
++	input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
++	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, dev->dd->finger_size);
++/*
++	dev_dbg("%s(): id =%2hhd, x =%4hd, y =%4hd, pressure = %hhd\n",
++		__func__, id, x, y, pressure);
++*/
++}
++
++static void process_rm31100_data(struct rm31100_ts *ts)
++{
++	u8 id, pressure, touches, i;
++	u16 x, y;
++
++	touches = ts->touch_data[ts->dd->touch_index];
++
++	if (touches > 0) {
++		for (i = 0; i < touches; i++) {
++			id = ts->touch_data[i * ts->dd->touch_bytes +
++				ts->dd->id_index];
++			pressure = ts->touch_data[i * ts->dd->touch_bytes +
++				ts->dd->z_index];
++			x = get_unaligned_le16(&(ts->touch_data[i *
++				ts->dd->touch_bytes + ts->dd->x_index]));
++			y = get_unaligned_le16(&(ts->touch_data[i *
++				ts->dd->touch_bytes + ts->dd->y_index]));
++			report_data(ts, x, y, pressure, id);
++		}
++	} else
++		input_mt_sync(ts->input);
++
++	ts->prev_touches = touches;
++	/*input_report_key(ts->input, BTN_TOUCH, 1);*/
++	input_mt_report_pointer_emulation(ts->input, true);
++	input_sync(ts->input);
++}
++
++/*static void rm31100_ts_xy_worker(struct work_struct *work) JL remove*/
++static void rm31100_ts_xy_worker(struct rm31100_ts *work)
++{
++	int rc;
++	u8 client_dma_package[4] = {0x0f, 0x00, 0x20, 0x81};
++	struct rm31100_ts *ts = work;
++
++	if (ts->is_suspended == true) {
++		dev_dbg(&ts->client->dev, "TS is supended\n");
++		ts->int_pending = true;
++		return;
++	}
++
++	mutex_lock(&ts->access_lock);
++	/* read data from DATA_REG */
++	/*RM31100 DMA Mode*/
++	rc = rm31100_ts_write_client_dma(ts->client, client_dma_package, 0x04);
++	if (rc < 0) {
++		dev_err(&ts->client->dev, "write client dma failed\n");
++		goto schedule;
++	}
++	rc = rm31100_ts_read(ts->client, ts->dd->data_reg, ts->touch_data,
++	ts->dd->data_size);
++
++	if (rc < 0) {
++		dev_err(&ts->client->dev, "read failed\n");
++		goto schedule;
++	}
++
++	if (ts->touch_data[ts->dd->touch_index] == INVALID_DATA)
++		goto schedule;
++
++	/* write to STATUS_REG to release lock */
++	rc = rm31100_ts_write_reg_u8(ts->client,
++		ts->dd->status_reg, ts->dd->update_data);
++	if (rc < 0) {
++		dev_err(&ts->client->dev, "write failed, try once more\n");
++
++		rc = rm31100_ts_write_reg_u8(ts->client,
++			ts->dd->status_reg, ts->dd->update_data);
++		if (rc < 0)
++			dev_err(&ts->client->dev, "write failed, exiting\n");
++	}
++
++	process_rm31100_data(ts);
++schedule:
++	mutex_unlock(&ts->access_lock);
++}
++
++static irqreturn_t rm31100_ts_irq(int irq, void *dev_id)
++{
++	struct rm31100_ts *ts = dev_id;
++
++	rm31100_ts_xy_worker(ts);
++	return IRQ_HANDLED;
++}
++
++static int rm31100_ts_init_ts(struct i2c_client *client, struct rm31100_ts *ts)
++{
++	/*struct input_dev *input_device;*/
++	/*int rc = 0;*/
++
++	ts->dd = &devices[ts->device_id];
++
++	if (!ts->pdata->nfingers) {
++		dev_err(&client->dev, "Touches information not specified\n");
++		return -EINVAL;
++	}
++
++	if (ts->device_id == rm3110x) {
++		if (ts->pdata->nfingers > 2) {
++			dev_err(&client->dev, "Touches >=1 & <= 2\n");
++			return -EINVAL;
++		}
++		ts->dd->data_size = ts->dd->touch_bytes;
++		ts->dd->touch_index = 0x0;
++	} else if (ts->device_id == rm31100) {
++		if (ts->pdata->nfingers > 10) {
++			dev_err(&client->dev, "Touches >=1 & <= 10\n");
++			return -EINVAL;
++		}
++		ts->dd->data_size = ts->pdata->nfingers * ts->dd->touch_bytes +
++						ts->dd->touch_meta_data;
++		ts->dd->touch_index = 0x0;
++	}
++	/* w001 */
++	else {
++		ts->dd->data_size = ts->pdata->nfingers * ts->dd->touch_bytes +
++		ts->dd->touch_meta_data;
++		ts->dd->touch_index = 0x0;
++	}
++
++	ts->touch_data = kzalloc(ts->dd->data_size, GFP_KERNEL);
++	if (!ts->touch_data) {
++		pr_err("%s: Unable to allocate memory\n", __func__);
++		return -ENOMEM;
++	}
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int rm31100_ts_suspend(struct device *dev)
++{
++	struct rm31100_ts *ts = dev_get_drvdata(dev);
++	int rc = 0;
++
++	if (device_may_wakeup(dev)) {
++		/* mark suspend flag */
++		ts->is_suspended = true;
++		enable_irq_wake(ts->pen_irq);
++	}
++
++	disable_irq(ts->pen_irq);
++
++	gpio_free(ts->pdata->irq_gpio);
++
++	if (ts->pdata->power_on) {
++		rc = ts->pdata->power_on(0);
++		if (rc) {
++			dev_err(dev, "unable to goto suspend\n");
++			return rc;
++		}
++	}
++	return 0;
++}
++
++static int rm31100_ts_resume(struct device *dev)
++{
++	struct rm31100_ts *ts = dev_get_drvdata(dev);
++
++	int rc = 0;
++
++	if (device_may_wakeup(dev)) {
++		disable_irq_wake(ts->pen_irq);
++
++		ts->is_suspended = false;
++
++		if (ts->int_pending == true)
++			ts->int_pending = false;
++	} else {
++		if (ts->pdata->power_on) {
++			rc = ts->pdata->power_on(1);
++			if (rc) {
++				dev_err(dev, "unable to resume\n");
++				return rc;
++			}
++		}
++
++		enable_irq(ts->pen_irq);
++
++		/* Clear the status register of the TS controller */
++		rc = rm31100_ts_write_reg_u8(ts->client,
++			ts->dd->status_reg, ts->dd->update_data);
++		if (rc < 0) {
++			dev_err(&ts->client->dev,
++				"write failed, try once more\n");
++
++			rc = rm31100_ts_write_reg_u8(ts->client,
++				ts->dd->status_reg,
++				ts->dd->update_data);
++			if (rc < 0)
++				dev_err(&ts->client->dev,
++					"write failed, exiting\n");
++		}
++	}
++
++	return 0;
++}
++
++static struct dev_pm_ops rm31100_ts_pm_ops = {
++	.suspend = rm31100_ts_suspend,
++	.resume = rm31100_ts_resume,
++};
++#endif
++
++static int rm_input_dev_create(struct rm31100_ts *ts)
++{
++	struct input_dev *input_device;
++	int rc = 0;
++	ts->prev_touches = 0;
++
++	input_device = input_allocate_device();
++	if (!input_device) {
++		rc = -ENOMEM;
++		goto error_alloc_dev;
++	}
++	ts->input = input_device;
++
++	input_device->name = "raydium_ts";
++	input_device->id.bustype = BUS_I2C;
++	input_device->dev.parent = &ts->client->dev;
++	input_set_drvdata(input_device, ts);
++
++	__set_bit(EV_ABS, input_device->evbit);
++	__set_bit(INPUT_PROP_DIRECT, input_device->propbit);
++	__set_bit(BTN_TOUCH, input_device->keybit);
++
++
++	if (ts->device_id == rm31100) {
++		/* set up virtual key */
++		__set_bit(EV_KEY, input_device->evbit);
++	}
++	input_mt_init_slots(input_device,
++		MAX_REPORT_TOUCHED_POINTS, 0);
++	input_set_abs_params(input_device, ABS_MT_POSITION_X,
++		ts->pdata->dis_min_x, ts->pdata->dis_max_x, 0, 0);
++	input_set_abs_params(input_device, ABS_MT_POSITION_Y,
++		ts->pdata->dis_min_y, ts->pdata->dis_max_y, 0, 0);
++	input_set_abs_params(input_device, ABS_MT_PRESSURE,
++		0, 0xFF, 0, 0);
++	input_set_abs_params(input_device, ABS_MT_TOUCH_MAJOR,
++		0, 0xFF, 0, 0);
++	rc = input_register_device(input_device);
++	if (rc)
++		goto error_unreg_device;
++
++	return 0;
++
++error_unreg_device:
++	input_free_device(input_device);
++error_alloc_dev:
++	ts->input = NULL;
++	return rc;
++}
++
++static int rm31100_initialize(struct i2c_client *client)
++{
++	struct rm31100_ts *ts = i2c_get_clientdata(client);
++	int rc = 0, /*retry_cnt = 0,*/ temp_reg;
++	/* power on the device */
++	if (ts->pdata->power_on) {
++		rc = ts->pdata->power_on(1);
++		if (rc) {
++			pr_err("%s: Unable to power on the device\n", __func__);
++			goto error_dev_setup;
++		}
++	}
++
++	/* read one byte to make sure i2c device exists */
++	if (ts->device_id == rm3110x)
++		temp_reg = 0x01;
++	else if (ts->device_id == rm31100)
++		temp_reg = 0x00;
++	else
++		temp_reg = 0x05;
++
++	rc = rm31100_ts_read_reg_u8(client, temp_reg);
++	if (rc < 0) {
++		dev_err(&client->dev, "i2c sanity check failed\n");
++		goto error_power_on;
++	}
++
++	rc = rm31100_ts_init_ts(client, ts);
++	if (rc < 0) {
++		dev_err(&client->dev, "rm31100_ts init failed\n");
++		goto error_mutex_destroy;
++	}
++
++	/* configure touchscreen reset out gpio */
++	rc = gpio_request(ts->pdata->resout_gpio, "rm31100_resout_gpio");
++	if (rc) {
++		pr_err("%s: unable to request gpio %d\n",
++			__func__, ts->pdata->resout_gpio);
++		goto error_uninit_ts;
++	}
++
++	rc = gpio_direction_output(ts->pdata->resout_gpio, 0);
++	if (rc) {
++		pr_err("%s: unable to set direction for gpio %d\n",
++			__func__, ts->pdata->resout_gpio);
++		goto error_resout_gpio_dir;
++	}
++	/* reset gpio stabilization time */
++	msleep(20);
++
++	return 0;
++error_resout_gpio_dir:
++	if (ts->pdata->resout_gpio >= 0)
++		gpio_free(ts->pdata->resout_gpio);
++error_uninit_ts:
++	input_unregister_device(ts->input);
++	kfree(ts->touch_data);
++error_mutex_destroy:
++	mutex_destroy(&ts->access_lock);
++error_power_on:
++	if (ts->pdata->power_on)
++		ts->pdata->power_on(0);
++error_dev_setup:
++	if (ts->pdata->dev_setup)
++		ts->pdata->dev_setup(0);
++	return rc;
++}
++
++static void rm_initialize_async(void *data, async_cookie_t cookie)
++{
++	struct rm31100_ts *ts = data;
++	struct i2c_client *client = ts->client;
++	unsigned long irqflags;
++	int err = 0;
++
++	mutex_lock(&ts->access_lock);
++
++	err = rm31100_initialize(client);
++	if (err < 0) {
++		dev_err(&client->dev, "probe failed! unbind device.\n");
++		goto error_free_mem;
++	}
++
++	err = rm_input_dev_create(ts);
++	if (err) {
++		dev_err(&client->dev, "%s crated failed, %d\n", __func__, err);
++		goto error_goio_release;
++	}
++
++	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
++
++	err = request_threaded_irq(ts->pen_irq, NULL,
++				   rm31100_ts_irq,
++				   irqflags | IRQF_ONESHOT,
++				   ts->client->dev.driver->name, ts);
++	if (err) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		goto error_dev_release;
++	}
++
++	mutex_unlock(&ts->access_lock);
++
++	return;
++
++error_dev_release:
++	input_free_device(ts->input);
++error_goio_release:
++	if (ts->pdata->resout_gpio >= 0)
++		gpio_free(ts->pdata->resout_gpio);
++error_free_mem:
++	mutex_unlock(&ts->access_lock);
++	kfree(ts);
++	return;
++}
++
++
++/*static int __devinit rm31100_ts_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)*/
++static int rm31100_ts_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct rm31100_ts *ts;
++	struct rm3110x_ts_platform_data *pdata = client->dev.platform_data;
++	int rc/*, temp_reg*/;
++	union i2c_smbus_data dummy;
++
++	if (!pdata) {
++		dev_err(&client->dev, "platform data is required!\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter,
++		I2C_FUNC_SMBUS_READ_WORD_DATA)) {
++		dev_err(&client->dev, "I2C functionality not supported\n");
++		return -EIO;
++	}
++	/* Make sure there is something at this address */
++	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
++		I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0)
++		return -ENODEV;
++
++	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
++	pts = ts;
++
++	/* Enable runtime PM ops, start in ACTIVE mode */
++	rc = pm_runtime_set_active(&client->dev);
++	if (rc < 0)
++		dev_warn(&client->dev, "unable to set runtime pm state\n");
++	pm_runtime_enable(&client->dev);
++
++	ts->client = client;
++	ts->pdata = pdata;
++	i2c_set_clientdata(client, ts);
++	ts->device_id = id->driver_data;
++
++	if (ts->pdata->dev_setup) {
++		rc = ts->pdata->dev_setup(1);
++		if (rc < 0) {
++			dev_err(&client->dev, "dev setup failed\n");
++			goto error_touch_data_alloc;
++		}
++	}
++
++
++	ts->is_suspended = false;
++	ts->int_pending = false;
++	/*mutex_init(&ts->sus_lock); JL remove*/
++	mutex_init(&ts->access_lock);
++
++	async_schedule(rm_initialize_async, ts);
++
++	device_init_wakeup(&client->dev, ts->pdata->wakeup);
++	return 0;
++
++error_touch_data_alloc:
++	pm_runtime_set_suspended(&client->dev);
++	pm_runtime_disable(&client->dev);
++	kfree(ts);
++	return rc;
++}
++
++/*static int __devexit RM31100_ts_remove(struct i2c_client *client)*/
++static int rm31100_ts_remove(struct i2c_client *client)
++{
++	struct rm31100_ts *ts = i2c_get_clientdata(client);
++
++	pm_runtime_set_suspended(&client->dev);
++	pm_runtime_disable(&client->dev);
++
++	device_init_wakeup(&client->dev, 0);
++	free_irq(ts->pen_irq, ts);
++
++	gpio_free(ts->pdata->irq_gpio);
++
++	if (ts->pdata->resout_gpio >= 0)
++		gpio_free(ts->pdata->resout_gpio);
++	input_unregister_device(ts->input);
++
++	/*mutex_destroy(&ts->sus_lock); JL remove*/
++	mutex_destroy(&ts->access_lock);
++
++	if (ts->pdata->power_on)
++		ts->pdata->power_on(0);
++
++	if (ts->pdata->dev_setup)
++		ts->pdata->dev_setup(0);
++
++	kfree(ts->touch_data);
++	kfree(ts);
++
++	return 0;
++}
++
++static const struct i2c_device_id rm31100_ts_id[] = {
++	{"RM31100", rm31100},
++	{"RM3110x", rm3110x},
++	{}
++};
++MODULE_DEVICE_TABLE(i2c, rm31100_ts_id);
++
++
++static struct i2c_driver rm31100_ts_driver = {
++	.driver = {
++		.name = "raydium_ts",
++		.owner = THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm = &rm31100_ts_pm_ops,
++#endif
++	},
++	.probe = rm31100_ts_probe,
++	.remove = rm31100_ts_remove,
++	.id_table = rm31100_ts_id,
++};
++
++static int __init rm31100_ts_init(void)
++{
++	int rc;
++	int rc2;
++
++	rc = i2c_add_driver(&rm31100_ts_driver);
++
++	rc2 = driver_create_file(&rm31100_ts_driver.driver,
++		&driver_attr_myAttr);
++
++	return rc;
++}
++/* Making this as late init to avoid power fluctuations
++ * during LCD initialization.
++ */
++module_init(rm31100_ts_init);
++
++static void __exit rm31100_ts_exit(void)
++{
++	i2c_del_driver(&rm31100_ts_driver);
++}
++module_exit(rm31100_ts_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("rm31100-rm3110x touchscreen controller driver");
++MODULE_AUTHOR("Raydium");
++MODULE_ALIAS("platform:rm31100_ts");
+-- 
+2.1.2
 
-
-lsb_release -rd
-Description: Ubuntu 14.10
-Release: 14.10
-
-
-sh /usr/src/linux-headers-3.18.0-031800rc7/scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux woprjr 3.18.0-031800rc7-generic #201411302035 SMP Mon Dec 1
-01:36:38 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
-
-Gnu C
-/usr/src/linux-headers-3.18.0-031800rc7/scripts/ver_linux:
-/usr/src/linux-headers-3.18.0-031800rc7/scripts/ver_linux: 20:
-/usr/src/linux-headers-3.18.0-031800rc7/scripts/ver_linux: ld: not
-found
-binutils
-util-linux             2.25.1
-mount                  debug
-module-init-tools      18
-e2fsprogs              1.42.10
-PPP                    2.4.5
-Linux C Library        2.19
-Dynamic linker (ldd)   2.19
-Procps                 3.3.9
-Net-tools              1.60
-Kbd                    1.15.5
-Sh-utils               8.23
-wireless-tools         30
-Modules Loaded         snd_hda_codec_hdmi snd_hda_codec_realtek
-snd_hda_codec_generic ctr ccm joydev hp_wmi hid_rmi sparse_keymap
-rfcomm bnep arc4 rtl8723be btcoexist rtl8723_common intel_rapl
-uvcvideo rtl_pci intel_soc_dts_thermal intel_powerclamp
-videobuf2_vmalloc videobuf2_memops coretemp rtlwifi videobuf2_core
-v4l2_common videodev mac80211 media kvm cfg80211 btusb
-crct10dif_pclmul crc32_pclmul bluetooth ghash_clmulni_intel serio_raw
-cryptd wmi snd_hda_intel snd_hda_controller snd_hda_codec snd_hwdep
-snd_seq_midi snd_seq_midi_event snd_rawmidi snd_soc_rt5640
-snd_soc_rl6231 snd_soc_core snd_compress dw_dmac i915
-snd_pcm_dmaengine dw_dmac_core snd_seq int3400_thermal int3403_thermal
-acpi_thermal_rel nls_iso8859_1 snd_pcm i2c_hid video
-intel_smartconnect drm_kms_helper hid drm rfkill_gpio snd_seq_device
-i2c_designware_platform i2c_algo_bit snd_soc_sst_acpi 8250_dw
-snd_timer i2c_designware_core hp_wireless shpchp spi_pxa2xx_platform
-snd pwm_lpss_platform lpc_ich mac_hid mei_txe pwm_lpss iosf_mbi mei
-soundcore parport_pc ppdev lp parport uas usb_storage mmc_block
-sdhci_acpi sdhci
-
-
-cat /proc/cpuinfo
-processor : 0
-vendor_id : GenuineIntel
-cpu family : 6
-model : 55
-model name : Intel(R) Celeron(R) CPU  N2840  @ 2.16GHz
-stepping : 8
-microcode : 0x829
-cpu MHz : 499.741
-cache size : 1024 KB
-physical id : 0
-siblings : 2
-core id : 0
-cpu cores : 2
-apicid : 0
-initial apicid : 0
-fpu : yes
-fpu_exception : yes
-cpuid level : 11
-wp : yes
-flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
-rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology
-nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2
-ssse3 cx16 xtpr pdcm sse4_1 sse4_2 movbe popcnt tsc_deadline_timer
-rdrand lahf_lm 3dnowprefetch ida arat epb dtherm tpr_shadow vnmi
-flexpriority ept vpid tsc_adjust smep erms
-bugs :
-bogomips : 4326.40
-clflush size : 64
-cache_alignment : 64
-address sizes : 36 bits physical, 48 bits virtual
-power management:
-
-processor : 1
-vendor_id : GenuineIntel
-cpu family : 6
-model : 55
-model name : Intel(R) Celeron(R) CPU  N2840  @ 2.16GHz
-stepping : 8
-microcode : 0x829
-cpu MHz : 499.741
-cache size : 1024 KB
-physical id : 0
-siblings : 2
-core id : 1
-cpu cores : 2
-apicid : 2
-initial apicid : 2
-fpu : yes
-fpu_exception : yes
-cpuid level : 11
-wp : yes
-flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
-rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology
-nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2
-ssse3 cx16 xtpr pdcm sse4_1 sse4_2 movbe popcnt tsc_deadline_timer
-rdrand lahf_lm 3dnowprefetch ida arat epb dtherm tpr_shadow vnmi
-flexpriority ept vpid tsc_adjust smep erms
-bugs :
-bogomips : 4326.40
-clflush size : 64
-cache_alignment : 64
-address sizes : 36 bits physical, 48 bits virtual
-power management:
-
-
-cat /proc/modules
-snd_hda_codec_hdmi 52670 1 - Live 0x0000000000000000
-snd_hda_codec_realtek 80420 1 - Live 0x0000000000000000
-snd_hda_codec_generic 69995 1 snd_hda_codec_realtek, Live 0x0000000000000000
-ctr 13193 1 - Live 0x0000000000000000
-ccm 17856 1 - Live 0x0000000000000000
-joydev 17587 0 - Live 0x0000000000000000
-hp_wmi 14017 0 - Live 0x0000000000000000
-hid_rmi 18060 0 - Live 0x0000000000000000
-sparse_keymap 13890 1 hp_wmi, Live 0x0000000000000000
-rfcomm 75066 8 - Live 0x0000000000000000
-bnep 23980 2 - Live 0x0000000000000000
-arc4 12573 2 - Live 0x0000000000000000
-rtl8723be 96097 0 - Live 0x0000000000000000
-btcoexist 51822 1 rtl8723be, Live 0x0000000000000000
-rtl8723_common 23662 1 rtl8723be, Live 0x0000000000000000
-intel_rapl 19196 0 - Live 0x0000000000000000
-uvcvideo 86723 0 - Live 0x0000000000000000
-rtl_pci 27417 1 rtl8723be, Live 0x0000000000000000
-intel_soc_dts_thermal 13523 0 - Live 0x0000000000000000
-intel_powerclamp 19099 0 - Live 0x0000000000000000
-videobuf2_vmalloc 13216 1 uvcvideo, Live 0x0000000000000000
-videobuf2_memops 13362 1 videobuf2_vmalloc, Live 0x0000000000000000
-coretemp 13638 0 - Live 0x0000000000000000
-rtlwifi 74744 2 rtl8723be,rtl_pci, Live 0x0000000000000000
-videobuf2_core 51547 1 uvcvideo, Live 0x0000000000000000
-v4l2_common 15715 1 videobuf2_core, Live 0x0000000000000000
-videodev 163831 3 uvcvideo,videobuf2_core,v4l2_common, Live 0x0000000000000000
-mac80211 697159 3 rtl8723be,rtl_pci,rtlwifi, Live 0x0000000000000000
-media 22008 2 uvcvideo,videodev, Live 0x0000000000000000
-kvm 475237 0 - Live 0x0000000000000000
-cfg80211 520257 2 rtlwifi,mac80211, Live 0x0000000000000000
-btusb 32691 0 - Live 0x0000000000000000
-crct10dif_pclmul 14268 0 - Live 0x0000000000000000
-crc32_pclmul 13180 0 - Live 0x0000000000000000
-bluetooth 486890 22 rfcomm,bnep,btusb, Live 0x0000000000000000
-ghash_clmulni_intel 13230 0 - Live 0x0000000000000000
-serio_raw 13483 0 - Live 0x0000000000000000
-cryptd 20531 1 ghash_clmulni_intel, Live 0x0000000000000000
-wmi 19379 1 hp_wmi, Live 0x0000000000000000
-snd_hda_intel 30824 1 - Live 0x0000000000000000
-snd_hda_controller 32234 1 snd_hda_intel, Live 0x0000000000000000
-snd_hda_codec 144641 5
-snd_hda_codec_hdmi,snd_hda_codec_realtek,snd_hda_codec_generic,snd_hda_intel,snd_hda_controller,
-Live 0x0000000000000000
-snd_hwdep 17709 1 snd_hda_codec, Live 0x0000000000000000
-snd_seq_midi 13564 0 - Live 0x0000000000000000
-snd_seq_midi_event 14899 1 snd_seq_midi, Live 0x0000000000000000
-snd_rawmidi 31197 1 snd_seq_midi, Live 0x0000000000000000
-snd_soc_rt5640 93325 0 - Live 0x0000000000000000
-snd_soc_rl6231 13037 1 snd_soc_rt5640, Live 0x0000000000000000
-snd_soc_core 207780 1 snd_soc_rt5640, Live 0x0000000000000000
-snd_compress 19395 1 snd_soc_core, Live 0x0000000000000000
-dw_dmac 12835 0 - Live 0x0000000000000000
-i915 1031996 2 - Live 0x0000000000000000
-snd_pcm_dmaengine 15229 1 snd_soc_core, Live 0x0000000000000000
-dw_dmac_core 28558 1 dw_dmac, Live 0x0000000000000000
-snd_seq 63540 2 snd_seq_midi,snd_seq_midi_event, Live 0x0000000000000000
-int3400_thermal 13040 0 - Live 0x0000000000000000
-int3403_thermal 13255 0 - Live 0x0000000000000000
-acpi_thermal_rel 13807 1 int3400_thermal, Live 0x0000000000000000
-nls_iso8859_1 12713 2 - Live 0x0000000000000000
-snd_pcm 106273 7
-snd_hda_codec_hdmi,snd_hda_intel,snd_hda_controller,snd_hda_codec,snd_soc_rt5640,snd_soc_core,snd_pcm_dmaengine,
-Live 0x0000000000000000
-i2c_hid 19065 0 - Live 0x0000000000000000
-video 20649 1 i915, Live 0x0000000000000000
-intel_smartconnect 12637 0 - Live 0x0000000000000000
-drm_kms_helper 99802 1 i915, Live 0x0000000000000000
-hid 110572 2 hid_rmi,i2c_hid, Live 0x0000000000000000
-drm 323675 4 i915,drm_kms_helper, Live 0x0000000000000000
-rfkill_gpio 12761 0 - Live 0x0000000000000000
-snd_seq_device 14497 3 snd_seq_midi,snd_rawmidi,snd_seq, Live 0x0000000000000000
-i2c_designware_platform 13025 0 - Live 0x0000000000000000
-i2c_algo_bit 13564 1 i915, Live 0x0000000000000000
-snd_soc_sst_acpi 13007 0 - Live 0x0000000000000000
-8250_dw 13474 0 - Live 0x0000000000000000
-snd_timer 30118 2 snd_seq,snd_pcm, Live 0x0000000000000000
-i2c_designware_core 14990 1 i2c_designware_platform, Live 0x0000000000000000
-hp_wireless 12637 0 - Live 0x0000000000000000
-shpchp 37216 0 - Live 0x0000000000000000
-spi_pxa2xx_platform 23256 0 - Live 0x0000000000000000
-snd 84025 15 snd_hda_codec_hdmi,snd_hda_codec_realtek,snd_hda_codec_generic,snd_hda_intel,snd_hda_codec,snd_hwdep,snd_rawmidi,snd_soc_core,snd_compress,snd_seq,snd_pcm,snd_seq_device,snd_timer,
-Live 0x0000000000000000
-pwm_lpss_platform 12703 0 - Live 0x0000000000000000
-lpc_ich 21176 0 - Live 0x0000000000000000
-mac_hid 13275 0 - Live 0x0000000000000000
-mei_txe 19808 0 - Live 0x0000000000000000
-pwm_lpss 13281 1 pwm_lpss_platform, Live 0x0000000000000000
-iosf_mbi 13865 1 intel_soc_dts_thermal, Live 0x0000000000000000
-mei 88473 1 mei_txe, Live 0x0000000000000000
-soundcore 15091 2 snd_hda_codec,snd, Live 0x0000000000000000
-parport_pc 32909 0 - Live 0x0000000000000000
-ppdev 17711 0 - Live 0x0000000000000000
-lp 17799 0 - Live 0x0000000000000000
-parport 42481 3 parport_pc,ppdev,lp, Live 0x0000000000000000
-uas 22673 0 - Live 0x0000000000000000
-usb_storage 67010 2 uas, Live 0x0000000000000000
-mmc_block 36596 4 - Live 0x0000000000000000
-sdhci_acpi 13502 0 - Live 0x0000000000000000
-sdhci 43929 1 sdhci_acpi, Live 0x0000000000000000
-
-
-/proc/ioports
-0000-006f : PCI Bus 0000:00
-  0000-001f : dma1
-  0020-0021 : pic1
-  0040-0043 : timer0
-  0050-0053 : timer1
-  0060-0060 : keyboard
-  0062-0062 : PNP0C09:00
-    0062-0062 : EC data
-  0064-0064 : keyboard
-  0066-0066 : PNP0C09:00
-    0066-0066 : EC cmd
-0070-0077 : rtc0
-0078-0cf7 : PCI Bus 0000:00
-  0080-008f : dma page reg
-  00a0-00a1 : pic2
-  00c0-00df : dma2
-  00f0-00ff : fpu
-  03f8-03ff : serial
-  0400-047f : pnp 00:01
-    0400-0403 : ACPI PM1a_EVT_BLK
-    0404-0405 : ACPI PM1a_CNT_BLK
-    0408-040b : ACPI PM_TMR
-    0420-042f : ACPI GPE0_BLK
-    0430-0433 : iTCO_wdt
-    0450-0450 : ACPI PM2_CNT_BLK
-    0460-047f : iTCO_wdt
-  0500-05fe : pnp 00:01
-  0600-061f : pnp 00:01
-  0680-069f : pnp 00:01
-0cf8-0cff : PCI conf1
-0d00-ffff : PCI Bus 0000:00
-  1000-1fff : PCI Bus 0000:01
-    1000-10ff : 0000:01:00.0
-      1000-10ff : rtl_pci
-  2000-201f : 0000:00:1f.3
-  2050-2057 : 0000:00:02.0
-
-
-cat /proc/iomem
-00000000-00000fff : reserved
-00001000-0006efff : System RAM
-0006f000-0006ffff : ACPI Non-volatile Storage
-00070000-00084fff : System RAM
-00085000-00086fff : reserved
-00087000-00087fff : System RAM
-00088000-0009ffff : reserved
-000a0000-000bffff : PCI Bus 0000:00
-000c0000-000dffff : PCI Bus 0000:00
-000e0000-000fffff : PCI Bus 0000:00
-  000f0000-000fffff : System ROM
-00100000-1effffff : System RAM
-  02000000-027b8537 : Kernel code
-  027b8538-02d2123f : Kernel data
-  02e87000-02fcffff : Kernel bss
-1f000000-1f0fffff : reserved
-1f100000-1fffffff : System RAM
-20000000-200fffff : reserved
-20100000-75867fff : System RAM
-75868000-75892fff : reserved
-75893000-78892fff : System RAM
-78893000-78922fff : reserved
-78923000-791a3fff : reserved
-791a4000-792a2fff : ACPI Non-volatile Storage
-792a3000-792e2fff : ACPI Tables
-792e3000-79ffffff : System RAM
-7a000000-7affffff : RAM buffer
-7b000000-7effffff : reserved
-  7b000000-7effffff : Graphics Stolen Memory
-80000000-907ffffe : PCI Bus 0000:00
-  80000000-8fffffff : 0000:00:02.0
-  90000000-903fffff : 0000:00:02.0
-  90400000-904fffff : PCI Bus 0000:01
-    90400000-90403fff : 0000:01:00.0
-      90400000-90403fff : rtl_pci
-  90500000-905fffff : 0000:00:1a.0
-    90500000-905fffff : mei_txe
-  90600000-906fffff : 0000:00:1a.0
-    90600000-906fffff : mei_txe
-  90700000-9070ffff : 0000:00:14.0
-    90700000-9070ffff : xhci-hcd
-  90710000-90713fff : 0000:00:1b.0
-    90710000-90713fff : ICH HD audio
-  90718000-9071801f : 0000:00:1f.3
-90800000-90800fff : 80860F14:01
-  90800000-90800fff : 80860F14:01
-90803000-90803fff : 80860F41:00
-  90803000-90803fff : 80860F41:00
-90804000-90807fff : INTL9C60:01
-  90804000-90807fff : INTL9C60:01
-90c00000-90ffffff : PCI Bus 0000:00
-e0000000-e3ffffff : PCI MMCONFIG 0000 [bus 00-3f]
-  e00000d0-e00000db : INT33BD:00
-  e00f8000-e00f8fff : reserved
-fec00000-fec003ff : IOAPIC 0
-fed00000-fed003ff : HPET 0
-  fed00000-fed003ff : PNP0103:00
-fed01000-fed01fff : reserved
-  fed01000-fed01fff : pnp 00:03
-fed03000-fed03fff : pnp 00:03
-  fed03008-fed0300c : iTCO_wdt
-fed04000-fed04fff : pnp 00:03
-fed05000-fed057ff : INT3401:00
-fed08000-fed08fff : pnp 00:03
-fed0c000-fed0cfff : INT33FC:00
-  fed0c000-fed0cfff : INT33FC:00
-fed0d000-fed0dfff : INT33FC:01
-  fed0d000-fed0dfff : INT33FC:01
-fed0e000-fed0efff : INT33FC:02
-  fed0e000-fed0efff : INT33FC:02
-fed1c000-fed1cfff : pnp 00:03
-fed40000-fed44fff : pnp 00:01
-fee00000-feefffff : pnp 00:03
-  fee00000-fee00fff : Local APIC
-fef00000-feffffff : pnp 00:03
-ff000000-ffffffff : INT0800:00
-  ffb80000-ffffffff : reserved
-
-
-sudo lspci -vvv
-00:00.0 Host bridge: Intel Corporation Atom Processor Z36xxx/Z37xxx
-Series SoC Transaction Register (rev 0e)
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx-
-Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0
-Kernel driver in use: iosf_mbi_pci
-
-00:02.0 VGA compatible controller: Intel Corporation Atom Processor
-Z36xxx/Z37xxx Series Graphics & Display (rev 0e) (prog-if 00 [VGA
-controller])
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx+
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0
-Interrupt: pin A routed to IRQ 263
-Region 0: Memory at 90000000 (32-bit, non-prefetchable) [size=4M]
-Region 2: Memory at 80000000 (32-bit, prefetchable) [size=256M]
-Region 4: I/O ports at 2050 [size=8]
-Expansion ROM at <unassigned> [disabled]
-Capabilities: [d0] Power Management version 2
-Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
-Capabilities: [90] MSI: Enable+ Count=1/1 Maskable- 64bit-
-Address: fee0300c  Data: 4162
-Capabilities: [b0] Vendor Specific Information: Len=07 <?>
-Kernel driver in use: i915
-
-00:14.0 USB controller: Intel Corporation Atom Processor Z36xxx/Z37xxx
-Series USB xHCI (rev 0e) (prog-if 30 [XHCI])
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx+
-Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0
-Interrupt: pin A routed to IRQ 261
-Region 0: Memory at 90700000 (64-bit, non-prefetchable) [size=64K]
-Capabilities: [70] Power Management version 2
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
-Capabilities: [80] MSI: Enable+ Count=1/8 Maskable- 64bit+
-Address: 00000000fee0300c  Data: 41d1
-Kernel driver in use: xhci_hcd
-
-00:1a.0 Encryption controller: Intel Corporation Atom Processor
-Z36xxx/Z37xxx Series Trusted Execution Engine (rev 0e)
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR+ FastB2B- DisINTx+
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0, Cache Line Size: 64 bytes
-Interrupt: pin A routed to IRQ 262
-Region 0: Memory at 90600000 (32-bit, non-prefetchable) [size=1M]
-Region 1: Memory at 90500000 (32-bit, non-prefetchable) [size=1M]
-Capabilities: [80] Power Management version 3
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold-)
-Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
-Capabilities: [a0] MSI: Enable+ Count=1/1 Maskable- 64bit-
-Address: fee0300c  Data: 4122
-Kernel driver in use: mei_txe
-
-00:1b.0 Audio device: Intel Corporation Atom Processor Z36xxx/Z37xxx
-Series High Definition Audio Controller (rev 0e)
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx+
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0, Cache Line Size: 64 bytes
-Interrupt: pin A routed to IRQ 264
-Region 0: Memory at 90710000 (64-bit, non-prefetchable) [size=16K]
-Capabilities: [50] Power Management version 2
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
-Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
-Capabilities: [60] MSI: Enable+ Count=1/1 Maskable- 64bit+
-Address: 00000000fee0300c  Data: 4182
-Kernel driver in use: snd_hda_intel
-
-00:1c.0 PCI bridge: Intel Corporation Device 0f48 (rev 0e) (prog-if 00
-[Normal decode])
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx-
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0, Cache Line Size: 64 bytes
-Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-I/O behind bridge: 00001000-00001fff
-Memory behind bridge: 90400000-904fffff
-Prefetchable memory behind bridge: 00000000fff00000-00000000000fffff
-Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort+ <SERR- <PERR-
-BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
-PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
-Capabilities: [40] Express (v2) Root Port (Slot+), MSI 00
-DevCap: MaxPayload 128 bytes, PhantFunc 0
-ExtTag- RBE+
-DevCtl: Report errors: Correctable- Non-Fatal- Fatal- Unsupported-
-RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
-MaxPayload 128 bytes, MaxReadReq 128 bytes
-DevSta: CorrErr- UncorrErr- FatalErr- UnsuppReq- AuxPwr+ TransPend-
-LnkCap: Port #1, Speed 5GT/s, Width x1, ASPM L0s L1, Exit Latency L0s
-<512ns, L1 <4us
-ClockPM- Surprise- LLActRep+ BwNot+
-LnkCtl: ASPM L0s L1 Enabled; RCB 64 bytes Disabled- CommClk+
-ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
-LnkSta: Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ DLActive+
-BWMgmt+ ABWMgmt-
-SltCap: AttnBtn- PwrCtrl- MRL- AttnInd- PwrInd- HotPlug- Surprise-
-Slot #0, PowerLimit 10.000W; Interlock- NoCompl+
-SltCtl: Enable: AttnBtn- PwrFlt- MRL- PresDet- CmdCplt- HPIrq- LinkChg-
-Control: AttnInd Unknown, PwrInd Unknown, Power- Interlock-
-SltSta: Status: AttnBtn- PowerFlt- MRL- CmdCplt- PresDet+ Interlock-
-Changed: MRL- PresDet- LinkState+
-RootCtl: ErrCorrectable- ErrNon-Fatal- ErrFatal- PMEIntEna- CRSVisible-
-RootCap: CRSVisible-
-RootSta: PME ReqID 0000, PMEStatus- PMEPending-
-DevCap2: Completion Timeout: Range BC, TimeoutDis+, LTR-, OBFF Not
-Supported ARIFwd-
-DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR-, OBFF
-Disabled ARIFwd-
-LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDis-
- Transmit Margin: Normal Operating Range, EnterModifiedCompliance-
-ComplianceSOS-
- Compliance De-emphasis: -6dB
-LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationComplete-,
-EqualizationPhase1-
- EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
-Capabilities: [80] MSI: Enable- Count=1/1 Maskable- 64bit-
-Address: 00000000  Data: 0000
-Capabilities: [90] Subsystem: Hewlett-Packard Company Device 8023
-Capabilities: [a0] Power Management version 3
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
-Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
-Kernel driver in use: pcieport
-
-00:1f.0 ISA bridge: Intel Corporation Atom Processor Z36xxx/Z37xxx
-Series Power Control Unit (rev 0e)
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR+ FastB2B- DisINTx-
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0
-Capabilities: [e0] Vendor Specific Information: Len=0c <?>
-Kernel driver in use: lpc_ich
-
-00:1f.3 SMBus: Intel Corporation Device 0f12 (rev 0e)
-Subsystem: Hewlett-Packard Company Device 8023
-Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx-
-Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Interrupt: pin B routed to IRQ 255
-Region 0: Memory at 90718000 (32-bit, non-prefetchable) [size=32]
-Region 4: I/O ports at 2000 [size=32]
-Capabilities: [50] Power Management version 3
-Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 Network controller: Realtek Semiconductor Co., Ltd. RTL8723BE
-PCIe Wireless Network Adapter
-Subsystem: Hewlett-Packard Company Device 2231
-Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B- DisINTx-
-Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
-<TAbort- <MAbort- >SERR- <PERR- INTx-
-Latency: 0, Cache Line Size: 64 bytes
-Interrupt: pin A routed to IRQ 16
-Region 0: I/O ports at 1000 [size=256]
-Region 2: Memory at 90400000 (64-bit, non-prefetchable) [size=16K]
-Capabilities: [40] Power Management version 3
-Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
-Capabilities: [50] MSI: Enable- Count=1/1 Maskable- 64bit+
-Address: 0000000000000000  Data: 0000
-Capabilities: [70] Express (v2) Endpoint, MSI 00
-DevCap: MaxPayload 128 bytes, PhantFunc 0, Latency L0s <4us, L1 <64us
-ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset-
-DevCtl: Report errors: Correctable- Non-Fatal- Fatal- Unsupported-
-RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop-
-MaxPayload 128 bytes, MaxReadReq 512 bytes
-DevSta: CorrErr+ UncorrErr- FatalErr- UnsuppReq- AuxPwr+ TransPend-
-LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, Exit Latency
-L0s <512ns, L1 <64us
-ClockPM+ Surprise- LLActRep- BwNot-
-LnkCtl: ASPM L0s L1 Enabled; RCB 64 bytes Disabled- CommClk+
-ExtSynch- ClockPM+ AutWidDis- BWInt- AutBWInt-
-LnkSta: Speed 2.5GT/s, Width x1, TrErr- Train- SlotClk+ DLActive-
-BWMgmt- ABWMgmt-
-DevCap2: Completion Timeout: Not Supported, TimeoutDis+, LTR+, OBFF
-Via message/WAKE#
-DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis+, LTR+, OBFF Disabled
-LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance- SpeedDis-
- Transmit Margin: Normal Operating Range, EnterModifiedCompliance-
-ComplianceSOS-
- Compliance De-emphasis: -6dB
-LnkSta2: Current De-emphasis Level: -6dB, EqualizationComplete-,
-EqualizationPhase1-
- EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
-Capabilities: [100 v2] Advanced Error Reporting
-UESta: DLP- SDES- TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF-
-MalfTLP- ECRC- UnsupReq- ACSViol-
-UEMsk: DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF-
-MalfTLP- ECRC- UnsupReq- ACSViol-
-UESvrt: DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF+
-MalfTLP+ ECRC- UnsupReq- ACSViol-
-CESta: RxErr+ BadTLP- BadDLLP+ Rollover- Timeout- NonFatalErr-
-CEMsk: RxErr- BadTLP- BadDLLP- Rollover- Timeout- NonFatalErr+
-AERCap: First Error Pointer: 0d, GenCap+ CGenEn- ChkCap+ ChkEn-
-Capabilities: [140 v1] Device Serial Number 00-23-b7-fe-ff-4c-e0-00
-Capabilities: [150 v1] Latency Tolerance Reporting
-Max snoop latency: 71680ns
-Max no snoop latency: 71680ns
-Capabilities: [158 v1] L1 PM Substates
-L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
-  PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
-Kernel driver in use: rtl8723be
-
-
-cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: Generic- Model: SD/MMC/MS PRO    Rev: 1.00
-  Type:   Direct-Access                    ANSI  SCSI revision: 04
-
-
-ls /proc
-1     12    14    1667  1745  18    1963  2345  292   35    470   55
-7201  asound     execdomains  kmsg        pagetypeinfo   sysvipc
-10    1218  1410  1685  1761  1804  2     2388  296   3573  471   554
-728   buddyinfo  fb           kpagecount  partitions     thread-self
-1020  125   142   1687  1764  1805  20    24    3     359   473   56
-755   bus        filesystems  kpageflags  sched_debug    timer_list
-1025  126   1420  1690  1767  1818  21    25    30    3623  474   57
-76    cgroups    fs           loadavg     schedstat      timer_stats
-1032  127   1423  17    1769  1828  2169  2528  31    378   485   585
-77    cmdline    interrupts   locks       scsi           tty
-1033  128   143   1701  1771  1853  2187  254   3181  3822  5     606
-7886  consoles   iomem        mdstat      self           uptime
-1038  129   1444  1710  1772  1876  2197  26    33    39    509   654
-8     cpuinfo    ioports      meminfo     slabinfo       version
-1042  13    1485  1718  1781  1883  2198  2670  3309  3932  516   655
-8743  crypto     irq          misc        softirqs       vmallocinfo
-1069  130   15    1722  1787  1893  22    2672  34    40    53    695
-9     devices    kallsyms     modules     stat           vmstat
-1070  131   1568  1725  1789  1896  2202  27    3419  41    539   7
-9040  diskstats  kcore        mounts      swaps          zoneinfo
-11    132   1645  1727  1792  19    2248  28    3433  468   542   709
-9056  dma        keys         mtrr        sys
-1144  1331  1655  1732  1796  1905  23    29    3437  469   5421  715
-acpi  driver     key-users    net         sysrq-trigger

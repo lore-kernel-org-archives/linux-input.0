@@ -1,24 +1,54 @@
-From: Andrew Duggan <aduggan@synaptics.com>
+From: Amordea Whiteoak <amordea@gmail.com>
 Subject: Re: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions
  after performing a hardware click
-Date: Mon, 8 Dec 2014 10:48:48 -0800
-Message-ID: <5485F290.8040102@synaptics.com>
-References: <CALmnu0aD9ys4+QZ+gtdNe61q23A3e6MPq+DSD-Q+NcJoWksWkQ@mail.gmail.com>	<CAN+gG=EXmDcuNvifZKqLLTxew9ji2FW3jx7i8ThqozE1cg_e6A@mail.gmail.com>	<CALmnu0Y+n0qGs4jgC=YGKRbBSyVB5B4s_Oafsmvbk6M=67okuw@mail.gmail.com>	<CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>	<CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>	<CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com> <CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
+Date: Mon, 8 Dec 2014 14:16:48 -0500
+Message-ID: <CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
+References: <CALmnu0aD9ys4+QZ+gtdNe61q23A3e6MPq+DSD-Q+NcJoWksWkQ@mail.gmail.com>
+	<CAN+gG=EXmDcuNvifZKqLLTxew9ji2FW3jx7i8ThqozE1cg_e6A@mail.gmail.com>
+	<CALmnu0Y+n0qGs4jgC=YGKRbBSyVB5B4s_Oafsmvbk6M=67okuw@mail.gmail.com>
+	<CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>
+	<CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>
+	<CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com>
+	<CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:22961 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750980AbaLHSuI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 13:50:08 -0500
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:42486 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752543AbaLHTQs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 14:16:48 -0500
+Received: by mail-pa0-f44.google.com with SMTP id et14so5781475pad.31
+        for <linux-input@vger.kernel.org>; Mon, 08 Dec 2014 11:16:48 -0800 (PST)
 In-Reply-To: <CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Amordea Whiteoak <amordea@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Duggan <aduggan@synaptics.com>
 
-On 12/08/2014 10:39 AM, Amordea Whiteoak wrote:
+While I have the ears of the touchpad gods, there is one more tiny
+issue I'd like to report. This may be simply a configuration issue,
+but I would not know how to fix it.
+
+The window for double-tapping (tapping the touchpad twice to simulate
+a double-click) is remarkably brief. Let me be clear, double-tapping
+on the touchpad does work, however if you do not get the second tap
+within about a 200ms window after the first, it seems to fail to
+register as a double-click, counting it as two unrelated single
+clicks--this is an uncomfortably short window of opportunity. A
+temporary workaround seems to be triple-tapping which for whatever
+reason allow for a broader window (much closer to a full second) and
+registers as a double-tap, but that just seems to be a happy accident
+and is certainly not an expected feature. Is there any way to broaden
+that window?
+
+I did not have this problem on my previous laptop with Lubuntu
+installed (though it had 14.04 not 14.10--it's no longer operational
+after suffering an unfortunate accident so I can't do comparison
+testing with it any longer).
+
+I promise this is my last remaining issue with the touchpad. :)
+
+On Mon, Dec 8, 2014 at 1:39 PM, Amordea Whiteoak <amordea@gmail.com> wrote:
 > My Linux newbieness is showing. :)
 >
 > I attempted to edit and boot the grub configuration, but I don't think
@@ -26,13 +56,6 @@ On 12/08/2014 10:39 AM, Amordea Whiteoak wrote:
 > your data and followed the second set of instructions.
 >
 > Enclosed is all the dmesg output once I got that working.
-
-Thanks, based on the log I can see that this firmware has the larger 
-input report size which confirms my suspicion that this touchpad has the 
-new feature which I referred to in my previous email.
-
-Andrew
-
 >
 > On Mon, Dec 8, 2014 at 12:59 PM, Benjamin Tissoires
 > <benjamin.tissoires@gmail.com> wrote:
@@ -44,6 +67,7 @@ Andrew
 >>> modules. Please let me know if there is something I am failing to
 >>> understand here, but I could not find the requested phrase in my
 >>> dmesg.
+>>
 >> I meant that when you reboot the laptop, in grub, append
 >> "i2c_hid.debug=1" to the kernel command line.
 >>
@@ -52,11 +76,13 @@ Andrew
 >> BOOT_IMAGE=/boot/vmlinuz-3.18.0-031800rc7-generic "), and a lot of raw
 >> events should be dumped in the dmesg.
 >>
+>>>
 >>> I do have the hid-recorder output though, which I am attaching here.
 >>> This time I used a non-conductive pen to only generate clicks without
 >>> all the positioning data piling in on top. This is a recording of two
 >>> left clicks.
 >>>
+>>
 >> Ok, so at least, the device sends a sane behavior (one event per
 >> click/release, with one bit changed). Unfortunately, I think the
 >> problem lies in the configuration of your device by hid-rmi. So the
@@ -91,6 +117,7 @@ Andrew
 >>>>> My apologies if my bug report was inadequate. It is the first upstream
 >>>>> report I've ever filed, though I did attempt to give all the
 >>>>> information they requested to the best of my ability.
+>>>>
 >>>> Oh, no, I was not complaining about your way of reporting the bug. I
 >>>> know that it can be difficult for users to report _and_ provide all
 >>>> the necessary information unless you already know a little bit about
@@ -108,6 +135,7 @@ Andrew
 >>>> Anyway, thanks for the explanations that you give in the next
 >>>> paragraph, it gives a more comprehensive bug report :)
 >>>>
+>>>>>
 >>>>> If it helps: to be clear about the design of this clickpad, it is one
 >>>>> where the entire pad is touch-sensitive, even the area over the
 >>>>> hardware click buttons which are on the bottom. The entire pad is one
@@ -125,24 +153,29 @@ Andrew
 >>>>> I am enclosing the requested evemu-record data. This is a recording of
 >>>>> my clicking the left hardware click button three times in rapid
 >>>>> succession, but failure generally occurs after the first click.
+>>>>
 >>>> Many thanks for the logs. So here, I can see that when you click on
 >>>> the touchpad, both BTN_LEFT and BTN_RIGHT are emitted, but they are
 >>>> never released :) I do not see either the 2 other clicks.
 >>>> So yes, here the driver is at fault and misses to release the clicks.
 >>>> This infers the cross-device problem in X BTW.
 >>>>
+>>>>>
 >>>>> A curious behavior I noticed in the process of getting this recording
 >>>>> is that on the first click, I received a pasted text line in my
 >>>>> terminal. I could not reproduce this behavior by doing an
 >>>>> enable/disable cycle on the trackpad, but to confirm I rebooted a few
 >>>>> times to test and sure enough, the very first click each boot triggers
 >>>>> a clipboard paste event.
+>>>>
 >>>> You must have the middle button emulation enabled in Xorg (hitting
 >>>> both left and right button will trigger a middle button). So when we
 >>>> will be able to fix this bug, the spurious middle click should
 >>>> disappear.
 >>>>
+>>>>>
 >>>>> If there is any more information I can provide, please let me know.
+>>>>
 >>>> Ideally, I'd like to punt this one to Andrew, but I think we would be
 >>>> grateful if you could also provide 2 more things:
 >>>> - the dmesg when "i2c_hid.debug=1" is appended to the kernel boot line
@@ -158,6 +191,7 @@ Andrew
 >>>> Cheers,
 >>>> Benjamin
 >>>>
+>>>>>
 >>>>> Thank you!
 >>>>>
 >>>>> On Mon, Dec 8, 2014 at 10:01 AM, Benjamin Tissoires
@@ -166,7 +200,7 @@ Andrew
 >>>>>>
 >>>>>> I must say, the bug triaging is worse and worse with ubuntu :(
 >>>>>>
->>>>>>  From the bug description, I can not tell if the problem lies in the
+>>>>>> From the bug description, I can not tell if the problem lies in the
 >>>>>> kernel, or if it is the synaptics input driver or the xserver which is
 >>>>>> in fault. I would be tempted to say that the problem lies in the upper
 >>>>>> layers given the cross-devices problem.
@@ -423,41 +457,41 @@ Andrew
 >>>>>>>
 >>>>>>> /proc/ioports
 >>>>>>> 0000-006f : PCI Bus 0000:00
->>>>>>>    0000-001f : dma1
->>>>>>>    0020-0021 : pic1
->>>>>>>    0040-0043 : timer0
->>>>>>>    0050-0053 : timer1
->>>>>>>    0060-0060 : keyboard
->>>>>>>    0062-0062 : PNP0C09:00
->>>>>>>      0062-0062 : EC data
->>>>>>>    0064-0064 : keyboard
->>>>>>>    0066-0066 : PNP0C09:00
->>>>>>>      0066-0066 : EC cmd
+>>>>>>>   0000-001f : dma1
+>>>>>>>   0020-0021 : pic1
+>>>>>>>   0040-0043 : timer0
+>>>>>>>   0050-0053 : timer1
+>>>>>>>   0060-0060 : keyboard
+>>>>>>>   0062-0062 : PNP0C09:00
+>>>>>>>     0062-0062 : EC data
+>>>>>>>   0064-0064 : keyboard
+>>>>>>>   0066-0066 : PNP0C09:00
+>>>>>>>     0066-0066 : EC cmd
 >>>>>>> 0070-0077 : rtc0
 >>>>>>> 0078-0cf7 : PCI Bus 0000:00
->>>>>>>    0080-008f : dma page reg
->>>>>>>    00a0-00a1 : pic2
->>>>>>>    00c0-00df : dma2
->>>>>>>    00f0-00ff : fpu
->>>>>>>    03f8-03ff : serial
->>>>>>>    0400-047f : pnp 00:01
->>>>>>>      0400-0403 : ACPI PM1a_EVT_BLK
->>>>>>>      0404-0405 : ACPI PM1a_CNT_BLK
->>>>>>>      0408-040b : ACPI PM_TMR
->>>>>>>      0420-042f : ACPI GPE0_BLK
->>>>>>>      0430-0433 : iTCO_wdt
->>>>>>>      0450-0450 : ACPI PM2_CNT_BLK
->>>>>>>      0460-047f : iTCO_wdt
->>>>>>>    0500-05fe : pnp 00:01
->>>>>>>    0600-061f : pnp 00:01
->>>>>>>    0680-069f : pnp 00:01
+>>>>>>>   0080-008f : dma page reg
+>>>>>>>   00a0-00a1 : pic2
+>>>>>>>   00c0-00df : dma2
+>>>>>>>   00f0-00ff : fpu
+>>>>>>>   03f8-03ff : serial
+>>>>>>>   0400-047f : pnp 00:01
+>>>>>>>     0400-0403 : ACPI PM1a_EVT_BLK
+>>>>>>>     0404-0405 : ACPI PM1a_CNT_BLK
+>>>>>>>     0408-040b : ACPI PM_TMR
+>>>>>>>     0420-042f : ACPI GPE0_BLK
+>>>>>>>     0430-0433 : iTCO_wdt
+>>>>>>>     0450-0450 : ACPI PM2_CNT_BLK
+>>>>>>>     0460-047f : iTCO_wdt
+>>>>>>>   0500-05fe : pnp 00:01
+>>>>>>>   0600-061f : pnp 00:01
+>>>>>>>   0680-069f : pnp 00:01
 >>>>>>> 0cf8-0cff : PCI conf1
 >>>>>>> 0d00-ffff : PCI Bus 0000:00
->>>>>>>    1000-1fff : PCI Bus 0000:01
->>>>>>>      1000-10ff : 0000:01:00.0
->>>>>>>        1000-10ff : rtl_pci
->>>>>>>    2000-201f : 0000:00:1f.3
->>>>>>>    2050-2057 : 0000:00:02.0
+>>>>>>>   1000-1fff : PCI Bus 0000:01
+>>>>>>>     1000-10ff : 0000:01:00.0
+>>>>>>>       1000-10ff : rtl_pci
+>>>>>>>   2000-201f : 0000:00:1f.3
+>>>>>>>   2050-2057 : 0000:00:02.0
 >>>>>>>
 >>>>>>>
 >>>>>>> cat /proc/iomem
@@ -471,11 +505,11 @@ Andrew
 >>>>>>> 000a0000-000bffff : PCI Bus 0000:00
 >>>>>>> 000c0000-000dffff : PCI Bus 0000:00
 >>>>>>> 000e0000-000fffff : PCI Bus 0000:00
->>>>>>>    000f0000-000fffff : System ROM
+>>>>>>>   000f0000-000fffff : System ROM
 >>>>>>> 00100000-1effffff : System RAM
->>>>>>>    02000000-027b8537 : Kernel code
->>>>>>>    027b8538-02d2123f : Kernel data
->>>>>>>    02e87000-02fcffff : Kernel bss
+>>>>>>>   02000000-027b8537 : Kernel code
+>>>>>>>   027b8538-02d2123f : Kernel data
+>>>>>>>   02e87000-02fcffff : Kernel bss
 >>>>>>> 1f000000-1f0fffff : reserved
 >>>>>>> 1f100000-1fffffff : System RAM
 >>>>>>> 20000000-200fffff : reserved
@@ -489,55 +523,55 @@ Andrew
 >>>>>>> 792e3000-79ffffff : System RAM
 >>>>>>> 7a000000-7affffff : RAM buffer
 >>>>>>> 7b000000-7effffff : reserved
->>>>>>>    7b000000-7effffff : Graphics Stolen Memory
+>>>>>>>   7b000000-7effffff : Graphics Stolen Memory
 >>>>>>> 80000000-907ffffe : PCI Bus 0000:00
->>>>>>>    80000000-8fffffff : 0000:00:02.0
->>>>>>>    90000000-903fffff : 0000:00:02.0
->>>>>>>    90400000-904fffff : PCI Bus 0000:01
->>>>>>>      90400000-90403fff : 0000:01:00.0
->>>>>>>        90400000-90403fff : rtl_pci
->>>>>>>    90500000-905fffff : 0000:00:1a.0
->>>>>>>      90500000-905fffff : mei_txe
->>>>>>>    90600000-906fffff : 0000:00:1a.0
->>>>>>>      90600000-906fffff : mei_txe
->>>>>>>    90700000-9070ffff : 0000:00:14.0
->>>>>>>      90700000-9070ffff : xhci-hcd
->>>>>>>    90710000-90713fff : 0000:00:1b.0
->>>>>>>      90710000-90713fff : ICH HD audio
->>>>>>>    90718000-9071801f : 0000:00:1f.3
+>>>>>>>   80000000-8fffffff : 0000:00:02.0
+>>>>>>>   90000000-903fffff : 0000:00:02.0
+>>>>>>>   90400000-904fffff : PCI Bus 0000:01
+>>>>>>>     90400000-90403fff : 0000:01:00.0
+>>>>>>>       90400000-90403fff : rtl_pci
+>>>>>>>   90500000-905fffff : 0000:00:1a.0
+>>>>>>>     90500000-905fffff : mei_txe
+>>>>>>>   90600000-906fffff : 0000:00:1a.0
+>>>>>>>     90600000-906fffff : mei_txe
+>>>>>>>   90700000-9070ffff : 0000:00:14.0
+>>>>>>>     90700000-9070ffff : xhci-hcd
+>>>>>>>   90710000-90713fff : 0000:00:1b.0
+>>>>>>>     90710000-90713fff : ICH HD audio
+>>>>>>>   90718000-9071801f : 0000:00:1f.3
 >>>>>>> 90800000-90800fff : 80860F14:01
->>>>>>>    90800000-90800fff : 80860F14:01
+>>>>>>>   90800000-90800fff : 80860F14:01
 >>>>>>> 90803000-90803fff : 80860F41:00
->>>>>>>    90803000-90803fff : 80860F41:00
+>>>>>>>   90803000-90803fff : 80860F41:00
 >>>>>>> 90804000-90807fff : INTL9C60:01
->>>>>>>    90804000-90807fff : INTL9C60:01
+>>>>>>>   90804000-90807fff : INTL9C60:01
 >>>>>>> 90c00000-90ffffff : PCI Bus 0000:00
 >>>>>>> e0000000-e3ffffff : PCI MMCONFIG 0000 [bus 00-3f]
->>>>>>>    e00000d0-e00000db : INT33BD:00
->>>>>>>    e00f8000-e00f8fff : reserved
+>>>>>>>   e00000d0-e00000db : INT33BD:00
+>>>>>>>   e00f8000-e00f8fff : reserved
 >>>>>>> fec00000-fec003ff : IOAPIC 0
 >>>>>>> fed00000-fed003ff : HPET 0
->>>>>>>    fed00000-fed003ff : PNP0103:00
+>>>>>>>   fed00000-fed003ff : PNP0103:00
 >>>>>>> fed01000-fed01fff : reserved
->>>>>>>    fed01000-fed01fff : pnp 00:03
+>>>>>>>   fed01000-fed01fff : pnp 00:03
 >>>>>>> fed03000-fed03fff : pnp 00:03
->>>>>>>    fed03008-fed0300c : iTCO_wdt
+>>>>>>>   fed03008-fed0300c : iTCO_wdt
 >>>>>>> fed04000-fed04fff : pnp 00:03
 >>>>>>> fed05000-fed057ff : INT3401:00
 >>>>>>> fed08000-fed08fff : pnp 00:03
 >>>>>>> fed0c000-fed0cfff : INT33FC:00
->>>>>>>    fed0c000-fed0cfff : INT33FC:00
+>>>>>>>   fed0c000-fed0cfff : INT33FC:00
 >>>>>>> fed0d000-fed0dfff : INT33FC:01
->>>>>>>    fed0d000-fed0dfff : INT33FC:01
+>>>>>>>   fed0d000-fed0dfff : INT33FC:01
 >>>>>>> fed0e000-fed0efff : INT33FC:02
->>>>>>>    fed0e000-fed0efff : INT33FC:02
+>>>>>>>   fed0e000-fed0efff : INT33FC:02
 >>>>>>> fed1c000-fed1cfff : pnp 00:03
 >>>>>>> fed40000-fed44fff : pnp 00:01
 >>>>>>> fee00000-feefffff : pnp 00:03
->>>>>>>    fee00000-fee00fff : Local APIC
+>>>>>>>   fee00000-fee00fff : Local APIC
 >>>>>>> fef00000-feffffff : pnp 00:03
 >>>>>>> ff000000-ffffffff : INT0800:00
->>>>>>>    ffb80000-ffffffff : reserved
+>>>>>>>   ffb80000-ffffffff : reserved
 >>>>>>>
 >>>>>>>
 >>>>>>> sudo lspci -vvv
@@ -668,12 +702,12 @@ Andrew
 >>>>>>> DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis-, LTR-, OBFF
 >>>>>>> Disabled ARIFwd-
 >>>>>>> LnkCtl2: Target Link Speed: 5GT/s, EnterCompliance- SpeedDis-
->>>>>>>   Transmit Margin: Normal Operating Range, EnterModifiedCompliance-
+>>>>>>>  Transmit Margin: Normal Operating Range, EnterModifiedCompliance-
 >>>>>>> ComplianceSOS-
->>>>>>>   Compliance De-emphasis: -6dB
+>>>>>>>  Compliance De-emphasis: -6dB
 >>>>>>> LnkSta2: Current De-emphasis Level: -3.5dB, EqualizationComplete-,
 >>>>>>> EqualizationPhase1-
->>>>>>>   EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
+>>>>>>>  EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
 >>>>>>> Capabilities: [80] MSI: Enable- Count=1/1 Maskable- 64bit-
 >>>>>>> Address: 00000000  Data: 0000
 >>>>>>> Capabilities: [90] Subsystem: Hewlett-Packard Company Device 8023
@@ -740,12 +774,12 @@ Andrew
 >>>>>>> Via message/WAKE#
 >>>>>>> DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis+, LTR+, OBFF Disabled
 >>>>>>> LnkCtl2: Target Link Speed: 2.5GT/s, EnterCompliance- SpeedDis-
->>>>>>>   Transmit Margin: Normal Operating Range, EnterModifiedCompliance-
+>>>>>>>  Transmit Margin: Normal Operating Range, EnterModifiedCompliance-
 >>>>>>> ComplianceSOS-
->>>>>>>   Compliance De-emphasis: -6dB
+>>>>>>>  Compliance De-emphasis: -6dB
 >>>>>>> LnkSta2: Current De-emphasis Level: -6dB, EqualizationComplete-,
 >>>>>>> EqualizationPhase1-
->>>>>>>   EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
+>>>>>>>  EqualizationPhase2-, EqualizationPhase3-, LinkEqualizationRequest-
 >>>>>>> Capabilities: [100 v2] Advanced Error Reporting
 >>>>>>> UESta: DLP- SDES- TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF-
 >>>>>>> MalfTLP- ECRC- UnsupReq- ACSViol-
@@ -762,15 +796,15 @@ Andrew
 >>>>>>> Max no snoop latency: 71680ns
 >>>>>>> Capabilities: [158 v1] L1 PM Substates
 >>>>>>> L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
->>>>>>>    PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
+>>>>>>>   PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
 >>>>>>> Kernel driver in use: rtl8723be
 >>>>>>>
 >>>>>>>
 >>>>>>> cat /proc/scsi/scsi
 >>>>>>> Attached devices:
 >>>>>>> Host: scsi0 Channel: 00 Id: 00 Lun: 00
->>>>>>>    Vendor: Generic- Model: SD/MMC/MS PRO    Rev: 1.00
->>>>>>>    Type:   Direct-Access                    ANSI  SCSI revision: 04
+>>>>>>>   Vendor: Generic- Model: SD/MMC/MS PRO    Rev: 1.00
+>>>>>>>   Type:   Direct-Access                    ANSI  SCSI revision: 04
 >>>>>>>
 >>>>>>>
 >>>>>>> ls /proc
@@ -802,4 +836,3 @@ Andrew
 >>>>>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
 >>>>>>> the body of a message to majordomo@vger.kernel.org
 >>>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-

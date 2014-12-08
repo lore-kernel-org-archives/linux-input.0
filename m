@@ -1,59 +1,156 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions
- after performing a hardware click
-Date: Tue, 9 Dec 2014 08:34:48 +1000
-Message-ID: <20141208223448.GA8143@jelly.redhat.com>
-References: <CALmnu0aD9ys4+QZ+gtdNe61q23A3e6MPq+DSD-Q+NcJoWksWkQ@mail.gmail.com>
- <CAN+gG=EXmDcuNvifZKqLLTxew9ji2FW3jx7i8ThqozE1cg_e6A@mail.gmail.com>
- <CALmnu0Y+n0qGs4jgC=YGKRbBSyVB5B4s_Oafsmvbk6M=67okuw@mail.gmail.com>
- <CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>
- <CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>
- <CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com>
- <CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
- <CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: rmi: Check for additional ACM registers appended to F11 data report
+Date: Mon, 8 Dec 2014 15:01:59 -0800
+Message-ID: <1418079720-11766-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:50533 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755352AbaLHW7Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 17:59:24 -0500
-Content-Disposition: inline
-In-Reply-To: <CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:13375 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751103AbaLHXDa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 18:03:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Amordea Whiteoak <amordea@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Amordea Whiteoak <amordea@gmail.com>
 
-On Mon, Dec 08, 2014 at 02:16:48PM -0500, Amordea Whiteoak wrote:
-> While I have the ears of the touchpad gods, there is one more tiny
-> issue I'd like to report. This may be simply a configuration issue,
-> but I would not know how to fix it.
-> 
-> The window for double-tapping (tapping the touchpad twice to simulate
-> a double-click) is remarkably brief. Let me be clear, double-tapping
-> on the touchpad does work, however if you do not get the second tap
-> within about a 200ms window after the first, it seems to fail to
-> register as a double-click, counting it as two unrelated single
-> clicks--this is an uncomfortably short window of opportunity. A
-> temporary workaround seems to be triple-tapping which for whatever
-> reason allow for a broader window (much closer to a full second) and
-> registers as a double-tap, but that just seems to be a happy accident
-> and is certainly not an expected feature. Is there any way to broaden
-> that window?
+If a touchpad reports the F11 data40 register then this indicates that the touchpad reports
+additional ACM (Accidental Contact Mitigation) data after the F11 data in the HID attention
+report. These additional bytes shift the position of the F30 button data causing the driver
+to incorrectly report button state when this functionality is present. This patch accounts
+for the additional data in the report.
 
-look at option MaxDoubleTapTime, see man synaptics. It's been on 180ms for
-at least 8 years though, so unless Ubuntu changed the defaults here nothing
-should've changed recently. there's always the chance of a bug in the xorg
-driver but do try to figure out if that's a Ubuntu issue first please.
+Fixes:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1398533
 
-Cheers,
-   Peter
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/hid-rmi.c | 61 +++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 52 insertions(+), 9 deletions(-)
 
-> 
-> I did not have this problem on my previous laptop with Lubuntu
-> installed (though it had 14.04 not 14.10--it's no longer operational
-> after suffering an unfortunate accident so I can't do comparison
-> testing with it any longer).
-> 
-> I promise this is my last remaining issue with the touchpad. :)
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 1f131df..5065583 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -592,11 +592,15 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	bool has_query10 = false;
+ 	bool has_query11;
+ 	bool has_query12;
++	bool has_query27;
++	bool has_query28;
++	bool has_query36 = false;
+ 	bool has_physical_props;
+ 	bool has_gestures;
+ 	bool has_rel;
++	bool has_data40 = false;
+ 	unsigned x_size, y_size;
+-	u16 query12_offset;
++	u16 query_offset;
+ 
+ 	if (!data->f11.query_base_addr) {
+ 		hid_err(hdev, "No 2D sensor found, giving up.\n");
+@@ -612,6 +616,8 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	has_query9 = !!(buf[0] & BIT(3));
+ 	has_query11 = !!(buf[0] & BIT(4));
+ 	has_query12 = !!(buf[0] & BIT(5));
++	has_query27 = !!(buf[0] & BIT(6));
++	has_query28 = !!(buf[0] & BIT(7));
+ 
+ 	/* query 1 to get the max number of fingers */
+ 	ret = rmi_read(hdev, data->f11.query_base_addr + 1, buf);
+@@ -650,27 +656,27 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 	 * +1 for query 5 which is present since absolute events are
+ 	 * reported and +1 for query 12.
+ 	 */
+-	query12_offset = 6;
++	query_offset = 6;
+ 
+ 	if (has_rel)
+-		++query12_offset; /* query 6 is present */
++		++query_offset; /* query 6 is present */
+ 
+ 	if (has_gestures)
+-		query12_offset += 2; /* query 7 and 8 are present */
++		query_offset += 2; /* query 7 and 8 are present */
+ 
+ 	if (has_query9)
+-		++query12_offset;
++		++query_offset;
+ 
+ 	if (has_query10)
+-		++query12_offset;
++		++query_offset;
+ 
+ 	if (has_query11)
+-		++query12_offset;
++		++query_offset;
+ 
+ 	/* query 12 to know if the physical properties are reported */
+ 	if (has_query12) {
+ 		ret = rmi_read(hdev, data->f11.query_base_addr
+-				+ query12_offset, buf);
++				+ query_offset, buf);
+ 		if (ret) {
+ 			hid_err(hdev, "can not get query 12: %d.\n", ret);
+ 			return ret;
+@@ -678,9 +684,10 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 		has_physical_props = !!(buf[0] & BIT(5));
+ 
+ 		if (has_physical_props) {
++			query_offset += 1;
+ 			ret = rmi_read_block(hdev,
+ 					data->f11.query_base_addr
+-						+ query12_offset + 1, buf, 4);
++						+ query_offset, buf, 4);
+ 			if (ret) {
+ 				hid_err(hdev, "can not read query 15-18: %d.\n",
+ 					ret);
+@@ -695,9 +702,45 @@ static int rmi_populate_f11(struct hid_device *hdev)
+ 
+ 			hid_info(hdev, "%s: size in mm: %d x %d\n",
+ 				 __func__, data->x_size_mm, data->y_size_mm);
++
++			/*
++			 * query 15 - 18 contain the size of the sensor
++			 * and query 19 - 26 contain bezel dimensions
++			 */
++			query_offset += 12;
++		}
++	}
++
++	if (has_query27)
++		++query_offset;
++
++	if (has_query28) {
++		ret = rmi_read(hdev, data->f11.query_base_addr
++				+ query_offset, buf);
++		if (ret) {
++			hid_err(hdev, "can not get query 28: %d.\n", ret);
++			return ret;
++		}
++
++		has_query36 = !!(buf[0] & BIT(6));
++	}
++
++	if (has_query36) {
++		query_offset += 2;
++		ret = rmi_read(hdev, data->f11.query_base_addr
++				+ query_offset, buf);
++		if (ret) {
++			hid_err(hdev, "can not get query 36: %d.\n", ret);
++			return ret;
+ 		}
++
++		has_data40 = !!(buf[0] & BIT(5));
+ 	}
+ 
++
++	if (has_data40)
++		data->f11.report_size += data->max_fingers * 2;
++
+ 	/*
+ 	 * retrieve the ctrl registers
+ 	 * the ctrl register has a size of 20 but a fw bug split it into 16 + 4,
+-- 
+2.1.0
+

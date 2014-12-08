@@ -1,66 +1,67 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: [sur40] videobuf2 and/or DMA?
-Date: Mon, 08 Dec 2014 08:50:46 +0100
-Message-ID: <54855856.3070207@butterbrot.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="4n4TEAQmhDt2rbHHq201twGu3g3gFeEC5"
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH v2] Input: gpio_keys - initialize the 'irq' variable
+Date: Mon,  8 Dec 2014 10:09:44 -0200
+Message-ID: <1418040584-5670-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:40980 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751007AbaLHH5z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Dec 2014 02:57:55 -0500
-Received: from [192.168.178.30] (unknown [95.90.212.125])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by butterbrot.org (Postfix) with ESMTPSA id 803E95C00CDA
-	for <linux-input@vger.kernel.org>; Mon,  8 Dec 2014 08:50:47 +0100 (CET)
+Received: from mail-qa0-f48.google.com ([209.85.216.48]:50894 "EHLO
+	mail-qa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753229AbaLHMKC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2014 07:10:02 -0500
+Received: by mail-qa0-f48.google.com with SMTP id v10so3265459qac.35
+        for <linux-input@vger.kernel.org>; Mon, 08 Dec 2014 04:10:00 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: alexander.stein@systec-electronic.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---4n4TEAQmhDt2rbHHq201twGu3g3gFeEC5
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-Hello everyone,
+Commit f2d347ff70be453e ("Input: gpio_keys - add device tree support for
+interrupt only keys") caused the following build warning:
 
-I'm preparing to finally add support for the raw sensor video stream to
-my driver for the SUR40 touchscreen. However, after an extensive amount
-of Googling, I'm still not clear on the relationship between DMA
-transfers, the USB core and the videobuf2 framework.
+drivers/input/keyboard/gpio_keys.c: In function 'gpio_keys_probe':
+drivers/input/keyboard/gpio_keys.c:647:15: warning: 'irq' may be used uninitialized in this function [-Wmaybe-uninitialized]
+drivers/input/keyboard/gpio_keys.c:622:7: note: 'irq' was declared here
 
-Specifically, I'd like to know:
+To fix this warning, do the 'irq' assignment inside the 'if' block that it is
+actually used.
 
-- Can I always use DMA on the USB side (for bulk transfers), or does
-this in any way require support from the USB device's hardware? (I'm
-guessing no, but a definite answer would be great.)
+Reported-by: Olof's autobuilder <build@lixom.net>
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+Change since v1:
+- Do the 'irq' assignment inside the 'if' block that it is actually used.
 
-- Regardless of the USB side of things, can I use the videobuf2
-framework without _having_ to use DMA? That way, I could get a basic
-driver running without DMA and switch later when it's convenient and/or
-the speedup is justified.
+ drivers/input/keyboard/gpio_keys.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Thanks & best regards, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index aa13055..6c33849 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -619,11 +619,12 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 	i = 0;
+ 	for_each_child_of_node(node, pp) {
+ 		int gpio = -1;
+-		int irq;
+ 		enum of_gpio_flags flags;
+ 
+ 		if (!of_find_property(pp, "gpios", NULL)) {
+-			irq = irq_of_parse_and_map(pp, 0);
++			int irq = irq_of_parse_and_map(pp, 0);
++
++			button->irq = irq;
+ 			if (irq == 0) {
+ 				pdata->nbuttons--;
+ 				dev_warn(dev, "Found button without gpios or irqs\n");
+@@ -644,7 +645,6 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 		button = &pdata->buttons[i++];
+ 
+ 		button->gpio = gpio;
+-		button->irq = irq;
+ 		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+ 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+-- 
+1.9.1
 
-
-
-
---4n4TEAQmhDt2rbHHq201twGu3g3gFeEC5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlSFWFYACgkQ7CzyshGvatgPUwCfVtURNd1nI3qKuwp1/IoRT0QX
-3e4AoJq3pJ8PxACnOjb9G/Bfv0jzAbKc
-=61c9
------END PGP SIGNATURE-----
-
---4n4TEAQmhDt2rbHHq201twGu3g3gFeEC5--

@@ -1,40 +1,40 @@
-From: Asaf Vertz <asaf.vertz@tandemg.com>
-Subject: Re: [PATCH] input: edt-ft5x06: fixed a macro coding style issue
-Date: Tue, 09 Dec 2014 09:51:54 +0200
-Message-ID: <5486AA1A.4060802@tandemg.com>
-References: <20141209063456.GA15121@ubuntu> <1418107460.15957.9.camel@perches.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 2/3] HID: wacom: Initialize MT slots for generic
+ devices at post_parse_hid
+Date: Tue, 9 Dec 2014 09:00:33 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412090900120.14413@pobox.suse.cz>
+References: <1417815453-10618-1-git-send-email-killertofu@gmail.com> <CAN+gG=E5EfxzKgOBf9wAXrzwq=i8XKNk9d8oSWeQbVGVMojjJQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418107460.15957.9.camel@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: dmitry.torokhov@gmail.com, LW@KARO-electronics.de, B38611@freescale.com, maksqwe1@ukr.net, jg1.han@samsung.com, linux@rasmusvillemoes.dk, fabf@skynet.be, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:42356 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752787AbaLIIAO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Dec 2014 03:00:14 -0500
+In-Reply-To: <CAN+gG=E5EfxzKgOBf9wAXrzwq=i8XKNk9d8oSWeQbVGVMojjJQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
 
-On 12/09/2014 08:44 AM, Joe Perches wrote:
-> On Tue, 2014-12-09 at 08:34 +0200, Asaf Vertz wrote:
->> Fixed a coding style error, macros with complex values should be
->> enclosed in parentheses.
->>  
->> -#define EDT_ATTR_CHECKSET(name, reg) \
->> +#define EDT_ATTR_CHECKSET(name, reg) { \
->>  	if (pdata->name >= edt_ft5x06_attr_##name.limit_low &&		\
->>  	    pdata->name <= edt_ft5x06_attr_##name.limit_high)		\
->> -		edt_ft5x06_register_write(tsdata, reg, pdata->name)
->> +		edt_ft5x06_register_write(tsdata, reg, pdata->name);	\
->> +}
-> 
-> Any time you see a naked if (foo) bar in a macro
-> prefer to use a do while (0) like;
-> 
-> #define EDT_ATTR_CHECKSET(name, reg)					\
-> do {									\
-> 	if (pdata->name >= edt_ft5x06_attr_##name.limit_low &&		\
-> 	    pdata->name <= edt_ft5x06_attr_##name.limit_high)		\
-> 		edt_ft5x06_register_write(tsdata, reg, pdata->name);	\
-> while (0)
-> 
+On Fri, 5 Dec 2014, Benjamin Tissoires wrote:
 
-thanks for the input, I will update and resend it
+> > If a HID descriptor places HID_DG_CONTACTID before HID_DG_X and HID_DG_Y then
+> > the ABS_X and ABS_Y will not be automatically initialized by the call to
+> > input_mt_init_slots. To ensure that this is not a problem, we relocate that
+> > call to occur after HID parsing has been completed and we've initalized all
+> > the multitouch axes.
+> >
+> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> > ---
+> 
+> This one is
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Benjamin, does your Reviewed-by: apply to both 2/3 and 3/3?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

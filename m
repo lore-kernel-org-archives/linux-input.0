@@ -1,127 +1,214 @@
-From: Dudley Du <dudley.dulixin@gmail.com>
-Subject: [PATCH v13 00/12] input: cyapa: instruction of cyapa patches
-Date: Tue,  9 Dec 2014 17:11:32 +0800
-Message-ID: <1418116304-11392-1-git-send-email-dudley.dulixin@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se
-Cc: Dudley Du <dudley.dulixin@gmail.com>, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv2 1/3] sunxi:dts-bindings:input:ps2 bindings
+ for A10/A20 ps2.
+Date: Tue, 9 Dec 2014 02:21:28 -0800 (PST)
+Message-ID: <84ef8f93-8c51-4ab0-8714-a6714f6766bd@googlegroups.com>
+References: <1417907719-26775-1-git-send-email-VishnuPatekar0510@gmail.com>
+ <1417907719-26775-2-git-send-email-VishnuPatekar0510@gmail.com>
+ <20141208221509.GM8739@lukather>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_16_1457337234.1418120489014"
+Return-path: <linux-sunxi+bncBD64TFVR3YIBBKU2TOSAKGQEMNSAXDQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20141208221509.GM8739@lukather>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, leafy.myeh-Q9AEpCAkrSgqDJ6do+/SaQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-V13 patches have below updates, details of other updates see history list:
-1) Remove all debugfs interface, including read_fw and raw_data interfaces.
-2) This patches are made based linux next-20141208.
+------=_Part_16_1457337234.1418120489014
+Content-Type: multipart/alternative;
+	boundary="----=_Part_17_1415897803.1418120489014"
 
-This patch series is aimed to re-design the cyapa driver to support
-old gen3 trackpad devices and new gen5 trackpad devices in one
-cyapa driver, it's for easily productions support based on
-customers' requirements. And add sysfs functions and interfaces
-supported that required by users and customers.
+------=_Part_17_1415897803.1418120489014
+Content-Type: text/plain; charset=UTF-8
 
-Since the earlier gen3 and the latest gen5 trackpad devices using
-two different chipsets, and have different protocols and interfaces,
-so if supported these two type trackpad devices in two different drivers,
-then it will be difficult to manage productions and later firmware updates.
-e.g.: It will cause customer don't know which one trackpad device firmware
-image to use and update when it has been used and integrated
-in same one productions, so here we support these two trackpad
-devices in same on driver.
+Hello,
 
-The new design cyapa driver contains:
-cyapa.c - the core of the re-design, supply interfaces and
-functions to system and read trackpad devices.
-cyapa.h - header file including macros and data structure definitions.
-cyapa_gen3.c - functions support for gen3 trackpad devices,
-cyapa_gen5.c - functions support for gen5 trackpad devices.
+On Tuesday, December 9, 2014 3:50:05 AM UTC+5:30, Maxime Ripard wrote:
+>
+> Hi, 
+>
+> On Sun, Dec 07, 2014 at 04:45:17AM +0530, vishnupatekar wrote: 
+> > A10 and A20 have same PS2 addresses, clocks, interrupts. 
+> > added compatible as allwinner,sun4i-a10-ps2. 
+> > 
+> > Signed-off-by: vishnupatekar <VishnuPa...-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org <javascript:>> 
+>
+> You should have your real name here. 
+>
+This is my real Name. Vishnu Patekar  :)
 
-Beside this introduction patch, it has 12 patches listed as below.
-For these patches, each one is patched based on previous one.
+>
+> > --- 
+> >  .../bindings/input/allwinner,sunxi-ps2.txt         |   23 
+> ++++++++++++++++++++ 
+> >  1 file changed, 23 insertions(+) 
+> >  create mode 100644 
+> Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt 
+> > 
+> > diff --git 
+> a/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt 
+> b/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt 
+> > new file mode 100644 
+> > index 0000000..3a8919a 
+> > --- /dev/null 
+> > +++ b/Documentation/devicetree/bindings/input/allwinner,sunxi-ps2.txt 
+> > @@ -0,0 +1,23 @@ 
+> > +* Device tree bindings for Allwinner A10, A20 PS2 host controller 
+>
+> > +A20 PS2 is dual role controller(PS2 host and PS2 device). These 
+> > +bindings are for PS2 host controller. IBM compliant IBM PS2 and 
+> > AT-compatible keyboard and mouse can be connected. 
+>
+> This should be wrapped to 80 chars. 
+>
+> Okie.
+ 
 
-patch 1/12: re-design cyapa driver with core functions and interface
-to support multi-type trackpad devices.
+> > +Required properties: 
+> > + 
+> > + - reg             : Offset and length of the register set for the 
+> device. 
+> > + - compatible      : Should one of the following: 
+> > +                     - "allwinner,sun7i-a20-ps2" 
+> > +                     - "allwinner,sun4i-a10-ps2" 
+> > + - interrupts      : The interrupt line connected to the PS2. 
+> > + - clocks          : The gate clk connected to the PS2. 
+> > + 
+> > + 
+> > +Example: 
+> > +        ps20: ps2@0x01c2a000 { 
+> > +                compatible = "allwinner,sun7i-a20-ps2"; 
+> > +                reg = <0x01c2a000 0x400>; 
+> > +                interrupts = <0 62 4>; 
+> > +                clocks = <&apb1_gates 6>; 
+> > +                status = "disabled"; 
+> > +        }; 
+> > -- 
+> > 1.7.9.5 
+> > 
+>
+> -- 
+> Maxime Ripard, Free Electrons 
+> Embedded Linux, Kernel and Android engineering 
+> http://free-electrons.com 
+>
 
-patch 2/12: add gen5 trackpad device basic functions supported into the
-re-design cyapa driver.
+-- 
+You received this message because you are subscribed to the Google Groups "linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.
 
-patch 3/12: add power management interfaces supported for the deivce.
+------=_Part_17_1415897803.1418120489014
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-patch 4/12: add runtime power management interfaces supported for the device.
+<div dir=3D"ltr">Hello,<br><br>On Tuesday, December 9, 2014 3:50:05 AM UTC+=
+5:30, Maxime Ripard wrote:<blockquote class=3D"gmail_quote" style=3D"margin=
+: 0;margin-left: 0.8ex;border-left: 1px #ccc solid;padding-left: 1ex;">Hi,
+<br>
+<br>On Sun, Dec 07, 2014 at 04:45:17AM +0530, vishnupatekar wrote:
+<br>&gt; A10 and A20 have same PS2 addresses, clocks, interrupts.
+<br>&gt; added compatible as allwinner,sun4i-a10-ps2.
+<br>&gt;=20
+<br>&gt; Signed-off-by: vishnupatekar &lt;<a href=3D"javascript:" target=3D=
+"_blank" gdf-obfuscated-mailto=3D"NwaeSQeYkOwJ" onmousedown=3D"this.href=3D=
+'javascript:';return true;" onclick=3D"this.href=3D'javascript:';return tru=
+e;">VishnuPa...-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org</a>&gt;
+<br>
+<br>You should have your real name here.
+<br></blockquote><div>This is my real Name. Vishnu Patekar &nbsp;:)</div><b=
+lockquote class=3D"gmail_quote" style=3D"margin: 0;margin-left: 0.8ex;borde=
+r-left: 1px #ccc solid;padding-left: 1ex;">
+<br>&gt; ---
+<br>&gt; &nbsp;.../bindings/input/allwinner,<wbr>sunxi-ps2.txt &nbsp; &nbsp=
+; &nbsp; &nbsp; | &nbsp; 23 ++++++++++++++++++++
+<br>&gt; &nbsp;1 file changed, 23 insertions(+)
+<br>&gt; &nbsp;create mode 100644 Documentation/devicetree/<wbr>bindings/in=
+put/allwinner,<wbr>sunxi-ps2.txt
+<br>&gt;=20
+<br>&gt; diff --git a/Documentation/devicetree/<wbr>bindings/input/allwinne=
+r,<wbr>sunxi-ps2.txt b/Documentation/devicetree/<wbr>bindings/input/allwinn=
+er,<wbr>sunxi-ps2.txt
+<br>&gt; new file mode 100644
+<br>&gt; index 0000000..3a8919a
+<br>&gt; --- /dev/null
+<br>&gt; +++ b/Documentation/devicetree/<wbr>bindings/input/allwinner,<wbr>=
+sunxi-ps2.txt
+<br>&gt; @@ -0,0 +1,23 @@
+<br>&gt; +* Device tree bindings for Allwinner A10, A20 PS2 host controller
+<br>
+<br>&gt; +A20 PS2 is dual role controller(PS2 host and PS2 device). These
+<br>&gt; +bindings are for PS2 host controller. IBM compliant IBM PS2 and
+<br>&gt; AT-compatible keyboard and mouse can be connected.
+<br>
+<br>This should be wrapped to 80 chars.
+<br>
+<br></blockquote><div>Okie.</div><div>&nbsp;</div><blockquote class=3D"gmai=
+l_quote" style=3D"margin: 0;margin-left: 0.8ex;border-left: 1px #ccc solid;=
+padding-left: 1ex;">&gt; +Required properties:
+<br>&gt; +
+<br>&gt; + - reg &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; : Offset and len=
+gth of the register set for the device.
+<br>&gt; + - compatible &nbsp; &nbsp; &nbsp;: Should one of the following:
+<br>&gt; + &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &=
+nbsp; - "allwinner,sun7i-a20-ps2"
+<br>&gt; + &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &=
+nbsp; - "allwinner,sun4i-a10-ps2"
+<br>&gt; + - interrupts &nbsp; &nbsp; &nbsp;: The interrupt line connected =
+to the PS2.
+<br>&gt; + - clocks &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;: The gate clk connec=
+ted to the PS2.
+<br>&gt; +
+<br>&gt; +
+<br>&gt; +Example:
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ps20: ps2@0x01c2a=
+000 {
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compatible =3D "allwinner,sun7i-a20-ps2";
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reg =3D &lt;0x01c2a000 0x400&gt;;
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interrupts =3D &lt;0 62 4&gt;;
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clocks =3D &lt;&amp;apb1_gates 6&gt;;
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status =3D "disabled";
+<br>&gt; +&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+<br>&gt; --=20
+<br>&gt; 1.7.9.5
+<br>&gt;=20
+<br>
+<br>--=20
+<br>Maxime Ripard, Free Electrons
+<br>Embedded Linux, Kernel and Android engineering
+<br><a href=3D"http://free-electrons.com" target=3D"_blank" onmousedown=3D"=
+this.href=3D'http://www.google.com/url?q\75http%3A%2F%2Ffree-electrons.com\=
+46sa\75D\46sntz\0751\46usg\75AFQjCNGC8C9pT7xKJEabITLGL5cqtolifQ';return tru=
+e;" onclick=3D"this.href=3D'http://www.google.com/url?q\75http%3A%2F%2Ffree=
+-electrons.com\46sa\75D\46sntz\0751\46usg\75AFQjCNGC8C9pT7xKJEabITLGL5cqtol=
+ifQ';return true;">http://free-electrons.com</a>
+<br></blockquote></div>
 
-patch 5/12: add sysfs interfaces supported in the cyapa driver.
-Including read firmware version, get production ID, read baseline,
-re-calibrate trackpad baselines and do trackpad firmware update.
+<p></p>
 
-patch 6/12: add gen3 trackpad device's firmware update function supported.
+-- <br />
+You received this message because you are subscribed to the Google Groups &=
+quot;linux-sunxi&quot; group.<br />
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to <a href=3D"mailto:linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org">linux-s=
+unxi+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org</a>.<br />
+For more options, visit <a href=3D"https://groups.google.com/d/optout">http=
+s://groups.google.com/d/optout</a>.<br />
 
-patch 7/12: add gen3 trackpad device's read baseline function supported.
+------=_Part_17_1415897803.1418120489014--
 
-patch 8/12: add gen3 trackpad device's force re-calibrate function supported.
-
-patch 9/12: add gen5 trackpad device's firmware update function supported.
-
-patch 10/12: add gen5 trackpad device's read baseline function supported.
-
-patch 11/12: add gen5 trackpad device's force re-calibrate function.
-
-patch 12/12: add acpi device id supported.
-
-
-History patch series modifications list:
-V12 patches have below main updates compared with v11 patches:
-1) Add check that when TP is detected but not operational, do not exit driver
-   immediately, but wait and export the update_fw interface for recovering.
-2) Re-arrange the function codes, remove unnesseary protype definitions in
-   the header file.
-
-V11 patches have below main updates compared with v10 patches:
-1) Add add acpi device id supported for old gen3 and new gen5 trackpad devices.
-2) Fix the unable to update firmware issue when cyapa_open is not called
-   which means the irq for firwmare update process is not enabled. This fix
-   by checking if the irq is enabled, if not then enable irq before start to
-   do firmware update.
-
-V10 patches have below main updates compared with v9 patches:
-1) Modify code to following kernel code style.
-   e.g.: correct to use error as return name when there is only error path,
-   and fix the checkpatch.sh wanting in the driver.
-2) Remove cyapa_remove method and use input open and close interface to
-   following device resouse management infrastructure.
-3) Modify cyapa_detect method to return tristate issue to make the return value
-   much more consistent and clear.
-4) Use platform supplied functions as possible instead of driver
-   specific rewritten version.
-
-V9 patches have below updates compared with v8 patches:
-1) Removed all async thread stuff from the driver.
-2) Split driver into 18 patches for each function change one patch.
-
-V8 patches have below updates compared with v7 patches:
-1) [PATCH v8 01/13] - Remove the async thread for device detect in
-   probe routine, now the device detect process is completely done within
-   the device probe routine.
-2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
-   function cyapa_default_irq_cmd_handler() and set it to interface
-   cyapa_default_ops.irq_cmd_handler.
-3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
-   to avoid miss-enter when device protocol is still in detecting.
-
-V7 patches have below updates compared with v6 patches:
-1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
-   function cyapa_default_irq_cmd_handler() and set it to interface
-   cyapa_default_ops.irq_cmd_handler.
-2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
-   to avoid miss-enter when device protocol is still in detecting.
-
-
-V6 patches have below updates compared with v5 patches:
-1) Remove patch 14 of the lid filtering from the cyapa driver.
-
-V5 patches have below updates compared with v4 patches:
-1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
-2) Fix memories freed before debugfs entries issue;
-3) Make cyapa_debugs_root valid in driver module level
-   in module_init()/moudle_exit() ;
-4) Fix i2c_transfer() may return partial transfer issues.
-5) Add cyapa->removed flag to avoid detecting thread may still running
-   when driver module is removed.
-6) Fix the meanings of some comments and return error code not clear issue.
+------=_Part_16_1457337234.1418120489014--

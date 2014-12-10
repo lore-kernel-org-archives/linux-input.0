@@ -1,18 +1,18 @@
 From: anshul.g@samsung.com
 Subject: [PATCH] Input:Optimize events_per_packet count calculation
-Date: Wed, 10 Dec 2014 16:40:50 +0530
-Message-ID: <1418209850-4167-1-git-send-email-anshul.g@samsung.com>
+Date: Wed, 10 Dec 2014 17:18:43 +0530
+Message-ID: <1418212123-4549-1-git-send-email-anshul.g@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:33682 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751278AbaLJLLY (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:58933 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751357AbaLJLtF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Dec 2014 06:11:24 -0500
+	Wed, 10 Dec 2014 06:49:05 -0500
 Received: from epcpsbgm1.samsung.com (epcpsbgm1 [203.254.230.26])
- by mailout4.samsung.com
+ by mailout3.samsung.com
  (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0NGD00LQW5QYRK30@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Wed, 10 Dec 2014 20:11:22 +0900 (KST)
+ 17 2011)) with ESMTP id <0NGD004AO7HREX00@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 10 Dec 2014 20:49:03 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
@@ -42,7 +42,7 @@ index 29ca0bb..8172296 100644
 -				events += mt_slots;
 -			else
 -				events++;
-+	if (test_bit(EV_ABS, dev->evit)) {
++	if (test_bit(EV_ABS, dev->evbit)) {
 +		for (i = 0; i < ABS_CNT; i++) {
 +			if (test_bit(i, dev->absbit)) {
 +				if (input_is_mt_axis(i))
@@ -56,7 +56,7 @@ index 29ca0bb..8172296 100644
 -	for (i = 0; i < REL_CNT; i++)
 -		if (test_bit(i, dev->relbit))
 -			events++;
-+	if (test_bit(EV_REL, dev->evit)) {
++	if (test_bit(EV_REL, dev->evbit)) {
 +		for (i = 0; i < REL_CNT; i++)
 +			if (test_bit(i, dev->relbit))
 +				events++;

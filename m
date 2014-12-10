@@ -1,103 +1,40 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device firmware
- update function support
-Date: Wed, 10 Dec 2014 09:19:19 +0000
-Message-ID: <BN1PR06MB0708DF8CE49D491D55E4F00D1620@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1418116304-11392-1-git-send-email-dudley.dulixin@gmail.com>
- <1418116304-11392-10-git-send-email-dudley.dulixin@gmail.com>
- <20141210033303.GA4173@hudson.localdomain>
- <20141210085455.GA7174@hudson.localdomain>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 2/3] HID: wacom: Initialize MT slots for generic
+ devices at post_parse_hid
+Date: Wed, 10 Dec 2014 10:49:16 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412101048110.6679@pobox.suse.cz>
+References: <1417815453-10618-1-git-send-email-killertofu@gmail.com> <CAN+gG=E5EfxzKgOBf9wAXrzwq=i8XKNk9d8oSWeQbVGVMojjJQ@mail.gmail.com> <alpine.LNX.2.00.1412090900120.14413@pobox.suse.cz>
+ <CAN+gG=HuSs0Bpe7LaHZC6rqWTTaNQ_4_hrOMm+3Sv1Z80vB5nQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141210085455.GA7174@hudson.localdomain>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:36700 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753390AbaLJJsw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Dec 2014 04:48:52 -0500
+In-Reply-To: <CAN+gG=HuSs0Bpe7LaHZC6rqWTTaNQ_4_hrOMm+3Sv1Z80vB5nQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
 
-Jeremiah,
+On Tue, 9 Dec 2014, Benjamin Tissoires wrote:
 
-Thank you very much for the solution. I will aplly it to my local patches immediately.
+> Well, I wanted to make some cosmetic changes in 3/3 and double check 
+> that it was generic enough, but I've been sidetracked, and today I have 
+> to keep my sick daughter. Please apply my rev-by on this one only. Feel 
+> free to apply 3/3 however - if you can dedicate a little bit of time to 
+> check it - (without my rev-by then), it's not that it will prevent us to 
+> change it later if we have to.
 
-Do you think it is required to re-submit the patch set right now?
+Alright, thanks. I am now applying 2/3. If I have time to review 3/3 today 
+or tomorrow (not guaranteed), I might be applying it for this merge window 
+as well.
+
+Otherwise it'll be processed in the next cycle.
 
 Thanks,
-Dudley
 
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org
-> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Jeremiah Mahler
-> Sent: 2014?12?10? 16:55
-> To: Dudley Du
-> Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: Re: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device firmware
-> update function support
->
-> Dudley,
->
-> On Tue, Dec 09, 2014 at 07:33:03PM -0800, Jeremiah Mahler wrote:
-> > Dudley,
-> >
-> > On Tue, Dec 09, 2014 at 05:11:41PM +0800, Dudley Du wrote:
-> > > Add firmware image update function supported for gen5 trackpad device,
-> > > it can be used through sysfs update_fw interface.
-> > > TEST=test on Chromebooks.
-> > >
-> > > Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
-> > > ---
-> > >  drivers/input/mouse/Kconfig      |   2 +-
-> > >  drivers/input/mouse/cyapa_gen5.c | 290
-> +++++++++++++++++++++++++++++++++++++++
-> > >  2 files changed, 291 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> > > index d8b46b0..63e8b40 100644
-> > > --- a/drivers/input/mouse/Kconfig
-> > > +++ b/drivers/input/mouse/Kconfig
-> > > @@ -205,7 +205,7 @@ config MOUSE_BCM5974
-> > >
-> > >  config MOUSE_CYAPA
-> > >  tristate "Cypress APA I2C Trackpad support"
-> > > -depends on I2C
-> > > +depends on I2C && CRC_ITU_T
-> If this line is instead changed to:
->
-> +  depends on I2C
-> +  select CRC_ITU_T
->
-> It will upgrade correctly during make oldconfig without removing
-> MOUSE_CYAPA.
->
-> And it looks like several other Kconfig files do it this way already.
->
->   linux-next$ grep -r CRC_ITU_T $(find ./ -name Kconfig)
->
-> > >  help
-> > >    This driver adds support for Cypress All Points Addressable (APA)
-> > >    I2C Trackpads, including the ones used in 2012 Samsung Chromebooks.
-> > > diff --git a/drivers/input/mouse/cyapa_gen5.c
-> b/drivers/input/mouse/cyapa_gen5.c
-> >
-> > My initial config had MOUSE_CYAPA=m and CRC_ITU_T=n.
-> > I did a 'make oldconfig', no questions were asked, but it removed
-> > MOUSE_CYAPA since CRC_ITU_T wasn't enabled.  Since the cyapa modules
-> > were removed the touchpad no longer works.  Not a very good upgrade path :-(
-> > To fix this I have to manually enable MOUSE_CYAPA and CRC_ITU_T to get
-> > it working again.
-> >
-> > [...]
-> >
-> > --
-> > - Jeremiah Mahler
->
-> --
-> - Jeremiah Mahler
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+-- 
+Jiri Kosina
+SUSE Labs

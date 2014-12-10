@@ -1,79 +1,60 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: Supporting U2F over HID on Linux?
-Date: Tue, 9 Dec 2014 12:46:56 -0800
-Message-ID: <CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
- <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
- <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
- <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
- <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device
+ firmware update function support
+Date: Tue, 9 Dec 2014 19:33:03 -0800
+Message-ID: <20141210033303.GA4173@hudson.localdomain>
+References: <1418116304-11392-1-git-send-email-dudley.dulixin@gmail.com>
+ <1418116304-11392-10-git-send-email-dudley.dulixin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Kay Sievers <kay@vrfy.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:56837 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753789AbaLJDdM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Dec 2014 22:33:12 -0500
+Content-Disposition: inline
+In-Reply-To: <1418116304-11392-10-git-send-email-dudley.dulixin@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dudley Du <dudley.dulixin@gmail.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gTW9uLCBOb3YgMywgMjAxNCBhdCAxMjo0MSBQTSwgQW5keSBMdXRvbWlyc2tpIDxsdXRvQGFt
-YWNhcGl0YWwubmV0PiB3cm90ZToKPiBPbiBNb24sIE5vdiAzLCAyMDE0IGF0IDEyOjIxIFBNLCBK
-aXJpIEtvc2luYSA8amtvc2luYUBzdXNlLmN6PiB3cm90ZToKPj4gT24gTW9uLCAzIE5vdiAyMDE0
-LCBEYXZpZCBIZXJybWFubiB3cm90ZToKPj4KPj4+ID4gQWdyZWVkLCBtb3N0bHkuICBNeSBvbmx5
-IHJlYWwgY29uY2VybiBpcyB0aGF0IHRoaXMgY291bGQgYmUgYW5ub3lpbmcKPj4+ID4gZm9yIHRo
-ZSB1c2Vyc3BhY2UgZGV2ZWxvcGVycyB3aG8gd2lsbCBuZWVkIHRvIHRhcmdldCBMaW51eCBhbmQg
-SElEQVBJCj4+PiA+IHNlcGFyYXRlbHkuICBBZG1pdHRlZGx5IHRoZSBMaW51eCBzdXBwb3J0IHdp
-bGwgYmUgdHJpdmlhbC4KPj4+Cj4+PiBJIHNlZS4gSSdsbCBub3Qgc3RvcCB5b3UgZnJvbSB1c2lu
-ZyBoaWRyYXcsIEknZCBqdXN0IG5vdCByZWNvbW1lbmQgaXQuCj4+PiBFc3BlY2lhbGx5IGZvciBz
-ZWN1cml0eSBzdHVmZiBJIGRpc2xpa2UgZXhwb3NpbmcgdGhlIHdob2xlIEhJRCBkZXZpY2UKPj4+
-IHdyaXRhYmxlLiBCdXQgeWVhaCwgSSBndWVzcyB5b3UgZ290IG15IHBvaW50Lgo+Pgo+PiBBbHJp
-Z2h0LCBJIGFtIGJhc2ljYWxseSB0aGlua2luZyBsb3VkbHkgbm93LCBidXQgaG93IGFib3V0IHdl
-IGFsbG93IEhJRAo+PiBkcml2ZXJzIHRoYXQgd291bGQgb3ZlcnJpZGUgZGVmYXVsdCBoaWRyYXcg
-aW50ZXJmYWNlPwo+Pgo+PiBJIGFtIHZlcnkgd2VsbCBhd2FyZSBvZiB0aGUgZmFjdCB0aGF0IHRo
-aXMgY291bGQgYmUgb3BlbmluZyBhIGNhbiBvZgo+PiB3b3Jtcywgc28gd2UnbGwgaGF2ZSB0byBt
-YWtlIGl0IHZlcnkgcmVzdHJpY3RpdmUuIEhvdyBhYm91dCwgbGV0J3Mgc2F5LCB3ZQo+PiBhbGxv
-dyBISUQgZHJpdmVycyB0byBwcm92aWRlIGN1c3RvbSBoaWRyYXcgaW50ZXJmYWNlIChjb21wbGV0
-ZWx5Cj4+IG92ZXJyaWRpbmcgdGhlIG9uZSB0aGF0IEhJRCBjb3JlIHdvdWxkIG5vcm1hbGx5IGNy
-ZWF0ZSkgb25seSBmb3IgY2FzZXMKPj4gc3VjaCBhczoKPj4KPj4gLSB0aGUgaW50ZW50IGlzIHRv
-IGV4cG9zZSBvbmx5IGNlcnRhaW4gcGFydHMgb2YgYSBjb21iaW5lZCBkZXZpY2UKPj4gLSB0aGUg
-aW50ZW50IGlzIHRvIGludHJvZHVjZSBzb21lIGxldmVsIG9mIGFjY2VzcyBjb250cm9sCj4+Cj4+
-IEkuZS4gc3RpbGwgbm8gaW50ZXJmZXJlbmNlIG9mIGtlcm5lbCB3aXRoIGRhdGEgcGFyc2luZyBh
-bGxvd2VkLgo+Cj4gSG1tLiAgV291bGQgdGhpcyBiZSBsaWtlIGEgZmlsdGVyIG9uIGhpZHJhdyBh
-Y3Rpb25zPwo+Cj4gSG93IHdvdWxkIHVkZXYgZGlzdGluZ3Vpc2ggdGhlc2Ugc3BlY2lhbCBoaWRy
-YXcgZGV2aWNlcyBmcm9tIG5vcm1hbAo+IGhpZHJhdyBkZXZpY2VzPwo+Cj4gQWxzbywgZm9yIFUy
-RiwgdGhpcyBjb3VsZCBiZSBhIGxpdHRsZSBhd2t3YXJkLiAgVGhlcmUncyBzb21lIGNyYXp5Cj4g
-ZnJhZ21lbnRhdGlvbiBzdHVmZiB0byBhbGxvdyBhIFUyRiByZXF1ZXN0IHRvIGJlIHNwbGl0IGFj
-cm9zcyBISUQKPiByZXF1ZXN0cywgYW5kIEkgdGhpbmsgYSBrZXJuZWwgZHJpdmVyIHdvdWxkIG11
-Y2ggcmF0aGVyIGdldCB0aGUKPiBvcmlnaW5hbCB1bmZyYWdtZW50ZWQgYXBwbGljYXRpb24gcmVx
-dWVzdC4KPgoKSSBzdGFydGVkIHdyaXRpbmcgYSBkcml2ZXIgZm9yIHRoaXMuICBJIGdvdCBlbnVt
-ZXJhdGlvbiB3b3JraW5nLiAgSQphc3N1bWUgSSBzaG91bGQgY3JlYXRlIGEgInUyZiIgZGV2aWNl
-IGNsYXNzLCBhbmQgdGhlbi4uLiA/CgpXaGVyZSBhbSBJIHN1cHBvc2VkIHRvIGdldCBteSBjaGFy
-YWN0ZXIgZGV2aWNlIGZyb20/ICBEbyBJIHJlZ2lzdGVyIG15Cm93biBjaHJkZXYgbWFqb3I/ICBE
-byBJIHVzZSBtaXNjPyAgSXMgdGhlcmUgc29tZSBpbnB1dCB0aGluZyBJJ20Kc3VwcG9zZWQgdG8g
-dXNlPwoKVGhhbmtzLApBbmR5Cgo+IC0tQW5keQo+Cj4+Cj4+PiA+IEkgY2FuIGdpdmUgdGhlIGRy
-aXZlciBhIHRyeS4gIEl0J2xsIGFjdHVhbGx5IGJlIHNpbXBsZXIgdGhhbiB0aGUgc3BlYwo+Pj4g
-PiBtYWtlcyBpdCBvdXQsIHNpbmNlIGEgcmVhbCBrZXJuZWwgZHJpdmVyIHdpbGwgaGF2ZSBubyBu
-ZWVkIHRvCj4+PiA+IGFyYml0cmF0ZSB3aXRoIGl0c2VsZi4KPj4+Cj4+PiBJJ2xsIGdsYWRseSBy
-ZXZpZXcgYW55IGN1c3RvbSBISUQgZHJpdmVycy4gRmVlbCBmcmVlIHRvIHB1dCBtZSBvbiBDQwo+
-Pj4gd2hlbiBzZW5kaW5nIHRvIGxpbnV4LWlucHV0LiBUaGVyZSdzIGFsc28gYSBsb3Qgb2YgZXhh
-bXBsZXMgaW4KPj4+IGRyaXZlcnMvaGlkLyBpbiBjYXNlIHlvdSBuZWVkIGEgaGVhZC1zdGFydCAo
-ZXNwZWNpYWxseSBpZiB5b3UgbmVlZCB0aGUKPj4+IHJhd19ldmVudCBjYWxsYmFjaykuCj4+Cj4+
-IFNhbWUgaGVyZSwgb2YgY291cnNlLgo+Pgo+PiBQbGVhc2UgYWx3YXlzIENDIG1lIGluIHBhcmFs
-bGVsIHRvIHNlbmRpbmcgdG8gbGludXgtaW5wdXRAIHRvIG1ha2Ugc3VyZQo+PiB0aGF0IHRoZSBw
-YXRjaCBkb2Vzbid0IGZhbGwgaW4gYmV0d2VlbiBjcmFja3MuCj4+Cj4+IFRoYW5rcywKPj4KPj4g
-LS0KPj4gSmlyaSBLb3NpbmEKPj4gU1VTRSBMYWJzCj4KPgo+Cj4gLS0KPiBBbmR5IEx1dG9taXJz
-a2kKPiBBTUEgQ2FwaXRhbCBNYW5hZ2VtZW50LCBMTEMKCgoKLS0gCkFuZHkgTHV0b21pcnNraQpB
-TUEgQ2FwaXRhbCBNYW5hZ2VtZW50LCBMTEMKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18Kc3lzdGVtZC1kZXZlbCBtYWlsaW5nIGxpc3QKc3lzdGVtZC1kZXZl
-bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3N5c3RlbWQtZGV2ZWwK
+Dudley,
+
+On Tue, Dec 09, 2014 at 05:11:41PM +0800, Dudley Du wrote:
+> Add firmware image update function supported for gen5 trackpad device,
+> it can be used through sysfs update_fw interface.
+> TEST=test on Chromebooks.
+> 
+> Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
+> ---
+>  drivers/input/mouse/Kconfig      |   2 +-
+>  drivers/input/mouse/cyapa_gen5.c | 290 +++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 291 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+> index d8b46b0..63e8b40 100644
+> --- a/drivers/input/mouse/Kconfig
+> +++ b/drivers/input/mouse/Kconfig
+> @@ -205,7 +205,7 @@ config MOUSE_BCM5974
+>  
+>  config MOUSE_CYAPA
+>  	tristate "Cypress APA I2C Trackpad support"
+> -	depends on I2C
+> +	depends on I2C && CRC_ITU_T
+>  	help
+>  	  This driver adds support for Cypress All Points Addressable (APA)
+>  	  I2C Trackpads, including the ones used in 2012 Samsung Chromebooks.
+> diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+
+My initial config had MOUSE_CYAPA=m and CRC_ITU_T=n.
+I did a 'make oldconfig', no questions were asked, but it removed
+MOUSE_CYAPA since CRC_ITU_T wasn't enabled.  Since the cyapa modules
+were removed the touchpad no longer works.  Not a very good upgrade path :-(
+To fix this I have to manually enable MOUSE_CYAPA and CRC_ITU_T to get
+it working again.
+
+[...]
+
+-- 
+- Jeremiah Mahler

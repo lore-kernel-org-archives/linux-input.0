@@ -1,148 +1,130 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: logitech-hidpp: prefix the name with Logitech
-Date: Wed, 10 Dec 2014 18:17:40 -0500
-Message-ID: <20141210231739.GD4861@mail.corp.redhat.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: do not return the name length
+Date: Wed, 10 Dec 2014 18:01:52 -0500
+Message-ID: <20141210230152.GC4861@mail.corp.redhat.com>
 References: <1418250070-28604-1-git-send-email-benjamin.tissoires@redhat.com>
- <1418250070-28604-2-git-send-email-benjamin.tissoires@redhat.com>
- <1511661.CjWHljXQbp@al>
+ <4561294.qneDZ51mgu@al>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1511661.CjWHljXQbp@al>
+In-Reply-To: <4561294.qneDZ51mgu@al>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Wu <peter@lekensteyn.nl>
 Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> On Wednesday 10 December 2014 17:21:10 Benjamin Tissoires wrote:
-> > Current names are reported as "K750", "M705", and it can be misleading
-> > for the users when they look at their input device list.
+On Dec 10 2014 or thereabouts, Peter Wu wrote:
+> On Wednesday 10 December 2014 17:21:09 Benjamin Tissoires wrote:
+> > We do not make any use of the actual name length get through
+> > hidpp_get_device_name().
 > > 
-> > Prefixing the names with "Logitech " makes things better.
-> 
-> Doesn't this apply to all input devices? Like, every USB device can be
-> queried for the manufacturer which could then by included by the input
-> subsystem.
-
-Yes and no. Yes, it's good to have the manufacturer name in the input
-subsystem, and no, because usbhid already prepend the name with the
-manufacturer.
-
-> 
-> What about duplicate names? Can this patch cause a conflict with devices
-> having the same name?
-
-I am not sure what you mean here. I am adding a prefix to the name, so I
-do not see how a conflict can be possible. If there were a "M705" and a
-"Logitech M705", with different wireless PID, that would be worrisome to
-some extend.
-But I am pretty sure this will not happen.
-
-> 
+> > We can drop the extra code and simplify the API a bit.
+> > 
 > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >
 > > ---
-> > 
-> > Hi Jiri,
-> > 
-> > I'd love to see this one in 3.19 (after a strong review, of course).
-> > The idea came with the mouse DPI database that Peter is currently working on
-> > (see http://who-t.blogspot.com.au/2014/12/building-a-dpi-database-for-mice.html).
-> > 
-> > I think, if you do not qualify the series for 3.19, we should drop it entirely.
-> > 3.19 introduces the hidpp module and changes the labels. The DPI hwdb will check
-> > on the label to match the actual mouse, so if this one does not get into 3.19,
-> > we will end up in 3 entries for each Logitech device.
-> > 
-> > Cheers,
-> > Benjamin
-> > 
-> > 
-> >  drivers/hid/hid-logitech-hidpp.c | 34 ++++++++++++++++++++++++++++++++++
-> >  1 file changed, 34 insertions(+)
+> >  drivers/hid/hid-logitech-hidpp.c | 10 +++-------
+> >  1 file changed, 3 insertions(+), 7 deletions(-)
 > > 
 > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index 3846305..8cf4352 100644
+> > index 1a6395d..3846305 100644
 > > --- a/drivers/hid/hid-logitech-hidpp.c
 > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -282,6 +282,33 @@ static inline bool hidpp_report_is_connect_event(struct hidpp_report *report)
-> >  		(report->rap.sub_id == 0x41);
+> > @@ -461,7 +461,7 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
+> >  	return count;
 > >  }
 > >  
-> > +/**
-> > + * hidpp_prefix_name() prefixes the current given name with "Logitech ".
-> > + */
-> > +static void hidpp_prefix_name(char **name, int name_length)
-> > +{
-> > +#define PREFIX_SIZE 9 /* "Logitech " */
-> > +
-> > +	int new_length;
-> > +	char *new_name;
-> > +
-> > +	if (name_length > PREFIX_SIZE &&
-> > +	    strncmp(*name, "Logitech ", PREFIX_SIZE) == 0)
+> > -static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
+> > +static char *hidpp_get_device_name(struct hidpp_device *hidpp)
+> >  {
+> >  	u8 feature_type;
+> >  	u8 feature_index;
+> > @@ -484,7 +484,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
+> >  	if (!name)
+> >  		goto out_err;
+> >  
+> > -	*name_length = __name_length + 1;
+> >  	while (index < __name_length)
+> >  		index += hidpp_devicenametype_get_device_name(hidpp,
+> >  			feature_index, index, name + index,
 > 
-> I think you meant || here, not &&.
+> hidpp_devicenametype_get_device_name can return a non-positive value if
+> the USB device is unplugged at the wrong time, or if a malicious device
+> is attached (and 0 is returned). An infinite loop is the result.
 
-No, I meant &&. The idea is to not add a prefix if the provided name
-already contains the prefix. Read that as "if the size of the name may
-contain the prefix and that the prefix is here, then we bail out".
+Oh, yes, you are definitively right.
 
 > 
-> > +		/* The prefix has is already in the name */
-> > +		return;
-> > +
-> > +	new_length = name_length + PREFIX_SIZE;
+> Can you apply this change in the patch or should I send you a separate
+> one?
+
+Feel free to send your patch directly to the list.
+
 > 
-> Stylistic note, but 'PREFIX_SIZE + name_length' would match the order of
-> the string that gets prepended.
+> 	while (index < __name_length) {
+> 		ret = hidpp_devicenametype_get_device_name(hidpp,
+> 			feature_index, index, name + index,
+> 			__name_length - index);
+> 		if (ret <= 0) {
+> 			kfree(name);
+> 			return NULL;
+> 		}
+> 		index += ret;
+> 	}
+> 
+> > @@ -493,7 +492,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
+> >  	return name;
+> >  
+> >  out_err:
+> > -	*name_length = 0;
+> >  	return NULL;
+> 
+> What about dropping the label out_err here and returning NULL in the
+> previous places?
 
-Works for me.
-
-I will send a v2 with your comments addressed.
+Yep, good idea. You can either send a patch for that if you want to take
+credits, or I can send a v2. It's up to you.
 
 Cheers,
 Benjamin
 
 > 
-> Kind regards,
-> Peter
-> 
-> > +	new_name = kzalloc(new_length, GFP_KERNEL);
-> > +	if (!new_name)
-> > +		return;
-> > +
-> > +	snprintf(new_name, new_length, "Logitech %s", *name);
-> > +
-> > +	kfree(*name);
-> > +
-> > +	*name = new_name;
-> > +}
-> > +
-> >  /* -------------------------------------------------------------------------- */
-> >  /* HIDP++ 1.0 commands                                                        */
-> >  /* -------------------------------------------------------------------------- */
-> > @@ -318,6 +345,10 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
-> >  		return NULL;
-> >  
-> >  	memcpy(name, &response.rap.params[2], len);
-> > +
-> > +	/* include the terminating '\0' */
-> > +	hidpp_prefix_name(&name, len + 1);
-> > +
-> >  	return name;
 > >  }
 > >  
-> > @@ -489,6 +520,9 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp)
-> >  			feature_index, index, name + index,
-> >  			__name_length - index);
+> > @@ -989,7 +987,6 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
+> >  {
+> >  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> >  	char *name;
+> > -	u8 name_length;
 > >  
-> > +	/* include the terminating '\0' */
-> > +	hidpp_prefix_name(&name, __name_length + 1);
-> > +
-> >  	return name;
+> >  	if (use_unifying)
+> >  		/*
+> > @@ -999,7 +996,7 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
+> >  		 */
+> >  		name = hidpp_get_unifying_name(hidpp);
+> >  	else
+> > -		name = hidpp_get_device_name(hidpp, &name_length);
+> > +		name = hidpp_get_device_name(hidpp);
 > >  
-> >  out_err:
+> >  	if (!name)
+> >  		hid_err(hdev, "unable to retrieve the name of the device");
+> > @@ -1053,7 +1050,6 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+> >  	bool connected = atomic_read(&hidpp->connected);
+> >  	struct input_dev *input;
+> >  	char *name, *devm_name;
+> > -	u8 name_length;
+> >  
+> >  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+> >  		wtp_connect(hdev, connected);
+> > @@ -1080,7 +1076,7 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+> >  		return;
+> >  	}
+> >  
+> > -	name = hidpp_get_device_name(hidpp, &name_length);
+> > +	name = hidpp_get_device_name(hidpp);
+> >  	if (!name) {
+> >  		hid_err(hdev, "unable to retrieve the name of the device");
+> >  	} else {
 > > 
 > 

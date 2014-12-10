@@ -1,96 +1,200 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: Supporting U2F over HID on Linux?
-Date: Wed, 10 Dec 2014 09:07:43 -0800
-Message-ID: <CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
- <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
- <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
- <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
- <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
- <CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 2/2] Input: gpio_keys - replace timer and workqueue with
+ delayed workqueue
+Date: Wed, 10 Dec 2014 20:32:56 +0200
+Message-ID: <1418236376.17201.57.camel@linux.intel.com>
+References: <20141208071930.GA20802@dtor-ws>
+	 <20141208072124.GA21031@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>, Kay Sievers <kay@vrfy.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:6158 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932860AbaLJSmO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Dec 2014 13:42:14 -0500
+In-Reply-To: <20141208072124.GA21031@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Alexander Stein <alexander.stein@systec-electronic.com>, Linus Walleij <linus.walleij@linaro.org>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Alexander Shiyan <shc_work@mail.ru>, Laxman Dewangan <ldewangan@nvidia.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gVHVlLCBEZWMgOSwgMjAxNCBhdCAxMjo0NiBQTSwgQW5keSBMdXRvbWlyc2tpIDxsdXRvQGFt
-YWNhcGl0YWwubmV0PiB3cm90ZToKPiBPbiBNb24sIE5vdiAzLCAyMDE0IGF0IDEyOjQxIFBNLCBB
-bmR5IEx1dG9taXJza2kgPGx1dG9AYW1hY2FwaXRhbC5uZXQ+IHdyb3RlOgo+PiBPbiBNb24sIE5v
-diAzLCAyMDE0IGF0IDEyOjIxIFBNLCBKaXJpIEtvc2luYSA8amtvc2luYUBzdXNlLmN6PiB3cm90
-ZToKPj4+IE9uIE1vbiwgMyBOb3YgMjAxNCwgRGF2aWQgSGVycm1hbm4gd3JvdGU6Cj4+Pgo+Pj4+
-ID4gQWdyZWVkLCBtb3N0bHkuICBNeSBvbmx5IHJlYWwgY29uY2VybiBpcyB0aGF0IHRoaXMgY291
-bGQgYmUgYW5ub3lpbmcKPj4+PiA+IGZvciB0aGUgdXNlcnNwYWNlIGRldmVsb3BlcnMgd2hvIHdp
-bGwgbmVlZCB0byB0YXJnZXQgTGludXggYW5kIEhJREFQSQo+Pj4+ID4gc2VwYXJhdGVseS4gIEFk
-bWl0dGVkbHkgdGhlIExpbnV4IHN1cHBvcnQgd2lsbCBiZSB0cml2aWFsLgo+Pj4+Cj4+Pj4gSSBz
-ZWUuIEknbGwgbm90IHN0b3AgeW91IGZyb20gdXNpbmcgaGlkcmF3LCBJJ2QganVzdCBub3QgcmVj
-b21tZW5kIGl0Lgo+Pj4+IEVzcGVjaWFsbHkgZm9yIHNlY3VyaXR5IHN0dWZmIEkgZGlzbGlrZSBl
-eHBvc2luZyB0aGUgd2hvbGUgSElEIGRldmljZQo+Pj4+IHdyaXRhYmxlLiBCdXQgeWVhaCwgSSBn
-dWVzcyB5b3UgZ290IG15IHBvaW50Lgo+Pj4KPj4+IEFscmlnaHQsIEkgYW0gYmFzaWNhbGx5IHRo
-aW5raW5nIGxvdWRseSBub3csIGJ1dCBob3cgYWJvdXQgd2UgYWxsb3cgSElECj4+PiBkcml2ZXJz
-IHRoYXQgd291bGQgb3ZlcnJpZGUgZGVmYXVsdCBoaWRyYXcgaW50ZXJmYWNlPwo+Pj4KPj4+IEkg
-YW0gdmVyeSB3ZWxsIGF3YXJlIG9mIHRoZSBmYWN0IHRoYXQgdGhpcyBjb3VsZCBiZSBvcGVuaW5n
-IGEgY2FuIG9mCj4+PiB3b3Jtcywgc28gd2UnbGwgaGF2ZSB0byBtYWtlIGl0IHZlcnkgcmVzdHJp
-Y3RpdmUuIEhvdyBhYm91dCwgbGV0J3Mgc2F5LCB3ZQo+Pj4gYWxsb3cgSElEIGRyaXZlcnMgdG8g
-cHJvdmlkZSBjdXN0b20gaGlkcmF3IGludGVyZmFjZSAoY29tcGxldGVseQo+Pj4gb3ZlcnJpZGlu
-ZyB0aGUgb25lIHRoYXQgSElEIGNvcmUgd291bGQgbm9ybWFsbHkgY3JlYXRlKSBvbmx5IGZvciBj
-YXNlcwo+Pj4gc3VjaCBhczoKPj4+Cj4+PiAtIHRoZSBpbnRlbnQgaXMgdG8gZXhwb3NlIG9ubHkg
-Y2VydGFpbiBwYXJ0cyBvZiBhIGNvbWJpbmVkIGRldmljZQo+Pj4gLSB0aGUgaW50ZW50IGlzIHRv
-IGludHJvZHVjZSBzb21lIGxldmVsIG9mIGFjY2VzcyBjb250cm9sCj4+Pgo+Pj4gSS5lLiBzdGls
-bCBubyBpbnRlcmZlcmVuY2Ugb2Yga2VybmVsIHdpdGggZGF0YSBwYXJzaW5nIGFsbG93ZWQuCj4+
-Cj4+IEhtbS4gIFdvdWxkIHRoaXMgYmUgbGlrZSBhIGZpbHRlciBvbiBoaWRyYXcgYWN0aW9ucz8K
-Pj4KPj4gSG93IHdvdWxkIHVkZXYgZGlzdGluZ3Vpc2ggdGhlc2Ugc3BlY2lhbCBoaWRyYXcgZGV2
-aWNlcyBmcm9tIG5vcm1hbAo+PiBoaWRyYXcgZGV2aWNlcz8KPj4KPj4gQWxzbywgZm9yIFUyRiwg
-dGhpcyBjb3VsZCBiZSBhIGxpdHRsZSBhd2t3YXJkLiAgVGhlcmUncyBzb21lIGNyYXp5Cj4+IGZy
-YWdtZW50YXRpb24gc3R1ZmYgdG8gYWxsb3cgYSBVMkYgcmVxdWVzdCB0byBiZSBzcGxpdCBhY3Jv
-c3MgSElECj4+IHJlcXVlc3RzLCBhbmQgSSB0aGluayBhIGtlcm5lbCBkcml2ZXIgd291bGQgbXVj
-aCByYXRoZXIgZ2V0IHRoZQo+PiBvcmlnaW5hbCB1bmZyYWdtZW50ZWQgYXBwbGljYXRpb24gcmVx
-dWVzdC4KPj4KPgo+IEkgc3RhcnRlZCB3cml0aW5nIGEgZHJpdmVyIGZvciB0aGlzLiAgSSBnb3Qg
-ZW51bWVyYXRpb24gd29ya2luZy4gIEkKPiBhc3N1bWUgSSBzaG91bGQgY3JlYXRlIGEgInUyZiIg
-ZGV2aWNlIGNsYXNzLCBhbmQgdGhlbi4uLiA/Cj4KPiBXaGVyZSBhbSBJIHN1cHBvc2VkIHRvIGdl
-dCBteSBjaGFyYWN0ZXIgZGV2aWNlIGZyb20/ICBEbyBJIHJlZ2lzdGVyIG15Cj4gb3duIGNocmRl
-diBtYWpvcj8gIERvIEkgdXNlIG1pc2M/ICBJcyB0aGVyZSBzb21lIGlucHV0IHRoaW5nIEknbQo+
-IHN1cHBvc2VkIHRvIHVzZT8KCkFub3RoZXIgcXVlc3Rpb246CgpJJ20gaGl0dGluZyB0aGlzIGlu
-IGhpZF9pbnB1dF9yZXBvcnQ6CgogICAgaWYgKGRvd25fdHJ5bG9jaygmaGlkLT5kcml2ZXJfaW5w
-dXRfbG9jaykpIHsKICAgICAgICBwcl9lcnIoIkhJRDogdHJ5bG9jayBmYWlsZWRcbiIpOyAgLy8g
-SSBhZGRlZCB0aGlzCiAgICAgICAgcmV0dXJuIC1FQlVTWTsKICAgIH0KClRoaXMgaXMgYSBwcm9i
-bGVtIGZvciB1MmY6IHUyZiByZXBvcnRzIGFyZSBhY3R1YWwgcHJvdG9jb2wgbWVzc2FnZXMsCmFu
-ZCB0aGVyZSBpc24ndCBhIHJldHJhbnNtaXQgbWVjaGFuaXNtLiAgTG9zaW5nIG1lc3NhZ2VzIHJh
-bmRvbWx5CmNhdXNlcyB0aGUgaGFuZHNoYWtlIHRvIGZhaWwsIGFuZCB0aGVuIG5vdGhpbmcgd29y
-a3MuCgpJICp0aGluayogdGhhdCB0aGUgb25seSB3YXkgSSBjYW4gaGl0IHRoYXQgZmFpbHVyZSBp
-cyBkdXJpbmcgcHJvYmUgKG9yCmlmIHRoZSBVU0Igc3RhY2sgc29tZWhvdyBjb21wbGV0ZXMgdHdv
-IHRyYW5zZmVycyBhdCBvbmNlKS4gVGhpcyBzdGlsbAptYWtlcyBpdCBxdWl0ZSBhd2t3YXJkIHRv
-IHN0YXJ0IElPIGZyb20gdGhlIHByb2JlIHJvdXRpbmUuCgpJIGNvdWxkIHN0YXJ0IGEgd29yayBp
-dGVtIHRvIHRha2UgZHJpdmVyX2lucHV0X2xvY2ssIHJlbGVhc2UgaXQgYWdhaW4sCmFuZCB0aGVu
-IHN0YXJ0IHRoZSBoYW5kc2hha2UsIGJ1dCB0aGF0IHN1Y2tzLgoKSWRlYXM/CgotLUFuZHkKCj4K
-PiBUaGFua3MsCj4gQW5keQo+Cj4+IC0tQW5keQo+Pgo+Pj4KPj4+PiA+IEkgY2FuIGdpdmUgdGhl
-IGRyaXZlciBhIHRyeS4gIEl0J2xsIGFjdHVhbGx5IGJlIHNpbXBsZXIgdGhhbiB0aGUgc3BlYwo+
-Pj4+ID4gbWFrZXMgaXQgb3V0LCBzaW5jZSBhIHJlYWwga2VybmVsIGRyaXZlciB3aWxsIGhhdmUg
-bm8gbmVlZCB0bwo+Pj4+ID4gYXJiaXRyYXRlIHdpdGggaXRzZWxmLgo+Pj4+Cj4+Pj4gSSdsbCBn
-bGFkbHkgcmV2aWV3IGFueSBjdXN0b20gSElEIGRyaXZlcnMuIEZlZWwgZnJlZSB0byBwdXQgbWUg
-b24gQ0MKPj4+PiB3aGVuIHNlbmRpbmcgdG8gbGludXgtaW5wdXQuIFRoZXJlJ3MgYWxzbyBhIGxv
-dCBvZiBleGFtcGxlcyBpbgo+Pj4+IGRyaXZlcnMvaGlkLyBpbiBjYXNlIHlvdSBuZWVkIGEgaGVh
-ZC1zdGFydCAoZXNwZWNpYWxseSBpZiB5b3UgbmVlZCB0aGUKPj4+PiByYXdfZXZlbnQgY2FsbGJh
-Y2spLgo+Pj4KPj4+IFNhbWUgaGVyZSwgb2YgY291cnNlLgo+Pj4KPj4+IFBsZWFzZSBhbHdheXMg
-Q0MgbWUgaW4gcGFyYWxsZWwgdG8gc2VuZGluZyB0byBsaW51eC1pbnB1dEAgdG8gbWFrZSBzdXJl
-Cj4+PiB0aGF0IHRoZSBwYXRjaCBkb2Vzbid0IGZhbGwgaW4gYmV0d2VlbiBjcmFja3MuCj4+Pgo+
-Pj4gVGhhbmtzLAo+Pj4KPj4+IC0tCj4+PiBKaXJpIEtvc2luYQo+Pj4gU1VTRSBMYWJzCj4+Cj4+
-Cj4+Cj4+IC0tCj4+IEFuZHkgTHV0b21pcnNraQo+PiBBTUEgQ2FwaXRhbCBNYW5hZ2VtZW50LCBM
-TEMKPgo+Cj4KPiAtLQo+IEFuZHkgTHV0b21pcnNraQo+IEFNQSBDYXBpdGFsIE1hbmFnZW1lbnQs
-IExMQwoKCgotLSAKQW5keSBMdXRvbWlyc2tpCkFNQSBDYXBpdGFsIE1hbmFnZW1lbnQsIExMQwpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpzeXN0ZW1kLWRl
-dmVsIG1haWxpbmcgbGlzdApzeXN0ZW1kLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRw
-Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vc3lzdGVtZC1kZXZlbAo=
+On Sun, 2014-12-07 at 23:21 -0800, Dmitry Torokhov wrote:
+> We do not need to roll our own implementation of delayed work now that we
+> have proper implementation of mod_delayed_work.
+> 
+> For interrupt-only driven buttons we retain the timer, but we rename
+> it to release_timer to better reflect its purpose.
+
+At least it doesn't break the driver on Intel Medfield device.
+
+Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/keyboard/gpio_keys.c |   65 +++++++++++++++++-------------------
+>  1 file changed, 31 insertions(+), 34 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index a5ece3f..eefd976 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -35,9 +35,13 @@
+>  struct gpio_button_data {
+>  	const struct gpio_keys_button *button;
+>  	struct input_dev *input;
+> -	struct timer_list timer;
+> -	struct work_struct work;
+> -	unsigned int timer_debounce;	/* in msecs */
+> +
+> +	struct timer_list release_timer;
+> +	unsigned int release_delay;	/* in msecs, for IRQ-only buttons */
+> +
+> +	struct delayed_work work;
+> +	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
+> +
+>  	unsigned int irq;
+>  	spinlock_t lock;
+>  	bool disabled;
+> @@ -116,11 +120,14 @@ static void gpio_keys_disable_button(struct gpio_button_data *bdata)
+>  {
+>  	if (!bdata->disabled) {
+>  		/*
+> -		 * Disable IRQ and possible debouncing timer.
+> +		 * Disable IRQ and associated timer/work structure.
+>  		 */
+>  		disable_irq(bdata->irq);
+> -		if (bdata->timer_debounce)
+> -			del_timer_sync(&bdata->timer);
+> +
+> +		if (gpio_is_valid(bdata->button->gpio))
+> +			cancel_delayed_work_sync(&bdata->work);
+> +		else
+> +			del_timer_sync(&bdata->release_timer);
+>  
+>  		bdata->disabled = true;
+>  	}
+> @@ -343,7 +350,7 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+>  static void gpio_keys_gpio_work_func(struct work_struct *work)
+>  {
+>  	struct gpio_button_data *bdata =
+> -		container_of(work, struct gpio_button_data, work);
+> +		container_of(work, struct gpio_button_data, work.work);
+>  
+>  	gpio_keys_gpio_report_event(bdata);
+>  
+> @@ -351,13 +358,6 @@ static void gpio_keys_gpio_work_func(struct work_struct *work)
+>  		pm_relax(bdata->input->dev.parent);
+>  }
+>  
+> -static void gpio_keys_gpio_timer(unsigned long _data)
+> -{
+> -	struct gpio_button_data *bdata = (struct gpio_button_data *)_data;
+> -
+> -	schedule_work(&bdata->work);
+> -}
+> -
+>  static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+>  {
+>  	struct gpio_button_data *bdata = dev_id;
+> @@ -366,11 +366,10 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+>  
+>  	if (bdata->button->wakeup)
+>  		pm_stay_awake(bdata->input->dev.parent);
+> -	if (bdata->timer_debounce)
+> -		mod_timer(&bdata->timer,
+> -			jiffies + msecs_to_jiffies(bdata->timer_debounce));
+> -	else
+> -		schedule_work(&bdata->work);
+> +
+> +	mod_delayed_work(system_wq,
+> +			 &bdata->work,
+> +			 msecs_to_jiffies(bdata->software_debounce));
+>  
+>  	return IRQ_HANDLED;
+>  }
+> @@ -408,7 +407,7 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+>  		input_event(input, EV_KEY, button->code, 1);
+>  		input_sync(input);
+>  
+> -		if (!bdata->timer_debounce) {
+> +		if (!bdata->release_delay) {
+>  			input_event(input, EV_KEY, button->code, 0);
+>  			input_sync(input);
+>  			goto out;
+> @@ -417,9 +416,9 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+>  		bdata->key_pressed = true;
+>  	}
+>  
+> -	if (bdata->timer_debounce)
+> -		mod_timer(&bdata->timer,
+> -			jiffies + msecs_to_jiffies(bdata->timer_debounce));
+> +	if (bdata->release_delay)
+> +		mod_timer(&bdata->release_timer,
+> +			jiffies + msecs_to_jiffies(bdata->release_delay));
+>  out:
+>  	spin_unlock_irqrestore(&bdata->lock, flags);
+>  	return IRQ_HANDLED;
+> @@ -429,10 +428,10 @@ static void gpio_keys_quiesce_key(void *data)
+>  {
+>  	struct gpio_button_data *bdata = data;
+>  
+> -	if (bdata->timer_debounce)
+> -		del_timer_sync(&bdata->timer);
+> -
+> -	cancel_work_sync(&bdata->work);
+> +	if (gpio_is_valid(bdata->button->gpio))
+> +		cancel_delayed_work_sync(&bdata->work);
+> +	else
+> +		del_timer_sync(&bdata->release_timer);
+>  }
+>  
+>  static int gpio_keys_setup_key(struct platform_device *pdev,
+> @@ -466,7 +465,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  					button->debounce_interval * 1000);
+>  			/* use timer if gpiolib doesn't provide debounce */
+>  			if (error < 0)
+> -				bdata->timer_debounce =
+> +				bdata->software_debounce =
+>  						button->debounce_interval;
+>  		}
+>  
+> @@ -484,9 +483,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  			bdata->irq = irq;
+>  		}
+>  
+> -		INIT_WORK(&bdata->work, gpio_keys_gpio_work_func);
+> -		setup_timer(&bdata->timer,
+> -			    gpio_keys_gpio_timer, (unsigned long)bdata);
+> +		INIT_DELAYED_WORK(&bdata->work, gpio_keys_gpio_work_func);
+>  
+>  		isr = gpio_keys_gpio_isr;
+>  		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+> @@ -503,8 +500,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  			return -EINVAL;
+>  		}
+>  
+> -		bdata->timer_debounce = button->debounce_interval;
+> -		setup_timer(&bdata->timer,
+> +		bdata->release_delay = button->debounce_interval;
+> +		setup_timer(&bdata->release_timer,
+>  			    gpio_keys_irq_timer, (unsigned long)bdata);
+>  
+>  		isr = gpio_keys_irq_isr;
+> @@ -514,7 +511,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  	input_set_capability(input, button->type ?: EV_KEY, button->code);
+>  
+>  	/*
+> -	 * Install custom action to cancel debounce timer and
+> +	 * Install custom action to cancel release timer and
+>  	 * workqueue item.
+>  	 */
+>  	error = devm_add_action(&pdev->dev, gpio_keys_quiesce_key, bdata);
+> 
+
+
+-- 
+Andy Shevchenko <andriy.shevchenko@intel.com>
+Intel Finland Oy
+

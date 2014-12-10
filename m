@@ -1,40 +1,55 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 2/3] HID: wacom: Initialize MT slots for generic
- devices at post_parse_hid
-Date: Wed, 10 Dec 2014 10:49:16 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412101048110.6679@pobox.suse.cz>
-References: <1417815453-10618-1-git-send-email-killertofu@gmail.com> <CAN+gG=E5EfxzKgOBf9wAXrzwq=i8XKNk9d8oSWeQbVGVMojjJQ@mail.gmail.com> <alpine.LNX.2.00.1412090900120.14413@pobox.suse.cz>
- <CAN+gG=HuSs0Bpe7LaHZC6rqWTTaNQ_4_hrOMm+3Sv1Z80vB5nQ@mail.gmail.com>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device
+ firmware update function support
+Date: Wed, 10 Dec 2014 03:06:12 -0800
+Message-ID: <20141210110612.GA10836@hudson.localdomain>
+References: <1418116304-11392-1-git-send-email-dudley.dulixin@gmail.com>
+ <1418116304-11392-10-git-send-email-dudley.dulixin@gmail.com>
+ <20141210033303.GA4173@hudson.localdomain>
+ <20141210085455.GA7174@hudson.localdomain>
+ <BN1PR06MB0708DF8CE49D491D55E4F00D1620@BN1PR06MB070.namprd06.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36700 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753390AbaLJJsw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Dec 2014 04:48:52 -0500
-In-Reply-To: <CAN+gG=HuSs0Bpe7LaHZC6rqWTTaNQ_4_hrOMm+3Sv1Z80vB5nQ@mail.gmail.com>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:38182 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752551AbaLJLGR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Dec 2014 06:06:17 -0500
+Content-Disposition: inline
+In-Reply-To: <BN1PR06MB0708DF8CE49D491D55E4F00D1620@BN1PR06MB070.namprd06.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
+To: Dudley Du <dudl@cypress.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, 9 Dec 2014, Benjamin Tissoires wrote:
+Dudley,
 
-> Well, I wanted to make some cosmetic changes in 3/3 and double check 
-> that it was generic enough, but I've been sidetracked, and today I have 
-> to keep my sick daughter. Please apply my rev-by on this one only. Feel 
-> free to apply 3/3 however - if you can dedicate a little bit of time to 
-> check it - (without my rev-by then), it's not that it will prevent us to 
-> change it later if we have to.
+On Wed, Dec 10, 2014 at 09:19:19AM +0000, Dudley Du wrote:
+> Jeremiah,
+> 
+> Thank you very much for the solution. I will aplly it to my local patches immediately.
+> 
+> Do you think it is required to re-submit the patch set right now?
+> 
 
-Alright, thanks. I am now applying 2/3. If I have time to review 3/3 today 
-or tomorrow (not guaranteed), I might be applying it for this merge window 
-as well.
+I think you could if you want to or you could wait to see if any others
+provide more feedback.  It is up to you.
 
-Otherwise it'll be processed in the next cycle.
-
-Thanks,
+> Thanks,
+> Dudley
+> 
+> > -----Original Message-----
+> > From: linux-input-owner@vger.kernel.org
+> > [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Jeremiah Mahler
+> > Sent: 2014?12?10? 16:55
+> > To: Dudley Du
+> > Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org
+> > Subject: Re: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device firmware
+> > update function support
+> >
+> > Dudley,
+[...]
 
 -- 
-Jiri Kosina
-SUSE Labs
+- Jeremiah Mahler

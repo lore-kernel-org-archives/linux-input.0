@@ -1,270 +1,148 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 3/3] HID: wacom: Report input events for each finger on
- generic devices
-Date: Wed, 10 Dec 2014 15:25:52 -0500
-Message-ID: <CAN+gG=Et-WHZcgLT2GRRJ8GKDt3E6D1yEwezotrJ=Bzd+dhMdg@mail.gmail.com>
-References: <1417815453-10618-1-git-send-email-killertofu@gmail.com>
-	<1417815453-10618-2-git-send-email-killertofu@gmail.com>
+Subject: Re: [PATCH v2] HID: rmi: Scan the report descriptor to determine if
+ the device is suitable for the hid-rmi driver
+Date: Wed, 10 Dec 2014 15:42:22 -0500
+Message-ID: <CAN+gG=GLcmMFxpScE4h6mrEruNTOFXhJE9xRB16fXds1du3A5A@mail.gmail.com>
+References: <1416872246-9632-1-git-send-email-aduggan@synaptics.com>
+	<54863F72.1060401@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:53501 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933208AbaLJUZx (ORCPT
+Received: from mail-qa0-f43.google.com ([209.85.216.43]:45190 "EHLO
+	mail-qa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932116AbaLJUmX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Dec 2014 15:25:53 -0500
-Received: by mail-qg0-f54.google.com with SMTP id l89so2768113qgf.27
-        for <linux-input@vger.kernel.org>; Wed, 10 Dec 2014 12:25:52 -0800 (PST)
-In-Reply-To: <1417815453-10618-2-git-send-email-killertofu@gmail.com>
+	Wed, 10 Dec 2014 15:42:23 -0500
+In-Reply-To: <54863F72.1060401@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Fri, Dec 5, 2014 at 4:37 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> The existing generic touch code only reports events after reading an
-> entire HID report, which practically means that only data about the last
-> contact in a report will ever be provided to userspace. This patch uses
-> a trick from hid-multitouch.c to discover what type of field is at the
-> end of each contact; when such a field is encountered all the stored
-> contact data will be reported.
+Hi Andrew,
+
+On Mon, Dec 8, 2014 at 7:16 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
+> On 11/24/2014 03:37 PM, Andrew Duggan wrote:
+>>
+>> On composite HID devices there may be multiple HID devices on separate
+>> interfaces, but hid-rmi
+>> should only bind to the touchpad. The previous version simply checked that
+>> the interface protocol
+>> was set to mouse. Unfortuately, it is not always the case that the
+>> touchpad has the mouse interface
+>> protocol set. This patch takes a different approach and scans the report
+>> descriptor looking for
+>> the Generic Desktop Pointer usage and the Vendor Specific Top Level
+>> Collection needed by the
+>> hid-rmi driver to interface with the device.
+>>
+>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+>> ---
+>> This is a second attempt at the patch I submitted back in October. Instead
+>> of looking for specific
+>> HID reports this patch looks for the Generic Desktop Pointer usage. Having
+>> that usage along with
+>> the vendor specific collection seems to be a distinctive enough to id the
+>> Synaptics touchpad in
+>> the composite USB device.
 >
-> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
-> ---
+> Any comments on this patch?
 
-Thanks for the v2 Jason.
+Sorry for the lag on this one.
 
-I think we are closes to it. I have some comments on the style, but
-now that I have read it more carefully, I have a better idea of it,
-and the patch is not so scary.
+>
+> Thanks,
+> Andrew
+>
+>>   drivers/hid/hid-core.c | 21 ++++++++++++++++-----
+>>   include/linux/hid.h    |  4 +++-
+>>   2 files changed, 19 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 12b6e67..ba9dc59 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -698,10 +698,20 @@ static void hid_scan_feature_usage(struct hid_parser
+>> *parser, u32 usage)
+>>   static void hid_scan_collection(struct hid_parser *parser, unsigned
+>> type)
+>>   {
+>>         struct hid_device *hid = parser->device;
+>> +       int i;
+>>         if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
+>>             type == HID_COLLECTION_PHYSICAL)
+>>                 hid->group = HID_GROUP_SENSOR_HUB;
+>> +
+>> +       if ((parser->global.usage_page << 16) == HID_UP_GENDESK)
+>> +               for (i = 0; i < parser->local.usage_index; i++)
+>> +                       if (parser->local.usage[i] == HID_GD_POINTER)
+>> +                               parser->scan_flags
+>> +                                       |= HID_SCAN_FLAG_GENDESK_POINTER;
 
-Jiri. If you reviewed it and took it, that's fine. If not, then I
-think there is still room for improvements.
+Change GENDESK into GD (or remove it) and the line will fit on 80 chars :)
+
+>> +
+>> +       if ((parser->global.usage_page << 16) == HID_UP_MSVENDOR)
+>> +               parser->scan_flags |= HID_SCAN_FLAG_VENDOR_SPECIFIC;
+
+This, I don't completely like it.
+
+We should have "if ((parser->global.usage_page << 16) >=
+HID_UP_MSVENDOR)". The HUT 1.12 specifies that usage pages between
+0xff00 and 0xffff are vendor specific. So if we want to put a flag on
+it, then using ">="is more appropriate.
+
+Side note, we should really rename this #define HID_UP_MSVENDOR, this
+has nothing to do with Microsoft.
+
+>>   }
+>>     static int hid_scan_main(struct hid_parser *parser, struct hid_item
+>> *item)
+>> @@ -783,11 +793,12 @@ static int hid_scan_report(struct hid_device *hid)
+>>         * Vendor specific handlings
+>>         */
+>>         if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
+>> -           (hid->group == HID_GROUP_GENERIC) &&
+>> -           /* only bind to the mouse interface of composite USB devices
+>> */
+>> -           (hid->bus != BUS_USB || hid->type == HID_TYPE_USBMOUSE))
+>> -               /* hid-rmi should take care of them, not hid-generic */
+>> -               hid->group = HID_GROUP_RMI;
+>> +           (hid->group == HID_GROUP_GENERIC)) {
+>> +               if ((parser->scan_flags & HID_SCAN_FLAG_VENDOR_SPECIFIC)
+>> +                   && (parser->scan_flags &
+>> HID_SCAN_FLAG_GENDESK_POINTER))
+>> +                       /* hid-rmi should take care of them, not
+>> hid-generic */
+>> +                       hid->group = HID_GROUP_RMI;
+>> +       }
+
+I prefer it. The differentiation is done at the report descriptor
+level, it's better for me.
+
+>>         /*
+>>          * Vendor specific handlings
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index f53c4a9..b019f15 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -547,7 +547,9 @@ static inline void hid_set_drvdata(struct hid_device
+>> *hdev, void *data)
+>>   #define HID_GLOBAL_STACK_SIZE 4
+>>   #define HID_COLLECTION_STACK_SIZE 4
+>>   -#define HID_SCAN_FLAG_MT_WIN_8                       0x00000001
+>> +#define HID_SCAN_FLAG_MT_WIN_8                 BIT(0)
+>> +#define HID_SCAN_FLAG_VENDOR_SPECIFIC          BIT(1)
+>> +#define HID_SCAN_FLAG_GENDESK_POINTER          BIT(2)
+>>     struct hid_parser {
+>>         struct hid_global     global;
+>
+>
+
+With the minors comments I expressed, this patch is:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Thanks Andrew!
 
 Cheers,
 Benjamin
-
-> Changes from v1:
->  * Patch renamed from "HID: wacom: Report input events immediately upon receipt"
->  * Instead of reporting on-reciept, events are bundled and sent at the end of each contact
->  * Adds code to discover 'last_slot_field' based on hid-multitouch.c implementation
->
->  drivers/hid/wacom_wac.c | 94 ++++++++++++++++++++++++++++++++-----------------
->  drivers/hid/wacom_wac.h |  1 +
->  2 files changed, 63 insertions(+), 32 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index c33f889..75fc16e 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1381,35 +1381,68 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->  {
->         struct wacom *wacom = hid_get_drvdata(hdev);
->         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-> -       unsigned touch_max = wacom_wac->features.touch_max;
-
-not sure we really need to remove the temporary variable touch_max here.
-
-> +       struct wacom_features *features = &wacom_wac->features;
->
->         switch (usage->hid) {
->         case HID_GD_X:
-> -               if (touch_max == 1)
-> +               features->last_slot_field = usage->hid;
-> +               if (features->touch_max == 1)
-
-these changes (touchmax => features->touch_max) hinder a little bit
-the actual change, that is worrisome :)
-
->                         wacom_map_usage(wacom, usage, field, EV_ABS, ABS_X, 4);
->                 else
->                         wacom_map_usage(wacom, usage, field, EV_ABS,
->                                         ABS_MT_POSITION_X, 4);
->                 break;
->         case HID_GD_Y:
-> -               if (touch_max == 1)
-> +               features->last_slot_field = usage->hid;
-> +               if (features->touch_max == 1)
->                         wacom_map_usage(wacom, usage, field, EV_ABS, ABS_Y, 4);
->                 else
->                         wacom_map_usage(wacom, usage, field, EV_ABS,
->                                         ABS_MT_POSITION_Y, 4);
->                 break;
->         case HID_DG_CONTACTID:
-> +               features->last_slot_field = usage->hid;
->                 break;
->         case HID_DG_INRANGE:
-> +               features->last_slot_field = usage->hid;
->                 break;
->         case HID_DG_INVERT:
-> +               features->last_slot_field = usage->hid;
->                 break;
->         case HID_DG_TIPSWITCH:
-> +               features->last_slot_field = usage->hid;
->                 wacom_map_usage(wacom, usage, field, EV_KEY, BTN_TOUCH, 0);
->                 break;
->         }
->  }
->
-> +static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
-> +               struct input_dev *input)
-> +{
-> +       struct hid_data *hid_data = &wacom_wac->hid_data;
-> +       bool mt = wacom_wac->features.touch_max > 1;
-> +       bool prox = hid_data->tipswitch &&
-> +                   !wacom_wac->shared->stylus_in_proximity;
-> +
-> +       if (mt) {
-
-Personal taste. I don't like the "if (mt)" approach in this patch. I
-preferred the old approach:
-if (mt)
-    wacom_wac_finger_mt_slot()
-else
-    wacom_wac_finger_touch()
-
-i.e. one function per case.
-
-> +               int slot;
-> +
-> +               slot = input_mt_get_slot_by_key(input, hid_data->id);
-> +               input_mt_slot(input, slot);
-> +               input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
-> +       }
-> +       else {
-> +               input_report_key(input, BTN_TOUCH, prox);
-> +       }
-> +
-> +       if (prox) {
-> +               input_report_abs(input, mt ? ABS_MT_POSITION_X : ABS_X,
-> +                                hid_data->x);
-> +               input_report_abs(input, mt ? ABS_MT_POSITION_Y : ABS_Y,
-> +                                hid_data->y);
-> +       }
-> +}
-> +
->  static int wacom_wac_finger_event(struct hid_device *hdev,
->                 struct hid_field *field, struct hid_usage *usage, __s32 value)
->  {
-> @@ -1432,36 +1465,35 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
->         }
->
->
-> +       if (usage->usage_index + 1 == field->report_count) {
-> +               if (usage->hid == wacom_wac->features.last_slot_field)
-
-OK, I think it would be fair to assume that the FW guys will send N
-full touches by report. IIRC, I had the case where sometimes they add
-some random axis in the end (like X or Y), just to make me cry :)
-should be good here though (and we can have access to the FW guys if
-they do something too much funny :-P )
-
-> +                       wacom_wac_finger_slot(wacom_wac, wacom_wac->input);
-> +       }
-> +
->         return 0;
->  }
->
-> -static void wacom_wac_finger_mt_report(struct wacom_wac *wacom_wac,
-> -               struct input_dev *input, bool touch)
-> +static int wacom_wac_finger_touches(struct hid_device *hdev)
-
-It took me a while to understand what this function was. It simply
-returns the number of touches that has been recorded in the report (I
-was mislead by the git diff I think).
-We should rename this in something else
-(wacom_wac_finger_get_touches_count or something better - I am bad at
-naming things).
-
-Second question, why the need to return the touch count?
-
->  {
-> -       int slot;
-> -       struct hid_data *hid_data = &wacom_wac->hid_data;
-> +       struct wacom *wacom = hid_get_drvdata(hdev);
-> +       struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-> +       struct input_dev *input = wacom_wac->input;
-> +       unsigned touch_max = wacom_wac->features.touch_max;
-> +       int count = 0;
-> +       int i;
->
-> -       slot = input_mt_get_slot_by_key(input, hid_data->id);
-> +       if (touch_max == 1)
-> +               return wacom_wac->hid_data.tipswitch &&
-> +                      !wacom_wac->shared->stylus_in_proximity;
->
-> -       input_mt_slot(input, slot);
-> -       input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
-> -       if (touch) {
-> -               input_report_abs(input, ABS_MT_POSITION_X, hid_data->x);
-> -               input_report_abs(input, ABS_MT_POSITION_Y, hid_data->y);
-> +       for (i = 0; i < input->mt->num_slots; i++) {
-> +               struct input_mt_slot *ps = &input->mt->slots[i];
-> +               int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-> +               if (id >= 0)
-> +                       count++;
->         }
-> -       input_mt_sync_frame(input);
-> -}
-> -
-> -static void wacom_wac_finger_single_touch_report(struct wacom_wac *wacom_wac,
-> -               struct input_dev *input, bool touch)
-> -{
-> -       struct hid_data *hid_data = &wacom_wac->hid_data;
->
-> -       if (touch) {
-> -               input_report_abs(input, ABS_X, hid_data->x);
-> -               input_report_abs(input, ABS_Y, hid_data->y);
-> -       }
-> -       input_report_key(input, BTN_TOUCH, touch);
-> +       return count;
->  }
->
->  static void wacom_wac_finger_report(struct hid_device *hdev,
-> @@ -1470,18 +1502,16 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
->         struct wacom *wacom = hid_get_drvdata(hdev);
->         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
->         struct input_dev *input = wacom_wac->input;
-> -       bool touch = wacom_wac->hid_data.tipswitch &&
-> -                    !wacom_wac->shared->stylus_in_proximity;
-> -       unsigned touch_max = wacom_wac->features.touch_max;
->
-> -       if (touch_max > 1)
-> -               wacom_wac_finger_mt_report(wacom_wac, input, touch);
-> +       if (wacom_wac->features.touch_max > 1)
-
-I think removing the touch_max variable hides a little bit the changes too.
-
-> +               input_mt_sync_frame(input);
->         else
-> -               wacom_wac_finger_single_touch_report(wacom_wac, input, touch);
-> +               wacom_wac_finger_slot(wacom_wac, input);
-
-Not sure there is a need to call wacom_wac_finger_slot() for single
-touch devices. Your current implementation in wacom_finger_event
-should match also single finger tablets.
-
-> +
->         input_sync(input);
->
->         /* keep touch state for pen event */
-> -       wacom_wac->shared->touch_down = touch;
-> +       wacom_wac->shared->touch_down = wacom_wac_finger_touches(hdev);
->  }
->
->  #define WACOM_PEN_FIELD(f)     (((f)->logical == HID_DG_STYLUS) || \
-> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-> index 128cbb3..6e256206 100644
-> --- a/drivers/hid/wacom_wac.h
-> +++ b/drivers/hid/wacom_wac.h
-> @@ -144,6 +144,7 @@ struct wacom_features {
->         int pktlen;
->         bool check_for_hid_type;
->         int hid_type;
-> +       int last_slot_field;
->  };
->
->  struct wacom_shared {
-> --
-> 2.1.3
->

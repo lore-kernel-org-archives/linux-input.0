@@ -1,55 +1,69 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device
- firmware update function support
-Date: Wed, 10 Dec 2014 03:06:12 -0800
-Message-ID: <20141210110612.GA10836@hudson.localdomain>
-References: <1418116304-11392-1-git-send-email-dudley.dulixin@gmail.com>
- <1418116304-11392-10-git-send-email-dudley.dulixin@gmail.com>
- <20141210033303.GA4173@hudson.localdomain>
- <20141210085455.GA7174@hudson.localdomain>
- <BN1PR06MB0708DF8CE49D491D55E4F00D1620@BN1PR06MB070.namprd06.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: anshul.g@samsung.com
+Subject: [PATCH] Input:Optimize events_per_packet count calculation
+Date: Wed, 10 Dec 2014 16:40:50 +0530
+Message-ID: <1418209850-4167-1-git-send-email-anshul.g@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:38182 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752551AbaLJLGR (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:33682 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751278AbaLJLLY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Dec 2014 06:06:17 -0500
-Content-Disposition: inline
-In-Reply-To: <BN1PR06MB0708DF8CE49D491D55E4F00D1620@BN1PR06MB070.namprd06.prod.outlook.com>
+	Wed, 10 Dec 2014 06:11:24 -0500
+Received: from epcpsbgm1.samsung.com (epcpsbgm1 [203.254.230.26])
+ by mailout4.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0NGD00LQW5QYRK30@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 10 Dec 2014 20:11:22 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-Dudley,
+From: Anshul Garg <anshul.g@samsung.com>
 
-On Wed, Dec 10, 2014 at 09:19:19AM +0000, Dudley Du wrote:
-> Jeremiah,
-> 
-> Thank you very much for the solution. I will aplly it to my local patches immediately.
-> 
-> Do you think it is required to re-submit the patch set right now?
-> 
+This patch avoids unnecessary operations while estimating events per
+packet for an input device when event type is not set.
 
-I think you could if you want to or you could wait to see if any others
-provide more feedback.  It is up to you.
+Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+---
+ drivers/input/input.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-> Thanks,
-> Dudley
-> 
-> > -----Original Message-----
-> > From: linux-input-owner@vger.kernel.org
-> > [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Jeremiah Mahler
-> > Sent: 2014?12?10? 16:55
-> > To: Dudley Du
-> > Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org
-> > Subject: Re: [PATCH v13 09/12] input: cyapa: add gen5 trackpad device firmware
-> > update function support
-> >
-> > Dudley,
-[...]
-
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 29ca0bb..8172296 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1973,18 +1973,22 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
+ 
+ 	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
+ 
+-	for (i = 0; i < ABS_CNT; i++) {
+-		if (test_bit(i, dev->absbit)) {
+-			if (input_is_mt_axis(i))
+-				events += mt_slots;
+-			else
+-				events++;
++	if (test_bit(EV_ABS, dev->evit)) {
++		for (i = 0; i < ABS_CNT; i++) {
++			if (test_bit(i, dev->absbit)) {
++				if (input_is_mt_axis(i))
++					events += mt_slots;
++				else
++					events++;
++			}
+ 		}
+ 	}
+ 
+-	for (i = 0; i < REL_CNT; i++)
+-		if (test_bit(i, dev->relbit))
+-			events++;
++	if (test_bit(EV_REL, dev->evit)) {
++		for (i = 0; i < REL_CNT; i++)
++			if (test_bit(i, dev->relbit))
++				events++;
++	}
+ 
+ 	/* Make room for KEY and MSC events */
+ 	events += 7;
 -- 
-- Jeremiah Mahler
+1.7.9.5
+

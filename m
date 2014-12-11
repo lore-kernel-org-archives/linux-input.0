@@ -1,173 +1,59 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH 2/2] HID: logitech-hidpp: prefix the name with Logitech
-Date: Thu, 11 Dec 2014 14:24:34 +0100
-Message-ID: <2407359.LsiQoHNGbj@al>
-References: <1418250070-28604-1-git-send-email-benjamin.tissoires@redhat.com> <1511661.CjWHljXQbp@al> <20141210231739.GD4861@mail.corp.redhat.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: NULL pointer dereference in i2c-hid
+Date: Thu, 11 Dec 2014 16:03:07 +0200
+Message-ID: <20141211140307.GE1300@lahna.fi.intel.com>
+References: <31518562.V5Oyo0POsI@xps13>
+ <20141211085801.GR1300@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:54892 "EHLO lekensteyn.nl"
+Received: from mga11.intel.com ([192.55.52.93]:35304 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753179AbaLKNYt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 08:24:49 -0500
-In-Reply-To: <20141210231739.GD4861@mail.corp.redhat.com>
+	id S932802AbaLKOD0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2014 09:03:26 -0500
+Content-Disposition: inline
+In-Reply-To: <20141211085801.GR1300@lahna.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, aduggan@synaptics.com, jkosina@suse.cz
 
-On Wednesday 10 December 2014 18:17:40 Benjamin Tissoires wrote:
-> On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> > On Wednesday 10 December 2014 17:21:10 Benjamin Tissoires wrote:
-> > > Current names are reported as "K750", "M705", and it can be misleading
-> > > for the users when they look at their input device list.
-> > > 
-> > > Prefixing the names with "Logitech " makes things better.
-> > 
-> > Doesn't this apply to all input devices? Like, every USB device can be
-> > queried for the manufacturer which could then by included by the input
-> > subsystem.
+On Thu, Dec 11, 2014 at 10:58:01AM +0200, Mika Westerberg wrote:
+> On Wed, Dec 10, 2014 at 06:04:51PM +0100, Gabriele Mazzotta wrote:
+> > my laptop uses a touchpad that needs hid-rmi along with i2c-hid to work.
+> > i2c-hid and hid-rmi can be loaded and unloaded independelty from each
+> > other, however since 34f439e4afcd ("HID: i2c-hid: add runtime PM support")
+> > if I unload hid-rmi and after it I also unload i2c-hid, I get a NULL
+> > pointer dereference.
 > 
-> Yes and no. Yes, it's good to have the manufacturer name in the input
-> subsystem, and no, because usbhid already prepend the name with the
-> manufacturer.
-
-I see, previously (and now, if the device name cannot be retrieved
-because one unplugs the receiver during probe which I have actually
-tested) a string such as "Logitech Unifying Device. Wireless PID:XXX"
-shows up. Now the only string visible is "M512".
-
-Speaking of errors retrieving the name, if a device is turned off then
-the name cannot be queried using HID++ 2.0 (think of "T650" instead of
-"Wireless Rechargeable Touchpad T650"). Wouldn't this confuse userspace
-applications which rely on a constant name?
-
-> > 
-> > What about duplicate names? Can this patch cause a conflict with devices
-> > having the same name?
+> I'll look into this.
 > 
-> I am not sure what you mean here. I am adding a prefix to the name, so I
-> do not see how a conflict can be possible. If there were a "M705" and a
-> "Logitech M705", with different wireless PID, that would be worrisome to
-> some extend.
-> But I am pretty sure this will not happen.
+> I can reproduce this easily with i2c-hid + hid-multitouch following your
+> directions.
 
-I thought that this name would be used for /dev/bus/hid/devices/XXX and
-therefore had to be unique, but this is not the case (the name is
-available under the input device). No worries then!
+Can you try the below patch? 
 
-> > 
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > ---
-> > > 
-> > > Hi Jiri,
-> > > 
-> > > I'd love to see this one in 3.19 (after a strong review, of course).
-> > > The idea came with the mouse DPI database that Peter is currently working on
-> > > (see http://who-t.blogspot.com.au/2014/12/building-a-dpi-database-for-mice.html).
-> > > 
-> > > I think, if you do not qualify the series for 3.19, we should drop it entirely.
-> > > 3.19 introduces the hidpp module and changes the labels. The DPI hwdb will check
-> > > on the label to match the actual mouse, so if this one does not get into 3.19,
-> > > we will end up in 3 entries for each Logitech device.
-> > > 
-> > > Cheers,
-> > > Benjamin
-> > > 
-> > > 
-> > >  drivers/hid/hid-logitech-hidpp.c | 34 ++++++++++++++++++++++++++++++++++
-> > >  1 file changed, 34 insertions(+)
-> > > 
-> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > > index 3846305..8cf4352 100644
-> > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > @@ -282,6 +282,33 @@ static inline bool hidpp_report_is_connect_event(struct hidpp_report *report)
-> > >  		(report->rap.sub_id == 0x41);
-> > >  }
-> > >  
-> > > +/**
-> > > + * hidpp_prefix_name() prefixes the current given name with "Logitech ".
-> > > + */
-> > > +static void hidpp_prefix_name(char **name, int name_length)
-> > > +{
-> > > +#define PREFIX_SIZE 9 /* "Logitech " */
-> > > +
-> > > +	int new_length;
-> > > +	char *new_name;
-> > > +
-> > > +	if (name_length > PREFIX_SIZE &&
-> > > +	    strncmp(*name, "Logitech ", PREFIX_SIZE) == 0)
-> > 
-> > I think you meant || here, not &&.
-> 
-> No, I meant &&. The idea is to not add a prefix if the provided name
-> already contains the prefix. Read that as "if the size of the name may
-> contain the prefix and that the prefix is here, then we bail out".
+I think we shouldn't free buffers yet in ->stop() because we need the
+command buffer sending power commands to the device. Also it seems that
+->start() re-allocates buffers anyway if maximum size increases.
 
-Ah, I somehow read it as "if the name is longer than what can be
-stored".
+It shouldn't even leak memory as we release buffers at ->remove()
+anyway.
 
-> > 
-> > > +		/* The prefix has is already in the name */
-> > > +		return;
-> > > +
-> > > +	new_length = name_length + PREFIX_SIZE;
-> > 
-> > Stylistic note, but 'PREFIX_SIZE + name_length' would match the order of
-> > the string that gets prepended.
-> 
-> Works for me.
-> 
-> I will send a v2 with your comments addressed.
-
-Thanks!
-
-Kind regards,
-Peter
-
-> Cheers,
-> Benjamin
-> 
-> > 
-> > Kind regards,
-> > Peter
-> > 
-> > > +	new_name = kzalloc(new_length, GFP_KERNEL);
-> > > +	if (!new_name)
-> > > +		return;
-> > > +
-> > > +	snprintf(new_name, new_length, "Logitech %s", *name);
-> > > +
-> > > +	kfree(*name);
-> > > +
-> > > +	*name = new_name;
-> > > +}
-> > > +
-> > >  /* -------------------------------------------------------------------------- */
-> > >  /* HIDP++ 1.0 commands                                                        */
-> > >  /* -------------------------------------------------------------------------- */
-> > > @@ -318,6 +345,10 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
-> > >  		return NULL;
-> > >  
-> > >  	memcpy(name, &response.rap.params[2], len);
-> > > +
-> > > +	/* include the terminating '\0' */
-> > > +	hidpp_prefix_name(&name, len + 1);
-> > > +
-> > >  	return name;
-> > >  }
-> > >  
-> > > @@ -489,6 +520,9 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp)
-> > >  			feature_index, index, name + index,
-> > >  			__name_length - index);
-> > >  
-> > > +	/* include the terminating '\0' */
-> > > +	hidpp_prefix_name(&name, __name_length + 1);
-> > > +
-> > >  	return name;
-> > >  
-> > >  out_err:
-> > > 
-
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 62cec01937ea..68a8c938feea 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -705,12 +705,7 @@ static int i2c_hid_start(struct hid_device *hid)
+ 
+ static void i2c_hid_stop(struct hid_device *hid)
+ {
+-	struct i2c_client *client = hid->driver_data;
+-	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-
+ 	hid->claimed = 0;
+-
+-	i2c_hid_free_buffers(ihid);
+ }
+ 
+ static int i2c_hid_open(struct hid_device *hid)

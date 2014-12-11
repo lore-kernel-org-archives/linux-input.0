@@ -1,36 +1,41 @@
-From: Andrew Duggan <aduggan@synaptics.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: NULL pointer dereference in i2c-hid
-Date: Thu, 11 Dec 2014 10:40:05 -0800
-Message-ID: <5489E505.3050903@synaptics.com>
-References: <31518562.V5Oyo0POsI@xps13> <20141211085801.GR1300@lahna.fi.intel.com> <20141211140307.GE1300@lahna.fi.intel.com> <2128690.c90ERDd9ZP@xps13>
+Date: Thu, 11 Dec 2014 13:41:57 -0500
+Message-ID: <CAN+gG=Fa5dPtfMSsU2MpqQJ6PWMTjN2izOfx2-ee-Shq21Hutw@mail.gmail.com>
+References: <31518562.V5Oyo0POsI@xps13>
+	<20141211085801.GR1300@lahna.fi.intel.com>
+	<20141211140307.GE1300@lahna.fi.intel.com>
+	<2128690.c90ERDd9ZP@xps13>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:45931 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750737AbaLKSla (ORCPT
+Received: from mail-qa0-f50.google.com ([209.85.216.50]:42985 "EHLO
+	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754966AbaLKSl7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 13:41:30 -0500
+	Thu, 11 Dec 2014 13:41:59 -0500
 In-Reply-To: <2128690.c90ERDd9ZP@xps13>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>
 
-On 12/11/2014 10:16 AM, Gabriele Mazzotta wrote:
+On Thu, Dec 11, 2014 at 1:16 PM, Gabriele Mazzotta
+<gabriele.mzt@gmail.com> wrote:
 > On Thursday 11 December 2014 16:03:07 Mika Westerberg wrote:
 >> On Thu, Dec 11, 2014 at 10:58:01AM +0200, Mika Westerberg wrote:
->>> On Wed, Dec 10, 2014 at 06:04:51PM +0100, Gabriele Mazzotta wrote:
->>>> my laptop uses a touchpad that needs hid-rmi along with i2c-hid to work.
->>>> i2c-hid and hid-rmi can be loaded and unloaded independelty from each
->>>> other, however since 34f439e4afcd ("HID: i2c-hid: add runtime PM support")
->>>> if I unload hid-rmi and after it I also unload i2c-hid, I get a NULL
->>>> pointer dereference.
->>> I'll look into this.
->>>
->>> I can reproduce this easily with i2c-hid + hid-multitouch following your
->>> directions.
+>> > On Wed, Dec 10, 2014 at 06:04:51PM +0100, Gabriele Mazzotta wrote:
+>> > > my laptop uses a touchpad that needs hid-rmi along with i2c-hid to work.
+>> > > i2c-hid and hid-rmi can be loaded and unloaded independelty from each
+>> > > other, however since 34f439e4afcd ("HID: i2c-hid: add runtime PM support")
+>> > > if I unload hid-rmi and after it I also unload i2c-hid, I get a NULL
+>> > > pointer dereference.
+>> >
+>> > I'll look into this.
+>> >
+>> > I can reproduce this easily with i2c-hid + hid-multitouch following your
+>> > directions.
+>>
 >> Can you try the below patch?
 >>
 >> I think we shouldn't free buffers yet in ->stop() because we need the
@@ -45,18 +50,25 @@ On 12/11/2014 10:16 AM, Gabriele Mazzotta wrote:
 >> --- a/drivers/hid/i2c-hid/i2c-hid.c
 >> +++ b/drivers/hid/i2c-hid/i2c-hid.c
 >> @@ -705,12 +705,7 @@ static int i2c_hid_start(struct hid_device *hid)
->>   
->>   static void i2c_hid_stop(struct hid_device *hid)
->>   {
->> -	struct i2c_client *client = hid->driver_data;
->> -	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>>
+>>  static void i2c_hid_stop(struct hid_device *hid)
+>>  {
+>> -     struct i2c_client *client = hid->driver_data;
+>> -     struct i2c_hid *ihid = i2c_get_clientdata(client);
 >> -
->>   	hid->claimed = 0;
+>>       hid->claimed = 0;
 >> -
->> -	i2c_hid_free_buffers(ihid);
->>   }
->>   
->>   static int i2c_hid_open(struct hid_device *hid)
+>> -     i2c_hid_free_buffers(ihid);
+>>  }
+>>
+>>  static int i2c_hid_open(struct hid_device *hid)
+
+Mika,
+
+you can add my Rev-by when submitting this patch to the mailing list.
+
+
+>
 > Yes, it works, thanks.
 >
 > This change seems to also prevent kernel ooops when I unload either
@@ -64,13 +76,15 @@ On 12/11/2014 10:16 AM, Gabriele Mazzotta wrote:
 > thing that is likely to happen because of the other bug I reported.
 >
 > Speaking of it, does any of you have any suggestion on how to debug it?
-I was able to reproduce the initial issue by unloading hid-rmi and 
-i2c-hid while holding my fingers on the touchpad. Mika's patch fixes it 
-for me.
 
-For the original bug, you can modprobe i2c-hid debug=1 and we can see 
-what data the touchpad is reporting. That might help narrowing down if 
-it's noise which the touchpad thinks are fingers or if there is a 
-problem with the I2C lines causing spurious interrupts.
+Hehe, I coincidentally just replied to your bug with one patch to try
+(that was proposed by the intel folks back in May[1]).
+The powertop problem is IMO really worrying because the purpose of
+i2c_hid was to reduce power consumption :)
 
-Andrew
+Anyway, thanks for the quick test.
+
+Cheers,
+Benjamin
+
+[1] https://patchwork.kernel.org/patch/4133771/

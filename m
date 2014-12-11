@@ -1,136 +1,117 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
-Date: Thu, 11 Dec 2014 09:36:28 -0800
-Message-ID: <CALCETrXcHKwBuOA0wpFzgSe8Z9+t8LyaB7U+vdgVsR=YZc+GjQ@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
- <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
- <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
- <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz> <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
- <CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
- <CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com> <CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
+From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Subject: Re: [PATCH 4/4] HID: logitech-hidpp: disable io in probe error path
+Date: Thu, 11 Dec 2014 09:37:06 -0800
+Message-ID: <CAG_cf+fx8Xk4t7fsGkb6bkFEPCXQg6rcAOk7arUD34B8QRShgQ@mail.gmail.com>
+References: <1418302280-14794-1-git-send-email-peter@lekensteyn.nl>
+ <1418302280-14794-5-git-send-email-peter@lekensteyn.nl> <20141211153118.GF29747@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f52.google.com ([209.85.215.52]:40549 "EHLO
-	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753617AbaLKRgu (ORCPT
+Received: from mail-yk0-f169.google.com ([209.85.160.169]:33467 "EHLO
+	mail-yk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750702AbaLKRh1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 12:36:50 -0500
-Received: by mail-la0-f52.google.com with SMTP id hs14so4629140lab.39
-        for <linux-input@vger.kernel.org>; Thu, 11 Dec 2014 09:36:48 -0800 (PST)
-In-Reply-To: <CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
+	Thu, 11 Dec 2014 12:37:27 -0500
+In-Reply-To: <20141211153118.GF29747@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Wu <peter@lekensteyn.nl>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Dec 11, 2014 at 12:49 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
+On Thu Dec 11 2014 at 7:31:43 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 >
-> On Wed, Dec 10, 2014 at 6:07 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->> On Tue, Dec 9, 2014 at 12:46 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>> On Mon, Nov 3, 2014 at 12:41 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>>> On Mon, Nov 3, 2014 at 12:21 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->>>>> On Mon, 3 Nov 2014, David Herrmann wrote:
->>>>>
->>>>>> > Agreed, mostly.  My only real concern is that this could be annoying
->>>>>> > for the userspace developers who will need to target Linux and HIDAPI
->>>>>> > separately.  Admittedly the Linux support will be trivial.
->>>>>>
->>>>>> I see. I'll not stop you from using hidraw, I'd just not recommend it.
->>>>>> Especially for security stuff I dislike exposing the whole HID device
->>>>>> writable. But yeah, I guess you got my point.
->>>>>
->>>>> Alright, I am basically thinking loudly now, but how about we allow HID
->>>>> drivers that would override default hidraw interface?
->>>>>
->>>>> I am very well aware of the fact that this could be opening a can of
->>>>> worms, so we'll have to make it very restrictive. How about, let's say, we
->>>>> allow HID drivers to provide custom hidraw interface (completely
->>>>> overriding the one that HID core would normally create) only for cases
->>>>> such as:
->>>>>
->>>>> - the intent is to expose only certain parts of a combined device
->>>>> - the intent is to introduce some level of access control
->>>>>
->>>>> I.e. still no interference of kernel with data parsing allowed.
->>>>
->>>> Hmm.  Would this be like a filter on hidraw actions?
->>>>
->>>> How would udev distinguish these special hidraw devices from normal
->>>> hidraw devices?
->>>>
->>>> Also, for U2F, this could be a little awkward.  There's some crazy
->>>> fragmentation stuff to allow a U2F request to be split across HID
->>>> requests, and I think a kernel driver would much rather get the
->>>> original unfragmented application request.
->>>>
->>>
->>> I started writing a driver for this.  I got enumeration working.  I
->>> assume I should create a "u2f" device class, and then... ?
->>>
->>> Where am I supposed to get my character device from?  Do I register my
->>> own chrdev major?  Do I use misc?  Is there some input thing I'm
->>> supposed to use?
->>
->> Another question:
->>
->> I'm hitting this in hid_input_report:
->>
->>     if (down_trylock(&hid->driver_input_lock)) {
->>         pr_err("HID: trylock failed\n");  // I added this
->>         return -EBUSY;
->>     }
->>
->> This is a problem for u2f: u2f reports are actual protocol messages,
->> and there isn't a retransmit mechanism.  Losing messages randomly
->> causes the handshake to fail, and then nothing works.
->>
->> I *think* that the only way I can hit that failure is during probe (or
->> if the USB stack somehow completes two transfers at once). This still
->> makes it quite awkward to start IO from the probe routine.
->>
->> I could start a work item to take driver_input_lock, release it again,
->> and then start the handshake, but that sucks.
+> On Dec 11 2014 or thereabouts, Peter Wu wrote:
+> > Balance a hid_device_io_start() call with hid_device_io_stop() in the
+> > error path. This avoids processing of HID reports when the probe fails
+> > which possibly leads to invalid memory access in hid_device_probe() as
+> > report_enum->report_id_hash might already be freed via
+> > hid_close_report().
 >
-> HID reports are ordered. It's the responsibility of the
-> transport-layer to not provide multiple reports in parallel. The
-> reason we have this down_trylock() is to drop packages if no driver is
-> loaded, yet. I wonder how you can trigger this? Does this happen
-> during runtime or only driver load? Do you send GET_REPORT requests to
-> the device?
-
-It happens during driver probe.  I don't set GET_REPORT to my device
--- the protocol consists solely of SET_REPORT from the driver followed
-by an asynchronous (but generally reasonably quick) report back from
-the device.
-
-During probe, I set INIT, and the device responds by saying "I'm a
-device.  I speak this version of the protocol.
-
-Shouldn't that code be more like:
-
-mutex_lock(whatever);
-if (driver loaded)
-  deliver the report;
-mutex_unlock(whatever);
-
-and then the core could hold the lock briefly as well when probing or
-in hid_hw_open/hid_hw_close.
-
-(Also, shouldn't hid_hw_open have some kind of reference counting to
-avoid interference between hidraw and real drivers?  Or does that
-already work correctly somehow?)
-
---Andy
-
+> Well spotted too!
 >
-> Thanks
-> David
+> >
+> > hid_set_drvdata() is called before wtp_allocate, be consistent and clear
+> > drvdata too on the error path of wtp_allocate.
+>
+> This is not strictly speaking required. We will have a dangling value in
+> hdev->private_data, but this should be overwritten before the next use.
+>
+> Anyway, it makes sense to clean up after a failure, so the patch is
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> Cheers,
+> Benjamin
+>
+> >
+> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> > ---
+> > Hi Andrew,
+> >
+> > There are few users of hid_device_io_start/stop, this is the first one
+> > to get start/stop out of sync. Should the comment of
+> > hid_device_io_start() be updated to ensure that hid_device_io_stop()
+> > gets called before probe() returns? Or should the hid-core be changed to
+> > handle this out-of-sync issue:
 
+I do not have a strong opinion on this, and will defer to others. The
+reason I needed to communicate during probe() was to have the driver
+probe the actual device for details. In this use case, I would be okay
+to disable IO at the end of probe() and have it become reenabled via
+the normal (default) methods.
 
+-andrew
 
--- 
-Andy Lutomirski
-AMA Capital Management, LLC
+> >
+> >               if (ret) {
+> >                       if (hdev->io_started))
+> >                               down(&hdev->driver_input_lock);
+> >                       hid_close_report(hdev);
+> >                       hdev->driver = NULL;
+> >               }
+> >
+> > Is my observation correct or not that HID reports can arrive during
+> > hid_close_report() when io_started == true?
+> >
+> > Kind regards,
+> > Peter
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 4292cc3..2f420c0 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -1121,7 +1121,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >       if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
+> >               ret = wtp_allocate(hdev, id);
+> >               if (ret)
+> > -                     return ret;
+> > +                     goto wtp_allocate_fail;
+> >       }
+> >
+> >       INIT_WORK(&hidpp->work, delayed_work_cb);
+> > @@ -1141,6 +1141,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >       if (id->group != HID_GROUP_LOGITECH_DJ_DEVICE) {
+> >               if (!connected) {
+> >                       hid_err(hdev, "Device not connected");
+> > +                     hid_device_io_stop(hdev);
+> >                       goto hid_parse_fail;
+> >               }
+> >
+> > @@ -1186,6 +1187,7 @@ hid_hw_start_fail:
+> >  hid_parse_fail:
+> >       cancel_work_sync(&hidpp->work);
+> >       mutex_destroy(&hidpp->send_mutex);
+> > +wtp_allocate_fail:
+> >       hid_set_drvdata(hdev, NULL);
+> >       return ret;
+> >  }
+> > --
+> > 2.1.3
+> >
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

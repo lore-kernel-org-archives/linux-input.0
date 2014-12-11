@@ -1,201 +1,136 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: logitech-hidpp: prefix the name with Logitech
-Date: Thu, 11 Dec 2014 10:50:11 -0500
-Message-ID: <20141211155011.GG29747@mail.corp.redhat.com>
-References: <1418250070-28604-1-git-send-email-benjamin.tissoires@redhat.com>
- <1511661.CjWHljXQbp@al>
- <20141210231739.GD4861@mail.corp.redhat.com>
- <2407359.LsiQoHNGbj@al>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
+Date: Thu, 11 Dec 2014 09:36:28 -0800
+Message-ID: <CALCETrXcHKwBuOA0wpFzgSe8Z9+t8LyaB7U+vdgVsR=YZc+GjQ@mail.gmail.com>
+References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
+ <CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
+ <CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
+ <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
+ <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz> <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
+ <CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
+ <CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com> <CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58814 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932909AbaLKPu3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 10:50:29 -0500
-Content-Disposition: inline
-In-Reply-To: <2407359.LsiQoHNGbj@al>
+Received: from mail-la0-f52.google.com ([209.85.215.52]:40549 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753617AbaLKRgu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2014 12:36:50 -0500
+Received: by mail-la0-f52.google.com with SMTP id hs14so4629140lab.39
+        for <linux-input@vger.kernel.org>; Thu, 11 Dec 2014 09:36:48 -0800 (PST)
+In-Reply-To: <CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> On Wednesday 10 December 2014 18:17:40 Benjamin Tissoires wrote:
-> > On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> > > On Wednesday 10 December 2014 17:21:10 Benjamin Tissoires wrote:
-> > > > Current names are reported as "K750", "M705", and it can be misleading
-> > > > for the users when they look at their input device list.
-> > > > 
-> > > > Prefixing the names with "Logitech " makes things better.
-> > > 
-> > > Doesn't this apply to all input devices? Like, every USB device can be
-> > > queried for the manufacturer which could then by included by the input
-> > > subsystem.
-> > 
-> > Yes and no. Yes, it's good to have the manufacturer name in the input
-> > subsystem, and no, because usbhid already prepend the name with the
-> > manufacturer.
-> 
-> I see, previously (and now, if the device name cannot be retrieved
-> because one unplugs the receiver during probe which I have actually
-> tested) a string such as "Logitech Unifying Device. Wireless PID:XXX"
-> shows up. Now the only string visible is "M512".
+On Thu, Dec 11, 2014 at 12:49 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Wed, Dec 10, 2014 at 6:07 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+>> On Tue, Dec 9, 2014 at 12:46 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+>>> On Mon, Nov 3, 2014 at 12:41 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+>>>> On Mon, Nov 3, 2014 at 12:21 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>>>>> On Mon, 3 Nov 2014, David Herrmann wrote:
+>>>>>
+>>>>>> > Agreed, mostly.  My only real concern is that this could be annoying
+>>>>>> > for the userspace developers who will need to target Linux and HIDAPI
+>>>>>> > separately.  Admittedly the Linux support will be trivial.
+>>>>>>
+>>>>>> I see. I'll not stop you from using hidraw, I'd just not recommend it.
+>>>>>> Especially for security stuff I dislike exposing the whole HID device
+>>>>>> writable. But yeah, I guess you got my point.
+>>>>>
+>>>>> Alright, I am basically thinking loudly now, but how about we allow HID
+>>>>> drivers that would override default hidraw interface?
+>>>>>
+>>>>> I am very well aware of the fact that this could be opening a can of
+>>>>> worms, so we'll have to make it very restrictive. How about, let's say, we
+>>>>> allow HID drivers to provide custom hidraw interface (completely
+>>>>> overriding the one that HID core would normally create) only for cases
+>>>>> such as:
+>>>>>
+>>>>> - the intent is to expose only certain parts of a combined device
+>>>>> - the intent is to introduce some level of access control
+>>>>>
+>>>>> I.e. still no interference of kernel with data parsing allowed.
+>>>>
+>>>> Hmm.  Would this be like a filter on hidraw actions?
+>>>>
+>>>> How would udev distinguish these special hidraw devices from normal
+>>>> hidraw devices?
+>>>>
+>>>> Also, for U2F, this could be a little awkward.  There's some crazy
+>>>> fragmentation stuff to allow a U2F request to be split across HID
+>>>> requests, and I think a kernel driver would much rather get the
+>>>> original unfragmented application request.
+>>>>
+>>>
+>>> I started writing a driver for this.  I got enumeration working.  I
+>>> assume I should create a "u2f" device class, and then... ?
+>>>
+>>> Where am I supposed to get my character device from?  Do I register my
+>>> own chrdev major?  Do I use misc?  Is there some input thing I'm
+>>> supposed to use?
+>>
+>> Another question:
+>>
+>> I'm hitting this in hid_input_report:
+>>
+>>     if (down_trylock(&hid->driver_input_lock)) {
+>>         pr_err("HID: trylock failed\n");  // I added this
+>>         return -EBUSY;
+>>     }
+>>
+>> This is a problem for u2f: u2f reports are actual protocol messages,
+>> and there isn't a retransmit mechanism.  Losing messages randomly
+>> causes the handshake to fail, and then nothing works.
+>>
+>> I *think* that the only way I can hit that failure is during probe (or
+>> if the USB stack somehow completes two transfers at once). This still
+>> makes it quite awkward to start IO from the probe routine.
+>>
+>> I could start a work item to take driver_input_lock, release it again,
+>> and then start the handshake, but that sucks.
+>
+> HID reports are ordered. It's the responsibility of the
+> transport-layer to not provide multiple reports in parallel. The
+> reason we have this down_trylock() is to drop packages if no driver is
+> loaded, yet. I wonder how you can trigger this? Does this happen
+> during runtime or only driver load? Do you send GET_REPORT requests to
+> the device?
 
-Well, if you unplug the receiver during the probe(), the input nodes
-should be cleared, so whatever the name you get, it does not really
-matter.
+It happens during driver probe.  I don't set GET_REPORT to my device
+-- the protocol consists solely of SET_REPORT from the driver followed
+by an asynchronous (but generally reasonably quick) report back from
+the device.
 
-> 
-> Speaking of errors retrieving the name, if a device is turned off then
-> the name cannot be queried using HID++ 2.0 (think of "T650" instead of
-> "Wireless Rechargeable Touchpad T650"). Wouldn't this confuse userspace
-> applications which rely on a constant name?
+During probe, I set INIT, and the device responds by saying "I'm a
+device.  I speak this version of the protocol.
 
-It will. However, this only matters for the devices which have a
-HIDPP_QUIRK_DELAYED_INIT. We do not overwrite the name of the input node
-for the others.
+Shouldn't that code be more like:
 
-Making hidpp_connect_event() and wtp_connect() returning an error code
-could help us not to create the input node until we have all the
-information (setup parameters, and name).
+mutex_lock(whatever);
+if (driver loaded)
+  deliver the report;
+mutex_unlock(whatever);
 
-This will require a little bit of tuning in the code. Again, I am not
-sure I will have the time to do this today, so feel free to start a
-first version on this if you want.
+and then the core could hold the lock briefly as well when probing or
+in hid_hw_open/hid_hw_close.
 
-Many thanks for the deep analysis you are conducting on
-hid-logitech-hidpp. This is really appreciated.
+(Also, shouldn't hid_hw_open have some kind of reference counting to
+avoid interference between hidraw and real drivers?  Or does that
+already work correctly somehow?)
 
-Cheers,
-Benjamin
+--Andy
 
-> 
-> > > 
-> > > What about duplicate names? Can this patch cause a conflict with devices
-> > > having the same name?
-> > 
-> > I am not sure what you mean here. I am adding a prefix to the name, so I
-> > do not see how a conflict can be possible. If there were a "M705" and a
-> > "Logitech M705", with different wireless PID, that would be worrisome to
-> > some extend.
-> > But I am pretty sure this will not happen.
-> 
-> I thought that this name would be used for /dev/bus/hid/devices/XXX and
-> therefore had to be unique, but this is not the case (the name is
-> available under the input device). No worries then!
-> 
-> > > 
-> > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > > ---
-> > > > 
-> > > > Hi Jiri,
-> > > > 
-> > > > I'd love to see this one in 3.19 (after a strong review, of course).
-> > > > The idea came with the mouse DPI database that Peter is currently working on
-> > > > (see http://who-t.blogspot.com.au/2014/12/building-a-dpi-database-for-mice.html).
-> > > > 
-> > > > I think, if you do not qualify the series for 3.19, we should drop it entirely.
-> > > > 3.19 introduces the hidpp module and changes the labels. The DPI hwdb will check
-> > > > on the label to match the actual mouse, so if this one does not get into 3.19,
-> > > > we will end up in 3 entries for each Logitech device.
-> > > > 
-> > > > Cheers,
-> > > > Benjamin
-> > > > 
-> > > > 
-> > > >  drivers/hid/hid-logitech-hidpp.c | 34 ++++++++++++++++++++++++++++++++++
-> > > >  1 file changed, 34 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > > > index 3846305..8cf4352 100644
-> > > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > > @@ -282,6 +282,33 @@ static inline bool hidpp_report_is_connect_event(struct hidpp_report *report)
-> > > >  		(report->rap.sub_id == 0x41);
-> > > >  }
-> > > >  
-> > > > +/**
-> > > > + * hidpp_prefix_name() prefixes the current given name with "Logitech ".
-> > > > + */
-> > > > +static void hidpp_prefix_name(char **name, int name_length)
-> > > > +{
-> > > > +#define PREFIX_SIZE 9 /* "Logitech " */
-> > > > +
-> > > > +	int new_length;
-> > > > +	char *new_name;
-> > > > +
-> > > > +	if (name_length > PREFIX_SIZE &&
-> > > > +	    strncmp(*name, "Logitech ", PREFIX_SIZE) == 0)
-> > > 
-> > > I think you meant || here, not &&.
-> > 
-> > No, I meant &&. The idea is to not add a prefix if the provided name
-> > already contains the prefix. Read that as "if the size of the name may
-> > contain the prefix and that the prefix is here, then we bail out".
-> 
-> Ah, I somehow read it as "if the name is longer than what can be
-> stored".
-> 
-> > > 
-> > > > +		/* The prefix has is already in the name */
-> > > > +		return;
-> > > > +
-> > > > +	new_length = name_length + PREFIX_SIZE;
-> > > 
-> > > Stylistic note, but 'PREFIX_SIZE + name_length' would match the order of
-> > > the string that gets prepended.
-> > 
-> > Works for me.
-> > 
-> > I will send a v2 with your comments addressed.
-> 
-> Thanks!
-> 
-> Kind regards,
-> Peter
-> 
-> > Cheers,
-> > Benjamin
-> > 
-> > > 
-> > > Kind regards,
-> > > Peter
-> > > 
-> > > > +	new_name = kzalloc(new_length, GFP_KERNEL);
-> > > > +	if (!new_name)
-> > > > +		return;
-> > > > +
-> > > > +	snprintf(new_name, new_length, "Logitech %s", *name);
-> > > > +
-> > > > +	kfree(*name);
-> > > > +
-> > > > +	*name = new_name;
-> > > > +}
-> > > > +
-> > > >  /* -------------------------------------------------------------------------- */
-> > > >  /* HIDP++ 1.0 commands                                                        */
-> > > >  /* -------------------------------------------------------------------------- */
-> > > > @@ -318,6 +345,10 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
-> > > >  		return NULL;
-> > > >  
-> > > >  	memcpy(name, &response.rap.params[2], len);
-> > > > +
-> > > > +	/* include the terminating '\0' */
-> > > > +	hidpp_prefix_name(&name, len + 1);
-> > > > +
-> > > >  	return name;
-> > > >  }
-> > > >  
-> > > > @@ -489,6 +520,9 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp)
-> > > >  			feature_index, index, name + index,
-> > > >  			__name_length - index);
-> > > >  
-> > > > +	/* include the terminating '\0' */
-> > > > +	hidpp_prefix_name(&name, __name_length + 1);
-> > > > +
-> > > >  	return name;
-> > > >  
-> > > >  out_err:
-> > > > 
-> 
+>
+> Thanks
+> David
+
+
+
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC

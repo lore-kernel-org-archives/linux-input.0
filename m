@@ -1,101 +1,56 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 4/4] HID: logitech-hidpp: disable io in probe error path
-Date: Thu, 11 Dec 2014 10:31:18 -0500
-Message-ID: <20141211153118.GF29747@mail.corp.redhat.com>
+Subject: Re: [PATCH 3/4] HID: logitech-hidpp: add boundary check for name
+ retrieval
+Date: Thu, 11 Dec 2014 10:25:17 -0500
+Message-ID: <20141211152517.GE29747@mail.corp.redhat.com>
 References: <1418302280-14794-1-git-send-email-peter@lekensteyn.nl>
- <1418302280-14794-5-git-send-email-peter@lekensteyn.nl>
+ <1418302280-14794-4-git-send-email-peter@lekensteyn.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53477 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59498 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933677AbaLKPbe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 10:31:34 -0500
+	id S933278AbaLKPqM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2014 10:46:12 -0500
 Content-Disposition: inline
-In-Reply-To: <1418302280-14794-5-git-send-email-peter@lekensteyn.nl>
+In-Reply-To: <1418302280-14794-4-git-send-email-peter@lekensteyn.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Peter Wu <peter@lekensteyn.nl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> Balance a hid_device_io_start() call with hid_device_io_stop() in the
-> error path. This avoids processing of HID reports when the probe fails
-> which possibly leads to invalid memory access in hid_device_probe() as
-> report_enum->report_id_hash might already be freed via
-> hid_close_report().
-
-Well spotted too!
-
+> The HID response has a limited size. Do not trust the value returned by
+> hardware, check that it really fits in the message.
 > 
-> hid_set_drvdata() is called before wtp_allocate, be consistent and clear
-> drvdata too on the error path of wtp_allocate.
+> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> ---
 
-This is not strictly speaking required. We will have a dangling value in
-hdev->private_data, but this should be overwritten before the next use.
+Well spotted!
 
-Anyway, it makes sense to clean up after a failure, so the patch is
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
-> 
-> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> ---
-> Hi Andrew,
-> 
-> There are few users of hid_device_io_start/stop, this is the first one
-> to get start/stop out of sync. Should the comment of
-> hid_device_io_start() be updated to ensure that hid_device_io_stop()
-> gets called before probe() returns? Or should the hid-core be changed to
-> handle this out-of-sync issue:
-> 
-> 		if (ret) {
-> 			if (hdev->io_started))
-> 				down(&hdev->driver_input_lock);
-> 			hid_close_report(hdev);
-> 			hdev->driver = NULL;
-> 		}
-> 
-> Is my observation correct or not that HID reports can arrive during
-> hid_close_report() when io_started == true?
-> 
-> Kind regards,
-> Peter
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+
+>  drivers/hid/hid-logitech-hidpp.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
 > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 4292cc3..2f420c0 100644
+> index 4d72c20..4292cc3 100644
 > --- a/drivers/hid/hid-logitech-hidpp.c
 > +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -1121,7 +1121,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
->  		ret = wtp_allocate(hdev, id);
->  		if (ret)
-> -			return ret;
-> +			goto wtp_allocate_fail;
->  	}
+> @@ -313,6 +313,9 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
 >  
->  	INIT_WORK(&hidpp->work, delayed_work_cb);
-> @@ -1141,6 +1141,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (id->group != HID_GROUP_LOGITECH_DJ_DEVICE) {
->  		if (!connected) {
->  			hid_err(hdev, "Device not connected");
-> +			hid_device_io_stop(hdev);
->  			goto hid_parse_fail;
->  		}
+>  	len = response.rap.params[1];
 >  
-> @@ -1186,6 +1187,7 @@ hid_hw_start_fail:
->  hid_parse_fail:
->  	cancel_work_sync(&hidpp->work);
->  	mutex_destroy(&hidpp->send_mutex);
-> +wtp_allocate_fail:
->  	hid_set_drvdata(hdev, NULL);
->  	return ret;
->  }
+> +	if (2 + len > sizeof(response.rap.params))
+> +		return NULL;
+> +
+>  	name = kzalloc(len + 1, GFP_KERNEL);
+>  	if (!name)
+>  		return NULL;
 > -- 
 > 2.1.3
 > 

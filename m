@@ -1,148 +1,105 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: do not return the name length
-Date: Wed, 10 Dec 2014 20:33:50 -0500
-Message-ID: <20141211013350.GE4861@mail.corp.redhat.com>
-References: <1418250070-28604-1-git-send-email-benjamin.tissoires@redhat.com>
- <4561294.qneDZ51mgu@al>
- <20141210230152.GC4861@mail.corp.redhat.com>
- <1906623.oO6IMXUbli@al>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
+Date: Thu, 11 Dec 2014 09:49:28 +0100
+Message-ID: <CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
+References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
+	<CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
+	<CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
+	<CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
+	<alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
+	<CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
+	<CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
+	<CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1906623.oO6IMXUbli@al>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:38397 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934099AbaLKIte (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2014 03:49:34 -0500
+Received: by mail-ie0-f180.google.com with SMTP id rp18so4445761iec.11
+        for <linux-input@vger.kernel.org>; Thu, 11 Dec 2014 00:49:33 -0800 (PST)
+In-Reply-To: <CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> On Wednesday 10 December 2014 18:01:52 Benjamin Tissoires wrote:
-> > On Dec 10 2014 or thereabouts, Peter Wu wrote:
-> > > On Wednesday 10 December 2014 17:21:09 Benjamin Tissoires wrote:
-> > > > We do not make any use of the actual name length get through
-> > > > hidpp_get_device_name().
-> > > > 
-> > > > We can drop the extra code and simplify the API a bit.
-> > > > 
-> > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > >
-> > > > ---
-> > > >  drivers/hid/hid-logitech-hidpp.c | 10 +++-------
-> > > >  1 file changed, 3 insertions(+), 7 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > > > index 1a6395d..3846305 100644
-> > > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > > @@ -461,7 +461,7 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
-> > > >  	return count;
-> > > >  }
-> > > >  
-> > > > -static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> > > > +static char *hidpp_get_device_name(struct hidpp_device *hidpp)
-> > > >  {
-> > > >  	u8 feature_type;
-> > > >  	u8 feature_index;
-> > > > @@ -484,7 +484,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> > > >  	if (!name)
-> > > >  		goto out_err;
-> > > >  
-> > > > -	*name_length = __name_length + 1;
-> > > >  	while (index < __name_length)
-> > > >  		index += hidpp_devicenametype_get_device_name(hidpp,
-> > > >  			feature_index, index, name + index,
-> > > 
-> > > hidpp_devicenametype_get_device_name can return a non-positive value if
-> > > the USB device is unplugged at the wrong time, or if a malicious device
-> > > is attached (and 0 is returned). An infinite loop is the result.
-> > 
-> > Oh, yes, you are definitively right.
-> > 
-> > > 
-> > > Can you apply this change in the patch or should I send you a separate
-> > > one?
-> > 
-> > Feel free to send your patch directly to the list.
-> > 
-> > > 
-> > > 	while (index < __name_length) {
-> > > 		ret = hidpp_devicenametype_get_device_name(hidpp,
-> > > 			feature_index, index, name + index,
-> > > 			__name_length - index);
-> > > 		if (ret <= 0) {
-> > > 			kfree(name);
-> > > 			return NULL;
-> > > 		}
-> > > 		index += ret;
-> > > 	}
-> > > 
-> > > > @@ -493,7 +492,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> > > >  	return name;
-> > > >  
-> > > >  out_err:
-> > > > -	*name_length = 0;
-> > > >  	return NULL;
-> > > 
-> > > What about dropping the label out_err here and returning NULL in the
-> > > previous places?
-> > 
-> > Yep, good idea. You can either send a patch for that if you want to take
-> > credits, or I can send a v2. It's up to you.
-> > 
-> > Cheers,
-> > Benjamin
-> 
-> I found another place where a boundary check is missing, but will treat
-> that in a separate patch. If you send a v2 with the return NULL fixed
-> up, I'll base my patch (to add a retval check) on yours.
+Hi
 
-OK. I am not sure I will be able to make it today or tomorrow. Feel free
-to send the fixes right now if you can manage to send them now.
+On Wed, Dec 10, 2014 at 6:07 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+> On Tue, Dec 9, 2014 at 12:46 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+>> On Mon, Nov 3, 2014 at 12:41 PM, Andy Lutomirski <luto@amacapital.net> wrote:
+>>> On Mon, Nov 3, 2014 at 12:21 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>>>> On Mon, 3 Nov 2014, David Herrmann wrote:
+>>>>
+>>>>> > Agreed, mostly.  My only real concern is that this could be annoying
+>>>>> > for the userspace developers who will need to target Linux and HIDAPI
+>>>>> > separately.  Admittedly the Linux support will be trivial.
+>>>>>
+>>>>> I see. I'll not stop you from using hidraw, I'd just not recommend it.
+>>>>> Especially for security stuff I dislike exposing the whole HID device
+>>>>> writable. But yeah, I guess you got my point.
+>>>>
+>>>> Alright, I am basically thinking loudly now, but how about we allow HID
+>>>> drivers that would override default hidraw interface?
+>>>>
+>>>> I am very well aware of the fact that this could be opening a can of
+>>>> worms, so we'll have to make it very restrictive. How about, let's say, we
+>>>> allow HID drivers to provide custom hidraw interface (completely
+>>>> overriding the one that HID core would normally create) only for cases
+>>>> such as:
+>>>>
+>>>> - the intent is to expose only certain parts of a combined device
+>>>> - the intent is to introduce some level of access control
+>>>>
+>>>> I.e. still no interference of kernel with data parsing allowed.
+>>>
+>>> Hmm.  Would this be like a filter on hidraw actions?
+>>>
+>>> How would udev distinguish these special hidraw devices from normal
+>>> hidraw devices?
+>>>
+>>> Also, for U2F, this could be a little awkward.  There's some crazy
+>>> fragmentation stuff to allow a U2F request to be split across HID
+>>> requests, and I think a kernel driver would much rather get the
+>>> original unfragmented application request.
+>>>
+>>
+>> I started writing a driver for this.  I got enumeration working.  I
+>> assume I should create a "u2f" device class, and then... ?
+>>
+>> Where am I supposed to get my character device from?  Do I register my
+>> own chrdev major?  Do I use misc?  Is there some input thing I'm
+>> supposed to use?
+>
+> Another question:
+>
+> I'm hitting this in hid_input_report:
+>
+>     if (down_trylock(&hid->driver_input_lock)) {
+>         pr_err("HID: trylock failed\n");  // I added this
+>         return -EBUSY;
+>     }
+>
+> This is a problem for u2f: u2f reports are actual protocol messages,
+> and there isn't a retransmit mechanism.  Losing messages randomly
+> causes the handshake to fail, and then nothing works.
+>
+> I *think* that the only way I can hit that failure is during probe (or
+> if the USB stack somehow completes two transfers at once). This still
+> makes it quite awkward to start IO from the probe routine.
+>
+> I could start a work item to take driver_input_lock, release it again,
+> and then start the handshake, but that sucks.
 
-Cheers,
-Benjamin
+HID reports are ordered. It's the responsibility of the
+transport-layer to not provide multiple reports in parallel. The
+reason we have this down_trylock() is to drop packages if no driver is
+loaded, yet. I wonder how you can trigger this? Does this happen
+during runtime or only driver load? Do you send GET_REPORT requests to
+the device?
 
-> 
-> Kind regards,
-> Peter
-> 
-> > > 
-> > > >  }
-> > > >  
-> > > > @@ -989,7 +987,6 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
-> > > >  {
-> > > >  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-> > > >  	char *name;
-> > > > -	u8 name_length;
-> > > >  
-> > > >  	if (use_unifying)
-> > > >  		/*
-> > > > @@ -999,7 +996,7 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
-> > > >  		 */
-> > > >  		name = hidpp_get_unifying_name(hidpp);
-> > > >  	else
-> > > > -		name = hidpp_get_device_name(hidpp, &name_length);
-> > > > +		name = hidpp_get_device_name(hidpp);
-> > > >  
-> > > >  	if (!name)
-> > > >  		hid_err(hdev, "unable to retrieve the name of the device");
-> > > > @@ -1053,7 +1050,6 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
-> > > >  	bool connected = atomic_read(&hidpp->connected);
-> > > >  	struct input_dev *input;
-> > > >  	char *name, *devm_name;
-> > > > -	u8 name_length;
-> > > >  
-> > > >  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> > > >  		wtp_connect(hdev, connected);
-> > > > @@ -1080,7 +1076,7 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
-> > > >  		return;
-> > > >  	}
-> > > >  
-> > > > -	name = hidpp_get_device_name(hidpp, &name_length);
-> > > > +	name = hidpp_get_device_name(hidpp);
-> > > >  	if (!name) {
-> > > >  		hid_err(hdev, "unable to retrieve the name of the device");
-> > > >  	} else {
-> > > > 
-> 
+Thanks
+David

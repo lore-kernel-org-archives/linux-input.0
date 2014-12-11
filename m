@@ -1,59 +1,73 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: NULL pointer dereference in i2c-hid
-Date: Thu, 11 Dec 2014 16:03:07 +0200
-Message-ID: <20141211140307.GE1300@lahna.fi.intel.com>
-References: <31518562.V5Oyo0POsI@xps13>
- <20141211085801.GR1300@lahna.fi.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: About "HID: logitech-hidpp: add support of the first Logitech
+ Wireless Touchpad"
+Date: Thu, 11 Dec 2014 10:19:33 -0500
+Message-ID: <20141211151933.GB29747@mail.corp.redhat.com>
+References: <1659058.m7A8Z3l7lH@al>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:35304 "EHLO mga11.intel.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47928 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932802AbaLKOD0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 09:03:26 -0500
+	id S964785AbaLKPTp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2014 10:19:45 -0500
 Content-Disposition: inline
-In-Reply-To: <20141211085801.GR1300@lahna.fi.intel.com>
+In-Reply-To: <1659058.m7A8Z3l7lH@al>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, aduggan@synaptics.com, jkosina@suse.cz
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, Dec 11, 2014 at 10:58:01AM +0200, Mika Westerberg wrote:
-> On Wed, Dec 10, 2014 at 06:04:51PM +0100, Gabriele Mazzotta wrote:
-> > my laptop uses a touchpad that needs hid-rmi along with i2c-hid to work.
-> > i2c-hid and hid-rmi can be loaded and unloaded independelty from each
-> > other, however since 34f439e4afcd ("HID: i2c-hid: add runtime PM support")
-> > if I unload hid-rmi and after it I also unload i2c-hid, I get a NULL
-> > pointer dereference.
+Hi Peter,
+
+On Dec 11 2014 or thereabouts, Peter Wu wrote:
+> Hi Benjamin,
 > 
-> I'll look into this.
+> In commit 57ac86cf52e903d9e3e0f12b34c814cce6b65550 ("HID:
+> logitech-hidpp: add support of the first Logitech Wireless Touchpad")
+> which is in jikos/hid, you made this change to wtp_raw_event:
 > 
-> I can reproduce this easily with i2c-hid + hid-multitouch following your
-> directions.
+>         switch (data[0]) {
+>         case 0x02:
+> -               if (size < 21)
+> -                       return 1;
+> -               return wtp_mouse_raw_xy_event(hidpp, &data[7]);
+> +               if (hidpp->quirks & HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS) {
+> +                       input_event(wd->input, EV_KEY, BTN_LEFT,
+> +                                       !!(data[1] & 0x01));
+> +                       input_event(wd->input, EV_KEY, BTN_RIGHT,
+> +                                       !!(data[1] & 0x02));
+> +                       input_sync(wd->input);
+> +               } else {
+> +                       if (size < 21)
+> +                               return 1;
+> +                       return wtp_mouse_raw_xy_event(hidpp, &data[7]);
+> +               }
+>         case REPORT_ID_HIDPP_LONG:
+>                 if ((report->fap.feature_index != wd->mt_feature_index) ||
+>                     (report->fap.funcindex_clientid != EVENT_TOUCHPAD_RAW_XY))
+>                         return 1;
+>                 hidpp_touchpad_raw_xy_event(hidpp, data + 4, &raw);
+>  
+>                 wtp_send_raw_xy_event(hidpp, &raw);
+>                 return 0;
+>         }
+> 
+> Report ID 2 is the mouse descriptor, so it seems correct in that it
+> falls-through to the next case, but I wanted to check with you that this
+> is indeed your intention. If so, could you explicitly mark it with a
+> comment, /* fallthrough */ ?
 
-Can you try the below patch? 
+Yep, it is indeed a bug. I see what happened:
+The old code contained a return at the end of the case, and I completely
+forget to prevent the fall through with a break. Gosh, I should have
+been more careful. Thanks for spotting that!
 
-I think we shouldn't free buffers yet in ->stop() because we need the
-command buffer sending power commands to the device. Also it seems that
-->start() re-allocates buffers anyway if maximum size increases.
+Cheers,
+Benjamin
 
-It shouldn't even leak memory as we release buffers at ->remove()
-anyway.
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 62cec01937ea..68a8c938feea 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -705,12 +705,7 @@ static int i2c_hid_start(struct hid_device *hid)
- 
- static void i2c_hid_stop(struct hid_device *hid)
- {
--	struct i2c_client *client = hid->driver_data;
--	struct i2c_hid *ihid = i2c_get_clientdata(client);
--
- 	hid->claimed = 0;
--
--	i2c_hid_free_buffers(ihid);
- }
- 
- static int i2c_hid_open(struct hid_device *hid)
+> -- 
+> Kind regards,
+> Peter
+> https://lekensteyn.nl
+> 

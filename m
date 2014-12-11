@@ -1,120 +1,65 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/4] HID: logitech-hidpp: do not return the name length
-Date: Thu, 11 Dec 2014 10:22:25 -0500
-Message-ID: <20141211152225.GC29747@mail.corp.redhat.com>
+Subject: Re: [PATCH 2/4] HID: logitech-hidpp: check name retrieval return code
+Date: Thu, 11 Dec 2014 10:23:30 -0500
+Message-ID: <20141211152330.GD29747@mail.corp.redhat.com>
 References: <1418302280-14794-1-git-send-email-peter@lekensteyn.nl>
- <1418302280-14794-2-git-send-email-peter@lekensteyn.nl>
+ <1418302280-14794-3-git-send-email-peter@lekensteyn.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44338 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47747 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933874AbaLKPWk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 10:22:40 -0500
+	id S933278AbaLKPXl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2014 10:23:41 -0500
 Content-Disposition: inline
-In-Reply-To: <1418302280-14794-2-git-send-email-peter@lekensteyn.nl>
+In-Reply-To: <1418302280-14794-3-git-send-email-peter@lekensteyn.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Peter Wu <peter@lekensteyn.nl>
 Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 On Dec 11 2014 or thereabouts, Peter Wu wrote:
-> We do not make any use of the actual name length get through
-> hidpp_get_device_name(). Original patch by Benjamin Tissoires, this
-> patch also replaces a (now) unnecessary goto by return NULL.
+> hidpp_devicenametype_get_device_name() may return a negative value on
+> protocol errors (for example, when the device is powered off).
+> Explicitly check this condition to avoid a long-running loop.
+> 
+> (0 cannot be returned as __name_length - index > 0, but check for it
+> anyway as it would otherwise result in an infinite loop.)
 > 
 > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
 > ---
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Thanks for the v2 Peter.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
->  drivers/hid/hid-logitech-hidpp.c | 19 ++++++-------------
->  1 file changed, 6 insertions(+), 13 deletions(-)
+>  drivers/hid/hid-logitech-hidpp.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 1a6395d..5066df8 100644
+> index 5066df8..4d72c20 100644
 > --- a/drivers/hid/hid-logitech-hidpp.c
 > +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -461,7 +461,7 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
->  	return count;
->  }
->  
-> -static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> +static char *hidpp_get_device_name(struct hidpp_device *hidpp)
->  {
->  	u8 feature_type;
->  	u8 feature_index;
-> @@ -473,28 +473,23 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
->  	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_GET_DEVICE_NAME_TYPE,
->  		&feature_index, &feature_type);
->  	if (ret)
-> -		goto out_err;
-> +		return NULL;
->  
->  	ret = hidpp_devicenametype_get_count(hidpp, feature_index,
->  		&__name_length);
->  	if (ret)
-> -		goto out_err;
-> +		return NULL;
->  
->  	name = kzalloc(__name_length + 1, GFP_KERNEL);
+> @@ -484,10 +484,16 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp)
 >  	if (!name)
-> -		goto out_err;
-> +		return NULL;
+>  		return NULL;
 >  
-> -	*name_length = __name_length + 1;
->  	while (index < __name_length)
->  		index += hidpp_devicenametype_get_device_name(hidpp,
+> -	while (index < __name_length)
+> -		index += hidpp_devicenametype_get_device_name(hidpp,
+> +	while (index < __name_length) {
+> +		ret = hidpp_devicenametype_get_device_name(hidpp,
 >  			feature_index, index, name + index,
 >  			__name_length - index);
+> +		if (ret <= 0) {
+> +			kfree(name);
+> +			return NULL;
+> +		}
+> +		index += ret;
+> +	}
 >  
 >  	return name;
-> -
-> -out_err:
-> -	*name_length = 0;
-> -	return NULL;
 >  }
->  
->  /* -------------------------------------------------------------------------- */
-> @@ -989,7 +984,6 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
->  {
->  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
->  	char *name;
-> -	u8 name_length;
->  
->  	if (use_unifying)
->  		/*
-> @@ -999,7 +993,7 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
->  		 */
->  		name = hidpp_get_unifying_name(hidpp);
->  	else
-> -		name = hidpp_get_device_name(hidpp, &name_length);
-> +		name = hidpp_get_device_name(hidpp);
->  
->  	if (!name)
->  		hid_err(hdev, "unable to retrieve the name of the device");
-> @@ -1053,7 +1047,6 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
->  	bool connected = atomic_read(&hidpp->connected);
->  	struct input_dev *input;
->  	char *name, *devm_name;
-> -	u8 name_length;
->  
->  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
->  		wtp_connect(hdev, connected);
-> @@ -1080,7 +1073,7 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
->  		return;
->  	}
->  
-> -	name = hidpp_get_device_name(hidpp, &name_length);
-> +	name = hidpp_get_device_name(hidpp);
->  	if (!name) {
->  		hid_err(hdev, "unable to retrieve the name of the device");
->  	} else {
 > -- 
 > 2.1.3
 > 

@@ -1,221 +1,110 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 3/3] HID: wacom: Report input events for each finger on
- generic devices
-Date: Thu, 11 Dec 2014 16:01:29 -0500
-Message-ID: <CAN+gG=GdJGuo3poOT8u8caVLP_XQqoDUNJONct9f5iJki2xH2g@mail.gmail.com>
-References: <CAN+gG=Fw0BvNZ8DQtGtuCer42D0wzBzE0NX4rAe+54b94=X7RQ@mail.gmail.com>
-	<1418257564-5561-1-git-send-email-killertofu@gmail.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCHv2 2/3] sunxi:drivers:input:ps2 Added sunxi
+ A10/A20 ps2 driver
+Date: Thu, 11 Dec 2014 22:09:19 +0100
+Message-ID: <20141211210919.GI8739@lukather>
+References: <1417907719-26775-1-git-send-email-VishnuPatekar0510@gmail.com>
+ <1417907719-26775-3-git-send-email-VishnuPatekar0510@gmail.com>
+ <20141208224137.GO8739@lukather>
+ <CAEzqOZu9TWmYyBOP8t+b7mepqdbKjhf-3P-uNJS_Od05XiBLZw@mail.gmail.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f54.google.com ([209.85.192.54]:42616 "EHLO
-	mail-qg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933815AbaLKVBa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2014 16:01:30 -0500
-Received: by mail-qg0-f54.google.com with SMTP id l89so4530528qgf.27
-        for <linux-input@vger.kernel.org>; Thu, 11 Dec 2014 13:01:29 -0800 (PST)
-In-Reply-To: <1418257564-5561-1-git-send-email-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="np3HfElajyDBpWGr"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBNMQVCSAKGQE5PHQEQA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAEzqOZu9TWmYyBOP8t+b7mepqdbKjhf-3P-uNJS_Od05XiBLZw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, leafy.myeh-Q9AEpCAkrSgqDJ6do+/SaQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
 
-On Wed, Dec 10, 2014 at 7:26 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> The existing generic touch code only reports events after reading an
-> entire HID report, which practically means that only data about the last
-> contact in a report will ever be provided to userspace. This patch uses
-> a trick from hid-multitouch.c to discover what type of field is at the
-> end of each contact; when such a field is encountered all the stored
-> contact data will be reported.
->
-> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
-> ---
+--np3HfElajyDBpWGr
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
 
-Fine by me. Thanks for the quick respin Jason.
+Hi,
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Remember to reply to all the recipients.
 
-Cheers,
-Benjamin
+On Tue, Dec 09, 2014 at 04:40:36PM +0530, Vishnu Patekar wrote:
+> > > Signed-off-by: vishnupatekar <VishnuPatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > > ---
+> > >  drivers/input/serio/Kconfig     |   10 ++
+> > >  drivers/input/serio/Makefile    |    1 +
+> > >  drivers/input/serio/sunxi-ps2.c |  364
+> > +++++++++++++++++++++++++++++++++++++++
+> > >  3 files changed, 375 insertions(+)
+> > >  create mode 100644 drivers/input/serio/sunxi-ps2.c
+> > >
+> > > diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+> > > index bc2d474..3a7599c 100644
+> > > --- a/drivers/input/serio/Kconfig
+> > > +++ b/drivers/input/serio/Kconfig
+> > > @@ -281,4 +281,14 @@ config HYPERV_KEYBOARD
+> > >         To compile this driver as a module, choose M here: the module
+> > will
+> > >         be called hyperv_keyboard.
+> > >
+> > > +config SERIO_SUNXI_PS2
+> > > +     tristate "Allwinner Sun4i-A10/Sun7i-A20 PS/2 controller"
+> >
+> > Allwinner A10 is enough
+> >
+> Okie, Should I change the config option as well, like SERIO_SUN4I_PS2 ?
 
-> Changes from v2:
->  * No longer removing 'touch_max' variables to make changes clearer
->  * Renamed 'wacom_wac_finger_touches' to 'wacom_wac_finger_count_touches'
->  * Removed call to 'wacom_wac_finger_slot' in 'wacom_wac_finger_report'
->    since it is already called for the single-touch case within
->    'wacom_wac_finger_event'.
+Yep.
+
+> > > +     /*Set Clock Divider Register*/
+> > > +     clk_scdf = DIV_ROUND_UP(src_clk, PS2_SAMPLE_CLK) - 1;
+> > > +     clk_pcdf = DIV_ROUND_UP(PS2_SAMPLE_CLK, PS2_SCLK) - 1;
+> >
+> > So this is actually a rounding down?
+> >
+> > Why not just using src_clk / PS2_SAMPLE_CLK directly?
+> >
+> > > +     rval = (clk_scdf<<8) | clk_pcdf;
+> >
+> > Spaces between the operators. Remember, run checkpatch.
+> >
+> Okie.
+> 
+> checkpatch could  not catch this!!
+
+Well, then it should have :)
+
+> > > +     writel(rval, drvdata->reg_base + PS2_REG_CLKDR);
+> > > +
+> > > +     /*Set Global Control Register*/
+> > > +     rval = PS2_GCTL_RESET | PS2_GCTL_INTEN | PS2_GCTL_MASTER
+> > > +             | PS2_GCTL_BUSEN;
+> > > +     writel(rval, drvdata->reg_base + PS2_REG_GCTL);
+> >
+> > You seem to be reading/writing from the same registers than in your
+> > interrupt handler, don't you need some locking in here?
+> >
 >
->  drivers/hid/wacom_wac.c | 86 +++++++++++++++++++++++++++++++++----------------
->  drivers/hid/wacom_wac.h |  1 +
->  2 files changed, 59 insertions(+), 28 deletions(-)
+> Interrupt is getting enabled only after writing to GCTL register.
 >
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 064fd6c..26f27bd 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1381,10 +1381,12 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->  {
->         struct wacom *wacom = hid_get_drvdata(hdev);
->         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-> +       struct wacom_features *features = &wacom_wac->features;
->         unsigned touch_max = wacom_wac->features.touch_max;
->
->         switch (usage->hid) {
->         case HID_GD_X:
-> +               features->last_slot_field = usage->hid;
->                 if (touch_max == 1)
->                         wacom_map_usage(wacom, usage, field, EV_ABS, ABS_X, 4);
->                 else
-> @@ -1392,6 +1394,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->                                         ABS_MT_POSITION_X, 4);
->                 break;
->         case HID_GD_Y:
-> +               features->last_slot_field = usage->hid;
->                 if (touch_max == 1)
->                         wacom_map_usage(wacom, usage, field, EV_ABS, ABS_Y, 4);
->                 else
-> @@ -1399,17 +1402,48 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
->                                         ABS_MT_POSITION_Y, 4);
->                 break;
->         case HID_DG_CONTACTID:
-> +               features->last_slot_field = usage->hid;
->                 break;
->         case HID_DG_INRANGE:
-> +               features->last_slot_field = usage->hid;
->                 break;
->         case HID_DG_INVERT:
-> +               features->last_slot_field = usage->hid;
->                 break;
->         case HID_DG_TIPSWITCH:
-> +               features->last_slot_field = usage->hid;
->                 wacom_map_usage(wacom, usage, field, EV_KEY, BTN_TOUCH, 0);
->                 break;
->         }
->  }
->
-> +static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
-> +               struct input_dev *input)
-> +{
-> +       struct hid_data *hid_data = &wacom_wac->hid_data;
-> +       bool mt = wacom_wac->features.touch_max > 1;
-> +       bool prox = hid_data->tipswitch &&
-> +                   !wacom_wac->shared->stylus_in_proximity;
-> +
-> +       if (mt) {
-> +               int slot;
-> +
-> +               slot = input_mt_get_slot_by_key(input, hid_data->id);
-> +               input_mt_slot(input, slot);
-> +               input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
-> +       }
-> +       else {
-> +               input_report_key(input, BTN_TOUCH, prox);
-> +       }
-> +
-> +       if (prox) {
-> +               input_report_abs(input, mt ? ABS_MT_POSITION_X : ABS_X,
-> +                                hid_data->x);
-> +               input_report_abs(input, mt ? ABS_MT_POSITION_Y : ABS_Y,
-> +                                hid_data->y);
-> +       }
-> +}
-> +
->  static int wacom_wac_finger_event(struct hid_device *hdev,
->                 struct hid_field *field, struct hid_usage *usage, __s32 value)
->  {
-> @@ -1432,36 +1466,35 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
->         }
->
->
-> +       if (usage->usage_index + 1 == field->report_count) {
-> +               if (usage->hid == wacom_wac->features.last_slot_field)
-> +                       wacom_wac_finger_slot(wacom_wac, wacom_wac->input);
-> +       }
-> +
->         return 0;
->  }
->
-> -static void wacom_wac_finger_mt_report(struct wacom_wac *wacom_wac,
-> -               struct input_dev *input, bool touch)
-> +static int wacom_wac_finger_count_touches(struct hid_device *hdev)
->  {
-> -       int slot;
-> -       struct hid_data *hid_data = &wacom_wac->hid_data;
-> +       struct wacom *wacom = hid_get_drvdata(hdev);
-> +       struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-> +       struct input_dev *input = wacom_wac->input;
-> +       unsigned touch_max = wacom_wac->features.touch_max;
-> +       int count = 0;
-> +       int i;
->
-> -       slot = input_mt_get_slot_by_key(input, hid_data->id);
-> +       if (touch_max == 1)
-> +               return wacom_wac->hid_data.tipswitch &&
-> +                      !wacom_wac->shared->stylus_in_proximity;
->
-> -       input_mt_slot(input, slot);
-> -       input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
-> -       if (touch) {
-> -               input_report_abs(input, ABS_MT_POSITION_X, hid_data->x);
-> -               input_report_abs(input, ABS_MT_POSITION_Y, hid_data->y);
-> +       for (i = 0; i < input->mt->num_slots; i++) {
-> +               struct input_mt_slot *ps = &input->mt->slots[i];
-> +               int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
-> +               if (id >= 0)
-> +                       count++;
->         }
-> -       input_mt_sync_frame(input);
-> -}
-> -
-> -static void wacom_wac_finger_single_touch_report(struct wacom_wac *wacom_wac,
-> -               struct input_dev *input, bool touch)
-> -{
-> -       struct hid_data *hid_data = &wacom_wac->hid_data;
->
-> -       if (touch) {
-> -               input_report_abs(input, ABS_X, hid_data->x);
-> -               input_report_abs(input, ABS_Y, hid_data->y);
-> -       }
-> -       input_report_key(input, BTN_TOUCH, touch);
-> +       return count;
->  }
->
->  static void wacom_wac_finger_report(struct hid_device *hdev,
-> @@ -1470,18 +1503,15 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
->         struct wacom *wacom = hid_get_drvdata(hdev);
->         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
->         struct input_dev *input = wacom_wac->input;
-> -       bool touch = wacom_wac->hid_data.tipswitch &&
-> -                    !wacom_wac->shared->stylus_in_proximity;
->         unsigned touch_max = wacom_wac->features.touch_max;
->
->         if (touch_max > 1)
-> -               wacom_wac_finger_mt_report(wacom_wac, input, touch);
-> -       else
-> -               wacom_wac_finger_single_touch_report(wacom_wac, input, touch);
-> +               input_mt_sync_frame(input);
-> +
->         input_sync(input);
->
->         /* keep touch state for pen event */
-> -       wacom_wac->shared->touch_down = touch;
-> +       wacom_wac->shared->touch_down = wacom_wac_finger_count_touches(hdev);
->  }
->
->  #define WACOM_PEN_FIELD(f)     (((f)->logical == HID_DG_STYLUS) || \
-> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-> index 5384043..bfad815 100644
-> --- a/drivers/hid/wacom_wac.h
-> +++ b/drivers/hid/wacom_wac.h
-> @@ -145,6 +145,7 @@ struct wacom_features {
->         int pktlen;
->         bool check_for_hid_type;
->         int hid_type;
-> +       int last_slot_field;
->  };
->
->  struct wacom_shared {
-> --
-> 2.1.3
->
+> do you think still we need to locking mechanism here?
+
+Not really, you don't know the state of the device before your driver
+is probed, and the interrupts are enabled as soon as request_irq. So
+you can very well have the device running with the interrupts running
+before this function is called.
+
+Plus you might get spurious interrupts.
+
+Maxime
+
+-- 
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--np3HfElajyDBpWGr--

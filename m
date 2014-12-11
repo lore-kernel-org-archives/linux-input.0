@@ -1,190 +1,148 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: rmi: Add support for the touchpad in the Razer Blade
- 14 laptop
-Date: Wed, 10 Dec 2014 20:32:38 -0500
-Message-ID: <CAN+gG=GEnF940DQZztu66MSLj5DTZwcFWoOA9eh7g5baOmLXDw@mail.gmail.com>
-References: <1416874819-9914-1-git-send-email-aduggan@synaptics.com>
-	<54863F7A.30609@synaptics.com>
-	<CAN+gG=Epx3m0=mg-xfKJveZBvo5ySe5cpFJgRbo79DvKgCFa4A@mail.gmail.com>
-	<5488ECC8.8070802@synaptics.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: do not return the name length
+Date: Wed, 10 Dec 2014 20:33:50 -0500
+Message-ID: <20141211013350.GE4861@mail.corp.redhat.com>
+References: <1418250070-28604-1-git-send-email-benjamin.tissoires@redhat.com>
+ <4561294.qneDZ51mgu@al>
+ <20141210230152.GC4861@mail.corp.redhat.com>
+ <1906623.oO6IMXUbli@al>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f49.google.com ([209.85.192.49]:46963 "EHLO
-	mail-qg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758270AbaLKBcj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Dec 2014 20:32:39 -0500
-In-Reply-To: <5488ECC8.8070802@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1906623.oO6IMXUbli@al>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Dec 10, 2014 at 8:00 PM, Andrew Duggan <aduggan@synaptics.com> wrote:
-> Hi Benjamin,
->
-> Thanks for reviewing my patch. Comments and questions below.
->
-> On 12/10/2014 12:51 PM, Benjamin Tissoires wrote:
->>
->> On Mon, Dec 8, 2014 at 7:16 PM, Andrew Duggan <aduggan@synaptics.com>
->> wrote:
->>>
->>> On 11/24/2014 04:20 PM, Andrew Duggan wrote:
->>>>
->>>> The Razer Blade 14 has a Synaptic's TouchPad on one of the interfaces of
->>>> a composite USB device. This patch allows the hid-rmi driver to bind
->>>> to that interface. It also adds support for the external click buttons
->>>> on the Razer's touchpad. External buttons are reported using generic
->>>> mouse reports instead of through the F30 like it is on ClickPads.
->>>>
->>>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
->>>> ---
->>>> This patch depends on the "HID: rmi: Scan the report descriptor to
->>>> determine if the device is
->>>> suitable for the hid-rmi driver" I submitted earlier today to correctly
->>>> bind to the touchpad HID
->>>> device in the composite USB device.
->>>
->>> Any comments on this patch?
->>
->> Again, sorry for the lag on this series. I think now that I re-read
->> this one I understood why I did not put too many efforts to properly
->> review the series. This one is a little bit worrisome IMO.
->>
->
-> I wasn't sure about this patch either. But, after waiting a while and not
-> coming with with anything better I figured I would post it to at least get
-> some feedback.
+On Dec 11 2014 or thereabouts, Peter Wu wrote:
+> On Wednesday 10 December 2014 18:01:52 Benjamin Tissoires wrote:
+> > On Dec 10 2014 or thereabouts, Peter Wu wrote:
+> > > On Wednesday 10 December 2014 17:21:09 Benjamin Tissoires wrote:
+> > > > We do not make any use of the actual name length get through
+> > > > hidpp_get_device_name().
+> > > > 
+> > > > We can drop the extra code and simplify the API a bit.
+> > > > 
+> > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > >
+> > > > ---
+> > > >  drivers/hid/hid-logitech-hidpp.c | 10 +++-------
+> > > >  1 file changed, 3 insertions(+), 7 deletions(-)
+> > > > 
+> > > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > > > index 1a6395d..3846305 100644
+> > > > --- a/drivers/hid/hid-logitech-hidpp.c
+> > > > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > > > @@ -461,7 +461,7 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
+> > > >  	return count;
+> > > >  }
+> > > >  
+> > > > -static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
+> > > > +static char *hidpp_get_device_name(struct hidpp_device *hidpp)
+> > > >  {
+> > > >  	u8 feature_type;
+> > > >  	u8 feature_index;
+> > > > @@ -484,7 +484,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
+> > > >  	if (!name)
+> > > >  		goto out_err;
+> > > >  
+> > > > -	*name_length = __name_length + 1;
+> > > >  	while (index < __name_length)
+> > > >  		index += hidpp_devicenametype_get_device_name(hidpp,
+> > > >  			feature_index, index, name + index,
+> > > 
+> > > hidpp_devicenametype_get_device_name can return a non-positive value if
+> > > the USB device is unplugged at the wrong time, or if a malicious device
+> > > is attached (and 0 is returned). An infinite loop is the result.
+> > 
+> > Oh, yes, you are definitively right.
+> > 
+> > > 
+> > > Can you apply this change in the patch or should I send you a separate
+> > > one?
+> > 
+> > Feel free to send your patch directly to the list.
+> > 
+> > > 
+> > > 	while (index < __name_length) {
+> > > 		ret = hidpp_devicenametype_get_device_name(hidpp,
+> > > 			feature_index, index, name + index,
+> > > 			__name_length - index);
+> > > 		if (ret <= 0) {
+> > > 			kfree(name);
+> > > 			return NULL;
+> > > 		}
+> > > 		index += ret;
+> > > 	}
+> > > 
+> > > > @@ -493,7 +492,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
+> > > >  	return name;
+> > > >  
+> > > >  out_err:
+> > > > -	*name_length = 0;
+> > > >  	return NULL;
+> > > 
+> > > What about dropping the label out_err here and returning NULL in the
+> > > previous places?
+> > 
+> > Yep, good idea. You can either send a patch for that if you want to take
+> > credits, or I can send a v2. It's up to you.
+> > 
+> > Cheers,
+> > Benjamin
+> 
+> I found another place where a boundary check is missing, but will treat
+> that in a separate patch. If you send a v2 with the return NULL fixed
+> up, I'll base my patch (to add a retval check) on yours.
 
-That's the right spirit :)
-
->
->
->>> Thanks,
->>> Andrew
->>>
->>>>    drivers/hid/hid-core.c |  4 +++-
->>>>    drivers/hid/hid-ids.h  |  3 +++
->>>>    drivers/hid/hid-rmi.c  | 15 ++++++++++++++-
->>>>    3 files changed, 20 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->>>> index ba9dc59..d69ea16 100644
->>>> --- a/drivers/hid/hid-core.c
->>>> +++ b/drivers/hid/hid-core.c
->>>> @@ -792,7 +792,9 @@ static int hid_scan_report(struct hid_device *hid)
->>>>          /*
->>>>          * Vendor specific handlings
->>>>          */
->>>> -       if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
->>>> +       if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS
->>>> +           || (hid->vendor == USB_VENDOR_ID_RAZER
->>>> +           && hid->product == USB_DEVICE_ID_RAZER_BLADE_14)) &&
->>
->> I don't like this. We already have a blacklist, an ignore list, and
->> there, we will have a new blacklist...
->>
->> I understood why you put this here, the current have_special_driver
->> list will not fit 100%. Still, I find it not good.
->>
->> It works, but I think we should still head for an entry in
->> have_special_driver, and a specific behavior in hid-rmi which would
->> rely on hid-input to handle the keyboard/mouse buttons and the rest.
->
->
-> Are you suggesting that we have hid-rmi bind to all of the hid devices on
-> this USB device and then have hid-rmi decide what reports it should process
-> and let the remaining events continue to hid-input? I guess once hid-rmi
-> loads it could look at the hid report ids and determine if it is one of our
-> devices and if it should put the device into rmi mode. If not simply act as
-> a pass through.
-
-Yeah, that's basically what I am saying. Add the device in
-hid_have_special_driver, add it to the list of supported devices by
-hid-rmi, and add a quirk saying that it should be pass through for all
-but the rmi report ID.
-
->
->
->>>>              (hid->group == HID_GROUP_GENERIC)) {
->>>>                  if ((parser->scan_flags &
->>>> HID_SCAN_FLAG_VENDOR_SPECIFIC)
->>>>                      && (parser->scan_flags &
->>>> HID_SCAN_FLAG_GENDESK_POINTER))
->>>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->>>> index 25cd674..c677aad 100644
->>>> --- a/drivers/hid/hid-ids.h
->>>> +++ b/drivers/hid/hid-ids.h
->>>> @@ -751,6 +751,9 @@
->>>>    #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001               0x3001
->>>>    #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008               0x3008
->>>>    +#define USB_VENDOR_ID_RAZER          0x1532
->>>> +#define USB_DEVICE_ID_RAZER_BLADE_14   0x011D
->>>> +
->>>>    #define USB_VENDOR_ID_REALTEK         0x0bda
->>>>    #define USB_DEVICE_ID_REALTEK_READER  0x0152
->>>>    diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
->>>> index 3cccff7..1f131df 100644
->>>> --- a/drivers/hid/hid-rmi.c
->>>> +++ b/drivers/hid/hid-rmi.c
->>>> @@ -453,7 +453,15 @@ static int rmi_raw_event(struct hid_device *hdev,
->>>>          case RMI_ATTN_REPORT_ID:
->>>>                  return rmi_input_event(hdev, data, size);
->>>>          case RMI_MOUSE_REPORT_ID:
->>>> -               rmi_schedule_reset(hdev);
->>>> +               /*
->>>> +                * touchpads with physical mouse buttons will report
->>>> those
->>>> +                * buttons in mouse reports even in RMI mode. Only reset
->>>> +                * the device if we see reports which contain X or Y
->>>> data.
->>>> +                */
->>>> +               if (data[2] != 0 || data[3] != 0)
->>
->> this seems a little bit magical. There may not be an other solution,
->> but I would prefer that we look at alternatives before using this
->> magical numbers (will the touchpad always use the same report
->> descriptor on the mouse interface?)
->
->
-> I did just look at the reports and see where X and Y where reported. Since
-> mouse mode is really only there for compatibility when no custom driver is
-> present I think it is unlikely that it will change in the future. However,
-> there is no guarantee that it won't change. I will see if I can come up with
-> is less of a hack. Maybe, I can use the event callback instead of raw_event.
-
-I would prefer an event callback (if it is not too much trouble).
-
->
->
->>>> +                       rmi_schedule_reset(hdev);
->>>> +               else
->>>> +                       return 1;
->>>>                  break;
->>>>          }
->>>>    @@ -871,6 +879,11 @@ static int rmi_input_mapping(struct hid_device
->>>> *hdev,
->>>>                  struct hid_input *hi, struct hid_field *field,
->>>>                  struct hid_usage *usage, unsigned long **bit, int *max)
->>>>    {
->>>> +       if (field->application == HID_GD_POINTER
->>>> +               && (usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
->>>> +               /* Pass mouse button reports to generic code for
->>>> processing */
->>>> +               return 0;
->>>> +
->>>>          /* we want to make HID ignore the advertised HID collection */
->>>>          return -1;
->>>>    }
->>>
->>>
->> Cheers,
->> Benjamin
->
->
-> Andrew
+OK. I am not sure I will be able to make it today or tomorrow. Feel free
+to send the fixes right now if you can manage to send them now.
 
 Cheers,
 Benjamin
+
+> 
+> Kind regards,
+> Peter
+> 
+> > > 
+> > > >  }
+> > > >  
+> > > > @@ -989,7 +987,6 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
+> > > >  {
+> > > >  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> > > >  	char *name;
+> > > > -	u8 name_length;
+> > > >  
+> > > >  	if (use_unifying)
+> > > >  		/*
+> > > > @@ -999,7 +996,7 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
+> > > >  		 */
+> > > >  		name = hidpp_get_unifying_name(hidpp);
+> > > >  	else
+> > > > -		name = hidpp_get_device_name(hidpp, &name_length);
+> > > > +		name = hidpp_get_device_name(hidpp);
+> > > >  
+> > > >  	if (!name)
+> > > >  		hid_err(hdev, "unable to retrieve the name of the device");
+> > > > @@ -1053,7 +1050,6 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+> > > >  	bool connected = atomic_read(&hidpp->connected);
+> > > >  	struct input_dev *input;
+> > > >  	char *name, *devm_name;
+> > > > -	u8 name_length;
+> > > >  
+> > > >  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+> > > >  		wtp_connect(hdev, connected);
+> > > > @@ -1080,7 +1076,7 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+> > > >  		return;
+> > > >  	}
+> > > >  
+> > > > -	name = hidpp_get_device_name(hidpp, &name_length);
+> > > > +	name = hidpp_get_device_name(hidpp);
+> > > >  	if (!name) {
+> > > >  		hid_err(hdev, "unable to retrieve the name of the device");
+> > > >  	} else {
+> > > > 
+> 

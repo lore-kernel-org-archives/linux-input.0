@@ -1,141 +1,208 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: do not return the name length
-Date: Thu, 11 Dec 2014 01:06:17 +0100
-Message-ID: <1906623.oO6IMXUbli@al>
-References: <1418250070-28604-1-git-send-email-benjamin.tissoires@redhat.com> <4561294.qneDZ51mgu@al> <20141210230152.GC4861@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH v3 3/3] HID: wacom: Report input events for each finger on generic devices
+Date: Wed, 10 Dec 2014 16:26:04 -0800
+Message-ID: <1418257564-5561-1-git-send-email-killertofu@gmail.com>
+References: <CAN+gG=Fw0BvNZ8DQtGtuCer42D0wzBzE0NX4rAe+54b94=X7RQ@mail.gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:53652 "EHLO lekensteyn.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758156AbaLKAGc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Dec 2014 19:06:32 -0500
-In-Reply-To: <20141210230152.GC4861@mail.corp.redhat.com>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:38427 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933257AbaLKA0o (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Dec 2014 19:26:44 -0500
+Received: by mail-pa0-f49.google.com with SMTP id eu11so3802324pac.8
+        for <linux-input@vger.kernel.org>; Wed, 10 Dec 2014 16:26:44 -0800 (PST)
+In-Reply-To: <CAN+gG=Fw0BvNZ8DQtGtuCer42D0wzBzE0NX4rAe+54b94=X7RQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>
 
-On Wednesday 10 December 2014 18:01:52 Benjamin Tissoires wrote:
-> On Dec 10 2014 or thereabouts, Peter Wu wrote:
-> > On Wednesday 10 December 2014 17:21:09 Benjamin Tissoires wrote:
-> > > We do not make any use of the actual name length get through
-> > > hidpp_get_device_name().
-> > > 
-> > > We can drop the extra code and simplify the API a bit.
-> > > 
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > >
-> > > ---
-> > >  drivers/hid/hid-logitech-hidpp.c | 10 +++-------
-> > >  1 file changed, 3 insertions(+), 7 deletions(-)
-> > > 
-> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > > index 1a6395d..3846305 100644
-> > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > @@ -461,7 +461,7 @@ static int hidpp_devicenametype_get_device_name(struct hidpp_device *hidpp,
-> > >  	return count;
-> > >  }
-> > >  
-> > > -static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> > > +static char *hidpp_get_device_name(struct hidpp_device *hidpp)
-> > >  {
-> > >  	u8 feature_type;
-> > >  	u8 feature_index;
-> > > @@ -484,7 +484,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> > >  	if (!name)
-> > >  		goto out_err;
-> > >  
-> > > -	*name_length = __name_length + 1;
-> > >  	while (index < __name_length)
-> > >  		index += hidpp_devicenametype_get_device_name(hidpp,
-> > >  			feature_index, index, name + index,
-> > 
-> > hidpp_devicenametype_get_device_name can return a non-positive value if
-> > the USB device is unplugged at the wrong time, or if a malicious device
-> > is attached (and 0 is returned). An infinite loop is the result.
-> 
-> Oh, yes, you are definitively right.
-> 
-> > 
-> > Can you apply this change in the patch or should I send you a separate
-> > one?
-> 
-> Feel free to send your patch directly to the list.
-> 
-> > 
-> > 	while (index < __name_length) {
-> > 		ret = hidpp_devicenametype_get_device_name(hidpp,
-> > 			feature_index, index, name + index,
-> > 			__name_length - index);
-> > 		if (ret <= 0) {
-> > 			kfree(name);
-> > 			return NULL;
-> > 		}
-> > 		index += ret;
-> > 	}
-> > 
-> > > @@ -493,7 +492,6 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp, u8 *name_length)
-> > >  	return name;
-> > >  
-> > >  out_err:
-> > > -	*name_length = 0;
-> > >  	return NULL;
-> > 
-> > What about dropping the label out_err here and returning NULL in the
-> > previous places?
-> 
-> Yep, good idea. You can either send a patch for that if you want to take
-> credits, or I can send a v2. It's up to you.
-> 
-> Cheers,
-> Benjamin
+The existing generic touch code only reports events after reading an
+entire HID report, which practically means that only data about the last
+contact in a report will ever be provided to userspace. This patch uses
+a trick from hid-multitouch.c to discover what type of field is at the
+end of each contact; when such a field is encountered all the stored
+contact data will be reported.
 
-I found another place where a boundary check is missing, but will treat
-that in a separate patch. If you send a v2 with the return NULL fixed
-up, I'll base my patch (to add a retval check) on yours.
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+Changes from v2:
+ * No longer removing 'touch_max' variables to make changes clearer
+ * Renamed 'wacom_wac_finger_touches' to 'wacom_wac_finger_count_touches'
+ * Removed call to 'wacom_wac_finger_slot' in 'wacom_wac_finger_report' 
+   since it is already called for the single-touch case within 
+   'wacom_wac_finger_event'.
 
-Kind regards,
-Peter
+ drivers/hid/wacom_wac.c | 86 +++++++++++++++++++++++++++++++++----------------
+ drivers/hid/wacom_wac.h |  1 +
+ 2 files changed, 59 insertions(+), 28 deletions(-)
 
-> > 
-> > >  }
-> > >  
-> > > @@ -989,7 +987,6 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
-> > >  {
-> > >  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-> > >  	char *name;
-> > > -	u8 name_length;
-> > >  
-> > >  	if (use_unifying)
-> > >  		/*
-> > > @@ -999,7 +996,7 @@ static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
-> > >  		 */
-> > >  		name = hidpp_get_unifying_name(hidpp);
-> > >  	else
-> > > -		name = hidpp_get_device_name(hidpp, &name_length);
-> > > +		name = hidpp_get_device_name(hidpp);
-> > >  
-> > >  	if (!name)
-> > >  		hid_err(hdev, "unable to retrieve the name of the device");
-> > > @@ -1053,7 +1050,6 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
-> > >  	bool connected = atomic_read(&hidpp->connected);
-> > >  	struct input_dev *input;
-> > >  	char *name, *devm_name;
-> > > -	u8 name_length;
-> > >  
-> > >  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> > >  		wtp_connect(hdev, connected);
-> > > @@ -1080,7 +1076,7 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
-> > >  		return;
-> > >  	}
-> > >  
-> > > -	name = hidpp_get_device_name(hidpp, &name_length);
-> > > +	name = hidpp_get_device_name(hidpp);
-> > >  	if (!name) {
-> > >  		hid_err(hdev, "unable to retrieve the name of the device");
-> > >  	} else {
-> > > 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 064fd6c..26f27bd 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1381,10 +1381,12 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
+ 	unsigned touch_max = wacom_wac->features.touch_max;
+ 
+ 	switch (usage->hid) {
+ 	case HID_GD_X:
++		features->last_slot_field = usage->hid;
+ 		if (touch_max == 1)
+ 			wacom_map_usage(wacom, usage, field, EV_ABS, ABS_X, 4);
+ 		else
+@@ -1392,6 +1394,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 					ABS_MT_POSITION_X, 4);
+ 		break;
+ 	case HID_GD_Y:
++		features->last_slot_field = usage->hid;
+ 		if (touch_max == 1)
+ 			wacom_map_usage(wacom, usage, field, EV_ABS, ABS_Y, 4);
+ 		else
+@@ -1399,17 +1402,48 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
+ 					ABS_MT_POSITION_Y, 4);
+ 		break;
+ 	case HID_DG_CONTACTID:
++		features->last_slot_field = usage->hid;
+ 		break;
+ 	case HID_DG_INRANGE:
++		features->last_slot_field = usage->hid;
+ 		break;
+ 	case HID_DG_INVERT:
++		features->last_slot_field = usage->hid;
+ 		break;
+ 	case HID_DG_TIPSWITCH:
++		features->last_slot_field = usage->hid;
+ 		wacom_map_usage(wacom, usage, field, EV_KEY, BTN_TOUCH, 0);
+ 		break;
+ 	}
+ }
+ 
++static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
++		struct input_dev *input)
++{
++	struct hid_data *hid_data = &wacom_wac->hid_data;
++	bool mt = wacom_wac->features.touch_max > 1;
++	bool prox = hid_data->tipswitch &&
++		    !wacom_wac->shared->stylus_in_proximity;
++
++	if (mt) {
++		int slot;
++
++		slot = input_mt_get_slot_by_key(input, hid_data->id);
++		input_mt_slot(input, slot);
++		input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
++	}
++	else {
++		input_report_key(input, BTN_TOUCH, prox);
++	}
++
++	if (prox) {
++		input_report_abs(input, mt ? ABS_MT_POSITION_X : ABS_X,
++				 hid_data->x);
++		input_report_abs(input, mt ? ABS_MT_POSITION_Y : ABS_Y,
++				 hid_data->y);
++	}
++}
++
+ static int wacom_wac_finger_event(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage, __s32 value)
+ {
+@@ -1432,36 +1466,35 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
+ 	}
+ 
+ 
++	if (usage->usage_index + 1 == field->report_count) {
++		if (usage->hid == wacom_wac->features.last_slot_field)
++			wacom_wac_finger_slot(wacom_wac, wacom_wac->input);
++	}
++
+ 	return 0;
+ }
+ 
+-static void wacom_wac_finger_mt_report(struct wacom_wac *wacom_wac,
+-		struct input_dev *input, bool touch)
++static int wacom_wac_finger_count_touches(struct hid_device *hdev)
+ {
+-	int slot;
+-	struct hid_data *hid_data = &wacom_wac->hid_data;
++	struct wacom *wacom = hid_get_drvdata(hdev);
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct input_dev *input = wacom_wac->input;
++	unsigned touch_max = wacom_wac->features.touch_max;
++	int count = 0;
++	int i;
+ 
+-	slot = input_mt_get_slot_by_key(input, hid_data->id);
++	if (touch_max == 1)
++		return wacom_wac->hid_data.tipswitch &&
++		       !wacom_wac->shared->stylus_in_proximity;
+ 
+-	input_mt_slot(input, slot);
+-	input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
+-	if (touch) {
+-		input_report_abs(input, ABS_MT_POSITION_X, hid_data->x);
+-		input_report_abs(input, ABS_MT_POSITION_Y, hid_data->y);
++	for (i = 0; i < input->mt->num_slots; i++) {
++		struct input_mt_slot *ps = &input->mt->slots[i];
++		int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
++		if (id >= 0)
++			count++;
+ 	}
+-	input_mt_sync_frame(input);
+-}
+-
+-static void wacom_wac_finger_single_touch_report(struct wacom_wac *wacom_wac,
+-		struct input_dev *input, bool touch)
+-{
+-	struct hid_data *hid_data = &wacom_wac->hid_data;
+ 
+-	if (touch) {
+-		input_report_abs(input, ABS_X, hid_data->x);
+-		input_report_abs(input, ABS_Y, hid_data->y);
+-	}
+-	input_report_key(input, BTN_TOUCH, touch);
++	return count;
+ }
+ 
+ static void wacom_wac_finger_report(struct hid_device *hdev,
+@@ -1470,18 +1503,15 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct input_dev *input = wacom_wac->input;
+-	bool touch = wacom_wac->hid_data.tipswitch &&
+-		     !wacom_wac->shared->stylus_in_proximity;
+ 	unsigned touch_max = wacom_wac->features.touch_max;
+ 
+ 	if (touch_max > 1)
+-		wacom_wac_finger_mt_report(wacom_wac, input, touch);
+-	else
+-		wacom_wac_finger_single_touch_report(wacom_wac, input, touch);
++		input_mt_sync_frame(input);
++
+ 	input_sync(input);
+ 
+ 	/* keep touch state for pen event */
+-	wacom_wac->shared->touch_down = touch;
++	wacom_wac->shared->touch_down = wacom_wac_finger_count_touches(hdev);
+ }
+ 
+ #define WACOM_PEN_FIELD(f)	(((f)->logical == HID_DG_STYLUS) || \
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 5384043..bfad815 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -145,6 +145,7 @@ struct wacom_features {
+ 	int pktlen;
+ 	bool check_for_hid_type;
+ 	int hid_type;
++	int last_slot_field;
+ };
+ 
+ struct wacom_shared {
+-- 
+2.1.3
 

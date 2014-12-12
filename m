@@ -1,110 +1,72 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH v2] HID: logitech-hidpp: prefix the name with Logitech
-Date: Fri, 12 Dec 2014 12:35:37 +0100
-Message-ID: <1793038.ms5vbWQ64b@al>
-References: <1418337599-10239-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH] HID: i2c-hid: Do not free buffers in i2c_hid_stop()
+Date: Fri, 12 Dec 2014 14:01:49 +0200
+Message-ID: <1418385709-223977-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:37620 "EHLO lekensteyn.nl"
+Received: from mga11.intel.com ([192.55.52.93]:48735 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966072AbaLLLfq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Dec 2014 06:35:46 -0500
-In-Reply-To: <1418337599-10239-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S966268AbaLLMCE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Dec 2014 07:02:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, aduggan@synaptics.com, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Thursday 11 December 2014 17:39:59 Benjamin Tissoires wrote:
-> Current names are reported as "K750", "M705", and it can be misleading
-> for the users when they look at their input device list.
-> 
-> Prefixing the names with "Logitech " makes things better.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+When a hid driver that uses i2c-hid as transport is unloaded, the hid core
+will call i2c_hid_stop() which releases all the buffers associated with the
+device. This includes also the command buffer.
 
-Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+Now, when the i2c-hid driver itself is unloaded it tries to power down the
+device by sending it PWR_SLEEP command. Since the command buffer is already
+released we get following crash:
 
-I have not tested this one, but the approach looks correct. What I have
-also been thinking of is the possibility that Logitech adds "LOGITECH"
-or "Logicool" (the Japanese trademark) before devices, but I think that
-is unlikely so there is no need to check for other strings.
+ [   79.691459] BUG: unable to handle kernel NULL pointer dereference at           (null)
+ [   79.691532] IP: [<ffffffffa05bc049>] __i2c_hid_command+0x49/0x310 [i2c_hid]
+ ...
+ [   79.693467] Call Trace:
+ [   79.693494]  [<ffffffff810424e1>] ? __unmask_ioapic+0x21/0x30
+ [   79.693537]  [<ffffffff81042855>] ? unmask_ioapic+0x25/0x40
+ [   79.693581]  [<ffffffffa05bc35b>] ? i2c_hid_set_power+0x4b/0xa0 [i2c_hid]
+ [   79.693632]  [<ffffffffa05bc3cf>] ? i2c_hid_runtime_resume+0x1f/0x30 [i2c_hid]
+ [   79.693689]  [<ffffffff814c08fb>] ? __rpm_callback+0x2b/0x70
+ [   79.693733]  [<ffffffff814c0961>] ? rpm_callback+0x21/0x90
+ [   79.693776]  [<ffffffff814c0dec>] ? rpm_resume+0x41c/0x600
+ [   79.693820]  [<ffffffff814c1e1c>] ? __pm_runtime_resume+0x4c/0x80
+ [   79.693868]  [<ffffffff814b8588>] ? __device_release_driver+0x28/0x100
+ [   79.693917]  [<ffffffff814b8d90>] ? driver_detach+0xa0/0xb0
+ [   79.693959]  [<ffffffff814b82cc>] ? bus_remove_driver+0x4c/0xb0
+ [   79.694006]  [<ffffffff810d1cfd>] ? SyS_delete_module+0x11d/0x1d0
+ [   79.694054]  [<ffffffff8165f107>] ? int_signal+0x12/0x17
+ [   79.694095]  [<ffffffff8165ee69>] ? system_call_fastpath+0x12/0x17
 
-> ---
-> 
-> Changes in v2:
-> - renamed PREFIX_SIZE into PREFIX_LENGTH
-> - changed "name_length + PREFIX_LENGTH;" into "PREFIX_LENGTH + name_length;"
-> - rebased on Peter's last patch series
-> 
->  drivers/hid/hid-logitech-hidpp.c | 34 ++++++++++++++++++++++++++++++++++
->  1 file changed, 34 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 2f420c0..274dbb7 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -282,6 +282,33 @@ static inline bool hidpp_report_is_connect_event(struct hidpp_report *report)
->  		(report->rap.sub_id == 0x41);
->  }
->  
-> +/**
-> + * hidpp_prefix_name() prefixes the current given name with "Logitech ".
-> + */
-> +static void hidpp_prefix_name(char **name, int name_length)
-> +{
-> +#define PREFIX_LENGTH 9 /* "Logitech " */
-> +
-> +	int new_length;
-> +	char *new_name;
-> +
-> +	if (name_length > PREFIX_LENGTH &&
-> +	    strncmp(*name, "Logitech ", PREFIX_LENGTH) == 0)
-> +		/* The prefix has is already in the name */
-> +		return;
-> +
-> +	new_length = PREFIX_LENGTH + name_length;
-> +	new_name = kzalloc(new_length, GFP_KERNEL);
-> +	if (!new_name)
-> +		return;
-> +
-> +	snprintf(new_name, new_length, "Logitech %s", *name);
-> +
-> +	kfree(*name);
-> +
-> +	*name = new_name;
-> +}
-> +
->  /* -------------------------------------------------------------------------- */
->  /* HIDP++ 1.0 commands                                                        */
->  /* -------------------------------------------------------------------------- */
-> @@ -321,6 +348,10 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
->  		return NULL;
->  
->  	memcpy(name, &response.rap.params[2], len);
-> +
-> +	/* include the terminating '\0' */
-> +	hidpp_prefix_name(&name, len + 1);
-> +
->  	return name;
->  }
->  
-> @@ -498,6 +529,9 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp)
->  		index += ret;
->  	}
->  
-> +	/* include the terminating '\0' */
-> +	hidpp_prefix_name(&name, __name_length + 1);
-> +
->  	return name;
->  }
->  
-> 
+Fix this so that we only free buffers when the i2c-hid driver itself is
+removed.
 
+Fixes: 34f439e4afcd ("HID: i2c-hid: add runtime PM support")
+Reported-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 747d54421e73..a58c6a8d4f93 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -702,12 +702,7 @@ static int i2c_hid_start(struct hid_device *hid)
+ 
+ static void i2c_hid_stop(struct hid_device *hid)
+ {
+-	struct i2c_client *client = hid->driver_data;
+-	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-
+ 	hid->claimed = 0;
+-
+-	i2c_hid_free_buffers(ihid);
+ }
+ 
+ static int i2c_hid_open(struct hid_device *hid)
 -- 
-Kind regards,
-Peter
-https://lekensteyn.nl
+2.1.3
 

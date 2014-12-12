@@ -1,332 +1,260 @@
-From: Dudley Du <dudley.dulixin@gmail.com>
-Subject: [PATCH v14 06/12] input: cyapa: add gen3 trackpad device firmware update function support
-Date: Fri, 12 Dec 2014 10:27:36 +0800
-Message-ID: <1418351262-8163-7-git-send-email-dudley.dulixin@gmail.com>
-References: <1418351262-8163-1-git-send-email-dudley.dulixin@gmail.com>
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Subject: Re: NULL pointer dereference in i2c-hid
+Date: Fri, 12 Dec 2014 09:12:27 +0100
+Message-ID: <2094646.ov2KaAkedO@xps13>
+References: <31518562.V5Oyo0POsI@xps13> <6821401.vEKgLjO8sD@xps13> <548A3618.1020903@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418351262-8163-1-git-send-email-dudley.dulixin@gmail.com>
+In-Reply-To: <548A3618.1020903@synaptics.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se
-Cc: Dudley Du <dudley.dulixin@gmail.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 List-Id: linux-input@vger.kernel.org
 
-Add firmware image update function supported for gen3 trackpad device,
-it can be used through sysfs update_fw interface.
-TEST=test on Chromebooks.
+On Thursday 11 December 2014 16:26:00 Andrew Duggan wrote:
+> On 12/11/2014 01:57 PM, Gabriele Mazzotta wrote:
+> > On Thursday 11 December 2014 13:34:02 Andrew Duggan wrote:
+> >> On 12/11/2014 01:17 PM, Gabriele Mazzotta wrote:
+> >>> On Thursday 11 December 2014 12:46:53 Andrew Duggan wrote:
+> >>>> On 12/11/2014 11:40 AM, Gabriele Mazzotta wrote:
+> >>>>> On Thursday 11 December 2014 11:21:43 Andrew Duggan wrote:
+> >>>>>> On 12/11/2014 11:11 AM, Gabriele Mazzotta wrote:
+> >>>>>>> On Thursday 11 December 2014 10:40:05 Andrew Duggan wrote:
+> >>>>>>>> On 12/11/2014 10:16 AM, Gabriele Mazzotta wrote:
+> >>>>>>>>> On Thursday 11 December 2014 16:03:07 Mika Westerberg wrote:
+> >>>>>>>>>> On Thu, Dec 11, 2014 at 10:58:01AM +0200, Mika Westerberg wrote:
+> >>>>>>>>>>> On Wed, Dec 10, 2014 at 06:04:51PM +0100, Gabriele Mazzotta wrote:
+> >>>>>>>>>>>> my laptop uses a touchpad that needs hid-rmi along with i2c-hid to work.
+> >>>>>>>>>>>> i2c-hid and hid-rmi can be loaded and unloaded independelty from each
+> >>>>>>>>>>>> other, however since 34f439e4afcd ("HID: i2c-hid: add runtime PM support")
+> >>>>>>>>>>>> if I unload hid-rmi and after it I also unload i2c-hid, I get a NULL
+> >>>>>>>>>>>> pointer dereference.
+> >>>>>>>>>>> I'll look into this.
+> >>>>>>>>>>>
+> >>>>>>>>>>> I can reproduce this easily with i2c-hid + hid-multitouch following your
+> >>>>>>>>>>> directions.
+> >>>>>>>>>> Can you try the below patch?
+> >>>>>>>>>>
+> >>>>>>>>>> I think we shouldn't free buffers yet in ->stop() because we need the
+> >>>>>>>>>> command buffer sending power commands to the device. Also it seems that
+> >>>>>>>>>> ->start() re-allocates buffers anyway if maximum size increases.
+> >>>>>>>>>>
+> >>>>>>>>>> It shouldn't even leak memory as we release buffers at ->remove()
+> >>>>>>>>>> anyway.
+> >>>>>>>>>>
+> >>>>>>>>>> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> >>>>>>>>>> index 62cec01937ea..68a8c938feea 100644
+> >>>>>>>>>> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> >>>>>>>>>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> >>>>>>>>>> @@ -705,12 +705,7 @@ static int i2c_hid_start(struct hid_device *hid)
+> >>>>>>>>>>       
+> >>>>>>>>>>       static void i2c_hid_stop(struct hid_device *hid)
+> >>>>>>>>>>       {
+> >>>>>>>>>> -	struct i2c_client *client = hid->driver_data;
+> >>>>>>>>>> -	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> >>>>>>>>>> -
+> >>>>>>>>>>       	hid->claimed = 0;
+> >>>>>>>>>> -
+> >>>>>>>>>> -	i2c_hid_free_buffers(ihid);
+> >>>>>>>>>>       }
+> >>>>>>>>>>       
+> >>>>>>>>>>       static int i2c_hid_open(struct hid_device *hid)
+> >>>>>>>>> Yes, it works, thanks.
+> >>>>>>>>>
+> >>>>>>>>> This change seems to also prevent kernel ooops when I unload either
+> >>>>>>>>> i2c-hid or i2c-designware-platform while the touchpad is in use,
+> >>>>>>>>> thing that is likely to happen because of the other bug I reported.
+> >>>>>>>>>
+> >>>>>>>>> Speaking of it, does any of you have any suggestion on how to debug it?
+> >>>>>>>> I was able to reproduce the initial issue by unloading hid-rmi and
+> >>>>>>>> i2c-hid while holding my fingers on the touchpad. Mika's patch fixes it
+> >>>>>>>> for me.
+> >>>>>>>>
+> >>>>>>>> For the original bug, you can modprobe i2c-hid debug=1 and we can see
+> >>>>>>>> what data the touchpad is reporting. That might help narrowing down if
+> >>>>>>>> it's noise which the touchpad thinks are fingers or if there is a
+> >>>>>>>> problem with the I2C lines causing spurious interrupts.
+> >>>>>>>>
+> >>>>>>>> Andrew
+> >>>>>>> I've already tried to do that and here what I got:
+> >>>>>>>
+> >>>>>>> When I release the finger, the last message is repeated 81 times.
+> >>>>>>> If the byte containing informations about the width of the finger
+> >>>>>>> becomes equal to either c0 or 0c at least once, the last message is
+> >>>>>>> repeated indefinitely and changes as soon as I start using the touchpad.
+> >>>>>>> The only way to stop it is to unload and reload i2c-hid.
+> >>>>>> The reports before log throttling kicks in would still be useful. For
+> >>>>>> instance c0 is outside of the range of finger width which we report so
+> >>>>>> something is wrong there. But, the touchpad should stop interrupting
+> >>>>>> once the finger is lifted. The fact that subsequent reads are reporting
+> >>>>>> the same data does sound like a problem with I2C getting confused and
+> >>>>>> continuously interrupting and reading the old finger data. I am also
+> >>>>>> curious about the value of the byte after the report id.
+> >>>>>>
+> >>>>>> Andrew
+> >>>>> If I'm not wrong c0 means that the width is 12 on y axis, while 0c means
+> >>>>> that the width is 12 on the x axis.
+> >>>> You are correct! I forgot width was 4 bits for X and Y in the same byte.
+> >>>> That makes more sense.
+> >>>>
+> >>>>> I have to correct myself. The important thing is that the byte is either
+> >>>>> cx or xc, where x is anything below c.
+> >>>>>
+> >>>>> Another correction. Sometimes unloading i2c-hid is not enough, I have to
+> >>>>> first disable the touchpad with xinput and then unload i2c-hid. If I
+> >>>>> don't do it, the messages starts reappearing as soon as I reload i2c-hid.
+> >>>>>
+> >>>>> I did several tests in the past months and I'm quite sure that the bug
+> >>>>> happens only past xc/cy.
+> >>>> This maybe coincidental. It is not obvious to me why a certain width
+> >>>> value would cause the symptoms described.
+> >>> Yes, I don't deny it. This is just a constant I found in my tests.
+> >>>
+> >>>>> Here few lines right before the bug. The last line is repeated indefinitely:
+> >>>>>
+> >>>>> [ 1983.527097] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 67 5b 61 0a 5f 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.537211] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 67 5b 63 0a 60 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.547329] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 67 5b 64 0a 60 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.557486] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 67 5b 66 0a 60 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.567663] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 67 5b 68 0a 60 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.577719] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 67 5b 6a 0a 61 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.587852] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 67 5b 6b 0a 61 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.598001] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 67 5b 6e 0a 62 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.608215] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 68 5b 61 0a 62 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.618288] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 68 5b 64 0b 63 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.628493] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 68 5b 67 0b 63 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.638552] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 68 5b 69 0b 64 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.648663] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 68 5b 6c 0b 64 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.658789] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 68 5b 6f 0b 64 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.668923] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 69 5b 61 0b 65 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.678819] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 69 5b 64 0b 65 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.689230] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 69 5b 66 0b 65 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.699435] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 69 5b 68 0b 65 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.709502] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 69 5b 6a 0b 66 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.719574] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 69 5b 6c 0b 66 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.729713] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 69 5b 6e 0b 66 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.739863] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6a 5b 60 0b 66 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.750001] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6a 5b 62 0b 66 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.760150] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6a 5b 64 0b 67 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.770291] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6a 5b 66 0b 67 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.780445] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6a 5b 68 0b 67 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.790490] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6a 5b 5a 0b 68 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.800667] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6a 5b 4e 0c 69 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.810691] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6b 5b 31 0c 69 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.820963] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6b 5b 24 0c 6a 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.831071] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6b 5b 17 0c 6a 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.841178] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6b 5b 09 0c 6a 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.851325] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6b 5b 0b 0c 6b 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.861435] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6b 5b 0d 0c 6b 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.871566] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6b 5b 0f 0c 6b 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.881735] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 01 0c 6b 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.891975] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 03 0c 6b 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.902073] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 05 0c 6c 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.912155] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 07 0c 6b 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.922224] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 09 0c 6c 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.932364] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 0b 0c 6c 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.942480] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6c 5b 0d 0c 6c 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.952612] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6c 5b 0f 0c 6c 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.962774] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6d 5a f1 0d 6d 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.972932] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6d 5a f3 0d 6e 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.982872] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6d 5a f6 0d 6f 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1983.993194] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6d 5a f9 0d 6f 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.003295] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6d 5a fc 0d 6f 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.013511] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6d 5a ff 0d 70 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.023590] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6e 5a f2 0d 70 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.033747] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6e 5a f5 0e 71 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.043850] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6e 5a f8 0e 71 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.053873] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6e 5a fb 0e 71 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.064077] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6e 5a fe 0e 72 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.074207] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6f 5a f1 0e 72 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.084425] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 6f 5a f3 0e 72 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.094533] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6f 5a f6 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.104629] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6f 5a f8 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.114742] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6f 5a fa 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.124890] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6f 5a fc 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.135006] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 6f 5a fe 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.145149] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 70 5a f0 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.155317] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 70 5a e2 0e 73 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.165380] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 70 5a d4 0d 74 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.175532] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 70 5a d6 0d 74 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.185409] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 70 5a d8 0d 75 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.195761] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 70 5a db 0d 75 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.205909] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 70 5a dd 0d 75 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.216034] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 71 5a d0 0e 76 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.226198] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 71 5a d3 0e 77 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.236301] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 71 5a d6 0e 77 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.246520] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 71 5a cb 0f 79 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.256573] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 01 00 72 5a b1 0e 78 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.266697] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 72 5a a7 0e 77 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.276823] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 72 5a 6d 0d 72 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.286921] i2c_hid i2c-DLL060A:00: input: 20 00 0c 0c 01 00 73 59 96 0a 5a 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.296888] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 00 00 73 59 96 00 00 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.306825] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 00 00 73 59 96 00 00 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>>> [ 1984.316980] i2c_hid i2c-DLL060A:00: input: 20 00 0c 04 00 00 73 59 96 00 00 03 09 40 00 00 90 86 1d 00 00 00 00 00 00 00 00 00 00 00 00 00
+> >>>> The last report which repeats indicates that no fingers are present.
+> >>>> But, the click button is generating the interrupt and it is reporting
+> >>>> that it is in the down position. Could the click button be getting stuck
+> >>>> down? That would also explain why the data in the report is not
+> >>>> changing. Could you be bumping the touchpad with your palm which is
+> >>>> causing the click button to get stuck in the down position? That might
+> >>>> also explain the large width value. Our max width is 15, so 12 would
+> >>>> typically indicate a contact larger then a normal finger contact. That
+> >>>> would explain the width of 12 showing up when this happens.
+> >>> Yes, that's not a normal finger touch and the reported width seems
+> >>> quite accurate to me. There are no clicks involved, laying the side of
+> >>> my thumb gently on the top part of the clickpad (from where even voluntary
+> >>> clicks are hard to obtain) is enough to trigger the bug. If a click is
+> >>> reported, than something is really wrong.
+> >> Do the reports look the same? With the repeated reports starting with
+> >> "20 00 0c 04"?
+> > I'm not sure I understood exactly what you want to know, so this might
+> > not answer your questions.
+> >
+> > All the repeated messages look like this:
+> >
+> > 20 00 0c 04 00 00 27 57 fa 00 00 07 8a 0c 00 00 7e 87 eb 00 00 aa 8f 37 00 00 61 4d f1 00 00 00
+> >
+> > The values equal to zero are always equal to zero when there are no
+> > fingers on the touchpad. The non-zero values are equal to the last
+> > valid value recorded and don't change when the fingers are released.
+> >
+> > To get the above line I touched the touchpad with 5 fingers so that
+> > all the bytes (except the last one which is different from zero on
+> > click release) were used.
+> 
+> Yes, that was the information I was looking for. But, this must not be 
+> my day since it turns out I misremembered what 0x4 stood for and this is 
+> unrelated to the click button. You can ignore everything I said about 
+> the click button =)
+> 
+> The report you have above is actually a finger lift report which 
+> indicates that all of the fingers left the touchpad. I checked the 
+> firmware configuration for this touchpad and it will repeat the lift 
+> report probably about 40 times. This is the expected behavior. However, 
+> you reported earlier that the message had been repeated 81 times? That 
+> seems a bit high and it would not explain why it gets repeated indefinitely.
+> 
+> You can try disabling the repeating finger lift reports and see if that 
+> helps. To do that you need to download a utility at:
+> https://github.com/aduggan/rmi4utils
+> 
+> After building it run:
+> $ sudo ./rmihidtool -r 0x45 1 /dev/hidraw0
+> This should print out 0x78 assuming the register address is what I 
+> expect. If not I can send further instructions on how to figure that out.
+> 
+> To disable the repeating lift report run:
+> $ sudo ./rmihidtool -w 0x45 0x38 /dev/hidraw0
+> 
+> After you do that there should only be one finger lift report.
 
-Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
----
- drivers/input/mouse/cyapa_gen3.c | 284 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 284 insertions(+)
+Yes, this disables the repeating lift report, but the bug is still there.
 
-diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-index a50986c..1110668 100644
---- a/drivers/input/mouse/cyapa_gen3.c
-+++ b/drivers/input/mouse/cyapa_gen3.c
-@@ -416,6 +416,72 @@ static int cyapa_gen3_state_parse(struct cyapa *cyapa, u8 *reg_data, int len)
- 	return -EAGAIN;
- }
- 
-+/*
-+ * Enter bootloader by soft resetting the device.
-+ *
-+ * If device is already in the bootloader, the function just returns.
-+ * Otherwise, reset the device; after reset, device enters bootloader idle
-+ * state immediately.
-+ *
-+ * Also, if device was unregister device from input core.  Device will
-+ * re-register after it is detected following resumption of operational mode.
-+ *
-+ * Returns:
-+ *   0 on success
-+ *   -EAGAIN  device was reset, but is not now in bootloader idle state
-+ *   < 0 if the device never responds within the timeout
-+ */
-+static int cyapa_gen3_bl_enter(struct cyapa *cyapa)
-+{
-+	int error;
-+
-+	error = cyapa_poll_state(cyapa, 500);
-+	if (error)
-+		return error;
-+	if (cyapa->state == CYAPA_STATE_BL_IDLE) {
-+		/* Already in BL_IDLE. Skipping reset. */
-+		return 0;
-+	}
-+
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return -EAGAIN;
-+
-+	cyapa->state = CYAPA_STATE_NO_DEVICE;
-+	error = cyapa_write_byte(cyapa, CYAPA_CMD_SOFT_RESET, 0x01);
-+	if (error)
-+		return -EIO;
-+
-+	usleep_range(25000, 50000);
-+	error = cyapa_poll_state(cyapa, 500);
-+	if (error)
-+		return error;
-+	if ((cyapa->state != CYAPA_STATE_BL_IDLE) ||
-+		(cyapa->status[REG_BL_STATUS] & BL_STATUS_WATCHDOG))
-+		return -EAGAIN;
-+
-+	return 0;
-+}
-+
-+static int cyapa_gen3_bl_activate(struct cyapa *cyapa)
-+{
-+	int error;
-+
-+	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_activate),
-+					bl_activate);
-+	if (error)
-+		return error;
-+
-+	/* Wait for bootloader to activate; takes between 2 and 12 seconds */
-+	msleep(2000);
-+	error = cyapa_poll_state(cyapa, 11000);
-+	if (error)
-+		return error;
-+	if (cyapa->state != CYAPA_STATE_BL_ACTIVE)
-+		return -EAGAIN;
-+
-+	return 0;
-+}
-+
- static int cyapa_gen3_bl_deactivate(struct cyapa *cyapa)
- {
- 	int error;
-@@ -476,6 +542,218 @@ static int cyapa_gen3_bl_exit(struct cyapa *cyapa)
- 	return 0;
- }
- 
-+/* Used in gen3 bootloader commands. */
-+static u16 cyapa_gen3_csum(const u8 *buf, size_t count)
-+{
-+	int i;
-+	u16 csum = 0;
-+
-+	for (i = 0; i < count; i++)
-+		csum += buf[i];
-+
-+	return csum;
-+}
-+
-+/*
-+ * Verify the integrity of a CYAPA firmware image file.
-+ *
-+ * The firmware image file is 30848 bytes, composed of 482 64-byte blocks.
-+ *
-+ * The first 2 blocks are the firmware header.
-+ * The next 480 blocks are the firmware image.
-+ *
-+ * The first two bytes of the header hold the header checksum, computed by
-+ * summing the other 126 bytes of the header.
-+ * The last two bytes of the header hold the firmware image checksum, computed
-+ * by summing the 30720 bytes of the image modulo 0xffff.
-+ *
-+ * Both checksums are stored little-endian.
-+ */
-+static int cyapa_gen3_check_fw(struct cyapa *cyapa, const struct firmware *fw)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	u16 csum;
-+	u16 csum_expected;
-+
-+	/* Firmware must match exact 30848 bytes = 482 64-byte blocks. */
-+	if (fw->size != CYAPA_FW_SIZE) {
-+		dev_err(dev, "invalid firmware size = %zu, expected %u.\n",
-+			fw->size, CYAPA_FW_SIZE);
-+		return -EINVAL;
-+	}
-+
-+	/* Verify header block */
-+	csum_expected = (fw->data[0] << 8) | fw->data[1];
-+	csum = cyapa_gen3_csum(&fw->data[2], CYAPA_FW_HDR_SIZE - 2);
-+	if (csum != csum_expected) {
-+		dev_err(dev, "%s %04x, expected: %04x\n",
-+			"invalid firmware header checksum = ",
-+			csum, csum_expected);
-+		return -EINVAL;
-+	}
-+
-+	/* Verify firmware image */
-+	csum_expected = (fw->data[CYAPA_FW_HDR_SIZE - 2] << 8) |
-+			 fw->data[CYAPA_FW_HDR_SIZE - 1];
-+	csum = cyapa_gen3_csum(&fw->data[CYAPA_FW_HDR_SIZE],
-+			CYAPA_FW_DATA_SIZE);
-+	if (csum != csum_expected) {
-+		dev_err(dev, "%s %04x, expected: %04x\n",
-+			"invalid firmware header checksum = ",
-+			csum, csum_expected);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Write a |len| byte long buffer |buf| to the device, by chopping it up into a
-+ * sequence of smaller |CYAPA_CMD_LEN|-length write commands.
-+ *
-+ * The data bytes for a write command are prepended with the 1-byte offset
-+ * of the data relative to the start of |buf|.
-+ */
-+static int cyapa_gen3_write_buffer(struct cyapa *cyapa,
-+		const u8 *buf, size_t len)
-+{
-+	int error;
-+	size_t i;
-+	unsigned char cmd[CYAPA_CMD_LEN + 1];
-+	size_t cmd_len;
-+
-+	for (i = 0; i < len; i += CYAPA_CMD_LEN) {
-+		const u8 *payload = &buf[i];
-+
-+		cmd_len = (len - i >= CYAPA_CMD_LEN) ? CYAPA_CMD_LEN : len - i;
-+		cmd[0] = i;
-+		memcpy(&cmd[1], payload, cmd_len);
-+
-+		error = cyapa_i2c_reg_write_block(cyapa, 0, cmd_len + 1, cmd);
-+		if (error)
-+			return error;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * A firmware block write command writes 64 bytes of data to a single flash
-+ * page in the device.  The 78-byte block write command has the format:
-+ *   <0xff> <CMD> <Key> <Start> <Data> <Data-Checksum> <CMD Checksum>
-+ *
-+ *  <0xff>  - every command starts with 0xff
-+ *  <CMD>   - the write command value is 0x39
-+ *  <Key>   - write commands include an 8-byte key: { 00 01 02 03 04 05 06 07 }
-+ *  <Block> - Memory Block number (address / 64) (16-bit, big-endian)
-+ *  <Data>  - 64 bytes of firmware image data
-+ *  <Data Checksum> - sum of 64 <Data> bytes, modulo 0xff
-+ *  <CMD Checksum> - sum of 77 bytes, from 0xff to <Data Checksum>
-+ *
-+ * Each write command is split into 5 i2c write transactions of up to 16 bytes.
-+ * Each transaction starts with an i2c register offset: (00, 10, 20, 30, 40).
-+ */
-+static int cyapa_gen3_write_fw_block(struct cyapa *cyapa,
-+		u16 block, const u8 *data)
-+{
-+	int ret;
-+	u8 cmd[78];
-+	u8 status[BL_STATUS_SIZE];
-+	/* Programming for one block can take about 100ms. */
-+	int tries = 11;
-+	u8 bl_status, bl_error;
-+
-+	/* Set write command and security key bytes. */
-+	cmd[0] = 0xff;
-+	cmd[1] = 0x39;
-+	cmd[2] = 0x00;
-+	cmd[3] = 0x01;
-+	cmd[4] = 0x02;
-+	cmd[5] = 0x03;
-+	cmd[6] = 0x04;
-+	cmd[7] = 0x05;
-+	cmd[8] = 0x06;
-+	cmd[9] = 0x07;
-+	cmd[10] = block >> 8;
-+	cmd[11] = block;
-+	memcpy(&cmd[12], data, CYAPA_FW_BLOCK_SIZE);
-+	cmd[76] = cyapa_gen3_csum(data, CYAPA_FW_BLOCK_SIZE);
-+	cmd[77] = cyapa_gen3_csum(cmd, sizeof(cmd) - 1);
-+
-+	ret = cyapa_gen3_write_buffer(cyapa, cmd, sizeof(cmd));
-+	if (ret)
-+		return ret;
-+
-+	/* Wait for write to finish */
-+	do {
-+		usleep_range(10000, 20000);
-+
-+		/* Check block write command result status. */
-+		ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET,
-+					       BL_STATUS_SIZE, status);
-+		if (ret != BL_STATUS_SIZE)
-+			return (ret < 0) ? ret : -EIO;
-+	} while ((status[REG_BL_STATUS] & BL_STATUS_BUSY) && --tries);
-+
-+	/* Ignore WATCHDOG bit and reserved bits. */
-+	bl_status = status[REG_BL_STATUS] & ~BL_STATUS_REV_MASK;
-+	bl_error = status[REG_BL_ERROR] & ~BL_ERROR_RESERVED;
-+
-+	if (bl_status & BL_STATUS_BUSY)
-+		ret = -ETIMEDOUT;
-+	else if (bl_status != BL_STATUS_RUNNING ||
-+		bl_error != BL_ERROR_BOOTLOADING)
-+		ret = -EIO;
-+	else
-+		ret = 0;
-+
-+	return ret;
-+}
-+
-+static int cyapa_gen3_write_blocks(struct cyapa *cyapa,
-+		size_t start_block, size_t block_count,
-+		const u8 *image_data)
-+{
-+	int error;
-+	int i;
-+
-+	for (i = 0; i < block_count; i++) {
-+		size_t block = start_block + i;
-+		size_t addr = i * CYAPA_FW_BLOCK_SIZE;
-+		const u8 *data = &image_data[addr];
-+
-+		error = cyapa_gen3_write_fw_block(cyapa, block, data);
-+		if (error)
-+			return error;
-+	}
-+	return 0;
-+}
-+
-+static int cyapa_gen3_do_fw_update(struct cyapa *cyapa,
-+		const struct firmware *fw)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	int error;
-+
-+	/* First write data, starting at byte 128  of fw->data */
-+	error = cyapa_gen3_write_blocks(cyapa,
-+		CYAPA_FW_DATA_BLOCK_START, CYAPA_FW_DATA_BLOCK_COUNT,
-+		&fw->data[CYAPA_FW_HDR_BLOCK_COUNT * CYAPA_FW_BLOCK_SIZE]);
-+	if (error) {
-+		dev_err(dev, "FW update aborted, write image: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Then write checksum */
-+	error = cyapa_gen3_write_blocks(cyapa,
-+		CYAPA_FW_HDR_BLOCK_START, CYAPA_FW_HDR_BLOCK_COUNT,
-+		&fw->data[0]);
-+	if (error) {
-+		dev_err(dev, "FW update aborted, write checksum: %d\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
- /*
-  * cyapa_get_wait_time_for_pwr_cmd
-  *
-@@ -783,6 +1061,12 @@ static int cyapa_gen3_irq_handler(struct cyapa *cyapa)
- }
- 
- const struct cyapa_dev_ops cyapa_gen3_ops = {
-+	.check_fw = cyapa_gen3_check_fw,
-+	.bl_enter = cyapa_gen3_bl_enter,
-+	.bl_activate = cyapa_gen3_bl_activate,
-+	.update_fw = cyapa_gen3_do_fw_update,
-+	.bl_deactivate = cyapa_gen3_bl_deactivate,
-+
- 	.state_parse = cyapa_gen3_state_parse,
- 	.operational_check = cyapa_gen3_do_operational_check,
- 
--- 
-1.9.1
+> Also, if you can get the firmware id from your touchpad that would also 
+> be useful.
+> 
+> $ sudo ./rmihidtool -f /dev/hidraw0
+
+firmware id: 1522295

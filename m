@@ -1,86 +1,110 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
-Date: Fri, 12 Dec 2014 12:05:47 +0100
-Message-ID: <CANq1E4SVQAkyxJpiYsiLkjsET27QUK9PHTHTAqp4wQZVLKrMiw@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
-	<CANq1E4QvuNHRq6Saca-KigTjmvyosqM6_JkqF-_OHqxLa=Zdow@mail.gmail.com>
-	<CALCETrVU5Kq0wYGXNQ1dsihy1LN1WUmAN4J9puyVPv=b_WNrLw@mail.gmail.com>
-	<CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
-	<alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz>
-	<CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
-	<CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
-	<CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com>
-	<CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
-	<CALCETrXcHKwBuOA0wpFzgSe8Z9+t8LyaB7U+vdgVsR=YZc+GjQ@mail.gmail.com>
+From: Peter Wu <peter@lekensteyn.nl>
+Subject: Re: [PATCH v2] HID: logitech-hidpp: prefix the name with Logitech
+Date: Fri, 12 Dec 2014 12:35:37 +0100
+Message-ID: <1793038.ms5vbWQ64b@al>
+References: <1418337599-10239-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f174.google.com ([209.85.213.174]:34945 "EHLO
-	mail-ig0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965528AbaLLLFs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Dec 2014 06:05:48 -0500
-Received: by mail-ig0-f174.google.com with SMTP id hn15so1245018igb.13
-        for <linux-input@vger.kernel.org>; Fri, 12 Dec 2014 03:05:47 -0800 (PST)
-In-Reply-To: <CALCETrXcHKwBuOA0wpFzgSe8Z9+t8LyaB7U+vdgVsR=YZc+GjQ@mail.gmail.com>
+Received: from lekensteyn.nl ([178.21.112.251]:37620 "EHLO lekensteyn.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S966072AbaLLLfq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Dec 2014 06:35:46 -0500
+In-Reply-To: <1418337599-10239-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi
+On Thursday 11 December 2014 17:39:59 Benjamin Tissoires wrote:
+> Current names are reported as "K750", "M705", and it can be misleading
+> for the users when they look at their input device list.
+> 
+> Prefixing the names with "Logitech " makes things better.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thu, Dec 11, 2014 at 6:36 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-> It happens during driver probe.  I don't set GET_REPORT to my device
-> -- the protocol consists solely of SET_REPORT from the driver followed
-> by an asynchronous (but generally reasonably quick) report back from
-> the device.
->
-> During probe, I set INIT, and the device responds by saying "I'm a
-> device.  I speak this version of the protocol.
->
-> Shouldn't that code be more like:
->
-> mutex_lock(whatever);
-> if (driver loaded)
->   deliver the report;
-> mutex_unlock(whatever);
->
-> and then the core could hold the lock briefly as well when probing or
-> in hid_hw_open/hid_hw_close.
+Reviewed-by: Peter Wu <peter@lekensteyn.nl>
 
-If we only lock around a boolean flag, we need a wait-queue to make
-sure a driver-removal does not run before driver-probe is done. I
-haven't looked at it in detail, maybe we're only called from
-driver-core so we already have this guarantee. Not sure. Feel free to
-send patches.
+I have not tested this one, but the approach looks correct. What I have
+also been thinking of is the possibility that Logitech adds "LOGITECH"
+or "Logicool" (the Japanese trademark) before devices, but I think that
+is unlikely so there is no need to check for other strings.
 
-So far, the solution is to use hid_device_io_start() and
-hid_device_io_stop() in ->probe(). It's a hack to allow I/O during
-->probe(). Maybe your idea is the way to go, but unless someone
-implements it, we're stuck with the current code.
+> ---
+> 
+> Changes in v2:
+> - renamed PREFIX_SIZE into PREFIX_LENGTH
+> - changed "name_length + PREFIX_LENGTH;" into "PREFIX_LENGTH + name_length;"
+> - rebased on Peter's last patch series
+> 
+>  drivers/hid/hid-logitech-hidpp.c | 34 ++++++++++++++++++++++++++++++++++
+>  1 file changed, 34 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 2f420c0..274dbb7 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -282,6 +282,33 @@ static inline bool hidpp_report_is_connect_event(struct hidpp_report *report)
+>  		(report->rap.sub_id == 0x41);
+>  }
+>  
+> +/**
+> + * hidpp_prefix_name() prefixes the current given name with "Logitech ".
+> + */
+> +static void hidpp_prefix_name(char **name, int name_length)
+> +{
+> +#define PREFIX_LENGTH 9 /* "Logitech " */
+> +
+> +	int new_length;
+> +	char *new_name;
+> +
+> +	if (name_length > PREFIX_LENGTH &&
+> +	    strncmp(*name, "Logitech ", PREFIX_LENGTH) == 0)
+> +		/* The prefix has is already in the name */
+> +		return;
+> +
+> +	new_length = PREFIX_LENGTH + name_length;
+> +	new_name = kzalloc(new_length, GFP_KERNEL);
+> +	if (!new_name)
+> +		return;
+> +
+> +	snprintf(new_name, new_length, "Logitech %s", *name);
+> +
+> +	kfree(*name);
+> +
+> +	*name = new_name;
+> +}
+> +
+>  /* -------------------------------------------------------------------------- */
+>  /* HIDP++ 1.0 commands                                                        */
+>  /* -------------------------------------------------------------------------- */
+> @@ -321,6 +348,10 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
+>  		return NULL;
+>  
+>  	memcpy(name, &response.rap.params[2], len);
+> +
+> +	/* include the terminating '\0' */
+> +	hidpp_prefix_name(&name, len + 1);
+> +
+>  	return name;
+>  }
+>  
+> @@ -498,6 +529,9 @@ static char *hidpp_get_device_name(struct hidpp_device *hidpp)
+>  		index += ret;
+>  	}
+>  
+> +	/* include the terminating '\0' */
+> +	hidpp_prefix_name(&name, __name_length + 1);
+> +
+>  	return name;
+>  }
+>  
+> 
 
-Please have a look at some other drivers in drivers/hid/ to see how
-hid_device_io_start() / hid_device_io_stop() is used. You should be
-fine by just calling hid_device_io_start() from ->probe() after your
-context setup is done and you called hid_hw_start().
+-- 
+Kind regards,
+Peter
+https://lekensteyn.nl
 
-> (Also, shouldn't hid_hw_open have some kind of reference counting to
-> avoid interference between hidraw and real drivers?  Or does that
-> already work correctly somehow?)
-
-Kinda.. currently, hidraw is treated as a passive client. That is, the
-hid-device-driver manages the device and hidraw does not interfere. If
-no device-driver is loaded, hid_hw_start/stop is called by hid-core,
-so hidraw will usually work fine. However, if a device-driver is
-loaded, it gets exclusive access to the hardware so is also
-responsible of hid_hw_start/stop. hidraw will follow its lead. Note
-that this is _required_ by some devices as vendors are really crappy
-in writing HID firmware. Think like devices which need an
-initialization after transport-layer setup, or they will timeout... or
-continuous beacon events... It's stuff like that.. Not sure whether we
-still have drivers for broken devices like that, but afaik that's
-where this originated.
-
-Thanks
-David

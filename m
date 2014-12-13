@@ -1,72 +1,87 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCHv3 5/5] ARM: sunxi: dts: Add note ps2 pins conflict with hdmi
-Date: Sat, 13 Dec 2014 10:06:04 +0800
-Message-ID: <CAGb2v65xpUhiMzSKu_1+JGNbg3oFdpw2EQ+JGUYkivCtG2O6gw@mail.gmail.com>
-References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com> <1418408748-9797-6-git-send-email-vishnupatekar0510@gmail.com>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH v14 00/12] input: cyapa: instruction of cyapa patches
+Date: Sat, 13 Dec 2014 02:17:53 -0800
+Message-ID: <20141213101753.GA9290@newt.localdomain>
+References: <1418351262-8163-1-git-send-email-dudley.dulixin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:35732 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753313AbaLMCG1 (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:33084 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966327AbaLMKR5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Dec 2014 21:06:27 -0500
-In-Reply-To: <1418408748-9797-6-git-send-email-vishnupatekar0510@gmail.com>
+	Sat, 13 Dec 2014 05:17:57 -0500
+Content-Disposition: inline
+In-Reply-To: <1418351262-8163-1-git-send-email-dudley.dulixin@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: VishnuPatekar <vishnupatekar0510@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans De Goede <hdegoede@redhat.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, benh@kernel.crashing.org, msalter@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>, ralf@linux-mips.org, Rob Herring <robh+dt@kernel.org>, jdelvare@suse.de, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+To: Dudley Du <dudley.dulixin@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+Dudley,
 
-On Sat, Dec 13, 2014 at 2:25 AM, VishnuPatekar
-<vishnupatekar0510@gmail.com> wrote:
-> 1. Please note that ps20 pins conflict with HDMI on Lime2 Board
-> so, by deault ps20 and ps21 are disabled for Lime2 Board.
-> There is no on board ps2 connector and these pins can be used
-> for different purpose.
->
-> Signed-off-by: VishnuPatekar <vishnupatekar0510@gmail.com>
-> ---
->  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> index ed364d5..951b615 100644
-> --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-> @@ -112,7 +112,11 @@
->                         pinctrl-0 = <&uart0_pins_a>;
->                         status = "okay";
->                 };
-> -
-> +
-> +               /* PS2 0 and PS2 1 are disabled by default; Please note that
-> +               ps20 pins conflict with HDMI on Lime2 Board
-> +               */
-> +
+On Fri, Dec 12, 2014 at 10:27:30AM +0800, Dudley Du wrote:
+> V14 patches have below updates, details of other updates see history list:
+> 1) Correct 9 miss spelling issues of "bufferred" to "buffered".
+> 2) Fix the upgrade issue of removing MOUSE_CYAPA config when make oldconfig
+>    by replase "depends on I2C && CRC_ITU_T" with
+> 	"depends on I2C"
+> 	"select CRC_ITU_T"
+>    in patch 9.
+> 
+[...]
 
-Multi-line comments should be:
+I found some sparse warnings that should be fixed.
 
-/*
- * line 1
- * line 2
- * ...
- */
+  jeri@newt:~/linux-next$ touch drivers/input/mouse/*.c
+  jeri@newt:~/linux-next$ touch drivers/input/mouse/*.h
+  jeri@newt:~/linux-next$ make C=1
+    CHK     include/config/kernel.release
+    CHK     include/generated/uapi/linux/version.h
+    CHK     include/generated/utsrelease.h
+    CALL    scripts/checksyscalls.sh
+    CHK     include/generated/compile.h
+    CHK     kernel/config_data.h
+    CHECK   drivers/input/mouse/cyapa.c
+  drivers/input/mouse/cyapa.c:43:9: warning: symbol 'cyapa_i2c_read' was
+  not declared. Should it be static?
+  drivers/input/mouse/cyapa.c:80:9: warning: symbol 'cyapa_i2c_write' was
+  not declared. Should it be static?
+  drivers/input/mouse/cyapa.c:289:5: warning: symbol 'cyapa_detect' was
+  not declared. Should it be static?
+    CC [M]  drivers/input/mouse/cyapa.o
+    CHECK   drivers/input/mouse/cyapa_gen3.c
+  drivers/input/mouse/cyapa_gen3.c:299:5: warning: symbol
+  'cyapa_read_byte' was not declared. Should it be static?
+  drivers/input/mouse/cyapa_gen3.c:312:5: warning: symbol
+  'cyapa_write_byte' was not declared. Should it be static?
+  drivers/input/mouse/cyapa_gen3.c:331:9: warning: symbol
+  'cyapa_i2c_reg_write_block' was not declared. Should it be static?
+    CC [M]  drivers/input/mouse/cyapa_gen3.o
+    CHECK   drivers/input/mouse/cyapa_gen5.c
+  drivers/input/mouse/cyapa_gen5.c:334:5: warning: symbol
+  'cyapa_empty_pip_output_data' was not declared. Should it be static?
+  drivers/input/mouse/cyapa_gen5.c:553:6: warning: symbol
+  'cyapa_gen5_sort_tsg_pip_bl_resp_data' was not declared. Should it be
+  static?
+  drivers/input/mouse/cyapa_gen5.c:568:6: warning: symbol
+  'cyapa_gen5_sort_tsg_pip_app_resp_data' was not declared. Should it be
+  static?
+  drivers/input/mouse/cyapa_gen5.c:595:6: warning: symbol
+  'cyapa_gen5_sort_application_launch_data' was not declared. Should it be
+  static?
+  drivers/input/mouse/cyapa_gen5.c:995:6: warning: symbol
+  'cyapa_gen5_sort_bl_exit_data' was not declared. Should it be static?
+  drivers/input/mouse/cyapa_gen5.c:1112:72: warning: Using plain integer
+  as NULL pointer
+    CC [M]  drivers/input/mouse/cyapa_gen5.o
+    LD [M]  drivers/input/mouse/cyapatp.o
+  Kernel: arch/x86/boot/bzImage is ready  (#127)
+    Building modules, stage 2.
+    MODPOST 187 modules
+    CC      drivers/input/mouse/cyapatp.mod.o
+    LDFINAL [M]  drivers/input/mouse/cyapatp.ko
+  jeri@newt:~/linux-next
 
-And why is there a delete and insert for an empty line?
-Weird... though git seems to ignore it when applying.
-
-ChenYu
-
->                 i2c0: i2c@01c2ac00 {
->                         pinctrl-names = "default";
->                         pinctrl-0 = <&i2c0_pins_a>;
-> --
-> 1.7.9.5
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+-- 
+- Jeremiah Mahler

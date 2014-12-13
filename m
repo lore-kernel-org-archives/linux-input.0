@@ -1,81 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio_keys - fix warning regarding uninitialized
- 'button' variable
-Date: Sat, 13 Dec 2014 11:05:20 -0800
-Message-ID: <20141213190520.GC22702@dtor-ws>
-References: <1418136252-14365-1-git-send-email-fabio.estevam@freescale.com>
- <20141213190035.GB22702@dtor-ws>
+Subject: Re: [PATCH 2/2] Input: gpio_keys - replace timer and workqueue with
+ delayed workqueue
+Date: Sat, 13 Dec 2014 11:09:26 -0800
+Message-ID: <20141213190926.GD22702@dtor-ws>
+References: <20141208071930.GA20802@dtor-ws>
+ <20141208072124.GA21031@dtor-ws>
+ <1418236376.17201.57.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:55773 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752360AbaLMTFZ (ORCPT
+Received: from mail-ig0-f169.google.com ([209.85.213.169]:62993 "EHLO
+	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753701AbaLMTJc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Dec 2014 14:05:25 -0500
-Received: by mail-ie0-f174.google.com with SMTP id rl12so8745730iec.19
-        for <linux-input@vger.kernel.org>; Sat, 13 Dec 2014 11:05:24 -0800 (PST)
+	Sat, 13 Dec 2014 14:09:32 -0500
 Content-Disposition: inline
-In-Reply-To: <20141213190035.GB22702@dtor-ws>
+In-Reply-To: <1418236376.17201.57.camel@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: linux-input@vger.kernel.org, festevam@gmail.com
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Alexander Stein <alexander.stein@systec-electronic.com>, Linus Walleij <linus.walleij@linaro.org>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Alexander Shiyan <shc_work@mail.ru>, Laxman Dewangan <ldewangan@nvidia.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2014 at 11:00:35AM -0800, Dmitry Torokhov wrote:
-> On Tue, Dec 09, 2014 at 12:44:12PM -0200, Fabio Estevam wrote:
-> > Commit af906faabcf91eb1 ("Input: gpio_keys - fix warning regarding uninitialized
-> > 'irq' variable") introduced the following build warning:
-> > 
-> > drivers/input/keyboard/gpio_keys.c:625:16: warning: 'button' may be used uninitialized in this function [-Wmaybe-uninitialized]
-> > 
-> > Move the 'button' initialization to a proper location to avoid such warning.
-> 
-> Doh! Why didn't I see the warning at least? Argh!
-> 
-> Applied, thank you.
-> 
-> > 
-> > Reported-by: Olof's autobuilder <build@lixom.net>
-> > Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> > ---
-> >  drivers/input/keyboard/gpio_keys.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> > index fb8256f..28ac922 100644
-> > --- a/drivers/input/keyboard/gpio_keys.c
-> > +++ b/drivers/input/keyboard/gpio_keys.c
-> > @@ -621,6 +621,8 @@ gpio_keys_get_devtree_pdata(struct device *dev)
-> >  		int gpio = -1;
-> >  		enum of_gpio_flags flags;
-> >  
-> > +		button = &pdata->buttons[i++];
-> > +
-> >  		if (!of_find_property(pp, "gpios", NULL)) {
-> >  			button->irq = irq_of_parse_and_map(pp, 0);
-> >  			if (button->irq == 0) {
+Hi Andy,
 
-By the way, I added
-				i--;
-
-here to avoid skipping over one element.
-
-> > @@ -640,8 +642,6 @@ gpio_keys_get_devtree_pdata(struct device *dev)
-> >  			}
-> >  		}
-> >  
-> > -		button = &pdata->buttons[i++];
-> > -
-> >  		button->gpio = gpio;
-> >  		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
-> >  
-> > -- 
-> > 1.9.1
+On Wed, Dec 10, 2014 at 08:32:56PM +0200, Andy Shevchenko wrote:
+> On Sun, 2014-12-07 at 23:21 -0800, Dmitry Torokhov wrote:
+> > We do not need to roll our own implementation of delayed work now that we
+> > have proper implementation of mod_delayed_work.
 > > 
+> > For interrupt-only driven buttons we retain the timer, but we rename
+> > it to release_timer to better reflect its purpose.
 > 
-> -- 
-> Dmitry
+> At least it doesn't break the driver on Intel Medfield device.
+> 
+> Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+Thank you for testing it. Assume it is for both patches, right?
 
 -- 
 Dmitry

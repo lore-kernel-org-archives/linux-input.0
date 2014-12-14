@@ -1,162 +1,115 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [systemd-devel] Supporting U2F over HID on Linux?
-Date: Sat, 13 Dec 2014 16:51:26 -0800
-Message-ID: <CALCETrVn8H9PAxdw8EzfdSa6d5hyG=Dok-CYyJaXGOsWjk8j9A@mail.gmail.com>
-References: <CALCETrXKcU1KaEjFUm9QkEhZRh9wFnoR=hV7O9pUJmYRqNCxpg@mail.gmail.com>
- <CANq1E4Sa=D_hvSp2SqHy4cV-oxd-kchsNVivcF54cBv8DK7gOQ@mail.gmail.com>
- <alpine.LNX.2.00.1411032115140.19451@pobox.suse.cz> <CALCETrVkZxc9G+B9jYYFmiE20VGcnugrB21_MRvjNhDTvP00zQ@mail.gmail.com>
- <CALCETrXf4wX5OoGJs2HWbzSLOz764XXg09mSHiTV=-GVCEUQuQ@mail.gmail.com>
- <CALCETrU9Nfpt0Zch5Swi+OaK=KTjJoOw7GAx4B7q1B56SqrUbA@mail.gmail.com>
- <CANq1E4Q8gTgMj+twRE3xjs1OfKUmbOmOatk_sDPPAW2BB4jscw@mail.gmail.com>
- <CALCETrXcHKwBuOA0wpFzgSe8Z9+t8LyaB7U+vdgVsR=YZc+GjQ@mail.gmail.com>
- <CANq1E4SVQAkyxJpiYsiLkjsET27QUK9PHTHTAqp4wQZVLKrMiw@mail.gmail.com>
- <CALCETrVfvK-BhaQMyfvLndfmX+gwAwshx3vdCFa7sOr+R1Jjpw@mail.gmail.com>
- <CANq1E4Q8+0_cLtwraK=gqFBovQoft9-0S4+ns_n9A7CinNTw7g@mail.gmail.com>
- <CALCETrW-Mt5Hqh353t3zm6Pq2kSUkw_16a2=DFHoEk=G92AU+w@mail.gmail.com>
- <CANq1E4QATOTs0ZtQF0mT645Z5u+vxYyphq8-UbqvNAc4iNz3iQ@mail.gmail.com>
- <CALCETrWD6w5QQSvnt=jkyHPNiBskQFxj5+LZey66LxXfyK_GcQ@mail.gmail.com>
- <alpine.LNX.2.00.1412132353500.9918@pobox.suse.cz> <CALCETrWd0AE+2GOj5NWcm0yDXWLZxeNg3caQYdKQ_m6s+jizjg@mail.gmail.com>
- <CAN+gG=F4GSe-jTGqu+73K_7QjRmkSQpwydn1ucEVKhwhWWoTYQ@mail.gmail.com>
- <CALCETrWxVmMSHwv5zJEBn7MMOX5qyQGW1S9FoSVxAGLh9_CKEw@mail.gmail.com>
- <CAN+gG=FW80TOTDbbXW2Yw9BdoSBJTZwXa94TyFOaMirBS7YgJQ@mail.gmail.com>
- <CALCETrXaFFemY8aNttw2tjOBDLE+gS6ydoibx6zmrWFyGPp-9w@mail.gmail.com> <CAN+gG=FzkFb4Uf3v0a=Js_=59kL9A2seqz5wa_FAPiojzrDvgQ@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCHv3 0/5] ARM:sunxi:ps2 Added support for A10/A20 ps2 controller.
+Date: Sun, 14 Dec 2014 10:01:59 +0100
+Message-ID: <548D5207.8030004@redhat.com>
+References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>	<548C1E7D.1000005@redhat.com> <CAEzqOZtyeAnG660AKf_0_gCa-+BT_pAzHk0HYYSCdm4y89GFJA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f45.google.com ([209.85.215.45]:40259 "EHLO
-	mail-la0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750755AbaLNAvs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Dec 2014 19:51:48 -0500
-Received: by mail-la0-f45.google.com with SMTP id gq15so7940374lab.18
-        for <linux-input@vger.kernel.org>; Sat, 13 Dec 2014 16:51:47 -0800 (PST)
-In-Reply-To: <CAN+gG=FzkFb4Uf3v0a=Js_=59kL9A2seqz5wa_FAPiojzrDvgQ@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:36775 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751053AbaLNJDL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 14 Dec 2014 04:03:11 -0500
+In-Reply-To: <CAEzqOZtyeAnG660AKf_0_gCa-+BT_pAzHk0HYYSCdm4y89GFJA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Vishnu Patekar <vishnupatekar0510@gmail.com>
+Cc: linux-input@vger.kernel.org, maxime.ripard@free-electrons.com, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, grant.likely@linaro.org, benh@kernel.crashing.org, msalter@redhat.com, ralf@linux-mips.org, jdelvare@suse.de
 
-On Sat, Dec 13, 2014 at 4:48 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Sat, Dec 13, 2014 at 7:41 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->> On Sat, Dec 13, 2014 at 4:39 PM, Benjamin Tissoires
->> <benjamin.tissoires@gmail.com> wrote:
->>> On Sat, Dec 13, 2014 at 7:33 PM, Andy Lutomirski <luto@amacapital.net> wrote:
->>>> On Sat, Dec 13, 2014 at 4:06 PM, Benjamin Tissoires
->>>> <benjamin.tissoires@gmail.com> wrote:
->>>>>
->>>>> On Dec 13, 2014 6:28 PM, "Andy Lutomirski" <luto@amacapital.net> wrote:
->>>>>>
->>>>>> On Sat, Dec 13, 2014 at 2:56 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->>>>>> > On Fri, 12 Dec 2014, Andy Lutomirski wrote:
->>>>>> >
->>>>>> >> It's roughly ISO7816-3.  For the uninitiated (and the ISO7816 standard
->>>>>> >> is amazingly vague), that means that the application sends a short
->>>>>> >> (<64kB) binary request to the device (with a type, two "parameters",
->>>>>> >> and a payload), and the device answers with exactly one reply packet
->>>>>> >> that has two bytes of status and a payload.  These requests and
->>>>>> >> replies are fragmented into multiple HID reports.
->>>>>> >
->>>>>> > Sorry for taking one (or maybe even more) step back, but what makes this
->>>>>> > thing even "HID device"?
->>>>>> >
->>>>>> > Yes, it interacts with human beings, but are the operations it's doing
->>>>>> > covered by HID specification (at least in a "does it have HID
->>>>>> > descriptor"
->>>>>> > sense)? It's not really completely clear to me at this point.
->>>>>>
->>>>>> It has a HID descriptor, it's recognized by the HID stack, it
->>>>>> understands SET_REPORT, and it generates async HID reports.  Hidraw is
->>>>>> willing to talk to it and, in fact, Chromium talks to it using hidraw
->>>>>> (ugh).
->>>>>>
->>>>>> It's also supposed to be *enumerated* by reading the HID descriptor.
->>>>>> There are multiple vendors of these things, and the USB descriptor
->>>>>> doesn't seem to have anything in it to identify the device.
->>>>>>
->>>>>> I think that's the full extent to which it's a HID device.
->>>>>
->>>>> And the most important, these devices have a button on them :)
->>>>
->>>> Someone should have told the U2F committee that the device should send
->>>> a HID report, then :-/
->>>>
->>>> (Also, at least one implementation is missing the button.  You "press
->>>> the button" by unplugging and replugging the whole device.)
->>>>
->>>
->>> Well, on the Yubico Fido U2F, there is a button, but it only works
->>> when the client calls the right SET_REPORT. I guess it is to prevent
->>> an attack when there is nobody physically behind the key. So
->>> removing/replugging the device gives the same security: a physical
->>> interaction is required.
->>>
->>> Not sending an input report is here to help such button-less devices.
+Hi,
+
+On 13-12-14 21:01, Vishnu Patekar wrote:
+> Hello Hans,
+> Please find my comments inlined.
+>
+> On 12/13/14, Hans de Goede <hdegoede@redhat.com> wrote:
+>> Hi VishnuPatekar,
 >>
->> It requires that apps on devices with buttons (e.g. the Yubico device)
->> poll to see when the button is pressed, though.
+>> The patch mangling for this set seems to have gone a bit wrong I'm afraid
 >
-> So this gives one more reason to have a proper kernel interface for
-> not doing this ugly polling :)
+> No, this time I've corrected it. Infact, last version of patch did not
+> used the status bit error macros.
 >
-> Out of curiosity, how did you managed to get the unplug/replugged
-> working? Normally, a hid(raw) device is tighten to its physical
-> presence, so when you remove the device, you should lose all the
-> context...
+>> a lot of the patches have my fixup commit messages (which should have
+>> disappeared when squashing in the patches), please replace those by proper
+>> commit messages describing what the patch actually does.
+> Yes, [PATCHv3 3/5] uses fixup. I'll correct it.
+>>
+>> Also the adding of the commented nodes for the lime2 seems to be gone
+>> entirely
+>> from the set, instead now only a comment about the conflict with the hdmi
+>> pins is added, but it is above the i2c node instead of above a ps2 node.
+>>
+> Maxime's suggested that we should not add commented nodes specially
+> when its trivial to apply. And just note saying ps20 pins conflict
+> with HDMI.
 
-The way it works is that you send an authentication request and the
-device either consumes a button press and accepts the request or it
-blinks the light and returns an error.  Userspace is expected to retry
-the entire request until it works.  So the kernel *can't* avoid
-polling because the device doesn't give any (documented) asynchronous
-indication that the button was pressed.  On the other hand, if you
-unplug and replug a device, there's no state lost because there was
-never any state to begin with.
+Ah, I see.
 
---Andy
+> Should I remove the this comment as well?
+> Or
+> Put this note in start of DTS file?
 
->
-> Cheers,
-> Benjamin
->
->>>
->>>
->>>> --Andy
->>>>
->>>>>
->>>>> Cheers,
->>>>> Benjamin
->>>>>
->>>>>>
->>>>>> --Andy
->>>>>>
->>>>>> >
->>>>>> > Thanks,
->>>>>> >
->>>>>> > --
->>>>>> > Jiri Kosina
->>>>>> > SUSE Labs
->>>>>>
->>>>>>
->>>>>>
->>>>>> --
->>>>>> Andy Lutomirski
->>>>>> AMA Capital Management, LLC
->>>>
->>>>
->>>>
->>>> --
->>>> Andy Lutomirski
->>>> AMA Capital Management, LLC
+The comment should be added to where the pinctrl bits are, not to the lime2
+file, ps0 will conflict with hdmi on all boards.
+
+Regards,
+
+Hans
+
+
+>> Regards,
+>>
+>> Hans
 >>
 >>
+>> On 12-12-14 19:25, VishnuPatekar wrote:
+>>> v2 --> v3
+>>> 1. changed config to SERIO_SUN4I_PS2 from SERIO_SUNXI_PS2
+>>> 2. changed driver name to sun4i-ps2 from sunxi-ps2.
+>>> 3. changed the function names to sun4i_ps2_*.
+>>> 4. added locking in sun4i_ps2_open.
+>>> 5. kept compatible "sun4i-a10-ps2" for A10 and A20, as A10 is earlier
+>>> SOC.
+>>> 6. corrected the style errors.
+>>> 7. separated the dts patches.
+>>> 8. removed commented ps2 notes from lime2 dts.
+>>> 9. added note that ps2 pins confilt with hdmi.
+>>> 10. corrected the interrupt property for A10.
+>>> 11. moved dt-bindings to Documentation/devicetree/bindings/serio
+>>>
+>>> v1 --> v2:
+>>> 1. added default n depends on ARCH_SUNXI || COMPILE_TEST in Kconfig.
+>>> 2. handled errors and free resources on errors.
+>>> 3. used BIT(x), DIV_ROUND_UP macros.
+>>> 4. corrected style errors.
+>>> 5. added support for A10 also, A10 and A2 have same properties of PS2
+>>> controller.
+>>> 6. by default commented ps20 and ps21 nodes,as ps20 pins conflict with
+>>> HDMI.
+>>> 7. added compatible as allwinner,sun4i-a10-ps2.
+>>> 8. corrected the possible race condition.
+>>>
+>>>
+>>> VishnuPatekar (5):
+>>>     sunxi:dts-bindings:input:ps2 bindings for A10/A20 ps2.
+>>>     ARM:sunxi:drivers:input Add support for A10/A20 PS2
+>>>     ARM: sunxi: dts: Add PS2 nodes to dtsi for A10 and A20
+>>>     ARM: sunxi: dts: Add A10/A20 PS2 pin muxing options
+>>>     ARM: sunxi: dts: Add note ps2 pins conflict with hdmi
+>>>
+>>>    .../bindings/serio/allwinner,sun4i-ps2.txt         |   23 ++
+>>>    arch/arm/boot/dts/sun4i-a10.dtsi                   |   31 ++
+>>>    arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts    |    6 +-
+>>>    arch/arm/boot/dts/sun7i-a20.dtsi                   |   32 ++
+>>>    drivers/input/serio/Kconfig                        |   11 +
+>>>    drivers/input/serio/Makefile                       |    1 +
+>>>    drivers/input/serio/sun4i-ps2.c                    |  362
+>>> ++++++++++++++++++++
+>>>    7 files changed, 465 insertions(+), 1 deletion(-)
+>>>    create mode 100644
+>>> Documentation/devicetree/bindings/serio/allwinner,sun4i-ps2.txt
+>>>    create mode 100644 drivers/input/serio/sun4i-ps2.c
+>>>
 >>
->> --
->> Andy Lutomirski
->> AMA Capital Management, LLC
-
-
-
--- 
-Andy Lutomirski
-AMA Capital Management, LLC

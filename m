@@ -1,38 +1,22 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/2] Input: gpio_keys - replace timer and workqueue with
- delayed workqueue
-Date: Sun, 14 Dec 2014 10:05:43 +0100
-Message-ID: <CACRpkdZsHbUVNsG60veYPpAKP+dngpUq=gLjncaUb+Lvq+h1-A@mail.gmail.com>
-References: <20141208071930.GA20802@dtor-ws>
-	<20141208072124.GA21031@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141208072124.GA21031@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Alexander Shiyan <shc_work@mail.ru>, Laxman Dewangan <ldewangan@nvidia.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH 0/2]Support Alps Touchpad SS4 device
+Date: Mon, 15 Dec 2014 03:44:19 +0800
+Message-ID: <1418586261-5632-1-git-send-email-masaki.ota@jp.alps.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:38064 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750751AbaLNToa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 14 Dec 2014 14:44:30 -0500
+Received: by mail-pa0-f54.google.com with SMTP id fb1so10406812pad.41
+        for <linux-input@vger.kernel.org>; Sun, 14 Dec 2014 11:44:29 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, cernekee@gmail.com, dturvene@dahetral.com
+Cc: linux-input@vger.kernel.org, ndevos@redhat.com, jclift@redhat.com, 012nexus@gmail.com
 
-On Mon, Dec 8, 2014 at 8:21 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+Hi, all,
+Here is the patch for support Alsp Touchpad SS4 device.
+This device are found in TOSHIBA Tecra C50.
 
-> We do not need to roll our own implementation of delayed work now that we
-> have proper implementation of mod_delayed_work.
->
-> For interrupt-only driven buttons we retain the timer, but we rename
-> it to release_timer to better reflect its purpose.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-
-What I want to do with this, on top of this, is to move debouncing to
-the GPIO subsystem. I want gpio(d)_set_debounce() to *always*
-work and the timer moved to gpiolib.c.
-
-We can't have debouncing in every subsystem using GPIOs, it
-belongs in the GPIO core.
-
-Yours,
-Linus Walleij
+Masaki Ota

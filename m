@@ -1,71 +1,71 @@
 From: Dudley Du <dudley.dulixin@gmail.com>
-Subject: [PATCH v15 07/12] input: cyapa: add gen3 trackpad device read baseline function support
-Date: Mon, 15 Dec 2014 14:23:18 +0800
-Message-ID: <1418624603-19054-8-git-send-email-dudley.dulixin@gmail.com>
+Subject: [PATCH v15 08/12] input: cyapa: add gen3 trackpad device force re-calibrate function support
+Date: Mon, 15 Dec 2014 14:23:19 +0800
+Message-ID: <1418624603-19054-9-git-send-email-dudley.dulixin@gmail.com>
 References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:38608 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbaLOGZq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Dec 2014 01:25:46 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, rydberg@euromail.se
 Cc: Dudley Du <dudley.dulixin@gmail.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Add read baseline function supported for gen3 trackpad device,
-it can be used through sysfs baseline interface.
+Add force re-calibrate function supported for gen3 trackpad device,
+it can be used through sysfs calibrate interface.
 TEST=test on Chromebooks.
 
 Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
 ---
- drivers/input/mouse/cyapa_gen3.c | 71 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 71 insertions(+)
+ drivers/input/mouse/cyapa_gen3.c | 58 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
 diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-index 9851337..f42e008 100644
+index f42e008..836a00b 100644
 --- a/drivers/input/mouse/cyapa_gen3.c
 +++ b/drivers/input/mouse/cyapa_gen3.c
-@@ -754,6 +754,75 @@ static int cyapa_gen3_do_fw_update(struct cyapa *cyapa,
+@@ -754,6 +754,63 @@ static int cyapa_gen3_do_fw_update(struct cyapa *cyapa,
  	return 0;
  }
  
-+static ssize_t cyapa_gen3_show_baseline(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
++static ssize_t cyapa_gen3_do_calibrate(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
 +{
 +	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	int max_baseline, min_baseline;
-+	int tries = 3;
++	int tries = 20;  /* max recalibration timeout 2s. */
 +	int ret;
 +
 +	ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
 +	if (ret < 0) {
-+		dev_err(dev, "Error reading dev status. err = %d\n", ret);
++		dev_err(dev, "Error reading dev status: %d\n", ret);
 +		goto out;
 +	}
 +	if ((ret & CYAPA_DEV_NORMAL) != CYAPA_DEV_NORMAL) {
-+		dev_warn(dev, "Trackpad device is busy. device state = 0x%x\n",
++		dev_warn(dev, "Trackpad device is busy, device state: 0x%02x\n",
 +			 ret);
 +		ret = -EAGAIN;
 +		goto out;
 +	}
 +
 +	ret = cyapa_write_byte(cyapa, CYAPA_CMD_SOFT_RESET,
-+			       OP_REPORT_BASELINE_MASK);
++			       OP_RECALIBRATION_MASK);
 +	if (ret < 0) {
-+		dev_err(dev, "Failed to send report baseline command. %d\n",
++		dev_err(dev, "Failed to send calibrate command: %d\n",
 +			ret);
 +		goto out;
 +	}
 +
 +	do {
-+		usleep_range(10000, 20000);
++		/*
++		 * For this recalibration, the max time will not exceed 2s.
++		 * The average time is approximately 500 - 700 ms, and we
++		 * will check the status every 100 - 200ms.
++		 */
++		usleep_range(100000, 200000);
 +
 +		ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
 +		if (ret < 0) {
-+			dev_err(dev, "Error reading dev status. err = %d\n",
++			dev_err(dev, "Error reading dev status: %d\n",
 +				ret);
 +			goto out;
 +		}
@@ -74,45 +74,26 @@ index 9851337..f42e008 100644
 +	} while (--tries);
 +
 +	if (tries == 0) {
-+		dev_err(dev, "Device timed out going to Normal state.\n");
++		dev_err(dev, "Failed to calibrate. Timeout.\n");
 +		ret = -ETIMEDOUT;
 +		goto out;
 +	}
-+
-+	ret = cyapa_read_byte(cyapa, CYAPA_CMD_MAX_BASELINE);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to read max baseline. err = %d\n", ret);
-+		goto out;
-+	}
-+	max_baseline = ret;
-+
-+	ret = cyapa_read_byte(cyapa, CYAPA_CMD_MIN_BASELINE);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to read min baseline. err = %d\n", ret);
-+		goto out;
-+	}
-+	min_baseline = ret;
-+
-+	dev_dbg(dev, "Baseline report successful. Max: %d Min: %d\n",
-+		max_baseline, min_baseline);
-+	ret = scnprintf(buf, PAGE_SIZE, "%d %d\n", max_baseline, min_baseline);
++	dev_dbg(dev, "Calibration successful.\n");
 +
 +out:
-+	return ret;
++	return ret < 0 ? ret : count;
 +}
 +
- /*
-  * cyapa_get_wait_time_for_pwr_cmd
-  *
-@@ -1067,6 +1136,8 @@ const struct cyapa_dev_ops cyapa_gen3_ops = {
- 	.update_fw = cyapa_gen3_do_fw_update,
+ static ssize_t cyapa_gen3_show_baseline(struct device *dev,
+ 				   struct device_attribute *attr, char *buf)
+ {
+@@ -1137,6 +1194,7 @@ const struct cyapa_dev_ops cyapa_gen3_ops = {
  	.bl_deactivate = cyapa_gen3_bl_deactivate,
  
-+	.show_baseline = cyapa_gen3_show_baseline,
-+
+ 	.show_baseline = cyapa_gen3_show_baseline,
++	.calibrate_store = cyapa_gen3_do_calibrate,
+ 
  	.state_parse = cyapa_gen3_state_parse,
  	.operational_check = cyapa_gen3_do_operational_check,
- 
 -- 
 1.9.1
-

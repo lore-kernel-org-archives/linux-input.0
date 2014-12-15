@@ -1,177 +1,35 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v15 00/12] input: cyapa: instruction of cyapa patches
-Date: Mon, 15 Dec 2014 06:31:25 +0000
-Message-ID: <BN1PR06MB0701116150EACEA75FCADB7D16F0@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
+From: Catalin Crenguta <catalin.crenguta@gmail.com>
+Subject: Re: [PATCH v4 0/6] Touchscreen performance related fixes
+Date: Mon, 15 Dec 2014 09:55:56 +0200
+Message-ID: <CABH3fy8PqbC3DZkFLcoaaXqFAex+oCh7=1a=-cymhXU_ayDNcg@mail.gmail.com>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
+	<20141124115116.GA14997@linutronix.de>
+	<547C3A95.30605@ti.com>
+	<547C3C19.5090501@linutronix.de>
+	<547C42FF.5010700@ti.com>
+	<CAH=tA9FO5MCzE274thc-NugCNte6WdyC-Rxc6yfnuR=+6_qMbA@mail.gmail.com>
+	<548A0125.6040708@linutronix.de>
+	<CABH3fy8zCjsxARsqBf9JXOHBkzySdiqifA1KtjnGpJdBY2EikA@mail.gmail.com>
+	<912A29987EAE174BA6CF187D7CDFA9CE26FA135A@DLEE08.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0143.outbound.protection.outlook.com ([157.56.111.143]:3152
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750714AbaLOGb3 convert rfc822-to-8bit (ORCPT
+Received: from mail-wg0-f53.google.com ([74.125.82.53]:47137 "EHLO
+	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751177AbaLOHz7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Dec 2014 01:31:29 -0500
-In-Reply-To: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
-Content-Language: en-US
+	Mon, 15 Dec 2014 02:55:59 -0500
+In-Reply-To: <912A29987EAE174BA6CF187D7CDFA9CE26FA135A@DLEE08.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, Jeremiah Mahler <jmmahler@gmail.com>
-Cc: "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: "Griffis, Brad" <bgriffis@ti.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Nicolae Rosia <nicolae.rosia@gmail.com>, "R, Vignesh" <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, "richardcochran@gmail.com" <richardcochran@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, "Balbi, Felipe" <balbi@ti.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Paul Gortmaker <paul.gortmaker@windriver.com>
 
-Jeremiah,
+On Fri, Dec 12, 2014 at 4:16 PM, Griffis, Brad <bgriffis@ti.com> wrote:
 
-Thanks for your review and comments.
-I have updated v15 based on your comments and suggestions.
-Could you help review again please.
+> How are you configuring ti,charge-delay in your dts?  I've seen this behavior on some custom boards where we were using a smaller charge delay (0x400) to begin with, and by upping it to 0xb000 we resolved the issue.  These patches however already specified ti,charge-delay = 0xb000 by default so this would surprise me that it's still seeing that issue.  Was the touchscreen working as expected before these new patches, or does it have issues both ways?
 
-Thank you very much,
-Dudley
-
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org
-> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Dudley Du
-> Sent: 2014?12?15? 14:23
-> To: dmitry.torokhov@gmail.com; rydberg@euromail.se
-> Cc: Dudley Du; bleung@google.com; David Solda; linux-input@vger.kernel.org;
-> linux-kernel@vger.kernel.org
-> Subject: [PATCH v15 00/12] input: cyapa: instruction of cyapa patches
->
-> V15 patches have below updates, details of other updates see history list:
-> 1) Fix all warning errors of sparse tool when running with "make C=1".
-> 2) Change variable name "unique_str" to "product_id" for clearer meanings.
-Also 3) Update cyapa_i2c_write function to return error directly when length > 31.
->
->
-> This patch series is aimed to re-design the cyapa driver to support
-> old gen3 trackpad devices and new gen5 trackpad devices in one
-> cyapa driver, it's for easily productions support based on
-> customers' requirements. And add sysfs functions and interfaces
-> supported that required by users and customers.
->
-> Since the earlier gen3 and the latest gen5 trackpad devices using
-> two different chipsets, and have different protocols and interfaces,
-> so if supported these two type trackpad devices in two different drivers,
-> then it will be difficult to manage productions and later firmware updates.
-> e.g.: It will cause customer don't know which one trackpad device firmware
-> image to use and update when it has been used and integrated
-> in same one productions, so here we support these two trackpad
-> devices in same on driver.
->
-> The new design cyapa driver contains:
-> cyapa.c - the core of the re-design, supply interfaces and
-> functions to system and read trackpad devices.
-> cyapa.h - header file including macros and data structure definitions.
-> cyapa_gen3.c - functions support for gen3 trackpad devices,
-> cyapa_gen5.c - functions support for gen5 trackpad devices.
->
-> Beside this introduction patch, it has 12 patches listed as below.
-> For these patches, each one is patched based on previous one.
->
-> patch 1/12: re-design cyapa driver with core functions and interface
-> to support multi-type trackpad devices.
->
-> patch 2/12: add gen5 trackpad device basic functions supported into the
-> re-design cyapa driver.
->
-> patch 3/12: add power management interfaces supported for the device.
->
-> patch 4/12: add runtime power management interfaces supported for the device.
->
-> patch 5/12: add sysfs interfaces supported in the cyapa driver.
-> Including read firmware version, get production ID, read baseline,
-> re-calibrate trackpad baselines and do trackpad firmware update.
->
-> patch 6/12: add gen3 trackpad device's firmware update function supported.
->
-> patch 7/12: add gen3 trackpad device's read baseline function supported.
->
-> patch 8/12: add gen3 trackpad device's force re-calibrate function supported.
->
-> patch 9/12: add gen5 trackpad device's firmware update function supported.
->
-> patch 10/12: add gen5 trackpad device's read baseline function supported.
->
-> patch 11/12: add gen5 trackpad device's force re-calibrate function.
->
-> patch 12/12: add acpi device id supported.
->
->
-> History patch series modifications list:
-> V14 patches have below main updates compared with v13 patches:
-> 1) Correct 9 miss spelling issues of "bufferred" to "buffered".
-> 2) Fix the upgrade issue of removing MOUSE_CYAPA config when make oldconfig
->    by replase "depends on I2C && CRC_ITU_T" with
-> "depends on I2C"
-> "select CRC_ITU_T"
->    in patch 9.
->
-> V13 patches have below main updates compared with v12 patches:
-> 1) Remove all debugfs interface, including read_fw and raw_data interfaces.
-> 2) This patches are made based linux next-20141208.
->
-> V12 patches have below main updates compared with v11 patches:
-> 1) Add check that when TP is detected but not operational, do not exit driver
->    immediately, but wait and export the update_fw interface for recovering.
-> 2) Re-arrange the function codes, remove unnesseary protype definitions in
->    the header file.
->
-> V11 patches have below main updates compared with v10 patches:
-> 1) Add add acpi device id supported for old gen3 and new gen5 trackpad devices.
-> 2) Fix the unable to update firmware issue when cyapa_open is not called
->    which means the irq for firwmare update process is not enabled. This fix
->    by checking if the irq is enabled, if not then enable irq before start to
->    do firmware update.
->
-> V10 patches have below main updates compared with v9 patches:
-> 1) Modify code to following kernel code style.
->    e.g.: correct to use error as return name when there is only error path,
->    and fix the checkpatch.sh wanting in the driver.
-> 2) Remove cyapa_remove method and use input open and close interface to
->    following device resouse management infrastructure.
-> 3) Modify cyapa_detect method to return tristate issue to make the return value
->    much more consistent and clear.
-> 4) Use platform supplied functions as possible instead of driver
->    specific rewritten version.
->
-> V9 patches have below updates compared with v8 patches:
-> 1) Removed all async thread stuff from the driver.
-> 2) Split driver into 18 patches for each function change one patch.
->
-> V8 patches have below updates compared with v7 patches:
-> 1) [PATCH v8 01/13] - Remove the async thread for device detect in
->    probe routine, now the device detect process is completely done within
->    the device probe routine.
-> 2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
->    function cyapa_default_irq_cmd_handler() and set it to interface
->    cyapa_default_ops.irq_cmd_handler.
-> 3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
->    to avoid miss-enter when device protocol is still in detecting.
->
-> V7 patches have below updates compared with v6 patches:
-> 1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
->    function cyapa_default_irq_cmd_handler() and set it to interface
->    cyapa_default_ops.irq_cmd_handler.
-> 2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
->    to avoid miss-enter when device protocol is still in detecting.
->
->
-> V6 patches have below updates compared with v5 patches:
-> 1) Remove patch 14 of the lid filtering from the cyapa driver.
->
-> V5 patches have below updates compared with v4 patches:
-> 1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
-> 2) Fix memories freed before debugfs entries issue;
-> 3) Make cyapa_debugs_root valid in driver module level
->    in module_init()/moudle_exit() ;
-> 4) Fix i2c_transfer() may return partial transfer issues.
-> 5) Add cyapa->removed flag to avoid detecting thread may still running
->    when driver module is removed.
-> 6) Fix the meanings of some comments and return error code not clear issue.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+Initially I had set the charge-delay to 0x400 and I was seeing many
+false pen-down/pen-up events With 0xb000, I was still getting many of
+them but less than with 0x400.

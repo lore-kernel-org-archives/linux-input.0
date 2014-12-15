@@ -1,36 +1,41 @@
-From: Catalin Crenguta <catalin.crenguta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 0/6] Touchscreen performance related fixes
-Date: Mon, 15 Dec 2014 14:45:03 +0200
-Message-ID: <CABH3fy9f9oaV=PKTP+-tS9ADd8bD1oqO--SH0fh9LemqwdL3zA@mail.gmail.com>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
-	<20141124115116.GA14997@linutronix.de>
-	<547C3A95.30605@ti.com>
-	<547C3C19.5090501@linutronix.de>
-	<547C42FF.5010700@ti.com>
-	<CAH=tA9FO5MCzE274thc-NugCNte6WdyC-Rxc6yfnuR=+6_qMbA@mail.gmail.com>
-	<548A0125.6040708@linutronix.de>
-	<CABH3fy8zCjsxARsqBf9JXOHBkzySdiqifA1KtjnGpJdBY2EikA@mail.gmail.com>
-	<912A29987EAE174BA6CF187D7CDFA9CE26FA135A@DLEE08.ent.ti.com>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH v15 00/12] input: cyapa: instruction of cyapa patches
+Date: Mon, 15 Dec 2014 06:10:23 -0800
+Message-ID: <20141215141023.GB918@newt.localdomain>
+References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <912A29987EAE174BA6CF187D7CDFA9CE26FA135A-YmePFLaaepqIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Nicolae Rosia <nicolae.rosia-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:46367 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750711AbaLOOK2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Dec 2014 09:10:28 -0500
+Content-Disposition: inline
+In-Reply-To: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dudley Du <dudley.dulixin@gmail.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2014 at 4:16 PM, Griffis, Brad <bgriffis-l0cyMroinI0@public.gmane.org> wrote:
-> How are you configuring ti,charge-delay in your dts?  I've seen this behavior on some custom boards where we were using a smaller charge delay (0x400) to begin with, and by upping it to 0xb000 we resolved the issue.  These patches however already specified ti,charge-delay = 0xb000 by default so this would surprise me that it's still seeing that issue.  Was the touchscreen working as expected before these new patches, or does it have issues both ways?
+Dudley,
 
-I have created a DTS for Beaglebone Black with 4 wire touchscreen and
-display which works on 3.18 stable and tsc-devel, omap2plus_defconfig
-with tsc and tilcdc support.
-It seems that with lcdc disabled, I am not getting false reports but
-when I'm activating the lcdc, I get a lot of false pen-downs/pen-ups.
-Even with tilcdc enabled, after it prints "timeout waiting for
-framedone" and the screen get blanked (white), the noise is gone.
+On Mon, Dec 15, 2014 at 02:23:11PM +0800, Dudley Du wrote:
+> V15 patches have below updates, details of other updates see history list:
+> 1) Fix all warning errors of sparse tool when running with "make C=1".
+> 2) Change variable name "unique_str" to "product_id" for clearer meanings.
+> 
+> 
+> This patch series is aimed to re-design the cyapa driver to support
+> old gen3 trackpad devices and new gen5 trackpad devices in one
+[...]
 
-Regards,
-Catalin.
+The patch set still tests fine on my Acer C720.
+
+I went through all the patches and found lots of minor things to fix
+as you would expect from this large amount of code.
+
+I hope you don't get discouraged :-)
+
+-- 
+- Jeremiah Mahler

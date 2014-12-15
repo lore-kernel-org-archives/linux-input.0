@@ -1,101 +1,84 @@
-From: Amordea Whiteoak <amordea@gmail.com>
-Subject: Re: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions
- after performing a hardware click
-Date: Mon, 15 Dec 2014 15:05:04 -0500
-Message-ID: <CALmnu0a_HmgJXa9aYbCpyRhAb5h_FrLyhVUeeojMJa0tPUTHTg@mail.gmail.com>
-References: <CALmnu0aD9ys4+QZ+gtdNe61q23A3e6MPq+DSD-Q+NcJoWksWkQ@mail.gmail.com>
-	<CAN+gG=EXmDcuNvifZKqLLTxew9ji2FW3jx7i8ThqozE1cg_e6A@mail.gmail.com>
-	<CALmnu0Y+n0qGs4jgC=YGKRbBSyVB5B4s_Oafsmvbk6M=67okuw@mail.gmail.com>
-	<CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>
-	<CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>
-	<CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com>
-	<CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
-	<CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
-	<CAN+gG=E=3kG9t9XTNe0X1kFumdkQ3CfM-ViXnOBGThmyJDNJ4g@mail.gmail.com>
-	<CALmnu0Yg1vd4FOD5vtW39cbbcsRYiPuiiMD0A+obLyrkvKO+jA@mail.gmail.com>
-	<CALmnu0Y0kvU-yqrKvNAQmjUgFJQ-v0NESyV6o_=CuVzc2dx=YQ@mail.gmail.com>
-	<CAN+gG=GucHKyGB0Z=qP+G2KSej0yoVe3vpa3AzRbBDeP2jw9Qg@mail.gmail.com>
+From: Peter Wu <peter@lekensteyn.nl>
+Subject: The return value of hid_input_report and raw_event
+Date: Mon, 15 Dec 2014 23:31:40 +0100
+Message-ID: <7774789.jK4HDCWEI4@al>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a11c3bc201f54ac050a46c20d
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:50686 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751728AbaLOUFF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Dec 2014 15:05:05 -0500
-Received: by mail-pd0-f169.google.com with SMTP id z10so12337215pdj.14
-        for <linux-input@vger.kernel.org>; Mon, 15 Dec 2014 12:05:04 -0800 (PST)
-In-Reply-To: <CAN+gG=GucHKyGB0Z=qP+G2KSej0yoVe3vpa3AzRbBDeP2jw9Qg@mail.gmail.com>
+Received: from lekensteyn.nl ([178.21.112.251]:35961 "EHLO lekensteyn.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750796AbaLOWbp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Dec 2014 17:31:45 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Duggan <aduggan@synaptics.com>
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
---001a11c3bc201f54ac050a46c20d
-Content-Type: text/plain; charset=UTF-8
+Hi Jiri and list,
 
-> Strictly speaking, there is no right click button on clickpads. We
-> emulate one with the software buttons in Xorg.
-> IIRC, there were some "workarounds" in your original bugs which
-> consist in disabling the software buttons area. Can you make sure that
-> there is no left over from this?
+The HID core has a hid_input_report function which returns an integer,
+but all its callers are not really changing their behavior based on the
+return value. The few^Wonly exception that does not completely ignore
+the return value is the hid-logitech-dj driver which prints a debugging
+message.
 
-I learn new things about clickpads every day. :)
+Should this method be changed to return void? The kerneldoc does not
+document its return value anyway.
 
-To my knowledge, those configurations changes should reset upon reboot
-and I never committed any of those lines to any of my startup files.
-So we should be good there, I think. Just in case, I am enclosing the
-output of my synclient -l, which should be the default configuration.
+Confusion 2: the raw_event callback of the hid_driver structure returns
+an int, but over time non-negative values are ignored by
+hid_input_report. This happened in the following change:
+--------------------------------------------------
+commit b1a1442a23776756b254b69786848a94d92445ba
+Author: Jiri Kosina <jkosina@suse.cz>
+Date:   Mon Jun 3 11:27:48 2013 +0200
 
-> If this still doesn't work, we wil need to check that the X and Y
-> ranges reported by your clickpad are accurate and that the software
-> buttons are properly activated.
+    HID: core: fix reporting of raw events
+    
+    hdrw->raw event can return three different return value types:
+    
+    - ret < 0   indicates that the hdrv driver found an error while parsing
+    - ret == 0  indicates no error has been encountered, and the driver has
+                processed the report
+    - ret > 0   indicates that there was no parsing error, and the driver hasn't
+                processed the event.
+    
+    Calling hid_report_raw_event() has to be called appropriately so that it
+    reflects what has been done by ->raw_event() callback, otherwise we might
+    updates of the in-kernel structure are lost upon arrival of the report, which
+    is wrong.
+    
+    Reported-and-tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+    Reported-and-tested-by: Daniel Leung <daniel.leung@linux.intel.com>
+    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-I don't know the testing methodology to use to provide positioning
-data for my trackpad, but let me know if you need that and how you
-want me to get it and I will be happy to provide.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c272078..8f616bd 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1293,7 +1293,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 
+        if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
+                ret = hdrv->raw_event(hid, report, data, size);
+-               if (ret != 0) {
++               if (ret < 0) {
+                        ret = ret < 0 ? ret : 0;
+                        goto unlock;
+                }
+--------------------------------------------------
 
-Thank you!
+So now it does not matter whether the raw_event method returns 0 or 1.
+The documentation says:
 
---001a11c3bc201f54ac050a46c20d
-Content-Type: application/octet-stream; name="synclient.list"
-Content-Disposition: attachment; filename="synclient.list"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i3q9h3vm0
+    raw_event and event should return 0 on no action performed, 1 when
+    no further processing should be done and negative on error
 
-UGFyYW1ldGVyIHNldHRpbmdzOgogICAgTGVmdEVkZ2UgICAgICAgICAgICAgICAgPSAxNjEKICAg
-IFJpZ2h0RWRnZSAgICAgICAgICAgICAgID0gMzg0OAogICAgVG9wRWRnZSAgICAgICAgICAgICAg
-ICAgPSAxMjMKICAgIEJvdHRvbUVkZ2UgICAgICAgICAgICAgID0gMjE0NAogICAgRmluZ2VyTG93
-ICAgICAgICAgICAgICAgPSAyNQogICAgRmluZ2VySGlnaCAgICAgICAgICAgICAgPSAzMAogICAg
-TWF4VGFwVGltZSAgICAgICAgICAgICAgPSAxODAKICAgIE1heFRhcE1vdmUgICAgICAgICAgICAg
-ID0gMjAyCiAgICBNYXhEb3VibGVUYXBUaW1lICAgICAgICA9IDE4MAogICAgU2luZ2xlVGFwVGlt
-ZW91dCAgICAgICAgPSAxODAKICAgIENsaWNrVGltZSAgICAgICAgICAgICAgID0gMTAwCiAgICBF
-bXVsYXRlTWlkQnV0dG9uVGltZSAgICA9IDc1CiAgICBFbXVsYXRlVHdvRmluZ2VyTWluWiAgICA9
-IDI4MgogICAgRW11bGF0ZVR3b0Zpbmdlck1pblcgICAgPSA3CiAgICBWZXJ0U2Nyb2xsRGVsdGEg
-ICAgICAgICA9IDkyCiAgICBIb3JpelNjcm9sbERlbHRhICAgICAgICA9IDkyCiAgICBWZXJ0RWRn
-ZVNjcm9sbCAgICAgICAgICA9IDEKICAgIEhvcml6RWRnZVNjcm9sbCAgICAgICAgID0gMAogICAg
-Q29ybmVyQ29hc3RpbmcgICAgICAgICAgPSAwCiAgICBWZXJ0VHdvRmluZ2VyU2Nyb2xsICAgICA9
-IDEKICAgIEhvcml6VHdvRmluZ2VyU2Nyb2xsICAgID0gMAogICAgTWluU3BlZWQgICAgICAgICAg
-ICAgICAgPSAxCiAgICBNYXhTcGVlZCAgICAgICAgICAgICAgICA9IDEuNzUKICAgIEFjY2VsRmFj
-dG9yICAgICAgICAgICAgID0gMC4wNDM0NTk0CiAgICBUb3VjaHBhZE9mZiAgICAgICAgICAgICA9
-IDAKICAgIExvY2tlZERyYWdzICAgICAgICAgICAgID0gMAogICAgTG9ja2VkRHJhZ1RpbWVvdXQg
-ICAgICAgPSA1MDAwCiAgICBSVENvcm5lckJ1dHRvbiAgICAgICAgICA9IDIKICAgIFJCQ29ybmVy
-QnV0dG9uICAgICAgICAgID0gMwogICAgTFRDb3JuZXJCdXR0b24gICAgICAgICAgPSAwCiAgICBM
-QkNvcm5lckJ1dHRvbiAgICAgICAgICA9IDAKICAgIFRhcEJ1dHRvbjEgICAgICAgICAgICAgID0g
-MQogICAgVGFwQnV0dG9uMiAgICAgICAgICAgICAgPSAzCiAgICBUYXBCdXR0b24zICAgICAgICAg
-ICAgICA9IDAKICAgIENsaWNrRmluZ2VyMSAgICAgICAgICAgID0gMQogICAgQ2xpY2tGaW5nZXIy
-ICAgICAgICAgICAgPSAxCiAgICBDbGlja0ZpbmdlcjMgICAgICAgICAgICA9IDAKICAgIENpcmN1
-bGFyU2Nyb2xsaW5nICAgICAgID0gMAogICAgQ2lyY1Njcm9sbERlbHRhICAgICAgICAgPSAwLjEK
-ICAgIENpcmNTY3JvbGxUcmlnZ2VyICAgICAgID0gMAogICAgQ2lyY3VsYXJQYWQgICAgICAgICAg
-ICAgPSAwCiAgICBQYWxtRGV0ZWN0ICAgICAgICAgICAgICA9IDAKICAgIFBhbG1NaW5XaWR0aCAg
-ICAgICAgICAgID0gMTAKICAgIFBhbG1NaW5aICAgICAgICAgICAgICAgID0gMjAwCiAgICBDb2Fz
-dGluZ1NwZWVkICAgICAgICAgICA9IDIwCiAgICBDb2FzdGluZ0ZyaWN0aW9uICAgICAgICA9IDUw
-CiAgICBQcmVzc3VyZU1vdGlvbk1pblogICAgICA9IDMwCiAgICBQcmVzc3VyZU1vdGlvbk1heFog
-ICAgICA9IDE2MAogICAgUHJlc3N1cmVNb3Rpb25NaW5GYWN0b3IgPSAxCiAgICBQcmVzc3VyZU1v
-dGlvbk1heEZhY3RvciA9IDEKICAgIFJlc29sdXRpb25EZXRlY3QgICAgICAgID0gMQogICAgR3Jh
-YkV2ZW50RGV2aWNlICAgICAgICAgPSAwCiAgICBUYXBBbmREcmFnR2VzdHVyZSAgICAgICA9IDEK
-ICAgIEFyZWFMZWZ0RWRnZSAgICAgICAgICAgID0gMAogICAgQXJlYVJpZ2h0RWRnZSAgICAgICAg
-ICAgPSAwCiAgICBBcmVhVG9wRWRnZSAgICAgICAgICAgICA9IDAKICAgIEFyZWFCb3R0b21FZGdl
-ICAgICAgICAgID0gMAogICAgSG9yaXpIeXN0ZXJlc2lzICAgICAgICAgPSAyMwogICAgVmVydEh5
-c3RlcmVzaXMgICAgICAgICAgPSAyMwogICAgQ2xpY2tQYWQgICAgICAgICAgICAgICAgPSAwCg==
---001a11c3bc201f54ac050a46c20d--
+What does "no further processing" mean? I guess that the intention was
+to signal from a HID driver to ignore the packet, but that the above
+change was done to update the state and allow hidraw to pick up the
+report.
+-- 
+Kind regards,
+Peter
+https://lekensteyn.nl
+

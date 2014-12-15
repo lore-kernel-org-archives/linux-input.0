@@ -1,106 +1,101 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCHv3 0/5] ARM:sunxi:ps2 Added support for A10/A20 ps2 controller.
-Date: Mon, 15 Dec 2014 23:41:59 +0800
-Message-ID: <CAGb2v659jEj7cxPCu1UNPb-p6iaH6Sjcp4LCgsBOyBh-odSUhw@mail.gmail.com>
-References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>
- <548C1E7D.1000005@redhat.com> <CAEzqOZtyeAnG660AKf_0_gCa-+BT_pAzHk0HYYSCdm4y89GFJA@mail.gmail.com>
- <548D5207.8030004@redhat.com> <CAEzqOZsWSpd_r3Oc=PBVw3NQH-_1V9JXtC2H4tZ3U6nCN_Z7aA@mail.gmail.com>
- <548EFA9F.4080208@redhat.com>
+From: Amordea Whiteoak <amordea@gmail.com>
+Subject: Re: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions
+ after performing a hardware click
+Date: Mon, 15 Dec 2014 15:05:04 -0500
+Message-ID: <CALmnu0a_HmgJXa9aYbCpyRhAb5h_FrLyhVUeeojMJa0tPUTHTg@mail.gmail.com>
+References: <CALmnu0aD9ys4+QZ+gtdNe61q23A3e6MPq+DSD-Q+NcJoWksWkQ@mail.gmail.com>
+	<CAN+gG=EXmDcuNvifZKqLLTxew9ji2FW3jx7i8ThqozE1cg_e6A@mail.gmail.com>
+	<CALmnu0Y+n0qGs4jgC=YGKRbBSyVB5B4s_Oafsmvbk6M=67okuw@mail.gmail.com>
+	<CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>
+	<CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>
+	<CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com>
+	<CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
+	<CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
+	<CAN+gG=E=3kG9t9XTNe0X1kFumdkQ3CfM-ViXnOBGThmyJDNJ4g@mail.gmail.com>
+	<CALmnu0Yg1vd4FOD5vtW39cbbcsRYiPuiiMD0A+obLyrkvKO+jA@mail.gmail.com>
+	<CALmnu0Y0kvU-yqrKvNAQmjUgFJQ-v0NESyV6o_=CuVzc2dx=YQ@mail.gmail.com>
+	<CAN+gG=GucHKyGB0Z=qP+G2KSej0yoVe3vpa3AzRbBDeP2jw9Qg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/mixed; boundary=001a11c3bc201f54ac050a46c20d
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:41764 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751022AbaLOPmV (ORCPT
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:50686 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751728AbaLOUFF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Dec 2014 10:42:21 -0500
-In-Reply-To: <548EFA9F.4080208@redhat.com>
+	Mon, 15 Dec 2014 15:05:05 -0500
+Received: by mail-pd0-f169.google.com with SMTP id z10so12337215pdj.14
+        for <linux-input@vger.kernel.org>; Mon, 15 Dec 2014 12:05:04 -0800 (PST)
+In-Reply-To: <CAN+gG=GucHKyGB0Z=qP+G2KSej0yoVe3vpa3AzRbBDeP2jw9Qg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Vishnu Patekar <vishnupatekar0510@gmail.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "jdelvare@suse.de" <jdelvare@suse.de>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ralf@linux-mips.org" <ralf@linux-mips.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "msalter@redhat.com" <msalter@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, Kumar Gala <galak@codeaurora.org>, "maxime.ripard@free-electrons.com" <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infr
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Duggan <aduggan@synaptics.com>
 
-Hi,
+--001a11c3bc201f54ac050a46c20d
+Content-Type: text/plain; charset=UTF-8
 
-On Mon, Dec 15, 2014 at 11:13 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> Hi,
->
->
-> On 15-12-14 15:13, Vishnu Patekar wrote:
->>
->> Hi,
->>
->> On Sun, Dec 14, 2014 at 2:31 PM, Hans de Goede <hdegoede@redhat.com>
->> wrote:
->>>
->>> Hi,
->>>
->>> On 13-12-14 21:01, Vishnu Patekar wrote:
->>>>
->>>>
->>>> Hello Hans,
->>>> Please find my comments inlined.
->>>>
->>>> On 12/13/14, Hans de Goede <hdegoede@redhat.com> wrote:
->>>>>
->>>>>
->>>>> Hi VishnuPatekar,
->>>>>
->>>>> The patch mangling for this set seems to have gone a bit wrong I'm
->>>>> afraid
->>>>
->>>>
->>>>
->>>> No, this time I've corrected it. Infact, last version of patch did not
->>>> used the status bit error macros.
->>>>
->>>>> a lot of the patches have my fixup commit messages (which should have
->>>>> disappeared when squashing in the patches), please replace those by
->>>>> proper
->>>>> commit messages describing what the patch actually does.
->>>>
->>>>
->>>> Yes, [PATCHv3 3/5] uses fixup. I'll correct it.
->>>>>
->>>>>
->>>>>
->>>>> Also the adding of the commented nodes for the lime2 seems to be gone
->>>>> entirely
->>>>> from the set, instead now only a comment about the conflict with the
->>>>> hdmi
->>>>> pins is added, but it is above the i2c node instead of above a ps2
->>>>> node.
->>>>>
->>>> Maxime's suggested that we should not add commented nodes specially
->>>> when its trivial to apply. And just note saying ps20 pins conflict
->>>> with HDMI.
->>>
->>>
->>>
->>> Ah, I see.
->>>
->>>> Should I remove the this comment as well?
->>>> Or
->>>> Put this note in start of DTS file?
->>>
->>>
->>>
->>> The comment should be added to where the pinctrl bits are, not to the
->>> lime2
->>> file, ps0 will conflict with hdmi on all boards.
->>
->>
->> Well, In that case,PS2_0 pins conflicts with HDMI, PS2_1 pins
->> conflicts with LCD. Every pin has multiplexing.
->
->
-> Almost every A10 board has a hdmi connector, and only the hdmi ddc pins
-> are multiplexed, so this is sort of special, but yes if we do not have
-> the commented nodes in the dts file, then this comment can be dropped too
-> I guess.
+> Strictly speaking, there is no right click button on clickpads. We
+> emulate one with the software buttons in Xorg.
+> IIRC, there were some "workarounds" in your original bugs which
+> consist in disabling the software buttons area. Can you make sure that
+> there is no left over from this?
 
-All the HDMI pins have dedicated pins. In addition, the DDC pins are
-multiplexed. On the Lime, the dedicated pins (ball # R23, R22) are
-used. I just checked the schematics. There should be no conflict.
+I learn new things about clickpads every day. :)
 
-ChenYu
+To my knowledge, those configurations changes should reset upon reboot
+and I never committed any of those lines to any of my startup files.
+So we should be good there, I think. Just in case, I am enclosing the
+output of my synclient -l, which should be the default configuration.
+
+> If this still doesn't work, we wil need to check that the X and Y
+> ranges reported by your clickpad are accurate and that the software
+> buttons are properly activated.
+
+I don't know the testing methodology to use to provide positioning
+data for my trackpad, but let me know if you need that and how you
+want me to get it and I will be happy to provide.
+
+Thank you!
+
+--001a11c3bc201f54ac050a46c20d
+Content-Type: application/octet-stream; name="synclient.list"
+Content-Disposition: attachment; filename="synclient.list"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i3q9h3vm0
+
+UGFyYW1ldGVyIHNldHRpbmdzOgogICAgTGVmdEVkZ2UgICAgICAgICAgICAgICAgPSAxNjEKICAg
+IFJpZ2h0RWRnZSAgICAgICAgICAgICAgID0gMzg0OAogICAgVG9wRWRnZSAgICAgICAgICAgICAg
+ICAgPSAxMjMKICAgIEJvdHRvbUVkZ2UgICAgICAgICAgICAgID0gMjE0NAogICAgRmluZ2VyTG93
+ICAgICAgICAgICAgICAgPSAyNQogICAgRmluZ2VySGlnaCAgICAgICAgICAgICAgPSAzMAogICAg
+TWF4VGFwVGltZSAgICAgICAgICAgICAgPSAxODAKICAgIE1heFRhcE1vdmUgICAgICAgICAgICAg
+ID0gMjAyCiAgICBNYXhEb3VibGVUYXBUaW1lICAgICAgICA9IDE4MAogICAgU2luZ2xlVGFwVGlt
+ZW91dCAgICAgICAgPSAxODAKICAgIENsaWNrVGltZSAgICAgICAgICAgICAgID0gMTAwCiAgICBF
+bXVsYXRlTWlkQnV0dG9uVGltZSAgICA9IDc1CiAgICBFbXVsYXRlVHdvRmluZ2VyTWluWiAgICA9
+IDI4MgogICAgRW11bGF0ZVR3b0Zpbmdlck1pblcgICAgPSA3CiAgICBWZXJ0U2Nyb2xsRGVsdGEg
+ICAgICAgICA9IDkyCiAgICBIb3JpelNjcm9sbERlbHRhICAgICAgICA9IDkyCiAgICBWZXJ0RWRn
+ZVNjcm9sbCAgICAgICAgICA9IDEKICAgIEhvcml6RWRnZVNjcm9sbCAgICAgICAgID0gMAogICAg
+Q29ybmVyQ29hc3RpbmcgICAgICAgICAgPSAwCiAgICBWZXJ0VHdvRmluZ2VyU2Nyb2xsICAgICA9
+IDEKICAgIEhvcml6VHdvRmluZ2VyU2Nyb2xsICAgID0gMAogICAgTWluU3BlZWQgICAgICAgICAg
+ICAgICAgPSAxCiAgICBNYXhTcGVlZCAgICAgICAgICAgICAgICA9IDEuNzUKICAgIEFjY2VsRmFj
+dG9yICAgICAgICAgICAgID0gMC4wNDM0NTk0CiAgICBUb3VjaHBhZE9mZiAgICAgICAgICAgICA9
+IDAKICAgIExvY2tlZERyYWdzICAgICAgICAgICAgID0gMAogICAgTG9ja2VkRHJhZ1RpbWVvdXQg
+ICAgICAgPSA1MDAwCiAgICBSVENvcm5lckJ1dHRvbiAgICAgICAgICA9IDIKICAgIFJCQ29ybmVy
+QnV0dG9uICAgICAgICAgID0gMwogICAgTFRDb3JuZXJCdXR0b24gICAgICAgICAgPSAwCiAgICBM
+QkNvcm5lckJ1dHRvbiAgICAgICAgICA9IDAKICAgIFRhcEJ1dHRvbjEgICAgICAgICAgICAgID0g
+MQogICAgVGFwQnV0dG9uMiAgICAgICAgICAgICAgPSAzCiAgICBUYXBCdXR0b24zICAgICAgICAg
+ICAgICA9IDAKICAgIENsaWNrRmluZ2VyMSAgICAgICAgICAgID0gMQogICAgQ2xpY2tGaW5nZXIy
+ICAgICAgICAgICAgPSAxCiAgICBDbGlja0ZpbmdlcjMgICAgICAgICAgICA9IDAKICAgIENpcmN1
+bGFyU2Nyb2xsaW5nICAgICAgID0gMAogICAgQ2lyY1Njcm9sbERlbHRhICAgICAgICAgPSAwLjEK
+ICAgIENpcmNTY3JvbGxUcmlnZ2VyICAgICAgID0gMAogICAgQ2lyY3VsYXJQYWQgICAgICAgICAg
+ICAgPSAwCiAgICBQYWxtRGV0ZWN0ICAgICAgICAgICAgICA9IDAKICAgIFBhbG1NaW5XaWR0aCAg
+ICAgICAgICAgID0gMTAKICAgIFBhbG1NaW5aICAgICAgICAgICAgICAgID0gMjAwCiAgICBDb2Fz
+dGluZ1NwZWVkICAgICAgICAgICA9IDIwCiAgICBDb2FzdGluZ0ZyaWN0aW9uICAgICAgICA9IDUw
+CiAgICBQcmVzc3VyZU1vdGlvbk1pblogICAgICA9IDMwCiAgICBQcmVzc3VyZU1vdGlvbk1heFog
+ICAgICA9IDE2MAogICAgUHJlc3N1cmVNb3Rpb25NaW5GYWN0b3IgPSAxCiAgICBQcmVzc3VyZU1v
+dGlvbk1heEZhY3RvciA9IDEKICAgIFJlc29sdXRpb25EZXRlY3QgICAgICAgID0gMQogICAgR3Jh
+YkV2ZW50RGV2aWNlICAgICAgICAgPSAwCiAgICBUYXBBbmREcmFnR2VzdHVyZSAgICAgICA9IDEK
+ICAgIEFyZWFMZWZ0RWRnZSAgICAgICAgICAgID0gMAogICAgQXJlYVJpZ2h0RWRnZSAgICAgICAg
+ICAgPSAwCiAgICBBcmVhVG9wRWRnZSAgICAgICAgICAgICA9IDAKICAgIEFyZWFCb3R0b21FZGdl
+ICAgICAgICAgID0gMAogICAgSG9yaXpIeXN0ZXJlc2lzICAgICAgICAgPSAyMwogICAgVmVydEh5
+c3RlcmVzaXMgICAgICAgICAgPSAyMwogICAgQ2xpY2tQYWQgICAgICAgICAgICAgICAgPSAwCg==
+--001a11c3bc201f54ac050a46c20d--

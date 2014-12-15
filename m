@@ -1,245 +1,145 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v14 01/12] input: cyapa: re-design driver to support
- multi-trackpad in one driver
-Date: Mon, 15 Dec 2014 03:49:38 +0000
-Message-ID: <BN1PR06MB070B124BE4CA6D88F90000AD16F0@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1418351262-8163-1-git-send-email-dudley.dulixin@gmail.com>
- <1418351262-8163-2-git-send-email-dudley.dulixin@gmail.com>
- <20141213111615.GA21729@newt.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+From: Dudley Du <dudley.dulixin@gmail.com>
+Subject: [PATCH v15 00/12] input: cyapa: instruction of cyapa patches
+Date: Mon, 15 Dec 2014 14:23:11 +0800
+Message-ID: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0131.outbound.protection.outlook.com ([157.56.111.131]:65344
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750713AbaLOEDz convert rfc822-to-8bit (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:58601 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750801AbaLOGYL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Dec 2014 23:03:55 -0500
-In-Reply-To: <20141213111615.GA21729@newt.localdomain>
-Content-Language: en-US
+	Mon, 15 Dec 2014 01:24:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: Dudley Du <dudley.dulixin@gmail.com>, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Thanks for your remove and comments.
+V15 patches have below updates, details of other updates see history list:
+1) Fix all warning errors of sparse tool when running with "make C=1".
+2) Change variable name "unique_str" to "product_id" for clearer meanings.
 
-Dudley
 
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org
-> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Jeremiah Mahler
-> Sent: 2014?12?13? 19:16
-> To: Dudley Du
-> Cc: dmitry.torokhov@gmail.com; rydberg@euromail.se; bleung@google.com;
-> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH v14 01/12] input: cyapa: re-design driver to support
-> multi-trackpad in one driver
->
-> Dudley,
->
-> A few suggestions and questions below...
->
-> On Fri, Dec 12, 2014 at 10:27:31AM +0800, Dudley Du wrote:
-> > In order to support multiple different chipsets and communication protocols
-> > trackpad devices in one cyapa driver, the new cyapa driver is re-designed
-> > with one cyapa driver core and multiple device specific functions component.
-> > The cyapa driver core is contained in this patch, it supplies basic functions
-> > that working with kernel and input subsystem, and also supplies the interfaces
-> > that the specific devices' component can connect and work together with as
-> > one driver.
-> > TEST=test on Chromebooks.
-> >
-> > Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
-> > ---
-> >  drivers/input/mouse/Makefile     |    3 +-
-> >  drivers/input/mouse/cyapa.c      | 1050 ++++++++++++++------------------------
-> >  drivers/input/mouse/cyapa.h      |  316 ++++++++++++
-> [...]
-> > -{ REG_OFFSET_QUERY_BASE, QUERY_DATA_SIZE },
-> > -{ BL_HEAD_OFFSET, 3 },
-> > -{ BL_HEAD_OFFSET, 16 },
-> > -{ BL_HEAD_OFFSET, 16 },
-> > -{ BL_DATA_OFFSET, 16 },
-> > -{ BL_HEAD_OFFSET, 32 },
-> > -{ REG_OFFSET_QUERY_BASE, PRODUCT_ID_SIZE },
-> > -{ REG_OFFSET_DATA_BASE, 32 }
-> > -};
-> > +const char unique_str[] = "CYTRA";
-> >
-> Since 'unique_str' is used to check the product id why not call it
-> 'product_id'?
+This patch series is aimed to re-design the cyapa driver to support
+old gen3 trackpad devices and new gen5 trackpad devices in one
+cyapa driver, it's for easily productions support based on
+customers' requirements. And add sysfs functions and interfaces
+supported that required by users and customers.
 
-Thanks, I will rename it to product_id.
+Since the earlier gen3 and the latest gen5 trackpad devices using
+two different chipsets, and have different protocols and interfaces,
+so if supported these two type trackpad devices in two different drivers,
+then it will be difficult to manage productions and later firmware updates.
+e.g.: It will cause customer don't know which one trackpad device firmware
+image to use and update when it has been used and integrated
+in same one productions, so here we support these two trackpad
+devices in same on driver.
 
->
-> [...]
-> > +/**
-> > + * cyapa_i2c_write - Execute i2c block data write operation
-> > + * @cyapa: Handle to this driver
-> > + * @ret: Offset of the data to written in the register map
-> > + * @len: number of bytes to write
-> > + * @values: Data to be written
-> >   *
-> > - * Note:
-> > - * In trackpad device, the memory block allocated for I2C register map
-> > - * is 256 bytes, so the max read block for I2C bus is 256 bytes.
-> > + * Return negative errno code on error; return zero when success.
-> >   */
-> > -static ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
-> > -      u8 *values)
-> > +ssize_t cyapa_i2c_write(struct cyapa *cyapa, u8 reg,
-> > + size_t len, const void *values)
-> >  {
-> > -ssize_t ret;
-> > -u8 index;
-> > -u8 smbus_cmd;
-> > -u8 *buf;
-> > +int ret;
-> >  struct i2c_client *client = cyapa->client;
-> > +char data[32], *buf;
-> >
-> > -if (!(SMBUS_BYTE_BLOCK_CMD_MASK & cmd))
-> > -return -EINVAL;
-> > -
-> > -if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
-> > -/* read specific block registers command. */
-> > -smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> > -ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
-> > -goto out;
-> > -}
-> > -
-> > -ret = 0;
-> > -for (index = 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-> > -smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
-> > -smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
-> > -buf = values + I2C_SMBUS_BLOCK_MAX * index;
-> > -ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
-> > -if (ret < 0)
-> > -goto out;
-> > -}
-> > -
-> > -out:
-> > -return ret > 0 ? len : ret;
-> > -}
-> > -
-> > -static s32 cyapa_read_byte(struct cyapa *cyapa, u8 cmd_idx)
-> > -{
-> > -u8 cmd;
-> > -
-> > -if (cyapa->smbus) {
-> > -cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-> > -cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> > +if (len > 31) {
-> > +buf = kzalloc(len + 1, GFP_KERNEL);
-> > +if (!buf)
-> > +return -ENOMEM;
-> >  } else {
-> > -cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> > +buf = data;
-> >  }
-> > -return i2c_smbus_read_byte_data(cyapa->client, cmd);
-> > -}
-> >
-> > -static s32 cyapa_write_byte(struct cyapa *cyapa, u8 cmd_idx, u8 value)
-> > -{
-> > -u8 cmd;
-> > +buf[0] = reg;
-> > +memcpy(&buf[1], values, len);
-> > +ret = i2c_master_send(client, buf, len + 1);
-> >
-> > -if (cyapa->smbus) {
-> > -cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-> > -cmd = SMBUS_ENCODE_RW(cmd, SMBUS_WRITE);
-> > -} else {
-> > -cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> > -}
-> > -return i2c_smbus_write_byte_data(cyapa->client, cmd, value);
-> > +if (buf != data)
-> > +kfree(buf);
-> > +return (ret == (len + 1)) ? 0 : ((ret < 0) ? ret : -EIO);
-> >  }
-> >
->
-> Ugh.  This is hard to read since diff replaced three functions with one,
-> cyapa_i2c_write().  Nothing can be done about this, just a note for the
-> other reviewers.
->
-> The final cyapa_i2c_write() is shown below.
->
->   /**
->    * cyapa_i2c_write - Execute i2c block data write operation
->    * @cyapa: Handle to this driver
->    * @ret: Offset of the data to written in the register map
->    * @len: number of bytes to write
->    * @values: Data to be written
->    *
->    * Return negative errno code on error; return zero when success.
->    */
->   ssize_t cyapa_i2c_write(struct cyapa *cyapa, u8 reg,
->                                            size_t len, const void *values)
->   {
->           int ret;
->           struct i2c_client *client = cyapa->client;
->           char data[32], *buf;
->
->           if (len > 31) {
->                   buf = kzalloc(len + 1, GFP_KERNEL);
->                   if (!buf)
->                           return -ENOMEM;
->           } else {
->                   buf = data;
->           }
->
->           buf[0] = reg;
->           memcpy(&buf[1], values, len);
->           ret = i2c_master_send(client, buf, len + 1);
->
->           if (buf != data)
->                   kfree(buf);
->           return (ret == (len + 1)) ? 0 : ((ret < 0) ? ret : -EIO);
->   }
->
-> What is interesting about this code is that it switches between buffers
-> depending on length.  If it is less than or equal to 31 bytes a static
-> buffer is used.  If it is larger, memory is allocated.
->
-> Is this complexity justified or is this premature optimization?
->
-> I could only find one place where cyapa_i2c_write() was used and it only
-> involved 2 bytes so 32 is plenty.
->
-> Why not simplify it and only use the static buffer and just reject
-> anything that is too large?
->
->   ssize_t cyapa_i2c_write(struct cyapa *cyapa, u8 reg,
->                                            size_t len, const void *values)
->   {
->           int ret;
->           struct i2c_client *client = cyapa->client;
->           char buf[32];
->
->           if (len > 31)
->   return -ENOMEM;
->
->           buf[0] = reg;
->           memcpy(&buf[1], values, len);
->           ret = i2c_master_send(client, buf, len + 1);
->
->           return (ret == (len + 1)) ? 0 : ((ret < 0) ? ret : -EIO);
->   }
->
-> [...]
+The new design cyapa driver contains:
+cyapa.c - the core of the re-design, supply interfaces and
+functions to system and read trackpad devices.
+cyapa.h - header file including macros and data structure definitions.
+cyapa_gen3.c - functions support for gen3 trackpad devices,
+cyapa_gen5.c - functions support for gen5 trackpad devices.
 
-Thanks, I will modify it based on your suggestion.
+Beside this introduction patch, it has 12 patches listed as below.
+For these patches, each one is patched based on previous one.
 
->
-> --
-> - Jeremiah Mahler
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+patch 1/12: re-design cyapa driver with core functions and interface
+to support multi-type trackpad devices.
 
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+patch 2/12: add gen5 trackpad device basic functions supported into the
+re-design cyapa driver.
+
+patch 3/12: add power management interfaces supported for the device.
+
+patch 4/12: add runtime power management interfaces supported for the device.
+
+patch 5/12: add sysfs interfaces supported in the cyapa driver.
+Including read firmware version, get production ID, read baseline,
+re-calibrate trackpad baselines and do trackpad firmware update.
+
+patch 6/12: add gen3 trackpad device's firmware update function supported.
+
+patch 7/12: add gen3 trackpad device's read baseline function supported.
+
+patch 8/12: add gen3 trackpad device's force re-calibrate function supported.
+
+patch 9/12: add gen5 trackpad device's firmware update function supported.
+
+patch 10/12: add gen5 trackpad device's read baseline function supported.
+
+patch 11/12: add gen5 trackpad device's force re-calibrate function.
+
+patch 12/12: add acpi device id supported.
+
+
+History patch series modifications list:
+V14 patches have below main updates compared with v13 patches:
+1) Correct 9 miss spelling issues of "bufferred" to "buffered".
+2) Fix the upgrade issue of removing MOUSE_CYAPA config when make oldconfig
+   by replase "depends on I2C && CRC_ITU_T" with
+	"depends on I2C"
+	"select CRC_ITU_T"
+   in patch 9.
+
+V13 patches have below main updates compared with v12 patches:
+1) Remove all debugfs interface, including read_fw and raw_data interfaces.
+2) This patches are made based linux next-20141208.
+
+V12 patches have below main updates compared with v11 patches:
+1) Add check that when TP is detected but not operational, do not exit driver
+   immediately, but wait and export the update_fw interface for recovering.
+2) Re-arrange the function codes, remove unnesseary protype definitions in
+   the header file.
+
+V11 patches have below main updates compared with v10 patches:
+1) Add add acpi device id supported for old gen3 and new gen5 trackpad devices.
+2) Fix the unable to update firmware issue when cyapa_open is not called
+   which means the irq for firwmare update process is not enabled. This fix
+   by checking if the irq is enabled, if not then enable irq before start to
+   do firmware update.
+
+V10 patches have below main updates compared with v9 patches:
+1) Modify code to following kernel code style.
+   e.g.: correct to use error as return name when there is only error path,
+   and fix the checkpatch.sh wanting in the driver.
+2) Remove cyapa_remove method and use input open and close interface to
+   following device resouse management infrastructure.
+3) Modify cyapa_detect method to return tristate issue to make the return value
+   much more consistent and clear.
+4) Use platform supplied functions as possible instead of driver
+   specific rewritten version.
+
+V9 patches have below updates compared with v8 patches:
+1) Removed all async thread stuff from the driver.
+2) Split driver into 18 patches for each function change one patch.
+
+V8 patches have below updates compared with v7 patches:
+1) [PATCH v8 01/13] - Remove the async thread for device detect in
+   probe routine, now the device detect process is completely done within
+   the device probe routine.
+2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
+
+V7 patches have below updates compared with v6 patches:
+1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
+
+
+V6 patches have below updates compared with v5 patches:
+1) Remove patch 14 of the lid filtering from the cyapa driver.
+
+V5 patches have below updates compared with v4 patches:
+1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+2) Fix memories freed before debugfs entries issue;
+3) Make cyapa_debugs_root valid in driver module level
+   in module_init()/moudle_exit() ;
+4) Fix i2c_transfer() may return partial transfer issues.
+5) Add cyapa->removed flag to avoid detecting thread may still running
+   when driver module is removed.
+6) Fix the meanings of some comments and return error code not clear issue.

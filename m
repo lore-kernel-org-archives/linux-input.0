@@ -1,92 +1,123 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/7] input: alps: Set correct name of psmouse device in
- alps_init()
-Date: Mon, 15 Dec 2014 21:02:34 -0800
-Message-ID: <20141216050234.GA35408@dtor-ws>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
- <1415993906-13307-2-git-send-email-pali.rohar@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1415993906-13307-2-git-send-email-pali.rohar@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Aniroop@vger.kernel.org, Mathur@vger.kernel.org
+Subject: [PATCH] Input: Add support for CLOCK_BOOTTIME
+Date: Tue, 16 Dec 2014 13:53:55 +0530
+Message-ID: <1418718235-2277-1-git-send-email-a.mathur@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:46213 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750914AbaLPIY2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 03:24:28 -0500
+Received: from epcpsbgm2.samsung.com (epcpsbgm2 [203.254.230.27])
+ by mailout4.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0NGO00IG620LVC50@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 16 Dec 2014 17:24:21 +0900 (KST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aniroop.mathur@gmail.com, a.mathur@samsung.com
 
-Hi Pali,
+From: Aniroop Mathur <a.mathur@samsung.com>
 
-On Fri, Nov 14, 2014 at 08:38:20PM +0100, Pali Roh=E1r wrote:
-> On some laptops after starting them from off state (not after reboot)=
-, function
-> alps_probe_trackstick_v3() (called from function alps_identify()) doe=
-s not
-> detect trackstick. To fix this problem we need to reset device. But f=
-unction
-> alps_identify() is called also from alps_detect() and we do not want =
-to reset
-> device in detect function because it will slow down initialization of=
- all other
-> non alps devices.
->=20
-> This patch moves code for setting correct device name & protocol from=
- function
-> alps_detect() to alps_init() which already doing full device reset.
->=20
-> So this patch removes need to do trackstick detection in alps_detect(=
-) function.
->=20
-> Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> ---
->  drivers/input/mouse/alps.c |   17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 8d85c79..9ffa98d 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2392,6 +2392,10 @@ int alps_init(struct psmouse *psmouse)
->  	if (input_register_device(priv->dev2))
->  		goto init_fail;
-> =20
-> +	if (!(priv->flags & ALPS_DUALPOINT))
-> +		psmouse->name =3D "GlidePoint TouchPad";
-> +	psmouse->model =3D priv->proto_version;
-> +
->  	psmouse->protocol_handler =3D alps_process_byte;
->  	psmouse->poll =3D alps_poll;
->  	psmouse->disconnect =3D alps_disconnect;
-> @@ -2422,11 +2426,18 @@ int alps_detect(struct psmouse *psmouse, bool=
- set_properties)
->  		return -1;
-> =20
->  	if (set_properties) {
-> +		/*
-> +		 * NOTE: To detect model and trackstick presence we need to do
-> +		 *       full device reset. To speed up detection and prevent
-> +		 *       calling duplicate initialization sequence (both in
-> +		 *       alps_detect() and alps_init()) we set model/protocol
-> +		 *       version and correct name in alps_init() (which will
-> +		 *       do full device reset). For now set name to DualPoint.
-> +		 */
->  		psmouse->vendor =3D "ALPS";
-> -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
-> -				"DualPoint TouchPad" : "GlidePoint";
-> -		psmouse->model =3D dummy.proto_version << 8;
-> +		psmouse->name =3D "DualPoint TouchPad";
->  	}
-> +
+This patch adds support for CLOCK_BOOTTIME for input event timestamp.
+CLOCK_BOOTTIME includes suspend time, so it would allow applications
+to get correct time difference between two events even when system
+resumes from suspend state.
 
-I do not quite like the way we change the device description back and
-forth. Do you think we could allocate the "real" priv structure in
-alps_detect() and have alps_init() expect to find it (and free it if
-set_properties is false). This way we'd go through initialization once
-in detect, it will be authoritative, and we would set the name of the
-device properly from the beginning.
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+---
+ drivers/input/evdev.c | 33 +++++++++++++++++++++------------
+ 1 file changed, 21 insertions(+), 12 deletions(-)
 
-Thanks.
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index de05545..7825794 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -28,6 +28,13 @@
+ #include <linux/cdev.h>
+ #include "input-compat.h"
+ 
++enum clock_type {
++	REAL = 0,
++	MONO,
++	BOOT,
++	CLK_MAX
++};
++
+ struct evdev {
+ 	int open;
+ 	struct input_handle handle;
+@@ -108,8 +115,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
+ 	struct input_event ev;
+ 	ktime_t time;
+ 
+-	time = (client->clkid == CLOCK_MONOTONIC) ?
+-		ktime_get() : ktime_get_real();
++	time = (client->clkid == CLOCK_REALTIME) ?
++		ktime_get_real() : (client->clkid == CLOCK_MONOTONIC) ?
++		ktime_get() : ktime_get_boottime();
+ 
+ 	ev.time = ktime_to_timeval(time);
+ 	ev.type = EV_SYN;
+@@ -159,7 +167,7 @@ static void __pass_event(struct evdev_client *client,
+ 
+ static void evdev_pass_values(struct evdev_client *client,
+ 			const struct input_value *vals, unsigned int count,
+-			ktime_t mono, ktime_t real)
++			ktime_t *ev_time)
+ {
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+@@ -169,8 +177,9 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	if (client->revoked)
+ 		return;
+ 
+-	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
+-				      mono : real);
++	event.time = ktime_to_timeval(client->clkid == CLOCK_REALTIME ?
++			ev_time[REAL] : client->clkid == CLOCK_MONOTONIC ?
++			ev_time[MONO] : ev_time[BOOT]);
+ 
+ 	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+@@ -198,21 +207,21 @@ static void evdev_events(struct input_handle *handle,
+ {
+ 	struct evdev *evdev = handle->private;
+ 	struct evdev_client *client;
+-	ktime_t time_mono, time_real;
++	ktime_t ev_time[CLK_MAX];
+ 
+-	time_mono = ktime_get();
+-	time_real = ktime_mono_to_real(time_mono);
++	ev_time[MONO] = ktime_get();
++	ev_time[REAL] = ktime_mono_to_real(ev_time[MONO]);
++	ev_time[BOOT] = ktime_get_boottime();
+ 
+ 	rcu_read_lock();
+ 
+ 	client = rcu_dereference(evdev->grab);
+ 
+ 	if (client)
+-		evdev_pass_values(client, vals, count, time_mono, time_real);
++		evdev_pass_values(client, vals, count, ev_time);
+ 	else
+ 		list_for_each_entry_rcu(client, &evdev->client_list, node)
+-			evdev_pass_values(client, vals, count,
+-					  time_mono, time_real);
++			evdev_pass_values(client, vals, count, ev_time);
+ 
+ 	rcu_read_unlock();
+ }
+@@ -874,7 +883,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 	case EVIOCSCLOCKID:
+ 		if (copy_from_user(&i, p, sizeof(unsigned int)))
+ 			return -EFAULT;
+-		if (i != CLOCK_MONOTONIC && i != CLOCK_REALTIME)
++		if (i != CLOCK_MONOTONIC && i != CLOCK_REALTIME && i != CLOCK_BOOTTIME)
+ 			return -EINVAL;
+ 		client->clkid = i;
+ 		return 0;
+-- 
+1.9.1
 
---=20
-Dmitry

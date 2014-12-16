@@ -1,123 +1,34 @@
-From: Aniroop@vger.kernel.org, Mathur@vger.kernel.org
-Subject: [PATCH] Input: Add support for CLOCK_BOOTTIME
-Date: Tue, 16 Dec 2014 13:53:55 +0530
-Message-ID: <1418718235-2277-1-git-send-email-a.mathur@samsung.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:46213 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750914AbaLPIY2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 03:24:28 -0500
-Received: from epcpsbgm2.samsung.com (epcpsbgm2 [203.254.230.27])
- by mailout4.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0NGO00IG620LVC50@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Tue, 16 Dec 2014 17:24:21 +0900 (KST)
-Sender: linux-input-owner@vger.kernel.org
+From: Catalin Crenguta <catalin.crenguta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 0/6] Touchscreen performance related fixes
+Date: Tue, 16 Dec 2014 10:31:47 +0200
+Message-ID: <CABH3fy8S1Hb9LK=ZceWgJsNvLbq8pwu00Tcj_0vE4j6QzcO+kg@mail.gmail.com>
+References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
+	<20141124115116.GA14997@linutronix.de>
+	<547C3A95.30605@ti.com>
+	<547C3C19.5090501@linutronix.de>
+	<547C42FF.5010700@ti.com>
+	<CAH=tA9FO5MCzE274thc-NugCNte6WdyC-Rxc6yfnuR=+6_qMbA@mail.gmail.com>
+	<548A0125.6040708@linutronix.de>
+	<CABH3fy8zCjsxARsqBf9JXOHBkzySdiqifA1KtjnGpJdBY2EikA@mail.gmail.com>
+	<912A29987EAE174BA6CF187D7CDFA9CE26FA135A@DLEE08.ent.ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <912A29987EAE174BA6CF187D7CDFA9CE26FA135A-YmePFLaaepqIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
+Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Nicolae Rosia <nicolae.rosia-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
-Cc: aniroop.mathur@gmail.com, a.mathur@samsung.com
 
-From: Aniroop Mathur <a.mathur@samsung.com>
+On Fri, Dec 12, 2014 at 4:16 PM, Griffis, Brad <bgriffis-l0cyMroinI0@public.gmane.org> wrote:
+> How are you configuring ti,charge-delay in your dts?  I've seen this behavior on some custom boards where we were using a smaller charge delay (0x400) to begin with, and by upping it to 0xb000 we resolved the issue.  These patches however already specified ti,charge-delay = 0xb000 by default so this would surprise me that it's still seeing that issue.  Was the touchscreen working as expected before these new patches, or does it have issues both ways?
 
-This patch adds support for CLOCK_BOOTTIME for input event timestamp.
-CLOCK_BOOTTIME includes suspend time, so it would allow applications
-to get correct time difference between two events even when system
-resumes from suspend state.
+It seems that because the ribbon cable has both the analog and digital
+signals, the analog signals are affected by the digital ones (hence
+the touchscreen was working OK when the display was disabled). Putting
+decoupling capacitors on X+, X-, Y+, Y- reduces the noise and the
+false events disappear.
+I'm sorry for all the noise I have generated.
 
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
----
- drivers/input/evdev.c | 33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index de05545..7825794 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -28,6 +28,13 @@
- #include <linux/cdev.h>
- #include "input-compat.h"
- 
-+enum clock_type {
-+	REAL = 0,
-+	MONO,
-+	BOOT,
-+	CLK_MAX
-+};
-+
- struct evdev {
- 	int open;
- 	struct input_handle handle;
-@@ -108,8 +115,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
- 	struct input_event ev;
- 	ktime_t time;
- 
--	time = (client->clkid == CLOCK_MONOTONIC) ?
--		ktime_get() : ktime_get_real();
-+	time = (client->clkid == CLOCK_REALTIME) ?
-+		ktime_get_real() : (client->clkid == CLOCK_MONOTONIC) ?
-+		ktime_get() : ktime_get_boottime();
- 
- 	ev.time = ktime_to_timeval(time);
- 	ev.type = EV_SYN;
-@@ -159,7 +167,7 @@ static void __pass_event(struct evdev_client *client,
- 
- static void evdev_pass_values(struct evdev_client *client,
- 			const struct input_value *vals, unsigned int count,
--			ktime_t mono, ktime_t real)
-+			ktime_t *ev_time)
- {
- 	struct evdev *evdev = client->evdev;
- 	const struct input_value *v;
-@@ -169,8 +177,9 @@ static void evdev_pass_values(struct evdev_client *client,
- 	if (client->revoked)
- 		return;
- 
--	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
--				      mono : real);
-+	event.time = ktime_to_timeval(client->clkid == CLOCK_REALTIME ?
-+			ev_time[REAL] : client->clkid == CLOCK_MONOTONIC ?
-+			ev_time[MONO] : ev_time[BOOT]);
- 
- 	/* Interrupts are disabled, just acquire the lock. */
- 	spin_lock(&client->buffer_lock);
-@@ -198,21 +207,21 @@ static void evdev_events(struct input_handle *handle,
- {
- 	struct evdev *evdev = handle->private;
- 	struct evdev_client *client;
--	ktime_t time_mono, time_real;
-+	ktime_t ev_time[CLK_MAX];
- 
--	time_mono = ktime_get();
--	time_real = ktime_mono_to_real(time_mono);
-+	ev_time[MONO] = ktime_get();
-+	ev_time[REAL] = ktime_mono_to_real(ev_time[MONO]);
-+	ev_time[BOOT] = ktime_get_boottime();
- 
- 	rcu_read_lock();
- 
- 	client = rcu_dereference(evdev->grab);
- 
- 	if (client)
--		evdev_pass_values(client, vals, count, time_mono, time_real);
-+		evdev_pass_values(client, vals, count, ev_time);
- 	else
- 		list_for_each_entry_rcu(client, &evdev->client_list, node)
--			evdev_pass_values(client, vals, count,
--					  time_mono, time_real);
-+			evdev_pass_values(client, vals, count, ev_time);
- 
- 	rcu_read_unlock();
- }
-@@ -874,7 +883,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 	case EVIOCSCLOCKID:
- 		if (copy_from_user(&i, p, sizeof(unsigned int)))
- 			return -EFAULT;
--		if (i != CLOCK_MONOTONIC && i != CLOCK_REALTIME)
-+		if (i != CLOCK_MONOTONIC && i != CLOCK_REALTIME && i != CLOCK_BOOTTIME)
- 			return -EINVAL;
- 		client->clkid = i;
- 		return 0;
--- 
-1.9.1
-
+Best regards,

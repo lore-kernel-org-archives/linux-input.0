@@ -1,96 +1,107 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
-Date: Tue, 16 Dec 2014 17:13:05 -0500
-Message-ID: <CAN+gG=F0HhzXQhsaHTEb5Hy2CVTsoOSopCt4grXFnSKt+tPsWw@mail.gmail.com>
-References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Peter Wu <peter@lekensteyn.nl>
+Subject: [PATCH 3/3] HID: logitech-hidpp: separate HID++ from WTP processing
+Date: Wed, 17 Dec 2014 00:23:51 +0100
+Message-ID: <1418772231-31330-1-git-send-email-peter@lekensteyn.nl>
+References: <CAN+gG=GhJx38LDwAGoPA1BpYOmjS8r_xnYPXWOgB66VLwmv5kg@mail.gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lekensteyn.nl ([178.21.112.251]:51819 "EHLO lekensteyn.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750905AbaLPXYD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 18:24:03 -0500
+In-Reply-To: <CAN+gG=GhJx38LDwAGoPA1BpYOmjS8r_xnYPXWOgB66VLwmv5kg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 16, 2014 at 5:06 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> If wtp_connect() fails, that means most of the time that the device has
-> been disconnected. Subsequent attempts to contact the device will fail
-> too, so it's simpler to bail out earlier.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
+Previously wtp_raw_event would be called through
+hidpp_raw_hidpp_event (for the touchpad report) and hidpp_raw_event
+(for the mouse report).
 
-Jiri, Peter,
+This patch removes one calling surface, making a clearer distinction
+between "generic HID++ processing" (matching internal reports) and
+device-specific event processing.
 
-the logitech patches are queuing up really fast.
-To keep track of them, I made a bundle on patchwork:
-https://patchwork.kernel.org/bundle/bentiss/hid-logitech-hidpp/
-(/me discovered a new tool to play with)
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
+ v2: splitted original report length check patch. Restructured code.
+ v3: renamed var r to ret for consistency, added R-b of Benjamin
 
-Right now, the patch "HID: logitech-hidpp: detect HID++ 2.0 errors
-too" is waiting for Logitech's approval, and the 2 of this series need
-review.
+Hi Benjamin,
 
-Peter, please tell me if I missed one patch.
+I am in a good mood now, so here is v3!
 
-Cheers,
-Benjamin
+IMO 'r' as 'ret' is common just like 'i' is short for 'index', but for
+consistency sake I'll use ret here ;)
 
->  drivers/hid/hid-logitech-hidpp.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index d008d71..c0fb5fe 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -914,24 +914,24 @@ static int wtp_allocate(struct hid_device *hdev, const struct hid_device_id *id)
->         return 0;
->  };
->
-> -static void wtp_connect(struct hid_device *hdev, bool connected)
-> +static int wtp_connect(struct hid_device *hdev, bool connected)
->  {
->         struct hidpp_device *hidpp = hid_get_drvdata(hdev);
->         struct wtp_data *wd = hidpp->private_data;
->         int ret;
->
->         if (!connected)
-> -               return;
-> +               return 0;
->
->         if (!wd->x_size) {
->                 ret = wtp_get_config(hidpp);
->                 if (ret) {
->                         hid_err(hdev, "Can not get wtp config: %d\n", ret);
-> -                       return;
-> +                       return ret;
->                 }
->         }
->
-> -       hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
-> +       return hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
->                         true, true);
->  }
->
-> @@ -1115,8 +1115,11 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
->         struct input_dev *input;
->         char *name, *devm_name;
->
-> -       if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> -               wtp_connect(hdev, connected);
-> +       if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-> +               ret = wtp_connect(hdev, connected);
-> +               if (ret)
-> +                       return;
-> +       }
->
->         if (!connected || hidpp->delayed_input)
->                 return;
-> --
-> 2.1.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kind regards,
+Peter
+---
+ drivers/hid/hid-logitech-hidpp.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 2f1b0ac..18af2de 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -942,7 +942,7 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
+ 
+ 	/*
+ 	 * If the mutex is locked then we have a pending answer from a
+-	 * previoulsly sent command
++	 * previously sent command.
+ 	 */
+ 	if (unlikely(mutex_is_locked(&hidpp->send_mutex))) {
+ 		/*
+@@ -973,9 +973,6 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
+ 		return 1;
+ 	}
+ 
+-	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+-		return wtp_raw_event(hidpp->hid_dev, data, size);
+-
+ 	return 0;
+ }
+ 
+@@ -983,7 +980,9 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		u8 *data, int size)
+ {
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	int ret = 0;
+ 
++	/* Generic HID++ processing. */
+ 	switch (data[0]) {
+ 	case REPORT_ID_HIDPP_LONG:
+ 		if (size != HIDPP_REPORT_LONG_LENGTH) {
+@@ -991,16 +990,23 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 				size);
+ 			return 1;
+ 		}
+-		return hidpp_raw_hidpp_event(hidpp, data, size);
++		ret = hidpp_raw_hidpp_event(hidpp, data, size);
++		break;
+ 	case REPORT_ID_HIDPP_SHORT:
+ 		if (size != HIDPP_REPORT_SHORT_LENGTH) {
+ 			hid_err(hdev, "received hid++ report of bad size (%d)",
+ 				size);
+ 			return 1;
+ 		}
+-		return hidpp_raw_hidpp_event(hidpp, data, size);
++		ret = hidpp_raw_hidpp_event(hidpp, data, size);
++		break;
+ 	}
+ 
++	/* If no report is available for further processing, skip calling
++	 * raw_event of subclasses. */
++	if (ret != 0)
++		return ret;
++
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+ 		return wtp_raw_event(hdev, data, size);
+ 
+-- 
+2.1.3
+

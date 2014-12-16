@@ -1,212 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.19-rc0
-Date: Tue, 16 Dec 2014 09:32:35 -0800
-Message-ID: <20141216173235.GA23024@dtor-ws>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH 0/2] Input: atmel_mxt_ts - Add support for T100 multi-touch
+Date: Tue, 16 Dec 2014 18:46:19 +0100
+Message-ID: <54906FEB.7060702@collabora.co.uk>
+References: <1418639947-28765-1-git-send-email-javier.martinez@collabora.co.uk> <54905AD7.4070205@itdev.co.uk> <54905F00.4020107@collabora.co.uk> <54906031.8020309@itdev.co.uk> <54906285.3060907@collabora.co.uk> <549066D4.7000302@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:60035 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750881AbaLPRck (ORCPT
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:39454 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750974AbaLPRq2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 12:32:40 -0500
-Content-Disposition: inline
+	Tue, 16 Dec 2014 12:46:28 -0500
+In-Reply-To: <549066D4.7000302@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 
-Hi Linus,
+Hello Nick,
 
-Please pull from:
+On 12/16/2014 06:07 PM, Nick Dyer wrote:
+> On 16/12/14 16:49, Javier Martinez Canillas wrote:
+>> Awesome, what do you think about the change to have a common input device
+>> initialization function that I squashed in your original patch?
+>> mxt_initialize_t100_input_device() and mxt_initialize_t9_input_device()
+>> are very similar so I think that is a sensible refactoring as well.
+>> 
+>> If you agree with the change I can post it on top of your patch once it
+>> lands in mainline.
+> 
+> I had been keeping them separate on the basis that we don't want changes to
+> support new T100 features to cause regressions in the old T9 handling. But
+> there is a fair amount of duplication as you say, probably worth addressing.
+>
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Yeah but if there are regressions I think we should address those instead of
+duplicating code, to make the driver more maintainable in the long term.
 
-to receive updates for the input subsystem. You will get 2 new drivers
-ofr Elan hardware (for I2C touchpad and touchscreen found in several
-Chromebooks and other devices), a driver for Goodix touch panel, and
-small fixes to Cypress I2C trackpad and other input drivers. Also we
-switched to use __maybe_unused instead of gating suspend/resume code
-with #ifdef guards to get better compile coverage.
+> FWIW I have a queue of stuff that might be considered higher priority, the
+> next 15-patch set would be up to "add regulator control support":
+> https://github.com/ndyer/linux/compare/dtor:next...for-dtor
+> 
+> It does cause me some issues to merge upstream refactorings past that lot...
+> 
 
-Changelog:
----------
+Sure, I can hold any refactoring patches until you have pushed all your
+queue so you don't have to resolve conflicts. 
 
-Alexander Stein (1):
-      Input: gpio_keys - add device tree support for interrupt only key=
-s
+Just let me know when is a good time to push the refactoring changes.
 
-Aniroop Mathur (2):
-      Input: initialize input_no to -1 to avoid subtraction
-      Input: initialize device counter variables with -1
-
-Bastien Nocera (1):
-      Input: add driver for the Goodix touchpanel
-
-Chen Gang (1):
-      Input: lifebook - use "static inline" instead of "inline" in life=
-book.h
-
-Dan Carpenter (1):
-      Input: lm8323 - missing error check in lm8323_set_disable()
-
-Dmitry Torokhov (1):
-      Input: gpio_keys - fix warning regarding uninitialized  'irq' var=
-iable
-
-Dudley Du (3):
-      Input: cyapa - switch to using managed resources
-      Input: cyapa - fix resuming the device
-      Input: cyapa - use 'error' for error codes
-
-Duson Lin (1):
-      Input: add driver for Elan I2C/SMbus touchpad
-
-=46abio Estevam (1):
-      Input: gpio_keys - fix warning regarding uninitialized 'button' v=
-ariable
-
-Geert Uytterhoeven (2):
-      Input: amikbd - fix build if !CONFIG_HW_CONSOLE
-      Input: amikbd - allocate temporary keymap buffer on the stack
-
-Jingoo Han (3):
-      Input: misc - use __maybe_unused instead of ifdef around suspend/=
-resume
-      Input: mouse - use __maybe_unused instead of ifdef around suspend=
-/resume
-      Input: touchscreen - use __maybe_unused instead of ifdef around s=
-uspend/resume
-
-Matt Ranostay (3):
-      Input: rename cap1106 driver to cap11xx
-      Input: cap11xx - add support for various cap11xx devices
-      Input: cap11xx - support for irq-active-high option
-
-Pramod Gurav (3):
-      Input: mpr121 - switch to using managed resources
-      Input: pxa27x_keypad - switch to using managed resources
-      Input: lpc32xx-keys - switch to using managed resources
-
-Scott Liu (1):
-      Input: add support for Elan eKTH I2C touchscreens
-
-Stefan Br=FCns (1):
-      Input: atkbd - correct MSC_SCAN events for force_release keys
-
-Tobias Klauser (1):
-      Input: altera_ps2 - switch to using managed resources
-
-Todor Minchev (1):
-      Input: i8042 - do not try to load on Intel NUC D54250WYK
-
-
-Diffstat:
---------
-
- .../bindings/input/{cap1106.txt =3D> cap11xx.txt}    |   26 +-
- .../devicetree/bindings/input/elan_i2c.txt         |   34 +
- .../devicetree/bindings/input/elants_i2c.txt       |   33 +
- .../devicetree/bindings/input/gpio-keys.txt        |   10 +-
- .../devicetree/bindings/vendor-prefixes.txt        |    1 +
- MAINTAINERS                                        |    6 +
- drivers/input/gameport/gameport.c                  |    4 +-
- drivers/input/input.c                              |    4 +-
- drivers/input/joystick/xpad.c                      |    8 +-
- drivers/input/keyboard/Kconfig                     |    8 +-
- drivers/input/keyboard/Makefile                    |    2 +-
- drivers/input/keyboard/amikbd.c                    |   47 +-
- drivers/input/keyboard/atkbd.c                     |    6 +-
- drivers/input/keyboard/cap1106.c                   |  341 ------
- drivers/input/keyboard/cap11xx.c                   |  376 ++++++
- drivers/input/keyboard/gpio_keys.c                 |   37 +-
- drivers/input/keyboard/lm8323.c                    |    2 +
- drivers/input/keyboard/lpc32xx-keys.c              |   92 +-
- drivers/input/keyboard/mpr121_touchkey.c           |   42 +-
- drivers/input/keyboard/pxa27x_keypad.c             |   84 +-
- drivers/input/misc/88pm860x_onkey.c                |    6 +-
- drivers/input/misc/ad714x-i2c.c                    |    6 +-
- drivers/input/misc/ad714x-spi.c                    |    6 +-
- drivers/input/misc/adxl34x-i2c.c                   |    6 +-
- drivers/input/misc/adxl34x-spi.c                   |    6 +-
- drivers/input/misc/drv260x.c                       |    6 +-
- drivers/input/misc/drv2667.c                       |    6 +-
- drivers/input/misc/gp2ap002a00f.c                  |    6 +-
- drivers/input/misc/ims-pcu.c                       |    4 +-
- drivers/input/misc/kxtj9.c                         |    6 +-
- drivers/input/misc/max77693-haptic.c               |    6 +-
- drivers/input/misc/max8925_onkey.c                 |    6 +-
- drivers/input/misc/max8997_haptic.c                |    4 +-
- drivers/input/misc/palmas-pwrbutton.c              |    6 +-
- drivers/input/misc/pm8xxx-vibrator.c               |    4 +-
- drivers/input/misc/pmic8xxx-pwrkey.c               |    6 +-
- drivers/input/misc/pwm-beeper.c                    |    6 +-
- drivers/input/misc/sirfsoc-onkey.c                 |    4 +-
- drivers/input/misc/twl4030-vibra.c                 |    6 +-
- drivers/input/misc/twl6040-vibra.c                 |    4 +-
- drivers/input/mouse/Kconfig                        |   30 +
- drivers/input/mouse/Makefile                       |    5 +
- drivers/input/mouse/cyapa.c                        |  289 +++--
- drivers/input/mouse/elan_i2c.h                     |   86 ++
- drivers/input/mouse/elan_i2c_core.c                | 1137 ++++++++++++=
-+++++
- drivers/input/mouse/elan_i2c_i2c.c                 |  611 ++++++++++
- drivers/input/mouse/elan_i2c_smbus.c               |  514 ++++++++
- drivers/input/mouse/lifebook.h                     |    6 +-
- drivers/input/mouse/navpoint.c                     |    6 +-
- drivers/input/mouse/synaptics_i2c.c                |    6 +-
- drivers/input/serio/altera_ps2.c                   |   81 +-
- drivers/input/serio/i8042-x86ia64io.h              |   10 +
- drivers/input/serio/serio.c                        |    4 +-
- drivers/input/serio/serio_raw.c                    |    4 +-
- drivers/input/touchscreen/Kconfig                  |   25 +
- drivers/input/touchscreen/Makefile                 |    2 +
- drivers/input/touchscreen/ad7877.c                 |    6 +-
- drivers/input/touchscreen/ad7879.c                 |    6 +-
- drivers/input/touchscreen/ads7846.c                |    6 +-
- drivers/input/touchscreen/atmel_mxt_ts.c           |    6 +-
- drivers/input/touchscreen/auo-pixcir-ts.c          |    6 +-
- drivers/input/touchscreen/cy8ctmg110_ts.c          |    6 +-
- drivers/input/touchscreen/cyttsp_core.c            |    7 +-
- drivers/input/touchscreen/edt-ft5x06.c             |    6 +-
- drivers/input/touchscreen/eeti_ts.c                |    6 +-
- drivers/input/touchscreen/egalax_ts.c              |    6 +-
- drivers/input/touchscreen/elants_i2c.c             | 1271 ++++++++++++=
-++++++++
- drivers/input/touchscreen/goodix.c                 |  395 ++++++
- drivers/input/touchscreen/ili210x.c                |    6 +-
- drivers/input/touchscreen/ipaq-micro-ts.c          |    6 +-
- drivers/input/touchscreen/mms114.c                 |    6 +-
- drivers/input/touchscreen/pixcir_i2c_ts.c          |    6 +-
- drivers/input/touchscreen/st1232.c                 |    7 +-
- drivers/input/touchscreen/tsc2005.c                |    6 +-
- drivers/input/touchscreen/ucb1400_ts.c             |    6 +-
- drivers/input/touchscreen/wacom_i2c.c              |    6 +-
- drivers/input/touchscreen/zforce_ts.c              |    6 +-
- 77 files changed, 4949 insertions(+), 922 deletions(-)
- rename Documentation/devicetree/bindings/input/{cap1106.txt =3D> cap11=
-xx.txt} (64%)
- create mode 100644 Documentation/devicetree/bindings/input/elan_i2c.tx=
-t
- create mode 100644 Documentation/devicetree/bindings/input/elants_i2c.=
-txt
- delete mode 100644 drivers/input/keyboard/cap1106.c
- create mode 100644 drivers/input/keyboard/cap11xx.c
- create mode 100644 drivers/input/mouse/elan_i2c.h
- create mode 100644 drivers/input/mouse/elan_i2c_core.c
- create mode 100644 drivers/input/mouse/elan_i2c_i2c.c
- create mode 100644 drivers/input/mouse/elan_i2c_smbus.c
- create mode 100644 drivers/input/touchscreen/elants_i2c.c
- create mode 100644 drivers/input/touchscreen/goodix.c
-
---=20
-Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks a lot for your help and best regards,
+Javier

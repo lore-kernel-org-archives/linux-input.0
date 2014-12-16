@@ -1,101 +1,133 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: The return value of hid_input_report and raw_event
-Date: Tue, 16 Dec 2014 10:27:06 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412161022480.1680@pobox.suse.cz>
-References: <7774789.jK4HDCWEI4@al>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCHv3 3/5] ARM: sunxi: dts: Add PS2 nodes to dtsi for A10 and
+ A20
+Date: Tue, 16 Dec 2014 10:32:41 +0100
+Message-ID: <20141216093241.GN4337@lukather>
+References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>
+ <1418408748-9797-4-git-send-email-vishnupatekar0510@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wwtQuX191/I956S7"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46097 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751127AbaLPJ11 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 04:27:27 -0500
-In-Reply-To: <7774789.jK4HDCWEI4@al>
+Received: from down.free-electrons.com ([37.187.137.238]:33920 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751008AbaLPJfE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 04:35:04 -0500
+Content-Disposition: inline
+In-Reply-To: <1418408748-9797-4-git-send-email-vishnupatekar0510@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: linux-input@vger.kernel.org
+To: VishnuPatekar <vishnupatekar0510@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, hdegoede@redhat.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, grant.likely@linaro.org, benh@kernel.crashing.org, msalter@redhat.com, ralf@linux-mips.org, jdelvare@suse.de
 
-On Mon, 15 Dec 2014, Peter Wu wrote:
 
-> Hi Jiri and list,
-> 
-> The HID core has a hid_input_report function which returns an integer,
-> but all its callers are not really changing their behavior based on the
-> return value. The few^Wonly exception that does not completely ignore
-> the return value is the hid-logitech-dj driver which prints a debugging
-> message.
-> 
-> Should this method be changed to return void? The kerneldoc does not
-> document its return value anyway.
+--wwtQuX191/I956S7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Peter,
+Hi Vishnu,
 
-yes, that definitely would be an acceptable cleanup.
+On Fri, Dec 12, 2014 at 11:55:46PM +0530, VishnuPatekar wrote:
+> 1) Fixup the sun4i ps/2 nodes interrupt property, sun4i interrupts take
+> only 1 specifier
+>=20
+> 2) dt bindings should use the compat string for the earliest version of t=
+he
+> hardware which has the relevant hardware block, unless there are differen=
+ces,
+> the A10 and A20 ps2 controllers are identical, so for both sun4i-a10-ps2
+> should be used as compat string, update the sun7i.dtsi ps2 entries to
+> use the sun4i-a10-ps2 compat string.
 
-> Confusion 2: the raw_event callback of the hid_driver structure returns
-> an int, but over time non-negative values are ignored by
-> hid_input_report. This happened in the following change:
-> --------------------------------------------------
-> commit b1a1442a23776756b254b69786848a94d92445ba
-> Author: Jiri Kosina <jkosina@suse.cz>
-> Date:   Mon Jun 3 11:27:48 2013 +0200
-> 
->     HID: core: fix reporting of raw events
->     
->     hdrw->raw event can return three different return value types:
->     
->     - ret < 0   indicates that the hdrv driver found an error while parsing
->     - ret == 0  indicates no error has been encountered, and the driver has
->                 processed the report
->     - ret > 0   indicates that there was no parsing error, and the driver hasn't
->                 processed the event.
->     
->     Calling hid_report_raw_event() has to be called appropriately so that it
->     reflects what has been done by ->raw_event() callback, otherwise we might
->     updates of the in-kernel structure are lost upon arrival of the report, which
->     is wrong.
->     
->     Reported-and-tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
->     Reported-and-tested-by: Daniel Leung <daniel.leung@linux.intel.com>
->     Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index c272078..8f616bd 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1293,7 +1293,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
->  
->         if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
->                 ret = hdrv->raw_event(hid, report, data, size);
-> -               if (ret != 0) {
-> +               if (ret < 0) {
->                         ret = ret < 0 ? ret : 0;
->                         goto unlock;
->                 }
-> --------------------------------------------------
-> 
-> So now it does not matter whether the raw_event method returns 0 or 1.
-> The documentation says:
-> 
->     raw_event and event should return 0 on no action performed, 1 when
->     no further processing should be done and negative on error
-> 
-> What does "no further processing" mean? I guess that the intention was
-> to signal from a HID driver to ignore the packet, but that the above
-> change was done to update the state and allow hidraw to pick up the
-> report.
+This shouldn't be a changelog, but what this patch actually does.
 
-This change was done so that we don't call hid_report_raw_event() when 
-->raw_event() callback encountered error during parsing (and therefore 
-returned negative value).
+> Signed-off-by: VishnuPatekar <vishnupatekar0510@gmail.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  arch/arm/boot/dts/sun4i-a10.dtsi |   17 +++++++++++++++++
+>  arch/arm/boot/dts/sun7i-a20.dtsi |   18 ++++++++++++++++++
+>  2 files changed, 35 insertions(+)
+>=20
+> diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a=
+10.dtsi
+> index 7b4099f..ef9a01c 100644
+> --- a/arch/arm/boot/dts/sun4i-a10.dtsi
+> +++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+> @@ -629,6 +629,7 @@
+>  				allwinner,drive =3D <0>;
+>  				allwinner,pull =3D <0>;
+>  			};
+> +
 
-See this thread
+This is an uneeded change
 
-	https://lkml.org/lkml/2013/4/8/540
+>  		};
+> =20
+>  		timer@01c20c00 {
+> @@ -795,5 +796,21 @@
+>  			#address-cells =3D <1>;
+>  			#size-cells =3D <0>;
+>  		};
+> +
+> +		ps20: ps2@01c2a000 {
+> +			compatible =3D "allwinner,sun4i-a10-ps2";
+> +			reg =3D <0x01c2a000 0x400>;
+> +			interrupts =3D <62>;
+> +			clocks =3D <&apb1_gates 6>;
+> +			status =3D "disabled";
+> +		};
+> +
+> +		ps21: ps2@01c2a400 {
+> +			compatible =3D "allwinner,sun4i-a10-ps2";
+> +			reg =3D <0x01c2a400 0x400>;
+> +			interrupts =3D <63>;
+> +			clocks =3D <&apb1_gates 7>;
+> +			status =3D "disabled";
+> +		};
+>  	};
+>  };
+> diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a=
+20.dtsi
+> index e21ce59..6ab7714 100644
+> --- a/arch/arm/boot/dts/sun7i-a20.dtsi
+> +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+> @@ -866,6 +866,7 @@
+>  				    allwinner,drive =3D <0>;
+>  				    allwinner,pull =3D <0>;
+>  			};
+> +
 
-for an example.
+Ditto.
 
--- 
-Jiri Kosina
-SUSE Labs
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--wwtQuX191/I956S7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUj/w5AAoJEBx+YmzsjxAgtJsQALNM69R96RZTqD95JMB18/uT
+ghUxLLq2/rXKRztDrJVmAZZAhBX+WC/YNAYcJGD9RTP0R9emJyyEvQ0Kc9+abNic
+0OwbUSzIqBulbAMmapo4JENPxJ7I+oNfKpYEXFCDJawUtWgoh8PVyO5VJuniYvw0
+NCRZecZFPwleU61AOVV7OpuDUVOp5d+wDvu3P6ZMyWQf/s0tReu2hkaYIC1lR/Jj
+yqPrRLFKyf0sv7ZyMjVHiUsQJYn0haz9hO+MiWoSP+PhUONENdKNIS4fTFVonYF9
+0SkNfPAPDn137rv8hr2PquPz+ehsH5s6bPRqUFjKink89KdqvXU4vFWaJ0SAvSBa
+8OvSb+f8q7s21yLakLh5LSRDPvLs+bR1aPrfjmlzdilzUQ5mqL3Fv0/f3eBWAMv4
+5sCSdqS0A6mFOvNuzP5DHjlqVOuBC0/kDTYPPUid0FNW/iCWXpJXcknrJJVoxqpK
+IyDXA+RAvsp1sD0o9brG1WbjwILq0ea2m/lYToHJptwlK/K8qWyX7jwAJ6ST0lLn
+GCdDnHeLxU+gMl5kCfT/W6JiT3QDBuapsQorqoAZm94PE9CpZAHJCPb0ZTZqWkB5
+DmrkwaAlZf+lbP3pKHkyKlgiwJtNUpeZ+nj6hJT11WoEQ62i1TicgpNEXij4ioQH
+zctr44x/4XpAknUp2gnT
+=f35W
+-----END PGP SIGNATURE-----
+
+--wwtQuX191/I956S7--

@@ -1,56 +1,43 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: [PATCH v2 1/3] HID: logitech-dj: check report length
-Date: Tue, 16 Dec 2014 16:55:21 +0100
-Message-ID: <1418745323-17133-1-git-send-email-peter@lekensteyn.nl>
-References: <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 0/2] Input: atmel_mxt_ts - Add support for T100 multi-touch
+Date: Tue, 16 Dec 2014 16:16:23 +0000
+Message-ID: <54905AD7.4070205@itdev.co.uk>
+References: <1418639947-28765-1-git-send-email-javier.martinez@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:50479 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751448AbaLPQQb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 11:16:31 -0500
+In-Reply-To: <1418639947-28765-1-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 
-Malicious USB devices can send bogus reports smaller than the expected
-buffer size. Ensure that the length is valid to avoid reading out of
-bounds.
+On 15/12/14 10:39, Javier Martinez Canillas wrote:
+> There are different multi-touch protocols used by Atmel maXTouch touchscreen
+> chips. Old chips use the T9 multi-touch object type while newer chips use the
+> T100 multi-touch object type. The Atmel touch driver currently only supports
+> the former so this series add support for the later.
+> 
+> The series is composed of the following patches:
+> 
+> Nick Dyer (1):
+>   Input: atmel_mxt_ts - Implement support for T100 touch object
 
-Signed-off-by: Peter Wu <peter@lekensteyn.nl>
----
- v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
- v2: splitted original report length check patch
----
- drivers/hid/hid-logitech-dj.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+Hi Dmitry-
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index c917ab6..5bc6d80 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -962,10 +962,24 @@ static int logi_dj_raw_event(struct hid_device *hdev,
- 
- 	switch (data[0]) {
- 	case REPORT_ID_DJ_SHORT:
-+		if (size != DJREPORT_SHORT_LENGTH) {
-+			dev_err(&hdev->dev, "DJ report of bad size (%d)", size);
-+			return false;
-+		}
- 		return logi_dj_dj_event(hdev, report, data, size);
- 	case REPORT_ID_HIDPP_SHORT:
--		/* intentional fallthrough */
-+		if (size != HIDPP_REPORT_SHORT_LENGTH) {
-+			dev_err(&hdev->dev,
-+				"Short HID++ report of bad size (%d)", size);
-+			return false;
-+		}
-+		return logi_dj_hidpp_event(hdev, report, data, size);
- 	case REPORT_ID_HIDPP_LONG:
-+		if (size != HIDPP_REPORT_LONG_LENGTH) {
-+			dev_err(&hdev->dev,
-+				"Long HID++ report of bad size (%d)", size);
-+			return false;
-+		}
- 		return logi_dj_hidpp_event(hdev, report, data, size);
- 	}
- 
--- 
-2.1.3
+I posted an updated version of this patch on 9th December and would prefer
+you apply that rather than this version, since it contains some useful
+additional work.
+
+A link to it:
+http://www.spinics.net/lists/kernel/msg1885519.html
+
+cheers
+
+Nick

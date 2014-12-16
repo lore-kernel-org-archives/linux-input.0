@@ -1,133 +1,133 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCHv3 3/5] ARM: sunxi: dts: Add PS2 nodes to dtsi for A10 and
- A20
-Date: Tue, 16 Dec 2014 10:32:41 +0100
-Message-ID: <20141216093241.GN4337@lukather>
-References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>
- <1418408748-9797-4-git-send-email-vishnupatekar0510@gmail.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 1/7] input: alps: Set correct name of psmouse device in alps_init()
+Date: Tue, 16 Dec 2014 12:58:20 +0100
+Message-ID: <201412161258.20925@pali>
+References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <1415993906-13307-2-git-send-email-pali.rohar@gmail.com> <20141216050234.GA35408@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wwtQuX191/I956S7"
+Content-Type: multipart/signed;
+  boundary="nextPart3568061.04uXEs5byY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:33920 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751008AbaLPJfE (ORCPT
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:61576 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750885AbaLPL6Y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 04:35:04 -0500
-Content-Disposition: inline
-In-Reply-To: <1418408748-9797-4-git-send-email-vishnupatekar0510@gmail.com>
+	Tue, 16 Dec 2014 06:58:24 -0500
+In-Reply-To: <20141216050234.GA35408@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: VishnuPatekar <vishnupatekar0510@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, hdegoede@redhat.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux@arm.linux.org.uk, grant.likely@linaro.org, benh@kernel.crashing.org, msalter@redhat.com, ralf@linux-mips.org, jdelvare@suse.de
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-
---wwtQuX191/I956S7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--nextPart3568061.04uXEs5byY
+Content-Type: Text/Plain;
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Vishnu,
-
-On Fri, Dec 12, 2014 at 11:55:46PM +0530, VishnuPatekar wrote:
-> 1) Fixup the sun4i ps/2 nodes interrupt property, sun4i interrupts take
-> only 1 specifier
+On Tuesday 16 December 2014 06:02:34 Dmitry Torokhov wrote:
+> Hi Pali,
 >=20
-> 2) dt bindings should use the compat string for the earliest version of t=
-he
-> hardware which has the relevant hardware block, unless there are differen=
-ces,
-> the A10 and A20 ps2 controllers are identical, so for both sun4i-a10-ps2
-> should be used as compat string, update the sun7i.dtsi ps2 entries to
-> use the sun4i-a10-ps2 compat string.
-
-This shouldn't be a changelog, but what this patch actually does.
-
-> Signed-off-by: VishnuPatekar <vishnupatekar0510@gmail.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  arch/arm/boot/dts/sun4i-a10.dtsi |   17 +++++++++++++++++
->  arch/arm/boot/dts/sun7i-a20.dtsi |   18 ++++++++++++++++++
->  2 files changed, 35 insertions(+)
+> On Fri, Nov 14, 2014 at 08:38:20PM +0100, Pali Roh=C3=A1r wrote:
+> > On some laptops after starting them from off state (not
+> > after reboot), function alps_probe_trackstick_v3() (called
+> > from function alps_identify()) does not detect trackstick.
+> > To fix this problem we need to reset device. But function
+> > alps_identify() is called also from alps_detect() and we do
+> > not want to reset device in detect function because it will
+> > slow down initialization of all other non alps devices.
+> >=20
+> > This patch moves code for setting correct device name &
+> > protocol from function alps_detect() to alps_init() which
+> > already doing full device reset.
+> >=20
+> > So this patch removes need to do trackstick detection in
+> > alps_detect() function.
+> >=20
+> > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> > ---
+> >=20
+> >  drivers/input/mouse/alps.c |   17 ++++++++++++++---
+> >  1 file changed, 14 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/drivers/input/mouse/alps.c
+> > b/drivers/input/mouse/alps.c index 8d85c79..9ffa98d 100644
+> > --- a/drivers/input/mouse/alps.c
+> > +++ b/drivers/input/mouse/alps.c
+> > @@ -2392,6 +2392,10 @@ int alps_init(struct psmouse
+> > *psmouse)
+> >=20
+> >  	if (input_register_device(priv->dev2))
+> >  =09
+> >  		goto init_fail;
+> >=20
+> > +	if (!(priv->flags & ALPS_DUALPOINT))
+> > +		psmouse->name =3D "GlidePoint TouchPad";
+> > +	psmouse->model =3D priv->proto_version;
+> > +
+> >=20
+> >  	psmouse->protocol_handler =3D alps_process_byte;
+> >  	psmouse->poll =3D alps_poll;
+> >  	psmouse->disconnect =3D alps_disconnect;
+> >=20
+> > @@ -2422,11 +2426,18 @@ int alps_detect(struct psmouse
+> > *psmouse, bool set_properties)
+> >=20
+> >  		return -1;
+> >  =09
+> >  	if (set_properties) {
+> >=20
+> > +		/*
+> > +		 * NOTE: To detect model and trackstick presence we=20
+need
+> > to do +		 *       full device reset. To speed up=20
+detection
+> > and prevent +		 *       calling duplicate initialization
+> > sequence (both in +		 *       alps_detect() and
+> > alps_init()) we set model/protocol +		 *       version and
+> > correct name in alps_init() (which will +		 *       do=20
+full
+> > device reset). For now set name to DualPoint. +		 */
+> >=20
+> >  		psmouse->vendor =3D "ALPS";
+> >=20
+> > -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
+> > -				"DualPoint TouchPad" : "GlidePoint";
+> > -		psmouse->model =3D dummy.proto_version << 8;
+> > +		psmouse->name =3D "DualPoint TouchPad";
+> >=20
+> >  	}
+> >=20
+> > +
 >=20
-> diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a=
-10.dtsi
-> index 7b4099f..ef9a01c 100644
-> --- a/arch/arm/boot/dts/sun4i-a10.dtsi
-> +++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-> @@ -629,6 +629,7 @@
->  				allwinner,drive =3D <0>;
->  				allwinner,pull =3D <0>;
->  			};
-> +
+> I do not quite like the way we change the device description
+> back and forth. Do you think we could allocate the "real"
+> priv structure in alps_detect() and have alps_init() expect
+> to find it (and free it if set_properties is false). This way
+> we'd go through initialization once in detect, it will be
+> authoritative, and we would set the name of the device
+> properly from the beginning.
+>=20
+> Thanks.
 
-This is an uneeded change
+No without introducing another psmouse_reset call. I want to=20
+reduce time of loading driver, so I think this is better.
 
->  		};
-> =20
->  		timer@01c20c00 {
-> @@ -795,5 +796,21 @@
->  			#address-cells =3D <1>;
->  			#size-cells =3D <0>;
->  		};
-> +
-> +		ps20: ps2@01c2a000 {
-> +			compatible =3D "allwinner,sun4i-a10-ps2";
-> +			reg =3D <0x01c2a000 0x400>;
-> +			interrupts =3D <62>;
-> +			clocks =3D <&apb1_gates 6>;
-> +			status =3D "disabled";
-> +		};
-> +
-> +		ps21: ps2@01c2a400 {
-> +			compatible =3D "allwinner,sun4i-a10-ps2";
-> +			reg =3D <0x01c2a400 0x400>;
-> +			interrupts =3D <63>;
-> +			clocks =3D <&apb1_gates 7>;
-> +			status =3D "disabled";
-> +		};
->  	};
->  };
-> diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a=
-20.dtsi
-> index e21ce59..6ab7714 100644
-> --- a/arch/arm/boot/dts/sun7i-a20.dtsi
-> +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-> @@ -866,6 +866,7 @@
->  				    allwinner,drive =3D <0>;
->  				    allwinner,pull =3D <0>;
->  			};
-> +
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-Ditto.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---wwtQuX191/I956S7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--nextPart3568061.04uXEs5byY
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-iQIcBAEBAgAGBQJUj/w5AAoJEBx+YmzsjxAgtJsQALNM69R96RZTqD95JMB18/uT
-ghUxLLq2/rXKRztDrJVmAZZAhBX+WC/YNAYcJGD9RTP0R9emJyyEvQ0Kc9+abNic
-0OwbUSzIqBulbAMmapo4JENPxJ7I+oNfKpYEXFCDJawUtWgoh8PVyO5VJuniYvw0
-NCRZecZFPwleU61AOVV7OpuDUVOp5d+wDvu3P6ZMyWQf/s0tReu2hkaYIC1lR/Jj
-yqPrRLFKyf0sv7ZyMjVHiUsQJYn0haz9hO+MiWoSP+PhUONENdKNIS4fTFVonYF9
-0SkNfPAPDn137rv8hr2PquPz+ehsH5s6bPRqUFjKink89KdqvXU4vFWaJ0SAvSBa
-8OvSb+f8q7s21yLakLh5LSRDPvLs+bR1aPrfjmlzdilzUQ5mqL3Fv0/f3eBWAMv4
-5sCSdqS0A6mFOvNuzP5DHjlqVOuBC0/kDTYPPUid0FNW/iCWXpJXcknrJJVoxqpK
-IyDXA+RAvsp1sD0o9brG1WbjwILq0ea2m/lYToHJptwlK/K8qWyX7jwAJ6ST0lLn
-GCdDnHeLxU+gMl5kCfT/W6JiT3QDBuapsQorqoAZm94PE9CpZAHJCPb0ZTZqWkB5
-DmrkwaAlZf+lbP3pKHkyKlgiwJtNUpeZ+nj6hJT11WoEQ62i1TicgpNEXij4ioQH
-zctr44x/4XpAknUp2gnT
-=f35W
+iEYEABECAAYFAlSQHlwACgkQi/DJPQPkQ1LkngCdH/HD4GdTkX6oHY63evmGw2rD
+8rQAoI8uJZ1IZwpyxGBd1WO8npsr5VOn
+=f9jj
 -----END PGP SIGNATURE-----
 
---wwtQuX191/I956S7--
+--nextPart3568061.04uXEs5byY--

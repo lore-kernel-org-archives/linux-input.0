@@ -1,84 +1,96 @@
 From: Peter Wu <peter@lekensteyn.nl>
-Subject: The return value of hid_input_report and raw_event
-Date: Mon, 15 Dec 2014 23:31:40 +0100
-Message-ID: <7774789.jK4HDCWEI4@al>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Subject: [PATCH 2/3] HID: logitech-{dj,hidpp}: check report length
+Date: Tue, 16 Dec 2014 01:50:15 +0100
+Message-ID: <1418691016-30681-3-git-send-email-peter@lekensteyn.nl>
+References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:35961 "EHLO lekensteyn.nl"
+Received: from lekensteyn.nl ([178.21.112.251]:59213 "EHLO lekensteyn.nl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750796AbaLOWbp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Dec 2014 17:31:45 -0500
+	id S1750796AbaLPAud (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Dec 2014 19:50:33 -0500
+In-Reply-To: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jiri and list,
+Malicious USB devices can send bogus reports smaller than the expected
+buffer size. Ensure that the length is valid to avoid reading out of
+bounds.
 
-The HID core has a hid_input_report function which returns an integer,
-but all its callers are not really changing their behavior based on the
-return value. The few^Wonly exception that does not completely ignore
-the return value is the hid-logitech-dj driver which prints a debugging
-message.
+For the old WTP, I do not have a HID descriptor so just check for the
+minimum length in hidpp_raw_event (this can be changed to an inequality
+later).
 
-Should this method be changed to return void? The kerneldoc does not
-document its return value anyway.
+Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+---
+Hi,
 
-Confusion 2: the raw_event callback of the hid_driver structure returns
-an int, but over time non-negative values are ignored by
-hid_input_report. This happened in the following change:
---------------------------------------------------
-commit b1a1442a23776756b254b69786848a94d92445ba
-Author: Jiri Kosina <jkosina@suse.cz>
-Date:   Mon Jun 3 11:27:48 2013 +0200
+If you know that the WTP report (ID 2) has a length of 2, then you can change
+"<" to "!=" and remove the paragraph from the commit message.
 
-    HID: core: fix reporting of raw events
-    
-    hdrw->raw event can return three different return value types:
-    
-    - ret < 0   indicates that the hdrv driver found an error while parsing
-    - ret == 0  indicates no error has been encountered, and the driver has
-                processed the report
-    - ret > 0   indicates that there was no parsing error, and the driver hasn't
-                processed the event.
-    
-    Calling hid_report_raw_event() has to be called appropriately so that it
-    reflects what has been done by ->raw_event() callback, otherwise we might
-    updates of the in-kernel structure are lost upon arrival of the report, which
-    is wrong.
-    
-    Reported-and-tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-    Reported-and-tested-by: Daniel Leung <daniel.leung@linux.intel.com>
-    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c272078..8f616bd 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1293,7 +1293,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
- 
-        if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
-                ret = hdrv->raw_event(hid, report, data, size);
--               if (ret != 0) {
-+               if (ret < 0) {
-                        ret = ret < 0 ? ret : 0;
-                        goto unlock;
-                }
---------------------------------------------------
-
-So now it does not matter whether the raw_event method returns 0 or 1.
-The documentation says:
-
-    raw_event and event should return 0 on no action performed, 1 when
-    no further processing should be done and negative on error
-
-What does "no further processing" mean? I guess that the intention was
-to signal from a HID driver to ignore the packet, but that the above
-change was done to update the state and allow hidraw to pick up the
-report.
--- 
 Kind regards,
 Peter
-https://lekensteyn.nl
+---
+ drivers/hid/hid-logitech-dj.c    | 16 +++++++++++++++-
+ drivers/hid/hid-logitech-hidpp.c | 12 +++++++++---
+ 2 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index c917ab6..5bc6d80 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -962,10 +962,24 @@ static int logi_dj_raw_event(struct hid_device *hdev,
+ 
+ 	switch (data[0]) {
+ 	case REPORT_ID_DJ_SHORT:
++		if (size != DJREPORT_SHORT_LENGTH) {
++			dev_err(&hdev->dev, "DJ report of bad size (%d)", size);
++			return false;
++		}
+ 		return logi_dj_dj_event(hdev, report, data, size);
+ 	case REPORT_ID_HIDPP_SHORT:
+-		/* intentional fallthrough */
++		if (size != HIDPP_REPORT_SHORT_LENGTH) {
++			dev_err(&hdev->dev,
++				"Short HID++ report of bad size (%d)", size);
++			return false;
++		}
++		return logi_dj_hidpp_event(hdev, report, data, size);
+ 	case REPORT_ID_HIDPP_LONG:
++		if (size != HIDPP_REPORT_LONG_LENGTH) {
++			dev_err(&hdev->dev,
++				"Long HID++ report of bad size (%d)", size);
++			return false;
++		}
+ 		return logi_dj_hidpp_event(hdev, report, data, size);
+ 	}
+ 
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index ae23dec..2315358 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -992,11 +992,17 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			return 1;
+ 		}
+ 		return hidpp_raw_hidpp_event(hidpp, data, size);
++	case 0x02:
++		if (size < 2) {
++			hid_err(hdev, "Received HID report of bad size (%d)",
++				size);
++			return 1;
++		}
++		if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
++			return wtp_raw_event(hdev, data, size);
++		return 1;
+ 	}
+ 
+-	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+-		return wtp_raw_event(hdev, data, size);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.1.3
 

@@ -1,109 +1,96 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] HID: logitech-hidpp: store the name of the device in struct hidpp
-Date: Tue, 16 Dec 2014 17:06:02 -0500
-Message-ID: <1418767562-4136-2-git-send-email-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
+Date: Tue, 16 Dec 2014 17:13:05 -0500
+Message-ID: <CAN+gG=F0HhzXQhsaHTEb5Hy2CVTsoOSopCt4grXFnSKt+tPsWw@mail.gmail.com>
 References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-If a disconnect occurs while getting the actual name of the device
-(which can take several HID transactions), the name of the device will
-be the hid name, provided by the Unifying Receiver.
-This means that in some cases, the user space will see a different
-name that what it usually sees when there is no disconnect.
+On Tue, Dec 16, 2014 at 5:06 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> If wtp_connect() fails, that means most of the time that the device has
+> been disconnected. Subsequent attempts to contact the device will fail
+> too, so it's simpler to bail out earlier.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
 
-We should store the name of the device in the struct hidpp. That way,
-if a disconnect occurs while we are accessing the name,
-hidpp_connect_event() can fail, and the input node is not created.
+Jiri, Peter,
 
-The input node will be created only if we have a connection which
-lasts long enough to retrieve all the requested information:
-name, protocol, and specific configuration.
+the logitech patches are queuing up really fast.
+To keep track of them, I made a bundle on patchwork:
+https://patchwork.kernel.org/bundle/bentiss/hid-logitech-hidpp/
+(/me discovered a new tool to play with)
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+Right now, the patch "HID: logitech-hidpp: detect HID++ 2.0 errors
+too" is waiting for Logitech's approval, and the 2 of this series need
+review.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index c0fb5fe..4bc8714 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -89,6 +89,7 @@ struct hidpp_device {
- 	struct hid_device *hid_dev;
- 	struct mutex send_mutex;
- 	void *send_receive_buf;
-+	char *name;
- 	wait_queue_head_t wait;
- 	bool answer_available;
- 	u8 protocol_major;
-@@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
- static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
- {
- 	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 
- 	if (!input_dev)
- 		return NULL;
-@@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
- 	input_dev->open = hidpp_input_open;
- 	input_dev->close = hidpp_input_close;
- 
--	input_dev->name = hdev->name;
-+	input_dev->name = hidpp->name;
- 	input_dev->phys = hdev->phys;
- 	input_dev->uniq = hdev->uniq;
- 	input_dev->id.bustype = hdev->bus;
-@@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 	hid_info(hdev, "HID++ %u.%u device connected.\n",
- 		 hidpp->protocol_major, hidpp->protocol_minor);
- 
-+	if (!hidpp->name || hidpp->name == hdev->name) {
-+		name = hidpp_get_device_name(hidpp);
-+		if (!name) {
-+			hid_err(hdev,
-+				"unable to retrieve the name of the device");
-+			return;
-+		}
-+
-+		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
-+		kfree(name);
-+		if (!devm_name)
-+			return;
-+
-+		hidpp->name = devm_name;
-+	}
-+
- 	input = hidpp_allocate_input(hdev);
- 	if (!input) {
- 		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
- 		return;
- 	}
- 
--	name = hidpp_get_device_name(hidpp);
--	if (!name) {
--		hid_err(hdev, "unable to retrieve the name of the device");
--	} else {
--		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
--		if (devm_name)
--			input->name = devm_name;
--		kfree(name);
--	}
--
- 	hidpp_populate_input(hidpp, input, false);
- 
- 	ret = input_register_device(input);
-@@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return -ENOMEM;
- 
- 	hidpp->hid_dev = hdev;
-+	hidpp->name = hdev->name;
- 	hid_set_drvdata(hdev, hidpp);
- 
- 	hidpp->quirks = id->driver_data;
--- 
-2.1.0
+Peter, please tell me if I missed one patch.
+
+Cheers,
+Benjamin
+
+>  drivers/hid/hid-logitech-hidpp.c | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index d008d71..c0fb5fe 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -914,24 +914,24 @@ static int wtp_allocate(struct hid_device *hdev, const struct hid_device_id *id)
+>         return 0;
+>  };
+>
+> -static void wtp_connect(struct hid_device *hdev, bool connected)
+> +static int wtp_connect(struct hid_device *hdev, bool connected)
+>  {
+>         struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+>         struct wtp_data *wd = hidpp->private_data;
+>         int ret;
+>
+>         if (!connected)
+> -               return;
+> +               return 0;
+>
+>         if (!wd->x_size) {
+>                 ret = wtp_get_config(hidpp);
+>                 if (ret) {
+>                         hid_err(hdev, "Can not get wtp config: %d\n", ret);
+> -                       return;
+> +                       return ret;
+>                 }
+>         }
+>
+> -       hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
+> +       return hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
+>                         true, true);
+>  }
+>
+> @@ -1115,8 +1115,11 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+>         struct input_dev *input;
+>         char *name, *devm_name;
+>
+> -       if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+> -               wtp_connect(hdev, connected);
+> +       if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
+> +               ret = wtp_connect(hdev, connected);
+> +               if (ret)
+> +                       return;
+> +       }
+>
+>         if (!connected || hidpp->delayed_input)
+>                 return;
+> --
+> 2.1.0
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

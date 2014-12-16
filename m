@@ -1,54 +1,104 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v15 09/12] input: cyapa: add gen5 trackpad device
- firmware update function support
-Date: Tue, 16 Dec 2014 05:56:39 -0800
-Message-ID: <20141216135639.GA1238@hudson.localdomain>
-References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
- <1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: detect HID++ 2.0 errors too
+Date: Tue, 16 Dec 2014 09:33:44 -0500
+Message-ID: <CAN+gG=FiL1SY84W5acowe8hkoHnp6ObkbCtoeFu0s2juone=+Q@mail.gmail.com>
+References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl>
+	<1418691016-30681-2-git-send-email-peter@lekensteyn.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:45353 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750820AbaLPN4n (ORCPT
+Received: from mail-qg0-f43.google.com ([209.85.192.43]:48961 "EHLO
+	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750985AbaLPOdp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 08:56:43 -0500
-Content-Disposition: inline
-In-Reply-To: <1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
+	Tue, 16 Dec 2014 09:33:45 -0500
+In-Reply-To: <1418691016-30681-2-git-send-email-peter@lekensteyn.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudley.dulixin@gmail.com>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Dudley,
+Hi Peter,
 
-On Mon, Dec 15, 2014 at 02:23:20PM +0800, Dudley Du wrote:
-> Add firmware image update function supported for gen5 trackpad device,
-> it can be used through sysfs update_fw interface.
-> TEST=test on Chromebooks.
-> 
-> Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
+On Mon, Dec 15, 2014 at 7:50 PM, Peter Wu <peter@lekensteyn.nl> wrote:
+> Devices speaking HID++ 2.0 report a different error code (0xff). Detect
+> these errors too to avoid 5 second delays when the device reports an
+> error. Caught by... well, a bug in the QEMU emulation of this receiver.
+>
+> Renamed fap to rap for HID++ 1.0 errors because it is more logical,
+> it has no functional difference.
+>
+> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
 > ---
->  drivers/input/mouse/Kconfig      |   1 +
->  drivers/input/mouse/cyapa_gen5.c | 292 ++++++++++++++++++++++++++++++++++++++-
->  2 files changed, 292 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> index d8b46b0..728490e 100644
-> --- a/drivers/input/mouse/Kconfig
-> +++ b/drivers/input/mouse/Kconfig
-> @@ -206,6 +206,7 @@ config MOUSE_BCM5974
->  config MOUSE_CYAPA
->  	tristate "Cypress APA I2C Trackpad support"
->  	depends on I2C
-> +	select CRC_ITU_T
->  	help
 
-Just found out that if I2C_DESIGNWARE_PCI isn't enabled the touchpad
-won't work.  Verify this on your machines.  Then perhaps add a depends
-for I2C_DESIGNWARE_PCI instead of I2C since it would include the former.
+I'd like to have Nestor's opinion on this. I did not manage to find on
+the documentation that HID++ 2.0 Long report error code is 0xff, so
+introducing this change without Logitech's blessing would be
+unfortunate.
+I understand this will fix your qemu problem, but I am not entirely
+sure if we do not have to check on 0xff and 0x8f in both short and
+long responses.
 
-[...]
+Cheers,
+Benjamin
 
--- 
-- Jeremiah Mahler
+>  drivers/hid/hid-logitech-hidpp.c | 17 ++++++++++++++---
+>  1 file changed, 14 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 2f420c0..ae23dec 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -105,6 +105,7 @@ struct hidpp_device {
+>  };
+>
+>
+> +/* HID++ 1.0 error codes */
+>  #define HIDPP_ERROR                            0x8f
+>  #define HIDPP_ERROR_SUCCESS                    0x00
+>  #define HIDPP_ERROR_INVALID_SUBID              0x01
+> @@ -119,6 +120,8 @@ struct hidpp_device {
+>  #define HIDPP_ERROR_REQUEST_UNAVAILABLE                0x0a
+>  #define HIDPP_ERROR_INVALID_PARAM_VALUE                0x0b
+>  #define HIDPP_ERROR_WRONG_PIN_CODE             0x0c
+> +/* HID++ 2.0 error codes */
+> +#define HIDPP20_ERROR                          0xff
+>
+>  static void hidpp_connect_event(struct hidpp_device *hidpp_dev);
+>
+> @@ -192,9 +195,16 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+>         }
+>
+>         if (response->report_id == REPORT_ID_HIDPP_SHORT &&
+> -           response->fap.feature_index == HIDPP_ERROR) {
+> +           response->rap.sub_id == HIDPP_ERROR) {
+> +               ret = response->rap.params[1];
+> +               dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
+> +               goto exit;
+> +       }
+> +
+> +       if (response->report_id == REPORT_ID_HIDPP_LONG &&
+> +           response->fap.feature_index == HIDPP20_ERROR) {
+>                 ret = response->fap.params[1];
+> -               dbg_hid("__hidpp_send_report got hidpp error %02X\n", ret);
+> +               dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
+>                 goto exit;
+>         }
+>
+> @@ -271,7 +281,8 @@ static inline bool hidpp_match_answer(struct hidpp_report *question,
+>  static inline bool hidpp_match_error(struct hidpp_report *question,
+>                 struct hidpp_report *answer)
+>  {
+> -       return (answer->fap.feature_index == HIDPP_ERROR) &&
+> +       return ((answer->rap.sub_id == HIDPP_ERROR) ||
+> +           (answer->fap.feature_index == HIDPP20_ERROR)) &&
+>             (answer->fap.funcindex_clientid == question->fap.feature_index) &&
+>             (answer->fap.params[0] == question->fap.funcindex_clientid);
+>  }
+> --
+> 2.1.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

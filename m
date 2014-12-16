@@ -1,34 +1,101 @@
-From: Catalin Crenguta <catalin.crenguta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 0/6] Touchscreen performance related fixes
-Date: Tue, 16 Dec 2014 10:31:47 +0200
-Message-ID: <CABH3fy8S1Hb9LK=ZceWgJsNvLbq8pwu00Tcj_0vE4j6QzcO+kg@mail.gmail.com>
-References: <1415941651-28962-1-git-send-email-vigneshr@ti.com>
-	<20141124115116.GA14997@linutronix.de>
-	<547C3A95.30605@ti.com>
-	<547C3C19.5090501@linutronix.de>
-	<547C42FF.5010700@ti.com>
-	<CAH=tA9FO5MCzE274thc-NugCNte6WdyC-Rxc6yfnuR=+6_qMbA@mail.gmail.com>
-	<548A0125.6040708@linutronix.de>
-	<CABH3fy8zCjsxARsqBf9JXOHBkzySdiqifA1KtjnGpJdBY2EikA@mail.gmail.com>
-	<912A29987EAE174BA6CF187D7CDFA9CE26FA135A@DLEE08.ent.ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: The return value of hid_input_report and raw_event
+Date: Tue, 16 Dec 2014 10:27:06 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412161022480.1680@pobox.suse.cz>
+References: <7774789.jK4HDCWEI4@al>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <912A29987EAE174BA6CF187D7CDFA9CE26FA135A-YmePFLaaepqIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Nicolae Rosia <nicolae.rosia-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "R, Vignesh" <vigneshr-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, "richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:46097 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751127AbaLPJ11 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 04:27:27 -0500
+In-Reply-To: <7774789.jK4HDCWEI4@al>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: linux-input@vger.kernel.org
 
-On Fri, Dec 12, 2014 at 4:16 PM, Griffis, Brad <bgriffis-l0cyMroinI0@public.gmane.org> wrote:
-> How are you configuring ti,charge-delay in your dts?  I've seen this behavior on some custom boards where we were using a smaller charge delay (0x400) to begin with, and by upping it to 0xb000 we resolved the issue.  These patches however already specified ti,charge-delay = 0xb000 by default so this would surprise me that it's still seeing that issue.  Was the touchscreen working as expected before these new patches, or does it have issues both ways?
+On Mon, 15 Dec 2014, Peter Wu wrote:
 
-It seems that because the ribbon cable has both the analog and digital
-signals, the analog signals are affected by the digital ones (hence
-the touchscreen was working OK when the display was disabled). Putting
-decoupling capacitors on X+, X-, Y+, Y- reduces the noise and the
-false events disappear.
-I'm sorry for all the noise I have generated.
+> Hi Jiri and list,
+> 
+> The HID core has a hid_input_report function which returns an integer,
+> but all its callers are not really changing their behavior based on the
+> return value. The few^Wonly exception that does not completely ignore
+> the return value is the hid-logitech-dj driver which prints a debugging
+> message.
+> 
+> Should this method be changed to return void? The kerneldoc does not
+> document its return value anyway.
 
-Best regards,
+Hi Peter,
+
+yes, that definitely would be an acceptable cleanup.
+
+> Confusion 2: the raw_event callback of the hid_driver structure returns
+> an int, but over time non-negative values are ignored by
+> hid_input_report. This happened in the following change:
+> --------------------------------------------------
+> commit b1a1442a23776756b254b69786848a94d92445ba
+> Author: Jiri Kosina <jkosina@suse.cz>
+> Date:   Mon Jun 3 11:27:48 2013 +0200
+> 
+>     HID: core: fix reporting of raw events
+>     
+>     hdrw->raw event can return three different return value types:
+>     
+>     - ret < 0   indicates that the hdrv driver found an error while parsing
+>     - ret == 0  indicates no error has been encountered, and the driver has
+>                 processed the report
+>     - ret > 0   indicates that there was no parsing error, and the driver hasn't
+>                 processed the event.
+>     
+>     Calling hid_report_raw_event() has to be called appropriately so that it
+>     reflects what has been done by ->raw_event() callback, otherwise we might
+>     updates of the in-kernel structure are lost upon arrival of the report, which
+>     is wrong.
+>     
+>     Reported-and-tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+>     Reported-and-tested-by: Daniel Leung <daniel.leung@linux.intel.com>
+>     Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index c272078..8f616bd 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1293,7 +1293,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+>  
+>         if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
+>                 ret = hdrv->raw_event(hid, report, data, size);
+> -               if (ret != 0) {
+> +               if (ret < 0) {
+>                         ret = ret < 0 ? ret : 0;
+>                         goto unlock;
+>                 }
+> --------------------------------------------------
+> 
+> So now it does not matter whether the raw_event method returns 0 or 1.
+> The documentation says:
+> 
+>     raw_event and event should return 0 on no action performed, 1 when
+>     no further processing should be done and negative on error
+> 
+> What does "no further processing" mean? I guess that the intention was
+> to signal from a HID driver to ignore the packet, but that the above
+> change was done to update the state and allow hidraw to pick up the
+> report.
+
+This change was done so that we don't call hid_report_raw_event() when 
+->raw_event() callback encountered error during parsing (and therefore 
+returned negative value).
+
+See this thread
+
+	https://lkml.org/lkml/2013/4/8/540
+
+for an example.
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,103 +1,273 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: [PATCHv3 5/5] ARM: sunxi: dts: Add note ps2 pins conflict with hdmi
-Date: Tue, 16 Dec 2014 23:21:12 +0800
-Message-ID: <CAGb2v65OFKkkFTpcDoW3OwToXdgRP6hLVCYY7CR7MYZ-VgckGA@mail.gmail.com>
-References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>
- <1418408748-9797-6-git-send-email-vishnupatekar0510@gmail.com>
- <CAGb2v65xpUhiMzSKu_1+JGNbg3oFdpw2EQ+JGUYkivCtG2O6gw@mail.gmail.com> <CAEzqOZtOycU5LT8b3SHOymMpMOMExGC9PHiZ9wHtAjxR2R5+Ew@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAEzqOZtOycU5LT8b3SHOymMpMOMExGC9PHiZ9wHtAjxR2R5+Ew-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org" <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, "msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jdelvare-l3A5Bk7waGM@public.gmane.org" <jdelvare-l3A5Bk7waGM@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: [RFC PATCH] fixp-arith: replace sin/cos table by a better precision one
+Date: Tue, 16 Dec 2014 13:30:21 -0200
+Message-ID: <f437103f284c4ed964bd6577ff0c7793e8299d52.1418743646.git.mchehab@osg.samsung.com>
+References: <20141216094005.4c0c354b@recife.lan>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:37430 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750959AbaLPPat (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 10:30:49 -0500
+In-Reply-To: <20141216094005.4c0c354b@recife.lan>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linux Media Mailing List <linux-media@vger.kernel.org>, "Prashant Laddha (prladdha)" <prladdha@cisco.com>
+Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+The cos table used at fixp-arith.h has only 8 bits of precision.
+That causes problems if it is reused on other drivers.
 
-On Sat, Dec 13, 2014 at 11:18 AM, Vishnu Patekar
-<vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> Hello Chen-Yu,
-> Thank you for pointing out styling error.
->
-> On Sat, Dec 13, 2014 at 7:36 AM, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org> wrote:
->>
->> Hi,
->>
->> On Sat, Dec 13, 2014 at 2:25 AM, VishnuPatekar
->> <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> > 1. Please note that ps20 pins conflict with HDMI on Lime2 Board
->> > so, by deault ps20 and ps21 are disabled for Lime2 Board.
->> > There is no on board ps2 connector and these pins can be used
->> > for different purpose.
->> >
->> > Signed-off-by: VishnuPatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> > ---
->> >  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |    6 +++++-
->> >  1 file changed, 5 insertions(+), 1 deletion(-)
->> >
->> > diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
->> > b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
->> > index ed364d5..951b615 100644
->> > --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
->> > +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
->> > @@ -112,7 +112,11 @@
->> >                         pinctrl-0 = <&uart0_pins_a>;
->> >                         status = "okay";
->> >                 };
->> > -
->> > +
->> > +               /* PS2 0 and PS2 1 are disabled by default; Please note
->> > that
->> > +               ps20 pins conflict with HDMI on Lime2 Board
->> > +               */
->> > +
->>
->> Multi-line comments should be:
->>
->> /*
->>  * line 1
->>  * line 2
->>  * ...
->>  */
->
-> Okie.
+As some media drivers require a higher precision sin/cos
+implementation, replace the current implementation by one that
+will provide 32 bits precision.
 
-So, in fact this patch shouldnt be needed. The LIME2 uses the dedicated
-pins for HDMI DDC. PS2 0 pins PI20 and PI21 are in fact routed to
-the GPIO-2 header. They are _not_ used for HDMI. Nothing bad should
-happen unless you also multiplex PI20/PI21 to HSCL/HDSA.
+The values generated by the new implementation matches the
+32 bit precision of glibc's sin for an angle measured in
+integer degrees.
 
-If you check the schematics Olimex published and trace the HDMI lines,
-you will see that this is the case.
+It also provides support for fractional angles via linear
+interpolation. On experimental calculus, when used a table
+with a 0.001 degree angle, the maximum error for sin is
+0.000038, with is likely good enough for practical purposes.
 
-ChenYu
+There are some logic there that seems to be specific to the
+usage inside ff-memless.c. Move those logic to there, as they're
+not needed elsewhere.
 
->>
->>
->> And why is there a delete and insert for an empty line?
->> Weird... though git seems to ignore it when applying.
->
-> I used clean_patch to clear the styling error. that might have modified it.
->
->
->>
->>
->> ChenYu
->>
->> >                 i2c0: i2c@01c2ac00 {
->> >                         pinctrl-names = "default";
->> >                         pinctrl-0 = <&i2c0_pins_a>;
->> > --
->> > 1.7.9.5
->> >
->> >
->> > _______________________________________________
->> > linux-arm-kernel mailing list
->> > linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
->> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+
+---
+
+Instead of adding yet-another implementation of integer sin()/cos(),
+let's fix the one that already exists on a worldwide header for one
+that would provide the needed precision.
+
+While I tested the implementation on userspace, I didn't actually
+check if ff-memless and ov534 drivers are working properly with
+this change. Please test.
+
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index 74c0d8c6002a..fcc6c3368182 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -237,6 +237,18 @@ static u16 ml_calculate_direction(u16 direction, u16 force,
+ 		(force + new_force)) << 1;
+ }
+ 
++#define FRAC_N 8
++static inline s16 fixp_new16(s16 a)
++{
++	return ((s32)a) >> (16 - FRAC_N);
++}
++
++static inline s16 fixp_mult(s16 a, s16 b)
++{
++	a = ((s32)a * 0x100) / 0x7fff;
++	return ((s32)(a * b)) >> FRAC_N;
++}
++
+ /*
+  * Combine two effects and apply gain.
+  */
+@@ -247,7 +259,7 @@ static void ml_combine_effects(struct ff_effect *effect,
+ 	struct ff_effect *new = state->effect;
+ 	unsigned int strong, weak, i;
+ 	int x, y;
+-	fixp_t level;
++	s16 level;
+ 
+ 	switch (new->type) {
+ 	case FF_CONSTANT:
+@@ -255,8 +267,8 @@ static void ml_combine_effects(struct ff_effect *effect,
+ 		level = fixp_new16(apply_envelope(state,
+ 					new->u.constant.level,
+ 					&new->u.constant.envelope));
+-		x = fixp_mult(fixp_sin(i), level) * gain / 0xffff;
+-		y = fixp_mult(-fixp_cos(i), level) * gain / 0xffff;
++		x = fixp_mult(fixp_sin16(i), level) * gain / 0xffff;
++		y = fixp_mult(-fixp_cos16(i), level) * gain / 0xffff;
+ 		/*
+ 		 * here we abuse ff_ramp to hold x and y of constant force
+ 		 * If in future any driver wants something else than x and y
+diff --git a/drivers/media/usb/gspca/ov534.c b/drivers/media/usb/gspca/ov534.c
+index 90f0d637cd9d..50b72f6dfdc6 100644
+--- a/drivers/media/usb/gspca/ov534.c
++++ b/drivers/media/usb/gspca/ov534.c
+@@ -810,21 +810,16 @@ static void sethue(struct gspca_dev *gspca_dev, s32 val)
+ 		s16 huesin;
+ 		s16 huecos;
+ 
+-		/* fixp_sin and fixp_cos accept only positive values, while
+-		 * our val is between -90 and 90
+-		 */
+-		val += 360;
+-
+ 		/* According to the datasheet the registers expect HUESIN and
+ 		 * HUECOS to be the result of the trigonometric functions,
+ 		 * scaled by 0x80.
+ 		 *
+-		 * The 0x100 here represents the maximun absolute value
++		 * The 0x7fff here represents the maximum absolute value
+ 		 * returned byt fixp_sin and fixp_cos, so the scaling will
+ 		 * consider the result like in the interval [-1.0, 1.0].
+ 		 */
+-		huesin = fixp_sin(val) * 0x80 / 0x100;
+-		huecos = fixp_cos(val) * 0x80 / 0x100;
++		huesin = fixp_sin16(val) * 0x80 / 0x7fff;
++		huecos = fixp_cos16(val) * 0x80 / 0x7fff;
+ 
+ 		if (huesin < 0) {
+ 			sccb_reg_write(gspca_dev, 0xab,
+diff --git a/include/linux/fixp-arith.h b/include/linux/fixp-arith.h
+index 3089d7382325..857e7f782140 100644
+--- a/include/linux/fixp-arith.h
++++ b/include/linux/fixp-arith.h
+@@ -29,59 +29,104 @@
+ 
+ #include <linux/types.h>
+ 
+-/* The type representing fixed-point values */
+-typedef s16 fixp_t;
+-
+-#define FRAC_N 8
+-#define FRAC_MASK ((1<<FRAC_N)-1)
+-
+-/* Not to be used directly. Use fixp_{cos,sin} */
+-static const fixp_t cos_table[46] = {
+-	0x0100,	0x00FF,	0x00FF,	0x00FE,	0x00FD,	0x00FC,	0x00FA,	0x00F8,
+-	0x00F6,	0x00F3,	0x00F0,	0x00ED,	0x00E9,	0x00E6,	0x00E2,	0x00DD,
+-	0x00D9,	0x00D4,	0x00CF,	0x00C9,	0x00C4,	0x00BE,	0x00B8,	0x00B1,
+-	0x00AB,	0x00A4,	0x009D,	0x0096,	0x008F,	0x0087,	0x0080,	0x0078,
+-	0x0070,	0x0068,	0x005F,	0x0057,	0x004F,	0x0046,	0x003D,	0x0035,
+-	0x002C,	0x0023,	0x001A,	0x0011,	0x0008, 0x0000
++static const s32 sin_table[] = {
++	0x00000000, 0x023be165, 0x04779632, 0x06b2f1d2, 0x08edc7b6, 0x0b27eb5c,
++	0x0d61304d, 0x0f996a26, 0x11d06c96, 0x14060b67, 0x163a1a7d, 0x186c6ddd,
++	0x1a9cd9ac, 0x1ccb3236, 0x1ef74bf2, 0x2120fb82, 0x234815ba, 0x256c6f9e,
++	0x278dde6e, 0x29ac379f, 0x2bc750e8, 0x2ddf003f, 0x2ff31bdd, 0x32037a44,
++	0x340ff241, 0x36185aee, 0x381c8bb5, 0x3a1c5c56, 0x3c17a4e7, 0x3e0e3ddb,
++	0x3fffffff, 0x41ecc483, 0x43d464fa, 0x45b6bb5d, 0x4793a20f, 0x496af3e1,
++	0x4b3c8c11, 0x4d084650, 0x4ecdfec6, 0x508d9210, 0x5246dd48, 0x53f9be04,
++	0x55a6125a, 0x574bb8e5, 0x58ea90c2, 0x5a827999, 0x5c135399, 0x5d9cff82,
++	0x5f1f5ea0, 0x609a52d1, 0x620dbe8a, 0x637984d3, 0x64dd894f, 0x6639b039,
++	0x678dde6d, 0x68d9f963, 0x6a1de735, 0x6b598ea1, 0x6c8cd70a, 0x6db7a879,
++	0x6ed9eba0, 0x6ff389de, 0x71046d3c, 0x720c8074, 0x730baeec, 0x7401e4bf,
++	0x74ef0ebb, 0x75d31a5f, 0x76adf5e5, 0x777f903b, 0x7847d908, 0x7906c0af,
++	0x79bc384c, 0x7a6831b8, 0x7b0a9f8c, 0x7ba3751c, 0x7c32a67c, 0x7cb82884,
++	0x7d33f0c8, 0x7da5f5a3, 0x7e0e2e31, 0x7e6c924f, 0x7ec11aa3, 0x7f0bc095,
++	0x7f4c7e52, 0x7f834ecf, 0x7fb02dc4, 0x7fd317b3, 0x7fec09e1, 0x7ffb025e,
++	0x7fffffff
+ };
+ 
++/**
++ * fixp_sin32() returns the sin of an angle in degrees
++ *
++ * @degrees: angle, in degrees. It can be positive or negative
++ *
++ * The returned value ranges from -0x7fffffff to +0x7fffffff.
++ */
+ 
+-/* a: 123 -> 123.0 */
+-static inline fixp_t fixp_new(s16 a)
++static inline s32 fixp_sin32(int degrees)
+ {
+-	return a<<FRAC_N;
+-}
++	s32 ret;
++	bool negative = false;
+ 
+-/* a: 0xFFFF -> -1.0
+-      0x8000 -> 1.0
+-      0x0000 -> 0.0
+-*/
+-static inline fixp_t fixp_new16(s16 a)
+-{
+-	return ((s32)a)>>(16-FRAC_N);
++	degrees = (degrees % 360 + 360) % 360;
++	if (degrees > 180) {
++		negative = true;
++		degrees -= 180;
++	}
++	if (degrees > 90)
++		degrees = 180 - degrees;
++
++	ret = sin_table[degrees];
++
++	return negative ? -ret : ret;
+ }
+ 
+-static inline fixp_t fixp_cos(unsigned int degrees)
++/* cos(x) = sin(x + 90 degrees) */
++#define fixp_cos32(v) fixp_sin32((v) + 90)
++
++/*
++ * 16 bits variants
++ *
++ * The returned value ranges from -0x7fff to 0x7fff
++ */
++
++#define fixp_sin16(v) (fixp_sin32(v) >> 16)
++#define fixp_cos16(v) (fixp_cos32(v) >> 16)
++
++/**
++ * fixp_sin32_rad() - calculates the sin of an angle in radians
++ *
++ * @radians: angle, in radians
++ * @twopi: value to be used for 2*pi
++ *
++ * Provides a variant for the cases where just 360
++ * values is not enough. This function uses linear
++ * interpolation to a wider range of values given by
++ * twopi var.
++ *
++ * Experimental tests gave a maximum difference of
++ * 0.000038 between the value calculated by sin() and
++ * the one produced by this function, when twopi is
++ * equal to 360000. That seems to be enough precision
++ * for practical purposes.
++ */
++static inline s32 fixp_sin32_rad(u32 radians, u32 twopi)
+ {
+-	int quadrant = (degrees / 90) & 3;
+-	unsigned int i = degrees % 90;
++	int degrees;
++	s32 v1, v2, dx, dy;
++	s64 tmp;
+ 
+-	if (quadrant == 1 || quadrant == 3)
+-		i = 90 - i;
++	degrees = (radians * 360) / twopi;
+ 
+-	i >>= 1;
++	v1 = fixp_sin32(degrees);
++	v2 = fixp_sin32(degrees + 1);
+ 
+-	return (quadrant == 1 || quadrant == 2)? -cos_table[i] : cos_table[i];
+-}
++	dx = twopi / 360;
++	dy = v2 - v1;
+ 
+-static inline fixp_t fixp_sin(unsigned int degrees)
+-{
+-	return -fixp_cos(degrees + 90);
+-}
++	tmp = radians - (degrees * twopi) / 360;
++	tmp *= dy;
++	do_div(tmp, dx);
+ 
+-static inline fixp_t fixp_mult(fixp_t a, fixp_t b)
+-{
+-	return ((s32)(a*b))>>FRAC_N;
++	return v1 + tmp;
+ }
+ 
++/* cos(x) = sin(x + pi radians) */
++
++#define fixp_cos32_rad(rad, twopi)	\
++	fixp_sin32_rad(rad + twopi/2, twopi)
++
+ #endif
+-- 
+2.1.0
+

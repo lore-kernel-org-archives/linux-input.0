@@ -1,60 +1,76 @@
-From: Benson Leung <bleung@google.com>
-Subject: Re: [PATCH v15 09/12] input: cyapa: add gen5 trackpad device firmware
- update function support
-Date: Tue, 16 Dec 2014 12:24:37 -0800
-Message-ID: <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
-References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
-	<1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
-	<20141216135639.GA1238@hudson.localdomain>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 1/3] HID: logitech-dj: check report length
+Date: Tue, 16 Dec 2014 16:55:44 -0500
+Message-ID: <CAN+gG=Gtzbgxh6ttu-2Yaf4gXi58vgMkUXuF-=c40uYLiPpmnw@mail.gmail.com>
+References: <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com>
+	<1418745323-17133-1-git-send-email-peter@lekensteyn.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141216135639.GA1238@hudson.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benson Leung <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qa0-f46.google.com ([209.85.216.46]:61721 "EHLO
+	mail-qa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750950AbaLPVzp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 16:55:45 -0500
+In-Reply-To: <1418745323-17133-1-git-send-email-peter@lekensteyn.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Dec 16, 2014 at 5:56 AM, Jeremiah Mahler <jmmahler@gmail.com> wrote:
-> On Mon, Dec 15, 2014 at 02:23:20PM +0800, Dudley Du wrote:
->> Add firmware image update function supported for gen5 trackpad device,
->> it can be used through sysfs update_fw interface.
->> TEST=test on Chromebooks.
->>
->> Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
->> ---
->>  drivers/input/mouse/Kconfig      |   1 +
->>  drivers/input/mouse/cyapa_gen5.c | 292 ++++++++++++++++++++++++++++++++++++++-
->>  2 files changed, 292 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
->> index d8b46b0..728490e 100644
->> --- a/drivers/input/mouse/Kconfig
->> +++ b/drivers/input/mouse/Kconfig
->> @@ -206,6 +206,7 @@ config MOUSE_BCM5974
->>  config MOUSE_CYAPA
->>       tristate "Cypress APA I2C Trackpad support"
->>       depends on I2C
->> +     select CRC_ITU_T
->>       help
+On Tue, Dec 16, 2014 at 10:55 AM, Peter Wu <peter@lekensteyn.nl> wrote:
+> Malicious USB devices can send bogus reports smaller than the expected
+> buffer size. Ensure that the length is valid to avoid reading out of
+> bounds.
 >
-> Just found out that if I2C_DESIGNWARE_PCI isn't enabled the touchpad
-> won't work.  Verify this on your machines.  Then perhaps add a depends
-> for I2C_DESIGNWARE_PCI instead of I2C since it would include the former.
+> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> ---
+>  v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
+>  v2: splitted original report length check patch
+> ---
 
-This isn't strictly true on all devices, though. This is true on
-DESIGNWARE_PCI based devices like the Acer C720 and the HP Chromebook
-14, but on other platforms that use Cypress trackpads, such as ARM
-platforms like the Samsung Chromebook Series 3 DESIGNWARE_PCI is not
-required, and will just result in a driver that's never used being
-built.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-The specific I2C bus that's being used here shouldn't matter here...
-that's more of a platform issue. In the case with Chromebooks, it
-might make sense to change drivers/platform/chrome/Kconfig so that
-CHROMEOS_LAPTOP depends on I2C_DESIGNWARE_PCI, maybe.
+Cheers,
+Benjamin
 
--- 
-Benson Leung
-Software Engineer, Chrome OS
-Google Inc.
-bleung@google.com
+>  drivers/hid/hid-logitech-dj.c | 16 +++++++++++++++-
+>  1 file changed, 15 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> index c917ab6..5bc6d80 100644
+> --- a/drivers/hid/hid-logitech-dj.c
+> +++ b/drivers/hid/hid-logitech-dj.c
+> @@ -962,10 +962,24 @@ static int logi_dj_raw_event(struct hid_device *hdev,
+>
+>         switch (data[0]) {
+>         case REPORT_ID_DJ_SHORT:
+> +               if (size != DJREPORT_SHORT_LENGTH) {
+> +                       dev_err(&hdev->dev, "DJ report of bad size (%d)", size);
+> +                       return false;
+> +               }
+>                 return logi_dj_dj_event(hdev, report, data, size);
+>         case REPORT_ID_HIDPP_SHORT:
+> -               /* intentional fallthrough */
+> +               if (size != HIDPP_REPORT_SHORT_LENGTH) {
+> +                       dev_err(&hdev->dev,
+> +                               "Short HID++ report of bad size (%d)", size);
+> +                       return false;
+> +               }
+> +               return logi_dj_hidpp_event(hdev, report, data, size);
+>         case REPORT_ID_HIDPP_LONG:
+> +               if (size != HIDPP_REPORT_LONG_LENGTH) {
+> +                       dev_err(&hdev->dev,
+> +                               "Long HID++ report of bad size (%d)", size);
+> +                       return false;
+> +               }
+>                 return logi_dj_hidpp_event(hdev, report, data, size);
+>         }
+>
+> --
+> 2.1.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

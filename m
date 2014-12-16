@@ -1,164 +1,103 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH 2/3] HID: logitech-{dj,hidpp}: check report length
-Date: Tue, 16 Dec 2014 16:20:58 +0100
-Message-ID: <9001812.kk9brShn75@al>
-References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl> <1418691016-30681-3-git-send-email-peter@lekensteyn.nl> <CAN+gG=HWqpy6MUfWvwBavk+EkmwbBiCCN0L1_i8H61WYRU0yGw@mail.gmail.com>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCHv3 5/5] ARM: sunxi: dts: Add note ps2 pins conflict with hdmi
+Date: Tue, 16 Dec 2014 23:21:12 +0800
+Message-ID: <CAGb2v65OFKkkFTpcDoW3OwToXdgRP6hLVCYY7CR7MYZ-VgckGA@mail.gmail.com>
+References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>
+ <1418408748-9797-6-git-send-email-vishnupatekar0510@gmail.com>
+ <CAGb2v65xpUhiMzSKu_1+JGNbg3oFdpw2EQ+JGUYkivCtG2O6gw@mail.gmail.com> <CAEzqOZtOycU5LT8b3SHOymMpMOMExGC9PHiZ9wHtAjxR2R5+Ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:46559 "EHLO lekensteyn.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750791AbaLPPVK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 10:21:10 -0500
-In-Reply-To: <CAN+gG=HWqpy6MUfWvwBavk+EkmwbBiCCN0L1_i8H61WYRU0yGw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAEzqOZtOycU5LT8b3SHOymMpMOMExGC9PHiZ9wHtAjxR2R5+Ew-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hans De Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org" <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, "msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <msalter-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jdelvare-l3A5Bk7waGM@public.gmane.org" <jdelvare-l3A5Bk7waGM@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tuesday 16 December 2014 09:53:07 Benjamin Tissoires wrote:
-> On Mon, Dec 15, 2014 at 7:50 PM, Peter Wu <peter@lekensteyn.nl> wrote:
-> > Malicious USB devices can send bogus reports smaller than the expected
-> > buffer size. Ensure that the length is valid to avoid reading out of
-> > bounds.
-> >
-> > For the old WTP, I do not have a HID descriptor so just check for the
-> > minimum length in hidpp_raw_event (this can be changed to an inequality
-> > later).
-> 
-> Actually you have it :)
-> All the DJ devices share the same report descriptors as they are
-> provided by hid-logitech-dj :)
+Hi,
 
-I see, I thought it was read from the hardware, but that probably
-applies to the other interfaces. Looks like the report should have a
-length of (16 + 12 * 2 + 8 + 8) / 8 = 7 bytes, correct?
-
-> Anyway, the problem here would be with the bluetooth touchpad T651
-> which sends its raw events over teh mouse (0x02) collection (hint:
-> there is a "< 21" in wtp_raw_event :-P )
-
-Huh, how can that be allowed if the mouse descriptor accept less? Does
-the bluetooth layer pad the report somehow?
-
-> >
-> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> > ---
-> > Hi,
-> >
-> > If you know that the WTP report (ID 2) has a length of 2, then you can change
-> > "<" to "!=" and remove the paragraph from the commit message.
-> 
-> "<" should be kept for the reason above.
-> 
-> >
-> > Kind regards,
-> > Peter
-> > ---
-> >  drivers/hid/hid-logitech-dj.c    | 16 +++++++++++++++-
-> >  drivers/hid/hid-logitech-hidpp.c | 12 +++++++++---
-> >  2 files changed, 24 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> > index c917ab6..5bc6d80 100644
-> > --- a/drivers/hid/hid-logitech-dj.c
-> > +++ b/drivers/hid/hid-logitech-dj.c
-> > @@ -962,10 +962,24 @@ static int logi_dj_raw_event(struct hid_device *hdev,
-> >
-> >         switch (data[0]) {
-> >         case REPORT_ID_DJ_SHORT:
-> > +               if (size != DJREPORT_SHORT_LENGTH) {
-> > +                       dev_err(&hdev->dev, "DJ report of bad size (%d)", size);
-> > +                       return false;
-> > +               }
-> >                 return logi_dj_dj_event(hdev, report, data, size);
-> >         case REPORT_ID_HIDPP_SHORT:
-> > -               /* intentional fallthrough */
-> > +               if (size != HIDPP_REPORT_SHORT_LENGTH) {
-> > +                       dev_err(&hdev->dev,
-> > +                               "Short HID++ report of bad size (%d)", size);
-> > +                       return false;
-> > +               }
-> > +               return logi_dj_hidpp_event(hdev, report, data, size);
-> >         case REPORT_ID_HIDPP_LONG:
-> > +               if (size != HIDPP_REPORT_LONG_LENGTH) {
-> > +                       dev_err(&hdev->dev,
-> > +                               "Long HID++ report of bad size (%d)", size);
-> > +                       return false;
-> > +               }
-> 
-> This hunk is good to me.
-> 
-> >                 return logi_dj_hidpp_event(hdev, report, data, size);
-> >         }
-> >
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index ae23dec..2315358 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -992,11 +992,17 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
-> >                         return 1;
-> >                 }
-> >                 return hidpp_raw_hidpp_event(hidpp, data, size);
-> > +       case 0x02:
-> > +               if (size < 2) {
-> > +                       hid_err(hdev, "Received HID report of bad size (%d)",
-> > +                               size);
-> > +                       return 1;
-> > +               }
-> > +               if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> > +                       return wtp_raw_event(hdev, data, size);
-> > +               return 1;
-> >         }
-> >
-> > -       if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> > -               return wtp_raw_event(hdev, data, size);
-> 
-> This one is OK, but I don't like it.
-> 
-> wtp_raw_event also expects long hid++ reports, and I'd prefer having
-> the raw_event() callback first checking on the generic hid++ reports,
-> and then addressing the various subclasses of devices.
-> After a better look at the code, it occurs that the actual code is
-> already pretty messed up.
-> wtp_raw_event() is called both in the generic hidpp_raw_event() and in
-> the specific hidpp_raw_hidpp_event().
-> This is IMO a design flaw and it should be fixed in a better way.
-> 
-> I'd better have:
-> 
-> - A check on the report size
-> - A call to the specific hidpp_raw_hidpp_event()
-> - if the previous does not return 1 (consumed event), then check on
-> all subclasses and call their specific raw_event.
-> 
-> Does that make sense?
-> 
-> If you agree, you can split the patch in 3, one for the -dj, one for
-> the -hidpp checks, and one for the redesign. I'd be happy to make the
-> redesign if you do not want to reshuffle it in a third patch.
-
-wtp_raw_event got called earlier through the long HID++ report handler
-(which returns, so it cannot be called twice?). It looked surprising at
-first, so it makes sense to split it up. I'll send a V2 for this patch
-(leaving the other ones in this bundle untouched).
-
-Kind regards,
-Peter
-
-PS. I saw a mail on LKML from a maintainer who was not so happy with the
-timing of patches. If my patch submissions are at the wrong moment,
-please let me know.
-
+On Sat, Dec 13, 2014 at 11:18 AM, Vishnu Patekar
+<vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hello Chen-Yu,
+> Thank you for pointing out styling error.
 >
-> Cheers,
-> Benjamin
-> 
-> > -
-> >         return 0;
-> >  }
-> >
-> > --
-> > 2.1.3
+> On Sat, Dec 13, 2014 at 7:36 AM, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org> wrote:
+>>
+>> Hi,
+>>
+>> On Sat, Dec 13, 2014 at 2:25 AM, VishnuPatekar
+>> <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>> > 1. Please note that ps20 pins conflict with HDMI on Lime2 Board
+>> > so, by deault ps20 and ps21 are disabled for Lime2 Board.
+>> > There is no on board ps2 connector and these pins can be used
+>> > for different purpose.
+>> >
+>> > Signed-off-by: VishnuPatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> > ---
+>> >  arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |    6 +++++-
+>> >  1 file changed, 5 insertions(+), 1 deletion(-)
+>> >
+>> > diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+>> > b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+>> > index ed364d5..951b615 100644
+>> > --- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+>> > +++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
+>> > @@ -112,7 +112,11 @@
+>> >                         pinctrl-0 = <&uart0_pins_a>;
+>> >                         status = "okay";
+>> >                 };
+>> > -
+>> > +
+>> > +               /* PS2 0 and PS2 1 are disabled by default; Please note
+>> > that
+>> > +               ps20 pins conflict with HDMI on Lime2 Board
+>> > +               */
+>> > +
+>>
+>> Multi-line comments should be:
+>>
+>> /*
+>>  * line 1
+>>  * line 2
+>>  * ...
+>>  */
+>
+> Okie.
 
+So, in fact this patch shouldnt be needed. The LIME2 uses the dedicated
+pins for HDMI DDC. PS2 0 pins PI20 and PI21 are in fact routed to
+the GPIO-2 header. They are _not_ used for HDMI. Nothing bad should
+happen unless you also multiplex PI20/PI21 to HSCL/HDSA.
+
+If you check the schematics Olimex published and trace the HDMI lines,
+you will see that this is the case.
+
+ChenYu
+
+>>
+>>
+>> And why is there a delete and insert for an empty line?
+>> Weird... though git seems to ignore it when applying.
+>
+> I used clean_patch to clear the styling error. that might have modified it.
+>
+>
+>>
+>>
+>> ChenYu
+>>
+>> >                 i2c0: i2c@01c2ac00 {
+>> >                         pinctrl-names = "default";
+>> >                         pinctrl-0 = <&i2c0_pins_a>;
+>> > --
+>> > 1.7.9.5
+>> >
+>> >
+>> > _______________________________________________
+>> > linux-arm-kernel mailing list
+>> > linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+>> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

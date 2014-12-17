@@ -1,75 +1,159 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v15 09/12] input: cyapa: add gen5 trackpad device firmware
- update function support
-Date: Wed, 17 Dec 2014 01:31:20 +0000
-Message-ID: <BN1PR06MB070D98C13051B8FF6CB7778D16D0@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
-	<1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
-	<20141216135639.GA1238@hudson.localdomain>
- <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: logitech-hidpp: store the name of the device in
+ struct hidpp
+Date: Tue, 16 Dec 2014 21:43:34 -0500
+Message-ID: <20141217024334.GA7837@mail.corp.redhat.com>
+References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1418767562-4136-2-git-send-email-benjamin.tissoires@redhat.com>
+ <3321911.knGKb1BsCe@al>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0106.outbound.protection.outlook.com ([207.46.100.106]:29903
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750932AbaLQBpl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 20:45:41 -0500
-In-Reply-To: <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <3321911.knGKb1BsCe@al>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@google.com>, Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
-ZXJAdmdlci5rZXJuZWwub3JnDQo+IFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJu
-ZWwub3JnXSBPbiBCZWhhbGYgT2YgQmVuc29uIExldW5nDQo+IFNlbnQ6IDIwMTTlubQxMuaciDE3
-5pelIDQ6MjUNCj4gVG86IEplcmVtaWFoIE1haGxlcjsgRHVkbGV5IER1OyBEbWl0cnkgVG9yb2to
-b3Y7IEhlbnJpayBSeWRiZXJnOyBCZW5zb24gTGV1bmc7DQo+IGxpbnV4LWlucHV0QHZnZXIua2Vy
-bmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BB
-VENIIHYxNSAwOS8xMl0gaW5wdXQ6IGN5YXBhOiBhZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UgZmly
-bXdhcmUNCj4gdXBkYXRlIGZ1bmN0aW9uIHN1cHBvcnQNCj4NCj4gT24gVHVlLCBEZWMgMTYsIDIw
-MTQgYXQgNTo1NiBBTSwgSmVyZW1pYWggTWFobGVyIDxqbW1haGxlckBnbWFpbC5jb20+IHdyb3Rl
-Og0KPiA+IE9uIE1vbiwgRGVjIDE1LCAyMDE0IGF0IDAyOjIzOjIwUE0gKzA4MDAsIER1ZGxleSBE
-dSB3cm90ZToNCj4gPj4gQWRkIGZpcm13YXJlIGltYWdlIHVwZGF0ZSBmdW5jdGlvbiBzdXBwb3J0
-ZWQgZm9yIGdlbjUgdHJhY2twYWQgZGV2aWNlLA0KPiA+PiBpdCBjYW4gYmUgdXNlZCB0aHJvdWdo
-IHN5c2ZzIHVwZGF0ZV9mdyBpbnRlcmZhY2UuDQo+ID4+IFRFU1Q9dGVzdCBvbiBDaHJvbWVib29r
-cy4NCj4gPj4NCj4gPj4gU2lnbmVkLW9mZi1ieTogRHVkbGV5IER1IDxkdWRsZXkuZHVsaXhpbkBn
-bWFpbC5jb20+DQo+ID4+IC0tLQ0KPiA+PiAgZHJpdmVycy9pbnB1dC9tb3VzZS9LY29uZmlnICAg
-ICAgfCAgIDEgKw0KPiA+PiAgZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYV9nZW41LmMgfCAyOTIN
-Cj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystDQo+ID4+ICAyIGZpbGVz
-IGNoYW5nZWQsIDI5MiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQo+ID4+DQo+ID4+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21vdXNlL0tjb25maWcgYi9kcml2ZXJzL2lucHV0L21v
-dXNlL0tjb25maWcNCj4gPj4gaW5kZXggZDhiNDZiMC4uNzI4NDkwZSAxMDA2NDQNCj4gPj4gLS0t
-IGEvZHJpdmVycy9pbnB1dC9tb3VzZS9LY29uZmlnDQo+ID4+ICsrKyBiL2RyaXZlcnMvaW5wdXQv
-bW91c2UvS2NvbmZpZw0KPiA+PiBAQCAtMjA2LDYgKzIwNiw3IEBAIGNvbmZpZyBNT1VTRV9CQ001
-OTc0DQo+ID4+ICBjb25maWcgTU9VU0VfQ1lBUEENCj4gPj4gICAgICAgdHJpc3RhdGUgIkN5cHJl
-c3MgQVBBIEkyQyBUcmFja3BhZCBzdXBwb3J0Ig0KPiA+PiAgICAgICBkZXBlbmRzIG9uIEkyQw0K
-PiA+PiArICAgICBzZWxlY3QgQ1JDX0lUVV9UDQo+ID4+ICAgICAgIGhlbHANCj4gPg0KPiA+IEp1
-c3QgZm91bmQgb3V0IHRoYXQgaWYgSTJDX0RFU0lHTldBUkVfUENJIGlzbid0IGVuYWJsZWQgdGhl
-IHRvdWNocGFkDQo+ID4gd29uJ3Qgd29yay4gIFZlcmlmeSB0aGlzIG9uIHlvdXIgbWFjaGluZXMu
-ICBUaGVuIHBlcmhhcHMgYWRkIGEgZGVwZW5kcw0KPiA+IGZvciBJMkNfREVTSUdOV0FSRV9QQ0kg
-aW5zdGVhZCBvZiBJMkMgc2luY2UgaXQgd291bGQgaW5jbHVkZSB0aGUgZm9ybWVyLg0KPg0KPiBU
-aGlzIGlzbid0IHN0cmljdGx5IHRydWUgb24gYWxsIGRldmljZXMsIHRob3VnaC4gVGhpcyBpcyB0
-cnVlIG9uDQo+IERFU0lHTldBUkVfUENJIGJhc2VkIGRldmljZXMgbGlrZSB0aGUgQWNlciBDNzIw
-IGFuZCB0aGUgSFAgQ2hyb21lYm9vaw0KPiAxNCwgYnV0IG9uIG90aGVyIHBsYXRmb3JtcyB0aGF0
-IHVzZSBDeXByZXNzIHRyYWNrcGFkcywgc3VjaCBhcyBBUk0NCj4gcGxhdGZvcm1zIGxpa2UgdGhl
-IFNhbXN1bmcgQ2hyb21lYm9vayBTZXJpZXMgMyBERVNJR05XQVJFX1BDSSBpcyBub3QNCj4gcmVx
-dWlyZWQsIGFuZCB3aWxsIGp1c3QgcmVzdWx0IGluIGEgZHJpdmVyIHRoYXQncyBuZXZlciB1c2Vk
-IGJlaW5nDQo+IGJ1aWx0Lg0KPg0KPiBUaGUgc3BlY2lmaWMgSTJDIGJ1cyB0aGF0J3MgYmVpbmcg
-dXNlZCBoZXJlIHNob3VsZG4ndCBtYXR0ZXIgaGVyZS4uLg0KPiB0aGF0J3MgbW9yZSBvZiBhIHBs
-YXRmb3JtIGlzc3VlLiBJbiB0aGUgY2FzZSB3aXRoIENocm9tZWJvb2tzLCBpdA0KPiBtaWdodCBt
-YWtlIHNlbnNlIHRvIGNoYW5nZSBkcml2ZXJzL3BsYXRmb3JtL2Nocm9tZS9LY29uZmlnIHNvIHRo
-YXQNCj4gQ0hST01FT1NfTEFQVE9QIGRlcGVuZHMgb24gSTJDX0RFU0lHTldBUkVfUENJLCBtYXli
-ZS4NCj4NCg0KVGhhbmsgeW91IGFsbCBmb3IgdGhlIGluZm9ybWF0aW9uLg0KVGhlbiBJIHdvbid0
-IGNoYW5nZSB0aGlzIGRlcGVuZGluZyBvbiBJMkMuDQoNCj4gLS0NCj4gQmVuc29uIExldW5nDQo+
-IFNvZnR3YXJlIEVuZ2luZWVyLCBDaHJvbWUgT1MNCj4gR29vZ2xlIEluYy4NCj4gYmxldW5nQGdv
-b2dsZS5jb20NCj4gLS0NCj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhl
-IGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWlucHV0IiBpbg0KPiB0aGUgYm9keSBvZiBhIG1lc3Nh
-Z2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0
-ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg0KVGhpcyBtZXNz
-YWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1YnNp
-ZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNlaXZl
-ZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBkZWxl
-dGUgdGhpcyBtZXNzYWdlLg0K
+On Dec 17 2014 or thereabouts, Peter Wu wrote:
+> On Tuesday 16 December 2014 17:06:02 Benjamin Tissoires wrote:
+> > If a disconnect occurs while getting the actual name of the device
+> > (which can take several HID transactions), the name of the device will
+> > be the hid name, provided by the Unifying Receiver.
+> > This means that in some cases, the user space will see a different
+> > name that what it usually sees when there is no disconnect.
+> > 
+> > We should store the name of the device in the struct hidpp. That way,
+> > if a disconnect occurs while we are accessing the name,
+> > hidpp_connect_event() can fail, and the input node is not created.
+> > 
+> > The input node will be created only if we have a connection which
+> > lasts long enough to retrieve all the requested information:
+> > name, protocol, and specific configuration.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
+> >  1 file changed, 20 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index c0fb5fe..4bc8714 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -89,6 +89,7 @@ struct hidpp_device {
+> >  	struct hid_device *hid_dev;
+> >  	struct mutex send_mutex;
+> >  	void *send_receive_buf;
+> > +	char *name;
+> >  	wait_queue_head_t wait;
+> >  	bool answer_available;
+> >  	u8 protocol_major;
+> > @@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
+> >  static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+> >  {
+> >  	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
+> > +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> >  
+> >  	if (!input_dev)
+> >  		return NULL;
+> > @@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+> >  	input_dev->open = hidpp_input_open;
+> >  	input_dev->close = hidpp_input_close;
+> >  
+> > -	input_dev->name = hdev->name;
+> > +	input_dev->name = hidpp->name;
+> >  	input_dev->phys = hdev->phys;
+> >  	input_dev->uniq = hdev->uniq;
+> >  	input_dev->id.bustype = hdev->bus;
+> > @@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+> >  	hid_info(hdev, "HID++ %u.%u device connected.\n",
+> >  		 hidpp->protocol_major, hidpp->protocol_minor);
+> >  
+> > +	if (!hidpp->name || hidpp->name == hdev->name) {
+> 
+> Hm, is it ever possible that hidpp->name is NULL? probe sets the pointer
+
+No, hidpp->name should never be a NULL reference.
+I asked myself about that (i.e. having a NULL reference until the hidpp
+calls get_name), but I thought that having a non consistent name would
+just confuse other contributors when implementing other devices.
+So I choose to have always the current name of the device.
+
+> to an array (hdev->name). Defence in depth I guess, but perhaps a
+> comment could clarify this?
+
+That could clarify it, yes. Will send a v2.
+
+> 
+> Otherwise the changes look OK. I have tested this situation:
+> 
+>  1. Insert receiver
+>  2. Return a HID++ version for the WTP.
+>  3. Return -9 (ResourceError) for the device name feature request (via
+>     the QEMU emulation).
+>  4. Observe that this fails.
+
+Hehe, I have been testing this by timely putting the device in the on
+then off state. About 1 sec of ON is enough to trigger the various
+failures :)
+
+> 
+> So maybe you could add a comment for the above and add these tags:
+> 
+> Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+> Tested-by: Peter Wu <peter@lekensteyn.nl>
+
+Thanks! (and thanks for the other v3)
+
+Cheers,
+Benjamin
+
+> 
+> Kind regards,
+> Peter
+> 
+> > +		name = hidpp_get_device_name(hidpp);
+> > +		if (!name) {
+> > +			hid_err(hdev,
+> > +				"unable to retrieve the name of the device");
+> > +			return;
+> > +		}
+> > +
+> > +		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
+> > +		kfree(name);
+> > +		if (!devm_name)
+> > +			return;
+> > +
+> > +		hidpp->name = devm_name;
+> > +	}
+> > +
+> >  	input = hidpp_allocate_input(hdev);
+> >  	if (!input) {
+> >  		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
+> >  		return;
+> >  	}
+> >  
+> > -	name = hidpp_get_device_name(hidpp);
+> > -	if (!name) {
+> > -		hid_err(hdev, "unable to retrieve the name of the device");
+> > -	} else {
+> > -		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
+> > -		if (devm_name)
+> > -			input->name = devm_name;
+> > -		kfree(name);
+> > -	}
+> > -
+> >  	hidpp_populate_input(hidpp, input, false);
+> >  
+> >  	ret = input_register_device(input);
+> > @@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >  		return -ENOMEM;
+> >  
+> >  	hidpp->hid_dev = hdev;
+> > +	hidpp->name = hdev->name;
+> >  	hid_set_drvdata(hdev, hidpp);
+> >  
+> >  	hidpp->quirks = id->driver_data;
+> > 
+> 

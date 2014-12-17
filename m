@@ -1,220 +1,353 @@
 From: Dudley Du <dudlx@outlook.com>
-Subject: RE: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
-Date: Wed, 17 Dec 2014 18:03:47 +0800
-Message-ID: <BAY407-EAS324070A0EC49BC07FAF8F06BD6D0@phx.gbl>
-References: <BAY407-EAS63B5A29D2DC73D297733BDBD6D0@phx.gbl>
+Subject: [PATCH v16 06/12] input: cyapa: add gen3 trackpad device firmware update
+Date: Wed, 17 Dec 2014 17:57:21 +0800
+Message-ID: <BAY407-EAS134A63F958A3B642D894524BD6D0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bay004-omc1s8.hotmail.com ([65.54.190.19]:59433 "EHLO
-	BAY004-OMC1S8.hotmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751087AbaLQKDt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 05:03:49 -0500
-In-Reply-To: <BAY407-EAS63B5A29D2DC73D297733BDBD6D0@phx.gbl>
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: zh-cn
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
-Cc: bleung@google.com, 'David Solda' <dso@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dudley Du <dudl@cypress.com>
+Cc: bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Jmmahler,
+Add firmware image update function supported for gen3 trackpad device,
+it can be used through sysfs update_fw interface.
+TEST=test on Chromebooks.
 
-Thank you very much for your review and comments based on v15 patches.
-I have modified all points based on your comments and generate this v16=
- patches.
-Could you please help review again when have time.
+Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
+---
+ drivers/input/mouse/cyapa_gen3.c | 288 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 288 insertions(+)
 
-By the way, since gmail is blocked again in my side, so I use private e=
-mail
-dudlx@outlook.com instead to send these patches manually.
-
-Thanks,
-Dudley
-
-> -----Original Message-----
-> From: Dudley Du [mailto:dudlx@outlook.com]
-> Sent: 2014=C4=EA12=D4=C217=C8=D5 17:55
-> To: dmitry.torokhov@gmail.com; jmmahler@gmail.com; rydberg@euromail.s=
-e
-> Cc: bleung@google.com; David Solda; linux-input@vger.kernel.org;
-> linux-kernel@vger.kernel.org
-> Subject: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
->=20
-> V16 patches have below updates, details of other updates see history =
-list:
-> 1) Fix all miss-spelling and space issue.
-> 2) Rename variables and functions with much more clearer names.
-> 3) Initialize and document tries near where it will be used.
-> 4) Modify cmd buffer to struct for more descriptive way.
->=20
->=20
-> This patch series is aimed to re-design the cyapa driver to support
-> old gen3 trackpad devices and new gen5 trackpad devices in one
-> cyapa driver, it's for easily productions support based on
-> customers' requirements. And add sysfs functions and interfaces
-> supported that required by users and customers.
->=20
-> Since the earlier gen3 and the latest gen5 trackpad devices using
-> two different chipsets, and have different protocols and interfaces,
-> so if supported these two type trackpad devices in two different driv=
-ers,
-> then it will be difficult to manage productions and later firmware up=
-dates.
-> e.g.: It will cause customer don't know which one trackpad device fir=
-mware
-> image to use and update when it has been used and integrated
-> in same one productions, so here we support these two trackpad
-> devices in same on driver.
->=20
-> The new design cyapa driver contains:
-> cyapa.c - the core of the re-design, supply interfaces and
-> functions to system and read trackpad devices.
-> cyapa.h - header file including macros and data structure definitions=
-=2E
-> cyapa_gen3.c - functions support for gen3 trackpad devices,
-> cyapa_gen5.c - functions support for gen5 trackpad devices.
->=20
-> Beside this introduction patch, it has 12 patches listed as below.
-> For these patches, each one is patched based on previous one.
->=20
-> patch 1/12: re-design cyapa driver with core functions and interface
-> to support multi-type trackpad devices.
->=20
-> patch 2/12: add gen5 trackpad device basic functions support in the
-> re-design cyapa driver.
->=20
-> patch 3/12: add power management interfaces support for the device.
->=20
-> patch 4/12: add runtime power management interfaces support for the d=
-evice.
->=20
-> patch 5/12: add sysfs interfaces supported in the cyapa driver.
-> Including read firmware version, get production ID, read baseline,
-> re-calibrate trackpad baselines and do trackpad firmware update.
->=20
-> patch 6/12: add gen3 trackpad device's firmware update function suppo=
-rt.
->=20
-> patch 7/12: add gen3 trackpad device's read baseline function support=
-=2E
->=20
-> patch 8/12: add gen3 trackpad device's force re-calibrate function su=
-pport.
->=20
-> patch 9/12: add gen5 trackpad device's firmware update function suppo=
-rt.
->=20
-> patch 10/12: add gen5 trackpad device's read baseline function suppor=
-t.
->=20
-> patch 11/12: add gen5 trackpad device's force re-calibrate function.
->=20
-> patch 12/12: add acpi device id support.
->=20
->=20
-> History patch series modifications list:
-> V15 patches have below main updates compared with v14 patches:
-> 1) Fix all warning errors of sparse tool when running with "make C=3D=
-1".
-> 2) Change variable name "unique_str" to "product_id" for clearer mean=
-ings.
-> 3) Update cyapa_i2c_write function to return error directly when leng=
-th > 31.
->=20
-> V14 patches have below main updates compared with v13 patches:
-> 1) Correct 9 miss spelling issues of "bufferred" to "buffered".
-> 2) Fix the upgrade issue of removing MOUSE_CYAPA config when make old=
-config
->    by replase "depends on I2C && CRC_ITU_T" with
-> 	"depends on I2C"
-> 	"select CRC_ITU_T"
->    in patch 9.
->=20
-> V13 patches have below main updates compared with v12 patches:
-> 1) Remove all debugfs interface, including read_fw and raw_data inter=
-faces.
-> 2) This patches are made based linux next-20141208.
->=20
-> V12 patches have below main updates compared with v11 patches:
-> 1) Add check that when TP is detected but not operational, do not exi=
-t driver
->    immediately, but wait and export the update_fw interface for recov=
-ering.
-> 2) Re-arrange the function codes, remove unnesseary protype definitio=
-ns in
->    the header file.
->=20
-> V11 patches have below main updates compared with v10 patches:
-> 1) Add add acpi device id supported for old gen3 and new gen5 trackpa=
-d
-devices.
-> 2) Fix the unable to update firmware issue when cyapa_open is not cal=
-led
->    which means the irq for firwmare update process is not enabled. Th=
-is fix
->    by checking if the irq is enabled, if not then enable irq before s=
-tart to
->    do firmware update.
->=20
-> V10 patches have below main updates compared with v9 patches:
-> 1) Modify code to following kernel code style.
->    e.g.: correct to use error as return name when there is only error=
- path,
->    and fix the checkpatch.sh wanting in the driver.
-> 2) Remove cyapa_remove method and use input open and close interface =
-to
->    following device resouse management infrastructure.
-> 3) Modify cyapa_detect method to return tristate issue to make the re=
-turn
-value
->    much more consistent and clear.
-> 4) Use platform supplied functions as possible instead of driver
->    specific rewritten version.
->=20
-> V9 patches have below updates compared with v8 patches:
-> 1) Removed all async thread stuff from the driver.
-> 2) Split driver into 18 patches for each function change one patch.
->=20
-> V8 patches have below updates compared with v7 patches:
-> 1) [PATCH v8 01/13] - Remove the async thread for device detect in
->    probe routine, now the device detect process is completely done wi=
-thin
->    the device probe routine.
-> 2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
->    function cyapa_default_irq_cmd_handler() and set it to interface
->    cyapa_default_ops.irq_cmd_handler.
-> 3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_hand=
-ler()
->    to avoid miss-enter when device protocol is still in detecting.
->=20
-> V7 patches have below updates compared with v6 patches:
-> 1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
->    function cyapa_default_irq_cmd_handler() and set it to interface
->    cyapa_default_ops.irq_cmd_handler.
-> 2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_hand=
-ler()
->    to avoid miss-enter when device protocol is still in detecting.
->=20
->=20
-> V6 patches have below updates compared with v5 patches:
-> 1) Remove patch 14 of the lid filtering from the cyapa driver.
->=20
-> V5 patches have below updates compared with v4 patches:
-> 1) Uses get_device()/put_device() instead of kobject_get()/kobject_pu=
-t();
-> 2) Fix memories freed before debugfs entries issue;
-> 3) Make cyapa_debugs_root valid in driver module level
->    in module_init()/moudle_exit() ;
-> 4) Fix i2c_transfer() may return partial transfer issues.
-> 5) Add cyapa->removed flag to avoid detecting thread may still runnin=
-g
->    when driver module is removed.
-> 6) Fix the meanings of some comments and return error code not clear =
-issue.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+index 228fd2d..cd4f1db 100644
+--- a/drivers/input/mouse/cyapa_gen3.c
++++ b/drivers/input/mouse/cyapa_gen3.c
+@@ -20,6 +20,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <linux/unaligned/access_ok.h>
+ #include "cyapa.h"
+ 
+ 
+@@ -115,6 +116,18 @@ struct cyapa_reg_data {
+ 	struct cyapa_touch touches[5];
+ } __packed;
+ 
++struct gen3_write_block_cmd {
++	u8 checksum_seed;  /* Always be 0xff */
++	u8 cmd_code;       /* command code: 0x39 */
++	u8 key[8];         /* 8-byte security key */
++	__be16 block_num;
++	u8 block_data[CYAPA_FW_BLOCK_SIZE];
++	u8 block_checksum;  /* Calculated using bytes 12 - 75 */
++	u8 cmd_checksum;    /* Calculated using bytes 0-76 */
++} __packed;
++
++static const u8 security_key[] = {
++		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
+ static const u8 bl_activate[] = { 0x00, 0xff, 0x38, 0x00, 0x01, 0x02, 0x03,
+ 		0x04, 0x05, 0x06, 0x07 };
+ static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
+@@ -423,6 +436,69 @@ static int cyapa_gen3_state_parse(struct cyapa *cyapa, u8
+*reg_data, int len)
+ 	return -EAGAIN;
+ }
+ 
++/*
++ * Enter bootloader by soft resetting the device.
++ *
++ * If device is already in the bootloader, the function just returns.
++ * Otherwise, reset the device; after reset, device enters bootloader idle
++ * state immediately.
++ *
++ * Returns:
++ *   0        on success
++ *   -EAGAIN  device was reset, but is not now in bootloader idle state
++ *   < 0      if the device never responds within the timeout
++ */
++static int cyapa_gen3_bl_enter(struct cyapa *cyapa)
++{
++	int error;
++
++	error = cyapa_poll_state(cyapa, 500);
++	if (error)
++		return error;
++	if (cyapa->state == CYAPA_STATE_BL_IDLE) {
++		/* Already in BL_IDLE. Skipping reset. */
++		return 0;
++	}
++
++	if (cyapa->state != CYAPA_STATE_OP)
++		return -EAGAIN;
++
++	cyapa->state = CYAPA_STATE_NO_DEVICE;
++	error = cyapa_write_byte(cyapa, CYAPA_CMD_SOFT_RESET, 0x01);
++	if (error)
++		return -EIO;
++
++	usleep_range(25000, 50000);
++	error = cyapa_poll_state(cyapa, 500);
++	if (error)
++		return error;
++	if ((cyapa->state != CYAPA_STATE_BL_IDLE) ||
++		(cyapa->status[REG_BL_STATUS] & BL_STATUS_WATCHDOG))
++		return -EAGAIN;
++
++	return 0;
++}
++
++static int cyapa_gen3_bl_activate(struct cyapa *cyapa)
++{
++	int error;
++
++	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_activate),
++					bl_activate);
++	if (error)
++		return error;
++
++	/* Wait for bootloader to activate; takes between 2 and 12 seconds */
++	msleep(2000);
++	error = cyapa_poll_state(cyapa, 11000);
++	if (error)
++		return error;
++	if (cyapa->state != CYAPA_STATE_BL_ACTIVE)
++		return -EAGAIN;
++
++	return 0;
++}
++
+ static int cyapa_gen3_bl_deactivate(struct cyapa *cyapa)
+ {
+ 	int error;
+@@ -483,6 +559,212 @@ static int cyapa_gen3_bl_exit(struct cyapa *cyapa)
+ 	return 0;
+ }
+ 
++static u16 cyapa_gen3_csum(const u8 *buf, size_t count)
++{
++	int i;
++	u16 csum = 0;
++
++	for (i = 0; i < count; i++)
++		csum += buf[i];
++
++	return csum;
++}
++
++/*
++ * Verify the integrity of a CYAPA firmware image file.
++ *
++ * The firmware image file is 30848 bytes, composed of 482 64-byte blocks.
++ *
++ * The first 2 blocks are the firmware header.
++ * The next 480 blocks are the firmware image.
++ *
++ * The first two bytes of the header hold the header checksum, computed by
++ * summing the other 126 bytes of the header.
++ * The last two bytes of the header hold the firmware image checksum, computed
++ * by summing the 30720 bytes of the image modulo 0xffff.
++ *
++ * Both checksums are stored little-endian.
++ */
++static int cyapa_gen3_check_fw(struct cyapa *cyapa, const struct firmware *fw)
++{
++	struct device *dev = &cyapa->client->dev;
++	u16 csum;
++	u16 csum_expected;
++
++	/* Firmware must match exact 30848 bytes = 482 64-byte blocks. */
++	if (fw->size != CYAPA_FW_SIZE) {
++		dev_err(dev, "invalid firmware size = %zu, expected %u.\n",
++			fw->size, CYAPA_FW_SIZE);
++		return -EINVAL;
++	}
++
++	/* Verify header block */
++	csum_expected = (fw->data[0] << 8) | fw->data[1];
++	csum = cyapa_gen3_csum(&fw->data[2], CYAPA_FW_HDR_SIZE - 2);
++	if (csum != csum_expected) {
++		dev_err(dev, "%s %04x, expected: %04x\n",
++			"invalid firmware header checksum = ",
++			csum, csum_expected);
++		return -EINVAL;
++	}
++
++	/* Verify firmware image */
++	csum_expected = (fw->data[CYAPA_FW_HDR_SIZE - 2] << 8) |
++			 fw->data[CYAPA_FW_HDR_SIZE - 1];
++	csum = cyapa_gen3_csum(&fw->data[CYAPA_FW_HDR_SIZE],
++			CYAPA_FW_DATA_SIZE);
++	if (csum != csum_expected) {
++		dev_err(dev, "%s %04x, expected: %04x\n",
++			"invalid firmware header checksum = ",
++			csum, csum_expected);
++		return -EINVAL;
++	}
++	return 0;
++}
++
++/*
++ * Write a |len| byte long buffer |buf| to the device, by chopping it up into a
++ * sequence of smaller |CYAPA_CMD_LEN|-length write commands.
++ *
++ * The data bytes for a write command are prepended with the 1-byte offset
++ * of the data relative to the start of |buf|.
++ */
++static int cyapa_gen3_write_buffer(struct cyapa *cyapa,
++		const u8 *buf, size_t len)
++{
++	int error;
++	size_t i;
++	unsigned char cmd[CYAPA_CMD_LEN + 1];
++	size_t cmd_len;
++
++	for (i = 0; i < len; i += CYAPA_CMD_LEN) {
++		const u8 *payload = &buf[i];
++
++		cmd_len = (len - i >= CYAPA_CMD_LEN) ? CYAPA_CMD_LEN : len - i;
++		cmd[0] = i;
++		memcpy(&cmd[1], payload, cmd_len);
++
++		error = cyapa_i2c_reg_write_block(cyapa, 0, cmd_len + 1, cmd);
++		if (error)
++			return error;
++	}
++	return 0;
++}
++
++/*
++ * A firmware block write command writes 64 bytes of data to a single flash
++ * page in the device.  The 78-byte block write command has the format:
++ *   <0xff> <CMD> <Key> <Start> <Data> <Data-Checksum> <CMD Checksum>
++ *
++ *  <0xff>  - every command starts with 0xff
++ *  <CMD>   - the write command value is 0x39
++ *  <Key>   - write commands include an 8-byte key: { 00 01 02 03 04 05 06 07 }
++ *  <Block> - Memory Block number (address / 64) (16-bit, big-endian)
++ *  <Data>  - 64 bytes of firmware image data
++ *  <Data Checksum> - sum of 64 <Data> bytes, modulo 0xff
++ *  <CMD Checksum> - sum of 77 bytes, from 0xff to <Data Checksum>
++ *
++ * Each write command is split into 5 i2c write transactions of up to 16 bytes.
++ * Each transaction starts with an i2c register offset: (00, 10, 20, 30, 40).
++ */
++static int cyapa_gen3_write_fw_block(struct cyapa *cyapa,
++		u16 block, const u8 *data)
++{
++	int ret;
++	struct gen3_write_block_cmd write_block_cmd;
++	u8 status[BL_STATUS_SIZE];
++	int tries;
++	u8 bl_status, bl_error;
++
++	/* Set write command and security key bytes. */
++	write_block_cmd.checksum_seed = GEN3_BL_CMD_CHECKSUM_SEED;
++	write_block_cmd.cmd_code = GEN3_BL_CMD_WRITE_BLOCK;
++	memcpy(write_block_cmd.key, security_key, sizeof(security_key));
++	put_unaligned_be16(block, &write_block_cmd.block_num);
++	memcpy(write_block_cmd.block_data, data, CYAPA_FW_BLOCK_SIZE);
++	write_block_cmd.block_checksum = cyapa_gen3_csum(
++			write_block_cmd.block_data, CYAPA_FW_BLOCK_SIZE);
++	write_block_cmd.cmd_checksum = cyapa_gen3_csum((u8 *)&write_block_cmd,
++			sizeof(write_block_cmd) - 1);
++
++	ret = cyapa_gen3_write_buffer(cyapa, (u8 *)&write_block_cmd,
++			sizeof(write_block_cmd));
++	if (ret)
++		return ret;
++
++	/* Wait for write to finish */
++	tries = 11;  /* Programming for one block can take about 100ms. */
++	do {
++		usleep_range(10000, 20000);
++
++		/* Check block write command result status. */
++		ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET,
++					       BL_STATUS_SIZE, status);
++		if (ret != BL_STATUS_SIZE)
++			return (ret < 0) ? ret : -EIO;
++	} while ((status[REG_BL_STATUS] & BL_STATUS_BUSY) && --tries);
++
++	/* Ignore WATCHDOG bit and reserved bits. */
++	bl_status = status[REG_BL_STATUS] & ~BL_STATUS_REV_MASK;
++	bl_error = status[REG_BL_ERROR] & ~BL_ERROR_RESERVED;
++
++	if (bl_status & BL_STATUS_BUSY)
++		ret = -ETIMEDOUT;
++	else if (bl_status != BL_STATUS_RUNNING ||
++		bl_error != BL_ERROR_BOOTLOADING)
++		ret = -EIO;
++	else
++		ret = 0;
++
++	return ret;
++}
++
++static int cyapa_gen3_write_blocks(struct cyapa *cyapa,
++		size_t start_block, size_t block_count,
++		const u8 *image_data)
++{
++	int error;
++	int i;
++
++	for (i = 0; i < block_count; i++) {
++		size_t block = start_block + i;
++		size_t addr = i * CYAPA_FW_BLOCK_SIZE;
++		const u8 *data = &image_data[addr];
++
++		error = cyapa_gen3_write_fw_block(cyapa, block, data);
++		if (error)
++			return error;
++	}
++	return 0;
++}
++
++static int cyapa_gen3_do_fw_update(struct cyapa *cyapa,
++		const struct firmware *fw)
++{
++	struct device *dev = &cyapa->client->dev;
++	int error;
++
++	/* First write data, starting at byte 128 of fw->data */
++	error = cyapa_gen3_write_blocks(cyapa,
++		CYAPA_FW_DATA_BLOCK_START, CYAPA_FW_DATA_BLOCK_COUNT,
++		&fw->data[CYAPA_FW_HDR_BLOCK_COUNT * CYAPA_FW_BLOCK_SIZE]);
++	if (error) {
++		dev_err(dev, "FW update aborted, write image: %d\n", error);
++		return error;
++	}
++
++	/* Then write checksum */
++	error = cyapa_gen3_write_blocks(cyapa,
++		CYAPA_FW_HDR_BLOCK_START, CYAPA_FW_HDR_BLOCK_COUNT,
++		&fw->data[0]);
++	if (error) {
++		dev_err(dev, "FW update aborted, write checksum: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
+ /*
+  * cyapa_get_wait_time_for_pwr_cmd
+  *
+@@ -791,6 +1073,12 @@ static int cyapa_gen3_irq_handler(struct cyapa *cyapa)
+ }
+ 
+ const struct cyapa_dev_ops cyapa_gen3_ops = {
++	.check_fw = cyapa_gen3_check_fw,
++	.bl_enter = cyapa_gen3_bl_enter,
++	.bl_activate = cyapa_gen3_bl_activate,
++	.update_fw = cyapa_gen3_do_fw_update,
++	.bl_deactivate = cyapa_gen3_bl_deactivate,
++
+ 	.state_parse = cyapa_gen3_state_parse,
+ 	.operational_check = cyapa_gen3_do_operational_check,
+ 
+-- 
+1.9.1

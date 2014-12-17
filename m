@@ -1,39 +1,35 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] HID: rmi: Scan the report descriptor to determine if
- the device is suitable for the hid-rmi driver
-Date: Wed, 17 Dec 2014 09:14:14 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412170914010.1680@pobox.suse.cz>
-References: <1418408246-5360-1-git-send-email-aduggan@synaptics.com>
+Subject: Re: [PATCH v2 2/3] HID: logitech-hidpp: check WTP report length
+Date: Wed, 17 Dec 2014 08:53:11 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412170853050.1680@pobox.suse.cz>
+References: <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com> <1418745323-17133-1-git-send-email-peter@lekensteyn.nl> <1418745323-17133-2-git-send-email-peter@lekensteyn.nl>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40876 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:40588 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751891AbaLQIOV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 03:14:21 -0500
-In-Reply-To: <1418408246-5360-1-git-send-email-aduggan@synaptics.com>
+	id S1751939AbaLQHxO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 02:53:14 -0500
+In-Reply-To: <1418745323-17133-2-git-send-email-peter@lekensteyn.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 12 Dec 2014, Andrew Duggan wrote:
+On Tue, 16 Dec 2014, Peter Wu wrote:
 
-> On composite HID devices there may be multiple HID devices on separate
-> interfaces, but hid-rmi should only bind to the touchpad. The previous version
-> simply checked that the interface protocol was set to mouse. Unfortuately, it
-> is not always the case that the touchpad has the mouse interface protocol set.
-> This patch takes a different approach and scans the report descriptor looking
-> for the Generic Desktop Pointer usage and the Vendor Specific Top Level
-> Collection needed by the hid-rmi driver to interface with the device.
+> Malicious USB devices can send bogus reports smaller than the expected
+> buffer size. Ensure that the length for WTP reports is valid to avoid
+> reading out of bounds.
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
 > ---
-> Here is the v3 version with Benjamin's comments addressed. I also updated it to
-> apply to the version of hid-core.c in for-3.19/hid-rmi.
+>  v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
+>  v2: splitted original report length check patch
 
-Applied to for-3.20/rmi. Thanks,
+Applied to for-3.19/upstream-fixes.
+
+Thanks,
 
 -- 
 Jiri Kosina

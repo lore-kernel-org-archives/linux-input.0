@@ -1,59 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/3] HID: logitech-hidpp: avoid unintended fall-through
-Date: Wed, 17 Dec 2014 10:32:05 -0500
-Message-ID: <20141217153205.GC16047@mail.corp.redhat.com>
-References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl>
- <1418691016-30681-4-git-send-email-peter@lekensteyn.nl>
- <CAN+gG=E7i605bJEZT+-R+6Ek5qtLt2xQT1Vpnb9=JuT92O5wrQ@mail.gmail.com>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH v15 09/12] input: cyapa: add gen5 trackpad device firmware
+ update function support
+Date: Wed, 17 Dec 2014 07:38:55 -0800
+Message-ID: <CANLzEkvJvK1rEiUYGKqn7-1AW4DzeZ4t_+pupW=okRB=O_meFA@mail.gmail.com>
+References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
+	<1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
+	<20141216135639.GA1238@hudson.localdomain>
+	<CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
+	<20141217064802.GA4971@hudson.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55688 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751022AbaLQPcd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 10:32:33 -0500
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=E7i605bJEZT+-R+6Ek5qtLt2xQT1Vpnb9=JuT92O5wrQ@mail.gmail.com>
+Received: from mail-oi0-f52.google.com ([209.85.218.52]:60924 "EHLO
+	mail-oi0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750951AbaLQPiz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 10:38:55 -0500
+Received: by mail-oi0-f52.google.com with SMTP id h136so11046333oig.25
+        for <linux-input@vger.kernel.org>; Wed, 17 Dec 2014 07:38:55 -0800 (PST)
+In-Reply-To: <20141217064802.GA4971@hudson.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jeremiah Mahler <jmmahler@gmail.com>, Benson Leung <bleung@google.com>, Dudley Du <dudley.dulixin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Dec 16 2014 or thereabouts, Benjamin Tissoires wrote:
-> On Mon, Dec 15, 2014 at 7:50 PM, Peter Wu <peter@lekensteyn.nl> wrote:
-> > Add a return to avoid a fall-through. Introduced in commit
-> > 57ac86cf52e903d9e3e0f12b34c814cce6b65550 ("HID: logitech-hidpp: add
-> > support of the first Logitech Wireless Touchpad").
-> >
-> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> > ---
-> 
-> This one is reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On Tue, Dec 16, 2014 at 10:48 PM, Jeremiah Mahler <jmmahler@gmail.com> wrote:
+> So DESIGNWARE_PCI isn't required for all devices.  But if MOUSE_CYAPA is
+> enabled some devices won't work unless I2C_DESIGNWARE_PCI is enabled.  I
+> wonder if MOUSE_CYAPA should be broken up in to separate working
+> configurations?  MOUSE_CYAPA_GEN5, MOUSE_CYAPA_GEN3, ?
 
-Jiri, gentle ping on this one too :) 
+Splitting into two configs doesn't help either. Currently, all Cypress
+devices available for Chromebooks are Gen 3. This includes the ARM
+Samsung Chromebook which doesn't use I2C_DESIGNWARE_PCI, and the
+C720/HP Chromebook 14/Dell Chromebook 11 which do require
+I2C_DESIGNWARE_PCI.
 
-Cheers,
-Benjamin
-> 
-> >  drivers/hid/hid-logitech-hidpp.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index 2315358..09eee17 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -811,6 +811,7 @@ static int wtp_raw_event(struct hid_device *hdev, u8 *data, int size)
-> >                         input_event(wd->input, EV_KEY, BTN_RIGHT,
-> >                                         !!(data[1] & 0x02));
-> >                         input_sync(wd->input);
-> > +                       return 0;
-> >                 } else {
-> >                         if (size < 21)
-> >                                 return 1;
-> > --
-> > 2.1.3
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The right thing to do would be to add the the I2C_DESIGNWARE_PCI
+depend for the CHROMEOS_LAPTOP config. The chromeos_laptop driver
+actually refers to I2C_DESIGNWARE_PCI by name, so it is appropriate
+there.
+
+-- 
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

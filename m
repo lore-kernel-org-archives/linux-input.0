@@ -1,40 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 3/3] HID: logitech-hidpp: separate HID++ from WTP
- processing
-Date: Wed, 17 Dec 2014 08:55:01 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412170854500.1680@pobox.suse.cz>
-References: <CAN+gG=GhJx38LDwAGoPA1BpYOmjS8r_xnYPXWOgB66VLwmv5kg@mail.gmail.com> <1418772231-31330-1-git-send-email-peter@lekensteyn.nl>
+From: "Prashant Laddha (prladdha)" <prladdha@cisco.com>
+Subject: Re: [RFC PATCH] fixp-arith: replace sin/cos table by a better
+ precision one
+Date: Wed, 17 Dec 2014 08:17:38 +0000
+Message-ID: <D0B737F7.270AE%prladdha@cisco.com>
+References: <f437103f284c4ed964bd6577ff0c7793e8299d52.1418743646.git.mchehab@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418772231-31330-1-git-send-email-peter@lekensteyn.nl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rcdn-iport-7.cisco.com ([173.37.86.78]:43793 "EHLO
+	rcdn-iport-7.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751692AbaLQI1O convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 03:27:14 -0500
+In-Reply-To: <f437103f284c4ed964bd6577ff0c7793e8299d52.1418743646.git.mchehab@osg.samsung.com>
+Content-Language: en-US
+Content-ID: <9FCEB9962CD0C44D90DB8D471AD06F43@emea.cisco.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, 17 Dec 2014, Peter Wu wrote:
+Thanks for the patch, Mauro.  Just a correction below.
 
-> Previously wtp_raw_event would be called through
-> hidpp_raw_hidpp_event (for the touchpad report) and hidpp_raw_event
-> (for the mouse report).
 > 
-> This patch removes one calling surface, making a clearer distinction
-> between "generic HID++ processing" (matching internal reports) and
-> device-specific event processing.
-> 
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
->  v2: splitted original report length check patch. Restructured code.
->  v3: renamed var r to ret for consistency, added R-b of Benjamin
+>+/* cos(x) = sin(x + pi radians) */
+>+
+This should pi / 2. Correcting for the same below.
+>+#define fixp_cos32_rad(rad, twopi)	\
+>+	fixp_sin32_rad(rad + twopi/2, twopi)
+          fixp_sin32_rad(rad + twopi/4, twopi)
 
-Applied to for-3.20/logitech.
 
-Thanks,
+>+
 
--- 
-Jiri Kosina
-SUSE Labs
+I think this patch will serve the need. I will test it for vivid sir tone
+generation. I will rework my patches to use sin/cos functions from
+fixp-arith.h.
+>
+

@@ -1,68 +1,59 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v16 01/12] input: cyapa: re-design driver to support
-Date: Wed, 17 Dec 2014 07:04:43 -0800
-Message-ID: <20141217150443.GB3895@newt.localdomain>
-References: <BAY407-EAS4239EB7A931AAE7C4C747F3BD6D0@phx.gbl>
- <20141217101434.GA2155@newt.localdomain>
- <BN1PR06MB0702F0782A3A6B975EDA156D16D0@BN1PR06MB070.namprd06.prod.outlook.com>
- <20141217121719.GA7134@hudson.localdomain>
- <BAY176-W39AFAEB1037657BD495F30BD6D0@phx.gbl>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: logitech-hidpp: prefix the name with Logitech
+Date: Wed, 17 Dec 2014 10:28:37 -0500
+Message-ID: <20141217152837.GA16047@mail.corp.redhat.com>
+References: <1418337599-10239-1-git-send-email-benjamin.tissoires@redhat.com>
+ <alpine.LNX.2.00.1412171037200.1680@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:52362 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751059AbaLQPEs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 10:04:48 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:33741 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750790AbaLQP3B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 10:29:01 -0500
 Content-Disposition: inline
-In-Reply-To: <BAY176-W39AFAEB1037657BD495F30BD6D0@phx.gbl>
+In-Reply-To: <alpine.LNX.2.00.1412171037200.1680@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: DuDudley <dudlx@outlook.com>
-Cc: Dudley Du <dudl@cypress.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Solda <dso@cypress.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dudley,
-
-On Wed, Dec 17, 2014 at 01:53:38PM +0000, DuDudley wrote:
+On Dec 17 2014 or thereabouts, Jiri Kosina wrote:
+> On Thu, 11 Dec 2014, Benjamin Tissoires wrote:
 > 
+> > Current names are reported as "K750", "M705", and it can be misleading
+> > for the users when they look at their input device list.
+> > 
+> > Prefixing the names with "Logitech " makes things better.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> > 
+> > Changes in v2:
+> > - renamed PREFIX_SIZE into PREFIX_LENGTH
+> > - changed "name_length + PREFIX_LENGTH;" into "PREFIX_LENGTH + name_length;"
+> > - rebased on Peter's last patch series
 > 
-> > Date: Wed, 17 Dec 2014 04:17:19 -0800
-> > From: jmmahler@gmail.com
-> > To: dudl@cypress.com
-> > CC: dudlx@outlook.com; dmitry.torokhov@gmail.com; rydberg@euromail.se; bleung@google.com; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; dso@cypress.com
-> > Subject: Re: [PATCH v16 01/12] input: cyapa: re-design driver to support
-> > 
-> > Dudley,
-> > 
-> > On Wed, Dec 17, 2014 at 10:55:00AM +0000, Dudley Du wrote:
-> > > Jeremiah,
-> > > 
-> > > Thanks for the feedback.
-> > > Yes, the our net proxy may broken this. It needs sometime to fix this.
-> > > 
-> > > Attched are the patch files, could you try to apply these patch files firstly.
-> > > 
-> > > Thanks,
-> > > Dudley
-> > > 
-> > 
-> > Attachments are difficult to comment on [1].  Just re-send the series
-> > when you can format them properly.
-> Sorry, I cannot fix it today. I need IT help to try to fix this tommorrow.
+> Ok, looks reasonable. I was waiting whether someone from Logitech would 
+> comment on the prefix check that could be used other than "Logitech".
+> 
+> But we can add that later.
+> 
+> Applied to for-3.20/logitech, thanks.
+> 
 
-That is fine.  What do you normally use to send your patches?  I use
-git send-email after creating a series with git format-patch and it has
-always worked well.
+Hi Jiri,
 
-> > 
-> >   [1]: linux/Documentation/SubmittingPatches
-> > 
-> > [...]
-> > 
-> > -- 
-> > - Jeremiah Mahler
->  		 	   		  
+Thanks for applying most of the patches (2 are missing, I'll raise them
+in your inbox :-P )
 
--- 
-- Jeremiah Mahler
+Regarding this one, I was wondering if we could not force it into 3.19,
+or at least add a stable@ tag. I had requested this in the first
+submission, and the rationale was to not change a third time the name of
+the device (from "Logitech Unifying Device. Wireless PID:XXXX" to
+"[TMK]XXX" to "Logitech [TMK]XXX").
+
+Userspace would be grateful to have a reliable name.
+
+Cheers,
+Benjamin

@@ -1,101 +1,75 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
-Date: Wed, 17 Dec 2014 02:32:52 +0100
-Message-ID: <2965951.04q6IShhJ2@al>
-References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com> <1771836.oYfhfEolNx@al>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v15 09/12] input: cyapa: add gen5 trackpad device firmware
+ update function support
+Date: Wed, 17 Dec 2014 01:31:20 +0000
+Message-ID: <BN1PR06MB070D98C13051B8FF6CB7778D16D0@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
+	<1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
+	<20141216135639.GA1238@hudson.localdomain>
+ <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:44723 "EHLO lekensteyn.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751502AbaLQBdK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 20:33:10 -0500
-In-Reply-To: <1771836.oYfhfEolNx@al>
+Received: from mail-by2on0106.outbound.protection.outlook.com ([207.46.100.106]:29903
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750932AbaLQBpl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 20:45:41 -0500
+In-Reply-To: <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benson Leung <bleung@google.com>, Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudley.dulixin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Sorry for the rapid mail, I forgot to mention something.
-
-wtp_connect won't work on non-HID++ devices. What about moving it down,
-between the generic routines (reading protocol and name) and
-hidpp_allocate_input? Then the connected parameter can also be dropped.
-
-Kind regards,
-Peter
-
-On Wednesday 17 December 2014 00:33:55 Peter Wu wrote:
-> On Tuesday 16 December 2014 17:06:01 Benjamin Tissoires wrote:
-> > If wtp_connect() fails, that means most of the time that the device has
-> > been disconnected. Subsequent attempts to contact the device will fail
-> > too, so it's simpler to bail out earlier.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/hid/hid-logitech-hidpp.c | 15 +++++++++------
-> >  1 file changed, 9 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index d008d71..c0fb5fe 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -914,24 +914,24 @@ static int wtp_allocate(struct hid_device *hdev, const struct hid_device_id *id)
-> >  	return 0;
-> >  };
-> >  
-> > -static void wtp_connect(struct hid_device *hdev, bool connected)
-> > +static int wtp_connect(struct hid_device *hdev, bool connected)
-> >  {
-> >  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-> >  	struct wtp_data *wd = hidpp->private_data;
-> >  	int ret;
-> >  
-> >  	if (!connected)
-> > -		return;
-> > +		return 0;
-> 
-> "0" is success, what about -1 or -ENODEV here to signal an error? The
-> following line (in hidpp_connect_event) returns on !connected, but that
-> is no reason to return 0 here.
-> 
-> ("No connection" sounds like an error condition to me as "[wtp_]connect"
-> cannot do something meaningful.)
-> 
-> Whether or not you change the return value is up to you. This patch is
-> Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-> 
-> Kind regards,
-> Peter
-> 
-> >  	if (!wd->x_size) {
-> >  		ret = wtp_get_config(hidpp);
-> >  		if (ret) {
-> >  			hid_err(hdev, "Can not get wtp config: %d\n", ret);
-> > -			return;
-> > +			return ret;
-> >  		}
-> >  	}
-> >  
-> > -	hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
-> > +	return hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
-> >  			true, true);
-> >  }
-> >  
-> > @@ -1115,8 +1115,11 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
-> >  	struct input_dev *input;
-> >  	char *name, *devm_name;
-> >  
-> > -	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> > -		wtp_connect(hdev, connected);
-> > +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-> > +		ret = wtp_connect(hdev, connected);
-> > +		if (ret)
-> > +			return;
-> > +	}
-> >  
-> >  	if (!connected || hidpp->delayed_input)
-> >  		return;
-> > 
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtaW5wdXQtb3du
+ZXJAdmdlci5rZXJuZWwub3JnDQo+IFttYWlsdG86bGludXgtaW5wdXQtb3duZXJAdmdlci5rZXJu
+ZWwub3JnXSBPbiBCZWhhbGYgT2YgQmVuc29uIExldW5nDQo+IFNlbnQ6IDIwMTTlubQxMuaciDE3
+5pelIDQ6MjUNCj4gVG86IEplcmVtaWFoIE1haGxlcjsgRHVkbGV5IER1OyBEbWl0cnkgVG9yb2to
+b3Y7IEhlbnJpayBSeWRiZXJnOyBCZW5zb24gTGV1bmc7DQo+IGxpbnV4LWlucHV0QHZnZXIua2Vy
+bmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogW1BB
+VENIIHYxNSAwOS8xMl0gaW5wdXQ6IGN5YXBhOiBhZGQgZ2VuNSB0cmFja3BhZCBkZXZpY2UgZmly
+bXdhcmUNCj4gdXBkYXRlIGZ1bmN0aW9uIHN1cHBvcnQNCj4NCj4gT24gVHVlLCBEZWMgMTYsIDIw
+MTQgYXQgNTo1NiBBTSwgSmVyZW1pYWggTWFobGVyIDxqbW1haGxlckBnbWFpbC5jb20+IHdyb3Rl
+Og0KPiA+IE9uIE1vbiwgRGVjIDE1LCAyMDE0IGF0IDAyOjIzOjIwUE0gKzA4MDAsIER1ZGxleSBE
+dSB3cm90ZToNCj4gPj4gQWRkIGZpcm13YXJlIGltYWdlIHVwZGF0ZSBmdW5jdGlvbiBzdXBwb3J0
+ZWQgZm9yIGdlbjUgdHJhY2twYWQgZGV2aWNlLA0KPiA+PiBpdCBjYW4gYmUgdXNlZCB0aHJvdWdo
+IHN5c2ZzIHVwZGF0ZV9mdyBpbnRlcmZhY2UuDQo+ID4+IFRFU1Q9dGVzdCBvbiBDaHJvbWVib29r
+cy4NCj4gPj4NCj4gPj4gU2lnbmVkLW9mZi1ieTogRHVkbGV5IER1IDxkdWRsZXkuZHVsaXhpbkBn
+bWFpbC5jb20+DQo+ID4+IC0tLQ0KPiA+PiAgZHJpdmVycy9pbnB1dC9tb3VzZS9LY29uZmlnICAg
+ICAgfCAgIDEgKw0KPiA+PiAgZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYV9nZW41LmMgfCAyOTIN
+Cj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystDQo+ID4+ICAyIGZpbGVz
+IGNoYW5nZWQsIDI5MiBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQo+ID4+DQo+ID4+IGRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21vdXNlL0tjb25maWcgYi9kcml2ZXJzL2lucHV0L21v
+dXNlL0tjb25maWcNCj4gPj4gaW5kZXggZDhiNDZiMC4uNzI4NDkwZSAxMDA2NDQNCj4gPj4gLS0t
+IGEvZHJpdmVycy9pbnB1dC9tb3VzZS9LY29uZmlnDQo+ID4+ICsrKyBiL2RyaXZlcnMvaW5wdXQv
+bW91c2UvS2NvbmZpZw0KPiA+PiBAQCAtMjA2LDYgKzIwNiw3IEBAIGNvbmZpZyBNT1VTRV9CQ001
+OTc0DQo+ID4+ICBjb25maWcgTU9VU0VfQ1lBUEENCj4gPj4gICAgICAgdHJpc3RhdGUgIkN5cHJl
+c3MgQVBBIEkyQyBUcmFja3BhZCBzdXBwb3J0Ig0KPiA+PiAgICAgICBkZXBlbmRzIG9uIEkyQw0K
+PiA+PiArICAgICBzZWxlY3QgQ1JDX0lUVV9UDQo+ID4+ICAgICAgIGhlbHANCj4gPg0KPiA+IEp1
+c3QgZm91bmQgb3V0IHRoYXQgaWYgSTJDX0RFU0lHTldBUkVfUENJIGlzbid0IGVuYWJsZWQgdGhl
+IHRvdWNocGFkDQo+ID4gd29uJ3Qgd29yay4gIFZlcmlmeSB0aGlzIG9uIHlvdXIgbWFjaGluZXMu
+ICBUaGVuIHBlcmhhcHMgYWRkIGEgZGVwZW5kcw0KPiA+IGZvciBJMkNfREVTSUdOV0FSRV9QQ0kg
+aW5zdGVhZCBvZiBJMkMgc2luY2UgaXQgd291bGQgaW5jbHVkZSB0aGUgZm9ybWVyLg0KPg0KPiBU
+aGlzIGlzbid0IHN0cmljdGx5IHRydWUgb24gYWxsIGRldmljZXMsIHRob3VnaC4gVGhpcyBpcyB0
+cnVlIG9uDQo+IERFU0lHTldBUkVfUENJIGJhc2VkIGRldmljZXMgbGlrZSB0aGUgQWNlciBDNzIw
+IGFuZCB0aGUgSFAgQ2hyb21lYm9vaw0KPiAxNCwgYnV0IG9uIG90aGVyIHBsYXRmb3JtcyB0aGF0
+IHVzZSBDeXByZXNzIHRyYWNrcGFkcywgc3VjaCBhcyBBUk0NCj4gcGxhdGZvcm1zIGxpa2UgdGhl
+IFNhbXN1bmcgQ2hyb21lYm9vayBTZXJpZXMgMyBERVNJR05XQVJFX1BDSSBpcyBub3QNCj4gcmVx
+dWlyZWQsIGFuZCB3aWxsIGp1c3QgcmVzdWx0IGluIGEgZHJpdmVyIHRoYXQncyBuZXZlciB1c2Vk
+IGJlaW5nDQo+IGJ1aWx0Lg0KPg0KPiBUaGUgc3BlY2lmaWMgSTJDIGJ1cyB0aGF0J3MgYmVpbmcg
+dXNlZCBoZXJlIHNob3VsZG4ndCBtYXR0ZXIgaGVyZS4uLg0KPiB0aGF0J3MgbW9yZSBvZiBhIHBs
+YXRmb3JtIGlzc3VlLiBJbiB0aGUgY2FzZSB3aXRoIENocm9tZWJvb2tzLCBpdA0KPiBtaWdodCBt
+YWtlIHNlbnNlIHRvIGNoYW5nZSBkcml2ZXJzL3BsYXRmb3JtL2Nocm9tZS9LY29uZmlnIHNvIHRo
+YXQNCj4gQ0hST01FT1NfTEFQVE9QIGRlcGVuZHMgb24gSTJDX0RFU0lHTldBUkVfUENJLCBtYXli
+ZS4NCj4NCg0KVGhhbmsgeW91IGFsbCBmb3IgdGhlIGluZm9ybWF0aW9uLg0KVGhlbiBJIHdvbid0
+IGNoYW5nZSB0aGlzIGRlcGVuZGluZyBvbiBJMkMuDQoNCj4gLS0NCj4gQmVuc29uIExldW5nDQo+
+IFNvZnR3YXJlIEVuZ2luZWVyLCBDaHJvbWUgT1MNCj4gR29vZ2xlIEluYy4NCj4gYmxldW5nQGdv
+b2dsZS5jb20NCj4gLS0NCj4gVG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhl
+IGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWlucHV0IiBpbg0KPiB0aGUgYm9keSBvZiBhIG1lc3Nh
+Z2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0
+ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0bWwNCg0KVGhpcyBtZXNz
+YWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1YnNp
+ZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNlaXZl
+ZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBkZWxl
+dGUgdGhpcyBtZXNzYWdlLg0K

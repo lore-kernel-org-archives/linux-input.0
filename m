@@ -1,68 +1,109 @@
 From: Dudley Du <dudlx@outlook.com>
-Subject: [PATCH v16 12/12] input: cyapa: add acpi device id support
-Date: Wed, 17 Dec 2014 17:58:04 +0800
-Message-ID: <BAY407-EAS367C15504A914875665B34FBD6D0@phx.gbl>
+Subject: [PATCH v16 11/12] input: cyapa: add gen5 trackpad device force
+Date: Wed, 17 Dec 2014 17:57:58 +0800
+Message-ID: <BAY407-EAS378B1FE15A5CD638BCAD6DCBD6D0@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bay004-omc1s24.hotmail.com ([65.54.190.35]:58830 "EHLO
-	BAY004-OMC1S24.hotmail.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751986AbaLQKBG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 05:01:06 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: zh-cn
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
 Cc: bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Add acpi device tree support.
-acpi device id "CYAP0000" is for old gen3 trackpad devices.
-acpi device id "CYAP0001" is for new gen5 trackpad devices.
+Add force re-calibrate function supported for gen5 trackpad device,
+it can be used through sysfs calibrate interface.
 TEST=test on Chromebooks.
 
 Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
 ---
- drivers/input/mouse/cyapa.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/mouse/cyapa_gen5.c | 65 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index 406f38b..62ef19a 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -24,6 +24,7 @@
- #include <linux/slab.h>
- #include <linux/uaccess.h>
- #include <linux/pm_runtime.h>
-+#include <linux/acpi.h>
- #include "cyapa.h"
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index 2b800e3..4bb6f34 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -1713,6 +1713,70 @@ static int cyapa_gen5_suspend_scanning(struct cyapa
+*cyapa)
+ 	return 0;
+ }
  
- 
-@@ -1315,11 +1316,23 @@ static const struct i2c_device_id cyapa_id_table[] = {
- };
- MODULE_DEVICE_TABLE(i2c, cyapa_id_table);
- 
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id cyapa_acpi_id[] = {
-+	{ "CYAP0000", 0 },  /* Gen3 trackpad with 0x67 I2C address. */
-+	{ "CYAP0001", 0 },  /* Gen5 trackpad with 0x24 I2C address. */
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, cyapa_acpi_id);
-+#endif
++static int cyapa_gen5_calibrate_pwcs(struct cyapa *cyapa,
++		u8 calibrate_sensing_mode_type)
++{
++	struct gen5_app_cmd_head *app_cmd_head;
++	u8 cmd[8];
++	u8 resp_data[6];
++	int resp_len;
++	int error;
 +
- static struct i2c_driver cyapa_driver = {
- 	.driver = {
- 		.name = "cyapa",
- 		.owner = THIS_MODULE,
- 		.pm = &cyapa_pm_ops,
-+#ifdef CONFIG_ACPI
-+		.acpi_match_table = ACPI_PTR(cyapa_acpi_id),
-+#endif
- 	},
++	/* Try to dump all buffered data before doing command. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
++
++	memset(cmd, 0, sizeof(cmd));
++	app_cmd_head = (struct gen5_app_cmd_head *)cmd;
++	put_unaligned_le16(GEN5_OUTPUT_REPORT_ADDR, &app_cmd_head->addr);
++	put_unaligned_le16(sizeof(cmd) - 2, &app_cmd_head->length);
++	app_cmd_head->report_id = GEN5_APP_CMD_REPORT_ID;
++	app_cmd_head->cmd_code = GEN5_CMD_CALIBRATE;
++	app_cmd_head->parameter_data[0] = calibrate_sensing_mode_type;
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			5000, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, GEN5_CMD_CALIBRATE) ||
++			!GEN5_CMD_COMPLETE_SUCCESS(resp_data[5]))
++		return error < 0 ? error : -EAGAIN;
++
++	return 0;
++}
++
++static ssize_t cyapa_gen5_do_calibrate(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	int error, calibrate_error;
++
++	/* 1. Suspend Scanning*/
++	error = cyapa_gen5_suspend_scanning(cyapa);
++	if (error)
++		return error;
++
++	/* 2. Do mutual capacitance fine calibrate. */
++	calibrate_error = cyapa_gen5_calibrate_pwcs(cyapa,
++				CYAPA_SENSING_MODE_MUTUAL_CAP_FINE);
++	if (calibrate_error)
++		goto resume_scanning;
++
++	/* 3. Do self capacitance calibrate. */
++	calibrate_error = cyapa_gen5_calibrate_pwcs(cyapa,
++				CYAPA_SENSING_MODE_SELF_CAP);
++	if (calibrate_error)
++		goto resume_scanning;
++
++resume_scanning:
++	/* 4. Resume Scanning*/
++	error = cyapa_gen5_resume_scanning(cyapa);
++	if (error || calibrate_error)
++		return error ? error : calibrate_error;
++
++	return count;
++}
++
+ static s32 twos_complement_to_s32(s32 value, int num_bits)
+ {
+ 	if (value >> (num_bits - 1))
+@@ -2689,6 +2753,7 @@ const struct cyapa_dev_ops cyapa_gen5_ops = {
+ 	.update_fw = cyapa_gen5_do_fw_update,
  
- 	.probe = cyapa_probe,
+ 	.show_baseline = cyapa_gen5_show_baseline,
++	.calibrate_store = cyapa_gen5_do_calibrate,
+ 
+ 	.initialize = cyapa_gen5_initialize,
+ 
 -- 
 1.9.1
-

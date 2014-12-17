@@ -1,91 +1,59 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/3] HID: logitech-hidpp: detect HID++ 2.0 errors too
-Date: Wed, 17 Dec 2014 10:30:39 -0500
-Message-ID: <20141217153039.GB16047@mail.corp.redhat.com>
+Subject: Re: [PATCH 3/3] HID: logitech-hidpp: avoid unintended fall-through
+Date: Wed, 17 Dec 2014 10:32:05 -0500
+Message-ID: <20141217153205.GC16047@mail.corp.redhat.com>
 References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl>
- <1418691016-30681-2-git-send-email-peter@lekensteyn.nl>
+ <1418691016-30681-4-git-send-email-peter@lekensteyn.nl>
+ <CAN+gG=E7i605bJEZT+-R+6Ek5qtLt2xQT1Vpnb9=JuT92O5wrQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:55688 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751022AbaLQPcd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 10:32:33 -0500
 Content-Disposition: inline
-In-Reply-To: <1418691016-30681-2-git-send-email-peter@lekensteyn.nl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CAN+gG=E7i605bJEZT+-R+6Ek5qtLt2xQT1Vpnb9=JuT92O5wrQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Dec 16 2014 or thereabouts, Peter Wu wrote:
-> Devices speaking HID++ 2.0 report a different error code (0xff). Detect
-> these errors too to avoid 5 second delays when the device reports an
-> error. Caught by... well, a bug in the QEMU emulation of this receiver.
+On Dec 16 2014 or thereabouts, Benjamin Tissoires wrote:
+> On Mon, Dec 15, 2014 at 7:50 PM, Peter Wu <peter@lekensteyn.nl> wrote:
+> > Add a return to avoid a fall-through. Introduced in commit
+> > 57ac86cf52e903d9e3e0f12b34c814cce6b65550 ("HID: logitech-hidpp: add
+> > support of the first Logitech Wireless Touchpad").
+> >
+> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> > ---
 > 
-> Renamed fap to rap for HID++ 1.0 errors because it is more logical,
-> it has no functional difference.
-> 
-> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> ---
+> This one is reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Jiri, it looks like this one fall off from your radar.
-
-It's not a problem per-se, I'd like to have some feedbacks from Logitech
-first, but still, there is a bug and Peter fixed it :)
+Jiri, gentle ping on this one too :) 
 
 Cheers,
 Benjamin
-
->  drivers/hid/hid-logitech-hidpp.c | 17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 2f420c0..ae23dec 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -105,6 +105,7 @@ struct hidpp_device {
->  };
->  
->  
-> +/* HID++ 1.0 error codes */
->  #define HIDPP_ERROR				0x8f
->  #define HIDPP_ERROR_SUCCESS			0x00
->  #define HIDPP_ERROR_INVALID_SUBID		0x01
-> @@ -119,6 +120,8 @@ struct hidpp_device {
->  #define HIDPP_ERROR_REQUEST_UNAVAILABLE		0x0a
->  #define HIDPP_ERROR_INVALID_PARAM_VALUE		0x0b
->  #define HIDPP_ERROR_WRONG_PIN_CODE		0x0c
-> +/* HID++ 2.0 error codes */
-> +#define HIDPP20_ERROR				0xff
->  
->  static void hidpp_connect_event(struct hidpp_device *hidpp_dev);
->  
-> @@ -192,9 +195,16 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
->  	}
->  
->  	if (response->report_id == REPORT_ID_HIDPP_SHORT &&
-> -	    response->fap.feature_index == HIDPP_ERROR) {
-> +	    response->rap.sub_id == HIDPP_ERROR) {
-> +		ret = response->rap.params[1];
-> +		dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
-> +		goto exit;
-> +	}
-> +
-> +	if (response->report_id == REPORT_ID_HIDPP_LONG &&
-> +	    response->fap.feature_index == HIDPP20_ERROR) {
->  		ret = response->fap.params[1];
-> -		dbg_hid("__hidpp_send_report got hidpp error %02X\n", ret);
-> +		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
->  		goto exit;
->  	}
->  
-> @@ -271,7 +281,8 @@ static inline bool hidpp_match_answer(struct hidpp_report *question,
->  static inline bool hidpp_match_error(struct hidpp_report *question,
->  		struct hidpp_report *answer)
->  {
-> -	return (answer->fap.feature_index == HIDPP_ERROR) &&
-> +	return ((answer->rap.sub_id == HIDPP_ERROR) ||
-> +	    (answer->fap.feature_index == HIDPP20_ERROR)) &&
->  	    (answer->fap.funcindex_clientid == question->fap.feature_index) &&
->  	    (answer->fap.params[0] == question->fap.funcindex_clientid);
->  }
-> -- 
-> 2.1.3
-> 
+> >  drivers/hid/hid-logitech-hidpp.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 2315358..09eee17 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -811,6 +811,7 @@ static int wtp_raw_event(struct hid_device *hdev, u8 *data, int size)
+> >                         input_event(wd->input, EV_KEY, BTN_RIGHT,
+> >                                         !!(data[1] & 0x02));
+> >                         input_sync(wd->input);
+> > +                       return 0;
+> >                 } else {
+> >                         if (size < 21)
+> >                                 return 1;
+> > --
+> > 2.1.3
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html

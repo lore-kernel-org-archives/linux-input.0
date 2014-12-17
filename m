@@ -1,91 +1,66 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
-Date: Wed, 17 Dec 2014 00:33:55 +0100
-Message-ID: <1771836.oYfhfEolNx@al>
-References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions
+ after performing a hardware click
+Date: Wed, 17 Dec 2014 11:09:36 +1000
+Message-ID: <20141217010936.GA6906@jelly.redhat.com>
+References: <CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>
+ <CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>
+ <CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com>
+ <CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
+ <CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
+ <CAN+gG=E=3kG9t9XTNe0X1kFumdkQ3CfM-ViXnOBGThmyJDNJ4g@mail.gmail.com>
+ <CALmnu0Yg1vd4FOD5vtW39cbbcsRYiPuiiMD0A+obLyrkvKO+jA@mail.gmail.com>
+ <CALmnu0Y0kvU-yqrKvNAQmjUgFJQ-v0NESyV6o_=CuVzc2dx=YQ@mail.gmail.com>
+ <CAN+gG=GucHKyGB0Z=qP+G2KSej0yoVe3vpa3AzRbBDeP2jw9Qg@mail.gmail.com>
+ <CALmnu0a_HmgJXa9aYbCpyRhAb5h_FrLyhVUeeojMJa0tPUTHTg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:49248 "EHLO lekensteyn.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751015AbaLPXeM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 18:34:12 -0500
-In-Reply-To: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from leo.clearchain.com ([199.73.29.74]:33476 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751115AbaLQBJp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 20:09:45 -0500
+Content-Disposition: inline
+In-Reply-To: <CALmnu0a_HmgJXa9aYbCpyRhAb5h_FrLyhVUeeojMJa0tPUTHTg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Amordea Whiteoak <amordea@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>
 
-On Tuesday 16 December 2014 17:06:01 Benjamin Tissoires wrote:
-> If wtp_connect() fails, that means most of the time that the device has
-> been disconnected. Subsequent attempts to contact the device will fail
-> too, so it's simpler to bail out earlier.
+On Mon, Dec 15, 2014 at 03:05:04PM -0500, Amordea Whiteoak wrote:
+> > Strictly speaking, there is no right click button on clickpads. We
+> > emulate one with the software buttons in Xorg.
+> > IIRC, there were some "workarounds" in your original bugs which
+> > consist in disabling the software buttons area. Can you make sure that
+> > there is no left over from this?
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
+> I learn new things about clickpads every day. :)
 > 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index d008d71..c0fb5fe 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -914,24 +914,24 @@ static int wtp_allocate(struct hid_device *hdev, const struct hid_device_id *id)
->  	return 0;
->  };
->  
-> -static void wtp_connect(struct hid_device *hdev, bool connected)
-> +static int wtp_connect(struct hid_device *hdev, bool connected)
->  {
->  	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
->  	struct wtp_data *wd = hidpp->private_data;
->  	int ret;
->  
->  	if (!connected)
-> -		return;
-> +		return 0;
+> To my knowledge, those configurations changes should reset upon reboot
+> and I never committed any of those lines to any of my startup files.
+> So we should be good there, I think. Just in case, I am enclosing the
+> output of my synclient -l, which should be the default configuration.
 
-"0" is success, what about -1 or -ENODEV here to signal an error? The
-following line (in hidpp_connect_event) returns on !connected, but that
-is no reason to return 0 here.
+there are at least two options in there that are non-default, so maybe other
+options are different too. an xorg.log would be more useful here, or make
+sure that you don't have any custom configs in /etc/X11/xorg.conf.d/
+or an xorg.conf
 
-("No connection" sounds like an error condition to me as "[wtp_]connect"
-cannot do something meaningful.)
-
-Whether or not you change the return value is up to you. This patch is
-Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-
-Kind regards,
-Peter
-
->  	if (!wd->x_size) {
->  		ret = wtp_get_config(hidpp);
->  		if (ret) {
->  			hid_err(hdev, "Can not get wtp config: %d\n", ret);
-> -			return;
-> +			return ret;
->  		}
->  	}
->  
-> -	hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
-> +	return hidpp_touchpad_set_raw_report_state(hidpp, wd->mt_feature_index,
->  			true, true);
->  }
->  
-> @@ -1115,8 +1115,11 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
->  	struct input_dev *input;
->  	char *name, *devm_name;
->  
-> -	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-> -		wtp_connect(hdev, connected);
-> +	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-> +		ret = wtp_connect(hdev, connected);
-> +		if (ret)
-> +			return;
-> +	}
->  
->  	if (!connected || hidpp->delayed_input)
->  		return;
+> > If this still doesn't work, we wil need to check that the X and Y
+> > ranges reported by your clickpad are accurate and that the software
+> > buttons are properly activated.
 > 
+> I don't know the testing methodology to use to provide positioning
+> data for my trackpad, but let me know if you need that and how you
+> want me to get it and I will be happy to provide.
+
+Two options:
+* use evtest or evemu-record to record the data and look at the output, or
+  simpler
+* use libevdev's touchpad-edge-detector tool to scope out the min/max ranges
+  of your touchpad
+
+Cheers,
+   Peter
 

@@ -1,140 +1,45 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add CLOCK_BOOTTIME Support
-Date: Wed, 17 Dec 2014 15:17:30 -0800
-Message-ID: <20141217231730.GA21713@dtor-ws>
-References: <1418857674-6249-1-git-send-email-aniroop.mathur@gmail.com>
+Subject: Re: Potential bugs found in psmouse
+Date: Wed, 17 Dec 2014 15:21:28 -0800
+Message-ID: <2262075.hjB9hShQFG@dtor-glaptop>
+References: <000401d01812$91496a50$b3dc3ef0$@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:57222 "EHLO
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:48439 "EHLO
 	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751732AbaLQXRf (ORCPT
+	with ESMTP id S1750983AbaLQXVb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 18:17:35 -0500
-Received: by mail-ie0-f169.google.com with SMTP id y20so79074ier.14
-        for <linux-input@vger.kernel.org>; Wed, 17 Dec 2014 15:17:34 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1418857674-6249-1-git-send-email-aniroop.mathur@gmail.com>
+	Wed, 17 Dec 2014 18:21:31 -0500
+Received: by mail-ie0-f169.google.com with SMTP id y20so96195ier.0
+        for <linux-input@vger.kernel.org>; Wed, 17 Dec 2014 15:21:30 -0800 (PST)
+In-Reply-To: <000401d01812$91496a50$b3dc3ef0$@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: linux-input@vger.kernel.org, a.mathur@samsung.com
+To: Jia-Ju Bai <baijiaju1990@163.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Dec 18, 2014 at 04:37:54AM +0530, Aniroop Mathur wrote:
-> This patch adds support for CLOCK_BOOTTIME for input event timestamp.
-> CLOCK_BOOTTIME includes suspend time, so it would allow aplications
-> to get correct time difference between two events even when system
-> resumes from suspend state.
+[ Reposting what I replied in bugzilla... ] 
+
+Hi Jia-Ju,
+
+On Monday, December 15, 2014 10:55:21 AM Jia-Ju Bai wrote:
+> Recently I test linux device drivers 3.17.2, and find some potential bugs.
 > 
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-> ---
->  drivers/input/evdev.c | 52 +++++++++++++++++++++++++++++++++++++--------------
->  1 file changed, 38 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index de05545..bfca214 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -28,6 +28,13 @@
->  #include <linux/cdev.h>
->  #include "input-compat.h"
->  
-> +enum evdev_clock_type {
-> +	EV_CLK_REAL = 0,
-> +	EV_CLK_MONO,
-> +	EV_CLK_BOOT,
-> +	EV_CLK_MAX
-> +};
-> +
->  struct evdev {
->  	int open;
->  	struct input_handle handle;
-> @@ -49,12 +56,29 @@ struct evdev_client {
->  	struct fasync_struct *fasync;
->  	struct evdev *evdev;
->  	struct list_head node;
-> -	int clkid;
-> +	int clk_type;
->  	bool revoked;
->  	unsigned int bufsize;
->  	struct input_event buffer[];
->  };
->  
-> +static int evdev_set_clk_type(int id, struct evdev_client *client)
-> +{
-> +	switch (id) {
-> +
-> +	case CLOCK_REALTIME:
-> +		client->clk_type = EV_CLK_REAL; break;
-> +	case CLOCK_MONOTONIC:
-> +		client->clk_type = EV_CLK_MONO; break;
-> +	case CLOCK_BOOTTIME:
-> +		client->clk_type = EV_CLK_BOOT; break;
+> The target file is drivers/input/mouse/psmouse-base.c, which is used to
+> build psmouse.ko. I hope you can help me check my findings:
+> [1] psmouse_switch_protocol is called by psmouse_connect when initializing
+> the driver. However, psmouse_switch_protocol may be failed and return -1,
+> but its return value is not checked in psmouse_connect. In my experiment of
+> running the driver, when psmouse_switch_protocol in psmouse_connect is
+> failed, the system crash will occur.
 
-Please put "break" on separate lines.
-
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /* flush queued events of type @type, caller must hold client->buffer_lock */
->  static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->  {
-> @@ -108,8 +132,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
->  	struct input_event ev;
->  	ktime_t time;
->  
-> -	time = (client->clkid == CLOCK_MONOTONIC) ?
-> -		ktime_get() : ktime_get_real();
-> +	time = (client->clk_type == EV_CLK_REAL) ?
-> +		ktime_get_real() : (client->clk_type == EV_CLK_MONO) ?
-> +		ktime_get() : ktime_get_boottime();
->  
->  	ev.time = ktime_to_timeval(time);
->  	ev.type = EV_SYN;
-> @@ -159,7 +184,7 @@ static void __pass_event(struct evdev_client *client,
->  
->  static void evdev_pass_values(struct evdev_client *client,
->  			const struct input_value *vals, unsigned int count,
-> -			ktime_t mono, ktime_t real)
-> +			ktime_t *ev_time)
->  {
->  	struct evdev *evdev = client->evdev;
->  	const struct input_value *v;
-> @@ -169,8 +194,7 @@ static void evdev_pass_values(struct evdev_client *client,
->  	if (client->revoked)
->  		return;
->  
-> -	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
-> -				      mono : real);
-> +	event.time = ktime_to_timeval(ev_time[client->clk_type]);
->  
->  	/* Interrupts are disabled, just acquire the lock. */
->  	spin_lock(&client->buffer_lock);
-> @@ -198,21 +222,22 @@ static void evdev_events(struct input_handle *handle,
->  {
->  	struct evdev *evdev = handle->private;
->  	struct evdev_client *client;
-> -	ktime_t time_mono, time_real;
-> +	ktime_t ev_time[EV_CLK_MAX];
->  
-> -	time_mono = ktime_get();
-> -	time_real = ktime_mono_to_real(time_mono);
-> +	ev_time[EV_CLK_MONO] = ktime_get();
-> +	ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
-> +	ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_BOOT],
-> +						 TK_OFFS_BOOT);
-
-Nope, that should have read
-
-	ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_BOOT],
-						 TK_OFFS_BOOT);
+psmouse_connect() calls psmouse_switch_protocol with NULL as protocol 
+argument. When psmouse_switch_protocol() gets NULL as protocol it will not 
+fail. Do you actually have a crash trace?
 
 Thanks.
-
 
 -- 
 Dmitry

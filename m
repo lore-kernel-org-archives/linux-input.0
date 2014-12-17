@@ -1,7 +1,7 @@
 From: Dudley Du <dudlx@outlook.com>
-Subject: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
-Date: Wed, 17 Dec 2014 17:55:25 +0800
-Message-ID: <BAY407-EAS63B5A29D2DC73D297733BDBD6D0@phx.gbl>
+Subject: [PATCH v16 08/12] input: cyapa: add gen3 trackpad device force
+Date: Wed, 17 Dec 2014 17:57:35 +0800
+Message-ID: <BAY407-EAS935B813BC07121616D15F1BD6D0@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="gb2312"
 Content-Transfer-Encoding: 7bit
@@ -9,143 +9,94 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: zh-cn
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
-Cc: bleung@google.com, David Solda <dso@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-V16 patches have below updates, details of other updates see history list:
-1) Fix all miss-spelling and space issue.
-2) Rename variables and functions with much more clearer names.
-3) Initialize and document tries near where it will be used.
-4) Modify cmd buffer to struct for more descriptive way.
+Add force re-calibrate function supported for gen3 trackpad device,
+it can be used through sysfs calibrate interface.
+TEST=test on Chromebooks.
 
+Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
+---
+ drivers/input/mouse/cyapa_gen3.c | 59 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
-This patch series is aimed to re-design the cyapa driver to support
-old gen3 trackpad devices and new gen5 trackpad devices in one
-cyapa driver, it's for easily productions support based on
-customers' requirements. And add sysfs functions and interfaces
-supported that required by users and customers.
-
-Since the earlier gen3 and the latest gen5 trackpad devices using
-two different chipsets, and have different protocols and interfaces,
-so if supported these two type trackpad devices in two different drivers,
-then it will be difficult to manage productions and later firmware updates.
-e.g.: It will cause customer don't know which one trackpad device firmware
-image to use and update when it has been used and integrated
-in same one productions, so here we support these two trackpad
-devices in same on driver.
-
-The new design cyapa driver contains:
-cyapa.c - the core of the re-design, supply interfaces and
-functions to system and read trackpad devices.
-cyapa.h - header file including macros and data structure definitions.
-cyapa_gen3.c - functions support for gen3 trackpad devices,
-cyapa_gen5.c - functions support for gen5 trackpad devices.
-
-Beside this introduction patch, it has 12 patches listed as below.
-For these patches, each one is patched based on previous one.
-
-patch 1/12: re-design cyapa driver with core functions and interface
-to support multi-type trackpad devices.
-
-patch 2/12: add gen5 trackpad device basic functions support in the
-re-design cyapa driver.
-
-patch 3/12: add power management interfaces support for the device.
-
-patch 4/12: add runtime power management interfaces support for the device.
-
-patch 5/12: add sysfs interfaces supported in the cyapa driver.
-Including read firmware version, get production ID, read baseline,
-re-calibrate trackpad baselines and do trackpad firmware update.
-
-patch 6/12: add gen3 trackpad device's firmware update function support.
-
-patch 7/12: add gen3 trackpad device's read baseline function support.
-
-patch 8/12: add gen3 trackpad device's force re-calibrate function support.
-
-patch 9/12: add gen5 trackpad device's firmware update function support.
-
-patch 10/12: add gen5 trackpad device's read baseline function support.
-
-patch 11/12: add gen5 trackpad device's force re-calibrate function.
-
-patch 12/12: add acpi device id support.
-
-
-History patch series modifications list:
-V15 patches have below main updates compared with v14 patches:
-1) Fix all warning errors of sparse tool when running with "make C=1".
-2) Change variable name "unique_str" to "product_id" for clearer meanings.
-3) Update cyapa_i2c_write function to return error directly when length > 31.
-
-V14 patches have below main updates compared with v13 patches:
-1) Correct 9 miss spelling issues of "bufferred" to "buffered".
-2) Fix the upgrade issue of removing MOUSE_CYAPA config when make oldconfig
-   by replase "depends on I2C && CRC_ITU_T" with
-	"depends on I2C"
-	"select CRC_ITU_T"
-   in patch 9.
-
-V13 patches have below main updates compared with v12 patches:
-1) Remove all debugfs interface, including read_fw and raw_data interfaces.
-2) This patches are made based linux next-20141208.
-
-V12 patches have below main updates compared with v11 patches:
-1) Add check that when TP is detected but not operational, do not exit driver
-   immediately, but wait and export the update_fw interface for recovering.
-2) Re-arrange the function codes, remove unnesseary protype definitions in
-   the header file.
-
-V11 patches have below main updates compared with v10 patches:
-1) Add add acpi device id supported for old gen3 and new gen5 trackpad devices.
-2) Fix the unable to update firmware issue when cyapa_open is not called
-   which means the irq for firwmare update process is not enabled. This fix
-   by checking if the irq is enabled, if not then enable irq before start to
-   do firmware update.
-
-V10 patches have below main updates compared with v9 patches:
-1) Modify code to following kernel code style.
-   e.g.: correct to use error as return name when there is only error path,
-   and fix the checkpatch.sh wanting in the driver.
-2) Remove cyapa_remove method and use input open and close interface to
-   following device resouse management infrastructure.
-3) Modify cyapa_detect method to return tristate issue to make the return value
-   much more consistent and clear.
-4) Use platform supplied functions as possible instead of driver
-   specific rewritten version.
-
-V9 patches have below updates compared with v8 patches:
-1) Removed all async thread stuff from the driver.
-2) Split driver into 18 patches for each function change one patch.
-
-V8 patches have below updates compared with v7 patches:
-1) [PATCH v8 01/13] - Remove the async thread for device detect in
-   probe routine, now the device detect process is completely done within
-   the device probe routine.
-2) [PATCH v8 01/13] - Split the irq cmd hander function to separated
-   function cyapa_default_irq_cmd_handler() and set it to interface
-   cyapa_default_ops.irq_cmd_handler.
-3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
-   to avoid miss-enter when device protocol is still in detecting.
-
-V7 patches have below updates compared with v6 patches:
-1) [PATCH v7 01/13] - Split the irq cmd hander function to separated
-   function cyapa_default_irq_cmd_handler() and set it to interface
-   cyapa_default_ops.irq_cmd_handler.
-2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
-   to avoid miss-enter when device protocol is still in detecting.
-
-
-V6 patches have below updates compared with v5 patches:
-1) Remove patch 14 of the lid filtering from the cyapa driver.
-
-V5 patches have below updates compared with v4 patches:
-1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
-2) Fix memories freed before debugfs entries issue;
-3) Make cyapa_debugs_root valid in driver module level
-   in module_init()/moudle_exit() ;
-4) Fix i2c_transfer() may return partial transfer issues.
-5) Add cyapa->removed flag to avoid detecting thread may still running
-   when driver module is removed.
-6) Fix the meanings of some comments and return error code not clear issue.
+diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+index 92b3d6d..7351fce 100644
+--- a/drivers/input/mouse/cyapa_gen3.c
++++ b/drivers/input/mouse/cyapa_gen3.c
+@@ -765,6 +765,64 @@ static int cyapa_gen3_do_fw_update(struct cyapa *cyapa,
+ 	return 0;
+ }
+ 
++static ssize_t cyapa_gen3_do_calibrate(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	int tries;
++	int ret;
++
++	ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
++	if (ret < 0) {
++		dev_err(dev, "Error reading dev status: %d\n", ret);
++		goto out;
++	}
++	if ((ret & CYAPA_DEV_NORMAL) != CYAPA_DEV_NORMAL) {
++		dev_warn(dev, "Trackpad device is busy, device state: 0x%02x\n",
++			 ret);
++		ret = -EAGAIN;
++		goto out;
++	}
++
++	ret = cyapa_write_byte(cyapa, CYAPA_CMD_SOFT_RESET,
++			       OP_RECALIBRATION_MASK);
++	if (ret < 0) {
++		dev_err(dev, "Failed to send calibrate command: %d\n",
++			ret);
++		goto out;
++	}
++
++	tries = 20;  /* max recalibration timeout 2s. */
++	do {
++		/*
++		 * For this recalibration, the max time will not exceed 2s.
++		 * The average time is approximately 500 - 700 ms, and we
++		 * will check the status every 100 - 200ms.
++		 */
++		usleep_range(100000, 200000);
++
++		ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
++		if (ret < 0) {
++			dev_err(dev, "Error reading dev status: %d\n",
++				ret);
++			goto out;
++		}
++		if ((ret & CYAPA_DEV_NORMAL) == CYAPA_DEV_NORMAL)
++			break;
++	} while (--tries);
++
++	if (tries == 0) {
++		dev_err(dev, "Failed to calibrate. Timeout.\n");
++		ret = -ETIMEDOUT;
++		goto out;
++	}
++	dev_dbg(dev, "Calibration successful.\n");
++
++out:
++	return ret < 0 ? ret : count;
++}
++
+ static ssize_t cyapa_gen3_show_baseline(struct device *dev,
+ 				   struct device_attribute *attr, char *buf)
+ {
+@@ -1150,6 +1208,7 @@ const struct cyapa_dev_ops cyapa_gen3_ops = {
+ 	.bl_deactivate = cyapa_gen3_bl_deactivate,
+ 
+ 	.show_baseline = cyapa_gen3_show_baseline,
++	.calibrate_store = cyapa_gen3_do_calibrate,
+ 
+ 	.state_parse = cyapa_gen3_state_parse,
+ 	.operational_check = cyapa_gen3_do_operational_check,
+-- 
+1.9.1

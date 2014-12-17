@@ -1,33 +1,29 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 1/3] HID: logitech-dj: check report length
-Date: Wed, 17 Dec 2014 08:53:00 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412170852410.1680@pobox.suse.cz>
-References: <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com> <1418745323-17133-1-git-send-email-peter@lekensteyn.nl>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
+Date: Wed, 17 Dec 2014 09:09:36 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412170908351.1680@pobox.suse.cz>
+References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40581 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751477AbaLQHxE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 02:53:04 -0500
-In-Reply-To: <1418745323-17133-1-git-send-email-peter@lekensteyn.nl>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 16 Dec 2014, Peter Wu wrote:
+On Tue, 16 Dec 2014, Benjamin Tissoires wrote:
 
-> Malicious USB devices can send bogus reports smaller than the expected
-> buffer size. Ensure that the length is valid to avoid reading out of
-> bounds.
+> If wtp_connect() fails, that means most of the time that the device has
+> been disconnected. Subsequent attempts to contact the device will fail
+> too, so it's simpler to bail out earlier.
 > 
-> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
-> ---
->  v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
->  v2: splitted original report length check patch
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Applied to for-3.19/upstream-fixes.
+I have applied this one to for-3.20/logitech. I am postponing 2/2, 
+expecting v2 with an updated comment.
+
+Thanks,
 
 -- 
 Jiri Kosina

@@ -1,66 +1,133 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: PROBLEM: [HP Stream Notebook - 11-d010nr] clickpad malfunctions
- after performing a hardware click
-Date: Wed, 17 Dec 2014 11:09:36 +1000
-Message-ID: <20141217010936.GA6906@jelly.redhat.com>
-References: <CAN+gG=E+8277zg3LLW-eFWZb8bNyU_Umf9M2w6+t7Y3sSkkSFg@mail.gmail.com>
- <CALmnu0bPLi4skqUxvjd9DWrZJysvqX-+nxNHdx5APGsoNZsnKA@mail.gmail.com>
- <CAN+gG=Emz8r=17OpUETpVQyjCMDMX=aNEFFHZo3ivGS=xTZHXA@mail.gmail.com>
- <CALmnu0agW-mN9RON1FT9DCxE9POiwS2Jhj7hXZaW+6escc7OGw@mail.gmail.com>
- <CALmnu0aMX8RuDJFozCwP6GmP11Uep=R6bc0EqPYzBknwpHBmpA@mail.gmail.com>
- <CAN+gG=E=3kG9t9XTNe0X1kFumdkQ3CfM-ViXnOBGThmyJDNJ4g@mail.gmail.com>
- <CALmnu0Yg1vd4FOD5vtW39cbbcsRYiPuiiMD0A+obLyrkvKO+jA@mail.gmail.com>
- <CALmnu0Y0kvU-yqrKvNAQmjUgFJQ-v0NESyV6o_=CuVzc2dx=YQ@mail.gmail.com>
- <CAN+gG=GucHKyGB0Z=qP+G2KSej0yoVe3vpa3AzRbBDeP2jw9Qg@mail.gmail.com>
- <CALmnu0a_HmgJXa9aYbCpyRhAb5h_FrLyhVUeeojMJa0tPUTHTg@mail.gmail.com>
+From: Peter Wu <peter@lekensteyn.nl>
+Subject: Re: [PATCH 2/2] HID: logitech-hidpp: store the name of the device in struct hidpp
+Date: Wed, 17 Dec 2014 02:18:30 +0100
+Message-ID: <3321911.knGKb1BsCe@al>
+References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com> <1418767562-4136-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:33476 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751115AbaLQBJp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 20:09:45 -0500
-Content-Disposition: inline
-In-Reply-To: <CALmnu0a_HmgJXa9aYbCpyRhAb5h_FrLyhVUeeojMJa0tPUTHTg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1418767562-4136-2-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Amordea Whiteoak <amordea@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>
 
-On Mon, Dec 15, 2014 at 03:05:04PM -0500, Amordea Whiteoak wrote:
-> > Strictly speaking, there is no right click button on clickpads. We
-> > emulate one with the software buttons in Xorg.
-> > IIRC, there were some "workarounds" in your original bugs which
-> > consist in disabling the software buttons area. Can you make sure that
-> > there is no left over from this?
+On Tuesday 16 December 2014 17:06:02 Benjamin Tissoires wrote:
+> If a disconnect occurs while getting the actual name of the device
+> (which can take several HID transactions), the name of the device will
+> be the hid name, provided by the Unifying Receiver.
+> This means that in some cases, the user space will see a different
+> name that what it usually sees when there is no disconnect.
 > 
-> I learn new things about clickpads every day. :)
+> We should store the name of the device in the struct hidpp. That way,
+> if a disconnect occurs while we are accessing the name,
+> hidpp_connect_event() can fail, and the input node is not created.
 > 
-> To my knowledge, those configurations changes should reset upon reboot
-> and I never committed any of those lines to any of my startup files.
-> So we should be good there, I think. Just in case, I am enclosing the
-> output of my synclient -l, which should be the default configuration.
-
-there are at least two options in there that are non-default, so maybe other
-options are different too. an xorg.log would be more useful here, or make
-sure that you don't have any custom configs in /etc/X11/xorg.conf.d/
-or an xorg.conf
-
-> > If this still doesn't work, we wil need to check that the X and Y
-> > ranges reported by your clickpad are accurate and that the software
-> > buttons are properly activated.
+> The input node will be created only if we have a connection which
+> lasts long enough to retrieve all the requested information:
+> name, protocol, and specific configuration.
 > 
-> I don't know the testing methodology to use to provide positioning
-> data for my trackpad, but let me know if you need that and how you
-> want me to get it and I will be happy to provide.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
+>  1 file changed, 20 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index c0fb5fe..4bc8714 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -89,6 +89,7 @@ struct hidpp_device {
+>  	struct hid_device *hid_dev;
+>  	struct mutex send_mutex;
+>  	void *send_receive_buf;
+> +	char *name;
+>  	wait_queue_head_t wait;
+>  	bool answer_available;
+>  	u8 protocol_major;
+> @@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
+>  static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+>  {
+>  	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
+> +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+>  
+>  	if (!input_dev)
+>  		return NULL;
+> @@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+>  	input_dev->open = hidpp_input_open;
+>  	input_dev->close = hidpp_input_close;
+>  
+> -	input_dev->name = hdev->name;
+> +	input_dev->name = hidpp->name;
+>  	input_dev->phys = hdev->phys;
+>  	input_dev->uniq = hdev->uniq;
+>  	input_dev->id.bustype = hdev->bus;
+> @@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+>  	hid_info(hdev, "HID++ %u.%u device connected.\n",
+>  		 hidpp->protocol_major, hidpp->protocol_minor);
+>  
+> +	if (!hidpp->name || hidpp->name == hdev->name) {
 
-Two options:
-* use evtest or evemu-record to record the data and look at the output, or
-  simpler
-* use libevdev's touchpad-edge-detector tool to scope out the min/max ranges
-  of your touchpad
+Hm, is it ever possible that hidpp->name is NULL? probe sets the pointer
+to an array (hdev->name). Defence in depth I guess, but perhaps a
+comment could clarify this?
 
-Cheers,
-   Peter
+Otherwise the changes look OK. I have tested this situation:
 
+ 1. Insert receiver
+ 2. Return a HID++ version for the WTP.
+ 3. Return -9 (ResourceError) for the device name feature request (via
+    the QEMU emulation).
+ 4. Observe that this fails.
+
+So maybe you could add a comment for the above and add these tags:
+
+Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+Tested-by: Peter Wu <peter@lekensteyn.nl>
+
+Kind regards,
+Peter
+
+> +		name = hidpp_get_device_name(hidpp);
+> +		if (!name) {
+> +			hid_err(hdev,
+> +				"unable to retrieve the name of the device");
+> +			return;
+> +		}
+> +
+> +		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
+> +		kfree(name);
+> +		if (!devm_name)
+> +			return;
+> +
+> +		hidpp->name = devm_name;
+> +	}
+> +
+>  	input = hidpp_allocate_input(hdev);
+>  	if (!input) {
+>  		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
+>  		return;
+>  	}
+>  
+> -	name = hidpp_get_device_name(hidpp);
+> -	if (!name) {
+> -		hid_err(hdev, "unable to retrieve the name of the device");
+> -	} else {
+> -		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
+> -		if (devm_name)
+> -			input->name = devm_name;
+> -		kfree(name);
+> -	}
+> -
+>  	hidpp_populate_input(hidpp, input, false);
+>  
+>  	ret = input_register_device(input);
+> @@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		return -ENOMEM;
+>  
+>  	hidpp->hid_dev = hdev;
+> +	hidpp->name = hdev->name;
+>  	hid_set_drvdata(hdev, hidpp);
+>  
+>  	hidpp->quirks = id->driver_data;
+> 

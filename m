@@ -1,80 +1,55 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v15 09/12] input: cyapa: add gen5 trackpad device
- firmware update function support
-Date: Tue, 16 Dec 2014 22:48:02 -0800
-Message-ID: <20141217064802.GA4971@hudson.localdomain>
-References: <1418624603-19054-1-git-send-email-dudley.dulixin@gmail.com>
- <1418624603-19054-10-git-send-email-dudley.dulixin@gmail.com>
- <20141216135639.GA1238@hudson.localdomain>
- <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: i2c-hid: Do not free buffers in i2c_hid_stop()
+Date: Wed, 17 Dec 2014 09:15:37 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412170915120.1680@pobox.suse.cz>
+References: <1418385709-223977-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:55168 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751813AbaLQGsH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 01:48:07 -0500
-Content-Disposition: inline
-In-Reply-To: <CANLzEks+hyNGy4_c+pHPW203oZUY=ms-cF3CttkW2NyRmNt8Zw@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:40893 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751692AbaLQIPk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 03:15:40 -0500
+In-Reply-To: <1418385709-223977-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@google.com>
-Cc: Dudley Du <dudley.dulixin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, aduggan@synaptics.com
 
-all,
+On Fri, 12 Dec 2014, Mika Westerberg wrote:
 
-On Tue, Dec 16, 2014 at 12:24:37PM -0800, Benson Leung wrote:
-> On Tue, Dec 16, 2014 at 5:56 AM, Jeremiah Mahler <jmmahler@gmail.com> wrote:
-> > On Mon, Dec 15, 2014 at 02:23:20PM +0800, Dudley Du wrote:
-> >> Add firmware image update function supported for gen5 trackpad device,
-> >> it can be used through sysfs update_fw interface.
-> >> TEST=test on Chromebooks.
-> >>
-> >> Signed-off-by: Dudley Du <dudley.dulixin@gmail.com>
-> >> ---
-> >>  drivers/input/mouse/Kconfig      |   1 +
-> >>  drivers/input/mouse/cyapa_gen5.c | 292 ++++++++++++++++++++++++++++++++++++++-
-> >>  2 files changed, 292 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> >> index d8b46b0..728490e 100644
-> >> --- a/drivers/input/mouse/Kconfig
-> >> +++ b/drivers/input/mouse/Kconfig
-> >> @@ -206,6 +206,7 @@ config MOUSE_BCM5974
-> >>  config MOUSE_CYAPA
-> >>       tristate "Cypress APA I2C Trackpad support"
-> >>       depends on I2C
-> >> +     select CRC_ITU_T
-> >>       help
-> >
-> > Just found out that if I2C_DESIGNWARE_PCI isn't enabled the touchpad
-> > won't work.  Verify this on your machines.  Then perhaps add a depends
-> > for I2C_DESIGNWARE_PCI instead of I2C since it would include the former.
+> When a hid driver that uses i2c-hid as transport is unloaded, the hid core
+> will call i2c_hid_stop() which releases all the buffers associated with the
+> device. This includes also the command buffer.
 > 
-> This isn't strictly true on all devices, though. This is true on
-> DESIGNWARE_PCI based devices like the Acer C720 and the HP Chromebook
-> 14, but on other platforms that use Cypress trackpads, such as ARM
-> platforms like the Samsung Chromebook Series 3 DESIGNWARE_PCI is not
-> required, and will just result in a driver that's never used being
-> built.
+> Now, when the i2c-hid driver itself is unloaded it tries to power down the
+> device by sending it PWR_SLEEP command. Since the command buffer is already
+> released we get following crash:
 > 
-> The specific I2C bus that's being used here shouldn't matter here...
-> that's more of a platform issue. In the case with Chromebooks, it
-> might make sense to change drivers/platform/chrome/Kconfig so that
-> CHROMEOS_LAPTOP depends on I2C_DESIGNWARE_PCI, maybe.
+>  [   79.691459] BUG: unable to handle kernel NULL pointer dereference at           (null)
+>  [   79.691532] IP: [<ffffffffa05bc049>] __i2c_hid_command+0x49/0x310 [i2c_hid]
+>  ...
+>  [   79.693467] Call Trace:
+>  [   79.693494]  [<ffffffff810424e1>] ? __unmask_ioapic+0x21/0x30
+>  [   79.693537]  [<ffffffff81042855>] ? unmask_ioapic+0x25/0x40
+>  [   79.693581]  [<ffffffffa05bc35b>] ? i2c_hid_set_power+0x4b/0xa0 [i2c_hid]
+>  [   79.693632]  [<ffffffffa05bc3cf>] ? i2c_hid_runtime_resume+0x1f/0x30 [i2c_hid]
+>  [   79.693689]  [<ffffffff814c08fb>] ? __rpm_callback+0x2b/0x70
+>  [   79.693733]  [<ffffffff814c0961>] ? rpm_callback+0x21/0x90
+>  [   79.693776]  [<ffffffff814c0dec>] ? rpm_resume+0x41c/0x600
+>  [   79.693820]  [<ffffffff814c1e1c>] ? __pm_runtime_resume+0x4c/0x80
+>  [   79.693868]  [<ffffffff814b8588>] ? __device_release_driver+0x28/0x100
+>  [   79.693917]  [<ffffffff814b8d90>] ? driver_detach+0xa0/0xb0
+>  [   79.693959]  [<ffffffff814b82cc>] ? bus_remove_driver+0x4c/0xb0
+>  [   79.694006]  [<ffffffff810d1cfd>] ? SyS_delete_module+0x11d/0x1d0
+>  [   79.694054]  [<ffffffff8165f107>] ? int_signal+0x12/0x17
+>  [   79.694095]  [<ffffffff8165ee69>] ? system_call_fastpath+0x12/0x17
 > 
+> Fix this so that we only free buffers when the i2c-hid driver itself is
+> removed.
 
-So DESIGNWARE_PCI isn't required for all devices.  But if MOUSE_CYAPA is
-enabled some devices won't work unless I2C_DESIGNWARE_PCI is enabled.  I
-wonder if MOUSE_CYAPA should be broken up in to separate working
-configurations?  MOUSE_CYAPA_GEN5, MOUSE_CYAPA_GEN3, ?
-
-> -- 
-> Benson Leung
-> Software Engineer, Chrome OS
-> Google Inc.
-> bleung@google.com
+Applied to for-3.19/upstream-fixes, thanks for fixing it.
 
 -- 
-- Jeremiah Mahler
+Jiri Kosina
+SUSE Labs

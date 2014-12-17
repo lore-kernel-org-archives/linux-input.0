@@ -1,90 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
-Date: Tue, 16 Dec 2014 21:53:20 -0500
-Message-ID: <20141217025320.GB7837@mail.corp.redhat.com>
-References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
- <CAN+gG=F0HhzXQhsaHTEb5Hy2CVTsoOSopCt4grXFnSKt+tPsWw@mail.gmail.com>
- <1754756.J50LHtmV20@al>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47888 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751092AbaLQCxe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2014 21:53:34 -0500
-Content-Disposition: inline
-In-Reply-To: <1754756.J50LHtmV20@al>
-Sender: linux-input-owner@vger.kernel.org
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: [PATCH v7 0/3] Add regulator-haptic driver
+Date: Wed, 17 Dec 2014 12:35:05 +0900
+Message-ID: <1418787308-29019-1-git-send-email-jaewon02.kim@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Jaewon Kim <jaewon02.kim@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Dec 17 2014 or thereabouts, Peter Wu wrote:
-> Hi Benjamin,
-> 
-> On Tuesday 16 December 2014 17:13:05 Benjamin Tissoires wrote:
-> > the logitech patches are queuing up really fast.
-> > To keep track of them, I made a bundle on patchwork:
-> > https://patchwork.kernel.org/bundle/bentiss/hid-logitech-hidpp/
-> > (/me discovered a new tool to play with)
-> > 
-> > Right now, the patch "HID: logitech-hidpp: detect HID++ 2.0 errors
-> > too" is waiting for Logitech's approval, and the 2 of this series need
-> > review.
-> > 
-> > Peter, please tell me if I missed one patch.
->  
-> Nice, it would be even better if a bundle could be bookmarked, or if a
-> group could set review flags in this bundle :-)
-> 
-> There are no missing patches from my side. All changes (based on
-> jikos/hid, branch for-next) are at
-> https://git.lekensteyn.nl/peter/linux/log/?h=logitech-hidpp
-> and are tested in QEMU with an emulated device and a real device (with
-> T400/T650/M525 paired).
+This patch series adds regulator-haptic driver.
+The regulator-haptic has haptic motor and it is controlled by
+voltage of regulator via force feedback framework.
 
-Thanks. The only problem with publishing these kind of tree is that at
-some point you will want to rebase it, and this will break people who
-pulled your tree. I found Jiri's name scheme really good (with a tag for
-the current version). This allows to push several branch based on
-different revisions without breaking the others.
-But I am a little bit digressing here :)
+Changes in v7:
+ - move platform_data or of_node check.
+ - prevent to start playing effect when kernel entering suspend state.
 
-> 
-> I noticed that all devices would immediately get an input device (even
-> if they were off), except for the T650. This apparently happens because
-> the touchpad configuration cannot be retrieved or when the touchpad
-> cannot be put in raw reporting mode. I cannot think of something to
-> "fix" this though.
+Changes in v6:
+ - prevent racing condition
 
-That's the design, unfortunately.
+Changes in v5:
+ - give preference to platform data
 
-Ideally, I would have prefer having a consistant way of setting up
-devices: when the receiver is plugged, create the input nodes and done.
+Changes in v4:
+ - _regulator_get() -> _regulator_get_exclusive()
 
-Unfortunately, this does not apply to touchpads and mice in raw mode as
-we need to query the devices for their capabilities and axis ranges.
-We then need to deffer the creation upon the connection.
+Changes in v3:
+ - fix typo in Documentation
+ - add define in header file
 
-Unfortunately, we can not do the same for the normal DJ devices. If you
-do so, you will lose the very first input reports while the device is
-set up, and while the userspace is ready to read from it.
-This is *really* problematic for keyboards, especially when you use it
-to enter your computer encryption password. You lose the first few
-chars, and the password fails, and it's a mess.
+Changes in v2:
+ - remove driver owner
+ - merge enable/disable function
+ - support platform data
+ - fix wrong suspends_state check in regulator_haptic_resume()
 
-So in the end, I came up with this hybrid solution. For a few selected
-and tested devices, we deffer the input creation. For the rest of the
-world, we try to create them at the earliest in order not losing events.
+Jaewon Kim (3):
+  Input: add regulator haptic driver
+  ARM: dts: exynos3250-rinato: Add regulator-haptic node for haptics
+  ARM: dts: exynos3250-monk: Add regulator-haptic node for haptics
 
-To sum up, this is really unfortunate :)
+ .../devicetree/bindings/input/regulator-haptic.txt |   21 ++
+ arch/arm/boot/dts/exynos3250-monk.dts              |    7 +
+ arch/arm/boot/dts/exynos3250-rinato.dts            |    7 +
+ drivers/input/misc/Kconfig                         |   11 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/regulator-haptic.c              |  247 ++++++++++++++++++++
+ include/linux/platform_data/regulator-haptic.h     |   29 +++
+ 7 files changed, 323 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/regulator-haptic.txt
+ create mode 100644 drivers/input/misc/regulator-haptic.c
+ create mode 100644 include/linux/platform_data/regulator-haptic.h
 
-Cheers,
-Benjamin
-
-
-> -- 
-> Kind regards,
-> Peter
-> https://lekensteyn.nl
-> 
+-- 
+1.7.9.5

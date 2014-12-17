@@ -1,30 +1,68 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 0/2] Input: atmel_mxt_ts - Add support for T100 multi-touch
-Date: Wed, 17 Dec 2014 10:06:52 +0000
-Message-ID: <549155BC.4080803@itdev.co.uk>
-References: <1418639947-28765-1-git-send-email-javier.martinez@collabora.co.uk> <54905AD7.4070205@itdev.co.uk> <54905F00.4020107@collabora.co.uk> <54906031.8020309@itdev.co.uk> <54906285.3060907@collabora.co.uk> <549066D4.7000302@itdev.co.uk> <54906FEB.7060702@collabora.co.uk>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH v16 01/12] input: cyapa: re-design driver to support
+Date: Wed, 17 Dec 2014 02:14:34 -0800
+Message-ID: <20141217101434.GA2155@newt.localdomain>
+References: <BAY407-EAS4239EB7A931AAE7C4C747F3BD6D0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:26703 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751915AbaLQKGz (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:52606 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751033AbaLQKOj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 05:06:55 -0500
-In-Reply-To: <54906FEB.7060702@collabora.co.uk>
+	Wed, 17 Dec 2014 05:14:39 -0500
+Content-Disposition: inline
+In-Reply-To: <BAY407-EAS4239EB7A931AAE7C4C747F3BD6D0@phx.gbl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olof@lixom.net>, Yufeng Shen <miletus@chromium.org>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Dudley Du <dudlx@outlook.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 16/12/14 17:46, Javier Martinez Canillas wrote:
-> On 12/16/2014 06:07 PM, Nick Dyer wrote:
->> I had been keeping them separate on the basis that we don't want changes to
->> support new T100 features to cause regressions in the old T9 handling. But
->> there is a fair amount of duplication as you say, probably worth addressing.
+Dudley,
+
+On Wed, Dec 17, 2014 at 05:55:37PM +0800, Dudley Du wrote:
+> In order to support multiple different chipsets and communication protocols
+> trackpad devices in one cyapa driver, the new cyapa driver is re-designed
+> with one cyapa driver core and multiple device specific functions component.
+> The cyapa driver core is contained in this patch, it supplies basic functions
+[...]
+> +
+> +	.set_power_mode = cyapa_gen3_set_power_mode,
+> +};
+> -- 
+> 1.9.1
 > 
-> Yeah but if there are regressions I think we should address those instead of
-> duplicating code, to make the driver more maintainable in the long term.
 
-True enough. We will have to be careful to test on both types of device.
+Unfortunately this patch and the others do not apply.
+
+  Patch failed at 0001 input: cyapa: re-design driver to support
+  The copy of the patch that failed is found in:
+     /home/jeri/linux-next/.git/rebase-apply/patch
+  When you have resolved this problem, run "git am --continue".
+  If you prefer to skip this patch, run "git am --skip" instead.
+  To restore the original branch and stop patching, run "git am
+  --abort".
+
+It looks like your mailer may have done some line wrapping that
+messed up the patches.
+
+  ...
+  -       { CYAPA_SMBUS_BLK_HEAD, 16 },
+  -};
+  +static int cyapa_reinitialize(struct cyapa *cyapa);
+   
+  -static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg,
+  size_t
+  len,
+  +/* Returns 0 on success, else negative errno on failure. */
+  +static ssize_t cyapa_i2c_read(struct cyapa *cyapa, u8 reg, size_t len,
+                                          u8 *values)
+   {
+  -     
+  ...
+
+linux/Documentation/email-clients.txt has good information about these
+problems.
+
+-- 
+- Jeremiah Mahler

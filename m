@@ -1,143 +1,174 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add support for CLOCK_BOOTTIME
-Date: Wed, 17 Dec 2014 10:20:11 -0800
-Message-ID: <20141217182011.GA32399@dtor-ws>
-References: <1418748994-2875-1-git-send-email-aniroop.mathur@gmail.com>
+From: "Prashant Laddha (prladdha)" <prladdha@cisco.com>
+Subject: Re: [RFC PATCHv2] fixp-arith: replace sin/cos table by a better
+ precision one
+Date: Wed, 17 Dec 2014 19:11:33 +0000
+Message-ID: <D0B7BE4F.27E4A%prladdha@cisco.com>
+References: <10bb48a8efd28edbd9fea365fe8785e86331f8d2.1418823631.git.mchehab@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:45308 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750790AbaLQSUR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 13:20:17 -0500
-Received: by mail-ie0-f174.google.com with SMTP id rl12so15439486iec.33
-        for <linux-input@vger.kernel.org>; Wed, 17 Dec 2014 10:20:16 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1418748994-2875-1-git-send-email-aniroop.mathur@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed;
+	boundary="_002_D0B7BE4F27E4Aprladdhaciscocom_"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <10bb48a8efd28edbd9fea365fe8785e86331f8d2.1418823631.git.mchehab@osg.samsung.com>
+Content-Language: en-US
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: linux-input@vger.kernel.org, a.mathur@samsung.com, Thomas Gleixner <tglx@linutronix.de>, John Stultz <john.stultz@linaro.org>
 
-Hi Aniroop,
+--_002_D0B7BE4F27E4Aprladdhaciscocom_
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <076F75411BFBCD4199DB54C8A5C1F6B1@emea.cisco.com>
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 16, 2014 at 10:26:34PM +0530, Aniroop Mathur wrote:
-> This patch adds support for CLOCK_BOOTTIME for input event timestamp.
-> CLOCK_BOOTTIME includes suspend time, so it would allow aplications
-> to get correct time difference between two events even when system
-> resumes from suspend state.
-> 
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-> ---
->  drivers/input/evdev.c | 33 +++++++++++++++++++++------------
->  1 file changed, 21 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index de05545..7825794 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -28,6 +28,13 @@
->  #include <linux/cdev.h>
->  #include "input-compat.h"
->  
-> +enum clock_type {
-> +	REAL = 0,
-> +	MONO,
-> +	BOOT,
-> +	CLK_MAX
-> +};
-> +
->  struct evdev {
->  	int open;
->  	struct input_handle handle;
-> @@ -108,8 +115,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
->  	struct input_event ev;
->  	ktime_t time;
->  
-> -	time = (client->clkid == CLOCK_MONOTONIC) ?
-> -		ktime_get() : ktime_get_real();
-> +	time = (client->clkid == CLOCK_REALTIME) ?
-> +		ktime_get_real() : (client->clkid == CLOCK_MONOTONIC) ?
-> +		ktime_get() : ktime_get_boottime();
->  
->  	ev.time = ktime_to_timeval(time);
->  	ev.type = EV_SYN;
-> @@ -159,7 +167,7 @@ static void __pass_event(struct evdev_client *client,
->  
->  static void evdev_pass_values(struct evdev_client *client,
->  			const struct input_value *vals, unsigned int count,
-> -			ktime_t mono, ktime_t real)
-> +			ktime_t *ev_time)
->  {
->  	struct evdev *evdev = client->evdev;
->  	const struct input_value *v;
-> @@ -169,8 +177,9 @@ static void evdev_pass_values(struct evdev_client *client,
->  	if (client->revoked)
->  		return;
->  
-> -	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
-> -				      mono : real);
-> +	event.time = ktime_to_timeval(client->clkid == CLOCK_REALTIME ?
-> +			ev_time[REAL] : client->clkid == CLOCK_MONOTONIC ?
-> +			ev_time[MONO] : ev_time[BOOT]);
+Hi Mauro,
 
-This becomes unwieldy. Should we have client->clk_type instead of
-client->clkid and convert CLOCK_* into your EVDEV_CLK_{REAL|MONO|BOOT}
-when setting it in ioctl and then do
+I was able to test your patch with vivid sdr tone generation. It calls
+sin/cos functions with radians as argument. I find that the sine wave
+generated using fixp_sin32_rad() show discontinuities, especially around
+90, 180 degrees. After debugging it further, these discontinuities seems
+to be originating due to division of negative number. Please find it below
 
-	event.time = ktime_to_timeval(ev_time[client->clk_offset]);
+On 17/12/14 7:12 pm, "Mauro Carvalho Chehab" <mchehab@osg.samsung.com>
+wrote:
 
->  
->  	/* Interrupts are disabled, just acquire the lock. */
->  	spin_lock(&client->buffer_lock);
-> @@ -198,21 +207,21 @@ static void evdev_events(struct input_handle *handle,
->  {
->  	struct evdev *evdev = handle->private;
->  	struct evdev_client *client;
-> -	ktime_t time_mono, time_real;
-> +	ktime_t ev_time[CLK_MAX];
->  
-> -	time_mono = ktime_get();
-> -	time_real = ktime_mono_to_real(time_mono);
-> +	ev_time[MONO] = ktime_get();
-> +	ev_time[REAL] = ktime_mono_to_real(ev_time[MONO]);
-> +	ev_time[BOOT] = ktime_get_boottime();
+>
+>+ */
+>+static inline s32 fixp_sin32_rad(u32 radians, u32 twopi)
+> {
+>+	int degrees;
+>+	s32 v1, v2, dx, dy;
+>+	s64 tmp;
+>+	degrees =3D (radians * 360) / twopi;
 
-I do not think we want to use ktime_get_boottime() here; I'd rather you
-use ktime_mono_to_anY(ev_time[MONO], TK_OFFS_BOOT) so that all 3 times
-are consistent.
+Not sure if we should use higher precision here. But just a question - in
+case, caller function uses higher precision for representing radians,
+(radians * 360) can probably overflow, right ? So, could we possibly
+specify on max precision for representing radian fraction cannot be more
+than 18 bits.=20
 
->  
->  	rcu_read_lock();
->  
->  	client = rcu_dereference(evdev->grab);
->  
->  	if (client)
-> -		evdev_pass_values(client, vals, count, time_mono, time_real);
-> +		evdev_pass_values(client, vals, count, ev_time);
->  	else
->  		list_for_each_entry_rcu(client, &evdev->client_list, node)
-> -			evdev_pass_values(client, vals, count,
-> -					  time_mono, time_real);
-> +			evdev_pass_values(client, vals, count, ev_time);
->  
->  	rcu_read_unlock();
->  }
-> @@ -874,7 +883,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->  	case EVIOCSCLOCKID:
->  		if (copy_from_user(&i, p, sizeof(unsigned int)))
->  			return -EFAULT;
-> -		if (i != CLOCK_MONOTONIC && i != CLOCK_REALTIME)
-> +		if (i != CLOCK_MONOTONIC && i != CLOCK_REALTIME && i != CLOCK_BOOTTIME)
->  			return -EINVAL;
->  		client->clkid = i;
->  		return 0;
-> -- 
-> 1.9.1
-> 
+>+	v1 =3D fixp_sin32(degrees);
+>+	v2 =3D fixp_sin32(degrees + 1);
+>+	dx =3D twopi / 360;
+>+	dy =3D v2 - v1;
+>+	tmp =3D radians - (degrees * twopi) / 360;
 
-Thanks.
+Same as above.
 
--- 
-Dmitry
+>+	tmp *=3D dy;
+>+	do_div(tmp, dx);
+
+tmp can go negative. do_div() cannot handle negative number. We could
+probably avoid do_div and do tmp / dx here. If we want to use do_div(), we
+could still do it by modifying radian to degree calculation.
+
+tmp goes negative when the slope sine waveform is negative, that is 2nd
+and 3rd quadrant. We could avoid it by deciding the quadrant based on
+radians and then calling fixp_sin32(). I modified the function on lines of
+fixp_sin32() and tested. It works fine. Attaching a diff for fixp-arith.h
+for with the this change to avoid negative values of tmp in
+fixp_sin32_rad().
+
+>2.1.0
+>
+
+
+--_002_D0B7BE4F27E4Aprladdhaciscocom_
+Content-Type: application/octet-stream; name="fixp-arith.diff"
+Content-Description: fixp-arith.diff
+Content-Disposition: attachment; filename="fixp-arith.diff"; size=5055;
+	creation-date="Wed, 17 Dec 2014 19:11:33 GMT";
+	modification-date="Wed, 17 Dec 2014 19:11:33 GMT"
+Content-ID: <E6A59DF2B0D4274BA2266C677D1A4065@emea.cisco.com>
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvZml4cC1hcml0aC5oIGIvaW5jbHVkZS9saW51eC9m
+aXhwLWFyaXRoLmgKaW5kZXggMzA4OWQ3My4uNTk3MzQyOSAxMDA2NDQKLS0tIGEvaW5jbHVkZS9s
+aW51eC9maXhwLWFyaXRoLmgKKysrIGIvaW5jbHVkZS9saW51eC9maXhwLWFyaXRoLmgKQEAgLTI5
+LDU5ICsyOSwxMTYgQEAKIAogI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAKLS8qIFRoZSB0eXBl
+IHJlcHJlc2VudGluZyBmaXhlZC1wb2ludCB2YWx1ZXMgKi8KLXR5cGVkZWYgczE2IGZpeHBfdDsK
+LQotI2RlZmluZSBGUkFDX04gOAotI2RlZmluZSBGUkFDX01BU0sgKCgxPDxGUkFDX04pLTEpCi0K
+LS8qIE5vdCB0byBiZSB1c2VkIGRpcmVjdGx5LiBVc2UgZml4cF97Y29zLHNpbn0gKi8KLXN0YXRp
+YyBjb25zdCBmaXhwX3QgY29zX3RhYmxlWzQ2XSA9IHsKLQkweDAxMDAsCTB4MDBGRiwJMHgwMEZG
+LAkweDAwRkUsCTB4MDBGRCwJMHgwMEZDLAkweDAwRkEsCTB4MDBGOCwKLQkweDAwRjYsCTB4MDBG
+MywJMHgwMEYwLAkweDAwRUQsCTB4MDBFOSwJMHgwMEU2LAkweDAwRTIsCTB4MDBERCwKLQkweDAw
+RDksCTB4MDBENCwJMHgwMENGLAkweDAwQzksCTB4MDBDNCwJMHgwMEJFLAkweDAwQjgsCTB4MDBC
+MSwKLQkweDAwQUIsCTB4MDBBNCwJMHgwMDlELAkweDAwOTYsCTB4MDA4RiwJMHgwMDg3LAkweDAw
+ODAsCTB4MDA3OCwKLQkweDAwNzAsCTB4MDA2OCwJMHgwMDVGLAkweDAwNTcsCTB4MDA0RiwJMHgw
+MDQ2LAkweDAwM0QsCTB4MDAzNSwKLQkweDAwMkMsCTB4MDAyMywJMHgwMDFBLAkweDAwMTEsCTB4
+MDAwOCwgMHgwMDAwCitzdGF0aWMgY29uc3QgczMyIHNpbl90YWJsZVtdID0geworICAgICAgIDB4
+MDAwMDAwMDAsIDB4MDIzYmUxNjUsIDB4MDQ3Nzk2MzIsIDB4MDZiMmYxZDIsIDB4MDhlZGM3YjYs
+IDB4MGIyN2ViNWMsCisgICAgICAgMHgwZDYxMzA0ZCwgMHgwZjk5NmEyNiwgMHgxMWQwNmM5Niwg
+MHgxNDA2MGI2NywgMHgxNjNhMWE3ZCwgMHgxODZjNmRkZCwKKyAgICAgICAweDFhOWNkOWFjLCAw
+eDFjY2IzMjM2LCAweDFlZjc0YmYyLCAweDIxMjBmYjgyLCAweDIzNDgxNWJhLCAweDI1NmM2Zjll
+LAorICAgICAgIDB4Mjc4ZGRlNmUsIDB4MjlhYzM3OWYsIDB4MmJjNzUwZTgsIDB4MmRkZjAwM2Ys
+IDB4MmZmMzFiZGQsIDB4MzIwMzdhNDQsCisgICAgICAgMHgzNDBmZjI0MSwgMHgzNjE4NWFlZSwg
+MHgzODFjOGJiNSwgMHgzYTFjNWM1NiwgMHgzYzE3YTRlNywgMHgzZTBlM2RkYiwKKyAgICAgICAw
+eDNmZmZmZmZmLCAweDQxZWNjNDgzLCAweDQzZDQ2NGZhLCAweDQ1YjZiYjVkLCAweDQ3OTNhMjBm
+LCAweDQ5NmFmM2UxLAorICAgICAgIDB4NGIzYzhjMTEsIDB4NGQwODQ2NTAsIDB4NGVjZGZlYzYs
+IDB4NTA4ZDkyMTAsIDB4NTI0NmRkNDgsIDB4NTNmOWJlMDQsCisgICAgICAgMHg1NWE2MTI1YSwg
+MHg1NzRiYjhlNSwgMHg1OGVhOTBjMiwgMHg1YTgyNzk5OSwgMHg1YzEzNTM5OSwgMHg1ZDljZmY4
+MiwKKyAgICAgICAweDVmMWY1ZWEwLCAweDYwOWE1MmQxLCAweDYyMGRiZThhLCAweDYzNzk4NGQz
+LCAweDY0ZGQ4OTRmLCAweDY2MzliMDM5LAorICAgICAgIDB4Njc4ZGRlNmQsIDB4NjhkOWY5NjMs
+IDB4NmExZGU3MzUsIDB4NmI1OThlYTEsIDB4NmM4Y2Q3MGEsIDB4NmRiN2E4NzksCisgICAgICAg
+MHg2ZWQ5ZWJhMCwgMHg2ZmYzODlkZSwgMHg3MTA0NmQzYywgMHg3MjBjODA3NCwgMHg3MzBiYWVl
+YywgMHg3NDAxZTRiZiwKKyAgICAgICAweDc0ZWYwZWJiLCAweDc1ZDMxYTVmLCAweDc2YWRmNWU1
+LCAweDc3N2Y5MDNiLCAweDc4NDdkOTA4LCAweDc5MDZjMGFmLAorICAgICAgIDB4NzliYzM4NGMs
+IDB4N2E2ODMxYjgsIDB4N2IwYTlmOGMsIDB4N2JhMzc1MWMsIDB4N2MzMmE2N2MsIDB4N2NiODI4
+ODQsCisgICAgICAgMHg3ZDMzZjBjOCwgMHg3ZGE1ZjVhMywgMHg3ZTBlMmUzMSwgMHg3ZTZjOTI0
+ZiwgMHg3ZWMxMWFhMywgMHg3ZjBiYzA5NSwKKyAgICAgICAweDdmNGM3ZTUyLCAweDdmODM0ZWNm
+LCAweDdmYjAyZGM0LCAweDdmZDMxN2IzLCAweDdmZWMwOWUxLCAweDdmZmIwMjVlLAorICAgICAg
+IDB4N2ZmZmZmZmYKIH07CiAKKy8qKgorICogZml4cF9zaW4zMigpIHJldHVybnMgdGhlIHNpbiBv
+ZiBhbiBhbmdsZSBpbiBkZWdyZWVzCisgKgorICogQGRlZ3JlZXM6IGFuZ2xlLCBpbiBkZWdyZWVz
+LiBJdCBjYW4gYmUgcG9zaXRpdmUgb3IgbmVnYXRpdmUKKyAqCisgKiBUaGUgcmV0dXJuZWQgdmFs
+dWUgcmFuZ2VzIGZyb20gLTB4N2ZmZmZmZmYgdG8gKzB4N2ZmZmZmZmYuCisgKi8KIAotLyogYTog
+MTIzIC0+IDEyMy4wICovCi1zdGF0aWMgaW5saW5lIGZpeHBfdCBmaXhwX25ldyhzMTYgYSkKK3N0
+YXRpYyBpbmxpbmUgczMyIGZpeHBfc2luMzIoaW50IGRlZ3JlZXMpCiB7Ci0JcmV0dXJuIGE8PEZS
+QUNfTjsKLX0KKyAgICAgICBzMzIgcmV0OworICAgICAgIGJvb2wgbmVnYXRpdmUgPSBmYWxzZTsK
+IAotLyogYTogMHhGRkZGIC0+IC0xLjAKLSAgICAgIDB4ODAwMCAtPiAxLjAKLSAgICAgIDB4MDAw
+MCAtPiAwLjAKLSovCi1zdGF0aWMgaW5saW5lIGZpeHBfdCBmaXhwX25ldzE2KHMxNiBhKQotewot
+CXJldHVybiAoKHMzMilhKT4+KDE2LUZSQUNfTik7Ci19CisgICAgICAgZGVncmVlcyA9IChkZWdy
+ZWVzICUgMzYwICsgMzYwKSAlIDM2MDsKKyAgICAgICBpZiAoZGVncmVlcyA+IDE4MCkgeworICAg
+ICAgICAgICAgICAgbmVnYXRpdmUgPSB0cnVlOworICAgICAgICAgICAgICAgZGVncmVlcyAtPSAx
+ODA7CisJICAgfQorICAgICAgIGlmIChkZWdyZWVzID4gOTApCisgICAgICAgICAgICAgICBkZWdy
+ZWVzID0gMTgwIC0gZGVncmVlczsKIAotc3RhdGljIGlubGluZSBmaXhwX3QgZml4cF9jb3ModW5z
+aWduZWQgaW50IGRlZ3JlZXMpCi17Ci0JaW50IHF1YWRyYW50ID0gKGRlZ3JlZXMgLyA5MCkgJiAz
+OwotCXVuc2lnbmVkIGludCBpID0gZGVncmVlcyAlIDkwOwotCi0JaWYgKHF1YWRyYW50ID09IDEg
+fHwgcXVhZHJhbnQgPT0gMykKLQkJaSA9IDkwIC0gaTsKKyAgICAgICByZXQgPSBzaW5fdGFibGVb
+ZGVncmVlc107CiAKLQlpID4+PSAxOworICAgICAgIHJldHVybiBuZWdhdGl2ZSA/IC1yZXQgOiBy
+ZXQ7CiAKLQlyZXR1cm4gKHF1YWRyYW50ID09IDEgfHwgcXVhZHJhbnQgPT0gMik/IC1jb3NfdGFi
+bGVbaV0gOiBjb3NfdGFibGVbaV07CiB9CiAKLXN0YXRpYyBpbmxpbmUgZml4cF90IGZpeHBfc2lu
+KHVuc2lnbmVkIGludCBkZWdyZWVzKQotewotCXJldHVybiAtZml4cF9jb3MoZGVncmVlcyArIDkw
+KTsKLX0KKy8qIGNvcyh4KSA9IHNpbih4ICsgOTAgZGVncmVlcykgKi8KKyNkZWZpbmUgZml4cF9j
+b3MzMih2KSBmaXhwX3NpbjMyKCh2KSArIDkwKQogCi1zdGF0aWMgaW5saW5lIGZpeHBfdCBmaXhw
+X211bHQoZml4cF90IGEsIGZpeHBfdCBiKQorLyoKKyAqIDE2IGJpdHMgdmFyaWFudHMKKyAqCisg
+KiBUaGUgcmV0dXJuZWQgdmFsdWUgcmFuZ2VzIGZyb20gLTB4N2ZmZiB0byAweDdmZmYKKyAqLwor
+CisjZGVmaW5lIGZpeHBfc2luMTYodikgKGZpeHBfc2luMzIodikgPj4gMTYpCisjZGVmaW5lIGZp
+eHBfY29zMTYodikgKGZpeHBfY29zMzIodikgPj4gMTYpCisKKy8qKgorICogZml4cF9zaW4zMl9y
+YWQoKSAtIGNhbGN1bGF0ZXMgdGhlIHNpbiBvZiBhbiBhbmdsZSBpbiByYWRpYW5zCisgKgorICog
+QHJhZGlhbnM6IGFuZ2xlLCBpbiByYWRpYW5zCisgKiBAdHdvcGk6IHZhbHVlIHRvIGJlIHVzZWQg
+Zm9yIDIqcGkKKyAqCisgKiBQcm92aWRlcyBhIHZhcmlhbnQgZm9yIHRoZSBjYXNlcyB3aGVyZSBq
+dXN0IDM2MAorICogdmFsdWVzIGlzIG5vdCBlbm91Z2guIFRoaXMgZnVuY3Rpb24gdXNlcyBsaW5l
+YXIKKyAqIGludGVycG9sYXRpb24gdG8gYSB3aWRlciByYW5nZSBvZiB2YWx1ZXMgZ2l2ZW4gYnkK
+KyAqIHR3b3BpIHZhci4KKyAqCisgKiBFeHBlcmltZW50YWwgdGVzdHMgZ2F2ZSBhIG1heGltdW0g
+ZGlmZmVyZW5jZSBvZgorICogMC4wMDAwMzggYmV0d2VlbiB0aGUgdmFsdWUgY2FsY3VsYXRlZCBi
+eSBzaW4oKSBhbmQKKyAqIHRoZSBvbmUgcHJvZHVjZWQgYnkgdGhpcyBmdW5jdGlvbiwgd2hlbiB0
+d29waSBpcworICogZXF1YWwgdG8gMzYwMDAwLiBUaGF0IHNlZW1zIHRvIGJlIGVub3VnaCBwcmVj
+aXNpb24KKyAqIGZvciBwcmFjdGljYWwgcHVycG9zZXMuCisgKi8KK3N0YXRpYyBpbmxpbmUgczMy
+IGZpeHBfc2luMzJfcmFkKHUzMiByYWRpYW5zLCB1MzIgdHdvcGkpCiB7Ci0JcmV0dXJuICgoczMy
+KShhKmIpKT4+RlJBQ19OOworICAgICAgIGludCBkZWdyZWVzOworICAgICAgIHMzMiB2MSwgdjIs
+IGR4LCBkeTsKKyAgICAgICBzNjQgdG1wOworICAgICAgIHUzMiBwaSA9IHR3b3BpIC8gMjsKKyAg
+ICAgICBzMzIgcmV0OworICAgICAgIGJvb2wgbmVnYXRpdmUgPSBmYWxzZTsKKworICAgICAgIHJh
+ZGlhbnMgPSAocmFkaWFucyAlIHR3b3BpICsgdHdvcGkpICUgdHdvcGk7CisgICAgICAgaWYgKHJh
+ZGlhbnMgPiBwaSkgeworICAgICAgICAgICAgICAgbmVnYXRpdmUgPSB0cnVlOworICAgICAgICAg
+ICAgICAgcmFkaWFucyAtPSBwaTsKKwkgICB9CisgICAgICAgaWYgKHJhZGlhbnMgPiBwaSAvMikK
+KyAgICAgICAgICAgICAgIHJhZGlhbnMgPSBwaSAtIHJhZGlhbnM7CisKKyAgICAgICBkZWdyZWVz
+ID0gKHJhZGlhbnMgKiAzNjApIC8gdHdvcGk7CisKKyAgICAgICB2MSA9IGZpeHBfc2luMzIoZGVn
+cmVlcyk7CisgICAgICAgdjIgPSBmaXhwX3NpbjMyKGRlZ3JlZXMgKyAxKTsKKworICAgICAgIGR4
+ID0gdHdvcGkgLyAzNjA7CisgICAgICAgZHkgPSB2MiAtIHYxOworCisgICAgICAgdG1wID0gcmFk
+aWFucyAtIChkZWdyZWVzICogdHdvcGkpIC8gMzYwOworICAgICAgIGRvX2Rpdih0bXAsIGR4KTsK
+KyAgICAgICByZXQgPSB2MSArIHRtcDsKKworICAgICAgIHJldHVybiBuZWdhdGl2ZSA/IC1yZXQg
+OiByZXQ7CiB9CiAKKy8qIGNvcyh4KSA9IHNpbih4ICsgcGkgLyAyIHJhZGlhbnMpICovCisKKyNk
+ZWZpbmUgZml4cF9jb3MzMl9yYWQocmFkLCB0d29waSkgICAgIFwKKyAgICAgICBmaXhwX3NpbjMy
+X3JhZChyYWQgKyB0d29waSAvIDQsIHR3b3BpKQorCiAjZW5kaWYK
+
+--_002_D0B7BE4F27E4Aprladdhaciscocom_--

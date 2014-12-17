@@ -1,32 +1,37 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Add battery quirk for USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO
- keyboard
-Date: Wed, 17 Dec 2014 09:03:26 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412170903120.1680@pobox.suse.cz>
-References: <1418744242.3923.1.camel@ntlworld.com>
+Subject: Re: [PATCH 3/3] HID: logitech-hidpp: separate HID++ from WTP
+ processing
+Date: Wed, 17 Dec 2014 08:55:01 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412170854500.1680@pobox.suse.cz>
+References: <CAN+gG=GhJx38LDwAGoPA1BpYOmjS8r_xnYPXWOgB66VLwmv5kg@mail.gmail.com> <1418772231-31330-1-git-send-email-peter@lekensteyn.nl>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40722 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751462AbaLQID2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 03:03:28 -0500
-In-Reply-To: <1418744242.3923.1.camel@ntlworld.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1418772231-31330-1-git-send-email-peter@lekensteyn.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Karl Relton <karllinuxtest.relton@ntlworld.com>
-Cc: linux-input@vger.kernel.org
 
-On Tue, 16 Dec 2014, Karl Relton wrote:
+On Wed, 17 Dec 2014, Peter Wu wrote:
 
-> Apple bluetooth wireless keyboard (sold in UK) has always reported zero
-> for battery strength no matter what condition the batteries are actually
-> in. With this patch applied (applying same quirk as other Apple
-> keyboards), the battery strength is now correctly reported.
+> Previously wtp_raw_event would be called through
+> hidpp_raw_hidpp_event (for the touchpad report) and hidpp_raw_event
+> (for the mouse report).
 > 
-> Signed-off-by: Karl Relton <karllinuxtest.relton@ntlworld.com>
+> This patch removes one calling surface, making a clearer distinction
+> between "generic HID++ processing" (matching internal reports) and
+> device-specific event processing.
+> 
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  v1: patch 2/3 HID: logitech-{dj,hidpp}: check report length
+>  v2: splitted original report length check patch. Restructured code.
+>  v3: renamed var r to ret for consistency, added R-b of Benjamin
 
-Applied to for-3.19/upstream-fixes.
+Applied to for-3.20/logitech.
 
 Thanks,
 

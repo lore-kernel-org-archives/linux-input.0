@@ -1,159 +1,90 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: logitech-hidpp: store the name of the device in
- struct hidpp
-Date: Tue, 16 Dec 2014 21:43:34 -0500
-Message-ID: <20141217024334.GA7837@mail.corp.redhat.com>
+Subject: Re: [PATCH 1/2] HID: logitech-hidpp: bail out if wtp_connect fails
+Date: Tue, 16 Dec 2014 21:53:20 -0500
+Message-ID: <20141217025320.GB7837@mail.corp.redhat.com>
 References: <1418767562-4136-1-git-send-email-benjamin.tissoires@redhat.com>
- <1418767562-4136-2-git-send-email-benjamin.tissoires@redhat.com>
- <3321911.knGKb1BsCe@al>
+ <CAN+gG=F0HhzXQhsaHTEb5Hy2CVTsoOSopCt4grXFnSKt+tPsWw@mail.gmail.com>
+ <1754756.J50LHtmV20@al>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:47888 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751092AbaLQCxe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2014 21:53:34 -0500
 Content-Disposition: inline
-In-Reply-To: <3321911.knGKb1BsCe@al>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Wu <peter@lekensteyn.nl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1754756.J50LHtmV20@al>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Wu <peter@lekensteyn.nl>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 On Dec 17 2014 or thereabouts, Peter Wu wrote:
-> On Tuesday 16 December 2014 17:06:02 Benjamin Tissoires wrote:
-> > If a disconnect occurs while getting the actual name of the device
-> > (which can take several HID transactions), the name of the device will
-> > be the hid name, provided by the Unifying Receiver.
-> > This means that in some cases, the user space will see a different
-> > name that what it usually sees when there is no disconnect.
+> Hi Benjamin,
+> 
+> On Tuesday 16 December 2014 17:13:05 Benjamin Tissoires wrote:
+> > the logitech patches are queuing up really fast.
+> > To keep track of them, I made a bundle on patchwork:
+> > https://patchwork.kernel.org/bundle/bentiss/hid-logitech-hidpp/
+> > (/me discovered a new tool to play with)
 > > 
-> > We should store the name of the device in the struct hidpp. That way,
-> > if a disconnect occurs while we are accessing the name,
-> > hidpp_connect_event() can fail, and the input node is not created.
+> > Right now, the patch "HID: logitech-hidpp: detect HID++ 2.0 errors
+> > too" is waiting for Logitech's approval, and the 2 of this series need
+> > review.
 > > 
-> > The input node will be created only if we have a connection which
-> > lasts long enough to retrieve all the requested information:
-> > name, protocol, and specific configuration.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
-> >  1 file changed, 20 insertions(+), 11 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index c0fb5fe..4bc8714 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -89,6 +89,7 @@ struct hidpp_device {
-> >  	struct hid_device *hid_dev;
-> >  	struct mutex send_mutex;
-> >  	void *send_receive_buf;
-> > +	char *name;
-> >  	wait_queue_head_t wait;
-> >  	bool answer_available;
-> >  	u8 protocol_major;
-> > @@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
-> >  static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
-> >  {
-> >  	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
-> > +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-> >  
-> >  	if (!input_dev)
-> >  		return NULL;
-> > @@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
-> >  	input_dev->open = hidpp_input_open;
-> >  	input_dev->close = hidpp_input_close;
-> >  
-> > -	input_dev->name = hdev->name;
-> > +	input_dev->name = hidpp->name;
-> >  	input_dev->phys = hdev->phys;
-> >  	input_dev->uniq = hdev->uniq;
-> >  	input_dev->id.bustype = hdev->bus;
-> > @@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
-> >  	hid_info(hdev, "HID++ %u.%u device connected.\n",
-> >  		 hidpp->protocol_major, hidpp->protocol_minor);
-> >  
-> > +	if (!hidpp->name || hidpp->name == hdev->name) {
+> > Peter, please tell me if I missed one patch.
+>  
+> Nice, it would be even better if a bundle could be bookmarked, or if a
+> group could set review flags in this bundle :-)
 > 
-> Hm, is it ever possible that hidpp->name is NULL? probe sets the pointer
+> There are no missing patches from my side. All changes (based on
+> jikos/hid, branch for-next) are at
+> https://git.lekensteyn.nl/peter/linux/log/?h=logitech-hidpp
+> and are tested in QEMU with an emulated device and a real device (with
+> T400/T650/M525 paired).
 
-No, hidpp->name should never be a NULL reference.
-I asked myself about that (i.e. having a NULL reference until the hidpp
-calls get_name), but I thought that having a non consistent name would
-just confuse other contributors when implementing other devices.
-So I choose to have always the current name of the device.
-
-> to an array (hdev->name). Defence in depth I guess, but perhaps a
-> comment could clarify this?
-
-That could clarify it, yes. Will send a v2.
+Thanks. The only problem with publishing these kind of tree is that at
+some point you will want to rebase it, and this will break people who
+pulled your tree. I found Jiri's name scheme really good (with a tag for
+the current version). This allows to push several branch based on
+different revisions without breaking the others.
+But I am a little bit digressing here :)
 
 > 
-> Otherwise the changes look OK. I have tested this situation:
-> 
->  1. Insert receiver
->  2. Return a HID++ version for the WTP.
->  3. Return -9 (ResourceError) for the device name feature request (via
->     the QEMU emulation).
->  4. Observe that this fails.
+> I noticed that all devices would immediately get an input device (even
+> if they were off), except for the T650. This apparently happens because
+> the touchpad configuration cannot be retrieved or when the touchpad
+> cannot be put in raw reporting mode. I cannot think of something to
+> "fix" this though.
 
-Hehe, I have been testing this by timely putting the device in the on
-then off state. About 1 sec of ON is enough to trigger the various
-failures :)
+That's the design, unfortunately.
 
-> 
-> So maybe you could add a comment for the above and add these tags:
-> 
-> Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-> Tested-by: Peter Wu <peter@lekensteyn.nl>
+Ideally, I would have prefer having a consistant way of setting up
+devices: when the receiver is plugged, create the input nodes and done.
 
-Thanks! (and thanks for the other v3)
+Unfortunately, this does not apply to touchpads and mice in raw mode as
+we need to query the devices for their capabilities and axis ranges.
+We then need to deffer the creation upon the connection.
+
+Unfortunately, we can not do the same for the normal DJ devices. If you
+do so, you will lose the very first input reports while the device is
+set up, and while the userspace is ready to read from it.
+This is *really* problematic for keyboards, especially when you use it
+to enter your computer encryption password. You lose the first few
+chars, and the password fails, and it's a mess.
+
+So in the end, I came up with this hybrid solution. For a few selected
+and tested devices, we deffer the input creation. For the rest of the
+world, we try to create them at the earliest in order not losing events.
+
+To sum up, this is really unfortunate :)
 
 Cheers,
 Benjamin
 
-> 
+
+> -- 
 > Kind regards,
 > Peter
-> 
-> > +		name = hidpp_get_device_name(hidpp);
-> > +		if (!name) {
-> > +			hid_err(hdev,
-> > +				"unable to retrieve the name of the device");
-> > +			return;
-> > +		}
-> > +
-> > +		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
-> > +		kfree(name);
-> > +		if (!devm_name)
-> > +			return;
-> > +
-> > +		hidpp->name = devm_name;
-> > +	}
-> > +
-> >  	input = hidpp_allocate_input(hdev);
-> >  	if (!input) {
-> >  		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
-> >  		return;
-> >  	}
-> >  
-> > -	name = hidpp_get_device_name(hidpp);
-> > -	if (!name) {
-> > -		hid_err(hdev, "unable to retrieve the name of the device");
-> > -	} else {
-> > -		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
-> > -		if (devm_name)
-> > -			input->name = devm_name;
-> > -		kfree(name);
-> > -	}
-> > -
-> >  	hidpp_populate_input(hidpp, input, false);
-> >  
-> >  	ret = input_register_device(input);
-> > @@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  		return -ENOMEM;
-> >  
-> >  	hidpp->hid_dev = hdev;
-> > +	hidpp->name = hdev->name;
-> >  	hid_set_drvdata(hdev, hidpp);
-> >  
-> >  	hidpp->quirks = id->driver_data;
-> > 
+> https://lekensteyn.nl
 > 

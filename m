@@ -1,76 +1,74 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 1/2] Input: touchscreen-iproc: Add Broadcom iProc
- touchscreen driver
-Date: Wed, 17 Dec 2014 18:14:41 -0800
-Message-ID: <1418868881.28384.8.camel@perches.com>
-References: <Jonathan Richardson <jonathar@broadcom.com>
-	 <1418867992-3550-1-git-send-email-jonathar@broadcom.com>
-	 <1418867992-3550-2-git-send-email-jonathar@broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418867992-3550-2-git-send-email-jonathar@broadcom.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Richardson <jonathar@broadcom.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Subject: [PATCH] input: adxl34x: Add OF match support
+Date: Thu, 18 Dec 2014 04:15:23 +0200
+Message-ID: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from galahad.ideasonboard.com ([185.26.127.97]:50362 "EHLO
+	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751615AbaLRCP0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Dec 2014 21:15:26 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>, Wolfram Sang <wsa@the-dreams.de>
 
-On Wed, 2014-12-17 at 17:59 -0800, Jonathan Richardson wrote:
-> Add initial version of the Broadcom touchscreen driver.
+The I2C subsystem can match devices without explicit OF support based on
+the part of their compatible property after the comma. However, this
+mechanism uses the first compatible value only. For adxl34x OF device
+nodes the compatible property should list the more specific
+"adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
+fallback value second. This prevents the device node from being matched
+with the adxl34x driver.
 
-trivia:
+Fix this by adding an OF match table with an "adi,adxl34x" compatible
+entry.
 
-> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+---
+ drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-> +/* Bit values for REGCTL2 */
-> +#define TS_CONTROLLER_EN_BIT    (1 << 16)
-> +#define TS_CONTROLLER_AVGDATA_SHIFT 8
-> +#define TS_CONTROLLER_AVGDATA_MASK (0x7 << TS_CONTROLLER_AVGDATA_SHIFT)
-> +#define TS_CONTROLLER_PWR_LDO   (1<<5)
-> +#define TS_CONTROLLER_PWR_ADC   (1<<4)
-> +#define TS_CONTROLLER_PWR_BGP   (1<<3)
-> +#define TS_CONTROLLER_PWR_TS    (1<<2)
-> +#define TS_WIRE_MODE_BIT        (1<<1)
+Another option would have been to add "adxl325" and "adxl326" entries to the
+adxl34x_id I2C match table, but it would have had the drawback of requiring a
+driver update for every new device.
 
-Be nicer to use the same spacing around <<
-or maybe use the BIT macro.
+diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
+index 416f47ddcc90..22687b738811 100644
+--- a/drivers/input/misc/adxl34x-i2c.c
++++ b/drivers/input/misc/adxl34x-i2c.c
+@@ -10,6 +10,7 @@
+ #include <linux/input.h>	/* BUS_I2C */
+ #include <linux/i2c.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/types.h>
+ #include <linux/pm.h>
+ #include "adxl34x.h"
+@@ -137,11 +138,21 @@ static const struct i2c_device_id adxl34x_id[] = {
+ 
+ MODULE_DEVICE_TABLE(i2c, adxl34x_id);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id adxl34x_of_id[] = {
++	{ .compatible = "adi,adxl34x", },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(of, adxl34x_of_id);
++#endif
++
+ static struct i2c_driver adxl34x_driver = {
+ 	.driver = {
+ 		.name = "adxl34x",
+ 		.owner = THIS_MODULE,
+ 		.pm = &adxl34x_i2c_pm,
++		.of_match_table = of_match_ptr(adxl34x_of_id),
+ 	},
+ 	.probe    = adxl34x_i2c_probe,
+ 	.remove   = adxl34x_i2c_remove,
+-- 
+Regards,
 
-[]
+Laurent Pinchart
 
-> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
-> +{
-> +	int ret;
-> +	u32 val;
-> +	struct device *dev = &priv->pdev->dev;
-> +
-> +	priv->cfg_params = default_config;
-> +
-> +	ret = of_property_read_u32(np, "scanning_period", &val);
-> +	if (ret >= 0) {
-> +		if ((1 <= val) && (val <= 256))
-> +			priv->cfg_params.scanning_period = val;
-> +		else {
-> +			dev_err(dev, "scanning_period must be [1-256]");
-> +			return -EINVAL;
-> +		}
-
-ret is never used so I'd probably remove it
-from all these blocks.
-
-It's probably be nicer to invert the logic ald
-remove the else.
-
-There's a missing terminating newline too.
-
-Something like:
-
-	if (of_property_read_u32(np, "scanning_period", &val) >= 0) {
-		if (val < 1 || val > 256) {
-			dev_err(dev, "scanning_period must be [1-256]\n");
-			return -EINVAL;
-		}
-		priv->cfg_params.scanning_period = val;
-	}
-
-etc...

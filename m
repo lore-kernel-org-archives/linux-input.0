@@ -1,75 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 18 Dec 2014 09:21:51 +0100
-Message-ID: <20141218082151.GA1038@katana>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH resend v2] input: Add new sun4i-lradc-keys driver
+Date: Thu, 18 Dec 2014 09:42:14 +0100
+Message-ID: <54929366.7050002@redhat.com>
+References: <1418827411-13265-1-git-send-email-hdegoede@redhat.com> <1418827411-13265-2-git-send-email-hdegoede@redhat.com> <1918972.jFlKNuYrbH@dtor-glaptop>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Return-path: <linux-sunxi+bncBDRZXY4CYYORB3VGZKSAKGQEJRM5VTY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1918972.jFlKNuYrbH@dtor-glaptop>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
+Hi,
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 17-12-14 18:32, Dmitry Torokhov wrote:
+> On Wednesday, December 17, 2014 03:43:31 PM Hans de Goede wrote:
+>> +       /*
+>> +        * lradc supports only one keypress at a time, release does not give
+>> +        * any info as to which key was released, so we cache the keycode.
+>> +        */
+>> +       if ((ints & CHAN0_KEYDOWN_IRQ) && lradc->chan0_keycode == 0) {
+>> +               val = readl(lradc->base + LRADC_DATA0) & 0x3f;
+>> +               voltage = val * lradc->vref / 63;
+>> +
+>> +               for (i = 0; i < lradc->chan0_map_count; i++) {
+>> +                       diff = abs(lradc->chan0_map[i].voltage - voltage);
+>> +                       if (diff < closest) {
+>> +                               closest = diff;
+>> +                               keycode = lradc->chan0_map[i].keycode;
+>> +                       }
+>> +               }
+>> +
+>> +               lradc->chan0_keycode = keycode;
+>> +               input_report_key(lradc->input, lradc->chan0_keycode, 1);
+>> +       }
+>> +
+>> +       if (ints & CHAN0_KEYUP_IRQ) {
+>> +               input_report_key(lradc->input, lradc->chan0_keycode, 0);
+>> +               lradc->chan0_keycode = 0;
+>> +       }
+>
+> Can release and press be reported simultaneously? Should we process release
+> first?
 
-On Thu, Dec 18, 2014 at 04:15:23AM +0200, Laurent Pinchart wrote:
-> The I2C subsystem can match devices without explicit OF support based on
-> the part of their compatible property after the comma. However, this
-> mechanism uses the first compatible value only. For adxl34x OF device
-> nodes the compatible property should list the more specific
-> "adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
-> fallback value second. This prevents the device node from being matched
-> with the adxl34x driver.
->=20
-> Fix this by adding an OF match table with an "adi,adxl34x" compatible
-> entry.
->=20
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
-m>
-> ---
->  drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->=20
-> Another option would have been to add "adxl325" and "adxl326" entries to =
-the
-> adxl34x_id I2C match table, but it would have had the drawback of requiri=
-ng a
-> driver update for every new device.
+Good question, I guess if we are somehow really slow with processing the interrupt
+that this may happen. So I'll do a v3 swapping the 2.
 
-AFAIK this is even required for compatible entries, to be as specific as
-possible. I think this makes sense. With platform_ids, we already had
-the problem that pca954x was too generic and was used for both GPIO
-extenders and I2C muxers (IIRC).
+Regards,
 
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUko6fAAoJEBQN5MwUoCm2BWYP/jwC1h2tKVqqNxYFfqXXimcs
-OwIi0PGlVDn9eVL+yfF6MxgkiGXuPyX2et2BA2hYdWgrtj3ass65f1eJ358FMZLg
-SDB/6X/9qSO9z1LDI1B97iOE3eBOLnOvcy9h/54PIIsySAP794/oFzmva8q2Is/G
-O1JBA9XhQ7vip183evIqCHSB4XhvtNV0fnB4q0rJwC7JSGCXCconLfTw8nX8Y3iS
-JhH1JfQMnf9vkkpak8zT2DLTp3Wzh79R22jjhuaZYJ4rWCTymNQYLY00suOlsJc5
-bV7HDT4rGCGWduio2dkQG181XWQnrpvyObNfvjsDeoEKZqaZEPPSQZXOnicUCU8O
-fjRqoNMg7fjUdSrimJnRM2g65bVMRP1Sxsb5wHajLwg+hRFj5dbCIGw9M46oSJ9U
-jlQQGdefBaLxm3zUKndA0vFQkXDbxj26zKIGBmK+UtzEjkc7SHE9eUNU3mbUVw6T
-esF5Q9+UE7trl2B4DmvhAJgViAMx1LasbzPzyssDU/P8ZkMI1nTHxJrk38RrB8uE
-XQS19zT9quouv6JUcL4gG8V6TxA0J95W1ocpj1VA9Q6bxw/tEa2HxF+ohngxx6Qf
-Raqq8hmWRcbvsjU+p5RsTx2j5ycQNTxGxPr0UQEPlI6obkDZax524rJTN4XKnBfE
-BEMNbDC5RL2brVe3rrRo
-=45um
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+Hans

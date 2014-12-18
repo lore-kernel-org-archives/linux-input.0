@@ -1,32 +1,47 @@
-From: "Jia-Ju Bai" <baijiaju1990@163.com>
-Subject: Re: Re: Potential bugs found in psmouse
-Date: Thu, 18 Dec 2014 08:02:14 +0800
-Message-ID: <00eb01d01a55$e1e79fa0$a5b6dee0$@163.com>
+From: Jaewon Kim <jaewon02.kim@samsung.com>
+Subject: Re: [PATCH v7 1/3] Input: add regulator haptic driver
+Date: Thu, 18 Dec 2014 10:17:42 +0900
+Message-ID: <54922B36.8050306@samsung.com>
+References: <1418787308-29019-1-git-send-email-jaewon02.kim@samsung.com>
+ <1418787308-29019-2-git-send-email-jaewon02.kim@samsung.com>
+ <20141217220602.GC32399@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m12-15.163.com ([220.181.12.15]:55514 "EHLO m12-15.163.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751030AbaLRACV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 19:02:21 -0500
-Content-Language: zh-cn
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20141217220602.GC32399@dtor-ws>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kukjin Kim <kgene.kim@samsung.com>, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Hyunhee Kim <hyunhee.kim@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
 
-Dear Sir,
-Actually, I find that psmouse_attr_set_protocol checks
-psmouse_switch_protocol's return vaule, but psmouse_connect does not. So I
-let psmouse_switch_protocol() in psmouse_connect return -1 in purpose to
-test the robustness of psmouse driver. 
-However, psmouse_switch_protocol() in psmouse_connect gets NULL as protocol
-and it will not fail. I think you are right, and this error is unreal.
-Thank you very much!
+Hi Dmity,
 
---
-Jia-Ju Bai
+2014=EB=85=84 12=EC=9B=94 18=EC=9D=BC 07:06=EC=97=90 Dmitry Torokhov =EC=
+=9D=B4(=EA=B0=80) =EC=93=B4 =EA=B8=80:
+> HI Jaewon,
+>
+> On Wed, Dec 17, 2014 at 12:35:06PM +0900, Jaewon Kim wrote:
+>> This patch adds support for haptic driver controlled by
+>> voltage of regulator. And this driver support for
+>> Force Feedback interface from input framework
+>>
+>> Signed-off-by: Jaewon Kim <jaewon02.kim@samsung.com>
+>> Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
+>> Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
+>> Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
+>> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+>> Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> Does the driver still work if you apply the patch below on top of you=
+rs?
+>
+> Thanks.
+>
 
+Yes, there is no problem to apply this one first.
 
+Thanks to review my patches.
+
+Thanks
+Jaewon Kim

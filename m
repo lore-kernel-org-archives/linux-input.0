@@ -1,7 +1,7 @@
 From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v16 03/12] input: cyapa: add power management interfaces support for the device
-Date: Thu, 18 Dec 2014 18:00:47 +0800
-Message-ID: <1418896856-15766-4-git-send-email-dudl@cypress.com>
+Subject: [PATCH v16 11/12] input: cyapa: add gen5 trackpad device force re-calibrate function support
+Date: Thu, 18 Dec 2014 18:00:55 +0800
+Message-ID: <1418896856-15766-12-git-send-email-dudl@cypress.com>
 References: <1418896856-15766-1-git-send-email-dudl@cypress.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1418896856-15766-1-git-send-email-dudl@cypress.com>
@@ -10,144 +10,97 @@ To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
 Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add suspend_scanrate_ms power management interfaces in device's
-power group, so users or applications can control the power management
-strategy of trackpad device as their requirements.
+Add force re-calibrate function supported for gen5 trackpad device,
+it can be used through sysfs calibrate interface.
 TEST=test on Chromebooks.
 
 Signed-off-by: Dudley Du <dudl@cypress.com>
 ---
- drivers/input/mouse/cyapa.c | 111 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 111 insertions(+)
+ drivers/input/mouse/cyapa_gen5.c | 65 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index d4560a3..73f6817 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -575,6 +575,96 @@ out:
- 	return IRQ_HANDLED;
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index 2b800e3..4bb6f34 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -1713,6 +1713,70 @@ static int cyapa_gen5_suspend_scanning(struct cyapa *cyapa)
+ 	return 0;
  }
  
-+/*
-+ **************************************************************
-+ * sysfs interface
-+ **************************************************************
-+*/
-+#ifdef CONFIG_PM_SLEEP
-+static ssize_t cyapa_show_suspend_scanrate(struct device *dev,
-+					   struct device_attribute *attr,
-+					   char *buf)
++static int cyapa_gen5_calibrate_pwcs(struct cyapa *cyapa,
++		u8 calibrate_sensing_mode_type)
 +{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	u8 pwr_cmd = cyapa->suspend_power_mode;
-+	u16 sleep_time;
-+	int len;
++	struct gen5_app_cmd_head *app_cmd_head;
++	u8 cmd[8];
++	u8 resp_data[6];
++	int resp_len;
 +	int error;
 +
-+	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-+	if (error)
-+		return error;
-+	pwr_cmd = cyapa->suspend_power_mode;
-+	sleep_time = cyapa->suspend_sleep_time;
-+	mutex_unlock(&cyapa->state_sync_lock);
++	/* Try to dump all buffered data before doing command. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
 +
-+	if (pwr_cmd == PWR_MODE_BTN_ONLY) {
-+		len = scnprintf(buf, PAGE_SIZE, "%s\n", BTN_ONLY_MODE_NAME);
-+	} else if (pwr_cmd == PWR_MODE_OFF) {
-+		len = scnprintf(buf, PAGE_SIZE, "%s\n", OFF_MODE_NAME);
-+	} else {
-+		if (cyapa->gen == CYAPA_GEN3)
-+			sleep_time = cyapa_pwr_cmd_to_sleep_time(pwr_cmd);
-+		len = scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
-+	}
++	memset(cmd, 0, sizeof(cmd));
++	app_cmd_head = (struct gen5_app_cmd_head *)cmd;
++	put_unaligned_le16(GEN5_OUTPUT_REPORT_ADDR, &app_cmd_head->addr);
++	put_unaligned_le16(sizeof(cmd) - 2, &app_cmd_head->length);
++	app_cmd_head->report_id = GEN5_APP_CMD_REPORT_ID;
++	app_cmd_head->cmd_code = GEN5_CMD_CALIBRATE;
++	app_cmd_head->parameter_data[0] = calibrate_sensing_mode_type;
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			5000, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, GEN5_CMD_CALIBRATE) ||
++			!GEN5_CMD_COMPLETE_SUCCESS(resp_data[5]))
++		return error < 0 ? error : -EAGAIN;
 +
-+	return len;
++	return 0;
 +}
 +
-+static ssize_t cyapa_update_suspend_scanrate(struct device *dev,
-+					     struct device_attribute *attr,
-+					     const char *buf, size_t count)
++static ssize_t cyapa_gen5_do_calibrate(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
 +{
 +	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	u16 sleep_time;
-+	int error;
++	int error, calibrate_error;
 +
-+	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
++	/* 1. Suspend Scanning*/
++	error = cyapa_gen5_suspend_scanning(cyapa);
 +	if (error)
 +		return error;
 +
-+	if (sysfs_streq(buf, BTN_ONLY_MODE_NAME)) {
-+		cyapa->suspend_power_mode = PWR_MODE_BTN_ONLY;
-+	} else if (sysfs_streq(buf, OFF_MODE_NAME)) {
-+		cyapa->suspend_power_mode = PWR_MODE_OFF;
-+	} else if (!kstrtou16(buf, 10, &sleep_time)) {
-+		cyapa->suspend_sleep_time = max_t(u16, sleep_time, 1000);
-+		cyapa->suspend_power_mode =
-+			cyapa_sleep_time_to_pwr_cmd(cyapa->suspend_sleep_time);
-+	} else {
-+		count = 0;
-+	}
++	/* 2. Do mutual capacitance fine calibrate. */
++	calibrate_error = cyapa_gen5_calibrate_pwcs(cyapa,
++				CYAPA_SENSING_MODE_MUTUAL_CAP_FINE);
++	if (calibrate_error)
++		goto resume_scanning;
 +
-+	mutex_unlock(&cyapa->state_sync_lock);
++	/* 3. Do self capacitance calibrate. */
++	calibrate_error = cyapa_gen5_calibrate_pwcs(cyapa,
++				CYAPA_SENSING_MODE_SELF_CAP);
++	if (calibrate_error)
++		goto resume_scanning;
 +
-+	if (!count)
-+		dev_err(dev, "invalid suspend scanrate ms parameters\n");
-+	return count ? count : -EINVAL;
++resume_scanning:
++	/* 4. Resume Scanning*/
++	error = cyapa_gen5_resume_scanning(cyapa);
++	if (error || calibrate_error)
++		return error ? error : calibrate_error;
++
++	return count;
 +}
 +
-+static DEVICE_ATTR(suspend_scanrate_ms, S_IRUGO|S_IWUSR,
-+		   cyapa_show_suspend_scanrate,
-+		   cyapa_update_suspend_scanrate);
-+
-+static struct attribute *cyapa_power_wakeup_entries[] = {
-+	&dev_attr_suspend_scanrate_ms.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group cyapa_power_wakeup_group = {
-+	.name = power_group_name,
-+	.attrs = cyapa_power_wakeup_entries,
-+};
-+
-+static void cyapa_remove_power_wakeup_group(void *data)
-+{
-+	struct cyapa *cyapa = data;
-+
-+	sysfs_unmerge_group(&cyapa->client->dev.kobj,
-+				&cyapa_power_wakeup_group);
-+}
-+#endif /* CONFIG_PM_SLEEP */
-+
- static int cyapa_probe(struct i2c_client *client,
- 		       const struct i2c_device_id *dev_id)
+ static s32 twos_complement_to_s32(s32 value, int num_bits)
  {
-@@ -614,6 +704,27 @@ static int cyapa_probe(struct i2c_client *client,
- 		return error;
- 	}
+ 	if (value >> (num_bits - 1))
+@@ -2689,6 +2753,7 @@ const struct cyapa_dev_ops cyapa_gen5_ops = {
+ 	.update_fw = cyapa_gen5_do_fw_update,
  
-+#ifdef CONFIG_PM_SLEEP
-+	if (device_can_wakeup(dev)) {
-+		error = sysfs_merge_group(&client->dev.kobj,
-+					&cyapa_power_wakeup_group);
-+		if (error) {
-+			dev_err(dev, "failed to add power wakeup group: %d\n",
-+				error);
-+			return error;
-+		}
-+
-+		error = devm_add_action(dev,
-+				cyapa_remove_power_wakeup_group, cyapa);
-+		if (error) {
-+			cyapa_remove_power_wakeup_group(cyapa);
-+			dev_err(dev, "failed to add power cleanup action: %d\n",
-+				error);
-+			return error;
-+		}
-+	}
-+#endif /* CONFIG_PM_SLEEP */
-+
- 	error = devm_request_threaded_irq(dev, client->irq,
- 					  NULL, cyapa_irq,
- 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 	.show_baseline = cyapa_gen5_show_baseline,
++	.calibrate_store = cyapa_gen5_do_calibrate,
+ 
+ 	.initialize = cyapa_gen5_initialize,
+ 
 -- 
 1.9.1

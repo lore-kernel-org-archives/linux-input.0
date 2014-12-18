@@ -1,50 +1,129 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [RFC] [Patch] implement video driver for sur40
-Date: Thu, 18 Dec 2014 15:11:29 +0100
-Message-ID: <5492E091.1060404@xs4all.nl>
-References: <5492D7E8.504@butterbrot.org>
+From: Peter Wu <peter@lekensteyn.nl>
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: detect HID++ 2.0 errors too
+Date: Thu, 18 Dec 2014 18:26:05 +0100
+Message-ID: <4013567.XXXMc2jNn9@al>
+References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl> <1418691016-30681-2-git-send-email-peter@lekensteyn.nl> <CAN+gG=FiL1SY84W5acowe8hkoHnp6ObkbCtoeFu0s2juone=+Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <5492D7E8.504@butterbrot.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAN+gG=FiL1SY84W5acowe8hkoHnp6ObkbCtoeFu0s2juone=+Q@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 12/18/14 14:34, Florian Echtler wrote:
-> Hello everyone,
+On Tuesday 16 December 2014 09:33:44 Benjamin Tissoires wrote:
+> Hi Peter,
 > 
-> as promised, I've finally implemented the missing raw video feature for
-> the SUR40 touchscreen. Since this is a bit of a weird hybrid device
-> (multitouch input as well as video), I'm hoping for comments from both
-> communities (linux-input and linux-media). I'm also attaching the full
-> source code for the moment (not yet a proper patch submission) so it's
-> perhaps easier to get a view of the whole thing.
+> On Mon, Dec 15, 2014 at 7:50 PM, Peter Wu <peter@lekensteyn.nl> wrote:
+> > Devices speaking HID++ 2.0 report a different error code (0xff). Detect
+> > these errors too to avoid 5 second delays when the device reports an
+> > error. Caught by... well, a bug in the QEMU emulation of this receiver.
+> >
+> > Renamed fap to rap for HID++ 1.0 errors because it is more logical,
+> > it has no functional difference.
+> >
+> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> > ---
 > 
-> There's definitely some obvious cleanup still to be done (e.g. endpoint
-> selection), but I'd like to ask for feedback early so I can get most
-> issues fixed before really submitting a patch.
+> I'd like to have Nestor's opinion on this. I did not manage to find on
+> the documentation that HID++ 2.0 Long report error code is 0xff, so
+> introducing this change without Logitech's blessing would be
+> unfortunate.
+> I understand this will fix your qemu problem, but I am not entirely
+> sure if we do not have to check on 0xff and 0x8f in both short and
+> long responses.
 > 
-> Thanks & best regards, Florian
-> 
+> Cheers,
+> Benjamin
 
-One thing you should do is to run the v4l2-compliance utility. Available
-here: http://git.linuxtv.org/cgit.cgi/v4l-utils.git/
+Hi Benjamin,
 
-Compile from the git repo to ensure you have the latest version.
+The Logitech Unifying extension for Chrome[1] is documented quite well
+and contains details which were not public before (including names and
+descriptions for all registers and subIDs!).
 
-Run as 'v4l2-compliance -s' (-s starts streaming tests as well and it
-assumes you have a valid input signal).
+In lib/devices/HidppFap.js you can find this logic for handling HID++
+2.0 messages:
 
-The driver shouldn't give any failures. When you post the actual patch,
-then make sure you also paste in the output of 'v4l2-compliance -s' as
-I'd like to see what it says.
+    if ((reqView.getUint8(1) == rspView.getUint8(1)) //  device index
+        && (reqView.getUint8(2) == rspView.getUint8(2)) // feature index
+        && (reqView.getUint8(3) == rspView.getUint8(3))) // function/event ID + software ID
+    {
+        result.matchResult = devices.MATCH_RESULT.SUCCESS;
+    } else if ((reqView.getUint8(1) == rspView.getUint8(1)) //  device index
+        && (0xFF == rspView.getUint8(2)) // Hid++ 2.0 error
+        && (reqView.getUint8(2) == rspView.getUint8(3)) // feature index
+        && (reqView.getUint8(3) == rspView.getUint8(4))) // function/event ID + software ID
+    {
+        result.errCode = rspView.getUint8(5); // FAP_ERROR
+        result.matchResult = devices.MATCH_RESULT.ERROR;
+    }
 
-Mail if you have any questions about the v4l2-compliance output. The failure
-messages expect you to look at the v4l2-compliance source code as well,
-but even than it is not always clear what is going on.
+Looks like a sufficient proof that 0xFF is the correct number to detect
+HID++ 2.0 errors right?
 
-Regards,
+In HID++ 1.0 devices ("rap"), 0xFF is named as "SYNC" (with no further
+comments), so this will probably not trigger false positives either.
 
-	Hans
+Kind regards,
+Peter
+
+ [1]: https://chrome.google.com/webstore/detail/logitech-unifying-for-chr/agpmgihmmmfkbhckmciedmhincdggomo
+
+> >  drivers/hid/hid-logitech-hidpp.c | 17 ++++++++++++++---
+> >  1 file changed, 14 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 2f420c0..ae23dec 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -105,6 +105,7 @@ struct hidpp_device {
+> >  };
+> >
+> >
+> > +/* HID++ 1.0 error codes */
+> >  #define HIDPP_ERROR                            0x8f
+> >  #define HIDPP_ERROR_SUCCESS                    0x00
+> >  #define HIDPP_ERROR_INVALID_SUBID              0x01
+> > @@ -119,6 +120,8 @@ struct hidpp_device {
+> >  #define HIDPP_ERROR_REQUEST_UNAVAILABLE                0x0a
+> >  #define HIDPP_ERROR_INVALID_PARAM_VALUE                0x0b
+> >  #define HIDPP_ERROR_WRONG_PIN_CODE             0x0c
+> > +/* HID++ 2.0 error codes */
+> > +#define HIDPP20_ERROR                          0xff
+> >
+> >  static void hidpp_connect_event(struct hidpp_device *hidpp_dev);
+> >
+> > @@ -192,9 +195,16 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+> >         }
+> >
+> >         if (response->report_id == REPORT_ID_HIDPP_SHORT &&
+> > -           response->fap.feature_index == HIDPP_ERROR) {
+> > +           response->rap.sub_id == HIDPP_ERROR) {
+> > +               ret = response->rap.params[1];
+> > +               dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
+> > +               goto exit;
+> > +       }
+> > +
+> > +       if (response->report_id == REPORT_ID_HIDPP_LONG &&
+> > +           response->fap.feature_index == HIDPP20_ERROR) {
+> >                 ret = response->fap.params[1];
+> > -               dbg_hid("__hidpp_send_report got hidpp error %02X\n", ret);
+> > +               dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
+> >                 goto exit;
+> >         }
+> >
+> > @@ -271,7 +281,8 @@ static inline bool hidpp_match_answer(struct hidpp_report *question,
+> >  static inline bool hidpp_match_error(struct hidpp_report *question,
+> >                 struct hidpp_report *answer)
+> >  {
+> > -       return (answer->fap.feature_index == HIDPP_ERROR) &&
+> > +       return ((answer->rap.sub_id == HIDPP_ERROR) ||
+> > +           (answer->fap.feature_index == HIDPP20_ERROR)) &&
+> >             (answer->fap.funcindex_clientid == question->fap.feature_index) &&
+> >             (answer->fap.params[0] == question->fap.funcindex_clientid);
+> >  }
+> > --
+> > 2.1.3

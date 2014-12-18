@@ -1,74 +1,75 @@
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Subject: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 18 Dec 2014 04:15:23 +0200
-Message-ID: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from galahad.ideasonboard.com ([185.26.127.97]:50362 "EHLO
-	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751615AbaLRCP0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Dec 2014 21:15:26 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Thu, 18 Dec 2014 09:21:51 +0100
+Message-ID: <20141218082151.GA1038@katana>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>, Wolfram Sang <wsa@the-dreams.de>
 
-The I2C subsystem can match devices without explicit OF support based on
-the part of their compatible property after the comma. However, this
-mechanism uses the first compatible value only. For adxl34x OF device
-nodes the compatible property should list the more specific
-"adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
-fallback value second. This prevents the device node from being matched
-with the adxl34x driver.
 
-Fix this by adding an OF match table with an "adi,adxl34x" compatible
-entry.
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
----
- drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+On Thu, Dec 18, 2014 at 04:15:23AM +0200, Laurent Pinchart wrote:
+> The I2C subsystem can match devices without explicit OF support based on
+> the part of their compatible property after the comma. However, this
+> mechanism uses the first compatible value only. For adxl34x OF device
+> nodes the compatible property should list the more specific
+> "adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
+> fallback value second. This prevents the device node from being matched
+> with the adxl34x driver.
+>=20
+> Fix this by adding an OF match table with an "adi,adxl34x" compatible
+> entry.
+>=20
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
+m>
+> ---
+>  drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+>=20
+> Another option would have been to add "adxl325" and "adxl326" entries to =
+the
+> adxl34x_id I2C match table, but it would have had the drawback of requiri=
+ng a
+> driver update for every new device.
 
-Another option would have been to add "adxl325" and "adxl326" entries to the
-adxl34x_id I2C match table, but it would have had the drawback of requiring a
-driver update for every new device.
+AFAIK this is even required for compatible entries, to be as specific as
+possible. I think this makes sense. With platform_ids, we already had
+the problem that pca954x was too generic and was used for both GPIO
+extenders and I2C muxers (IIRC).
 
-diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
-index 416f47ddcc90..22687b738811 100644
---- a/drivers/input/misc/adxl34x-i2c.c
-+++ b/drivers/input/misc/adxl34x-i2c.c
-@@ -10,6 +10,7 @@
- #include <linux/input.h>	/* BUS_I2C */
- #include <linux/i2c.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/types.h>
- #include <linux/pm.h>
- #include "adxl34x.h"
-@@ -137,11 +138,21 @@ static const struct i2c_device_id adxl34x_id[] = {
- 
- MODULE_DEVICE_TABLE(i2c, adxl34x_id);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id adxl34x_of_id[] = {
-+	{ .compatible = "adi,adxl34x", },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(of, adxl34x_of_id);
-+#endif
-+
- static struct i2c_driver adxl34x_driver = {
- 	.driver = {
- 		.name = "adxl34x",
- 		.owner = THIS_MODULE,
- 		.pm = &adxl34x_i2c_pm,
-+		.of_match_table = of_match_ptr(adxl34x_of_id),
- 	},
- 	.probe    = adxl34x_i2c_probe,
- 	.remove   = adxl34x_i2c_remove,
--- 
-Regards,
 
-Laurent Pinchart
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUko6fAAoJEBQN5MwUoCm2BWYP/jwC1h2tKVqqNxYFfqXXimcs
+OwIi0PGlVDn9eVL+yfF6MxgkiGXuPyX2et2BA2hYdWgrtj3ass65f1eJ358FMZLg
+SDB/6X/9qSO9z1LDI1B97iOE3eBOLnOvcy9h/54PIIsySAP794/oFzmva8q2Is/G
+O1JBA9XhQ7vip183evIqCHSB4XhvtNV0fnB4q0rJwC7JSGCXCconLfTw8nX8Y3iS
+JhH1JfQMnf9vkkpak8zT2DLTp3Wzh79R22jjhuaZYJ4rWCTymNQYLY00suOlsJc5
+bV7HDT4rGCGWduio2dkQG181XWQnrpvyObNfvjsDeoEKZqaZEPPSQZXOnicUCU8O
+fjRqoNMg7fjUdSrimJnRM2g65bVMRP1Sxsb5wHajLwg+hRFj5dbCIGw9M46oSJ9U
+jlQQGdefBaLxm3zUKndA0vFQkXDbxj26zKIGBmK+UtzEjkc7SHE9eUNU3mbUVw6T
+esF5Q9+UE7trl2B4DmvhAJgViAMx1LasbzPzyssDU/P8ZkMI1nTHxJrk38RrB8uE
+XQS19zT9quouv6JUcL4gG8V6TxA0J95W1ocpj1VA9Q6bxw/tEa2HxF+ohngxx6Qf
+Raqq8hmWRcbvsjU+p5RsTx2j5ycQNTxGxPr0UQEPlI6obkDZax524rJTN4XKnBfE
+BEMNbDC5RL2brVe3rrRo
+=45um
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--

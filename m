@@ -1,60 +1,97 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
-Date: Fri, 19 Dec 2014 01:45:37 +0000
-Message-ID: <BN1PR06MB070E5D41D47CD42C1A75111D16B0@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1418896856-15766-1-git-send-email-dudl@cypress.com>
- <CO1PR06MB078DB45B606C923F712A57BD16A0@CO1PR06MB078.namprd06.prod.outlook.com>
- <20141218221414.GA6742@hudson.localdomain>
+From: kbuild test robot <fengguang.wu@intel.com>
+Subject: [PATCH hisi] Input: i2c_atmel_read() can be static
+Date: Fri, 19 Dec 2014 09:56:59 +0800
+Message-ID: <20141219015659.GA49367@snb.sh.intel.com>
+References: <201412190926.IzkyYvvl%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bn0101.outbound.protection.outlook.com ([157.56.110.101]:64059
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751284AbaLSBpl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Dec 2014 20:45:41 -0500
-In-Reply-To: <20141218221414.GA6742@hudson.localdomain>
-Content-Language: en-US
+Received: from mga02.intel.com ([134.134.136.20]:35924 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751253AbaLSB55 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Dec 2014 20:57:57 -0500
+Content-Disposition: inline
+In-Reply-To: <201412190926.IzkyYvvl%fengguang.wu@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Zhangfei Gao <zhangfei.gao@linaro.org>
+Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Benson, Jeremiah,
+drivers/input/touchscreen/atmel_mXT224E.c:460:5: sparse: symbol 'i2c_atmel_read' was not declared. Should it be static?
+drivers/input/touchscreen/atmel_mXT224E.c:496:5: sparse: symbol 'i2c_atmel_write' was not declared. Should it be static?
+drivers/input/touchscreen/atmel_mXT224E.c:532:5: sparse: symbol 'i2c_atmel_write_byte_data' was not declared. Should it be static?
+drivers/input/touchscreen/atmel_mXT224E.c:538:10: sparse: symbol 'get_object_address' was not declared. Should it be static?
+drivers/input/touchscreen/atmel_mXT224E.c:547:9: sparse: symbol 'get_object_size' was not declared. Should it be static?
+drivers/input/touchscreen/atmel_mXT224E.c:557:9: sparse: symbol 'get_object_size_from_address' was not declared. Should it be static?
+drivers/input/touchscreen/atmel_mXT224E.c:847:32: sparse: symbol 'atmel_ts_get_pdata' was not declared. Should it be static?
 
-Thank you for the help and confirm.
+Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
+---
+ atmel_mXT224E.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-Dudley
-
-> -----Original Message-----
-> From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
-> Sent: 2014?12?19? 6:14
-> To: Dudley Du
-> Cc: dmitry.torokhov@gmail.com; rydberg@euromail.se; bleung@google.com;
-> David Solda; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
->
-> Dudley,
->
-> On Thu, Dec 18, 2014 at 11:06:40AM +0000, Dudley Du wrote:
-> > Jeremiah,
-> >
-> > I re-sent the v16 patches through the new internal email server with my emal
-> dudl@cypress.com.
-> > Could you help check if all patches were fine and not broken.
-> >
-> > Thanks,
-> > Dudley
-> >
-> [...]
->
-> These patches apply without any problems.
->
-> I will have a look and review them again.
->
-> --
-> - Jeremiah Mahler
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+diff --git a/drivers/input/touchscreen/atmel_mXT224E.c b/drivers/input/touchscreen/atmel_mXT224E.c
+index 0a7fab2..99bcfde 100644
+--- a/drivers/input/touchscreen/atmel_mXT224E.c
++++ b/drivers/input/touchscreen/atmel_mXT224E.c
+@@ -457,7 +457,7 @@ static struct atmel_ts_data *private_ts;
+ #define LDO_POWR_VOLTAGE 2700000 /*2.7v*/
+ static	struct regulator		*LDO;
+ 
+-int i2c_atmel_read(struct i2c_client *client, uint16_t address, uint8_t *data, uint8_t length)
++static int i2c_atmel_read(struct i2c_client *client, uint16_t address, uint8_t *data, uint8_t length)
+ {
+ 	int retry, ret;
+ 	uint8_t addr[2];
+@@ -493,7 +493,7 @@ int i2c_atmel_read(struct i2c_client *client, uint16_t address, uint8_t *data, u
+ 	return 0;
+ }
+ 
+-int i2c_atmel_write(struct i2c_client *client, uint16_t address, uint8_t *data, uint8_t length)
++static int i2c_atmel_write(struct i2c_client *client, uint16_t address, uint8_t *data, uint8_t length)
+ {
+ 	int retry, loop_i, ret;
+ 	uint8_t buf[length + 2];
+@@ -529,13 +529,13 @@ int i2c_atmel_write(struct i2c_client *client, uint16_t address, uint8_t *data,
+ 
+ }
+ 
+-int i2c_atmel_write_byte_data(struct i2c_client *client, uint16_t address, uint8_t value)
++static int i2c_atmel_write_byte_data(struct i2c_client *client, uint16_t address, uint8_t value)
+ {
+ 	i2c_atmel_write(client, address, &value, 1);
+ 	return 0;
+ }
+ 
+-uint16_t get_object_address(struct atmel_ts_data *ts, uint8_t object_type)
++static uint16_t get_object_address(struct atmel_ts_data *ts, uint8_t object_type)
+ {
+ 	uint8_t loop_i;
+ 	for (loop_i = 0; loop_i < ts->id->num_declared_objects; loop_i++) {
+@@ -544,7 +544,7 @@ uint16_t get_object_address(struct atmel_ts_data *ts, uint8_t object_type)
+ 	}
+ 	return 0;
+ }
+-uint8_t get_object_size(struct atmel_ts_data *ts, uint8_t object_type)
++static uint8_t get_object_size(struct atmel_ts_data *ts, uint8_t object_type)
+ {
+ 	uint8_t loop_i;
+ 	for (loop_i = 0; loop_i < ts->id->num_declared_objects; loop_i++) {
+@@ -554,7 +554,7 @@ uint8_t get_object_size(struct atmel_ts_data *ts, uint8_t object_type)
+ 	return 0;
+ }
+ 
+-uint8_t get_object_size_from_address(struct atmel_ts_data *ts, int address)
++static uint8_t get_object_size_from_address(struct atmel_ts_data *ts, int address)
+ {
+ 	uint8_t loop_i;
+ 	for (loop_i = 0; loop_i < ts->id->num_declared_objects; loop_i++) {
+@@ -844,7 +844,7 @@ static int read_object_table(struct atmel_ts_data *ts)
+ 	return 0;
+ }
+ 
+-struct atmel_i2c_platform_data *atmel_ts_get_pdata(struct i2c_client *client)
++static struct atmel_i2c_platform_data *atmel_ts_get_pdata(struct i2c_client *client)
+ {
+ 	struct device_node *node = client->dev.of_node;
+ 	struct atmel_i2c_platform_data *pdata = client->dev.platform_data;

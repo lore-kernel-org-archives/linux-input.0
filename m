@@ -1,64 +1,44 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: [PATCH] MAINTAINERS: Update rydberg's addresses
-Date: Fri, 19 Dec 2014 10:06:07 +0100
-Message-ID: <1418979967-2134-1-git-send-email-rydberg@bitmath.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: detect HID++ 2.0 errors too
+Date: Fri, 19 Dec 2014 11:03:57 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412191102570.1680@pobox.suse.cz>
+References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl> <1418691016-30681-2-git-send-email-peter@lekensteyn.nl> <20141217153039.GB16047@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay1.public.one.com ([91.198.169.124]:40405 "EHLO
-	mailrelay1.public.one.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751952AbaLSJWK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Dec 2014 04:22:10 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:56207 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751907AbaLSKD7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Dec 2014 05:03:59 -0500
+In-Reply-To: <20141217153039.GB16047@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-My ISP finally gave up on the old mail address, so I am moving things
-over to bitmath.org instead. Also change the status fields to better
-reflect reality.
+On Wed, 17 Dec 2014, Benjamin Tissoires wrote:
 
-Signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
----
- MAINTAINERS | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+> > Devices speaking HID++ 2.0 report a different error code (0xff). Detect
+> > these errors too to avoid 5 second delays when the device reports an
+> > error. Caught by... well, a bug in the QEMU emulation of this receiver.
+> > 
+> > Renamed fap to rap for HID++ 1.0 errors because it is more logical,
+> > it has no functional difference.
+> > 
+> > Signed-off-by: Peter Wu <peter@lekensteyn.nl>
+> > ---
+> 
+> Jiri, it looks like this one fall off from your radar.
+> 
+> It's not a problem per-se, I'd like to have some feedbacks from Logitech
+> first, but still, there is a bug and Peter fixed it :)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c721042..62b53e8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -714,15 +714,15 @@ F:	include/uapi/linux/apm_bios.h
- F:	drivers/char/apm-emulation.c
- 
- APPLE BCM5974 MULTITOUCH DRIVER
--M:	Henrik Rydberg <rydberg@euromail.se>
-+M:	Henrik Rydberg <rydberg@bitmath.org>
- L:	linux-input@vger.kernel.org
--S:	Maintained
-+S:	Odd fixes
- F:	drivers/input/mouse/bcm5974.c
- 
- APPLE SMC DRIVER
--M:	Henrik Rydberg <rydberg@euromail.se>
-+M:	Henrik Rydberg <rydberg@bitmath.org>
- L:	lm-sensors@lm-sensors.org
--S:	Maintained
-+S:	Odd fixes
- F:	drivers/hwmon/applesmc.c
- 
- APPLETALK NETWORK LAYER
-@@ -4813,10 +4813,10 @@ F:	include/uapi/linux/input.h
- F:	include/linux/input/
- 
- INPUT MULTITOUCH (MT) PROTOCOL
--M:	Henrik Rydberg <rydberg@euromail.se>
-+M:	Henrik Rydberg <rydberg@bitmath.org>
- L:	linux-input@vger.kernel.org
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git
--S:	Maintained
-+S:	Odd fixes
- F:	Documentation/input/multi-touch-protocol.txt
- F:	drivers/input/input-mt.c
- K:	\b(ABS|SYN)_MT_
+It's actually still on my radar, but that was exactly the reason I have it 
+on hold, because my understanding was that you are waiting for Logitech to 
+review it.
+
+Nestor ... ?
+
 -- 
-2.1.3
-
+Jiri Kosina
+SUSE Labs

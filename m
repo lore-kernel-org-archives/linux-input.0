@@ -1,193 +1,85 @@
-From: RH <r@hirner.at>
-Subject: Re: [PATCH] Handle spurious backslash key repeats on some keyboards
-Date: Fri, 19 Dec 2014 16:28:50 +0000 (UTC)
-Message-ID: <m71jo1$i0n$1@ger.gmane.org>
-References: <1407664566-5303-1-git-send-email-megahallon@gmail.com>
-	<CAMsZVf_h2fODG2UTs6ddZYZLGfF5hdyY+1PdwXO8N5taDahRwg@mail.gmail.com>
-	<alpine.LNX.2.00.1409101025430.5523@pobox.suse.cz>
-	<CANq1E4S98gWYSHJ=WxNYKB2t=95WY=4tcC3ioFYcm5ZkwFSs=g@mail.gmail.com>
-	<CAMsZVf9_RHYMRmpvenYcHwXFN3B=D5KnZ0zGOR+zzTw1eOqWHw@mail.gmail.com>
-	<CANq1E4Q0oiAxDB7osAMrqs=OGEys6GzZh8GDj9B8jAEpxX7now@mail.gmail.com>
-	<20140910225134.GH38736@core.coreip.homeip.net>
-	<CAMsZVf_NiHJW9mv+k7Tu4hX5EfcAosnyCfn7G1pVWR8oG5qQ0Q@mail.gmail.com>
-	<CANq1E4TjgTs+4_84NZGCctGpNJ4x5VG05_ej9=eGjczcdim6Yg@mail.gmail.com>
-	<CAMsZVf_K1ji75K3CcqGjED01Lppbk8gFSw0ADB-QOG=wVYiF_g@mail.gmail.com>
-	<CANq1E4Qw3_0M7BCgDJTX0WGHU+CnFdnuASX0JfEK-Btkc=7Rsg@mail.gmail.com>
-	<CAMsZVf-r6GvPOUEUye9wcLrT-g8SXkk5b3HKBDDTyHjAj38aKQ@mail.gmail.com>
-	<CANq1E4Rw7q9QpA1UYsjuu9umB_AE2qE6JhNKQ9e8W3xp+m_2EA@mail.gmail.com>
-	<CAMsZVf-2_eFKoqgO1+bEB4ziA1e9-z4rYviy_r9ksjmAUAe5Sg@mail.gmail.com>
+From: Jonathan Richardson <jonathar@broadcom.com>
+Subject: Re: [PATCH 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Fri, 19 Dec 2014 11:51:33 -0800
+Message-ID: <549481C5.7050802@broadcom.com>
+References: <Jonathan Richardson <jonathar@broadcom.com>  <1418867992-3550-1-git-send-email-jonathar@broadcom.com>  <1418867992-3550-2-git-send-email-jonathar@broadcom.com> <1418868881.28384.8.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:45130 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751218AbaLSQfG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Dec 2014 11:35:06 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1Y20W7-00048F-7D
-	for linux-input@vger.kernel.org; Fri, 19 Dec 2014 17:35:03 +0100
-Received: from d86-33-124-56.cust.tele2.at ([86.33.124.56])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Fri, 19 Dec 2014 17:35:03 +0100
-Received: from r by d86-33-124-56.cust.tele2.at with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Fri, 19 Dec 2014 17:35:03 +0100
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1418868881.28384.8.camel@perches.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello,
+Thanks Joe. I'll send out a new patch set with your suggestions/fixes
+shortly.
 
-I experience the same issue with my new keyboard:
-*Corsair Raptor K30 (German version)*
-
-The issue can be fixed/worked around with this rule in hwdb:
-
----------------
-#keyboard:name:*Corsair*:dmi:bvn*:bvr*:bd*:svn*:pn*:pvr*
-keyboard:usb:v1B1Cp1B0A*
- KEYBOARD_KEY_70031=reserved
----------------
-
-So you think the US version won't work with this anymore? I guess they 
-will send both scancodes, too.
-
-This is the output of lsusb:
----------------
-Bus 004 Device 008: ID 1b1c:1b0a Corsair 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x1b1c Corsair
-  idProduct          0x1b0a 
-  bcdDevice            1.03
-  iManufacturer           1 Corsair
-  iProduct                2 Corsair K30A Gaming Keyboard
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           84
-    bNumInterfaces          3
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      1 Boot Interface Subclass
-      bInterfaceProtocol      1 Keyboard
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      65
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      25
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0004  1x 4 bytes
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      37
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000f  1x 15 bytes
-        bInterval               1
-Device Status:     0x0000
-  (Bus Powered)
----------------
-
-Did you already find someone with a US keyboard? Shall I write in the 
-corsair forums or to the support to find out whether US keyboards have 
-the same product IDs? If this is not the case, we could safely use vendor/
-product IDs for the workaround.
-
-I'd really like to submit working hwdb lines to the udev database to save 
-other users from having these troubles.
-
-Also, do you know why
-
-Greetings,
-RH
-
+On 14-12-17 06:14 PM, Joe Perches wrote:
+> On Wed, 2014-12-17 at 17:59 -0800, Jonathan Richardson wrote:
+>> Add initial version of the Broadcom touchscreen driver.
+> 
+> trivia:
+> 
+>> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+> 
+>> +/* Bit values for REGCTL2 */
+>> +#define TS_CONTROLLER_EN_BIT    (1 << 16)
+>> +#define TS_CONTROLLER_AVGDATA_SHIFT 8
+>> +#define TS_CONTROLLER_AVGDATA_MASK (0x7 << TS_CONTROLLER_AVGDATA_SHIFT)
+>> +#define TS_CONTROLLER_PWR_LDO   (1<<5)
+>> +#define TS_CONTROLLER_PWR_ADC   (1<<4)
+>> +#define TS_CONTROLLER_PWR_BGP   (1<<3)
+>> +#define TS_CONTROLLER_PWR_TS    (1<<2)
+>> +#define TS_WIRE_MODE_BIT        (1<<1)
+> 
+> Be nicer to use the same spacing around <<
+> or maybe use the BIT macro.
+> 
+> []
+> 
+>> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
+>> +{
+>> +	int ret;
+>> +	u32 val;
+>> +	struct device *dev = &priv->pdev->dev;
+>> +
+>> +	priv->cfg_params = default_config;
+>> +
+>> +	ret = of_property_read_u32(np, "scanning_period", &val);
+>> +	if (ret >= 0) {
+>> +		if ((1 <= val) && (val <= 256))
+>> +			priv->cfg_params.scanning_period = val;
+>> +		else {
+>> +			dev_err(dev, "scanning_period must be [1-256]");
+>> +			return -EINVAL;
+>> +		}
+> 
+> ret is never used so I'd probably remove it
+> from all these blocks.
+> 
+> It's probably be nicer to invert the logic ald
+> remove the else.
+> 
+> There's a missing terminating newline too.
+> 
+> Something like:
+> 
+> 	if (of_property_read_u32(np, "scanning_period", &val) >= 0) {
+> 		if (val < 1 || val > 256) {
+> 			dev_err(dev, "scanning_period must be [1-256]\n");
+> 			return -EINVAL;
+> 		}
+> 		priv->cfg_params.scanning_period = val;
+> 	}
+> 
+> etc...
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

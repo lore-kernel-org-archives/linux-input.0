@@ -1,43 +1,36 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/3] HID: logitech-{dj,hidpp}: check report length
-Date: Fri, 19 Dec 2014 11:48:43 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412191147100.1680@pobox.suse.cz>
-References: <1418691016-30681-1-git-send-email-peter@lekensteyn.nl> <1418691016-30681-3-git-send-email-peter@lekensteyn.nl> <CAN+gG=HWqpy6MUfWvwBavk+EkmwbBiCCN0L1_i8H61WYRU0yGw@mail.gmail.com> <9001812.kk9brShn75@al>
- <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: logitech-hidpp: prefix the name with Logitech
+Date: Fri, 19 Dec 2014 11:53:40 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412191153150.1680@pobox.suse.cz>
+References: <1418337599-10239-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1412171037200.1680@pobox.suse.cz> <20141217152837.GA16047@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57298 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:57389 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751317AbaLSKsp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Dec 2014 05:48:45 -0500
-In-Reply-To: <CAN+gG=EL0kYim=_uaS4yj7c_XC8rKa1eELxpVXaOuvnWgT_eQw@mail.gmail.com>
+	id S1752450AbaLSKxm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Dec 2014 05:53:42 -0500
+In-Reply-To: <20141217152837.GA16047@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 16 Dec 2014, Benjamin Tissoires wrote:
+On Wed, 17 Dec 2014, Benjamin Tissoires wrote:
 
-> This is my personal opinion and Jiri can say something different. I
-> tend not to send big patches while there is a window opened. Sometimes
-> Jiri has the time to get through them, sometime he does not.
-> In this case, I think the patches you sent should be in the bugs fixes
-> categories, and, IMO should make into 3.19-rc1 or 3.19-rc2 (especially
-> the length check which could lead to CVEs if not tackled soon enough).
-> For these kind of things there is no timing, and the sooner the
-> better.
-> That being said, make sure that you keep track of those patches in
-> case they get lost for obvious reasons and be prepared to remind about
-> them if they do not make their way in Jiri's tree.
+> Thanks for applying most of the patches (2 are missing, I'll raise them
+> in your inbox :-P )
 > 
-> Jiri, comments?
+> Regarding this one, I was wondering if we could not force it into 3.19,
+> or at least add a stable@ tag. I had requested this in the first
+> submission, and the rationale was to not change a third time the name of
+> the device (from "Logitech Unifying Device. Wireless PID:XXXX" to
+> "[TMK]XXX" to "Logitech [TMK]XXX").
+> 
+> Userspace would be grateful to have a reliable name.
 
-I don't mind patches being sent during a merge window, it doesn't disturb 
-my workflow.
-
-But it's always good to explicitly mark patches which are bugfixes and 
-should go to -rc, so that I bump up the priority for reviewing them.
+Fair enough. I've cherry-picked it from for-3.20/logitech into 
+for-3.19/upstream-fixes as well.
 
 Thanks,
 

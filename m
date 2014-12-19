@@ -1,92 +1,66 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH 3/3] HID: rmi: Add support for the touchpad in the Razer Blade 14 laptop
-Date: Fri, 19 Dec 2014 14:45:43 -0800
-Message-ID: <1419029143-20484-3-git-send-email-aduggan@synaptics.com>
-References: <1419029143-20484-1-git-send-email-aduggan@synaptics.com>
+From: Jonathan Richardson <jonathar@broadcom.com>
+Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Fri, 19 Dec 2014 15:03:20 -0800
+Message-ID: <5494AEB8.8060606@broadcom.com>
+References: <Jonathan Richardson <jonathar@broadcom.com>  <1419027470-7969-1-git-send-email-jonathar@broadcom.com>  <1419027470-7969-2-git-send-email-jonathar@broadcom.com> <1419028015.25129.14.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:64859 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752182AbaLSWr2 (ORCPT
+Received: from mail-gw1-out.broadcom.com ([216.31.210.62]:15875 "EHLO
+	mail-gw1-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751462AbaLSXDX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Dec 2014 17:47:28 -0500
-In-Reply-To: <1419029143-20484-1-git-send-email-aduggan@synaptics.com>
+	Fri, 19 Dec 2014 18:03:23 -0500
+In-Reply-To: <1419028015.25129.14.camel@perches.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
 
-Have hid-rmi handle all of the Razer Blade HID devices that are part of the
-composite USB device. This will allow hid-rmi to operate the touchpad in rmi
-mode while passing events from the other devices to hid-input.
+On 14-12-19 02:26 PM, Joe Perches wrote:
+> On Fri, 2014-12-19 at 14:17 -0800, Jonathan Richardson wrote:
+>> Add initial version of the Broadcom touchscreen driver.
+> 
+> more trivia:
+> 
+>> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+> []
+>> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
+>> +{
+>> +	u32 val;
+> []
+>> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
+>> +		if (val < 0 || val > 255) {
+>> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
+>> +			return -EINVAL;
+>> +		}
+>> +		priv->cfg_params.debounce_timeout = val;
+> 
+> Doesn't the compiler generate a warning message
+> about an impossible "unsigned < 0" test for all
+> of these "val < 0" uses?
+> 
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-core.c |  1 +
- drivers/hid/hid-ids.h  |  3 +++
- drivers/hid/hid-rmi.c  | 15 +++++++++++++++
- 3 files changed, 19 insertions(+)
+Actually no it doesn't. The gcc output shows that neither -Wtype-limits
+nor -Wextra are used to compile that file. I assume this is because
+there would be just too many warnings.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 81665b4..ef718f9 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1982,6 +1982,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
- 	{ }
- };
- 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7460f34..7d0912d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -767,6 +767,9 @@
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001		0x3001
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
- 
-+#define USB_VENDOR_ID_RAZER            0x1532
-+#define USB_DEVICE_ID_RAZER_BLADE_14   0x011D
-+
- #define USB_VENDOR_ID_REALTEK		0x0bda
- #define USB_DEVICE_ID_REALTEK_READER	0x0152
- 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index cdfe165..849b35a 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -1038,6 +1038,20 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	data->readReport = data->writeReport + data->output_report_size;
- 
-+	/*
-+	 * Unfortunately there is no way to query the touchpad in the
-+	 * Razer system to determine that it has pass through buttons
-+	 * so the only solution is to set phys buttons flag based on the
-+	 * vid and pid. In the future we should be able to query devices
-+	 * to find out. However, we need to know if the touchpad has
-+	 * physical buttons before the input_mapping gets called which
-+	 * is before we query the device. So we may have to resort to creating
-+	 * a list of devices based on product id.
-+	 */
-+	if (hdev->vendor == USB_VENDOR_ID_RAZER &&
-+	    hdev->product == USB_DEVICE_ID_RAZER_BLADE_14)
-+		data->device_flags |= RMI_DEVICE_HAS_PHYS_BUTTONS;
-+
- 	init_waitqueue_head(&data->wait);
- 
- 	mutex_init(&data->page_mutex);
-@@ -1074,6 +1088,7 @@ static void rmi_remove(struct hid_device *hdev)
- 
- static const struct hid_device_id rmi_id[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, rmi_id);
--- 
-2.1.0
+
+>> +	}
+>> +
+>> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
+>> +		if (val < 0 || val > 11) {
+> []
+>> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
+>> +		if (val < 0 || val > 255) {
+> []
+>> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
+>> +		if (val < 0 || val > 8) {
+> []
+>> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
+>> +		if (val < 0 || val > 31) {
+> 
+> 
 

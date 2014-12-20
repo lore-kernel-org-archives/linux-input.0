@@ -1,160 +1,57 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 1/7] input: alps: Set correct name of psmouse device in alps_init()
-Date: Sat, 20 Dec 2014 09:53:38 +0100
-Message-ID: <201412200953.38259@pali>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <20141216050234.GA35408@dtor-ws> <201412161258.20925@pali>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v3] input: Add new sun4i-lradc-keys driver
+Date: Sat, 20 Dec 2014 11:44:37 +0100
+Message-ID: <54955315.3030603@redhat.com>
+References: <1418898193-9160-1-git-send-email-hdegoede@redhat.com> <20141218175153.GA34618@dtor-ws>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1561681.8FBzYjSUbP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:35478 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750780AbaLTIxm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Dec 2014 03:53:42 -0500
-In-Reply-To: <201412161258.20925@pali>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Return-path: <linux-sunxi+bncBDRZXY4CYYORBHVG2WSAKGQE6PQNDXA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20141218175153.GA34618@dtor-ws>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart1561681.8FBzYjSUbP
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hi Dmitry,
 
-On Tuesday 16 December 2014 12:58:20 Pali Roh=C3=A1r wrote:
-> On Tuesday 16 December 2014 06:02:34 Dmitry Torokhov wrote:
-> > Hi Pali,
-> >=20
-> > On Fri, Nov 14, 2014 at 08:38:20PM +0100, Pali Roh=C3=A1r wrote:
-> > > On some laptops after starting them from off state (not
-> > > after reboot), function alps_probe_trackstick_v3() (called
-> > > from function alps_identify()) does not detect trackstick.
-> > > To fix this problem we need to reset device. But function
-> > > alps_identify() is called also from alps_detect() and we
-> > > do not want to reset device in detect function because it
-> > > will slow down initialization of all other non alps
-> > > devices.
-> > >=20
-> > > This patch moves code for setting correct device name &
-> > > protocol from function alps_detect() to alps_init() which
-> > > already doing full device reset.
-> > >=20
-> > > So this patch removes need to do trackstick detection in
-> > > alps_detect() function.
-> > >=20
-> > > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> > > ---
-> > >=20
-> > >  drivers/input/mouse/alps.c |   17 ++++++++++++++---
-> > >  1 file changed, 14 insertions(+), 3 deletions(-)
-> > >=20
-> > > diff --git a/drivers/input/mouse/alps.c
-> > > b/drivers/input/mouse/alps.c index 8d85c79..9ffa98d 100644
-> > > --- a/drivers/input/mouse/alps.c
-> > > +++ b/drivers/input/mouse/alps.c
-> > > @@ -2392,6 +2392,10 @@ int alps_init(struct psmouse
-> > > *psmouse)
-> > >=20
-> > >  	if (input_register_device(priv->dev2))
-> > >  =09
-> > >  		goto init_fail;
-> > >=20
-> > > +	if (!(priv->flags & ALPS_DUALPOINT))
-> > > +		psmouse->name =3D "GlidePoint TouchPad";
-> > > +	psmouse->model =3D priv->proto_version;
-> > > +
-> > >=20
-> > >  	psmouse->protocol_handler =3D alps_process_byte;
-> > >  	psmouse->poll =3D alps_poll;
-> > >  	psmouse->disconnect =3D alps_disconnect;
-> > >=20
-> > > @@ -2422,11 +2426,18 @@ int alps_detect(struct psmouse
-> > > *psmouse, bool set_properties)
-> > >=20
-> > >  		return -1;
-> > >  =09
-> > >  	if (set_properties) {
-> > >=20
-> > > +		/*
-> > > +		 * NOTE: To detect model and trackstick presence we
->=20
-> need
->=20
-> > > to do +		 *       full device reset. To speed up
->=20
-> detection
->=20
-> > > and prevent +		 *       calling duplicate=20
-initialization
-> > > sequence (both in +		 *       alps_detect() and
-> > > alps_init()) we set model/protocol +		 *       version=20
-and
-> > > correct name in alps_init() (which will +		 *       do
->=20
-> full
->=20
-> > > device reset). For now set name to DualPoint. +		 */
-> > >=20
-> > >  		psmouse->vendor =3D "ALPS";
-> > >=20
-> > > -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
-> > > -				"DualPoint TouchPad" : "GlidePoint";
-> > > -		psmouse->model =3D dummy.proto_version << 8;
-> > > +		psmouse->name =3D "DualPoint TouchPad";
-> > >=20
-> > >  	}
-> > >=20
-> > > +
-> >=20
-> > I do not quite like the way we change the device description
-> > back and forth. Do you think we could allocate the "real"
-> > priv structure in alps_detect() and have alps_init() expect
-> > to find it (and free it if set_properties is false). This
-> > way we'd go through initialization once in detect, it will
-> > be authoritative, and we would set the name of the device
-> > properly from the beginning.
-> >=20
-> > Thanks.
->=20
-> No without introducing another psmouse_reset call. I want to
-> reduce time of loading driver, so I think this is better.
+On 18-12-14 18:51, Dmitry Torokhov wrote:
+> Hi Hans,
+>
+> On Thu, Dec 18, 2014 at 11:23:13AM +0100, Hans de Goede wrote:
+>> Allwinnner sunxi SoCs have a low resolution adc (called lradc) which is
+>> specifically designed to have various (tablet) keys (ie home, back, search,
+>> etc). attached to it using a resistor network. This adds a driver for this.
+>>
+>> There are 2 channels, currently this driver only supports chan0 since there
+>> are no boards known to use chan1.
+>>
+>> This has been tested on an olimex a10s-olinuxino-micro, a13-olinuxino, and
+>> a20-olinuxino-micro.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>> --
+>> Changes in v2:
+>> -Change devicetree bindings to use a per key subnode, like gpio-keys does
+>> Changes in v3:
+>> -Handle keyup irq flag before irqdown, in case we get both at once
+>
+> Thank you for making changes. Can you please tell me if the driver still
+> works if you drop the patch below on top of it? The changes are:
+>
+> - split DT parsing into a separate function;
+> - make sure keymap is not empty;
+> - change 'ret' variable to 'error';
 
-Also psmouse-base.c call psmouse_reset between alps_detect() and=20
-alps_init(). We must do trackstick detection after psmouse_reset,=20
-but intorducing another psmouse_reset in alps_detect() will slow=20
-down initialization for ALPS devices. Also do not remember that=20
-psmouse_reset will lock both keyboard & mouse for one second=20
-(sometimes for two) on my laptop. I played with this and I think=20
-my patch is good approach how to do trackstick detection without=20
-slowdown or other side effects.
+The proposed changes look good, and I've given them a test-spin and everything
+still works fine.
 
-Also we do not need to know if ALPS touchpad has trackstick=20
-device in alps_detect() phase. In alps_detect() we just need to=20
-know if PS/2 device is ALPS or not. From psmouse/serio point of=20
-view there is only one ALPS device on PS/2/i8042 bus. Just=20
-alps.ko driver parse PS/2 packets and detect which packet has=20
-touchpad header and which trackpoint. So we really do not need to=20
-know if trackstick is there or not in alps_detect() function.
+Thanks & Regards,
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart1561681.8FBzYjSUbP
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlSVORIACgkQi/DJPQPkQ1JRbwCfcFjo+nahvMFkiQRiC9oFpIgb
-swIAn26KjIRFCeNJlfBYBaSWMFmK7WJY
-=CQG5
------END PGP SIGNATURE-----
-
---nextPart1561681.8FBzYjSUbP--
+Hans

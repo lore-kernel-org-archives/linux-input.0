@@ -1,47 +1,38 @@
-From: Ross Skaliotis <rskaliotis@gmail.com>
-Subject: [PATCH] hid: Fix battery support for the 2009 ANSI Apple wireless keyboard.
-Date: Sat, 20 Dec 2014 19:01:35 -0500
-Message-ID: <1419120095-11889-1-git-send-email-rskaliotis@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f45.google.com ([209.85.192.45]:40038 "EHLO
-	mail-qg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752368AbaLUACd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Dec 2014 19:02:33 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: zhangfei <zhangfei.gao@linaro.org>
+Subject: Re: [PATCH hisi] Input: i2c_atmel_read() can be static
+Date: Sun, 21 Dec 2014 19:29:45 +0800
+Message-ID: <5496AF29.3060802@linaro.org>
+References: <201412190926.IzkyYvvl%fengguang.wu@intel.com> <20141219015659.GA49367@snb.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141219015659.GA49367@snb.sh.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kbuild test robot <fengguang.wu@intel.com>
+Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "xuwei (O)" <xuwei5@hisilicon.com>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ross Skaliotis <rskaliotis@gmail.com>
 
-Enabled quirks necessary for correct battery capacity reporting. Cleaned up
-surrounding style.
 
-Signed-off-by: Ross Skaliotis <rskaliotis@gmail.com>
----
- drivers/hid/hid-input.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index e0a0f06..146da43 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -306,10 +306,13 @@ static enum power_supply_property hidinput_battery_props[] = {
- 
- static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
--			USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
--	HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
-+		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
-+	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-+		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
-+	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
--			       USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
-+		USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
- 	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
- 		USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
--- 
-2.0.4
+On 12/19/2014 09:56 AM, kbuild test robot wrote:
+> drivers/input/touchscreen/atmel_mXT224E.c:460:5: sparse: symbol 'i2c_atmel_read' was not declared. Should it be static?
+> drivers/input/touchscreen/atmel_mXT224E.c:496:5: sparse: symbol 'i2c_atmel_write' was not declared. Should it be static?
+> drivers/input/touchscreen/atmel_mXT224E.c:532:5: sparse: symbol 'i2c_atmel_write_byte_data' was not declared. Should it be static?
+> drivers/input/touchscreen/atmel_mXT224E.c:538:10: sparse: symbol 'get_object_address' was not declared. Should it be static?
+> drivers/input/touchscreen/atmel_mXT224E.c:547:9: sparse: symbol 'get_object_size' was not declared. Should it be static?
+> drivers/input/touchscreen/atmel_mXT224E.c:557:9: sparse: symbol 'get_object_size_from_address' was not declared. Should it be static?
+> drivers/input/touchscreen/atmel_mXT224E.c:847:32: sparse: symbol 'atmel_ts_get_pdata' was not declared. Should it be static?
+>
+> Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
 
+Thanks Fengguang for the patch, will take it.
+
+However, the file drivers/input/touchscreen/atmel_mXT224E.c is not used 
+for mainline kernel.
+
+Xuwei will remove git://github.com/hisilicon/linux-hisi 
+integration-hilt-linux-linaro.
+Sorry for the confusion.
+
+Thanks

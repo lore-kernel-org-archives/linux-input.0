@@ -1,64 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] input: Add new sun4i-lradc-keys driver
-Date: Sun, 21 Dec 2014 18:51:41 -0800
-Message-ID: <20141222025141.GC30082@dtor-ws>
-References: <1418898193-9160-1-git-send-email-hdegoede@redhat.com>
- <20141218175153.GA34618@dtor-ws>
- <54955315.3030603@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
+Date: Mon, 22 Dec 2014 02:56:11 +0000
+Message-ID: <BN1PR06MB070D9DC501F22048B9EAB4ED1560@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1418896856-15766-1-git-send-email-dudl@cypress.com>
+ <20141220071533.GA1139@newt.localdomain> <20141220073154.GB4637@dtor-ws>
+ <BN1PR06MB0701C428956C2E7F7A1DD76D1560@BN1PR06MB070.namprd06.prod.outlook.com>
+ <20141222023959.GA30082@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBQMO32SAKGQEJM63M7A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54955315.3030603-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-by2on0148.outbound.protection.outlook.com ([207.46.100.148]:44768
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753733AbaLVC4O convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Dec 2014 21:56:14 -0500
+In-Reply-To: <20141222023959.GA30082@dtor-ws>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jeremiah Mahler <jmmahler@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sat, Dec 20, 2014 at 11:44:37AM +0100, Hans de Goede wrote:
-> Hi Dmitry,
-> 
-> On 18-12-14 18:51, Dmitry Torokhov wrote:
-> >Hi Hans,
+Got it.
+Thanks, Dmitry.
+
+Dudley
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 2014?12?22? 10:40
+> To: Dudley Du
+> Cc: Jeremiah Mahler; rydberg@euromail.se; bleung@google.com; David Solda;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
+>
+> Hi Dudley,
+>
+> On Mon, Dec 22, 2014 at 02:09:36AM +0000, Dudley Du wrote:
+> > Thanks, Dmitry and Jeremiah,
 > >
-> >On Thu, Dec 18, 2014 at 11:23:13AM +0100, Hans de Goede wrote:
-> >>Allwinnner sunxi SoCs have a low resolution adc (called lradc) which is
-> >>specifically designed to have various (tablet) keys (ie home, back, search,
-> >>etc). attached to it using a resistor network. This adds a driver for this.
-> >>
-> >>There are 2 channels, currently this driver only supports chan0 since there
-> >>are no boards known to use chan1.
-> >>
-> >>This has been tested on an olimex a10s-olinuxino-micro, a13-olinuxino, and
-> >>a20-olinuxino-micro.
-> >>
-> >>Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> >>--
-> >>Changes in v2:
-> >>-Change devicetree bindings to use a per key subnode, like gpio-keys does
-> >>Changes in v3:
-> >>-Handle keyup irq flag before irqdown, in case we get both at once
+> > I reproduced this issue in my side when putting fingers on trackpad when system
+> booting up.
+> > It only happened on gen3 trackpad device.
+> > The root cause is, for gen3 TP, the cyapa->ops->sort_empty_output_data is not
+> set, so when cyapa->input is not set,
+> > the interrupt process should be passed, but since the logica error, it's not, so this
+> issue happen.
 > >
-> >Thank you for making changes. Can you please tell me if the driver still
-> >works if you drop the patch below on top of it? The changes are:
-> >
-> >- split DT parsing into a separate function;
-> >- make sure keymap is not empty;
-> >- change 'ret' variable to 'error';
-> 
-> The proposed changes look good, and I've given them a test-spin and everything
-> still works fine.
+> > The fix code should be as below.
+> > I will correct it and resubmited the patches.
+>
+> Please hold off resubmitting the patches just yet, let me go over the
+> last version you posted.
+>
+> Thanks!
+>
+>
+> --
+> Dmitry
 
-Excellent, folded and applied.
-
-Thanks.
-
--- 
-Dmitry
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

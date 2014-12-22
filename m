@@ -1,38 +1,89 @@
-From: zhangfei <zhangfei.gao@linaro.org>
-Subject: Re: [PATCH hisi] Input: i2c_atmel_read() can be static
-Date: Sun, 21 Dec 2014 19:29:45 +0800
-Message-ID: <5496AF29.3060802@linaro.org>
-References: <201412190926.IzkyYvvl%fengguang.wu@intel.com> <20141219015659.GA49367@snb.sh.intel.com>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
+Date: Mon, 22 Dec 2014 02:09:36 +0000
+Message-ID: <BN1PR06MB0701C428956C2E7F7A1DD76D1560@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1418896856-15766-1-git-send-email-dudl@cypress.com>
+ <20141220071533.GA1139@newt.localdomain> <20141220073154.GB4637@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141219015659.GA49367@snb.sh.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: kbuild test robot <fengguang.wu@intel.com>
-Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "xuwei (O)" <xuwei5@hisilicon.com>
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-by2on0113.outbound.protection.outlook.com ([207.46.100.113]:52352
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751127AbaLVCJk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Dec 2014 21:09:40 -0500
+In-Reply-To: <20141220073154.GB4637@dtor-ws>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jeremiah Mahler <jmmahler@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+
+Thanks, Dmitry and Jeremiah,
+
+I reproduced this issue in my side when putting fingers on trackpad when system booting up.
+It only happened on gen3 trackpad device.
+The root cause is, for gen3 TP, the cyapa->ops->sort_empty_output_data is not set, so when cyapa->input is not set,
+the interrupt process should be passed, but since the logica error, it's not, so this issue happen.
+
+The fix code should be as below.
+I will correct it and resubmited the patches.
+
+Code to fix this issue.
+@@ -585,9 +585,10 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
+        /* Interrupt event maybe from trackpad device input reporting. */
+        if (cont && cyapa->ops->irq_handler) {
+                /* Still in probling or in firware image udpating or reading. */
+-               if (!cyapa->input && cyapa->ops->sort_empty_output_data) {
+-                       cyapa->ops->sort_empty_output_data(cyapa,
+-                               NULL, NULL, NULL);
++               if (!cyapa->input) {
++                       if (cyapa->ops->sort_empty_output_data)
++                               cyapa->ops->sort_empty_output_data(cyapa,
++                                       NULL, NULL, NULL);
+                        goto out;
+                }
+
+Thanks,
+Dudley
 
 
-
-On 12/19/2014 09:56 AM, kbuild test robot wrote:
-> drivers/input/touchscreen/atmel_mXT224E.c:460:5: sparse: symbol 'i2c_atmel_read' was not declared. Should it be static?
-> drivers/input/touchscreen/atmel_mXT224E.c:496:5: sparse: symbol 'i2c_atmel_write' was not declared. Should it be static?
-> drivers/input/touchscreen/atmel_mXT224E.c:532:5: sparse: symbol 'i2c_atmel_write_byte_data' was not declared. Should it be static?
-> drivers/input/touchscreen/atmel_mXT224E.c:538:10: sparse: symbol 'get_object_address' was not declared. Should it be static?
-> drivers/input/touchscreen/atmel_mXT224E.c:547:9: sparse: symbol 'get_object_size' was not declared. Should it be static?
-> drivers/input/touchscreen/atmel_mXT224E.c:557:9: sparse: symbol 'get_object_size_from_address' was not declared. Should it be static?
-> drivers/input/touchscreen/atmel_mXT224E.c:847:32: sparse: symbol 'atmel_ts_get_pdata' was not declared. Should it be static?
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 2014?12?20? 15:32
+> To: Jeremiah Mahler; Dudley Du; rydberg@euromail.se; bleung@google.com;
+> David Solda; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH v16 00/12] input: cyapa: instruction of cyapa patches
 >
-> Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
+> On Fri, Dec 19, 2014 at 11:15:33PM -0800, Jeremiah Mahler wrote:
+> > Dudley,
+> >
+> > On Thu, Dec 18, 2014 at 06:00:44PM +0800, Dudley Du wrote:
+> > > V16 patches have below updates, details of other updates see history list:
+> > [...]
+> >
+> > This version has problems.  I am getting an oops (below) and then things
+> > quit working and usually my machine hangs.
+> >
+> > [    2.388284] input: HDA Intel PCH Headphone as
+> /devices/pci0000:00/0000:00:1b.0/sound/card1/input10
+> > [    2.412938] FS-Cache: Netfs 'nfs' registered for caching
+> > [    2.427645] [drm] Initialized i915 1.6.0 20141121 for 0000:00:02.0 on minor 0
+> > [    2.428320] __add_probed_i2c_device failed to register device 1-4a
+> > [    2.428331] platform chromeos_laptop: Driver chromeos_laptop requests
+> probe deferral
+> > [    2.429126] fbcon: inteldrmfb (fb0) is primary device
+> > [    2.449066] BUG: unable to handle kernel NULL pointer dereference at
+> 0000000000000160
+> > [    2.449073] IP: [<ffffffff813f7b2b>] input_mt_sync_frame+0xb/0x60
+>
+> Sounds like we got an interrupts before we had a chance to initialize
+> input device...
+>
+> Thanks.
+>
+> --
+> Dmitry
 
-Thanks Fengguang for the patch, will take it.
-
-However, the file drivers/input/touchscreen/atmel_mXT224E.c is not used 
-for mainline kernel.
-
-Xuwei will remove git://github.com/hisilicon/linux-hisi 
-integration-hilt-linux-linaro.
-Sorry for the confusion.
-
-Thanks
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

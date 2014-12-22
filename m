@@ -1,41 +1,115 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: randconfig build error with next-20141219, in
- drivers/input/misc/regulator-haptic.c
-Date: Sun, 21 Dec 2014 19:02:15 -0800
-Message-ID: <20141222030215.GD30082@dtor-ws>
-References: <CA+r1Zhh3u_JMnvvYaXD81ew--H_t9exuX-xvuNw8n=OPA-PWNA@mail.gmail.com>
+From: Vishnu Patekar <vishnupatekar0510@gmail.com>
+Subject: Re: [PATCHv3 0/5] ARM:sunxi:ps2 Added support for A10/A20 ps2 controller.
+Date: Mon, 22 Dec 2014 09:00:45 +0530
+Message-ID: <CAEzqOZsV_KYio1EYEk885KPT0Q=HTWUOzrrzf-fB1ssJkx=e6Q@mail.gmail.com>
+References: <1418408748-9797-1-git-send-email-vishnupatekar0510@gmail.com>
+	<548C1E7D.1000005@redhat.com>
+	<CAEzqOZtyeAnG660AKf_0_gCa-+BT_pAzHk0HYYSCdm4y89GFJA@mail.gmail.com>
+	<548D5207.8030004@redhat.com>
+	<CAEzqOZsWSpd_r3Oc=PBVw3NQH-_1V9JXtC2H4tZ3U6nCN_Z7aA@mail.gmail.com>
+	<548EFA9F.4080208@redhat.com>
+	<CAGb2v659jEj7cxPCu1UNPb-p6iaH6Sjcp4LCgsBOyBh-odSUhw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+r1Zhh3u_JMnvvYaXD81ew--H_t9exuX-xvuNw8n=OPA-PWNA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jim Davis <jim.epost@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f54.google.com ([74.125.82.54]:42276 "EHLO
+	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753692AbaLVDas (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Dec 2014 22:30:48 -0500
+In-Reply-To: <CAGb2v659jEj7cxPCu1UNPb-p6iaH6Sjcp4LCgsBOyBh-odSUhw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "jdelvare@suse.de" <jdelvare@suse.de>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ralf@linux-mips.org" <ralf@linux-mips.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "msalter@redhat.com" <msalter@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, Kumar Gala <galak@codeaurora.org>, "maxime.ripard@free-electrons.com" <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 
-On Fri, Dec 19, 2014 at 09:13:02AM -0700, Jim Davis wrote:
-> Building with the attached random configuration file,
->=20
-> drivers/input/misc/regulator-haptic.c: In function =E2=80=98regulator=
-_haptic_probe=E2=80=99:
-> drivers/input/misc/regulator-haptic.c:184:2: error: implicit
-> declaration of function =E2=80=98devm_regulator_get_exclusive=E2=80=99
-> [-Werror=3Dimplicit-function-declaration]
->   haptic->regulator =3D devm_regulator_get_exclusive(&pdev->dev, "hap=
-tic");
->   ^
-> drivers/input/misc/regulator-haptic.c:184:20: warning: assignment mak=
-es pointer
-> from integer without a cast [enabled by default]
->   haptic->regulator =3D devm_regulator_get_exclusive(&pdev->dev, "hap=
-tic");
->                     ^
-> cc1: some warnings being treated as errors
-> make[3]: *** [drivers/input/misc/regulator-haptic.o] Error 1
+Sorry for delayed response.
 
-Thanks, I'll add the missing dependency on CONFIG_REGULATOR.
+Thanks, Chen-Yu.
+So, I'll keep ps2 enabled for Lime2 board without any comment.
 
---=20
-Dmitry
+On Mon, Dec 15, 2014 at 9:11 PM, Chen-Yu Tsai <wens@csie.org> wrote:
+> Hi,
+>
+> On Mon, Dec 15, 2014 at 11:13 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>> Hi,
+>>
+>>
+>> On 15-12-14 15:13, Vishnu Patekar wrote:
+>>>
+>>> Hi,
+>>>
+>>> On Sun, Dec 14, 2014 at 2:31 PM, Hans de Goede <hdegoede@redhat.com>
+>>> wrote:
+>>>>
+>>>> Hi,
+>>>>
+>>>> On 13-12-14 21:01, Vishnu Patekar wrote:
+>>>>>
+>>>>>
+>>>>> Hello Hans,
+>>>>> Please find my comments inlined.
+>>>>>
+>>>>> On 12/13/14, Hans de Goede <hdegoede@redhat.com> wrote:
+>>>>>>
+>>>>>>
+>>>>>> Hi VishnuPatekar,
+>>>>>>
+>>>>>> The patch mangling for this set seems to have gone a bit wrong I'm
+>>>>>> afraid
+>>>>>
+>>>>>
+>>>>>
+>>>>> No, this time I've corrected it. Infact, last version of patch did not
+>>>>> used the status bit error macros.
+>>>>>
+>>>>>> a lot of the patches have my fixup commit messages (which should have
+>>>>>> disappeared when squashing in the patches), please replace those by
+>>>>>> proper
+>>>>>> commit messages describing what the patch actually does.
+>>>>>
+>>>>>
+>>>>> Yes, [PATCHv3 3/5] uses fixup. I'll correct it.
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Also the adding of the commented nodes for the lime2 seems to be gone
+>>>>>> entirely
+>>>>>> from the set, instead now only a comment about the conflict with the
+>>>>>> hdmi
+>>>>>> pins is added, but it is above the i2c node instead of above a ps2
+>>>>>> node.
+>>>>>>
+>>>>> Maxime's suggested that we should not add commented nodes specially
+>>>>> when its trivial to apply. And just note saying ps20 pins conflict
+>>>>> with HDMI.
+>>>>
+>>>>
+>>>>
+>>>> Ah, I see.
+>>>>
+>>>>> Should I remove the this comment as well?
+>>>>> Or
+>>>>> Put this note in start of DTS file?
+>>>>
+>>>>
+>>>>
+>>>> The comment should be added to where the pinctrl bits are, not to the
+>>>> lime2
+>>>> file, ps0 will conflict with hdmi on all boards.
+>>>
+>>>
+>>> Well, In that case,PS2_0 pins conflicts with HDMI, PS2_1 pins
+>>> conflicts with LCD. Every pin has multiplexing.
+>>
+>>
+>> Almost every A10 board has a hdmi connector, and only the hdmi ddc pins
+>> are multiplexed, so this is sort of special, but yes if we do not have
+>> the commented nodes in the dts file, then this comment can be dropped too
+>> I guess.
+>
+> All the HDMI pins have dedicated pins. In addition, the DDC pins are
+> multiplexed. On the Lime, the dedicated pins (ball # R23, R22) are
+> used. I just checked the schematics. There should be no conflict.
+>
+> ChenYu

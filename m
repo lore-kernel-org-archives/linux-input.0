@@ -1,52 +1,117 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: [PATCH v8 5/6] ARM: sunxi: Add AXP20x support in defconfig
-Date: Tue, 23 Dec 2014 10:53:13 +0800
-Message-ID: <1419303194-3075-6-git-send-email-wens@csie.org>
-References: <1419303194-3075-1-git-send-email-wens@csie.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: Re: [Question : drivers/input ] Fixing Event Filter Mechanism in
+ input subsystem
+Date: Tue, 23 Dec 2014 20:04:45 +0530
+Message-ID: <CA+HOOsgDm-ZGycDwdzw3SvbscUefp7xcD-ikFSF2heouHMhS4g@mail.gmail.com>
+References: <CA+HOOsgL_fY=Wc+ciDAuk485d=uTn=YTgVGVDJ5Qk3UsqQ8zVA@mail.gmail.com>
+	<20141222172622.GA18556@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBHVS4OSAKGQEUKR4PCI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1419303194-3075-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f180.google.com ([209.85.160.180]:65159 "EHLO
+	mail-yk0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750983AbaLWOeq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Dec 2014 09:34:46 -0500
+Received: by mail-yk0-f180.google.com with SMTP id 9so3136179ykp.11
+        for <linux-input@vger.kernel.org>; Tue, 23 Dec 2014 06:34:46 -0800 (PST)
+In-Reply-To: <20141222172622.GA18556@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Dear Mr Dmitry ,
 
-Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
----
- arch/arm/configs/sunxi_defconfig | 3 +++
- 1 file changed, 3 insertions(+)
+Thanks for the reply.
 
-diff --git a/arch/arm/configs/sunxi_defconfig b/arch/arm/configs/sunxi_defconfig
-index 7a342d2780a8..0a781e3c6de3 100644
---- a/arch/arm/configs/sunxi_defconfig
-+++ b/arch/arm/configs/sunxi_defconfig
-@@ -54,6 +54,8 @@ CONFIG_STMMAC_ETH=y
- # CONFIG_INPUT_MOUSEDEV is not set
- # CONFIG_INPUT_KEYBOARD is not set
- # CONFIG_INPUT_MOUSE is not set
-+CONFIG_INPUT_MISC=y
-+CONFIG_INPUT_AXP20X_PEK=y
- CONFIG_SERIAL_8250=y
- CONFIG_SERIAL_8250_CONSOLE=y
- CONFIG_SERIAL_8250_NR_UARTS=8
-@@ -77,6 +79,7 @@ CONFIG_SUNXI_WATCHDOG=y
- CONFIG_MFD_AXP20X=y
- CONFIG_REGULATOR=y
- CONFIG_REGULATOR_FIXED_VOLTAGE=y
-+CONFIG_REGULATOR_AXP20X=y
- CONFIG_REGULATOR_GPIO=y
- CONFIG_USB=y
- CONFIG_USB_EHCI_HCD=y
--- 
-2.1.4
+I understand that if some handler grabs the input device then all
+events will sent to that handler only.
+
+My Concern is If No handler has grabbed the input device then all events
+should go to all handlers after application of all filter handlers on
+input event
+list ( As we have to check for each event whether that event can be filtered
+or not).
+
+For example : If 5 handlers registered for the input device and input device is
+not grabbed.
+Now among these 5 handlers 2 are filter handlers and remaining 3 are regular
+input handlers.
+So we have to filter the event list first after applying 2 filters
+then send the remaining
+events to all registered handler.
+
+In this case as per current implementation we pass the events array to
+each handler. Input Core does events filtering fr handler then send remaining
+events to handler.
+
+What i am proposing is first we have to pass input_value list to all
+filter handlers
+After filteration of events, we can send the remaining events (Some
+events might be removed after applying filter) to all handlers.
+
+In case device is grabbed we will just send the events to handler
+which grabbed to device.
+
+I hope to hear from you soon.
+
+Thanks
+
+On Mon, Dec 22, 2014 at 10:56 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Anshul,
+>
+> On Mon, Dec 22, 2014 at 10:36:09PM +0530, Anshul Garg wrote:
+>> In function input_pass_values in input.c file , input core sends all
+>> events to each handler associated with the input device ,
+>>
+>> rcu_read_lock();
+>>
+>> handle = rcu_dereference(dev->grab);
+>> if (handle) {
+>> count = input_to_handler(handle, vals, count);
+>> } else {
+>> list_for_each_entry_rcu(handle, &dev->h_list, d_node)
+>> if (handle->open)
+>> count = input_to_handler(handle, vals, count);
+>> }
+>>
+>> after this in input_to_handler function events are filtered and sent
+>> to the handler.
+>>
+>> for (v = vals; v != vals + count; v++) {
+>> if (handler->filter &&
+>>    handler->filter(handle, v->type, v->code, v->value))
+>> continue;
+>> if (end != v)
+>> *end = *v;
+>> end++;
+>> }
+>>
+>>
+>>
+>> But as per previous event filter mechanism all the events should be
+>> parsed from all
+>> handlers after that remaining events should be sent to handlers list.
+>>
+>> And in comments also its mentioned as
+>>
+>> /*
+>>  * Pass event first through all filters and then, if event has not been
+>>  * filtered out, through all open handles.*/
+>>
+>> So current approach to filter events seems to be incorrect.
+>>
+>> Please help to clarify my query.
+>
+> When you "grab" input device your handler gets exclusive access to all
+> events coming form it. Neither filer handlers nor regular input handlers
+> receive events from this device until you release it.
+>
+> So I believe it works as intended.
+>
+> Thanks.
+>
+> --
+> Dmitry

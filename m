@@ -1,113 +1,143 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [Question : drivers/input ] Fixing Event Filter Mechanism in
- input subsystem
-Date: Tue, 23 Dec 2014 06:52:17 +0530
-Message-ID: <CA+HOOshONvGbFN9F08ppZLeYDLwhqFpWq6zxBTF=1Pn-CiyZ-A@mail.gmail.com>
-References: <CA+HOOsgL_fY=Wc+ciDAuk485d=uTn=YTgVGVDJ5Qk3UsqQ8zVA@mail.gmail.com>
-	<20141222172622.GA18556@dtor-ws>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: [PATCH v8 1/6] mfd: AXP20x: Add bindings documentation
+Date: Tue, 23 Dec 2014 10:53:09 +0800
+Message-ID: <1419303194-3075-2-git-send-email-wens@csie.org>
+References: <1419303194-3075-1-git-send-email-wens@csie.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f176.google.com ([209.85.160.176]:45637 "EHLO
-	mail-yk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754594AbaLWBWS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Dec 2014 20:22:18 -0500
-Received: by mail-yk0-f176.google.com with SMTP id q200so2700029ykb.7
-        for <linux-input@vger.kernel.org>; Mon, 22 Dec 2014 17:22:17 -0800 (PST)
-In-Reply-To: <20141222172622.GA18556@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBHNS4OSAKGQECMBE3HI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1419303194-3075-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-Dear Mr Dmitry ,
+From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 
-Thanks for the reply.
+Bindings documentation for the AXP20x driver. In this file also
+sub-nodes are documented.
 
-I understand that if some handler grabs the input device then all
-events will sent
-to that handler only.
+Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+[wens-jdAy2FN1RRM@public.gmane.org: clarify interrupt source for the axp PMIC]
+[wens-jdAy2FN1RRM@public.gmane.org: explain dcdc-workmode in detail and trim lines to 80 chars]
+[wens-jdAy2FN1RRM@public.gmane.org: make regulator supplies optional if using unregulated input]
+[wens-jdAy2FN1RRM@public.gmane.org: use cubieboard2 regulator nodes as example]
+Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+---
+ Documentation/devicetree/bindings/mfd/axp20x.txt | 97 ++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
 
-My Concern is If No one has grabbed the input device then all events
-should go to
-all handlers after application of all filter handlers.
-
-For example : If 5 handlers registered for the input device.
-Now among these 5 handlers 2 are filter handlers and remaining 3 are regular
-input handlers.
-
-In this case as per current implementation we pass the events array to
-each handler.
-Handler does its filtering then sent to handler.
-
-What i am proposing is first we have to pass input_value list to all
-filter handlers
-After filteration of events, we can send the remaining events (Some
-events might be removed
-after filter) to all handlers.
-
-In case device is grabbed we will just send the events to handler
-which grabbed to device.
-
-I hope to hear from you soon.
-
-Thanks
-
-On Mon, Dec 22, 2014 at 10:56 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Anshul,
->
-> On Mon, Dec 22, 2014 at 10:36:09PM +0530, Anshul Garg wrote:
->> In function input_pass_values in input.c file , input core sends all
->> events to each handler associated with the input device ,
->>
->> rcu_read_lock();
->>
->> handle = rcu_dereference(dev->grab);
->> if (handle) {
->> count = input_to_handler(handle, vals, count);
->> } else {
->> list_for_each_entry_rcu(handle, &dev->h_list, d_node)
->> if (handle->open)
->> count = input_to_handler(handle, vals, count);
->> }
->>
->> after this in input_to_handler function events are filtered and sent
->> to the handler.
->>
->> for (v = vals; v != vals + count; v++) {
->> if (handler->filter &&
->>    handler->filter(handle, v->type, v->code, v->value))
->> continue;
->> if (end != v)
->> *end = *v;
->> end++;
->> }
->>
->>
->>
->> But as per previous event filter mechanism all the events should be
->> parsed from all
->> handlers after that remaining events should be sent to handlers list.
->>
->> And in comments also its mentioned as
->>
->> /*
->>  * Pass event first through all filters and then, if event has not been
->>  * filtered out, through all open handles.*/
->>
->> So current approach to filter events seems to be incorrect.
->>
->> Please help to clarify my query.
->
-> When you "grab" input device your handler gets exclusive access to all
-> events coming form it. Neither filer handlers nor regular input handlers
-> receive events from this device until you release it.
->
-> So I believe it works as intended.
->
-> Thanks.
->
-> --
-> Dmitry
+diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
+new file mode 100644
+index 000000000000..b775d8ccbc7c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
+@@ -0,0 +1,97 @@
++AXP202/AXP209 device tree bindings
++
++The axp20x family current members :
++axp202 (X-Powers)
++axp209 (X-Powers)
++
++Required properties:
++- compatible: "x-powers,axp202" or "x-powers,axp209"
++- reg: The I2C slave address for the AXP chip
++- interrupt-parent: The parent interrupt controller
++- interrupts: SoC NMI / GPIO interrupt connected to the PMIC's IRQ pin
++- interrupt-controller: axp20x has its own internal IRQs
++- #interrupt-cells: Should be set to 1
++- regulators: A node that houses a sub-node for each regulator. The regulators
++	      are bound using their name as listed here: dcdc2, dcdc3, ldo1,
++	      ldo2, ldo3, ldo4, ldo5.  The bindings details of individual
++	      regulator device can be found in:
++	      Documentation/devicetree/bindings/regulator/regulator.txt with
++	      the exception of x-powers,dcdc-freq. Regulators not used should
++	      still be listed for completeness and that the regulator subsystem
++	      properly registers them.
++
++- x-powers,dcdc-freq: defines the work frequency of DC-DC in KHz
++		      (range: 750-1875). Default: 1.5MHz
++
++Optional properties:
++- regulator supplies - may be omitted if inputs are unregulated, such as using
++		       the IPSOUT output from the PMIC
++  - acin-supply: The input supply for LDO1
++  - vin2-supply: The input supply for DCDC2
++  - vin3-supply: The input supply for DCDC3
++  - ldo24in-supply: The input supply for LDO2, LDO4
++  - ldo3in-supply: The input supply for LDO3
++  - ldo5in-supply: The input supply for LDO5
++
++Optional properties for DCDC regulators:
++- x-powers,dcdc-workmode: 1 for PWM mode, 0 for AUTO (PWM/PFM) mode
++			  Default: AUTO mode
++			  The DCDC regulators work in a mixed PWM/PFM mode,
++			  using PFM under light loads and switching to PWM
++			  for heavier loads. Forcing PWM mode trades efficiency
++			  under light loads for lower output noise. This
++			  probably makes sense for HiFi audio related
++			  applications that aren't battery constrained.
++
++Example:
++
++axp209: pmic@34 {
++	compatible = "x-powers,axp209";
++	reg = <0x34>;
++	interrupt-parent = <&nmi_intc>;
++	interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	regulators {
++		x-powers,dcdc-freq = <1500>;
++
++		vdd_cpu: dcdc2 {
++			regulator-always-on;
++			regulator-min-microvolt = <1000000>;
++			regulator-max-microvolt = <1450000>;
++			regulator-name = "vdd-cpu";
++		};
++
++		vdd_int_dll: dcdc3 {
++			regulator-always-on;
++			regulator-min-microvolt = <1000000>;
++			regulator-max-microvolt = <1400000>;
++			regulator-name = "vdd-int-dll";
++		};
++
++		vdd_rtc: ldo1 {
++			regulator-always-on;
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1400000>;
++			regulator-name = "vdd-rtc";
++		};
++
++		avcc: ldo2 {
++			regulator-always-on;
++			regulator-min-microvolt = <2700000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-name = "avcc";
++		};
++
++		ldo3 {
++			/* unused */
++		};
++
++		csi1_io_2v8: ldo4 {
++			/* output on extension headers */
++			regulator-name = "csi1-io-2v8";
++		};
++	};
++};
++
+-- 
+2.1.4

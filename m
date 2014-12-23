@@ -1,7 +1,7 @@
 From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: [PATCH v8 1/6] mfd: AXP20x: Add bindings documentation
-Date: Tue, 23 Dec 2014 10:53:09 +0800
-Message-ID: <1419303194-3075-2-git-send-email-wens@csie.org>
+Subject: [PATCH v8 4/6] input: misc: Add ABI docs for AXP20x PEK
+Date: Tue, 23 Dec 2014 10:53:12 +0800
+Message-ID: <1419303194-3075-5-git-send-email-wens@csie.org>
 References: <1419303194-3075-1-git-send-email-wens@csie.org>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
@@ -21,123 +21,32 @@ List-Id: linux-input@vger.kernel.org
 
 From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
 
-Bindings documentation for the AXP20x driver. In this file also
-sub-nodes are documented.
+Add ABI entries for the PEK found on PMU X-Powers AXP202 and AXP209.
 
 Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-[wens-jdAy2FN1RRM@public.gmane.org: clarify interrupt source for the axp PMIC]
-[wens-jdAy2FN1RRM@public.gmane.org: explain dcdc-workmode in detail and trim lines to 80 chars]
-[wens-jdAy2FN1RRM@public.gmane.org: make regulator supplies optional if using unregulated input]
-[wens-jdAy2FN1RRM@public.gmane.org: use cubieboard2 regulator nodes as example]
+[wens-jdAy2FN1RRM@public.gmane.org: Fixed path for sysfs entries]
 Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
 ---
- Documentation/devicetree/bindings/mfd/axp20x.txt | 97 ++++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
+ Documentation/ABI/testing/sysfs-driver-input-axp-pek | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
 
-diff --git a/Documentation/devicetree/bindings/mfd/axp20x.txt b/Documentation/devicetree/bindings/mfd/axp20x.txt
+diff --git a/Documentation/ABI/testing/sysfs-driver-input-axp-pek b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
 new file mode 100644
-index 000000000000..b775d8ccbc7c
+index 000000000000..a5e671b9fa79
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/axp20x.txt
-@@ -0,0 +1,97 @@
-+AXP202/AXP209 device tree bindings
++++ b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
+@@ -0,0 +1,11 @@
++What:		/sys/class/input/input(x)/device/startup
++Date:		March 2014
++Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
++Description:	Startup time in us. Board is powered on if the button is pressed
++		for more than <startup_time>
 +
-+The axp20x family current members :
-+axp202 (X-Powers)
-+axp209 (X-Powers)
-+
-+Required properties:
-+- compatible: "x-powers,axp202" or "x-powers,axp209"
-+- reg: The I2C slave address for the AXP chip
-+- interrupt-parent: The parent interrupt controller
-+- interrupts: SoC NMI / GPIO interrupt connected to the PMIC's IRQ pin
-+- interrupt-controller: axp20x has its own internal IRQs
-+- #interrupt-cells: Should be set to 1
-+- regulators: A node that houses a sub-node for each regulator. The regulators
-+	      are bound using their name as listed here: dcdc2, dcdc3, ldo1,
-+	      ldo2, ldo3, ldo4, ldo5.  The bindings details of individual
-+	      regulator device can be found in:
-+	      Documentation/devicetree/bindings/regulator/regulator.txt with
-+	      the exception of x-powers,dcdc-freq. Regulators not used should
-+	      still be listed for completeness and that the regulator subsystem
-+	      properly registers them.
-+
-+- x-powers,dcdc-freq: defines the work frequency of DC-DC in KHz
-+		      (range: 750-1875). Default: 1.5MHz
-+
-+Optional properties:
-+- regulator supplies - may be omitted if inputs are unregulated, such as using
-+		       the IPSOUT output from the PMIC
-+  - acin-supply: The input supply for LDO1
-+  - vin2-supply: The input supply for DCDC2
-+  - vin3-supply: The input supply for DCDC3
-+  - ldo24in-supply: The input supply for LDO2, LDO4
-+  - ldo3in-supply: The input supply for LDO3
-+  - ldo5in-supply: The input supply for LDO5
-+
-+Optional properties for DCDC regulators:
-+- x-powers,dcdc-workmode: 1 for PWM mode, 0 for AUTO (PWM/PFM) mode
-+			  Default: AUTO mode
-+			  The DCDC regulators work in a mixed PWM/PFM mode,
-+			  using PFM under light loads and switching to PWM
-+			  for heavier loads. Forcing PWM mode trades efficiency
-+			  under light loads for lower output noise. This
-+			  probably makes sense for HiFi audio related
-+			  applications that aren't battery constrained.
-+
-+Example:
-+
-+axp209: pmic@34 {
-+	compatible = "x-powers,axp209";
-+	reg = <0x34>;
-+	interrupt-parent = <&nmi_intc>;
-+	interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+	interrupt-controller;
-+	#interrupt-cells = <1>;
-+
-+	regulators {
-+		x-powers,dcdc-freq = <1500>;
-+
-+		vdd_cpu: dcdc2 {
-+			regulator-always-on;
-+			regulator-min-microvolt = <1000000>;
-+			regulator-max-microvolt = <1450000>;
-+			regulator-name = "vdd-cpu";
-+		};
-+
-+		vdd_int_dll: dcdc3 {
-+			regulator-always-on;
-+			regulator-min-microvolt = <1000000>;
-+			regulator-max-microvolt = <1400000>;
-+			regulator-name = "vdd-int-dll";
-+		};
-+
-+		vdd_rtc: ldo1 {
-+			regulator-always-on;
-+			regulator-min-microvolt = <1200000>;
-+			regulator-max-microvolt = <1400000>;
-+			regulator-name = "vdd-rtc";
-+		};
-+
-+		avcc: ldo2 {
-+			regulator-always-on;
-+			regulator-min-microvolt = <2700000>;
-+			regulator-max-microvolt = <3300000>;
-+			regulator-name = "avcc";
-+		};
-+
-+		ldo3 {
-+			/* unused */
-+		};
-+
-+		csi1_io_2v8: ldo4 {
-+			/* output on extension headers */
-+			regulator-name = "csi1-io-2v8";
-+		};
-+	};
-+};
-+
++What:		/sys/class/input/input(x)/device/shutdown
++Date:		March 2014
++Contact:	Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
++Description:	Shutdown time in us. Board is powered off if the button is pressed
++		for more than <shutdown_time>
 -- 
 2.1.4

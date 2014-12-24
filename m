@@ -1,130 +1,58 @@
-From: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
-Subject: [PATCH 1/1] Elantech touchpad detection fix for laptops
-Date: Wed, 24 Dec 2014 11:17:20 +1100
-Message-ID: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+From: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v5 0/6] Touchscreen performance related fixes
+Date: Wed, 24 Dec 2014 12:33:33 +0530
+Message-ID: <1419404619-10744-1-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Mateusz_Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hello Folks,
+This series is rebase of v4 onto v3.19-rc1. It also fixes concerns
+expressed on v4 wrt simultaneous use of IIO and TSC.
 
-[Thanks for Dmitry for pointing out my error in previous attempts at
-sending this email. I've fixed it now. Sorry if you've received this
-email multiple times by now.]
+I have tested this patch series on am335x-evm and Beaglebone black
+with lcd7-cape.
 
-Months ago, I raised kernel bugzilla 81331
-(https://bugzilla.kernel.org/show_bug.cgi?id=81331) for Linux not
-detecting my Elantech touchpad from a cold boot. As can be seen in
-that bug report, besides myself, it's indeed affecting a number of
-other users.
+Note that, these patches do not work as expected on Beaglebone Black
+with BB-View 4.3 Cape from Farnell due to a hardware issue in the cape.
 
-Since then, based on the original patch fix given by Mateusz Jonczyk,
-I've extended it to be this (which not only fixes my problem, but
-others as well) & would appreciate your review (and inputs thereof) &
-if you're happy with it, then request you to kindly merge it upstream
-on mainline & stable.
+Change log:
 
-On behalf of all affected users, much appreciate your help in this
-matter. Thank you.
+v5:
+ - Rebased onto v3.19-rc1
+ - minor changes in patch 2,3 and 5.
 
-PS: If gmail somehow spoils this patch when it comes through, then
-please refer to the above kernel bugzilla URL, where the same patch is
-available as a file attachment.
+v3:
+ - Replace delta filtering logic in TSC driver with median filtering
+   as suggested by Richard.
+ - Addressed Lee Jones comments.
 
-diff --git a/Documentation/kernel-parameters.txt
-b/Documentation/kernel-parameters.txt
-index 479f332..5ae99f3 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -1270,6 +1270,7 @@ bytes respectively. Such letter suffixes can
-also be entirely omitted.
-        i8042.notimeout [HW] Ignore timeout condition signalled by controller
-        i8042.reset     [HW] Reset the controller during init and cleanup
-        i8042.unlock    [HW] Unlock (ignore) the keylock
-+       i8042.kbdreset  [HW] Reset keyboard to detect Elantech touchpad
+v2:
+ - Addressed comments by Hartmut Knaack
+ - patch 2 was split into two as per Lee Jones comment
 
-        i810=           [HW,DRM]
+Brad Griffis (2):
+  input: touchscreen: ti_am335x_tsc Interchange touchscreen and ADC
+    steps
+  input: touchscreen: ti_am335x_tsc: Remove udelay in interrupt handler
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h
-b/drivers/input/serio/i8042-x86ia64io.h
-index faeeb13..40e85ed 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -735,6 +735,29 @@ static const struct dmi_system_id __initconst
-i8042_dmi_dritek_table[] = {
-        { }
- };
+Vignesh R (4):
+  mfd: ti_am335x_tscadc: Remove unwanted reg_se_cache save
+  ARM: dts: AM335x: Make charge delay a DT parameter for TSC
+  input: touchscreen: ti_am335x_tsc: Use charge delay DT parameter
+  input: touchscreen: ti_am335x_tsc: Replace delta filtering with median
+    filtering
 
-+/*
-+ * Just as per kernel bugzilla #81331, some Elantech touchpad based laptops
-+ * -- e.g., Gigabyte P35 v2, Gigabyte X3 Plus -- need keyboard reset while
-+ * probing for the touchpad to get detected, initialised & finally work.
-+ */
-+static const struct dmi_system_id __initconst
-i8042_dmi_elantech_kbdreset_table[] = {
-+        {
-+                /* Gigabyte P35 v2 */
-+                .matches = {
-+                        DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
-+                        DMI_MATCH(DMI_PRODUCT_NAME, "P35V2"),
-+                },
-+        },
-+       {
-+               /* Aorus branded Gigabyte X3 Plus */
-+               .matches = {
-+                       DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
-+                       DMI_MATCH(DMI_PRODUCT_NAME, "X3"),
-+               },
-+       },
-+       { }
-+};
-+
- #endif /* CONFIG_X86 */
+ .../bindings/input/touchscreen/ti-tsc-adc.txt      |  15 ++
+ arch/arm/boot/dts/am335x-evm.dts                   |   1 +
+ drivers/iio/adc/ti_am335x_adc.c                    |   5 +-
+ drivers/input/touchscreen/ti_am335x_tsc.c          | 196 ++++++++++++---------
+ drivers/mfd/ti_am335x_tscadc.c                     |  13 +-
+ include/linux/mfd/ti_am335x_tscadc.h               |   4 +-
+ 6 files changed, 136 insertions(+), 98 deletions(-)
 
- #ifdef CONFIG_PNP
-@@ -1030,6 +1053,9 @@ static int __init i8042_platform_init(void)
-        if (dmi_check_system(i8042_dmi_dritek_table))
-                i8042_dritek = true;
-
-+       if (dmi_check_system(i8042_dmi_elantech_kbdreset_table))
-+               i8042_kbdreset = true;
-+
-        /*
-         * A20 was already enabled during early kernel init. But some buggy
-         * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index f5a98af..7cf42df 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -67,6 +67,10 @@ static bool i8042_notimeout;
- module_param_named(notimeout, i8042_notimeout, bool, 0);
- MODULE_PARM_DESC(notimeout, "Ignore timeouts signalled by i8042");
-
-+static bool i8042_kbdreset;
-+module_param_named(kbdreset, i8042_kbdreset, bool, 0);
-+MODULE_PARM_DESC(kbdreset, "Reset keyboard to detect Elantech
-touchpad on some laptops");
-+
- #ifdef CONFIG_X86
- static bool i8042_dritek;
- module_param_named(dritek, i8042_dritek, bool, 0);
-@@ -790,6 +794,14 @@ static int __init i8042_check_aux(void)
-                return -1;
-
- /*
-+ * Reset keyboard to detect touchpad on some laptops having Elantech touchpad
-+ */
-+       if (i8042_kbdreset) {
-+               pr_warn("Resetting keyboard to detect Elantech
-touchpad on some laptops\n");
-+               i8042_kbd_write(NULL, (unsigned char) 0xff);
-+       }
-+
-+/*
-  * Test AUX IRQ delivery to make sure BIOS did not grab the IRQ and
-  * used it for a PCI card or somethig else.
-  */
+-- 
+1.9.1

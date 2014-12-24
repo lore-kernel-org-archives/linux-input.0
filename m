@@ -1,77 +1,167 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH v5 5/6] input: touchscreen: ti_am335x_tsc: Use charge delay DT
- parameter
-Date: Wed, 24 Dec 2014 12:33:38 +0530
-Message-ID: <1419404619-10744-6-git-send-email-vigneshr@ti.com>
-References: <1419404619-10744-1-git-send-email-vigneshr@ti.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 1/7] input: alps: Set correct name of psmouse device in alps_init()
+Date: Wed, 24 Dec 2014 08:48:42 +0100
+Message-ID: <201412240848.43326@pali>
+References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com> <201412161258.20925@pali> <201412200953.38259@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed;
+  boundary="nextPart1637699.grCxpWYToH";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1419404619-10744-1-git-send-email-vigneshr@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Vignesh R <vigneshr@ti.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Meerwald <pmeerw@pmeerw.net>, Lars-Peter Clausen <lars@metafoo.de>, Russell King <linux@arm.linux.org.uk>, Jan Kardell <jan.kardell@telliq.com>, Tony Lindgren <tony@atomide.com>, linux-input@vger.kernel.org, Sanjeev Sharma <sanjeev_sharma@mentor.com>, devicetree@vger.kernel.org, Brad Griffis <bgriffis@ti.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Benoit Cousson <bcousson@baylibre.com>, Kumar Gala <galak@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201412200953.38259@pali>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch reads charge delay from tsc DT node and writes to
-REG_CHARGEDELAY register. If the charge delay is not specified in DT
-then default value of 0x400(CHARGEDLY_OPENDLY) is used.
+--nextPart1637699.grCxpWYToH
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
-v5:
- - print out a warning when ti,charge-delay is not specified
+On Saturday 20 December 2014 09:53:38 Pali Roh=C3=A1r wrote:
+> On Tuesday 16 December 2014 12:58:20 Pali Roh=C3=A1r wrote:
+> > On Tuesday 16 December 2014 06:02:34 Dmitry Torokhov wrote:
+> > > Hi Pali,
+> > >=20
+> > > On Fri, Nov 14, 2014 at 08:38:20PM +0100, Pali Roh=C3=A1r wrote:
+> > > > On some laptops after starting them from off state (not
+> > > > after reboot), function alps_probe_trackstick_v3()
+> > > > (called from function alps_identify()) does not detect
+> > > > trackstick. To fix this problem we need to reset
+> > > > device. But function alps_identify() is called also
+> > > > from alps_detect() and we do not want to reset device
+> > > > in detect function because it will slow down
+> > > > initialization of all other non alps devices.
+> > > >=20
+> > > > This patch moves code for setting correct device name &
+> > > > protocol from function alps_detect() to alps_init()
+> > > > which already doing full device reset.
+> > > >=20
+> > > > So this patch removes need to do trackstick detection in
+> > > > alps_detect() function.
+> > > >=20
+> > > > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> > > > ---
+> > > >=20
+> > > >  drivers/input/mouse/alps.c |   17 ++++++++++++++---
+> > > >  1 file changed, 14 insertions(+), 3 deletions(-)
+> > > >=20
+> > > > diff --git a/drivers/input/mouse/alps.c
+> > > > b/drivers/input/mouse/alps.c index 8d85c79..9ffa98d
+> > > > 100644 --- a/drivers/input/mouse/alps.c
+> > > > +++ b/drivers/input/mouse/alps.c
+> > > > @@ -2392,6 +2392,10 @@ int alps_init(struct psmouse
+> > > > *psmouse)
+> > > >=20
+> > > >  	if (input_register_device(priv->dev2))
+> > > >  =09
+> > > >  		goto init_fail;
+> > > >=20
+> > > > +	if (!(priv->flags & ALPS_DUALPOINT))
+> > > > +		psmouse->name =3D "GlidePoint TouchPad";
+> > > > +	psmouse->model =3D priv->proto_version;
+> > > > +
+> > > >=20
+> > > >  	psmouse->protocol_handler =3D alps_process_byte;
+> > > >  	psmouse->poll =3D alps_poll;
+> > > >  	psmouse->disconnect =3D alps_disconnect;
+> > > >=20
+> > > > @@ -2422,11 +2426,18 @@ int alps_detect(struct psmouse
+> > > > *psmouse, bool set_properties)
+> > > >=20
+> > > >  		return -1;
+> > > >  =09
+> > > >  	if (set_properties) {
+> > > >=20
+> > > > +		/*
+> > > > +		 * NOTE: To detect model and trackstick presence we
+> >=20
+> > need
+> >=20
+> > > > to do +		 *       full device reset. To speed up
+> >=20
+> > detection
+> >=20
+> > > > and prevent +		 *       calling duplicate
+>=20
+> initialization
+>=20
+> > > > sequence (both in +		 *       alps_detect() and
+> > > > alps_init()) we set model/protocol +		 *       version
+>=20
+> and
+>=20
+> > > > correct name in alps_init() (which will +		 *      =20
+do
+> >=20
+> > full
+> >=20
+> > > > device reset). For now set name to DualPoint. +		 */
+> > > >=20
+> > > >  		psmouse->vendor =3D "ALPS";
+> > > >=20
+> > > > -		psmouse->name =3D dummy.flags & ALPS_DUALPOINT ?
+> > > > -				"DualPoint TouchPad" : "GlidePoint";
+> > > > -		psmouse->model =3D dummy.proto_version << 8;
+> > > > +		psmouse->name =3D "DualPoint TouchPad";
+> > > >=20
+> > > >  	}
+> > > >=20
+> > > > +
+> > >=20
+> > > I do not quite like the way we change the device
+> > > description back and forth. Do you think we could
+> > > allocate the "real" priv structure in alps_detect() and
+> > > have alps_init() expect to find it (and free it if
+> > > set_properties is false). This way we'd go through
+> > > initialization once in detect, it will be authoritative,
+> > > and we would set the name of the device properly from the
+> > > beginning.
+> > >=20
+> > > Thanks.
+> >=20
+> > No without introducing another psmouse_reset call. I want to
+> > reduce time of loading driver, so I think this is better.
+>=20
+> Also psmouse-base.c call psmouse_reset between alps_detect()
+> and alps_init(). We must do trackstick detection after
+> psmouse_reset, but intorducing another psmouse_reset in
+> alps_detect() will slow down initialization for ALPS devices.
+> Also do not remember that psmouse_reset will lock both
+> keyboard & mouse for one second (sometimes for two) on my
+> laptop. I played with this and I think my patch is good
+> approach how to do trackstick detection without slowdown or
+> other side effects.
+>=20
+> Also we do not need to know if ALPS touchpad has trackstick
+> device in alps_detect() phase. In alps_detect() we just need
+> to know if PS/2 device is ALPS or not. From psmouse/serio
+> point of view there is only one ALPS device on PS/2/i8042
+> bus. Just alps.ko driver parse PS/2 packets and detect which
+> packet has touchpad header and which trackpoint. So we really
+> do not need to know if trackstick is there or not in
+> alps_detect() function.
 
- drivers/input/touchscreen/ti_am335x_tsc.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+Dmitry ping, can you finally review this patch series? I it there=20
+for more then month...
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 8650b1dd24dc..9cb8b4a01dca 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -52,6 +52,7 @@ struct titsc {
- 	u32			bit_xp, bit_xn, bit_yp, bit_yn;
- 	u32			inp_xp, inp_xn, inp_yp, inp_yn;
- 	u32			step_mask;
-+	u32			charge_delay;
- };
- 
- static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
-@@ -177,7 +178,7 @@ static void titsc_step_config(struct titsc *ts_dev)
- 
- 	config = titsc_readl(ts_dev, REG_IDLECONFIG);
- 	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
--	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
-+	titsc_writel(ts_dev, REG_CHARGEDELAY, ts_dev->charge_delay);
- 
- 	/* coordinate_readouts + 1 ... coordinate_readouts + 2 is for Z */
- 	config = STEPCONFIG_MODE_HWSYNC |
-@@ -368,6 +369,17 @@ static int titsc_parse_dt(struct platform_device *pdev,
- 	if (err < 0)
- 		return err;
- 
-+	err = of_property_read_u32(node, "ti,charge-delay",
-+				   &ts_dev->charge_delay);
-+	/*
-+	 * If ti,charge-delay value is not specified, then use CHARGEDLY_OPENDLY
-+	 * as the default value.
-+	 */
-+	if (err < 0) {
-+		ts_dev->charge_delay = CHARGEDLY_OPENDLY;
-+		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
-+	}
-+
- 	return of_property_read_u32_array(node, "ti,wire-config",
- 			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
- }
--- 
-1.9.1
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart1637699.grCxpWYToH
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlSab9sACgkQi/DJPQPkQ1I+gACfbjozrilyTpRNFgiy/pJvKxtD
+28EAni/eMgc9W6/vQJEN2mEzoZZZzIao
+=Cfap
+-----END PGP SIGNATURE-----
+
+--nextPart1637699.grCxpWYToH--

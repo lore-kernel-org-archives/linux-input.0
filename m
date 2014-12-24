@@ -1,30 +1,74 @@
-From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v8 0/6] mfd: AXP20x: Add support for AXP202
- and AXP209
-Date: Wed, 24 Dec 2014 12:00:56 +0100
-Message-ID: <CAOQ7t2a66myRq2S-EmsBYMo-e+fjHEE0xsCse-E1C===QRX0hA@mail.gmail.com>
-References: <1419303194-3075-1-git-send-email-wens@csie.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Question : drivers/input ] Fixing Event Filter Mechanism in
+ input subsystem
+Date: Wed, 24 Dec 2014 10:25:11 -0800
+Message-ID: <20141224182511.GA21956@dtor-glaptop>
+References: <CA+HOOsgL_fY=Wc+ciDAuk485d=uTn=YTgVGVDJ5Qk3UsqQ8zVA@mail.gmail.com>
+ <20141222172622.GA18556@dtor-ws>
+ <CA+HOOsgDm-ZGycDwdzw3SvbscUefp7xcD-ikFSF2heouHMhS4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDWJTUUC5UCBB2NZ5KSAKGQEU5GNC2Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1419303194-3075-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: "linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:37257 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751347AbaLXSZQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Dec 2014 13:25:16 -0500
+Received: by mail-pa0-f53.google.com with SMTP id kq14so10267247pab.26
+        for <linux-input@vger.kernel.org>; Wed, 24 Dec 2014 10:25:15 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CA+HOOsgDm-ZGycDwdzw3SvbscUefp7xcD-ikFSF2heouHMhS4g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-On Tue, Dec 23, 2014 at 3:53 AM, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org> wrote:
-> Hi everyone,
+Hi Anshul,
 
-Hi ChenYu,
-Thank you very much for respinning this.
+On Tue, Dec 23, 2014 at 08:04:45PM +0530, Anshul Garg wrote:
+> Dear Mr Dmitry ,
+> 
+> Thanks for the reply.
+> 
+> I understand that if some handler grabs the input device then all
+> events will sent to that handler only.
+> 
+> My Concern is If No handler has grabbed the input device then all events
+> should go to all handlers after application of all filter handlers on
+> input event
+> list ( As we have to check for each event whether that event can be filtered
+> or not).
+> 
+> For example : If 5 handlers registered for the input device and input device is
+> not grabbed.
+> Now among these 5 handlers 2 are filter handlers and remaining 3 are regular
+> input handlers.
+> So we have to filter the event list first after applying 2 filters
+> then send the remaining
+> events to all registered handler.
+> 
+> In this case as per current implementation we pass the events array to
+> each handler. Input Core does events filtering fr handler then send remaining
+> events to handler.
+> 
+> What i am proposing is first we have to pass input_value list to all
+> filter handlers
+> After filteration of events, we can send the remaining events (Some
+> events might be removed after applying filter) to all handlers.
+
+As far as I can see that is exactly what happens: we first pass the even list
+to filters, which may cause the list to contract - see input_to_handler() - and
+then to regular handlers.
+
+I think the tricky part is the fact that we deliberately put filters in the
+head of the dev->h_list, and normal handlers are put in the tail. And we also
+expect the input_handler to either implement ->filter() or ->event[s]()
+callback, but not both.
+
+In case I still misunderstand what the issue you are trying to point out -
+please do post your patch and we can discuss the code.
+
+Thanks! 
 
 -- 
-Carlo Caione
+Dmitry

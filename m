@@ -1,66 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/13] incorrect use of init_completion fixup
-Date: Fri, 26 Dec 2014 15:42:39 -0800
-Message-ID: <20141226234239.GB1071@dtor-ws>
-References: <1419581170-5182-1-git-send-email-der.herr@hofr.at>
+Subject: Re: [Question : drivers/input ] Fixing Event Filter Mechanism in
+ input subsystem
+Date: Fri, 26 Dec 2014 15:46:58 -0800
+Message-ID: <20141226234658.GC1071@dtor-ws>
+References: <CA+HOOsgL_fY=Wc+ciDAuk485d=uTn=YTgVGVDJ5Qk3UsqQ8zVA@mail.gmail.com>
+ <20141222172622.GA18556@dtor-ws>
+ <CA+HOOsgDm-ZGycDwdzw3SvbscUefp7xcD-ikFSF2heouHMhS4g@mail.gmail.com>
+ <20141224182511.GA21956@dtor-glaptop>
+ <CA+HOOsg+U6yS4sAsgD_vZ-OGkTuzdKf2Qmg8hcyXkyFbY3WJPQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-parisc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:44835 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750808AbaLZXrD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Dec 2014 18:47:03 -0500
+Received: by mail-ie0-f174.google.com with SMTP id at20so10130651iec.19
+        for <linux-input@vger.kernel.org>; Fri, 26 Dec 2014 15:47:02 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1419581170-5182-1-git-send-email-der.herr@hofr.at>
-Sender: linux-parisc-owner@vger.kernel.org
-To: Nicholas Mc Guire <der.herr@hofr.at>
-Cc: Helge Deller <deller@gmx.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CA+HOOsg+U6yS4sAsgD_vZ-OGkTuzdKf2Qmg8hcyXkyFbY3WJPQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-On Fri, Dec 26, 2014 at 09:06:10AM +0100, Nicholas Mc Guire wrote:
-> The successive init_completion calls should be reinit_completion calls.
-> 
-> patch against 3.19.0-rc1 linux-next
-> 
-> Acked-by: Helge Deller <deller@gmx.de>
-> Signed-off-by: Nicholas Mc Guire <der.herr@hofr.at>
+Hi Anshul,
 
-Applied, thank you.
+On Thu, Dec 25, 2014 at 11:11:06AM +0530, Anshul Garg wrote:
+> Dear Mr Dmitry ,
+> 
+> Thanks a lot for the clarification.
+> 
+> I was in assumption that one handler can support both ->filter() and
+> ->event[s]()
+> Callback.So that's why i have prepared the patch to first do the
+> filter then pass
+> the events.
+> 
+> Can you please tell me why current implementation doesn't expect handler can
+> have both callbacks?
 
-> ---
->  drivers/input/keyboard/hil_kbd.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+Because it was something I saw no need for: filter already has all the
+events so it can process them. If you really want to process events
+again once all filters have run, you can register additional handler.
+
 > 
-> diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
-> index 610a8af..5b152f2 100644
-> --- a/drivers/input/keyboard/hil_kbd.c
-> +++ b/drivers/input/keyboard/hil_kbd.c
-> @@ -473,7 +473,7 @@ static int hil_dev_connect(struct serio *serio, struct serio_driver *drv)
->  	if (error)
->  		goto bail1;
+> I think input core should be generic to allow any type of handlers which can
+> support both filter and events callbacks.
 > 
-> -	init_completion(&dev->cmd_done);
-> +	reinit_completion(&dev->cmd_done);
->  	serio_write(serio, 0);
->  	serio_write(serio, 0);
->  	serio_write(serio, HIL_PKT_CMD >> 8);
-> @@ -482,7 +482,7 @@ static int hil_dev_connect(struct serio *serio, struct serio_driver *drv)
->  	if (error)
->  		goto bail1;
+> Please help to answer above query as my patch is based on this pre-assumption
+> that one handler can support both callbacks .
 > 
-> -	init_completion(&dev->cmd_done);
-> +	reinit_completion(&dev->cmd_done);
->  	serio_write(serio, 0);
->  	serio_write(serio, 0);
->  	serio_write(serio, HIL_PKT_CMD >> 8);
-> @@ -491,7 +491,7 @@ static int hil_dev_connect(struct serio *serio, struct serio_driver *drv)
->  	if (error)
->  		goto bail1;
-> 
-> -	init_completion(&dev->cmd_done);
-> +	reinit_completion(&dev->cmd_done);
->  	serio_write(serio, 0);
->  	serio_write(serio, 0);
->  	serio_write(serio, HIL_PKT_CMD >> 8);
-> --
-> 1.7.10.4
-> 
+> If we really need to have support of such handlers in input core then
+> only my patch
+> is good.
+
+I think I would need a user for this feature before changing the code to
+allow it.
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,240 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 3/5] input: misc: add tps65218 power button driver
-Date: Sat, 27 Dec 2014 20:50:16 -0800
-Message-ID: <20141228045016.GA5501@dtor-ws>
-References: <20141226234117.GA1071@dtor-ws>
- <1419651408-529-1-git-send-email-balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: [PATCH] hid: Initialize battery_no to -1 & correct its format string
+Date: Sun, 28 Dec 2014 21:37:52 +0530
+Message-ID: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:62152 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751433AbaL1EuW (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:59794 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751809AbaL1QHr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Dec 2014 23:50:22 -0500
-Content-Disposition: inline
-In-Reply-To: <1419651408-529-1-git-send-email-balbi@ti.com>
+	Sun, 28 Dec 2014 11:07:47 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: aniroop.mathur@gmail.com, a.mathur@samsung.com
 
-On Fri, Dec 26, 2014 at 09:36:48PM -0600, Felipe Balbi wrote:
-> With this driver, we can report KEY_POWER on
-> AM437x SK. This patch has been tested with said
-> board.
-> 
-> Signed-off-by: Felipe Balbi <balbi@ti.com>
+From: Aniroop Mathur <a.mathur@samsung.com>
 
-Applied, thank you.
+This patch initializes battery_no to -1 to avoid extra subtraction
+operation performed everytime wacom battery is initialized and
+correct format string of unsigned long from %ld to %lu.
 
-> ---
-> 
-> Changes since v1:
-> 	- Add device tree documentation
-> 	- s/ret/error
-> 	- removed 'pressed' as input core will filter events
-> 	- use a saner name when requesting IRQ. dev_name(dev) will return
-> 		$i2c_bus_address.i2c-omap:0-0024:tps65218-pwrbutton
-> 	- remove blank line before MODULE_DEVICE_TABLE()
-> 
->  .../bindings/input/tps65218-pwrbutton.txt          |  17 +++
->  drivers/input/misc/Kconfig                         |  10 ++
->  drivers/input/misc/Makefile                        |   1 +
->  drivers/input/misc/tps65218-pwrbutton.c            | 124 +++++++++++++++++++++
->  4 files changed, 152 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
->  create mode 100644 drivers/input/misc/tps65218-pwrbutton.c
-> 
-> diff --git a/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt b/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
-> new file mode 100644
-> index 0000000..e30e0b9
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
-> @@ -0,0 +1,17 @@
-> +Texas Instruments TPS65218 power button
-> +
-> +This driver provides a simple power button event via an Interrupt.
-> +
-> +Required properties:
-> +- compatible: should be "ti,tps65218-pwrbutton"
-> +- interrupts: should be one of the following
-> +   - <3 IRQ_TYPE_EDGE_BOTH>: For controllers compatible with tps65218
-> +
-> +Example:
-> +
-> +&tps {
-> +	power-button {
-> +		compatible = "ti,tps65218-pwrbutton";
-> +		interrupts = <3 IRQ_TYPE_EDGE_BOTH>;
-> +	};
-> +};
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 23297ab..364cfb8 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -404,6 +404,16 @@ config INPUT_RETU_PWRBUTTON
->  	  To compile this driver as a module, choose M here. The module will
->  	  be called retu-pwrbutton.
->  
-> +config INPUT_TPS65218_PWRBUTTON
-> +	tristate "TPS65218 Power button driver"
-> +	depends on MFD_TPS65218
-> +	help
-> +	  Say Y here if you want to enable power buttong reporting for
-> +	  the TPS65218 Power Management IC device.
-> +
-> +	  To compile this driver as a module, choose M here. The module will
-> +	  be called tps65218-pwrbutton.
-> +
->  config INPUT_TWL4030_PWRBUTTON
->  	tristate "TWL4030 Power button Driver"
->  	depends on TWL4030_CORE
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 19c7603..a923753 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -59,6 +59,7 @@ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
->  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
->  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
->  obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
-> +obj-$(CONFIG_INPUT_TPS65218_PWRBUTTON)	+= tps65218-pwrbutton.o
->  obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
->  obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
->  obj-$(CONFIG_INPUT_TWL6040_VIBRA)	+= twl6040-vibra.o
-> diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
-> new file mode 100644
-> index 0000000..2f85e2e
-> --- /dev/null
-> +++ b/drivers/input/misc/tps65218-pwrbutton.c
-> @@ -0,0 +1,124 @@
-> +/*
-> + * Texas Instruments' TPS65218 Power Button Input Driver
-> + *
-> + * Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
-> + * Author: Felipe Balbi <balbi@ti.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-> + * kind, whether express or implied; without even the implied warranty
-> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/tps65218.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +
-> +struct tps65218_pwrbutton {
-> +	struct device *dev;
-> +	struct tps65218 *tps;
-> +	struct input_dev *idev;
-> +};
-> +
-> +static irqreturn_t tps65218_pwr_irq(int irq, void *_pwr)
-> +{
-> +	struct tps65218_pwrbutton *pwr = _pwr;
-> +	unsigned int reg;
-> +	int error;
-> +
-> +	error = tps65218_reg_read(pwr->tps, TPS65218_REG_STATUS, &reg);
-> +	if (error) {
-> +		dev_err(pwr->dev, "can't read register --> %d\n", error);
-> +		goto out;
-> +	}
-> +
-> +	if (reg & TPS65218_STATUS_PB_STATE) {
-> +		input_report_key(pwr->idev, KEY_POWER, 1);
-> +		pm_wakeup_event(pwr->dev, 0);
-> +	} else {
-> +		input_report_key(pwr->idev, KEY_POWER, 0);
-> +	}
-> +
-> +	input_sync(pwr->idev);
-> +
-> +out:
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int tps65218_pwron_probe(struct platform_device *pdev)
-> +{
-> +	struct tps65218 *tps = dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev = &pdev->dev;
-> +	struct tps65218_pwrbutton *pwr;
-> +	struct input_dev *idev;
-> +	int error;
-> +	int irq;
-> +
-> +	pwr = devm_kzalloc(dev, sizeof(*pwr), GFP_KERNEL);
-> +	if (!pwr)
-> +		return -ENOMEM;
-> +
-> +	idev = devm_input_allocate_device(dev);
-> +	if (!idev)
-> +		return -ENOMEM;
-> +
-> +	idev->name = "tps65218_pwrbutton";
-> +	idev->phys = "tps65218_pwrbutton/input0";
-> +	idev->dev.parent = dev;
-> +	idev->id.bustype = BUS_I2C;
-> +
-> +	input_set_capability(idev, EV_KEY, KEY_POWER);
-> +
-> +	pwr->tps = tps;
-> +	pwr->dev = dev;
-> +	pwr->idev = idev;
-> +	platform_set_drvdata(pdev, pwr);
-> +	device_init_wakeup(dev, true);
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	error = devm_request_threaded_irq(dev, irq, NULL, tps65218_pwr_irq,
-> +			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> +			"tps65218-pwrbutton", pwr);
-> +	if (error) {
-> +		dev_err(dev, "failed to request IRQ #%d --> %d\n",
-> +				irq, error);
-> +		return error;
-> +	}
-> +
-> +	error= input_register_device(idev);
-> +	if (error) {
-> +		dev_err(dev, "Can't register power button --> %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static struct of_device_id of_tps65218_pwr_match[] = {
-> +	{ .compatible = "ti,tps65218-pwrbutton" },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, of_tps65218_pwr_match);
-> +
-> +static struct platform_driver tps65218_pwron_driver = {
-> +	.probe	= tps65218_pwron_probe,
-> +	.driver	= {
-> +		.name	= "tps65218_pwrbutton",
-> +		.of_match_table = of_tps65218_pwr_match,
-> +	},
-> +};
-> +module_platform_driver(tps65218_pwron_driver);
-> +
-> +MODULE_DESCRIPTION("TPS65218 Power Button");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
-> -- 
-> 2.2.0
-> 
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+---
+ drivers/hid/wacom_sys.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 129fd33..4b5ff84 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -919,17 +919,17 @@ static int wacom_ac_get_property(struct power_supply *psy,
+ 
+ static int wacom_initialize_battery(struct wacom *wacom)
+ {
+-	static atomic_t battery_no = ATOMIC_INIT(0);
++	static atomic_t battery_no = ATOMIC_INIT(-1);
+ 	int error;
+ 	unsigned long n;
+ 
+ 	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
+-		n = atomic_inc_return(&battery_no) - 1;
++		n = atomic_inc_return(&battery_no);
+ 
+ 		wacom->battery.properties = wacom_battery_props;
+ 		wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
+ 		wacom->battery.get_property = wacom_battery_get_property;
+-		sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%ld", n);
++		sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%lu", n);
+ 		wacom->battery.name = wacom->wacom_wac.bat_name;
+ 		wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+ 		wacom->battery.use_for_apm = 0;
+@@ -937,7 +937,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
+ 		wacom->ac.properties = wacom_ac_props;
+ 		wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
+ 		wacom->ac.get_property = wacom_ac_get_property;
+-		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
++		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%lu", n);
+ 		wacom->ac.name = wacom->wacom_wac.ac_name;
+ 		wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
+ 		wacom->ac.use_for_apm = 0;
 -- 
-Dmitry
+1.9.1
+

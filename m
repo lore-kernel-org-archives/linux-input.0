@@ -1,77 +1,158 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Initialize battery_no to -1 & correct its format
- string
-Date: Mon, 29 Dec 2014 13:03:58 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412291302470.1680@pobox.suse.cz>
-References: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] HID: input: fix confusion on conflicting mappings
+Date: Mon, 29 Dec 2014 15:21:26 +0100
+Message-ID: <1419862886-1319-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36699 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751435AbaL2MEB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2014 07:04:01 -0500
-In-Reply-To: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:59804 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751206AbaL2OWF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2014 09:22:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, a.mathur@samsung.com, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pingc@wacom.com>
+To: linux-input@vger.kernel.org
+Cc: David Herrmann <dh.herrmann@gmail.com>, Adam Goode <adam@spicenitz.org>, Fredrik Hallenberg <megahallon@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, stable@vger.kernel.org
 
-On Sun, 28 Dec 2014, Aniroop Mathur wrote:
+On an PC-101/103/104 keyboard (American layout) the 'Enter' key and its
+neighbours look like this:
 
-> From: Aniroop Mathur <a.mathur@samsung.com>
-> 
-> This patch initializes battery_no to -1 to avoid extra subtraction
-> operation performed everytime wacom battery is initialized 
+           +---+ +---+ +-------+
+           | 1 | | 2 | |   5   |
+           +---+ +---+ +-------+
+             +---+ +-----------+
+             | 3 | |     4     |
+             +---+ +-----------+
 
-This is so femto-optimization, that I don't really care deeply. Adding 
-Jason and Ping to CC. If they want this, I'll apply the patch.
+On a PC-102/105 keyboard (European layout) it looks like this:
 
-> and correct format string of unsigned long from %ld to %lu.
-> 
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-> ---
->  drivers/hid/wacom_sys.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 129fd33..4b5ff84 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -919,17 +919,17 @@ static int wacom_ac_get_property(struct power_supply *psy,
->  
->  static int wacom_initialize_battery(struct wacom *wacom)
->  {
-> -	static atomic_t battery_no = ATOMIC_INIT(0);
-> +	static atomic_t battery_no = ATOMIC_INIT(-1);
->  	int error;
->  	unsigned long n;
->  
->  	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
-> -		n = atomic_inc_return(&battery_no) - 1;
-> +		n = atomic_inc_return(&battery_no);
->  
->  		wacom->battery.properties = wacom_battery_props;
->  		wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
->  		wacom->battery.get_property = wacom_battery_get_property;
-> -		sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%ld", n);
-> +		sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%lu", n);
->  		wacom->battery.name = wacom->wacom_wac.bat_name;
->  		wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
->  		wacom->battery.use_for_apm = 0;
-> @@ -937,7 +937,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
->  		wacom->ac.properties = wacom_ac_props;
->  		wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
->  		wacom->ac.get_property = wacom_ac_get_property;
-> -		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
-> +		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%lu", n);
->  		wacom->ac.name = wacom->wacom_wac.ac_name;
->  		wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
->  		wacom->ac.use_for_apm = 0;
-> -- 
-> 1.9.1
-> 
+           +---+ +---+ +-------+
+           | 1 | | 2 | |       |
+           +---+ +---+ +-+  4  |
+             +---+ +---+ |     |
+             | 3 | | 5 | |     |
+             +---+ +---+ +-----+
 
+(Note that the number of keys is the same, but key '5' is moved down and
+ the shape of key '4' is changed. Keys '1' to '3' are exactly the same.)
+
+The keys 1-4 report the same scan-code in HID in both layouts, even though
+the keysym they produce is usually different depending on the XKB-keymap
+used by user-space.
+However, key '5' (US 'backslash'/'pipe') reports 0x31 for the upper layout
+and 0x32 for the lower layout, as defined by the HID spec. This is highly
+confusing as the linux-input API uses a single keycode for both.
+
+So far, this was never a problem as there never has been a keyboard with
+both of those keys present at the same time. It would have to look
+something like this:
+
+           +---+ +---+ +-------+
+           | 1 | | 2 | |  x31  |
+           +---+ +---+ +-------+
+             +---+ +---+ +-----+
+             | 3 | |x32| |  4  |
+             +---+ +---+ +-----+
+
+HID can represent such a keyboard, but the linux-input API cannot.
+Furthermore, any user-space mapping would be confused by this and,
+luckily, no-one ever produced such hardware.
+
+Now, the HID input layer fixed this mess by mapping both 0x31 and 0x32 to
+the same keycode (KEY_BACKSLASH==0x2b). As only one of both physical keys
+is present on a hardware, this works just fine.
+
+Lets introduce hardware-vendors into this:
+------------------------------------------
+
+Unfortunately, it seems way to expensive to produce a different device for
+American and European layouts. Therefore, hardware-vendors put both keys,
+(0x31 and 0x32) on the same keyboard, but only one of them is hooked up
+to the physical button, the other one is 'dead'.
+This means, they can use the same hardware, with a different button-layout
+and automatically produce the correct HID events for American *and*
+European layouts. This is unproblematic for normal keyboards, as the
+'dead' key will never report any KEY-DOWN events. But RollOver keyboards
+send the whole matrix on each key-event, allowing n-key roll-over mode.
+This means, we get a 0x31 and 0x32 event on each key-press. One of them
+will always be 0, the other reports the real state. As we map both to the
+same keycode, we will get spurious key-events, even though the real
+key-state never changed.
+
+The easiest way would be to blacklist 'dead' keys and never handle those.
+We could simply read the 'country' tag of USB devices and blacklist either
+key according to the layout. But... hardware vendors... want the same
+device for all countries and thus many of them set 'country' to 0 for all
+devices. Meh..
+
+So we have to deal with this properly. As we cannot know which of the keys
+is 'dead', we either need a heuristic and track those keys, or we simply
+make use of our value-tracking for HID fields. We simply ignore HID events
+for absolute data if the data didn't change. As HID tracks events on the
+HID level, we haven't done the keycode translation, yet. Therefore, the
+'dead' key is tracked independently of the real key, therefore, any events
+on it will be ignored.
+
+This patch simply discards any HID events for absolute data if it didn't
+change compared to the last report. We need to ignore relative and
+buffered-byte reports for obvious reasons. But those cannot be affected by
+this bug, so we're fine.
+
+Preferably, we'd do this filtering on the HID-core level. But this might
+break a lot of custom drivers, if they do not follow the HID specs.
+Therefore, we do this late in hid-input just before we inject it into the
+input layer (which does the exact same filtering, but on the keycode
+level).
+
+If this turns out to break some devices, we might have to limit filtering
+to EV_KEY events. But lets try to do the Right Thing first, and properly
+filter any absolute data that didn't change.
+
+This patch is tagged for 'stable' as it fixes a lot of n-key RollOver
+hardware. We might wanna wait with backporting for a while, before we know
+it doesn't break anything else, though.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Adam Goode <adam@spicenitz.org>
+Reported-by: Fredrik Hallenberg <megahallon@gmail.com>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+Hi
+
+Fredrik, Adam, can you give this a try? It should fix your issues.
+
+Thanks
+David
+
+ drivers/hid/hid-input.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 725f22c..8976895 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1101,6 +1101,22 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 		return;
+ 	}
+ 
++	/*
++	 * Ignore reports for absolute data if the data didn't change. This is
++	 * not only an optimization but also fixes 'dead' key reports. Some
++	 * RollOver implementations for localized keys (like BACKSLASH/PIPE; HID
++	 * 0x31 and 0x32) report multiple keys, even though a localized keyboard
++	 * can only have one of them physically available. The 'dead' keys
++	 * report constant 0. As all map to the same keycode, they'd confuse
++	 * the input layer. If we filter the 'dead' keys on the HID level, we
++	 * skip the keycode translation and only forward real events.
++	 */
++	if (!(field->flags & (HID_MAIN_ITEM_RELATIVE |
++	                      HID_MAIN_ITEM_BUFFERED_BYTE)) &&
++	    usage->usage_index < field->maxusage &&
++	    value == field->value[usage->usage_index])
++		return;
++
+ 	/* report the usage code as scancode if the key status has changed */
+ 	if (usage->type == EV_KEY && !!test_bit(usage->code, input->key) != value)
+ 		input_event(input, EV_MSC, MSC_SCAN, usage->hid);
 -- 
-Jiri Kosina
-SUSE Labs
+2.2.1
+

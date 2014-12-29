@@ -1,107 +1,126 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: synaptics: Use in-kernel tracking for
- reporting mt data
-Date: Mon, 29 Dec 2014 14:26:50 -0800
-Message-ID: <20141229222650.GG9565@dtor-ws>
-References: <1414693987-6059-1-git-send-email-benjamin.tissoires@redhat.com>
- <20141031165136.GB32331@dtor-ws>
- <CAN+gG=EBz6vifWoV5PmGzMNJgHD59F2P_6sZfDZU5hbkSOPoQQ@mail.gmail.com>
- <CAN+gG=F0a1FLvgFkWMc4qC_WAj6dSmOaEEZhvty2KGbbM+uQtw@mail.gmail.com>
+Subject: [PATCH] Input: synaptics - switch ForcePad detection to PNP IDs
+Date: Mon, 29 Dec 2014 14:51:13 -0800
+Message-ID: <20141229225113.GA13847@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:51217 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751524AbaL2W0z (ORCPT
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:63837 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751425AbaL2WvS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2014 17:26:55 -0500
+	Mon, 29 Dec 2014 17:51:18 -0500
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=F0a1FLvgFkWMc4qC_WAj6dSmOaEEZhvty2KGbbM+uQtw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, Chung-yih Wang <cywang@chromium.org>
+To: linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+According to Synaptics devices with ForcePads use SYN300D and SYN3014 as
+PNP IDs, so let's switch from DMI-bases detection scheme to PNP-based
+one, which should be more reliable.
 
-On Mon, Dec 08, 2014 at 01:01:28PM -0500, Benjamin Tissoires wrote:
-> On Thu, Nov 20, 2014 at 2:42 PM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
-> > On Fri, Oct 31, 2014 at 12:51 PM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> >> On Thu, Oct 30, 2014 at 02:33:06PM -0400, Benjamin Tissoires wrote:
-> >>> The current code tries to consider all states and transitions to properly
-> >>> detect which finger is attached to which slot. The code is quite huge
-> >>> and difficult to read.
-> >>> If the sensor manages to group the touch points but is not reliable in
-> >>> giving tracking ids, we can simply use the kernel tracking method. Note
-> >>> that it is already used by Cr-48 Chromebooks.
-> >>>
-> >>> Incidentaly, this fixes a bug reported by Peter Hutterer:
-> >>> """
-> >>> on the Lenovo T440, run:
-> >>> evemu-record /dev/input/event4 | grep BTN_
-> >>>
-> >>> then put one, two, three, two fingers down
-> >>> when you go from 3 to 2 fingers the driver sends a spurious BTN_TOUCH 0
-> >>> event:
-> >>>
-> >>> E: 0.000000 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
-> >>> E: 0.000000 0001 0145 0001      # EV_KEY / BTN_TOOL_FINGER      1
-> >>> E: 0.770008 0001 0145 0000      # EV_KEY / BTN_TOOL_FINGER      0
-> >>> E: 0.770008 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
-> >>> E: 1.924716 0001 014d 0000      # EV_KEY / BTN_TOOL_DOUBLETAP   0
-> >>> E: 1.924716 0001 014e 0001      # EV_KEY / BTN_TOOL_TRIPLETAP   1
-> >>>
-> >>> .. changing from 3 to 2 fingers now
-> >>>
-> >>> E: 3.152641 0001 014a 0000      # EV_KEY / BTN_TOUCH            0
-> >>> E: 3.152641 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
-> >>> E: 3.152641 0001 014e 0000      # EV_KEY / BTN_TOOL_TRIPLETAP   0
-> >>> E: 3.176948 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
-> >>>
-> >>> quick look in the kernel shows it's caused by hw.z going to 0 for a packet,
-> >>> so probably a firmware bug. either way, it makes it hard to track BTN_TOUCH
-> >>> as signal that at least one finger is down.
-> >>> """
-> >>>
-> >>> The in-kernel tracking is enough to remove this spurious BTN_TOUCH 0.
-> >>>
-> >>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >>> ---
-> >>>
-> >>> Hi Dmitry,
-> >>>
-> >>> I started working on that for 2 other bug reports
-> >>> https://bugs.freedesktop.org/show_bug.cgi?id=81278
-> >>> and
-> >>> https://bugs.freedesktop.org/show_bug.cgi?id=76722
-> >>>
-> >>> I thought the cursor jumps could be fixed by the in-kernel tracking, but the
-> >>> tracking needs a little bit more work to filter them out (patches to follow soon).
-> >>>
-> >>> From a user perspective, this patch does not change anything to what the user
-> >>> previously had. It also fixes Peter's bug that's why I decide to send this out
-> >>> by itself (removing ~350 lines of code and fixing bugs is always nice).
-> >>>
-> >>> I think the cursor jump fixes will need more bikeshedding in input-mt.c (I am
-> >>> *really* bad at designing APIs), so I'll send it later as an RFC.
-> >>
-> >> Daniel and Chung-yih were working on the driver so let's see if they
-> >> have a moment...
-> >>
-> >
-> > Any news from the chrome team? This is a requirement for fixing the
-> > cursor jumps, and I'd rather have this series in shape before
-> > introducing the changes in input-mt.c.
-> >
-> 
-> ping?
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/synaptics.c | 35 ++++++++++++++---------------------
+ drivers/input/mouse/synaptics.h |  1 +
+ 2 files changed, 15 insertions(+), 21 deletions(-)
 
-Looks like a very nice fix and clean up. I queued it for 3.20, sorry for
-the delay.
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index d2ab13a..f04017e 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -190,6 +190,13 @@ static const char * const topbuttonpad_pnp_ids[] = {
+ 	NULL
+ };
+ 
++/* This list has been kindly provided by Synaptics. */
++static const char * const forcepad_pnp_ids[] = {
++	"SYN300D",
++	"SYN3014",
++	NULL
++};
++
+ /*****************************************************************************
+  *	Synaptics communications functions
+  ****************************************************************************/
+@@ -601,8 +608,6 @@ static void synaptics_parse_agm(const unsigned char buf[],
+ 	}
+ }
+ 
+-static bool is_forcepad;
+-
+ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 				    struct synaptics_data *priv,
+ 				    struct synaptics_hw_state *hw)
+@@ -632,7 +637,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
+ 		hw->right = (buf[0] & 0x02) ? 1 : 0;
+ 
+-		if (is_forcepad) {
++		if (priv->is_forcepad) {
+ 			/*
+ 			 * ForcePads, like Clickpads, use middle button
+ 			 * bits to report primary button clicks.
+@@ -1307,29 +1312,11 @@ static const struct dmi_system_id __initconst cr48_dmi_table[] = {
+ 	{ }
+ };
+ 
+-static const struct dmi_system_id forcepad_dmi_table[] __initconst = {
+-#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+-	{
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP EliteBook Folio 1040 G1"),
+-		},
+-	},
+-#endif
+-	{ }
+-};
+-
+ void __init synaptics_module_init(void)
+ {
+ 	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
+ 	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
+ 	cr48_profile_sensor = dmi_check_system(cr48_dmi_table);
+-
+-	/*
+-	 * Unfortunately ForcePad capability is not exported over PS/2,
+-	 * so we have to resort to checking DMI.
+-	 */
+-	is_forcepad = dmi_check_system(forcepad_dmi_table);
+ }
+ 
+ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+@@ -1364,6 +1351,12 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 	if (SYN_ID_DISGEST_SUPPORTED(priv->identity))
+ 		priv->disable_gesture = true;
+ 
++	/*
++	 * Unfortunately ForcePad capability is not exported over PS/2,
++	 * so we have to resort to checking PNP IDs.
++	 */
++	priv->is_forcepad = psmouse_matches_pnp_id(psmouse, forcepad_pnp_ids);
++
+ 	if (synaptics_set_mode(psmouse)) {
+ 		psmouse_err(psmouse, "Unable to initialize device.\n");
+ 		goto init_fail;
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index aedc329..fb3838c 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -168,6 +168,7 @@ struct synaptics_data {
+ 	unsigned long				press_start;
+ 	bool					press;
+ 	bool					report_press;
++	bool					is_forcepad;
+ };
+ 
+ void synaptics_module_init(void);
+-- 
+2.2.0.rc0.207.ga3a616c
 
-Thanks.
 
 -- 
 Dmitry

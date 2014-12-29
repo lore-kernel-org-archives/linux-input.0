@@ -1,73 +1,160 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [Question : drivers/input ] Fixing Event Filter Mechanism in
- input subsystem
-Date: Mon, 29 Dec 2014 20:34:16 +0530
-Message-ID: <CA+HOOsi4mCei5JaX9aOGnhO8UcxmfYNy-JpOuxL0NYAgYY4HVw@mail.gmail.com>
-References: <CA+HOOsgL_fY=Wc+ciDAuk485d=uTn=YTgVGVDJ5Qk3UsqQ8zVA@mail.gmail.com>
-	<20141222172622.GA18556@dtor-ws>
-	<CA+HOOsgDm-ZGycDwdzw3SvbscUefp7xcD-ikFSF2heouHMhS4g@mail.gmail.com>
-	<20141224182511.GA21956@dtor-glaptop>
-	<CA+HOOsg+U6yS4sAsgD_vZ-OGkTuzdKf2Qmg8hcyXkyFbY3WJPQ@mail.gmail.com>
-	<20141226234658.GC1071@dtor-ws>
+From: Fredrik Hallenberg <megahallon@gmail.com>
+Subject: Re: [PATCH] HID: input: fix confusion on conflicting mappings
+Date: Mon, 29 Dec 2014 17:13:47 +0100
+Message-ID: <CAMsZVf8_aJjzzw4su3=VC2qX9gScBqZSH+qFJLKZdajTQuiegA@mail.gmail.com>
+References: <1419862886-1319-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f51.google.com ([209.85.213.51]:50797 "EHLO
-	mail-yh0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751562AbaL2PER (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2014 10:04:17 -0500
-Received: by mail-yh0-f51.google.com with SMTP id a41so6623559yho.38
-        for <linux-input@vger.kernel.org>; Mon, 29 Dec 2014 07:04:16 -0800 (PST)
-In-Reply-To: <20141226234658.GC1071@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1419862886-1319-1-git-send-email-dh.herrmann@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Adam Goode <adam@spicenitz.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-Dear Mr. Dmitry ,
+Thanks for completing the patch, it works fine with my Corsair K70.
 
-Thanks a lot for clearing my doubts :)
-
-
-
-On Sat, Dec 27, 2014 at 5:16 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Anshul,
+On Mon, Dec 29, 2014 at 3:21 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> On an PC-101/103/104 keyboard (American layout) the 'Enter' key and its
+> neighbours look like this:
 >
-> On Thu, Dec 25, 2014 at 11:11:06AM +0530, Anshul Garg wrote:
->> Dear Mr Dmitry ,
->>
->> Thanks a lot for the clarification.
->>
->> I was in assumption that one handler can support both ->filter() and
->> ->event[s]()
->> Callback.So that's why i have prepared the patch to first do the
->> filter then pass
->> the events.
->>
->> Can you please tell me why current implementation doesn't expect handler can
->> have both callbacks?
+>            +---+ +---+ +-------+
+>            | 1 | | 2 | |   5   |
+>            +---+ +---+ +-------+
+>              +---+ +-----------+
+>              | 3 | |     4     |
+>              +---+ +-----------+
 >
-> Because it was something I saw no need for: filter already has all the
-> events so it can process them. If you really want to process events
-> again once all filters have run, you can register additional handler.
+> On a PC-102/105 keyboard (European layout) it looks like this:
 >
->>
->> I think input core should be generic to allow any type of handlers which can
->> support both filter and events callbacks.
->>
->> Please help to answer above query as my patch is based on this pre-assumption
->> that one handler can support both callbacks .
->>
->> If we really need to have support of such handlers in input core then
->> only my patch
->> is good.
+>            +---+ +---+ +-------+
+>            | 1 | | 2 | |       |
+>            +---+ +---+ +-+  4  |
+>              +---+ +---+ |     |
+>              | 3 | | 5 | |     |
+>              +---+ +---+ +-----+
 >
-> I think I would need a user for this feature before changing the code to
-> allow it.
+> (Note that the number of keys is the same, but key '5' is moved down and
+>  the shape of key '4' is changed. Keys '1' to '3' are exactly the same.)
 >
-> Thanks.
+> The keys 1-4 report the same scan-code in HID in both layouts, even though
+> the keysym they produce is usually different depending on the XKB-keymap
+> used by user-space.
+> However, key '5' (US 'backslash'/'pipe') reports 0x31 for the upper layout
+> and 0x32 for the lower layout, as defined by the HID spec. This is highly
+> confusing as the linux-input API uses a single keycode for both.
 >
+> So far, this was never a problem as there never has been a keyboard with
+> both of those keys present at the same time. It would have to look
+> something like this:
+>
+>            +---+ +---+ +-------+
+>            | 1 | | 2 | |  x31  |
+>            +---+ +---+ +-------+
+>              +---+ +---+ +-----+
+>              | 3 | |x32| |  4  |
+>              +---+ +---+ +-----+
+>
+> HID can represent such a keyboard, but the linux-input API cannot.
+> Furthermore, any user-space mapping would be confused by this and,
+> luckily, no-one ever produced such hardware.
+>
+> Now, the HID input layer fixed this mess by mapping both 0x31 and 0x32 to
+> the same keycode (KEY_BACKSLASH==0x2b). As only one of both physical keys
+> is present on a hardware, this works just fine.
+>
+> Lets introduce hardware-vendors into this:
+> ------------------------------------------
+>
+> Unfortunately, it seems way to expensive to produce a different device for
+> American and European layouts. Therefore, hardware-vendors put both keys,
+> (0x31 and 0x32) on the same keyboard, but only one of them is hooked up
+> to the physical button, the other one is 'dead'.
+> This means, they can use the same hardware, with a different button-layout
+> and automatically produce the correct HID events for American *and*
+> European layouts. This is unproblematic for normal keyboards, as the
+> 'dead' key will never report any KEY-DOWN events. But RollOver keyboards
+> send the whole matrix on each key-event, allowing n-key roll-over mode.
+> This means, we get a 0x31 and 0x32 event on each key-press. One of them
+> will always be 0, the other reports the real state. As we map both to the
+> same keycode, we will get spurious key-events, even though the real
+> key-state never changed.
+>
+> The easiest way would be to blacklist 'dead' keys and never handle those.
+> We could simply read the 'country' tag of USB devices and blacklist either
+> key according to the layout. But... hardware vendors... want the same
+> device for all countries and thus many of them set 'country' to 0 for all
+> devices. Meh..
+>
+> So we have to deal with this properly. As we cannot know which of the keys
+> is 'dead', we either need a heuristic and track those keys, or we simply
+> make use of our value-tracking for HID fields. We simply ignore HID events
+> for absolute data if the data didn't change. As HID tracks events on the
+> HID level, we haven't done the keycode translation, yet. Therefore, the
+> 'dead' key is tracked independently of the real key, therefore, any events
+> on it will be ignored.
+>
+> This patch simply discards any HID events for absolute data if it didn't
+> change compared to the last report. We need to ignore relative and
+> buffered-byte reports for obvious reasons. But those cannot be affected by
+> this bug, so we're fine.
+>
+> Preferably, we'd do this filtering on the HID-core level. But this might
+> break a lot of custom drivers, if they do not follow the HID specs.
+> Therefore, we do this late in hid-input just before we inject it into the
+> input layer (which does the exact same filtering, but on the keycode
+> level).
+>
+> If this turns out to break some devices, we might have to limit filtering
+> to EV_KEY events. But lets try to do the Right Thing first, and properly
+> filter any absolute data that didn't change.
+>
+> This patch is tagged for 'stable' as it fixes a lot of n-key RollOver
+> hardware. We might wanna wait with backporting for a while, before we know
+> it doesn't break anything else, though.
+>
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Adam Goode <adam@spicenitz.org>
+> Reported-by: Fredrik Hallenberg <megahallon@gmail.com>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+> Hi
+>
+> Fredrik, Adam, can you give this a try? It should fix your issues.
+>
+> Thanks
+> David
+>
+>  drivers/hid/hid-input.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+>
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 725f22c..8976895 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1101,6 +1101,22 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+>                 return;
+>         }
+>
+> +       /*
+> +        * Ignore reports for absolute data if the data didn't change. This is
+> +        * not only an optimization but also fixes 'dead' key reports. Some
+> +        * RollOver implementations for localized keys (like BACKSLASH/PIPE; HID
+> +        * 0x31 and 0x32) report multiple keys, even though a localized keyboard
+> +        * can only have one of them physically available. The 'dead' keys
+> +        * report constant 0. As all map to the same keycode, they'd confuse
+> +        * the input layer. If we filter the 'dead' keys on the HID level, we
+> +        * skip the keycode translation and only forward real events.
+> +        */
+> +       if (!(field->flags & (HID_MAIN_ITEM_RELATIVE |
+> +                             HID_MAIN_ITEM_BUFFERED_BYTE)) &&
+> +           usage->usage_index < field->maxusage &&
+> +           value == field->value[usage->usage_index])
+> +               return;
+> +
+>         /* report the usage code as scancode if the key status has changed */
+>         if (usage->type == EV_KEY && !!test_bit(usage->code, input->key) != value)
+>                 input_event(input, EV_MSC, MSC_SCAN, usage->hid);
 > --
-> Dmitry
+> 2.2.1
+>

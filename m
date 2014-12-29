@@ -1,160 +1,124 @@
-From: Fredrik Hallenberg <megahallon@gmail.com>
-Subject: Re: [PATCH] HID: input: fix confusion on conflicting mappings
-Date: Mon, 29 Dec 2014 17:13:47 +0100
-Message-ID: <CAMsZVf8_aJjzzw4su3=VC2qX9gScBqZSH+qFJLKZdajTQuiegA@mail.gmail.com>
-References: <1419862886-1319-1-git-send-email-dh.herrmann@gmail.com>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: Avoid kernel panic during device unregistration
+Date: Mon, 29 Dec 2014 22:11:54 +0530
+Message-ID: <CADYu3085LoexcdGsbFY7xoii3SqrAu96b9976ZVhr0WL8dLixw@mail.gmail.com>
+References: <1419790325-4004-1-git-send-email-aniroop.mathur@gmail.com>
+	<20141228202149.GA21544@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1419862886-1319-1-git-send-email-dh.herrmann@gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Adam Goode <adam@spicenitz.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, stable@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f169.google.com ([209.85.217.169]:54320 "EHLO
+	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750798AbaL2Qlz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2014 11:41:55 -0500
+Received: by mail-lb0-f169.google.com with SMTP id p9so11375881lbv.28
+        for <linux-input@vger.kernel.org>; Mon, 29 Dec 2014 08:41:54 -0800 (PST)
+In-Reply-To: <20141228202149.GA21544@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, a.mathur@samsung.com
 
-Thanks for completing the patch, it works fine with my Corsair K70.
+Hello Mr. Torokhov,
 
-On Mon, Dec 29, 2014 at 3:21 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> On an PC-101/103/104 keyboard (American layout) the 'Enter' key and its
-> neighbours look like this:
+On Mon, Dec 29, 2014 at 1:51 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Aniroop,
 >
->            +---+ +---+ +-------+
->            | 1 | | 2 | |   5   |
->            +---+ +---+ +-------+
->              +---+ +-----------+
->              | 3 | |     4     |
->              +---+ +-----------+
+> On Sun, Dec 28, 2014 at 11:42:05PM +0530, Aniroop Mathur wrote:
+>> This patch adds null check before actually unregistering the input device
+>> to avoid null pointer exception which leads to kernel panic.
+>>
+>> So now, input device drivers won't have to worry about or add null case
+>> condition before calling input_unregister_device() in shutdown and
+>> remove functions.
 >
-> On a PC-102/105 keyboard (European layout) it looks like this:
+> input_unregister_device() should be called only if
+> input_register_device() succeeded, which it would not with input device
+> being NULL.
 >
->            +---+ +---+ +-------+
->            | 1 | | 2 | |       |
->            +---+ +---+ +-+  4  |
->              +---+ +---+ |     |
->              | 3 | | 5 | |     |
->              +---+ +---+ +-----+
+> Unlike input_free_device() which does handle NULL argument, similar to
+> many other "free" APIs I do not believe that input_unregister_device
+> should be handling such cases.
 >
-> (Note that the number of keys is the same, but key '5' is moved down and
->  the shape of key '4' is changed. Keys '1' to '3' are exactly the same.)
+
+Right !!
+Actually, quite recently I worked on one input device hub driver in which many
+devices are registered in probe and in shutdown and remove functions,
+they are unregistered.
+
+probe() {
+...
+...
+accel_dev = input_register_device();
+gyro_dev = input_register_device();
+mag_dev = input_register_device();
+prox_dev = input_register_device();
+light_dev = input_register_device();
+baro_dev = input_register_device();
+more ...
+...
+}
+
+shutdown() {
+...
+...
+if (accel_dev)
+input_unregister_device(accel_dev);
+if (gyro_dev)
+input_unregister_device(gyro_dev);
+if (mag_dev)
+input_unregister_device(mag_dev);
+if (prox_dev )
+input_unregister_device(prox_dev);
+if (light_dev)
+input_unregister_device(light_dev);
+if (baro_dev)
+input_unregister_device(baro_dev);
+more ...
+...
+}
+
+In probe, few registrations may fail and so it is freed in probe itself.
+And in driver shutdown function, we need to unregister or free devices
+registered in probe.
+So adding null check before every input_device_unregister() looks not
+quite good.
+Similar thing for remove function in driver.
+The best solution I thought is to add null check in input subsystem
+unregister function itself.
+Umm... Is there any better way possible ?
+
+
+Regards,
+Aniroop
+
+>>
+>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>> ---
+>>  drivers/input/input.c | 3 +++
+>>  1 file changed, 3 insertions(+)
+>>
+>> diff --git a/drivers/input/input.c b/drivers/input/input.c
+>> index 01fe49e..575219d 100644
+>> --- a/drivers/input/input.c
+>> +++ b/drivers/input/input.c
+>> @@ -2170,6 +2170,9 @@ EXPORT_SYMBOL(input_register_device);
+>>   */
+>>  void input_unregister_device(struct input_dev *dev)
+>>  {
+>> +     if (!dev)
+>> +             return;
+>> +
+>>       if (dev->devres_managed) {
+>>               WARN_ON(devres_destroy(dev->dev.parent,
+>>                                       devm_input_device_unregister,
+>> --
+>> 1.9.1
+>>
 >
-> The keys 1-4 report the same scan-code in HID in both layouts, even though
-> the keysym they produce is usually different depending on the XKB-keymap
-> used by user-space.
-> However, key '5' (US 'backslash'/'pipe') reports 0x31 for the upper layout
-> and 0x32 for the lower layout, as defined by the HID spec. This is highly
-> confusing as the linux-input API uses a single keycode for both.
+> Thanks.
 >
-> So far, this was never a problem as there never has been a keyboard with
-> both of those keys present at the same time. It would have to look
-> something like this:
->
->            +---+ +---+ +-------+
->            | 1 | | 2 | |  x31  |
->            +---+ +---+ +-------+
->              +---+ +---+ +-----+
->              | 3 | |x32| |  4  |
->              +---+ +---+ +-----+
->
-> HID can represent such a keyboard, but the linux-input API cannot.
-> Furthermore, any user-space mapping would be confused by this and,
-> luckily, no-one ever produced such hardware.
->
-> Now, the HID input layer fixed this mess by mapping both 0x31 and 0x32 to
-> the same keycode (KEY_BACKSLASH==0x2b). As only one of both physical keys
-> is present on a hardware, this works just fine.
->
-> Lets introduce hardware-vendors into this:
-> ------------------------------------------
->
-> Unfortunately, it seems way to expensive to produce a different device for
-> American and European layouts. Therefore, hardware-vendors put both keys,
-> (0x31 and 0x32) on the same keyboard, but only one of them is hooked up
-> to the physical button, the other one is 'dead'.
-> This means, they can use the same hardware, with a different button-layout
-> and automatically produce the correct HID events for American *and*
-> European layouts. This is unproblematic for normal keyboards, as the
-> 'dead' key will never report any KEY-DOWN events. But RollOver keyboards
-> send the whole matrix on each key-event, allowing n-key roll-over mode.
-> This means, we get a 0x31 and 0x32 event on each key-press. One of them
-> will always be 0, the other reports the real state. As we map both to the
-> same keycode, we will get spurious key-events, even though the real
-> key-state never changed.
->
-> The easiest way would be to blacklist 'dead' keys and never handle those.
-> We could simply read the 'country' tag of USB devices and blacklist either
-> key according to the layout. But... hardware vendors... want the same
-> device for all countries and thus many of them set 'country' to 0 for all
-> devices. Meh..
->
-> So we have to deal with this properly. As we cannot know which of the keys
-> is 'dead', we either need a heuristic and track those keys, or we simply
-> make use of our value-tracking for HID fields. We simply ignore HID events
-> for absolute data if the data didn't change. As HID tracks events on the
-> HID level, we haven't done the keycode translation, yet. Therefore, the
-> 'dead' key is tracked independently of the real key, therefore, any events
-> on it will be ignored.
->
-> This patch simply discards any HID events for absolute data if it didn't
-> change compared to the last report. We need to ignore relative and
-> buffered-byte reports for obvious reasons. But those cannot be affected by
-> this bug, so we're fine.
->
-> Preferably, we'd do this filtering on the HID-core level. But this might
-> break a lot of custom drivers, if they do not follow the HID specs.
-> Therefore, we do this late in hid-input just before we inject it into the
-> input layer (which does the exact same filtering, but on the keycode
-> level).
->
-> If this turns out to break some devices, we might have to limit filtering
-> to EV_KEY events. But lets try to do the Right Thing first, and properly
-> filter any absolute data that didn't change.
->
-> This patch is tagged for 'stable' as it fixes a lot of n-key RollOver
-> hardware. We might wanna wait with backporting for a while, before we know
-> it doesn't break anything else, though.
->
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Adam Goode <adam@spicenitz.org>
-> Reported-by: Fredrik Hallenberg <megahallon@gmail.com>
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-> ---
-> Hi
->
-> Fredrik, Adam, can you give this a try? It should fix your issues.
->
-> Thanks
-> David
->
->  drivers/hid/hid-input.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 725f22c..8976895 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1101,6 +1101,22 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
->                 return;
->         }
->
-> +       /*
-> +        * Ignore reports for absolute data if the data didn't change. This is
-> +        * not only an optimization but also fixes 'dead' key reports. Some
-> +        * RollOver implementations for localized keys (like BACKSLASH/PIPE; HID
-> +        * 0x31 and 0x32) report multiple keys, even though a localized keyboard
-> +        * can only have one of them physically available. The 'dead' keys
-> +        * report constant 0. As all map to the same keycode, they'd confuse
-> +        * the input layer. If we filter the 'dead' keys on the HID level, we
-> +        * skip the keycode translation and only forward real events.
-> +        */
-> +       if (!(field->flags & (HID_MAIN_ITEM_RELATIVE |
-> +                             HID_MAIN_ITEM_BUFFERED_BYTE)) &&
-> +           usage->usage_index < field->maxusage &&
-> +           value == field->value[usage->usage_index])
-> +               return;
-> +
->         /* report the usage code as scancode if the key status has changed */
->         if (usage->type == EV_KEY && !!test_bit(usage->code, input->key) != value)
->                 input_event(input, EV_MSC, MSC_SCAN, usage->hid);
 > --
-> 2.2.1
->
+> Dmitry

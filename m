@@ -1,51 +1,77 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Add a new id 0x501a for Genius MousePen i608X
-Date: Mon, 29 Dec 2014 11:14:22 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1412291112460.1680@pobox.suse.cz>
-References: <1419632910-12773-1-git-send-email-giedrius.statkevicius@gmail.com>
+Subject: Re: [PATCH] hid: Initialize battery_no to -1 & correct its format
+ string
+Date: Mon, 29 Dec 2014 13:03:58 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1412291302470.1680@pobox.suse.cz>
+References: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34766 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:36699 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751114AbaL2KOY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2014 05:14:24 -0500
-In-Reply-To: <1419632910-12773-1-git-send-email-giedrius.statkevicius@gmail.com>
+	id S1751435AbaL2MEB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2014 07:04:01 -0500
+In-Reply-To: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-2?Q?Giedrius_Statkevi=E8ius?= <giedrius.statkevicius@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, a.mathur@samsung.com, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-On Sat, 27 Dec 2014, Giedrius Statkevi=C4=8Dius wrote:
+On Sun, 28 Dec 2014, Aniroop Mathur wrote:
 
-> New Genius MousePen i608X devices have a new id 0x501a instead of the
-> old 0x5011 so add a new #define with "_2" appended and change require=
-d
-> places.
->=20
-> The remaining two checkpatch warnings about line length
-> being over 80 characters are present in the original files too and th=
-is
-> patch was made in the same style (no line break).
->=20
-> Just adding a new id and changing the required places should make the
-> new device work without any issues according to the bug report in the
-> following url.
->=20
-> This patch was made according to and fixes:
-> https://bugzilla.kernel.org/show_bug.cgi?id=3D67111
->=20
-> Signed-off-by: Giedrius Statkevi=C4=8Dius <giedrius.statkevicius@gmai=
-l.com>
+> From: Aniroop Mathur <a.mathur@samsung.com>
+> 
+> This patch initializes battery_no to -1 to avoid extra subtraction
+> operation performed everytime wacom battery is initialized 
 
-Applied to for-3.19/upstream-fixes.
+This is so femto-optimization, that I don't really care deeply. Adding 
+Jason and Ping to CC. If they want this, I'll apply the patch.
 
---=20
+> and correct format string of unsigned long from %ld to %lu.
+> 
+> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+> ---
+>  drivers/hid/wacom_sys.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 129fd33..4b5ff84 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -919,17 +919,17 @@ static int wacom_ac_get_property(struct power_supply *psy,
+>  
+>  static int wacom_initialize_battery(struct wacom *wacom)
+>  {
+> -	static atomic_t battery_no = ATOMIC_INIT(0);
+> +	static atomic_t battery_no = ATOMIC_INIT(-1);
+>  	int error;
+>  	unsigned long n;
+>  
+>  	if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
+> -		n = atomic_inc_return(&battery_no) - 1;
+> +		n = atomic_inc_return(&battery_no);
+>  
+>  		wacom->battery.properties = wacom_battery_props;
+>  		wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
+>  		wacom->battery.get_property = wacom_battery_get_property;
+> -		sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%ld", n);
+> +		sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%lu", n);
+>  		wacom->battery.name = wacom->wacom_wac.bat_name;
+>  		wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+>  		wacom->battery.use_for_apm = 0;
+> @@ -937,7 +937,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
+>  		wacom->ac.properties = wacom_ac_props;
+>  		wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
+>  		wacom->ac.get_property = wacom_ac_get_property;
+> -		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
+> +		sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%lu", n);
+>  		wacom->ac.name = wacom->wacom_wac.ac_name;
+>  		wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
+>  		wacom->ac.use_for_apm = 0;
+> -- 
+> 1.9.1
+> 
+
+-- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

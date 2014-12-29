@@ -1,158 +1,43 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] HID: input: fix confusion on conflicting mappings
-Date: Mon, 29 Dec 2014 15:21:26 +0100
-Message-ID: <1419862886-1319-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f170.google.com ([209.85.212.170]:59804 "EHLO
-	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751206AbaL2OWF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2014 09:22:05 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Fabian Frederick <fabf@skynet.be>
+Subject: [PATCH 00/11 linux-next] drivers: remove unnecessary version.h inclusion
+Date: Mon, 29 Dec 2014 15:29:34 +0100
+Message-ID: <1419863387-24233-1-git-send-email-fabf@skynet.be>
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Fabian Frederick <fabf@skynet.be>, openipmi-developer@lists.sourceforge.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: David Herrmann <dh.herrmann@gmail.com>, Adam Goode <adam@spicenitz.org>, Fredrik Hallenberg <megahallon@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, stable@vger.kernel.org
 
-On an PC-101/103/104 keyboard (American layout) the 'Enter' key and its
-neighbours look like this:
+This small patchset removes unnecessary version.h includes detected by
+versioncheck in drivers branch.
 
-           +---+ +---+ +-------+
-           | 1 | | 2 | |   5   |
-           +---+ +---+ +-------+
-             +---+ +-----------+
-             | 3 | |     4     |
-             +---+ +-----------+
+Fabian Frederick (11):
+  rsxx: remove unnecessary version.h inclusion
+  skd: remove unnecessary version.h inclusion
+  ipmi: remove unnecessary version.h inclusion
+  input: remove unnecessary version.h inclusion
+  [media] tw68: remove unnecessary version.h inclusion
+  [media] s5p-g2d: remove unnecessary version.h inclusion
+  [media] s5p-mfc: remove unnecessary version.h inclusion
+  [media] vivid: remove unnecessary version.h inclusion
+  [media] uvcvideo: remove unnecessary version.h inclusion
+  GenWQE: remove unnecessary version.h inclusion
+  s390/hmcdrv: remove unnecessary version.h inclusion
 
-On a PC-102/105 keyboard (European layout) it looks like this:
+ drivers/block/rsxx/rsxx_priv.h               | 1 -
+ drivers/block/skd_main.c                     | 1 -
+ drivers/char/ipmi/ipmi_ssif.c                | 1 -
+ drivers/input/touchscreen/elants_i2c.c       | 2 --
+ drivers/media/pci/tw68/tw68.h                | 1 -
+ drivers/media/platform/s5p-g2d/g2d.c         | 1 -
+ drivers/media/platform/s5p-mfc/s5p_mfc_dec.c | 1 -
+ drivers/media/platform/s5p-mfc/s5p_mfc_enc.c | 1 -
+ drivers/media/platform/vivid/vivid-tpg.h     | 1 -
+ drivers/media/usb/uvc/uvc_v4l2.c             | 1 -
+ drivers/misc/genwqe/card_base.h              | 1 -
+ drivers/misc/genwqe/card_sysfs.c             | 1 -
+ drivers/s390/char/hmcdrv_mod.c               | 1 -
+ 13 files changed, 14 deletions(-)
 
-           +---+ +---+ +-------+
-           | 1 | | 2 | |       |
-           +---+ +---+ +-+  4  |
-             +---+ +---+ |     |
-             | 3 | | 5 | |     |
-             +---+ +---+ +-----+
-
-(Note that the number of keys is the same, but key '5' is moved down and
- the shape of key '4' is changed. Keys '1' to '3' are exactly the same.)
-
-The keys 1-4 report the same scan-code in HID in both layouts, even though
-the keysym they produce is usually different depending on the XKB-keymap
-used by user-space.
-However, key '5' (US 'backslash'/'pipe') reports 0x31 for the upper layout
-and 0x32 for the lower layout, as defined by the HID spec. This is highly
-confusing as the linux-input API uses a single keycode for both.
-
-So far, this was never a problem as there never has been a keyboard with
-both of those keys present at the same time. It would have to look
-something like this:
-
-           +---+ +---+ +-------+
-           | 1 | | 2 | |  x31  |
-           +---+ +---+ +-------+
-             +---+ +---+ +-----+
-             | 3 | |x32| |  4  |
-             +---+ +---+ +-----+
-
-HID can represent such a keyboard, but the linux-input API cannot.
-Furthermore, any user-space mapping would be confused by this and,
-luckily, no-one ever produced such hardware.
-
-Now, the HID input layer fixed this mess by mapping both 0x31 and 0x32 to
-the same keycode (KEY_BACKSLASH==0x2b). As only one of both physical keys
-is present on a hardware, this works just fine.
-
-Lets introduce hardware-vendors into this:
-------------------------------------------
-
-Unfortunately, it seems way to expensive to produce a different device for
-American and European layouts. Therefore, hardware-vendors put both keys,
-(0x31 and 0x32) on the same keyboard, but only one of them is hooked up
-to the physical button, the other one is 'dead'.
-This means, they can use the same hardware, with a different button-layout
-and automatically produce the correct HID events for American *and*
-European layouts. This is unproblematic for normal keyboards, as the
-'dead' key will never report any KEY-DOWN events. But RollOver keyboards
-send the whole matrix on each key-event, allowing n-key roll-over mode.
-This means, we get a 0x31 and 0x32 event on each key-press. One of them
-will always be 0, the other reports the real state. As we map both to the
-same keycode, we will get spurious key-events, even though the real
-key-state never changed.
-
-The easiest way would be to blacklist 'dead' keys and never handle those.
-We could simply read the 'country' tag of USB devices and blacklist either
-key according to the layout. But... hardware vendors... want the same
-device for all countries and thus many of them set 'country' to 0 for all
-devices. Meh..
-
-So we have to deal with this properly. As we cannot know which of the keys
-is 'dead', we either need a heuristic and track those keys, or we simply
-make use of our value-tracking for HID fields. We simply ignore HID events
-for absolute data if the data didn't change. As HID tracks events on the
-HID level, we haven't done the keycode translation, yet. Therefore, the
-'dead' key is tracked independently of the real key, therefore, any events
-on it will be ignored.
-
-This patch simply discards any HID events for absolute data if it didn't
-change compared to the last report. We need to ignore relative and
-buffered-byte reports for obvious reasons. But those cannot be affected by
-this bug, so we're fine.
-
-Preferably, we'd do this filtering on the HID-core level. But this might
-break a lot of custom drivers, if they do not follow the HID specs.
-Therefore, we do this late in hid-input just before we inject it into the
-input layer (which does the exact same filtering, but on the keycode
-level).
-
-If this turns out to break some devices, we might have to limit filtering
-to EV_KEY events. But lets try to do the Right Thing first, and properly
-filter any absolute data that didn't change.
-
-This patch is tagged for 'stable' as it fixes a lot of n-key RollOver
-hardware. We might wanna wait with backporting for a while, before we know
-it doesn't break anything else, though.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Adam Goode <adam@spicenitz.org>
-Reported-by: Fredrik Hallenberg <megahallon@gmail.com>
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
-Hi
-
-Fredrik, Adam, can you give this a try? It should fix your issues.
-
-Thanks
-David
-
- drivers/hid/hid-input.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 725f22c..8976895 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1101,6 +1101,22 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 		return;
- 	}
- 
-+	/*
-+	 * Ignore reports for absolute data if the data didn't change. This is
-+	 * not only an optimization but also fixes 'dead' key reports. Some
-+	 * RollOver implementations for localized keys (like BACKSLASH/PIPE; HID
-+	 * 0x31 and 0x32) report multiple keys, even though a localized keyboard
-+	 * can only have one of them physically available. The 'dead' keys
-+	 * report constant 0. As all map to the same keycode, they'd confuse
-+	 * the input layer. If we filter the 'dead' keys on the HID level, we
-+	 * skip the keycode translation and only forward real events.
-+	 */
-+	if (!(field->flags & (HID_MAIN_ITEM_RELATIVE |
-+	                      HID_MAIN_ITEM_BUFFERED_BYTE)) &&
-+	    usage->usage_index < field->maxusage &&
-+	    value == field->value[usage->usage_index])
-+		return;
-+
- 	/* report the usage code as scancode if the key status has changed */
- 	if (usage->type == EV_KEY && !!test_bit(usage->code, input->key) != value)
- 		input_event(input, EV_MSC, MSC_SCAN, usage->hid);
 -- 
-2.2.1
-
+2.1.0

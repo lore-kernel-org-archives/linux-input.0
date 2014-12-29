@@ -1,82 +1,107 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.19-rc2
-Date: Mon, 29 Dec 2014 14:13:56 -0800
-Message-ID: <20141229221356.GF9565@dtor-ws>
+Subject: Re: [PATCH 1/2] Input: synaptics: Use in-kernel tracking for
+ reporting mt data
+Date: Mon, 29 Dec 2014 14:26:50 -0800
+Message-ID: <20141229222650.GG9565@dtor-ws>
+References: <1414693987-6059-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20141031165136.GB32331@dtor-ws>
+ <CAN+gG=EBz6vifWoV5PmGzMNJgHD59F2P_6sZfDZU5hbkSOPoQQ@mail.gmail.com>
+ <CAN+gG=F0a1FLvgFkWMc4qC_WAj6dSmOaEEZhvty2KGbbM+uQtw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f179.google.com ([209.85.223.179]:51217 "EHLO
+	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751524AbaL2W0z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2014 17:26:55 -0500
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+In-Reply-To: <CAN+gG=F0a1FLvgFkWMc4qC_WAj6dSmOaEEZhvty2KGbbM+uQtw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, Chung-yih Wang <cywang@chromium.org>
 
-Hi Linus,
+Hi Benjamin,
 
-Please pull from:
+On Mon, Dec 08, 2014 at 01:01:28PM -0500, Benjamin Tissoires wrote:
+> On Thu, Nov 20, 2014 at 2:42 PM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+> > On Fri, Oct 31, 2014 at 12:51 PM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> >> On Thu, Oct 30, 2014 at 02:33:06PM -0400, Benjamin Tissoires wrote:
+> >>> The current code tries to consider all states and transitions to properly
+> >>> detect which finger is attached to which slot. The code is quite huge
+> >>> and difficult to read.
+> >>> If the sensor manages to group the touch points but is not reliable in
+> >>> giving tracking ids, we can simply use the kernel tracking method. Note
+> >>> that it is already used by Cr-48 Chromebooks.
+> >>>
+> >>> Incidentaly, this fixes a bug reported by Peter Hutterer:
+> >>> """
+> >>> on the Lenovo T440, run:
+> >>> evemu-record /dev/input/event4 | grep BTN_
+> >>>
+> >>> then put one, two, three, two fingers down
+> >>> when you go from 3 to 2 fingers the driver sends a spurious BTN_TOUCH 0
+> >>> event:
+> >>>
+> >>> E: 0.000000 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
+> >>> E: 0.000000 0001 0145 0001      # EV_KEY / BTN_TOOL_FINGER      1
+> >>> E: 0.770008 0001 0145 0000      # EV_KEY / BTN_TOOL_FINGER      0
+> >>> E: 0.770008 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
+> >>> E: 1.924716 0001 014d 0000      # EV_KEY / BTN_TOOL_DOUBLETAP   0
+> >>> E: 1.924716 0001 014e 0001      # EV_KEY / BTN_TOOL_TRIPLETAP   1
+> >>>
+> >>> .. changing from 3 to 2 fingers now
+> >>>
+> >>> E: 3.152641 0001 014a 0000      # EV_KEY / BTN_TOUCH            0
+> >>> E: 3.152641 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
+> >>> E: 3.152641 0001 014e 0000      # EV_KEY / BTN_TOOL_TRIPLETAP   0
+> >>> E: 3.176948 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
+> >>>
+> >>> quick look in the kernel shows it's caused by hw.z going to 0 for a packet,
+> >>> so probably a firmware bug. either way, it makes it hard to track BTN_TOUCH
+> >>> as signal that at least one finger is down.
+> >>> """
+> >>>
+> >>> The in-kernel tracking is enough to remove this spurious BTN_TOUCH 0.
+> >>>
+> >>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >>> ---
+> >>>
+> >>> Hi Dmitry,
+> >>>
+> >>> I started working on that for 2 other bug reports
+> >>> https://bugs.freedesktop.org/show_bug.cgi?id=81278
+> >>> and
+> >>> https://bugs.freedesktop.org/show_bug.cgi?id=76722
+> >>>
+> >>> I thought the cursor jumps could be fixed by the in-kernel tracking, but the
+> >>> tracking needs a little bit more work to filter them out (patches to follow soon).
+> >>>
+> >>> From a user perspective, this patch does not change anything to what the user
+> >>> previously had. It also fixes Peter's bug that's why I decide to send this out
+> >>> by itself (removing ~350 lines of code and fixing bugs is always nice).
+> >>>
+> >>> I think the cursor jump fixes will need more bikeshedding in input-mt.c (I am
+> >>> *really* bad at designing APIs), so I'll send it later as an RFC.
+> >>
+> >> Daniel and Chung-yih were working on the driver so let's see if they
+> >> have a moment...
+> >>
+> >
+> > Any news from the chrome team? This is a requirement for fixing the
+> > cursor jumps, and I'd rather have this series in shape before
+> > introducing the changes in input-mt.c.
+> >
+> 
+> ping?
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Looks like a very nice fix and clean up. I queued it for 3.20, sorry for
+the delay.
 
-to receive updates for the input subsystem. You will get fixes for v7
-protocol for ALPS devices and few other driver fixes. Also users can
-request input events to be stamped with boot time timestamps, in
-addition to real and monotonic timestamps.
-
-Changelog:
----------
-
-Aniroop Mathur (1):
-      Input: evdev - add CLOCK_BOOTTIME support
-
-Anshul Garg (1):
-      Input: optimize events_per_packet count calculation
-
-Asaf Vertz (1):
-      Input: edt-ft5x06 - fixed a macro coding style issue
-
-Dmitry Torokhov (2):
-      Input: gpio_keys - allow separating gpio and irq in device tree
-      Input: gpio_keys - replace timer and workqueue with delayed workqueue
-
-Hans de Goede (4):
-      Input: alps - v7: ignore new packets
-      Input: alps - v7: sometimes a single touch is reported in mt[1]
-      Input: alps - v7: fix finger counting for > 2 fingers on clickpads
-      Input: alps - v7: document the v7 touchpad packet protocol
-
-Linus Walleij (3):
-      mfd: stmpe: add pull up/down register offsets for STMPE
-      Input: stmpe - enforce device tree only mode
-      Input: stmpe - bias keypad columns properly
-
-Nicholas Mc Guire (1):
-      Input: hil_kbd - fix incorrect use of init_completion
-
-haarp (1):
-      Input: psmouse - expose drift duration for IBM trackpoints
-
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/gpio-keys.txt        |  10 +-
- .../devicetree/bindings/input/stmpe-keypad.txt     |   2 +
- drivers/input/evdev.c                              |  60 ++++++---
- drivers/input/input.c                              |  22 ++--
- drivers/input/keyboard/Kconfig                     |   1 +
- drivers/input/keyboard/gpio_keys.c                 | 114 ++++++++---------
- drivers/input/keyboard/hil_kbd.c                   |   6 +-
- drivers/input/keyboard/stmpe-keypad.c              | 141 ++++++++++++---------
- drivers/input/mouse/alps.c                         |  84 ++++++++++--
- drivers/input/mouse/trackpoint.c                   |   4 +
- drivers/input/mouse/trackpoint.h                   |   5 +
- drivers/input/touchscreen/edt-ft5x06.c             |   4 +-
- drivers/mfd/stmpe.c                                |   4 +
- drivers/mfd/stmpe.h                                |   3 +
- include/linux/mfd/stmpe.h                          |  22 +---
- 15 files changed, 302 insertions(+), 180 deletions(-)
+Thanks.
 
 -- 
 Dmitry

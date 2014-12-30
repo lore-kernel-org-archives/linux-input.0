@@ -1,182 +1,181 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v8 3/6] input: misc: Add driver for AXP20x
- Power Enable Key
-Date: Mon, 29 Dec 2014 15:16:53 -0800
-Message-ID: <20141229231653.GH9565@dtor-ws>
-References: <1419303194-3075-1-git-send-email-wens@csie.org>
- <1419303194-3075-4-git-send-email-wens@csie.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v16 03/12] input: cyapa: add power management interfaces
+ support for the device
+Date: Mon, 29 Dec 2014 16:51:14 -0800
+Message-ID: <20141230005114.GI9565@dtor-ws>
+References: <1418896856-15766-1-git-send-email-dudl@cypress.com>
+ <1418896856-15766-4-git-send-email-dudl@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRB2WBQ6SQKGQEDGGTTTQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:41487 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751203AbaL3AvT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2014 19:51:19 -0500
 Content-Disposition: inline
-In-Reply-To: <1419303194-3075-4-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1418896856-15766-4-git-send-email-dudl@cypress.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dudley Du <dudl@cypress.com>
+Cc: jmmahler@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2014 at 10:53:11AM +0800, Chen-Yu Tsai wrote:
-> From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+Hi Dudley,
+
+On Thu, Dec 18, 2014 at 06:00:47PM +0800, Dudley Du wrote:
+> Add suspend_scanrate_ms power management interfaces in device's
+> power group, so users or applications can control the power management
+> strategy of trackpad device as their requirements.
+> TEST=test on Chromebooks.
 > 
-> This patch add support for the Power Enable Key found on MFD AXP202 and
-> AXP209. Besides the basic support for the button, the driver adds two
-> entries in sysfs to configure the time delay for power on/off.
+> Signed-off-by: Dudley Du <dudl@cypress.com>
+> ---
+>  drivers/input/mouse/cyapa.c | 111 ++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 111 insertions(+)
 > 
-> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> [wens-jdAy2FN1RRM@public.gmane.org: make axp20x_pek_remove() static; remove driver owner field]
-> Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> index d4560a3..73f6817 100644
+> --- a/drivers/input/mouse/cyapa.c
+> +++ b/drivers/input/mouse/cyapa.c
+> @@ -575,6 +575,96 @@ out:
+>  	return IRQ_HANDLED;
+>  }
+>  
+> +/*
+> + **************************************************************
+> + * sysfs interface
+> + **************************************************************
+> +*/
+> +#ifdef CONFIG_PM_SLEEP
+> +static ssize_t cyapa_show_suspend_scanrate(struct device *dev,
+> +					   struct device_attribute *attr,
+> +					   char *buf)
+> +{
+> +	struct cyapa *cyapa = dev_get_drvdata(dev);
+> +	u8 pwr_cmd = cyapa->suspend_power_mode;
+> +	u16 sleep_time;
+> +	int len;
+> +	int error;
+> +
+> +	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
+> +	if (error)
+> +		return error;
+> +	pwr_cmd = cyapa->suspend_power_mode;
+> +	sleep_time = cyapa->suspend_sleep_time;
+> +	mutex_unlock(&cyapa->state_sync_lock);
+> +
+> +	if (pwr_cmd == PWR_MODE_BTN_ONLY) {
+> +		len = scnprintf(buf, PAGE_SIZE, "%s\n", BTN_ONLY_MODE_NAME);
+> +	} else if (pwr_cmd == PWR_MODE_OFF) {
+> +		len = scnprintf(buf, PAGE_SIZE, "%s\n", OFF_MODE_NAME);
+> +	} else {
+> +		if (cyapa->gen == CYAPA_GEN3)
+> +			sleep_time = cyapa_pwr_cmd_to_sleep_time(pwr_cmd);
+> +		len = scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
+> +	}
+> +
+> +	return len;
+> +}
+> +
+> +static ssize_t cyapa_update_suspend_scanrate(struct device *dev,
+> +					     struct device_attribute *attr,
+> +					     const char *buf, size_t count)
+> +{
+> +	struct cyapa *cyapa = dev_get_drvdata(dev);
+> +	u16 sleep_time;
+> +	int error;
+> +
+> +	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
+> +	if (error)
+> +		return error;
+> +
+> +	if (sysfs_streq(buf, BTN_ONLY_MODE_NAME)) {
+> +		cyapa->suspend_power_mode = PWR_MODE_BTN_ONLY;
+> +	} else if (sysfs_streq(buf, OFF_MODE_NAME)) {
+> +		cyapa->suspend_power_mode = PWR_MODE_OFF;
+> +	} else if (!kstrtou16(buf, 10, &sleep_time)) {
+> +		cyapa->suspend_sleep_time = max_t(u16, sleep_time, 1000);
+> +		cyapa->suspend_power_mode =
+> +			cyapa_sleep_time_to_pwr_cmd(cyapa->suspend_sleep_time);
+> +	} else {
+> +		count = 0;
+> +	}
+> +
+> +	mutex_unlock(&cyapa->state_sync_lock);
+> +
+> +	if (!count)
+> +		dev_err(dev, "invalid suspend scanrate ms parameters\n");
 
-Hmm, it looks like MFD parts are in mainline, so I can actually pick
-this up myself. OK.
+I'd rather we just return -EINVAL and not display the message so as to
+not fill the logs.
 
-By the way, does driver works for you with the patch below?
+> +	return count ? count : -EINVAL;
+> +}
+> +
+> +static DEVICE_ATTR(suspend_scanrate_ms, S_IRUGO|S_IWUSR,
+> +		   cyapa_show_suspend_scanrate,
+> +		   cyapa_update_suspend_scanrate);
+> +
+> +static struct attribute *cyapa_power_wakeup_entries[] = {
+> +	&dev_attr_suspend_scanrate_ms.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group cyapa_power_wakeup_group = {
+> +	.name = power_group_name,
+> +	.attrs = cyapa_power_wakeup_entries,
+> +};
+> +
+> +static void cyapa_remove_power_wakeup_group(void *data)
+> +{
+> +	struct cyapa *cyapa = data;
+> +
+> +	sysfs_unmerge_group(&cyapa->client->dev.kobj,
+> +				&cyapa_power_wakeup_group);
+> +}
+> +#endif /* CONFIG_PM_SLEEP */
+> +
+>  static int cyapa_probe(struct i2c_client *client,
+>  		       const struct i2c_device_id *dev_id)
+>  {
+> @@ -614,6 +704,27 @@ static int cyapa_probe(struct i2c_client *client,
+>  		return error;
+>  	}
+>  
+> +#ifdef CONFIG_PM_SLEEP
+> +	if (device_can_wakeup(dev)) {
+> +		error = sysfs_merge_group(&client->dev.kobj,
+> +					&cyapa_power_wakeup_group);
+> +		if (error) {
+> +			dev_err(dev, "failed to add power wakeup group: %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +
+> +		error = devm_add_action(dev,
+> +				cyapa_remove_power_wakeup_group, cyapa);
+> +		if (error) {
+> +			cyapa_remove_power_wakeup_group(cyapa);
+> +			dev_err(dev, "failed to add power cleanup action: %d\n",
+> +				error);
+> +			return error;
+> +		}
+> +	}
+> +#endif /* CONFIG_PM_SLEEP */
 
-Thanks.
+Please split out this code into cyapa_prepare_wakeup_controls() and
+provide a stub for !CONFIG_PM_SLEEP. We are trying to avoid #ifdefs in
+the middle of fucntion body.
+
+Thanks!
+
+> +
+>  	error = devm_request_threaded_irq(dev, client->irq,
+>  					  NULL, cyapa_irq,
+>  					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry
-
-Input: axp20x-pek - switch over to using attribute group
-
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Instead of registering device attributes individually let's use attribute
-groups and also devm_* infrastructure to ease cleanup.
-
-Refresh of synaptics-forcepad-pnp.patch
----
- drivers/input/misc/axp20x-pek.c |   64 ++++++++++++++++++++++-----------------
- 1 file changed, 36 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index 8dbd097..f1c8447 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -138,17 +138,28 @@ static ssize_t axp20x_store_ext_attr(struct device *dev,
- 				 axp20x_ea->mask, idx);
- 	if (ret != 0)
- 		return -EINVAL;
-+
- 	return count;
- }
- 
- static struct dev_ext_attribute axp20x_dev_attr_startup = {
- 	.attr	= __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
--	.var	= &axp20x_pek_startup_ext_attr
-+	.var	= &axp20x_pek_startup_ext_attr,
- };
- 
- static struct dev_ext_attribute axp20x_dev_attr_shutdown = {
- 	.attr	= __ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext_attr),
--	.var	= &axp20x_pek_shutdown_ext_attr
-+	.var	= &axp20x_pek_shutdown_ext_attr,
-+};
-+
-+static struct attribute *axp20x_attributes[] = {
-+	&axp20x_dev_attr_startup.attr.attr,
-+	&axp20x_dev_attr_shutdown.attr.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group axp20x_attribute_group = {
-+	.attrs = axp20x_attributes,
- };
- 
- static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
-@@ -166,6 +177,13 @@ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
- 	return IRQ_HANDLED;
- }
- 
-+static void axp20x_remove_sysfs_group(void *_data)
-+{
-+	struct device *dev = _data;
-+
-+	sysfs_remove_group(&dev->kobj, &axp20x_attribute_group);
-+}
-+
- static int axp20x_pek_probe(struct platform_device *pdev)
- {
- 	struct axp20x_pek *axp20x_pek;
-@@ -214,12 +232,11 @@ static int axp20x_pek_probe(struct platform_device *pdev)
- 	input_set_drvdata(idev, axp20x_pek);
- 
- 	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
--					  axp20x_pek_irq, 0,
--					  "axp20x-pek-dbr", idev);
-+					     axp20x_pek_irq, 0,
-+					     "axp20x-pek-dbr", idev);
- 	if (error < 0) {
- 		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
- 			axp20x_pek->irq_dbr, error);
--
- 		return error;
- 	}
- 
-@@ -232,45 +249,36 @@ static int axp20x_pek_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	error = device_create_file(&pdev->dev, &axp20x_dev_attr_startup.attr);
--	if (error)
-+	error = sysfs_create_group(&pdev->dev.kobj, &axp20x_attribute_group);
-+	if (error) {
-+		dev_err(axp20x->dev, "Failed to create sysfs attributes: %d\n",
-+			error);
- 		return error;
-+	}
- 
--	error = device_create_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr);
--	if (error)
--		goto clear_startup_attr;
-+	error = devm_add_action(&pdev->dev,
-+				axp20x_remove_sysfs_group, &pdev->dev);
-+	if (error) {
-+		axp20x_remove_sysfs_group(&pdev->dev);
-+		dev_err(&pdev->dev, "Failed to add sysfs cleanup action: %d\n",
-+			error);
-+		return error;
-+	}
- 
- 	error = input_register_device(idev);
- 	if (error) {
- 		dev_err(axp20x->dev, "Can't register input device: %d\n",
- 			error);
--		goto clear_attr;
-+		return error;
- 	}
- 
- 	platform_set_drvdata(pdev, axp20x_pek);
- 
- 	return 0;
--
--clear_attr:
--	device_remove_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr);
--
--clear_startup_attr:
--	device_remove_file(&pdev->dev, &axp20x_dev_attr_startup.attr);
--
--	return error;
--}
--
--static int axp20x_pek_remove(struct platform_device *pdev)
--{
--	device_remove_file(&pdev->dev, &axp20x_dev_attr_shutdown.attr);
--	device_remove_file(&pdev->dev, &axp20x_dev_attr_startup.attr);
--
--	return 0;
- }
- 
- static struct platform_driver axp20x_pek_driver = {
- 	.probe		= axp20x_pek_probe,
--	.remove		= axp20x_pek_remove,
- 	.driver		= {
- 		.name		= "axp20x-pek",
- 	},

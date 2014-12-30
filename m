@@ -1,21 +1,22 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: synaptics - switch ForcePad detection to PNP IDs
-Date: Tue, 30 Dec 2014 11:16:45 +0100
-Message-ID: <54A27B8D.8040404@redhat.com>
-References: <20141229225113.GA13847@dtor-ws>
+Subject: Re: [PATCH] Input: psmouse - use IS_ENABLED instead of homegrown
+ code
+Date: Tue, 30 Dec 2014 11:28:21 +0100
+Message-ID: <54A27E45.1050800@redhat.com>
+References: <20141229201139.GA1690@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35286 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50107 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752073AbaL3KQ7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Dec 2014 05:16:59 -0500
-In-Reply-To: <20141229225113.GA13847@dtor-ws>
+	id S1751495AbaL3K20 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Dec 2014 05:28:26 -0500
+In-Reply-To: <20141229201139.GA1690@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
+Cc: Mathias Gottschlag <mgottschlag@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 
 Hi,
 
@@ -27,107 +28,161 @@ Regards,
 
 Hans
 
-On 29-12-14 23:51, Dmitry Torokhov wrote:
-> According to Synaptics devices with ForcePads use SYN300D and SYN3014 as
-> PNP IDs, so let's switch from DMI-bases detection scheme to PNP-based
-> one, which should be more reliable.
+
+On 29-12-14 21:11, Dmitry Torokhov wrote:
+> Instead of having various protocols provide <protocol>_supported()
+> functions, let's use IS_ENABLED() macro that works well in "if" statements.
 >
-> Suggested-by: Hans de Goede <hdegoede@redhat.com>
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->   drivers/input/mouse/synaptics.c | 35 ++++++++++++++---------------------
->   drivers/input/mouse/synaptics.h |  1 +
->   2 files changed, 15 insertions(+), 21 deletions(-)
+>   drivers/input/mouse/cypress_ps2.c  |  5 -----
+>   drivers/input/mouse/cypress_ps2.h  |  5 -----
+>   drivers/input/mouse/focaltech.c    | 10 ----------
+>   drivers/input/mouse/focaltech.h    |  1 -
+>   drivers/input/mouse/psmouse-base.c |  6 +++---
+>   drivers/input/mouse/synaptics.c    | 10 ----------
+>   drivers/input/mouse/synaptics.h    |  1 -
+>   7 files changed, 3 insertions(+), 35 deletions(-)
+>
+> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+> index 8af34ff..6e5f70b 100644
+> --- a/drivers/input/mouse/cypress_ps2.c
+> +++ b/drivers/input/mouse/cypress_ps2.c
+> @@ -710,8 +710,3 @@ err_exit:
+>
+>   	return -1;
+>   }
+> -
+> -bool cypress_supported(void)
+> -{
+> -	return true;
+> -}
+> diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
+> index 4720f21..81f68aa 100644
+> --- a/drivers/input/mouse/cypress_ps2.h
+> +++ b/drivers/input/mouse/cypress_ps2.h
+> @@ -172,7 +172,6 @@ struct cytp_data {
+>   #ifdef CONFIG_MOUSE_PS2_CYPRESS
+>   int cypress_detect(struct psmouse *psmouse, bool set_properties);
+>   int cypress_init(struct psmouse *psmouse);
+> -bool cypress_supported(void);
+>   #else
+>   inline int cypress_detect(struct psmouse *psmouse, bool set_properties)
+>   {
+> @@ -182,10 +181,6 @@ inline int cypress_init(struct psmouse *psmouse)
+>   {
+>   	return -ENOSYS;
+>   }
+> -inline bool cypress_supported(void)
+> -{
+> -	return 0;
+> -}
+>   #endif /* CONFIG_MOUSE_PS2_CYPRESS */
+>
+>   #endif  /* _CYPRESS_PS2_H */
+> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
+> index fca38ba..757f78a 100644
+> --- a/drivers/input/mouse/focaltech.c
+> +++ b/drivers/input/mouse/focaltech.c
+> @@ -424,11 +424,6 @@ fail:
+>   	return error;
+>   }
+>
+> -bool focaltech_supported(void)
+> -{
+> -	return true;
+> -}
+> -
+>   #else /* CONFIG_MOUSE_PS2_FOCALTECH */
+>
+>   int focaltech_init(struct psmouse *psmouse)
+> @@ -438,9 +433,4 @@ int focaltech_init(struct psmouse *psmouse)
+>   	return 0;
+>   }
+>
+> -bool focaltech_supported(void)
+> -{
+> -	return false;
+> -}
+> -
+>   #endif /* CONFIG_MOUSE_PS2_FOCALTECH */
+> diff --git a/drivers/input/mouse/focaltech.h b/drivers/input/mouse/focaltech.h
+> index 71870a9..ca61ebf 100644
+> --- a/drivers/input/mouse/focaltech.h
+> +++ b/drivers/input/mouse/focaltech.h
+> @@ -19,6 +19,5 @@
+>
+>   int focaltech_detect(struct psmouse *psmouse, bool set_properties);
+>   int focaltech_init(struct psmouse *psmouse);
+> -bool focaltech_supported(void);
+>
+>   #endif
+> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+> index 68469fe..4ccd01d 100644
+> --- a/drivers/input/mouse/psmouse-base.c
+> +++ b/drivers/input/mouse/psmouse-base.c
+> @@ -727,7 +727,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
+>   	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
+>   		if (max_proto > PSMOUSE_IMEX) {
+>   			if (!set_properties || focaltech_init(psmouse) == 0) {
+> -				if (focaltech_supported())
+> +				if (IS_ENABLED(CONFIG_MOUSE_PS2_FOCALTECH))
+>   					return PSMOUSE_FOCALTECH;
+>   				/*
+>   				 * Note that we need to also restrict
+> @@ -776,7 +776,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
+>    * Try activating protocol, but check if support is enabled first, since
+>    * we try detecting Synaptics even when protocol is disabled.
+>    */
+> -			if (synaptics_supported() &&
+> +			if (IS_ENABLED(CONFIG_MOUSE_PS2_SYNAPTICS) &&
+>   			    (!set_properties || synaptics_init(psmouse) == 0)) {
+>   				return PSMOUSE_SYNAPTICS;
+>   			}
+> @@ -801,7 +801,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
+>    */
+>   	if (max_proto > PSMOUSE_IMEX &&
+>   			cypress_detect(psmouse, set_properties) == 0) {
+> -		if (cypress_supported()) {
+> +		if (IS_ENABLED(CONFIG_MOUSE_PS2_CYPRESS)) {
+>   			if (cypress_init(psmouse) == 0)
+>   				return PSMOUSE_CYPRESS;
 >
 > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index d2ab13a..f04017e 100644
+> index f947292..094bf64 100644
 > --- a/drivers/input/mouse/synaptics.c
 > +++ b/drivers/input/mouse/synaptics.c
-> @@ -190,6 +190,13 @@ static const char * const topbuttonpad_pnp_ids[] = {
->   	NULL
->   };
->
-> +/* This list has been kindly provided by Synaptics. */
-> +static const char * const forcepad_pnp_ids[] = {
-> +	"SYN300D",
-> +	"SYN3014",
-> +	NULL
-> +};
-> +
->   /*****************************************************************************
->    *	Synaptics communications functions
->    ****************************************************************************/
-> @@ -601,8 +608,6 @@ static void synaptics_parse_agm(const unsigned char buf[],
->   	}
+> @@ -1817,11 +1817,6 @@ int synaptics_init_relative(struct psmouse *psmouse)
+>   	return __synaptics_init(psmouse, false);
 >   }
 >
-> -static bool is_forcepad;
+> -bool synaptics_supported(void)
+> -{
+> -	return true;
+> -}
 > -
->   static int synaptics_parse_hw_state(const unsigned char buf[],
->   				    struct synaptics_data *priv,
->   				    struct synaptics_hw_state *hw)
-> @@ -632,7 +637,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->   		hw->left  = (buf[0] & 0x01) ? 1 : 0;
->   		hw->right = (buf[0] & 0x02) ? 1 : 0;
+>   #else /* CONFIG_MOUSE_PS2_SYNAPTICS */
 >
-> -		if (is_forcepad) {
-> +		if (priv->is_forcepad) {
->   			/*
->   			 * ForcePads, like Clickpads, use middle button
->   			 * bits to report primary button clicks.
-> @@ -1307,29 +1312,11 @@ static const struct dmi_system_id __initconst cr48_dmi_table[] = {
->   	{ }
->   };
->
-> -static const struct dmi_system_id forcepad_dmi_table[] __initconst = {
-> -#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-> -	{
-> -		.matches = {
-> -			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-> -			DMI_MATCH(DMI_PRODUCT_NAME, "HP EliteBook Folio 1040 G1"),
-> -		},
-> -	},
-> -#endif
-> -	{ }
-> -};
-> -
 >   void __init synaptics_module_init(void)
->   {
->   	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
->   	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
->   	cr48_profile_sensor = dmi_check_system(cr48_dmi_table);
-> -
-> -	/*
-> -	 * Unfortunately ForcePad capability is not exported over PS/2,
-> -	 * so we have to resort to checking DMI.
-> -	 */
-> -	is_forcepad = dmi_check_system(forcepad_dmi_table);
+> @@ -1833,9 +1828,4 @@ int synaptics_init(struct psmouse *psmouse)
+>   	return -ENOSYS;
 >   }
 >
->   static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
-> @@ -1364,6 +1351,12 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
->   	if (SYN_ID_DISGEST_SUPPORTED(priv->identity))
->   		priv->disable_gesture = true;
->
-> +	/*
-> +	 * Unfortunately ForcePad capability is not exported over PS/2,
-> +	 * so we have to resort to checking PNP IDs.
-> +	 */
-> +	priv->is_forcepad = psmouse_matches_pnp_id(psmouse, forcepad_pnp_ids);
-> +
->   	if (synaptics_set_mode(psmouse)) {
->   		psmouse_err(psmouse, "Unable to initialize device.\n");
->   		goto init_fail;
+> -bool synaptics_supported(void)
+> -{
+> -	return false;
+> -}
+> -
+>   #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
 > diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index aedc329..fb3838c 100644
+> index 1bd01f2..feb28a5 100644
 > --- a/drivers/input/mouse/synaptics.h
 > +++ b/drivers/input/mouse/synaptics.h
-> @@ -168,6 +168,7 @@ struct synaptics_data {
->   	unsigned long				press_start;
->   	bool					press;
->   	bool					report_press;
-> +	bool					is_forcepad;
->   };
+> @@ -191,6 +191,5 @@ int synaptics_detect(struct psmouse *psmouse, bool set_properties);
+>   int synaptics_init(struct psmouse *psmouse);
+>   int synaptics_init_relative(struct psmouse *psmouse);
+>   void synaptics_reset(struct psmouse *psmouse);
+> -bool synaptics_supported(void);
 >
->   void synaptics_module_init(void);
+>   #endif /* _SYNAPTICS_H */
 >

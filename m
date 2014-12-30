@@ -1,188 +1,53 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: psmouse - use IS_ENABLED instead of homegrown
- code
-Date: Tue, 30 Dec 2014 11:28:21 +0100
-Message-ID: <54A27E45.1050800@redhat.com>
-References: <20141229201139.GA1690@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH] Input: imx_keypad - use the preferred form for passing a size of a struct
+Date: Tue, 30 Dec 2014 11:47:16 -0200
+Message-ID: <1419947236-17328-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50107 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751495AbaL3K20 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Dec 2014 05:28:26 -0500
-In-Reply-To: <20141229201139.GA1690@dtor-ws>
+Received: from mail-vc0-f170.google.com ([209.85.220.170]:60827 "EHLO
+	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750833AbaL3Nri (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Dec 2014 08:47:38 -0500
+Received: by mail-vc0-f170.google.com with SMTP id hy4so5794973vcb.1
+        for <linux-input@vger.kernel.org>; Tue, 30 Dec 2014 05:47:37 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Mathias Gottschlag <mgottschlag@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-Hi,
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-Looks good to me:
+According to Documentation/CodingStyle - Chapter 14:
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
+"The preferred form for passing a size of a struct is the following:
 
-Regards,
+        p = kmalloc(sizeof(*p), ...);
 
-Hans
+The alternative form where struct name is spelled out hurts readability and
+introduces an opportunity for a bug when the pointer variable type is changed
+but the corresponding sizeof that is passed to a memory allocator is not."
 
+So do it as recommeded.
 
-On 29-12-14 21:11, Dmitry Torokhov wrote:
-> Instead of having various protocols provide <protocol>_supported()
-> functions, let's use IS_ENABLED() macro that works well in "if" statements.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->   drivers/input/mouse/cypress_ps2.c  |  5 -----
->   drivers/input/mouse/cypress_ps2.h  |  5 -----
->   drivers/input/mouse/focaltech.c    | 10 ----------
->   drivers/input/mouse/focaltech.h    |  1 -
->   drivers/input/mouse/psmouse-base.c |  6 +++---
->   drivers/input/mouse/synaptics.c    | 10 ----------
->   drivers/input/mouse/synaptics.h    |  1 -
->   7 files changed, 3 insertions(+), 35 deletions(-)
->
-> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-> index 8af34ff..6e5f70b 100644
-> --- a/drivers/input/mouse/cypress_ps2.c
-> +++ b/drivers/input/mouse/cypress_ps2.c
-> @@ -710,8 +710,3 @@ err_exit:
->
->   	return -1;
->   }
-> -
-> -bool cypress_supported(void)
-> -{
-> -	return true;
-> -}
-> diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
-> index 4720f21..81f68aa 100644
-> --- a/drivers/input/mouse/cypress_ps2.h
-> +++ b/drivers/input/mouse/cypress_ps2.h
-> @@ -172,7 +172,6 @@ struct cytp_data {
->   #ifdef CONFIG_MOUSE_PS2_CYPRESS
->   int cypress_detect(struct psmouse *psmouse, bool set_properties);
->   int cypress_init(struct psmouse *psmouse);
-> -bool cypress_supported(void);
->   #else
->   inline int cypress_detect(struct psmouse *psmouse, bool set_properties)
->   {
-> @@ -182,10 +181,6 @@ inline int cypress_init(struct psmouse *psmouse)
->   {
->   	return -ENOSYS;
->   }
-> -inline bool cypress_supported(void)
-> -{
-> -	return 0;
-> -}
->   #endif /* CONFIG_MOUSE_PS2_CYPRESS */
->
->   #endif  /* _CYPRESS_PS2_H */
-> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-> index fca38ba..757f78a 100644
-> --- a/drivers/input/mouse/focaltech.c
-> +++ b/drivers/input/mouse/focaltech.c
-> @@ -424,11 +424,6 @@ fail:
->   	return error;
->   }
->
-> -bool focaltech_supported(void)
-> -{
-> -	return true;
-> -}
-> -
->   #else /* CONFIG_MOUSE_PS2_FOCALTECH */
->
->   int focaltech_init(struct psmouse *psmouse)
-> @@ -438,9 +433,4 @@ int focaltech_init(struct psmouse *psmouse)
->   	return 0;
->   }
->
-> -bool focaltech_supported(void)
-> -{
-> -	return false;
-> -}
-> -
->   #endif /* CONFIG_MOUSE_PS2_FOCALTECH */
-> diff --git a/drivers/input/mouse/focaltech.h b/drivers/input/mouse/focaltech.h
-> index 71870a9..ca61ebf 100644
-> --- a/drivers/input/mouse/focaltech.h
-> +++ b/drivers/input/mouse/focaltech.h
-> @@ -19,6 +19,5 @@
->
->   int focaltech_detect(struct psmouse *psmouse, bool set_properties);
->   int focaltech_init(struct psmouse *psmouse);
-> -bool focaltech_supported(void);
->
->   #endif
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index 68469fe..4ccd01d 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -727,7 +727,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->   	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
->   		if (max_proto > PSMOUSE_IMEX) {
->   			if (!set_properties || focaltech_init(psmouse) == 0) {
-> -				if (focaltech_supported())
-> +				if (IS_ENABLED(CONFIG_MOUSE_PS2_FOCALTECH))
->   					return PSMOUSE_FOCALTECH;
->   				/*
->   				 * Note that we need to also restrict
-> @@ -776,7 +776,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->    * Try activating protocol, but check if support is enabled first, since
->    * we try detecting Synaptics even when protocol is disabled.
->    */
-> -			if (synaptics_supported() &&
-> +			if (IS_ENABLED(CONFIG_MOUSE_PS2_SYNAPTICS) &&
->   			    (!set_properties || synaptics_init(psmouse) == 0)) {
->   				return PSMOUSE_SYNAPTICS;
->   			}
-> @@ -801,7 +801,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->    */
->   	if (max_proto > PSMOUSE_IMEX &&
->   			cypress_detect(psmouse, set_properties) == 0) {
-> -		if (cypress_supported()) {
-> +		if (IS_ENABLED(CONFIG_MOUSE_PS2_CYPRESS)) {
->   			if (cypress_init(psmouse) == 0)
->   				return PSMOUSE_CYPRESS;
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index f947292..094bf64 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1817,11 +1817,6 @@ int synaptics_init_relative(struct psmouse *psmouse)
->   	return __synaptics_init(psmouse, false);
->   }
->
-> -bool synaptics_supported(void)
-> -{
-> -	return true;
-> -}
-> -
->   #else /* CONFIG_MOUSE_PS2_SYNAPTICS */
->
->   void __init synaptics_module_init(void)
-> @@ -1833,9 +1828,4 @@ int synaptics_init(struct psmouse *psmouse)
->   	return -ENOSYS;
->   }
->
-> -bool synaptics_supported(void)
-> -{
-> -	return false;
-> -}
-> -
->   #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
-> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index 1bd01f2..feb28a5 100644
-> --- a/drivers/input/mouse/synaptics.h
-> +++ b/drivers/input/mouse/synaptics.h
-> @@ -191,6 +191,5 @@ int synaptics_detect(struct psmouse *psmouse, bool set_properties);
->   int synaptics_init(struct psmouse *psmouse);
->   int synaptics_init_relative(struct psmouse *psmouse);
->   void synaptics_reset(struct psmouse *psmouse);
-> -bool synaptics_supported(void);
->
->   #endif /* _SYNAPTICS_H */
->
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/keyboard/imx_keypad.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index e53f232..2e855e6 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -448,8 +448,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
+-			      GFP_KERNEL);
++	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+ 	if (!keypad) {
+ 		dev_err(&pdev->dev, "not enough memory for driver data\n");
+ 		return -ENOMEM;
+-- 
+1.9.1
+

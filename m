@@ -1,7 +1,7 @@
 From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v17 06/12] input: cyapa: add gen3 trackpad device firmware update function support
-Date: Wed, 31 Dec 2014 09:16:55 +0800
-Message-ID: <1419988621-2919-7-git-send-email-dudl@cypress.com>
+Subject: [PATCH v17 04/12] input: cyapa: add runtime power management interfaces support for the device
+Date: Wed, 31 Dec 2014 09:16:53 +0800
+Message-ID: <1419988621-2919-5-git-send-email-dudl@cypress.com>
 References: <1419988621-2919-1-git-send-email-dudl@cypress.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1419988621-2919-1-git-send-email-dudl@cypress.com>
@@ -10,348 +10,301 @@ To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
 Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add firmware image update function supported for gen3 trackpad device,
-it can be used through sysfs update_fw interface.
+Add runtime_suspend_scanrate_ms power management interfaces in device's
+power group, so users or applications can control the runtime power
+management strategy of trackpad device as their requirements.
 TEST=test on Chromebooks.
 
 Signed-off-by: Dudley Du <dudl@cypress.com>
 ---
- drivers/input/mouse/cyapa_gen3.c | 291 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 291 insertions(+)
+ drivers/input/mouse/cyapa.c | 180 +++++++++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/cyapa.h |   4 +
+ 2 files changed, 183 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-index 1b62c7d..715abda 100644
---- a/drivers/input/mouse/cyapa_gen3.c
-+++ b/drivers/input/mouse/cyapa_gen3.c
-@@ -20,6 +20,7 @@
- #include <linux/input/mt.h>
- #include <linux/module.h>
+diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+index 46d3830..080b93f 100644
+--- a/drivers/input/mouse/cyapa.c
++++ b/drivers/input/mouse/cyapa.c
+@@ -23,6 +23,7 @@
+ #include <linux/mutex.h>
  #include <linux/slab.h>
-+#include <linux/unaligned/access_ok.h>
+ #include <linux/uaccess.h>
++#include <linux/pm_runtime.h>
  #include "cyapa.h"
  
  
-@@ -115,6 +116,18 @@ struct cyapa_reg_data {
- 	struct cyapa_touch touches[5];
- } __packed;
+@@ -357,6 +358,10 @@ static int cyapa_open(struct input_dev *input)
+ 	}
  
-+struct gen3_write_block_cmd {
-+	u8 checksum_seed;  /* Always be 0xff */
-+	u8 cmd_code;       /* command code: 0x39 */
-+	u8 key[8];         /* 8-byte security key */
-+	__be16 block_num;
-+	u8 block_data[CYAPA_FW_BLOCK_SIZE];
-+	u8 block_checksum;  /* Calculated using bytes 12 - 75 */
-+	u8 cmd_checksum;    /* Calculated using bytes 0-76 */
-+} __packed;
+ 	enable_irq(client->irq);
++	if (!pm_runtime_enabled(&client->dev)) {
++		pm_runtime_set_active(&client->dev);
++		pm_runtime_enable(&client->dev);
++	}
+ out:
+ 	mutex_unlock(&cyapa->state_sync_lock);
+ 	return error;
+@@ -370,8 +375,11 @@ static void cyapa_close(struct input_dev *input)
+ 	mutex_lock(&cyapa->state_sync_lock);
+ 
+ 	disable_irq(client->irq);
++	if (pm_runtime_enabled(&client->dev))
++		pm_runtime_disable(&client->dev);
+ 	if (cyapa->operational)
+ 		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
++	pm_runtime_set_suspended(&client->dev);
+ 
+ 	mutex_unlock(&cyapa->state_sync_lock);
+ }
+@@ -539,6 +547,9 @@ static int cyapa_reinitialize(struct cyapa *cyapa)
+ 	struct input_dev *input = cyapa->input;
+ 	int error;
+ 
++	if (pm_runtime_enabled(dev))
++		pm_runtime_disable(dev);
 +
-+static const u8 security_key[] = {
-+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
- static const u8 bl_activate[] = { 0x00, 0xff, 0x38, 0x00, 0x01, 0x02, 0x03,
- 		0x04, 0x05, 0x06, 0x07 };
- static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
-@@ -423,6 +436,69 @@ static int cyapa_gen3_state_parse(struct cyapa *cyapa, u8 *reg_data, int len)
- 	return -EAGAIN;
+ 	/* Avoid command failures when TP was in OFF state. */
+ 	if (cyapa->operational)
+ 		cyapa->ops->set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE, 0);
+@@ -561,6 +572,13 @@ out:
+ 		/* Reset to power OFF state to save power when no user open. */
+ 		if (cyapa->operational)
+ 			cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
++	} else if (!error && cyapa->operational) {
++		/*
++		 * Make sure only enable runtime PM when device is
++		 * in operational mode and input->users > 0.
++		 */
++		pm_runtime_set_active(dev);
++		pm_runtime_enable(dev);
+ 	}
+ 
+ 	return error;
+@@ -571,6 +589,7 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
+ 	struct cyapa *cyapa = dev_id;
+ 	struct device *dev = &cyapa->client->dev;
+ 
++	pm_runtime_get_sync(dev);
+ 	if (device_may_wakeup(dev))
+ 		pm_wakeup_event(dev, 0);
+ 
+@@ -601,6 +620,8 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
+ 	}
+ 
+ out:
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_sync_autosuspend(dev);
+ 	return IRQ_HANDLED;
  }
  
-+/*
-+ * Enter bootloader by soft resetting the device.
-+ *
-+ * If device is already in the bootloader, the function just returns.
-+ * Otherwise, reset the device; after reset, device enters bootloader idle
-+ * state immediately.
-+ *
-+ * Returns:
-+ *   0        on success
-+ *   -EAGAIN  device was reset, but is not now in bootloader idle state
-+ *   < 0      if the device never responds within the timeout
-+ */
-+static int cyapa_gen3_bl_enter(struct cyapa *cyapa)
+@@ -725,6 +746,118 @@ static inline int cyapa_prepare_wakeup_controls(struct cyapa *cyapa)
+ }
+ #endif /* CONFIG_PM_SLEEP */
+ 
++#ifdef CONFIG_PM_RUNTIME
++static ssize_t cyapa_show_rt_suspend_scanrate(struct device *dev,
++					      struct device_attribute *attr,
++					      char *buf)
 +{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	u8 pwr_cmd;
++	u16 sleep_time;
 +	int error;
 +
-+	error = cyapa_poll_state(cyapa, 500);
++	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
 +	if (error)
 +		return error;
-+	if (cyapa->state == CYAPA_STATE_BL_IDLE) {
-+		/* Already in BL_IDLE. Skipping reset. */
-+		return 0;
++	pwr_cmd = cyapa->runtime_suspend_power_mode;
++	sleep_time = cyapa->runtime_suspend_sleep_time;
++	mutex_unlock(&cyapa->state_sync_lock);
++
++	if (cyapa->gen == CYAPA_GEN3)
++		return scnprintf(buf, PAGE_SIZE, "%u\n",
++			cyapa_pwr_cmd_to_sleep_time(pwr_cmd));
++	return scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
++}
++
++static ssize_t cyapa_update_rt_suspend_scanrate(struct device *dev,
++						struct device_attribute *attr,
++						const char *buf, size_t count)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	u16 time;
++	int error;
++
++	if (buf == NULL || count == 0 || kstrtou16(buf, 10, &time)) {
++		dev_err(dev, "invalid runtime suspend scanrate ms parameter\n");
++		return -EINVAL;
 +	}
 +
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return -EAGAIN;
-+
-+	cyapa->state = CYAPA_STATE_NO_DEVICE;
-+	error = cyapa_write_byte(cyapa, CYAPA_CMD_SOFT_RESET, 0x01);
-+	if (error)
-+		return -EIO;
-+
-+	usleep_range(25000, 50000);
-+	error = cyapa_poll_state(cyapa, 500);
++	/*
++	 * When the suspend scanrate is changed, pm_runtime_get to resume
++	 * a potentially suspended device, update to the new pwr_cmd
++	 * and then pm_runtime_put to suspend into the new power mode.
++	 */
++	pm_runtime_get_sync(dev);
++	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
 +	if (error)
 +		return error;
-+	if ((cyapa->state != CYAPA_STATE_BL_IDLE) ||
-+		(cyapa->status[REG_BL_STATUS] & BL_STATUS_WATCHDOG))
-+		return -EAGAIN;
++	cyapa->runtime_suspend_sleep_time = max_t(u16, time, 1000);
++	cyapa->runtime_suspend_power_mode =
++		cyapa_sleep_time_to_pwr_cmd(cyapa->runtime_suspend_sleep_time);
++	mutex_unlock(&cyapa->state_sync_lock);
++	pm_runtime_put_sync_autosuspend(dev);
 +
-+	return 0;
++	return count;
 +}
 +
-+static int cyapa_gen3_bl_activate(struct cyapa *cyapa)
++static DEVICE_ATTR(runtime_suspend_scanrate_ms, S_IRUGO|S_IWUSR,
++		   cyapa_show_rt_suspend_scanrate,
++		   cyapa_update_rt_suspend_scanrate);
++
++static struct attribute *cyapa_power_runtime_entries[] = {
++	&dev_attr_runtime_suspend_scanrate_ms.attr,
++	NULL,
++};
++
++static const struct attribute_group cyapa_power_runtime_group = {
++	.name = power_group_name,
++	.attrs = cyapa_power_runtime_entries,
++};
++
++static void cyapa_remove_power_runtime_group(void *data)
 +{
++	struct cyapa *cyapa = data;
++
++	sysfs_unmerge_group(&cyapa->client->dev.kobj,
++				&cyapa_power_runtime_group);
++}
++
++static int cyapa_start_runtime(struct cyapa *cyapa)
++{
++	struct device *dev = &cyapa->client->dev;
 +	int error;
 +
-+	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_activate),
-+					bl_activate);
-+	if (error)
-+		return error;
++	cyapa->runtime_suspend_power_mode = PWR_MODE_IDLE;
++	cyapa->runtime_suspend_sleep_time =
++		cyapa_pwr_cmd_to_sleep_time(cyapa->runtime_suspend_power_mode);
 +
-+	/* Wait for bootloader to activate; takes between 2 and 12 seconds */
-+	msleep(2000);
-+	error = cyapa_poll_state(cyapa, 11000);
-+	if (error)
++	error = sysfs_merge_group(&dev->kobj, &cyapa_power_runtime_group);
++	if (error) {
++		dev_err(dev,
++			"failed to create power runtime group: %d\n", error);
 +		return error;
-+	if (cyapa->state != CYAPA_STATE_BL_ACTIVE)
-+		return -EAGAIN;
++	}
++
++	error = devm_add_action(dev, cyapa_remove_power_runtime_group, cyapa);
++	if (error) {
++		cyapa_remove_power_runtime_group(cyapa);
++		dev_err(dev,
++			"failed to add power runtime cleanup action: %d\n",
++			error);
++		return error;
++	}
++
++	/* runtime is enabled until device is operational and opened. */
++	pm_runtime_set_suspended(dev);
++	pm_runtime_use_autosuspend(dev);
++	pm_runtime_set_autosuspend_delay(dev, AUTOSUSPEND_DELAY);
 +
 +	return 0;
 +}
++#else
++static inline int cyapa_start_runtime(struct cyapa *cyapa) { return 0; }
++#endif /* CONFIG_PM_RUNTIME */
 +
- static int cyapa_gen3_bl_deactivate(struct cyapa *cyapa)
+ static int cyapa_probe(struct i2c_client *client,
+ 		       const struct i2c_device_id *dev_id)
  {
- 	int error;
-@@ -483,6 +559,212 @@ static int cyapa_gen3_bl_exit(struct cyapa *cyapa)
+@@ -770,6 +903,12 @@ static int cyapa_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
++	error = cyapa_start_runtime(cyapa);
++	if (error) {
++		dev_err(dev, "failed to start pm_runtime: %d\n", error);
++		return error;
++	}
++
+ 	error = devm_request_threaded_irq(dev, client->irq,
+ 					  NULL, cyapa_irq,
+ 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+@@ -810,6 +949,13 @@ static int __maybe_unused cyapa_suspend(struct device *dev)
+ 	if (error)
+ 		return error;
+ 
++	/*
++	 * Runtime PM is enable only when device is in operational mode and
++	 * users in use, so need check it before disable it to
++	 * avoid unbalance warning.
++	 */
++	if (pm_runtime_enabled(dev))
++		pm_runtime_disable(dev);
+ 	disable_irq(client->irq);
+ 
+ 	/*
+@@ -846,6 +992,7 @@ static int __maybe_unused cyapa_resume(struct device *dev)
+ 		cyapa->irq_wake = false;
+ 	}
+ 
++	/* Update device states and runtime PM states. */
+ 	error = cyapa_reinitialize(cyapa);
+ 	if (error)
+ 		dev_warn(dev, "failed to reinitialize TP device: %d\n", error);
+@@ -856,7 +1003,38 @@ static int __maybe_unused cyapa_resume(struct device *dev)
  	return 0;
  }
  
-+static u16 cyapa_gen3_csum(const u8 *buf, size_t count)
+-static SIMPLE_DEV_PM_OPS(cyapa_pm_ops, cyapa_suspend, cyapa_resume);
++#ifdef CONFIG_PM_RUNTIME
++static int cyapa_runtime_suspend(struct device *dev)
 +{
-+	int i;
-+	u16 csum = 0;
-+
-+	for (i = 0; i < count; i++)
-+		csum += buf[i];
-+
-+	return csum;
-+}
-+
-+/*
-+ * Verify the integrity of a CYAPA firmware image file.
-+ *
-+ * The firmware image file is 30848 bytes, composed of 482 64-byte blocks.
-+ *
-+ * The first 2 blocks are the firmware header.
-+ * The next 480 blocks are the firmware image.
-+ *
-+ * The first two bytes of the header hold the header checksum, computed by
-+ * summing the other 126 bytes of the header.
-+ * The last two bytes of the header hold the firmware image checksum, computed
-+ * by summing the 30720 bytes of the image modulo 0xffff.
-+ *
-+ * Both checksums are stored little-endian.
-+ */
-+static int cyapa_gen3_check_fw(struct cyapa *cyapa, const struct firmware *fw)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	u16 csum;
-+	u16 csum_expected;
-+
-+	/* Firmware must match exact 30848 bytes = 482 64-byte blocks. */
-+	if (fw->size != CYAPA_FW_SIZE) {
-+		dev_err(dev, "invalid firmware size = %zu, expected %u.\n",
-+			fw->size, CYAPA_FW_SIZE);
-+		return -EINVAL;
-+	}
-+
-+	/* Verify header block */
-+	csum_expected = (fw->data[0] << 8) | fw->data[1];
-+	csum = cyapa_gen3_csum(&fw->data[2], CYAPA_FW_HDR_SIZE - 2);
-+	if (csum != csum_expected) {
-+		dev_err(dev, "%s %04x, expected: %04x\n",
-+			"invalid firmware header checksum = ",
-+			csum, csum_expected);
-+		return -EINVAL;
-+	}
-+
-+	/* Verify firmware image */
-+	csum_expected = (fw->data[CYAPA_FW_HDR_SIZE - 2] << 8) |
-+			 fw->data[CYAPA_FW_HDR_SIZE - 1];
-+	csum = cyapa_gen3_csum(&fw->data[CYAPA_FW_HDR_SIZE],
-+			CYAPA_FW_DATA_SIZE);
-+	if (csum != csum_expected) {
-+		dev_err(dev, "%s %04x, expected: %04x\n",
-+			"invalid firmware header checksum = ",
-+			csum, csum_expected);
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Write a |len| byte long buffer |buf| to the device, by chopping it up into a
-+ * sequence of smaller |CYAPA_CMD_LEN|-length write commands.
-+ *
-+ * The data bytes for a write command are prepended with the 1-byte offset
-+ * of the data relative to the start of |buf|.
-+ */
-+static int cyapa_gen3_write_buffer(struct cyapa *cyapa,
-+		const u8 *buf, size_t len)
-+{
-+	int error;
-+	size_t i;
-+	unsigned char cmd[CYAPA_CMD_LEN + 1];
-+	size_t cmd_len;
-+
-+	for (i = 0; i < len; i += CYAPA_CMD_LEN) {
-+		const u8 *payload = &buf[i];
-+
-+		cmd_len = (len - i >= CYAPA_CMD_LEN) ? CYAPA_CMD_LEN : len - i;
-+		cmd[0] = i;
-+		memcpy(&cmd[1], payload, cmd_len);
-+
-+		error = cyapa_i2c_reg_write_block(cyapa, 0, cmd_len + 1, cmd);
-+		if (error)
-+			return error;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * A firmware block write command writes 64 bytes of data to a single flash
-+ * page in the device.  The 78-byte block write command has the format:
-+ *   <0xff> <CMD> <Key> <Start> <Data> <Data-Checksum> <CMD Checksum>
-+ *
-+ *  <0xff>  - every command starts with 0xff
-+ *  <CMD>   - the write command value is 0x39
-+ *  <Key>   - write commands include an 8-byte key: { 00 01 02 03 04 05 06 07 }
-+ *  <Block> - Memory Block number (address / 64) (16-bit, big-endian)
-+ *  <Data>  - 64 bytes of firmware image data
-+ *  <Data Checksum> - sum of 64 <Data> bytes, modulo 0xff
-+ *  <CMD Checksum> - sum of 77 bytes, from 0xff to <Data Checksum>
-+ *
-+ * Each write command is split into 5 i2c write transactions of up to 16 bytes.
-+ * Each transaction starts with an i2c register offset: (00, 10, 20, 30, 40).
-+ */
-+static int cyapa_gen3_write_fw_block(struct cyapa *cyapa,
-+		u16 block, const u8 *data)
-+{
-+	int ret;
-+	struct gen3_write_block_cmd write_block_cmd;
-+	u8 status[BL_STATUS_SIZE];
-+	int tries;
-+	u8 bl_status, bl_error;
-+
-+	/* Set write command and security key bytes. */
-+	write_block_cmd.checksum_seed = GEN3_BL_CMD_CHECKSUM_SEED;
-+	write_block_cmd.cmd_code = GEN3_BL_CMD_WRITE_BLOCK;
-+	memcpy(write_block_cmd.key, security_key, sizeof(security_key));
-+	put_unaligned_be16(block, &write_block_cmd.block_num);
-+	memcpy(write_block_cmd.block_data, data, CYAPA_FW_BLOCK_SIZE);
-+	write_block_cmd.block_checksum = cyapa_gen3_csum(
-+			write_block_cmd.block_data, CYAPA_FW_BLOCK_SIZE);
-+	write_block_cmd.cmd_checksum = cyapa_gen3_csum((u8 *)&write_block_cmd,
-+			sizeof(write_block_cmd) - 1);
-+
-+	ret = cyapa_gen3_write_buffer(cyapa, (u8 *)&write_block_cmd,
-+			sizeof(write_block_cmd));
-+	if (ret)
-+		return ret;
-+
-+	/* Wait for write to finish */
-+	tries = 11;  /* Programming for one block can take about 100ms. */
-+	do {
-+		usleep_range(10000, 20000);
-+
-+		/* Check block write command result status. */
-+		ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET,
-+					       BL_STATUS_SIZE, status);
-+		if (ret != BL_STATUS_SIZE)
-+			return (ret < 0) ? ret : -EIO;
-+	} while ((status[REG_BL_STATUS] & BL_STATUS_BUSY) && --tries);
-+
-+	/* Ignore WATCHDOG bit and reserved bits. */
-+	bl_status = status[REG_BL_STATUS] & ~BL_STATUS_REV_MASK;
-+	bl_error = status[REG_BL_ERROR] & ~BL_ERROR_RESERVED;
-+
-+	if (bl_status & BL_STATUS_BUSY)
-+		ret = -ETIMEDOUT;
-+	else if (bl_status != BL_STATUS_RUNNING ||
-+		bl_error != BL_ERROR_BOOTLOADING)
-+		ret = -EIO;
-+	else
-+		ret = 0;
-+
-+	return ret;
-+}
-+
-+static int cyapa_gen3_write_blocks(struct cyapa *cyapa,
-+		size_t start_block, size_t block_count,
-+		const u8 *image_data)
-+{
-+	int error;
-+	int i;
-+
-+	for (i = 0; i < block_count; i++) {
-+		size_t block = start_block + i;
-+		size_t addr = i * CYAPA_FW_BLOCK_SIZE;
-+		const u8 *data = &image_data[addr];
-+
-+		error = cyapa_gen3_write_fw_block(cyapa, block, data);
-+		if (error)
-+			return error;
-+	}
-+	return 0;
-+}
-+
-+static int cyapa_gen3_do_fw_update(struct cyapa *cyapa,
-+		const struct firmware *fw)
-+{
-+	struct device *dev = &cyapa->client->dev;
++	struct cyapa *cyapa = dev_get_drvdata(dev);
 +	int error;
 +
-+	/* First write data, starting at byte 128 of fw->data */
-+	error = cyapa_gen3_write_blocks(cyapa,
-+		CYAPA_FW_DATA_BLOCK_START, CYAPA_FW_DATA_BLOCK_COUNT,
-+		&fw->data[CYAPA_FW_HDR_BLOCK_COUNT * CYAPA_FW_BLOCK_SIZE]);
-+	if (error) {
-+		dev_err(dev, "FW update aborted, write image: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Then write checksum */
-+	error = cyapa_gen3_write_blocks(cyapa,
-+		CYAPA_FW_HDR_BLOCK_START, CYAPA_FW_HDR_BLOCK_COUNT,
-+		&fw->data[0]);
-+	if (error) {
-+		dev_err(dev, "FW update aborted, write checksum: %d\n", error);
-+		return error;
-+	}
++	error = cyapa->ops->set_power_mode(cyapa,
++			cyapa->runtime_suspend_power_mode,
++			cyapa->runtime_suspend_sleep_time);
++	if (error)
++		dev_warn(dev, "runtime suspend failed: %d\n", error);
 +
 +	return 0;
 +}
 +
- /*
-  * cyapa_get_wait_time_for_pwr_cmd
-  *
-@@ -791,10 +1073,19 @@ static int cyapa_gen3_irq_handler(struct cyapa *cyapa)
- }
- 
- static int cyapa_gen3_initialize(struct cyapa *cyapa) { return 0; }
-+static int cyapa_gen3_bl_initiate(struct cyapa *cyapa,
-+		const struct firmware *fw) { return 0; }
- static int cyapa_gen3_empty_output_data(struct cyapa *cyapa,
- 		u8 *buf, int *len, cb_sort func) { return 0; }
- 
- const struct cyapa_dev_ops cyapa_gen3_ops = {
-+	.check_fw = cyapa_gen3_check_fw,
-+	.bl_enter = cyapa_gen3_bl_enter,
-+	.bl_activate = cyapa_gen3_bl_activate,
-+	.update_fw = cyapa_gen3_do_fw_update,
-+	.bl_deactivate = cyapa_gen3_bl_deactivate,
-+	.bl_initiate = cyapa_gen3_bl_initiate,
++static int cyapa_runtime_resume(struct device *dev)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	int error;
 +
- 	.initialize = cyapa_gen3_initialize,
++	error = cyapa->ops->set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE, 0);
++	if (error)
++		dev_warn(dev, "runtime resume failed: %d\n", error);
++
++	return 0;
++}
++#endif /* CONFIG_PM_RUNTIME */
++
++static const struct dev_pm_ops cyapa_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(cyapa_suspend, cyapa_resume)
++	SET_RUNTIME_PM_OPS(cyapa_runtime_suspend, cyapa_runtime_resume, NULL)
++};
  
- 	.state_parse = cyapa_gen3_state_parse,
+ static const struct i2c_device_id cyapa_id_table[] = {
+ 	{ "cyapa", 0 },
+diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
+index 481a60d..f5a2c22 100644
+--- a/drivers/input/mouse/cyapa.h
++++ b/drivers/input/mouse/cyapa.h
+@@ -242,6 +242,10 @@ struct cyapa {
+ 	/* power mode settings */
+ 	u8 suspend_power_mode;
+ 	u16 suspend_sleep_time;
++#ifdef CONFIG_PM_RUNTIME
++	u8 runtime_suspend_power_mode;
++	u16 runtime_suspend_sleep_time;
++#endif /* CONFIG_PM_RUNTIME */
+ 	u8 dev_pwr_mode;
+ 	u16 dev_sleep_time;
+ 
 -- 
 1.9.1

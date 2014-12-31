@@ -1,53 +1,35 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH] Input: imx_keypad - use the preferred form for passing a size of a struct
-Date: Tue, 30 Dec 2014 11:47:16 -0200
-Message-ID: <1419947236-17328-1-git-send-email-festevam@gmail.com>
+From: Christopher Head <chead@chead.ca>
+Subject: Re: [PATCH] HID: input: fix confusion on conflicting mappings
+Date: Tue, 30 Dec 2014 16:57:39 -0800
+Message-ID: <20141230165739.050cc0b9@kruskal.home.chead.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f170.google.com ([209.85.220.170]:60827 "EHLO
-	mail-vc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750833AbaL3Nri (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Dec 2014 08:47:38 -0500
-Received: by mail-vc0-f170.google.com with SMTP id hy4so5794973vcb.1
-        for <linux-input@vger.kernel.org>; Tue, 30 Dec 2014 05:47:37 -0800 (PST)
+Received: from chead.ca ([162.250.190.135]:34389 "EHLO chead.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750743AbaLaBEq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Dec 2014 20:04:46 -0500
+Received: from chead.ca (localhost [127.0.0.1])
+	by chead.ca (Postfix) with ESMTP id 925609FC90
+	for <linux-input@vger.kernel.org>; Tue, 30 Dec 2014 16:57:42 -0800 (PST)
+Received: from kruskal.home.chead.ca (d154-5-96-139.bchsia.telus.net [154.5.96.139])
+	by chead.ca (Postfix) with ESMTPSA id 415E19F71F
+	for <linux-input@vger.kernel.org>; Tue, 30 Dec 2014 16:57:42 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: linux-input@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+Hi,
+I tried your patch on my North American Das Keyboard 4. In N-key
+rollover mode the patch fixes the backslash problem. Unfortunately,
+with the patch applied, when in 6-key rollover mode (which, if I
+remember correctly, uses a one-byte DATA VAR ABS for modifiers and a
+six-byte DATA ARRAY ABS for other keys, as usual for keyboards), the
+last typed key repeats forever even after being released.
 
-According to Documentation/CodingStyle - Chapter 14:
-
-"The preferred form for passing a size of a struct is the following:
-
-        p = kmalloc(sizeof(*p), ...);
-
-The alternative form where struct name is spelled out hurts readability and
-introduces an opportunity for a bug when the pointer variable type is changed
-but the corresponding sizeof that is passed to a memory allocator is not."
-
-So do it as recommeded.
-
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- drivers/input/keyboard/imx_keypad.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index e53f232..2e855e6 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -448,8 +448,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
--	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
--			      GFP_KERNEL);
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
- 	if (!keypad) {
- 		dev_err(&pdev->dev, "not enough memory for driver data\n");
- 		return -ENOMEM;
+(Apologies for the lack of In-Reply-To header; I am not subscribed to
+the list so had no message to reply to. Please CC me in replies if
+necessary.)
 -- 
-1.9.1
-
+Christopher Head

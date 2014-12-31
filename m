@@ -1,37 +1,61 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/2] Input: gpio_keys - allow separating gpio and irq in
- device tree
-Date: Wed, 31 Dec 2014 09:22:27 +0100
-Message-ID: <CACRpkdZ3PHGRG400Y9zo9RKGyyFm9qF7rZZa8PGpT6AStjUhYA@mail.gmail.com>
-References: <20141208071930.GA20802@dtor-ws>
+From: josep.sanchez.ferreres@est.fib.upc.edu
+Subject: RE: Bug report - Input device stopped working after 3.1
+Date: Wed, 31 Dec 2014 14:38:12 +0100
+Message-ID: <20141231143812.9eeqwkam8w4cogsg@webmail.fib.upc.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141208071930.GA20802@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Alexander Shiyan <shc_work@mail.ru>, Laxman Dewangan <ldewangan@nvidia.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail2.fib.upc.es ([147.83.41.106]:52820 "EHLO mail2.fib.upc.es"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751073AbaLaNiX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Dec 2014 08:38:23 -0500
+Received: from teron.localdomain (viruspam2.fib.upc.es [147.83.41.74])
+	by mail2.fib.upc.es (Postfix) with ESMTP id AE2C53C2C9
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2014 14:38:19 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by teron.localdomain (Postfix) with ESMTP id A9A283C386
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2014 14:38:19 +0100 (CET)
+Received: from teron.localdomain ([147.83.41.74])
+	by localhost (teron.fib.upc.es [127.0.0.1]) (amavisd-new, port 30024)
+	with ESMTP id y5AaBwQwoRIC for <linux-input@vger.kernel.org>;
+	Wed, 31 Dec 2014 14:38:13 +0100 (CET)
+Received: from mail2.fib.upc.es (mail2.fib.upc.es [147.83.41.106])
+	by teron.localdomain (Postfix) with ESMTP id 955BB3C2C9
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2014 14:38:13 +0100 (CET)
+Received: from mail2.fib.upc.es (mail2.fib.upc.es [147.83.41.106])
+	by mail2.fib.upc.es (Postfix) with ESMTP id 90CED3C386
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2014 14:38:13 +0100 (CET)
+Received: from webmail.fib.upc.es (foc3.fib.upc.es [147.83.41.83])
+	by mail2.fib.upc.es (Postfix) with ESMTP id 8B8513C2C9
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2014 14:38:13 +0100 (CET)
+Received: from foc3.fib.upc.es (localhost [127.0.0.1])
+	by webmail.fib.upc.es (Postfix) with ESMTP id 11B324E57
+	for <linux-input@vger.kernel.org>; Wed, 31 Dec 2014 14:38:13 +0100 (CET)
+Received: (from www@localhost)
+	by foc3.fib.upc.es (8.13.8+Sun/8.13.8/Submit) id sBVDcCr7007426
+	for linux-input@vger.kernel.org; Wed, 31 Dec 2014 14:38:12 +0100 (CET)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, Dec 8, 2014 at 8:19 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+Hello
 
-> This change allows specify interrupt for buttons separately form gpio,
-> potentially allowing to form several "clusters" of buttons on
-> different interrupts.
->
-> Button defined without both gpio and irq in device tree is a hared error
+I sent an e-mail a month ago about a device (Wacom Bamboo Pad) not  
+working under newer kernels with the evdev driver.
 
-hared?
+I was told you would look into the issue and request any more data if  
+needed. I've been keeping the kernel up-to-date since then and haven't  
+received any response. The device still behaves the same as in kernel  
+3.18 (I think we're now at 3.19.0-1, if the Arch User Repository is  
+up-to-date).
 
-> instead of a warning now.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+I would like to know about the state of the issue, or for that matter  
+ask if there's some github-issue-tracker-like place where I can file  
+the bug and keep track of it.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-...but it would be nice if it could also be converted to use GPIO
-descriptors internally at some point.
-
-Yours,
-Linus Walleij
+Thank you very much and Happy New Year!

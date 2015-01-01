@@ -1,86 +1,72 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v17 00/12] input: cyapa: instruction of cyapa patches
-Date: Wed, 31 Dec 2014 08:11:20 -0800
-Message-ID: <20141231161120.GA1385@newt.localdomain>
-References: <1419988621-2919-1-git-send-email-dudl@cypress.com>
+From: Jonathan Richardson <jonathar@broadcom.com>
+Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Wed, 31 Dec 2014 16:55:29 -0800
+Message-ID: <54A49B01.6020002@broadcom.com>
+References: <Jonathan Richardson <jonathar@broadcom.com>  <1419027470-7969-1-git-send-email-jonathar@broadcom.com>  <1419027470-7969-2-git-send-email-jonathar@broadcom.com> <1419028015.25129.14.camel@perches.com> <5494AEB8.8060606@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:46705 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751317AbaLaQLY (ORCPT
+Received: from mail-gw1-out.broadcom.com ([216.31.210.62]:28195 "EHLO
+	mail-gw1-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751560AbbAAAza (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Dec 2014 11:11:24 -0500
-Content-Disposition: inline
-In-Reply-To: <1419988621-2919-1-git-send-email-dudl@cypress.com>
+	Wed, 31 Dec 2014 19:55:30 -0500
+In-Reply-To: <5494AEB8.8060606@broadcom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
 
-Dudley,
+Hi,
 
-On Wed, Dec 31, 2014 at 09:16:49AM +0800, Dudley Du wrote:
-> V17 patches have below updates, details of other updates see history =
-list:
-> 1) Fix kernel oops when system booting up with finger on TP.
-> 2) Remove unnecessary error log that may to system.
-> 3) Slipt out pm sleep code into cyapa_prepare_wakeup_controls(),
->    remove #indefs in function body of CONFIG_PM_SLEEP and CONFIG_PM_R=
-UNTIME.
-> 4) Supply stubs to cyapa_gen3_ops and cyapa_gen5_ops data structure t=
-o avoid
->    checking for presence of various methods in ops.
-> 6) Fix the meanings of some comments and return error code not clear =
-issue.
-[...]
+Would anyone be able to look at this to help us move forward? Thanks.
 
-It has build errors :(
+On 14-12-19 03:03 PM, Jonathan Richardson wrote:
+> On 14-12-19 02:26 PM, Joe Perches wrote:
+>> On Fri, 2014-12-19 at 14:17 -0800, Jonathan Richardson wrote:
+>>> Add initial version of the Broadcom touchscreen driver.
+>>
+>> more trivia:
+>>
+>>> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+>> []
+>>> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
+>>> +{
+>>> +	u32 val;
+>> []
+>>> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
+>>> +		if (val < 0 || val > 255) {
+>>> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
+>>> +			return -EINVAL;
+>>> +		}
+>>> +		priv->cfg_params.debounce_timeout = val;
+>>
+>> Doesn't the compiler generate a warning message
+>> about an impossible "unsigned < 0" test for all
+>> of these "val < 0" uses?
+>>
+> 
+> Actually no it doesn't. The gcc output shows that neither -Wtype-limits
+> nor -Wextra are used to compile that file. I assume this is because
+> there would be just too many warnings.
+> 
+> 
+>>> +	}
+>>> +
+>>> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
+>>> +		if (val < 0 || val > 11) {
+>> []
+>>> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
+>>> +		if (val < 0 || val > 255) {
+>> []
+>>> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
+>>> +		if (val < 0 || val > 8) {
+>> []
+>>> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
+>>> +		if (val < 0 || val > 31) {
+>>
+>>
+> 
 
-  CHK     include/config/kernel.release
-  CHK     include/generated/uapi/linux/version.h
-  CHK     include/generated/utsrelease.h
-  CALL    scripts/checksyscalls.sh
-  CHK     include/generated/compile.h
-  CHK     kernel/config_data.h
-  CC [M]  drivers/input/mouse/cyapa.o
-In file included from include/linux/device.h:25:0,
-                 from include/linux/i2c.h:30,
-                 from drivers/input/mouse/cyapa.c:18:
-drivers/input/mouse/cyapa.c:1339:21: error: =E2=80=98cyapa_runtime_susp=
-end=E2=80=99 undeclared here (not in a function)
-  SET_RUNTIME_PM_OPS(cyapa_runtime_suspend, cyapa_runtime_resume, NULL)
-                     ^
-include/linux/pm.h:347:21: note: in definition of macro =E2=80=98SET_RU=
-NTIME_PM_OPS=E2=80=99
-  .runtime_suspend =3D suspend_fn, \
-                     ^
-drivers/input/mouse/cyapa.c:1339:44: error: =E2=80=98cyapa_runtime_resu=
-me=E2=80=99 undeclared here (not in a function)
-  SET_RUNTIME_PM_OPS(cyapa_runtime_suspend, cyapa_runtime_resume, NULL)
-                                            ^
-include/linux/pm.h:348:20: note: in definition of macro =E2=80=98SET_RU=
-NTIME_PM_OPS=E2=80=99
-  .runtime_resume =3D resume_fn, \
-                    ^
-scripts/Makefile.build:257: recipe for target 'drivers/input/mouse/cyap=
-a.o' failed
-make[3]: *** [drivers/input/mouse/cyapa.o] Error 1
-scripts/Makefile.build:402: recipe for target 'drivers/input/mouse' fai=
-led
-make[2]: *** [drivers/input/mouse] Error 2
-scripts/Makefile.build:402: recipe for target 'drivers/input' failed
-make[1]: *** [drivers/input] Error 2
-make[1]: *** Waiting for unfinished jobs....
-Makefile:955: recipe for target 'drivers' failed
-make: *** [drivers] Error 2
-make: *** Waiting for unfinished jobs....
-
---=20
-- Jeremiah Mahler
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

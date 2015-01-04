@@ -1,61 +1,49 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH] Input: Added check for grabbed device
-Date: Sun,  4 Jan 2015 00:25:55 -0800
-Message-ID: <1420359955-21553-1-git-send-email-aksgarg1989@gmail.com>
-References: <anshul.g@samsung.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: gpio_keys - allow separating gpio and irq in
+ device tree
+Date: Sun, 4 Jan 2015 14:27:43 -0800
+Message-ID: <20150104222743.GA31987@dtor-ws>
+References: <20141208071930.GA20802@dtor-ws>
+ <CACRpkdZ3PHGRG400Y9zo9RKGyyFm9qF7rZZa8PGpT6AStjUhYA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:59155 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750979AbbADI0Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 03:26:24 -0500
-Received: by mail-wg0-f45.google.com with SMTP id b13so25941050wgh.32
-        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 00:26:23 -0800 (PST)
-In-Reply-To: <anshul.g@samsung.com>
+Received: from mail-wg0-f49.google.com ([74.125.82.49]:63808 "EHLO
+	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752935AbbADW2L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:28:11 -0500
+Content-Disposition: inline
+In-Reply-To: <CACRpkdZ3PHGRG400Y9zo9RKGyyFm9qF7rZZa8PGpT6AStjUhYA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Alexander Shiyan <shc_work@mail.ru>, Laxman Dewangan <ldewangan@nvidia.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-From: Anshul Garg <aksgarg1989@gmail.com>
+On Wed, Dec 31, 2014 at 09:22:27AM +0100, Linus Walleij wrote:
+> On Mon, Dec 8, 2014 at 8:19 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> 
+> > This change allows specify interrupt for buttons separately form gpio,
+> > potentially allowing to form several "clusters" of buttons on
+> > different interrupts.
+> >
+> > Button defined without both gpio and irq in device tree is a hared error
+> 
+> hared?
 
-If input device is grabbed then client which has grabbed the device can
-flush or write to the device so for other clients -EINVAL should be returned.
+Should have been "hard", sorry...
 
-Signed-off-by: Anshul Garg <anshul.g@samsung.com>
----
- drivers/input/evdev.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+> 
+> > instead of a warning now.
+> >
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> 
+> ...but it would be nice if it could also be converted to use GPIO
+> descriptors internally at some point.
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index b1a52ab..105e489 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -277,6 +277,8 @@ static int evdev_flush(struct file *file, fl_owner_t id)
- 
- 	if (!evdev->exist || client->revoked)
- 		retval = -ENODEV;
-+	else if (evdev->grab && evdev->grab != client)
-+		retval = -EINVAL;
- 	else
- 		retval = input_flush_device(&evdev->handle, file);
- 
-@@ -475,6 +477,11 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
- 		goto out;
- 	}
- 
-+
-+	if (evdev->grab && evdev->grab != client) {
-+		retval = -EINVAL;
-+		goto out;
-+	}
- 	while (retval + input_event_size() <= count) {
- 
- 		if (input_event_from_user(buffer + retval, &event)) {
+Thanks.
+
 -- 
-1.7.9.5
-
-
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
-
+Dmitry

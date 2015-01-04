@@ -1,70 +1,130 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Added check for grabbed device
-Date: Sun, 4 Jan 2015 14:46:57 -0800
-Message-ID: <20150104224657.GD31987@dtor-ws>
-References: <anshul.g@samsung.com>
- <1420359955-21553-1-git-send-email-aksgarg1989@gmail.com>
+Subject: Re: [PATCH] Input: Optimize input_to_handler and input_pass_values
+ function
+Date: Sun, 4 Jan 2015 14:57:33 -0800
+Message-ID: <20150104225733.GE31987@dtor-ws>
+References: <1419918593-14976-1-git-send-email-anshul.g@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:46294 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752788AbbADWrD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:47:03 -0500
-Received: by mail-ie0-f182.google.com with SMTP id x19so18634629ier.41
-        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 14:47:01 -0800 (PST)
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:52159 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752789AbbADW5h (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:57:37 -0500
+Received: by mail-ig0-f178.google.com with SMTP id b16so917494igk.17
+        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 14:57:36 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1420359955-21553-1-git-send-email-aksgarg1989@gmail.com>
+In-Reply-To: <1419918593-14976-1-git-send-email-anshul.g@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anshul Garg <aksgarg1989@gmail.com>
-Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
+To: anshul.g@samsung.com
+Cc: linux-input@vger.kernel.org, aksgarg1989@gmail.com, p.shailesh@samsung.com
 
-Hi Anshul,
-
-On Sun, Jan 04, 2015 at 12:25:55AM -0800, Anshul Garg wrote:
-> From: Anshul Garg <aksgarg1989@gmail.com>
+On Tue, Dec 30, 2014 at 11:19:53AM +0530, anshul.g@samsung.com wrote:
+> From: Anshul Garg <anshul.g@samsung.com>
 > 
-> If input device is grabbed then client which has grabbed the device can
-> flush or write to the device so for other clients -EINVAL should be returned.
+> As input_pass_values function is called everytime when EV_SYN is sent from
+> input driver or input event buffer becomes full.
+> 
+> 1. In case of regular handler, event filter code should not run so added check 
+>    whether handler supports filter or not.
+> 2. If input device doesn't support EV_KEY event type avoid running auto repeat code.
+
+Can you please split it in 2 patches?
+
 > 
 > Signed-off-by: Anshul Garg <anshul.g@samsung.com>
 > ---
->  drivers/input/evdev.c |    7 +++++++
->  1 file changed, 7 insertions(+)
+>  drivers/input/input.c |   37 +++++++++++++++++++++----------------
+>  1 file changed, 21 insertions(+), 16 deletions(-)
 > 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index b1a52ab..105e489 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -277,6 +277,8 @@ static int evdev_flush(struct file *file, fl_owner_t id)
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index bbec2dc..9d6609b 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -100,23 +100,24 @@ static unsigned int input_to_handler(struct input_handle *handle,
+>  	struct input_value *end = vals;
+>  	struct input_value *v;
 >  
->  	if (!evdev->exist || client->revoked)
->  		retval = -ENODEV;
-> +	else if (evdev->grab && evdev->grab != client)
-> +		retval = -EINVAL;
->  	else
->  		retval = input_flush_device(&evdev->handle, file);
->  
-> @@ -475,6 +477,11 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
->  		goto out;
+> -	for (v = vals; v != vals + count; v++) {
+> -		if (handler->filter &&
+> -		    handler->filter(handle, v->type, v->code, v->value))
+> -			continue;
+> -		if (end != v)
+> -			*end = *v;
+> -		end++;
+> +	if (handler->filter) {
+> +		for (v = vals; v != vals + count; v++) {
+> +			if (handler->filter(handle, v->type, v->code, v->value))
+> +				continue;
+> +			if (end != v)
+> +				*end = *v;
+> +			end++;
+> +		}
+> +		count = end - vals;
 >  	}
 >  
-> +
-> +	if (evdev->grab && evdev->grab != client) {
-> +		retval = -EINVAL;
-> +		goto out;
-> +	}
+> -	count = end - vals;
+>  	if (!count)
+>  		return 0;
+>  
+>  	if (handler->events)
+>  		handler->events(handle, vals, count);
+>  	else if (handler->event)
+> -		for (v = vals; v != end; v++)
+> +		for (v = vals; v != vals + count; v++)
+>  			handler->event(handle, v->type, v->code, v->value);
+>  
+>  	return count;
+> @@ -143,8 +144,10 @@ static void input_pass_values(struct input_dev *dev,
+>  		count = input_to_handler(handle, vals, count);
+>  	} else {
+>  		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
+> -			if (handle->open)
+> +			if (handle->open && count)
+>  				count = input_to_handler(handle, vals, count);
+> +			else
+> +				break;
 
-Grab is supposed to be transparent to the other users, so returning
-error here is not desirable. Also, input_inject_event() will already
-ignore events if device is grabbed, so everything is good as far as
-evdev_write() concerned.
+This is not correct. You'll stop delivering events at the very first
+closed handle, which is not what we want. We need:
 
-Flush is a bit trickier: the driver should only "flush" data that
-belongs to the user that issued flush request (and the owner is
-identified by file handle passed to flush() method). I think it is OK to
-allow owner to flush its own data even while device is grabbed.
+			if (handle->open) {
+				count = input_to_handler(handle, vals, count);
+				if (count == 0)
+					break;
+			}
+
+>  	}
+>  
+>  	rcu_read_unlock();
+> @@ -152,12 +155,14 @@ static void input_pass_values(struct input_dev *dev,
+>  	add_input_randomness(vals->type, vals->code, vals->value);
+>  
+>  	/* trigger auto repeat for key events */
+> -	for (v = vals; v != vals + count; v++) {
+> -		if (v->type == EV_KEY && v->value != 2) {
+> -			if (v->value)
+> -				input_start_autorepeat(dev, v->code);
+> -			else
+> -				input_stop_autorepeat(dev);
+> +	if (test_bit(EV_KEY, dev->evbit)) {
+
+You might want to test for presence of EV_REP as well.
+
+> +		for (v = vals; v != vals + count; v++) {
+> +			if (v->type == EV_KEY && v->value != 2) {
+> +				if (v->value)
+> +					input_start_autorepeat(dev, v->code);
+> +				else
+> +					input_stop_autorepeat(dev);
+> +			}
+>  		}
+>  	}
+>  }
+> -- 
+> 1.7.9.5
+> 
 
 Thanks.
 

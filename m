@@ -1,65 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: imx_keypad - use the preferred form for passing a
- size of a struct
-Date: Sun, 4 Jan 2015 14:29:24 -0800
-Message-ID: <20150104222924.GB31987@dtor-ws>
-References: <1419947236-17328-1-git-send-email-festevam@gmail.com>
+Subject: Re: [PATCH] Input: Added check for grabbed device
+Date: Sun, 4 Jan 2015 14:46:57 -0800
+Message-ID: <20150104224657.GD31987@dtor-ws>
+References: <anshul.g@samsung.com>
+ <1420359955-21553-1-git-send-email-aksgarg1989@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f176.google.com ([209.85.160.176]:50360 "EHLO
-	mail-yk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753019AbbADW33 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:29:29 -0500
-Received: by mail-yk0-f176.google.com with SMTP id 79so2971373ykr.7
-        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 14:29:29 -0800 (PST)
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:46294 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752788AbbADWrD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:47:03 -0500
+Received: by mail-ie0-f182.google.com with SMTP id x19so18634629ier.41
+        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 14:47:01 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1419947236-17328-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <1420359955-21553-1-git-send-email-aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
 
-On Tue, Dec 30, 2014 at 11:47:16AM -0200, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
-> 
-> According to Documentation/CodingStyle - Chapter 14:
-> 
-> "The preferred form for passing a size of a struct is the following:
-> 
->         p = kmalloc(sizeof(*p), ...);
-> 
-> The alternative form where struct name is spelled out hurts readability and
-> introduces an opportunity for a bug when the pointer variable type is changed
-> but the corresponding sizeof that is passed to a memory allocator is not."
-> 
-> So do it as recommeded.
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Hi Anshul,
 
-Applied, thank you.
-
+On Sun, Jan 04, 2015 at 12:25:55AM -0800, Anshul Garg wrote:
+> From: Anshul Garg <aksgarg1989@gmail.com>
+> 
+> If input device is grabbed then client which has grabbed the device can
+> flush or write to the device so for other clients -EINVAL should be returned.
+> 
+> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
 > ---
->  drivers/input/keyboard/imx_keypad.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  drivers/input/evdev.c |    7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> index e53f232..2e855e6 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -448,8 +448,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
->  		return -ENOMEM;
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index b1a52ab..105e489 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -277,6 +277,8 @@ static int evdev_flush(struct file *file, fl_owner_t id)
+>  
+>  	if (!evdev->exist || client->revoked)
+>  		retval = -ENODEV;
+> +	else if (evdev->grab && evdev->grab != client)
+> +		retval = -EINVAL;
+>  	else
+>  		retval = input_flush_device(&evdev->handle, file);
+>  
+> @@ -475,6 +477,11 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+>  		goto out;
 >  	}
 >  
-> -	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
-> -			      GFP_KERNEL);
-> +	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
->  	if (!keypad) {
->  		dev_err(&pdev->dev, "not enough memory for driver data\n");
->  		return -ENOMEM;
-> -- 
-> 1.9.1
-> 
+> +
+> +	if (evdev->grab && evdev->grab != client) {
+> +		retval = -EINVAL;
+> +		goto out;
+> +	}
+
+Grab is supposed to be transparent to the other users, so returning
+error here is not desirable. Also, input_inject_event() will already
+ignore events if device is grabbed, so everything is good as far as
+evdev_write() concerned.
+
+Flush is a bit trickier: the driver should only "flush" data that
+belongs to the user that issued flush request (and the owner is
+identified by file handle passed to flush() method). I think it is OK to
+allow owner to flush its own data even while device is grabbed.
+
+Thanks.
 
 -- 
 Dmitry

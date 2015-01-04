@@ -1,49 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: gpio_keys - allow separating gpio and irq in
- device tree
-Date: Sun, 4 Jan 2015 14:27:43 -0800
-Message-ID: <20150104222743.GA31987@dtor-ws>
-References: <20141208071930.GA20802@dtor-ws>
- <CACRpkdZ3PHGRG400Y9zo9RKGyyFm9qF7rZZa8PGpT6AStjUhYA@mail.gmail.com>
+Subject: Re: [PATCH] Input: imx_keypad - use the preferred form for passing a
+ size of a struct
+Date: Sun, 4 Jan 2015 14:29:24 -0800
+Message-ID: <20150104222924.GB31987@dtor-ws>
+References: <1419947236-17328-1-git-send-email-festevam@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f49.google.com ([74.125.82.49]:63808 "EHLO
-	mail-wg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752935AbbADW2L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:28:11 -0500
+Received: from mail-yk0-f176.google.com ([209.85.160.176]:50360 "EHLO
+	mail-yk0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753019AbbADW33 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:29:29 -0500
+Received: by mail-yk0-f176.google.com with SMTP id 79so2971373ykr.7
+        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 14:29:29 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CACRpkdZ3PHGRG400Y9zo9RKGyyFm9qF7rZZa8PGpT6AStjUhYA@mail.gmail.com>
+In-Reply-To: <1419947236-17328-1-git-send-email-festevam@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Linux Input <linux-input@vger.kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Alexander Shiyan <shc_work@mail.ru>, Laxman Dewangan <ldewangan@nvidia.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-On Wed, Dec 31, 2014 at 09:22:27AM +0100, Linus Walleij wrote:
-> On Mon, Dec 8, 2014 at 8:19 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
+On Tue, Dec 30, 2014 at 11:47:16AM -0200, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam@freescale.com>
 > 
-> > This change allows specify interrupt for buttons separately form gpio,
-> > potentially allowing to form several "clusters" of buttons on
-> > different interrupts.
-> >
-> > Button defined without both gpio and irq in device tree is a hared error
+> According to Documentation/CodingStyle - Chapter 14:
 > 
-> hared?
+> "The preferred form for passing a size of a struct is the following:
+> 
+>         p = kmalloc(sizeof(*p), ...);
+> 
+> The alternative form where struct name is spelled out hurts readability and
+> introduces an opportunity for a bug when the pointer variable type is changed
+> but the corresponding sizeof that is passed to a memory allocator is not."
+> 
+> So do it as recommeded.
+> 
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 
-Should have been "hard", sorry...
+Applied, thank you.
 
+> ---
+>  drivers/input/keyboard/imx_keypad.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> > instead of a warning now.
-> >
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+> index e53f232..2e855e6 100644
+> --- a/drivers/input/keyboard/imx_keypad.c
+> +++ b/drivers/input/keyboard/imx_keypad.c
+> @@ -448,8 +448,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
+>  
+> -	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
+> -			      GFP_KERNEL);
+> +	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+>  	if (!keypad) {
+>  		dev_err(&pdev->dev, "not enough memory for driver data\n");
+>  		return -ENOMEM;
+> -- 
+> 1.9.1
 > 
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> 
-> ...but it would be nice if it could also be converted to use GPIO
-> descriptors internally at some point.
-
-Thanks.
 
 -- 
 Dmitry

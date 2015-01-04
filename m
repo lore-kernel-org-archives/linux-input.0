@@ -1,112 +1,61 @@
-From: Tristan Lelong <tristan@lelong.xyz>
-Subject: [PATCH] input: Add soft kill switch for input devices
-Date: Sat,  3 Jan 2015 22:24:05 -0800
-Message-ID: <1420352645-3706-1-git-send-email-tristan@lelong.xyz>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input: Added check for grabbed device
+Date: Sun,  4 Jan 2015 00:25:55 -0800
+Message-ID: <1420359955-21553-1-git-send-email-aksgarg1989@gmail.com>
+References: <anshul.g@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:49362 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750790AbbADGYZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 01:24:25 -0500
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:59155 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750979AbbADI0Y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 03:26:24 -0500
+Received: by mail-wg0-f45.google.com with SMTP id b13so25941050wgh.32
+        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 00:26:23 -0800 (PST)
+In-Reply-To: <anshul.g@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tristan Lelong <tristan@lelong.xyz>
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-This adds a sysfs attribute named 'mute' to all input devices.
-It allows to disable them by software in a generic way.
+From: Anshul Garg <aksgarg1989@gmail.com>
 
-It can be set to 0 or 1:
-echo 1 > /sys/class/input/inputX/mute: will set all the input_events() call to return immediately.
-echo 0 > /sys/class/input/inputX/mute: will reset to default behavior.
+If input device is grabbed then client which has grabbed the device can
+flush or write to the device so for other clients -EINVAL should be returned.
 
-mute is set to 0 by default when calling alloc_input_device().
-
-Signed-off-by: Tristan Lelong <tristan@lelong.xyz>
+Signed-off-by: Anshul Garg <anshul.g@samsung.com>
 ---
-Hi,
+ drivers/input/evdev.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-I created this patch to answer a need on my machine: I want to be able to disable momentarily the touchscreen
-in order to wipe out a dust or clean the display without creating a mess on my desktop and opened docs.
-It seemed consistent to have that kill switch at a central point, and moreover,
-it doesn't depend on any tool linked to a specifc X server, graphical toolkit, desktop environment...
-
-This patch uses the 0/1 values to enable or disable the mute, but I could update it to use
-enable/disable instead if it is preferred.
-Also, the permissions are write for group or ownoer only.
-I thought about setting it world writable in order to allow easy shortcut creation, but it might also be a security flaw.
-
-Let me know what you think about all this, at least it is really useful in my case, linked to a keyboard shortcut.
-
-Best regards
----
- drivers/input/input.c | 30 +++++++++++++++++++++++++++++-
- include/linux/input.h |  1 +
- 2 files changed, 30 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index a1e609a..2f80fee 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -425,7 +425,7 @@ void input_event(struct input_dev *dev,
- {
- 	unsigned long flags;
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index b1a52ab..105e489 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -277,6 +277,8 @@ static int evdev_flush(struct file *file, fl_owner_t id)
  
--	if (is_event_supported(type, dev->evbit, EV_MAX)) {
-+	if (!dev->mute && is_event_supported(type, dev->evbit, EV_MAX)) {
+ 	if (!evdev->exist || client->revoked)
+ 		retval = -ENODEV;
++	else if (evdev->grab && evdev->grab != client)
++		retval = -EINVAL;
+ 	else
+ 		retval = input_flush_device(&evdev->handle, file);
  
- 		spin_lock_irqsave(&dev->event_lock, flags);
- 		input_handle_event(dev, type, code, value);
-@@ -1384,10 +1384,38 @@ static ssize_t input_dev_show_properties(struct device *dev,
- }
- static DEVICE_ATTR(properties, S_IRUGO, input_dev_show_properties, NULL);
+@@ -475,6 +477,11 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ 		goto out;
+ 	}
  
-+static ssize_t input_dev_show_mute(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	struct input_dev *input_dev = to_input_dev(dev);
 +
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", input_dev->mute);
-+}
-+
-+static ssize_t input_dev_store_mute(struct device *dev,
-+					  struct device_attribute *attr,
-+					  const char *buf, size_t count)
-+{
-+	int err;
-+	long mute;
-+	struct input_dev *input_dev = to_input_dev(dev);
-+
-+	err = kstrtol(buf, 0, &mute);
-+	if (err < 0)
-+		return err;
-+	input_dev->mute = mute;
-+
-+	return count;
-+}
-+static DEVICE_ATTR(mute, S_IRUGO | S_IWUSR | S_IWGRP, input_dev_show_mute,
-+		   input_dev_store_mute);
-+
- static struct attribute *input_dev_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_phys.attr,
- 	&dev_attr_uniq.attr,
-+	&dev_attr_mute.attr,
- 	&dev_attr_modalias.attr,
- 	&dev_attr_properties.attr,
- 	NULL
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 3b4c32f..e45672f 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -151,6 +151,7 @@ struct input_dev {
++	if (evdev->grab && evdev->grab != client) {
++		retval = -EINVAL;
++		goto out;
++	}
+ 	while (retval + input_event_size() <= count) {
  
- 	struct ff_device *ff;
- 
-+	unsigned int mute;
- 	unsigned int repeat_key;
- 	struct timer_list timer;
- 
+ 		if (input_event_from_user(buffer + retval, &event)) {
 -- 
-2.1.3
+1.7.9.5
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
 

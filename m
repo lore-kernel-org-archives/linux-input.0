@@ -1,100 +1,112 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v5 4/6] ARM: dts: AM335x: Make charge delay a DT
- parameter for TSC
-Date: Fri, 2 Jan 2015 09:09:33 -0800
-Message-ID: <20150102170933.GB3298@atomide.com>
-References: <1419404619-10744-1-git-send-email-vigneshr@ti.com>
- <1419404619-10744-5-git-send-email-vigneshr@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1419404619-10744-5-git-send-email-vigneshr-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap@vger.
+From: Tristan Lelong <tristan@lelong.xyz>
+Subject: [PATCH] input: Add soft kill switch for input devices
+Date: Sat,  3 Jan 2015 22:24:05 -0800
+Message-ID: <1420352645-3706-1-git-send-email-tristan@lelong.xyz>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:49362 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750790AbbADGYZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 01:24:25 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tristan Lelong <tristan@lelong.xyz>
 
-* Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org> [141223 23:07]:
-> The charge delay value is by default 0x400. But it can be set to lower
-> values on some boards, as long as false pen-ups are avoided. Lowering the
-> value increases the sampling rate (though current sampling rate is
-> sufficient for TSC operation). In some boards, the value has to be
-> increased to avoid false pen-up events. Hence, charge delay has been
-> made a DT parameter.
-> 
-> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+This adds a sysfs attribute named 'mute' to all input devices.
+It allows to disable them by software in a generic way.
 
-Assuming this binding makes sense for the input people, there should
-be no conflicts merging this patch along with the rest of the series
-via the input tree.
+It can be set to 0 or 1:
+echo 1 > /sys/class/input/inputX/mute: will set all the input_events() call to return immediately.
+echo 0 > /sys/class/input/inputX/mute: will reset to default behavior.
 
-Sounds like this value probably depends on the size of the touchscreen
-for the capacitance, so a numeric value is really needed here. Of course
-I would personally prefer generic bindings in general, but in any case
-please feel free to merge along with the other input patches:
+mute is set to 0 by default when calling alloc_input_device().
 
-Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Tristan Lelong <tristan@lelong.xyz>
+---
+Hi,
 
+I created this patch to answer a need on my machine: I want to be able to disable momentarily the touchscreen
+in order to wipe out a dust or clean the display without creating a mess on my desktop and opened docs.
+It seemed consistent to have that kill switch at a central point, and moreover,
+it doesn't depend on any tool linked to a specifc X server, graphical toolkit, desktop environment...
 
-> ---
-> v4:
->  - Set charge delay to 0x400 as default. Most devices function normally
->    at this value
-> 
->  .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt  | 15 +++++++++++++++
->  arch/arm/boot/dts/am335x-evm.dts                          |  1 +
->  2 files changed, 16 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> index 878549ba814d..6df5028a4ad3 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-> @@ -28,6 +28,20 @@ Required properties:
->  	ti,adc-channels: List of analog inputs available for ADC.
->  			 AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
->  
-> +Optional properties:
-> +- child "tsc"
-> +	ti,charge-delay: Length of touch screen charge delay step in terms of
-> +			 ADC clock cycles. Charge delay value should be large
-> +			 in order to avoid false pen-up events. This value
-> +			 affects the overall sampling speed, hence need to be
-> +			 kept as low as possible, while avoiding false pen-up
-> +			 event. Start from a lower value, say 0x400, and
-> +			 increase value until false pen-up events are avoided.
-> +			 The pen-up detection happens immediately after the
-> +			 charge step, so this does in fact function as a
-> +			 hardware knob for adjusting the amount of "settling
-> +			 time".
-> +
->  Example:
->  	tscadc: tscadc@44e0d000 {
->  		compatible = "ti,am3359-tscadc";
-> @@ -36,6 +50,7 @@ Example:
->  			ti,x-plate-resistance = <200>;
->  			ti,coordiante-readouts = <5>;
->  			ti,wire-config = <0x00 0x11 0x22 0x33>;
-> +			ti,charge-delay = <0x400>;
->  		};
->  
->  		adc {
-> diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-> index 54f118c08db8..66342515df20 100644
-> --- a/arch/arm/boot/dts/am335x-evm.dts
-> +++ b/arch/arm/boot/dts/am335x-evm.dts
-> @@ -648,6 +648,7 @@
->  		ti,x-plate-resistance = <200>;
->  		ti,coordinate-readouts = <5>;
->  		ti,wire-config = <0x00 0x11 0x22 0x33>;
-> +		ti,charge-delay = <0x400>;
->  	};
->  
->  	adc {
-> -- 
-> 1.9.1
-> 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This patch uses the 0/1 values to enable or disable the mute, but I could update it to use
+enable/disable instead if it is preferred.
+Also, the permissions are write for group or ownoer only.
+I thought about setting it world writable in order to allow easy shortcut creation, but it might also be a security flaw.
+
+Let me know what you think about all this, at least it is really useful in my case, linked to a keyboard shortcut.
+
+Best regards
+---
+ drivers/input/input.c | 30 +++++++++++++++++++++++++++++-
+ include/linux/input.h |  1 +
+ 2 files changed, 30 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index a1e609a..2f80fee 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -425,7 +425,7 @@ void input_event(struct input_dev *dev,
+ {
+ 	unsigned long flags;
+ 
+-	if (is_event_supported(type, dev->evbit, EV_MAX)) {
++	if (!dev->mute && is_event_supported(type, dev->evbit, EV_MAX)) {
+ 
+ 		spin_lock_irqsave(&dev->event_lock, flags);
+ 		input_handle_event(dev, type, code, value);
+@@ -1384,10 +1384,38 @@ static ssize_t input_dev_show_properties(struct device *dev,
+ }
+ static DEVICE_ATTR(properties, S_IRUGO, input_dev_show_properties, NULL);
+ 
++static ssize_t input_dev_show_mute(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	struct input_dev *input_dev = to_input_dev(dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n", input_dev->mute);
++}
++
++static ssize_t input_dev_store_mute(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	int err;
++	long mute;
++	struct input_dev *input_dev = to_input_dev(dev);
++
++	err = kstrtol(buf, 0, &mute);
++	if (err < 0)
++		return err;
++	input_dev->mute = mute;
++
++	return count;
++}
++static DEVICE_ATTR(mute, S_IRUGO | S_IWUSR | S_IWGRP, input_dev_show_mute,
++		   input_dev_store_mute);
++
+ static struct attribute *input_dev_attrs[] = {
+ 	&dev_attr_name.attr,
+ 	&dev_attr_phys.attr,
+ 	&dev_attr_uniq.attr,
++	&dev_attr_mute.attr,
+ 	&dev_attr_modalias.attr,
+ 	&dev_attr_properties.attr,
+ 	NULL
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 3b4c32f..e45672f 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -151,6 +151,7 @@ struct input_dev {
+ 
+ 	struct ff_device *ff;
+ 
++	unsigned int mute;
+ 	unsigned int repeat_key;
+ 	struct timer_list timer;
+ 
+-- 
+2.1.3
+

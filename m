@@ -1,40 +1,120 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Mon, 05 Jan 2015 10:27:50 +0200
-Message-ID: <9953341.ly5Z8mnrNK@avalon>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com> <10011053.aypz0IuTJG@avalon>
+From: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
+Subject: Re: [PATCH 1/1] Elantech touchpad detection fix for laptops
+Date: Mon, 5 Jan 2015 19:45:39 +1100
+Message-ID: <CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
+References: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <10011053.aypz0IuTJG@avalon>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/mixed; boundary=001a11c15694013335050be3b74a
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qc0-f172.google.com ([209.85.216.172]:54005 "EHLO
+	mail-qc0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751942AbbAEIpk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 03:45:40 -0500
+Received: by mail-qc0-f172.google.com with SMTP id m20so15234084qcx.31
+        for <linux-input@vger.kernel.org>; Mon, 05 Jan 2015 00:45:39 -0800 (PST)
+In-Reply-To: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?Q?Mateusz_Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, guillaum.bouchard@gmail.com
 
-Hi Geert,
+--001a11c15694013335050be3b74a
+Content-Type: text/plain; charset=UTF-8
 
-On Thursday 18 December 2014 21:23:46 Laurent Pinchart wrote:
-> On Thursday 18 December 2014 14:03:18 Geert Uytterhoeven wrote:
-> > On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart wrote:
-> > > There are three compatible strings defined for the ADXL345 and ADXL346
-> > > in Documentation/devicetree/bindings/i2c/trivial-devices.txt:
-> > > "adi,adxl345", "adi,adxl346", "adi,adxl34x". Given that the last one is
-> > > a fallback for the first two I don't see a need to add the specific
-> > > compatible strings to the driver for now. If a new totally incompatible
-> > > chip named ADXL347 comes out we will need a new driver which won't be
-> > > allowed to use the "adi,adxl34x" compatible string.
-> > 
-> > FWIW, I'm the evil person who added the adxl entries to that file...
-> 
-> git-blame had already reported you.
-> 
-> Do you think we should remove that compatible string ?
+Hello Folks & Dmitry,
 
-Ping ?
+Further to the previous patch, here is the current version (against
+mainline) updated with the DMI info of another laptop model where this
+fix had helped a user.
 
--- 
-Regards,
+Can you please review it & give some feedback? If it looks good as it
+is, then on behalf of all affected users (including yours truly), may
+I request for it to be merged upstream (and possibly stable too)?
 
-Laurent Pinchart
+(If the patch gets spoiled by gmail, please ref to this bugzilla URL,
+where this patch is there as a file attachment:
+https://bugzilla.kernel.org/show_bug.cgi?id=81331)
+
+Thanks
+
+--001a11c15694013335050be3b74a
+Content-Type: text/x-patch; charset=UTF-8;
+	name="elantech_touchpad_fix_for_laptops_v4_against_mainline.patch"
+Content-Disposition: attachment;
+	filename="elantech_touchpad_fix_for_laptops_v4_against_mainline.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i4jlm9ko0
+
+Y29tbWl0IGM3N2EzOWE3OTliNTFmYmI2OGI3MjMzMDI2N2MyZDMyYThlMjA1NDIKQXV0aG9yOiBT
+cmloYXJpIFZpamF5YXJhZ2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWlsLmNvbT4KRGF0
+ZTogICBNb24gSmFuIDUgMTg6NTM6MDQgMjAxNSArMTEwMAoKICAgIEFzIHJlcG9ydGVkIGluIGtl
+cm5lbCBidWd6aWxsYSA4MTMzMSwgb24gbWFueSBsYXB0b3BzIGtleWJvYXJkIG5lZWRzIHRvIGJl
+IHJlc2V0CiAgICBmb3IgdGhlIGRldGVjdGlvbiBvZiBFbGFudGVjaCB0b3VjaHBhZC4gQmFzZWQg
+b24gdGhlIG9yaWdpbmFsIHBhdGNoIGJ5IE1hdGV1c3ogSm/FhGN6eWsKICAgIHRoaXMgdmVyc2lv
+biBoYXMgYmVlbiBleHBhbmRlZCB0byBpbmNsdWRlIERNSSBiYXNlZCBkZXRlY3Rpb24gJiBhcHBs
+aWNhdGlvbiBvZiB0aGUgZml4CiAgICBhdXRvbWF0aWNhbGx5LiBDb25maXJtZWQgdG8gZml4IHRo
+ZSBwcm9ibGVtIGJ5IHRocmVlIHVzZXJzIGFscmVhZHkuCiAgICAKICAgIFNpZ25lZC1vZmYtYnk6
+IFNyaWhhcmkgVmlqYXlhcmFnaGF2YW4gPGxpbnV4LmJ1Zy5yZXBvcnRpbmdAZ21haWwuY29tPgog
+ICAgQWNrZWQtYnk6IE1hdGV1c3ogSm/FhGN6eWsgPG1hdC5qb25jenlrQG8yLnBsPgogICAgVGVz
+dGVkLWJ5OiBTcmloYXJpIFZpamF5YXJhZ2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWls
+LmNvbT4KICAgIFRlc3RlZCBieTogWmFrYXJpeWEgRGVobGF3aSA8emRlaGxhd2lAZ21haWwuY29t
+PgogICAgVGVzdGVkLWJ5OiBHdWlsbGF1bSBCb3VjaGFyZCA8Z3VpbGxhdW0uYm91Y2hhcmRAZ21h
+aWwuY29tPgoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24va2VybmVsLXBhcmFtZXRlcnMudHh0
+IGIvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQKaW5kZXggNGRmNzNkYS4uYzZl
+OGNiYyAxMDA2NDQKLS0tIGEvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQKKysr
+IGIvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQKQEAgLTEyNzcsNiArMTI3Nyw3
+IEBAIGJ5dGVzIHJlc3BlY3RpdmVseS4gU3VjaCBsZXR0ZXIgc3VmZml4ZXMgY2FuIGFsc28gYmUg
+ZW50aXJlbHkgb21pdHRlZC4KIAlpODA0Mi5ub3RpbWVvdXQJW0hXXSBJZ25vcmUgdGltZW91dCBj
+b25kaXRpb24gc2lnbmFsbGVkIGJ5IGNvbnRyb2xsZXIKIAlpODA0Mi5yZXNldAlbSFddIFJlc2V0
+IHRoZSBjb250cm9sbGVyIGR1cmluZyBpbml0IGFuZCBjbGVhbnVwCiAJaTgwNDIudW5sb2NrCVtI
+V10gVW5sb2NrIChpZ25vcmUpIHRoZSBrZXlsb2NrCisJaTgwNDIua2JkcmVzZXQgIFtIV10gUmVz
+ZXQga2V5Ym9hcmQgdG8gZGV0ZWN0IEVsYW50ZWNoIHRvdWNocGFkCiAKIAlpODEwPQkJW0hXLERS
+TV0KIApkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaCBi
+L2RyaXZlcnMvaW5wdXQvc2VyaW8vaTgwNDIteDg2aWE2NGlvLmgKaW5kZXggYzY2ZDFiNS4uNzM0
+MzYwYiAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaAor
+KysgYi9kcml2ZXJzL2lucHV0L3NlcmlvL2k4MDQyLXg4NmlhNjRpby5oCkBAIC03NDUsNiArNzQ1
+LDM2IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZG1pX3N5c3RlbV9pZCBfX2luaXRjb25zdCBpODA0
+Ml9kbWlfZHJpdGVrX3RhYmxlW10gPSB7CiAJeyB9CiB9OwogCisvKgorICogSnVzdCBhcyBwZXIg
+a2VybmVsIGJ1Z3ppbGxhICM4MTMzMSwgc29tZSBFbGFudGVjaCB0b3VjaHBhZCBiYXNlZCBsYXB0
+b3BzCisgKiBuZWVkIGtleWJvYXJkIHJlc2V0IHdoaWxlIHByb2JpbmcgZm9yIHRoZSB0b2NocGFk
+IHRvIGdldCBkZXRlY3RlZCwKKyAqIGluaXRpYWxpc2VkICYgZmluYWxseSB3b3JrLgorICovCitz
+dGF0aWMgY29uc3Qgc3RydWN0IGRtaV9zeXN0ZW1faWQgX19pbml0Y29uc3QgaTgwNDJfZG1pX2Vs
+YW50ZWNoX2tiZHJlc2V0X3RhYmxlW10gPSB7CisgICAgICAgIHsKKyAgICAgICAgICAgICAgICAv
+KiBHaWdhYnl0ZSBQMzUgdjIgKi8KKyAgICAgICAgICAgICAgICAubWF0Y2hlcyA9IHsKKyAgICAg
+ICAgICAgICAgICAgICAgICAgIERNSV9NQVRDSChETUlfU1lTX1ZFTkRPUiwgIkdJR0FCWVRFIiks
+CisgICAgICAgICAgICAgICAgICAgICAgICBETUlfTUFUQ0goRE1JX1BST0RVQ1RfTkFNRSwgIlAz
+NVYyIiksCisgICAgICAgICAgICAgICAgfSwKKyAgICAgICAgfSwKKwl7CisJCS8qIEFvcnVzIGJy
+YW5kZWQgR2lnYWJ5dGUgWDMgUGx1cyAqLworCQkubWF0Y2hlcyA9IHsKKwkJCURNSV9NQVRDSChE
+TUlfU1lTX1ZFTkRPUiwgIkdJR0FCWVRFIiksCisJCQlETUlfTUFUQ0goRE1JX1BST0RVQ1RfTkFN
+RSwgIlgzIiksCisJCX0sCisJfSwKKyAgICAgICAgeworICAgICAgICAgICAgICAgIC8qIEdpZ2Fi
+eXRlIFAzNCAqLworICAgICAgICAgICAgICAgIC5tYXRjaGVzID0geworICAgICAgICAgICAgICAg
+ICAgICAgICAgRE1JX01BVENIKERNSV9TWVNfVkVORE9SLCAiR0lHQUJZVEUiKSwKKyAgICAgICAg
+ICAgICAgICAgICAgICAgIERNSV9NQVRDSChETUlfUFJPRFVDVF9OQU1FLCAiUDM0IiksCisgICAg
+ICAgICAgICAgICAgfSwKKyAgICAgICAgfSwKKwl7IH0KK307CisKICNlbmRpZiAvKiBDT05GSUdf
+WDg2ICovCiAKICNpZmRlZiBDT05GSUdfUE5QCkBAIC0xMDQwLDYgKzEwNzAsOSBAQCBzdGF0aWMg
+aW50IF9faW5pdCBpODA0Ml9wbGF0Zm9ybV9pbml0KHZvaWQpCiAJaWYgKGRtaV9jaGVja19zeXN0
+ZW0oaTgwNDJfZG1pX2RyaXRla190YWJsZSkpCiAJCWk4MDQyX2RyaXRlayA9IHRydWU7CiAKKwlp
+ZiAoZG1pX2NoZWNrX3N5c3RlbShpODA0Ml9kbWlfZWxhbnRlY2hfa2JkcmVzZXRfdGFibGUpKQor
+CQlpODA0Ml9rYmRyZXNldCA9IHRydWU7CisKIAkvKgogCSAqIEEyMCB3YXMgYWxyZWFkeSBlbmFi
+bGVkIGR1cmluZyBlYXJseSBrZXJuZWwgaW5pdC4gQnV0IHNvbWUgYnVnZ3kKIAkgKiBCSU9TZXMg
+KGluIE1TSSBMYXB0b3BzKSByZXF1aXJlIEEyMCB0byBiZSBlbmFibGVkIHVzaW5nIDgwNDIgdG8K
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvc2VyaW8vaTgwNDIuYyBiL2RyaXZlcnMvaW5wdXQv
+c2VyaW8vaTgwNDIuYwppbmRleCA5MjRlNGJmLi45MmQwYWE4IDEwMDY0NAotLS0gYS9kcml2ZXJz
+L2lucHV0L3NlcmlvL2k4MDQyLmMKKysrIGIvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi5jCkBA
+IC02Nyw2ICs2NywxMCBAQCBzdGF0aWMgYm9vbCBpODA0Ml9ub3RpbWVvdXQ7CiBtb2R1bGVfcGFy
+YW1fbmFtZWQobm90aW1lb3V0LCBpODA0Ml9ub3RpbWVvdXQsIGJvb2wsIDApOwogTU9EVUxFX1BB
+Uk1fREVTQyhub3RpbWVvdXQsICJJZ25vcmUgdGltZW91dHMgc2lnbmFsbGVkIGJ5IGk4MDQyIik7
+CiAKK3N0YXRpYyBib29sIGk4MDQyX2tiZHJlc2V0OworbW9kdWxlX3BhcmFtX25hbWVkKGtiZHJl
+c2V0LCBpODA0Ml9rYmRyZXNldCwgYm9vbCwgMCk7CitNT0RVTEVfUEFSTV9ERVNDKGtiZHJlc2V0
+LCAiUmVzZXQga2V5Ym9hcmQgdG8gZGV0ZWN0IEVsYW50ZWNoIHRvdWNocGFkIG9uIHNvbWUgbGFw
+dG9wcyIpOworCiAjaWZkZWYgQ09ORklHX1g4Ngogc3RhdGljIGJvb2wgaTgwNDJfZHJpdGVrOwog
+bW9kdWxlX3BhcmFtX25hbWVkKGRyaXRlaywgaTgwNDJfZHJpdGVrLCBib29sLCAwKTsKQEAgLTc5
+MCw2ICs3OTQsMTQgQEAgc3RhdGljIGludCBfX2luaXQgaTgwNDJfY2hlY2tfYXV4KHZvaWQpCiAJ
+CXJldHVybiAtMTsKIAogLyoKKyAqIFJlc2V0IGtleWJvYXJkIHRvIGRldGVjdCB0b3VjaHBhZCBv
+biBzb21lIGxhcHRvcHMgaGF2aW5nIEVsYW50ZWNoIHRvdWNocGFkCisgKi8KKwlpZiAoaTgwNDJf
+a2JkcmVzZXQpIHsKKwkJcHJfd2FybigiUmVzZXR0aW5nIGtleWJvYXJkIHRvIGRldGVjdCBFbGFu
+dGVjaCB0b3VjaHBhZCBvbiBzb21lIGxhcHRvcHNcbiIpOworCQlpODA0Ml9rYmRfd3JpdGUoTlVM
+TCwgKHVuc2lnbmVkIGNoYXIpIDB4ZmYpOworCX0KKworLyoKICAqIFRlc3QgQVVYIElSUSBkZWxp
+dmVyeSB0byBtYWtlIHN1cmUgQklPUyBkaWQgbm90IGdyYWIgdGhlIElSUSBhbmQKICAqIHVzZWQg
+aXQgZm9yIGEgUENJIGNhcmQgb3Igc29tZXRoaWcgZWxzZS4KICAqLwo=
+--001a11c15694013335050be3b74a--

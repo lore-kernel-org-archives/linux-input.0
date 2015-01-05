@@ -1,132 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Optimize input_to_handler and input_pass_values
- function
-Date: Sun, 4 Jan 2015 14:57:33 -0800
-Message-ID: <20150104225733.GE31987@dtor-ws>
-References: <1419918593-14976-1-git-send-email-anshul.g@samsung.com>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v17 00/12] input: cyapa: instruction of cyapa patches
+Date: Mon, 5 Jan 2015 01:57:29 +0000
+Message-ID: <BN1PR06MB07053E7C7D520975F08D0BFD1580@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1419988621-2919-1-git-send-email-dudl@cypress.com>
+ <20141231161120.GA1385@newt.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:52159 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752789AbbADW5h (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2015 17:57:37 -0500
-Received: by mail-ig0-f178.google.com with SMTP id b16so917494igk.17
-        for <linux-input@vger.kernel.org>; Sun, 04 Jan 2015 14:57:36 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1419918593-14976-1-git-send-email-anshul.g@samsung.com>
+Received: from mail-bn1bon0130.outbound.protection.outlook.com ([157.56.111.130]:39456
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752989AbbAECLr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 4 Jan 2015 21:11:47 -0500
+In-Reply-To: <20141231161120.GA1385@newt.localdomain>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: anshul.g@samsung.com
-Cc: linux-input@vger.kernel.org, aksgarg1989@gmail.com, p.shailesh@samsung.com
+To: Jeremiah Mahler <jmmahler@gmail.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Dec 30, 2014 at 11:19:53AM +0530, anshul.g@samsung.com wrote:
-> From: Anshul Garg <anshul.g@samsung.com>
-> 
-> As input_pass_values function is called everytime when EV_SYN is sent from
-> input driver or input event buffer becomes full.
-> 
-> 1. In case of regular handler, event filter code should not run so added check 
->    whether handler supports filter or not.
-> 2. If input device doesn't support EV_KEY event type avoid running auto repeat code.
-
-Can you please split it in 2 patches?
-
-> 
-> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
-> ---
->  drivers/input/input.c |   37 +++++++++++++++++++++----------------
->  1 file changed, 21 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index bbec2dc..9d6609b 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -100,23 +100,24 @@ static unsigned int input_to_handler(struct input_handle *handle,
->  	struct input_value *end = vals;
->  	struct input_value *v;
->  
-> -	for (v = vals; v != vals + count; v++) {
-> -		if (handler->filter &&
-> -		    handler->filter(handle, v->type, v->code, v->value))
-> -			continue;
-> -		if (end != v)
-> -			*end = *v;
-> -		end++;
-> +	if (handler->filter) {
-> +		for (v = vals; v != vals + count; v++) {
-> +			if (handler->filter(handle, v->type, v->code, v->value))
-> +				continue;
-> +			if (end != v)
-> +				*end = *v;
-> +			end++;
-> +		}
-> +		count = end - vals;
->  	}
->  
-> -	count = end - vals;
->  	if (!count)
->  		return 0;
->  
->  	if (handler->events)
->  		handler->events(handle, vals, count);
->  	else if (handler->event)
-> -		for (v = vals; v != end; v++)
-> +		for (v = vals; v != vals + count; v++)
->  			handler->event(handle, v->type, v->code, v->value);
->  
->  	return count;
-> @@ -143,8 +144,10 @@ static void input_pass_values(struct input_dev *dev,
->  		count = input_to_handler(handle, vals, count);
->  	} else {
->  		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
-> -			if (handle->open)
-> +			if (handle->open && count)
->  				count = input_to_handler(handle, vals, count);
-> +			else
-> +				break;
-
-This is not correct. You'll stop delivering events at the very first
-closed handle, which is not what we want. We need:
-
-			if (handle->open) {
-				count = input_to_handler(handle, vals, count);
-				if (count == 0)
-					break;
-			}
-
->  	}
->  
->  	rcu_read_unlock();
-> @@ -152,12 +155,14 @@ static void input_pass_values(struct input_dev *dev,
->  	add_input_randomness(vals->type, vals->code, vals->value);
->  
->  	/* trigger auto repeat for key events */
-> -	for (v = vals; v != vals + count; v++) {
-> -		if (v->type == EV_KEY && v->value != 2) {
-> -			if (v->value)
-> -				input_start_autorepeat(dev, v->code);
-> -			else
-> -				input_stop_autorepeat(dev);
-> +	if (test_bit(EV_KEY, dev->evbit)) {
-
-You might want to test for presence of EV_REP as well.
-
-> +		for (v = vals; v != vals + count; v++) {
-> +			if (v->type == EV_KEY && v->value != 2) {
-> +				if (v->value)
-> +					input_start_autorepeat(dev, v->code);
-> +				else
-> +					input_stop_autorepeat(dev);
-> +			}
->  		}
->  	}
->  }
-> -- 
-> 1.7.9.5
-> 
-
-Thanks.
-
--- 
-Dmitry
+VGhhbmtzLCBKZXJlbWlhaC4NCg0KSXQgc2VlbXMgdGhlIHBvd2VyIG1hbmFnZSBjb2RlIGhhcyBi
+ZWVuIHVwZGF0ZWQgaW4ga2VybmVsLW5leHQsDQp0aGUgc2FtZSBjb2RlIGRpZG4ndCBnZW5lcmVh
+dGUgYW55IGVycm9yIGJlZm9yZS4NCkkgdXBkYXRlZCB3aXRoIGxhdGVzdCBrZXJuZWwtbmV4dCwg
+dGhlIGNvbXBpbGluZyBlcnJvciBhbHNvIGhhcHBlbmVkLg0KVG8gZml4IHRoaXMgY29kZSwgbmVl
+ZCB0byBhZGQgc3R1YnMgZm9yIGN5YXBhX3J1bnRpbWVfc3VzcGVuZCgpIGFuZA0KY3lhcGFfcnVu
+dGltZV9yZXN1bWUoKSB3aGVuIENPTkZJR19QTV9SVU5USU1FIGlzIG5vdCBkZWZpbmVkLg0KDQog
+I2lmZGVmIENPTkZJR19QTV9SVU5USU1FDQogc3RhdGljIGludCBjeWFwYV9ydW50aW1lX3N1c3Bl
+bmQoc3RydWN0IGRldmljZSAqZGV2KQ0KIHsNCiBzdHJ1Y3QgY3lhcGEgKmN5YXBhID0gZGV2X2dl
+dF9kcnZkYXRhKGRldik7DQogaW50IGVycm9yOw0KDQogZXJyb3IgPSBjeWFwYS0+b3BzLT5zZXRf
+cG93ZXJfbW9kZShjeWFwYSwNCiBjeWFwYS0+cnVudGltZV9zdXNwZW5kX3Bvd2VyX21vZGUsDQog
+Y3lhcGEtPnJ1bnRpbWVfc3VzcGVuZF9zbGVlcF90aW1lKTsNCiBpZiAoZXJyb3IpDQogZGV2X3dh
+cm4oZGV2LCAicnVudGltZSBzdXNwZW5kIGZhaWxlZDogJWRcbiIsIGVycm9yKTsNCg0KIHJldHVy
+biAwOw0KIH0NCg0KIHN0YXRpYyBpbnQgY3lhcGFfcnVudGltZV9yZXN1bWUoc3RydWN0IGRldmlj
+ZSAqZGV2KQ0KIHsNCiBzdHJ1Y3QgY3lhcGEgKmN5YXBhID0gZGV2X2dldF9kcnZkYXRhKGRldik7
+DQogaW50IGVycm9yOw0KDQogZXJyb3IgPSBjeWFwYS0+b3BzLT5zZXRfcG93ZXJfbW9kZShjeWFw
+YSwgUFdSX01PREVfRlVMTF9BQ1RJVkUsIDApOw0KIGlmIChlcnJvcikNCiBkZXZfd2FybihkZXYs
+ICJydW50aW1lIHJlc3VtZSBmYWlsZWQ6ICVkXG4iLCBlcnJvcik7DQoNCiByZXR1cm4gMDsNCiB9
+DQorI2Vsc2UNCitzdGF0aWMgaW5saW5lIGludCBjeWFwYV9ydW50aW1lX3N1c3BlbmQoc3RydWN0
+IGRldmljZSAqZGV2KSB7IHJldHVybiAwOyB9DQorc3RhdGljIGlubGluZSBpbnQgY3lhcGFfcnVu
+dGltZV9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KSB7IHJldHVybiAwOyB9DQogI2VuZGlmIC8q
+IENPTkZJR19QTV9SVU5USU1FICovDQoNCiBzdGF0aWMgY29uc3Qgc3RydWN0IGRldl9wbV9vcHMg
+Y3lhcGFfcG1fb3BzID0gew0KIFNFVF9TWVNURU1fU0xFRVBfUE1fT1BTKGN5YXBhX3N1c3BlbmQs
+IGN5YXBhX3Jlc3VtZSkNCiBTRVRfUlVOVElNRV9QTV9PUFMoY3lhcGFfcnVudGltZV9zdXNwZW5k
+LCBjeWFwYV9ydW50aW1lX3Jlc3VtZSwgTlVMTCkNCiB9Ow0KDQpUaGFua3MsDQpkdWRsZXkNCg0K
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBKZXJlbWlhaCBNYWhsZXIgW21h
+aWx0bzpqbW1haGxlckBnbWFpbC5jb21dDQo+IFNlbnQ6IDIwMTXlubQx5pyIMeaXpSAwOjExDQo+
+IFRvOiBEdWRsZXkgRHUNCj4gQ2M6IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IHJ5ZGJlcmdA
+ZXVyb21haWwuc2U7IGJsZXVuZ0Bnb29nbGUuY29tOw0KPiBEYXZpZCBTb2xkYTsgbGludXgtaW5w
+dXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFN1Ympl
+Y3Q6IFJlOiBbUEFUQ0ggdjE3IDAwLzEyXSBpbnB1dDogY3lhcGE6IGluc3RydWN0aW9uIG9mIGN5
+YXBhIHBhdGNoZXMNCj4NCj4gRHVkbGV5LA0KPg0KPiBPbiBXZWQsIERlYyAzMSwgMjAxNCBhdCAw
+OToxNjo0OUFNICswODAwLCBEdWRsZXkgRHUgd3JvdGU6DQo+ID4gVjE3IHBhdGNoZXMgaGF2ZSBi
+ZWxvdyB1cGRhdGVzLCBkZXRhaWxzIG9mIG90aGVyIHVwZGF0ZXMgc2VlIGhpc3RvcnkgbGlzdDoN
+Cj4gPiAxKSBGaXgga2VybmVsIG9vcHMgd2hlbiBzeXN0ZW0gYm9vdGluZyB1cCB3aXRoIGZpbmdl
+ciBvbiBUUC4NCj4gPiAyKSBSZW1vdmUgdW5uZWNlc3NhcnkgZXJyb3IgbG9nIHRoYXQgbWF5IHRv
+IHN5c3RlbS4NCj4gPiAzKSBTbGlwdCBvdXQgcG0gc2xlZXAgY29kZSBpbnRvIGN5YXBhX3ByZXBh
+cmVfd2FrZXVwX2NvbnRyb2xzKCksDQo+ID4gICAgcmVtb3ZlICNpbmRlZnMgaW4gZnVuY3Rpb24g
+Ym9keSBvZiBDT05GSUdfUE1fU0xFRVAgYW5kDQo+IENPTkZJR19QTV9SVU5USU1FLg0KPiA+IDQp
+IFN1cHBseSBzdHVicyB0byBjeWFwYV9nZW4zX29wcyBhbmQgY3lhcGFfZ2VuNV9vcHMgZGF0YSBz
+dHJ1Y3R1cmUgdG8gYXZvaWQNCj4gPiAgICBjaGVja2luZyBmb3IgcHJlc2VuY2Ugb2YgdmFyaW91
+cyBtZXRob2RzIGluIG9wcy4NCj4gPiA2KSBGaXggdGhlIG1lYW5pbmdzIG9mIHNvbWUgY29tbWVu
+dHMgYW5kIHJldHVybiBlcnJvciBjb2RlIG5vdCBjbGVhciBpc3N1ZS4NCj4gWy4uLl0NCj4NCj4g
+SXQgaGFzIGJ1aWxkIGVycm9ycyA6KA0KPg0KPiAgIENISyAgICAgaW5jbHVkZS9jb25maWcva2Vy
+bmVsLnJlbGVhc2UNCj4gICBDSEsgICAgIGluY2x1ZGUvZ2VuZXJhdGVkL3VhcGkvbGludXgvdmVy
+c2lvbi5oDQo+ICAgQ0hLICAgICBpbmNsdWRlL2dlbmVyYXRlZC91dHNyZWxlYXNlLmgNCj4gICBD
+QUxMICAgIHNjcmlwdHMvY2hlY2tzeXNjYWxscy5zaA0KPiAgIENISyAgICAgaW5jbHVkZS9nZW5l
+cmF0ZWQvY29tcGlsZS5oDQo+ICAgQ0hLICAgICBrZXJuZWwvY29uZmlnX2RhdGEuaA0KPiAgIEND
+IFtNXSAgZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYS5vDQo+IEluIGZpbGUgaW5jbHVkZWQgZnJv
+bSBpbmNsdWRlL2xpbnV4L2RldmljZS5oOjI1OjAsDQo+ICAgICAgICAgICAgICAgICAgZnJvbSBp
+bmNsdWRlL2xpbnV4L2kyYy5oOjMwLA0KPiAgICAgICAgICAgICAgICAgIGZyb20gZHJpdmVycy9p
+bnB1dC9tb3VzZS9jeWFwYS5jOjE4Og0KPiBkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBhLmM6MTMz
+OToyMTogZXJyb3I6IOKAmGN5YXBhX3J1bnRpbWVfc3VzcGVuZOKAmQ0KPiB1bmRlY2xhcmVkIGhl
+cmUgKG5vdCBpbiBhIGZ1bmN0aW9uKQ0KPiAgIFNFVF9SVU5USU1FX1BNX09QUyhjeWFwYV9ydW50
+aW1lX3N1c3BlbmQsIGN5YXBhX3J1bnRpbWVfcmVzdW1lLA0KPiBOVUxMKQ0KPiAgICAgICAgICAg
+ICAgICAgICAgICBeDQo+IGluY2x1ZGUvbGludXgvcG0uaDozNDc6MjE6IG5vdGU6IGluIGRlZmlu
+aXRpb24gb2YgbWFjcm8g4oCYU0VUX1JVTlRJTUVfUE1fT1BT4oCZDQo+ICAgLnJ1bnRpbWVfc3Vz
+cGVuZCA9IHN1c3BlbmRfZm4sIFwNCj4gICAgICAgICAgICAgICAgICAgICAgXg0KPiBkcml2ZXJz
+L2lucHV0L21vdXNlL2N5YXBhLmM6MTMzOTo0NDogZXJyb3I6IOKAmGN5YXBhX3J1bnRpbWVfcmVz
+dW1l4oCZDQo+IHVuZGVjbGFyZWQgaGVyZSAobm90IGluIGEgZnVuY3Rpb24pDQo+ICAgU0VUX1JV
+TlRJTUVfUE1fT1BTKGN5YXBhX3J1bnRpbWVfc3VzcGVuZCwgY3lhcGFfcnVudGltZV9yZXN1bWUs
+DQo+IE5VTEwpDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+Xg0KPiBpbmNsdWRlL2xpbnV4L3BtLmg6MzQ4OjIwOiBub3RlOiBpbiBkZWZpbml0aW9uIG9mIG1h
+Y3JvIOKAmFNFVF9SVU5USU1FX1BNX09QU+KAmQ0KPiAgIC5ydW50aW1lX3Jlc3VtZSA9IHJlc3Vt
+ZV9mbiwgXA0KPiAgICAgICAgICAgICAgICAgICAgIF4NCj4gc2NyaXB0cy9NYWtlZmlsZS5idWls
+ZDoyNTc6IHJlY2lwZSBmb3IgdGFyZ2V0ICdkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBhLm8nIGZh
+aWxlZA0KPiBtYWtlWzNdOiAqKiogW2RyaXZlcnMvaW5wdXQvbW91c2UvY3lhcGEub10gRXJyb3Ig
+MQ0KPiBzY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjQwMjogcmVjaXBlIGZvciB0YXJnZXQgJ2RyaXZl
+cnMvaW5wdXQvbW91c2UnIGZhaWxlZA0KPiBtYWtlWzJdOiAqKiogW2RyaXZlcnMvaW5wdXQvbW91
+c2VdIEVycm9yIDINCj4gc2NyaXB0cy9NYWtlZmlsZS5idWlsZDo0MDI6IHJlY2lwZSBmb3IgdGFy
+Z2V0ICdkcml2ZXJzL2lucHV0JyBmYWlsZWQNCj4gbWFrZVsxXTogKioqIFtkcml2ZXJzL2lucHV0
+XSBFcnJvciAyDQo+IG1ha2VbMV06ICoqKiBXYWl0aW5nIGZvciB1bmZpbmlzaGVkIGpvYnMuLi4u
+DQo+IE1ha2VmaWxlOjk1NTogcmVjaXBlIGZvciB0YXJnZXQgJ2RyaXZlcnMnIGZhaWxlZA0KPiBt
+YWtlOiAqKiogW2RyaXZlcnNdIEVycm9yIDINCj4gbWFrZTogKioqIFdhaXRpbmcgZm9yIHVuZmlu
+aXNoZWQgam9icy4uLi4NCj4NCj4gLS0NCj4gLSBKZXJlbWlhaCBNYWhsZXINCg0KVGhpcyBtZXNz
+YWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1YnNp
+ZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNlaXZl
+ZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBkZWxl
+dGUgdGhpcyBtZXNzYWdlLg0K

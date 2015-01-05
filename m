@@ -1,183 +1,140 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: psmouse - use IS_ENABLED instead of homegrown code
-Date: Mon, 5 Jan 2015 10:50:31 -0500
-Message-ID: <20150105155031.GG19391@mail.corp.redhat.com>
-References: <20141229201139.GA1690@dtor-ws>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: Re: [PATCH] Input: Optimize input_to_handler and input_pass_values function
+Date: Mon, 5 Jan 2015 21:40:22 +0530
+Message-ID: <CA+HOOshDnqxyEO6ywqRzZxEDig-UgyRZisaHP7FTBP1Dr6jgCw@mail.gmail.com>
+References: <1419918593-14976-1-git-send-email-anshul.g@samsung.com>
+	<20150104225733.GE31987@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20141229201139.GA1690@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Mathias Gottschlag <mgottschlag@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yk0-f172.google.com ([209.85.160.172]:53983 "EHLO
+	mail-yk0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751011AbbAEQKX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 11:10:23 -0500
+Received: by mail-yk0-f172.google.com with SMTP id 131so10424736ykp.31
+        for <linux-input@vger.kernel.org>; Mon, 05 Jan 2015 08:10:22 -0800 (PST)
+In-Reply-To: <20150104225733.GE31987@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "anshul.g@samsung.com" <anshul.g@samsung.com>, linux-input@vger.kernel.org, p.shailesh@samsung.com
 
-On Dec 29 2014 or thereabouts, Dmitry Torokhov wrote:
-> Instead of having various protocols provide <protocol>_supported()
-> functions, let's use IS_ENABLED() macro that works well in "if" statements.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+Dear Mr Dimtry ,
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Thanks for the suggestions.
+I will send you the updated patch soon.
 
-Cheers,
-Benjamin
 
->  drivers/input/mouse/cypress_ps2.c  |  5 -----
->  drivers/input/mouse/cypress_ps2.h  |  5 -----
->  drivers/input/mouse/focaltech.c    | 10 ----------
->  drivers/input/mouse/focaltech.h    |  1 -
->  drivers/input/mouse/psmouse-base.c |  6 +++---
->  drivers/input/mouse/synaptics.c    | 10 ----------
->  drivers/input/mouse/synaptics.h    |  1 -
->  7 files changed, 3 insertions(+), 35 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-> index 8af34ff..6e5f70b 100644
-> --- a/drivers/input/mouse/cypress_ps2.c
-> +++ b/drivers/input/mouse/cypress_ps2.c
-> @@ -710,8 +710,3 @@ err_exit:
->  
->  	return -1;
->  }
-> -
-> -bool cypress_supported(void)
-> -{
-> -	return true;
-> -}
-> diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
-> index 4720f21..81f68aa 100644
-> --- a/drivers/input/mouse/cypress_ps2.h
-> +++ b/drivers/input/mouse/cypress_ps2.h
-> @@ -172,7 +172,6 @@ struct cytp_data {
->  #ifdef CONFIG_MOUSE_PS2_CYPRESS
->  int cypress_detect(struct psmouse *psmouse, bool set_properties);
->  int cypress_init(struct psmouse *psmouse);
-> -bool cypress_supported(void);
->  #else
->  inline int cypress_detect(struct psmouse *psmouse, bool set_properties)
->  {
-> @@ -182,10 +181,6 @@ inline int cypress_init(struct psmouse *psmouse)
->  {
->  	return -ENOSYS;
->  }
-> -inline bool cypress_supported(void)
-> -{
-> -	return 0;
-> -}
->  #endif /* CONFIG_MOUSE_PS2_CYPRESS */
->  
->  #endif  /* _CYPRESS_PS2_H */
-> diff --git a/drivers/input/mouse/focaltech.c b/drivers/input/mouse/focaltech.c
-> index fca38ba..757f78a 100644
-> --- a/drivers/input/mouse/focaltech.c
-> +++ b/drivers/input/mouse/focaltech.c
-> @@ -424,11 +424,6 @@ fail:
->  	return error;
->  }
->  
-> -bool focaltech_supported(void)
-> -{
-> -	return true;
-> -}
-> -
->  #else /* CONFIG_MOUSE_PS2_FOCALTECH */
->  
->  int focaltech_init(struct psmouse *psmouse)
-> @@ -438,9 +433,4 @@ int focaltech_init(struct psmouse *psmouse)
->  	return 0;
->  }
->  
-> -bool focaltech_supported(void)
-> -{
-> -	return false;
-> -}
-> -
->  #endif /* CONFIG_MOUSE_PS2_FOCALTECH */
-> diff --git a/drivers/input/mouse/focaltech.h b/drivers/input/mouse/focaltech.h
-> index 71870a9..ca61ebf 100644
-> --- a/drivers/input/mouse/focaltech.h
-> +++ b/drivers/input/mouse/focaltech.h
-> @@ -19,6 +19,5 @@
->  
->  int focaltech_detect(struct psmouse *psmouse, bool set_properties);
->  int focaltech_init(struct psmouse *psmouse);
-> -bool focaltech_supported(void);
->  
->  #endif
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index 68469fe..4ccd01d 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -727,7 +727,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->  	if (psmouse_do_detect(focaltech_detect, psmouse, set_properties) == 0) {
->  		if (max_proto > PSMOUSE_IMEX) {
->  			if (!set_properties || focaltech_init(psmouse) == 0) {
-> -				if (focaltech_supported())
-> +				if (IS_ENABLED(CONFIG_MOUSE_PS2_FOCALTECH))
->  					return PSMOUSE_FOCALTECH;
->  				/*
->  				 * Note that we need to also restrict
-> @@ -776,7 +776,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->   * Try activating protocol, but check if support is enabled first, since
->   * we try detecting Synaptics even when protocol is disabled.
->   */
-> -			if (synaptics_supported() &&
-> +			if (IS_ENABLED(CONFIG_MOUSE_PS2_SYNAPTICS) &&
->  			    (!set_properties || synaptics_init(psmouse) == 0)) {
->  				return PSMOUSE_SYNAPTICS;
->  			}
-> @@ -801,7 +801,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->   */
->  	if (max_proto > PSMOUSE_IMEX &&
->  			cypress_detect(psmouse, set_properties) == 0) {
-> -		if (cypress_supported()) {
-> +		if (IS_ENABLED(CONFIG_MOUSE_PS2_CYPRESS)) {
->  			if (cypress_init(psmouse) == 0)
->  				return PSMOUSE_CYPRESS;
->  
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index f947292..094bf64 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1817,11 +1817,6 @@ int synaptics_init_relative(struct psmouse *psmouse)
->  	return __synaptics_init(psmouse, false);
->  }
->  
-> -bool synaptics_supported(void)
-> -{
-> -	return true;
-> -}
-> -
->  #else /* CONFIG_MOUSE_PS2_SYNAPTICS */
->  
->  void __init synaptics_module_init(void)
-> @@ -1833,9 +1828,4 @@ int synaptics_init(struct psmouse *psmouse)
->  	return -ENOSYS;
->  }
->  
-> -bool synaptics_supported(void)
-> -{
-> -	return false;
-> -}
-> -
->  #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
-> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index 1bd01f2..feb28a5 100644
-> --- a/drivers/input/mouse/synaptics.h
-> +++ b/drivers/input/mouse/synaptics.h
-> @@ -191,6 +191,5 @@ int synaptics_detect(struct psmouse *psmouse, bool set_properties);
->  int synaptics_init(struct psmouse *psmouse);
->  int synaptics_init_relative(struct psmouse *psmouse);
->  void synaptics_reset(struct psmouse *psmouse);
-> -bool synaptics_supported(void);
->  
->  #endif /* _SYNAPTICS_H */
-> -- 
-> 2.2.0.rc0.207.ga3a616c
-> 
-> 
-> -- 
+
+On Mon, Jan 5, 2015 at 4:27 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Dec 30, 2014 at 11:19:53AM +0530, anshul.g@samsung.com wrote:
+>> From: Anshul Garg <anshul.g@samsung.com>
+>>
+>> As input_pass_values function is called everytime when EV_SYN is sent from
+>> input driver or input event buffer becomes full.
+>>
+>> 1. In case of regular handler, event filter code should not run so added check
+>>    whether handler supports filter or not.
+>> 2. If input device doesn't support EV_KEY event type avoid running auto repeat code.
+>
+> Can you please split it in 2 patches?
+>
+>>
+>> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+>> ---
+>>  drivers/input/input.c |   37 +++++++++++++++++++++----------------
+>>  1 file changed, 21 insertions(+), 16 deletions(-)
+>>
+>> diff --git a/drivers/input/input.c b/drivers/input/input.c
+>> index bbec2dc..9d6609b 100644
+>> --- a/drivers/input/input.c
+>> +++ b/drivers/input/input.c
+>> @@ -100,23 +100,24 @@ static unsigned int input_to_handler(struct input_handle *handle,
+>>       struct input_value *end = vals;
+>>       struct input_value *v;
+>>
+>> -     for (v = vals; v != vals + count; v++) {
+>> -             if (handler->filter &&
+>> -                 handler->filter(handle, v->type, v->code, v->value))
+>> -                     continue;
+>> -             if (end != v)
+>> -                     *end = *v;
+>> -             end++;
+>> +     if (handler->filter) {
+>> +             for (v = vals; v != vals + count; v++) {
+>> +                     if (handler->filter(handle, v->type, v->code, v->value))
+>> +                             continue;
+>> +                     if (end != v)
+>> +                             *end = *v;
+>> +                     end++;
+>> +             }
+>> +             count = end - vals;
+>>       }
+>>
+>> -     count = end - vals;
+>>       if (!count)
+>>               return 0;
+>>
+>>       if (handler->events)
+>>               handler->events(handle, vals, count);
+>>       else if (handler->event)
+>> -             for (v = vals; v != end; v++)
+>> +             for (v = vals; v != vals + count; v++)
+>>                       handler->event(handle, v->type, v->code, v->value);
+>>
+>>       return count;
+>> @@ -143,8 +144,10 @@ static void input_pass_values(struct input_dev *dev,
+>>               count = input_to_handler(handle, vals, count);
+>>       } else {
+>>               list_for_each_entry_rcu(handle, &dev->h_list, d_node)
+>> -                     if (handle->open)
+>> +                     if (handle->open && count)
+>>                               count = input_to_handler(handle, vals, count);
+>> +                     else
+>> +                             break;
+>
+> This is not correct. You'll stop delivering events at the very first
+> closed handle, which is not what we want. We need:
+>
+>                         if (handle->open) {
+>                                 count = input_to_handler(handle, vals, count);
+>                                 if (count == 0)
+>                                         break;
+>                         }
+>
+>>       }
+>>
+>>       rcu_read_unlock();
+>> @@ -152,12 +155,14 @@ static void input_pass_values(struct input_dev *dev,
+>>       add_input_randomness(vals->type, vals->code, vals->value);
+>>
+>>       /* trigger auto repeat for key events */
+>> -     for (v = vals; v != vals + count; v++) {
+>> -             if (v->type == EV_KEY && v->value != 2) {
+>> -                     if (v->value)
+>> -                             input_start_autorepeat(dev, v->code);
+>> -                     else
+>> -                             input_stop_autorepeat(dev);
+>> +     if (test_bit(EV_KEY, dev->evbit)) {
+>
+> You might want to test for presence of EV_REP as well.
+>
+>> +             for (v = vals; v != vals + count; v++) {
+>> +                     if (v->type == EV_KEY && v->value != 2) {
+>> +                             if (v->value)
+>> +                                     input_start_autorepeat(dev, v->code);
+>> +                             else
+>> +                                     input_stop_autorepeat(dev);
+>> +                     }
+>>               }
+>>       }
+>>  }
+>> --
+>> 1.7.9.5
+>>
+>
+> Thanks.
+>
+> --
 > Dmitry

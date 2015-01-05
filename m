@@ -1,87 +1,65 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH] Input: Optimize Event Filter functionality
-Date: Mon,  5 Jan 2015 08:27:32 -0800
-Message-ID: <1420475252-22427-1-git-send-email-aksgarg1989@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/2] input: synaptics - fix width calculation on image sensors
+Date: Mon, 5 Jan 2015 13:25:38 -0500
+Message-ID: <CAN+gG=FmtDcMQR0RzNwdy65riaL=hF5F18opwUTJV-oPESJ5JA@mail.gmail.com>
+References: <1419679889-6582-1-git-send-email-gabriele.mzt@gmail.com>
+	<1419679889-6582-3-git-send-email-gabriele.mzt@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f171.google.com ([74.125.82.171]:43782 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752753AbbAEQ2A (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 11:28:00 -0500
-Received: by mail-we0-f171.google.com with SMTP id u56so8216918wes.16
-        for <linux-input@vger.kernel.org>; Mon, 05 Jan 2015 08:27:59 -0800 (PST)
+Received: from mail-qa0-f41.google.com ([209.85.216.41]:36555 "EHLO
+	mail-qa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753165AbbAESZj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 13:25:39 -0500
+In-Reply-To: <1419679889-6582-3-git-send-email-gabriele.mzt@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com, anshul.g@samsung.com, p.shailesh@samsung.com
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, silverhammermba@gmail.com
 
-From: Anshul Garg <aksgarg1989@gmail.com>
+Hi Gabriele,
 
-As input_pass_values function is called everytime when EV_SYN is sent
-from input driver or input event buffer becomes full.
-So in case of regular handler event filter code should not run so added
-check whether handler supports filter or not.
+On Sat, Dec 27, 2014 at 6:31 AM, Gabriele Mazzotta
+<gabriele.mzt@gmail.com> wrote:
+> When two or more fingers are on the touchpad, the 'w' slot holds the
+> finger count rather than the width. Retrieve the correct value encoded
+> in the lower bits of 'x', 'y' and 'z'.
+>
+> The minimum width reported is 8 rather than 4 in this case, while the
+> maximum remains 15.
+>
+> Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+> ---
+>  drivers/input/mouse/synaptics.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index ea0563e..5ff4c5b 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -593,7 +593,9 @@ static void synaptics_parse_agm(const unsigned char buf[],
+>         switch (agm_packet_type) {
+>         case 1:
+>                 /* Gesture packet: (x, y, z) half resolution */
+> -               agm->w = hw->w;
+> +               agm->w = ((buf[1] & 0x01) |
+> +                         ((buf[2] & 0x01) << 1) |
+> +                         ((buf[5] & 0x01) << 2)) + 8;
+>                 agm->x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
 
-Signed-off-by: Anshul Garg <anshul.g@samsung.com>
----
- drivers/input/input.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+For completeness, I think, we should also removes the w bits from x, y
+and z (by masking buf[1], buf[2] and buf[5] with 0xfe).
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 213e3a1..de55279 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -100,23 +100,24 @@ static unsigned int input_to_handler(struct input_handle *handle,
- 	struct input_value *end = vals;
- 	struct input_value *v;
- 
--	for (v = vals; v != vals + count; v++) {
--		if (handler->filter &&
--		    handler->filter(handle, v->type, v->code, v->value))
--			continue;
--		if (end != v)
--			*end = *v;
--		end++;
-+	if (handler->filter) {
-+		for (v = vals; v != vals + count; v++) {
-+			if (handler->filter(handle, v->type, v->code, v->value))
-+				continue;
-+			if (end != v)
-+				*end = *v;
-+			end++;
-+		}
-+		count = end - vals;
- 	}
- 
--	count = end - vals;
- 	if (!count)
- 		return 0;
- 
- 	if (handler->events)
- 		handler->events(handle, vals, count);
- 	else if (handler->event)
--		for (v = vals; v != end; v++)
-+		for (v = vals; v != vals + count; v++)
- 			handler->event(handle, v->type, v->code, v->value);
- 
- 	return count;
-@@ -143,8 +144,11 @@ static void input_pass_values(struct input_dev *dev,
- 		count = input_to_handler(handle, vals, count);
- 	} else {
- 		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
--			if (handle->open)
-+			if (handle->open) {
- 				count = input_to_handler(handle, vals, count);
-+				if (!count)
-+					break;
-+			}
- 	}
- 
- 	rcu_read_unlock();
--- 
-1.7.9.5
+Cheers,
+Benjamin
 
-
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
-
+>                 agm->y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
+>                 agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

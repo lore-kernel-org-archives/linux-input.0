@@ -1,120 +1,115 @@
-From: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
-Subject: Re: [PATCH 1/1] Elantech touchpad detection fix for laptops
-Date: Mon, 5 Jan 2015 19:45:39 +1100
-Message-ID: <CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
-References: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] Input: synaptics: Use in-kernel tracking for
+ reporting mt data
+Date: Mon, 5 Jan 2015 10:30:07 -0500
+Message-ID: <20150105153007.GE19391@mail.corp.redhat.com>
+References: <1414693987-6059-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20141031165136.GB32331@dtor-ws>
+ <CAN+gG=EBz6vifWoV5PmGzMNJgHD59F2P_6sZfDZU5hbkSOPoQQ@mail.gmail.com>
+ <CAN+gG=F0a1FLvgFkWMc4qC_WAj6dSmOaEEZhvty2KGbbM+uQtw@mail.gmail.com>
+ <20141229222650.GG9565@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a11c15694013335050be3b74a
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f172.google.com ([209.85.216.172]:54005 "EHLO
-	mail-qc0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751942AbbAEIpk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 03:45:40 -0500
-Received: by mail-qc0-f172.google.com with SMTP id m20so15234084qcx.31
-        for <linux-input@vger.kernel.org>; Mon, 05 Jan 2015 00:45:39 -0800 (PST)
-In-Reply-To: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:46101 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753342AbbAEPa0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 Jan 2015 10:30:26 -0500
+Content-Disposition: inline
+In-Reply-To: <20141229222650.GG9565@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?Q?Mateusz_Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, guillaum.bouchard@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Hans de Goede <hdegoede@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, Chung-yih Wang <cywang@chromium.org>
 
---001a11c15694013335050be3b74a
-Content-Type: text/plain; charset=UTF-8
+Hi Dmitry,
 
-Hello Folks & Dmitry,
+On Dec 29 2014 or thereabouts, Dmitry Torokhov wrote:
+> Hi Benjamin,
+> 
+> On Mon, Dec 08, 2014 at 01:01:28PM -0500, Benjamin Tissoires wrote:
+> > On Thu, Nov 20, 2014 at 2:42 PM, Benjamin Tissoires
+> > <benjamin.tissoires@gmail.com> wrote:
+> > > On Fri, Oct 31, 2014 at 12:51 PM, Dmitry Torokhov
+> > > <dmitry.torokhov@gmail.com> wrote:
+> > >> On Thu, Oct 30, 2014 at 02:33:06PM -0400, Benjamin Tissoires wrote:
+> > >>> The current code tries to consider all states and transitions to properly
+> > >>> detect which finger is attached to which slot. The code is quite huge
+> > >>> and difficult to read.
+> > >>> If the sensor manages to group the touch points but is not reliable in
+> > >>> giving tracking ids, we can simply use the kernel tracking method. Note
+> > >>> that it is already used by Cr-48 Chromebooks.
+> > >>>
+> > >>> Incidentaly, this fixes a bug reported by Peter Hutterer:
+> > >>> """
+> > >>> on the Lenovo T440, run:
+> > >>> evemu-record /dev/input/event4 | grep BTN_
+> > >>>
+> > >>> then put one, two, three, two fingers down
+> > >>> when you go from 3 to 2 fingers the driver sends a spurious BTN_TOUCH 0
+> > >>> event:
+> > >>>
+> > >>> E: 0.000000 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
+> > >>> E: 0.000000 0001 0145 0001      # EV_KEY / BTN_TOOL_FINGER      1
+> > >>> E: 0.770008 0001 0145 0000      # EV_KEY / BTN_TOOL_FINGER      0
+> > >>> E: 0.770008 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
+> > >>> E: 1.924716 0001 014d 0000      # EV_KEY / BTN_TOOL_DOUBLETAP   0
+> > >>> E: 1.924716 0001 014e 0001      # EV_KEY / BTN_TOOL_TRIPLETAP   1
+> > >>>
+> > >>> .. changing from 3 to 2 fingers now
+> > >>>
+> > >>> E: 3.152641 0001 014a 0000      # EV_KEY / BTN_TOUCH            0
+> > >>> E: 3.152641 0001 014d 0001      # EV_KEY / BTN_TOOL_DOUBLETAP   1
+> > >>> E: 3.152641 0001 014e 0000      # EV_KEY / BTN_TOOL_TRIPLETAP   0
+> > >>> E: 3.176948 0001 014a 0001      # EV_KEY / BTN_TOUCH            1
+> > >>>
+> > >>> quick look in the kernel shows it's caused by hw.z going to 0 for a packet,
+> > >>> so probably a firmware bug. either way, it makes it hard to track BTN_TOUCH
+> > >>> as signal that at least one finger is down.
+> > >>> """
+> > >>>
+> > >>> The in-kernel tracking is enough to remove this spurious BTN_TOUCH 0.
+> > >>>
+> > >>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > >>> ---
+> > >>>
+> > >>> Hi Dmitry,
+> > >>>
+> > >>> I started working on that for 2 other bug reports
+> > >>> https://bugs.freedesktop.org/show_bug.cgi?id=81278
+> > >>> and
+> > >>> https://bugs.freedesktop.org/show_bug.cgi?id=76722
+> > >>>
+> > >>> I thought the cursor jumps could be fixed by the in-kernel tracking, but the
+> > >>> tracking needs a little bit more work to filter them out (patches to follow soon).
+> > >>>
+> > >>> From a user perspective, this patch does not change anything to what the user
+> > >>> previously had. It also fixes Peter's bug that's why I decide to send this out
+> > >>> by itself (removing ~350 lines of code and fixing bugs is always nice).
+> > >>>
+> > >>> I think the cursor jump fixes will need more bikeshedding in input-mt.c (I am
+> > >>> *really* bad at designing APIs), so I'll send it later as an RFC.
+> > >>
+> > >> Daniel and Chung-yih were working on the driver so let's see if they
+> > >> have a moment...
+> > >>
+> > >
+> > > Any news from the chrome team? This is a requirement for fixing the
+> > > cursor jumps, and I'd rather have this series in shape before
+> > > introducing the changes in input-mt.c.
+> > >
+> > 
+> > ping?
+> 
+> Looks like a very nice fix and clean up. I queued it for 3.20, sorry for
+> the delay.
+> 
 
-Further to the previous patch, here is the current version (against
-mainline) updated with the DMI info of another laptop model where this
-fix had helped a user.
+No worries. It actually gave me more time to focus on other internal
+things :)
+Now I need to address the input-mt bits to split the touches when the
+hardware does not separate two touches... Lots of fun!
 
-Can you please review it & give some feedback? If it looks good as it
-is, then on behalf of all affected users (including yours truly), may
-I request for it to be merged upstream (and possibly stable too)?
+Cheers and greetings!
+Benjamin
 
-(If the patch gets spoiled by gmail, please ref to this bugzilla URL,
-where this patch is there as a file attachment:
-https://bugzilla.kernel.org/show_bug.cgi?id=81331)
-
-Thanks
-
---001a11c15694013335050be3b74a
-Content-Type: text/x-patch; charset=UTF-8;
-	name="elantech_touchpad_fix_for_laptops_v4_against_mainline.patch"
-Content-Disposition: attachment;
-	filename="elantech_touchpad_fix_for_laptops_v4_against_mainline.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i4jlm9ko0
-
-Y29tbWl0IGM3N2EzOWE3OTliNTFmYmI2OGI3MjMzMDI2N2MyZDMyYThlMjA1NDIKQXV0aG9yOiBT
-cmloYXJpIFZpamF5YXJhZ2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWlsLmNvbT4KRGF0
-ZTogICBNb24gSmFuIDUgMTg6NTM6MDQgMjAxNSArMTEwMAoKICAgIEFzIHJlcG9ydGVkIGluIGtl
-cm5lbCBidWd6aWxsYSA4MTMzMSwgb24gbWFueSBsYXB0b3BzIGtleWJvYXJkIG5lZWRzIHRvIGJl
-IHJlc2V0CiAgICBmb3IgdGhlIGRldGVjdGlvbiBvZiBFbGFudGVjaCB0b3VjaHBhZC4gQmFzZWQg
-b24gdGhlIG9yaWdpbmFsIHBhdGNoIGJ5IE1hdGV1c3ogSm/FhGN6eWsKICAgIHRoaXMgdmVyc2lv
-biBoYXMgYmVlbiBleHBhbmRlZCB0byBpbmNsdWRlIERNSSBiYXNlZCBkZXRlY3Rpb24gJiBhcHBs
-aWNhdGlvbiBvZiB0aGUgZml4CiAgICBhdXRvbWF0aWNhbGx5LiBDb25maXJtZWQgdG8gZml4IHRo
-ZSBwcm9ibGVtIGJ5IHRocmVlIHVzZXJzIGFscmVhZHkuCiAgICAKICAgIFNpZ25lZC1vZmYtYnk6
-IFNyaWhhcmkgVmlqYXlhcmFnaGF2YW4gPGxpbnV4LmJ1Zy5yZXBvcnRpbmdAZ21haWwuY29tPgog
-ICAgQWNrZWQtYnk6IE1hdGV1c3ogSm/FhGN6eWsgPG1hdC5qb25jenlrQG8yLnBsPgogICAgVGVz
-dGVkLWJ5OiBTcmloYXJpIFZpamF5YXJhZ2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWls
-LmNvbT4KICAgIFRlc3RlZCBieTogWmFrYXJpeWEgRGVobGF3aSA8emRlaGxhd2lAZ21haWwuY29t
-PgogICAgVGVzdGVkLWJ5OiBHdWlsbGF1bSBCb3VjaGFyZCA8Z3VpbGxhdW0uYm91Y2hhcmRAZ21h
-aWwuY29tPgoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24va2VybmVsLXBhcmFtZXRlcnMudHh0
-IGIvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQKaW5kZXggNGRmNzNkYS4uYzZl
-OGNiYyAxMDA2NDQKLS0tIGEvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQKKysr
-IGIvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQKQEAgLTEyNzcsNiArMTI3Nyw3
-IEBAIGJ5dGVzIHJlc3BlY3RpdmVseS4gU3VjaCBsZXR0ZXIgc3VmZml4ZXMgY2FuIGFsc28gYmUg
-ZW50aXJlbHkgb21pdHRlZC4KIAlpODA0Mi5ub3RpbWVvdXQJW0hXXSBJZ25vcmUgdGltZW91dCBj
-b25kaXRpb24gc2lnbmFsbGVkIGJ5IGNvbnRyb2xsZXIKIAlpODA0Mi5yZXNldAlbSFddIFJlc2V0
-IHRoZSBjb250cm9sbGVyIGR1cmluZyBpbml0IGFuZCBjbGVhbnVwCiAJaTgwNDIudW5sb2NrCVtI
-V10gVW5sb2NrIChpZ25vcmUpIHRoZSBrZXlsb2NrCisJaTgwNDIua2JkcmVzZXQgIFtIV10gUmVz
-ZXQga2V5Ym9hcmQgdG8gZGV0ZWN0IEVsYW50ZWNoIHRvdWNocGFkCiAKIAlpODEwPQkJW0hXLERS
-TV0KIApkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaCBi
-L2RyaXZlcnMvaW5wdXQvc2VyaW8vaTgwNDIteDg2aWE2NGlvLmgKaW5kZXggYzY2ZDFiNS4uNzM0
-MzYwYiAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaAor
-KysgYi9kcml2ZXJzL2lucHV0L3NlcmlvL2k4MDQyLXg4NmlhNjRpby5oCkBAIC03NDUsNiArNzQ1
-LDM2IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZG1pX3N5c3RlbV9pZCBfX2luaXRjb25zdCBpODA0
-Ml9kbWlfZHJpdGVrX3RhYmxlW10gPSB7CiAJeyB9CiB9OwogCisvKgorICogSnVzdCBhcyBwZXIg
-a2VybmVsIGJ1Z3ppbGxhICM4MTMzMSwgc29tZSBFbGFudGVjaCB0b3VjaHBhZCBiYXNlZCBsYXB0
-b3BzCisgKiBuZWVkIGtleWJvYXJkIHJlc2V0IHdoaWxlIHByb2JpbmcgZm9yIHRoZSB0b2NocGFk
-IHRvIGdldCBkZXRlY3RlZCwKKyAqIGluaXRpYWxpc2VkICYgZmluYWxseSB3b3JrLgorICovCitz
-dGF0aWMgY29uc3Qgc3RydWN0IGRtaV9zeXN0ZW1faWQgX19pbml0Y29uc3QgaTgwNDJfZG1pX2Vs
-YW50ZWNoX2tiZHJlc2V0X3RhYmxlW10gPSB7CisgICAgICAgIHsKKyAgICAgICAgICAgICAgICAv
-KiBHaWdhYnl0ZSBQMzUgdjIgKi8KKyAgICAgICAgICAgICAgICAubWF0Y2hlcyA9IHsKKyAgICAg
-ICAgICAgICAgICAgICAgICAgIERNSV9NQVRDSChETUlfU1lTX1ZFTkRPUiwgIkdJR0FCWVRFIiks
-CisgICAgICAgICAgICAgICAgICAgICAgICBETUlfTUFUQ0goRE1JX1BST0RVQ1RfTkFNRSwgIlAz
-NVYyIiksCisgICAgICAgICAgICAgICAgfSwKKyAgICAgICAgfSwKKwl7CisJCS8qIEFvcnVzIGJy
-YW5kZWQgR2lnYWJ5dGUgWDMgUGx1cyAqLworCQkubWF0Y2hlcyA9IHsKKwkJCURNSV9NQVRDSChE
-TUlfU1lTX1ZFTkRPUiwgIkdJR0FCWVRFIiksCisJCQlETUlfTUFUQ0goRE1JX1BST0RVQ1RfTkFN
-RSwgIlgzIiksCisJCX0sCisJfSwKKyAgICAgICAgeworICAgICAgICAgICAgICAgIC8qIEdpZ2Fi
-eXRlIFAzNCAqLworICAgICAgICAgICAgICAgIC5tYXRjaGVzID0geworICAgICAgICAgICAgICAg
-ICAgICAgICAgRE1JX01BVENIKERNSV9TWVNfVkVORE9SLCAiR0lHQUJZVEUiKSwKKyAgICAgICAg
-ICAgICAgICAgICAgICAgIERNSV9NQVRDSChETUlfUFJPRFVDVF9OQU1FLCAiUDM0IiksCisgICAg
-ICAgICAgICAgICAgfSwKKyAgICAgICAgfSwKKwl7IH0KK307CisKICNlbmRpZiAvKiBDT05GSUdf
-WDg2ICovCiAKICNpZmRlZiBDT05GSUdfUE5QCkBAIC0xMDQwLDYgKzEwNzAsOSBAQCBzdGF0aWMg
-aW50IF9faW5pdCBpODA0Ml9wbGF0Zm9ybV9pbml0KHZvaWQpCiAJaWYgKGRtaV9jaGVja19zeXN0
-ZW0oaTgwNDJfZG1pX2RyaXRla190YWJsZSkpCiAJCWk4MDQyX2RyaXRlayA9IHRydWU7CiAKKwlp
-ZiAoZG1pX2NoZWNrX3N5c3RlbShpODA0Ml9kbWlfZWxhbnRlY2hfa2JkcmVzZXRfdGFibGUpKQor
-CQlpODA0Ml9rYmRyZXNldCA9IHRydWU7CisKIAkvKgogCSAqIEEyMCB3YXMgYWxyZWFkeSBlbmFi
-bGVkIGR1cmluZyBlYXJseSBrZXJuZWwgaW5pdC4gQnV0IHNvbWUgYnVnZ3kKIAkgKiBCSU9TZXMg
-KGluIE1TSSBMYXB0b3BzKSByZXF1aXJlIEEyMCB0byBiZSBlbmFibGVkIHVzaW5nIDgwNDIgdG8K
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvc2VyaW8vaTgwNDIuYyBiL2RyaXZlcnMvaW5wdXQv
-c2VyaW8vaTgwNDIuYwppbmRleCA5MjRlNGJmLi45MmQwYWE4IDEwMDY0NAotLS0gYS9kcml2ZXJz
-L2lucHV0L3NlcmlvL2k4MDQyLmMKKysrIGIvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi5jCkBA
-IC02Nyw2ICs2NywxMCBAQCBzdGF0aWMgYm9vbCBpODA0Ml9ub3RpbWVvdXQ7CiBtb2R1bGVfcGFy
-YW1fbmFtZWQobm90aW1lb3V0LCBpODA0Ml9ub3RpbWVvdXQsIGJvb2wsIDApOwogTU9EVUxFX1BB
-Uk1fREVTQyhub3RpbWVvdXQsICJJZ25vcmUgdGltZW91dHMgc2lnbmFsbGVkIGJ5IGk4MDQyIik7
-CiAKK3N0YXRpYyBib29sIGk4MDQyX2tiZHJlc2V0OworbW9kdWxlX3BhcmFtX25hbWVkKGtiZHJl
-c2V0LCBpODA0Ml9rYmRyZXNldCwgYm9vbCwgMCk7CitNT0RVTEVfUEFSTV9ERVNDKGtiZHJlc2V0
-LCAiUmVzZXQga2V5Ym9hcmQgdG8gZGV0ZWN0IEVsYW50ZWNoIHRvdWNocGFkIG9uIHNvbWUgbGFw
-dG9wcyIpOworCiAjaWZkZWYgQ09ORklHX1g4Ngogc3RhdGljIGJvb2wgaTgwNDJfZHJpdGVrOwog
-bW9kdWxlX3BhcmFtX25hbWVkKGRyaXRlaywgaTgwNDJfZHJpdGVrLCBib29sLCAwKTsKQEAgLTc5
-MCw2ICs3OTQsMTQgQEAgc3RhdGljIGludCBfX2luaXQgaTgwNDJfY2hlY2tfYXV4KHZvaWQpCiAJ
-CXJldHVybiAtMTsKIAogLyoKKyAqIFJlc2V0IGtleWJvYXJkIHRvIGRldGVjdCB0b3VjaHBhZCBv
-biBzb21lIGxhcHRvcHMgaGF2aW5nIEVsYW50ZWNoIHRvdWNocGFkCisgKi8KKwlpZiAoaTgwNDJf
-a2JkcmVzZXQpIHsKKwkJcHJfd2FybigiUmVzZXR0aW5nIGtleWJvYXJkIHRvIGRldGVjdCBFbGFu
-dGVjaCB0b3VjaHBhZCBvbiBzb21lIGxhcHRvcHNcbiIpOworCQlpODA0Ml9rYmRfd3JpdGUoTlVM
-TCwgKHVuc2lnbmVkIGNoYXIpIDB4ZmYpOworCX0KKworLyoKICAqIFRlc3QgQVVYIElSUSBkZWxp
-dmVyeSB0byBtYWtlIHN1cmUgQklPUyBkaWQgbm90IGdyYWIgdGhlIElSUSBhbmQKICAqIHVzZWQg
-aXQgZm9yIGEgUENJIGNhcmQgb3Igc29tZXRoaWcgZWxzZS4KICAqLwo=
---001a11c15694013335050be3b74a--

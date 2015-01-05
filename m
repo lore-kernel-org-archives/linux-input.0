@@ -1,100 +1,40 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v17 00/12] input: cyapa: instruction of cyapa patches
-Date: Mon, 5 Jan 2015 01:57:29 +0000
-Message-ID: <BN1PR06MB07053E7C7D520975F08D0BFD1580@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1419988621-2919-1-git-send-email-dudl@cypress.com>
- <20141231161120.GA1385@newt.localdomain>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Mon, 05 Jan 2015 10:27:50 +0200
+Message-ID: <9953341.ly5Z8mnrNK@avalon>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com> <10011053.aypz0IuTJG@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn1bon0130.outbound.protection.outlook.com ([157.56.111.130]:39456
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752989AbbAECLr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 4 Jan 2015 21:11:47 -0500
-In-Reply-To: <20141231161120.GA1385@newt.localdomain>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <10011053.aypz0IuTJG@avalon>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-VGhhbmtzLCBKZXJlbWlhaC4NCg0KSXQgc2VlbXMgdGhlIHBvd2VyIG1hbmFnZSBjb2RlIGhhcyBi
-ZWVuIHVwZGF0ZWQgaW4ga2VybmVsLW5leHQsDQp0aGUgc2FtZSBjb2RlIGRpZG4ndCBnZW5lcmVh
-dGUgYW55IGVycm9yIGJlZm9yZS4NCkkgdXBkYXRlZCB3aXRoIGxhdGVzdCBrZXJuZWwtbmV4dCwg
-dGhlIGNvbXBpbGluZyBlcnJvciBhbHNvIGhhcHBlbmVkLg0KVG8gZml4IHRoaXMgY29kZSwgbmVl
-ZCB0byBhZGQgc3R1YnMgZm9yIGN5YXBhX3J1bnRpbWVfc3VzcGVuZCgpIGFuZA0KY3lhcGFfcnVu
-dGltZV9yZXN1bWUoKSB3aGVuIENPTkZJR19QTV9SVU5USU1FIGlzIG5vdCBkZWZpbmVkLg0KDQog
-I2lmZGVmIENPTkZJR19QTV9SVU5USU1FDQogc3RhdGljIGludCBjeWFwYV9ydW50aW1lX3N1c3Bl
-bmQoc3RydWN0IGRldmljZSAqZGV2KQ0KIHsNCiBzdHJ1Y3QgY3lhcGEgKmN5YXBhID0gZGV2X2dl
-dF9kcnZkYXRhKGRldik7DQogaW50IGVycm9yOw0KDQogZXJyb3IgPSBjeWFwYS0+b3BzLT5zZXRf
-cG93ZXJfbW9kZShjeWFwYSwNCiBjeWFwYS0+cnVudGltZV9zdXNwZW5kX3Bvd2VyX21vZGUsDQog
-Y3lhcGEtPnJ1bnRpbWVfc3VzcGVuZF9zbGVlcF90aW1lKTsNCiBpZiAoZXJyb3IpDQogZGV2X3dh
-cm4oZGV2LCAicnVudGltZSBzdXNwZW5kIGZhaWxlZDogJWRcbiIsIGVycm9yKTsNCg0KIHJldHVy
-biAwOw0KIH0NCg0KIHN0YXRpYyBpbnQgY3lhcGFfcnVudGltZV9yZXN1bWUoc3RydWN0IGRldmlj
-ZSAqZGV2KQ0KIHsNCiBzdHJ1Y3QgY3lhcGEgKmN5YXBhID0gZGV2X2dldF9kcnZkYXRhKGRldik7
-DQogaW50IGVycm9yOw0KDQogZXJyb3IgPSBjeWFwYS0+b3BzLT5zZXRfcG93ZXJfbW9kZShjeWFw
-YSwgUFdSX01PREVfRlVMTF9BQ1RJVkUsIDApOw0KIGlmIChlcnJvcikNCiBkZXZfd2FybihkZXYs
-ICJydW50aW1lIHJlc3VtZSBmYWlsZWQ6ICVkXG4iLCBlcnJvcik7DQoNCiByZXR1cm4gMDsNCiB9
-DQorI2Vsc2UNCitzdGF0aWMgaW5saW5lIGludCBjeWFwYV9ydW50aW1lX3N1c3BlbmQoc3RydWN0
-IGRldmljZSAqZGV2KSB7IHJldHVybiAwOyB9DQorc3RhdGljIGlubGluZSBpbnQgY3lhcGFfcnVu
-dGltZV9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KSB7IHJldHVybiAwOyB9DQogI2VuZGlmIC8q
-IENPTkZJR19QTV9SVU5USU1FICovDQoNCiBzdGF0aWMgY29uc3Qgc3RydWN0IGRldl9wbV9vcHMg
-Y3lhcGFfcG1fb3BzID0gew0KIFNFVF9TWVNURU1fU0xFRVBfUE1fT1BTKGN5YXBhX3N1c3BlbmQs
-IGN5YXBhX3Jlc3VtZSkNCiBTRVRfUlVOVElNRV9QTV9PUFMoY3lhcGFfcnVudGltZV9zdXNwZW5k
-LCBjeWFwYV9ydW50aW1lX3Jlc3VtZSwgTlVMTCkNCiB9Ow0KDQpUaGFua3MsDQpkdWRsZXkNCg0K
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBKZXJlbWlhaCBNYWhsZXIgW21h
-aWx0bzpqbW1haGxlckBnbWFpbC5jb21dDQo+IFNlbnQ6IDIwMTXlubQx5pyIMeaXpSAwOjExDQo+
-IFRvOiBEdWRsZXkgRHUNCj4gQ2M6IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IHJ5ZGJlcmdA
-ZXVyb21haWwuc2U7IGJsZXVuZ0Bnb29nbGUuY29tOw0KPiBEYXZpZCBTb2xkYTsgbGludXgtaW5w
-dXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFN1Ympl
-Y3Q6IFJlOiBbUEFUQ0ggdjE3IDAwLzEyXSBpbnB1dDogY3lhcGE6IGluc3RydWN0aW9uIG9mIGN5
-YXBhIHBhdGNoZXMNCj4NCj4gRHVkbGV5LA0KPg0KPiBPbiBXZWQsIERlYyAzMSwgMjAxNCBhdCAw
-OToxNjo0OUFNICswODAwLCBEdWRsZXkgRHUgd3JvdGU6DQo+ID4gVjE3IHBhdGNoZXMgaGF2ZSBi
-ZWxvdyB1cGRhdGVzLCBkZXRhaWxzIG9mIG90aGVyIHVwZGF0ZXMgc2VlIGhpc3RvcnkgbGlzdDoN
-Cj4gPiAxKSBGaXgga2VybmVsIG9vcHMgd2hlbiBzeXN0ZW0gYm9vdGluZyB1cCB3aXRoIGZpbmdl
-ciBvbiBUUC4NCj4gPiAyKSBSZW1vdmUgdW5uZWNlc3NhcnkgZXJyb3IgbG9nIHRoYXQgbWF5IHRv
-IHN5c3RlbS4NCj4gPiAzKSBTbGlwdCBvdXQgcG0gc2xlZXAgY29kZSBpbnRvIGN5YXBhX3ByZXBh
-cmVfd2FrZXVwX2NvbnRyb2xzKCksDQo+ID4gICAgcmVtb3ZlICNpbmRlZnMgaW4gZnVuY3Rpb24g
-Ym9keSBvZiBDT05GSUdfUE1fU0xFRVAgYW5kDQo+IENPTkZJR19QTV9SVU5USU1FLg0KPiA+IDQp
-IFN1cHBseSBzdHVicyB0byBjeWFwYV9nZW4zX29wcyBhbmQgY3lhcGFfZ2VuNV9vcHMgZGF0YSBz
-dHJ1Y3R1cmUgdG8gYXZvaWQNCj4gPiAgICBjaGVja2luZyBmb3IgcHJlc2VuY2Ugb2YgdmFyaW91
-cyBtZXRob2RzIGluIG9wcy4NCj4gPiA2KSBGaXggdGhlIG1lYW5pbmdzIG9mIHNvbWUgY29tbWVu
-dHMgYW5kIHJldHVybiBlcnJvciBjb2RlIG5vdCBjbGVhciBpc3N1ZS4NCj4gWy4uLl0NCj4NCj4g
-SXQgaGFzIGJ1aWxkIGVycm9ycyA6KA0KPg0KPiAgIENISyAgICAgaW5jbHVkZS9jb25maWcva2Vy
-bmVsLnJlbGVhc2UNCj4gICBDSEsgICAgIGluY2x1ZGUvZ2VuZXJhdGVkL3VhcGkvbGludXgvdmVy
-c2lvbi5oDQo+ICAgQ0hLICAgICBpbmNsdWRlL2dlbmVyYXRlZC91dHNyZWxlYXNlLmgNCj4gICBD
-QUxMICAgIHNjcmlwdHMvY2hlY2tzeXNjYWxscy5zaA0KPiAgIENISyAgICAgaW5jbHVkZS9nZW5l
-cmF0ZWQvY29tcGlsZS5oDQo+ICAgQ0hLICAgICBrZXJuZWwvY29uZmlnX2RhdGEuaA0KPiAgIEND
-IFtNXSAgZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYS5vDQo+IEluIGZpbGUgaW5jbHVkZWQgZnJv
-bSBpbmNsdWRlL2xpbnV4L2RldmljZS5oOjI1OjAsDQo+ICAgICAgICAgICAgICAgICAgZnJvbSBp
-bmNsdWRlL2xpbnV4L2kyYy5oOjMwLA0KPiAgICAgICAgICAgICAgICAgIGZyb20gZHJpdmVycy9p
-bnB1dC9tb3VzZS9jeWFwYS5jOjE4Og0KPiBkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBhLmM6MTMz
-OToyMTogZXJyb3I6IOKAmGN5YXBhX3J1bnRpbWVfc3VzcGVuZOKAmQ0KPiB1bmRlY2xhcmVkIGhl
-cmUgKG5vdCBpbiBhIGZ1bmN0aW9uKQ0KPiAgIFNFVF9SVU5USU1FX1BNX09QUyhjeWFwYV9ydW50
-aW1lX3N1c3BlbmQsIGN5YXBhX3J1bnRpbWVfcmVzdW1lLA0KPiBOVUxMKQ0KPiAgICAgICAgICAg
-ICAgICAgICAgICBeDQo+IGluY2x1ZGUvbGludXgvcG0uaDozNDc6MjE6IG5vdGU6IGluIGRlZmlu
-aXRpb24gb2YgbWFjcm8g4oCYU0VUX1JVTlRJTUVfUE1fT1BT4oCZDQo+ICAgLnJ1bnRpbWVfc3Vz
-cGVuZCA9IHN1c3BlbmRfZm4sIFwNCj4gICAgICAgICAgICAgICAgICAgICAgXg0KPiBkcml2ZXJz
-L2lucHV0L21vdXNlL2N5YXBhLmM6MTMzOTo0NDogZXJyb3I6IOKAmGN5YXBhX3J1bnRpbWVfcmVz
-dW1l4oCZDQo+IHVuZGVjbGFyZWQgaGVyZSAobm90IGluIGEgZnVuY3Rpb24pDQo+ICAgU0VUX1JV
-TlRJTUVfUE1fT1BTKGN5YXBhX3J1bnRpbWVfc3VzcGVuZCwgY3lhcGFfcnVudGltZV9yZXN1bWUs
-DQo+IE5VTEwpDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-Xg0KPiBpbmNsdWRlL2xpbnV4L3BtLmg6MzQ4OjIwOiBub3RlOiBpbiBkZWZpbml0aW9uIG9mIG1h
-Y3JvIOKAmFNFVF9SVU5USU1FX1BNX09QU+KAmQ0KPiAgIC5ydW50aW1lX3Jlc3VtZSA9IHJlc3Vt
-ZV9mbiwgXA0KPiAgICAgICAgICAgICAgICAgICAgIF4NCj4gc2NyaXB0cy9NYWtlZmlsZS5idWls
-ZDoyNTc6IHJlY2lwZSBmb3IgdGFyZ2V0ICdkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBhLm8nIGZh
-aWxlZA0KPiBtYWtlWzNdOiAqKiogW2RyaXZlcnMvaW5wdXQvbW91c2UvY3lhcGEub10gRXJyb3Ig
-MQ0KPiBzY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjQwMjogcmVjaXBlIGZvciB0YXJnZXQgJ2RyaXZl
-cnMvaW5wdXQvbW91c2UnIGZhaWxlZA0KPiBtYWtlWzJdOiAqKiogW2RyaXZlcnMvaW5wdXQvbW91
-c2VdIEVycm9yIDINCj4gc2NyaXB0cy9NYWtlZmlsZS5idWlsZDo0MDI6IHJlY2lwZSBmb3IgdGFy
-Z2V0ICdkcml2ZXJzL2lucHV0JyBmYWlsZWQNCj4gbWFrZVsxXTogKioqIFtkcml2ZXJzL2lucHV0
-XSBFcnJvciAyDQo+IG1ha2VbMV06ICoqKiBXYWl0aW5nIGZvciB1bmZpbmlzaGVkIGpvYnMuLi4u
-DQo+IE1ha2VmaWxlOjk1NTogcmVjaXBlIGZvciB0YXJnZXQgJ2RyaXZlcnMnIGZhaWxlZA0KPiBt
-YWtlOiAqKiogW2RyaXZlcnNdIEVycm9yIDINCj4gbWFrZTogKioqIFdhaXRpbmcgZm9yIHVuZmlu
-aXNoZWQgam9icy4uLi4NCj4NCj4gLS0NCj4gLSBKZXJlbWlhaCBNYWhsZXINCg0KVGhpcyBtZXNz
-YWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1YnNp
-ZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNlaXZl
-ZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBkZWxl
-dGUgdGhpcyBtZXNzYWdlLg0K
+Hi Geert,
+
+On Thursday 18 December 2014 21:23:46 Laurent Pinchart wrote:
+> On Thursday 18 December 2014 14:03:18 Geert Uytterhoeven wrote:
+> > On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart wrote:
+> > > There are three compatible strings defined for the ADXL345 and ADXL346
+> > > in Documentation/devicetree/bindings/i2c/trivial-devices.txt:
+> > > "adi,adxl345", "adi,adxl346", "adi,adxl34x". Given that the last one is
+> > > a fallback for the first two I don't see a need to add the specific
+> > > compatible strings to the driver for now. If a new totally incompatible
+> > > chip named ADXL347 comes out we will need a new driver which won't be
+> > > allowed to use the "adi,adxl34x" compatible string.
+> > 
+> > FWIW, I'm the evil person who added the adxl entries to that file...
+> 
+> git-blame had already reported you.
+> 
+> Do you think we should remove that compatible string ?
+
+Ping ?
+
+-- 
+Regards,
+
+Laurent Pinchart

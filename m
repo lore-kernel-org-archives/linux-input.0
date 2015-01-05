@@ -1,70 +1,53 @@
 From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Subject: [PATCH v2 2/4] input: synaptics - fix width values calculation on image sensors
-Date: Mon,  5 Jan 2015 23:28:33 +0100
-Message-ID: <1420496915-31560-3-git-send-email-gabriele.mzt@gmail.com>
+Subject: [PATCH v2 4/4] input: synaptics - make semi-mt touchpads report widths
+Date: Mon,  5 Jan 2015 23:28:35 +0100
+Message-ID: <1420496915-31560-5-git-send-email-gabriele.mzt@gmail.com>
 References: <1420496915-31560-1-git-send-email-gabriele.mzt@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f171.google.com ([74.125.82.171]:54094 "EHLO
-	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753197AbbAEW2w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 17:28:52 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1420496915-31560-1-git-send-email-gabriele.mzt@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-kernel@vger.kernel.org, silverhammermba@gmail.com, peter.hutterer@who-t.net, hdegoede@redhat.com, benjamin.tissoires@gmail.com, Gabriele Mazzotta <gabriele.mzt@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-When multiple fingers are on the touchpad, W reports the finger
-count rather than the width. Retrieve the correct value that is
-encoded in X, Y and Z of AGM and SGM packets.
+Despite claiming to report finger widths, semi-mt touchpads were not
+doing it. Make them report widths using ABS_MT_TOUCH_MAJOR instead
+of ABS_TOOL_WIDTH.
 
-The minimum width reported is 8 rather than 4 in this case, while the
-maximum remains 15.
-
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=77161
 Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
 ---
- drivers/input/mouse/synaptics.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ drivers/input/mouse/synaptics.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 4d22ebd..918a727 100644
+index 5008e8c..7b95a0b 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -585,10 +585,12 @@ static void synaptics_parse_agm(const unsigned char buf[],
- 	switch (agm_packet_type) {
- 	case 1:
- 		/* Gesture packet: (x, y, z) half resolution */
--		agm->w = hw->w;
--		agm->x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
--		agm->y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
--		agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 2;
-+		agm->w = ((buf[1] & 0x01) |
-+			  ((buf[2] & 0x01) << 1) |
-+			  ((buf[5] & 0x01) << 2)) + 8;
-+		agm->x = (((buf[4] & 0x0f) << 8) | (buf[1] & 0xfe)) << 1;
-+		agm->y = (((buf[4] & 0xf0) << 4) | (buf[2] & 0xfe)) << 1;
-+		agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0e)) << 2;
- 		break;
+@@ -819,6 +819,7 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
+ 		input_report_abs(dev, ABS_MT_POSITION_X, pos[i].x);
+ 		input_report_abs(dev, ABS_MT_POSITION_Y, pos[i].y);
+ 		input_report_abs(dev, ABS_MT_PRESSURE, hw[i]->z);
++		input_report_abs(dev, ABS_MT_TOUCH_MAJOR, hw[i]->w);
+ 	}
  
- 	case 2:
-@@ -852,6 +854,17 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
- 	else
- 		num_fingers = 4;
+ 	input_mt_drop_unused(dev);
+@@ -954,8 +955,14 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 	}
+ 	input_report_abs(dev, ABS_PRESSURE, hw.z);
  
-+	/* When multiple fingers are on the TouchPad, the width is encoded in
-+	 * X, Y and Z */
-+	if (sgm->w == 0 || sgm->w == 1) {
-+		sgm->w = (((sgm->x & BIT(1)) >> 1) |
-+			  (sgm->y & BIT(1)) |
-+			  ((sgm->z & BIT(0)) << 2)) + 8;
-+		sgm->x &= ~BIT(1);
-+		sgm->y &= ~BIT(1);
-+		sgm->z &= ~BIT(0);
+-	if (SYN_CAP_PALMDETECT(priv->capabilities))
+-		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
++	if (SYN_CAP_PALMDETECT(priv->capabilities)) {
++		if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c) ||
++		    cr48_profile_sensor)
++			input_set_abs_params(dev,
++					     ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
++		else
++			input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
 +	}
-+
- 	/* Send resulting input events to user space */
- 	synaptics_report_mt_data(psmouse, sgm, num_fingers);
- }
+ 
+ 	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
+ 	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
 -- 
 2.1.4
-

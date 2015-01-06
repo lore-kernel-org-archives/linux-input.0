@@ -1,64 +1,51 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH] Input:Flush client events after clk_type change
-Date: Tue,  6 Jan 2015 06:02:33 -0800
-Message-ID: <1420552953-23932-1-git-send-email-aksgarg1989@gmail.com>
-References: <anshul.g>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: hid-replay captured data
+Date: Tue, 6 Jan 2015 09:16:37 -0500
+Message-ID: <CAN+gG=FHhCRRbNBJ7XH=a=rnYum-BLW8JcpqFJJaHPyPc+P0bg@mail.gmail.com>
+References: <20150106111652.hwprplncqocwo0w0@webmail.fib.upc.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f45.google.com ([74.125.82.45]:64675 "EHLO
-	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755451AbbAFODE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 09:03:04 -0500
-Received: by mail-wg0-f45.google.com with SMTP id b13so29356693wgh.32
-        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 06:03:03 -0800 (PST)
-In-Reply-To: <anshul.g>
+Received: from mail-qa0-f48.google.com ([209.85.216.48]:61815 "EHLO
+	mail-qa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753121AbbAFOQh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 09:16:37 -0500
+Received: by mail-qa0-f48.google.com with SMTP id k15so13945310qaq.21
+        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 06:16:37 -0800 (PST)
+In-Reply-To: <20150106111652.hwprplncqocwo0w0@webmail.fib.upc.es>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
+To: josep.sanchez.ferreres@est.fib.upc.edu
+Cc: linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>
 
-From: Anshul Garg <aksgarg1989@gmail.com>
+On Tue, Jan 6, 2015 at 5:16 AM,  <josep.sanchez.ferreres@est.fib.upc.edu> wrote:
+> Hello!
+>
+> I'm not sure about what you meant by using evemu-record to record
+> the data from hidraw3. As far as I know evemu-record is only able to
+> record from the /dev/input interfaces right? If you meant hid-replay, I
+> wasn't able to get any data from hidraw3.
 
-Since the client clk_type is changed , flush pending
-events from client buffer and queue SYN_DROPPED event.
-Added check for duplicate clk_type change request.
+Sorry, I meant hid-replay.
+I need the output of the very first lines when you open the device.
+There must be 3 lines at least, one starting with R:, one with I: and
+one with N:
+And yes, I know no events will be sent, but I need the output still.
 
-Signed-off-by: Anshul Garg <anshul.g@samsung.com>
----
- drivers/input/evdev.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index b1a52ab..91330e1 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -64,6 +64,9 @@ struct evdev_client {
- 
- static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- {
-+	if (client->clk_type == clkid)
-+		return 0;
-+
- 	switch (clkid) {
- 
- 	case CLOCK_REALTIME:
-@@ -78,7 +81,11 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- 	default:
- 		return -EINVAL;
- 	}
--
-+
-+	/* Flush clients events after clk_type is changed
-+	 * and queue SYN_DROPPED event.*/
-+	client->packet_head = client->head = client->tail;
-+	evdev_queue_syn_dropped(client);
- 	return 0;
- }
- 
--- 
-1.7.9.5
+PS: please use "reply-all" when replying to a thread to keep the
+people involved in the loop.
 
-
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
-
+>
+> Could you please provide a more detailed explanation so I can get the data?
+>
+> Thank you very much!
+>
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

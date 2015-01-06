@@ -1,70 +1,80 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 11/17] ARM: dts: sun5i: Add cpu thermal zones to dtsi
-Date: Tue,  6 Jan 2015 10:35:21 +0800
-Message-ID: <1420511727-8242-12-git-send-email-wens@csie.org>
+Subject: [PATCH 01/17] ARM: sunxi: Register cpufreq-dt for sun[45678]i
+Date: Tue,  6 Jan 2015 10:35:11 +0800
+Message-ID: <1420511727-8242-2-git-send-email-wens@csie.org>
 References: <1420511727-8242-1-git-send-email-wens@csie.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:41002 "EHLO
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:40939 "EHLO
 	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754415AbbAFCfo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:44 -0500
+	with ESMTP id S1754304AbbAFCfm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:42 -0500
 In-Reply-To: <1420511727-8242-1-git-send-email-wens@csie.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 
-The core temperature sensor now supports thermal zones. Add a thermal
-zone mapping for the cpus with passive cooling (cpufreq throttling).
+On sun[45678]i, we have one cluster of identical cores sharing a
+clock, which is ideal for using cpufreq-dt. Register a platform
+device for cpufreq-dt.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- arch/arm/boot/dts/sun5i-a13.dtsi | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ arch/arm/mach-sunxi/sunxi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index dd93d227865e..9140cc7c8944 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -47,6 +47,38 @@
- 		};
- 	};
+diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
+index d4bb2395d39c..1bc811a74a9f 100644
+--- a/arch/arm/mach-sunxi/sunxi.c
++++ b/arch/arm/mach-sunxi/sunxi.c
+@@ -13,9 +13,15 @@
+ #include <linux/clk-provider.h>
+ #include <linux/clocksource.h>
+ #include <linux/init.h>
++#include <linux/platform_device.h>
  
-+	thermal-zones {
-+		cpu_thermal {
-+			/* milliseconds */
-+			polling-delay-passive = <250>;
-+			polling-delay = <1000>;
-+			thermal-sensors = <&rtp>;
+ #include <asm/mach/arch.h>
+ 
++static void __init sunxi_dt_cpufreq_init(void)
++{
++	platform_device_register_simple("cpufreq-dt", -1, NULL, 0);
++}
 +
-+			cooling-maps {
-+				map0 {
-+					trip = <&cpu_alert0>;
-+					cooling-device = <&cpu0 (-1) (-1)>;
-+				};
-+			};
-+
-+			trips {
-+				cpu_alert0: cpu_alert0 {
-+					/* milliCelsius */
-+					temperature = <850000>;
-+					hysteresis = <2000>;
-+					type = "passive";
-+				};
-+
-+				cpu_crit: cpu_crit {
-+					/* milliCelsius */
-+					temperature = <100000>;
-+					hysteresis = <2000>;
-+					type = "critical";
-+				};
-+			};
-+		};
-+	};
-+
- 	memory {
- 		reg = <0x40000000 0x20000000>;
- 	};
+ static const char * const sunxi_board_dt_compat[] = {
+ 	"allwinner,sun4i-a10",
+ 	"allwinner,sun5i-a10s",
+@@ -25,6 +31,7 @@ static const char * const sunxi_board_dt_compat[] = {
+ 
+ DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
+ 	.dt_compat	= sunxi_board_dt_compat,
++	.init_late	= sunxi_dt_cpufreq_init,
+ MACHINE_END
+ 
+ static const char * const sun6i_board_dt_compat[] = {
+@@ -45,6 +52,7 @@ static void __init sun6i_timer_init(void)
+ DT_MACHINE_START(SUN6I_DT, "Allwinner sun6i (A31) Family")
+ 	.init_time	= sun6i_timer_init,
+ 	.dt_compat	= sun6i_board_dt_compat,
++	.init_late	= sunxi_dt_cpufreq_init,
+ MACHINE_END
+ 
+ static const char * const sun7i_board_dt_compat[] = {
+@@ -54,6 +62,7 @@ static const char * const sun7i_board_dt_compat[] = {
+ 
+ DT_MACHINE_START(SUN7I_DT, "Allwinner sun7i (A20) Family")
+ 	.dt_compat	= sun7i_board_dt_compat,
++	.init_late	= sunxi_dt_cpufreq_init,
+ MACHINE_END
+ 
+ static const char * const sun8i_board_dt_compat[] = {
+@@ -63,6 +72,7 @@ static const char * const sun8i_board_dt_compat[] = {
+ 
+ DT_MACHINE_START(SUN8I_DT, "Allwinner sun8i (A23) Family")
+ 	.dt_compat	= sun8i_board_dt_compat,
++	.init_late	= sunxi_dt_cpufreq_init,
+ MACHINE_END
+ 
+ static const char * const sun9i_board_dt_compat[] = {
 -- 
 2.1.4
 

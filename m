@@ -1,113 +1,106 @@
 From: Eduardo Valentin <edubezval@gmail.com>
-Subject: Re: [PATCH 05/17] ARM: dts: sunxi: Enable thermal sensor support for
- RTP on sun[457]i
-Date: Tue, 6 Jan 2015 11:25:33 -0400
-Message-ID: <20150106152531.GB6276@developer>
+Subject: Re: [PATCH 07/17] ARM: dts: sun7i: Add cpu thermal zones to dtsi
+Date: Tue, 6 Jan 2015 11:28:15 -0400
+Message-ID: <20150106152813.GC6276@developer>
 References: <1420511727-8242-1-git-send-email-wens@csie.org>
- <1420511727-8242-6-git-send-email-wens@csie.org>
+ <1420511727-8242-8-git-send-email-wens@csie.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MfFXiAuoTsnnDAfZ"
+	protocol="application/pgp-signature"; boundary="kfjH4zxOES6UT95V"
 Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1420511727-8242-6-git-send-email-wens@csie.org>
+In-Reply-To: <1420511727-8242-8-git-send-email-wens@csie.org>
 Sender: linux-pm-owner@vger.kernel.org
 To: Chen-Yu Tsai <wens@csie.org>
 Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
---MfFXiAuoTsnnDAfZ
+--kfjH4zxOES6UT95V
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 06, 2015 at 10:35:15AM +0800, Chen-Yu Tsai wrote:
-> Now that the resistive touchpanel driver supports thermal sensors,
-> add the "#thermal-sensor-cells" property as required by the thermal
-> framework.
+On Tue, Jan 06, 2015 at 10:35:17AM +0800, Chen-Yu Tsai wrote:
+> The core temperature sensor now supports thermal zones. Add a thermal
+> zone mapping for the cpus with passive cooling (cpufreq throttling).
 >=20
 > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-
-Acked-by: Eduardo Valentin <edubezval@gmail.com>
-
 > ---
->  arch/arm/boot/dts/sun4i-a10.dtsi  | 1 +
->  arch/arm/boot/dts/sun5i-a10s.dtsi | 1 +
->  arch/arm/boot/dts/sun5i-a13.dtsi  | 1 +
->  arch/arm/boot/dts/sun7i-a20.dtsi  | 1 +
->  4 files changed, 4 insertions(+)
+>  arch/arm/boot/dts/sun7i-a20.dtsi | 32 ++++++++++++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
 >=20
-> diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a=
-10.dtsi
-> index 847d5e09fcfb..f92635ecb937 100644
-> --- a/arch/arm/boot/dts/sun4i-a10.dtsi
-> +++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-> @@ -712,6 +712,7 @@
->  			compatible =3D "allwinner,sun4i-a10-ts";
->  			reg =3D <0x01c25000 0x100>;
->  			interrupts =3D <29>;
-> +			#thermal-sensor-cells =3D <0>;
->  		};
-> =20
->  		uart0: serial@01c28000 {
-> diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-=
-a10s.dtsi
-> index 3c3c1920788a..8d324ef7e46e 100644
-> --- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-> +++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-> @@ -535,6 +535,7 @@
->  			compatible =3D "allwinner,sun4i-a10-ts";
->  			reg =3D <0x01c25000 0x100>;
->  			interrupts =3D <29>;
-> +			#thermal-sensor-cells =3D <0>;
->  		};
-> =20
->  		uart0: serial@01c28000 {
-> diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a=
-13.dtsi
-> index 2448d7f38d6b..4fe0bd192e29 100644
-> --- a/arch/arm/boot/dts/sun5i-a13.dtsi
-> +++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-> @@ -469,6 +469,7 @@
->  			compatible =3D "allwinner,sun4i-a10-ts";
->  			reg =3D <0x01c25000 0x100>;
->  			interrupts =3D <29>;
-> +			#thermal-sensor-cells =3D <0>;
->  		};
-> =20
->  		uart1: serial@01c28400 {
 > diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a=
 20.dtsi
-> index e21ce5992d56..01c7133e699c 100644
+> index 887b0521bbfb..951e99ed3aa9 100644
 > --- a/arch/arm/boot/dts/sun7i-a20.dtsi
 > +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-> @@ -926,6 +926,7 @@
->  			compatible =3D "allwinner,sun4i-a10-ts";
->  			reg =3D <0x01c25000 0x100>;
->  			interrupts =3D <0 29 4>;
-> +			#thermal-sensor-cells =3D <0>;
+> @@ -111,6 +111,38 @@
 >  		};
+>  	};
 > =20
->  		uart0: serial@01c28000 {
+> +	thermal-zones {
+> +		cpu_thermal {
+> +			/* milliseconds */
+> +			polling-delay-passive =3D <250>;
+> +			polling-delay =3D <1000>;
+> +			thermal-sensors =3D <&rtp>;
+> +
+> +			cooling-maps {
+> +				map0 {
+> +					trip =3D <&cpu_alert0>;
+> +					cooling-device =3D <&cpu0 (-1) (-1)>;
+
+Could you please:
++#include <dt-bindings/thermal/thermal.h>
+
+and
+
++					cooling-device =3D <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+
+?
+> +				};
+> +			};
+> +
+> +			trips {
+> +				cpu_alert0: cpu_alert0 {
+> +					/* milliCelsius */
+> +					temperature =3D <75000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "passive";
+> +				};
+> +
+> +				cpu_crit: cpu_crit {
+> +					/* milliCelsius */
+> +					temperature =3D <100000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "critical";
+> +				};
+> +			};
+> +		};
+> +	};
+> +
+>  	memory {
+>  		reg =3D <0x40000000 0x80000000>;
+>  	};
 > --=20
 > 2.1.4
 >=20
 
---MfFXiAuoTsnnDAfZ
+--kfjH4zxOES6UT95V
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBAgAGBQJUq/5jAAoJEMLUO4d9pOJWE+oH/1x/0HG+QSPS8G/cNB+sDoFi
-NVCgO1BKfbLW7zFfiyJWoi9Li/RJUPCXp5jdsEMSwpMzU/orEPqeKKX/tKBsKwFG
-5eznGgqlBeDua/WEFHxTtOY8TSFS+5MEq3z9G0OlUwK1FLmVV/AEqpZid5NGDsah
-TXb8g4yIebKsbp5OhTJDdrH9SNSlO02cFU3cp9mnBzqg53yM9MEZR3W1efezDffz
-dZTvYuB6hNqYHMW/Uywfh/sQS45erjA2fFO8u9/xwROoC81FwJfqSnk6rXucnllF
-bPtCX3i52Vp/tGAKNVZ0hJajukbvB3IsHCjSHGgOhpQyhpYAxmb1BD+45CnjPW0=
-=czYR
+iQEcBAEBAgAGBQJUq/8FAAoJEMLUO4d9pOJWxx4IAJK6FnokisVdV1Ft4ZCUB/he
+D6d2mIvIQORrVBQE/0nhDlVSvWFE/3m286t3/3j/V0Lm7G3NPfbEJDKDdi/9jfLu
+SxdH+gGvvT3f72KKiDz4wDNwj3Ut/eEPUYY8/9V9ujRe51ub0WSC7Qop/RSC58XN
+bsISSGKjvkL8WjJvWl0v8zIMbosh/S5thwDjblzUktr/hSyNvzJ7qcWs3oRAsejK
+hXTSEsC5gkM8xFb10rEv8TP0ZRKGhssM8ckOKG3xK7JTrFKJHsUrD7Y2oLcDV8ow
+TJaw+U42ext2if7UTwybV4v1D/S+41SbaGeEhhjOVMbLWaG80ENUrbWVHtOzFRM=
+=L91/
 -----END PGP SIGNATURE-----
 
---MfFXiAuoTsnnDAfZ--
+--kfjH4zxOES6UT95V--

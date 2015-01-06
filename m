@@ -1,80 +1,79 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 01/17] ARM: sunxi: Register cpufreq-dt for sun[45678]i
-Date: Tue,  6 Jan 2015 10:35:11 +0800
-Message-ID: <1420511727-8242-2-git-send-email-wens@csie.org>
+Subject: [PATCH 05/17] ARM: dts: sunxi: Enable thermal sensor support for RTP on sun[457]i
+Date: Tue,  6 Jan 2015 10:35:15 +0800
+Message-ID: <1420511727-8242-6-git-send-email-wens@csie.org>
 References: <1420511727-8242-1-git-send-email-wens@csie.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:40939 "EHLO
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:40996 "EHLO
 	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754304AbbAFCfm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:42 -0500
+	with ESMTP id S1754360AbbAFCfn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:43 -0500
 In-Reply-To: <1420511727-8242-1-git-send-email-wens@csie.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 
-On sun[45678]i, we have one cluster of identical cores sharing a
-clock, which is ideal for using cpufreq-dt. Register a platform
-device for cpufreq-dt.
+Now that the resistive touchpanel driver supports thermal sensors,
+add the "#thermal-sensor-cells" property as required by the thermal
+framework.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- arch/arm/mach-sunxi/sunxi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm/boot/dts/sun4i-a10.dtsi  | 1 +
+ arch/arm/boot/dts/sun5i-a10s.dtsi | 1 +
+ arch/arm/boot/dts/sun5i-a13.dtsi  | 1 +
+ arch/arm/boot/dts/sun7i-a20.dtsi  | 1 +
+ 4 files changed, 4 insertions(+)
 
-diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
-index d4bb2395d39c..1bc811a74a9f 100644
---- a/arch/arm/mach-sunxi/sunxi.c
-+++ b/arch/arm/mach-sunxi/sunxi.c
-@@ -13,9 +13,15 @@
- #include <linux/clk-provider.h>
- #include <linux/clocksource.h>
- #include <linux/init.h>
-+#include <linux/platform_device.h>
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 847d5e09fcfb..f92635ecb937 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -712,6 +712,7 @@
+ 			compatible = "allwinner,sun4i-a10-ts";
+ 			reg = <0x01c25000 0x100>;
+ 			interrupts = <29>;
++			#thermal-sensor-cells = <0>;
+ 		};
  
- #include <asm/mach/arch.h>
+ 		uart0: serial@01c28000 {
+diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
+index 3c3c1920788a..8d324ef7e46e 100644
+--- a/arch/arm/boot/dts/sun5i-a10s.dtsi
++++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
+@@ -535,6 +535,7 @@
+ 			compatible = "allwinner,sun4i-a10-ts";
+ 			reg = <0x01c25000 0x100>;
+ 			interrupts = <29>;
++			#thermal-sensor-cells = <0>;
+ 		};
  
-+static void __init sunxi_dt_cpufreq_init(void)
-+{
-+	platform_device_register_simple("cpufreq-dt", -1, NULL, 0);
-+}
-+
- static const char * const sunxi_board_dt_compat[] = {
- 	"allwinner,sun4i-a10",
- 	"allwinner,sun5i-a10s",
-@@ -25,6 +31,7 @@ static const char * const sunxi_board_dt_compat[] = {
+ 		uart0: serial@01c28000 {
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index 2448d7f38d6b..4fe0bd192e29 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -469,6 +469,7 @@
+ 			compatible = "allwinner,sun4i-a10-ts";
+ 			reg = <0x01c25000 0x100>;
+ 			interrupts = <29>;
++			#thermal-sensor-cells = <0>;
+ 		};
  
- DT_MACHINE_START(SUNXI_DT, "Allwinner A1X (Device Tree)")
- 	.dt_compat	= sunxi_board_dt_compat,
-+	.init_late	= sunxi_dt_cpufreq_init,
- MACHINE_END
+ 		uart1: serial@01c28400 {
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index e21ce5992d56..01c7133e699c 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -926,6 +926,7 @@
+ 			compatible = "allwinner,sun4i-a10-ts";
+ 			reg = <0x01c25000 0x100>;
+ 			interrupts = <0 29 4>;
++			#thermal-sensor-cells = <0>;
+ 		};
  
- static const char * const sun6i_board_dt_compat[] = {
-@@ -45,6 +52,7 @@ static void __init sun6i_timer_init(void)
- DT_MACHINE_START(SUN6I_DT, "Allwinner sun6i (A31) Family")
- 	.init_time	= sun6i_timer_init,
- 	.dt_compat	= sun6i_board_dt_compat,
-+	.init_late	= sunxi_dt_cpufreq_init,
- MACHINE_END
- 
- static const char * const sun7i_board_dt_compat[] = {
-@@ -54,6 +62,7 @@ static const char * const sun7i_board_dt_compat[] = {
- 
- DT_MACHINE_START(SUN7I_DT, "Allwinner sun7i (A20) Family")
- 	.dt_compat	= sun7i_board_dt_compat,
-+	.init_late	= sunxi_dt_cpufreq_init,
- MACHINE_END
- 
- static const char * const sun8i_board_dt_compat[] = {
-@@ -63,6 +72,7 @@ static const char * const sun8i_board_dt_compat[] = {
- 
- DT_MACHINE_START(SUN8I_DT, "Allwinner sun8i (A23) Family")
- 	.dt_compat	= sun8i_board_dt_compat,
-+	.init_late	= sunxi_dt_cpufreq_init,
- MACHINE_END
- 
- static const char * const sun9i_board_dt_compat[] = {
+ 		uart0: serial@01c28000 {
 -- 
 2.1.4
 

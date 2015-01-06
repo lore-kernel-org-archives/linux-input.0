@@ -1,55 +1,64 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Tue, 6 Jan 2015 14:28:12 +0100
-Message-ID: <CAMuHMdXyo7BHJ-Jk3xKrCiCEVDF1M+-Sz9tBWibXc4pNYvdDeA@mail.gmail.com>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<1492007.8cQN1myWLD@avalon>
-	<CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com>
-	<10011053.aypz0IuTJG@avalon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <10011053.aypz0IuTJG@avalon>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input:Flush client events after clk_type change
+Date: Tue,  6 Jan 2015 06:02:33 -0800
+Message-ID: <1420552953-23932-1-git-send-email-aksgarg1989@gmail.com>
+References: <anshul.g>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:64675 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755451AbbAFODE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 09:03:04 -0500
+Received: by mail-wg0-f45.google.com with SMTP id b13so29356693wgh.32
+        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 06:03:03 -0800 (PST)
+In-Reply-To: <anshul.g>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-Hi Laurent, Wolfram,
+From: Anshul Garg <aksgarg1989@gmail.com>
 
-On Thu, Dec 18, 2014 at 8:23 PM, Laurent Pinchart
-<laurent.pinchart@ideasonboard.com> wrote:
-> On Thursday 18 December 2014 14:03:18 Geert Uytterhoeven wrote:
->> On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart wrote:
->> > There are three compatible strings defined for the ADXL345 and ADXL346 in
->> > Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",
->> > "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for
->> > the first two I don't see a need to add the specific compatible strings to
->> > the driver for now. If a new totally incompatible chip named ADXL347 comes
->> > out we will need a new driver which won't be allowed to use the
->> > "adi,adxl34x" compatible string.
->>
->> FWIW, I'm the evil person who added the adxl entries to that file...
->
-> git-blame had already reported you.
->
-> Do you think we should remove that compatible string ?
+Since the client clk_type is changed , flush pending
+events from client buffer and queue SYN_DROPPED event.
+Added check for duplicate clk_type change request.
 
-Remove it from trivial-devices.txt, or from the .dts?
+Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+---
+ drivers/input/evdev.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-Can't we just fix i2c_device_match(), to consider all compatible values
-of the device's node instead of just the first one when doing a legacy match?
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index b1a52ab..91330e1 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -64,6 +64,9 @@ struct evdev_client {
+ 
+ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ {
++	if (client->clk_type == clkid)
++		return 0;
++
+ 	switch (clkid) {
+ 
+ 	case CLOCK_REALTIME:
+@@ -78,7 +81,11 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+ 	default:
+ 		return -EINVAL;
+ 	}
+-
++
++	/* Flush clients events after clk_type is changed
++	 * and queue SYN_DROPPED event.*/
++	client->packet_head = client->head = client->tail;
++	evdev_queue_syn_dropped(client);
+ 	return 0;
+ }
+ 
+-- 
+1.7.9.5
 
-For now, I'd remove the "adi,adxl345" entry from sh73a0-kzm9g.dts,
-until matching is fixed.
 
-Gr{oetje,eeting}s,
+---
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds

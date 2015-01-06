@@ -1,57 +1,55 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [RFC] [Patch] implement video driver for sur40
-Date: Tue, 06 Jan 2015 14:01:42 +0100
-Message-ID: <54ABDCB6.7070807@xs4all.nl>
-References: <5492D7E8.504@butterbrot.org> <5492E091.1060404@xs4all.nl> <54943680.3020007@butterbrot.org> <549437DA.6090601@xs4all.nl> <54943CC2.6040803@butterbrot.org> <549443C9.6090900@xs4all.nl> <alpine.DEB.2.02.1501061018580.3223@butterbrot> <54ABAC8C.6020401@xs4all.nl> <54ABB641.7050002@butterbrot.org> <54ABB79D.7010700@xs4all.nl> <54ABD08C.7010107@butterbrot.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Tue, 6 Jan 2015 14:28:12 +0100
+Message-ID: <CAMuHMdXyo7BHJ-Jk3xKrCiCEVDF1M+-Sz9tBWibXc4pNYvdDeA@mail.gmail.com>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+	<1492007.8cQN1myWLD@avalon>
+	<CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com>
+	<10011053.aypz0IuTJG@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:47525 "EHLO
-	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751539AbbAFNBt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Jan 2015 08:01:49 -0500
-In-Reply-To: <54ABD08C.7010107@butterbrot.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <10011053.aypz0IuTJG@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 
-On 01/06/2015 01:09 PM, Florian Echtler wrote:
-> On 06.01.2015 11:23, Hans Verkuil wrote:
->> On 01/06/2015 11:17 AM, Florian Echtler wrote:
->>>> You're not filling in the 'field' field of struct v4l2_buffer when returning a
->>>> frame. It should most likely be FIELD_NONE in your case.
->>>>>  		fail: v4l2-test-buffers.cpp(611): buf.check(q, last_seq)
->>>>>  		fail: v4l2-test-buffers.cpp(884): captureBufs(node, q, m2m_q, frame_count, false)
->>> OK, easy to fix. This will also influence the other two warnings, I assume?
->> Most likely, yes.
-> Done. I would say that it's nearly ready for submission now (all tests
-> from v4l2-compliance -s pass), I still have to sort out all the warnings
-> from scripts/checkpatch.pl.
-> 
->>>>> On a different note, I'm getting occasional warnings in syslog when I run 
->>>>> a regular video streaming application (e.g. cheese):
->>> Is there another possible explanation?
->> No :-)
->> You are still missing a buffer somewhere. I'd have to see your latest source code
->> to see what's wrong.
-> Weirdly enough, the syslog warning/error doesn't seem to occur anymore
-> since I've fixed the v4l2_buffer field. Perhaps some oddity within cheese?
-> 
-> I'm attaching the current source again for you to maybe have another
-> look; I will submit a proper patch in the next days.
+Hi Laurent, Wolfram,
 
-Just a few quick remarks:
+On Thu, Dec 18, 2014 at 8:23 PM, Laurent Pinchart
+<laurent.pinchart@ideasonboard.com> wrote:
+> On Thursday 18 December 2014 14:03:18 Geert Uytterhoeven wrote:
+>> On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart wrote:
+>> > There are three compatible strings defined for the ADXL345 and ADXL346 in
+>> > Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",
+>> > "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for
+>> > the first two I don't see a need to add the specific compatible strings to
+>> > the driver for now. If a new totally incompatible chip named ADXL347 comes
+>> > out we will need a new driver which won't be allowed to use the
+>> > "adi,adxl34x" compatible string.
+>>
+>> FWIW, I'm the evil person who added the adxl entries to that file...
+>
+> git-blame had already reported you.
+>
+> Do you think we should remove that compatible string ?
 
-- run scripts/checkpatch.pl over your source, I'm fairly certain it will complain
-  about several constructs.
-- use videobuf2-vmalloc instead of dma-contig. There is no DMA involved, so there
-  is no reason to use dma-contig.
-- Don't set V4L2_CAP_EXT_PIX_FORMAT in querycap: it will be set automatically by
-  the v4l2 core.
+Remove it from trivial-devices.txt, or from the .dts?
 
-Regards,
+Can't we just fix i2c_device_match(), to consider all compatible values
+of the device's node instead of just the first one when doing a legacy match?
 
-	Hans
+For now, I'd remove the "adi,adxl345" entry from sh73a0-kzm9g.dts,
+until matching is fixed.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

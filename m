@@ -1,135 +1,27 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH 04/17] ARM: dts: sunxi: Add dtsi for AXP209 PMIC
-Date: Wed, 7 Jan 2015 03:09:09 +0800
-Message-ID: <CAGb2v6653HaBidzGhNSbiiWM5iUJDQ8_TyDsSLu=nSYju+a+Vg@mail.gmail.com>
-References: <1420511727-8242-1-git-send-email-wens@csie.org>
- <1420511727-8242-5-git-send-email-wens@csie.org> <20150106155838.GS7853@lukather>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Tue, 6 Jan 2015 11:43:54 -0800
+Message-ID: <20150106194354.GA12576@hudson.localdomain>
+References: <1420536350-5916-1-git-send-email-jeffrey.lin@rad-ic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20150106155838.GS7853@lukather>
-Sender: linux-pm-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1420536350-5916-1-git-send-email-jeffrey.lin@rad-ic.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "jeffrey.lin" <yajohn@gmail.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, shc_work@mail.ru, charliemooney@chromium.org, bleung@chromium.org, lee.jones@linaro.org, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Tue, Jan 06, 2015 at 05:25:50PM +0800, jeffrey.lin wrote:
+> From: "jeffrey.lin" <jeffrey.lin@rad-ic.com>
+> 
+> This patch is porting Raydium I2C touch driver. Developer can enable
+>  raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
+> 
+> Signed-off-by: jeffrey.lin@rad-ic.com
 
-On Tue, Jan 6, 2015 at 11:58 PM, Maxime Ripard
-<maxime.ripard@free-electrons.com> wrote:
-> Hi,
->
-> On Tue, Jan 06, 2015 at 10:35:14AM +0800, Chen-Yu Tsai wrote:
->> The AXP209 PMIC is used with some Allwinner SoCs. This patch adds
->> a dtsi file listing all the regulator nodes. The regulators are
->> initialized based on their device node names.
->>
->> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
->> ---
->>  arch/arm/boot/dts/axp209.dtsi | 87 +++++++++++++++++++++++++++++++++++++++++++
->>  1 file changed, 87 insertions(+)
->>  create mode 100644 arch/arm/boot/dts/axp209.dtsi
->>
->> diff --git a/arch/arm/boot/dts/axp209.dtsi b/arch/arm/boot/dts/axp209.dtsi
->> new file mode 100644
->> index 000000000000..3c38cbafe285
->> --- /dev/null
->> +++ b/arch/arm/boot/dts/axp209.dtsi
->> @@ -0,0 +1,87 @@
->> +/*
->> + * Copyright 2015 Chen-Yu Tsai
->> + *
->> + * Chen-Yu Tsai <wens@csie.org>
->> + *
->> + * This file is dual-licensed: you can use it either under the terms
->> + * of the GPL or the X11 license, at your option. Note that this dual
->> + * licensing only applies to this file, and not this project as a
->> + * whole.
->> + *
->> + *  a) This file is free software; you can redistribute it and/or
->> + *     modify it under the terms of the GNU General Public License as
->> + *     published by the Free Software Foundation; either version 2 of the
->> + *     License, or (at your option) any later version.
->> + *
->> + *     This file is distributed in the hope that it will be useful,
->> + *     but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + *     GNU General Public License for more details.
->> + *
->> + *     You should have received a copy of the GNU General Public
->> + *     License along with this file; if not, write to the Free
->> + *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
->> + *     MA 02110-1301 USA
->> + *
->> + * Or, alternatively,
->> + *
->> + *  b) Permission is hereby granted, free of charge, to any person
->> + *     obtaining a copy of this software and associated documentation
->> + *     files (the "Software"), to deal in the Software without
->> + *     restriction, including without limitation the rights to use,
->> + *     copy, modify, merge, publish, distribute, sublicense, and/or
->> + *     sell copies of the Software, and to permit persons to whom the
->> + *     Software is furnished to do so, subject to the following
->> + *     conditions:
->> + *
->> + *     The above copyright notice and this permission notice shall be
->> + *     included in all copies or substantial portions of the Software.
->> + *
->> + *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
->> + *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
->> + *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
->> + *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
->> + *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
->> + *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
->> + *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
->> + *     OTHER DEALINGS IN THE SOFTWARE.
->> + */
->> +
->> +/*
->> + * AXP202/209 Integrated Power Management Chip
->> + * http://www.x-powers.com/product/AXP20X.php
->> + * http://dl.linux-sunxi.org/AXP/AXP209%20Datasheet%20v1.0_cn.pdf
->> + */
->> +
->> +&axp209 {
->> +     regulators {
->> +             /* Default work frequency for buck regulators */
->> +             x-powers,dcdc-freq = <1500>;
->> +
->> +             /* This section lists all the regulators */
->
-> I don't think this comment is necessary.
->
->> +             reg_dcdc2: dcdc2 {
->> +             };
->> +
->> +             reg_dcdc3: dcdc3 {
->> +             };
->> +
->> +             reg_ldo1: ldo1 {
->> +                     /* LDO1 is a fixed output regulator */
->> +                     regulator-always-on;
->> +                     regulator-min-microvolt = <1300000>;
->> +                     regulator-max-microvolt = <1300000>;
->> +             };
->> +
->> +             reg_ldo2: ldo2 {
->> +             };
->> +
->> +             reg_ldo3: ldo3 {
->> +             };
->> +
->> +             reg_ldo4: ldo4 {
->> +             };
->> +
->> +             reg_ldo5: ldo5 {
->> +             };
->
-> Some default names for the regulator would be great!
+You need your full legal name in your Signed-off-by:
 
-Default names are already given through the regulator driver.
-They are full uppercase names, like in the datasheet.
-
-I could add lowercase names here for the default.
-
-ChenYu
+-- 
+- Jeremiah Mahler

@@ -1,79 +1,60 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 05/17] ARM: dts: sunxi: Enable thermal sensor support for RTP on sun[457]i
-Date: Tue,  6 Jan 2015 10:35:15 +0800
-Message-ID: <1420511727-8242-6-git-send-email-wens@csie.org>
+Subject: [PATCH 16/17] ARM: sunxi_defconfig: Enable TOUCHSCREEN_SUN4I, CPUFREQ_DT, CPU_THERMAL
+Date: Tue,  6 Jan 2015 10:35:26 +0800
+Message-ID: <1420511727-8242-17-git-send-email-wens@csie.org>
 References: <1420511727-8242-1-git-send-email-wens@csie.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:40996 "EHLO
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:40998 "EHLO
 	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754360AbbAFCfn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:43 -0500
+	with ESMTP id S1754542AbbAFCfs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:48 -0500
 In-Reply-To: <1420511727-8242-1-git-send-email-wens@csie.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 
-Now that the resistive touchpanel driver supports thermal sensors,
-add the "#thermal-sensor-cells" property as required by the thermal
-framework.
+This patch enables TOUCHSCREEN_SUN4I, CPUFREQ_DT, and CPU_THERMAL to
+enable cpufreq support with passive cpu cooling (thermal throttling)
+by default.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi  | 1 +
- arch/arm/boot/dts/sun5i-a10s.dtsi | 1 +
- arch/arm/boot/dts/sun5i-a13.dtsi  | 1 +
- arch/arm/boot/dts/sun7i-a20.dtsi  | 1 +
- 4 files changed, 4 insertions(+)
+ arch/arm/configs/sunxi_defconfig | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 847d5e09fcfb..f92635ecb937 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -712,6 +712,7 @@
- 			compatible = "allwinner,sun4i-a10-ts";
- 			reg = <0x01c25000 0x100>;
- 			interrupts = <29>;
-+			#thermal-sensor-cells = <0>;
- 		};
- 
- 		uart0: serial@01c28000 {
-diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
-index 3c3c1920788a..8d324ef7e46e 100644
---- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-@@ -535,6 +535,7 @@
- 			compatible = "allwinner,sun4i-a10-ts";
- 			reg = <0x01c25000 0x100>;
- 			interrupts = <29>;
-+			#thermal-sensor-cells = <0>;
- 		};
- 
- 		uart0: serial@01c28000 {
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index 2448d7f38d6b..4fe0bd192e29 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -469,6 +469,7 @@
- 			compatible = "allwinner,sun4i-a10-ts";
- 			reg = <0x01c25000 0x100>;
- 			interrupts = <29>;
-+			#thermal-sensor-cells = <0>;
- 		};
- 
- 		uart1: serial@01c28400 {
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index e21ce5992d56..01c7133e699c 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -926,6 +926,7 @@
- 			compatible = "allwinner,sun4i-a10-ts";
- 			reg = <0x01c25000 0x100>;
- 			interrupts = <0 29 4>;
-+			#thermal-sensor-cells = <0>;
- 		};
- 
- 		uart0: serial@01c28000 {
+diff --git a/arch/arm/configs/sunxi_defconfig b/arch/arm/configs/sunxi_defconfig
+index 7a342d2780a8..46a8688bd49a 100644
+--- a/arch/arm/configs/sunxi_defconfig
++++ b/arch/arm/configs/sunxi_defconfig
+@@ -9,6 +9,8 @@ CONFIG_HIGHMEM=y
+ CONFIG_HIGHPTE=y
+ CONFIG_ARM_APPENDED_DTB=y
+ CONFIG_ARM_ATAG_DTB_COMPAT=y
++CONFIG_CPU_FREQ=y
++CONFIG_CPUFREQ_DT=y
+ CONFIG_VFP=y
+ CONFIG_NEON=y
+ CONFIG_PM=y
+@@ -54,6 +56,8 @@ CONFIG_STMMAC_ETH=y
+ # CONFIG_INPUT_MOUSEDEV is not set
+ # CONFIG_INPUT_KEYBOARD is not set
+ # CONFIG_INPUT_MOUSE is not set
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_SUN4I=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_NR_UARTS=8
+@@ -71,7 +75,8 @@ CONFIG_GPIO_SYSFS=y
+ CONFIG_POWER_SUPPLY=y
+ CONFIG_POWER_RESET=y
+ CONFIG_POWER_RESET_SUN6I=y
+-# CONFIG_HWMON is not set
++CONFIG_THERMAL=y
++CONFIG_CPU_THERMAL=y
+ CONFIG_WATCHDOG=y
+ CONFIG_SUNXI_WATCHDOG=y
+ CONFIG_MFD_AXP20X=y
 -- 
 2.1.4
 

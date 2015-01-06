@@ -1,96 +1,45 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO., LTD.
-Date: Tue, 6 Jan 2015 09:26:18 -0500
-Message-ID: <CAN+gG=FqO4SBzB=ughh9P7QNfFvEJ4i_jooACPhiRJHGVP2xHw@mail.gmail.com>
-References: <006101cf4812$c3ac1680$4b044380$@afoi.co.kr>
-	<alpine.LNX.2.00.1403251156260.17500@pobox.suse.cz>
-	<003a01cf488c$ab9c4400$02d4cc00$@afoi.co.kr>
-	<alpine.LNX.2.00.1405201643120.1615@pobox.suse.cz>
-	<001701d02992$37f595f0$a7e0c1d0$@co.kr>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH trivial] HID: Spelling s/Keayboard/Keyboard/
+Date: Tue, 6 Jan 2015 09:28:55 -0500
+Message-ID: <20150106142854.GA26291@mail.corp.redhat.com>
+References: <1420531753-10668-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f47.google.com ([209.85.216.47]:43984 "EHLO
-	mail-qa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752001AbbAFO0T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 09:26:19 -0500
-In-Reply-To: <001701d02992$37f595f0$a7e0c1d0$@co.kr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1420531753-10668-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: kyhw <kyhw@afoi.co.kr>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi,
+On Jan 06 2015 or thereabouts, Geert Uytterhoeven wrote:
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-On Tue, Jan 6, 2015 at 4:21 AM, kyhw <kyhw@afoi.co.kr> wrote:
-> Thanks.
->
-> you are right. That's not necessary.
-> We already processed.
->
-> The final purpose of my approach is that the correct working of the AFO
-> multi-Touch module in All distribution of Linux.
-> Therefore, the inclusion of the VID,PID(AFO Touch Module) to the
-> hid-multitouch module is basically needed also for old version of the Linux
-> distribution.
+Good catch.
 
-Well, I'd like to keep hid-multitouch as clean as possible regarding
-the specific vendor devices. So, if your device is already auto
-detected in a let's say 3.18 and works as expected, (i.e. if the
-CLS_SERIAL is automatically picked up), then I will oppose to your
-patch. For the reference, I killed all the vendor specific useless
-definitions in 0fa9c61618.
-Distributions should either update to a more recent kernel (I think
-the auto detection of CLS_SERIAL was in 3.10 or even before), or they
-should cook their own support, or backport. There is no need to have a
-useless list of devices in the upstream kernel.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
->
-> Ki.
->
-> -----Original Message-----
-> From: Jiri Kosina [mailto:jkosina@suse.cz]
-> Sent: Tuesday, May 20, 2014 11:44 PM
-> To: YongHwan Ki
-> Cc: rydberg@euromail.se; linux-input@vger.kernel.org;
-> linux-kernel@vger.kernel.org
-> Subject: RE: [PATCH] Add VID/PID for HID-type Multi-Touch Module of AFO CO.,
-> LTD.
->
-> On Wed, 26 Mar 2014, YongHwan Ki wrote:
->
->> Sorry, I woud like to add the AFO defines in the Linux Kernel.
->> No afo defines exists in the current kernel tree.
->> I correctly changed the log for adding the afo defines.
->>
->> Kernel Version : linux-3.14.rc7
->> Signed-off-by: Yonghwan Ki <kyhw@afoi.co.kr>
->>
->> diff -uprN -X Documentation/dontdiff ./drivers/hid/hid-core.c
-> ../linux-3.14-rc7m/drivers/hid/hid-core.c
->> --- ./drivers/hid/hid-core.c  2014-03-17 10:51:24.000000000 +0900
->> +++ ../linux-3.14-rc7m/drivers/hid/hid-core.c 2014-03-21
-> 17:41:51.846939444 +0900
->> @@ -1881,6 +1881,8 @@ static const struct hid_device_id hid_ha
->>       { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
->>       { HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
->>       { HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON,
->> USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
->> +     { HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_TCM) },
->> +     { HID_USB_DEVICE(USB_VENDOR_ID_AFO, USB_DEVICE_ID_AFO_THM) },
->
-> Is this really necessary? Why doesn't HID_DG_CONTACTID matching work for the
-> to automatically trigger HID_GROUP_MULTITOUCH-based binding?
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>  drivers/hid/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 230b6f887cd86e9b..303b295a5413d39b 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -388,7 +388,7 @@ config HID_LOGITECH_HIDPP
+>  	Say Y if you want support for Logitech devices relying on the HID++
+>  	specification. Such devices are the various Logitech Touchpads (T650,
+>  	T651, TK820), some mice (Zone Touch mouse), or even keyboards (Solar
+> -	Keayboard).
+> +	Keyboard).
+>  
+>  config LOGITECH_FF
+>  	bool "Logitech force feedback support"
+> -- 
+> 1.9.1
+> 

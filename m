@@ -1,46 +1,111 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 02/17] clk: sunxi: Propagate rate changes to parent for mux clocks
-Date: Tue,  6 Jan 2015 10:35:12 +0800
-Message-ID: <1420511727-8242-3-git-send-email-wens@csie.org>
+Subject: [PATCH 12/17] ARM: dts: sun5i: hsg-h702: add axp209 regulator nodes
+Date: Tue,  6 Jan 2015 10:35:22 +0800
+Message-ID: <1420511727-8242-13-git-send-email-wens@csie.org>
 References: <1420511727-8242-1-git-send-email-wens@csie.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:40937 "EHLO
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:41003 "EHLO
 	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754311AbbAFCfl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:41 -0500
+	with ESMTP id S1754417AbbAFCfo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2015 21:35:44 -0500
 In-Reply-To: <1420511727-8242-1-git-send-email-wens@csie.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 
-The cpu clock on sunxi machines is just a mux clock, which is normally
-fed by the main PLL, but can be muxed to the main or low power oscillator.
+This patch adds the regulator nodes for the axp209 by including
+the axp209 dtsi. As the inputs of these regulators are from the
+axp209's PS output, which is basically just a mux over the 2
+inputs, it is considered to be unregulated. Thus we do not provide
+input supply properties for them.
 
-Make the mux clock propagate rate changes to its parent, so we can
-change the clock rate of the PLL, and thus actually implement rate
-changing on the cpu clock.
+The regulator names and constraints are based on the board
+schematics and the SoC datasheet.
 
-This patch also removes the no reparenting limit.
+DCDC2 is used as the cpu power supply. This patch also references
+it from the cpu node.
+
+LDO3 powers the USB WiFi module. This patch also references it
+from the usb-phy node.
+
+Also get rid of axp209 properties already set in axp209.dtsi.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
- drivers/clk/sunxi/clk-sunxi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/sun5i-a13-hsg-h702.dts | 46 ++++++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/sunxi/clk-sunxi.c b/drivers/clk/sunxi/clk-sunxi.c
-index d8f17bbcb8e3..df18a2af33ad 100644
---- a/drivers/clk/sunxi/clk-sunxi.c
-+++ b/drivers/clk/sunxi/clk-sunxi.c
-@@ -778,7 +778,7 @@ static void __init sunxi_mux_clk_setup(struct device_node *node,
- 	of_property_read_string(node, "clock-output-names", &clk_name);
+diff --git a/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts b/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
+index eeed1f236ee8..ec9b2e4e25ee 100644
+--- a/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
++++ b/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
+@@ -65,11 +65,7 @@
+ 		};
  
- 	clk = clk_register_mux(NULL, clk_name, parents, i,
--			       CLK_SET_RATE_NO_REPARENT, reg,
-+			       CLK_SET_RATE_PARENT, reg,
- 			       data->shift, SUNXI_MUX_GATE_WIDTH,
- 			       0, &clk_lock);
+ 		usbphy: phy@01c13400 {
+-			/*
+-			 * There doesn't seem to be a GPIO for controlling
+-			 * usb1 vbus, despite the fex file saying otherwise.
+-			 */
+-			usb1_vbus-supply = <&reg_vcc5v0>;
++			usb1_vbus-supply = <&reg_ldo3>;
+ 			status = "okay";
+ 		};
  
+@@ -102,11 +98,8 @@
+ 			status = "okay";
+ 
+ 			axp209: pmic@34 {
+-				compatible = "x-powers,axp209";
+ 				reg = <0x34>;
+ 				interrupts = <0>;
+-				interrupt-controller;
+-				#interrupt-cells = <1>;
+ 			};
+ 		};
+ 
+@@ -128,3 +121,40 @@
+ 		};
+ 	};
+ };
++
++/include/ "axp209.dtsi"
++
++&cpu0 {
++	cpu-supply = <&reg_dcdc2>;
++};
++
++&reg_dcdc2 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1500000>;
++	regulator-name = "vdd-cpu";
++};
++
++&reg_dcdc3 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1400000>;
++	regulator-name = "vdd-int-dll";
++};
++
++&reg_ldo1 {
++	regulator-name = "vdd-rtc";
++};
++
++&reg_ldo2 {
++	regulator-always-on;
++	regulator-min-microvolt = <3000000>;
++	regulator-max-microvolt = <3000000>;
++	regulator-name = "avcc";
++};
++
++&reg_ldo3 {
++	regulator-min-microvolt = <3300000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-name = "vcc-wifi";
++};
 -- 
 2.1.4
 

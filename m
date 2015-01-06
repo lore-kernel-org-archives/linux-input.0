@@ -1,49 +1,57 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] HID: input: fix confusion on conflicting mappings
-Date: Tue, 6 Jan 2015 13:47:18 +0100
-Message-ID: <CANq1E4TUrUS3=5cZiODfXmcvuSNfFrhPxV5h+PMfB=oQ31Rttw@mail.gmail.com>
-References: <20141230165739.050cc0b9@kruskal.home.chead.ca>
-	<CAMsZVf_UT+m_8BWqz0+aYGJB+8Z_u6xRU7efLZ-Bd7WNhn4ZYA@mail.gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [RFC] [Patch] implement video driver for sur40
+Date: Tue, 06 Jan 2015 14:01:42 +0100
+Message-ID: <54ABDCB6.7070807@xs4all.nl>
+References: <5492D7E8.504@butterbrot.org> <5492E091.1060404@xs4all.nl> <54943680.3020007@butterbrot.org> <549437DA.6090601@xs4all.nl> <54943CC2.6040803@butterbrot.org> <549443C9.6090900@xs4all.nl> <alpine.DEB.2.02.1501061018580.3223@butterbrot> <54ABAC8C.6020401@xs4all.nl> <54ABB641.7050002@butterbrot.org> <54ABB79D.7010700@xs4all.nl> <54ABD08C.7010107@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f169.google.com ([209.85.213.169]:41196 "EHLO
-	mail-ig0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754549AbbAFMrS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 07:47:18 -0500
-Received: by mail-ig0-f169.google.com with SMTP id z20so4710027igj.2
-        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 04:47:18 -0800 (PST)
-In-Reply-To: <CAMsZVf_UT+m_8BWqz0+aYGJB+8Z_u6xRU7efLZ-Bd7WNhn4ZYA@mail.gmail.com>
+Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:47525 "EHLO
+	lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751539AbbAFNBt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Jan 2015 08:01:49 -0500
+In-Reply-To: <54ABD08C.7010107@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fredrik Hallenberg <megahallon@gmail.com>
-Cc: Christopher Head <chead@chead.ca>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Florian Echtler <floe@butterbrot.org>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 
-Hi
+On 01/06/2015 01:09 PM, Florian Echtler wrote:
+> On 06.01.2015 11:23, Hans Verkuil wrote:
+>> On 01/06/2015 11:17 AM, Florian Echtler wrote:
+>>>> You're not filling in the 'field' field of struct v4l2_buffer when returning a
+>>>> frame. It should most likely be FIELD_NONE in your case.
+>>>>>  		fail: v4l2-test-buffers.cpp(611): buf.check(q, last_seq)
+>>>>>  		fail: v4l2-test-buffers.cpp(884): captureBufs(node, q, m2m_q, frame_count, false)
+>>> OK, easy to fix. This will also influence the other two warnings, I assume?
+>> Most likely, yes.
+> Done. I would say that it's nearly ready for submission now (all tests
+> from v4l2-compliance -s pass), I still have to sort out all the warnings
+> from scripts/checkpatch.pl.
+> 
+>>>>> On a different note, I'm getting occasional warnings in syslog when I run 
+>>>>> a regular video streaming application (e.g. cheese):
+>>> Is there another possible explanation?
+>> No :-)
+>> You are still missing a buffer somewhere. I'd have to see your latest source code
+>> to see what's wrong.
+> Weirdly enough, the syslog warning/error doesn't seem to occur anymore
+> since I've fixed the v4l2_buffer field. Perhaps some oddity within cheese?
+> 
+> I'm attaching the current source again for you to maybe have another
+> look; I will submit a proper patch in the next days.
 
-On Tue, Jan 6, 2015 at 1:37 PM, Fredrik Hallenberg <megahallon@gmail.com> wrote:
-> I can confirm that the patch breaks things when not using n key
-> rollover. If using the Corsair K70 in "BIOS mode" or just using a
-> plain USB-keyboard keys repeat forever as reported.
->
-> David, I noticed that in the first version of your patch, where the
-> ignore check was done in hid-core.c, you only checked events that had
-> the HID_MAIN_ITEM_VARIABLE flag set. I can see that "plain" keyboards
-> don't have this bit set on the release event so if I keep this check
-> in the new patch it works in both cases.
->
-> So, the if-clause now looks like this:
->
-> ...
->     if (!(field->flags & (HID_MAIN_ITEM_RELATIVE |
->                   HID_MAIN_ITEM_BUFFERED_BYTE)) &&
->         (field->flags & HID_MAIN_ITEM_VARIABLE) &&
->         usage->usage_index < field->maxusage &&
->         value == field->value[usage->usage_index]) {
-> ...
+Just a few quick remarks:
 
-Nice catch! Of course, we must not apply this to ARRAY reports. I will
-send v2 tomorrow (still on the road..).
+- run scripts/checkpatch.pl over your source, I'm fairly certain it will complain
+  about several constructs.
+- use videobuf2-vmalloc instead of dma-contig. There is no DMA involved, so there
+  is no reason to use dma-contig.
+- Don't set V4L2_CAP_EXT_PIX_FORMAT in querycap: it will be set automatically by
+  the v4l2 core.
 
-Thanks
-David
+Regards,
+
+	Hans

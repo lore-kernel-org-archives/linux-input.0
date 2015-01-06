@@ -1,59 +1,91 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: hid-replay captured data
-Date: Tue, 6 Jan 2015 15:39:01 -0500
-Message-ID: <CAN+gG=GcLCS8mBApNkEegqvCr8PRd1rmEYq=7WVzDJA3CM-F9g@mail.gmail.com>
-References: <20150106191346.6zze9x2sg0coskkc@webmail.fib.upc.es>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH] input: Add soft kill switch for input devices
+Date: Tue, 6 Jan 2015 22:17:32 +0100
+Message-ID: <20150106221732.1cbbe3ae@neptune.home>
+References: <1420352645-3706-1-git-send-email-tristan@lelong.xyz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f52.google.com ([209.85.192.52]:63725 "EHLO
-	mail-qg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750995AbbAFUjD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 15:39:03 -0500
-Received: by mail-qg0-f52.google.com with SMTP id i50so4142639qgf.39
-        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 12:39:01 -0800 (PST)
-In-Reply-To: <20150106191346.6zze9x2sg0coskkc@webmail.fib.upc.es>
+Received: from hygieia.santi-shop.eu ([78.46.175.2]:55787 "EHLO
+	hygieia.santi-shop.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750921AbbAFVRn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 16:17:43 -0500
+In-Reply-To: <1420352645-3706-1-git-send-email-tristan@lelong.xyz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: josep.sanchez.ferreres@est.fib.upc.edu
-Cc: linux-input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>
+To: Tristan Lelong <tristan@lelong.xyz>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Tue, Jan 6, 2015 at 1:13 PM,  <josep.sanchez.ferreres@est.fib.upc.edu> wrote:
-> Here's the data you asked for:
->
-> D: 0
-> R: 117 06 0d ff 09 01 a1 01 85 10 a1 00 06 00 ff 09 01 15 00 26 ff 00 75 08
-> 95 3f 81 02 c0 09 01 85 11 95 3f b1 02 09 01 85 02 95 01 b1 02 09 01 85 cc
-> 95 02 b1 02 09 01 85 b0 95 01 b1 02 09 01 85 b1 95 28 81 02 09 01 85 07 95
-> 06 b1 02 09 01 85 08 95 04 b1 02 09 01 85 0a 95 01 b1 02 09 01 85 0b 95 01
-> b1 02 09 01 85 0c 95 01 b1 02 09 01 85 0d 95 3f 81 02 c0
-> N: Wacom Co.,Ltd. Bamboo Pad, USB
-> P: usb-0000:00:1d.7-2.4.3/input0
-> I: 3 056a 0318
->
-> The three lines you told me are there.
+On Sat, 03 January 2015 Tristan Lelong <tristan@lelong.xyz> wrote:
+> This adds a sysfs attribute named 'mute' to all input devices.
+> It allows to disable them by software in a generic way.
+> 
+> It can be set to 0 or 1:
+> echo 1 > /sys/class/input/inputX/mute: will set all the input_events() call to return immediately.
+> echo 0 > /sys/class/input/inputX/mute: will reset to default behavior.
+> 
+> mute is set to 0 by default when calling alloc_input_device().
+> 
+> Signed-off-by: Tristan Lelong <tristan@lelong.xyz>
+> ---
+> Hi,
+> 
+> I created this patch to answer a need on my machine: I want to be able to disable momentarily the touchscreen
+> in order to wipe out a dust or clean the display without creating a mess on my desktop and opened docs.
+> It seemed consistent to have that kill switch at a central point, and moreover,
+> it doesn't depend on any tool linked to a specifc X server, graphical toolkit, desktop environment...
+> 
+> This patch uses the 0/1 values to enable or disable the mute, but I could update it to use
+> enable/disable instead if it is preferred.
+> Also, the permissions are write for group or ownoer only.
+> I thought about setting it world writable in order to allow easy shortcut creation, but it might also be a security flaw.
+> 
+> Let me know what you think about all this, at least it is really useful in my case, linked to a keyboard shortcut.
+> 
+> Best regards
+> ---
+>  drivers/input/input.c | 30 +++++++++++++++++++++++++++++-
+>  include/linux/input.h |  1 +
+>  2 files changed, 30 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index a1e609a..2f80fee 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -425,7 +425,7 @@ void input_event(struct input_dev *dev,
+>  {
+>  	unsigned long flags;
+>  
+> -	if (is_event_supported(type, dev->evbit, EV_MAX)) {
+> +	if (!dev->mute && is_event_supported(type, dev->evbit, EV_MAX)) {
+>  
+>  		spin_lock_irqsave(&dev->event_lock, flags);
+>  		input_handle_event(dev, type, code, value);
+> @@ -1384,10 +1384,38 @@ static ssize_t input_dev_show_properties(struct device *dev,
+> <snip>
 
-Thanks for the log.
-So there are room here for a custom protocol apparently. However, I do
-not think the ones we currently have in wacom_wac.c would fit (given
-the potential report ID).
-So we will need one of the Wacom guys to have a look at it.
+One big issue I see here is that you start dropping all events at a random
+point in time.
+You may end up within a gesture or just while a button is down and remain
+so until that same button gets pressed again on unmute.
 
-Jason, Ping, do you have any info on these devices? Should we turn
-them into a proprietary protocol or does the touch only works as a
-mouse?
+On your touchscreen, how do things behave if you trigger the muting while
+you are dragging or doing some gesture (and unmute when noone touches
+the touchscreen)?
 
->
-> PD: Sorry for not replying correctly. I can't use my gmail because the mail
-> server from vger.kernel.org doesn't allow html mails, so I'm using my
-> college e-mail address that's redirected to my gmail. So long story short I
-> can't hit reply and have to do it manually, sorry for that. I've included
-> everyone from the cc, is it ok now? If not please tell me and I'll try to
-> avoid the mail redirection so I can reply properly.
+If applied to a keyboard, what happens when you mute while keys are pressed
+and unmute when they have long been released?
 
-One the lower right corner of the mail compose window, there is a
-small arrow pointing down. Click it and select "Plain text mode" and
-your message will not be sent in html but txt only :)
 
-Cheers,
-Benjamin
+If you could send a "reset" event to input listeners when muting you could
+work around most issues as any application making use of events would know
+that after this "reset" event things should not depend on any past state.
+
+
+Possibly a better way to achieve your aim is to just unbind and re-bind
+the device from device driver, causing software hotplug.
+That way you are sure no application will perform incorrect guesses while
+device is "muted".
+
+Bruno

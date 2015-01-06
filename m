@@ -1,86 +1,43 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 2/5] mfd: tps65218: make INT1 our status_base register
-Date: Tue, 6 Jan 2015 11:37:40 -0600
-Message-ID: <20150106173740.GM6502@saruman>
-References: <1419622104-25812-1-git-send-email-balbi@ti.com>
- <1419622104-25812-3-git-send-email-balbi@ti.com>
-Reply-To: <balbi@ti.com>
+From: josep.sanchez.ferreres@est.fib.upc.edu
+Subject: RE: hid-replay captured data
+Date: Tue, 06 Jan 2015 19:13:46 +0100
+Message-ID: <20150106191346.6zze9x2sg0coskkc@webmail.fib.upc.es>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lbQeYSs6J2ITmUo7"
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:34263 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932277AbbAFRif (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 12:38:35 -0500
+Received: from mail2.fib.upc.es ([147.83.41.106]:58918 "EHLO mail2.fib.upc.es"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932507AbbAFSN6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Jan 2015 13:13:58 -0500
 Content-Disposition: inline
-In-Reply-To: <1419622104-25812-3-git-send-email-balbi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>
+To: linux-input@vger.kernel.org
+Cc: benjamin.tissoires@gmail.com, pinglinux@gmail.com, killertofu@gmail.com, skomra@gmail.com
 
---lbQeYSs6J2ITmUo7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here's the data you asked for:
 
-On Fri, Dec 26, 2014 at 01:28:21PM -0600, Felipe Balbi wrote:
-> If we don't tell regmap-irq that our first status
-> register is at offset 1, it will try to read offset
-> zero, which is the chipid register.
->=20
-> Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
-> Cc: <stable@vger.kernel.org> # v3.15+
-> Cc: Keerthy <j-keerthy@ti.com>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Felipe Balbi <balbi@ti.com>
+D: 0
+R: 117 06 0d ff 09 01 a1 01 85 10 a1 00 06 00 ff 09 01 15 00 26 ff 00  
+75 08 95 3f 81 02 c0 09 01 85 11 95 3f b1 02 09 01 85 02 95 01 b1 02  
+09 01 85 cc 95 02 b1 02 09 01 85 b0 95 01 b1 02 09 01 85 b1 95 28 81  
+02 09 01 85 07 95 06 b1 02 09 01 85 08 95 04 b1 02 09 01 85 0a 95 01  
+b1 02 09 01 85 0b 95 01 b1 02 09 01 85 0c 95 01 b1 02 09 01 85 0d 95  
+3f 81 02 c0
+N: Wacom Co.,Ltd. Bamboo Pad, USB
+P: usb-0000:00:1d.7-2.4.3/input0
+I: 3 056a 0318
 
-ping
+The three lines you told me are there.
 
-> ---
->  drivers/mfd/tps65218.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/mfd/tps65218.c b/drivers/mfd/tps65218.c
-> index 2243f75..d6b7643 100644
-> --- a/drivers/mfd/tps65218.c
-> +++ b/drivers/mfd/tps65218.c
-> @@ -204,6 +204,7 @@ static struct regmap_irq_chip tps65218_irq_chip =3D {
-> =20
->  	.num_regs =3D 2,
->  	.mask_base =3D TPS65218_REG_INT_MASK1,
-> +	.status_base =3D TPS65218_REG_INT1,
->  };
-> =20
->  static const struct of_device_id of_tps65218_match_table[] =3D {
-> --=20
-> 2.2.0
->=20
-
---=20
-balbi
-
---lbQeYSs6J2ITmUo7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUrB1kAAoJEIaOsuA1yqREbIwQAKFbW/mGnM8mjE33chmFyqpy
-OIQy9ABEXu023jPX8umnkQ2DKspPQS1AGftaQ/sKWtTVApXg3BErqm40htRDueBa
-GOQ/qNyO3FtZuSokksj6iYfphRJ4myds7gTBZxjEk4EIRZKMGNfK2HFS4/gsiHPi
-TXIvqJUBuYBULF7faLkuXHw/xVLnJf37xx1JEIr0WpxTP9xshdiJ1m8lfF8T96Lf
-Rq0UzRbszy2Sl73wXELgxrBVMXWWN9Dwwg83A7zGOPmGNAIQj1HdrFYuEK6fXGs9
-HcQ9wCaKveMJIvRN9Zk6Lx2v/XkJolUmHNjdizYWb66RV1las58mFE+Qyt/alrDi
-sCQxFilF7nTEwVjfHSJnJ0ZTZ8CVjywupygmiwCiJi/KZRC3O3Lvi1+HMQqQr4JN
-5lWvrZeS7IYuKoqps81nPsBj4HrUy1YsoqKnpxnClIQMZnHSXYHBxtNeABGLgcHO
-P3hS096uRtjDND6hsQsyBqwsQGdow+QpqQR8n4g14TqJDQSv1jrtIxMH61Kqon4B
-ci+y4LS8stuObl2gmWwaOmkbmOOJ8dK9PEaHGg39+OCtc982xyJzDR9JL8XlE61f
-EgmCXKfXKVGaY2dacDAJYab21ZjQ1G4vOiI6P4UTBfbwmUsBr8Q3Jj/V9eUkgd28
-iSim5SPsMWHnng+BfRfF
-=OJyK
------END PGP SIGNATURE-----
-
---lbQeYSs6J2ITmUo7--
+PD: Sorry for not replying correctly. I can't use my gmail because the  
+mail server from vger.kernel.org doesn't allow html mails, so I'm  
+using my college e-mail address that's redirected to my gmail. So long  
+story short I can't hit reply and have to do it manually, sorry for  
+that. I've included everyone from the cc, is it ok now? If not please  
+tell me and I'll try to avoid the mail redirection so I can reply  
+properly.

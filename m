@@ -1,13 +1,13 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 4/8] iio: hid-sensor-als: Introduce PM
-Date: Wed,  7 Jan 2015 10:55:56 -0800
-Message-ID: <1420656960-7365-5-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 5/8] iio: hid-sensor-prox: Introduce PM
+Date: Wed,  7 Jan 2015 10:55:57 -0800
+Message-ID: <1420656960-7365-6-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1420656960-7365-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:40338 "EHLO mga11.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:57436 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753806AbbAGS5E (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Jan 2015 13:57:04 -0500
+	id S1754085AbbAGS5F (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 7 Jan 2015 13:57:05 -0500
 In-Reply-To: <1420656960-7365-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -20,14 +20,14 @@ remove from the client drivers.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/iio/light/hid-sensor-als.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/iio/light/hid-sensor-prox.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 321862d..1609ecd 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -80,7 +80,6 @@ static int als_read_raw(struct iio_dev *indio_dev,
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index db9c60e..91ecc46 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -75,7 +75,6 @@ static int prox_read_raw(struct iio_dev *indio_dev,
  	int report_id = -1;
  	u32 address;
  	int ret_type;
@@ -35,30 +35,31 @@ index 321862d..1609ecd 100644
  
  	*val = 0;
  	*val2 = 0;
-@@ -97,15 +96,8 @@ static int als_read_raw(struct iio_dev *indio_dev,
+@@ -92,16 +91,8 @@ static int prox_read_raw(struct iio_dev *indio_dev,
  			break;
  		}
  		if (report_id >= 0) {
 -			poll_value = hid_sensor_read_poll_value(
--						&als_state->common_attributes);
+-					&prox_state->common_attributes);
 -			if (poll_value < 0)
 -				return -EINVAL;
 -
- 			hid_sensor_power_state(&als_state->common_attributes,
+ 			hid_sensor_power_state(&prox_state->common_attributes,
  						true);
+-
 -			msleep_interruptible(poll_value * 2);
 -
  			*val = sensor_hub_input_attr_get_raw_value(
- 					als_state->common_attributes.hsdev,
- 					HID_USAGE_SENSOR_ALS, address,
-@@ -382,6 +374,7 @@ static struct platform_driver hid_als_platform_driver = {
- 	.id_table = hid_als_ids,
+ 				prox_state->common_attributes.hsdev,
+ 				HID_USAGE_SENSOR_PROX, address,
+@@ -374,6 +365,7 @@ static struct platform_driver hid_prox_platform_driver = {
+ 	.id_table = hid_prox_ids,
  	.driver = {
  		.name	= KBUILD_MODNAME,
 +		.pm	= &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_als_probe,
- 	.remove		= hid_als_remove,
+ 	.probe		= hid_prox_probe,
+ 	.remove		= hid_prox_remove,
 -- 
 1.9.3
 

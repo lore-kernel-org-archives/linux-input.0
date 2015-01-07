@@ -1,112 +1,158 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input:Flush client events on clk_type change
-Date: Wed, 7 Jan 2015 11:32:07 -0800
-Message-ID: <20150107193207.GA3508@dtor-ws>
-References: <aksgarg1989@gmail.com>
- <1420656963-44602-1-git-send-email-aksgarg1989@gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: PATCH change for HID_BATTERY_STRENGTH kconfig
+Date: Wed, 7 Jan 2015 23:53:04 +0100
+Message-ID: <CANq1E4SBz28enhHz6mXBLKyjRCP9HzAuN7ikLbGTno=zAkFhcQ@mail.gmail.com>
+References: <CACo8zOfAf3cUNh4MZcQvYByiu=D5S1aA4qiH_HFuvz5GYMJF7g@mail.gmail.com>
+	<alpine.LNX.2.00.1305240016180.13213@pobox.suse.cz>
+	<CACo8zOcm3B7WdQpHA3J2ZtP6AWUrtAo_L63mpYJR0w13jNwLpQ@mail.gmail.com>
+	<alpine.LNX.2.00.1407291339040.16390@pobox.suse.cz>
+	<1415617019.16803.2.camel@bart>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f182.google.com ([209.85.213.182]:43322 "EHLO
-	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751528AbbAGTcM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 14:32:12 -0500
-Received: by mail-ig0-f182.google.com with SMTP id hn15so1865707igb.3
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 11:32:12 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1420656963-44602-1-git-send-email-aksgarg1989@gmail.com>
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:34324 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754615AbbAGWxF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 17:53:05 -0500
+Received: by mail-ie0-f171.google.com with SMTP id ar1so6604670iec.2
+        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 14:53:04 -0800 (PST)
+In-Reply-To: <1415617019.16803.2.camel@bart>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anshul Garg <aksgarg1989@gmail.com>
-Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
+To: Daniel Nicoletti <dantti12@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Wed, Jan 07, 2015 at 10:56:03AM -0800, Anshul Garg wrote:
-> From: Anshul Garg <aksgarg1989@gmail.com>
-> 
-> Since the client clk_type is changed , flush pending
-> events from client buffer and queue SYN_DROPPED event.
-> Added check for duplicate clk_type change request.
-> 
-> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+Hi
+
+On Mon, Nov 10, 2014 at 11:56 AM, Daniel Nicoletti <dantti12@gmail.com>=
+ wrote:
+> Em Ter, 2014-07-29 =C3=A0s 13:39 +0200, Jiri Kosina escreveu:
+>> On Mon, 23 Jun 2014, Daniel Nicoletti wrote:
+>>
+>> > 2013-05-23 19:16 GMT-03:00 Jiri Kosina <jkosina@suse.cz>:
+>> > > On Mon, 13 May 2013, Daniel Nicoletti wrote:
+>> > >
+>> > >> Hi,
+>> > >> I'd like to propose this patch while removes the need for
+>> > >> hid to be compiled build-in, as this is the same behavior
+>> > >> that WiiMote and Wacom have.
+>> > >> Is this ok?
+>> > >
+>> > > Makes sense to me. Could you please resend with proper changelog=
+ and
+>> > > Signed-off-by: line?
+>> > >
+>> > > Thanks.
+>> >
+>> > Sorry it took more than a year for me to do this,
+>> > so I called git send-email, and so far the CC and
+>> > linux-input didn't get it, tho it said result OK.
+>> > git send-email --to "Jiri Kosina <jkosina@suse.cz>" --cc
+>> > "linux-input@vger.kernel.org"
+>> > 0001-HID-Allows-for-HID_BATTERY_STRENGTH-config-be-enable.patch
+>> >
+>> > I'm pasting it here hoping gmail doesn't screw
+>> > it, if you prefer that I send it using the above
+>> > command mind you telling what I did wrong?
+>> >
+>> > Thanks.
+>> >
+>> > >From df740fd81dffbb74e13c622392fe9a945006fd3c Mon Sep 17 00:00:00=
+ 2001
+>> > From: Daniel Nicoletti <dantti12@gmail.com>
+>> > Date: Mon, 23 Jun 2014 10:31:47 -0300
+>> > Subject: [PATCH] HID: Allows for HID_BATTERY_STRENGTH config be en=
+abled
+>> >  without the need for HID module to be built-in.
+>> >
+>>
+>> It'd be nice to insert a few sentences of changelog here.
+>>
+>> Thanks.
+>>
+>> > Signed-off-by: Daniel Nicoletti <dantti12@gmail.com>
+>> > ---
+>> >  drivers/hid/Kconfig | 3 ++-
+>> >  1 file changed, 2 insertions(+), 1 deletion(-)
+>> >
+>> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> > index fb52f3f..d6d85ad 100644
+>> > --- a/drivers/hid/Kconfig
+>> > +++ b/drivers/hid/Kconfig
+>> > @@ -27,7 +27,8 @@ if HID
+>> >
+>> >  config HID_BATTERY_STRENGTH
+>> >         bool "Battery level reporting for HID devices"
+>> > -       depends on HID && POWER_SUPPLY && HID =3D POWER_SUPPLY
+>> > +       depends on HID
+>> > +       select POWER_SUPPLY
+>> >         default n
+>> >         ---help---
+>> >         This option adds support of reporting battery strength (fo=
+r HID devices
+>> > --
+>> > 2.0.0
+>> >
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs
+>
+> Sorry for yet another delay here is the patch with
+> a better changelog (I hope so)...
+>
+>
+> From 21608873917dcec012c7f9f1b84dd44774069de2 Mon Sep 17 00:00:00 200=
+1
+> From: Daniel Nicoletti <dantti12@gmail.com>
+> Date: Mon, 23 Jun 2014 10:31:47 -0300
+> Subject: [PATCH] HID: Allow HID_BATTERY_STRENGTH to be enabled
+>
+> Allows for HID_BATTERY_STRENGTH config be enabled
+> without the need for HID module to be built-in,
+> prior to this HID and POWER_SUPPLY had to be
+> equal, and now we only select POWER_SUPPLY and
+> depend on the HID module.
+>
+> Signed-off-by: Daniel Nicoletti <dantti12@gmail.com>
 > ---
->  drivers/input/evdev.c |   58 ++++++++++++++++++++++++++++++-------------------
->  1 file changed, 36 insertions(+), 22 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index b1a52ab..223367e 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -62,27 +62,6 @@ struct evdev_client {
->  	struct input_event buffer[];
->  };
->  
-> -static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
-> -{
-> -	switch (clkid) {
-> -
-> -	case CLOCK_REALTIME:
-> -		client->clk_type = EV_CLK_REAL;
-> -		break;
-> -	case CLOCK_MONOTONIC:
-> -		client->clk_type = EV_CLK_MONO;
-> -		break;
-> -	case CLOCK_BOOTTIME:
-> -		client->clk_type = EV_CLK_BOOT;
-> -		break;
-> -	default:
-> -		return -EINVAL;
-> -	}
-> -
-> -	return 0;
-> -}
-> -
-> -/* flush queued events of type @type, caller must hold client->buffer_lock */
->  static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->  {
->  	unsigned int i, head, num;
-> @@ -160,6 +139,41 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
->  	spin_unlock_irqrestore(&client->buffer_lock, flags);
->  }
->  
-> +static int evdev_set_clk_type(struct evdev_client *client,
-> +			struct input_dev *dev, unsigned int clkid)
-> +{
-> +	if (client->clk_type == clkid)
-> +		return 0;
-> +
-> +	switch (clkid) {
-> +
-> +	case CLOCK_REALTIME:
-> +		client->clk_type = EV_CLK_REAL;
-> +		break;
-> +	case CLOCK_MONOTONIC:
-> +		client->clk_type = EV_CLK_MONO;
-> +		break;
-> +	case CLOCK_BOOTTIME:
-> +		client->clk_type = EV_CLK_BOOT;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	spin_lock_irq(&dev->event_lock);
-> +	spin_lock(&client->buffer_lock);
-> +	spin_unlock(&dev->event_lock);
+>  drivers/hid/Kconfig | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Umm, why?
+Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
-> +
-> +	/* Flush clients events after clk_type is changed
-> +	 * and queue SYN_DROPPED event.*/
-> +	client->packet_head = client->head = client->tail;
-> +	spin_unlock_irq(&client->buffer_lock);
-> +
-> +	evdev_queue_syn_dropped(client);
+Thanks
+David
 
-This is still racy. I'd rather we passed a flag to
-evdev_queue_syn_dropped() to indicate it should also clear queue.
-
-Thanks.
-
--- 
-Dmitry
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index f42df4d..602ac07 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -27,7 +27,8 @@ if HID
+>
+>  config HID_BATTERY_STRENGTH
+>         bool "Battery level reporting for HID devices"
+> -       depends on HID && POWER_SUPPLY && HID =3D POWER_SUPPLY
+> +       depends on HID
+> +       select POWER_SUPPLY
+>         default n
+>         ---help---
+>         This option adds support of reporting battery strength (for H=
+ID
+> devices
+> --
+> 2.1.0
+>
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

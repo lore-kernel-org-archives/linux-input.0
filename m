@@ -1,137 +1,188 @@
-From: Olliver Schinagl <oliver+list@schinagl.nl>
-Subject: [PATCH v1] input: make use of the input_set_capability helper
-Date: Wed,  7 Jan 2015 08:31:06 +0100
-Message-ID: <1420615866-3528-1-git-send-email-oliver+list@schinagl.nl>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jingoo Han <jg1.han@samsung.com>, "David S. Miller" <davem@davemloft.net>, Sam Ravnborg <sam@ravnborg.org>
-Cc: Olliver Schinagl <oliver@schinagl.nl>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Elantech touchpad detection fix for laptops
+Date: Tue, 6 Jan 2015 23:44:33 -0800
+Message-ID: <20150107074433.GC5256@dtor-ws>
+References: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+ <CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f181.google.com ([209.85.223.181]:33264 "EHLO
+	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752302AbbAGHoi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 02:44:38 -0500
+Received: by mail-ie0-f181.google.com with SMTP id rl12so2269257iec.12
+        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 23:44:38 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
+Cc: linux-input@vger.kernel.org, Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, guillaum.bouchard@gmail.com
 
-From: Olliver Schinagl <oliver@schinagl.nl>
+Hi Srihari,
 
-Almost all of the speaker drivers under input manipulate the ev bits
-directly, which is not needed, as there is a helper available.
+On Mon, Jan 05, 2015 at 07:45:39PM +1100, Srihari Vijayaraghavan wrote:
+> Hello Folks & Dmitry,
+>=20
+> Further to the previous patch, here is the current version (against
+> mainline) updated with the DMI info of another laptop model where thi=
+s
+> fix had helped a user.
+>=20
+> Can you please review it & give some feedback? If it looks good as it
+> is, then on behalf of all affected users (including yours truly), may
+> I request for it to be merged upstream (and possibly stable too)?
+>=20
+> (If the patch gets spoiled by gmail, please ref to this bugzilla URL,
+> where this patch is there as a file attachment:
+> https://bugzilla.kernel.org/show_bug.cgi?id=3D81331)
 
-This patch makes use of the helper for the speaker drivers.
+I am not terribly happy with having fiddling with keyboard from i8042
+core, but I guess that's what we have to do unless someone has better
+idea...
 
-Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
----
- drivers/input/misc/cm109.c         | 4 ++--
- drivers/input/misc/ixp4xx-beeper.c | 5 ++---
- drivers/input/misc/m68kspkr.c      | 5 ++---
- drivers/input/misc/pcspkr.c        | 5 ++---
- drivers/input/misc/pwm-beeper.c    | 5 +----
- drivers/input/misc/sparcspkr.c     | 6 ++----
- 6 files changed, 11 insertions(+), 19 deletions(-)
+I'll drop mention of Elantech from the option though as it may well be
+needed for other devices in the future.
 
-diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
-index 9365535..8e41070 100644
---- a/drivers/input/misc/cm109.c
-+++ b/drivers/input/misc/cm109.c
-@@ -767,10 +767,10 @@ static int cm109_usb_probe(struct usb_interface *intf,
- 	input_dev->keycodesize = sizeof(unsigned char);
- 	input_dev->keycodemax = ARRAY_SIZE(dev->keymap);
- 
--	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_SND);
--	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
-+	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
- 
- 	/* register available key events */
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY);
- 	for (i = 0; i < KEYMAP_SIZE; i++) {
- 		unsigned short k = keymap(i);
- 		dev->keymap[i] = k;
-diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ixp4xx-beeper.c
-index 1fe149f..befccd0 100644
---- a/drivers/input/misc/ixp4xx-beeper.c
-+++ b/drivers/input/misc/ixp4xx-beeper.c
-@@ -105,11 +105,10 @@ static int ixp4xx_spkr_probe(struct platform_device *dev)
- 	input_dev->id.product = 0x0001;
- 	input_dev->id.version = 0x0100;
- 	input_dev->dev.parent = &dev->dev;
--
--	input_dev->evbit[0] = BIT_MASK(EV_SND);
--	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
- 	input_dev->event = ixp4xx_spkr_event;
- 
-+	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
-+
- 	err = gpio_request(dev->id, "ixp4-beeper");
- 	if (err)
- 		goto err_free_device;
-diff --git a/drivers/input/misc/m68kspkr.c b/drivers/input/misc/m68kspkr.c
-index 312d636..721f1dc 100644
---- a/drivers/input/misc/m68kspkr.c
-+++ b/drivers/input/misc/m68kspkr.c
-@@ -64,11 +64,10 @@ static int m68kspkr_probe(struct platform_device *dev)
- 	input_dev->id.product = 0x0001;
- 	input_dev->id.version = 0x0100;
- 	input_dev->dev.parent = &dev->dev;
--
--	input_dev->evbit[0] = BIT_MASK(EV_SND);
--	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
- 	input_dev->event = m68kspkr_event;
- 
-+	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
-+
- 	err = input_register_device(input_dev);
- 	if (err) {
- 		input_free_device(input_dev);
-diff --git a/drivers/input/misc/pcspkr.c b/drivers/input/misc/pcspkr.c
-index 72b1fc3..5374a01 100644
---- a/drivers/input/misc/pcspkr.c
-+++ b/drivers/input/misc/pcspkr.c
-@@ -78,11 +78,10 @@ static int pcspkr_probe(struct platform_device *dev)
- 	pcspkr_dev->id.product = 0x0001;
- 	pcspkr_dev->id.version = 0x0100;
- 	pcspkr_dev->dev.parent = &dev->dev;
--
--	pcspkr_dev->evbit[0] = BIT_MASK(EV_SND);
--	pcspkr_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
- 	pcspkr_dev->event = pcspkr_event;
- 
-+	input_set_capability(pcspr_dev, ENV_SND, SND_BELL | SND_TONE);
-+
- 	err = input_register_device(pcspkr_dev);
- 	if (err) {
- 		input_free_device(pcspkr_dev);
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index a28ee70..e8facbd 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -102,12 +102,9 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 	beeper->input->id.vendor = 0x001f;
- 	beeper->input->id.product = 0x0001;
- 	beeper->input->id.version = 0x0100;
--
--	beeper->input->evbit[0] = BIT(EV_SND);
--	beeper->input->sndbit[0] = BIT(SND_TONE) | BIT(SND_BELL);
--
- 	beeper->input->event = pwm_beeper_event;
- 
-+	input_set_capability(beeper->input, EV_SND, SND_TONE | SND_BELL);
- 	input_set_drvdata(beeper->input, beeper);
- 
- 	error = input_register_device(beeper->input);
-diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
-index 54116e5..7b55c97 100644
---- a/drivers/input/misc/sparcspkr.c
-+++ b/drivers/input/misc/sparcspkr.c
-@@ -156,12 +156,10 @@ static int sparcspkr_probe(struct device *dev)
- 	input_dev->id.product = 0x0001;
- 	input_dev->id.version = 0x0100;
- 	input_dev->dev.parent = dev;
--
--	input_dev->evbit[0] = BIT_MASK(EV_SND);
--	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
--
- 	input_dev->event = state->event;
- 
-+	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
-+
- 	error = input_register_device(input_dev);
- 	if (error) {
- 		input_free_device(input_dev);
--- 
-2.1.4
+Thanks!
+
+
+>=20
+> Thanks
+
+> commit c77a39a799b51fbb68b72330267c2d32a8e20542
+> Author: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
+> Date:   Mon Jan 5 18:53:04 2015 +1100
+>=20
+>     As reported in kernel bugzilla 81331, on many laptops keyboard ne=
+eds to be reset
+>     for the detection of Elantech touchpad. Based on the original pat=
+ch by Mateusz Jo=C5=84czyk
+>     this version has been expanded to include DMI based detection & a=
+pplication of the fix
+>     automatically. Confirmed to fix the problem by three users alread=
+y.
+>    =20
+>     Signed-off-by: Srihari Vijayaraghavan <linux.bug.reporting@gmail.=
+com>
+>     Acked-by: Mateusz Jo=C5=84czyk <mat.jonczyk@o2.pl>
+>     Tested-by: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
+>     Tested by: Zakariya Dehlawi <zdehlawi@gmail.com>
+>     Tested-by: Guillaum Bouchard <guillaum.bouchard@gmail.com>
+>=20
+> diff --git a/Documentation/kernel-parameters.txt b/Documentation/kern=
+el-parameters.txt
+> index 4df73da..c6e8cbc 100644
+> --- a/Documentation/kernel-parameters.txt
+> +++ b/Documentation/kernel-parameters.txt
+> @@ -1277,6 +1277,7 @@ bytes respectively. Such letter suffixes can al=
+so be entirely omitted.
+>  	i8042.notimeout	[HW] Ignore timeout condition signalled by controll=
+er
+>  	i8042.reset	[HW] Reset the controller during init and cleanup
+>  	i8042.unlock	[HW] Unlock (ignore) the keylock
+> +	i8042.kbdreset  [HW] Reset keyboard to detect Elantech touchpad
+> =20
+>  	i810=3D		[HW,DRM]
+> =20
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/se=
+rio/i8042-x86ia64io.h
+> index c66d1b5..734360b 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -745,6 +745,36 @@ static const struct dmi_system_id __initconst i8=
+042_dmi_dritek_table[] =3D {
+>  	{ }
+>  };
+> =20
+> +/*
+> + * Just as per kernel bugzilla #81331, some Elantech touchpad based =
+laptops
+> + * need keyboard reset while probing for the tochpad to get detected=
+,
+> + * initialised & finally work.
+> + */
+> +static const struct dmi_system_id __initconst i8042_dmi_elantech_kbd=
+reset_table[] =3D {
+> +        {
+> +                /* Gigabyte P35 v2 */
+> +                .matches =3D {
+> +                        DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+> +                        DMI_MATCH(DMI_PRODUCT_NAME, "P35V2"),
+> +                },
+> +        },
+> +	{
+> +		/* Aorus branded Gigabyte X3 Plus */
+> +		.matches =3D {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "X3"),
+> +		},
+> +	},
+> +        {
+> +                /* Gigabyte P34 */
+> +                .matches =3D {
+> +                        DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+> +                        DMI_MATCH(DMI_PRODUCT_NAME, "P34"),
+> +                },
+> +        },
+> +	{ }
+> +};
+> +
+>  #endif /* CONFIG_X86 */
+> =20
+>  #ifdef CONFIG_PNP
+> @@ -1040,6 +1070,9 @@ static int __init i8042_platform_init(void)
+>  	if (dmi_check_system(i8042_dmi_dritek_table))
+>  		i8042_dritek =3D true;
+> =20
+> +	if (dmi_check_system(i8042_dmi_elantech_kbdreset_table))
+> +		i8042_kbdreset =3D true;
+> +
+>  	/*
+>  	 * A20 was already enabled during early kernel init. But some buggy
+>  	 * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.=
+c
+> index 924e4bf..92d0aa8 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -67,6 +67,10 @@ static bool i8042_notimeout;
+>  module_param_named(notimeout, i8042_notimeout, bool, 0);
+>  MODULE_PARM_DESC(notimeout, "Ignore timeouts signalled by i8042");
+> =20
+> +static bool i8042_kbdreset;
+> +module_param_named(kbdreset, i8042_kbdreset, bool, 0);
+> +MODULE_PARM_DESC(kbdreset, "Reset keyboard to detect Elantech touchp=
+ad on some laptops");
+> +
+>  #ifdef CONFIG_X86
+>  static bool i8042_dritek;
+>  module_param_named(dritek, i8042_dritek, bool, 0);
+> @@ -790,6 +794,14 @@ static int __init i8042_check_aux(void)
+>  		return -1;
+> =20
+>  /*
+> + * Reset keyboard to detect touchpad on some laptops having Elantech=
+ touchpad
+> + */
+> +	if (i8042_kbdreset) {
+> +		pr_warn("Resetting keyboard to detect Elantech touchpad on some la=
+ptops\n");
+> +		i8042_kbd_write(NULL, (unsigned char) 0xff);
+> +	}
+> +
+> +/*
+>   * Test AUX IRQ delivery to make sure BIOS did not grab the IRQ and
+>   * used it for a PCI card or somethig else.
+>   */
+
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

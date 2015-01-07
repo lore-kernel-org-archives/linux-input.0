@@ -1,66 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input:Flush client events after clk_type change
-Date: Tue, 6 Jan 2015 16:41:33 -0800
-Message-ID: <20150107004133.GC12798@dtor-ws>
-References: <anshul.g>
- <1420552953-23932-1-git-send-email-aksgarg1989@gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] hid: Initialize battery_no to -1 & correct its format string
+Date: Tue, 6 Jan 2015 16:50:34 -0800
+Message-ID: <CAF8JNh+gzA_m-mMjjAdBz6WyyFemTU26VDOLufOJXJ5DMkK2yg@mail.gmail.com>
+References: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
+	<alpine.LNX.2.00.1412291302470.1680@pobox.suse.cz>
+	<CADYu308MmdGeajFTDt38zZSy7K2VKbDppuqmiJn=1ZwL5d1vmw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:56312 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752166AbbAGAli (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 19:41:38 -0500
-Received: by mail-ie0-f181.google.com with SMTP id rl12so1001642iec.12
-        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 16:41:37 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1420552953-23932-1-git-send-email-aksgarg1989@gmail.com>
+Received: from mail-vc0-f177.google.com ([209.85.220.177]:42436 "EHLO
+	mail-vc0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752539AbbAGAuf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 19:50:35 -0500
+In-Reply-To: <CADYu308MmdGeajFTDt38zZSy7K2VKbDppuqmiJn=1ZwL5d1vmw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anshul Garg <aksgarg1989@gmail.com>
-Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
+To: Aniroop Mathur <aniroop.mathur@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pingc@wacom.com>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, a.mathur@samsung.com
 
-On Tue, Jan 06, 2015 at 06:02:33AM -0800, Anshul Garg wrote:
-> From: Anshul Garg <aksgarg1989@gmail.com>
-> 
-> Since the client clk_type is changed , flush pending
-> events from client buffer and queue SYN_DROPPED event.
-> Added check for duplicate clk_type change request.
-> 
-> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
-> ---
->  drivers/input/evdev.c |    9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index b1a52ab..91330e1 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -64,6 +64,9 @@ struct evdev_client {
->  
->  static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->  {
-> +	if (client->clk_type == clkid)
-> +		return 0;
-> +
->  	switch (clkid) {
->  
->  	case CLOCK_REALTIME:
-> @@ -78,7 +81,11 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->  	default:
->  		return -EINVAL;
->  	}
-> -
-> +
-> +	/* Flush clients events after clk_type is changed
-> +	 * and queue SYN_DROPPED event.*/
-> +	client->packet_head = client->head = client->tail;
-> +	evdev_queue_syn_dropped(client);
+Hi Benjamin,
 
-I am fairly certain this is racy wrt the new events coming from the
-device.
+The relevant code was introduced by
+d70420b914c98a3758674c6e9858810e0ab4ea30. Can you take a look and let
+us know if Aniroop's patch fits your original thought or not?
 
-Thanks.
+Thanks,
 
--- 
-Dmitry
+Ping
+
+On Tue, Jan 6, 2015 at 6:32 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+> Dear Mr. Jason and Mr. Ping,
+>
+> Please update about below patch.
+> Except avoiding subtraction, there is also a need to avoid negative
+> battery name which may come due to %ld, so need to change to %lu.
+>
+> Thanks,
+> Aniroop
+>
+> On Mon, Dec 29, 2014 at 5:33 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Sun, 28 Dec 2014, Aniroop Mathur wrote:
+>>
+>>> From: Aniroop Mathur <a.mathur@samsung.com>
+>>>
+>>> This patch initializes battery_no to -1 to avoid extra subtraction
+>>> operation performed everytime wacom battery is initialized
+>>
+>> This is so femto-optimization, that I don't really care deeply. Adding
+>> Jason and Ping to CC. If they want this, I'll apply the patch.
+>>
+>>> and correct format string of unsigned long from %ld to %lu.
+>>>
+>>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>>> ---
+>>>  drivers/hid/wacom_sys.c | 8 ++++----
+>>>  1 file changed, 4 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+>>> index 129fd33..4b5ff84 100644
+>>> --- a/drivers/hid/wacom_sys.c
+>>> +++ b/drivers/hid/wacom_sys.c
+>>> @@ -919,17 +919,17 @@ static int wacom_ac_get_property(struct power_supply *psy,
+>>>
+>>>  static int wacom_initialize_battery(struct wacom *wacom)
+>>>  {
+>>> -     static atomic_t battery_no = ATOMIC_INIT(0);
+>>> +     static atomic_t battery_no = ATOMIC_INIT(-1);
+>>>       int error;
+>>>       unsigned long n;
+>>>
+>>>       if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
+>>> -             n = atomic_inc_return(&battery_no) - 1;
+>>> +             n = atomic_inc_return(&battery_no);
+>>>
+>>>               wacom->battery.properties = wacom_battery_props;
+>>>               wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
+>>>               wacom->battery.get_property = wacom_battery_get_property;
+>>> -             sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%ld", n);
+>>> +             sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%lu", n);
+>>>               wacom->battery.name = wacom->wacom_wac.bat_name;
+>>>               wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+>>>               wacom->battery.use_for_apm = 0;
+>>> @@ -937,7 +937,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
+>>>               wacom->ac.properties = wacom_ac_props;
+>>>               wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
+>>>               wacom->ac.get_property = wacom_ac_get_property;
+>>> -             sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
+>>> +             sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%lu", n);
+>>>               wacom->ac.name = wacom->wacom_wac.ac_name;
+>>>               wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
+>>>               wacom->ac.use_for_apm = 0;
+>>> --
+>>> 1.9.1
+>>>
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

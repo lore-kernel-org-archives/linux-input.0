@@ -1,65 +1,35 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 5/8] iio: hid-sensor-prox: Introduce PM
-Date: Tue,  6 Jan 2015 16:58:44 -0800
-Message-ID: <1420592328-9942-21-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 6/9] iio: hid-sensor-magn-3d: Adjust parameter for attribute read
+Date: Tue,  6 Jan 2015 16:58:36 -0800
+Message-ID: <1420592328-9942-13-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1420592328-9942-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:24890 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756479AbbAGA7p (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Jan 2015 19:59:45 -0500
-In-Reply-To: <1420592328-9942-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1420592328-9942-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jkosina-AlSwsSmVLrQ@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, jic23@kernel.org
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Use common hid sensor iio pm functions. Also the poll time read and
-wait is part of power up function of hid sensor iio pm function, so
-remove from the client drivers.
+The new API added a flag for sync/async mode. Added sync mode flag.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/iio/light/hid-sensor-prox.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index db9c60e..91ecc46 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -75,7 +75,6 @@ static int prox_read_raw(struct iio_dev *indio_dev,
- 	int report_id = -1;
- 	u32 address;
- 	int ret_type;
--	s32 poll_value;
- 
- 	*val = 0;
- 	*val2 = 0;
-@@ -92,16 +91,8 @@ static int prox_read_raw(struct iio_dev *indio_dev,
- 			break;
- 		}
- 		if (report_id >= 0) {
--			poll_value = hid_sensor_read_poll_value(
--					&prox_state->common_attributes);
--			if (poll_value < 0)
--				return -EINVAL;
--
- 			hid_sensor_power_state(&prox_state->common_attributes,
- 						true);
--
--			msleep_interruptible(poll_value * 2);
--
+diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+index 6294575..4d299f3 100644
+--- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
++++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+@@ -178,7 +178,8 @@ static int magn_3d_read_raw(struct iio_dev *indio_dev,
  			*val = sensor_hub_input_attr_get_raw_value(
- 				prox_state->common_attributes.hsdev,
- 				HID_USAGE_SENSOR_PROX, address,
-@@ -374,6 +365,7 @@ static struct platform_driver hid_prox_platform_driver = {
- 	.id_table = hid_prox_ids,
- 	.driver = {
- 		.name	= KBUILD_MODNAME,
-+		.pm	= &hid_sensor_pm_ops,
- 	},
- 	.probe		= hid_prox_probe,
- 	.remove		= hid_prox_remove,
+ 				magn_state->common_attributes.hsdev,
+ 				HID_USAGE_SENSOR_COMPASS_3D, address,
+-				report_id);
++				report_id,
++				SENSOR_HUB_SYNC);
+ 		else {
+ 			*val = 0;
+ 			hid_sensor_power_state(&magn_state->common_attributes,
 -- 
 1.9.1
-

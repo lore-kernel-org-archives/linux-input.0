@@ -1,155 +1,91 @@
-From: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
-Subject: Re: [PATCH 1/1] Elantech touchpad detection fix for laptops
-Date: Wed, 7 Jan 2015 19:23:25 +1100
-Message-ID: <CAEK4c-_xcj2JrNEcnARSwWwNQxow+JO1F1hf_d1befApXKNegw@mail.gmail.com>
-References: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
-	<CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
-	<20150107074433.GC5256@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v1] input: make use of the input_set_capability helper
+Date: Wed, 7 Jan 2015 00:26:03 -0800
+Message-ID: <20150107082603.GG5256@dtor-ws>
+References: <1420615866-3528-1-git-send-email-oliver+list@schinagl.nl>
+ <20150107075703.GE5256@dtor-ws>
+ <54ACEC10.5000508@schinagl.nl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a1132e2c02ad714050c0ba380
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qg0-f47.google.com ([209.85.192.47]:46389 "EHLO
-	mail-qg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750784AbbAGIX0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 03:23:26 -0500
-Received: by mail-qg0-f47.google.com with SMTP id q108so569983qgd.34
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 00:23:25 -0800 (PST)
-In-Reply-To: <20150107074433.GC5256@dtor-ws>
+Received: from mail-ig0-f176.google.com ([209.85.213.176]:58105 "EHLO
+	mail-ig0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754855AbbAGI0I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 03:26:08 -0500
+Content-Disposition: inline
+In-Reply-To: <54ACEC10.5000508@schinagl.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, =?UTF-8?Q?Mateusz_Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, Guillaume Bouchard <guillaum.bouchard@gmail.com>
+To: Olliver Schinagl <oliver@schinagl.nl>
+Cc: Olliver Schinagl <oliver+list@schinagl.nl>, Wolfram Sang <wsa@the-dreams.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jingoo Han <jg1.han@samsung.com>, "David S. Miller" <davem@davemloft.net>, Sam Ravnborg <sam@ravnborg.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---001a1132e2c02ad714050c0ba380
-Content-Type: text/plain; charset=UTF-8
+On Wed, Jan 07, 2015 at 09:19:28AM +0100, Olliver Schinagl wrote:
+> Hey Dmitry,
+> 
+> On 07-01-15 08:57, Dmitry Torokhov wrote:
+> >Hi Olliver,
+> >
+> >On Wed, Jan 07, 2015 at 08:31:06AM +0100, Olliver Schinagl wrote:
+> >>From: Olliver Schinagl <oliver@schinagl.nl>
+> >>
+> >>Almost all of the speaker drivers under input manipulate the ev bits
+> >>directly, which is not needed, as there is a helper available.
+> >>
+> >>This patch makes use of the helper for the speaker drivers.
+> >>
+> >>Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
+> >>---
+> >>  drivers/input/misc/cm109.c         | 4 ++--
+> >>  drivers/input/misc/ixp4xx-beeper.c | 5 ++---
+> >>  drivers/input/misc/m68kspkr.c      | 5 ++---
+> >>  drivers/input/misc/pcspkr.c        | 5 ++---
+> >>  drivers/input/misc/pwm-beeper.c    | 5 +----
+> >>  drivers/input/misc/sparcspkr.c     | 6 ++----
+> >>  6 files changed, 11 insertions(+), 19 deletions(-)
+> >>
+> >>diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+> >>index 9365535..8e41070 100644
+> >>--- a/drivers/input/misc/cm109.c
+> >>+++ b/drivers/input/misc/cm109.c
+> >>@@ -767,10 +767,10 @@ static int cm109_usb_probe(struct usb_interface *intf,
+> >>  	input_dev->keycodesize = sizeof(unsigned char);
+> >>  	input_dev->keycodemax = ARRAY_SIZE(dev->keymap);
+> >>-	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_SND);
+> >>-	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+> >>+	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
+> >No, input_set_capability() takes single event code, not bitmask. The
+> >fact that it works for these 2 values of SND events is pure coincidence
+> >(the old code wasn't much better though).
 
-On 7 January 2015 at 18:44, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Hi Srihari,
+Ah, not, it does not work at all. Instead of setting bits 1 and 2 your
+code sets bit 3 in dev->sndbit.
 
-Hello Dimitry,
+> What do you suggest we should do then? Fix input_set_capability to
+> take bit masks? or multiline events?
+> I'm not sure why __set_bits() wouldn't work for bitmasks, could you
+> educate me?
 
-Thanks for your feedback. Much appreciated.
+Call it once per event:
 
-> On Mon, Jan 05, 2015 at 07:45:39PM +1100, Srihari Vijayaraghavan wrote:
->> Hello Folks & Dmitry,
->>
->> Further to the previous patch, here is the current version (against
->> mainline) updated with the DMI info of another laptop model where this
->> fix had helped a user.
->>
->> Can you please review it & give some feedback? If it looks good as it
->> is, then on behalf of all affected users (including yours truly), may
->> I request for it to be merged upstream (and possibly stable too)?
->>
->> (If the patch gets spoiled by gmail, please ref to this bugzilla URL,
->> where this patch is there as a file attachment:
->> https://bugzilla.kernel.org/show_bug.cgi?id=81331)
->
-> I am not terribly happy with having fiddling with keyboard from i8042
-> core, but I guess that's what we have to do unless someone has better
-> idea...
+	input_set_capability(input_dev, EV_SND, SND_BELL);
+	input_set_capability(input_dev, EV_SND, SND_TONE);
 
-Agreed 100%. Regrettably, seeing how psmouse_do_detect() doesn't even
-get invoked, this heavy handed approach had to be taken at i8042 core.
-However, as you've pointed out, if there is any better idea, we're all
-ears.
 
-> I'll drop mention of Elantech from the option though as it may well be
-> needed for other devices in the future.
+> >
+> >>  	/* register available key events */
+> >>+	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+> >Would prefer __set_bit(EV_KEY, input_dev->evbit); here instead.
+> I only moved the EV_KEY bit from above to its appropiate place here.
 
-A version of the patch (against mainline) incorporating your ideas
-(i.e., without too much Elantech bashing) is attached to this email
-for your review.
+The original code was setting combination of bits; here we set single
+one and __set_bit() is cleaner IMO.
 
-> Thanks!
+> I can change this one (and others) to use __set_bit() for now for
+> v2?
 
-Much appreciated. Thank you.
+Yes, please.
 
-> --
-> Dmitry
+Thanks.
 
-Srihari Vijayaraghavan
-
---001a1132e2c02ad714050c0ba380
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="touchpad_detection_fix_for_laptops_v5_against_mainline.patch"
-Content-Disposition: attachment;
-	filename="touchpad_detection_fix_for_laptops_v5_against_mainline.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i4mfvcbb0
-
-Y29tbWl0IDU2NzQwMGNlZWQ0ZmViZjUzZmI2NzZkZDY3YjFkODAxZjkwMWYxMmMKQXV0aG9yOiBT
-cmloYXJpIFZpamF5YXJhZ2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWlsLmNvbT4KRGF0
-ZTogICBXZWQgSmFuIDcgMTk6MDQ6MjEgMjAxNSArMTEwMAoKICAgIEFzIHJlcG9ydGVkIGluIGtl
-cm5lbCBidWd6aWxsYSA4MTMzMSwgb24gc29tZSBsYXB0b3BzIGtleWJvYXJkIG5lZWRzIHRvIGJl
-IHJlc2V0CiAgICBmb3IgdGhlIGRldGVjdGlvbiBvZiB0b3VjaHBhZCAoZS5nLiwgc29tZSBHaWdh
-Ynl0ZSBsYXB0b3AgbW9kZWxzIGNvbnRhaW5pbmcgRWxhbnRlY2gpCiAgICBCYXNlZCBvbiB0aGUg
-b3JpZ2luYWwgcGF0Y2ggYnkgTWF0ZXVzeiBKb8WEY3p5ayB0aGlzIHZlcnNpb24gaGFzIGJlZW4g
-ZXhwYW5kZWQgdG8gaW5jbHVkZQogICAgRE1JIGJhc2VkIGRldGVjdGlvbiAmIGFwcGxpY2F0aW9u
-IG9mIHRoZSBmaXggYXV0b21hdGljYWxseS4gVGhpcyBoYXMgYmVlbiBjb25maXJtZWQgdG8KICAg
-IGZpeCBwcm9ibGVtIGJ5IHRocmVlIHVzZXJzIGFscmVhZHkgb24gdGhyZWUgZGlmZmVyZW50IG1v
-ZGVscyBvZiBsYXB0b3BzLgogICAgCiAgICBTaWduZWQtb2ZmLWJ5OiBTcmloYXJpIFZpamF5YXJh
-Z2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWlsLmNvbT4KICAgIEFja2VkLWJ5OiBNYXRl
-dXN6IEpvxYRjenlrIDxtYXQuam9uY3p5a0BvMi5wbD4KICAgIFRlc3RlZC1ieTogU3JpaGFyaSBW
-aWpheWFyYWdoYXZhbiA8bGludXguYnVnLnJlcG9ydGluZ0BnbWFpbC5jb20+CiAgICBUZXN0ZWQg
-Ynk6IFpha2FyaXlhIERlaGxhd2kgPHpkZWhsYXdpQGdtYWlsLmNvbT4KICAgIFRlc3RlZC1ieTog
-R3VpbGxhdW0gQm91Y2hhcmQgPGd1aWxsYXVtLmJvdWNoYXJkQGdtYWlsLmNvbT4KCmRpZmYgLS1n
-aXQgYS9Eb2N1bWVudGF0aW9uL2tlcm5lbC1wYXJhbWV0ZXJzLnR4dCBiL0RvY3VtZW50YXRpb24v
-a2VybmVsLXBhcmFtZXRlcnMudHh0CmluZGV4IDRkZjczZGEuLjYwM2ZhMTAgMTAwNjQ0Ci0tLSBh
-L0RvY3VtZW50YXRpb24va2VybmVsLXBhcmFtZXRlcnMudHh0CisrKyBiL0RvY3VtZW50YXRpb24v
-a2VybmVsLXBhcmFtZXRlcnMudHh0CkBAIC0xMjc3LDYgKzEyNzcsNyBAQCBieXRlcyByZXNwZWN0
-aXZlbHkuIFN1Y2ggbGV0dGVyIHN1ZmZpeGVzIGNhbiBhbHNvIGJlIGVudGlyZWx5IG9taXR0ZWQu
-CiAJaTgwNDIubm90aW1lb3V0CVtIV10gSWdub3JlIHRpbWVvdXQgY29uZGl0aW9uIHNpZ25hbGxl
-ZCBieSBjb250cm9sbGVyCiAJaTgwNDIucmVzZXQJW0hXXSBSZXNldCB0aGUgY29udHJvbGxlciBk
-dXJpbmcgaW5pdCBhbmQgY2xlYW51cAogCWk4MDQyLnVubG9jawlbSFddIFVubG9jayAoaWdub3Jl
-KSB0aGUga2V5bG9jaworCWk4MDQyLmtiZHJlc2V0ICBbSFddIFJlc2V0IGtleWJvYXJkIHRvIGRl
-dGVjdCB0b3VjaHBhZCBvbiBzb21lIGxhcHRvcHMKIAogCWk4MTA9CQlbSFcsRFJNXQogCmRpZmYg
-LS1naXQgYS9kcml2ZXJzL2lucHV0L3NlcmlvL2k4MDQyLXg4NmlhNjRpby5oIGIvZHJpdmVycy9p
-bnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaAppbmRleCBjNjZkMWI1Li41ZTVlZGVlIDEwMDY0
-NAotLS0gYS9kcml2ZXJzL2lucHV0L3NlcmlvL2k4MDQyLXg4NmlhNjRpby5oCisrKyBiL2RyaXZl
-cnMvaW5wdXQvc2VyaW8vaTgwNDIteDg2aWE2NGlvLmgKQEAgLTc0NSw2ICs3NDUsMzUgQEAgc3Rh
-dGljIGNvbnN0IHN0cnVjdCBkbWlfc3lzdGVtX2lkIF9faW5pdGNvbnN0IGk4MDQyX2RtaV9kcml0
-ZWtfdGFibGVbXSA9IHsKIAl7IH0KIH07CiAKKy8qCisgKiBKdXN0IGFzIHBlciBrZXJuZWwgYnVn
-emlsbGEgIzgxMzMxLCBzb21lIGxhcHRvcHMgbmVlZCBrZXlib2FyZCByZXNldCBiZWZvcmUgcHJv
-YmluZworICogZm9yIHRoZSB0b2NocGFkIHRvIGdldCBpdCBkZXRlY3RlZCwgaW5pdGlhbGlzZWQg
-JiBmaW5hbGx5IHdvcmsuCisgKi8KK3N0YXRpYyBjb25zdCBzdHJ1Y3QgZG1pX3N5c3RlbV9pZCBf
-X2luaXRjb25zdCBpODA0Ml9kbWlfZWxhbnRlY2hfa2JkcmVzZXRfdGFibGVbXSA9IHsKKyAgICAg
-ICAgeworICAgICAgICAgICAgICAgIC8qIEdpZ2FieXRlIFAzNSB2MiAqLworICAgICAgICAgICAg
-ICAgIC5tYXRjaGVzID0geworICAgICAgICAgICAgICAgICAgICAgICAgRE1JX01BVENIKERNSV9T
-WVNfVkVORE9SLCAiR0lHQUJZVEUiKSwKKyAgICAgICAgICAgICAgICAgICAgICAgIERNSV9NQVRD
-SChETUlfUFJPRFVDVF9OQU1FLCAiUDM1VjIiKSwKKyAgICAgICAgICAgICAgICB9LAorICAgICAg
-ICB9LAorCXsKKwkJLyogQW9ydXMgYnJhbmRlZCBHaWdhYnl0ZSBYMyBQbHVzICovCisJCS5tYXRj
-aGVzID0geworCQkJRE1JX01BVENIKERNSV9TWVNfVkVORE9SLCAiR0lHQUJZVEUiKSwKKwkJCURN
-SV9NQVRDSChETUlfUFJPRFVDVF9OQU1FLCAiWDMiKSwKKwkJfSwKKwl9LAorICAgICAgICB7Cisg
-ICAgICAgICAgICAgICAgLyogR2lnYWJ5dGUgUDM0ICovCisgICAgICAgICAgICAgICAgLm1hdGNo
-ZXMgPSB7CisgICAgICAgICAgICAgICAgICAgICAgICBETUlfTUFUQ0goRE1JX1NZU19WRU5ET1Is
-ICJHSUdBQllURSIpLAorICAgICAgICAgICAgICAgICAgICAgICAgRE1JX01BVENIKERNSV9QUk9E
-VUNUX05BTUUsICJQMzQiKSwKKyAgICAgICAgICAgICAgICB9LAorICAgICAgICB9LAorCXsgfQor
-fTsKKwogI2VuZGlmIC8qIENPTkZJR19YODYgKi8KIAogI2lmZGVmIENPTkZJR19QTlAKQEAgLTEw
-NDAsNiArMTA2OSw5IEBAIHN0YXRpYyBpbnQgX19pbml0IGk4MDQyX3BsYXRmb3JtX2luaXQodm9p
-ZCkKIAlpZiAoZG1pX2NoZWNrX3N5c3RlbShpODA0Ml9kbWlfZHJpdGVrX3RhYmxlKSkKIAkJaTgw
-NDJfZHJpdGVrID0gdHJ1ZTsKIAorCWlmIChkbWlfY2hlY2tfc3lzdGVtKGk4MDQyX2RtaV9lbGFu
-dGVjaF9rYmRyZXNldF90YWJsZSkpCisJCWk4MDQyX2tiZHJlc2V0ID0gdHJ1ZTsKKwogCS8qCiAJ
-ICogQTIwIHdhcyBhbHJlYWR5IGVuYWJsZWQgZHVyaW5nIGVhcmx5IGtlcm5lbCBpbml0LiBCdXQg
-c29tZSBidWdneQogCSAqIEJJT1NlcyAoaW4gTVNJIExhcHRvcHMpIHJlcXVpcmUgQTIwIHRvIGJl
-IGVuYWJsZWQgdXNpbmcgODA0MiB0bwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9zZXJpby9p
-ODA0Mi5jIGIvZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi5jCmluZGV4IDkyNGU0YmYuLjFhNmZm
-NzQgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQvc2VyaW8vaTgwNDIuYworKysgYi9kcml2ZXJz
-L2lucHV0L3NlcmlvL2k4MDQyLmMKQEAgLTY3LDYgKzY3LDEwIEBAIHN0YXRpYyBib29sIGk4MDQy
-X25vdGltZW91dDsKIG1vZHVsZV9wYXJhbV9uYW1lZChub3RpbWVvdXQsIGk4MDQyX25vdGltZW91
-dCwgYm9vbCwgMCk7CiBNT0RVTEVfUEFSTV9ERVNDKG5vdGltZW91dCwgIklnbm9yZSB0aW1lb3V0
-cyBzaWduYWxsZWQgYnkgaTgwNDIiKTsKIAorc3RhdGljIGJvb2wgaTgwNDJfa2JkcmVzZXQ7Citt
-b2R1bGVfcGFyYW1fbmFtZWQoa2JkcmVzZXQsIGk4MDQyX2tiZHJlc2V0LCBib29sLCAwKTsKK01P
-RFVMRV9QQVJNX0RFU0Moa2JkcmVzZXQsICJSZXNldCBrZXlib2FyZCB0byBkZXRlY3QgdG91Y2hw
-YWQgb24gc29tZSBsYXB0b3BzIik7CisKICNpZmRlZiBDT05GSUdfWDg2CiBzdGF0aWMgYm9vbCBp
-ODA0Ml9kcml0ZWs7CiBtb2R1bGVfcGFyYW1fbmFtZWQoZHJpdGVrLCBpODA0Ml9kcml0ZWssIGJv
-b2wsIDApOwpAQCAtNzkwLDYgKzc5NCwxNSBAQCBzdGF0aWMgaW50IF9faW5pdCBpODA0Ml9jaGVj
-a19hdXgodm9pZCkKIAkJcmV0dXJuIC0xOwogCiAvKgorICogUmVzZXQga2V5Ym9hcmQgdG8gZGV0
-ZWN0IHRvdWNocGFkIG9uIHNvbWUgbGFwdG9wcworICogKGUuZy4sIHNvbWUgR2lnYWJ5dGUgbGFw
-dG9wIG1vZGVscyBjb250YWluaW5nIEVsYW50ZWNoIHRvdWNocGFkKQorICovCisJaWYgKGk4MDQy
-X2tiZHJlc2V0KSB7CisJCXByX3dhcm4oIlJlc2V0dGluZyBrZXlib2FyZCB0byBkZXRlY3QgdG91
-Y2hwYWQgb24gc29tZSBsYXB0b3BzXG4iKTsKKwkJaTgwNDJfa2JkX3dyaXRlKE5VTEwsICh1bnNp
-Z25lZCBjaGFyKSAweGZmKTsKKwl9CisKKy8qCiAgKiBUZXN0IEFVWCBJUlEgZGVsaXZlcnkgdG8g
-bWFrZSBzdXJlIEJJT1MgZGlkIG5vdCBncmFiIHRoZSBJUlEgYW5kCiAgKiB1c2VkIGl0IGZvciBh
-IFBDSSBjYXJkIG9yIHNvbWV0aGlnIGVsc2UuCiAgKi8K
---001a1132e2c02ad714050c0ba380--
+-- 
+Dmitry

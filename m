@@ -1,43 +1,159 @@
-From: Olliver Schinagl <oliver+list@schinagl.nl>
-Subject: [PATCH v1 1/4] gpio:gpiolib: use static const char const * for a suffixes array
-Date: Wed,  7 Jan 2015 10:08:39 +0100
-Message-ID: <1420621722-7428-2-git-send-email-oliver+list@schinagl.nl>
-References: <1420621722-7428-1-git-send-email-oliver+list@schinagl.nl>
+From: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
+Subject: Re: [PATCH 1/1] Elantech touchpad detection fix for laptops
+Date: Wed, 7 Jan 2015 20:11:36 +1100
+Message-ID: <CAEK4c-_GTLu0jRLaX-na2-mou6qGX4A8p2rS7Q_QnM+DNKZWdg@mail.gmail.com>
+References: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+	<CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
+	<20150107074433.GC5256@dtor-ws>
+	<CAEK4c-_xcj2JrNEcnARSwWwNQxow+JO1F1hf_d1befApXKNegw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=001a11c2ef8e7c4aef050c0c4fef
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 7of9.schinagl.nl ([88.159.158.68]:42985 "EHLO 7of9.schinagl.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752238AbbAGJJL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Jan 2015 04:09:11 -0500
-In-Reply-To: <1420621722-7428-1-git-send-email-oliver+list@schinagl.nl>
+Received: from mail-qc0-f172.google.com ([209.85.216.172]:48378 "EHLO
+	mail-qc0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752025AbbAGJLh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 04:11:37 -0500
+Received: by mail-qc0-f172.google.com with SMTP id m20so650270qcx.3
+        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 01:11:36 -0800 (PST)
+In-Reply-To: <CAEK4c-_xcj2JrNEcnARSwWwNQxow+JO1F1hf_d1befApXKNegw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
-Cc: Olliver Schinagl <oliver@schinagl.nl>, Robin Gong <b38343@freescale.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Grant Likely <grant.likely@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Alexander Shiyan <shc_work@mail.ru>, Jingoo Han <jg1.han@samsung.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, =?UTF-8?Q?Mateusz_Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, Guillaume Bouchard <guillaum.bouchard@gmail.com>
 
-From: Olliver Schinagl <oliver@schinagl.nl>
+--001a11c2ef8e7c4aef050c0c4fef
+Content-Type: text/plain; charset=UTF-8
 
-Checkpatch complains, and probably with good reason that we should use
-const char const * for the static constant array that never gets
-changed.
+On 7 January 2015 at 19:23, Srihari Vijayaraghavan
+<linux.bug.reporting@gmail.com> wrote:
+> On 7 January 2015 at 18:44, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+>> Hi Srihari,
+>
+> Hello Dimitry,
+>
+> Thanks for your feedback. Much appreciated.
+>
+>> On Mon, Jan 05, 2015 at 07:45:39PM +1100, Srihari Vijayaraghavan wrote:
+>>> Hello Folks & Dmitry,
+>>>
+>>> Further to the previous patch, here is the current version (against
+>>> mainline) updated with the DMI info of another laptop model where this
+>>> fix had helped a user.
+>>>
+>>> Can you please review it & give some feedback? If it looks good as it
+>>> is, then on behalf of all affected users (including yours truly), may
+>>> I request for it to be merged upstream (and possibly stable too)?
+>>>
+>>> (If the patch gets spoiled by gmail, please ref to this bugzilla URL,
+>>> where this patch is there as a file attachment:
+>>> https://bugzilla.kernel.org/show_bug.cgi?id=81331)
+>>
+>> I am not terribly happy with having fiddling with keyboard from i8042
+>> core, but I guess that's what we have to do unless someone has better
+>> idea...
+>
+> Agreed 100%. Regrettably, seeing how psmouse_do_detect() doesn't even
+> get invoked, this heavy handed approach had to be taken at i8042 core.
+> However, as you've pointed out, if there is any better idea, we're all
+> ears.
+>
+>> I'll drop mention of Elantech from the option though as it may well be
+>> needed for other devices in the future.
+>
+> A version of the patch (against mainline) incorporating your ideas
+> (i.e., without too much Elantech bashing) is attached to this email
+> for your review.
+>
+>> Thanks!
 
-Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
----
- drivers/gpio/gpiolib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[Sorry to respond to my own email.]
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 487afe6..9d2a371 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1657,7 +1657,7 @@ static struct gpio_desc *of_find_gpio(struct device *dev, const char *con_id,
- 				      unsigned int idx,
- 				      enum gpio_lookup_flags *flags)
- {
--	static const char *suffixes[] = { "gpios", "gpio" };
-+	static const char const *suffixes[] = { "gpios", "gpio" };
- 	char prop_name[32]; /* 32 is max size of property name */
- 	enum of_gpio_flags of_flags;
- 	struct gpio_desc *desc;
--- 
-2.1.4
+Here's a better version, removing Elantech ref from the table name.
 
+Thanks
+
+--001a11c2ef8e7c4aef050c0c4fef
+Content-Type: text/x-patch; charset=UTF-8;
+	name="touchpad_detection_fix_for_laptops_v6_against_mainline.patch"
+Content-Disposition: attachment;
+	filename="touchpad_detection_fix_for_laptops_v6_against_mainline.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i4mhkvlf1
+
+Y29tbWl0IDJiNWQ4MTRkMDhkNGRkZTk1YzVlODJiMWYzN2JjODcxODAxMDM4ZGEKQXV0aG9yOiBT
+cmloYXJpIFZpamF5YXJhZ2hhdmFuIDxsaW51eC5idWcucmVwb3J0aW5nQGdtYWlsLmNvbT4KRGF0
+ZTogICBXZWQgSmFuIDcgMjA6MDA6NTEgMjAxNSArMTEwMAoKICAgIEFzIHJlcG9ydGVkIGluIGtl
+cm5lbCBidWd6aWxsYSA4MTMzMSwgb24gc29tZSBsYXB0b3BzLCBrZXlib2FyZCBuZWVkcyB0byBi
+ZQogICAgcmVzZXQgZm9yIHRoZSBkZXRlY3Rpb24gb2YgdG91Y2hwYWQgKGUuZy4sIHNvbWUgR2ln
+YWJ5dGUgbGFwdG9wIG1vZGVscwogICAgY29udGFpbmluZyBFbGFudGVjaCkuCiAgICAKICAgIEJh
+c2VkIG9uIHRoZSBvcmlnaW5hbCBwYXRjaCBieSBNYXRldXN6IEpvxYRjenlrIHRoaXMgdmVyc2lv
+biBoYXMgYmVlbiBleHBhbmRlZAogICAgdG8gaW5jbHVkZSBETUkgYmFzZWQgZGV0ZWN0aW9uICYg
+YXBwbGljYXRpb24gb2YgdGhlIGZpeCBhdXRvbWF0aWNhbGx5IG9uIHRoZQogICAgYWZmZWN0ZWQg
+bW9kZWxzIG9mIGxhcHRvcHMuIFRoaXMgaGFzIGJlZW4gY29uZmlybWVkIHRvIGZpeCBwcm9ibGVt
+IGJ5IHRocmVlCiAgICB1c2VycyBhbHJlYWR5IG9uIHRocmVlIGRpZmZlcmVudCBtb2RlbHMgb2Yg
+bGFwdG9wcy4KICAgIAogICAgU2lnbmVkLW9mZi1ieTogU3JpaGFyaSBWaWpheWFyYWdoYXZhbiA8
+bGludXguYnVnLnJlcG9ydGluZ0BnbWFpbC5jb20+CiAgICBBY2tlZC1ieTogTWF0ZXVzeiBKb8WE
+Y3p5ayA8bWF0LmpvbmN6eWtAbzIucGw+CiAgICBUZXN0ZWQtYnk6IFNyaWhhcmkgVmlqYXlhcmFn
+aGF2YW4gPGxpbnV4LmJ1Zy5yZXBvcnRpbmdAZ21haWwuY29tPgogICAgVGVzdGVkIGJ5OiBaYWth
+cml5YSBEZWhsYXdpIDx6ZGVobGF3aUBnbWFpbC5jb20+CiAgICBUZXN0ZWQtYnk6IEd1aWxsYXVt
+IEJvdWNoYXJkIDxndWlsbGF1bS5ib3VjaGFyZEBnbWFpbC5jb20+CgpkaWZmIC0tZ2l0IGEvRG9j
+dW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQgYi9Eb2N1bWVudGF0aW9uL2tlcm5lbC1w
+YXJhbWV0ZXJzLnR4dAppbmRleCA0ZGY3M2RhLi42MDNmYTEwIDEwMDY0NAotLS0gYS9Eb2N1bWVu
+dGF0aW9uL2tlcm5lbC1wYXJhbWV0ZXJzLnR4dAorKysgYi9Eb2N1bWVudGF0aW9uL2tlcm5lbC1w
+YXJhbWV0ZXJzLnR4dApAQCAtMTI3Nyw2ICsxMjc3LDcgQEAgYnl0ZXMgcmVzcGVjdGl2ZWx5LiBT
+dWNoIGxldHRlciBzdWZmaXhlcyBjYW4gYWxzbyBiZSBlbnRpcmVseSBvbWl0dGVkLgogCWk4MDQy
+Lm5vdGltZW91dAlbSFddIElnbm9yZSB0aW1lb3V0IGNvbmRpdGlvbiBzaWduYWxsZWQgYnkgY29u
+dHJvbGxlcgogCWk4MDQyLnJlc2V0CVtIV10gUmVzZXQgdGhlIGNvbnRyb2xsZXIgZHVyaW5nIGlu
+aXQgYW5kIGNsZWFudXAKIAlpODA0Mi51bmxvY2sJW0hXXSBVbmxvY2sgKGlnbm9yZSkgdGhlIGtl
+eWxvY2sKKwlpODA0Mi5rYmRyZXNldCAgW0hXXSBSZXNldCBrZXlib2FyZCB0byBkZXRlY3QgdG91
+Y2hwYWQgb24gc29tZSBsYXB0b3BzCiAKIAlpODEwPQkJW0hXLERSTV0KIApkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaCBiL2RyaXZlcnMvaW5wdXQvc2Vy
+aW8vaTgwNDIteDg2aWE2NGlvLmgKaW5kZXggYzY2ZDFiNS4uM2JlY2Y4OSAxMDA2NDQKLS0tIGEv
+ZHJpdmVycy9pbnB1dC9zZXJpby9pODA0Mi14ODZpYTY0aW8uaAorKysgYi9kcml2ZXJzL2lucHV0
+L3NlcmlvL2k4MDQyLXg4NmlhNjRpby5oCkBAIC03NDUsNiArNzQ1LDM2IEBAIHN0YXRpYyBjb25z
+dCBzdHJ1Y3QgZG1pX3N5c3RlbV9pZCBfX2luaXRjb25zdCBpODA0Ml9kbWlfZHJpdGVrX3RhYmxl
+W10gPSB7CiAJeyB9CiB9OwogCisvKgorICogU29tZSBsYXB0b3BzIG5lZWQga2V5Ym9hcmQgcmVz
+ZXQgYmVmb3JlIHByb2JpbmcgZm9yIHRoZSB0cmFja3BhZCB0byBnZXQgaXQKKyAqIGRldGVjdGVk
+LCBpbml0aWFsaXNlZCAmIGZpbmFsbHkgd29yayAoZS5nLiwgc29tZSBHaWdhYnl0ZSBsYXB0b3Ag
+bW9kZWxzIGNvbnRhaW5pbmcKKyAqIEVsYW50ZWNoIHRvdWNocGFkKS4KKyAqLworc3RhdGljIGNv
+bnN0IHN0cnVjdCBkbWlfc3lzdGVtX2lkIF9faW5pdGNvbnN0IGk4MDQyX2RtaV90b3VjaHBhZF9r
+YmRyZXNldF90YWJsZVtdID0geworICAgICAgICB7CisgICAgICAgICAgICAgICAgLyogR2lnYWJ5
+dGUgUDM1IHYyICovCisgICAgICAgICAgICAgICAgLm1hdGNoZXMgPSB7CisgICAgICAgICAgICAg
+ICAgICAgICAgICBETUlfTUFUQ0goRE1JX1NZU19WRU5ET1IsICJHSUdBQllURSIpLAorICAgICAg
+ICAgICAgICAgICAgICAgICAgRE1JX01BVENIKERNSV9QUk9EVUNUX05BTUUsICJQMzVWMiIpLAor
+ICAgICAgICAgICAgICAgIH0sCisgICAgICAgIH0sCisJeworCQkvKiBBb3J1cyBicmFuZGVkIEdp
+Z2FieXRlIFgzIFBsdXMgKi8KKwkJLm1hdGNoZXMgPSB7CisJCQlETUlfTUFUQ0goRE1JX1NZU19W
+RU5ET1IsICJHSUdBQllURSIpLAorCQkJRE1JX01BVENIKERNSV9QUk9EVUNUX05BTUUsICJYMyIp
+LAorCQl9LAorCX0sCisgICAgICAgIHsKKyAgICAgICAgICAgICAgICAvKiBHaWdhYnl0ZSBQMzQg
+Ki8KKyAgICAgICAgICAgICAgICAubWF0Y2hlcyA9IHsKKyAgICAgICAgICAgICAgICAgICAgICAg
+IERNSV9NQVRDSChETUlfU1lTX1ZFTkRPUiwgIkdJR0FCWVRFIiksCisgICAgICAgICAgICAgICAg
+ICAgICAgICBETUlfTUFUQ0goRE1JX1BST0RVQ1RfTkFNRSwgIlAzNCIpLAorICAgICAgICAgICAg
+ICAgIH0sCisgICAgICAgIH0sCisJeyB9Cit9OworCiAjZW5kaWYgLyogQ09ORklHX1g4NiAqLwog
+CiAjaWZkZWYgQ09ORklHX1BOUApAQCAtMTA0MCw2ICsxMDcwLDkgQEAgc3RhdGljIGludCBfX2lu
+aXQgaTgwNDJfcGxhdGZvcm1faW5pdCh2b2lkKQogCWlmIChkbWlfY2hlY2tfc3lzdGVtKGk4MDQy
+X2RtaV9kcml0ZWtfdGFibGUpKQogCQlpODA0Ml9kcml0ZWsgPSB0cnVlOwogCisJaWYgKGRtaV9j
+aGVja19zeXN0ZW0oaTgwNDJfZG1pX3RvdWNocGFkX2tiZHJlc2V0X3RhYmxlKSkKKwkJaTgwNDJf
+a2JkcmVzZXQgPSB0cnVlOworCiAJLyoKIAkgKiBBMjAgd2FzIGFscmVhZHkgZW5hYmxlZCBkdXJp
+bmcgZWFybHkga2VybmVsIGluaXQuIEJ1dCBzb21lIGJ1Z2d5CiAJICogQklPU2VzIChpbiBNU0kg
+TGFwdG9wcykgcmVxdWlyZSBBMjAgdG8gYmUgZW5hYmxlZCB1c2luZyA4MDQyIHRvCmRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2lucHV0L3NlcmlvL2k4MDQyLmMgYi9kcml2ZXJzL2lucHV0L3NlcmlvL2k4
+MDQyLmMKaW5kZXggOTI0ZTRiZi4uMWE2ZmY3NCAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9z
+ZXJpby9pODA0Mi5jCisrKyBiL2RyaXZlcnMvaW5wdXQvc2VyaW8vaTgwNDIuYwpAQCAtNjcsNiAr
+NjcsMTAgQEAgc3RhdGljIGJvb2wgaTgwNDJfbm90aW1lb3V0OwogbW9kdWxlX3BhcmFtX25hbWVk
+KG5vdGltZW91dCwgaTgwNDJfbm90aW1lb3V0LCBib29sLCAwKTsKIE1PRFVMRV9QQVJNX0RFU0Mo
+bm90aW1lb3V0LCAiSWdub3JlIHRpbWVvdXRzIHNpZ25hbGxlZCBieSBpODA0MiIpOwogCitzdGF0
+aWMgYm9vbCBpODA0Ml9rYmRyZXNldDsKK21vZHVsZV9wYXJhbV9uYW1lZChrYmRyZXNldCwgaTgw
+NDJfa2JkcmVzZXQsIGJvb2wsIDApOworTU9EVUxFX1BBUk1fREVTQyhrYmRyZXNldCwgIlJlc2V0
+IGtleWJvYXJkIHRvIGRldGVjdCB0b3VjaHBhZCBvbiBzb21lIGxhcHRvcHMiKTsKKwogI2lmZGVm
+IENPTkZJR19YODYKIHN0YXRpYyBib29sIGk4MDQyX2RyaXRlazsKIG1vZHVsZV9wYXJhbV9uYW1l
+ZChkcml0ZWssIGk4MDQyX2RyaXRlaywgYm9vbCwgMCk7CkBAIC03OTAsNiArNzk0LDE1IEBAIHN0
+YXRpYyBpbnQgX19pbml0IGk4MDQyX2NoZWNrX2F1eCh2b2lkKQogCQlyZXR1cm4gLTE7CiAKIC8q
+CisgKiBSZXNldCBrZXlib2FyZCB0byBkZXRlY3QgdG91Y2hwYWQgb24gc29tZSBsYXB0b3BzCisg
+KiAoZS5nLiwgc29tZSBHaWdhYnl0ZSBsYXB0b3AgbW9kZWxzIGNvbnRhaW5pbmcgRWxhbnRlY2gg
+dG91Y2hwYWQpCisgKi8KKwlpZiAoaTgwNDJfa2JkcmVzZXQpIHsKKwkJcHJfd2FybigiUmVzZXR0
+aW5nIGtleWJvYXJkIHRvIGRldGVjdCB0b3VjaHBhZCBvbiBzb21lIGxhcHRvcHNcbiIpOworCQlp
+ODA0Ml9rYmRfd3JpdGUoTlVMTCwgKHVuc2lnbmVkIGNoYXIpIDB4ZmYpOworCX0KKworLyoKICAq
+IFRlc3QgQVVYIElSUSBkZWxpdmVyeSB0byBtYWtlIHN1cmUgQklPUyBkaWQgbm90IGdyYWIgdGhl
+IElSUSBhbmQKICAqIHVzZWQgaXQgZm9yIGEgUENJIGNhcmQgb3Igc29tZXRoaWcgZWxzZS4KICAq
+Lwo=
+--001a11c2ef8e7c4aef050c0c4fef--

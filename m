@@ -1,110 +1,137 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [ADD] 1.support new ic type for version 4.
-Date: Tue, 6 Jan 2015 23:25:33 -0800
-Message-ID: <20150107072533.GB5256@dtor-ws>
-References: <1420531816-4744-1-git-send-email-sam.hung@emc.com.tw>
- <20150107072136.GA5256@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f180.google.com ([209.85.213.180]:45260 "EHLO
-	mail-ig0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750978AbbAGHZi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 02:25:38 -0500
-Received: by mail-ig0-f180.google.com with SMTP id h15so889067igd.7
-        for <linux-input@vger.kernel.org>; Tue, 06 Jan 2015 23:25:37 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20150107072136.GA5256@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+From: Olliver Schinagl <oliver+list@schinagl.nl>
+Subject: [PATCH v1] input: make use of the input_set_capability helper
+Date: Wed,  7 Jan 2015 08:31:06 +0100
+Message-ID: <1420615866-3528-1-git-send-email-oliver+list@schinagl.nl>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jingoo Han <jg1.han@samsung.com>, "David S. Miller" <davem@davemloft.net>, Sam Ravnborg <sam@ravnborg.org>
+Cc: Olliver Schinagl <oliver@schinagl.nl>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sam hung <sam.hung@emc.com.tw>
-Cc: linux-input@vger.kernel.org, dusonlin@emc.com.tw
 
-On Tue, Jan 06, 2015 at 11:21:36PM -0800, Dmitry Torokhov wrote:
-> Hi Sam,
-> 
-> On Tue, Jan 06, 2015 at 04:10:16PM +0800, Sam hung wrote:
-> > ---
-> >  drivers/input/mouse/elantech.c | 23 +++++++++++++----------
-> >  1 file changed, 13 insertions(+), 10 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> > index f2b9780..4891d07 100644
-> > --- a/drivers/input/mouse/elantech.c
-> > +++ b/drivers/input/mouse/elantech.c
-> > @@ -700,14 +700,14 @@ static int elantech_packet_check_v1(struct psmouse *psmouse)
-> >  
-> >  static int elantech_debounce_check_v2(struct psmouse *psmouse)
-> >  {
-> > -        /*
-> > -         * When we encounter packet that matches this exactly, it means the
-> > -         * hardware is in debounce status. Just ignore the whole packet.
-> > -         */
-> > -        const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
-> > -        unsigned char *packet = psmouse->packet;
-> > -
-> > -        return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
-> > +	/*
-> > +	* When we encounter packet that matches this exactly, it means the
-> > +	* hardware is in debounce status. Just ignore the whole packet.
-> > +	*/
-> > +	const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
-> > +	unsigned char *packet = psmouse->packet;
-> > +
-> > +	return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
-> >  }
-> 
-> Hmm, this chunk seems to be replacing spaces with tabs... I'd rather had
-> it separate from the hardware version changes.
-> 
-> I'll pick up the chunk below though.
+From: Olliver Schinagl <oliver@schinagl.nl>
 
-Ah, I missed the fact that the patch does not have your "signed-off-by"
-signature (see Documentation/SubmittingPatches). Please resend with it.
+Almost all of the speaker drivers under input manipulate the ev bits
+directly, which is not needed, as there is a helper available.
 
-> 
-> >  
-> >  static int elantech_packet_check_v2(struct psmouse *psmouse)
-> > @@ -1499,7 +1499,7 @@ static const struct dmi_system_id no_hw_res_dmi_table[] = {
-> >  /*
-> >   * determine hardware version and set some properties according to it.
-> >   */
-> > -static int elantech_set_properties(struct elantech_data *etd)
-> > +static int elantech_set_properties(struct psmouse *psmouse, struct elantech_data *etd)
-> >  {
-> >  	/* This represents the version of IC body. */
-> >  	int ver = (etd->fw_version & 0x0f0000) >> 16;
-> > @@ -1520,9 +1520,12 @@ static int elantech_set_properties(struct elantech_data *etd)
-> >  		case 7:
-> >  		case 8:
-> >  		case 9:
-> > +		case 10:
-> > +		case 13:
-> >  			etd->hw_version = 4;
-> >  			break;
-> >  		default:
-> > +			psmouse_err(psmouse, "failed to setting hw version.\n");
+This patch makes use of the helper for the speaker drivers.
 
-The caller of elantech_set_properties() already issues message about
-unknown hardware version, why do we need to have it here as well?
+Signed-off-by: Olliver Schinagl <oliver@schinagl.nl>
+---
+ drivers/input/misc/cm109.c         | 4 ++--
+ drivers/input/misc/ixp4xx-beeper.c | 5 ++---
+ drivers/input/misc/m68kspkr.c      | 5 ++---
+ drivers/input/misc/pcspkr.c        | 5 ++---
+ drivers/input/misc/pwm-beeper.c    | 5 +----
+ drivers/input/misc/sparcspkr.c     | 6 ++----
+ 6 files changed, 11 insertions(+), 19 deletions(-)
 
-> >  			return -1;
-> >  		}
-> >  	}
-> > @@ -1593,7 +1596,7 @@ int elantech_init(struct psmouse *psmouse)
-> >  	}
-> >  	etd->fw_version = (param[0] << 16) | (param[1] << 8) | param[2];
-> >  
-> > -	if (elantech_set_properties(etd)) {
-> > +	if (elantech_set_properties(psmouse, etd)) {
-> >  		psmouse_err(psmouse, "unknown hardware version, aborting...\n");
-> >  		goto init_fail;
-> >  	}
-> > -- 
-> > 1.8.3.2
-> > 
-
-Thanks.
-
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+index 9365535..8e41070 100644
+--- a/drivers/input/misc/cm109.c
++++ b/drivers/input/misc/cm109.c
+@@ -767,10 +767,10 @@ static int cm109_usb_probe(struct usb_interface *intf,
+ 	input_dev->keycodesize = sizeof(unsigned char);
+ 	input_dev->keycodemax = ARRAY_SIZE(dev->keymap);
+ 
+-	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_SND);
+-	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
++	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
+ 
+ 	/* register available key events */
++	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+ 	for (i = 0; i < KEYMAP_SIZE; i++) {
+ 		unsigned short k = keymap(i);
+ 		dev->keymap[i] = k;
+diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ixp4xx-beeper.c
+index 1fe149f..befccd0 100644
+--- a/drivers/input/misc/ixp4xx-beeper.c
++++ b/drivers/input/misc/ixp4xx-beeper.c
+@@ -105,11 +105,10 @@ static int ixp4xx_spkr_probe(struct platform_device *dev)
+ 	input_dev->id.product = 0x0001;
+ 	input_dev->id.version = 0x0100;
+ 	input_dev->dev.parent = &dev->dev;
+-
+-	input_dev->evbit[0] = BIT_MASK(EV_SND);
+-	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+ 	input_dev->event = ixp4xx_spkr_event;
+ 
++	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
++
+ 	err = gpio_request(dev->id, "ixp4-beeper");
+ 	if (err)
+ 		goto err_free_device;
+diff --git a/drivers/input/misc/m68kspkr.c b/drivers/input/misc/m68kspkr.c
+index 312d636..721f1dc 100644
+--- a/drivers/input/misc/m68kspkr.c
++++ b/drivers/input/misc/m68kspkr.c
+@@ -64,11 +64,10 @@ static int m68kspkr_probe(struct platform_device *dev)
+ 	input_dev->id.product = 0x0001;
+ 	input_dev->id.version = 0x0100;
+ 	input_dev->dev.parent = &dev->dev;
+-
+-	input_dev->evbit[0] = BIT_MASK(EV_SND);
+-	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+ 	input_dev->event = m68kspkr_event;
+ 
++	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
++
+ 	err = input_register_device(input_dev);
+ 	if (err) {
+ 		input_free_device(input_dev);
+diff --git a/drivers/input/misc/pcspkr.c b/drivers/input/misc/pcspkr.c
+index 72b1fc3..5374a01 100644
+--- a/drivers/input/misc/pcspkr.c
++++ b/drivers/input/misc/pcspkr.c
+@@ -78,11 +78,10 @@ static int pcspkr_probe(struct platform_device *dev)
+ 	pcspkr_dev->id.product = 0x0001;
+ 	pcspkr_dev->id.version = 0x0100;
+ 	pcspkr_dev->dev.parent = &dev->dev;
+-
+-	pcspkr_dev->evbit[0] = BIT_MASK(EV_SND);
+-	pcspkr_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+ 	pcspkr_dev->event = pcspkr_event;
+ 
++	input_set_capability(pcspr_dev, ENV_SND, SND_BELL | SND_TONE);
++
+ 	err = input_register_device(pcspkr_dev);
+ 	if (err) {
+ 		input_free_device(pcspkr_dev);
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index a28ee70..e8facbd 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -102,12 +102,9 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 	beeper->input->id.vendor = 0x001f;
+ 	beeper->input->id.product = 0x0001;
+ 	beeper->input->id.version = 0x0100;
+-
+-	beeper->input->evbit[0] = BIT(EV_SND);
+-	beeper->input->sndbit[0] = BIT(SND_TONE) | BIT(SND_BELL);
+-
+ 	beeper->input->event = pwm_beeper_event;
+ 
++	input_set_capability(beeper->input, EV_SND, SND_TONE | SND_BELL);
+ 	input_set_drvdata(beeper->input, beeper);
+ 
+ 	error = input_register_device(beeper->input);
+diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
+index 54116e5..7b55c97 100644
+--- a/drivers/input/misc/sparcspkr.c
++++ b/drivers/input/misc/sparcspkr.c
+@@ -156,12 +156,10 @@ static int sparcspkr_probe(struct device *dev)
+ 	input_dev->id.product = 0x0001;
+ 	input_dev->id.version = 0x0100;
+ 	input_dev->dev.parent = dev;
+-
+-	input_dev->evbit[0] = BIT_MASK(EV_SND);
+-	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
+-
+ 	input_dev->event = state->event;
+ 
++	input_set_capability(input_dev, EV_SND, SND_BELL | SND_TONE);
++
+ 	error = input_register_device(input_dev);
+ 	if (error) {
+ 		input_free_device(input_dev);
 -- 
-Dmitry
+2.1.4

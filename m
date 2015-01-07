@@ -1,39 +1,35 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH] HID: core: don't use negative operands when shift
-Date: Wed,  7 Jan 2015 01:17:15 +0200
-Message-ID: <1420586235-27660-1-git-send-email-andy.shevchenko@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:57884 "EHLO
-	gw02.mail.saunalahti.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750807AbbAFXZE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 18:25:04 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] driver: input :touchscreen : add Raydium I2C touch driver
+Date: Tue, 6 Jan 2015 16:40:28 -0800
+Message-ID: <20150107004028.GB12798@dtor-ws>
+References: <1420536350-5916-1-git-send-email-jeffrey.lin@rad-ic.com>
+ <20150106194354.GA12576@hudson.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150106194354.GA12576@hudson.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jeremiah Mahler <jmmahler@gmail.com>, "jeffrey.lin" <yajohn@gmail.com>, rydberg@euromail.se, shc_work@mail.ru, charliemooney@chromium.org, bleung@chromium.org, lee.jones@linaro.org, jeffrey.lin@rad-ic.com, roger.yang@rad-ic.com, KP.li@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-The recent C standard in 6.5.7 paragraph 4 defines that operands for
-bitwise shift operators should be non-negative, otherwise it's an
-undefined behaviour.
+On Tue, Jan 06, 2015 at 11:43:54AM -0800, Jeremiah Mahler wrote:
+> On Tue, Jan 06, 2015 at 05:25:50PM +0800, jeffrey.lin wrote:
+> > From: "jeffrey.lin" <jeffrey.lin@rad-ic.com>
+> > 
+> > This patch is porting Raydium I2C touch driver. Developer can enable
+> >  raydium touch driver by modifying define "CONFIG_TOUCHSCREEN_RM_TS".
+> > 
+> > Signed-off-by: jeffrey.lin@rad-ic.com
+> 
+> You need your full legal name in your Signed-off-by:
 
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Also, there was feedback provided earlier and I still see it not being
+addresses (the presence of custom char dev interface for example). It
+would also be helpful if refreshed mentioned what was change from the
+previos version.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index f2a4879..99307f0 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1027,7 +1027,7 @@ static s32 snto32(__u32 value, unsigned n)
- 	case 16: return ((__s16)value);
- 	case 32: return ((__s32)value);
- 	}
--	return value & (1 << (n - 1)) ? value | (-1 << n) : value;
-+	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
- }
- 
- s32 hid_snto32(__u32 value, unsigned n)
+Thanks.
+
 -- 
-1.8.3.101.g727a46b
-
+Dmitry

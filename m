@@ -1,163 +1,235 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH 03/17] Input: sun4i-ts: Add thermal zone sensor support
-Date: Thu, 8 Jan 2015 00:24:11 +0800
-Message-ID: <CAGb2v66L-ZD1Ep-rnKXKP7PuJH+dA=26tV35KyKCNnKHgM4Hmg@mail.gmail.com>
-References: <1420511727-8242-1-git-send-email-wens@csie.org>
- <1420511727-8242-4-git-send-email-wens@csie.org> <20150106152425.GA6276@developer>
+From: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: Re: [PATCH 1/2] Input: adxl34x - add OF support
+Date: Wed, 7 Jan 2015 13:25:54 -0300
+Message-ID: <CABxpGwAKZp728gL5DFkuBA4nU_5fGRvxu_-vROpw5BfVuxjoDA@mail.gmail.com>
+References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
+	<20150107080159.GF5256@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:42314 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753524AbbAGQYc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 11:24:32 -0500
-In-Reply-To: <20150106152425.GA6276@developer>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150107080159.GF5256@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Eduardo Valentin <edubezval@gmail.com>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org
 
-Hi,
+Hi Dimitry,
 
-On Tue, Jan 6, 2015 at 11:24 PM, Eduardo Valentin <edubezval@gmail.com> wrote:
-> Hello Chen-Yu,
+First of all, thanks for your feedback
+
+On Wed, Jan 7, 2015 at 5:01 AM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hi Walter,
 >
->
-> On Tue, Jan 06, 2015 at 10:35:13AM +0800, Chen-Yu Tsai wrote:
->> The touchscreen controller has a temperature sensor embedded in the SoC,
->> which already has hwmon support in the driver.
+> On Tue, Jan 06, 2015 at 11:58:56PM -0300, Walter Lozano wrote:
+>> This patch adds the missing support for OF to the adxl34x digital
+>> accelerometer. This is a basic version which supports the main
+>> optional parameters. This implementation copies the default values
+>> to the adxl34x_platform_data structure and overrides the values
+>> that are passed from the device tree.
 >>
->> Add DT thermal zone support so we can use it with cpufreq for thermal
->> throttling.
->>
->> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+>> Signed-off-by: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
 >> ---
->>  .../bindings/input/touchscreen/sun4i.txt           |  1 +
->>  drivers/input/touchscreen/sun4i-ts.c               | 27 ++++++++++++++++++++++
->>  2 files changed, 28 insertions(+)
+>>  drivers/input/misc/adxl34x.c |  108 +++++++++++++++++++++++++++++++++++++++++-
+>>  1 file changed, 107 insertions(+), 1 deletion(-)
 >>
->> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
->> index aef57791f40b..7f1110adbd24 100644
->> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
->> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
->> @@ -5,6 +5,7 @@ Required properties:
->>   - compatible: "allwinner,sun4i-a10-ts"
->>   - reg: mmio address range of the chip
->>   - interrupts: interrupt to which the chip is connected
->> + - #thermal-sensor-cells: shall be 0
+>> diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+>> index 2b2d02f..b3e06a3 100644
+>> --- a/drivers/input/misc/adxl34x.c
+>> +++ b/drivers/input/misc/adxl34x.c
+>> @@ -16,6 +16,8 @@
+>>  #include <linux/workqueue.h>
+>>  #include <linux/input/adxl34x.h>
+>>  #include <linux/module.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_device.h>
 >>
->
-> You may want to update your Example section too, below.
-> Example:
->
->         rtp: rtp@01c25000 {
->                 compatible = "allwinner,sun4i-a10-ts";
->                 reg = <0x01c25000 0x100>;
->                 interrupts = <29>;
->                 allwinner,ts-attached;
->                 #thermal-sensor-cells = <0>;
->         };
-
-Ok.
-
->
->
->>  Optional properties:
->>   - allwinner,ts-attached: boolean indicating that an actual touchscreen is
->> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
->> index 28a06749ae42..b6e9043446d6 100644
->> --- a/drivers/input/touchscreen/sun4i-ts.c
->> +++ b/drivers/input/touchscreen/sun4i-ts.c
->> @@ -34,6 +34,7 @@
+>>  #include "adxl34x.h"
 >>
->>  #include <linux/err.h>
->>  #include <linux/hwmon.h>
->> +#include <linux/thermal.h>
->>  #include <linux/init.h>
->>  #include <linux/input.h>
->>  #include <linux/interrupt.h>
->> @@ -107,6 +108,7 @@
->>  struct sun4i_ts_data {
->>       struct device *dev;
->>       struct input_dev *input;
->> +     struct thermal_zone_device *tz;
->>       void __iomem *base;
->>       unsigned int irq;
->>       bool ignore_fifo_data;
->> @@ -180,6 +182,23 @@ static void sun4i_ts_close(struct input_dev *dev)
->>       writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+>> @@ -688,13 +690,113 @@ static void adxl34x_input_close(struct input_dev *input)
+>>       mutex_unlock(&ac->mutex);
 >>  }
 >>
->> +static int get_temp(void *data, long *temp)
->> +{
->> +     struct sun4i_ts_data *ts = data;
+>> +void adxl34x_parse_dt(struct device *dev, struct adxl34x_platform_data *pdata){
+>> +     if (!dev->of_node)
+>> +             return;
 >> +
->> +     /* No temp_data until the first irq */
->> +     if (ts->temp_data == -1)
->> +             return -EAGAIN;
+>> +     pdata =  kzalloc(sizeof(*pdata), GFP_KERNEL);
 >> +
->> +     *temp = (ts->temp_data - 1447) * 100;
+>> +     memcpy(pdata, &adxl34x_default_init, sizeof(struct adxl34x_platform_data));
 >> +
+>> +     of_property_read_u8(dev->of_node, "adi,tap-axis-control",
+>> +              &pdata->tap_axis_control);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,tap-threshold",
+>> +              &pdata->tap_threshold);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,tap-duration",
+>> +              &pdata->tap_duration);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,tap-latency",
+>> +              &pdata->tap_latency);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,tap-window",
+>> +              &pdata->tap_window);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,act-axis-control",
+>> +              &pdata->act_axis_control);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,activity-threshold",
+>> +              &pdata->activity_threshold);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,inactivity-threshold",
+>> +              &pdata->inactivity_threshold);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,inactivity-time",
+>> +              &pdata->inactivity_time);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,free-fall-threshold",
+>> +              &pdata->free_fall_threshold);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,free-fall-time",
+>> +              &pdata->free_fall_time);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,data-rate",
+>> +              &pdata->data_rate);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,data-range",
+>> +              &pdata->data_range);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,low-power-mode",
+>> +              &pdata->low_power_mode);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,power-mode",
+>> +              &pdata->power_mode);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,fifo-mode",
+>> +              &pdata->fifo_mode);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,watermark",
+>> +              &pdata->watermark);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,use-int2",
+>> +              &pdata->use_int2);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,orientation-enable",
+>> +              &pdata->orientation_enable);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,deadzone-angle",
+>> +              &pdata->deadzone_angle);
+>> +
+>> +     of_property_read_u8(dev->of_node, "adi,divisor-length",
+>> +              &pdata->divisor_length);
+>> +
+>> +     of_property_read_u32(dev->of_node, "adi,ev-type",
+>> +              &pdata->ev_type);
 >
-> Care to explain the formula in a simple comment?
+> All these ev* properties are Linux-specific so should have linux prefix
+> and not adi.
 
-This was just copied from the hwmon section. AFAIK there is no documentation
-for the formula. It was probably copied from Allwinner's SDK code.
+Yes, I have many doubts about these parameters. First I'm not sure if anybody
+will need to change them as the accelerometer reports absolute values.
+I was thinking
+about omitting them but I would like someone else opinion.
 
-Hans? Do you remember where you got this?
+The default values for these parameters are
 
->> +     return 0;
+    .ev_type = EV_ABS,
+    .ev_code_x = ABS_X, /* EV_REL */
+    .ev_code_y = ABS_Y, /* EV_REL */
+    .ev_code_z = ABS_Z, /* EV_REL */
+
+    .ev_code_tap = {BTN_TOUCH, BTN_TOUCH, BTN_TOUCH}, /* EV_KEY {x,y,z} */
+
+In case if it is worthy should I add nodes for each different event?
+
+For example
+
+       axisx{
+            label = "Axis X";
+            linux,code = <0>;
+        }
+
+>> +
+>> +     of_property_read_u32(dev->of_node, "adi,ev-code-x",
+>> +              &pdata->ev_code_x);
+>> +
+>> +     of_property_read_u32(dev->of_node, "adi,ev-code-y",
+>> +              &pdata->ev_code_y);
+>> +
+>> +     of_property_read_u32(dev->of_node, "adi,ev-code-z",
+>> +              &pdata->ev_code_z);
+>> +
+>> +     of_property_read_u32_array(dev->of_node, "adi,ev-code-tap",
+>> +              pdata->ev_code_tap, 3);
+>> +
+>> +     of_property_read_u32(dev->of_node, "adi,ev-code-ff",
+>> +              &pdata->ev_code_ff);
+>> +
+>> +     of_property_read_u32(dev->of_node, "adi,ev-code-act-inactivity",
+>> +              &pdata->ev_code_act_inactivity);
+>> +
+>> +     of_property_read_u32_array(dev->of_node, "adi,ev-codes-orient-2d",
+>> +              pdata->ev_codes_orient_2d, 4);
+>> +
+>> +     of_property_read_u32_array(dev->of_node, "adi,ev-codes-orient-3d",
+>> +              pdata->ev_codes_orient_3d, 6);
+>> +
 >> +}
 >> +
->> +static struct thermal_zone_of_device_ops sun4i_ts_tz_ops = {
->> +     .get_temp = get_temp,
->> +};
->> +
->>  static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
->>                        char *buf)
+>>  struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+>>                             bool fifo_delay_default,
+>>                             const struct adxl34x_bus_ops *bops)
 >>  {
->> @@ -288,6 +307,11 @@ static int sun4i_ts_probe(struct platform_device *pdev)
->>       if (IS_ERR(hwmon))
->>               return PTR_ERR(hwmon);
+>>       struct adxl34x *ac;
+>>       struct input_dev *input_dev;
+>> -     const struct adxl34x_platform_data *pdata;
+>> +     struct adxl34x_platform_data *pdata;
+>>       int err, range, i;
+>>       unsigned char revid;
 >>
->> +     ts->tz = thermal_zone_of_sensor_register(ts->dev, 0, ts,
->> +                                              &sun4i_ts_tz_ops);
->> +     if (IS_ERR(ts->tz))
->> +             ts->tz = NULL;
+>> @@ -714,6 +816,10 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+>>       ac->fifo_delay = fifo_delay_default;
+>>
+>>       pdata = dev_get_platdata(dev);
 >> +
->>       writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
->>
->>       if (ts_attached) {
->
-> here.. if input_register_device fails, you will keep an orphan thermal zone
-> registered in your system:
->
->                 error = input_register_device(ts->input);
->                 if (error) {
->                         writel(0, ts->base + TP_INT_FIFOC);
-
-Will add an unregister call here.
-
-
-Thanks for the review.
-
-ChenYu
-
->                         return error;
->                 }
->                 ...
->
->
->> @@ -310,6 +334,9 @@ static int sun4i_ts_remove(struct platform_device *pdev)
->>       if (ts->input)
->>               input_unregister_device(ts->input);
->>
->> +     if (ts->tz)
->> +             thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
+>> +     if (!pdata && dev->of_node)
+>> +             adxl34x_parse_dt(dev, pdata);
 >> +
->>       /* Deactivate all IRQs */
->>       writel(0, ts->base + TP_INT_FIFOC);
->>
+>>       if (!pdata) {
+>
+> Umm, what's changing data pointer? Was this tested?
+>
+
+You are right. I've tested a previous version, but then I make some changes as
+I have some doubts about how is the better way to handle the compatibility
+with board files.
+
+My initial intention was to keep the original code as much as I can, so in case
+of using board files the pdata is set to adxl34x_default_init, but if
+DT is used,
+memory is allocated and the default parameters are copied. Then in the remove,
+only if DT is used free the memory (not included in this patch).
+
+So as I wasn't quite sure if this was the best approach I send this patch to get
+some comments. Probably I should send a RFC...
+
+>>               dev_dbg(dev,
+>>                       "No platform data: Using default initialization\n");
 >> --
->> 2.1.4
+>> 1.7.10.4
 >>
+
+Thanks again for your time and comments.
+
+Regards,
+
+Walter
+
+-- 
+Walter Lozano, VanguardiaSur
+www.vanguardiasur.com.ar
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

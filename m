@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 7/9] iio: hid-sensor-incl-3d: Adjust parameter for attribute read
-Date: Tue,  6 Jan 2015 16:58:37 -0800
-Message-ID: <1420592328-9942-14-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 2/8] iio: hid-sensor-accel-3d: Introduce PM
+Date: Tue,  6 Jan 2015 16:58:41 -0800
+Message-ID: <1420592328-9942-18-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1420592328-9942-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1420592328-9942-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
@@ -10,26 +10,46 @@ To: jkosina-AlSwsSmVLrQ@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gm
 Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The new API added a flag for sync/async mode. Added sync mode flag.
+Use common hid sensor iio pm functions. Also the poll time read and
+wait is part of power up function of hid sensor iio pm function, so
+remove from the client drivers.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/iio/orientation/hid-sensor-incl-3d.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
-index 1ff181b..45bed08 100644
---- a/drivers/iio/orientation/hid-sensor-incl-3d.c
-+++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
-@@ -132,7 +132,8 @@ static int incl_3d_read_raw(struct iio_dev *indio_dev,
- 			*val = sensor_hub_input_attr_get_raw_value(
- 				incl_state->common_attributes.hsdev,
- 				HID_USAGE_SENSOR_INCLINOMETER_3D, address,
--				report_id);
-+				report_id,
-+				SENSOR_HUB_SYNC);
- 		else {
- 			hid_sensor_power_state(&incl_state->common_attributes,
- 						false);
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index 0085c2f..2b4fad6 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -111,19 +111,12 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
+-	s32 poll_value;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+ 	switch (mask) {
+ 	case 0:
+-		poll_value = hid_sensor_read_poll_value(
+-					&accel_state->common_attributes);
+-		if (poll_value < 0)
+-			return -EINVAL;
+-
+ 		hid_sensor_power_state(&accel_state->common_attributes, true);
+-		msleep_interruptible(poll_value * 2);
+ 		report_id = accel_state->accel[chan->scan_index].report_id;
+ 		address = accel_3d_addresses[chan->scan_index];
+ 		if (report_id >= 0)
+@@ -420,6 +413,7 @@ static struct platform_driver hid_accel_3d_platform_driver = {
+ 	.id_table = hid_accel_3d_ids,
+ 	.driver = {
+ 		.name	= KBUILD_MODNAME,
++		.pm	= &hid_sensor_pm_ops,
+ 	},
+ 	.probe		= hid_accel_3d_probe,
+ 	.remove		= hid_accel_3d_remove,
 -- 
 1.9.1

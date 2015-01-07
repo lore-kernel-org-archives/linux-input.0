@@ -1,235 +1,65 @@
-From: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: Re: [PATCH 1/2] Input: adxl34x - add OF support
-Date: Wed, 7 Jan 2015 13:25:54 -0300
-Message-ID: <CABxpGwAKZp728gL5DFkuBA4nU_5fGRvxu_-vROpw5BfVuxjoDA@mail.gmail.com>
-References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
-	<20150107080159.GF5256@dtor-ws>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] HID: hid-sensor-hub: Correct documentation
+Date: Wed, 7 Jan 2015 17:27:46 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1501071718240.25732@pobox.suse.cz>
+References: <1420592328-9942-1-git-send-email-srinivas.pandruvada@linux.intel.com>  <alpine.LNX.2.00.1501070946540.25732@pobox.suse.cz> <1420646463.4459.126.camel@spandruv-desktop.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150107080159.GF5256@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1420646463.4459.126.camel-hINH/TbAiWppyMZ9rn1DP+ejPoqOX1/hEvhb3Hwu1Ks@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dimitry,
+On Wed, 7 Jan 2015, Srinivas Pandruvada wrote:
 
-First of all, thanks for your feedback
+> > Most importantly, you seem to have inter-mixed three patch series (with 
+> > 4,8 and 9 patches respectively) into one thread, plus there are 4 patches 
+> > which aren't marked by series numbering. All this is mixed together into 
+> > one thread without any particular ordering.
+> > 
+> There are 7 series:
+> - The four patches, which are single independent patches
+> - The others 3 are multiple patches part of series.
 
-On Wed, Jan 7, 2015 at 5:01 AM, Dmitry Torokhov
-<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> Hi Walter,
->
-> On Tue, Jan 06, 2015 at 11:58:56PM -0300, Walter Lozano wrote:
->> This patch adds the missing support for OF to the adxl34x digital
->> accelerometer. This is a basic version which supports the main
->> optional parameters. This implementation copies the default values
->> to the adxl34x_platform_data structure and overrides the values
->> that are passed from the device tree.
->>
->> Signed-off-by: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
->> ---
->>  drivers/input/misc/adxl34x.c |  108 +++++++++++++++++++++++++++++++++++++++++-
->>  1 file changed, 107 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
->> index 2b2d02f..b3e06a3 100644
->> --- a/drivers/input/misc/adxl34x.c
->> +++ b/drivers/input/misc/adxl34x.c
->> @@ -16,6 +16,8 @@
->>  #include <linux/workqueue.h>
->>  #include <linux/input/adxl34x.h>
->>  #include <linux/module.h>
->> +#include <linux/of.h>
->> +#include <linux/of_device.h>
->>
->>  #include "adxl34x.h"
->>
->> @@ -688,13 +690,113 @@ static void adxl34x_input_close(struct input_dev *input)
->>       mutex_unlock(&ac->mutex);
->>  }
->>
->> +void adxl34x_parse_dt(struct device *dev, struct adxl34x_platform_data *pdata){
->> +     if (!dev->of_node)
->> +             return;
->> +
->> +     pdata =  kzalloc(sizeof(*pdata), GFP_KERNEL);
->> +
->> +     memcpy(pdata, &adxl34x_default_init, sizeof(struct adxl34x_platform_data));
->> +
->> +     of_property_read_u8(dev->of_node, "adi,tap-axis-control",
->> +              &pdata->tap_axis_control);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,tap-threshold",
->> +              &pdata->tap_threshold);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,tap-duration",
->> +              &pdata->tap_duration);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,tap-latency",
->> +              &pdata->tap_latency);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,tap-window",
->> +              &pdata->tap_window);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,act-axis-control",
->> +              &pdata->act_axis_control);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,activity-threshold",
->> +              &pdata->activity_threshold);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,inactivity-threshold",
->> +              &pdata->inactivity_threshold);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,inactivity-time",
->> +              &pdata->inactivity_time);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,free-fall-threshold",
->> +              &pdata->free_fall_threshold);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,free-fall-time",
->> +              &pdata->free_fall_time);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,data-rate",
->> +              &pdata->data_rate);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,data-range",
->> +              &pdata->data_range);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,low-power-mode",
->> +              &pdata->low_power_mode);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,power-mode",
->> +              &pdata->power_mode);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,fifo-mode",
->> +              &pdata->fifo_mode);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,watermark",
->> +              &pdata->watermark);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,use-int2",
->> +              &pdata->use_int2);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,orientation-enable",
->> +              &pdata->orientation_enable);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,deadzone-angle",
->> +              &pdata->deadzone_angle);
->> +
->> +     of_property_read_u8(dev->of_node, "adi,divisor-length",
->> +              &pdata->divisor_length);
->> +
->> +     of_property_read_u32(dev->of_node, "adi,ev-type",
->> +              &pdata->ev_type);
->
-> All these ev* properties are Linux-specific so should have linux prefix
-> and not adi.
+What I see this this:
 
-Yes, I have many doubts about these parameters. First I'm not sure if anybody
-will need to change them as the accelerometer reports absolute values.
-I was thinking
-about omitting them but I would like someone else opinion.
+=====
+ Jan  6 Srinivas Pandruvada (4379) . [PATCH] HID: hid-sensor-hub: Correct documentation
+ Jan  6 Srinivas Pandruvada (4207)   |-[PATCH] HID: sensor-hub: correct dyn_callback_lock IRQ-safe change
+ Jan  6 Srinivas Pandruvada (5440)   |-[PATCH 1/4] HID: hid-sensor-hub: Enhance feature report API
+ Jan  6 Srinivas Pandruvada (5112)   |-[PATCH 2/4] iio: hid_sensor_hub: update parameters to get feature report
+ Jan  6 Srinivas Pandruvada (5618)   |-[PATCH 1/9] HID: hid-sensor-hub: Extend API for async reads
+ Jan  6 Srinivas Pandruvada (3575)   |-[PATCH 2/9] iio: hid-sensor-accel-3d: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (5408)   |-[PATCH 3/4] HID: hid-sensor-hub: Enhance feature report set API
+ Jan  6 Srinivas Pandruvada (3561)   |-[PATCH 3/9] iio: hid-sensor-gyro-3d: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (5306)   |-[PATCH 4/4] iio: hid_sensor_hub: update parameters to set feature report
+ Jan  6 Srinivas Pandruvada (3535)   |-[PATCH 4/9] iio: hid-sensor-als: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (3544)   |-[PATCH 5/9] iio: hid-sensor-prox: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (3599)   |-[PATCH 6/9] iio: hid-sensor-magn-3d: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (3600)   |-[PATCH 7/9] iio: hid-sensor-incl-3d: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada  (11K)   |-[PATCH] HID: hid-sensor-hub: Allow parallel synchronous reads
+ Jan  6 Srinivas Pandruvada (3568)   |-[PATCH 8/9] iio: hid-sensor-press: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (4136)   |-[PATCH 3/8] iio: hid-sensor-gyro-3d: Introduce PM
+ Jan  6 Srinivas Pandruvada (3692)   |-[PATCH 9/9] drivers/rtc/rtc-hid-sensor-time.c: Adjust parameter for attribute read
+ Jan  6 Srinivas Pandruvada (4192)   |-[PATCH 4/8] iio: hid-sensor-als: Introduce PM
+ Jan  6 Srinivas Pandruvada (4162)   |-[PATCH 2/8] iio: hid-sensor-accel-3d: Introduce PM
+ Jan  6 Srinivas Pandruvada (7791)   |-[PATCH 1/8] iio: hid_sensor_hub: Common PM functions
+ Jan  6 Srinivas Pandruvada (4210)   |-[PATCH 5/8] iio: hid-sensor-prox: Introduce PM
+ Jan  6 Srinivas Pandruvada (4161)   |-[PATCH 6/8] iio: hid-sensor-magn-3d: Introduce PM
+ Jan  6 Srinivas Pandruvada (4174)   |-[PATCH 7/8] iio: hid-sensor-incl-3d: Introduce PM
+ Jan  6 Srinivas Pandruvada (4239)   |-[PATCH 8/8] iio: hid-sensor-press: Introduce PM
+ Jan  6 Srinivas Pandruvada (7319)   \-[PATCH] HID: hid-sensor-hub: Add collection device
+=====
 
-The default values for these parameters are
+i.e. all the patches from all the seris (and some out of the series) are 
+referncing just a single e-mail, and that's
 
-    .ev_type = EV_ABS,
-    .ev_code_x = ABS_X, /* EV_REL */
-    .ev_code_y = ABS_Y, /* EV_REL */
-    .ev_code_z = ABS_Z, /* EV_REL */
+	1420592328-9942-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 
-    .ev_code_tap = {BTN_TOUCH, BTN_TOUCH, BTN_TOUCH}, /* EV_KEY {x,y,z} */
-
-In case if it is worthy should I add nodes for each different event?
-
-For example
-
-       axisx{
-            label = "Axis X";
-            linux,code = <0>;
-        }
-
->> +
->> +     of_property_read_u32(dev->of_node, "adi,ev-code-x",
->> +              &pdata->ev_code_x);
->> +
->> +     of_property_read_u32(dev->of_node, "adi,ev-code-y",
->> +              &pdata->ev_code_y);
->> +
->> +     of_property_read_u32(dev->of_node, "adi,ev-code-z",
->> +              &pdata->ev_code_z);
->> +
->> +     of_property_read_u32_array(dev->of_node, "adi,ev-code-tap",
->> +              pdata->ev_code_tap, 3);
->> +
->> +     of_property_read_u32(dev->of_node, "adi,ev-code-ff",
->> +              &pdata->ev_code_ff);
->> +
->> +     of_property_read_u32(dev->of_node, "adi,ev-code-act-inactivity",
->> +              &pdata->ev_code_act_inactivity);
->> +
->> +     of_property_read_u32_array(dev->of_node, "adi,ev-codes-orient-2d",
->> +              pdata->ev_codes_orient_2d, 4);
->> +
->> +     of_property_read_u32_array(dev->of_node, "adi,ev-codes-orient-3d",
->> +              pdata->ev_codes_orient_3d, 6);
->> +
->> +}
->> +
->>  struct adxl34x *adxl34x_probe(struct device *dev, int irq,
->>                             bool fifo_delay_default,
->>                             const struct adxl34x_bus_ops *bops)
->>  {
->>       struct adxl34x *ac;
->>       struct input_dev *input_dev;
->> -     const struct adxl34x_platform_data *pdata;
->> +     struct adxl34x_platform_data *pdata;
->>       int err, range, i;
->>       unsigned char revid;
->>
->> @@ -714,6 +816,10 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
->>       ac->fifo_delay = fifo_delay_default;
->>
->>       pdata = dev_get_platdata(dev);
->> +
->> +     if (!pdata && dev->of_node)
->> +             adxl34x_parse_dt(dev, pdata);
->> +
->>       if (!pdata) {
->
-> Umm, what's changing data pointer? Was this tested?
->
-
-You are right. I've tested a previous version, but then I make some changes as
-I have some doubts about how is the better way to handle the compatibility
-with board files.
-
-My initial intention was to keep the original code as much as I can, so in case
-of using board files the pdata is set to adxl34x_default_init, but if
-DT is used,
-memory is allocated and the default parameters are copied. Then in the remove,
-only if DT is used free the memory (not included in this patch).
-
-So as I wasn't quite sure if this was the best approach I send this patch to get
-some comments. Probably I should send a RFC...
-
->>               dev_dbg(dev,
->>                       "No platform data: Using default initialization\n");
->> --
->> 1.7.10.4
->>
-
-Thanks again for your time and comments.
-
-Regards,
-
-Walter
+Which is a giant mess.
 
 -- 
-Walter Lozano, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jiri Kosina
+SUSE Labs

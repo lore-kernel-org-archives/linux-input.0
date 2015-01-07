@@ -1,183 +1,155 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH v6 2/6] input: touchscreen: ti_am335x_tsc: Remove udelay in interrupt handler
-Date: Wed, 7 Jan 2015 11:19:35 +0530
-Message-ID: <1420609779-11156-3-git-send-email-vigneshr@ti.com>
-References: <1420609779-11156-1-git-send-email-vigneshr@ti.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] input: synaptics - make image sensors report
+ ABS_MT_TOUCH_MAJOR
+Date: Wed, 7 Jan 2015 16:02:29 +1000
+Message-ID: <20150107060229.GA17069@jelly.redhat.com>
+References: <1419679889-6582-1-git-send-email-gabriele.mzt@gmail.com>
+ <1419679889-6582-2-git-send-email-gabriele.mzt@gmail.com>
+ <CAN+gG=Fhaj2aQM7gxXZBaXx3MZQbdMdCZ7KO=nmhzufp4YqnmA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:35820 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754923AbbAGFwR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Jan 2015 00:52:17 -0500
-In-Reply-To: <1420609779-11156-1-git-send-email-vigneshr@ti.com>
+Received: from leo.clearchain.com ([199.73.29.74]:63994 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752651AbbAGGCb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 01:02:31 -0500
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=Fhaj2aQM7gxXZBaXx3MZQbdMdCZ7KO=nmhzufp4YqnmA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@arm.linux.org.uk>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Samuel Ortiz <sameo@linux.intel.com>, Brad Griffis <bgriffis@ti.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Sanjeev Sharma <sanjeev_sharma@mentor.com>, Jan Kardell <jan.kardell@telliq.com>, Felipe Balbi <balbi@ti.com>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Vignesh R <vigneshr@ti.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Maxwell Anselm <silverhammermba@gmail.com>
 
-From: Brad Griffis <bgriffis@ti.com>
+On Mon, Jan 05, 2015 at 02:24:30PM -0500, Benjamin Tissoires wrote:
+> Hi Gabriele,
+> 
+> [Adding Peter and Hans as this change will impact both
+> xf86-input-synaptics and libinput]
+> 
+> On Sat, Dec 27, 2014 at 6:31 AM, Gabriele Mazzotta
+> <gabriele.mzt@gmail.com> wrote:
+> > Despite claiming to be able to report ABS_TOOL_WIDTH, image sensors
+> > were not doing it. Make them report widths and use ABS_MT_TOUCH_MAJOR
+> > instead ABS_TOOL_WIDTH.
+> 
+> It looks like the current xorg-synaptics code already handles
+> ABS_MT_TOUCH_MAJOR as finger_width. So I think we should be good in
+> replacing the ABS_TOOL_WIDTH event. However, I'd prefer having Peter
+> confirm this because xorg-synaptics still relies a lot on the single
+> touch emulation.
 
-TSC interrupt handler had udelay to avoid reporting of false pen-up
-interrupt to user space. This patch implements workaround suggesting in
-Advisory 1.0.31 of silicon errata for am335x, thus eliminating udelay
-and touchscreen lag. This also improves performance of touchscreen and
-eliminates sudden jump of cursor at touch release.
+synaptics doesn't actually use TOUCH_MAJOR for finger width, we just forward
+it as axis information (not that anyone uses it).
+dropping TOOL_WIDTH would only affect palm detection which unreliable, off
+by default and mostly broken. so this is fine with me.
 
-IDLECONFIG and CHARGECONFIG registers are to be configured
-with same values in order to eliminate false pen-up events. This
-workaround may result in false pen-down to be detected, hence considerable
-charge step delay needs to be added. The charge delay is set to 0xB000
-(in terms of ADC clock cycles) by default.
+Cheers,
+   Peter
 
-TSC steps are disabled at the end of every sampling cycle and EOS bit is
-set. Once the EOS bit is set, the TSC steps need to be re-enabled to begin
-next sampling cycle.
-
-Signed-off-by: Brad Griffis <bgriffis@ti.com>
-[vigneshr@ti.com: Ported the patch from v3.12 to v3.19rc1]
-
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
-v5:
- - enable TSC steps only on EOS interrup
-
-v4:
- - check for PEN_IRQ bit in ADCFSM to avoid false-pen when ADC
-   and TSC are used together.
- - Set charge delay to 0x400 as default. Most devices function
-   normally at this value.
-
- drivers/input/touchscreen/ti_am335x_tsc.c | 67 ++++++++++++++-----------------
- include/linux/mfd/ti_am335x_tscadc.h      |  3 +-
- 2 files changed, 33 insertions(+), 37 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index dfbb9fe6a270..0625c102a1d0 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -173,11 +173,9 @@ static void titsc_step_config(struct titsc *ts_dev)
- 		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
- 	}
- 
--	/* Charge step configuration */
--	config = ts_dev->bit_xp | ts_dev->bit_yn |
--			STEPCHARGE_RFP_XPUL | STEPCHARGE_RFM_XNUR |
--			STEPCHARGE_INM_AN1 | STEPCHARGE_INP(ts_dev->inp_yp);
-+	/* Make CHARGECONFIG same as IDLECONFIG */
- 
-+	config = titsc_readl(ts_dev, REG_IDLECONFIG);
- 	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
- 	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
- 
-@@ -261,12 +259,34 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- {
- 	struct titsc *ts_dev = dev;
- 	struct input_dev *input_dev = ts_dev->input;
--	unsigned int status, irqclr = 0;
-+	unsigned int fsm, status, irqclr = 0;
- 	unsigned int x = 0, y = 0;
- 	unsigned int z1, z2, z;
--	unsigned int fsm;
- 
--	status = titsc_readl(ts_dev, REG_IRQSTATUS);
-+	status = titsc_readl(ts_dev, REG_RAWIRQSTATUS);
-+	if (status & IRQENB_HW_PEN) {
-+		ts_dev->pen_down = true;
-+		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
-+		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
-+		irqclr |= IRQENB_HW_PEN;
-+	}
-+
-+	if (status & IRQENB_PENUP) {
-+		fsm = titsc_readl(ts_dev, REG_ADCFSM);
-+		if (fsm == ADCFSM_STEPID) {
-+			ts_dev->pen_down = false;
-+			input_report_key(input_dev, BTN_TOUCH, 0);
-+			input_report_abs(input_dev, ABS_PRESSURE, 0);
-+			input_sync(input_dev);
-+		} else {
-+			ts_dev->pen_down = true;
-+		}
-+		irqclr |= IRQENB_PENUP;
-+	}
-+
-+	if (status & IRQENB_EOS)
-+		irqclr |= IRQENB_EOS;
-+
- 	/*
- 	 * ADC and touchscreen share the IRQ line.
- 	 * FIFO1 interrupts are used by ADC. Handle FIFO0 IRQs here only
-@@ -297,37 +317,11 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 		}
- 		irqclr |= IRQENB_FIFO0THRES;
- 	}
--
--	/*
--	 * Time for sequencer to settle, to read
--	 * correct state of the sequencer.
--	 */
--	udelay(SEQ_SETTLE);
--
--	status = titsc_readl(ts_dev, REG_RAWIRQSTATUS);
--	if (status & IRQENB_PENUP) {
--		/* Pen up event */
--		fsm = titsc_readl(ts_dev, REG_ADCFSM);
--		if (fsm == ADCFSM_STEPID) {
--			ts_dev->pen_down = false;
--			input_report_key(input_dev, BTN_TOUCH, 0);
--			input_report_abs(input_dev, ABS_PRESSURE, 0);
--			input_sync(input_dev);
--		} else {
--			ts_dev->pen_down = true;
--		}
--		irqclr |= IRQENB_PENUP;
--	}
--
--	if (status & IRQENB_HW_PEN) {
--
--		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
--		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
--	}
--
- 	if (irqclr) {
- 		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
--		am335x_tsc_se_set_cache(ts_dev->mfd_tscadc, ts_dev->step_mask);
-+		if (status & IRQENB_EOS)
-+			am335x_tsc_se_set_cache(ts_dev->mfd_tscadc,
-+						ts_dev->step_mask);
- 		return IRQ_HANDLED;
- 	}
- 	return IRQ_NONE;
-@@ -417,6 +411,7 @@ static int titsc_probe(struct platform_device *pdev)
- 	}
- 
- 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
-+	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
- 	err = titsc_config_wires(ts_dev);
- 	if (err) {
- 		dev_err(&pdev->dev, "wrong i/p wire configuration\n");
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index e2e70053470e..3f4e994ace2b 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -52,6 +52,7 @@
- 
- /* IRQ enable */
- #define IRQENB_HW_PEN		BIT(0)
-+#define IRQENB_EOS		BIT(1)
- #define IRQENB_FIFO0THRES	BIT(2)
- #define IRQENB_FIFO0OVRRUN	BIT(3)
- #define IRQENB_FIFO0UNDRFLW	BIT(4)
-@@ -107,7 +108,7 @@
- /* Charge delay */
- #define CHARGEDLY_OPEN_MASK	(0x3FFFF << 0)
- #define CHARGEDLY_OPEN(val)	((val) << 0)
--#define CHARGEDLY_OPENDLY	CHARGEDLY_OPEN(1)
-+#define CHARGEDLY_OPENDLY	CHARGEDLY_OPEN(0x400)
- 
- /* Control register */
- #define CNTRLREG_TSCSSENB	BIT(0)
--- 
-1.9.1
-
+> 
+> >
+> > Since the 'w' slot is used to report the finger count when two or more
+> > fingers are on the touchpad, make sure that only meaningful values are
+> > emitted, i.e. values greater than or equal to 4, and assign the correct
+> > range to ABS_MT_TOUCH_MAJOR.
+> >
+> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=77161
+> > Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+> > ---
+> >  drivers/input/mouse/synaptics.c | 11 +++++++++--
+> >  1 file changed, 9 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> > index f947292..ea0563e 100644
+> > --- a/drivers/input/mouse/synaptics.c
+> > +++ b/drivers/input/mouse/synaptics.c
+> > @@ -814,6 +814,8 @@ static void synaptics_report_slot(struct input_dev *dev, int slot,
+> 
+> Just FYI, this does not apply anymore on top of Dmitry's tree.
+> synaptics_report_slot() has been removed, and you should now report
+> the slot state in synaptics_report_mt_data().
+> 
+> >         input_report_abs(dev, ABS_MT_POSITION_X, hw->x);
+> >         input_report_abs(dev, ABS_MT_POSITION_Y, synaptics_invert_y(hw->y));
+> >         input_report_abs(dev, ABS_MT_PRESSURE, hw->z);
+> > +       if (hw->w >= 4)
+> 
+> That I don't like. IMO, at this point, .w should only contain the
+> finger width, unconditionally.
+> Also, with 2/2, .w is computed accurately for the second finger, but
+> not for the first.
+> 
+> I tried to figure out a way to properly extract the actual width
+> information from the sgm packet when the w is 0 or 1, and the only way
+> I found was to do the fix in synaptics_image_sensor_process(). I would
+> have preferred dealing with that in synaptics_parse_hw_state()
+> directly, but I think the final code would be more and more ugly.
+> Dealing with the true finger width in synaptics_image_sensor_process()
+> is not a problem for cr48 sensors, because they will not have the
+> ABS_MT_TOUCH_MAJOR event exported.
+> 
+> Anyway, something like that "should" work (sorry for the tab/space,
+> gmail in use), of course, this is untested when I send the mail :) :
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 95c15451..caf7ccd 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -852,6 +852,17 @@ static void synaptics_image_sensor_process(struct
+> psmouse *psmouse,
+>         else
+>                 num_fingers = 4;
+> 
+> +       /* When multiple fingers are on the TouchPad, the width is encoded in
+> +        * X, Y and Z */
+> +       if (sgm->w == 0 || sgm->w == 1) {
+> +               sgm->w = ((sgm->x & BIT(1)) >> 1) |
+> +                         (sgm->y & BIT(1)) |
+> +                        ((sgm->z & BIT(0)) << 1);
+> +               sgm->x &= ~BIT(1);
+> +               sgm->y &= ~BIT(1);
+> +               sgm->z &= ~BIT(0);
+> +       }
+> +
+>         /* Send resulting input events to user space */
+>         synaptics_report_mt_data(psmouse, sgm, num_fingers);
+>  }
+> 
+> 
+> > +               input_report_abs(dev, ABS_MT_TOUCH_MAJOR, hw->w);
+> >  }
+> >
+> >  static void synaptics_report_mt_data(struct psmouse *psmouse,
+> > @@ -1462,8 +1464,13 @@ static void set_input_params(struct psmouse *psmouse,
+> >                                         INPUT_MT_TRACK : INPUT_MT_SEMI_MT));
+> >         }
+> >
+> > -       if (SYN_CAP_PALMDETECT(priv->capabilities))
+> > -               input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
+> > +       if (SYN_CAP_PALMDETECT(priv->capabilities)) {
+> > +               if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c))
+> > +                       input_set_abs_params(dev,
+> > +                                            ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
+> > +               else
+> > +                       input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
+> > +       }
+> 
+> Again, I'd prefer having Peter's point of view here.
+> 
+> If we really need both, we will need to change input-mt to also
+> emulate ABS_TOOL_WIDTH from ABS_MT_TOUCH_MAJOR like we do between
+> ABS_MT_POSITION_X|Y and ABS_X|Y.
+> 
+> Cheers,
+> Benjamin
+> 
+> >
+> >         __set_bit(BTN_TOUCH, dev->keybit);
+> >         __set_bit(BTN_TOOL_FINGER, dev->keybit);
+> > --
+> > 2.1.4
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html

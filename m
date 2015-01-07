@@ -1,89 +1,82 @@
-From: Alan Wu <alan.c.wu@gmail.com>
-Subject: [PATCH 1/1] x86: Added support for Japanese Surface Type Cover 3
-Date: Tue,  6 Jan 2015 18:32:51 -0800
-Message-ID: <1420597971-4438-1-git-send-email-alan.c.wu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yk0-f169.google.com ([209.85.160.169]:36396 "EHLO
-	mail-yk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757066AbbAGCdU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2015 21:33:20 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Walter Lozano <walter@vanguardiasur.com.ar>
+Subject: [PATCH 2/2] Input: adxl34x - add device tree documentation
+Date: Tue,  6 Jan 2015 23:58:57 -0300
+Message-ID: <1420599537-28740-2-git-send-email-walter@vanguardiasur.com.ar>
+References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
+Sender: linux-kernel-owner@vger.kernel.org
+To: michael.hennerich@analog.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Walter Lozano <walter@vanguardiasur.com.ar>
 List-Id: linux-input@vger.kernel.org
-To: Alan Wu <alan.c.wu@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Karlis Dreizis <karlisdreizis@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-Based on code for the US Surface Type Cover 3 
-from commit be3b16341d5cd8cf2a64fcc7a604a8efe6599ff0
-("HID: add support for MS Surface Pro 3 Type Cover"):
+This patch adds a basic documentation regarding the device tree
+bindings of adxl34x digital accelerometer.
 
-Signed-off-by: Alan Wu <alan.c.wu@gmail.com>
-Tested-by: Karlis Dreizis <karlisdreizis@gmail.com> 
+Signed-off-by: Walter Lozano <walter@vanguardiasur.com.ar>
 ---
- drivers/hid/hid-core.c          | 4 +++-
- drivers/hid/hid-ids.h           | 1 +
- drivers/hid/hid-microsoft.c     | 2 ++
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 4 files changed, 7 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/input/adxl34x.txt          |   53 ++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/adxl34x.txt
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c3d0ac1..0cea5a0 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -704,7 +704,8 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
- 		hid->group = HID_GROUP_SENSOR_HUB;
- 
- 	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
--	    hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 &&
-+	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
-+	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3_JP) &&
- 	    hid->group == HID_GROUP_MULTITOUCH)
- 		hid->group = HID_GROUP_GENERIC;
- }
-@@ -1860,6 +1861,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_OFFICE_KB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7460f34..95ee91b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -653,6 +653,7 @@
- #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
- #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
- #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07dc
-+#define USB_DEVICE_ID_MS_TYPE_COVER_3_JP 0x07dd
- 
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index cacda43..fbaea6e 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -276,6 +276,8 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_DUPLICATE_USAGES },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
- 		.driver_data = MS_HIDINPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP),
-+		.driver_data = MS_HIDINPUT },
- 
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
- 		.driver_data = MS_PRESENTER },
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index dc89be9..6591b5d 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -80,6 +80,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
-+	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3_JP, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+diff --git a/Documentation/devicetree/bindings/input/adxl34x.txt b/Documentation/devicetree/bindings/input/adxl34x.txt
+new file mode 100644
+index 0000000..0774f7e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/adxl34x.txt
+@@ -0,0 +1,53 @@
++Device Tree bindings for adxl34x digital accelerometer, both spi and i2c.
++
++Depending on the interface this node should be a child of a spi or i2c bus.
++
++Required properties:
++- compatible: "adxl34x"
++- reg: SPI/I2C device address
++- interrupt-parent: a phandle for the interrupt controller
++- interrupts: interrupt to which the chip is connected
++
++Optional parameters:
++Please refer to include/linux/input/adxl34x.h for specific info. If the value
++is not specified the driver will use its default.
++
++- adi,tap-axis-control: u8 default 0
++- adi,tap-threshold: u8 default 35
++- adi,tap-duration: u8 default 3
++- adi,tap-latency: u8 default 20
++- adi,tap-window: u8 default 20
++- adi,act-axis-control: u8 default 0xFF
++- adi,activity-threshold: u8 default 6
++- adi,inactivity-threshold: u8 default 4
++- adi,inactivity-time: u8 default 3
++- adi,free-fall-threshold: u8 default 8
++- adi,free-fall-time: u8 default 20
++- adi,data-rate: u8 default 8
++- adi,data-range: u8 default 4
++- adi,low-power-mode: u8 defaut 0
++- adi,power-mode: u8 default 0x30
++- adi,fifo-mode: u8 default 2
++- adi,watermark: u8 default 0
++- adi,use-int2: u8
++- adi,orientation-enable: u8 default 0
++- adi,deadzone-angle: u8 default 0
++- divisor-length: u8 default 0
++
++Example
++
++&i2c1 {
++	status = "okay";
++
++	accel1: accelerometer@53 {
++		compatible = "adxl34x";
++		reg = <0x53>;
++
++		interrupt-parent = <&portc>;
++		interrupts = <3 2>;
++
++		adi,inactivity-time = /bits/ 8 <6>;
++		adi,data-range = /bits/ 8 <1>;
++	};
++};
++
 -- 
-2.1.0
-
+1.7.10.4

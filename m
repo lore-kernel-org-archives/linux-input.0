@@ -1,82 +1,76 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: [PATCH] Input:Flush client events on clk_type change
-Date: Wed,  7 Jan 2015 10:26:25 -0800
-Message-ID: <1420655185-24555-1-git-send-email-aksgarg1989@gmail.com>
-References: <aksgarg1989@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:38068 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753293AbbAGS1B (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 13:27:01 -0500
-Received: by mail-wi0-f169.google.com with SMTP id r20so8631626wiv.2
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 10:27:00 -0800 (PST)
-In-Reply-To: <aksgarg1989@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 2/4] iio: hid_sensor_hub: update parameters to get feature report
+Date: Wed,  7 Jan 2015 10:31:46 -0800
+Message-ID: <1420655508-6736-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1420655508-6736-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1420655508-6736-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jkosina-AlSwsSmVLrQ@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
-Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-From: Anshul Garg <aksgarg1989@gmail.com>
+The new sensor_hub_get_feature can return multiple values, this
+resulted in the change in API. Update the API usage here.
 
-Since the client clk_type is changed , flush pending
-events from client buffer and queue SYN_DROPPED event.
-Added check for duplicate clk_type change request.
-
-Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/input/evdev.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
+ 2 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index b1a52ab..d024fc6 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -62,8 +62,12 @@ struct evdev_client {
- 	struct input_event buffer[];
- };
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+index 25b01e1..e1435e9 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+@@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
+ 	int ret;
  
--static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
-+static int evdev_set_clk_type(struct evdev_client *client,
-+			struct input_dev *dev, unsigned int clkid)
- {
-+	if (client->clk_type == clkid)
-+		return 0;
-+
- 	switch (clkid) {
+ 	ret = sensor_hub_get_feature(st->hsdev,
+-		st->poll.report_id,
+-		st->poll.index, &value);
++				     st->poll.report_id,
++				     st->poll.index, sizeof(value), &value);
  
- 	case CLOCK_REALTIME:
-@@ -78,7 +82,17 @@ static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
- 	default:
+ 	if (ret < 0 || value < 0) {
  		return -EINVAL;
- 	}
-+
-+	spin_lock_irq(&dev->event_lock);
-+	spin_lock(&client->buffer_lock);
-+	spin_unlock(&dev->event_lock);
+@@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
+ 	int ret;
  
-+	/* Flush clients events after clk_type is changed
-+	 * and queue SYN_DROPPED event.*/
-+	client->packet_head = client->head = client->tail;
-+	spin_unlock_irq(&client->buffer_lock);
-+
-+	evdev_queue_syn_dropped(client);
+ 	ret = sensor_hub_get_feature(st->hsdev,
+-		st->poll.report_id,
+-		st->poll.index, &value);
++				     st->poll.report_id,
++				     st->poll.index, sizeof(value), &value);
+ 	if (ret < 0 || value < 0) {
+ 		*val1 = *val2 = 0;
+ 		return -EINVAL;
+@@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
+ 	int ret;
+ 
+ 	ret = sensor_hub_get_feature(st->hsdev,
+-		st->sensitivity.report_id,
+-		st->sensitivity.index, &value);
++				     st->sensitivity.report_id,
++				     st->sensitivity.index, sizeof(value),
++				     &value);
+ 	if (ret < 0 || value < 0) {
+ 		*val1 = *val2 = 0;
+ 		return -EINVAL;
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 92068cd..ef0c495 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+ 	}
+ 
+ 	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+-					st->power_state.index,
+-					&state_val);
++			       st->power_state.index,
++			       sizeof(state_val), &state_val);
  	return 0;
  }
- 
-@@ -908,7 +922,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 		if (copy_from_user(&i, p, sizeof(unsigned int)))
- 			return -EFAULT;
- 
--		return evdev_set_clk_type(client, i);
-+		return evdev_set_clk_type(client, dev, i);
- 
- 	case EVIOCGKEYCODE:
- 		return evdev_handle_get_keycode(dev, p);
+ EXPORT_SYMBOL(hid_sensor_power_state);
 -- 
-1.7.9.5
-
-
----
-This email has been checked for viruses by Avast antivirus software.
-http://www.avast.com
-
+1.9.3

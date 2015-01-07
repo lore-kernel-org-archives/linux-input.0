@@ -1,46 +1,31 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH 2/2] Input: adxl34x - add device tree documentation
-Date: Wed, 7 Jan 2015 10:42:31 +0100
-Message-ID: <CAMuHMdVfqzTf034vyDPEYrnZ7+3iE+h2H+7Cs-ifJrePDrw-rg@mail.gmail.com>
-References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
-	<1420599537-28740-2-git-send-email-walter@vanguardiasur.com.ar>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH 01/17] ARM: sunxi: Register cpufreq-dt for sun[45678]i
+Date: Wed, 7 Jan 2015 15:31:49 +0530
+Message-ID: <CAKohpon33KzojZL+u8hjAJdhXzY-c_V96xCgd+Pa7+cP=p6Tbg@mail.gmail.com>
+References: <1420511727-8242-1-git-send-email-wens@csie.org>
+	<1420511727-8242-2-git-send-email-wens@csie.org>
+	<20150106155532.GR7853@lukather>
+	<CAGb2v64Qv1Nhy2w--4T7ujw9NC17QhJdmrn0VyDtTajv+tu+NQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1420599537-28740-2-git-send-email-walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Cc: michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:35660 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751158AbbAGKBu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 05:01:50 -0500
+Received: by mail-ob0-f174.google.com with SMTP id uz6so2363825obc.5
+        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 02:01:49 -0800 (PST)
+In-Reply-To: <CAGb2v64Qv1Nhy2w--4T7ujw9NC17QhJdmrn0VyDtTajv+tu+NQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 
-On Wed, Jan 7, 2015 at 3:58 AM, Walter Lozano
-<walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org> wrote:
-> diff --git a/Documentation/devicetree/bindings/input/adxl34x.txt b/Documentation/devicetree/bindings/input/adxl34x.txt
-> new file mode 100644
-> index 0000000..0774f7e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/adxl34x.txt
-> @@ -0,0 +1,53 @@
-> +Device Tree bindings for adxl34x digital accelerometer, both spi and i2c.
-> +
-> +Depending on the interface this node should be a child of a spi or i2c bus.
-> +
-> +Required properties:
-> +- compatible: "adxl34x"
+On 7 January 2015 at 14:37, Chen-Yu Tsai <wens@csie.org> wrote:
+> I believe you are referring to the work done by Viresh Kumar (CCed),
+> specifically the 2 series "[RFC V1 0/8] CPUFreq: create platform-dev
+> for DT based cpufreq drivers" and "[RFC] OPP: Redefine bindings to
+> overcome shortcomings". So far the new code has not appeared in
+> linux-next. If it does, I will happily use it.
 
-"adi,adxl34x"?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes. You still have to create these platform devices for cpufreq-dt.

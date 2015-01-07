@@ -1,120 +1,79 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/2] input: synaptics - make image sensors report
- ABS_MT_TOUCH_MAJOR
-Date: Wed, 7 Jan 2015 16:10:25 +1000
-Message-ID: <20150107061025.GB17069@jelly.redhat.com>
-References: <1419679889-6582-1-git-send-email-gabriele.mzt@gmail.com>
- <1419679889-6582-2-git-send-email-gabriele.mzt@gmail.com>
- <CAN+gG=Fhaj2aQM7gxXZBaXx3MZQbdMdCZ7KO=nmhzufp4YqnmA@mail.gmail.com>
- <1777845.g1sZJx65aj@xps13>
- <CAN+gG=FQY4V8K6k-mVrYRNSLoJDZW5bX1T=rD04MkEedQRdfUg@mail.gmail.com>
+From: Tristan Lelong <tristan@lelong.xyz>
+Subject: Re: [PATCH] input: Add soft kill switch for input devices
+Date: Tue, 6 Jan 2015 22:40:39 -0800
+Message-ID: <20150107064038.GB4681@lenderer>
+References: <1420352645-3706-1-git-send-email-tristan@lelong.xyz>
+ <20150106221732.1cbbe3ae@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:55374 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750834AbbAGGK1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 01:10:27 -0500
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:55428 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751105AbbAGGks (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 01:40:48 -0500
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=FQY4V8K6k-mVrYRNSLoJDZW5bX1T=rD04MkEedQRdfUg@mail.gmail.com>
+In-Reply-To: <20150106221732.1cbbe3ae@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Maxwell Anselm <silverhammermba@gmail.com>
+To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2015 at 05:04:55PM -0500, Benjamin Tissoires wrote:
-> On Mon, Jan 5, 2015 at 5:00 PM, Gabriele Mazzotta
-> <gabriele.mzt@gmail.com> wrote:
-> > On Monday 05 January 2015 14:24:30 Benjamin Tissoires wrote:
-> >> Hi Gabriele,
-> >>
-> >> [Adding Peter and Hans as this change will impact both
-> >> xf86-input-synaptics and libinput]
-> >>
-> >> On Sat, Dec 27, 2014 at 6:31 AM, Gabriele Mazzotta
-> >> <gabriele.mzt@gmail.com> wrote:
-> >> > Despite claiming to be able to report ABS_TOOL_WIDTH, image sensors
-> >> > were not doing it. Make them report widths and use ABS_MT_TOUCH_MAJOR
-> >> > instead ABS_TOOL_WIDTH.
-> >>
-> >> It looks like the current xorg-synaptics code already handles
-> >> ABS_MT_TOUCH_MAJOR as finger_width. So I think we should be good in
-> >> replacing the ABS_TOOL_WIDTH event. However, I'd prefer having Peter
-> >> confirm this because xorg-synaptics still relies a lot on the single
-> >> touch emulation.
-> >>
-> >> >
-> >> > Since the 'w' slot is used to report the finger count when two or more
-> >> > fingers are on the touchpad, make sure that only meaningful values are
-> >> > emitted, i.e. values greater than or equal to 4, and assign the correct
-> >> > range to ABS_MT_TOUCH_MAJOR.
-> >> >
-> >> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=77161
-> >> > Signed-off-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> >> > ---
-> >> >  drivers/input/mouse/synaptics.c | 11 +++++++++--
-> >> >  1 file changed, 9 insertions(+), 2 deletions(-)
-> >> >
-> >> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> >> > index f947292..ea0563e 100644
-> >> > --- a/drivers/input/mouse/synaptics.c
-> >> > +++ b/drivers/input/mouse/synaptics.c
-> >> > @@ -814,6 +814,8 @@ static void synaptics_report_slot(struct input_dev *dev, int slot,
-> >>
-> >> Just FYI, this does not apply anymore on top of Dmitry's tree.
-> >> synaptics_report_slot() has been removed, and you should now report
-> >> the slot state in synaptics_report_mt_data().
-> >>
-> >> >         input_report_abs(dev, ABS_MT_POSITION_X, hw->x);
-> >> >         input_report_abs(dev, ABS_MT_POSITION_Y, synaptics_invert_y(hw->y));
-> >> >         input_report_abs(dev, ABS_MT_PRESSURE, hw->z);
-> >> > +       if (hw->w >= 4)
-> >>
-> >> That I don't like. IMO, at this point, .w should only contain the
-> >> finger width, unconditionally.
-> >> Also, with 2/2, .w is computed accurately for the second finger, but
-> >> not for the first.
-> >>
-> >> I tried to figure out a way to properly extract the actual width
-> >> information from the sgm packet when the w is 0 or 1, and the only way
-> >> I found was to do the fix in synaptics_image_sensor_process(). I would
-> >> have preferred dealing with that in synaptics_parse_hw_state()
-> >> directly, but I think the final code would be more and more ugly.
-> >> Dealing with the true finger width in synaptics_image_sensor_process()
-> >> is not a problem for cr48 sensors, because they will not have the
-> >> ABS_MT_TOUCH_MAJOR event exported.
-> >
-> > Regarding the last part on cr48 sensors.
-> > Currently these sensors are not reporting widths through ABS_TOOL_WIDTH
-> > and I don't see what could go wrong if they start reporting
-> > ABS_MT_TOUCH_MAJOR. If I understood correctly, they can report widths
-> > only when one finger is on the touchpad. This means that they will
-> > report widths through slot 0, but they won't through slot 1. Nothing
-> > bad should happen.
-> 
-> I am not entirely sure. The entire purpose of having widht for palm
-> detection is to filter palm from true finger events. So if we only
-> have the width info on the first slot, it would be useless IMO.
-> Still I agree with "nothing bad should happen" :)
+On Tue, Jan 06, 2015 at 10:17:32PM +0100, Bruno Pr=E9mont wrote:
+>=20
+> One big issue I see here is that you start dropping all events at a r=
+andom
+> point in time.
+> You may end up within a gesture or just while a button is down and re=
+main
+> so until that same button gets pressed again on unmute.
+>=20
+> On your touchscreen, how do things behave if you trigger the muting w=
+hile
+> you are dragging or doing some gesture (and unmute when noone touches
+> the touchscreen)?
 
-fwiw, I found finger width _very_ unreliable for palm detection. from what I
-recorded, both finger width and palm width ranges overlap to a large amount,
-making width useless for anything that's not the whole hand on the
-touchpad.
+That is right, I thought of it for pointing devices, and it seemed that=
+ it should not be
+too much of a problem, even thought it would be better to handle it pro=
+perly.
 
-Cheers,
-   Peter
+>=20
+> If applied to a keyboard, what happens when you mute while keys are p=
+ressed
+> and unmute when they have long been released?
 
-> > I've just rebased my patches and included the support for cr48 sensors.
-> > The only change I made was to change the default width value from
-> > 5 to 4 since this is the minimum values these sensors can report
-> > (according to the existing code).
-> >
-> > Anyway, should I simply include the changes you suggested to handle
-> > widths of sgm packets in what will be the new 2/2?
-> 
-> Go ahead and include my changes in your 2/2. It's better to have a
-> consistent commit.
-> 
-> Cheers,
-> Benjamin
+This case is actually a bigger problem and I didn't think of it.
+>=20
+>=20
+> If you could send a "reset" event to input listeners when muting you =
+could
+> work around most issues as any application making use of events would=
+ know
+> that after this "reset" event things should not depend on any past st=
+ate.
+
+I could definitely do something like this and make sure all the events =
+are handled properly.
+
+>=20
+>=20
+> Possibly a better way to achieve your aim is to just unbind and re-bi=
+nd
+> the device from device driver, causing software hotplug.
+> That way you are sure no application will perform incorrect guesses w=
+hile
+> device is "muted".
+
+This is another good solution that would work in my case.
+
+If somebody think this patch can be of any interest, I'll be happy to
+submit a v2 with correct handling of current events at the time of mutt=
+ing.
+
+Best regards
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

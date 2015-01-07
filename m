@@ -1,158 +1,105 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: PATCH change for HID_BATTERY_STRENGTH kconfig
-Date: Wed, 7 Jan 2015 23:53:04 +0100
-Message-ID: <CANq1E4SBz28enhHz6mXBLKyjRCP9HzAuN7ikLbGTno=zAkFhcQ@mail.gmail.com>
-References: <CACo8zOfAf3cUNh4MZcQvYByiu=D5S1aA4qiH_HFuvz5GYMJF7g@mail.gmail.com>
-	<alpine.LNX.2.00.1305240016180.13213@pobox.suse.cz>
-	<CACo8zOcm3B7WdQpHA3J2ZtP6AWUrtAo_L63mpYJR0w13jNwLpQ@mail.gmail.com>
-	<alpine.LNX.2.00.1407291339040.16390@pobox.suse.cz>
-	<1415617019.16803.2.camel@bart>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1 4/4] leds: no longer use unnamed gpios
+Date: Wed, 7 Jan 2015 15:55:22 -0800
+Message-ID: <20150107235522.GA6670@dtor-ws>
+References: <1420621722-7428-1-git-send-email-oliver+list@schinagl.nl>
+ <1420621722-7428-5-git-send-email-oliver+list@schinagl.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:34324 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754615AbbAGWxF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2015 17:53:05 -0500
-Received: by mail-ie0-f171.google.com with SMTP id ar1so6604670iec.2
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2015 14:53:04 -0800 (PST)
-In-Reply-To: <1415617019.16803.2.camel@bart>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1420621722-7428-5-git-send-email-oliver+list-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Olliver Schinagl <oliver+list-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Olliver Schinagl <oliver-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>, Robin Gong <b38343-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Nicoletti <dantti12@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-Hi
-
-On Mon, Nov 10, 2014 at 11:56 AM, Daniel Nicoletti <dantti12@gmail.com>=
- wrote:
-> Em Ter, 2014-07-29 =C3=A0s 13:39 +0200, Jiri Kosina escreveu:
->> On Mon, 23 Jun 2014, Daniel Nicoletti wrote:
->>
->> > 2013-05-23 19:16 GMT-03:00 Jiri Kosina <jkosina@suse.cz>:
->> > > On Mon, 13 May 2013, Daniel Nicoletti wrote:
->> > >
->> > >> Hi,
->> > >> I'd like to propose this patch while removes the need for
->> > >> hid to be compiled build-in, as this is the same behavior
->> > >> that WiiMote and Wacom have.
->> > >> Is this ok?
->> > >
->> > > Makes sense to me. Could you please resend with proper changelog=
- and
->> > > Signed-off-by: line?
->> > >
->> > > Thanks.
->> >
->> > Sorry it took more than a year for me to do this,
->> > so I called git send-email, and so far the CC and
->> > linux-input didn't get it, tho it said result OK.
->> > git send-email --to "Jiri Kosina <jkosina@suse.cz>" --cc
->> > "linux-input@vger.kernel.org"
->> > 0001-HID-Allows-for-HID_BATTERY_STRENGTH-config-be-enable.patch
->> >
->> > I'm pasting it here hoping gmail doesn't screw
->> > it, if you prefer that I send it using the above
->> > command mind you telling what I did wrong?
->> >
->> > Thanks.
->> >
->> > >From df740fd81dffbb74e13c622392fe9a945006fd3c Mon Sep 17 00:00:00=
- 2001
->> > From: Daniel Nicoletti <dantti12@gmail.com>
->> > Date: Mon, 23 Jun 2014 10:31:47 -0300
->> > Subject: [PATCH] HID: Allows for HID_BATTERY_STRENGTH config be en=
-abled
->> >  without the need for HID module to be built-in.
->> >
->>
->> It'd be nice to insert a few sentences of changelog here.
->>
->> Thanks.
->>
->> > Signed-off-by: Daniel Nicoletti <dantti12@gmail.com>
->> > ---
->> >  drivers/hid/Kconfig | 3 ++-
->> >  1 file changed, 2 insertions(+), 1 deletion(-)
->> >
->> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> > index fb52f3f..d6d85ad 100644
->> > --- a/drivers/hid/Kconfig
->> > +++ b/drivers/hid/Kconfig
->> > @@ -27,7 +27,8 @@ if HID
->> >
->> >  config HID_BATTERY_STRENGTH
->> >         bool "Battery level reporting for HID devices"
->> > -       depends on HID && POWER_SUPPLY && HID =3D POWER_SUPPLY
->> > +       depends on HID
->> > +       select POWER_SUPPLY
->> >         default n
->> >         ---help---
->> >         This option adds support of reporting battery strength (fo=
-r HID devices
->> > --
->> > 2.0.0
->> >
->>
->> --
->> Jiri Kosina
->> SUSE Labs
->
-> Sorry for yet another delay here is the patch with
-> a better changelog (I hope so)...
->
->
-> From 21608873917dcec012c7f9f1b84dd44774069de2 Mon Sep 17 00:00:00 200=
-1
-> From: Daniel Nicoletti <dantti12@gmail.com>
-> Date: Mon, 23 Jun 2014 10:31:47 -0300
-> Subject: [PATCH] HID: Allow HID_BATTERY_STRENGTH to be enabled
->
-> Allows for HID_BATTERY_STRENGTH config be enabled
-> without the need for HID module to be built-in,
-> prior to this HID and POWER_SUPPLY had to be
-> equal, and now we only select POWER_SUPPLY and
-> depend on the HID module.
->
-> Signed-off-by: Daniel Nicoletti <dantti12@gmail.com>
+On Wed, Jan 07, 2015 at 10:08:42AM +0100, Olliver Schinagl wrote:
+> From: Olliver Schinagl <oliver-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>
+> 
+> The gpio document says we should not use unnamed bindings for gpios.
+> This patch uses the 'led-' prefix to the gpios and updates code and
+> documents. Because the devm_get_gpiod_from_child() falls back to using
+> old-style unnamed gpios, we can update the code first, and update
+> dts files as time allows.
+> 
+> Signed-off-by: Olliver Schinagl <oliver-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>
 > ---
->  drivers/hid/Kconfig | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  Documentation/devicetree/bindings/leds/leds-gpio.txt | 12 ++++++------
+>  drivers/leds/leds-gpio.c                             |  2 +-
+>  2 files changed, 7 insertions(+), 7 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/leds/leds-gpio.txt b/Documentation/devicetree/bindings/leds/leds-gpio.txt
+> index d544cf1..2c138cc 100644
+> --- a/Documentation/devicetree/bindings/leds/leds-gpio.txt
+> +++ b/Documentation/devicetree/bindings/leds/leds-gpio.txt
+> @@ -7,7 +7,7 @@ Each LED is represented as a sub-node of the gpio-leds device.  Each
+>  node's name represents the name of the corresponding LED.
+>  
+>  LED sub-node properties:
+> -- gpios :  Should specify the LED's GPIO, see "gpios property" in
+> +- led-gpios :  Should specify the LED's GPIO, see "gpios property" in
+>    Documentation/devicetree/bindings/gpio/gpio.txt.  Active low LEDs should be
+>    indicated using flags in the GPIO specifier.
+>  - label :  (optional)
+> @@ -32,12 +32,12 @@ leds {
+>  	compatible = "gpio-leds";
+>  	hdd {
+>  		label = "IDE Activity";
+> -		gpios = <&mcu_pio 0 GPIO_ACTIVE_LOW>;
+> +		led-gpios = <&mcu_pio 0 GPIO_ACTIVE_LOW>;
+>  		linux,default-trigger = "ide-disk";
+>  	};
+>  
+>  	fault {
+> -		gpios = <&mcu_pio 1 GPIO_ACTIVE_HIGH>;
+> +		led-gpios = <&mcu_pio 1 GPIO_ACTIVE_HIGH>;
+>  		/* Keep LED on if BIOS detected hardware fault */
+>  		default-state = "keep";
+>  	};
+> @@ -46,11 +46,11 @@ leds {
+>  run-control {
+>  	compatible = "gpio-leds";
+>  	red {
+> -		gpios = <&mpc8572 6 GPIO_ACTIVE_HIHG>;
+> +		led-gpios = <&mpc8572 6 GPIO_ACTIVE_HIHG>;
+>  		default-state = "off";
+>  	};
+>  	green {
+> -		gpios = <&mpc8572 7 GPIO_ACTIVE_HIGH>;
+> +		led-gpios = <&mpc8572 7 GPIO_ACTIVE_HIGH>;
+>  		default-state = "on";
+>  	};
+>  };
+> @@ -59,7 +59,7 @@ leds {
+>  	compatible = "gpio-leds";
+>  
+>  	charger-led {
+> -		gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+> +		led-gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+>  		linux,default-trigger = "max8903-charger-charging";
+>  		retain-state-suspended;
+>  	};
+> diff --git a/drivers/leds/leds-gpio.c b/drivers/leds/leds-gpio.c
+> index 8e5af69..5b7bc84 100644
+> --- a/drivers/leds/leds-gpio.c
+> +++ b/drivers/leds/leds-gpio.c
+> @@ -184,7 +184,7 @@ static struct gpio_leds_priv *gpio_leds_create(struct platform_device *pdev)
+>  		struct gpio_led led = {};
+>  		const char *state = NULL;
+>  
+> -		led.gpiod = devm_get_gpiod_from_child(dev, NULL, child);
+> +		led.gpiod = devm_get_gpiod_from_child(dev, "led", child);
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+Would not this break existing boards using old bindings? You need to
+handle both cases: if you can't located "led-gpios" then you will have to
+try just "gpios".
 
-Thanks
-David
+Thanks.
 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index f42df4d..602ac07 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -27,7 +27,8 @@ if HID
->
->  config HID_BATTERY_STRENGTH
->         bool "Battery level reporting for HID devices"
-> -       depends on HID && POWER_SUPPLY && HID =3D POWER_SUPPLY
-> +       depends on HID
-> +       select POWER_SUPPLY
->         default n
->         ---help---
->         This option adds support of reporting battery strength (for H=
-ID
-> devices
-> --
-> 2.1.0
->
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

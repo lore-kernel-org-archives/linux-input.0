@@ -1,166 +1,116 @@
-From: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: [PATCH 1/2] Input: adxl34x - add OF support
-Date: Tue,  6 Jan 2015 23:58:56 -0300
-Message-ID: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
+From: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v5 4/6] ARM: dts: AM335x: Make charge delay a DT parameter
+ for TSC
+Date: Wed, 7 Jan 2015 11:17:20 +0530
+Message-ID: <54ACC868.7040801@ti.com>
+References: <1419404619-10744-1-git-send-email-vigneshr@ti.com> <1419404619-10744-5-git-send-email-vigneshr@ti.com> <20150102170933.GB3298@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150102170933.GB3298-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Sanjeev Sharma <sanjeev_sharma-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Jan Kardell <jan.kardell-KSZdJiTw9mzQT0dZR+AlfA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap@
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the missing support for OF to the adxl34x digital
-accelerometer. This is a basic version which supports the main
-optional parameters. This implementation copies the default values
-to the adxl34x_platform_data structure and overrides the values
-that are passed from the device tree.
 
-Signed-off-by: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
----
- drivers/input/misc/adxl34x.c |  108 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 107 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
-index 2b2d02f..b3e06a3 100644
---- a/drivers/input/misc/adxl34x.c
-+++ b/drivers/input/misc/adxl34x.c
-@@ -16,6 +16,8 @@
- #include <linux/workqueue.h>
- #include <linux/input/adxl34x.h>
- #include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
- 
- #include "adxl34x.h"
- 
-@@ -688,13 +690,113 @@ static void adxl34x_input_close(struct input_dev *input)
- 	mutex_unlock(&ac->mutex);
- }
- 
-+void adxl34x_parse_dt(struct device *dev, struct adxl34x_platform_data *pdata){
-+	if (!dev->of_node)
-+		return;
-+
-+	pdata =  kzalloc(sizeof(*pdata), GFP_KERNEL);
-+
-+	memcpy(pdata, &adxl34x_default_init, sizeof(struct adxl34x_platform_data));
-+
-+	of_property_read_u8(dev->of_node, "adi,tap-axis-control",
-+		 &pdata->tap_axis_control);
-+
-+	of_property_read_u8(dev->of_node, "adi,tap-threshold",
-+		 &pdata->tap_threshold);
-+
-+	of_property_read_u8(dev->of_node, "adi,tap-duration",
-+		 &pdata->tap_duration);
-+
-+	of_property_read_u8(dev->of_node, "adi,tap-latency",
-+		 &pdata->tap_latency);
-+
-+	of_property_read_u8(dev->of_node, "adi,tap-window",
-+		 &pdata->tap_window);
-+
-+	of_property_read_u8(dev->of_node, "adi,act-axis-control",
-+		 &pdata->act_axis_control);
-+
-+	of_property_read_u8(dev->of_node, "adi,activity-threshold",
-+		 &pdata->activity_threshold);
-+
-+	of_property_read_u8(dev->of_node, "adi,inactivity-threshold",
-+		 &pdata->inactivity_threshold);
-+
-+	of_property_read_u8(dev->of_node, "adi,inactivity-time",
-+		 &pdata->inactivity_time);
-+
-+	of_property_read_u8(dev->of_node, "adi,free-fall-threshold",
-+		 &pdata->free_fall_threshold);
-+
-+	of_property_read_u8(dev->of_node, "adi,free-fall-time",
-+		 &pdata->free_fall_time);
-+
-+	of_property_read_u8(dev->of_node, "adi,data-rate",
-+		 &pdata->data_rate);
-+
-+	of_property_read_u8(dev->of_node, "adi,data-range",
-+		 &pdata->data_range);
-+
-+	of_property_read_u8(dev->of_node, "adi,low-power-mode",
-+		 &pdata->low_power_mode);
-+
-+	of_property_read_u8(dev->of_node, "adi,power-mode",
-+		 &pdata->power_mode);
-+
-+	of_property_read_u8(dev->of_node, "adi,fifo-mode",
-+		 &pdata->fifo_mode);
-+
-+	of_property_read_u8(dev->of_node, "adi,watermark",
-+		 &pdata->watermark);
-+
-+	of_property_read_u8(dev->of_node, "adi,use-int2",
-+		 &pdata->use_int2);
-+
-+	of_property_read_u8(dev->of_node, "adi,orientation-enable",
-+		 &pdata->orientation_enable);
-+
-+	of_property_read_u8(dev->of_node, "adi,deadzone-angle",
-+		 &pdata->deadzone_angle);
-+
-+	of_property_read_u8(dev->of_node, "adi,divisor-length",
-+		 &pdata->divisor_length);
-+
-+	of_property_read_u32(dev->of_node, "adi,ev-type",
-+		 &pdata->ev_type);
-+
-+	of_property_read_u32(dev->of_node, "adi,ev-code-x",
-+		 &pdata->ev_code_x);
-+
-+	of_property_read_u32(dev->of_node, "adi,ev-code-y",
-+		 &pdata->ev_code_y);
-+
-+	of_property_read_u32(dev->of_node, "adi,ev-code-z",
-+		 &pdata->ev_code_z);
-+
-+	of_property_read_u32_array(dev->of_node, "adi,ev-code-tap",
-+		 pdata->ev_code_tap, 3);
-+
-+	of_property_read_u32(dev->of_node, "adi,ev-code-ff",
-+		 &pdata->ev_code_ff);
-+
-+	of_property_read_u32(dev->of_node, "adi,ev-code-act-inactivity",
-+		 &pdata->ev_code_act_inactivity);
-+
-+	of_property_read_u32_array(dev->of_node, "adi,ev-codes-orient-2d",
-+		 pdata->ev_codes_orient_2d, 4);
-+
-+	of_property_read_u32_array(dev->of_node, "adi,ev-codes-orient-3d",
-+		 pdata->ev_codes_orient_3d, 6);
-+
-+}
-+
- struct adxl34x *adxl34x_probe(struct device *dev, int irq,
- 			      bool fifo_delay_default,
- 			      const struct adxl34x_bus_ops *bops)
- {
- 	struct adxl34x *ac;
- 	struct input_dev *input_dev;
--	const struct adxl34x_platform_data *pdata;
-+	struct adxl34x_platform_data *pdata;
- 	int err, range, i;
- 	unsigned char revid;
- 
-@@ -714,6 +816,10 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
- 	ac->fifo_delay = fifo_delay_default;
- 
- 	pdata = dev_get_platdata(dev);
-+
-+	if (!pdata && dev->of_node)
-+		adxl34x_parse_dt(dev, pdata);
-+
- 	if (!pdata) {
- 		dev_dbg(dev,
- 			"No platform data: Using default initialization\n");
--- 
-1.7.10.4
+On Friday 02 January 2015 10:39 PM, Tony Lindgren wrote:
+> * Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org> [141223 23:07]:
+>> The charge delay value is by default 0x400. But it can be set to lower
+>> values on some boards, as long as false pen-ups are avoided. Lowering the
+>> value increases the sampling rate (though current sampling rate is
+>> sufficient for TSC operation). In some boards, the value has to be
+>> increased to avoid false pen-up events. Hence, charge delay has been
+>> made a DT parameter.
+>>
+>> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+> 
+> Assuming this binding makes sense for the input people, there should
+> be no conflicts merging this patch along with the rest of the series
+> via the input tree.
+> 
 
+I will post new version moving documentation to driver code and keeping
+DT changes as a separate patch.
+
+> Sounds like this value probably depends on the size of the touchscreen
+> for the capacitance, so a numeric value is really needed here. 
+
+Its not just dependent on the size of the touchscreen. It varies based
+on the individual setups.
+
+> I would personally prefer generic bindings in general, but in any case
+
+There isn't any generic binding that corresponds to charge-delay.
+Nothing as been pointed out by input maintainer either.
+
+Regards
+Vignesh
+
+> please feel free to merge along with the other input patches:
+> 
+> Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> 
+> 
+>> ---
+>> v4:
+>>  - Set charge delay to 0x400 as default. Most devices function normally
+>>    at this value
+>>
+>>  .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt  | 15 +++++++++++++++
+>>  arch/arm/boot/dts/am335x-evm.dts                          |  1 +
+>>  2 files changed, 16 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+>> index 878549ba814d..6df5028a4ad3 100644
+>> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+>> @@ -28,6 +28,20 @@ Required properties:
+>>  	ti,adc-channels: List of analog inputs available for ADC.
+>>  			 AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+>>  
+>> +Optional properties:
+>> +- child "tsc"
+>> +	ti,charge-delay: Length of touch screen charge delay step in terms of
+>> +			 ADC clock cycles. Charge delay value should be large
+>> +			 in order to avoid false pen-up events. This value
+>> +			 affects the overall sampling speed, hence need to be
+>> +			 kept as low as possible, while avoiding false pen-up
+>> +			 event. Start from a lower value, say 0x400, and
+>> +			 increase value until false pen-up events are avoided.
+>> +			 The pen-up detection happens immediately after the
+>> +			 charge step, so this does in fact function as a
+>> +			 hardware knob for adjusting the amount of "settling
+>> +			 time".
+>> +
+>>  Example:
+>>  	tscadc: tscadc@44e0d000 {
+>>  		compatible = "ti,am3359-tscadc";
+>> @@ -36,6 +50,7 @@ Example:
+>>  			ti,x-plate-resistance = <200>;
+>>  			ti,coordiante-readouts = <5>;
+>>  			ti,wire-config = <0x00 0x11 0x22 0x33>;
+>> +			ti,charge-delay = <0x400>;
+>>  		};
+>>  
+>>  		adc {
+>> diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+>> index 54f118c08db8..66342515df20 100644
+>> --- a/arch/arm/boot/dts/am335x-evm.dts
+>> +++ b/arch/arm/boot/dts/am335x-evm.dts
+>> @@ -648,6 +648,7 @@
+>>  		ti,x-plate-resistance = <200>;
+>>  		ti,coordinate-readouts = <5>;
+>>  		ti,wire-config = <0x00 0x11 0x22 0x33>;
+>> +		ti,charge-delay = <0x400>;
+>>  	};
+>>  
+>>  	adc {
+>> -- 
+>> 1.9.1
+>>
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

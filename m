@@ -1,125 +1,95 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2] HID: logitech-hidpp: store the name of the device in struct hidpp
-Date: Thu,  8 Jan 2015 14:37:12 -0500
-Message-ID: <1420745832-7549-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 2/2] Report In Range event according to the spec
+Date: Thu,  8 Jan 2015 12:06:43 -0800
+Message-ID: <1420747603-22545-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54970 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751973AbbAHTh1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Jan 2015 14:37:27 -0500
+Received: from mail-pd0-f173.google.com ([209.85.192.173]:49192 "EHLO
+	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932543AbbAHUGm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 15:06:42 -0500
+Received: by mail-pd0-f173.google.com with SMTP id ft15so13078114pdb.4
+        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 12:06:41 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-If a disconnect occurs while getting the actual name of the device
-(which can take several HID transactions), the name of the device will
-be the hid name, provided by the Unifying Receiver.
-This means that in some cases, the user space will see a different
-name that what it usually sees when there is no disconnect.
+Some Citniq and Intuos tablets report In Range event. This event
+is sent before valid data is reported when tool enters proximity;
+or before out of proximity event is reported when tool exits.
 
-We should store the name of the device in the struct hidpp. That way,
-if a disconnect occurs while we are accessing the name,
-hidpp_connect_event() can fail, and the input node is not created.
+While erntering proximity, In Range means a pen is detected. This
+information can be used for palm/touch rejection on both pen and
+touch enabled devices. While exiting, it means the tool has
+reached its maximum detectable distance.
 
-The input node will be created only if we have a connection which
-lasts long enough to retrieve all the requested information:
-name, protocol, and specific configuration.
-
-Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-Tested-by: Peter Wu <peter@lekensteyn.nl>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
+ drivers/hid/wacom_wac.c | 15 ++++++++-------
+ drivers/hid/wacom_wac.h |  1 +
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
-Hi,
-
-sorry for the delay.
-Peter, I amended the patch to add a comment in the declaration of .name.
-If this is not what you had in mind (or if it is not sufficient), please tell
-me. I still kept your tested and S-o-b lines, but feel free to retract yourself :)
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index c8af315..e77658c 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -89,6 +89,7 @@ struct hidpp_device {
- 	struct hid_device *hid_dev;
- 	struct mutex send_mutex;
- 	void *send_receive_buf;
-+	char *name;		/* will never be NULL and should not be freed */
- 	wait_queue_head_t wait;
- 	bool answer_available;
- 	u8 protocol_major;
-@@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
- static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
- {
- 	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 4ccf622..f93200f 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -443,9 +443,6 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
  
- 	if (!input_dev)
- 		return NULL;
-@@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
- 	input_dev->open = hidpp_input_open;
- 	input_dev->close = hidpp_input_close;
+ 	/* Enter report */
+ 	if ((data[1] & 0xfc) == 0xc0) {
+-		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+-			wacom->shared->stylus_in_proximity = true;
+-
+ 		/* serial number of the tool */
+ 		wacom->serial[idx] = ((data[3] & 0x0f) << 28) +
+ 			(data[4] << 20) + (data[5] << 12) +
+@@ -554,19 +551,22 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 	   (features->type == CINTIQ && !(data[1] & 0x40)))
+ 		return 1;
  
--	input_dev->name = hdev->name;
-+	input_dev->name = hidpp->name;
- 	input_dev->phys = hdev->phys;
- 	input_dev->uniq = hdev->uniq;
- 	input_dev->id.bustype = hdev->bus;
-@@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 	hid_info(hdev, "HID++ %u.%u device connected.\n",
- 		 hidpp->protocol_major, hidpp->protocol_minor);
- 
-+	if (!hidpp->name || hidpp->name == hdev->name) {
-+		name = hidpp_get_device_name(hidpp);
-+		if (!name) {
-+			hid_err(hdev,
-+				"unable to retrieve the name of the device");
-+			return;
-+		}
+-	/* Range Report */
+-	if ((data[1] & 0xfe) == 0x20) {
++	if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
++		wacom->shared->stylus_in_proximity = true;
 +
-+		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
-+		kfree(name);
-+		if (!devm_name)
-+			return;
-+
-+		hidpp->name = devm_name;
-+	}
-+
- 	input = hidpp_allocate_input(hdev);
- 	if (!input) {
- 		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
- 		return;
++	/* in Range while exiting */
++	if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
+ 		input_report_key(input, BTN_TOUCH, 0);
+ 		input_report_abs(input, ABS_PRESSURE, 0);
+ 		input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
+-		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+-			wacom->shared->stylus_in_proximity = true;
++		return 2;
  	}
  
--	name = hidpp_get_device_name(hidpp);
--	if (!name) {
--		hid_err(hdev, "unable to retrieve the name of the device");
--	} else {
--		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
--		if (devm_name)
--			input->name = devm_name;
--		kfree(name);
--	}
--
- 	hidpp_populate_input(hidpp, input, false);
+ 	/* Exit report */
+ 	if ((data[1] & 0xfe) == 0x80) {
+ 		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+ 			wacom->shared->stylus_in_proximity = false;
++		wacom->reporting_data = false;
  
- 	ret = input_register_device(input);
-@@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return -ENOMEM;
+ 		/* don't report exit if we don't know the ID */
+ 		if (!wacom->id[idx])
+@@ -952,6 +952,7 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 	input_report_abs(input, ABS_MISC, wacom->id[idx]); /* report tool id */
+ 	input_report_key(input, wacom->tool[idx], 1);
+ 	input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[idx]);
++	wacom->reporting_data = true;
+ 	return 1;
+ }
  
- 	hidpp->hid_dev = hdev;
-+	hidpp->name = hdev->name;
- 	hid_set_drvdata(hdev, hidpp);
- 
- 	hidpp->quirks = id->driver_data;
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 7afd929..72e78cc 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -189,6 +189,7 @@ struct wacom_wac {
+ 	int tool[2];
+ 	int id[2];
+ 	__u32 serial[2];
++	bool reporting_data;
+ 	struct wacom_features features;
+ 	struct wacom_shared *shared;
+ 	struct input_dev *input;
 -- 
-2.1.0
+1.9.1
 

@@ -1,57 +1,213 @@
-From: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: Re: [PATCH 2/2] Input: adxl34x - add device tree documentation
-Date: Thu, 8 Jan 2015 17:15:09 -0300
-Message-ID: <CABxpGwCG56zmKYC8mGun9DYkgR4xS1L0F0fhF7Ze_0oHCxA4AA@mail.gmail.com>
-References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
-	<1420599537-28740-2-git-send-email-walter@vanguardiasur.com.ar>
-	<CAMuHMdVfqzTf034vyDPEYrnZ7+3iE+h2H+7Cs-ifJrePDrw-rg@mail.gmail.com>
-	<CABxpGwDw_bE+UxypWGz3scxh3zVuxZ-1TTG2o-hEgT_mvwVatQ@mail.gmail.com>
-	<CAMuHMdWwVmjkg-4pNvHgtBtc34+FzMKtF6e77YMqM4uRYfS+eg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMuHMdWwVmjkg-4pNvHgtBtc34+FzMKtF6e77YMqM4uRYfS+eg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Moritz Fischer <moritz.fischer@ettus.com>
+Subject: [PATCH 1/3] input: misc: Support NI Ettus Research USRP E3x0 Button
+Date: Thu,  8 Jan 2015 22:02:49 +0100
+Message-ID: <1420750971-21812-2-git-send-email-moritz.fischer@ettus.com>
+References: <1420750971-21812-1-git-send-email-moritz.fischer@ettus.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1420750971-21812-1-git-send-email-moritz.fischer@ettus.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Moritz Fischer <moritz.fischer@ettus.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 8, 2015 at 3:51 PM, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
-> On Thu, Jan 8, 2015 at 6:40 PM, Walter Lozano
-> <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org> wrote:
->> On Wed, Jan 7, 2015 at 6:42 AM, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
->>> On Wed, Jan 7, 2015 at 3:58 AM, Walter Lozano
->>> <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org> wrote:
->>>> diff --git a/Documentation/devicetree/bindings/input/adxl34x.txt b/Documentation/devicetree/bindings/input/adxl34x.txt
->>>> new file mode 100644
->>>> index 0000000..0774f7e
->>>> --- /dev/null
->>>> +++ b/Documentation/devicetree/bindings/input/adxl34x.txt
->>>> @@ -0,0 +1,53 @@
->>>> +Device Tree bindings for adxl34x digital accelerometer, both spi and i2c.
->>>> +
->>>> +Depending on the interface this node should be a child of a spi or i2c bus.
->>>> +
->>>> +Required properties:
->>>> +- compatible: "adxl34x"
->>>
->>> "adi,adxl34x"?
->>
->> Great, thanks for your feedback.
->
-> BTW, did you see "[PATCH] input: adxl34x: Add OF match support"
-> (http://www.spinics.net/lists/linux-i2c/msg18107.html)?
+Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+---
+ drivers/input/misc/Kconfig       |  10 +++
+ drivers/input/misc/Makefile      |   1 +
+ drivers/input/misc/e3x0-button.c | 153 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 164 insertions(+)
 
-Yes, I have already seen it. Thanks for you time.
-
-Regards,
-
-Walter
-
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 23297ab..84a56b4 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -93,6 +93,16 @@ config INPUT_BMA150
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called bma150.
+ 
++config INPUT_E3X0_BUTTON
++	tristate "NI Ettus Research USRP E3x0 Button support."
++	default n
++	help
++	  Say Y here to enable support for the NI Ettus Research
++	  USRP E3x0 Button.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called e3x0_button.
++
+ config INPUT_PCSPKR
+ 	tristate "PC Speaker support"
+ 	depends on PCSPKR_PLATFORM
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 19c7603..b1775a5 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -26,6 +26,7 @@ obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+ obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+ obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
++obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
+ obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
+ obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
+ obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
+diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
+new file mode 100644
+index 0000000..0022f6a
+--- /dev/null
++++ b/drivers/input/misc/e3x0-button.c
+@@ -0,0 +1,153 @@
++/*
++ * Copyright (c) 2014, National Instruments Corp. All rights reserved.
++ *
++ * Driver for NI Ettus Research USRP E3x0 Button Driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/of.h>
++#include <linux/slab.h>
++
++/**
++ * struct e3x0_button - e3x0 button information
++ * @input_dev: pointer to input device
++ * @irq_press: irq number for press event
++ * @irq_release: irq number for release event
++ */
++struct e3x0_button {
++	struct input_dev	*idev;
++	int			irq_press;
++	int			irq_release;
++};
++
++static irqreturn_t e3x0_button_handler(int irq, void *data)
++{
++	struct e3x0_button *button = data;
++
++	if (irq == button->irq_press)
++		input_report_key(button->idev, KEY_POWER, 1);
++	else if (irq == button->irq_release)
++		input_report_key(button->idev, KEY_POWER, 0);
++
++	input_sync(button->idev);
++
++	return IRQ_HANDLED;
++}
++
++static int e3x0_button_probe(struct platform_device *pdev)
++{
++	struct e3x0_button *button;
++	struct input_dev *input;
++	int irq_press, irq_release;
++	int error;
++
++	irq_press = platform_get_irq_byname(pdev, "press");
++	if (irq_press < 0) {
++		dev_err(&pdev->dev, "No IRQ for 'press', error=%d\n",
++			irq_press);
++		return irq_press;
++	}
++
++	irq_release = platform_get_irq_byname(pdev, "release");
++	if (irq_release < 0) {
++		dev_err(&pdev->dev, "No IRQ for 'release', error=%d\n",
++			irq_release);
++		return irq_release;
++	}
++
++	button = devm_kzalloc(&pdev->dev, sizeof(*button),
++			      GFP_KERNEL);
++	if (!button)
++		return -ENOMEM;
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
++
++	button->idev = input;
++	button->irq_press = irq_press;
++	button->irq_release = irq_release;
++
++	input->name = "NI Ettus Research USRP E3x0 Button Driver";
++	input->phys = "e3x0_button/input0";
++	input->dev.parent = &pdev->dev;
++
++	input_set_capability(input, EV_KEY, KEY_POWER);
++
++	error = devm_request_irq(&pdev->dev, button->irq_press,
++					     e3x0_button_handler, 0,
++					     "e3x0-button", button);
++	if (error < 0) {
++		dev_err(&pdev->dev, "Failed to request 'press' IRQ#%d: %d\n",
++			button->irq_press, error);
++		return error;
++	}
++
++	error = devm_request_irq(&pdev->dev, button->irq_release,
++					     e3x0_button_handler, 0,
++					     "e3x0-button", button);
++	if (error < 0) {
++		dev_err(&pdev->dev, "Failed to request 'release' IRQ#%d: %d\n",
++			button->irq_release, error);
++		return error;
++	}
++
++	error = input_register_device(button->idev);
++	if (error) {
++		dev_err(&pdev->dev, "Can't register input device: %d\n", error);
++		return error;
++	}
++
++	platform_set_drvdata(pdev, button);
++	return 0;
++}
++
++#ifdef CONFIG_OF
++static const struct of_device_id e3x0_button_match[] = {
++	{ .compatible = "ettus,e3x0-button", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, e3x0_button_match);
++#endif
++
++static struct platform_driver e3x0_button_driver = {
++	.driver		= {
++		.name	= "e3x0-button",
++		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(e3x0_button_match),
++	},
++	.probe		= e3x0_button_probe,
++};
++
++static int __init e3x0_button_init(void)
++{
++	pr_info("e3x0-button: Copyright (c) 2014 National Instruments Corp");
++	return platform_driver_register(&e3x0_button_driver);
++}
++
++static void e3x0_button_exit(void)
++{
++	platform_driver_unregister(&e3x0_button_driver);
++}
++
++module_init(e3x0_button_init);
++module_exit(e3x0_button_exit);
++
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Moritz Fischer <moritz.fischer@ettus.com>");
++MODULE_DESCRIPTION("NI Ettus Research USRP E3x0 Button driver");
++MODULE_ALIAS("platform:e3x0-button");
 -- 
-Walter Lozano, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.9.3

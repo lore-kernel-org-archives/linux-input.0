@@ -1,107 +1,57 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/2] Process invalid Cintiq and Intuos data in wacom_intuos_inout
-Date: Thu,  8 Jan 2015 12:06:00 -0800
-Message-ID: <1420747560-22498-1-git-send-email-pingc@wacom.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:35695 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932532AbbAHUGB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 15:06:01 -0500
-Received: by mail-pd0-f169.google.com with SMTP id z10so13086510pdj.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 12:06:00 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: Re: [PATCH 2/2] Input: adxl34x - add device tree documentation
+Date: Thu, 8 Jan 2015 17:15:09 -0300
+Message-ID: <CABxpGwCG56zmKYC8mGun9DYkgR4xS1L0F0fhF7Ze_0oHCxA4AA@mail.gmail.com>
+References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
+	<1420599537-28740-2-git-send-email-walter@vanguardiasur.com.ar>
+	<CAMuHMdVfqzTf034vyDPEYrnZ7+3iE+h2H+7Cs-ifJrePDrw-rg@mail.gmail.com>
+	<CABxpGwDw_bE+UxypWGz3scxh3zVuxZ-1TTG2o-hEgT_mvwVatQ@mail.gmail.com>
+	<CAMuHMdWwVmjkg-4pNvHgtBtc34+FzMKtF6e77YMqM4uRYfS+eg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAMuHMdWwVmjkg-4pNvHgtBtc34+FzMKtF6e77YMqM4uRYfS+eg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/hid/wacom_wac.c | 50 +++++++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 24 deletions(-)
+On Thu, Jan 8, 2015 at 3:51 PM, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
+> On Thu, Jan 8, 2015 at 6:40 PM, Walter Lozano
+> <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org> wrote:
+>> On Wed, Jan 7, 2015 at 6:42 AM, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
+>>> On Wed, Jan 7, 2015 at 3:58 AM, Walter Lozano
+>>> <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org> wrote:
+>>>> diff --git a/Documentation/devicetree/bindings/input/adxl34x.txt b/Documentation/devicetree/bindings/input/adxl34x.txt
+>>>> new file mode 100644
+>>>> index 0000000..0774f7e
+>>>> --- /dev/null
+>>>> +++ b/Documentation/devicetree/bindings/input/adxl34x.txt
+>>>> @@ -0,0 +1,53 @@
+>>>> +Device Tree bindings for adxl34x digital accelerometer, both spi and i2c.
+>>>> +
+>>>> +Depending on the interface this node should be a child of a spi or i2c bus.
+>>>> +
+>>>> +Required properties:
+>>>> +- compatible: "adxl34x"
+>>>
+>>> "adi,adxl34x"?
+>>
+>> Great, thanks for your feedback.
+>
+> BTW, did you see "[PATCH] input: adxl34x: Add OF match support"
+> (http://www.spinics.net/lists/linux-i2c/msg18107.html)?
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 596a6fb5..4ccf622 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -534,9 +534,24 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		return 1;
- 	}
- 
-+	/*
-+	 * don't report events for invalid data 
-+	 */
- 	/* older I4 styli don't work with new Cintiqs */
--	if (!((wacom->id[idx] >> 20) & 0x01) &&
--			(features->type == WACOM_21UX2))
-+	if ((!((wacom->id[idx] >> 20) & 0x01) &&
-+			(features->type == WACOM_21UX2)) ||
-+	    /* Only large Intuos support Lense Cursor */
-+	    (wacom->tool[idx] == BTN_TOOL_LENS &&
-+		(features->type == INTUOS3 ||
-+		 features->type == INTUOS3S ||
-+		 features->type == INTUOS4 ||
-+		 features->type == INTUOS4S ||
-+		 features->type == INTUOS5 ||
-+		 features->type == INTUOS5S ||
-+		 features->type == INTUOSPM ||
-+		 features->type == INTUOSPS)) ||
-+	   /* Cintiq doesn't send data when RDY bit isn't set */
-+	   (features->type == CINTIQ && !(data[1] & 0x40)))
- 		return 1;
- 
- 	/* Range Report */
-@@ -553,6 +568,10 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
- 			wacom->shared->stylus_in_proximity = false;
- 
-+		/* don't report exit if we don't know the ID */
-+		if (!wacom->id[idx])
-+			return 1;
-+
- 		/*
- 		 * Reset all states otherwise we lose the initial states
- 		 * when in-prox next time
-@@ -585,6 +604,11 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		wacom->id[idx] = 0;
- 		return 2;
- 	}
-+
-+	/* don't report other events if we don't know the ID */
-+	if (!wacom->id[idx])
-+		return 1;
-+
- 	return 0;
- }
- 
-@@ -842,28 +866,6 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 	if (result)
-                 return result - 1;
- 
--	/* don't proceed if we don't know the ID */
--	if (!wacom->id[idx])
--		return 0;
--
--	/* Only large Intuos support Lense Cursor */
--	if (wacom->tool[idx] == BTN_TOOL_LENS &&
--	    (features->type == INTUOS3 ||
--	     features->type == INTUOS3S ||
--	     features->type == INTUOS4 ||
--	     features->type == INTUOS4S ||
--	     features->type == INTUOS5 ||
--	     features->type == INTUOS5S ||
--	     features->type == INTUOSPM ||
--	     features->type == INTUOSPS)) {
--
--		return 0;
--	}
--
--	/* Cintiq doesn't send data when RDY bit isn't set */
--	if (features->type == CINTIQ && !(data[1] & 0x40))
--                 return 0;
--
- 	if (features->type >= INTUOS3S) {
- 		input_report_abs(input, ABS_X, (data[2] << 9) | (data[3] << 1) | ((data[9] >> 1) & 1));
- 		input_report_abs(input, ABS_Y, (data[4] << 9) | (data[5] << 1) | (data[9] & 1));
+Yes, I have already seen it. Thanks for you time.
+
+Regards,
+
+Walter
+
 -- 
-1.9.1
-
+Walter Lozano, VanguardiaSur
+www.vanguardiasur.com.ar
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

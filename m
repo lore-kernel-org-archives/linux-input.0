@@ -1,52 +1,125 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/2] Input: adxl34x - add device tree documentation
-Date: Thu, 8 Jan 2015 19:51:40 +0100
-Message-ID: <CAMuHMdWwVmjkg-4pNvHgtBtc34+FzMKtF6e77YMqM4uRYfS+eg@mail.gmail.com>
-References: <1420599537-28740-1-git-send-email-walter@vanguardiasur.com.ar>
-	<1420599537-28740-2-git-send-email-walter@vanguardiasur.com.ar>
-	<CAMuHMdVfqzTf034vyDPEYrnZ7+3iE+h2H+7Cs-ifJrePDrw-rg@mail.gmail.com>
-	<CABxpGwDw_bE+UxypWGz3scxh3zVuxZ-1TTG2o-hEgT_mvwVatQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CABxpGwDw_bE+UxypWGz3scxh3zVuxZ-1TTG2o-hEgT_mvwVatQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Walter Lozano <walter@vanguardiasur.com.ar>
-Cc: michael.hennerich@analog.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2] HID: logitech-hidpp: store the name of the device in struct hidpp
+Date: Thu,  8 Jan 2015 14:37:12 -0500
+Message-ID: <1420745832-7549-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:54970 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751973AbbAHTh1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Jan 2015 14:37:27 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Peter Wu <peter@lekensteyn.nl>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 8, 2015 at 6:40 PM, Walter Lozano
-<walter@vanguardiasur.com.ar> wrote:
-> On Wed, Jan 7, 2015 at 6:42 AM, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->> On Wed, Jan 7, 2015 at 3:58 AM, Walter Lozano
->> <walter@vanguardiasur.com.ar> wrote:
->>> diff --git a/Documentation/devicetree/bindings/input/adxl34x.txt b/Documentation/devicetree/bindings/input/adxl34x.txt
->>> new file mode 100644
->>> index 0000000..0774f7e
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/input/adxl34x.txt
->>> @@ -0,0 +1,53 @@
->>> +Device Tree bindings for adxl34x digital accelerometer, both spi and i2c.
->>> +
->>> +Depending on the interface this node should be a child of a spi or i2c bus.
->>> +
->>> +Required properties:
->>> +- compatible: "adxl34x"
->>
->> "adi,adxl34x"?
->
-> Great, thanks for your feedback.
+If a disconnect occurs while getting the actual name of the device
+(which can take several HID transactions), the name of the device will
+be the hid name, provided by the Unifying Receiver.
+This means that in some cases, the user space will see a different
+name that what it usually sees when there is no disconnect.
 
-BTW, did you see "[PATCH] input: adxl34x: Add OF match support"
-(http://www.spinics.net/lists/linux-i2c/msg18107.html)?
+We should store the name of the device in the struct hidpp. That way,
+if a disconnect occurs while we are accessing the name,
+hidpp_connect_event() can fail, and the input node is not created.
 
-Gr{oetje,eeting}s,
+The input node will be created only if we have a connection which
+lasts long enough to retrieve all the requested information:
+name, protocol, and specific configuration.
 
-                        Geert
+Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+Tested-by: Peter Wu <peter@lekensteyn.nl>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Hi,
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+sorry for the delay.
+Peter, I amended the patch to add a comment in the declaration of .name.
+If this is not what you had in mind (or if it is not sufficient), please tell
+me. I still kept your tested and S-o-b lines, but feel free to retract yourself :)
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index c8af315..e77658c 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -89,6 +89,7 @@ struct hidpp_device {
+ 	struct hid_device *hid_dev;
+ 	struct mutex send_mutex;
+ 	void *send_receive_buf;
++	char *name;		/* will never be NULL and should not be freed */
+ 	wait_queue_head_t wait;
+ 	bool answer_available;
+ 	u8 protocol_major;
+@@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
+ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+ {
+ 	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
++	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 
+ 	if (!input_dev)
+ 		return NULL;
+@@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+ 	input_dev->open = hidpp_input_open;
+ 	input_dev->close = hidpp_input_close;
+ 
+-	input_dev->name = hdev->name;
++	input_dev->name = hidpp->name;
+ 	input_dev->phys = hdev->phys;
+ 	input_dev->uniq = hdev->uniq;
+ 	input_dev->id.bustype = hdev->bus;
+@@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+ 	hid_info(hdev, "HID++ %u.%u device connected.\n",
+ 		 hidpp->protocol_major, hidpp->protocol_minor);
+ 
++	if (!hidpp->name || hidpp->name == hdev->name) {
++		name = hidpp_get_device_name(hidpp);
++		if (!name) {
++			hid_err(hdev,
++				"unable to retrieve the name of the device");
++			return;
++		}
++
++		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
++		kfree(name);
++		if (!devm_name)
++			return;
++
++		hidpp->name = devm_name;
++	}
++
+ 	input = hidpp_allocate_input(hdev);
+ 	if (!input) {
+ 		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
+ 		return;
+ 	}
+ 
+-	name = hidpp_get_device_name(hidpp);
+-	if (!name) {
+-		hid_err(hdev, "unable to retrieve the name of the device");
+-	} else {
+-		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
+-		if (devm_name)
+-			input->name = devm_name;
+-		kfree(name);
+-	}
+-
+ 	hidpp_populate_input(hidpp, input, false);
+ 
+ 	ret = input_register_device(input);
+@@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return -ENOMEM;
+ 
+ 	hidpp->hid_dev = hdev;
++	hidpp->name = hdev->name;
+ 	hid_set_drvdata(hdev, hidpp);
+ 
+ 	hidpp->quirks = id->driver_data;
+-- 
+2.1.0
+

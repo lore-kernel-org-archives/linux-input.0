@@ -1,38 +1,32 @@
 From: Moritz Fischer <moritz.fischer@ettus.com>
-Subject: [PATCH v3 3/3] Update MAINTAINERS file with e3x0-button info.
-Date: Fri,  9 Jan 2015 00:59:31 +0100
-Message-ID: <1420761571-22903-4-git-send-email-moritz.fischer@ettus.com>
-References: <1420761571-22903-1-git-send-email-moritz.fischer@ettus.com>
+Subject: [PATCH v3 0/3] NI Ettus Research USRP E3x0 Button driver
+Date: Fri,  9 Jan 2015 00:59:28 +0100
+Message-ID: <1420761571-22903-1-git-send-email-moritz.fischer@ettus.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1420761571-22903-1-git-send-email-moritz.fischer@ettus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Moritz Fischer <moritz.fischer@ettus.com>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
----
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
+This patchset adds NI Ettus Research USRP E3x0 power button support and
+corresponding devicetree bindings and MAINTAINER entries.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ddb9ac8..65358d1 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3466,6 +3466,14 @@ M:	"Maciej W. Rozycki" <macro@linux-mips.org>
- S:	Maintained
- F:	drivers/tty/serial/dz.*
- 
-+E3X0 POWER BUTTON DRIVER
-+M:	Moritz Fischer <moritz.fischer@ettus.com>
-+L:	usrp-users@lists.ettus.com
-+W:	http://www.ettus.com
-+S:	Supported
-+F:	drivers/input/misc/e3x0-button.c
-+F:	Documentation/devicetree/bindings/input/e3x0-button.txt
-+
- E4000 MEDIA DRIVER
- M:	Antti Palosaari <crope@iki.fi>
- L:	linux-media@vger.kernel.org
+It was developed and tested on our NI Ettus Research USRP E310 embedded
+SDR on top of 3.19-rc3.
+
+Moritz Fischer (3):
+  input: misc: Support NI Ettus Research USRP E3x0 Button
+  doc: dt: Add documentation for e3x0-button bindings.
+  Update MAINTAINERS file with e3x0-button info.
+
+ .../devicetree/bindings/input/e3x0-button.txt      |  25 ++++
+ MAINTAINERS                                        |   8 ++
+ drivers/input/misc/Kconfig                         |  10 ++
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/e3x0-button.c                   | 156 +++++++++++++++++++++
+ 5 files changed, 200 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/e3x0-button.txt
+ create mode 100644 drivers/input/misc/e3x0-button.c
+
 -- 
 1.9.3

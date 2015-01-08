@@ -1,42 +1,50 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: NULL pointer dereference in i2c-hid
-Date: Thu, 8 Jan 2015 15:58:54 -0800
-Message-ID: <54AF19BE.9010506@synaptics.com>
-References: <31518562.V5Oyo0POsI@xps13> <2094646.ov2KaAkedO@xps13> <548B3E32.2050503@synaptics.com> <1877487.FqOELR9dBu@xps13>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Moritz Fischer <moritz.fischer@ettus.com>
+Subject: [PATCH v3 2/3] doc: dt: Add documentation for e3x0-button bindings.
+Date: Fri,  9 Jan 2015 00:59:30 +0100
+Message-ID: <1420761571-22903-3-git-send-email-moritz.fischer@ettus.com>
+References: <1420761571-22903-1-git-send-email-moritz.fischer@ettus.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1877487.FqOELR9dBu@xps13>
+In-Reply-To: <1420761571-22903-1-git-send-email-moritz.fischer@ettus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Moritz Fischer <moritz.fischer@ettus.com>
 List-Id: linux-input@vger.kernel.org
 
-On 12/24/2014 03:53 PM, Gabriele Mazzotta wrote:
-[...snip...]
->>>> Also, if you can get the firmware id from your touchpad that would also
->>>> be useful.
->>>>
->>>> $ sudo ./rmihidtool -f /dev/hidraw0
->>> firmware id: 1522295
->> Thanks, I will see if I can get any additional information on this.
->>
->> Andrew
-> Hi,
->
-> I think I found the source of the problem.
->
-> $ ./rmihidtool /dev/hidraw1 -r 0x50 1
-> 0x01  #PalmDetect Interrupt Enable, right?
-Yes, 0x50 does appear to be the address of the palm detect interrupt 
-enable register.
-> $ ./rmihidtool /dev/hidraw1 -w 0x50 0  #Disable PalmDetect Interrupt
->
-> It makes more sense now that widths greater than 12 trigger the bug.
-That is weird behavior and I haven't seen anything like that before. I 
-will file a bug to see if firmware has any idea why this is happening.
->
-> Gabriele
->
-Andrew
+Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+---
+ .../devicetree/bindings/input/e3x0-button.txt      | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/e3x0-button.txt b/Documentation/devicetree/bindings/input/e3x0-button.txt
+new file mode 100644
+index 0000000..751665e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/e3x0-button.txt
+@@ -0,0 +1,25 @@
++National Instruments Ettus Research USRP E3x0 button driver
++
++This module is part of the NI Ettus Research USRP E3x0 SDR.
++
++This module provides a simple power button event via two interrupts.
++
++Required properties:
++- compatible: should be one of the following
++  - "ettus,e3x0-button": For devices such as the NI Ettus Research USRP E3x0
++- interrupt-parent:
++  - a phandle to the interrupt controller that it is attached to.
++- interrupts: should be one of the following
++  - <0 30 1>, <0 31 1>: For devices such as the NI Ettus Research USRP E3x0
++- interrupt-names: should be one of the following
++  - "press", "release": For devices such as the NI Ettus Research USRP E3x0
++
++Note: Interrupt numbers might vary depending on the FPGA configuration.
++
++Example:
++	button {
++		compatible = "ettus,e3x0-button";
++		interrupt-parent = <&intc>;
++		interrupts = <0 30 1>, <0 31 1>;
++		interrupt-names = "press", "release";
++	}
+-- 
+1.9.3

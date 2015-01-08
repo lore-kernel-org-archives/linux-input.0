@@ -1,284 +1,107 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [ADD] 1.support new ic type for version 4.
-Date: Thu, 8 Jan 2015 13:32:46 -0800
-Message-ID: <20150108213246.GC23256@dtor-ws>
-References: <013d01d02b25$cdb240e0$6916c2a0$@emc.com.tw>
+Subject: Re: [PATCH] Input:Flush client events on clk_type change
+Date: Thu, 8 Jan 2015 13:41:09 -0800
+Message-ID: <20150108214109.GD23256@dtor-ws>
+References: <aksgarg1989@gmail.com>
+ <1420656963-44602-1-git-send-email-aksgarg1989@gmail.com>
+ <20150107193207.GA3508@dtor-ws>
+ <CA+HOOshSijYZnshdKhV+uPW5NKhbQoOZfv3yptsR7Bv2CD7cUA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f170.google.com ([209.85.213.170]:42033 "EHLO
-	mail-ig0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755244AbbAHVcv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 16:32:51 -0500
-Received: by mail-ig0-f170.google.com with SMTP id r2so4641998igi.1
-        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 13:32:50 -0800 (PST)
+Received: from mail-ig0-f171.google.com ([209.85.213.171]:43912 "EHLO
+	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752141AbbAHVlO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 16:41:14 -0500
+Received: by mail-ig0-f171.google.com with SMTP id z20so5025942igj.4
+        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 13:41:13 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <013d01d02b25$cdb240e0$6916c2a0$@emc.com.tw>
+In-Reply-To: <CA+HOOshSijYZnshdKhV+uPW5NKhbQoOZfv3yptsR7Bv2CD7cUA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?5rSq5LiA56u5?= <sam.hung@emc.com.tw>
-Cc: linux-input@vger.kernel.org, dusonlin@emc.com.tw
+To: Anshul Garg <aksgarg1989@gmail.com>
+Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-Hi Sam,
+On Thu, Jan 08, 2015 at 07:27:59PM +0530, Anshul Garg wrote:
+> Dear Mr. Dmitry ,
+> 
+> Thanks a lot for your suggestions.
+> 
+> > + spin_lock_irq(&dev->event_lock);
+> > + spin_lock(&client->buffer_lock);
+> > + spin_unlock(&dev->event_lock);
+> 
+> Umm, why?
+> 
+> Yes, there is no need of event_lock as we are modifying client
+> specific data structure only.
+> 
+> Hence only buffer_lock will guarantee atomicity for flushing of client
+> pending events buffer.
+> 
+> So i will modify locking mechanism to use buffer_lock only.
+> 
+> > +
+> > + /* Flush clients events after clk_type is changed
+> > + * and queue SYN_DROPPED event.*/
+> > + client->packet_head = client->head = client->tail;
+> > + spin_unlock_irq(&client->buffer_lock);
+> > +
+> > + evdev_queue_syn_dropped(client);
+> 
+> This is still racy. I'd rather we passed a flag to
+> evdev_queue_syn_dropped() to indicate it should also clear queue.
+> 
+> Can you please tell me in which scenario's this patch is prone to race
+> condition's?
+> As i think we are modifying the client's buffer indexes so buffer_lock
+> would be sufficient.
 
-=46YI:
+New events may come up between resetting the queue and queuing EV_SYN
+and client would not really know if they contain valid time or not.
 
-You sent this message as both plain/text and html, but vger.kernel.org
-mailing lists are configured to discard all emails with html in them, s=
-o
-while I did get your reply others did not. Please try to find mail agen=
-t
-allowing you to use only plain text when interacting with Linux-related
-mailing list.
+> 
+> 
+> Yes by adding one more parameter in evdev_queue_syn_dropped function
+> on the basis
+> of which we can flush the buffer.
+> 
+> Example ::
+> 
+> static void evdev_queue_syn_dropped(struct evdev_client *client)
+> 
+> It can be changed to
+> 
+> static void evdev_queue_syn_dropped(struct evdev_client *client , bool flush)
+> {
+> spin_lock(buffer_lock);
+> 
+> if(flush)
+>     client->packet_head = client->head = client->tail;
+> 
+> 
+> .........
+> 
+> spin_unlock(buffer_lock);
+> }
+> 
+> OR
+> Similarly we can extend__evdev_flush_queue function to support
+> flushing of client event queue.
+> As currently this function flushes single type of events only.
+> 
+> I think 2nd way is better.
+> 
+> Please give your insignt on above suggested changes.
 
-In any case I received your updated patch and applied it. It should sho=
-w
-up in mainline with my next pull request (couple of days).
+I do not see how make evdev_flush_queue() to flush all types of events
+without adding another parameter that would "override" type, which is
+ugly.
 
-Thanks!
+It looks like we can make evdev_queue_syn_dropped() zap the old events
+unconditionally, so I'd rather do that.
 
-On Thu, Jan 08, 2015 at 05:30:54PM +0800, =E6=B4=AA=E4=B8=80=E7=AB=B9  =
-wrote:
-> Thank you for your prompt reply!
->=20
-> Reply message below.
->=20
-> =20
->=20
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]=20
-> Sent: Wednesday, January 07, 2015 3:26 PM
-> To: Sam hung
-> Cc: linux-input@vger.kernel.org; dusonlin@emc.com.tw
-> Subject: Re: [PATCH] [ADD] 1.support new ic type for version 4.
->=20
-> =20
->=20
-> On Tue, Jan 06, 2015 at 11:21:36PM -0800, Dmitry Torokhov wrote:
->=20
-> > Hi Sam,
->=20
-> >=20
->=20
-> > On Tue, Jan 06, 2015 at 04:10:16PM +0800, Sam hung wrote:
->=20
-> > > ---
->=20
-> > >  drivers/input/mouse/elantech.c | 23 +++++++++++++----------
->=20
-> > >  1 file changed, 13 insertions(+), 10 deletions(-)
->=20
-> > >=20
->=20
-> > > diff --git a/drivers/input/mouse/elantech.c=20
->=20
-> > > b/drivers/input/mouse/elantech.c index f2b9780..4891d07 100644
->=20
-> > > --- a/drivers/input/mouse/elantech.c
->=20
-> > > +++ b/drivers/input/mouse/elantech.c
->=20
-> > > @@ -700,14 +700,14 @@ static int elantech_packet_check_v1(struct=20
->=20
-> > > psmouse *psmouse)
->=20
-> > > =20
->=20
-> > >  static int elantech_debounce_check_v2(struct psmouse *psmouse)  =
-{
->=20
-> > > -        /*
->=20
-> > > -         * When we encounter packet that matches this exactly, i=
-t means
-> the
->=20
-> > > -         * hardware is in debounce status. Just ignore the whole
-> packet.
->=20
-> > > -         */
->=20
-> > > -        const u8 debounce_packet[] =3D { 0x84, 0xff, 0xff, 0x02,=
- 0xff,
-> 0xff };
->=20
-> > > -        unsigned char *packet =3D psmouse->packet;
->=20
-> > > -
->=20
-> > > -        return !memcmp(packet, debounce_packet,
-> sizeof(debounce_packet));
->=20
-> > > +        /*
->=20
-> > > +        * When we encounter packet that matches this exactly, it=
- means
-> the
->=20
-> > > +        * hardware is in debounce status. Just ignore the whole =
-packet.
->=20
-> > > +        */
->=20
-> > > +        const u8 debounce_packet[] =3D { 0x84, 0xff, 0xff, 0x02,=
- 0xff,
-> 0xff };
->=20
-> > > +        unsigned char *packet =3D psmouse->packet;
->=20
-> > > +
->=20
-> > > +        return !memcmp(packet, debounce_packet,
-> sizeof(debounce_packet));
->=20
-> > >  }
->=20
-> >=20
->=20
-> > Hmm, this chunk seems to be replacing spaces with tabs... I'd rathe=
-r=20
->=20
-> > had it separate from the hardware version changes.
->=20
-> >=20
->=20
-> > I'll pick up the chunk below though.
->=20
-> OK,In this Patch I will not change these lines (=E2=80=98space=E2=80=99=
-to =E2=80=98tab=E2=80=99).
->=20
-> =20
->=20
-> Ah, I missed the fact that the patch does not have your "signed-off-b=
-y"
->=20
-> signature (see Documentation/SubmittingPatches). Please resend with i=
-t.
->=20
-> =20
->=20
-> Thanks for your reminder.
->=20
-> I will fix this problem.
->=20
-> >=20
->=20
-> > > =20
->=20
-> > >  static int elantech_packet_check_v2(struct psmouse *psmouse) @@=20
->=20
-> > > -1499,7 +1499,7 @@ static const struct dmi_system_id=20
->=20
-> > > no_hw_res_dmi_table[] =3D {
->=20
-> > >  /*
->=20
-> > >   * determine hardware version and set some properties according =
-to it.
->=20
-> > >   */
->=20
-> > > -static int elantech_set_properties(struct elantech_data *etd)
->=20
-> > > +static int elantech_set_properties(struct psmouse *psmouse, stru=
-ct=20
->=20
-> > > +elantech_data *etd)
->=20
-> > >  {
->=20
-> > >         /* This represents the version of IC body. */
->=20
-> > >         int ver =3D (etd->fw_version & 0x0f0000) >> 16; @@ -1520,=
-9
-> +1520,12=20
->=20
-> > > @@ static int elantech_set_properties(struct elantech_data *etd)
->=20
-> > >                 case 7:
->=20
-> > >                 case 8:
->=20
-> > >                 case 9:
->=20
-> > > +                case 10:
->=20
-> > > +                case 13:
->=20
-> > >                         etd->hw_version =3D 4;
->=20
-> > >                         break;
->=20
-> > >                 default:
->=20
-> > > +                        psmouse_err(psmouse, "failed to setting =
-hw
-> version.\n");
->=20
-> =20
->=20
-> The caller of elantech_set_properties() already issues message about =
-unknown
-> hardware version, why do we need to have it here as well?
->=20
-> =20
->=20
-> I think you're right.
->=20
-> I will fix this line.
->=20
-> =20
->=20
-> > >                         return -1;
->=20
-> > >                 }
->=20
-> > >         }
->=20
-> > > @@ -1593,7 +1596,7 @@ int elantech_init(struct psmouse *psmouse)
->=20
-> > >         }
->=20
-> > >         etd->fw_version =3D (param[0] << 16) | (param[1] << 8) | =
-param[2];
->=20
-> > > =20
->=20
-> > > - if (elantech_set_properties(etd)) {
->=20
-> > > +        if (elantech_set_properties(psmouse, etd)) {
->=20
-> > >                 psmouse_err(psmouse, "unknown hardware version,
-> aborting...\n");
->=20
-> > >                 goto init_fail;
->=20
-> > >         }
->=20
-> > > --
->=20
-> > > 1.8.3.2
->=20
-> > >=20
->=20
-> =20
->=20
-> Thanks.
->=20
-> =20
->=20
-> --=20
->=20
-> Dmitry
->=20
-> =20
->=20
+Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

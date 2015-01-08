@@ -1,88 +1,47 @@
 From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v2 2/3] HID: rmi: Support touchpads with external buttons
-Date: Thu, 8 Jan 2015 14:51:34 -0800
-Message-ID: <1420757496-3955-1-git-send-email-aduggan@synaptics.com>
+Subject: [PATCH] HID: rmi: Use hid_report_len to compute the size of reports
+Date: Thu, 8 Jan 2015 14:51:36 -0800
+Message-ID: <1420757496-3955-3-git-send-email-aduggan@synaptics.com>
+References: <1420757496-3955-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:25579 "EHLO
-	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754706AbbAHWxn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 17:53:43 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1420757496-3955-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
-The external buttons on HID touchpads are connected as pass through devices and
-button events are not reported in the rmi registers. As a result on these
-devices we need to allow the HID generic desktop button events to be processed
-by hid-input. Unfortunately, there is no way to query the touchpad to determine
-that it has pass through buttons so the RMI_DEVICE_HAS_PHYS_BUTTONS should be
-set manually when adding the device to rmi_id[].
+Now that hid_report_len is in hid.h we can use this function instead of
+duplicating the code which computes it.
 
 Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
-Here is the second version of the remaining patches in this patch series from
-last month. The most significant changes are setting the HAS_PHYS_BUTTONS flags
-in driver_data and avoiding reset being called with every button press.
-
- drivers/hid/hid-rmi.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/hid/hid-rmi.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 018f80f..290f8f7 100644
+index b08774a..49d4fe4 100644
 --- a/drivers/hid/hid-rmi.c
 +++ b/drivers/hid/hid-rmi.c
-@@ -35,6 +35,7 @@
- 
- /* device flags */
- #define RMI_DEVICE			BIT(0)
-+#define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
- 
- enum rmi_mode_type {
- 	RMI_MODE_OFF			= 0,
-@@ -472,6 +473,15 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
- 	if ((data->device_flags & RMI_DEVICE) &&
- 	    (field->application == HID_GD_POINTER ||
- 	    field->application == HID_GD_MOUSE)) {
-+		if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS) {
-+			if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
-+				return 0;
-+
-+			if ((usage->hid == HID_GD_X || usage->hid == HID_GD_Y)
-+			    && !value)
-+				return 1;
-+		}
-+
- 		rmi_schedule_reset(hdev);
- 		return 1;
- 	}
-@@ -942,8 +952,13 @@ static int rmi_input_mapping(struct hid_device *hdev,
- 	 * we want to make HID ignore the advertised HID collection
- 	 * for RMI deivces
- 	 */
--	if (data->device_flags & RMI_DEVICE)
-+	if (data->device_flags & RMI_DEVICE) {
-+		if ((data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS) &&
-+		    ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON))
-+			return 0;
-+
- 		return -1;
-+	}
- 
- 	return 0;
- }
-@@ -991,6 +1006,9 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
+@@ -1025,7 +1025,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto start;
  	}
  
-+	if (id->driver_data)
-+		data->device_flags = id->driver_data;
-+
- 	/*
- 	 * Check for the RMI specific report ids. If they are misisng
- 	 * simply return and let the events be processed by hid-input
+-	data->input_report_size = (input_report->size >> 3) + 1 /* report id */;
++	data->input_report_size = hid_report_len(input_report);
+ 
+ 	if (!rmi_check_valid_report_id(hdev, HID_OUTPUT_REPORT,
+ 	    RMI_WRITE_REPORT_ID, &output_report)) {
+@@ -1034,8 +1034,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto start;
+ 	}
+ 
+-	data->output_report_size = (output_report->size >> 3)
+-					+ 1 /* report id */;
++	data->output_report_size = hid_report_len(output_report);
+ 
+ 	data->device_flags |= RMI_DEVICE;
+ 	alloc_size = data->output_report_size + data->input_report_size;
 -- 
 2.1.0
-

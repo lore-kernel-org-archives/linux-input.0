@@ -1,100 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Optimize Event Filter functionality
-Date: Thu, 8 Jan 2015 13:51:02 -0800
-Message-ID: <20150108215102.GF23256@dtor-ws>
-References: <aksgarg1989@gmail.com>
- <1420724384-54188-1-git-send-email-aksgarg1989@gmail.com>
+Subject: Re: [PATCH 1/1] Elantech touchpad detection fix for laptops
+Date: Thu, 8 Jan 2015 14:09:54 -0800
+Message-ID: <20150108220954.GG23256@dtor-ws>
+References: <CAEK4c-_Kirwxj_Rgqn1c7x4h0Mj0r8vhSYb5qQcJvo5TbXdb0Q@mail.gmail.com>
+ <CAEK4c-8CsrBaf8gaH2B2kuoMTHrLpLMgGQPrXTZAX3W5At0uoA@mail.gmail.com>
+ <20150107074433.GC5256@dtor-ws>
+ <CAEK4c-_xcj2JrNEcnARSwWwNQxow+JO1F1hf_d1befApXKNegw@mail.gmail.com>
+ <CAEK4c-_GTLu0jRLaX-na2-mou6qGX4A8p2rS7Q_QnM+DNKZWdg@mail.gmail.com>
+ <20150108012306.GC8570@dtor-ws>
+ <CAEK4c-_gBu4vb3_yb1kQLpvLU+p1789ivmgcVfVgJx-ZdnX7Bw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:36339 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751837AbbAHVvH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 16:51:07 -0500
-Received: by mail-ig0-f181.google.com with SMTP id a13so5203528igq.2
-        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 13:51:06 -0800 (PST)
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:61150 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754724AbbAHWJ6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 17:09:58 -0500
+Received: by mail-ig0-f172.google.com with SMTP id hl2so5119589igb.5
+        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 14:09:58 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1420724384-54188-1-git-send-email-aksgarg1989@gmail.com>
+In-Reply-To: <CAEK4c-_gBu4vb3_yb1kQLpvLU+p1789ivmgcVfVgJx-ZdnX7Bw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anshul Garg <aksgarg1989@gmail.com>
-Cc: linux-input@vger.kernel.org, anshul.g@samsung.com
+To: Srihari Vijayaraghavan <linux.bug.reporting@gmail.com>
+Cc: linux-input@vger.kernel.org, Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Zakariya Dehlawi <zdehlawi@gmail.com>, Guillaume Bouchard <guillaum.bouchard@gmail.com>
 
-On Thu, Jan 08, 2015 at 05:39:44AM -0800, Anshul Garg wrote:
-> From: Anshul Garg <aksgarg1989@gmail.com>
+On Thu, Jan 08, 2015 at 04:02:27PM +1100, Srihari Vijayaraghavan wrote:
+> On 8 January 2015 at 12:23, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > On Wed, Jan 07, 2015 at 08:11:36PM +1100, Srihari Vijayaraghavan wrote:
+> >> On 7 January 2015 at 19:23, Srihari Vijayaraghavan
+> >> <linux.bug.reporting@gmail.com> wrote:
+> >> Here's a better version, removing Elantech ref from the table name.
+> >
+> > Applied after massaging messages some more. Thank you.
 > 
-> As input_pass_values function is called everytime when EV_SYN is sent
-> from input driver or input event buffer becomes full.
-> So in case of regular handler event filter code should not run so added
-> check whether handler supports filter or not.
-> 
-> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+> Thank you Dmitry. Much appreciated. You've made a lot of affected
+> users very happy.
 
-Applied, thank you.
+No, thank *you*.
 
-> ---
->  drivers/input/input.c |   24 ++++++++++++++----------
->  1 file changed, 14 insertions(+), 10 deletions(-)
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 213e3a1..de55279 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -100,23 +100,24 @@ static unsigned int input_to_handler(struct input_handle *handle,
->  	struct input_value *end = vals;
->  	struct input_value *v;
->  
-> -	for (v = vals; v != vals + count; v++) {
-> -		if (handler->filter &&
-> -		    handler->filter(handle, v->type, v->code, v->value))
-> -			continue;
-> -		if (end != v)
-> -			*end = *v;
-> -		end++;
-> +	if (handler->filter) {
-> +		for (v = vals; v != vals + count; v++) {
-> +			if (handler->filter(handle, v->type, v->code, v->value))
-> +				continue;
-> +			if (end != v)
-> +				*end = *v;
-> +			end++;
-> +		}
-> +		count = end - vals;
->  	}
->  
-> -	count = end - vals;
->  	if (!count)
->  		return 0;
->  
->  	if (handler->events)
->  		handler->events(handle, vals, count);
->  	else if (handler->event)
-> -		for (v = vals; v != end; v++)
-> +		for (v = vals; v != vals + count; v++)
->  			handler->event(handle, v->type, v->code, v->value);
->  
->  	return count;
-> @@ -143,8 +144,11 @@ static void input_pass_values(struct input_dev *dev,
->  		count = input_to_handler(handle, vals, count);
->  	} else {
->  		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
-> -			if (handle->open)
-> +			if (handle->open) {
->  				count = input_to_handler(handle, vals, count);
-> +				if (!count)
-> +					break;
-> +			}
->  	}
->  
->  	rcu_read_unlock();
-> -- 
-> 1.7.9.5
-> 
-> 
-> ---
-> This email has been checked for viruses by Avast antivirus software.
-> http://www.avast.com
-> 
+> May I request you to cc stable folks when merging upstream?
+
+Yes, it is marked for stable so once Linus pulls from me next time magic
+should happen and it will end up in the stable kernels too.
+
+Thanks.
 
 -- 
 Dmitry

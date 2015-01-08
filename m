@@ -1,141 +1,199 @@
-From: Peter Wu <peter@lekensteyn.nl>
-Subject: Re: [PATCH v2] HID: logitech-hidpp: store the name of the device in struct hidpp
-Date: Thu, 08 Jan 2015 23:36:39 +0100
-Message-ID: <3043218.L1PGrasB98@al>
-References: <1420745832-7549-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Moritz Fischer <moritz.fischer@ettus.com>
+Subject: [PATCH v2 1/3] input: misc: Support NI Ettus Research USRP E3x0 Button
+Date: Thu,  8 Jan 2015 23:43:09 +0100
+Message-ID: <1420756991-16506-2-git-send-email-moritz.fischer@ettus.com>
+References: <1420756991-16506-1-git-send-email-moritz.fischer@ettus.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lekensteyn.nl ([178.21.112.251]:34898 "EHLO lekensteyn.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753677AbbAHWg5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Jan 2015 17:36:57 -0500
-In-Reply-To: <1420745832-7549-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-wg0-f51.google.com ([74.125.82.51]:43834 "EHLO
+	mail-wg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757171AbbAHWn3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 17:43:29 -0500
+Received: by mail-wg0-f51.google.com with SMTP id x12so5170300wgg.10
+        for <linux-input@vger.kernel.org>; Thu, 08 Jan 2015 14:43:27 -0800 (PST)
+In-Reply-To: <1420756991-16506-1-git-send-email-moritz.fischer@ettus.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Moritz Fischer <moritz.fischer@ettus.com>
 
-On Thursday 08 January 2015 14:37:12 Benjamin Tissoires wrote:
-> If a disconnect occurs while getting the actual name of the device
-> (which can take several HID transactions), the name of the device will
-> be the hid name, provided by the Unifying Receiver.
-> This means that in some cases, the user space will see a different
-> name that what it usually sees when there is no disconnect.
-> 
-> We should store the name of the device in the struct hidpp. That way,
-> if a disconnect occurs while we are accessing the name,
-> hidpp_connect_event() can fail, and the input node is not created.
-> 
-> The input node will be created only if we have a connection which
-> lasts long enough to retrieve all the requested information:
-> name, protocol, and specific configuration.
-> 
-> Reviewed-by: Peter Wu <peter@lekensteyn.nl>
-> Tested-by: Peter Wu <peter@lekensteyn.nl>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi,
-> 
-> sorry for the delay.
-> Peter, I amended the patch to add a comment in the declaration of .name.
-> If this is not what you had in mind (or if it is not sufficient), please tell
-> me. I still kept your tested and S-o-b lines, but feel free to retract yourself :)
-> 
-> Cheers,
-> Benjamin
+Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+---
+ drivers/input/misc/Kconfig       |  10 +++
+ drivers/input/misc/Makefile      |   1 +
+ drivers/input/misc/e3x0-button.c | 132 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 143 insertions(+)
 
-Maybe it would be better to explain that the pointer is never NULL
-because the memory is owned by the upper device (struct hid_device?),
-then it is obvious that the memory is not allocated by this driver
-itself.
-
-With or without this elaboration the patch and comment is still correct,
-so there is no reason to retract the R-b and T-b though.
-
-Kind regards,
-Peter
-
->  drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
->  1 file changed, 20 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index c8af315..e77658c 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -89,6 +89,7 @@ struct hidpp_device {
->  	struct hid_device *hid_dev;
->  	struct mutex send_mutex;
->  	void *send_receive_buf;
-> +	char *name;		/* will never be NULL and should not be freed */
->  	wait_queue_head_t wait;
->  	bool answer_available;
->  	u8 protocol_major;
-> @@ -1087,6 +1088,7 @@ static void hidpp_input_close(struct input_dev *dev)
->  static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
->  {
->  	struct input_dev *input_dev = devm_input_allocate_device(&hdev->dev);
-> +	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
->  
->  	if (!input_dev)
->  		return NULL;
-> @@ -1095,7 +1097,7 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
->  	input_dev->open = hidpp_input_open;
->  	input_dev->close = hidpp_input_close;
->  
-> -	input_dev->name = hdev->name;
-> +	input_dev->name = hidpp->name;
->  	input_dev->phys = hdev->phys;
->  	input_dev->uniq = hdev->uniq;
->  	input_dev->id.bustype = hdev->bus;
-> @@ -1137,22 +1139,28 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
->  	hid_info(hdev, "HID++ %u.%u device connected.\n",
->  		 hidpp->protocol_major, hidpp->protocol_minor);
->  
-> +	if (!hidpp->name || hidpp->name == hdev->name) {
-> +		name = hidpp_get_device_name(hidpp);
-> +		if (!name) {
-> +			hid_err(hdev,
-> +				"unable to retrieve the name of the device");
-> +			return;
-> +		}
-> +
-> +		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
-> +		kfree(name);
-> +		if (!devm_name)
-> +			return;
-> +
-> +		hidpp->name = devm_name;
-> +	}
-> +
->  	input = hidpp_allocate_input(hdev);
->  	if (!input) {
->  		hid_err(hdev, "cannot allocate new input device: %d\n", ret);
->  		return;
->  	}
->  
-> -	name = hidpp_get_device_name(hidpp);
-> -	if (!name) {
-> -		hid_err(hdev, "unable to retrieve the name of the device");
-> -	} else {
-> -		devm_name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s", name);
-> -		if (devm_name)
-> -			input->name = devm_name;
-> -		kfree(name);
-> -	}
-> -
->  	hidpp_populate_input(hidpp, input, false);
->  
->  	ret = input_register_device(input);
-> @@ -1175,6 +1183,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		return -ENOMEM;
->  
->  	hidpp->hid_dev = hdev;
-> +	hidpp->name = hdev->name;
->  	hid_set_drvdata(hdev, hidpp);
->  
->  	hidpp->quirks = id->driver_data;
-> 
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 23297ab..84a56b4 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -93,6 +93,16 @@ config INPUT_BMA150
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called bma150.
+ 
++config INPUT_E3X0_BUTTON
++	tristate "NI Ettus Research USRP E3x0 Button support."
++	default n
++	help
++	  Say Y here to enable support for the NI Ettus Research
++	  USRP E3x0 Button.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called e3x0_button.
++
+ config INPUT_PCSPKR
+ 	tristate "PC Speaker support"
+ 	depends on PCSPKR_PLATFORM
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 19c7603..b1775a5 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -26,6 +26,7 @@ obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+ obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+ obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
++obj-$(CONFIG_INPUT_E3X0_BUTTON)		+= e3x0-button.o
+ obj-$(CONFIG_INPUT_DRV260X_HAPTICS)	+= drv260x.o
+ obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
+ obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
+diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
+new file mode 100644
+index 0000000..0f4e7f3
+--- /dev/null
++++ b/drivers/input/misc/e3x0-button.c
+@@ -0,0 +1,132 @@
++/*
++ * Copyright (c) 2014, National Instruments Corp. All rights reserved.
++ *
++ * Driver for NI Ettus Research USRP E3x0 Button Driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/of.h>
++#include <linux/slab.h>
++
++static irqreturn_t e3x0_button_release_handler(int irq, void *data)
++{
++	struct input_dev *idev = data;
++
++	input_report_key(idev, KEY_POWER, 0);
++	input_sync(idev);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t e3x0_button_press_handler(int irq, void *data)
++{
++	struct input_dev *idev = data;
++
++	input_report_key(idev, KEY_POWER, 1);
++	input_sync(idev);
++
++	return IRQ_HANDLED;
++}
++
++static int e3x0_button_probe(struct platform_device *pdev)
++{
++	struct input_dev *input;
++	int irq_press, irq_release;
++	int error;
++
++	irq_press = platform_get_irq_byname(pdev, "press");
++	if (irq_press < 0) {
++		dev_err(&pdev->dev, "No IRQ for 'press', error=%d\n",
++			irq_press);
++		return irq_press;
++	}
++
++	irq_release = platform_get_irq_byname(pdev, "release");
++	if (irq_release < 0) {
++		dev_err(&pdev->dev, "No IRQ for 'release', error=%d\n",
++			irq_release);
++		return irq_release;
++	}
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
++
++	input->name = "NI Ettus Research USRP E3x0 Button Driver";
++	input->phys = "e3x0_button/input0";
++	input->dev.parent = &pdev->dev;
++
++	input_set_capability(input, EV_KEY, KEY_POWER);
++
++	error = devm_request_irq(&pdev->dev, irq_press,
++					     e3x0_button_press_handler, 0,
++					     "e3x0-button", input);
++	if (error < 0) {
++		dev_err(&pdev->dev, "Failed to request 'press' IRQ#%d: %d\n",
++			irq_press, error);
++		return error;
++	}
++
++	error = devm_request_irq(&pdev->dev, irq_release,
++					     e3x0_button_release_handler, 0,
++					     "e3x0-button", input);
++	if (error < 0) {
++		dev_err(&pdev->dev, "Failed to request 'release' IRQ#%d: %d\n",
++			irq_release, error);
++		return error;
++	}
++
++	error = input_register_device(input);
++	if (error) {
++		dev_err(&pdev->dev, "Can't register input device: %d\n", error);
++		return error;
++	}
++
++	platform_set_drvdata(pdev, input);
++	device_init_wakeup(&pdev->dev, 1);
++	return 0;
++}
++
++static int e3x0_button_remove(struct platform_device *pdev)
++{
++	device_init_wakeup(&pdev->dev, 0);
++	return 0;
++}
++
++#ifdef CONFIG_OF
++static const struct of_device_id e3x0_button_match[] = {
++	{ .compatible = "ettus,e3x0-button", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, e3x0_button_match);
++#endif
++
++static struct platform_driver e3x0_button_driver = {
++	.driver		= {
++		.name	= "e3x0-button",
++		.of_match_table = of_match_ptr(e3x0_button_match),
++	},
++	.probe		= e3x0_button_probe,
++	.probe		= e3x0_button_remove,
++};
++
++module_platform_driver(e3x0_button_driver);
++
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Moritz Fischer <moritz.fischer@ettus.com>");
++MODULE_DESCRIPTION("NI Ettus Research USRP E3x0 Button driver");
++MODULE_ALIAS("platform:e3x0-button");
+-- 
+1.9.3
 

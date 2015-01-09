@@ -1,217 +1,217 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/9] Input: sun4i-ts: Add thermal zone sensor support
-Date: Fri, 9 Jan 2015 09:23:18 -0800
-Message-ID: <20150109172318.GA39037@dtor-ws>
-References: <1420798676-22856-1-git-send-email-wens@csie.org>
- <1420798676-22856-2-git-send-email-wens@csie.org>
+From: Eduardo Valentin <edubezval@gmail.com>
+Subject: Re: [PATCH 03/17] Input: sun4i-ts: Add thermal zone sensor support
+Date: Fri, 9 Jan 2015 14:07:44 -0400
+Message-ID: <20150109180742.GB9510@developer>
+References: <1420511727-8242-1-git-send-email-wens@csie.org>
+ <1420511727-8242-4-git-send-email-wens@csie.org>
+ <20150106152425.GA6276@developer>
+ <CAGb2v66L-ZD1Ep-rnKXKP7PuJH+dA=26tV35KyKCNnKHgM4Hmg@mail.gmail.com>
+ <CAGb2v64F8mQRka=L1qWKe=WNOUYtiC5RSZUDORr3Ynd3Djf20g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qa0-f42.google.com ([209.85.216.42]:59153 "EHLO
+	mail-qa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752305AbbAISHz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 13:07:55 -0500
 Content-Disposition: inline
-In-Reply-To: <1420798676-22856-2-git-send-email-wens@csie.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
+In-Reply-To: <CAGb2v64F8mQRka=L1qWKe=WNOUYtiC5RSZUDORr3Ynd3Djf20g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org
 
-On Fri, Jan 09, 2015 at 06:17:48PM +0800, Chen-Yu Tsai wrote:
-> The touchscreen controller has a temperature sensor embedded in the S=
+
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jan 08, 2015 at 09:33:54PM +0800, Chen-Yu Tsai wrote:
+> On Thu, Jan 8, 2015 at 12:24 AM, Chen-Yu Tsai <wens@csie.org> wrote:
+> > Hi,
+> >
+> > On Tue, Jan 6, 2015 at 11:24 PM, Eduardo Valentin <edubezval@gmail.com>=
+ wrote:
+> >> Hello Chen-Yu,
+> >>
+> >>
+> >> On Tue, Jan 06, 2015 at 10:35:13AM +0800, Chen-Yu Tsai wrote:
+> >>> The touchscreen controller has a temperature sensor embedded in the S=
 oC,
-> which already has hwmon support in the driver.
->=20
-> Add DT thermal zone support so we can use it with cpufreq for thermal
-> throttling.
->=20
-> This also adds a comment stating that we do not know the actual formu=
-la
-> for calculating the temperature.
->=20
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> ---
-
-
-  CC [M]  drivers/input/touchscreen/sun4i-ts.o
-drivers/input/touchscreen/sun4i-ts.c:208:15: error: variable
-=E2=80=98sun4i_ts_tz_ops=E2=80=99 has initializer but incomplete type
- static struct thermal_zone_of_device_ops sun4i_ts_tz_ops =3D {
-               ^
-drivers/input/touchscreen/sun4i-ts.c:209:2: error: unknown field
-=E2=80=98get_temp=E2=80=99 specified in initializer
-  .get_temp =3D get_temp,
-  ^
-drivers/input/touchscreen/sun4i-ts.c:209:2: warning: excess elements in
-struct initializer [enabled by default]
-drivers/input/touchscreen/sun4i-ts.c:209:2: warning: (near
-initialization for =E2=80=98sun4i_ts_tz_ops=E2=80=99) [enabled by defau=
-lt]
-drivers/input/touchscreen/sun4i-ts.c: In function =E2=80=98sun4i_ts_pro=
-be=E2=80=99:
-drivers/input/touchscreen/sun4i-ts.c:331:8: warning: passing argument 4
-of =E2=80=98thermal_zone_of_sensor_register=E2=80=99 from incompatible =
-pointer type
-[enabled by default]
-        &sun4i_ts_tz_ops);
-        ^
-In file included from drivers/input/touchscreen/sun4i-ts.c:37:0:
-include/linux/thermal.h:302:1: note: expected =E2=80=98int (*)(void *, =
-long int
-*)=E2=80=99 but argument is of type =E2=80=98struct thermal_zone_of_dev=
-ice_ops *=E2=80=99
- thermal_zone_of_sensor_register(struct device *dev, int id,
- ^
-drivers/input/touchscreen/sun4i-ts.c:331:8: error: too few arguments to
-function =E2=80=98thermal_zone_of_sensor_register=E2=80=99
-        &sun4i_ts_tz_ops);
-        ^
-In file included from drivers/input/touchscreen/sun4i-ts.c:37:0:
-include/linux/thermal.h:302:1: note: declared here
- thermal_zone_of_sensor_register(struct device *dev, int id,
- ^
-make[1]: *** [drivers/input/touchscreen/sun4i-ts.o] Error 1
-make: *** [drivers/input/touchscreen/sun4i-ts.o] Error 2
-
->=20
-> changes since v1:
->=20
->     - clean up thermal zone sensor when input device register fails
->     - unconditionally unregister thermal zone sensor on removal.
->       the unregister function checks the pointers passed in.
->     - add comment explaining the lack of documents for the temperatur=
-e
->       calculation formula
->=20
-> ---
->  .../bindings/input/touchscreen/sun4i.txt           |  2 +
->  drivers/input/touchscreen/sun4i-ts.c               | 47 ++++++++++++=
+> >>> which already has hwmon support in the driver.
+> >>>
+> >>> Add DT thermal zone support so we can use it with cpufreq for thermal
+> >>> throttling.
+> >>>
+> >>> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+> >>> ---
+> >>>  .../bindings/input/touchscreen/sun4i.txt           |  1 +
+> >>>  drivers/input/touchscreen/sun4i-ts.c               | 27 ++++++++++++=
 ++++++++++
->  2 files changed, 49 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4=
+> >>>  2 files changed, 28 insertions(+)
+> >>>
+> >>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4=
 i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> index aef57791f40b..a8405bab6c00 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> @@ -5,6 +5,7 @@ Required properties:
->   - compatible: "allwinner,sun4i-a10-ts"
->   - reg: mmio address range of the chip
->   - interrupts: interrupt to which the chip is connected
-> + - #thermal-sensor-cells: shall be 0
-> =20
->  Optional properties:
->   - allwinner,ts-attached: boolean indicating that an actual touchscr=
+> >>> index aef57791f40b..7f1110adbd24 100644
+> >>> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> >>> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> >>> @@ -5,6 +5,7 @@ Required properties:
+> >>>   - compatible: "allwinner,sun4i-a10-ts"
+> >>>   - reg: mmio address range of the chip
+> >>>   - interrupts: interrupt to which the chip is connected
+> >>> + - #thermal-sensor-cells: shall be 0
+> >>>
+> >>
+> >> You may want to update your Example section too, below.
+> >> Example:
+> >>
+> >>         rtp: rtp@01c25000 {
+> >>                 compatible =3D "allwinner,sun4i-a10-ts";
+> >>                 reg =3D <0x01c25000 0x100>;
+> >>                 interrupts =3D <29>;
+> >>                 allwinner,ts-attached;
+> >>                 #thermal-sensor-cells =3D <0>;
+> >>         };
+> >
+> > Ok.
+> >
+> >>
+> >>
+> >>>  Optional properties:
+> >>>   - allwinner,ts-attached: boolean indicating that an actual touchscr=
 een is
-> @@ -17,4 +18,5 @@ Example:
->  		reg =3D <0x01c25000 0x100>;
->  		interrupts =3D <29>;
->  		allwinner,ts-attached;
-> +		#thermal-sensor-cells =3D <0>;
->  	};
-> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/tou=
+> >>> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/tou=
 chscreen/sun4i-ts.c
-> index 28a06749ae42..aac49db0b09d 100644
-> --- a/drivers/input/touchscreen/sun4i-ts.c
-> +++ b/drivers/input/touchscreen/sun4i-ts.c
-> @@ -34,6 +34,7 @@
-> =20
->  #include <linux/err.h>
->  #include <linux/hwmon.h>
-> +#include <linux/thermal.h>
->  #include <linux/init.h>
->  #include <linux/input.h>
->  #include <linux/interrupt.h>
-> @@ -107,6 +108,7 @@
->  struct sun4i_ts_data {
->  	struct device *dev;
->  	struct input_dev *input;
-> +	struct thermal_zone_device *tz;
->  	void __iomem *base;
->  	unsigned int irq;
->  	bool ignore_fifo_data;
-> @@ -180,6 +182,33 @@ static void sun4i_ts_close(struct input_dev *dev=
-)
->  	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
->  }
-> =20
-> +static int get_temp(void *data, long *temp)
-> +{
-> +	struct sun4i_ts_data *ts =3D data;
-> +
-> +	/* No temp_data until the first irq */
-> +	if (ts->temp_data =3D=3D -1)
-> +		return -EAGAIN;
-> +
-> +	/*
-> +	 * The user manuals do not contain the formula for calculating
-> +	 * the temperature. The formula used here is from the AXP209,
-> +	 * which is designed by X-Powers, an affiliate of Allwinner:
-> +	 *
-> +	 *     temperature =3D -144.7 + (value * 0.1)
-> +	 *
-> +	 * This should be replaced with the correct one if such information
-> +	 * becomes available.
-> +	 */
-> +	*temp =3D (ts->temp_data - 1447) * 100;
-> +
-> +	return 0;
-> +}
-> +
-> +static struct thermal_zone_of_device_ops sun4i_ts_tz_ops =3D {
-> +	.get_temp =3D get_temp,
-> +};
-> +
->  static ssize_t show_temp(struct device *dev, struct device_attribute=
+> >>> index 28a06749ae42..b6e9043446d6 100644
+> >>> --- a/drivers/input/touchscreen/sun4i-ts.c
+> >>> +++ b/drivers/input/touchscreen/sun4i-ts.c
+> >>> @@ -34,6 +34,7 @@
+> >>>
+> >>>  #include <linux/err.h>
+> >>>  #include <linux/hwmon.h>
+> >>> +#include <linux/thermal.h>
+> >>>  #include <linux/init.h>
+> >>>  #include <linux/input.h>
+> >>>  #include <linux/interrupt.h>
+> >>> @@ -107,6 +108,7 @@
+> >>>  struct sun4i_ts_data {
+> >>>       struct device *dev;
+> >>>       struct input_dev *input;
+> >>> +     struct thermal_zone_device *tz;
+> >>>       void __iomem *base;
+> >>>       unsigned int irq;
+> >>>       bool ignore_fifo_data;
+> >>> @@ -180,6 +182,23 @@ static void sun4i_ts_close(struct input_dev *dev)
+> >>>       writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+> >>>  }
+> >>>
+> >>> +static int get_temp(void *data, long *temp)
+> >>> +{
+> >>> +     struct sun4i_ts_data *ts =3D data;
+> >>> +
+> >>> +     /* No temp_data until the first irq */
+> >>> +     if (ts->temp_data =3D=3D -1)
+> >>> +             return -EAGAIN;
+> >>> +
+> >>> +     *temp =3D (ts->temp_data - 1447) * 100;
+> >>> +
+> >>
+> >> Care to explain the formula in a simple comment?
+> >
+> > This was just copied from the hwmon section. AFAIK there is no document=
+ation
+> > for the formula. It was probably copied from Allwinner's SDK code.
+> >
+> > Hans? Do you remember where you got this?
+>=20
+> So this is from the AXP209 datasheet. The Allwinner SoC datasheets don't
+> mention the formula to calculate the temperature. But since Allwinner
+> and X-powers are affiliated, it's possible they use the same formula.
+>=20
+> http://comments.gmane.org/gmane.comp.hardware.netbook.arm.sunxi/3838
+
+Ok. We use in the thermal framework  miliCelsius as the temperature
+unit. Can you make sure the resulting temperature is in miliCelsius?
+
+Cheers,
+
+>=20
+> >>> +     return 0;
+> >>> +}
+> >>> +
+> >>> +static struct thermal_zone_of_device_ops sun4i_ts_tz_ops =3D {
+> >>> +     .get_temp =3D get_temp,
+> >>> +};
+> >>> +
+> >>>  static ssize_t show_temp(struct device *dev, struct device_attribute=
  *devattr,
->  			 char *buf)
->  {
-> @@ -189,6 +218,16 @@ static ssize_t show_temp(struct device *dev, str=
-uct device_attribute *devattr,
->  	if (ts->temp_data =3D=3D -1)
->  		return -EAGAIN;
-> =20
-> +	/*
-> +	 * The user manuals do not contain the formula for calculating
-> +	 * the temperature. The formula used here is from the AXP209,
-> +	 * which is designed by X-Powers, an affiliate of Allwinner:
-> +	 *
-> +	 *     temperature =3D -144.7 + (value * 0.1)
-> +	 *
-> +	 * This should be replaced with the correct one if such information
-> +	 * becomes available.
-> +	 */
->  	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
+> >>>                        char *buf)
+> >>>  {
+> >>> @@ -288,6 +307,11 @@ static int sun4i_ts_probe(struct platform_device=
+ *pdev)
+> >>>       if (IS_ERR(hwmon))
+> >>>               return PTR_ERR(hwmon);
+> >>>
+> >>> +     ts->tz =3D thermal_zone_of_sensor_register(ts->dev, 0, ts,
+> >>> +                                              &sun4i_ts_tz_ops);
+> >>> +     if (IS_ERR(ts->tz))
+> >>> +             ts->tz =3D NULL;
+> >>> +
+> >>>       writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+> >>>
+> >>>       if (ts_attached) {
+> >>
+> >> here.. if input_register_device fails, you will keep an orphan thermal=
+ zone
+> >> registered in your system:
+> >>
+> >>                 error =3D input_register_device(ts->input);
+> >>                 if (error) {
+> >>                         writel(0, ts->base + TP_INT_FIFOC);
+> >
+> > Will add an unregister call here.
+> >
+> >
+> > Thanks for the review.
+> >
+> > ChenYu
+> >
+> >>                         return error;
+> >>                 }
+> >>                 ...
+> >>
+> >>
+> >>> @@ -310,6 +334,9 @@ static int sun4i_ts_remove(struct platform_device=
+ *pdev)
+> >>>       if (ts->input)
+> >>>               input_unregister_device(ts->input);
+> >>>
+> >>> +     if (ts->tz)
+> >>> +             thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
+> >>> +
+> >>>       /* Deactivate all IRQs */
+> >>>       writel(0, ts->base + TP_INT_FIFOC);
+> >>>
+> >>> --
+> >>> 2.1.4
+> >>>
 
-Why duplicate it here, instead of doing:
+--aVD9QWMuhilNxW9f
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-static int sun4i_get_temp(struct sun4i_ts_data *ts, int *temp)
-{
-	if (ts->temp_data =3D=3D -1)
-		return -EAGAIN;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-	/* comment */
-	*temp =3D (ts->temp_data - 1447) * 100);
+iQEcBAEBAgAGBQJUsBjlAAoJEMLUO4d9pOJWCfkIAIXJ0C9BfPxl39tC1xaJRfSZ
+VZh7BG4rclVRCwsCjMR6cjWnoL+9M/Goryy+/yxUZlwwczUNc0Af46tbJ3mosI4l
+c53ecdaf37hsNL5C46f5LDoFL2RmRD6HimHQO07qOkdwh8krt61NtmgtUlmMRjEd
+kkGUqKwcmjzAHue7EFow6B7QxcWKJzDhtPTDIyTbkQ2N+KLjIwNs3SDJEd8lVvIa
+Oo0ijdY05ont1g3Y7l3Kq+iyRz7aP4B8YM1J/j+OJfGoK+jnRvy8cB6AQSdVUsZg
+hJyv5M9jTB8Wz/Hj4UJ/bnNcBHhcbcQ73z7Y5Ld9Xdqan6fqdEpyZCslY3kza3E=
+=qCIs
+-----END PGP SIGNATURE-----
 
-	return 0;
-}
-
-static int sun4i_tz_get_temp(void *data, long *temp)
-{
-	return sun4i_get_temp(data, temp);
-}
-
-static ssize_t sun4i_show_temp(...)
-{
-	error =3D sun4i_get_temp(ts, &temp);
-	if (error)
-		return error;
-
-	return sprintf(buf, "%d\n", temp);
-}
-
-Also, thermal core seems to allow creating hwmon devices for thermal
-zones, can we use this feature?
-
-Thanks.
-
---=20
-Dmitry
+--aVD9QWMuhilNxW9f--

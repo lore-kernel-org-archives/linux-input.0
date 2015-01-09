@@ -1,93 +1,116 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/9] Input: sun4i-ts: Add thermal zone sensor support
-Date: Fri, 9 Jan 2015 10:42:57 -0800
-Message-ID: <20150109184257.GB39037@dtor-ws>
-References: <1420798676-22856-1-git-send-email-wens@csie.org>
- <1420798676-22856-2-git-send-email-wens@csie.org>
- <20150109172318.GA39037@dtor-ws>
- <20150109183313.GA24190@developer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150109183313.GA24190@developer>
-Sender: linux-pm-owner@vger.kernel.org
-To: Eduardo Valentin <edubezval@gmail.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/2] Process invalid Cintiq and Intuos data in wacom_intuos_inout
+Date: Fri,  9 Jan 2015 11:04:50 -0800
+Message-ID: <1420830290-5053-1-git-send-email-pingc@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:39923 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750773AbbAITE4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 14:04:56 -0500
+Received: by mail-pa0-f46.google.com with SMTP id lf10so20124059pab.5
+        for <linux-input@vger.kernel.org>; Fri, 09 Jan 2015 11:04:56 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Fri, Jan 09, 2015 at 02:33:15PM -0400, Eduardo Valentin wrote:
-> Dmitry,
->=20
-> On Fri, Jan 09, 2015 at 09:23:18AM -0800, Dmitry Torokhov wrote:
-> > On Fri, Jan 09, 2015 at 06:17:48PM +0800, Chen-Yu Tsai wrote:
-> > > The touchscreen controller has a temperature sensor embedded in t=
-he SoC,
-> > > which already has hwmon support in the driver.
-> > >=20
-> > > Add DT thermal zone support so we can use it with cpufreq for the=
-rmal
-> > > throttling.
-> > >=20
-> > > This also adds a comment stating that we do not know the actual f=
-ormula
-> > > for calculating the temperature.
-> > >=20
-> > > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> > > ---
-> >=20
-> >=20
-> >   CC [M]  drivers/input/touchscreen/sun4i-ts.o
-> > drivers/input/touchscreen/sun4i-ts.c:208:15: error: variable
-> > =E2=80=98sun4i_ts_tz_ops=E2=80=99 has initializer but incomplete ty=
-pe
-> >  static struct thermal_zone_of_device_ops sun4i_ts_tz_ops =3D {
-> >                ^
-> > drivers/input/touchscreen/sun4i-ts.c:209:2: error: unknown field
-> > =E2=80=98get_temp=E2=80=99 specified in initializer
-> >   .get_temp =3D get_temp,
-> >   ^
-> > drivers/input/touchscreen/sun4i-ts.c:209:2: warning: excess element=
-s in
-> > struct initializer [enabled by default]
-> > drivers/input/touchscreen/sun4i-ts.c:209:2: warning: (near
-> > initialization for =E2=80=98sun4i_ts_tz_ops=E2=80=99) [enabled by d=
-efault]
-> > drivers/input/touchscreen/sun4i-ts.c: In function =E2=80=98sun4i_ts=
-_probe=E2=80=99:
-> > drivers/input/touchscreen/sun4i-ts.c:331:8: warning: passing argume=
-nt 4
-> > of =E2=80=98thermal_zone_of_sensor_register=E2=80=99 from incompati=
-ble pointer type
-> > [enabled by default]
-> >         &sun4i_ts_tz_ops);
-> >         ^
-> > In file included from drivers/input/touchscreen/sun4i-ts.c:37:0:
-> > include/linux/thermal.h:302:1: note: expected =E2=80=98int (*)(void=
- *, long int
-> > *)=E2=80=99 but argument is of type =E2=80=98struct thermal_zone_of=
-_device_ops *=E2=80=99
-> >  thermal_zone_of_sensor_register(struct device *dev, int id,
-> >  ^
-> > drivers/input/touchscreen/sun4i-ts.c:331:8: error: too few argument=
-s to
-> > function =E2=80=98thermal_zone_of_sensor_register=E2=80=99
-> >         &sun4i_ts_tz_ops);
-> >         ^
-> > In file included from drivers/input/touchscreen/sun4i-ts.c:37:0:
-> > include/linux/thermal.h:302:1: note: declared here
-> >  thermal_zone_of_sensor_register(struct device *dev, int id,
-> >  ^
-> > make[1]: *** [drivers/input/touchscreen/sun4i-ts.o] Error 1
-> > make: *** [drivers/input/touchscreen/sun4i-ts.o] Error 2
-> >=20
->=20
-> What kernel version are you using?
->=20
-> It looks like you are missing the of thermal ops commit.
+Users may use unsupported tools on Cintiq or Intuos. When invalid
+tools or data are detected, they should be ignored. That is, no
+event from those tools should be reported.
 
-Ah, OK, I have not uprevved my branches with 3.19 stuff yet.
+Consolidating that code in wacom_intuos_inout simplifies the logic
+and make it easier for future code change.
 
---=20
-Dmitry
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+v2: Added commit comments as suggested by Jiri Kosina.
+---
+ drivers/hid/wacom_wac.c | 50 +++++++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 596a6fb5..5276689 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -534,9 +534,24 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		return 1;
+ 	}
+ 
++	/*
++	 * don't report events for invalid data
++	 */
+ 	/* older I4 styli don't work with new Cintiqs */
+-	if (!((wacom->id[idx] >> 20) & 0x01) &&
+-			(features->type == WACOM_21UX2))
++	if ((!((wacom->id[idx] >> 20) & 0x01) &&
++			(features->type == WACOM_21UX2)) ||
++	    /* Only large Intuos support Lense Cursor */
++	    (wacom->tool[idx] == BTN_TOOL_LENS &&
++		(features->type == INTUOS3 ||
++		 features->type == INTUOS3S ||
++		 features->type == INTUOS4 ||
++		 features->type == INTUOS4S ||
++		 features->type == INTUOS5 ||
++		 features->type == INTUOS5S ||
++		 features->type == INTUOSPM ||
++		 features->type == INTUOSPS)) ||
++	   /* Cintiq doesn't send data when RDY bit isn't set */
++	   (features->type == CINTIQ && !(data[1] & 0x40)))
+ 		return 1;
+ 
+ 	/* Range Report */
+@@ -553,6 +568,10 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
+ 			wacom->shared->stylus_in_proximity = false;
+ 
++		/* don't report exit if we don't know the ID */
++		if (!wacom->id[idx])
++			return 1;
++
+ 		/*
+ 		 * Reset all states otherwise we lose the initial states
+ 		 * when in-prox next time
+@@ -585,6 +604,11 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		wacom->id[idx] = 0;
+ 		return 2;
+ 	}
++
++	/* don't report other events if we don't know the ID */
++	if (!wacom->id[idx])
++		return 1;
++
+ 	return 0;
+ }
+ 
+@@ -842,28 +866,6 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 	if (result)
+                 return result - 1;
+ 
+-	/* don't proceed if we don't know the ID */
+-	if (!wacom->id[idx])
+-		return 0;
+-
+-	/* Only large Intuos support Lense Cursor */
+-	if (wacom->tool[idx] == BTN_TOOL_LENS &&
+-	    (features->type == INTUOS3 ||
+-	     features->type == INTUOS3S ||
+-	     features->type == INTUOS4 ||
+-	     features->type == INTUOS4S ||
+-	     features->type == INTUOS5 ||
+-	     features->type == INTUOS5S ||
+-	     features->type == INTUOSPM ||
+-	     features->type == INTUOSPS)) {
+-
+-		return 0;
+-	}
+-
+-	/* Cintiq doesn't send data when RDY bit isn't set */
+-	if (features->type == CINTIQ && !(data[1] & 0x40))
+-                 return 0;
+-
+ 	if (features->type >= INTUOS3S) {
+ 		input_report_abs(input, ABS_X, (data[2] << 9) | (data[3] << 1) | ((data[9] >> 1) & 1));
+ 		input_report_abs(input, ABS_Y, (data[4] << 9) | (data[5] << 1) | (data[9] & 1));
+-- 
+1.9.1
+

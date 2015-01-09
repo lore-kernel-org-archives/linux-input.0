@@ -1,217 +1,120 @@
 From: Eduardo Valentin <edubezval@gmail.com>
-Subject: Re: [PATCH 03/17] Input: sun4i-ts: Add thermal zone sensor support
-Date: Fri, 9 Jan 2015 14:07:44 -0400
-Message-ID: <20150109180742.GB9510@developer>
-References: <1420511727-8242-1-git-send-email-wens@csie.org>
- <1420511727-8242-4-git-send-email-wens@csie.org>
- <20150106152425.GA6276@developer>
- <CAGb2v66L-ZD1Ep-rnKXKP7PuJH+dA=26tV35KyKCNnKHgM4Hmg@mail.gmail.com>
- <CAGb2v64F8mQRka=L1qWKe=WNOUYtiC5RSZUDORr3Ynd3Djf20g@mail.gmail.com>
+Subject: Re: [PATCH v2 3/9] ARM: dts: sun7i: Add cpu thermal zones to dtsi
+Date: Fri, 9 Jan 2015 14:10:18 -0400
+Message-ID: <20150109181016.GC9510@developer>
+References: <1420798676-22856-1-git-send-email-wens@csie.org>
+ <1420798676-22856-4-git-send-email-wens@csie.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f42.google.com ([209.85.216.42]:59153 "EHLO
-	mail-qa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752305AbbAISHz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 13:07:55 -0500
+Received: from mail-qa0-f50.google.com ([209.85.216.50]:45523 "EHLO
+	mail-qa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750864AbbAISK2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 13:10:28 -0500
 Content-Disposition: inline
-In-Reply-To: <CAGb2v64F8mQRka=L1qWKe=WNOUYtiC5RSZUDORr3Ynd3Djf20g@mail.gmail.com>
+In-Reply-To: <1420798676-22856-4-git-send-email-wens@csie.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Chen-Yu Tsai <wens@csie.org>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 08, 2015 at 09:33:54PM +0800, Chen-Yu Tsai wrote:
-> On Thu, Jan 8, 2015 at 12:24 AM, Chen-Yu Tsai <wens@csie.org> wrote:
-> > Hi,
-> >
-> > On Tue, Jan 6, 2015 at 11:24 PM, Eduardo Valentin <edubezval@gmail.com>=
- wrote:
-> >> Hello Chen-Yu,
-> >>
-> >>
-> >> On Tue, Jan 06, 2015 at 10:35:13AM +0800, Chen-Yu Tsai wrote:
-> >>> The touchscreen controller has a temperature sensor embedded in the S=
-oC,
-> >>> which already has hwmon support in the driver.
-> >>>
-> >>> Add DT thermal zone support so we can use it with cpufreq for thermal
-> >>> throttling.
-> >>>
-> >>> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> >>> ---
-> >>>  .../bindings/input/touchscreen/sun4i.txt           |  1 +
-> >>>  drivers/input/touchscreen/sun4i-ts.c               | 27 ++++++++++++=
-++++++++++
-> >>>  2 files changed, 28 insertions(+)
-> >>>
-> >>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4=
-i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> >>> index aef57791f40b..7f1110adbd24 100644
-> >>> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> >>> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> >>> @@ -5,6 +5,7 @@ Required properties:
-> >>>   - compatible: "allwinner,sun4i-a10-ts"
-> >>>   - reg: mmio address range of the chip
-> >>>   - interrupts: interrupt to which the chip is connected
-> >>> + - #thermal-sensor-cells: shall be 0
-> >>>
-> >>
-> >> You may want to update your Example section too, below.
-> >> Example:
-> >>
-> >>         rtp: rtp@01c25000 {
-> >>                 compatible =3D "allwinner,sun4i-a10-ts";
-> >>                 reg =3D <0x01c25000 0x100>;
-> >>                 interrupts =3D <29>;
-> >>                 allwinner,ts-attached;
-> >>                 #thermal-sensor-cells =3D <0>;
-> >>         };
-> >
-> > Ok.
-> >
-> >>
-> >>
-> >>>  Optional properties:
-> >>>   - allwinner,ts-attached: boolean indicating that an actual touchscr=
-een is
-> >>> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/tou=
-chscreen/sun4i-ts.c
-> >>> index 28a06749ae42..b6e9043446d6 100644
-> >>> --- a/drivers/input/touchscreen/sun4i-ts.c
-> >>> +++ b/drivers/input/touchscreen/sun4i-ts.c
-> >>> @@ -34,6 +34,7 @@
-> >>>
-> >>>  #include <linux/err.h>
-> >>>  #include <linux/hwmon.h>
-> >>> +#include <linux/thermal.h>
-> >>>  #include <linux/init.h>
-> >>>  #include <linux/input.h>
-> >>>  #include <linux/interrupt.h>
-> >>> @@ -107,6 +108,7 @@
-> >>>  struct sun4i_ts_data {
-> >>>       struct device *dev;
-> >>>       struct input_dev *input;
-> >>> +     struct thermal_zone_device *tz;
-> >>>       void __iomem *base;
-> >>>       unsigned int irq;
-> >>>       bool ignore_fifo_data;
-> >>> @@ -180,6 +182,23 @@ static void sun4i_ts_close(struct input_dev *dev)
-> >>>       writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
-> >>>  }
-> >>>
-> >>> +static int get_temp(void *data, long *temp)
-> >>> +{
-> >>> +     struct sun4i_ts_data *ts =3D data;
-> >>> +
-> >>> +     /* No temp_data until the first irq */
-> >>> +     if (ts->temp_data =3D=3D -1)
-> >>> +             return -EAGAIN;
-> >>> +
-> >>> +     *temp =3D (ts->temp_data - 1447) * 100;
-> >>> +
-> >>
-> >> Care to explain the formula in a simple comment?
-> >
-> > This was just copied from the hwmon section. AFAIK there is no document=
-ation
-> > for the formula. It was probably copied from Allwinner's SDK code.
-> >
-> > Hans? Do you remember where you got this?
+On Fri, Jan 09, 2015 at 06:17:50PM +0800, Chen-Yu Tsai wrote:
+> The core temperature sensor now supports thermal zones. Add a thermal
+> zone mapping for the cpus with passive cooling (cpufreq throttling).
 >=20
-> So this is from the AXP209 datasheet. The Allwinner SoC datasheets don't
-> mention the formula to calculate the temperature. But since Allwinner
-> and X-powers are affiliated, it's possible they use the same formula.
+> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+
+This patch looks fine to me:
+
+Acked-by: Eduardo Valentin <edubezval@gmail.com>
+
+> ---
 >=20
-> http://comments.gmane.org/gmane.comp.hardware.netbook.arm.sunxi/3838
-
-Ok. We use in the thermal framework  miliCelsius as the temperature
-unit. Can you make sure the resulting temperature is in miliCelsius?
-
-Cheers,
-
+> changes since v1:
 >=20
-> >>> +     return 0;
-> >>> +}
-> >>> +
-> >>> +static struct thermal_zone_of_device_ops sun4i_ts_tz_ops =3D {
-> >>> +     .get_temp =3D get_temp,
-> >>> +};
-> >>> +
-> >>>  static ssize_t show_temp(struct device *dev, struct device_attribute=
- *devattr,
-> >>>                        char *buf)
-> >>>  {
-> >>> @@ -288,6 +307,11 @@ static int sun4i_ts_probe(struct platform_device=
- *pdev)
-> >>>       if (IS_ERR(hwmon))
-> >>>               return PTR_ERR(hwmon);
-> >>>
-> >>> +     ts->tz =3D thermal_zone_of_sensor_register(ts->dev, 0, ts,
-> >>> +                                              &sun4i_ts_tz_ops);
-> >>> +     if (IS_ERR(ts->tz))
-> >>> +             ts->tz =3D NULL;
-> >>> +
-> >>>       writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
-> >>>
-> >>>       if (ts_attached) {
-> >>
-> >> here.. if input_register_device fails, you will keep an orphan thermal=
- zone
-> >> registered in your system:
-> >>
-> >>                 error =3D input_register_device(ts->input);
-> >>                 if (error) {
-> >>                         writel(0, ts->base + TP_INT_FIFOC);
-> >
-> > Will add an unregister call here.
-> >
-> >
-> > Thanks for the review.
-> >
-> > ChenYu
-> >
-> >>                         return error;
-> >>                 }
-> >>                 ...
-> >>
-> >>
-> >>> @@ -310,6 +334,9 @@ static int sun4i_ts_remove(struct platform_device=
- *pdev)
-> >>>       if (ts->input)
-> >>>               input_unregister_device(ts->input);
-> >>>
-> >>> +     if (ts->tz)
-> >>> +             thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
-> >>> +
-> >>>       /* Deactivate all IRQs */
-> >>>       writel(0, ts->base + TP_INT_FIFOC);
-> >>>
-> >>> --
-> >>> 2.1.4
-> >>>
+>     - Use thermal dt bindings macros in cooling-device
+>=20
+> ---
+>  arch/arm/boot/dts/sun7i-a20.dtsi | 33 +++++++++++++++++++++++++++++++++
+>  1 file changed, 33 insertions(+)
+>=20
+> diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a=
+20.dtsi
+> index c2e964939991..61780b144745 100644
+> --- a/arch/arm/boot/dts/sun7i-a20.dtsi
+> +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+> @@ -50,6 +50,7 @@
+>  #include "skeleton.dtsi"
+> =20
+>  #include <dt-bindings/interrupt-controller/arm-gic.h>
+> +#include <dt-bindings/thermal/thermal.h>
+> =20
+>  #include <dt-bindings/dma/sun4i-a10.h>
+>  #include <dt-bindings/pinctrl/sun4i-a10.h>
+> @@ -116,6 +117,38 @@
+>  		};
+>  	};
+> =20
+> +	thermal-zones {
+> +		cpu_thermal {
+> +			/* milliseconds */
+> +			polling-delay-passive =3D <250>;
+> +			polling-delay =3D <1000>;
+> +			thermal-sensors =3D <&rtp>;
+> +
+> +			cooling-maps {
+> +				map0 {
+> +					trip =3D <&cpu_alert0>;
+> +					cooling-device =3D <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+> +				};
+> +			};
+> +
+> +			trips {
+> +				cpu_alert0: cpu_alert0 {
+> +					/* milliCelsius */
+> +					temperature =3D <75000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "passive";
+> +				};
+> +
+> +				cpu_crit: cpu_crit {
+> +					/* milliCelsius */
+> +					temperature =3D <100000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "critical";
+> +				};
+> +			};
+> +		};
+> +	};
+> +
+>  	memory {
+>  		reg =3D <0x40000000 0x80000000>;
+>  	};
+> --=20
+> 2.1.4
+>=20
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBAgAGBQJUsBjlAAoJEMLUO4d9pOJWCfkIAIXJ0C9BfPxl39tC1xaJRfSZ
-VZh7BG4rclVRCwsCjMR6cjWnoL+9M/Goryy+/yxUZlwwczUNc0Af46tbJ3mosI4l
-c53ecdaf37hsNL5C46f5LDoFL2RmRD6HimHQO07qOkdwh8krt61NtmgtUlmMRjEd
-kkGUqKwcmjzAHue7EFow6B7QxcWKJzDhtPTDIyTbkQ2N+KLjIwNs3SDJEd8lVvIa
-Oo0ijdY05ont1g3Y7l3Kq+iyRz7aP4B8YM1J/j+OJfGoK+jnRvy8cB6AQSdVUsZg
-hJyv5M9jTB8Wz/Hj4UJ/bnNcBHhcbcQ73z7Y5Ld9Xdqan6fqdEpyZCslY3kza3E=
-=qCIs
+iQEcBAEBAgAGBQJUsBmAAAoJEMLUO4d9pOJWd0sH/jKrls+Fo40dT7I8HcfeAEPO
+xoPHByJJqtBZilHUuJxa4aGjdWEh3JnEOC5N2rLNKRVj3+TwmirMpr5b+Ulyo4ZF
+ZjLIuoCrwi8b0xHeGnC2oVGNoP1N20hRzReeDTmhbHLrkMtXWKq1H3uSFgsZFc7p
+X2OoarLacxxVdVddT8LapyCG5BwK9z2K9JDVNzo+C2SDQrnFUICrk1mGn7dv2czi
++8Yxum3O7CsI8Jv8n3B97xcw2btTTYTJ9+10aBqbwe1r/hUPgysfx42h13g9hzqT
+pxeNEfXAh65uKTye6sCsIrewC7PrgnbuvgTfK8AY9G/J2d92TirIJNt5blaiYqg=
+=Te12
 -----END PGP SIGNATURE-----
 
---aVD9QWMuhilNxW9f--
+--yVhtmJPUSI46BTXb--

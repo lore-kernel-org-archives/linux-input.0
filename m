@@ -1,34 +1,55 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH 0/2] INPUT/HID: add touch support for SiS touch driver
-Date: Fri, 09 Jan 2015 12:31:32 +0100
-Message-ID: <1420803092.13007.9.camel@linux-0dmf.site>
-References: <8322374EB97AA24A95D0DDBFC8F1CA1DBF96E8@SISMBEV01.sis.com.tw>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] HID: roccat: potential out of bounds in
+ pyra_sysfs_write_settings()
+Date: Fri, 9 Jan 2015 15:32:31 +0300
+Message-ID: <20150109123231.GA25224@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8322374EB97AA24A95D0DDBFC8F1CA1DBF96E8@SISMBEV01.sis.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "=?UTF-8?Q?=E6=9B=BE=E5=A9=B7=E8=91=B3?= (tammy_tseng)" <tammy_tseng@sis.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tammy0524@gmail.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:28604 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756853AbbAIMdA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 07:33:00 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Fri, 2015-01-09 at 18:36 +0800, =E6=9B=BE=E5=A9=B7=E8=91=B3 (tammy_t=
-seng) wrote:
-> Signed-off-by: Tammy Tseng <tammy_tseng@sis.com>
->=20
-> ---
-> The patch for i2c multitouch driver in input/touchscreen:
->=20
-> linux-3.18.1/drivers/input/touchscreen/Kconfig   |   14 -
->  linux-3.18.1/drivers/input/touchscreen/Makefile  |    4 -
->  linux-3.18.1/drivers/input/touchscreen/sis_i2c.c | 1725
-> ----------------------
->  linux-3.18.1/drivers/input/touchscreen/sis_i2c.h |  229 ---
->  4 files changed, 1972 deletions(-)
+This is a static checker fix.  We write some binary settings to the
+sysfs file.  One of the settings is the "->startup_profile".  There
+isn't any checking to make sure it fits into the
+pyra->profile_settings[] array in the profile_activated() function.
 
-Only deletions and it adds support?
-I guess you mixed up your trees.
+I added a check to pyra_sysfs_write_settings() in both places because
+I wasn't positive that the other callers were correct.
 
-	Regards
-		Oliver
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 1a07e07..47d7e74 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -35,6 +35,8 @@ static struct class *pyra_class;
+ static void profile_activated(struct pyra_device *pyra,
+ 		unsigned int new_profile)
+ {
++	if (new_profile >= ARRAY_SIZE(pyra->profile_settings))
++		return;
+ 	pyra->actual_profile = new_profile;
+ 	pyra->actual_cpi = pyra->profile_settings[pyra->actual_profile].y_cpi;
+ }
+@@ -257,9 +259,11 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
+ 	if (off != 0 || count != PYRA_SIZE_SETTINGS)
+ 		return -EINVAL;
+ 
+-	mutex_lock(&pyra->pyra_lock);
+-
+ 	settings = (struct pyra_settings const *)buf;
++	if (settings->startup_profile >= ARRAY_SIZE(pyra->profile_settings))
++		return -EINVAL;
++
++	mutex_lock(&pyra->pyra_lock);
+ 
+ 	retval = pyra_set_settings(usb_dev, settings);
+ 	if (retval) {

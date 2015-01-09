@@ -1,130 +1,129 @@
-From: Aniroop Mathur <aniroop.mathur@gmail.com>
-Subject: Re: [PATCH] hid: Initialize battery_no to -1 & correct its format string
-Date: Fri, 9 Jan 2015 18:03:26 +0530
-Message-ID: <CADYu30-SENoMymHMYRQ5T==-C-iiMN789DMJx1jty592b+EQ9Q@mail.gmail.com>
-References: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
-	<alpine.LNX.2.00.1412291302470.1680@pobox.suse.cz>
-	<CADYu308MmdGeajFTDt38zZSy7K2VKbDppuqmiJn=1ZwL5d1vmw@mail.gmail.com>
-	<CAF8JNh+gzA_m-mMjjAdBz6WyyFemTU26VDOLufOJXJ5DMkK2yg@mail.gmail.com>
-	<CAN+gG=GqwUHqv-7YAt++N-xmuxjV+C8mPkbX8ZfHiqqkWvnu+Q@mail.gmail.com>
+From: Henk <henk.vergonet@gmail.com>
+Subject: Fwd: [RFC PATCH 1/2] USB: input: yealink.c: use KEY_NUMERIC_* for
+ numeric keys, star and pound
+Date: Fri, 9 Jan 2015 13:41:21 +0100
+Message-ID: <CAMFK4TMHwtXEy19ajsWD1AL4MyLLMyC8UCLq8eFeCU+2JP2G5w@mail.gmail.com>
+References: <1419259269-23820-1-git-send-email-dforsi@gmail.com>
+	<1419259269-23820-2-git-send-email-dforsi@gmail.com>
+	<CAMFK4TMJTb5dJ1kXLBgsu8WE8Ygyh+jW_d_TqmDO5OqB5yr3nw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f182.google.com ([209.85.217.182]:63342 "EHLO
-	mail-lb0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757080AbbAIMd2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 07:33:28 -0500
-In-Reply-To: <CAN+gG=GqwUHqv-7YAt++N-xmuxjV+C8mPkbX8ZfHiqqkWvnu+Q@mail.gmail.com>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:50854 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932363AbbAIMlW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 07:41:22 -0500
+In-Reply-To: <CAMFK4TMJTb5dJ1kXLBgsu8WE8Ygyh+jW_d_TqmDO5OqB5yr3nw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pingc@wacom.com>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Mr. Benjamin,
+Signed-off-by: Henk Vergonet <henk.vergonet@gmail.com>
 
-On Wed, Jan 7, 2015 at 7:20 AM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Tue, Jan 6, 2015 at 7:50 PM, Ping Cheng <pinglinux@gmail.com> wrote:
->> Hi Benjamin,
->>
->> The relevant code was introduced by
->> d70420b914c98a3758674c6e9858810e0ab4ea30. Can you take a look and let
->> us know if Aniroop's patch fits your original thought or not?
->
-> Hehe, indeed, that's my code.
->
-> I would agree with Jiri, I really do not care. This code is called
-> only once at initialization and I am pretty sure it will not change
-> the time to initialize the device (I am confident the compiler will do
-> something better than blindly following the code).
->
-> So either way it is good. But I have a slight preference to initialize
-> the variable to 0 and keep the unsigned in the name.
->
-> Cheers,
-> Benjamin
->
+Thanks!
 
-Atleast, there is a need to fix format specifier of "n" variable.
-"n" is declared as unsigned long so %ld should be changed to %lu.
-
-Thanks !!
-
->>
->> Thanks,
->>
->> Ping
->>
->> On Tue, Jan 6, 2015 at 6:32 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
->>> Dear Mr. Jason and Mr. Ping,
->>>
->>> Please update about below patch.
->>> Except avoiding subtraction, there is also a need to avoid negative
->>> battery name which may come due to %ld, so need to change to %lu.
->>>
->>> Thanks,
->>> Aniroop
->>>
->>> On Mon, Dec 29, 2014 at 5:33 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->>>> On Sun, 28 Dec 2014, Aniroop Mathur wrote:
->>>>
->>>>> From: Aniroop Mathur <a.mathur@samsung.com>
->>>>>
->>>>> This patch initializes battery_no to -1 to avoid extra subtraction
->>>>> operation performed everytime wacom battery is initialized
->>>>
->>>> This is so femto-optimization, that I don't really care deeply. Adding
->>>> Jason and Ping to CC. If they want this, I'll apply the patch.
->>>>
->>>>> and correct format string of unsigned long from %ld to %lu.
->>>>>
->>>>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
->>>>> ---
->>>>>  drivers/hid/wacom_sys.c | 8 ++++----
->>>>>  1 file changed, 4 insertions(+), 4 deletions(-)
->>>>>
->>>>> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
->>>>> index 129fd33..4b5ff84 100644
->>>>> --- a/drivers/hid/wacom_sys.c
->>>>> +++ b/drivers/hid/wacom_sys.c
->>>>> @@ -919,17 +919,17 @@ static int wacom_ac_get_property(struct power_supply *psy,
->>>>>
->>>>>  static int wacom_initialize_battery(struct wacom *wacom)
->>>>>  {
->>>>> -     static atomic_t battery_no = ATOMIC_INIT(0);
->>>>> +     static atomic_t battery_no = ATOMIC_INIT(-1);
->>>>>       int error;
->>>>>       unsigned long n;
->>>>>
->>>>>       if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
->>>>> -             n = atomic_inc_return(&battery_no) - 1;
->>>>> +             n = atomic_inc_return(&battery_no);
->>>>>
->>>>>               wacom->battery.properties = wacom_battery_props;
->>>>>               wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
->>>>>               wacom->battery.get_property = wacom_battery_get_property;
->>>>> -             sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%ld", n);
->>>>> +             sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%lu", n);
->>>>>               wacom->battery.name = wacom->wacom_wac.bat_name;
->>>>>               wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
->>>>>               wacom->battery.use_for_apm = 0;
->>>>> @@ -937,7 +937,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
->>>>>               wacom->ac.properties = wacom_ac_props;
->>>>>               wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
->>>>>               wacom->ac.get_property = wacom_ac_get_property;
->>>>> -             sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
->>>>> +             sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%lu", n);
->>>>>               wacom->ac.name = wacom->wacom_wac.ac_name;
->>>>>               wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
->>>>>               wacom->ac.use_for_apm = 0;
->>>>> --
->>>>> 1.9.1
->>>>>
->>>>
->>>> --
->>>> Jiri Kosina
->>>> SUSE Labs
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Mon, Dec 22, 2014 at 3:41 PM, Daniele Forsi <dforsi@gmail.com> wrote=
+:
+>
+> Fix the "pound" key that being mapped to Shift+3 was returning '=C2=A3=
+' instead
+> of '#' when using an Italian keyboard mapping and use the same values=
+ as
+> the cm109.c driver (which was based on this yealink.c driver) also fo=
+r '0'
+> to '9' and for '*'.
+>
+> Signed-off-by: Daniele Forsi <dforsi@gmail.com>
+> ---
+>  drivers/input/misc/yealink.c | 39 +++++++++++++++-------------------=
+-----
+>  1 file changed, 15 insertions(+), 24 deletions(-)
+>
+> diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealin=
+k.c
+> index 79c964c..e9403da 100644
+> --- a/drivers/input/misc/yealink.c
+> +++ b/drivers/input/misc/yealink.c
+> @@ -212,27 +212,24 @@ static int map_p1k_to_key(int scancode)
+>         case 0x03: return KEY_ENTER;    /*   pickup     */
+>         case 0x14: return KEY_BACKSPACE; /*  C          */
+>         case 0x13: return KEY_ESC;      /*   hangup     */
+> -       case 0x00: return KEY_1;        /*   1          */
+> -       case 0x01: return KEY_2;        /*   2          */
+> -       case 0x02: return KEY_3;        /*   3          */
+> -       case 0x10: return KEY_4;        /*   4          */
+> -       case 0x11: return KEY_5;        /*   5          */
+> -       case 0x12: return KEY_6;        /*   6          */
+> -       case 0x20: return KEY_7;        /*   7          */
+> -       case 0x21: return KEY_8;        /*   8          */
+> -       case 0x22: return KEY_9;        /*   9          */
+> -       case 0x30: return KEY_KPASTERISK; /* *          */
+> -       case 0x31: return KEY_0;        /*   0          */
+> -       case 0x32: return KEY_LEFTSHIFT |
+> -                         KEY_3 << 8;   /*   #          */
+> +       case 0x00: return KEY_NUMERIC_1;        /*   1          */
+> +       case 0x01: return KEY_NUMERIC_2;        /*   2          */
+> +       case 0x02: return KEY_NUMERIC_3;        /*   3          */
+> +       case 0x10: return KEY_NUMERIC_4;        /*   4          */
+> +       case 0x11: return KEY_NUMERIC_5;        /*   5          */
+> +       case 0x12: return KEY_NUMERIC_6;        /*   6          */
+> +       case 0x20: return KEY_NUMERIC_7;        /*   7          */
+> +       case 0x21: return KEY_NUMERIC_8;        /*   8          */
+> +       case 0x22: return KEY_NUMERIC_9;        /*   9          */
+> +       case 0x30: return KEY_NUMERIC_STAR;     /*   *          */
+> +       case 0x31: return KEY_NUMERIC_0;        /*   0          */
+> +       case 0x32: return KEY_NUMERIC_POUND;    /*   #          */
+>         }
+>         return -EINVAL;
+>  }
+>
+>  /* Completes a request by converting the data into events for the
+>   * input subsystem.
+> - *
+> - * The key parameter can be cascaded: key2 << 8 | key1
+>   */
+>  static void report_key(struct yealink_dev *yld, int key)
+>  {
+> @@ -240,17 +237,13 @@ static void report_key(struct yealink_dev *yld,=
+ int key)
+>
+>         if (yld->key_code >=3D 0) {
+>                 /* old key up */
+> -               input_report_key(idev, yld->key_code & 0xff, 0);
+> -               if (yld->key_code >> 8)
+> -                       input_report_key(idev, yld->key_code >> 8, 0)=
+;
+> +               input_report_key(idev, yld->key_code, 0);
+>         }
+>
+>         yld->key_code =3D key;
+>         if (key >=3D 0) {
+>                 /* new valid key */
+> -               input_report_key(idev, key & 0xff, 1);
+> -               if (key >> 8)
+> -                       input_report_key(idev, key >> 8, 1);
+> +               input_report_key(idev, key, 1);
+>         }
+>         input_sync(idev);
+>  }
+> @@ -966,9 +959,7 @@ static int usb_probe(struct usb_interface *intf, =
+const struct usb_device_id *id)
+>         for (i =3D 0; i < 256; i++) {
+>                 int k =3D map_p1k_to_key(i);
+>                 if (k >=3D 0) {
+> -                       set_bit(k & 0xff, input_dev->keybit);
+> -                       if (k >> 8)
+> -                               set_bit(k >> 8, input_dev->keybit);
+> +                       set_bit(k, input_dev->keybit);
+>                 }
+>         }
+>
+> --
+> 2.1.3
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

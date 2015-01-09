@@ -1,97 +1,216 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2] Report In Range event according to the spec
-Date: Fri,  9 Jan 2015 11:05:13 -0800
-Message-ID: <1420830313-5092-1-git-send-email-pingc@wacom.com>
+From: Moritz Fischer <moritz.fischer@ettus.com>
+Subject: Re: [PATCH v2 1/3] input: misc: Support NI Ettus Research USRP E3x0 Button
+Date: Fri, 9 Jan 2015 22:23:02 +0100
+Message-ID: <CAAtXAHe1DF6vzWAqJEKFNb2FYti47VyzBtJvVejaZy_Ewv4xUQ@mail.gmail.com>
+References: <1420756991-16506-1-git-send-email-moritz.fischer@ettus.com>
+	<1420756991-16506-2-git-send-email-moritz.fischer@ettus.com>
+	<20150108225002.GI23256@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:46560 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751064AbbAITFK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 14:05:10 -0500
-Received: by mail-pd0-f177.google.com with SMTP id ft15so18950155pdb.8
-        for <linux-input@vger.kernel.org>; Fri, 09 Jan 2015 11:05:09 -0800 (PST)
+Received: from mail-ob0-f178.google.com ([209.85.214.178]:48207 "EHLO
+	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758194AbbAIVXD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 16:23:03 -0500
+Received: by mail-ob0-f178.google.com with SMTP id gq1so15109639obb.9
+        for <linux-input@vger.kernel.org>; Fri, 09 Jan 2015 13:23:02 -0800 (PST)
+In-Reply-To: <20150108225002.GI23256@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Some Cintiq and Intuos tablets report In Range event. This event
-is sent before valid data is reported when tool enters proximity;
-or before out of proximity event is reported when tool exits.
+On Thu, Jan 8, 2015 at 11:50 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Thu, Jan 08, 2015 at 11:43:09PM +0100, Moritz Fischer wrote:
+> > Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+> > ---
+> >  drivers/input/misc/Kconfig       |  10 +++
+> >  drivers/input/misc/Makefile      |   1 +
+> >  drivers/input/misc/e3x0-button.c | 132 +++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 143 insertions(+)
+> >
+> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> > index 23297ab..84a56b4 100644
+> > --- a/drivers/input/misc/Kconfig
+> > +++ b/drivers/input/misc/Kconfig
+> > @@ -93,6 +93,16 @@ config INPUT_BMA150
+> >         To compile this driver as a module, choose M here: the
+> >         module will be called bma150.
+> >
+> > +config INPUT_E3X0_BUTTON
+> > +     tristate "NI Ettus Research USRP E3x0 Button support."
+> > +     default n
+> > +     help
+> > +       Say Y here to enable support for the NI Ettus Research
+> > +       USRP E3x0 Button.
+> > +
+> > +       To compile this driver as a module, choose M here: the
+> > +       module will be called e3x0_button.
+> > +
+> >  config INPUT_PCSPKR
+> >       tristate "PC Speaker support"
+> >       depends on PCSPKR_PLATFORM
+> > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> > index 19c7603..b1775a5 100644
+> > --- a/drivers/input/misc/Makefile
+> > +++ b/drivers/input/misc/Makefile
+> > @@ -26,6 +26,7 @@ obj-$(CONFIG_INPUT_COBALT_BTNS)             += cobalt_btns.o
+> >  obj-$(CONFIG_INPUT_DA9052_ONKEY)     += da9052_onkey.o
+> >  obj-$(CONFIG_INPUT_DA9055_ONKEY)     += da9055_onkey.o
+> >  obj-$(CONFIG_INPUT_DM355EVM)         += dm355evm_keys.o
+> > +obj-$(CONFIG_INPUT_E3X0_BUTTON)              += e3x0-button.o
+> >  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)  += drv260x.o
+> >  obj-$(CONFIG_INPUT_DRV2667_HAPTICS)  += drv2667.o
+> >  obj-$(CONFIG_INPUT_GP2A)             += gp2ap002a00f.o
+> > diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
+> > new file mode 100644
+> > index 0000000..0f4e7f3
+> > --- /dev/null
+> > +++ b/drivers/input/misc/e3x0-button.c
+> > @@ -0,0 +1,132 @@
+> > +/*
+> > + * Copyright (c) 2014, National Instruments Corp. All rights reserved.
+> > + *
+> > + * Driver for NI Ettus Research USRP E3x0 Button Driver
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License as published by
+> > + * the Free Software Foundation; version 2 of the License.
+> > + *
+> > + * This program is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> > + * GNU General Public License for more details.
+> > + */
+> > +
+> > +#include <linux/device.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/input.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/of.h>
+> > +#include <linux/slab.h>
+> > +
+> > +static irqreturn_t e3x0_button_release_handler(int irq, void *data)
+> > +{
+> > +     struct input_dev *idev = data;
+> > +
+> > +     input_report_key(idev, KEY_POWER, 0);
+> > +     input_sync(idev);
+> > +
+> > +     return IRQ_HANDLED;
+> > +}
+> > +
+> > +static irqreturn_t e3x0_button_press_handler(int irq, void *data)
+> > +{
+> > +     struct input_dev *idev = data;
+> > +
+> > +     input_report_key(idev, KEY_POWER, 1);
+> > +     input_sync(idev);
+> > +
+> > +     return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int e3x0_button_probe(struct platform_device *pdev)
+> > +{
+> > +     struct input_dev *input;
+> > +     int irq_press, irq_release;
+> > +     int error;
+> > +
+> > +     irq_press = platform_get_irq_byname(pdev, "press");
+> > +     if (irq_press < 0) {
+> > +             dev_err(&pdev->dev, "No IRQ for 'press', error=%d\n",
+> > +                     irq_press);
+> > +             return irq_press;
+> > +     }
+> > +
+> > +     irq_release = platform_get_irq_byname(pdev, "release");
+> > +     if (irq_release < 0) {
+> > +             dev_err(&pdev->dev, "No IRQ for 'release', error=%d\n",
+> > +                     irq_release);
+> > +             return irq_release;
+> > +     }
+> > +
+> > +     input = devm_input_allocate_device(&pdev->dev);
+> > +     if (!input)
+> > +             return -ENOMEM;
+> > +
+> > +     input->name = "NI Ettus Research USRP E3x0 Button Driver";
+> > +     input->phys = "e3x0_button/input0";
+> > +     input->dev.parent = &pdev->dev;
+> > +
+> > +     input_set_capability(input, EV_KEY, KEY_POWER);
+> > +
+> > +     error = devm_request_irq(&pdev->dev, irq_press,
+> > +                                          e3x0_button_press_handler, 0,
+> > +                                          "e3x0-button", input);
+> > +     if (error < 0) {
+> > +             dev_err(&pdev->dev, "Failed to request 'press' IRQ#%d: %d\n",
+> > +                     irq_press, error);
+> > +             return error;
+> > +     }
+> > +
+> > +     error = devm_request_irq(&pdev->dev, irq_release,
+> > +                                          e3x0_button_release_handler, 0,
+> > +                                          "e3x0-button", input);
+> > +     if (error < 0) {
+> > +             dev_err(&pdev->dev, "Failed to request 'release' IRQ#%d: %d\n",
+> > +                     irq_release, error);
+> > +             return error;
+> > +     }
+> > +
+> > +     error = input_register_device(input);
+> > +     if (error) {
+> > +             dev_err(&pdev->dev, "Can't register input device: %d\n", error);
+> > +             return error;
+> > +     }
+> > +
+> > +     platform_set_drvdata(pdev, input);
+> > +     device_init_wakeup(&pdev->dev, 1);
+> > +     return 0;
+> > +}
+> > +
+> > +static int e3x0_button_remove(struct platform_device *pdev)
+> > +{
+> > +     device_init_wakeup(&pdev->dev, 0);
+> > +     return 0;
+> > +}
+> > +
+> > +#ifdef CONFIG_OF
+> > +static const struct of_device_id e3x0_button_match[] = {
+> > +     { .compatible = "ettus,e3x0-button", },
+> > +     {}
+> > +};
+> > +MODULE_DEVICE_TABLE(of, e3x0_button_match);
+> > +#endif
+> > +
+> > +static struct platform_driver e3x0_button_driver = {
+> > +     .driver         = {
+> > +             .name   = "e3x0-button",
+> > +             .of_match_table = of_match_ptr(e3x0_button_match),
+> > +     },
+> > +     .probe          = e3x0_button_probe,
+> > +     .probe          = e3x0_button_remove,
+>
+> Nope ;)
 
-While entering proximity, In Range means a pen is detected. This
-information can be used for palm/touch rejection on both pen and
-touch enabled devices. While exiting, it means the tool has
-reached its maximum detectable distance.
+D'Oh ... sorry about that.
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
-v2: Updated typos in commit comments as pointed out by Bastien Nocera.
----
- drivers/hid/wacom_wac.c | 15 ++++++++-------
- drivers/hid/wacom_wac.h |  1 +
- 2 files changed, 9 insertions(+), 7 deletions(-)
+> BTW, I think you need to implement PM ops in the driver and do
+>
+> |-------if (device_may_wakeup(dev))
+> |-------|-------enable_irq_wake(platform_get_irq_byname(pdev, "press"));
+>
+> in suspend and undo it in resume.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 5276689..a4ba8ca 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -443,9 +443,6 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 
- 	/* Enter report */
- 	if ((data[1] & 0xfc) == 0xc0) {
--		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
--			wacom->shared->stylus_in_proximity = true;
--
- 		/* serial number of the tool */
- 		wacom->serial[idx] = ((data[3] & 0x0f) << 28) +
- 			(data[4] << 20) + (data[5] << 12) +
-@@ -554,19 +551,22 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 	   (features->type == CINTIQ && !(data[1] & 0x40)))
- 		return 1;
- 
--	/* Range Report */
--	if ((data[1] & 0xfe) == 0x20) {
-+	if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
-+		wacom->shared->stylus_in_proximity = true;
-+
-+	/* in Range while exiting */
-+	if (((data[1] & 0xfe) == 0x20) && wacom->reporting_data) {
- 		input_report_key(input, BTN_TOUCH, 0);
- 		input_report_abs(input, ABS_PRESSURE, 0);
- 		input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
--		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
--			wacom->shared->stylus_in_proximity = true;
-+		return 2;
- 	}
- 
- 	/* Exit report */
- 	if ((data[1] & 0xfe) == 0x80) {
- 		if (features->quirks & WACOM_QUIRK_MULTI_INPUT)
- 			wacom->shared->stylus_in_proximity = false;
-+		wacom->reporting_data = false;
- 
- 		/* don't report exit if we don't know the ID */
- 		if (!wacom->id[idx])
-@@ -952,6 +952,7 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 	input_report_abs(input, ABS_MISC, wacom->id[idx]); /* report tool id */
- 	input_report_key(input, wacom->tool[idx], 1);
- 	input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[idx]);
-+	wacom->reporting_data = true;
- 	return 1;
- }
- 
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 7afd929..72e78cc 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -189,6 +189,7 @@ struct wacom_wac {
- 	int tool[2];
- 	int id[2];
- 	__u32 serial[2];
-+	bool reporting_data;
- 	struct wacom_features features;
- 	struct wacom_shared *shared;
- 	struct input_dev *input;
--- 
-1.9.1
+I submitted a v3 including the changes. Please let me know if there's
+other stuff that needs fixing.
 
+Thanks for taking the time!
+
+Cheers,
+
+Moritz

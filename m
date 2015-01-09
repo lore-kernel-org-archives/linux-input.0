@@ -1,66 +1,57 @@
 From: Henk <henk.vergonet@gmail.com>
-Subject: Fwd: [RFC PATCH 0/2] USB: input: yealink.c: update key mappings
-Date: Fri, 9 Jan 2015 13:40:28 +0100
-Message-ID: <CAMFK4TPQVMy0K_SLcF9q=2f1buaisg6C6ozFoAp3L7saEqidng@mail.gmail.com>
+Subject: Fwd: [RFC PATCH 2/2] USB: input: yealink.c: add mapping for "RING"
+ and "MUTE" keys
+Date: Fri, 9 Jan 2015 13:42:09 +0100
+Message-ID: <CAMFK4TOjQaCWbhyNbe7MrDg+12WY0TMTh_=s3QsziJVu=XgH6A@mail.gmail.com>
 References: <1419259269-23820-1-git-send-email-dforsi@gmail.com>
-	<CAMFK4TMNuQEao5n3XPjn4ZSkX0eTtfkWO+h=bPbyHthyJYebPw@mail.gmail.com>
+	<1419259269-23820-3-git-send-email-dforsi@gmail.com>
+	<CAMFK4TM4zVNWBt14vS3T=eQMtwM2OMLW4Wf5dfHS1vKVoPrQiw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMFK4TMNuQEao5n3XPjn4ZSkX0eTtfkWO+h=bPbyHthyJYebPw@mail.gmail.com>
+In-Reply-To: <CAMFK4TM4zVNWBt14vS3T=eQMtwM2OMLW4Wf5dfHS1vKVoPrQiw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Danielle,
+Signed-off-by: Henk Vergonet <henk.vergonet@gmail.com>
 
-Thanks for the '#' fix!
-
-> DRIVER_VERSION should be updated?
-Yes seems logical, considering that the API has changed slightly by
-using NUMERIC scan commands. I would suggest:
-
-#define DRIVER_VERSION "yld-20141222"
-
-So users something is new and can track changes to your patches more easily.
-
-> are both patches suitable for stable?
-
-I would have no objection to that :)
-
-Regards,
-Henk Vergonet
 
 On Mon, Dec 22, 2014 at 3:41 PM, Daniele Forsi <dforsi@gmail.com> wrote:
 >
-> Hello,
+> According to the user manual of the "VOIP-3 SKY" USB phone, the RING
+> key is used to select different ring tones and the MUTE key is used
+> to mute the microphone.
 >
-> I have an Yealink USB phone which is handled by the yealink.c driver but the
-> '#' key returns an unexpected value and keys labeled "RING" and "MUTE" do not
-> return any value to userspace.
+> Signed-off-by: Daniele Forsi <dforsi@gmail.com>
+> ---
+>  drivers/input/misc/yealink.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 >
-> In the first patch of this series I replace the combination KEY_LEFTSHIFT and
-> KEY_3 with KEY_NUMERIC_POUND and I also replace other keys for internal consistency
-> and with the cm109.c driver, which according to the comment in the code is derived
-> from this one, is this the right approach?
->
-> In the second patch I add two additional keys which could be handled by userspace:
->  "RING" whose purpose according to the user manual is to cycle all available ringtones
->  "MUTE" whose purpose is to mute the USB microphone
-> which KEY_* values should be used for them?
->
-> I have two more questions:
-> DRIVER_VERSION should be updated?
-> are both patches suitable for stable?
->
-> Daniele Forsi (2):
->   USB: input: yealink.c: use KEY_NUMERIC_* for numeric keys, star and
->     pound
->   USB: input: yealink.c: add mapping for "RING" and "MUTE" keys
->
->  drivers/input/misc/yealink.c | 43 +++++++++++++++++++------------------------
->  1 file changed, 19 insertions(+), 24 deletions(-)
->
+> diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealink.c
+> index e9403da..0b86c49 100644
+> --- a/drivers/input/misc/yealink.c
+> +++ b/drivers/input/misc/yealink.c
+> @@ -189,7 +189,9 @@ static int setChar(struct yealink_dev *yld, int el, int chr)
+>   * USB-P1K button layout:
+>   *
+>   *             up
+> + *            ring
+>   *       IN           OUT
+> + *            mute
+>   *            down
+>   *
+>   *     pickup   C    hangup
+> @@ -207,7 +209,9 @@ static int map_p1k_to_key(int scancode)
+>         switch(scancode) {              /* phone key:   */
+>         case 0x23: return KEY_LEFT;     /*   IN         */
+>         case 0x33: return KEY_UP;       /*   up         */
+> +       case 0x44: return KEY_SOUND;    /*   ring       */
+>         case 0x04: return KEY_RIGHT;    /*   OUT        */
+> +       case 0x41: return KEY_MICMUTE;  /*   mute       */
+>         case 0x24: return KEY_DOWN;     /*   down       */
+>         case 0x03: return KEY_ENTER;    /*   pickup     */
+>         case 0x14: return KEY_BACKSPACE; /*  C          */
 > --
 > 2.1.3
 >

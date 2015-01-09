@@ -1,55 +1,130 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] HID: roccat: potential out of bounds in
- pyra_sysfs_write_settings()
-Date: Fri, 9 Jan 2015 15:32:31 +0300
-Message-ID: <20150109123231.GA25224@mwanda>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] hid: Initialize battery_no to -1 & correct its format string
+Date: Fri, 9 Jan 2015 18:03:26 +0530
+Message-ID: <CADYu30-SENoMymHMYRQ5T==-C-iiMN789DMJx1jty592b+EQ9Q@mail.gmail.com>
+References: <1419782872-2991-1-git-send-email-aniroop.mathur@gmail.com>
+	<alpine.LNX.2.00.1412291302470.1680@pobox.suse.cz>
+	<CADYu308MmdGeajFTDt38zZSy7K2VKbDppuqmiJn=1ZwL5d1vmw@mail.gmail.com>
+	<CAF8JNh+gzA_m-mMjjAdBz6WyyFemTU26VDOLufOJXJ5DMkK2yg@mail.gmail.com>
+	<CAN+gG=GqwUHqv-7YAt++N-xmuxjV+C8mPkbX8ZfHiqqkWvnu+Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:28604 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756853AbbAIMdA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 07:33:00 -0500
-Content-Disposition: inline
+Received: from mail-lb0-f182.google.com ([209.85.217.182]:63342 "EHLO
+	mail-lb0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757080AbbAIMd2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 07:33:28 -0500
+In-Reply-To: <CAN+gG=GqwUHqv-7YAt++N-xmuxjV+C8mPkbX8ZfHiqqkWvnu+Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <pingc@wacom.com>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>
 
-This is a static checker fix.  We write some binary settings to the
-sysfs file.  One of the settings is the "->startup_profile".  There
-isn't any checking to make sure it fits into the
-pyra->profile_settings[] array in the profile_activated() function.
+Hello Mr. Benjamin,
 
-I added a check to pyra_sysfs_write_settings() in both places because
-I wasn't positive that the other callers were correct.
+On Wed, Jan 7, 2015 at 7:20 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Tue, Jan 6, 2015 at 7:50 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+>> Hi Benjamin,
+>>
+>> The relevant code was introduced by
+>> d70420b914c98a3758674c6e9858810e0ab4ea30. Can you take a look and let
+>> us know if Aniroop's patch fits your original thought or not?
+>
+> Hehe, indeed, that's my code.
+>
+> I would agree with Jiri, I really do not care. This code is called
+> only once at initialization and I am pretty sure it will not change
+> the time to initialize the device (I am confident the compiler will do
+> something better than blindly following the code).
+>
+> So either way it is good. But I have a slight preference to initialize
+> the variable to 0 and keep the unsigned in the name.
+>
+> Cheers,
+> Benjamin
+>
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Atleast, there is a need to fix format specifier of "n" variable.
+"n" is declared as unsigned long so %ld should be changed to %lu.
 
-diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
-index 1a07e07..47d7e74 100644
---- a/drivers/hid/hid-roccat-pyra.c
-+++ b/drivers/hid/hid-roccat-pyra.c
-@@ -35,6 +35,8 @@ static struct class *pyra_class;
- static void profile_activated(struct pyra_device *pyra,
- 		unsigned int new_profile)
- {
-+	if (new_profile >= ARRAY_SIZE(pyra->profile_settings))
-+		return;
- 	pyra->actual_profile = new_profile;
- 	pyra->actual_cpi = pyra->profile_settings[pyra->actual_profile].y_cpi;
- }
-@@ -257,9 +259,11 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
- 	if (off != 0 || count != PYRA_SIZE_SETTINGS)
- 		return -EINVAL;
- 
--	mutex_lock(&pyra->pyra_lock);
--
- 	settings = (struct pyra_settings const *)buf;
-+	if (settings->startup_profile >= ARRAY_SIZE(pyra->profile_settings))
-+		return -EINVAL;
-+
-+	mutex_lock(&pyra->pyra_lock);
- 
- 	retval = pyra_set_settings(usb_dev, settings);
- 	if (retval) {
+Thanks !!
+
+>>
+>> Thanks,
+>>
+>> Ping
+>>
+>> On Tue, Jan 6, 2015 at 6:32 AM, Aniroop Mathur <aniroop.mathur@gmail.com> wrote:
+>>> Dear Mr. Jason and Mr. Ping,
+>>>
+>>> Please update about below patch.
+>>> Except avoiding subtraction, there is also a need to avoid negative
+>>> battery name which may come due to %ld, so need to change to %lu.
+>>>
+>>> Thanks,
+>>> Aniroop
+>>>
+>>> On Mon, Dec 29, 2014 at 5:33 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>>>> On Sun, 28 Dec 2014, Aniroop Mathur wrote:
+>>>>
+>>>>> From: Aniroop Mathur <a.mathur@samsung.com>
+>>>>>
+>>>>> This patch initializes battery_no to -1 to avoid extra subtraction
+>>>>> operation performed everytime wacom battery is initialized
+>>>>
+>>>> This is so femto-optimization, that I don't really care deeply. Adding
+>>>> Jason and Ping to CC. If they want this, I'll apply the patch.
+>>>>
+>>>>> and correct format string of unsigned long from %ld to %lu.
+>>>>>
+>>>>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+>>>>> ---
+>>>>>  drivers/hid/wacom_sys.c | 8 ++++----
+>>>>>  1 file changed, 4 insertions(+), 4 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+>>>>> index 129fd33..4b5ff84 100644
+>>>>> --- a/drivers/hid/wacom_sys.c
+>>>>> +++ b/drivers/hid/wacom_sys.c
+>>>>> @@ -919,17 +919,17 @@ static int wacom_ac_get_property(struct power_supply *psy,
+>>>>>
+>>>>>  static int wacom_initialize_battery(struct wacom *wacom)
+>>>>>  {
+>>>>> -     static atomic_t battery_no = ATOMIC_INIT(0);
+>>>>> +     static atomic_t battery_no = ATOMIC_INIT(-1);
+>>>>>       int error;
+>>>>>       unsigned long n;
+>>>>>
+>>>>>       if (wacom->wacom_wac.features.quirks & WACOM_QUIRK_BATTERY) {
+>>>>> -             n = atomic_inc_return(&battery_no) - 1;
+>>>>> +             n = atomic_inc_return(&battery_no);
+>>>>>
+>>>>>               wacom->battery.properties = wacom_battery_props;
+>>>>>               wacom->battery.num_properties = ARRAY_SIZE(wacom_battery_props);
+>>>>>               wacom->battery.get_property = wacom_battery_get_property;
+>>>>> -             sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%ld", n);
+>>>>> +             sprintf(wacom->wacom_wac.bat_name, "wacom_battery_%lu", n);
+>>>>>               wacom->battery.name = wacom->wacom_wac.bat_name;
+>>>>>               wacom->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+>>>>>               wacom->battery.use_for_apm = 0;
+>>>>> @@ -937,7 +937,7 @@ static int wacom_initialize_battery(struct wacom *wacom)
+>>>>>               wacom->ac.properties = wacom_ac_props;
+>>>>>               wacom->ac.num_properties = ARRAY_SIZE(wacom_ac_props);
+>>>>>               wacom->ac.get_property = wacom_ac_get_property;
+>>>>> -             sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%ld", n);
+>>>>> +             sprintf(wacom->wacom_wac.ac_name, "wacom_ac_%lu", n);
+>>>>>               wacom->ac.name = wacom->wacom_wac.ac_name;
+>>>>>               wacom->ac.type = POWER_SUPPLY_TYPE_MAINS;
+>>>>>               wacom->ac.use_for_apm = 0;
+>>>>> --
+>>>>> 1.9.1
+>>>>>
+>>>>
+>>>> --
+>>>> Jiri Kosina
+>>>> SUSE Labs
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

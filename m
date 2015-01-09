@@ -1,7 +1,7 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v2 6/9] ARM: dts: sun5i: Add cpu thermal zones to dtsi
-Date: Fri,  9 Jan 2015 18:17:53 +0800
-Message-ID: <1420798676-22856-7-git-send-email-wens@csie.org>
+Subject: [PATCH v2 5/9] ARM: dts: sun7i: cubietruck: add axp209 regulator nodes
+Date: Fri,  9 Jan 2015 18:17:52 +0800
+Message-ID: <1420798676-22856-6-git-send-email-wens@csie.org>
 References: <1420798676-22856-1-git-send-email-wens@csie.org>
 Return-path: <linux-pm-owner@vger.kernel.org>
 In-Reply-To: <1420798676-22856-1-git-send-email-wens@csie.org>
@@ -10,72 +10,84 @@ To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.to
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The core temperature sensor now supports thermal zones. Add a thermal
-zone mapping for the cpus with passive cooling (cpufreq throttling).
+This patch adds the regulator nodes for the axp209 by including
+the axp209 dtsi. As the inputs of these regulators are from the
+axp209's PS output, which is basically just a mux over the 2
+inputs, it is considered to be unregulated. Thus we do not provide
+input supply properties for them.
+
+The regulator names and constraints are based on the board
+schematics and the SoC datasheet.
+
+DCDC2 is used as the cpu power supply. This patch also references
+it from the cpu node.
+
+Also get rid of axp209 properties already set in axp209.dtsi.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
 
 changes since v1:
 
-    - Use thermal dt bindings macros in cooling-device
+    - Use preprocessor include for axp209.dtsi
 
 ---
- arch/arm/boot/dts/sun5i-a13.dtsi | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ arch/arm/boot/dts/sun7i-a20-cubietruck.dts | 35 ++++++++++++++++++++++++++----
+ 1 file changed, 31 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index dee2aa5bc9ed..c26f58ea0850 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -13,6 +13,8 @@
+diff --git a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
+index 77bc7e79cab9..5f817b65ceea 100644
+--- a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
++++ b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
+@@ -130,13 +130,9 @@
+ 			status = "okay";
  
- #include "skeleton.dtsi"
- 
-+#include <dt-bindings/thermal/thermal.h>
-+
- #include <dt-bindings/dma/sun4i-a10.h>
- #include <dt-bindings/pinctrl/sun4i-a10.h>
- 
-@@ -50,6 +52,38 @@
+ 			axp209: pmic@34 {
+-				compatible = "x-powers,axp209";
+ 				reg = <0x34>;
+ 				interrupt-parent = <&nmi_intc>;
+ 				interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+-
+-				interrupt-controller;
+-				#interrupt-cells = <1>;
+ 			};
  		};
- 	};
  
-+	thermal-zones {
-+		cpu_thermal {
-+			/* milliseconds */
-+			polling-delay-passive = <250>;
-+			polling-delay = <1000>;
-+			thermal-sensors = <&rtp>;
-+
-+			cooling-maps {
-+				map0 {
-+					trip = <&cpu_alert0>;
-+					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-+				};
-+			};
-+
-+			trips {
-+				cpu_alert0: cpu_alert0 {
-+					/* milliCelsius */
-+					temperature = <850000>;
-+					hysteresis = <2000>;
-+					type = "passive";
-+				};
-+
-+				cpu_crit: cpu_crit {
-+					/* milliCelsius */
-+					temperature = <100000>;
-+					hysteresis = <2000>;
-+					type = "critical";
-+				};
-+			};
-+		};
-+	};
-+
- 	memory {
- 		reg = <0x40000000 0x20000000>;
+@@ -222,3 +218,34 @@
+ 		gpio = <&pio 7 9 GPIO_ACTIVE_HIGH>;
  	};
+ };
++
++#include "axp209.dtsi"
++
++&cpu0 {
++	cpu-supply = <&reg_dcdc2>;
++};
++
++&reg_dcdc2 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1450000>;
++	regulator-name = "vdd-cpu";
++};
++
++&reg_dcdc3 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1400000>;
++	regulator-name = "vdd-int-dll";
++};
++
++&reg_ldo1 {
++	regulator-name = "vdd-rtc";
++};
++
++&reg_ldo2 {
++	regulator-always-on;
++	regulator-min-microvolt = <3000000>;
++	regulator-max-microvolt = <3000000>;
++	regulator-name = "avcc";
++};
 -- 
 2.1.4
 

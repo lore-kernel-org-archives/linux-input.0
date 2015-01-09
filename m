@@ -1,13 +1,25 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v2 9/9] ARM: dts: sun4i: cubieboard: add axp209 regulator nodes
-Date: Fri,  9 Jan 2015 18:17:56 +0800
-Message-ID: <1420798676-22856-10-git-send-email-wens@csie.org>
+Subject: [PATCH v2 4/9] ARM: dts: sun7i: cubieboard2: add axp209 regulator
+ nodes
+Date: Fri,  9 Jan 2015 18:17:51 +0800
+Message-ID: <1420798676-22856-5-git-send-email-wens@csie.org>
 References: <1420798676-22856-1-git-send-email-wens@csie.org>
-Return-path: <linux-pm-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1420798676-22856-1-git-send-email-wens@csie.org>
-Sender: linux-pm-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 This patch adds the regulator nodes for the axp209 by including
@@ -30,29 +42,31 @@ Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 changes since v1:
 
     - Use preprocessor include for axp209.dtsi
+    - Remove incorrectly squashed axp209.dtsi patch
 
 ---
- arch/arm/boot/dts/sun4i-a10-cubieboard.dts | 35 ++++++++++++++++++++++++++----
+ arch/arm/boot/dts/sun7i-a20-cubieboard2.dts | 35 +++++++++++++++++++++++++----
  1 file changed, 31 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-index 87ac84db836d..4260c2b47607 100644
---- a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-@@ -137,12 +137,8 @@
+diff --git a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
+index 18fc5db9c976..ec1fc2c8b3e3 100644
+--- a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
++++ b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
+@@ -88,13 +88,9 @@
  			status = "okay";
  
  			axp209: pmic@34 {
 -				compatible = "x-powers,axp209";
  				reg = <0x34>;
- 				interrupts = <0>;
+ 				interrupt-parent = <&nmi_intc>;
+ 				interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
 -
 -				interrupt-controller;
 -				#interrupt-cells = <1>;
  			};
  		};
  
-@@ -188,3 +184,34 @@
+@@ -145,3 +141,34 @@
  		status = "okay";
  	};
  };
@@ -89,4 +103,3 @@ index 87ac84db836d..4260c2b47607 100644
 +};
 -- 
 2.1.4
-

@@ -1,34 +1,64 @@
-From: "Gavin Lambert" <gavinl@compacsort.com>
-Subject: RE: [eGalax] no click events with touchscreen
-Date: Fri, 9 Jan 2015 15:58:13 +1300
-Message-ID: <001001d02bb8$1d41e920$57c5bb60$@compacsort.com>
-References: <000701d02af4$cab68350$602389f0$@compacsort.com>	<CAN+gG=Hw98OCcJZj-jUk6H64D+C_eyyXo52uvOdyomFFwELXQw@mail.gmail.com>	<000b01d02b91$4303a8f0$c90afad0$@compacsort.com>	<CAN+gG=GKpPhXm8HkxC6WAOQ5RY24WpSXUrOyY6xiPzJ6hGL=yw@mail.gmail.com>	<000f01d02b99$89843d00$9c8cb700$@compacsort.com> <CAN+gG=H+AaoF2YDJcnJWBvpK1d5fy4uMtPYPR_vWNpSD7Cy54A@mail.gmail.com>
+From: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Subject: Re: NULL pointer dereference in i2c-hid
+Date: Fri, 09 Jan 2015 09:04:48 +0100
+Message-ID: <1940829.tOcs3CnnyV@xps13>
+References: <31518562.V5Oyo0POsI@xps13> <1877487.FqOELR9dBu@xps13> <54AF19BE.9010506@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.compacsort.com ([202.180.125.98]:35806 "EHLO
-	mail.compacsort.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752110AbbAIC6R convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jan 2015 21:58:17 -0500
-In-Reply-To: <CAN+gG=H+AaoF2YDJcnJWBvpK1d5fy4uMtPYPR_vWNpSD7Cy54A@mail.gmail.com>
-Content-Language: en-nz
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:64640 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755745AbbAIIEw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 03:04:52 -0500
+In-Reply-To: <54AF19BE.9010506@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Benjamin Tissoires' <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 
-On 9 January 2015 13:08, quoth Benjamin Tissoires:
-> You can also make an udev rule which write 1040 in
-> /sys/bus/hid/devices/0003\:0EEF\:0001.*/quirks on plug in an udev rule (you
-> should probably rely on the path given by the udev rule instead of writing
-> the wildcard).
+On Thursday 08 January 2015 15:58:54 Andrew Duggan wrote:
+> On 12/24/2014 03:53 PM, Gabriele Mazzotta wrote:
+> [...snip...]
+> >>>> Also, if you can get the firmware id from your touchpad that would also
+> >>>> be useful.
+> >>>>
+> >>>> $ sudo ./rmihidtool -f /dev/hidraw0
+> >>> firmware id: 1522295
+> >> Thanks, I will see if I can get any additional information on this.
+> >>
+> >> Andrew
+> > Hi,
+> >
+> > I think I found the source of the problem.
+> >
+> > $ ./rmihidtool /dev/hidraw1 -r 0x50 1
+> > 0x01  #PalmDetect Interrupt Enable, right?
+> Yes, 0x50 does appear to be the address of the palm detect interrupt 
+> enable register.
+> > $ ./rmihidtool /dev/hidraw1 -w 0x50 0  #Disable PalmDetect Interrupt
+> >
+> > It makes more sense now that widths greater than 12 trigger the bug.
+> That is weird behavior and I haven't seen anything like that before. I 
+> will file a bug to see if firmware has any idea why this is happening.
 
-I get a "permission denied" error trying to write to that pseudo-file after boot, even with sudo.  (It currently contains 3088.)
+According to the RMI4 specification, gesture interrupts are cleared
+only once specific flag registers, F11_2D_Data8 and F11_2D_Data9, are
+read. So I tried to read those register and found that the following
+command stops the events:
 
-I also tried writing the following udev rule and rebooting, but it had no effect; not sure if I'm doing it wrong or if it's having the same problem:
+$ rmihidtool /dev/hidraw1 -r 0x24 1  # I was looking for F11_2D_Data8
 
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0eef", ATTRS{idProduct}=="0001", RUN+="echo 1040 > /sys/bus/hid/devices/0003\:0EEF\:0001.0002/quirks"
+I'm not sure I got the right address as reading any register close to
+0x24 (such as 0x25, 0x26) has the same effect. I would have expected
+this to happen only reading one specific register.
 
+I also honestly don't know why palms are detected when the width is at
+least 12, PalmDetectThreshold is 0 and so the palm detection should
+be inhibited.
+
+> >
+> > Gabriele
+> >
+> Andrew
 

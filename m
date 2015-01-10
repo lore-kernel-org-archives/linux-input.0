@@ -1,94 +1,44 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 2/4] iio: hid_sensor_hub: update parameters to get feature
- report
-Date: Sat, 10 Jan 2015 22:28:06 +0000
-Message-ID: <54B1A776.2070507@kernel.org>
-References: <1420655508-6736-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420655508-6736-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/9] iio: hid-sensor-accel-3d: Adjust parameter for attribute
+ read
+Date: Sat, 10 Jan 2015 22:42:30 +0000
+Message-ID: <54B1AAD6.6070303@kernel.org>
+References: <1420656483-7093-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420656483-7093-3-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:60051 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750755AbbAJW2I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Jan 2015 17:28:08 -0500
-In-Reply-To: <1420655508-6736-3-git-send-email-srinivas.pandruvada@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1420656483-7093-3-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, jkosina@suse.cz
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-On 07/01/15 18:31, Srinivas Pandruvada wrote:
-> The new sensor_hub_get_feature can return multiple values, this
-> resulted in the change in API. Update the API usage here.
-So the build will break between the previous patch and this one?
-Thus making the kernel unbisectable.
-
-Please merge the two patches to avoid that issue.
-
-Same is true of the last two patches in this series.
-
-Jonathan
+On 07/01/15 18:47, Srinivas Pandruvada wrote:
+> The new API added a flag for sync/async mode. Added sync mode flag.
 > 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Again, please don't break the build between patches like this.
+
+If you want to do things in steps, you'll have to carry to versions of
+the function during the conversion and drop the unwanted one at the end.
+
 > ---
->  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
->  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
->  2 files changed, 9 insertions(+), 8 deletions(-)
+>  drivers/iio/accel/hid-sensor-accel-3d.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index 25b01e1..e1435e9 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
->  	int ret;
->  
->  	ret = sensor_hub_get_feature(st->hsdev,
-> -		st->poll.report_id,
-> -		st->poll.index, &value);
-> +				     st->poll.report_id,
-> +				     st->poll.index, sizeof(value), &value);
->  
->  	if (ret < 0 || value < 0) {
->  		return -EINVAL;
-> @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
->  	int ret;
->  
->  	ret = sensor_hub_get_feature(st->hsdev,
-> -		st->poll.report_id,
-> -		st->poll.index, &value);
-> +				     st->poll.report_id,
-> +				     st->poll.index, sizeof(value), &value);
->  	if (ret < 0 || value < 0) {
->  		*val1 = *val2 = 0;
->  		return -EINVAL;
-> @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
->  	int ret;
->  
->  	ret = sensor_hub_get_feature(st->hsdev,
-> -		st->sensitivity.report_id,
-> -		st->sensitivity.index, &value);
-> +				     st->sensitivity.report_id,
-> +				     st->sensitivity.index, sizeof(value),
-> +				     &value);
->  	if (ret < 0 || value < 0) {
->  		*val1 = *val2 = 0;
->  		return -EINVAL;
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> index 92068cd..ef0c495 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
->  	}
->  
->  	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
-> -					st->power_state.index,
-> -					&state_val);
-> +			       st->power_state.index,
-> +			       sizeof(state_val), &state_val);
->  	return 0;
->  }
->  EXPORT_SYMBOL(hid_sensor_power_state);
+> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+> index d5d9531..0085c2f 100644
+> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
+> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+> @@ -130,7 +130,8 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+>  			*val = sensor_hub_input_attr_get_raw_value(
+>  					accel_state->common_attributes.hsdev,
+>  					HID_USAGE_SENSOR_ACCEL_3D, address,
+> -					report_id);
+> +					report_id,
+> +					SENSOR_HUB_SYNC);
+>  		else {
+>  			*val = 0;
+>  			hid_sensor_power_state(&accel_state->common_attributes,
 > 
-

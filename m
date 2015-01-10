@@ -1,37 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/3] input: misc: Support NI Ettus Research USRP E3x0
- Button
-Date: Sat, 10 Jan 2015 14:16:26 -0800
-Message-ID: <20150110221626.GA9345@dtor-ws>
-References: <1420761571-22903-1-git-send-email-moritz.fischer@ettus.com>
- <1420761571-22903-2-git-send-email-moritz.fischer@ettus.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Correct documentation
+Date: Sat, 10 Jan 2015 22:21:36 +0000
+Message-ID: <54B1A5F0.9080904@kernel.org>
+References: <1420654484-6410-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420654484-6410-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:57960 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754585AbbAJWQb (ORCPT
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:60014 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754740AbbAJWVj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Jan 2015 17:16:31 -0500
-Content-Disposition: inline
-In-Reply-To: <1420761571-22903-2-git-send-email-moritz.fischer@ettus.com>
+	Sat, 10 Jan 2015 17:21:39 -0500
+In-Reply-To: <1420654484-6410-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Moritz Fischer <moritz.fischer@ettus.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, jkosina@suse.cz
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Moritz,
+On 07/01/15 18:14, Srinivas Pandruvada wrote:
+> During changes to the interface, some documentation field comments
+> were missed. Added missing comments.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Applied to the togreg branch of iio.git as absence of docs is irritating
+rather than a bug ;)
 
-On Fri, Jan 09, 2015 at 12:59:29AM +0100, Moritz Fischer wrote:
-> +static struct platform_driver e3x0_button_driver = {
-> +	.driver		= {
-> +		.name	= "e3x0-button",
-> +		.of_match_table = of_match_ptr(e3x0_button_match),
+Thanks,
+> ---
+>  include/linux/hid-sensor-hub.h | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index 51f7cca..4173a8f 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -33,6 +33,8 @@
+>   * @units:		Measurment unit for this attribute.
+>   * @unit_expo:		Exponent used in the data.
+>   * @size:		Size in bytes for data size.
+> + * @logical_minimum:	Logical minimum value for this attribute.
+> + * @logical_maximum:	Logical maximum value for this attribute.
+>   */
+>  struct hid_sensor_hub_attribute_info {
+>  	u32 usage_id;
+> @@ -146,6 +148,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+>  
+>  /**
+>  * sensor_hub_input_attr_get_raw_value() - Synchronous read request
+> +* @hsdev:	Hub device instance.
+>  * @usage_id:	Attribute usage id of parent physical device as per spec
+>  * @attr_usage_id:	Attribute usage id as per spec
+>  * @report_id:	Report id to look for
+> @@ -160,6 +163,7 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+>  			u32 attr_usage_id, u32 report_id);
+>  /**
+>  * sensor_hub_set_feature() - Feature set request
+> +* @hsdev:	Hub device instance.
+>  * @report_id:	Report id to look for
+>  * @field_index:	Field index inside a report
+>  * @value:	Value to set
+> @@ -172,6 +176,7 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+>  
+>  /**
+>  * sensor_hub_get_feature() - Feature get request
+> +* @hsdev:	Hub device instance.
+>  * @report_id:	Report id to look for
+>  * @field_index:	Field index inside a report
+>  * @value:	Place holder for return value
+> 
 
-You forgot to assign .pm pointer here. I fixed it up and applied the
-driver.
-
-Thanks.
-
--- 
-Dmitry

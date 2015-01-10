@@ -1,216 +1,85 @@
-From: Moritz Fischer <moritz.fischer@ettus.com>
-Subject: Re: [PATCH v2 1/3] input: misc: Support NI Ettus Research USRP E3x0 Button
-Date: Fri, 9 Jan 2015 22:23:02 +0100
-Message-ID: <CAAtXAHe1DF6vzWAqJEKFNb2FYti47VyzBtJvVejaZy_Ewv4xUQ@mail.gmail.com>
-References: <1420756991-16506-1-git-send-email-moritz.fischer@ettus.com>
-	<1420756991-16506-2-git-send-email-moritz.fischer@ettus.com>
-	<20150108225002.GI23256@dtor-ws>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: NULL pointer dereference in i2c-hid
+Date: Fri, 9 Jan 2015 16:29:04 -0800
+Message-ID: <54B07250.5030803@synaptics.com>
+References: <31518562.V5Oyo0POsI@xps13> <1877487.FqOELR9dBu@xps13> <54AF19BE.9010506@synaptics.com> <1940829.tOcs3CnnyV@xps13>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f178.google.com ([209.85.214.178]:48207 "EHLO
-	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758194AbbAIVXD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 16:23:03 -0500
-Received: by mail-ob0-f178.google.com with SMTP id gq1so15109639obb.9
-        for <linux-input@vger.kernel.org>; Fri, 09 Jan 2015 13:23:02 -0800 (PST)
-In-Reply-To: <20150108225002.GI23256@dtor-ws>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:44565 "EHLO
+	us-mx1.synaptics.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751381AbbAJAbG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2015 19:31:06 -0500
+In-Reply-To: <1940829.tOcs3CnnyV@xps13>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 
-On Thu, Jan 8, 2015 at 11:50 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On 01/09/2015 12:04 AM, Gabriele Mazzotta wrote:
+> On Thursday 08 January 2015 15:58:54 Andrew Duggan wrote:
+>> On 12/24/2014 03:53 PM, Gabriele Mazzotta wrote:
+>> [...snip...]
+>>>>>> Also, if you can get the firmware id from your touchpad that would also
+>>>>>> be useful.
+>>>>>>
+>>>>>> $ sudo ./rmihidtool -f /dev/hidraw0
+>>>>> firmware id: 1522295
+>>>> Thanks, I will see if I can get any additional information on this.
+>>>>
+>>>> Andrew
+>>> Hi,
+>>>
+>>> I think I found the source of the problem.
+>>>
+>>> $ ./rmihidtool /dev/hidraw1 -r 0x50 1
+>>> 0x01  #PalmDetect Interrupt Enable, right?
+>> Yes, 0x50 does appear to be the address of the palm detect interrupt
+>> enable register.
+>>> $ ./rmihidtool /dev/hidraw1 -w 0x50 0  #Disable PalmDetect Interrupt
+>>>
+>>> It makes more sense now that widths greater than 12 trigger the bug.
+>> That is weird behavior and I haven't seen anything like that before. I
+>> will file a bug to see if firmware has any idea why this is happening.
+> According to the RMI4 specification, gesture interrupts are cleared
+> only once specific flag registers, F11_2D_Data8 and F11_2D_Data9, are
+> read. So I tried to read those register and found that the following
+> command stops the events:
+
+It is unusual to see firmware gestures enabled for HID/I2C touchpads. In 
+fact none of the touchpads I have have that functionality enabled, which 
+is why I haven't been able to test. On HID touchpads there is a layer in 
+the firmware which reads the RMI registers and packs them into the HID 
+attention report. My guess is that the HID layer is not reading 
+F11_2D_Data8 or 9 causing it to assert indefinitely. Since this isn't a 
+common firmware configuration that is probably why this hasn't been 
+observed before.
+
+> $ rmihidtool /dev/hidraw1 -r 0x24 1  # I was looking for F11_2D_Data8
 >
-> On Thu, Jan 08, 2015 at 11:43:09PM +0100, Moritz Fischer wrote:
-> > Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
-> > ---
-> >  drivers/input/misc/Kconfig       |  10 +++
-> >  drivers/input/misc/Makefile      |   1 +
-> >  drivers/input/misc/e3x0-button.c | 132 +++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 143 insertions(+)
-> >
-> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> > index 23297ab..84a56b4 100644
-> > --- a/drivers/input/misc/Kconfig
-> > +++ b/drivers/input/misc/Kconfig
-> > @@ -93,6 +93,16 @@ config INPUT_BMA150
-> >         To compile this driver as a module, choose M here: the
-> >         module will be called bma150.
-> >
-> > +config INPUT_E3X0_BUTTON
-> > +     tristate "NI Ettus Research USRP E3x0 Button support."
-> > +     default n
-> > +     help
-> > +       Say Y here to enable support for the NI Ettus Research
-> > +       USRP E3x0 Button.
-> > +
-> > +       To compile this driver as a module, choose M here: the
-> > +       module will be called e3x0_button.
-> > +
-> >  config INPUT_PCSPKR
-> >       tristate "PC Speaker support"
-> >       depends on PCSPKR_PLATFORM
-> > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> > index 19c7603..b1775a5 100644
-> > --- a/drivers/input/misc/Makefile
-> > +++ b/drivers/input/misc/Makefile
-> > @@ -26,6 +26,7 @@ obj-$(CONFIG_INPUT_COBALT_BTNS)             += cobalt_btns.o
-> >  obj-$(CONFIG_INPUT_DA9052_ONKEY)     += da9052_onkey.o
-> >  obj-$(CONFIG_INPUT_DA9055_ONKEY)     += da9055_onkey.o
-> >  obj-$(CONFIG_INPUT_DM355EVM)         += dm355evm_keys.o
-> > +obj-$(CONFIG_INPUT_E3X0_BUTTON)              += e3x0-button.o
-> >  obj-$(CONFIG_INPUT_DRV260X_HAPTICS)  += drv260x.o
-> >  obj-$(CONFIG_INPUT_DRV2667_HAPTICS)  += drv2667.o
-> >  obj-$(CONFIG_INPUT_GP2A)             += gp2ap002a00f.o
-> > diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
-> > new file mode 100644
-> > index 0000000..0f4e7f3
-> > --- /dev/null
-> > +++ b/drivers/input/misc/e3x0-button.c
-> > @@ -0,0 +1,132 @@
-> > +/*
-> > + * Copyright (c) 2014, National Instruments Corp. All rights reserved.
-> > + *
-> > + * Driver for NI Ettus Research USRP E3x0 Button Driver
-> > + *
-> > + * This program is free software; you can redistribute it and/or modify
-> > + * it under the terms of the GNU General Public License as published by
-> > + * the Free Software Foundation; version 2 of the License.
-> > + *
-> > + * This program is distributed in the hope that it will be useful,
-> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> > + * GNU General Public License for more details.
-> > + */
-> > +
-> > +#include <linux/device.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/module.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/input.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/of.h>
-> > +#include <linux/slab.h>
-> > +
-> > +static irqreturn_t e3x0_button_release_handler(int irq, void *data)
-> > +{
-> > +     struct input_dev *idev = data;
-> > +
-> > +     input_report_key(idev, KEY_POWER, 0);
-> > +     input_sync(idev);
-> > +
-> > +     return IRQ_HANDLED;
-> > +}
-> > +
-> > +static irqreturn_t e3x0_button_press_handler(int irq, void *data)
-> > +{
-> > +     struct input_dev *idev = data;
-> > +
-> > +     input_report_key(idev, KEY_POWER, 1);
-> > +     input_sync(idev);
-> > +
-> > +     return IRQ_HANDLED;
-> > +}
-> > +
-> > +static int e3x0_button_probe(struct platform_device *pdev)
-> > +{
-> > +     struct input_dev *input;
-> > +     int irq_press, irq_release;
-> > +     int error;
-> > +
-> > +     irq_press = platform_get_irq_byname(pdev, "press");
-> > +     if (irq_press < 0) {
-> > +             dev_err(&pdev->dev, "No IRQ for 'press', error=%d\n",
-> > +                     irq_press);
-> > +             return irq_press;
-> > +     }
-> > +
-> > +     irq_release = platform_get_irq_byname(pdev, "release");
-> > +     if (irq_release < 0) {
-> > +             dev_err(&pdev->dev, "No IRQ for 'release', error=%d\n",
-> > +                     irq_release);
-> > +             return irq_release;
-> > +     }
-> > +
-> > +     input = devm_input_allocate_device(&pdev->dev);
-> > +     if (!input)
-> > +             return -ENOMEM;
-> > +
-> > +     input->name = "NI Ettus Research USRP E3x0 Button Driver";
-> > +     input->phys = "e3x0_button/input0";
-> > +     input->dev.parent = &pdev->dev;
-> > +
-> > +     input_set_capability(input, EV_KEY, KEY_POWER);
-> > +
-> > +     error = devm_request_irq(&pdev->dev, irq_press,
-> > +                                          e3x0_button_press_handler, 0,
-> > +                                          "e3x0-button", input);
-> > +     if (error < 0) {
-> > +             dev_err(&pdev->dev, "Failed to request 'press' IRQ#%d: %d\n",
-> > +                     irq_press, error);
-> > +             return error;
-> > +     }
-> > +
-> > +     error = devm_request_irq(&pdev->dev, irq_release,
-> > +                                          e3x0_button_release_handler, 0,
-> > +                                          "e3x0-button", input);
-> > +     if (error < 0) {
-> > +             dev_err(&pdev->dev, "Failed to request 'release' IRQ#%d: %d\n",
-> > +                     irq_release, error);
-> > +             return error;
-> > +     }
-> > +
-> > +     error = input_register_device(input);
-> > +     if (error) {
-> > +             dev_err(&pdev->dev, "Can't register input device: %d\n", error);
-> > +             return error;
-> > +     }
-> > +
-> > +     platform_set_drvdata(pdev, input);
-> > +     device_init_wakeup(&pdev->dev, 1);
-> > +     return 0;
-> > +}
-> > +
-> > +static int e3x0_button_remove(struct platform_device *pdev)
-> > +{
-> > +     device_init_wakeup(&pdev->dev, 0);
-> > +     return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_OF
-> > +static const struct of_device_id e3x0_button_match[] = {
-> > +     { .compatible = "ettus,e3x0-button", },
-> > +     {}
-> > +};
-> > +MODULE_DEVICE_TABLE(of, e3x0_button_match);
-> > +#endif
-> > +
-> > +static struct platform_driver e3x0_button_driver = {
-> > +     .driver         = {
-> > +             .name   = "e3x0-button",
-> > +             .of_match_table = of_match_ptr(e3x0_button_match),
-> > +     },
-> > +     .probe          = e3x0_button_probe,
-> > +     .probe          = e3x0_button_remove,
+> I'm not sure I got the right address as reading any register close to
+> 0x24 (such as 0x25, 0x26) has the same effect. I would have expected
+> this to happen only reading one specific register.
+
+With this firmware, F11_2D_Data8 should be at 0x3A. It's 2 bytes for 
+finger state + 5 bytes per finger * 5 fingers for abs data  + 2 bytes 
+per finger * 5 fingers for rel data. I'm not sure why reading 0x24 would 
+stop the reports though.
+
 >
-> Nope ;)
-
-D'Oh ... sorry about that.
-
-> BTW, I think you need to implement PM ops in the driver and do
+> I also honestly don't know why palms are detected when the width is at
+> least 12, PalmDetectThreshold is 0 and so the palm detection should
+> be inhibited.
 >
-> |-------if (device_may_wakeup(dev))
-> |-------|-------enable_irq_wake(platform_get_irq_byname(pdev, "press"));
->
-> in suspend and undo it in resume.
 
-I submitted a v3 including the changes. Please let me know if there's
-other stuff that needs fixing.
+This seems to be set in the firmware config. It looks like 
+PalmDetectThreshold is only used when the reporting mode is 001. The 
+default reporting mode looks like it is 000.
 
-Thanks for taking the time!
+>>> Gabriele
+>>>
+>> Andrew
+Thanks for provide all of this detail.
 
-Cheers,
-
-Moritz
+Andrew

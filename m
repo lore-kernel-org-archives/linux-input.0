@@ -1,81 +1,94 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Correct documentation
-Date: Sat, 10 Jan 2015 22:25:30 +0000
-Message-ID: <54B1A6DA.8080103@kernel.org>
-References: <1420654484-6410-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420654484-6410-2-git-send-email-srinivas.pandruvada@linux.intel.com> <54B1A5F0.9080904@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 2/4] iio: hid_sensor_hub: update parameters to get feature
+ report
+Date: Sat, 10 Jan 2015 22:28:06 +0000
+Message-ID: <54B1A776.2070507@kernel.org>
+References: <1420655508-6736-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420655508-6736-3-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54B1A5F0.9080904-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:60051 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750755AbbAJW2I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 10 Jan 2015 17:28:08 -0500
+In-Reply-To: <1420655508-6736-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, jkosina@suse.cz
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-On 10/01/15 22:21, Jonathan Cameron wrote:
-> On 07/01/15 18:14, Srinivas Pandruvada wrote:
->> During changes to the interface, some documentation field comments
->> were missed. Added missing comments.
->>
->> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Applied to the togreg branch of iio.git as absence of docs is irritating
-> rather than a bug ;)
-Sorry, dopey evening.  This one is Jiri's area not mine so over to him and
-backed out of the togreg branch of iio.git.
+On 07/01/15 18:31, Srinivas Pandruvada wrote:
+> The new sensor_hub_get_feature can return multiple values, this
+> resulted in the change in API. Update the API usage here.
+So the build will break between the previous patch and this one?
+Thus making the kernel unbisectable.
 
-Sorry about that.
+Please merge the two patches to avoid that issue.
 
-J
+Same is true of the last two patches in this series.
 
-
+Jonathan
 > 
-> Thanks,
->> ---
->>  include/linux/hid-sensor-hub.h | 5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
->> index 51f7cca..4173a8f 100644
->> --- a/include/linux/hid-sensor-hub.h
->> +++ b/include/linux/hid-sensor-hub.h
->> @@ -33,6 +33,8 @@
->>   * @units:		Measurment unit for this attribute.
->>   * @unit_expo:		Exponent used in the data.
->>   * @size:		Size in bytes for data size.
->> + * @logical_minimum:	Logical minimum value for this attribute.
->> + * @logical_maximum:	Logical maximum value for this attribute.
->>   */
->>  struct hid_sensor_hub_attribute_info {
->>  	u32 usage_id;
->> @@ -146,6 +148,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
->>  
->>  /**
->>  * sensor_hub_input_attr_get_raw_value() - Synchronous read request
->> +* @hsdev:	Hub device instance.
->>  * @usage_id:	Attribute usage id of parent physical device as per spec
->>  * @attr_usage_id:	Attribute usage id as per spec
->>  * @report_id:	Report id to look for
->> @@ -160,6 +163,7 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
->>  			u32 attr_usage_id, u32 report_id);
->>  /**
->>  * sensor_hub_set_feature() - Feature set request
->> +* @hsdev:	Hub device instance.
->>  * @report_id:	Report id to look for
->>  * @field_index:	Field index inside a report
->>  * @value:	Value to set
->> @@ -172,6 +176,7 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->>  
->>  /**
->>  * sensor_hub_get_feature() - Feature get request
->> +* @hsdev:	Hub device instance.
->>  * @report_id:	Report id to look for
->>  * @field_index:	Field index inside a report
->>  * @value:	Place holder for return value
->>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> ---
+>  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
+>  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
+>  2 files changed, 9 insertions(+), 8 deletions(-)
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> index 25b01e1..e1435e9 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
+>  	int ret;
+>  
+>  	ret = sensor_hub_get_feature(st->hsdev,
+> -		st->poll.report_id,
+> -		st->poll.index, &value);
+> +				     st->poll.report_id,
+> +				     st->poll.index, sizeof(value), &value);
+>  
+>  	if (ret < 0 || value < 0) {
+>  		return -EINVAL;
+> @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
+>  	int ret;
+>  
+>  	ret = sensor_hub_get_feature(st->hsdev,
+> -		st->poll.report_id,
+> -		st->poll.index, &value);
+> +				     st->poll.report_id,
+> +				     st->poll.index, sizeof(value), &value);
+>  	if (ret < 0 || value < 0) {
+>  		*val1 = *val2 = 0;
+>  		return -EINVAL;
+> @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
+>  	int ret;
+>  
+>  	ret = sensor_hub_get_feature(st->hsdev,
+> -		st->sensitivity.report_id,
+> -		st->sensitivity.index, &value);
+> +				     st->sensitivity.report_id,
+> +				     st->sensitivity.index, sizeof(value),
+> +				     &value);
+>  	if (ret < 0 || value < 0) {
+>  		*val1 = *val2 = 0;
+>  		return -EINVAL;
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> index 92068cd..ef0c495 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+>  	}
+>  
+>  	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+> -					st->power_state.index,
+> -					&state_val);
+> +			       st->power_state.index,
+> +			       sizeof(state_val), &state_val);
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL(hid_sensor_power_state);
 > 
+

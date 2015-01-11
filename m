@@ -1,58 +1,134 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] m68k/atari: Remove obsolete keyboard_tasklet scheduling
-Date: Sun, 11 Jan 2015 11:12:00 +0100
-Message-ID: <CAMuHMdXx+dSDCCG5rutfmGmrJe5w2eFQXseGXEV21MmJBMN0EQ@mail.gmail.com>
-References: <1409328896-8457-1-git-send-email-geert@linux-m68k.org>
-	<5402E5D8.6080401@gmail.com>
-	<CAMuHMdVFcFwhnJ0wSOLLucE3hEUavVLMMoqwetG5n9jU57BYiA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdVFcFwhnJ0wSOLLucE3hEUavVLMMoqwetG5n9jU57BYiA@mail.gmail.com>
-Sender: linux-m68k-owner@vger.kernel.org
-To: Michael Schmitz <schmitzmic@gmail.com>
-Cc: linux-m68k <linux-m68k@lists.linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [PATCH] Input:Evdev Flush pending events on clk change
+Date: Sun, 11 Jan 2015 07:54:52 -0800
+Message-ID: <1420991692-62089-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f180.google.com ([74.125.82.180]:42806 "EHLO
+	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751063AbbAKPzd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Jan 2015 10:55:33 -0500
+Received: by mail-we0-f180.google.com with SMTP id w62so15341212wes.11
+        for <linux-input@vger.kernel.org>; Sun, 11 Jan 2015 07:55:32 -0800 (PST)
+In-Reply-To: <aksgarg1989@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-Hi Michael,
+From: Anshul Garg <aksgarg1989@gmail.com>
 
-On Sun, Aug 31, 2014 at 11:16 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> On Sun, Aug 31, 2014 at 11:07 AM, Michael Schmitz <schmitzmic@gmail.com> wrote:
->>> If CONFIG_VT=n:
->>>
->>> arch/m68k/atari/built-in.o: In function `atari_keyboard_interrupt':
->>> atakeyb.c:(.text+0x1846): undefined reference to `keyboard_tasklet'
->>> atakeyb.c:(.text+0x1852): undefined reference to `keyboard_tasklet'
->>
->> Has keyboard_tasklet gone for good, or just been conditionalized on
->> CONFIG_VT?
->
-> Conditionalized. It's in drivers/tty/vt/keyboard.c.
-> Note that this was from a randconfig build.
->
->>> I think the keyboard_tasklet scheduling is no longer needed, as I
->>> believe it's handled by drivers/tty/vt/keyboard.c based on events
->>> received from the input subsystem. So just remove it.
->>
->> I'd like to test this on real hardware (though ARAnyM does emulate the
->> keyboard ACIA IIRC - if you had a working keyboard there I should find no
->> different),
->
-> Keyboard was still working on ARAnyM.
-> But AFAICU, the keyboard_tasklet is used for the LED state only.
+If client clk_type is changed , flush pending events
+from client buffer as events time would be incorrect
+and queue SYN_DROPPED event.
+Added check for duplicate clk_type change request.
 
-Did you manage to test this on real hardware?
+Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+---
+ drivers/input/evdev.c |   56 +++++++++++++++++++++++++++++--------------------
+ 1 file changed, 33 insertions(+), 23 deletions(-)
 
-Thanks!
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index b1a52ab..0f72bcb 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -62,26 +62,6 @@ struct evdev_client {
+ 	struct input_event buffer[];
+ };
+ 
+-static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+-{
+-	switch (clkid) {
+-
+-	case CLOCK_REALTIME:
+-		client->clk_type = EV_CLK_REAL;
+-		break;
+-	case CLOCK_MONOTONIC:
+-		client->clk_type = EV_CLK_MONO;
+-		break;
+-	case CLOCK_BOOTTIME:
+-		client->clk_type = EV_CLK_BOOT;
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ /* flush queued events of type @type, caller must hold client->buffer_lock */
+ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ {
+@@ -128,8 +108,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 	client->head = head;
+ }
+ 
+-/* queue SYN_DROPPED event */
+-static void evdev_queue_syn_dropped(struct evdev_client *client)
++/* queue SYN_DROPPED event and flush queue if flush parameter is true */
++static void evdev_queue_syn_dropped(struct evdev_client *client, bool flush)
+ {
+ 	unsigned long flags;
+ 	struct input_event ev;
+@@ -148,6 +128,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
+ 
+ 	spin_lock_irqsave(&client->buffer_lock, flags);
+ 
++	if (flush)
++		client->packet_head = client->head = client->tail;
++
+ 	client->buffer[client->head++] = ev;
+ 	client->head &= client->bufsize - 1;
+ 
+@@ -160,6 +143,33 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
+ 	spin_unlock_irqrestore(&client->buffer_lock, flags);
+ }
+ 
++/* Set client CLOCK and flush pending events */
++static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
++{
++	if (client->clk_type == clkid)
++		return 0;
++
++	switch (clkid) {
++
++	case CLOCK_REALTIME:
++		client->clk_type = EV_CLK_REAL;
++		break;
++	case CLOCK_MONOTONIC:
++		client->clk_type = EV_CLK_MONO;
++		break;
++	case CLOCK_BOOTTIME:
++		client->clk_type = EV_CLK_BOOT;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	/* Flush pending events and queue SYN_DROPPED event.*/
++	evdev_queue_syn_dropped(client, true);
++
++	return 0;
++}
++
+ static void __pass_event(struct evdev_client *client,
+ 			 const struct input_event *event)
+ {
+@@ -794,7 +804,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
+ 
+ 	ret = bits_to_user(mem, maxbit, maxlen, p, compat);
+ 	if (ret < 0)
+-		evdev_queue_syn_dropped(client);
++		evdev_queue_syn_dropped(client, false);
+ 
+ 	kfree(mem);
+ 
+-- 
+1.7.9.5
 
-Gr{oetje,eeting}s,
 
-                        Geert
+---
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds

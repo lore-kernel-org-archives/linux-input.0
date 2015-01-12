@@ -1,131 +1,91 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 1/5] mfd: tps65218: make INT[12] and STATUS registers
- volatile
-Date: Mon, 12 Jan 2015 10:46:54 -0600
-Message-ID: <20150112164654.GB6525@saruman>
-References: <1419622104-25812-1-git-send-email-balbi@ti.com>
- <1419622104-25812-2-git-send-email-balbi@ti.com>
- <20150106173734.GL6502@saruman>
- <20150108162512.GC31926@saruman>
-Reply-To: <balbi@ti.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/9] iio: hid-sensor-accel-3d: Adjust parameter for attribute
+ read
+Date: Mon, 12 Jan 2015 21:24:00 +0000
+Message-ID: <54B43B70.4070501@kernel.org>
+References: <1420656483-7093-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420656483-7093-3-git-send-email-srinivas.pandruvada@linux.intel.com> <54B1AAD6.6070303@kernel.org> <54B30286.7090106@linux.intel.com> <54B30610.3070907@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:49258 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750782AbbALQsE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Jan 2015 11:48:04 -0500
-Content-Disposition: inline
-In-Reply-To: <20150108162512.GC31926@saruman>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <54B30610.3070907-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>, Andrew Morton <akpm@linux-foundation.org>
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 11/01/15 23:24, Srinivas Pandruvada wrote:
+> 
+> On 01/11/2015 03:08 PM, Srinivas Pandruvada wrote:
+>>
+>> On 01/10/2015 02:42 PM, Jonathan Cameron wrote:
+>>> On 07/01/15 18:47, Srinivas Pandruvada wrote:
+>>>> The new API added a flag for sync/async mode. Added sync mode flag.
+>>>>
+>>>> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>>> Again, please don't break the build between patches like this.
+>> As we did in the past, the hid sensor hub patches involving hid sensor and IIO part goes through one tree, either via IIO or HID.
+>> So once acked this needs to go through a single tree, as done in the past.
+>> So the patches submitted in a series to avoid breaking build.
+>>
+> Ignore this comment.
+> Is this not a common procedure for API change? Single patch touching various subsystem, will be more difficult to apply.
+Take one more step in doing it.
+First you introduce a new function with the arguments changed
+as you like.
 
-Hi,
+Second you move all calls over to the new function.
 
-On Thu, Jan 08, 2015 at 10:25:12AM -0600, Felipe Balbi wrote:
-> On Tue, Jan 06, 2015 at 11:37:34AM -0600, Felipe Balbi wrote:
-> > On Fri, Dec 26, 2014 at 01:28:20PM -0600, Felipe Balbi wrote:
-> > > STATUS register can be modified by the HW, so we
-> > > should bypass cache because of that.
-> > >=20
-> > > In the case of INT[12] registers, they are the ones
-> > > that actually clear the IRQ source at the time they
-> > > are read. If we rely on the cache for them, we will
-> > > never be able to clear the interrupt, which will cause
-> > > our IRQ line to be disabled due to IRQ throttling.
-> > >=20
-> > > Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
-> > > Cc: <stable@vger.kernel.org> # v3.15+
-> > > Cc: Keerthy <j-keerthy@ti.com>
-> > > Cc: Lee Jones <lee.jones@linaro.org>
-> > > Signed-off-by: Felipe Balbi <balbi@ti.com>
-> >=20
-> > ping
->=20
-> another ping. Without this and the following patch TPS65218 power button
-> driver which was already applied by Dmitry, won't work.
+Third you kill off the old function - sometimes you also do an easily
+verified rename of all functions at once.
 
-Anybody ? -rc4 is out and tps65218 is still broken because nobody has
-acted on these two patches. All other patches which are meant for 3.20
-merge window are applied and because of these pending, those patches
-won't work.
+How the last patch gets applied is rather dependent on what it touches.
+If just a couple of subsystems, then the maintainers tend to agree on who
+is taking the series and if useful they create an immutable branch which
+can then be pulled into any trees that need the change.  Doesn't matter
+who ends up sending the pull request to Linus as Git will sort it all out.
 
-> > > ---
-> > >  drivers/mfd/tps65218.c | 11 +++++++++++
-> > >  1 file changed, 11 insertions(+)
-> > >=20
-> > > diff --git a/drivers/mfd/tps65218.c b/drivers/mfd/tps65218.c
-> > > index 0d256cb..2243f75 100644
-> > > --- a/drivers/mfd/tps65218.c
-> > > +++ b/drivers/mfd/tps65218.c
-> > > @@ -125,10 +125,21 @@ int tps65218_clear_bits(struct tps65218 *tps, u=
-nsigned int reg,
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(tps65218_clear_bits);
-> > > =20
-> > > +static const struct regmap_range tps65218_yes_ranges[] =3D {
-> > > +	regmap_reg_range(TPS65218_REG_INT1, TPS65218_REG_INT2),
-> > > +	regmap_reg_range(TPS65218_REG_STATUS, TPS65218_REG_STATUS),
-> > > +};
-> > > +
-> > > +static const struct regmap_access_table tps65218_volatile_table =3D {
-> > > +	.yes_ranges =3D tps65218_yes_ranges,
-> > > +	.n_yes_ranges =3D ARRAY_SIZE(tps65218_yes_ranges),
-> > > +};
-> > > +
-> > >  static struct regmap_config tps65218_regmap_config =3D {
-> > >  	.reg_bits =3D 8,
-> > >  	.val_bits =3D 8,
-> > >  	.cache_type =3D REGCACHE_RBTREE,
-> > > +	.volatile_table =3D &tps65218_volatile_table,
-> > >  };
-> > > =20
-> > >  static const struct regmap_irq tps65218_irqs[] =3D {
-> > > --=20
-> > > 2.2.0
-> > >=20
-> >=20
-> > --=20
-> > balbi
->=20
->=20
->=20
-> --=20
-> balbi
+If it's really kernel wide, then you need to get in touch with Linus.
+Typically these are done at very specific points in the merge cycle - often
+either just before or just after rc1 I think.
+
+Rafael did one of these whilst changing some stuff with power management
+kconfig dependencies in the last cycle.  It bit me because I was
+running a couple of months behind mainline, but mostly it went in
+without causing trouble.
+
+Here, I'd probably just Ack the series and let Jiri pick it up and
+keep a vague eye open for possible merge conflicts later in the cycle.
 
 
-
---=20
-balbi
-
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUs/p+AAoJEIaOsuA1yqREgwcP/2mtgstsUjTlygR4ldbWCDfo
-+4qZK1VfgW4IUCz73WIgt0q5h9Py3A7sUtc0sFmWu3aDHlStrp/i0PPTeNBbFOqi
-tKdKdAsm0cFXGZ8HpSiv0bWMrvp22x/AGg8a5kn8IkLvJ/J0vAHZtGKvwTbvIwVd
-EbR+UiZ9m8fRnE/uZcD6XlKD3YAMie6TWfrFfRWQT4srzFfBxnGF92AGWLij0kS9
-2bZcVPb4Ps1P7ZAIrDhY9qO7BwyeZKPt2NIBQ3eAzqF+J4hq4fRcdwETuV6we/m/
-2SDDaaBRGuVsAqzzX0BGNUgPfZsHxpgkY2VpTSZXLFxnPn9DNURs0QB8IxW92BG1
-lgeksR3lgmmc0X1rF+xj33Y8hIHG9ZgDn7RwXN9jHRNzHg2BXM/7pnK0YPMQWFMQ
-b/8Yx7HDLSCDeiEf6qY3pTvl7NZWuFS8xkDZ6H+715g+7IpBPKkdl3MZPRKHfXzd
-5kuXpW0zrcU44rHZkF1zu0fyIWtjDHiaVyfYAu9Oc7SMSKWValAXRiRsTUUwLo/4
-eZJgLBPimjr13FS1zBkS5vfKkbwhfI8jG60ijC8L9L/6z6owjRpGCc/FkmlAdXOL
-9zW5z+BkLcjccKorsXNsaBZEV0aJLUix+vv1wd4o5TisI810slTRFM+TmH6mkitA
-fWMlYrwKtkLrlChsyKSu
-=r7NH
------END PGP SIGNATURE-----
-
---gj572EiMnwbLXET9--
+Jonathan
+> 
+> 
+>> Thanks,
+>> Srinivas
+>>>
+>>> If you want to do things in steps, you'll have to carry to versions of
+>>> the function during the conversion and drop the unwanted one at the end.
+>>>
+>>>> ---
+>>>>   drivers/iio/accel/hid-sensor-accel-3d.c | 3 ++-
+>>>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+>>>> index d5d9531..0085c2f 100644
+>>>> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
+>>>> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+>>>> @@ -130,7 +130,8 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+>>>>               *val = sensor_hub_input_attr_get_raw_value(
+>>>>                       accel_state->common_attributes.hsdev,
+>>>>                       HID_USAGE_SENSOR_ACCEL_3D, address,
+>>>> -                    report_id);
+>>>> +                    report_id,
+>>>> +                    SENSOR_HUB_SYNC);
+>>>>           else {
+>>>>               *val = 0;
+>>>> hid_sensor_power_state(&accel_state->common_attributes,
+>>>>
+>>>
+>>
+> 

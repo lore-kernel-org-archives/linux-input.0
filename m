@@ -1,174 +1,131 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 1/2] HID: hid-sensor-hub: Enhance get feature report
- API
-Date: Mon, 12 Jan 2015 08:38:46 -0800
-Message-ID: <1421080726.4459.205.camel@spandruv-desktop.jf.intel.com>
-References: <1421027714-25726-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <1421027714-25726-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <CAAj6DX1a-UNkdtKZ+eoF2Cvv_nfM1Cc-Vqu_+iHn_sRNto+NjQ@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 1/5] mfd: tps65218: make INT[12] and STATUS registers
+ volatile
+Date: Mon, 12 Jan 2015 10:46:54 -0600
+Message-ID: <20150112164654.GB6525@saruman>
+References: <1419622104-25812-1-git-send-email-balbi@ti.com>
+ <1419622104-25812-2-git-send-email-balbi@ti.com>
+ <20150106173734.GL6502@saruman>
+ <20150108162512.GC31926@saruman>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAj6DX1a-UNkdtKZ+eoF2Cvv_nfM1Cc-Vqu_+iHn_sRNto+NjQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:49258 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750782AbbALQsE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Jan 2015 11:48:04 -0500
+Content-Disposition: inline
+In-Reply-To: <20150108162512.GC31926@saruman>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>, Andrew Morton <akpm@linux-foundation.org>
 
-On Mon, 2015-01-12 at 11:57 +0800, Antonio Borneo wrote: 
-> On Mon, Jan 12, 2015 at 9:55 AM, Srinivas Pandruvada
-> <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> > Some hid sensor feature report can contain more than one reports.
-> > This API can now support receiving multiple values from the feature
-> > report.
-> > Also update the parameters in the users of this API.
-> >
-> > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > ---
-> >  drivers/hid/hid-sensor-hub.c                           | 16 ++++++++++++++--
-> >  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
-> >  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
-> >  include/linux/hid-sensor-hub.h                         |  8 +++++---
-> >  4 files changed, 28 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> > index 83b6e15..d17aa67 100644
-> > --- a/drivers/hid/hid-sensor-hub.c
-> > +++ b/drivers/hid/hid-sensor-hub.c
-> > @@ -218,10 +218,11 @@ done_proc:
-> >  EXPORT_SYMBOL_GPL(sensor_hub_set_feature);
-> >
-> >  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> > -                               u32 field_index, s32 *value)
-> > +                          u32 field_index, int buffer_size, void *buffer)
-> >  {
-> >         struct hid_report *report;
-> >         struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
-> > +       int report_size;
-> >         int ret = 0;
-> >
-> >         mutex_lock(&data->mutex);
-> > @@ -233,7 +234,18 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> >         }
-> >         hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
-> >         hid_hw_wait(hsdev->hdev);
-> > -       *value = report->field[field_index]->value[0];
-> > +
-> > +       /* calculate number of bytes required to read this field */
-> > +       report_size = report->field[field_index]->report_size / 8;
-> > +       if (report->field[field_index]->report_size % 8)
-> > +               ++report_size;
-> > +       report_size *= report->field[field_index]->report_count;
-> 
-> Hi Srinivas,
-Hi Antonio, 
-> 
-> I resend my reply.
-> It was discarded by the mailing list due to wrong setting with html formatting.
-> 
-> I think would be more clear writing directly:
-> 
->         report_size = DIV_ROUND_UP(report->field[field_index]->report_size, 8) *
->                       report->field[field_index]->report_count;
-Correct. I will resubmit this one.
+--gj572EiMnwbLXET9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Srinivas
+Hi,
 
-> 
-> Regards,
-> Antonio
-> 
-> > +       if (!report_size) {
-> > +               ret = -EINVAL;
-> > +               goto done_proc;
-> > +       }
-> > +       ret = min(report_size, buffer_size);
-> > +       memcpy(buffer, report->field[field_index]->value, ret);
-> >
-> >  done_proc:
-> >         mutex_unlock(&data->mutex);
-> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > index 25b01e1..e1435e9 100644
-> > --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> > @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
-> >         int ret;
-> >
-> >         ret = sensor_hub_get_feature(st->hsdev,
-> > -               st->poll.report_id,
-> > -               st->poll.index, &value);
-> > +                                    st->poll.report_id,
-> > +                                    st->poll.index, sizeof(value), &value);
-> >
-> >         if (ret < 0 || value < 0) {
-> >                 return -EINVAL;
-> > @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
-> >         int ret;
-> >
-> >         ret = sensor_hub_get_feature(st->hsdev,
-> > -               st->poll.report_id,
-> > -               st->poll.index, &value);
-> > +                                    st->poll.report_id,
-> > +                                    st->poll.index, sizeof(value), &value);
-> >         if (ret < 0 || value < 0) {
-> >                 *val1 = *val2 = 0;
-> >                 return -EINVAL;
-> > @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
-> >         int ret;
-> >
-> >         ret = sensor_hub_get_feature(st->hsdev,
-> > -               st->sensitivity.report_id,
-> > -               st->sensitivity.index, &value);
-> > +                                    st->sensitivity.report_id,
-> > +                                    st->sensitivity.index, sizeof(value),
-> > +                                    &value);
-> >         if (ret < 0 || value < 0) {
-> >                 *val1 = *val2 = 0;
-> >                 return -EINVAL;
-> > diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> > index 92068cd..ef0c495 100644
-> > --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> > +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> > @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
-> >         }
-> >
-> >         sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
-> > -                                       st->power_state.index,
-> > -                                       &state_val);
-> > +                              st->power_state.index,
-> > +                              sizeof(state_val), &state_val);
-> >         return 0;
-> >  }
-> >  EXPORT_SYMBOL(hid_sensor_power_state);
-> > diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-> > index 0b21c4f..1995bbd 100644
-> > --- a/include/linux/hid-sensor-hub.h
-> > +++ b/include/linux/hid-sensor-hub.h
-> > @@ -203,13 +203,15 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> >  * @hsdev:      Hub device instance.
-> >  * @report_id:  Report id to look for
-> >  * @field_index:        Field index inside a report
-> > -* @value:      Place holder for return value
-> > +* @buffer_size:        size of the buffer
-> > +* @buffer:     buffer to copy output
-> >  *
-> >  * Used to get a field in feature report. For example this can get polling
-> > -* interval, sensitivity, activate/deactivate state.
-> > +* interval, sensitivity, activate/deactivate state. On success it returns
-> > +* number of bytes copied to buffer. On failure, it returns value < 0.
-> >  */
-> >  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> > -                       u32 field_index, s32 *value);
-> > +                          u32 field_index, int buffer_size, void *buffer);
-> >
-> >  /* hid-sensor-attributes */
-> >
-> > --
-> > 1.9.3
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, Jan 08, 2015 at 10:25:12AM -0600, Felipe Balbi wrote:
+> On Tue, Jan 06, 2015 at 11:37:34AM -0600, Felipe Balbi wrote:
+> > On Fri, Dec 26, 2014 at 01:28:20PM -0600, Felipe Balbi wrote:
+> > > STATUS register can be modified by the HW, so we
+> > > should bypass cache because of that.
+> > >=20
+> > > In the case of INT[12] registers, they are the ones
+> > > that actually clear the IRQ source at the time they
+> > > are read. If we rely on the cache for them, we will
+> > > never be able to clear the interrupt, which will cause
+> > > our IRQ line to be disabled due to IRQ throttling.
+> > >=20
+> > > Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
+> > > Cc: <stable@vger.kernel.org> # v3.15+
+> > > Cc: Keerthy <j-keerthy@ti.com>
+> > > Cc: Lee Jones <lee.jones@linaro.org>
+> > > Signed-off-by: Felipe Balbi <balbi@ti.com>
+> >=20
+> > ping
+>=20
+> another ping. Without this and the following patch TPS65218 power button
+> driver which was already applied by Dmitry, won't work.
+
+Anybody ? -rc4 is out and tps65218 is still broken because nobody has
+acted on these two patches. All other patches which are meant for 3.20
+merge window are applied and because of these pending, those patches
+won't work.
+
+> > > ---
+> > >  drivers/mfd/tps65218.c | 11 +++++++++++
+> > >  1 file changed, 11 insertions(+)
+> > >=20
+> > > diff --git a/drivers/mfd/tps65218.c b/drivers/mfd/tps65218.c
+> > > index 0d256cb..2243f75 100644
+> > > --- a/drivers/mfd/tps65218.c
+> > > +++ b/drivers/mfd/tps65218.c
+> > > @@ -125,10 +125,21 @@ int tps65218_clear_bits(struct tps65218 *tps, u=
+nsigned int reg,
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(tps65218_clear_bits);
+> > > =20
+> > > +static const struct regmap_range tps65218_yes_ranges[] =3D {
+> > > +	regmap_reg_range(TPS65218_REG_INT1, TPS65218_REG_INT2),
+> > > +	regmap_reg_range(TPS65218_REG_STATUS, TPS65218_REG_STATUS),
+> > > +};
+> > > +
+> > > +static const struct regmap_access_table tps65218_volatile_table =3D {
+> > > +	.yes_ranges =3D tps65218_yes_ranges,
+> > > +	.n_yes_ranges =3D ARRAY_SIZE(tps65218_yes_ranges),
+> > > +};
+> > > +
+> > >  static struct regmap_config tps65218_regmap_config =3D {
+> > >  	.reg_bits =3D 8,
+> > >  	.val_bits =3D 8,
+> > >  	.cache_type =3D REGCACHE_RBTREE,
+> > > +	.volatile_table =3D &tps65218_volatile_table,
+> > >  };
+> > > =20
+> > >  static const struct regmap_irq tps65218_irqs[] =3D {
+> > > --=20
+> > > 2.2.0
+> > >=20
+> >=20
+> > --=20
+> > balbi
+>=20
+>=20
+>=20
+> --=20
+> balbi
+
+
+
+--=20
+balbi
+
+--gj572EiMnwbLXET9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUs/p+AAoJEIaOsuA1yqREgwcP/2mtgstsUjTlygR4ldbWCDfo
++4qZK1VfgW4IUCz73WIgt0q5h9Py3A7sUtc0sFmWu3aDHlStrp/i0PPTeNBbFOqi
+tKdKdAsm0cFXGZ8HpSiv0bWMrvp22x/AGg8a5kn8IkLvJ/J0vAHZtGKvwTbvIwVd
+EbR+UiZ9m8fRnE/uZcD6XlKD3YAMie6TWfrFfRWQT4srzFfBxnGF92AGWLij0kS9
+2bZcVPb4Ps1P7ZAIrDhY9qO7BwyeZKPt2NIBQ3eAzqF+J4hq4fRcdwETuV6we/m/
+2SDDaaBRGuVsAqzzX0BGNUgPfZsHxpgkY2VpTSZXLFxnPn9DNURs0QB8IxW92BG1
+lgeksR3lgmmc0X1rF+xj33Y8hIHG9ZgDn7RwXN9jHRNzHg2BXM/7pnK0YPMQWFMQ
+b/8Yx7HDLSCDeiEf6qY3pTvl7NZWuFS8xkDZ6H+715g+7IpBPKkdl3MZPRKHfXzd
+5kuXpW0zrcU44rHZkF1zu0fyIWtjDHiaVyfYAu9Oc7SMSKWValAXRiRsTUUwLo/4
+eZJgLBPimjr13FS1zBkS5vfKkbwhfI8jG60ijC8L9L/6z6owjRpGCc/FkmlAdXOL
+9zW5z+BkLcjccKorsXNsaBZEV0aJLUix+vv1wd4o5TisI810slTRFM+TmH6mkitA
+fWMlYrwKtkLrlChsyKSu
+=r7NH
+-----END PGP SIGNATURE-----
+
+--gj572EiMnwbLXET9--

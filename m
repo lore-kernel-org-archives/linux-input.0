@@ -1,81 +1,85 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v3 0/9] ARM: sunxi: Support cpufreq on sun[457]i
-Date: Mon, 12 Jan 2015 12:34:00 +0800
-Message-ID: <1421037249-28461-1-git-send-email-wens@csie.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:44976 "EHLO
-	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750844AbbALEeU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jan 2015 23:34:20 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v3 3/9] ARM: dts: sun7i: Add cpu thermal zones to dtsi
+Date: Mon, 12 Jan 2015 12:34:03 +0800
+Message-ID: <1421037249-28461-4-git-send-email-wens@csie.org>
+References: <1421037249-28461-1-git-send-email-wens@csie.org>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1421037249-28461-1-git-send-email-wens@csie.org>
+Sender: linux-pm-owner@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi,
+The core temperature sensor now supports thermal zones. Add a thermal
+zone mapping for the cpus with passive cooling (cpufreq throttling).
 
-This is v3 of the cpufreq support series for sunxi. The series has been
-rebased onto the latest sunxi-next. I've dropped all the patches Maxime
-merged. This includes "ARM: sunxi: Register cpufreq-dt for sun[45678]i"
-which was merged but not published yet.
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Eduardo Valentin <edubezval@gmail.com>
+---
 
-Individual changes since v2 are listed within each patch.
+changes since v2:
 
+    - Added Acked-by from Eduardo
 
-Original cover letter follows:
+changes since v1:
 
-This series adds support cpufreq support for sun[457]i using cpufreq-dt.
-This also supports passive cpu cooling (thermal throttling) using thermal
-zones with the temperature sensor in the SoC.
+    - Use thermal dt bindings macros in cooling-device
 
-The operating points for the supported platforms were taken from the
-linux-sunxi FEX files repository. The majority of boards use the same
-settings. Only with sun7i do we see slight variations, either disabling
-some frequencies, or bumping up the voltage a bit. In either case this
-can be done by limiting the constraints for the supply regulator, or 
-overriding the OPP table in the board dts file.
+---
+ arch/arm/boot/dts/sun7i-a20.dtsi | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-On sun7i, there is an additional operating point not found in the FEX
-files, 960 MHz @ 1.4V, which is the full speed setting in both u-boot-sunxi
-and mainline u-boot.
-
-The series has been tested on the 4 boards I have. With cpufreq active,
-the effects are visible as a decrease in SoC internal temperature.
-Stability for the operating points has been tested using:
-
-  http://linux-sunxi.org/Hardware_Reliability_Tests#Reliability_of_cpufreq_voltage.2Ffrequency_settings
-
-More real world usage feedback is appreciated. Thermal throttling hasn't
-been tested much, due to not being able to generate enough load without
-the GPU for the SoC to heat up. Also on sun4i, the temperature sensor
-still hasn't been calibrated, so the readings are highly inaccurate.
-
-
-Chen-Yu Tsai (9):
-  Input: sun4i-ts: Add thermal zone sensor support
-  ARM: dts: sunxi: Add dtsi for AXP209 PMIC
-  ARM: dts: sun7i: Add cpu thermal zones to dtsi
-  ARM: dts: sun7i: cubieboard2: add axp209 regulator nodes
-  ARM: dts: sun7i: cubietruck: add axp209 regulator nodes
-  ARM: dts: sun5i: Add cpu thermal zones to dtsi
-  ARM: dts: sun5i: hsg-h702: add axp209 regulator nodes
-  ARM: dts: sun4i: Add cpu thermal zones to dtsi
-  ARM: dts: sun4i: cubieboard: add axp209 regulator nodes
-
- .../bindings/input/touchscreen/sun4i.txt           |  2 +
- arch/arm/boot/dts/axp209.dtsi                      | 97 ++++++++++++++++++++++
- arch/arm/boot/dts/sun4i-a10-cubieboard.dts         | 35 +++++++-
- arch/arm/boot/dts/sun4i-a10.dtsi                   | 34 ++++++++
- arch/arm/boot/dts/sun5i-a13-hsg-h702.dts           | 46 ++++++++--
- arch/arm/boot/dts/sun5i-a13.dtsi                   | 34 ++++++++
- arch/arm/boot/dts/sun7i-a20-cubieboard2.dts        | 35 +++++++-
- arch/arm/boot/dts/sun7i-a20-cubietruck.dts         | 35 +++++++-
- arch/arm/boot/dts/sun7i-a20.dtsi                   | 33 ++++++++
- drivers/input/touchscreen/sun4i-ts.c               | 54 +++++++++++-
- 10 files changed, 381 insertions(+), 24 deletions(-)
- create mode 100644 arch/arm/boot/dts/axp209.dtsi
-
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index c2e964939991..61780b144745 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -50,6 +50,7 @@
+ #include "skeleton.dtsi"
+ 
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/thermal/thermal.h>
+ 
+ #include <dt-bindings/dma/sun4i-a10.h>
+ #include <dt-bindings/pinctrl/sun4i-a10.h>
+@@ -116,6 +117,38 @@
+ 		};
+ 	};
+ 
++	thermal-zones {
++		cpu_thermal {
++			/* milliseconds */
++			polling-delay-passive = <250>;
++			polling-delay = <1000>;
++			thermal-sensors = <&rtp>;
++
++			cooling-maps {
++				map0 {
++					trip = <&cpu_alert0>;
++					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++				};
++			};
++
++			trips {
++				cpu_alert0: cpu_alert0 {
++					/* milliCelsius */
++					temperature = <75000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++
++				cpu_crit: cpu_crit {
++					/* milliCelsius */
++					temperature = <100000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
++		};
++	};
++
+ 	memory {
+ 		reg = <0x40000000 0x80000000>;
+ 	};
 -- 
 2.1.4
 

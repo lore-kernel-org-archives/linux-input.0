@@ -1,91 +1,117 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v3 6/9] ARM: dts: sun5i: Add cpu thermal zones to dtsi
-Date: Mon, 12 Jan 2015 12:34:06 +0800
-Message-ID: <1421037249-28461-7-git-send-email-wens@csie.org>
+Subject: [PATCH v3 7/9] ARM: dts: sun5i: hsg-h702: add axp209 regulator nodes
+Date: Mon, 12 Jan 2015 12:34:07 +0800
+Message-ID: <1421037249-28461-8-git-send-email-wens@csie.org>
 References: <1421037249-28461-1-git-send-email-wens@csie.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:45009 "EHLO
-	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750971AbbALEeX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jan 2015 23:34:23 -0500
+Return-path: <linux-pm-owner@vger.kernel.org>
 In-Reply-To: <1421037249-28461-1-git-send-email-wens@csie.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-pm-owner@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The core temperature sensor now supports thermal zones. Add a thermal
-zone mapping for the cpus with passive cooling (cpufreq throttling).
+This patch adds the regulator nodes for the axp209 by including
+the axp209 dtsi. As the inputs of these regulators are from the
+axp209's PS output, which is basically just a mux over the 2
+inputs, it is considered to be unregulated. Thus we do not provide
+input supply properties for them.
+
+The regulator names and constraints are based on the board
+schematics and the SoC datasheet.
+
+DCDC2 is used as the cpu power supply. This patch also references
+it from the cpu node.
+
+LDO3 powers the USB WiFi module. This patch also references it
+from the usb-phy node.
+
+Also get rid of axp209 properties already set in axp209.dtsi.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Acked-by: Eduardo Valentin <edubezval@gmail.com>
 ---
 
 changes since v2:
 
-    - Added Acked-by from Eduardo
+    none
 
 changes since v1:
 
-    - Use thermal dt bindings macros in cooling-device
+    - Use preprocessor include for axp209.dtsi
 
 ---
- arch/arm/boot/dts/sun5i-a13.dtsi | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ arch/arm/boot/dts/sun5i-a13-hsg-h702.dts | 46 ++++++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index dee2aa5bc9ed..c26f58ea0850 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -13,6 +13,8 @@
+diff --git a/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts b/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
+index 99a5968720b4..82637db1c55a 100644
+--- a/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
++++ b/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
+@@ -68,11 +68,7 @@
+ 		};
  
- #include "skeleton.dtsi"
+ 		usbphy: phy@01c13400 {
+-			/*
+-			 * There doesn't seem to be a GPIO for controlling
+-			 * usb1 vbus, despite the fex file saying otherwise.
+-			 */
+-			usb1_vbus-supply = <&reg_vcc5v0>;
++			usb1_vbus-supply = <&reg_ldo3>;
+ 			status = "okay";
+ 		};
  
-+#include <dt-bindings/thermal/thermal.h>
-+
- #include <dt-bindings/dma/sun4i-a10.h>
- #include <dt-bindings/pinctrl/sun4i-a10.h>
+@@ -105,11 +101,8 @@
+ 			status = "okay";
  
-@@ -50,6 +52,38 @@
+ 			axp209: pmic@34 {
+-				compatible = "x-powers,axp209";
+ 				reg = <0x34>;
+ 				interrupts = <0>;
+-				interrupt-controller;
+-				#interrupt-cells = <1>;
+ 			};
+ 		};
+ 
+@@ -131,3 +124,40 @@
  		};
  	};
- 
-+	thermal-zones {
-+		cpu_thermal {
-+			/* milliseconds */
-+			polling-delay-passive = <250>;
-+			polling-delay = <1000>;
-+			thermal-sensors = <&rtp>;
+ };
 +
-+			cooling-maps {
-+				map0 {
-+					trip = <&cpu_alert0>;
-+					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-+				};
-+			};
++#include "axp209.dtsi"
 +
-+			trips {
-+				cpu_alert0: cpu_alert0 {
-+					/* milliCelsius */
-+					temperature = <850000>;
-+					hysteresis = <2000>;
-+					type = "passive";
-+				};
++&cpu0 {
++	cpu-supply = <&reg_dcdc2>;
++};
 +
-+				cpu_crit: cpu_crit {
-+					/* milliCelsius */
-+					temperature = <100000>;
-+					hysteresis = <2000>;
-+					type = "critical";
-+				};
-+			};
-+		};
-+	};
++&reg_dcdc2 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1500000>;
++	regulator-name = "vdd-cpu";
++};
 +
- 	memory {
- 		reg = <0x40000000 0x20000000>;
- 	};
++&reg_dcdc3 {
++	regulator-always-on;
++	regulator-min-microvolt = <1000000>;
++	regulator-max-microvolt = <1400000>;
++	regulator-name = "vdd-int-dll";
++};
++
++&reg_ldo1 {
++	regulator-name = "vdd-rtc";
++};
++
++&reg_ldo2 {
++	regulator-always-on;
++	regulator-min-microvolt = <3000000>;
++	regulator-max-microvolt = <3000000>;
++	regulator-name = "avcc";
++};
++
++&reg_ldo3 {
++	regulator-min-microvolt = <3300000>;
++	regulator-max-microvolt = <3300000>;
++	regulator-name = "vcc-wifi";
++};
 -- 
 2.1.4
 

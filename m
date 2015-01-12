@@ -1,38 +1,44 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v3 8/9] ARM: dts: sun4i: Add cpu thermal zones to dtsi
-Date: Mon, 12 Jan 2015 12:34:08 +0800
-Message-ID: <1421037249-28461-9-git-send-email-wens@csie.org>
+Subject: [PATCH v3 6/9] ARM: dts: sun5i: Add cpu thermal zones to dtsi
+Date: Mon, 12 Jan 2015 12:34:06 +0800
+Message-ID: <1421037249-28461-7-git-send-email-wens@csie.org>
 References: <1421037249-28461-1-git-send-email-wens@csie.org>
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:45009 "EHLO
+	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750971AbbALEeX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Jan 2015 23:34:23 -0500
 In-Reply-To: <1421037249-28461-1-git-send-email-wens@csie.org>
-Sender: linux-pm-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 The core temperature sensor now supports thermal zones. Add a thermal
 zone mapping for the cpus with passive cooling (cpufreq throttling).
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Eduardo Valentin <edubezval@gmail.com>
 ---
 
 changes since v2:
 
-    none
+    - Added Acked-by from Eduardo
 
 changes since v1:
 
     - Use thermal dt bindings macros in cooling-device
 
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi | 34 ++++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/sun5i-a13.dtsi | 34 ++++++++++++++++++++++++++++++++++
  1 file changed, 34 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 7fb4e912f510..f0dc246dc69e 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -12,6 +12,8 @@
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index dee2aa5bc9ed..c26f58ea0850 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -13,6 +13,8 @@
  
  #include "skeleton.dtsi"
  
@@ -41,7 +47,7 @@ index 7fb4e912f510..f0dc246dc69e 100644
  #include <dt-bindings/dma/sun4i-a10.h>
  #include <dt-bindings/pinctrl/sun4i-a10.h>
  
-@@ -67,6 +69,38 @@
+@@ -50,6 +52,38 @@
  		};
  	};
  
@@ -78,7 +84,7 @@ index 7fb4e912f510..f0dc246dc69e 100644
 +	};
 +
  	memory {
- 		reg = <0x40000000 0x80000000>;
+ 		reg = <0x40000000 0x20000000>;
  	};
 -- 
 2.1.4

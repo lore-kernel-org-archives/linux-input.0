@@ -1,115 +1,145 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 6/7] input: alps: Add sanity checks for non DualPoint
- devices
-Date: Sun, 11 Jan 2015 16:31:00 -0800
-Message-ID: <20150112003100.GC31862@dtor-ws>
-References: <1415993906-13307-1-git-send-email-pali.rohar@gmail.com>
- <1415993906-13307-7-git-send-email-pali.rohar@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v1 1/2] HID: hid-sensor-hub: Enhance get feature report API
+Date: Sun, 11 Jan 2015 17:55:13 -0800
+Message-ID: <1421027714-25726-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1421027714-25726-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:59858 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750783AbbALAbG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jan 2015 19:31:06 -0500
-Content-Disposition: inline
-In-Reply-To: <1415993906-13307-7-git-send-email-pali.rohar@gmail.com>
+Received: from mga02.intel.com ([134.134.136.20]:60020 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750952AbbALB4P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Jan 2015 20:56:15 -0500
+In-Reply-To: <1421027714-25726-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, Vadim Klishko <vadim@cirque.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jic23@kernel.org, jkosina@suse.cz
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-On Fri, Nov 14, 2014 at 08:38:25PM +0100, Pali Roh=E1r wrote:
-> This patch adds sanity checks and reject trackstick packets from ALPS=
- devices
-> which do not have trackstick present (those without ALPS_DUALPOINT fl=
-ag).
->=20
-> Make sure that driver does not process some bogus packets as tracksti=
-ck data
-> when there is no trackstick packet. Patch also write warning do dmesg=
- so
-> possible problems with driver (e.g received invalid data) will be vis=
-ible
-> for debugging.
->=20
-> Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
+Some hid sensor feature report can contain more than one reports.
+This API can now support receiving multiple values from the feature
+report.
+Also update the parameters in the users of this API.
 
-Applied, thank you.
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/hid-sensor-hub.c                           | 16 ++++++++++++++--
+ drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
+ include/linux/hid-sensor-hub.h                         |  8 +++++---
+ 4 files changed, 28 insertions(+), 13 deletions(-)
 
-> ---
->  drivers/input/mouse/alps.c |   22 ++++++++++++++++++++--
->  1 file changed, 20 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 2b7b74d..770bec5 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -475,6 +475,13 @@ static void alps_process_trackstick_packet_v3(st=
-ruct psmouse *psmouse)
->  	struct input_dev *dev =3D priv->dev2;
->  	int x, y, z, left, right, middle;
-> =20
-> +	/* It should be a DualPoint when received trackstick packet */
-> +	if (!(priv->flags & ALPS_DUALPOINT)) {
-> +		psmouse_warn(psmouse,
-> +			"Rejected trackstick packet from non DualPoint device");
-> +		return;
-> +	}
-> +
->  	/* Sanity check packet */
->  	if (!(packet[0] & 0x40)) {
->  		psmouse_dbg(psmouse, "Bad trackstick packet, discarding\n");
-> @@ -699,7 +706,8 @@ static void alps_process_touchpad_packet_v3_v5(st=
-ruct psmouse *psmouse)
-> =20
->  	alps_report_semi_mt_data(psmouse, fingers);
-> =20
-> -	if (!(priv->quirks & ALPS_QUIRK_TRACKSTICK_BUTTONS)) {
-> +	if ((priv->flags & ALPS_DUALPOINT) &&
-> +	    !(priv->quirks & ALPS_QUIRK_TRACKSTICK_BUTTONS)) {
->  		input_report_key(dev2, BTN_LEFT, f->ts_left);
->  		input_report_key(dev2, BTN_RIGHT, f->ts_right);
->  		input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
-> @@ -743,8 +751,11 @@ static void alps_process_packet_v6(struct psmous=
-e *psmouse)
->  	 */
->  	if (packet[5] =3D=3D 0x7F) {
->  		/* It should be a DualPoint when received Trackpoint packet */
-> -		if (!(priv->flags & ALPS_DUALPOINT))
-> +		if (!(priv->flags & ALPS_DUALPOINT)) {
-> +			psmouse_warn(psmouse,
-> +			"Rejected trackstick packet from non DualPoint device");
->  			return;
-> +		}
-> =20
->  		/* Trackpoint packet */
->  		x =3D packet[1] | ((packet[3] & 0x20) << 2);
-> @@ -962,6 +973,13 @@ static void alps_process_trackstick_packet_v7(st=
-ruct psmouse *psmouse)
->  	struct input_dev *dev2 =3D priv->dev2;
->  	int x, y, z, left, right, middle;
-> =20
-> +	/* It should be a DualPoint when received trackstick packet */
-> +	if (!(priv->flags & ALPS_DUALPOINT)) {
-> +		psmouse_warn(psmouse,
-> +			"Rejected trackstick packet from non DualPoint device");
-> +		return;
-> +	}
-> +
->  	/*
->  	 *        b7 b6 b5 b4 b3 b2 b1 b0
->  	 * Byte0   0  1  0  0  1  0  0  0
-> --=20
-> 1.7.9.5
->=20
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 83b6e15..d17aa67 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -218,10 +218,11 @@ done_proc:
+ EXPORT_SYMBOL_GPL(sensor_hub_set_feature);
+ 
+ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+-				u32 field_index, s32 *value)
++			   u32 field_index, int buffer_size, void *buffer)
+ {
+ 	struct hid_report *report;
+ 	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
++	int report_size;
+ 	int ret = 0;
+ 
+ 	mutex_lock(&data->mutex);
+@@ -233,7 +234,18 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	}
+ 	hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
+ 	hid_hw_wait(hsdev->hdev);
+-	*value = report->field[field_index]->value[0];
++
++	/* calculate number of bytes required to read this field */
++	report_size = report->field[field_index]->report_size / 8;
++	if (report->field[field_index]->report_size % 8)
++		++report_size;
++	report_size *= report->field[field_index]->report_count;
++	if (!report_size) {
++		ret = -EINVAL;
++		goto done_proc;
++	}
++	ret = min(report_size, buffer_size);
++	memcpy(buffer, report->field[field_index]->value, ret);
+ 
+ done_proc:
+ 	mutex_unlock(&data->mutex);
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+index 25b01e1..e1435e9 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+@@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
+ 	int ret;
+ 
+ 	ret = sensor_hub_get_feature(st->hsdev,
+-		st->poll.report_id,
+-		st->poll.index, &value);
++				     st->poll.report_id,
++				     st->poll.index, sizeof(value), &value);
+ 
+ 	if (ret < 0 || value < 0) {
+ 		return -EINVAL;
+@@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
+ 	int ret;
+ 
+ 	ret = sensor_hub_get_feature(st->hsdev,
+-		st->poll.report_id,
+-		st->poll.index, &value);
++				     st->poll.report_id,
++				     st->poll.index, sizeof(value), &value);
+ 	if (ret < 0 || value < 0) {
+ 		*val1 = *val2 = 0;
+ 		return -EINVAL;
+@@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
+ 	int ret;
+ 
+ 	ret = sensor_hub_get_feature(st->hsdev,
+-		st->sensitivity.report_id,
+-		st->sensitivity.index, &value);
++				     st->sensitivity.report_id,
++				     st->sensitivity.index, sizeof(value),
++				     &value);
+ 	if (ret < 0 || value < 0) {
+ 		*val1 = *val2 = 0;
+ 		return -EINVAL;
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 92068cd..ef0c495 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+ 	}
+ 
+ 	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+-					st->power_state.index,
+-					&state_val);
++			       st->power_state.index,
++			       sizeof(state_val), &state_val);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(hid_sensor_power_state);
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index 0b21c4f..1995bbd 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -203,13 +203,15 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ * @hsdev:	Hub device instance.
+ * @report_id:	Report id to look for
+ * @field_index:	Field index inside a report
+-* @value:	Place holder for return value
++* @buffer_size:	size of the buffer
++* @buffer:	buffer to copy output
+ *
+ * Used to get a field in feature report. For example this can get polling
+-* interval, sensitivity, activate/deactivate state.
++* interval, sensitivity, activate/deactivate state. On success it returns
++* number of bytes copied to buffer. On failure, it returns value < 0.
+ */
+ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+-			u32 field_index, s32 *value);
++			   u32 field_index, int buffer_size, void *buffer);
+ 
+ /* hid-sensor-attributes */
+ 
+-- 
+1.9.3
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

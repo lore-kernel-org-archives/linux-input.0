@@ -1,541 +1,212 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH 1/2] INPUT/HID: add touch support for SiS touch driver
-Date: Mon, 12 Jan 2015 12:50:49 +0100
-Message-ID: <1421063449.12454.17.camel@linux-0dmf.site>
-References: <8322374EB97AA24A95D0DDBFC8F1CA1DBF987B@SISMBEV01.sis.com.tw>
+From: Eduardo Valentin <edubezval@gmail.com>
+Subject: Re: [PATCH v3 1/9] Input: sun4i-ts: Add thermal zone sensor support
+Date: Mon, 12 Jan 2015 08:08:05 -0400
+Message-ID: <20150112120803.GB24190@developer>
+References: <1421037249-28461-1-git-send-email-wens@csie.org>
+ <1421037249-28461-2-git-send-email-wens@csie.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8322374EB97AA24A95D0DDBFC8F1CA1DBF987B@SISMBEV01.sis.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "=?UTF-8?Q?=E6=9B=BE=E5=A9=B7=E8=91=B3?= (tammy_tseng)" <tammy_tseng@sis.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tammy0524@gmail.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1421037249-28461-2-git-send-email-wens@csie.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2015-01-12 at 18:53 +0800, =E6=9B=BE=E5=A9=B7=E8=91=B3 (tammy_t=
-seng) wrote:
-> Hi,
-> This package of patch is to add support for multitouch behavior for S=
-iS touch products.
-> The patch of SiS i2c multitouch driver is in input/touchscreen.
+
+--RASg3xLB4tUQ4RcS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jan 12, 2015 at 12:34:01PM +0800, Chen-Yu Tsai wrote:
+> The touchscreen controller has a temperature sensor embedded in the SoC,
+> which already has hwmon support in the driver.
 >=20
-> Signed-off-by: Tammy Tseng <tammy_tseng@sis.com>
+> Add DT thermal zone support so we can use it with cpufreq for thermal
+> throttling.
+>=20
+> This also adds a comment stating that we do not know the actual formula
+> for calculating the temperature.
+>=20
+> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+
+Acked-by: Eduardo Valentin <edubezval@gmail.com>
+
+> ---
+>=20
+> changes since v2:
+>=20
+>     - Use common function for temperature calculation
+>=20
+> changes since v1:
+>=20
+>     - clean up thermal zone sensor when input device register fails
+>     - unconditionally unregister thermal zone sensor on removal.
+>       the unregister function checks the pointers passed in.
+>     - add comment explaining the lack of documents for the temperature
+>       calculation formula
 >=20
 > ---
-> diff --git a/linux-3.18.1/drivers/input/touchscreen/Kconfig b/linux-3=
-=2E18.1/drivers/input/touchscreen/Kconfig
-> index e1d8003..edc8e27 100644
-> --- a/linux-3.18.1/drivers/input/touchscreen/Kconfig
-> +++ b/linux-3.18.1/drivers/input/touchscreen/Kconfig
-> @@ -962,4 +962,18 @@ config TOUCHSCREEN_ZFORCE
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called zforce_ts.
+>  .../bindings/input/touchscreen/sun4i.txt           |  2 +
+>  drivers/input/touchscreen/sun4i-ts.c               | 54 ++++++++++++++++=
+++++--
+>  2 files changed, 52 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.tx=
+t b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> index aef57791f40b..a8405bab6c00 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> @@ -5,6 +5,7 @@ Required properties:
+>   - compatible: "allwinner,sun4i-a10-ts"
+>   - reg: mmio address range of the chip
+>   - interrupts: interrupt to which the chip is connected
+> + - #thermal-sensor-cells: shall be 0
 > =20
-> +config TOUCHSCREEN_SIS_I2C
-> +	tristate "SiS 9200 family I2C touchscreen driver"
-> +	depends on I2C
-> +	default y
-
-Why that default? The majority of systems will not feature this
-touchscreens.
-
-> +	help
-> +	  This enables support for SiS 9200 family over I2C based touchscre=
-ens.
-> +
-> +config FW_SUPPORT_POWERMODE
-> +		default n
-> +        bool "SiS FW support power mode"
-> +        depends on TOUCHSCREEN_SIS_I2C
-> +        help
-> +          This enables support power mode provided by SiS firmwave
-
-What does this mode do? The help should be more extensive to be
-helpful.
-
-> +
->  endif
-> diff --git a/linux-3.18.1/drivers/input/touchscreen/Makefile b/linux-=
-3.18.1/drivers/input/touchscreen/Makefile
-> index 090e61c..e316477 100644
-> --- a/linux-3.18.1/drivers/input/touchscreen/Makefile
-> +++ b/linux-3.18.1/drivers/input/touchscreen/Makefile
-> @@ -6,6 +6,10 @@
+>  Optional properties:
+>   - allwinner,ts-attached: boolean indicating that an actual touchscreen =
+is
+> @@ -17,4 +18,5 @@ Example:
+>  		reg =3D <0x01c25000 0x100>;
+>  		interrupts =3D <29>;
+>  		allwinner,ts-attached;
+> +		#thermal-sensor-cells =3D <0>;
+>  	};
+> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchsc=
+reen/sun4i-ts.c
+> index 28a06749ae42..5851aa0bd78b 100644
+> --- a/drivers/input/touchscreen/sun4i-ts.c
+> +++ b/drivers/input/touchscreen/sun4i-ts.c
+> @@ -34,6 +34,7 @@
 > =20
->  wm97xx-ts-y :=3D wm97xx-core.o
+>  #include <linux/err.h>
+>  #include <linux/hwmon.h>
+> +#include <linux/thermal.h>
+>  #include <linux/init.h>
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+> @@ -107,6 +108,7 @@
+>  struct sun4i_ts_data {
+>  	struct device *dev;
+>  	struct input_dev *input;
+> +	struct thermal_zone_device *tz;
+>  	void __iomem *base;
+>  	unsigned int irq;
+>  	bool ignore_fifo_data;
+> @@ -180,16 +182,48 @@ static void sun4i_ts_close(struct input_dev *dev)
+>  	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+>  }
 > =20
-> +ifdef CONFIG_TOUCHSCREEN_SIS_I2C
-> +obj-$(CONFIG_TOUCHSCREEN_SIS_I2C)   +=3D sis_i2c.o
-> +endif
-> +
->  obj-$(CONFIG_OF_TOUCHSCREEN)		+=3D of_touchscreen.o
->  obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+=3D 88pm860x-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_AD7877)	+=3D ad7877.o
-> diff --git a/linux-3.18.1/drivers/input/touchscreen/sis_i2c.c b/linux=
--3.18.1/drivers/input/touchscreen/sis_i2c.c
-> new file mode 100644
-> index 0000000..2e6fc1a
-> --- /dev/null
-> +++ b/linux-3.18.1/drivers/input/touchscreen/sis_i2c.c
-> @@ -0,0 +1,1725 @@
-> +/* drivers/input/touchscreen/sis_i2c.c - I2C Touch panel driver for =
-SiS 9200 family
-> + *
-> + * Copyright (C) 2011 SiS, Inc.
-> + *
-> + * This software is licensed under the terms of the GNU General Publ=
-ic
-> + * License version 2, as published by the Free Software Foundation, =
-and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * Date: 2012/11/13
-> + * Version:	Android_v2.05.00-A639-1113
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/delay.h>
-> +#ifdef CONFIG_HAS_EARLYSUSPEND
-> +#include <linux/earlysuspend.h>
-> +#endif
-
-Conditional includes should be avoided if possible.
-
-> +#include <linux/hrtimer.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/io.h>
-> +#include <linux/platform_device.h>
-> +#include "sis_i2c.h"
-> +#include <linux/linkage.h>
-> +#include <linux/slab.h>
-> +#include <linux/gpio.h>
-> +#include <asm/uaccess.h>
-> +#include <linux/irq.h>
-> +
-> +#ifdef _STD_RW_IO
-
-???
-
-> +#include <linux/init.h>
-> +#include <linux/fs.h>
-> +#include <linux/cdev.h>
-> +#define DEVICE_NAME "sis_aegis_touch_device"
-> +static int sis_char_devs_count =3D 1;        /* device count */
-
-Why start with 1 ?
-> +static int sis_char_major =3D 0;
-> +static struct cdev sis_char_cdev;
-> +static struct class *sis_char_class =3D NULL;
-> +#endif
-> +
-> +/* Addresses to scan */
-> +static const unsigned short normal_i2c[] =3D { SIS_SLAVE_ADDR, I2C_C=
-LIENT_END };
-> +static struct workqueue_struct *sis_wq;
-> +struct sis_ts_data *ts_bak =3D 0;
-> +struct sisTP_driver_data *TPInfo =3D NULL;
-
-Are you really sure you are limited to a single device?
-> +static void sis_tpinfo_clear(struct sisTP_driver_data *TPInfo, int m=
-ax);
-> +
-> +#ifdef CONFIG_HAS_EARLYSUSPEND
-> +static void sis_ts_early_suspend(struct early_suspend *h);
-> +static void sis_ts_late_resume(struct early_suspend *h);
-> +#endif
-> +
-> +#ifdef CONFIG_X86
-> +//static const struct i2c_client_address_data addr_data;
-> +/* Insmod parameters */
-> +static int sis_ts_detect(struct i2c_client *client, struct i2c_board=
-_info *info);
-> +#endif
-> +
-> +#ifdef _CHECK_CRC
-> +uint16_t cal_crc (char* cmd, int start, int end);
-> +#endif
-> +
-> +void PrintBuffer(int start, int length, char* buf)
-
-Polluting the name space like this is really nasty.
-Could you check which of your declarations can be
-declared "static"?
-
+> +static int get_temp(const struct sun4i_ts_data *ts, long *temp)
 > +{
-> +	int i;
-> +	for ( i =3D start; i < length; i++ )
-> +	{
-> +		printk("%02x ", buf[i]);
-> +		if (i !=3D 0 && i % 30 =3D=3D 0)
-> +			printk("\n");
-> +	}
-> +	printk("\n");=09
+> +	/* No temp_data until the first irq */
+> +	if (ts->temp_data =3D=3D -1)
+> +		return -EAGAIN;
+> +
+> +	/*
+> +	 * The user manuals do not contain the formula for calculating
+> +	 * the temperature. The formula used here is from the AXP209,
+> +	 * which is designed by X-Powers, an affiliate of Allwinner:
+> +	 *
+> +	 *     temperature =3D -144.7 + (value * 0.1)
+> +	 *
+> +	 * This should be replaced with the correct one if such information
+> +	 * becomes available.
+> +	 */
+> +	*temp =3D (ts->temp_data - 1447) * 100;
+> +
+> +	return 0;
 > +}
 > +
-> +int sis_command_for_write(struct i2c_client *client, int wlength, un=
-signed char *wdata)
+> +static int get_tz_temp(void *data, long *temp)
 > +{
-> +    int ret =3D -1;
-> +    struct i2c_msg msg[1];
-
-Why on earth an array of a single element?
-
-> +
-> +    msg[0].addr =3D client->addr;
-> +    msg[0].flags =3D 0; //Write
-> +    msg[0].len =3D wlength;
-> +    msg[0].buf =3D (unsigned char *)wdata;
-> +
-> +    ret =3D i2c_transfer(client->adapter, msg, 1);
-> +
-> +    return ret;
+> +	return get_temp(data, temp);
 > +}
 > +
-> +int sis_command_for_read(struct i2c_client *client, int rlength, uns=
-igned char *rdata)
-> +{
-> +    int ret =3D -1;
-> +    struct i2c_msg msg[1];
+> +static struct thermal_zone_of_device_ops sun4i_ts_tz_ops =3D {
+> +	.get_temp =3D get_tz_temp,
+> +};
+> +
+>  static ssize_t show_temp(struct device *dev, struct device_attribute *de=
+vattr,
+>  			 char *buf)
+>  {
+>  	struct sun4i_ts_data *ts =3D dev_get_drvdata(dev);
+> +	long temp;
+> +	int ret;
+> =20
+> -	/* No temp_data until the first irq */
+> -	if (ts->temp_data =3D=3D -1)
+> -		return -EAGAIN;
+> +	ret =3D get_temp(ts, &temp);
+> +	if (ret)
+> +		return ret;
+> =20
+> -	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
+> +	return sprintf(buf, "%ld\n", temp);
+>  }
+> =20
+>  static ssize_t show_temp_label(struct device *dev,
+> @@ -283,17 +317,27 @@ static int sun4i_ts_probe(struct platform_device *p=
+dev)
+>  	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
+>  	       ts->base + TP_CTRL1);
+> =20
+> +	/*
+> +	 * The thermal core does not register hwmon devices for DT-based
+> +	 * thermal zone sensors, such as this one.
+> +	 */
+>  	hwmon =3D devm_hwmon_device_register_with_groups(ts->dev, "sun4i_ts",
+>  						       ts, sun4i_ts_groups);
+>  	if (IS_ERR(hwmon))
+>  		return PTR_ERR(hwmon);
+> =20
+> +	ts->tz =3D thermal_zone_of_sensor_register(ts->dev, 0, ts,
+> +						 &sun4i_ts_tz_ops);
+> +	if (IS_ERR(ts->tz))
+> +		ts->tz =3D NULL;
+> +
+>  	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+> =20
+>  	if (ts_attached) {
+>  		error =3D input_register_device(ts->input);
+>  		if (error) {
+>  			writel(0, ts->base + TP_INT_FIFOC);
+> +			thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
+>  			return error;
+>  		}
+>  	}
+> @@ -310,6 +354,8 @@ static int sun4i_ts_remove(struct platform_device *pd=
+ev)
+>  	if (ts->input)
+>  		input_unregister_device(ts->input);
+> =20
+> +	thermal_zone_of_sensor_unregister(ts->dev, ts->tz);
+> +
+>  	/* Deactivate all IRQs */
+>  	writel(0, ts->base + TP_INT_FIFOC);
+> =20
+> --=20
+> 2.1.4
+>=20
 
-Likewise
+--RASg3xLB4tUQ4RcS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> +
-> +    msg[0].addr =3D client->addr;
-> +    msg[0].flags =3D I2C_M_RD; //Read
-> +    msg[0].len =3D rlength;
-> +    msg[0].buf =3D rdata;
-> +
-> +    ret =3D i2c_transfer(client->adapter, msg, 1);
-> +
-> +    return ret;
-> +}
-> +
-> +int sis_cul_unit(uint8_t report_id)
-> +{
-> +	int basic =3D 6;
-> +	int area =3D 2;
-> +	int pressure =3D 1;
-> +	int ret =3D basic;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-Why ???
-> +=09
-> +	if (report_id !=3D ALL_IN_ONE_PACKAGE)
-> +	{
-> +		if (IS_AREA(report_id) /*&& IS_TOUCH(report_id)*/)
-> +		{
-> +			ret +=3D area;
-> +		}
-> +		if (IS_PRESSURE(report_id))
-> +		{
-> +			ret +=3D pressure;
-> +		}
-> +	}
-> +=09
-> +	return ret;=09
-> +}
-> +
-> +int sis_ReadPacket(struct i2c_client *client, uint8_t cmd, uint8_t* =
-buf)
-> +{
-> +	uint8_t tmpbuf[MAX_BYTE] =3D {0};	//MAX_BYTE =3D 64;
-> +#ifdef _CHECK_CRC
-> +	uint16_t buf_crc =3D 0;
-> +	uint16_t package_crc =3D 0;
-> +	int l_package_crc =3D 0;
-> +	int crc_end =3D 0;
-> +#endif
-> +    int ret =3D -1;
-> +    int touchnum =3D 0;
-> +    int p_count =3D 0;
-> +    int touc_formate_id =3D 0;
-> +    int locate =3D 0;
-> +    bool read_first =3D true;
-> +   =20
-> +/*
-> +		New i2c format=20
-> +	* buf[0] =3D Low 8 bits of byte count value
-> +	* buf[1] =3D High 8 bits of byte counte value
-> +	* buf[2] =3D Report ID
-> +	* buf[touch num * 6 + 2 ] =3D Touch informations; 1 touch point has=
- 6 bytes, it could be none if no touch=20
-> +	* buf[touch num * 6 + 3] =3D Touch numbers
-> +	*=20
-> +	* One touch point information include 6 bytes, the order is=20
-> +	*=20
-> +	* 1. status =3D touch down or touch up
-> +	* 2. id =3D finger id=20
-> +	* 3. x axis low 8 bits
-> +	* 4. x axis high 8 bits
-> +	* 5. y axis low 8 bits
-> +	* 6. y axis high 8 bits
-> +	*=20
-> +*/
-> +	do
-> +	{
-> +		if (locate >=3D PACKET_BUFFER_SIZE)
-> +		{
-> +			printk(KERN_ERR "sis_ReadPacket: Buf Overflow\n");
-> +			return -1;
-> +		}
-> +	=09
-> +		ret =3D sis_command_for_read(client, MAX_BYTE, tmpbuf);
-> +
-> +#ifdef _DEBUG_PACKAGE
-> +		printk(KERN_INFO "chaoban test: Buf_Data [0~63] \n");
-> +		PrintBuffer(0, 64, tmpbuf);=09
-> +#endif		=09
-> +
-> +		if(ret < 0 )
-> +		{
-> +			printk(KERN_ERR "sis_ReadPacket: i2c transfer error\n");
+iQEcBAEBAgAGBQJUs7kFAAoJEMLUO4d9pOJWjGIH/3TEu+IstATHJKifto5gOVpz
+kmIzP4nNMKd3Fxi0ujUbJ/lFd0Nh+KNcBD3J9f2ZI4fN/CI6SumUXgN1QrWs48Ej
+MSSoI9HVC2AnI4FYZyUC5TNb+Q4PJAHueeyOSSRNs5z2OF49vHBqLshKnyrQ41BL
+ybs9HXcLFqewJS90uAdFgosMGMHskV2LdnHXpvKzB7fbF42vnb0JkfbjiFagGHUl
+VQ6r4L/tiTPZmddIU8xt0WNmzLU557+PhkgM4qsTpS7WbVv0tOIqFwmKzRzjkfkK
+/VhRhdSt8Szci4HAqCxY+Lg8znaGuf7IKJZwXWIf8Iod+4U9xp/BUi/A2VMZwNQ=
+=4OLd
+-----END PGP SIGNATURE-----
 
-It would be nicer to use the debug methods defined for devices, so that
-you get device identification in the log for free.
-
-> +			return ret;
-> +		}
-> +		// error package length of receiving data
-> +		else if (tmpbuf[P_BYTECOUNT] > MAX_BYTE)
-
-This looks like a bug. You are checking only the lower byte.
-
-> +		{
-> +			printk(KERN_ERR "sis_ReadPacket: Error Bytecount\n");
-> +			return -1;=09
-> +		}
-> +	=09
-> +		if (read_first)
-> +		{
-> +#ifdef _SUPPORT_BUTTON_TOUCH
-> +			// access BUTTON TOUCH event and BUTTON NO TOUCH event
-> +			if (tmpbuf[P_REPORT_ID] =3D=3D  BUTTON_FORMAT)
-> +			{
-> +				memcpy(&buf[0], &tmpbuf[0], 7);
-> +				return touchnum; 	//touchnum is 0
-
-So why not return 0 ?
-
-> +			}
-> +#endif=20
-> +			// access NO TOUCH event unless BUTTON NO TOUCH event
-> +			if (tmpbuf[P_BYTECOUNT] =3D=3D 0/*NO_TOUCH_BYTECOUNT*/)
-> +			{
-> +				return touchnum;	//touchnum is 0
-> +			}
-> +		}
-> +
-> +		//skip parsing data when two devices are registered at the same sl=
-ave address
-> +		//parsing data when P_REPORT_ID && 0xf is TOUCH_FORMAT or P_REPORT=
-_ID is ALL_IN_ONE_PACKAGE
-> +		touc_formate_id =3D tmpbuf[P_REPORT_ID] & 0xf;
-> +		if ((touc_formate_id !=3D TOUCH_FORMAT) && (touc_formate_id !=3D H=
-IDI2C_FORMAT) && (tmpbuf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE))
-> +		{
-> +			printk(KERN_ERR "sis_ReadPacket: Error Report_ID\n");
-> +			return -1;	=09
-> +		}
-> +	=09
-> +		p_count =3D (int) tmpbuf[P_BYTECOUNT] - 1;	//start from 0
-> +		if (tmpbuf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE)
-> +		{
-> +			if (IS_TOUCH(tmpbuf[P_REPORT_ID]))
-> +			{
-> +				p_count -=3D BYTE_CRC_I2C;	//delete 2 byte crc
-> +			}
-> +			else if (IS_HIDI2C(tmpbuf[P_REPORT_ID]))
-> +			{
-> +				p_count -=3D BYTE_CRC_HIDI2C;
-> +			}
-> +			else	//should not be happen
-> +			{
-> +				printk(KERN_ERR "sis_ReadPacket: delete crc error\n");
-> +				return -1;
-> +			}
-> +
-> +			if (IS_SCANTIME(tmpbuf[P_REPORT_ID]))
-> +			{
-> +				p_count -=3D BYTE_SCANTIME;
-> +			}
-> +		}
-> +		//else {}    						// For ALL_IN_ONE_PACKAGE
-> +	=09
-> +		if (read_first)
-> +		{
-> +			touchnum =3D tmpbuf[p_count]; =09
-> +		}
-> +		else
-> +		{
-> +			if (tmpbuf[p_count] !=3D 0)
-> +			{
-> +				printk(KERN_ERR "sis_ReadPacket: get error package\n");
-> +				return -1;
-> +			}
-> +		}
-> +
-> +#ifdef _CHECK_CRC
-> +		crc_end =3D p_count + (IS_SCANTIME(tmpbuf[P_REPORT_ID]) * 2);
-> +		buf_crc =3D cal_crc(tmpbuf, 2, crc_end); //sub bytecount (2 byte)
-> +		l_package_crc =3D p_count + 1 + (IS_SCANTIME(tmpbuf[P_REPORT_ID]) =
-* 2);
-> +		package_crc =3D ((tmpbuf[l_package_crc] & 0xff) | ((tmpbuf[l_packa=
-ge_crc + 1] & 0xff) << 8));
-
-We have macros to read data in a defined endianness
-
-> +		=09
-> +		if (buf_crc !=3D package_crc)
-> +		{
-> +			printk(KERN_ERR "sis_ReadPacket: CRC Error\n");
-> +			return -1;
-> +		}
-> +#endif=09
-> +		memcpy(&buf[locate], &tmpbuf[0], 64);	//Buf_Data [0~63] [64~128]
-> +		locate +=3D 64;
-> +		read_first =3D false;
-> +	=09
-> +	}while(tmpbuf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE  &&  tmpbuf[p_co=
-unt] > 5);
-> +
-> +	return touchnum;
-> +}=09
-> +
-> +
-> +int check_gpio_interrupt(void)
-> +{
-> +    int ret =3D 0;
-> +    //TODO
-> +    //CHECK GPIO INTERRUPT STATUS BY YOUR PLATFORM SETTING.
-> +    ret =3D gpio_get_value(GPIO_IRQ);
-> +    return ret;
-> +}
-> +
-> +void ts_report_key(struct i2c_client *client, uint8_t keybit_state)
-> +{
-> +	int i =3D 0;
-> +	uint8_t diff_keybit_state=3D 0x0; //check keybit_state is differenc=
-e with pre_keybit_state
-> +	uint8_t key_value =3D 0x0; //button location for binary
-> +	uint8_t  key_pressed =3D 0x0; //button is up or down
-> +	struct sis_ts_data *ts =3D i2c_get_clientdata(client);
-> +
-> +	if (!ts)
-> +	{
-> +		printk(KERN_ERR "%s error: Missing Platform Data!\n", __func__);
-> +		return;
-> +	}
-> +
-> +	diff_keybit_state =3D TPInfo->pre_keybit_state ^ keybit_state;
-> +
-> +	if (diff_keybit_state)
-> +	{
-> +		for (i =3D 0; i < BUTTON_KEY_COUNT; i++)
-> +		{
-> +		    if ((diff_keybit_state >> i) & 0x01)
-> +			{
-> +				key_value =3D diff_keybit_state & (0x01 << i);
-> +				key_pressed =3D (keybit_state >> i) & 0x01;
-> +				switch (key_value)
-> +				{
-> +					case MSK_COMP:
-> +						input_report_key(ts->input_dev, KEY_COMPOSE, key_pressed);
-> +						printk(KERN_ERR "%s : MSK_COMP %d \n", __func__ , key_pressed)=
-;
-> +						break;
-> +					case MSK_BACK:
-> +						input_report_key(ts->input_dev, KEY_BACK, key_pressed);
-> +						printk(KERN_ERR "%s : MSK_BACK %d \n", __func__ , key_pressed)=
-;
-> +						break;
-> +					case MSK_MENU:
-> +						input_report_key(ts->input_dev, KEY_MENU, key_pressed);
-> +						printk(KERN_ERR "%s : MSK_MENU %d \n", __func__ , key_pressed)=
-;
-> +						break;
-> +					case MSK_HOME:
-> +						input_report_key(ts->input_dev, KEY_HOME, key_pressed);
-> +						printk(KERN_ERR "%s : MSK_HOME %d \n", __func__ , key_pressed)=
-;
-> +						break;
-> +					case MSK_NOBTN:
-> +						//Release the button if it touched.
-> +					default:
-> +						break;
-> +				}
-> +			}
-> +		}
-> +		TPInfo->pre_keybit_state =3D keybit_state;
-> +	}
-> +}
-> +
-> +
-> +static void sis_ts_work_func(struct work_struct *work)
-> +{
-> +	struct sis_ts_data *ts =3D container_of(work, struct sis_ts_data, w=
-ork);
-> +    int ret =3D -1;
-> +    int point_unit; =20
-> +	uint8_t buf[PACKET_BUFFER_SIZE] =3D {0};
-> +	uint8_t i =3D 0, fingers =3D 0;
-> +	uint8_t px =3D 0, py =3D 0, pstatus =3D 0;
-> +	uint8_t p_area =3D 0;
-> +    uint8_t p_preasure =3D 0;
-> +#ifdef _SUPPORT_BUTTON_TOUCH=09
-> +	int button_key;
-> +	uint8_t button_buf[10] =3D {0};
-> +#endif
-> +
-> +#ifdef _ANDROID_4
-> +	bool all_touch_up =3D true;
-> +#endif
-> +=09
-> +	mutex_lock(&ts->mutex_wq);=20
-> +
-> +    /* I2C or SMBUS block data read */
-> +    ret =3D sis_ReadPacket(ts->client, SIS_CMD_NORMAL, buf);
-> +#ifdef _DEBUG_PACKAGE_WORKFUNC
-> +	printk(KERN_INFO "chaoban test: Buf_Data [0~63] \n");
-> +	PrintBuffer(0, 64, buf);		=09
-> +	if ((buf[P_REPORT_ID] !=3D ALL_IN_ONE_PACKAGE) && (ret > 5))
-> +	{
-> +		printk(KERN_INFO "chaoban test: Buf_Data [64~125] \n");
-> +		PrintBuffer(64, 128, buf);=09
-> +	}
-> +#endif
-> +
-> +// add=20
-> +#ifdef _SUPPORT_BUTTON_TOUCH
-> +	 sis_ReadPacket(ts->client, SIS_CMD_NORMAL, button_buf);
-> +#endif
-> +
-> +	if (ret < 0) // Error Number
-> +	{
-> +	    printk(KERN_INFO "chaoban test: ret =3D -1\n");
-> +		goto err_free_allocate;
-> +	}
-> +#ifdef _SUPPORT_BUTTON_TOUCH
-> +	// access BUTTON TOUCH event and BUTTON NO TOUCH even
-> +	else if (button_buf[P_REPORT_ID] =3D=3D BUTTON_FORMAT)
-> +	{
-> +		//fingers =3D 0; //modify
-> +		button_key =3D ((button_buf[BUTTON_STATE] & 0xff) | ((button_buf[B=
-UTTON_STATE + 1] & 0xff)<< 8));=09
-
-Again macros for endianness
-
-And the driver has a great number of conditional compilations are they
-really needed? The driver as is has a number of issues and is hard to
-review due to the use of "//" for comments and a lot of conditional
-compilation and unnecessary variables used for constants. Could you
-fix this up and resubmit?
-
-	Regards
-		Oliver
+--RASg3xLB4tUQ4RcS--

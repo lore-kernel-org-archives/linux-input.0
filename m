@@ -1,170 +1,164 @@
-From: Anshul Garg <aksgarg1989@gmail.com>
-Subject: Re: [PATCH] Input:Evdev Flush pending events on clk change
-Date: Mon, 12 Jan 2015 07:38:10 +0530
-Message-ID: <CA+HOOsinQcVk9nZ7UQnbV7CLua-s+H_7DYbkOWhT+0r1Z05pUQ@mail.gmail.com>
-References: <aksgarg1989@gmail.com>
-	<1420991692-62089-1-git-send-email-aksgarg1989@gmail.com>
-	<20150111183328.GA35818@dtor-ws>
+From: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1 1/2] HID: hid-sensor-hub: Enhance get feature report API
+Date: Mon, 12 Jan 2015 11:57:37 +0800
+Message-ID: <CAAj6DX1a-UNkdtKZ+eoF2Cvv_nfM1Cc-Vqu_+iHn_sRNto+NjQ@mail.gmail.com>
+References: <1421027714-25726-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	<1421027714-25726-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f49.google.com ([209.85.213.49]:50682 "EHLO
-	mail-yh0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750846AbbALCIL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jan 2015 21:08:11 -0500
-Received: by mail-yh0-f49.google.com with SMTP id f10so8531302yha.8
-        for <linux-input@vger.kernel.org>; Sun, 11 Jan 2015 18:08:10 -0800 (PST)
-In-Reply-To: <20150111183328.GA35818@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421027714-25726-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, "anshul.g@samsung.com" <anshul.g@samsung.com>
 
-Dear Mr Dmitry ,
-
-
-Both patch versions are same.
-In recent patch i have added <dtor@mail.ru> in recipent list.
-
-
-In this patch as per our discussion I have done
-changes for client pending event flush functionality
-in evdev_queue_syn_dropped api by addition of one
-more boolean parameter "flush".
-
-Hope to hear from you soon.
-
-Thanks
-
-Anshul Garg
-+91-9899777351
-
-On Mon, Jan 12, 2015 at 12:03 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Anshul,
+On Mon, Jan 12, 2015 at 9:55 AM, Srinivas Pandruvada
+<srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> Some hid sensor feature report can contain more than one reports.
+> This API can now support receiving multiple values from the feature
+> report.
+> Also update the parameters in the users of this API.
 >
-> On Sun, Jan 11, 2015 at 07:54:52AM -0800, Anshul Garg wrote:
->> From: Anshul Garg <aksgarg1989@gmail.com>
->>
->> If client clk_type is changed , flush pending events
->> from client buffer as events time would be incorrect
->> and queue SYN_DROPPED event.
->> Added check for duplicate clk_type change request.
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/hid/hid-sensor-hub.c                           | 16 ++++++++++++++--
+>  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
+>  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
+>  include/linux/hid-sensor-hub.h                         |  8 +++++---
+>  4 files changed, 28 insertions(+), 13 deletions(-)
 >
-> What has changed form the last version of the patch you sent?
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 83b6e15..d17aa67 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -218,10 +218,11 @@ done_proc:
+>  EXPORT_SYMBOL_GPL(sensor_hub_set_feature);
 >
-> Thanks.
+>  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> -                               u32 field_index, s32 *value)
+> +                          u32 field_index, int buffer_size, void *buffer)
+>  {
+>         struct hid_report *report;
+>         struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+> +       int report_size;
+>         int ret = 0;
 >
->>
->> Signed-off-by: Anshul Garg <anshul.g@samsung.com>
->> ---
->>  drivers/input/evdev.c |   56 +++++++++++++++++++++++++++++--------------------
->>  1 file changed, 33 insertions(+), 23 deletions(-)
->>
->> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->> index b1a52ab..0f72bcb 100644
->> --- a/drivers/input/evdev.c
->> +++ b/drivers/input/evdev.c
->> @@ -62,26 +62,6 @@ struct evdev_client {
->>       struct input_event buffer[];
->>  };
->>
->> -static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->> -{
->> -     switch (clkid) {
->> -
->> -     case CLOCK_REALTIME:
->> -             client->clk_type = EV_CLK_REAL;
->> -             break;
->> -     case CLOCK_MONOTONIC:
->> -             client->clk_type = EV_CLK_MONO;
->> -             break;
->> -     case CLOCK_BOOTTIME:
->> -             client->clk_type = EV_CLK_BOOT;
->> -             break;
->> -     default:
->> -             return -EINVAL;
->> -     }
->> -
->> -     return 0;
->> -}
->> -
->>  /* flush queued events of type @type, caller must hold client->buffer_lock */
->>  static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>  {
->> @@ -128,8 +108,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->>       client->head = head;
->>  }
->>
->> -/* queue SYN_DROPPED event */
->> -static void evdev_queue_syn_dropped(struct evdev_client *client)
->> +/* queue SYN_DROPPED event and flush queue if flush parameter is true */
->> +static void evdev_queue_syn_dropped(struct evdev_client *client, bool flush)
->>  {
->>       unsigned long flags;
->>       struct input_event ev;
->> @@ -148,6 +128,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
->>
->>       spin_lock_irqsave(&client->buffer_lock, flags);
->>
->> +     if (flush)
->> +             client->packet_head = client->head = client->tail;
->> +
->>       client->buffer[client->head++] = ev;
->>       client->head &= client->bufsize - 1;
->>
->> @@ -160,6 +143,33 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
->>       spin_unlock_irqrestore(&client->buffer_lock, flags);
->>  }
->>
->> +/* Set client CLOCK and flush pending events */
->> +static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
->> +{
->> +     if (client->clk_type == clkid)
->> +             return 0;
->> +
->> +     switch (clkid) {
->> +
->> +     case CLOCK_REALTIME:
->> +             client->clk_type = EV_CLK_REAL;
->> +             break;
->> +     case CLOCK_MONOTONIC:
->> +             client->clk_type = EV_CLK_MONO;
->> +             break;
->> +     case CLOCK_BOOTTIME:
->> +             client->clk_type = EV_CLK_BOOT;
->> +             break;
->> +     default:
->> +             return -EINVAL;
->> +     }
->> +
->> +     /* Flush pending events and queue SYN_DROPPED event.*/
->> +     evdev_queue_syn_dropped(client, true);
->> +
->> +     return 0;
->> +}
->> +
->>  static void __pass_event(struct evdev_client *client,
->>                        const struct input_event *event)
->>  {
->> @@ -794,7 +804,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
->>
->>       ret = bits_to_user(mem, maxbit, maxlen, p, compat);
->>       if (ret < 0)
->> -             evdev_queue_syn_dropped(client);
->> +             evdev_queue_syn_dropped(client, false);
->>
->>       kfree(mem);
->>
->> --
->> 1.7.9.5
->>
->>
->> ---
->> This email has been checked for viruses by Avast antivirus software.
->> http://www.avast.com
->>
+>         mutex_lock(&data->mutex);
+> @@ -233,7 +234,18 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+>         }
+>         hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
+>         hid_hw_wait(hsdev->hdev);
+> -       *value = report->field[field_index]->value[0];
+> +
+> +       /* calculate number of bytes required to read this field */
+> +       report_size = report->field[field_index]->report_size / 8;
+> +       if (report->field[field_index]->report_size % 8)
+> +               ++report_size;
+> +       report_size *= report->field[field_index]->report_count;
+
+Hi Srinivas,
+
+I resend my reply.
+It was discarded by the mailing list due to wrong setting with html formatting.
+
+I think would be more clear writing directly:
+
+        report_size = DIV_ROUND_UP(report->field[field_index]->report_size, 8) *
+                      report->field[field_index]->report_count;
+
+Regards,
+Antonio
+
+> +       if (!report_size) {
+> +               ret = -EINVAL;
+> +               goto done_proc;
+> +       }
+> +       ret = min(report_size, buffer_size);
+> +       memcpy(buffer, report->field[field_index]->value, ret);
+>
+>  done_proc:
+>         mutex_unlock(&data->mutex);
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> index 25b01e1..e1435e9 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
+>         int ret;
+>
+>         ret = sensor_hub_get_feature(st->hsdev,
+> -               st->poll.report_id,
+> -               st->poll.index, &value);
+> +                                    st->poll.report_id,
+> +                                    st->poll.index, sizeof(value), &value);
+>
+>         if (ret < 0 || value < 0) {
+>                 return -EINVAL;
+> @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
+>         int ret;
+>
+>         ret = sensor_hub_get_feature(st->hsdev,
+> -               st->poll.report_id,
+> -               st->poll.index, &value);
+> +                                    st->poll.report_id,
+> +                                    st->poll.index, sizeof(value), &value);
+>         if (ret < 0 || value < 0) {
+>                 *val1 = *val2 = 0;
+>                 return -EINVAL;
+> @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
+>         int ret;
+>
+>         ret = sensor_hub_get_feature(st->hsdev,
+> -               st->sensitivity.report_id,
+> -               st->sensitivity.index, &value);
+> +                                    st->sensitivity.report_id,
+> +                                    st->sensitivity.index, sizeof(value),
+> +                                    &value);
+>         if (ret < 0 || value < 0) {
+>                 *val1 = *val2 = 0;
+>                 return -EINVAL;
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> index 92068cd..ef0c495 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+> @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
+>         }
+>
+>         sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+> -                                       st->power_state.index,
+> -                                       &state_val);
+> +                              st->power_state.index,
+> +                              sizeof(state_val), &state_val);
+>         return 0;
+>  }
+>  EXPORT_SYMBOL(hid_sensor_power_state);
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index 0b21c4f..1995bbd 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -203,13 +203,15 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+>  * @hsdev:      Hub device instance.
+>  * @report_id:  Report id to look for
+>  * @field_index:        Field index inside a report
+> -* @value:      Place holder for return value
+> +* @buffer_size:        size of the buffer
+> +* @buffer:     buffer to copy output
+>  *
+>  * Used to get a field in feature report. For example this can get polling
+> -* interval, sensitivity, activate/deactivate state.
+> +* interval, sensitivity, activate/deactivate state. On success it returns
+> +* number of bytes copied to buffer. On failure, it returns value < 0.
+>  */
+>  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> -                       u32 field_index, s32 *value);
+> +                          u32 field_index, int buffer_size, void *buffer);
+>
+>  /* hid-sensor-attributes */
 >
 > --
-> Dmitry
+> 1.9.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

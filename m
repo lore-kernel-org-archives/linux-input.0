@@ -1,7 +1,7 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v3 7/9] ARM: dts: sun5i: hsg-h702: add axp209 regulator nodes
-Date: Mon, 12 Jan 2015 12:34:07 +0800
-Message-ID: <1421037249-28461-8-git-send-email-wens@csie.org>
+Subject: [PATCH v3 2/9] ARM: dts: sunxi: Add dtsi for AXP209 PMIC
+Date: Mon, 12 Jan 2015 12:34:02 +0800
+Message-ID: <1421037249-28461-3-git-send-email-wens@csie.org>
 References: <1421037249-28461-1-git-send-email-wens@csie.org>
 Return-path: <linux-pm-owner@vger.kernel.org>
 In-Reply-To: <1421037249-28461-1-git-send-email-wens@csie.org>
@@ -10,22 +10,9 @@ To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.to
 Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the regulator nodes for the axp209 by including
-the axp209 dtsi. As the inputs of these regulators are from the
-axp209's PS output, which is basically just a mux over the 2
-inputs, it is considered to be unregulated. Thus we do not provide
-input supply properties for them.
-
-The regulator names and constraints are based on the board
-schematics and the SoC datasheet.
-
-DCDC2 is used as the cpu power supply. This patch also references
-it from the cpu node.
-
-LDO3 powers the USB WiFi module. This patch also references it
-from the usb-phy node.
-
-Also get rid of axp209 properties already set in axp209.dtsi.
+The AXP209 PMIC is used with some Allwinner SoCs. This patch adds
+a dtsi file listing all the regulator nodes. The regulators are
+initialized based on their device node names.
 
 Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 ---
@@ -36,81 +23,117 @@ changes since v2:
 
 changes since v1:
 
-    - Use preprocessor include for axp209.dtsi
+    - Moved interrupt controller properties to this patch
+    - Added default names for all the regulators
+    - Removed needless comment above regulators section
 
 ---
- arch/arm/boot/dts/sun5i-a13-hsg-h702.dts | 46 ++++++++++++++++++++++++++------
- 1 file changed, 38 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/axp209.dtsi | 97 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
+ create mode 100644 arch/arm/boot/dts/axp209.dtsi
 
-diff --git a/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts b/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
-index 99a5968720b4..82637db1c55a 100644
---- a/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
-+++ b/arch/arm/boot/dts/sun5i-a13-hsg-h702.dts
-@@ -68,11 +68,7 @@
- 		};
- 
- 		usbphy: phy@01c13400 {
--			/*
--			 * There doesn't seem to be a GPIO for controlling
--			 * usb1 vbus, despite the fex file saying otherwise.
--			 */
--			usb1_vbus-supply = <&reg_vcc5v0>;
-+			usb1_vbus-supply = <&reg_ldo3>;
- 			status = "okay";
- 		};
- 
-@@ -105,11 +101,8 @@
- 			status = "okay";
- 
- 			axp209: pmic@34 {
--				compatible = "x-powers,axp209";
- 				reg = <0x34>;
- 				interrupts = <0>;
--				interrupt-controller;
--				#interrupt-cells = <1>;
- 			};
- 		};
- 
-@@ -131,3 +124,40 @@
- 		};
- 	};
- };
+diff --git a/arch/arm/boot/dts/axp209.dtsi b/arch/arm/boot/dts/axp209.dtsi
+new file mode 100644
+index 000000000000..c20cf537f5a5
+--- /dev/null
++++ b/arch/arm/boot/dts/axp209.dtsi
+@@ -0,0 +1,97 @@
++/*
++ * Copyright 2015 Chen-Yu Tsai
++ *
++ * Chen-Yu Tsai <wens@csie.org>
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ *     You should have received a copy of the GNU General Public
++ *     License along with this file; if not, write to the Free
++ *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
++ *     MA 02110-1301 USA
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
 +
-+#include "axp209.dtsi"
++/*
++ * AXP202/209 Integrated Power Management Chip
++ * http://www.x-powers.com/product/AXP20X.php
++ * http://dl.linux-sunxi.org/AXP/AXP209%20Datasheet%20v1.0_cn.pdf
++ */
 +
-+&cpu0 {
-+	cpu-supply = <&reg_dcdc2>;
-+};
++&axp209 {
++	compatible = "x-powers,axp209";
++	interrupt-controller;
++	#interrupt-cells = <1>;
 +
-+&reg_dcdc2 {
-+	regulator-always-on;
-+	regulator-min-microvolt = <1000000>;
-+	regulator-max-microvolt = <1500000>;
-+	regulator-name = "vdd-cpu";
-+};
++	regulators {
++		/* Default work frequency for buck regulators */
++		x-powers,dcdc-freq = <1500>;
 +
-+&reg_dcdc3 {
-+	regulator-always-on;
-+	regulator-min-microvolt = <1000000>;
-+	regulator-max-microvolt = <1400000>;
-+	regulator-name = "vdd-int-dll";
-+};
++		reg_dcdc2: dcdc2 {
++			regulator-name = "dcdc2";
++		};
 +
-+&reg_ldo1 {
-+	regulator-name = "vdd-rtc";
-+};
++		reg_dcdc3: dcdc3 {
++			regulator-name = "dcdc3";
++		};
 +
-+&reg_ldo2 {
-+	regulator-always-on;
-+	regulator-min-microvolt = <3000000>;
-+	regulator-max-microvolt = <3000000>;
-+	regulator-name = "avcc";
-+};
++		reg_ldo1: ldo1 {
++			/* LDO1 is a fixed output regulator */
++			regulator-always-on;
++			regulator-min-microvolt = <1300000>;
++			regulator-max-microvolt = <1300000>;
++			regulator-name = "ldo1";
++		};
 +
-+&reg_ldo3 {
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-wifi";
++		reg_ldo2: ldo2 {
++			regulator-name = "ldo2";
++		};
++
++		reg_ldo3: ldo3 {
++			regulator-name = "ldo3";
++		};
++
++		reg_ldo4: ldo4 {
++			regulator-name = "ldo4";
++		};
++
++		reg_ldo5: ldo5 {
++			regulator-name = "ldo5";
++		};
++	};
 +};
 -- 
 2.1.4

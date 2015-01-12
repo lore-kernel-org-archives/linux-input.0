@@ -1,164 +1,81 @@
-From: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1 1/2] HID: hid-sensor-hub: Enhance get feature report API
-Date: Mon, 12 Jan 2015 11:57:37 +0800
-Message-ID: <CAAj6DX1a-UNkdtKZ+eoF2Cvv_nfM1Cc-Vqu_+iHn_sRNto+NjQ@mail.gmail.com>
-References: <1421027714-25726-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	<1421027714-25726-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1421027714-25726-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: [PATCH v3 0/9] ARM: sunxi: Support cpufreq on sun[457]i
+Date: Mon, 12 Jan 2015 12:34:00 +0800
+Message-ID: <1421037249-28461-1-git-send-email-wens@csie.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:44976 "EHLO
+	smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750844AbbALEeU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Jan 2015 23:34:20 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
 
-On Mon, Jan 12, 2015 at 9:55 AM, Srinivas Pandruvada
-<srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> Some hid sensor feature report can contain more than one reports.
-> This API can now support receiving multiple values from the feature
-> report.
-> Also update the parameters in the users of this API.
->
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->  drivers/hid/hid-sensor-hub.c                           | 16 ++++++++++++++--
->  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 13 +++++++------
->  drivers/iio/common/hid-sensors/hid-sensor-trigger.c    |  4 ++--
->  include/linux/hid-sensor-hub.h                         |  8 +++++---
->  4 files changed, 28 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 83b6e15..d17aa67 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -218,10 +218,11 @@ done_proc:
->  EXPORT_SYMBOL_GPL(sensor_hub_set_feature);
->
->  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> -                               u32 field_index, s32 *value)
-> +                          u32 field_index, int buffer_size, void *buffer)
->  {
->         struct hid_report *report;
->         struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
-> +       int report_size;
->         int ret = 0;
->
->         mutex_lock(&data->mutex);
-> @@ -233,7 +234,18 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->         }
->         hid_hw_request(hsdev->hdev, report, HID_REQ_GET_REPORT);
->         hid_hw_wait(hsdev->hdev);
-> -       *value = report->field[field_index]->value[0];
-> +
-> +       /* calculate number of bytes required to read this field */
-> +       report_size = report->field[field_index]->report_size / 8;
-> +       if (report->field[field_index]->report_size % 8)
-> +               ++report_size;
-> +       report_size *= report->field[field_index]->report_count;
+Hi,
 
-Hi Srinivas,
+This is v3 of the cpufreq support series for sunxi. The series has been
+rebased onto the latest sunxi-next. I've dropped all the patches Maxime
+merged. This includes "ARM: sunxi: Register cpufreq-dt for sun[45678]i"
+which was merged but not published yet.
 
-I resend my reply.
-It was discarded by the mailing list due to wrong setting with html formatting.
+Individual changes since v2 are listed within each patch.
 
-I think would be more clear writing directly:
 
-        report_size = DIV_ROUND_UP(report->field[field_index]->report_size, 8) *
-                      report->field[field_index]->report_count;
+Original cover letter follows:
 
-Regards,
-Antonio
+This series adds support cpufreq support for sun[457]i using cpufreq-dt.
+This also supports passive cpu cooling (thermal throttling) using thermal
+zones with the temperature sensor in the SoC.
 
-> +       if (!report_size) {
-> +               ret = -EINVAL;
-> +               goto done_proc;
-> +       }
-> +       ret = min(report_size, buffer_size);
-> +       memcpy(buffer, report->field[field_index]->value, ret);
->
->  done_proc:
->         mutex_unlock(&data->mutex);
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index 25b01e1..e1435e9 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -153,8 +153,8 @@ s32 hid_sensor_read_poll_value(struct hid_sensor_common *st)
->         int ret;
->
->         ret = sensor_hub_get_feature(st->hsdev,
-> -               st->poll.report_id,
-> -               st->poll.index, &value);
-> +                                    st->poll.report_id,
-> +                                    st->poll.index, sizeof(value), &value);
->
->         if (ret < 0 || value < 0) {
->                 return -EINVAL;
-> @@ -174,8 +174,8 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
->         int ret;
->
->         ret = sensor_hub_get_feature(st->hsdev,
-> -               st->poll.report_id,
-> -               st->poll.index, &value);
-> +                                    st->poll.report_id,
-> +                                    st->poll.index, sizeof(value), &value);
->         if (ret < 0 || value < 0) {
->                 *val1 = *val2 = 0;
->                 return -EINVAL;
-> @@ -229,8 +229,9 @@ int hid_sensor_read_raw_hyst_value(struct hid_sensor_common *st,
->         int ret;
->
->         ret = sensor_hub_get_feature(st->hsdev,
-> -               st->sensitivity.report_id,
-> -               st->sensitivity.index, &value);
-> +                                    st->sensitivity.report_id,
-> +                                    st->sensitivity.index, sizeof(value),
-> +                                    &value);
->         if (ret < 0 || value < 0) {
->                 *val1 = *val2 = 0;
->                 return -EINVAL;
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> index 92068cd..ef0c495 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> @@ -76,8 +76,8 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
->         }
->
->         sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
-> -                                       st->power_state.index,
-> -                                       &state_val);
-> +                              st->power_state.index,
-> +                              sizeof(state_val), &state_val);
->         return 0;
->  }
->  EXPORT_SYMBOL(hid_sensor_power_state);
-> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-> index 0b21c4f..1995bbd 100644
-> --- a/include/linux/hid-sensor-hub.h
-> +++ b/include/linux/hid-sensor-hub.h
-> @@ -203,13 +203,15 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->  * @hsdev:      Hub device instance.
->  * @report_id:  Report id to look for
->  * @field_index:        Field index inside a report
-> -* @value:      Place holder for return value
-> +* @buffer_size:        size of the buffer
-> +* @buffer:     buffer to copy output
->  *
->  * Used to get a field in feature report. For example this can get polling
-> -* interval, sensitivity, activate/deactivate state.
-> +* interval, sensitivity, activate/deactivate state. On success it returns
-> +* number of bytes copied to buffer. On failure, it returns value < 0.
->  */
->  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-> -                       u32 field_index, s32 *value);
-> +                          u32 field_index, int buffer_size, void *buffer);
->
->  /* hid-sensor-attributes */
->
-> --
-> 1.9.3
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The operating points for the supported platforms were taken from the
+linux-sunxi FEX files repository. The majority of boards use the same
+settings. Only with sun7i do we see slight variations, either disabling
+some frequencies, or bumping up the voltage a bit. In either case this
+can be done by limiting the constraints for the supply regulator, or 
+overriding the OPP table in the board dts file.
+
+On sun7i, there is an additional operating point not found in the FEX
+files, 960 MHz @ 1.4V, which is the full speed setting in both u-boot-sunxi
+and mainline u-boot.
+
+The series has been tested on the 4 boards I have. With cpufreq active,
+the effects are visible as a decrease in SoC internal temperature.
+Stability for the operating points has been tested using:
+
+  http://linux-sunxi.org/Hardware_Reliability_Tests#Reliability_of_cpufreq_voltage.2Ffrequency_settings
+
+More real world usage feedback is appreciated. Thermal throttling hasn't
+been tested much, due to not being able to generate enough load without
+the GPU for the SoC to heat up. Also on sun4i, the temperature sensor
+still hasn't been calibrated, so the readings are highly inaccurate.
+
+
+Chen-Yu Tsai (9):
+  Input: sun4i-ts: Add thermal zone sensor support
+  ARM: dts: sunxi: Add dtsi for AXP209 PMIC
+  ARM: dts: sun7i: Add cpu thermal zones to dtsi
+  ARM: dts: sun7i: cubieboard2: add axp209 regulator nodes
+  ARM: dts: sun7i: cubietruck: add axp209 regulator nodes
+  ARM: dts: sun5i: Add cpu thermal zones to dtsi
+  ARM: dts: sun5i: hsg-h702: add axp209 regulator nodes
+  ARM: dts: sun4i: Add cpu thermal zones to dtsi
+  ARM: dts: sun4i: cubieboard: add axp209 regulator nodes
+
+ .../bindings/input/touchscreen/sun4i.txt           |  2 +
+ arch/arm/boot/dts/axp209.dtsi                      | 97 ++++++++++++++++++++++
+ arch/arm/boot/dts/sun4i-a10-cubieboard.dts         | 35 +++++++-
+ arch/arm/boot/dts/sun4i-a10.dtsi                   | 34 ++++++++
+ arch/arm/boot/dts/sun5i-a13-hsg-h702.dts           | 46 ++++++++--
+ arch/arm/boot/dts/sun5i-a13.dtsi                   | 34 ++++++++
+ arch/arm/boot/dts/sun7i-a20-cubieboard2.dts        | 35 +++++++-
+ arch/arm/boot/dts/sun7i-a20-cubietruck.dts         | 35 +++++++-
+ arch/arm/boot/dts/sun7i-a20.dtsi                   | 33 ++++++++
+ drivers/input/touchscreen/sun4i-ts.c               | 54 +++++++++++-
+ 10 files changed, 381 insertions(+), 24 deletions(-)
+ create mode 100644 arch/arm/boot/dts/axp209.dtsi
+
+-- 
+2.1.4
+

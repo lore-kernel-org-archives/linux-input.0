@@ -1,96 +1,36 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH v3 9/9] ARM: dts: sun4i: cubieboard: add axp209 regulator nodes
-Date: Mon, 12 Jan 2015 12:34:09 +0800
-Message-ID: <1421037249-28461-10-git-send-email-wens@csie.org>
-References: <1421037249-28461-1-git-send-email-wens@csie.org>
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1421037249-28461-1-git-send-email-wens@csie.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Correct documentation
+Date: Mon, 12 Jan 2015 09:52:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1501120951060.15299@pobox.suse.cz>
+References: <1420654484-6410-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1420654484-6410-2-git-send-email-srinivas.pandruvada@linux.intel.com> <54B1A5F0.9080904@kernel.org> <54B1A6DA.8080103@kernel.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <54B1A6DA.8080103-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the regulator nodes for the axp209 by including
-the axp209 dtsi. As the inputs of these regulators are from the
-axp209's PS output, which is basically just a mux over the 2
-inputs, it is considered to be unregulated. Thus we do not provide
-input supply properties for them.
+On Sat, 10 Jan 2015, Jonathan Cameron wrote:
 
-The regulator names and constraints are based on the board
-schematics and the SoC datasheet.
+> >> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > Applied to the togreg branch of iio.git as absence of docs is irritating
+> > rather than a bug ;)
+> Sorry, dopey evening.  This one is Jiri's area not mine so over to him and
+> backed out of the togreg branch of iio.git.
+> 
+> Sorry about that.
 
-DCDC2 is used as the cpu power supply. This patch also references
-it from the cpu node.
+No problem. I guess we have to sort out which tree this whole lot will go 
+through anyway.
 
-Also get rid of axp209 properties already set in axp209.dtsi.
+I haven't yet unfortunately have time go to through the patches at all, so 
+I don't know whether they are touching more the HID part or the IIO part. 
+It's in my TODO queue.
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
----
+Thanks,
 
-changes since v2:
-
-    none
-
-changes since v1:
-
-    - Use preprocessor include for axp209.dtsi
-
----
- arch/arm/boot/dts/sun4i-a10-cubieboard.dts | 35 ++++++++++++++++++++++++++----
- 1 file changed, 31 insertions(+), 4 deletions(-)
-
-diff --git a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-index 87ac84db836d..4260c2b47607 100644
---- a/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-+++ b/arch/arm/boot/dts/sun4i-a10-cubieboard.dts
-@@ -137,12 +137,8 @@
- 			status = "okay";
- 
- 			axp209: pmic@34 {
--				compatible = "x-powers,axp209";
- 				reg = <0x34>;
- 				interrupts = <0>;
--
--				interrupt-controller;
--				#interrupt-cells = <1>;
- 			};
- 		};
- 
-@@ -188,3 +184,34 @@
- 		status = "okay";
- 	};
- };
-+
-+#include "axp209.dtsi"
-+
-+&cpu0 {
-+	cpu-supply = <&reg_dcdc2>;
-+};
-+
-+&reg_dcdc2 {
-+	regulator-always-on;
-+	regulator-min-microvolt = <1000000>;
-+	regulator-max-microvolt = <1450000>;
-+	regulator-name = "vdd-cpu";
-+};
-+
-+&reg_dcdc3 {
-+	regulator-always-on;
-+	regulator-min-microvolt = <1000000>;
-+	regulator-max-microvolt = <1400000>;
-+	regulator-name = "vdd-int-dll";
-+};
-+
-+&reg_ldo1 {
-+	regulator-name = "vdd-rtc";
-+};
-+
-+&reg_ldo2 {
-+	regulator-always-on;
-+	regulator-min-microvolt = <3000000>;
-+	regulator-max-microvolt = <3000000>;
-+	regulator-name = "avcc";
-+};
 -- 
-2.1.4
-
+Jiri Kosina
+SUSE Labs

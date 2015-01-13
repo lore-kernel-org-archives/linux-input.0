@@ -1,68 +1,145 @@
-From: Yuasa Yoichi <yuasa@linux-mips.org>
-Subject: Re: [PATCH v4] input: Add ROHM BU21023/24 Dual touch support
- resistive touchscreens
-Date: Wed, 14 Jan 2015 00:59:10 +0900
-Message-ID: <CACBHAexySaKa3NhW06H-EAy7nvsnprpOa6YH22AOwD6aMABk8g@mail.gmail.com>
-References: <20141205181739.3f3da16b1573c891cf49ba68@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Sylvain Rochet <sylvain.rochet@finsecur.com>
+Subject: [PATCH] rotary encoder: Add wake up support
+Date: Tue, 13 Jan 2015 16:51:02 +0100
+Message-ID: <1421164262-28261-1-git-send-email-sylvain.rochet@finsecur.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:36683 "EHLO
-	mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752413AbbAMP7K (ORCPT
+Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:37408 "EHLO
+	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750976AbbAMQSf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2015 10:59:10 -0500
-Received: by mail-oi0-f42.google.com with SMTP id g201so2941068oib.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Jan 2015 07:59:10 -0800 (PST)
-In-Reply-To: <20141205181739.3f3da16b1573c891cf49ba68@linux-mips.org>
+	Tue, 13 Jan 2015 11:18:35 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yoichi Yuasa <yuasa@linux-mips.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>
+Cc: Sylvain Rochet <sylvain.rochet@finsecur.com>
 
-Hi Dmitry,
+This patch add wake up support for rotary encoders.
+New DT property: rotary-encoder,wakeup
 
-I updated the driver according to your comments.
-Do you have any comments?
+Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
+---
+ .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
+ Documentation/input/rotary-encoder.txt             |  1 +
+ drivers/input/misc/rotary_encoder.c                | 36 ++++++++++++++++++++++
+ include/linux/rotary_encoder.h                     |  1 +
+ 4 files changed, 39 insertions(+)
 
-Thanks,
+diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+index 3315495..468d545 100644
+--- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
++++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+@@ -15,6 +15,7 @@ Optional properties:
+ - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
+   greater than the specified steps or smaller than 0. For absolute axis only.
+ - rotary-encoder,half-period: Makes the driver work on half-period mode.
++- rotary-encoder,wakeup: Boolean, rotary encoder can wake-up the system.
+ 
+ See Documentation/input/rotary-encoder.txt for more information.
+ 
+diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
+index 92e68bc..6cc873f 100644
+--- a/Documentation/input/rotary-encoder.txt
++++ b/Documentation/input/rotary-encoder.txt
+@@ -109,6 +109,7 @@ static struct rotary_encoder_platform_data my_rotary_encoder_info = {
+ 	.inverted_a	= 0,
+ 	.inverted_b	= 0,
+ 	.half_period	= false,
++	.wakeup		= false,
+ };
+ 
+ static struct platform_device rotary_encoder_device = {
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index f27f81e..029b8a1 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -26,6 +26,7 @@
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_gpio.h>
++#include <linux/pm.h>
+ 
+ #define DRV_NAME "rotary-encoder"
+ 
+@@ -180,6 +181,8 @@ static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct devic
+ 					"rotary-encoder,rollover", NULL);
+ 	pdata->half_period = !!of_get_property(np,
+ 					"rotary-encoder,half-period", NULL);
++	pdata->wakeup = !!of_get_property(np,
++					"rotary-encoder,wakeup", NULL);
+ 
+ 	return pdata;
+ }
+@@ -280,6 +283,8 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+ 		goto exit_free_irq_b;
+ 	}
+ 
++	device_init_wakeup(&pdev->dev, pdata->wakeup);
++
+ 	platform_set_drvdata(pdev, encoder);
+ 
+ 	return 0;
+@@ -306,6 +311,8 @@ static int rotary_encoder_remove(struct platform_device *pdev)
+ 	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
+ 	const struct rotary_encoder_platform_data *pdata = encoder->pdata;
+ 
++	device_init_wakeup(&pdev->dev, 0);
++
+ 	free_irq(encoder->irq_a, encoder);
+ 	free_irq(encoder->irq_b, encoder);
+ 	gpio_free(pdata->gpio_a);
+@@ -320,11 +327,40 @@ static int rotary_encoder_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static int rotary_encoder_suspend(struct device *dev)
++{
++	struct rotary_encoder *encoder = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev)) {
++		enable_irq_wake(encoder->irq_a);
++		enable_irq_wake(encoder->irq_b);
++	}
++
++	return 0;
++}
++
++static int rotary_encoder_resume(struct device *dev)
++{
++	struct rotary_encoder *encoder = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev)) {
++		disable_irq_wake(encoder->irq_a);
++		disable_irq_wake(encoder->irq_b);
++	}
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops, rotary_encoder_suspend, rotary_encoder_resume);
++
+ static struct platform_driver rotary_encoder_driver = {
+ 	.probe		= rotary_encoder_probe,
+ 	.remove		= rotary_encoder_remove,
+ 	.driver		= {
+ 		.name	= DRV_NAME,
++		.pm	= &rotary_encoder_pm_ops,
+ 		.of_match_table = of_match_ptr(rotary_encoder_of_match),
+ 	}
+ };
+diff --git a/include/linux/rotary_encoder.h b/include/linux/rotary_encoder.h
+index 3f594dc..72b3fc9 100644
+--- a/include/linux/rotary_encoder.h
++++ b/include/linux/rotary_encoder.h
+@@ -11,6 +11,7 @@ struct rotary_encoder_platform_data {
+ 	bool relative_axis;
+ 	bool rollover;
+ 	bool half_period;
++	int wakeup;			/* configure the rotary-encoder as a wake-up source */
+ };
+ 
+ #endif /* __ROTARY_ENCODER_H__ */
+-- 
+2.1.4
 
-Yoichi
-
-2014-12-05 18:17 GMT+09:00 Yoichi Yuasa <yuasa@linux-mips.org>:
-> v4 Changes:
-> - remove inline
-> - master_xfer checks in probe()
-> - rewrite rohm_i2c_burst_read()
-> - rohm_i2c_burst_read() transfer error returns -EIO
-> - remove unused module parameters
-> - fix prev_touch_report update
-> - pass NULL to hard_irq
-> - per-device parameters use sysfs
-> - fix errno
-> - header file is taken in .c
->
-> v3 Changes:
-> - fix multi touch slots initialization
-> - fix set_bit BTN_TOUCH
-> - remove input_unregister_device()
-> - switch to __set_bit()
->
-> v2 Changes:
-> - remove polling mode
-> - switch to threaded interrupt
-> - switch to managed resources
-> - use MT-B protocol with input_mt_assign_slots
-> - provide ST emulation
-> - firmware load and device initialization are shifted at opening the
->   device
-> - add error handling for IO operations
->
-> Signed-off-by: Yoichi Yuasa <yuasa@linux-mips.org>
-> ---
->  drivers/input/touchscreen/Kconfig        |   11 +
->  drivers/input/touchscreen/Makefile       |    1 +
->  drivers/input/touchscreen/rohm_bu21023.c | 1257 ++++++++++++++++++++++++++++++
->  3 files changed, 1269 insertions(+)
->  create mode 100644 drivers/input/touchscreen/rohm_bu21023.c
->

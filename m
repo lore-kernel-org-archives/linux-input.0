@@ -1,175 +1,100 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH v3 4/9] ARM: dts: sun7i: cubieboard2: add axp209 regulator nodes
-Date: Tue, 13 Jan 2015 18:30:51 +0800
-Message-ID: <CAGb2v65=Jfr56Yb2udNVy=shA9+AOPK9yjHTAOJZ7TFh5idTHA@mail.gmail.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v3 0/9] ARM: sunxi: Support cpufreq on sun[457]i
+Date: Tue, 13 Jan 2015 14:53:12 +0100
+Message-ID: <20150113135312.GX4891@lukather>
 References: <1421037249-28461-1-git-send-email-wens@csie.org>
- <1421037249-28461-5-git-send-email-wens@csie.org> <20150112090603.GE4891@lukather>
- <CAGb2v66r6EG2F1-=Gaig7ZW58Z1KteQ5nDPfW5niisv7dCjY0Q@mail.gmail.com> <20150113094036.GR4891@lukather>
+ <20150112091020.GA30908@lukather>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f179.google.com ([209.85.223.179]:33186 "EHLO
-	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751212AbbAMKbM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2015 05:31:12 -0500
-In-Reply-To: <20150113094036.GR4891@lukather>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yKmnPmKxJBqIz68t"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150112091020.GA30908@lukather>
+Sender: linux-pm-owner@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org
 
-On Tue, Jan 13, 2015 at 5:40 PM, Maxime Ripard
-<maxime.ripard@free-electrons.com> wrote:
-> Hi,
->
-> On Mon, Jan 12, 2015 at 05:38:12PM +0800, Chen-Yu Tsai wrote:
->> Hi,
->>
->> On Mon, Jan 12, 2015 at 5:06 PM, Maxime Ripard
->> <maxime.ripard@free-electrons.com> wrote:
->> > Hi Chen-Yu,
->> >
->> > On Mon, Jan 12, 2015 at 12:34:04PM +0800, Chen-Yu Tsai wrote:
->> >> This patch adds the regulator nodes for the axp209 by including
->> >> the axp209 dtsi. As the inputs of these regulators are from the
->> >> axp209's PS output, which is basically just a mux over the 2
->> >> inputs, it is considered to be unregulated. Thus we do not provide
->> >> input supply properties for them.
->> >>
->> >> The regulator names and constraints are based on the board
->> >> schematics and the SoC datasheet.
->> >>
->> >> DCDC2 is used as the cpu power supply. This patch also references
->> >> it from the cpu node.
->> >>
->> >> Also get rid of axp209 properties already set in axp209.dtsi.
->> >>
->> >> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
->> >> ---
->> >>
->> >> changes since v2
->> >>
->> >>     none
->> >>
->> >> changes since v1:
->> >>
->> >>     - Use preprocessor include for axp209.dtsi
->> >>     - Remove incorrectly squashed axp209.dtsi patch
->> >>
->> >> ---
->> >>  arch/arm/boot/dts/sun7i-a20-cubieboard2.dts | 35 +++++++++++++++++++++++++----
->> >>  1 file changed, 31 insertions(+), 4 deletions(-)
->> >>
->> >> diff --git a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
->> >> index 18fc5db9c976..ec1fc2c8b3e3 100644
->> >> --- a/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
->> >> +++ b/arch/arm/boot/dts/sun7i-a20-cubieboard2.dts
->> >> @@ -88,13 +88,9 @@
->> >>                       status = "okay";
->> >>
->> >>                       axp209: pmic@34 {
->> >> -                             compatible = "x-powers,axp209";
->> >>                               reg = <0x34>;
->> >>                               interrupt-parent = <&nmi_intc>;
->> >>                               interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
->> >> -
->> >> -                             interrupt-controller;
->> >> -                             #interrupt-cells = <1>;
->> >>                       };
->> >>               };
->> >>
->> >> @@ -145,3 +141,34 @@
->> >>               status = "okay";
->> >>       };
->> >>  };
->> >> +
->> >> +#include "axp209.dtsi"
->> >> +
->> >> +&cpu0 {
->> >> +     cpu-supply = <&reg_dcdc2>;
->> >> +};
->> >> +
->> >> +&reg_dcdc2 {
->> >> +     regulator-always-on;
->> >> +     regulator-min-microvolt = <1000000>;
->> >> +     regulator-max-microvolt = <1450000>;
->> >> +     regulator-name = "vdd-cpu";
->> >> +};
->> >> +
->> >> +&reg_dcdc3 {
->> >> +     regulator-always-on;
->> >> +     regulator-min-microvolt = <1000000>;
->> >> +     regulator-max-microvolt = <1400000>;
->> >> +     regulator-name = "vdd-int-dll";
->> >> +};
->> >> +
->> >> +&reg_ldo1 {
->> >> +     regulator-name = "vdd-rtc";
->> >> +};
->> >> +
->> >> +&reg_ldo2 {
->> >> +     regulator-always-on;
->> >> +     regulator-min-microvolt = <3000000>;
->> >> +     regulator-max-microvolt = <3000000>;
->> >> +     regulator-name = "avcc";
->> >> +};
->> >
->> > How do reg_vcc3v3 and the other reg used in this DT (ahci, USB) fit
->> > into that?
->>
->> The following applies to boards that use AXP209.
->>
->> reg_vcc3v3 or reg_vcc3v0 is an external buck regulator with it's
->> enable pin tied to EXTEN on the AXP. This pin is controllable,
->> but we do not have the driver for it. It is possible that multiple
->> regulators are tied to this pin. I suggest not touching it without
->> the correct schematics.
->>
->> The source for usb and ahci regulators, or reg_vcc5v if you will,
->> is either the unregulated 5v from the power supply or the usb otg
->> port. For the Cubietruck, there's an additional uncontrollable
->> boost regulator that boosts the lipo battery's power up to 5v.
->>
->> On some of the Olimex boards that use higher input voltages, they
->> use an uncontrollable buck regulator to step down the voltage to
->> 5v. The Olinuxino-Micro also has a boost regulator for the battery,
->> tied to EXTEN.
->>
->> The AXP209 simply does not have enough outputs for all the needed
->> voltages.
->
-> Hmm, yes, ok. It makes sense.
 
-IPSOUT and the battery stuff should be revisited once we have
-a power supply driver.
+--yKmnPmKxJBqIz68t
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> You could probably chain the regulators in the DT via xxx-supply
->> if it helps. But beyond that, it is hard to do anything meaningful
->> at this point. Modeling them as fixed regulators beyond our control
->> is simpler. We also do not have an IPSOUT regulator for the AXP.
->>
->> > Eventually, I think we would be able to remove
->> > sunxi-common-regulators.dtsi, or at least, expose the proper regulator
->> > hierarchy.
->>
->> The USB and SATA regulators are just GPIO enabled switches (MOSFETs)
->> or current limiters. I think these will always exist because of the
->> reference designs. Or do you want to move them back into the board
->> dts files? FWIW, I like it the way it is now. Not that I don't like
->> it to be accurate.
->
-> At least providing the right hierarchy at the board level would be
-> great. Adding the -supply property to all our fixed regulators
-> wouldn't take too much code, and would be enough to model properly the
-> regulator trees.
+On Mon, Jan 12, 2015 at 10:10:20AM +0100, Maxime Ripard wrote:
+> On Mon, Jan 12, 2015 at 12:34:00PM +0800, Chen-Yu Tsai wrote:
+> > Hi,
+> >=20
+> > This is v3 of the cpufreq support series for sunxi. The series has been
+> > rebased onto the latest sunxi-next. I've dropped all the patches Maxime
+> > merged. This includes "ARM: sunxi: Register cpufreq-dt for sun[45678]i"
+> > which was merged but not published yet.
+> >=20
+> > Individual changes since v2 are listed within each patch.
+> >=20
+> >=20
+> > Original cover letter follows:
+> >=20
+> > This series adds support cpufreq support for sun[457]i using cpufreq-dt.
+> > This also supports passive cpu cooling (thermal throttling) using therm=
+al
+> > zones with the temperature sensor in the SoC.
+> >=20
+> > The operating points for the supported platforms were taken from the
+> > linux-sunxi FEX files repository. The majority of boards use the same
+> > settings. Only with sun7i do we see slight variations, either disabling
+> > some frequencies, or bumping up the voltage a bit. In either case this
+> > can be done by limiting the constraints for the supply regulator, or=20
+> > overriding the OPP table in the board dts file.
+> >=20
+> > On sun7i, there is an additional operating point not found in the FEX
+> > files, 960 MHz @ 1.4V, which is the full speed setting in both u-boot-s=
+unxi
+> > and mainline u-boot.
+> >=20
+> > The series has been tested on the 4 boards I have. With cpufreq active,
+> > the effects are visible as a decrease in SoC internal temperature.
+> > Stability for the operating points has been tested using:
+> >=20
+> >   http://linux-sunxi.org/Hardware_Reliability_Tests#Reliability_of_cpuf=
+req_voltage.2Ffrequency_settings
+> >=20
+> > More real world usage feedback is appreciated. Thermal throttling hasn't
+> > been tested much, due to not being able to generate enough load without
+> > the GPU for the SoC to heat up. Also on sun4i, the temperature sensor
+> > still hasn't been calibrated, so the readings are highly inaccurate.
+>=20
+> Applied 2, 3, 6 and 8.
 
-These are all unrelated to axp209. You'd end up with
+And I just applied 4, 5, 7 and 9.
 
-    vin-supply = <&reg_vcc5v>;
+Thanks!=20
 
-for the usb and sata power regulators. You could put these
-in sunxi-common-regulators, and override them for boards
-that actually have something controllable.
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
-ChenYu
+--yKmnPmKxJBqIz68t
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUtSNIAAoJEBx+YmzsjxAgh7EQAIoW+SXqQBoSbv4+yN9BTVkv
+MDRbOWUuVzDSfjyOHtHSkPRmLUOY9QeWQ10Jlmliw57eqPSsUGrrw4VZm6k/jkZt
+/2o7wVaOvinKCkUWLlKcbCW0tZLDh27XBVDMmVDzTg6kLVt3YeIBCcHAMB4bh9W4
+AR5YIns+b89FWUP5aVqDIEZmjQLB2tpWw9kCslrnqu+o5qkjp3gSpyIbiZVpL+T8
+owVLX8Jau44HXAhMB0dwrhaDeaybOv637wrDVnFBccTEMa1gfSv0mC2kB+aNz3d4
+SVygt0d1CuuqfFLUS3iNtgqKHeWaGfFTlhAltAjiwzwbNL6hQG2LiT9UqeycQqel
+X0jcJdtZY4llfzLFd39VdIvKwjgYuuvVTKqCjQrbCRCl3abA36jm6aNcXjzB4DU0
+kr49arPX53Wgssl32Q4ay2olthrSQPfgrOOBQDgcy9U2D1uxiU23yjKo918HV8Rd
+skyDHVbvZhK2EbtEpsP8mdYOU+zToSFKixGrw7a2M3GqzbxiilXig6dzBD77dRfB
+K9qs3PVlntYRkYueaJ0Mkc8RO8e/rPkYs2WI4sGS03DdxIEIYAE1XQCWrz7TquTP
+IRCsmILM9nDzsHZHjbTOHLlRJIQiyLEFx1eIMgaq+yoOgiDkXWR7+4fACeFqesTr
+jjIdCHGgkFDb3iwhYZL4
+=l8iC
+-----END PGP SIGNATURE-----
+
+--yKmnPmKxJBqIz68t--

@@ -1,17 +1,17 @@
 From: Sonic Zhang <sonic.adi@gmail.com>
-Subject: [PATCH 2/3] bfin_rotary: Move peripheral pinmux definition into platform data
-Date: Wed, 14 Jan 2015 15:52:54 +0800
-Message-ID: <1421221975-30728-2-git-send-email-sonic.adi@gmail.com>
-References: <1421221975-30728-1-git-send-email-sonic.adi@gmail.com>
+Subject: [PATCH v2 2/3] bfin_rotary: Move peripheral pinmux definition into platform data
+Date: Wed, 14 Jan 2015 16:54:13 +0800
+Message-ID: <1421225654-27872-2-git-send-email-sonic.adi@gmail.com>
+References: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0088.outbound.protection.outlook.com ([207.46.100.88]:33984
+Received: from mail-by2on0061.outbound.protection.outlook.com ([207.46.100.61]:27168
 	"EHLO na01-by2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753257AbbANI2L (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jan 2015 03:28:11 -0500
-In-Reply-To: <1421221975-30728-1-git-send-email-sonic.adi@gmail.com>
+	id S1754316AbbANI4s (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Jan 2015 03:56:48 -0500
+In-Reply-To: <1421225654-27872-1-git-send-email-sonic.adi@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org

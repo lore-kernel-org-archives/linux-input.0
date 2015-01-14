@@ -1,145 +1,111 @@
-From: Sylvain Rochet <sylvain.rochet@finsecur.com>
-Subject: [PATCH] rotary encoder: Add wake up support
-Date: Tue, 13 Jan 2015 16:51:02 +0100
-Message-ID: <1421164262-28261-1-git-send-email-sylvain.rochet@finsecur.com>
+From: Dudley Du <dudl@cypress.com>
+Subject: RE: [PATCH v17 00/12] input: cyapa: instruction of cyapa patches
+Date: Wed, 14 Jan 2015 01:34:34 +0000
+Message-ID: <BN1PR06MB07031D61722C01D4E608BE2D1410@BN1PR06MB070.namprd06.prod.outlook.com>
+References: <1419988621-2919-1-git-send-email-dudl@cypress.com>
+ <20141231161120.GA1385@newt.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-guillaumet.finsecur.com ([91.217.234.131]:37408 "EHLO
-	guillaumet.finsecur.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750976AbbAMQSf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2015 11:18:35 -0500
+Received: from mail-bl2on0105.outbound.protection.outlook.com ([65.55.169.105]:37638
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751631AbbANBei (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Jan 2015 20:34:38 -0500
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, Johan Hovold <jhovold@gmail.com>
-Cc: Sylvain Rochet <sylvain.rochet@finsecur.com>
+To: Jeremiah Mahler <jmmahler@gmail.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-This patch add wake up support for rotary encoders.
-New DT property: rotary-encoder,wakeup
-
-Signed-off-by: Sylvain Rochet <sylvain.rochet@finsecur.com>
----
- .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
- Documentation/input/rotary-encoder.txt             |  1 +
- drivers/input/misc/rotary_encoder.c                | 36 ++++++++++++++++++++++
- include/linux/rotary_encoder.h                     |  1 +
- 4 files changed, 39 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-index 3315495..468d545 100644
---- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-@@ -15,6 +15,7 @@ Optional properties:
- - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
-   greater than the specified steps or smaller than 0. For absolute axis only.
- - rotary-encoder,half-period: Makes the driver work on half-period mode.
-+- rotary-encoder,wakeup: Boolean, rotary encoder can wake-up the system.
- 
- See Documentation/input/rotary-encoder.txt for more information.
- 
-diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
-index 92e68bc..6cc873f 100644
---- a/Documentation/input/rotary-encoder.txt
-+++ b/Documentation/input/rotary-encoder.txt
-@@ -109,6 +109,7 @@ static struct rotary_encoder_platform_data my_rotary_encoder_info = {
- 	.inverted_a	= 0,
- 	.inverted_b	= 0,
- 	.half_period	= false,
-+	.wakeup		= false,
- };
- 
- static struct platform_device rotary_encoder_device = {
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index f27f81e..029b8a1 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -26,6 +26,7 @@
- #include <linux/of.h>
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
-+#include <linux/pm.h>
- 
- #define DRV_NAME "rotary-encoder"
- 
-@@ -180,6 +181,8 @@ static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct devic
- 					"rotary-encoder,rollover", NULL);
- 	pdata->half_period = !!of_get_property(np,
- 					"rotary-encoder,half-period", NULL);
-+	pdata->wakeup = !!of_get_property(np,
-+					"rotary-encoder,wakeup", NULL);
- 
- 	return pdata;
- }
-@@ -280,6 +283,8 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 		goto exit_free_irq_b;
- 	}
- 
-+	device_init_wakeup(&pdev->dev, pdata->wakeup);
-+
- 	platform_set_drvdata(pdev, encoder);
- 
- 	return 0;
-@@ -306,6 +311,8 @@ static int rotary_encoder_remove(struct platform_device *pdev)
- 	struct rotary_encoder *encoder = platform_get_drvdata(pdev);
- 	const struct rotary_encoder_platform_data *pdata = encoder->pdata;
- 
-+	device_init_wakeup(&pdev->dev, 0);
-+
- 	free_irq(encoder->irq_a, encoder);
- 	free_irq(encoder->irq_b, encoder);
- 	gpio_free(pdata->gpio_a);
-@@ -320,11 +327,40 @@ static int rotary_encoder_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int rotary_encoder_suspend(struct device *dev)
-+{
-+	struct rotary_encoder *encoder = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev)) {
-+		enable_irq_wake(encoder->irq_a);
-+		enable_irq_wake(encoder->irq_b);
-+	}
-+
-+	return 0;
-+}
-+
-+static int rotary_encoder_resume(struct device *dev)
-+{
-+	struct rotary_encoder *encoder = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev)) {
-+		disable_irq_wake(encoder->irq_a);
-+		disable_irq_wake(encoder->irq_b);
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops, rotary_encoder_suspend, rotary_encoder_resume);
-+
- static struct platform_driver rotary_encoder_driver = {
- 	.probe		= rotary_encoder_probe,
- 	.remove		= rotary_encoder_remove,
- 	.driver		= {
- 		.name	= DRV_NAME,
-+		.pm	= &rotary_encoder_pm_ops,
- 		.of_match_table = of_match_ptr(rotary_encoder_of_match),
- 	}
- };
-diff --git a/include/linux/rotary_encoder.h b/include/linux/rotary_encoder.h
-index 3f594dc..72b3fc9 100644
---- a/include/linux/rotary_encoder.h
-+++ b/include/linux/rotary_encoder.h
-@@ -11,6 +11,7 @@ struct rotary_encoder_platform_data {
- 	bool relative_axis;
- 	bool rollover;
- 	bool half_period;
-+	int wakeup;			/* configure the rotary-encoder as a wake-up source */
- };
- 
- #endif /* __ROTARY_ENCODER_H__ */
--- 
-2.1.4
-
+SGkgRG1pdHJ5LCBKZXJlbWlhaCwNCg0KQmVzaWRlcyB0aGUgdGhlIGNvbXBpbGUgZXJyb3IsIGRv
+IHlvdSBoYXZlIGFueSBvdGhlciBjb21tZW50cyBvbiBpbnB1dCBjeWFwYSB2MTcgcGF0aGNlcz8N
+Cg0KVGhhbmtzLA0KRHVkbGV5DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJv
+bTogRHVkbGV5IER1DQo+IFNlbnQ6IDIwMTXlubQx5pyINeaXpSA5OjU3DQo+IFRvOiAnSmVyZW1p
+YWggTWFobGVyJw0KPiBDYzogZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsgcnlkYmVyZ0BldXJv
+bWFpbC5zZTsgYmxldW5nQGdvb2dsZS5jb207DQo+IERhdmlkIFNvbGRhOyBsaW51eC1pbnB1dEB2
+Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDog
+UkU6IFtQQVRDSCB2MTcgMDAvMTJdIGlucHV0OiBjeWFwYTogaW5zdHJ1Y3Rpb24gb2YgY3lhcGEg
+cGF0Y2hlcw0KPg0KPiBUaGFua3MsIEplcmVtaWFoLg0KPg0KPiBJdCBzZWVtcyB0aGUgcG93ZXIg
+bWFuYWdlIGNvZGUgaGFzIGJlZW4gdXBkYXRlZCBpbiBrZXJuZWwtbmV4dCwNCj4gdGhlIHNhbWUg
+Y29kZSBkaWRuJ3QgZ2VuZXJlYXRlIGFueSBlcnJvciBiZWZvcmUuDQo+IEkgdXBkYXRlZCB3aXRo
+IGxhdGVzdCBrZXJuZWwtbmV4dCwgdGhlIGNvbXBpbGluZyBlcnJvciBhbHNvIGhhcHBlbmVkLg0K
+PiBUbyBmaXggdGhpcyBjb2RlLCBuZWVkIHRvIGFkZCBzdHVicyBmb3IgY3lhcGFfcnVudGltZV9z
+dXNwZW5kKCkgYW5kDQo+IGN5YXBhX3J1bnRpbWVfcmVzdW1lKCkgd2hlbiBDT05GSUdfUE1fUlVO
+VElNRSBpcyBub3QgZGVmaW5lZC4NCj4NCj4gICNpZmRlZiBDT05GSUdfUE1fUlVOVElNRQ0KPiAg
+c3RhdGljIGludCBjeWFwYV9ydW50aW1lX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQ0KPiAg
+ew0KPiAgc3RydWN0IGN5YXBhICpjeWFwYSA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0KPiAgaW50
+IGVycm9yOw0KPg0KPiAgZXJyb3IgPSBjeWFwYS0+b3BzLT5zZXRfcG93ZXJfbW9kZShjeWFwYSwN
+Cj4gIGN5YXBhLT5ydW50aW1lX3N1c3BlbmRfcG93ZXJfbW9kZSwNCj4gIGN5YXBhLT5ydW50aW1l
+X3N1c3BlbmRfc2xlZXBfdGltZSk7DQo+ICBpZiAoZXJyb3IpDQo+ICBkZXZfd2FybihkZXYsICJy
+dW50aW1lIHN1c3BlbmQgZmFpbGVkOiAlZFxuIiwgZXJyb3IpOw0KPg0KPiAgcmV0dXJuIDA7DQo+
+ICB9DQo+DQo+ICBzdGF0aWMgaW50IGN5YXBhX3J1bnRpbWVfcmVzdW1lKHN0cnVjdCBkZXZpY2Ug
+KmRldikNCj4gIHsNCj4gIHN0cnVjdCBjeWFwYSAqY3lhcGEgPSBkZXZfZ2V0X2RydmRhdGEoZGV2
+KTsNCj4gIGludCBlcnJvcjsNCj4NCj4gIGVycm9yID0gY3lhcGEtPm9wcy0+c2V0X3Bvd2VyX21v
+ZGUoY3lhcGEsIFBXUl9NT0RFX0ZVTExfQUNUSVZFLCAwKTsNCj4gIGlmIChlcnJvcikNCj4gIGRl
+dl93YXJuKGRldiwgInJ1bnRpbWUgcmVzdW1lIGZhaWxlZDogJWRcbiIsIGVycm9yKTsNCj4NCj4g
+IHJldHVybiAwOw0KPiAgfQ0KPiArI2Vsc2UNCj4gK3N0YXRpYyBpbmxpbmUgaW50IGN5YXBhX3J1
+bnRpbWVfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpIHsgcmV0dXJuIDA7IH0NCj4gK3N0YXRp
+YyBpbmxpbmUgaW50IGN5YXBhX3J1bnRpbWVfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikgeyBy
+ZXR1cm4gMDsgfQ0KPiAgI2VuZGlmIC8qIENPTkZJR19QTV9SVU5USU1FICovDQo+DQo+ICBzdGF0
+aWMgY29uc3Qgc3RydWN0IGRldl9wbV9vcHMgY3lhcGFfcG1fb3BzID0gew0KPiAgU0VUX1NZU1RF
+TV9TTEVFUF9QTV9PUFMoY3lhcGFfc3VzcGVuZCwgY3lhcGFfcmVzdW1lKQ0KPiAgU0VUX1JVTlRJ
+TUVfUE1fT1BTKGN5YXBhX3J1bnRpbWVfc3VzcGVuZCwgY3lhcGFfcnVudGltZV9yZXN1bWUsDQo+
+IE5VTEwpDQo+ICB9Ow0KPg0KPiBUaGFua3MsDQo+IGR1ZGxleQ0KPg0KPiA+IC0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQo+ID4gRnJvbTogSmVyZW1pYWggTWFobGVyIFttYWlsdG86am1tYWhs
+ZXJAZ21haWwuY29tXQ0KPiA+IFNlbnQ6IDIwMTXlubQx5pyIMeaXpSAwOjExDQo+ID4gVG86IER1
+ZGxleSBEdQ0KPiA+IENjOiBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyByeWRiZXJnQGV1cm9t
+YWlsLnNlOyBibGV1bmdAZ29vZ2xlLmNvbTsNCj4gPiBEYXZpZCBTb2xkYTsgbGludXgtaW5wdXRA
+dmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+ID4gU3ViamVj
+dDogUmU6IFtQQVRDSCB2MTcgMDAvMTJdIGlucHV0OiBjeWFwYTogaW5zdHJ1Y3Rpb24gb2YgY3lh
+cGEgcGF0Y2hlcw0KPiA+DQo+ID4gRHVkbGV5LA0KPiA+DQo+ID4gT24gV2VkLCBEZWMgMzEsIDIw
+MTQgYXQgMDk6MTY6NDlBTSArMDgwMCwgRHVkbGV5IER1IHdyb3RlOg0KPiA+ID4gVjE3IHBhdGNo
+ZXMgaGF2ZSBiZWxvdyB1cGRhdGVzLCBkZXRhaWxzIG9mIG90aGVyIHVwZGF0ZXMgc2VlIGhpc3Rv
+cnkgbGlzdDoNCj4gPiA+IDEpIEZpeCBrZXJuZWwgb29wcyB3aGVuIHN5c3RlbSBib290aW5nIHVw
+IHdpdGggZmluZ2VyIG9uIFRQLg0KPiA+ID4gMikgUmVtb3ZlIHVubmVjZXNzYXJ5IGVycm9yIGxv
+ZyB0aGF0IG1heSB0byBzeXN0ZW0uDQo+ID4gPiAzKSBTbGlwdCBvdXQgcG0gc2xlZXAgY29kZSBp
+bnRvIGN5YXBhX3ByZXBhcmVfd2FrZXVwX2NvbnRyb2xzKCksDQo+ID4gPiAgICByZW1vdmUgI2lu
+ZGVmcyBpbiBmdW5jdGlvbiBib2R5IG9mIENPTkZJR19QTV9TTEVFUCBhbmQNCj4gPiBDT05GSUdf
+UE1fUlVOVElNRS4NCj4gPiA+IDQpIFN1cHBseSBzdHVicyB0byBjeWFwYV9nZW4zX29wcyBhbmQg
+Y3lhcGFfZ2VuNV9vcHMgZGF0YSBzdHJ1Y3R1cmUgdG8gYXZvaWQNCj4gPiA+ICAgIGNoZWNraW5n
+IGZvciBwcmVzZW5jZSBvZiB2YXJpb3VzIG1ldGhvZHMgaW4gb3BzLg0KPiA+ID4gNikgRml4IHRo
+ZSBtZWFuaW5ncyBvZiBzb21lIGNvbW1lbnRzIGFuZCByZXR1cm4gZXJyb3IgY29kZSBub3QgY2xl
+YXIgaXNzdWUuDQo+ID4gWy4uLl0NCj4gPg0KPiA+IEl0IGhhcyBidWlsZCBlcnJvcnMgOigNCj4g
+Pg0KPiA+ICAgQ0hLICAgICBpbmNsdWRlL2NvbmZpZy9rZXJuZWwucmVsZWFzZQ0KPiA+ICAgQ0hL
+ICAgICBpbmNsdWRlL2dlbmVyYXRlZC91YXBpL2xpbnV4L3ZlcnNpb24uaA0KPiA+ICAgQ0hLICAg
+ICBpbmNsdWRlL2dlbmVyYXRlZC91dHNyZWxlYXNlLmgNCj4gPiAgIENBTEwgICAgc2NyaXB0cy9j
+aGVja3N5c2NhbGxzLnNoDQo+ID4gICBDSEsgICAgIGluY2x1ZGUvZ2VuZXJhdGVkL2NvbXBpbGUu
+aA0KPiA+ICAgQ0hLICAgICBrZXJuZWwvY29uZmlnX2RhdGEuaA0KPiA+ICAgQ0MgW01dICBkcml2
+ZXJzL2lucHV0L21vdXNlL2N5YXBhLm8NCj4gPiBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVk
+ZS9saW51eC9kZXZpY2UuaDoyNTowLA0KPiA+ICAgICAgICAgICAgICAgICAgZnJvbSBpbmNsdWRl
+L2xpbnV4L2kyYy5oOjMwLA0KPiA+ICAgICAgICAgICAgICAgICAgZnJvbSBkcml2ZXJzL2lucHV0
+L21vdXNlL2N5YXBhLmM6MTg6DQo+ID4gZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYS5jOjEzMzk6
+MjE6IGVycm9yOiDigJhjeWFwYV9ydW50aW1lX3N1c3BlbmTigJkNCj4gPiB1bmRlY2xhcmVkIGhl
+cmUgKG5vdCBpbiBhIGZ1bmN0aW9uKQ0KPiA+ICAgU0VUX1JVTlRJTUVfUE1fT1BTKGN5YXBhX3J1
+bnRpbWVfc3VzcGVuZCwgY3lhcGFfcnVudGltZV9yZXN1bWUsDQo+ID4gTlVMTCkNCj4gPiAgICAg
+ICAgICAgICAgICAgICAgICBeDQo+ID4gaW5jbHVkZS9saW51eC9wbS5oOjM0NzoyMTogbm90ZTog
+aW4gZGVmaW5pdGlvbiBvZiBtYWNybw0KPiDigJhTRVRfUlVOVElNRV9QTV9PUFPigJkNCj4gPiAg
+IC5ydW50aW1lX3N1c3BlbmQgPSBzdXNwZW5kX2ZuLCBcDQo+ID4gICAgICAgICAgICAgICAgICAg
+ICAgXg0KPiA+IGRyaXZlcnMvaW5wdXQvbW91c2UvY3lhcGEuYzoxMzM5OjQ0OiBlcnJvcjog4oCY
+Y3lhcGFfcnVudGltZV9yZXN1bWXigJkNCj4gPiB1bmRlY2xhcmVkIGhlcmUgKG5vdCBpbiBhIGZ1
+bmN0aW9uKQ0KPiA+ICAgU0VUX1JVTlRJTUVfUE1fT1BTKGN5YXBhX3J1bnRpbWVfc3VzcGVuZCwg
+Y3lhcGFfcnVudGltZV9yZXN1bWUsDQo+ID4gTlVMTCkNCj4gPiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIF4NCj4gPiBpbmNsdWRlL2xpbnV4L3BtLmg6MzQ4OjIw
+OiBub3RlOiBpbiBkZWZpbml0aW9uIG9mIG1hY3JvDQo+IOKAmFNFVF9SVU5USU1FX1BNX09QU+KA
+mQ0KPiA+ICAgLnJ1bnRpbWVfcmVzdW1lID0gcmVzdW1lX2ZuLCBcDQo+ID4gICAgICAgICAgICAg
+ICAgICAgICBeDQo+ID4gc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoyNTc6IHJlY2lwZSBmb3IgdGFy
+Z2V0ICdkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBhLm8nIGZhaWxlZA0KPiA+IG1ha2VbM106ICoq
+KiBbZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYS5vXSBFcnJvciAxDQo+ID4gc2NyaXB0cy9NYWtl
+ZmlsZS5idWlsZDo0MDI6IHJlY2lwZSBmb3IgdGFyZ2V0ICdkcml2ZXJzL2lucHV0L21vdXNlJyBm
+YWlsZWQNCj4gPiBtYWtlWzJdOiAqKiogW2RyaXZlcnMvaW5wdXQvbW91c2VdIEVycm9yIDINCj4g
+PiBzY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjQwMjogcmVjaXBlIGZvciB0YXJnZXQgJ2RyaXZlcnMv
+aW5wdXQnIGZhaWxlZA0KPiA+IG1ha2VbMV06ICoqKiBbZHJpdmVycy9pbnB1dF0gRXJyb3IgMg0K
+PiA+IG1ha2VbMV06ICoqKiBXYWl0aW5nIGZvciB1bmZpbmlzaGVkIGpvYnMuLi4uDQo+ID4gTWFr
+ZWZpbGU6OTU1OiByZWNpcGUgZm9yIHRhcmdldCAnZHJpdmVycycgZmFpbGVkDQo+ID4gbWFrZTog
+KioqIFtkcml2ZXJzXSBFcnJvciAyDQo+ID4gbWFrZTogKioqIFdhaXRpbmcgZm9yIHVuZmluaXNo
+ZWQgam9icy4uLi4NCj4gPg0KPiA+IC0tDQo+ID4gLSBKZXJlbWlhaCBNYWhsZXINCg0KVGhpcyBt
+ZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1
+YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNl
+aXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBk
+ZWxldGUgdGhpcyBtZXNzYWdlLg0K

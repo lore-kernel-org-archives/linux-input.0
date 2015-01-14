@@ -1,95 +1,117 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH v3 4/9] ARM: dts: sun7i: cubieboard2: add axp209
- regulator nodes
-Date: Wed, 14 Jan 2015 20:30:08 +0100
-Message-ID: <20150114193008.GD4891@lukather>
-References: <1421037249-28461-1-git-send-email-wens@csie.org>
- <1421037249-28461-5-git-send-email-wens@csie.org>
- <20150112090603.GE4891@lukather>
- <CAGb2v66r6EG2F1-=Gaig7ZW58Z1KteQ5nDPfW5niisv7dCjY0Q@mail.gmail.com>
- <20150113094036.GR4891@lukather>
- <CAGb2v65=Jfr56Yb2udNVy=shA9+AOPK9yjHTAOJZ7TFh5idTHA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cC4dCx2W6DcYPM7t"
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/6] Input: ALPS - make Rushmore a separate protocol
+Date: Wed, 14 Jan 2015 14:55:50 -0800
+Message-ID: <1421276154-8689-3-git-send-email-dmitry.torokhov@gmail.com>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:47405 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754236AbbANTfE (ORCPT
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:39788 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754166AbbANW4L (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jan 2015 14:35:04 -0500
-Content-Disposition: inline
-In-Reply-To: <CAGb2v65=Jfr56Yb2udNVy=shA9+AOPK9yjHTAOJZ7TFh5idTHA@mail.gmail.com>
+	Wed, 14 Jan 2015 17:56:11 -0500
+Received: by mail-ie0-f178.google.com with SMTP id vy18so11769197iec.9
+        for <linux-input@vger.kernel.org>; Wed, 14 Jan 2015 14:56:10 -0800 (PST)
+In-Reply-To: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org
+To: linux-input@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: Yunkang Tang <yunkang.tang@cn.alps.com>, Hans de Goede <hdegoede@redhat.com>
 
+Even though Rushmore is very close to V3 protocol it is sufficiently
+different to warrant it's own protocol name.
 
---cC4dCx2W6DcYPM7t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/alps.c | 26 ++++++++++++++++----------
+ drivers/input/mouse/alps.h |  1 +
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
-On Tue, Jan 13, 2015 at 06:30:51PM +0800, Chen-Yu Tsai wrote:
-> >> You could probably chain the regulators in the DT via xxx-supply
-> >> if it helps. But beyond that, it is hard to do anything meaningful
-> >> at this point. Modeling them as fixed regulators beyond our control
-> >> is simpler. We also do not have an IPSOUT regulator for the AXP.
-> >>
-> >> > Eventually, I think we would be able to remove
-> >> > sunxi-common-regulators.dtsi, or at least, expose the proper regulat=
-or
-> >> > hierarchy.
-> >>
-> >> The USB and SATA regulators are just GPIO enabled switches (MOSFETs)
-> >> or current limiters. I think these will always exist because of the
-> >> reference designs. Or do you want to move them back into the board
-> >> dts files? FWIW, I like it the way it is now. Not that I don't like
-> >> it to be accurate.
-> >
-> > At least providing the right hierarchy at the board level would be
-> > great. Adding the -supply property to all our fixed regulators
-> > wouldn't take too much code, and would be enough to model properly the
-> > regulator trees.
->=20
-> These are all unrelated to axp209. You'd end up with
->=20
->     vin-supply =3D <&reg_vcc5v>;
->=20
-> for the usb and sata power regulators. You could put these
-> in sunxi-common-regulators, and override them for boards
-> that actually have something controllable.
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index d995523..80aa6f8 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -99,7 +99,6 @@ static const struct alps_nibble_commands alps_v6_nibble_commands[] = {
+ #define ALPS_FOUR_BUTTONS	0x40	/* 4 direction button present */
+ #define ALPS_PS2_INTERLEAVED	0x80	/* 3-byte PS/2 packet interleaved with
+ 					   6-byte ALPS packet */
+-#define ALPS_IS_RUSHMORE	0x100	/* device is a rushmore */
+ #define ALPS_BUTTONPAD		0x200	/* device is a clickpad */
+ 
+ static const struct alps_model_info alps_model_data[] = {
+@@ -412,7 +411,7 @@ static int alps_process_bitmap(struct alps_data *priv,
+ 		(2 * (priv->y_bits - 1));
+ 
+ 	/* y-bitmap order is reversed, except on rushmore */
+-	if (!(priv->flags & ALPS_IS_RUSHMORE)) {
++	if (priv->proto_version != ALPS_PROTO_V3_RUSHMORE) {
+ 		fields->mt[0].y = priv->y_max - fields->mt[0].y;
+ 		fields->mt[1].y = priv->y_max - fields->mt[1].y;
+ 	}
+@@ -1275,7 +1274,7 @@ static psmouse_ret_t alps_process_byte(struct psmouse *psmouse)
+ 			    psmouse->pktcnt - 1,
+ 			    psmouse->packet[psmouse->pktcnt - 1]);
+ 
+-		if (priv->proto_version == ALPS_PROTO_V3 &&
++		if (priv->proto_version == ALPS_PROTO_V3_RUSHMORE &&
+ 		    psmouse->pktcnt == psmouse->pktsize) {
+ 			/*
+ 			 * Some Dell boxes, such as Latitude E6440 or E7440
+@@ -2182,6 +2181,7 @@ static void alps_set_defaults(struct alps_data *priv)
+ 		priv->x_max = 1023;
+ 		priv->y_max = 767;
+ 		break;
++
+ 	case ALPS_PROTO_V3:
+ 		priv->hw_init = alps_hw_init_v3;
+ 		priv->process_packet = alps_process_packet_v3;
+@@ -2190,6 +2190,18 @@ static void alps_set_defaults(struct alps_data *priv)
+ 		priv->nibble_commands = alps_v3_nibble_commands;
+ 		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
+ 		break;
++
++	case ALPS_PROTO_V3_RUSHMORE:
++		priv->hw_init = alps_hw_init_rushmore_v3;
++		priv->process_packet = alps_process_packet_v3;
++		priv->set_abs_params = alps_set_abs_params_mt;
++		priv->decode_fields = alps_decode_rushmore;
++		priv->nibble_commands = alps_v3_nibble_commands;
++		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
++		priv->x_bits = 16;
++		priv->y_bits = 12;
++		break;
++
+ 	case ALPS_PROTO_V4:
+ 		priv->hw_init = alps_hw_init_v4;
+ 		priv->process_packet = alps_process_packet_v4;
+@@ -2313,15 +2325,9 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 
+ 		return 0;
+ 	} else if (ec[0] == 0x88 && ec[1] == 0x08) {
+-		priv->proto_version = ALPS_PROTO_V3;
++		priv->proto_version = ALPS_PROTO_V3_RUSHMORE;
+ 		alps_set_defaults(priv);
+ 
+-		priv->hw_init = alps_hw_init_rushmore_v3;
+-		priv->decode_fields = alps_decode_rushmore;
+-		priv->x_bits = 16;
+-		priv->y_bits = 12;
+-		priv->flags |= ALPS_IS_RUSHMORE;
+-
+ 		/* hack to make addr_command, nibble_command available */
+ 		psmouse->private = priv;
+ 
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index 94645bf..f19908a 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -17,6 +17,7 @@
+ #define ALPS_PROTO_V1		0x100
+ #define ALPS_PROTO_V2		0x200
+ #define ALPS_PROTO_V3		0x300
++#define ALPS_PROTO_V3_RUSHMORE	0x310
+ #define ALPS_PROTO_V4		0x400
+ #define ALPS_PROTO_V5		0x500
+ #define ALPS_PROTO_V6		0x600
+-- 
+2.2.0.rc0.207.ga3a616c
 
-Ok. Fine then.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---cC4dCx2W6DcYPM7t
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUtsPAAAoJEBx+YmzsjxAgVsIQAKJQF/3Jugi/nlhA2hYvTekV
-7BdfxtqgjtNNFT+P3ZOPj4/04jjAiGVnw+8T4p2UqQigFu/4U0B7UBHygHt8a3sm
-VYwu8XQyFAvwdY8AKVQtelFTfX8YjnJcCoXKkEOEpwg5SBgmkpFpWEi7Z79gqOC8
-KvGQLTi6jcKxTcTI8eIthHP+lD6V/Y4IUj8X/OB1tVmItafy2TrCZr+tw3nVtW9V
-b2249hPpEGPyEQ225yEtigp+XCD0nafrv+5spcUfAA7JW9J2p0S3PTb4JHxmDGq5
-u+JPfCSsFCV7q60szk0r2GvH245yIyugOpyJHpwXJSytZxlGZ0DSOKeRqbfyTIiH
-i6/Tu4wXBH6vXbBolF4ky33CN+begrJ7wI/6vTC8fCSYKm2keGFeB1LxiKPGbq2u
-72s14SX9UkpyUlQoDPZymilb8mvDWBgCySWitL/YQb+0qjLE5uEZzLV1oPcGvtr8
-+QQkoGUKs0uLkD99F8Woag53wd45D667vyIHjIhG9xIlQniKA/UiJCpY5aLp4hkf
-N5Dqq3a3ZqL6GPFCE6bCIMzA8h8sXqm+77R8sWoXh8trTA3f6+bf745Dnd1VGiAk
-DOnt00LnPzbnRq+u2wo9wTbw6aEsHP9ulQPaxfnrsYPqcJ7AIX46/RTkhyW0y6EG
-WZEVmucqiQ1KHlj34n4c
-=4wTz
------END PGP SIGNATURE-----
-
---cC4dCx2W6DcYPM7t--

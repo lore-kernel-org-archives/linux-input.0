@@ -1,111 +1,106 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v17 00/12] input: cyapa: instruction of cyapa patches
-Date: Wed, 14 Jan 2015 01:34:34 +0000
-Message-ID: <BN1PR06MB07031D61722C01D4E608BE2D1410@BN1PR06MB070.namprd06.prod.outlook.com>
-References: <1419988621-2919-1-git-send-email-dudl@cypress.com>
- <20141231161120.GA1385@newt.localdomain>
+From: Sonic Zhang <sonic.adi@gmail.com>
+Subject: [PATCH 1/3] bfin_rotary: move rotary platform header definition to linux platform_data head path
+Date: Wed, 14 Jan 2015 15:52:53 +0800
+Message-ID: <1421221975-30728-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2on0105.outbound.protection.outlook.com ([65.55.169.105]:37638
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+Received: from mail-bn1bon0082.outbound.protection.outlook.com ([157.56.111.82]:55228
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751631AbbANBei (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2015 20:34:38 -0500
-Content-Language: en-US
+	id S1755281AbbANIKU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Jan 2015 03:10:20 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, David Solda <dso@cypress.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Michael Hennerich <michael.hennerich@analog.com>, adi-buildroot-devel@lists.sourceforge.net, Sonic Zhang <sonic.zhang@analog.com>
 
-SGkgRG1pdHJ5LCBKZXJlbWlhaCwNCg0KQmVzaWRlcyB0aGUgdGhlIGNvbXBpbGUgZXJyb3IsIGRv
-IHlvdSBoYXZlIGFueSBvdGhlciBjb21tZW50cyBvbiBpbnB1dCBjeWFwYSB2MTcgcGF0aGNlcz8N
-Cg0KVGhhbmtzLA0KRHVkbGV5DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJv
-bTogRHVkbGV5IER1DQo+IFNlbnQ6IDIwMTXlubQx5pyINeaXpSA5OjU3DQo+IFRvOiAnSmVyZW1p
-YWggTWFobGVyJw0KPiBDYzogZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbTsgcnlkYmVyZ0BldXJv
-bWFpbC5zZTsgYmxldW5nQGdvb2dsZS5jb207DQo+IERhdmlkIFNvbGRhOyBsaW51eC1pbnB1dEB2
-Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDog
-UkU6IFtQQVRDSCB2MTcgMDAvMTJdIGlucHV0OiBjeWFwYTogaW5zdHJ1Y3Rpb24gb2YgY3lhcGEg
-cGF0Y2hlcw0KPg0KPiBUaGFua3MsIEplcmVtaWFoLg0KPg0KPiBJdCBzZWVtcyB0aGUgcG93ZXIg
-bWFuYWdlIGNvZGUgaGFzIGJlZW4gdXBkYXRlZCBpbiBrZXJuZWwtbmV4dCwNCj4gdGhlIHNhbWUg
-Y29kZSBkaWRuJ3QgZ2VuZXJlYXRlIGFueSBlcnJvciBiZWZvcmUuDQo+IEkgdXBkYXRlZCB3aXRo
-IGxhdGVzdCBrZXJuZWwtbmV4dCwgdGhlIGNvbXBpbGluZyBlcnJvciBhbHNvIGhhcHBlbmVkLg0K
-PiBUbyBmaXggdGhpcyBjb2RlLCBuZWVkIHRvIGFkZCBzdHVicyBmb3IgY3lhcGFfcnVudGltZV9z
-dXNwZW5kKCkgYW5kDQo+IGN5YXBhX3J1bnRpbWVfcmVzdW1lKCkgd2hlbiBDT05GSUdfUE1fUlVO
-VElNRSBpcyBub3QgZGVmaW5lZC4NCj4NCj4gICNpZmRlZiBDT05GSUdfUE1fUlVOVElNRQ0KPiAg
-c3RhdGljIGludCBjeWFwYV9ydW50aW1lX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQ0KPiAg
-ew0KPiAgc3RydWN0IGN5YXBhICpjeWFwYSA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0KPiAgaW50
-IGVycm9yOw0KPg0KPiAgZXJyb3IgPSBjeWFwYS0+b3BzLT5zZXRfcG93ZXJfbW9kZShjeWFwYSwN
-Cj4gIGN5YXBhLT5ydW50aW1lX3N1c3BlbmRfcG93ZXJfbW9kZSwNCj4gIGN5YXBhLT5ydW50aW1l
-X3N1c3BlbmRfc2xlZXBfdGltZSk7DQo+ICBpZiAoZXJyb3IpDQo+ICBkZXZfd2FybihkZXYsICJy
-dW50aW1lIHN1c3BlbmQgZmFpbGVkOiAlZFxuIiwgZXJyb3IpOw0KPg0KPiAgcmV0dXJuIDA7DQo+
-ICB9DQo+DQo+ICBzdGF0aWMgaW50IGN5YXBhX3J1bnRpbWVfcmVzdW1lKHN0cnVjdCBkZXZpY2Ug
-KmRldikNCj4gIHsNCj4gIHN0cnVjdCBjeWFwYSAqY3lhcGEgPSBkZXZfZ2V0X2RydmRhdGEoZGV2
-KTsNCj4gIGludCBlcnJvcjsNCj4NCj4gIGVycm9yID0gY3lhcGEtPm9wcy0+c2V0X3Bvd2VyX21v
-ZGUoY3lhcGEsIFBXUl9NT0RFX0ZVTExfQUNUSVZFLCAwKTsNCj4gIGlmIChlcnJvcikNCj4gIGRl
-dl93YXJuKGRldiwgInJ1bnRpbWUgcmVzdW1lIGZhaWxlZDogJWRcbiIsIGVycm9yKTsNCj4NCj4g
-IHJldHVybiAwOw0KPiAgfQ0KPiArI2Vsc2UNCj4gK3N0YXRpYyBpbmxpbmUgaW50IGN5YXBhX3J1
-bnRpbWVfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpIHsgcmV0dXJuIDA7IH0NCj4gK3N0YXRp
-YyBpbmxpbmUgaW50IGN5YXBhX3J1bnRpbWVfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikgeyBy
-ZXR1cm4gMDsgfQ0KPiAgI2VuZGlmIC8qIENPTkZJR19QTV9SVU5USU1FICovDQo+DQo+ICBzdGF0
-aWMgY29uc3Qgc3RydWN0IGRldl9wbV9vcHMgY3lhcGFfcG1fb3BzID0gew0KPiAgU0VUX1NZU1RF
-TV9TTEVFUF9QTV9PUFMoY3lhcGFfc3VzcGVuZCwgY3lhcGFfcmVzdW1lKQ0KPiAgU0VUX1JVTlRJ
-TUVfUE1fT1BTKGN5YXBhX3J1bnRpbWVfc3VzcGVuZCwgY3lhcGFfcnVudGltZV9yZXN1bWUsDQo+
-IE5VTEwpDQo+ICB9Ow0KPg0KPiBUaGFua3MsDQo+IGR1ZGxleQ0KPg0KPiA+IC0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQo+ID4gRnJvbTogSmVyZW1pYWggTWFobGVyIFttYWlsdG86am1tYWhs
-ZXJAZ21haWwuY29tXQ0KPiA+IFNlbnQ6IDIwMTXlubQx5pyIMeaXpSAwOjExDQo+ID4gVG86IER1
-ZGxleSBEdQ0KPiA+IENjOiBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyByeWRiZXJnQGV1cm9t
-YWlsLnNlOyBibGV1bmdAZ29vZ2xlLmNvbTsNCj4gPiBEYXZpZCBTb2xkYTsgbGludXgtaW5wdXRA
-dmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+ID4gU3ViamVj
-dDogUmU6IFtQQVRDSCB2MTcgMDAvMTJdIGlucHV0OiBjeWFwYTogaW5zdHJ1Y3Rpb24gb2YgY3lh
-cGEgcGF0Y2hlcw0KPiA+DQo+ID4gRHVkbGV5LA0KPiA+DQo+ID4gT24gV2VkLCBEZWMgMzEsIDIw
-MTQgYXQgMDk6MTY6NDlBTSArMDgwMCwgRHVkbGV5IER1IHdyb3RlOg0KPiA+ID4gVjE3IHBhdGNo
-ZXMgaGF2ZSBiZWxvdyB1cGRhdGVzLCBkZXRhaWxzIG9mIG90aGVyIHVwZGF0ZXMgc2VlIGhpc3Rv
-cnkgbGlzdDoNCj4gPiA+IDEpIEZpeCBrZXJuZWwgb29wcyB3aGVuIHN5c3RlbSBib290aW5nIHVw
-IHdpdGggZmluZ2VyIG9uIFRQLg0KPiA+ID4gMikgUmVtb3ZlIHVubmVjZXNzYXJ5IGVycm9yIGxv
-ZyB0aGF0IG1heSB0byBzeXN0ZW0uDQo+ID4gPiAzKSBTbGlwdCBvdXQgcG0gc2xlZXAgY29kZSBp
-bnRvIGN5YXBhX3ByZXBhcmVfd2FrZXVwX2NvbnRyb2xzKCksDQo+ID4gPiAgICByZW1vdmUgI2lu
-ZGVmcyBpbiBmdW5jdGlvbiBib2R5IG9mIENPTkZJR19QTV9TTEVFUCBhbmQNCj4gPiBDT05GSUdf
-UE1fUlVOVElNRS4NCj4gPiA+IDQpIFN1cHBseSBzdHVicyB0byBjeWFwYV9nZW4zX29wcyBhbmQg
-Y3lhcGFfZ2VuNV9vcHMgZGF0YSBzdHJ1Y3R1cmUgdG8gYXZvaWQNCj4gPiA+ICAgIGNoZWNraW5n
-IGZvciBwcmVzZW5jZSBvZiB2YXJpb3VzIG1ldGhvZHMgaW4gb3BzLg0KPiA+ID4gNikgRml4IHRo
-ZSBtZWFuaW5ncyBvZiBzb21lIGNvbW1lbnRzIGFuZCByZXR1cm4gZXJyb3IgY29kZSBub3QgY2xl
-YXIgaXNzdWUuDQo+ID4gWy4uLl0NCj4gPg0KPiA+IEl0IGhhcyBidWlsZCBlcnJvcnMgOigNCj4g
-Pg0KPiA+ICAgQ0hLICAgICBpbmNsdWRlL2NvbmZpZy9rZXJuZWwucmVsZWFzZQ0KPiA+ICAgQ0hL
-ICAgICBpbmNsdWRlL2dlbmVyYXRlZC91YXBpL2xpbnV4L3ZlcnNpb24uaA0KPiA+ICAgQ0hLICAg
-ICBpbmNsdWRlL2dlbmVyYXRlZC91dHNyZWxlYXNlLmgNCj4gPiAgIENBTEwgICAgc2NyaXB0cy9j
-aGVja3N5c2NhbGxzLnNoDQo+ID4gICBDSEsgICAgIGluY2x1ZGUvZ2VuZXJhdGVkL2NvbXBpbGUu
-aA0KPiA+ICAgQ0hLICAgICBrZXJuZWwvY29uZmlnX2RhdGEuaA0KPiA+ICAgQ0MgW01dICBkcml2
-ZXJzL2lucHV0L21vdXNlL2N5YXBhLm8NCj4gPiBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVk
-ZS9saW51eC9kZXZpY2UuaDoyNTowLA0KPiA+ICAgICAgICAgICAgICAgICAgZnJvbSBpbmNsdWRl
-L2xpbnV4L2kyYy5oOjMwLA0KPiA+ICAgICAgICAgICAgICAgICAgZnJvbSBkcml2ZXJzL2lucHV0
-L21vdXNlL2N5YXBhLmM6MTg6DQo+ID4gZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYS5jOjEzMzk6
-MjE6IGVycm9yOiDigJhjeWFwYV9ydW50aW1lX3N1c3BlbmTigJkNCj4gPiB1bmRlY2xhcmVkIGhl
-cmUgKG5vdCBpbiBhIGZ1bmN0aW9uKQ0KPiA+ICAgU0VUX1JVTlRJTUVfUE1fT1BTKGN5YXBhX3J1
-bnRpbWVfc3VzcGVuZCwgY3lhcGFfcnVudGltZV9yZXN1bWUsDQo+ID4gTlVMTCkNCj4gPiAgICAg
-ICAgICAgICAgICAgICAgICBeDQo+ID4gaW5jbHVkZS9saW51eC9wbS5oOjM0NzoyMTogbm90ZTog
-aW4gZGVmaW5pdGlvbiBvZiBtYWNybw0KPiDigJhTRVRfUlVOVElNRV9QTV9PUFPigJkNCj4gPiAg
-IC5ydW50aW1lX3N1c3BlbmQgPSBzdXNwZW5kX2ZuLCBcDQo+ID4gICAgICAgICAgICAgICAgICAg
-ICAgXg0KPiA+IGRyaXZlcnMvaW5wdXQvbW91c2UvY3lhcGEuYzoxMzM5OjQ0OiBlcnJvcjog4oCY
-Y3lhcGFfcnVudGltZV9yZXN1bWXigJkNCj4gPiB1bmRlY2xhcmVkIGhlcmUgKG5vdCBpbiBhIGZ1
-bmN0aW9uKQ0KPiA+ICAgU0VUX1JVTlRJTUVfUE1fT1BTKGN5YXBhX3J1bnRpbWVfc3VzcGVuZCwg
-Y3lhcGFfcnVudGltZV9yZXN1bWUsDQo+ID4gTlVMTCkNCj4gPiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIF4NCj4gPiBpbmNsdWRlL2xpbnV4L3BtLmg6MzQ4OjIw
-OiBub3RlOiBpbiBkZWZpbml0aW9uIG9mIG1hY3JvDQo+IOKAmFNFVF9SVU5USU1FX1BNX09QU+KA
-mQ0KPiA+ICAgLnJ1bnRpbWVfcmVzdW1lID0gcmVzdW1lX2ZuLCBcDQo+ID4gICAgICAgICAgICAg
-ICAgICAgICBeDQo+ID4gc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoyNTc6IHJlY2lwZSBmb3IgdGFy
-Z2V0ICdkcml2ZXJzL2lucHV0L21vdXNlL2N5YXBhLm8nIGZhaWxlZA0KPiA+IG1ha2VbM106ICoq
-KiBbZHJpdmVycy9pbnB1dC9tb3VzZS9jeWFwYS5vXSBFcnJvciAxDQo+ID4gc2NyaXB0cy9NYWtl
-ZmlsZS5idWlsZDo0MDI6IHJlY2lwZSBmb3IgdGFyZ2V0ICdkcml2ZXJzL2lucHV0L21vdXNlJyBm
-YWlsZWQNCj4gPiBtYWtlWzJdOiAqKiogW2RyaXZlcnMvaW5wdXQvbW91c2VdIEVycm9yIDINCj4g
-PiBzY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjQwMjogcmVjaXBlIGZvciB0YXJnZXQgJ2RyaXZlcnMv
-aW5wdXQnIGZhaWxlZA0KPiA+IG1ha2VbMV06ICoqKiBbZHJpdmVycy9pbnB1dF0gRXJyb3IgMg0K
-PiA+IG1ha2VbMV06ICoqKiBXYWl0aW5nIGZvciB1bmZpbmlzaGVkIGpvYnMuLi4uDQo+ID4gTWFr
-ZWZpbGU6OTU1OiByZWNpcGUgZm9yIHRhcmdldCAnZHJpdmVycycgZmFpbGVkDQo+ID4gbWFrZTog
-KioqIFtkcml2ZXJzXSBFcnJvciAyDQo+ID4gbWFrZTogKioqIFdhaXRpbmcgZm9yIHVuZmluaXNo
-ZWQgam9icy4uLi4NCj4gPg0KPiA+IC0tDQo+ID4gLSBKZXJlbWlhaCBNYWhsZXINCg0KVGhpcyBt
-ZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gQ3lwcmVzcyAob3IgaXRzIHN1
-YnNpZGlhcmllcykgY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBJZiBpdCBoYXMgYmVlbiByZWNl
-aXZlZCBpbiBlcnJvciwgcGxlYXNlIGFkdmlzZSB0aGUgc2VuZGVyIGFuZCBpbW1lZGlhdGVseSBk
-ZWxldGUgdGhpcyBtZXNzYWdlLg0K
+From: Sonic Zhang <sonic.zhang@analog.com>
+
+The platform data definition of the rotary driver should be generic for all architectures.
+
+Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
+---
+ arch/blackfin/mach-bf527/boards/ad7160eval.c       |    2 +-
+ arch/blackfin/mach-bf527/boards/ezkit.c            |    2 +-
+ arch/blackfin/mach-bf548/boards/ezkit.c            |    2 +-
+ arch/blackfin/mach-bf609/boards/ezkit.c            |    2 +-
+ drivers/input/misc/bfin_rotary.c                   |    2 +-
+ .../linux/platform_data}/bfin_rotary.h             |    0
+ 6 files changed, 5 insertions(+), 5 deletions(-)
+ rename {arch/blackfin/include/asm => include/linux/platform_data}/bfin_rotary.h (100%)
+
+diff --git a/arch/blackfin/mach-bf527/boards/ad7160eval.c b/arch/blackfin/mach-bf527/boards/ad7160eval.c
+index 9501bd8..beb011b 100644
+--- a/arch/blackfin/mach-bf527/boards/ad7160eval.c
++++ b/arch/blackfin/mach-bf527/boards/ad7160eval.c
+@@ -666,7 +666,7 @@ static struct platform_device bfin_sport1_uart_device = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+-#include <asm/bfin_rotary.h>
++#include <linux/platform_data/bfin_rotary.h>
+ 
+ static struct bfin_rotary_platform_data bfin_rotary_data = {
+ 	/*.rotary_up_key     = KEY_UP,*/
+diff --git a/arch/blackfin/mach-bf527/boards/ezkit.c b/arch/blackfin/mach-bf527/boards/ezkit.c
+index d64f565..728cda4 100644
+--- a/arch/blackfin/mach-bf527/boards/ezkit.c
++++ b/arch/blackfin/mach-bf527/boards/ezkit.c
+@@ -1092,7 +1092,7 @@ static struct platform_device bfin_device_gpiokeys = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+-#include <asm/bfin_rotary.h>
++#include <linux/platform_data/bfin_rotary.h>
+ 
+ static struct bfin_rotary_platform_data bfin_rotary_data = {
+ 	/*.rotary_up_key     = KEY_UP,*/
+diff --git a/arch/blackfin/mach-bf548/boards/ezkit.c b/arch/blackfin/mach-bf548/boards/ezkit.c
+index 1fe7ff2..8f70f83 100644
+--- a/arch/blackfin/mach-bf548/boards/ezkit.c
++++ b/arch/blackfin/mach-bf548/boards/ezkit.c
+@@ -159,7 +159,7 @@ static struct platform_device bf54x_kpad_device = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+-#include <asm/bfin_rotary.h>
++#include <linux/platform_data/bfin_rotary.h>
+ 
+ static struct bfin_rotary_platform_data bfin_rotary_data = {
+ 	/*.rotary_up_key     = KEY_UP,*/
+diff --git a/arch/blackfin/mach-bf609/boards/ezkit.c b/arch/blackfin/mach-bf609/boards/ezkit.c
+index e2c0b02..f9dc64d 100644
+--- a/arch/blackfin/mach-bf609/boards/ezkit.c
++++ b/arch/blackfin/mach-bf609/boards/ezkit.c
+@@ -75,7 +75,7 @@ static struct platform_device bfin_isp1760_device = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_INPUT_BFIN_ROTARY)
+-#include <asm/bfin_rotary.h>
++#include <linux/platform_data/bfin_rotary.h>
+ 
+ static struct bfin_rotary_platform_data bfin_rotary_data = {
+ 	/*.rotary_up_key     = KEY_UP,*/
+diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+index e69d9bc..8f6c7cd 100644
+--- a/drivers/input/misc/bfin_rotary.c
++++ b/drivers/input/misc/bfin_rotary.c
+@@ -12,9 +12,9 @@
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
++#include <linux/platform_data/bfin_rotary.h>
+ 
+ #include <asm/portmux.h>
+-#include <asm/bfin_rotary.h>
+ 
+ static const u16 per_cnt[] = {
+ 	P_CNT_CUD,
+diff --git a/arch/blackfin/include/asm/bfin_rotary.h b/include/linux/platform_data/bfin_rotary.h
+similarity index 100%
+rename from arch/blackfin/include/asm/bfin_rotary.h
+rename to include/linux/platform_data/bfin_rotary.h
+-- 
+1.7.9.5
+

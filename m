@@ -1,57 +1,61 @@
-From: Olliver Schinagl <oliver@schinagl.nl>
-Subject: Re: [PATCH v1 4/4] leds: no longer use unnamed gpios
-Date: Wed, 14 Jan 2015 14:20:07 +0100
-Message-ID: <54B66D07.8040807@schinagl.nl>
-References: <1420621722-7428-1-git-send-email-oliver+list@schinagl.nl>	<1420621722-7428-5-git-send-email-oliver+list@schinagl.nl>	<20150107235522.GA6670@dtor-ws>	<54AE43A9.3020309@schinagl.nl>	<CAL_JsqJE_PCXrejHO3vfdbbtC4FGyuPhJ8W-A=8nZMcu6aBxCw@mail.gmail.com>	<20150108221249.GH23256@dtor-ws> <CACRpkdZZxAPecNfADzYLSz8S6tNBi9Jr4st==zxnNp2r2gPC2g@mail.gmail.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/5] mfd: tps65218: make INT[12] and STATUS registers
+ volatile
+Date: Wed, 14 Jan 2015 09:07:17 -0800
+Message-ID: <20150114170716.GL2419@atomide.com>
+References: <1419622104-25812-1-git-send-email-balbi@ti.com>
+ <1419622104-25812-2-git-send-email-balbi@ti.com>
+ <20150106173734.GL6502@saruman>
+ <20150108162512.GC31926@saruman>
+ <20150112164654.GB6525@saruman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZZxAPecNfADzYLSz8S6tNBi9Jr4st==zxnNp2r2gPC2g@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robherring2@gmail.com>, Olliver Schinagl <oliver+list@schinagl.nl>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Alexandre Courbot <gnurou@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Robin Gong <b38343@freescale.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Grant Likely <grant.likely@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Alexander Shiyan <shc_work@mail.ru>, Jingoo Han <jg1.han@samsung.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-inpu
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:22456 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751187AbbANRLF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Jan 2015 12:11:05 -0500
+Content-Disposition: inline
+In-Reply-To: <20150112164654.GB6525@saruman>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>, Andrew Morton <akpm@linux-foundation.org>
 
+* Felipe Balbi <balbi@ti.com> [150112 08:50]:
+> Hi,
+> 
+> On Thu, Jan 08, 2015 at 10:25:12AM -0600, Felipe Balbi wrote:
+> > On Tue, Jan 06, 2015 at 11:37:34AM -0600, Felipe Balbi wrote:
+> > > On Fri, Dec 26, 2014 at 01:28:20PM -0600, Felipe Balbi wrote:
+> > > > STATUS register can be modified by the HW, so we
+> > > > should bypass cache because of that.
+> > > > 
+> > > > In the case of INT[12] registers, they are the ones
+> > > > that actually clear the IRQ source at the time they
+> > > > are read. If we rely on the cache for them, we will
+> > > > never be able to clear the interrupt, which will cause
+> > > > our IRQ line to be disabled due to IRQ throttling.
+> > > > 
+> > > > Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
+> > > > Cc: <stable@vger.kernel.org> # v3.15+
+> > > > Cc: Keerthy <j-keerthy@ti.com>
+> > > > Cc: Lee Jones <lee.jones@linaro.org>
+> > > > Signed-off-by: Felipe Balbi <balbi@ti.com>
+> > > 
+> > > ping
+> > 
+> > another ping. Without this and the following patch TPS65218 power button
+> > driver which was already applied by Dmitry, won't work.
+> 
+> Anybody ? -rc4 is out and tps65218 is still broken because nobody has
+> acted on these two patches. All other patches which are meant for 3.20
+> merge window are applied and because of these pending, those patches
+> won't work.
 
-On 14-01-15 13:45, Linus Walleij wrote:
-> On Thu, Jan 8, 2015 at 11:12 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Thu, Jan 08, 2015 at 08:40:20AM -0600, Rob Herring wrote:
->>> On Thu, Jan 8, 2015 at 2:45 AM, Olliver Schinagl <oliver@schinagl.nl> wrote:
->>>>>> --- a/drivers/leds/leds-gpio.c
->>>>>> +++ b/drivers/leds/leds-gpio.c
->>>>>> @@ -184,7 +184,7 @@ static struct gpio_leds_priv *gpio_leds_create(struct
->>>>>> platform_device *pdev)
->>>>>>                  struct gpio_led led = {};
->>>>>>                  const char *state = NULL;
->>>>>>    -             led.gpiod = devm_get_gpiod_from_child(dev, NULL, child);
->>>>>> +               led.gpiod = devm_get_gpiod_from_child(dev, "led", child);
->>>>> Would not this break existing boards using old bindings? You need to
->>>>> handle both cases: if you can't located "led-gpios" then you will have to
->>>>> try just "gpios".
->>>> Very true. I was rather even hoping we could update all bindings, I don't
->>>> mind going through the available dts files to fix them ... But need to know
->>>> that that's the proper way to go before doing the work ;)
->>> That will not work. You cannot make changes that require a new dtb
->>> with a new kernel. This would also break for the other way around
->>> (i.e. a new dtb and old kernel).
->>>
->>> You would have to search for both led-gpios and gpios. I'm not sure if
->>> we can do that generically for all GPIOs. If you had a node with both
->>> "blah-gpios" and "gpios", it would break. I would hope there are no
->>> such cases like that. We also now have to consider how ACPI identifies
->>> GPIOs and whether this makes sense.
->> I think only the driver itself can know about such "legacy" mappings and
->> make a decision.
-> Yeah leds-gpio.c will need to be patched to check for "led-gpios" first
-> and then fall back to "gpios" if not found.
-yeah I've done the work, just need to double check it and resend a v2.
+Lee, are you planning to pick these two drivers/mfd patches?
 
-Linus, I assume you want the already applied patches omitted from v2?
+Regards,
 
-Olliver
->
-> Yours,
-> Linus Walleij
-
+Tony

@@ -1,72 +1,90 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] input: tsc2007: Add pre-calibration, flipping and
- rotation
-Date: Wed, 14 Jan 2015 16:59:38 -0800
-Message-ID: <20150115005938.GB9134@dtor-ws>
-References: <1412108254-19234-1-git-send-email-marek@goldelico.com>
- <1412108254-19234-2-git-send-email-marek@goldelico.com>
- <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc
+ touchscreen driver
+Date: Wed, 14 Jan 2015 17:02:56 -0800
+Message-ID: <20150115010256.GC9134@dtor-ws>
+References: <jonathar@broadcom.com>
+ <1419027470-7969-1-git-send-email-jonathar@broadcom.com>
+ <1419027470-7969-2-git-send-email-jonathar@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f173.google.com ([209.85.223.173]:44053 "EHLO
-	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750782AbbAOA7o (ORCPT
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:59429 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751952AbbAOBDC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jan 2015 19:59:44 -0500
+	Wed, 14 Jan 2015 20:03:02 -0500
 Content-Disposition: inline
-In-Reply-To: <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com>
+In-Reply-To: <1419027470-7969-2-git-send-email-jonathar@broadcom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Belisko Marek <marek.belisko@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "Dr. H. Nikolaus Schaller" <hns@goldelico.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Marek Belisko <marek@goldelico.com>, Jonathan Richardson <jonathar@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Yoichi Yuasa <yuasa@linux-mips.org>, Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Jonathan Richardson <jonathar@broadcom.com>
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org, Joe Perches <joe@perches.com>
 
-On Sat, Jan 10, 2015 at 03:15:39PM +0100, Belisko Marek wrote:
-> Ping for input maintainer. DT changes was acked. Thanks.
-> 
-> On Tue, Sep 30, 2014 at 10:17 PM, Marek Belisko <marek@goldelico.com> wrote:
-> > This patch adds new parameters that allow to address typical hardware
-> > design differences: touch screens may be wired or oriented differently
-> > (portrait or landscape). And usually the active area of the touch is a
-> > little larger than the active area of the LCD. This results in the touch
-> > coordinates that have some significant deviation from LCD coordinates.
-> > Usually this is addressed in user space by a calibration tool (e.g. tslib
-> > or xinput-calibrator) but some systems don't have these tools or require
-> > that the screen is already roughly calibrated (e.g. Replicant) to operate
-> > the device until a better calibration can be done. And, some systems
-> > react very strangely if the touch event stream reports coordinates
-> > outside of the active area.
-> >
-> > This makes it necessry to be able to configure:
-> > 1. swapping x and y wires (coordinate values)
-> > 2. flipping of x (left - right) or y (top - bottom) or even both
-> > 3. define an active area so that an uncalibrated screen already
-> > roughly matches the LCD to be useful.
-> > 4. clip reported coordinates to the active area.
-> >
-> > If none of the new parameters is defined (in DT) or set in a board file,
-> > the driver behaves the same as without this patch.
-> >
-> > Author (1&2): H. Nikolaus Schaller <hns@goldelico.com>
-> > Author (3&4): Paul Kocialkowski <contact@paulk.fr>
-> >
-> > Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Hi Jonathan,
 
-OK, I was hesitant of adding these as normally we have tslib to perform
-the conversion, but maybe it is time to allow it in the kernel and
-standardize users. However, this seems like a general issue and we
-should:
+On Fri, Dec 19, 2014 at 02:17:49PM -0800, Jonathan Richardson wrote:
+> +	if (of_property_read_u32(np, "scanning_period", &val) >= 0) {
+> +		if (val < 1 || val > 256) {
+> +			dev_err(dev, "scanning_period must be [1-256]\n");
+> +			return -EINVAL;
+> +		}
+> +		priv->cfg_params.scanning_period = val;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
+> +		if (val < 0 || val > 255) {
+> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
+> +			return -EINVAL;
+> +		}
+> +		priv->cfg_params.debounce_timeout = val;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
+> +		if (val < 0 || val > 11) {
+> +			dev_err(dev, "settling_timeout must be [0-11]\n");
+> +			return -EINVAL;
+> +		}
+> +		priv->cfg_params.settling_timeout = val;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
+> +		if (val < 0 || val > 255) {
+> +			dev_err(dev, "touch_timeout must be [0-255]\n");
+> +			return -EINVAL;
+> +		}
+> +		priv->cfg_params.touch_timeout = val;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
+> +		if (val < 0 || val > 8) {
+> +			dev_err(dev, "average_data must be [0-8]\n");
+> +			return -EINVAL;
+> +		}
+> +		priv->cfg_params.average_data = val;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
+> +		if (val < 0 || val > 31) {
+> +			dev_err(dev, "fifo_threshold must be [0-31]\n");
+> +			return -EINVAL;
+> +		}
+> +		priv->cfg_params.fifo_threshold = val;
+> +	}
 
-1. Perform conversion in input core rather than individual drivers. I
-think we should allocate a new bitmaps for some transformations and have
-the code do X/Y flip/clip of the coordinates.
+I think these are dveice specific and thus should have "brcm," prefix.
 
-2. Standardize on bindings. We already have of-touchscreen.c doing
-rudimentary parsing, we shoudl look into extending it rather than
-creating myriad of driver-specific bindings.
+> +
+> +	priv->ts_rotation = TS_ROTATION_0;
+> +	if (of_property_read_u32(np, "ts-rotation", &val) >= 0) {
+> +		priv->ts_rotation = val;
+> +		dev_dbg(dev, "ts rotation [%d] degrees\n",
+> +			90 * priv->ts_rotation);
+> +	}
 
-Also, do we need swap and flip or do we simply need rotation (like the
-proposed Broadcom iproc driver has)?
+This I am not quite sure about - if we want rotation or swap+invert. You
+are CCed on another email (tsc2007) that talks about need of generic
+touchscreen transforms in input core/of bindings.
 
 Thanks.
 

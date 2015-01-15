@@ -1,85 +1,86 @@
-From: Jonathan Richardson <jonathar@broadcom.com>
-Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
- driver
-Date: Thu, 15 Jan 2015 11:19:21 -0800
-Message-ID: <54B812B9.3040400@broadcom.com>
-References: <Jonathan Richardson <jonathar@broadcom.com> <1419027470-7969-1-git-send-email-jonathar@broadcom.com> <1419027470-7969-2-git-send-email-jonathar@broadcom.com> <1419028015.25129.14.camel@perches.com> <5494AEB8.8060606@broadcom.com> <54B7132A.6030803@gmail.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 0/6] Fixes for ALPS trackstick
+Date: Thu, 15 Jan 2015 20:19:59 +0100
+Message-ID: <201501152019.59611@pali>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <201501151149.32065@pali> <20150115181820.GF33214@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed;
+  boundary="nextPart7815077.9AVHC587B1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:41164 "EHLO
-	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751879AbbAOTTX (ORCPT
+Received: from mail-we0-f176.google.com ([74.125.82.176]:33360 "EHLO
+	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752057AbbAOTUD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jan 2015 14:19:23 -0500
-In-Reply-To: <54B7132A.6030803@gmail.com>
+	Thu, 15 Jan 2015 14:20:03 -0500
+Received: by mail-we0-f176.google.com with SMTP id w61so16504294wes.7
+        for <linux-input@vger.kernel.org>; Thu, 15 Jan 2015 11:20:02 -0800 (PST)
+In-Reply-To: <20150115181820.GF33214@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Joe Perches <joe@perches.com>, devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, linux-arm-kernel@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On 15-01-14 05:08 PM, Florian Fainelli wrote:
-> On 19/12/14 15:03, Jonathan Richardson wrote:
->> On 14-12-19 02:26 PM, Joe Perches wrote:
->>> On Fri, 2014-12-19 at 14:17 -0800, Jonathan Richardson wrote:
->>>> Add initial version of the Broadcom touchscreen driver.
->>>
->>> more trivia:
->>>
->>>> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
->>> []
->>>> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
->>>> +{
->>>> +	u32 val;
->>> []
->>>> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
->>>> +		if (val < 0 || val > 255) {
->>>> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
->>>> +			return -EINVAL;
->>>> +		}
->>>> +		priv->cfg_params.debounce_timeout = val;
-> 
-> BTW, common practice for DT properties is to use a dash instead of an
-> underscore for multi-worded properties.
+--nextPart7815077.9AVHC587B1
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-ts-rotation is done that way already so I'll change the others to be
-consistent. Thanks.
+On Thursday 15 January 2015 19:18:20 Dmitry Torokhov wrote:
+> On Thu, Jan 15, 2015 at 11:49:32AM +0100, Pali Roh=C3=A1r wrote:
+> > On Wednesday 14 January 2015 23:55:48 Dmitry Torokhov wrote:
+> > > Hi Pali,
+> > >=20
+> > > This series try to address the issue you brought regarding
+> > > trackstick initialization on Dell Latitudes in a different
+> > > way than the patches you proposed. Basically in this
+> > > series we move resetting and all detection in
+> > > alps_detect() and make sure we keep the state so
+> > > alps_init() can reuse it and not perform the detection
+> > > all over again. Doing this allows us to set up device
+> > > characteristics (name, version, etc) properly from the
+> > > get go while still performing reset only once.
+> > >=20
+> > > This is untested as I do not have any ALPS devices anymore
+> > > so I'd appreciate you giving it a spin.
+> > >=20
+> > > Thanks!
+> >=20
+> > Hi Dmitry,
+> >=20
+> > on top of which branch/repository should I apply your
+> > patches?
+>=20
+> Should be applicable to my 'next' branch (which I just upreved
+> to 3.19-rc4).
+>=20
+> Thanks.
 
-> 
->>>
->>> Doesn't the compiler generate a warning message
->>> about an impossible "unsigned < 0" test for all
->>> of these "val < 0" uses?
->>>
->>
->> Actually no it doesn't. The gcc output shows that neither -Wtype-limits
->> nor -Wextra are used to compile that file. I assume this is because
->> there would be just too many warnings.
->>
->>
->>>> +	}
->>>> +
->>>> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
->>>> +		if (val < 0 || val > 11) {
->>> []
->>>> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
->>>> +		if (val < 0 || val > 255) {
->>> []
->>>> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
->>>> +		if (val < 0 || val > 8) {
->>> []
->>>> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
->>>> +		if (val < 0 || val > 31) {
->>>
->>>
->>
->>
->> _______________________________________________
->> linux-arm-kernel mailing list
->> linux-arm-kernel@lists.infradead.org
->> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->>
-> 
-> 
+Not working at top of next (0c3e994).
 
+Applying: Input: ALPS - renumber protocol numbers
+Applying: Input: ALPS - make Rushmore a separate protocol
+error: patch failed: drivers/input/mouse/alps.c:1275
+error: drivers/input/mouse/alps.c: patch does not apply
+Patch failed at 0002 Input: ALPS - make Rushmore a separate=20
+protocol
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart7815077.9AVHC587B1
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlS4Et8ACgkQi/DJPQPkQ1Kr+QCfZKPHott6+iw1zaMxJhY4rXBZ
+K2gAoIo/UxsWKe8gNR0KYz443CKwAbQS
+=M1vV
+-----END PGP SIGNATURE-----
+
+--nextPart7815077.9AVHC587B1--

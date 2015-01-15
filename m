@@ -1,415 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6/6] Input: ALPS - mix trackstick and external PS/2 mouse data
-Date: Wed, 14 Jan 2015 14:55:54 -0800
-Message-ID: <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
-References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] input: tsc2007: Add pre-calibration, flipping and
+ rotation
+Date: Wed, 14 Jan 2015 16:59:38 -0800
+Message-ID: <20150115005938.GB9134@dtor-ws>
+References: <1412108254-19234-1-git-send-email-marek@goldelico.com>
+ <1412108254-19234-2-git-send-email-marek@goldelico.com>
+ <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:60634 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751085AbbANXQB (ORCPT
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:44053 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750782AbbAOA7o (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jan 2015 18:16:01 -0500
-Received: by mail-ie0-f175.google.com with SMTP id x19so11847800ier.6
-        for <linux-input@vger.kernel.org>; Wed, 14 Jan 2015 15:16:00 -0800 (PST)
-In-Reply-To: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com>
+	Wed, 14 Jan 2015 19:59:44 -0500
+Content-Disposition: inline
+In-Reply-To: <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: Yunkang Tang <yunkang.tang@cn.alps.com>, Hans de Goede <hdegoede@redhat.com>
+To: Belisko Marek <marek.belisko@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "Dr. H. Nikolaus Schaller" <hns@goldelico.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Marek Belisko <marek@goldelico.com>, Jonathan Richardson <jonathar@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Yoichi Yuasa <yuasa@linux-mips.org>, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-=46rom: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+On Sat, Jan 10, 2015 at 03:15:39PM +0100, Belisko Marek wrote:
+> Ping for input maintainer. DT changes was acked. Thanks.
+> 
+> On Tue, Sep 30, 2014 at 10:17 PM, Marek Belisko <marek@goldelico.com> wrote:
+> > This patch adds new parameters that allow to address typical hardware
+> > design differences: touch screens may be wired or oriented differently
+> > (portrait or landscape). And usually the active area of the touch is a
+> > little larger than the active area of the LCD. This results in the touch
+> > coordinates that have some significant deviation from LCD coordinates.
+> > Usually this is addressed in user space by a calibration tool (e.g. tslib
+> > or xinput-calibrator) but some systems don't have these tools or require
+> > that the screen is already roughly calibrated (e.g. Replicant) to operate
+> > the device until a better calibration can be done. And, some systems
+> > react very strangely if the touch event stream reports coordinates
+> > outside of the active area.
+> >
+> > This makes it necessry to be able to configure:
+> > 1. swapping x and y wires (coordinate values)
+> > 2. flipping of x (left - right) or y (top - bottom) or even both
+> > 3. define an active area so that an uncalibrated screen already
+> > roughly matches the LCD to be useful.
+> > 4. clip reported coordinates to the active area.
+> >
+> > If none of the new parameters is defined (in DT) or set in a board file,
+> > the driver behaves the same as without this patch.
+> >
+> > Author (1&2): H. Nikolaus Schaller <hns@goldelico.com>
+> > Author (3&4): Paul Kocialkowski <contact@paulk.fr>
+> >
+> > Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 
-Previously dev2 device was used for both external PS/2 mouse and intern=
-al
-trackstick device (if available). This change introduces dev3 device wh=
-ich
-is used for external PS/2 mouse data and dev2 is now used only for
-trackstick.
+OK, I was hesitant of adding these as normally we have tslib to perform
+the conversion, but maybe it is time to allow it in the kernel and
+standardize users. However, this seems like a general issue and we
+should:
 
-In case that trackstick is not present dev2 is not created, so userspac=
-e
-does not see non existent device in system.
+1. Perform conversion in input core rather than individual drivers. I
+think we should allocate a new bitmaps for some transformations and have
+the code do X/Y flip/clip of the coordinates.
 
-Because laptops with ALPS devices often do not use i8042 active
-multiplexing all data (from touchpad, trackstick and external PS/2 mous=
-e)
-come to one port.  So it is not possible to know if external PS/2 mouse=
- is
-connected or not. In most cases external PS/2 mouse is not connected so
-driver will create dev3 input device after first bare PS/2 packet will =
-be
-received. So there will not be "ghost" input device.
+2. Standardize on bindings. We already have of-touchscreen.c doing
+rudimentary parsing, we shoudl look into extending it rather than
+creating myriad of driver-specific bindings.
 
-This change also helps in identifying possible problems in future if dr=
-iver
-decides to report 6-bytes trackstick packets as 3-bytes bare PS/2 (data
-will be reported to dev3 instead dev2).
+Also, do we need swap and flip or do we simply need rotation (like the
+proposed Broadcom iproc driver has)?
 
-Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/alps.c | 188 +++++++++++++++++++++++++++++++++----=
---------
- drivers/input/mouse/alps.h |  14 +++-
- 2 files changed, 149 insertions(+), 53 deletions(-)
+Thanks.
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index fd3303d..48770cf 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -165,8 +165,7 @@ static bool alps_is_valid_first_byte(struct alps_da=
-ta *priv,
- 	return (data & priv->mask0) =3D=3D priv->byte0;
- }
-=20
--static void alps_report_buttons(struct psmouse *psmouse,
--				struct input_dev *dev1, struct input_dev *dev2,
-+static void alps_report_buttons(struct input_dev *dev1, struct input_d=
-ev *dev2,
- 				int left, int right, int middle)
- {
- 	struct input_dev *dev;
-@@ -176,20 +175,21 @@ static void alps_report_buttons(struct psmouse *p=
-smouse,
- 	 * other device (dev2) then this event should be also
- 	 * sent through that device.
- 	 */
--	dev =3D test_bit(BTN_LEFT, dev2->key) ? dev2 : dev1;
-+	dev =3D (dev2 && test_bit(BTN_LEFT, dev2->key)) ? dev2 : dev1;
- 	input_report_key(dev, BTN_LEFT, left);
-=20
--	dev =3D test_bit(BTN_RIGHT, dev2->key) ? dev2 : dev1;
-+	dev =3D (dev2 && test_bit(BTN_RIGHT, dev2->key)) ? dev2 : dev1;
- 	input_report_key(dev, BTN_RIGHT, right);
-=20
--	dev =3D test_bit(BTN_MIDDLE, dev2->key) ? dev2 : dev1;
-+	dev =3D (dev2 && test_bit(BTN_MIDDLE, dev2->key)) ? dev2 : dev1;
- 	input_report_key(dev, BTN_MIDDLE, middle);
-=20
- 	/*
- 	 * Sync the _other_ device now, we'll do the first
- 	 * device later once we report the rest of the events.
- 	 */
--	input_sync(dev2);
-+	if (dev2)
-+		input_sync(dev2);
- }
-=20
- static void alps_process_packet_v1_v2(struct psmouse *psmouse)
-@@ -236,13 +236,13 @@ static void alps_process_packet_v1_v2(struct psmo=
-use *psmouse)
- 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
- 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
-=20
--		alps_report_buttons(psmouse, dev2, dev, left, right, middle);
-+		alps_report_buttons(dev2, dev, left, right, middle);
-=20
- 		input_sync(dev2);
- 		return;
- 	}
-=20
--	alps_report_buttons(psmouse, dev, dev2, left, right, middle);
-+	alps_report_buttons(dev, dev2, left, right, middle);
-=20
- 	/* Convert hardware tap to a reasonable Z value */
- 	if (ges && !fin)
-@@ -1122,23 +1122,89 @@ static void alps_process_packet_v7(struct psmou=
-se *psmouse)
- 		alps_process_touchpad_packet_v7(psmouse);
- }
-=20
--static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
-+static DEFINE_MUTEX(alps_mutex);
-+
-+static void alps_register_bare_ps2_mouse(struct work_struct *work)
-+{
-+	struct alps_data *priv =3D
-+		container_of(work, struct alps_data, dev3_register_work.work);
-+	struct psmouse *psmouse =3D priv->psmouse;
-+	struct input_dev *dev3;
-+	int error =3D 0;
-+
-+	mutex_lock(&alps_mutex);
-+
-+	if (priv->dev3)
-+		goto out;
-+
-+	dev3 =3D input_allocate_device();
-+	if (!dev3) {
-+		psmouse_err(psmouse, "failed to alolocate secondary device\n");
-+		error =3D -ENOMEM;
-+		goto out;
-+	}
-+
-+	snprintf(priv->phys3, sizeof(priv->phys3), "%s/%s",
-+		 psmouse->ps2dev.serio->phys,
-+		 (priv->dev2 ? "input2" : "input1"));
-+	dev3->phys =3D priv->phys3;
-+
-+	/*
-+	 * format of input device name is: "protocol vendor name"
-+	 * see function psmouse_switch_protocol() in psmouse-base.c
-+	 */
-+	dev3->name =3D "PS/2 ALPS Mouse";
-+
-+	dev3->id.bustype =3D BUS_I8042;
-+	dev3->id.vendor  =3D 0x0002;
-+	dev3->id.product =3D PSMOUSE_PS2;
-+	dev3->id.version =3D 0x0000;
-+	dev3->dev.parent =3D &psmouse->ps2dev.serio->dev;
-+
-+	input_set_capability(dev3, EV_REL, REL_X);
-+	input_set_capability(dev3, EV_REL, REL_Y);
-+	input_set_capability(dev3, EV_KEY, BTN_LEFT);
-+	input_set_capability(dev3, EV_KEY, BTN_RIGHT);
-+	input_set_capability(dev3, EV_KEY, BTN_MIDDLE);
-+
-+	__set_bit(INPUT_PROP_POINTER, dev3->propbit);
-+
-+	error =3D input_register_device(dev3);
-+	if (error) {
-+		psmouse_err(psmouse,
-+			    "failed to register secondary device: %d\n",
-+			    error);
-+		input_free_device(dev3);
-+		goto out;
-+	}
-+
-+	priv->dev3 =3D dev3;
-+
-+out:
-+	/*
-+	 * Save the error code so that we can detect that we
-+	 * already tried to create the device.
-+	 */
-+	if (error)
-+		priv->dev3 =3D ERR_PTR(error);
-+
-+	mutex_unlock(&alps_mutex);
-+}
-+
-+static void alps_report_bare_ps2_packet(struct input_dev *dev,
- 					unsigned char packet[],
- 					bool report_buttons)
- {
--	struct alps_data *priv =3D psmouse->private;
--	struct input_dev *dev2 =3D priv->dev2;
--
- 	if (report_buttons)
--		alps_report_buttons(psmouse, dev2, psmouse->dev,
-+		alps_report_buttons(dev, NULL,
- 				packet[0] & 1, packet[0] & 2, packet[0] & 4);
-=20
--	input_report_rel(dev2, REL_X,
-+	input_report_rel(dev, REL_X,
- 		packet[1] ? packet[1] - ((packet[0] << 4) & 0x100) : 0);
--	input_report_rel(dev2, REL_Y,
-+	input_report_rel(dev, REL_Y,
- 		packet[2] ? ((packet[0] << 3) & 0x100) - packet[2] : 0);
-=20
--	input_sync(dev2);
-+	input_sync(dev);
- }
-=20
- static psmouse_ret_t alps_handle_interleaved_ps2(struct psmouse *psmou=
-se)
-@@ -1203,8 +1269,8 @@ static psmouse_ret_t alps_handle_interleaved_ps2(=
-struct psmouse *psmouse)
- 		 * de-synchronization.
- 		 */
-=20
--		alps_report_bare_ps2_packet(psmouse, &psmouse->packet[3],
--					    false);
-+		alps_report_bare_ps2_packet(priv->dev2,
-+					    &psmouse->packet[3], false);
-=20
- 		/*
- 		 * Continue with the standard ALPS protocol handling,
-@@ -1260,9 +1326,18 @@ static psmouse_ret_t alps_process_byte(struct ps=
-mouse *psmouse)
- 	 * properly we only do this if the device is fully synchronized.
- 	 */
- 	if (!psmouse->out_of_sync_cnt && (psmouse->packet[0] & 0xc8) =3D=3D 0=
-x08) {
-+
-+		/* Register dev3 mouse if we received PS/2 packet first time */
-+		if (unlikely(!priv->dev3))
-+			psmouse_queue_work(psmouse,
-+					   &priv->dev3_register_work, 0);
-+
- 		if (psmouse->pktcnt =3D=3D 3) {
--			alps_report_bare_ps2_packet(psmouse, psmouse->packet,
--						    true);
-+			/* Once dev3 mouse device is registered report data */
-+			if (likely(!IS_ERR_OR_NULL(priv->dev3)))
-+				alps_report_bare_ps2_packet(priv->dev3,
-+							    psmouse->packet,
-+							    true);
- 			return PSMOUSE_FULL_PACKET;
- 		}
- 		return PSMOUSE_GOOD_DATA;
-@@ -2379,7 +2454,10 @@ static void alps_disconnect(struct psmouse *psmo=
-use)
-=20
- 	psmouse_reset(psmouse);
- 	del_timer_sync(&priv->timer);
--	input_unregister_device(priv->dev2);
-+	if (priv->dev2)
-+		input_unregister_device(priv->dev2);
-+	if (!IS_ERR_OR_NULL(priv->dev3))
-+		input_unregister_device(priv->dev3);
- 	kfree(priv);
- }
-=20
-@@ -2413,17 +2491,9 @@ static void alps_set_abs_params_mt(struct alps_d=
-ata *priv,
- int alps_init(struct psmouse *psmouse)
- {
- 	struct alps_data *priv =3D psmouse->private;
--	struct input_dev *dev1 =3D psmouse->dev, *dev2;
-+	struct input_dev *dev1 =3D psmouse->dev;
- 	int error;
-=20
--	dev2 =3D input_allocate_device();
--	if (!dev2) {
--		error =3D -ENOMEM;
--		goto init_fail;
--	}
--
--	priv->dev2 =3D dev2;
--
- 	error =3D priv->hw_init(psmouse);
- 	if (error)
- 		goto init_fail;
-@@ -2475,36 +2545,55 @@ int alps_init(struct psmouse *psmouse)
- 	}
-=20
- 	if (priv->flags & ALPS_DUALPOINT) {
-+		struct input_dev *dev2;
-+
-+		dev2 =3D input_allocate_device();
-+		if (!dev2) {
-+			psmouse_err(psmouse,
-+				    "failed to allocate  trackstick device\n");
-+			error =3D -ENOMEM;
-+			goto init_fail;
-+		}
-+
-+		snprintf(priv->phys2, sizeof(priv->phys2), "%s/input1",
-+			 psmouse->ps2dev.serio->phys);
-+		dev2->phys =3D priv->phys2;
-+
- 		/*
- 		 * format of input device name is: "protocol vendor name"
- 		 * see function psmouse_switch_protocol() in psmouse-base.c
- 		 */
- 		dev2->name =3D "AlpsPS/2 ALPS DualPoint Stick";
-+
-+		dev2->id.bustype =3D BUS_I8042;
-+		dev2->id.vendor  =3D 0x0002;
- 		dev2->id.product =3D PSMOUSE_ALPS;
- 		dev2->id.version =3D priv->proto_version;
--	} else {
--		dev2->name =3D "PS/2 ALPS Mouse";
--		dev2->id.product =3D PSMOUSE_PS2;
--		dev2->id.version =3D 0x0000;
--	}
--
--	snprintf(priv->phys, sizeof(priv->phys), "%s/input1", psmouse->ps2dev=
-=2Eserio->phys);
--	dev2->phys =3D priv->phys;
--	dev2->id.bustype =3D BUS_I8042;
--	dev2->id.vendor  =3D 0x0002;
--	dev2->dev.parent =3D &psmouse->ps2dev.serio->dev;
-+		dev2->dev.parent =3D &psmouse->ps2dev.serio->dev;
-=20
--	dev2->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
--	dev2->relbit[BIT_WORD(REL_X)] =3D BIT_MASK(REL_X) | BIT_MASK(REL_Y);
--	dev2->keybit[BIT_WORD(BTN_LEFT)] =3D
--		BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
-+		input_set_capability(dev2, EV_REL, REL_X);
-+		input_set_capability(dev2, EV_REL, REL_Y);
-+		input_set_capability(dev2, EV_KEY, BTN_LEFT);
-+		input_set_capability(dev2, EV_KEY, BTN_RIGHT);
-+		input_set_capability(dev2, EV_KEY, BTN_MIDDLE);
-=20
--	__set_bit(INPUT_PROP_POINTER, dev2->propbit);
--	if (priv->flags & ALPS_DUALPOINT)
-+		__set_bit(INPUT_PROP_POINTER, dev2->propbit);
- 		__set_bit(INPUT_PROP_POINTING_STICK, dev2->propbit);
-=20
--	if (input_register_device(priv->dev2))
--		goto init_fail;
-+		error =3D input_register_device(dev2);
-+		if (error) {
-+			psmouse_err(psmouse,
-+				    "failed to register trackstick device: %d\n",
-+				    error);
-+			input_free_device(dev2);
-+			goto init_fail;
-+		}
-+
-+		priv->dev2 =3D dev2;
-+	}
-+
-+	INIT_DELAYED_WORK(&priv->dev3_register_work,
-+			  alps_register_bare_ps2_mouse);
-=20
- 	psmouse->protocol_handler =3D alps_process_byte;
- 	psmouse->poll =3D alps_poll;
-@@ -2522,7 +2611,6 @@ int alps_init(struct psmouse *psmouse)
-=20
- init_fail:
- 	psmouse_reset(psmouse);
--	input_free_device(dev2);
- 	/*
- 	 * Even though we did not allocate psmouse->private we do free
- 	 * it here.
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index c795235..02513c0 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -141,8 +141,12 @@ struct alps_fields {
-=20
- /**
-  * struct alps_data - private data structure for the ALPS driver
-- * @dev2: "Relative" device used to report trackstick or mouse activit=
-y.
-- * @phys: Physical path for the relative device.
-+ * @psmouse: Pointer to parent psmouse device
-+ * @dev2: Trackstick device (can be NULL).
-+ * @dev3: Generic PS/2 mouse (can be NULL, delayed registering).
-+ * @phys2: Physical path for the trackstick device.
-+ * @phys3: Physical path for the generic PS/2 mouse.
-+ * @dev3_register_work: Delayed work for registering PS/2 mouse.
-  * @nibble_commands: Command mapping used for touchpad register access=
-es.
-  * @addr_command: Command used to tell the touchpad that a register ad=
-dress
-  *   follows.
-@@ -169,8 +173,12 @@ struct alps_fields {
-  * @timer: Timer for flushing out the final report packet in the strea=
-m.
-  */
- struct alps_data {
-+	struct psmouse *psmouse;
- 	struct input_dev *dev2;
--	char phys[32];
-+	struct input_dev *dev3;
-+	char phys2[32];
-+	char phys3[32];
-+	struct delayed_work dev3_register_work;
-=20
- 	/* these are autodetected when the device is identified */
- 	const struct alps_nibble_commands *nibble_commands;
---=20
-2.2.0.rc0.207.ga3a616c
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

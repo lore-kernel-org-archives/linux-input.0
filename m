@@ -1,111 +1,134 @@
-From: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH 1/3] input: tsc2007: Add pre-calibration, flipping and rotation
-Date: Thu, 15 Jan 2015 16:04:14 +0100
-Message-ID: <2C4E66DD-1764-4DCA-A58A-78A6986EF7F1@goldelico.com>
-References: <1412108254-19234-1-git-send-email-marek@goldelico.com> <1412108254-19234-2-git-send-email-marek@goldelico.com> <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com> <20150115005938.GB9134@dtor-ws> <0F9A17C1-9B01-4EE9-BE98-266B8FC02B84@goldelico.com> <20150115143855.GD512@earth.universe>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Anshul Garg <aksgarg1989@gmail.com>
+Subject: [RESEND PATCH] Input:Evdev Flush pending events on clk change
+Date: Thu, 15 Jan 2015 07:07:50 -0800
+Message-ID: <1421334471-62397-1-git-send-email-aksgarg1989@gmail.com>
+References: <aksgarg1989@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.220]:11473 "EHLO
-	mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752104AbbAOPFG convert rfc822-to-8bit (ORCPT
+Received: from mail-wg0-f45.google.com ([74.125.82.45]:62377 "EHLO
+	mail-wg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751423AbbAOPIc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jan 2015 10:05:06 -0500
-In-Reply-To: <20150115143855.GD512@earth.universe>
+	Thu, 15 Jan 2015 10:08:32 -0500
+Received: by mail-wg0-f45.google.com with SMTP id y19so15488062wgg.4
+        for <linux-input@vger.kernel.org>; Thu, 15 Jan 2015 07:08:31 -0800 (PST)
+In-Reply-To: <aksgarg1989@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Belisko Marek <marek.belisko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Marek Belisko <marek@goldelico.com>, Jonathan Richardson <jonathar@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Yoichi Yuasa <yuasa@linux-mips.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, List
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org
+Cc: aksgarg1989@gmail.com, anshul.g@samsung.com
 
-Hi,
+From: Anshul Garg <aksgarg1989@gmail.com>
 
-Am 15.01.2015 um 15:38 schrieb Sebastian Reichel <sre@kernel.org>:
+If client clk_type is changed , flush pending events
+from client buffer as events time would be incorrect
+and queue SYN_DROPPED event.
+Added check for duplicate clk_type change request.
 
-> Hi,
->=20
-> On Thu, Jan 15, 2015 at 08:36:44AM +0100, Dr. H. Nikolaus Schaller wr=
-ote:
->>> 1. Perform conversion in input core rather than individual drivers.=
- I
->>> think we should allocate a new bitmaps for some transformations and=
- have
->>> the code do X/Y flip/clip of the coordinates.
->>=20
->> Do you have a suggestion where this should be (I have no clue how
->> the input system works or is structured - we just know how to extend=
- a
->> driver that uses it)?
->>=20
->>> 2. Standardize on bindings. We already have of-touchscreen.c doing
->>> rudimentary parsing, we shoudl look into extending it rather than
->>> creating myriad of driver-specific bindings.
->>=20
->> Ok, looks reasonable.
->=20
-> Documentation is in=20
->=20
-> Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
->=20
->>> Also, do we need swap and flip or do we simply need rotation (like =
-the
->>> proposed Broadcom iproc driver has)?
->>=20
->> Well, since the DT should describe hardware, there are 3 sets of wir=
-es which
->> can have a cross-over: X+ and X-, Y+ and Y-, X and Y.
->>=20
->> So IMHO hardware has no =93rotation=94, just crossover of wires. Rot=
-ation is an
->> interpretation of the result of these connections in combination wit=
-h some
->> panel the touch is glued to and should therefore not be represented =
-in the DT.
->>=20
->> As a result we have proposed a scheme without explicit rotation. We =
-specify what
->> coordinates X- and X+ should report at their ends (min, max) because=
- the DT
->> programmer has to specify them anyways. Flipping is a result of defi=
-ning these
->> coordinates in an ascending or descending way. Only swapping of the =
-X and Y
->> wires can=92t be implicitly defined so it has its own property. So t=
-he scheme we
->> have proposed tries to optimize the efforts needed to adapt new boar=
-ds and write
->> DTs and focus the DT on hardware description.
->>=20
->> As a bonus we also specify the min and max value to be reported for =
-the touch
->> pressure (Z axis) using the same basic principle.
->>=20
->> And it is a pure add-on on top of the existing driver so that it att=
-empts not
->> to break existing device trees.
->=20
-> from what I can see there are no in-tree-users using any of the
-> new properties.
+Signed-off-by: Anshul Garg <anshul.g@samsung.com>
+---
+ drivers/input/evdev.c |   56 +++++++++++++++++++++++++++++--------------------
+ 1 file changed, 33 insertions(+), 23 deletions(-)
 
-Not yet. But our [patch 2/3] of this series defines the DT entry for th=
-e GTA04 devices:
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index b1a52ab..0f72bcb 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -62,26 +62,6 @@ struct evdev_client {
+ 	struct input_event buffer[];
+ };
+ 
+-static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
+-{
+-	switch (clkid) {
+-
+-	case CLOCK_REALTIME:
+-		client->clk_type = EV_CLK_REAL;
+-		break;
+-	case CLOCK_MONOTONIC:
+-		client->clk_type = EV_CLK_MONO;
+-		break;
+-	case CLOCK_BOOTTIME:
+-		client->clk_type = EV_CLK_BOOT;
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ /* flush queued events of type @type, caller must hold client->buffer_lock */
+ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ {
+@@ -128,8 +108,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 	client->head = head;
+ }
+ 
+-/* queue SYN_DROPPED event */
+-static void evdev_queue_syn_dropped(struct evdev_client *client)
++/* queue SYN_DROPPED event and flush queue if flush parameter is true */
++static void evdev_queue_syn_dropped(struct evdev_client *client, bool flush)
+ {
+ 	unsigned long flags;
+ 	struct input_event ev;
+@@ -148,6 +128,9 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
+ 
+ 	spin_lock_irqsave(&client->buffer_lock, flags);
+ 
++	if (flush)
++		client->packet_head = client->head = client->tail;
++
+ 	client->buffer[client->head++] = ev;
+ 	client->head &= client->bufsize - 1;
+ 
+@@ -160,6 +143,33 @@ static void evdev_queue_syn_dropped(struct evdev_client *client)
+ 	spin_unlock_irqrestore(&client->buffer_lock, flags);
+ }
+ 
++/* Set client CLOCK and flush pending events */
++static int evdev_set_clk_type(struct evdev_client *client, unsigned int clkid)
++{
++	if (client->clk_type == clkid)
++		return 0;
++
++	switch (clkid) {
++
++	case CLOCK_REALTIME:
++		client->clk_type = EV_CLK_REAL;
++		break;
++	case CLOCK_MONOTONIC:
++		client->clk_type = EV_CLK_MONO;
++		break;
++	case CLOCK_BOOTTIME:
++		client->clk_type = EV_CLK_BOOT;
++		break;
++	default:
++		return -EINVAL;
++	}
++	
++	/* Flush pending events and queue SYN_DROPPED event.*/
++	evdev_queue_syn_dropped(client, true);
++
++	return 0;
++}
++
+ static void __pass_event(struct evdev_client *client,
+ 			 const struct input_event *event)
+ {
+@@ -794,7 +804,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
+ 
+ 	ret = bits_to_user(mem, maxbit, maxlen, p, compat);
+ 	if (ret < 0)
+-		evdev_queue_syn_dropped(client);
++		evdev_queue_syn_dropped(client, false);
+ 
+ 	kfree(mem);
+ 
+-- 
+1.7.9.5
 
-https://lkml.org/lkml/2014/9/30/663
 
->=20
->> Maybe could you accept it as a first step for this specific driver (=
-and let=92s do
->> the big standardization work later on)?
->=20
-> That does not work, since you create an ABI.
+---
+This email has been checked for viruses by Avast antivirus software.
+http://www.avast.com
 
-Hm. I don=92t understand what you mean with creating an ABI?
-
-
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

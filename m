@@ -1,33 +1,76 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 22:34:29 +0200
-Message-ID: <6357346.RjFSG892rq@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <20150115185431.GG33214@dtor-ws> <CAMuHMdXrRtgAahaEUh8x61E-koE25VL-6LOJrkjx4_fohKQtwQ@mail.gmail.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 6/6] Input: ALPS - mix trackstick and external PS/2 mouse data
+Date: Thu, 15 Jan 2015 21:34:51 +0100
+Message-ID: <201501152134.51503@pali>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMuHMdXrRtgAahaEUh8x61E-koE25VL-6LOJrkjx4_fohKQtwQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Type: multipart/signed;
+  boundary="nextPart3613084.zyey6tsZdk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f175.google.com ([74.125.82.175]:40283 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752975AbbAOUey (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jan 2015 15:34:54 -0500
+Received: by mail-we0-f175.google.com with SMTP id k11so16865050wes.6
+        for <linux-input@vger.kernel.org>; Thu, 15 Jan 2015 12:34:53 -0800 (PST)
+In-Reply-To: <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Yunkang Tang <yunkang.tang@cn.alps.com>, Hans de Goede <hdegoede@redhat.com>
 
-On Thursday 15 January 2015 21:00:37 Geert Uytterhoeven wrote:
-> On Thu, Jan 15, 2015 at 7:54 PM, Dmitry Torokhov wrote:
-> > I still do not understand what we are trying to fix here. Why is
-> > "adi,adxl34x" compatible string no good anymore? If we start using exact
-> > models and the physical device does not match do we abort probe? What is
-> > the problem that we are solving here?
-> 
-> Because there's no guarantee that the driver actually supports all
-> "adi,adxl34<x>" with <x> = 0..9, some of which don't exist yet.
+--nextPart3613084.zyey6tsZdk
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-That's one of the reasons. Another one is that the adxl34x driver won't match 
-DT nodes that list the "adi,adxl34x" compatible value in positions other than 
-the first.
+On Wednesday 14 January 2015 23:55:54 Dmitry Torokhov wrote:
+> From: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+>=20
+> Previously dev2 device was used for both external PS/2 mouse
+> and internal trackstick device (if available). This change
+> introduces dev3 device which is used for external PS/2 mouse
+> data and dev2 is now used only for trackstick.
+>=20
+> In case that trackstick is not present dev2 is not created, so
+> userspace does not see non existent device in system.
+>=20
+> Because laptops with ALPS devices often do not use i8042
+> active multiplexing all data (from touchpad, trackstick and
+> external PS/2 mouse) come to one port.  So it is not possible
+> to know if external PS/2 mouse is connected or not. In most
+> cases external PS/2 mouse is not connected so driver will
+> create dev3 input device after first bare PS/2 packet will be
+> received. So there will not be "ghost" input device.
+>=20
+> This change also helps in identifying possible problems in
+> future if driver decides to report 6-bytes trackstick packets
+> as 3-bytes bare PS/2 (data will be reported to dev3 instead
+> dev2).
+>=20
+> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
--- 
-Regards,
+Subject should be: "do *not* mix" or "prevent mix"
 
-Laurent Pinchart
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart3613084.zyey6tsZdk
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlS4JGsACgkQi/DJPQPkQ1JEggCgvCmUw18bmw5tWMCMDLG/hdCg
+R1wAoMhapWL+YOgQnC6vaPpuPDanDAbH
+=eDl/
+-----END PGP SIGNATURE-----
+
+--nextPart3613084.zyey6tsZdk--

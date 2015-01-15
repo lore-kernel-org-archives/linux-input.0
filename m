@@ -1,62 +1,65 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
-Date: Thu, 15 Jan 2015 22:51:43 +0200
-Message-ID: <16733840.6Wupp0rKhe@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com> <20150115174333.GC6342@katana>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 6/6] Input: ALPS - mix trackstick and external PS/2 mouse
+ data
+Date: Thu, 15 Jan 2015 13:00:30 -0800
+Message-ID: <20150115210030.GB19367@dtor-ws>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
+ <201501152134.51503@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150115174333.GC6342@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:40935 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751566AbbAOVAe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jan 2015 16:00:34 -0500
+Received: by mail-ie0-f171.google.com with SMTP id ar1so17299916iec.2
+        for <linux-input@vger.kernel.org>; Thu, 15 Jan 2015 13:00:34 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <201501152134.51503@pali>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: linux-input@vger.kernel.org, Yunkang Tang <yunkang.tang@cn.alps.com>, Hans de Goede <hdegoede@redhat.com>
 
-Hi Wolfram,
+On Thu, Jan 15, 2015 at 09:34:51PM +0100, Pali Roh=E1r wrote:
+> On Wednesday 14 January 2015 23:55:54 Dmitry Torokhov wrote:
+> > From: Pali Roh=E1r <pali.rohar@gmail.com>
+> >=20
+> > Previously dev2 device was used for both external PS/2 mouse
+> > and internal trackstick device (if available). This change
+> > introduces dev3 device which is used for external PS/2 mouse
+> > data and dev2 is now used only for trackstick.
+> >=20
+> > In case that trackstick is not present dev2 is not created, so
+> > userspace does not see non existent device in system.
+> >=20
+> > Because laptops with ALPS devices often do not use i8042
+> > active multiplexing all data (from touchpad, trackstick and
+> > external PS/2 mouse) come to one port.  So it is not possible
+> > to know if external PS/2 mouse is connected or not. In most
+> > cases external PS/2 mouse is not connected so driver will
+> > create dev3 input device after first bare PS/2 packet will be
+> > received. So there will not be "ghost" input device.
+> >=20
+> > This change also helps in identifying possible problems in
+> > future if driver decides to report 6-bytes trackstick packets
+> > as 3-bytes bare PS/2 (data will be reported to dev3 instead
+> > dev2).
+> >=20
+> > Signed-off-by: Pali Roh=E1r <pali.rohar@gmail.com>
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>=20
+> Subject should be: "do *not* mix" or "prevent mix"
 
-On Thursday 15 January 2015 18:43:33 Wolfram Sang wrote:
-> On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
-> > On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >>> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> >>> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> >>> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
-> >>> 
-> >>>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
-> >>>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
-> >>>  adi,adxl345          Three-Axis Digital Accelerometer
-> >>> 
-> >>> -adi,adxl346          Three-Axis Digital Accelerometer
-> >>> -adi,adxl34x          Three-Axis Digital Accelerometer
-> >>> +adi,adxl346          Three-Axis Digital Accelerometer
-> >>> (backward-compatibility value "adi,adxl345" must be listed too)
-> >>
-> >> I'd rather drop 346 because there is no compatible for that one
-> >> anywhere. No need to resend, I can fix it here...
-> > 
-> > If you drop adi,adxl346, checkpatch will start complaining if it
-> > encounters it in a .dts.
-> 
-> Boah, this is annoying. That means we need an 346 entry even if it is
-> not different from 345 (which is fine by me).
-> 
-> If checkpatch does it this way, that means the rule of thumb is to
-> *always* have a dedicated compatible entry? Can someone confirm this?
+Right, I'll adjust it.
 
-I believe we should register a new compatible entry for a device when the 
-device isn't identical, from a compatibility point of view, to an already 
-registered device. In this specific case the adxl346 offers addition features 
-compared to the adxl345. It thus qualify for its own compatible string. Its DT 
-nodes should list both the adi,adxl346 and adi,adxl345 compatible strings in 
-that order, as the chip is compatible with the adxl345. On the driver side, 
-given that we don't need to differentiate between the devices based on the 
-compatible string (as runtime model detection is possible) we don't need to 
-add a match entry for adi,adxl346.
-
-> Why did we discuss then? Now, I am confused as well...
-
--- 
-Regards,
-
-Laurent Pinchart
-
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

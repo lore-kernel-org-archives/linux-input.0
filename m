@@ -1,97 +1,67 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 16:23:04 +0200
-Message-ID: <2445803.jDZCe1u2Wf@avalon>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <20150115125321.GD2549@katana> <2054159.e1XeKNyynp@avalon>
+Date: Thu, 15 Jan 2015 15:23:50 +0100
+Message-ID: <CAMuHMdWoUDW5Mt6P1G7+Zfqx9iejNUFs7EDiMV1Rw9AfrvxQ4w@mail.gmail.com>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+	<1492007.8cQN1myWLD@avalon>
+	<20150115125321.GD2549@katana>
+	<2054159.e1XeKNyynp@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <2054159.e1XeKNyynp@avalon>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thursday 15 January 2015 16:19:19 Laurent Pinchart wrote:
-> On Thursday 15 January 2015 13:53:22 Wolfram Sang wrote:
-> > On Thu, Dec 18, 2014 at 02:49:28PM +0200, Laurent Pinchart wrote:
-> >> On Thursday 18 December 2014 09:21:51 Wolfram Sang wrote:
-> >>> On Thu, Dec 18, 2014 at 04:15:23AM +0200, Laurent Pinchart wrote:
-> >>>> The I2C subsystem can match devices without explicit OF support based
-> >>>> on the part of their compatible property after the comma. However,
-> >>>> this mechanism uses the first compatible value only. For adxl34x OF
-> >>>> device nodes the compatible property should list the more specific
-> >>>> "adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
-> >>>> fallback value second. This prevents the device node from being
-> >>>> matched with the adxl34x driver.
-> >>>> 
-> >>>> Fix this by adding an OF match table with an "adi,adxl34x" compatible
-> >>>> entry.
-> >>>> 
-> >>>> Signed-off-by: Laurent Pinchart
-> >>>> <laurent.pinchart+renesas@ideasonboard.com>
-> >>>> ---
-> >>>> 
-> >>>>  drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
-> >>>>  1 file changed, 11 insertions(+)
-> >>>> 
-> >>>> Another option would have been to add "adxl325" and "adxl326" entries
-> >>>> to the adxl34x_id I2C match table, but it would have had the drawback
-> >>>> of requiring a driver update for every new device.
-> >>> 
-> >>> AFAIK this is even required for compatible entries, to be as specific
-> >>> as possible. I think this makes sense. With platform_ids, we already
-> >>> had the problem that pca954x was too generic and was used for both GPIO
-> >>> extenders and I2C muxers (IIRC).
-> >> 
-> >> There are three compatible strings defined for the ADXL345 and ADXL346
-> >> in Documentation/devicetree/bindings/i2c/trivial-devices.txt:
-> >> "adi,adxl345", "adi,adxl346", "adi,adxl34x". Given that the last one is
-> >> a fallback for the first two I don't see a need to add the specific
-> >> compatible strings to the driver for now. If a new totally incompatible
-> >> chip named ADXL347 comes out we will need a new driver which won't be
-> >> allowed to use the "adi,adxl34x" compatible string.
-> > 
-> > Been there, got bitten. We only found out too late, because one driver
-> > was in i2c and the other in GPIO (or LED even?), both using "953x" :(
-> 
-> That seems like a development, review and/or merge process failure to me, I
-> wouldn't avoid generic compatible strings for that reason only.
-> 
-> > > An option would be to remove "adi,adxl34x" from
-> > > Documentation/devicetree/bindings/i2c/trivial-devices.txt, in which case
-> > > the driver should match explicitly on "adi,adxl345" and "adi,adxl346".
-> > > That might clash with the DT ABI stability requirements though.
-> > 
-> > I do prefer this:
-> > 
-> > 1) add specific compatible values to the driver. We do those updates for
-> > new devices all the time
-> 
+On Thu, Jan 15, 2015 at 3:19 PM, Laurent Pinchart
+<laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
+>> > An option would be to remove "adi,adxl34x" from
+>> > Documentation/devicetree/bindings/i2c/trivial-devices.txt, in which case
+>> > the driver should match explicitly on "adi,adxl345" and "adi,adxl346".
+>> > That might clash with the DT ABI stability requirements though.
+>>
+>> I do prefer this:
+>>
+>> 1) add specific compatible values to the driver. We do those updates for
+>> new devices all the time
+>
 > Do you mean OF compatible values, or I2C match table entries ? I assume OF
 > compatible values.
-> 
+>
 > As the ADXL346 is backward-compatible with the ADXL345, and as the driver
 > doesn't support the ADXL346-specific features, how about adding only the
-> adxl345 for now, and using compatible = "adi,adxl346", "adi,adxl345"; for
-> the ADXL346 ?
+> adxl345 for now, and using compatible = "adi,adxl346", "adi,adxl345"; for the
+> ADXL346 ?
 
-I spoke too fast. The driver supports ADXL346-specific features, but does so 
-by detecting the device model at runtime.
+Adxl34x is instantiated in:
+arch/arm/boot/dts/sh73a0-kzm9g.dts
+arch/arm/mach-shmobile/board-kzm9g.c
+arch/arm/mach-shmobile/board-mackerel.c
+arch/blackfin/mach-bf527/boards/tll6527m.c
+arch/blackfin/mach-bf537/boards/stamp.c
+arch/blackfin/mach-bf548/boards/ezkit.c
+arch/blackfin/mach-bf609/boards/ezkit.c
 
-I still believe it would make sense to list both the 346 and 345 models in DT 
-for 346 devices, as they're compatible with the 345.
+The shmobile variants are all adxl345.
+The tll6527m is also an adxl345.
 
-> > 2) also add "34x" as a compatible but mark it as deprecateed
-> > 3) delete "34x" from trivial devices
-> 
+For the remaining, it's not clear to me. I Googled a bit, but no luck.
+So they'll have to live with adxl345, too ;-)
+
+>> 2) also add "34x" as a compatible but mark it as deprecateed
+>> 3) delete "34x" from trivial devices
+>
 > OK.
-> 
-> > Everyone OK with that?
 
--- 
-Regards,
+Gr{oetje,eeting}s,
 
-Laurent Pinchart
+                        Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

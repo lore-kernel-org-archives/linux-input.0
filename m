@@ -1,67 +1,88 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 15:23:50 +0100
-Message-ID: <CAMuHMdWoUDW5Mt6P1G7+Zfqx9iejNUFs7EDiMV1Rw9AfrvxQ4w@mail.gmail.com>
+Date: Thu, 15 Jan 2015 15:36:37 +0100
+Message-ID: <20150115143637.GA5057@katana>
 References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<1492007.8cQN1myWLD@avalon>
-	<20150115125321.GD2549@katana>
-	<2054159.e1XeKNyynp@avalon>
+ <20150115125321.GD2549@katana>
+ <2054159.e1XeKNyynp@avalon>
+ <2445803.jDZCe1u2Wf@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2054159.e1XeKNyynp@avalon>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43364 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753580AbbAOOgk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jan 2015 09:36:40 -0500
+Content-Disposition: inline
+In-Reply-To: <2445803.jDZCe1u2Wf@avalon>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
 
-On Thu, Jan 15, 2015 at 3:19 PM, Laurent Pinchart
-<laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
->> > An option would be to remove "adi,adxl34x" from
->> > Documentation/devicetree/bindings/i2c/trivial-devices.txt, in which case
->> > the driver should match explicitly on "adi,adxl345" and "adi,adxl346".
->> > That might clash with the DT ABI stability requirements though.
->>
->> I do prefer this:
->>
->> 1) add specific compatible values to the driver. We do those updates for
->> new devices all the time
->
-> Do you mean OF compatible values, or I2C match table entries ? I assume OF
-> compatible values.
->
-> As the ADXL346 is backward-compatible with the ADXL345, and as the driver
-> doesn't support the ADXL346-specific features, how about adding only the
-> adxl345 for now, and using compatible = "adi,adxl346", "adi,adxl345"; for the
-> ADXL346 ?
 
-Adxl34x is instantiated in:
-arch/arm/boot/dts/sh73a0-kzm9g.dts
-arch/arm/mach-shmobile/board-kzm9g.c
-arch/arm/mach-shmobile/board-mackerel.c
-arch/blackfin/mach-bf527/boards/tll6527m.c
-arch/blackfin/mach-bf537/boards/stamp.c
-arch/blackfin/mach-bf548/boards/ezkit.c
-arch/blackfin/mach-bf609/boards/ezkit.c
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The shmobile variants are all adxl345.
-The tll6527m is also an adxl345.
 
-For the remaining, it's not clear to me. I Googled a bit, but no luck.
-So they'll have to live with adxl345, too ;-)
+> > > Been there, got bitten. We only found out too late, because one driver
+> > > was in i2c and the other in GPIO (or LED even?), both using "953x" :(
+> >=20
+> > That seems like a development, review and/or merge process failure to m=
+e, I
+> > wouldn't avoid generic compatible strings for that reason only.
 
->> 2) also add "34x" as a compatible but mark it as deprecateed
->> 3) delete "34x" from trivial devices
->
-> OK.
+Well, I think different here, but let's skip this discussion as it is
+not really needed right now...
 
-Gr{oetje,eeting}s,
+> > As the ADXL346 is backward-compatible with the ADXL345, and as the driv=
+er
+> > doesn't support the ADXL346-specific features, how about adding only the
+> > adxl345 for now, and using compatible =3D "adi,adxl346", "adi,adxl345";=
+ for
+> > the ADXL346 ?
+>=20
+> I spoke too fast. The driver supports ADXL346-specific features, but does=
+ so=20
+> by detecting the device model at runtime.
+>=20
+> I still believe it would make sense to list both the 346 and 345 models i=
+n DT=20
+> for 346 devices, as they're compatible with the 345.
 
-                        Geert
+I agree.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+> > > 2) also add "34x" as a compatible but mark it as deprecateed
+> > > 3) delete "34x" from trivial devices
+> >=20
+> > OK.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Yay :)
+
+
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUt9B1AAoJEBQN5MwUoCm2tjkP/1dJTGc2xX9MVXSHMf0HHIYN
+YBovtsPugSwCuo77kzROFn7wkFjjo2EnTRXHO9ypApd8TjmXej59bzCJENzjXSSf
+HDMoiVbmhYKRn9Gt0WO4ibmZXXCazHLBIxKCWTq6IRSstXQebTBXxYztbJu6SyVj
+6L1ffRuW9upgsb96ZViPr9dLmqAwOl+t/yPUGFCDBcGdMBtFVdWDqFikCo8KPdZm
+kWmoTmNdep2KaATLV7FSbYgIgrR3J32d891vWCtRIhgmK4LfOVhC5rYdQu3tcdqU
+70DdXBhklrRAEiEEgEZW/rfxDbO97tPFgYgUh9eSDRcktWOSEOkSvA9NCIZzuwVQ
+tEJw7MqgZx/F+p66Bg/tBn6bq6RZ4oZVQ7muUdacxa/yY3JVFLnDXf5ThVWqcRij
+qm/Ux2cN4kqr77ldAsGB0y2m6eOG93o6cz/XrAM7zy30+zZyQL77pY51ahgTjFRA
+I1lS+MsOdi51X7CgTVcjvBvPRjEcM+kUcx/U2gmkIr/Hiz81ZhtOuy0m5MUJynaZ
+58YS+2sqbl2oDfH15ArhA1vdcmTz0QTM40WfLMHwA9dNDgLf04Qq/3MTGDvglWoZ
+L3hr6mH78NBAyLUAOkUwEZ2+8nQ2ohIyBSWkJdiQVJ0lAqj8tarvVFNoLjnu6qP/
+YUTLZyUWJDMW46d0lyDV
+=18fv
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--

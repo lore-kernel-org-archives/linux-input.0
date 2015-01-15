@@ -1,70 +1,85 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 10:54:31 -0800
-Message-ID: <20150115185431.GG33214@dtor-ws>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1421333655-31029-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <CAMuHMdWmGi6qKKt5YJm1i7FqDceqKosxsSRJRd8zqXO9jMzyoQ@mail.gmail.com>
+From: Jonathan Richardson <jonathar@broadcom.com>
+Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Thu, 15 Jan 2015 11:19:21 -0800
+Message-ID: <54B812B9.3040400@broadcom.com>
+References: <Jonathan Richardson <jonathar@broadcom.com> <1419027470-7969-1-git-send-email-jonathar@broadcom.com> <1419027470-7969-2-git-send-email-jonathar@broadcom.com> <1419028015.25129.14.camel@perches.com> <5494AEB8.8060606@broadcom.com> <54B7132A.6030803@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdWmGi6qKKt5YJm1i7FqDceqKosxsSRJRd8zqXO9jMzyoQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:41164 "EHLO
+	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751879AbbAOTTX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jan 2015 14:19:23 -0500
+In-Reply-To: <54B7132A.6030803@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Joe Perches <joe@perches.com>, devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, linux-arm-kernel@lists.infradead.org
 
-On Thu, Jan 15, 2015 at 06:45:33PM +0100, Geert Uytterhoeven wrote:
-> On Thu, Jan 15, 2015 at 3:54 PM, Laurent Pinchart
-> <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
-> > The I2C subsystem can match devices without explicit OF support based on
-> > the part of their compatible property after the comma. However, this
-> > mechanism uses the first compatible value only. For adxl34x OF device
-> > nodes the compatible property will contain the more specific
-> > "adi,adxl345" or "adi,adxl346" value first. This prevents the device
-> > node from being matched with the adxl34x driver.
-> >
-> > Fix this by adding an OF match table with an "adi,adxl345" compatible
-> > entry. There's no need to add the "adi,adxl346" entry as the ADXL346 is
-> > backward-compatible with the ADXL345 with differences handled by runtime
-> > detection of the device model.
+On 15-01-14 05:08 PM, Florian Fainelli wrote:
+> On 19/12/14 15:03, Jonathan Richardson wrote:
+>> On 14-12-19 02:26 PM, Joe Perches wrote:
+>>> On Fri, 2014-12-19 at 14:17 -0800, Jonathan Richardson wrote:
+>>>> Add initial version of the Broadcom touchscreen driver.
+>>>
+>>> more trivia:
+>>>
+>>>> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+>>> []
+>>>> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
+>>>> +{
+>>>> +	u32 val;
+>>> []
+>>>> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
+>>>> +		if (val < 0 || val > 255) {
+>>>> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
+>>>> +			return -EINVAL;
+>>>> +		}
+>>>> +		priv->cfg_params.debounce_timeout = val;
 > 
-> Thanks!
-> 
-> > Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-> 
-> Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-> 
-> > --- a/drivers/input/misc/adxl34x-i2c.c
-> > +++ b/drivers/input/misc/adxl34x-i2c.c
-> 
-> > +#ifdef CONFIG_OF
-> > +static const struct of_device_id adxl34x_of_id[] = {
-> > +       /*
-> > +        * The ADXL346 is backward-compatible with the ADXL345. Differences are
-> > +        * handled by runtime detection of the device model, there's thus no
-> > +        * need for listing the "adi,adxl346" compatible value explicitly.
-> > +        */
-> > +       { .compatible = "adi,adxl345", },
-> > +       /*
-> > +        * Deprecated, DT nodes should use one or more of the device-specific
-> > +        * compatible values "adi,adxl345" and "adi,adxl346".
-> 
-> Ideally, the two comments above are moved to a real DT binding document ;-)
-> 
-> > +        */
-> > +       { .compatible = "adi,adxl34x", },
-> 
-> I'd append "/* deprecated */" to the line above, so "git grep adxl34x"
-> will show its deprecated status.
+> BTW, common practice for DT properties is to use a dash instead of an
+> underscore for multi-worded properties.
 
-I still do not understand what we are trying to fix here. Why is
-"adi,adxl34x" compatible string no good anymore? If we start using exact
-models and the physical device does not match do we abort probe? What is
-the problem that we are solving here?
+ts-rotation is done that way already so I'll change the others to be
+consistent. Thanks.
 
-Thanks.
+> 
+>>>
+>>> Doesn't the compiler generate a warning message
+>>> about an impossible "unsigned < 0" test for all
+>>> of these "val < 0" uses?
+>>>
+>>
+>> Actually no it doesn't. The gcc output shows that neither -Wtype-limits
+>> nor -Wextra are used to compile that file. I assume this is because
+>> there would be just too many warnings.
+>>
+>>
+>>>> +	}
+>>>> +
+>>>> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
+>>>> +		if (val < 0 || val > 11) {
+>>> []
+>>>> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
+>>>> +		if (val < 0 || val > 255) {
+>>> []
+>>>> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
+>>>> +		if (val < 0 || val > 8) {
+>>> []
+>>>> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
+>>>> +		if (val < 0 || val > 31) {
+>>>
+>>>
+>>
+>>
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>>
+> 
+> 
 
--- 
-Dmitry

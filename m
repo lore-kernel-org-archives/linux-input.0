@@ -1,78 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
-Date: Thu, 15 Jan 2015 18:43:33 +0100
-Message-ID: <20150115174333.GC6342@katana>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
+Date: Thu, 15 Jan 2015 18:45:33 +0100
+Message-ID: <CAMuHMdWmGi6qKKt5YJm1i7FqDceqKosxsSRJRd8zqXO9jMzyoQ@mail.gmail.com>
 References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1421333655-31029-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <20150115170209.GA6342@katana>
- <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com>
+	<1421333655-31029-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1421333655-31029-3-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
+On Thu, Jan 15, 2015 at 3:54 PM, Laurent Pinchart
+<laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
+> The I2C subsystem can match devices without explicit OF support based on
+> the part of their compatible property after the comma. However, this
+> mechanism uses the first compatible value only. For adxl34x OF device
+> nodes the compatible property will contain the more specific
+> "adi,adxl345" or "adi,adxl346" value first. This prevents the device
+> node from being matched with the adxl34x driver.
+>
+> Fix this by adding an OF match table with an "adi,adxl345" compatible
+> entry. There's no need to add the "adi,adxl346" entry as the ADXL346 is
+> backward-compatible with the ADXL345 with differences handled by runtime
+> detection of the device model.
 
---E/DnYTRukya0zdZ1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks!
 
-On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
-> On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> >> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> >> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> >> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
-> >>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
-> >>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
-> >>  adi,adxl345          Three-Axis Digital Accelerometer
-> >> -adi,adxl346          Three-Axis Digital Accelerometer
-> >> -adi,adxl34x          Three-Axis Digital Accelerometer
-> >> +adi,adxl346          Three-Axis Digital Accelerometer (backward-compa=
-tibility value "adi,adxl345" must be listed too)
-> >
-> > I'd rather drop 346 because there is no compatible for that one anywher=
-e.
-> > No need to resend, I can fix it here...
->=20
-> If you drop adi,adxl346, checkpatch will start complaining if it encounte=
-rs
-> it in a .dts.
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 
-Boah, this is annoying. That means we need an 346 entry even if it is
-not different from 345 (which is fine by me).
+Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
-If checkpatch does it this way, that means the rule of thumb is to
-*always* have a dedicated compatible entry? Can someone confirm this?
+> --- a/drivers/input/misc/adxl34x-i2c.c
+> +++ b/drivers/input/misc/adxl34x-i2c.c
 
-Why did we discuss then? Now, I am confused as well...
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id adxl34x_of_id[] = {
+> +       /*
+> +        * The ADXL346 is backward-compatible with the ADXL345. Differences are
+> +        * handled by runtime detection of the device model, there's thus no
+> +        * need for listing the "adi,adxl346" compatible value explicitly.
+> +        */
+> +       { .compatible = "adi,adxl345", },
+> +       /*
+> +        * Deprecated, DT nodes should use one or more of the device-specific
+> +        * compatible values "adi,adxl345" and "adi,adxl346".
 
+Ideally, the two comments above are moved to a real DT binding document ;-)
 
---E/DnYTRukya0zdZ1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> +        */
+> +       { .compatible = "adi,adxl34x", },
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+I'd append "/* deprecated */" to the line above, so "git grep adxl34x"
+will show its deprecated status.
 
-iQIcBAEBAgAGBQJUt/xFAAoJEBQN5MwUoCm2k5wP/1hCMgyCmq6Hd5gNycHDE54K
-Pq28xRysXAAsXkSCyMDug5Y2l98RNMgwuXsvgOrDpILpTYF5LB2sk21Aa6Ik5mss
-gahJqVof+jQxKXwxjtHmGZpXZCq95aF4wPw6+Tg6zTanWtdNcTB59uMyZC7ieLr5
-SXpUU75Xhg5V3svJs2En6fKTuboGE8iAVJbZyldKuDnNp2bvGkzmYTVnOdqoaR3u
-VeyeV+69eiq20qfEgzX8PrsuKeMns34xyZNETgWRdXy8raXFenzQhz29+p5tMSMu
-gRPun7f9OzHvRVCIOgFZvG3o7z0TOJBBWaumoVGCatiqhWvdYSVzorHxW2M+I0AX
-pX6QvDilZAlrWa1j1KJ/GYtulsiGrvUGanwztm9pUTXqbrY5zu72I1B4nlabioVt
-RxpT/81Y67IrwSvL/eK1Emrh2fo0SNEhHsNqKFctDn4hr3D9dzrq5cnntO8XQUyZ
-nvn4GFxvbzJRPtdrpzD2stEt2Rvd59OR/L6c17h0LCOA4A60SfmRJ9IxFtrxlUdr
-jMBDVIu1PLOnVbkGoVTAuhyeOMfKFTQaj/gfIG3jrp6wTBHo/3niKMUC8CyFh8ce
-FfO5DxlVGuMvUsJnICnZ/2HgFUR5avX/ADgWFH2D8vZkf0eFD7hduisRu73oiSRN
-LLfY8XyQdtH/LrzvYWKs
-=G0qK
------END PGP SIGNATURE-----
+> +       { }
 
---E/DnYTRukya0zdZ1--
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

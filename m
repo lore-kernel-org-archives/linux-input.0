@@ -1,37 +1,64 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 21:00:37 +0100
-Message-ID: <CAMuHMdXrRtgAahaEUh8x61E-koE25VL-6LOJrkjx4_fohKQtwQ@mail.gmail.com>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<1421333655-31029-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<CAMuHMdWmGi6qKKt5YJm1i7FqDceqKosxsSRJRd8zqXO9jMzyoQ@mail.gmail.com>
-	<20150115185431.GG33214@dtor-ws>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 5/6] Input: ALPS - fix trackstick detection on some Dell Latitudes
+Date: Thu, 15 Jan 2015 21:21:34 +0100
+Message-ID: <201501152121.35052@pali>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <1421276154-8689-6-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150115185431.GG33214@dtor-ws>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Type: multipart/signed;
+  boundary="nextPart3016928.kvzPItxGu1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f181.google.com ([209.85.212.181]:56099 "EHLO
+	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752447AbbAOUVi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jan 2015 15:21:38 -0500
+Received: by mail-wi0-f181.google.com with SMTP id hi2so20336285wib.2
+        for <linux-input@vger.kernel.org>; Thu, 15 Jan 2015 12:21:37 -0800 (PST)
+In-Reply-To: <1421276154-8689-6-git-send-email-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Jan 15, 2015 at 7:54 PM, Dmitry Torokhov
-<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> I still do not understand what we are trying to fix here. Why is
-> "adi,adxl34x" compatible string no good anymore? If we start using exact
-> models and the physical device does not match do we abort probe? What is
-> the problem that we are solving here?
+--nextPart3016928.kvzPItxGu1
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Because there's no guarantee that the driver actually supports all
-"adi,adxl34<x>" with <x> = 0..9, some of which don't exist yet.
+On Wednesday 14 January 2015 23:55:53 Dmitry Torokhov wrote:
+> +	/*
+> +	 * Reset the device to make sure it is fully operational:
+> +	 * on some laptops, like certain Dell Latitudes, we may
+> +	 * fail to properly detect presence of trackstick if device
+> +	 * has not been reset.
+> +	 */
+> +	psmouse_reset(psmouse);
+> +
+> +	priv =3D kzalloc(sizeof(struct alps_data), GFP_KERNEL);
+> +	if (priv)
 
-Gr{oetje,eeting}s,
+if (!priv)
 
-                        Geert
+> +		return -ENOMEM;
+> +
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--nextPart3016928.kvzPItxGu1
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlS4IU8ACgkQi/DJPQPkQ1LGCwCeIMQdxYUtlZTWMIuaXkcK2Kpi
+fesAn24xTEBv0dJC08E+gWxqiHcmHwyI
+=c5FE
+-----END PGP SIGNATURE-----
+
+--nextPart3016928.kvzPItxGu1--

@@ -1,92 +1,81 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc
- touchscreen driver
-Date: Wed, 14 Jan 2015 17:02:56 -0800
-Message-ID: <20150115010256.GC9134@dtor-ws>
-References: <jonathar@broadcom.com>
- <1419027470-7969-1-git-send-email-jonathar@broadcom.com>
- <1419027470-7969-2-git-send-email-jonathar@broadcom.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: touchscreen-iproc: Add Broadcom iProc touchscreen
+ driver
+Date: Wed, 14 Jan 2015 17:08:58 -0800
+Message-ID: <54B7132A.6030803@gmail.com>
+References: <Jonathan Richardson <jonathar@broadcom.com> <1419027470-7969-1-git-send-email-jonathar@broadcom.com> <1419027470-7969-2-git-send-email-jonathar@broadcom.com> <1419028015.25129.14.camel@perches.com> <5494AEB8.8060606@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:59429 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751952AbbAOBDC (ORCPT
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:59735 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752045AbbAOBJH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jan 2015 20:03:02 -0500
-Content-Disposition: inline
-In-Reply-To: <1419027470-7969-2-git-send-email-jonathar@broadcom.com>
+	Wed, 14 Jan 2015 20:09:07 -0500
+In-Reply-To: <5494AEB8.8060606@broadcom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Richardson <jonathar@broadcom.com>
-Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org, Joe Perches <joe@perches.com>
+To: Jonathan Richardson <jonathar@broadcom.com>, Joe Perches <joe@perches.com>
+Cc: devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, linux-arm-kernel@lists.infradead.org
 
-Hi Jonathan,
+On 19/12/14 15:03, Jonathan Richardson wrote:
+> On 14-12-19 02:26 PM, Joe Perches wrote:
+>> On Fri, 2014-12-19 at 14:17 -0800, Jonathan Richardson wrote:
+>>> Add initial version of the Broadcom touchscreen driver.
+>>
+>> more trivia:
+>>
+>>> diff --git a/drivers/input/touchscreen/bcm_iproc_tsc.c b/drivers/input/touchscreen/bcm_iproc_tsc.c
+>> []
+>>> +static int get_tsc_config(struct device_node *np, struct iproc_ts_priv *priv)
+>>> +{
+>>> +	u32 val;
+>> []
+>>> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
+>>> +		if (val < 0 || val > 255) {
+>>> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
+>>> +			return -EINVAL;
+>>> +		}
+>>> +		priv->cfg_params.debounce_timeout = val;
 
-On Fri, Dec 19, 2014 at 02:17:49PM -0800, Jonathan Richardson wrote:
-> +	if (of_property_read_u32(np, "scanning_period", &val) >= 0) {
-> +		if (val < 1 || val > 256) {
-> +			dev_err(dev, "scanning_period must be [1-256]\n");
-> +			return -EINVAL;
-> +		}
-> +		priv->cfg_params.scanning_period = val;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "debounce_timeout", &val) >= 0) {
-> +		if (val < 0 || val > 255) {
-> +			dev_err(dev, "debounce_timeout must be [0-255]\n");
-> +			return -EINVAL;
-> +		}
-> +		priv->cfg_params.debounce_timeout = val;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
-> +		if (val < 0 || val > 11) {
-> +			dev_err(dev, "settling_timeout must be [0-11]\n");
-> +			return -EINVAL;
-> +		}
-> +		priv->cfg_params.settling_timeout = val;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
-> +		if (val < 0 || val > 255) {
-> +			dev_err(dev, "touch_timeout must be [0-255]\n");
-> +			return -EINVAL;
-> +		}
-> +		priv->cfg_params.touch_timeout = val;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
-> +		if (val < 0 || val > 8) {
-> +			dev_err(dev, "average_data must be [0-8]\n");
-> +			return -EINVAL;
-> +		}
-> +		priv->cfg_params.average_data = val;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
-> +		if (val < 0 || val > 31) {
-> +			dev_err(dev, "fifo_threshold must be [0-31]\n");
-> +			return -EINVAL;
-> +		}
-> +		priv->cfg_params.fifo_threshold = val;
-> +	}
+BTW, common practice for DT properties is to use a dash instead of an
+underscore for multi-worded properties.
 
-I think these are dveice specific and thus should have "brcm," prefix.
+>>
+>> Doesn't the compiler generate a warning message
+>> about an impossible "unsigned < 0" test for all
+>> of these "val < 0" uses?
+>>
+> 
+> Actually no it doesn't. The gcc output shows that neither -Wtype-limits
+> nor -Wextra are used to compile that file. I assume this is because
+> there would be just too many warnings.
+> 
+> 
+>>> +	}
+>>> +
+>>> +	if (of_property_read_u32(np, "settling_timeout", &val) >= 0) {
+>>> +		if (val < 0 || val > 11) {
+>> []
+>>> +	if (of_property_read_u32(np, "touch_timeout", &val) >= 0) {
+>>> +		if (val < 0 || val > 255) {
+>> []
+>>> +	if (of_property_read_u32(np, "average_data", &val) >= 0) {
+>>> +		if (val < 0 || val > 8) {
+>> []
+>>> +	if (of_property_read_u32(np, "fifo_threshold", &val) >= 0) {
+>>> +		if (val < 0 || val > 31) {
+>>
+>>
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
 
-> +
-> +	priv->ts_rotation = TS_ROTATION_0;
-> +	if (of_property_read_u32(np, "ts-rotation", &val) >= 0) {
-> +		priv->ts_rotation = val;
-> +		dev_dbg(dev, "ts rotation [%d] degrees\n",
-> +			90 * priv->ts_rotation);
-> +	}
-
-This I am not quite sure about - if we want rotation or swap+invert. You
-are CCed on another email (tsc2007) that talks about need of generic
-touchscreen transforms in input core/of bindings.
-
-Thanks.
 
 -- 
-Dmitry
+Florian

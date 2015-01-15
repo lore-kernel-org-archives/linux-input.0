@@ -1,113 +1,69 @@
-From: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH 1/3] input: tsc2007: Add pre-calibration, flipping and rotation
-Date: Thu, 15 Jan 2015 17:14:38 +0100
-Message-ID: <8B08216C-13DD-40D8-9BA9-060F1C18A018@goldelico.com>
-References: <1412108254-19234-1-git-send-email-marek@goldelico.com> <1412108254-19234-2-git-send-email-marek@goldelico.com> <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com> <20150115005938.GB9134@dtor-ws> <0F9A17C1-9B01-4EE9-BE98-266B8FC02B84@goldelico.com> <20150115143855.GD512@earth.universe>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150115143855.GD512@earth.universe>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Belisko Marek <marek.belisko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Marek Belisko <marek@goldelico.com>, Jonathan Richardson <jonathar@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Yoichi Yuasa <yuasa@linux-mips.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, List
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
+Date: Thu, 15 Jan 2015 17:55:56 +0100
+Message-ID: <20150115165556.GA6272@katana>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1421333655-31029-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43714 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751423AbbAOQz7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jan 2015 11:55:59 -0500
+Content-Disposition: inline
+In-Reply-To: <1421333655-31029-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
 
 
-Am 15.01.2015 um 15:38 schrieb Sebastian Reichel <sre@kernel.org>:
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hi,
+On Thu, Jan 15, 2015 at 04:54:15PM +0200, Laurent Pinchart wrote:
+> The I2C subsystem can match devices without explicit OF support based on
+> the part of their compatible property after the comma. However, this
+> mechanism uses the first compatible value only. For adxl34x OF device
+> nodes the compatible property will contain the more specific
+> "adi,adxl345" or "adi,adxl346" value first. This prevents the device
+> node from being matched with the adxl34x driver.
 >=20
-> On Thu, Jan 15, 2015 at 08:36:44AM +0100, Dr. H. Nikolaus Schaller wr=
-ote:
->>> 1. Perform conversion in input core rather than individual drivers.=
- I
->>> think we should allocate a new bitmaps for some transformations and=
- have
->>> the code do X/Y flip/clip of the coordinates.
->>=20
->> Do you have a suggestion where this should be (I have no clue how
->> the input system works or is structured - we just know how to extend=
- a
->> driver that uses it)?
->>=20
->>> 2. Standardize on bindings. We already have of-touchscreen.c doing
->>> rudimentary parsing, we shoudl look into extending it rather than
->>> creating myriad of driver-specific bindings.
->>=20
->> Ok, looks reasonable.
+> Fix this by adding an OF match table with an "adi,adxl345" compatible
+> entry. There's no need to add the "adi,adxl346" entry as the ADXL346 is
+> backward-compatible with the ADXL345 with differences handled by runtime
+> detection of the device model.
 >=20
-> Documentation is in=20
->=20
-> Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
+m>
 
-I did look into it now. Unfortunately, it does not fit well into my vie=
-w of how bindings
-should be. They should describe hardware (as we are told for many other=
- kernel
-subsystems).
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Pixels and resolutions are IMHO related to the screen it is glued on - =
-and that is
-quite independent.
 
-So I don=92t see how they do describe the different ways the touch scre=
-en can be
-wired to a tsc2007 controller.
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Please can you add minimum and maximum properties for us?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Then, inverted-x and inverted-y is redundant because it is the same as =
-having
-an expected higher value from the ADC for the minimum coordinate and a =
-lower
-for the maximum.
+iQIcBAEBAgAGBQJUt/EcAAoJEBQN5MwUoCm2eWoP+gO6Zxvw1DPp+xEhLtIi2+BA
+KIyvUV6z/d1dkm1WBwL2HlG9FI2/ah9HlAQRW9CXtchrxOPxqViQVeb8G7GYppE2
+Z4u6zWFZya7wDdQtFu1hiNNsoCBgkRQZf7zvjXy7DJMUXirCZhRtoCXa6o4/dfKn
+2YvnNBmIo2BNfttJsoYDESXtJOlIS4dP+u1wz2mZPNYTj4Ps6ArVA73dDX/oLyOM
++t4TS7uYlvBol/FmC1XtsnFY0unry1iJnk1Po41aU/Hm9Y7UR3TWGsuyxSbnjNXo
+6dfk9wknW44U0GzsPrJHxR8zZM5q8H4bqPlJtktAYWFHV7AKOClJEdsk2dAi6ULL
+WGy23EQcTUkiv+7km8GZFXv6s1HsaszygKe/ehTQ5ekGWVsH1yvhZRFAf0UN2g27
+ns91oSlhUeu2Y0Yqh5gRCdo6gqKClpEVPgrdoCutg6YBUDLwTXt2v5VEhTt4EzhW
+xx7WnpSrnM9rf/yx/MBfdZ7WiNb+6sd/IpOtZsJGRHHQvVrCw4yeo6j9xTWWwLQV
+6veLfDV08b9e7SsykalA477Aw9Nc1SFZ9bj0nuGxZCBZ7X2xm6VZgf4moJKGIqi0
+ZojurhYDL1rEIEAFxRriVh5XdGLS/9TA0oys9LPBIkpX21GSDGwmL+1w7Ilf4rPb
+3qMOaj+qNV+xwmsqOOIK
+=ZRzw
+-----END PGP SIGNATURE-----
 
->=20
->>> Also, do we need swap and flip or do we simply need rotation (like =
-the
->>> proposed Broadcom iproc driver has)?
->>=20
->> Well, since the DT should describe hardware, there are 3 sets of wir=
-es which
->> can have a cross-over: X+ and X-, Y+ and Y-, X and Y.
->>=20
->> So IMHO hardware has no =93rotation=94, just crossover of wires. Rot=
-ation is an
->> interpretation of the result of these connections in combination wit=
-h some
->> panel the touch is glued to and should therefore not be represented =
-in the DT.
->>=20
->> As a result we have proposed a scheme without explicit rotation. We =
-specify what
->> coordinates X- and X+ should report at their ends (min, max) because=
- the DT
->> programmer has to specify them anyways. Flipping is a result of defi=
-ning these
->> coordinates in an ascending or descending way. Only swapping of the =
-X and Y
->> wires can=92t be implicitly defined so it has its own property. So t=
-he scheme we
->> have proposed tries to optimize the efforts needed to adapt new boar=
-ds and write
->> DTs and focus the DT on hardware description.
->>=20
->> As a bonus we also specify the min and max value to be reported for =
-the touch
->> pressure (Z axis) using the same basic principle.
->>=20
->> And it is a pure add-on on top of the existing driver so that it att=
-empts not
->> to break existing device trees.
->=20
-> from what I can see there are no in-tree-users using any of the
-> new properties.
->=20
->> Maybe could you accept it as a first step for this specific driver (=
-and let=92s do
->> the big standardization work later on)?
->=20
-> That does not work, since you create an ABI.
->=20
-> -- Sebastian
+--YiEDa0DAkWCtVeE4--

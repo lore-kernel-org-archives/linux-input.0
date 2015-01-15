@@ -1,77 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v8 4/6] input: misc: Add ABI docs for AXP20x PEK
-Date: Thu, 15 Jan 2015 09:39:30 -0800
-Message-ID: <20150115173930.GD33214@dtor-ws>
-References: <1419303194-3075-1-git-send-email-wens@csie.org>
- <1419303194-3075-5-git-send-email-wens@csie.org>
- <CAGb2v64AvP+niDrFU-vGGsXUoKD_kv34DqEPRFUZ0fiyeWiz9A@mail.gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Thu, 15 Jan 2015 18:43:33 +0100
+Message-ID: <20150115174333.GC6342@katana>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1421333655-31029-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <20150115170209.GA6342@katana>
+ <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBV7W36SQKGQECP4HYNA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAGb2v64AvP+niDrFU-vGGsXUoKD_kv34DqEPRFUZ0fiyeWiz9A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Cc: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Chen-Yu,
 
-On Fri, Jan 16, 2015 at 12:00:31AM +0800, Chen-Yu Tsai wrote:
-> On Tue, Dec 23, 2014 at 10:53 AM, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org> wrote:
-> > From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+--E/DnYTRukya0zdZ1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
+> On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> >> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
+> >>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
+> >>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
+> >>  adi,adxl345          Three-Axis Digital Accelerometer
+> >> -adi,adxl346          Three-Axis Digital Accelerometer
+> >> -adi,adxl34x          Three-Axis Digital Accelerometer
+> >> +adi,adxl346          Three-Axis Digital Accelerometer (backward-compa=
+tibility value "adi,adxl345" must be listed too)
 > >
-> > Add ABI entries for the PEK found on PMU X-Powers AXP202 and AXP209.
-> 
-> Hi Dmitry,
-> 
-> Would it be possible to take this patch through your tree?
+> > I'd rather drop 346 because there is no compatible for that one anywher=
+e.
+> > No need to resend, I can fix it here...
+>=20
+> If you drop adi,adxl346, checkpatch will start complaining if it encounte=
+rs
+> it in a .dts.
 
-Actually I folded it into the original patch adding the code so it's
-already there.
+Boah, this is annoying. That means we need an 346 entry even if it is
+not different from 345 (which is fine by me).
 
-Thanks.
+If checkpatch does it this way, that means the rule of thumb is to
+*always* have a dedicated compatible entry? Can someone confirm this?
 
-> 
-> 
-> Thanks
-> ChenYu
-> 
-> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> > [wens-jdAy2FN1RRM@public.gmane.org: Fixed path for sysfs entries]
-> > Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-> > ---
-> >  Documentation/ABI/testing/sysfs-driver-input-axp-pek | 11 +++++++++++
-> >  1 file changed, 11 insertions(+)
-> >  create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
-> >
-> > diff --git a/Documentation/ABI/testing/sysfs-driver-input-axp-pek b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
-> > new file mode 100644
-> > index 000000000000..a5e671b9fa79
-> > --- /dev/null
-> > +++ b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
-> > @@ -0,0 +1,11 @@
-> > +What:          /sys/class/input/input(x)/device/startup
-> > +Date:          March 2014
-> > +Contact:       Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> > +Description:   Startup time in us. Board is powered on if the button is pressed
-> > +               for more than <startup_time>
-> > +
-> > +What:          /sys/class/input/input(x)/device/shutdown
-> > +Date:          March 2014
-> > +Contact:       Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> > +Description:   Shutdown time in us. Board is powered off if the button is pressed
-> > +               for more than <shutdown_time>
-> > --
-> > 2.1.4
-> >
+Why did we discuss then? Now, I am confused as well...
 
--- 
-Dmitry
+
+--E/DnYTRukya0zdZ1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUt/xFAAoJEBQN5MwUoCm2k5wP/1hCMgyCmq6Hd5gNycHDE54K
+Pq28xRysXAAsXkSCyMDug5Y2l98RNMgwuXsvgOrDpILpTYF5LB2sk21Aa6Ik5mss
+gahJqVof+jQxKXwxjtHmGZpXZCq95aF4wPw6+Tg6zTanWtdNcTB59uMyZC7ieLr5
+SXpUU75Xhg5V3svJs2En6fKTuboGE8iAVJbZyldKuDnNp2bvGkzmYTVnOdqoaR3u
+VeyeV+69eiq20qfEgzX8PrsuKeMns34xyZNETgWRdXy8raXFenzQhz29+p5tMSMu
+gRPun7f9OzHvRVCIOgFZvG3o7z0TOJBBWaumoVGCatiqhWvdYSVzorHxW2M+I0AX
+pX6QvDilZAlrWa1j1KJ/GYtulsiGrvUGanwztm9pUTXqbrY5zu72I1B4nlabioVt
+RxpT/81Y67IrwSvL/eK1Emrh2fo0SNEhHsNqKFctDn4hr3D9dzrq5cnntO8XQUyZ
+nvn4GFxvbzJRPtdrpzD2stEt2Rvd59OR/L6c17h0LCOA4A60SfmRJ9IxFtrxlUdr
+jMBDVIu1PLOnVbkGoVTAuhyeOMfKFTQaj/gfIG3jrp6wTBHo/3niKMUC8CyFh8ce
+FfO5DxlVGuMvUsJnICnZ/2HgFUR5avX/ADgWFH2D8vZkf0eFD7hduisRu73oiSRN
+LLfY8XyQdtH/LrzvYWKs
+=G0qK
+-----END PGP SIGNATURE-----
+
+--E/DnYTRukya0zdZ1--

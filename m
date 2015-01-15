@@ -1,57 +1,103 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 16:38:16 +0200
-Message-ID: <1546932.HT3eEIWcNh@avalon>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <2445803.jDZCe1u2Wf@avalon> <20150115143637.GA5057@katana>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH 1/3] input: tsc2007: Add pre-calibration, flipping and
+ rotation
+Date: Thu, 15 Jan 2015 15:38:55 +0100
+Message-ID: <20150115143855.GD512@earth.universe>
+References: <1412108254-19234-1-git-send-email-marek@goldelico.com>
+ <1412108254-19234-2-git-send-email-marek@goldelico.com>
+ <CAAfyv36bD9ZratOzr7FkeQde8k-K9XjEjH9gkntm9qewD-cH9g@mail.gmail.com>
+ <20150115005938.GB9134@dtor-ws>
+ <0F9A17C1-9B01-4EE9-BE98-266B8FC02B84@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from galahad.ideasonboard.com ([185.26.127.97]:51501 "EHLO
-	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753867AbbAOOht (ORCPT
+Received: from mail.kernel.org ([198.145.29.136]:53280 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751631AbbAOOjJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jan 2015 09:37:49 -0500
-In-Reply-To: <20150115143637.GA5057@katana>
+	Thu, 15 Jan 2015 09:39:09 -0500
+Content-Disposition: inline
+In-Reply-To: <0F9A17C1-9B01-4EE9-BE98-266B8FC02B84@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
+To: "Dr. H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Belisko Marek <marek.belisko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Benoit Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Marek Belisko <marek@goldelico.com>, Jonathan Richardson <jonathar@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Yoichi Yuasa <yuasa@linux-mips.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, List
 
-On Thursday 15 January 2015 15:36:37 Wolfram Sang wrote:
-> >>> Been there, got bitten. We only found out too late, because one driver
-> >>> was in i2c and the other in GPIO (or LED even?), both using "953x" :(
-> >> 
-> >> That seems like a development, review and/or merge process failure to
-> >> me, I wouldn't avoid generic compatible strings for that reason only.
-> 
-> Well, I think different here, but let's skip this discussion as it is
-> not really needed right now...
-> 
-> >> As the ADXL346 is backward-compatible with the ADXL345, and as the
-> >> driver doesn't support the ADXL346-specific features, how about adding
-> >> only the adxl345 for now, and using compatible = "adi,adxl346",
-> >> "adi,adxl345"; for the ADXL346 ?
-> > 
-> > I spoke too fast. The driver supports ADXL346-specific features, but does
-> > so by detecting the device model at runtime.
-> > 
-> > I still believe it would make sense to list both the 346 and 345 models in
-> > DT for 346 devices, as they're compatible with the 345.
-> 
-> I agree.
-> 
-> >>> 2) also add "34x" as a compatible but mark it as deprecateed
-> >>> 3) delete "34x" from trivial devices
-> >> 
-> >> OK.
-> 
-> Yay :)
+Hi,
 
-I'll submit patches very soon.
+On Thu, Jan 15, 2015 at 08:36:44AM +0100, Dr. H. Nikolaus Schaller wrot=
+e:
+> > 1. Perform conversion in input core rather than individual drivers.=
+ I
+> > think we should allocate a new bitmaps for some transformations and=
+ have
+> > the code do X/Y flip/clip of the coordinates.
+>=20
+> Do you have a suggestion where this should be (I have no clue how
+> the input system works or is structured - we just know how to extend =
+a
+> driver that uses it)?
+>=20
+> > 2. Standardize on bindings. We already have of-touchscreen.c doing
+> > rudimentary parsing, we shoudl look into extending it rather than
+> > creating myriad of driver-specific bindings.
+>=20
+> Ok, looks reasonable.
 
--- 
-Regards,
+Documentation is in=20
 
-Laurent Pinchart
+Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
 
+> > Also, do we need swap and flip or do we simply need rotation (like =
+the
+> > proposed Broadcom iproc driver has)?
+>=20
+> Well, since the DT should describe hardware, there are 3 sets of wire=
+s which
+> can have a cross-over: X+ and X-, Y+ and Y-, X and Y.
+>
+> So IMHO hardware has no =E2=80=9Crotation=E2=80=9D, just crossover of=
+ wires. Rotation is an
+> interpretation of the result of these connections in combination with=
+ some
+> panel the touch is glued to and should therefore not be represented i=
+n the DT.
+>=20
+> As a result we have proposed a scheme without explicit rotation. We s=
+pecify what
+> coordinates X- and X+ should report at their ends (min, max) because =
+the DT
+> programmer has to specify them anyways. Flipping is a result of defin=
+ing these
+> coordinates in an ascending or descending way. Only swapping of the X=
+ and Y
+> wires can=E2=80=99t be implicitly defined so it has its own property.=
+ So the scheme we
+> have proposed tries to optimize the efforts needed to adapt new board=
+s and write
+> DTs and focus the DT on hardware description.
+>=20
+> As a bonus we also specify the min and max value to be reported for t=
+he touch
+> pressure (Z axis) using the same basic principle.
+>=20
+> And it is a pure add-on on top of the existing driver so that it atte=
+mpts not
+> to break existing device trees.
+
+from what I can see there are no in-tree-users using any of the
+new properties.
+
+> Maybe could you accept it as a first step for this specific driver (a=
+nd let=E2=80=99s do
+> the big standardization work later on)?
+
+That does not work, since you create an ABI.
+
+-- Sebastian
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

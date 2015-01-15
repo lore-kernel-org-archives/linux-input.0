@@ -1,76 +1,62 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH 6/6] Input: ALPS - mix trackstick and external PS/2 mouse data
-Date: Thu, 15 Jan 2015 21:34:51 +0100
-Message-ID: <201501152134.51503@pali>
-References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Thu, 15 Jan 2015 22:51:43 +0200
+Message-ID: <16733840.6Wupp0rKhe@avalon>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com> <20150115174333.GC6342@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3613084.zyey6tsZdk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f175.google.com ([74.125.82.175]:40283 "EHLO
-	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752975AbbAOUey (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jan 2015 15:34:54 -0500
-Received: by mail-we0-f175.google.com with SMTP id k11so16865050wes.6
-        for <linux-input@vger.kernel.org>; Thu, 15 Jan 2015 12:34:53 -0800 (PST)
-In-Reply-To: <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20150115174333.GC6342@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Yunkang Tang <yunkang.tang@cn.alps.com>, Hans de Goede <hdegoede@redhat.com>
 
---nextPart3613084.zyey6tsZdk
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram,
 
-On Wednesday 14 January 2015 23:55:54 Dmitry Torokhov wrote:
-> From: Pali Roh=C3=A1r <pali.rohar@gmail.com>
->=20
-> Previously dev2 device was used for both external PS/2 mouse
-> and internal trackstick device (if available). This change
-> introduces dev3 device which is used for external PS/2 mouse
-> data and dev2 is now used only for trackstick.
->=20
-> In case that trackstick is not present dev2 is not created, so
-> userspace does not see non existent device in system.
->=20
-> Because laptops with ALPS devices often do not use i8042
-> active multiplexing all data (from touchpad, trackstick and
-> external PS/2 mouse) come to one port.  So it is not possible
-> to know if external PS/2 mouse is connected or not. In most
-> cases external PS/2 mouse is not connected so driver will
-> create dev3 input device after first bare PS/2 packet will be
-> received. So there will not be "ghost" input device.
->=20
-> This change also helps in identifying possible problems in
-> future if driver decides to report 6-bytes trackstick packets
-> as 3-bytes bare PS/2 (data will be reported to dev3 instead
-> dev2).
->=20
-> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Thursday 15 January 2015 18:43:33 Wolfram Sang wrote:
+> On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
+> > On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> >>> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >>> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >>> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
+> >>> 
+> >>>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
+> >>>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
+> >>>  adi,adxl345          Three-Axis Digital Accelerometer
+> >>> 
+> >>> -adi,adxl346          Three-Axis Digital Accelerometer
+> >>> -adi,adxl34x          Three-Axis Digital Accelerometer
+> >>> +adi,adxl346          Three-Axis Digital Accelerometer
+> >>> (backward-compatibility value "adi,adxl345" must be listed too)
+> >>
+> >> I'd rather drop 346 because there is no compatible for that one
+> >> anywhere. No need to resend, I can fix it here...
+> > 
+> > If you drop adi,adxl346, checkpatch will start complaining if it
+> > encounters it in a .dts.
+> 
+> Boah, this is annoying. That means we need an 346 entry even if it is
+> not different from 345 (which is fine by me).
+> 
+> If checkpatch does it this way, that means the rule of thumb is to
+> *always* have a dedicated compatible entry? Can someone confirm this?
 
-Subject should be: "do *not* mix" or "prevent mix"
+I believe we should register a new compatible entry for a device when the 
+device isn't identical, from a compatibility point of view, to an already 
+registered device. In this specific case the adxl346 offers addition features 
+compared to the adxl345. It thus qualify for its own compatible string. Its DT 
+nodes should list both the adi,adxl346 and adi,adxl345 compatible strings in 
+that order, as the chip is compatible with the adxl345. On the driver side, 
+given that we don't need to differentiate between the devices based on the 
+compatible string (as runtime model detection is possible) we don't need to 
+add a match entry for adi,adxl346.
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+> Why did we discuss then? Now, I am confused as well...
 
---nextPart3613084.zyey6tsZdk
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+-- 
+Regards,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Laurent Pinchart
 
-iEYEABECAAYFAlS4JGsACgkQi/DJPQPkQ1JEggCgvCmUw18bmw5tWMCMDLG/hdCg
-R1wAoMhapWL+YOgQnC6vaPpuPDanDAbH
-=eDl/
------END PGP SIGNATURE-----
-
---nextPart3613084.zyey6tsZdk--

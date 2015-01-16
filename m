@@ -1,210 +1,163 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: [PATCH v8 0/6] mfd: AXP20x: Add support for AXP202
- and AXP209
-Date: Fri, 16 Jan 2015 09:08:49 +0800
-Message-ID: <CAGb2v66PiN334hvDMD2GrEOnqxvVzun0V3seeWCz-g9ZNLahTA@mail.gmail.com>
-References: <1419303194-3075-1-git-send-email-wens@csie.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBOGJ4GSQKGQE45OHM2A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1419303194-3075-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Dudley Du <dudl@cypress.com>
+Subject: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
+Date: Fri, 16 Jan 2015 14:34:03 +0800
+Message-ID: <1421390055-32760-1-git-send-email-dudl@cypress.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.cypress.com ([157.95.67.100]:49078 "EHLO
+	smtp1.cypress.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751671AbbAPGfH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Jan 2015 01:35:07 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
+Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2014 at 10:53 AM, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org> wrote:
-> Hi everyone,
->
-> This is v8 of the AXP20x PMIC patches. These are the remaining patches
-> of the original series: PEK (power button) input driver, binding docs,
-> and defconfig updates.
->
-> Mark raised some questions during v7 about the first patch, specifically
-> about the "x-powers,dcdc-workmode" property. I've expanded the regulator
-> parts of the DT bindings doc. Mark, if you could take a look and give us
-> your blessing?
->
-> Dmitry, you were OK with the input bits going through the MFD tree, is
-> that still the case?
->
-> If there are no more problems, maybe Lee could take patches 1~4, and
-> Maxime can take the defconfig patches through his tree.
+V18 patches have below updates, details of other updates see history list:
+1) Fix 'cyapa_runtime_suspend' undeclared compiling issue in latest
+   kernel-next source code. Verified on next-20150114 with make C=1.
+2) Optimize enter bootloader failed for some chipset takes longer time issue.
 
-Hi Lee,
 
-Can we get the last remaining patches (1 & 2) merged?
+This patch series is aimed to re-design the cyapa driver to support
+old gen3 trackpad devices and new gen5 trackpad devices in one
+cyapa driver, it's for easily productions support based on
+customers' requirements. And add sysfs functions and interfaces
+supported that required by users and customers.
 
-Thanks
-ChenYu
+Since the earlier gen3 and the latest gen5 trackpad devices using
+two different chipsets, and have different protocols and interfaces,
+so if supported these two type trackpad devices in two different drivers,
+then it will be difficult to manage productions and later firmware updates.
+e.g.: It will cause customer don't know which one trackpad device firmware
+image to use and update when it has been used and integrated
+in same one productions, so here we support these two trackpad
+devices in same on driver.
 
-> Thanks
-> ChenYu
->
->
-> Changes since v7:
->
->         - DT bindings
->           * Clarified the AXP's interrupt source
->           * Added explaination for "x-powers,dcdc-workmode" property
->           * Made regulator supply properties optional. They can be omitted
->             when the input is unregulated, as is the case when they are
->             connected to the IPSOUT output on the PMIC.
->           * Used real world example (Cubieboard2) for regulator nodes
->
->         - Fixed paths for PEK sysfs entries.
->
->         - PEK driver
->           * Made axp20x_pek_remove() in PEK driver static.
->           * Removed driver owner field.
->           * Wrapped some lines over 80 characters.
->
->
-> Original cover letter from v7:
->
->
-> During the merging of v6 several patches were left out. This v7 comprises
-> all the patches that are still pending.
->
-> //--
->
-> AXP209 and AXP202 are the PMUs (Power Management Unit) used by A10, A13
-> and A20 SoCs and developed by X-Powers, a sister company of Allwinner.
-> AXP20x comprises an adaptive USB-Compatible PWM charger, 2 BUCK DC-DC
-> converters, 5 LDOs, multiple 12-bit ADCs of voltage, current and temperature
-> as well as 4 configurable GPIOs.
->
-> This set of patches introduces the core driver and support for two different
-> subsystems:
->         - Regulators
->         - PEK (Power Enable Key)
->
-> Changes since v1:
->
->         - Added a new standalone patch for defconfig
->
->         - MFD core:
->           * Removed axp,system-power-controller property
->
->         - Bindings documentation:
->           * Corrected description for dcdc-workmode property
->           * Removed unused axp20x-pek compatible
->
->         - Input misc PEK driver:
->           * Fixed seconds in lower case
->
->         - Regulators subsystem:
->           * Fixed axp20x_set_suspend_voltage()
->           * Switched to using multi-bit control for regulators
->           * When "regulators" node is not found driver doesn't quit
->           * Driver is now using devm_regulator_register()
->           * Added module_platform_driver() instead of subsys_initcall()
->
->         - DT:
->           * Added new DTSI for AXP209
->           * Added support for cubietruck and olinuxino-micro
->
-> Changes since v2:
->
->         - Added a new patch for multi_v7_defconfig to enable MFD core
->           and subsystems
->
->         - DT:
->           * Dropped axp,system-power-controller property from DTS
->           * Moved compatible and interrupt-related properties from the
->             DTSI file to the DTS board files
->
->         - Regulators subsystem:
->           * Deleted useless struct axp20x_regulators
->           * Added a warning when out of specs values are used for the
->             dcdc frequency
->
->         - MFD core:
->           * Fixed coding style
->           * Removed IDs from device table for i2c
->
->         - Bindings documentation:
->           * Several corrections and fixes
->
-> Changes since v3:
->
->         - Removed x-powers-axp209.dtsi file
->         - Rewritten bindings document
->
->         - MFD core:
->           * Fixed casting
->           * Better comments / documentation
->
->         - Input misc PEK driver:
->           * Timings are now expressed in ms and the sysfs appies the
->             closest possible value
->           * No more useless pretty-printing
->           * Removed devm_request_threaded_irq in favour of
->             devm_request_any_context_irq
->           * Moved from input attributes to platform device attributes
->
->         - Regulators subsystem:
->           * Removed suspend mode (axp20x_set_suspend_voltage)
->           * Added regulators input supply
->
->         - DT:
->           * DTs doesn't include anymore the dtsi
->           * Added input supplies for regulators
->
-> Changes since v4:
->
->         - Removed regulator patches already applied / acked by Mark Brown
->
->         - Input misc PEK driver:
->           * Don't print anymore the "us" unit
->           * Added cleanup for attributes when unbindind the device
->           * Fixed error code returned when device_create_file() fails
->
->         - DT:
->           * Enable all the regulators on at boot-time
->           * Removed min and max microvolts for all the regulators but DCDC2
->           * Moved the axp_ipsout regulator outside the MFD node
->
->         - MFD core:
->           * The supply regulators are now specified in the MFD driver using
->             regulator_bulk_register_supply_alias() and the .parent_supplies
->             in the MFD cell
->
-> Changes since v5:
->         - Added ACKs
->         - Fixed compilation warning (reported by Hans De Goede)
->         - Vendor-prefixes are now sorted
->         - Removed DT patch
->
->
-> Carlo Caione (6):
->   mfd: AXP20x: Add bindings documentation
->   dt-bindings: add vendor-prefix for X-Powers
->   input: misc: Add driver for AXP20x Power Enable Key
->   input: misc: Add ABI docs for AXP20x PEK
->   ARM: sunxi: Add AXP20x support in defconfig
->   ARM: sunxi: Add AXP20x support multi_v7_defconfig
->
->  .../ABI/testing/sysfs-driver-input-axp-pek         |  11 +
->  Documentation/devicetree/bindings/mfd/axp20x.txt   |  97 +++++++
->  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
->  arch/arm/configs/multi_v7_defconfig                |   3 +
->  arch/arm/configs/sunxi_defconfig                   |   3 +
->  drivers/input/misc/Kconfig                         |  11 +
->  drivers/input/misc/Makefile                        |   1 +
->  drivers/input/misc/axp20x-pek.c                    | 282 +++++++++++++++++++++
->  8 files changed, 409 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
->  create mode 100644 Documentation/devicetree/bindings/mfd/axp20x.txt
->  create mode 100644 drivers/input/misc/axp20x-pek.c
->
-> --
-> 2.1.4
->
+
+Dudley Du (12):
+  input: cyapa: re-design driver to support multi-trackpad in one driver
+  input: cyapa: add gen5 trackpad device basic functions support
+  input: cyapa: add power management interfaces support for the device
+  input: cyapa: add runtime power management interfaces support for the
+    device
+  input: cyapa: add sysfs interfaces support in the cyapa driver
+  input: cyapa: add gen3 trackpad device firmware update function
+    support
+  input: cyapa: add gen3 trackpad device read baseline function support
+  input: cyapa: add gen3 trackpad device force re-calibrate function
+    support
+  input: cyapa: add gen5 trackpad device firmware update function
+    support
+  input: cyapa: add gen5 trackpad device read baseline function support
+  input: cyapa: add gen5 trackpad device force re-calibrate function
+    support
+  input: cyapa: add acpi device id support
+
+ drivers/input/mouse/Kconfig      |   11 +-
+ drivers/input/mouse/Makefile     |    3 +-
+ drivers/input/mouse/cyapa.c      | 1711 ++++++++++++++---------
+ drivers/input/mouse/cyapa.h      |  303 +++++
+ drivers/input/mouse/cyapa_gen3.c | 1247 +++++++++++++++++
+ drivers/input/mouse/cyapa_gen5.c | 2774 ++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 5378 insertions(+), 671 deletions(-)
+ create mode 100644 drivers/input/mouse/cyapa.h
+ create mode 100644 drivers/input/mouse/cyapa_gen3.c
+ create mode 100644 drivers/input/mouse/cyapa_gen5.c
+
+
+History patch series modifications list:
+V17 patches have below main updates compared with v16 patches:
+1) Fix kernel oops when system booting up with finger on TP.
+2) Remove unnecessary error log that may to system.
+3) Slipt out pm sleep code into cyapa_prepare_wakeup_controls(),
+   remove #indefs in function body of CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME.
+4) Supply stubs to cyapa_gen3_ops and cyapa_gen5_ops data structure to avoid
+   checking for presence of various methods in ops.
+5) Changing CYAPA_BOOTLOADER() and CYAPA_OPERATIONAL() macros to static inline
+   functions as cyapa_is_bootloader_mode() and cyapa_is_operational_mode().
+6) Remove touching runtime suspend state during system calling cyapa_suspend().
+7) Change to enable runtime PM until make sure device is out of bootloader.
+8) Change to return -EAGAIN when bootloader is busy.
+9) Correct word spell issue and code styles.
+
+V16 patches have below main updates compared with v15 patches:
+1) Fix all miss-spelling and space issue.
+2) Rename variables and functions with much more clearer names.
+3) Initialize and document tries near where it will be used.
+4) Modify cmd buffer to struct for more descriptive way.
+
+V15 patches have below main updates compared with v14 patches:
+1) Fix all warning errors of sparse tool when running with "make C=1".
+2) Change variable name "unique_str" to "product_id" for clearer meanings.
+3) Update cyapa_i2c_write function to return error directly when length > 31.
+
+V14 patches have below main updates compared with v13 patches:
+1) Correct 9 miss spelling issues of "bufferred" to "buffered".
+2) Fix the upgrade issue of removing MOUSE_CYAPA config when make oldconfig
+   by replase "depends on I2C && CRC_ITU_T" with
+	"depends on I2C"
+	"select CRC_ITU_T"
+   in patch 9.
+
+V13 patches have below main updates compared with v12 patches:
+1) Remove all debugfs interface, including read_fw and raw_data interfaces.
+2) This patches are made based linux next-20141208.
+
+V12 patches have below main updates compared with v11 patches:
+1) Add check that when TP is detected but not operational, do not exit driver
+   immediately, but wait and export the update_fw interface for recovering.
+2) Re-arrange the function codes, remove unnesseary protype definitions in
+   the header file.
+
+V11 patches have below main updates compared with v10 patches:
+1) Add add acpi device id supported for old gen3 and new gen5 trackpad devices.
+2) Fix the unable to update firmware issue when cyapa_open is not called
+   which means the irq for firwmare update process is not enabled. This fix
+   by checking if the irq is enabled, if not then enable irq before start to
+   do firmware update.
+
+V10 patches have below main updates compared with v9 patches:
+1) Modify code to following kernel code style.
+   e.g.: correct to use error as return name when there is only error path,
+   and fix the checkpatch.sh wanting in the driver.
+2) Remove cyapa_remove method and use input open and close interface to
+   following device resouse management infrastructure.
+3) Modify cyapa_detect method to return tristate issue to make the return value
+   much more consistent and clear.
+4) Use platform supplied functions as possible instead of driver
+   specific rewritten version.
+
+V9 patches have below updates compared with v8 patches:
+1) Removed all async thread stuff from the driver.
+2) Split driver into 18 patches for each function change one patch.
+
+V8 patches have below updates compared with v7 patches:
+1) [PATCH v8 01/13] - Remove the async thread for device detect in
+   probe routine, now the device detect process is completely done within
+   the device probe routine.
+2) [PATCH v8 01/13] - Split the irq cmd handler function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
+
+V7 patches have below updates compared with v6 patches:
+1) [PATCH v7 01/13] - Split the irq cmd handler function to separated
+   function cyapa_default_irq_cmd_handler() and set it to interface
+   cyapa_default_ops.irq_cmd_handler.
+2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
+   to avoid miss-enter when device protocol is still in detecting.
+
+V6 patches have below updates compared with v5 patches:
+1) Remove patch 14 of the lid filtering from the cyapa driver.
+
+V5 patches have below updates compared with v4 patches:
+1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
+2) Fix memories freed before debugfs entries issue;
+3) Make cyapa_debugs_root valid in driver module level
+   in module_init()/moudle_exit() ;
+4) Fix i2c_transfer() may return partial transfer issues.
+5) Add cyapa->removed flag to avoid detecting thread may still running
+   when driver module is removed.
+6) Fix the meanings of some comments and return error code not clear issue.

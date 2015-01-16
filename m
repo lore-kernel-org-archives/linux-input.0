@@ -1,2488 +1,770 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v18 01/12] input: cyapa: re-design driver to support multi-trackpad in one driver
-Date: Fri, 16 Jan 2015 14:34:04 +0800
-Message-ID: <1421390055-32760-2-git-send-email-dudl@cypress.com>
-References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1421390055-32760-1-git-send-email-dudl@cypress.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
-Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: =?utf-8?B?5pu+5am36JGzICh0YW1teV90c2VuZyk=?= <tammy_tseng@sis.com>
+Subject: RE: [PATCH 1/2] INPUT/HID: add touch support for SiS touch driver
+Date: Fri, 16 Jan 2015 18:59:00 +0800
+Message-ID: <8322374EB97AA24A95D0DDBFC8F1CA1DBF9E1B@SISMBEV01.sis.com.tw>
+References: <8322374EB97AA24A95D0DDBFC8F1CA1DBF987B@SISMBEV01.sis.com.tw><1421063449.12454.17.camel@linux-0dmf.site> <CAKR5kVFXy4GdZdHFnW2AAjqkcHfgfM5b0NhkOa079bftOoKqUQ@mail.gmail.com> <8322374EB97AA24A95D0DDBFC8F1CA1DBF9DE5@SISMBEV01.sis.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sism000.sis.com ([210.242.182.187]:44881 "EHLO sism02.sis.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751931AbbAPK7Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Jan 2015 05:59:24 -0500
+Content-class: urn:content-classes:message
+In-Reply-To: <8322374EB97AA24A95D0DDBFC8F1CA1DBF9DE5@SISMBEV01.sis.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
+Cc: tammy0524@gmail.com
 
-In order to support multiple different chipsets and communication protocols
-trackpad devices in one cyapa driver, the new cyapa driver is re-designed
-with one cyapa driver core and multiple device specific functions component.
-The cyapa driver core is contained in this patch, it supplies basic functions
-that working with kernel and input subsystem, and also supplies the interfaces
-that the specific devices' component can connect and work together with as
-one driver.
-TEST=test on Chromebooks.
-
-Signed-off-by: Dudley Du <dudl@cypress.com>
----
- drivers/input/mouse/Kconfig      |   10 -
- drivers/input/mouse/Makefile     |    3 +-
- drivers/input/mouse/cyapa.c      | 1076 +++++++++++++++-----------------------
- drivers/input/mouse/cyapa.h      |  296 +++++++++++
- drivers/input/mouse/cyapa_gen3.c |  807 ++++++++++++++++++++++++++++
- 5 files changed, 1516 insertions(+), 676 deletions(-)
- create mode 100644 drivers/input/mouse/cyapa.h
- create mode 100644 drivers/input/mouse/cyapa_gen3.c
-
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 2541bfa..d8b46b0 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -146,16 +146,6 @@ config MOUSE_PS2_OLPC
- 
- 	  If unsure, say N.
- 
--config MOUSE_PS2_FOCALTECH
--	bool "FocalTech PS/2 mouse protocol extension" if EXPERT
--	default y
--	depends on MOUSE_PS2
--	help
--	  Say Y here if you have a FocalTech PS/2 TouchPad connected to
--	  your system.
--
--	  If unsure, say Y.
--
- config MOUSE_SERIAL
- 	tristate "Serial mouse"
- 	select SERIO
-diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-index 560003d..8bd950d 100644
---- a/drivers/input/mouse/Makefile
-+++ b/drivers/input/mouse/Makefile
-@@ -8,7 +8,7 @@ obj-$(CONFIG_MOUSE_AMIGA)		+= amimouse.o
- obj-$(CONFIG_MOUSE_APPLETOUCH)		+= appletouch.o
- obj-$(CONFIG_MOUSE_ATARI)		+= atarimouse.o
- obj-$(CONFIG_MOUSE_BCM5974)		+= bcm5974.o
--obj-$(CONFIG_MOUSE_CYAPA)		+= cyapa.o
-+obj-$(CONFIG_MOUSE_CYAPA)		+= cyapatp.o
- obj-$(CONFIG_MOUSE_ELAN_I2C)		+= elan_i2c.o
- obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
- obj-$(CONFIG_MOUSE_INPORT)		+= inport.o
-@@ -24,6 +24,7 @@ obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
- obj-$(CONFIG_MOUSE_SYNAPTICS_USB)	+= synaptics_usb.o
- obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
- 
-+cyapatp-objs := cyapa.o cyapa_gen3.o
- psmouse-objs := psmouse-base.o synaptics.o focaltech.o
- 
- psmouse-$(CONFIG_MOUSE_PS2_ALPS)	+= alps.o
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index 1bece8c..36c6433 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -20,408 +20,127 @@
- #include <linux/input/mt.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/slab.h>
-+#include <linux/uaccess.h>
-+#include "cyapa.h"
- 
--/* APA trackpad firmware generation */
--#define CYAPA_GEN3   0x03   /* support MT-protocol B with tracking ID. */
--
--#define CYAPA_NAME   "Cypress APA Trackpad (cyapa)"
--
--/* commands for read/write registers of Cypress trackpad */
--#define CYAPA_CMD_SOFT_RESET       0x00
--#define CYAPA_CMD_POWER_MODE       0x01
--#define CYAPA_CMD_DEV_STATUS       0x02
--#define CYAPA_CMD_GROUP_DATA       0x03
--#define CYAPA_CMD_GROUP_CMD        0x04
--#define CYAPA_CMD_GROUP_QUERY      0x05
--#define CYAPA_CMD_BL_STATUS        0x06
--#define CYAPA_CMD_BL_HEAD          0x07
--#define CYAPA_CMD_BL_CMD           0x08
--#define CYAPA_CMD_BL_DATA          0x09
--#define CYAPA_CMD_BL_ALL           0x0a
--#define CYAPA_CMD_BLK_PRODUCT_ID   0x0b
--#define CYAPA_CMD_BLK_HEAD         0x0c
--
--/* report data start reg offset address. */
--#define DATA_REG_START_OFFSET  0x0000
--
--#define BL_HEAD_OFFSET 0x00
--#define BL_DATA_OFFSET 0x10
--
--/*
-- * Operational Device Status Register
-- *
-- * bit 7: Valid interrupt source
-- * bit 6 - 4: Reserved
-- * bit 3 - 2: Power status
-- * bit 1 - 0: Device status
-- */
--#define REG_OP_STATUS     0x00
--#define OP_STATUS_SRC     0x80
--#define OP_STATUS_POWER   0x0c
--#define OP_STATUS_DEV     0x03
--#define OP_STATUS_MASK (OP_STATUS_SRC | OP_STATUS_POWER | OP_STATUS_DEV)
--
--/*
-- * Operational Finger Count/Button Flags Register
-- *
-- * bit 7 - 4: Number of touched finger
-- * bit 3: Valid data
-- * bit 2: Middle Physical Button
-- * bit 1: Right Physical Button
-- * bit 0: Left physical Button
-- */
--#define REG_OP_DATA1       0x01
--#define OP_DATA_VALID      0x08
--#define OP_DATA_MIDDLE_BTN 0x04
--#define OP_DATA_RIGHT_BTN  0x02
--#define OP_DATA_LEFT_BTN   0x01
--#define OP_DATA_BTN_MASK (OP_DATA_MIDDLE_BTN | OP_DATA_RIGHT_BTN | \
--			  OP_DATA_LEFT_BTN)
--
--/*
-- * Bootloader Status Register
-- *
-- * bit 7: Busy
-- * bit 6 - 5: Reserved
-- * bit 4: Bootloader running
-- * bit 3 - 1: Reserved
-- * bit 0: Checksum valid
-- */
--#define REG_BL_STATUS        0x01
--#define BL_STATUS_BUSY       0x80
--#define BL_STATUS_RUNNING    0x10
--#define BL_STATUS_DATA_VALID 0x08
--#define BL_STATUS_CSUM_VALID 0x01
--
--/*
-- * Bootloader Error Register
-- *
-- * bit 7: Invalid
-- * bit 6: Invalid security key
-- * bit 5: Bootloading
-- * bit 4: Command checksum
-- * bit 3: Flash protection error
-- * bit 2: Flash checksum error
-- * bit 1 - 0: Reserved
-- */
--#define REG_BL_ERROR         0x02
--#define BL_ERROR_INVALID     0x80
--#define BL_ERROR_INVALID_KEY 0x40
--#define BL_ERROR_BOOTLOADING 0x20
--#define BL_ERROR_CMD_CSUM    0x10
--#define BL_ERROR_FLASH_PROT  0x08
--#define BL_ERROR_FLASH_CSUM  0x04
--
--#define BL_STATUS_SIZE  3  /* length of bootloader status registers */
--#define BLK_HEAD_BYTES 32
--
--#define PRODUCT_ID_SIZE  16
--#define QUERY_DATA_SIZE  27
--#define REG_PROTOCOL_GEN_QUERY_OFFSET  20
--
--#define REG_OFFSET_DATA_BASE     0x0000
--#define REG_OFFSET_COMMAND_BASE  0x0028
--#define REG_OFFSET_QUERY_BASE    0x002a
--
--#define CAPABILITY_LEFT_BTN_MASK	(0x01 << 3)
--#define CAPABILITY_RIGHT_BTN_MASK	(0x01 << 4)
--#define CAPABILITY_MIDDLE_BTN_MASK	(0x01 << 5)
--#define CAPABILITY_BTN_MASK  (CAPABILITY_LEFT_BTN_MASK | \
--			      CAPABILITY_RIGHT_BTN_MASK | \
--			      CAPABILITY_MIDDLE_BTN_MASK)
--
--#define CYAPA_OFFSET_SOFT_RESET  REG_OFFSET_COMMAND_BASE
--
--#define REG_OFFSET_POWER_MODE (REG_OFFSET_COMMAND_BASE + 1)
--
--#define PWR_MODE_MASK   0xfc
--#define PWR_MODE_FULL_ACTIVE (0x3f << 2)
--#define PWR_MODE_IDLE        (0x05 << 2) /* default sleep time is 50 ms. */
--#define PWR_MODE_OFF         (0x00 << 2)
--
--#define PWR_STATUS_MASK      0x0c
--#define PWR_STATUS_ACTIVE    (0x03 << 2)
--#define PWR_STATUS_IDLE      (0x02 << 2)
--#define PWR_STATUS_OFF       (0x00 << 2)
--
--/*
-- * CYAPA trackpad device states.
-- * Used in register 0x00, bit1-0, DeviceStatus field.
-- * Other values indicate device is in an abnormal state and must be reset.
-- */
--#define CYAPA_DEV_NORMAL  0x03
--#define CYAPA_DEV_BUSY    0x01
--
--enum cyapa_state {
--	CYAPA_STATE_OP,
--	CYAPA_STATE_BL_IDLE,
--	CYAPA_STATE_BL_ACTIVE,
--	CYAPA_STATE_BL_BUSY,
--	CYAPA_STATE_NO_DEVICE,
--};
--
--
--struct cyapa_touch {
--	/*
--	 * high bits or x/y position value
--	 * bit 7 - 4: high 4 bits of x position value
--	 * bit 3 - 0: high 4 bits of y position value
--	 */
--	u8 xy_hi;
--	u8 x_lo;  /* low 8 bits of x position value. */
--	u8 y_lo;  /* low 8 bits of y position value. */
--	u8 pressure;
--	/* id range is 1 - 15.  It is incremented with every new touch. */
--	u8 id;
--} __packed;
--
--/* The touch.id is used as the MT slot id, thus max MT slot is 15 */
--#define CYAPA_MAX_MT_SLOTS  15
--
--struct cyapa_reg_data {
--	/*
--	 * bit 0 - 1: device status
--	 * bit 3 - 2: power mode
--	 * bit 6 - 4: reserved
--	 * bit 7: interrupt valid bit
--	 */
--	u8 device_status;
--	/*
--	 * bit 7 - 4: number of fingers currently touching pad
--	 * bit 3: valid data check bit
--	 * bit 2: middle mechanism button state if exists
--	 * bit 1: right mechanism button state if exists
--	 * bit 0: left mechanism button state if exists
--	 */
--	u8 finger_btn;
--	/* CYAPA reports up to 5 touches per packet. */
--	struct cyapa_touch touches[5];
--} __packed;
--
--/* The main device structure */
--struct cyapa {
--	enum cyapa_state state;
--
--	struct i2c_client *client;
--	struct input_dev *input;
--	char phys[32];	/* device physical location */
--	bool irq_wake;  /* irq wake is enabled */
--	bool smbus;
--
--	/* read from query data region. */
--	char product_id[16];
--	u8 btn_capability;
--	u8 gen;
--	int max_abs_x;
--	int max_abs_y;
--	int physical_size_x;
--	int physical_size_y;
--};
--
--static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
--		0x04, 0x05, 0x06, 0x07 };
--static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
--		0x05, 0x06, 0x07 };
--
--struct cyapa_cmd_len {
--	u8 cmd;
--	u8 len;
--};
- 
- #define CYAPA_ADAPTER_FUNC_NONE   0
- #define CYAPA_ADAPTER_FUNC_I2C    1
- #define CYAPA_ADAPTER_FUNC_SMBUS  2
- #define CYAPA_ADAPTER_FUNC_BOTH   3
- 
--/*
-- * macros for SMBus communication
-- */
--#define SMBUS_READ   0x01
--#define SMBUS_WRITE 0x00
--#define SMBUS_ENCODE_IDX(cmd, idx) ((cmd) | (((idx) & 0x03) << 1))
--#define SMBUS_ENCODE_RW(cmd, rw) ((cmd) | ((rw) & 0x01))
--#define SMBUS_BYTE_BLOCK_CMD_MASK 0x80
--#define SMBUS_GROUP_BLOCK_CMD_MASK 0x40
--
-- /* for byte read/write command */
--#define CMD_RESET 0
--#define CMD_POWER_MODE 1
--#define CMD_DEV_STATUS 2
--#define SMBUS_BYTE_CMD(cmd) (((cmd) & 0x3f) << 1)
--#define CYAPA_SMBUS_RESET SMBUS_BYTE_CMD(CMD_RESET)
--#define CYAPA_SMBUS_POWER_MODE SMBUS_BYTE_CMD(CMD_POWER_MODE)
--#define CYAPA_SMBUS_DEV_STATUS SMBUS_BYTE_CMD(CMD_DEV_STATUS)
--
-- /* for group registers read/write command */
--#define REG_GROUP_DATA 0
--#define REG_GROUP_CMD 2
--#define REG_GROUP_QUERY 3
--#define SMBUS_GROUP_CMD(grp) (0x80 | (((grp) & 0x07) << 3))
--#define CYAPA_SMBUS_GROUP_DATA SMBUS_GROUP_CMD(REG_GROUP_DATA)
--#define CYAPA_SMBUS_GROUP_CMD SMBUS_GROUP_CMD(REG_GROUP_CMD)
--#define CYAPA_SMBUS_GROUP_QUERY SMBUS_GROUP_CMD(REG_GROUP_QUERY)
--
-- /* for register block read/write command */
--#define CMD_BL_STATUS 0
--#define CMD_BL_HEAD 1
--#define CMD_BL_CMD 2
--#define CMD_BL_DATA 3
--#define CMD_BL_ALL 4
--#define CMD_BLK_PRODUCT_ID 5
--#define CMD_BLK_HEAD 6
--#define SMBUS_BLOCK_CMD(cmd) (0xc0 | (((cmd) & 0x1f) << 1))
--
--/* register block read/write command in bootloader mode */
--#define CYAPA_SMBUS_BL_STATUS SMBUS_BLOCK_CMD(CMD_BL_STATUS)
--#define CYAPA_SMBUS_BL_HEAD SMBUS_BLOCK_CMD(CMD_BL_HEAD)
--#define CYAPA_SMBUS_BL_CMD SMBUS_BLOCK_CMD(CMD_BL_CMD)
--#define CYAPA_SMBUS_BL_DATA SMBUS_BLOCK_CMD(CMD_BL_DATA)
--#define CYAPA_SMBUS_BL_ALL SMBUS_BLOCK_CMD(CMD_BL_ALL)
--
--/* register block read/write command in operational mode */
--#define CYAPA_SMBUS_BLK_PRODUCT_ID SMBUS_BLOCK_CMD(CMD_BLK_PRODUCT_ID)
--#define CYAPA_SMBUS_BLK_HEAD SMBUS_BLOCK_CMD(CMD_BLK_HEAD)
--
--static const struct cyapa_cmd_len cyapa_i2c_cmds[] = {
--	{ CYAPA_OFFSET_SOFT_RESET, 1 },
--	{ REG_OFFSET_COMMAND_BASE + 1, 1 },
--	{ REG_OFFSET_DATA_BASE, 1 },
--	{ REG_OFFSET_DATA_BASE, sizeof(struct cyapa_reg_data) },
--	{ REG_OFFSET_COMMAND_BASE, 0 },
--	{ REG_OFFSET_QUERY_BASE, QUERY_DATA_SIZE },
--	{ BL_HEAD_OFFSET, 3 },
--	{ BL_HEAD_OFFSET, 16 },
--	{ BL_HEAD_OFFSET, 16 },
--	{ BL_DATA_OFFSET, 16 },
--	{ BL_HEAD_OFFSET, 32 },
--	{ REG_OFFSET_QUERY_BASE, PRODUCT_ID_SIZE },
--	{ REG_OFFSET_DATA_BASE, 32 }
--};
-+const char product_id[] = "CYTRA";
- 
--static const struct cyapa_cmd_len cyapa_smbus_cmds[] = {
--	{ CYAPA_SMBUS_RESET, 1 },
--	{ CYAPA_SMBUS_POWER_MODE, 1 },
--	{ CYAPA_SMBUS_DEV_STATUS, 1 },
--	{ CYAPA_SMBUS_GROUP_DATA, sizeof(struct cyapa_reg_data) },
--	{ CYAPA_SMBUS_GROUP_CMD, 2 },
--	{ CYAPA_SMBUS_GROUP_QUERY, QUERY_DATA_SIZE },
--	{ CYAPA_SMBUS_BL_STATUS, 3 },
--	{ CYAPA_SMBUS_BL_HEAD, 16 },
--	{ CYAPA_SMBUS_BL_CMD, 16 },
--	{ CYAPA_SMBUS_BL_DATA, 16 },
--	{ CYAPA_SMBUS_BL_ALL, 32 },
--	{ CYAPA_SMBUS_BLK_PRODUCT_ID, PRODUCT_ID_SIZE },
--	{ CYAPA_SMBUS_BLK_HEAD, 16 },
--};
-+static int cyapa_reinitialize(struct cyapa *cyapa);
- 
--static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
--					u8 *values)
-+static inline bool cyapa_is_bootloader_mode(struct cyapa *cyapa)
- {
--	return i2c_smbus_read_i2c_block_data(cyapa->client, reg, len, values);
-+	if (cyapa->gen == CYAPA_GEN5 && cyapa->state == CYAPA_STATE_GEN5_BL)
-+		return true;
-+
-+	if (cyapa->gen == CYAPA_GEN3 &&
-+		cyapa->state >= CYAPA_STATE_BL_BUSY &&
-+		cyapa->state <= CYAPA_STATE_BL_ACTIVE)
-+		return true;
-+
-+	return false;
- }
- 
--static ssize_t cyapa_i2c_reg_write_block(struct cyapa *cyapa, u8 reg,
--					 size_t len, const u8 *values)
-+static inline bool cyapa_is_operational_mode(struct cyapa *cyapa)
- {
--	return i2c_smbus_write_i2c_block_data(cyapa->client, reg, len, values);
-+	if (cyapa->gen == CYAPA_GEN5 && cyapa->state == CYAPA_STATE_GEN5_APP)
-+		return true;
-+
-+	if (cyapa->gen == CYAPA_GEN3 && cyapa->state == CYAPA_STATE_OP)
-+		return true;
-+
-+	return false;
- }
- 
--/*
-- * cyapa_smbus_read_block - perform smbus block read command
-- * @cyapa  - private data structure of the driver
-- * @cmd    - the properly encoded smbus command
-- * @len    - expected length of smbus command result
-- * @values - buffer to store smbus command result
-- *
-- * Returns negative errno, else the number of bytes written.
-- *
-- * Note:
-- * In trackpad device, the memory block allocated for I2C register map
-- * is 256 bytes, so the max read block for I2C bus is 256 bytes.
-- */
--static ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
--				      u8 *values)
-+/* Returns 0 on success, else negative errno on failure. */
-+static ssize_t cyapa_i2c_read(struct cyapa *cyapa, u8 reg, size_t len,
-+					u8 *values)
- {
--	ssize_t ret;
--	u8 index;
--	u8 smbus_cmd;
--	u8 *buf;
- 	struct i2c_client *client = cyapa->client;
-+	struct i2c_msg msgs[] = {
-+		{
-+			.addr = client->addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = &reg,
-+		},
-+		{
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = len,
-+			.buf = values,
-+		},
-+	};
-+	int ret;
- 
--	if (!(SMBUS_BYTE_BLOCK_CMD_MASK & cmd))
--		return -EINVAL;
--
--	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
--		/* read specific block registers command. */
--		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
--		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
--		goto out;
--	}
-+	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
- 
--	ret = 0;
--	for (index = 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
--		smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
--		smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
--		buf = values + I2C_SMBUS_BLOCK_MAX * index;
--		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
--		if (ret < 0)
--			goto out;
--	}
-+	if (ret != ARRAY_SIZE(msgs))
-+		return ret < 0 ? ret : -EIO;
- 
--out:
--	return ret > 0 ? len : ret;
-+	return 0;
- }
- 
--static s32 cyapa_read_byte(struct cyapa *cyapa, u8 cmd_idx)
-+/**
-+ * cyapa_i2c_write - Execute i2c block data write operation
-+ * @cyapa: Handle to this driver
-+ * @ret: Offset of the data to written in the register map
-+ * @len: number of bytes to write
-+ * @values: Data to be written
-+ *
-+ * Return negative errno code on error; return zero when success.
-+ */
-+static int cyapa_i2c_write(struct cyapa *cyapa, u8 reg,
-+					 size_t len, const void *values)
- {
--	u8 cmd;
-+	struct i2c_client *client = cyapa->client;
-+	char buf[32];
-+	int ret;
- 
--	if (cyapa->smbus) {
--		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
--		cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
--	} else {
--		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
--	}
--	return i2c_smbus_read_byte_data(cyapa->client, cmd);
--}
-+	if (len > sizeof(buf) - 1)
-+		return -ENOMEM;
- 
--static s32 cyapa_write_byte(struct cyapa *cyapa, u8 cmd_idx, u8 value)
--{
--	u8 cmd;
-+	buf[0] = reg;
-+	memcpy(&buf[1], values, len);
- 
--	if (cyapa->smbus) {
--		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
--		cmd = SMBUS_ENCODE_RW(cmd, SMBUS_WRITE);
--	} else {
--		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
--	}
--	return i2c_smbus_write_byte_data(cyapa->client, cmd, value);
-+	ret = i2c_master_send(client, buf, len + 1);
-+	if (ret != len + 1)
-+		return ret < 0 ? ret : -EIO;
-+
-+	return 0;
- }
- 
--static ssize_t cyapa_read_block(struct cyapa *cyapa, u8 cmd_idx, u8 *values)
-+static u8 cyapa_check_adapter_functionality(struct i2c_client *client)
- {
--	u8 cmd;
--	size_t len;
-+	u8 ret = CYAPA_ADAPTER_FUNC_NONE;
- 
--	if (cyapa->smbus) {
--		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
--		len = cyapa_smbus_cmds[cmd_idx].len;
--		return cyapa_smbus_read_block(cyapa, cmd, len, values);
--	} else {
--		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
--		len = cyapa_i2c_cmds[cmd_idx].len;
--		return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
--	}
-+	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-+		ret |= CYAPA_ADAPTER_FUNC_I2C;
-+	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-+				     I2C_FUNC_SMBUS_BLOCK_DATA |
-+				     I2C_FUNC_SMBUS_I2C_BLOCK))
-+		ret |= CYAPA_ADAPTER_FUNC_SMBUS;
-+	return ret;
- }
- 
- /*
-  * Query device for its current operating state.
-- *
-  */
- static int cyapa_get_state(struct cyapa *cyapa)
- {
- 	u8 status[BL_STATUS_SIZE];
-+	u8 cmd[32];
-+	/* The i2c address of gen4 and gen5 trackpad device must be even. */
-+	bool even_addr = ((cyapa->client->addr & 0x0001) == 0);
-+	bool smbus = false;
-+	int retries = 2;
- 	int error;
- 
- 	cyapa->state = CYAPA_STATE_NO_DEVICE;
-@@ -433,39 +152,66 @@ static int cyapa_get_state(struct cyapa *cyapa)
- 	 *
- 	 */
- 	error = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET, BL_STATUS_SIZE,
--				         status);
-+				       status);
- 
- 	/*
- 	 * On smbus systems in OP mode, the i2c_reg_read will fail with
- 	 * -ETIMEDOUT.  In this case, try again using the smbus equivalent
- 	 * command.  This should return a BL_HEAD indicating CYAPA_STATE_OP.
- 	 */
--	if (cyapa->smbus && (error == -ETIMEDOUT || error == -ENXIO))
--		error = cyapa_read_block(cyapa, CYAPA_CMD_BL_STATUS, status);
-+	if (cyapa->smbus && (error == -ETIMEDOUT || error == -ENXIO)) {
-+		if (!even_addr)
-+			error = cyapa_read_block(cyapa,
-+					CYAPA_CMD_BL_STATUS, status);
-+		smbus = true;
-+	}
- 
- 	if (error != BL_STATUS_SIZE)
- 		goto error;
- 
--	if ((status[REG_OP_STATUS] & OP_STATUS_SRC) == OP_STATUS_SRC) {
--		switch (status[REG_OP_STATUS] & OP_STATUS_DEV) {
--		case CYAPA_DEV_NORMAL:
--		case CYAPA_DEV_BUSY:
--			cyapa->state = CYAPA_STATE_OP;
--			break;
--		default:
--			error = -EAGAIN;
--			goto error;
-+	/*
-+	 * Detect trackpad protocol based on characteristic registers and bits.
-+	 */
-+	do {
-+		cyapa->status[REG_OP_STATUS] = status[REG_OP_STATUS];
-+		cyapa->status[REG_BL_STATUS] = status[REG_BL_STATUS];
-+		cyapa->status[REG_BL_ERROR] = status[REG_BL_ERROR];
-+
-+		if (cyapa->gen == CYAPA_GEN_UNKNOWN ||
-+				cyapa->gen == CYAPA_GEN3) {
-+			error = cyapa_gen3_ops.state_parse(cyapa,
-+					status, BL_STATUS_SIZE);
-+			if (!error)
-+				goto out_detected;
- 		}
--	} else {
--		if (status[REG_BL_STATUS] & BL_STATUS_BUSY)
--			cyapa->state = CYAPA_STATE_BL_BUSY;
--		else if (status[REG_BL_ERROR] & BL_ERROR_BOOTLOADING)
--			cyapa->state = CYAPA_STATE_BL_ACTIVE;
--		else
--			cyapa->state = CYAPA_STATE_BL_IDLE;
--	}
- 
-+		/*
-+		 * Write 0x00 0x00 to trackpad device to force update its
-+		 * status, then redo the detection again.
-+		 */
-+		if (!smbus) {
-+			cmd[0] = 0x00;
-+			cmd[1] = 0x00;
-+			error = cyapa_i2c_write(cyapa, 0, 2, cmd);
-+			if (error)
-+				goto error;
-+
-+			msleep(50);
-+
-+			error = cyapa_i2c_read(cyapa, BL_HEAD_OFFSET,
-+					BL_STATUS_SIZE, status);
-+			if (error)
-+				goto error;
-+		}
-+	} while (--retries > 0 && !smbus);
-+
-+	goto error;
-+
-+out_detected:
-+	if (cyapa->state <= CYAPA_STATE_BL_BUSY)
-+		return -EAGAIN;
- 	return 0;
-+
- error:
- 	return (error < 0) ? error : -EAGAIN;
- }
-@@ -482,143 +228,23 @@ error:
-  * Returns:
-  *   0 when the device eventually responds with a valid non-busy state.
-  *   -ETIMEDOUT if device never responds (too many -EAGAIN)
-- *   < 0    other errors
-+ *   -EAGAIN    if bootload is busy, or unknown state.
-+ *   < 0        other errors
-  */
--static int cyapa_poll_state(struct cyapa *cyapa, unsigned int timeout)
-+int cyapa_poll_state(struct cyapa *cyapa, unsigned int timeout)
- {
- 	int error;
- 	int tries = timeout / 100;
- 
--	error = cyapa_get_state(cyapa);
--	while ((error || cyapa->state >= CYAPA_STATE_BL_BUSY) && tries--) {
--		msleep(100);
-+	do {
- 		error = cyapa_get_state(cyapa);
--	}
--	return (error == -EAGAIN || error == -ETIMEDOUT) ? -ETIMEDOUT : error;
--}
-+		if (!error && cyapa->state > CYAPA_STATE_BL_BUSY)
-+			return 0;
- 
--static int cyapa_bl_deactivate(struct cyapa *cyapa)
--{
--	int error;
--
--	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_deactivate),
--					  bl_deactivate);
--	if (error)
--		return error;
--
--	/* wait for bootloader to switch to idle state; should take < 100ms */
--	msleep(100);
--	error = cyapa_poll_state(cyapa, 500);
--	if (error)
--		return error;
--	if (cyapa->state != CYAPA_STATE_BL_IDLE)
--		return -EAGAIN;
--	return 0;
--}
--
--/*
-- * Exit bootloader
-- *
-- * Send bl_exit command, then wait 50 - 100 ms to let device transition to
-- * operational mode.  If this is the first time the device's firmware is
-- * running, it can take up to 2 seconds to calibrate its sensors.  So, poll
-- * the device's new state for up to 2 seconds.
-- *
-- * Returns:
-- *   -EIO    failure while reading from device
-- *   -EAGAIN device is stuck in bootloader, b/c it has invalid firmware
-- *   0       device is supported and in operational mode
-- */
--static int cyapa_bl_exit(struct cyapa *cyapa)
--{
--	int error;
--
--	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_exit), bl_exit);
--	if (error)
--		return error;
--
--	/*
--	 * Wait for bootloader to exit, and operation mode to start.
--	 * Normally, this takes at least 50 ms.
--	 */
--	usleep_range(50000, 100000);
--	/*
--	 * In addition, when a device boots for the first time after being
--	 * updated to new firmware, it must first calibrate its sensors, which
--	 * can take up to an additional 2 seconds.
--	 */
--	error = cyapa_poll_state(cyapa, 2000);
--	if (error < 0)
--		return error;
--	if (cyapa->state != CYAPA_STATE_OP)
--		return -EAGAIN;
--
--	return 0;
--}
--
--/*
-- * Set device power mode
-- *
-- */
--static int cyapa_set_power_mode(struct cyapa *cyapa, u8 power_mode)
--{
--	struct device *dev = &cyapa->client->dev;
--	int ret;
--	u8 power;
--
--	if (cyapa->state != CYAPA_STATE_OP)
--		return 0;
--
--	ret = cyapa_read_byte(cyapa, CYAPA_CMD_POWER_MODE);
--	if (ret < 0)
--		return ret;
--
--	power = ret & ~PWR_MODE_MASK;
--	power |= power_mode & PWR_MODE_MASK;
--	ret = cyapa_write_byte(cyapa, CYAPA_CMD_POWER_MODE, power);
--	if (ret < 0) {
--		dev_err(dev, "failed to set power_mode 0x%02x err = %d\n",
--			power_mode, ret);
--		return ret;
--	}
--
--	return 0;
--}
--
--static int cyapa_get_query_data(struct cyapa *cyapa)
--{
--	u8 query_data[QUERY_DATA_SIZE];
--	int ret;
--
--	if (cyapa->state != CYAPA_STATE_OP)
--		return -EBUSY;
--
--	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data);
--	if (ret < 0)
--		return ret;
--	if (ret != QUERY_DATA_SIZE)
--		return -EIO;
--
--	memcpy(&cyapa->product_id[0], &query_data[0], 5);
--	cyapa->product_id[5] = '-';
--	memcpy(&cyapa->product_id[6], &query_data[5], 6);
--	cyapa->product_id[12] = '-';
--	memcpy(&cyapa->product_id[13], &query_data[11], 2);
--	cyapa->product_id[15] = '\0';
--
--	cyapa->btn_capability = query_data[19] & CAPABILITY_BTN_MASK;
--
--	cyapa->gen = query_data[20] & 0x0f;
--
--	cyapa->max_abs_x = ((query_data[21] & 0xf0) << 4) | query_data[22];
--	cyapa->max_abs_y = ((query_data[21] & 0x0f) << 8) | query_data[23];
--
--	cyapa->physical_size_x =
--		((query_data[24] & 0xf0) << 4) | query_data[25];
--	cyapa->physical_size_y =
--		((query_data[24] & 0x0f) << 8) | query_data[26];
-+		msleep(100);
-+	} while (tries--);
- 
--	return 0;
-+	return (error == -EAGAIN || error == -ETIMEDOUT) ? -ETIMEDOUT : error;
- }
- 
- /*
-@@ -628,8 +254,10 @@ static int cyapa_get_query_data(struct cyapa *cyapa)
-  * firmware supported by this driver.
-  *
-  * Returns:
-+ *   -ENODEV no device
-  *   -EBUSY  no device or in bootloader
-  *   -EIO    failure while reading from device
-+ *   -ETIMEDOUT timeout failure for bus idle or bus no response
-  *   -EAGAIN device is still in bootloader
-  *           if ->state = CYAPA_STATE_BL_IDLE, device has invalid firmware
-  *   -EINVAL device is in operational mode, but not supported by this driver
-@@ -637,122 +265,53 @@ static int cyapa_get_query_data(struct cyapa *cyapa)
-  */
- static int cyapa_check_is_operational(struct cyapa *cyapa)
- {
--	struct device *dev = &cyapa->client->dev;
--	static const char unique_str[] = "CYTRA";
- 	int error;
- 
--	error = cyapa_poll_state(cyapa, 2000);
-+	error = cyapa_poll_state(cyapa, 4000);
- 	if (error)
- 		return error;
--	switch (cyapa->state) {
--	case CYAPA_STATE_BL_ACTIVE:
--		error = cyapa_bl_deactivate(cyapa);
--		if (error)
--			return error;
--
--	/* Fallthrough state */
--	case CYAPA_STATE_BL_IDLE:
--		error = cyapa_bl_exit(cyapa);
--		if (error)
--			return error;
--
--	/* Fallthrough state */
--	case CYAPA_STATE_OP:
--		error = cyapa_get_query_data(cyapa);
--		if (error)
--			return error;
--
--		/* only support firmware protocol gen3 */
--		if (cyapa->gen != CYAPA_GEN3) {
--			dev_err(dev, "unsupported protocol version (%d)",
--				cyapa->gen);
--			return -EINVAL;
--		}
--
--		/* only support product ID starting with CYTRA */
--		if (memcmp(cyapa->product_id, unique_str,
--			   sizeof(unique_str) - 1) != 0) {
--			dev_err(dev, "unsupported product ID (%s)\n",
--				cyapa->product_id);
--			return -EINVAL;
--		}
--		return 0;
- 
-+	switch (cyapa->gen) {
-+	case CYAPA_GEN3:
-+		cyapa->ops = &cyapa_gen3_ops;
-+		break;
- 	default:
--		return -EIO;
-+		return -ENODEV;
- 	}
--	return 0;
-+
-+	error = cyapa->ops->operational_check(cyapa);
-+	if (!error && cyapa_is_operational_mode(cyapa))
-+		cyapa->operational = true;
-+	else
-+		cyapa->operational = false;
-+
-+	return error;
- }
- 
--static irqreturn_t cyapa_irq(int irq, void *dev_id)
-+
-+/*
-+ * Returns 0 on device detected, negative errno on no device detected.
-+ * And when the device is detected and opertaional, it will be reset to
-+ * full power active mode automatically.
-+ */
-+static int cyapa_detect(struct cyapa *cyapa)
- {
--	struct cyapa *cyapa = dev_id;
- 	struct device *dev = &cyapa->client->dev;
--	struct input_dev *input = cyapa->input;
--	struct cyapa_reg_data data;
--	int i;
--	int ret;
--	int num_fingers;
--
--	if (device_may_wakeup(dev))
--		pm_wakeup_event(dev, 0);
--
--	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
--	if (ret != sizeof(data))
--		goto out;
-+	int error;
- 
--	if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
--	    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
--	    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID) {
--		goto out;
--	}
-+	error = cyapa_check_is_operational(cyapa);
-+	if (error) {
-+		if (error != -ETIMEDOUT && error != -ENODEV &&
-+			cyapa_is_bootloader_mode(cyapa)) {
-+			dev_warn(dev, "device detected but not operational\n");
-+			return 0;
-+		}
- 
--	num_fingers = (data.finger_btn >> 4) & 0x0f;
--	for (i = 0; i < num_fingers; i++) {
--		const struct cyapa_touch *touch = &data.touches[i];
--		/* Note: touch->id range is 1 to 15; slots are 0 to 14. */
--		int slot = touch->id - 1;
--
--		input_mt_slot(input, slot);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
--		input_report_abs(input, ABS_MT_POSITION_X,
--				 ((touch->xy_hi & 0xf0) << 4) | touch->x_lo);
--		input_report_abs(input, ABS_MT_POSITION_Y,
--				 ((touch->xy_hi & 0x0f) << 8) | touch->y_lo);
--		input_report_abs(input, ABS_MT_PRESSURE, touch->pressure);
-+		dev_err(dev, "no device detected: %d\n", error);
-+		return error;
- 	}
- 
--	input_mt_sync_frame(input);
--
--	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK)
--		input_report_key(input, BTN_LEFT,
--				 data.finger_btn & OP_DATA_LEFT_BTN);
--
--	if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK)
--		input_report_key(input, BTN_MIDDLE,
--				 data.finger_btn & OP_DATA_MIDDLE_BTN);
--
--	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK)
--		input_report_key(input, BTN_RIGHT,
--				 data.finger_btn & OP_DATA_RIGHT_BTN);
--
--	input_sync(input);
--
--out:
--	return IRQ_HANDLED;
--}
--
--static u8 cyapa_check_adapter_functionality(struct i2c_client *client)
--{
--	u8 ret = CYAPA_ADAPTER_FUNC_NONE;
--
--	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
--		ret |= CYAPA_ADAPTER_FUNC_I2C;
--	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
--				     I2C_FUNC_SMBUS_BLOCK_DATA |
--				     I2C_FUNC_SMBUS_I2C_BLOCK))
--		ret |= CYAPA_ADAPTER_FUNC_SMBUS;
--	return ret;
-+	return 0;
- }
- 
- static int cyapa_open(struct input_dev *input)
-@@ -761,22 +320,49 @@ static int cyapa_open(struct input_dev *input)
- 	struct i2c_client *client = cyapa->client;
- 	int error;
- 
--	error = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
--	if (error) {
--		dev_err(&client->dev, "set active power failed: %d\n", error);
-+	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-+	if (error)
- 		return error;
-+
-+	if (cyapa->operational) {
-+		/*
-+		 * though failed to set active power mode,
-+		 * but still may be able to work in lower scan rate
-+		 * when in operational mode.
-+		 */
-+		error = cyapa->ops->set_power_mode(cyapa,
-+				PWR_MODE_FULL_ACTIVE, 0);
-+		if (error) {
-+			dev_warn(&client->dev,
-+				"set active power failed: %d\n", error);
-+			goto out;
-+		}
-+	} else {
-+		error = cyapa_reinitialize(cyapa);
-+		if (error || !cyapa->operational) {
-+			error = error ? error : -EAGAIN;
-+			goto out;
-+		}
- 	}
- 
- 	enable_irq(client->irq);
--	return 0;
-+out:
-+	mutex_unlock(&cyapa->state_sync_lock);
-+	return error;
- }
- 
- static void cyapa_close(struct input_dev *input)
- {
- 	struct cyapa *cyapa = input_get_drvdata(input);
-+	struct i2c_client *client = cyapa->client;
-+
-+	mutex_lock(&cyapa->state_sync_lock);
- 
--	disable_irq(cyapa->client->irq);
--	cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
-+	disable_irq(client->irq);
-+	if (cyapa->operational)
-+		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
-+
-+	mutex_unlock(&cyapa->state_sync_lock);
- }
- 
- static int cyapa_create_input_dev(struct cyapa *cyapa)
-@@ -813,7 +399,28 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
- 			     0);
- 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, cyapa->max_abs_y, 0,
- 			     0);
--	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 255, 0, 0);
-+	input_set_abs_params(input, ABS_MT_PRESSURE, 0, cyapa->max_z, 0, 0);
-+	if (cyapa->gen > CYAPA_GEN3) {
-+		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-+		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 0, 0);
-+		/*
-+		 * Orientation is the angle between the vertical axis and
-+		 * the major axis of the contact ellipse.
-+		 * The range is -127 to 127.
-+		 * the positive direction is clockwise form the vertical axis.
-+		 * If the ellipse of contact degenerates into a circle,
-+		 * orientation is reported as 0.
-+		 *
-+		 * Also, for Gen5 trackpad the accurate of this orientation
-+		 * value is value + (-30 ~ 30).
-+		 */
-+		input_set_abs_params(input, ABS_MT_ORIENTATION,
-+				-127, 127, 0, 0);
-+	}
-+	if (cyapa->gen >= CYAPA_GEN5) {
-+		input_set_abs_params(input, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
-+		input_set_abs_params(input, ABS_MT_WIDTH_MINOR, 0, 255, 0, 0);
-+	}
- 
- 	input_abs_set_res(input, ABS_MT_POSITION_X,
- 			  cyapa->max_abs_x / cyapa->physical_size_x);
-@@ -838,16 +445,159 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
- 		return error;
- 	}
- 
-+	/* Register the device in input subsystem */
-+	error = input_register_device(input);
-+	if (error) {
-+		dev_err(dev, "failed to register input device: %d\n", error);
-+		return error;
-+	}
-+
- 	cyapa->input = input;
- 	return 0;
- }
- 
-+/*
-+ * cyapa_sleep_time_to_pwr_cmd and cyapa_pwr_cmd_to_sleep_time
-+ *
-+ * These are helper functions that convert to and from integer idle
-+ * times and register settings to write to the PowerMode register.
-+ * The trackpad supports between 20ms to 1000ms scan intervals.
-+ * The time will be increased in increments of 10ms from 20ms to 100ms.
-+ * From 100ms to 1000ms, time will be increased in increments of 20ms.
-+ *
-+ * When Idle_Time < 100, the format to convert Idle_Time to Idle_Command is:
-+ *   Idle_Command = Idle Time / 10;
-+ * When Idle_Time >= 100, the format to convert Idle_Time to Idle_Command is:
-+ *   Idle_Command = Idle Time / 20 + 5;
-+ */
-+u8 cyapa_sleep_time_to_pwr_cmd(u16 sleep_time)
-+{
-+	u16 encoded_time;
-+
-+	sleep_time = clamp_val(sleep_time, 20, 1000);
-+	encoded_time = sleep_time < 100 ? sleep_time / 10 : sleep_time / 20 + 5;
-+	return (encoded_time << 2) & PWR_MODE_MASK;
-+}
-+
-+u16 cyapa_pwr_cmd_to_sleep_time(u8 pwr_mode)
-+{
-+	u8 encoded_time = pwr_mode >> 2;
-+
-+	return (encoded_time < 10) ? encoded_time * 10
-+				   : (encoded_time - 5) * 20;
-+}
-+
-+/* 0 on driver initialize and detected successfully, negative on failure. */
-+static int cyapa_initialize(struct cyapa *cyapa)
-+{
-+	int error = 0;
-+
-+	cyapa->state = CYAPA_STATE_NO_DEVICE;
-+	cyapa->gen = CYAPA_GEN_UNKNOWN;
-+	mutex_init(&cyapa->state_sync_lock);
-+
-+	/*
-+	 * Set to hard code default, they will be updated with trackpad set
-+	 * default values after probe and initialized.
-+	 */
-+	cyapa->suspend_power_mode = PWR_MODE_SLEEP;
-+	cyapa->suspend_sleep_time =
-+		cyapa_pwr_cmd_to_sleep_time(cyapa->suspend_power_mode);
-+
-+	/* ops.initialize() is aimed to prepare for module communications. */
-+	error = cyapa_gen3_ops.initialize(cyapa);
-+	if (error)
-+		return error;
-+
-+	error = cyapa_detect(cyapa);
-+	if (error)
-+		return error;
-+
-+	/* Power down the device until we need it. */
-+	if (cyapa->operational)
-+		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
-+
-+	return 0;
-+}
-+
-+static int cyapa_reinitialize(struct cyapa *cyapa)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	struct input_dev *input = cyapa->input;
-+	int error;
-+
-+	/* Avoid command failures when TP was in OFF state. */
-+	if (cyapa->operational)
-+		cyapa->ops->set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE, 0);
-+
-+	error = cyapa_detect(cyapa);
-+	if (error)
-+		goto out;
-+
-+	if (!input && cyapa->operational) {
-+		error = cyapa_create_input_dev(cyapa);
-+		if (error) {
-+			dev_err(dev, "create input_dev instance failed: %d\n",
-+					error);
-+			goto out;
-+		}
-+	}
-+
-+out:
-+	if (!input || !input->users) {
-+		/* Reset to power OFF state to save power when no user open. */
-+		if (cyapa->operational)
-+			cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
-+	}
-+
-+	return error;
-+}
-+
-+static irqreturn_t cyapa_irq(int irq, void *dev_id)
-+{
-+	struct cyapa *cyapa = dev_id;
-+	struct device *dev = &cyapa->client->dev;
-+
-+	if (device_may_wakeup(dev))
-+		pm_wakeup_event(dev, 0);
-+
-+	/* Interrupt event maybe cuased by host command to trackpad device. */
-+	if (cyapa->ops->irq_cmd_handler(cyapa)) {
-+		/*
-+		 * Interrupt event maybe from trackpad device input reporting.
-+		 */
-+		if (!cyapa->input) {
-+			/*
-+			 * Still in probling or in firware image
-+			 * udpating or reading.
-+			 */
-+			cyapa->ops->sort_empty_output_data(cyapa,
-+					NULL, NULL, NULL);
-+			goto out;
-+		}
-+
-+		if (!cyapa->operational || cyapa->ops->irq_handler(cyapa)) {
-+			if (!mutex_trylock(&cyapa->state_sync_lock)) {
-+				cyapa->ops->sort_empty_output_data(cyapa,
-+					NULL, NULL, NULL);
-+				goto out;
-+			}
-+			cyapa_reinitialize(cyapa);
-+			mutex_unlock(&cyapa->state_sync_lock);
-+		}
-+	}
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
- static int cyapa_probe(struct i2c_client *client,
- 		       const struct i2c_device_id *dev_id)
- {
- 	struct device *dev = &client->dev;
- 	struct cyapa *cyapa;
- 	u8 adapter_func;
-+	union i2c_smbus_data dummy;
- 	int error;
- 
- 	adapter_func = cyapa_check_adapter_functionality(client);
-@@ -856,39 +606,30 @@ static int cyapa_probe(struct i2c_client *client,
- 		return -EIO;
- 	}
- 
-+	/* Make sure there is something at this address */
-+	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
-+			I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0)
-+		return -ENODEV;
-+
- 	cyapa = devm_kzalloc(dev, sizeof(struct cyapa), GFP_KERNEL);
- 	if (!cyapa)
- 		return -ENOMEM;
- 
--	cyapa->gen = CYAPA_GEN3;
--	cyapa->client = client;
--	i2c_set_clientdata(client, cyapa);
--	sprintf(cyapa->phys, "i2c-%d-%04x/input0", client->adapter->nr,
--		client->addr);
--
- 	/* i2c isn't supported, use smbus */
- 	if (adapter_func == CYAPA_ADAPTER_FUNC_SMBUS)
- 		cyapa->smbus = true;
- 
--	cyapa->state = CYAPA_STATE_NO_DEVICE;
--
--	error = cyapa_check_is_operational(cyapa);
--	if (error) {
--		dev_err(dev, "device not operational, %d\n", error);
--		return error;
--	}
-+	cyapa->client = client;
-+	i2c_set_clientdata(client, cyapa);
-+	sprintf(cyapa->phys, "i2c-%d-%04x/input0", client->adapter->nr,
-+		client->addr);
- 
--	/* Power down the device until we need it */
--	error = cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
-+	error = cyapa_initialize(cyapa);
- 	if (error) {
--		dev_err(dev, "failed to quiesce the device: %d\n", error);
-+		dev_err(dev, "failed to detect and initialize tp device.\n");
- 		return error;
- 	}
- 
--	error = cyapa_create_input_dev(cyapa);
--	if (error)
--		return error;
--
- 	error = devm_request_threaded_irq(dev, client->irq,
- 					  NULL, cyapa_irq,
- 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-@@ -901,11 +642,18 @@ static int cyapa_probe(struct i2c_client *client,
- 	/* Disable IRQ until the device is opened */
- 	disable_irq(client->irq);
- 
--	/* Register the device in input subsystem */
--	error = input_register_device(cyapa->input);
--	if (error) {
--		dev_err(dev, "failed to register input device: %d\n", error);
--		return error;
-+	/*
-+	 * Register the device in the input subsystem when it's operational.
-+	 * Otherwise, keep in this driver, so it can be be recovered or updated
-+	 * through the sysfs mode and update_fw interfaces by user or apps.
-+	 */
-+	if (cyapa->operational) {
-+		error = cyapa_create_input_dev(cyapa);
-+		if (error) {
-+			dev_err(dev, "create input_dev instance failed: %d\n",
-+					error);
-+			return error;
-+		}
- 	}
- 
- 	return 0;
-@@ -915,11 +663,10 @@ static int __maybe_unused cyapa_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct cyapa *cyapa = i2c_get_clientdata(client);
--	struct input_dev *input = cyapa->input;
- 	u8 power_mode;
- 	int error;
- 
--	error = mutex_lock_interruptible(&input->mutex);
-+	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
- 	if (error)
- 		return error;
- 
-@@ -929,18 +676,20 @@ static int __maybe_unused cyapa_suspend(struct device *dev)
- 	 * Set trackpad device to idle mode if wakeup is allowed,
- 	 * otherwise turn off.
- 	 */
--	power_mode = device_may_wakeup(dev) ? PWR_MODE_IDLE
--					    : PWR_MODE_OFF;
--	error = cyapa_set_power_mode(cyapa, power_mode);
--	if (error)
--		dev_err(dev, "resume: set power mode to %d failed: %d\n",
--			 power_mode, error);
-+	if (cyapa->operational) {
-+		power_mode = device_may_wakeup(dev) ? cyapa->suspend_power_mode
-+						    : PWR_MODE_OFF;
-+		error = cyapa->ops->set_power_mode(cyapa, power_mode,
-+				cyapa->suspend_sleep_time);
-+		if (error)
-+			dev_err(dev, "suspend set power mode failed: %d\n",
-+					error);
-+	}
- 
- 	if (device_may_wakeup(dev))
- 		cyapa->irq_wake = (enable_irq_wake(client->irq) == 0);
- 
--	mutex_unlock(&input->mutex);
--
-+	mutex_unlock(&cyapa->state_sync_lock);
- 	return 0;
- }
- 
-@@ -948,25 +697,22 @@ static int __maybe_unused cyapa_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct cyapa *cyapa = i2c_get_clientdata(client);
--	struct input_dev *input = cyapa->input;
--	u8 power_mode;
- 	int error;
- 
--	mutex_lock(&input->mutex);
-+	mutex_lock(&cyapa->state_sync_lock);
- 
--	if (device_may_wakeup(dev) && cyapa->irq_wake)
-+	if (device_may_wakeup(dev) && cyapa->irq_wake) {
- 		disable_irq_wake(client->irq);
-+		cyapa->irq_wake = false;
-+	}
- 
--	power_mode = input->users ? PWR_MODE_FULL_ACTIVE : PWR_MODE_OFF;
--	error = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
-+	error = cyapa_reinitialize(cyapa);
- 	if (error)
--		dev_warn(dev, "resume: set power mode to %d failed: %d\n",
--			 power_mode, error);
-+		dev_warn(dev, "failed to reinitialize TP device: %d\n", error);
- 
- 	enable_irq(client->irq);
- 
--	mutex_unlock(&input->mutex);
--
-+	mutex_unlock(&cyapa->state_sync_lock);
- 	return 0;
- }
- 
-diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
-new file mode 100644
-index 0000000..aab19b7
---- /dev/null
-+++ b/drivers/input/mouse/cyapa.h
-@@ -0,0 +1,296 @@
-+/*
-+ * Cypress APA trackpad with I2C interface
-+ *
-+ * Author: Dudley Du <dudl@cypress.com>
-+ *
-+ * Copyright (C) 2014 Cypress Semiconductor, Inc.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of this archive for
-+ * more details.
-+ */
-+
-+#ifndef _CYAPA_H
-+#define _CYAPA_H
-+
-+#include <linux/firmware.h>
-+
-+/* APA trackpad firmware generation number. */
-+#define CYAPA_GEN_UNKNOWN   0x00   /* unknown protocol. */
-+#define CYAPA_GEN3   0x03   /* support MT-protocol B with tracking ID. */
-+#define CYAPA_GEN5   0x05   /* support TrueTouch GEN5 trackpad device. */
-+
-+#define CYAPA_NAME   "Cypress APA Trackpad (cyapa)"
-+
-+/*
-+ * Macros for SMBus communication
-+ */
-+#define SMBUS_READ   0x01
-+#define SMBUS_WRITE 0x00
-+#define SMBUS_ENCODE_IDX(cmd, idx) ((cmd) | (((idx) & 0x03) << 1))
-+#define SMBUS_ENCODE_RW(cmd, rw) ((cmd) | ((rw) & 0x01))
-+#define SMBUS_BYTE_BLOCK_CMD_MASK 0x80
-+#define SMBUS_GROUP_BLOCK_CMD_MASK 0x40
-+
-+/* Commands for read/write registers of Cypress trackpad */
-+#define CYAPA_CMD_SOFT_RESET       0x00
-+#define CYAPA_CMD_POWER_MODE       0x01
-+#define CYAPA_CMD_DEV_STATUS       0x02
-+#define CYAPA_CMD_GROUP_DATA       0x03
-+#define CYAPA_CMD_GROUP_CMD        0x04
-+#define CYAPA_CMD_GROUP_QUERY      0x05
-+#define CYAPA_CMD_BL_STATUS        0x06
-+#define CYAPA_CMD_BL_HEAD          0x07
-+#define CYAPA_CMD_BL_CMD           0x08
-+#define CYAPA_CMD_BL_DATA          0x09
-+#define CYAPA_CMD_BL_ALL           0x0a
-+#define CYAPA_CMD_BLK_PRODUCT_ID   0x0b
-+#define CYAPA_CMD_BLK_HEAD         0x0c
-+#define CYAPA_CMD_MAX_BASELINE     0x0d
-+#define CYAPA_CMD_MIN_BASELINE     0x0e
-+
-+#define BL_HEAD_OFFSET 0x00
-+#define BL_DATA_OFFSET 0x10
-+
-+#define BL_STATUS_SIZE  3  /* Length of gen3 bootloader status registers */
-+#define CYAPA_REG_MAP_SIZE  256
-+
-+/*
-+ * Gen3 Operational Device Status Register
-+ *
-+ * bit 7: Valid interrupt source
-+ * bit 6 - 4: Reserved
-+ * bit 3 - 2: Power status
-+ * bit 1 - 0: Device status
-+ */
-+#define REG_OP_STATUS     0x00
-+#define OP_STATUS_SRC     0x80
-+#define OP_STATUS_POWER   0x0c
-+#define OP_STATUS_DEV     0x03
-+#define OP_STATUS_MASK (OP_STATUS_SRC | OP_STATUS_POWER | OP_STATUS_DEV)
-+
-+/*
-+ * Operational Finger Count/Button Flags Register
-+ *
-+ * bit 7 - 4: Number of touched finger
-+ * bit 3: Valid data
-+ * bit 2: Middle Physical Button
-+ * bit 1: Right Physical Button
-+ * bit 0: Left physical Button
-+ */
-+#define REG_OP_DATA1       0x01
-+#define OP_DATA_VALID      0x08
-+#define OP_DATA_MIDDLE_BTN 0x04
-+#define OP_DATA_RIGHT_BTN  0x02
-+#define OP_DATA_LEFT_BTN   0x01
-+#define OP_DATA_BTN_MASK (OP_DATA_MIDDLE_BTN | OP_DATA_RIGHT_BTN | \
-+			  OP_DATA_LEFT_BTN)
-+
-+/*
-+ * Write-only command file register used to issue commands and
-+ * parameters to the bootloader.
-+ * The default value read from it is always 0x00.
-+ */
-+#define REG_BL_FILE	0x00
-+#define BL_FILE		0x00
-+
-+/*
-+ * Bootloader Status Register
-+ *
-+ * bit 7: Busy
-+ * bit 6 - 5: Reserved
-+ * bit 4: Bootloader running
-+ * bit 3 - 2: Reserved
-+ * bit 1: Watchdog Reset
-+ * bit 0: Checksum valid
-+ */
-+#define REG_BL_STATUS        0x01
-+#define BL_STATUS_REV_6_5    0x60
-+#define BL_STATUS_BUSY       0x80
-+#define BL_STATUS_RUNNING    0x10
-+#define BL_STATUS_REV_3_2    0x0c
-+#define BL_STATUS_WATCHDOG   0x02
-+#define BL_STATUS_CSUM_VALID 0x01
-+#define BL_STATUS_REV_MASK (BL_STATUS_WATCHDOG | BL_STATUS_REV_3_2 | \
-+			    BL_STATUS_REV_6_5)
-+
-+/*
-+ * Bootloader Error Register
-+ *
-+ * bit 7: Invalid
-+ * bit 6: Invalid security key
-+ * bit 5: Bootloading
-+ * bit 4: Command checksum
-+ * bit 3: Flash protection error
-+ * bit 2: Flash checksum error
-+ * bit 1 - 0: Reserved
-+ */
-+#define REG_BL_ERROR         0x02
-+#define BL_ERROR_INVALID     0x80
-+#define BL_ERROR_INVALID_KEY 0x40
-+#define BL_ERROR_BOOTLOADING 0x20
-+#define BL_ERROR_CMD_CSUM    0x10
-+#define BL_ERROR_FLASH_PROT  0x08
-+#define BL_ERROR_FLASH_CSUM  0x04
-+#define BL_ERROR_RESERVED    0x03
-+#define BL_ERROR_NO_ERR_IDLE    0x00
-+#define BL_ERROR_NO_ERR_ACTIVE  (BL_ERROR_BOOTLOADING)
-+
-+#define CAPABILITY_BTN_SHIFT            3
-+#define CAPABILITY_LEFT_BTN_MASK	(0x01 << 3)
-+#define CAPABILITY_RIGHT_BTN_MASK	(0x01 << 4)
-+#define CAPABILITY_MIDDLE_BTN_MASK	(0x01 << 5)
-+#define CAPABILITY_BTN_MASK  (CAPABILITY_LEFT_BTN_MASK | \
-+			      CAPABILITY_RIGHT_BTN_MASK | \
-+			      CAPABILITY_MIDDLE_BTN_MASK)
-+
-+#define PWR_MODE_MASK   0xfc
-+#define PWR_MODE_FULL_ACTIVE (0x3f << 2)
-+#define PWR_MODE_IDLE        (0x03 << 2) /* Default rt suspend scanrate: 30ms */
-+#define PWR_MODE_SLEEP       (0x05 << 2) /* Default suspend scanrate: 50ms */
-+#define PWR_MODE_BTN_ONLY    (0x01 << 2)
-+#define PWR_MODE_OFF         (0x00 << 2)
-+
-+#define PWR_STATUS_MASK      0x0c
-+#define PWR_STATUS_ACTIVE    (0x03 << 2)
-+#define PWR_STATUS_IDLE      (0x02 << 2)
-+#define PWR_STATUS_BTN_ONLY  (0x01 << 2)
-+#define PWR_STATUS_OFF       (0x00 << 2)
-+
-+#define AUTOSUSPEND_DELAY   2000 /* unit : ms */
-+
-+#define UNINIT_SLEEP_TIME 0xFFFF
-+#define UNINIT_PWR_MODE   0xFF
-+
-+#define BTN_ONLY_MODE_NAME   "buttononly"
-+#define OFF_MODE_NAME        "off"
-+
-+/* The touch.id is used as the MT slot id, thus max MT slot is 15 */
-+#define CYAPA_MAX_MT_SLOTS  15
-+
-+struct cyapa;
-+
-+typedef bool (*cb_sort)(struct cyapa *, u8 *, int);
-+
-+struct cyapa_dev_ops {
-+	int (*check_fw)(struct cyapa *, const struct firmware *);
-+	int (*bl_enter)(struct cyapa *);
-+	int (*bl_activate)(struct cyapa *);
-+	int (*bl_initiate)(struct cyapa *, const struct firmware *);
-+	int (*update_fw)(struct cyapa *, const struct firmware *);
-+	int (*bl_deactivate)(struct cyapa *);
-+
-+	ssize_t (*show_baseline)(struct device *,
-+			struct device_attribute *, char *);
-+	ssize_t (*calibrate_store)(struct device *,
-+			struct device_attribute *, const char *, size_t);
-+
-+	int (*initialize)(struct cyapa *cyapa);
-+
-+	int (*state_parse)(struct cyapa *cyapa, u8 *reg_status, int len);
-+	int (*operational_check)(struct cyapa *cyapa);
-+
-+	int (*irq_handler)(struct cyapa *);
-+	bool (*irq_cmd_handler)(struct cyapa *);
-+	int (*sort_empty_output_data)(struct cyapa *,
-+			u8 *, int *, cb_sort);
-+
-+	int (*set_power_mode)(struct cyapa *, u8, u16);
-+};
-+
-+struct cyapa_gen5_cmd_states {
-+	struct mutex cmd_lock;
-+	struct completion cmd_ready;
-+	atomic_t cmd_issued;
-+	u8 in_progress_cmd;
-+	bool is_irq_mode;
-+
-+	cb_sort resp_sort_func;
-+	u8 *resp_data;
-+	int *resp_len;
-+
-+	u8 irq_cmd_buf[CYAPA_REG_MAP_SIZE];
-+	u8 empty_buf[CYAPA_REG_MAP_SIZE];
-+};
-+
-+union cyapa_cmd_states {
-+	struct cyapa_gen5_cmd_states gen5;
-+};
-+
-+enum cyapa_state {
-+	CYAPA_STATE_NO_DEVICE,
-+	CYAPA_STATE_BL_BUSY,
-+	CYAPA_STATE_BL_IDLE,
-+	CYAPA_STATE_BL_ACTIVE,
-+	CYAPA_STATE_OP,
-+	CYAPA_STATE_GEN5_BL,
-+	CYAPA_STATE_GEN5_APP,
-+};
-+
-+/* The main device structure */
-+struct cyapa {
-+	enum cyapa_state state;
-+	u8 status[BL_STATUS_SIZE];
-+	bool operational; /* true: ready for data reporting; false: not. */
-+
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+	char phys[32];	/* Device physical location */
-+	bool irq_wake;  /* Irq wake is enabled */
-+	bool smbus;
-+
-+	/* power mode settings */
-+	u8 suspend_power_mode;
-+	u16 suspend_sleep_time;
-+	u8 dev_pwr_mode;
-+	u16 dev_sleep_time;
-+
-+	/* Read from query data region. */
-+	char product_id[16];
-+	u8 fw_maj_ver;  /* Firmware major version. */
-+	u8 fw_min_ver;  /* Firmware minor version. */
-+	u8 btn_capability;
-+	u8 gen;
-+	int max_abs_x;
-+	int max_abs_y;
-+	int physical_size_x;
-+	int physical_size_y;
-+
-+	/* Used in ttsp and truetouch based trackpad devices. */
-+	u8 x_origin;  /* X Axis Origin: 0 = left side; 1 = rigth side. */
-+	u8 y_origin;  /* Y Axis Origin: 0 = top; 1 = bottom. */
-+	int electrodes_x;  /* Number of electrodes on the X Axis*/
-+	int electrodes_y;  /* Number of electrodes on the Y Axis*/
-+	int max_z;
-+
-+	/*
-+	 * Used to synchronize the access or update the device state.
-+	 * And since update firmware and read firmware image process will take
-+	 * quite long time, maybe more than 10 seconds, so use mutex_lock
-+	 * to sync and wait other interface and detecting are done or ready.
-+	 */
-+	struct mutex state_sync_lock;
-+
-+	const struct cyapa_dev_ops *ops;
-+
-+	union cyapa_cmd_states cmd_states;
-+};
-+
-+
-+ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
-+				u8 *values);
-+ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
-+				u8 *values);
-+
-+ssize_t cyapa_read_block(struct cyapa *cyapa, u8 cmd_idx, u8 *values);
-+
-+int cyapa_poll_state(struct cyapa *cyapa, unsigned int timeout);
-+
-+u8 cyapa_sleep_time_to_pwr_cmd(u16 sleep_time);
-+u16 cyapa_pwr_cmd_to_sleep_time(u8 pwr_mode);
-+
-+
-+extern const char product_id[];
-+extern const struct cyapa_dev_ops cyapa_gen3_ops;
-+
-+#endif
-diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-new file mode 100644
-index 0000000..1b62c7d
---- /dev/null
-+++ b/drivers/input/mouse/cyapa_gen3.c
-@@ -0,0 +1,807 @@
-+/*
-+ * Cypress APA trackpad with I2C interface
-+ *
-+ * Author: Dudley Du <dudl@cypress.com>
-+ * Further cleanup and restructuring by:
-+ *   Daniel Kurtz <djkurtz@chromium.org>
-+ *   Benson Leung <bleung@chromium.org>
-+ *
-+ * Copyright (C) 2011-2014 Cypress Semiconductor, Inc.
-+ * Copyright (C) 2011-2012 Google, Inc.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of this archive for
-+ * more details.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include "cyapa.h"
-+
-+
-+#define GEN3_MAX_FINGERS 5
-+#define GEN3_FINGER_NUM(x) (((x) >> 4) & 0x07)
-+
-+#define BLK_HEAD_BYTES 32
-+
-+/* Macro for register map group offset. */
-+#define PRODUCT_ID_SIZE  16
-+#define QUERY_DATA_SIZE  27
-+#define REG_PROTOCOL_GEN_QUERY_OFFSET  20
-+
-+#define REG_OFFSET_DATA_BASE     0x0000
-+#define REG_OFFSET_COMMAND_BASE  0x0028
-+#define REG_OFFSET_QUERY_BASE    0x002a
-+
-+#define CYAPA_OFFSET_SOFT_RESET  REG_OFFSET_COMMAND_BASE
-+#define OP_RECALIBRATION_MASK    0x80
-+#define OP_REPORT_BASELINE_MASK  0x40
-+#define REG_OFFSET_MAX_BASELINE  0x0026
-+#define REG_OFFSET_MIN_BASELINE  0x0027
-+
-+#define REG_OFFSET_POWER_MODE (REG_OFFSET_COMMAND_BASE + 1)
-+#define SET_POWER_MODE_DELAY   10000  /* Unit: us */
-+#define SET_POWER_MODE_TRIES   5
-+
-+#define GEN3_BL_CMD_CHECKSUM_SEED 0xff
-+#define GEN3_BL_CMD_INITIATE_BL   0x38
-+#define GEN3_BL_CMD_WRITE_BLOCK   0x39
-+#define GEN3_BL_CMD_VERIFY_BLOCK  0x3a
-+#define GEN3_BL_CMD_TERMINATE_BL  0x3b
-+#define GEN3_BL_CMD_LAUNCH_APP    0xa5
-+
-+/*
-+ * CYAPA trackpad device states.
-+ * Used in register 0x00, bit1-0, DeviceStatus field.
-+ * Other values indicate device is in an abnormal state and must be reset.
-+ */
-+#define CYAPA_DEV_NORMAL  0x03
-+#define CYAPA_DEV_BUSY    0x01
-+
-+#define CYAPA_FW_BLOCK_SIZE	64
-+#define CYAPA_FW_READ_SIZE	16
-+#define CYAPA_FW_HDR_START	0x0780
-+#define CYAPA_FW_HDR_BLOCK_COUNT  2
-+#define CYAPA_FW_HDR_BLOCK_START  (CYAPA_FW_HDR_START / CYAPA_FW_BLOCK_SIZE)
-+#define CYAPA_FW_HDR_SIZE	  (CYAPA_FW_HDR_BLOCK_COUNT * \
-+					CYAPA_FW_BLOCK_SIZE)
-+#define CYAPA_FW_DATA_START	0x0800
-+#define CYAPA_FW_DATA_BLOCK_COUNT  480
-+#define CYAPA_FW_DATA_BLOCK_START  (CYAPA_FW_DATA_START / CYAPA_FW_BLOCK_SIZE)
-+#define CYAPA_FW_DATA_SIZE	(CYAPA_FW_DATA_BLOCK_COUNT * \
-+				 CYAPA_FW_BLOCK_SIZE)
-+#define CYAPA_FW_SIZE		(CYAPA_FW_HDR_SIZE + CYAPA_FW_DATA_SIZE)
-+#define CYAPA_CMD_LEN		16
-+
-+#define GEN3_BL_IDLE_FW_MAJ_VER_OFFSET 0x0b
-+#define GEN3_BL_IDLE_FW_MIN_VER_OFFSET (GEN3_BL_IDLE_FW_MAJ_VER_OFFSET + 1)
-+
-+
-+struct cyapa_touch {
-+	/*
-+	 * high bits or x/y position value
-+	 * bit 7 - 4: high 4 bits of x position value
-+	 * bit 3 - 0: high 4 bits of y position value
-+	 */
-+	u8 xy_hi;
-+	u8 x_lo;  /* low 8 bits of x position value. */
-+	u8 y_lo;  /* low 8 bits of y position value. */
-+	u8 pressure;
-+	/* id range is 1 - 15.  It is incremented with every new touch. */
-+	u8 id;
-+} __packed;
-+
-+struct cyapa_reg_data {
-+	/*
-+	 * bit 0 - 1: device status
-+	 * bit 3 - 2: power mode
-+	 * bit 6 - 4: reserved
-+	 * bit 7: interrupt valid bit
-+	 */
-+	u8 device_status;
-+	/*
-+	 * bit 7 - 4: number of fingers currently touching pad
-+	 * bit 3: valid data check bit
-+	 * bit 2: middle mechanism button state if exists
-+	 * bit 1: right mechanism button state if exists
-+	 * bit 0: left mechanism button state if exists
-+	 */
-+	u8 finger_btn;
-+	/* CYAPA reports up to 5 touches per packet. */
-+	struct cyapa_touch touches[5];
-+} __packed;
-+
-+static const u8 bl_activate[] = { 0x00, 0xff, 0x38, 0x00, 0x01, 0x02, 0x03,
-+		0x04, 0x05, 0x06, 0x07 };
-+static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
-+		0x04, 0x05, 0x06, 0x07 };
-+static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
-+		0x05, 0x06, 0x07 };
-+
-+
-+ /* for byte read/write command */
-+#define CMD_RESET      0
-+#define CMD_POWER_MODE 1
-+#define CMD_DEV_STATUS 2
-+#define CMD_REPORT_MAX_BASELINE 3
-+#define CMD_REPORT_MIN_BASELINE 4
-+#define SMBUS_BYTE_CMD(cmd) (((cmd) & 0x3f) << 1)
-+#define CYAPA_SMBUS_RESET         SMBUS_BYTE_CMD(CMD_RESET)
-+#define CYAPA_SMBUS_POWER_MODE    SMBUS_BYTE_CMD(CMD_POWER_MODE)
-+#define CYAPA_SMBUS_DEV_STATUS    SMBUS_BYTE_CMD(CMD_DEV_STATUS)
-+#define CYAPA_SMBUS_MAX_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MAX_BASELINE)
-+#define CYAPA_SMBUS_MIN_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MIN_BASELINE)
-+
-+ /* for group registers read/write command */
-+#define REG_GROUP_DATA 0
-+#define REG_GROUP_CMD 2
-+#define REG_GROUP_QUERY 3
-+#define SMBUS_GROUP_CMD(grp) (0x80 | (((grp) & 0x07) << 3))
-+#define CYAPA_SMBUS_GROUP_DATA	 SMBUS_GROUP_CMD(REG_GROUP_DATA)
-+#define CYAPA_SMBUS_GROUP_CMD	 SMBUS_GROUP_CMD(REG_GROUP_CMD)
-+#define CYAPA_SMBUS_GROUP_QUERY	 SMBUS_GROUP_CMD(REG_GROUP_QUERY)
-+
-+ /* for register block read/write command */
-+#define CMD_BL_STATUS 0
-+#define CMD_BL_HEAD 1
-+#define CMD_BL_CMD 2
-+#define CMD_BL_DATA 3
-+#define CMD_BL_ALL 4
-+#define CMD_BLK_PRODUCT_ID 5
-+#define CMD_BLK_HEAD 6
-+#define SMBUS_BLOCK_CMD(cmd) (0xc0 | (((cmd) & 0x1f) << 1))
-+
-+/* register block read/write command in bootloader mode */
-+#define CYAPA_SMBUS_BL_STATUS  SMBUS_BLOCK_CMD(CMD_BL_STATUS)
-+#define CYAPA_SMBUS_BL_HEAD    SMBUS_BLOCK_CMD(CMD_BL_HEAD)
-+#define CYAPA_SMBUS_BL_CMD     SMBUS_BLOCK_CMD(CMD_BL_CMD)
-+#define CYAPA_SMBUS_BL_DATA    SMBUS_BLOCK_CMD(CMD_BL_DATA)
-+#define CYAPA_SMBUS_BL_ALL     SMBUS_BLOCK_CMD(CMD_BL_ALL)
-+
-+/* register block read/write command in operational mode */
-+#define CYAPA_SMBUS_BLK_PRODUCT_ID SMBUS_BLOCK_CMD(CMD_BLK_PRODUCT_ID)
-+#define CYAPA_SMBUS_BLK_HEAD SMBUS_BLOCK_CMD(CMD_BLK_HEAD)
-+
-+ /* for byte read/write command */
-+#define CMD_RESET 0
-+#define CMD_POWER_MODE 1
-+#define CMD_DEV_STATUS 2
-+#define CMD_REPORT_MAX_BASELINE 3
-+#define CMD_REPORT_MIN_BASELINE 4
-+#define SMBUS_BYTE_CMD(cmd) (((cmd) & 0x3f) << 1)
-+#define CYAPA_SMBUS_RESET         SMBUS_BYTE_CMD(CMD_RESET)
-+#define CYAPA_SMBUS_POWER_MODE    SMBUS_BYTE_CMD(CMD_POWER_MODE)
-+#define CYAPA_SMBUS_DEV_STATUS    SMBUS_BYTE_CMD(CMD_DEV_STATUS)
-+#define CYAPA_SMBUS_MAX_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MAX_BASELINE)
-+#define CYAPA_SMBUS_MIN_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MIN_BASELINE)
-+
-+ /* for group registers read/write command */
-+#define REG_GROUP_DATA  0
-+#define REG_GROUP_CMD   2
-+#define REG_GROUP_QUERY 3
-+#define SMBUS_GROUP_CMD(grp) (0x80 | (((grp) & 0x07) << 3))
-+#define CYAPA_SMBUS_GROUP_DATA  SMBUS_GROUP_CMD(REG_GROUP_DATA)
-+#define CYAPA_SMBUS_GROUP_CMD   SMBUS_GROUP_CMD(REG_GROUP_CMD)
-+#define CYAPA_SMBUS_GROUP_QUERY SMBUS_GROUP_CMD(REG_GROUP_QUERY)
-+
-+ /* for register block read/write command */
-+#define CMD_BL_STATUS		0
-+#define CMD_BL_HEAD		1
-+#define CMD_BL_CMD		2
-+#define CMD_BL_DATA		3
-+#define CMD_BL_ALL		4
-+#define CMD_BLK_PRODUCT_ID	5
-+#define CMD_BLK_HEAD		6
-+#define SMBUS_BLOCK_CMD(cmd) (0xc0 | (((cmd) & 0x1f) << 1))
-+
-+/* register block read/write command in bootloader mode */
-+#define CYAPA_SMBUS_BL_STATUS SMBUS_BLOCK_CMD(CMD_BL_STATUS)
-+#define CYAPA_SMBUS_BL_HEAD   SMBUS_BLOCK_CMD(CMD_BL_HEAD)
-+#define CYAPA_SMBUS_BL_CMD    SMBUS_BLOCK_CMD(CMD_BL_CMD)
-+#define CYAPA_SMBUS_BL_DATA   SMBUS_BLOCK_CMD(CMD_BL_DATA)
-+#define CYAPA_SMBUS_BL_ALL    SMBUS_BLOCK_CMD(CMD_BL_ALL)
-+
-+/* register block read/write command in operational mode */
-+#define CYAPA_SMBUS_BLK_PRODUCT_ID SMBUS_BLOCK_CMD(CMD_BLK_PRODUCT_ID)
-+#define CYAPA_SMBUS_BLK_HEAD       SMBUS_BLOCK_CMD(CMD_BLK_HEAD)
-+
-+struct cyapa_cmd_len {
-+	u8 cmd;
-+	u8 len;
-+};
-+
-+/* maps generic CYAPA_CMD_* code to the I2C equivalent */
-+static const struct cyapa_cmd_len cyapa_i2c_cmds[] = {
-+	{ CYAPA_OFFSET_SOFT_RESET, 1 },		/* CYAPA_CMD_SOFT_RESET */
-+	{ REG_OFFSET_COMMAND_BASE + 1, 1 },	/* CYAPA_CMD_POWER_MODE */
-+	{ REG_OFFSET_DATA_BASE, 1 },		/* CYAPA_CMD_DEV_STATUS */
-+	{ REG_OFFSET_DATA_BASE, sizeof(struct cyapa_reg_data) },
-+						/* CYAPA_CMD_GROUP_DATA */
-+	{ REG_OFFSET_COMMAND_BASE, 0 },		/* CYAPA_CMD_GROUP_CMD */
-+	{ REG_OFFSET_QUERY_BASE, QUERY_DATA_SIZE }, /* CYAPA_CMD_GROUP_QUERY */
-+	{ BL_HEAD_OFFSET, 3 },			/* CYAPA_CMD_BL_STATUS */
-+	{ BL_HEAD_OFFSET, 16 },			/* CYAPA_CMD_BL_HEAD */
-+	{ BL_HEAD_OFFSET, 16 },			/* CYAPA_CMD_BL_CMD */
-+	{ BL_DATA_OFFSET, 16 },			/* CYAPA_CMD_BL_DATA */
-+	{ BL_HEAD_OFFSET, 32 },			/* CYAPA_CMD_BL_ALL */
-+	{ REG_OFFSET_QUERY_BASE, PRODUCT_ID_SIZE },
-+						/* CYAPA_CMD_BLK_PRODUCT_ID */
-+	{ REG_OFFSET_DATA_BASE, 32 },		/* CYAPA_CMD_BLK_HEAD */
-+	{ REG_OFFSET_MAX_BASELINE, 1 },		/* CYAPA_CMD_MAX_BASELINE */
-+	{ REG_OFFSET_MIN_BASELINE, 1 },		/* CYAPA_CMD_MIN_BASELINE */
-+};
-+
-+static const struct cyapa_cmd_len cyapa_smbus_cmds[] = {
-+	{ CYAPA_SMBUS_RESET, 1 },		/* CYAPA_CMD_SOFT_RESET */
-+	{ CYAPA_SMBUS_POWER_MODE, 1 },		/* CYAPA_CMD_POWER_MODE */
-+	{ CYAPA_SMBUS_DEV_STATUS, 1 },		/* CYAPA_CMD_DEV_STATUS */
-+	{ CYAPA_SMBUS_GROUP_DATA, sizeof(struct cyapa_reg_data) },
-+						/* CYAPA_CMD_GROUP_DATA */
-+	{ CYAPA_SMBUS_GROUP_CMD, 2 },		/* CYAPA_CMD_GROUP_CMD */
-+	{ CYAPA_SMBUS_GROUP_QUERY, QUERY_DATA_SIZE },
-+						/* CYAPA_CMD_GROUP_QUERY */
-+	{ CYAPA_SMBUS_BL_STATUS, 3 },		/* CYAPA_CMD_BL_STATUS */
-+	{ CYAPA_SMBUS_BL_HEAD, 16 },		/* CYAPA_CMD_BL_HEAD */
-+	{ CYAPA_SMBUS_BL_CMD, 16 },		/* CYAPA_CMD_BL_CMD */
-+	{ CYAPA_SMBUS_BL_DATA, 16 },		/* CYAPA_CMD_BL_DATA */
-+	{ CYAPA_SMBUS_BL_ALL, 32 },		/* CYAPA_CMD_BL_ALL */
-+	{ CYAPA_SMBUS_BLK_PRODUCT_ID, PRODUCT_ID_SIZE },
-+						/* CYAPA_CMD_BLK_PRODUCT_ID */
-+	{ CYAPA_SMBUS_BLK_HEAD, 16 },		/* CYAPA_CMD_BLK_HEAD */
-+	{ CYAPA_SMBUS_MAX_BASELINE, 1 },	/* CYAPA_CMD_MAX_BASELINE */
-+	{ CYAPA_SMBUS_MIN_BASELINE, 1 },	/* CYAPA_CMD_MIN_BASELINE */
-+};
-+
-+
-+/*
-+ * cyapa_smbus_read_block - perform smbus block read command
-+ * @cyapa  - private data structure of the driver
-+ * @cmd    - the properly encoded smbus command
-+ * @len    - expected length of smbus command result
-+ * @values - buffer to store smbus command result
-+ *
-+ * Returns negative errno, else the number of bytes written.
-+ *
-+ * Note:
-+ * In trackpad device, the memory block allocated for I2C register map
-+ * is 256 bytes, so the max read block for I2C bus is 256 bytes.
-+ */
-+ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
-+				      u8 *values)
-+{
-+	ssize_t ret;
-+	u8 index;
-+	u8 smbus_cmd;
-+	u8 *buf;
-+	struct i2c_client *client = cyapa->client;
-+
-+	if (!(SMBUS_BYTE_BLOCK_CMD_MASK & cmd))
-+		return -EINVAL;
-+
-+	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
-+		/* read specific block registers command. */
-+		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-+		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
-+		goto out;
-+	}
-+
-+	ret = 0;
-+	for (index = 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-+		smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
-+		smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
-+		buf = values + I2C_SMBUS_BLOCK_MAX * index;
-+		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
-+		if (ret < 0)
-+			goto out;
-+	}
-+
-+out:
-+	return ret > 0 ? len : ret;
-+}
-+
-+static s32 cyapa_read_byte(struct cyapa *cyapa, u8 cmd_idx)
-+{
-+	u8 cmd;
-+
-+	if (cyapa->smbus) {
-+		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-+		cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-+	} else {
-+		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-+	}
-+	return i2c_smbus_read_byte_data(cyapa->client, cmd);
-+}
-+
-+static s32 cyapa_write_byte(struct cyapa *cyapa, u8 cmd_idx, u8 value)
-+{
-+	u8 cmd;
-+
-+	if (cyapa->smbus) {
-+		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-+		cmd = SMBUS_ENCODE_RW(cmd, SMBUS_WRITE);
-+	} else {
-+		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-+	}
-+	return i2c_smbus_write_byte_data(cyapa->client, cmd, value);
-+}
-+
-+ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
-+					u8 *values)
-+{
-+	return i2c_smbus_read_i2c_block_data(cyapa->client, reg, len, values);
-+}
-+
-+static ssize_t cyapa_i2c_reg_write_block(struct cyapa *cyapa, u8 reg,
-+					 size_t len, const u8 *values)
-+{
-+	return i2c_smbus_write_i2c_block_data(cyapa->client, reg, len, values);
-+}
-+
-+ssize_t cyapa_read_block(struct cyapa *cyapa, u8 cmd_idx, u8 *values)
-+{
-+	u8 cmd;
-+	size_t len;
-+
-+	if (cyapa->smbus) {
-+		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-+		len = cyapa_smbus_cmds[cmd_idx].len;
-+		return cyapa_smbus_read_block(cyapa, cmd, len, values);
-+	}
-+	cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-+	len = cyapa_i2c_cmds[cmd_idx].len;
-+	return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
-+}
-+
-+/*
-+ * Determine the Gen3 trackpad device's current operating state.
-+ *
-+ */
-+static int cyapa_gen3_state_parse(struct cyapa *cyapa, u8 *reg_data, int len)
-+{
-+	cyapa->state = CYAPA_STATE_NO_DEVICE;
-+
-+	/* Parse based on Gen3 characteristic registers and bits */
-+	if (reg_data[REG_BL_FILE] == BL_FILE &&
-+		reg_data[REG_BL_ERROR] == BL_ERROR_NO_ERR_IDLE &&
-+		(reg_data[REG_BL_STATUS] ==
-+			(BL_STATUS_RUNNING | BL_STATUS_CSUM_VALID) ||
-+			reg_data[REG_BL_STATUS] == BL_STATUS_RUNNING)) {
-+		/*
-+		 * Normal state after power on or reset,
-+		 * REG_BL_STATUS == 0x11, firmware image checksum is valid.
-+		 * REG_BL_STATUS == 0x10, firmware image checksum is invalid.
-+		 */
-+		cyapa->gen = CYAPA_GEN3;
-+		cyapa->state = CYAPA_STATE_BL_IDLE;
-+	} else if (reg_data[REG_BL_FILE] == BL_FILE &&
-+		(reg_data[REG_BL_STATUS] & BL_STATUS_RUNNING) ==
-+			BL_STATUS_RUNNING) {
-+		cyapa->gen = CYAPA_GEN3;
-+		if (reg_data[REG_BL_STATUS] & BL_STATUS_BUSY) {
-+			cyapa->state = CYAPA_STATE_BL_BUSY;
-+		} else {
-+			if ((reg_data[REG_BL_ERROR] & BL_ERROR_BOOTLOADING) ==
-+					BL_ERROR_BOOTLOADING)
-+				cyapa->state = CYAPA_STATE_BL_ACTIVE;
-+			else
-+				cyapa->state = CYAPA_STATE_BL_IDLE;
-+		}
-+	} else if ((reg_data[REG_OP_STATUS] & OP_STATUS_SRC) &&
-+			(reg_data[REG_OP_DATA1] & OP_DATA_VALID)) {
-+		/*
-+		 * Normal state when running in operational mode,
-+		 * may also not in full power state or
-+		 * busying in command process.
-+		 */
-+		if (GEN3_FINGER_NUM(reg_data[REG_OP_DATA1]) <=
-+				GEN3_MAX_FINGERS) {
-+			/* Finger number data is valid. */
-+			cyapa->gen = CYAPA_GEN3;
-+			cyapa->state = CYAPA_STATE_OP;
-+		}
-+	} else if (reg_data[REG_OP_STATUS] == 0x0C &&
-+			reg_data[REG_OP_DATA1] == 0x08) {
-+		/* Op state when first two registers overwritten with 0x00 */
-+		cyapa->gen = CYAPA_GEN3;
-+		cyapa->state = CYAPA_STATE_OP;
-+	} else if (reg_data[REG_BL_STATUS] &
-+			(BL_STATUS_RUNNING | BL_STATUS_BUSY)) {
-+		cyapa->gen = CYAPA_GEN3;
-+		cyapa->state = CYAPA_STATE_BL_BUSY;
-+	}
-+
-+	if (cyapa->gen == CYAPA_GEN3 && (cyapa->state == CYAPA_STATE_OP ||
-+		cyapa->state == CYAPA_STATE_BL_IDLE ||
-+		cyapa->state == CYAPA_STATE_BL_ACTIVE ||
-+		cyapa->state == CYAPA_STATE_BL_BUSY))
-+		return 0;
-+
-+	return -EAGAIN;
-+}
-+
-+static int cyapa_gen3_bl_deactivate(struct cyapa *cyapa)
-+{
-+	int error;
-+
-+	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_deactivate),
-+					bl_deactivate);
-+	if (error)
-+		return error;
-+
-+	/* Wait for bootloader to switch to idle state; should take < 100ms */
-+	msleep(100);
-+	error = cyapa_poll_state(cyapa, 500);
-+	if (error)
-+		return error;
-+	if (cyapa->state != CYAPA_STATE_BL_IDLE)
-+		return -EAGAIN;
-+	return 0;
-+}
-+
-+/*
-+ * Exit bootloader
-+ *
-+ * Send bl_exit command, then wait 50 - 100 ms to let device transition to
-+ * operational mode.  If this is the first time the device's firmware is
-+ * running, it can take up to 2 seconds to calibrate its sensors.  So, poll
-+ * the device's new state for up to 2 seconds.
-+ *
-+ * Returns:
-+ *   -EIO    failure while reading from device
-+ *   -EAGAIN device is stuck in bootloader, b/c it has invalid firmware
-+ *   0       device is supported and in operational mode
-+ */
-+static int cyapa_gen3_bl_exit(struct cyapa *cyapa)
-+{
-+	int error;
-+
-+	error = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_exit), bl_exit);
-+	if (error)
-+		return error;
-+
-+	/*
-+	 * Wait for bootloader to exit, and operation mode to start.
-+	 * Normally, this takes at least 50 ms.
-+	 */
-+	usleep_range(50000, 100000);
-+	/*
-+	 * In addition, when a device boots for the first time after being
-+	 * updated to new firmware, it must first calibrate its sensors, which
-+	 * can take up to an additional 2 seconds. If the device power is
-+	 * running low, this may take even longer.
-+	 */
-+	error = cyapa_poll_state(cyapa, 4000);
-+	if (error < 0)
-+		return error;
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return -EAGAIN;
-+
-+	return 0;
-+}
-+
-+/*
-+ * cyapa_get_wait_time_for_pwr_cmd
-+ *
-+ * Compute the amount of time we need to wait after updating the touchpad
-+ * power mode. The touchpad needs to consume the incoming power mode set
-+ * command at the current clock rate.
-+ */
-+
-+static u16 cyapa_get_wait_time_for_pwr_cmd(u8 pwr_mode)
-+{
-+	switch (pwr_mode) {
-+	case PWR_MODE_FULL_ACTIVE: return 20;
-+	case PWR_MODE_BTN_ONLY: return 20;
-+	case PWR_MODE_OFF: return 20;
-+	default: return cyapa_pwr_cmd_to_sleep_time(pwr_mode) + 50;
-+	}
-+}
-+
-+/*
-+ * Set device power mode
-+ *
-+ * Write to the field to configure power state. Power states include :
-+ *   Full : Max scans and report rate.
-+ *   Idle : Report rate set by user specified time.
-+ *   ButtonOnly : No scans for fingers. When the button is triggered,
-+ *     a slave interrupt is asserted to notify host to wake up.
-+ *   Off : Only awake for i2c commands from host. No function for button
-+ *     or touch sensors.
-+ *
-+ * The power_mode command should conform to the following :
-+ *   Full : 0x3f
-+ *   Idle : Configurable from 20 to 1000ms. See note below for
-+ *     cyapa_sleep_time_to_pwr_cmd and cyapa_pwr_cmd_to_sleep_time
-+ *   ButtonOnly : 0x01
-+ *   Off : 0x00
-+ *
-+ * Device power mode can only be set when device is in operational mode.
-+ */
-+static int cyapa_gen3_set_power_mode(struct cyapa *cyapa, u8 power_mode,
-+		u16 always_unused)
-+{
-+	int ret;
-+	u8 power;
-+	int tries;
-+	u16 sleep_time;
-+
-+	always_unused = 0;
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return 0;
-+
-+	tries = SET_POWER_MODE_TRIES;
-+	while (tries--) {
-+		ret = cyapa_read_byte(cyapa, CYAPA_CMD_POWER_MODE);
-+		if (ret >= 0)
-+			break;
-+		usleep_range(SET_POWER_MODE_DELAY, 2 * SET_POWER_MODE_DELAY);
-+	}
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Return early if the power mode to set is the same as the current
-+	 * one.
-+	 */
-+	if ((ret & PWR_MODE_MASK) == power_mode)
-+		return 0;
-+
-+	sleep_time = cyapa_get_wait_time_for_pwr_cmd(ret & PWR_MODE_MASK);
-+	power = ret;
-+	power &= ~PWR_MODE_MASK;
-+	power |= power_mode & PWR_MODE_MASK;
-+	tries = SET_POWER_MODE_TRIES;
-+	while (tries--) {
-+		ret = cyapa_write_byte(cyapa, CYAPA_CMD_POWER_MODE, power);
-+		if (!ret)
-+			break;
-+		usleep_range(SET_POWER_MODE_DELAY, 2 * SET_POWER_MODE_DELAY);
-+	}
-+
-+	/*
-+	 * Wait for the newly set power command to go in at the previous
-+	 * clock speed (scanrate) used by the touchpad firmware. Not
-+	 * doing so before issuing the next command may result in errors
-+	 * depending on the command's content.
-+	 */
-+	msleep(sleep_time);
-+	return ret;
-+}
-+
-+static int cyapa_gen3_get_query_data(struct cyapa *cyapa)
-+{
-+	u8 query_data[QUERY_DATA_SIZE];
-+	int ret;
-+
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return -EBUSY;
-+
-+	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data);
-+	if (ret != QUERY_DATA_SIZE)
-+		return (ret < 0) ? ret : -EIO;
-+
-+	memcpy(&cyapa->product_id[0], &query_data[0], 5);
-+	cyapa->product_id[5] = '-';
-+	memcpy(&cyapa->product_id[6], &query_data[5], 6);
-+	cyapa->product_id[12] = '-';
-+	memcpy(&cyapa->product_id[13], &query_data[11], 2);
-+	cyapa->product_id[15] = '\0';
-+
-+	cyapa->fw_maj_ver = query_data[15];
-+	cyapa->fw_min_ver = query_data[16];
-+
-+	cyapa->btn_capability = query_data[19] & CAPABILITY_BTN_MASK;
-+
-+	cyapa->gen = query_data[20] & 0x0f;
-+
-+	cyapa->max_abs_x = ((query_data[21] & 0xf0) << 4) | query_data[22];
-+	cyapa->max_abs_y = ((query_data[21] & 0x0f) << 8) | query_data[23];
-+
-+	cyapa->physical_size_x =
-+		((query_data[24] & 0xf0) << 4) | query_data[25];
-+	cyapa->physical_size_y =
-+		((query_data[24] & 0x0f) << 8) | query_data[26];
-+
-+	cyapa->max_z = 255;
-+
-+	return 0;
-+}
-+
-+static int cyapa_gen3_bl_query_data(struct cyapa *cyapa)
-+{
-+	u8 bl_data[CYAPA_CMD_LEN];
-+	int ret;
-+
-+	ret = cyapa_i2c_reg_read_block(cyapa, 0, CYAPA_CMD_LEN, bl_data);
-+	if (ret != CYAPA_CMD_LEN)
-+		return (ret < 0) ? ret : -EIO;
-+
-+	/*
-+	 * This value will be updated again when entered application mode.
-+	 * If TP failed to enter application mode, this fw version values
-+	 * can be used as a reference.
-+	 * This firmware version valid when fw image checksum is valid.
-+	 */
-+	if (bl_data[REG_BL_STATUS] ==
-+			(BL_STATUS_RUNNING | BL_STATUS_CSUM_VALID)) {
-+		cyapa->fw_maj_ver = bl_data[GEN3_BL_IDLE_FW_MAJ_VER_OFFSET];
-+		cyapa->fw_min_ver = bl_data[GEN3_BL_IDLE_FW_MIN_VER_OFFSET];
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Check if device is operational.
-+ *
-+ * An operational device is responding, has exited bootloader, and has
-+ * firmware supported by this driver.
-+ *
-+ * Returns:
-+ *   -EBUSY  no device or in bootloader
-+ *   -EIO    failure while reading from device
-+ *   -EAGAIN device is still in bootloader
-+ *           if ->state = CYAPA_STATE_BL_IDLE, device has invalid firmware
-+ *   -EINVAL device is in operational mode, but not supported by this driver
-+ *   0       device is supported
-+ */
-+static int cyapa_gen3_do_operational_check(struct cyapa *cyapa)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	int error;
-+
-+	switch (cyapa->state) {
-+	case CYAPA_STATE_BL_ACTIVE:
-+		error = cyapa_gen3_bl_deactivate(cyapa);
-+		if (error) {
-+			dev_err(dev, "failed to bl_deactivate: %d\n", error);
-+			return error;
-+		}
-+
-+	/* Fallthrough state */
-+	case CYAPA_STATE_BL_IDLE:
-+		/* Try to get firmware version in bootloader mode. */
-+		cyapa_gen3_bl_query_data(cyapa);
-+
-+		error = cyapa_gen3_bl_exit(cyapa);
-+		if (error) {
-+			dev_err(dev, "failed to bl_exit: %d\n", error);
-+			return error;
-+		}
-+
-+	/* Fallthrough state */
-+	case CYAPA_STATE_OP:
-+		/*
-+		 * Reading query data before going back to the full mode
-+		 * may cause problems, so we set the power mode first here.
-+		 */
-+		error = cyapa_gen3_set_power_mode(cyapa,
-+				PWR_MODE_FULL_ACTIVE, 0);
-+		if (error)
-+			dev_err(dev, "%s: set full power mode failed: %d\n",
-+				__func__, error);
-+		error = cyapa_gen3_get_query_data(cyapa);
-+		if (error < 0)
-+			return error;
-+
-+		/* Only support firmware protocol gen3 */
-+		if (cyapa->gen != CYAPA_GEN3) {
-+			dev_err(dev, "unsupported protocol version (%d)",
-+				cyapa->gen);
-+			return -EINVAL;
-+		}
-+
-+		/* Only support product ID starting with CYTRA */
-+		if (memcmp(cyapa->product_id, product_id,
-+				strlen(product_id)) != 0) {
-+			dev_err(dev, "unsupported product ID (%s)\n",
-+				cyapa->product_id);
-+			return -EINVAL;
-+		}
-+
-+		return 0;
-+
-+	default:
-+		return -EIO;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Return false, do not continue process
-+ * Return true, continue process.
-+ */
-+static bool cyapa_gen3_irq_cmd_handler(struct cyapa *cyapa)
-+{
-+	/* Not gen3 irq command response, skip for continue. */
-+	if (cyapa->gen != CYAPA_GEN3)
-+		return true;
-+
-+	if (cyapa->operational)
-+		return true;
-+
-+	/*
-+	 * Driver in detecting or other interface function processing,
-+	 * so, stop cyapa_gen3_irq_handler to continue process to
-+	 * avoid unwanted to error detecting and processing.
-+	 *
-+	 * And also, avoid the periodicly accerted interrupts to be processed
-+	 * as touch inputs when gen3 failed to launch into application mode,
-+	 * which will cause gen3 stays in bootloader mode.
-+	 */
-+	return false;
-+}
-+
-+static int cyapa_gen3_irq_handler(struct cyapa *cyapa)
-+{
-+	struct input_dev *input = cyapa->input;
-+	struct device *dev = &cyapa->client->dev;
-+	struct cyapa_reg_data data;
-+	int num_fingers;
-+	int ret;
-+	int i;
-+
-+	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-+	if (ret != sizeof(data)) {
-+		dev_err(dev, "failed to read report data, (%d)\n", ret);
-+		return -EINVAL;
-+	}
-+
-+	if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
-+	    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
-+	    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID) {
-+		dev_err(dev, "invalid device state bytes, %02x %02x\n",
-+			data.device_status, data.finger_btn);
-+		return -EINVAL;
-+	}
-+
-+	num_fingers = (data.finger_btn >> 4) & 0x0f;
-+	for (i = 0; i < num_fingers; i++) {
-+		const struct cyapa_touch *touch = &data.touches[i];
-+		/* Note: touch->id range is 1 to 15; slots are 0 to 14. */
-+		int slot = touch->id - 1;
-+
-+		input_mt_slot(input, slot);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
-+		input_report_abs(input, ABS_MT_POSITION_X,
-+				 ((touch->xy_hi & 0xf0) << 4) | touch->x_lo);
-+		input_report_abs(input, ABS_MT_POSITION_Y,
-+				 ((touch->xy_hi & 0x0f) << 8) | touch->y_lo);
-+		input_report_abs(input, ABS_MT_PRESSURE, touch->pressure);
-+	}
-+
-+	input_mt_sync_frame(input);
-+
-+	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK)
-+		input_report_key(input, BTN_LEFT,
-+				 !!(data.finger_btn & OP_DATA_LEFT_BTN));
-+	if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK)
-+		input_report_key(input, BTN_MIDDLE,
-+				 !!(data.finger_btn & OP_DATA_MIDDLE_BTN));
-+	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK)
-+		input_report_key(input, BTN_RIGHT,
-+				 !!(data.finger_btn & OP_DATA_RIGHT_BTN));
-+	input_sync(input);
-+
-+	return 0;
-+}
-+
-+static int cyapa_gen3_initialize(struct cyapa *cyapa) { return 0; }
-+static int cyapa_gen3_empty_output_data(struct cyapa *cyapa,
-+		u8 *buf, int *len, cb_sort func) { return 0; }
-+
-+const struct cyapa_dev_ops cyapa_gen3_ops = {
-+	.initialize = cyapa_gen3_initialize,
-+
-+	.state_parse = cyapa_gen3_state_parse,
-+	.operational_check = cyapa_gen3_do_operational_check,
-+
-+	.irq_handler = cyapa_gen3_irq_handler,
-+	.irq_cmd_handler = cyapa_gen3_irq_cmd_handler,
-+	.sort_empty_output_data = cyapa_gen3_empty_output_data,
-+	.set_power_mode = cyapa_gen3_set_power_mode,
-+};
--- 
-1.9.1
+SGV5LCBPbGl2ZXINCg0KT24gTW9uLCBKYW4gMTIsIDIwMTUgYXQgNzo1MCBQTSwgT2xpdmVyIE5l
+dWt1bSA8b25ldWt1bUBzdXNlLmRlPiB3cm90ZToNCk9uIE1vbiwgMjAxNS0wMS0xMiBhdCAxODo1
+MyArMDgwMCwg5pu+5am36JGzICh0YW1teV90c2VuZykgd3JvdGU6DQo+ID4gKFNraXAgdGhlIGNv
+ZGUgZGlmZi4uLikNCj4gDQo+IEFnYWluIG1hY3JvcyBmb3IgZW5kaWFubmVzcw0KPiANCj4gQW5k
+IHRoZSBkcml2ZXIgaGFzIGEgZ3JlYXQgbnVtYmVyIG9mIGNvbmRpdGlvbmFsIGNvbXBpbGF0aW9u
+cyBhcmUgdGhleSANCj4gcmVhbGx5IG5lZWRlZD8gVGhlIGRyaXZlciBhcyBpcyBoYXMgYSBudW1i
+ZXIgb2YgaXNzdWVzIGFuZCBpcyBoYXJkIHRvIA0KPiByZXZpZXcgZHVlIHRvIHRoZSB1c2Ugb2Yg
+Ii8vIiBmb3IgY29tbWVudHMgYW5kIGEgbG90IG9mIGNvbmRpdGlvbmFsIA0KPiBjb21waWxhdGlv
+biBhbmQgdW5uZWNlc3NhcnkgdmFyaWFibGVzIHVzZWQgZm9yIGNvbnN0YW50cy4gQ291bGQgeW91
+IA0KPiBmaXggdGhpcyB1cCBhbmQgcmVzdWJtaXQ/DQoNClRoYW5rcyBmb3IgdGhlIHJlcGx5LiBJ
+J3ZlIG1vZGlmaWVkIHRoZSBjb2RlIChzaXNfaTJjLmMvc2lzX2kyYy5oL0tjb25maWcvTWFrZWZp
+bGUpIHRvIGZpeCB0aGVtLg0KUGxlYXNlIGhlbHAgY2hlY2sgdGhlbSBpZiBhbnl0aGluZyBuZWVk
+cyB0byBmaXguDQpUaGFua3MuDQoNClRhbW15DQoNCi0tLQ0KZGlmZiAtLWdpdCBhL2xpbnV4LTMu
+MTguMS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcgYi9saW51eC0zLjE4LjEvZHJp
+dmVycy9pbnB1dC90b3VjaHNjcmVlbi9LY29uZmlnDQppbmRleCBlMWQ4MDAzLi40MDFjZDhiIDEw
+MDY0NA0KLS0tIGEvbGludXgtMy4xOC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZp
+Zw0KKysrIGIvbGludXgtMy4xOC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZpZw0K
+QEAgLTk2Miw0ICs5NjIsMTIgQEAgY29uZmlnIFRPVUNIU0NSRUVOX1pGT1JDRQ0KIAkgIFRvIGNv
+bXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQ0KIAkgIG1v
+ZHVsZSB3aWxsIGJlIGNhbGxlZCB6Zm9yY2VfdHMuDQogDQorY29uZmlnIFRPVUNIU0NSRUVOX1NJ
+U19JMkMNCisJdHJpc3RhdGUgIlNpUyA5MjAwIGZhbWlseSBJMkMgdG91Y2hzY3JlZW4gZHJpdmVy
+Ig0KKwlkZXBlbmRzIG9uIEkyQw0KKwlkZWZhdWx0IG4NCisJaGVscA0KKwkgIFRoaXMgZW5hYmxl
+cyBzdXBwb3J0IGZvciBTaVMgOTIwMCBmYW1pbHkgb3ZlciBJMkMgYmFzZWQgdG91Y2hzY3JlZW5z
+Lg0KKw0KKw0KIGVuZGlmDQpkaWZmIC0tZ2l0IGEvbGludXgtMy4xOC4xL2RyaXZlcnMvaW5wdXQv
+dG91Y2hzY3JlZW4vTWFrZWZpbGUgYi9saW51eC0zLjE4LjEvZHJpdmVycy9pbnB1dC90b3VjaHNj
+cmVlbi9NYWtlZmlsZQ0KaW5kZXggMDkwZTYxYy4uNjcxMzdhZiAxMDA2NDQNCi0tLSBhL2xpbnV4
+LTMuMTguMS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL01ha2VmaWxlDQorKysgYi9saW51eC0z
+LjE4LjEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9NYWtlZmlsZQ0KQEAgLTc5LDMgKzc5LDQg
+QEAgb2JqLSQoQ09ORklHX1RPVUNIU0NSRUVOX1dNOTdYWF9aWUxPTklURSkJKz0genlsb25pdGUt
+d205N3h4Lm8NCiBvYmotJChDT05GSUdfVE9VQ0hTQ1JFRU5fVzkwWDkwMCkJKz0gdzkwcDkxMF90
+cy5vDQogb2JqLSQoQ09ORklHX1RPVUNIU0NSRUVOX1RQUzY1MDdYKQkrPSB0cHM2NTA3eC10cy5v
+DQogb2JqLSQoQ09ORklHX1RPVUNIU0NSRUVOX1pGT1JDRSkJKz0gemZvcmNlX3RzLm8NCitvYmot
+JChDT05GSUdfVE9VQ0hTQ1JFRU5fU0lTX0kyQykgICAJKz0gc2lzX2kyYy5vDQpkaWZmIC0tZ2l0
+IGEvbGludXgtMy4xOC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vc2lzX2kyYy5jIGIvbGlu
+dXgtMy4xOC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vc2lzX2kyYy5jDQpuZXcgZmlsZSBt
+b2RlIDEwMDY0NA0KaW5kZXggMDAwMDAwMC4uMTU3Zjk5MQ0KLS0tIC9kZXYvbnVsbA0KKysrIGIv
+bGludXgtMy4xOC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vc2lzX2kyYy5jDQpAQCAtMCww
+ICsxLDEyNjcgQEANCisvKg0KKyAqIFNpUyA5MjAwIGZhbWlseSBJMkMgVG91Y2ggU2NyZWVuIENv
+bnRyb2xsZXIgRHJpdmVyDQorICoNCisgKiBDb3B5cmlnaHQgKEMpIDIwMTEgU2lTLCBJbmMuDQor
+ICoNCisgKiBUaGlzIHNvZnR3YXJlIGlzIGxpY2Vuc2VkIHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUg
+R05VIEdlbmVyYWwgUHVibGljDQorICogTGljZW5zZSB2ZXJzaW9uIDIsIGFzIHB1Ymxpc2hlZCBi
+eSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBhbmQNCisgKiBtYXkgYmUgY29waWVkLCBk
+aXN0cmlidXRlZCwgYW5kIG1vZGlmaWVkIHVuZGVyIHRob3NlIHRlcm1zLg0KKyAqDQorICogVGhp
+cyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2Vm
+dWwsDQorICogYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxp
+ZWQgd2FycmFudHkgb2YNCisgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJU
+SUNVTEFSIFBVUlBPU0UuICBTZWUgdGhlDQorICogR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2Ug
+Zm9yIG1vcmUgZGV0YWlscy4NCisgKg0KKyAqLw0KKw0KKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUu
+aD4NCisjaW5jbHVkZSA8bGludXgvZGVsYXkuaD4NCisjaWZkZWYgQ09ORklHX0hBU19FQVJMWVNV
+U1BFTkQNCisjaW5jbHVkZSA8bGludXgvZWFybHlzdXNwZW5kLmg+DQorI2VuZGlmDQorI2luY2x1
+ZGUgPGxpbnV4L2hydGltZXIuaD4NCisjaW5jbHVkZSA8bGludXgvaTJjLmg+DQorI2luY2x1ZGUg
+PGxpbnV4L2lucHV0Lmg+DQorI2luY2x1ZGUgPGxpbnV4L2ludGVycnVwdC5oPg0KKyNpbmNsdWRl
+IDxsaW51eC9pby5oPg0KKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybV9kZXZpY2UuaD4NCisjaW5j
+bHVkZSAic2lzX2kyYy5oIg0KKyNpbmNsdWRlIDxsaW51eC9saW5rYWdlLmg+DQorI2luY2x1ZGUg
+PGxpbnV4L3NsYWIuaD4NCisjaW5jbHVkZSA8bGludXgvZ3Bpby5oPg0KKyNpbmNsdWRlIDxhc20v
+dWFjY2Vzcy5oPg0KKyNpbmNsdWRlIDxsaW51eC9pcnEuaD4NCisjaW5jbHVkZSA8YXNtL3VuYWxp
+Z25lZC5oPg0KKw0KKyNpZmRlZiBfU1REX1JXX0lPDQorI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4N
+CisjaW5jbHVkZSA8bGludXgvZnMuaD4NCisjaW5jbHVkZSA8bGludXgvY2Rldi5oPg0KKyNkZWZp
+bmUgREVWSUNFX05BTUUgInNpc19hZWdpc190b3VjaF9kZXZpY2UiDQorc3RhdGljIGludCBzaXNf
+Y2hhcl9kZXZzX2NvdW50ID0gMTsgICAgICAgIC8qIGRldmljZSBjb3VudCAqLw0KK3N0YXRpYyBp
+bnQgc2lzX2NoYXJfbWFqb3IgPSAwOw0KK3N0YXRpYyBzdHJ1Y3QgY2RldiBzaXNfY2hhcl9jZGV2
+Ow0KK3N0YXRpYyBzdHJ1Y3QgY2xhc3MgKnNpc19jaGFyX2NsYXNzID0gTlVMTDsNCisjZW5kaWYN
+CisNCisvKiBBZGRyZXNzZXMgdG8gc2NhbiAqLw0KK3N0YXRpYyBjb25zdCB1bnNpZ25lZCBzaG9y
+dCBub3JtYWxfaTJjW10gPSB7IFNJU19TTEFWRV9BRERSLCBJMkNfQ0xJRU5UX0VORCB9Ow0KK3N0
+YXRpYyBzdHJ1Y3Qgd29ya3F1ZXVlX3N0cnVjdCAqc2lzX3dxOw0KK3N0cnVjdCBzaXNfdHNfZGF0
+YSAqdHNfYmFrID0gMDsNCitzdHJ1Y3Qgc2lzVFBfZHJpdmVyX2RhdGEgKlRQSW5mbyA9IE5VTEw7
+DQorc3RhdGljIHZvaWQgc2lzX3RwaW5mb19jbGVhcihzdHJ1Y3Qgc2lzVFBfZHJpdmVyX2RhdGEg
+KlRQSW5mbywgaW50IG1heCk7DQorDQorI2lmZGVmIENPTkZJR19IQVNfRUFSTFlTVVNQRU5EDQor
+c3RhdGljIHZvaWQgc2lzX3RzX2Vhcmx5X3N1c3BlbmQoc3RydWN0IGVhcmx5X3N1c3BlbmQgKmgp
+Ow0KK3N0YXRpYyB2b2lkIHNpc190c19sYXRlX3Jlc3VtZShzdHJ1Y3QgZWFybHlfc3VzcGVuZCAq
+aCk7DQorI2VuZGlmDQorDQorI2lmZGVmIENPTkZJR19YODYNCisvKiBzdGF0aWMgY29uc3Qgc3Ry
+dWN0IGkyY19jbGllbnRfYWRkcmVzc19kYXRhIGFkZHJfZGF0YTsgKi8NCisvKiBJbnNtb2QgcGFy
+YW1ldGVycyAqLw0KK3N0YXRpYyBpbnQgc2lzX3RzX2RldGVjdChzdHJ1Y3QgaTJjX2NsaWVudCAq
+Y2xpZW50LCBzdHJ1Y3QgaTJjX2JvYXJkX2luZm8gKmluZm8pOw0KKyNlbmRpZg0KKw0KKyNpZmRl
+ZiBfQ0hFQ0tfQ1JDDQordWludDE2X3QgY2FsX2NyYyAoY2hhciogY21kLCBpbnQgc3RhcnQsIGlu
+dCBlbmQpOw0KKyNlbmRpZg0KKw0KK3N0YXRpYyB2b2lkIFByaW50QnVmZmVyKGludCBzdGFydCwg
+aW50IGxlbmd0aCwgY2hhciogYnVmKQ0KK3sNCisJaW50IGk7DQorCWZvciAoIGkgPSBzdGFydDsg
+aSA8IGxlbmd0aDsgaSsrICkNCisJew0KKwkJcHJpbnRrKCIlMDJ4ICIsIGJ1ZltpXSk7DQorCQlp
+ZiAoaSAhPSAwICYmIGkgJSAzMCA9PSAwKQ0KKwkJCXByaW50aygiXG4iKTsNCisJfQ0KKwlwcmlu
+dGsoIlxuIik7CQ0KK30NCisNCitpbnQgc2lzX2NvbW1hbmRfZm9yX3dyaXRlKHN0cnVjdCBpMmNf
+Y2xpZW50ICpjbGllbnQsIGludCB3bGVuZ3RoLCB1bnNpZ25lZCBjaGFyICp3ZGF0YSkNCit7DQor
+ICAgIGludCByZXQgPSAtMTsNCisgICAgc3RydWN0IGkyY19tc2cgbXNnOw0KKw0KKyAgICBtc2cu
+YWRkciA9IGNsaWVudC0+YWRkcjsNCisgICAgLyogV3JpdGUgKi8NCisgICAgbXNnLmZsYWdzID0g
+MDsNCisgICAgbXNnLmxlbiA9IHdsZW5ndGg7DQorICAgIG1zZy5idWYgPSAodW5zaWduZWQgY2hh
+ciAqKXdkYXRhOw0KKw0KKyAgICByZXQgPSBpMmNfdHJhbnNmZXIoY2xpZW50LT5hZGFwdGVyLCAm
+bXNnLCAxKTsNCisNCisgICAgcmV0dXJuIHJldDsNCit9DQorDQoraW50IHNpc19jb21tYW5kX2Zv
+cl9yZWFkKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsIGludCBybGVuZ3RoLCB1bnNpZ25lZCBj
+aGFyICpyZGF0YSkNCit7DQorICAgIGludCByZXQgPSAtMTsNCisgICAgc3RydWN0IGkyY19tc2cg
+bXNnOw0KKw0KKyAgICBtc2cuYWRkciA9IGNsaWVudC0+YWRkcjsNCisgICAgLyogUmVhZCAqLw0K
+KyAgICBtc2cuZmxhZ3MgPSBJMkNfTV9SRDsNCisgICAgbXNnLmxlbiA9IHJsZW5ndGg7DQorICAg
+IG1zZy5idWYgPSByZGF0YTsNCisNCisgICAgcmV0ID0gaTJjX3RyYW5zZmVyKGNsaWVudC0+YWRh
+cHRlciwgJm1zZywgMSk7DQorDQorICAgIHJldHVybiByZXQ7DQorfQ0KKw0KK2ludCBzaXNfY3Vs
+X3VuaXQodWludDhfdCByZXBvcnRfaWQpDQorew0KKwlpbnQgcmV0ID0gTk9STUFMX0xFTl9QRVJf
+UE9JTlQ7DQorCQ0KKwlpZiAocmVwb3J0X2lkICE9IEFMTF9JTl9PTkVfUEFDS0FHRSkNCisJew0K
+KwkJaWYgKElTX0FSRUEocmVwb3J0X2lkKSAvKiYmIElTX1RPVUNIKHJlcG9ydF9pZCkqLykNCisJ
+CXsNCisJCQlyZXQgKz0gQVJFQV9MRU5fUEVSX1BPSU5UOw0KKwkJfQ0KKwkJaWYgKElTX1BSRVNT
+VVJFKHJlcG9ydF9pZCkpDQorCQl7DQorCQkJcmV0ICs9IFBSRVNTVVJFX0xFTl9QRVJfUE9JTlQ7
+DQorCQl9DQorCX0NCisJDQorCXJldHVybiByZXQ7CQ0KK30NCisNCitpbnQgc2lzX1JlYWRQYWNr
+ZXQoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwgdWludDhfdCBjbWQsIHVpbnQ4X3QqIGJ1ZikN
+Cit7DQorCXVpbnQ4X3QgdG1wYnVmW01BWF9CWVRFXSA9IHswfTsNCisjaWZkZWYgX0NIRUNLX0NS
+Qw0KKwl1aW50MTZfdCBidWZfY3JjID0gMDsNCisJdWludDE2X3QgcGFja2FnZV9jcmMgPSAwOw0K
+KwlpbnQgbF9wYWNrYWdlX2NyYyA9IDA7DQorCWludCBjcmNfZW5kID0gMDsNCisjZW5kaWYNCisg
+ICAgaW50IHJldCA9IC0xOw0KKyAgICBpbnQgdG91Y2hudW0gPSAwOw0KKyAgICBpbnQgcF9jb3Vu
+dCA9IDA7DQorICAgIGludCB0b3VjX2Zvcm1hdGVfaWQgPSAwOw0KKyAgICBpbnQgbG9jYXRlID0g
+MDsNCisgICAgYm9vbCByZWFkX2ZpcnN0ID0gdHJ1ZTsNCisgICAgDQorLyoNCisJCU5ldyBpMmMg
+Zm9ybWF0IA0KKwkqIGJ1ZlswXSA9IExvdyA4IGJpdHMgb2YgYnl0ZSBjb3VudCB2YWx1ZQ0KKwkq
+IGJ1ZlsxXSA9IEhpZ2ggOCBiaXRzIG9mIGJ5dGUgY291bnRlIHZhbHVlDQorCSogYnVmWzJdID0g
+UmVwb3J0IElEDQorCSogYnVmW3RvdWNoIG51bSAqIDYgKyAyIF0gPSBUb3VjaCBpbmZvcm1hdGlv
+bnM7IDEgdG91Y2ggcG9pbnQgaGFzIDYgYnl0ZXMsIGl0IGNvdWxkIGJlIG5vbmUgaWYgbm8gdG91
+Y2ggDQorCSogYnVmW3RvdWNoIG51bSAqIDYgKyAzXSA9IFRvdWNoIG51bWJlcnMNCisJKiANCisJ
+KiBPbmUgdG91Y2ggcG9pbnQgaW5mb3JtYXRpb24gaW5jbHVkZSA2IGJ5dGVzLCB0aGUgb3JkZXIg
+aXMgDQorCSogDQorCSogMS4gc3RhdHVzID0gdG91Y2ggZG93biBvciB0b3VjaCB1cA0KKwkqIDIu
+IGlkID0gZmluZ2VyIGlkIA0KKwkqIDMuIHggYXhpcyBsb3cgOCBiaXRzDQorCSogNC4geCBheGlz
+IGhpZ2ggOCBiaXRzDQorCSogNS4geSBheGlzIGxvdyA4IGJpdHMNCisJKiA2LiB5IGF4aXMgaGln
+aCA4IGJpdHMNCisJKiANCisqLw0KKwlkbw0KKwl7DQorCQlpZiAobG9jYXRlID49IFBBQ0tFVF9C
+VUZGRVJfU0laRSkNCisJCXsNCisJCQlwcmludGsoS0VSTl9FUlIgInNpc19SZWFkUGFja2V0OiBC
+dWYgT3ZlcmZsb3dcbiIpOw0KKwkJCXJldHVybiAtMTsNCisJCX0NCisJCQ0KKwkJcmV0ID0gc2lz
+X2NvbW1hbmRfZm9yX3JlYWQoY2xpZW50LCBNQVhfQllURSwgdG1wYnVmKTsNCisNCisjaWZkZWYg
+X0RFQlVHX1BBQ0tBR0UNCisJCXByaW50ayhLRVJOX0lORk8gImNoYW9iYW4gdGVzdDogQnVmX0Rh
+dGEgWzB+NjNdIFxuIik7DQorCQlQcmludEJ1ZmZlcigwLCA2NCwgdG1wYnVmKTsJDQorI2VuZGlm
+CQkJDQorDQorCQlpZihyZXQgPCAwICkNCisJCXsNCisJCQlwcmludGsoS0VSTl9FUlIgInNpc19S
+ZWFkUGFja2V0OiBpMmMgdHJhbnNmZXIgZXJyb3JcbiIpOw0KKwkJCXJldHVybiByZXQ7DQorCQl9
+DQorCQkvKiBlcnJvciBwYWNrYWdlIGxlbmd0aCBvZiByZWNlaXZpbmcgZGF0YSAqLw0KKwkJZWxz
+ZSBpZiAodG1wYnVmW1BfQllURUNPVU5UXSA+IE1BWF9CWVRFKQ0KKwkJew0KKwkJCXByaW50ayhL
+RVJOX0VSUiAic2lzX1JlYWRQYWNrZXQ6IEVycm9yIEJ5dGVjb3VudFxuIik7DQorCQkJcmV0dXJu
+IC0xOwkNCisJCX0NCisJCQ0KKwkJaWYgKHJlYWRfZmlyc3QpDQorCQl7DQorI2lmZGVmIF9TVVBQ
+T1JUX0JVVFRPTl9UT1VDSA0KKwkJCS8qIGFjY2VzcyBCVVRUT04gVE9VQ0ggZXZlbnQgYW5kIEJV
+VFRPTiBOTyBUT1VDSCBldmVudCAqLw0KKwkJCWlmICh0bXBidWZbUF9SRVBPUlRfSURdID09ICBC
+VVRUT05fRk9STUFUKQ0KKwkJCXsNCisJCQkJbWVtY3B5KCZidWZbMF0sICZ0bXBidWZbMF0sIDcp
+Ow0KKwkJCQlyZXR1cm4gMDsgCS8qIHRvdWNobnVtIGlzIDAgKi8NCisJCQl9DQorI2VuZGlmIA0K
+KwkJCS8qIGFjY2VzcyBOTyBUT1VDSCBldmVudCB1bmxlc3MgQlVUVE9OIE5PIFRPVUNIIGV2ZW50
+ICovDQorCQkJaWYgKHRtcGJ1ZltQX0JZVEVDT1VOVF0gPT0gMC8qTk9fVE9VQ0hfQllURUNPVU5U
+Ki8pDQorCQkJew0KKwkJCQlyZXR1cm4gMDsJLyogdG91Y2hudW0gaXMgMCAqLw0KKwkJCX0NCisJ
+CX0NCisNCisJCS8qIHNraXAgcGFyc2luZyBkYXRhIHdoZW4gdHdvIGRldmljZXMgYXJlIHJlZ2lz
+dGVyZWQgYXQgdGhlIHNhbWUgc2xhdmUgYWRkcmVzcw0KKwkJICogcGFyc2luZyBkYXRhIHdoZW4g
+UF9SRVBPUlRfSUQgJiYgMHhmIGlzIFRPVUNIX0ZPUk1BVCBvciBQX1JFUE9SVF9JRCBpcyBBTExf
+SU5fT05FX1BBQ0tBR0UNCisJCSAqLyAgDQorCQl0b3VjX2Zvcm1hdGVfaWQgPSB0bXBidWZbUF9S
+RVBPUlRfSURdICYgMHhmOw0KKwkJaWYgKCh0b3VjX2Zvcm1hdGVfaWQgIT0gVE9VQ0hfRk9STUFU
+KSAmJiAodG91Y19mb3JtYXRlX2lkICE9IEhJREkyQ19GT1JNQVQpICYmICh0bXBidWZbUF9SRVBP
+UlRfSURdICE9IEFMTF9JTl9PTkVfUEFDS0FHRSkpDQorCQl7DQorCQkJcHJpbnRrKEtFUk5fRVJS
+ICJzaXNfUmVhZFBhY2tldDogRXJyb3IgUmVwb3J0X0lEXG4iKTsNCisJCQlyZXR1cm4gLTE7CQkN
+CisJCX0NCisJCQ0KKwkJcF9jb3VudCA9IChpbnQpIHRtcGJ1ZltQX0JZVEVDT1VOVF0gLSAxOwkv
+KiBzdGFydCBmcm9tIDAgKi8NCisJCWlmICh0bXBidWZbUF9SRVBPUlRfSURdICE9IEFMTF9JTl9P
+TkVfUEFDS0FHRSkNCisJCXsNCisJCQlpZiAoSVNfVE9VQ0godG1wYnVmW1BfUkVQT1JUX0lEXSkp
+DQorCQkJew0KKwkJCQlwX2NvdW50IC09IEJZVEVfQ1JDX0kyQzsJLyogZGVsZXRlIDIgYnl0ZSBj
+cmMgKi8NCisJCQl9DQorCQkJZWxzZSBpZiAoSVNfSElESTJDKHRtcGJ1ZltQX1JFUE9SVF9JRF0p
+KQ0KKwkJCXsNCisJCQkJcF9jb3VudCAtPSBCWVRFX0NSQ19ISURJMkM7DQorCQkJfQ0KKwkJCWVs
+c2UJLyogc2hvdWxkIG5vdCBiZSBoYXBwZW4gKi8NCisJCQl7DQorCQkJCXByaW50ayhLRVJOX0VS
+UiAic2lzX1JlYWRQYWNrZXQ6IGRlbGV0ZSBjcmMgZXJyb3JcbiIpOw0KKwkJCQlyZXR1cm4gLTE7
+DQorCQkJfQ0KKw0KKwkJCWlmIChJU19TQ0FOVElNRSh0bXBidWZbUF9SRVBPUlRfSURdKSkNCisJ
+CQl7DQorCQkJCXBfY291bnQgLT0gQllURV9TQ0FOVElNRTsNCisJCQl9DQorCQl9DQorCQkvKiBl
+bHNlIHt9ICAgIAkJCQkJCSBGb3IgQUxMX0lOX09ORV9QQUNLQUdFICovDQorCQkNCisJCWlmIChy
+ZWFkX2ZpcnN0KQ0KKwkJew0KKwkJCXRvdWNobnVtID0gdG1wYnVmW3BfY291bnRdOyAJDQorCQl9
+DQorCQllbHNlDQorCQl7DQorCQkJaWYgKHRtcGJ1ZltwX2NvdW50XSAhPSAwKQ0KKwkJCXsNCisJ
+CQkJcHJpbnRrKEtFUk5fRVJSICJzaXNfUmVhZFBhY2tldDogZ2V0IGVycm9yIHBhY2thZ2VcbiIp
+Ow0KKwkJCQlyZXR1cm4gLTE7DQorCQkJfQ0KKwkJfQ0KKw0KKyNpZmRlZiBfQ0hFQ0tfQ1JDDQor
+CQljcmNfZW5kID0gcF9jb3VudCArIChJU19TQ0FOVElNRSh0bXBidWZbUF9SRVBPUlRfSURdKSAq
+IDIpOw0KKwkJYnVmX2NyYyA9IGNhbF9jcmModG1wYnVmLCAyLCBjcmNfZW5kKTsgLyogc3ViIGJ5
+dGVjb3VudCAoMiBieXRlKSAqLw0KKwkJbF9wYWNrYWdlX2NyYyA9IHBfY291bnQgKyAxICsgKElT
+X1NDQU5USU1FKHRtcGJ1ZltQX1JFUE9SVF9JRF0pICogMik7DQorCQlwYWNrYWdlX2NyYyA9IGdl
+dF91bmFsaWduZWRfbGUxNigmdG1wYnVmW2xfcGFja2FnZV9jcmNdKTsNCisJCQkNCisJCWlmIChi
+dWZfY3JjICE9IHBhY2thZ2VfY3JjKQ0KKwkJew0KKwkJCXByaW50ayhLRVJOX0VSUiAic2lzX1Jl
+YWRQYWNrZXQ6IENSQyBFcnJvclxuIik7DQorCQkJcmV0dXJuIC0xOw0KKwkJfQ0KKyNlbmRpZgkN
+CisJCW1lbWNweSgmYnVmW2xvY2F0ZV0sICZ0bXBidWZbMF0sIDY0KTsJLyogQnVmX0RhdGEgWzB+
+NjNdIFs2NH4xMjhdICovDQorCQlsb2NhdGUgKz0gNjQ7DQorCQlyZWFkX2ZpcnN0ID0gZmFsc2U7
+DQorCQkNCisJfXdoaWxlKHRtcGJ1ZltQX1JFUE9SVF9JRF0gIT0gQUxMX0lOX09ORV9QQUNLQUdF
+ICAmJiAgdG1wYnVmW3BfY291bnRdID4gNSk7DQorDQorCXJldHVybiB0b3VjaG51bTsNCit9CQ0K
+Kw0KKw0KK2ludCBjaGVja19ncGlvX2ludGVycnVwdCh2b2lkKQ0KK3sNCisgICAgaW50IHJldCA9
+IDA7DQorDQorICAgIC8qIENIRUNLIEdQSU8gSU5URVJSVVBUIFNUQVRVUyBCWSBZT1VSIFBMQVRG
+T1JNIFNFVFRJTkcuICovDQorICAgIHJldCA9IGdwaW9fZ2V0X3ZhbHVlKEdQSU9fSVJRKTsNCisJ
+DQorICAgIHJldHVybiByZXQ7DQorfQ0KKw0KK3ZvaWQgdHNfcmVwb3J0X2tleShzdHJ1Y3QgaTJj
+X2NsaWVudCAqY2xpZW50LCB1aW50OF90IGtleWJpdF9zdGF0ZSkNCit7DQorCWludCBpID0gMDsN
+CisJdWludDhfdCBkaWZmX2tleWJpdF9zdGF0ZT0gMHgwOyAvKiBjaGVjayBrZXliaXRfc3RhdGUg
+aXMgZGlmZmVyZW5jZSB3aXRoIHByZV9rZXliaXRfc3RhdGUgKi8NCisJdWludDhfdCBrZXlfdmFs
+dWUgPSAweDA7IAkJLyogYnV0dG9uIGxvY2F0aW9uIGZvciBiaW5hcnkgKi8NCisJdWludDhfdCAg
+a2V5X3ByZXNzZWQgPSAweDA7IAkvKiBidXR0b24gaXMgdXAgb3IgZG93biAqLw0KKwlzdHJ1Y3Qg
+c2lzX3RzX2RhdGEgKnRzID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7DQorDQorCWlmICgh
+dHMpDQorCXsNCisJCXByaW50ayhLRVJOX0VSUiAiJXMgZXJyb3I6IE1pc3NpbmcgUGxhdGZvcm0g
+RGF0YSFcbiIsIF9fZnVuY19fKTsNCisJCXJldHVybjsNCisJfQ0KKw0KKwlkaWZmX2tleWJpdF9z
+dGF0ZSA9IFRQSW5mby0+cHJlX2tleWJpdF9zdGF0ZSBeIGtleWJpdF9zdGF0ZTsNCisNCisJaWYg
+KGRpZmZfa2V5Yml0X3N0YXRlKQ0KKwl7DQorCQlmb3IgKGkgPSAwOyBpIDwgQlVUVE9OX0tFWV9D
+T1VOVDsgaSsrKQ0KKwkJew0KKwkJICAgIGlmICgoZGlmZl9rZXliaXRfc3RhdGUgPj4gaSkgJiAw
+eDAxKQ0KKwkJCXsNCisJCQkJa2V5X3ZhbHVlID0gZGlmZl9rZXliaXRfc3RhdGUgJiAoMHgwMSA8
+PCBpKTsNCisJCQkJa2V5X3ByZXNzZWQgPSAoa2V5Yml0X3N0YXRlID4+IGkpICYgMHgwMTsNCisJ
+CQkJc3dpdGNoIChrZXlfdmFsdWUpDQorCQkJCXsNCisJCQkJCWNhc2UgTVNLX0NPTVA6DQorCQkJ
+CQkJaW5wdXRfcmVwb3J0X2tleSh0cy0+aW5wdXRfZGV2LCBLRVlfQ09NUE9TRSwga2V5X3ByZXNz
+ZWQpOw0KKwkJCQkJCWJyZWFrOw0KKwkJCQkJY2FzZSBNU0tfQkFDSzoNCisJCQkJCQlpbnB1dF9y
+ZXBvcnRfa2V5KHRzLT5pbnB1dF9kZXYsIEtFWV9CQUNLLCBrZXlfcHJlc3NlZCk7DQorCQkJCQkJ
+YnJlYWs7DQorCQkJCQljYXNlIE1TS19NRU5VOg0KKwkJCQkJCWlucHV0X3JlcG9ydF9rZXkodHMt
+PmlucHV0X2RldiwgS0VZX01FTlUsIGtleV9wcmVzc2VkKTsNCisJCQkJCQlicmVhazsNCisJCQkJ
+CWNhc2UgTVNLX0hPTUU6DQorCQkJCQkJaW5wdXRfcmVwb3J0X2tleSh0cy0+aW5wdXRfZGV2LCBL
+RVlfSE9NRSwga2V5X3ByZXNzZWQpOw0KKwkJCQkJCWJyZWFrOw0KKwkJCQkJY2FzZSBNU0tfTk9C
+VE46DQorCQkJCQkJLyogUmVsZWFzZSB0aGUgYnV0dG9uIGlmIGl0IHRvdWNoZWQuICovDQorCQkJ
+CQlkZWZhdWx0Og0KKwkJCQkJCWJyZWFrOw0KKwkJCQl9DQorCQkJfQ0KKwkJfQ0KKwkJVFBJbmZv
+LT5wcmVfa2V5Yml0X3N0YXRlID0ga2V5Yml0X3N0YXRlOw0KKwl9DQorfQ0KKw0KKw0KK3N0YXRp
+YyB2b2lkIHNpc190c193b3JrX2Z1bmMoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQ0KK3sNCisJ
+c3RydWN0IHNpc190c19kYXRhICp0cyA9IGNvbnRhaW5lcl9vZih3b3JrLCBzdHJ1Y3Qgc2lzX3Rz
+X2RhdGEsIHdvcmspOw0KKyAgICBpbnQgcmV0ID0gLTE7DQorICAgIGludCBwb2ludF91bml0OyAg
+DQorCXVpbnQ4X3QgYnVmW1BBQ0tFVF9CVUZGRVJfU0laRV0gPSB7MH07DQorCXVpbnQ4X3QgaSA9
+IDAsIGZpbmdlcnMgPSAwOw0KKwl1aW50OF90IHB4ID0gMCwgcHkgPSAwLCBwc3RhdHVzID0gMDsN
+CisJdWludDhfdCBwX2FyZWEgPSAwOw0KKyAgICB1aW50OF90IHBfcHJlYXN1cmUgPSAwOw0KKyNp
+ZmRlZiBfU1VQUE9SVF9CVVRUT05fVE9VQ0gJDQorCWludCBidXR0b25fa2V5Ow0KKwl1aW50OF90
+IGJ1dHRvbl9idWZbMTBdID0gezB9Ow0KKyNlbmRpZg0KKw0KKyNpZmRlZiBfQU5EUk9JRF80DQor
+CWJvb2wgYWxsX3RvdWNoX3VwID0gdHJ1ZTsNCisjZW5kaWYNCisJDQorCW11dGV4X2xvY2soJnRz
+LT5tdXRleF93cSk7IA0KKw0KKyAgICAvKiBJMkMgb3IgU01CVVMgYmxvY2sgZGF0YSByZWFkICov
+DQorICAgIHJldCA9IHNpc19SZWFkUGFja2V0KHRzLT5jbGllbnQsIFNJU19DTURfTk9STUFMLCBi
+dWYpOw0KKyANCisjaWZkZWYgX1NVUFBPUlRfQlVUVE9OX1RPVUNIDQorCSBzaXNfUmVhZFBhY2tl
+dCh0cy0+Y2xpZW50LCBTSVNfQ01EX05PUk1BTCwgYnV0dG9uX2J1Zik7DQorI2VuZGlmDQorDQor
+CS8qIEVycm9yIE51bWJlciAqLw0KKwlpZiAocmV0IDwgMCkgDQorCXsNCisJCWdvdG8gZXJyX2Zy
+ZWVfYWxsb2NhdGU7DQorCX0NCisjaWZkZWYgX1NVUFBPUlRfQlVUVE9OX1RPVUNIDQorCS8qIGFj
+Y2VzcyBCVVRUT04gVE9VQ0ggZXZlbnQgYW5kIEJVVFRPTiBOTyBUT1VDSCBldmVuICovDQorCWVs
+c2UgaWYgKGJ1dHRvbl9idWZbUF9SRVBPUlRfSURdID09IEJVVFRPTl9GT1JNQVQpDQorCXsNCisJ
+CWJ1dHRvbl9rZXkgPSBnZXRfdW5hbGlnbmVkX2xlMTYoJmJ1dHRvbl9idWZbQlVUVE9OX1NUQVRF
+XSk7CQkNCisJCXRzX3JlcG9ydF9rZXkodHMtPmNsaWVudCwgYnV0dG9uX2tleSk7DQorCX0NCisj
+ZW5kaWYNCisJLyogYWNjZXNzIE5PIFRPVUNIIGV2ZW50IHVubGVzcyBCVVRUT04gTk8gVE9VQ0gg
+ZXZlbnQgKi8NCisJZWxzZSBpZiAocmV0ID09IDApDQorCXsNCisJCWZpbmdlcnMgPSAwOw0KKwkJ
+c2lzX3RwaW5mb19jbGVhcihUUEluZm8sIE1BWF9GSU5HRVJTKTsNCisJCWdvdG8gbGFiZWxfc2Vu
+ZF9yZXBvcnQ7ICAvKiBuZWVkIHRvIHJlcG9ydCBpbnB1dF9tdF9zeW5jKCkgKi8NCisJfQ0KKwkN
+CisJc2lzX3RwaW5mb19jbGVhcihUUEluZm8sIE1BWF9GSU5HRVJTKTsNCisJDQorCS8qIFBhcnNl
+ciBhbmQgR2V0IHRoZSBzaXM5MjAwIGRhdGEgKi8NCisJcG9pbnRfdW5pdCA9IHNpc19jdWxfdW5p
+dChidWZbUF9SRVBPUlRfSURdKTsNCisJZmluZ2VycyA9IHJldDsNCisJDQorCVRQSW5mby0+Zmlu
+Z2VycyA9IGZpbmdlcnMgPSAoZmluZ2VycyA+IE1BWF9GSU5HRVJTID8gMCA6IGZpbmdlcnMpOw0K
+KwkNCisJLyogZmluZ2VycyAxMCA9ICAwIH4gOSAqLw0KKwlmb3IgKGkgPSAwOyBpIDwgZmluZ2Vy
+czsgaSsrKSANCisJew0KKyAgICAgICAgaWYgKChidWZbUF9SRVBPUlRfSURdICE9IEFMTF9JTl9P
+TkVfUEFDS0FHRSkgJiYgKGkgPj0gNSkpDQorICAgICAgICB7IC8qIENhbGMgcG9pbnQgc3RhdHVz
+ICovDQorCQkJcHN0YXR1cyA9IEJZVEVfQllURUNPVU5UICsgQllURV9SZXBvcnRJRCArICgoaSAt
+IDUpICogcG9pbnRfdW5pdCk7ICAgIAkNCisJCQlwc3RhdHVzICs9IDY0Ow0KKwkJfQ0KKwkJZWxz
+ZSANCisJCXsgLyogQ2FsYyBwb2ludCBzdGF0dXMgKi8NCisJCQlwc3RhdHVzID0gQllURV9CWVRF
+Q09VTlQgKyBCWVRFX1JlcG9ydElEICsgKGkgKiBwb2ludF91bml0KTsgICAgICAgICAgCQ0KKwkJ
+fQ0KKw0KKwkgICAgcHggPSBwc3RhdHVzICsgMjsJLyogQ2FsYyBwb2ludCB4X2Nvb3JkICovDQor
+CSAgICBweSA9IHB4ICsgMjsJCS8qIENhbGMgcG9pbnQgeV9jb29yZCAqLw0KKw0KKwkJaWYgKChi
+dWZbcHN0YXR1c10pID09IFRPVUNIVVApDQorCQl7DQorCQkJVFBJbmZvLT5wdFtpXS5XaWR0aCA9
+IDA7DQorCQkJVFBJbmZvLT5wdFtpXS5IZWlnaHQgPSAwOw0KKwkJCVRQSW5mby0+cHRbaV0uUHJl
+c3N1cmUgPSAwOw0KKwkJfQ0KKwkJZWxzZSBpZiAoYnVmW1BfUkVQT1JUX0lEXSA9PSBBTExfSU5f
+T05FX1BBQ0tBR0UgJiYgKGJ1Zltwc3RhdHVzXSkgPT0gVE9VQ0hET1dOKQ0KKwkJew0KKwkJCVRQ
+SW5mby0+cHRbaV0uV2lkdGggPSAxOw0KKwkJCVRQSW5mby0+cHRbaV0uSGVpZ2h0ID0gMTsNCisJ
+CQlUUEluZm8tPnB0W2ldLlByZXNzdXJlID0gMTsJCQkNCisJCX0NCisJCWVsc2UgaWYgKChidWZb
+cHN0YXR1c10pID09IFRPVUNIRE9XTikNCisJCXsJDQorCQkJcF9hcmVhID0gcHkgKyAyOw0KKwkJ
+CXBfcHJlYXN1cmUgPSBweSArIDIgKyAoSVNfQVJFQShidWZbUF9SRVBPUlRfSURdKSAqIDIpOw0K
+Kw0KKwkJCS8qIGFyZWEgKi8NCisJCQlpZiAoSVNfQVJFQShidWZbUF9SRVBPUlRfSURdKSkNCisJ
+CQl7DQorCQkJCVRQSW5mby0+cHRbaV0uV2lkdGggPSBidWZbcF9hcmVhXSAmIDB4ZmY7DQorCQkJ
+CVRQSW5mby0+cHRbaV0uSGVpZ2h0ID0gYnVmW3BfYXJlYSArIDFdICYgMHhmZjsNCisJCQl9DQor
+CQkJZWxzZSANCisJCQl7DQorCQkJCVRQSW5mby0+cHRbaV0uV2lkdGggPSAxOw0KKwkJCQlUUElu
+Zm8tPnB0W2ldLkhlaWdodCA9IDE7DQorCQkJfQ0KKwkJCS8qIHByZWFzdXJlICovDQorCQkJaWYg
+KElTX1BSRVNTVVJFKGJ1ZltQX1JFUE9SVF9JRF0pKQ0KKwkJCQlUUEluZm8tPnB0W2ldLlByZXNz
+dXJlID0gKGJ1ZltwX3ByZWFzdXJlXSk7DQorCQkJZWxzZSANCisJCQkJVFBJbmZvLT5wdFtpXS5Q
+cmVzc3VyZSA9IDE7CQkJCQ0KKwkJfQ0KKwkJZWxzZQ0KKwkJew0KKwkJCXByaW50ayhLRVJOX0VS
+UiAic2lzX3RzX3dvcmtfZnVuYzogRXJyb3IgVG91Y2ggU3RhdHVzXG4iKTsNCisJCQlnb3RvIGVy
+cl9mcmVlX2FsbG9jYXRlOw0KKwkJfQ0KKwkJDQorCQlUUEluZm8tPnB0W2ldLmlkID0gKGJ1Zltw
+c3RhdHVzICsgMV0pOw0KKwkJVFBJbmZvLT5wdFtpXS54ID0gKChidWZbcHhdICYgMHhmZikgfCAo
+KGJ1ZltweCArIDFdICYgMHhmZik8PCA4KSk7DQorICAgICAgICBUUEluZm8tPnB0W2ldLnkgPSAo
+KGJ1ZltweV0gJiAweGZmKSB8ICgoYnVmW3B5ICsgMV0gJiAweGZmKTw8IDgpKTsgICAgICANCisJ
+fQ0KKwkJDQorI2lmZGVmIF9ERUJVR19SRVBPUlQNCisJZm9yIChpID0gMDsgaSA8IFRQSW5mby0+
+ZmluZ2VyczsgaSsrKQ0KKwl7DQorCQkgcHJpbnRrKEtFUk5fSU5GTyAiY2hhb2JhbiB0ZXN0OiBp
+ID0gJWQsIGlkID0gJWQsIHggPSAlZCwgeSA9ICVkLCBwc3RhdHVzID0gJWQsIHdpZHRoID0gJWQs
+IGhlaWdodCA9ICVkLCBwcmVzc3VyZSA9ICVkLCBcbiIsIGksIFRQSW5mby0+cHRbaV0uaWQsIFRQ
+SW5mby0+cHRbaV0ueCwgVFBJbmZvLT5wdFtpXS55LCBidWZbcHN0YXR1c10sIFRQSW5mby0+cHRb
+aV0uV2lkdGgsICBUUEluZm8tPnB0W2ldLkhlaWdodCwgVFBJbmZvLT5wdFtpXS5QcmVzc3VyZSk7
+DQorCX0NCisjZW5kaWYNCisNCitsYWJlbF9zZW5kX3JlcG9ydDoNCisvKiBSZXBvcnQgY28tb3Jk
+aW5hdGVzIHRvIHRoZSBtdWx0aS10b3VjaCBzdGFjayAqLw0KKyNpZmRlZiBfQU5EUk9JRF80CQ0K
+Kwlmb3IoaSA9IDA7ICgoaSA8IFRQSW5mby0+ZmluZ2VycykgJiYgKGkgPCBNQVhfRklOR0VSUykp
+OyBpKyspDQorCXsNCisJCWlmKFRQSW5mby0+cHRbaV0uUHJlc3N1cmUpDQorCQl7DQorCQkJVFBJ
+bmZvLT5wdFtpXS5XaWR0aCAqPSBBUkVBX1VOSVQ7CQ0KKwkJCWlucHV0X3JlcG9ydF9hYnModHMt
+PmlucHV0X2RldiwgQUJTX01UX1RPVUNIX01BSk9SLCBUUEluZm8tPnB0W2ldLldpZHRoKTsNCisJ
+CQlUUEluZm8tPnB0W2ldLkhlaWdodCAqPSBBUkVBX1VOSVQ7DQorCQkJaW5wdXRfcmVwb3J0X2Fi
+cyh0cy0+aW5wdXRfZGV2LCBBQlNfTVRfVE9VQ0hfTUlOT1IsIFRQSW5mby0+cHRbaV0uSGVpZ2h0
+KTsJCQkNCisJCQlpbnB1dF9yZXBvcnRfYWJzKHRzLT5pbnB1dF9kZXYsIEFCU19NVF9QUkVTU1VS
+RSwgVFBJbmZvLT5wdFtpXS5QcmVzc3VyZSk7DQorCQkJaW5wdXRfcmVwb3J0X2Ficyh0cy0+aW5w
+dXRfZGV2LCBBQlNfTVRfUE9TSVRJT05fWCwgVFBJbmZvLT5wdFtpXS54KTsNCisJCQlpbnB1dF9y
+ZXBvcnRfYWJzKHRzLT5pbnB1dF9kZXYsIEFCU19NVF9QT1NJVElPTl9ZLCBUUEluZm8tPnB0W2ld
+LnkpOw0KKwkJCWlucHV0X3JlcG9ydF9hYnModHMtPmlucHV0X2RldiwgQUJTX01UX1RSQUNLSU5H
+X0lELCBUUEluZm8tPnB0W2ldLmlkKTsNCisJCQlpbnB1dF9tdF9zeW5jKHRzLT5pbnB1dF9kZXYp
+Ow0KKwkJCWFsbF90b3VjaF91cCA9IGZhbHNlOw0KKwkJfQ0KKwkJDQorCQlpZiAoaSA9PSAoVFBJ
+bmZvLT5maW5nZXJzIC0xKSAmJiBhbGxfdG91Y2hfdXAgPT0gdHJ1ZSkNCisJCXsNCisJCQlpbnB1
+dF9tdF9zeW5jKHRzLT5pbnB1dF9kZXYpOw0KKwkJfQ0KKwl9DQorDQorCWlmKFRQSW5mby0+Zmlu
+Z2VycyA9PSAwKQ0KKwl7DQorCQlpbnB1dF9tdF9zeW5jKHRzLT5pbnB1dF9kZXYpOw0KKwl9DQor
+I2Vsc2UNCisJaSA9IDA7DQorCWRvDQorCXsNCisJCWlucHV0X3JlcG9ydF9hYnModHMtPmlucHV0
+X2RldiwgQUJTX01UX1RPVUNIX01BSk9SLCBUUEluZm8tPnB0W2ldLlByZXNzdXJlKTsNCisJCWlu
+cHV0X3JlcG9ydF9hYnModHMtPmlucHV0X2RldiwgQUJTX01UX1dJRFRIX01BSk9SLCBUUEluZm8t
+PnB0W2ldLldpZHRoKTsNCisJCWlucHV0X3JlcG9ydF9hYnModHMtPmlucHV0X2RldiwgQUJTX01U
+X1dJRFRIX01JTk9SLCBUUEluZm8tPnB0W2ldLkhlaWdodCk7DQorCQlpbnB1dF9yZXBvcnRfYWJz
+KHRzLT5pbnB1dF9kZXYsIEFCU19NVF9QT1NJVElPTl9YLCBUUEluZm8tPnB0W2ldLngpOw0KKwkJ
+aW5wdXRfcmVwb3J0X2Ficyh0cy0+aW5wdXRfZGV2LCBBQlNfTVRfUE9TSVRJT05fWSwgVFBJbmZv
+LT5wdFtpXS55KTsNCisJCWlucHV0X3JlcG9ydF9hYnModHMtPmlucHV0X2RldiwgQUJTX01UX1RS
+QUNLSU5HX0lELCBUUEluZm8tPnB0W2ldLmlkKTsgLyogQW5kcm9pZCAyLjMgKi8NCisJCWlucHV0
+X210X3N5bmModHMtPmlucHV0X2Rldik7DQorCQlpKys7DQorCX0NCisJd2hpbGUgKChpIDwgVFBJ
+bmZvLT5maW5nZXJzKSAmJiAoaSA8IE1BWF9GSU5HRVJTKSk7DQorI2VuZGlmDQorCWlucHV0X3N5
+bmModHMtPmlucHV0X2Rldik7DQorDQorZXJyX2ZyZWVfYWxsb2NhdGU6DQorDQorICAgIGlmICh0
+cy0+dXNlX2lycSkNCisgICAgew0KKy8qIGNhc2UgMSBtb2RlICovDQorI2lmZGVmIF9JTlRfTU9E
+RV8xIA0KKwkgICAgLypUT0RPOiBBZnRlciBpbnRlcnJ1cHQgc3RhdHVzIGxvdywgcmVhZCBpMmMg
+YnVzIGRhdGEgYnkgcG9sbGluZywgdW50aWwgaW50ZXJydXB0IHN0YXR1cyBpcyBoaWdoICovDQor
+CSAgICByZXQgPSBjaGVja19ncGlvX2ludGVycnVwdCgpOwkvKiBpbnRlcnJ1cHQgcGluIGlzIHN0
+aWxsIExPVywgcmVhZCBkYXRhIHVudGlsIGludGVycnVwdCBwaW4gaXMgcmVsZWFzZWQuICovDQor
+CSAgICBpZiAoIXJldCkNCisJICAgIHsNCisJICAgICAgICBocnRpbWVyX3N0YXJ0KCZ0cy0+dGlt
+ZXIsIGt0aW1lX3NldCgwLCBUSU1FUl9OUyksIEhSVElNRVJfTU9ERV9SRUwpOw0KKwkgICAgfQ0K
+KwkgICAgZWxzZQ0KKwkgICAgew0KKwkJCWlmIChUUEluZm8tPnByZV9rZXliaXRfc3RhdGUpDQor
+CQkJew0KKwkJCQl0c19yZXBvcnRfa2V5KHRzLT5jbGllbnQsIDB4MCk7CS8qIGNsZWFyIGZvciBp
+bnRlcnJ1cHQgKi8NCisJCQl9DQorCQkJDQorI2lmICggTElOVVhfVkVSU0lPTl9DT0RFIDwgS0VS
+TkVMX1ZFUlNJT04gKDIsIDYsIDM5KSApDQorICAgICAgICAJaWYgKCh0cy0+ZGVzYy0+c3RhdHVz
+ICYgSVJRX0RJU0FCTEVEKSA9PSBJUlFfU1RBVFVTX0RJU0FCTEVEKQ0KKyNlbHNlDQorICAgICAg
+ICAJaWYgKCh0cy0+ZGVzYy0+aXJxX2RhdGEuc3RhdGVfdXNlX2FjY2Vzc29ycyAmIElSUURfSVJR
+X0RJU0FCTEVEKSA9PSBJUlFfU1RBVFVTX0RJU0FCTEVEKQ0KKyNlbmRpZg0KKyAgICAgICAgCXsN
+CisJCQkJZW5hYmxlX2lycSh0cy0+Y2xpZW50LT5pcnEpOw0KKwkJCX0NCisJICAgIH0NCisvKiBj
+YXNlIDIgbW9kZSAqLw0KKyNlbHNlDQorDQorI2lmICggTElOVVhfVkVSU0lPTl9DT0RFIDwgS0VS
+TkVMX1ZFUlNJT04gKDIsIDYsIDM5KSApDQorCQlpZiAoKHRzLT5kZXNjLT5zdGF0dXMgJiBJUlFf
+RElTQUJMRUQpID09IElSUV9TVEFUVVNfRElTQUJMRUQpDQorI2Vsc2UNCisJCWlmICgodHMtPmRl
+c2MtPmlycV9kYXRhLnN0YXRlX3VzZV9hY2Nlc3NvcnMgJiBJUlFEX0lSUV9ESVNBQkxFRCkgPT0g
+SVJRX1NUQVRVU19ESVNBQkxFRCkNCisjZW5kaWYNCisJCXsNCisJCQllbmFibGVfaXJxKHRzLT5j
+bGllbnQtPmlycSk7DQorCQl9DQorI2VuZGlmDQorCX0NCisNCisJbXV0ZXhfdW5sb2NrKCZ0cy0+
+bXV0ZXhfd3EpOw0KKyAgICByZXR1cm47DQorfQ0KKw0KK3N0YXRpYyB2b2lkIHNpc190cGluZm9f
+Y2xlYXIoc3RydWN0IHNpc1RQX2RyaXZlcl9kYXRhICpUUEluZm8sIGludCBtYXgpDQorew0KKwlp
+bnQgaSA9IDA7DQorCWZvcihpID0gMDsgaSA8IG1heDsgaSsrKQ0KKwl7DQorCQlUUEluZm8tPnB0
+W2ldLmlkID0gLTE7DQorCQlUUEluZm8tPnB0W2ldLnggPSAwOw0KKwkJVFBJbmZvLT5wdFtpXS55
+ID0gMDsNCisJCVRQSW5mby0+cHRbaV0uUHJlc3N1cmUgPSAwOw0KKwkJVFBJbmZvLT5wdFtpXS5X
+aWR0aCA9IDA7DQorCX0NCisJVFBJbmZvLT5pZCA9IDB4MDsNCisJVFBJbmZvLT5maW5nZXJzID0g
+MDsNCit9DQorDQorc3RhdGljIGVudW0gaHJ0aW1lcl9yZXN0YXJ0IHNpc190c190aW1lcl9mdW5j
+KHN0cnVjdCBocnRpbWVyICp0aW1lcikNCit7DQorCXN0cnVjdCBzaXNfdHNfZGF0YSAqdHMgPSBj
+b250YWluZXJfb2YodGltZXIsIHN0cnVjdCBzaXNfdHNfZGF0YSwgdGltZXIpOw0KKwlxdWV1ZV93
+b3JrKHNpc193cSwgJnRzLT53b3JrKTsNCisJaWYgKCF0cy0+dXNlX2lycSkNCisJewkvKiBGb3Ig
+UG9sbGluZyBtb2RlICovDQorCSAgICBocnRpbWVyX3N0YXJ0KCZ0cy0+dGltZXIsIGt0aW1lX3Nl
+dCgwLCBUSU1FUl9OUyksIEhSVElNRVJfTU9ERV9SRUwpOw0KKwl9DQorCXJldHVybiBIUlRJTUVS
+X05PUkVTVEFSVDsNCit9DQorDQorc3RhdGljIGlycXJldHVybl90IHNpc190c19pcnFfaGFuZGxl
+cihpbnQgaXJxLCB2b2lkICpkZXZfaWQpDQorew0KKwlzdHJ1Y3Qgc2lzX3RzX2RhdGEgKnRzID0g
+ZGV2X2lkOw0KKwkNCisjaWYgKCBMSU5VWF9WRVJTSU9OX0NPREUgPCBLRVJORUxfVkVSU0lPTiAo
+MiwgNiwgMzkpICkNCisJaWYgKCh0cy0+ZGVzYy0+c3RhdHVzICYgSVJRX0RJU0FCTEVEKSA9PSBJ
+UlFfU1RBVFVTX0VOQUJMRUQpDQorI2Vsc2UNCisJaWYgKCh0cy0+ZGVzYy0+aXJxX2RhdGEuc3Rh
+dGVfdXNlX2FjY2Vzc29ycyAmIElSUURfSVJRX0RJU0FCTEVEKSA9PSBJUlFfU1RBVFVTX0VOQUJM
+RUQpDQorI2VuZGlmDQorCXsNCisJCWRpc2FibGVfaXJxX25vc3luYyh0cy0+Y2xpZW50LT5pcnEp
+Ow0KKwl9DQorCXF1ZXVlX3dvcmsoc2lzX3dxLCAmdHMtPndvcmspOw0KKwkJDQorCXJldHVybiBJ
+UlFfSEFORExFRDsNCit9DQorDQorc3RhdGljIGludCBpbml0aWFsX2lycSh2b2lkKQ0KK3sNCisJ
+aW50IHJldCA9IDA7DQorI2lmZGVmIF9JMkNfSU5UX0VOQUJMRQ0KKwkvKiBpbml0aWFsaXplIGdw
+aW8gYW5kIGludGVycnVwdCBwaW5zICovDQorCXJldCA9IGdwaW9fcmVxdWVzdChHUElPX0lSUSwg
+IkdQSU9fMTMzIik7CS8qIGV4LiBHUElPXzEzMyBmb3IgaW50ZXJydXB0IG1vZGUgKi8NCisJaWYg
+KHJldCA8IDApDQorCXsNCisJCS8qIFNldCBBY3RpdmUgTG93LiBQbGVhc2UgcmVmZXJlbmNlIHRo
+ZSBmaWxlIGluY2x1ZGUvbGludXgvaW50ZXJydXB0LmggKi8NCisJfQ0KKwkvKiBzZXR0aW5nIGdw
+aW8gZGlyZWN0aW9uIGhlcmUgT1IgYm9hcmRpbmZvIGZpbGUqLw0KKw0KKyNlbHNlDQorCXJldCA9
+IC0xOw0KKyNlbmRpZg0KKwlyZXR1cm4gcmV0Ow0KK30NCisNCit1aW50MTZfdCBjYWxfY3JjIChj
+aGFyKiBjbWQsIGludCBzdGFydCwgaW50IGVuZCkNCit7DQorCWludCBpID0gMDsNCisJdWludDE2
+X3QgY3JjID0gMDsNCisJDQorCWZvciAoaSA9IHN0YXJ0OyBpIDw9IGVuZCA7IGkrKykNCisJew0K
+KwkJY3JjID0gKGNyYzw8OCkgXiBjcmMxNnRhYlsoKGNyYz4+OCkgXiBjbWRbaV0gKSYweDAwRkZd
+Ow0KKwl9DQorCQ0KKwlyZXR1cm4gY3JjOw0KK30NCisNCit1aW50MTZfdCBjYWxfY3JjX3dpdGhf
+Y21kIChjaGFyKiBkYXRhLCBpbnQgc3RhcnQsIGludCBlbmQsIHVpbnQ4X3QgY21kKQ0KK3sNCisJ
+aW50IGkgPSAwOw0KKwl1aW50MTZfdCBjcmMgPSAwOw0KKwkNCisJY3JjID0gKGNyYzw8OCkgXiBj
+cmMxNnRhYlsoKGNyYz4+OCkgXiBjbWQpJjB4MDBGRl07DQorCWZvciAoaSA9IHN0YXJ0OyBpIDw9
+IGVuZCA7IGkrKykNCisJew0KKwkJY3JjID0gKGNyYzw8OCkgXiBjcmMxNnRhYlsoKGNyYz4+OCkg
+XiBkYXRhW2ldICkmMHgwMEZGXTsNCisJfQ0KKwkNCisJcmV0dXJuIGNyYzsNCit9DQorDQordm9p
+ZCB3cml0ZV9jcmMgKHVuc2lnbmVkIGNoYXIgKmJ1ZiwgaW50IHN0YXJ0LCBpbnQgZW5kKQ0KK3sN
+CisJdWludDE2X3QgY3JjID0gMDsNCisJDQorCWNyYyA9IGNhbF9jcmMgKGJ1Ziwgc3RhcnQgLCBl
+bmQpOw0KKwlidWZbZW5kKzFdID0gKGNyYyA+PiA4KSYgMHhmZjsNCisJYnVmW2VuZCsyXSA9IGNy
+YyAmIDB4ZmY7DQorfQ0KKw0KKyNpZmRlZiBfU1REX1JXX0lPDQorI2RlZmluZSBCVUZGRVJfU0la
+RSBNQVhfQllURQ0KK3N0YXRpYyBzc2l6ZV90IHNpc19jZGV2X3dyaXRlKCBzdHJ1Y3QgZmlsZSAq
+ZmlsZSwgY29uc3QgY2hhciBfX3VzZXIgKmJ1Ziwgc2l6ZV90IGNvdW50LCBsb2ZmX3QgKmZfcG9z
+ICkNCit7DQorCSBpbnQgcmV0ID0gMDsNCisJIGNoYXIgKmtkYXRhOw0KKwkgY2hhciBjbWQ7DQor
+CSANCisJIHByaW50ayhLRVJOX0lORk8gInNpc19jZGV2X3dyaXRlLlxuIik7DQorCSANCisJIGlm
+ICh0c19iYWsgPT0gMCkNCisgICAgCXJldHVybiAtMTM7DQorICAgIAkNCisgICAgcmV0ID0gYWNj
+ZXNzX29rKFZFUklGWV9XUklURSwgYnVmLCBCVUZGRVJfU0laRSk7DQorICAgIGlmICghcmV0KSB7
+DQorICAgICAgICBwcmludGsoS0VSTl9FUlIgImNhbm5vdCBhY2Nlc3MgdXNlciBzcGFjZSBtZW1v
+cnlcbiIpOw0KKyAgICAgICAgcmV0dXJuIC0xMTsNCisgICAgfQ0KKw0KKwkga2RhdGEgPSBrbWFs
+bG9jKEJVRkZFUl9TSVpFLCBHRlBfS0VSTkVMKTsNCisgICAgIGlmIChrZGF0YSA9PSAwKQ0KKyAg
+ICAJcmV0dXJuIC0xMjsNCisgICAgCQ0KKyAgICAgcmV0ID0gY29weV9mcm9tX3VzZXIoa2RhdGEs
+IGJ1ZiwgQlVGRkVSX1NJWkUpOw0KKyAgICAgaWYgKHJldCkgew0KKyAgICAgICAgcHJpbnRrKEtF
+Uk5fRVJSICJjb3B5X2Zyb21fdXNlciBmYWlsXG4iKTsNCisgICAgICAgIGtmcmVlKGtkYXRhKTsN
+CisgICAgICAgIHJldHVybiAtMTQ7DQorICAgICB9IA0KKyNpZiAwDQorCVByaW50QnVmZmVyKDAs
+IGNvdW50LCBrZGF0YSk7DQorI2VuZGlmDQorCQkNCisJY21kID0ga2RhdGFbNl07DQorDQorLyog
+V3JpdGUgJiBSZWFkICovDQorICAgIHJldCA9IHNpc19jb21tYW5kX2Zvcl93cml0ZSh0c19iYWst
+PmNsaWVudCwgY291bnQsIGtkYXRhKTsNCisgICAgaWYgKHJldCA8IDApIHsNCisgICAgICAgIHBy
+aW50ayhLRVJOX0VSUiAiaTJjX3RyYW5zZmVyIHdyaXRlIGVycm9yICVkXG4iLCByZXQpOw0KKwkJ
+a2ZyZWUoa2RhdGEpOw0KKwkJcmV0dXJuIC0yMTsNCisJfQ0KKw0KKyAgICBpZiAoIGNvcHlfdG9f
+dXNlcigoY2hhciopIGJ1Ziwga2RhdGEsIEJVRkZFUl9TSVpFICkgKQ0KKyAgICB7DQorICAgICAg
+ICBwcmludGsoS0VSTl9FUlIgImNvcHlfdG9fdXNlciBmYWlsXG4iICk7DQorICAgICAgICByZXQg
+PSAtMTk7DQorICAgIH0NCisNCisgICAga2ZyZWUoIGtkYXRhICk7DQorDQorCXJldHVybiByZXQ7
+DQorfQ0KKw0KKy8qIGZvciBnZXQgc3lzdGVtIHRpbWUgKi8NCitzdGF0aWMgc3NpemVfdCBzaXNf
+Y2Rldl9yZWFkKCBzdHJ1Y3QgZmlsZSAqZmlsZSwgY2hhciBfX3VzZXIgKmJ1Ziwgc2l6ZV90IGNv
+dW50LCBsb2ZmX3QgKmZfcG9zICkNCit7DQorCSBpbnQgcmV0ID0gMDsNCisJIGNoYXIgKmtkYXRh
+Ow0KKwkgY2hhciBjbWQ7DQorCSBpbnQgaTsNCisJIA0KKwkgcHJpbnRrKEtFUk5fSU5GTyAic2lz
+X2NkZXZfcmVhZC5cbiIpOw0KKwkgDQorCSBpZiAodHNfYmFrID09IDApDQorICAgIAlyZXR1cm4g
+LTEzOw0KKyAgICAJDQorICAgIHJldCA9IGFjY2Vzc19vayhWRVJJRllfV1JJVEUsIGJ1ZiwgQlVG
+RkVSX1NJWkUpOw0KKyAgICBpZiAoIXJldCkgew0KKyAgICAgICAgcHJpbnRrKEtFUk5fRVJSICJj
+YW5ub3QgYWNjZXNzIHVzZXIgc3BhY2UgbWVtb3J5XG4iKTsNCisgICAgICAgIHJldHVybiAtMTE7
+DQorICAgIH0NCisNCisJIGtkYXRhID0ga21hbGxvYyhCVUZGRVJfU0laRSwgR0ZQX0tFUk5FTCk7
+DQorICAgICBpZiAoa2RhdGEgPT0gMCkNCisgICAgCXJldHVybiAtMTI7DQorICAgIAkNCisgICAg
+IHJldCA9IGNvcHlfZnJvbV91c2VyKGtkYXRhLCBidWYsIEJVRkZFUl9TSVpFKTsNCisgICAgIGlm
+IChyZXQpIHsNCisgICAgICAgIHByaW50ayhLRVJOX0VSUiAiY29weV9mcm9tX3VzZXIgZmFpbFxu
+Iik7DQorICAgICAgICBrZnJlZShrZGF0YSk7DQorICAgICAgICByZXR1cm4gLTE0Ow0KKyAgICAg
+fSAgICANCisjaWYgMA0KKyAgICBQcmludEJ1ZmZlcigwLCBjb3VudCwga2RhdGEpOw0KKyNlbmRp
+Zg0KKwkgY21kID0ga2RhdGFbNl07DQorCSAvKiBmb3IgbWFraW5nIHN1cmUgQVAgY29tbXVuaWNh
+dGVzIHdpdGggU2lTIGRyaXZlciAqLw0KKyAgICBpZihjbWQgPT0gMHhhMikNCisgICAgew0KKwkJ
+a2RhdGFbMF0gPSA1Ow0KKwkJa2RhdGFbMV0gPSAwOw0KKwkJa2RhdGFbM10gPSAnUyc7DQorCQlr
+ZGF0YVs0XSA9ICdpJzsNCisJCWtkYXRhWzVdID0gJ1MnOw0KKwkJaWYgKCBjb3B5X3RvX3VzZXIo
+KGNoYXIqKSBidWYsIGtkYXRhLCBCVUZGRVJfU0laRSApICkNCisJCXsNCisJCQlwcmludGsoS0VS
+Tl9FUlIgImNvcHlfdG9fdXNlciBmYWlsXG4iICk7DQorCQkJa2ZyZWUoIGtkYXRhICk7DQorCQkJ
+cmV0dXJuIC0xOTsNCisJCX0NCisNCisJCWtmcmVlKCBrZGF0YSApOw0KKwkJcmV0dXJuIDM7CQ0K
+Kwl9DQorLyogV3JpdGUgJiBSZWFkICovDQorICAgIHJldCA9IHNpc19jb21tYW5kX2Zvcl9yZWFk
+KHRzX2Jhay0+Y2xpZW50LCBNQVhfQllURSwga2RhdGEpOw0KKyAgICBpZiAocmV0IDwgMCkgew0K
+KyAgICAgICAgcHJpbnRrKEtFUk5fRVJSICJpMmNfdHJhbnNmZXIgcmVhZCBlcnJvciAlZFxuIiwg
+cmV0KTsNCisJCWtmcmVlKGtkYXRhKTsNCisJCXJldHVybiAtMjE7DQorCX0NCisNCisJcmV0ID0g
+a2RhdGFbMF0gfCAoa2RhdGFbMV0gPDwgOCk7DQorDQorICAgIHByaW50ayhLRVJOX0lORk8gIiVk
+XG4iLCByZXQpOw0KKw0KKyAgICBmb3IgKCBpID0gMDsgaSA8IHJldCAmJiBpIDwgQlVGRkVSX1NJ
+WkU7IGkrKyApDQorICAgIHsNCisgICAgICAgIHByaW50aygiJTAyeCAiLCBrZGF0YVtpXSk7DQor
+ICAgIH0NCisNCisgICAgcHJpbnRrKCAiXG4iICk7DQorDQorICAgIGlmICggY29weV90b191c2Vy
+KChjaGFyKikgYnVmLCBrZGF0YSwgQlVGRkVSX1NJWkUgKSApDQorICAgIHsNCisgICAgICAgIHBy
+aW50ayhLRVJOX0VSUiAiY29weV90b191c2VyIGZhaWxcbiIgKTsNCisgICAgICAgIHJldCA9IC0x
+OTsNCisgICAgfQ0KKw0KKyAgICBrZnJlZSgga2RhdGEgKTsNCisNCisJcmV0dXJuIHJldDsNCit9
+DQorDQorI3VuZGVmIEJVRkZFUl9TSVpFDQorDQorc3RhdGljIGludCBzaXNfY2Rldl9vcGVuKHN0
+cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxwKQ0KK3sNCisJcHJpbnRrKEtFUk5f
+SU5GTyAic2lzX2NkZXZfb3Blbi5cbiIpOw0KKwlpZiAoIHRzX2JhayA9PSAwICkNCisgICAgCXJl
+dHVybiAtMTM7DQorDQorCW1zbGVlcCgyMDApOw0KKwlpZiAodHNfYmFrLT51c2VfaXJxKQ0KKwl7
+DQorI2lmICggTElOVVhfVkVSU0lPTl9DT0RFIDwgS0VSTkVMX1ZFUlNJT04gKDIsIDYsIDM5KSAp
+DQorICAgICAgICBpZiAoKHRzX2Jhay0+ZGVzYy0+c3RhdHVzICYgSVJRX0RJU0FCTEVEKSA9PSBJ
+UlFfU1RBVFVTX0VOQUJMRUQpDQorI2Vsc2UNCisJCWlmICgodHNfYmFrLT5kZXNjLT5pcnFfZGF0
+YS5zdGF0ZV91c2VfYWNjZXNzb3JzICYgSVJRRF9JUlFfRElTQUJMRUQpID09IElSUV9TVEFUVVNf
+RU5BQkxFRCkNCisjZW5kaWYJDQorCQl7DQorCQkJZGlzYWJsZV9pcnEodHNfYmFrLT5jbGllbnQt
+PmlycSk7DQorCQl9DQorCQllbHNlDQorCQl7DQorI2lmICggTElOVVhfVkVSU0lPTl9DT0RFIDwg
+S0VSTkVMX1ZFUlNJT04gKDIsIDYsIDM5KSApDQorCQkJcHJpbnRrKEtFUk5fSU5GTyAic2lzX2Nk
+ZXZfb3BlbjogSVJRX1NUQVRVUzogJXhcbiIsKHRzX2Jhay0+ZGVzYy0+c3RhdHVzICYgSVJRX0RJ
+U0FCTEVEKSk7DQorI2Vsc2UNCisJCQlwcmludGsoS0VSTl9JTkZPICJzaXNfY2Rldl9vcGVuOiBJ
+UlFfU1RBVFVTOiAleFxuIiwodHNfYmFrLT5kZXNjLT5pcnFfZGF0YS5zdGF0ZV91c2VfYWNjZXNz
+b3JzICYgSVJRRF9JUlFfRElTQUJMRUQpKTsNCisjZW5kaWYJDQorCQl9DQorCX0NCisJaHJ0aW1l
+cl9jYW5jZWwoJnRzX2Jhay0+dGltZXIpOw0KKw0KKwkvKiBvbmx5IGZsdXNoIHNpc193cSAqLw0K
+KwlmbHVzaF93b3JrcXVldWUoc2lzX3dxKTsgCSAgIA0KKyAgICANCisgICAgbXNsZWVwKDIwMCk7
+DQorDQorCXJldHVybiAwOyAvKiBzdWNjZXNzICovDQorfQ0KKw0KK3N0YXRpYyBpbnQgc2lzX2Nk
+ZXZfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlscCkNCit7DQor
+CXByaW50ayhLRVJOX0lORk8gInNpc19jZGV2X3JlbGVhc2UuXG4iKTsNCisJDQorCW1zbGVlcCgy
+MDApOw0KKwkNCisgICAgaWYgKHRzX2JhayA9PSAwKQ0KKyAgICAJcmV0dXJuIC0xMzsNCisNCisJ
+aWYgKHRzX2Jhay0+dXNlX2lycSkNCisJew0KKyNpZiAoIExJTlVYX1ZFUlNJT05fQ09ERSA8IEtF
+Uk5FTF9WRVJTSU9OICgyLCA2LCAzOSkgKQ0KKyAgICAgICAgaWYgKCh0c19iYWstPmRlc2MtPnN0
+YXR1cyAmIElSUV9ESVNBQkxFRCkgPT0gSVJRX1NUQVRVU19ESVNBQkxFRCkNCisjZWxzZQ0KKwkJ
+aWYgKCh0c19iYWstPmRlc2MtPmlycV9kYXRhLnN0YXRlX3VzZV9hY2Nlc3NvcnMgJiBJUlFEX0lS
+UV9ESVNBQkxFRCkgPT0gSVJRX1NUQVRVU19ESVNBQkxFRCkNCisjZW5kaWYJDQorCQl7DQorCQkJ
+ZW5hYmxlX2lycSh0c19iYWstPmNsaWVudC0+aXJxKTsNCisJCX0NCisJfQ0KKwllbHNlDQorCQlo
+cnRpbWVyX3N0YXJ0KCZ0c19iYWstPnRpbWVyLCBrdGltZV9zZXQoMSwgMCksIEhSVElNRVJfTU9E
+RV9SRUwpOw0KKw0KKyAgICByZXR1cm4gMDsNCit9DQorDQorc3RhdGljIGNvbnN0IHN0cnVjdCBm
+aWxlX29wZXJhdGlvbnMgc2lzX2NkZXZfZm9wcyA9IHsNCisJLm93bmVyCT0gVEhJU19NT0RVTEUs
+DQorCS5yZWFkCT0gc2lzX2NkZXZfcmVhZCwNCisJLndyaXRlCT0gc2lzX2NkZXZfd3JpdGUsDQor
+CS5vcGVuCT0gc2lzX2NkZXZfb3BlbiwNCisJLnJlbGVhc2U9IHNpc19jZGV2X3JlbGVhc2UsDQor
+fTsNCisNCitzdGF0aWMgaW50IHNpc19zZXR1cF9jaGFyZGV2KHN0cnVjdCBzaXNfdHNfZGF0YSAq
+dHMpDQorew0KKwkNCisJZGV2X3QgZGV2ID0gTUtERVYoc2lzX2NoYXJfbWFqb3IsIDApOw0KKwlp
+bnQgYWxsb2NfcmV0ID0gMDsNCisJaW50IGNkZXZfZXJyID0gMDsNCisJaW50IGlucHV0X2VyciA9
+IDA7DQorCXN0cnVjdCBkZXZpY2UgKmNsYXNzX2RldiA9IE5VTEw7DQorCXZvaWQgKnB0cl9lcnI7
+DQorCQ0KKwlwcmludGsoInNpc19zZXR1cF9jaGFyZGV2LlxuIik7DQorCQ0KKwlpZiAodHMgPT0g
+TlVMTCkgDQorCXsNCisJICBpbnB1dF9lcnIgPSAtRU5PTUVNOw0KKwkgIGdvdG8gZXJyb3I7DQor
+CX0gDQorCS8qIGR5bmFtaWMgYWxsb2NhdGUgZHJpdmVyIGhhbmRsZSAqLw0KKwlhbGxvY19yZXQg
+PSBhbGxvY19jaHJkZXZfcmVnaW9uKCZkZXYsIDAsIHNpc19jaGFyX2RldnNfY291bnQsIERFVklD
+RV9OQU1FKTsNCisJaWYgKGFsbG9jX3JldCkNCisJCWdvdG8gZXJyb3I7DQorCQkNCisJc2lzX2No
+YXJfbWFqb3IgPSBNQUpPUihkZXYpOw0KKwljZGV2X2luaXQoJnNpc19jaGFyX2NkZXYsICZzaXNf
+Y2Rldl9mb3BzKTsNCisJc2lzX2NoYXJfY2Rldi5vd25lciA9IFRISVNfTU9EVUxFOw0KKwljZGV2
+X2VyciA9IGNkZXZfYWRkKCZzaXNfY2hhcl9jZGV2LCBNS0RFVihzaXNfY2hhcl9tYWpvciwgMCks
+IHNpc19jaGFyX2RldnNfY291bnQpOw0KKwkNCisJaWYgKGNkZXZfZXJyKSANCisJCWdvdG8gZXJy
+b3I7DQorCQ0KKwlwcmludGsoS0VSTl9JTkZPICIlcyBkcml2ZXIobWFqb3IgJWQpIGluc3RhbGxl
+ZC5cbiIsIERFVklDRV9OQU1FLCBzaXNfY2hhcl9tYWpvcik7DQorCQ0KKwkvKiByZWdpc3RlciBj
+bGFzcyAqLw0KKwlzaXNfY2hhcl9jbGFzcyA9IGNsYXNzX2NyZWF0ZShUSElTX01PRFVMRSwgREVW
+SUNFX05BTUUpOw0KKwlpZihJU19FUlIocHRyX2VyciA9IHNpc19jaGFyX2NsYXNzKSkgDQorCXsN
+CisJCWdvdG8gZXJyMjsNCisJfQ0KKwkNCisJY2xhc3NfZGV2ID0gZGV2aWNlX2NyZWF0ZShzaXNf
+Y2hhcl9jbGFzcywgTlVMTCwgTUtERVYoc2lzX2NoYXJfbWFqb3IsIDApLCBOVUxMLCBERVZJQ0Vf
+TkFNRSk7DQorCQ0KKwlpZihJU19FUlIocHRyX2VyciA9IGNsYXNzX2RldikpIA0KKwl7DQorCQln
+b3RvIGVycjsNCisJfQ0KKwkNCisJcmV0dXJuIDA7DQorZXJyb3I6DQorCWlmIChjZGV2X2VyciA9
+PSAwKQ0KKwkJY2Rldl9kZWwoJnNpc19jaGFyX2NkZXYpOw0KKwlpZiAoYWxsb2NfcmV0ID09IDAp
+DQorCQl1bnJlZ2lzdGVyX2NocmRldl9yZWdpb24oTUtERVYoc2lzX2NoYXJfbWFqb3IsIDApLCBz
+aXNfY2hhcl9kZXZzX2NvdW50KTsNCisJaWYoaW5wdXRfZXJyICE9IDApDQorCXsNCisJCXByaW50
+aygic2lzX3RzX2JhayBlcnJvciFcbiIpOw0KKwl9DQorZXJyOg0KKwlkZXZpY2VfZGVzdHJveShz
+aXNfY2hhcl9jbGFzcywgTUtERVYoc2lzX2NoYXJfbWFqb3IsIDApKTsNCitlcnIyOg0KKwljbGFz
+c19kZXN0cm95KHNpc19jaGFyX2NsYXNzKTsNCisJcmV0dXJuIC0xOw0KK30NCisjZW5kaWYNCisN
+CitzdGF0aWMgaW50IHNpc190c19wcm9iZSgNCisJc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwg
+Y29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgKmlkKQ0KK3sNCisJaW50IHJldCA9IDA7DQorCXN0
+cnVjdCBzaXNfdHNfZGF0YSAqdHMgPSBOVUxMOw0KKwlzdHJ1Y3Qgc2lzX2kyY19ybWlfcGxhdGZv
+cm1fZGF0YSAqcGRhdGEgPSBOVUxMOw0KKw0KKyAgICBwcmludGsoS0VSTl9JTkZPICJzaXNfdHNf
+cHJvYmVcbiIpOw0KKw0KKyAgICBUUEluZm8gPSBremFsbG9jKHNpemVvZihzdHJ1Y3Qgc2lzVFBf
+ZHJpdmVyX2RhdGEpLCBHRlBfS0VSTkVMKTsNCisgICAgaWYgKFRQSW5mbyA9PSBOVUxMKSANCisg
+ICAgew0KKwkJcmV0ID0gLUVOT01FTTsNCisJCWdvdG8gZXJyX2FsbG9jX2RhdGFfZmFpbGVkOw0K
+Kwl9DQorDQorCXRzID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IHNpc190c19kYXRhKSwgR0ZQX0tF
+Uk5FTCk7DQorCWlmICh0cyA9PSBOVUxMKSANCisJew0KKwkJcmV0ID0gLUVOT01FTTsNCisJCWdv
+dG8gZXJyX2FsbG9jX2RhdGFfZmFpbGVkOw0KKwl9DQorDQorCXRzX2JhayA9IHRzOw0KKw0KKwlt
+dXRleF9pbml0KCZ0cy0+bXV0ZXhfd3EpOw0KKwkNCisJLyogMS4gSW5pdCBXb3JrIHF1ZXVlIGFu
+ZCBuZWNlc3NhcnkgYnVmZmVycyAqLw0KKwlJTklUX1dPUksoJnRzLT53b3JrLCBzaXNfdHNfd29y
+a19mdW5jKTsNCisJdHMtPmNsaWVudCA9IGNsaWVudDsNCisJaTJjX3NldF9jbGllbnRkYXRhKGNs
+aWVudCwgdHMpOw0KKyAgICBwZGF0YSA9IGNsaWVudC0+ZGV2LnBsYXRmb3JtX2RhdGE7DQorDQor
+CWlmIChwZGF0YSkNCisJCXRzLT5wb3dlciA9IHBkYXRhLT5wb3dlcjsNCisJaWYgKHRzLT5wb3dl
+cikgDQorCXsNCisJCXJldCA9IHRzLT5wb3dlcigxKTsNCisJCWlmIChyZXQgPCAwKSANCisJCXsN
+CisJCQlwcmludGsoS0VSTl9FUlIgInNpc190c19wcm9iZSBwb3dlciBvbiBmYWlsZWRcbiIpOw0K
+KwkJCWdvdG8gZXJyX3Bvd2VyX2ZhaWxlZDsNCisJCX0NCisJfQ0KKw0KKwkvKiAyLiBBbGxvY2F0
+ZSBpbnB1dCBkZXZpY2UgKi8NCisJdHMtPmlucHV0X2RldiA9IGlucHV0X2FsbG9jYXRlX2Rldmlj
+ZSgpOw0KKwlpZiAodHMtPmlucHV0X2RldiA9PSBOVUxMKSANCisJew0KKwkJcmV0ID0gLUVOT01F
+TTsNCisJCXByaW50ayhLRVJOX0VSUiAic2lzX3RzX3Byb2JlOiBGYWlsZWQgdG8gYWxsb2NhdGUg
+aW5wdXQgZGV2aWNlXG4iKTsNCisJCWdvdG8gZXJyX2lucHV0X2Rldl9hbGxvY19mYWlsZWQ7DQor
+CX0NCisNCisJLyogVGhpcyBpbnB1dCBkZXZpY2UgbmFtZSBzaG91bGQgYmUgdGhlIHNhbWUgdG8g
+SURDIGZpbGUgbmFtZS4gKi8NCisJdHMtPmlucHV0X2Rldi0+bmFtZSA9ICJzaXNfdG91Y2giOw0K
+Kw0KKwlzZXRfYml0KEVWX0FCUywgdHMtPmlucHV0X2Rldi0+ZXZiaXQpOw0KKwlzZXRfYml0KEVW
+X0tFWSwgdHMtPmlucHV0X2Rldi0+ZXZiaXQpOw0KKyAgICBzZXRfYml0KEFCU19NVF9QT1NJVElP
+Tl9YLCB0cy0+aW5wdXRfZGV2LT5hYnNiaXQpOw0KKyAgICBzZXRfYml0KEFCU19NVF9QT1NJVElP
+Tl9ZLCB0cy0+aW5wdXRfZGV2LT5hYnNiaXQpOw0KKyAgICBzZXRfYml0KEFCU19NVF9UUkFDS0lO
+R19JRCwgdHMtPmlucHV0X2Rldi0+YWJzYml0KTsNCisNCisjaWZkZWYgX0FORFJPSURfNA0KKwlz
+ZXRfYml0KElOUFVUX1BST1BfRElSRUNULCB0cy0+aW5wdXRfZGV2LT5wcm9wYml0KTsNCisgICAg
+c2V0X2JpdChBQlNfTVRfUFJFU1NVUkUsIHRzLT5pbnB1dF9kZXYtPmFic2JpdCk7DQorICAgIHNl
+dF9iaXQoQUJTX01UX1RPVUNIX01BSk9SLCB0cy0+aW5wdXRfZGV2LT5hYnNiaXQpOw0KKyAgICBz
+ZXRfYml0KEFCU19NVF9UT1VDSF9NSU5PUiwgdHMtPmlucHV0X2Rldi0+YWJzYml0KTsNCisgICAg
+aW5wdXRfc2V0X2Fic19wYXJhbXModHMtPmlucHV0X2RldiwgQUJTX01UX1BSRVNTVVJFLCAwLCBQ
+UkVTU1VSRV9NQVgsIDAsIDApOw0KKyAgICBpbnB1dF9zZXRfYWJzX3BhcmFtcyh0cy0+aW5wdXRf
+ZGV2LCBBQlNfTVRfVE9VQ0hfTUFKT1IsIDAsIEFSRUFfTEVOR1RIX0xPTkdFUiwgMCwgMCk7DQor
+ICAgIGlucHV0X3NldF9hYnNfcGFyYW1zKHRzLT5pbnB1dF9kZXYsIEFCU19NVF9UT1VDSF9NSU5P
+UiwgMCwgQVJFQV9MRU5HVEhfU0hPUlQsIDAsIDApOyAgIA0KKyNlbHNlDQorICAgIHNldF9iaXQo
+QUJTX01UX1RPVUNIX01BSk9SLCB0cy0+aW5wdXRfZGV2LT5hYnNiaXQpOw0KKyAgICBzZXRfYml0
+KEFCU19NVF9XSURUSF9NQUpPUiwgdHMtPmlucHV0X2Rldi0+YWJzYml0KTsNCisgICAgc2V0X2Jp
+dChBQlNfTVRfV0lEVEhfTUlOT1IsIHRzLT5pbnB1dF9kZXYtPmFic2JpdCk7DQorICAgIGlucHV0
+X3NldF9hYnNfcGFyYW1zKHRzLT5pbnB1dF9kZXYsIEFCU19NVF9UT1VDSF9NQUpPUiwgMCwgUFJF
+U1NVUkVfTUFYLCAwLCAwKTsNCisgICAgaW5wdXRfc2V0X2Fic19wYXJhbXModHMtPmlucHV0X2Rl
+diwgQUJTX01UX1dJRFRIX01BSk9SLCAwLCBBUkVBX0xFTkdUSF9MT05HRVIsIDAsIDApOw0KKyAg
+ICBpbnB1dF9zZXRfYWJzX3BhcmFtcyh0cy0+aW5wdXRfZGV2LCBBQlNfTVRfV0lEVEhfTUlOT1Is
+IDAsIEFSRUFfTEVOR1RIX1NIT1JULCAwLCAwKTsNCisjZW5kaWYNCisNCisgICAgaW5wdXRfc2V0
+X2Fic19wYXJhbXModHMtPmlucHV0X2RldiwgQUJTX01UX1BPU0lUSU9OX1gsIDAsIFNJU19NQVhf
+WCwgMCwgMCk7DQorICAgIGlucHV0X3NldF9hYnNfcGFyYW1zKHRzLT5pbnB1dF9kZXYsIEFCU19N
+VF9QT1NJVElPTl9ZLCAwLCBTSVNfTUFYX1ksIDAsIDApOw0KKyAgICBpbnB1dF9zZXRfYWJzX3Bh
+cmFtcyh0cy0+aW5wdXRfZGV2LCBBQlNfTVRfVFJBQ0tJTkdfSUQsIDAsIDE1LCAwLCAwKTsNCisJ
+DQorICAgIC8qIGFkZCBmb3IgdG91Y2gga2V5cyAqLw0KKwlzZXRfYml0KEtFWV9DT01QT1NFLCB0
+cy0+aW5wdXRfZGV2LT5rZXliaXQpOw0KKwlzZXRfYml0KEtFWV9CQUNLLCB0cy0+aW5wdXRfZGV2
+LT5rZXliaXQpOw0KKwlzZXRfYml0KEtFWV9NRU5VLCB0cy0+aW5wdXRfZGV2LT5rZXliaXQpOw0K
+KwlzZXRfYml0KEtFWV9IT01FLCB0cy0+aW5wdXRfZGV2LT5rZXliaXQpOw0KKw0KKwkvKiAzLiBS
+ZWdpc3RlciBpbnB1dCBkZXZpY2UgdG8gY29yZSAqLw0KKwlyZXQgPSBpbnB1dF9yZWdpc3Rlcl9k
+ZXZpY2UodHMtPmlucHV0X2Rldik7DQorDQorCWlmIChyZXQpIA0KKwl7DQorCQlwcmludGsoS0VS
+Tl9FUlIgInNpc190c19wcm9iZTogVW5hYmxlIHRvIHJlZ2lzdGVyICVzIGlucHV0IGRldmljZVxu
+IiwgdHMtPmlucHV0X2Rldi0+bmFtZSk7DQorCQlnb3RvIGVycl9pbnB1dF9yZWdpc3Rlcl9kZXZp
+Y2VfZmFpbGVkOw0KKwl9DQorCQ0KKwkvKiA0LiBpcnEgb3IgdGltZXIgc2V0dXAgKi8NCisJcmV0
+ID0gaW5pdGlhbF9pcnEoKTsNCisJaWYgKHJldCA8IDApIA0KKwl7DQorDQorCX0NCisJZWxzZQ0K
+Kwl7DQorCQljbGllbnQtPmlycSA9IGdwaW9fdG9faXJxKEdQSU9fSVJRKTsNCisJCXJldCA9IHJl
+cXVlc3RfaXJxKGNsaWVudC0+aXJxLCBzaXNfdHNfaXJxX2hhbmRsZXIsIElSUUZfVFJJR0dFUl9G
+QUxMSU5HLCBjbGllbnQtPm5hbWUsIHRzKTsNCisJCWlmIChyZXQgPT0gMCkgDQorCQl7DQorCQkg
+ICB0cy0+dXNlX2lycSA9IDE7DQorCQl9DQorCQllbHNlIA0KKwkJew0KKwkJCWRldl9lcnIoJmNs
+aWVudC0+ZGV2LCAicmVxdWVzdF9pcnEgZmFpbGVkXG4iKTsNCisJCX0NCisJfQ0KKw0KKwl0cy0+
+ZGVzYyA9IGlycV90b19kZXNjKHRzX2Jhay0+Y2xpZW50LT5pcnEpOw0KKwkNCisJaHJ0aW1lcl9p
+bml0KCZ0cy0+dGltZXIsIENMT0NLX01PTk9UT05JQywgSFJUSU1FUl9NT0RFX1JFTCk7DQorCXRz
+LT50aW1lci5mdW5jdGlvbiA9IHNpc190c190aW1lcl9mdW5jOw0KKw0KKwlpZiAoIXRzLT51c2Vf
+aXJxKSANCisJew0KKwkJaHJ0aW1lcl9zdGFydCgmdHMtPnRpbWVyLCBrdGltZV9zZXQoMSwgMCks
+IEhSVElNRVJfTU9ERV9SRUwpOw0KKwl9DQorDQorI2lmZGVmIENPTkZJR19IQVNfRUFSTFlTVVNQ
+RU5EDQorCXRzLT5lYXJseV9zdXNwZW5kLmxldmVsID0gRUFSTFlfU1VTUEVORF9MRVZFTF9CTEFO
+S19TQ1JFRU4gKyAxOw0KKwl0cy0+ZWFybHlfc3VzcGVuZC5zdXNwZW5kID0gc2lzX3RzX2Vhcmx5
+X3N1c3BlbmQ7DQorCXRzLT5lYXJseV9zdXNwZW5kLnJlc3VtZSA9IHNpc190c19sYXRlX3Jlc3Vt
+ZTsNCisJcmVnaXN0ZXJfZWFybHlfc3VzcGVuZCgmdHMtPmVhcmx5X3N1c3BlbmQpOw0KKyNlbmRp
+Zg0KKwlwcmludGsoS0VSTl9JTkZPICJzaXNfdHNfcHJvYmU6IFN0YXJ0IHRvdWNoc2NyZWVuICVz
+IGluICVzIG1vZGVcbiIsIHRzLT5pbnB1dF9kZXYtPm5hbWUsIHRzLT51c2VfaXJxID8gImludGVy
+cnVwdCIgOiAicG9sbGluZyIpOw0KKwkNCisJaWYgKHRzLT51c2VfaXJxKQ0KKwl7DQorI2lmZGVm
+IF9JTlRfTU9ERV8xDQorCQlwcmludGsoS0VSTl9JTkZPICJzaXNfdHNfcHJvYmU6IGludGVycnVw
+dCBjYXNlIDEgbW9kZVxuIik7DQorI2Vsc2UNCisJCXByaW50ayhLRVJOX0lORk8gInNpc190c19w
+cm9iZTogaW50ZXJydXB0IGNhc2UgMiBtb2RlXG4iKTsNCisjZW5kaWYNCisJfQ0KKwkNCisjaWZk
+ZWYgX1NURF9SV19JTw0KKwlyZXQgPSBzaXNfc2V0dXBfY2hhcmRldih0cyk7DQorCWlmKHJldCkN
+CisJew0KKwkJcHJpbnRrKCBLRVJOX0lORk8ic2lzX3NldHVwX2NoYXJkZXYgZmFpbFxuIik7DQor
+CX0NCisjZW5kaWYNCisNCisJcHJpbnRrKCBLRVJOX0lORk8ic2lzIFNJU19TTEFWRV9BRERSOiAl
+ZFxuIiwgU0lTX1NMQVZFX0FERFIpOw0KKw0KKwlyZXR1cm4gMDsNCisNCitlcnJfaW5wdXRfcmVn
+aXN0ZXJfZGV2aWNlX2ZhaWxlZDoNCisJaW5wdXRfZnJlZV9kZXZpY2UodHMtPmlucHV0X2Rldik7
+DQorDQorZXJyX2lucHV0X2Rldl9hbGxvY19mYWlsZWQ6DQorZXJyX3Bvd2VyX2ZhaWxlZDoNCisJ
+a2ZyZWUodHMpOw0KK2Vycl9hbGxvY19kYXRhX2ZhaWxlZDoNCisJcmV0dXJuIHJldDsNCit9DQor
+DQorc3RhdGljIGludCBzaXNfdHNfcmVtb3ZlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpDQor
+ew0KKwlzdHJ1Y3Qgc2lzX3RzX2RhdGEgKnRzID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7
+DQorCQ0KKyNpZmRlZiBDT05GSUdfSEFTX0VBUkxZU1VTUEVORA0KKwl1bnJlZ2lzdGVyX2Vhcmx5
+X3N1c3BlbmQoJnRzLT5lYXJseV9zdXNwZW5kKTsNCisjZW5kaWYNCisJaWYgKHRzLT51c2VfaXJx
+KQ0KKwkJZnJlZV9pcnEoY2xpZW50LT5pcnEsIHRzKTsNCisJZWxzZQ0KKwkJaHJ0aW1lcl9jYW5j
+ZWwoJnRzLT50aW1lcik7DQorCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKHRzLT5pbnB1dF9kZXYp
+Ow0KKwlrZnJlZSh0cyk7DQorCQ0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RhdGljIGludCBzaXNf
+dHNfc3VzcGVuZChzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LCBwbV9tZXNzYWdlX3QgbWVzZykN
+Cit7DQorCWludCByZXQgPSAwOw0KKwlzdHJ1Y3Qgc2lzX3RzX2RhdGEgKnRzID0gaTJjX2dldF9j
+bGllbnRkYXRhKGNsaWVudCk7DQorDQorCVRQSW5mby0+cHJlX2tleWJpdF9zdGF0ZSA9IDB4MDsN
+CisNCisJaWYgKHRzLT51c2VfaXJxKQ0KKwl7DQorI2lmICggTElOVVhfVkVSU0lPTl9DT0RFIDwg
+S0VSTkVMX1ZFUlNJT04gKDIsIDYsIDM5KSApDQorCQlpZiAoKHRzLT5kZXNjLT5zdGF0dXMgJiBJ
+UlFfRElTQUJMRUQpID09IElSUV9TVEFUVVNfRU5BQkxFRCkNCisjZWxzZQ0KKwkJaWYgKCh0cy0+
+ZGVzYy0+aXJxX2RhdGEuc3RhdGVfdXNlX2FjY2Vzc29ycyAmIElSUURfSVJRX0RJU0FCTEVEKSA9
+PSBJUlFfU1RBVFVTX0VOQUJMRUQpDQorI2VuZGlmDQorCQl7DQorCQkJZGlzYWJsZV9pcnEoY2xp
+ZW50LT5pcnEpOw0KKwkJfQ0KKwl9DQorCWVsc2UNCisJCWhydGltZXJfY2FuY2VsKCZ0cy0+dGlt
+ZXIpOw0KKwkvKiBvbmx5IGZsdXNoIHNpc193cSAqLw0KKwlmbHVzaF93b3JrcXVldWUoc2lzX3dx
+KTsgCSAgIAkJDQorDQorCWlmICh0cy0+cG93ZXIpIHsNCisJCXJldCA9IHRzLT5wb3dlcigwKTsN
+CisJCWlmIChyZXQgPCAwKQ0KKwkJCXByaW50ayhLRVJOX0VSUiAic2lzX3RzX3N1c3BlbmQgcG93
+ZXIgb2ZmIGZhaWxlZFxuIik7DQorCX0NCisJDQorCXJldHVybiAwOw0KK30NCisNCitzdGF0aWMg
+aW50IHNpc190c19yZXN1bWUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCkNCit7DQorCWludCBy
+ZXQgPSAwOw0KKwlzdHJ1Y3Qgc2lzX3RzX2RhdGEgKnRzID0gaTJjX2dldF9jbGllbnRkYXRhKGNs
+aWVudCk7DQorDQorCWlmICh0cy0+cG93ZXIpDQorCXsNCisJCXJldCA9IHRzLT5wb3dlcigxKTsN
+CisJCWlmIChyZXQgPCAwKQ0KKwkJCXByaW50ayhLRVJOX0VSUiAic2lzX3RzX3Jlc3VtZSBwb3dl
+ciBvbiBmYWlsZWRcbiIpOw0KKwl9DQorDQorCWlmICh0cy0+dXNlX2lycSkNCisJew0KKyNpZiAo
+IExJTlVYX1ZFUlNJT05fQ09ERSA8IEtFUk5FTF9WRVJTSU9OICgyLCA2LCAzOSkgKQ0KKwkJaWYg
+KCh0cy0+ZGVzYy0+c3RhdHVzICYgSVJRX0RJU0FCTEVEKSA9PSBJUlFfU1RBVFVTX0RJU0FCTEVE
+KQ0KKyNlbHNlDQorCQlpZiAoKHRzLT5kZXNjLT5pcnFfZGF0YS5zdGF0ZV91c2VfYWNjZXNzb3Jz
+ICYgSVJRRF9JUlFfRElTQUJMRUQpID09IElSUV9TVEFUVVNfRElTQUJMRUQpDQorI2VuZGlmDQor
+CQl7DQorCQkJZW5hYmxlX2lycShjbGllbnQtPmlycSk7DQorCQl9DQorCX0NCisJZWxzZQ0KKwkJ
+aHJ0aW1lcl9zdGFydCgmdHMtPnRpbWVyLCBrdGltZV9zZXQoMSwgMCksIEhSVElNRVJfTU9ERV9S
+RUwpOw0KKw0KKwlyZXR1cm4gMDsNCit9DQorDQorI2lmZGVmIENPTkZJR19IQVNfRUFSTFlTVVNQ
+RU5EDQorc3RhdGljIHZvaWQgc2lzX3RzX2Vhcmx5X3N1c3BlbmQoc3RydWN0IGVhcmx5X3N1c3Bl
+bmQgKmgpDQorew0KKwlzdHJ1Y3Qgc2lzX3RzX2RhdGEgKnRzOw0KKwkNCisJVFBJbmZvLT5wcmVf
+a2V5Yml0X3N0YXRlID0gMHgwOw0KKwl0cyA9IGNvbnRhaW5lcl9vZihoLCBzdHJ1Y3Qgc2lzX3Rz
+X2RhdGEsIGVhcmx5X3N1c3BlbmQpOw0KKwlzaXNfdHNfc3VzcGVuZCh0cy0+Y2xpZW50LCBQTVNH
+X1NVU1BFTkQpOw0KK30NCisNCitzdGF0aWMgdm9pZCBzaXNfdHNfbGF0ZV9yZXN1bWUoc3RydWN0
+IGVhcmx5X3N1c3BlbmQgKmgpDQorew0KKwlzdHJ1Y3Qgc2lzX3RzX2RhdGEgKnRzOw0KKwkNCisJ
+dHMgPSBjb250YWluZXJfb2YoaCwgc3RydWN0IHNpc190c19kYXRhLCBlYXJseV9zdXNwZW5kKTsN
+CisJc2lzX3RzX3Jlc3VtZSh0cy0+Y2xpZW50KTsNCit9DQorI2VuZGlmDQorDQorc3RhdGljIGNv
+bnN0IHN0cnVjdCBpMmNfZGV2aWNlX2lkIHNpc190c19pZFtdID0gew0KKwl7IFNJU19JMkNfTkFN
+RSwgMCB9LA0KKwl7IH0NCit9Ow0KKw0KK01PRFVMRV9ERVZJQ0VfVEFCTEUoaTJjLCBzaXNfdHNf
+aWQpOw0KKw0KK3N0YXRpYyBzdHJ1Y3QgaTJjX2RyaXZlciBzaXNfdHNfZHJpdmVyID0gew0KKwku
+cHJvYmUJCT0gc2lzX3RzX3Byb2JlLA0KKwkucmVtb3ZlCQk9IHNpc190c19yZW1vdmUsDQorI2lm
+bmRlZiBDT05GSUdfSEFTX0VBUkxZU1VTUEVORA0KKwkuc3VzcGVuZAk9IHNpc190c19zdXNwZW5k
+LA0KKwkucmVzdW1lCQk9IHNpc190c19yZXN1bWUsDQorI2VuZGlmDQorI2lmZGVmIENPTkZJR19Y
+ODYNCisgICAgLmNsYXNzICAgICAgPSBJMkNfQ0xBU1NfSFdNT04sDQorICAgIC5kZXRlY3QJCT0g
+c2lzX3RzX2RldGVjdCwNCisJLmFkZHJlc3NfbGlzdAk9IG5vcm1hbF9pMmMsDQorI2VuZGlmDQor
+CS5pZF90YWJsZQk9IHNpc190c19pZCwNCisJLmRyaXZlciA9IHsNCisJCS5uYW1lCT0gU0lTX0ky
+Q19OQU1FLA0KKwl9LA0KK307DQorDQorc3RhdGljIGludCBfX2luaXQgc2lzX3RzX2luaXQodm9p
+ZCkNCit7DQorCXByaW50ayggS0VSTl9JTkZPICJzaXNfdHNfaW5pdFxuIiApOw0KKwkNCisJc2lz
+X3dxID0gY3JlYXRlX3NpbmdsZXRocmVhZF93b3JrcXVldWUoInNpc193cSIpOw0KKw0KKwlpZiAo
+IXNpc193cSkNCisJCXJldHVybiAtRU5PTUVNOw0KKwkJDQorCXJldHVybiBpMmNfYWRkX2RyaXZl
+cigmc2lzX3RzX2RyaXZlcik7DQorfQ0KKw0KKyNpZmRlZiBDT05GSUdfWDg2DQorLyogUmV0dXJu
+IDAgaWYgZGV0ZWN0aW9uIGlzIHN1Y2Nlc3NmdWwsIC1FTk9ERVYgb3RoZXJ3aXNlICovDQorc3Rh
+dGljIGludCBzaXNfdHNfZGV0ZWN0KHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsDQorCQkgICAg
+ICAgc3RydWN0IGkyY19ib2FyZF9pbmZvICppbmZvKQ0KK3sNCisJY29uc3QgY2hhciAqdHlwZV9u
+YW1lOw0KKwkNCisgICAgcHJpbnRrKEtFUk5fSU5GTyAic2lzX3RzX2RldGVjdFxuIik7DQorCQ0K
+Kwl0eXBlX25hbWUgPSAic2lzX2kyY190cyI7DQorCXN0cmxjcHkoaW5mby0+dHlwZSwgdHlwZV9u
+YW1lLCBJMkNfTkFNRV9TSVpFKTsNCisJDQorCXJldHVybiAwOw0KK30NCisjZW5kaWYNCisNCitz
+dGF0aWMgdm9pZCBfX2V4aXQgc2lzX3RzX2V4aXQodm9pZCkNCit7DQorI2lmZGVmIF9TVERfUldf
+SU8NCisJZGV2X3QgZGV2Ow0KKyNlbmRpZg0KKw0KKwlwcmludGsoS0VSTl9JTkZPICJzaXNfdHNf
+ZXhpdFxuIik7DQorCQ0KKwlpMmNfZGVsX2RyaXZlcigmc2lzX3RzX2RyaXZlcik7DQorCQ0KKwlp
+ZiAoc2lzX3dxKQ0KKwkJZGVzdHJveV93b3JrcXVldWUoc2lzX3dxKTsNCisNCisjaWZkZWYgX1NU
+RF9SV19JTw0KKwlkZXYgPSBNS0RFVihzaXNfY2hhcl9tYWpvciwgMCk7DQorCWNkZXZfZGVsKCZz
+aXNfY2hhcl9jZGV2KTsNCisJdW5yZWdpc3Rlcl9jaHJkZXZfcmVnaW9uKGRldiwgc2lzX2NoYXJf
+ZGV2c19jb3VudCk7DQorCWRldmljZV9kZXN0cm95KHNpc19jaGFyX2NsYXNzLCBNS0RFVihzaXNf
+Y2hhcl9tYWpvciwgMCkpOw0KKwljbGFzc19kZXN0cm95KHNpc19jaGFyX2NsYXNzKTsNCisjZW5k
+aWYNCit9DQorDQorbW9kdWxlX2luaXQoc2lzX3RzX2luaXQpOw0KK21vZHVsZV9leGl0KHNpc190
+c19leGl0KTsNCitNT0RVTEVfREVTQ1JJUFRJT04oIlNpUyA5MjAwIEZhbWlseSBUb3VjaHNjcmVl
+biBEcml2ZXIiKTsNCitNT0RVTEVfTElDRU5TRSgiR1BMIik7DQpkaWZmIC0tZ2l0IGEvbGludXgt
+My4xOC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vc2lzX2kyYy5oIGIvbGludXgtMy4xOC4x
+L2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vc2lzX2kyYy5oDQpuZXcgZmlsZSBtb2RlIDEwMDY0
+NA0KaW5kZXggMDAwMDAwMC4uYzFkNjVjNA0KLS0tIC9kZXYvbnVsbA0KKysrIGIvbGludXgtMy4x
+OC4xL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vc2lzX2kyYy5oDQpAQCAtMCwwICsxLDIxNSBA
+QA0KKy8qDQorICogaW5jbHVkZS9saW51eC9zaXNfaTJjLmggLSBwbGF0Zm9ybSBkYXRhIHN0cnVj
+dHVyZSBmb3IgU2lTIDkyMDAgZmFtaWx5DQorICoNCisgKiBDb3B5cmlnaHQgKEMpIDIwMTEgU2lT
+LCBJbmMuDQorICoNCisgKiBUaGlzIHNvZnR3YXJlIGlzIGxpY2Vuc2VkIHVuZGVyIHRoZSB0ZXJt
+cyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljDQorICogTGljZW5zZSB2ZXJzaW9uIDIsIGFzIHB1
+Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBhbmQNCisgKiBtYXkgYmUg
+Y29waWVkLCBkaXN0cmlidXRlZCwgYW5kIG1vZGlmaWVkIHVuZGVyIHRob3NlIHRlcm1zLg0KKyAq
+DQorICogVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2ls
+bCBiZSB1c2VmdWwsDQorICogYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4g
+dGhlIGltcGxpZWQgd2FycmFudHkgb2YNCisgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBG
+T1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuICBTZWUgdGhlDQorICogR05VIEdlbmVyYWwgUHVibGlj
+IExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4NCisgKg0KKyAqIERhdGU6IDIwMTUvMDEvMTUNCisg
+KiBWZXJzaW9uOglBbmRyb2lkX3YyLjA1LjAwLUE2MzktMTExMw0KKyAqLw0KKyNpbmNsdWRlIDxs
+aW51eC92ZXJzaW9uLmg+DQorDQorI2lmbmRlZiBfTElOVVhfU0lTX0kyQ19IDQorI2RlZmluZSBf
+TElOVVhfU0lTX0kyQ19IDQorDQorDQorI2RlZmluZSBTSVNfSTJDX05BTUUgInNpc19pMmNfdHMi
+DQorI2RlZmluZSBTSVNfU0xBVkVfQUREUgkJCQkJMHg1Yw0KKyNkZWZpbmUgVElNRVJfTlMgICAg
+CQkJCQkxMDAwMDAwMCAvLzEwbXMNCisjZGVmaW5lIE1BWF9GSU5HRVJTCQkJCQkJMTANCisNCisN
+CisvKiBGb3IgQW5kcm9pZCA0LjAgCQkJCQkJCSovDQorLyogT25seSBmb3IgTGludXgga2VybmVs
+IDIuNi4zNCBhbmQgbGF0ZXIgCSovDQorI2RlZmluZSBfQU5EUk9JRF80CQkJCQkvLyAgT04vT0ZG
+DQorDQorLyogRm9yIHN0YW5kYXJkIFIvVyBJTyovDQorI2RlZmluZSBfU1REX1JXX0lPCQkJCQkJ
+Ly8gIE9OL09GRg0KKw0KKy8qIEludGVycnVwdCBzZXR0aW5nIGFuZCBtb2RlcyAqLw0KKyNkZWZp
+bmUgX0kyQ19JTlRfRU5BQkxFCQkJCQkvLyAgT04vT0ZGDQorI2RlZmluZSBHUElPX0lSUSAJCQkJ
+CQkxMzMNCisNCisvKiAgRW5hYmxlIGlmIHVzZSBpbnRlcnJ1cHQgY2FzZSAxIG1vZGUuICAqLw0K
+Ky8qIAlEaXNhYmxlIGlmIHVzZSBpbnRlcnJ1cHQgY2FzZSAyIG1vZGUuICovDQorLy8jZGVmaW5l
+IF9JTlRfTU9ERV8xCQkJCQkvLwlPTi9PRkYNCisNCisvKiBJUlEgU1RBVFVTICovDQorI2lmICgg
+TElOVVhfVkVSU0lPTl9DT0RFIDwgS0VSTkVMX1ZFUlNJT04gKDIsIDYsIDM5KSApDQorI2RlZmlu
+ZSBJUlFfU1RBVFVTX0RJU0FCTEVECQkJCTB4MjAwICANCisjZWxzZQ0KKyNkZWZpbmUgSVJRX1NU
+QVRVU19ESVNBQkxFRAkJCQkoMTw8MTYpDQorI2VuZGlmDQorI2RlZmluZSBJUlFfU1RBVFVTX0VO
+QUJMRUQJCQkJMHgwDQorDQorLyogUmVzb2x1dGlvbiBtb2RlICovDQorLy8gQ29uc3RhbnQgdmFs
+dWUgDQorI2RlZmluZSBTSVNfTUFYX1gJCQkJCQk0MDk1DQorI2RlZmluZSBTSVNfTUFYX1kJCQkJ
+CQk0MDk1DQorDQorI2RlZmluZSBPTkVfQllURQkJCQkJCTENCisjZGVmaW5lIEZJVkVfQllURQkJ
+CQkJCTUNCisjZGVmaW5lIEVJR0hUX0JZVEUgIAkJCQkJOA0KKyNkZWZpbmUgU0lYVEVFTl9CWVRF
+CQkJCQkxNg0KKyNkZWZpbmUgUEFDS0VUX0JVRkZFUl9TSVpFCQkJCTEyOA0KKw0KKyNkZWZpbmUg
+U0lTX0NNRF9OT1JNQUwJCQkJCTB4MA0KKyNkZWZpbmUgU0lTX0NNRF9TT0ZUUkVTRVQJCQkJMHg4
+Mg0KKyNkZWZpbmUgU0lTX0NNRF9SRUNBTElCUkFURQkJCQkweDg3DQorI2RlZmluZSBTSVNfQ01E
+X1BPV0VSTU9ERSAgICAgICAJCTB4OTANCisjZGVmaW5lIE1TS19UT1VDSE5VTQkJCQkJMHgwZg0K
+KyNkZWZpbmUgTVNLX0hBU19DUkMJCQkJCQkweDEwDQorI2RlZmluZSBNU0tfREFUQUZNVAkJCQkJ
+CTB4ZTANCisjZGVmaW5lIE1TS19QU1RBVEUJCQkJCQkweDBmDQorI2RlZmluZSBNU0tfUElECSAg
+ICAgICAgICAgICAgICAJCTB4ZjANCisjZGVmaW5lIFJFU19GTVQJCQkJCQkJMHgwMA0KKyNkZWZp
+bmUgRklYX0ZNVAkJCQkJCQkweDQwDQorDQorLyogZm9yIG5ldyBpMmMgZm9ybWF0ICovDQorI2Rl
+ZmluZSBUT1VDSERPV04JCQkJCQkweDMNCisjZGVmaW5lIFRPVUNIVVAJCQkJCQkJMHgwDQorI2Rl
+ZmluZSBNQVhfQllURQkJCQkJCTY0DQorI2RlZmluZQlQUkVTU1VSRV9NQVgJCQkJCTI1NQ0KKw0K
+KyNpZmRlZiBfQU5EUk9JRF80DQorI2RlZmluZSBBUkVBX0xFTkdUSF9MT05HRVIJCQkJNTc5MiAv
+L1Jlc29sdXRpb24gZGlhZ29uYWwgDQorI2RlZmluZSBBUkVBX0xFTkdUSF9TSE9SVAkJCQk1Nzky
+IC8vICgoU0lTX01BWF9YXjIpICsgKFNJU19NQVhfWV4yKSleMC41DQorI2RlZmluZSBBUkVBX1VO
+SVQJCQkJCQkoNTc5Mi8zMikNCisjZWxzZQ0KKyNkZWZpbmUgQVJFQV9MRU5HVEhfTE9OR0VSCQkJ
+CTMxDQorI2RlZmluZSBBUkVBX0xFTkdUSF9TSE9SVAkJCQkzMQ0KKyNlbmRpZg0KKw0KKw0KKyNk
+ZWZpbmUgRk9STUFUX01PREUJCQkJCQkxDQorDQorI2RlZmluZSBNU0tfTk9CVE4JCQkJCQkwDQor
+I2RlZmluZSBNU0tfQ09NUAkJCQkJCTENCisjZGVmaW5lIE1TS19CQUNLCQkJCQkJMg0KKyNkZWZp
+bmUgTVNLX01FTlUJCQkJCQk0DQorI2RlZmluZSBNU0tfSE9NRQkJCQkJCTgNCisNCisjZGVmaW5l
+IFBfQllURUNPVU5UCQkJCQkJMCANCisjZGVmaW5lIEFMTF9JTl9PTkVfUEFDS0FHRQkJCQkweDEw
+DQorI2RlZmluZSBJU19UT1VDSCh4KQkJCQkJCSh4ICYgMHgxKQ0KKyNkZWZpbmUgSVNfSElESTJD
+KHgpCQkJCQkoeCAmIDB4NikNCisjZGVmaW5lIElTX0FSRUEoeCkJCQkJCQkoKHggPj4gNCkgJiAw
+eDEpDQorI2RlZmluZSBJU19QUkVTU1VSRSh4KQkJCQkgICAgKCh4ID4+IDUpICYgMHgxKQ0KKyNk
+ZWZpbmUgSVNfU0NBTlRJTUUoeCkJCQkgICAgICAgICgoeCA+PiA2KSAmIDB4MSkNCisvLyNkZWZp
+bmUgX0RFQlVHX1BBQ0tBR0UJCQkJLy8gIE9OL09GRg0KKy8vI2RlZmluZSBfREVCVUdfUkVQT1JU
+CQkJCQkvLyAgT04vT0ZGDQorI2RlZmluZSBOT1JNQUxfTEVOX1BFUl9QT0lOVAkJCTYNCisjZGVm
+aW5lIEFSRUFfTEVOX1BFUl9QT0lOVAkJCQkyDQorI2RlZmluZSBQUkVTU1VSRV9MRU5fUEVSX1BP
+SU5UCQkJMQ0KKw0KKy8vI2RlZmluZSBfQ0hFQ0tfQ1JDCQkJCQkvLyAgT04vT0ZGDQorLy8jZGVm
+aW5lIF9TVVBQT1JUX0JVVFRPTl9UT1VDSAkJCS8vICBPTi9PRkYNCisjZGVmaW5lIFRPVUNIX0ZP
+Uk1BVAkJCQkJMHgxDQorI2RlZmluZSBCVVRUT05fRk9STUFUCQkJCQkweDQNCisjZGVmaW5lIEhJ
+REkyQ19GT1JNQVQJCQkJCTB4Ng0KKyNkZWZpbmUgUF9SRVBPUlRfSUQJCQkJCQkyDQorI2RlZmlu
+ZSBCVVRUT05fU1RBVEUJCQkJCTMNCisjZGVmaW5lIEJVVFRPTl9LRVlfQ09VTlQJCQkJMTYNCisj
+ZGVmaW5lIEJZVEVfQllURUNPVU5UCQkJCQkyDQorI2RlZmluZSBCWVRFX0NPVU5UCQkJCQkJMQ0K
+KyNkZWZpbmUgQllURV9SZXBvcnRJRAkJCQkJMQ0KKyNkZWZpbmUgQllURV9DUkNfSElESTJDCQkJ
+CQkwDQorI2RlZmluZSBCWVRFX0NSQ19JMkMJCQkJCTINCisjZGVmaW5lIEJZVEVfU0NBTlRJTUUJ
+CQkJCTINCisjZGVmaW5lIE5PX1RPVUNIX0JZVEVDT1VOVAkJCQkweDMNCisNCisvKiBUT0RPICov
+DQorI2RlZmluZSBUT1VDSF9QT1dFUl9QSU4JCQkJCTANCisjZGVmaW5lIFRPVUNIX1JFU0VUX1BJ
+TgkJCQkJMQ0KKw0KKy8qIENNRCBEZWZpbmUgKi8NCisjZGVmaW5lIEJVRl9BQ0tfUExBQ0VfTAkJ
+CQkJNA0KKyNkZWZpbmUgQlVGX0FDS19QTEFDRV9ICQkJCQk1DQorI2RlZmluZSBCVUZfQUNLX0wJ
+CQkJCQkweEVGDQorI2RlZmluZSBCVUZfQUNLX0gJCQkJCQkweEJFDQorI2RlZmluZSBCVUZfTkFD
+S19MCQkJCQkJMHhBRA0KKyNkZWZpbmUgQlVGX05BQ0tfSAkJCQkJCTB4REUNCisjZGVmaW5lIEJV
+Rl9DUkNfUExBQ0UJCQkJCTcNCisNCisNCisNCitzdHJ1Y3Qgc2lzX2kyY19ybWlfcGxhdGZvcm1f
+ZGF0YSB7DQorCWludCAoKnBvd2VyKShpbnQgb24pOwkvKiBPbmx5IHZhbGlkIGluIGZpcnN0IGFy
+cmF5IGVudHJ5ICovDQorfTsNCisNCitzdGF0aWMgY29uc3QgdW5zaWduZWQgc2hvcnQgY3JjMTZ0
+YWJbMjU2XT0gew0KKwkJMHgwMDAwLDB4MTAyMSwweDIwNDIsMHgzMDYzLDB4NDA4NCwweDUwYTUs
+MHg2MGM2LDB4NzBlNywNCisgICAgICAgIDB4ODEwOCwweDkxMjksMHhhMTRhLDB4YjE2YiwweGMx
+OGMsMHhkMWFkLDB4ZTFjZSwweGYxZWYsDQorICAgICAgICAweDEyMzEsMHgwMjEwLDB4MzI3Myww
+eDIyNTIsMHg1MmI1LDB4NDI5NCwweDcyZjcsMHg2MmQ2LA0KKyAgICAgICAgMHg5MzM5LDB4ODMx
+OCwweGIzN2IsMHhhMzVhLDB4ZDNiZCwweGMzOWMsMHhmM2ZmLDB4ZTNkZSwNCisgICAgICAgIDB4
+MjQ2MiwweDM0NDMsMHgwNDIwLDB4MTQwMSwweDY0ZTYsMHg3NGM3LDB4NDRhNCwweDU0ODUsDQor
+ICAgICAgICAweGE1NmEsMHhiNTRiLDB4ODUyOCwweDk1MDksMHhlNWVlLDB4ZjVjZiwweGM1YWMs
+MHhkNThkLA0KKyAgICAgICAgMHgzNjUzLDB4MjY3MiwweDE2MTEsMHgwNjMwLDB4NzZkNywweDY2
+ZjYsMHg1Njk1LDB4NDZiNCwNCisgICAgICAgIDB4Yjc1YiwweGE3N2EsMHg5NzE5LDB4ODczOCww
+eGY3ZGYsMHhlN2ZlLDB4ZDc5ZCwweGM3YmMsDQorICAgICAgICAweDQ4YzQsMHg1OGU1LDB4Njg4
+NiwweDc4YTcsMHgwODQwLDB4MTg2MSwweDI4MDIsMHgzODIzLA0KKyAgICAgICAgMHhjOWNjLDB4
+ZDllZCwweGU5OGUsMHhmOWFmLDB4ODk0OCwweDk5NjksMHhhOTBhLDB4YjkyYiwNCisgICAgICAg
+IDB4NWFmNSwweDRhZDQsMHg3YWI3LDB4NmE5NiwweDFhNzEsMHgwYTUwLDB4M2EzMywweDJhMTIs
+DQorICAgICAgICAweGRiZmQsMHhjYmRjLDB4ZmJiZiwweGViOWUsMHg5Yjc5LDB4OGI1OCwweGJi
+M2IsMHhhYjFhLA0KKyAgICAgICAgMHg2Y2E2LDB4N2M4NywweDRjZTQsMHg1Y2M1LDB4MmMyMiww
+eDNjMDMsMHgwYzYwLDB4MWM0MSwNCisgICAgICAgIDB4ZWRhZSwweGZkOGYsMHhjZGVjLDB4ZGRj
+ZCwweGFkMmEsMHhiZDBiLDB4OGQ2OCwweDlkNDksDQorICAgICAgICAweDdlOTcsMHg2ZWI2LDB4
+NWVkNSwweDRlZjQsMHgzZTEzLDB4MmUzMiwweDFlNTEsMHgwZTcwLA0KKyAgICAgICAgMHhmZjlm
+LDB4ZWZiZSwweGRmZGQsMHhjZmZjLDB4YmYxYiwweGFmM2EsMHg5ZjU5LDB4OGY3OCwNCisgICAg
+ICAgIDB4OTE4OCwweDgxYTksMHhiMWNhLDB4YTFlYiwweGQxMGMsMHhjMTJkLDB4ZjE0ZSwweGUx
+NmYsDQorICAgICAgICAweDEwODAsMHgwMGExLDB4MzBjMiwweDIwZTMsMHg1MDA0LDB4NDAyNSww
+eDcwNDYsMHg2MDY3LA0KKyAgICAgICAgMHg4M2I5LDB4OTM5OCwweGEzZmIsMHhiM2RhLDB4YzMz
+ZCwweGQzMWMsMHhlMzdmLDB4ZjM1ZSwNCisgICAgICAgIDB4MDJiMSwweDEyOTAsMHgyMmYzLDB4
+MzJkMiwweDQyMzUsMHg1MjE0LDB4NjI3NywweDcyNTYsDQorICAgICAgICAweGI1ZWEsMHhhNWNi
+LDB4OTVhOCwweDg1ODksMHhmNTZlLDB4ZTU0ZiwweGQ1MmMsMHhjNTBkLA0KKyAgICAgICAgMHgz
+NGUyLDB4MjRjMywweDE0YTAsMHgwNDgxLDB4NzQ2NiwweDY0NDcsMHg1NDI0LDB4NDQwNSwNCisg
+ICAgICAgIDB4YTdkYiwweGI3ZmEsMHg4Nzk5LDB4OTdiOCwweGU3NWYsMHhmNzdlLDB4YzcxZCww
+eGQ3M2MsDQorICAgICAgICAweDI2ZDMsMHgzNmYyLDB4MDY5MSwweDE2YjAsMHg2NjU3LDB4NzY3
+NiwweDQ2MTUsMHg1NjM0LA0KKyAgICAgICAgMHhkOTRjLDB4Yzk2ZCwweGY5MGUsMHhlOTJmLDB4
+OTljOCwweDg5ZTksMHhiOThhLDB4YTlhYiwNCisgICAgICAgIDB4NTg0NCwweDQ4NjUsMHg3ODA2
+LDB4NjgyNywweDE4YzAsMHgwOGUxLDB4Mzg4MiwweDI4YTMsDQorICAgICAgICAweGNiN2QsMHhk
+YjVjLDB4ZWIzZiwweGZiMWUsMHg4YmY5LDB4OWJkOCwweGFiYmIsMHhiYjlhLA0KKyAgICAgICAg
+MHg0YTc1LDB4NWE1NCwweDZhMzcsMHg3YTE2LDB4MGFmMSwweDFhZDAsMHgyYWIzLDB4M2E5MiwN
+CisgICAgICAgIDB4ZmQyZSwweGVkMGYsMHhkZDZjLDB4Y2Q0ZCwweGJkYWEsMHhhZDhiLDB4OWRl
+OCwweDhkYzksDQorICAgICAgICAweDdjMjYsMHg2YzA3LDB4NWM2NCwweDRjNDUsMHgzY2EyLDB4
+MmM4MywweDFjZTAsMHgwY2MxLA0KKyAgICAgICAgMHhlZjFmLDB4ZmYzZSwweGNmNWQsMHhkZjdj
+LDB4YWY5YiwweGJmYmEsMHg4ZmQ5LDB4OWZmOCwNCisgICAgICAgIDB4NmUxNywweDdlMzYsMHg0
+ZTU1LDB4NWU3NCwweDJlOTMsMHgzZWIyLDB4MGVkMSwweDFlZjANCit9Ow0KKw0KK3N0cnVjdCBQ
+b2ludCB7DQorCWludCBpZDsNCisJdW5zaWduZWQgc2hvcnQgeCwgeTsgICAJLy8gdWludDE2X3Qg
+Pw0KKwl1aW50MTZfdCBQcmVzc3VyZTsNCisJdWludDE2X3QgV2lkdGg7DQorCXVpbnQxNl90IEhl
+aWdodDsNCit9Ow0KKw0KK3N0cnVjdCBzaXNUUF9kcml2ZXJfZGF0YSB7DQorCWludCBpZDsNCisJ
+aW50IGZpbmdlcnM7DQorCXVpbnQ4X3QgcHJlX2tleWJpdF9zdGF0ZTsJDQorCXN0cnVjdCBQb2lu
+dCBwdFtNQVhfRklOR0VSU107DQorfTsNCisNCitzdHJ1Y3Qgc2lzX3RzX2RhdGEgew0KKwlpbnQg
+KCpwb3dlcikoaW50IG9uKTsNCisJaW50IHVzZV9pcnE7DQorCXN0cnVjdCBpMmNfY2xpZW50ICpj
+bGllbnQ7DQorCXN0cnVjdCBpbnB1dF9kZXYgKmlucHV0X2RldjsNCisJc3RydWN0IGhydGltZXIg
+dGltZXI7DQorCXN0cnVjdCBpcnFfZGVzYyAqZGVzYzsNCisJc3RydWN0IHdvcmtfc3RydWN0IHdv
+cms7DQorCXN0cnVjdCBtdXRleCBtdXRleF93cTsNCisjaWZkZWYgQ09ORklHX0hBU19FQVJMWVNV
+U1BFTkQNCisJc3RydWN0IGVhcmx5X3N1c3BlbmQgZWFybHlfc3VzcGVuZDsNCisjZW5kaWYNCit9
+Ow0KKw0KK3N0YXRpYyBpbnQgc2lzX3RzX3N1c3BlbmQoc3RydWN0IGkyY19jbGllbnQgKmNsaWVu
+dCwgcG1fbWVzc2FnZV90IG1lc2cpOw0KK3N0YXRpYyBpbnQgc2lzX3RzX3Jlc3VtZShzdHJ1Y3Qg
+aTJjX2NsaWVudCAqY2xpZW50KTsNCisNCisjZW5kaWYgLyogX0xJTlVYX1NJU19JMkNfSCAqLw0K

@@ -1,163 +1,708 @@
 From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
-Date: Fri, 16 Jan 2015 14:34:03 +0800
-Message-ID: <1421390055-32760-1-git-send-email-dudl@cypress.com>
+Subject: [PATCH v18 10/12] input: cyapa: add gen5 trackpad device read baseline function support
+Date: Fri, 16 Jan 2015 14:34:13 +0800
+Message-ID: <1421390055-32760-11-git-send-email-dudl@cypress.com>
+References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.cypress.com ([157.95.67.100]:49078 "EHLO
+Received: from smtp1.cypress.com ([157.95.67.100]:49173 "EHLO
 	smtp1.cypress.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751671AbbAPGfH (ORCPT
+	with ESMTP id S1754128AbbAPGfU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Jan 2015 01:35:07 -0500
+	Fri, 16 Jan 2015 01:35:20 -0500
+In-Reply-To: <1421390055-32760-1-git-send-email-dudl@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
-Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-V18 patches have below updates, details of other updates see history list:
-1) Fix 'cyapa_runtime_suspend' undeclared compiling issue in latest
-   kernel-next source code. Verified on next-20150114 with make C=1.
-2) Optimize enter bootloader failed for some chipset takes longer time issue.
+Add read baseline function supported for gen5 trackpad device,
+it can be used through sysfs baseline interface.
+TEST=test on Chromebooks.
 
+Signed-off-by: Dudley Du <dudl@cypress.com>
+---
+ drivers/input/mouse/cyapa.h      |   2 +
+ drivers/input/mouse/cyapa_gen5.c | 640 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 642 insertions(+)
 
-This patch series is aimed to re-design the cyapa driver to support
-old gen3 trackpad devices and new gen5 trackpad devices in one
-cyapa driver, it's for easily productions support based on
-customers' requirements. And add sysfs functions and interfaces
-supported that required by users and customers.
+diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
+index f5a2c22..fb3b863 100644
+--- a/drivers/input/mouse/cyapa.h
++++ b/drivers/input/mouse/cyapa.h
+@@ -265,6 +265,8 @@ struct cyapa {
+ 	u8 y_origin;  /* Y Axis Origin: 0 = top; 1 = bottom. */
+ 	int electrodes_x;  /* Number of electrodes on the X Axis*/
+ 	int electrodes_y;  /* Number of electrodes on the Y Axis*/
++	int electrodes_rx;  /* Number of Rx electrodes */
++	int aligned_electrodes_rx;  /* 4 aligned */
+ 	int max_z;
+ 
+ 	/*
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index 442b29d..7c6e339 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -363,6 +363,12 @@ struct gen5_app_get_parameter_data {
+ 	u8 parameter_id;
+ } __packed;
+ 
++struct gen5_retrieve_panel_scan_data {
++	__le16 read_offset;
++	__le16 read_elements;
++	u8 data_id;
++} __packed;
++
+ /* Variables to record latest gen5 trackpad power states. */
+ #define GEN5_DEV_SET_PWR_STATE(cyapa, s)	((cyapa)->dev_pwr_mode = (s))
+ #define GEN5_DEV_GET_PWR_STATE(cyapa)		((cyapa)->dev_pwr_mode)
+@@ -1661,6 +1667,638 @@ static int cyapa_gen5_set_power_mode(struct cyapa *cyapa,
+ 	return 0;
+ }
+ 
++static int cyapa_gen5_resume_scanning(struct cyapa *cyapa)
++{
++	u8 cmd[] = { 0x04, 0x00, 0x05, 0x00, 0x2f, 0x00, 0x04 };
++	u8 resp_data[6];
++	int resp_len;
++	int error;
++
++	/* Try to dump all buffered data before doing command. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, 0x04))
++		return -EINVAL;
++
++	/* Try to dump all buffered data when resuming scanning. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
++
++	return 0;
++}
++
++static int cyapa_gen5_suspend_scanning(struct cyapa *cyapa)
++{
++	u8 cmd[] = { 0x04, 0x00, 0x05, 0x00, 0x2f, 0x00, 0x03 };
++	u8 resp_data[6];
++	int resp_len;
++	int error;
++
++	/* Try to dump all buffered data before doing command. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
++
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, 0x03))
++		return -EINVAL;
++
++	/* Try to dump all buffered data when suspending scanning. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
++
++	return 0;
++}
++
++static s32 twos_complement_to_s32(s32 value, int num_bits)
++{
++	if (value >> (num_bits - 1))
++		value |=  -1 << num_bits;
++	return value;
++}
++
++static s32 cyapa_parse_structure_data(u8 data_format, u8 *buf, int buf_len)
++{
++	int data_size;
++	bool big_endian;
++	bool unsigned_type;
++	s32 value;
++
++	data_size = (data_format & 0x07);
++	big_endian = ((data_format & 0x10) == 0x00);
++	unsigned_type = ((data_format & 0x20) == 0x00);
++
++	if (buf_len < data_size)
++		return 0;
++
++	switch (data_size) {
++	case 1:
++		value  = buf[0];
++		break;
++	case 2:
++		if (big_endian)
++			value = get_unaligned_be16(buf);
++		else
++			value = get_unaligned_le16(buf);
++		break;
++	case 4:
++		if (big_endian)
++			value = get_unaligned_be32(buf);
++		else
++			value = get_unaligned_le32(buf);
++		break;
++	default:
++		/* Should not happen, just as default case here. */
++		value = 0;
++		break;
++	}
++
++	if (!unsigned_type)
++		value = twos_complement_to_s32(value, data_size * 8);
++
++	return value;
++}
++
++static void cyapa_gen5_guess_electrodes(struct cyapa *cyapa,
++		int *electrodes_rx, int *electrodes_tx)
++{
++	if (cyapa->electrodes_rx != 0) {
++		*electrodes_rx = cyapa->electrodes_rx;
++		*electrodes_tx = (cyapa->electrodes_x == *electrodes_rx) ?
++				cyapa->electrodes_y : cyapa->electrodes_x;
++	} else {
++		*electrodes_tx = min(cyapa->electrodes_x, cyapa->electrodes_y);
++		*electrodes_rx = max(cyapa->electrodes_x, cyapa->electrodes_y);
++	}
++}
++
++/*
++ * Read all the global mutual or self idac data or mutual or self local PWC
++ * data based on the @idac_data_type.
++ * If the input value of @data_size is 0, then means read global mutual or
++ * self idac data. For read global mutual idac data, @idac_max, @idac_min and
++ * @idac_ave are in order used to return the max value of global mutual idac
++ * data, the min value of global mutual idac and the average value of the
++ * global mutual idac data. For read global self idac data, @idac_max is used
++ * to return the global self cap idac data in Rx direction, @idac_min is used
++ * to return the global self cap idac data in Tx direction. @idac_ave is not
++ * used.
++ * If the input value of @data_size is not 0, than means read the mutual or
++ * self local PWC data. The @idac_max, @idac_min and @idac_ave are used to
++ * return the max, min and average value of the mutual or self local PWC data.
++ * Note, in order to raed mutual local PWC data, must read invoke this function
++ * to read the mutual global idac data firstly to set the correct Rx number
++ * value, otherwise, the read mutual idac and PWC data may not correct.
++ */
++static int cyapa_gen5_read_idac_data(struct cyapa *cyapa,
++		u8 cmd_code, u8 idac_data_type, int *data_size,
++		int *idac_max, int *idac_min, int *idac_ave)
++{
++	struct gen5_app_cmd_head *cmd_head;
++	u8 cmd[12];
++	u8 resp_data[256];
++	int resp_len;
++	int read_len;
++	int value;
++	u16 offset;
++	int read_elements;
++	bool read_global_idac;
++	int sum, count, max_element_cnt;
++	int tmp_max, tmp_min, tmp_ave, tmp_sum, tmp_count;
++	int electrodes_rx, electrodes_tx;
++	int i;
++	int error;
++
++	if (cmd_code != GEN5_CMD_RETRIEVE_DATA_STRUCTURE ||
++		(idac_data_type != GEN5_RETRIEVE_MUTUAL_PWC_DATA &&
++		idac_data_type != GEN5_RETRIEVE_SELF_CAP_PWC_DATA) ||
++		!data_size || !idac_max || !idac_min || !idac_ave)
++		return -EINVAL;
++
++	*idac_max = INT_MIN;
++	*idac_min = INT_MAX;
++	sum = count = tmp_count = 0;
++	electrodes_rx = electrodes_tx = 0;
++	if (*data_size == 0) {
++		/*
++		 * Read global idac values firstly.
++		 * Currently, no idac data exceed 4 bytes.
++		 */
++		read_global_idac = true;
++		offset = 0;
++		*data_size = 4;
++		tmp_max = INT_MIN;
++		tmp_min = INT_MAX;
++		tmp_ave = tmp_sum = tmp_count = 0;
++
++		if (idac_data_type == GEN5_RETRIEVE_MUTUAL_PWC_DATA) {
++			if (cyapa->aligned_electrodes_rx == 0) {
++				cyapa_gen5_guess_electrodes(cyapa,
++					&electrodes_rx, &electrodes_tx);
++				cyapa->aligned_electrodes_rx =
++					(electrodes_rx + 3) & ~3u;
++			}
++			max_element_cnt =
++				(cyapa->aligned_electrodes_rx + 7) & ~7u;
++		} else {
++			max_element_cnt = 2;
++		}
++	} else {
++		read_global_idac = false;
++		if (*data_size > 4)
++			*data_size = 4;
++		/* Calculate the start offset in bytes of local PWC data. */
++		if (idac_data_type == GEN5_RETRIEVE_MUTUAL_PWC_DATA) {
++			offset = cyapa->aligned_electrodes_rx * (*data_size);
++			if (cyapa->electrodes_rx == cyapa->electrodes_x)
++				electrodes_tx = cyapa->electrodes_y;
++			else
++				electrodes_tx = cyapa->electrodes_x;
++			max_element_cnt = ((cyapa->aligned_electrodes_rx + 7) &
++						~7u) * electrodes_tx;
++		} else if (idac_data_type == GEN5_RETRIEVE_SELF_CAP_PWC_DATA) {
++			offset = 2;
++			max_element_cnt = cyapa->electrodes_x +
++						cyapa->electrodes_y;
++			max_element_cnt = (max_element_cnt + 3) & ~3u;
++		}
++	}
++
++	memset(cmd, 0, sizeof(cmd));
++	cmd_head = (struct gen5_app_cmd_head *)cmd;
++	put_unaligned_le16(GEN5_OUTPUT_REPORT_ADDR, &cmd_head->addr);
++	put_unaligned_le16(sizeof(cmd) - 2, &cmd_head->length);
++	cmd_head->report_id = GEN5_APP_CMD_REPORT_ID;
++	cmd_head->cmd_code = cmd_code;
++	do {
++		read_elements = (256 - GEN5_RESP_DATA_STRUCTURE_OFFSET) /
++				(*data_size);
++		read_elements = min(read_elements, max_element_cnt - count);
++		read_len = read_elements * (*data_size);
++
++		put_unaligned_le16(offset, &cmd_head->parameter_data[0]);
++		put_unaligned_le16(read_len, &cmd_head->parameter_data[2]);
++		cmd_head->parameter_data[4] = idac_data_type;
++		resp_len = GEN5_RESP_DATA_STRUCTURE_OFFSET + read_len;
++		error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++				cmd, sizeof(cmd),
++				resp_data, &resp_len,
++				500, cyapa_gen5_sort_tsg_pip_app_resp_data,
++				true);
++		if (error || resp_len < GEN5_RESP_DATA_STRUCTURE_OFFSET ||
++				!VALID_CMD_RESP_HEADER(resp_data, cmd_code) ||
++				!GEN5_CMD_COMPLETE_SUCCESS(resp_data[5]) ||
++				resp_data[6] != idac_data_type)
++			return (error < 0) ? error : -EAGAIN;
++		read_len = get_unaligned_le16(&resp_data[7]);
++		if (read_len == 0)
++			break;
++
++		*data_size = (resp_data[9] & GEN5_PWC_DATA_ELEMENT_SIZE_MASK);
++		if (read_len < *data_size)
++			return -EINVAL;
++
++		if (read_global_idac &&
++			idac_data_type == GEN5_RETRIEVE_SELF_CAP_PWC_DATA) {
++			/* Rx's self global idac data. */
++			*idac_max = cyapa_parse_structure_data(
++				resp_data[9],
++				&resp_data[GEN5_RESP_DATA_STRUCTURE_OFFSET],
++				*data_size);
++			/* Tx's self global idac data. */
++			*idac_min = cyapa_parse_structure_data(
++				resp_data[9],
++				&resp_data[GEN5_RESP_DATA_STRUCTURE_OFFSET +
++					   *data_size],
++				*data_size);
++			break;
++		}
++
++		/* Read mutual global idac or local mutual/self PWC data. */
++		offset += read_len;
++		for (i = 10; i < (read_len + GEN5_RESP_DATA_STRUCTURE_OFFSET);
++				i += *data_size) {
++			value = cyapa_parse_structure_data(resp_data[9],
++					&resp_data[i], *data_size);
++			*idac_min = min(value, *idac_min);
++			*idac_max = max(value, *idac_max);
++
++			if (idac_data_type == GEN5_RETRIEVE_MUTUAL_PWC_DATA &&
++				tmp_count < cyapa->aligned_electrodes_rx &&
++				read_global_idac) {
++				/*
++				 * The value gap betwen global and local mutual
++				 * idac data must bigger than 50%.
++				 * Normally, global value bigger than 50,
++				 * local values less than 10.
++				 */
++				if (!tmp_ave || value > tmp_ave / 2) {
++					tmp_min = min(value, tmp_min);
++					tmp_max = max(value, tmp_max);
++					tmp_sum += value;
++					tmp_count++;
++
++					tmp_ave = tmp_sum / tmp_count;
++				}
++			}
++
++			sum += value;
++			count++;
++
++			if (count >= max_element_cnt)
++				goto out;
++		}
++	} while (true);
++
++out:
++	*idac_ave = count ? (sum / count) : 0;
++
++	if (read_global_idac &&
++		idac_data_type == GEN5_RETRIEVE_MUTUAL_PWC_DATA) {
++		if (tmp_count == 0)
++			return 0;
++
++		if (tmp_count == cyapa->aligned_electrodes_rx) {
++			cyapa->electrodes_rx = cyapa->electrodes_rx ?
++				cyapa->electrodes_rx : electrodes_rx;
++		} else if (tmp_count == electrodes_rx) {
++			cyapa->electrodes_rx = cyapa->electrodes_rx ?
++				cyapa->electrodes_rx : electrodes_rx;
++			cyapa->aligned_electrodes_rx = electrodes_rx;
++		} else {
++			cyapa->electrodes_rx = cyapa->electrodes_rx ?
++				cyapa->electrodes_rx : electrodes_tx;
++			cyapa->aligned_electrodes_rx = tmp_count;
++		}
++
++		*idac_min = tmp_min;
++		*idac_max = tmp_max;
++		*idac_ave = tmp_ave;
++	}
++
++	return 0;
++}
++
++static int cyapa_gen5_read_mutual_idac_data(struct cyapa *cyapa,
++	int *gidac_mutual_max, int *gidac_mutual_min, int *gidac_mutual_ave,
++	int *lidac_mutual_max, int *lidac_mutual_min, int *lidac_mutual_ave)
++{
++	int data_size;
++	int error;
++
++	*gidac_mutual_max = *gidac_mutual_min = *gidac_mutual_ave = 0;
++	*lidac_mutual_max = *lidac_mutual_min = *lidac_mutual_ave = 0;
++
++	data_size = 0;
++	error = cyapa_gen5_read_idac_data(cyapa,
++		GEN5_CMD_RETRIEVE_DATA_STRUCTURE,
++		GEN5_RETRIEVE_MUTUAL_PWC_DATA,
++		&data_size,
++		gidac_mutual_max, gidac_mutual_min, gidac_mutual_ave);
++	if (error)
++		return error;
++
++	error = cyapa_gen5_read_idac_data(cyapa,
++		GEN5_CMD_RETRIEVE_DATA_STRUCTURE,
++		GEN5_RETRIEVE_MUTUAL_PWC_DATA,
++		&data_size,
++		lidac_mutual_max, lidac_mutual_min, lidac_mutual_ave);
++	return error;
++}
++
++static int cyapa_gen5_read_self_idac_data(struct cyapa *cyapa,
++		int *gidac_self_rx, int *gidac_self_tx,
++		int *lidac_self_max, int *lidac_self_min, int *lidac_self_ave)
++{
++	int data_size;
++	int error;
++
++	*gidac_self_rx = *gidac_self_tx = 0;
++	*lidac_self_max = *lidac_self_min = *lidac_self_ave = 0;
++
++	data_size = 0;
++	error = cyapa_gen5_read_idac_data(cyapa,
++		GEN5_CMD_RETRIEVE_DATA_STRUCTURE,
++		GEN5_RETRIEVE_SELF_CAP_PWC_DATA,
++		&data_size,
++		lidac_self_max, lidac_self_min, lidac_self_ave);
++	if (error)
++		return error;
++	*gidac_self_rx = *lidac_self_max;
++	*gidac_self_tx = *lidac_self_min;
++
++	error = cyapa_gen5_read_idac_data(cyapa,
++		GEN5_CMD_RETRIEVE_DATA_STRUCTURE,
++		GEN5_RETRIEVE_SELF_CAP_PWC_DATA,
++		&data_size,
++		lidac_self_max, lidac_self_min, lidac_self_ave);
++	return error;
++}
++
++static ssize_t cyapa_gen5_execute_panel_scan(struct cyapa *cyapa)
++{
++	struct gen5_app_cmd_head *app_cmd_head;
++	u8 cmd[7];
++	u8 resp_data[6];
++	int resp_len;
++	int error;
++
++	memset(cmd, 0, sizeof(cmd));
++	app_cmd_head = (struct gen5_app_cmd_head *)cmd;
++	put_unaligned_le16(GEN5_OUTPUT_REPORT_ADDR, &app_cmd_head->addr);
++	put_unaligned_le16(sizeof(cmd) - 2, &app_cmd_head->length);
++	app_cmd_head->report_id = GEN5_APP_CMD_REPORT_ID;
++	app_cmd_head->cmd_code = GEN5_CMD_EXECUTE_PANEL_SCAN;
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++	if (error || resp_len != sizeof(resp_data) ||
++			!VALID_CMD_RESP_HEADER(resp_data,
++				GEN5_CMD_EXECUTE_PANEL_SCAN) ||
++			!GEN5_CMD_COMPLETE_SUCCESS(resp_data[5]))
++		return error ? error : -EAGAIN;
++
++	return 0;
++}
++
++static int cyapa_gen5_read_panel_scan_raw_data(struct cyapa *cyapa,
++		u8 cmd_code, u8 raw_data_type, int raw_data_max_num,
++		int *raw_data_max, int *raw_data_min, int *raw_data_ave,
++		u8 *buffer)
++{
++	struct gen5_app_cmd_head *app_cmd_head;
++	struct gen5_retrieve_panel_scan_data *panel_sacn_data;
++	u8 cmd[12];
++	u8 resp_data[256];  /* Max bytes can transfer one time. */
++	int resp_len;
++	int read_elements;
++	int read_len;
++	u16 offset;
++	s32 value;
++	int sum, count;
++	int data_size;
++	s32 *intp;
++	int i;
++	int error;
++
++	if (cmd_code != GEN5_CMD_RETRIEVE_PANEL_SCAN ||
++		(raw_data_type > GEN5_PANEL_SCAN_SELF_DIFFCOUNT) ||
++		!raw_data_max || !raw_data_min || !raw_data_ave)
++		return -EINVAL;
++
++	intp = (s32 *)buffer;
++	*raw_data_max = INT_MIN;
++	*raw_data_min = INT_MAX;
++	sum = count = 0;
++	offset = 0;
++	/* Assume max element size is 4 currently. */
++	read_elements = (256 - GEN5_RESP_DATA_STRUCTURE_OFFSET) / 4;
++	read_len = read_elements * 4;
++	app_cmd_head = (struct gen5_app_cmd_head *)cmd;
++	put_unaligned_le16(GEN5_OUTPUT_REPORT_ADDR, &app_cmd_head->addr);
++	put_unaligned_le16(sizeof(cmd) - 2, &app_cmd_head->length);
++	app_cmd_head->report_id = GEN5_APP_CMD_REPORT_ID;
++	app_cmd_head->cmd_code = cmd_code;
++	panel_sacn_data = (struct gen5_retrieve_panel_scan_data *)
++			app_cmd_head->parameter_data;
++	do {
++		put_unaligned_le16(offset, &panel_sacn_data->read_offset);
++		put_unaligned_le16(read_elements,
++			&panel_sacn_data->read_elements);
++		panel_sacn_data->data_id = raw_data_type;
++
++		resp_len = GEN5_RESP_DATA_STRUCTURE_OFFSET + read_len;
++		error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			500, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++		if (error || resp_len < GEN5_RESP_DATA_STRUCTURE_OFFSET ||
++				!VALID_CMD_RESP_HEADER(resp_data, cmd_code) ||
++				!GEN5_CMD_COMPLETE_SUCCESS(resp_data[5]) ||
++				resp_data[6] != raw_data_type)
++			return error ? error : -EAGAIN;
++
++		read_elements = get_unaligned_le16(&resp_data[7]);
++		if (read_elements == 0)
++			break;
++
++		data_size = (resp_data[9] & GEN5_PWC_DATA_ELEMENT_SIZE_MASK);
++		offset += read_elements;
++		if (read_elements) {
++			for (i = GEN5_RESP_DATA_STRUCTURE_OFFSET;
++			     i < (read_elements * data_size +
++					GEN5_RESP_DATA_STRUCTURE_OFFSET);
++			     i += data_size) {
++				value = cyapa_parse_structure_data(resp_data[9],
++						&resp_data[i], data_size);
++				*raw_data_min = min(value, *raw_data_min);
++				*raw_data_max = max(value, *raw_data_max);
++
++				if (intp)
++					put_unaligned_le32(value, &intp[count]);
++
++				sum += value;
++				count++;
++
++			}
++		}
++
++		if (count >= raw_data_max_num)
++			break;
++
++		read_elements = (sizeof(resp_data) -
++				GEN5_RESP_DATA_STRUCTURE_OFFSET) / data_size;
++		read_len = read_elements * data_size;
++	} while (true);
++
++	*raw_data_ave = count ? (sum / count) : 0;
++
++	return 0;
++}
++
++static ssize_t cyapa_gen5_show_baseline(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	struct cyapa *cyapa = dev_get_drvdata(dev);
++	int gidac_mutual_max, gidac_mutual_min, gidac_mutual_ave;
++	int lidac_mutual_max, lidac_mutual_min, lidac_mutual_ave;
++	int gidac_self_rx, gidac_self_tx;
++	int lidac_self_max, lidac_self_min, lidac_self_ave;
++	int raw_cap_mutual_max, raw_cap_mutual_min, raw_cap_mutual_ave;
++	int raw_cap_self_max, raw_cap_self_min, raw_cap_self_ave;
++	int mutual_diffdata_max, mutual_diffdata_min, mutual_diffdata_ave;
++	int self_diffdata_max, self_diffdata_min, self_diffdata_ave;
++	int mutual_baseline_max, mutual_baseline_min, mutual_baseline_ave;
++	int self_baseline_max, self_baseline_min, self_baseline_ave;
++	int error, resume_error;
++	int size;
++
++	if (cyapa->state != CYAPA_STATE_GEN5_APP)
++		return -EBUSY;
++
++	/* 1. Suspend Scanning*/
++	error = cyapa_gen5_suspend_scanning(cyapa);
++	if (error)
++		return error;
++
++	/* 2.  Read global and local mutual IDAC data. */
++	gidac_self_rx = gidac_self_tx = 0;
++	error = cyapa_gen5_read_mutual_idac_data(cyapa,
++				&gidac_mutual_max, &gidac_mutual_min,
++				&gidac_mutual_ave, &lidac_mutual_max,
++				&lidac_mutual_min, &lidac_mutual_ave);
++	if (error)
++		goto resume_scanning;
++
++	/* 3.  Read global and local self IDAC data. */
++	error = cyapa_gen5_read_self_idac_data(cyapa,
++				&gidac_self_rx, &gidac_self_tx,
++				&lidac_self_max, &lidac_self_min,
++				&lidac_self_ave);
++	if (error)
++		goto resume_scanning;
++
++	/* 4. Execuate panel scan. It must be executed before read data. */
++	error = cyapa_gen5_execute_panel_scan(cyapa);
++	if (error)
++		goto resume_scanning;
++
++	/* 5. Retrieve panel scan, mutual cap raw data. */
++	error = cyapa_gen5_read_panel_scan_raw_data(cyapa,
++				GEN5_CMD_RETRIEVE_PANEL_SCAN,
++				GEN5_PANEL_SCAN_MUTUAL_RAW_DATA,
++				cyapa->electrodes_x * cyapa->electrodes_y,
++				&raw_cap_mutual_max, &raw_cap_mutual_min,
++				&raw_cap_mutual_ave,
++				NULL);
++	if (error)
++		goto resume_scanning;
++
++	/* 6. Retrieve panel scan, self cap raw data. */
++	error = cyapa_gen5_read_panel_scan_raw_data(cyapa,
++				GEN5_CMD_RETRIEVE_PANEL_SCAN,
++				GEN5_PANEL_SCAN_SELF_RAW_DATA,
++				cyapa->electrodes_x + cyapa->electrodes_y,
++				&raw_cap_self_max, &raw_cap_self_min,
++				&raw_cap_self_ave,
++				NULL);
++	if (error)
++		goto resume_scanning;
++
++	/* 7. Retrieve panel scan, mutual cap diffcount raw data. */
++	error = cyapa_gen5_read_panel_scan_raw_data(cyapa,
++				GEN5_CMD_RETRIEVE_PANEL_SCAN,
++				GEN5_PANEL_SCAN_MUTUAL_DIFFCOUNT,
++				cyapa->electrodes_x * cyapa->electrodes_y,
++				&mutual_diffdata_max, &mutual_diffdata_min,
++				&mutual_diffdata_ave,
++				NULL);
++	if (error)
++		goto resume_scanning;
++
++	/* 8. Retrieve panel scan, self cap diffcount raw data. */
++	error = cyapa_gen5_read_panel_scan_raw_data(cyapa,
++				GEN5_CMD_RETRIEVE_PANEL_SCAN,
++				GEN5_PANEL_SCAN_SELF_DIFFCOUNT,
++				cyapa->electrodes_x + cyapa->electrodes_y,
++				&self_diffdata_max, &self_diffdata_min,
++				&self_diffdata_ave,
++				NULL);
++	if (error)
++		goto resume_scanning;
++
++	/* 9. Retrieve panel scan, mutual cap baseline raw data. */
++	error = cyapa_gen5_read_panel_scan_raw_data(cyapa,
++				GEN5_CMD_RETRIEVE_PANEL_SCAN,
++				GEN5_PANEL_SCAN_MUTUAL_BASELINE,
++				cyapa->electrodes_x * cyapa->electrodes_y,
++				&mutual_baseline_max, &mutual_baseline_min,
++				&mutual_baseline_ave,
++				NULL);
++	if (error)
++		goto resume_scanning;
++
++	/* 10. Retrieve panel scan, self cap baseline raw data. */
++	error = cyapa_gen5_read_panel_scan_raw_data(cyapa,
++				GEN5_CMD_RETRIEVE_PANEL_SCAN,
++				GEN5_PANEL_SCAN_SELF_BASELINE,
++				cyapa->electrodes_x + cyapa->electrodes_y,
++				&self_baseline_max, &self_baseline_min,
++				&self_baseline_ave,
++				NULL);
++	if (error)
++		goto resume_scanning;
++
++resume_scanning:
++	/* 11. Resume Scanning*/
++	resume_error = cyapa_gen5_resume_scanning(cyapa);
++	if (resume_error || error)
++		return resume_error ? resume_error : error;
++
++	/* 12. Output data strings */
++	size = scnprintf(buf, PAGE_SIZE, "%d %d %d %d %d %d %d %d %d %d %d ",
++		gidac_mutual_min, gidac_mutual_max, gidac_mutual_ave,
++		lidac_mutual_min, lidac_mutual_max, lidac_mutual_ave,
++		gidac_self_rx, gidac_self_tx,
++		lidac_self_min, lidac_self_max, lidac_self_ave);
++	size += scnprintf(buf + size, PAGE_SIZE - size,
++		"%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
++		raw_cap_mutual_min, raw_cap_mutual_max, raw_cap_mutual_ave,
++		raw_cap_self_min, raw_cap_self_max, raw_cap_self_ave,
++		mutual_diffdata_min, mutual_diffdata_max, mutual_diffdata_ave,
++		self_diffdata_min, self_diffdata_max, self_diffdata_ave,
++		mutual_baseline_min, mutual_baseline_max, mutual_baseline_ave,
++		self_baseline_min, self_baseline_max, self_baseline_ave);
++	return size;
++}
++
+ static bool cyapa_gen5_sort_system_info_data(struct cyapa *cyapa,
+ 		u8 *buf, int len)
+ {
+@@ -2057,6 +2695,8 @@ const struct cyapa_dev_ops cyapa_gen5_ops = {
+ 	.bl_activate = cyapa_gen5_bl_activate,
+ 	.bl_deactivate = cyapa_gen5_bl_deactivate,
+ 
++	.show_baseline = cyapa_gen5_show_baseline,
++
+ 	.initialize = cyapa_gen5_initialize,
+ 
+ 	.state_parse = cyapa_gen5_state_parse,
+-- 
+1.9.1
 
-Since the earlier gen3 and the latest gen5 trackpad devices using
-two different chipsets, and have different protocols and interfaces,
-so if supported these two type trackpad devices in two different drivers,
-then it will be difficult to manage productions and later firmware updates.
-e.g.: It will cause customer don't know which one trackpad device firmware
-image to use and update when it has been used and integrated
-in same one productions, so here we support these two trackpad
-devices in same on driver.
-
-
-Dudley Du (12):
-  input: cyapa: re-design driver to support multi-trackpad in one driver
-  input: cyapa: add gen5 trackpad device basic functions support
-  input: cyapa: add power management interfaces support for the device
-  input: cyapa: add runtime power management interfaces support for the
-    device
-  input: cyapa: add sysfs interfaces support in the cyapa driver
-  input: cyapa: add gen3 trackpad device firmware update function
-    support
-  input: cyapa: add gen3 trackpad device read baseline function support
-  input: cyapa: add gen3 trackpad device force re-calibrate function
-    support
-  input: cyapa: add gen5 trackpad device firmware update function
-    support
-  input: cyapa: add gen5 trackpad device read baseline function support
-  input: cyapa: add gen5 trackpad device force re-calibrate function
-    support
-  input: cyapa: add acpi device id support
-
- drivers/input/mouse/Kconfig      |   11 +-
- drivers/input/mouse/Makefile     |    3 +-
- drivers/input/mouse/cyapa.c      | 1711 ++++++++++++++---------
- drivers/input/mouse/cyapa.h      |  303 +++++
- drivers/input/mouse/cyapa_gen3.c | 1247 +++++++++++++++++
- drivers/input/mouse/cyapa_gen5.c | 2774 ++++++++++++++++++++++++++++++++++++++
- 6 files changed, 5378 insertions(+), 671 deletions(-)
- create mode 100644 drivers/input/mouse/cyapa.h
- create mode 100644 drivers/input/mouse/cyapa_gen3.c
- create mode 100644 drivers/input/mouse/cyapa_gen5.c
-
-
-History patch series modifications list:
-V17 patches have below main updates compared with v16 patches:
-1) Fix kernel oops when system booting up with finger on TP.
-2) Remove unnecessary error log that may to system.
-3) Slipt out pm sleep code into cyapa_prepare_wakeup_controls(),
-   remove #indefs in function body of CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME.
-4) Supply stubs to cyapa_gen3_ops and cyapa_gen5_ops data structure to avoid
-   checking for presence of various methods in ops.
-5) Changing CYAPA_BOOTLOADER() and CYAPA_OPERATIONAL() macros to static inline
-   functions as cyapa_is_bootloader_mode() and cyapa_is_operational_mode().
-6) Remove touching runtime suspend state during system calling cyapa_suspend().
-7) Change to enable runtime PM until make sure device is out of bootloader.
-8) Change to return -EAGAIN when bootloader is busy.
-9) Correct word spell issue and code styles.
-
-V16 patches have below main updates compared with v15 patches:
-1) Fix all miss-spelling and space issue.
-2) Rename variables and functions with much more clearer names.
-3) Initialize and document tries near where it will be used.
-4) Modify cmd buffer to struct for more descriptive way.
-
-V15 patches have below main updates compared with v14 patches:
-1) Fix all warning errors of sparse tool when running with "make C=1".
-2) Change variable name "unique_str" to "product_id" for clearer meanings.
-3) Update cyapa_i2c_write function to return error directly when length > 31.
-
-V14 patches have below main updates compared with v13 patches:
-1) Correct 9 miss spelling issues of "bufferred" to "buffered".
-2) Fix the upgrade issue of removing MOUSE_CYAPA config when make oldconfig
-   by replase "depends on I2C && CRC_ITU_T" with
-	"depends on I2C"
-	"select CRC_ITU_T"
-   in patch 9.
-
-V13 patches have below main updates compared with v12 patches:
-1) Remove all debugfs interface, including read_fw and raw_data interfaces.
-2) This patches are made based linux next-20141208.
-
-V12 patches have below main updates compared with v11 patches:
-1) Add check that when TP is detected but not operational, do not exit driver
-   immediately, but wait and export the update_fw interface for recovering.
-2) Re-arrange the function codes, remove unnesseary protype definitions in
-   the header file.
-
-V11 patches have below main updates compared with v10 patches:
-1) Add add acpi device id supported for old gen3 and new gen5 trackpad devices.
-2) Fix the unable to update firmware issue when cyapa_open is not called
-   which means the irq for firwmare update process is not enabled. This fix
-   by checking if the irq is enabled, if not then enable irq before start to
-   do firmware update.
-
-V10 patches have below main updates compared with v9 patches:
-1) Modify code to following kernel code style.
-   e.g.: correct to use error as return name when there is only error path,
-   and fix the checkpatch.sh wanting in the driver.
-2) Remove cyapa_remove method and use input open and close interface to
-   following device resouse management infrastructure.
-3) Modify cyapa_detect method to return tristate issue to make the return value
-   much more consistent and clear.
-4) Use platform supplied functions as possible instead of driver
-   specific rewritten version.
-
-V9 patches have below updates compared with v8 patches:
-1) Removed all async thread stuff from the driver.
-2) Split driver into 18 patches for each function change one patch.
-
-V8 patches have below updates compared with v7 patches:
-1) [PATCH v8 01/13] - Remove the async thread for device detect in
-   probe routine, now the device detect process is completely done within
-   the device probe routine.
-2) [PATCH v8 01/13] - Split the irq cmd handler function to separated
-   function cyapa_default_irq_cmd_handler() and set it to interface
-   cyapa_default_ops.irq_cmd_handler.
-3) [PATCH v8 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
-   to avoid miss-enter when device protocol is still in detecting.
-
-V7 patches have below updates compared with v6 patches:
-1) [PATCH v7 01/13] - Split the irq cmd handler function to separated
-   function cyapa_default_irq_cmd_handler() and set it to interface
-   cyapa_default_ops.irq_cmd_handler.
-2) [PATCH v7 06/13] - Add cyapa->gen check in cyapa_gen3_irq_cmd_handler()
-   to avoid miss-enter when device protocol is still in detecting.
-
-V6 patches have below updates compared with v5 patches:
-1) Remove patch 14 of the lid filtering from the cyapa driver.
-
-V5 patches have below updates compared with v4 patches:
-1) Uses get_device()/put_device() instead of kobject_get()/kobject_put();
-2) Fix memories freed before debugfs entries issue;
-3) Make cyapa_debugs_root valid in driver module level
-   in module_init()/moudle_exit() ;
-4) Fix i2c_transfer() may return partial transfer issues.
-5) Add cyapa->removed flag to avoid detecting thread may still running
-   when driver module is removed.
-6) Fix the meanings of some comments and return error code not clear issue.

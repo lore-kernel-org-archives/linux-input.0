@@ -1,52 +1,88 @@
-From: Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 5/5] ARM: sunxi: dts: Add PS2 nodes for A20
- lime2 board
-Date: Fri, 16 Jan 2015 19:33:41 +0530
-Message-ID: <1421417021-3247-6-git-send-email-vishnupatekar0510@gmail.com>
-References: <1421417021-3247-1-git-send-email-vishnupatekar0510@gmail.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 1/5] mfd: tps65218: make INT[12] and STATUS registers
+ volatile
+Date: Fri, 16 Jan 2015 16:57:32 -0600
+Message-ID: <20150116225732.GB6254@saruman>
+References: <1419622104-25812-1-git-send-email-balbi@ti.com>
+ <1419622104-25812-2-git-send-email-balbi@ti.com>
+ <20150106173734.GL6502@saruman>
+ <20150108162512.GC31926@saruman>
+ <20150112164654.GB6525@saruman>
+ <20150114170716.GL2419@atomide.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBD64TFVR3YIBBJNV4SSQKGQEG6BWKFQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1421417021-3247-1-git-send-email-vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vishnu Patekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150114170716.GL2419@atomide.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: Felipe Balbi <balbi@ti.com>, Tony Lindgren <tony@atomide.com>, Torokhov <dmitry.torokhov@gmail.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: VishnuPatekar <vishnupatekar0510-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+--CdrF4e02JqNVZeln
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-index ed364d5..3365f12 100644
---- a/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-+++ b/arch/arm/boot/dts/sun7i-a20-olinuxino-lime2.dts
-@@ -113,6 +113,18 @@
- 			status = "okay";
- 		};
- 
-+		ps20: ps2@01c2a000 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&ps20_pins_a>;
-+			status = "okay";
-+		};
-+
-+		ps21: ps2@01c2a400 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&ps21_pins_a>;
-+			status = "okay";
-+		};
-+
- 		i2c0: i2c@01c2ac00 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&i2c0_pins_a>;
--- 
-1.7.9.5
+Hi,
+
+On Wed, Jan 14, 2015 at 09:07:17AM -0800, Tony Lindgren wrote:
+> > > > > STATUS register can be modified by the HW, so we
+> > > > > should bypass cache because of that.
+> > > > >=20
+> > > > > In the case of INT[12] registers, they are the ones
+> > > > > that actually clear the IRQ source at the time they
+> > > > > are read. If we rely on the cache for them, we will
+> > > > > never be able to clear the interrupt, which will cause
+> > > > > our IRQ line to be disabled due to IRQ throttling.
+> > > > >=20
+> > > > > Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
+> > > > > Cc: <stable@vger.kernel.org> # v3.15+
+> > > > > Cc: Keerthy <j-keerthy@ti.com>
+> > > > > Cc: Lee Jones <lee.jones@linaro.org>
+> > > > > Signed-off-by: Felipe Balbi <balbi@ti.com>
+> > > >=20
+> > > > ping
+> > >=20
+> > > another ping. Without this and the following patch TPS65218 power but=
+ton
+> > > driver which was already applied by Dmitry, won't work.
+> >=20
+> > Anybody ? -rc4 is out and tps65218 is still broken because nobody has
+> > acted on these two patches. All other patches which are meant for 3.20
+> > merge window are applied and because of these pending, those patches
+> > won't work.
+>=20
+> Lee, are you planning to pick these two drivers/mfd patches?
+
+Samuel, Lee, is someone planning on picking these two patches up ?
+v3.19 remains broken.
+
+--=20
+balbi
+
+--CdrF4e02JqNVZeln
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUuZdcAAoJEIaOsuA1yqREIbYP/3XH7tMz3eXeZwksb7wCN+OX
+IvMSYWKc7V6qiT5/KexhhasVonG3Mgo+BOoA1vzynyMJj1W2IaiwhWu5n1LvLbv3
+4h526Okv244Nmq4YIcODt6WOVEWyeFQS3rVcgAErqJ09s6GOY0mOI89rpZKco149
++TwpuMgTYdi/YoGwlOUjt+YVw09xWeNTpMdh0UW5GHDJ0q5JVsJt1+H3+tkR27Rj
+yh6PO8o4Z15SOTJ9NSqHDyGDUOxvh6Tp6L8GDX6O893oDIgWO7hMfoQZ42dYHCmV
+glzp2ShHQTqQL7rOHfFHWTBLdC1FTCtaq3I3JrYdTDjOmCL7enM0HjgNwBzBeWwf
+iVig33JSOgOnMeL66THAqW/XXMfC5Eli1wlOlMlOKggUWCjExnlGK5WxCY0WWgNi
+DK+NlcGif1TmKwhFEr/G614haf3EAyIhajZukD2nZy2An+QwmIXzl9vpujKZ6NoD
+PWs4+WtO/LNg/VgyMfFSBcx+VlbxdNeZSxR9Ya7ykXtlxaygZWgAo4fMYQDyEP+l
+QdwVRjpvQv50Fp3VepaI4tPMqMO43hyhAIUL1PP/WFDnP+P7IiJubV1yt9LEXpI3
+pAgpcCN0VKJuc9YqgdR/DLQDkS3JlgDCi6/9YmIPwHWRm/DcgU6OZPbi3ZZrbM8C
+JoROItwLqz0H9Ok7iQtB
+=Ae09
+-----END PGP SIGNATURE-----
+
+--CdrF4e02JqNVZeln--

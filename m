@@ -1,7 +1,7 @@
 From: Dudley Du <dudl@cypress.com>
-Subject: [PATCH v18 04/12] input: cyapa: add runtime power management interfaces support for the device
-Date: Fri, 16 Jan 2015 14:34:07 +0800
-Message-ID: <1421390055-32760-5-git-send-email-dudl@cypress.com>
+Subject: [PATCH v18 11/12] input: cyapa: add gen5 trackpad device force re-calibrate function support
+Date: Fri, 16 Jan 2015 14:34:14 +0800
+Message-ID: <1421390055-32760-12-git-send-email-dudl@cypress.com>
 References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1421390055-32760-1-git-send-email-dudl@cypress.com>
@@ -10,303 +10,97 @@ To: dmitry.torokhov@gmail.com, jmmahler@gmail.com, rydberg@euromail.se
 Cc: Dudley Du <dudl@cypress.com>, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add runtime_suspend_scanrate_ms power management interfaces in device's
-power group, so users or applications can control the runtime power
-management strategy of trackpad device as their requirements.
+Add force re-calibrate function supported for gen5 trackpad device,
+it can be used through sysfs calibrate interface.
 TEST=test on Chromebooks.
 
 Signed-off-by: Dudley Du <dudl@cypress.com>
 ---
- drivers/input/mouse/cyapa.c | 184 +++++++++++++++++++++++++++++++++++++++++++-
- drivers/input/mouse/cyapa.h |   4 +
- 2 files changed, 187 insertions(+), 1 deletion(-)
+ drivers/input/mouse/cyapa_gen5.c | 65 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index eb0e515..43fa0cb 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -23,6 +23,7 @@
- #include <linux/mutex.h>
- #include <linux/slab.h>
- #include <linux/uaccess.h>
-+#include <linux/pm_runtime.h>
- #include "cyapa.h"
- 
- 
-@@ -357,6 +358,10 @@ static int cyapa_open(struct input_dev *input)
- 	}
- 
- 	enable_irq(client->irq);
-+	if (!pm_runtime_enabled(&client->dev)) {
-+		pm_runtime_set_active(&client->dev);
-+		pm_runtime_enable(&client->dev);
-+	}
- out:
- 	mutex_unlock(&cyapa->state_sync_lock);
- 	return error;
-@@ -370,6 +375,10 @@ static void cyapa_close(struct input_dev *input)
- 	mutex_lock(&cyapa->state_sync_lock);
- 
- 	disable_irq(client->irq);
-+	if (pm_runtime_enabled(&client->dev))
-+		pm_runtime_disable(&client->dev);
-+	pm_runtime_set_suspended(&client->dev);
-+
- 	if (cyapa->operational)
- 		cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
- 
-@@ -539,6 +548,9 @@ static int cyapa_reinitialize(struct cyapa *cyapa)
- 	struct input_dev *input = cyapa->input;
- 	int error;
- 
-+	if (pm_runtime_enabled(dev))
-+		pm_runtime_disable(dev);
-+
- 	/* Avoid command failures when TP was in OFF state. */
- 	if (cyapa->operational)
- 		cyapa->ops->set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE, 0);
-@@ -561,6 +573,13 @@ out:
- 		/* Reset to power OFF state to save power when no user open. */
- 		if (cyapa->operational)
- 			cyapa->ops->set_power_mode(cyapa, PWR_MODE_OFF, 0);
-+	} else if (!error && cyapa->operational) {
-+		/*
-+		 * Make sure only enable runtime PM when device is
-+		 * in operational mode and input->users > 0.
-+		 */
-+		pm_runtime_set_active(dev);
-+		pm_runtime_enable(dev);
- 	}
- 
- 	return error;
-@@ -571,6 +590,7 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
- 	struct cyapa *cyapa = dev_id;
- 	struct device *dev = &cyapa->client->dev;
- 
-+	pm_runtime_get_sync(dev);
- 	if (device_may_wakeup(dev))
- 		pm_wakeup_event(dev, 0);
- 
-@@ -601,6 +621,8 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
- 	}
- 
- out:
-+	pm_runtime_mark_last_busy(dev);
-+	pm_runtime_put_sync_autosuspend(dev);
- 	return IRQ_HANDLED;
+diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
+index 7c6e339..ced2a2c 100644
+--- a/drivers/input/mouse/cyapa_gen5.c
++++ b/drivers/input/mouse/cyapa_gen5.c
+@@ -1715,6 +1715,70 @@ static int cyapa_gen5_suspend_scanning(struct cyapa *cyapa)
+ 	return 0;
  }
  
-@@ -725,6 +747,118 @@ static inline int cyapa_prepare_wakeup_controls(struct cyapa *cyapa)
- }
- #endif /* CONFIG_PM_SLEEP */
- 
-+#ifdef CONFIG_PM_RUNTIME
-+static ssize_t cyapa_show_rt_suspend_scanrate(struct device *dev,
-+					      struct device_attribute *attr,
-+					      char *buf)
++static int cyapa_gen5_calibrate_pwcs(struct cyapa *cyapa,
++		u8 calibrate_sensing_mode_type)
 +{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	u8 pwr_cmd;
-+	u16 sleep_time;
++	struct gen5_app_cmd_head *app_cmd_head;
++	u8 cmd[8];
++	u8 resp_data[6];
++	int resp_len;
 +	int error;
 +
-+	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
-+	if (error)
-+		return error;
-+	pwr_cmd = cyapa->runtime_suspend_power_mode;
-+	sleep_time = cyapa->runtime_suspend_sleep_time;
-+	mutex_unlock(&cyapa->state_sync_lock);
++	/* Try to dump all buffered data before doing command. */
++	cyapa_empty_pip_output_data(cyapa, NULL, NULL, NULL);
 +
-+	if (cyapa->gen == CYAPA_GEN3)
-+		return scnprintf(buf, PAGE_SIZE, "%u\n",
-+			cyapa_pwr_cmd_to_sleep_time(pwr_cmd));
-+	return scnprintf(buf, PAGE_SIZE, "%u\n", sleep_time);
++	memset(cmd, 0, sizeof(cmd));
++	app_cmd_head = (struct gen5_app_cmd_head *)cmd;
++	put_unaligned_le16(GEN5_OUTPUT_REPORT_ADDR, &app_cmd_head->addr);
++	put_unaligned_le16(sizeof(cmd) - 2, &app_cmd_head->length);
++	app_cmd_head->report_id = GEN5_APP_CMD_REPORT_ID;
++	app_cmd_head->cmd_code = GEN5_CMD_CALIBRATE;
++	app_cmd_head->parameter_data[0] = calibrate_sensing_mode_type;
++	resp_len = sizeof(resp_data);
++	error = cyapa_i2c_pip_cmd_irq_sync(cyapa,
++			cmd, sizeof(cmd),
++			resp_data, &resp_len,
++			5000, cyapa_gen5_sort_tsg_pip_app_resp_data, true);
++	if (error || !VALID_CMD_RESP_HEADER(resp_data, GEN5_CMD_CALIBRATE) ||
++			!GEN5_CMD_COMPLETE_SUCCESS(resp_data[5]))
++		return error < 0 ? error : -EAGAIN;
++
++	return 0;
 +}
 +
-+static ssize_t cyapa_update_rt_suspend_scanrate(struct device *dev,
-+						struct device_attribute *attr,
-+						const char *buf, size_t count)
++static ssize_t cyapa_gen5_do_calibrate(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
 +{
 +	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	u16 time;
-+	int error;
++	int error, calibrate_error;
 +
-+	if (buf == NULL || count == 0 || kstrtou16(buf, 10, &time)) {
-+		dev_err(dev, "invalid runtime suspend scanrate ms parameter\n");
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * When the suspend scanrate is changed, pm_runtime_get to resume
-+	 * a potentially suspended device, update to the new pwr_cmd
-+	 * and then pm_runtime_put to suspend into the new power mode.
-+	 */
-+	pm_runtime_get_sync(dev);
-+	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
++	/* 1. Suspend Scanning*/
++	error = cyapa_gen5_suspend_scanning(cyapa);
 +	if (error)
 +		return error;
-+	cyapa->runtime_suspend_sleep_time = max_t(u16, time, 1000);
-+	cyapa->runtime_suspend_power_mode =
-+		cyapa_sleep_time_to_pwr_cmd(cyapa->runtime_suspend_sleep_time);
-+	mutex_unlock(&cyapa->state_sync_lock);
-+	pm_runtime_put_sync_autosuspend(dev);
++
++	/* 2. Do mutual capacitance fine calibrate. */
++	calibrate_error = cyapa_gen5_calibrate_pwcs(cyapa,
++				CYAPA_SENSING_MODE_MUTUAL_CAP_FINE);
++	if (calibrate_error)
++		goto resume_scanning;
++
++	/* 3. Do self capacitance calibrate. */
++	calibrate_error = cyapa_gen5_calibrate_pwcs(cyapa,
++				CYAPA_SENSING_MODE_SELF_CAP);
++	if (calibrate_error)
++		goto resume_scanning;
++
++resume_scanning:
++	/* 4. Resume Scanning*/
++	error = cyapa_gen5_resume_scanning(cyapa);
++	if (error || calibrate_error)
++		return error ? error : calibrate_error;
 +
 +	return count;
 +}
 +
-+static DEVICE_ATTR(runtime_suspend_scanrate_ms, S_IRUGO|S_IWUSR,
-+		   cyapa_show_rt_suspend_scanrate,
-+		   cyapa_update_rt_suspend_scanrate);
-+
-+static struct attribute *cyapa_power_runtime_entries[] = {
-+	&dev_attr_runtime_suspend_scanrate_ms.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group cyapa_power_runtime_group = {
-+	.name = power_group_name,
-+	.attrs = cyapa_power_runtime_entries,
-+};
-+
-+static void cyapa_remove_power_runtime_group(void *data)
-+{
-+	struct cyapa *cyapa = data;
-+
-+	sysfs_unmerge_group(&cyapa->client->dev.kobj,
-+				&cyapa_power_runtime_group);
-+}
-+
-+static int cyapa_start_runtime(struct cyapa *cyapa)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	int error;
-+
-+	cyapa->runtime_suspend_power_mode = PWR_MODE_IDLE;
-+	cyapa->runtime_suspend_sleep_time =
-+		cyapa_pwr_cmd_to_sleep_time(cyapa->runtime_suspend_power_mode);
-+
-+	error = sysfs_merge_group(&dev->kobj, &cyapa_power_runtime_group);
-+	if (error) {
-+		dev_err(dev,
-+			"failed to create power runtime group: %d\n", error);
-+		return error;
-+	}
-+
-+	error = devm_add_action(dev, cyapa_remove_power_runtime_group, cyapa);
-+	if (error) {
-+		cyapa_remove_power_runtime_group(cyapa);
-+		dev_err(dev,
-+			"failed to add power runtime cleanup action: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	/* runtime is enabled until device is operational and opened. */
-+	pm_runtime_set_suspended(dev);
-+	pm_runtime_use_autosuspend(dev);
-+	pm_runtime_set_autosuspend_delay(dev, AUTOSUSPEND_DELAY);
-+
-+	return 0;
-+}
-+#else
-+static inline int cyapa_start_runtime(struct cyapa *cyapa) { return 0; }
-+#endif /* CONFIG_PM_RUNTIME */
-+
- static int cyapa_probe(struct i2c_client *client,
- 		       const struct i2c_device_id *dev_id)
+ static s32 twos_complement_to_s32(s32 value, int num_bits)
  {
-@@ -770,6 +904,12 @@ static int cyapa_probe(struct i2c_client *client,
- 		return error;
- 	}
+ 	if (value >> (num_bits - 1))
+@@ -2696,6 +2760,7 @@ const struct cyapa_dev_ops cyapa_gen5_ops = {
+ 	.bl_deactivate = cyapa_gen5_bl_deactivate,
  
-+	error = cyapa_start_runtime(cyapa);
-+	if (error) {
-+		dev_err(dev, "failed to start pm_runtime: %d\n", error);
-+		return error;
-+	}
-+
- 	error = devm_request_threaded_irq(dev, client->irq,
- 					  NULL, cyapa_irq,
- 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-@@ -810,6 +950,13 @@ static int __maybe_unused cyapa_suspend(struct device *dev)
- 	if (error)
- 		return error;
+ 	.show_baseline = cyapa_gen5_show_baseline,
++	.calibrate_store = cyapa_gen5_do_calibrate,
  
-+	/*
-+	 * Runtime PM is enable only when device is in operational mode and
-+	 * users in use, so need check it before disable it to
-+	 * avoid unbalance warning.
-+	 */
-+	if (pm_runtime_enabled(dev))
-+		pm_runtime_disable(dev);
- 	disable_irq(client->irq);
- 
- 	/*
-@@ -846,6 +993,7 @@ static int __maybe_unused cyapa_resume(struct device *dev)
- 		cyapa->irq_wake = false;
- 	}
- 
-+	/* Update device states and runtime PM states. */
- 	error = cyapa_reinitialize(cyapa);
- 	if (error)
- 		dev_warn(dev, "failed to reinitialize TP device: %d\n", error);
-@@ -856,7 +1004,41 @@ static int __maybe_unused cyapa_resume(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(cyapa_pm_ops, cyapa_suspend, cyapa_resume);
-+#ifdef CONFIG_PM_RUNTIME
-+static int cyapa_runtime_suspend(struct device *dev)
-+{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	int error;
-+
-+	error = cyapa->ops->set_power_mode(cyapa,
-+			cyapa->runtime_suspend_power_mode,
-+			cyapa->runtime_suspend_sleep_time);
-+	if (error)
-+		dev_warn(dev, "runtime suspend failed: %d\n", error);
-+
-+	return 0;
-+}
-+
-+static int cyapa_runtime_resume(struct device *dev)
-+{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	int error;
-+
-+	error = cyapa->ops->set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE, 0);
-+	if (error)
-+		dev_warn(dev, "runtime resume failed: %d\n", error);
-+
-+	return 0;
-+}
-+#else
-+static inline int cyapa_runtime_suspend(struct device *dev) { return 0; }
-+static inline int cyapa_runtime_resume(struct device *dev) { return 0; }
-+#endif /* CONFIG_PM_RUNTIME */
-+
-+static const struct dev_pm_ops cyapa_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(cyapa_suspend, cyapa_resume)
-+	SET_RUNTIME_PM_OPS(cyapa_runtime_suspend, cyapa_runtime_resume, NULL)
-+};
- 
- static const struct i2c_device_id cyapa_id_table[] = {
- 	{ "cyapa", 0 },
-diff --git a/drivers/input/mouse/cyapa.h b/drivers/input/mouse/cyapa.h
-index 481a60d..f5a2c22 100644
---- a/drivers/input/mouse/cyapa.h
-+++ b/drivers/input/mouse/cyapa.h
-@@ -242,6 +242,10 @@ struct cyapa {
- 	/* power mode settings */
- 	u8 suspend_power_mode;
- 	u16 suspend_sleep_time;
-+#ifdef CONFIG_PM_RUNTIME
-+	u8 runtime_suspend_power_mode;
-+	u16 runtime_suspend_sleep_time;
-+#endif /* CONFIG_PM_RUNTIME */
- 	u8 dev_pwr_mode;
- 	u16 dev_sleep_time;
+ 	.initialize = cyapa_gen5_initialize,
  
 -- 
 1.9.1

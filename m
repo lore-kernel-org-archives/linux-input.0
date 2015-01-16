@@ -1,73 +1,84 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Fri, 16 Jan 2015 00:09:46 +0200
-Message-ID: <1884690.xY9sKG5Ntd@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <2883445.zFsE3pF3jL@avalon> <20150115215053.GF19367@dtor-ws>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCH v8 4/6] input: misc: Add ABI docs for AXP20x PEK
+Date: Fri, 16 Jan 2015 09:01:05 +0800
+Message-ID: <CAGb2v65ZNvAZEE7K9Wsiv5vHO4NO3QjT0CVnnLZyb59T2OgxOA@mail.gmail.com>
+References: <1419303194-3075-1-git-send-email-wens@csie.org>
+ <1419303194-3075-5-git-send-email-wens@csie.org> <CAGb2v64AvP+niDrFU-vGGsXUoKD_kv34DqEPRFUZ0fiyeWiz9A@mail.gmail.com>
+ <20150115173930.GD33214@dtor-ws>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150115215053.GF19367@dtor-ws>
-Sender: linux-sh-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBZOF4GSQKGQECB7TJKI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20150115173930.GD33214@dtor-ws>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On Thursday 15 January 2015 13:50:53 Dmitry Torokhov wrote:
-> On Thu, Jan 15, 2015 at 11:34:00PM +0200, Laurent Pinchart wrote:
-> > On Thursday 15 January 2015 13:06:32 Dmitry Torokhov wrote:
-> >> On Thu, Jan 15, 2015 at 10:34:29PM +0200, Laurent Pinchart wrote:
-> >>> On Thursday 15 January 2015 21:00:37 Geert Uytterhoeven wrote:
-> >>>> On Thu, Jan 15, 2015 at 7:54 PM, Dmitry Torokhov wrote:
-> >>>>> I still do not understand what we are trying to fix here. Why is
-> >>>>> "adi,adxl34x" compatible string no good anymore? If we start using
-> >>>>> exact models and the physical device does not match do we abort
-> >>>>> probe? What is the problem that we are solving here?
-> >>>> 
-> >>>> Because there's no guarantee that the driver actually supports all
-> >>>> "adi,adxl34<x>" with <x> = 0..9, some of which don't exist yet.
-> >> 
-> >> So, what? When we encounter such devices and decide that we actually
-> >> want a different driver for them (instead of enhancing the existing one)
-> >> we'll give them their own compatible string. It's not like "adi,adxl348"
-> >> will automatically match with "adi,adxl34x", is it?
-> > 
-> > Please remember that compatible strings shouldn't be decided based on a
-> > particular operating system implementation.
-> 
-> In this case we can never have generic compatible strings of whatever
-> since in 10 years there might appear an OS that handles them
-> differently. Let's be a bit realistic here as well.
-
-I don't agree with you. The generic compatible strings should express 
-compatibility with a hardware interface to the system, not compatibility with 
-particular drivers on particular operating systems. We can thus have generic 
-compatible strings without taking the OS into account.
-
-> >>> That's one of the reasons. Another one is that the adxl34x driver
-> >>> won't match DT nodes that list the "adi,adxl34x" compatible value in
-> >>> positions other than the first.
-> >> 
-> >> Will it match anything else in the position other than 1st (i.e.
-> >> if device has compatible sting like "adi,adxl345-1", "adi,adxl345")?
-> > > Why "adi,adxl34x" is special?
-> > 
-> > The problem on the driver side is that the automatic I2C DT compatible to
-> > device name matching implementation only tries to match with the first
-> > compatible string without looking at the other ones. The driver thus needs
-> > to be enhanced with an explicit OF match table to be able to match on DT
-> > nodes that specify "adi,adxl345" or "adi,adxl346" as the first compatible
-> > entry.
+On Fri, Jan 16, 2015 at 1:39 AM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hi Chen-Yu,
 >
-> Why don't we enhance I2C core instead to do proper matching?
+> On Fri, Jan 16, 2015 at 12:00:31AM +0800, Chen-Yu Tsai wrote:
+>> On Tue, Dec 23, 2014 at 10:53 AM, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org> wrote:
+>> > From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+>> >
+>> > Add ABI entries for the PEK found on PMU X-Powers AXP202 and AXP209.
+>>
+>> Hi Dmitry,
+>>
+>> Would it be possible to take this patch through your tree?
+>
+> Actually I folded it into the original patch adding the code so it's
+> already there.
 
-That would also be possible, but I believe that patch 1/2 is still the right 
-thing to do, in which case patch 2/2 is required anyway.
+Sorry I didn't look deep enough. Just looked at the commit messages.
 
--- 
-Regards,
+Thanks again.
 
-Laurent Pinchart
+ChenYu
 
+> Thanks.
+>
+>>
+>>
+>> Thanks
+>> ChenYu
+>>
+>> > Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+>> > [wens-jdAy2FN1RRM@public.gmane.org: Fixed path for sysfs entries]
+>> > Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+>> > ---
+>> >  Documentation/ABI/testing/sysfs-driver-input-axp-pek | 11 +++++++++++
+>> >  1 file changed, 11 insertions(+)
+>> >  create mode 100644 Documentation/ABI/testing/sysfs-driver-input-axp-pek
+>> >
+>> > diff --git a/Documentation/ABI/testing/sysfs-driver-input-axp-pek b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
+>> > new file mode 100644
+>> > index 000000000000..a5e671b9fa79
+>> > --- /dev/null
+>> > +++ b/Documentation/ABI/testing/sysfs-driver-input-axp-pek
+>> > @@ -0,0 +1,11 @@
+>> > +What:          /sys/class/input/input(x)/device/startup
+>> > +Date:          March 2014
+>> > +Contact:       Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+>> > +Description:   Startup time in us. Board is powered on if the button is pressed
+>> > +               for more than <startup_time>
+>> > +
+>> > +What:          /sys/class/input/input(x)/device/shutdown
+>> > +Date:          March 2014
+>> > +Contact:       Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
+>> > +Description:   Shutdown time in us. Board is powered off if the button is pressed
+>> > +               for more than <shutdown_time>
+>> > --
+>> > 2.1.4
+>> >
+>
+> --
+> Dmitry

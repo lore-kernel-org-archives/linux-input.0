@@ -1,43 +1,102 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
-Date: Sat, 17 Jan 2015 03:39:04 -0800
-Message-ID: <20150117113904.GA2133@hudson.localdomain>
-References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
- <20150117104415.GA2083@hudson.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:59240 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751471AbbAQLjI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Jan 2015 06:39:08 -0500
-Content-Disposition: inline
-In-Reply-To: <20150117104415.GA2083@hudson.localdomain>
-Sender: linux-input-owner@vger.kernel.org
+From: Shailendra Verma <shailendra.capricorn@gmail.com>
+Subject: [PATCH 8/9] Fixed indentation violation in switch statement : Aligned the "switch" and its subordinate "case" labels in the same column instead of "double-intending" the "case" labels.
+Date: Sat, 17 Jan 2015 17:23:45 +0530
+Message-ID: <1421495625-21558-1-git-send-email-shailendra.capricorn@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Shailendra Verma <shailendra.capricorn@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dudley,
 
-On Sat, Jan 17, 2015 at 02:44:15AM -0800, Jeremiah Mahler wrote:
-> Dudley,
-> 
-> Your patch series applies without issue but unfortunately I
-> could not test them because I ran in to a bug created by someone
-> elses patch (not yours) [1].
-> 
->   [1]: https://lkml.org/lkml/2015/1/17/24
-> 
-> Once that issue gets resolved I would be happy to test your patch
-> series.
-> 
+Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
+---
+ drivers/input/evdev.c    |   30 ++++++++++++++++++++----------
+ drivers/input/mousedev.c |   18 ++++++++++++------
+ 2 files changed, 32 insertions(+), 16 deletions(-)
 
-If I go back to linux-next 20150112 I can avoid the drm/i915 bug.
-Then, with this patch series applied, everything works well.
-Suspend/resume work, and the touchpad operates as expected.
-
-Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
-
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 18d4b2c..85ee594 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -667,16 +667,26 @@ static int handle_eviocgbit(struct input_dev *dev,
+ 
+ 	switch (type) {
+ 
+-	case      0: bits = dev->evbit;  len = EV_MAX;  break;
+-	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
+-	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
+-	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
+-	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
+-	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
+-	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
+-	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
+-	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
+-	default: return -EINVAL;
++	case      0:
++		bits = dev->evbit;  len = EV_MAX;  break;
++	case EV_KEY:
++		bits = dev->keybit; len = KEY_MAX; break;
++	case EV_REL:
++		bits = dev->relbit; len = REL_MAX; break;
++	case EV_ABS:
++		bits = dev->absbit; len = ABS_MAX; break;
++	case EV_MSC:
++		bits = dev->mscbit; len = MSC_MAX; break;
++	case EV_LED:
++		bits = dev->ledbit; len = LED_MAX; break;
++	case EV_SND:
++		bits = dev->sndbit; len = SND_MAX; break;
++	case EV_FF:
++		bits = dev->ffbit;  len = FF_MAX;  break;
++	case EV_SW:
++		bits = dev->swbit;  len = SW_MAX;  break;
++	default:
++		return -EINVAL;
+ 	}
+ 
+ 	return bits_to_user(bits, len, size, p, compat_mode);
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index b604564..a9857dd 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -230,25 +230,31 @@ static void mousedev_key_event(struct mousedev *mousedev,
+ 
+ 	case BTN_TOUCH:
+ 	case BTN_0:
+-	case BTN_LEFT:		index = 0; break;
++	case BTN_LEFT:
++		index = 0; break;
+ 
+ 	case BTN_STYLUS:
+ 	case BTN_1:
+-	case BTN_RIGHT:		index = 1; break;
++	case BTN_RIGHT:
++		index = 1; break;
+ 
+ 	case BTN_2:
+ 	case BTN_FORWARD:
+ 	case BTN_STYLUS2:
+-	case BTN_MIDDLE:	index = 2; break;
++	case BTN_MIDDLE:
++		index = 2; break;
+ 
+ 	case BTN_3:
+ 	case BTN_BACK:
+-	case BTN_SIDE:		index = 3; break;
++	case BTN_SIDE:
++		index = 3; break;
+ 
+ 	case BTN_4:
+-	case BTN_EXTRA:		index = 4; break;
++	case BTN_EXTRA:
++		index = 4; break;
+ 
+-	default:		return;
++	default:
++		return;
+ 	}
+ 
+ 	if (value) {
 -- 
-- Jeremiah Mahler
+1.7.9.5

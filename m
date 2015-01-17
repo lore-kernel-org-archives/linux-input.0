@@ -1,88 +1,81 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 1/5] mfd: tps65218: make INT[12] and STATUS registers
- volatile
-Date: Fri, 16 Jan 2015 16:57:32 -0600
-Message-ID: <20150116225732.GB6254@saruman>
-References: <1419622104-25812-1-git-send-email-balbi@ti.com>
- <1419622104-25812-2-git-send-email-balbi@ti.com>
- <20150106173734.GL6502@saruman>
- <20150108162512.GC31926@saruman>
- <20150112164654.GB6525@saruman>
- <20150114170716.GL2419@atomide.com>
-Reply-To: <balbi@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] INPUT/HID: add touch support for SiS touch driver
+Date: Fri, 16 Jan 2015 16:04:08 -0800
+Message-ID: <CAKdAkRSGumi5rK9ToxUoQXo9OrTutPTgv2z8pRQix6gwDS45EA@mail.gmail.com>
+References: <8322374EB97AA24A95D0DDBFC8F1CA1DBF987B@SISMBEV01.sis.com.tw>
+	<1421063449.12454.17.camel@linux-0dmf.site>
+	<CAKR5kVFXy4GdZdHFnW2AAjqkcHfgfM5b0NhkOa079bftOoKqUQ@mail.gmail.com>
+	<8322374EB97AA24A95D0DDBFC8F1CA1DBF9DE5@SISMBEV01.sis.com.tw>
+	<8322374EB97AA24A95D0DDBFC8F1CA1DBF9E1B@SISMBEV01.sis.com.tw>
+	<1421413862.17198.23.camel@linux-0dmf.site>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150114170716.GL2419@atomide.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Felipe Balbi <balbi@ti.com>, Tony Lindgren <tony@atomide.com>, Torokhov <dmitry.torokhov@gmail.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f51.google.com ([209.85.215.51]:62397 "EHLO
+	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751678AbbAQAEK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Jan 2015 19:04:10 -0500
+In-Reply-To: <1421413862.17198.23.camel@linux-0dmf.site>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: =?UTF-8?B?5pu+5am36JGzICh0YW1teV90c2VuZyk=?= <tammy_tseng@sis.com>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, tammy0524@gmail.com
 
---CdrF4e02JqNVZeln
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jan 16, 2015 at 5:11 AM, Oliver Neukum <oneukum@suse.de> wrote:
+> On Fri, 2015-01-16 at 18:59 +0800, =E6=9B=BE=E5=A9=B7=E8=91=B3 (tammy=
+_tseng) wrote:
+>> Hey, Oliver
+>>
+>> On Mon, Jan 12, 2015 at 7:50 PM, Oliver Neukum <oneukum@suse.de> wro=
+te:
+>> On Mon, 2015-01-12 at 18:53 +0800, =E6=9B=BE=E5=A9=B7=E8=91=B3 (tamm=
+y_tseng) wrote:
+>> > > (Skip the code diff...)
+>> >
+>> > Again macros for endianness
+>> >
+>> > And the driver has a great number of conditional compilations are =
+they
+>> > really needed? The driver as is has a number of issues and is hard=
+ to
+>> > review due to the use of "//" for comments and a lot of conditiona=
+l
+>> > compilation and unnecessary variables used for constants. Could yo=
+u
+>> > fix this up and resubmit?
+>>
+>> Thanks for the reply. I've modified the code (sis_i2c.c/sis_i2c.h/Kc=
+onfig/Makefile) to fix them.
+>> Please help check them if anything needs to fix.
+>
+> Hi,
+>
+> I started from the lower end. I hope you find my comments
+> useful. A few general points need to be made before the
+> code is ready for review (it is obviously not ready for
+> inclusion)
 
-Hi,
+Also:
 
-On Wed, Jan 14, 2015 at 09:07:17AM -0800, Tony Lindgren wrote:
-> > > > > STATUS register can be modified by the HW, so we
-> > > > > should bypass cache because of that.
-> > > > >=20
-> > > > > In the case of INT[12] registers, they are the ones
-> > > > > that actually clear the IRQ source at the time they
-> > > > > are read. If we rely on the cache for them, we will
-> > > > > never be able to clear the interrupt, which will cause
-> > > > > our IRQ line to be disabled due to IRQ throttling.
-> > > > >=20
-> > > > > Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
-> > > > > Cc: <stable@vger.kernel.org> # v3.15+
-> > > > > Cc: Keerthy <j-keerthy@ti.com>
-> > > > > Cc: Lee Jones <lee.jones@linaro.org>
-> > > > > Signed-off-by: Felipe Balbi <balbi@ti.com>
-> > > >=20
-> > > > ping
-> > >=20
-> > > another ping. Without this and the following patch TPS65218 power but=
-ton
-> > > driver which was already applied by Dmitry, won't work.
-> >=20
-> > Anybody ? -rc4 is out and tps65218 is still broken because nobody has
-> > acted on these two patches. All other patches which are meant for 3.20
-> > merge window are applied and because of these pending, those patches
-> > won't work.
->=20
-> Lee, are you planning to pick these two drivers/mfd patches?
+- it was sent as base64 so it can't be applied using normal tools
+- it has DOS line endings
+- even after decoding it does not apply
+- dtor@dtor-ws:~/kernel/work$ ./scripts/checkpatch.pl --no-signoff
+sis-decoded.patch
+=2E..
+total: 677 errors, 355 warnings, 1479 lines checked
 
-Samuel, Lee, is someone planning on picking these two patches up ?
-v3.19 remains broken.
+Please make sure your code at least conforms to the kernel coding
+style before resubmitting.
+
+Thanks.
 
 --=20
-balbi
-
---CdrF4e02JqNVZeln
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUuZdcAAoJEIaOsuA1yqREIbYP/3XH7tMz3eXeZwksb7wCN+OX
-IvMSYWKc7V6qiT5/KexhhasVonG3Mgo+BOoA1vzynyMJj1W2IaiwhWu5n1LvLbv3
-4h526Okv244Nmq4YIcODt6WOVEWyeFQS3rVcgAErqJ09s6GOY0mOI89rpZKco149
-+TwpuMgTYdi/YoGwlOUjt+YVw09xWeNTpMdh0UW5GHDJ0q5JVsJt1+H3+tkR27Rj
-yh6PO8o4Z15SOTJ9NSqHDyGDUOxvh6Tp6L8GDX6O893oDIgWO7hMfoQZ42dYHCmV
-glzp2ShHQTqQL7rOHfFHWTBLdC1FTCtaq3I3JrYdTDjOmCL7enM0HjgNwBzBeWwf
-iVig33JSOgOnMeL66THAqW/XXMfC5Eli1wlOlMlOKggUWCjExnlGK5WxCY0WWgNi
-DK+NlcGif1TmKwhFEr/G614haf3EAyIhajZukD2nZy2An+QwmIXzl9vpujKZ6NoD
-PWs4+WtO/LNg/VgyMfFSBcx+VlbxdNeZSxR9Ya7ykXtlxaygZWgAo4fMYQDyEP+l
-QdwVRjpvQv50Fp3VepaI4tPMqMO43hyhAIUL1PP/WFDnP+P7IiJubV1yt9LEXpI3
-pAgpcCN0VKJuc9YqgdR/DLQDkS3JlgDCi6/9YmIPwHWRm/DcgU6OZPbi3ZZrbM8C
-JoROItwLqz0H9Ok7iQtB
-=Ae09
------END PGP SIGNATURE-----
-
---CdrF4e02JqNVZeln--
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

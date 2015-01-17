@@ -1,48 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: atari - Enable the 102nd key for German keyboards
-Date: Sat, 17 Jan 2015 14:12:44 -0800
-Message-ID: <20150117221244.GA38334@dtor-ws>
-References: <1421517725-31970-1-git-send-email-geert@linux-m68k.org>
+Subject: Re: [PATCH 8/9] Fixed indentation violation in switch statement :
+ Aligned the "switch" and its subordinate "case" labels in the same column
+ instead of "double-intending" the "case" labels.
+Date: Sat, 17 Jan 2015 14:15:17 -0800
+Message-ID: <20150117221517.GB38334@dtor-ws>
+References: <1421495625-21558-1-git-send-email-shailendra.capricorn@gmail.com>
+ <20150117161316.66645bebb64e7f46218d7daa@ao2.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-m68k-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:40690 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751607AbbAQWPW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 17 Jan 2015 17:15:22 -0500
 Content-Disposition: inline
-In-Reply-To: <1421517725-31970-1-git-send-email-geert@linux-m68k.org>
-Sender: linux-m68k-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Michael Schmitz <schmitz@debian.org>, linux-input@vger.kernel.org, linux-m68k@vger.kernel.org, Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+In-Reply-To: <20150117161316.66645bebb64e7f46218d7daa@ao2.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: Shailendra Verma <shailendra.capricorn@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2015 at 07:02:05PM +0100, Geert Uytterhoeven wrote:
-> From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+On Sat, Jan 17, 2015 at 04:13:16PM +0100, Antonio Ospite wrote:
+> On Sat, 17 Jan 2015 17:23:45 +0530
+> Shailendra Verma <shailendra.capricorn@gmail.com> wrote:
 > 
-> Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
-> Acked-by: Thorsten Glaser <tg@mirbsd.org>
-> Tested-by: Stefan Niestegge <beetle@atari.org>
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > 
+> > Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
+> > ---
+> >  drivers/input/evdev.c    |   30 ++++++++++++++++++++----------
+> >  drivers/input/mousedev.c |   18 ++++++++++++------
+> >  2 files changed, 32 insertions(+), 16 deletions(-)
+> > 
+> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> > index 18d4b2c..85ee594 100644
+> > --- a/drivers/input/evdev.c
+> > +++ b/drivers/input/evdev.c
+> > @@ -667,16 +667,26 @@ static int handle_eviocgbit(struct input_dev *dev,
+> >  
+> >  	switch (type) {
+> >  
+> > -	case      0: bits = dev->evbit;  len = EV_MAX;  break;
+> > -	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
+> > -	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
+> > -	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
+> > -	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
+> > -	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
+> > -	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
+> > -	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
+> > -	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
+> > -	default: return -EINVAL;
+> 
+> I have the feeling this formatting was deliberate, to make comparing the
+> lines easier, see the alignment after colons and semicolons.
 
-Applied, thank you.
+Yes, I'd rather kept the code here and in mousedev as is.
 
-> ---
->  drivers/input/keyboard/atakbd.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/atakbd.c b/drivers/input/keyboard/atakbd.c
-> index 10bcd4ae5402..f1235831283d 100644
-> --- a/drivers/input/keyboard/atakbd.c
-> +++ b/drivers/input/keyboard/atakbd.c
-> @@ -170,7 +170,7 @@ static unsigned char atakbd_keycode[0x72] = {	/* American layout */
->  	[93]	 = KEY_KPASTERISK,
->  	[94]	 = KEY_KPPLUS,
->  	[95]	 = KEY_HELP,
-> -	[96]	 = KEY_BACKSLASH,	/* FIXME: '<' */
-> +	[96]	 = KEY_102ND,
->  	[97]	 = KEY_KPASTERISK,	/* FIXME */
->  	[98]	 = KEY_KPSLASH,
->  	[99]	 = KEY_KPLEFTPAREN,
-> -- 
-> 1.9.1
-> 
+Thanks.
 
 -- 
 Dmitry

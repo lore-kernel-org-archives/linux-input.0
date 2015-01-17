@@ -1,141 +1,35 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH 8/9] Fixed indentation violation in switch statement :
- Aligned the "switch" and its subordinate "case" labels in the same column
- instead of "double-intending" the "case" labels.
-Date: Sat, 17 Jan 2015 16:13:16 +0100
-Message-ID: <20150117161316.66645bebb64e7f46218d7daa@ao2.it>
-References: <1421495625-21558-1-git-send-email-shailendra.capricorn@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1421495625-21558-1-git-send-email-shailendra.capricorn@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shailendra Verma <shailendra.capricorn@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] input: atari - Enable the 102nd key for German keyboards
+Date: Sat, 17 Jan 2015 19:02:05 +0100
+Message-ID: <1421517725-31970-1-git-send-email-geert@linux-m68k.org>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+Sender: linux-m68k-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Schmitz <schmitz@debian.org>, linux-input@vger.kernel.org, linux-m68k@vger.kernel.org, Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 17 Jan 2015 17:23:45 +0530
-Shailendra Verma <shailendra.capricorn@gmail.com> wrote:
+From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
 
-> 
-> Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
-> ---
->  drivers/input/evdev.c    |   30 ++++++++++++++++++++----------
->  drivers/input/mousedev.c |   18 ++++++++++++------
->  2 files changed, 32 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 18d4b2c..85ee594 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -667,16 +667,26 @@ static int handle_eviocgbit(struct input_dev *dev,
->  
->  	switch (type) {
->  
-> -	case      0: bits = dev->evbit;  len = EV_MAX;  break;
-> -	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
-> -	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
-> -	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
-> -	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
-> -	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
-> -	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
-> -	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
-> -	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
-> -	default: return -EINVAL;
+Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+Acked-by: Thorsten Glaser <tg@mirbsd.org>
+Tested-by: Stefan Niestegge <beetle@atari.org>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/input/keyboard/atakbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I have the feeling this formatting was deliberate, to make comparing the
-lines easier, see the alignment after colons and semicolons.
-
-> +	case      0:
-> +		bits = dev->evbit;  len = EV_MAX;  break;
-> +	case EV_KEY:
-> +		bits = dev->keybit; len = KEY_MAX; break;
-> +	case EV_REL:
-> +		bits = dev->relbit; len = REL_MAX; break;
-> +	case EV_ABS:
-> +		bits = dev->absbit; len = ABS_MAX; break;
-> +	case EV_MSC:
-> +		bits = dev->mscbit; len = MSC_MAX; break;
-> +	case EV_LED:
-> +		bits = dev->ledbit; len = LED_MAX; break;
-> +	case EV_SND:
-> +		bits = dev->sndbit; len = SND_MAX; break;
-> +	case EV_FF:
-> +		bits = dev->ffbit;  len = FF_MAX;  break;
-> +	case EV_SW:
-> +		bits = dev->swbit;  len = SW_MAX;  break;
-> +	default:
-> +		return -EINVAL;
->  	}
->
-
-Now, this is a mixed style, multiple statements are still on the same
-line which is also somewhat against the code style.
-
-FWIW I'd leave the code current code untouched.
-
->  	return bits_to_user(bits, len, size, p, compat_mode);
-> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-> index b604564..a9857dd 100644
-> --- a/drivers/input/mousedev.c
-> +++ b/drivers/input/mousedev.c
-> @@ -230,25 +230,31 @@ static void mousedev_key_event(struct mousedev *mousedev,
->  
->  	case BTN_TOUCH:
->  	case BTN_0:
-> -	case BTN_LEFT:		index = 0; break;
-> +	case BTN_LEFT:
-> +		index = 0; break;
->
-
-This makes more sense indeed but the break is still on the same line of
-the assignment, if you change the style fix it for good and put the
-break on its own line.
-
->  	case BTN_STYLUS:
->  	case BTN_1:
-> -	case BTN_RIGHT:		index = 1; break;
-> +	case BTN_RIGHT:
-> +		index = 1; break;
->  
->  	case BTN_2:
->  	case BTN_FORWARD:
->  	case BTN_STYLUS2:
-> -	case BTN_MIDDLE:	index = 2; break;
-> +	case BTN_MIDDLE:
-> +		index = 2; break;
->  
->  	case BTN_3:
->  	case BTN_BACK:
-> -	case BTN_SIDE:		index = 3; break;
-> +	case BTN_SIDE:
-> +		index = 3; break;
->  
->  	case BTN_4:
-> -	case BTN_EXTRA:		index = 4; break;
-> +	case BTN_EXTRA:
-> +		index = 4; break;
->  
-> -	default:		return;
-> +	default:
-> +		return;
->  	}
->  
->  	if (value) {
-> -- 
-> 1.7.9.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+diff --git a/drivers/input/keyboard/atakbd.c b/drivers/input/keyboard/atakbd.c
+index 10bcd4ae5402..f1235831283d 100644
+--- a/drivers/input/keyboard/atakbd.c
++++ b/drivers/input/keyboard/atakbd.c
+@@ -170,7 +170,7 @@ static unsigned char atakbd_keycode[0x72] = {	/* American layout */
+ 	[93]	 = KEY_KPASTERISK,
+ 	[94]	 = KEY_KPPLUS,
+ 	[95]	 = KEY_HELP,
+-	[96]	 = KEY_BACKSLASH,	/* FIXME: '<' */
++	[96]	 = KEY_102ND,
+ 	[97]	 = KEY_KPASTERISK,	/* FIXME */
+ 	[98]	 = KEY_KPSLASH,
+ 	[99]	 = KEY_KPLEFTPAREN,
 -- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+1.9.1

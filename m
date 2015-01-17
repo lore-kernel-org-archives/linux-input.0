@@ -1,81 +1,234 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] INPUT/HID: add touch support for SiS touch driver
-Date: Fri, 16 Jan 2015 16:04:08 -0800
-Message-ID: <CAKdAkRSGumi5rK9ToxUoQXo9OrTutPTgv2z8pRQix6gwDS45EA@mail.gmail.com>
-References: <8322374EB97AA24A95D0DDBFC8F1CA1DBF987B@SISMBEV01.sis.com.tw>
-	<1421063449.12454.17.camel@linux-0dmf.site>
-	<CAKR5kVFXy4GdZdHFnW2AAjqkcHfgfM5b0NhkOa079bftOoKqUQ@mail.gmail.com>
-	<8322374EB97AA24A95D0DDBFC8F1CA1DBF9DE5@SISMBEV01.sis.com.tw>
-	<8322374EB97AA24A95D0DDBFC8F1CA1DBF9E1B@SISMBEV01.sis.com.tw>
-	<1421413862.17198.23.camel@linux-0dmf.site>
+From: Antonio Ospite <ao2@ao2.it>
+Subject: About Goodix-TS on Bay Trail, and ACPI and interrupts
+Date: Sat, 17 Jan 2015 01:03:06 +0100
+Message-ID: <20150117010306.7e32b72524e4c0cf8296bbac@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f51.google.com ([209.85.215.51]:62397 "EHLO
-	mail-la0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751678AbbAQAEK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Jan 2015 19:04:10 -0500
-In-Reply-To: <1421413862.17198.23.camel@linux-0dmf.site>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+Cc: Bastien Nocera <hadess@hadess.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mathias Nyman <mathias.nyman@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: =?UTF-8?B?5pu+5am36JGzICh0YW1teV90c2VuZyk=?= <tammy_tseng@sis.com>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, tammy0524@gmail.com
 
-On Fri, Jan 16, 2015 at 5:11 AM, Oliver Neukum <oneukum@suse.de> wrote:
-> On Fri, 2015-01-16 at 18:59 +0800, =E6=9B=BE=E5=A9=B7=E8=91=B3 (tammy=
-_tseng) wrote:
->> Hey, Oliver
->>
->> On Mon, Jan 12, 2015 at 7:50 PM, Oliver Neukum <oneukum@suse.de> wro=
-te:
->> On Mon, 2015-01-12 at 18:53 +0800, =E6=9B=BE=E5=A9=B7=E8=91=B3 (tamm=
-y_tseng) wrote:
->> > > (Skip the code diff...)
->> >
->> > Again macros for endianness
->> >
->> > And the driver has a great number of conditional compilations are =
-they
->> > really needed? The driver as is has a number of issues and is hard=
- to
->> > review due to the use of "//" for comments and a lot of conditiona=
-l
->> > compilation and unnecessary variables used for constants. Could yo=
-u
->> > fix this up and resubmit?
->>
->> Thanks for the reply. I've modified the code (sis_i2c.c/sis_i2c.h/Kc=
-onfig/Makefile) to fix them.
->> Please help check them if anything needs to fix.
->
-> Hi,
->
-> I started from the lower end. I hope you find my comments
-> useful. A few general points need to be made before the
-> code is ready for review (it is obviously not ready for
-> inclusion)
+Hi,
 
-Also:
+I am trying to make the Goodix driver (drivers/input/touchscreen/goodix.c)
+working with a Teclast X98 Air 3G, a tablet based on Intel Bay Trail,
+but I am new to ACPI and I could use some help.
 
-- it was sent as base64 so it can't be applied using normal tools
-- it has DOS line endings
-- even after decoding it does not apply
-- dtor@dtor-ws:~/kernel/work$ ./scripts/checkpatch.pl --no-signoff
-sis-decoded.patch
-=2E..
-total: 677 errors, 355 warnings, 1479 lines checked
+I am working with a 3.19-rc4 kernel compiled for x86_64.
 
-Please make sure your code at least conforms to the kernel coding
-style before resubmitting.
+This is the DSDT section in the UEFI firmware:
 
-Thanks.
+            Device (TCS0)
+            {
+                Name (_ADR, Zero)  // _ADR: Address
+                Name (_HID, "GODX0911")  // _HID: Hardware ID
+                Name (_CID, "PNP0C50" /* HID Protocol Device (I2C bus) */)  // _CID: Compatible ID
+                Name (_S0W, Zero)  // _S0W: S0 Device Wake State
+                Name (_DEP, Package (0x02)  // _DEP: Dependencies
+                {
+                    GPO1, 
+                    I2C5
+                })
+                Method (_PS3, 0, Serialized)  // _PS3: Power State 3
+                {
+                    If ((^^^I2C5.PMIC.AVBG == One)) {}
+                }
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+                Method (_PS0, 0, Serialized)  // _PS0: Power State 0
+                {
+                    If ((^^^GPO1.AVBL == One))
+                    {
+                        ^^^GPO1.TCD3 = Zero
+                    }
+
+                    Sleep (0x05)
+                    If ((^^^I2C5.PMIC.AVBG == One)) {}
+                    Sleep (0x1E)
+                    If ((^^^GPO1.AVBL == One))
+                    {
+                        ^^^GPO1.TCD3 = One
+                    }
+
+                    Sleep (0x78)
+                }
+
+                Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+                {
+                    Name (RBUF, ResourceTemplate ()
+                    {
+                        I2cSerialBus (0x0014, ControllerInitiated, 0x0019F0A0,
+                            AddressingMode7Bit, "\\_SB.I2C4",
+                            0x00, ResourceConsumer, ,
+                            )
+                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionInputOnly,
+                            "\\_SB.GPO2", 0x00, ResourceConsumer, ,
+                            )
+                            {   // Pin list
+                                0x0044
+                            }
+                    })
+                    Name (ABUF, ResourceTemplate ()
+                    {
+                        I2cSerialBus (0x0014, ControllerInitiated, 0x0019F0A0,
+                            AddressingMode7Bit, "\\_SB.I2C4",
+                            0x00, ResourceConsumer, ,
+                            )
+                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionInputOnly,
+                            "\\_SB.GPO2", 0x00, ResourceConsumer, ,
+                            )
+                            {   // Pin list
+                                0x0044
+                            }
+                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+                            "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+                            )
+                            {   // Pin list
+                                0x001A
+                            }
+                    })
+                    If ((OSSL && 0x80))
+                    {
+                        Return (ABUF) /* \_SB_.I2C4.TCS0._CRS.ABUF */
+                    }
+                    Else
+                    {
+                        Return (RBUF) /* \_SB_.I2C4.TCS0._CRS.RBUF */
+                    }
+                }
+
+                Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
+                {
+                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
+                    Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
+                    Debug = "Method _DSM begin"
+                    If ((Arg0 == ToUUID ("3cdff6f7-4267-4555-ad05-b30a3d8938de") /* HID I2C Device */))
+                    {
+                        While (One)
+                        {
+                            _T_0 = ToInteger (Arg2)
+                            If ((_T_0 == Zero))
+                            {
+                                While (One)
+                                {
+                                    _T_1 = ToInteger (Arg1)
+                                    If ((_T_1 == One))
+                                    {
+                                        Debug = "Method _DSM Function Query"
+                                        Return (Buffer (One)
+                                        {
+                                             0x03                                             /* . */
+                                        })
+                                    }
+                                    Else
+                                    {
+                                        Return (Buffer (One)
+                                        {
+                                             0x00                                             /* . */
+                                        })
+                                    }
+
+                                    Break
+                                }
+                            }
+                            Else
+                            {
+                                If ((_T_0 == One))
+                                {
+                                    Debug = "Method _DSM Function HID"
+                                    Return (Zero)
+                                }
+                                Else
+                                {
+                                    Return (Zero)
+                                }
+                            }
+
+                            Break
+                        }
+                    }
+                    Else
+                    {
+                        Return (Buffer (One)
+                        {
+                             0x00                                             /* . */
+                        })
+                    }
+                }
+
+                Method (_STA, 0, NotSerialized)  // _STA: Status
+                {
+                    If ((OSSL == 0x83))
+                    {
+                        Return (Zero)
+                    }
+
+                    Return (0x0F)
+                }
+            }
+
+BTW in the DSDT there are two TCS0 entries, but the one above should be
+the one referring to the actual hardware on my unit, and it's the one
+picked up by linux anyway.
+
+Full DSDT here: http://ao2.it/tmp/Goodix-TS_Teclast-X98-Air-3G/dsdt.dsl
+
+I added the new ACPI _HID to the Goodix-TS driver and the driver gets
+loaded.
+
+I2C communication seems to work fine as I can read the product id, but
+the driver probing fails to complete because it cannot request the IRQ.
+
+Here is the full dmesg:
+http://ao2.it/tmp/Goodix-TS_Teclast-X98-Air-3G/dmesg_Teclast-X98-Air-3G_mainline.log
+
+Grepping for GODX0911 also shows that the i2c-hid driver tries to do
+something because of the _DSM method (also _CID == "PNP0C50").
+
+Comparing with Bastien's DSDT I noticed that there is no ACPI Interrupt
+resource listed above, and so I thought that linux couldn't get the irq
+number from ACPI.
+
+However the Android driver works with IRQs, not in polling mode:
+<6>[    7.585262] Goodix_TS 4-0014: GTP I2C Address: 0x14
+<6>[    7.585354] Goodix_TS 4-0014: INT gpio 133 to irq 389
+
+Here is the full Android dmesg:
+http://ao2.it/tmp/Goodix-TS_Teclast-X98-Air-3G/dmesg_Teclast-X98-Air-3G_Android.log
+
+They could have worked around the missing ACPI resource in the code, but
+Windows also works on this tablet (I do not have it installed tho).
+All the vendor firmwares I found use the same DSDT.
+
+The pinctrl-baytrail driver used for the gpio setup _seems_ to be fine,
+i.e. input from other gpios works.
+
+Any ideas?
+
+I tried retrieving the gpio number with devm_gpiod_get_index() from the
+GpioIo resource but I am not sure whether this is OK, is that resource
+meant to indicate the same "touch" irq which I would have expected in an
+Interrupt resource, or are those GpioIo for power/reset?
+
+Patch is here, anyway:
+http://ao2.it/tmp/Goodix-TS_Teclast-X98-Air-3G/0001-XXX-goodix-add-support-for-GODX0911.patch
+
+Anyhow, even if this approach was OK, or we wanted to use the GpioIo to
+control power explicitly, I'd notice that the pin number is 0x44 (hex)
+on GPO2 (the third bank), but GPO2 has max 44 (decimal) pins, so it would
+be still invalid. 
+
+Obviously I am still missing something.
+
+Thanks,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

@@ -1,108 +1,47 @@
-From: Shailendra Verma <shailendra.capricorn@gmail.com>
-Subject: [PATCH 8/8] Coding Style Correction.
-Date: Sat, 17 Jan 2015 13:28:49 +0530
-Message-ID: <1421481529-19304-1-git-send-email-shailendra.capricorn@gmail.com>
+From: "webmail Administrator" <support@diba.cat>
+Subject: Final Warning: Webmail Quota Exceeded
+Date: Sat, 17 Jan 2015 15:27:58 +0800
+Message-ID: <20150115232057.49E336C9334__34541.678246069$1421485898$gmane$org@sis.uab.ro>
+Reply-To: noreply@diba.cat
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:34715 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752712AbbAQH7V (ORCPT
+Received: from sis.uab.ro ([193.231.35.36]:46890 "EHLO sis.uab.ro"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750826AbbAQJLW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Jan 2015 02:59:21 -0500
+	Sat, 17 Jan 2015 04:11:22 -0500
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Shailendra Verma <shailendra.capricorn@gmail.com>
+To: Recipients <support@diba.cat>
+
+Warning: webmail
+
+Your mailbox has exceeded the 100 MB storage limit can can not receive =
+or send email until you update your mailbox. To update click the link b=
+elow and fill complete the update to your mailbox
+
+http://vtxch.tripod.com/
+
+After 24 hours without receiving any response you are deactivate your m=
+ailbox.
+
+Click here: http://vtxch.tripod.com/
 
 
-Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
----
- drivers/input/evdev.c    |   30 ++++++++++++++++++++----------
- drivers/input/mousedev.c |   18 ++++++++++++------
- 2 files changed, 32 insertions(+), 16 deletions(-)
+Thank you for using webmail Administrator
+Copyright =A9 2014 the Help Desk
+webmail Administrator=20
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 18d4b2c..85ee594 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -667,16 +667,26 @@ static int handle_eviocgbit(struct input_dev *dev,
- 
- 	switch (type) {
- 
--	case      0: bits = dev->evbit;  len = EV_MAX;  break;
--	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
--	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
--	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
--	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
--	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
--	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
--	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
--	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
--	default: return -EINVAL;
-+	case      0:
-+		bits = dev->evbit;  len = EV_MAX;  break;
-+	case EV_KEY:
-+		bits = dev->keybit; len = KEY_MAX; break;
-+	case EV_REL:
-+		bits = dev->relbit; len = REL_MAX; break;
-+	case EV_ABS:
-+		bits = dev->absbit; len = ABS_MAX; break;
-+	case EV_MSC:
-+		bits = dev->mscbit; len = MSC_MAX; break;
-+	case EV_LED:
-+		bits = dev->ledbit; len = LED_MAX; break;
-+	case EV_SND:
-+		bits = dev->sndbit; len = SND_MAX; break;
-+	case EV_FF:
-+		bits = dev->ffbit;  len = FF_MAX;  break;
-+	case EV_SW:
-+		bits = dev->swbit;  len = SW_MAX;  break;
-+	default:
-+		return -EINVAL;
- 	}
- 
- 	return bits_to_user(bits, len, size, p, compat_mode);
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index b604564..a9857dd 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -230,25 +230,31 @@ static void mousedev_key_event(struct mousedev *mousedev,
- 
- 	case BTN_TOUCH:
- 	case BTN_0:
--	case BTN_LEFT:		index = 0; break;
-+	case BTN_LEFT:
-+		index = 0; break;
- 
- 	case BTN_STYLUS:
- 	case BTN_1:
--	case BTN_RIGHT:		index = 1; break;
-+	case BTN_RIGHT:
-+		index = 1; break;
- 
- 	case BTN_2:
- 	case BTN_FORWARD:
- 	case BTN_STYLUS2:
--	case BTN_MIDDLE:	index = 2; break;
-+	case BTN_MIDDLE:
-+		index = 2; break;
- 
- 	case BTN_3:
- 	case BTN_BACK:
--	case BTN_SIDE:		index = 3; break;
-+	case BTN_SIDE:
-+		index = 3; break;
- 
- 	case BTN_4:
--	case BTN_EXTRA:		index = 4; break;
-+	case BTN_EXTRA:
-+		index = 4; break;
- 
--	default:		return;
-+	default:
-+		return;
- 	}
- 
- 	if (value) {
--- 
-1.7.9.5
+--=20
+Ezen uzenet virusellenorzesen esett at, es virusmentesnek bizonyult.
+MailScanner - Email Virus Scanner - http://www.mailscanner.info
+Pentru orice informatii sau suport tehnic: http://www.smarttrend.ro=20
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

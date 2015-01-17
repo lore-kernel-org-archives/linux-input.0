@@ -1,144 +1,108 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v2 2/2] HID: hid-sensor-hub: Enhance feature report set API
-Date: Fri, 16 Jan 2015 16:39:25 -0800
-Message-ID: <1421455165-3944-3-git-send-email-srinivas.pandruvada@linux.intel.com>
-References: <1421455165-3944-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1421455165-3944-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jkosina-AlSwsSmVLrQ@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Shailendra Verma <shailendra.capricorn@gmail.com>
+Subject: [PATCH 8/8] Coding Style Correction.
+Date: Sat, 17 Jan 2015 13:28:49 +0530
+Message-ID: <1421481529-19304-1-git-send-email-shailendra.capricorn@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:34715 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752712AbbAQH7V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 17 Jan 2015 02:59:21 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Shailendra Verma <shailendra.capricorn@gmail.com>
 
-Current API only allows setting one offset in the field. This API
-is extended to set multiple offsets in the field report.
-Also update parameters in the users of this API.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
 ---
- drivers/hid/hid-sensor-hub.c                       | 22 ++++++++++++++++++++--
- .../iio/common/hid-sensors/hid-sensor-attributes.c | 11 +++++------
- .../iio/common/hid-sensors/hid-sensor-trigger.c    |  9 +++++----
- include/linux/hid-sensor-hub.h                     |  5 +++--
- 4 files changed, 33 insertions(+), 14 deletions(-)
+ drivers/input/evdev.c    |   30 ++++++++++++++++++++----------
+ drivers/input/mousedev.c |   18 ++++++++++++------
+ 2 files changed, 32 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4d22bd4..7de9d53 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -208,10 +208,14 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
- EXPORT_SYMBOL_GPL(sensor_hub_remove_callback);
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 18d4b2c..85ee594 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -667,16 +667,26 @@ static int handle_eviocgbit(struct input_dev *dev,
  
- int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
--				u32 field_index, s32 value)
-+			   u32 field_index, int buffer_size, void *buffer)
- {
- 	struct hid_report *report;
- 	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
-+	__s32 *buf32 = (__s32 *)buffer;
-+	int i = 0;
-+	int remaining_bytes;
-+	__s32 value;
- 	int ret = 0;
+ 	switch (type) {
  
- 	mutex_lock(&data->mutex);
-@@ -220,7 +224,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 		ret = -EINVAL;
- 		goto done_proc;
- 	}
--	hid_set_field(report->field[field_index], 0, value);
-+
-+	remaining_bytes = do_div(buffer_size, sizeof(__s32));
-+	if (buffer_size) {
-+		for (i = 0; i < buffer_size; ++i) {
-+			hid_set_field(report->field[field_index], i,
-+				      cpu_to_le32(*buf32));
-+			++buf32;
-+		}
-+	}
-+	if (remaining_bytes) {
-+		value = 0;
-+		memcpy(&value, (u8 *)buf32, remaining_bytes);
-+		hid_set_field(report->field[field_index], i,
-+			      cpu_to_le32(value));
-+	}
- 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
- 	hid_hw_wait(hsdev->hdev);
- 
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-index e1435e9..e81f434 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-@@ -212,9 +212,8 @@ int hid_sensor_write_samp_freq_value(struct hid_sensor_common *st,
- 		else
- 			value = 0;
- 	}
--	ret = sensor_hub_set_feature(st->hsdev,
--		st->poll.report_id,
--		st->poll.index, value);
-+	ret = sensor_hub_set_feature(st->hsdev, st->poll.report_id,
-+				     st->poll.index, sizeof(value), &value);
- 	if (ret < 0 || value < 0)
- 		ret = -EINVAL;
- 
-@@ -254,9 +253,9 @@ int hid_sensor_write_raw_hyst_value(struct hid_sensor_common *st,
- 	value = convert_to_vtf_format(st->sensitivity.size,
- 				st->sensitivity.unit_expo,
- 				val1, val2);
--	ret = sensor_hub_set_feature(st->hsdev,
--		st->sensitivity.report_id,
--		st->sensitivity.index, value);
-+	ret = sensor_hub_set_feature(st->hsdev, st->sensitivity.report_id,
-+				     st->sensitivity.index, sizeof(value),
-+				     &value);
- 	if (ret < 0 || value < 0)
- 		ret = -EINVAL;
- 
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-index ef0c495..910e82a 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-@@ -64,15 +64,16 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
- 	if (state_val >= 0) {
- 		state_val += st->power_state.logical_minimum;
- 		sensor_hub_set_feature(st->hsdev, st->power_state.report_id,
--					st->power_state.index,
--					(s32)state_val);
-+				       st->power_state.index, sizeof(state_val),
-+				       &state_val);
+-	case      0: bits = dev->evbit;  len = EV_MAX;  break;
+-	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
+-	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
+-	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
+-	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
+-	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
+-	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
+-	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
+-	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
+-	default: return -EINVAL;
++	case      0:
++		bits = dev->evbit;  len = EV_MAX;  break;
++	case EV_KEY:
++		bits = dev->keybit; len = KEY_MAX; break;
++	case EV_REL:
++		bits = dev->relbit; len = REL_MAX; break;
++	case EV_ABS:
++		bits = dev->absbit; len = ABS_MAX; break;
++	case EV_MSC:
++		bits = dev->mscbit; len = MSC_MAX; break;
++	case EV_LED:
++		bits = dev->ledbit; len = LED_MAX; break;
++	case EV_SND:
++		bits = dev->sndbit; len = SND_MAX; break;
++	case EV_FF:
++		bits = dev->ffbit;  len = FF_MAX;  break;
++	case EV_SW:
++		bits = dev->swbit;  len = SW_MAX;  break;
++	default:
++		return -EINVAL;
  	}
  
- 	if (report_val >= 0) {
- 		report_val += st->report_state.logical_minimum;
- 		sensor_hub_set_feature(st->hsdev, st->report_state.report_id,
--					st->report_state.index,
--					(s32)report_val);
-+				       st->report_state.index,
-+				       sizeof(report_val),
-+				       &report_val);
+ 	return bits_to_user(bits, len, size, p, compat_mode);
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index b604564..a9857dd 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -230,25 +230,31 @@ static void mousedev_key_event(struct mousedev *mousedev,
+ 
+ 	case BTN_TOUCH:
+ 	case BTN_0:
+-	case BTN_LEFT:		index = 0; break;
++	case BTN_LEFT:
++		index = 0; break;
+ 
+ 	case BTN_STYLUS:
+ 	case BTN_1:
+-	case BTN_RIGHT:		index = 1; break;
++	case BTN_RIGHT:
++		index = 1; break;
+ 
+ 	case BTN_2:
+ 	case BTN_FORWARD:
+ 	case BTN_STYLUS2:
+-	case BTN_MIDDLE:	index = 2; break;
++	case BTN_MIDDLE:
++		index = 2; break;
+ 
+ 	case BTN_3:
+ 	case BTN_BACK:
+-	case BTN_SIDE:		index = 3; break;
++	case BTN_SIDE:
++		index = 3; break;
+ 
+ 	case BTN_4:
+-	case BTN_EXTRA:		index = 4; break;
++	case BTN_EXTRA:
++		index = 4; break;
+ 
+-	default:		return;
++	default:
++		return;
  	}
  
- 	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
-diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-index dfdf6ef..e899c67 100644
---- a/include/linux/hid-sensor-hub.h
-+++ b/include/linux/hid-sensor-hub.h
-@@ -166,13 +166,14 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
- * @hsdev:	Hub device instance.
- * @report_id:	Report id to look for
- * @field_index:	Field index inside a report
--* @value:	Value to set
-+* @buffer_size: size of the buffer
-+* @buffer:	buffer to use in the feature set
- *
- * Used to set a field in feature report. For example this can set polling
- * interval, sensitivity, activate/deactivate state.
- */
- int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
--			u32 field_index, s32 value);
-+			   u32 field_index, int buffer_size, void *buffer);
- 
- /**
- * sensor_hub_get_feature() - Feature get request
+ 	if (value) {
 -- 
-1.9.1
+1.7.9.5
+

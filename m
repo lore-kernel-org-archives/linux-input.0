@@ -1,35 +1,60 @@
 From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
-Date: Sat, 17 Jan 2015 02:44:15 -0800
-Message-ID: <20150117104415.GA2083@hudson.localdomain>
-References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
+Subject: Re: [PATCH 8/8] Coding Style Correction.
+Date: Sat, 17 Jan 2015 02:58:43 -0800
+Message-ID: <20150117105843.GA11626@hudson.localdomain>
+References: <1421481529-19304-1-git-send-email-shailendra.capricorn@gmail.com>
+ <20150117101547.GA1952@hudson.localdomain>
+ <CA+tKcn_U-5bH8=1MQJXepvz0iXV01xeSCikKJko6XbpFYAk5FA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:41013 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751340AbbAQK6q (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 17 Jan 2015 05:58:46 -0500
 Content-Disposition: inline
-In-Reply-To: <1421390055-32760-1-git-send-email-dudl@cypress.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CA+tKcn_U-5bH8=1MQJXepvz0iXV01xeSCikKJko6XbpFYAk5FA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Shailendra Verma <shailendra.capricorn@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Dudley,
+Shailendra,
 
-Your patch series applies without issue but unfortunately I
-could not test them because I ran in to a bug created by someone
-elses patch (not yours) [1].
+On Sat, Jan 17, 2015 at 03:51:49PM +0530, Shailendra Verma wrote:
+> Hello Mahler,
+> 
+> I have just changed the coding style violations in this patch as described
+> in the coding style Linux Documentation.
+> 
+Be specific about exactly what type of violation you fixed.
+Was it white space fixes?  Was it indentation of cases statements?
 
-  [1]: https://lkml.org/lkml/2015/1/17/24
-
-Once that issue gets resolved I would be happy to test your patch
-series.
-
-On Fri, Jan 16, 2015 at 02:34:03PM +0800, Dudley Du wrote:
-> V18 patches have below updates, details of other updates see history list:
-> 1) Fix 'cyapa_runtime_suspend' undeclared compiling issue in latest
->    kernel-next source code. Verified on next-20150114 with make C=1.
-> 2) Optimize enter bootloader failed for some chipset takes longer time issue.
-[...]
+> Thanks & Regards,
+> Shailendra
+> On Jan 17, 2015 3:45 PM, "Jeremiah Mahler" <jmmahler@gmail.com> wrote:
+> 
+> > Shailendra,
+> >
+> > Please describe in detail which specific coding issues you fixed.
+> > I am not good at reading minds :-)
+> >
+> > Also, this is patch 8/8, and I see there is a 2/2, (which also needs
+> > a better description).  Where are the rest of the patches?
+> >
+> > On Sat, Jan 17, 2015 at 01:28:49PM +0530, Shailendra Verma wrote:
+> > >
+> > > Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
+> > > ---
+> > >  drivers/input/evdev.c    |   30 ++++++++++++++++++++----------
+> > >  drivers/input/mousedev.c |   18 ++++++++++++------
+> > >  2 files changed, 32 insertions(+), 16 deletions(-)
+> > [...]
+> >
+> > --
+> > - Jeremiah Mahler
+> >
 
 -- 
 - Jeremiah Mahler

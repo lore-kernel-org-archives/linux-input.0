@@ -1,55 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
-Date: Sun, 18 Jan 2015 00:35:21 -0800
-Message-ID: <20150118083521.GF15720@dtor-ws>
-References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
- <20150117104415.GA2083@hudson.localdomain>
- <20150117113904.GA2133@hudson.localdomain>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 6/6] Input: ALPS - mix trackstick and external PS/2 mouse data
+Date: Sun, 18 Jan 2015 10:45:25 +0100
+Message-ID: <201501181045.25411@pali>
+References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com> <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1706069.XiS22latRr";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f172.google.com ([209.85.213.172]:53700 "EHLO
-	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752142AbbARIf0 (ORCPT
+Received: from mail-wg0-f53.google.com ([74.125.82.53]:43803 "EHLO
+	mail-wg0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751357AbbARJp2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Jan 2015 03:35:26 -0500
-Content-Disposition: inline
-In-Reply-To: <20150117113904.GA2133@hudson.localdomain>
+	Sun, 18 Jan 2015 04:45:28 -0500
+Received: by mail-wg0-f53.google.com with SMTP id x13so27022390wgg.12
+        for <linux-input@vger.kernel.org>; Sun, 18 Jan 2015 01:45:27 -0800 (PST)
+In-Reply-To: <1421276154-8689-7-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudl@cypress.com>, rydberg@euromail.se, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, Jan 17, 2015 at 03:39:04AM -0800, Jeremiah Mahler wrote:
-> Dudley,
-> 
-> On Sat, Jan 17, 2015 at 02:44:15AM -0800, Jeremiah Mahler wrote:
-> > Dudley,
-> > 
-> > Your patch series applies without issue but unfortunately I
-> > could not test them because I ran in to a bug created by someone
-> > elses patch (not yours) [1].
-> > 
-> >   [1]: https://lkml.org/lkml/2015/1/17/24
-> > 
-> > Once that issue gets resolved I would be happy to test your patch
-> > series.
-> > 
-> 
-> If I go back to linux-next 20150112 I can avoid the drm/i915 bug.
-> Then, with this patch series applied, everything works well.
-> Suspend/resume work, and the touchpad operates as expected.
-> 
-> Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
+--nextPart1706069.XiS22latRr
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-OK, I believe that the code is in good shape now, so I queued all
-patches for 3.20 (currently in my 'next' branch and should show in
-linux-next soon). Any subsequent improvements to the code
-should be relative to this series.
+On Wednesday 14 January 2015 23:55:54 Dmitry Torokhov wrote:
+> +       dev3 =3D input_allocate_device();
+> +       if (!dev3) {
+> +               psmouse_err(psmouse, "failed to alolocate secondary devic=
+e\n");
 
-Jeremiah, thank you for testing the patches; Dudley thank you for your
-patience with the process.
+                                                  allocate
 
-Thanks.
+> +               error =3D -ENOMEM;
+> +               goto out;
+> +       }
 
--- 
-Dmitry
+=2E..
+
+>         if (priv->flags & ALPS_DUALPOINT) {
+> +               struct input_dev *dev2;
+> +
+> +               dev2 =3D input_allocate_device();
+> +               if (!dev2) {
+> +                       psmouse_err(psmouse,
+> +                                   "failed to allocate  trackstick devic=
+e\n");
+
+                                                         ^^ 2x space
+
+> +                       error =3D -ENOMEM;
+> +                       goto init_fail;
+> +               }
+
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart1706069.XiS22latRr
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlS7gLUACgkQi/DJPQPkQ1JZTgCfeT+o4RwX4Xj8vd2NM5dsfY4W
+Ep0AoJplZJ3dqFhNfiZvOh8vPEy5qLkH
+=j1hJ
+-----END PGP SIGNATURE-----
+
+--nextPart1706069.XiS22latRr--

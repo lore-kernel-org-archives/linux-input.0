@@ -1,142 +1,153 @@
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH] Input: da9052_tsi: remove unnecessary worker
-Date: Sun, 18 Jan 2015 16:36:08 +0100
-Message-ID: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
+From: Jim Keir <jimkeir@oracledbadirect.com>
+Subject: [PATCH 001/001] usbhid: Fix initialisation and force effect modifications
+ for the Microsoft Sidewinder Force Feedback Pro 2 joystick
+Date: Sun, 18 Jan 2015 16:07:18 +0000
+Message-ID: <0000014afdcc643d-a943b494-4c10-4fa0-a85b-d36e89d6b09a-000000@email.amazonses.com>
+References: <54BBD8BA.7090906@yahoo.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:54444 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751516AbbARPgQ (ORCPT
+Received: from a8-93.smtp-out.amazonses.com ([54.240.8.93]:45169 "EHLO
+	a8-93.smtp-out.amazonses.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751931AbbARRXp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Jan 2015 10:36:16 -0500
+	Sun, 18 Jan 2015 12:23:45 -0500
+In-Reply-To: <54BBD8BA.7090906@yahoo.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, support.opensource@diasemi.com, kernel@pengutronix.de
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, jkosina@suse.cz
+Cc: linux-kernel@vger.kernel.org
 
-With the datardy irq we get the information if the
-pen got pulled from the screen. This patch changes
-the irq by checking this condition every time instead
-of triggering the worker.
+From: Jim Keir <jimkeir@yahoo.co.uk>
+Signed-off-by: Jim Keir <jimkeir@yahoo.co.uk>
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Currently the SWFF2 driver fails during initialisation, making the force
+capability of the joystick unusable. Further, there is a long-standing
+bug in the same driver where commands to update force parameters are
+addressed to the last-created force effect instead of the specified one,
+making it impossible to modify effects after their creation.
+
+Three bugs are addressed:
+
+1) The FF2 driver (usbhid/hid-pidff.c) sends commands to the stick
+during ff_init. However, this is called inside a block where
+driver_input_lock is locked, so the results of these initial commands
+are discarded. This one is the "killer", without this nothing else works.
+
+ff_init issues commands using "hid_hw_request". This eventually goes to
+hid_input_report, which returns -EBUSY because driver_input_lock is
+locked. The change is to delay the ff_init call in hid-core.c until
+after this lock has been released.
+
+2) The usbhid driver ignores an endpoint stall when sending control
+commands, causing the first few commands of the hid-pidff.c
+initialisation to get lost.
+
+usbhid/hid-core.c has been modified by copying lines into "hid_ctrl"
+from the "hid_irq_in" function in the same file.
+
+3) The FF2 driver (usbhid/hid-pidff.c) does not set the effect ID when
+uploading an effect. The result is that the initial upload works but
+subsequent uploads to modify effect parameters are all directed at the
+last-created effect.
+
+The targeted effect ID must be passed back to the device when effect
+parameters are changed. This is done at the start of
+"pidff_set_condition_report", "pidff_set_periodic_report" etc. based on
+the value of "pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0]".
+However, this value is only ever set during pidff_request_effect_upload.
+The result is stored in "pidff->pid_id[effect->id]" at the end of
+pid_upload_effect, for later use. However, if an effect is modified and
+re-sent then this identifier is not being copied back from
+pidff->pid_id[effect->id] before sending the command to the device. The
+fix is to do this at the start of pidff_upload_effect.
+
+This patch taken against kernel 3.13.0
+
 ---
- drivers/input/touchscreen/da9052_tsi.c | 68 ++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-index 5a013bb..e6019dd 100644
---- a/drivers/input/touchscreen/da9052_tsi.c
-+++ b/drivers/input/touchscreen/da9052_tsi.c
-@@ -25,7 +25,6 @@
- struct da9052_tsi {
- 	struct da9052 *da9052;
- 	struct input_dev *dev;
--	struct delayed_work ts_pen_work;
- 	struct mutex mutex;
- 	bool stopped;
- 	bool adc_on;
-@@ -47,8 +46,6 @@ static irqreturn_t da9052_ts_pendwn_irq(int irq, void *data)
- 		da9052_enable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
- 
- 		da9052_ts_adc_toggle(tsi, true);
--
--		schedule_delayed_work(&tsi->ts_pen_work, HZ / 50);
- 	}
- 
- 	return IRQ_HANDLED;
-@@ -89,6 +86,33 @@ static void da9052_ts_read(struct da9052_tsi *tsi)
- 	y = ((y << 2) & 0x3fc) | ((v & 0xc) >> 2);
- 	z = ((z << 2) & 0x3fc) | ((v & 0x30) >> 4);
- 
-+	/* Check for last TSI_READY irq */
-+	if (!(ret & TSI_PEN_DOWN_STATUS)) {
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 905e40a..a608ee6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1546,9 +1546,8 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+          return -ENODEV;
+      }
+
+-    if ((hdev->claimed & HID_CLAIMED_INPUT) &&
+-            (connect_mask & HID_CONNECT_FF) && hdev->ff_init)
+-        hdev->ff_init(hdev);
++    /* Removed ff_init() call from here. It does device I/O but this
++     * is blocked because driver_input_lock is currently locked. */
+
+      len = 0;
+      if (hdev->claimed & HID_CLAIMED_INPUT)
+@@ -2029,6 +2028,13 @@ static int hid_device_probe(struct device *dev)
+  unlock:
+      if (!hdev->io_started)
+          up(&hdev->driver_input_lock);
 +
-+		/* Pen UP */
-+		da9052_ts_adc_toggle(tsi, false);
++    if ((hdev->claimed & HID_CLAIMED_INPUT) && hdev->ff_init) {
++        /* Late init of PID force-feedback drivers moved to after
++         * unlock of driver_input_lock */
++        hdev->ff_init(hdev);
++    }
 +
-+		/* Report Pen UP */
-+		input_report_key(input, BTN_TOUCH, 0);
-+		input_report_abs(input, ABS_PRESSURE, 0);
-+		input_sync(input);
+  unlock_driver_lock:
+      up(&hdev->driver_lock);
+      return ret;
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 029965e..5d34dd7 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -505,7 +505,12 @@ static void hid_ctrl(struct urb *urb)
+      case -EPROTO:        /* protocol error or unplug */
+      case -ECONNRESET:    /* unlink */
+      case -ENOENT:
++        break;
+      case -EPIPE:        /* report not available */
++        usbhid_mark_busy(usbhid);
++        clear_bit(HID_IN_RUNNING, &usbhid->iofl);
++        set_bit(HID_CLEAR_HALT, &usbhid->iofl);
++        schedule_work(&usbhid->reset_work);
+          break;
+      default:        /* error */
+          hid_warn(urb->dev, "ctrl urb status %d received\n", status);
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 10b6167..3f8ea63 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -568,6 +568,13 @@ static int pidff_upload_effect(struct input_dev *dev, struct ff_effect *effect,
+      int type_id;
+      int error;
+
++    pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] = 0;
 +
-+		/*
-+		 * FIXME: Fixes the unhandled irq issue when quick
-+		 * pen down and pen up events occurs
-+		 */
-+		ret = da9052_reg_update(tsi->da9052,
-+					DA9052_EVENT_B_REG, 0xC0, 0xC0);
-+		if (ret < 0)
-+			return;
++    if (old && effect) {
++        pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0] =
++            pidff->pid_id[effect->id];
++    }
 +
-+		/* Mask TSI_READY event and unmask PEN_DOWN event */
-+		da9052_disable_irq_nosync(tsi->da9052, DA9052_IRQ_TSIREADY);
-+		da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
+      switch (effect->type) {
+      case FF_CONSTANT:
+          if (!old) {
+@@ -701,10 +708,14 @@ static int pidff_upload_effect(struct input_dev *dev, struct ff_effect *effect,
+          return -EINVAL;
+      }
+
+-    if (!old)
++    if (!old) {
+          pidff->pid_id[effect->id] =
+              pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
+
++        hid_dbg(pidff->hid, "Created new effect of type 0x%02x with h/w ID %d, driver ID %d\n",
++            effect->type, pidff->pid_id[effect->id], effect->id);
++    }
 +
-+		return;
-+	}
-+
- 	input_report_key(input, BTN_TOUCH, 1);
- 	input_report_abs(input, ABS_X, x);
- 	input_report_abs(input, ABS_Y, y);
-@@ -105,42 +129,6 @@ static irqreturn_t da9052_ts_datardy_irq(int irq, void *data)
- 	return IRQ_HANDLED;
- }
- 
--static void da9052_ts_pen_work(struct work_struct *work)
--{
--	struct da9052_tsi *tsi = container_of(work, struct da9052_tsi,
--					      ts_pen_work.work);
--	if (!tsi->stopped) {
--		int ret = da9052_reg_read(tsi->da9052, DA9052_TSI_LSB_REG);
--		if (ret < 0 || (ret & TSI_PEN_DOWN_STATUS)) {
--			/* Pen is still DOWN (or read error) */
--			schedule_delayed_work(&tsi->ts_pen_work, HZ / 50);
--		} else {
--			struct input_dev *input = tsi->dev;
--
--			/* Pen UP */
--			da9052_ts_adc_toggle(tsi, false);
--
--			/* Report Pen UP */
--			input_report_key(input, BTN_TOUCH, 0);
--			input_report_abs(input, ABS_PRESSURE, 0);
--			input_sync(input);
--
--			/*
--			 * FIXME: Fixes the unhandled irq issue when quick
--			 * pen down and pen up events occurs
--			 */
--			ret = da9052_reg_update(tsi->da9052,
--						DA9052_EVENT_B_REG, 0xC0, 0xC0);
--			if (ret < 0)
--				return;
--
--			/* Mask TSI_READY event and unmask PEN_DOWN event */
--			da9052_disable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
--			da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
--		}
--	}
--}
--
- static int da9052_ts_configure_gpio(struct da9052 *da9052)
- {
- 	int error;
-@@ -209,7 +197,6 @@ static void da9052_ts_input_close(struct input_dev *input_dev)
- 	tsi->stopped = true;
- 	mb();
- 	da9052_disable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
--	cancel_delayed_work_sync(&tsi->ts_pen_work);
- 
- 	if (tsi->adc_on) {
- 		da9052_disable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
-@@ -248,7 +235,6 @@ static int da9052_ts_probe(struct platform_device *pdev)
- 	tsi->da9052 = da9052;
- 	tsi->dev = input_dev;
- 	tsi->stopped = true;
--	INIT_DELAYED_WORK(&tsi->ts_pen_work, da9052_ts_pen_work);
- 
- 	input_dev->id.version = 0x0101;
- 	input_dev->id.vendor = 0x15B6;
--- 
-2.1.4
+      hid_dbg(pidff->hid, "uploaded\n");
+
+      return 0;
+
+
 

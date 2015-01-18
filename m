@@ -1,128 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/6] Fixes for ALPS trackstick
-Date: Sat, 17 Jan 2015 23:22:45 -0800
-Message-ID: <20150118072245.GA35316@dtor-ws>
-References: <1421276154-8689-1-git-send-email-dmitry.torokhov@gmail.com>
- <201501152128.41419@pali>
- <20150115210216.GD19367@dtor-ws>
- <201501171101.56430@pali>
+Subject: [git pull] Input updates for 3.19-rc4
+Date: Sun, 18 Jan 2015 00:24:13 -0800
+Message-ID: <20150118082413.GB15720@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:42633 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750710AbbARHWv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Jan 2015 02:22:51 -0500
-Received: by mail-ie0-f171.google.com with SMTP id ar1so26807693iec.2
-        for <linux-input@vger.kernel.org>; Sat, 17 Jan 2015 23:22:50 -0800 (PST)
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201501171101.56430@pali>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-On Sat, Jan 17, 2015 at 11:01:56AM +0100, Pali Roh=E1r wrote:
-> On Thursday 15 January 2015 22:02:16 Dmitry Torokhov wrote:
-> > On Thu, Jan 15, 2015 at 09:28:41PM +0100, Pali Roh=E1r wrote:
-> > > On Thursday 15 January 2015 20:38:18 Dmitry Torokhov wrote:
-> > > > On Thu, Jan 15, 2015 at 08:19:59PM +0100, Pali Roh=E1r wrote:
-> > > > > On Thursday 15 January 2015 19:18:20 Dmitry Torokhov=20
-> wrote:
-> > > > > > On Thu, Jan 15, 2015 at 11:49:32AM +0100, Pali Roh=E1r=20
-> wrote:
-> > > > > > > On Wednesday 14 January 2015 23:55:48 Dmitry
-> > > > > > > Torokhov
-> > >=20
-> > > wrote:
-> > > > > > > > Hi Pali,
-> > > > > > > >=20
-> > > > > > > > This series try to address the issue you brought
-> > > > > > > > regarding trackstick initialization on Dell
-> > > > > > > > Latitudes in a different way than the patches you
-> > > > > > > > proposed. Basically in this series we move
-> > > > > > > > resetting and all detection in alps_detect() and
-> > > > > > > > make sure we keep the state so alps_init() can
-> > > > > > > > reuse it and not perform the detection all over
-> > > > > > > > again. Doing this allows us to set up device
-> > > > > > > > characteristics (name, version, etc) properly
-> > > > > > > > from the get go while still performing reset only
-> > > > > > > > once.
-> > > > > > > >=20
-> > > > > > > > This is untested as I do not have any ALPS devices
-> > > > > > > > anymore so I'd appreciate you giving it a spin.
-> > > > > > > >=20
-> > > > > > > > Thanks!
-> > > > > > >=20
-> > > > > > > Hi Dmitry,
-> > > > > > >=20
-> > > > > > > on top of which branch/repository should I apply
-> > > > > > > your patches?
-> > > > > >=20
-> > > > > > Should be applicable to my 'next' branch (which I just
-> > > > > > upreved to 3.19-rc4).
-> > > > > >=20
-> > > > > > Thanks.
-> > > > >=20
-> > > > > Not working at top of next (0c3e994).
-> > > > >=20
-> > > > > Applying: Input: ALPS - renumber protocol numbers
-> > > > > Applying: Input: ALPS - make Rushmore a separate
-> > > > > protocol error: patch failed:
-> > > > > drivers/input/mouse/alps.c:1275 error:
-> > > > > drivers/input/mouse/alps.c: patch does not apply Patch
-> > > > > failed at 0002 Input: ALPS - make Rushmore a separate
-> > > > > protocol
-> > > >=20
-> > > > Hmm.. I created a new alps branch (based on 3.19-rc4), can
-> > > > you try it?
-> > > >=20
-> > > > Thanks.
-> > >=20
-> > > Compiled from your new alps branch (with "if (!priv)" fix)
-> > > and modprobing psmouse.ko caused laptop freeze :-( Even
-> > > sysrq not responded. So something is not working...
-> >=20
-> > Hmm, is it on text console or in X? Any chance you could go
-> > through pathes - there are only 8 of them including 2 of
-> > yours that should be unmodified.
-> >=20
-> > Thanks.
->=20
-> Hi, now I tested patch by patch and kernel crash is caused only=20
-> by last patch 6/6 and only after I touch touchpad or trackstick.
->=20
-> In text console it prints lot of panic messages and because it=20
-> prints lot of messages I cannot read (or record) more then last.
->=20
-> In last call trace I see that alps_register_bare_ps2_mouse() was=20
-> called and it generated page_fault.
+Hi Linus,
 
-That happens because while you added priv->psmouse pointer it looks lik=
-e
-you forgot to initialize it and I missed that too...
+Please pull from:
 
-> I do not understand why that=20
-> function was ever called (I do not have connected any PS/2 mouse=20
-> which can generate bare 3 bytes PS/2 packet) and also why that=20
-> function caused page fault.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Hmm... my memory might be hazy but I seem to recall that
-trackstick data can come as either dedicated packets or bare PS/2
-format, I am not sure if we can actually split the data streams into 2
-devices.
+to receive updates for the input subsystem.
 
-I do not have boxes with ALPS devices though so I am unable to
-experiment.
+Changelog:
+---------
 
-Thanks.
+Dmitry Torokhov (2):
+      MAINTAINERS: remove Dmitry Torokhov's alternate address
+      Input: I8042 - add Acer Aspire 7738 to the nomux list
 
---=20
+Gabriel Laskar (1):
+      Input: uinput - fix ioctl nr overflow for UI_GET_SYSNAME/VERSION
+
+Sam hung (1):
+      Input: elantech - support new ICs types for version 4
+
+Srihari Vijayaraghavan (1):
+      Input: i8042 - reset keyboard to fix Elantech touchpad detection
+
+
+Diffstat:
+--------
+
+ Documentation/kernel-parameters.txt   |  1 +
+ MAINTAINERS                           |  1 -
+ drivers/input/mouse/elantech.c        |  2 ++
+ drivers/input/serio/i8042-x86ia64io.h | 39 +++++++++++++++++++++++++++++++++++
+ drivers/input/serio/i8042.c           | 14 +++++++++++++
+ include/uapi/linux/uinput.h           |  4 ++--
+ 6 files changed, 58 insertions(+), 3 deletions(-)
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

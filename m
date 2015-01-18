@@ -1,97 +1,142 @@
-From: Aleksei Mamlin <mamlinav@gmail.com>
-Subject: Re: [PATCH 1/3] input: goodix: Add device tree support
-Date: Sun, 18 Jan 2015 19:12:43 +0400
-Message-ID: <CAF==cZWvqCdgVTJ76d4NoWhc09EnU=kxArgMQtz8=x5TesGpVQ@mail.gmail.com>
-References: <1421505253-7474-1-git-send-email-mamlinav@gmail.com>
-	<1421505361-8871-1-git-send-email-mamlinav@gmail.com>
-	<1421527085.2075.12.camel@hadess.net>
-	<CAF==cZWVN=NNaayVxtXNBe2hw7vxr9nryOyKknwY3vceKnNygw@mail.gmail.com>
-	<20150118152247.34aa149f16c60bf30cebbb42@ao2.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH] Input: da9052_tsi: remove unnecessary worker
+Date: Sun, 18 Jan 2015 16:36:08 +0100
+Message-ID: <1421595368-31203-1-git-send-email-m.grzeschik@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f176.google.com ([74.125.82.176]:62970 "EHLO
-	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752460AbbARPMo convert rfc822-to-8bit (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:54444 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751516AbbARPgQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Jan 2015 10:12:44 -0500
-In-Reply-To: <20150118152247.34aa149f16c60bf30cebbb42@ao2.it>
+	Sun, 18 Jan 2015 10:36:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ao2@ao2.it>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, support.opensource@diasemi.com, kernel@pengutronix.de
 
-Do you mean that I should use #ifdef CONFIG_ACPI and ACPI_PTR?
+With the datardy irq we get the information if the
+pen got pulled from the screen. This patch changes
+the irq by checking this condition every time instead
+of triggering the worker.
 
-#ifdef CONFIG_ACPI
-static const struct acpi_device_id goodix_acpi_match[] =3D {
-	{ "GDIX1001", 0 },
-	{ }
-};
-MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
-#endif
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+---
+ drivers/input/touchscreen/da9052_tsi.c | 68 ++++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 41 deletions(-)
 
-#ifdef CONFIG_OF
-static struct of_device_id goodix_of_match[] =3D {
-	{ .compatible =3D "goodix,gt9xx" },
-	{ }
-};
-MODULE_DEVICE_TABLE(of, goodix_of_match);
-#endif
+diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+index 5a013bb..e6019dd 100644
+--- a/drivers/input/touchscreen/da9052_tsi.c
++++ b/drivers/input/touchscreen/da9052_tsi.c
+@@ -25,7 +25,6 @@
+ struct da9052_tsi {
+ 	struct da9052 *da9052;
+ 	struct input_dev *dev;
+-	struct delayed_work ts_pen_work;
+ 	struct mutex mutex;
+ 	bool stopped;
+ 	bool adc_on;
+@@ -47,8 +46,6 @@ static irqreturn_t da9052_ts_pendwn_irq(int irq, void *data)
+ 		da9052_enable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
+ 
+ 		da9052_ts_adc_toggle(tsi, true);
+-
+-		schedule_delayed_work(&tsi->ts_pen_work, HZ / 50);
+ 	}
+ 
+ 	return IRQ_HANDLED;
+@@ -89,6 +86,33 @@ static void da9052_ts_read(struct da9052_tsi *tsi)
+ 	y = ((y << 2) & 0x3fc) | ((v & 0xc) >> 2);
+ 	z = ((z << 2) & 0x3fc) | ((v & 0x30) >> 4);
+ 
++	/* Check for last TSI_READY irq */
++	if (!(ret & TSI_PEN_DOWN_STATUS)) {
++
++		/* Pen UP */
++		da9052_ts_adc_toggle(tsi, false);
++
++		/* Report Pen UP */
++		input_report_key(input, BTN_TOUCH, 0);
++		input_report_abs(input, ABS_PRESSURE, 0);
++		input_sync(input);
++
++		/*
++		 * FIXME: Fixes the unhandled irq issue when quick
++		 * pen down and pen up events occurs
++		 */
++		ret = da9052_reg_update(tsi->da9052,
++					DA9052_EVENT_B_REG, 0xC0, 0xC0);
++		if (ret < 0)
++			return;
++
++		/* Mask TSI_READY event and unmask PEN_DOWN event */
++		da9052_disable_irq_nosync(tsi->da9052, DA9052_IRQ_TSIREADY);
++		da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
++
++		return;
++	}
++
+ 	input_report_key(input, BTN_TOUCH, 1);
+ 	input_report_abs(input, ABS_X, x);
+ 	input_report_abs(input, ABS_Y, y);
+@@ -105,42 +129,6 @@ static irqreturn_t da9052_ts_datardy_irq(int irq, void *data)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void da9052_ts_pen_work(struct work_struct *work)
+-{
+-	struct da9052_tsi *tsi = container_of(work, struct da9052_tsi,
+-					      ts_pen_work.work);
+-	if (!tsi->stopped) {
+-		int ret = da9052_reg_read(tsi->da9052, DA9052_TSI_LSB_REG);
+-		if (ret < 0 || (ret & TSI_PEN_DOWN_STATUS)) {
+-			/* Pen is still DOWN (or read error) */
+-			schedule_delayed_work(&tsi->ts_pen_work, HZ / 50);
+-		} else {
+-			struct input_dev *input = tsi->dev;
+-
+-			/* Pen UP */
+-			da9052_ts_adc_toggle(tsi, false);
+-
+-			/* Report Pen UP */
+-			input_report_key(input, BTN_TOUCH, 0);
+-			input_report_abs(input, ABS_PRESSURE, 0);
+-			input_sync(input);
+-
+-			/*
+-			 * FIXME: Fixes the unhandled irq issue when quick
+-			 * pen down and pen up events occurs
+-			 */
+-			ret = da9052_reg_update(tsi->da9052,
+-						DA9052_EVENT_B_REG, 0xC0, 0xC0);
+-			if (ret < 0)
+-				return;
+-
+-			/* Mask TSI_READY event and unmask PEN_DOWN event */
+-			da9052_disable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
+-			da9052_enable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
+-		}
+-	}
+-}
+-
+ static int da9052_ts_configure_gpio(struct da9052 *da9052)
+ {
+ 	int error;
+@@ -209,7 +197,6 @@ static void da9052_ts_input_close(struct input_dev *input_dev)
+ 	tsi->stopped = true;
+ 	mb();
+ 	da9052_disable_irq(tsi->da9052, DA9052_IRQ_PENDOWN);
+-	cancel_delayed_work_sync(&tsi->ts_pen_work);
+ 
+ 	if (tsi->adc_on) {
+ 		da9052_disable_irq(tsi->da9052, DA9052_IRQ_TSIREADY);
+@@ -248,7 +235,6 @@ static int da9052_ts_probe(struct platform_device *pdev)
+ 	tsi->da9052 = da9052;
+ 	tsi->dev = input_dev;
+ 	tsi->stopped = true;
+-	INIT_DELAYED_WORK(&tsi->ts_pen_work, da9052_ts_pen_work);
+ 
+ 	input_dev->id.version = 0x0101;
+ 	input_dev->id.vendor = 0x15B6;
+-- 
+2.1.4
 
-static struct i2c_driver goodix_ts_driver =3D {
-	...
-		.acpi_match_table =3D ACPI_PTR(goodix_acpi_match),
-		.of_match_table =3D of_match_ptr(goodix_of_match),
-}
-
-2015-01-18 17:22 GMT+03:00, Antonio Ospite <ao2@ao2.it>:
-> On Sun, 18 Jan 2015 16:25:35 +0400
-> =D0=90=D0=BB=D0=B5=D0=BA=D1=81=D0=B5=D0=B9 =D0=9C=D0=B0=D0=BC=D0=BB=D0=
-=B8=D0=BD <mamlinav@gmail.com> wrote:
->
->> Look at include/linux/of.h
->>
->> #ifdef CONFIG_OF
->>  ...
->> #define of_match_ptr(_ptr)	(_ptr)
->>  ...
->> #else /* CONFIG_OF */
->>  ...
->> #define of_match_ptr(_ptr)	NULL
->>  ...
->> #endif /* CONFIG_OF */
->>
->> So it would be compiled. Similarly in other touchscreen drivers.
->> But Kconfig should be fixed to enable CONFIG_OF. Will be fixed in v2=
-=2E
->>
->
-> I was thinking, instead of depending on (ACPI || OF), can we make ACP=
-I
-> optional as well and remove the dependency on it?
-> Does it make sense to allow selecting a driver even with no
-> enabled mechanism to pass platform data to it?
->
-> Thanks,
->    Antonio
->
-> --
-> Antonio Ospite
-> http://ao2.it
->
-> A: Because it messes up the order in which people normally read text.
->    See http://en.wikipedia.org/wiki/Posting_style
-> Q: Why is top-posting such a bad thing?
->
-
-
---=20
-Thanks and regards,
-Aleksei Mamlin
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

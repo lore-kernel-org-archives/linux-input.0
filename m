@@ -1,45 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v18 04/12] input: cyapa: add runtime power management
- interfaces support for the device
-Date: Sun, 18 Jan 2015 00:31:31 -0800
-Message-ID: <20150118083131.GE15720@dtor-ws>
+Subject: Re: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
+Date: Sun, 18 Jan 2015 00:35:21 -0800
+Message-ID: <20150118083521.GF15720@dtor-ws>
 References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
- <1421390055-32760-5-git-send-email-dudl@cypress.com>
+ <20150117104415.GA2083@hudson.localdomain>
+ <20150117113904.GA2133@hudson.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f182.google.com ([209.85.213.182]:38728 "EHLO
-	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751492AbbARIbf (ORCPT
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:53700 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752142AbbARIf0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Jan 2015 03:31:35 -0500
+	Sun, 18 Jan 2015 03:35:26 -0500
 Content-Disposition: inline
-In-Reply-To: <1421390055-32760-5-git-send-email-dudl@cypress.com>
+In-Reply-To: <20150117113904.GA2133@hudson.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: jmmahler@gmail.com, rydberg@euromail.se, bleung@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jeremiah Mahler <jmmahler@gmail.com>, Dudley Du <dudl@cypress.com>, rydberg@euromail.se, bleung@google.com, dso@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dudley,
+On Sat, Jan 17, 2015 at 03:39:04AM -0800, Jeremiah Mahler wrote:
+> Dudley,
+> 
+> On Sat, Jan 17, 2015 at 02:44:15AM -0800, Jeremiah Mahler wrote:
+> > Dudley,
+> > 
+> > Your patch series applies without issue but unfortunately I
+> > could not test them because I ran in to a bug created by someone
+> > elses patch (not yours) [1].
+> > 
+> >   [1]: https://lkml.org/lkml/2015/1/17/24
+> > 
+> > Once that issue gets resolved I would be happy to test your patch
+> > series.
+> > 
+> 
+> If I go back to linux-next 20150112 I can avoid the drm/i915 bug.
+> Then, with this patch series applied, everything works well.
+> Suspend/resume work, and the touchpad operates as expected.
+> 
+> Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
 
-On Fri, Jan 16, 2015 at 02:34:07PM +0800, Dudley Du wrote:
-  
-> +#ifdef CONFIG_PM_RUNTIME
-> +static ssize_t cyapa_show_rt_suspend_scanrate(struct device *dev,
-> +					      struct device_attribute *attr,
-> +					      char *buf)
+OK, I believe that the code is in good shape now, so I queued all
+patches for 3.20 (currently in my 'next' branch and should show in
+linux-next soon). Any subsequent improvements to the code
+should be relative to this series.
 
-The runtime PM was switched to just CONFIG_PM in mainline and
-CONFIG_PM_RUNTIME was dropped. I adjusted the patch accordingly.
-
-...
-
-> -static SIMPLE_DEV_PM_OPS(cyapa_pm_ops, cyapa_suspend, cyapa_resume);
-> +#ifdef CONFIG_PM_RUNTIME
-> +static int cyapa_runtime_suspend(struct device *dev)
-
-I switched both cyapa_runtme_suspend and resume to __maybe_unused and
-dropped #ifdef guards.
+Jeremiah, thank you for testing the patches; Dudley thank you for your
+patience with the process.
 
 Thanks.
 

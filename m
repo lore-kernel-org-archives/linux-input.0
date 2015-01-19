@@ -1,68 +1,66 @@
 From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
-Date: Mon, 19 Jan 2015 01:50:11 +0000
-Message-ID: <BN1PR06MB0706B2EAB238F68A18F2DC4D14A0@BN1PR06MB070.namprd06.prod.outlook.com>
+Subject: RE: [PATCH v18 04/12] input: cyapa: add runtime power management
+ interfaces support for the device
+Date: Mon, 19 Jan 2015 01:52:20 +0000
+Message-ID: <BN1PR06MB07098EF08CBC9493CC132CDD14A0@BN1PR06MB070.namprd06.prod.outlook.com>
 References: <1421390055-32760-1-git-send-email-dudl@cypress.com>
- <20150117104415.GA2083@hudson.localdomain>
- <0F1DD2F3-F620-4161-A406-43C8F56A1304@cypress.com>
- <20150117224620.GA2855@hudson.localdomain>
+ <1421390055-32760-5-git-send-email-dudl@cypress.com>
+ <20150118083131.GE15720@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="Windows-1252"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2on0117.outbound.protection.outlook.com ([207.46.100.117]:55193
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+Received: from mail-bl2on0141.outbound.protection.outlook.com ([65.55.169.141]:51900
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751179AbbASBuQ convert rfc822-to-8bit (ORCPT
+	id S1751179AbbASBwW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Jan 2015 20:50:16 -0500
-In-Reply-To: <20150117224620.GA2855@hudson.localdomain>
+	Sun, 18 Jan 2015 20:52:22 -0500
+In-Reply-To: <20150118083131.GE15720@dtor-ws>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremiah Mahler <jmmahler@gmail.com>, David Solda <dso@cypress.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "jmmahler@gmail.com" <jmmahler@gmail.com>, "rydberg@euromail.se" <rydberg@euromail.se>, "bleung@google.com" <bleung@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Jeremiah,
 
-Thanks.
-If there is something that I could do, please let me know.
-
-Thanks,
-Dudley
 
 > -----Original Message-----
-> From: Jeremiah Mahler [mailto:jmmahler@gmail.com]
-> Sent: 2015?1?18? 6:46
-> To: David Solda
-> Cc: Dudley Du; dmitry.torokhov@gmail.com; rydberg@euromail.se;
-> bleung@google.com; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH v18 00/12] input: cyapa: instruction of cyapa patches
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 2015?1?18? 16:32
+> To: Dudley Du
+> Cc: jmmahler@gmail.com; rydberg@euromail.se; bleung@google.com;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH v18 04/12] input: cyapa: add runtime power management
+> interfaces support for the device
 >
-> Dave,
+> Hi Dudley,
 >
-> On Sat, Jan 17, 2015 at 06:00:29PM +0000, David Solda wrote:
-> > Can we just reverse the prior change that caused the bug, or are you saying that
-> the owner of the prior patch has to fix it?
-> >
-> > Dave
-> >
+> On Fri, Jan 16, 2015 at 02:34:07PM +0800, Dudley Du wrote:
 >
-> I tried to revert the patch but it didn't do so cleanly.
+> > +#ifdef CONFIG_PM_RUNTIME
+> > +static ssize_t cyapa_show_rt_suspend_scanrate(struct device *dev,
+> > +      struct device_attribute *attr,
+> > +      char *buf)
 >
->   git revert ea2c67bb4aff
+> The runtime PM was switched to just CONFIG_PM in mainline and
+> CONFIG_PM_RUNTIME was dropped. I adjusted the patch accordingly.
+
+Thanks, I will update my knowledge.;)
+
 >
-> So I just reverted back to next-20150112.
+> ...
 >
->   git reset --hard next-20150112
+> > -static SIMPLE_DEV_PM_OPS(cyapa_pm_ops, cyapa_suspend, cyapa_resume);
+> > +#ifdef CONFIG_PM_RUNTIME
+> > +static int cyapa_runtime_suspend(struct device *dev)
 >
-> I hope the owner of the prior patch responds promptly and fixes their
-> bug.  But for the time being the cyapa patch series works when that
-> other bug is avoided.
+> I switched both cyapa_runtme_suspend and resume to __maybe_unused and
+> dropped #ifdef guards.
 >
-> If you have any suggestions, let me know.
+> Thanks.
 >
 > --
-> - Jeremiah Mahler
+> Dmitry
 
 This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

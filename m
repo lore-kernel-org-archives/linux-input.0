@@ -1,47 +1,47 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [RFC 0/6] Input: mt: Document in-kernel tracking and solve jumping cursors issues
-Date: Mon, 19 Jan 2015 15:53:49 -0500
-Message-ID: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [RFC 3/6] Input: mt: document input_mt_set_matrix()
+Date: Mon, 19 Jan 2015 15:53:52 -0500
+Message-ID: <1421700835-22157-4-git-send-email-benjamin.tissoires@redhat.com>
+References: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Document what the function is about.
 
-Well, I am posting this as an RFC for 2 reasons:
-- I could not end up in a complete documentation on how the in-kernel tracking
-  was working (patches 1/6 to 5/6)
-- I introduce a new input-mt API symbol, so I am pretty sure there will be some
-  changes requested. (path 6/6)
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/input-mt.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-Anyway, this is the second part of the jumping cursors issue reported few months
-ago:
-https://bugs.freedesktop.org/show_bug.cgi?id=76722
-
-Henrik if you have any pointers on how mathematically the reduced cost matrix
-and the adjust dual function works, I think that should be enough to document
-the code. I gave up trying to understand by hand (or with breakpoints), and all
-I know is that it works.
-
-Thanks for your feedback,
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (6):
-  Input: mt: make input_mt_assign_slots() a little bit more readable
-  Input: mt: Document input_mt_set_slots()
-  Input: mt: document input_mt_set_matrix()
-  Input: mt: document find_reduced_matrix()
-  Input: mt: document adjust_dual()
-  Input: mt: introduce dmax in in-kernel tracking
-
- drivers/input/input-mt.c        | 184 +++++++++++++++++++++++++++++++++-------
- drivers/input/mouse/synaptics.c |   3 +-
- include/linux/input/mt.h        |   4 +
- 3 files changed, 161 insertions(+), 30 deletions(-)
-
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index b269113..0b98ac7 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -337,6 +337,21 @@ static void find_reduced_matrix(int *w, int nr, int nc, int nrc)
+ 	}
+ }
+ 
++/**
++ * input_mt_set_matrix() - fill the reduced cost matrix for in-kernel tracking
++ * @mt: the input_mt handle of the current device
++ * @pos: the position array to match
++ * @num_pos: number of positions
++ *
++ * Fills the reduced cost matrix by putting in each element the square of the
++ * distance from one of the touch to each elements of the position array to
++ * match.
++ *
++ * The matrix is a reduced one, so it is filled as:
++ * w[i * num_pos + p] == distance(active_slot(i), pos[p])
++ *
++ * Returns the number of elements in the reduced matrix.
++ */
+ static int input_mt_set_matrix(struct input_mt *mt,
+ 			       const struct input_mt_pos *pos, int num_pos)
+ {
 -- 
 2.1.0

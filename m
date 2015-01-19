@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [RFC 5/6] Input: mt: document adjust_dual()
-Date: Mon, 19 Jan 2015 15:53:54 -0500
-Message-ID: <1421700835-22157-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [RFC 2/6] Input: mt: Document input_mt_set_slots()
+Date: Mon, 19 Jan 2015 15:53:51 -0500
+Message-ID: <1421700835-22157-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,87 +10,62 @@ To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-adjust_dual() is really cryptic right now.
-To try to understand what the function does, replace the variable names
-with the following:
-f -> first
-p -> cur
-s -> stop
-c -> center
+Renamed "w" into "red_cost_matrix" for readability.
 
-Also add a partial doc that needs to be filled by someone who knows
-what the function is actually doing.
+Add docs and comments to detail what the code is expected to do.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/input-mt.c | 44 ++++++++++++++++++++++++++++----------------
- 1 file changed, 28 insertions(+), 16 deletions(-)
+ drivers/input/input-mt.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index e43c33c..c7b3752 100644
+index b6ee42a..b269113 100644
 --- a/drivers/input/input-mt.c
 +++ b/drivers/input/input-mt.c
-@@ -293,33 +293,45 @@ void input_mt_sync_frame(struct input_dev *dev)
+@@ -359,23 +359,41 @@ static int input_mt_set_matrix(struct input_mt *mt,
+ 	return w - mt->red;
  }
- EXPORT_SYMBOL(input_mt_sync_frame);
  
 +/**
-+ * adjust_dual() -
-+ * @begin
-+ * @step
-+ * @end
-+ * @eq
++ * input_mt_set_slots() - assign slots to the list of pos thanks to the reduced
++ * cost matrix
++ * @mt: the input_mt handle of the current device
++ * @slots: the slot assignment to be filled
++ * @num_pos: number of positions
 + *
-+ * FIXME -- can someone tell what this function does???
++ * For each given touch in pos, try to match the touch to a previous one.
++ * Then, assign new slots to those who were not a match with the previously
++ * sent slots.
 + */
- static int adjust_dual(int *begin, int step, int *end, int eq)
+ static void input_mt_set_slots(struct input_mt *mt,
+ 			       int *slots, int num_pos)
  {
--	int f, *p, s, c;
-+	int first, *cur, stop, center;
+ 	struct input_mt_slot *s;
+-	int *w = mt->red, *p;
++	int *red_cost_matrix = mt->red;
++	int *p;
  
- 	if (begin == end)
- 		return 0;
++	/* first initialise the output values to -1 */
+ 	for (p = slots; p != slots + num_pos; p++)
+ 		*p = -1;
  
--	f = *begin;
--	p = begin + step;
--	s = p == end ? f + 1 : *p;
-+	first = *begin;
-+	cur = begin + step;
-+	stop = cur == end ? first + 1 : *cur;
++	/* for each currently active slot, match it with one of the touch
++	 * in the pos array */
+ 	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
+ 		if (!input_mt_is_active(s))
+ 			continue;
+ 		for (p = slots; p != slots + num_pos; p++)
+-			if (*w++ < 0)
++			if (*red_cost_matrix++ < 0)
++				/* we have a match, store the slot value
++				 * in pos[i] */
+ 				*p = s - mt->slots;
+ 	}
  
--	for (; p != end; p += step)
--		if (*p < f)
--			s = f, f = *p;
--		else if (*p < s)
--			s = *p;
-+	for (; cur != end; cur += step) {
-+		if (*cur < first) {
-+			stop = first;
-+			first = *cur;
-+		} else if (*cur < stop) {
-+			stop = *cur;
-+		}
-+	}
- 
--	c = (f + s + 1) / 2;
--	if (c == 0 || (c > 0 && !eq))
-+	center = (first + stop + 1) / 2;
-+	if (center == 0 || (center > 0 && !eq))
- 		return 0;
--	if (s < 0)
--		c *= 2;
-+	if (stop < 0)
-+		center *= 2;
- 
--	for (p = begin; p != end; p += step)
--		*p -= c;
-+	for (cur = begin; cur != end; cur += step)
-+		*cur -= center;
- 
--	return (c < s && s <= 0) || (f >= 0 && f < c);
-+	return (center < stop && stop <= 0) || (first >= 0 && first < center);
- }
- 
- /**
++	/* for each unassigned touch in pos, assign a new slot for it */
+ 	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
+ 		if (input_mt_is_active(s))
+ 			continue;
 -- 
 2.1.0

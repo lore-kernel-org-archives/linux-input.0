@@ -1,63 +1,81 @@
-From: Dirk Behme <dirk.behme@de.bosch.com>
-Subject: Input: atmel_mxt_ts - status of the for-dtor branch and sscanf issue
-Date: Mon, 19 Jan 2015 14:08:41 +0100
-Message-ID: <54BD01D9.90608@de.bosch.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 1/5] mfd: tps65218: make INT[12] and STATUS registers
+ volatile
+Date: Mon, 19 Jan 2015 08:41:07 -0600
+Message-ID: <20150119144107.GC20386@saruman>
+References: <1419622104-25812-1-git-send-email-balbi@ti.com>
+ <1419622104-25812-2-git-send-email-balbi@ti.com>
+ <20150118095214.GA3574@x1>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imta21.fe.bosch.de ([139.15.243.226]:43836 "EHLO
-	imta21.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751461AbbASNIp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Jan 2015 08:08:45 -0500
-Received: from smtp6-v.fe.bosch.de (imta23.fe.bosch.de [139.15.243.227])
-	by imta21.fe.bosch.de (Postfix) with ESMTP id B31B7C0234
-	for <linux-input@vger.kernel.org>; Mon, 19 Jan 2015 14:08:43 +0100 (CET)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yLVHuoLXiP9kZBkt"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150118095214.GA3574@x1>
+Sender: linux-omap-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Felipe Balbi <balbi@ti.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: linux-input@vger.kernel.org
 
-Hi Nick,
+--yLVHuoLXiP9kZBkt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-we have two questions regarding the atmel_mxt_ts driver:
+On Sun, Jan 18, 2015 at 09:52:14AM +0000, Lee Jones wrote:
+> On Fri, 26 Dec 2014, Felipe Balbi wrote:
+>=20
+> > STATUS register can be modified by the HW, so we
+> > should bypass cache because of that.
+> >=20
+> > In the case of INT[12] registers, they are the ones
+> > that actually clear the IRQ source at the time they
+> > are read. If we rely on the cache for them, we will
+> > never be able to clear the interrupt, which will cause
+> > our IRQ line to be disabled due to IRQ throttling.
+> >=20
+> > Fixes: 44b4dc6 mfd: tps65218: Add driver for the TPS65218 PMIC
+> > Cc: <stable@vger.kernel.org> # v3.15+
+> > Cc: Keerthy <j-keerthy@ti.com>
+> > Cc: Lee Jones <lee.jones@linaro.org>
+> > Signed-off-by: Felipe Balbi <balbi@ti.com>
+> > ---
+> >  drivers/mfd/tps65218.c | 11 +++++++++++
+> >  1 file changed, 11 insertions(+)
+>=20
+> Sorry for the delay.  It's difficult to get a WiFi signal 2000m up in
+> an Austrian mountain. :)
 
-First, what's the status of your github 'for-dtor' branch [1]? Is this 
-subject to change? Or how stable is it? Will it go into mainline, soon?
+now you're just making excuses ;-)
 
-We've tested the patches in that branch on top of the mainline ~v3.18 
-atmel_mxt_ts patches and they improve the driver a lot. So we'd like to 
-pick that patches into our internal development tree.
+> Applied now, thanks.
 
+thanks :-)
 
-Second, with that branch, doing a config file download, we sometimes 
-randomly get
+--=20
+balbi
 
-atmel_mxt_ts 2-004a: Bad format: failed to parse object
-atmel_mxt_ts 2-004a: Error -22 updating config
+--yLVHuoLXiP9kZBkt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-at the end of the parsing, depending on the byte following the 
-firmware/config file in memory. Our config file does have CR/LF endings. 
-The sscanf() returns "1" in that case.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-A quick hack solution to that is skipping the last two bytes [2]. What 
-do you think?
+iQIcBAEBAgAGBQJUvReDAAoJEIaOsuA1yqREzTEQAKUiV3wcT4B0fNjFeTHiffC4
+GyeF0MVYuexwwnb+EhNfSm3ykAc1DU6T8C0xvcgfWhS9H4hy/EQcVVtVLQJybUm2
+pYZkNuOcN+FN1sZOBIwXwMu3ggmZpltMTW6rmR8wu6/9uWfVwDdg/5vfjyWmMsZu
+8EsXVZzzmrqL1W5Fd+iOr89qlWnLICl8FQ0QdSwdVRgsOZrv7+zB05iXcGPB/SU3
+/bbKFTX8v1fEr6RXJyX86DsJQCy3LZBU70Wienvbk2JJxcn4hH0KHNnHHfKMaTZB
+vGwJqGQ2mP3IEAN23rItI5QQevWIUh+iZgZT/vyjwl+oCfW3dYYCZfdrVMBhrPVY
+GC56zvTHrC5TSlZotbNG+bGNfohNnQ1wJV7YCk1MpCEdCmYoALfIsdtbJDrrIyeN
+xJJwKZMCjPM+C3jQhEq7mgmPrs1nTmHiyQGWu6VxmcauUgbX0hJ0Qbxl1HLcVRNk
+1G1RwrDhkjh4/NUC1Uhaetqq/va8456dhjDRS08JzGF9HfRhEE59meqmnOxiw/qZ
+VPq18e+Qbebf374NMQlr1RioXnj98NVZcNqjG0RI2e0+Zohxy/niCqYaGz6MBBxt
+LtJJvbC1cczRSP7e9bSPVaUxkFh5gclMrwjJYXarlGla84vUckLplqvydMSZcWJd
+zcfWffnqoly6MbeuMQSB
+=lUXq
+-----END PGP SIGNATURE-----
 
-Best regards
-
-Dirk
-
-[1] https://github.com/ndyer/linux/commits/for-dtor
-
-[2]
-
-@@ -1586,7 +1586,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
-         u16 reg;
-         u8 val;
-
--       while (data_pos < cfg->size) {
-+       while ((data_pos + 2) < cfg->size) {
-                 /* Read type, instance, length */
-                 ret = sscanf(cfg->data + data_pos, "%x %x %x%n",
-                              &type, &instance, &size, &offset);
+--yLVHuoLXiP9kZBkt--

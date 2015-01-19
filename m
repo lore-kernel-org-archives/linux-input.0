@@ -1,62 +1,81 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v8 2/6] dt-bindings: add vendor-prefix for X-Powers
-Date: Mon, 19 Jan 2015 09:38:01 +0000
-Message-ID: <20150119093801.GI21886@x1>
-References: <1419303194-3075-1-git-send-email-wens@csie.org>
- <1419303194-3075-3-git-send-email-wens@csie.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH v2 1/3] input: goodix: Add device tree support
+Date: Mon, 19 Jan 2015 10:48:44 +0100
+Message-ID: <1421660924.2075.16.camel@hadess.net>
+References: <1421589740-12132-1-git-send-email-mamlinav@gmail.com>
+	 <1421589870-14232-1-git-send-email-mamlinav@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBDA7X7F2WUEBB75A6OSQKGQEHB63TEQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1419303194-3075-3-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421589870-14232-1-git-send-email-mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 23 Dec 2014, Chen-Yu Tsai wrote:
-
-> From: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
->=20
-> Signed-off-by: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>
-> Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+On Sun, 2015-01-18 at 17:04 +0300, Aleksei Mamlin wrote:
+> Signed-off-by: Aleksei Mamlin <mamlinav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/input/touchscreen/Kconfig  |  2 +-
+>  drivers/input/touchscreen/goodix.c | 10 ++++++++++
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 5891752..c4a79b7 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -297,7 +297,7 @@ config TOUCHSCREEN_FUJITSU
+>  
+>  config TOUCHSCREEN_GOODIX
+>  	tristate "Goodix I2C touchscreen"
+> -	depends on I2C && ACPI
+> +	depends on I2C && (ACPI || OF)
 
-Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+This can't be ACPI or OF. If ACPI is disabled, the goodix_acpi_match
+structure is still defined, not ifdef'ed like the OF code you're adding.
 
-> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Docu=
-mentation/devicetree/bindings/vendor-prefixes.txt
-> index b1df0ad1306c..1794fce3de80 100644
-> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-> @@ -172,6 +172,7 @@ voipac	Voipac Technologies s.r.o.
->  winbond Winbond Electronics corp.
->  wlf	Wolfson Microelectronics
->  wm	Wondermedia Technologies, Inc.
-> +x-powers	X-Powers
->  xes	Extreme Engineering Solutions (X-ES)
->  xillybus	Xillybus Ltd.
->  xlnx	Xilinx
+>  	help
+>  	  Say Y here if you have the Goodix touchscreen (such as one
+>  	  installed in Onda v975w tablets) connected to your
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index ca19668..603d2ae 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/irq.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/slab.h>
+> +#include <linux/of.h>
+>  #include <asm/unaligned.h>
+>  
+>  struct goodix_ts_data {
+> @@ -378,6 +379,14 @@ static const struct acpi_device_id goodix_acpi_match[] = {
+>  };
+>  MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+>  
+> +#ifdef CONFIG_OF
+> +static struct of_device_id goodix_of_match[] = {
+> +	{ .compatible = "goodix,gt9xx" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, goodix_of_match);
+> +#endif
+> +
+>  static struct i2c_driver goodix_ts_driver = {
+>  	.probe = goodix_ts_probe,
+>  	.id_table = goodix_ts_id,
+> @@ -385,6 +394,7 @@ static struct i2c_driver goodix_ts_driver = {
+>  		.name = "Goodix-TS",
+>  		.owner = THIS_MODULE,
+>  		.acpi_match_table = goodix_acpi_match,
+> +		.of_match_table = of_match_ptr(goodix_of_match),
+>  	},
+>  };
+>  module_i2c_driver(goodix_ts_driver);
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
 
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

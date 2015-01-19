@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [RFC 4/6] Input: mt: document find_reduced_matrix()
-Date: Mon, 19 Jan 2015 15:53:53 -0500
-Message-ID: <1421700835-22157-5-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [RFC 1/6] Input: mt: make input_mt_assign_slots() a little bit more readable
+Date: Mon, 19 Jan 2015 15:53:50 -0500
+Message-ID: <1421700835-22157-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1421700835-22157-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,63 +10,39 @@ To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-find_reduced_matrix() is really cryptic right now.
-To try to understand what the function does, replace the variable names
-with the following:
-nrc -> n_elems
-nr -> n_rows
-nc -> n_columns
-
-Also add a partial doc that needs to be filled by someone who knows
-what the function is actually doing.
+Rename "nrc" into "n_elems" and explicitly name the number of
+rows and the number of columns.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/input-mt.c | 28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
+ drivers/input/input-mt.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index 0b98ac7..e43c33c 100644
+index fbe29fc..b6ee42a 100644
 --- a/drivers/input/input-mt.c
 +++ b/drivers/input/input-mt.c
-@@ -322,16 +322,32 @@ static int adjust_dual(int *begin, int step, int *end, int eq)
- 	return (c < s && s <= 0) || (f >= 0 && f < c);
- }
- 
--static void find_reduced_matrix(int *w, int nr, int nc, int nrc)
-+/**
-+ * find_reduced_matrix() -
-+ * @matrix: the current reduced cost matrix (to be changed in place)
-+ * @n_rows: number of rows in the matrix
-+ * @n_columns: number of columns in the matrix
-+ * @n_elems: number of elements in the matrix (should be n_rows * n_columns)
-+ *
-+ * FIXME -- can someone tell what this function does???
-+ */
-+static void find_reduced_matrix(int *matrix, int n_rows, int n_columns,
-+		int n_elems)
+@@ -404,7 +404,7 @@ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+ 			  const struct input_mt_pos *pos, int num_pos)
  {
- 	int i, k, sum;
+ 	struct input_mt *mt = dev->mt;
+-	int nrc;
++	int n_elems, n_rows, n_columns;
  
--	for (k = 0; k < nrc; k++) {
--		for (i = 0; i < nr; i++)
--			adjust_dual(w + i, nr, w + i + nrc, nr <= nc);
-+	for (k = 0; k < n_elems; k++) {
-+		for (i = 0; i < n_rows; i++)
-+			adjust_dual(matrix + i,
-+				    n_rows,
-+				    matrix + i + n_elems,
-+				    n_rows <= n_columns);
- 		sum = 0;
--		for (i = 0; i < nrc; i += nr)
--			sum += adjust_dual(w + i, 1, w + i + nr, nc <= nr);
-+		for (i = 0; i < n_elems; i += n_rows)
-+			sum += adjust_dual(matrix + i,
-+					   1,
-+					   matrix + i + n_rows,
-+					   n_columns <= n_rows);
- 		if (!sum)
- 			break;
- 	}
+ 	if (!mt || !mt->red)
+ 		return -ENXIO;
+@@ -413,8 +413,10 @@ int input_mt_assign_slots(struct input_dev *dev, int *slots,
+ 	if (num_pos < 1)
+ 		return 0;
+ 
+-	nrc = input_mt_set_matrix(mt, pos, num_pos);
+-	find_reduced_matrix(mt->red, num_pos, nrc / num_pos, nrc);
++	n_elems = input_mt_set_matrix(mt, pos, num_pos);
++	n_rows = n_elems / num_pos;
++	n_columns = num_pos;
++	find_reduced_matrix(mt->red, n_columns, n_rows, n_elems);
+ 	input_mt_set_slots(mt, slots, num_pos);
+ 
+ 	return 0;
 -- 
 2.1.0
